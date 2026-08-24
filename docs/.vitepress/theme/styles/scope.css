@@ -125,8 +125,16 @@
  * a link inside a component is almost never a link in an article — it is a
  * card's footer, a menu row, a button that navigates. Those take the
  * component's own typography.
+ *
+ * `.plass-link` is the exception, and it is why `PlTextLink` carries that class:
+ * it is the one component whose whole job is to *be* a link, and it writes its
+ * colour and its underline as utilities this two-class rule would otherwise
+ * beat — `.underline.plass-link` is one class short of `.vp-doc .plass-scope a`,
+ * so every `PlTextLink` in the docs came out with no line under it at all.
+ * Excluding it here is the same move `[role="list"]` makes above: a marker for
+ * the elements whose styling belongs to the library.
  */
-.vp-doc .plass-scope a {
+.vp-doc .plass-scope a:not(.plass-link) {
   color: inherit;
   font-weight: inherit;
   text-decoration: none;
