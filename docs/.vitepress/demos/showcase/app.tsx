@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { PlAccordion, PlAccordionItem, PlButton, PlCard, PlTable, PlTextField } from 'plass-ui';
+import {
+  PlAccordion,
+  PlAccordionItem,
+  PlButton,
+  PlCard,
+  PlPagination,
+  PlTable,
+  PlTextField
+} from 'plass-ui';
 
 /**
  * Every component the library has, on one screen.
@@ -118,6 +126,10 @@ export default function ShowcaseApp() {
           { id: 'INV-0101', customer: 'Globex', total: '$340.50' }
         ]}
       />
+
+      <div className="flex justify-center">
+        <PlPagination size="sm" count={12} defaultPage={4} />
+      </div>
 
       <PlAccordion size="sm" defaultValue={['keys']}>
         <PlAccordionItem value="keys" title="API keys" subtitle="Two active">

@@ -1,5 +1,13 @@
 import type { ReactNode } from 'react';
-import { PlAccordion, PlAccordionItem, PlButton, PlCard, PlTable, PlTextField } from 'plass-ui';
+import {
+  PlAccordion,
+  PlAccordionItem,
+  PlButton,
+  PlCard,
+  PlPagination,
+  PlTable,
+  PlTextField
+} from 'plass-ui';
 
 /**
  * The component index, as running previews rather than screenshots.
@@ -55,6 +63,16 @@ const entries: Entry[] = [
       ko: '한 줄 또는 여러 줄 텍스트 입력. 라벨과 설명, 오류 메시지를 함께 담습니다.'
     },
     preview: <PlTextField fullWidth size="sm" placeholder="acme-inc" />
+  },
+  {
+    name: 'PlPagination',
+    group: 'inputs',
+    href: 'components/inputs/pagination',
+    blurb: {
+      en: 'The strip of page numbers under a long list.',
+      ko: '긴 목록 아래에 놓이는 페이지 번호 줄입니다.'
+    },
+    preview: <PlPagination size="xs" count={9} defaultPage={3} />
   },
   {
     name: 'PlTable',

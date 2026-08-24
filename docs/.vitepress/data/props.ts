@@ -423,6 +423,138 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlPagination: [
+    ...sharedProps({
+      variant: "'ghost'",
+      size: "'md'",
+      density: "'compact'",
+      variantDescription: {
+        ko: '쉬고 있는 페이지 버튼의 재질. 현재 페이지는 언제나 solid입니다',
+        en: 'The material of a page at rest. The current page is always solid'
+      },
+      sizeDescription: {
+        ko: '버튼 높이와 타입 스케일. PlButton과 같은 사다리라 옆에 놓으면 기준선이 맞습니다',
+        en: 'Button height and type scale — the same ladder as PlButton, so a row lines up beside one'
+      }
+    }),
+    {
+      name: 'count',
+      type: 'number',
+      required: true,
+      description: {
+        ko: '전체 페이지 수. 2보다 작으면 컨트롤 전체가 아무것도 렌더링하지 않습니다',
+        en: 'How many pages there are. Fewer than two and the whole control renders nothing'
+      }
+    },
+    {
+      name: 'page',
+      type: 'number',
+      description: {
+        ko: '현재 페이지 (1부터). onPageChange와 함께 controlled로 씁니다',
+        en: 'The current page, 1-based. Use with onPageChange for a controlled row'
+      }
+    },
+    {
+      name: 'defaultPage',
+      type: 'number',
+      default: '1',
+      description: {
+        ko: 'uncontrolled일 때 시작 페이지',
+        en: 'Which page starts current, for an uncontrolled row'
+      }
+    },
+    {
+      name: 'onPageChange',
+      type: '(page: number) => void',
+      description: { ko: '페이지가 바뀔 때 호출됩니다', en: 'Called with the new page' }
+    },
+    {
+      name: 'siblingCount',
+      type: 'number',
+      default: '1',
+      description: {
+        ko: '현재 페이지 양옆에 항상 보이는 페이지 수',
+        en: 'How many pages are always shown on either side of the current one'
+      }
+    },
+    {
+      name: 'boundaryCount',
+      type: 'number',
+      default: '1',
+      description: {
+        ko: '양 끝에 항상 보이는 페이지 수. 0이면 첫 페이지와 마지막 페이지가 사라지고 창만 남습니다',
+        en: 'How many pages are always shown at each end. 0 drops the first and last, leaving only the window'
+      }
+    },
+    {
+      name: 'showEdges',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '첫 페이지 / 마지막 페이지로 건너뛰는 버튼을 보여 줍니다',
+        en: 'Shows the jump-to-first and jump-to-last steppers'
+      }
+    },
+    {
+      name: 'showArrows',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '이전 / 다음 버튼을 보여 줍니다',
+        en: 'Shows the previous and next steppers'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '줄 안의 모든 버튼이 반응하지 않습니다',
+        en: 'Every button in the row stops answering'
+      }
+    },
+    {
+      name: 'getPageHref',
+      type: '(page: number) => string',
+      description: {
+        ko: '페이지 주소. 주면 모든 숫자가 진짜 <a href>가 되어 크롤러가 따라갈 수 있습니다',
+        en: 'The address of a page. With it every number becomes a real <a href> that a crawler can follow'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      default: "'Pagination'",
+      description: { ko: '<nav>의 접근 가능한 이름', en: 'Accessible name of the <nav>' }
+    },
+    {
+      name: 'pageLabel',
+      type: '(page: number) => string',
+      default: '`Page {n}`',
+      description: {
+        ko: '페이지 버튼의 접근 가능한 이름',
+        en: 'Accessible name of a page button'
+      }
+    },
+    {
+      name: 'previousLabel · nextLabel · firstLabel · lastLabel',
+      type: 'string',
+      description: {
+        ko: '각 이동 버튼의 접근 가능한 이름. 화면에 그려지지 않습니다',
+        en: 'Accessible names of the steppers. None of them is ever drawn'
+      }
+    },
+    {
+      name: 'statusLabel',
+      type: '(page: number, count: number) => string',
+      default: '`Page {n} of {total}`',
+      description: {
+        ko: '페이지가 바뀔 때 스크린리더가 듣는 live region 문장',
+        en: 'The live-region sentence a screen reader hears when the page changes'
+      }
+    }
+  ],
+
   PlTable: [
     ...sharedProps({
       variant: "'glass'",

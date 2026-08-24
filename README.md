@@ -99,7 +99,7 @@ Every component is exported under a `Pl` prefix — `Button`, `Card` and `Table`
 
 ### Inputs
 
-`PlButton` · `PlTextField`
+`PlButton` · `PlPagination` · `PlTextField`
 
 ### Surfaces
 
