@@ -817,6 +817,94 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlChip: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: '표면의 재질. chip은 색을 입는 대상 자체라 시트가 틴트를 받습니다. 필터 바는 chip의 줄이고, 그러데이션 키가 늘어선 줄에서는 무엇도 주요 액션이 아닙니다',
+        en: 'What the surface is made of. A chip is the thing being coloured, so its sheet takes the tint. glass by default: a row of gradient keys is a row in which nothing is the primary action'
+      },
+      sizeDescription: {
+        ko: '컨트롤 사다리에서 한 칸 아래 — md chip은 sm 컨트롤(40px가 아니라 32px)입니다. chip은 행이 맞춰 서는 컨트롤이 아니라 행 *안*의 토큰이기 때문입니다',
+        en: 'One step down the control ladder — a md chip is a sm control, 32px rather than 40px, because a chip is a token inside a row rather than a control the row lines up against'
+      }
+    }),
+    {
+      name: 'startIcon',
+      type: 'ReactNode',
+      description: {
+        ko: '라벨 앞에 놓이는 것 — 아이콘, 상태 점, avatar',
+        en: 'Content placed before the label — an icon, a status dot, an avatar'
+      }
+    },
+    {
+      name: 'endIcon',
+      type: 'ReactNode',
+      description: {
+        ko: '라벨 뒤, count 앞에 놓이는 것',
+        en: 'Content after the label, before any count'
+      }
+    },
+    {
+      name: 'count',
+      type: 'ReactNode',
+      description: {
+        ko: 'chip 끝에 놓이는 숫자. 자기 판 위에 그려져서 "Errors 12"가 두 단어가 아니라 개수를 가진 하나의 토큰으로 읽힙니다',
+        en: 'A number set into the end of the chip, on its own small plate, so "Errors 12" reads as one token with a count rather than as two words'
+      }
+    },
+    {
+      name: 'onClick',
+      type: '(event: MouseEvent) => void',
+      description: {
+        ko: '넘기면 라벨이 진짜 button이 됩니다. 껍데기는 span으로 남습니다 — button 안의 button은 브라우저가 파싱하며 풀어 버리는 잘못된 HTML입니다',
+        en: 'Passing it turns the label into a real button. The shell stays a span: a button inside a button is invalid HTML that browsers un-nest on parse'
+      }
+    },
+    {
+      name: 'onDelete',
+      type: '(event: MouseEvent) => void',
+      description: {
+        ko: '넘기는 것이 삭제 버튼을 나타나게 합니다. 라벨과는 별개의 tab stop을 가진 두 번째 진짜 button입니다',
+        en: 'Passing it is what makes the delete button appear — a second real button with its own tab stop, separate from the label'
+      }
+    },
+    {
+      name: 'deleteLabel',
+      type: 'string',
+      default: "'Remove'",
+      description: {
+        ko: '삭제 버튼의 접근 가능한 이름. 화면에는 그려지지 않습니다',
+        en: 'Accessible name of the delete button. Never drawn'
+      }
+    },
+    {
+      name: 'selected',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '켜진 필터. 색 계열을 바꾸는 대신 자기 variant가 이미 놓인 사다리에서 한 칸 올라갑니다 — 켜진 필터도 여전히 같은 필터입니다',
+        en: 'A filter that is on. It moves one step up the ladder its own variant already sits on rather than changing the colour family — a filter that is on is still the same filter'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      shared: true,
+      description: {
+        ko: '사용할 수 없음. 다른 곳과 같이 빛이 꺼집니다',
+        en: 'Unavailable. The light goes out, the same way it does everywhere else'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '라벨', en: 'The label' }
+    }
+  ],
+
   PlDivider: [
     {
       name: 'orientation',

@@ -8,6 +8,7 @@ import {
   PlButton,
   PlCard,
   PlCheckbox,
+  PlChip,
   PlDivider,
   PlFilePicker,
   PlHotKeys,
@@ -209,6 +210,18 @@ export default function ShowcaseApp() {
             </div>
           </div>
         </PlCard>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <PlChip size="sm" selected onClick={() => {}} count={12}>
+          Unpaid
+        </PlChip>
+        <PlChip size="sm" onClick={() => {}} count={148}>
+          Paid
+        </PlChip>
+        <PlChip size="sm" variant="ghost" color="secondary" onDelete={() => {}}>
+          last 30 days
+        </PlChip>
       </div>
 
       <PlTable

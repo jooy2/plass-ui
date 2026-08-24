@@ -6,6 +6,7 @@ export * from './components/badge';
 export * from './components/button';
 export * from './components/card';
 export * from './components/checkbox';
+export * from './components/chip';
 export * from './components/divider';
 export * from './components/file-picker';
 export * from './components/hot-keys';

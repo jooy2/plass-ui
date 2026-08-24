@@ -8,6 +8,7 @@ import {
   PlButton,
   PlCard,
   PlCheckbox,
+  PlChip,
   PlDivider,
   PlFilePicker,
   PlHotKeys,
@@ -260,6 +261,25 @@ const entries: Entry[] = [
           <PlAvatar size="sm" name="Ada Lovelace" />
         </PlBadge>
         <PlBadge size="sm" variant="ghost" color="info" content="Beta" />
+      </div>
+    )
+  },
+  {
+    name: 'PlChip',
+    group: 'display',
+    href: 'components/display/chip',
+    blurb: {
+      en: 'A compact token: a tag, a filter, a status, an entity.',
+      ko: '작고 촘촘한 토큰. 태그, 필터, 상태, 개체 하나입니다.'
+    },
+    preview: (
+      <div className="flex flex-wrap items-center gap-2">
+        <PlChip size="sm" selected onClick={() => {}} count={12}>
+          open
+        </PlChip>
+        <PlChip size="sm" variant="ghost" color="secondary" onDelete={() => {}}>
+          design
+        </PlChip>
       </div>
     )
   },
