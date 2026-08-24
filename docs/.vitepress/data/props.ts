@@ -331,6 +331,98 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlCard: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      elevation: '1',
+      variantDescription: {
+        ko: '시트의 재질. solid는 가장 불투명한 유리, glass는 하이라인이 있는 기본 시트, ghost는 표면 없음',
+        en: 'What the sheet is made of. solid is the densest glass, glass is the default sheet with a hairline, ghost has no surface at all'
+      },
+      sizeDescription: {
+        ko: '모서리 반경, 타입 스케일, 안쪽 여백이 함께 움직입니다',
+        en: 'The radius, the type scale and the inner padding, moving together'
+      },
+      elevationDescription: {
+        ko: '그림자 깊이. 카드는 페이지 위에 놓인 시트이므로 기본값이 1입니다',
+        en: 'Drop shadow depth. A card is a sheet lying on the page, so the default is 1'
+      }
+    }),
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description: {
+        ko: '카드의 제목. 문서 개요에 들어가야 한다면 실제 heading을 넘기세요 (title={<h2>…</h2>})',
+        en: "The card's heading. Pass a real heading element (title={<h2>…</h2>}) when it belongs in the document outline"
+      }
+    },
+    {
+      name: 'subtitle',
+      type: 'ReactNode',
+      description: {
+        ko: '제목 아래 한 줄. 타입 스케일 한 단계 아래의 muted 텍스트',
+        en: 'A second line under the title, one step down the type scale and muted'
+      }
+    },
+    {
+      name: 'headerAction',
+      type: 'ReactNode',
+      description: {
+        ko: '헤더 줄 끝에 고정되는 내용 — 메뉴 버튼, 상태 칩. 제목이 줄바꿈되어도 첫 줄에 남습니다',
+        en: 'Content pinned to the end of the header row — a menu button, a status chip. Stays on the title line while the title wraps'
+      }
+    },
+    {
+      name: 'footer',
+      type: 'ReactNode',
+      description: {
+        ko: '아래쪽 영역. 줄바꿈되는 row로 배치되므로 버튼 두 개에 별도 wrapper가 필요 없습니다',
+        en: 'The bottom area. Laid out as a wrapping row, so a pair of buttons needs no wrapper'
+      }
+    },
+    {
+      name: 'dividers',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '섹션 사이를 여백 대신 헤어라인으로 나눕니다. 선이 양 끝까지 닿도록 여백이 카드에서 각 섹션으로 옮겨 갑니다',
+        en: 'Scores the sheet between sections instead of spacing them. The padding moves from the card onto each section so the rules reach both edges'
+      }
+    },
+    {
+      name: 'padded',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '안쪽 여백. 이미지나 표처럼 가장자리까지 채우는 내용에는 끄세요',
+        en: 'Inner padding. Turn it off for full-bleed content — an image, a table'
+      }
+    },
+    {
+      name: 'interactive',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '포인터 아래에서 시트를 들어 올리고 그림자를 한 단계 더합니다. 실제로 누를 수 있는 카드라면 render로 진짜 요소를 주세요',
+        en: 'Lifts the sheet under the pointer and adds a level of elevation. Give a genuinely clickable card a real element with render'
+      }
+    },
+    {
+      name: 'render',
+      type: 'useRender.RenderProp',
+      description: {
+        ko: 'div 대신 다른 요소로 렌더링합니다 — <section>, <li>, <a href>',
+        en: 'Renders something other than a div — a <section>, an <li>, an <a href>'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '카드의 본문', en: "The card's body" }
+    }
+  ],
+
   PlTextField: [
     ...sharedProps({
       variant: "'glass'",

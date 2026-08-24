@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { PlAccordion, PlAccordionItem, PlButton, PlTextField } from 'plass-ui';
+import { PlAccordion, PlAccordionItem, PlButton, PlCard, PlTextField } from 'plass-ui';
 
 /**
  * The component index, as running previews rather than screenshots.
@@ -57,6 +57,20 @@ const entries: Entry[] = [
     preview: <PlTextField fullWidth size="sm" placeholder="acme-inc" />
   },
   {
+    name: 'PlCard',
+    group: 'surfaces',
+    href: 'components/surfaces/card',
+    blurb: {
+      en: 'The sheet everything else on a screen is grouped onto.',
+      ko: '화면의 나머지를 묶어 놓는 시트입니다.'
+    },
+    preview: (
+      <PlCard size="xs" className="w-full" title="Team plan" subtitle="Billed yearly">
+        Shared projects and audit logs.
+      </PlCard>
+    )
+  },
+  {
     name: 'PlAccordion',
     group: 'surfaces',
     href: 'components/surfaces/accordion',
@@ -99,22 +113,17 @@ export default function Gallery({ locale = 'en', base = '' }: GalleryProps) {
             {entries
               .filter((entry) => entry.group === group.key)
               .map((entry) => (
-                <a
+                <PlCard
                   key={entry.name}
-                  href={`${base}/${entry.href}`}
-                  className="flex flex-col gap-3 rounded-2xl border p-5 no-underline transition-[box-shadow,border-color] duration-(--plass-duration) [backdrop-filter:var(--plass-blur)] [-webkit-backdrop-filter:var(--plass-blur)]"
-                  style={{
-                    background: 'var(--plass-glass)',
-                    borderColor: 'var(--plass-glass-line)',
-                    boxShadow: 'var(--plass-shadow-1), var(--plass-gloss-glass)'
-                  }}
+                  interactive
+                  size="sm"
+                  className="no-underline"
+                  title={entry.name}
+                  subtitle={entry.blurb[locale]}
+                  render={<a href={`${base}/${entry.href}`} />}
                 >
-                  <div>
-                    <p className="text-sm font-bold text-(--plass-fg)">{entry.name}</p>
-                    <p className="mt-1 text-xs text-(--plass-muted-fg)">{entry.blurb[locale]}</p>
-                  </div>
                   <div className="flex min-h-10 items-center">{entry.preview}</div>
-                </a>
+                </PlCard>
               ))}
           </div>
         </div>

@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { PlAccordion, PlAccordionItem, PlButton, PlTextField } from 'plass-ui';
+import { PlAccordion, PlAccordionItem, PlButton, PlCard, PlTextField } from 'plass-ui';
 
 /**
- * Every component the library has, on one screen — which today is two of them.
+ * Every component the library has, on one screen.
  *
  * This is the page that has to be updated when a component is added, and the
  * reason it exists is that a component page shows a control on its own and a
@@ -16,22 +16,6 @@ function SearchIcon() {
       <circle cx="7" cy="7" r="4.5" />
       <path d="m10.5 10.5 3 3" strokeLinecap="round" />
     </svg>
-  );
-}
-
-function Sheet({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section
-      className="flex flex-col gap-4 rounded-2xl border p-5 [backdrop-filter:var(--plass-blur)] [-webkit-backdrop-filter:var(--plass-blur)]"
-      style={{
-        background: 'var(--plass-glass)',
-        borderColor: 'var(--plass-glass-line)',
-        boxShadow: 'var(--plass-shadow-2), var(--plass-gloss-glass)'
-      }}
-    >
-      <h3 className="text-sm font-bold text-(--plass-fg)">{title}</h3>
-      {children}
-    </section>
   );
 }
 
@@ -65,49 +49,59 @@ export default function ShowcaseApp() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Sheet title="Organisation">
-          <PlTextField
-            fullWidth
-            label="Name"
-            value={name}
-            description="Shown on invoices."
-            onChange={(event) => setName(event.target.value)}
-          />
-          <PlTextField
-            fullWidth
-            label="Billing email"
-            type="email"
-            defaultValue="billing@"
-            error="Enter a valid address."
-          />
-          <div className="flex items-center gap-3">
-            <PlButton loading={saving} onClick={save}>
-              {saving ? 'Saving' : 'Save changes'}
-            </PlButton>
-            <PlButton variant="ghost" color="secondary">
-              Discard
-            </PlButton>
-            {saved ? (
-              <span className="text-xs font-semibold text-(--plass-success-accent)">Saved</span>
-            ) : null}
+        <PlCard title="Organisation" elevation={2} render={<section />}>
+          <div className="flex flex-col gap-4">
+            <PlTextField
+              fullWidth
+              label="Name"
+              value={name}
+              description="Shown on invoices."
+              onChange={(event) => setName(event.target.value)}
+            />
+            <PlTextField
+              fullWidth
+              label="Billing email"
+              type="email"
+              defaultValue="billing@"
+              error="Enter a valid address."
+            />
+            <div className="flex items-center gap-3">
+              <PlButton loading={saving} onClick={save}>
+                {saving ? 'Saving' : 'Save changes'}
+              </PlButton>
+              <PlButton variant="ghost" color="secondary">
+                Discard
+              </PlButton>
+              {saved ? (
+                <span className="text-xs font-semibold text-(--plass-success-accent)">Saved</span>
+              ) : null}
+            </div>
           </div>
-        </Sheet>
+        </PlCard>
 
-        <Sheet title="Danger zone">
-          <PlTextField
-            fullWidth
-            variant="solid"
-            label="Type the organisation name to confirm"
-            placeholder={name}
-          />
-          <PlTextField fullWidth multiline rows={2} label="Why are you leaving?" variant="ghost" />
-          <div className="flex items-center gap-3">
-            <PlButton color="danger">Delete organisation</PlButton>
-            <PlButton variant="glass" color="secondary" readOnly>
-              Export first
-            </PlButton>
+        <PlCard title="Danger zone" elevation={2} render={<section />}>
+          <div className="flex flex-col gap-4">
+            <PlTextField
+              fullWidth
+              variant="solid"
+              label="Type the organisation name to confirm"
+              placeholder={name}
+            />
+            <PlTextField
+              fullWidth
+              multiline
+              rows={2}
+              label="Why are you leaving?"
+              variant="ghost"
+            />
+            <div className="flex items-center gap-3">
+              <PlButton color="danger">Delete organisation</PlButton>
+              <PlButton variant="glass" color="secondary" readOnly>
+                Export first
+              </PlButton>
+            </div>
           </div>
-        </Sheet>
+        </PlCard>
       </div>
 
       <PlAccordion size="sm" defaultValue={['keys']}>

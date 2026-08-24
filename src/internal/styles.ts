@@ -186,6 +186,25 @@ export const sheetBodyClasses: Record<PlassSize, string> = {
   xl: 'text-[1.0625rem]/[1.75rem]'
 };
 
+/** Between a sheet's sections, when there are no hairlines to separate them. */
+export const sheetSectionGapClasses: Record<PlassSize, string> = {
+  xs: 'gap-1.5',
+  sm: 'gap-2',
+  md: 'gap-3',
+  lg: 'gap-3.5',
+  xl: 'gap-4'
+};
+
+/**
+ * The hairline that scores a sheet into sections — a card's body from its
+ * footer, one accordion fold from the next.
+ *
+ * The same `--plass-glass-line` the sheet's own edge is drawn in, so it reads
+ * as the pane being scored rather than as a second, unrelated rule laid over
+ * it.
+ */
+export const sheetLineClasses = 'border-t [border-color:var(--plass-glass-line)]';
+
 /** Title to subtitle. Tight — they are one block of text, not two sections. */
 export const sheetHeaderGapClasses: Record<PlassSize, string> = {
   xs: 'gap-0.5',
