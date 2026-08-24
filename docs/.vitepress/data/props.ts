@@ -2354,6 +2354,82 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlSkeleton: [
+    {
+      name: 'shape',
+      type: "'line' | 'rect' | 'circle'",
+      default: "'line'",
+      description: {
+        ko: '무엇을 대신하고 있는지. line은 글줄, rect는 덩어리(이미지·차트·지도), circle은 avatar처럼 둥근 것. 셋 다 진짜 컴포넌트가 쓰는 사다리로 크기가 정해집니다',
+        en: 'What the placeholder is standing in for. line is a run of text, rect a block, circle an avatar. Each is sized off the ladder the real component uses'
+      }
+    },
+    {
+      name: 'lines',
+      type: 'number',
+      default: '1',
+      description: {
+        ko: 'shape="line"에서 몇 줄을 그릴지. 마지막 줄은 문단의 마지막 줄처럼 짧게 그려져서, 여러 줄이 바코드가 아니라 산문으로 읽힙니다',
+        en: 'How many lines to draw for shape="line". The last one is drawn short, the way the last line of a paragraph is, so a block of them reads as prose rather than as a barcode'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '대신하고 있는 것의 크기 — line에는 타입 스케일, circle에는 지름, rect에는 기본 높이',
+        en: 'The scale of the thing being stood in for: the type scale for a line, the diameter for a circle, the default block height for a rect'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'secondary'",
+      shared: true,
+      description: {
+        ko: '색 계열. secondary로 두는 편이 낫습니다 — 아직 도착하지도 않은 내용에 대해 의미론적 색을 입은 placeholder는 무언가를 주장하고 있는 것입니다',
+        en: 'Colour family. Worth leaving at secondary: a placeholder that carries a semantic colour is saying something about content that has not arrived yet'
+      }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      description: { ko: '명시적 너비. 숫자는 px', en: 'An explicit width. Numbers are pixels' }
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      description: { ko: '명시적 높이. 숫자는 px', en: 'An explicit height. Numbers are pixels' }
+    },
+    {
+      name: 'animated',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '지나가는 하이라이트. 수십 개가 놓인 페이지나, 기다림이 길어 움직임이 소음이 되는 곳에서 끄세요. reduced-motion 설정은 이미 알아서 색 맥동으로 바꾸므로, 이것은 접근성 스위치가 아닙니다',
+        en: 'The travelling highlight. Turn it off for a page holding dozens, or where motion becomes noise. A reduced-motion preference already swaps the sweep for a colour pulse, so this is not the accessibility switch'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: {
+        ko: '스크린리더가 듣는 말. 없으면 aria-hidden입니다 — 상자 열두 개가 저마다 자기를 알리는 것은 침묵보다 나쁩니다. 영역 전체를 대표하는 **하나**에만 주면 그것이 live status가 됩니다',
+        en: 'What a screen reader is told. Without it the placeholder is aria-hidden, because a dozen boxes each announcing themselves is worse than silence. Give the *one* that stands for the whole region a label and it becomes a live status'
+      }
+    },
+    {
+      name: 'render',
+      type: 'useRender.RenderProp',
+      description: {
+        ko: 'div가 아닌 다른 요소로 렌더링합니다',
+        en: 'Renders something other than a div'
+      }
+    }
+  ],
+
   PlSlider: [
     {
       name: 'size',

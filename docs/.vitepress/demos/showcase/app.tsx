@@ -27,6 +27,7 @@ import {
   PlSegment,
   PlSegmentedButton,
   PlSelect,
+  PlSkeleton,
   PlSlider,
   PlSwitch,
   PlTab,
@@ -196,11 +197,10 @@ export default function ShowcaseApp() {
               Grace Hopper
             </PlListItem>
             <PlListItem
-              startIcon={<PlAvatar size="xs" name="Alan Turing" />}
-              description="Read only"
-              action={<PlSwitch size="sm" aria-label="Notify Alan" />}
+              startIcon={<PlSkeleton shape="circle" size="xs" />}
+              description={<PlSkeleton size="xs" width={90} />}
             >
-              Alan Turing
+              <PlSkeleton size="xs" width={130} label="Loading the fourth member" />
             </PlListItem>
           </PlList>
         </PlCard>

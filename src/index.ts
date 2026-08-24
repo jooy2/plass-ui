@@ -20,6 +20,7 @@ export * from './components/pagination';
 export * from './components/radio-group';
 export * from './components/segmented-button';
 export * from './components/select';
+export * from './components/skeleton';
 export * from './components/slider';
 export * from './components/switch';
 export * from './components/table';

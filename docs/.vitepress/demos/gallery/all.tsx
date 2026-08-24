@@ -27,6 +27,7 @@ import {
   PlSegment,
   PlSegmentedButton,
   PlSelect,
+  PlSkeleton,
   PlSlider,
   PlSwitch,
   PlTab,
@@ -489,6 +490,21 @@ const entries: Entry[] = [
         description="Everything in it goes with it."
         actions={<PlModalClose render={<PlButton size="sm">Close</PlButton>} />}
       />
+    )
+  },
+  {
+    name: 'PlSkeleton',
+    group: 'feedback',
+    href: 'components/feedback/skeleton',
+    blurb: {
+      en: 'The shape of something that has not loaded yet.',
+      ko: '아직 로드되지 않은 것의 모양입니다.'
+    },
+    preview: (
+      <div className="flex w-full items-center gap-3">
+        <PlSkeleton shape="circle" size="sm" />
+        <PlSkeleton size="sm" lines={2} />
+      </div>
     )
   },
   {

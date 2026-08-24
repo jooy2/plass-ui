@@ -568,6 +568,53 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * The travelling highlight on a placeholder
+ *
+ * `inset-inline-start` rather than a `transform`, which is the same trade the
+ * rest of the library makes and for the same two reasons: it runs the other way
+ * under RTL without being told, and the layout pass it costs is confined to a
+ * box with nothing in it.
+ *
+ * A pseudo-element rather than a child, so a `PlSkeleton` is one element per
+ * shape and a stack of ten lines is ten nodes rather than twenty. The gradient
+ * is symmetric, so it needs no direction of its own.
+ *
+ * This is in CSS rather than in Tailwind for the reason `.plass-glow` is: a
+ * keyframe is not a Tailwind variant, so there is nothing to express one with.
+ * ------------------------------------------------------------------------- */
+
+@keyframes plass-skeleton-sweep {
+  from {
+    inset-inline-start: -60%;
+  }
+  to {
+    inset-inline-start: 100%;
+  }
+}
+
+.plass-skeleton::after {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inline-size: 60%;
+  background-image: linear-gradient(90deg, transparent, var(--p-soft-press), transparent);
+  animation: plass-skeleton-sweep 1.5s var(--plass-ease) infinite;
+}
+
+/* The reduced-motion stand-in: the highlight stops travelling and the whole
+   placeholder breathes instead. Colour, which is the axis every other state in
+   the library already uses. */
+@keyframes plass-skeleton-pulse {
+  0%,
+  100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: var(--p-soft-press);
+  }
+}
+
+/* ---------------------------------------------------------------------------
  * Reduced motion
  *
  * Nothing in Plass animates on its own except a spinner, so this is about the
@@ -581,5 +628,16 @@
   .plass-glow::before,
   .plass-glow::after {
     transition-duration: 1ms;
+  }
+
+  /* The highlight stops travelling and the placeholder pulses in place. It is
+     kept running rather than stopped, because a skeleton that holds still is
+     indistinguishable from an empty box that finished loading with nothing in
+     it. */
+  .plass-skeleton::after {
+    inset-inline-start: 0;
+    inline-size: 100%;
+    background-image: none;
+    animation: plass-skeleton-pulse 2.4s var(--plass-ease) infinite;
   }
 }
