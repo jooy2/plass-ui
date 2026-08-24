@@ -29,7 +29,7 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 `glass` is the default: a sheet with a hairline round it, which is what a field is on a Plass screen. `solid` is the **well** — the glass at its most opaque with the one inset shadow in the library falling into it — for a field that has to look recessed rather than raised. `ghost` has no surface until the pointer is on it, for a field in a table cell.
 
-A `solid` field is deliberately **not** a moulded key. A gradient under a caret, a text selection and a placeholder is not legible, so the family shows up in the hairline, the ring and the caret instead.
+A `solid` field is deliberately **not** a tinted pane. A gradient under a caret, a text selection and a placeholder is not legible, so the family shows up in the hairline, the ring and the caret instead.
 
 <Demo src="text-field/variants" :min-height="240">
 

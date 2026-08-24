@@ -105,8 +105,8 @@ const vitePressI18nConfig: VitePressI18nOptions = {
   rootLocale: defaultLocale,
   searchProvider: 'local',
   description: {
-    ko: '플라스틱과 글래스를 언어로 삼은 React UI 컴포넌트 라이브러리입니다. 그러데이션으로 성형된 컨트롤이 반투명하게 흐려진 시트 위에 놓입니다. 접근성과 테마를 갖췄고 ESM 전용이며, 타입 정의가 포함되어 있고 다크 모드가 기본으로 지원됩니다.',
-    en: 'A React UI component library with a plastic-and-glass design language — moulded gradient controls resting on translucent, blurred sheets. Accessible and themeable, ESM only, types included, dark mode built in.'
+    ko: '유리와 그러데이션으로 만든 React UI 컴포넌트 라이브러리입니다. 매끄러운 색 유리 표면, 자기 색으로 드리우는 그림자, 그리고 포인터를 따라오는 빛. 접근성과 테마를 갖췄고 ESM 전용이며, 타입 정의가 포함되어 있고 다크 모드가 기본으로 지원됩니다.',
+    en: 'A React UI component library made of glass and gradients — smooth tinted surfaces, shadows in their own colour, and light that follows the pointer. Accessible and themeable, ESM only, types included, dark mode built in.'
   },
   themeConfig: {
     ko: { nav: navFor('ko', ['가이드', '컴포넌트']) },

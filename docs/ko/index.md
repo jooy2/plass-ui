@@ -2,12 +2,12 @@
 layout: home
 
 title: Plass
-titleTemplate: 플라스틱과 글래스로 만든 React 컴포넌트 라이브러리
-description: 두 가지 재질로 만든 React 컴포넌트 라이브러리입니다. 그러데이션으로 성형된 컨트롤이 반투명하게 흐려진 시트 위에 놓입니다. 다크 모드와 TypeScript 타입, 하나의 공통 prop 어휘가 설치 한 번에 따라옵니다.
+titleTemplate: 유리와 그러데이션으로 만든 React 컴포넌트 라이브러리
+description: 유리와 그러데이션으로 만든 React 컴포넌트 라이브러리입니다. 매끄러운 색 유리 표면, 자기 색으로 드리우는 그림자, 그리고 포인터를 따라오는 빛. 다크 모드와 TypeScript 타입, 하나의 공통 prop 어휘가 설치 한 번에 따라옵니다.
 
 hero:
   name: Plass
-  text: 유리 시트 위에 놓인 플라스틱 키
+  text: 색이 한 번 도는, 매끄러운 유리
   tagline: 테마가 아니라 재질을 가진 React 컴포넌트 라이브러리. 다크 모드와 접근성, 타입은 이미 들어 있습니다.
   actions:
     - theme: brand
@@ -25,7 +25,7 @@ hero:
 
 features:
   - title: 두 가지 재질, 하나의 언어
-    details: 눌리는 그러데이션 키, 그리고 무언가를 담는 흐려진 시트. 모든 컴포넌트는 둘 중 하나이고, 그게 디자인 시스템의 전부입니다.
+    details: 눌리는 색 유리판, 그리고 무언가를 담는 흐려진 시트. 모든 컴포넌트는 둘 중 하나이고, 그게 디자인 시스템의 전부입니다.
     link: /ko/design/design-language
     linkText: 디자인 언어
   - title: TypeScript 우선
@@ -44,6 +44,10 @@ features:
   <div class="plass-why-card">
     <h3>테마 파일이 아니라 재질</h3>
     <p>모든 표면은 하나의 질문에 답합니다. 이건 눌리는 것인가, 무언가를 담는 것인가. 그 답이 채움과 가장자리, 그림자와 눌림을 모두 정합니다.</p>
+  </div>
+  <div class="plass-why-card">
+    <h3>요철도, 래커칠도 없이</h3>
+    <p>bevel도 highlight도 없습니다. hue가 도는 그러데이션이 형태를 만들고, 부드러운 빛이 포인터를 따라 컨트롤 위를 옮겨 다닙니다.</p>
   </div>
   <div class="plass-why-card">
     <h3>주장이 아니라 테스트</h3>

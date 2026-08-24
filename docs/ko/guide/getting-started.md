@@ -31,7 +31,7 @@ npm install plass-ui
 import 'plass-ui/styles.css';
 ```
 
-`plass-ui/styles.css`는 **컴파일이 끝난 CSS**입니다. 디자인 토큰(색, radius, elevation, motion), `.plass-gloss` 레이어, 컴포넌트가 쓰는 모든 utility 클래스의 실제 규칙, 그리고 작은 reset이 들어 있습니다. 빌드 설정도, PostCSS 플러그인도, `@source`도 필요 없습니다.
+`plass-ui/styles.css`는 **컴파일이 끝난 CSS**입니다. 디자인 토큰(색, radius, elevation, motion), `.plass-glow` 레이어, 컴포넌트가 쓰는 모든 utility 클래스의 실제 규칙, 그리고 작은 reset이 들어 있습니다. 빌드 설정도, PostCSS 플러그인도, `@source`도 필요 없습니다.
 
 ### reset에 대하여
 
@@ -51,7 +51,7 @@ import 'plass-ui/styles.css';
 | 줄 | 하는 일 |
 | --- | --- |
 | `@import 'tailwindcss'` | Tailwind 자체 |
-| `@import 'plass-ui/tailwind.css'` | 디자인 토큰, `.plass-gloss` 레이어, 패키지를 등록하는 `@source` |
+| `@import 'plass-ui/tailwind.css'` | 디자인 토큰, `.plass-glow` 레이어, 패키지를 등록하는 `@source` |
 
 이 경로에서도 `@source`를 직접 쓸 필요는 없습니다. Plass 컴포넌트가 쓰는 클래스는 Tailwind utility이므로 Tailwind가 패키지의 컴파일된 파일을 읽어야 하는데, `plass-ui/tailwind.css`가 자기 안에 `@source '.'`를 선언해 그 일을 대신합니다. `@source`는 자신이 쓰인 파일을 기준으로 경로를 풉니다. 여기서는 `node_modules/plass-ui/dist/`, 즉 그 파일들 바로 옆입니다. 명시적으로 등록된 source는 `node_modules` 안이라도 스캔됩니다. 자동 탐지는 그곳을 건너뜁니다.
 
@@ -103,4 +103,4 @@ export default function App() {
 
 ## 브라우저 지원
 
-토큰이 `color-mix()`와 `backdrop-filter`를 씁니다. 2023년 이후의 Chrome, Safari, Firefox를 뜻합니다. `backdrop-filter`가 없는 곳에서는 blur만 빠지고 채움과 hairline, gloss는 그대로 동작합니다. 시트가 유리 대신 평평한 반투명 패널로 보일 뿐입니다.
+토큰이 `color-mix()`와 `backdrop-filter`를 씁니다. 2023년 이후의 Chrome, Safari, Firefox를 뜻합니다. `backdrop-filter`가 없는 곳에서는 blur만 빠지고 채움과 hairline, tint된 그림자, 포인터 glow는 그대로 동작합니다. 시트가 유리 대신 평평한 반투명 패널로 보일 뿐입니다.

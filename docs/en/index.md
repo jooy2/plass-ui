@@ -2,12 +2,12 @@
 layout: home
 
 title: Plass
-titleTemplate: The plastic-and-glass React component library
-description: A React component library built out of two materials — moulded gradient controls resting on translucent, blurred sheets. Dark mode, TypeScript types and one shared prop vocabulary, in a single install.
+titleTemplate: The glass-and-gradient React component library
+description: A React component library made of glass and gradients — smooth tinted surfaces, shadows in their own colour, and light that follows the pointer. Dark mode, TypeScript types and one shared prop vocabulary, in a single install.
 
 hero:
   name: Plass
-  text: Plastic keys on sheets of glass
+  text: Smooth glass with a turn of colour
   tagline: A React component library with a material, not a theme. Dark mode, accessibility and types are already in the box.
   actions:
     - theme: brand
@@ -25,7 +25,7 @@ hero:
 
 features:
   - title: Two materials, one language
-    details: A gradient key you press, and a blurred sheet that holds things. Every component is one or the other, and that is the whole design system.
+    details: A tinted pane you press, and a blurred sheet that holds things. Every component is one or the other, and that is the whole design system.
     link: /design/design-language
     linkText: Design language
   - title: TypeScript first
@@ -44,6 +44,10 @@ features:
   <div class="plass-why-card">
     <h3>A material, not a theme file</h3>
     <p>Every surface answers one question — is this pressed, or does it hold something? The answer decides the fill, the edge, the shadow and the press.</p>
+  </div>
+  <div class="plass-why-card">
+    <h3>No relief, no lacquer</h3>
+    <p>No bevels and no highlights. A gradient that turns in hue carries the form, and a soft bloom follows your pointer across the control.</p>
   </div>
   <div class="plass-why-card">
     <h3>Tested, not asserted</h3>

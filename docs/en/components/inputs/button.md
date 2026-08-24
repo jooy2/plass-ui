@@ -27,9 +27,11 @@ What the shared axes (`variant` `size` `color` `density` `elevation`) mean acros
 
 ### variant
 
-`solid` is a moulded key and the primary action. `glass` is a sheet with a hairline, for secondary actions. `ghost` has no surface until the pointer is on it, for a toolbar or a row. Keep one `solid` per screen.
+`solid` is a pane of tinted glass and the primary action. `glass` is a clear sheet with a hairline, for secondary actions. `ghost` has no surface until the pointer is on it, for a toolbar or a row. Keep one `solid` per screen.
 
 A `glass` button wears the family in its **text**, so `color="secondary"` is the quiet neutral button rather than a fourth variant.
+
+All three carry the interaction light: a soft bloom that follows the pointer across the control, and a brighter flash on press that drains over about 700ms. On a touch screen it follows a finger dragged across the button. The bloom is white on a `solid` surface and the family's own tint on the other two.
 
 <Demo src="button/variants">
 
@@ -83,7 +85,7 @@ Icons are drawn at `1.2em`, so they track the label and never need a size of the
 | --- | --- | --- | --- |
 | `loading` | Unchanged; a spinner takes the `startIcon` slot | Kept | No |
 | `readOnly` | Keeps its colour, goes flat, drains saturation | Kept | No |
-| `disabled` | Loses the gloss and the shadow; the page shows through it | Lost | Yes |
+| `disabled` | Loses the light and the shadow; the page shows through it | Lost | Yes |
 
 None of the three let a click reach the parent.
 
@@ -97,7 +99,7 @@ None of the three let a click reach the parent.
 
 Drop shadow depth. The default is `1`, not `0`: a key rests **on** the sheet. Hovering adds a level and pressing removes one, which is what puts a default button down flush against the glass under the finger.
 
-The tinted glow the key casts in its own colour is **not** part of this ladder and does not scale with it — `elevation` says how far off the page a surface is, and a `danger` button one level higher is not a redder piece of plastic.
+The tinted shadow a `solid` button casts in its own colour is **not** part of this ladder and does not scale with it — `elevation` says how far off the page a surface is, and a `danger` button one level higher is not a redder pane of glass.
 
 <Demo src="button/elevation">
 
@@ -134,4 +136,5 @@ The surface, the sizes and the press signature are unchanged. An `<a>` has no `d
 - Give icon-only buttons an `aria-label`.
 - The focus ring only appears on `:focus-visible`, so a mouse click never draws one.
 - `loading` and `readOnly` keep focus: dropping out of the tab order costs keyboard users their sense of the page.
-- Every gradient stop meets 4.5:1 against the label on it, the lightest corner included.
+- Both ends of every gradient meet 4.5:1 against the label on them.
+- The interaction light is decorative: it carries no state, and it is not the only signal for anything. `prefers-reduced-motion` stops it easing.

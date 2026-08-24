@@ -61,8 +61,8 @@ function sharedProps(options: SharedOptions): PropRow[] {
       default: options.variant,
       shared: true,
       description: options.variantDescription ?? {
-        ko: '표면의 재질. 성형된 플라스틱 / 유리 시트 / 없음',
-        en: 'What the surface is made of: moulded plastic, a sheet of glass, or nothing'
+        ko: '표면의 재질. 색이 들어간 유리 / 맑은 유리 시트 / 없음',
+        en: 'What the surface is made of: tinted glass, a clear sheet, or nothing'
       }
     },
     {
@@ -119,12 +119,12 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'Height and type scale. xs 24px · sm 32px · md 40px · lg 48px · xl 56px'
       },
       variantDescription: {
-        ko: '표면의 재질. solid는 그러데이션으로 성형된 키, glass는 유리 시트, ghost는 표면 없음',
-        en: 'What the surface is made of. solid is a moulded gradient key, glass is a sheet, ghost has no surface at all'
+        ko: '표면의 재질. solid는 hue가 도는 그러데이션 유리판, glass는 맑은 시트, ghost는 표면 없음',
+        en: 'What the surface is made of. solid is a pane of tinted glass whose gradient turns in hue, glass is a clear sheet, ghost has no surface at all'
       },
       elevationDescription: {
-        ko: '그림자 깊이. 키는 시트 위에 놓이므로 기본값이 1입니다. 호버는 한 단계 올리고, 누르면 한 단계 내려 시트에 닿습니다',
-        en: 'Drop shadow depth. A key rests on the sheet, so the default is 1. Hover adds a level and pressing removes one, putting it down on the glass'
+        ko: '그림자 깊이. 컨트롤은 시트 위에 놓이므로 기본값이 1입니다. 호버는 한 단계 올리고, 누르면 한 단계 내려 시트에 닿습니다',
+        en: 'Drop shadow depth. A control rests on the sheet, so the default is 1. Hover adds a level and pressing removes one, putting it down on the sheet'
       }
     }),
     {
@@ -163,8 +163,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'boolean',
       default: 'false',
       description: {
-        ko: '사용 불가. 광택과 그림자를 잃고 페이지가 비쳐 보이며, 포커스 순서에서 빠집니다',
-        en: 'Unavailable. Loses its gloss and its shadow, lets the page through, and leaves the tab order'
+        ko: '사용 불가. 빛과 그림자를 잃고 페이지가 비쳐 보이며, 포커스 순서에서 빠집니다',
+        en: 'Unavailable. Loses its light and its shadow, lets the page through, and leaves the tab order'
       }
     },
     {
@@ -200,8 +200,8 @@ export const propTables: Record<string, PropRow[]> = {
         en: "Height and type scale. The same heights as Button, so a row's baseline holds"
       },
       variantDescription: {
-        ko: '표면의 재질. 필드에서 solid는 성형된 키가 아니라 시트에 파인 우물입니다 — 필드가 담는 것은 사용자 데이터입니다',
-        en: 'What the surface is made of. On a field solid is not a moulded key but a well cut into the sheet — a field holds user data'
+        ko: '표면의 재질. 필드에서 solid는 색 유리판이 아니라 시트에 파인 우물입니다 — 필드가 담는 것은 사용자 데이터입니다',
+        en: 'What the surface is made of. On a field solid is not a tinted pane but a well cut into the sheet — a field holds user data'
       },
       colorDescription: {
         ko: '의미론적 색 역할. 유리는 물들이지 않으므로 가장자리와 포커스 링, 캐럿에만 나타납니다',

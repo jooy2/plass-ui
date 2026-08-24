@@ -69,7 +69,7 @@ describe('Button', () => {
       const element = screen.getByRole('button').element() as HTMLElement;
 
       expect(element.style.getPropertyValue('--p-fill')).toBe('var(--plass-danger-fill)');
-      expect(element.style.getPropertyValue('--p-glow')).toBe('var(--plass-danger-glow)');
+      expect(element.style.getPropertyValue('--p-tint')).toBe('var(--plass-danger-tint)');
       expect(element.style.getPropertyValue('--p-accent')).toBe('var(--plass-danger-accent)');
     });
 
@@ -128,41 +128,91 @@ describe('Button', () => {
       expect(element.style.getPropertyValue('--p-elev-press')).toBe('var(--plass-shadow-2)');
     });
 
+    it('switches the interaction light with the variant, not with the colour', async () => {
+      // White light on a near-white sheet is invisible, so only a filled
+      // surface gets the white bloom; everything else takes its own soft tint.
+      const screen = await render(<Button color="danger">Delete</Button>);
+      const element = screen.getByRole('button').element() as HTMLElement;
+
+      expect(element.style.getPropertyValue('--p-glow')).toBe('var(--plass-glow-on-fill)');
+      expect(element.style.getPropertyValue('--p-flash')).toBe('var(--plass-flash-on-fill)');
+
+      await screen.rerender(
+        <Button color="danger" variant="glass">
+          Delete
+        </Button>
+      );
+
+      expect(element.style.getPropertyValue('--p-glow')).toBe('var(--plass-danger-soft)');
+      expect(element.style.getPropertyValue('--p-flash')).toBe('var(--plass-danger-soft-hover)');
+    });
+
     it('keeps the tinted lift out of the elevation ladder', async () => {
       // The lift says what the surface is made of; elevation says how far off
       // the page it is. A `danger` button one level higher is not a redder
-      // piece of plastic, so the two do not move together.
+      // piece of glass, so the two do not move together.
       const screen = await render(<Button>Save</Button>);
       const element = screen.getByRole('button').element() as HTMLElement;
       const lift = element.style.getPropertyValue('--p-lift');
 
-      expect(lift).toContain('var(--p-glow)');
+      expect(lift).toContain('var(--p-tint)');
 
       await screen.rerender(<Button elevation={3}>Save</Button>);
 
       expect(element.style.getPropertyValue('--p-lift')).toBe(lift);
     });
 
-    it('carries the gloss only on a plastic surface that can be pressed', async () => {
+    it('carries the interaction light on every variant that can be pressed', async () => {
       const screen = await render(<Button>Save</Button>);
       const element = screen.getByRole('button').element();
 
-      expect(element).toHaveClass('plass-gloss');
+      expect(element).toHaveClass('plass-glow');
 
+      // It is about where the pointer is, not about what the surface is made
+      // of, so the variant does not take it away.
       await screen.rerender(<Button variant="glass">Save</Button>);
-      expect(element).not.toHaveClass('plass-gloss');
+      expect(element).toHaveClass('plass-glow');
 
       await screen.rerender(<Button variant="ghost">Save</Button>);
-      expect(element).not.toHaveClass('plass-gloss');
+      expect(element).toHaveClass('plass-glow');
 
       await screen.rerender(<Button disabled>Save</Button>);
-      expect(element).not.toHaveClass('plass-gloss');
+      expect(element).not.toHaveClass('plass-glow');
 
       await screen.rerender(<Button readOnly>Save</Button>);
-      expect(element).not.toHaveClass('plass-gloss');
+      expect(element).not.toHaveClass('plass-glow');
 
       await screen.rerender(<Button loading>Save</Button>);
-      expect(element).not.toHaveClass('plass-gloss');
+      expect(element).not.toHaveClass('plass-glow');
+    });
+
+    it('writes the pointer position onto the element without re-rendering', async () => {
+      const screen = await render(<Button size="xl">Save</Button>);
+      const locator = screen.getByRole('button');
+      const element = locator.element() as HTMLElement;
+
+      expect(element.style.getPropertyValue('--p-mx')).toBe('');
+
+      await locator.hover();
+
+      expect(element.style.getPropertyValue('--p-mx')).toMatch(/^[\d.]+px$/);
+      expect(element.style.getPropertyValue('--p-my')).toMatch(/^[\d.]+px$/);
+    });
+
+    it('draws no highlight over a filled surface', async () => {
+      // A filled control's box-shadow is the elevation and the tint and nothing
+      // else. An inset white edge on a coloured surface is what reads as
+      // lacquer, and the gradient is doing that job instead.
+      const screen = await render(<Button>Save</Button>);
+      const element = screen.getByRole('button').element();
+
+      expect(element).toHaveClass('[box-shadow:var(--p-elev),var(--p-lift)]');
+      expect(element.className).not.toContain('gloss');
+
+      // The hairline is glass's, because glass has a real cut edge.
+      await screen.rerender(<Button variant="glass">Save</Button>);
+
+      expect(element).toHaveClass('[box-shadow:var(--p-elev),var(--plass-gloss-glass)]');
     });
 
     it('never applies a transform, so the label cannot move', async () => {
@@ -331,9 +381,7 @@ describe('Button', () => {
       const screen = await render(<Button elevation={2}>Save</Button>);
       const element = screen.getByRole('button').element() as HTMLElement;
 
-      expect(element).toHaveClass(
-        '[box-shadow:var(--p-elev),var(--p-lift),var(--plass-gloss-solid)]'
-      );
+      expect(element).toHaveClass('[box-shadow:var(--p-elev),var(--p-lift)]');
       expect(element).not.toHaveClass('saturate-[0.55]');
 
       await screen.rerender(
@@ -342,13 +390,11 @@ describe('Button', () => {
         </Button>
       );
 
-      // Still the same family, still the same moulded edge...
+      // Still the same family and still the same gradient...
       expect(element.style.getPropertyValue('--p-fill')).toBe('var(--plass-primary-fill)');
-      expect(element).toHaveClass('[box-shadow:var(--plass-gloss-solid)]');
       // ...but no elevation, no tinted lift, and most of the saturation gone.
-      expect(element).not.toHaveClass(
-        '[box-shadow:var(--p-elev),var(--p-lift),var(--plass-gloss-solid)]'
-      );
+      expect(element).toHaveClass('shadow-none');
+      expect(element).not.toHaveClass('[box-shadow:var(--p-elev),var(--p-lift)]');
       expect(element).toHaveClass('saturate-[0.55]');
     });
 

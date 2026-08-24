@@ -47,11 +47,12 @@ export type PlassAlign = 'start' | 'center' | 'end';
  * What a surface is made of. This is the library's own name, and the two
  * materials in it are the whole design language.
  *
- * - `solid` — **plastic.** A moulded key: a gradient fill, a specular highlight
- *   along its top edge, and a drop shadow tinted with its own colour. One per
- *   view, for the action the screen is about.
- * - `glass` — **glass.** A translucent sheet over a blurred backdrop with a
- *   white hairline around it. Secondary actions, and the default for anything
+ * - `solid` — **tinted glass.** A gradient that sweeps between two ends of the
+ *   colour family at one lightness, and a drop shadow tinted with that family.
+ *   No highlight over the top of it: the sweep is the form. One per view, for
+ *   the action the screen is about.
+ * - `glass` — **clear glass.** A translucent sheet over a blurred backdrop with
+ *   a white hairline around it. Secondary actions, and the default for anything
  *   that *holds* content rather than being pressed.
  * - `ghost` — neither. No surface at all until the pointer is on it.
  *   Tertiary and inline actions.
@@ -61,9 +62,10 @@ export type PlassVariant = 'solid' | 'glass' | 'ghost';
 /**
  * How far a surface sits off the page, as a drop shadow.
  *
- * A plastic key rests **on** the sheet rather than flush with it, so a Button
+ * A control rests **on** the sheet rather than flush with it, so a Button
  * defaults to `1` and not to `0`. Hovering adds a level and pressing removes
- * one, which is what puts the key down against the glass under the finger.
+ * one, which is what puts it down against the sheet under the finger. The
+ * ladder is neutral and faint; a control's shadow is mostly the tint below it.
  *
  * `0` is flat, and it is the right default for anything a reader looks *into*
  * rather than presses — a field, a well, a panel behind other content.

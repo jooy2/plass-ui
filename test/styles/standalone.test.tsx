@@ -50,7 +50,7 @@ describe('plass-ui/styles.css', () => {
       // about a custom property still passes — this is what would not.
       expect(standaloneCss).toContain('.inline-flex');
       expect(standaloneCss).toContain('--plass-radius-md');
-      expect(standaloneCss).toContain('.plass-gloss');
+      expect(standaloneCss).toContain('.plass-glow');
     });
 
     it('leaves nothing for a consumer build to resolve', () => {

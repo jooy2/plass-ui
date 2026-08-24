@@ -212,19 +212,23 @@ export const srOnlyClasses =
  * ------------------------------------------------------------------------- */
 
 /**
- * The tinted lift — the shadow a moulded key casts in its own colour, and the
+ * The tinted lift — the shadow a control casts in its own colour, and the
  * single loudest thing in the design language.
  *
  * It is deliberately **not** part of the elevation ladder, and it does not
  * scale with `elevation`. Elevation says how far a surface is off the page;
  * this says what the surface is made of, and a `danger` button one step higher
- * is not a redder piece of plastic. The two are composed in the same
- * `box-shadow` and each one moves on its own.
+ * is not a redder piece of glass. The two are composed in the same `box-shadow`
+ * and each one moves on its own.
+ *
+ * It reads `--p-tint` and not `--p-glow`: the tint is the family colour bleeding
+ * into a shadow *under* the control, the glow is the light that arrives *on* it
+ * with the pointer. Two different lights, two different slots.
  */
-const lift = '0 6px 16px -4px var(--p-glow)';
-const liftHover = '0 10px 24px -6px var(--p-glow)';
-/* Pressed, the key is against the sheet and its glow has nowhere left to fall. */
-const liftPress = '0 2px 6px -2px var(--p-glow)';
+const lift = '0 6px 16px -4px var(--p-tint)';
+const liftHover = '0 10px 24px -6px var(--p-tint)';
+/* Pressed, the control is against the sheet and its tint has nowhere to fall. */
+const liftPress = '0 2px 6px -2px var(--p-tint)';
 
 /**
  * Every slot a control reads.
@@ -232,19 +236,32 @@ const liftPress = '0 2px 6px -2px var(--p-glow)';
  * The three elevation slots are resolved here rather than in CSS because
  * hovering adds a level and pressing removes one, and doing that arithmetic in
  * a stylesheet would mean four ladders instead of one.
+ *
+ * `variant` is taken for one reason: the two interaction-light slots switch
+ * with it. Light thrown onto a filled surface is white; onto a tinted or a bare
+ * one it has to be the family's own soft tint, or there is nothing for it to
+ * show up against.
  */
-export function controlSlots(color: PlassColor, elevation: PlassElevation): React.CSSProperties {
+export function controlSlots(
+  color: PlassColor,
+  elevation: PlassElevation,
+  variant: PlassVariant
+): React.CSSProperties {
+  const onFill = variant === 'solid';
+
   return {
     '--p-fill': `var(--plass-${color}-fill)`,
     '--p-on-solid': `var(--plass-${color}-on-solid)`,
     '--p-accent': `var(--plass-${color}-accent)`,
-    '--p-glow': `var(--plass-${color}-glow)`,
+    '--p-tint': `var(--plass-${color}-tint)`,
     '--p-soft': `var(--plass-${color}-soft)`,
     '--p-soft-hover': `var(--plass-${color}-soft-hover)`,
     '--p-soft-press': `var(--plass-${color}-soft-press)`,
     '--p-line': `var(--plass-${color}-line)`,
     '--p-line-hover': `var(--plass-${color}-line-hover)`,
     '--p-ring': `var(--plass-${color}-ring)`,
+    '--p-glow': onFill ? 'var(--plass-glow-on-fill)' : `var(--plass-${color}-soft)`,
+    '--p-flash': onFill ? 'var(--plass-flash-on-fill)' : `var(--plass-${color}-soft-hover)`,
     '--p-elev': `var(--plass-shadow-${elevation})`,
     '--p-elev-hover': `var(--plass-shadow-${Math.min(elevation + 1, 4)})`,
     '--p-elev-press': `var(--plass-shadow-${Math.max(elevation - 1, 0)})`,

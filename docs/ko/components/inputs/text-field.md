@@ -29,7 +29,7 @@ import { TextField } from 'plass-ui';
 
 `glass`가 기본값입니다. hairline을 두른 시트이고, Plass 화면에서 필드란 그런 것입니다. `solid`는 **우물**입니다 — 가장 불투명한 유리에 라이브러리에서 유일하게 안쪽으로 떨어지는 그림자가 얹힌 형태로, 떠 있기보다 파인 것처럼 보여야 하는 필드에 씁니다. `ghost`는 포인터가 올라오기 전까지 표면이 없어서 테이블 셀 안의 필드에 어울립니다.
 
-`solid` 필드는 의도적으로 성형된 키가 **아닙니다**. 캐럿과 텍스트 선택, placeholder 아래에 깔린 그러데이션은 읽히지 않기 때문에, 색 계열은 대신 hairline과 focus ring, 캐럿에 나타납니다.
+`solid` 필드는 의도적으로 색 유리판이 **아닙니다**. 캐럿과 텍스트 선택, placeholder 아래에 깔린 그러데이션은 읽히지 않기 때문에, 색 계열은 대신 hairline과 focus ring, 캐럿에 나타납니다.
 
 <Demo src="text-field/variants" :min-height="240">
 

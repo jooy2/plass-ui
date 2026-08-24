@@ -31,7 +31,7 @@ If your bundler handles CSS, importing it from your entry module works just as w
 import 'plass-ui/styles.css';
 ```
 
-`plass-ui/styles.css` is **finished CSS**: the design tokens (colour, radius, elevation, motion), the `.plass-gloss` layer, the real rules behind every utility class the components use, and a small reset. There is no build-side configuration, no PostCSS plugin and no `@source`.
+`plass-ui/styles.css` is **finished CSS**: the design tokens (colour, radius, elevation, motion), the `.plass-glow` layer, the real rules behind every utility class the components use, and a small reset. There is no build-side configuration, no PostCSS plugin and no `@source`.
 
 ### About the reset
 
@@ -51,7 +51,7 @@ When Tailwind v4 is already in your project, import the token sheet instead of t
 | Line | What it does |
 | --- | --- |
 | `@import 'tailwindcss'` | Tailwind itself |
-| `@import 'plass-ui/tailwind.css'` | The design tokens, the `.plass-gloss` layer, and the `@source` that registers the package |
+| `@import 'plass-ui/tailwind.css'` | The design tokens, the `.plass-glow` layer, and the `@source` that registers the package |
 
 You do not write an `@source` of your own on this path either. The classes Plass's components use are Tailwind utilities, so Tailwind has to read the package's compiled files to find them; `plass-ui/tailwind.css` takes care of that by declaring `@source '.'` inside itself. `@source` resolves relative to the file it is written in, which here is `node_modules/plass-ui/dist/`, right next to those files. An explicitly registered source is scanned even inside `node_modules`, which automatic detection skips.
 
@@ -103,4 +103,4 @@ One thing does **not** change with the theme, and it is deliberate: the colour o
 
 ## Browser support
 
-The tokens use `color-mix()` and `backdrop-filter`. That means Chrome, Safari and Firefox from 2023 onwards. Where `backdrop-filter` is missing only the blur drops out; the fill, the hairline and the gloss still work, and a sheet reads as a flat translucent panel rather than as glass.
+The tokens use `color-mix()` and `backdrop-filter`. That means Chrome, Safari and Firefox from 2023 onwards. Where `backdrop-filter` is missing only the blur drops out; the fill, the hairline, the tinted shadow and the pointer glow still work, and a sheet reads as a flat translucent panel rather than as glass.

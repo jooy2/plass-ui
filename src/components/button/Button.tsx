@@ -83,7 +83,7 @@ const iconOnlyClasses: Record<PlassSize, string> = {
 };
 
 const baseClasses = [
-  // `relative` because `.plass-gloss` hangs its specular highlight off `::before`.
+  // `relative` because `.plass-glow` hangs its two light layers off `::before`/`::after`.
   'relative inline-flex shrink-0 select-none items-center justify-center',
   'whitespace-nowrap align-middle font-semibold leading-none',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
@@ -96,8 +96,11 @@ const baseClasses = [
  * The three materials.
  *
  * `solid` is the only one with a `background-image`, and that gradient is the
- * whole of what makes it plastic — the specular highlight `.plass-gloss` adds
- * and the tinted lift under it are both readings of the same light direction.
+ * whole of the form: two ends of the family swept across the control, with no
+ * highlight over the top of it. A filled control deliberately carries **no**
+ * gloss line — an inset white edge on a coloured surface is what reads as
+ * lacquer, and the sweep is already saying everything about the shape that
+ * needs saying. The hairline belongs to `glass`, which has a real cut edge.
  *
  * `glass` wears the family in its **text** rather than in its sheet, which is
  * why `color="secondary"` is the neutral, quiet button and not a second grey
@@ -106,7 +109,7 @@ const baseClasses = [
 const restClasses: Record<PlassVariant, string> = {
   solid: [
     'text-(--p-on-solid) [background-image:var(--p-fill)]',
-    '[box-shadow:var(--p-elev),var(--p-lift),var(--plass-gloss-solid)]'
+    '[box-shadow:var(--p-elev),var(--p-lift)]'
   ].join(' '),
   glass: [
     glassClasses,
@@ -119,17 +122,19 @@ const restClasses: Record<PlassVariant, string> = {
 };
 
 /**
- * Hover raises the key and turns the light up; press puts it down and turns the
- * light down. Both are `filter: brightness()` rather than a second set of
+ * Hover lifts the control and turns the light up; press puts it down and turns
+ * the light down. Both are `filter: brightness()` rather than a second set of
  * colours, because the fill is a gradient and a gradient cannot be transitioned
- * — but light falling on one can.
+ * — but light falling on one can. The pointer bloom `.plass-glow` draws rides
+ * on top of this; the brightness is the state, the bloom is where the pointer
+ * is.
  */
 const hoverClasses: Record<PlassVariant, string> = {
   solid: [
     'hover:brightness-105',
-    'hover:[box-shadow:var(--p-elev-hover),var(--p-lift-hover),var(--plass-gloss-solid)]',
+    'hover:[box-shadow:var(--p-elev-hover),var(--p-lift-hover)]',
     'active:brightness-95',
-    'active:[box-shadow:var(--p-elev-press),var(--p-lift-press),var(--plass-gloss-solid)]'
+    'active:[box-shadow:var(--p-elev-press),var(--p-lift-press)]'
   ].join(' '),
   glass: [
     'hover:bg-(--plass-glass-hover) hover:[border-color:var(--p-line)]',
@@ -147,7 +152,7 @@ const hoverClasses: Record<PlassVariant, string> = {
 const readOnlyClasses: Record<PlassVariant, string> = {
   solid: [
     'cursor-default text-(--p-on-solid) [background-image:var(--p-fill)]',
-    `[box-shadow:var(--plass-gloss-solid)] ${readOnlyFilterClasses}`
+    `shadow-none ${readOnlyFilterClasses}`
   ].join(' '),
   glass: [
     glassClasses,
@@ -176,6 +181,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
     style,
     children,
     onClick,
+    onPointerMove,
     ...props
   },
   ref
@@ -199,9 +205,10 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
         ? readOnlyClasses[variant]
         : restClasses[variant],
     interactive ? `${hoverClasses[variant]} cursor-pointer` : '',
-    // The gloss is what plastic is. A glass sheet has its hairline and a ghost
-    // button has no surface to catch light on, so neither takes it.
-    interactive && variant === 'solid' ? 'plass-gloss' : '',
+    // The interaction light. Every variant takes it, because it is about where
+    // the pointer is rather than about what the surface is made of — the two
+    // colour slots behind it are what switch with the variant.
+    interactive ? 'plass-glow' : '',
     loading ? 'cursor-progress' : '',
     fullWidth ? 'w-full' : '',
     className ?? ''
@@ -225,7 +232,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
     ref,
     props: {
       className: classNames,
-      style: { ...controlSlots(color, elevation), ...style },
+      style: { ...controlSlots(color, elevation, variant), ...style },
       'aria-disabled': inert || undefined,
       'aria-busy': loading || undefined,
       'data-loading': loading || undefined,
@@ -237,6 +244,22 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
           return;
         }
         onClick?.(event as React.MouseEvent<HTMLButtonElement>);
+      },
+      onPointerMove: (event: React.PointerEvent<HTMLElement>) => {
+        // Feeds the two light layers in `styles.css`. Written straight to the
+        // element rather than held in state: this fires at pointer rate, and a
+        // `setState` here would re-render the tree on every mouse move. Reading
+        // `offsetX/offsetY` costs nothing — no `getBoundingClientRect`, so no
+        // forced layout. Icons carry `pointer-events: none`, so the offsets are
+        // always relative to the button itself.
+        //
+        // It runs while a finger is down too, which is what makes the light
+        // follow a drag on a touch screen — there is no hover there, and the
+        // `:active` layer is the one doing the work.
+        const element = event.currentTarget;
+        element.style.setProperty('--p-mx', `${event.nativeEvent.offsetX}px`);
+        element.style.setProperty('--p-my', `${event.nativeEvent.offsetY}px`);
+        onPointerMove?.(event as React.PointerEvent<HTMLButtonElement>);
       },
       ...props,
       children: (

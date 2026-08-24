@@ -21,10 +21,11 @@
  * Dark mode responds to `prefers-color-scheme`, and can be forced either way
  * with `.dark` / `[data-theme='dark'|'light']` on any ancestor.
  *
- * The surface model is **a moulded plastic key resting on a sheet of glass**: a
- * control is a gradient fill with a specular highlight along its top edge and a
- * drop shadow tinted with its own colour; everything that holds content is a
- * translucent, heavily blurred sheet with a white hairline around it.
+ * The surface model is **a key of tinted glass resting on a clear sheet**: a
+ * control is a smooth two-stop gradient with a drop shadow tinted by its own
+ * colour and a bloom of light that follows the pointer across it; everything
+ * that holds content is a translucent, heavily blurred sheet with a white
+ * hairline around it. Depth is carried by the gradient, not by a highlight.
  */
 
 /*
@@ -47,41 +48,61 @@
  *
  * These sit outside every theme block on purpose, and it is the one place Plass
  * departs hardest from the libraries it was learned from: **a key's own colour
- * does not change with the theme.** A piece of plastic is the same piece of
- * plastic in a dark room. What changes is the sheet it rests on, the glass
- * around it, and the `accent` — the one value that has to be *read* off a
+ * does not change with the theme.** What changes is the sheet it rests on, the
+ * glass around it, and the `accent` — the one value that has to be *read* off a
  * surface rather than looked at.
  *
- * Two values are hand-picked per family and everything else is derived with
+ * Three values are hand-picked per family and everything else is derived with
  * `color-mix()`, so **adding a colour family is two edits**: one entry in
- * `PlassColor` and two lines here (plus its `accent` in each theme).
+ * `PlassColor` and three lines here (plus its `accent` in each theme).
  *
- * Every `solid` was chosen against one number: the *lightest* stop of the
- * gradient derived from it has to clear 4.5:1 against its own `on-solid`. That
- * stop is a 5% lift toward white, which is why the fills sit where they do —
- * they are not "dark blue", they are as bright as a white label allows.
+ * `solid` and `solid-to` are the two ends of the gradient, at 135° — the
+ * top-left corner and the bottom-right one. They are a **hue sweep at one
+ * lightness**, not a shade: primary runs indigo to azure, danger vermilion to
+ * rose, success green to teal, info blue to cyan. Nothing gets lighter and
+ * nothing gets darker.
+ *
+ * That is the whole reason there is no highlight layer over the top of a
+ * control. A gradient that darkens toward one corner is a moulded object
+ * catching a lamp, and it needs a specular highlight to finish the illusion —
+ * which is what made every filled control read as lacquer. A gradient that
+ * *turns* is a piece of tinted glass, and it needs nothing else.
+ *
+ * Both ends clear 4.5:1 against their own `on-solid`, and they sit as close to
+ * that floor as the arithmetic allows: every one of them is within 0.15 of 4.5,
+ * because a family held further above the floor than it has to be is a family
+ * that is darker than it has to be. `warning` is the exception on both counts —
+ * its ink is dark, so it runs the other way and has room to spare.
  * ------------------------------------------------------------------------- */
 
 :root {
-  --plass-primary-solid: #3558ef;
+  --plass-primary-solid: #3f63f2;
+  --plass-primary-solid-to: #1b78cb;
   --plass-primary-on-solid: #ffffff;
 
-  --plass-secondary-solid: #4f5a70;
+  --plass-secondary-solid: #6b7488;
+  --plass-secondary-solid-to: #59637a;
   --plass-secondary-on-solid: #ffffff;
 
-  --plass-success-solid: #157845;
+  --plass-success-solid: #1b8649;
+  --plass-success-solid-to: #12866a;
   --plass-success-on-solid: #ffffff;
 
-  /* The one family with dark ink. White on amber does not reach 4.5:1 at any
-     lightness worth calling amber, and changing the ink is the right answer —
-     distorting the family to preserve a white label is not. */
-  --plass-warning-solid: #e2921c;
+  /* The one family with dark ink, and the one whose sweep is a change of
+     lightness rather than of hue — amber has nowhere to turn that is still
+     amber. White on it does not reach 4.5:1 at any lightness worth the name,
+     and changing the ink is the right answer; distorting the family to preserve
+     a white label is not. */
+  --plass-warning-solid: #f0a63e;
+  --plass-warning-solid-to: #d98613;
   --plass-warning-on-solid: #3b2405;
 
-  --plass-danger-solid: #c4383e;
+  --plass-danger-solid: #d04246;
+  --plass-danger-solid-to: #d53c54;
   --plass-danger-on-solid: #ffffff;
 
-  --plass-info-solid: #186cb3;
+  --plass-info-solid: #2379bd;
+  --plass-info-solid-to: #157aa9;
   --plass-info-on-solid: #ffffff;
 }
 
@@ -134,32 +155,35 @@
      white box with an alpha on it. */
   --plass-blur: blur(22px) saturate(160%);
 
-  /* The two edges. `gloss-glass` is the light lying along the top of a sheet;
-     `gloss-solid` is the same light on a moulded key, which is dimmer because
-     the key is not clear. There is deliberately **no dark bevel underneath**:
-     the drop shadow is what puts the key above the sheet. */
+  /* The light lying along the top edge of a sheet. There is one of these and it
+     belongs to **glass only**: a pane has a real cut edge for light to catch.
+     A gradient key does not get one — a bright line across the top of a filled
+     control is the single thing that makes it read as moulded plastic, and the
+     gradient is already saying everything about the form that needs saying.
+     There is deliberately no dark bevel underneath either. */
   --plass-gloss-glass: inset 0 1px 0 rgb(255 255 255 / 0.55);
-  --plass-gloss-solid: inset 0 1px 0 rgb(255 255 255 / 0.34);
 
   /* A well cut into the glass — what a filled field is drawn as. The only
      inset shadow in the library that goes *downward*. */
   --plass-well: inset 0 1px 2px rgb(20 40 90 / 0.1);
 
-  /* The specular highlight `.plass-gloss` lays over a key. It stops at 62%
-     rather than running the whole height, because a gradient that reaches the
-     bottom edge reads as a colour change and not as light. */
-  --plass-specular: linear-gradient(
-    180deg,
-    rgb(255 255 255 / 0.3) 0%,
-    rgb(255 255 255 / 0.06) 46%,
-    rgb(255 255 255 / 0) 62%
-  );
+  /* The bloom that follows the pointer across a control, and the brighter flash
+     the moment it is pressed. These are the two colours `.plass-glow` reads on
+     a *filled* surface; a glass or a ghost control uses its own family tint
+     instead, because white light on a near-white sheet is invisible.
+
+     The flash is only a shade brighter than the bloom it replaces: the press is
+     carried by the whole control dimming, and this is the highlight riding on
+     top of it rather than the effect itself. */
+  --plass-glow-on-fill: rgb(255 255 255 / 0.18);
+  --plass-flash-on-fill: rgb(255 255 255 / 0.26);
 
   /* Elevation, and how strongly a key's own colour bleeds into the shadow it
      casts. The ambient is a blue-grey rather than black: a neutral shadow over
-     a blue-tinted page reads as dirt. */
-  --plass-shadow-ambient: rgb(20 40 90 / 0.16);
-  --plass-glow-strength: 35%;
+     a blue-tinted page reads as dirt — and it is faint, because the tint below
+     is what a control's shadow is actually made of. */
+  --plass-shadow-ambient: rgb(20 40 90 / 0.1);
+  --plass-tint-strength: 35%;
 
   /* The scrim behind a modal surface. */
   --plass-scrim: rgb(16 24 40 / 0.4);
@@ -216,21 +240,16 @@
     --plass-blur: blur(22px) saturate(150%);
 
     --plass-gloss-glass: inset 0 1px 0 rgb(255 255 255 / 0.1);
-    --plass-gloss-solid: inset 0 1px 0 rgb(255 255 255 / 0.22);
 
     --plass-well: inset 0 1px 2px rgb(0 0 0 / 0.45);
 
-    --plass-specular: linear-gradient(
-      180deg,
-      rgb(255 255 255 / 0.18) 0%,
-      rgb(255 255 255 / 0.04) 46%,
-      rgb(255 255 255 / 0) 62%
-    );
+    --plass-glow-on-fill: rgb(255 255 255 / 0.15);
+    --plass-flash-on-fill: rgb(255 255 255 / 0.22);
 
     /* A tinted shadow has almost nothing to sit on over a near-black page, so
        the tint is turned up rather than the shadow being made bigger. */
-    --plass-shadow-ambient: rgb(0 0 0 / 0.5);
-    --plass-glow-strength: 55%;
+    --plass-shadow-ambient: rgb(0 0 0 / 0.42);
+    --plass-tint-strength: 55%;
 
     --plass-scrim: rgb(0 0 0 / 0.6);
 
@@ -261,19 +280,14 @@
   --plass-blur: blur(22px) saturate(150%);
 
   --plass-gloss-glass: inset 0 1px 0 rgb(255 255 255 / 0.1);
-  --plass-gloss-solid: inset 0 1px 0 rgb(255 255 255 / 0.22);
 
   --plass-well: inset 0 1px 2px rgb(0 0 0 / 0.45);
 
-  --plass-specular: linear-gradient(
-    180deg,
-    rgb(255 255 255 / 0.18) 0%,
-    rgb(255 255 255 / 0.04) 46%,
-    rgb(255 255 255 / 0) 62%
-  );
+  --plass-glow-on-fill: rgb(255 255 255 / 0.15);
+  --plass-flash-on-fill: rgb(255 255 255 / 0.22);
 
-  --plass-shadow-ambient: rgb(0 0 0 / 0.5);
-  --plass-glow-strength: 55%;
+  --plass-shadow-ambient: rgb(0 0 0 / 0.42);
+  --plass-tint-strength: 55%;
 
   --plass-scrim: rgb(0 0 0 / 0.6);
 
@@ -293,8 +307,8 @@
  *
  * **This block is repeated for every theme root**, because a custom property
  * resolves its `var()`s on the element that declares it — declaring these only
- * on `:root` would freeze `--plass-*-glow` to the light theme's
- * `--plass-glow-strength` inside a `.dark` subtree.
+ * on `:root` would freeze `--plass-*-tint` to the light theme's
+ * `--plass-tint-strength` inside a `.dark` subtree.
  * ------------------------------------------------------------------------- */
 
 :root,
@@ -302,32 +316,36 @@
 .light,
 [data-theme='dark'],
 [data-theme='light'] {
-  /* The elevation ladder. Neutral, and it climbs by *blur* far more than by
-     offset: a key that moves 20px down the page when it is raised has left the
-     sheet, and everything in this library is still sitting on one. */
+  /* The elevation ladder. Neutral, wide and faint — it climbs by *blur* far
+     more than by offset, because a surface that moves 20px down the page when
+     it is raised has left the sheet, and everything in this library is still
+     sitting on one. A control's shadow is mostly the tint below rather than
+     this; what this adds is the small amount of grey that says the sheet is
+     above the page rather than printed on it. */
   --plass-shadow-0: 0 0 #0000;
-  --plass-shadow-1: 0 2px 8px -2px var(--plass-shadow-ambient);
-  --plass-shadow-2: 0 6px 20px -4px var(--plass-shadow-ambient);
-  --plass-shadow-3: 0 12px 32px -8px var(--plass-shadow-ambient);
-  --plass-shadow-4: 0 20px 48px -12px var(--plass-shadow-ambient);
+  --plass-shadow-1: 0 4px 14px -3px var(--plass-shadow-ambient);
+  --plass-shadow-2: 0 8px 24px -5px var(--plass-shadow-ambient);
+  --plass-shadow-3: 0 14px 36px -9px var(--plass-shadow-ambient);
+  --plass-shadow-4: 0 22px 52px -13px var(--plass-shadow-ambient);
 
-  /* The moulded fill. Three stops rather than two: light lands on the top-left
-     corner, the family's own colour holds the middle where the label sits, and
-     the far corner falls away. 135deg is the light direction the whole library
-     agrees on — the specular highlight, the gloss line and this all assume it.
+  /* The fill: the family's two ends, swept across the control at 135deg.
 
-     The lift is 5% and the fall is 10%, which is smaller than it looks like it
-     should be. Anything more and the top-left corner stops clearing 4.5:1
-     against the label. */
+     Two stops and not three, and a *sweep* rather than a shade. Three stops
+     with a light one at the corner is how a moulded key is drawn, and a moulded
+     key was the wrong object — it needs a highlight over the top of it to
+     finish the illusion, and that highlight is what made every control look
+     lacquered. Two ends that turn in hue do the same work with none of the
+     shine, which is also the more modern of the two pictures.
+
+     135deg is the one direction the whole library agrees on. */
   --plass-primary-fill: linear-gradient(
     135deg,
-    color-mix(in srgb, var(--plass-primary-solid) 95%, white) 0%,
-    var(--plass-primary-solid) 46%,
-    color-mix(in srgb, var(--plass-primary-solid) 90%, black) 100%
+    var(--plass-primary-solid) 0%,
+    var(--plass-primary-solid-to) 100%
   );
-  --plass-primary-glow: color-mix(
+  --plass-primary-tint: color-mix(
     in srgb,
-    var(--plass-primary-solid) var(--plass-glow-strength),
+    var(--plass-primary-solid) var(--plass-tint-strength),
     transparent
   );
   --plass-primary-soft: color-mix(in srgb, var(--plass-primary-accent) 10%, transparent);
@@ -339,13 +357,12 @@
 
   --plass-secondary-fill: linear-gradient(
     135deg,
-    color-mix(in srgb, var(--plass-secondary-solid) 95%, white) 0%,
-    var(--plass-secondary-solid) 46%,
-    color-mix(in srgb, var(--plass-secondary-solid) 90%, black) 100%
+    var(--plass-secondary-solid) 0%,
+    var(--plass-secondary-solid-to) 100%
   );
-  --plass-secondary-glow: color-mix(
+  --plass-secondary-tint: color-mix(
     in srgb,
-    var(--plass-secondary-solid) var(--plass-glow-strength),
+    var(--plass-secondary-solid) var(--plass-tint-strength),
     transparent
   );
   --plass-secondary-soft: color-mix(in srgb, var(--plass-secondary-accent) 10%, transparent);
@@ -357,13 +374,12 @@
 
   --plass-success-fill: linear-gradient(
     135deg,
-    color-mix(in srgb, var(--plass-success-solid) 95%, white) 0%,
-    var(--plass-success-solid) 46%,
-    color-mix(in srgb, var(--plass-success-solid) 90%, black) 100%
+    var(--plass-success-solid) 0%,
+    var(--plass-success-solid-to) 100%
   );
-  --plass-success-glow: color-mix(
+  --plass-success-tint: color-mix(
     in srgb,
-    var(--plass-success-solid) var(--plass-glow-strength),
+    var(--plass-success-solid) var(--plass-tint-strength),
     transparent
   );
   --plass-success-soft: color-mix(in srgb, var(--plass-success-accent) 10%, transparent);
@@ -375,13 +391,12 @@
 
   --plass-warning-fill: linear-gradient(
     135deg,
-    color-mix(in srgb, var(--plass-warning-solid) 95%, white) 0%,
-    var(--plass-warning-solid) 46%,
-    color-mix(in srgb, var(--plass-warning-solid) 90%, black) 100%
+    var(--plass-warning-solid) 0%,
+    var(--plass-warning-solid-to) 100%
   );
-  --plass-warning-glow: color-mix(
+  --plass-warning-tint: color-mix(
     in srgb,
-    var(--plass-warning-solid) var(--plass-glow-strength),
+    var(--plass-warning-solid) var(--plass-tint-strength),
     transparent
   );
   --plass-warning-soft: color-mix(in srgb, var(--plass-warning-accent) 12%, transparent);
@@ -393,13 +408,12 @@
 
   --plass-danger-fill: linear-gradient(
     135deg,
-    color-mix(in srgb, var(--plass-danger-solid) 95%, white) 0%,
-    var(--plass-danger-solid) 46%,
-    color-mix(in srgb, var(--plass-danger-solid) 90%, black) 100%
+    var(--plass-danger-solid) 0%,
+    var(--plass-danger-solid-to) 100%
   );
-  --plass-danger-glow: color-mix(
+  --plass-danger-tint: color-mix(
     in srgb,
-    var(--plass-danger-solid) var(--plass-glow-strength),
+    var(--plass-danger-solid) var(--plass-tint-strength),
     transparent
   );
   --plass-danger-soft: color-mix(in srgb, var(--plass-danger-accent) 10%, transparent);
@@ -411,13 +425,12 @@
 
   --plass-info-fill: linear-gradient(
     135deg,
-    color-mix(in srgb, var(--plass-info-solid) 95%, white) 0%,
-    var(--plass-info-solid) 46%,
-    color-mix(in srgb, var(--plass-info-solid) 90%, black) 100%
+    var(--plass-info-solid) 0%,
+    var(--plass-info-solid-to) 100%
   );
-  --plass-info-glow: color-mix(
+  --plass-info-tint: color-mix(
     in srgb,
-    var(--plass-info-solid) var(--plass-glow-strength),
+    var(--plass-info-solid) var(--plass-tint-strength),
     transparent
   );
   --plass-info-soft: color-mix(in srgb, var(--plass-info-accent) 10%, transparent);
@@ -448,38 +461,77 @@
 }
 
 /* ---------------------------------------------------------------------------
- * The gloss
+ * Interaction light
  *
- * One layer over a moulded surface: the specular highlight that says the light
- * is coming from the top-left and that the thing under it is not flat.
+ * Two stacked layers on an interactive surface, both reading `--p-mx`/`--p-my`
+ * — the pointer position, written straight to the element's inline style on
+ * `pointermove` — and both no-ops until those slots have colour in them.
  *
- * It is **the material, not a state** — it is there when nothing is happening,
- * which is exactly what makes it plastic rather than an effect. The only thing
- * that moves it is a press: the key tips away from the light and the highlight
- * drops out, which is the whole of the press signature together with the
- * shadow contracting under it.
+ * This is the one thing PlZon's own controls do not do, and it is here because
+ * a surface made of glass should answer where it is being touched. It replaces
+ * a static specular highlight that used to sit over every filled control: a
+ * highlight that is always on is a claim about a lamp somewhere off-screen,
+ * and it read as lacquer. Light that arrives with the pointer is a claim about
+ * the pointer, which is true.
  *
- * This lives in CSS rather than in Tailwind arbitrary variants because the
- * selector is a pseudo-element carrying a gradient: `[&::before]:[background:
- * linear-gradient(...)]` is technically expressible and completely unreadable.
+ * It lives in CSS rather than in Tailwind arbitrary variants because the
+ * selectors are pseudo-elements carrying gradients: `[&::before]:[background:
+ * radial-gradient(...)]` is technically expressible and completely unreadable.
  *
- * Cost per control: one composited layer that never repaints. There is no
- * pointer tracking, no ripple element, no timer and no JavaScript.
+ * Cost per hovered control: two composited layers and a gradient repaint of one
+ * small box, on frames the pointer already moved in. Nothing reflows, and React
+ * never re-renders — the component writes the two custom properties directly.
  * ------------------------------------------------------------------------- */
 
-.plass-gloss::before {
+.plass-glow::before,
+.plass-glow::after {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  background-image: var(--plass-specular);
-  opacity: 1;
-  transition: opacity var(--plass-duration) var(--plass-ease);
+  opacity: 0;
 }
 
-.plass-gloss:active::before {
-  opacity: 0.3;
+/* The bloom trailing the pointer across the surface. */
+.plass-glow::before {
+  background: radial-gradient(
+    6rem circle at var(--p-mx, 50%) var(--p-my, 50%),
+    var(--p-glow, transparent),
+    transparent 70%
+  );
+  transition: opacity 240ms var(--plass-ease);
+}
+
+@media (hover: hover) {
+  .plass-glow:hover::before {
+    opacity: 1;
+  }
+}
+
+/*
+ * The press, and the release afterglow. The asymmetry is the whole trick: 0ms
+ * in, ~700ms out, so the flash lands on the frame of the press and is still
+ * visibly draining a beat after the finger lifts. No JavaScript, no ripple
+ * element, no timers.
+ *
+ * This layer is also what carries the effect on a touch screen, where there is
+ * no hover at all: `:active` holds for as long as the finger is down, and
+ * `pointermove` keeps writing the coordinates, so the light follows a finger
+ * dragged across the control.
+ */
+.plass-glow::after {
+  background: radial-gradient(
+    5rem circle at var(--p-mx, 50%) var(--p-my, 50%),
+    var(--p-flash, transparent),
+    transparent 72%
+  );
+  transition: opacity 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.plass-glow:active::after {
+  opacity: 1;
+  transition-duration: 0ms;
 }
 
 /* ---------------------------------------------------------------------------
@@ -488,11 +540,13 @@
  * Nothing in Plass animates on its own except a spinner, so this is about the
  * transitions: someone who has asked for less movement is asking for state
  * changes to *arrive*, not to be taken away. The colours still change; they
- * simply stop easing.
+ * simply stop easing, and the light stops trailing the pointer across the
+ * surface — it is either on the control or it is not.
  * ------------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
-  .plass-gloss::before {
+  .plass-glow::before,
+  .plass-glow::after {
     transition-duration: 1ms;
   }
 }

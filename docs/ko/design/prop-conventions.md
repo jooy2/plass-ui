@@ -23,7 +23,7 @@ order: 3
 
 `filled`, `outlined`, `text`가 아니라 `solid`, `glass`, `ghost`입니다. 이 세 단어는 [디자인 언어](./design-language)가 모든 표면에 던지는 질문의 세 가지 답이고, 어떻게 보이는지가 아니라 무엇 _인지_ 로 이름을 붙인 덕분에 애매한 컴포넌트에서도 답이 흔들리지 않습니다.
 
-같은 단어가 두 가지를 뜻하는 곳은 입력하는 것에 붙은 `solid` 하나뿐입니다. 거기서는 성형된 키가 아니라 **우물**입니다. [TextField](../components/inputs/text-field#variant)를 보세요.
+같은 단어가 두 가지를 뜻하는 곳은 입력하는 것에 붙은 `solid` 하나뿐입니다. 거기서는 색 유리판이 아니라 **우물**입니다. [TextField](../components/inputs/text-field#variant)를 보세요.
 
 ### `size`는 하나의 결정입니다
 

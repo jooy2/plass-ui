@@ -10,9 +10,10 @@ Live previews and full props for every component. This README is just the quick 
 
 **Plass UI is a React component library with a material rather than a theme.** Every surface answers one question — is this pressed, or does it hold something? — and the answer decides everything else.
 
-A thing that is pressed is **plastic**: a gradient fill at 135°, a specular highlight along its top edge, and a drop shadow tinted with its own colour. A thing that holds something is **glass**: translucent, heavily blurred, a white hairline round it, and never dyed. There is no third answer.
+A thing that is pressed is **tinted glass**: a gradient that sweeps between two ends of its colour family at 135°, a drop shadow tinted with that family, and a bloom of light that follows the pointer across it. A thing that holds something is **clear glass**: translucent, heavily blurred, a white hairline round it, and never dyed. There is no third answer.
 
 - **Two materials, one language** — `solid`, `glass`, `ghost`. Not `filled`, `outlined`, `text`.
+- **Light instead of relief** — no bevels and no highlights. The gradient carries the form, and a soft glow follows your pointer across the control.
 - **One shared vocabulary** — `size`, `color`, `variant`, `density`, `elevation`. An `md` is 40px on every control; `primary` is the same family everywhere.
 - **Accessible by construction** — real roles, labels, focus management and keyboard support, not `div`s with click handlers.
 - **Contrast that was checked** — every gradient stop clears 4.5:1 against its own label, the lightest corner included.
