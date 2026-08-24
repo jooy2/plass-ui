@@ -53,3 +53,18 @@ export function ChevronIcon(): React.ReactElement {
     </svg>
   );
 }
+
+/** The tick: a chosen option, a ticked menu item, a checked box. */
+export function CheckIcon(): React.ReactElement {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="m3.5 8.5 3 3 6-6"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}

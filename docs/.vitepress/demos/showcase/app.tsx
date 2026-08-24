@@ -5,6 +5,7 @@ import {
   PlButton,
   PlCard,
   PlPagination,
+  PlSelect,
   PlTable,
   PlTextField
 } from 'plass-ui';
@@ -72,6 +73,16 @@ export default function ShowcaseApp() {
               type="email"
               defaultValue="billing@"
               error="Enter a valid address."
+            />
+            <PlSelect
+              fullWidth
+              label="Plan"
+              items={[
+                { value: 'starter', label: 'Starter' },
+                { value: 'team', label: 'Team' },
+                { value: 'enterprise', label: 'Enterprise' }
+              ]}
+              defaultValue="team"
             />
             <div className="flex items-center gap-3">
               <PlButton loading={saving} onClick={save}>

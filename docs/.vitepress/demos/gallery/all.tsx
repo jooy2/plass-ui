@@ -5,6 +5,7 @@ import {
   PlButton,
   PlCard,
   PlPagination,
+  PlSelect,
   PlTable,
   PlTextField
 } from 'plass-ui';
@@ -73,6 +74,26 @@ const entries: Entry[] = [
       ko: '긴 목록 아래에 놓이는 페이지 번호 줄입니다.'
     },
     preview: <PlPagination size="xs" count={9} defaultPage={3} />
+  },
+  {
+    name: 'PlSelect',
+    group: 'inputs',
+    href: 'components/inputs/select',
+    blurb: {
+      en: 'One value chosen from a list, on a text field\u2019s shell.',
+      ko: '목록에서 값 하나를 고릅니다. text field와 같은 껍데기를 씁니다.'
+    },
+    preview: (
+      <PlSelect
+        size="sm"
+        fullWidth
+        items={[
+          { value: 'seoul', label: 'Seoul' },
+          { value: 'lisbon', label: 'Lisbon' }
+        ]}
+        defaultValue="seoul"
+      />
+    )
   },
   {
     name: 'PlTable',

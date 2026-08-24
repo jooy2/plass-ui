@@ -555,6 +555,167 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlSelect: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: 'trigger의 재질. PlTextField와 같은 껍데기를 씁니다. solid는 시트에 파인 우물',
+        en: "The material of the trigger, drawn on PlTextField's shell. solid is the well cut into the sheet"
+      },
+      sizeDescription: {
+        ko: 'trigger의 높이와 타입 스케일. PlTextField와 같은 사다리',
+        en: 'Height and type scale of the trigger — the same ladder as PlTextField'
+      },
+      elevationDescription: {
+        ko: 'trigger의 그림자 깊이. 팝업은 3으로 고정입니다 — 팝업은 정말로 페이지 위에 떠 있습니다',
+        en: 'Drop shadow depth of the trigger. The popup has its own, fixed at 3 — it genuinely floats'
+      }
+    }),
+    {
+      name: 'items',
+      type: 'readonly PlSelectOption[]',
+      required: true,
+      description: {
+        ko: '옵션 목록. 데이터로 받습니다 — 팝업을 한 번도 열지 않은 trigger도 라벨을 알아야 하기 때문입니다',
+        en: 'The options, as data — the trigger has to know the labels before the popup has ever been opened'
+      }
+    },
+    {
+      name: 'value',
+      type: 'string | number | null',
+      description: {
+        ko: '선택된 값. onValueChange와 함께 controlled로 씁니다',
+        en: 'The chosen value. Use with onValueChange for a controlled select'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'string | number | null',
+      description: { ko: 'uncontrolled일 때 처음 선택된 값', en: 'The initially chosen value' }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string | number | null) => void',
+      description: { ko: '값이 바뀔 때 호출됩니다', en: 'Called with the new value' }
+    },
+    {
+      name: 'placeholder',
+      type: 'ReactNode',
+      description: {
+        ko: '아무것도 고르지 않았을 때 trigger에 보이는 내용',
+        en: 'Shown in the trigger while nothing is chosen'
+      }
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: {
+        ko: 'trigger 위 라벨. Base UI의 Field가 서로 엮어 줍니다',
+        en: "Label above the trigger, wired to it by Base UI's Field"
+      }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: { ko: 'trigger 아래 보조 설명', en: 'Helper text below the trigger' }
+    },
+    {
+      name: 'error',
+      type: 'ReactNode',
+      description: {
+        ko: '오류 메시지. 존재 자체가 invalid 상태를 만듭니다',
+        en: 'Error message below. Its presence also turns the select invalid'
+      }
+    },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: {
+        ko: '메시지 없이 invalid로 만듭니다. 기본값은 error에 내용이 있는지 여부',
+        en: 'Forces the invalid state without a message. Defaults to whether error has content'
+      }
+    },
+    {
+      name: 'startIcon',
+      type: 'ReactNode',
+      description: {
+        ko: '값 앞에 놓이는 내용. 1.2em으로 그려져 글자 크기를 따라갑니다',
+        en: 'Content before the value. Sized in em, so it tracks the text'
+      }
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '컨테이너 너비만큼 확장', en: 'Stretches to the width of the container' }
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '값은 보이지만 바꿀 수 없습니다',
+        en: 'The value is shown but cannot be changed'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '사용 불가. 시트 너머로 페이지가 비쳐 보이며, 포커스 순서에서 빠집니다',
+        en: 'Unavailable. The page shows through the sheet, and it leaves the tab order'
+      }
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: 'form 제출 전에 값을 골라야 하는지',
+        en: 'Whether a value must be chosen before the form is submitted'
+      }
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: {
+        ko: 'form 제출 시 이 필드를 식별하는 이름',
+        en: 'Identifies the field when a form is submitted'
+      }
+    }
+  ],
+
+  PlSelectOption: [
+    {
+      name: 'value',
+      type: 'string | number',
+      required: true,
+      description: {
+        ko: '제출되는 값이자 value / onValueChange가 말하는 값',
+        en: 'Submitted, and what value / onValueChange speak in'
+      }
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: {
+        ko: '목록과 trigger에 보이는 내용. 생략하면 value가 그대로 쓰입니다',
+        en: 'Shown in the list and in the trigger. Defaults to the value itself'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '고를 수 없지만 목록에는 남습니다 — 존재하는 옵션인데 지금은 못 고르는 것',
+        en: 'Unavailable, but still listed — the option exists, it just cannot be picked'
+      }
+    }
+  ],
+
   PlTable: [
     ...sharedProps({
       variant: "'glass'",
