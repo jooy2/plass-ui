@@ -3419,6 +3419,232 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlToastProvider: [
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'glass'",
+      shared: true,
+      description: {
+        ko: '토스트의 재질. 색이 들어가지 않는 두 재질은 가장 불투명한 유리입니다 — 토스트 뒤에 무엇이 있을지 알 수 없기 때문입니다',
+        en: 'What a toast is made of. The two undyed materials are the glass at its most opaque, because what is behind a toast is arbitrary'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: { ko: '토스트의 여백과 타입 스케일', en: 'Padding and type scale of a toast' }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: '기본 색 계열. 개별 토스트는 add에서 덮어씁니다',
+        en: 'The default colour family. A single toast overrides it in add'
+      }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'default'",
+      shared: true,
+      description: { ko: '여백만 바꿉니다', en: 'Padding only' }
+    },
+    {
+      name: 'position',
+      type: "'top-start' | 'top-center' | 'top-end' | 'bottom-start' | 'bottom-center' | 'bottom-end'",
+      default: "'bottom-end'",
+      description: {
+        ko: '스택이 놓이는 자리. side와 align 쌍이 아니라 한 단어인 이유는 둘이 독립적이지 않기 때문입니다 — 토스트 스택은 언제나 위나 아래에 고정되지, 옆에 붙지 않습니다',
+        en: 'Where the stack sits. One word rather than a side plus an align pair, because they are not independent: a toast stack is always pinned to the top or the bottom, never to a side'
+      }
+    },
+    {
+      name: 'timeout',
+      type: 'number',
+      default: '5000',
+      description: {
+        ko: '기본 지속 시간(ms). 0은 닫을 때까지 남습니다 — 독자가 무언가 해야 하는 토스트에는 그쪽이 맞습니다. 읽히기 전에 사라진 토스트는 아무 말도 하지 않은 것입니다',
+        en: 'How long a toast lasts by default, in milliseconds. 0 keeps it up until it is closed, which is right for anything the reader has to act on: a toast that leaves before it is read said nothing'
+      }
+    },
+    {
+      name: 'limit',
+      type: 'number',
+      default: '3',
+      description: {
+        ko: '한 번에 보이는 개수. 나머지는 버려지지 않고 스택이 비는 대로 드러납니다',
+        en: 'How many are shown at once. The rest are kept and revealed as the stack drains rather than being thrown away'
+      }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      default: '380',
+      description: {
+        ko: '토스트의 최대 너비. 숫자는 px',
+        en: 'How wide a toast is allowed to get. Numbers are pixels'
+      }
+    },
+    {
+      name: 'closeLabel',
+      type: 'string',
+      default: "'Close'",
+      description: {
+        ko: '모든 토스트의 × 버튼 이름. 화면에는 그려지지 않습니다',
+        en: 'Accessible name of every toast’s × button. Never drawn'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '앱. 한 번만 감싸세요', en: 'The application. Wrap it once' }
+    }
+  ],
+
+  usePlToast: [
+    {
+      name: 'add',
+      type: '(options: PlToastOptions) => string',
+      description: {
+        ko: '토스트를 올리고 id를 돌려줍니다',
+        en: 'Raises a toast and returns its id'
+      }
+    },
+    {
+      name: 'update',
+      type: '(id: string, options: PlToastOptions) => void',
+      description: {
+        ko: '이미 화면에 있는 토스트를 바꿉니다. id를 다시 쓰면 그 자리에서 갱신되고 타이머가 다시 시작됩니다',
+        en: 'Changes a toast already on screen. Reusing an id updates it in place and restarts its timer'
+      }
+    },
+    {
+      name: 'close',
+      type: '(id?: string) => void',
+      description: {
+        ko: '토스트 하나를, 인자 없이 부르면 전부를 닫습니다',
+        en: 'Closes one toast, or every toast when called with nothing'
+      }
+    },
+    {
+      name: 'promise',
+      type: 'promise(work, { loading, success, error })',
+      description: {
+        ko: 'promise를 따라가는 토스트 하나. loading 상태에는 Base UI가 timeout 0을 적용하므로 느린 요청이 자기 토스트를 지워 버리지 못합니다',
+        en: 'One toast that follows a promise. Base UI applies timeout 0 to the loading state, so a slow request cannot dismiss its own toast'
+      }
+    },
+    {
+      name: 'toasts',
+      type: 'ToastObject[]',
+      description: {
+        ko: '지금 스택에 있는 토스트 전부. 최신이 먼저',
+        en: 'Every toast currently in the stack, newest first'
+      }
+    }
+  ],
+
+  PlToastOptions: [
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description: { ko: '헤드라인', en: 'The headline' }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: {
+        ko: '그 아래의 상세. 이것만 있으면 한 줄짜리 토스트입니다',
+        en: 'The detail under it. A toast with only this is a one-line toast'
+      }
+    },
+    {
+      name: 'id',
+      type: 'string',
+      description: {
+        ko: '다시 쓰면 그 토스트를 제자리에서 갱신합니다',
+        en: 'Reusing one updates that toast in place'
+      }
+    },
+    {
+      name: 'timeout',
+      type: 'number',
+      description: {
+        ko: '이 토스트만의 지속 시간. 0은 닫을 때까지',
+        en: 'This toast’s own lifetime. 0 keeps it up until it is closed'
+      }
+    },
+    {
+      name: 'priority',
+      type: "'low' | 'high'",
+      default: "'low'",
+      description: {
+        ko: 'high는 스크린리더를 끊고, low는 쉬는 지점을 기다립니다. 오류는 끊을 만하고 저장 확인은 그렇지 않습니다',
+        en: 'high interrupts a screen reader; low waits for a pause. An error is worth interrupting for and a save confirmation is not'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      shared: true,
+      description: {
+        ko: '이 토스트만 provider의 색 계열을 덮어씁니다',
+        en: 'Overrides the provider’s colour family for this toast alone'
+      }
+    },
+    {
+      name: 'variant',
+      type: VARIANT,
+      shared: true,
+      description: {
+        ko: '이 토스트만 provider의 재질을 덮어씁니다',
+        en: 'Overrides the provider’s material for this toast alone'
+      }
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode | false',
+      description: {
+        ko: '앞의 글리프. 생략하면 color에 맞는 것, false면 없음, 노드면 교체',
+        en: 'The glyph at the start. Omitted it follows color, false drops it, a node replaces it'
+      }
+    },
+    {
+      name: 'actionLabel',
+      type: 'ReactNode',
+      description: {
+        ko: '액션 버튼의 라벨. 넘기는 것이 버튼을 나타나게 합니다',
+        en: 'The label of the action button. Passing it is what makes the button appear'
+      }
+    },
+    {
+      name: 'onAction',
+      type: '(event: MouseEvent) => void',
+      description: { ko: '액션 버튼을 눌렀을 때', en: 'Called when the action button is pressed' }
+    },
+    {
+      name: 'onClose',
+      type: '() => void',
+      description: {
+        ko: '어떻게 닫혔든 닫혔을 때',
+        en: 'Called when the toast closes, however it closed'
+      }
+    },
+    {
+      name: 'onRemove',
+      type: '() => void',
+      description: {
+        ko: '사라지는 애니메이션이 끝나고 DOM에서 나갔을 때',
+        en: 'Called once it has finished animating out and left the DOM'
+      }
+    }
+  ],
+
   PlTooltip: [
     {
       name: 'content',

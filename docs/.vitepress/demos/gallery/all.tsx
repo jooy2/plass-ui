@@ -40,7 +40,9 @@ import {
   PlTextLink,
   PlTimeline,
   PlTimelineItem,
+  PlToastProvider,
   PlTooltip,
+  usePlToast,
   PlTypography
 } from 'plass-ui';
 
@@ -83,6 +85,22 @@ function OverlayPreview() {
         <span className="text-sm font-medium text-(--p-accent)">Press anywhere</span>
       </PlOverlay>
     </>
+  );
+}
+
+/** Raising a toast needs a hook, so this card's preview is a component too. */
+function ToastPreview() {
+  const toast = usePlToast();
+
+  return (
+    <PlButton
+      size="sm"
+      variant="glass"
+      color="secondary"
+      onClick={() => toast.add({ color: 'success', title: 'Saved' })}
+    >
+      Raise a toast
+    </PlButton>
   );
 }
 
@@ -554,6 +572,20 @@ const entries: Entry[] = [
         <PlSkeleton shape="circle" size="sm" />
         <PlSkeleton size="sm" lines={2} />
       </div>
+    )
+  },
+  {
+    name: 'PlToast',
+    group: 'feedback',
+    href: 'components/feedback/toast',
+    blurb: {
+      en: 'A message that appears on its own, says what happened, and leaves.',
+      ko: '스스로 나타나 무슨 일이 있었는지 말하고 사라지는 메시지입니다.'
+    },
+    preview: (
+      <PlToastProvider timeout={3000}>
+        <ToastPreview />
+      </PlToastProvider>
     )
   },
   {

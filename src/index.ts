@@ -30,5 +30,6 @@ export * from './components/tabs';
 export * from './components/text-field';
 export * from './components/timeline';
 export * from './components/text-link';
+export * from './components/toast';
 export * from './components/tooltip';
 export * from './components/typography';

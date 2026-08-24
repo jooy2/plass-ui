@@ -40,7 +40,9 @@ import {
   PlTextLink,
   PlTimeline,
   PlTimelineItem,
+  PlToastProvider,
   PlTooltip,
+  usePlToast,
   PlTypography
 } from 'plass-ui';
 
@@ -71,6 +73,15 @@ function BoltIcon() {
 }
 
 export default function ShowcaseApp() {
+  return (
+    <PlToastProvider position="bottom-end">
+      <SettingsScreen />
+    </PlToastProvider>
+  );
+}
+
+function SettingsScreen() {
+  const toast = usePlToast();
   const [name, setName] = useState('Acme Inc');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -81,6 +92,7 @@ export default function ShowcaseApp() {
     window.setTimeout(() => {
       setSaving(false);
       setSaved(true);
+      toast.add({ color: 'success', title: 'Saved', description: 'Your changes are live.' });
     }, 900);
   }
 
