@@ -113,6 +113,25 @@ export const paddingXClasses: Record<PlassDensity, Record<PlassSize, string>> = 
 };
 
 /**
+ * A standalone glyph's box: 14, 16, 20, 24 and 28px.
+ *
+ * Its own ladder rather than a step off `controlHeightClasses`, because an icon
+ * is not a control — it is content, and it is measured against the text it sits
+ * beside rather than against the row it sits in.
+ *
+ * `iconClasses` is the other half of the same idea and is not this: that one
+ * sizes a glyph *inside* a control, in `em`, so it tracks the label it belongs
+ * to. This one is for the glyph that is the whole object.
+ */
+export const iconSizeClasses: Record<PlassSize, string> = {
+  xs: 'size-3.5',
+  sm: 'size-4',
+  md: 'size-5',
+  lg: 'size-6',
+  xl: 'size-7'
+};
+
+/**
  * A tick box: the square a PlCheckbox draws and the circle a PlRadioGroup draws.
  *
  * Its own ladder rather than a step off `controlHeightClasses`, because a tick

@@ -9,6 +9,7 @@ import {
   PlDivider,
   PlFilePicker,
   PlHotKeys,
+  PlIcon,
   PlModal,
   PlModalClose,
   PlPagination,
@@ -45,6 +46,14 @@ function SearchIcon() {
   );
 }
 
+function BoltIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+      <path d="M13 2 4 14h7l-1 8 9-12h-7Z" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export default function ShowcaseApp() {
   const [name, setName] = useState('Acme Inc');
   const [saving, setSaving] = useState(false);
@@ -76,7 +85,11 @@ export default function ShowcaseApp() {
         <PlButton size="md">New</PlButton>
       </div>
 
-      <PlAlert color="warning" title="Your card expires next month">
+      <PlAlert
+        color="warning"
+        icon={<PlIcon size="sm" icon={<BoltIcon />} />}
+        title="Your card expires next month"
+      >
         Update it before the 30th or the next invoice will fail.
       </PlAlert>
 

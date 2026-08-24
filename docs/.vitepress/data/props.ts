@@ -899,6 +899,46 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlIcon: [
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      required: true,
+      description: {
+        ko: '글리프. svg, img, 아이콘 세트의 컴포넌트, 또는 문자 하나. children이 아니라 prop인 이유는, 아이콘을 감싸는 것이 아니라 *크기를 정해 주는* 것이기 때문입니다',
+        en: 'The glyph — an svg, an img, a component from an icon set, or a character. A prop rather than children, because the icon is content this component *sizes* rather than content it merely wraps'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '글리프가 그려지는 상자. 14, 16, 20, 24, 28px — 컨트롤 높이가 아니라 자기 사다리',
+        en: 'The box the glyph is drawn in: 14, 16, 20, 24 and 28px. Its own ladder, not the control heights'
+      }
+    },
+    {
+      name: 'color',
+      type: `${COLOR} | 'inherit'`,
+      default: "'inherit'",
+      shared: true,
+      description: {
+        ko: '의미론적 색 역할, 또는 놓인 자리의 색을 그대로 쓰는 inherit. 이 prop이 primary가 아닌 유일한 컴포넌트입니다 — 아이콘은 콘텐츠라, 색은 대개 이미 정해져 있습니다',
+        en: 'Semantic colour role, or inherit to take the colour of whatever it sits in. The one component where this is not primary — an icon is content, and its colour has usually been decided already'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: {
+        ko: '아이콘이 하는 말. 없으면 접근성 트리에서 완전히 숨깁니다 — 대부분의 아이콘 옆에는 같은 말을 하는 단어가 이미 있습니다',
+        en: 'What the icon says. Without it the icon is hidden from the accessibility tree entirely — most icons sit beside a word that already says the same thing'
+      }
+    }
+  ],
+
   PlModal: [
     {
       name: 'size',

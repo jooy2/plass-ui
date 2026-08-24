@@ -7,6 +7,7 @@ export * from './components/checkbox';
 export * from './components/divider';
 export * from './components/file-picker';
 export * from './components/hot-keys';
+export * from './components/icon';
 export * from './components/modal';
 export * from './components/pagination';
 export * from './components/radio-group';

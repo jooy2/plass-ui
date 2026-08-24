@@ -9,6 +9,7 @@ import {
   PlDivider,
   PlFilePicker,
   PlHotKeys,
+  PlIcon,
   PlModal,
   PlModalClose,
   PlPagination,
@@ -243,6 +244,30 @@ const entries: Entry[] = [
       <div className="flex flex-wrap items-center gap-3">
         <PlHotKeys size="sm" keys="Mod+K" />
         <PlHotKeys size="sm" keys="Shift+Enter" />
+      </div>
+    )
+  },
+  {
+    name: 'PlIcon',
+    group: 'display',
+    href: 'components/display/icon',
+    blurb: {
+      en: 'A glyph at a known size, in a known colour.',
+      ko: '정해진 크기와 색으로 놓이는 글리프입니다.'
+    },
+    preview: (
+      <div className="flex flex-wrap items-center gap-4">
+        {(['primary', 'success', 'warning', 'danger'] as const).map((color) => (
+          <PlIcon
+            key={color}
+            color={color}
+            icon={
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                <path d="M13 2 4 14h7l-1 8 9-12h-7Z" strokeLinejoin="round" />
+              </svg>
+            }
+          />
+        ))}
       </div>
     )
   },
