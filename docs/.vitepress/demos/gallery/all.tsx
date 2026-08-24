@@ -6,6 +6,7 @@ import {
   PlCard,
   PlPagination,
   PlSelect,
+  PlSlider,
   PlTable,
   PlTextField
 } from 'plass-ui';
@@ -94,6 +95,16 @@ const entries: Entry[] = [
         defaultValue="seoul"
       />
     )
+  },
+  {
+    name: 'PlSlider',
+    group: 'inputs',
+    href: 'components/inputs/slider',
+    blurb: {
+      en: 'A value chosen along a range.',
+      ko: '범위 위에서 값 하나를 고릅니다.'
+    },
+    preview: <PlSlider size="sm" defaultValue={62} aria-label="Volume" />
   },
   {
     name: 'PlTable',

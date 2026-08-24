@@ -6,6 +6,7 @@ import {
   PlCard,
   PlPagination,
   PlSelect,
+  PlSlider,
   PlTable,
   PlTextField
 } from 'plass-ui';
@@ -112,6 +113,15 @@ export default function ShowcaseApp() {
               rows={2}
               label="Why are you leaving?"
               variant="ghost"
+            />
+            <PlSlider
+              label="Keep backups for"
+              color="danger"
+              defaultValue={30}
+              min={0}
+              max={90}
+              step={5}
+              showValue={(formatted) => `${formatted[0]} days`}
             />
             <div className="flex items-center gap-3">
               <PlButton color="danger">Delete organisation</PlButton>

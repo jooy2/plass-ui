@@ -716,6 +716,112 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlSlider: [
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '홈 두께, thumb 지름, 그리고 라벨의 타입 스케일',
+        en: 'Groove thickness, thumb diameter, and the label type scale'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: '채워진 구간의 그러데이션과 thumb의 색',
+        en: 'The gradient of the filled run, and the thumb on it'
+      }
+    },
+    {
+      name: 'elevation',
+      type: ELEVATION,
+      default: '1',
+      shared: true,
+      description: {
+        ko: 'thumb의 그림자 깊이. 누르는 부분이므로 컨트롤과 같은 기본값 1',
+        en: 'Drop shadow depth of the thumb. It is the part you press, so it takes a control default of 1'
+      }
+    },
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      shared: true,
+      description: {
+        ko: '슬라이더가 놓이는 방향. 세로 슬라이더는 자기 길이가 없으므로 높이를 주세요',
+        en: 'Which way the slider runs. A vertical slider has no length of its own, so give it a height'
+      }
+    },
+    {
+      name: 'value',
+      type: 'number | number[]',
+      description: {
+        ko: '현재 값. 배열을 주면 그 개수만큼 thumb이 있는 range 슬라이더가 됩니다',
+        en: 'The current value. An array makes it a range slider with one thumb per entry'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'number | number[]',
+      description: { ko: 'uncontrolled일 때의 시작 값', en: 'The starting value, uncontrolled' }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: number | number[]) => void',
+      description: { ko: '값이 바뀔 때 호출됩니다', en: 'Called with the new value' }
+    },
+    {
+      name: 'min · max · step',
+      type: 'number',
+      default: '0 · 100 · 1',
+      description: {
+        ko: '범위와 눈금. Base UI가 그대로 받습니다',
+        en: 'The range and its increments, passed straight to Base UI'
+      }
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: { ko: '트랙 위 라벨', en: 'The label above the track' }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: { ko: '트랙 아래 보조 설명', en: 'Helper text below the track' }
+    },
+    {
+      name: 'showValue',
+      type: 'boolean | ((formatted, values) => ReactNode)',
+      default: 'false',
+      description: {
+        ko: '라벨 옆에 현재 값을 보여 줍니다. 함수를 주면 서식을 직접 정합니다',
+        en: 'Shows the current value beside the label. Pass a function to format it'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '사용 불가. 채도가 빠지고 페이지가 비쳐 보이며, 포커스 순서에서 빠집니다',
+        en: 'Unavailable. Loses its saturation, lets the page through, and leaves the tab order'
+      }
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: {
+        ko: 'form 제출 시 이 컨트롤을 식별하는 이름',
+        en: 'Identifies the control when a form is submitted'
+      }
+    }
+  ],
+
   PlTable: [
     ...sharedProps({
       variant: "'glass'",
