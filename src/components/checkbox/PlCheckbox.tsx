@@ -71,10 +71,16 @@ const tickBaseClasses = [
  * `0 6px 16px` shadow under an 18px box is a shadow bigger than the box.
  *
  * The material stays. It is only the two decorations that go.
+ *
+ * The edge is `--plass-border` rather than the sheet's own `--plass-glass-line`,
+ * and that is not a slip. The glass hairline is white light on a translucent
+ * pane, which is invisible the moment the tick is set on a light card rather
+ * than on the page wash — and a tick nobody can see is a control nobody can
+ * find. A neutral hairline reads on both.
  */
 const restClasses = [
   glassClasses,
-  'cursor-pointer bg-(--plass-glass) [border-color:var(--plass-glass-line)]',
+  'cursor-pointer bg-(--plass-glass) [border-color:var(--plass-border)]',
   'hover:bg-(--plass-glass-hover) hover:[border-color:var(--p-line)]',
   // `data-checked` rather than `:checked`: the visible tick is a `<span>`, and
   // the real input is hidden beside it.
@@ -86,7 +92,7 @@ const restClasses = [
 
 const readOnlyClasses = [
   glassClasses,
-  'cursor-default bg-(--plass-glass) [border-color:var(--plass-glass-line)]',
+  'cursor-default bg-(--plass-glass) [border-color:var(--plass-border)]',
   'saturate-[0.55]',
   'data-[checked]:[background-image:var(--p-fill)] data-[checked]:text-(--p-on-solid)',
   'data-[checked]:[border-color:transparent]'

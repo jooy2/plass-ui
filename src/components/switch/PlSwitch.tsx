@@ -101,10 +101,16 @@ const trackBaseClasses = [
  * 1px white hairline around a 20px groove is a bevel rather than light on a cut
  * edge, and a bevelled groove with a domed thumb in it is the skeuomorphic
  * switch this design language is not.
+ *
+ * The edge is `--plass-border` rather than the sheet's own `--plass-glass-line`,
+ * and that is not a slip. The glass hairline is white light on a translucent
+ * pane, which is invisible the moment the tick is set on a light card rather
+ * than on the page wash — and a tick nobody can see is a control nobody can
+ * find. A neutral hairline reads on both.
  */
 const restTrackClasses = [
   glassClasses,
-  'cursor-pointer bg-(--plass-glass-press) [border-color:var(--plass-glass-line)]',
+  'cursor-pointer bg-(--plass-glass-press) [border-color:var(--plass-border)]',
   '[box-shadow:var(--plass-well)]',
   'hover:[border-color:var(--p-line)]',
   'data-[checked]:[background-image:var(--p-fill)] data-[checked]:[border-color:transparent]',
@@ -113,7 +119,7 @@ const restTrackClasses = [
 
 const readOnlyTrackClasses = [
   glassClasses,
-  'cursor-default bg-(--plass-glass-press) [border-color:var(--plass-glass-line)]',
+  'cursor-default bg-(--plass-glass-press) [border-color:var(--plass-border)]',
   '[box-shadow:var(--plass-well)] saturate-[0.55]',
   'data-[checked]:[background-image:var(--p-fill)] data-[checked]:[border-color:transparent]',
   'data-[checked]:shadow-none'
