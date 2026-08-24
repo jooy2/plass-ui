@@ -10,6 +10,7 @@ import {
   PlBreadcrumbItem,
   PlButton,
   PlCard,
+  PlChatBubble,
   PlCheckbox,
   PlChip,
   PlDivider,
@@ -616,6 +617,25 @@ const entries: Entry[] = [
       <PlCard size="xs" className="w-full" title="Team plan" subtitle="Billed yearly">
         Shared projects and audit logs.
       </PlCard>
+    )
+  },
+  {
+    name: 'PlChatBubble',
+    group: 'surfaces',
+    href: 'components/surfaces/chat-bubble',
+    blurb: {
+      en: 'One message in a conversation.',
+      ko: '대화 속 메시지 하나입니다.'
+    },
+    preview: (
+      <div className="flex w-full flex-col gap-2">
+        <PlChatBubble size="xs" avatar={<PlAvatar size="xs" name="Ada Lovelace" />}>
+          The gradient turns rather than shades.
+        </PlChatBubble>
+        <PlChatBubble size="xs" side="end" variant="solid" status="read">
+          Already did.
+        </PlChatBubble>
+      </div>
     )
   },
   {

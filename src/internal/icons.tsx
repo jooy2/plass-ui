@@ -144,6 +144,22 @@ export function CloseIcon(): React.ReactElement {
   );
 }
 
+/** The clock: something that has been started and has not finished. */
+export function ClockIcon(): React.ReactElement {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.5" />
+      <path
+        d="M8 4.5V8l2.4 1.6"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 /** The chain: a link that stays on this page. */
 export function LinkIcon(): React.ReactElement {
   return (

@@ -926,6 +926,188 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlChatBubble: [
+    {
+      name: 'side',
+      type: "'start' | 'end'",
+      default: "'start'",
+      shared: true,
+      description: {
+        ko: '누구의 메시지인지. them/me나 left/right가 아닌 이유는 대화가 언어가 흐르는 방향으로 흐르기 때문입니다. 행이 어느 쪽으로 놓이는지와 시트의 어느 모서리가 짧게 잘리는지를 정합니다',
+        en: 'Whose message this is. Not them/me or left/right, because a thread runs the way the language does. It decides which way the row runs and which corner of the sheet is cut short'
+      }
+    },
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'glass'",
+      shared: true,
+      description: {
+        ko: '버블 표면의 재질. 버블은 색을 입는 대상 자체라 solid가 안을 채우고 글자가 --p-on-solid로 넘어갑니다. side와 묶여 있지 않은 것은 일부러입니다 — 어느 쪽을 채울지는 컴포넌트가 아니라 제품의 결정입니다',
+        en: 'What the bubble’s surface is made of. A bubble is the thing being coloured, so solid floods it and the text switches to --p-on-solid. Deliberately not tied to side: which end is filled is a decision about the product, not about the component'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: { ko: '버블의 타입 스케일과 여백', en: 'Type scale and padding of the bubble' }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: { ko: '의미론적 색 역할', en: 'Semantic colour role' }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'default'",
+      shared: true,
+      description: {
+        ko: '버블 안쪽 여백만 바꿉니다',
+        en: 'Padding inside the bubble, and nothing else'
+      }
+    },
+    {
+      name: 'elevation',
+      type: ELEVATION,
+      default: '0',
+      shared: true,
+      description: {
+        ko: '그림자 깊이. 메시지는 대화 위에 떠 있기보다 그 안에 놓입니다',
+        en: 'Drop shadow depth. A message lies in the thread rather than floating over it'
+      }
+    },
+    {
+      name: 'name',
+      type: 'ReactNode',
+      description: { ko: '보낸 사람. 버블 위에 놓입니다', en: 'Who sent it, above the bubble' }
+    },
+    {
+      name: 'time',
+      type: 'ReactNode',
+      description: { ko: '보낸 시각. 이름 옆에 놓입니다', en: 'When it was sent, beside the name' }
+    },
+    {
+      name: 'avatar',
+      type: 'ReactNode',
+      description: {
+        ko: '보낸 사람의 사진 — 대화가 쓰는 크기의 PlAvatar. 없으면 버블이 행 전체를 씁니다',
+        en: 'The sender’s picture — a PlAvatar at the size the thread uses. Left out, the bubble takes the whole row'
+      }
+    },
+    {
+      name: 'status',
+      type: "'sending' | 'sent' | 'delivered' | 'read' | 'failed'",
+      description: {
+        ko: '메시지가 어디까지 갔는지. 버블 아래 표시로 그려집니다. 없으면 아무것도 그리지 않습니다 — 받은 메시지에는 보여 줄 전달 상태가 없습니다',
+        en: 'How far the message has got, drawn as a mark under the bubble. Left out, nothing is drawn: a received message has no delivery state worth showing'
+      }
+    },
+    {
+      name: 'statusLabel',
+      type: 'string',
+      description: {
+        ko: '표시가 읽히는 말. 화면에는 그려지지 않습니다',
+        en: 'What the mark is read out as. Never drawn'
+      }
+    },
+    {
+      name: 'typing',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '메시지 대신 점 세 개를 그립니다. children은 그대로 두므로, 메시지가 도착하면 같은 버블이 되돌아옵니다',
+        en: 'Draws the three dots instead of the message. What children holds is left alone, so the same bubble can go back to it when the message arrives'
+      }
+    },
+    {
+      name: 'typingLabel',
+      type: 'string',
+      default: "'Typing…'",
+      description: {
+        ko: '점이 읽히는 말. 화면에는 그려지지 않습니다',
+        en: 'What the dots are read out as. Never drawn'
+      }
+    },
+    {
+      name: 'media',
+      type: 'ReactNode',
+      description: {
+        ko: '사진, 영상, 지도 — 글 위에 가장자리까지 그려지고 버블의 모서리가 그것을 잘라 냅니다',
+        en: 'A picture, a video, a map — drawn edge to edge above the text, so the bubble’s corners crop it'
+      }
+    },
+    {
+      name: 'preview',
+      type: 'PlChatBubbleLinkPreview',
+      description: {
+        ko: '메시지 속 링크를 글 아래 카드로 펼칩니다',
+        en: 'A link in the message, unfurled into a card under the text'
+      }
+    },
+    {
+      name: 'actions',
+      type: 'ReactNode',
+      description: {
+        ko: '메시지 자신의 액션. 버블 옆에 놓이고, 행에 hover하거나 안의 무언가가 focus를 받기 전까지는 비켜서 있습니다',
+        en: 'The message’s own actions. Sits beside the bubble and stays out of the way until the row is hovered or something in it takes focus'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '메시지', en: 'The message' }
+    }
+  ],
+
+  PlChatBubbleLinkPreview: [
+    {
+      name: 'url',
+      type: 'string',
+      required: true,
+      description: { ko: '카드가 가리키는 곳', en: 'Where the card goes' }
+    },
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description: { ko: '페이지의 제목', en: 'The page’s title' }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: { ko: '요약. 두 줄로 잘립니다', en: 'Its summary, clamped to two lines' }
+    },
+    {
+      name: 'image',
+      type: 'string',
+      description: {
+        ko: '카드 위쪽에 걸치는 공유 이미지',
+        en: 'The share image, drawn across the top of the card'
+      }
+    },
+    {
+      name: 'site',
+      type: 'ReactNode',
+      description: {
+        ko: '누가 낸 것인지 — 도메인, 사이트 이름',
+        en: 'Who published it — a domain, a site name'
+      }
+    },
+    {
+      name: 'newTab',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '새 탭에서 엽니다. opener를 지키는 rel이 함께 붙습니다',
+        en: 'Opens the card in a new tab, with the rel that protects the opener'
+      }
+    }
+  ],
+
   PlCheckbox: [
     {
       name: 'size',

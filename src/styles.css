@@ -568,6 +568,36 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * The three dots in a bubble somebody is typing into
+ *
+ * Colour only. The dots never move, so a message being written does not bounce
+ * in a thread somebody else is reading — the same restraint every other
+ * indeterminate indicator here keeps, and the reason the spinner is the one
+ * thing in the library allowed to turn.
+ *
+ * `currentColor` throughout, because a bubble's ink is `--p-on-solid` on a
+ * filled surface and the page's own on the other two, and the dots have to be
+ * legible on both. The delay is carried per dot in `--p-i`.
+ * ------------------------------------------------------------------------- */
+
+@keyframes plass-typing {
+  0%,
+  60%,
+  100% {
+    background-color: color-mix(in oklab, currentColor 28%, transparent);
+  }
+  30% {
+    background-color: currentColor;
+  }
+}
+
+.plass-typing-dot {
+  background-color: color-mix(in oklab, currentColor 28%, transparent);
+  animation: plass-typing 1.25s var(--plass-ease) infinite;
+  animation-delay: calc(var(--p-i, 0) * 160ms);
+}
+
+/* ---------------------------------------------------------------------------
  * The travelling highlight on a placeholder
  *
  * `inset-inline-start` rather than a `transform`, which is the same trade the
@@ -639,5 +669,11 @@
     inline-size: 100%;
     background-image: none;
     animation: plass-skeleton-pulse 2.4s var(--plass-ease) infinite;
+  }
+
+  /* Slowed rather than stopped, for the same reason: the dots are what say
+     somebody is still typing, and dots that hold still say the opposite. */
+  .plass-typing-dot {
+    animation-duration: 2.6s;
   }
 }

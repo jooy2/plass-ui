@@ -10,6 +10,7 @@ import {
   PlBreadcrumbItem,
   PlButton,
   PlCard,
+  PlChatBubble,
   PlCheckbox,
   PlChip,
   PlDivider,
@@ -327,7 +328,21 @@ function SettingsScreen() {
           Members
         </PlTab>
 
-        <PlTabPanel value="activity">Nothing has happened in the last seven days.</PlTabPanel>
+        <PlTabPanel value="activity">
+          <div className="flex flex-col gap-3">
+            <PlChatBubble
+              size="sm"
+              name="Ada Lovelace"
+              time="09:12"
+              avatar={<PlAvatar size="xs" name="Ada Lovelace" src="/portrait-1.svg" />}
+            >
+              I raised the seat count to twelve.
+            </PlChatBubble>
+            <PlChatBubble size="sm" side="end" variant="solid" time="09:14" status="read">
+              Thanks — invoice is out.
+            </PlChatBubble>
+          </div>
+        </PlTabPanel>
         <PlTabPanel value="members">Four people, and what each of them can do.</PlTabPanel>
       </PlTabs>
 
