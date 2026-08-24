@@ -6,6 +6,8 @@ import {
   PlAvatar,
   PlBadge,
   PlBlockquote,
+  PlBreadcrumb,
+  PlBreadcrumbItem,
   PlButton,
   PlCard,
   PlCheckbox,
@@ -76,6 +78,12 @@ export default function ShowcaseApp() {
 
   return (
     <div className="flex flex-col gap-4">
+      <PlBreadcrumb size="sm">
+        <PlBreadcrumbItem href="#showcase">Home</PlBreadcrumbItem>
+        <PlBreadcrumbItem href="#showcase">Organisation</PlBreadcrumbItem>
+        <PlBreadcrumbItem>Settings</PlBreadcrumbItem>
+      </PlBreadcrumb>
+
       <div className="flex flex-wrap items-center gap-3">
         <PlBadge dot color="success" overlap="circle" label="Online">
           <PlAvatar name="Ada Lovelace" src="/portrait-1.svg" />

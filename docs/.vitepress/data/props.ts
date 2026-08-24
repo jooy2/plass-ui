@@ -589,6 +589,169 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlBreadcrumb: [
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: { ko: '단계의 타입 스케일', en: 'Type scale of the steps' }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: '링크가 hover될 때 입는 색 계열',
+        en: 'The colour family a link picks up when it is hovered'
+      }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'default'",
+      shared: true,
+      description: {
+        ko: '단계 사이의 간격만 바꿉니다',
+        en: 'The gap between the steps, and nothing else'
+      }
+    },
+    {
+      name: 'separator',
+      type: "'chevron' | 'arrow' | 'slash' | 'dot' | ReactNode",
+      default: "'chevron'",
+      description: {
+        ko: '두 단계 사이의 표시. 이름 넷 중 하나이거나 임의의 노드. 넷인 이유는 구분자의 차이가 장식이 아니라 의미이기 때문입니다 — chevron과 arrow는 "그다음", slash는 "경로", dot은 "한 가지의 동렬"입니다',
+        en: 'The mark between two steps. One of the four names, or any node. Four rather than a free-for-all because the difference is meaning, not decoration: chevron and arrow say "and then", slash says "path", dot says "peers of one thing"'
+      }
+    },
+    {
+      name: 'maxItems',
+      type: 'number',
+      description: {
+        ko: '가운데를 …로 접기 전까지 보여 줄 단계 수. 생략하면 아무리 길어져도 전부 보여 줍니다',
+        en: 'How many steps to show before the middle is folded away behind a …. Left out, the whole trail is shown however long it gets'
+      }
+    },
+    {
+      name: 'itemsBeforeCollapse',
+      type: 'number',
+      default: '1',
+      description: {
+        ko: '접힌 자취의 앞쪽에 남는 단계 수',
+        en: 'How many steps stay at the front of a folded trail'
+      }
+    },
+    {
+      name: 'itemsAfterCollapse',
+      type: 'number',
+      default: '1',
+      description: { ko: '뒤쪽에 남는 단계 수', en: 'How many stay at the end' }
+    },
+    {
+      name: 'expandable',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '…를 누르면 그 자리에서 펼칠지. 끄면 접힌 표시가 그냥 표시로 남습니다',
+        en: 'Whether pressing the … unfolds the trail in place. Turn it off to leave the fold as a plain mark'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      default: "'Breadcrumb'",
+      description: {
+        ko: '자취가 불리는 이름. 화면에는 그려지지 않습니다',
+        en: 'The name the trail is announced by. Never drawn'
+      }
+    },
+    {
+      name: 'expandLabel',
+      type: 'string',
+      default: "'Show the hidden steps'",
+      description: {
+        ko: '…가 불리는 이름. 화면에는 그려지지 않습니다',
+        en: 'What the … is announced as. Never drawn'
+      }
+    },
+    {
+      name: 'structuredData',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '자취를 BreadcrumbList로 한 번 더, script type="application/ld+json"에 함께 냅니다. 페이지에 하나만 있을 수 있고 많은 앱이 이미 자기 SEO 계층에서 내보내므로 기본은 꺼짐입니다. 접혀서 안 보이는 단계까지 전부 들어갑니다',
+        en: 'Emits the trail a second time as a BreadcrumbList in a script tag. Off by default — a page can only have one, and many apps already emit theirs. Every step goes in, including the ones a fold is hiding'
+      }
+    },
+    {
+      name: 'baseUrl',
+      type: 'string',
+      description: {
+        ko: 'structuredData에서 상대 href를 무엇에 대고 풀지 — 사이트의 origin. 검색 엔진은 절대 URL을 원합니다',
+        en: 'What relative hrefs are resolved against for structuredData — the site’s origin. Search engines want an absolute URL there'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: 'PlBreadcrumbItem들', en: 'The PlBreadcrumbItems' }
+    }
+  ],
+
+  PlBreadcrumbItem: [
+    {
+      name: 'href',
+      type: 'string',
+      description: { ko: '단계를 링크로 그립니다', en: 'Renders the step as a link' }
+    },
+    {
+      name: 'onClick',
+      type: '(event: MouseEvent) => void',
+      description: {
+        ko: '단계를 눌렀을 때. href가 없으면 button으로 그려집니다',
+        en: 'Fires when the step is pressed. Renders it as a button when there is no href'
+      }
+    },
+    {
+      name: 'startIcon',
+      type: 'ReactNode',
+      description: {
+        ko: '라벨 앞의 것 — 집 글리프, 저장소 avatar',
+        en: 'Content before the label — a home glyph, a repository avatar'
+      }
+    },
+    {
+      name: 'endIcon',
+      type: 'ReactNode',
+      description: { ko: '라벨 뒤의 것', en: 'Content after the label' }
+    },
+    {
+      name: 'current',
+      type: 'boolean',
+      description: {
+        ko: '이 단계가 지금 보고 있는 페이지임을 표시하고, 그래서 링크이기를 그만둡니다. 마지막 단계는 그것만으로 현재이므로, 이 prop은 독자가 있지 않은 곳에서 끝나는 자취를 위한 것입니다 — 어디든 지정하면 마지막 단계에서 표시가 사라집니다',
+        en: 'Marks this step as the page you are on, which stops it being a link. The last step is the current one on its own, so this is for a trail that ends somewhere the reader is not — and setting it anywhere takes the mark off the last step'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      shared: true,
+      description: {
+        ko: '사용할 수 없음. 응답을 멈추고 자리는 지킵니다',
+        en: 'Unavailable. Stops answering, keeps its place in the trail'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '단계의 라벨', en: 'The step’s label' }
+    }
+  ],
+
   PlButton: [
     ...sharedProps({
       variant: "'solid'",

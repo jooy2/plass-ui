@@ -6,6 +6,8 @@ import {
   PlAvatar,
   PlBadge,
   PlBlockquote,
+  PlBreadcrumb,
+  PlBreadcrumbItem,
   PlButton,
   PlCard,
   PlCheckbox,
@@ -279,6 +281,22 @@ const entries: Entry[] = [
       <PlBlockquote size="xs" className="w-full" icon={false} author="Ada Lovelace">
         Simplicity is hard.
       </PlBlockquote>
+    )
+  },
+  {
+    name: 'PlBreadcrumb',
+    group: 'display',
+    href: 'components/display/breadcrumb',
+    blurb: {
+      en: 'The trail of pages above the one being read.',
+      ko: '지금 읽고 있는 페이지 위쪽으로 이어지는 자취입니다.'
+    },
+    preview: (
+      <PlBreadcrumb size="sm">
+        <PlBreadcrumbItem href="#gallery">Home</PlBreadcrumbItem>
+        <PlBreadcrumbItem href="#gallery">Settings</PlBreadcrumbItem>
+        <PlBreadcrumbItem>Billing</PlBreadcrumbItem>
+      </PlBreadcrumb>
     )
   },
   {

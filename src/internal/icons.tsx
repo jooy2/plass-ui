@@ -55,6 +55,38 @@ export function ChevronIcon(): React.ReactElement {
   );
 }
 
+/**
+ * The arrow, drawn pointing **right**.
+ *
+ * One of the two marks a trail can put between its steps, and the one that says
+ * "and then" out loud. It is turned back under RTL by whoever draws it rather
+ * than being redrawn, the same allowance the chevron takes.
+ */
+export function ArrowRightIcon(): React.ReactElement {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="M3 8h10m-3.5-3.5L13 8l-3.5 3.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/** Three dots: the middle of something that has been folded away. */
+export function EllipsisIcon(): React.ReactElement {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <circle cx="3.5" cy="8" r="1.15" fill="currentColor" />
+      <circle cx="8" cy="8" r="1.15" fill="currentColor" />
+      <circle cx="12.5" cy="8" r="1.15" fill="currentColor" />
+    </svg>
+  );
+}
+
 /** The tick: a chosen option, a ticked menu item, a checked box. */
 export function CheckIcon(): React.ReactElement {
   return (
