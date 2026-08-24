@@ -3,6 +3,7 @@ import {
   PlAccordion,
   PlAccordionItem,
   PlAlert,
+  PlAvatar,
   PlButton,
   PlCard,
   PlCheckbox,
@@ -215,6 +216,28 @@ const entries: Entry[] = [
           { metric: 'Errors', value: '18' }
         ]}
       />
+    )
+  },
+  {
+    name: 'PlAvatar',
+    group: 'display',
+    href: 'components/display/avatar',
+    blurb: {
+      en: 'A picture of a person or a thing that is never an empty box.',
+      ko: '사람이나 사물의 사진. 절대 빈 상자가 되지 않습니다.'
+    },
+    preview: (
+      <div className="flex items-center">
+        <PlAvatar size="sm" name="Ada Lovelace" src="/portrait-1.svg" />
+        <PlAvatar size="sm" name="Grace Hopper" className="-ms-2 ring-2 ring-(--plass-surface)" />
+        <PlAvatar
+          size="sm"
+          variant="solid"
+          color="info"
+          name="홍길동"
+          className="-ms-2 ring-2 ring-(--plass-surface)"
+        />
+      </div>
     )
   },
   {

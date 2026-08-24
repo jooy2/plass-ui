@@ -315,6 +315,130 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlAvatar: [
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'ghost'",
+      shared: true,
+      description: {
+        ko: '폴백 뒤 시트의 재질. 사진이 로드되고 나면 가장자리를 빼고는 보이지 않습니다. 기본값이 ghost인 이유는, 채도 높은 원이 가득한 디렉터리에서는 아무 이름도 읽히지 않기 때문입니다',
+        en: 'What the sheet behind the fallback is made of — invisible once a picture has loaded, apart from the edge it keeps. ghost by default, because a page of saturated circles is a page nobody can read a name off'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '사진이 그려지는 상자. 컨트롤 높이와 같은 사다리라, 툴바에서 avatar와 그 옆 버튼의 높이가 맞습니다',
+        en: 'The box the picture is drawn in — the control heights, so an avatar and the button beside it in a toolbar are the same height'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: '의미론적 색 역할. avatar는 색을 입는 대상 자체라, 시트가 틴트를 받습니다',
+        en: 'Semantic colour role. An avatar is the thing being coloured, so its sheet takes the tint'
+      }
+    },
+    {
+      name: 'elevation',
+      type: ELEVATION,
+      default: '0',
+      shared: true,
+      description: {
+        ko: '그림자 깊이. avatar는 시트 위에 놓인 키가 아니라 페이지에 끼워 넣은 사진입니다',
+        en: 'Drop shadow depth. An avatar is a picture set into the page rather than a key resting on it'
+      }
+    },
+    {
+      name: 'src',
+      type: 'string',
+      description: {
+        ko: '사진. 로드되기 전까지 — 그리고 실패하면 영원히 — 폴백이 그려집니다',
+        en: 'The picture. Until it loads, and forever if it fails, the fallback is what is drawn'
+      }
+    },
+    {
+      name: 'srcSet',
+      type: 'string',
+      description: {
+        ko: '다른 해상도의 후보 이미지들. img에서와 같습니다',
+        en: 'Candidate images at other resolutions, as on any img'
+      }
+    },
+    {
+      name: 'alt',
+      type: 'string',
+      description: {
+        ko: '사진이 하는 말. 기본값은 name이고, name도 없으면 빈 문자열입니다',
+        en: 'What the picture says. Defaults to name, and to an empty string when there is no name'
+      }
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: {
+        ko: '누구 또는 무엇인지. 사진의 이름이 되고, 이니셜이 여기서 파생되며, 스크린리더가 이니셜 대신 듣는 문장이 됩니다',
+        en: 'Who or what this is. It names the picture, the initials are derived from it, and it is what a screen reader hears instead of them'
+      }
+    },
+    {
+      name: 'initials',
+      type: 'string',
+      description: {
+        ko: '이니셜을 직접 씁니다. 파생 규칙이 틀린 이름을 위한 것입니다',
+        en: 'The initials, written out, for when the derivation rule got them wrong'
+      }
+    },
+    {
+      name: 'shape',
+      type: "'circle' | 'square'",
+      default: "'circle'",
+      description: {
+        ko: '크롭. circle은 초상, square는 라이브러리의 필렛 — 사각형 가장자리까지 그려진 로고나 아이콘을 위한 것입니다',
+        en: 'The crop. circle for a portrait, square for the library’s own fillet — for a logo or an icon drawn to the edges of a rectangle'
+      }
+    },
+    {
+      name: 'delay',
+      type: 'number',
+      description: {
+        ko: '폴백을 그리기까지 기다리는 시간(ms). 캐시된 이미지가 도착하는 시간 정도로 두면 이니셜이 깜빡이지 않습니다',
+        en: 'How long to wait before drawing the fallback, in milliseconds. Set it to about the time a cached image takes and the initials stop flashing'
+      }
+    },
+    {
+      name: 'imageProps',
+      type: "Omit<ComponentPropsWithoutRef<'img'>, 'src' | 'srcSet' | 'alt'>",
+      description: {
+        ko: 'img에 필요한 나머지 — loading, crossOrigin, referrerPolicy',
+        en: 'Anything else the img needs — loading, crossOrigin, referrerPolicy'
+      }
+    },
+    {
+      name: 'onLoadingStatusChange',
+      type: "(status: 'idle' | 'loading' | 'loaded' | 'error') => void",
+      description: {
+        ko: '사진이 상태를 옮길 때마다 호출됩니다',
+        en: 'Called as the picture moves between the four loading states'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: {
+        ko: '이니셜 대신 그려지는 폴백 — 아이콘, 로고, 이모지 하나',
+        en: 'The fallback, drawn instead of the initials — an icon, a logo, a single emoji'
+      }
+    }
+  ],
+
   PlButton: [
     ...sharedProps({
       variant: "'solid'",

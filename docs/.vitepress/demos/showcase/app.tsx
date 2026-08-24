@@ -3,6 +3,7 @@ import {
   PlAccordion,
   PlAccordionItem,
   PlAlert,
+  PlAvatar,
   PlButton,
   PlCard,
   PlCheckbox,
@@ -71,6 +72,7 @@ export default function ShowcaseApp() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-3">
+        <PlAvatar name="Ada Lovelace" src="/portrait-1.svg" />
         <PlTextField
           size="md"
           placeholder="Search settings"
