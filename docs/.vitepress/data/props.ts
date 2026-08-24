@@ -249,6 +249,72 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlAlert: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      color: "'info'",
+      variantDescription: {
+        ko: '표면의 재질. alert는 색을 입는 대상 자체라서, 컨테이너와 달리 시트가 틴트를 받습니다',
+        en: 'What the surface is made of. An alert *is* the thing being coloured, so unlike a container its sheet takes the tint'
+      },
+      colorDescription: {
+        ko: '심각도. 기본값이 primary가 아니라 info인 이유는, alert는 주요한 무언가가 아니라 알림이기 때문입니다',
+        en: 'The severity. The default is info rather than primary, because an alert is not the primary anything — it is a note'
+      },
+      sizeDescription: {
+        ko: '글리프와 제목, 메시지의 타입 스케일과 여백',
+        en: 'The type scale and padding of the glyph, the title and the message'
+      }
+    }),
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description: {
+        ko: '헤드라인. 주면 두 부분(헤드라인 + 아래의 상세)이 되고, 없으면 전체가 한 줄입니다',
+        en: 'The heading line. With it the alert is two-part; without it the whole thing is one line'
+      }
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode | false',
+      description: {
+        ko: '앞머리의 글리프. 기본값은 color에 맞는 모양이고, false면 없애고, 노드를 주면 대체합니다',
+        en: 'The glyph at the start. Defaults to the one that goes with color; false drops it, a node replaces it'
+      }
+    },
+    {
+      name: 'action',
+      type: 'ReactNode',
+      description: {
+        ko: '줄 끝에 고정되는 내용 — Retry 버튼, 링크. children 바깥이라 메시지가 줄바꿈돼도 첫 줄에 남습니다',
+        en: 'Content pinned to the end of the row — a Retry button, a link. Kept out of children so it stays on the first line'
+      }
+    },
+    {
+      name: 'onClose',
+      type: '(event) => void',
+      description: {
+        ko: '이것을 주는 것이 닫기 버튼을 나타나게 합니다',
+        en: 'Passing it is what makes the dismiss button appear'
+      }
+    },
+    {
+      name: 'closeLabel',
+      type: 'string',
+      default: "'Dismiss'",
+      description: {
+        ko: '닫기 버튼의 접근 가능한 이름. 화면에는 그려지지 않습니다',
+        en: 'Accessible name of the dismiss button. Never drawn'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '메시지', en: 'The message' }
+    }
+  ],
+
   PlButton: [
     ...sharedProps({
       variant: "'solid'",

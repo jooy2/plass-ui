@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   PlAccordion,
   PlAccordionItem,
+  PlAlert,
   PlButton,
   PlCard,
   PlCheckbox,
@@ -66,6 +67,10 @@ export default function ShowcaseApp() {
         </PlSegmentedButton>
         <PlButton size="md">New</PlButton>
       </div>
+
+      <PlAlert color="warning" title="Your card expires next month">
+        Update it before the 30th or the next invoice will fail.
+      </PlAlert>
 
       <div className="grid gap-4 md:grid-cols-2">
         <PlCard title="Organisation" elevation={2} render={<section />}>

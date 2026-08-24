@@ -97,6 +97,10 @@ Every component is exported under a `Pl` prefix — `Button`, `Card` and `Table`
 
 `PlTable` · `PlTextLink`
 
+### Feedback
+
+`PlAlert`
+
 ### Inputs
 
 `PlButton` · `PlCheckbox` · `PlFilePicker` · `PlPagination` · `PlRadioGroup` · `PlSegmentedButton` · `PlSelect` · `PlSlider` · `PlSwitch` · `PlTextField`

@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import {
   PlAccordion,
   PlAccordionItem,
+  PlAlert,
   PlButton,
   PlCard,
   PlCheckbox,
@@ -33,7 +34,7 @@ interface GalleryProps {
 }
 
 /** The sidebar's own groups, in the sidebar's own order. */
-type Group = 'inputs' | 'display' | 'surfaces';
+type Group = 'display' | 'feedback' | 'inputs' | 'surfaces';
 
 interface Entry {
   name: string;
@@ -227,6 +228,20 @@ const entries: Entry[] = [
     )
   },
   {
+    name: 'PlAlert',
+    group: 'feedback',
+    href: 'components/feedback/alert',
+    blurb: {
+      en: 'A message about something that happened, set into the page.',
+      ko: '일어난 일에 대한 메시지를 페이지 안에 놓습니다.'
+    },
+    preview: (
+      <PlAlert size="xs" color="success" className="w-full">
+        Your changes are live.
+      </PlAlert>
+    )
+  },
+  {
     name: 'PlCard',
     group: 'surfaces',
     href: 'components/surfaces/card',
@@ -268,6 +283,7 @@ const entries: Entry[] = [
  */
 const groups: { key: Group; label: Record<'en' | 'ko', string> }[] = [
   { key: 'display', label: { en: 'Display', ko: 'Display' } },
+  { key: 'feedback', label: { en: 'Feedback', ko: 'Feedback' } },
   { key: 'inputs', label: { en: 'Inputs', ko: 'Inputs' } },
   { key: 'surfaces', label: { en: 'Surfaces', ko: 'Surfaces' } }
 ];
