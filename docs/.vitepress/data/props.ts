@@ -423,6 +423,139 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlTable: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      sizeDescription: {
+        ko: '셀의 타입 스케일과 행 높이',
+        en: 'The type scale of a cell and the height of a row'
+      },
+      densityDescription: {
+        ko: '셀 여백만 바꿉니다. 타입 스케일은 그대로',
+        en: 'Cell padding only — never the type scale'
+      }
+    }),
+    {
+      name: 'columns',
+      type: 'readonly PlTableColumn<Row>[]',
+      required: true,
+      description: {
+        ko: '열 정의. 나타나는 순서대로',
+        en: 'The columns, in the order they appear'
+      }
+    },
+    {
+      name: 'rows',
+      type: 'readonly Row[]',
+      required: true,
+      description: { ko: '행 데이터', en: 'The rows' }
+    },
+    {
+      name: 'getRowKey',
+      type: '(row: Row, index: number) => Key',
+      description: {
+        ko: '행마다의 안정적인 key. 기본값은 index라서 정렬이나 필터가 있는 표에는 맞지 않습니다',
+        en: 'A stable key per row. Defaults to the index, which is wrong for a table that sorts or filters'
+      }
+    },
+    {
+      name: 'caption',
+      type: 'ReactNode',
+      description: {
+        ko: '표 위에 놓이며, 표의 접근 가능한 이름으로 읽힙니다',
+        en: "Shown above the grid, and read out as the table's accessible name"
+      }
+    },
+    {
+      name: 'empty',
+      type: 'ReactNode',
+      default: "'No data'",
+      description: {
+        ko: 'rows가 비었을 때 행 대신 보여 줄 내용',
+        en: 'What to show instead of rows when there are none'
+      }
+    },
+    {
+      name: 'striped',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '한 행 걸러 하나씩 옅게 칠합니다. 눈이 가로로 따라가야 하는 넓은 표에서 유용합니다',
+        en: 'Tints every other row. Useful on a wide table where the eye has to track across'
+      }
+    },
+    {
+      name: 'hoverable',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '포인터 아래 행에 불을 켭니다', en: 'Lights the row under the pointer' }
+    },
+    {
+      name: 'stickyHeader',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '본문이 스크롤되는 동안 헤더를 고정합니다. 표의 높이를 제한하는 무언가가 있어야 의미가 있습니다',
+        en: "Pins the header while the body scrolls. Only does anything if something constrains the table's height"
+      }
+    },
+    {
+      name: 'onRowClick',
+      type: '(row: Row, index: number) => void',
+      description: {
+        ko: '행을 활성화할 수 있게 만듭니다. hover 처리도 함께 켜집니다',
+        en: 'Makes rows activatable. Also turns on the hover treatment'
+      }
+    }
+  ],
+
+  PlTableColumn: [
+    {
+      name: 'key',
+      type: 'string',
+      required: true,
+      description: {
+        ko: '열을 식별하고, render가 없으면 각 행에서 읽을 속성 이름이 됩니다',
+        en: 'Identifies the column, and — unless render says otherwise — names the property to read off each row'
+      }
+    },
+    {
+      name: 'header',
+      type: 'ReactNode',
+      description: {
+        ko: '열 제목. 생략하면 key가 그대로 쓰입니다',
+        en: 'The heading. Defaults to the key, which is usually not what you want'
+      }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      description: {
+        ko: '기본 너비. 숫자는 px, 문자열은 CSS 길이. 표는 여전히 폭을 채우도록 열을 조정하므로 보장이 아니라 출발 비율입니다',
+        en: 'The default width. A number is pixels, a string is any CSS length. The table still balances columns to fill the sheet, so this is a starting proportion'
+      }
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'start'",
+      shared: true,
+      description: {
+        ko: '텍스트 정렬. 숫자는 자릿수가 맞도록 보통 end',
+        en: 'Text alignment. Numbers usually want end so their digits line up'
+      }
+    },
+    {
+      name: 'render',
+      type: '(row: Row, index: number) => ReactNode',
+      description: {
+        ko: '셀을 직접 그립니다. 없으면 row[key]를 그대로 렌더링합니다',
+        en: 'Renders the cell. Without it the cell is row[key] rendered as-is'
+      }
+    }
+  ],
+
   PlTextField: [
     ...sharedProps({
       variant: "'glass'",

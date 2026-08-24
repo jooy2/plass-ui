@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PlAccordion, PlAccordionItem, PlButton, PlCard, PlTextField } from 'plass-ui';
+import { PlAccordion, PlAccordionItem, PlButton, PlCard, PlTable, PlTextField } from 'plass-ui';
 
 /**
  * Every component the library has, on one screen.
@@ -103,6 +103,21 @@ export default function ShowcaseApp() {
           </div>
         </PlCard>
       </div>
+
+      <PlTable
+        size="sm"
+        hoverable
+        caption="Recent invoices"
+        columns={[
+          { key: 'id', header: 'Invoice', width: 110 },
+          { key: 'customer', header: 'Customer' },
+          { key: 'total', header: 'Total', align: 'end' }
+        ]}
+        rows={[
+          { id: 'INV-0102', customer: 'Acme Inc', total: '$1,240.00' },
+          { id: 'INV-0101', customer: 'Globex', total: '$340.50' }
+        ]}
+      />
 
       <PlAccordion size="sm" defaultValue={['keys']}>
         <PlAccordionItem value="keys" title="API keys" subtitle="Two active">

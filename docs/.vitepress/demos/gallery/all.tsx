@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { PlAccordion, PlAccordionItem, PlButton, PlCard, PlTextField } from 'plass-ui';
+import { PlAccordion, PlAccordionItem, PlButton, PlCard, PlTable, PlTextField } from 'plass-ui';
 
 /**
  * The component index, as running previews rather than screenshots.
@@ -15,7 +15,7 @@ interface GalleryProps {
 }
 
 /** The sidebar's own groups, in the sidebar's own order. */
-type Group = 'inputs' | 'surfaces';
+type Group = 'inputs' | 'display' | 'surfaces';
 
 interface Entry {
   name: string;
@@ -55,6 +55,29 @@ const entries: Entry[] = [
       ko: '한 줄 또는 여러 줄 텍스트 입력. 라벨과 설명, 오류 메시지를 함께 담습니다.'
     },
     preview: <PlTextField fullWidth size="sm" placeholder="acme-inc" />
+  },
+  {
+    name: 'PlTable',
+    group: 'display',
+    href: 'components/display/table',
+    blurb: {
+      en: 'A grid of data, taken as columns and rows rather than as markup.',
+      ko: '마크업이 아니라 column과 row로 받는 데이터 격자입니다.'
+    },
+    preview: (
+      <PlTable
+        size="xs"
+        className="w-full"
+        columns={[
+          { key: 'metric', header: 'Metric' },
+          { key: 'value', header: 'Value', align: 'end' }
+        ]}
+        rows={[
+          { metric: 'Requests', value: '12.4k' },
+          { metric: 'Errors', value: '18' }
+        ]}
+      />
+    )
   },
   {
     name: 'PlCard',
@@ -97,6 +120,7 @@ const entries: Entry[] = [
  * appear, instead of showing up as a raw folder slug.
  */
 const groups: { key: Group; label: Record<'en' | 'ko', string> }[] = [
+  { key: 'display', label: { en: 'Display', ko: 'Display' } },
   { key: 'inputs', label: { en: 'Inputs', ko: 'Inputs' } },
   { key: 'surfaces', label: { en: 'Surfaces', ko: 'Surfaces' } }
 ];

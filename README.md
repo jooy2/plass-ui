@@ -93,6 +93,10 @@ export default function SignIn() {
 
 Every component is exported under a `Pl` prefix — `Button`, `Card` and `Table` are the most-taken identifiers in the ecosystem, and a consumer should not have to alias ours on import.
 
+### Display
+
+`PlTable`
+
 ### Inputs
 
 `PlButton` · `PlTextField`

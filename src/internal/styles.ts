@@ -112,6 +112,24 @@ export const paddingXClasses: Record<PlassDensity, Record<PlassSize, string>> = 
   compact: { xs: 'px-1.5', sm: 'px-2', md: 'px-2.5', lg: 'px-3.5', xl: 'px-4' }
 };
 
+/**
+ * The same two tracks again, as raw lengths.
+ *
+ * These exist for one element: a table cell. `<td>` and `<th>` are among the
+ * very few tags that host stylesheets still style by name — VitePress's
+ * `.vp-doc td`, Tailwind Typography's `.prose td`, every CSS framework ever —
+ * and all of those are two-class selectors that a one-class utility cannot
+ * outrank. A table therefore writes its cell padding inline, where nothing can
+ * reach it.
+ *
+ * Keep these in step with `paddingXClasses`. They are the same numbers: the
+ * Tailwind spacing scale is 0.25rem per step.
+ */
+export const paddingXValues: Record<PlassDensity, Record<PlassSize, string>> = {
+  default: { xs: '0.625rem', sm: '0.75rem', md: '1rem', lg: '1.5rem', xl: '1.75rem' },
+  compact: { xs: '0.375rem', sm: '0.5rem', md: '0.625rem', lg: '0.875rem', xl: '1rem' }
+};
+
 /** Between a control's own parts — an icon and its label. */
 export const gapClasses: Record<PlassSize, string> = {
   xs: 'gap-1',

@@ -33,6 +33,10 @@ Documentation is available in English (served from `/`) and Korean (served from 
 
 - [All components](https://plass-ui.cdget.com/components/): Every released component on one page, each card a running preview rather than a picture.
 
+### Display
+
+- [PlTable](https://plass-ui.cdget.com/components/display/table): A grid of data on a glass sheet. Takes `columns` and `rows` rather than markup, so the headings and the cells cannot drift apart; a column carries `key`, `header`, `width`, `align` and an optional `render`. `striped`, `hoverable`, `stickyHeader`, `caption`, `empty` and `onRowClick`. A clickable row keeps its `<tr>` semantics and gains a tab stop rather than a `role="button"`. Cell padding and alignment are inline styles, because host stylesheets style `td`/`th` by tag name at a specificity a utility class cannot outrank. It is generic in `Row` and so takes no `ref`.
+
 ### Inputs
 
 - [PlButton](https://plass-ui.cdget.com/components/inputs/button): A control that runs an action. `variant` `size` `color` `density` `elevation`, plus `startIcon`, `endIcon`, `loading`, `readOnly`, `disabled`, `fullWidth` and `render`. `elevation` defaults to 1; `solid` is a pane of tinted glass whose gradient turns in hue, `glass` wears the family in its label, `ghost` has no surface until hovered. Every variant carries `.plass-glow`, a bloom that follows the pointer and flashes on press.
