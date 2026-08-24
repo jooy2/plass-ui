@@ -537,6 +537,58 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlBlockquote: [
+    ...sharedProps({
+      variant: "'ghost'",
+      size: "'md'",
+      variantDescription: {
+        ko: '시트의 재질. 컨테이너가 그렇듯 시트에는 색이 들어가지 않습니다 — 남의 말을 담기 때문입니다. 기본값 ghost는 여백의 선 하나뿐이고, 그것이 인용문이 오래도록 취해 온 모양입니다',
+        en: 'What the sheet is made of. As on any container, the sheet is never dyed — a quote holds somebody else’s words. ghost, the default, is a rule in the margin and nothing else'
+      },
+      sizeDescription: {
+        ko: '인용문의 타입 스케일. 제목의 크기에 문단의 행간을 씁니다',
+        en: 'The quote’s type scale — a heading’s size with a paragraph’s leading'
+      }
+    }),
+    {
+      name: 'author',
+      type: 'ReactNode',
+      description: {
+        ko: '말한 사람. 이것이 있으면 인용문이 figcaption을 가진 figure가 됩니다 — 출처는 인용문에 *대한* 것이지 말해진 내용의 일부가 아니라는 HTML 명세대로입니다',
+        en: 'Who said it. Its presence is what turns the quote into a figure with a figcaption, which is the markup the HTML spec asks for'
+      }
+    },
+    {
+      name: 'source',
+      type: 'ReactNode',
+      description: {
+        ko: '어디서 왔는지 — 책, 강연, 페이지. cite 안에 그려집니다. cite는 저작물의 제목을 위한 요소이고, 명세상 사람 이름에는 쓰지 않습니다',
+        en: 'Where it is from — a book, a talk, a page. Rendered inside a cite, which is for the title of a work and, per the spec, never for a person’s name'
+      }
+    },
+    {
+      name: 'cite',
+      type: 'string',
+      description: {
+        ko: '인용문을 가져온 문서의 URL. blockquote의 cite 속성에 놓이며 기계만 읽고 아무에게도 보이지 않습니다',
+        en: 'URL of the document the quote came from. Lands on the blockquote’s own cite attribute — machine-readable and shown to nobody'
+      }
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode | false',
+      description: {
+        ko: '인용문 앞의 표시. 생략하면 기본 글리프, 노드를 주면 교체, false면 없앱니다',
+        en: 'The mark drawn before the quote. Omit it for the house glyph, pass a node to replace it, pass false to take it away'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '말해진 내용', en: 'What was said' }
+    }
+  ],
+
   PlButton: [
     ...sharedProps({
       variant: "'solid'",

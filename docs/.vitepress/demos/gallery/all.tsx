@@ -5,6 +5,7 @@ import {
   PlAlert,
   PlAvatar,
   PlBadge,
+  PlBlockquote,
   PlButton,
   PlCard,
   PlCheckbox,
@@ -262,6 +263,20 @@ const entries: Entry[] = [
         </PlBadge>
         <PlBadge size="sm" variant="ghost" color="info" content="Beta" />
       </div>
+    )
+  },
+  {
+    name: 'PlBlockquote',
+    group: 'display',
+    href: 'components/display/blockquote',
+    blurb: {
+      en: 'Somebody else’s words, set apart from your own.',
+      ko: '남의 말을 자기 말과 떼어 놓습니다.'
+    },
+    preview: (
+      <PlBlockquote size="xs" className="w-full" icon={false} author="Ada Lovelace">
+        Simplicity is hard.
+      </PlBlockquote>
     )
   },
   {

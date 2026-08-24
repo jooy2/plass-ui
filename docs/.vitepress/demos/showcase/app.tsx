@@ -5,6 +5,7 @@ import {
   PlAlert,
   PlAvatar,
   PlBadge,
+  PlBlockquote,
   PlButton,
   PlCard,
   PlCheckbox,
@@ -252,6 +253,10 @@ export default function ShowcaseApp() {
         <PlTabPanel value="activity">Nothing has happened in the last seven days.</PlTabPanel>
         <PlTabPanel value="members">Four people, and what each of them can do.</PlTabPanel>
       </PlTabs>
+
+      <PlBlockquote size="sm" variant="glass" author="The onboarding email">
+        Keys are shown once, when they are created. Rotate one rather than sharing it.
+      </PlBlockquote>
 
       <PlAccordion size="sm" defaultValue={['keys']}>
         <PlAccordionItem value="keys" title="API keys" subtitle="Two active">
