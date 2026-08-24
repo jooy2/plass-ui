@@ -36,6 +36,7 @@ Documentation is available in English (served from `/`) and Korean (served from 
 ### Display
 
 - [PlTable](https://plass-ui.cdget.com/components/display/table): A grid of data on a glass sheet. Takes `columns` and `rows` rather than markup, so the headings and the cells cannot drift apart; a column carries `key`, `header`, `width`, `align` and an optional `render`. `striped`, `hoverable`, `stickyHeader`, `caption`, `empty` and `onRowClick`. A clickable row keeps its `<tr>` semantics and gains a tab stop rather than a `role="button"`. Cell padding and alignment are inline styles, because host stylesheets style `td`/`th` by tag name at a specificity a utility class cannot outrank. It is generic in `Row` and so takes no `ref`.
+- [PlTextLink](https://plass-ui.cdget.com/components/display/text-link): A link, in a sentence or on its own. No surface, no height, and — like nothing else in the library — **no default `color` and no default `size`**, because a link in a paragraph is the paragraph's colour with a line under it. `underline` is `'always' | 'hover' | 'none'` rather than a boolean. `newTab` sets `target`, merges `noopener noreferrer` into any `rel` the caller wrote, draws the external arrow and adds a visually hidden line for a screen reader. The component's class is doubled in CSS (`.plass-link.plass-link`) so a host page's `.prose a` cannot outrank it.
 
 ### Inputs
 

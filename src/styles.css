@@ -461,6 +461,39 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * Links
+ *
+ * `<a>` is, with `<td>`, one of the two tags a host stylesheet still styles by
+ * name — `.prose a`, `.vp-doc a`, every CSS framework — and all of those are a
+ * class plus a type, which outranks a plain one-class utility. A PlTextLink
+ * that lost its line and its colour inside a `.prose` block would have lost the
+ * only two things it is.
+ *
+ * So the selector is doubled. `.plass-link.plass-link` is two classes and
+ * matches nothing extra, which puts these declarations above a host's `a` rule
+ * and still below anything a caller writes with two classes of their own. Only
+ * the invariants are here — the parts of a link that no prop changes. The
+ * colour and whether the line is drawn at all stay in the component, written
+ * through the same doubled class.
+ *
+ * The thickness has a `max()` floor because a hairline that lands between two
+ * device pixels is antialiased into a grey smudge: 0.055em is a real line from
+ * about 18px up, and 1px below that.
+ * ------------------------------------------------------------------------- */
+
+.plass-link.plass-link {
+  font-weight: inherit;
+  text-decoration-thickness: max(1px, 0.055em);
+  text-underline-offset: 0.2em;
+  text-underline-position: from-font;
+  text-decoration-color: var(--p-underline);
+}
+
+.plass-link.plass-link:hover {
+  text-decoration-color: var(--p-underline-hover);
+}
+
+/* ---------------------------------------------------------------------------
  * Interaction light
  *
  * Two stacked layers on an interactive surface, both reading `--p-mx`/`--p-my`

@@ -1464,6 +1464,81 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlTextLink: [
+    {
+      name: 'href',
+      type: 'string',
+      required: true,
+      description: { ko: '링크가 가리키는 곳', en: 'Where the link goes' }
+    },
+    {
+      name: 'underline',
+      type: "'always' | 'hover' | 'none'",
+      default: "'always'",
+      description: {
+        ko: '밑줄을 언제 그릴지. boolean이 아닌 이유는, 밑줄 없음이 nav나 footer에서는 진짜 선택지이고 그런 선택은 명시적이어야 하기 때문입니다',
+        en: 'When the underline is drawn. Not a boolean, because no underline is a real choice in a nav or a footer and should have to be spelled out'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      shared: true,
+      description: {
+        ko: '의미론적 색 역할. 기본값이 **없습니다** — 문단 속 링크는 보통 문단의 색에 밑줄만 그은 것입니다',
+        en: 'Semantic colour role. There is **no** default — a link in a paragraph is usually the paragraph colour with a line under it'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      shared: true,
+      description: {
+        ko: '타입 스케일. 역시 기본값이 없습니다 — 문장 속 링크는 그 문장의 크기입니다',
+        en: 'The type scale. Also no default — a link inside a sentence is the size of the sentence'
+      }
+    },
+    {
+      name: 'newTab',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '새 탭에서 엽니다. rel로 opener를 보호하고, icon을 켜고, 스크린리더용 문구를 덧붙입니다',
+        en: 'Opens in a new tab, with the protective rel, the icon on, and a line for a screen reader'
+      }
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode | boolean',
+      description: {
+        ko: '라벨 뒤의 표시. true는 newTab이면 화살표, 아니면 체인. false는 아무것도. 생략하면 newTab을 따릅니다',
+        en: 'The mark after the label. true draws the arrow when newTab is on and the chain otherwise; false draws nothing. Left out, it follows newTab'
+      }
+    },
+    {
+      name: 'newTabLabel',
+      type: 'string',
+      default: "'(opens in a new tab)'",
+      description: {
+        ko: 'newTab 링크에서 라벨 뒤에 읽히는 문구. 화면에는 그려지지 않습니다',
+        en: 'What a screen reader hears after the label on a newTab link. Never drawn'
+      }
+    },
+    {
+      name: 'render',
+      type: 'useRender.RenderProp',
+      description: {
+        ko: 'a 대신 다른 요소로 렌더링합니다 — 보통은 라우터의 Link',
+        en: 'Renders something other than an a — the Link a router brings, most of the time'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '라벨', en: 'The label' }
+    }
+  ],
+
   PlTextField: [
     ...sharedProps({
       variant: "'glass'",

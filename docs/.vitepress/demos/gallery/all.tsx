@@ -13,7 +13,8 @@ import {
   PlSlider,
   PlSwitch,
   PlTable,
-  PlTextField
+  PlTextField,
+  PlTextLink
 } from 'plass-ui';
 
 /**
@@ -187,6 +188,24 @@ const entries: Entry[] = [
           { metric: 'Errors', value: '18' }
         ]}
       />
+    )
+  },
+  {
+    name: 'PlTextLink',
+    group: 'display',
+    href: 'components/display/text-link',
+    blurb: {
+      en: 'A link, in a sentence or on its own.',
+      ko: '문장 안에, 또는 홀로 놓이는 링크입니다.'
+    },
+    preview: (
+      <p className="text-sm text-(--plass-fg)">
+        Read <PlTextLink href="#gallery">the reference</PlTextLink>, or the{' '}
+        <PlTextLink href="https://base-ui.com" newTab>
+          Base UI docs
+        </PlTextLink>
+        .
+      </p>
     )
   },
   {

@@ -13,7 +13,8 @@ import {
   PlSlider,
   PlSwitch,
   PlTable,
-  PlTextField
+  PlTextField,
+  PlTextLink
 } from 'plass-ui';
 
 /**
@@ -102,6 +103,13 @@ export default function ShowcaseApp() {
               <PlRadio value="yearly" label="Yearly" />
             </PlRadioGroup>
             <PlCheckbox label="Send me the monthly invoice by email" defaultChecked />
+            <p className="text-xs text-(--plass-muted-fg)">
+              Charges follow the{' '}
+              <PlTextLink href="#showcase" color="primary">
+                billing terms
+              </PlTextLink>
+              .
+            </p>
             <PlSwitch className="w-full" labelPlacement="start" label="Public profile" />
             <div className="flex items-center gap-3">
               <PlButton loading={saving} onClick={save}>
