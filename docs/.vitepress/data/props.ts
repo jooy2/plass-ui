@@ -3205,6 +3205,135 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlTooltip: [
+    {
+      name: 'content',
+      type: 'ReactNode',
+      required: true,
+      description: {
+        ko: 'tooltip이 하는 말. 짧은 구절이어야 합니다 — tooltip은 컨테이너가 아닙니다. 터치 화면에서는 포인터가 닿을 수 없고, 주의가 옮겨가는 순간 사라지며, 그 안의 무엇도 누를 수 없습니다',
+        en: 'What the tooltip says. A short phrase: a tooltip is not a container — it cannot be reached by a pointer on a touch screen, it disappears the moment attention moves, and nothing inside it can be clicked'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactElement',
+      required: true,
+      description: {
+        ko: 'tooltip이 매달리는 요소. 정확히 하나여야 하고, ref와 props를 받을 수 있어야 합니다 — 모든 Plass 컴포넌트가 그렇습니다',
+        en: 'The element the tooltip hangs off. Exactly one element, which must accept a ref and spread props — every Plass component does'
+      }
+    },
+    {
+      name: 'side',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'top'",
+      shared: true,
+      description: {
+        ko: '트리거의 어느 변에 나타날지. 자리가 없으면 반대편으로 뒤집힐 수 있고, 그것이 옳은 동작입니다',
+        en: 'Which edge of the trigger it appears on. May flip to the opposite side when there is no room, which is the right behaviour'
+      }
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'center'",
+      shared: true,
+      description: { ko: '그 변을 따라 어디에 놓일지', en: 'Where it sits along that edge' }
+    },
+    {
+      name: 'sideOffset',
+      type: 'number',
+      default: '6',
+      description: { ko: '트리거와의 거리(px)', en: 'Distance from the trigger, in pixels' }
+    },
+    {
+      name: 'delay',
+      type: 'number',
+      default: '600',
+      description: {
+        ko: '포인터가 얼마나 머물러야 열리는지(ms)',
+        en: 'How long the pointer has to rest before it opens, in milliseconds'
+      }
+    },
+    {
+      name: 'closeDelay',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: '포인터가 떠난 뒤 닫히기까지 기다리는 시간',
+        en: 'How long it waits before closing once the pointer leaves'
+      }
+    },
+    {
+      name: 'arrow',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '트리거를 가리키는 작은 쐐기를 그릴지',
+        en: 'Draws the little wedge pointing at the trigger'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'sm'",
+      shared: true,
+      description: { ko: '판의 타입 스케일과 여백', en: 'Type scale and padding of the plate' }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'secondary'",
+      shared: true,
+      description: {
+        ko: '의미론적 색 역할. tooltip은 다른 무언가에 **대한** 메모이지 그 무언가 자체가 아니므로 중립 계열이 정직한 기본값입니다 — 삭제 버튼 위의 빨간 tooltip은 tooltip이 알지 못하는 것을 말하고 있는 셈입니다',
+        en: 'Semantic colour role. A tooltip is a note *about* something rather than the thing itself, so the neutral family is the honest default — a red tooltip on a delete button is saying something the tooltip does not know'
+      }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'default'",
+      shared: true,
+      description: {
+        ko: '판의 가로 여백만 바꿉니다',
+        en: 'The plate’s horizontal padding, and nothing else'
+      }
+    },
+    {
+      name: 'open',
+      type: 'boolean',
+      description: {
+        ko: 'tooltip이 열려 있는지. controlled로 쓰려면 onOpenChange와 함께',
+        en: 'Whether the tooltip is open. Use with onOpenChange for a controlled one'
+      }
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      description: {
+        ko: 'uncontrolled일 때 처음부터 열려 있을지',
+        en: 'Whether it starts open, for an uncontrolled one'
+      }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: { ko: '열림 상태가 바뀔 때', en: 'Called when the open state changes' }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      shared: true,
+      description: {
+        ko: '트리거는 그대로 두고 tooltip만 열리지 않게 합니다. 라벨이 잘렸을 때만 존재하는 tooltip을 위한 것입니다',
+        en: 'Stops the tooltip from opening at all, without disabling the trigger. For the tooltip that only exists while a label is truncated'
+      }
+    }
+  ],
+
   PlTypography: [
     {
       name: 'level',

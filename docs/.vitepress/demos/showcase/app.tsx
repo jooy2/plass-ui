@@ -39,6 +39,7 @@ import {
   PlTextLink,
   PlTimeline,
   PlTimelineItem,
+  PlTooltip,
   PlTypography
 } from 'plass-ui';
 
@@ -105,7 +106,9 @@ export default function ShowcaseApp() {
           <PlSegment value="grid">Grid</PlSegment>
           <PlSegment value="list">List</PlSegment>
         </PlSegmentedButton>
-        <PlButton size="md">New</PlButton>
+        <PlTooltip content="Start a new project">
+          <PlButton size="md">New</PlButton>
+        </PlTooltip>
       </div>
 
       <PlAlert

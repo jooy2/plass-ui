@@ -39,6 +39,7 @@ import {
   PlTextLink,
   PlTimeline,
   PlTimelineItem,
+  PlTooltip,
   PlTypography
 } from 'plass-ui';
 
@@ -542,6 +543,22 @@ const entries: Entry[] = [
         <PlSkeleton shape="circle" size="sm" />
         <PlSkeleton size="sm" lines={2} />
       </div>
+    )
+  },
+  {
+    name: 'PlTooltip',
+    group: 'feedback',
+    href: 'components/feedback/tooltip',
+    blurb: {
+      en: 'A short label that appears when the pointer rests on something.',
+      ko: '포인터가 무언가에 머무를 때 나타나는 짧은 라벨입니다.'
+    },
+    preview: (
+      <PlTooltip content="Copy to clipboard" side="right">
+        <PlButton size="sm" variant="glass" color="secondary">
+          Rest here
+        </PlButton>
+      </PlTooltip>
     )
   },
   {
