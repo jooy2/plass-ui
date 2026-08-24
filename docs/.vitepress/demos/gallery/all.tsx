@@ -7,6 +7,8 @@ import {
   PlCard,
   PlCheckbox,
   PlFilePicker,
+  PlModal,
+  PlModalClose,
   PlPagination,
   PlRadio,
   PlRadioGroup,
@@ -239,6 +241,24 @@ const entries: Entry[] = [
       <PlAlert size="xs" color="success" className="w-full">
         Your changes are live.
       </PlAlert>
+    )
+  },
+  {
+    name: 'PlModal',
+    group: 'feedback',
+    href: 'components/feedback/modal',
+    blurb: {
+      en: 'A sheet that takes the page away until it is answered.',
+      ko: '답할 때까지 페이지를 가져가는 시트입니다.'
+    },
+    preview: (
+      <PlModal
+        size="sm"
+        trigger={<PlButton size="sm">Open a modal</PlButton>}
+        title="Delete “Aurora”?"
+        description="Everything in it goes with it."
+        actions={<PlModalClose render={<PlButton size="sm">Close</PlButton>} />}
+      />
     )
   },
   {

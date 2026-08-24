@@ -746,6 +746,160 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlModal: [
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '시트의 최대 너비와 타입 스케일. 컨트롤 사다리보다 단계가 넓은데, 답하는 질문이 다르기 때문입니다 — 얼마나 큰가가 아니라 안에서 한 줄이 얼마나 길어야 편한가',
+        en: "The sheet's max width and type scale. Its steps are wider than the control ladder because it answers a different question: not how big, but how long a line of text is comfortable inside"
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: 'focus ring과 hover 틴트의 색 계열. 시트 자체에는 색이 들어가지 않습니다',
+        en: 'The family behind the focus ring and the hover tint. The sheet itself is never dyed'
+      }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'default'",
+      shared: true,
+      description: { ko: '각 영역의 여백', en: 'The padding of each section' }
+    },
+    {
+      name: 'open',
+      type: 'boolean',
+      description: {
+        ko: '열림 상태. onOpenChange와 함께 controlled로 씁니다',
+        en: 'Whether it is shown. Use with onOpenChange for a controlled modal'
+      }
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: 'uncontrolled일 때 열린 채로 시작할지', en: 'Whether it starts open' }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: { ko: '열고 닫힐 때 호출됩니다', en: 'Called when it opens or closes' }
+    },
+    {
+      name: 'trigger',
+      type: 'ReactElement',
+      description: {
+        ko: 'modal을 여는 요소. Base UI가 엮어 줍니다. 선택 사항입니다',
+        en: 'The element that opens the modal, wired up by Base UI. Optional'
+      }
+    },
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description: {
+        ko: '제목. modal의 이름이 되는 <h2>로 렌더링됩니다',
+        en: 'The heading. Rendered as the <h2> that names the modal'
+      }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: {
+        ko: '제목 아래 한 줄이자 modal의 접근 가능한 설명',
+        en: "A line under the title, and the modal's accessible description"
+      }
+    },
+    {
+      name: 'actions',
+      type: 'ReactNode',
+      description: {
+        ko: '아래쪽 줄. 끝 정렬이라 버튼 두 개에 wrapper가 필요 없습니다. PlModalClose가 그중 하나를 닫기 버튼으로 만듭니다',
+        en: 'The bottom row, end-aligned so a pair of buttons needs no wrapper. PlModalClose is what makes one of them dismiss'
+      }
+    },
+    {
+      name: 'dividers',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '헤더 · 본문 · 액션 사이를 헤어라인으로 나눕니다. 본문이 스크롤되기 시작하면 켤 만합니다',
+        en: 'Scores the sheet between the header, the body and the actions. Worth turning on the moment the body scrolls'
+      }
+    },
+    {
+      name: 'showClose',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '모서리의 ×. 기본으로 켜져 있습니다 — modal은 답할 때까지 페이지를 가져가므로, 나가는 길이 눈에 보여야 합니다',
+        en: 'The × in the corner. On by default — a modal takes the page away until it is answered, and the way out should be visible'
+      }
+    },
+    {
+      name: 'closeLabel',
+      type: 'string',
+      default: "'Close'",
+      description: { ko: '× 버튼의 접근 가능한 이름', en: 'Accessible name of the × button' }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      description: {
+        ko: 'size가 정하는 최대 너비를 덮어씁니다. 숫자는 px',
+        en: 'A hard cap on the width, overriding the one size implies. Numbers are pixels'
+      }
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: 'size가 허용하는 너비를 다 씁니다. 다른 컴포넌트와 반대로 기본이 켜짐입니다 — modal의 컨테이너는 뷰포트이고, 두 단어에 맞춰 줄어든 modal은 tooltip입니다',
+        en: 'Takes the full width the size allows. On by default, the other way round from every other component: a modal that shrank to fit two words would be a tooltip'
+      }
+    },
+    {
+      name: 'fullScreen',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '뷰포트를 가장자리까지 채웁니다', en: 'Fills the viewport edge to edge' }
+    },
+    {
+      name: 'modal',
+      type: "boolean | 'trap-focus'",
+      default: 'true',
+      description: {
+        ko: "뒤의 페이지를 가져갈지. 'trap-focus'는 페이지를 스크롤·클릭 가능하게 두면서 focus만 가둡니다",
+        en: "Whether the page behind is taken away. 'trap-focus' keeps it scrollable and clickable while still holding focus inside"
+      }
+    },
+    {
+      name: 'dismissible',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: 'Escape와 바깥 클릭으로 닫히는지. 끄면 반드시 답해야 하는 modal이 되므로, 답할 수 있는 actions를 함께 주세요',
+        en: 'Whether Escape or a click outside closes it. Turn it off for the modal that has to be answered — and then give it actions that answer it'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: {
+        ko: '본문. 스크롤되는 유일한 부분',
+        en: 'The body — the only part that scrolls'
+      }
+    }
+  ],
+
   PlPagination: [
     ...sharedProps({
       variant: "'ghost'",

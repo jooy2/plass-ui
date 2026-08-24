@@ -41,6 +41,7 @@ Documentation is available in English (served from `/`) and Korean (served from 
 ### Feedback
 
 - [PlAlert](https://plass-ui.cdget.com/components/feedback/alert): A message about something that happened, set into the page it is about. An alert *is* the coloured thing, so its sheet takes the tint (unlike every container). `color` defaults to `info`, not `primary` — an alert is a note, not the primary anything. Each family draws its own shape as well as its own colour, so the severity does not depend on colour alone. `warning` and `danger` get `role="alert"`, the rest `role="status"`. The three shapes — bare line, line with glyph, headline plus detail — are one component with different slots filled. `onClose` is what makes the dismiss button appear; the component never hides itself.
+- [PlModal](https://plass-ui.cdget.com/components/feedback/modal): A sheet that takes the page away until it is answered, built on Base UI's Dialog — focus trap, scroll lock, aria wiring and focus restoration are all the primitive's. No `variant` and no `elevation`: a modal has already taken the page, and one that could be told to sit flat would be one that could be told to stop being a modal. `title` becomes the `<h2>`, `description` the accessible description, `actions` the end-aligned bottom row; `PlModalClose` is exported so an uncontrolled modal's Cancel button needs no state. The sheet caps its own height and scrolls only its body. Opening animates opacity alone.
 
 ### Inputs
 

@@ -7,6 +7,8 @@ import {
   PlCard,
   PlCheckbox,
   PlFilePicker,
+  PlModal,
+  PlModalClose,
   PlPagination,
   PlRadio,
   PlRadioGroup,
@@ -158,7 +160,24 @@ export default function ShowcaseApp() {
               showValue={(formatted) => `${formatted[0]} days`}
             />
             <div className="flex items-center gap-3">
-              <PlButton color="danger">Delete organisation</PlButton>
+              <PlModal
+                size="sm"
+                trigger={<PlButton color="danger">Delete organisation</PlButton>}
+                title="Delete this organisation?"
+                description="Every project, invoice and key goes with it."
+                actions={
+                  <>
+                    <PlModalClose
+                      render={
+                        <PlButton variant="ghost" color="secondary">
+                          Cancel
+                        </PlButton>
+                      }
+                    />
+                    <PlModalClose render={<PlButton color="danger">Delete</PlButton>} />
+                  </>
+                }
+              />
               <PlButton variant="glass" color="secondary" readOnly>
                 Export first
               </PlButton>

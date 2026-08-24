@@ -99,7 +99,7 @@ Every component is exported under a `Pl` prefix — `Button`, `Card` and `Table`
 
 ### Feedback
 
-`PlAlert`
+`PlAlert` · `PlModal`
 
 ### Inputs
 
