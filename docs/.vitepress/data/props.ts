@@ -1175,6 +1175,78 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlHighlight: [
+    {
+      name: 'query',
+      type: 'string | string[] | RegExp',
+      required: true,
+      description: {
+        ko: '찾을 것. 문자열은 한 단어, 배열은 여러 개이며 긴 것부터 시도합니다. RegExp는 쓰인 그대로 쓰이되 global 플래그가 켜지고, caseSensitive와 wholeWord는 무시됩니다',
+        en: 'What to find. A string is one term, an array several — longest first. A RegExp is used as written with the global flag forced on, and caseSensitive/wholeWord are ignored for it'
+      }
+    },
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'solid'",
+      shared: true,
+      description: {
+        ko: '표시의 재질. solid는 형광펜, glass는 헤어라인 상자, ghost는 강조색뿐입니다. 여기서 glass는 흐림 없이 쓰입니다 — 20px짜리 인라인 상자 뒤에는 문지를 만한 배경이 없습니다',
+        en: 'What the mark is made of. solid is the highlighter pen, glass a hairline box, ghost the accent colour alone. glass is unblurred here: a 20px inline box has no backdrop worth smearing'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'warning'",
+      shared: true,
+      description: {
+        ko: '의미론적 색 역할. 기본값이 warning인 것은 임의가 아닙니다 — 그러데이션이 밝고 잉크가 어두운 유일한 계열이라, solid warning 표시가 검은 글자 위의 노란 형광펜이 됩니다',
+        en: 'Semantic colour role. warning by default and not arbitrarily: it is the one family whose gradient is light with dark ink on it, so a solid mark is a yellow highlighter over black text'
+      }
+    },
+    {
+      name: 'caseSensitive',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: 'a와 A를 다른 글자로 볼지', en: 'Whether a and A are different letters' }
+    },
+    {
+      name: 'wholeWord',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '단어 하나로 서 있을 때만 표시할지 — cat이 "cat"은 표시하고 "concatenate"는 표시하지 않게. 띄어쓰기로 구를 나누지 않는 한국어·일본어에서는 의미가 거의 없고, 그래서 기본값이 꺼짐입니다',
+        en: 'Whether a term has to be a word on its own — cat marking "cat" but not "concatenate". It means very little for Korean or Japanese, where a phrase is not delimited by spaces, which is why it is off by default'
+      }
+    },
+    {
+      name: 'underline',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '표시에 밑줄도 긋습니다. 모든 variant와 겹칩니다',
+        en: 'Underlines the mark as well. Combines with every variant'
+      }
+    },
+    {
+      name: 'weight',
+      type: "'regular' | 'medium' | 'semibold' | 'bold'",
+      description: {
+        ko: '표시의 굵기. 생략하면 주변 글자의 굵기를 그대로 씁니다 — 표면이 이미 "이것"이라고 말하고 있고, 문장 속에서 굵어진 단어는 줄 전체의 리듬을 바꿉니다',
+        en: 'The mark’s weight. Omit it and the mark is the weight of the text around it — the surface is already saying "this one", and a bolded word changes the rhythm of the whole line'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: {
+        ko: '검색할 텍스트. 요소는 안으로 걸어 들어가되 그대로 남으므로, strong 안의 일치도 표시되고 strong도 살아남습니다',
+        en: 'The text to search. Elements are walked into and left otherwise untouched, so a match inside a strong is marked and the strong survives'
+      }
+    }
+  ],
+
   PlHotKeys: [
     ...sharedProps({
       variant: "'glass'",

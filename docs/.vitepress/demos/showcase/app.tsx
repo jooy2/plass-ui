@@ -12,6 +12,7 @@ import {
   PlChip,
   PlDivider,
   PlFilePicker,
+  PlHighlight,
   PlHotKeys,
   PlIcon,
   PlModal,
@@ -141,6 +142,9 @@ export default function ShowcaseApp() {
             </PlRadioGroup>
             <PlCheckbox label="Send me the monthly invoice by email" defaultChecked />
             <p className="text-xs text-(--plass-muted-fg)">
+              <PlHighlight query="annually" color="info" variant="ghost">
+                Invoices are issued annually.
+              </PlHighlight>{' '}
               Charges follow the{' '}
               <PlTextLink href="#showcase" color="primary">
                 billing terms

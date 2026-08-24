@@ -12,6 +12,7 @@ import {
   PlChip,
   PlDivider,
   PlFilePicker,
+  PlHighlight,
   PlHotKeys,
   PlIcon,
   PlModal,
@@ -312,6 +313,20 @@ const entries: Entry[] = [
         <PlDivider />
         <PlDivider size="xs">OR</PlDivider>
       </div>
+    )
+  },
+  {
+    name: 'PlHighlight',
+    group: 'display',
+    href: 'components/display/highlight',
+    blurb: {
+      en: 'Marks the words a reader is looking for, inside text they were reading.',
+      ko: '읽고 있던 글 안에서 찾고 있던 단어를 표시합니다.'
+    },
+    preview: (
+      <p className="text-sm/7 text-(--plass-fg)">
+        <PlHighlight query="tinted glass">A key of tinted glass on a clear sheet.</PlHighlight>
+      </p>
     )
   },
   {

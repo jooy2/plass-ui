@@ -21,7 +21,7 @@ A thing that is pressed is **tinted glass**: a gradient that sweeps between two 
 - **ESM only**, TypeScript declarations included, tree-shakeable.
 - **One runtime dependency.** React 18 or 19, Node.js 20.19 or later.
 
-> **0.0.1 is a preview.** Twenty-five components are released and the shape they are poured into — the prop vocabulary, the tokens, the build — is settled. The API is not frozen yet.
+> **0.0.1 is a preview.** Twenty-six components are released and the shape they are poured into — the prop vocabulary, the tokens, the build — is settled. The API is not frozen yet.
 
 ## Documentation
 
@@ -95,7 +95,7 @@ Every component is exported under a `Pl` prefix — `Button`, `Card` and `Table`
 
 ### Display
 
-`PlAvatar` · `PlBadge` · `PlBlockquote` · `PlChip` · `PlDivider` · `PlHotKeys` · `PlIcon` · `PlTable` · `PlTextLink` · `PlTypography`
+`PlAvatar` · `PlBadge` · `PlBlockquote` · `PlChip` · `PlDivider` · `PlHighlight` · `PlHotKeys` · `PlIcon` · `PlTable` · `PlTextLink` · `PlTypography`
 
 ### Feedback
 
