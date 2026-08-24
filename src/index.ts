@@ -4,6 +4,7 @@ export * from './components/button';
 export * from './components/card';
 export * from './components/checkbox';
 export * from './components/pagination';
+export * from './components/radio-group';
 export * from './components/select';
 export * from './components/slider';
 export * from './components/table';

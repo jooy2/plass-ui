@@ -661,6 +661,151 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlRadioGroup: [
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '모든 dot의 크기와 옆 글자의 타입 스케일. 그룹에 한 번 주면 전부가 물려받습니다',
+        en: 'The size of every dot and the type scale beside it. Set once on the group and inherited by all of them'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: '선택된 dot을 채우는 그러데이션',
+        en: 'The gradient a chosen dot fills with'
+      }
+    },
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'vertical'",
+      shared: true,
+      description: {
+        ko: '옵션이 쌓이는 방향. 세로가 기본입니다 — 라벨 하나가 길어지는 순간 가로줄은 읽기 어려워집니다',
+        en: 'Which way the options stack. Vertical by default — a row becomes unreadable the moment one label is long'
+      }
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: {
+        ko: '옵션들이 대답하는 질문. 그룹의 라벨로 렌더링됩니다',
+        en: "The question the options answer. Rendered as the group's label"
+      }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: { ko: '라벨 아래 보조 설명', en: 'Helper text under the label' }
+    },
+    {
+      name: 'error',
+      type: 'ReactNode',
+      description: {
+        ko: '옵션 아래의 오류 메시지. 존재 자체가 invalid 상태를 만듭니다',
+        en: 'Error message below the options. Its presence also turns the group invalid'
+      }
+    },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: {
+        ko: '메시지 없이 invalid로 만듭니다. 기본값은 error에 내용이 있는지 여부',
+        en: 'Forces the invalid state without a message. Defaults to whether error has content'
+      }
+    },
+    {
+      name: 'value',
+      type: 'unknown',
+      description: {
+        ko: '선택된 옵션의 value. onValueChange와 함께 controlled로 씁니다',
+        en: 'The chosen option value. Use with onValueChange for a controlled group'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'unknown',
+      description: { ko: 'uncontrolled일 때 처음 선택된 값', en: 'The initially chosen value' }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: unknown, details) => void',
+      description: { ko: '선택이 바뀔 때 호출됩니다', en: 'Called with the new value' }
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '선택은 보이지만 바꿀 수 없습니다. 모든 옵션이 물려받습니다',
+        en: 'The choice is shown but cannot be changed. Every option inherits it'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '모든 옵션이 반응하지 않습니다', en: 'Every option stops answering' }
+    },
+    {
+      name: 'name · required',
+      type: 'string · boolean',
+      description: {
+        ko: '네이티브 form 제출을 위한 것들. Base UI가 그대로 받습니다',
+        en: 'For a native form submission. Passed straight to Base UI'
+      }
+    }
+  ],
+
+  PlRadio: [
+    {
+      name: 'value',
+      type: 'unknown',
+      required: true,
+      description: {
+        ko: '이 옵션이 선택됐을 때 그룹이 갖는 값',
+        en: "The group's value when this option is the chosen one"
+      }
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: {
+        ko: 'dot 옆의 글자. Base UI의 Field가 엮어 주므로 눌러도 선택됩니다',
+        en: "The text beside the dot. Wired to it by Base UI's Field, so pressing it chooses the option"
+      }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: { ko: '라벨 아래 보조 설명', en: 'Helper text under the label' }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '이 옵션만 고를 수 없습니다. 나머지는 그대로 동작합니다',
+        en: 'This option cannot be chosen; the rest keep working'
+      }
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      description: {
+        ko: '그룹의 readOnly를 이 옵션에서만 덮어씁니다',
+        en: "Overrides the group's readOnly for this option alone"
+      }
+    }
+  ],
+
   PlSelect: [
     ...sharedProps({
       variant: "'glass'",

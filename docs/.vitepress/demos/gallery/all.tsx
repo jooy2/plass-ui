@@ -6,6 +6,8 @@ import {
   PlCard,
   PlCheckbox,
   PlPagination,
+  PlRadio,
+  PlRadioGroup,
   PlSelect,
   PlSlider,
   PlTable,
@@ -91,6 +93,21 @@ const entries: Entry[] = [
       ko: '긴 목록 아래에 놓이는 페이지 번호 줄입니다.'
     },
     preview: <PlPagination size="xs" count={9} defaultPage={3} />
+  },
+  {
+    name: 'PlRadioGroup',
+    group: 'inputs',
+    href: 'components/inputs/radio-group',
+    blurb: {
+      en: 'A set of options where exactly one is chosen.',
+      ko: '여러 옵션 중 정확히 하나를 고르는 묶음입니다.'
+    },
+    preview: (
+      <PlRadioGroup size="sm" orientation="horizontal" defaultValue="card">
+        <PlRadio value="card" label="Card" />
+        <PlRadio value="transfer" label="Transfer" />
+      </PlRadioGroup>
+    )
   },
   {
     name: 'PlSelect',

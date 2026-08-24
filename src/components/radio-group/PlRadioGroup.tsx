@@ -1,0 +1,281 @@
+import * as React from 'react';
+import { Radio as BaseUIRadio } from '@base-ui/react/radio';
+import { RadioGroup as BaseUIRadioGroup } from '@base-ui/react/radio-group';
+import { Field } from '@base-ui/react/field';
+import {
+  controlSlots,
+  controlTextClasses,
+  glassClasses,
+  hasContent,
+  metaTextClasses,
+  tickDotClasses,
+  tickRowLeadingClasses,
+  tickSizeClasses,
+  transitionClasses
+} from '../../internal/styles';
+import type { PlassColor, PlassOrientation, PlassSize } from '../../types';
+
+/**
+ * What a `PlRadio` inherits from the group around it.
+ *
+ * A radio button is meaningless alone — it only says anything relative to its
+ * siblings — so `size`, `color` and the read-only state belong to the set, not
+ * to the member. Passing them on every `<PlRadio>` would be four chances to get
+ * one of them wrong.
+ */
+interface RadioGroupContextValue {
+  size: PlassSize;
+  color: PlassColor;
+  readOnly: boolean;
+}
+
+const RadioGroupContext = React.createContext<RadioGroupContextValue>({
+  size: 'md',
+  color: 'primary',
+  readOnly: false
+});
+
+export interface PlRadioGroupProps extends Omit<
+  React.ComponentPropsWithoutRef<typeof BaseUIRadioGroup>,
+  'className' | 'style' | 'render'
+> {
+  /** @default 'md' */
+  size?: PlassSize;
+  /** @default 'primary' */
+  color?: PlassColor;
+  /**
+   * Which way the options stack. Vertical by default — a column of options is
+   * scannable at any length, and a row silently becomes unreadable the moment
+   * one label is longer than expected.
+   * @default 'vertical'
+   */
+  orientation?: PlassOrientation;
+  /** The question the options answer. Rendered as the group's label. */
+  label?: React.ReactNode;
+  /** Helper text under the label. */
+  description?: React.ReactNode;
+  /** Error message below the options. Its presence also turns the group invalid. */
+  error?: React.ReactNode;
+  /**
+   * Forces the invalid state without a message — for when an external form
+   * library owns the validity. Defaults to whether `error` has content.
+   */
+  invalid?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+export interface PlRadioProps extends Omit<
+  React.ComponentPropsWithoutRef<typeof BaseUIRadio.Root>,
+  'className' | 'style' | 'render' | 'children'
+> {
+  /** The text beside the dot. Wired to it by Base UI's Field. */
+  label?: React.ReactNode;
+  /** Helper text under the label. */
+  description?: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+/**
+ * The dot. Round, and one of the two things in the library allowed to be —
+ * roundness is exactly what tells a reader "one of these" rather than "any of
+ * these", and it is the one convention old enough that breaking it would cost
+ * more than it bought.
+ */
+const dotBaseClasses = [
+  'relative inline-flex shrink-0 items-center justify-center rounded-full border',
+  '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
+  transitionClasses,
+  'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2'
+].join(' ');
+
+/**
+ * No gloss line and no tinted lift, for the reason a PlCheckbox's tick has
+ * neither: a 1px white edge is light on a cut edge at 40px and a grey smudge at
+ * 18px, and a `0 6px 16px` shadow under an 18px circle is bigger than the
+ * circle. The glass stays; only the two decorations go.
+ */
+const restDotClasses = [
+  glassClasses,
+  'cursor-pointer bg-(--plass-glass) [border-color:var(--plass-glass-line)]',
+  'hover:bg-(--plass-glass-hover) hover:[border-color:var(--p-line)]',
+  'data-[checked]:[background-image:var(--p-fill)] data-[checked]:text-(--p-on-solid)',
+  'data-[checked]:[border-color:transparent] data-[checked]:hover:brightness-105'
+].join(' ');
+
+const readOnlyDotClasses = [
+  glassClasses,
+  'cursor-default bg-(--plass-glass) [border-color:var(--plass-glass-line)]',
+  'saturate-[0.55]',
+  'data-[checked]:[background-image:var(--p-fill)] data-[checked]:text-(--p-on-solid)',
+  'data-[checked]:[border-color:transparent]'
+].join(' ');
+
+const disabledDotClasses = [
+  glassClasses,
+  'cursor-not-allowed bg-(--plass-glass) [border-color:var(--plass-border)]',
+  'opacity-50 saturate-[0.35]',
+  'data-[checked]:[background-image:var(--p-fill)] data-[checked]:text-(--p-on-solid)',
+  'data-[checked]:[border-color:transparent]'
+].join(' ');
+
+/** The inner dot: `currentColor`, so it inherits the on-fill ink. */
+const indicatorClasses = 'rounded-full bg-current';
+
+/**
+ * One option in a `PlRadioGroup`.
+ *
+ * It has no `size` and no `color` of its own — both come from the group, which
+ * is the only place they can be set once and mean the same thing for every
+ * option in the set.
+ */
+export const PlRadio = React.forwardRef<HTMLElement, PlRadioProps>(function PlRadio(
+  { label, description, disabled = false, className, style, ...props },
+  ref
+) {
+  const group = React.useContext(RadioGroupContext);
+  const readOnly = props.readOnly ?? group.readOnly;
+
+  return (
+    <Field.Root
+      disabled={disabled}
+      className={['flex flex-col', className ?? ''].filter(Boolean).join(' ')}
+      style={style}
+    >
+      <div
+        className={`flex items-start gap-2 ${controlTextClasses[group.size]} ${tickRowLeadingClasses}`}
+      >
+        {/* `1lh` centres the dot on the first line of the label, and the row
+            pins the leading so `1lh` is the label's line box and not the host
+            page's. */}
+        <span className="flex h-[1lh] shrink-0 items-center">
+          <BaseUIRadio.Root
+            ref={ref}
+            className={[
+              dotBaseClasses,
+              tickSizeClasses[group.size],
+              disabled ? disabledDotClasses : readOnly ? readOnlyDotClasses : restDotClasses
+            ].join(' ')}
+            disabled={disabled}
+            {...props}
+          >
+            <BaseUIRadio.Indicator
+              className={`${indicatorClasses} ${tickDotClasses[group.size]}`}
+            />
+          </BaseUIRadio.Root>
+        </span>
+
+        {label || description ? (
+          <span className="flex min-w-0 flex-col gap-0.5">
+            {label ? (
+              <Field.Label
+                className={[
+                  'leading-[1.4]',
+                  disabled ? 'text-(--plass-muted-fg)' : 'cursor-pointer text-(--plass-fg)'
+                ].join(' ')}
+              >
+                {label}
+              </Field.Label>
+            ) : null}
+            {description ? (
+              <Field.Description
+                className={`${metaTextClasses[group.size]} text-(--plass-muted-fg)`}
+              >
+                {description}
+              </Field.Description>
+            ) : null}
+          </span>
+        ) : null}
+      </div>
+    </Field.Root>
+  );
+});
+
+/**
+ * A set of options where exactly one is chosen.
+ *
+ * Base UI owns the roving tab index and the arrow-key navigation, which is the
+ * whole reason a radio group is a component at all rather than a `<div>` full of
+ * inputs: the set takes one tab stop, and the arrows move within it.
+ */
+export const PlRadioGroup = React.forwardRef<HTMLDivElement, PlRadioGroupProps>(
+  function PlRadioGroup(
+    {
+      size = 'md',
+      color = 'primary',
+      orientation = 'vertical',
+      label,
+      description,
+      error,
+      invalid,
+      disabled = false,
+      readOnly = false,
+      className,
+      style,
+      children,
+      ...props
+    },
+    ref
+  ) {
+    const hasError = hasContent(error);
+    const isInvalid = invalid ?? hasError;
+    // Invalid re-points the whole slot family at `danger`, so every dot, the
+    // ring and the message all turn over together.
+    const family: PlassColor = isInvalid ? 'danger' : color;
+
+    const context = React.useMemo(
+      () => ({ size, color: family, readOnly }),
+      [size, family, readOnly]
+    );
+
+    return (
+      <RadioGroupContext.Provider value={context}>
+        <Field.Root
+          disabled={disabled}
+          invalid={isInvalid}
+          className={['flex flex-col gap-1.5', className ?? ''].filter(Boolean).join(' ')}
+          // `solid`, because a checked dot *is* the coloured thing.
+          style={{ ...controlSlots(family, 0, 'solid'), ...style }}
+        >
+          {label ? (
+            <Field.Label
+              className={[
+                metaTextClasses[size],
+                'font-semibold',
+                disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)'
+              ].join(' ')}
+            >
+              {label}
+            </Field.Label>
+          ) : null}
+
+          {description ? (
+            <Field.Description className={`${metaTextClasses[size]} text-(--plass-muted-fg)`}>
+              {description}
+            </Field.Description>
+          ) : null}
+
+          <BaseUIRadioGroup
+            ref={ref}
+            disabled={disabled}
+            readOnly={readOnly}
+            className={[
+              'flex',
+              orientation === 'horizontal' ? 'flex-row flex-wrap gap-x-5 gap-y-2' : 'flex-col gap-2'
+            ].join(' ')}
+            {...props}
+          >
+            {children}
+          </BaseUIRadioGroup>
+
+          {hasError ? (
+            <Field.Error match className={`${metaTextClasses[size]} text-(--p-accent)`}>
+              {error}
+            </Field.Error>
+          ) : null}
+        </Field.Root>
+      </RadioGroupContext.Provider>
+    );
+  }
+);

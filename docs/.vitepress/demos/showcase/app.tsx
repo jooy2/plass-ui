@@ -6,6 +6,8 @@ import {
   PlCard,
   PlCheckbox,
   PlPagination,
+  PlRadio,
+  PlRadioGroup,
   PlSelect,
   PlSlider,
   PlTable,
@@ -86,6 +88,10 @@ export default function ShowcaseApp() {
               ]}
               defaultValue="team"
             />
+            <PlRadioGroup label="Billing cycle" orientation="horizontal" defaultValue="yearly">
+              <PlRadio value="monthly" label="Monthly" />
+              <PlRadio value="yearly" label="Yearly" />
+            </PlRadioGroup>
             <PlCheckbox label="Send me the monthly invoice by email" defaultChecked />
             <div className="flex items-center gap-3">
               <PlButton loading={saving} onClick={save}>
