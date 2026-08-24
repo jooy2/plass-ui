@@ -957,6 +957,123 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlSegmentedButton: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: '홈과 그 위를 타는 타일의 재질. solid는 색 유리 키가 홈을 타고, glass는 맑은 타일, ghost는 홈 없음',
+        en: 'What the groove and the tile riding in it are made of. solid rides a tinted-glass key, glass a clear tile, ghost has no groove at all'
+      },
+      sizeDescription: {
+        ko: '세그먼트의 높이와 타입 스케일. PlButton과 같은 사다리',
+        en: 'Segment height and type scale — the same ladder as PlButton'
+      },
+      elevationDescription: {
+        ko: '홈의 그림자 깊이. 홈은 페이지에 파인 것이므로 기본값은 0입니다',
+        en: 'Drop shadow depth of the groove. A groove is cut into the page, so the default is 0'
+      }
+    }),
+    {
+      name: 'value',
+      type: 'string | number | null',
+      description: {
+        ko: '선택된 세그먼트. onValueChange와 함께 controlled로 씁니다',
+        en: 'The chosen segment. Use with onValueChange for a controlled set'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'string | number | null',
+      default: 'null',
+      description: { ko: 'uncontrolled일 때 처음 선택된 세그먼트', en: 'Which starts chosen' }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string | number | null) => void',
+      description: { ko: '선택이 바뀔 때 호출됩니다', en: 'Called with the new value' }
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '세그먼트들이 전체 너비를 균등하게 나눠 가집니다',
+        en: 'The segments share the full width, each taking an equal part of it'
+      }
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '선택은 보이지만 바꿀 수 없습니다',
+        en: 'Shows which one is chosen but does not let it be changed'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '모든 세그먼트가 반응하지 않습니다', en: 'Disables every segment at once' }
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: {
+        ko: 'form 제출 시 이 값을 식별하는 이름',
+        en: 'Identifies the value when a form is submitted'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: 'PlSegment 목록', en: 'The PlSegment children' }
+    }
+  ],
+
+  PlSegment: [
+    {
+      name: 'value',
+      type: 'string | number',
+      required: true,
+      description: {
+        ko: '세그먼트를 식별하는 값. onValueChange가 보고하는 것',
+        en: 'Identifies the segment. What onValueChange reports'
+      }
+    },
+    {
+      name: 'startIcon',
+      type: 'ReactNode',
+      description: {
+        ko: '라벨 앞에 놓이는 내용. 1.2em으로 그려져 라벨 크기를 따라갑니다',
+        en: 'Content before the label. Sized in em, so it tracks the label'
+      }
+    },
+    {
+      name: 'endIcon',
+      type: 'ReactNode',
+      description: {
+        ko: '라벨 뒤 — 개수, 상태 점',
+        en: 'Content after the label — a count, a status dot'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '고를 수 없지만 여전히 묶음의 일부입니다',
+        en: 'Unavailable, but still part of the set'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '세그먼트의 라벨', en: "The segment's label" }
+    }
+  ],
+
   PlSelect: [
     ...sharedProps({
       variant: "'glass'",

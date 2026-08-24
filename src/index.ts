@@ -6,6 +6,7 @@ export * from './components/checkbox';
 export * from './components/file-picker';
 export * from './components/pagination';
 export * from './components/radio-group';
+export * from './components/segmented-button';
 export * from './components/select';
 export * from './components/slider';
 export * from './components/switch';

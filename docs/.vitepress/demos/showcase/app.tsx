@@ -9,6 +9,8 @@ import {
   PlPagination,
   PlRadio,
   PlRadioGroup,
+  PlSegment,
+  PlSegmentedButton,
   PlSelect,
   PlSlider,
   PlSwitch,
@@ -58,9 +60,10 @@ export default function ShowcaseApp() {
           startIcon={<SearchIcon />}
           className="grow"
         />
-        <PlButton size="md" variant="glass" color="secondary">
-          Filter
-        </PlButton>
+        <PlSegmentedButton size="md" aria-label="Layout" defaultValue="grid">
+          <PlSegment value="grid">Grid</PlSegment>
+          <PlSegment value="list">List</PlSegment>
+        </PlSegmentedButton>
         <PlButton size="md">New</PlButton>
       </div>
 

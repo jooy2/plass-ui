@@ -9,6 +9,8 @@ import {
   PlPagination,
   PlRadio,
   PlRadioGroup,
+  PlSegment,
+  PlSegmentedButton,
   PlSelect,
   PlSlider,
   PlSwitch,
@@ -120,6 +122,22 @@ const entries: Entry[] = [
         <PlRadio value="card" label="Card" />
         <PlRadio value="transfer" label="Transfer" />
       </PlRadioGroup>
+    )
+  },
+  {
+    name: 'PlSegmentedButton',
+    group: 'inputs',
+    href: 'components/inputs/segmented-button',
+    blurb: {
+      en: 'Two or more choices in one pill, exactly one of them taken.',
+      ko: '알약 하나에 담긴 선택지 중 정확히 하나가 선택됩니다.'
+    },
+    preview: (
+      <PlSegmentedButton size="xs" aria-label="Period" defaultValue="week">
+        <PlSegment value="day">Day</PlSegment>
+        <PlSegment value="week">Week</PlSegment>
+        <PlSegment value="month">Month</PlSegment>
+      </PlSegmentedButton>
     )
   },
   {
