@@ -4,7 +4,7 @@
  * A component that needs a shape nobody else needs draws it in its own file.
  * What lands here is what two components would otherwise each have a copy of —
  * and the reason that matters is not the duplication, it is that two copies
- * drift: a spinner in a Button and a spinner in a TextField have to be the same
+ * drift: a spinner in a PlButton and a spinner in a PlTextField have to be the same
  * object in motion, or a form that is saving looks like two things loading.
  */
 

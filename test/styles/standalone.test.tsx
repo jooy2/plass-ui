@@ -21,7 +21,7 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { Button, TextField } from 'plass-ui';
+import { PlButton, PlTextField } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
 import pkg from '../../package.json';
 
@@ -69,7 +69,7 @@ describe('plass-ui/styles.css', () => {
 
   describe('the reset', () => {
     it('puts padding and border inside a control box', async () => {
-      const screen = await render(<Button>Save</Button>);
+      const screen = await render(<PlButton>Save</PlButton>);
       const element = screen.getByRole('button').element();
 
       expect(getComputedStyle(element).boxSizing).toBe('border-box');
@@ -78,7 +78,7 @@ describe('plass-ui/styles.css', () => {
     it('leaves flow content to be spaced by the component around it', async () => {
       // Base UI renders a `<p>` for a field description, and a UA gives every
       // `<p>` a block margin the stack gap has already accounted for.
-      const screen = await render(<TextField label="Email" description="We never share it." />);
+      const screen = await render(<PlTextField label="Email" description="We never share it." />);
       const styles = getComputedStyle(screen.getByText('We never share it.').element());
 
       expect(styles.marginBlockStart).toBe('0px');
@@ -94,7 +94,7 @@ describe('plass-ui/styles.css', () => {
       document.head.append(page);
 
       try {
-        const screen = await render(<TextField label="Email" description="We never share it." />);
+        const screen = await render(<PlTextField label="Email" description="We never share it." />);
         const styles = getComputedStyle(screen.getByText('We never share it.').element());
 
         expect(styles.marginBlockStart).toBe('7px');
@@ -106,7 +106,7 @@ describe('plass-ui/styles.css', () => {
 
   describe('the utilities', () => {
     it('style a control that would otherwise be a bare button', async () => {
-      const screen = await render(<Button>Save</Button>);
+      const screen = await render(<PlButton>Save</PlButton>);
       const styles = getComputedStyle(screen.getByRole('button').element());
 
       expect(styles.display).toBe('inline-flex');
@@ -120,7 +120,7 @@ describe('plass-ui/styles.css', () => {
       // round a corner the size ladder has already decided. A utility is one
       // class and the reset is none, so this only holds while the reset stays
       // inside `:where()`.
-      const screen = await render(<Button>Save</Button>);
+      const screen = await render(<PlButton>Save</PlButton>);
       const radius = getComputedStyle(screen.getByRole('button').element()).borderRadius;
 
       expect(parseFloat(radius)).toBeGreaterThan(0);
@@ -133,14 +133,14 @@ describe('plass-ui/styles.css', () => {
       // into a `--p-*` slot, a utility reads the slot, and the slot resolves to
       // a gradient derived in the token sheet. Any link missing leaves this
       // `none`.
-      const screen = await render(<Button color="primary">Save</Button>);
+      const screen = await render(<PlButton color="primary">Save</PlButton>);
       const image = getComputedStyle(screen.getByRole('button').element()).backgroundImage;
 
       expect(image).toContain('gradient');
     });
 
     it('paints a sheet a field can be read on', async () => {
-      const screen = await render(<TextField label="Email" />);
+      const screen = await render(<PlTextField label="Email" />);
       const shell = screen.getByRole('textbox').element().parentElement as HTMLElement;
       const background = getComputedStyle(shell).backgroundColor;
 
@@ -149,7 +149,7 @@ describe('plass-ui/styles.css', () => {
     });
 
     it('answer to a forced theme without any further setup', async () => {
-      const screen = await render(<Button>Save</Button>);
+      const screen = await render(<PlButton>Save</PlButton>);
       const element = screen.getByRole('button').element();
       const light = token(element, '--plass-surface');
 
@@ -166,7 +166,7 @@ describe('plass-ui/styles.css', () => {
       // The one place Plass deliberately does not re-pick per theme: a piece of
       // plastic is the same piece of plastic in a dark room. What moves is the
       // accent, which has to be *read* off a surface.
-      const screen = await render(<Button>Save</Button>);
+      const screen = await render(<PlButton>Save</PlButton>);
       const element = screen.getByRole('button').element();
       const solid = token(element, '--plass-primary-solid');
       const accent = token(element, '--plass-primary-accent');

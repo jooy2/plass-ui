@@ -1,4 +1,4 @@
-import { Button } from 'plass-ui';
+import { PlButton } from 'plass-ui';
 
 function PlusIcon() {
   return (
@@ -19,12 +19,12 @@ function ArrowIcon() {
 export default function ButtonIcons() {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <Button startIcon={<PlusIcon />}>New project</Button>
-      <Button variant="glass" endIcon={<ArrowIcon />}>
+      <PlButton startIcon={<PlusIcon />}>New project</PlButton>
+      <PlButton variant="glass" endIcon={<ArrowIcon />}>
         Continue
-      </Button>
-      <Button aria-label="Add" startIcon={<PlusIcon />} />
-      <Button variant="ghost" aria-label="Add" startIcon={<PlusIcon />} />
+      </PlButton>
+      <PlButton aria-label="Add" startIcon={<PlusIcon />} />
+      <PlButton variant="ghost" aria-label="Add" startIcon={<PlusIcon />} />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, TextField } from 'plass-ui';
+import { PlButton, PlTextField } from 'plass-ui';
 
 /**
  * The home page's hero object.
@@ -34,7 +34,7 @@ export default function HomeHero() {
       <p className="mt-1 text-sm text-(--plass-muted-fg)">Two components, and this whole card.</p>
 
       <div className="mt-5 grid gap-4">
-        <TextField
+        <PlTextField
           fullWidth
           label="Email"
           type="email"
@@ -42,7 +42,7 @@ export default function HomeHero() {
           startIcon={<GlassIcon />}
           onChange={(event) => setEmail(event.target.value)}
         />
-        <TextField
+        <PlTextField
           fullWidth
           label="Password"
           type="password"
@@ -52,10 +52,10 @@ export default function HomeHero() {
       </div>
 
       <div className="mt-5 flex gap-3">
-        <Button className="grow">Sign in</Button>
-        <Button variant="glass" color="secondary">
+        <PlButton className="grow">Sign in</PlButton>
+        <PlButton variant="glass" color="secondary">
           Cancel
-        </Button>
+        </PlButton>
       </div>
     </div>
   );

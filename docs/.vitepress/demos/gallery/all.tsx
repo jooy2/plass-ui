@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Button, TextField } from 'plass-ui';
+import { PlButton, PlTextField } from 'plass-ui';
 
 /**
  * The component index, as running previews rather than screenshots.
@@ -23,7 +23,7 @@ interface Entry {
 
 const entries: Entry[] = [
   {
-    name: 'Button',
+    name: 'PlButton',
     href: 'components/inputs/button',
     blurb: {
       en: 'A control that runs an action.',
@@ -31,24 +31,24 @@ const entries: Entry[] = [
     },
     preview: (
       <div className="flex flex-wrap items-center gap-2">
-        <Button size="sm">Save</Button>
-        <Button size="sm" variant="glass">
+        <PlButton size="sm">Save</PlButton>
+        <PlButton size="sm" variant="glass">
           Cancel
-        </Button>
-        <Button size="sm" variant="ghost" color="danger">
+        </PlButton>
+        <PlButton size="sm" variant="ghost" color="danger">
           Delete
-        </Button>
+        </PlButton>
       </div>
     )
   },
   {
-    name: 'TextField',
+    name: 'PlTextField',
     href: 'components/inputs/text-field',
     blurb: {
       en: 'Single- or multi-line text input, with its label, description and error.',
       ko: '한 줄 또는 여러 줄 텍스트 입력. 라벨과 설명, 오류 메시지를 함께 담습니다.'
     },
-    preview: <TextField fullWidth size="sm" placeholder="acme-inc" />
+    preview: <PlTextField fullWidth size="sm" placeholder="acme-inc" />
   }
 ];
 

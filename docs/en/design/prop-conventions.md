@@ -23,7 +23,7 @@ They live in `src/types.ts` and every styled component draws from them.
 
 `solid`, `glass`, `ghost` — not `filled`, `outlined`, `text`. The three words are the three answers to the question the [design language](./design-language) makes every surface answer, and naming them after what they _are_ rather than after what they look like is what keeps the answer consistent when a component is hard to place.
 
-The one place the same word means two things is `solid` on something typed into: there it is the **well**, not a tinted pane. See [TextField](../components/inputs/text-field#variant).
+The one place the same word means two things is `solid` on something typed into: there it is the **well**, not a tinted pane. See [PlTextField](../components/inputs/text-field#variant).
 
 ### `size` is one decision
 

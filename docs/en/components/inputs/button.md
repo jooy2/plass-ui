@@ -1,23 +1,23 @@
 ---
-title: Button
+title: PlButton
 order: 1
 ---
 
-# Button
+# PlButton
 
 <p class="plass-lede">A control that runs an action. Use it for anything the user deliberately triggers — submitting a form, saving, deleting.</p>
 
 <Demo src="button/hero" />
 
 ```tsx
-import { Button } from 'plass-ui';
+import { PlButton } from 'plass-ui';
 
-<Button onClick={save}>Save</Button>;
+<PlButton onClick={save}>Save</PlButton>;
 ```
 
 ## Props
 
-<PropsTable name="Button" />
+<PropsTable name="PlButton" />
 
 Every native `<button>` attribute passes straight through. The one exception is `color`, omitted because it collides with the `color` in the table above.
 

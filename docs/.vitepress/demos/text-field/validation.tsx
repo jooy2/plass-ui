@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, TextField } from 'plass-ui';
+import { PlButton, PlTextField } from 'plass-ui';
 
 export default function TextFieldValidation() {
   const [value, setValue] = useState('acme inc');
@@ -7,7 +7,7 @@ export default function TextFieldValidation() {
 
   return (
     <div className="flex w-full max-w-sm items-end gap-3">
-      <TextField
+      <PlTextField
         fullWidth
         label="Workspace"
         value={value}
@@ -15,7 +15,7 @@ export default function TextFieldValidation() {
         description={message ? undefined : 'Letters, numbers and dashes.'}
         onChange={(event) => setValue(event.target.value)}
       />
-      <Button disabled={Boolean(message)}>Create</Button>
+      <PlButton disabled={Boolean(message)}>Create</PlButton>
     </div>
   );
 }

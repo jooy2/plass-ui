@@ -7,7 +7,7 @@ import { propTables } from '../../data/props';
 /**
  * Renders one component's props table from `data/props.ts`.
  *
- * `<PropsTable name="Button" />`
+ * `<PropsTable name="PlButton" />`
  */
 const props = defineProps({
   name: { type: String, required: true }

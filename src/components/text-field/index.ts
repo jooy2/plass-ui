@@ -1,2 +1,2 @@
-export { TextField } from './TextField';
-export type { TextFieldProps, TextFieldResize } from './TextField';
+export { PlTextField } from './PlTextField';
+export type { PlTextFieldProps, PlTextFieldResize } from './PlTextField';

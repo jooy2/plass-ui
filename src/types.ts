@@ -2,7 +2,7 @@
  * Shared prop vocabulary for every Plass component.
  *
  * These names and values are deliberately generic: a `size` of `md` or a
- * `color` of `primary` has to mean the same thing on a Button, a TextField, a
+ * `color` of `primary` has to mean the same thing on a PlButton, a PlTextField, a
  * Card or a Dialog. Components pick the subset they need from here and never
  * invent a parallel spelling of the same idea.
  */
@@ -62,7 +62,7 @@ export type PlassVariant = 'solid' | 'glass' | 'ghost';
 /**
  * How far a surface sits off the page, as a drop shadow.
  *
- * A control rests **on** the sheet rather than flush with it, so a Button
+ * A control rests **on** the sheet rather than flush with it, so a PlButton
  * defaults to `1` and not to `0`. Hovering adds a level and pressing removes
  * one, which is what puts it down against the sheet under the finger. The
  * ladder is neutral and faint; a control's shadow is mostly the tint below it.

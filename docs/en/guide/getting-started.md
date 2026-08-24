@@ -7,7 +7,7 @@ order: 1
 
 Plass is a React component library. Behaviour and accessibility come from [Base UI](https://base-ui.com) primitives; styling comes from [Tailwind CSS](https://tailwindcss.com) v4. Tailwind is used to build this package and does not have to be installed in yours.
 
-> **0.0.1 is a preview.** Two components are released — [Button](../components/inputs/button) and [TextField](../components/inputs/text-field). The prop vocabulary, the tokens and the build are the shape everything after this will be poured into, so they are worth reading; the component list is not yet worth building a product on.
+> **0.0.1 is a preview.** Two components are released — [PlButton](../components/inputs/button) and [PlTextField](../components/inputs/text-field). The prop vocabulary, the tokens and the build are the shape everything after this will be poured into, so they are worth reading; the component list is not yet worth building a product on.
 
 ## Install
 
@@ -76,10 +76,10 @@ Any backdrop with structure in it works — a photograph, a mesh, your own gradi
 ## Use
 
 ```tsx
-import { Button } from 'plass-ui';
+import { PlButton } from 'plass-ui';
 
 export default function App() {
-  return <Button onClick={() => console.log('clicked')}>Save</Button>;
+  return <PlButton onClick={() => console.log('clicked')}>Save</PlButton>;
 }
 ```
 

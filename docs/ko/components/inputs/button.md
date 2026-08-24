@@ -1,23 +1,23 @@
 ---
-title: Button
+title: PlButton
 order: 1
 ---
 
-# Button
+# PlButton
 
 <p class="plass-lede">액션을 실행하는 컨트롤입니다. 사용자가 의도적으로 일으키는 모든 것에 씁니다 — 폼 제출, 저장, 삭제.</p>
 
 <Demo src="button/hero" />
 
 ```tsx
-import { Button } from 'plass-ui';
+import { PlButton } from 'plass-ui';
 
-<Button onClick={save}>Save</Button>;
+<PlButton onClick={save}>Save</PlButton>;
 ```
 
 ## Props
 
-<PropsTable name="Button" />
+<PropsTable name="PlButton" />
 
 네이티브 `<button>` 속성은 그대로 전달됩니다. 예외는 `color` 하나로, 위 표의 `color`와 이름이 겹쳐서 제외했습니다.
 

@@ -1,35 +1,35 @@
-import { Button } from 'plass-ui';
+import { PlButton } from 'plass-ui';
 
 export default function ButtonColors() {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-3">
-        <Button color="primary">Primary</Button>
-        <Button color="secondary">Secondary</Button>
-        <Button color="success">Success</Button>
-        <Button color="warning">Warning</Button>
-        <Button color="danger">Danger</Button>
-        <Button color="info">Info</Button>
+        <PlButton color="primary">Primary</PlButton>
+        <PlButton color="secondary">Secondary</PlButton>
+        <PlButton color="success">Success</PlButton>
+        <PlButton color="warning">Warning</PlButton>
+        <PlButton color="danger">Danger</PlButton>
+        <PlButton color="info">Info</PlButton>
       </div>
       <div className="flex flex-wrap items-center gap-3">
-        <Button variant="glass" color="primary">
+        <PlButton variant="glass" color="primary">
           Primary
-        </Button>
-        <Button variant="glass" color="secondary">
+        </PlButton>
+        <PlButton variant="glass" color="secondary">
           Secondary
-        </Button>
-        <Button variant="glass" color="success">
+        </PlButton>
+        <PlButton variant="glass" color="success">
           Success
-        </Button>
-        <Button variant="glass" color="warning">
+        </PlButton>
+        <PlButton variant="glass" color="warning">
           Warning
-        </Button>
-        <Button variant="glass" color="danger">
+        </PlButton>
+        <PlButton variant="glass" color="danger">
           Danger
-        </Button>
-        <Button variant="glass" color="info">
+        </PlButton>
+        <PlButton variant="glass" color="info">
           Info
-        </Button>
+        </PlButton>
       </div>
     </div>
   );

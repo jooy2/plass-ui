@@ -20,7 +20,7 @@ import {
 } from '../../internal/styles';
 import type { PlassElevation, PlassSize, PlassStyleProps, PlassVariant } from '../../types';
 
-export interface ButtonProps
+export interface PlButtonProps
   extends PlassStyleProps, Omit<React.ComponentPropsWithoutRef<'button'>, 'color'> {
   /**
    * Drop shadow depth. `1` is the default, because a moulded key **rests on**
@@ -62,7 +62,7 @@ export interface ButtonProps
 
 /**
  * The scales all come from `internal/styles` — a button's height *is* the
- * library's control height, and the same numbers have to hold on a TextField,
+ * library's control height, and the same numbers have to hold on a PlTextField,
  * a Select and a Chip for a mixed row to keep its baseline.
  */
 const sizeClasses: Record<PlassSize, string> = {
@@ -163,7 +163,7 @@ const readOnlyClasses: Record<PlassVariant, string> = {
   ghost: `cursor-default text-(--p-accent) bg-transparent ${readOnlyFilterClasses}`
 };
 
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+export const PlButton = React.forwardRef<HTMLButtonElement, PlButtonProps>(function PlButton(
   {
     variant = 'solid',
     size = 'md',
@@ -217,14 +217,14 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
     .join(' ');
 
   /*
-   * `render` deliberately steps around Base UI's Button rather than being handed
+   * `render` deliberately steps around Base UI's PlButton rather than being handed
    * to it. Told to render a non-`<button>`, that component puts `role="button"`
    * on whatever it was given — which is right for a `<div>` and wrong for the
    * case this prop exists for: an `<a href>` under a `role="button"` stops being
    * a link to everything that reads the page, and the link list, the status bar
    * and the crawler all lose it.
    *
-   * What Base UI's Button adds over a bare `<button>` is its disabled handling,
+   * What Base UI's PlButton adds over a bare `<button>` is its disabled handling,
    * and `disabled` is the one thing that cannot travel to an `<a>` anyway.
    */
   return useRender({

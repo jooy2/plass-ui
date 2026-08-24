@@ -56,13 +56,13 @@ Everything that holds content is one sheet at three strengths.
 
 **Glass is never dyed.** A sheet holds other people's content, and that content arrives with its own colours: body text, links, buttons, fields. Tinting the sheet underneath puts every one of them on a background they were not chosen against. So **the family stops at the hairline, the focus ring and the caret, and the glass stays clear.**
 
-Controls are the opposite case and take the family into the fill itself, because a Button's surface _is_ the thing being coloured.
+Controls are the opposite case and take the family into the fill itself, because a PlButton's surface _is_ the thing being coloured.
 
-> **One consequence.** On a `glass` Button, `color` is the label and the hairline. On a `glass` TextField, `color` is the hairline, the ring and the caret and nothing else — which is why an invalid field can turn the whole family over to `danger` without repainting its surface.
+> **One consequence.** On a `glass` PlButton, `color` is the label and the hairline. On a `glass` PlTextField, `color` is the hairline, the ring and the caret and nothing else — which is why an invalid field can turn the whole family over to `danger` without repainting its surface.
 
 ### The one inset shadow
 
-`--plass-well` is the exception that proves the pair: the only shadow in the library that points **inward**. It is what a `solid` TextField is drawn as — the glass at its most opaque with light falling into it — because a gradient under a caret, a text selection and a placeholder is not legible.
+`--plass-well` is the exception that proves the pair: the only shadow in the library that points **inward**. It is what a `solid` PlTextField is drawn as — the glass at its most opaque with light falling into it — because a gradient under a caret, a text selection and a placeholder is not legible.
 
 So `solid` means "the tinted pane" on anything pressed and "the deepest clear glass" on anything typed into. Same word, and one rule underneath it: `solid` is the heaviest thing that variant can be while still doing its job.
 
@@ -147,7 +147,7 @@ compact    6 /  8 / 10 / 14 / 16px
 type PlassElevation = 0 | 1 | 2 | 3;
 ```
 
-**A Button defaults to `1`, and a TextField to `0`.** A key rests _on_ the sheet; a field is cut _into_ it. Hovering adds a level and pressing removes one, so a default button presses down flush against the glass and a raised one comes back to where it was.
+**A PlButton defaults to `1`, and a PlTextField to `0`.** A key rests _on_ the sheet; a field is cut _into_ it. Hovering adds a level and pressing removes one, so a default button presses down flush against the glass and a raised one comes back to where it was.
 
 The ladder climbs by **blur far more than by offset**. A surface that moves 20px down the page when it is raised has left the sheet, and everything in this library is still sitting on one.
 

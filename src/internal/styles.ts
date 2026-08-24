@@ -3,7 +3,7 @@
  *
  * None of this is exported from `src/index.ts` — it is the library talking to
  * itself. It lives here for one reason: a `size` of `md` has to be 40px on a
- * Button, a TextField, a Select and a Chip, and a table copied into eleven
+ * PlButton, a PlTextField, a Select and a Chip, and a table copied into eleven
  * files is a table that will disagree with itself by the twelfth.
  *
  * The two things that cannot move out of a component are its variant classes
@@ -40,7 +40,7 @@ export const radiusClasses: Record<PlassSize, string> = {
 
 /**
  * The height of a control, and the one number the whole library lines up on:
- * a Button, a TextField, a Select and a Chip of the same `size` sit on the same
+ * a PlButton, a PlTextField, a Select and a Chip of the same `size` sit on the same
  * baseline in the same row.
  *
  * The ladder is 8px per step, and it starts higher than a dense desktop toolkit
@@ -273,7 +273,7 @@ export function controlSlots(
 
 /**
  * The same slots for a surface that **holds** content rather than being
- * pressed: a Box, a Card, a TextField's shell, a popup.
+ * pressed: a Box, a Card, a PlTextField's shell, a popup.
  *
  * There is no `--p-fill` and no `--p-lift` here, and that is the point. A
  * container's sheet is the undyed glass, because what it holds arrives with its
@@ -338,7 +338,7 @@ export const disabledClasses: Record<PlassVariant, string> = {
 export const readOnlyFilterClasses = 'saturate-[0.55]';
 
 /**
- * The shell a field-shaped control is drawn on — a TextField's box and a
+ * The shell a field-shaped control is drawn on — a PlTextField's box and a
  * Select's trigger, which have to be indistinguishable or a form looks like two
  * different forms stacked on each other.
  *

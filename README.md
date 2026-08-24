@@ -21,7 +21,7 @@ A thing that is pressed is **tinted glass**: a gradient that sweeps between two 
 - **ESM only**, TypeScript declarations included, tree-shakeable.
 - **One runtime dependency.** React 18 or 19, Node.js 20.19 or later.
 
-> **0.0.1 is a preview.** Two components are released — `Button` and `TextField`. The prop vocabulary, the tokens and the build are the shape everything after this will be poured into; the component list is not yet worth building a product on.
+> **0.0.1 is a preview.** Two components are released — `PlButton` and `PlTextField`. The prop vocabulary, the tokens and the build are the shape everything after this will be poured into; the component list is not yet worth building a product on.
 
 ## Documentation
 
@@ -74,16 +74,16 @@ body {
 ## Usage
 
 ```tsx
-import { Button, TextField } from 'plass-ui';
+import { PlButton, PlTextField } from 'plass-ui';
 
 export default function SignIn() {
   return (
     <form onSubmit={submit}>
-      <TextField label="Email" type="email" fullWidth />
-      <Button type="submit">Sign in</Button>
-      <Button variant="glass" color="secondary">
+      <PlTextField label="Email" type="email" fullWidth />
+      <PlButton type="submit">Sign in</PlButton>
+      <PlButton variant="glass" color="secondary">
         Cancel
-      </Button>
+      </PlButton>
     </form>
   );
 }
@@ -93,7 +93,7 @@ export default function SignIn() {
 
 ### Inputs
 
-`Button` · `TextField`
+`PlButton` · `PlTextField`
 
 ## Development
 

@@ -46,7 +46,7 @@ import { basePath, localeOf, t } from '../../data/i18n';
 /**
  * A live preview of a React component inside a Vue page.
  *
- * VitePress compiles Markdown to Vue, so `<Button />` cannot be written
+ * VitePress compiles Markdown to Vue, so `<PlButton />` cannot be written
  * directly. The bridge is the usual one: Vue owns a plain `<div>`, and React
  * takes it over with `createRoot()` once the page is in the browser.
  *

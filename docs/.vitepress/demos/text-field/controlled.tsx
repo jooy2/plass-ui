@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { TextField } from 'plass-ui';
+import { PlTextField } from 'plass-ui';
 
 export default function TextFieldControlled() {
   const [value, setValue] = useState('');
 
   return (
     <div className="grid w-full max-w-sm gap-2">
-      <TextField
+      <PlTextField
         label="Display name"
         value={value}
         maxLength={24}

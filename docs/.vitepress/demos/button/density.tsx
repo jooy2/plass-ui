@@ -1,18 +1,18 @@
-import { Button } from 'plass-ui';
+import { PlButton } from 'plass-ui';
 
 export default function ButtonDensity() {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <Button size="lg">Default</Button>
-      <Button size="lg" density="compact">
+      <PlButton size="lg">Default</PlButton>
+      <PlButton size="lg" density="compact">
         Compact
-      </Button>
-      <Button size="lg" variant="glass">
+      </PlButton>
+      <PlButton size="lg" variant="glass">
         Default
-      </Button>
-      <Button size="lg" variant="glass" density="compact">
+      </PlButton>
+      <PlButton size="lg" variant="glass" density="compact">
         Compact
-      </Button>
+      </PlButton>
     </div>
   );
 }

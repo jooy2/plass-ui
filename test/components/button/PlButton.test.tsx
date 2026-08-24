@@ -1,17 +1,17 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { Button } from 'plass-ui';
+import { PlButton } from 'plass-ui';
 
-describe('Button', () => {
+describe('PlButton', () => {
   describe('rendering', () => {
     it('renders its children as the accessible name', async () => {
-      const screen = await render(<Button>Save</Button>);
+      const screen = await render(<PlButton>Save</PlButton>);
 
       await expect.element(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
     });
 
     it('renders an interactive native button rather than a generic element', async () => {
-      const screen = await render(<Button>Save</Button>);
+      const screen = await render(<PlButton>Save</PlButton>);
       const element = screen.getByRole('button').element();
 
       expect(element.tagName).toBe('BUTTON');
@@ -19,28 +19,28 @@ describe('Button', () => {
     });
 
     it('reflects changed children on re-render', async () => {
-      const screen = await render(<Button>Before</Button>);
+      const screen = await render(<PlButton>Before</PlButton>);
 
-      await screen.rerender(<Button>After</Button>);
+      await screen.rerender(<PlButton>After</PlButton>);
 
       await expect.element(screen.getByRole('button', { name: 'After' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Before' }).query()).toBeNull();
     });
 
     it('keeps caller-supplied class names alongside its own', async () => {
-      const screen = await render(<Button className="my-own-class">Save</Button>);
+      const screen = await render(<PlButton className="my-own-class">Save</PlButton>);
 
       expect(screen.getByRole('button').element()).toHaveClass('my-own-class');
     });
 
     it('forwards unknown props to the underlying button', async () => {
-      const screen = await render(<Button type="submit">Save</Button>);
+      const screen = await render(<PlButton type="submit">Save</PlButton>);
 
       expect(screen.getByRole('button').element()).toHaveAttribute('type', 'submit');
     });
 
     it('renders as another element when `render` says so', async () => {
-      const screen = await render(<Button render={<a href="/pricing" />}>Pricing</Button>);
+      const screen = await render(<PlButton render={<a href="/pricing" />}>Pricing</PlButton>);
       const element = screen.getByRole('link', { name: 'Pricing' }).element();
 
       expect(element.tagName).toBe('A');
@@ -50,13 +50,13 @@ describe('Button', () => {
 
     it('keeps its own surface when rendered as something else', async () => {
       const screen = await render(
-        <Button render={<a href="/pricing" />} variant="glass" size="lg">
+        <PlButton render={<a href="/pricing" />} variant="glass" size="lg">
           Pricing
-        </Button>
+        </PlButton>
       );
       const element = screen.getByRole('link').element();
 
-      // The same two things every `glass` Button at `lg` carries: the sheet's
+      // The same two things every `glass` PlButton at `lg` carries: the sheet's
       // hairline and the control height off the shared ladder.
       expect(element).toHaveClass('[border-color:var(--plass-glass-line)]');
       expect(element).toHaveClass('h-12');
@@ -65,7 +65,7 @@ describe('Button', () => {
 
   describe('style props', () => {
     it('maps color onto the token slots the styles read from', async () => {
-      const screen = await render(<Button color="danger">Delete</Button>);
+      const screen = await render(<PlButton color="danger">Delete</PlButton>);
       const element = screen.getByRole('button').element() as HTMLElement;
 
       expect(element.style.getPropertyValue('--p-fill')).toBe('var(--plass-danger-fill)');
@@ -74,37 +74,37 @@ describe('Button', () => {
     });
 
     it('defaults to the primary color', async () => {
-      const screen = await render(<Button>Save</Button>);
+      const screen = await render(<PlButton>Save</PlButton>);
       const element = screen.getByRole('button').element() as HTMLElement;
 
       expect(element.style.getPropertyValue('--p-fill')).toBe('var(--plass-primary-fill)');
     });
 
     it('changes height with size but not with density', async () => {
-      const screen = await render(<Button size="md">Save</Button>);
+      const screen = await render(<PlButton size="md">Save</PlButton>);
       const element = screen.getByRole('button').element();
 
       expect(element).toHaveClass('h-10');
 
       await screen.rerender(
-        <Button size="md" density="compact">
+        <PlButton size="md" density="compact">
           Save
-        </Button>
+        </PlButton>
       );
 
       expect(element).toHaveClass('h-10');
     });
 
     it('changes horizontal padding with density', async () => {
-      const screen = await render(<Button size="lg">Save</Button>);
+      const screen = await render(<PlButton size="lg">Save</PlButton>);
       const element = screen.getByRole('button').element();
 
       expect(element).toHaveClass('px-6');
 
       await screen.rerender(
-        <Button size="lg" density="compact">
+        <PlButton size="lg" density="compact">
           Save
-        </Button>
+        </PlButton>
       );
 
       expect(element).toHaveClass('px-3.5');
@@ -112,7 +112,7 @@ describe('Button', () => {
     });
 
     it('rests one level off the sheet by default and presses back down onto it', async () => {
-      const screen = await render(<Button>Save</Button>);
+      const screen = await render(<PlButton>Save</PlButton>);
       const element = screen.getByRole('button').element() as HTMLElement;
 
       // A key rests *on* the sheet, so the default is 1 and not 0 — and one
@@ -121,7 +121,7 @@ describe('Button', () => {
       expect(element.style.getPropertyValue('--p-elev-hover')).toBe('var(--plass-shadow-2)');
       expect(element.style.getPropertyValue('--p-elev-press')).toBe('var(--plass-shadow-0)');
 
-      await screen.rerender(<Button elevation={3}>Save</Button>);
+      await screen.rerender(<PlButton elevation={3}>Save</PlButton>);
 
       expect(element.style.getPropertyValue('--p-elev')).toBe('var(--plass-shadow-3)');
       expect(element.style.getPropertyValue('--p-elev-hover')).toBe('var(--plass-shadow-4)');
@@ -131,16 +131,16 @@ describe('Button', () => {
     it('switches the interaction light with the variant, not with the colour', async () => {
       // White light on a near-white sheet is invisible, so only a filled
       // surface gets the white bloom; everything else takes its own soft tint.
-      const screen = await render(<Button color="danger">Delete</Button>);
+      const screen = await render(<PlButton color="danger">Delete</PlButton>);
       const element = screen.getByRole('button').element() as HTMLElement;
 
       expect(element.style.getPropertyValue('--p-glow')).toBe('var(--plass-glow-on-fill)');
       expect(element.style.getPropertyValue('--p-flash')).toBe('var(--plass-flash-on-fill)');
 
       await screen.rerender(
-        <Button color="danger" variant="glass">
+        <PlButton color="danger" variant="glass">
           Delete
-        </Button>
+        </PlButton>
       );
 
       expect(element.style.getPropertyValue('--p-glow')).toBe('var(--plass-danger-soft)');
@@ -151,43 +151,43 @@ describe('Button', () => {
       // The lift says what the surface is made of; elevation says how far off
       // the page it is. A `danger` button one level higher is not a redder
       // piece of glass, so the two do not move together.
-      const screen = await render(<Button>Save</Button>);
+      const screen = await render(<PlButton>Save</PlButton>);
       const element = screen.getByRole('button').element() as HTMLElement;
       const lift = element.style.getPropertyValue('--p-lift');
 
       expect(lift).toContain('var(--p-tint)');
 
-      await screen.rerender(<Button elevation={3}>Save</Button>);
+      await screen.rerender(<PlButton elevation={3}>Save</PlButton>);
 
       expect(element.style.getPropertyValue('--p-lift')).toBe(lift);
     });
 
     it('carries the interaction light on every variant that can be pressed', async () => {
-      const screen = await render(<Button>Save</Button>);
+      const screen = await render(<PlButton>Save</PlButton>);
       const element = screen.getByRole('button').element();
 
       expect(element).toHaveClass('plass-glow');
 
       // It is about where the pointer is, not about what the surface is made
       // of, so the variant does not take it away.
-      await screen.rerender(<Button variant="glass">Save</Button>);
+      await screen.rerender(<PlButton variant="glass">Save</PlButton>);
       expect(element).toHaveClass('plass-glow');
 
-      await screen.rerender(<Button variant="ghost">Save</Button>);
+      await screen.rerender(<PlButton variant="ghost">Save</PlButton>);
       expect(element).toHaveClass('plass-glow');
 
-      await screen.rerender(<Button disabled>Save</Button>);
+      await screen.rerender(<PlButton disabled>Save</PlButton>);
       expect(element).not.toHaveClass('plass-glow');
 
-      await screen.rerender(<Button readOnly>Save</Button>);
+      await screen.rerender(<PlButton readOnly>Save</PlButton>);
       expect(element).not.toHaveClass('plass-glow');
 
-      await screen.rerender(<Button loading>Save</Button>);
+      await screen.rerender(<PlButton loading>Save</PlButton>);
       expect(element).not.toHaveClass('plass-glow');
     });
 
     it('writes the pointer position onto the element without re-rendering', async () => {
-      const screen = await render(<Button size="xl">Save</Button>);
+      const screen = await render(<PlButton size="xl">Save</PlButton>);
       const locator = screen.getByRole('button');
       const element = locator.element() as HTMLElement;
 
@@ -203,20 +203,20 @@ describe('Button', () => {
       // A filled control's box-shadow is the elevation and the tint and nothing
       // else. An inset white edge on a coloured surface is what reads as
       // lacquer, and the gradient is doing that job instead.
-      const screen = await render(<Button>Save</Button>);
+      const screen = await render(<PlButton>Save</PlButton>);
       const element = screen.getByRole('button').element();
 
       expect(element).toHaveClass('[box-shadow:var(--p-elev),var(--p-lift)]');
       expect(element.className).not.toContain('gloss');
 
       // The hairline is glass's, because glass has a real cut edge.
-      await screen.rerender(<Button variant="glass">Save</Button>);
+      await screen.rerender(<PlButton variant="glass">Save</PlButton>);
 
       expect(element).toHaveClass('[box-shadow:var(--p-elev),var(--plass-gloss-glass)]');
     });
 
     it('never applies a transform, so the label cannot move', async () => {
-      const screen = await render(<Button elevation={3}>Save</Button>);
+      const screen = await render(<PlButton elevation={3}>Save</PlButton>);
       const className = screen.getByRole('button').element().className;
 
       expect(className).not.toContain('scale');
@@ -224,35 +224,35 @@ describe('Button', () => {
     });
 
     it('draws a border for the glass variant only', async () => {
-      const screen = await render(<Button variant="glass">Save</Button>);
+      const screen = await render(<PlButton variant="glass">Save</PlButton>);
       const element = screen.getByRole('button').element();
 
       expect(element).toHaveClass('border');
 
-      await screen.rerender(<Button variant="ghost">Save</Button>);
+      await screen.rerender(<PlButton variant="ghost">Save</PlButton>);
 
       expect(element).not.toHaveClass('border');
     });
 
     it('fills only the solid variant with the gradient', async () => {
-      const screen = await render(<Button variant="solid">Save</Button>);
+      const screen = await render(<PlButton variant="solid">Save</PlButton>);
       const element = screen.getByRole('button').element();
 
       expect(element).toHaveClass('[background-image:var(--p-fill)]');
 
-      await screen.rerender(<Button variant="glass">Save</Button>);
+      await screen.rerender(<PlButton variant="glass">Save</PlButton>);
 
       expect(element).not.toHaveClass('[background-image:var(--p-fill)]');
     });
 
     it('stretches to the container when fullWidth is set', async () => {
-      const screen = await render(<Button fullWidth>Save</Button>);
+      const screen = await render(<PlButton fullWidth>Save</PlButton>);
 
       expect(screen.getByRole('button').element()).toHaveClass('w-full');
     });
 
     it('renders as a square when there is no label', async () => {
-      const screen = await render(<Button size="md" aria-label="Add" startIcon={<svg />} />);
+      const screen = await render(<PlButton size="md" aria-label="Add" startIcon={<svg />} />);
       const element = screen.getByRole('button', { name: 'Add' }).element();
 
       expect(element).toHaveClass('w-10');
@@ -263,9 +263,9 @@ describe('Button', () => {
   describe('icons', () => {
     it('places startIcon before and endIcon after the label', async () => {
       const screen = await render(
-        <Button startIcon={<span>[</span>} endIcon={<span>]</span>}>
+        <PlButton startIcon={<span>[</span>} endIcon={<span>]</span>}>
           Save
-        </Button>
+        </PlButton>
       );
 
       expect(screen.getByRole('button').element().textContent).toBe('[Save]');
@@ -275,7 +275,7 @@ describe('Button', () => {
   describe('states', () => {
     it('fires onClick when idle', async () => {
       const onClick = vi.fn();
-      const screen = await render(<Button onClick={onClick}>Save</Button>);
+      const screen = await render(<PlButton onClick={onClick}>Save</PlButton>);
 
       await screen.getByRole('button').click();
 
@@ -286,7 +286,7 @@ describe('Button', () => {
       const onClick = vi.fn();
       const screen = await render(
         <div onClick={onClick}>
-          <Button>Click me</Button>
+          <PlButton>Click me</PlButton>
         </div>
       );
 
@@ -298,9 +298,9 @@ describe('Button', () => {
     it('does not fire onClick when disabled', async () => {
       const onClick = vi.fn();
       const screen = await render(
-        <Button disabled onClick={onClick}>
+        <PlButton disabled onClick={onClick}>
           Save
-        </Button>
+        </PlButton>
       );
       const element = screen.getByRole('button').element();
 
@@ -312,7 +312,7 @@ describe('Button', () => {
     });
 
     it('lets the page through a disabled key rather than greying it', async () => {
-      const screen = await render(<Button disabled>Save</Button>);
+      const screen = await render(<PlButton disabled>Save</PlButton>);
       const element = screen.getByRole('button').element();
 
       expect(element).toHaveClass('opacity-50');
@@ -323,7 +323,7 @@ describe('Button', () => {
     });
 
     it('marks itself busy and swaps in a spinner while loading', async () => {
-      const screen = await render(<Button loading>Save</Button>);
+      const screen = await render(<PlButton loading>Save</PlButton>);
       const element = screen.getByRole('button').element();
 
       expect(element).toHaveAttribute('aria-busy', 'true');
@@ -333,9 +333,9 @@ describe('Button', () => {
 
     it('replaces startIcon with the spinner while loading', async () => {
       const screen = await render(
-        <Button loading startIcon={<span>ICON</span>}>
+        <PlButton loading startIcon={<span>ICON</span>}>
           Save
-        </Button>
+        </PlButton>
       );
 
       expect(screen.getByRole('button').element().textContent).toBe('Save');
@@ -344,9 +344,9 @@ describe('Button', () => {
     it('stays focusable but does not fire onClick while loading', async () => {
       const onClick = vi.fn();
       const screen = await render(
-        <Button loading onClick={onClick}>
+        <PlButton loading onClick={onClick}>
           Save
-        </Button>
+        </PlButton>
       );
       const element = screen.getByRole('button').element();
 
@@ -363,9 +363,9 @@ describe('Button', () => {
     it('does not fire onClick when read-only', async () => {
       const onClick = vi.fn();
       const screen = await render(
-        <Button readOnly onClick={onClick}>
+        <PlButton readOnly onClick={onClick}>
           Save
-        </Button>
+        </PlButton>
       );
       const element = screen.getByRole('button').element();
 
@@ -378,16 +378,16 @@ describe('Button', () => {
     });
 
     it('keeps its colour but goes flat and desaturated when read-only', async () => {
-      const screen = await render(<Button elevation={2}>Save</Button>);
+      const screen = await render(<PlButton elevation={2}>Save</PlButton>);
       const element = screen.getByRole('button').element() as HTMLElement;
 
       expect(element).toHaveClass('[box-shadow:var(--p-elev),var(--p-lift)]');
       expect(element).not.toHaveClass('saturate-[0.55]');
 
       await screen.rerender(
-        <Button elevation={2} readOnly>
+        <PlButton elevation={2} readOnly>
           Save
-        </Button>
+        </PlButton>
       );
 
       // Still the same family and still the same gradient...
@@ -402,7 +402,7 @@ describe('Button', () => {
       const onParentClick = vi.fn();
       const screen = await render(
         <div onClick={onParentClick}>
-          <Button readOnly>Save</Button>
+          <PlButton readOnly>Save</PlButton>
         </div>
       );
 

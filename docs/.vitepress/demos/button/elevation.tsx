@@ -1,12 +1,12 @@
-import { Button } from 'plass-ui';
+import { PlButton } from 'plass-ui';
 
 export default function ButtonElevation() {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <Button elevation={0}>Flush</Button>
-      <Button elevation={1}>Resting</Button>
-      <Button elevation={2}>Raised</Button>
-      <Button elevation={3}>Floating</Button>
+      <PlButton elevation={0}>Flush</PlButton>
+      <PlButton elevation={1}>Resting</PlButton>
+      <PlButton elevation={2}>Raised</PlButton>
+      <PlButton elevation={3}>Floating</PlButton>
     </div>
   );
 }

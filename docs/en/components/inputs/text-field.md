@@ -1,23 +1,23 @@
 ---
-title: TextField
+title: PlTextField
 order: 2
 ---
 
-# TextField
+# PlTextField
 
 <p class="plass-lede">Single- or multi-line text input. The label, the helper text and the error message are part of the component rather than three elements you wire together yourself.</p>
 
 <Demo src="text-field/hero" :min-height="180" />
 
 ```tsx
-import { TextField } from 'plass-ui';
+import { PlTextField } from 'plass-ui';
 
-<TextField label="Email" type="email" description="We never share it." />;
+<PlTextField label="Email" type="email" description="We never share it." />;
 ```
 
 ## Props
 
-<PropsTable name="TextField" />
+<PropsTable name="PlTextField" />
 
 Every native `<input>` attribute passes straight through, and in `multiline` mode every `<textarea>` attribute does. The exceptions are `color` and `size`, which are the shared axes above.
 
@@ -39,7 +39,7 @@ A `solid` field is deliberately **not** a tinted pane. A gradient under a caret,
 
 ### size
 
-The same ladder Button uses — `xs` 24px · `sm` 32px · `md` 40px · `lg` 48px · `xl` 56px — so a field and a button of the same `size` line up on one row.
+The same ladder PlButton uses — `xs` 24px · `sm` 32px · `md` 40px · `lg` 48px · `xl` 56px — so a field and a button of the same `size` line up on one row.
 
 <Demo src="text-field/sizes" :min-height="260">
 

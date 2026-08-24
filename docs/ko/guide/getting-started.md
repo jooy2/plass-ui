@@ -7,7 +7,7 @@ order: 1
 
 Plass는 React 컴포넌트 라이브러리입니다. 동작과 접근성은 [Base UI](https://base-ui.com) primitive에서, 스타일은 [Tailwind CSS](https://tailwindcss.com) v4에서 옵니다. Tailwind는 이 패키지를 빌드하는 데 쓰일 뿐, 여러분의 프로젝트에 설치될 필요는 없습니다.
 
-> **0.0.1은 미리 보기입니다.** 지금 공개된 컴포넌트는 [Button](../components/inputs/button)과 [TextField](../components/inputs/text-field) 둘뿐입니다. prop 어휘와 토큰, 빌드 구조는 이후 모든 것이 부어질 틀이라서 지금 읽어 둘 값어치가 있지만, 컴포넌트 목록은 아직 제품을 올릴 만한 상태가 아닙니다.
+> **0.0.1은 미리 보기입니다.** 지금 공개된 컴포넌트는 [PlButton](../components/inputs/button)과 [PlTextField](../components/inputs/text-field) 둘뿐입니다. prop 어휘와 토큰, 빌드 구조는 이후 모든 것이 부어질 틀이라서 지금 읽어 둘 값어치가 있지만, 컴포넌트 목록은 아직 제품을 올릴 만한 상태가 아닙니다.
 
 ## 설치
 
@@ -76,10 +76,10 @@ body {
 ## 사용하기
 
 ```tsx
-import { Button } from 'plass-ui';
+import { PlButton } from 'plass-ui';
 
 export default function App() {
-  return <Button onClick={() => console.log('clicked')}>Save</Button>;
+  return <PlButton onClick={() => console.log('clicked')}>Save</PlButton>;
 }
 ```
 

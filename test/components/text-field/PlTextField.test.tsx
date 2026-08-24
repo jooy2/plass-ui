@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { TextField } from 'plass-ui';
+import { PlTextField } from 'plass-ui';
 
-describe('TextField', () => {
+describe('PlTextField', () => {
   describe('rendering', () => {
     it('renders a native input by default', async () => {
-      const screen = await render(<TextField label="Email" />);
+      const screen = await render(<PlTextField label="Email" />);
       const element = screen.getByRole('textbox', { name: 'Email' }).element();
 
       expect(element.tagName).toBe('INPUT');
@@ -15,7 +15,7 @@ describe('TextField', () => {
     });
 
     it('associates the label with the control', async () => {
-      const screen = await render(<TextField label="Email" />);
+      const screen = await render(<PlTextField label="Email" />);
       const input = screen.getByRole('textbox', { name: 'Email' }).element();
 
       const label = document.querySelector('label');
@@ -24,23 +24,23 @@ describe('TextField', () => {
     });
 
     it('renders without a label', async () => {
-      const screen = await render(<TextField placeholder="Search" />);
+      const screen = await render(<PlTextField placeholder="Search" />);
 
       await expect.element(screen.getByPlaceholder('Search')).toBeInTheDocument();
       expect(document.querySelector('label')).toBeNull();
     });
 
     it('reflects a changed label on re-render', async () => {
-      const screen = await render(<TextField label="Before" />);
+      const screen = await render(<PlTextField label="Before" />);
 
-      await screen.rerender(<TextField label="After" />);
+      await screen.rerender(<PlTextField label="After" />);
 
       await expect.element(screen.getByRole('textbox', { name: 'After' })).toBeInTheDocument();
       expect(screen.getByRole('textbox', { name: 'Before' }).query()).toBeNull();
     });
 
     it('keeps caller-supplied class names on the root alongside its own', async () => {
-      const screen = await render(<TextField label="Email" className="my-own-class" />);
+      const screen = await render(<PlTextField label="Email" className="my-own-class" />);
       const root = screen.getByRole('textbox').element().closest('div');
 
       expect(root).toHaveClass('my-own-class');
@@ -48,7 +48,7 @@ describe('TextField', () => {
     });
 
     it('forwards unknown props to the control', async () => {
-      const screen = await render(<TextField type="email" maxLength={5} name="email" />);
+      const screen = await render(<PlTextField type="email" maxLength={5} name="email" />);
       const element = screen.getByRole('textbox').element();
 
       expect(element).toHaveAttribute('type', 'email');
@@ -58,7 +58,7 @@ describe('TextField', () => {
 
     it('renders the description and the error under the control', async () => {
       const screen = await render(
-        <TextField label="Email" description="We never share it." error="Not a valid address." />
+        <PlTextField label="Email" description="We never share it." error="Not a valid address." />
       );
 
       await expect.element(screen.getByText('We never share it.')).toBeInTheDocument();
@@ -67,7 +67,7 @@ describe('TextField', () => {
 
     it('describes the control with both the description and the error', async () => {
       const screen = await render(
-        <TextField label="Email" description="We never share it." error="Not a valid address." />
+        <PlTextField label="Email" description="We never share it." error="Not a valid address." />
       );
       const input = screen.getByRole('textbox').element();
 
@@ -83,7 +83,7 @@ describe('TextField', () => {
 
   describe('multiline', () => {
     it('renders a textarea when multiline is set', async () => {
-      const screen = await render(<TextField multiline label="Bio" />);
+      const screen = await render(<PlTextField multiline label="Bio" />);
       const element = screen.getByRole('textbox', { name: 'Bio' }).element();
 
       expect(element.tagName).toBe('TEXTAREA');
@@ -92,40 +92,40 @@ describe('TextField', () => {
     });
 
     it('switches between input and textarea on re-render', async () => {
-      const screen = await render(<TextField label="Bio" />);
+      const screen = await render(<PlTextField label="Bio" />);
 
       expect(screen.getByRole('textbox').element().tagName).toBe('INPUT');
 
-      await screen.rerender(<TextField multiline label="Bio" />);
+      await screen.rerender(<PlTextField multiline label="Bio" />);
 
       expect(screen.getByRole('textbox').element().tagName).toBe('TEXTAREA');
     });
 
     it('passes rows through to the textarea', async () => {
-      const screen = await render(<TextField multiline rows={6} />);
+      const screen = await render(<PlTextField multiline rows={6} />);
 
       expect(screen.getByRole('textbox').element()).toHaveAttribute('rows', '6');
     });
 
     it('resizes vertically by default and honours the resize prop', async () => {
-      const screen = await render(<TextField multiline />);
+      const screen = await render(<PlTextField multiline />);
       const element = screen.getByRole('textbox').element();
 
       expect(element).toHaveClass('resize-y');
 
-      await screen.rerender(<TextField multiline resize="none" />);
+      await screen.rerender(<PlTextField multiline resize="none" />);
 
       expect(element).toHaveClass('resize-none');
       expect(element).not.toHaveClass('resize-y');
     });
 
     it('trades the fixed height for a minimum so rows decide the height', async () => {
-      const screen = await render(<TextField size="md" />);
+      const screen = await render(<PlTextField size="md" />);
       const shell = screen.getByRole('textbox').element().parentElement;
 
       expect(shell).toHaveClass('h-10');
 
-      await screen.rerender(<TextField size="md" multiline />);
+      await screen.rerender(<PlTextField size="md" multiline />);
 
       expect(shell).toHaveClass('min-h-10');
       expect(shell).not.toHaveClass('h-10');
@@ -138,19 +138,19 @@ describe('TextField', () => {
     // that arithmetic: both modes take their line height from `size` and never
     // from `density`.
     it('drives a one-row textarea from the same size as the single-line field', async () => {
-      const screen = await render(<TextField size="md" density="compact" />);
+      const screen = await render(<PlTextField size="md" density="compact" />);
       const shell = () => screen.getByRole('textbox').element().parentElement!;
 
       expect(shell()).toHaveClass('text-[0.875rem]/[1.25rem]');
 
-      await screen.rerender(<TextField size="md" density="compact" multiline rows={1} />);
+      await screen.rerender(<PlTextField size="md" density="compact" multiline rows={1} />);
 
       expect(shell()).toHaveClass('text-[0.875rem]/[1.25rem]');
       expect(shell()).toHaveClass('py-[9px]');
     });
 
     it('accepts typed text that spans lines', async () => {
-      const screen = await render(<TextField multiline label="Bio" />);
+      const screen = await render(<PlTextField multiline label="Bio" />);
       const locator = screen.getByRole('textbox');
 
       await locator.fill('first\nsecond');
@@ -161,7 +161,7 @@ describe('TextField', () => {
 
   describe('style props', () => {
     it('maps color onto the token slots the styles read from', async () => {
-      const screen = await render(<TextField color="success" />);
+      const screen = await render(<PlTextField color="success" />);
       const root = screen.getByRole('textbox').element().closest('div') as HTMLElement;
 
       expect(root.style.getPropertyValue('--p-accent')).toBe('var(--plass-success-accent)');
@@ -169,7 +169,7 @@ describe('TextField', () => {
     });
 
     it('leaves the glass undyed whatever the color is', async () => {
-      const screen = await render(<TextField color="success" />);
+      const screen = await render(<PlTextField color="success" />);
       const root = screen.getByRole('textbox').element().closest('div') as HTMLElement;
 
       // What a field holds is user data, so there is no fill slot at all here —
@@ -177,75 +177,75 @@ describe('TextField', () => {
       expect(root.style.getPropertyValue('--p-fill')).toBe('');
       expect(root.style.getPropertyValue('--p-lift')).toBe('');
 
-      await screen.rerender(<TextField color="danger" />);
+      await screen.rerender(<PlTextField color="danger" />);
 
       expect(root.style.getPropertyValue('--p-fill')).toBe('');
       expect(root.style.getPropertyValue('--p-ring')).toBe('var(--plass-danger-ring)');
     });
 
     it('defaults to the primary color', async () => {
-      const screen = await render(<TextField />);
+      const screen = await render(<PlTextField />);
       const root = screen.getByRole('textbox').element().closest('div') as HTMLElement;
 
       expect(root.style.getPropertyValue('--p-accent')).toBe('var(--plass-primary-accent)');
     });
 
     it('changes height with size but not with density', async () => {
-      const screen = await render(<TextField size="lg" />);
+      const screen = await render(<PlTextField size="lg" />);
       const shell = screen.getByRole('textbox').element().parentElement;
 
       expect(shell).toHaveClass('h-12');
 
-      await screen.rerender(<TextField size="lg" density="compact" />);
+      await screen.rerender(<PlTextField size="lg" density="compact" />);
 
       expect(shell).toHaveClass('h-12');
     });
 
     it('changes horizontal padding with density', async () => {
-      const screen = await render(<TextField size="lg" />);
+      const screen = await render(<PlTextField size="lg" />);
       const shell = screen.getByRole('textbox').element().parentElement;
 
       expect(shell).toHaveClass('px-6');
 
-      await screen.rerender(<TextField size="lg" density="compact" />);
+      await screen.rerender(<PlTextField size="lg" density="compact" />);
 
       expect(shell).toHaveClass('px-3.5');
       expect(shell).not.toHaveClass('px-6');
     });
 
     it('keeps the vertical padding of a multiline field out of density', async () => {
-      const screen = await render(<TextField size="md" multiline />);
+      const screen = await render(<PlTextField size="md" multiline />);
       const shell = screen.getByRole('textbox').element().parentElement;
 
       expect(shell).toHaveClass('py-[9px]');
 
-      await screen.rerender(<TextField size="md" multiline density="compact" />);
+      await screen.rerender(<PlTextField size="md" multiline density="compact" />);
 
       expect(shell).toHaveClass('py-[9px]');
     });
 
     it('is flat by default and maps elevation onto the shadow scale', async () => {
-      const screen = await render(<TextField />);
+      const screen = await render(<PlTextField />);
       const root = screen.getByRole('textbox').element().closest('div') as HTMLElement;
 
       // A field is a well cut into the sheet, not a key resting on it.
       expect(root.style.getPropertyValue('--p-elev')).toBe('var(--plass-shadow-0)');
 
-      await screen.rerender(<TextField elevation={2} />);
+      await screen.rerender(<PlTextField elevation={2} />);
 
       expect(root.style.getPropertyValue('--p-elev')).toBe('var(--plass-shadow-2)');
     });
 
     it('draws a border for the glass variant only', async () => {
-      const screen = await render(<TextField variant="glass" />);
+      const screen = await render(<PlTextField variant="glass" />);
       const shell = screen.getByRole('textbox').element().parentElement;
 
       expect(shell).toHaveClass('border');
 
-      await screen.rerender(<TextField variant="ghost" />);
+      await screen.rerender(<PlTextField variant="ghost" />);
       expect(shell).not.toHaveClass('border');
 
-      await screen.rerender(<TextField variant="solid" />);
+      await screen.rerender(<PlTextField variant="solid" />);
       expect(shell).not.toHaveClass('border');
     });
 
@@ -253,7 +253,7 @@ describe('TextField', () => {
       // The one shadow in the library that points inward. A gradient fill under
       // a caret, a selection and a placeholder is not legible, so `solid` on a
       // field means "the deepest glass", never "the plastic".
-      const screen = await render(<TextField variant="solid" />);
+      const screen = await render(<PlTextField variant="solid" />);
       const shell = screen.getByRole('textbox').element().parentElement;
 
       expect(shell).toHaveClass('[box-shadow:var(--p-elev),var(--plass-well)]');
@@ -261,7 +261,7 @@ describe('TextField', () => {
     });
 
     it('never applies a transform, so nothing in the field can move', async () => {
-      const screen = await render(<TextField label="Email" elevation={3} />);
+      const screen = await render(<PlTextField label="Email" elevation={3} />);
       const root = screen.getByRole('textbox').element().closest('div') as HTMLElement;
 
       expect(root.outerHTML).not.toContain('scale');
@@ -269,7 +269,7 @@ describe('TextField', () => {
     });
 
     it('stretches to the container when fullWidth is set', async () => {
-      const screen = await render(<TextField fullWidth />);
+      const screen = await render(<PlTextField fullWidth />);
       const root = screen.getByRole('textbox').element().closest('div');
 
       expect(root).toHaveClass('w-full');
@@ -280,7 +280,7 @@ describe('TextField', () => {
   describe('icons', () => {
     it('places startIcon before and endIcon after the control', async () => {
       const screen = await render(
-        <TextField startIcon={<span>[</span>} endIcon={<span>]</span>} />
+        <PlTextField startIcon={<span>[</span>} endIcon={<span>]</span>} />
       );
       const shell = screen.getByRole('textbox').element().parentElement;
 
@@ -292,7 +292,7 @@ describe('TextField', () => {
 
   describe('value', () => {
     it('reflects text typed into an uncontrolled field', async () => {
-      const screen = await render(<TextField label="Email" />);
+      const screen = await render(<PlTextField label="Email" />);
       const locator = screen.getByRole('textbox');
 
       await locator.fill('a@b.com');
@@ -302,7 +302,7 @@ describe('TextField', () => {
 
     it('fires onChange with the typed value', async () => {
       const onChange = vi.fn();
-      const screen = await render(<TextField label="Email" onChange={onChange} />);
+      const screen = await render(<PlTextField label="Email" onChange={onChange} />);
 
       await screen.getByRole('textbox').fill('hi');
 
@@ -315,7 +315,7 @@ describe('TextField', () => {
       function Controlled() {
         const [value, setValue] = useState('');
         return (
-          <TextField
+          <PlTextField
             label="Email"
             value={value}
             onChange={(event) => setValue(event.target.value)}
@@ -332,7 +332,7 @@ describe('TextField', () => {
     });
 
     it('focuses the control when the shell padding is clicked', async () => {
-      const screen = await render(<TextField size="xl" label="Email" />);
+      const screen = await render(<PlTextField size="xl" label="Email" />);
       const input = screen.getByRole('textbox').element();
       const shell = input.parentElement as HTMLElement;
 
@@ -351,7 +351,7 @@ describe('TextField', () => {
 
   describe('states', () => {
     it('disables the control and lets the page through the sheet', async () => {
-      const screen = await render(<TextField label="Email" disabled />);
+      const screen = await render(<PlTextField label="Email" disabled />);
       const input = screen.getByRole('textbox').element();
 
       expect(input).toBeDisabled();
@@ -360,7 +360,7 @@ describe('TextField', () => {
     });
 
     it('stays focusable and editable-looking but rejects input when read-only', async () => {
-      const screen = await render(<TextField label="Email" readOnly defaultValue="fixed" />);
+      const screen = await render(<PlTextField label="Email" readOnly defaultValue="fixed" />);
       const input = screen.getByRole('textbox').element() as HTMLInputElement;
 
       expect(input).toHaveAttribute('readonly');
@@ -372,13 +372,13 @@ describe('TextField', () => {
     });
 
     it('keeps its colour but goes flat and desaturated when read-only', async () => {
-      const screen = await render(<TextField elevation={2} />);
+      const screen = await render(<PlTextField elevation={2} />);
       const shell = screen.getByRole('textbox').element().parentElement;
 
       expect(shell).toHaveClass('[box-shadow:var(--p-elev),var(--plass-gloss-glass)]');
       expect(shell).not.toHaveClass('saturate-[0.55]');
 
-      await screen.rerender(<TextField elevation={2} readOnly />);
+      await screen.rerender(<PlTextField elevation={2} readOnly />);
 
       expect(shell).toHaveClass('[box-shadow:var(--plass-gloss-glass)]');
       expect(shell).not.toHaveClass('[box-shadow:var(--p-elev),var(--plass-gloss-glass)]');
@@ -386,7 +386,7 @@ describe('TextField', () => {
     });
 
     it('marks itself busy and shows a spinner while loading, without blocking typing', async () => {
-      const screen = await render(<TextField loading label="Email" />);
+      const screen = await render(<PlTextField loading label="Email" />);
       const locator = screen.getByRole('textbox');
       const input = locator.element();
 
@@ -400,7 +400,7 @@ describe('TextField', () => {
     });
 
     it('replaces endIcon with the spinner while loading', async () => {
-      const screen = await render(<TextField loading endIcon={<span>ICON</span>} />);
+      const screen = await render(<PlTextField loading endIcon={<span>ICON</span>} />);
       const shell = screen.getByRole('textbox').element().parentElement;
 
       expect(shell?.textContent).toBe('');
@@ -409,25 +409,25 @@ describe('TextField', () => {
 
   describe('validity', () => {
     it('turns the whole slot family over to danger when invalid', async () => {
-      const screen = await render(<TextField label="Email" />);
+      const screen = await render(<PlTextField label="Email" />);
       const root = screen.getByRole('textbox').element().closest('div') as HTMLElement;
 
       expect(root.style.getPropertyValue('--p-ring')).toBe('var(--plass-primary-ring)');
 
-      await screen.rerender(<TextField label="Email" error="Required." />);
+      await screen.rerender(<PlTextField label="Email" error="Required." />);
 
       expect(root.style.getPropertyValue('--p-ring')).toBe('var(--plass-danger-ring)');
       expect(root.style.getPropertyValue('--p-line')).toBe('var(--plass-danger-line)');
     });
 
     it('marks the control invalid for assistive technology', async () => {
-      const screen = await render(<TextField label="Email" error="Required." />);
+      const screen = await render(<PlTextField label="Email" error="Required." />);
 
       expect(screen.getByRole('textbox').element()).toHaveAttribute('aria-invalid', 'true');
     });
 
     it('can be invalid without a message', async () => {
-      const screen = await render(<TextField label="Email" invalid />);
+      const screen = await render(<PlTextField label="Email" invalid />);
       const root = screen.getByRole('textbox').element().closest('div') as HTMLElement;
 
       expect(root.style.getPropertyValue('--p-ring')).toBe('var(--plass-danger-ring)');
@@ -435,7 +435,7 @@ describe('TextField', () => {
     });
 
     it('can carry a message without being invalid when told so explicitly', async () => {
-      const screen = await render(<TextField label="Email" error="Heads up." invalid={false} />);
+      const screen = await render(<PlTextField label="Email" error="Heads up." invalid={false} />);
       const root = screen.getByRole('textbox').element().closest('div') as HTMLElement;
 
       expect(root.style.getPropertyValue('--p-ring')).toBe('var(--plass-primary-ring)');
@@ -443,7 +443,7 @@ describe('TextField', () => {
     });
 
     it('overrides the color prop while invalid', async () => {
-      const screen = await render(<TextField color="info" error="Required." />);
+      const screen = await render(<PlTextField color="info" error="Required." />);
       const root = screen.getByRole('textbox').element().closest('div') as HTMLElement;
 
       expect(root.style.getPropertyValue('--p-accent')).toBe('var(--plass-danger-accent)');

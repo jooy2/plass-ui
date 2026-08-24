@@ -50,8 +50,8 @@ interface SharedOptions {
  * The five axes every styled component takes, with per-component defaults.
  *
  * Written once so that a reader who has learned what `density` means on a
- * Button does not have to read a second, subtly different sentence about it on
- * a TextField.
+ * PlButton does not have to read a second, subtly different sentence about it on
+ * a PlTextField.
  */
 function sharedProps(options: SharedOptions): PropRow[] {
   return [
@@ -109,7 +109,7 @@ function sharedProps(options: SharedOptions): PropRow[] {
 }
 
 export const propTables: Record<string, PropRow[]> = {
-  Button: [
+  PlButton: [
     ...sharedProps({
       variant: "'solid'",
       size: "'md'",
@@ -191,13 +191,13 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
-  TextField: [
+  PlTextField: [
     ...sharedProps({
       variant: "'glass'",
       size: "'md'",
       sizeDescription: {
-        ko: '높이와 타입 스케일. Button과 같은 높이라서 한 줄에 섞어 놓아도 기준선이 맞습니다',
-        en: "Height and type scale. The same heights as Button, so a row's baseline holds"
+        ko: '높이와 타입 스케일. PlButton과 같은 높이라서 한 줄에 섞어 놓아도 기준선이 맞습니다',
+        en: "Height and type scale. The same heights as PlButton, so a row's baseline holds"
       },
       variantDescription: {
         ko: '표면의 재질. 필드에서 solid는 색 유리판이 아니라 시트에 파인 우물입니다 — 필드가 담는 것은 사용자 데이터입니다',

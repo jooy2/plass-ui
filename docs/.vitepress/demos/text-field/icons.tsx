@@ -1,4 +1,4 @@
-import { TextField } from 'plass-ui';
+import { PlTextField } from 'plass-ui';
 
 function SearchIcon() {
   return (
@@ -12,9 +12,9 @@ function SearchIcon() {
 export default function TextFieldIcons() {
   return (
     <div className="grid w-full max-w-sm gap-4">
-      <TextField startIcon={<SearchIcon />} placeholder="Search projects" />
-      <TextField label="Domain" defaultValue="acme" endIcon={<span>.plass.dev</span>} />
-      <TextField label="Checking availability" defaultValue="acme" loading />
+      <PlTextField startIcon={<SearchIcon />} placeholder="Search projects" />
+      <PlTextField label="Domain" defaultValue="acme" endIcon={<span>.plass.dev</span>} />
+      <PlTextField label="Checking availability" defaultValue="acme" loading />
     </div>
   );
 }

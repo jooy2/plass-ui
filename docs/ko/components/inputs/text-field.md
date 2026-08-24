@@ -1,23 +1,23 @@
 ---
-title: TextField
+title: PlTextField
 order: 2
 ---
 
-# TextField
+# PlTextField
 
 <p class="plass-lede">한 줄 또는 여러 줄 텍스트 입력입니다. 라벨과 보조 설명, 오류 메시지가 직접 엮어야 하는 세 요소가 아니라 컴포넌트의 일부입니다.</p>
 
 <Demo src="text-field/hero" :min-height="180" />
 
 ```tsx
-import { TextField } from 'plass-ui';
+import { PlTextField } from 'plass-ui';
 
-<TextField label="Email" type="email" description="We never share it." />;
+<PlTextField label="Email" type="email" description="We never share it." />;
 ```
 
 ## Props
 
-<PropsTable name="TextField" />
+<PropsTable name="PlTextField" />
 
 네이티브 `<input>` 속성은 그대로 전달되고, `multiline`일 때는 `<textarea>` 속성이 그대로 전달됩니다. 예외는 위 공통 축과 이름이 겹치는 `color`와 `size`입니다.
 
@@ -39,7 +39,7 @@ import { TextField } from 'plass-ui';
 
 ### size
 
-Button과 같은 사다리입니다 — `xs` 24px · `sm` 32px · `md` 40px · `lg` 48px · `xl` 56px. 같은 `size`의 필드와 버튼은 한 줄에서 기준선이 맞습니다.
+PlButton과 같은 사다리입니다 — `xs` 24px · `sm` 32px · `md` 40px · `lg` 48px · `xl` 56px. 같은 `size`의 필드와 버튼은 한 줄에서 기준선이 맞습니다.
 
 <Demo src="text-field/sizes" :min-height="260">
 

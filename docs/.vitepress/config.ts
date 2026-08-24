@@ -380,7 +380,7 @@ const vitePressConfig: UserConfig = {
    * live preview is a React island mounted by `theme/components/Demo.vue`, so
    * the site's Vite pipeline needs three things Vue alone does not give it: the
    * React plugin for the `.tsx` demos, an alias so those demos can `import
-   * { Button } from 'plass-ui'` exactly as a consumer would, and the repository's
+   * { PlButton } from 'plass-ui'` exactly as a consumer would, and the repository's
    * PostCSS config so Tailwind compiles the classes the library ships.
    */
   vite: {
@@ -517,7 +517,7 @@ function byText(a: GeneratedSidebarItem, b: GeneratedSidebarItem): number {
  *   "Components" above the menu, which does not look like a link and is easy to
  *   miss. It becomes a row of its own and the heading above it stops being
  *   clickable.
- * - **The component groups stay.** They are what say that a TextField is an
+ * - **The component groups stay.** They are what say that a PlTextField is an
  *   input and a Card is a surface. What is flattened is only what is *inside* a
  *   group, so a folder that gains a subfolder does not push its pages a level
  *   deeper.

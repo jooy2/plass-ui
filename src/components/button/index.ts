@@ -1,2 +1,2 @@
-export { Button } from './Button';
-export type { ButtonProps } from './Button';
+export { PlButton } from './PlButton';
+export type { PlButtonProps } from './PlButton';
