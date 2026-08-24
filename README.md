@@ -99,7 +99,7 @@ Every component is exported under a `Pl` prefix — `Button`, `Card` and `Table`
 
 ### Inputs
 
-`PlButton` · `PlCheckbox` · `PlPagination` · `PlRadioGroup` · `PlSelect` · `PlSlider` · `PlSwitch` · `PlTextField`
+`PlButton` · `PlCheckbox` · `PlFilePicker` · `PlPagination` · `PlRadioGroup` · `PlSelect` · `PlSlider` · `PlSwitch` · `PlTextField`
 
 ### Surfaces
 

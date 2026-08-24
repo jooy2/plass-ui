@@ -529,6 +529,157 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlFilePicker: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: '상자의 재질. 셋 다 점선 테두리를 씁니다 — 드롭을 받는 영역이라는 뜻의 관습이기 때문입니다',
+        en: 'What the box is made of. All three take a dashed edge, because that is the established sign for an area that accepts a drop'
+      },
+      sizeDescription: {
+        ko: '상자의 여백과 안쪽 글자의 타입 스케일',
+        en: "The box's padding and the type scale of the text inside it"
+      }
+    }),
+    {
+      name: 'accept',
+      type: 'string',
+      description: {
+        ko: "브라우저 파일 대화상자가 제공할 형식 ('image/*,.pdf'). 드롭된 파일도 이 목록으로 검사합니다 — 속성만으로는 검사되지 않습니다",
+        en: "Which files the browser's dialog offers ('image/*,.pdf'). Dropped files are checked against it too, which the attribute alone does not do"
+      }
+    },
+    {
+      name: 'multiple',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '파일을 여러 개 고를 수 있는지',
+        en: 'Whether more than one file may be chosen'
+      }
+    },
+    {
+      name: 'maxSize',
+      type: 'number',
+      description: {
+        ko: '파일 하나의 최대 크기 (바이트)',
+        en: 'The largest a single file may be, in bytes'
+      }
+    },
+    {
+      name: 'maxFiles',
+      type: 'number',
+      description: {
+        ko: '동시에 쥘 수 있는 파일 수. 한 번의 드롭이 아니라 이미 쥔 것과 합쳐 검사합니다',
+        en: 'How many files may be held at once — checked against what is already chosen, not against one drop'
+      }
+    },
+    {
+      name: 'value',
+      type: 'readonly File[]',
+      description: {
+        ko: '선택된 파일들. onFilesChange와 함께 controlled로 씁니다',
+        en: 'The chosen files. Use with onFilesChange for a controlled picker'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'readonly File[]',
+      description: { ko: 'uncontrolled일 때 처음 선택된 파일들', en: 'The initially chosen files' }
+    },
+    {
+      name: 'onFilesChange',
+      type: '(files: File[]) => void',
+      description: { ko: '목록이 바뀔 때 호출됩니다', en: 'Called with the new list' }
+    },
+    {
+      name: 'onReject',
+      type: '(rejections: PlFileRejection[]) => void',
+      description: {
+        ko: '거절된 파일과 그 이유를 받습니다. 없으면 거절된 파일이 조용히 사라집니다 — dropzone이 저지르는 최악의 일',
+        en: 'Called with everything turned away and why. Without it a rejected file disappears silently, which is the worst thing a dropzone does'
+      }
+    },
+    {
+      name: 'label · description · error · invalid',
+      type: 'ReactNode · ReactNode · ReactNode · boolean',
+      description: {
+        ko: '상자 위 라벨, 아래 보조 설명, 오류 메시지. error의 존재가 invalid 상태를 만듭니다',
+        en: 'The label above the box, the helper text below it, and the error. The error also turns the picker invalid'
+      }
+    },
+    {
+      name: 'title',
+      type: 'ReactNode',
+      default: "'Drop files here, or click to browse'",
+      description: { ko: '상자 안의 문장', en: 'The line inside the box' }
+    },
+    {
+      name: 'hint',
+      type: 'ReactNode',
+      description: {
+        ko: '그 아래 한 줄 — 무엇을, 얼마나 크게, 몇 개까지',
+        en: 'The line under it — what is accepted, how big, how many'
+      }
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: {
+        ko: '제목 위의 글리프. null을 주면 그림 없는 상자가 됩니다',
+        en: 'The glyph above the title. Pass null for a box with no picture in it'
+      }
+    },
+    {
+      name: 'showList',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '상자 아래에 선택된 파일을 지우기 버튼과 함께 나열합니다',
+        en: 'Lists the chosen files under the box, each with a way to remove it'
+      }
+    },
+    {
+      name: 'removeLabel',
+      type: '(name: string) => string',
+      default: '`Remove {name}`',
+      description: {
+        ko: '파일 지우기 버튼의 접근 가능한 이름',
+        en: "Accessible name of a file's remove button"
+      }
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'true',
+      description: { ko: '컨테이너 너비만큼 확장', en: 'Stretches to the width of the container' }
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '파일은 보이지만 추가도 삭제도 할 수 없습니다',
+        en: 'The files are shown but cannot be added to or removed'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '사용 불가', en: 'Unavailable' }
+    },
+    {
+      name: 'name · required · id',
+      type: 'string · boolean · string',
+      description: {
+        ko: '네이티브 form 제출과 라벨 연결을 위한 것들',
+        en: 'For a native form submission and for wiring a label'
+      }
+    }
+  ],
+
   PlPagination: [
     ...sharedProps({
       variant: "'ghost'",

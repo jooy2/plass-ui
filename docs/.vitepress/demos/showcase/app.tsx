@@ -5,6 +5,7 @@ import {
   PlButton,
   PlCard,
   PlCheckbox,
+  PlFilePicker,
   PlPagination,
   PlRadio,
   PlRadioGroup,
@@ -88,6 +89,13 @@ export default function ShowcaseApp() {
                 { value: 'enterprise', label: 'Enterprise' }
               ]}
               defaultValue="team"
+            />
+            <PlFilePicker
+              size="sm"
+              label="Company logo"
+              accept="image/*"
+              title="Drop a logo, or click to browse"
+              hint="PNG or SVG"
             />
             <PlRadioGroup label="Billing cycle" orientation="horizontal" defaultValue="yearly">
               <PlRadio value="monthly" label="Monthly" />

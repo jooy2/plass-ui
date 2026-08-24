@@ -3,6 +3,7 @@ export * from './components/accordion';
 export * from './components/button';
 export * from './components/card';
 export * from './components/checkbox';
+export * from './components/file-picker';
 export * from './components/pagination';
 export * from './components/radio-group';
 export * from './components/select';

@@ -5,6 +5,7 @@ import {
   PlButton,
   PlCard,
   PlCheckbox,
+  PlFilePicker,
   PlPagination,
   PlRadio,
   PlRadioGroup,
@@ -84,6 +85,16 @@ const entries: Entry[] = [
         <PlCheckbox size="sm" label="Call me" />
       </div>
     )
+  },
+  {
+    name: 'PlFilePicker',
+    group: 'inputs',
+    href: 'components/inputs/file-picker',
+    blurb: {
+      en: 'A box you drop files on, or click to open the file dialog.',
+      ko: '파일을 떨어뜨리거나 눌러서 대화상자를 여는 상자입니다.'
+    },
+    preview: <PlFilePicker size="xs" title="Drop a file" icon={null} />
   },
   {
     name: 'PlPagination',

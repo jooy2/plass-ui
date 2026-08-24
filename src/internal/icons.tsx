@@ -68,3 +68,23 @@ export function CheckIcon(): React.ReactElement {
     </svg>
   );
 }
+
+/**
+ * The ×.
+ *
+ * One drawing for every dismissal in the library — a file's remove button, an
+ * alert's close, a modal's. Two copies of an × drift by half a pixel of stroke
+ * weight, and then a page has two kinds of "close" on it.
+ */
+export function CloseIcon(): React.ReactElement {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="m4.5 4.5 7 7m0-7-7 7"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
