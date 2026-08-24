@@ -17,6 +17,8 @@ import {
   PlHighlight,
   PlHotKeys,
   PlIcon,
+  PlList,
+  PlListItem,
   PlModal,
   PlModalClose,
   PlPagination,
@@ -173,6 +175,32 @@ export default function ShowcaseApp() {
               ) : null}
             </div>
           </div>
+        </PlCard>
+
+        <PlCard title="Members" elevation={2} render={<section />}>
+          <PlList variant="ghost" size="sm" dividers>
+            <PlListItem
+              startIcon={<PlAvatar size="xs" name="Ada Lovelace" src="/portrait-1.svg" />}
+              description="Owner"
+              action={<PlSwitch size="sm" defaultChecked aria-label="Notify Ada" />}
+            >
+              Ada Lovelace
+            </PlListItem>
+            <PlListItem
+              startIcon={<PlAvatar size="xs" name="Grace Hopper" />}
+              description="Admin"
+              action={<PlSwitch size="sm" aria-label="Notify Grace" />}
+            >
+              Grace Hopper
+            </PlListItem>
+            <PlListItem
+              startIcon={<PlAvatar size="xs" name="Alan Turing" />}
+              description="Read only"
+              action={<PlSwitch size="sm" aria-label="Notify Alan" />}
+            >
+              Alan Turing
+            </PlListItem>
+          </PlList>
         </PlCard>
 
         <PlCard title="Danger zone" elevation={2} render={<section />}>

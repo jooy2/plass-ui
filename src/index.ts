@@ -14,6 +14,7 @@ export * from './components/file-picker';
 export * from './components/highlight';
 export * from './components/hot-keys';
 export * from './components/icon';
+export * from './components/list';
 export * from './components/modal';
 export * from './components/pagination';
 export * from './components/radio-group';

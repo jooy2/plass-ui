@@ -1536,6 +1536,115 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlList: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: '시트의 재질. 컨테이너가 그렇듯 시트에는 색이 들어가지 않습니다. card 안이라면 ghost — card가 이미 시트인데 그 안의 두 번째 테두리는 사각형이 하나 더 늘어난 것뿐입니다',
+        en: 'What the sheet is made of. As on any container it is never dyed. ghost is the one to reach for inside a card: the card is already a sheet, and a second bordered rectangle in it is a second rectangle'
+      },
+      sizeDescription: {
+        ko: '행의 타입 스케일과 여백. 행마다가 아니라 묶음 전체의 속성입니다',
+        en: 'Type scale and padding of the rows. A property of the stack, not of any one row in it'
+      }
+    }),
+    {
+      name: 'dividers',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '행을 여백 대신 헤어라인으로 나눕니다. 들리는 것보다 많이 바뀝니다 — 선이 시트의 양 끝까지 닿아야 하므로 시트는 안쪽 여백을, 행은 둥근 모서리를 내놓습니다',
+        en: 'Separates the rows with a hairline instead of with space. It changes more than it sounds like: the rules have to reach both edges, so the sheet gives up its padding and the rows give up their corners'
+      }
+    },
+    {
+      name: 'render',
+      type: 'useRender.RenderProp',
+      description: {
+        ko: 'ul이 아닌 다른 요소로 렌더링합니다 — 순서가 핵심인 목록이라면 render={<ol />}',
+        en: 'Renders something other than a ul — render={<ol />} for a list where the order is the point'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: 'PlListItem들', en: 'The PlListItems' }
+    }
+  ],
+
+  PlListItem: [
+    {
+      name: 'onClick',
+      type: '(event: MouseEvent) => void',
+      description: {
+        ko: '넘기는 것이 행을 진짜 button으로 만듭니다. li가 아니라 그 button에 놓입니다',
+        en: 'Passing it is what turns the row into a real button. It lands on that button rather than on the li'
+      }
+    },
+    {
+      name: 'href',
+      type: 'string',
+      description: { ko: '행을 링크로 그립니다', en: 'Renders the row as a link' }
+    },
+    {
+      name: 'startIcon',
+      type: 'ReactNode',
+      description: {
+        ko: '라벨 앞의 것 — 아이콘, avatar, 상태 점',
+        en: 'Content before the label — an icon, an avatar, a status dot'
+      }
+    },
+    {
+      name: 'endIcon',
+      type: 'ReactNode',
+      description: {
+        ko: '라벨 뒤, 누를 수 있는 영역 안쪽의 것',
+        en: 'Content after the label, inside the pressable area'
+      }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: {
+        ko: '라벨 아래 한 줄. 타입 스케일 한 칸 아래에 흐린 색',
+        en: 'A second line under the label, one step down the type scale and muted'
+      }
+    },
+    {
+      name: 'action',
+      type: 'ReactNode',
+      description: {
+        ko: '행 끝에 고정되는 컨트롤 — switch, 메뉴 버튼. 일부러 누를 수 있는 영역 **바깥**입니다. 이동도 하고 토글도 담는 행에는 누를 것이 둘이고, button 안의 button은 브라우저가 파싱하며 다시 쓰는 마크업입니다',
+        en: 'A control pinned to the end of the row. Deliberately **outside** the pressable area: a row that both navigates and holds a toggle has two things to press, and a button inside a button is markup the browser rewrites on parse'
+      }
+    },
+    {
+      name: 'selected',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '선택된 행 — 열린 페이지, 현재 필터. 링크에는 aria-current="page", button에는 "true"가 붙습니다',
+        en: 'Marks the row as the chosen one — the open page, the current filter. aria-current="page" on a link, "true" on a button'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      shared: true,
+      description: {
+        ko: '사용할 수 없음. 빛이 꺼지고 누를 수 없게 됩니다',
+        en: 'Unavailable. The light goes out and it stops being pressable'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '라벨', en: 'The label' }
+    }
+  ],
+
   PlModal: [
     {
       name: 'size',

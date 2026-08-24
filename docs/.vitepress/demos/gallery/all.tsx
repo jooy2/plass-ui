@@ -17,6 +17,8 @@ import {
   PlHighlight,
   PlHotKeys,
   PlIcon,
+  PlList,
+  PlListItem,
   PlModal,
   PlModalClose,
   PlPagination,
@@ -200,6 +202,25 @@ const entries: Entry[] = [
         <PlSwitch size="sm" label="Dark mode" defaultChecked />
         <PlSwitch size="sm" label="Beta features" />
       </div>
+    )
+  },
+  {
+    name: 'PlList',
+    group: 'display',
+    href: 'components/display/list',
+    blurb: {
+      en: 'A stack of rows, on a sheet that holds them.',
+      ko: '행이 쌓인 묶음. 그것을 담는 시트 위에 놓입니다.'
+    },
+    preview: (
+      <PlList size="xs" className="w-full">
+        <PlListItem selected description="Three unread" onClick={() => {}}>
+          Inbox
+        </PlListItem>
+        <PlListItem description="One saved" onClick={() => {}}>
+          Drafts
+        </PlListItem>
+      </PlList>
     )
   },
   {
