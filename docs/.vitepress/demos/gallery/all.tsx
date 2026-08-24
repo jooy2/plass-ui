@@ -111,6 +111,16 @@ interface Entry {
   href: string;
   blurb: Record<'en' | 'ko', string>;
   preview: ReactNode;
+  /**
+   * Whether the preview is itself made of links.
+   *
+   * A card is normally an `<a>` wrapped around the whole tile, which is what
+   * makes the grid one big set of targets. An `<a>` inside an `<a>` is markup
+   * the browser un-nests on parse and React reports as a hydration error, so
+   * the one card whose preview *is* links keeps its shell a plain sheet and
+   * puts the link on its title instead.
+   */
+  previewHasLinks?: boolean;
 }
 
 const entries: Entry[] = [
@@ -373,6 +383,7 @@ const entries: Entry[] = [
       en: 'The trail of pages above the one being read.',
       ko: '지금 읽고 있는 페이지 위쪽으로 이어지는 자취입니다.'
     },
+    previewHasLinks: true,
     preview: (
       <PlBreadcrumb size="sm">
         <PlBreadcrumbItem href="#gallery">Home</PlBreadcrumbItem>
@@ -476,6 +487,7 @@ const entries: Entry[] = [
       en: 'A link, in a sentence or on its own.',
       ko: '문장 안에, 또는 홀로 놓이는 링크입니다.'
     },
+    previewHasLinks: true,
     preview: (
       <p className="text-sm text-(--plass-fg)">
         Read <PlTextLink href="#gallery">the reference</PlTextLink>, or the{' '}
@@ -699,19 +711,30 @@ export default function Gallery({ locale = 'en', base = '' }: GalleryProps) {
           <div className="grid gap-4 sm:grid-cols-2">
             {entries
               .filter((entry) => entry.group === group.key)
-              .map((entry) => (
-                <PlCard
-                  key={entry.name}
-                  interactive
-                  size="sm"
-                  className="no-underline"
-                  title={entry.name}
-                  subtitle={entry.blurb[locale]}
-                  render={<a href={`${base}/${entry.href}`} />}
-                >
-                  <div className="flex min-h-10 items-center">{entry.preview}</div>
-                </PlCard>
-              ))}
+              .map((entry) => {
+                const href = `${base}/${entry.href}`;
+
+                // The whole tile is the target, except on the card whose preview
+                // is made of links — see `previewHasLinks`. That one is a plain
+                // sheet with the link on its title, and it drops `interactive`
+                // with the anchor: a card that lifts under the pointer and
+                // cannot be pressed is a card telling the reader something
+                // untrue.
+                const shell = entry.previewHasLinks
+                  ? { title: <PlTextLink href={href}>{entry.name}</PlTextLink> }
+                  : {
+                      interactive: true,
+                      className: 'no-underline',
+                      title: entry.name,
+                      render: <a href={href} />
+                    };
+
+                return (
+                  <PlCard key={entry.name} size="sm" subtitle={entry.blurb[locale]} {...shell}>
+                    <div className="flex min-h-10 items-center">{entry.preview}</div>
+                  </PlCard>
+                );
+              })}
           </div>
         </div>
       ))}
