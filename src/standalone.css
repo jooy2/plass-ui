@@ -1,0 +1,42 @@
+/**
+ * The standalone stylesheet's entry point — the source of `plass-ui/styles.css`.
+ *
+ * This file is never shipped. `scripts/build-styles.mjs` runs Tailwind over it
+ * at build time and writes the result to `dist/styles.css`, so what a consumer
+ * imports is finished CSS: the reset, the tokens, and the literal rules for
+ * every utility class the components spell out. No Tailwind, no PostCSS and no
+ * build-side configuration on their side — one `@import`, or one `import` from
+ * JavaScript, and the components are styled.
+ *
+ * The other half of the build is `src/styles.css` copied verbatim to
+ * `dist/tailwind.css`, for a project that already runs Tailwind. That project
+ * must not use this file: it has Preflight already, and its own Tailwind build
+ * generates the utilities in the same pass as its app's, which is what lets a
+ * `className` a caller passes to a component sort correctly against the
+ * component's own classes. Compiled CSS cannot take part in that.
+ *
+ * Order is the same one the docs' entry point uses, for the same reasons:
+ *
+ * 1. `reset.css` first, so that a utility beats it on order wherever the two
+ *    ever tie. Nothing here is scoped to a wrapper class — see that file for
+ *    why every rule in it is specificity 0 instead.
+ * 2. Tailwind's theme in a layer, and Tailwind's utilities *unlayered*. A
+ *    layered rule loses to every unlayered one, and a consumer's page is
+ *    unlayered — utilities inside a `utilities` layer would lose to a host
+ *    stylesheet's `td` or `ul` rule, which is precisely the fight the library
+ *    has to win.
+ * 3. The library's tokens and its `.plass-gloss` layer last, so the handful of
+ *    real classes in there outrank the utilities they sit on top of.
+ *
+ * `source(none)` turns off Tailwind's automatic content detection, which is
+ * rooted at the working directory and would otherwise sweep `docs/` and `test/`
+ * into the shipped file. The only source that should be scanned is the library,
+ * and `styles.css` registers that itself with its own `@source '.'`.
+ */
+
+@import './reset.css';
+
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' source(none);
+
+@import './styles.css';

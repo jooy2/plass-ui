@@ -1,0 +1,137 @@
+/**
+ * The reset the components were written against, cut down and de-escalated.
+ *
+ * This file is part of the standalone stylesheet only — `plass-ui/styles.css`, the
+ * one a project that does not run Tailwind imports. A project that *does* run
+ * Tailwind already has Preflight and imports `plass-ui/tailwind.css` instead,
+ * which does not pull this in.
+ *
+ * Two rules govern what is in here.
+ *
+ * **Only what the library actually needs.** Preflight is a page reset: it
+ * flattens headings, links, tables and prose so that an app can be styled
+ * entirely in utilities. A component library has no business doing that to
+ * someone else's page, so everything whose absence does not visibly break a
+ * Plass component was dropped.
+ *
+ * **Every rule is specificity 0.** `:where()` around each selector means a
+ * single type selector in the consumer's own stylesheet — `p { margin: 1rem }`,
+ * `button { font-family: Inter }` — beats it, whatever the import order. The
+ * reset is a floor under the components, not a claim on the page. `*` is
+ * already specificity 0, so it is left alone.
+ */
+
+/*
+ * The core, and the two declarations nothing works without.
+ *
+ * `box-sizing` is what makes `h-10 px-4 border` add up to a 10-unit-tall
+ * control rather than a taller one. `border: 0 solid` is what keeps a UA
+ * default border off a `<button>` or an `<input>` that the component did not
+ * ask to have one — and `solid` is what makes every `border` utility resolve to
+ * a visible line rather than to `border-style: none`.
+ */
+*,
+::before,
+::after,
+::backdrop,
+::file-selector-button {
+  box-sizing: border-box;
+  border: 0 solid;
+}
+
+/*
+ * The page defaults a control inherits.
+ *
+ * Nothing in the library sets a font family: a component takes the app's type,
+ * which is the only thing it can do that is right in every app. That means the
+ * app has to have one — and a project that installs a component library and one
+ * stylesheet frequently has not set one, which leaves every control in the UA
+ * serif. `--font-sans` is Tailwind's own stack and is defined by the theme this
+ * file ships next to; the literal fallback covers the `plass-ui/tailwind.css`
+ * path, where a consumer may have narrowed the theme.
+ *
+ * At specificity 0 this loses to any `html`, `body` or `:root` rule the app
+ * writes, which is exactly the intent — a default, not a decision.
+ */
+:where(html, :host) {
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  tab-size: 4;
+  font-family: var(
+    --font-sans,
+    ui-sans-serif,
+    system-ui,
+    sans-serif,
+    'Apple Color Emoji',
+    'Segoe UI Emoji',
+    'Segoe UI Symbol',
+    'Noto Color Emoji'
+  );
+  -webkit-tap-highlight-color: transparent;
+}
+
+:where(blockquote, dd, dl, figure, h1, h2, h3, h4, h5, h6, hr, p, pre) {
+  margin: 0;
+}
+
+:where(menu, ol, ul) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+:where(h1, h2, h3, h4, h5, h6) {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+/* Form controls start from no chrome of their own for the component to build
+   on — including the UA's own border radius, which would round a corner the
+   size ladder has already decided. */
+:where(button, input, optgroup, select, textarea) {
+  font: inherit;
+  font-feature-settings: inherit;
+  font-variation-settings: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  border-radius: 0;
+  background-color: transparent;
+  opacity: 1;
+}
+
+:where(button, input:where([type='button'], [type='reset'], [type='submit'])) {
+  appearance: button;
+}
+
+::placeholder {
+  opacity: 1;
+}
+
+:where(textarea) {
+  resize: vertical;
+}
+
+:where(audio, canvas, embed, iframe, img, object, svg, video) {
+  display: block;
+  vertical-align: middle;
+}
+
+:where(img, video) {
+  max-width: 100%;
+  height: auto;
+}
+
+:where(code, kbd, pre, samp) {
+  font-family: var(
+    --font-mono,
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    'Liberation Mono',
+    'Courier New',
+    monospace
+  );
+  font-size: 1em;
+}

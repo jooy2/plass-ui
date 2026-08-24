@@ -1,0 +1,142 @@
+/**
+ * Scoped Preflight.
+ *
+ * Plass's components are written against Tailwind's base reset — most visibly
+ * `border: 0 solid`, without which every `border` utility resolves to
+ * `border-style: none` and the glass variants lose their hairline. VitePress
+ * pages cannot have the real Preflight: it strips the margins, sizes and list
+ * markers the documentation itself is made of.
+ *
+ * So this is Preflight cut down to what the library actually needs, applied
+ * only inside `.plass-scope` — the element every live preview mounts into.
+ *
+ * Two specificity rules govern this file:
+ *
+ * - Rules that only fight browser defaults use `.plass-scope :where(…)`, which
+ *   keeps them at a single class. They are imported before Tailwind's
+ *   utilities, so a utility of equal specificity wins on order.
+ * - Rules that have to undo `.vp-doc …` (VitePress's documentation typography)
+ *   are prefixed with `.vp-doc`, because a `.vp-doc p` cannot be outranked by
+ *   anything with fewer than two classes.
+ */
+
+/*
+ * `.plass-portal` is the second entry point, and it is here before anything
+ * needs it.
+ *
+ * A popup rendered through a portal lands at the end of `<body>` — outside the
+ * `.plass-scope` element the preview mounted into, and therefore outside every
+ * rule in this file. The library's convention is that a portalled positioner
+ * carries that class, so a host that scopes its reset can hang the same reset
+ * off it. Nothing in 0.0.1 portals yet; the hook exists so the first component
+ * that does is not also a change to this file.
+ *
+ * An app with Tailwind's real Preflight applied globally needs none of this.
+ */
+.plass-scope,
+.plass-portal,
+.plass-scope :where(*, *::before, *::after),
+.plass-portal :where(*, *::before, *::after) {
+  box-sizing: border-box;
+  border: 0 solid;
+}
+
+.plass-scope :where(button, input, select, optgroup, textarea) {
+  font: inherit;
+  font-feature-settings: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  border-radius: 0;
+  background-color: transparent;
+  opacity: 1;
+}
+
+.plass-scope :where(button, input:where([type='button'], [type='reset'], [type='submit'])) {
+  appearance: button;
+}
+
+/* Not wrapped in `:where()` — a pseudo-element inside it is invalid and drops
+   the whole selector. */
+.plass-scope ::placeholder {
+  opacity: 1;
+}
+
+.plass-scope :where(textarea) {
+  resize: vertical;
+}
+
+.plass-scope :where(img, svg, video, canvas) {
+  display: block;
+  vertical-align: middle;
+}
+
+.plass-scope :where(img, video) {
+  max-width: 100%;
+  height: auto;
+}
+
+.plass-scope :where(ol, ul, menu) {
+  list-style: none;
+}
+
+.plass-scope :where(h1, h2, h3, h4, h5, h6) {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+/* ---------------------------------------------------------------------------
+ * Undoing `.vp-doc`
+ *
+ * Everything below exists because the preview is rendered inside the rendered
+ * Markdown, so VitePress is already styling these elements. Base UI renders a
+ * `<p>` for a field description and a `<label>` for its label; a card's footer
+ * can hold a link. None of them should pick up article typography.
+ * ------------------------------------------------------------------------- */
+
+.vp-doc .plass-scope :is(p, h1, h2, h3, h4, h5, h6, ul, ol, li, blockquote, figure, dl, dd) {
+  margin: 0;
+  line-height: inherit;
+  letter-spacing: inherit;
+}
+
+/*
+ * Padding is reset separately, and only on the three tags that are actually
+ * padded by something — `.vp-doc ul` / `.vp-doc ol` add `padding-left:
+ * 1.25rem` and `.vp-doc blockquote` adds `padding-left: 16px`. Nothing pads a
+ * `p`, an `li`, a `figure` or a `dd`.
+ *
+ * The distinction is not tidiness. `.vp-doc .plass-scope` is two classes and a
+ * padding utility is one, so **every tag named here is a tag whose padding a
+ * component can no longer set**. `[role="list"]` is excluded for that reason:
+ * it marks the lists whose padding belongs to the component rather than to the
+ * page's typography.
+ */
+.vp-doc .plass-scope :is(ul, ol):not([role='list']),
+.vp-doc .plass-scope blockquote {
+  padding: 0;
+}
+
+.vp-doc .plass-scope :is(ul, ol) {
+  list-style: none;
+}
+
+/*
+ * `.vp-doc a` gives every link the brand colour, a weight and an underline, and
+ * a link inside a component is almost never a link in an article — it is a
+ * card's footer, a menu row, a button that navigates. Those take the
+ * component's own typography.
+ */
+.vp-doc .plass-scope a {
+  color: inherit;
+  font-weight: inherit;
+  text-decoration: none;
+  text-underline-offset: unset;
+}
+
+.vp-doc .plass-scope :not(pre) > code {
+  padding: 0;
+  border-radius: 0;
+  background-color: transparent;
+  font-size: inherit;
+  color: inherit;
+}

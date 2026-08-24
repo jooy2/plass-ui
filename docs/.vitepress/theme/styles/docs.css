@@ -1,0 +1,578 @@
+/**
+ * Docs chrome: the frame around a live preview, the props table, and the
+ * component index cards. None of this is library styling — it is the furniture
+ * the documentation puts the components on.
+ */
+
+/* ---------------------------------------------------------------------------
+ * Demo
+ * ------------------------------------------------------------------------- */
+
+.vp-doc .plass-demo {
+  margin: 20px 0 28px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: var(--vp-c-bg);
+}
+
+/*
+ * A translucent, blurred surface has nothing to show over a flat page, so the
+ * canvas puts a little colour and a grid behind the components. Quiet on
+ * purpose: this is documentation, not the demo page — it only has to give the
+ * glass something to be in front of.
+ *
+ * The backdrop is mixed from the library's own tokens rather than taken from
+ * `--vp-c-bg-soft`, because the canvas is the one part of the frame that can be
+ * in a different theme from the page: `data-theme` makes it a theme root, and a
+ * VitePress variable would stay on whatever the site switch says. The mix lands
+ * within a shade of `--vp-c-bg-soft` in both themes, so an untouched preview
+ * looks the same as it always did.
+ */
+.plass-demo-canvas {
+  position: relative;
+  padding: 32px 24px;
+  /* The ground the glass was tuned over: the same two-stop wash a Plass screen
+     lays its sheets on, plus a faint grid so a blurred backdrop has something
+     to be blurred. A flat white canvas makes every translucent surface in the
+     library look opaque. */
+  background-color: var(--plass-bg-from);
+  background-image:
+    radial-gradient(
+      32rem 20rem at 8% -20%,
+      color-mix(in srgb, var(--plass-primary-accent) 12%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      28rem 18rem at 96% 0%,
+      color-mix(in srgb, var(--plass-info-accent) 10%, transparent),
+      transparent 70%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--plass-fg) 4%, transparent) 0 1px,
+      transparent 1px 2.5rem
+    ),
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--plass-fg) 4%, transparent) 0 1px,
+      transparent 1px 2.5rem
+    ),
+    linear-gradient(160deg, var(--plass-bg-from) 0%, var(--plass-bg-to) 100%);
+}
+
+/* A preview in the theme the page is not in still has native widgets in it — a
+   scrollbar, a date input's picker — and those are the platform's to draw. */
+.plass-demo-canvas[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+.plass-demo-canvas[data-theme='light'] {
+  color-scheme: light;
+}
+
+/* The per-preview theme switch, in the canvas's top corner rather than in the
+   frame: it belongs to what it changes, and the frame stays on the page theme.
+   Styled from the library's tokens so it flips along with the canvas it sits
+   in, and given a surface of its own so it stays legible over a wide demo. */
+.plass-demo-theme {
+  position: absolute;
+  z-index: 2;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--plass-border);
+  border-radius: 9px;
+  background-color: color-mix(in srgb, var(--plass-surface) 78%, transparent);
+  backdrop-filter: blur(6px);
+  color: var(--plass-muted-fg);
+  cursor: pointer;
+  transition:
+    color 0.16s,
+    border-color 0.16s;
+}
+
+.plass-demo-theme:hover {
+  border-color: var(--plass-primary-line-hover);
+  color: var(--plass-fg);
+}
+
+.plass-demo-theme:focus-visible {
+  outline: 2px solid var(--plass-primary-ring);
+  outline-offset: 2px;
+}
+
+.plass-demo-canvas[data-align='center'] .plass-demo-mount {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* The mount point is where the component tree lands, so it also carries the
+   library's own type and colour defaults — the docs body font is not it. */
+.plass-demo-mount {
+  color: var(--plass-fg);
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* The height a preview holds while it is empty is `Demo.vue`'s `minHeight`, set
+   inline — it has to be per-preview, and it stays applied once the components
+   are there so that reserving the space does not itself become a second jump. */
+
+.plass-demo--plain .plass-demo-canvas {
+  padding: 0;
+  background: none;
+}
+
+.vp-doc .plass-demo--plain {
+  border: 0;
+  border-radius: 0;
+  background: none;
+  overflow: visible;
+}
+
+.plass-demo-source {
+  border-top: 1px solid var(--vp-c-divider);
+  background-color: var(--vp-c-bg);
+}
+
+.plass-demo-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 14px;
+  border: 0;
+  background: transparent;
+  color: var(--vp-c-text-2);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.plass-demo-toggle:hover {
+  color: var(--vp-c-brand-1);
+}
+
+.plass-demo-toggle-icon {
+  display: inline-block;
+  transition: transform 0.2s;
+}
+
+.plass-demo-toggle-icon.is-open {
+  transform: rotate(90deg);
+}
+
+/* VitePress pulls code blocks out to the full page width and rounds them; in
+   here they are one panel of a card that is already rounded and inset. */
+.vp-doc .plass-demo-code div[class*='language-'] {
+  margin: 0;
+  border-radius: 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * Props table
+ * ------------------------------------------------------------------------- */
+
+.vp-doc .plass-props {
+  display: block;
+  overflow-x: auto;
+  margin: 16px 0 24px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 10px;
+}
+
+.vp-doc .plass-props table {
+  display: table;
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.vp-doc .plass-props :is(th, td) {
+  padding: 9px 14px;
+  border: 0;
+  border-bottom: 1px solid var(--vp-c-divider);
+  text-align: left;
+  vertical-align: top;
+  background: none;
+}
+
+.vp-doc .plass-props th {
+  background-color: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-2);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.vp-doc .plass-props tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+.vp-doc .plass-props tbody tr:hover {
+  background-color: var(--vp-c-bg-soft);
+}
+
+.plass-props-name {
+  display: inline-block;
+  font-family: var(--vp-font-family-mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--vp-c-text-1);
+  white-space: nowrap;
+}
+
+.plass-props-required {
+  color: var(--vp-c-danger-1, #e5484d);
+}
+
+/* Unions wrap at the pipes because those are spaces. No `word-break` — it would
+   split `'outline'` down the middle, which is worse than a taller row. */
+.vp-doc .plass-props .plass-props-type {
+  min-width: 9rem;
+  font-family: var(--vp-font-family-mono);
+  font-size: 12px;
+  color: var(--vp-c-brand-1);
+}
+
+.vp-doc .plass-props .plass-props-default {
+  font-family: var(--vp-font-family-mono);
+  font-size: 12px;
+  color: var(--vp-c-text-2);
+  white-space: nowrap;
+}
+
+.vp-doc .plass-props .plass-props-desc {
+  min-width: 14rem;
+  color: var(--vp-c-text-1);
+  line-height: 1.6;
+}
+
+.plass-props-shared {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background-color: var(--vp-c-default-soft);
+  color: var(--vp-c-text-2);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  vertical-align: 1.5px;
+}
+
+/* ---------------------------------------------------------------------------
+ * Page furniture
+ * ------------------------------------------------------------------------- */
+
+/*
+ * The one-line summary under a component's title.
+ *
+ * VitePress gives `h1` no bottom margin of its own, so without a top margin
+ * here the summary sits directly on the title's descenders. The gap is set on
+ * the lede rather than on the heading so it only applies where a summary
+ * actually follows one.
+ */
+.vp-doc .plass-lede {
+  margin: 18px 0 28px;
+  color: var(--vp-c-text-2);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* ---------------------------------------------------------------------------
+ * Home
+ *
+ * The hero holds a live composition of the library's components, so the page
+ * has to give them something to be in front of. VitePress already draws a
+ * blurred blob behind the hero image — it is only ever used for a logo's glow,
+ * but it is exactly the backdrop a sheet of glass needs, so it is turned up
+ * and tinted with the library's own accents.
+ * ------------------------------------------------------------------------- */
+
+.VPHome {
+  --vp-home-hero-image-background-image: linear-gradient(
+    -45deg,
+    color-mix(in srgb, var(--plass-primary-accent) 60%, transparent),
+    color-mix(in srgb, var(--plass-info-accent) 45%, transparent) 50%,
+    color-mix(in srgb, var(--plass-warning-accent) 40%, transparent)
+  );
+  --vp-home-hero-image-filter: blur(56px);
+}
+
+@media (min-width: 640px) {
+  .VPHome {
+    --vp-home-hero-image-filter: blur(68px);
+  }
+}
+
+/* A grid behind the hero, faded out downwards. Same trick as the demo canvas:
+   the glass is only legible when there is structure behind it. */
+.VPHome .VPHero {
+  position: relative;
+  isolation: isolate;
+}
+
+.VPHome .VPHero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--plass-fg) 8%, transparent) 0 1px,
+      transparent 1px 3rem
+    ),
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--plass-fg) 5%, transparent) 0 1px,
+      transparent 1px 3rem
+    );
+  -webkit-mask-image: radial-gradient(120% 90% at 70% 20%, #000, transparent 72%);
+  mask-image: radial-gradient(120% 90% at 70% 20%, #000, transparent 72%);
+}
+
+/*
+ * The mark, above the hero's title.
+ *
+ * A logo is the one thing on this page that is not a component, so it is the
+ * one thing that says whose components these are — and the hero already had
+ * nothing in the top-left corner but text. Drawn from an SVG, so there is no
+ * source resolution to keep it ahead of.
+ *
+ * `inline-block` rather than a block with `margin: 0 auto`: the hero centres
+ * its column below 960px and left-aligns it above, and an inline box follows
+ * that on its own instead of needing the same breakpoint written again.
+ */
+.VPHome .plass-home-logo {
+  display: inline-block;
+  width: 76px;
+  height: 76px;
+  margin: 0 0 18px;
+  /* A filter and not a `box-shadow`: the mark is not a rectangle, and a glow
+     that ignores its silhouette reads as a card sitting behind it. */
+  filter: drop-shadow(0 10px 24px color-mix(in srgb, var(--plass-primary-accent) 34%, transparent));
+}
+
+@media (min-width: 960px) {
+  .VPHome .plass-home-logo {
+    width: 96px;
+    height: 96px;
+    margin-bottom: 22px;
+  }
+}
+
+/* The blob is sized for a logo's glow. The composition in front of it is two
+   rows tall, and a backdrop that stops at the card's edge is not a backdrop. */
+.VPHome .VPHero .image-bg {
+  width: 340px;
+  height: 340px;
+}
+
+@media (min-width: 640px) {
+  .VPHome .VPHero .image-bg {
+    width: 480px;
+    height: 480px;
+  }
+}
+
+/* The hero image slot is sized for a 320px square logo; the composition inside
+   is a card that would rather have the whole column. */
+.VPHome .VPHero .image-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: auto;
+}
+
+/*
+ * The hero goes side by side at 1152px, not at the theme's 960px.
+ *
+ * The image slot is whatever is left over after a 592px column of type, so at
+ * 960px it is 240px wide — a panel narrower than one of its own fields, standing
+ * beside a 56px heading. 1152px is the hero container's own maximum and the
+ * first width where the slot is worth splitting off: 432px, about two thirds of
+ * the heading beside it. Below that the hero stacks, which is the arrangement
+ * the theme already falls back to on a phone.
+ *
+ * The order is reversed while it is stacked: the default puts the image first,
+ * which is right for a logo and wrong for a panel this tall — a visitor would
+ * land on somebody else's settings form with the name of the library a screen
+ * below it.
+ */
+@media (max-width: 1151px) {
+  .VPHome .VPHero .container {
+    flex-direction: column;
+  }
+
+  .VPHome .VPHero .main {
+    order: 1;
+  }
+
+  .VPHome .VPHero .image {
+    order: 2;
+    margin: 32px 0 0;
+  }
+}
+
+/*
+ * From 960px the theme nudges the slot up and left by 32px, which is optical
+ * centring for a logo inside a round glow. A card is centred by its own box, so
+ * the offset only ever takes it out of line — with the heading's left edge while
+ * the hero is stacked, and with the layout's right gutter once it is not.
+ */
+@media (min-width: 960px) {
+  .VPHome .VPHero .image-container {
+    transform: none;
+  }
+}
+
+/*
+ * Side by side, the composition is centred against the column of text rather
+ * than hung from the top of it. The slot's height is `auto` above, which is
+ * right while the hero is stacked and is what makes `align-items: center` a
+ * no-op — a box the height of its own contents has no spare room to centre them
+ * in.
+ */
+@media (min-width: 1152px) {
+  .VPHome .VPHero .image {
+    margin: 0;
+  }
+
+  .VPHome .VPHero .image-container {
+    height: 100%;
+  }
+}
+
+/* The hero centres its column on a narrow screen, which is right for the
+   heading and wrong for what is under it — a field's label belongs over the
+   left edge of its own input, not over the middle of the card. */
+.VPHome .plass-home-hero {
+  text-align: start;
+}
+
+/*
+ * The island is a flex item of the hero's image slot, so with a width of `auto`
+ * it is sized by its contents — which makes the `w-full` inside it resolve
+ * against nothing and the whole composition collapse to its max-content width,
+ * a good 150px short of the column it is sitting in. Both halves of the chain
+ * have to be told to fill.
+ */
+.VPHome .plass-home-hero,
+.plass-home-hero .plass-demo-mount {
+  width: 100%;
+}
+
+.plass-home-hero .plass-demo-mount {
+  display: flex;
+  justify-content: center;
+}
+
+/*
+ * Between 960px and the point where the hero splits into two columns, the theme
+ * has already stopped centring the heading but the composition is still stacked
+ * under it — so it lines up with the heading's left edge rather than with the
+ * middle of a page whose text is not centred. This has to sit after the rule
+ * above rather than up with the rest of the hero: same specificity, and the
+ * later one wins.
+ */
+@media (min-width: 960px) and (max-width: 1151px) {
+  .plass-home-hero .plass-demo-mount {
+    justify-content: flex-start;
+  }
+}
+
+/* Live bands inside the home page's Markdown body sit in `.vp-doc`-less
+   containers, so they need the frame rules repeated. */
+.VPHome .plass-demo {
+  margin: 20px 0 28px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: var(--vp-c-bg);
+}
+
+.VPHome .plass-home-hero {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  overflow: visible;
+}
+
+/*
+ * The reasons-to-use grid on the home page.
+ *
+ * Written as raw HTML in the Markdown rather than as components: the home page
+ * is Vue, the cards hold no state, and the feature grid VitePress already draws
+ * above them is the shape they have to match. These are that shape one section
+ * down — same soft fill, same radius, same hairline.
+ *
+ * The heading inside a card is an `h3`, so the `.vp-doc h3` rules for margin,
+ * size and the anchor gutter all have to be undone; a heading in a card is a
+ * card's title, not a place in the page's outline.
+ */
+.VPHome .plass-why {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin: 24px 0 8px;
+}
+
+@media (min-width: 640px) {
+  .VPHome .plass-why {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 960px) {
+  .VPHome .plass-why {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.VPHome .plass-why-card {
+  padding: 20px 22px 22px;
+  border: 1px solid var(--vp-c-bg-soft);
+  border-radius: 12px;
+  background-color: var(--vp-c-bg-soft);
+  transition: border-color 0.25s;
+}
+
+.VPHome .plass-why-card:hover {
+  border-color: var(--vp-c-brand-1);
+}
+
+.VPHome .plass-why-card h3 {
+  margin: 0 0 8px;
+  padding-top: 0;
+  border-top: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: normal;
+}
+
+.VPHome .plass-why-card p {
+  margin: 0;
+  color: var(--vp-c-text-2);
+  font-size: 14px;
+  line-height: 1.65;
+}

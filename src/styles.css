@@ -1,0 +1,498 @@
+/**
+ * Plass design tokens.
+ *
+ * This file ships as `plass-ui/tailwind.css`, for a project that runs Tailwind
+ * itself and wants the components' utilities generated in the same pass as its
+ * own:
+ *
+ *   @import 'tailwindcss';
+ *   @import 'plass-ui/tailwind.css';
+ *
+ * Two lines, and no `@source` of their own — the `@source` below does that job.
+ *
+ * A project with no Tailwind imports `plass-ui/styles.css` instead, which is this
+ * file plus a reset plus the compiled utilities, built by
+ * `scripts/build-styles.mjs` from `src/standalone.css`. The tokens below are
+ * the same in both.
+ *
+ * Components never hardcode a colour; they map a `color` prop onto the `--p-*`
+ * local slots and let the cascade resolve the rest.
+ *
+ * Dark mode responds to `prefers-color-scheme`, and can be forced either way
+ * with `.dark` / `[data-theme='dark'|'light']` on any ancestor.
+ *
+ * The surface model is **a moulded plastic key resting on a sheet of glass**: a
+ * control is a gradient fill with a specular highlight along its top edge and a
+ * drop shadow tinted with its own colour; everything that holds content is a
+ * translucent, heavily blurred sheet with a white hairline around it.
+ */
+
+/*
+ * The components' classes are Tailwind utilities, so Tailwind has to see the
+ * files that spell them out — otherwise every component renders unstyled.
+ *
+ * `@source` resolves relative to the file it is written in, not to whatever
+ * imported it. In a consumer's install that is `node_modules/plass-ui/dist/`, next
+ * to the compiled components; in this repository it is `src/`, next to the
+ * `.tsx`. One line covers both, and an explicitly registered source is scanned
+ * even inside `node_modules`, which automatic detection skips.
+ *
+ * This is why consumers do not need an `@source '../node_modules/plass-ui'` of
+ * their own — a path that would depend on where their CSS file happens to sit.
+ */
+@source '.';
+
+/* ---------------------------------------------------------------------------
+ * The colour families
+ *
+ * These sit outside every theme block on purpose, and it is the one place Plass
+ * departs hardest from the libraries it was learned from: **a key's own colour
+ * does not change with the theme.** A piece of plastic is the same piece of
+ * plastic in a dark room. What changes is the sheet it rests on, the glass
+ * around it, and the `accent` — the one value that has to be *read* off a
+ * surface rather than looked at.
+ *
+ * Two values are hand-picked per family and everything else is derived with
+ * `color-mix()`, so **adding a colour family is two edits**: one entry in
+ * `PlassColor` and two lines here (plus its `accent` in each theme).
+ *
+ * Every `solid` was chosen against one number: the *lightest* stop of the
+ * gradient derived from it has to clear 4.5:1 against its own `on-solid`. That
+ * stop is a 5% lift toward white, which is why the fills sit where they do —
+ * they are not "dark blue", they are as bright as a white label allows.
+ * ------------------------------------------------------------------------- */
+
+:root {
+  --plass-primary-solid: #3558ef;
+  --plass-primary-on-solid: #ffffff;
+
+  --plass-secondary-solid: #4f5a70;
+  --plass-secondary-on-solid: #ffffff;
+
+  --plass-success-solid: #157845;
+  --plass-success-on-solid: #ffffff;
+
+  /* The one family with dark ink. White on amber does not reach 4.5:1 at any
+     lightness worth calling amber, and changing the ink is the right answer —
+     distorting the family to preserve a white label is not. */
+  --plass-warning-solid: #e2921c;
+  --plass-warning-on-solid: #3b2405;
+
+  --plass-danger-solid: #c4383e;
+  --plass-danger-on-solid: #ffffff;
+
+  --plass-info-solid: #186cb3;
+  --plass-info-on-solid: #ffffff;
+}
+
+/* ---------------------------------------------------------------------------
+ * Light theme (default)
+ *
+ * `.light` and `[data-theme='light']` carry the same block rather than only
+ * `:root`, because forcing light has to work on a nested element too — a
+ * preview box inside a dark page has nowhere else to get these values from.
+ * Everything here that is not a colour (the radii, the motion) is identical in
+ * both themes, so re-declaring it costs a duplicate that resolves to what was
+ * inherited anyway.
+ * ------------------------------------------------------------------------- */
+
+:root,
+.light,
+[data-theme='light'] {
+  /* Neutral surfaces and content */
+  --plass-surface: #ffffff;
+  --plass-fg: #1b1e27;
+  --plass-muted-fg: #5b6376;
+  --plass-border: #d5deef;
+
+  /* The page a Plass screen is laid on. Not used by any component — a library
+     has no business painting the body — but it is what the docs, the demos and
+     the focus ring's offset are drawn against, and it is the backdrop the glass
+     was tuned over. */
+  --plass-bg-from: #eef2fb;
+  --plass-bg-to: #dfe8f8;
+
+  /* Glass ---------------------------------------------------------------
+
+     Three strengths of one translucent sheet, and the ladder is **opacity
+     rather than lightness**: as a surface is engaged it holds more light,
+     instead of turning grey.
+
+     Undyed on purpose. A sheet holds other people's content, which arrives
+     with its own colours; tinting it puts every one of them on a background
+     they were not chosen against. The family shows up in the hairline, the
+     focus ring and the caret, and the glass stays clear. */
+  --plass-glass: rgb(255 255 255 / 0.62);
+  --plass-glass-hover: rgb(255 255 255 / 0.76);
+  --plass-glass-press: rgb(255 255 255 / 0.88);
+  --plass-glass-line: rgb(255 255 255 / 0.6);
+
+  /* How hard the backdrop is blurred, and how much colour is pulled out of it.
+     22px is a deliberate, generous smear: unlike a frosted-acrylic language,
+     Plass is not trying to let you read what is behind the sheet — it is trying
+     to make the sheet look thick. Below about 14px the glass reads as a flat
+     white box with an alpha on it. */
+  --plass-blur: blur(22px) saturate(160%);
+
+  /* The two edges. `gloss-glass` is the light lying along the top of a sheet;
+     `gloss-solid` is the same light on a moulded key, which is dimmer because
+     the key is not clear. There is deliberately **no dark bevel underneath**:
+     the drop shadow is what puts the key above the sheet. */
+  --plass-gloss-glass: inset 0 1px 0 rgb(255 255 255 / 0.55);
+  --plass-gloss-solid: inset 0 1px 0 rgb(255 255 255 / 0.34);
+
+  /* A well cut into the glass — what a filled field is drawn as. The only
+     inset shadow in the library that goes *downward*. */
+  --plass-well: inset 0 1px 2px rgb(20 40 90 / 0.1);
+
+  /* The specular highlight `.plass-gloss` lays over a key. It stops at 62%
+     rather than running the whole height, because a gradient that reaches the
+     bottom edge reads as a colour change and not as light. */
+  --plass-specular: linear-gradient(
+    180deg,
+    rgb(255 255 255 / 0.3) 0%,
+    rgb(255 255 255 / 0.06) 46%,
+    rgb(255 255 255 / 0) 62%
+  );
+
+  /* Elevation, and how strongly a key's own colour bleeds into the shadow it
+     casts. The ambient is a blue-grey rather than black: a neutral shadow over
+     a blue-tinted page reads as dirt. */
+  --plass-shadow-ambient: rgb(20 40 90 / 0.16);
+  --plass-glow-strength: 35%;
+
+  /* The scrim behind a modal surface. */
+  --plass-scrim: rgb(16 24 40 / 0.4);
+
+  /* Corner radius: roughly 30% of the control height, and roughly constant in
+     feel across the ladder — a Plass corner is a moulded fillet, not a pill and
+     not a chamfer. */
+  --plass-radius-xs: 0.5rem;
+  --plass-radius-sm: 0.625rem;
+  --plass-radius-md: 0.75rem;
+  --plass-radius-lg: 0.875rem;
+  --plass-radius-xl: 1rem;
+
+  /* Motion. One duration, one curve, and the same both ways — a key going down
+     and a key coming back up are the same spring. */
+  --plass-ease: cubic-bezier(0.16, 0.9, 0.3, 1);
+  --plass-duration: 150ms;
+  --plass-duration-slow: 260ms;
+
+  /* Readable on a surface. This is the one family value that is per-theme,
+     because it is the one that has to be read rather than looked at. */
+  --plass-primary-accent: #2c49d6;
+  --plass-secondary-accent: #46506a;
+  --plass-success-accent: #146b41;
+  --plass-warning-accent: #96600c;
+  --plass-danger-accent: #bb3339;
+  --plass-info-accent: #1668ae;
+}
+
+/* ---------------------------------------------------------------------------
+ * Dark theme
+ *
+ * The fills do not move — see the note above the families. What moves is the
+ * ground under them: the glass loses its white and becomes a smoked pane, the
+ * shadow goes black and deepens, and the accents lighten far enough to be read
+ * off the dark sheet.
+ * ------------------------------------------------------------------------- */
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light):not([data-theme='light']) {
+    --plass-surface: #141b30;
+    --plass-fg: #e7eaf3;
+    --plass-muted-fg: #99a2ba;
+    --plass-border: rgb(255 255 255 / 0.12);
+
+    --plass-bg-from: #111731;
+    --plass-bg-to: #0a0e1c;
+
+    --plass-glass: rgb(255 255 255 / 0.07);
+    --plass-glass-hover: rgb(255 255 255 / 0.11);
+    --plass-glass-press: rgb(255 255 255 / 0.15);
+    --plass-glass-line: rgb(255 255 255 / 0.12);
+
+    --plass-blur: blur(22px) saturate(150%);
+
+    --plass-gloss-glass: inset 0 1px 0 rgb(255 255 255 / 0.1);
+    --plass-gloss-solid: inset 0 1px 0 rgb(255 255 255 / 0.22);
+
+    --plass-well: inset 0 1px 2px rgb(0 0 0 / 0.45);
+
+    --plass-specular: linear-gradient(
+      180deg,
+      rgb(255 255 255 / 0.18) 0%,
+      rgb(255 255 255 / 0.04) 46%,
+      rgb(255 255 255 / 0) 62%
+    );
+
+    /* A tinted shadow has almost nothing to sit on over a near-black page, so
+       the tint is turned up rather than the shadow being made bigger. */
+    --plass-shadow-ambient: rgb(0 0 0 / 0.5);
+    --plass-glow-strength: 55%;
+
+    --plass-scrim: rgb(0 0 0 / 0.6);
+
+    --plass-primary-accent: #93a8ff;
+    --plass-secondary-accent: #aab3c6;
+    --plass-success-accent: #4fd08d;
+    --plass-warning-accent: #f2b74e;
+    --plass-danger-accent: #ff8a8f;
+    --plass-info-accent: #5fb4ee;
+  }
+}
+
+.dark,
+[data-theme='dark'] {
+  --plass-surface: #141b30;
+  --plass-fg: #e7eaf3;
+  --plass-muted-fg: #99a2ba;
+  --plass-border: rgb(255 255 255 / 0.12);
+
+  --plass-bg-from: #111731;
+  --plass-bg-to: #0a0e1c;
+
+  --plass-glass: rgb(255 255 255 / 0.07);
+  --plass-glass-hover: rgb(255 255 255 / 0.11);
+  --plass-glass-press: rgb(255 255 255 / 0.15);
+  --plass-glass-line: rgb(255 255 255 / 0.12);
+
+  --plass-blur: blur(22px) saturate(150%);
+
+  --plass-gloss-glass: inset 0 1px 0 rgb(255 255 255 / 0.1);
+  --plass-gloss-solid: inset 0 1px 0 rgb(255 255 255 / 0.22);
+
+  --plass-well: inset 0 1px 2px rgb(0 0 0 / 0.45);
+
+  --plass-specular: linear-gradient(
+    180deg,
+    rgb(255 255 255 / 0.18) 0%,
+    rgb(255 255 255 / 0.04) 46%,
+    rgb(255 255 255 / 0) 62%
+  );
+
+  --plass-shadow-ambient: rgb(0 0 0 / 0.5);
+  --plass-glow-strength: 55%;
+
+  --plass-scrim: rgb(0 0 0 / 0.6);
+
+  --plass-primary-accent: #93a8ff;
+  --plass-secondary-accent: #aab3c6;
+  --plass-success-accent: #4fd08d;
+  --plass-warning-accent: #f2b74e;
+  --plass-danger-accent: #ff8a8f;
+  --plass-info-accent: #5fb4ee;
+}
+
+/* ---------------------------------------------------------------------------
+ * Derived tokens
+ *
+ * Gradients, glows, tints, hairlines and focus rings are all one base colour at
+ * different strengths, so they are computed rather than hand-picked per theme.
+ *
+ * **This block is repeated for every theme root**, because a custom property
+ * resolves its `var()`s on the element that declares it — declaring these only
+ * on `:root` would freeze `--plass-*-glow` to the light theme's
+ * `--plass-glow-strength` inside a `.dark` subtree.
+ * ------------------------------------------------------------------------- */
+
+:root,
+.dark,
+.light,
+[data-theme='dark'],
+[data-theme='light'] {
+  /* The elevation ladder. Neutral, and it climbs by *blur* far more than by
+     offset: a key that moves 20px down the page when it is raised has left the
+     sheet, and everything in this library is still sitting on one. */
+  --plass-shadow-0: 0 0 #0000;
+  --plass-shadow-1: 0 2px 8px -2px var(--plass-shadow-ambient);
+  --plass-shadow-2: 0 6px 20px -4px var(--plass-shadow-ambient);
+  --plass-shadow-3: 0 12px 32px -8px var(--plass-shadow-ambient);
+  --plass-shadow-4: 0 20px 48px -12px var(--plass-shadow-ambient);
+
+  /* The moulded fill. Three stops rather than two: light lands on the top-left
+     corner, the family's own colour holds the middle where the label sits, and
+     the far corner falls away. 135deg is the light direction the whole library
+     agrees on — the specular highlight, the gloss line and this all assume it.
+
+     The lift is 5% and the fall is 10%, which is smaller than it looks like it
+     should be. Anything more and the top-left corner stops clearing 4.5:1
+     against the label. */
+  --plass-primary-fill: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--plass-primary-solid) 95%, white) 0%,
+    var(--plass-primary-solid) 46%,
+    color-mix(in srgb, var(--plass-primary-solid) 90%, black) 100%
+  );
+  --plass-primary-glow: color-mix(
+    in srgb,
+    var(--plass-primary-solid) var(--plass-glow-strength),
+    transparent
+  );
+  --plass-primary-soft: color-mix(in srgb, var(--plass-primary-accent) 10%, transparent);
+  --plass-primary-soft-hover: color-mix(in srgb, var(--plass-primary-accent) 18%, transparent);
+  --plass-primary-soft-press: color-mix(in srgb, var(--plass-primary-accent) 26%, transparent);
+  --plass-primary-line: color-mix(in srgb, var(--plass-primary-accent) 30%, transparent);
+  --plass-primary-line-hover: color-mix(in srgb, var(--plass-primary-accent) 48%, transparent);
+  --plass-primary-ring: color-mix(in srgb, var(--plass-primary-solid) 55%, transparent);
+
+  --plass-secondary-fill: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--plass-secondary-solid) 95%, white) 0%,
+    var(--plass-secondary-solid) 46%,
+    color-mix(in srgb, var(--plass-secondary-solid) 90%, black) 100%
+  );
+  --plass-secondary-glow: color-mix(
+    in srgb,
+    var(--plass-secondary-solid) var(--plass-glow-strength),
+    transparent
+  );
+  --plass-secondary-soft: color-mix(in srgb, var(--plass-secondary-accent) 10%, transparent);
+  --plass-secondary-soft-hover: color-mix(in srgb, var(--plass-secondary-accent) 18%, transparent);
+  --plass-secondary-soft-press: color-mix(in srgb, var(--plass-secondary-accent) 26%, transparent);
+  --plass-secondary-line: color-mix(in srgb, var(--plass-secondary-accent) 30%, transparent);
+  --plass-secondary-line-hover: color-mix(in srgb, var(--plass-secondary-accent) 48%, transparent);
+  --plass-secondary-ring: color-mix(in srgb, var(--plass-secondary-solid) 55%, transparent);
+
+  --plass-success-fill: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--plass-success-solid) 95%, white) 0%,
+    var(--plass-success-solid) 46%,
+    color-mix(in srgb, var(--plass-success-solid) 90%, black) 100%
+  );
+  --plass-success-glow: color-mix(
+    in srgb,
+    var(--plass-success-solid) var(--plass-glow-strength),
+    transparent
+  );
+  --plass-success-soft: color-mix(in srgb, var(--plass-success-accent) 10%, transparent);
+  --plass-success-soft-hover: color-mix(in srgb, var(--plass-success-accent) 18%, transparent);
+  --plass-success-soft-press: color-mix(in srgb, var(--plass-success-accent) 26%, transparent);
+  --plass-success-line: color-mix(in srgb, var(--plass-success-accent) 30%, transparent);
+  --plass-success-line-hover: color-mix(in srgb, var(--plass-success-accent) 48%, transparent);
+  --plass-success-ring: color-mix(in srgb, var(--plass-success-solid) 55%, transparent);
+
+  --plass-warning-fill: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--plass-warning-solid) 95%, white) 0%,
+    var(--plass-warning-solid) 46%,
+    color-mix(in srgb, var(--plass-warning-solid) 90%, black) 100%
+  );
+  --plass-warning-glow: color-mix(
+    in srgb,
+    var(--plass-warning-solid) var(--plass-glow-strength),
+    transparent
+  );
+  --plass-warning-soft: color-mix(in srgb, var(--plass-warning-accent) 12%, transparent);
+  --plass-warning-soft-hover: color-mix(in srgb, var(--plass-warning-accent) 20%, transparent);
+  --plass-warning-soft-press: color-mix(in srgb, var(--plass-warning-accent) 28%, transparent);
+  --plass-warning-line: color-mix(in srgb, var(--plass-warning-accent) 34%, transparent);
+  --plass-warning-line-hover: color-mix(in srgb, var(--plass-warning-accent) 52%, transparent);
+  --plass-warning-ring: color-mix(in srgb, var(--plass-warning-solid) 55%, transparent);
+
+  --plass-danger-fill: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--plass-danger-solid) 95%, white) 0%,
+    var(--plass-danger-solid) 46%,
+    color-mix(in srgb, var(--plass-danger-solid) 90%, black) 100%
+  );
+  --plass-danger-glow: color-mix(
+    in srgb,
+    var(--plass-danger-solid) var(--plass-glow-strength),
+    transparent
+  );
+  --plass-danger-soft: color-mix(in srgb, var(--plass-danger-accent) 10%, transparent);
+  --plass-danger-soft-hover: color-mix(in srgb, var(--plass-danger-accent) 18%, transparent);
+  --plass-danger-soft-press: color-mix(in srgb, var(--plass-danger-accent) 26%, transparent);
+  --plass-danger-line: color-mix(in srgb, var(--plass-danger-accent) 30%, transparent);
+  --plass-danger-line-hover: color-mix(in srgb, var(--plass-danger-accent) 48%, transparent);
+  --plass-danger-ring: color-mix(in srgb, var(--plass-danger-solid) 55%, transparent);
+
+  --plass-info-fill: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--plass-info-solid) 95%, white) 0%,
+    var(--plass-info-solid) 46%,
+    color-mix(in srgb, var(--plass-info-solid) 90%, black) 100%
+  );
+  --plass-info-glow: color-mix(
+    in srgb,
+    var(--plass-info-solid) var(--plass-glow-strength),
+    transparent
+  );
+  --plass-info-soft: color-mix(in srgb, var(--plass-info-accent) 10%, transparent);
+  --plass-info-soft-hover: color-mix(in srgb, var(--plass-info-accent) 18%, transparent);
+  --plass-info-soft-press: color-mix(in srgb, var(--plass-info-accent) 26%, transparent);
+  --plass-info-line: color-mix(in srgb, var(--plass-info-accent) 30%, transparent);
+  --plass-info-line-hover: color-mix(in srgb, var(--plass-info-accent) 48%, transparent);
+  --plass-info-ring: color-mix(in srgb, var(--plass-info-solid) 55%, transparent);
+}
+
+/* ---------------------------------------------------------------------------
+ * Sheet titles
+ *
+ * A `title` is styled by the element the component renders around it, so a
+ * plain string needs nothing. But a sheet that belongs in the document outline
+ * has to be given a real heading, `title={<h2>…</h2>}`, and that heading
+ * arrives with the browser's own 1.5em bold and its margins, which would ignore
+ * the type scale just set.
+ *
+ * This is in CSS rather than in Tailwind because the selector is the point:
+ * `[&_:where(h1,h2,h3,h4,h5,h6)]:[font:inherit]` is expressible and nobody
+ * would want to read it twice.
+ * ------------------------------------------------------------------------- */
+
+.plass-title :where(h1, h2, h3, h4, h5, h6) {
+  font: inherit;
+  margin: 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * The gloss
+ *
+ * One layer over a moulded surface: the specular highlight that says the light
+ * is coming from the top-left and that the thing under it is not flat.
+ *
+ * It is **the material, not a state** — it is there when nothing is happening,
+ * which is exactly what makes it plastic rather than an effect. The only thing
+ * that moves it is a press: the key tips away from the light and the highlight
+ * drops out, which is the whole of the press signature together with the
+ * shadow contracting under it.
+ *
+ * This lives in CSS rather than in Tailwind arbitrary variants because the
+ * selector is a pseudo-element carrying a gradient: `[&::before]:[background:
+ * linear-gradient(...)]` is technically expressible and completely unreadable.
+ *
+ * Cost per control: one composited layer that never repaints. There is no
+ * pointer tracking, no ripple element, no timer and no JavaScript.
+ * ------------------------------------------------------------------------- */
+
+.plass-gloss::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background-image: var(--plass-specular);
+  opacity: 1;
+  transition: opacity var(--plass-duration) var(--plass-ease);
+}
+
+.plass-gloss:active::before {
+  opacity: 0.3;
+}
+
+/* ---------------------------------------------------------------------------
+ * Reduced motion
+ *
+ * Nothing in Plass animates on its own except a spinner, so this is about the
+ * transitions: someone who has asked for less movement is asking for state
+ * changes to *arrive*, not to be taken away. The colours still change; they
+ * simply stop easing.
+ * ------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .plass-gloss::before {
+    transition-duration: 1ms;
+  }
+}

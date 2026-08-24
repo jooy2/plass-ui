@@ -1,0 +1,61 @@
+name: publish-documentation
+
+on:
+  # run every time a push occurs in the docs folder
+  push:
+    branches: [main]
+    paths:
+      - docs/**
+      - src/**
+      - .github/workflows/publish-documentation.yml
+      - CHANGELOG.md
+      - package.json
+      - package-lock.json
+  # trigger deployment manually
+  workflow_dispatch:
+
+jobs:
+  publish-documentation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # fetch all commits to get last updated time or other git log info
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '26'
+
+      # cache node_modules
+      - name: Cache dependencies
+        uses: actions/cache@v5
+        id: npm-cache
+        with:
+          path: |
+            **/node_modules
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      # install dependencies if the cache did not hit
+      - name: Install dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: npm install
+
+      # `docs:build` copies the changelog into each locale first
+      - name: Build VitePress site
+        run: npm run docs:build
+
+      # @see https://github.com/crazy-max/ghaction-github-pages
+      - name: Deploy to GitHub Pages
+        uses: crazy-max/ghaction-github-pages@v4
+        with:
+          target_branch: gh-pages
+          build_dir: docs-dist
+          jekyll: false
+          fqdn: 'plass-ui.cdget.com'
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}

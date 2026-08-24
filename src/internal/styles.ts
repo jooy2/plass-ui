@@ -1,0 +1,385 @@
+/**
+ * The pieces every Plass component is built out of.
+ *
+ * None of this is exported from `src/index.ts` — it is the library talking to
+ * itself. It lives here for one reason: a `size` of `md` has to be 40px on a
+ * Button, a TextField, a Select and a Chip, and a table copied into eleven
+ * files is a table that will disagree with itself by the twelfth.
+ *
+ * The two things that cannot move out of a component are its variant classes
+ * and its layout — those genuinely differ. Heights, radii, type scale, padding
+ * tracks, the glass surface, the transition and the colour slots do not.
+ *
+ * Tailwind only sees class names written out literally, so everything here is a
+ * complete class string rather than something assembled at runtime. `@source
+ * '.'` in `styles.css` covers this folder in the repository and in `dist/`.
+ */
+
+import type * as React from 'react';
+import type { PlassColor, PlassDensity, PlassElevation, PlassSize, PlassVariant } from '../types';
+
+/* ---------------------------------------------------------------------------
+ * Scales
+ * ------------------------------------------------------------------------- */
+
+/**
+ * Corner radius — a moulded fillet rather than a chamfer or a pill.
+ *
+ * It grows far more slowly than the height does: 33% of an `xs` control, 29% at
+ * `md`, 29% at `xl`. That near-constant radius is what makes two controls of
+ * different sizes read as two pieces cast in the same mould, which a radius
+ * pinned to a percentage of the height does not.
+ */
+export const radiusClasses: Record<PlassSize, string> = {
+  xs: 'rounded-(--plass-radius-xs)',
+  sm: 'rounded-(--plass-radius-sm)',
+  md: 'rounded-(--plass-radius-md)',
+  lg: 'rounded-(--plass-radius-lg)',
+  xl: 'rounded-(--plass-radius-xl)'
+};
+
+/**
+ * The height of a control, and the one number the whole library lines up on:
+ * a Button, a TextField, a Select and a Chip of the same `size` sit on the same
+ * baseline in the same row.
+ *
+ * The ladder is 8px per step, and it starts higher than a dense desktop toolkit
+ * would: `md` is 40px, not 32px. A moulded surface needs room to be one — a
+ * gradient, a specular highlight and a hairline inside 32px is three effects
+ * fighting over eleven pixels of fill. `xs` exists for a table row and is the
+ * one step where the gloss is deliberately faint.
+ *
+ * `lg` at 48px and `xl` at 56px both clear the 44px mobile touch target.
+ *
+ * Density never touches these.
+ */
+export const controlHeightClasses: Record<PlassSize, string> = {
+  xs: 'h-6',
+  sm: 'h-8',
+  md: 'h-10',
+  lg: 'h-12',
+  xl: 'h-14'
+};
+
+/** The same numbers as a width, for a control with nothing to pad against. */
+export const controlSquareClasses: Record<PlassSize, string> = {
+  xs: 'w-6',
+  sm: 'w-8',
+  md: 'w-10',
+  lg: 'w-12',
+  xl: 'w-14'
+};
+
+/** A control's label. One line, so the leading comes from `leading-none`. */
+export const controlTextClasses: Record<PlassSize, string> = {
+  xs: 'text-[0.6875rem]',
+  sm: 'text-[0.8125rem]',
+  md: 'text-[0.875rem]',
+  lg: 'text-[1rem]',
+  xl: 'text-[1.125rem]'
+};
+
+/**
+ * The same type scale with an explicit leading, for the controls that hold text
+ * which may wrap — a textarea, a select option, a table cell. The line heights
+ * have to agree with `controlHeightClasses` or a one-row control would stop
+ * lining up with a single-line one.
+ */
+export const controlTextLeadingClasses: Record<PlassSize, string> = {
+  xs: 'text-[0.6875rem]/[1rem]',
+  sm: 'text-[0.8125rem]/[1.125rem]',
+  md: 'text-[0.875rem]/[1.25rem]',
+  lg: 'text-[1rem]/[1.5rem]',
+  xl: 'text-[1.125rem]/[1.75rem]'
+};
+
+/** Labels, descriptions and error messages: one step below the control's text. */
+export const metaTextClasses: Record<PlassSize, string> = {
+  xs: 'text-[0.625rem]',
+  sm: 'text-[0.6875rem]',
+  md: 'text-[0.75rem]',
+  lg: 'text-[0.8125rem]',
+  xl: 'text-[0.875rem]'
+};
+
+/**
+ * Horizontal padding, and the only thing `density` is allowed to touch. The two
+ * tracks are roughly 2:1 so the difference is legible at a glance rather than a
+ * two-pixel nudge.
+ */
+export const paddingXClasses: Record<PlassDensity, Record<PlassSize, string>> = {
+  default: { xs: 'px-2.5', sm: 'px-3', md: 'px-4', lg: 'px-6', xl: 'px-7' },
+  compact: { xs: 'px-1.5', sm: 'px-2', md: 'px-2.5', lg: 'px-3.5', xl: 'px-4' }
+};
+
+/** Between a control's own parts — an icon and its label. */
+export const gapClasses: Record<PlassSize, string> = {
+  xs: 'gap-1',
+  sm: 'gap-1.5',
+  md: 'gap-2',
+  lg: 'gap-2.5',
+  xl: 'gap-3'
+};
+
+/** Between a label, the control under it and the text under that. */
+export const stackGapClasses: Record<PlassSize, string> = {
+  xs: 'gap-1',
+  sm: 'gap-1.5',
+  md: 'gap-1.5',
+  lg: 'gap-2',
+  xl: 'gap-2'
+};
+
+/* ---------------------------------------------------------------------------
+ * Surface
+ * ------------------------------------------------------------------------- */
+
+/**
+ * Glass: a translucent fill over a heavily blurred backdrop.
+ *
+ * The blur is the whole material. Plass is not trying to let you read what is
+ * behind a sheet — it is trying to make the sheet look thick, which is why the
+ * radius is 22px and not the 8–10px a frosted-acrylic language would use.
+ * Below about 14px the surface stops being glass and becomes a white box with
+ * an alpha on it.
+ *
+ * `-webkit-backdrop-filter` is written alongside the standard property because
+ * Safari still needs it, and Tailwind will not add it for an arbitrary value.
+ */
+export const glassClasses =
+  '[backdrop-filter:var(--plass-blur)] [-webkit-backdrop-filter:var(--plass-blur)]';
+
+/**
+ * The house transition.
+ *
+ * One duration and one curve, applied the same way in both directions — a key
+ * going down and a key coming back up are the same spring. `background-image`
+ * is in the list because a gradient fill is the thing being changed on a solid
+ * surface, and `filter` because that is what hover and press actually move.
+ *
+ * There is no `transform` in the list and none should be added to a *control*:
+ * scaling a key resamples its label, and text that shimmers under the cursor
+ * undoes the restraint everything else is spending effort on. A surface that
+ * holds content rather than being pressed — a Card — may lift, and does.
+ */
+export const transitionClasses = [
+  '[transition-property:background-color,background-image,border-color,box-shadow,color,filter]',
+  '[transition-duration:var(--plass-duration)]',
+  '[transition-timing-function:var(--plass-ease)]'
+].join(' ');
+
+/**
+ * The focus ring, written as the `outline` shorthand rather than Tailwind's
+ * `outline-2` + colour pair: the utilities route the style through
+ * `--tw-outline-style`, which any `outline-none` on the element (ours or a
+ * consumer's) would zero out.
+ *
+ * An `outline` and not a `ring`, which is the other way this could be drawn:
+ * Tailwind's `ring-*` is a `box-shadow`, and every Plass surface already spends
+ * its `box-shadow` on the elevation, the tinted glow and the gloss line. A ring
+ * would have to be spliced into that chain in each of the three variants, and
+ * the first one that forgot would silently lose its focus ring.
+ */
+export const focusRingClasses =
+  'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2';
+
+/** The same ring, drawn by whichever descendant actually takes focus. */
+export const focusWithinRingClasses =
+  'has-[:focus-visible]:[outline:2px_solid_var(--p-ring)] has-[:focus-visible]:outline-offset-2';
+
+/** Icons track their label rather than carrying a size of their own. */
+export const iconClasses = '[&_svg]:pointer-events-none [&_svg]:size-[1.2em] [&_svg]:shrink-0';
+
+/**
+ * Text for a screen reader and nobody else.
+ *
+ * Not `hidden`, not `display:none` and not `opacity:0` — the first two take the
+ * text off the accessibility tree along with the screen, and the third leaves a
+ * clickable ghost the size of the words. A 1px clipped box is the one form that
+ * is invisible to a sighted reader and present to every other kind.
+ */
+export const srOnlyClasses =
+  'absolute size-px overflow-hidden whitespace-nowrap [clip-path:inset(50%)]';
+
+/* ---------------------------------------------------------------------------
+ * Colour slots
+ *
+ * These are inline styles rather than Tailwind arbitrary properties on purpose:
+ * Tailwind only sees class names that appear literally in the source, so the
+ * alternative is one hardcoded `[--p-fill:var(--plass-primary-fill)]` per
+ * family per component. Generating the slots keeps adding a colour family down
+ * to one entry in `PlassColor` plus its tokens in `styles.css`.
+ * ------------------------------------------------------------------------- */
+
+/**
+ * The tinted lift — the shadow a moulded key casts in its own colour, and the
+ * single loudest thing in the design language.
+ *
+ * It is deliberately **not** part of the elevation ladder, and it does not
+ * scale with `elevation`. Elevation says how far a surface is off the page;
+ * this says what the surface is made of, and a `danger` button one step higher
+ * is not a redder piece of plastic. The two are composed in the same
+ * `box-shadow` and each one moves on its own.
+ */
+const lift = '0 6px 16px -4px var(--p-glow)';
+const liftHover = '0 10px 24px -6px var(--p-glow)';
+/* Pressed, the key is against the sheet and its glow has nowhere left to fall. */
+const liftPress = '0 2px 6px -2px var(--p-glow)';
+
+/**
+ * Every slot a control reads.
+ *
+ * The three elevation slots are resolved here rather than in CSS because
+ * hovering adds a level and pressing removes one, and doing that arithmetic in
+ * a stylesheet would mean four ladders instead of one.
+ */
+export function controlSlots(color: PlassColor, elevation: PlassElevation): React.CSSProperties {
+  return {
+    '--p-fill': `var(--plass-${color}-fill)`,
+    '--p-on-solid': `var(--plass-${color}-on-solid)`,
+    '--p-accent': `var(--plass-${color}-accent)`,
+    '--p-glow': `var(--plass-${color}-glow)`,
+    '--p-soft': `var(--plass-${color}-soft)`,
+    '--p-soft-hover': `var(--plass-${color}-soft-hover)`,
+    '--p-soft-press': `var(--plass-${color}-soft-press)`,
+    '--p-line': `var(--plass-${color}-line)`,
+    '--p-line-hover': `var(--plass-${color}-line-hover)`,
+    '--p-ring': `var(--plass-${color}-ring)`,
+    '--p-elev': `var(--plass-shadow-${elevation})`,
+    '--p-elev-hover': `var(--plass-shadow-${Math.min(elevation + 1, 4)})`,
+    '--p-elev-press': `var(--plass-shadow-${Math.max(elevation - 1, 0)})`,
+    '--p-lift': lift,
+    '--p-lift-hover': liftHover,
+    '--p-lift-press': liftPress
+  } as React.CSSProperties;
+}
+
+/**
+ * The same slots for a surface that **holds** content rather than being
+ * pressed: a Box, a Card, a TextField's shell, a popup.
+ *
+ * There is no `--p-fill` and no `--p-lift` here, and that is the point. A
+ * container's sheet is the undyed glass, because what it holds arrives with its
+ * own colours and tinting the sheet under them puts every one on a background
+ * it was not chosen against. The family shows up in the hairline, the focus
+ * ring and the caret, and the glass stays clear.
+ */
+export function surfaceSlots(color: PlassColor, elevation: PlassElevation): React.CSSProperties {
+  return {
+    '--p-accent': `var(--plass-${color}-accent)`,
+    '--p-soft': `var(--plass-${color}-soft)`,
+    '--p-soft-hover': `var(--plass-${color}-soft-hover)`,
+    '--p-soft-press': `var(--plass-${color}-soft-press)`,
+    '--p-line': `var(--plass-${color}-line)`,
+    '--p-line-hover': `var(--plass-${color}-line-hover)`,
+    '--p-ring': `var(--plass-${color}-ring)`,
+    '--p-elev': `var(--plass-shadow-${elevation})`,
+    '--p-elev-hover': `var(--plass-shadow-${Math.min(elevation + 1, 4)})`,
+    '--p-elev-press': `var(--plass-shadow-${Math.max(elevation - 1, 0)})`
+  } as React.CSSProperties;
+}
+
+/* ---------------------------------------------------------------------------
+ * Shared state treatments
+ * ------------------------------------------------------------------------- */
+
+/**
+ * Disabled is **the light going out.** The key keeps its shape, its colour and
+ * its place in the layout, and stops catching any light: no gloss, no tinted
+ * lift, no shadow, most of the saturation gone and half the opacity with it.
+ *
+ * Opacity is doing real work here rather than standing in for a decision, which
+ * is the usual complaint against it. On a page made of translucent sheets, a
+ * surface that has gone part-transparent is a surface the page is showing
+ * *through* — it has stopped being an object. That reads as unavailable in a
+ * way a grey swatch does not, and it is the one state in the library that uses
+ * the axis.
+ */
+export const disabledClasses: Record<PlassVariant, string> = {
+  solid: [
+    'cursor-not-allowed text-(--p-on-solid) [background-image:var(--p-fill)]',
+    'opacity-50 saturate-[0.35] shadow-none'
+  ].join(' '),
+  glass: [
+    glassClasses,
+    'cursor-not-allowed border text-(--plass-fg) bg-(--plass-glass)',
+    '[border-color:var(--plass-border)]',
+    'opacity-50 saturate-[0.35] shadow-none'
+  ].join(' '),
+  ghost: 'cursor-not-allowed bg-transparent text-(--p-accent) opacity-50 saturate-[0.35]'
+};
+
+/**
+ * Read-only keeps the colour and the edge, goes flat and drains most of the
+ * saturation — a label that happens to be control-shaped. It is not dimmed:
+ * the value is still there to be read and copied, which is the whole difference
+ * from `disabled`.
+ *
+ * The cursor is left to the component. A read-only button stops being something
+ * you click; a read-only field is still something you select text out of.
+ */
+export const readOnlyFilterClasses = 'saturate-[0.55]';
+
+/**
+ * The shell a field-shaped control is drawn on — a TextField's box and a
+ * Select's trigger, which have to be indistinguishable or a form looks like two
+ * different forms stacked on each other.
+ *
+ * The three variants say what they say everywhere else, with one deliberate
+ * difference: `solid` is not a moulded key. What a field holds is user data,
+ * and a caret, a text selection and a placeholder all have to stay legible on
+ * top of it, which they are not on a gradient fill. So a `solid` field is the
+ * **well** — the glass at its most opaque with an inset shadow falling into it,
+ * the one shadow in the library that points downward — and the colour family
+ * shows up in the hairline, the ring and the caret instead.
+ */
+export const fieldRestClasses: Record<PlassVariant, string> = {
+  solid: [
+    glassClasses,
+    'text-(--plass-fg) bg-(--plass-glass-press)',
+    '[box-shadow:var(--p-elev),var(--plass-well)]',
+    'hover:bg-(--plass-glass-hover)',
+    'focus-within:bg-(--plass-glass-press)'
+  ].join(' '),
+  glass: [
+    glassClasses,
+    'border text-(--plass-fg) bg-(--plass-glass-hover)',
+    '[border-color:var(--plass-glass-line)]',
+    '[box-shadow:var(--p-elev),var(--plass-gloss-glass)]',
+    'hover:bg-(--plass-glass-press)',
+    'focus-within:bg-(--plass-glass-press) focus-within:[border-color:var(--p-line-hover)]'
+  ].join(' '),
+  // No surface until it is wanted — the field in a table cell that only looks
+  // like a field once you go near it.
+  ghost: [
+    'text-(--plass-fg) bg-transparent',
+    'hover:bg-(--p-soft)',
+    'focus-within:bg-(--p-soft-hover)'
+  ].join(' ')
+};
+
+/** The same three, held still. */
+export const fieldReadOnlyClasses: Record<PlassVariant, string> = {
+  solid: [
+    glassClasses,
+    'text-(--plass-fg) bg-(--plass-glass-press)',
+    `[box-shadow:var(--plass-well)] ${readOnlyFilterClasses}`
+  ].join(' '),
+  glass: [
+    glassClasses,
+    'border text-(--plass-fg) bg-(--plass-glass-hover)',
+    '[border-color:var(--plass-glass-line)]',
+    `[box-shadow:var(--plass-gloss-glass)] ${readOnlyFilterClasses}`
+  ].join(' '),
+  ghost: `text-(--plass-fg) bg-transparent ${readOnlyFilterClasses}`
+};
+
+/** `false`, `null`, `undefined` and `''` all mean "this slot is not filled". */
+export function hasContent(node: React.ReactNode): boolean {
+  return node !== undefined && node !== null && node !== false && node !== '';
+}
+
+/** Joins class name fragments, dropping the empty ones. */
+export function cx(...parts: Array<string | false | null | undefined>): string {
+  return parts.filter(Boolean).join(' ');
+}
