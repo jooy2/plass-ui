@@ -6,6 +6,7 @@ import {
   PlButton,
   PlCard,
   PlCheckbox,
+  PlDivider,
   PlFilePicker,
   PlHotKeys,
   PlModal,
@@ -126,6 +127,7 @@ export default function ShowcaseApp() {
               .
             </p>
             <PlSwitch className="w-full" labelPlacement="start" label="Public profile" />
+            <PlDivider size="xs">Then</PlDivider>
             <div className="flex items-center gap-3">
               <PlButton loading={saving} onClick={save}>
                 {saving ? 'Saving' : 'Save changes'}

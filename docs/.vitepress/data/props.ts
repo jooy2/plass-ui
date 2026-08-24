@@ -595,6 +595,73 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlDivider: [
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      shared: true,
+      description: {
+        ko: '선이 달리는 방향. vertical은 자기 높이가 없고 flex 부모에 맞춰 늘어납니다',
+        en: 'Which way the line runs. A vertical divider has no height of its own and stretches to its flex parent'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      shared: true,
+      description: {
+        ko: '의미론적 색 역할. 기본값이 **없습니다** — 생략하면 어느 바탕에서나 보이는 중립 헤어라인입니다',
+        en: 'Semantic colour role. There is **no** default — left out, the rule is the neutral hairline, which is visible on every ground'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '라벨의 타입 스케일. divider에서 크기를 가지는 것은 라벨뿐입니다',
+        en: 'Type scale of the label. Nothing else on a divider has a size'
+      }
+    },
+    {
+      name: 'length',
+      type: 'number | string',
+      description: {
+        ko: '선이 달리는 길이. 숫자는 px, 문자열은 임의의 CSS 길이. 생략하면 컨테이너를 채웁니다',
+        en: 'How far the rule runs. A number is pixels, a string is any CSS length. Left out, it fills its container'
+      }
+    },
+    {
+      name: 'thickness',
+      type: 'number | string',
+      default: '1',
+      description: {
+        ko: '선의 두께. 숫자는 px, 문자열은 임의의 CSS 길이',
+        en: 'How thick the rule is. A number is pixels, a string is any CSS length'
+      }
+    },
+    {
+      name: 'textAlign',
+      type: "'start' | 'center' | 'end'",
+      default: "'center'",
+      shared: true,
+      description: {
+        ko: '라벨이 놓이는 자리. start와 end는 가까운 쪽에 짧은 선을 남겨 라벨이 선 *안에* 놓인 것으로 읽히게 합니다',
+        en: 'Where the label sits. start and end leave a short stub on the near side, so the label still reads as set into the rule'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: {
+        ko: '선 안에 놓이는 라벨 — 두 로그인 방법 사이의 "OR"',
+        en: 'A label set into the line — "OR" between two sign-in options'
+      }
+    }
+  ],
+
   PlFilePicker: [
     ...sharedProps({
       variant: "'glass'",

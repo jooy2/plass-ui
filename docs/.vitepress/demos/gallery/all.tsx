@@ -6,6 +6,7 @@ import {
   PlButton,
   PlCard,
   PlCheckbox,
+  PlDivider,
   PlFilePicker,
   PlHotKeys,
   PlModal,
@@ -213,6 +214,21 @@ const entries: Entry[] = [
           { metric: 'Errors', value: '18' }
         ]}
       />
+    )
+  },
+  {
+    name: 'PlDivider',
+    group: 'display',
+    href: 'components/display/divider',
+    blurb: {
+      en: 'A rule between two things, with or without a label set into it.',
+      ko: '두 가지 사이에 놓이는 선. 라벨을 안에 넣을 수도 있습니다.'
+    },
+    preview: (
+      <div className="flex w-full flex-col gap-3">
+        <PlDivider />
+        <PlDivider size="xs">OR</PlDivider>
+      </div>
     )
   },
   {
