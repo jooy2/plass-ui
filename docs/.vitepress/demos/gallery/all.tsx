@@ -7,6 +7,7 @@ import {
   PlCard,
   PlCheckbox,
   PlFilePicker,
+  PlHotKeys,
   PlModal,
   PlModalClose,
   PlPagination,
@@ -212,6 +213,21 @@ const entries: Entry[] = [
           { metric: 'Errors', value: '18' }
         ]}
       />
+    )
+  },
+  {
+    name: 'PlHotKeys',
+    group: 'display',
+    href: 'components/display/hot-keys',
+    blurb: {
+      en: 'A keyboard key, or a combination of them.',
+      ko: '키보드 키 하나, 또는 그 조합입니다.'
+    },
+    preview: (
+      <div className="flex flex-wrap items-center gap-3">
+        <PlHotKeys size="sm" keys="Mod+K" />
+        <PlHotKeys size="sm" keys="Shift+Enter" />
+      </div>
     )
   },
   {

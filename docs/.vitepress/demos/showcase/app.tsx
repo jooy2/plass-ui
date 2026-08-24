@@ -7,6 +7,7 @@ import {
   PlCard,
   PlCheckbox,
   PlFilePicker,
+  PlHotKeys,
   PlModal,
   PlModalClose,
   PlPagination,
@@ -64,6 +65,7 @@ export default function ShowcaseApp() {
           size="md"
           placeholder="Search settings"
           startIcon={<SearchIcon />}
+          endIcon={<PlHotKeys size="xs" keys="Mod+K" />}
           className="grow"
         />
         <PlSegmentedButton size="md" aria-label="Layout" defaultValue="grid">

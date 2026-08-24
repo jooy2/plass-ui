@@ -95,7 +95,7 @@ Every component is exported under a `Pl` prefix — `Button`, `Card` and `Table`
 
 ### Display
 
-`PlTable` · `PlTextLink`
+`PlHotKeys` · `PlTable` · `PlTextLink`
 
 ### Feedback
 

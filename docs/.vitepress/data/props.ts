@@ -746,6 +746,92 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlHotKeys: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      color: "'secondary'",
+      density: "'compact'",
+      variantDescription: {
+        ko: '키캡의 재질. glass는 인쇄된 매뉴얼의 그 헤어라인 상자이고, 기본값입니다',
+        en: 'What the key cap is made of. glass is the hairline box of every printed manual, and the default'
+      },
+      sizeDescription: {
+        ko: '캡의 크기. 컨트롤 사다리에서 한 단계 내려옵니다 — 캡은 문장 속 토큰이지 줄이 기준선을 맞추는 컨트롤이 아닙니다',
+        en: 'The cap size, one step down the control ladder — a cap is a token inside a line of text, not a control the line lines up against'
+      },
+      elevationDescription: {
+        ko: '그림자 깊이. 기본값 0 — 캡에는 이미 아래쪽 립이 있고, 페이지에서 띄우기까지 하면 깊이 신호가 하나 많습니다',
+        en: 'Drop shadow depth. 0 by default — a cap already has a lip under it, and raising it off the page too is one depth cue too many'
+      }
+    }),
+    {
+      name: 'keys',
+      type: 'string | string[]',
+      description: {
+        ko: "키 목록. 문자열은 `+`로 쪼갭니다 ('Mod+Shift+P'). 키 자체가 `+`인 단축키는 배열 형태로 주세요",
+        en: "The keys. A string is split on `+` ('Mod+Shift+P'); for a shortcut whose key *is* a plus, pass the array form"
+      }
+    },
+    {
+      name: 'cluster',
+      type: '{ up, left, down, right }',
+      description: {
+        ko: '네 개의 이동 키를 인라인 조합 대신 뒤집힌 T로 그립니다 — WASD나 방향키. keys보다 우선합니다',
+        en: 'Draws the four movement keys as an inverted T instead of an inline combo — WASD, or the arrows. Takes precedence over keys'
+      }
+    },
+    {
+      name: 'os',
+      type: "'auto' | 'mac' | 'windows' | 'linux'",
+      default: "'auto'",
+      description: {
+        ko: '어느 키보드 기준으로 modifier 이름을 붙일지. auto는 브라우저에 묻습니다',
+        en: 'Which keyboard to name the modifiers for. auto asks the browser'
+      }
+    },
+    {
+      name: 'separator',
+      type: 'ReactNode',
+      description: {
+        ko: '키 사이에 놓이는 것. 생략하면 플랫폼 관례를 따릅니다 — Windows/Linux는 +, macOS는 아무것도 없음',
+        en: "What goes between two keys. Omit it for the platform's own convention: a + on Windows and Linux, nothing on macOS"
+      }
+    }
+  ],
+
+  PlKbd: [
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'glass'",
+      shared: true,
+      description: { ko: '캡의 재질', en: 'What the cap is made of' }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '캡의 크기. PlHotKeys와 같은 한 단계 아래 사다리를 씁니다',
+        en: 'The cap size, on the same one-step-down ladder PlHotKeys uses'
+      }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'compact'",
+      shared: true,
+      description: { ko: '캡의 좌우 여백', en: "The cap's horizontal padding" }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '캡에 인쇄되는 것', en: 'What is printed on the cap' }
+    }
+  ],
+
   PlModal: [
     {
       name: 'size',
