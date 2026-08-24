@@ -21,7 +21,7 @@ A thing that is pressed is **tinted glass**: a gradient that sweeps between two 
 - **ESM only**, TypeScript declarations included, tree-shakeable.
 - **One runtime dependency.** React 18 or 19, Node.js 20.19 or later.
 
-> **0.0.1 is a preview.** Two components are released — `PlButton` and `PlTextField`. The prop vocabulary, the tokens and the build are the shape everything after this will be poured into; the component list is not yet worth building a product on.
+> **0.0.1 is a preview.** The prop vocabulary, the tokens and the build are the shape everything after this will be poured into; the component list is not yet worth building a product on.
 
 ## Documentation
 
@@ -91,9 +91,15 @@ export default function SignIn() {
 
 ## Components
 
+Every component is exported under a `Pl` prefix — `Button`, `Card` and `Table` are the most-taken identifiers in the ecosystem, and a consumer should not have to alias ours on import.
+
 ### Inputs
 
 `PlButton` · `PlTextField`
+
+### Surfaces
+
+`PlAccordion`
 
 ## Development
 

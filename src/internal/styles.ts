@@ -131,6 +131,71 @@ export const stackGapClasses: Record<PlassSize, string> = {
 };
 
 /* ---------------------------------------------------------------------------
+ * Sheets
+ *
+ * A control holds one line of text at a fixed height, which is what every
+ * ladder above is about. A *sheet* — a Card, an Accordion section, an Alert, a
+ * Modal — holds a heading, a paragraph and a footer, and all three of them
+ * wrap. That is a different problem, and these tables are its answer.
+ *
+ * A sheet's subtitle deliberately has no table of its own: it is
+ * `metaTextClasses`, the same step below the body that a field's description
+ * sits on.
+ * ------------------------------------------------------------------------- */
+
+/**
+ * A sheet's own padding, which is not a control's.
+ *
+ * `paddingXClasses` is the room a label needs beside the edge of the key it is
+ * printed on. This is the margin a sheet keeps around whatever it is holding,
+ * and it is bigger, because the thing inside is a paragraph rather than a word.
+ * Both axes are offered separately: a sheet with hairlines between its sections
+ * gives its vertical padding away to them.
+ */
+export const sheetPaddingXClasses: Record<PlassDensity, Record<PlassSize, string>> = {
+  default: { xs: 'px-2.5', sm: 'px-3.5', md: 'px-5', lg: 'px-6', xl: 'px-7' },
+  compact: { xs: 'px-2', sm: 'px-2.5', md: 'px-3.5', lg: 'px-4', xl: 'px-5' }
+};
+
+export const sheetPaddingYClasses: Record<PlassDensity, Record<PlassSize, string>> = {
+  default: { xs: 'py-2.5', sm: 'py-3.5', md: 'py-5', lg: 'py-6', xl: 'py-7' },
+  compact: { xs: 'py-2', sm: 'py-2.5', md: 'py-3.5', lg: 'py-4', xl: 'py-5' }
+};
+
+/**
+ * A sheet's heading: one step above the body, on the same ladder the controls
+ * use, so a card's title lines up with the buttons that end up inside it.
+ */
+export const sheetTitleClasses: Record<PlassSize, string> = {
+  xs: 'text-[0.75rem]/[1rem]',
+  sm: 'text-[0.8125rem]/[1.125rem]',
+  md: 'text-[0.9375rem]/[1.25rem]',
+  lg: 'text-[1.0625rem]/[1.5rem]',
+  xl: 'text-[1.25rem]/[1.75rem]'
+};
+
+/**
+ * Body copy: the control type scale with the leading opened up, because a
+ * label is one line and a body is a paragraph.
+ */
+export const sheetBodyClasses: Record<PlassSize, string> = {
+  xs: 'text-[0.6875rem]/[1rem]',
+  sm: 'text-[0.75rem]/[1.125rem]',
+  md: 'text-[0.8125rem]/[1.375rem]',
+  lg: 'text-[0.9375rem]/[1.5rem]',
+  xl: 'text-[1.0625rem]/[1.75rem]'
+};
+
+/** Title to subtitle. Tight — they are one block of text, not two sections. */
+export const sheetHeaderGapClasses: Record<PlassSize, string> = {
+  xs: 'gap-0.5',
+  sm: 'gap-0.5',
+  md: 'gap-1',
+  lg: 'gap-1',
+  xl: 'gap-1.5'
+};
+
+/* ---------------------------------------------------------------------------
  * Surface
  * ------------------------------------------------------------------------- */
 
@@ -336,6 +401,42 @@ export const disabledClasses: Record<PlassVariant, string> = {
  * you click; a read-only field is still something you select text out of.
  */
 export const readOnlyFilterClasses = 'saturate-[0.55]';
+
+/**
+ * The sheet a **container** is drawn on — a PlCard, a PlAccordion, a PlTable, a
+ * PlModal's panel. Everything that holds other people's content rather than
+ * being pressed.
+ *
+ * The three variants say what they say everywhere else, read as a *material*
+ * rather than as an appearance, and the ladder between them is opacity:
+ *
+ * - `solid` — the clear glass at its most opaque. The sheet you cannot see the
+ *   page through, for a panel that has to sit forward of everything around it.
+ *   No border, because a slab that dense has no edge left to catch light on.
+ * - `glass` — the canonical Plass sheet, and the default on every container:
+ *   translucent, blurred, a white hairline round it and the light lying along
+ *   its top edge.
+ * - `ghost` — no sheet at all. For a container inside a container, where a
+ *   second bordered rectangle is a second rectangle.
+ *
+ * None of the three is dyed, and there is no `--p-fill` in `surfaceSlots` to
+ * dye them with. What a container holds arrives with its own colours; the
+ * family reaches the hairline, the focus ring and the caret and stops.
+ */
+export const sheetRestClasses: Record<PlassVariant, string> = {
+  solid: [
+    glassClasses,
+    'text-(--plass-fg) bg-(--plass-glass-press)',
+    '[box-shadow:var(--p-elev),var(--plass-gloss-glass)]'
+  ].join(' '),
+  glass: [
+    glassClasses,
+    'border text-(--plass-fg) bg-(--plass-glass)',
+    '[border-color:var(--plass-glass-line)]',
+    '[box-shadow:var(--p-elev),var(--plass-gloss-glass)]'
+  ].join(' '),
+  ghost: 'text-(--plass-fg) bg-transparent'
+};
 
 /**
  * The shell a field-shaped control is drawn on — a PlTextField's box and a

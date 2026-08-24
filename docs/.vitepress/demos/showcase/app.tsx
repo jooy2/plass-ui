@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PlButton, PlTextField } from 'plass-ui';
+import { PlAccordion, PlAccordionItem, PlButton, PlTextField } from 'plass-ui';
 
 /**
  * Every component the library has, on one screen — which today is two of them.
@@ -109,6 +109,15 @@ export default function ShowcaseApp() {
           </div>
         </Sheet>
       </div>
+
+      <PlAccordion size="sm" defaultValue={['keys']}>
+        <PlAccordionItem value="keys" title="API keys" subtitle="Two active">
+          Keys are shown once, when they are created. Rotate one rather than sharing it.
+        </PlAccordionItem>
+        <PlAccordionItem value="webhooks" title="Webhooks" subtitle="None yet">
+          Point a URL at an event and we will POST to it.
+        </PlAccordionItem>
+      </PlAccordion>
     </div>
   );
 }

@@ -109,6 +109,146 @@ function sharedProps(options: SharedOptions): PropRow[] {
 }
 
 export const propTables: Record<string, PropRow[]> = {
+  PlAccordion: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: '시트의 재질. solid는 가장 불투명한 유리, glass는 하이라이너가 있는 기본 시트, ghost는 표면 없음',
+        en: 'What the sheet is made of. solid is the densest glass, glass is the default sheet with a hairline, ghost has no surface at all'
+      },
+      sizeDescription: {
+        ko: '제목과 본문의 타입 스케일, 그리고 그 둘을 감싸는 여백',
+        en: 'The type scale of the title and the body, and the padding around both'
+      }
+    }),
+    {
+      name: 'multiple',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '여러 섹션을 동시에 열 수 있게 합니다',
+        en: 'Lets more than one section stay open at once'
+      }
+    },
+    {
+      name: 'value',
+      type: '(string | number)[]',
+      description: {
+        ko: '열려 있는 섹션. onValueChange와 함께 controlled로 씁니다',
+        en: 'Which sections are open. Use with onValueChange for a controlled accordion'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: '(string | number)[]',
+      description: {
+        ko: 'uncontrolled일 때 처음부터 열려 있는 섹션',
+        en: 'Which sections start open, for an uncontrolled accordion'
+      }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: (string | number)[]) => void',
+      description: {
+        ko: '열린 섹션 집합이 바뀔 때 호출됩니다',
+        en: 'Called with the new open set whenever it changes'
+      }
+    },
+    {
+      name: 'dividers',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '섹션 사이를 헤어라인으로 나눕니다. 끄면 각 섹션이 타일이 됩니다',
+        en: 'Scores the sheet between sections with a hairline. Off, each section becomes a tile'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '모든 섹션이 반응하지 않습니다', en: 'Every section stops answering' }
+    },
+    {
+      name: 'hiddenUntilFound',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '닫힌 패널을 DOM에 남겨 브라우저의 페이지 검색이 찾아 열 수 있게 합니다. keepMounted보다 우선합니다',
+        en: "Keeps closed panels in the DOM so the browser's own page search can find and open them. Overrides keepMounted"
+      }
+    },
+    {
+      name: 'keepMounted',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '닫힌 패널을 DOM에 남깁니다. 만드는 비용이 크거나 form 상태를 쥐고 있는 내용에',
+        en: 'Keeps closed panels in the DOM. For content that is expensive to build, or that holds form state'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: 'PlAccordionItem 목록', en: 'The PlAccordionItem sections' }
+    }
+  ],
+
+  PlAccordionItem: [
+    {
+      name: 'value',
+      type: 'string | number',
+      description: {
+        ko: 'value / defaultValue가 이 섹션을 가리키는 이름. 생략하면 Base UI가 만들어 줍니다',
+        en: 'Identifies the section to value / defaultValue. Base UI generates one when it is left out'
+      }
+    },
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description: { ko: '접힘 헤더의 제목', en: 'The heading on the fold' }
+    },
+    {
+      name: 'subtitle',
+      type: 'ReactNode',
+      description: {
+        ko: '제목 아래 한 줄. 타입 스케일 한 단계 아래의 muted 텍스트',
+        en: 'A second line under the title, one step down the type scale and muted'
+      }
+    },
+    {
+      name: 'startIcon',
+      type: 'ReactNode',
+      description: {
+        ko: '제목 앞에 놓이는 내용 — 아이콘, 상태 점, 개수',
+        en: 'Content before the title — an icon, a status dot, a count'
+      }
+    },
+    {
+      name: 'action',
+      type: 'ReactNode',
+      description: {
+        ko: '헤더 끝, chevron 앞에 고정되는 컨트롤. trigger 바깥에 놓이므로 버튼을 넣어도 됩니다',
+        en: 'A control pinned to the end of the header, before the chevron. It sits outside the trigger, so a button is safe there'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '이 섹션만 접히지 않습니다. 나머지는 그대로 동작합니다',
+        en: 'This section stops folding; the rest keep working'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '패널의 내용', en: 'The body' }
+    }
+  ],
+
   PlButton: [
     ...sharedProps({
       variant: "'solid'",

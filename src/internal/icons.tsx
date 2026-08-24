@@ -30,3 +30,26 @@ export function Spinner(): React.ReactElement {
     </svg>
   );
 }
+
+/**
+ * The disclosure chevron, drawn pointing **down**.
+ *
+ * One drawing for every direction: a PlAccordion's header, a PlSelect's
+ * trigger, a PlPagination's stepper all want the same wedge turned a different
+ * way. Turning it is the one allowance the no-transform rule makes — the rule
+ * is about a control resampling its own label under the pointer, and a glyph
+ * has no text in it to resample.
+ */
+export function ChevronIcon(): React.ReactElement {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="m4.5 6.5 3.5 3.5 3.5-3.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
