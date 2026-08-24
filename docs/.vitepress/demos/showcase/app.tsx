@@ -10,6 +10,7 @@ import {
   PlRadioGroup,
   PlSelect,
   PlSlider,
+  PlSwitch,
   PlTable,
   PlTextField
 } from 'plass-ui';
@@ -93,6 +94,7 @@ export default function ShowcaseApp() {
               <PlRadio value="yearly" label="Yearly" />
             </PlRadioGroup>
             <PlCheckbox label="Send me the monthly invoice by email" defaultChecked />
+            <PlSwitch className="w-full" labelPlacement="start" label="Public profile" />
             <div className="flex items-center gap-3">
               <PlButton loading={saving} onClick={save}>
                 {saving ? 'Saving' : 'Save changes'}

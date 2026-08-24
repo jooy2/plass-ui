@@ -10,6 +10,7 @@ import {
   PlRadioGroup,
   PlSelect,
   PlSlider,
+  PlSwitch,
   PlTable,
   PlTextField
 } from 'plass-ui';
@@ -138,6 +139,21 @@ const entries: Entry[] = [
       ko: '범위 위에서 값 하나를 고릅니다.'
     },
     preview: <PlSlider size="sm" defaultValue={62} aria-label="Volume" />
+  },
+  {
+    name: 'PlSwitch',
+    group: 'inputs',
+    href: 'components/inputs/switch',
+    blurb: {
+      en: 'An immediate on/off — it takes effect the moment it moves.',
+      ko: '즉시 반영되는 켜짐/꺼짐. 움직이는 순간 적용됩니다.'
+    },
+    preview: (
+      <div className="flex flex-col gap-2">
+        <PlSwitch size="sm" label="Dark mode" defaultChecked />
+        <PlSwitch size="sm" label="Beta features" />
+      </div>
+    )
   },
   {
     name: 'PlTable',

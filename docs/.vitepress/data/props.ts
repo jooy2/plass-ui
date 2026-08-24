@@ -1073,6 +1073,113 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlSwitch: [
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '트랙의 크기와 옆 글자의 타입 스케일',
+        en: 'The size of the track and the type scale beside it'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: '켜졌을 때 트랙을 채우는 그러데이션',
+        en: 'The gradient the track fills with when it is on'
+      }
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: {
+        ko: '트랙 옆의 글자. Base UI의 Field가 엮어 주므로 눌러도 전환됩니다',
+        en: "The text beside the track. Wired to it by Base UI's Field, so pressing it flips the switch"
+      }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: { ko: '라벨 아래 보조 설명', en: 'Helper text under the label' }
+    },
+    {
+      name: 'error',
+      type: 'ReactNode',
+      description: {
+        ko: '오류 메시지. 존재 자체가 invalid 상태를 만듭니다',
+        en: 'Error message below. Its presence also turns the switch invalid'
+      }
+    },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: {
+        ko: '메시지 없이 invalid로 만듭니다. 기본값은 error에 내용이 있는지 여부',
+        en: 'Forces the invalid state without a message. Defaults to whether error has content'
+      }
+    },
+    {
+      name: 'labelPlacement',
+      type: "'start' | 'end'",
+      default: "'end'",
+      shared: true,
+      description: {
+        ko: '라벨이 놓이는 쪽. start는 설정 목록용으로, 라벨이 한 열을 이루고 스위치가 오른쪽에 정렬됩니다',
+        en: 'Which side the label sits on. start is for a settings list, where the labels form a column and the switches line up'
+      }
+    },
+    {
+      name: 'checked',
+      type: 'boolean',
+      description: {
+        ko: '켜짐 상태. onCheckedChange와 함께 controlled로 씁니다',
+        en: 'The on state. Use with onCheckedChange for a controlled switch'
+      }
+    },
+    {
+      name: 'defaultChecked',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: 'uncontrolled일 때의 시작 상태', en: 'The starting state, uncontrolled' }
+    },
+    {
+      name: 'onCheckedChange',
+      type: '(checked: boolean, details) => void',
+      description: { ko: '상태가 바뀔 때 호출됩니다', en: 'Called with the new state' }
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '상태는 보이지만 바꿀 수 없습니다',
+        en: 'The state is shown but cannot be changed'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '사용 불가. 채도가 빠지고 페이지가 비쳐 보이며, 포커스 순서에서 빠집니다',
+        en: 'Unavailable. Loses its saturation, lets the page through, and leaves the tab order'
+      }
+    },
+    {
+      name: 'name · value · required',
+      type: 'string · string · boolean',
+      description: {
+        ko: '네이티브 form 제출을 위한 것들. Base UI가 그대로 받습니다',
+        en: 'For a native form submission. Passed straight to Base UI'
+      }
+    }
+  ],
+
   PlTable: [
     ...sharedProps({
       variant: "'glass'",
