@@ -15,6 +15,7 @@ docs/
 docs-dist/
 CHANGELOG.md
 CLAUDE.md
+CONTRIBUTING.md
 
 # For development
 scripts/
