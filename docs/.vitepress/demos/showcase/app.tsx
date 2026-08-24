@@ -21,6 +21,7 @@ import {
   PlListItem,
   PlModal,
   PlModalClose,
+  PlNumberField,
   PlOverlay,
   PlPagination,
   PlRadio,
@@ -145,6 +146,14 @@ export default function ShowcaseApp() {
                 { value: 'enterprise', label: 'Enterprise' }
               ]}
               defaultValue="team"
+            />
+            <PlNumberField
+              fullWidth
+              label="Seats"
+              description="Billed per seat, per year."
+              min={1}
+              max={500}
+              defaultValue={12}
             />
             <PlFilePicker
               size="sm"

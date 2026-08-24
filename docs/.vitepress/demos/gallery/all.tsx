@@ -21,6 +21,7 @@ import {
   PlListItem,
   PlModal,
   PlModalClose,
+  PlNumberField,
   PlOverlay,
   PlPagination,
   PlRadio,
@@ -148,6 +149,16 @@ const entries: Entry[] = [
       ko: '파일을 떨어뜨리거나 눌러서 대화상자를 여는 상자입니다.'
     },
     preview: <PlFilePicker size="xs" title="Drop a file" icon={null} />
+  },
+  {
+    name: 'PlNumberField',
+    group: 'inputs',
+    href: 'components/inputs/number-field',
+    blurb: {
+      en: 'A field that only holds a number, with real steppers.',
+      ko: '숫자만 담는 field. 진짜 스테퍼가 달려 있습니다.'
+    },
+    preview: <PlNumberField fullWidth size="sm" defaultValue={2} min={1} max={12} />
   },
   {
     name: 'PlPagination',

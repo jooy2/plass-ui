@@ -1799,6 +1799,220 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlNumberField: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: '껍데기의 재질. PlTextField와 픽셀 단위로 같습니다 — solid는 시트에 파인 우물이지 색이 들어간 판이 아닙니다',
+        en: 'What the shell is made of, identical to PlTextField to the pixel — solid is the well cut into the sheet, not a tinted pane'
+      },
+      sizeDescription: {
+        ko: '컨트롤 높이와 타입 스케일. 같은 form의 다른 field와 같은 사다리',
+        en: 'Control height and type scale — the same ladder as every other field in the form'
+      }
+    }),
+    {
+      name: 'value',
+      type: 'number | null',
+      description: {
+        ko: '값. controlled로 쓰려면 onValueChange와 함께',
+        en: 'The number. Use with onValueChange for a controlled field'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'number',
+      description: {
+        ko: 'uncontrolled일 때의 처음 값',
+        en: 'The initial number, for an uncontrolled field'
+      }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: number | null) => void',
+      description: {
+        ko: '타이핑, 스테퍼, 휠 — 바뀔 때마다',
+        en: 'Called on every change — typing, stepping, the wheel'
+      }
+    },
+    {
+      name: 'onValueCommitted',
+      type: '(value: number | null) => void',
+      description: {
+        ko: '값이 가라앉을 때: 타이핑 후 blur, 누르고 뗐을 때, 키보드에서는 onValueChange와 함께',
+        en: 'Called when the value settles: on blur after typing, on pointer release, and together with onValueChange for the keyboard'
+      }
+    },
+    {
+      name: 'min',
+      type: 'number',
+      description: {
+        ko: '범위의 아래끝. 스테퍼가 여기서 멈춥니다',
+        en: 'The bottom of the range. Stepping stops here'
+      }
+    },
+    {
+      name: 'max',
+      type: 'number',
+      description: { ko: '범위의 위끝', en: 'The top of the range' }
+    },
+    {
+      name: 'step',
+      type: "number | 'any'",
+      default: '1',
+      description: {
+        ko: '한 걸음의 크기. any는 step 검증을 끕니다',
+        en: 'How far one step goes. any turns step validation off'
+      }
+    },
+    {
+      name: 'largeStep',
+      type: 'number',
+      default: '10',
+      description: { ko: 'Shift를 누른 채 밟는 걸음', en: 'The step taken while Shift is held' }
+    },
+    {
+      name: 'smallStep',
+      type: 'number',
+      default: '0.1',
+      description: { ko: 'Alt를 누른 채 밟는 걸음', en: 'The step taken while Alt is held' }
+    },
+    {
+      name: 'snapOnStep',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '걸음이 step의 배수에 붙을지',
+        en: 'Whether stepping snaps to multiples of the step'
+      }
+    },
+    {
+      name: 'allowWheelScrub',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: 'focus된 상태에서 hover 중일 때 휠이 값을 바꿀지. 기본은 꺼짐 — 포인터 아래에서 스크롤되는 페이지와 값이 바뀌는 field는 같은 동작이고, 의도된 것은 둘 중 하나뿐입니다',
+        en: 'Whether the wheel changes the value while focused and hovered. Off by default: a page that scrolls under the pointer and a field that changes under it are the same gesture, and only one of them was meant'
+      }
+    },
+    {
+      name: 'format',
+      type: 'Intl.NumberFormatOptions',
+      description: {
+        ko: '숫자를 어떻게 쓸지 — 통화, 퍼센트, 소수 자릿수. Intl.NumberFormat으로 그대로 넘어가므로 화면에는 $1,240.00이 보이고 값은 1240입니다',
+        en: 'How the number is written — currency, percent, decimal places. Passed straight to Intl.NumberFormat, so the field shows $1,240.00 and still reports 1240'
+      }
+    },
+    {
+      name: 'locale',
+      type: 'Intl.LocalesArgument',
+      description: {
+        ko: '숫자를 쓰고 읽는 locale. 기본값은 런타임의 것',
+        en: 'Which locale the number is written and parsed in. Defaults to the runtime’s'
+      }
+    },
+    {
+      name: 'steppers',
+      type: "'end' | 'split' | 'none'",
+      default: "'end'",
+      description: {
+        ko: '스테퍼가 놓이는 자리. 반높이 chevron을 위아래로 쌓는 형태는 일부러 없습니다 — xs에서 화살표 하나가 3px도 안 되고, 그만한 표적은 아무도 맞히지 못합니다',
+        en: 'Where the steppers sit. There is deliberately no stacked pair of half-height chevrons: at xs each arrow would be under three pixels tall, and a target that small is one nobody hits'
+      }
+    },
+    {
+      name: 'incrementLabel',
+      type: 'string',
+      default: "'Increase'",
+      description: {
+        ko: '증가 버튼의 접근 가능한 이름',
+        en: 'Accessible name of the increment button'
+      }
+    },
+    {
+      name: 'decrementLabel',
+      type: 'string',
+      default: "'Decrease'",
+      description: {
+        ko: '감소 버튼의 접근 가능한 이름',
+        en: 'Accessible name of the decrement button'
+      }
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: {
+        ko: '컨트롤 위의 라벨. Base UI의 Field가 연결합니다. floating 형태는 일부러 없습니다 — floating label에는 transform이 필요합니다',
+        en: 'Label above the control, wired to it by Base UI’s Field. There is no floating variant on purpose: floating labels need a transform'
+      }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: { ko: '컨트롤 아래의 도움말', en: 'Helper text below the control' }
+    },
+    {
+      name: 'error',
+      type: 'ReactNode',
+      description: {
+        ko: '컨트롤 아래의 오류 메시지. 이것이 있으면 field 자체가 invalid가 되고, 색 계열 전체가 danger를 가리킵니다',
+        en: 'Error message below the control. Its presence also turns the field invalid, which re-points the whole slot family at danger'
+      }
+    },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: {
+        ko: '메시지 없이 invalid 상태만 강제합니다. 기본값은 !!error',
+        en: 'Forces the invalid state without a message. Defaults to !!error'
+      }
+    },
+    {
+      name: 'startIcon',
+      type: 'ReactNode',
+      description: {
+        ko: '숫자 앞에 놓이는 것 — 통화 기호, 단위, 아이콘',
+        en: 'Content placed before the number — a currency mark, a unit, an icon'
+      }
+    },
+    {
+      name: 'endIcon',
+      type: 'ReactNode',
+      description: {
+        ko: '숫자 뒤, 스테퍼 앞에 놓이는 것',
+        en: 'Content placed after the number, before the steppers'
+      }
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'false',
+      shared: true,
+      description: {
+        ko: '컨테이너 너비만큼 늘어납니다',
+        en: 'Stretches to the width of the container'
+      }
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      shared: true,
+      description: {
+        ko: '값은 보이지만 바꿀 수 없습니다. 스테퍼도 그려지지 않습니다',
+        en: 'The number is shown but cannot be changed, and the steppers are not drawn'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      shared: true,
+      description: { ko: '사용할 수 없음', en: 'Unavailable' }
+    }
+  ],
+
   PlOverlay: [
     {
       name: 'open',

@@ -103,6 +103,28 @@ export function CheckIcon(): React.ReactElement {
 }
 
 /**
+ * The two steppers' marks.
+ *
+ * A pair, and they stay one: a minus drawn at a different weight from the plus
+ * beside it reads as two toolkits in one control.
+ */
+export function MinusIcon(): React.ReactElement {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M3.5 8h9" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function PlusIcon(): React.ReactElement {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M8 3.5v9M3.5 8h9" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/**
  * The ×.
  *
  * One drawing for every dismissal in the library — a file's remove button, an
