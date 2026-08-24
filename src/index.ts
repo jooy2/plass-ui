@@ -23,3 +23,4 @@ export * from './components/table';
 export * from './components/tabs';
 export * from './components/text-field';
 export * from './components/text-link';
+export * from './components/typography';

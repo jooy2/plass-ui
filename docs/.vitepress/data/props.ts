@@ -2571,6 +2571,71 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlTypography: [
+    {
+      name: 'level',
+      type: "'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'body' | 'lead' | 'caption' | 'overline'",
+      default: "'body'",
+      description: {
+        ko: '타입 스케일과 그것을 담는 요소. h1~h6는 같은 이름의 heading, lead와 body는 p, caption과 overline은 span으로 그려집니다. variant가 아닌 이유는, 이 라이브러리에서 variant는 표면의 재질을 뜻하기 때문입니다',
+        en: 'The type scale, and the element that carries it. h1–h6 render the matching heading, lead/body a p, caption/overline a span. Not called variant, because in this library variant names what a surface is made of'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      shared: true,
+      description: {
+        ko: '의미론적 색 역할. 기본값이 **없습니다** — 문단은 주변 문단과 같아 보이는 것이 보통이라, 색을 요청하지 않으면 페이지의 잉크를 그대로 씁니다',
+        en: 'Semantic colour role. There is **no** default — text inherits the page’s own colour unless a role is asked for, because a paragraph normally looks like the paragraphs around it'
+      }
+    },
+    {
+      name: 'weight',
+      type: "'regular' | 'medium' | 'semibold' | 'bold'",
+      description: {
+        ko: 'level이 정했을 굵기를 덮어씁니다. 요소에 font 클래스가 정확히 하나만 붙도록 JS에서 결정됩니다',
+        en: 'Overrides the weight the level would otherwise pick. Resolved in JS so exactly one font class is ever emitted'
+      }
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end' | 'justify'",
+      shared: true,
+      description: { ko: '텍스트 정렬', en: 'Text alignment' }
+    },
+    {
+      name: 'lines',
+      type: 'number',
+      description: {
+        ko: '이 줄 수로 말줄임합니다. 1은 한 줄 잘라내기이고, 그 이상은 line-clamp 상자입니다',
+        en: 'Clamps the text to this many lines with an ellipsis. 1 is a single-line truncation; more uses the line-clamp box'
+      }
+    },
+    {
+      name: 'gutter',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '아래에 산문이 기대하는 여백을 더합니다. 기본은 꺼짐 — margin을 주입하는 라이브러리 컴포넌트는 레이아웃이 싸워야 하는 컴포넌트입니다',
+        en: 'Adds the space below that a run of prose expects. Off by default: a library component that injects margins is one a layout has to fight'
+      }
+    },
+    {
+      name: 'render',
+      type: 'useRender.RenderProp',
+      description: {
+        ko: '타입 스케일은 그대로 두고 다른 요소로 렌더링합니다 — 문서 개요에 들어가면 안 되는 소제목, 또는 그 반대',
+        en: 'Renders a different element without changing the type scale — a subheading that should not enter the document outline, or the other way round'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '텍스트', en: 'The text' }
+    }
+  ],
+
   PlTextField: [
     ...sharedProps({
       variant: "'glass'",

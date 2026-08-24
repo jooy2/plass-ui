@@ -29,7 +29,8 @@ import {
   PlTable,
   PlTabs,
   PlTextField,
-  PlTextLink
+  PlTextLink,
+  PlTypography
 } from 'plass-ui';
 
 /**
@@ -224,6 +225,8 @@ export default function ShowcaseApp() {
           last 30 days
         </PlChip>
       </div>
+
+      <PlTypography level="h5">Recent invoices</PlTypography>
 
       <PlTable
         size="sm"

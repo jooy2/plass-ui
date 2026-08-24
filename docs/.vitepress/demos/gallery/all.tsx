@@ -29,7 +29,8 @@ import {
   PlTable,
   PlTabs,
   PlTextField,
-  PlTextLink
+  PlTextLink,
+  PlTypography
 } from 'plass-ui';
 
 /**
@@ -368,6 +369,22 @@ const entries: Entry[] = [
         </PlTextLink>
         .
       </p>
+    )
+  },
+  {
+    name: 'PlTypography',
+    group: 'display',
+    href: 'components/display/typography',
+    blurb: {
+      en: 'The library’s type scale on its own.',
+      ko: '라이브러리의 타입 스케일 그 자체입니다.'
+    },
+    preview: (
+      <div className="flex w-full flex-col">
+        <PlTypography level="overline">Section</PlTypography>
+        <PlTypography level="h4">A material rather than a theme</PlTypography>
+        <PlTypography level="caption">Ten levels, one ladder.</PlTypography>
+      </div>
     )
   },
   {
