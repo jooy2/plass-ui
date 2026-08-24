@@ -35,6 +35,8 @@ import {
   PlTabs,
   PlTextField,
   PlTextLink,
+  PlTimeline,
+  PlTimelineItem,
   PlTypography
 } from 'plass-ui';
 
@@ -265,6 +267,13 @@ export default function ShowcaseApp() {
           last 30 days
         </PlChip>
       </div>
+
+      <PlTimeline size="sm" orientation="horizontal" active={2}>
+        <PlTimelineItem title="Trial" bullet="1" />
+        <PlTimelineItem title="Card added" bullet="2" />
+        <PlTimelineItem title="First invoice" bullet="3" />
+        <PlTimelineItem title="Renewal" bullet="4" />
+      </PlTimeline>
 
       <PlTypography level="h5">Recent invoices</PlTypography>
 

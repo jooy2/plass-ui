@@ -35,6 +35,8 @@ import {
   PlTabs,
   PlTextField,
   PlTextLink,
+  PlTimeline,
+  PlTimelineItem,
   PlTypography
 } from 'plass-ui';
 
@@ -423,6 +425,22 @@ const entries: Entry[] = [
         </PlTextLink>
         .
       </p>
+    )
+  },
+  {
+    name: 'PlTimeline',
+    group: 'display',
+    href: 'components/display/timeline',
+    blurb: {
+      en: 'A sequence of steps, in the order they happen in.',
+      ko: '일이 일어난 순서대로 늘어놓은 단계들입니다.'
+    },
+    preview: (
+      <PlTimeline size="xs" density="compact" active={1} className="w-full">
+        <PlTimelineItem title="Ordered" bullet="1" />
+        <PlTimelineItem title="Packed" bullet="2" />
+        <PlTimelineItem title="Shipped" bullet="3" />
+      </PlTimeline>
     )
   },
   {

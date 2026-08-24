@@ -2915,6 +2915,122 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlTimeline: [
+    {
+      name: 'active',
+      type: 'number',
+      description: {
+        ko: '지금 진행 중인 항목의 인덱스. 그 앞은 전부 complete, 그 뒤는 전부 upcoming입니다. 값이 아니라 인덱스인 이유는 timeline에 선택이 없기 때문입니다 — 고르는 것은 없고, 현실이 목록의 어디까지 왔는지만 묻습니다',
+        en: 'The index of the item being worked on now. Everything before it is complete, everything after still to come. An index rather than a value, because a timeline has no selection — nothing is chosen, and the only question is how far reality has got'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: { ko: 'bullet 지름과 타입 스케일', en: 'Bullet diameter and type scale' }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: 'bullet의 그러데이션과 이어진 선의 색 계열',
+        en: 'The gradient in the bullets and the family the connectors take'
+      }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'default'",
+      shared: true,
+      description: {
+        ko: '항목 사이의 간격만. 타입 스케일도 bullet도 건드리지 않습니다',
+        en: 'Spacing between items only. Never the type scale, never the bullet'
+      }
+    },
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'vertical'",
+      shared: true,
+      description: {
+        ko: '순서가 흐르는 방향. vertical은 단계 수와 설명 길이에 제한이 없고, horizontal은 결제 화면 위쪽의 stepper라 라벨이 짧을 때만 정직합니다',
+        en: 'Which way the sequence runs. vertical takes any number of steps with anything to say about each; horizontal is the stepper across the top of a checkout, honest only while every label is short'
+      }
+    },
+    {
+      name: 'render',
+      type: 'useRender.RenderProp',
+      description: {
+        ko: 'ol이 아닌 다른 요소로 렌더링합니다',
+        en: 'Renders something other than an ol'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: 'PlTimelineItem들', en: 'The PlTimelineItems' }
+    }
+  ],
+
+  PlTimelineItem: [
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description: { ko: '이 단계의 제목', en: 'The heading of this step' }
+    },
+    {
+      name: 'meta',
+      type: 'ReactNode',
+      description: {
+        ko: '언제였는지 — 날짜, 소요 시간, 이름. 넓으면 제목 옆에, 좁으면 그 아래에 놓입니다',
+        en: 'When it happened — a date, a duration, a name. Beside the title on a wide item, under it on a narrow one'
+      }
+    },
+    {
+      name: 'bullet',
+      type: 'ReactNode',
+      description: {
+        ko: 'bullet 안에 들어가는 것: 숫자, 아이콘, avatar. 생략하면 그냥 원이고, 자기에 대해 할 말이 없는 단계는 그래야 합니다',
+        en: 'What goes inside the bullet: a number, an icon, an avatar. Omit it and the bullet is a plain disc, which is what a step with nothing to say about itself should be'
+      }
+    },
+    {
+      name: 'status',
+      type: "'complete' | 'current' | 'upcoming'",
+      description: {
+        ko: 'timeline의 active가 계산했을 값을 이 항목에 한해 덮어씁니다 — 실패해서 멈춘 단계, 건너뛴 단계',
+        en: 'Overrides what the timeline’s active would have computed for this item — a step that failed and stopped the sequence, a step that was skipped'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      shared: true,
+      description: {
+        ko: '이 항목에 한해 timeline의 색 계열을 덮어씁니다',
+        en: 'Overrides the timeline’s colour family for this item alone'
+      }
+    },
+    {
+      name: 'connector',
+      type: "'solid' | 'dashed' | 'dotted' | 'none'",
+      default: "'solid'",
+      description: {
+        ko: '다음 항목으로 이어지는 선을 어떻게 그릴지. 마지막 항목의 선은 어차피 그려지지 않습니다',
+        en: 'How the line to the next item is drawn. The last item’s line is never drawn anyway'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '단계의 본문', en: 'The body of the step' }
+    }
+  ],
+
   PlTypography: [
     {
       name: 'level',
