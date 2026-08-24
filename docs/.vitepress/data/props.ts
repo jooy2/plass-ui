@@ -1799,6 +1799,104 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlOverlay: [
+    {
+      name: 'open',
+      type: 'boolean',
+      description: {
+        ko: '오버레이가 보입니다. controlled로 쓰려면 onOpenChange와 함께',
+        en: 'The overlay is shown. Use with onOpenChange for a controlled overlay'
+      }
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      description: {
+        ko: 'uncontrolled일 때 처음부터 보일지',
+        en: 'Whether it starts shown, for an uncontrolled one'
+      }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: { ko: '열림 상태가 바뀔 때', en: 'Called when the open state changes' }
+    },
+    {
+      name: 'tone',
+      type: "'scrim' | 'glass' | 'solid' | 'clear'",
+      default: "'scrim'",
+      description: {
+        ko: '페이지를 얼마나 가져갈지. scrim은 PlModal의 뒤판과 같은 중립적인 어둡기, glass는 진짜 흐림 위의 옅은 어둡기, solid는 불투명, clear는 아무것도 그리지 않으면서 포인터만 막습니다',
+        en: 'How much of the page is taken away. scrim is PlModal’s own backdrop, glass is a lighter dim over a real blur, solid is opaque, and clear draws nothing while still blocking the pointer'
+      }
+    },
+    {
+      name: 'dismissible',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '눌러서, 또는 Escape로 닫을 수 있을지. PlModal과 반대로 기본은 꺼짐입니다 — 모달은 질문을 하고 Escape는 보편적인 "아니오"이지만, 오버레이는 묻고 있지 않고 *기다리라*고 말하고 있습니다',
+        en: 'Whether clicking the overlay or pressing Escape closes it. Off by default, the other way round from PlModal: a modal asks a question and Escape is the universal "no", while an overlay is saying *wait*'
+      }
+    },
+    {
+      name: 'modal',
+      type: "boolean | 'trap-focus'",
+      default: 'true',
+      description: {
+        ko: '뒤 페이지를 키보드에서도 가져갈지. trap-focus는 스크롤과 클릭은 남기고 focus만 안에 붙듭니다',
+        en: 'Whether the page behind is taken away for the keyboard too. trap-focus leaves it scrollable and clickable while still holding focus inside'
+      }
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'center'",
+      shared: true,
+      description: {
+        ko: '내용이 화면 세로 어디에 놓일지',
+        en: 'Where the content sits down the viewport'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '내용과 화면 가장자리 사이 여백의 크기',
+        en: 'Scale of the padding around the content'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: 'focus ring과 내용이 읽어 갈 색 계열',
+        en: 'Semantic colour role. Reaches the focus ring and whatever the content reads'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      default: "'Overlay'",
+      description: {
+        ko: '오버레이의 접근 가능한 이름. 화면에는 그려지지 않습니다. 읽을 것이 아무것도 없는 오버레이도 자기가 무엇인지는 말해야 하므로 기본값이 있습니다',
+        en: 'The accessible name. Never drawn. An overlay that holds nothing readable still has to say what it is, which is why this has a default'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: {
+        ko: 'scrim 위에 놓이는 것 — spinner, 한 줄의 글, 작은 card',
+        en: 'What sits on top of the scrim — a spinner, a line of text, a small card'
+      }
+    }
+  ],
+
   PlPagination: [
     ...sharedProps({
       variant: "'ghost'",

@@ -16,6 +16,7 @@ export * from './components/hot-keys';
 export * from './components/icon';
 export * from './components/list';
 export * from './components/modal';
+export * from './components/overlay';
 export * from './components/pagination';
 export * from './components/radio-group';
 export * from './components/segmented-button';

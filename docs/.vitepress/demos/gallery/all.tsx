@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
   PlAccordion,
   PlAccordionItem,
@@ -21,6 +21,7 @@ import {
   PlListItem,
   PlModal,
   PlModalClose,
+  PlOverlay,
   PlPagination,
   PlRadio,
   PlRadioGroup,
@@ -56,6 +57,32 @@ interface GalleryProps {
 
 /** The sidebar's own groups, in the sidebar's own order. */
 type Group = 'display' | 'feedback' | 'inputs' | 'surfaces';
+
+/**
+ * The one preview in the gallery that needs state of its own: an overlay has to
+ * be opened to be seen at all. Its words stay English like every other preview
+ * here — the localised part of a card is its blurb.
+ */
+function OverlayPreview() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <PlButton size="sm" variant="glass" color="secondary" onClick={() => setOpen(true)}>
+        Open
+      </PlButton>
+      <PlOverlay
+        dismissible
+        tone="glass"
+        open={open}
+        onOpenChange={setOpen}
+        label="Press anywhere to close"
+      >
+        <span className="text-sm font-medium text-(--p-accent)">Press anywhere</span>
+      </PlOverlay>
+    </>
+  );
+}
 
 interface Entry {
   name: string;
@@ -491,6 +518,16 @@ const entries: Entry[] = [
         actions={<PlModalClose render={<PlButton size="sm">Close</PlButton>} />}
       />
     )
+  },
+  {
+    name: 'PlOverlay',
+    group: 'feedback',
+    href: 'components/feedback/overlay',
+    blurb: {
+      en: 'A sheet over the whole page that stops it being used.',
+      ko: '페이지 전체를 덮어 쓸 수 없게 만드는 판입니다.'
+    },
+    preview: <OverlayPreview />
   },
   {
     name: 'PlSkeleton',

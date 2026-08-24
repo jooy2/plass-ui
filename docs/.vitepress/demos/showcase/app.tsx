@@ -21,6 +21,7 @@ import {
   PlListItem,
   PlModal,
   PlModalClose,
+  PlOverlay,
   PlPagination,
   PlRadio,
   PlRadioGroup,
@@ -305,6 +306,10 @@ export default function ShowcaseApp() {
         <PlTabPanel value="activity">Nothing has happened in the last seven days.</PlTabPanel>
         <PlTabPanel value="members">Four people, and what each of them can do.</PlTabPanel>
       </PlTabs>
+
+      <PlOverlay open={saving} label="Saving your changes">
+        <span className="text-sm font-medium text-(--p-accent)">Saving your changes…</span>
+      </PlOverlay>
 
       <PlBlockquote size="sm" variant="glass" author="The onboarding email">
         Keys are shown once, when they are created. Rotate one rather than sharing it.
