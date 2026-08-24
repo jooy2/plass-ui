@@ -4,6 +4,7 @@ import {
   PlAccordionItem,
   PlButton,
   PlCard,
+  PlCheckbox,
   PlPagination,
   PlSelect,
   PlSlider,
@@ -85,6 +86,7 @@ export default function ShowcaseApp() {
               ]}
               defaultValue="team"
             />
+            <PlCheckbox label="Send me the monthly invoice by email" defaultChecked />
             <div className="flex items-center gap-3">
               <PlButton loading={saving} onClick={save}>
                 {saving ? 'Saving' : 'Save changes'}

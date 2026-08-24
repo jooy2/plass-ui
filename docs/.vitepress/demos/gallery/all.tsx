@@ -4,6 +4,7 @@ import {
   PlAccordionItem,
   PlButton,
   PlCard,
+  PlCheckbox,
   PlPagination,
   PlSelect,
   PlSlider,
@@ -65,6 +66,21 @@ const entries: Entry[] = [
       ko: '한 줄 또는 여러 줄 텍스트 입력. 라벨과 설명, 오류 메시지를 함께 담습니다.'
     },
     preview: <PlTextField fullWidth size="sm" placeholder="acme-inc" />
+  },
+  {
+    name: 'PlCheckbox',
+    group: 'inputs',
+    href: 'components/inputs/checkbox',
+    blurb: {
+      en: 'A single yes/no, or one member of a set of them.',
+      ko: '하나의 예/아니오, 또는 그런 항목 중 하나입니다.'
+    },
+    preview: (
+      <div className="flex flex-col gap-2">
+        <PlCheckbox size="sm" label="Email me" defaultChecked />
+        <PlCheckbox size="sm" label="Call me" />
+      </div>
+    )
   },
   {
     name: 'PlPagination',

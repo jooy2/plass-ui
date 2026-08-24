@@ -113,6 +113,63 @@ export const paddingXClasses: Record<PlassDensity, Record<PlassSize, string>> = 
 };
 
 /**
+ * A tick box: the square a PlCheckbox draws and the circle a PlRadioGroup draws.
+ *
+ * Its own ladder rather than a step off `controlHeightClasses`, because a tick
+ * is not a control you can put a label inside — it is an indicator next to one,
+ * and it is sized against the text beside it rather than against the row.
+ */
+export const tickSizeClasses: Record<PlassSize, string> = {
+  xs: 'size-3.5',
+  sm: 'size-4',
+  md: 'size-4.5',
+  lg: 'size-5',
+  xl: 'size-6'
+};
+
+/**
+ * And its own radius, well below the control ladder's.
+ *
+ * `--plass-radius-md` is 12px, which on an 18px box is most of the way to a
+ * circle — and a checkbox that is round is a radio button. The intent is the
+ * same fillet as everywhere else, measured against a much smaller object.
+ */
+export const tickRadiusClasses: Record<PlassSize, string> = {
+  xs: 'rounded-[0.25rem]',
+  sm: 'rounded-[0.3125rem]',
+  md: 'rounded-[0.375rem]',
+  lg: 'rounded-[0.4375rem]',
+  xl: 'rounded-[0.5rem]'
+};
+
+/**
+ * The dot inside a checked radio.
+ *
+ * Whole pixels at every step rather than a percentage of the ring around it.
+ * `38%` of an 18px box is 6.08px, and a circle whose diameter lands between two
+ * device pixels is antialiased unevenly on its four sides — which is exactly
+ * what reads as "the dot is not centred" even when the box says it is.
+ */
+export const tickDotClasses: Record<PlassSize, string> = {
+  xs: 'size-[0.3125rem]',
+  sm: 'size-1.5',
+  md: 'size-[0.4375rem]',
+  lg: 'size-2',
+  xl: 'size-[0.5625rem]'
+};
+
+/**
+ * The line box a tick and its label share.
+ *
+ * Both the tick's wrapper and the label are measured against it: the wrapper is
+ * `h-[1lh]` so the box centres on the label's *first* line rather than on the
+ * whole block, and that only lines up if the two agree on what a line is. Left
+ * to inherit, `1lh` picks up whatever leading the host page happens to set and
+ * the tick drifts a pixel or two off the text beside it.
+ */
+export const tickRowLeadingClasses = 'leading-[1.4]';
+
+/**
  * The same two tracks again, as raw lengths.
  *
  * These exist for one element: a table cell. `<td>` and `<th>` are among the
