@@ -4,6 +4,7 @@ import {
   PlAccordionItem,
   PlAlert,
   PlAvatar,
+  PlBadge,
   PlButton,
   PlCard,
   PlCheckbox,
@@ -237,6 +238,28 @@ const entries: Entry[] = [
           name="홍길동"
           className="-ms-2 ring-2 ring-(--plass-surface)"
         />
+      </div>
+    )
+  },
+  {
+    name: 'PlBadge',
+    group: 'display',
+    href: 'components/display/badge',
+    blurb: {
+      en: 'A small mark in the corner of something else.',
+      ko: '다른 무언가의 모서리에 놓이는 작은 표시입니다.'
+    },
+    preview: (
+      <div className="flex flex-wrap items-center gap-6">
+        <PlBadge size="sm" content={4} label="4 unread">
+          <PlButton size="sm" variant="glass" color="secondary">
+            Inbox
+          </PlButton>
+        </PlBadge>
+        <PlBadge dot color="success" overlap="circle" label="Online">
+          <PlAvatar size="sm" name="Ada Lovelace" />
+        </PlBadge>
+        <PlBadge size="sm" variant="ghost" color="info" content="Beta" />
       </div>
     )
   },

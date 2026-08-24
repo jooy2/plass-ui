@@ -439,6 +439,104 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlBadge: [
+    ...sharedProps({
+      variant: "'solid'",
+      size: "'md'",
+      variantDescription: {
+        ko: '마커의 재질. 마커가 색을 입는 대상 자체라 시트가 틴트를 받습니다. 바쁜 표면에서는 ghost가 알맞습니다',
+        en: 'What the marker is made of. The marker is the thing being coloured, so its sheet takes the tint. ghost is the one for a busy surface'
+      },
+      sizeDescription: {
+        ko: '마커의 높이. 컨트롤 사다리보다 훨씬 아래에 있는 자기 사다리 — md는 18px로, 두 자리 숫자가 읽히는 가장 작은 크기입니다',
+        en: 'The marker height. Its own ladder, well below the control one — md is 18px, the smallest a two-digit number stays legible at'
+      },
+      densityDescription: {
+        ko: '숫자 양옆의 여백만 바꿉니다',
+        en: 'The room around the digits, and nothing else'
+      }
+    }),
+    {
+      name: 'content',
+      type: 'ReactNode',
+      description: {
+        ko: '배지가 하는 말. 보통 개수, 가끔 단어. 생략하면 점을 그립니다 — 알릴 것은 있지만 셀 것이 없을 때의 정직한 모양입니다',
+        en: 'What the badge says — usually a count, sometimes a word. Omit it and it draws a dot, which is the honest thing when there is something to report but nothing to count'
+      }
+    },
+    {
+      name: 'max',
+      type: 'number',
+      default: '99',
+      description: {
+        ko: '숫자 content의 상한. 넘으면 +를 붙입니다. 단어는 어떻게 자를지 알 수 없으므로 숫자에만 적용됩니다',
+        en: 'Caps a numeric content and adds a +. Numbers only: a badge cannot know how to truncate a word'
+      }
+    },
+    {
+      name: 'dot',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: 'content가 있어도 점으로 그리고, 내용은 스크린리더에만 남깁니다. 조용해야 하는 모서리를 위한 것입니다',
+        en: 'Draws the marker as a dot even with content, keeping the content for screen readers only. For the corner that has to stay quiet'
+      }
+    },
+    {
+      name: 'showZero',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: 'content가 0일 때도 보일지. 읽지 않은 메시지 0개는 소식이 아니고, 사라지지 않는 배지는 아무 뜻도 갖지 못합니다',
+        en: 'Whether a content of 0 is shown. Zero unread messages is not news, and a badge that never goes away stops meaning anything'
+      }
+    },
+    {
+      name: 'invisible',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '앵커를 언마운트하지 않고 마커만 숨깁니다. 자리를 지키므로 다시 보여도 아래가 다시 배치되지 않습니다',
+        en: 'Hides the marker without unmounting the anchor. It keeps its box, so showing it again does not relayout what it sits on'
+      }
+    },
+    {
+      name: 'placement',
+      type: "'top-start' | 'top-end' | 'bottom-start' | 'bottom-end'",
+      default: "'top-end'",
+      shared: true,
+      description: {
+        ko: '앵커의 어느 모서리에 놓일지. 논리 속성이라 쓰기 방향에 따라 뒤집힙니다',
+        en: 'Which corner of the anchor it sits on. Logical properties, so it flips with the writing direction'
+      }
+    },
+    {
+      name: 'overlap',
+      type: "'square' | 'circle'",
+      default: "'square'",
+      description: {
+        ko: '아래에 놓인 것의 모양. 원의 모서리는 중심에서 더 멀어서, 아이콘 버튼에 맞춘 배지는 avatar에서 떠 보입니다',
+        en: 'The shape of the thing underneath. A circle’s corner is further from its centre, so a badge tuned for an icon button hangs off an avatar'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: {
+        ko: '스크린리더가 원본 content 대신 듣는 문장. 종 옆의 3은 그냥 "3"이고, "읽지 않은 알림 3개"가 문장입니다',
+        en: 'What a screen reader hears instead of the raw content. A 3 beside a bell is just "3"; "3 unread notifications" is the sentence'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: {
+        ko: '배지가 붙는 대상. 없으면 배지는 inline으로 놓이는 독립 마커가 됩니다',
+        en: 'What the badge is pinned to. Without it the badge is a standalone marker that lays out inline'
+      }
+    }
+  ],
+
   PlButton: [
     ...sharedProps({
       variant: "'solid'",

@@ -44,6 +44,16 @@ export type PlassSide = 'top' | 'right' | 'bottom' | 'left';
 export type PlassAlign = 'start' | 'center' | 'end';
 
 /**
+ * Which corner of a box something is pinned to. `PlBadge` reads this.
+ *
+ * Deliberately one word built out of the two the library already has —
+ * `top`/`bottom` from `PlassSide`, `start`/`end` from `PlassAlign` — rather than
+ * a pair of props. A corner is one decision, and splitting it into two would let
+ * a caller spell `{ vertical: 'left' }`.
+ */
+export type PlassCorner = 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end';
+
+/**
  * What a surface is made of. This is the library's own name, and the two
  * materials in it are the whole design language.
  *

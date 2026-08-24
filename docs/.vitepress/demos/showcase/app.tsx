@@ -4,6 +4,7 @@ import {
   PlAccordionItem,
   PlAlert,
   PlAvatar,
+  PlBadge,
   PlButton,
   PlCard,
   PlCheckbox,
@@ -72,7 +73,9 @@ export default function ShowcaseApp() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-3">
-        <PlAvatar name="Ada Lovelace" src="/portrait-1.svg" />
+        <PlBadge dot color="success" overlap="circle" label="Online">
+          <PlAvatar name="Ada Lovelace" src="/portrait-1.svg" />
+        </PlBadge>
         <PlTextField
           size="md"
           placeholder="Search settings"
@@ -229,7 +232,7 @@ export default function ShowcaseApp() {
 
       <PlTabs size="sm" defaultValue="activity">
         <PlTab value="activity">Activity</PlTab>
-        <PlTab value="members" endIcon={<span className="tabular-nums">4</span>}>
+        <PlTab value="members" endIcon={<PlBadge size="xs" variant="ghost" content={4} />}>
           Members
         </PlTab>
 
