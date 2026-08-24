@@ -1876,6 +1876,146 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlTabs: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: '탭 **바**의 재질. solid는 홈에 맑은 판이 타고, glass는 가장자리의 선 위를 인디케이터가 달리고, ghost는 선이 없습니다',
+        en: 'What the tab **bar** is made of. solid rides a clear pane in a groove, glass runs the indicator along a rule at the edge, ghost drops the rule'
+      },
+      sizeDescription: {
+        ko: '탭의 높이와 타입 스케일. PlButton과 같은 사다리',
+        en: 'Tab height and type scale — the same ladder as PlButton'
+      }
+    }),
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      shared: true,
+      description: {
+        ko: '바가 놓이는 방향. vertical은 탭을 옆으로 세우고 방향키를 다른 축으로 옮깁니다',
+        en: 'Which way the bar runs. vertical puts the tabs down the side and moves the arrow keys onto the other axis'
+      }
+    },
+    {
+      name: 'value',
+      type: 'string | number | null',
+      description: {
+        ko: '선택된 탭. onValueChange와 함께 controlled로 씁니다',
+        en: 'The chosen tab. Use with onValueChange for a controlled set'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'string | number | null',
+      description: { ko: 'uncontrolled일 때 처음 선택된 탭', en: 'Which starts chosen' }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string | number | null) => void',
+      description: { ko: '선택이 바뀔 때 호출됩니다', en: 'Called with the new value' }
+    },
+    {
+      name: 'activateOnFocus',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '방향키가 지나가는 탭을 곧바로 선택할지. 기본은 꺼짐 — 패널이 하나라도 fetch를 한다면 탭 네 개를 지나가는 동안 요청이 네 번 나갑니다',
+        en: 'Whether the arrow keys also choose the tab they land on. Off by default — the moment one panel fetches, walking past four tabs fires four requests'
+      }
+    },
+    {
+      name: 'loopFocus',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '마지막 탭에서 첫 탭으로 방향키가 넘어가는지',
+        en: 'Whether the arrow keys wrap from the last tab back to the first'
+      }
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '탭들이 바의 전체 너비를 균등하게 나눠 가집니다',
+        en: "The tabs share the bar's full width, each taking an equal part of it"
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: {
+        ko: 'PlTab과 PlTabPanel. 컴포넌트가 알아서 둘을 갈라 놓습니다',
+        en: 'The PlTab and PlTabPanel children. The component sorts the two apart itself'
+      }
+    }
+  ],
+
+  PlTab: [
+    {
+      name: 'value',
+      type: 'string | number',
+      required: true,
+      description: {
+        ko: '탭을 식별하고, 같은 값의 패널을 골라냅니다',
+        en: 'Identifies the tab, and picks out the panel with the same value'
+      }
+    },
+    {
+      name: 'startIcon',
+      type: 'ReactNode',
+      description: {
+        ko: '라벨 앞에 놓이는 내용. 1.2em으로 그려져 라벨 크기를 따라갑니다',
+        en: 'Content before the label. Sized in em, so it tracks the label'
+      }
+    },
+    {
+      name: 'endIcon',
+      type: 'ReactNode',
+      description: {
+        ko: '라벨 뒤 — 개수, 상태 점',
+        en: 'Content after the label — a count, a status dot'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '고를 수 없지만 목록에는 남습니다', en: 'Unavailable, but still listed' }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '탭의 라벨', en: "The tab's label" }
+    }
+  ],
+
+  PlTabPanel: [
+    {
+      name: 'value',
+      type: 'string | number',
+      required: true,
+      description: { ko: '어느 탭이 이 패널을 보여 주는지', en: 'Which tab shows this panel' }
+    },
+    {
+      name: 'keepMounted',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '숨겨진 동안에도 DOM에 남깁니다. 만드는 비용이 크거나 form 상태를 쥐고 있는 패널에',
+        en: 'Keeps the panel in the DOM while it is hidden. For one that is expensive to build, or that holds form state'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '패널의 내용', en: "The panel's content" }
+    }
+  ],
+
   PlTextField: [
     ...sharedProps({
       variant: "'glass'",

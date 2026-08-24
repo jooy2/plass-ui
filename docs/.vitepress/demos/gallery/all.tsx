@@ -17,7 +17,10 @@ import {
   PlSelect,
   PlSlider,
   PlSwitch,
+  PlTab,
+  PlTabPanel,
   PlTable,
+  PlTabs,
   PlTextField,
   PlTextLink
 } from 'plass-ui';
@@ -273,6 +276,23 @@ const entries: Entry[] = [
       <PlCard size="xs" className="w-full" title="Team plan" subtitle="Billed yearly">
         Shared projects and audit logs.
       </PlCard>
+    )
+  },
+  {
+    name: 'PlTabs',
+    group: 'surfaces',
+    href: 'components/surfaces/tabs',
+    blurb: {
+      en: 'One set of panels, one of which is shown.',
+      ko: '여러 패널 중 하나를 보여 주는 묶음입니다.'
+    },
+    preview: (
+      <PlTabs size="xs" defaultValue="a" className="w-full">
+        <PlTab value="a">Account</PlTab>
+        <PlTab value="b">Billing</PlTab>
+        <PlTabPanel value="a">Your name and your avatar.</PlTabPanel>
+        <PlTabPanel value="b">Cards and invoices.</PlTabPanel>
+      </PlTabs>
     )
   },
   {

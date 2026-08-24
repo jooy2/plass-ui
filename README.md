@@ -107,7 +107,7 @@ Every component is exported under a `Pl` prefix — `Button`, `Card` and `Table`
 
 ### Surfaces
 
-`PlAccordion` · `PlCard`
+`PlAccordion` · `PlCard` · `PlTabs`
 
 ## Development
 

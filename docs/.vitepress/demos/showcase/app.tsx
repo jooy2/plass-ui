@@ -17,7 +17,10 @@ import {
   PlSelect,
   PlSlider,
   PlSwitch,
+  PlTab,
+  PlTabPanel,
   PlTable,
+  PlTabs,
   PlTextField,
   PlTextLink
 } from 'plass-ui';
@@ -204,6 +207,16 @@ export default function ShowcaseApp() {
       <div className="flex justify-center">
         <PlPagination size="sm" count={12} defaultPage={4} />
       </div>
+
+      <PlTabs size="sm" defaultValue="activity">
+        <PlTab value="activity">Activity</PlTab>
+        <PlTab value="members" endIcon={<span className="tabular-nums">4</span>}>
+          Members
+        </PlTab>
+
+        <PlTabPanel value="activity">Nothing has happened in the last seven days.</PlTabPanel>
+        <PlTabPanel value="members">Four people, and what each of them can do.</PlTabPanel>
+      </PlTabs>
 
       <PlAccordion size="sm" defaultValue={['keys']}>
         <PlAccordionItem value="keys" title="API keys" subtitle="Two active">
