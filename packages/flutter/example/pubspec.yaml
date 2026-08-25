@@ -1,0 +1,22 @@
+name: plass_ui_example
+description: >-
+  The Plass component gallery. Runs as an app on any platform, and doubles as the renderer behind every Flutter preview on the documentation site.
+publish_to: none
+version: 0.0.1
+
+environment:
+  sdk: ^3.11.0
+  flutter: '>=3.41.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  plass_ui:
+    path: ../
+  # Web only, and only for the docs bridge — the library itself has no
+  # dependencies at all. Reached through a conditional import so the gallery
+  # still builds for mobile and desktop.
+  web: ^1.1.1
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
