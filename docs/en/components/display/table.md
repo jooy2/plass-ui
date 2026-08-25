@@ -39,7 +39,9 @@ What the shared axes (`variant` `size` `color` `density` `elevation`) mean acros
 
 ### variant
 
-The sheet under the grid, on the same three materials as every other container, and never dyed. The header band sits one step up the glass ladder rather than taking a tint: a coloured strip behind a row of column names is the fastest way to make data look like chrome.
+The sheet under the grid, on the same three materials as every other container, and never dyed.
+
+There is no band behind the column names on any of them. The header is muted, semibold text over a firmer rule, and the rows under it are scored with `--plass-divider` — the same hairline a `PlCard` and a `PlList` are scored with. A filled strip across the top of a grid is the fastest way to make data look like chrome, and it puts all of a table's weight in the one place that needs none of it. The exception is `stickyHeader`, where the fill is not decoration: rows pass directly under a pinned header and something has to stop the light.
 
 <Demo src="table/variants" :min-height="360">
 
@@ -61,7 +63,7 @@ A column names the property it reads with `key`, and `render` takes over when a 
 
 ### striped and hoverable
 
-`striped` tints every other row: useful on a wide table where the eye has to track across, noise on a narrow one. `hoverable` lights the row under the pointer in the colour family's own soft tint.
+`striped` washes every other row in `--plass-stripe`, a neutral ink rather than more glass: useful on a wide table where the eye has to track across, noise on a narrow one. `hoverable` lights the row under the pointer in the colour family's own soft tint.
 
 <Demo src="table/striped" :min-height="260">
 
@@ -108,4 +110,4 @@ Changes cell padding and nothing else, so two tables of the same `size` keep the
 - A clickable row stays a `<tr>`. `role="button"` on a row reads well in isolation and takes the row semantics off it, which orphans every cell inside from the table it belongs to.
 - Clickable rows carry `tabIndex={0}` and answer <kbd>Enter</kbd> and <kbd>Space</kbd>; <kbd>Space</kbd> is prevented from scrolling the page.
 - The focus ring on a row is drawn inset, because the sheet clips at its own rounded edge and an outline outside the first or last row would lose its top or bottom.
-- Cell padding, alignment and the rules between rows are written as inline styles. Host stylesheets style `td` and `th` by tag name at a specificity a utility class cannot outrank, and this is the one component in the library that has to work around that.
+- Cell padding, alignment, backgrounds and **borders** are written as inline styles, and so are the `<table>`'s own `display`, `width`, `margin` and `border-collapse`. Host stylesheets style `table`, `td` and `th` by tag name at a specificity a utility class cannot outrank: a prose stylesheet's `td { border: 1px solid }` draws a full grid of cell rules the design never asked for, its `table { display: block }` stops the grid filling the sheet, and its `table { margin: 20px 0 }` pushes the whole thing off the corner of the pane it is meant to be flush inside. This is the one component in the library that has to work around all of that.
