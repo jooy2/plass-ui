@@ -42,7 +42,7 @@ What the shared axes (`variant` `size` `color` `density` `elevation`) mean acros
 
 ### variant
 
-The groove carries `--plass-well`, the one inset shadow in the library and the same one a `solid` field is drawn with: a segmented button, a slider's rail and a filled text field are the same idea — something recessed that holds a value.
+The groove carries `--plass-well`, the one inset shadow in the library and the same one a `solid` field is drawn with. Those two are the whole of its use: a groove and a filled field are both a box something _sits in_. A slider's rail is not one, and no longer takes it — a rail is a line you look along.
 
 `solid` puts the family's gradient in the tile with that family's tinted shadow under it, which is the design language's own sentence with nothing added: a key of tinted glass riding in a groove. `glass` and `ghost` lift a pane of clear glass instead and leave the label in the accent.
 

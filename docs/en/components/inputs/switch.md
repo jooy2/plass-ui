@@ -5,7 +5,7 @@ order: 8
 
 # PlSwitch
 
-<p class="plass-lede">An immediate on/off. The track is a groove cut into the sheet while it is off, and the colour family's gradient once it is on.</p>
+<p class="plass-lede">An immediate on/off. The track is a neutral groove while it is off, and the colour family's gradient once it is on.</p>
 
 <Demo src="switch/hero" :min-height="160" />
 
@@ -33,7 +33,11 @@ The difference is not visual, it is **temporal**. A checkbox is a value that get
 
 ### color
 
-On, the track is the family's gradient with that family's tinted shadow under it. The thumb keeps the page's own surface colour in both states: it is the light on the track, not a second coloured object, and a coloured thumb on a coloured track is two things fighting over sixteen pixels.
+On, the track is the family's gradient with that family's tinted shadow under it. Off, it is `--plass-track` — the same neutral ink a `PlSlider`'s rail is, so the two controls in a settings panel are visibly made of the same thing.
+
+The thumb is white in both states and in both themes: it is the light on the track, not a second coloured object, and a coloured thumb on a coloured track is two things fighting over sixteen pixels.
+
+There is no inset shadow under the off track and no hairline round it. An off state drawn as the glass at its most opaque is a white pill with a white thumb in it, which on a light page is a switch nobody can find until they have already flipped it — and where it _was_ visible, in the dark, a recessed slot under a domed thumb was the moulded rocker this design language exists not to draw.
 
 <Demo src="switch/colors" :min-height="120">
 

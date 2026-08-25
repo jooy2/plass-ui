@@ -166,11 +166,13 @@ const rowRadiusClasses: Record<PlassSize, string> = {
  * caller composed the rows — through a `.map()`, through fragments, through a
  * component of their own that renders a `PlListItem`.
  *
- * `--plass-border` and not the sheet's white hairline, for the reason a
- * checkbox's edge takes the neutral one: white light on a translucent pane is
- * invisible the moment the list is set on something opaque.
+ * `--plass-divider` and not the sheet's white hairline, for the reason a
+ * checkbox's edge takes a neutral one: white light on a translucent pane is
+ * invisible the moment the list is set on something opaque. It is the same ink
+ * a PlCard is scored with and a PlTable rules its rows in, so a list on a card
+ * inside a table cell is one family of lines rather than three.
  */
-const dividerClasses = '[&>li+li]:border-t [&>li+li]:[border-color:var(--plass-border)]';
+const dividerClasses = '[&>li+li]:border-t [&>li+li]:[border-color:var(--plass-divider)]';
 
 /**
  * A stack of rows.

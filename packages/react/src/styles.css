@@ -148,6 +148,26 @@
   --plass-glass-press: rgb(255 255 255 / 0.88);
   --plass-glass-line: rgb(255 255 255 / 0.6);
 
+  /* The marks a sheet makes on *itself*, and the one place the glass ladder
+     above cannot be used.
+
+     `--plass-glass-line` is white light on a cut edge: it reads because the
+     pane behind it is the page wash. Turn it inward — a rule between two table
+     rows, a groove a switch runs in, a striped row — and it is white on white,
+     which is nothing at all. Every one of these is therefore a *neutral ink*
+     laid on the surface rather than more light: the same blue-grey the border
+     is, at the weight the job needs, and it reads on a white card and on the
+     wash alike.
+
+     `divider` rules one row off the next. `stripe` is the wash on every other
+     one. `track` is the groove a thumb runs along — a switch's, a slider's —
+     and it is the one of the three that has to be seen from across a room,
+     because a switch nobody can find in its off state is a switch that only
+     exists half the time. */
+  --plass-divider: rgb(20 40 90 / 0.1);
+  --plass-stripe: rgb(20 40 90 / 0.03);
+  --plass-track: rgb(20 40 90 / 0.14);
+
   /* How hard the backdrop is blurred, and how much colour is pulled out of it.
      22px is a deliberate, generous smear: unlike a frosted-acrylic language,
      Plass is not trying to let you read what is behind the sheet — it is trying
@@ -237,6 +257,10 @@
     --plass-glass-press: rgb(255 255 255 / 0.15);
     --plass-glass-line: rgb(255 255 255 / 0.12);
 
+    --plass-divider: rgb(255 255 255 / 0.1);
+    --plass-stripe: rgb(255 255 255 / 0.035);
+    --plass-track: rgb(255 255 255 / 0.16);
+
     --plass-blur: blur(22px) saturate(150%);
 
     --plass-gloss-glass: inset 0 1px 0 rgb(255 255 255 / 0.1);
@@ -276,6 +300,10 @@
   --plass-glass-hover: rgb(255 255 255 / 0.11);
   --plass-glass-press: rgb(255 255 255 / 0.15);
   --plass-glass-line: rgb(255 255 255 / 0.12);
+
+  --plass-divider: rgb(255 255 255 / 0.1);
+  --plass-stripe: rgb(255 255 255 / 0.035);
+  --plass-track: rgb(255 255 255 / 0.16);
 
   --plass-blur: blur(22px) saturate(150%);
 

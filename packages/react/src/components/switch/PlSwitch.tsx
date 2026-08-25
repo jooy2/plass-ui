@@ -3,11 +3,10 @@ import { Switch as BaseUISwitch } from '@base-ui/react/switch';
 import { Field } from '@base-ui/react/field';
 import {
   controlSlots,
-  controlTextClasses,
-  glassClasses,
+  focusRingClasses,
   hasContent,
   metaTextClasses,
-  tickRowLeadingClasses
+  tickRowTextClasses
 } from '../../internal/styles';
 import type { PlassAlign, PlassColor, PlassSize } from '../../types';
 
@@ -80,67 +79,73 @@ const thumbTravelClasses: Record<PlassSize, string> = {
  * track with corners is a track the thumb would have to climb out of.
  */
 const trackBaseClasses = [
-  'relative inline-flex shrink-0 border rounded-full',
+  'relative inline-flex shrink-0 rounded-full',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
   // `background-image` is in the list because the on state is the gradient, and
   // `left` deliberately is not: it belongs to the thumb, which is the one thing
   // in the library that actually moves.
-  '[transition-property:background-color,background-image,border-color,box-shadow]',
+  '[transition-property:background-color,background-image,box-shadow,filter]',
   '[transition-duration:var(--plass-duration)]',
   '[transition-timing-function:var(--plass-ease)]',
-  'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2'
+  focusRingClasses
 ].join(' ');
 
 /**
- * Off, the track is the **groove** — the glass at its most opaque with
- * `--plass-well` falling into it, the same inset shadow a `solid` field is
- * drawn with. On, it is the family's gradient, and the groove's shadow goes
- * with the recess: something that is on is not something you are looking into.
+ * Off, the track is the **groove** — `--plass-track`, the one neutral ink in the
+ * library whose job is to be seen from across a room. On, it is the family's
+ * gradient.
  *
- * There is no gloss line on it, for the reason a PlCheckbox's tick has none: a
- * 1px white hairline around a 20px groove is a bevel rather than light on a cut
- * edge, and a bevelled groove with a domed thumb in it is the skeuomorphic
- * switch this design language is not.
+ * Off used to be the glass at its most opaque with `--plass-well` falling into
+ * it, and it was wrong twice over. It was invisible: a 88%-white pill with a
+ * white thumb in it, set on a near-white page, is a switch a reader cannot find
+ * until they have already flipped it — and the off state is the one a settings
+ * list is mostly made of. And where it *was* visible, in the dark, an inset
+ * shadow under a thumb carrying a drop shadow of its own was a moulded rocker
+ * in a bevelled slot, which is the one picture this design language exists to
+ * not draw.
  *
- * The edge is `--plass-border` rather than the sheet's own `--plass-glass-line`,
- * and that is not a slip. The glass hairline is white light on a translucent
- * pane, which is invisible the moment the tick is set on a light card rather
- * than on the page wash — and a tick nobody can see is a control nobody can
- * find. A neutral hairline reads on both.
+ * So there is no well, no gloss and no edge either. A groove that is a *tone*
+ * rather than a recess needs no hairline to say where it ends, and the hairline
+ * it used to have was the second of two lines round the same object once the
+ * focus ring arrived.
+ *
+ * Dropping the border also squares the thumb's travel. `inset-y-0.5` and
+ * `left-0.5` are measured from the padding box; the `left` a checked thumb
+ * travels to is measured from the track's *width*. With a 1px edge between
+ * them the two disagreed, and every switch in the library sat 2px from its
+ * track on the left and 4px from it on the right.
  */
 const restTrackClasses = [
-  glassClasses,
-  'cursor-pointer bg-(--plass-glass-press) [border-color:var(--plass-border)]',
-  '[box-shadow:var(--plass-well)]',
-  'hover:[border-color:var(--p-line)]',
-  'data-[checked]:[background-image:var(--p-fill)] data-[checked]:[border-color:transparent]',
+  'cursor-pointer bg-(--plass-track)',
+  'hover:brightness-[0.97] dark:hover:brightness-110',
+  'data-[checked]:[background-image:var(--p-fill)]',
   'data-[checked]:[box-shadow:var(--p-lift)] data-[checked]:hover:brightness-105'
 ].join(' ');
 
 const readOnlyTrackClasses = [
-  glassClasses,
-  'cursor-default bg-(--plass-glass-press) [border-color:var(--plass-border)]',
-  '[box-shadow:var(--plass-well)] saturate-[0.55]',
-  'data-[checked]:[background-image:var(--p-fill)] data-[checked]:[border-color:transparent]',
+  'cursor-default bg-(--plass-track) saturate-[0.55]',
+  'data-[checked]:[background-image:var(--p-fill)]',
   'data-[checked]:shadow-none'
 ].join(' ');
 
 const disabledTrackClasses = [
-  glassClasses,
-  'cursor-not-allowed bg-(--plass-glass-press) [border-color:var(--plass-border)]',
+  'cursor-not-allowed bg-(--plass-track)',
   'opacity-50 saturate-[0.35] shadow-none',
-  'data-[checked]:[background-image:var(--p-fill)] data-[checked]:[border-color:transparent]'
+  'data-[checked]:[background-image:var(--p-fill)]'
 ].join(' ');
 
 /**
- * The thumb keeps the page's surface colour in both states rather than taking
- * the accent: it is the light on the track, not a second coloured object, and a
- * coloured thumb on a coloured track is two things fighting over sixteen
- * pixels.
+ * The thumb is white in both themes — not `--plass-surface`, which is a near
+ * navy in the dark and left the off state as a grey lozenge in a grey slot.
+ *
+ * It keeps a shadow, and it is the smallest one on the ladder rather than the
+ * `--plass-shadow-1` it used to carry: the thumb is the one part of a switch
+ * that genuinely is above the surface it moves along, so it casts something —
+ * but a 14px disc under a 4px-blurred, 14px-wide shadow is a knob, not a light.
  */
 const thumbClasses = [
-  'absolute inset-y-0.5 left-0.5 aspect-square rounded-full bg-(--plass-surface)',
-  '[box-shadow:var(--plass-shadow-1)]',
+  'absolute inset-y-0.5 left-0.5 aspect-square rounded-full bg-white',
+  '[box-shadow:0_1px_2px_rgb(20_40_90/0.25)]',
   '[transition:left_var(--plass-duration)_var(--plass-ease)]'
 ].join(' ');
 
@@ -204,10 +209,7 @@ export const PlSwitch = React.forwardRef<HTMLElement, PlSwitchProps>(function Pl
       >
         {label ? (
           <Field.Label
-            className={[
-              'leading-[1.4]',
-              disabled ? 'text-(--plass-muted-fg)' : 'cursor-pointer text-(--plass-fg)'
-            ].join(' ')}
+            className={disabled ? 'text-(--plass-muted-fg)' : 'cursor-pointer text-(--plass-fg)'}
           >
             {label}
           </Field.Label>
@@ -230,9 +232,7 @@ export const PlSwitch = React.forwardRef<HTMLElement, PlSwitchProps>(function Pl
       // `solid`, because an on track *is* the coloured thing.
       style={{ ...controlSlots(family, 0, 'solid'), ...style }}
     >
-      <div
-        className={`flex items-start gap-2.5 ${controlTextClasses[size]} ${tickRowLeadingClasses}`}
-      >
+      <div className={`flex items-start gap-2.5 ${tickRowTextClasses[size]}`}>
         {labelPlacement === 'start' ? (
           <>
             {text}

@@ -79,8 +79,14 @@ const Map<PlassSize, double> gap = <PlassSize, double>{
 const double iconScale = 1.2;
 
 /// How far the focus ring sits outside the control, matching CSS's
-/// `outline-offset: 2px`.
-const double focusRingOffset = 2;
+/// `outline-offset: 0`.
+///
+/// Flush, and flush on every control in both packages. A ring held a couple of
+/// pixels off something that already draws an edge of its own — a field, a
+/// tick, a switch — reads as three rectangles round one object, and the object
+/// looks as though it has come loose from the ring. At zero the ring sits
+/// directly against the outside of the edge and the edge simply thickens.
+const double focusRingOffset = 0;
 
 /// How thick that ring is, matching CSS's `outline: 2px solid`.
 const double focusRingWidth = 2;

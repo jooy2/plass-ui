@@ -1,6 +1,11 @@
 import * as React from 'react';
 import { Slider as BaseUISlider } from '@base-ui/react/slider';
-import { controlSlots, metaTextClasses, transitionClasses } from '../../internal/styles';
+import {
+  controlSlots,
+  focusRingClasses,
+  metaTextClasses,
+  transitionClasses
+} from '../../internal/styles';
 import type { PlassColor, PlassElevation, PlassOrientation, PlassSize } from '../../types';
 
 type BaseSliderProps = Omit<
@@ -94,10 +99,17 @@ const trackBoxWidthClasses: Record<PlassSize, string> = {
 };
 
 /**
- * The rail is a **groove cut into the sheet**, which is why it carries
- * `--plass-well` — the one inset shadow in the library, and the same one a
- * `solid` field is drawn with. A slider's rail and a filled text field are the
- * same idea: something recessed that holds a value.
+ * The rail is `--plass-track`, the same groove a PlSwitch's off state is — one
+ * neutral ink, so the two controls in a settings panel are visibly made of the
+ * same thing.
+ *
+ * It used to be the glass at its most opaque with `--plass-well` cut into it,
+ * on the reading that a rail and a filled field are the same recessed object.
+ * They are not: a field is a box you look *into* and a rail is a line you look
+ * *along*, and the part of it that matters is the part with nothing on it. A
+ * 4px white-on-white line with a shadow in it is the run a reader is supposed
+ * to be judging the value against, and on a light page there was nothing there
+ * to judge it against at all.
  *
  * The indicator over it is the gradient, so the filled part of the run is made
  * of exactly the same material as the button that submits the form it is in.
@@ -105,7 +117,7 @@ const trackBoxWidthClasses: Record<PlassSize, string> = {
  * Both are pills rather than taking the radius ladder: this is a channel
  * something travels along, not a sheet.
  */
-const railClasses = 'rounded-full bg-(--plass-glass-press) [box-shadow:var(--plass-well)]';
+const railClasses = 'rounded-full bg-(--plass-track)';
 const indicatorClasses = `rounded-full [background-image:var(--p-fill)] ${transitionClasses}`;
 
 /**
@@ -125,7 +137,7 @@ const thumbClasses = [
   'cursor-grab select-none active:cursor-grabbing',
   transitionClasses,
   'hover:[box-shadow:var(--p-elev-hover),var(--p-lift-hover),0_0_0_4px_var(--p-soft)]',
-  'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2',
+  focusRingClasses,
   'data-[dragging]:[box-shadow:var(--p-elev-press),var(--p-lift-press),0_0_0_6px_var(--p-soft-hover)]'
 ].join(' ');
 

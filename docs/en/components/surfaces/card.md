@@ -53,7 +53,7 @@ A slot that is empty draws nothing — a card with only `children` is one sectio
 
 ### dividers
 
-Off by default: a card's sections are told apart by space. Turn it on and they are scored with a hairline instead — the same `--plass-glass-line` as the sheet's own edge, so it reads as the pane being scored. The rules have to reach both edges, so the padding moves from the card onto each section.
+Off by default: a card's sections are told apart by space. Turn it on and they are scored with a hairline instead — `--plass-divider`, the neutral ink a `PlList` and a `PlTable` are ruled with, so every internal rule in the library is one line. It is deliberately not the sheet's own white edge: that line reads because the page wash is behind it, and laid across the middle of the pane it has the pane behind it instead. The rules have to reach both edges, so the padding moves from the card onto each section.
 
 <Demo src="card/dividers" :min-height="200">
 

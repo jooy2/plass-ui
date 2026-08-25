@@ -164,17 +164,25 @@ export const tickRadiusClasses: Record<PlassSize, string> = {
 /**
  * The dot inside a checked radio.
  *
- * Whole pixels at every step rather than a percentage of the ring around it.
- * `38%` of an 18px box is 6.08px, and a circle whose diameter lands between two
- * device pixels is antialiased unevenly on its four sides — which is exactly
- * what reads as "the dot is not centred" even when the box says it is.
+ * Whole pixels at every step rather than a percentage of the ring around it —
+ * and, which is the half that was missing, whole pixels *of margin* as well.
+ * A diameter can be an exact 7px and still be centred at x.5, because what
+ * decides the offset is `(box − border − border − dot) / 2`: a 7px dot inside
+ * an 18px ring with a 1px edge sits 4.5px from each side, and a circle whose
+ * four sides are antialiased at half coverage reads as "the dot is not
+ * centred" even though the box says it is — and reads as *up and to the left*,
+ * because that is the way the paint rounds.
+ *
+ * So every dot here has the same parity as the ring's content box: 12/6, 14/6,
+ * 16/8, 18/8, 22/10. The ratio wanders between 38% and 44% as a result, which
+ * is the price, and it is invisible next to the thing it buys.
  */
 export const tickDotClasses: Record<PlassSize, string> = {
-  xs: 'size-[0.3125rem]',
+  xs: 'size-1.5',
   sm: 'size-1.5',
-  md: 'size-[0.4375rem]',
+  md: 'size-2',
   lg: 'size-2',
-  xl: 'size-[0.5625rem]'
+  xl: 'size-2.5'
 };
 
 /**
@@ -185,8 +193,19 @@ export const tickDotClasses: Record<PlassSize, string> = {
  * whole block, and that only lines up if the two agree on what a line is. Left
  * to inherit, `1lh` picks up whatever leading the host page happens to set and
  * the tick drifts a pixel or two off the text beside it.
+ *
+ * It is `controlTextLeadingClasses` and not a ratio of its own, and that is the
+ * whole point of it having moved: a ratio produces a fractional line box at
+ * every step but one — 14px of text at 1.4 is a 19.6px line — and an 18px tick
+ * centred in 19.6px starts at 0.8px, which drags the ring, its edge and the dot
+ * inside it off the pixel grid together. The table's line boxes are whole
+ * numbers with the same parity as the ticks that sit in them (16/14, 18/16,
+ * 20/18, 24/20, 28/24), so every one of those offsets is a whole pixel.
+ *
+ * The label needs no leading of its own; it inherits this one, which is the
+ * only way the two can be guaranteed to agree.
  */
-export const tickRowLeadingClasses = 'leading-[1.4]';
+export const tickRowTextClasses = controlTextLeadingClasses;
 
 /**
  * The same two tracks again, as raw lengths.
@@ -291,13 +310,17 @@ export const sheetSectionGapClasses: Record<PlassSize, string> = {
 
 /**
  * The hairline that scores a sheet into sections — a card's body from its
- * footer, one accordion fold from the next.
+ * footer, one accordion fold from the next, one table row from the next.
  *
- * The same `--plass-glass-line` the sheet's own edge is drawn in, so it reads
- * as the pane being scored rather than as a second, unrelated rule laid over
- * it.
+ * `--plass-divider` and **not** the `--plass-glass-line` the sheet's own edge is
+ * drawn in, which is what this used to be. The edge line is white light caught
+ * on a cut edge, and it reads because what is behind it is the page wash. The
+ * same white laid *across* the middle of the sheet has the sheet behind it
+ * instead, and a white line on a 62%-white pane over a near-white page is not a
+ * line — which is why a light-mode list, card or table had no visible structure
+ * at all unless the host page happened to be drawing its own.
  */
-export const sheetLineClasses = 'border-t [border-color:var(--plass-glass-line)]';
+export const sheetLineClasses = 'border-t [border-color:var(--plass-divider)]';
 
 /** Title to subtitle. Tight — they are one block of text, not two sections. */
 export const sheetHeaderGapClasses: Record<PlassSize, string> = {
@@ -357,13 +380,38 @@ export const transitionClasses = [
  * its `box-shadow` on the elevation, the tinted glow and the gloss line. A ring
  * would have to be spliced into that chain in each of the three variants, and
  * the first one that forgot would silently lose its focus ring.
+ *
+ * **It is flush.** The offset used to be 2px, and a 2px gap is the one thing a
+ * ring must not have on a control that already draws an edge of its own: a
+ * field, a select, a tick, a switch. The eye reads the field's hairline, then a
+ * band of page, then the ring — three concentric rectangles where there is one
+ * object, and the control looks as though it has come loose from the ring
+ * around it. At offset 0 the outline sits directly on the outside of the edge
+ * and the edge simply thickens and takes the family's colour, which is what
+ * "this one is focused" should look like.
+ *
+ * Nothing is lost on a control with no edge either: the outline is still drawn
+ * entirely *outside* the border box, so on a filled key it is a rim against the
+ * page rather than a band over the fill.
  */
 export const focusRingClasses =
-  'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2';
+  'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:[outline-offset:0px]';
 
 /** The same ring, drawn by whichever descendant actually takes focus. */
 export const focusWithinRingClasses =
-  'has-[:focus-visible]:[outline:2px_solid_var(--p-ring)] has-[:focus-visible]:outline-offset-2';
+  'has-[:focus-visible]:[outline:2px_solid_var(--p-ring)] has-[:focus-visible]:[outline-offset:0px]';
+
+/**
+ * The same ring again, turned inward.
+ *
+ * For an element that is *inside* something that clips — a segment in a
+ * groove, a tab on a rail, a row in a sheet with rounded corners, an accordion
+ * header in a scored pane. A ring drawn outside those is a ring with its top or
+ * its bottom sliced off by the container's own overflow, so it is drawn just
+ * inside the edge instead. Same width, same colour, same absence of a gap.
+ */
+export const focusRingInsetClasses =
+  'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:[outline-offset:-2px]';
 
 /** Icons track their label rather than carrying a size of their own. */
 export const iconClasses = '[&_svg]:pointer-events-none [&_svg]:size-[1.2em] [&_svg]:shrink-0';
@@ -563,6 +611,16 @@ export const sheetRestClasses: Record<PlassVariant, string> = {
  * **well** — the glass at its most opaque with an inset shadow falling into it,
  * the one shadow in the library that points downward — and the colour family
  * shows up in the hairline, the ring and the caret instead.
+ *
+ * The edge is `--plass-border` and not the sheet's own `--plass-glass-line`,
+ * which is the same correction a PlCheckbox's tick, a PlRadio's ring and a
+ * PlTabs rail already carry, made for the third time and for the last: white
+ * light on a cut edge is a claim about the page wash behind the pane, and a
+ * field is very often *not* on the page — it is on a card, and a white hairline
+ * round a 76%-white box on a white card is a field a reader cannot see the
+ * shape of. A neutral hairline reads on both, and it means every edge on a form
+ * — the tick beside the field, the switch under it, the rail over it — is one
+ * line rather than two kinds of line that only agree on one background.
  */
 export const fieldRestClasses: Record<PlassVariant, string> = {
   solid: [
@@ -575,9 +633,9 @@ export const fieldRestClasses: Record<PlassVariant, string> = {
   glass: [
     glassClasses,
     'border text-(--plass-fg) bg-(--plass-glass-hover)',
-    '[border-color:var(--plass-glass-line)]',
+    '[border-color:var(--plass-border)]',
     '[box-shadow:var(--p-elev),var(--plass-gloss-glass)]',
-    'hover:bg-(--plass-glass-press)',
+    'hover:bg-(--plass-glass-press) hover:[border-color:var(--p-line)]',
     'focus-within:bg-(--plass-glass-press) focus-within:[border-color:var(--p-line-hover)]'
   ].join(' '),
   // No surface until it is wanted — the field in a table cell that only looks
@@ -599,7 +657,7 @@ export const fieldReadOnlyClasses: Record<PlassVariant, string> = {
   glass: [
     glassClasses,
     'border text-(--plass-fg) bg-(--plass-glass-hover)',
-    '[border-color:var(--plass-glass-line)]',
+    '[border-color:var(--plass-border)]',
     `[box-shadow:var(--plass-gloss-glass)] ${readOnlyFilterClasses}`
   ].join(' '),
   ghost: `text-(--plass-fg) bg-transparent ${readOnlyFilterClasses}`

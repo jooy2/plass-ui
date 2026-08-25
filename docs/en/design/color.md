@@ -61,6 +61,18 @@ What dark mode changes is the ground under it:
 
 The tint strength is turned up rather than the shadow being made bigger: a tinted shadow has almost nothing to sit on over a near-black page.
 
+## The marks a sheet makes on itself
+
+`--plass-glass-line` is white light caught on a cut edge, and it reads because what is behind it is the page wash. Turn it **inward** and there is no wash behind it any more — there is the sheet — and a white rule across a white pane is nothing at all. Three tokens exist for the jobs that face inward, and every one of them is a neutral ink rather than more light:
+
+| Token             | Light                  | Dark            | What it is                    |
+| ----------------- | ---------------------- | --------------- | ----------------------------- |
+| `--plass-divider` | `rgb(20 40 90 / 0.10)` | `white / 0.10`  | One row ruled off the next    |
+| `--plass-stripe`  | `rgb(20 40 90 / 0.03)` | `white / 0.035` | The wash on every other row   |
+| `--plass-track`   | `rgb(20 40 90 / 0.14)` | `white / 0.16`  | The groove a thumb runs along |
+
+`--plass-border` belongs with them: it is the neutral hairline a control draws round _itself_ — a tick, a switch, a field, a tabs rail — for the same reason, because a control is very often set on a white card rather than on the wash, and a control nobody can see is a control nobody can find.
+
 ## Contrast
 
 Every stop of every gradient clears **4.5:1 against its own `on-solid`** — and every one of them sits within 0.15 of exactly 4.5.

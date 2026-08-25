@@ -256,8 +256,16 @@ custom property는 자기 `var()`를 **그것이 선언된 요소에서** 풉니
 Tailwind v4의 `outline-*` utility는 스타일을 `--tw-outline-style`을 통해 지정합니다. 요소 어딘가의 `outline-none`이 그 변수를 `none`으로 만들면 **focus ring이 통째로 사라집니다.** shorthand를 쓰세요.
 
 ```
-focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2
+focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:[outline-offset:0px]
 ```
+
+### ring은 컨트롤에 붙습니다
+
+offset은 `0`이고, 라이브러리의 모든 컨트롤에서 `0`입니다. 자기 테두리를 가진 컨트롤 — field, select, tick, switch — 에서 ring을 2px 띄우면 하나의 사물 주위에 사각형이 세 겹으로 읽히고, 사물이 자기 ring에서 떨어져 나온 것처럼 보입니다. 붙이면 outline이 테두리 바깥면에 그대로 닿고, 테두리가 두꺼워지면서 그 색 계열을 입은 것으로 읽힙니다.
+
+테두리가 없는 컨트롤에서도 잃는 것은 없습니다. outline은 언제나 border box **바깥**에 그려지므로, 채워진 키에서는 칠 위에 겹친 띠가 아니라 페이지를 배경으로 한 테두리가 됩니다.
+
+예외는 다른 것이 잘라내는 컨트롤 하나뿐입니다. 레일 위의 tab, 홈 안의 segment, 둥근 시트 안의 행, 금이 그어진 판 안의 accordion 헤더. 이들은 `focus-visible:[outline-offset:-2px]`을 씁니다. 바깥에 그린 ring은 위나 아래가 잘려 나가기 때문입니다.
 
 ### ring은 `ring`이 아니라 `outline`입니다
 

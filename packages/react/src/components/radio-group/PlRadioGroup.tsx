@@ -4,12 +4,12 @@ import { RadioGroup as BaseUIRadioGroup } from '@base-ui/react/radio-group';
 import { Field } from '@base-ui/react/field';
 import {
   controlSlots,
-  controlTextClasses,
+  focusRingClasses,
   glassClasses,
   hasContent,
   metaTextClasses,
   tickDotClasses,
-  tickRowLeadingClasses,
+  tickRowTextClasses,
   tickSizeClasses,
   transitionClasses
 } from '../../internal/styles';
@@ -87,7 +87,7 @@ const dotBaseClasses = [
   'relative inline-flex shrink-0 items-center justify-center rounded-full border',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
   transitionClasses,
-  'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2'
+  focusRingClasses
 ].join(' ');
 
 /**
@@ -149,9 +149,7 @@ export const PlRadio = React.forwardRef<HTMLElement, PlRadioProps>(function PlRa
       className={['flex flex-col', className ?? ''].filter(Boolean).join(' ')}
       style={style}
     >
-      <div
-        className={`flex items-start gap-2 ${controlTextClasses[group.size]} ${tickRowLeadingClasses}`}
-      >
+      <div className={`flex items-start gap-2 ${tickRowTextClasses[group.size]}`}>
         {/* `1lh` centres the dot on the first line of the label, and the row
             pins the leading so `1lh` is the label's line box and not the host
             page's. */}
@@ -176,10 +174,9 @@ export const PlRadio = React.forwardRef<HTMLElement, PlRadioProps>(function PlRa
           <span className="flex min-w-0 flex-col gap-0.5">
             {label ? (
               <Field.Label
-                className={[
-                  'leading-[1.4]',
+                className={
                   disabled ? 'text-(--plass-muted-fg)' : 'cursor-pointer text-(--plass-fg)'
-                ].join(' ')}
+                }
               >
                 {label}
               </Field.Label>

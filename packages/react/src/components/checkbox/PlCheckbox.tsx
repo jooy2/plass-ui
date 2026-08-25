@@ -3,12 +3,12 @@ import { Checkbox as BaseUICheckbox } from '@base-ui/react/checkbox';
 import { Field } from '@base-ui/react/field';
 import {
   controlSlots,
-  controlTextClasses,
+  focusRingClasses,
   glassClasses,
   hasContent,
   metaTextClasses,
   tickRadiusClasses,
-  tickRowLeadingClasses,
+  tickRowTextClasses,
   tickSizeClasses,
   transitionClasses
 } from '../../internal/styles';
@@ -58,7 +58,7 @@ const tickBaseClasses = [
   'relative inline-flex shrink-0 items-center justify-center border',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
   transitionClasses,
-  'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2'
+  focusRingClasses
 ].join(' ');
 
 /**
@@ -182,9 +182,7 @@ export const PlCheckbox = React.forwardRef<HTMLElement, PlCheckboxProps>(functio
       // `solid`, because a checked tick *is* the coloured thing.
       style={{ ...controlSlots(family, 0, 'solid'), ...style }}
     >
-      <div
-        className={`flex items-start gap-2 ${controlTextClasses[size]} ${tickRowLeadingClasses}`}
-      >
+      <div className={`flex items-start gap-2 ${tickRowTextClasses[size]}`}>
         {/* `1lh` centres the tick on the first line of the label rather than on
             the whole block, so it stays put when the label wraps to three. The
             leading is pinned on the row above so `1lh` and the label's own line
@@ -207,10 +205,9 @@ export const PlCheckbox = React.forwardRef<HTMLElement, PlCheckboxProps>(functio
           <span className="flex min-w-0 flex-col gap-0.5">
             {label ? (
               <Field.Label
-                className={[
-                  'leading-[1.4]',
+                className={
                   disabled ? 'text-(--plass-muted-fg)' : 'cursor-pointer text-(--plass-fg)'
-                ].join(' ')}
+                }
               >
                 {label}
               </Field.Label>

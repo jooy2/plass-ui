@@ -42,7 +42,7 @@ import { PlSegment, PlSegmentedButton } from 'plass-ui';
 
 ### variant
 
-홈은 `--plass-well`을 씁니다. 라이브러리의 유일한 inset 그림자이자 `solid` field가 그려지는 것과 같은 그림자입니다 — segmented button과 slider의 레일, 채워진 text field는 같은 생각입니다. 값을 담고 있는 파인 자리.
+홈은 `--plass-well`을 씁니다. 라이브러리의 유일한 inset 그림자이자 `solid` field가 그려지는 것과 같은 그림자이고, 쓰이는 곳은 이 둘뿐입니다. 홈과 채워진 field는 둘 다 무언가가 _들어앉는_ 상자입니다. slider의 레일은 그런 상자가 아니라서 더 이상 이 그림자를 쓰지 않습니다 — 레일은 따라 보는 선입니다.
 
 `solid`는 타일에 색 계열의 그러데이션을 넣고 그 아래에 같은 계열의 틴트 그림자를 깝니다. 디자인 언어의 문장을 그대로 옮긴 것입니다 — 홈을 타고 가는 색 유리 키. `glass`와 `ghost`는 대신 맑은 유리판을 들어 올리고 라벨은 accent 색으로 둡니다.
 

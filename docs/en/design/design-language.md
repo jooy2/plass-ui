@@ -256,8 +256,16 @@ A custom property resolves its `var()`s **on the element that declares it**. `--
 Tailwind v4's `outline-*` utilities route the style through `--tw-outline-style`. An `outline-none` anywhere on the element sets that variable to `none` and **the focus ring disappears entirely.** Use the shorthand.
 
 ```
-focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2
+focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:[outline-offset:0px]
 ```
+
+### The ring is flush
+
+The offset is `0`, and it is `0` on every control in the library. A ring held 2px off a control that draws an edge of its own — a field, a select, a tick, a switch — is read as three concentric rectangles round one object, and the object looks as though it has come loose from the ring. Flush, the outline sits directly against the outside of the edge, and the edge simply thickens and takes the family's colour.
+
+Nothing is lost on a control with no edge either: an outline is always drawn **outside** the border box, so on a filled key it is a rim against the page rather than a band over the fill.
+
+The one exception is a control that something else clips — a tab on a rail, a segment in a groove, a row inside a rounded sheet, an accordion header in a scored pane. Those take `focus-visible:[outline-offset:-2px]`, because a ring drawn outside them is a ring with its top or its bottom sliced off.
 
 ### The ring is an `outline` and not a `ring`
 

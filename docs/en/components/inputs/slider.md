@@ -5,7 +5,9 @@ order: 5
 
 # PlSlider
 
-<p class="plass-lede">A value chosen along a range. The rail is a groove cut into the sheet and the run that fills it is the same gradient a button is made of.</p>
+<p class="plass-lede">A value chosen along a range. The rail is a neutral groove and the run that fills it is the same gradient a button is made of.</p>
+
+The rail is `--plass-track`, the same ink a `PlSwitch`'s off state is. It is not the glass with an inset shadow in it, which is what a filled field is: a field is a box you look _into_, and a rail is a line you look _along_ — and the part of a rail that matters is the part with nothing on it, which is exactly the part a white-on-white groove does not have.
 
 <Demo src="slider/hero" :min-height="120" />
 
