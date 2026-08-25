@@ -6,11 +6,11 @@ on:
     branches: [main]
     paths:
       - docs/**
-      - src/**
+      # The site renders the React components and embeds the Flutter gallery, so
+      # a change to either package changes the site.
+      - packages/**
       - .github/workflows/publish-documentation.yml
       - CHANGELOG.md
-      - package.json
-      - package-lock.json
   # trigger deployment manually
   workflow_dispatch:
 
@@ -29,6 +29,15 @@ jobs:
         with:
           node-version: '26'
 
+      # The Flutter previews on the site are the real package compiled for the
+      # web, built into `docs/public/flutter` by `npm run build`.
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: stable
+          channel: stable
+          cache: true
+
       # cache node_modules
       - name: Cache dependencies
         uses: actions/cache@v5
@@ -44,10 +53,13 @@ jobs:
       - name: Install dependencies
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: npm install
+        working-directory: ./docs
 
-      # `docs:build` copies the changelog into each locale first
+      # `build` copies the changelog into each locale and compiles the Flutter
+      # gallery before VitePress runs.
       - name: Build VitePress site
-        run: npm run docs:build
+        run: npm run build
+        working-directory: ./docs
 
       # @see https://github.com/crazy-max/ghaction-github-pages
       - name: Deploy to GitHub Pages
