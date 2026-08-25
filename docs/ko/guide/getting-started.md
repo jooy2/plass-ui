@@ -5,17 +5,45 @@ order: 1
 
 # 시작하기
 
-Plass는 React 컴포넌트 라이브러리입니다. 동작과 접근성은 [Base UI](https://base-ui.com) primitive에서, 스타일은 [Tailwind CSS](https://tailwindcss.com) v4에서 옵니다. Tailwind는 이 패키지를 빌드하는 데 쓰일 뿐, 여러분의 프로젝트에 설치될 필요는 없습니다.
+Plass는 하나의 디자인 언어를 두 프레임워크로 냅니다. 사이드바에서 쓰는 쪽을 고르세요. 미리보기를 포함해 이 사이트 전체가 그 선택을 따라갑니다.
 
-> **0.0.1은 미리 보기입니다.** 지금 공개된 컴포넌트는 [PlButton](../components/inputs/button)과 [PlTextField](../components/inputs/text-field) 둘뿐입니다. prop 어휘와 토큰, 빌드 구조는 이후 모든 것이 부어질 틀이라서 지금 읽어 둘 값어치가 있지만, 컴포넌트 목록은 아직 제품을 올릴 만한 상태가 아닙니다.
+::: fw react
+
+React 패키지의 동작과 접근성은 [Base UI](https://base-ui.com) primitive에서, 스타일은 [Tailwind CSS](https://tailwindcss.com) v4에서 옵니다. Tailwind는 이 패키지를 빌드하는 데 쓰일 뿐, 여러분의 프로젝트에 설치될 필요는 없습니다.
+
+:::
+
+::: fw flutter
+
+Flutter 패키지는 `package:flutter/widgets.dart`만으로 만들어졌습니다. `material.dart`도 `cupertino.dart`도 import하지 않는데, 여기에는 두 가지 뜻이 있습니다. Material 앱이든 Cupertino 앱이든 맨 `WidgetsApp`이든 두 번째 디자인 시스템을 끌고 들어가지 않고 얹힌다는 것, 그리고 그 두 라이브러리가 프레임워크에서 `material_ui`·`cupertino_ui`로 빠져나가도 영향을 받지 않는다는 것입니다. 런타임 의존성은 하나도 없습니다.
+
+:::
+
+> **0.0.1은 미리 보기입니다.** prop 어휘와 토큰, 빌드 구조는 이후 모든 것이 부어질 틀이라서 지금 읽어 둘 값어치가 있지만, 컴포넌트 목록은 아직 제품을 올릴 만한 상태가 아닙니다. <Fw react="React 쪽은 서른다섯 개가 공개되어 있습니다. " flutter="Flutter 쪽은 PlButton 하나만 공개되어 있습니다. " />[모든 컴포넌트](../components/)를 보세요.
 
 ## 설치
+
+::: fw react
 
 ```bash
 npm install plass-ui
 ```
 
 `react`와 `react-dom`은 peer dependency입니다 — **React 18 또는 19**. 프로젝트에 이미 있다면 Plass는 그 사본을 씁니다. 없다면 npm 7 이상이 함께 설치해 줍니다. 나머지는 패키지가 가지고 옵니다.
+
+:::
+
+::: fw flutter
+
+```bash
+flutter pub add plass_ui
+```
+
+**Flutter 3.41 이상**(Dart 3.11)이 필요합니다. 그 밖에 설치할 것은 없습니다. 이 패키지에는 의존성도, 애셋도, 플랫폼 채널도 없습니다.
+
+:::
+
+::: fw react
 
 ## 스타일시트 연결하기
 
@@ -57,11 +85,32 @@ import 'plass-ui/styles.css';
 
 이 경로에는 reset이 들어 있지 않습니다. Preflight가 이미 reset이기 때문입니다.
 
+:::
+
+::: fw flutter
+
+## 설정이 없습니다
+
+연결할 스타일시트도, 설치할 provider도 없습니다. 컴포넌트는 가장 가까운 `PlassTheme`에서 토큰을 찾고, 트리에 하나도 없으면 플랫폼의 밝기로 넘어갑니다. 그래서 어느 앱에 그냥 놓은 버튼도 이미 맞는 테마이고, 시스템 스위치를 따라갑니다.
+
+즉 `PlassTheme`은 필수가 아니라 **override**입니다. 플랫폼과 무관하게 한 테마여야 하는 화면에서 꺼내 쓰면 됩니다.
+
+```dart
+PlassTheme(
+  brightness: Brightness.dark,
+  child: const PlButton(child: Text('Save')),
+)
+```
+
+:::
+
 ## 컴포넌트 아래에 깔릴 페이지
 
-Plass는 컨트롤과 시트를 그립니다. 여러분의 `<body>`는 칠하지 않고, 여기의 어떤 것도 그걸 요구하지 않습니다. 다만 평평한 흰 페이지 위의 유리 시트는 앞에 세울 것이 없어서, 라이브러리의 모든 반투명 표면이 불투명하게 보이게 됩니다.
+Plass는 컨트롤과 시트를 그립니다. 여러분의 배경은 칠하지 않고, 여기의 어떤 것도 그걸 요구하지 않습니다. 다만 평평한 흰 페이지 위의 유리 시트는 앞에 세울 것이 없어서, 라이브러리의 모든 반투명 표면이 불투명하게 보이게 됩니다.
 
 정확히 이걸 위한 토큰이 둘 있고, 쓰는 법은 규칙 하나입니다.
+
+::: fw react
 
 ```css
 body {
@@ -71,9 +120,32 @@ body {
 }
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+final tokens = PlassTheme.of(context);
+
+DecoratedBox(
+  decoration: BoxDecoration(
+    gradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: <Color>[tokens.bgFrom, tokens.bgTo],
+    ),
+  ),
+  child: ...,
+)
+```
+
+:::
+
 구조가 있는 배경이면 무엇이든 됩니다 — 사진이든, 메시든, 직접 만든 그러데이션이든. 되지 않는 것은 아무것도 없는 배경입니다.
 
 ## 사용하기
+
+::: fw react
 
 ```tsx
 import { PlButton } from 'plass-ui';
@@ -83,7 +155,32 @@ export default function App() {
 }
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:flutter/widgets.dart';
+import 'package:plass_ui/plass_ui.dart';
+
+class App extends StatelessWidget {
+  const App({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PlButton(
+      onPressed: () => debugPrint('pressed'),
+      child: const Text('Save'),
+    );
+  }
+}
+```
+
+:::
+
 ## 다크 모드
+
+::: fw react
 
 기본값은 `prefers-color-scheme`을 따릅니다. 강제하려면 상위 요소 아무 곳에나 클래스나 `data-theme`을 두면 됩니다.
 
@@ -93,6 +190,18 @@ export default function App() {
 
 라이트는 `data-theme="light"` 또는 `class="light"`입니다. Tailwind의 관례에 맞추기 위해 `.dark`도 함께 지원합니다.
 
+:::
+
+::: fw flutter
+
+기본값은 `MediaQuery.platformBrightness`를 따릅니다. 강제하려면 해당 서브트리를 `PlassTheme`으로 감싸면 됩니다.
+
+```dart
+PlassTheme(brightness: Brightness.dark, child: ...)
+```
+
+:::
+
 한 가지는 테마를 따라 **바뀌지 않고**, 그건 의도된 것입니다. 바로 키의 색입니다. [색](../design/color#키의-색은-테마를-따라-바뀌지-않습니다)을 보세요.
 
 ## 다음
@@ -101,6 +210,20 @@ export default function App() {
 - [Prop 규칙](../design/prop-conventions) — 공통 prop이 뜻하는 것
 - [디자인 언어](../design/design-language) — 표면과 색, 모션이 왜 이렇게 생겼는지
 
+::: fw react
+
 ## 브라우저 지원
 
 토큰이 `color-mix()`와 `backdrop-filter`를 씁니다. 2023년 이후의 Chrome, Safari, Firefox를 뜻합니다. `backdrop-filter`가 없는 곳에서는 blur만 빠지고 채움과 hairline, tint된 그림자, 포인터 glow는 그대로 동작합니다. 시트가 유리 대신 평평한 반투명 패널로 보일 뿐입니다.
+
+:::
+
+::: fw flutter
+
+## 플랫폼 지원
+
+Flutter가 지원하는 모든 플랫폼입니다. 플랫폼별 코드는 없습니다. 컴포넌트는 위임하지 않고 직접 그리므로, 한쪽에만 있는 것도 없습니다.
+
+`glass`는 `BackdropFilter`를 쓰는데, 어느 플랫폼에서든 이 라이브러리에서 가장 비싼 연산입니다. 유리 표면이 수십 개 올라간 화면이라면 측정해 볼 값어치가 있고, 몇 개 정도라면 그렇지 않습니다.
+
+:::

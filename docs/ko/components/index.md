@@ -8,7 +8,13 @@ aside: false
 
 <p class="plass-lede">지금까지 공개된 전부입니다. 각 카드 안의 미리 보기는 그림이 아니라 실제로 돌아가고 있는 컴포넌트입니다.</p>
 
-<Demo src="gallery/all" plain :min-height="220" />
+::: fw flutter
+
+아래 갤러리는 **React** 빌드이고, 목록 전체입니다. Flutter 패키지에는 아직 [PlButton](inputs/button) 하나뿐이고 나머지는 준비 중입니다. Flutter 쪽이 있는지는 각 페이지가 스스로 알려 줍니다.
+
+:::
+
+<Demo src="gallery/all" plain :flutter="false" :min-height="220" />
 
 ## 다음
 
