@@ -1,10 +1,20 @@
 # Changelog
 
+## 0.0.2
+
+A packaging release. No component changed, and no code in `lib/` did either — everything here is about what pub.dev was shown, and what it was shown was wrong in three ways.
+
+### Fixed
+
+- **The homepage pointed at a host that does not exist.** The documentation is at [plass.cdget.com](https://plass.cdget.com); `pubspec.yaml` claimed `plass-ui.cdget.com`, which resolves to nothing. pub.dev checks the URL, so this cost the package its pubspec points outright.
+- **The description was 195 characters**, and pub.dev's ceiling is 180. Shortened to 174 without dropping anything it was actually saying.
+- **The gallery was not in the published archive.** `.pubignore` excluded `example/`, so the directory 0.0.1's notes describe as shipping was in the repository and nowhere else — and pub.dev reported the package as having no example. It ships now, along with an `example/README.md` that is a whole running app in forty lines, since the gallery's own `main.dart` opens on the machinery that lets the documentation site embed it rather than on anything a reader wants first.
+
 ## 0.0.1
 
 The first release of the Flutter package, and a preview rather than a product. One component ships; what is actually being released is the shape everything after it will be poured into — the tokens, the scales, the theme and the test setup.
 
-The design language itself is not new: it is the one the [React package](https://www.npmjs.com/package/plass-ui) already ships, ported value for value. The [documentation](https://plass-ui.cdget.com) is one site for both, with a framework switch in the sidebar.
+The design language itself is not new: it is the one the [React package](https://www.npmjs.com/package/plass-ui) already ships, ported value for value. The [documentation](https://plass.cdget.com) is one site for both, with a framework switch in the sidebar.
 
 ### Added
 
