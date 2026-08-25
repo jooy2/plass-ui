@@ -3,6 +3,7 @@ import { ArrowRightIcon, ChevronIcon, EllipsisIcon } from '../../internal/icons'
 import {
   controlTextClasses,
   cx,
+  focusRingClasses,
   gapClasses,
   hasContent,
   iconClasses,
@@ -352,10 +353,7 @@ export const PlBreadcrumb = React.forwardRef<HTMLElement, PlBreadcrumbProps>(fun
     transitionClasses,
     iconClasses,
     expandable
-      ? cx(
-          'cursor-pointer hover:bg-(--p-soft) hover:text-(--p-accent)',
-          'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-1'
-        )
+      ? cx('cursor-pointer hover:bg-(--p-soft) hover:text-(--p-accent)', focusRingClasses)
       : ''
   );
 
@@ -465,7 +463,7 @@ export const PlBreadcrumbItem = React.forwardRef<HTMLLIElement, PlBreadcrumbItem
             ? cx(
                 'cursor-pointer text-(--plass-muted-fg)',
                 'hover:bg-(--p-soft) hover:text-(--p-accent)',
-                'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-1'
+                focusRingClasses
               )
             : 'text-(--plass-muted-fg)'
     );

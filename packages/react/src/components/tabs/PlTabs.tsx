@@ -3,6 +3,8 @@ import { Tabs as BaseUITabs } from '@base-ui/react/tabs';
 import {
   controlHeightClasses,
   controlTextClasses,
+  focusRingClasses,
+  focusRingInsetClasses,
   gapClasses,
   glassClasses,
   hasContent,
@@ -231,7 +233,7 @@ export const PlTab = React.forwardRef<HTMLButtonElement, PlTabProps>(function Pl
         tabStateClasses,
         // The ring is inset rather than offset: an offset ring on a tab inside a
         // `solid` groove is drawn on top of its neighbours.
-        'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:[outline-offset:-2px]',
+        focusRingInsetClasses,
         'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
         fullWidth ? 'flex-1' : '',
         className ?? ''
@@ -268,7 +270,7 @@ export const PlTabPanel = React.forwardRef<HTMLDivElement, PlTabPanelProps>(func
         // The panel takes focus when it holds nothing focusable of its own, so
         // it is reachable by keyboard — and it gets the house ring rather than
         // the browser's.
-        'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2',
+        focusRingClasses,
         radiusClasses[size],
         className ?? ''
       ]

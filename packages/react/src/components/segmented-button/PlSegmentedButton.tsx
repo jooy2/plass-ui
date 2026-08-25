@@ -5,6 +5,7 @@ import {
   controlHeightClasses,
   controlSlots,
   controlTextClasses,
+  focusRingInsetClasses,
   gapClasses,
   glassClasses,
   hasContent,
@@ -177,7 +178,7 @@ export const PlSegment = React.forwardRef<HTMLElement, PlSegmentProps>(function 
         checkedTextClasses[variant],
         // Inset rather than offset — an offset ring on a segment inside a groove
         // is drawn on top of its neighbours.
-        'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:[outline-offset:-2px]',
+        focusRingInsetClasses,
         'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
         'data-[readonly]:cursor-default',
         fullWidth ? 'flex-1' : '',

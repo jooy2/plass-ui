@@ -2,6 +2,7 @@ import * as React from 'react';
 import { CheckIcon, ClockIcon, LinkIcon, severityIcons } from '../../internal/icons';
 import {
   controlSlots,
+  focusRingClasses,
   glassClasses,
   hasContent,
   metaTextClasses,
@@ -284,7 +285,7 @@ const previewSurfaceClasses = [
   'hover:[background-color:color-mix(in_oklab,currentColor_12%,transparent)]',
   '[transition-property:background-color] [transition-duration:var(--plass-duration)]',
   '[transition-timing-function:var(--plass-ease)]',
-  'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2'
+  focusRingClasses
 ].join(' ');
 
 /**

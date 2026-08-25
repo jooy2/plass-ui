@@ -3,6 +3,7 @@ import { CloseIcon } from '../../internal/icons';
 import {
   controlTextLeadingClasses,
   disabledClasses,
+  focusRingClasses,
   gapClasses,
   glassClasses,
   hasContent,
@@ -386,7 +387,7 @@ export const PlFilePicker = React.forwardRef<HTMLInputElement, PlFilePickerProps
       gapClasses[size],
       transitionClasses,
       iconClasses,
-      'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2',
+      focusRingClasses,
       // An if/else rather than stacked variants: two Tailwind classes of equal
       // specificity resolve by their order in the generated stylesheet.
       disabled
@@ -546,7 +547,7 @@ export const PlFilePicker = React.forwardRef<HTMLInputElement, PlFilePickerProps
                       '[transition:opacity_var(--plass-duration)_var(--plass-ease),color_var(--plass-duration)_var(--plass-ease)]',
                       '[&_svg]:size-[0.9em]',
                       'hover:text-(--plass-fg) hover:opacity-100 focus-visible:opacity-100',
-                      'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-1'
+                      focusRingClasses
                     ].join(' ')}
                     onClick={() => commit(files.filter((_, at) => at !== index))}
                   >

@@ -161,7 +161,7 @@ const removeButtonClasses = [
   'size-[1.15em] cursor-pointer opacity-70',
   '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
   'hover:opacity-100 focus-visible:opacity-100',
-  'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-1',
+  focusRingClasses,
   'disabled:cursor-not-allowed'
 ].join(' ');
 

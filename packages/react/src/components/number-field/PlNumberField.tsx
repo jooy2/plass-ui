@@ -8,6 +8,7 @@ import {
   disabledClasses,
   fieldReadOnlyClasses,
   fieldRestClasses,
+  focusRingClasses,
   focusWithinRingClasses,
   gapClasses,
   hasContent,
@@ -167,7 +168,7 @@ const stepperClasses = [
   'active:[transition-duration:0ms]',
   'hover:bg-(--p-soft) hover:text-(--p-accent)',
   'active:bg-(--p-soft-press)',
-  'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-1',
+  focusRingClasses,
   // A stepper that has run into `min` goes out like everything else that is
   // unavailable here: the page shows through it.
   'disabled:cursor-not-allowed disabled:bg-transparent disabled:opacity-40'

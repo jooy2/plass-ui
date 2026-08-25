@@ -297,7 +297,7 @@ function ToastItem({
           'font-medium underline-offset-2',
           accent || 'text-(--p-on-solid)',
           'hover:underline',
-          'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2',
+          focusRingClasses,
           metaTextClasses[size]
         ].join(' ')}
       />
@@ -309,7 +309,7 @@ function ToastItem({
             'inline-flex size-[1.15em] cursor-pointer items-center justify-center rounded-full',
             'opacity-70 [transition:opacity_var(--plass-duration)_var(--plass-ease)]',
             'hover:opacity-100 focus-visible:opacity-100',
-            'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2'
+            focusRingClasses
           ].join(' ')}
         >
           <CloseIcon />

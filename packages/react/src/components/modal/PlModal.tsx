@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Dialog as BaseUIDialog } from '@base-ui/react/dialog';
 import { CloseIcon } from '../../internal/icons';
 import {
+  focusRingClasses,
   glassClasses,
   hasContent,
   metaTextClasses,
@@ -300,7 +301,7 @@ export function PlModal({
                       '[&_svg]:size-[1.1em] [&_svg]:shrink-0',
                       '[transition:background-color_var(--plass-duration)_var(--plass-ease),color_var(--plass-duration)_var(--plass-ease)]',
                       'hover:bg-(--p-soft) hover:text-(--plass-fg)',
-                      'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2'
+                      focusRingClasses
                     ].join(' ')}
                   >
                     <CloseIcon />

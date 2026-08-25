@@ -2,6 +2,7 @@ import * as React from 'react';
 import { CloseIcon, severityIcons } from '../../internal/icons';
 import {
   controlSlots,
+  focusRingClasses,
   glassClasses,
   hasContent,
   iconClasses,
@@ -213,7 +214,7 @@ export const PlAlert = React.forwardRef<HTMLDivElement, PlAlertProps>(function P
               'inline-flex size-[1.15em] cursor-pointer items-center justify-center rounded-full',
               'opacity-70 [transition:opacity_var(--plass-duration)_var(--plass-ease)]',
               'hover:opacity-100 focus-visible:opacity-100',
-              'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2'
+              focusRingClasses
             ].join(' ')}
           >
             <CloseIcon />
