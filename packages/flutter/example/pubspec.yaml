@@ -20,3 +20,15 @@ dependencies:
 
 dev_dependencies:
   flutter_lints: ^6.0.0
+
+flutter:
+  # A font with a real SemiBold — see `assets/fonts/README.md`. The library sets
+  # no family of its own and never should; this is the gallery supplying one, the
+  # way an app does.
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600

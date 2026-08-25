@@ -20,6 +20,9 @@ import 'package:plass_ui_example/host_bridge.dart';
 /// Nothing here imports Material or Cupertino, for the same reason the library
 /// does not: a gallery that needed a `MaterialApp` around it would not be
 /// showing what a consumer of this package actually gets.
+/// See `assets/fonts/README.md`.
+const String _fontFamily = 'Inter';
+
 void main() {
   runApp(const GalleryApp());
 }
@@ -64,18 +67,26 @@ class _GalleryAppState extends State<GalleryApp> {
       builder: (BuildContext context, Widget? child) {
         return Directionality(
           textDirection: TextDirection.ltr,
-          child: PlassTheme(
-            brightness: _brightness,
-            child: _host.embedded
-                ? _Embedded(demo: _host.query['demo']!, align: _host.query['align'])
-                : _Gallery(
-                    brightness: _brightness,
-                    onFlip: () => setState(() {
-                      _brightness = _brightness == Brightness.dark
-                          ? Brightness.light
-                          : Brightness.dark;
-                    }),
-                  ),
+          // The family every demo inherits, and the reason it is set at all is
+          // in `assets/fonts/README.md`: Flutter's engine carries one face,
+          // and a label at weight 600 with nothing else available comes out
+          // synthesised. A real app supplies its font here too — the library
+          // does not, and should not.
+          child: DefaultTextStyle.merge(
+            style: const TextStyle(fontFamily: _fontFamily),
+            child: PlassTheme(
+              brightness: _brightness,
+              child: _host.embedded
+                  ? _Embedded(demo: _host.query['demo']!, align: _host.query['align'])
+                  : _Gallery(
+                      brightness: _brightness,
+                      onFlip: () => setState(() {
+                        _brightness = _brightness == Brightness.dark
+                            ? Brightness.light
+                            : Brightness.dark;
+                      }),
+                    ),
+            ),
           ),
         );
       },
