@@ -379,7 +379,10 @@ onBeforeUnmount(() => {
   <div ref="shell" class="plass-demo" :class="{ 'plass-demo--plain': plain }">
     <div
       class="plass-demo-canvas"
-      :class="{ 'plass-demo-canvas--embedded': embedded }"
+      :class="{
+        'plass-demo-canvas--marked': marked,
+        'plass-demo-canvas--embedded': embedded
+      }"
       :data-align="align"
       :data-theme="override"
     >

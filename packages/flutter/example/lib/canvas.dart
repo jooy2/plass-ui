@@ -25,7 +25,11 @@ class PlassCanvas extends StatelessWidget {
   final Alignment align;
 
   /// The padding the documentation site's canvas would otherwise apply.
-  static const EdgeInsets padding = EdgeInsets.symmetric(horizontal: 24, vertical: 32);
+  ///
+  /// Top-heavy, and the page's own canvas matches it: the site floats a badge
+  /// naming the framework in the top-left corner, over this frame, and it needs
+  /// a band of its own to sit in. The bottom gives the room back.
+  static const EdgeInsets padding = EdgeInsets.fromLTRB(24, 40, 24, 20);
 
   @override
   Widget build(BuildContext context) {

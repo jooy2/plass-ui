@@ -128,6 +128,22 @@
    are there so that reserving the space does not itself become a second jump. */
 
 /*
+ * A canvas with a framework badge in it.
+ *
+ * The badge floats in the top-left, which is also where the content starts —
+ * so the band it sits in has to be taller than the band opposite. The pair is
+ * *less* than the 32/32 it replaces: the top is the only side that needed the
+ * room, and a preview of one row of buttons was carrying more empty canvas than
+ * it had content.
+ *
+ * `--embedded` comes after this and wins, because a Flutter preview draws its
+ * own padding inside the frame — with these same numbers, in `PlassCanvas`.
+ */
+.plass-demo-canvas--marked {
+  padding: 40px 24px 20px;
+}
+
+/*
  * The Flutter preview.
  *
  * The canvas gives up its padding and its backdrop to the frame, because the
