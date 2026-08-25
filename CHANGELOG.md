@@ -1,5 +1,20 @@
 # Changelog
 
+> The React package's history. The Flutter package keeps its own at
+> [`packages/flutter/CHANGELOG.md`](https://github.com/jooy2/plass-ui/blob/main/packages/flutter/CHANGELOG.md),
+> because the two version independently.
+
+## Unreleased
+
+### Changed
+
+- **The repository is a monorepo.** What was the root is now `packages/react`, and it is installed and run from there — `cd packages/react && npm install`. The documentation site has its own `package.json` and runs from `docs/`. Nothing about the published npm package changed.
+
+### Added
+
+- **A Flutter package**, `plass_ui`, under `packages/flutter`. Same design language, same vocabulary, same numbers; `PlButton` and the tokens under it are released first. See its own changelog.
+- **A framework switch on the documentation site**, at the top of the sidebar. It changes the code, the examples and the props table on every page that has something to say for both, and the Flutter previews are the real package compiled for the web rather than a stand-in.
+
 ## 0.0.1 (2026-08-24)
 
 The first release, and a preview rather than a product. Two components ship; what is actually being released is the shape everything after them will be poured into — the prop vocabulary, the token sheet, the build, the test setup and the documentation site.
