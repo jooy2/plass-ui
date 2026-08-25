@@ -1,8 +1,8 @@
 /**
  * Puts the repository's own `CHANGELOG.md` on the docs site.
  *
- * There is one changelog and it lives at the root, where a reader browsing the
- * repository and every npm tool already expects to find it. Keeping a second
+ * There is one changelog and it lives at the repository root, where a reader
+ * browsing the repository and every package tool already expects to find it. Keeping a second
  * copy under `docs/` would be two files that say the same thing until the day
  * one of them does not, so the docs' copy is generated instead — written before
  * VitePress starts and ignored by git.
@@ -15,7 +15,8 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const docsDir = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const repoRoot = resolve(docsDir, '..');
 
 /** One entry per locale served by the docs. Keep in step with `supportLocales`. */
 const titles = {
@@ -23,10 +24,10 @@ const titles = {
   ko: '변경 기록'
 };
 
-const changelog = readFileSync(resolve(root, 'CHANGELOG.md'), 'utf8');
+const changelog = readFileSync(resolve(repoRoot, 'CHANGELOG.md'), 'utf8');
 
 for (const [locale, title] of Object.entries(titles)) {
-  const target = resolve(root, 'docs', locale, 'changelog.md');
+  const target = resolve(docsDir, locale, 'changelog.md');
   mkdirSync(dirname(target), { recursive: true });
   writeFileSync(
     target,

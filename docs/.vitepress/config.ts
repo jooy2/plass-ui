@@ -3,7 +3,7 @@ import { writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { withSidebar } from 'vitepress-sidebar';
-import packageJson from '../../package.json' with { type: 'json' };
+import packageJson from '../../packages/react/package.json' with { type: 'json' };
 import { defineConfig, HeadConfig, SiteData, TransformContext, UserConfig } from 'vitepress';
 import { withI18n } from 'vitepress-i18n';
 import ReactPlugin from '@vitejs/plugin-react';
@@ -11,8 +11,10 @@ import type { VitePressI18nOptions } from 'vitepress-i18n/types';
 import type { VitePressSidebarOptions } from 'vitepress-sidebar/types';
 
 const vitePressDir = dirname(fileURLToPath(import.meta.url));
-const rootDir = resolve(vitePressDir, '../..');
-const srcDir = resolve(rootDir, 'docs');
+const srcDir = resolve(vitePressDir, '..');
+const rootDir = resolve(srcDir, '..');
+/** The React package, which is what this site's live previews are built from. */
+const reactDir = resolve(rootDir, 'packages/react');
 
 const defaultLocale: string = 'en';
 const supportLocales: string[] = [defaultLocale, 'ko'];
@@ -36,7 +38,7 @@ const glob = (pattern: string) => resolve(rootDir, pattern).replaceAll('\\', '/'
  * component that starts using a new primitive is not a second edit here.
  */
 function baseUiEntries(): string[] {
-  const componentsDir = resolve(rootDir, 'src');
+  const componentsDir = resolve(reactDir, 'src');
   const entries = new Set<string>();
 
   for (const file of readdirSync(componentsDir, { recursive: true, encoding: 'utf8' })) {
@@ -87,7 +89,9 @@ const vitePressSidebarConfig = [
   ...supportLocales.map((lang) => {
     return {
       ...commonSidebarConfig,
-      documentRootPath: `/docs/${lang}`,
+      // Relative to the working directory, which is this `docs/` folder —
+      // `vitepress-sidebar` joins it onto `process.cwd()`.
+      documentRootPath: `/${lang}`,
       resolvePath: localeBase(lang),
       ...(defaultLocale === lang ? {} : { basePath: localeBase(lang) })
     };
@@ -394,13 +398,8 @@ const vitePressConfig: UserConfig = {
         // Anchored, so `plass-ui/styles.css` is not rewritten into the barrel too.
         // Pointing at the source rather than `dist/` is what lets a component
         // edit show up in the docs without a rebuild.
-        { find: /^plass-ui$/, replacement: resolve(rootDir, 'src/index.ts') }
+        { find: /^plass-ui$/, replacement: resolve(reactDir, 'src/index.ts') }
       ]
-    },
-    css: {
-      // VitePress's Vite root is `docs/`; the Tailwind plugin lives in the
-      // repository root's `postcss.config.mjs`.
-      postcss: rootDir
     },
     optimizeDeps: {
       // Every one of these is only ever reached through a dynamic import inside
@@ -415,10 +414,22 @@ const vitePressConfig: UserConfig = {
       ]
     },
     server: {
+      fs: {
+        /*
+         * The components live in a sibling package.
+         *
+         * Vite's file-system allow-list defaults to the nearest workspace root,
+         * which since `docs/` gained a `package.json` and a lockfile of its own
+         * is this folder — so every import of `packages/react/src/**` is
+         * refused before it is read. Opening the repository root is the same
+         * access the previous single-package layout had.
+         */
+        allow: [rootDir]
+      },
       warmup: {
         // The library is behind a dynamic import too, so the dev server would
         // not transform a single file of it until the first preview asks.
-        clientFiles: [glob('src/**/*.{ts,tsx}')]
+        clientFiles: [glob('packages/react/src/**/*.{ts,tsx}')]
       }
     }
   },

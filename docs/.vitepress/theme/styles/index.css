@@ -22,12 +22,19 @@
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/utilities.css';
 
-@import '../../../../src/styles.css';
+@import '../../../../packages/react/src/styles.css';
 
 @import './docs.css';
 
-/* Tailwind only emits classes it can see spelled out. `src/` is not listed:
-   `src/styles.css` registers its own directory, exactly as it does for a
-   consumer who installed the package. These two are the docs' own classes. */
+/* Tailwind only emits classes it can see spelled out, and these are the three
+   places this site's classes are written down.
+
+   The components' own folder is listed even though `styles.css` already carries
+   an `@source '.'` of its own. That line is for a consumer who installed the
+   package, where it resolves inside `node_modules/plass-ui/dist/`; here the
+   package is a sibling directory outside this Vite root, and the docs' Tailwind
+   pass does not reach it on that declaration alone. Left off, every component
+   renders unstyled — with its tokens, which is what makes it confusing. */
+@source '../../../../packages/react/src';
 @source '../../demos';
 @source '../components';
