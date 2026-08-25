@@ -2,7 +2,7 @@
 
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/jooy2/plass-ui/blob/main/LICENSE) [![pub package](https://img.shields.io/pub/v/plass_ui.svg)](https://pub.dev/packages/plass_ui)
 
-### 📘 [**plass-ui.cdget.com**](https://plass-ui.cdget.com)
+### 📘 [**plass.cdget.com**](https://plass.cdget.com)
 
 Live previews and full parameters for every component — pick **Flutter** in the sidebar. This README is just the quick start.
 

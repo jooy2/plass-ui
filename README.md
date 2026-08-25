@@ -2,7 +2,7 @@
 
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/jooy2/plass-ui/blob/main/LICENSE) [![npm latest package](https://img.shields.io/npm/v/plass-ui/latest.svg)](https://www.npmjs.com/package/plass-ui) [![npm downloads](https://img.shields.io/npm/dm/plass-ui.svg)](https://www.npmjs.com/package/plass-ui) [![pub package](https://img.shields.io/pub/v/plass_ui.svg)](https://pub.dev/packages/plass_ui)
 
-### 📘 [**plass-ui.cdget.com**](https://plass-ui.cdget.com)
+### 📘 [**plass.cdget.com**](https://plass.cdget.com)
 
 Live previews and full props for every component. This README is just the quick start.
 
@@ -36,12 +36,12 @@ A thing that is pressed is **tinted glass**: a gradient that sweeps between two 
 
 | Page | What you will find |
 | --- | --- |
-| [**Getting started**](https://plass-ui.cdget.com/guide/getting-started) | Install and setup, end to end. |
-| [**All components**](https://plass-ui.cdget.com/components/) | Every component, one page each: live previews and the full props table. |
-| [**Design language**](https://plass-ui.cdget.com/design/design-language) | Why a Plass surface looks and behaves the way it does. |
-| [**Prop conventions**](https://plass-ui.cdget.com/design/prop-conventions) | The shared vocabulary every component draws from. |
-| [**Colour**](https://plass-ui.cdget.com/design/color) | The token families, the measured contrast, and how to theme them. |
-| [**Changelog**](https://plass-ui.cdget.com/changelog) | What changed in each release. |
+| [**Getting started**](https://plass.cdget.com/guide/getting-started) | Install and setup, end to end. |
+| [**All components**](https://plass.cdget.com/components/) | Every component, one page each: live previews and the full props table. |
+| [**Design language**](https://plass.cdget.com/design/design-language) | Why a Plass surface looks and behaves the way it does. |
+| [**Prop conventions**](https://plass.cdget.com/design/prop-conventions) | The shared vocabulary every component draws from. |
+| [**Colour**](https://plass.cdget.com/design/color) | The token families, the measured contrast, and how to theme them. |
+| [**Changelog**](https://plass.cdget.com/changelog) | What changed in each release. |
 
 ## Installation
 

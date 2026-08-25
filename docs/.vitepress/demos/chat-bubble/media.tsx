@@ -21,7 +21,7 @@ export default function ChatBubbleMedia() {
         variant="solid"
         preview={{
           url: '#chat-bubble',
-          site: 'plass-ui.cdget.com',
+          site: 'plass.cdget.com',
           title: 'Design language',
           description:
             'Why a Plass surface looks and behaves the way it does — the tinted-glass rule and everything that follows from it.'
