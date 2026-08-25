@@ -39,10 +39,28 @@ if (!force && existsSync(marker)) {
    * `--base-href` has to match where the output is served from, which is
    * `public/flutter` → `/flutter/`. Without it every asset the engine asks for
    * resolves against the documentation page's own path and 404s.
+   *
+   * `--pwa-strategy=none` drops the service worker, and it is not an
+   * optimisation — it is a correctness fix. Flutter's generated worker caches
+   * the whole app under the documentation site's own origin, so **a rebuilt
+   * gallery does not appear**: every reader who had already opened a component
+   * page keeps being served the previous build until the worker happens to
+   * update itself, which is exactly the bug that looks like "my change did
+   * nothing". A preview embedded in a page has no use for offline support, and
+   * the HTTP cache already does the part that was worth having.
    */
   const result = spawnSync(
     flutter,
-    ['build', 'web', '--release', '--base-href', '/flutter/', '--output', outDir],
+    [
+      'build',
+      'web',
+      '--release',
+      '--base-href',
+      '/flutter/',
+      '--pwa-strategy=none',
+      '--output',
+      outDir
+    ],
     { cwd: exampleDir, stdio: 'inherit', shell: process.platform === 'win32' }
   );
 
