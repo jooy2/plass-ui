@@ -76,6 +76,7 @@ import { useData, withBase } from 'vitepress';
 import { basePath, localeOf, t, tf } from '../../data/i18n';
 import { framework } from '../../data/framework';
 import { FRAMEWORKS } from '../../data/frameworks';
+import FrameworkMark from './FrameworkMark.vue';
 
 /**
  * A live preview of a Plass component, in whichever framework the reader picked.
@@ -167,6 +168,17 @@ const embedded = computed(() => props.flutter && framework.value === 'flutter');
 const frameworkLabel = computed(
   () => FRAMEWORKS.find((item) => item.id === framework.value)?.label ?? framework.value
 );
+
+/**
+ * Whether this preview says which framework drew it.
+ *
+ * On every preview that has both, and on no others. A reader ten screens down
+ * the page has long since scrolled past the switch in the sidebar, and "which
+ * one am I looking at" is exactly the question a preview should be able to
+ * answer about itself. A preview with only one implementation would be
+ * answering a question nobody asked.
+ */
+const marked = computed(() => props.flutter && !props.plain);
 
 /* ---------------------------------------------------------------------------
  * Visibility
@@ -371,6 +383,14 @@ onBeforeUnmount(() => {
       :data-align="align"
       :data-theme="override"
     >
+      <div
+        v-if="marked"
+        class="plass-demo-badge"
+        :title="tf(locale, 'renderedWith', { framework: frameworkLabel })"
+      >
+        <FrameworkMark :framework="framework" :size="12" />
+        <span>{{ frameworkLabel }}</span>
+      </div>
       <button
         v-if="!plain"
         type="button"

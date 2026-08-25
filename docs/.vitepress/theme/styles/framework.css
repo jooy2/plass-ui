@@ -57,52 +57,103 @@ html[data-fw='flutter'] .plass-fw[data-fw]:not([data-fw~='flutter']) {
  * Drawn from VitePress's own variables rather than the library's: it is part of
  * the site's chrome and it sits among the site's navigation, so it should look
  * like the sidebar it is in rather than like the components it is about.
+ *
+ * The one exception is the marks, which carry their products' own colours —
+ * see `FrameworkMark.vue`.
  * ------------------------------------------------------------------------- */
 
-.plass-fw-select {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0 0 18px;
+.plass-lang {
+  /* The sidebar hands its content the top edge, and a control pressed against
+     it reads as part of the header above rather than as the first thing in the
+     menu. */
+  padding: 12px 0 20px;
   margin-bottom: 4px;
   border-bottom: 1px solid var(--vp-c-divider);
 }
 
-.plass-fw-select label {
-  flex: none;
-  font-size: 12px;
-  font-weight: 600;
+.plass-lang-title {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 700;
   line-height: 1;
-  color: var(--vp-c-text-2);
-  letter-spacing: 0.02em;
+  color: var(--vp-c-text-3);
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
-.plass-fw-select select {
-  flex: 1;
-  min-width: 0;
-  height: 32px;
-  padding: 0 8px;
+/* A track with the options laid side by side, so both are always readable and
+   the selected one is a position rather than a word you have to go and find. */
+.plass-lang-track {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  gap: 3px;
+  padding: 3px;
   border: 1px solid var(--vp-c-divider);
-  border-radius: 8px;
-  background-color: var(--vp-c-bg-soft);
-  color: var(--vp-c-text-1);
-  font-size: 13px;
-  font-weight: 500;
-  font-family: inherit;
+  border-radius: 10px;
+  background-color: var(--vp-c-bg-alt);
+}
+
+.plass-lang-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 30px;
+  border-radius: 7px;
+  color: var(--vp-c-text-2);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
   cursor: pointer;
+  user-select: none;
   transition:
-    border-color 0.16s,
-    background-color 0.16s;
+    color 0.16s,
+    background-color 0.16s,
+    box-shadow 0.16s;
 }
 
-.plass-fw-select select:hover {
-  border-color: var(--vp-c-brand-1);
+/* Present to every other kind of reader, and to the arrow keys, but not drawn:
+   the `<label>` around it is the control as far as the eye is concerned. */
+.plass-lang-option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
 }
 
-.plass-fw-select select:focus-visible {
+.plass-lang-option:hover {
+  color: var(--vp-c-text-1);
+}
+
+.plass-lang-option.is-active {
+  background-color: var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+  box-shadow:
+    0 0 0 1px var(--vp-c-divider),
+    0 1px 2px rgb(0 0 0 / 0.06);
+}
+
+/* On the label, because the input it belongs to has no box to draw one on. */
+.plass-lang-option:has(input:focus-visible) {
   outline: 2px solid var(--vp-c-brand-1);
   outline-offset: 2px;
+}
+
+/* Quiet on the option that is not chosen, so the row reads as one selected
+   thing rather than two competing ones. */
+.plass-lang-mark {
+  flex: none;
+  opacity: 0.5;
+  transition: opacity 0.16s;
+}
+
+.plass-lang-option.is-active .plass-lang-mark,
+.plass-lang-option:hover .plass-lang-mark {
+  opacity: 1;
 }
 
 /* ---------------------------------------------------------------------------

@@ -157,6 +157,40 @@
   margin: 24px;
 }
 
+/*
+ * Which framework drew this preview, in the corner opposite the theme toggle.
+ *
+ * The switch that decides it is at the top of the sidebar, and a reader ten
+ * screens down has not seen it for a while — so each preview says for itself.
+ * Quiet enough to ignore once you have read it once, which is the whole design
+ * brief for a label that repeats nine times down one page.
+ */
+/* A `div` rather than a `p`, and deliberately: `.vp-doc p` sets a 16px margin
+   at two classes, which an absolutely positioned box takes as an offset — and
+   which a single class here cannot outrank. */
+.plass-demo-badge {
+  position: absolute;
+  z-index: 2;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  margin: 0;
+  padding: 0 8px 0 7px;
+  border: 1px solid var(--plass-border);
+  border-radius: 999px;
+  background-color: color-mix(in srgb, var(--plass-surface) 78%, transparent);
+  backdrop-filter: blur(6px);
+  color: var(--plass-muted-fg);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  user-select: none;
+}
+
 .plass-demo--plain .plass-demo-canvas {
   padding: 0;
   background: none;

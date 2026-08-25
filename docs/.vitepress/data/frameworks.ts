@@ -14,17 +14,25 @@
 
 export interface FrameworkInfo {
   id: string;
-  /** What the sidebar's select shows. */
+  /** What the sidebar's switch shows. */
   label: string;
   /** The package name in that ecosystem's registry. */
   pkg: string;
   /** The fence language its code samples are written in. */
   lang: string;
+  /**
+   * The brand's own colour, for the mark beside the label.
+   *
+   * The one place this site paints something that is not its own or the
+   * library's — because a logo in the wrong colour is a worse logo, and the
+   * mark is doing the identifying here rather than decorating.
+   */
+  tint: string;
 }
 
 export const FRAMEWORKS: FrameworkInfo[] = [
-  { id: 'react', label: 'React', pkg: 'plass-ui', lang: 'tsx' },
-  { id: 'flutter', label: 'Flutter', pkg: 'plass_ui', lang: 'dart' }
+  { id: 'react', label: 'React', pkg: 'plass-ui', lang: 'tsx', tint: '#149ECA' },
+  { id: 'flutter', label: 'Flutter', pkg: 'plass_ui', lang: 'dart', tint: '#42A5F5' }
 ];
 
 export type Framework = string;
