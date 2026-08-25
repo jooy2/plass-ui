@@ -84,6 +84,8 @@ import { PlAccordion, PlAccordionItem } from 'plass-ui';
 
 제목과 본문, 그리고 둘을 감싸는 여백이 함께 움직입니다. accordion에 주면 모든 섹션이 내려받으므로, 한 묶음 안에 타입 스케일이 두 개가 되는 일이 없습니다.
 
+본문은 아래쪽뿐 아니라 위쪽에도 자기 여백을 가집니다. 열린 헤더는 아래 모서리를 가진 색 띠이고, 그 모서리에서 바로 시작하는 본문은 첫 줄이 제목 밑 half leading 자리에 놓입니다 — 제목과 그것을 설명하는 문단이 색만 바뀐 한 덩어리 글로 읽히게 됩니다. 헤더의 여백이 사는 것은 제목 둘레의 자리이고, 본문의 자리는 본문이 삽니다.
+
 <Demo src="accordion/sizes" :min-height="320">
 
 <<< @/.vitepress/demos/accordion/sizes.tsx

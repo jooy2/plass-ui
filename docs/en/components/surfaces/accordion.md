@@ -84,6 +84,8 @@ On by default: a hairline reaching both edges is what says the folds are parts o
 
 Moves the title, the body and the padding around both together. It is set on the accordion and inherited by every section, so a stack cannot end up with two type scales in it.
 
+The body keeps padding of its own above it as well as below. An open header is a tinted band with a bottom edge, and a body that starts at that edge puts its first line half a leading under the title — the heading and the paragraph explaining it read as one run of text broken by a colour change. What the header's padding buys is room around the title; the body buys its own.
+
 <Demo src="accordion/sizes" :min-height="320">
 
 <<< @/.vitepress/demos/accordion/sizes.tsx

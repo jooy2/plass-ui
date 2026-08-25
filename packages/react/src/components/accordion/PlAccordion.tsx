@@ -3,6 +3,7 @@ import { Accordion as BaseUIAccordion } from '@base-ui/react/accordion';
 import { ChevronIcon } from '../../internal/icons';
 import {
   focusRingClasses,
+  focusRingInsetClasses,
   gapClasses,
   hasContent,
   iconClasses,
@@ -138,7 +139,32 @@ const itemRadiusClasses: Record<PlassSize, string> = {
  * `.map()`, through fragments, through a component of their own that renders an
  * item.
  */
-const dividerClasses = '[&>div+div]:border-t [&>div+div]:[border-color:var(--plass-glass-line)]';
+const dividerClasses = '[&>div+div]:border-t [&>div+div]:[border-color:var(--plass-divider)]';
+
+/**
+ * The space between a header and the body it opened.
+ *
+ * The header's own padding does **not** pay for it, which is what this used to
+ * assume. An open header is a tinted band with its own bottom edge; the body
+ * begins at that edge, and the first line of text lands against it with only
+ * half a leading in between — the title and the paragraph explaining it read as
+ * one run of text broken by a colour change. What the header's padding buys is
+ * room around the *title*, and the body has to buy its own.
+ *
+ * It is a little under the padding below, because a paragraph's first line has
+ * the leading above it and its last has nothing under, so equal numbers on the
+ * two sides look bottom-heavy.
+ */
+const panelPaddingTopClasses: Record<PlassDensity, Record<PlassSize, string>> = {
+  default: { xs: 'pt-1.5', sm: 'pt-2', md: 'pt-3', lg: 'pt-3.5', xl: 'pt-4' },
+  compact: { xs: 'pt-1', sm: 'pt-1.5', md: 'pt-2', lg: 'pt-2.5', xl: 'pt-3' }
+};
+
+/** And the space under it, on the same two tracks. */
+const panelPaddingBottomClasses: Record<PlassDensity, Record<PlassSize, string>> = {
+  default: { xs: 'pb-2.5', sm: 'pb-3', md: 'pb-5', lg: 'pb-6', xl: 'pb-7' },
+  compact: { xs: 'pb-2', sm: 'pb-2.5', md: 'pb-3.5', lg: 'pb-4', xl: 'pb-5' }
+};
 
 /**
  * A stack of sections, one of which is open.
@@ -249,10 +275,13 @@ export const PlAccordionItem = React.forwardRef<HTMLDivElement, PlAccordionItemP
               gapClasses[size],
               transitionClasses,
               iconClasses,
-              focusRingClasses,
               // An outline on a clipped sheet would be cut off at the first and
-              // last section, so it is drawn inside the header instead.
-              dividers ? 'focus-visible:-outline-offset-2' : itemRadiusClasses[size],
+              // last section, so it is drawn inside the header instead. Two
+              // whole classes rather than one plus an override: a variant that
+              // only moves the offset resolves against the base by its position
+              // in the generated stylesheet, which is not something to bet a
+              // focus ring on.
+              dividers ? focusRingInsetClasses : `${focusRingClasses} ${itemRadiusClasses[size]}`,
               'hover:bg-(--p-soft)',
               'data-[panel-open]:bg-(--p-soft) data-[panel-open]:text-(--p-accent)',
               'disabled:cursor-not-allowed disabled:bg-transparent disabled:opacity-50'
@@ -315,9 +344,8 @@ export const PlAccordionItem = React.forwardRef<HTMLDivElement, PlAccordionItemP
               'text-(--plass-muted-fg)',
               sheetBodyClasses[size],
               padX,
-              // The header already paid for the space above; the body only owes
-              // the space below it, or every closed section would look padded.
-              density === 'compact' ? 'pb-3' : 'pb-5'
+              panelPaddingTopClasses[density][size],
+              panelPaddingBottomClasses[density][size]
             ].join(' ')}
           >
             {children}
