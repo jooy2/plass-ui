@@ -13,15 +13,20 @@ on:
 jobs:
   run-test-flutter:
     runs-on: ${{ matrix.os }}
-    name: Test Flutter ${{ matrix.flutter_version }} on ${{ matrix.os }}
+    name: Test Flutter ${{ matrix.flutter_version || 'stable' }} on ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        # The floor the package declares, and whatever is current. Nothing here
-        # imports Material or Cupertino, so a release that moves those out of
-        # the framework is not a version this has to be pinned away from.
-        flutter_version: ['3.41.0', stable]
+        # The floor the package declares, and whatever the channel is now.
+        # Nothing here imports Material or Cupertino, so a release that moves
+        # those out of the framework is not a version this has to be pinned
+        # away from.
+        #
+        # An **empty** version is how `flutter-action` is told "the channel's
+        # latest" — the word `stable` belongs to `channel`, and giving it to
+        # `flutter-version` fails to resolve.
+        flutter_version: ['3.41.0', '']
 
     steps:
       - uses: actions/checkout@v5
@@ -58,7 +63,6 @@ jobs:
       - uses: actions/checkout@v5
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: stable
           channel: stable
           cache: true
 

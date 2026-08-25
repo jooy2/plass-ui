@@ -34,7 +34,9 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: stable
+          # `channel` alone is how the action is asked for the channel's latest
+          # release. `flutter-version` takes a version — `stable` is not one,
+          # and passing it there fails to resolve before anything is installed.
           channel: stable
           cache: true
 
