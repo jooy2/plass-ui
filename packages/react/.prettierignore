@@ -1,8 +1,6 @@
 dist/
-docs-dist/
 .idea/
 .vscode/
-docs/.vitepress/cache
 node_modules/
 
 *-lock.json

@@ -11,11 +11,7 @@ Thumbs.db
 # Project files
 src/
 test/
-docs/
-docs-dist/
-CHANGELOG.md
 CLAUDE.md
-CONTRIBUTING.md
 
 # For development
 scripts/

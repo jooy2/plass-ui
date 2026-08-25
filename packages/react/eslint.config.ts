@@ -17,9 +17,6 @@ export default pluginTypeScriptESLint.config(
     '**/.vscode',
     '**/node_modules',
     '**/dist',
-    '**/docs-dist',
-    // Vite's prebundled dependency cache — generated, and not ours to lint.
-    '**/.vitepress/cache',
     '**/*-lock.json',
     '**/*-lock.yaml'
   ]),
