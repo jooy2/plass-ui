@@ -77,6 +77,29 @@ function baseUiEntries(): string[] {
   return [...entries].sort();
 }
 
+/**
+ * What the components import at runtime, read off the React package's manifest.
+ *
+ * They are a sibling package, and Node resolution walks *up* from the importing
+ * file — so `react` imported from `packages/react/src` never finds
+ * `docs/node_modules`, and on a clean checkout it finds nothing at all. It only
+ * works on a developer's machine because they have run `npm install` in
+ * `packages/react` too, which is why this was invisible until CI ran it.
+ *
+ * `resolve.dedupe` is the fix and it is also the right one: it pins these to the
+ * copy at this site's root, which is a single copy. Two Reacts in one bundle is
+ * not a slower build, it is broken hooks.
+ *
+ * Derived rather than written out, so a component that takes a new dependency
+ * is not a second edit here.
+ */
+function componentDependencies(): string[] {
+  return [
+    ...Object.keys(packageJson.dependencies ?? {}),
+    ...Object.keys(packageJson.peerDependencies ?? {})
+  ].filter((name) => !name.startsWith('@types/'));
+}
+
 /** `/` for whichever locale is the default, `/{lang}/` for every other one. */
 const localeBase = (lang: string) => (lang === defaultLocale ? '/' : `/${lang}/`);
 
@@ -451,6 +474,7 @@ const vitePressConfig: UserConfig = {
     // incompatible. Drops when VitePress and the repo share one Vite.
     plugins: [ReactPlugin() as never],
     resolve: {
+      dedupe: componentDependencies(),
       alias: [
         // Anchored, so `plass-ui/styles.css` is not rewritten into the barrel too.
         // Pointing at the source rather than `dist/` is what lets a component
