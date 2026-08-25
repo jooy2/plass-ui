@@ -75,6 +75,6 @@ features:
 
 아래는 이 페이지 안에서 실제로 돌아가고 있습니다. 입력해 보고, 저장을 눌러 보세요.
 
-<Demo src="showcase/app" :min-height="420" />
+<Demo src="showcase/app" :flutter="false" :min-height="420" />
 
 컴포넌트별 props와 예제는 [컴포넌트](./components/)에 있습니다. 설치와 연결은 한 페이지면 됩니다: [시작하기](./guide/getting-started).

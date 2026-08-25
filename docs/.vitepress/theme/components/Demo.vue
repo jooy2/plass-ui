@@ -36,24 +36,68 @@ if (!import.meta.env.SSR) {
  * Wide enough that scrolling reaches a mounted preview rather than an empty box.
  */
 const MOUNT_MARGIN = 300;
+
+/**
+ * How far outside it a Flutter frame is kept alive, in px.
+ *
+ * Far wider than `MOUNT_MARGIN`, and a second threshold rather than the same
+ * one, because a frame that is torn down the moment it leaves the mount zone
+ * would be rebuilt every time the reader scrolled back a screen. A React
+ * preview has no equivalent: it is a handful of DOM nodes and it is never
+ * unmounted at all, whereas each Flutter frame is a whole engine.
+ */
+const KEEP_MARGIN = 1200;
+
+/**
+ * Whether the Flutter gallery has been built into `public/flutter`.
+ *
+ * One request for the whole session: without the build the frames would show
+ * VitePress's own 404 page, which looks like the preview is broken rather than
+ * like a step that has not been run. `version.json` is written by
+ * `flutter build web` and is the smallest file in the output.
+ */
+let flutterProbe = null;
+
+function flutterBuilt(url) {
+  flutterProbe ??= fetch(url, { method: 'HEAD' })
+    .then((response) => response.ok)
+    .catch(() => false);
+
+  return flutterProbe;
+}
+
+/** The channel the embedded gallery and this component talk over. */
+const CHANNEL = 'plass-demo';
 </script>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import { useData } from 'vitepress';
-import { basePath, localeOf, t } from '../../data/i18n';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { useData, withBase } from 'vitepress';
+import { basePath, localeOf, t, tf } from '../../data/i18n';
+import { framework } from '../../data/framework';
+import { FRAMEWORKS } from '../../data/frameworks';
 
 /**
- * A live preview of a React component inside a Vue page.
+ * A live preview of a Plass component, in whichever framework the reader picked.
  *
- * VitePress compiles Markdown to Vue, so `<PlButton />` cannot be written
- * directly. The bridge is the usual one: Vue owns a plain `<div>`, and React
- * takes it over with `createRoot()` once the page is in the browser.
+ * **React** is rendered in the page. VitePress compiles Markdown to Vue, so
+ * `<PlButton />` cannot be written directly; the bridge is the usual one — Vue
+ * owns a plain `<div>`, and React takes it over with `createRoot()` once the
+ * page is in the browser.
+ *
+ * **Flutter** is rendered in an `<iframe>` by the gallery app under
+ * `packages/flutter/example`, built into `public/flutter`. It has to be a frame
+ * and not a canvas in the page: a Flutter web app owns a whole engine, a
+ * document and an event loop. The frame is also why the gallery paints the
+ * canvas backdrop itself — `BackdropFilter` can only blur what is drawn behind
+ * it *inside the same app*, so a glass button over a transparent frame would
+ * have nothing to be in front of and would read as opaque.
  *
  * `src` names a file under `.vitepress/demos` without its extension, so
- * `<Demo src="button/variants" />` renders `demos/button/variants.tsx`. The
- * same path goes into the `<<<` snippet in the Markdown next to it, which is
- * how the code shown under a preview is guaranteed to be the code that ran.
+ * `<Demo src="button/variants" />` renders `demos/button/variants.tsx` — and
+ * asks the gallery for the demo registered under the same key. The same path
+ * goes into the `<<<` snippet in the Markdown next to it, which is how the code
+ * shown under a preview is guaranteed to be the code that ran.
  */
 const props = defineProps({
   /** Demo module path, relative to `.vitepress/demos`, without `.tsx`. */
@@ -62,6 +106,14 @@ const props = defineProps({
   align: { type: String, default: 'start' },
   /** Drops the frame — for previews that bring their own, like the index grid. */
   plain: { type: Boolean, default: false },
+  /**
+   * Whether this preview has a Flutter counterpart in the gallery.
+   *
+   * `false` for the compositions that are about the site rather than about a
+   * component — the home hero, the component index — which stay in React
+   * whichever framework is selected.
+   */
+  flutter: { type: Boolean, default: true },
   /**
    * Height the mount point holds, in px or as a CSS length.
    *
@@ -79,10 +131,12 @@ const { isDark, lang, localeIndex } = useData();
 const locale = localeOf(lang.value);
 const base = basePath(localeIndex.value);
 
+const shell = ref(null);
 const host = ref(null);
+const frame = ref(null);
 const open = ref(false);
 let root = null;
-let observer = null;
+let observers = [];
 
 /*
  * Which theme this one preview is in, and it is a *deviation* rather than a
@@ -104,7 +158,58 @@ function flip() {
   override.value = next === pageTheme.value ? null : next;
 }
 
-async function mount() {
+/* ---------------------------------------------------------------------------
+ * Which framework this preview is showing
+ * ------------------------------------------------------------------------- */
+
+const embedded = computed(() => props.flutter && framework.value === 'flutter');
+
+const frameworkLabel = computed(
+  () => FRAMEWORKS.find((item) => item.id === framework.value)?.label ?? framework.value
+);
+
+/* ---------------------------------------------------------------------------
+ * Visibility
+ *
+ * Two thresholds, watched separately: `near` is close enough to be worth
+ * building, `keep` is close enough to be worth holding on to. See the constants
+ * above for why a Flutter frame needs the second one.
+ * ------------------------------------------------------------------------- */
+
+const near = ref(false);
+const keep = ref(false);
+
+function watchMargin(margin, target) {
+  if (typeof IntersectionObserver === 'undefined') {
+    target.value = true;
+    sync();
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      target.value = entries.some((entry) => entry.isIntersecting);
+      sync();
+    },
+    { rootMargin: `${margin}px 0px` }
+  );
+
+  // The outer element rather than the React mount point: on Flutter the mount
+  // point is `display: none`, and a box with no layout never intersects
+  // anything, so every preview on the page would sit at "not visible" forever.
+  observer.observe(shell.value);
+  observers.push(observer);
+}
+
+/* ---------------------------------------------------------------------------
+ * React
+ * ------------------------------------------------------------------------- */
+
+async function mountReact() {
+  if (root) {
+    return;
+  }
+
   const key = `../../demos/${props.src}.tsx`;
   const load = demos[key];
 
@@ -117,8 +222,10 @@ async function mount() {
   // pulls in the components it renders, which is the other half of the payload.
   const [[React, { createRoot }], demo] = await Promise.all([reactRuntime(), load()]);
 
-  // Navigating away during the await leaves nothing to mount into.
-  if (!host.value) {
+  // Navigating away during the await leaves nothing to mount into, and a reader
+  // who switched to Flutter mid-fetch should not have a React root appear
+  // behind the frame.
+  if (!host.value || root) {
     return;
   }
 
@@ -129,14 +236,94 @@ async function mount() {
   root.render(React.createElement(demo.default, { locale, base }));
 }
 
-/** Whether the mount point is on screen, or close enough to count. */
-function isNear() {
-  const { top, bottom } = host.value.getBoundingClientRect();
+/* ---------------------------------------------------------------------------
+ * Flutter
+ * ------------------------------------------------------------------------- */
 
-  return top < window.innerHeight + MOUNT_MARGIN && bottom > -MOUNT_MARGIN;
+/** `null` until the probe answers, so nothing is drawn on a guess. */
+const built = ref(null);
+/** Live once the frame has been near enough; cleared when it drifts far away. */
+const frameLive = ref(false);
+/** What the gallery reported it needs, in px. */
+const frameHeight = ref(null);
+
+const frameSrc = computed(
+  () =>
+    `${withBase('/flutter/index.html')}?demo=${encodeURIComponent(props.src)}` +
+    `&theme=${theme.value}&align=${props.align}`
+);
+
+const frameStyle = computed(() => ({
+  height: frameHeight.value
+    ? `${frameHeight.value}px`
+    : typeof props.minHeight === 'number'
+      ? `${props.minHeight + 64}px`
+      : props.minHeight
+}));
+
+function onMessage(event) {
+  if (
+    event.origin !== window.location.origin ||
+    event.source !== frame.value?.contentWindow ||
+    event.data?.channel !== CHANNEL
+  ) {
+    return;
+  }
+
+  if (event.data.type === 'size' && typeof event.data.height === 'number') {
+    frameHeight.value = Math.ceil(event.data.height);
+  }
 }
 
+/** Theme changes go over the channel rather than through the `src`: reloading
+    the frame would rebuild the engine to change two colours. */
+function pushTheme() {
+  frame.value?.contentWindow?.postMessage(
+    { channel: CHANNEL, type: 'theme', theme: theme.value },
+    window.location.origin
+  );
+}
+
+/* ---------------------------------------------------------------------------
+ * Wiring
+ * ------------------------------------------------------------------------- */
+
+/**
+ * Brings the preview into line with where it is and what it should be.
+ *
+ * Called rather than watched, from the three places that can change the answer:
+ * mounting, an observer crossing a threshold, and the framework switch. A
+ * watcher would be the obvious shape and is the wrong one — the first call has
+ * to happen inside `onMounted`, after the page has laid out and the box has a
+ * position to measure.
+ */
+async function sync() {
+  if (!embedded.value) {
+    if (near.value) {
+      mountReact();
+    }
+    return;
+  }
+
+  if (near.value) {
+    built.value ??= await flutterBuilt(withBase('/flutter/version.json'));
+    frameLive.value = true;
+  } else if (!keep.value) {
+    // Out of sight by a long way: give the engine back.
+    frameLive.value = false;
+    frameHeight.value = null;
+  }
+}
+
+// The reader switching framework mid-page: whichever preview they are looking
+// at has to change over without waiting to be scrolled past.
+watch(embedded, sync);
+
+watch(theme, pushTheme);
+
 onMounted(() => {
+  window.addEventListener('message', onMessage);
+
   /*
    * A component page holds a dozen previews and every one of them used to mount
    * at the same moment, so the preview being read waited its turn behind chunks
@@ -147,33 +334,26 @@ onMounted(() => {
    * preview at the top of the page — the one the reader is waiting for — is
    * exactly what that task would delay.
    */
-  if (typeof IntersectionObserver === 'undefined' || isNear()) {
-    mount();
-    return;
+  const { top, bottom } = shell.value.getBoundingClientRect();
+
+  if (top < window.innerHeight + MOUNT_MARGIN && bottom > -MOUNT_MARGIN) {
+    near.value = true;
+    keep.value = true;
   }
 
-  observer = new IntersectionObserver(
-    (entries) => {
-      if (!entries.some((entry) => entry.isIntersecting)) {
-        return;
-      }
+  watchMargin(MOUNT_MARGIN, near);
+  watchMargin(KEEP_MARGIN, keep);
 
-      observer.disconnect();
-      observer = null;
-      mount();
-    },
-    { rootMargin: `${MOUNT_MARGIN}px 0px` }
-  );
-
-  observer.observe(host.value);
+  sync();
 });
 
 onBeforeUnmount(() => {
   const mounted = root;
   root = null;
 
-  observer?.disconnect();
-  observer = null;
+  window.removeEventListener('message', onMessage);
+  observers.forEach((observer) => observer.disconnect());
+  observers = [];
 
   // React refuses to unmount a root synchronously while it is rendering, and
   // client-side navigation tears the page down from inside Vue's own update.
@@ -184,8 +364,13 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="plass-demo" :class="{ 'plass-demo--plain': plain }">
-    <div class="plass-demo-canvas" :data-align="align" :data-theme="override">
+  <div ref="shell" class="plass-demo" :class="{ 'plass-demo--plain': plain }">
+    <div
+      class="plass-demo-canvas"
+      :class="{ 'plass-demo-canvas--embedded': embedded }"
+      :data-align="align"
+      :data-theme="override"
+    >
       <button
         v-if="!plain"
         type="button"
@@ -225,10 +410,26 @@ onBeforeUnmount(() => {
         </svg>
       </button>
       <div
+        v-show="!embedded"
         ref="host"
         class="plass-scope plass-demo-mount"
         :style="{ minHeight: typeof minHeight === 'number' ? `${minHeight}px` : minHeight }"
       />
+      <template v-if="embedded">
+        <p v-if="built === false" class="plass-fw-missing plass-demo-unbuilt">
+          {{ tf(locale, 'demoMissing', { framework: frameworkLabel }) }}
+        </p>
+        <iframe
+          v-else-if="frameLive"
+          ref="frame"
+          class="plass-demo-frame"
+          :src="frameSrc"
+          :style="frameStyle"
+          :title="tf(locale, 'demoTitle', { framework: frameworkLabel })"
+          @load="pushTheme"
+        />
+        <div v-else class="plass-demo-frame" :style="frameStyle" />
+      </template>
     </div>
     <div v-if="$slots.default" class="plass-demo-source">
       <button

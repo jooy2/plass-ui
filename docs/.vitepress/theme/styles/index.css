@@ -25,6 +25,7 @@
 @import '../../../../packages/react/src/styles.css';
 
 @import './docs.css';
+@import './framework.css';
 
 /* Tailwind only emits classes it can see spelled out, and these are the three
    places this site's classes are written down.

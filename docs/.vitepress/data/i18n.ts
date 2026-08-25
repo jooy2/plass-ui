@@ -49,11 +49,32 @@ const strings = {
     en: 'An axis every component shares'
   },
   galleryInputs: { ko: 'Inputs', en: 'Inputs' },
-  galleryOpen: { ko: '문서 보기', en: 'Read the docs' }
+  galleryOpen: { ko: '문서 보기', en: 'Read the docs' },
+  frameworkLabel: { ko: '프레임워크', en: 'Framework' },
+  propsMissing: {
+    ko: '{framework} 패키지에는 아직 {component}가 없습니다.',
+    en: '{component} is not in the {framework} package yet.'
+  },
+  demoMissing: {
+    ko: '{framework} 미리보기가 아직 빌드되지 않았습니다. docs 폴더에서 `npm run flutter:demos`를 실행하세요.',
+    en: 'The {framework} preview has not been built. Run `npm run flutter:demos` in `docs/`.'
+  },
+  demoTitle: { ko: '{framework} 미리보기', en: '{framework} preview' }
 } satisfies Record<string, Record<Locale, string>>;
 
 export type StringKey = keyof typeof strings;
 
 export function t(locale: Locale, key: StringKey): string {
   return strings[key][locale];
+}
+
+/**
+ * The same lookup with `{name}` placeholders filled in.
+ *
+ * Kept apart from `t` so the common case stays a plain table read, and so a
+ * string that grew a placeholder cannot be rendered with the braces still in
+ * it — the two call sites are different functions.
+ */
+export function tf(locale: Locale, key: StringKey, values: Record<string, string>): string {
+  return t(locale, key).replace(/\{(\w+)}/g, (whole, name: string) => values[name] ?? whole);
 }

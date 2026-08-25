@@ -1,13 +1,20 @@
 <script setup>
 import { computed } from 'vue';
 import { useData } from 'vitepress';
-import { localeOf, t } from '../../data/i18n';
+import { localeOf, t, tf } from '../../data/i18n';
+import { FRAMEWORKS } from '../../data/frameworks';
 import { propTables } from '../../data/props';
+import { flutterPropTables } from '../../data/props-flutter';
 
 /**
- * Renders one component's props table from `data/props.ts`.
+ * One component's props, once per framework.
  *
  * `<PropsTable name="PlButton" />`
+ *
+ * Every framework's table is rendered and CSS displays one of them, for the
+ * reasons in `styles/framework.css`. A framework the component has not reached
+ * yet gets a note instead of an empty table — the absence is information, and a
+ * table with no rows in it reads as a bug.
  */
 const props = defineProps({
   name: { type: String, required: true }
@@ -15,12 +22,30 @@ const props = defineProps({
 
 const { lang } = useData();
 const locale = computed(() => localeOf(lang.value));
-const rows = computed(() => propTables[props.name] ?? []);
+
+/** Which table each framework reads. One entry per id in `frameworks.ts`. */
+const tables = { react: propTables, flutter: flutterPropTables };
+
+const perFramework = computed(() =>
+  FRAMEWORKS.map((framework) => ({
+    id: framework.id,
+    label: framework.label,
+    rows: tables[framework.id]?.[props.name] ?? []
+  }))
+);
 </script>
 
 <template>
-  <div class="plass-props">
-    <table>
+  <div
+    v-for="framework in perFramework"
+    :key="framework.id"
+    class="plass-props plass-fw"
+    :data-fw="framework.id"
+  >
+    <p v-if="!framework.rows.length" class="plass-fw-missing">
+      {{ tf(locale, 'propsMissing', { component: name, framework: framework.label }) }}
+    </p>
+    <table v-else>
       <thead>
         <tr>
           <th>{{ t(locale, 'propColumn') }}</th>
@@ -30,7 +55,7 @@ const rows = computed(() => propTables[props.name] ?? []);
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in rows" :key="row.name">
+        <tr v-for="row in framework.rows" :key="row.name">
           <td>
             <span class="plass-props-name">{{ row.name }}</span>
             <span v-if="row.required" class="plass-props-required" :title="t(locale, 'required')">

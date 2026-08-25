@@ -3,12 +3,21 @@ import { writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { withSidebar } from 'vitepress-sidebar';
+import container from 'markdown-it-container';
 import packageJson from '../../packages/react/package.json' with { type: 'json' };
-import { defineConfig, HeadConfig, SiteData, TransformContext, UserConfig } from 'vitepress';
+import {
+  defineConfig,
+  HeadConfig,
+  MarkdownRenderer,
+  SiteData,
+  TransformContext,
+  UserConfig
+} from 'vitepress';
 import { withI18n } from 'vitepress-i18n';
 import ReactPlugin from '@vitejs/plugin-react';
 import type { VitePressI18nOptions } from 'vitepress-i18n/types';
 import type { VitePressSidebarOptions } from 'vitepress-sidebar/types';
+import { FRAMEWORK_HEAD_SCRIPT, FRAMEWORK_IDS } from './data/frameworks';
 
 const vitePressDir = dirname(fileURLToPath(import.meta.url));
 const srcDir = resolve(vitePressDir, '..');
@@ -23,6 +32,18 @@ const editLinkPattern = `${packageJson.repository.url}/edit/main/docs/:path`;
 const siteUrl = packageJson.homepage.replace(/\/+$/, '');
 const repoUrl = packageJson.repository.url.replace(/\.git$/, '');
 const npmUrl = `https://www.npmjs.com/package/${packageJson.name}`;
+
+/**
+ * The pub.dev page, read off the Flutter package's own manifest rather than
+ * written out — the two package names differ (`plass-ui` against `plass_ui`),
+ * and one of them being wrong in the footer is exactly the kind of thing nobody
+ * notices. No YAML parser for one line.
+ */
+const pubUrl = `https://pub.dev/packages/${
+  readFileSync(resolve(rootDir, 'packages/flutter/pubspec.yaml'), 'utf8').match(
+    /^name:\s*(\S+)/m
+  )?.[1] ?? 'plass_ui'
+}`;
 
 /** A glob Vite can read on either platform — `resolve` gives Windows backslashes. */
 const glob = (pattern: string) => resolve(rootDir, pattern).replaceAll('\\', '/');
@@ -109,8 +130,8 @@ const vitePressI18nConfig: VitePressI18nOptions = {
   rootLocale: defaultLocale,
   searchProvider: 'local',
   description: {
-    ko: '유리와 그러데이션으로 만든 React UI 컴포넌트 라이브러리입니다. 매끄러운 색 유리 표면, 자기 색으로 드리우는 그림자, 그리고 포인터를 따라오는 빛. 접근성과 테마를 갖췄고 ESM 전용이며, 타입 정의가 포함되어 있고 다크 모드가 기본으로 지원됩니다.',
-    en: 'A React UI component library made of glass and gradients — smooth tinted surfaces, shadows in their own colour, and light that follows the pointer. Accessible and themeable, ESM only, types included, dark mode built in.'
+    ko: '유리와 그러데이션으로 만든 UI 컴포넌트 라이브러리입니다. 매끄러운 색 유리 표면, 자기 색으로 드리우는 그림자, 그리고 포인터를 따라오는 빛. React와 Flutter로 제공되며, 접근성과 테마를 갖췄고 다크 모드가 기본으로 지원됩니다.',
+    en: 'A UI component library made of glass and gradients — smooth tinted surfaces, shadows in their own colour, and light that follows the pointer. Ships for React and for Flutter, accessible and themeable, dark mode built in.'
   },
   themeConfig: {
     ko: { nav: navFor('ko', ['가이드', '컴포넌트']) },
@@ -239,11 +260,11 @@ function structuredData(description: string, url: string) {
     description,
     url,
     codeRepository: repoUrl,
-    programmingLanguage: 'TypeScript',
-    runtimePlatform: 'React',
+    programmingLanguage: ['TypeScript', 'Dart'],
+    runtimePlatform: ['React', 'Flutter'],
     license: 'https://opensource.org/licenses/MIT',
     author: { '@type': 'Organization', name: 'CDGet', url: 'https://cdget.com' },
-    sameAs: [repoUrl, npmUrl]
+    sameAs: [repoUrl, npmUrl, pubUrl]
   };
 }
 
@@ -348,7 +369,10 @@ const vitePressConfig: UserConfig = {
     // per page and lives in `transformHead`.
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:site_name', content: 'Plass UI' }],
-    ['meta', { name: 'twitter:card', content: 'summary' }]
+    ['meta', { name: 'twitter:card', content: 'summary' }],
+    // Which framework's half of every page is displayed, applied to `<html>`
+    // before the first paint. See `data/frameworks.ts`.
+    ['script', {}, FRAMEWORK_HEAD_SCRIPT]
   ],
   sitemap: {
     hostname: packageJson.homepage
@@ -379,6 +403,39 @@ const vitePressConfig: UserConfig = {
     }
   },
   transformHead,
+  /**
+   * `::: fw react` … `:::` — the block that only one framework sees.
+   *
+   * Both frameworks' blocks are in the document and CSS displays one of them,
+   * which is what makes the switch instant and what keeps the two halves from
+   * being two pages that drift apart. It also means the search index carries
+   * both, so a reader looking up `onPressed` finds the button page whichever
+   * framework they had selected.
+   */
+  markdown: {
+    config(md: MarkdownRenderer) {
+      md.use(container, 'fw', {
+        validate: (params: string) => /^fw(\s+\S+)+$/.test(params.trim()),
+        render(tokens: { nesting: number; info: string }[], index: number) {
+          const token = tokens[index];
+
+          if (token.nesting !== 1) {
+            return '</div>\n';
+          }
+
+          // `::: fw flutter`, and `::: fw react flutter` for a block both of
+          // them want but nobody else does.
+          const wanted = token.info
+            .trim()
+            .split(/\s+/)
+            .slice(1)
+            .filter((id) => FRAMEWORK_IDS.includes(id));
+
+          return `<div class="plass-fw" data-fw="${wanted.join(' ')}">\n`;
+        }
+      });
+    }
+  },
   /**
    * The docs render the real components, and the components are React. Every
    * live preview is a React island mounted by `theme/components/Demo.vue`, so

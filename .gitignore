@@ -39,6 +39,9 @@ build/
 # A library pins nothing; only the example app's lock file is worth keeping.
 packages/flutter/pubspec.lock
 
+# The Flutter gallery, compiled for the web by `docs/scripts/build-flutter-demos.mjs`
+docs/public/flutter/
+
 # VitePress files
 docs/.vitepress/.temp
 docs/.vitepress/.temp/*

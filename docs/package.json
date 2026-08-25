@@ -8,8 +8,9 @@
   "license": "MIT",
   "scripts": {
     "changelog": "node scripts/copy-changelog.mjs",
+    "flutter:demos": "node scripts/build-flutter-demos.mjs",
     "dev": "npm run changelog && vitepress dev",
-    "build": "npm run changelog && vitepress build",
+    "build": "npm run changelog && npm run flutter:demos && vitepress build",
     "serve": "npm run build && vitepress serve",
     "lint": "eslint . --report-unused-disable-directives",
     "lint:fix": "eslint . --report-unused-disable-directives --fix",
@@ -40,6 +41,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.10.0",
     "jiti": "^2.7.0",
+    "markdown-it-container": "^4.0.0",
     "postcss": "^8.5.26",
     "prettier": "^3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",

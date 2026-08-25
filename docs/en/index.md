@@ -75,6 +75,6 @@ features:
 
 What follows is running inside this page. Type into it, and press save.
 
-<Demo src="showcase/app" :min-height="420" />
+<Demo src="showcase/app" :flutter="false" :min-height="420" />
 
 Per-component props and examples are under [Components](./components/). Installing and wiring it up is one page: [Getting started](./guide/getting-started).

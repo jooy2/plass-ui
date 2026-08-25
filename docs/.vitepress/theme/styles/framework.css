@@ -1,0 +1,131 @@
+/**
+ * The framework switch.
+ *
+ * Every `::: fw` block, every `<Fw>` phrase and both props tables are in the
+ * document at once; this file is what displays one of them. Doing it in CSS
+ * rather than with `v-if` buys three things at the cost of some page weight:
+ *
+ * - **No flash.** The inline script in `<head>` writes `data-fw` on `<html>`
+ *   before the first paint, so the wrong half is never drawn. A `v-if` cannot
+ *   run before hydration.
+ * - **No hydration mismatch.** The server renders both halves, which is what
+ *   the client renders too.
+ * - **Both halves are searchable.** VitePress builds its index from the
+ *   rendered page, so a reader looking up `onPressed` finds the button page
+ *   whichever framework they had selected.
+ *
+ * `data-fw` on a block holds a space-separated list, because a block that two
+ * frameworks want and a third does not is a real case — hence `~=` rather than
+ * `=`.
+ */
+
+/*
+ * Written as "hide the other one" rather than "hide everything, then show
+ * this one", because the second shape has to name a `display` value to come
+ * back to — and a `::: fw` block is a `<div>`, an `<Fw>` phrase is a `<span>`
+ * or a `<code>`, and a props table is a `<div>` that its own rule sets to
+ * `block`. The half that is displayed is left with no `display` declaration
+ * from this file at all, so whatever it would otherwise be, it stays.
+ *
+ * The `:not()` also buys the specificity this needs: `.vp-doc .plass-props`
+ * would outrank a single class, and a hidden props table that stayed visible is
+ * the exact failure this file exists to prevent.
+ *
+ * One rule per framework — there is no way to write this once for a list.
+ */
+html[data-fw='react'] .plass-fw[data-fw]:not([data-fw~='react']),
+html[data-fw='flutter'] .plass-fw[data-fw]:not([data-fw~='flutter']) {
+  display: none;
+}
+
+/*
+ * The first block in a fold has the margin the paragraph above it already
+ * spent, so a `::: fw` wrapper must not add one of its own — it is a bracket
+ * around content, not a section.
+ */
+.vp-doc .plass-fw > :first-child {
+  margin-top: 0;
+}
+
+.vp-doc .plass-fw > :last-child {
+  margin-bottom: 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * The switch itself, at the top of the sidebar
+ *
+ * Drawn from VitePress's own variables rather than the library's: it is part of
+ * the site's chrome and it sits among the site's navigation, so it should look
+ * like the sidebar it is in rather than like the components it is about.
+ * ------------------------------------------------------------------------- */
+
+.plass-fw-select {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 0 18px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+
+.plass-fw-select label {
+  flex: none;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--vp-c-text-2);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.plass-fw-select select {
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  background-color: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-1);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.16s,
+    background-color 0.16s;
+}
+
+.plass-fw-select select:hover {
+  border-color: var(--vp-c-brand-1);
+}
+
+.plass-fw-select select:focus-visible {
+  outline: 2px solid var(--vp-c-brand-1);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+ * When a page has nothing to say for the selected framework
+ * ------------------------------------------------------------------------- */
+
+.plass-fw-missing {
+  padding: 14px 16px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 10px;
+  background-color: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-2);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/*
+ * An outline entry for a heading the selected framework cannot see.
+ *
+ * Set by `Layout.vue`, which is the only thing that can match an outline link
+ * to the block its heading sits in — the outline is built from the Markdown,
+ * and the blocks only exist in the DOM.
+ */
+.plass-fw-hidden {
+  display: none;
+}

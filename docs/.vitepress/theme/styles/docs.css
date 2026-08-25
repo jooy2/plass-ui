@@ -127,6 +127,36 @@
    inline — it has to be per-preview, and it stays applied once the components
    are there so that reserving the space does not itself become a second jump. */
 
+/*
+ * The Flutter preview.
+ *
+ * The canvas gives up its padding and its backdrop to the frame, because the
+ * gallery app inside paints both itself. It has to: `BackdropFilter` blurs what
+ * is drawn behind it *within the same app*, so a glass surface over a
+ * transparent frame would have nothing to be in front of and would come out
+ * opaque. The frame is therefore edge to edge, and the wash, the grid and the
+ * 32/24 padding are all drawn in Dart against the same tokens.
+ */
+.plass-demo-canvas--embedded {
+  padding: 0;
+  background: none;
+}
+
+.plass-demo-frame {
+  display: block;
+  width: 100%;
+  border: 0;
+  /* The engine takes a moment to paint, and an unpainted canvas is white. The
+     wash under it is the same one the app is about to draw, so the frame
+     arriving is a change of detail rather than a flash. */
+  background-color: var(--plass-bg-from);
+  color-scheme: normal;
+}
+
+.plass-demo-unbuilt {
+  margin: 24px;
+}
+
 .plass-demo--plain .plass-demo-canvas {
   padding: 0;
   background: none;
