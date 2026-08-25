@@ -1,0 +1,30 @@
+name: plass_ui
+description: >-
+  A Flutter UI component library made of glass and gradients — smooth tinted surfaces, shadows in their own colour, and light that follows the pointer. Accessible and themeable, dark mode built in.
+version: 0.0.1
+repository: https://github.com/jooy2/plass-ui
+homepage: https://plass-ui.cdget.com
+issue_tracker: https://github.com/jooy2/plass-ui/issues
+topics:
+  - ui
+  - widgets
+  - design-system
+  - glassmorphism
+  - theming
+
+environment:
+  # Flutter 3.41 is where the Dart SDK reached 3.11. Nothing here needs a newer
+  # language feature, and the floor is deliberately below the release that
+  # started moving Material and Cupertino out of the framework — this package
+  # imports neither, so it is unaffected either way.
+  sdk: ^3.11.0
+  flutter: '>=3.41.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0

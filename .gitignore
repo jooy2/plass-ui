@@ -32,6 +32,13 @@ $RECYCLE.BIN/
 dist/
 docs-dist/
 
+# Dart / Flutter
+.dart_tool/
+.flutter-plugins*
+build/
+# A library pins nothing; only the example app's lock file is worth keeping.
+packages/flutter/pubspec.lock
+
 # VitePress files
 docs/.vitepress/.temp
 docs/.vitepress/.temp/*
