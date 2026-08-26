@@ -133,6 +133,60 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlBadge', 'children', { name: 'child', type: 'Widget?' })
   ],
 
+  PlBreadcrumb: [
+    {
+      name: 'items',
+      type: 'List<PlBreadcrumbItem>',
+      required: true,
+      description: {
+        ko: '단계들. children이 아니라 설명의 목록입니다 — 자취가 어느 단계가 현재인지, 접기가 무엇을 덜어내는지 판단해야 하는데 Widget에는 그것을 물어볼 수 없습니다',
+        en: 'The steps, as a list of descriptions rather than children — the trail has to reason about which step is current and what a fold removes, and a Widget cannot be asked'
+      }
+    },
+    from('PlBreadcrumb', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlBreadcrumb', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlBreadcrumb', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlBreadcrumb', 'separator', {
+      type: 'PlBreadcrumbSeparator',
+      default: 'PlBreadcrumbSeparator.chevron',
+      description: {
+        ko: '두 단계 사이의 표시. 이름 붙은 네 가지 중 하나입니다',
+        en: 'The mark between two steps, as one of the four names'
+      }
+    }),
+    {
+      name: 'separatorWidget',
+      type: 'Widget?',
+      description: {
+        ko: '직접 만든 표시. separator를 이깁니다',
+        en: 'A mark of your own, which wins over separator'
+      }
+    },
+    from('PlBreadcrumb', 'maxItems', { type: 'int?' }),
+    from('PlBreadcrumb', 'itemsBeforeCollapse', { type: 'int', default: '1' }),
+    from('PlBreadcrumb', 'itemsAfterCollapse', { type: 'int', default: '1' }),
+    from('PlBreadcrumb', 'expandable', { type: 'bool', default: 'true' }),
+    from('PlBreadcrumb', 'label', { type: 'String', default: "'Breadcrumb'" }),
+    from('PlBreadcrumb', 'expandLabel', {
+      type: 'String',
+      default: "'Show the hidden steps'"
+    })
+  ],
+
+  PlBreadcrumbItem: [
+    from('PlBreadcrumbItem', 'children', {
+      name: 'label',
+      type: 'Widget',
+      required: true,
+      description: { ko: '단계가 하는 말', en: 'What the step says' }
+    }),
+    from('PlBreadcrumbItem', 'onClick', { name: 'onPressed', type: 'VoidCallback?' }),
+    from('PlBreadcrumbItem', 'startIcon', { type: 'Widget?' }),
+    from('PlBreadcrumbItem', 'endIcon', { type: 'Widget?' }),
+    from('PlBreadcrumbItem', 'current', { type: 'bool?' }),
+    from('PlBreadcrumbItem', 'disabled', { type: 'bool', default: 'false' })
+  ],
+
   PlBlockquote: [
     from('PlBlockquote', 'variant', { type: VARIANT, default: 'PlassVariant.ghost' }),
     from('PlBlockquote', 'size', { type: SIZE, default: 'PlassSize.md' }),
@@ -283,6 +337,42 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlHotKeys: [
+    from('PlHotKeys', 'keys', {
+      type: 'Object?',
+      description: {
+        ko: '키들. + 로 나뉘는 String이거나, 키 자체가 +인 단축키를 위한 List<String>입니다. Dart에 union이 없어 Object입니다',
+        en: 'The keys: a String split on +, or a List<String> for the shortcut whose key is a plus. Object because Dart has no union type'
+      }
+    }),
+    from('PlHotKeys', 'cluster', { type: 'PlHotKeysCluster?' }),
+    from('PlHotKeys', 'os', { type: 'PlHotKeysOS', default: 'PlHotKeysOS.auto' }),
+    from('PlHotKeys', 'separator', { type: 'Widget?' }),
+    from('PlKbd', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlKbd', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    {
+      name: 'color',
+      type: COLOR,
+      default: 'PlassColor.secondary',
+      shared: true,
+      description: {
+        ko: '의미론적 색 역할',
+        en: 'Semantic colour role'
+      }
+    },
+    from('PlKbd', 'density', { type: DENSITY, default: 'PlassDensity.compact' }),
+    {
+      name: 'elevation',
+      type: 'int',
+      default: '0',
+      shared: true,
+      description: {
+        ko: '그림자 깊이. 0이 기본입니다 — 키캡에는 이미 립이 있고, 페이지에서 띄우기까지 하면 깊이 단서가 하나 많습니다',
+        en: 'Drop shadow depth. 0 is the default: a key cap already has a lip under it, and raising it off the page as well is one depth cue too many'
+      }
+    }
+  ],
+
   PlIcon: [
     from('PlIcon', 'icon', { type: 'Widget', required: true }),
     from('PlIcon', 'size', { type: SIZE, default: 'PlassSize.md' }),
@@ -297,6 +387,31 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlIcon', 'label', { type: 'String?' })
+  ],
+
+  PlList: [
+    from('PlList', 'children', {
+      type: 'List<Widget>',
+      required: true,
+      description: { ko: '행들', en: 'The rows' }
+    }),
+    from('PlList', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlList', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlList', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlList', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlList', 'elevation', { type: 'int', default: '0' }),
+    from('PlList', 'dividers', { type: 'bool', default: 'false' })
+  ],
+
+  PlListItem: [
+    from('PlListItem', 'children', { name: 'child', type: 'Widget?' }),
+    from('PlListItem', 'onClick', { name: 'onPressed', type: 'VoidCallback?' }),
+    from('PlListItem', 'startIcon', { type: 'Widget?' }),
+    from('PlListItem', 'endIcon', { type: 'Widget?' }),
+    from('PlListItem', 'description', { type: 'Widget?' }),
+    from('PlListItem', 'action', { type: 'Widget?' }),
+    from('PlListItem', 'selected', { type: 'bool', default: 'false' }),
+    from('PlListItem', 'disabled', { type: 'bool', default: 'false' })
   ],
 
   PlSkeleton: [
@@ -317,6 +432,80 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'What a screen reader is told. Without it the placeholder stays out of the semantics tree; give the one that stands for the whole region a label and it becomes a live region with that name'
       }
     })
+  ],
+
+  PlTextLink: [
+    from('PlTextLink', 'children', { name: 'child', type: 'Widget', required: true }),
+    {
+      name: 'onPressed',
+      type: 'VoidCallback?',
+      description: {
+        ko: '링크를 따라갈 때. Flutter에는 자체 내비게이션이 없으므로 어디로 가는지는 여기서 정합니다. 빼면 링크는 아무 일도 하지 않습니다',
+        en: 'Called when the link is followed. Flutter has no navigation of its own, so where it goes is decided here. Leaving it out makes the link inert'
+      }
+    },
+    from('PlTextLink', 'underline', {
+      type: 'PlTextLinkUnderline',
+      default: 'PlTextLinkUnderline.always'
+    }),
+    from('PlTextLink', 'color', { type: `${COLOR}?`, default: 'null' }),
+    from('PlTextLink', 'size', { type: `${SIZE}?`, default: 'null' }),
+    from('PlTextLink', 'newTab', {
+      name: 'external',
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '링크가 앱을 떠나는지. 화살표를 그리고, 스크린 리더가 읽는 힌트를 붙입니다',
+        en: 'Whether the link leaves the app. Draws the arrow, and adds a hint a screen reader reads'
+      }
+    }),
+    from('PlTextLink', 'icon', { type: 'Widget?' }),
+    {
+      name: 'showIcon',
+      type: 'bool?',
+      description: {
+        ko: '표시를 그릴지. 생략하면 external을 따릅니다 — bool이 아니라 bool?인 이유입니다',
+        en: 'Whether a mark is drawn. Left out, it follows external — which is why it is a bool? rather than a bool'
+      }
+    },
+    from('PlTextLink', 'newTabLabel', {
+      name: 'externalLabel',
+      type: 'String',
+      default: "'(opens elsewhere)'"
+    })
+  ],
+
+  PlTimeline: [
+    {
+      name: 'items',
+      type: 'List<PlTimelineItem>',
+      required: true,
+      description: {
+        ko: '단계들. children이 아니라 설명의 목록입니다 — 어느 단계가 끝났는지는 인덱스 계산이고, 마지막 연결선은 자기가 마지막임을 알아야 합니다',
+        en: 'The steps, as a list of descriptions rather than children — which step is complete is arithmetic on an index, and the last connector has to know it is the last'
+      }
+    },
+    from('PlTimeline', 'active', { type: 'int?' }),
+    from('PlTimeline', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlTimeline', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlTimeline', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlTimeline', 'orientation', {
+      type: 'PlassOrientation',
+      default: 'PlassOrientation.vertical'
+    })
+  ],
+
+  PlTimelineItem: [
+    from('PlTimelineItem', 'title', { type: 'Widget?' }),
+    from('PlTimelineItem', 'meta', { type: 'Widget?' }),
+    from('PlTimelineItem', 'bullet', { type: 'Widget?' }),
+    from('PlTimelineItem', 'status', { type: 'PlTimelineStatus?' }),
+    from('PlTimelineItem', 'color', { type: `${COLOR}?` }),
+    from('PlTimelineItem', 'connector', {
+      type: 'PlTimelineConnector',
+      default: 'PlTimelineConnector.solid'
+    }),
+    from('PlTimelineItem', 'children', { name: 'child', type: 'Widget?' })
   ],
 
   PlTypography: [

@@ -26,6 +26,11 @@ import 'package:plass_ui_example/demos/blockquote/colors.dart';
 import 'package:plass_ui_example/demos/blockquote/hero.dart';
 import 'package:plass_ui_example/demos/blockquote/sizes.dart';
 import 'package:plass_ui_example/demos/blockquote/variants.dart';
+import 'package:plass_ui_example/demos/breadcrumb/collapse.dart';
+import 'package:plass_ui_example/demos/breadcrumb/current.dart';
+import 'package:plass_ui_example/demos/breadcrumb/hero.dart';
+import 'package:plass_ui_example/demos/breadcrumb/separators.dart';
+import 'package:plass_ui_example/demos/breadcrumb/sizes.dart';
 import 'package:plass_ui_example/demos/button/colors.dart';
 import 'package:plass_ui_example/demos/button/density.dart';
 import 'package:plass_ui_example/demos/button/elevation.dart';
@@ -58,16 +63,36 @@ import 'package:plass_ui_example/demos/divider/sizes.dart';
 import 'package:plass_ui_example/demos/highlight/colors.dart';
 import 'package:plass_ui_example/demos/highlight/matching.dart';
 import 'package:plass_ui_example/demos/highlight/variants.dart';
+import 'package:plass_ui_example/demos/hot_keys/cluster.dart';
+import 'package:plass_ui_example/demos/hot_keys/hero.dart';
+import 'package:plass_ui_example/demos/hot_keys/os.dart';
+import 'package:plass_ui_example/demos/hot_keys/sizes.dart';
+import 'package:plass_ui_example/demos/hot_keys/variants.dart';
 import 'package:plass_ui_example/demos/icon/anything.dart';
 import 'package:plass_ui_example/demos/icon/colors.dart';
 import 'package:plass_ui_example/demos/icon/hero.dart';
 import 'package:plass_ui_example/demos/icon/inside.dart';
 import 'package:plass_ui_example/demos/icon/sizes.dart';
+import 'package:plass_ui_example/demos/list/dividers.dart';
+import 'package:plass_ui_example/demos/list/rows.dart';
+import 'package:plass_ui_example/demos/list/sizes.dart';
+import 'package:plass_ui_example/demos/list/variants.dart';
 import 'package:plass_ui_example/demos/skeleton/animated.dart';
 import 'package:plass_ui_example/demos/skeleton/hero.dart';
 import 'package:plass_ui_example/demos/skeleton/matching.dart';
 import 'package:plass_ui_example/demos/skeleton/shapes.dart';
 import 'package:plass_ui_example/demos/skeleton/sizes.dart';
+import 'package:plass_ui_example/demos/text_link/colors.dart';
+import 'package:plass_ui_example/demos/text_link/hero.dart';
+import 'package:plass_ui_example/demos/text_link/icons.dart';
+import 'package:plass_ui_example/demos/text_link/sizes.dart';
+import 'package:plass_ui_example/demos/text_link/underline.dart';
+import 'package:plass_ui_example/demos/timeline/active.dart';
+import 'package:plass_ui_example/demos/timeline/connectors.dart';
+import 'package:plass_ui_example/demos/timeline/hero.dart';
+import 'package:plass_ui_example/demos/timeline/orientation.dart';
+import 'package:plass_ui_example/demos/timeline/sizes.dart';
+import 'package:plass_ui_example/demos/timeline/status.dart';
 import 'package:plass_ui_example/demos/typography/colors.dart';
 import 'package:plass_ui_example/demos/typography/hero.dart';
 import 'package:plass_ui_example/demos/typography/levels.dart';
@@ -158,6 +183,31 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'alert/colors': _alertColors,
   'alert/shapes': _alertShapes,
   'alert/dismiss': _alertDismiss,
+  'text-link/hero': _textLinkHero,
+  'text-link/underline': _textLinkUnderline,
+  'text-link/colors': _textLinkColors,
+  'text-link/sizes': _textLinkSizes,
+  'text-link/icons': _textLinkIcons,
+  'hot-keys/hero': _hotKeysHero,
+  'hot-keys/variants': _hotKeysVariants,
+  'hot-keys/sizes': _hotKeysSizes,
+  'hot-keys/os': _hotKeysOs,
+  'hot-keys/cluster': _hotKeysCluster,
+  'list/rows': _listRows,
+  'list/variants': _listVariants,
+  'list/sizes': _listSizes,
+  'list/dividers': _listDividers,
+  'breadcrumb/hero': _breadcrumbHero,
+  'breadcrumb/separators': _breadcrumbSeparators,
+  'breadcrumb/collapse': _breadcrumbCollapse,
+  'breadcrumb/current': _breadcrumbCurrent,
+  'breadcrumb/sizes': _breadcrumbSizes,
+  'timeline/hero': _timelineHero,
+  'timeline/status': _timelineStatus,
+  'timeline/active': _timelineActive,
+  'timeline/connectors': _timelineConnectors,
+  'timeline/orientation': _timelineOrientation,
+  'timeline/sizes': _timelineSizes,
 };
 
 Widget _hero(BuildContext context) => const ButtonHero();
@@ -245,3 +295,33 @@ Widget _alertSizes(BuildContext context) => const AlertSizes();
 Widget _alertColors(BuildContext context) => const AlertColors();
 Widget _alertShapes(BuildContext context) => const AlertShapes();
 Widget _alertDismiss(BuildContext context) => const AlertDismiss();
+
+Widget _textLinkHero(BuildContext context) => const TextLinkHero();
+Widget _textLinkUnderline(BuildContext context) => const TextLinkUnderline();
+Widget _textLinkColors(BuildContext context) => const TextLinkColors();
+Widget _textLinkSizes(BuildContext context) => const TextLinkSizes();
+Widget _textLinkIcons(BuildContext context) => const TextLinkIcons();
+
+Widget _hotKeysHero(BuildContext context) => const HotKeysHero();
+Widget _hotKeysVariants(BuildContext context) => const HotKeysVariants();
+Widget _hotKeysSizes(BuildContext context) => const HotKeysSizes();
+Widget _hotKeysOs(BuildContext context) => const HotKeysOs();
+Widget _hotKeysCluster(BuildContext context) => const HotKeysCluster();
+
+Widget _listRows(BuildContext context) => const ListRows();
+Widget _listVariants(BuildContext context) => const ListVariants();
+Widget _listSizes(BuildContext context) => const ListSizes();
+Widget _listDividers(BuildContext context) => const ListDividers();
+
+Widget _breadcrumbHero(BuildContext context) => const BreadcrumbHero();
+Widget _breadcrumbSeparators(BuildContext context) => const BreadcrumbSeparators();
+Widget _breadcrumbCollapse(BuildContext context) => const BreadcrumbCollapse();
+Widget _breadcrumbCurrent(BuildContext context) => const BreadcrumbCurrent();
+Widget _breadcrumbSizes(BuildContext context) => const BreadcrumbSizes();
+
+Widget _timelineHero(BuildContext context) => const TimelineHero();
+Widget _timelineStatus(BuildContext context) => const TimelineStatus();
+Widget _timelineActive(BuildContext context) => const TimelineActive();
+Widget _timelineConnectors(BuildContext context) => const TimelineConnectors();
+Widget _timelineOrientation(BuildContext context) => const TimelineOrientation();
+Widget _timelineSizes(BuildContext context) => const TimelineSizes();
