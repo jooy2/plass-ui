@@ -642,6 +642,156 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlBottomNavigation: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      elevation: '0',
+      variantDescription: {
+        ko: '시트의 재질. 절대 물들지 않습니다 — 색 가족을 나르는 것은 현재 항목입니다',
+        en: 'What the sheet is made of. Never dyed — the family is carried by the current item'
+      },
+      sizeDescription: {
+        ko: '줄의 최소 높이, 글리프의 크기, 그 아래 이름의 타입 스케일',
+        en: "The row's floor, the glyph's size, and the type scale of the name under it"
+      },
+      elevationDescription: {
+        ko: '드롭 섀도 깊이. 0이 기본이고 평평합니다 — 이 바는 창 가장자리에 붙어 있습니다',
+        en: 'Drop shadow depth. 0 and flat: this bar is attached to the edge of the window'
+      }
+    }),
+    {
+      name: 'value',
+      type: 'string | number | null',
+      description: {
+        ko: '독자가 있는 목적지. onValueChange와 함께 controlled로 씁니다',
+        en: 'The destination the reader is on. Use with onValueChange for a controlled bar'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'string | number | null',
+      default: 'null',
+      description: {
+        ko: 'uncontrolled일 때 시작 목적지',
+        en: 'Which starts current, for an uncontrolled bar'
+      }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string | number) => void',
+      description: {
+        ko: '고른 목적지로 호출됩니다',
+        en: 'Called with the destination that was chosen'
+      }
+    },
+    {
+      name: 'position',
+      type: "'static' | 'sticky' | 'fixed'",
+      default: "'fixed'",
+      description: {
+        ko: '페이지 스크롤 안에서 바가 놓이는 방식',
+        en: "How the bar sits in the page's scroll"
+      }
+    },
+    {
+      name: 'labels',
+      type: "'all' | 'selected' | 'none'",
+      default: "'all'",
+      description: {
+        ko: '어떤 이름을 그릴지. 그리지 않는 이름도 문서에는 남습니다',
+        en: 'Which names are drawn. An undrawn name is still in the document'
+      }
+    },
+    {
+      name: 'divider',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '위쪽 가장자리에 얇은 선을 그립니다',
+        en: 'Draws a hairline along the top edge'
+      }
+    },
+    {
+      name: 'safeArea',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '홈 인디케이터에서 줄을 떼어 놓습니다. 시트는 화면 바닥까지 그대로 닿습니다',
+        en: 'Keeps the row clear of the home indicator. The sheet still reaches the bottom'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '모든 목적지가 반응하지 않습니다',
+        en: 'Every destination stops answering'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: { ko: '바가 안내되는 이름', en: 'The name the bar is announced by' }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '<nav> 대신 다른 요소로 렌더링합니다',
+        en: 'Renders something other than a <nav>'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: 'PlBottomNavigationItem들', en: 'The PlBottomNavigationItems' }
+    }
+  ],
+
+  PlBottomNavigationItem: [
+    {
+      name: 'value',
+      type: 'string | number',
+      required: true,
+      description: {
+        ko: '목적지를 식별합니다. onValueChange가 보고하는 값입니다',
+        en: 'Identifies the destination. What onValueChange reports'
+      }
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: { ko: '이름 위의 글리프', en: 'The glyph above the name' }
+    },
+    {
+      name: 'href',
+      type: 'string',
+      description: {
+        ko: '항목을 버튼이 아니라 진짜 링크로 렌더링합니다',
+        en: 'Renders the item as a real link rather than as a button'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '쓸 수 없지만 집합에는 남습니다',
+        en: 'Unavailable, but still part of the set'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: {
+        ko: '목적지의 이름. labels가 그리지 않아도 읽힙니다',
+        en: "The destination's name. Read out even when labels keeps it undrawn"
+      }
+    }
+  ],
+
   PlBreadcrumb: [
     {
       name: 'size',

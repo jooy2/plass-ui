@@ -93,6 +93,17 @@ export type PlassAlignItems = 'start' | 'center' | 'end' | 'stretch' | 'baseline
 export type PlassAlignSelf = 'auto' | 'start' | 'center' | 'end' | 'stretch' | 'baseline';
 
 /**
+ * How a component sits in the page's scroll, spelled the way CSS spells it.
+ *
+ * These are `position`'s own values rather than a nicer set of words, for the
+ * reason `PlAspectRatio` keeps `object-fit`'s: inventing `pinned` would only
+ * make a reader look up which CSS it maps to. `absolute` and `relative` are
+ * deliberately absent — a component that offers those is a component being used
+ * as a `<div>`.
+ */
+export type PlassPosition = 'static' | 'sticky' | 'fixed';
+
+/**
  * Which corner of a box something is pinned to. `PlBadge` reads this.
  *
  * Deliberately one word built out of the two the library already has —

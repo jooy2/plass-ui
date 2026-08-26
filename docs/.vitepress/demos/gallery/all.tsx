@@ -7,6 +7,8 @@ import {
   PlAvatar,
   PlBadge,
   PlBlockquote,
+  PlBottomNavigation,
+  PlBottomNavigationItem,
   PlBreadcrumb,
   PlBreadcrumbItem,
   PlButton,
@@ -68,7 +70,7 @@ interface GalleryProps {
 }
 
 /** The sidebar's own groups, in the sidebar's own order. */
-type Group = 'display' | 'feedback' | 'inputs' | 'layout' | 'surfaces';
+type Group = 'display' | 'feedback' | 'inputs' | 'layout' | 'navigation' | 'surfaces';
 
 /**
  * The one preview in the gallery that needs state of its own: an overlay has to
@@ -129,12 +131,39 @@ function ShareGlyph() {
   );
 }
 
+function SearchGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+      <circle cx="11" cy="11" r="6" />
+      <path d="m15.5 15.5 4 4" />
+    </svg>
+  );
+}
+
 function MoreGlyph() {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor">
       <circle cx="5" cy="12" r="1.6" />
       <circle cx="12" cy="12" r="1.6" />
       <circle cx="19" cy="12" r="1.6" />
+    </svg>
+  );
+}
+
+/** Two more drawings, for the bottom-navigation card. */
+function HomeGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+      <path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z" />
+    </svg>
+  );
+}
+
+function AccountGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+      <circle cx="12" cy="9" r="3.4" />
+      <path d="M5 20a7 7 0 0 1 14 0" />
     </svg>
   );
 }
@@ -802,6 +831,34 @@ const entries: Entry[] = [
     preview: <PlOtpField size="sm" length={4} groupSize={2} defaultValue="12" />
   },
   {
+    name: 'PlBottomNavigation',
+    group: 'navigation',
+    href: 'components/navigation/bottom-navigation',
+    blurb: {
+      en: 'A row of destinations held against the bottom edge of the window.',
+      ko: '창의 아래 가장자리에 붙어 있는 목적지 한 줄입니다.'
+    },
+    preview: (
+      <PlBottomNavigation
+        className="w-full"
+        size="sm"
+        position="static"
+        safeArea={false}
+        defaultValue="home"
+      >
+        <PlBottomNavigationItem value="home" icon={<HomeGlyph />}>
+          Home
+        </PlBottomNavigationItem>
+        <PlBottomNavigationItem value="search" icon={<SearchGlyph />}>
+          Search
+        </PlBottomNavigationItem>
+        <PlBottomNavigationItem value="account" icon={<AccountGlyph />}>
+          Account
+        </PlBottomNavigationItem>
+      </PlBottomNavigation>
+    )
+  },
+  {
     name: 'PlAccordion',
     group: 'surfaces',
     href: 'components/surfaces/accordion',
@@ -832,6 +889,7 @@ const groups: { key: Group; label: Record<'en' | 'ko', string> }[] = [
   { key: 'feedback', label: { en: 'Feedback', ko: 'Feedback' } },
   { key: 'inputs', label: { en: 'Inputs', ko: 'Inputs' } },
   { key: 'layout', label: { en: 'Layout', ko: 'Layout' } },
+  { key: 'navigation', label: { en: 'Navigation', ko: 'Navigation' } },
   { key: 'surfaces', label: { en: 'Surfaces', ko: 'Surfaces' } }
 ];
 

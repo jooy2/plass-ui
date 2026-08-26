@@ -126,6 +126,10 @@ The list below is both packages'. The props are the same props under Dart's name
 
 `PlAspectRatio` · `PlContainer` · `PlGrid`
 
+### Navigation
+
+`PlBottomNavigation`
+
 ### Surfaces
 
 `PlAccordion` · `PlCard` · `PlChatBubble` · `PlTabs`
