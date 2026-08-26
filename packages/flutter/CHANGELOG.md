@@ -26,6 +26,7 @@ The rest of the library. `PlButton` shipped first and everything else follows it
 - **`PlBlockquote`.** The rule, the quotation mark and the attribution. The mark is drawn rather than typed, unit for unit out of the same 16-unit box the React package's SVG uses.
 - **`PlHighlight`.** The search as well as the styling. It takes a `String` rather than a widget tree, which is the one real difference from the React build: a `Widget` is opaque, and there is no reaching the text inside one you were handed.
 - **`PlIcon`.** A glyph at a known size in a known colour, for whichever icon set the app chose. The glyph is told how big it is three ways at once — through `IconTheme`, through `DefaultTextStyle`, and by the box it is laid into — so an `Icon`, a `CustomPaint` that reads the ambient theme and a bare character all come out the same size. `color` is nullable and defaults to `null`, which is how "inherit" is spelled in a language with no such keyword.
+- **`PlAccordion`** and **`PlTabs`.** Both take their members as descriptions rather than widgets, and both fold the panel into the member that opens it — a `PlAccordionItem` carries its body, a `PlTab` carries its panel, so there is no second list to keep in step. The accordion's `value` is a `Set<T>` even with `multiple` off, because closed is a set too. The tab bar owns one focus stop, moves the choice with the arrow keys on whichever axis it runs, and builds only the panel that is open: a tab that is not open costs nothing, and the price is that its state has to be held above the bar.
 
 ## 0.0.2
 

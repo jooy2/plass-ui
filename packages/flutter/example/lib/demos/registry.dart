@@ -1,5 +1,12 @@
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui_example/demos/accordion/controlled.dart';
+import 'package:plass_ui_example/demos/accordion/dividers.dart';
+import 'package:plass_ui_example/demos/accordion/hero.dart';
+import 'package:plass_ui_example/demos/accordion/multiple.dart';
+import 'package:plass_ui_example/demos/accordion/sizes.dart';
+import 'package:plass_ui_example/demos/accordion/slots.dart';
+import 'package:plass_ui_example/demos/accordion/variants.dart';
 import 'package:plass_ui_example/demos/alert/colors.dart';
 import 'package:plass_ui_example/demos/alert/dismiss.dart';
 import 'package:plass_ui_example/demos/alert/hero.dart';
@@ -118,6 +125,12 @@ import 'package:plass_ui_example/demos/switch/hero.dart';
 import 'package:plass_ui_example/demos/switch/placement.dart';
 import 'package:plass_ui_example/demos/switch/sizes.dart';
 import 'package:plass_ui_example/demos/switch/states.dart';
+import 'package:plass_ui_example/demos/tabs/controlled.dart';
+import 'package:plass_ui_example/demos/tabs/full_width.dart';
+import 'package:plass_ui_example/demos/tabs/hero.dart';
+import 'package:plass_ui_example/demos/tabs/orientation.dart';
+import 'package:plass_ui_example/demos/tabs/sizes.dart';
+import 'package:plass_ui_example/demos/tabs/variants.dart';
 import 'package:plass_ui_example/demos/text_field/controlled.dart';
 import 'package:plass_ui_example/demos/text_field/hero.dart';
 import 'package:plass_ui_example/demos/text_field/icons.dart';
@@ -296,6 +309,19 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'pagination/sizes': _paginationSizes,
   'pagination/window': _paginationWindow,
   'pagination/steppers': _paginationSteppers,
+  'accordion/hero': _accordionHero,
+  'accordion/variants': _accordionVariants,
+  'accordion/sizes': _accordionSizes,
+  'accordion/multiple': _accordionMultiple,
+  'accordion/dividers': _accordionDividers,
+  'accordion/slots': _accordionSlots,
+  'accordion/controlled': _accordionControlled,
+  'tabs/hero': _tabsHero,
+  'tabs/variants': _tabsVariants,
+  'tabs/sizes': _tabsSizes,
+  'tabs/orientation': _tabsOrientation,
+  'tabs/full-width': _tabsFullWidth,
+  'tabs/controlled': _tabsControlled,
 };
 
 Widget _hero(BuildContext context) => const ButtonHero();
@@ -466,3 +492,18 @@ Widget _paginationVariants(BuildContext context) => const PaginationVariants();
 Widget _paginationSizes(BuildContext context) => const PaginationSizes();
 Widget _paginationWindow(BuildContext context) => const PaginationWindow();
 Widget _paginationSteppers(BuildContext context) => const PaginationSteppers();
+
+Widget _accordionHero(BuildContext context) => const AccordionHero();
+Widget _accordionVariants(BuildContext context) => const AccordionVariants();
+Widget _accordionSizes(BuildContext context) => const AccordionSizes();
+Widget _accordionMultiple(BuildContext context) => const AccordionMultiple();
+Widget _accordionDividers(BuildContext context) => const AccordionDividers();
+Widget _accordionSlots(BuildContext context) => const AccordionSlots();
+Widget _accordionControlled(BuildContext context) => const AccordionControlled();
+
+Widget _tabsHero(BuildContext context) => const TabsHero();
+Widget _tabsVariants(BuildContext context) => const TabsVariants();
+Widget _tabsSizes(BuildContext context) => const TabsSizes();
+Widget _tabsOrientation(BuildContext context) => const TabsOrientation();
+Widget _tabsFullWidth(BuildContext context) => const TabsFullWidth();
+Widget _tabsControlled(BuildContext context) => const TabsControlled();

@@ -80,6 +80,65 @@ const capProps: PropRow[] = [
 ];
 
 export const flutterPropTables: Record<string, PropRow[]> = {
+  PlAccordion: [
+    from('PlAccordion', 'children', {
+      name: 'items',
+      type: 'List<PlAccordionItem<T>>',
+      required: true,
+      description: {
+        ko: '섹션들. children이 아니라 설명의 목록입니다 — accordion이 무엇이 열려 있고 사이의 선이 어디 가는지를 알아야 합니다',
+        en: 'The sections, as a list of descriptions rather than children — the accordion has to know what is open and where the rules go'
+      }
+    }),
+    from('PlAccordion', 'value', {
+      type: 'Set<T>',
+      required: true,
+      description: {
+        ko: '열려 있는 섹션. multiple이 꺼져 있어도 집합입니다 — 닫힌 상태는 빈 집합입니다',
+        en: 'Which sections are open. A set even with multiple off — closed is the empty one'
+      }
+    }),
+    from('PlAccordion', 'onValueChange', {
+      name: 'onChanged',
+      type: 'ValueChanged<Set<T>>?',
+      description: {
+        ko: '다음에 열려 있어야 할 집합으로 호출됩니다. 주지 않으면 열린 상태 그대로 굳습니다',
+        en: 'Called with the set that should be open next. Leaving it out freezes the accordion'
+      }
+    }),
+    from('PlAccordion', 'multiple', { type: 'bool', default: 'false' }),
+    from('PlAccordion', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlAccordion', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlAccordion', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlAccordion', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlAccordion', 'elevation', { type: 'int', default: '0' }),
+    from('PlAccordion', 'dividers', { type: 'bool', default: 'true' }),
+    from('PlAccordion', 'disabled', { type: 'bool', default: 'false' })
+  ],
+
+  PlAccordionItem: [
+    from('PlAccordionItem', 'value', {
+      type: 'T',
+      required: true,
+      description: {
+        ko: 'PlAccordion.value가 이 섹션을 가리키는 이름',
+        en: 'Identifies the section. What PlAccordion.value holds'
+      }
+    }),
+    from('PlAccordionItem', 'title', { type: 'Widget?' }),
+    from('PlAccordionItem', 'subtitle', { type: 'Widget?' }),
+    from('PlAccordionItem', 'startIcon', { type: 'Widget?' }),
+    from('PlAccordionItem', 'action', {
+      type: 'Widget?',
+      description: {
+        ko: '헤더 끝, chevron 앞에 고정되는 컨트롤. 접히는 부분 바깥이라 버튼을 넣어도 됩니다',
+        en: 'A control pinned to the end of the header, before the chevron. It sits outside the fold, so a button is safe there'
+      }
+    }),
+    from('PlAccordionItem', 'disabled', { type: 'bool', default: 'false' }),
+    from('PlAccordionItem', 'children', { name: 'child', type: 'Widget?' })
+  ],
+
   PlAlert: [
     from('PlAlert', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
     from('PlAlert', 'size', { type: SIZE, default: 'PlassSize.md' }),
@@ -714,6 +773,86 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       description: {
         ko: '보이는 label이 없는 switch를 스크린 리더가 부를 이름',
         en: 'The name a screen reader announces, for a switch with no visible label'
+      }
+    }
+  ],
+
+  PlTabs: [
+    from('PlTabs', 'children', {
+      name: 'tabs',
+      type: 'List<PlTab<T>>',
+      required: true,
+      description: {
+        ko: '탭들. children이 아니라 설명의 목록이고, 각자 자기 panel을 들고 있습니다',
+        en: 'The tabs, as a list of descriptions rather than children, each carrying its own panel'
+      }
+    }),
+    from('PlTabs', 'value', {
+      type: 'T?',
+      required: true,
+      description: {
+        ko: '선택된 탭. null은 아무것도 고르지 않은 바입니다',
+        en: 'The chosen tab. null is a bar with nothing chosen'
+      }
+    }),
+    from('PlTabs', 'onValueChange', {
+      name: 'onChanged',
+      type: 'ValueChanged<T>?'
+    }),
+    from('PlTabs', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlTabs', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlTabs', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlTabs', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlTabs', 'orientation', {
+      type: 'PlassOrientation',
+      default: 'PlassOrientation.horizontal'
+    }),
+    from('PlTabs', 'fullWidth', { type: 'bool', default: 'false' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '바를 스크린 리더가 부를 이름. 눈에 보이는 자기 라벨이 없습니다',
+        en: 'The name a screen reader gives the bar. It has no visible label of its own'
+      }
+    },
+    {
+      name: 'focusNode',
+      type: 'FocusNode?',
+      description: {
+        ko: '바의 단 하나뿐인 focus stop을 바깥에서 몹니다',
+        en: "Drives the bar's one focus stop from outside"
+      }
+    },
+    {
+      name: 'autofocus',
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '트리에 들어가는 순간 focus를 가져갑니다',
+        en: 'Takes focus as it is inserted into the tree'
+      }
+    }
+  ],
+
+  PlTab: [
+    from('PlTab', 'value', { type: 'T', required: true }),
+    from('PlTab', 'children', { name: 'label', type: 'Widget?' }),
+    from('PlTab', 'startIcon', {
+      type: 'Widget?',
+      description: {
+        ko: '라벨 앞에 놓이는 내용. 라벨의 1.2배로 그려져 크기를 따라갑니다',
+        en: "Content before the label, drawn at 1.2× it so it tracks the label's size"
+      }
+    }),
+    from('PlTab', 'endIcon', { type: 'Widget?' }),
+    from('PlTab', 'disabled', { type: 'bool', default: 'false' }),
+    {
+      name: 'panel',
+      type: 'Widget?',
+      description: {
+        ko: '이 탭이 골라졌을 때 바 아래에 보이는 것. 고른 패널만 만들어집니다',
+        en: 'What is shown under the bar when this tab is chosen. Only the chosen panel is built'
       }
     }
   ],
