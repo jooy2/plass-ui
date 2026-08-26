@@ -77,6 +77,10 @@ import 'package:plass_ui_example/demos/checkbox/hero.dart';
 import 'package:plass_ui_example/demos/checkbox/indeterminate.dart';
 import 'package:plass_ui_example/demos/checkbox/sizes.dart';
 import 'package:plass_ui_example/demos/checkbox/states.dart';
+import 'package:plass_ui_example/demos/container/centered.dart';
+import 'package:plass_ui_example/demos/container/hero.dart';
+import 'package:plass_ui_example/demos/container/padding.dart';
+import 'package:plass_ui_example/demos/container/widths.dart';
 import 'package:plass_ui_example/demos/divider/colors.dart';
 import 'package:plass_ui_example/demos/divider/hero.dart';
 import 'package:plass_ui_example/demos/divider/label.dart';
@@ -258,6 +262,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'aspect-ratio/ratios': _aspectRatioRatios,
   'aspect-ratio/fit': _aspectRatioFit,
   'aspect-ratio/embed': _aspectRatioEmbed,
+  'container/hero': _containerHero,
+  'container/widths': _containerWidths,
+  'container/padding': _containerPadding,
+  'container/centered': _containerCentered,
   'blockquote/hero': _blockquoteHero,
   'blockquote/variants': _blockquoteVariants,
   'blockquote/sizes': _blockquoteSizes,
@@ -479,6 +487,11 @@ Widget _aspectRatioHero(BuildContext context) => const AspectRatioHero();
 Widget _aspectRatioRatios(BuildContext context) => const AspectRatioRatios();
 Widget _aspectRatioFit(BuildContext context) => const AspectRatioFit();
 Widget _aspectRatioEmbed(BuildContext context) => const AspectRatioEmbed();
+
+Widget _containerHero(BuildContext context) => const ContainerHero();
+Widget _containerWidths(BuildContext context) => const ContainerWidths();
+Widget _containerPadding(BuildContext context) => const ContainerPadding();
+Widget _containerCentered(BuildContext context) => const ContainerCentered();
 
 Widget _blockquoteHero(BuildContext context) => const BlockquoteHero();
 Widget _blockquoteVariants(BuildContext context) => const BlockquoteVariants();

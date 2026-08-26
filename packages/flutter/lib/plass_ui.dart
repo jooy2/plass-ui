@@ -33,6 +33,7 @@ export 'src/components/card/pl_card.dart';
 export 'src/components/chat_bubble/pl_chat_bubble.dart';
 export 'src/components/checkbox/pl_checkbox.dart';
 export 'src/components/chip/pl_chip.dart';
+export 'src/components/container/pl_container.dart';
 export 'src/components/divider/pl_divider.dart';
 export 'src/components/file_picker/pl_file_picker.dart';
 export 'src/components/highlight/pl_highlight.dart';

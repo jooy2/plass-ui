@@ -463,6 +463,22 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlChip', 'children', { name: 'child', type: 'Widget?' })
   ],
 
+  PlContainer: [
+    from('PlContainer', 'children', { name: 'child', type: 'Widget?' }),
+    from('PlContainer', 'maxWidth', {
+      type: 'PlassSize?',
+      default: 'null',
+      description: {
+        ko: '내용이 넓어질 수 있는 한계. null이면 한계가 없습니다 — xs 480 · sm 640 · md 768 · lg 1024 · xl 1280 논리 픽셀',
+        en: 'How wide the content is allowed to get, or null for no limit — xs 480, sm 640, md 768, lg 1024, xl 1280 logical pixels'
+      }
+    }),
+    from('PlContainer', 'padded', { type: 'bool', default: 'true' }),
+    from('PlContainer', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlContainer', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlContainer', 'centered', { type: 'bool', default: 'true' })
+  ],
+
   PlDivider: [
     from('PlDivider', 'orientation', {
       type: 'PlassOrientation',
