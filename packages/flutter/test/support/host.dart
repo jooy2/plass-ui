@@ -25,15 +25,22 @@ Widget host(
   double? width,
   double? height,
   bool disableAnimations = false,
+  bool overlay = false,
   TextDirection textDirection = TextDirection.ltr,
 }) {
+  final Widget body = Center(
+    child: SizedBox(width: width, height: height, child: child),
+  );
+
   return Directionality(
     textDirection: textDirection,
     child: MediaQuery(
       data: MediaQueryData(platformBrightness: brightness, disableAnimations: disableAnimations),
-      child: Center(
-        child: SizedBox(width: width, height: height, child: child),
-      ),
+      // Anything that lifts itself out of the tree — a modal, an overlay — needs
+      // somewhere to go, and in a real app that is the navigator's. A test that
+      // asks for one gets the bare `Overlay` and nothing else, so the component
+      // is still being tested without a `WidgetsApp` around it.
+      child: overlay ? Overlay.wrap(child: body) : body,
     ),
   );
 }

@@ -530,6 +530,52 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlListItem', 'disabled', { type: 'bool', default: 'false' })
   ],
 
+  PlModal: [
+    from('PlModal', 'open', { type: 'bool', required: true }),
+    from('PlModal', 'onOpenChange', {
+      name: 'onOpenChanged',
+      type: 'ValueChanged<bool>?',
+      description: {
+        ko: '열림 상태가 무엇이 되어야 하는지와 함께 불립니다. ×도 바깥 누름도 스스로 닫지 않고 이것을 부릅니다',
+        en: 'Called with what the open state should become. The × and a press outside both report rather than act'
+      }
+    }),
+    from('PlModal', 'title', { type: 'Widget?' }),
+    from('PlModal', 'description', { type: 'Widget?' }),
+    from('PlModal', 'actions', {
+      type: 'List<Widget>?',
+      description: {
+        ko: '아래쪽 줄. 끝 정렬로 감기므로 버튼 두 개에 따로 Row가 필요 없습니다',
+        en: 'The bottom row, end-aligned and wrapping, so a pair of buttons needs no row of its own'
+      }
+    }),
+    from('PlModal', 'children', { name: 'child', type: 'Widget?' }),
+    from('PlModal', 'dividers', { type: 'bool', default: 'true' }),
+    from('PlModal', 'showClose', { type: 'bool', default: 'true' }),
+    from('PlModal', 'closeLabel', { type: 'String', default: "'Close'" }),
+    from('PlModal', 'width', {
+      type: 'double?',
+      description: {
+        ko: 'size가 정하는 최대 너비를 덮어씁니다. 논리 픽셀입니다',
+        en: 'A hard cap on the width, overriding the one size implies. In logical pixels'
+      }
+    }),
+    from('PlModal', 'fullWidth', { type: 'bool', default: 'true' }),
+    from('PlModal', 'fullScreen', { type: 'bool', default: 'false' }),
+    from('PlModal', 'modal', {
+      type: 'bool',
+      default: 'true',
+      description: {
+        ko: '뒤 페이지를 포인터에게서도 가져갈지. false는 누를 수 있게 두면서 focus만 가둡니다',
+        en: 'Whether the page behind is taken away for the pointer as well as the keyboard. false leaves it clickable while still holding focus inside'
+      }
+    }),
+    from('PlModal', 'dismissible', { type: 'bool', default: 'true' }),
+    from('PlModal', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlModal', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlModal', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+  ],
+
   PlNumberField: [
     from('PlNumberField', 'value', { type: 'double?', required: true }),
     from('PlNumberField', 'onValueChange', {
@@ -622,6 +668,32 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'Takes focus as it is inserted into the tree'
       }
     }
+  ],
+
+  PlOverlay: [
+    from('PlOverlay', 'open', { type: 'bool', required: true }),
+    from('PlOverlay', 'onOpenChange', {
+      name: 'onOpenChanged',
+      type: 'ValueChanged<bool>?',
+      description: {
+        ko: '오버레이가 닫히기를 청할 때 false와 함께 불립니다. dismissible이 켜져 있을 때만입니다',
+        en: 'Called with false when the overlay asks to be closed — only ever when dismissible is on'
+      }
+    }),
+    from('PlOverlay', 'children', { name: 'child', type: 'Widget?' }),
+    from('PlOverlay', 'tone', { type: 'PlOverlayTone', default: 'PlOverlayTone.scrim' }),
+    from('PlOverlay', 'dismissible', { type: 'bool', default: 'false' }),
+    from('PlOverlay', 'modal', {
+      type: 'bool',
+      default: 'true',
+      description: {
+        ko: '뒤 페이지를 포인터에게서도 가져갈지. false는 누를 수 있게 두면서 focus만 가둡니다',
+        en: 'Whether the page behind is taken away for the pointer as well as the keyboard. false leaves it clickable while still holding focus inside'
+      }
+    }),
+    from('PlOverlay', 'align', { type: 'PlassAlign', default: 'PlassAlign.center' }),
+    from('PlOverlay', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlOverlay', 'label', { type: 'String', default: "'Overlay'" })
   ],
 
   PlPagination: [

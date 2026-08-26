@@ -92,6 +92,11 @@ import 'package:plass_ui_example/demos/list/hero.dart';
 import 'package:plass_ui_example/demos/list/rows.dart';
 import 'package:plass_ui_example/demos/list/sizes.dart';
 import 'package:plass_ui_example/demos/list/variants.dart';
+import 'package:plass_ui_example/demos/modal/controlled.dart';
+import 'package:plass_ui_example/demos/modal/dismissible.dart';
+import 'package:plass_ui_example/demos/modal/dividers.dart';
+import 'package:plass_ui_example/demos/modal/hero.dart';
+import 'package:plass_ui_example/demos/modal/sizes.dart';
 import 'package:plass_ui_example/demos/number_field/format.dart';
 import 'package:plass_ui_example/demos/number_field/hero.dart';
 import 'package:plass_ui_example/demos/number_field/sizes.dart';
@@ -99,6 +104,10 @@ import 'package:plass_ui_example/demos/number_field/states.dart';
 import 'package:plass_ui_example/demos/number_field/steppers.dart';
 import 'package:plass_ui_example/demos/number_field/steps.dart';
 import 'package:plass_ui_example/demos/number_field/variants.dart';
+import 'package:plass_ui_example/demos/overlay/align.dart';
+import 'package:plass_ui_example/demos/overlay/dismissible.dart';
+import 'package:plass_ui_example/demos/overlay/hero.dart';
+import 'package:plass_ui_example/demos/overlay/tones.dart';
 import 'package:plass_ui_example/demos/pagination/hero.dart';
 import 'package:plass_ui_example/demos/pagination/sizes.dart';
 import 'package:plass_ui_example/demos/pagination/steppers.dart';
@@ -320,6 +329,15 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'segmented-button/colors': _segmentedButtonColors,
   'segmented-button/icons': _segmentedButtonIcons,
   'segmented-button/full-width': _segmentedButtonFullWidth,
+  'modal/hero': _modalHero,
+  'modal/sizes': _modalSizes,
+  'modal/dividers': _modalDividers,
+  'modal/controlled': _modalControlled,
+  'modal/dismissible': _modalDismissible,
+  'overlay/hero': _overlayHero,
+  'overlay/tones': _overlayTones,
+  'overlay/dismissible': _overlayDismissible,
+  'overlay/align': _overlayAlign,
   'number-field/hero': _numberFieldHero,
   'number-field/steppers': _numberFieldSteppers,
   'number-field/format': _numberFieldFormat,
@@ -554,3 +572,14 @@ Widget _numberFieldSteps(BuildContext context) => const NumberFieldSteps();
 Widget _numberFieldVariants(BuildContext context) => const NumberFieldVariants();
 Widget _numberFieldStates(BuildContext context) => const NumberFieldStates();
 Widget _numberFieldSizes(BuildContext context) => const NumberFieldSizes();
+
+Widget _modalHero(BuildContext context) => const ModalHero();
+Widget _modalSizes(BuildContext context) => const ModalSizes();
+Widget _modalDividers(BuildContext context) => const ModalDividers();
+Widget _modalControlled(BuildContext context) => const ModalControlled();
+Widget _modalDismissible(BuildContext context) => const ModalDismissible();
+
+Widget _overlayHero(BuildContext context) => const OverlayHero();
+Widget _overlayTones(BuildContext context) => const OverlayTones();
+Widget _overlayDismissible(BuildContext context) => const OverlayDismissible();
+Widget _overlayAlign(BuildContext context) => const OverlayAlign();

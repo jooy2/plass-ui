@@ -76,16 +76,22 @@ class _GalleryAppState extends State<GalleryApp> {
             style: const TextStyle(fontFamily: _fontFamily),
             child: PlassTheme(
               brightness: _brightness,
-              child: _host.embedded
-                  ? _Embedded(demo: _host.query['demo']!, align: _host.query['align'])
-                  : _Gallery(
-                      brightness: _brightness,
-                      onFlip: () => setState(() {
-                        _brightness = _brightness == Brightness.dark
-                            ? Brightness.light
-                            : Brightness.dark;
-                      }),
-                    ),
+              // Somewhere for a modal or an overlay to go. A real app gets one
+              // from its navigator; this gallery has no routes, so it says so
+              // itself — sized to the demo, which is what an embedded preview
+              // wants a full-screen sheet measured against.
+              child: Overlay.wrap(
+                child: _host.embedded
+                    ? _Embedded(demo: _host.query['demo']!, align: _host.query['align'])
+                    : _Gallery(
+                        brightness: _brightness,
+                        onFlip: () => setState(() {
+                          _brightness = _brightness == Brightness.dark
+                              ? Brightness.light
+                              : Brightness.dark;
+                        }),
+                      ),
+              ),
             ),
           ),
         );
