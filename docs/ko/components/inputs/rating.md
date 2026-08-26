@@ -7,7 +7,7 @@ order: 9
 
 <p class="plass-lede">별 한 줄로 표현한 5점 만점의 점수입니다. 조작 가능한 rating 아래에는 진짜 라디오 그룹이 있습니다 — 탭 정지 하나, 화살표 키, 그리고 폼 전송에 실리는 값.</p>
 
-<Demo src="rating/hero" :min-height="140" :flutter="false" />
+<Demo src="rating/hero" :min-height="140" />
 
 ::: fw react
 
@@ -15,6 +15,19 @@ order: 9
 import { PlRating } from 'plass-ui';
 
 <PlRating value={score} onValueChange={setScore} />;
+```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlRating(
+  value: score,
+  onChanged: (double next) => setState(() => score = next),
+);
 ```
 
 :::
@@ -29,6 +42,12 @@ import { PlRating } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+rating은 **controlled**입니다. `value`를 받고 그것을 대체해야 할 값을 보고합니다. 이 패키지 어디에도 `defaultValue`는 없습니다. Flutter 자체 컨트롤이 그렇게 동작하기 때문입니다.
+
+:::
+
 `variant`도 `elevation`도 없습니다. 별은 페이지 위의 표식이지 표면이 아닙니다. 라이브러리 전체에서 공유 축이 뜻하는 바는 [prop 규칙](../../design/prop-conventions)에 있습니다.
 
 ## Examples
@@ -39,11 +58,17 @@ import { PlRating } from 'plass-ui';
 
 이것은 독자가 고를 수 있는 범위만 정하고 그 외에는 아무것도 하지 않습니다. `value`가 `4.3`이면 어떤 precision에서도 별 넷과 3분의 1로 그려집니다. 평균은 선택이 아니고, 그것을 가장 가까운 반 별로 반올림하는 것은 받은 수와 다른 수를 보고하는 일이기 때문입니다.
 
-<Demo src="rating/precision" :min-height="200" :flutter="false">
+<Demo src="rating/precision" :min-height="200">
 
 ::: fw react
 
 <<< @/.vitepress/demos/rating/precision.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/rating/precision.dart
 
 :::
 
@@ -57,11 +82,17 @@ import { PlRating } from 'plass-ui';
 
 이것은 라이브러리에서 채도를 빼지 **않는** 유일한 `readOnly`이기도 합니다. 붙들려 있는 컨트롤이 아니라 — 남은 컨트롤이 없습니다 — 회색 별 한 줄은 점수 자체를 쓸 수 없다는 말이 되어 버립니다.
 
-<Demo src="rating/average" :min-height="200" :flutter="false">
+<Demo src="rating/average" :min-height="200">
 
 ::: fw react
 
 <<< @/.vitepress/demos/rating/average.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/rating/average.dart
 
 :::
 
@@ -77,11 +108,17 @@ import { PlRating } from 'plass-ui';
 
 둘 다 주거나, 둘 다 주지 않습니다. 두 그림은 하나 위에 하나를 얹고 위쪽을 잘라내므로, 채워진 하트를 외곽선 별 위에 얹으면 안쪽과 맞지 않는 테두리로 보입니다.
 
-<Demo src="rating/icons" :min-height="120" :flutter="false">
+<Demo src="rating/icons" :min-height="120">
 
 ::: fw react
 
 <<< @/.vitepress/demos/rating/icons.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/rating/icons.dart
 
 :::
 
@@ -91,11 +128,17 @@ import { PlRating } from 'plass-ui';
 
 독립 글리프 사다리입니다 — `PlIcon`이 쓰는 것과 같습니다. 별은 컨트롤이 아니라 내용이기 때문입니다. 자기가 앉은 줄이 아니라 옆에 있는 글자에 대해 재어집니다.
 
-<Demo src="rating/sizes" :min-height="240" :flutter="false">
+<Demo src="rating/sizes" :min-height="240">
 
 ::: fw react
 
 <<< @/.vitepress/demos/rating/sizes.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/rating/sizes.dart
 
 :::
 
@@ -105,11 +148,17 @@ import { PlRating } from 'plass-ui';
 
 기본값은 나머지 전부가 쓰는 `primary`가 아니라 `warning`입니다 — 별에 기대되는 그 호박색. 라이브러리에서 컴포넌트의 기본 색이 그것이 무엇을 *뜻하는지*가 아니라 그것이 *무엇인지*로 정해지는 유일한 자리입니다.
 
-<Demo src="rating/colors" :min-height="200" :flutter="false">
+<Demo src="rating/colors" :min-height="200">
 
 ::: fw react
 
 <<< @/.vitepress/demos/rating/colors.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/rating/colors.dart
 
 :::
 
@@ -121,11 +170,17 @@ import { PlRating } from 'plass-ui';
 
 `disabled`는 하우스의 처리 그대로입니다. 줄에서 빛이 꺼지고 페이지가 비쳐 보이며 색 가족은 남습니다. 회색 줄은 같은 상태에 대한 두 번째 어휘가 됩니다.
 
-<Demo src="rating/states" :min-height="200" :flutter="false">
+<Demo src="rating/states" :min-height="200">
 
 ::: fw react
 
 <<< @/.vitepress/demos/rating/states.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/rating/states.dart
 
 :::
 
@@ -142,5 +197,23 @@ import { PlRating } from 'plass-ui';
 
 - input들은 시각적으로 숨겨진 상자 안의 진짜 `<input type="radio">`이고, 별의 각 분수 아래에 하나씩 있습니다. `name`은 폼과 함께 전송되고, `required`는 별을 고르기 전까지 전송을 막습니다.
 - 지우기는 `change`가 아니라 `click`에 실립니다. 이미 체크된 라디오를 클릭하면 클릭만 발생하고 change는 전혀 발생하지 않는데, 바로 그 클릭이 여기서 듣고 있는 동작이기 때문입니다.
+
+:::
+
+::: fw flutter
+
+- 고를 수 있는 모든 분수는 각자의 시맨틱 노드이고, 상호 배타적인 집합의 하나로 표시되며 자기가 나타내는 점수를 이름으로 들고 있습니다. 스크린 리더가 직접 실행할 수 있습니다.
+- 줄 전체가 탭 정지 하나이고, 화살표 키가 `precision` 한 단계씩 점수를 옮깁니다. React 빌드가 라디오 그룹에서 공짜로 얻는 것을 여기서는 직접 묶었습니다. <kbd>Home</kbd>은 지우고 <kbd>End</kbd>는 끝까지 올립니다. 화살표는 쓰기 방향을 따르므로 RTL에서는 반대로 움직입니다.
+- 단축키는 상속이 아니라 줄에 직접 선언되어 있습니다. 그래서 맨 `WidgetsApp` 안에서도, 위에 앱 위젯이 하나도 없어도 똑같이 동작합니다.
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `value` / `defaultValue` / `onValueChange` | `value` / `onChanged` | Flutter 자체 컨트롤이 controlled이고, 콜백 이름도 그쪽 이름입니다. |
+| 숨겨진 `<input>`의 라디오 그룹 | 시맨틱 노드와 탭 정지 하나 | 전송할 폼도, 키보드를 물려받을 네이티브 라디오도 없어서 화살표를 줄에 직접 묶었습니다. |
+| `name`, `required` | — | 둘 다 HTML 폼 전송에 관한 것이고, Flutter에는 대응물이 없습니다. |
+| 별마다 포커스 링 | 줄 하나에 링 하나 | 여기서는 줄이 포커스 노드 하나라서, 링은 실제로 포커스를 쥔 것을 두릅니다. |
+| `className`, `style` | — | 전달할 클래스 목록도 style 속성도 없습니다. |
 
 :::

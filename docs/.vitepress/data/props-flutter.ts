@@ -1089,6 +1089,46 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlSegment', 'disabled', { type: 'bool', default: 'false' })
   ],
 
+  PlRating: [
+    from('PlRating', 'value', {
+      type: 'double',
+      required: true,
+      description: {
+        ko: '점수. 0은 평가 없음입니다. controlled입니다 — defaultValue는 없습니다',
+        en: 'The score. 0 is no rating at all. Controlled: there is no defaultValue'
+      }
+    }),
+    from('PlRating', 'onValueChange', {
+      name: 'onChanged',
+      type: 'ValueChanged<double>?',
+      description: {
+        ko: '새 점수로 호출됩니다. 주지 않으면 점수가 그대로 굳습니다',
+        en: 'Called with the new score. Leaving it out freezes the rating where it is'
+      }
+    }),
+    from('PlRating', 'count', { type: 'int', default: '5' }),
+    from('PlRating', 'precision', { type: 'double', default: '1' }),
+    from('PlRating', 'icon · emptyIcon', { type: 'Widget?' }),
+    from('PlRating', 'clearable', { type: 'bool', default: 'true' }),
+    from('PlRating', 'readOnly', { type: 'bool', default: 'false' }),
+    from('PlRating', 'disabled', { type: 'bool', default: 'false' }),
+    from('PlRating', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlRating', 'color', { type: COLOR, default: 'PlassColor.warning' }),
+    from('PlRating', 'label', { type: 'String', default: "'Rating'" }),
+    from('PlRating', 'valueLabel', {
+      type: 'PlRatingValueLabel',
+      default: 'PlRating.defaultValueLabel'
+    }),
+    {
+      name: 'focusNode · autofocus',
+      type: 'FocusNode? · bool',
+      description: {
+        ko: '포커스를 밖에서 제어하거나, 트리에 들어가면서 포커스를 가져갑니다',
+        en: 'Drive focus from outside, or take it on insertion'
+      }
+    }
+  ],
+
   PlSegmentedButton: [
     from('PlSegmentedButton', 'children', {
       name: 'segments',

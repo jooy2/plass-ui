@@ -184,6 +184,18 @@ enum PlassGlyphShape {
 
   /// A circled ×. `danger`.
   dangerMark,
+
+  /// A five-pointed star, filled. What a rating is made of.
+  ///
+  /// [PlassGlyphShape.star] and [PlassGlyphShape.starOutline] are the same five
+  /// points traced twice — once painted, once stroked — and they have to be,
+  /// because a rating lays one over the other and clips the top copy to a
+  /// fraction of the width. Two stars of two shapes would show as a rim that
+  /// does not line up with what is inside it.
+  star,
+
+  /// The same five points, stroked. See [PlassGlyphShape.star].
+  starOutline,
 }
 
 /// The mark that goes with a colour family.
@@ -308,7 +320,9 @@ class _GlyphPainter extends CustomPainter {
       case PlassGlyphShape.successMark:
       case PlassGlyphShape.warningMark:
       case PlassGlyphShape.dangerMark:
-        return 1.5;
+      case PlassGlyphShape.star:
+      case PlassGlyphShape.starOutline:
+        return 1.3;
     }
   }
 
@@ -449,12 +463,34 @@ class _GlyphPainter extends CustomPainter {
           ..lineTo(10.1, 10.1)
           ..moveTo(10.1, 5.9)
           ..lineTo(5.9, 10.1);
+      case PlassGlyphShape.star:
+        _star(solid);
+      case PlassGlyphShape.starOutline:
+        _star(line);
     }
   }
 
   static const Radius _r1 = Radius.circular(1);
   static const Radius _r15 = Radius.circular(1.5);
   static const Radius _r275 = Radius.circular(2.75);
+
+  /// The five points, written once and traced into whichever path is going to
+  /// be painted — which is the only way the filled star and the outlined one
+  /// are guaranteed to be the same star.
+  static void _star(Path path) {
+    path
+      ..moveTo(8, 1.6)
+      ..lineTo(9.86, 5.5)
+      ..lineTo(14, 6.06)
+      ..lineTo(10.98, 8.96)
+      ..lineTo(11.74, 13.2)
+      ..lineTo(8, 11.16)
+      ..lineTo(4.26, 13.2)
+      ..lineTo(5.02, 8.96)
+      ..lineTo(2, 6.06)
+      ..lineTo(6.14, 5.5)
+      ..close();
+  }
 
   @override
   bool shouldRepaint(_GlyphPainter oldDelegate) {

@@ -151,6 +151,13 @@ import 'package:plass_ui_example/demos/radio_group/hero.dart';
 import 'package:plass_ui_example/demos/radio_group/orientation.dart';
 import 'package:plass_ui_example/demos/radio_group/sizes.dart';
 import 'package:plass_ui_example/demos/radio_group/states.dart';
+import 'package:plass_ui_example/demos/rating/average.dart';
+import 'package:plass_ui_example/demos/rating/colors.dart';
+import 'package:plass_ui_example/demos/rating/hero.dart';
+import 'package:plass_ui_example/demos/rating/icons.dart';
+import 'package:plass_ui_example/demos/rating/precision.dart';
+import 'package:plass_ui_example/demos/rating/sizes.dart';
+import 'package:plass_ui_example/demos/rating/states.dart';
 import 'package:plass_ui_example/demos/segmented_button/colors.dart';
 import 'package:plass_ui_example/demos/segmented_button/full_width.dart';
 import 'package:plass_ui_example/demos/segmented_button/hero.dart';
@@ -273,6 +280,13 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'aspect-ratio/ratios': _aspectRatioRatios,
   'aspect-ratio/fit': _aspectRatioFit,
   'aspect-ratio/embed': _aspectRatioEmbed,
+  'rating/hero': _ratingHero,
+  'rating/precision': _ratingPrecision,
+  'rating/average': _ratingAverage,
+  'rating/icons': _ratingIcons,
+  'rating/sizes': _ratingSizes,
+  'rating/colors': _ratingColors,
+  'rating/states': _ratingStates,
   'icon-button/hero': _iconButtonHero,
   'icon-button/variants': _iconButtonVariants,
   'icon-button/sizes': _iconButtonSizes,
@@ -509,6 +523,14 @@ Widget _aspectRatioHero(BuildContext context) => const AspectRatioHero();
 Widget _aspectRatioRatios(BuildContext context) => const AspectRatioRatios();
 Widget _aspectRatioFit(BuildContext context) => const AspectRatioFit();
 Widget _aspectRatioEmbed(BuildContext context) => const AspectRatioEmbed();
+
+Widget _ratingHero(BuildContext context) => const RatingHero();
+Widget _ratingPrecision(BuildContext context) => const RatingPrecision();
+Widget _ratingAverage(BuildContext context) => const RatingAverage();
+Widget _ratingIcons(BuildContext context) => const RatingIcons();
+Widget _ratingSizes(BuildContext context) => const RatingSizes();
+Widget _ratingColors(BuildContext context) => const RatingColors();
+Widget _ratingStates(BuildContext context) => const RatingStates();
 
 Widget _iconButtonHero(BuildContext context) => const IconButtonHero();
 Widget _iconButtonVariants(BuildContext context) => const IconButtonVariants();
