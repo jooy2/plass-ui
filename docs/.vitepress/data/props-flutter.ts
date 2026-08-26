@@ -631,6 +631,58 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlGrid: [
+    from('PlGrid', 'children', {
+      name: 'items',
+      type: 'List<PlGridItem>',
+      required: true,
+      description: {
+        ko: '칸들. children이 아니라 설명의 목록입니다 — 그리드가 각 칸이 몇 칸을 쓰는지 알아야 줄로 묶을 수 있습니다',
+        en: 'The cells, as a list of descriptions rather than children — the grid has to know what each one takes to pack them into rows'
+      }
+    }),
+    from('PlGrid', 'columns', {
+      type: 'PlassResponsive<int>',
+      default: 'PlassResponsive(12)'
+    }),
+    from('PlGrid', 'spacing', {
+      type: 'PlassResponsive<double>',
+      default: 'PlassResponsive(2)',
+      description: {
+        ko: '칸 사이 간격. Tailwind spacing 스케일이라 4는 논리 픽셀 16이고, 분수도 됩니다',
+        en: "The gutter between cells, on Tailwind's spacing scale — 4 is 16 logical pixels, and fractions are allowed"
+      }
+    }),
+    from('PlGrid', 'rowSpacing · columnSpacing', { type: 'PlassResponsive<double>?' }),
+    from('PlGrid', 'justify', { type: 'PlassJustify', default: 'PlassJustify.start' }),
+    from('PlGrid', 'alignItems', {
+      type: 'PlassAlignItems',
+      default: 'PlassAlignItems.stretch'
+    }),
+    from('PlGrid', 'alignContent', { type: 'PlassJustify?' }),
+    from('PlGrid', 'wrap', {
+      type: 'bool',
+      default: 'true',
+      description: {
+        ko: '칸이 모자란 줄이 다음 줄로 이어질지. 끄면 한 줄이 되고, 그 줄은 옆으로 스크롤합니다',
+        en: 'Whether a row that runs out of columns continues on the next one. Off gives one row, and that row scrolls sideways'
+      }
+    })
+  ],
+
+  PlGridItem: [
+    from('PlGridItem', 'children', { name: 'child', type: 'Widget', required: true }),
+    from('PlGridItem', 'span', { type: 'PlassResponsive<int>?' }),
+    from('PlGridItem', 'offset', { type: 'PlassResponsive<int>?' }),
+    from('PlGridItem', 'alignSelf', {
+      type: 'PlassAlignSelf?',
+      description: {
+        ko: '이 칸 하나만 줄의 alignItems를 덮어씁니다. baseline은 없습니다 — Flutter의 줄은 하나의 기준선으로 정렬되거나 아예 아닙니다',
+        en: "Overrides the row's alignItems for this cell alone. There is no baseline here — a Flutter row is aligned on one baseline or on none"
+      }
+    })
+  ],
+
   PlHighlight: [
     from('PlHighlight', 'children', {
       name: 'text',

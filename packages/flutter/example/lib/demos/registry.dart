@@ -93,6 +93,12 @@ import 'package:plass_ui_example/demos/file_picker/single.dart';
 import 'package:plass_ui_example/demos/file_picker/sizes.dart';
 import 'package:plass_ui_example/demos/file_picker/states.dart';
 import 'package:plass_ui_example/demos/file_picker/variants.dart';
+import 'package:plass_ui_example/demos/grid/alignment.dart';
+import 'package:plass_ui_example/demos/grid/hero.dart';
+import 'package:plass_ui_example/demos/grid/offset.dart';
+import 'package:plass_ui_example/demos/grid/responsive.dart';
+import 'package:plass_ui_example/demos/grid/spacing.dart';
+import 'package:plass_ui_example/demos/grid/span.dart';
 import 'package:plass_ui_example/demos/highlight/colors.dart';
 import 'package:plass_ui_example/demos/highlight/hero.dart';
 import 'package:plass_ui_example/demos/highlight/matching.dart';
@@ -262,6 +268,12 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'aspect-ratio/ratios': _aspectRatioRatios,
   'aspect-ratio/fit': _aspectRatioFit,
   'aspect-ratio/embed': _aspectRatioEmbed,
+  'grid/hero': _gridHero,
+  'grid/span': _gridSpan,
+  'grid/responsive': _gridResponsive,
+  'grid/offset': _gridOffset,
+  'grid/spacing': _gridSpacing,
+  'grid/alignment': _gridAlignment,
   'container/hero': _containerHero,
   'container/widths': _containerWidths,
   'container/padding': _containerPadding,
@@ -487,6 +499,13 @@ Widget _aspectRatioHero(BuildContext context) => const AspectRatioHero();
 Widget _aspectRatioRatios(BuildContext context) => const AspectRatioRatios();
 Widget _aspectRatioFit(BuildContext context) => const AspectRatioFit();
 Widget _aspectRatioEmbed(BuildContext context) => const AspectRatioEmbed();
+
+Widget _gridHero(BuildContext context) => const GridHero();
+Widget _gridSpan(BuildContext context) => const GridSpan();
+Widget _gridResponsive(BuildContext context) => const GridResponsive();
+Widget _gridOffset(BuildContext context) => const GridOffset();
+Widget _gridSpacing(BuildContext context) => const GridSpacing();
+Widget _gridAlignment(BuildContext context) => const GridAlignment();
 
 Widget _containerHero(BuildContext context) => const ContainerHero();
 Widget _containerWidths(BuildContext context) => const ContainerWidths();

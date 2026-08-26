@@ -10,6 +10,8 @@
 /// it is marked where it happens.
 library;
 
+import 'package:flutter/foundation.dart';
+
 /// Scale of a component. [PlassSize.md] is the desktop default.
 enum PlassSize {
   /// 24px tall. For a table row, and the one step where the gloss is faint.
@@ -109,6 +111,186 @@ enum PlassAlign {
 
   /// The trailing edge in the current writing direction.
   end,
+}
+
+/// A width the layout answers to.
+///
+/// The same five names as [PlassSize], and deliberately so: a reader who has
+/// learned the ladder once should not have to learn a second set of words for
+/// where a screen changes shape. They are not the same ladder — a size is how
+/// tall a control is and a breakpoint is how wide the window is — but they run
+/// in the same direction and are used in the same sentence often enough that
+/// two vocabularies would only ever get mixed up.
+///
+/// The widths are the React package's, which are Tailwind's: `sm` 640, `md`
+/// 768, `lg` 1024, `xl` 1280, with [PlassBreakpoint.xs] meaning "from zero up".
+enum PlassBreakpoint {
+  /// From zero up.
+  xs(0),
+
+  /// From 640 logical pixels up.
+  sm(640),
+
+  /// From 768 up.
+  md(768),
+
+  /// From 1024 up.
+  lg(1024),
+
+  /// From 1280 up.
+  xl(1280);
+
+  const PlassBreakpoint(this.width);
+
+  /// The width, in logical pixels, at which this breakpoint starts.
+  final double width;
+
+  /// Which breakpoint a window of [width] is in.
+  static PlassBreakpoint of(double width) {
+    PlassBreakpoint current = PlassBreakpoint.xs;
+
+    for (final PlassBreakpoint candidate in PlassBreakpoint.values) {
+      if (width >= candidate.width) {
+        current = candidate;
+      }
+    }
+
+    return current;
+  }
+}
+
+/// A value that may change with the width of the window.
+///
+/// The base value applies from zero up and every override applies **from its
+/// own breakpoint up**, so two of them usually describe a whole layout:
+/// `PlassResponsive<int>(12, md: 6)` is a full width on a phone and a half from
+/// 768.
+///
+/// The React package spells this as a bare value or a map — `span={6}` or
+/// `span={{ xs: 12, md: 6 }}` — which a TypeScript union can carry and Dart
+/// cannot. The base value being positional is what keeps the common case short:
+/// `PlassResponsive(6)` is the whole of "six columns everywhere".
+@immutable
+class PlassResponsive<T> {
+  /// Creates a responsive value. [base] applies from zero up; each named
+  /// override applies from its own breakpoint up.
+  const PlassResponsive(this.base, {this.sm, this.md, this.lg, this.xl});
+
+  /// The value from zero up, and the one every override falls back to.
+  final T base;
+
+  /// From 640 up.
+  final T? sm;
+
+  /// From 768 up.
+  final T? md;
+
+  /// From 1024 up.
+  final T? lg;
+
+  /// From 1280 up.
+  final T? xl;
+
+  /// The value in force at [breakpoint], falling back through the ones below
+  /// it — which is what makes one override a whole answer rather than the top
+  /// of a ladder somebody has to finish.
+  T resolve(PlassBreakpoint breakpoint) {
+    switch (breakpoint) {
+      case PlassBreakpoint.xl:
+        return xl ?? lg ?? md ?? sm ?? base;
+      case PlassBreakpoint.lg:
+        return lg ?? md ?? sm ?? base;
+      case PlassBreakpoint.md:
+        return md ?? sm ?? base;
+      case PlassBreakpoint.sm:
+        return sm ?? base;
+      case PlassBreakpoint.xs:
+        return base;
+    }
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is PlassResponsive<T> &&
+        other.base == base &&
+        other.sm == sm &&
+        other.md == md &&
+        other.lg == lg &&
+        other.xl == xl;
+  }
+
+  @override
+  int get hashCode => Object.hash(base, sm, md, lg, xl);
+}
+
+/// How a row distributes the space its content did not use, along the axis the
+/// content runs on.
+///
+/// The three positional values are the library's own `start`/`center`/`end`
+/// rather than `left`/`right`, for the reason [PlassAlign] gives: they flip
+/// under RTL.
+enum PlassJustify {
+  /// Packed against the leading edge.
+  start,
+
+  /// Packed in the middle.
+  center,
+
+  /// Packed against the trailing edge.
+  end,
+
+  /// The leftover space divided between the members, none at the ends.
+  spaceBetween,
+
+  /// Half a share at each end.
+  spaceAround,
+
+  /// An equal share at the ends and between.
+  spaceEvenly,
+
+  /// Behaves as [PlassJustify.start] for members that already have a width.
+  stretch,
+}
+
+/// How content sits across the axis it does not run on.
+enum PlassAlignItems {
+  /// Against the top of the row.
+  start,
+
+  /// Centred in the row.
+  center,
+
+  /// Against the bottom of the row.
+  end,
+
+  /// Every member as tall as the row — which is what makes a row of cards the
+  /// same height without anybody asking.
+  stretch,
+
+  /// Every member's first line of text on one line.
+  baseline,
+}
+
+/// The same, for one member overriding the set it is in.
+///
+/// **There is no `baseline` here, where the React package has one.** CSS
+/// resolves a baseline per item; a Flutter row is aligned on one baseline or on
+/// none, so a single cell cannot opt into one the row is not using.
+enum PlassAlignSelf {
+  /// Take the row's own alignment.
+  auto,
+
+  /// Against the top of the row.
+  start,
+
+  /// Centred in the row.
+  center,
+
+  /// Against the bottom of the row.
+  end,
+
+  /// As tall as the row.
+  stretch,
 }
 
 /// Which corner of a box something is pinned to.
