@@ -23,7 +23,7 @@ A thing that is pressed is **tinted glass**: a gradient that sweeps between two 
 - **ESM only**, TypeScript declarations included, tree-shakeable.
 - **One runtime dependency** on React (18 or 19, Node.js 20.19 or later); **none at all** on Flutter, which is also built without `material.dart` or `cupertino.dart`.
 
-> **0.0.1 is a preview.** The React package has thirty-five components; the Flutter package has one, `PlButton`, and the scaffolding around it. The shape they are poured into — the prop vocabulary, the tokens, the build — is settled. The API is not frozen yet.
+> **0.0.1 is a preview.** Both packages ship the same library — every component listed below exists in each. The shape they are poured into — the prop vocabulary, the tokens, the build — is settled. The API is not frozen yet.
 
 ## Packages
 
@@ -108,7 +108,7 @@ export default function SignIn() {
 
 Every component is exported under a `Pl` prefix — `Button`, `Card` and `Table` are the most-taken identifiers in the ecosystem, and a consumer should not have to alias ours on import.
 
-The list below is the React package's. The Flutter package has `PlButton`; where a component exists in both, the props are the same props under Dart's names, and the page for it says exactly what differs.
+The list below is both packages'. The props are the same props under Dart's names, and each component's page says exactly what differs.
 
 ### Display
 
