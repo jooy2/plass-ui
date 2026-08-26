@@ -44,6 +44,7 @@ export 'src/components/icon_button/pl_icon_button.dart';
 export 'src/components/list/pl_list.dart';
 export 'src/components/modal/pl_modal.dart';
 export 'src/components/number_field/pl_number_field.dart';
+export 'src/components/otp_field/pl_otp_field.dart';
 export 'src/components/overlay/pl_overlay.dart';
 export 'src/components/pagination/pl_pagination.dart';
 export 'src/components/radio_group/pl_radio_group.dart';

@@ -136,6 +136,12 @@ import 'package:plass_ui_example/demos/number_field/states.dart';
 import 'package:plass_ui_example/demos/number_field/steppers.dart';
 import 'package:plass_ui_example/demos/number_field/steps.dart';
 import 'package:plass_ui_example/demos/number_field/variants.dart';
+import 'package:plass_ui_example/demos/otp_field/charset.dart';
+import 'package:plass_ui_example/demos/otp_field/hero.dart';
+import 'package:plass_ui_example/demos/otp_field/length.dart';
+import 'package:plass_ui_example/demos/otp_field/sizes.dart';
+import 'package:plass_ui_example/demos/otp_field/states.dart';
+import 'package:plass_ui_example/demos/otp_field/variants.dart';
 import 'package:plass_ui_example/demos/overlay/align.dart';
 import 'package:plass_ui_example/demos/overlay/dismissible.dart';
 import 'package:plass_ui_example/demos/overlay/hero.dart';
@@ -280,6 +286,12 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'aspect-ratio/ratios': _aspectRatioRatios,
   'aspect-ratio/fit': _aspectRatioFit,
   'aspect-ratio/embed': _aspectRatioEmbed,
+  'otp-field/hero': _otpFieldHero,
+  'otp-field/length': _otpFieldLength,
+  'otp-field/charset': _otpFieldCharset,
+  'otp-field/variants': _otpFieldVariants,
+  'otp-field/sizes': _otpFieldSizes,
+  'otp-field/states': _otpFieldStates,
   'rating/hero': _ratingHero,
   'rating/precision': _ratingPrecision,
   'rating/average': _ratingAverage,
@@ -523,6 +535,13 @@ Widget _aspectRatioHero(BuildContext context) => const AspectRatioHero();
 Widget _aspectRatioRatios(BuildContext context) => const AspectRatioRatios();
 Widget _aspectRatioFit(BuildContext context) => const AspectRatioFit();
 Widget _aspectRatioEmbed(BuildContext context) => const AspectRatioEmbed();
+
+Widget _otpFieldHero(BuildContext context) => const OtpFieldHero();
+Widget _otpFieldLength(BuildContext context) => const OtpFieldLength();
+Widget _otpFieldCharset(BuildContext context) => const OtpFieldCharset();
+Widget _otpFieldVariants(BuildContext context) => const OtpFieldVariants();
+Widget _otpFieldSizes(BuildContext context) => const OtpFieldSizes();
+Widget _otpFieldStates(BuildContext context) => const OtpFieldStates();
 
 Widget _ratingHero(BuildContext context) => const RatingHero();
 Widget _ratingPrecision(BuildContext context) => const RatingPrecision();

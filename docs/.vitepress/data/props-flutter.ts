@@ -976,6 +976,63 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlOtpField: [
+    {
+      name: 'controller',
+      type: 'TextEditingController?',
+      description: {
+        ko: '입력 중인 코드. 주지 않으면 필드가 자기 것을 하나 듭니다',
+        en: 'The code being typed. Left out, the field owns a controller of its own'
+      }
+    },
+    from('PlOtpField', 'onValueChange', {
+      name: 'onChanged',
+      type: 'ValueChanged<String>?'
+    }),
+    from('PlOtpField', 'onComplete', {
+      name: 'onCompleted',
+      type: 'ValueChanged<String>?'
+    }),
+    from('PlOtpField', 'onValueInvalid', {
+      name: 'onRejected',
+      type: 'ValueChanged<String>?',
+      description: {
+        ko: 'charset이 거부한 글자들로 호출됩니다',
+        en: 'Fires with the characters the charset rejected'
+      }
+    }),
+    from('PlOtpField', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlOtpField', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlOtpField', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlOtpField', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlOtpField', 'elevation', { type: 'int', default: '0' }),
+    from('PlOtpField', 'length', { type: 'int', default: '6' }),
+    from('PlOtpField', 'charset', { type: 'PlOtpCharset', default: 'PlOtpCharset.numeric' }),
+    from('PlOtpField', 'mask', { type: 'bool', default: 'false' }),
+    from('PlOtpField', 'groupSize', { type: 'int?' }),
+    from('PlOtpField', 'separator', { type: 'String', default: "'–'" }),
+    from('PlOtpField', 'label · description · error', { type: 'Widget?' }),
+    from('PlOtpField', 'invalid', { type: 'bool?' }),
+    from('PlOtpField', 'disabled', { type: 'bool', default: 'false' }),
+    from('PlOtpField', 'readOnly', { type: 'bool', default: 'false' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '스크린 리더가 줄을 부르는 이름',
+        en: 'The name a screen reader announces for the row'
+      }
+    },
+    {
+      name: 'focusNode · autofocus',
+      type: 'FocusNode? · bool',
+      description: {
+        ko: '포커스를 밖에서 제어하거나, 트리에 들어가면서 캐럿을 놓습니다',
+        en: 'Drive focus from outside, or put the caret in the row on insertion'
+      }
+    }
+  ],
+
   PlOverlay: [
     from('PlOverlay', 'open', { type: 'bool', required: true }),
     from('PlOverlay', 'onOpenChange', {
