@@ -51,6 +51,7 @@ export 'src/components/tabs/pl_tabs.dart';
 export 'src/components/text_field/pl_text_field.dart';
 export 'src/components/text_link/pl_text_link.dart';
 export 'src/components/timeline/pl_timeline.dart';
+export 'src/components/toast/pl_toast.dart';
 export 'src/components/tooltip/pl_tooltip.dart';
 export 'src/components/typography/pl_typography.dart';
 export 'src/theme/theme.dart';

@@ -1352,6 +1352,105 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlTimelineItem', 'children', { name: 'child', type: 'Widget?' })
   ],
 
+  PlToastProvider: [
+    from('PlToastProvider', 'children', {
+      name: 'child',
+      type: 'Widget',
+      required: true
+    }),
+    from('PlToastProvider', 'position', {
+      type: 'PlToastPosition',
+      default: 'PlToastPosition.bottomEnd'
+    }),
+    from('PlToastProvider', 'timeout', {
+      type: 'Duration',
+      default: 'Duration(seconds: 5)',
+      description: {
+        ko: '기본 지속 시간. Duration.zero는 닫을 때까지 남습니다 — 독자가 무언가 해야 하는 토스트에는 그쪽이 맞습니다',
+        en: 'How long a toast lasts by default. Duration.zero keeps it up until it is closed, which is right for anything the reader has to act on'
+      }
+    }),
+    from('PlToastProvider', 'limit', { type: 'int', default: '3' }),
+    from('PlToastProvider', 'width', {
+      type: 'double',
+      default: '380',
+      description: {
+        ko: '토스트의 최대 너비, 논리 픽셀',
+        en: 'How wide a toast is allowed to get, in logical pixels'
+      }
+    }),
+    from('PlToastProvider', 'closeLabel', { type: 'String', default: "'Close'" }),
+    from('PlToastProvider', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlToastProvider', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlToastProvider', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlToastProvider', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+  ],
+
+  PlToast: [
+    from('PlToastOptions', 'title', { type: 'Widget?' }),
+    from('PlToastOptions', 'description', { type: 'Widget?' }),
+    from('PlToastOptions', 'id', { type: 'String?' }),
+    from('PlToastOptions', 'timeout', {
+      type: 'Duration?',
+      description: {
+        ko: '이 토스트만의 지속 시간. Duration.zero는 닫을 때까지',
+        en: "This toast's own lifetime. Duration.zero keeps it up until it is closed"
+      }
+    }),
+    from('PlToastOptions', 'priority', {
+      type: 'PlToastPriority',
+      default: 'PlToastPriority.low',
+      description: {
+        ko: 'high는 도착하는 순간 알려지고 low는 읽는 사람이 닿을 때까지 기다립니다',
+        en: 'high is announced the moment it arrives; low waits until the reader reaches it'
+      }
+    }),
+    from('PlToastOptions', 'color', { type: 'PlassColor?' }),
+    from('PlToastOptions', 'variant', { type: 'PlassVariant?' }),
+    from('PlToastOptions', 'icon', {
+      type: 'Widget?',
+      description: {
+        ko: '메시지 앞의 글리프. 생략하면 심각도의 표식이 쓰입니다',
+        en: "The glyph before the message. The severity's own mark if it is left out"
+      }
+    }),
+    {
+      name: 'showIcon',
+      type: 'bool',
+      default: 'true',
+      description: {
+        ko: '글리프를 그릴지. Dart에는 null도 위젯도 아닌 값이 없으니 "치워라"가 자기 이름을 가집니다',
+        en: 'Draws a glyph at all. Dart has no value that is neither null nor a widget, so "take it away" gets its own name'
+      }
+    },
+    from('PlToastOptions', 'actionLabel', { type: 'Widget?' }),
+    from('PlToastOptions', 'onAction', { type: 'VoidCallback?' }),
+    from('PlToastOptions', 'onClose', { type: 'VoidCallback?' })
+  ],
+
+  PlToastController: [
+    from('usePlToast', 'add', {
+      name: 'show',
+      type: 'String Function(PlToast toast)',
+      description: {
+        ko: '토스트를 올리고 id를 돌려줍니다. 이미 화면에 있는 id면 그 자리에서 갱신됩니다',
+        en: 'Raises a toast and hands back its id. An id already on screen is updated in place'
+      }
+    }),
+    from('usePlToast', 'update', {
+      type: 'void Function(String id, PlToast toast)'
+    }),
+    from('usePlToast', 'close', { type: 'void Function([String? id])' }),
+    from('usePlToast', 'promise', {
+      name: 'showFuture',
+      type: 'Future<T> Function(Future<T>, {loading, success, failure})',
+      description: {
+        ko: 'future를 따라가는 토스트 하나. 로딩 상태는 열린 채로 붙들리므로 느린 요청이 자기 토스트를 지워 버리지 못합니다',
+        en: 'One toast that follows a future. The loading state is held open, so a slow request cannot dismiss its own toast'
+      }
+    })
+  ],
+
   PlTooltip: [
     from('PlTooltip', 'content', {
       type: 'Widget',

@@ -180,6 +180,12 @@ import 'package:plass_ui_example/demos/timeline/hero.dart';
 import 'package:plass_ui_example/demos/timeline/orientation.dart';
 import 'package:plass_ui_example/demos/timeline/sizes.dart';
 import 'package:plass_ui_example/demos/timeline/status.dart';
+import 'package:plass_ui_example/demos/toast/colors.dart';
+import 'package:plass_ui_example/demos/toast/future.dart';
+import 'package:plass_ui_example/demos/toast/hero.dart';
+import 'package:plass_ui_example/demos/toast/positions.dart';
+import 'package:plass_ui_example/demos/toast/update.dart';
+import 'package:plass_ui_example/demos/toast/variants.dart';
 import 'package:plass_ui_example/demos/tooltip/align.dart';
 import 'package:plass_ui_example/demos/tooltip/delay.dart';
 import 'package:plass_ui_example/demos/tooltip/hero.dart';
@@ -382,6 +388,12 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'table/rows': _tableRows,
   'table/empty': _tableEmpty,
   'table/density': _tableDensity,
+  'toast/hero': _toastHero,
+  'toast/positions': _toastPositions,
+  'toast/variants': _toastVariants,
+  'toast/colors': _toastColors,
+  'toast/update': _toastUpdate,
+  'toast/promise': _toastFuture,
   'tooltip/hero': _tooltipHero,
   'tooltip/sides': _tooltipSides,
   'tooltip/align': _tooltipAlign,
@@ -621,3 +633,10 @@ Widget _selectSizes(BuildContext context) => const SelectSizes();
 Widget _selectStates(BuildContext context) => const SelectStates();
 Widget _selectControlled(BuildContext context) => const SelectControlled();
 Widget _selectIcons(BuildContext context) => const SelectIcons();
+
+Widget _toastHero(BuildContext context) => const ToastHero();
+Widget _toastPositions(BuildContext context) => const ToastPositions();
+Widget _toastVariants(BuildContext context) => const ToastVariants();
+Widget _toastColors(BuildContext context) => const ToastColors();
+Widget _toastUpdate(BuildContext context) => const ToastUpdate();
+Widget _toastFuture(BuildContext context) => const ToastFuture();
