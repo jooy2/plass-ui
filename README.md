@@ -120,7 +120,7 @@ The list below is both packages'. The props are the same props under Dart's name
 
 ### Inputs
 
-`PlButton` · `PlCheckbox` · `PlFilePicker` · `PlIconButton` · `PlNumberField` · `PlPagination` · `PlRadioGroup` · `PlRating` · `PlSegmentedButton` · `PlSelect` · `PlSlider` · `PlSwitch` · `PlTextField`
+`PlButton` · `PlCheckbox` · `PlFilePicker` · `PlIconButton` · `PlNumberField` · `PlOtpField` · `PlPagination` · `PlRadioGroup` · `PlRating` · `PlSegmentedButton` · `PlSelect` · `PlSlider` · `PlSwitch` · `PlTextField`
 
 ### Layout
 

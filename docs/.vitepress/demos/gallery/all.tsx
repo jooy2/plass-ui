@@ -28,6 +28,7 @@ import {
   PlModal,
   PlModalClose,
   PlNumberField,
+  PlOtpField,
   PlOverlay,
   PlPagination,
   PlRadio,
@@ -789,6 +790,16 @@ const entries: Entry[] = [
       ko: '별 한 줄로 표현한 5점 만점의 점수입니다.'
     },
     preview: <PlRating defaultValue={4} />
+  },
+  {
+    name: 'PlOtpField',
+    group: 'inputs',
+    href: 'components/inputs/otp-field',
+    blurb: {
+      en: 'A row of one-character slots: a PIN, a texted code.',
+      ko: '한 글자짜리 칸이 늘어선 줄입니다 — PIN, 문자로 받은 코드.'
+    },
+    preview: <PlOtpField size="sm" length={4} groupSize={2} defaultValue="12" />
   },
   {
     name: 'PlAccordion',

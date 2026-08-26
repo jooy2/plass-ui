@@ -2490,6 +2490,170 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlOtpField: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      elevation: '0',
+      variantDescription: {
+        ko: '칸의 재질. solid는 색이 든 판이 아니라 웰입니다 — PlTextField와 같은 이유입니다',
+        en: 'What a slot is made of. solid is the well rather than a tinted pane, for the reason it is on PlTextField'
+      },
+      sizeDescription: {
+        ko: '칸의 상자와 그 안의 타입 스케일. 컨트롤 사다리가 아니라 칸 자신의 사다리입니다',
+        en: "The slot's box and the type inside it — the slot's own ladder rather than the control one"
+      },
+      densityDescription: {
+        ko: '칸 사이 간격만 바꿉니다',
+        en: 'Changes the gap between slots and nothing else'
+      }
+    }),
+    {
+      name: 'length',
+      type: 'number',
+      default: '6',
+      description: {
+        ko: '코드의 글자 수. 2–12로 잘립니다',
+        en: 'How many characters the code has. Clamped to 2–12'
+      }
+    },
+    {
+      name: 'charset',
+      type: "'numeric' | 'alpha' | 'alphanumeric' | 'any'",
+      default: "'numeric'",
+      description: {
+        ko: '입력할 수 있는 문자. 거부된 것은 버리고 onValueInvalid로 보고합니다',
+        en: 'What may be typed. Anything rejected is dropped and reported through onValueInvalid'
+      }
+    },
+    {
+      name: 'mask',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '비밀번호 필드처럼 글자를 가립니다',
+        en: 'Hides the characters, the way a password field does'
+      }
+    },
+    {
+      name: 'groupSize',
+      type: 'number',
+      description: {
+        ko: '이 칸 수마다 구분자로 줄을 나눕니다',
+        en: 'Splits the row with a separator every this many slots'
+      }
+    },
+    {
+      name: 'separator',
+      type: 'ReactNode',
+      default: "'–'",
+      description: { ko: '두 덩어리 사이에 그려지는 것', en: 'What is drawn between two groups' }
+    },
+    {
+      name: 'value',
+      type: 'string',
+      description: {
+        ko: '코드. onValueChange와 함께 controlled로 씁니다',
+        en: 'The code. Use with onValueChange for a controlled field'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'string',
+      description: {
+        ko: 'uncontrolled일 때 시작 값',
+        en: 'What it starts as, for an uncontrolled one'
+      }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string) => void',
+      description: { ko: '코드가 바뀔 때 호출됩니다', en: 'Called with the new code' }
+    },
+    {
+      name: 'onComplete',
+      type: '(value: string) => void',
+      description: {
+        ko: '모든 칸이 채워지는 순간 호출됩니다 — 코드를 확인할 때',
+        en: 'Fires once every slot is filled — the moment to verify the code'
+      }
+    },
+    {
+      name: 'onValueInvalid',
+      type: '(value: string) => void',
+      description: {
+        ko: '입력이나 붙여넣기에 charset이 거부하는 글자가 있었을 때',
+        en: 'Fires when typed or pasted text held characters the charset rejects'
+      }
+    },
+    {
+      name: 'autoSubmit',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '코드가 완성되는 즉시 폼을 전송합니다',
+        en: 'Submits the owning form as soon as the code is complete'
+      }
+    },
+    {
+      name: 'label · description · error',
+      type: 'ReactNode',
+      description: {
+        ko: '줄 위의 라벨, 아래의 보조 문구와 오류 메시지',
+        en: 'Label above the row, helper text and error message below it'
+      }
+    },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: {
+        ko: '메시지 없이 invalid 상태를 강제합니다. 기본값은 error가 있는지 여부입니다',
+        en: 'Forces the invalid state without a message. Defaults to whether error has content'
+      }
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: {
+        ko: '폼 전송에서 필드를 식별합니다',
+        en: 'Identifies the field when a form is submitted'
+      }
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '코드가 완성되기 전까지 폼이 전송되지 않습니다',
+        en: 'The form must have a complete code before it submits'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '모든 칸이 반응하지 않습니다', en: 'Every slot stops answering' }
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '읽고 복사할 수는 있지만 입력할 수는 없습니다',
+        en: 'Readable and copyable, but not typeable'
+      }
+    },
+    {
+      name: 'autoFocus',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '마운트 시 첫 칸에 캐럿을 놓습니다',
+        en: 'Puts the caret in the first slot on mount'
+      }
+    }
+  ],
+
   PlOverlay: [
     {
       name: 'open',

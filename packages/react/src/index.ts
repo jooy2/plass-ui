@@ -22,6 +22,7 @@ export * from './components/icon-button';
 export * from './components/list';
 export * from './components/modal';
 export * from './components/number-field';
+export * from './components/otp-field';
 export * from './components/overlay';
 export * from './components/pagination';
 export * from './components/radio-group';
