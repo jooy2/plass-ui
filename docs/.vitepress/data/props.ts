@@ -1355,6 +1355,66 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlContainer: [
+    {
+      name: 'maxWidth',
+      type: SIZE + " | 'none'",
+      default: "'none'",
+      description: {
+        ko: '내용이 넓어질 수 있는 한계. 브레이크포인트와 같은 사다리 — xs 30rem · sm 40rem · md 48rem · lg 64rem · xl 80rem',
+        en: 'How wide the content is allowed to get, on the same ladder the breakpoints use — xs 30rem, sm 40rem, md 48rem, lg 64rem, xl 80rem'
+      }
+    },
+    {
+      name: 'padded',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '양옆 여백. 끄면 가운데 정렬과 최대 너비만 남습니다',
+        en: 'The gutter. Turn it off to keep the centring and the measure without the padding'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '여백의 스케일. 시트의 크기이지 높이나 타입 스케일이 아니고, maxWidth와도 무관합니다',
+        en: "The gutter's scale — the size of the sheet, never a height or a type scale, and independent of maxWidth"
+      }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'default'",
+      shared: true,
+      description: { ko: '여백만 바꿉니다', en: 'Changes the gutter and nothing else' }
+    },
+    {
+      name: 'centered',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: 'maxWidth가 화면보다 좁아진 뒤 남는 자리에 내용을 가운데로 놓습니다',
+        en: 'Centres the content once maxWidth is narrower than the page'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '<div> 대신 다른 요소로 렌더링합니다 (<main />, <section />)',
+        en: 'Renders something other than a <div> (<main />, <section />)'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '페이지', en: 'The page' }
+    }
+  ],
+
   PlDivider: [
     {
       name: 'orientation',

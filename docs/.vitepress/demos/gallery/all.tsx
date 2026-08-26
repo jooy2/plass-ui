@@ -14,6 +14,7 @@ import {
   PlChatBubble,
   PlCheckbox,
   PlChip,
+  PlContainer,
   PlDivider,
   PlFilePicker,
   PlHighlight,
@@ -685,6 +686,24 @@ const entries: Entry[] = [
             </div>
           </PlAspectRatio>
         ))}
+      </div>
+    )
+  },
+  {
+    name: 'PlContainer',
+    group: 'layout',
+    href: 'components/layout/container',
+    blurb: {
+      en: 'Horizontal breathing room, and optionally a measure.',
+      ko: '양옆으로 숨 쉴 자리, 그리고 원한다면 최대 너비까지.'
+    },
+    preview: (
+      <div className="w-full rounded-(--plass-radius-md) bg-(--plass-glass-press) py-2">
+        <PlContainer maxWidth="xs" size="sm">
+          <div className="rounded-(--plass-radius-sm) bg-(--plass-glass) py-1.5 text-center text-xs">
+            the page, held to a measure
+          </div>
+        </PlContainer>
       </div>
     )
   },

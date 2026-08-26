@@ -11,6 +11,7 @@ export * from './components/card';
 export * from './components/chat-bubble';
 export * from './components/checkbox';
 export * from './components/chip';
+export * from './components/container';
 export * from './components/divider';
 export * from './components/file-picker';
 export * from './components/highlight';
