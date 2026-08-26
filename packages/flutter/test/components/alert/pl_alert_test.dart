@@ -127,7 +127,7 @@ void main() {
           host(const PlAlert(color: PlassColor.danger, child: Text('Failed')), width: 400),
         );
 
-        expect(tester.getSemantics(find.byType(PlAlert)).flagsCollection.isLiveRegion, isTrue);
+        expect(semanticsOf(tester, find.byType(PlAlert)), isSemantics(isLiveRegion: true));
 
         handle.dispose();
       });
@@ -138,7 +138,7 @@ void main() {
           host(const PlAlert(color: PlassColor.success, child: Text('Saved')), width: 400),
         );
 
-        expect(tester.getSemantics(find.byType(PlAlert)).flagsCollection.isLiveRegion, isFalse);
+        expect(semanticsOf(tester, find.byType(PlAlert)), isSemantics(isLiveRegion: false));
 
         handle.dispose();
       });

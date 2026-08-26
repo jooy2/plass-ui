@@ -91,7 +91,7 @@ void main() {
           ),
         );
 
-        expect(tester.getSemantics(find.text('Billing')).flagsCollection.isHeader, isTrue);
+        expect(tester.getSemantics(find.text('Billing')), isSemantics(isHeader: true));
         handle.dispose();
       });
     });
@@ -148,7 +148,7 @@ void main() {
         final handle = tester.ensureSemantics();
         await tester.pumpWidget(host(PlBreadcrumb(items: trail(2)), width: 480));
 
-        expect(tester.getSemantics(find.text('Step 0')).flagsCollection.isLink, isTrue);
+        expect(tester.getSemantics(find.text('Step 0')), isSemantics(isLink: true));
         handle.dispose();
       });
     });

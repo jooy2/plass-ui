@@ -70,6 +70,16 @@ BoxDecoration decorationWhere(
   return decorationsOf(tester, finder).firstWhere(test);
 }
 
+/// The semantics node a component built for itself.
+///
+/// Not `tester.getSemantics(find.byType(TheComponent))`, which walks *up* from
+/// the component's own render object and lands on whatever node encloses it —
+/// often the root. The node a component means is the one its own `Semantics`
+/// created, and that is the first one inside it.
+SemanticsNode semanticsOf(WidgetTester tester, Finder finder) {
+  return tester.getSemantics(find.descendant(of: finder, matching: find.byType(Semantics)).first);
+}
+
 /// The `TextStyle` the text reading [data] was actually laid out with.
 TextStyle styleOf(WidgetTester tester, String data) {
   return tester.renderObject<RenderParagraph>(find.text(data)).text.style!;

@@ -55,6 +55,30 @@ function sharedProps(component: string): PropRow[] {
   ];
 }
 
+/** What a key cap and the strip of them are both made of. */
+const capProps: PropRow[] = [
+  from('PlKbd', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+  from('PlKbd', 'size', { type: SIZE, default: 'PlassSize.md' }),
+  {
+    name: 'color',
+    type: COLOR,
+    default: 'PlassColor.secondary',
+    shared: true,
+    description: { ko: '의미론적 색 역할', en: 'Semantic colour role' }
+  },
+  from('PlKbd', 'density', { type: DENSITY, default: 'PlassDensity.compact' }),
+  {
+    name: 'elevation',
+    type: 'int',
+    default: '0',
+    shared: true,
+    description: {
+      ko: '그림자 깊이. 0이 기본입니다 — 키캡에는 이미 립이 있고, 페이지에서 띄우기까지 하면 깊이 단서가 하나 많습니다',
+      en: 'Drop shadow depth. 0 is the default: a key cap already has a lip under it, and raising it off the page as well is one depth cue too many'
+    }
+  }
+];
+
 export const flutterPropTables: Record<string, PropRow[]> = {
   PlAlert: [
     from('PlAlert', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
@@ -246,6 +270,43 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlCard', 'children', { name: 'child', type: 'Widget?' })
   ],
 
+  PlCheckbox: [
+    from('PlCheckbox', 'checked', {
+      name: 'value',
+      type: 'bool',
+      required: true,
+      description: {
+        ko: '박스가 체크되어 있는지. controlled 전용입니다 — 상태의 사본을 들고 있는 위젯은 여러분의 상태와 어긋날 수 있는 위젯입니다',
+        en: 'Whether the box is ticked. Controlled only: a widget that owned a copy of your state would be a widget your state could disagree with'
+      }
+    }),
+    from('PlCheckbox', 'onCheckedChange', {
+      name: 'onChanged',
+      type: 'ValueChanged<bool>?',
+      description: {
+        ko: '값이 무엇이 되어야 하는지를 알립니다. null이면 Flutter 관례대로 비활성화됩니다',
+        en: 'Called with what the value should become. Leaving it null disables the checkbox, as it does everywhere else in Flutter'
+      }
+    }),
+    from('PlCheckbox', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlCheckbox', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlCheckbox', 'label', { type: 'Widget?' }),
+    from('PlCheckbox', 'description', { type: 'Widget?' }),
+    from('PlCheckbox', 'error', { type: 'Widget?' }),
+    from('PlCheckbox', 'invalid', { type: 'bool?' }),
+    from('PlCheckbox', 'indeterminate', { type: 'bool', default: 'false' }),
+    from('PlCheckbox', 'readOnly', { type: 'bool', default: 'false' }),
+    from('PlCheckbox', 'disabled', { type: 'bool', default: 'false' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '보이는 label이 없는 checkbox를 스크린 리더가 부를 이름',
+        en: 'The name a screen reader announces, for a checkbox with no visible label'
+      }
+    }
+  ],
+
   PlChip: [
     from('PlChip', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
     from('PlChip', 'size', { type: SIZE, default: 'PlassSize.md' }),
@@ -348,27 +409,23 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlHotKeys', 'cluster', { type: 'PlHotKeysCluster?' }),
     from('PlHotKeys', 'os', { type: 'PlHotKeysOS', default: 'PlHotKeysOS.auto' }),
     from('PlHotKeys', 'separator', { type: 'Widget?' }),
-    from('PlKbd', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlKbd', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    ...capProps
+  ],
+
+  PlKbd: [
     {
-      name: 'color',
-      type: COLOR,
-      default: 'PlassColor.secondary',
-      shared: true,
-      description: {
-        ko: '의미론적 색 역할',
-        en: 'Semantic colour role'
-      }
+      name: 'child',
+      type: 'Widget',
+      required: true,
+      description: { ko: '캡에 인쇄된 것', en: 'What is printed on the cap' }
     },
-    from('PlKbd', 'density', { type: DENSITY, default: 'PlassDensity.compact' }),
+    ...capProps,
     {
-      name: 'elevation',
-      type: 'int',
-      default: '0',
-      shared: true,
+      name: 'semanticLabel',
+      type: 'String?',
       description: {
-        ko: '그림자 깊이. 0이 기본입니다 — 키캡에는 이미 립이 있고, 페이지에서 띄우기까지 하면 깊이 단서가 하나 많습니다',
-        en: 'Drop shadow depth. 0 is the default: a key cap already has a lip under it, and raising it off the page as well is one depth cue too many'
+        ko: '인쇄된 글자 대신 스크린 리더가 읽을 이름. ⌘는 "place of interest sign"으로 읽히는데, 그것은 아무도 가지고 있지 않은 키입니다',
+        en: 'What a screen reader says instead of what is printed. ⌘ read out is "place of interest sign", which is not a key anybody has'
       }
     }
   ],
@@ -414,6 +471,53 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlListItem', 'disabled', { type: 'bool', default: 'false' })
   ],
 
+  PlRadioGroup: [
+    {
+      name: 'options',
+      type: 'List<PlRadioOption<T>>',
+      required: true,
+      description: {
+        ko: '옵션들. children이 아니라 설명의 목록입니다 — 그룹이 roving focus와 화살표 키를 소유하므로 어느 것이 선택됐고 그다음이 무엇인지 알아야 합니다',
+        en: 'The options, as a list of descriptions rather than children — the group owns the roving focus and the arrow keys, so it has to know which is chosen and what comes next'
+      }
+    },
+    from('PlRadioGroup', 'value', {
+      type: 'T?',
+      required: true,
+      description: {
+        ko: '선택된 옵션, 또는 아무것도 선택되지 않았으면 null',
+        en: 'Which option is chosen, or null for none'
+      }
+    }),
+    from('PlRadioGroup', 'onValueChange', {
+      name: 'onChanged',
+      type: 'ValueChanged<T>?',
+      description: {
+        ko: '선택된 옵션을 알립니다. null이면 그룹이 비활성화됩니다',
+        en: 'Called with the option that was chosen. Leaving it null disables the group'
+      }
+    }),
+    from('PlRadioGroup', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlRadioGroup', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlRadioGroup', 'orientation', {
+      type: 'PlassOrientation',
+      default: 'PlassOrientation.vertical'
+    }),
+    from('PlRadioGroup', 'label', { type: 'Widget?' }),
+    from('PlRadioGroup', 'description', { type: 'Widget?' }),
+    from('PlRadioGroup', 'error', { type: 'Widget?' }),
+    from('PlRadioGroup', 'invalid', { type: 'bool?' }),
+    from('PlRadioGroup', 'readOnly', { type: 'bool', default: 'false' }),
+    from('PlRadioGroup', 'disabled', { type: 'bool', default: 'false' })
+  ],
+
+  PlRadioOption: [
+    from('PlRadio', 'value', { type: 'T', required: true }),
+    from('PlRadio', 'label', { type: 'Widget?' }),
+    from('PlRadio', 'description', { type: 'Widget?' }),
+    from('PlRadio', 'disabled', { type: 'bool', default: 'false' })
+  ],
+
   PlSkeleton: [
     from('PlSkeleton', 'shape', {
       type: 'PlSkeletonShape',
@@ -432,6 +536,50 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'What a screen reader is told. Without it the placeholder stays out of the semantics tree; give the one that stands for the whole region a label and it becomes a live region with that name'
       }
     })
+  ],
+
+  PlSwitch: [
+    from('PlSwitch', 'checked', {
+      name: 'value',
+      type: 'bool',
+      required: true,
+      description: {
+        ko: '스위치가 켜져 있는지. controlled 전용입니다',
+        en: 'Whether the switch is on. Controlled only'
+      }
+    }),
+    from('PlSwitch', 'onCheckedChange', {
+      name: 'onChanged',
+      type: 'ValueChanged<bool>?',
+      description: {
+        ko: '값이 무엇이 되어야 하는지를 알립니다. null이면 비활성화됩니다',
+        en: 'Called with what the value should become. Leaving it null disables the switch'
+      }
+    }),
+    from('PlSwitch', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlSwitch', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlSwitch', 'label', { type: 'Widget?' }),
+    from('PlSwitch', 'description', { type: 'Widget?' }),
+    from('PlSwitch', 'error', { type: 'Widget?' }),
+    from('PlSwitch', 'invalid', { type: 'bool?' }),
+    from('PlSwitch', 'labelPlacement', {
+      type: 'PlassAlign',
+      default: 'PlassAlign.end',
+      description: {
+        ko: '라벨이 놓이는 쪽. center는 단언으로 막습니다 — switch의 라벨은 행의 한쪽 끝에 놓입니다',
+        en: 'Which side the label sits on. PlassAlign.center asserts: a switch label sits at one end of a row or the other'
+      }
+    }),
+    from('PlSwitch', 'readOnly', { type: 'bool', default: 'false' }),
+    from('PlSwitch', 'disabled', { type: 'bool', default: 'false' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '보이는 label이 없는 switch를 스크린 리더가 부를 이름',
+        en: 'The name a screen reader announces, for a switch with no visible label'
+      }
+    }
   ],
 
   PlTextLink: [

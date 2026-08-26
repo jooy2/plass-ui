@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -43,7 +41,9 @@ void main() {
         final handle = tester.ensureSemantics();
         await tester.pumpWidget(host(const PlChip(child: Text('Tag'))));
 
-        expect(tester.getSemantics(find.byType(PlChip)), isNot(matchesSemantics(isButton: true)));
+        // Asked from inside: a chip that can be removed is two nodes, so the one
+        // that is the chip is the one its label sits in.
+        expect(tester.getSemantics(find.text('Tag')), isSemantics(isButton: false));
 
         handle.dispose();
       });
@@ -74,12 +74,7 @@ void main() {
           host(PlChip(onPressed: () {}, selected: true, child: const Text('Tag'))),
         );
 
-        // Asked from inside: the chip's node is built by the `Semantics` under
-        // the interaction wrapper rather than by `PlChip` itself.
-        expect(
-          tester.getSemantics(find.text('Tag')).flagsCollection.isSelected,
-          ui.Tristate.isTrue,
-        );
+        expect(tester.getSemantics(find.text('Tag')), isSemantics(isSelected: true));
         handle.dispose();
       });
     });

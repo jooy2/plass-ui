@@ -65,6 +65,11 @@ typedef PlassInteractionBuilder = Widget Function(BuildContext context, PlassInt
 
 /// Wraps [builder] in the whole interaction apparatus.
 ///
+/// A surface that should stay reachable by pointer but out of the tab order —
+/// one option in a set with a roving focus — is wrapped in an [ExcludeFocus] by
+/// its parent rather than told so here: the decision belongs to whatever knows
+/// which member currently holds the stop.
+///
 /// [enabled] governs whether the surface can be *reached* — focus, in other
 /// words. [interactive] governs whether it *responds*. They are separate because
 /// `loading` and `readOnly` stop a control firing without taking it out of the
@@ -82,7 +87,6 @@ class PlassInteractive extends StatefulWidget {
     this.cursor = SystemMouseCursors.click,
     this.focusNode,
     this.autofocus = false,
-    this.canRequestFocus = true,
     this.behavior = HitTestBehavior.opaque,
     this.shortcuts = defaultShortcuts,
     this.onFocusChange,
@@ -112,10 +116,6 @@ class PlassInteractive extends StatefulWidget {
 
   /// Takes focus as it is inserted into the tree.
   final bool autofocus;
-
-  /// Whether the surface is a focus stop. `false` for something operated
-  /// entirely by a descendant that takes focus itself.
-  final bool canRequestFocus;
 
   /// How the gesture detector treats hits. [HitTestBehavior.opaque] is what
   /// stops a tap on an unavailable control reaching whatever is behind it.
@@ -194,6 +194,12 @@ class PlassInteractiveState extends State<PlassInteractive> {
     return FocusableActionDetector(
       enabled: widget.enabled,
       descendantsAreFocusable: true,
+      // The component wraps its own `Semantics` around whatever this builds, so
+      // a focus node of its own would be a second node above that one — and a
+      // chip would reach a screen reader as an unnamed focusable thing
+      // containing a button. Every caller says what it is; this only has to
+      // make it reachable.
+      includeFocusSemantics: false,
       focusNode: widget.focusNode,
       autofocus: widget.autofocus,
       mouseCursor: widget.cursor,
@@ -211,7 +217,7 @@ class PlassInteractiveState extends State<PlassInteractive> {
           setState(() => _focusVisible = value);
         }
       },
-      shortcuts: widget.canRequestFocus ? widget.shortcuts : const <ShortcutActivator, Intent>{},
+      shortcuts: widget.shortcuts,
       actions: <Type, Action<Intent>>{
         ActivateIntent: CallbackAction<ActivateIntent>(
           onInvoke: (ActivateIntent intent) {

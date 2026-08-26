@@ -144,7 +144,7 @@ void main() {
         final handle = tester.ensureSemantics();
         await tester.pumpWidget(host(const PlCard(child: Text('Body')), width: 360));
 
-        expect(tester.getSemantics(find.byType(PlCard)), isNot(matchesSemantics(isButton: true)));
+        expect(tester.getSemantics(find.text('Body')), isSemantics(isButton: false));
 
         handle.dispose();
       });

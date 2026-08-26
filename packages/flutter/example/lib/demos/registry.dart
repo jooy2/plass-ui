@@ -54,6 +54,11 @@ import 'package:plass_ui_example/demos/chip/selected.dart';
 import 'package:plass_ui_example/demos/chip/sizes.dart';
 import 'package:plass_ui_example/demos/chip/slots.dart';
 import 'package:plass_ui_example/demos/chip/variants.dart';
+import 'package:plass_ui_example/demos/checkbox/colors.dart';
+import 'package:plass_ui_example/demos/checkbox/hero.dart';
+import 'package:plass_ui_example/demos/checkbox/indeterminate.dart';
+import 'package:plass_ui_example/demos/checkbox/sizes.dart';
+import 'package:plass_ui_example/demos/checkbox/states.dart';
 import 'package:plass_ui_example/demos/divider/colors.dart';
 import 'package:plass_ui_example/demos/divider/hero.dart';
 import 'package:plass_ui_example/demos/divider/label.dart';
@@ -74,14 +79,26 @@ import 'package:plass_ui_example/demos/icon/hero.dart';
 import 'package:plass_ui_example/demos/icon/inside.dart';
 import 'package:plass_ui_example/demos/icon/sizes.dart';
 import 'package:plass_ui_example/demos/list/dividers.dart';
+import 'package:plass_ui_example/demos/list/hero.dart';
 import 'package:plass_ui_example/demos/list/rows.dart';
 import 'package:plass_ui_example/demos/list/sizes.dart';
 import 'package:plass_ui_example/demos/list/variants.dart';
+import 'package:plass_ui_example/demos/radio_group/colors.dart';
+import 'package:plass_ui_example/demos/radio_group/controlled.dart';
+import 'package:plass_ui_example/demos/radio_group/hero.dart';
+import 'package:plass_ui_example/demos/radio_group/orientation.dart';
+import 'package:plass_ui_example/demos/radio_group/sizes.dart';
+import 'package:plass_ui_example/demos/radio_group/states.dart';
 import 'package:plass_ui_example/demos/skeleton/animated.dart';
 import 'package:plass_ui_example/demos/skeleton/hero.dart';
 import 'package:plass_ui_example/demos/skeleton/matching.dart';
 import 'package:plass_ui_example/demos/skeleton/shapes.dart';
 import 'package:plass_ui_example/demos/skeleton/sizes.dart';
+import 'package:plass_ui_example/demos/switch/colors.dart';
+import 'package:plass_ui_example/demos/switch/hero.dart';
+import 'package:plass_ui_example/demos/switch/placement.dart';
+import 'package:plass_ui_example/demos/switch/sizes.dart';
+import 'package:plass_ui_example/demos/switch/states.dart';
 import 'package:plass_ui_example/demos/text_link/colors.dart';
 import 'package:plass_ui_example/demos/text_link/hero.dart';
 import 'package:plass_ui_example/demos/text_link/icons.dart';
@@ -208,6 +225,23 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'timeline/connectors': _timelineConnectors,
   'timeline/orientation': _timelineOrientation,
   'timeline/sizes': _timelineSizes,
+  'list/hero': _listHero,
+  'checkbox/hero': _checkboxHero,
+  'checkbox/sizes': _checkboxSizes,
+  'checkbox/colors': _checkboxColors,
+  'checkbox/states': _checkboxStates,
+  'checkbox/indeterminate': _checkboxIndeterminate,
+  'radio-group/hero': _radioGroupHero,
+  'radio-group/orientation': _radioGroupOrientation,
+  'radio-group/sizes': _radioGroupSizes,
+  'radio-group/colors': _radioGroupColors,
+  'radio-group/states': _radioGroupStates,
+  'radio-group/controlled': _radioGroupControlled,
+  'switch/hero': _switchHero,
+  'switch/sizes': _switchSizes,
+  'switch/colors': _switchColors,
+  'switch/states': _switchStates,
+  'switch/placement': _switchPlacement,
 };
 
 Widget _hero(BuildContext context) => const ButtonHero();
@@ -325,3 +359,24 @@ Widget _timelineActive(BuildContext context) => const TimelineActive();
 Widget _timelineConnectors(BuildContext context) => const TimelineConnectors();
 Widget _timelineOrientation(BuildContext context) => const TimelineOrientation();
 Widget _timelineSizes(BuildContext context) => const TimelineSizes();
+
+Widget _listHero(BuildContext context) => const ListHero();
+
+Widget _checkboxHero(BuildContext context) => const CheckboxHero();
+Widget _checkboxSizes(BuildContext context) => const CheckboxSizes();
+Widget _checkboxColors(BuildContext context) => const CheckboxColors();
+Widget _checkboxStates(BuildContext context) => const CheckboxStates();
+Widget _checkboxIndeterminate(BuildContext context) => const CheckboxIndeterminate();
+
+Widget _radioGroupHero(BuildContext context) => const RadioGroupHero();
+Widget _radioGroupOrientation(BuildContext context) => const RadioGroupOrientation();
+Widget _radioGroupSizes(BuildContext context) => const RadioGroupSizes();
+Widget _radioGroupColors(BuildContext context) => const RadioGroupColors();
+Widget _radioGroupStates(BuildContext context) => const RadioGroupStates();
+Widget _radioGroupControlled(BuildContext context) => const RadioGroupControlled();
+
+Widget _switchHero(BuildContext context) => const SwitchHero();
+Widget _switchSizes(BuildContext context) => const SwitchSizes();
+Widget _switchColors(BuildContext context) => const SwitchColors();
+Widget _switchStates(BuildContext context) => const SwitchStates();
+Widget _switchPlacement(BuildContext context) => const SwitchPlacement();

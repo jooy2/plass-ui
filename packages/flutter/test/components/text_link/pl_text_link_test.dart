@@ -133,10 +133,7 @@ void main() {
         final handle = tester.ensureSemantics();
         await tester.pumpWidget(host(PlTextLink(onPressed: () {}, child: const Text('go'))));
 
-        final node = tester.getSemantics(find.text('go'));
-
-        expect(node.flagsCollection.isLink, isTrue);
-        expect(node.flagsCollection.isButton, isFalse);
+        expect(tester.getSemantics(find.text('go')), isSemantics(isLink: true, isButton: false));
         handle.dispose();
       });
 

@@ -115,7 +115,7 @@ void main() {
           host(const PlList(children: <Widget>[PlListItem(child: Text('One'))]), width: 320),
         );
 
-        expect(tester.getSemantics(find.text('One')).flagsCollection.isButton, isFalse);
+        expect(tester.getSemantics(find.text('One')), isSemantics(isButton: false));
         handle.dispose();
       });
 
