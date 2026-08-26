@@ -142,6 +142,13 @@ enum PlassGlyphShape {
   /// The tick: a chosen option, a ticked row, a checked box.
   check,
 
+  /// Two ticks overlapping by a third of their width — a message that arrived.
+  ///
+  /// The one glyph in the library a single component has any use for, and the
+  /// overlap is the whole of it: a delivered message and a sent one have to be
+  /// told apart at 12px, side by side, in a column of forty.
+  doubleCheck,
+
   /// A stepper's decrement. Drawn at the same weight as [plus], because a minus
   /// a quarter-point lighter than the plus beside it reads as two toolkits in
   /// one control.
@@ -281,6 +288,7 @@ class _GlyphPainter extends CustomPainter {
   double get _strokeWidth {
     switch (shape) {
       case PlassGlyphShape.check:
+      case PlassGlyphShape.doubleCheck:
       case PlassGlyphShape.minus:
       case PlassGlyphShape.plus:
       case PlassGlyphShape.close:
@@ -334,6 +342,14 @@ class _GlyphPainter extends CustomPainter {
           ..moveTo(3.5, 8.5)
           ..lineTo(6.5, 11.5)
           ..lineTo(12.5, 5.5);
+      case PlassGlyphShape.doubleCheck:
+        line
+          ..moveTo(1.5, 8.5)
+          ..lineTo(4.25, 11.25)
+          ..lineTo(9.5, 6)
+          ..moveTo(7, 10.75)
+          ..lineTo(8.25, 12)
+          ..lineTo(13.5, 6.75);
       case PlassGlyphShape.minus:
         line
           ..moveTo(3.5, 8)

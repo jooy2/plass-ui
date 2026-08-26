@@ -329,6 +329,64 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlCard', 'children', { name: 'child', type: 'Widget?' })
   ],
 
+  PlChatBubble: [
+    from('PlChatBubble', 'side', {
+      type: 'PlChatBubbleSide',
+      default: 'PlChatBubbleSide.start'
+    }),
+    from('PlChatBubble', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlChatBubble', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlChatBubble', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlChatBubble', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlChatBubble', 'elevation', { type: 'int', default: '0' }),
+    from('PlChatBubble', 'name', { type: 'Widget?' }),
+    from('PlChatBubble', 'time', { type: 'Widget?' }),
+    from('PlChatBubble', 'avatar', { type: 'Widget?' }),
+    from('PlChatBubble', 'status', { type: 'PlChatBubbleStatus?' }),
+    from('PlChatBubble', 'statusLabel', { type: 'String?' }),
+    from('PlChatBubble', 'typing', {
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '메시지 대신 점 세 개를 그립니다. child는 그대로 두므로, 메시지가 도착하면 같은 버블이 되돌아옵니다',
+        en: 'Draws the three dots instead of the message. What child holds is left alone, so the same bubble can go back to it when the message arrives'
+      }
+    }),
+    from('PlChatBubble', 'typingLabel', { type: 'String', default: "'Typing…'" }),
+    from('PlChatBubble', 'media', { type: 'Widget?' }),
+    from('PlChatBubble', 'preview', { type: 'PlChatBubbleLinkPreview?' }),
+    from('PlChatBubble', 'actions', {
+      type: 'Widget?',
+      description: {
+        ko: '메시지 자신의 액션. 버블 옆에 있고, 그대로 있습니다 — 포인터가 확실히 있는 화면이라는 것이 없기 때문입니다',
+        en: "The message's own actions. Sits beside the bubble and stays there: there is no screen here that certainly has a pointer"
+      }
+    }),
+    from('PlChatBubble', 'children', { name: 'child', type: 'Widget?' })
+  ],
+
+  PlChatBubbleLinkPreview: [
+    from('PlChatBubbleLinkPreview', 'url', {
+      name: 'onPressed',
+      type: 'VoidCallback?',
+      required: false,
+      description: {
+        ko: '카드를 눌렀을 때. url이 아닌 이유는 Flutter에 자기 내비게이션이 없기 때문입니다',
+        en: 'Called when the card is pressed. Not a url, because Flutter has no navigation of its own'
+      }
+    }),
+    from('PlChatBubbleLinkPreview', 'title', { type: 'Widget?' }),
+    from('PlChatBubbleLinkPreview', 'description', { type: 'Widget?' }),
+    from('PlChatBubbleLinkPreview', 'image', {
+      type: 'ImageProvider?',
+      description: {
+        ko: '카드 위쪽에 걸치는 공유 이미지. Flutter에서 모든 이미지가 갖는 모양입니다',
+        en: 'The share image, drawn across the top of the card — the shape every image in Flutter has'
+      }
+    }),
+    from('PlChatBubbleLinkPreview', 'site', { type: 'Widget?' })
+  ],
+
   PlCheckbox: [
     from('PlCheckbox', 'checked', {
       name: 'value',

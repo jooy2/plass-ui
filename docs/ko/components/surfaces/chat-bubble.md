@@ -43,7 +43,17 @@ import { PlChatBubble } from 'plass-ui';
 
 <Demo src="chat-bubble/sides" :min-height="180">
 
+::: fw react
+
 <<< @/.vitepress/demos/chat-bubble/sides.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/chat_bubble/sides.dart
+
+:::
 
 </Demo>
 
@@ -55,7 +65,17 @@ import { PlChatBubble } from 'plass-ui';
 
 <Demo src="chat-bubble/variants" :min-height="260">
 
+::: fw react
+
 <<< @/.vitepress/demos/chat-bubble/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/chat_bubble/variants.dart
+
+:::
 
 </Demo>
 
@@ -67,7 +87,17 @@ import { PlChatBubble } from 'plass-ui';
 
 <Demo src="chat-bubble/status" :min-height="320">
 
+::: fw react
+
 <<< @/.vitepress/demos/chat-bubble/status.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/chat_bubble/status.dart
+
+:::
 
 </Demo>
 
@@ -75,7 +105,7 @@ import { PlChatBubble } from 'plass-ui';
 
 차례로 밝아지는 점 세 개입니다. 색만 바뀝니다. 점은 움직이지 않으므로, 누군가 입력 중인 버블이 다른 사람이 읽고 있는 대화 안에서 통통 튀지 않습니다.
 
-`children`이 담고 있던 것은 그대로 두므로, 메시지가 도착하면 같은 버블이 그것으로 되돌아옵니다.
+<Fw react="children" flutter="child" code />가 담고 있던 것은 그대로 두므로, 메시지가 도착하면 같은 버블이 그것으로 되돌아옵니다.
 
 ### media와 preview
 
@@ -85,7 +115,17 @@ import { PlChatBubble } from 'plass-ui';
 
 <Demo src="chat-bubble/media" :min-height="420">
 
+::: fw react
+
 <<< @/.vitepress/demos/chat-bubble/media.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/chat_bubble/media.dart
+
+:::
 
 </Demo>
 
@@ -95,7 +135,17 @@ import { PlChatBubble } from 'plass-ui';
 
 <Demo src="chat-bubble/actions" :min-height="140">
 
+::: fw react
+
 <<< @/.vitepress/demos/chat-bubble/actions.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/chat_bubble/actions.dart
+
+:::
 
 </Demo>
 
@@ -103,14 +153,53 @@ import { PlChatBubble } from 'plass-ui';
 
 <Demo src="chat-bubble/sizes" :min-height="420">
 
+::: fw react
+
 <<< @/.vitepress/demos/chat-bubble/sizes.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/chat_bubble/sizes.dart
+
+:::
 
 </Demo>
 
 ## Accessibility
+
+::: fw react
 
 - 그려지는 것은 전달 표시뿐이고, 그 뒤의 말은 시각적으로 숨겨진 상자에 들어 있습니다 — 이중 체크가 아무 말도 하지 않는 독자를 위해서입니다. `statusLabel`이 그 말을 바꿉니다.
 - 입력 중 점은 `role="status"`입니다. 그래서 누군가 쓰고 있다는 사실이 프레임마다가 아니라 한 번 읽힙니다.
 - 링크 카드는 진짜 `<a>`이고, `newTab`은 새 페이지가 `window.opener`로 되돌아오지 못하게 하는 `rel`을 함께 붙입니다.
 - `media`에는 자기 `alt`를 주세요. 컴포넌트는 그 사진이 무엇의 사진인지 알지 못합니다.
 - 버블은 자기 role을 더하지 않습니다. 대화는 목록이고, 그 목록은 페이지의 것입니다 — 가상화된 대화도 여전히 목록일 수 있게 하는 것이 그것입니다.
+
+:::
+
+::: fw flutter
+
+- 그려지는 것은 전달 표시뿐이고, 그 뒤의 말은 표시의 이름입니다 — 이중 체크가 아무 말도 하지 않는 독자를 위해서입니다. `statusLabel`이 그 말을 바꿉니다.
+- 입력 중 점은 이름이 붙은 live region입니다. 그래서 누군가 쓰고 있다는 사실이 프레임마다가 아니라 한 번 읽힙니다. 점은 **색만** 바뀌고 움직이지 않으므로, 누군가 입력 중인 버블이 다른 사람이 읽고 있는 대화 안에서 통통 튀지 않습니다.
+- 링크 카드는 링크로 읽히고 키보드의 누름에도 답하며, 그 둘레에 focus ring이 그려집니다.
+- `media`에는 자기 이름을 주세요. 컴포넌트는 그 사진이 무엇의 사진인지 알지 못합니다.
+- 버블은 자기 role을 더하지 않습니다. 대화는 목록이고, 그 목록은 페이지의 것입니다 — 게으르게 만들어지는 대화도 여전히 목록일 수 있게 하는 것이 그것입니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `preview.url`과 `newTab` | `preview.onPressed` | Flutter에는 자기 내비게이션이 없으므로 링크가 어디로 가는지는 앱의 몫입니다. |
+| `src`인 `preview.image` | `ImageProvider` | Flutter에서 모든 이미지가 갖는 모양입니다 — 애셋, 파일, 네트워크 URL, 또는 그려진 것. |
+| `children` | `child` | Flutter의 이름입니다. |
+| hover에서 나타나는 손잡이 | 언제나 있는 손잡이 | 여기에는 포인터가 확실히 있는 화면이라는 것이 없으니, 닿을 수 있는 쪽이 정직한 답입니다. |
+| 점의 `role="status"` | 이름이 붙은 live region | Flutter는 상태를 노드 자체에 적습니다. |
+| `className`, `style`, 네이티브 속성 | — | 전달할 클래스 목록도 style 속성도 없습니다. |
+
+:::

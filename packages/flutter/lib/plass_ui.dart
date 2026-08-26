@@ -29,6 +29,7 @@ export 'src/components/blockquote/pl_blockquote.dart';
 export 'src/components/breadcrumb/pl_breadcrumb.dart';
 export 'src/components/button/pl_button.dart';
 export 'src/components/card/pl_card.dart';
+export 'src/components/chat_bubble/pl_chat_bubble.dart';
 export 'src/components/checkbox/pl_checkbox.dart';
 export 'src/components/chip/pl_chip.dart';
 export 'src/components/divider/pl_divider.dart';

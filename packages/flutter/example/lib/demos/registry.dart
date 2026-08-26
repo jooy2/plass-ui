@@ -61,6 +61,13 @@ import 'package:plass_ui_example/demos/chip/selected.dart';
 import 'package:plass_ui_example/demos/chip/sizes.dart';
 import 'package:plass_ui_example/demos/chip/slots.dart';
 import 'package:plass_ui_example/demos/chip/variants.dart';
+import 'package:plass_ui_example/demos/chat_bubble/actions.dart';
+import 'package:plass_ui_example/demos/chat_bubble/hero.dart';
+import 'package:plass_ui_example/demos/chat_bubble/media.dart';
+import 'package:plass_ui_example/demos/chat_bubble/sides.dart';
+import 'package:plass_ui_example/demos/chat_bubble/sizes.dart';
+import 'package:plass_ui_example/demos/chat_bubble/status.dart';
+import 'package:plass_ui_example/demos/chat_bubble/variants.dart';
 import 'package:plass_ui_example/demos/checkbox/colors.dart';
 import 'package:plass_ui_example/demos/checkbox/hero.dart';
 import 'package:plass_ui_example/demos/checkbox/indeterminate.dart';
@@ -315,6 +322,13 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'timeline/orientation': _timelineOrientation,
   'timeline/sizes': _timelineSizes,
   'list/hero': _listHero,
+  'chat-bubble/hero': _chatBubbleHero,
+  'chat-bubble/sides': _chatBubbleSides,
+  'chat-bubble/variants': _chatBubbleVariants,
+  'chat-bubble/status': _chatBubbleStatus,
+  'chat-bubble/media': _chatBubbleMedia,
+  'chat-bubble/actions': _chatBubbleActions,
+  'chat-bubble/sizes': _chatBubbleSizes,
   'checkbox/hero': _checkboxHero,
   'checkbox/sizes': _checkboxSizes,
   'checkbox/colors': _checkboxColors,
@@ -640,3 +654,11 @@ Widget _toastVariants(BuildContext context) => const ToastVariants();
 Widget _toastColors(BuildContext context) => const ToastColors();
 Widget _toastUpdate(BuildContext context) => const ToastUpdate();
 Widget _toastFuture(BuildContext context) => const ToastFuture();
+
+Widget _chatBubbleHero(BuildContext context) => const ChatBubbleHero();
+Widget _chatBubbleSides(BuildContext context) => const ChatBubbleSides();
+Widget _chatBubbleVariants(BuildContext context) => const ChatBubbleVariants();
+Widget _chatBubbleStatus(BuildContext context) => const ChatBubbleStatus();
+Widget _chatBubbleMedia(BuildContext context) => const ChatBubbleMedia();
+Widget _chatBubbleActions(BuildContext context) => const ChatBubbleActions();
+Widget _chatBubbleSizes(BuildContext context) => const ChatBubbleSizes();
