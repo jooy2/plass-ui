@@ -238,6 +238,55 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlBadge', 'children', { name: 'child', type: 'Widget?' })
   ],
 
+  PlBottomNavigation: [
+    from('PlBottomNavigation', 'children', {
+      name: 'items',
+      type: 'List<PlBottomNavigationItem<T>>',
+      required: true,
+      description: {
+        ko: '목적지들. children이 아니라 설명의 목록입니다 — 바가 무엇이 현재이고 몇 개인지를 알아야 합니다',
+        en: 'The destinations, as a list of descriptions rather than children — the bar has to know which is current and how many there are'
+      }
+    }),
+    from('PlBottomNavigation', 'value', { type: 'T?', required: true }),
+    from('PlBottomNavigation', 'onValueChange', {
+      name: 'onChanged',
+      type: 'ValueChanged<T>?',
+      description: {
+        ko: '고른 목적지로 호출됩니다. 주지 않으면 바가 그대로 굳습니다',
+        en: 'Called with the destination that was chosen. Leaving it out freezes the bar'
+      }
+    }),
+    from('PlBottomNavigation', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlBottomNavigation', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlBottomNavigation', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlBottomNavigation', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlBottomNavigation', 'elevation', { type: 'int', default: '0' }),
+    from('PlBottomNavigation', 'labels', {
+      type: 'PlBottomNavigationLabels',
+      default: 'PlBottomNavigationLabels.all'
+    }),
+    from('PlBottomNavigation', 'divider', { type: 'bool', default: 'true' }),
+    from('PlBottomNavigation', 'safeArea', { type: 'bool', default: 'true' }),
+    from('PlBottomNavigation', 'disabled', { type: 'bool', default: 'false' }),
+    from('PlBottomNavigation', 'label', { type: 'String?' })
+  ],
+
+  PlBottomNavigationItem: [
+    from('PlBottomNavigationItem', 'value', { type: 'T', required: true }),
+    from('PlBottomNavigationItem', 'children', {
+      name: 'label',
+      type: 'String',
+      required: true,
+      description: {
+        ko: '목적지의 이름. 위젯이 아니라 String이고 필수입니다 — 그려지는 이름이자 언제나 읽히는 이름입니다',
+        en: "The destination's name. A String rather than a widget, and required — it is both the name that is drawn and the one that is always announced"
+      }
+    }),
+    from('PlBottomNavigationItem', 'icon', { type: 'Widget?' }),
+    from('PlBottomNavigationItem', 'disabled', { type: 'bool', default: 'false' })
+  ],
+
   PlBreadcrumb: [
     {
       name: 'items',

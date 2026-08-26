@@ -37,6 +37,10 @@ import 'package:plass_ui_example/demos/blockquote/colors.dart';
 import 'package:plass_ui_example/demos/blockquote/hero.dart';
 import 'package:plass_ui_example/demos/blockquote/sizes.dart';
 import 'package:plass_ui_example/demos/blockquote/variants.dart';
+import 'package:plass_ui_example/demos/bottom_navigation/hero.dart';
+import 'package:plass_ui_example/demos/bottom_navigation/labels.dart';
+import 'package:plass_ui_example/demos/bottom_navigation/sizes.dart';
+import 'package:plass_ui_example/demos/bottom_navigation/variants.dart';
 import 'package:plass_ui_example/demos/breadcrumb/collapse.dart';
 import 'package:plass_ui_example/demos/breadcrumb/current.dart';
 import 'package:plass_ui_example/demos/breadcrumb/hero.dart';
@@ -286,6 +290,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'aspect-ratio/ratios': _aspectRatioRatios,
   'aspect-ratio/fit': _aspectRatioFit,
   'aspect-ratio/embed': _aspectRatioEmbed,
+  'bottom-navigation/hero': _bottomNavigationHero,
+  'bottom-navigation/labels': _bottomNavigationLabels,
+  'bottom-navigation/variants': _bottomNavigationVariants,
+  'bottom-navigation/sizes': _bottomNavigationSizes,
   'otp-field/hero': _otpFieldHero,
   'otp-field/length': _otpFieldLength,
   'otp-field/charset': _otpFieldCharset,
@@ -535,6 +543,11 @@ Widget _aspectRatioHero(BuildContext context) => const AspectRatioHero();
 Widget _aspectRatioRatios(BuildContext context) => const AspectRatioRatios();
 Widget _aspectRatioFit(BuildContext context) => const AspectRatioFit();
 Widget _aspectRatioEmbed(BuildContext context) => const AspectRatioEmbed();
+
+Widget _bottomNavigationHero(BuildContext context) => const BottomNavigationHero();
+Widget _bottomNavigationLabels(BuildContext context) => const BottomNavigationLabels();
+Widget _bottomNavigationVariants(BuildContext context) => const BottomNavigationVariants();
+Widget _bottomNavigationSizes(BuildContext context) => const BottomNavigationSizes();
 
 Widget _otpFieldHero(BuildContext context) => const OtpFieldHero();
 Widget _otpFieldLength(BuildContext context) => const OtpFieldLength();

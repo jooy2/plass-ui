@@ -253,3 +253,77 @@ class StarGlyph extends StatelessWidget {
   @override
   Widget build(BuildContext context) => const _Glyph(trace: _trace);
 }
+
+/// A house.
+class HomeGlyph extends StatelessWidget {
+  /// Creates the house.
+  const HomeGlyph({super.key});
+
+  static void _trace(Path path) {
+    path
+      ..moveTo(4, 11)
+      ..lineTo(12, 4)
+      ..lineTo(20, 11)
+      ..lineTo(20, 20)
+      ..lineTo(4, 20)
+      ..close()
+      ..moveTo(9, 20)
+      ..lineTo(9, 14)
+      ..lineTo(15, 14)
+      ..lineTo(15, 20);
+  }
+
+  @override
+  Widget build(BuildContext context) => const _Glyph(trace: _trace);
+}
+
+/// A magnifying glass.
+class SearchGlyph extends StatelessWidget {
+  /// Creates the glass.
+  const SearchGlyph({super.key});
+
+  static void _trace(Path path) {
+    path
+      ..addOval(Rect.fromCircle(center: const Offset(11, 11), radius: 6))
+      ..moveTo(15.5, 15.5)
+      ..lineTo(19.5, 19.5);
+  }
+
+  @override
+  Widget build(BuildContext context) => const _Glyph(trace: _trace);
+}
+
+/// A bookmark.
+class BookmarkGlyph extends StatelessWidget {
+  /// Creates the bookmark.
+  const BookmarkGlyph({super.key});
+
+  static void _trace(Path path) {
+    path
+      ..moveTo(7, 4)
+      ..lineTo(17, 4)
+      ..lineTo(17, 20)
+      ..lineTo(12, 16)
+      ..lineTo(7, 20)
+      ..close();
+  }
+
+  @override
+  Widget build(BuildContext context) => const _Glyph(trace: _trace);
+}
+
+/// A head and shoulders.
+class AccountGlyph extends StatelessWidget {
+  /// Creates the silhouette.
+  const AccountGlyph({super.key});
+
+  static void _trace(Path path) {
+    path
+      ..addOval(Rect.fromCircle(center: const Offset(12, 9), radius: 3.4))
+      ..moveTo(5, 20)
+      ..arcToPoint(const Offset(19, 20), radius: const Radius.circular(7));
+  }
+
+  @override
+  Widget build(BuildContext context) => const _Glyph(trace: _trace);
+}
