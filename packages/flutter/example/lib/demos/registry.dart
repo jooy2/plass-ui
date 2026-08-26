@@ -165,6 +165,11 @@ import 'package:plass_ui_example/demos/pagination/sizes.dart';
 import 'package:plass_ui_example/demos/pagination/steppers.dart';
 import 'package:plass_ui_example/demos/pagination/variants.dart';
 import 'package:plass_ui_example/demos/pagination/window.dart';
+import 'package:plass_ui_example/demos/panes/constraints.dart';
+import 'package:plass_ui_example/demos/panes/fixed.dart';
+import 'package:plass_ui_example/demos/panes/hero.dart';
+import 'package:plass_ui_example/demos/panes/orientation.dart';
+import 'package:plass_ui_example/demos/panes/sizes.dart';
 import 'package:plass_ui_example/demos/radio_group/colors.dart';
 import 'package:plass_ui_example/demos/radio_group/controlled.dart';
 import 'package:plass_ui_example/demos/radio_group/hero.dart';
@@ -332,6 +337,11 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'icon-button/sizes': _iconButtonSizes,
   'icon-button/colors': _iconButtonColors,
   'icon-button/states': _iconButtonStates,
+  'panes/hero': _panesHero,
+  'panes/orientation': _panesOrientation,
+  'panes/constraints': _panesConstraints,
+  'panes/fixed': _panesFixed,
+  'panes/sizes': _panesSizes,
   'grid/hero': _gridHero,
   'grid/span': _gridSpan,
   'grid/responsive': _gridResponsive,
@@ -604,6 +614,12 @@ Widget _iconButtonVariants(BuildContext context) => const IconButtonVariants();
 Widget _iconButtonSizes(BuildContext context) => const IconButtonSizes();
 Widget _iconButtonColors(BuildContext context) => const IconButtonColors();
 Widget _iconButtonStates(BuildContext context) => const IconButtonStates();
+
+Widget _panesHero(BuildContext context) => const PanesHero();
+Widget _panesOrientation(BuildContext context) => const PanesOrientation();
+Widget _panesConstraints(BuildContext context) => const PanesConstraints();
+Widget _panesFixed(BuildContext context) => const PanesFixed();
+Widget _panesSizes(BuildContext context) => const PanesSizes();
 
 Widget _gridHero(BuildContext context) => const GridHero();
 Widget _gridSpan(BuildContext context) => const GridSpan();

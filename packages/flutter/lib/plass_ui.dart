@@ -50,6 +50,7 @@ export 'src/components/number_field/pl_number_field.dart';
 export 'src/components/otp_field/pl_otp_field.dart';
 export 'src/components/overlay/pl_overlay.dart';
 export 'src/components/pagination/pl_pagination.dart';
+export 'src/components/panes/pl_panes.dart';
 export 'src/components/radio_group/pl_radio_group.dart';
 export 'src/components/rating/pl_rating.dart';
 export 'src/components/segmented_button/pl_segmented_button.dart';

@@ -1289,6 +1289,48 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlPanes: [
+    from('PlPanes', 'children', {
+      name: 'panes',
+      type: 'List<PlPane>',
+      required: true,
+      description: {
+        ko: '영역들. children이 아니라 설명의 목록입니다 — 세 크기 값을 읽는 것은 pane이 아니라 분할입니다',
+        en: 'The regions, as a list of descriptions rather than children — the three sizing values are read by the split, not the pane'
+      }
+    }),
+    from('PlPanes', 'orientation', {
+      type: 'PlassOrientation',
+      default: 'PlassOrientation.horizontal'
+    }),
+    from('PlPanes', 'resizable', { type: 'bool', default: 'true' }),
+    from('PlPanes', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlPanes', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlPanes', 'onResize', { type: 'ValueChanged<List<double>>?' }),
+    from('PlPanes', 'onResizeEnd', { type: 'ValueChanged<List<double>>?' }),
+    {
+      name: 'label',
+      type: 'String?',
+      description: {
+        ko: '스크린 리더가 손잡이를 부르는 이름. 그 뒤에 지금 몫이 값으로 붙습니다',
+        en: 'What a screen reader calls a handle, before the share it is at'
+      }
+    }
+  ],
+
+  PlPane: [
+    from('PlPane', 'children', { name: 'child', type: 'Widget', required: true }),
+    from('PlPane', 'defaultSize', {
+      type: 'PlPaneSize?',
+      description: {
+        ko: '시작 몫. PlPaneSize.percent 또는 PlPaneSize.pixels입니다 — Dart에는 number | string 유니온이 없습니다',
+        en: 'The share it starts with, as PlPaneSize.percent or PlPaneSize.pixels — Dart has no number | string union'
+      }
+    }),
+    from('PlPane', 'minSize', { type: 'PlPaneSize?' }),
+    from('PlPane', 'maxSize', { type: 'PlPaneSize?' })
+  ],
+
   PlRadioGroup: [
     {
       name: 'options',
