@@ -37,6 +37,8 @@ import {
   PlNumberField,
   PlOtpField,
   PlOverlay,
+  PlPane,
+  PlPanes,
   PlPagination,
   PlRadio,
   PlRadioGroup,
@@ -907,6 +909,31 @@ const entries: Entry[] = [
         <PlMenuSeparator />
         <PlMenuItem color="danger">Delete</PlMenuItem>
       </PlMenu>
+    )
+  },
+  {
+    name: 'PlPanes',
+    group: 'layout',
+    href: 'components/layout/panes',
+    blurb: {
+      en: 'A set of regions with draggable handles between them.',
+      ko: '사이에 끌 수 있는 손잡이가 놓인 영역 묶음입니다.'
+    },
+    preview: (
+      <div className="h-20 w-full overflow-hidden rounded-(--plass-radius-sm)">
+        <PlPanes size="sm">
+          <PlPane defaultSize={35}>
+            <div className="flex h-full items-center justify-center bg-(--plass-glass-press) text-xs">
+              Sidebar
+            </div>
+          </PlPane>
+          <PlPane>
+            <div className="flex h-full items-center justify-center bg-(--plass-glass-press) text-xs">
+              Body
+            </div>
+          </PlPane>
+        </PlPanes>
+      </div>
     )
   },
   {

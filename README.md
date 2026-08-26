@@ -124,7 +124,7 @@ The list below is both packages'. The props are the same props under Dart's name
 
 ### Layout
 
-`PlAspectRatio` · `PlContainer` · `PlGrid`
+`PlAspectRatio` · `PlContainer` · `PlGrid` · `PlPanes`
 
 ### Navigation
 

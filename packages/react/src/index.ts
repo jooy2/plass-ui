@@ -28,6 +28,7 @@ export * from './components/number-field';
 export * from './components/otp-field';
 export * from './components/overlay';
 export * from './components/pagination';
+export * from './components/panes';
 export * from './components/radio-group';
 export * from './components/rating';
 export * from './components/segmented-button';

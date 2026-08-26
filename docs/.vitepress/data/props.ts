@@ -3480,6 +3480,102 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlPanes: [
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      shared: true,
+      description: {
+        ko: 'pane이 놓이는 방향. horizontal은 나란히, vertical은 쌓습니다',
+        en: 'Which way the panes run — side by side, or stacked'
+      }
+    },
+    {
+      name: 'resizable',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '손잡이를 끌 수 있는지. 컨트롤이 아니라 레이아웃인 분할에서는 끕니다',
+        en: 'Whether the handles can be dragged. Off for a split that is a layout rather than a control'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '손잡이의 두께이자 포인터가 맞혀야 할 표적의 두께',
+        en: 'How thick a handle is, and how wide the target the pointer has to hit'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: '손잡이가 켜지는 색. 시트가 없으므로 얇은 선과 색조와 포커스 링에만 닿습니다',
+        en: 'The family the handles light up in. There is no sheet, so it reaches the hairline, the tint and the ring'
+      }
+    },
+    {
+      name: 'onResize',
+      type: '(sizes: number[]) => void',
+      description: {
+        ko: '손잡이를 끄는 동안 모든 pane의 몫(퍼센트)으로 호출됩니다',
+        en: "Fires with every pane's share, in percent, while a handle is dragged"
+      }
+    },
+    {
+      name: 'onResizeEnd',
+      type: '(sizes: number[]) => void',
+      description: {
+        ko: '손을 놓았을 때 같은 모양으로 한 번 호출됩니다. 키 입력에서도 발생합니다',
+        en: 'Fires once, with the same shape, when the handle is let go — and on a key press'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: {
+        ko: 'PlPane들. PlPane이 아닌 것도 배치되지만 크기를 갖지 못합니다',
+        en: 'The PlPanes. Anything that is not one is still laid out, but has no size'
+      }
+    }
+  ],
+
+  PlPane: [
+    {
+      name: 'defaultSize',
+      type: 'number | string',
+      description: {
+        ko: '시작 몫. 숫자는 퍼센트, 문자열은 절대 길이입니다. 없으면 남은 자리를 똑같이 나눕니다',
+        en: 'The share it starts with. A number is a percentage, a string an absolute length. Without one, panes split what is left evenly'
+      }
+    },
+    {
+      name: 'minSize',
+      type: 'number | string',
+      default: '0',
+      description: { ko: '얼마나 작게까지 끌 수 있는지', en: 'How small it may be dragged' }
+    },
+    {
+      name: 'maxSize',
+      type: 'number | string',
+      description: {
+        ko: '얼마나 크게까지 끌 수 있는지. 없으면 제한이 없습니다',
+        en: 'How large it may be dragged. Unbounded when left out'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: 'pane 안에 들어갈 것', en: 'What is inside the pane' }
+    }
+  ],
+
   PlRadioGroup: [
     {
       name: 'size',
