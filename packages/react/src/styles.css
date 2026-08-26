@@ -673,6 +673,127 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * The grid
+ *
+ * `PlGrid` is a flex row and `PlGridItem` is a width in it, which is the shape
+ * a twelve-column grid has had since long before CSS had one of its own — and
+ * still the only shape where an item can carry a start offset without an
+ * explicit line number, and where the row can be told to stop wrapping.
+ *
+ * This is real CSS rather than Tailwind for the reason the rest of this file
+ * is: `columns` is a number a caller picks and `span` changes at four widths,
+ * so the class name would have to be assembled at runtime — and a class name
+ * assembled at runtime is a class name Tailwind never sees. The per-instance
+ * numbers arrive as inline `--p-*` slots, exactly as colours do, and the
+ * arithmetic lives here once.
+ *
+ * `min(span, columns)` is the clamp: `span={99}` fills its row instead of
+ * overflowing the page, which is what the caller meant.
+ *
+ * Every slot cascades upward — each breakpoint falls back through the ones
+ * below it — so `span={{ md: 6 }}` sets one custom property and not five. The
+ * chains get long at `xl`; that is the cost of keeping the DOM lean, and it is
+ * paid once here rather than on every grid item in a consumer's app.
+ *
+ * The widths are Tailwind's own breakpoints, so a Plass grid and an `md:`
+ * utility change at the same moment.
+ * ------------------------------------------------------------------------- */
+
+.plass-grid {
+  --p-cols: var(--p-cols-xs, 12);
+  --p-gap-x: var(--p-gap-x-xs, 0px);
+  --p-gap-y: var(--p-gap-y-xs, 0px);
+}
+
+.plass-grid-item {
+  --p-span: var(--p-span-xs, var(--p-cols, 12));
+  --p-offset: var(--p-offset-xs, 0);
+
+  /* One column plus one gutter. `--p-cols` and `--p-gap-x` are inherited from
+     the grid, so this re-resolves on its own at every breakpoint. */
+  --p-track: calc((100% + var(--p-gap-x, 0px)) / var(--p-cols, 12));
+
+  /* Inseparable from the width below them: `flex` stops the row from resizing
+     the item, `min-width` stops a long unbroken word from doing the same, and
+     `box-sizing` is what makes the percentage mean the whole item. */
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  min-width: 0;
+  width: calc(var(--p-track) * min(var(--p-span), var(--p-cols, 12)) - var(--p-gap-x, 0px));
+  margin-inline-start: calc(var(--p-track) * min(var(--p-offset), var(--p-cols, 12)));
+}
+
+@media (width >= 40rem) {
+  .plass-grid {
+    --p-cols: var(--p-cols-sm, var(--p-cols-xs, 12));
+    --p-gap-x: var(--p-gap-x-sm, var(--p-gap-x-xs, 0px));
+    --p-gap-y: var(--p-gap-y-sm, var(--p-gap-y-xs, 0px));
+  }
+
+  .plass-grid-item {
+    --p-span: var(--p-span-sm, var(--p-span-xs, var(--p-cols, 12)));
+    --p-offset: var(--p-offset-sm, var(--p-offset-xs, 0));
+  }
+}
+
+@media (width >= 48rem) {
+  .plass-grid {
+    --p-cols: var(--p-cols-md, var(--p-cols-sm, var(--p-cols-xs, 12)));
+    --p-gap-x: var(--p-gap-x-md, var(--p-gap-x-sm, var(--p-gap-x-xs, 0px)));
+    --p-gap-y: var(--p-gap-y-md, var(--p-gap-y-sm, var(--p-gap-y-xs, 0px)));
+  }
+
+  .plass-grid-item {
+    --p-span: var(--p-span-md, var(--p-span-sm, var(--p-span-xs, var(--p-cols, 12))));
+    --p-offset: var(--p-offset-md, var(--p-offset-sm, var(--p-offset-xs, 0)));
+  }
+}
+
+@media (width >= 64rem) {
+  .plass-grid {
+    --p-cols: var(--p-cols-lg, var(--p-cols-md, var(--p-cols-sm, var(--p-cols-xs, 12))));
+    --p-gap-x: var(--p-gap-x-lg, var(--p-gap-x-md, var(--p-gap-x-sm, var(--p-gap-x-xs, 0px))));
+    --p-gap-y: var(--p-gap-y-lg, var(--p-gap-y-md, var(--p-gap-y-sm, var(--p-gap-y-xs, 0px))));
+  }
+
+  .plass-grid-item {
+    --p-span: var(
+      --p-span-lg,
+      var(--p-span-md, var(--p-span-sm, var(--p-span-xs, var(--p-cols, 12))))
+    );
+    --p-offset: var(--p-offset-lg, var(--p-offset-md, var(--p-offset-sm, var(--p-offset-xs, 0))));
+  }
+}
+
+@media (width >= 80rem) {
+  .plass-grid {
+    --p-cols: var(
+      --p-cols-xl,
+      var(--p-cols-lg, var(--p-cols-md, var(--p-cols-sm, var(--p-cols-xs, 12))))
+    );
+    --p-gap-x: var(
+      --p-gap-x-xl,
+      var(--p-gap-x-lg, var(--p-gap-x-md, var(--p-gap-x-sm, var(--p-gap-x-xs, 0px))))
+    );
+    --p-gap-y: var(
+      --p-gap-y-xl,
+      var(--p-gap-y-lg, var(--p-gap-y-md, var(--p-gap-y-sm, var(--p-gap-y-xs, 0px))))
+    );
+  }
+
+  .plass-grid-item {
+    --p-span: var(
+      --p-span-xl,
+      var(--p-span-lg, var(--p-span-md, var(--p-span-sm, var(--p-span-xs, var(--p-cols, 12)))))
+    );
+    --p-offset: var(
+      --p-offset-xl,
+      var(--p-offset-lg, var(--p-offset-md, var(--p-offset-sm, var(--p-offset-xs, 0))))
+    );
+  }
+}
+
+/* ---------------------------------------------------------------------------
  * Reduced motion
  *
  * Nothing in Plass animates on its own except a spinner, so this is about the

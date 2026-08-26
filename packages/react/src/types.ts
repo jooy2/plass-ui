@@ -44,6 +44,55 @@ export type PlassSide = 'top' | 'right' | 'bottom' | 'left';
 export type PlassAlign = 'start' | 'center' | 'end';
 
 /**
+ * A width the layout answers to.
+ *
+ * The same five names as `PlassSize`, and deliberately so: a reader who has
+ * learned the ladder once should not have to learn a second set of words for
+ * where a page changes shape. They are not the same ladder — a `size` is how
+ * tall a control is and a breakpoint is how wide the window is — but they run
+ * in the same direction and they are used in the same sentence often enough
+ * that two vocabularies would only ever get mixed up.
+ *
+ * The widths are Tailwind's own — `sm` 40rem, `md` 48rem, `lg` 64rem, `xl`
+ * 80rem, with `xs` meaning "from zero up" — so a Plass layout and an `sm:`
+ * utility change at the same moment.
+ */
+export type PlassBreakpoint = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+
+/**
+ * A value that may change with the width of the window.
+ *
+ * A bare value applies everywhere: `span={6}` is six columns at every width.
+ * A map applies each entry **from its own breakpoint up**, so
+ * `span={{ xs: 12, md: 6 }}` is a full width on a phone and a half from 48rem —
+ * two entries usually describe a whole layout.
+ *
+ * There is no `xs` fallback to write out: an entry cascades to the widths above
+ * it, which is what keeps a responsive prop to the breakpoints it actually
+ * names.
+ */
+export type PlassResponsive<T> = T | Partial<Record<PlassBreakpoint, T>>;
+
+/**
+ * How a row distributes the space its content did not use, along the axis the
+ * content runs on.
+ *
+ * The three positional values are the library's own `start`/`center`/`end`
+ * rather than `left`/`right`, for the reason `PlassAlign` gives: they flip
+ * under RTL. The four distributions keep CSS's own hyphenated names, because
+ * `space-between` is a word every reader already knows and `spread` would be a
+ * word they had to look up.
+ */
+export type PlassJustify =
+  'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly' | 'stretch';
+
+/** How content sits across the axis it does not run on. */
+export type PlassAlignItems = 'start' | 'center' | 'end' | 'stretch' | 'baseline';
+
+/** The same, for one member overriding the set it is in. */
+export type PlassAlignSelf = 'auto' | 'start' | 'center' | 'end' | 'stretch' | 'baseline';
+
+/**
  * Which corner of a box something is pinned to. `PlBadge` reads this.
  *
  * Deliberately one word built out of the two the library already has —

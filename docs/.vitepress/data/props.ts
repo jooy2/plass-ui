@@ -1633,6 +1633,123 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlGrid: [
+    {
+      name: 'columns',
+      type: 'PlassResponsive<number>',
+      default: '12',
+      description: {
+        ko: '한 줄을 몇 칸으로 나눌지. 안쪽의 모든 span과 offset이 이 수를 기준으로 읽힙니다',
+        en: 'How many columns a row is divided into. Every span and offset inside is read against this number'
+      }
+    },
+    {
+      name: 'spacing',
+      type: 'PlassResponsive<number>',
+      default: '2',
+      description: {
+        ko: '아이템 사이 간격. Tailwind spacing 스케일이라 4는 1rem이고, 분수도 됩니다',
+        en: "The gutter between items, on Tailwind's spacing scale — 4 is 1rem, and fractions are allowed"
+      }
+    },
+    {
+      name: 'rowSpacing · columnSpacing',
+      type: 'PlassResponsive<number>',
+      description: {
+        ko: '한 축만의 간격. 주지 않으면 spacing으로 떨어집니다',
+        en: 'The gutter on one axis only. Falls back to spacing'
+      }
+    },
+    {
+      name: 'justify',
+      type: "'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly' | 'stretch'",
+      description: {
+        ko: '아이템이 쓰지 않은 자리를 한 줄이 어떻게 나눠 가질지',
+        en: 'How a row distributes the space its items did not use'
+      }
+    },
+    {
+      name: 'alignItems',
+      type: "'start' | 'center' | 'end' | 'stretch' | 'baseline'",
+      default: "'stretch'",
+      description: {
+        ko: '한 줄 안에서 아이템들이 서로에 대해 어떻게 놓일지',
+        en: 'How items sit against each other across the row'
+      }
+    },
+    {
+      name: 'alignContent',
+      type: "'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly' | 'stretch'",
+      description: {
+        ko: '그리드가 담긴 상자보다 짧을 때 줄들이 어디에 놓일지',
+        en: 'Where the rows sit when the grid is shorter than the box holding it'
+      }
+    },
+    {
+      name: 'wrap',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '칸이 모자란 줄이 다음 줄로 이어질지. 끄면 한 줄이 넘쳐 흐릅니다',
+        en: 'Whether a row that runs out of columns continues on the next one. Off gives one row that overflows'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '<div> 대신 다른 요소로 렌더링합니다 (<section />, <ul />)',
+        en: 'Renders something other than a <div> (<section />, <ul />)'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: 'PlGridItem들', en: 'The PlGridItems' }
+    }
+  ],
+
+  PlGridItem: [
+    {
+      name: 'span',
+      type: 'PlassResponsive<number>',
+      description: {
+        ko: '그리드의 칸 중 몇 칸을 차지할지. 줄보다 넓은 span은 넘치지 않고 줄에 맞춰 잘립니다',
+        en: "How many of the grid's columns the item takes. A span wider than the row is clamped to it rather than overflowing"
+      }
+    },
+    {
+      name: 'offset',
+      type: 'PlassResponsive<number>',
+      default: '0',
+      description: {
+        ko: '아이템 *앞*에 비워 두는 칸 수. 줄 안의 절대 위치가 아니라 앞으로 밀어 넣는 자리입니다',
+        en: 'Columns left empty before the item — space pushed in ahead of it, not an absolute position in the row'
+      }
+    },
+    {
+      name: 'alignSelf',
+      type: "'auto' | 'start' | 'center' | 'end' | 'stretch' | 'baseline'",
+      description: {
+        ko: '이 아이템 하나만 줄의 alignItems를 덮어씁니다',
+        en: "Overrides the row's alignItems for this item alone"
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '<div> 대신 다른 요소로 렌더링합니다 (<li />, <article />)',
+        en: 'Renders something other than a <div> (<li />, <article />)'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '칸에 들어갈 것', en: 'What the cell holds' }
+    }
+  ],
+
   PlHighlight: [
     {
       name: 'query',

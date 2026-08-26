@@ -17,6 +17,8 @@ import {
   PlContainer,
   PlDivider,
   PlFilePicker,
+  PlGrid,
+  PlGridItem,
   PlHighlight,
   PlHotKeys,
   PlIcon,
@@ -705,6 +707,26 @@ const entries: Entry[] = [
           </div>
         </PlContainer>
       </div>
+    )
+  },
+  {
+    name: 'PlGrid',
+    group: 'layout',
+    href: 'components/layout/grid',
+    blurb: {
+      en: 'A twelve-column row and the cells in it.',
+      ko: '12칸짜리 한 줄과 그 안의 칸들입니다.'
+    },
+    preview: (
+      <PlGrid className="w-full" spacing={2}>
+        {[6, 3, 3, 4, 8].map((span, index) => (
+          <PlGridItem key={index} span={span}>
+            <div className="rounded-(--plass-radius-sm) bg-(--plass-glass-press) py-1.5 text-center text-xs">
+              {span}
+            </div>
+          </PlGridItem>
+        ))}
+      </PlGrid>
     )
   },
   {
