@@ -7,7 +7,7 @@ order: 2
 
 <p class="plass-lede">A row of round destinations floating clear of the bottom edge of the window. A capsule of clear glass with a key of tinted glass riding in it — the design language's own sentence, and nothing added to it.</p>
 
-<Demo src="floating-bottom-navigation/hero" :min-height="220" :flutter="false" />
+<Demo src="floating-bottom-navigation/hero" :min-height="220" />
 
 ::: fw react
 
@@ -26,6 +26,24 @@ import { PlFloatingBottomNavigation, PlFloatingBottomNavigationItem } from 'plas
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlFloatingBottomNavigation<String>(
+  value: where,
+  onChanged: (String next) => setState(() => where = next),
+  label: 'Main',
+  items: const <PlFloatingBottomNavigationItem<String>>[
+    PlFloatingBottomNavigationItem<String>(value: 'home', label: 'Home', icon: HomeIcon()),
+    PlFloatingBottomNavigationItem<String>(value: 'search', label: 'Search', icon: SearchIcon()),
+  ],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlFloatingBottomNavigation" />
@@ -37,6 +55,12 @@ import { PlFloatingBottomNavigation, PlFloatingBottomNavigationItem } from 'plas
 ::: fw react
 
 Every native `<nav>` attribute passes through on the bar and every native `<button>` attribute on an item.
+
+:::
+
+::: fw flutter
+
+The bar is generic in the destination's type and **controlled**, and its destinations are descriptions rather than widgets — the same three decisions [`PlBottomNavigation`](./bottom-navigation) makes, for the same reasons.
 
 :::
 
@@ -70,11 +94,17 @@ If a sighted reader also needs the words, put a `PlTooltip` around the item. Wha
 
 `glass` is the default and the whole point: a clear sheet over a blurred backdrop with a hairline around it. `solid` is the same sheet at its most opaque, for a bar that sits over photography. `ghost` has no capsule at all — the discs float on their own.
 
-<Demo src="floating-bottom-navigation/variants" :min-height="320" :flutter="false">
+<Demo src="floating-bottom-navigation/variants" :min-height="320">
 
 ::: fw react
 
 <<< @/.vitepress/demos/floating-bottom-navigation/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/floating_bottom_navigation/variants.dart
 
 :::
 
@@ -84,11 +114,17 @@ If a sighted reader also needs the words, put a `PlTooltip` around the item. Wha
 
 The capsule is never dyed, exactly as on a `PlCard`. What carries the family is the one disc that is current.
 
-<Demo src="floating-bottom-navigation/colors" :min-height="260" :flutter="false">
+<Demo src="floating-bottom-navigation/colors" :min-height="260">
 
 ::: fw react
 
 <<< @/.vitepress/demos/floating-bottom-navigation/colors.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/floating_bottom_navigation/colors.dart
 
 :::
 
@@ -102,11 +138,17 @@ The capsule is never dyed, exactly as on a `PlCard`. What carries the family is 
 
 The gap under the bar comes off the same `size` ladder, with `env(safe-area-inset-bottom)` added to it while `safeArea` is on.
 
-<Demo src="floating-bottom-navigation/sizes" :min-height="280" :flutter="false">
+<Demo src="floating-bottom-navigation/sizes" :min-height="280">
 
 ::: fw react
 
 <<< @/.vitepress/demos/floating-bottom-navigation/sizes.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/floating_bottom_navigation/sizes.dart
 
 :::
 
@@ -121,6 +163,23 @@ The gap under the bar comes off the same `size` ladder, with `env(safe-area-inse
 ::: fw react
 
 - The strip the capsule is centred in spans the window and takes **no pointer events**; only the capsule takes them back. A transparent band across the bottom of a page that swallowed presses would be a band nobody could scroll through.
+
+:::
+
 - The focus ring on a disc is offset rather than flush, which is the exception the rest of the library does not make: a flush ring on a circle is the circle's own edge thickening, which reads as a border rather than as focus.
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `<PlFloatingBottomNavigationItem>` children | `items: List<…<T>>` | The bar has to reason about its members. The idiom the rest of the package uses. |
+| `children` on an item | `label`, a `String` | It is only ever a semantics label here, and a semantics label is a string. |
+| `value` / `defaultValue` / `onValueChange` | `value` / `onChanged` | Flutter's own controls are controlled. |
+| `position` | — | A Flutter screen has no page scroll to opt out of; the app places the bar. |
+| a full-width strip with no pointer events | — | There is no strip to build. A `fixed` element has to span something; a Flutter widget goes exactly where it is put, so the bar is only as wide as its capsule. |
+| `href` | — | There is no link element and nothing crawls a Flutter app. |
+| `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::

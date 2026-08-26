@@ -680,6 +680,52 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlFloatingBottomNavigation: [
+    from('PlFloatingBottomNavigation', 'children', {
+      name: 'items',
+      type: 'List<PlFloatingBottomNavigationItem<T>>',
+      required: true,
+      description: {
+        ko: '목적지들. children이 아니라 설명의 목록입니다',
+        en: 'The destinations, as a list of descriptions rather than children'
+      }
+    }),
+    from('PlFloatingBottomNavigation', 'value', { type: 'T?', required: true }),
+    from('PlFloatingBottomNavigation', 'onValueChange', {
+      name: 'onChanged',
+      type: 'ValueChanged<T>?'
+    }),
+    from('PlFloatingBottomNavigation', 'variant', {
+      type: VARIANT,
+      default: 'PlassVariant.glass'
+    }),
+    from('PlFloatingBottomNavigation', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlFloatingBottomNavigation', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlFloatingBottomNavigation', 'density', {
+      type: DENSITY,
+      default: 'PlassDensity.standard'
+    }),
+    from('PlFloatingBottomNavigation', 'elevation', { type: 'int', default: '2' }),
+    from('PlFloatingBottomNavigation', 'safeArea', { type: 'bool', default: 'true' }),
+    from('PlFloatingBottomNavigation', 'disabled', { type: 'bool', default: 'false' }),
+    from('PlFloatingBottomNavigation', 'label', { type: 'String?' })
+  ],
+
+  PlFloatingBottomNavigationItem: [
+    from('PlFloatingBottomNavigationItem', 'value', { type: 'T', required: true }),
+    from('PlFloatingBottomNavigationItem', 'children', {
+      name: 'label',
+      type: 'String',
+      required: true,
+      description: {
+        ko: '목적지의 이름. 필수이고 절대 그려지지 않습니다 — 언제나 읽히기만 합니다',
+        en: "The destination's name. Required and never drawn — only ever read"
+      }
+    }),
+    from('PlFloatingBottomNavigationItem', 'icon', { type: 'Widget?' }),
+    from('PlFloatingBottomNavigationItem', 'disabled', { type: 'bool', default: 'false' })
+  ],
+
   PlGrid: [
     from('PlGrid', 'children', {
       name: 'items',

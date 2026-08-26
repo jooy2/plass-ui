@@ -103,6 +103,10 @@ import 'package:plass_ui_example/demos/grid/offset.dart';
 import 'package:plass_ui_example/demos/grid/responsive.dart';
 import 'package:plass_ui_example/demos/grid/spacing.dart';
 import 'package:plass_ui_example/demos/grid/span.dart';
+import 'package:plass_ui_example/demos/floating_bottom_navigation/colors.dart';
+import 'package:plass_ui_example/demos/floating_bottom_navigation/hero.dart';
+import 'package:plass_ui_example/demos/floating_bottom_navigation/sizes.dart';
+import 'package:plass_ui_example/demos/floating_bottom_navigation/variants.dart';
 import 'package:plass_ui_example/demos/highlight/colors.dart';
 import 'package:plass_ui_example/demos/highlight/hero.dart';
 import 'package:plass_ui_example/demos/highlight/matching.dart';
@@ -290,6 +294,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'aspect-ratio/ratios': _aspectRatioRatios,
   'aspect-ratio/fit': _aspectRatioFit,
   'aspect-ratio/embed': _aspectRatioEmbed,
+  'floating-bottom-navigation/hero': _floatingBottomNavigationHero,
+  'floating-bottom-navigation/variants': _floatingBottomNavigationVariants,
+  'floating-bottom-navigation/colors': _floatingBottomNavigationColors,
+  'floating-bottom-navigation/sizes': _floatingBottomNavigationSizes,
   'bottom-navigation/hero': _bottomNavigationHero,
   'bottom-navigation/labels': _bottomNavigationLabels,
   'bottom-navigation/variants': _bottomNavigationVariants,
@@ -543,6 +551,14 @@ Widget _aspectRatioHero(BuildContext context) => const AspectRatioHero();
 Widget _aspectRatioRatios(BuildContext context) => const AspectRatioRatios();
 Widget _aspectRatioFit(BuildContext context) => const AspectRatioFit();
 Widget _aspectRatioEmbed(BuildContext context) => const AspectRatioEmbed();
+
+Widget _floatingBottomNavigationHero(BuildContext context) => const FloatingBottomNavigationHero();
+Widget _floatingBottomNavigationVariants(BuildContext context) =>
+    const FloatingBottomNavigationVariants();
+Widget _floatingBottomNavigationColors(BuildContext context) =>
+    const FloatingBottomNavigationColors();
+Widget _floatingBottomNavigationSizes(BuildContext context) =>
+    const FloatingBottomNavigationSizes();
 
 Widget _bottomNavigationHero(BuildContext context) => const BottomNavigationHero();
 Widget _bottomNavigationLabels(BuildContext context) => const BottomNavigationLabels();

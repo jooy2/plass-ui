@@ -7,7 +7,7 @@ order: 2
 
 <p class="plass-lede">창의 아래 가장자리에서 떠 있는 둥근 목적지 한 줄입니다. 맑은 유리 캡슐 안에 색이 든 유리 키 하나가 올라타 있는 것 — 이 디자인 언어가 자기 문장을 그대로 말하는 자리이고, 거기에 더한 것은 없습니다.</p>
 
-<Demo src="floating-bottom-navigation/hero" :min-height="220" :flutter="false" />
+<Demo src="floating-bottom-navigation/hero" :min-height="220" />
 
 ::: fw react
 
@@ -26,6 +26,24 @@ import { PlFloatingBottomNavigation, PlFloatingBottomNavigationItem } from 'plas
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlFloatingBottomNavigation<String>(
+  value: where,
+  onChanged: (String next) => setState(() => where = next),
+  label: 'Main',
+  items: const <PlFloatingBottomNavigationItem<String>>[
+    PlFloatingBottomNavigationItem<String>(value: 'home', label: 'Home', icon: HomeIcon()),
+    PlFloatingBottomNavigationItem<String>(value: 'search', label: 'Search', icon: SearchIcon()),
+  ],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlFloatingBottomNavigation" />
@@ -37,6 +55,12 @@ import { PlFloatingBottomNavigation, PlFloatingBottomNavigationItem } from 'plas
 ::: fw react
 
 바에는 네이티브 `<nav>` 속성이, 항목에는 네이티브 `<button>` 속성이 그대로 전달됩니다.
+
+:::
+
+::: fw flutter
+
+바는 목적지 타입에 대해 제네릭이고 **controlled**이며, 목적지는 위젯이 아니라 설명입니다. [`PlBottomNavigation`](./bottom-navigation)이 내리는 것과 같은 세 결정이고, 이유도 같습니다.
 
 :::
 
@@ -70,11 +94,17 @@ import { PlFloatingBottomNavigation, PlFloatingBottomNavigationItem } from 'plas
 
 기본값 `glass`가 핵심입니다 — 흐린 배경 위의 맑은 시트에 얇은 선을 두른 것. `solid`는 같은 시트를 가장 불투명하게 한 것으로, 사진 위에 놓이는 바를 위한 것입니다. `ghost`에는 캡슐이 아예 없습니다 — 원반들이 스스로 떠 있습니다.
 
-<Demo src="floating-bottom-navigation/variants" :min-height="320" :flutter="false">
+<Demo src="floating-bottom-navigation/variants" :min-height="320">
 
 ::: fw react
 
 <<< @/.vitepress/demos/floating-bottom-navigation/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/floating_bottom_navigation/variants.dart
 
 :::
 
@@ -84,11 +114,17 @@ import { PlFloatingBottomNavigation, PlFloatingBottomNavigationItem } from 'plas
 
 캡슐은 `PlCard`에서와 마찬가지로 절대 물들지 않습니다. 색 가족을 나르는 것은 현재인 원반 하나입니다.
 
-<Demo src="floating-bottom-navigation/colors" :min-height="260" :flutter="false">
+<Demo src="floating-bottom-navigation/colors" :min-height="260">
 
 ::: fw react
 
 <<< @/.vitepress/demos/floating-bottom-navigation/colors.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/floating_bottom_navigation/colors.dart
 
 :::
 
@@ -102,11 +138,17 @@ import { PlFloatingBottomNavigation, PlFloatingBottomNavigationItem } from 'plas
 
 바 아래의 틈도 같은 `size` 사다리에서 나오고, `safeArea`가 켜져 있는 동안에는 거기에 `env(safe-area-inset-bottom)`이 더해집니다.
 
-<Demo src="floating-bottom-navigation/sizes" :min-height="280" :flutter="false">
+<Demo src="floating-bottom-navigation/sizes" :min-height="280">
 
 ::: fw react
 
 <<< @/.vitepress/demos/floating-bottom-navigation/sizes.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/floating_bottom_navigation/sizes.dart
 
 :::
 
@@ -121,6 +163,23 @@ import { PlFloatingBottomNavigation, PlFloatingBottomNavigationItem } from 'plas
 ::: fw react
 
 - 캡슐이 가운데 놓이는 띠는 창을 가로지르지만 **포인터 이벤트를 받지 않습니다**. 되받는 것은 캡슐뿐입니다. 페이지 아래를 가로지르는 투명한 띠가 누름을 삼킨다면, 아무도 그 위로 스크롤할 수 없습니다.
+
+:::
+
 - 원반의 포커스 링은 붙어 있지 않고 떨어져 있습니다. 라이브러리의 나머지가 하지 않는 예외입니다 — 원에 딱 붙은 링은 원 자신의 가장자리가 두꺼워지는 것이고, 그것은 포커스가 아니라 테두리로 읽힙니다.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `<PlFloatingBottomNavigationItem>` children | `items: List<…<T>>` | 바가 자기 멤버에 대해 판단해야 합니다. 패키지의 나머지가 쓰는 관용구입니다. |
+| 항목의 `children` | `String`인 `label` | 여기서는 시맨틱 라벨로만 쓰이고, 시맨틱 라벨은 문자열입니다. |
+| `value` / `defaultValue` / `onValueChange` | `value` / `onChanged` | Flutter 자체 컨트롤이 controlled입니다. |
+| `position` | — | Flutter 화면에는 빠져나올 페이지 스크롤이 없고, 바를 놓는 것은 앱입니다. |
+| 포인터 이벤트를 받지 않는 전체 너비 띠 | — | 만들 띠가 없습니다. `fixed` 요소는 무언가를 가로질러야 하지만, Flutter 위젯은 놓인 자리에 정확히 있습니다. 그래서 바는 자기 캡슐만큼만 넓습니다. |
+| `href` | — | 링크 요소도 없고 Flutter 앱을 크롤링하는 것도 없습니다. |
+| `className`, `style` | — | 전달할 클래스 목록도 style 속성도 없습니다. |
 
 :::

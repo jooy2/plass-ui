@@ -37,6 +37,7 @@ export 'src/components/chip/pl_chip.dart';
 export 'src/components/container/pl_container.dart';
 export 'src/components/divider/pl_divider.dart';
 export 'src/components/file_picker/pl_file_picker.dart';
+export 'src/components/floating_bottom_navigation/pl_floating_bottom_navigation.dart';
 export 'src/components/grid/pl_grid.dart';
 export 'src/components/highlight/pl_highlight.dart';
 export 'src/components/hot_keys/pl_hot_keys.dart';
