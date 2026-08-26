@@ -21,8 +21,12 @@
 /// ```
 library;
 
+export 'src/components/blockquote/pl_blockquote.dart';
 export 'src/components/button/pl_button.dart';
+export 'src/components/divider/pl_divider.dart';
+export 'src/components/highlight/pl_highlight.dart';
 export 'src/components/icon/pl_icon.dart';
+export 'src/components/skeleton/pl_skeleton.dart';
 export 'src/components/typography/pl_typography.dart';
 export 'src/theme/theme.dart';
 export 'src/theme/tokens.dart' show PlassColorFamily, PlassTokens;

@@ -7,6 +7,10 @@ The rest of the library. `PlButton` shipped first and everything else follows it
 ### Added
 
 - **`PlTypography`.** The type scale on its own, so a page can use it without wrapping its prose in a card. `level` sets the size *and* whether the line is announced as a heading; there is no `size` beside it, because a `size` would let a caller ask for an `h1` at `xs`. `PlTypography.rich` is the span form.
+- **`PlDivider`.** A rule between two things, horizontal or vertical, with an optional label set into it. `length` wins over a tight parent — a divider very often sits in a `Column` with `crossAxisAlignment: stretch`, where a bare `SizedBox` would be handed a tight width and lose.
+- **`PlSkeleton`.** The shape of something that has not loaded yet, in the three shapes a layout is made of. The travelling highlight is one gradient slid across the box by a `GradientTransform` rather than a second widget laid out per placeholder, and it becomes a colour pulse where the platform has asked for less movement — kept running either way, because a skeleton that holds still is indistinguishable from an empty box that finished loading with nothing in it.
+- **`PlBlockquote`.** The rule, the quotation mark and the attribution. The mark is drawn rather than typed, unit for unit out of the same 16-unit box the React package's SVG uses.
+- **`PlHighlight`.** The search as well as the styling. It takes a `String` rather than a widget tree, which is the one real difference from the React build: a `Widget` is opaque, and there is no reaching the text inside one you were handed.
 - **`PlIcon`.** A glyph at a known size in a known colour, for whichever icon set the app chose. The glyph is told how big it is three ways at once — through `IconTheme`, through `DefaultTextStyle`, and by the box it is laid into — so an `Icon`, a `CustomPaint` that reads the ambient theme and a bare character all come out the same size. `color` is nullable and defaults to `null`, which is how "inherit" is spelled in a language with no such keyword.
 
 ## 0.0.2

@@ -1,5 +1,10 @@
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui_example/demos/blockquote/attribution.dart';
+import 'package:plass_ui_example/demos/blockquote/colors.dart';
+import 'package:plass_ui_example/demos/blockquote/hero.dart';
+import 'package:plass_ui_example/demos/blockquote/sizes.dart';
+import 'package:plass_ui_example/demos/blockquote/variants.dart';
 import 'package:plass_ui_example/demos/button/colors.dart';
 import 'package:plass_ui_example/demos/button/density.dart';
 import 'package:plass_ui_example/demos/button/elevation.dart';
@@ -9,11 +14,23 @@ import 'package:plass_ui_example/demos/button/icons.dart';
 import 'package:plass_ui_example/demos/button/sizes.dart';
 import 'package:plass_ui_example/demos/button/states.dart';
 import 'package:plass_ui_example/demos/button/variants.dart';
+import 'package:plass_ui_example/demos/divider/colors.dart';
+import 'package:plass_ui_example/demos/divider/hero.dart';
+import 'package:plass_ui_example/demos/divider/label.dart';
+import 'package:plass_ui_example/demos/divider/length.dart';
+import 'package:plass_ui_example/demos/divider/orientation.dart';
+import 'package:plass_ui_example/demos/divider/sizes.dart';
+import 'package:plass_ui_example/demos/highlight/colors.dart';
+import 'package:plass_ui_example/demos/highlight/matching.dart';
+import 'package:plass_ui_example/demos/highlight/variants.dart';
 import 'package:plass_ui_example/demos/icon/anything.dart';
 import 'package:plass_ui_example/demos/icon/colors.dart';
 import 'package:plass_ui_example/demos/icon/hero.dart';
 import 'package:plass_ui_example/demos/icon/inside.dart';
 import 'package:plass_ui_example/demos/icon/sizes.dart';
+import 'package:plass_ui_example/demos/skeleton/animated.dart';
+import 'package:plass_ui_example/demos/skeleton/shapes.dart';
+import 'package:plass_ui_example/demos/skeleton/sizes.dart';
 import 'package:plass_ui_example/demos/typography/colors.dart';
 import 'package:plass_ui_example/demos/typography/hero.dart';
 import 'package:plass_ui_example/demos/typography/levels.dart';
@@ -50,6 +67,23 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'icon/colors': _iconColors,
   'icon/inside': _iconInside,
   'icon/anything': _iconAnything,
+  'divider/hero': _dividerHero,
+  'divider/orientation': _dividerOrientation,
+  'divider/label': _dividerLabel,
+  'divider/colors': _dividerColors,
+  'divider/sizes': _dividerSizes,
+  'divider/length': _dividerLength,
+  'skeleton/shapes': _skeletonShapes,
+  'skeleton/sizes': _skeletonSizes,
+  'skeleton/animated': _skeletonAnimated,
+  'blockquote/hero': _blockquoteHero,
+  'blockquote/variants': _blockquoteVariants,
+  'blockquote/sizes': _blockquoteSizes,
+  'blockquote/colors': _blockquoteColors,
+  'blockquote/attribution': _blockquoteAttribution,
+  'highlight/variants': _highlightVariants,
+  'highlight/colors': _highlightColors,
+  'highlight/matching': _highlightMatching,
 };
 
 Widget _hero(BuildContext context) => const ButtonHero();
@@ -73,3 +107,24 @@ Widget _iconSizes(BuildContext context) => const IconSizes();
 Widget _iconColors(BuildContext context) => const IconColors();
 Widget _iconInside(BuildContext context) => const IconInside();
 Widget _iconAnything(BuildContext context) => const IconAnything();
+
+Widget _dividerHero(BuildContext context) => const DividerHero();
+Widget _dividerOrientation(BuildContext context) => const DividerOrientation();
+Widget _dividerLabel(BuildContext context) => const DividerLabel();
+Widget _dividerColors(BuildContext context) => const DividerColors();
+Widget _dividerSizes(BuildContext context) => const DividerSizes();
+Widget _dividerLength(BuildContext context) => const DividerLength();
+
+Widget _skeletonShapes(BuildContext context) => const SkeletonShapes();
+Widget _skeletonSizes(BuildContext context) => const SkeletonSizes();
+Widget _skeletonAnimated(BuildContext context) => const SkeletonAnimated();
+
+Widget _blockquoteHero(BuildContext context) => const BlockquoteHero();
+Widget _blockquoteVariants(BuildContext context) => const BlockquoteVariants();
+Widget _blockquoteSizes(BuildContext context) => const BlockquoteSizes();
+Widget _blockquoteColors(BuildContext context) => const BlockquoteColors();
+Widget _blockquoteAttribution(BuildContext context) => const BlockquoteAttribution();
+
+Widget _highlightVariants(BuildContext context) => const HighlightVariants();
+Widget _highlightColors(BuildContext context) => const HighlightColors();
+Widget _highlightMatching(BuildContext context) => const HighlightMatching();

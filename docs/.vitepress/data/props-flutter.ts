@@ -56,6 +56,101 @@ function sharedProps(component: string): PropRow[] {
 }
 
 export const flutterPropTables: Record<string, PropRow[]> = {
+  PlBlockquote: [
+    from('PlBlockquote', 'variant', { type: VARIANT, default: 'PlassVariant.ghost' }),
+    from('PlBlockquote', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlBlockquote', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlBlockquote', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlBlockquote', 'elevation', { type: 'int', default: '0' }),
+    from('PlBlockquote', 'author', { type: 'Widget?' }),
+    from('PlBlockquote', 'source', { type: 'Widget?' }),
+    from('PlBlockquote', 'icon', { type: 'Widget?' }),
+    {
+      name: 'showIcon',
+      type: 'bool',
+      default: 'true',
+      description: {
+        ko: '따옴표 글리프를 그릴지. React는 icon={false}로 말하는 것을, null도 위젯도 아닌 값이 없는 언어에서 이름을 따로 두어 말합니다',
+        en: 'Whether a mark is drawn at all. React says this with icon={false}; Dart has no value that is neither null nor a widget, so it gets its own name'
+      }
+    },
+    from('PlBlockquote', 'children', { name: 'child', type: 'Widget?' })
+  ],
+
+  PlDivider: [
+    from('PlDivider', 'orientation', {
+      type: 'PlassOrientation',
+      default: 'PlassOrientation.horizontal'
+    }),
+    from('PlDivider', 'color', { type: `${COLOR}?`, default: 'null' }),
+    from('PlDivider', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlDivider', 'length', {
+      type: 'double?',
+      description: {
+        ko: '선이 뻗는 길이 — 가로면 너비, 세로면 높이. 논리 픽셀입니다. 생략하면 허락된 만큼 뻗습니다',
+        en: 'How far the rule runs — the width of a horizontal divider, the height of a vertical one, in logical pixels. Left out, it runs as far as it is allowed to'
+      }
+    }),
+    from('PlDivider', 'thickness', { type: 'double', default: '1' }),
+    from('PlDivider', 'textAlign', { type: 'PlassAlign', default: 'PlassAlign.center' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '스크린 리더가 부를 이름. 없으면 divider는 semantics 트리에 들어가지 않습니다 — 두 가지 사이의 선은 대개 레이아웃이 하는 말입니다',
+        en: 'What a screen reader calls the divider. Without it the divider stays out of the semantics tree — a rule between two things is usually the layout speaking'
+      }
+    },
+    from('PlDivider', 'children', { name: 'child', type: 'Widget?' })
+  ],
+
+  PlHighlight: [
+    from('PlHighlight', 'children', {
+      name: 'text',
+      type: 'String',
+      required: true,
+      description: {
+        ko: '검색할 텍스트, 첫 번째 위치 인자. React와 달리 위젯 트리가 아닙니다 — Widget은 불투명해서 안의 텍스트에 닿을 수 없습니다',
+        en: 'The text to search, as the first positional argument. Not a widget tree as in React: a Widget is opaque, and there is no reaching the text inside one'
+      }
+    }),
+    from('PlHighlight', 'query', {
+      type: 'Object',
+      required: true,
+      description: {
+        ko: '찾을 것: String, RegExp, 또는 둘 중 하나의 List. Dart에 union이 없어 Object이고, 생성자가 단언합니다. 여러 개면 긴 것부터 시도합니다',
+        en: 'What to find: a String, a RegExp, or a List of either. Object because Dart has no union; the constructor asserts it. Several terms are tried longest first'
+      }
+    }),
+    from('PlHighlight', 'variant', { type: VARIANT, default: 'PlassVariant.solid' }),
+    from('PlHighlight', 'color', { type: COLOR, default: 'PlassColor.warning' }),
+    from('PlHighlight', 'caseSensitive', { type: 'bool', default: 'false' }),
+    from('PlHighlight', 'wholeWord', { type: 'bool', default: 'false' }),
+    from('PlHighlight', 'underline', { type: 'bool', default: 'false' }),
+    from('PlHighlight', 'weight', { type: 'PlTypographyWeight?' }),
+    {
+      name: 'style',
+      type: 'TextStyle?',
+      description: {
+        ko: '표시되지 않은 글의 스타일. 주변 DefaultTextStyle 위에 병합됩니다',
+        en: 'The style the unmarked text is set in. Merged onto whatever the surrounding DefaultTextStyle asked for'
+      }
+    },
+    {
+      name: 'align',
+      type: 'TextAlign?',
+      description: { ko: '텍스트 정렬', en: 'Text alignment' }
+    },
+    {
+      name: 'lines',
+      type: 'int?',
+      description: {
+        ko: '이 줄 수로 잘라 말줄임합니다',
+        en: 'Clamps the text to this many lines with an ellipsis'
+      }
+    }
+  ],
+
   PlIcon: [
     from('PlIcon', 'icon', { type: 'Widget', required: true }),
     from('PlIcon', 'size', { type: SIZE, default: 'PlassSize.md' }),
@@ -70,6 +165,26 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlIcon', 'label', { type: 'String?' })
+  ],
+
+  PlSkeleton: [
+    from('PlSkeleton', 'shape', {
+      type: 'PlSkeletonShape',
+      default: 'PlSkeletonShape.line'
+    }),
+    from('PlSkeleton', 'lines', { type: 'int', default: '1' }),
+    from('PlSkeleton', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlSkeleton', 'color', { type: COLOR, default: 'PlassColor.secondary' }),
+    from('PlSkeleton', 'width', { type: 'double?' }),
+    from('PlSkeleton', 'height', { type: 'double?' }),
+    from('PlSkeleton', 'animated', { type: 'bool', default: 'true' }),
+    from('PlSkeleton', 'label', {
+      type: 'String?',
+      description: {
+        ko: '스크린 리더에 알릴 말. 없으면 semantics 트리에서 제외됩니다. 영역 전체를 대표하는 하나에만 주면 그 이름을 가진 live region이 됩니다',
+        en: 'What a screen reader is told. Without it the placeholder stays out of the semantics tree; give the one that stands for the whole region a label and it becomes a live region with that name'
+      }
+    })
   ],
 
   PlTypography: [
