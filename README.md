@@ -122,6 +122,10 @@ The list below is both packages'. The props are the same props under Dart's name
 
 `PlButton` · `PlCheckbox` · `PlFilePicker` · `PlNumberField` · `PlPagination` · `PlRadioGroup` · `PlSegmentedButton` · `PlSelect` · `PlSlider` · `PlSwitch` · `PlTextField`
 
+### Layout
+
+`PlAspectRatio`
+
 ### Surfaces
 
 `PlAccordion` · `PlCard` · `PlChatBubble` · `PlTabs`

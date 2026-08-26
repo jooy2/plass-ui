@@ -315,6 +315,59 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlAspectRatio: [
+    {
+      name: 'ratio',
+      type: 'number | string',
+      default: '1',
+      description: {
+        ko: '지킬 비율. CSS가 쓰는 그대로 — 숫자(1.5) 또는 비(‘16 / 9’)',
+        en: "The proportion to hold, written the way CSS writes it — a number (1.5) or a ratio ('16 / 9')"
+      }
+    },
+    {
+      name: 'fit',
+      type: "'cover' | 'contain' | 'fill' | 'none'",
+      default: "'cover'",
+      description: {
+        ko: '안에 든 미디어 하나를 어떻게 맞출지. 직계 자식인 img · video · canvas · svg · iframe에만 닿습니다',
+        en: 'How a single piece of media inside is fitted. Reaches a direct img, video, canvas, svg or iframe only'
+      }
+    },
+    {
+      name: 'rounded',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '모서리를 size 단계의 하우스 반경으로 깎습니다',
+        en: 'Rounds the corners to the size step of the house radius ladder'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: 'rounded가 쓰는 반경 단계. 시트의 크기이지 높이나 타입 스케일이 아닙니다',
+        en: 'Which radius step rounded uses — the size of the sheet, never a height or a type scale'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '<div> 대신 다른 요소로 렌더링합니다 (<figure />, <a href="…" />)',
+        en: 'Renders something other than a <div> (<figure />, <a href="…" />)'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '비율 안에 들어갈 것', en: 'What the proportion holds' }
+    }
+  ],
+
   PlAvatar: [
     {
       name: 'variant',

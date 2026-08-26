@@ -3,6 +3,7 @@ import {
   PlAccordion,
   PlAccordionItem,
   PlAlert,
+  PlAspectRatio,
   PlAvatar,
   PlBadge,
   PlBlockquote,
@@ -61,7 +62,7 @@ interface GalleryProps {
 }
 
 /** The sidebar's own groups, in the sidebar's own order. */
-type Group = 'display' | 'feedback' | 'inputs' | 'surfaces';
+type Group = 'display' | 'feedback' | 'inputs' | 'layout' | 'surfaces';
 
 /**
  * The one preview in the gallery that needs state of its own: an overlay has to
@@ -668,6 +669,26 @@ const entries: Entry[] = [
     )
   },
   {
+    name: 'PlAspectRatio',
+    group: 'layout',
+    href: 'components/layout/aspect-ratio',
+    blurb: {
+      en: 'A box that keeps a proportion whatever width it is given.',
+      ko: '어떤 너비를 받든 비율을 지키는 상자입니다.'
+    },
+    preview: (
+      <div className="grid w-full grid-cols-3 gap-2">
+        {['1 / 1', '4 / 3', '16 / 9'].map((ratio) => (
+          <PlAspectRatio key={ratio} ratio={ratio} rounded size="sm">
+            <div className="flex size-full items-center justify-center bg-(--plass-glass-press) text-[0.625rem]">
+              {ratio}
+            </div>
+          </PlAspectRatio>
+        ))}
+      </div>
+    )
+  },
+  {
     name: 'PlAccordion',
     group: 'surfaces',
     href: 'components/surfaces/accordion',
@@ -697,6 +718,7 @@ const groups: { key: Group; label: Record<'en' | 'ko', string> }[] = [
   { key: 'display', label: { en: 'Display', ko: 'Display' } },
   { key: 'feedback', label: { en: 'Feedback', ko: 'Feedback' } },
   { key: 'inputs', label: { en: 'Inputs', ko: 'Inputs' } },
+  { key: 'layout', label: { en: 'Layout', ko: 'Layout' } },
   { key: 'surfaces', label: { en: 'Surfaces', ko: 'Surfaces' } }
 ];
 
