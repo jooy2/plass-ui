@@ -582,6 +582,86 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlTextField: [
+    {
+      name: 'controller',
+      type: 'TextEditingController?',
+      description: {
+        ko: '편집 중인 텍스트. Flutter가 텍스트를 두는 자리입니다. 빼면 필드가 하나를 스스로 만듭니다',
+        en: 'The text being edited — where Flutter keeps text. Left out, the field owns one of its own'
+      }
+    },
+    {
+      name: 'onChanged',
+      type: 'ValueChanged<String>?',
+      description: { ko: '모든 변화를 알립니다', en: 'Called on every change' }
+    },
+    {
+      name: 'onSubmitted',
+      type: 'ValueChanged<String>?',
+      description: {
+        ko: '키보드에서 제출했을 때',
+        en: 'Called when the field is submitted from the keyboard'
+      }
+    },
+    ...sharedProps('PlTextField').map((row) =>
+      row.name === 'elevation' ? { ...row, default: '0' } : row
+    ),
+    from('PlTextField', 'multiline', { type: 'bool', default: 'false' }),
+    from('PlTextField', 'rows', { type: 'int', default: '3' }),
+    from('PlTextField', 'label', { type: 'Widget?' }),
+    from('PlTextField', 'description', { type: 'Widget?' }),
+    from('PlTextField', 'error', { type: 'Widget?' }),
+    from('PlTextField', 'invalid', { type: 'bool?' }),
+    {
+      name: 'placeholder',
+      type: 'String?',
+      description: {
+        ko: '비어 있는 동안 보이는 것. React에서는 네이티브 속성이라 표에 없습니다',
+        en: 'What is shown while the field is empty. A native attribute in React, so it has no row there'
+      }
+    },
+    from('PlTextField', 'startIcon', { type: 'Widget?' }),
+    from('PlTextField', 'endIcon', { type: 'Widget?' }),
+    from('PlTextField', 'loading', { type: 'bool', default: 'false' }),
+    from('PlTextField', 'fullWidth', { type: 'bool', default: 'false' }),
+    from('PlTextField', 'readOnly', { type: 'bool', default: 'false' }),
+    from('PlTextField', 'disabled', { type: 'bool', default: 'false' }),
+    {
+      name: 'obscureText',
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '입력한 것을 가립니다. 비밀번호용',
+        en: 'Hides what is typed, for a password'
+      }
+    },
+    {
+      name: 'keyboardType',
+      type: 'TextInputType?',
+      description: {
+        ko: '터치 기기에서 올릴 키보드',
+        en: 'Which keyboard to raise on a touch device'
+      }
+    },
+    {
+      name: 'maxLength',
+      type: 'int?',
+      description: {
+        ko: '받을 글자 수. 카운터가 아니라 formatter입니다 — 아래에 아무것도 그려지지 않습니다',
+        en: 'How many characters the field will take. A formatter rather than a counter: nothing is drawn under the field'
+      }
+    },
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '보이는 label이 없는 필드를 스크린 리더가 부를 이름. placeholder는 이름이 아닙니다',
+        en: 'The name a screen reader announces, for a field with no visible label. A placeholder is not a name'
+      }
+    }
+  ],
+
   PlTextLink: [
     from('PlTextLink', 'children', { name: 'child', type: 'Widget', required: true }),
     {

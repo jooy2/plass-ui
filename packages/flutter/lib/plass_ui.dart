@@ -38,6 +38,7 @@ export 'src/components/list/pl_list.dart';
 export 'src/components/radio_group/pl_radio_group.dart';
 export 'src/components/skeleton/pl_skeleton.dart';
 export 'src/components/switch/pl_switch.dart';
+export 'src/components/text_field/pl_text_field.dart';
 export 'src/components/text_link/pl_text_link.dart';
 export 'src/components/timeline/pl_timeline.dart';
 export 'src/components/typography/pl_typography.dart';

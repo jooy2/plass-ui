@@ -66,6 +66,7 @@ import 'package:plass_ui_example/demos/divider/length.dart';
 import 'package:plass_ui_example/demos/divider/orientation.dart';
 import 'package:plass_ui_example/demos/divider/sizes.dart';
 import 'package:plass_ui_example/demos/highlight/colors.dart';
+import 'package:plass_ui_example/demos/highlight/hero.dart';
 import 'package:plass_ui_example/demos/highlight/matching.dart';
 import 'package:plass_ui_example/demos/highlight/variants.dart';
 import 'package:plass_ui_example/demos/hot_keys/cluster.dart';
@@ -99,6 +100,14 @@ import 'package:plass_ui_example/demos/switch/hero.dart';
 import 'package:plass_ui_example/demos/switch/placement.dart';
 import 'package:plass_ui_example/demos/switch/sizes.dart';
 import 'package:plass_ui_example/demos/switch/states.dart';
+import 'package:plass_ui_example/demos/text_field/controlled.dart';
+import 'package:plass_ui_example/demos/text_field/hero.dart';
+import 'package:plass_ui_example/demos/text_field/icons.dart';
+import 'package:plass_ui_example/demos/text_field/multiline.dart';
+import 'package:plass_ui_example/demos/text_field/sizes.dart';
+import 'package:plass_ui_example/demos/text_field/states.dart';
+import 'package:plass_ui_example/demos/text_field/validation.dart';
+import 'package:plass_ui_example/demos/text_field/variants.dart';
 import 'package:plass_ui_example/demos/text_link/colors.dart';
 import 'package:plass_ui_example/demos/text_link/hero.dart';
 import 'package:plass_ui_example/demos/text_link/icons.dart';
@@ -242,6 +251,15 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'switch/colors': _switchColors,
   'switch/states': _switchStates,
   'switch/placement': _switchPlacement,
+  'highlight/hero': _highlightHero,
+  'text-field/hero': _textFieldHero,
+  'text-field/variants': _textFieldVariants,
+  'text-field/sizes': _textFieldSizes,
+  'text-field/states': _textFieldStates,
+  'text-field/icons': _textFieldIcons,
+  'text-field/multiline': _textFieldMultiline,
+  'text-field/validation': _textFieldValidation,
+  'text-field/controlled': _textFieldControlled,
 };
 
 Widget _hero(BuildContext context) => const ButtonHero();
@@ -380,3 +398,14 @@ Widget _switchSizes(BuildContext context) => const SwitchSizes();
 Widget _switchColors(BuildContext context) => const SwitchColors();
 Widget _switchStates(BuildContext context) => const SwitchStates();
 Widget _switchPlacement(BuildContext context) => const SwitchPlacement();
+
+Widget _highlightHero(BuildContext context) => const HighlightHero();
+
+Widget _textFieldHero(BuildContext context) => const TextFieldHero();
+Widget _textFieldVariants(BuildContext context) => const TextFieldVariants();
+Widget _textFieldSizes(BuildContext context) => const TextFieldSizes();
+Widget _textFieldStates(BuildContext context) => const TextFieldStates();
+Widget _textFieldIcons(BuildContext context) => const TextFieldIcons();
+Widget _textFieldMultiline(BuildContext context) => const TextFieldMultiline();
+Widget _textFieldValidation(BuildContext context) => const TextFieldValidation();
+Widget _textFieldControlled(BuildContext context) => const TextFieldControlled();
