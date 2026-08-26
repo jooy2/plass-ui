@@ -1263,6 +1263,94 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlTimelineItem', 'children', { name: 'child', type: 'Widget?' })
   ],
 
+  PlTooltip: [
+    from('PlTooltip', 'content', {
+      type: 'Widget',
+      required: true,
+      description: {
+        ko: 'tooltip이 하는 말. 짧은 구절이어야 합니다 — tooltip은 컨테이너가 아닙니다. 터치 화면에서는 머무를 포인터가 없고, 주의가 옮겨가는 순간 사라지며, 그 안의 무엇도 누를 수 없습니다',
+        en: 'What the tooltip says. A short phrase: a tooltip is not a container — there is no pointer to rest on a touch screen, it goes the moment attention moves, and nothing inside it can be pressed'
+      }
+    }),
+    from('PlTooltip', 'children', {
+      name: 'child',
+      type: 'Widget',
+      required: true,
+      description: {
+        ko: 'tooltip이 매달리는 것. 감싸개는 레이아웃에 상자를 더하지 않습니다',
+        en: 'What the tooltip hangs off. The wrapper adds no box to the layout'
+      }
+    }),
+    from('PlTooltip', 'side', {
+      type: 'PlassSide',
+      default: 'PlassSide.top',
+      description: {
+        ko: '트리거의 어느 변에 나타날지. 자리가 없으면 반대편으로 뒤집힙니다 — 뒤집을 뿐 옆으로 미끄러지지는 않습니다',
+        en: 'Which edge of the trigger it appears on. It flips to the opposite side when there is no room — a flip, never a slide along the edge'
+      }
+    }),
+    from('PlTooltip', 'align', { type: 'PlassAlign', default: 'PlassAlign.center' }),
+    from('PlTooltip', 'sideOffset', {
+      name: 'offset',
+      type: 'double',
+      default: '6',
+      description: {
+        ko: '트리거에서 떨어진 거리, 논리 픽셀',
+        en: 'How far it stands off the trigger, in logical pixels'
+      }
+    }),
+    from('PlTooltip', 'delay', {
+      type: 'Duration',
+      default: 'Duration(milliseconds: 600)'
+    }),
+    from('PlTooltip', 'closeDelay', { type: 'Duration', default: 'Duration.zero' }),
+    from('PlTooltip', 'arrow', { type: 'bool', default: 'true' }),
+    from('PlTooltip', 'open', {
+      type: 'bool?',
+      description: {
+        ko: '바깥에서 tooltip을 움직입니다. null이면 포인터와 길게 누르기, focus에 맡깁니다 — 패키지에서 컴포넌트가 자기 상태를 쥐는 유일한 자리입니다',
+        en: 'Drives the tooltip from outside. null leaves it to the pointer, a long press and focus — the one place in the package where a component owns its own state'
+      }
+    }),
+    from('PlTooltip', 'onOpenChange', {
+      name: 'onOpenChanged',
+      type: 'ValueChanged<bool>?',
+      description: {
+        ko: '열리거나 닫힐 때마다, 무엇이 청했든 불립니다',
+        en: 'Called whenever the tooltip opens or closes, however it was asked'
+      }
+    }),
+    from('PlTooltip', 'disabled', { type: 'bool', default: 'false' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '스크린 리더가 트리거의 tooltip으로 읽는 말. content가 Text면 그 글자가 기본값입니다',
+        en: "What a screen reader says the trigger's tooltip is. With a Text in content it defaults to that text"
+      }
+    },
+    from('PlTooltip', 'size', { type: SIZE, default: 'PlassSize.sm' }),
+    from('PlTooltip', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+  ],
+
+  PlTooltipProvider: [
+    {
+      name: 'child',
+      type: 'Widget',
+      required: true,
+      description: { ko: '그룹 안에 있는 것', en: 'What is inside the group' }
+    },
+    {
+      name: 'timeout',
+      type: 'Duration',
+      default: 'Duration(milliseconds: 300)',
+      description: {
+        ko: '하나가 닫힌 뒤 이웃들이 얼마 동안 즉시 열리는지',
+        en: 'How long after one tooltip closes its neighbours still open at once'
+      }
+    }
+  ],
+
   PlTypography: [
     from('PlTypography', 'level', {
       type: 'PlTypographyLevel',

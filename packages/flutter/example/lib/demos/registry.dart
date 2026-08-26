@@ -174,6 +174,12 @@ import 'package:plass_ui_example/demos/timeline/hero.dart';
 import 'package:plass_ui_example/demos/timeline/orientation.dart';
 import 'package:plass_ui_example/demos/timeline/sizes.dart';
 import 'package:plass_ui_example/demos/timeline/status.dart';
+import 'package:plass_ui_example/demos/tooltip/align.dart';
+import 'package:plass_ui_example/demos/tooltip/delay.dart';
+import 'package:plass_ui_example/demos/tooltip/hero.dart';
+import 'package:plass_ui_example/demos/tooltip/provider.dart';
+import 'package:plass_ui_example/demos/tooltip/sides.dart';
+import 'package:plass_ui_example/demos/tooltip/sizes.dart';
 import 'package:plass_ui_example/demos/typography/colors.dart';
 import 'package:plass_ui_example/demos/typography/hero.dart';
 import 'package:plass_ui_example/demos/typography/levels.dart';
@@ -364,6 +370,12 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'table/rows': _tableRows,
   'table/empty': _tableEmpty,
   'table/density': _tableDensity,
+  'tooltip/hero': _tooltipHero,
+  'tooltip/sides': _tooltipSides,
+  'tooltip/align': _tooltipAlign,
+  'tooltip/provider': _tooltipProvider,
+  'tooltip/delay': _tooltipDelay,
+  'tooltip/sizes': _tooltipSizes,
   'tabs/hero': _tabsHero,
   'tabs/variants': _tabsVariants,
   'tabs/sizes': _tabsSizes,
@@ -583,3 +595,10 @@ Widget _overlayHero(BuildContext context) => const OverlayHero();
 Widget _overlayTones(BuildContext context) => const OverlayTones();
 Widget _overlayDismissible(BuildContext context) => const OverlayDismissible();
 Widget _overlayAlign(BuildContext context) => const OverlayAlign();
+
+Widget _tooltipHero(BuildContext context) => const TooltipHero();
+Widget _tooltipSides(BuildContext context) => const TooltipSides();
+Widget _tooltipAlign(BuildContext context) => const TooltipAlign();
+Widget _tooltipProvider(BuildContext context) => const TooltipProvider();
+Widget _tooltipDelay(BuildContext context) => const TooltipDelay();
+Widget _tooltipSizes(BuildContext context) => const TooltipSizes();
