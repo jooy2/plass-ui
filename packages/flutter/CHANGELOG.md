@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+The rest of the library. `PlButton` shipped first and everything else follows it, ported from the React package the same way it was — value for value, with the places where "the same number" would have been wrong written down where the conversion happens.
+
+### Added
+
+- **`PlTypography`.** The type scale on its own, so a page can use it without wrapping its prose in a card. `level` sets the size *and* whether the line is announced as a heading; there is no `size` beside it, because a `size` would let a caller ask for an `h1` at `xs`. `PlTypography.rich` is the span form.
+- **`PlIcon`.** A glyph at a known size in a known colour, for whichever icon set the app chose. The glyph is told how big it is three ways at once — through `IconTheme`, through `DefaultTextStyle`, and by the box it is laid into — so an `Icon`, a `CustomPaint` that reads the ambient theme and a bare character all come out the same size. `color` is nullable and defaults to `null`, which is how "inherit" is spelled in a language with no such keyword.
+
 ## 0.0.2
 
 A packaging release. No component changed, and no code in `lib/` did either — everything here is about what pub.dev was shown, and what it was shown was wrong in three ways.

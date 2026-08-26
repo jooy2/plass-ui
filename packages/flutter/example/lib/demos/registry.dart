@@ -9,6 +9,16 @@ import 'package:plass_ui_example/demos/button/icons.dart';
 import 'package:plass_ui_example/demos/button/sizes.dart';
 import 'package:plass_ui_example/demos/button/states.dart';
 import 'package:plass_ui_example/demos/button/variants.dart';
+import 'package:plass_ui_example/demos/icon/anything.dart';
+import 'package:plass_ui_example/demos/icon/colors.dart';
+import 'package:plass_ui_example/demos/icon/hero.dart';
+import 'package:plass_ui_example/demos/icon/inside.dart';
+import 'package:plass_ui_example/demos/icon/sizes.dart';
+import 'package:plass_ui_example/demos/typography/colors.dart';
+import 'package:plass_ui_example/demos/typography/hero.dart';
+import 'package:plass_ui_example/demos/typography/levels.dart';
+import 'package:plass_ui_example/demos/typography/lines.dart';
+import 'package:plass_ui_example/demos/typography/weight.dart';
 
 /// Every demo, under the key the documentation asks for it by.
 ///
@@ -30,6 +40,16 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'button/states': _states,
   'button/elevation': _elevation,
   'button/full-width': _fullWidth,
+  'typography/hero': _typographyHero,
+  'typography/levels': _typographyLevels,
+  'typography/weight': _typographyWeight,
+  'typography/colors': _typographyColors,
+  'typography/lines': _typographyLines,
+  'icon/hero': _iconHero,
+  'icon/sizes': _iconSizes,
+  'icon/colors': _iconColors,
+  'icon/inside': _iconInside,
+  'icon/anything': _iconAnything,
 };
 
 Widget _hero(BuildContext context) => const ButtonHero();
@@ -41,3 +61,15 @@ Widget _icons(BuildContext context) => const ButtonIcons();
 Widget _states(BuildContext context) => const ButtonStates();
 Widget _elevation(BuildContext context) => const ButtonElevation();
 Widget _fullWidth(BuildContext context) => const ButtonFullWidth();
+
+Widget _typographyHero(BuildContext context) => const TypographyHero();
+Widget _typographyLevels(BuildContext context) => const TypographyLevels();
+Widget _typographyWeight(BuildContext context) => const TypographyWeight();
+Widget _typographyColors(BuildContext context) => const TypographyColors();
+Widget _typographyLines(BuildContext context) => const TypographyLines();
+
+Widget _iconHero(BuildContext context) => const IconHero();
+Widget _iconSizes(BuildContext context) => const IconSizes();
+Widget _iconColors(BuildContext context) => const IconColors();
+Widget _iconInside(BuildContext context) => const IconInside();
+Widget _iconAnything(BuildContext context) => const IconAnything();

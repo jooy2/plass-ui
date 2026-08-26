@@ -56,6 +56,61 @@ function sharedProps(component: string): PropRow[] {
 }
 
 export const flutterPropTables: Record<string, PropRow[]> = {
+  PlIcon: [
+    from('PlIcon', 'icon', { type: 'Widget', required: true }),
+    from('PlIcon', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlIcon', 'color', {
+      // Dart has no `inherit` keyword, and a nullable enum says the same thing
+      // with one less name in it.
+      type: `${COLOR}?`,
+      default: 'null',
+      description: {
+        ko: '의미론적 색 역할. null이면 놓인 자리의 색을 그대로 씁니다. 이 prop이 primary가 아닌 유일한 컴포넌트입니다 — 아이콘은 콘텐츠라, 색은 대개 이미 정해져 있습니다',
+        en: 'Semantic colour role. null takes the colour of whatever it sits in. The one component where this is not primary — an icon is content, and its colour has usually been decided already'
+      }
+    }),
+    from('PlIcon', 'label', { type: 'String?' })
+  ],
+
+  PlTypography: [
+    from('PlTypography', 'level', {
+      type: 'PlTypographyLevel',
+      default: 'PlTypographyLevel.body',
+      description: {
+        ko: '타입 스케일과, 이 줄이 heading으로 알려지는지 여부. variant가 아닌 이유는, 이 라이브러리에서 variant는 표면의 재질을 뜻하기 때문입니다',
+        en: 'The type scale, and whether the line is announced as a heading. Not called variant, because in this library variant names what a surface is made of'
+      }
+    }),
+    from('PlTypography', 'color', { type: `${COLOR}?`, default: 'null' }),
+    from('PlTypography', 'weight', {
+      type: 'PlTypographyWeight?',
+      description: {
+        ko: 'level이 정했을 굵기를 덮어씁니다',
+        en: 'Overrides the weight the level would otherwise pick'
+      }
+    }),
+    from('PlTypography', 'align', { type: 'TextAlign?' }),
+    from('PlTypography', 'lines', { type: 'int?' }),
+    from('PlTypography', 'gutter', { type: 'bool', default: 'false' }),
+    {
+      name: 'semanticsLabel',
+      type: 'String?',
+      description: {
+        ko: '스크린 리더가 글자 대신 읽을 이름. lines가 잘라낸 글자는 실제로 사라지므로, 문장 전체가 중요한 줄에 넘깁니다',
+        en: 'What a screen reader reads instead of the characters. lines really does drop what it clips, so pass this when the whole string matters'
+      }
+    },
+    from('PlTypography', 'children', {
+      name: 'data',
+      type: 'String',
+      required: true,
+      description: {
+        ko: '텍스트. 첫 번째 위치 인자입니다. span으로 이루어진 줄에는 InlineSpan을 받는 PlTypography.rich를 씁니다',
+        en: 'The text, as the first positional argument. PlTypography.rich takes an InlineSpan instead, for a line built out of spans'
+      }
+    })
+  ],
+
   PlButton: [
     ...sharedProps('PlButton'),
     from('PlButton', 'startIcon', { type: 'Widget?' }),

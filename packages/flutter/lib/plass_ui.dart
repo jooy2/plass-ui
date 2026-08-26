@@ -22,6 +22,8 @@
 library;
 
 export 'src/components/button/pl_button.dart';
+export 'src/components/icon/pl_icon.dart';
+export 'src/components/typography/pl_typography.dart';
 export 'src/theme/theme.dart';
 export 'src/theme/tokens.dart' show PlassColorFamily, PlassTokens;
 export 'src/types.dart';
