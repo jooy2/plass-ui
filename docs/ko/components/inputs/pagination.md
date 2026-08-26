@@ -127,13 +127,13 @@ PlPagination(
 
 현재 페이지와 범위 끝의 이동 버튼은 `<button>`으로 남습니다. `disabled`는 `<a>`가 될 수 있는 상태가 아니기 때문입니다.
 
-:::
-
 <Demo src="pagination/links" :min-height="140">
 
 <<< @/.vitepress/demos/pagination/links.tsx
 
 </Demo>
+
+:::
 
 ### size
 

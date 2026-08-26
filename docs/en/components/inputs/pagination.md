@@ -127,13 +127,13 @@ With an `href` **and** an `onPageChange`, the handler wins and the navigation is
 
 The current page and a stepper at the end of the row stay `<button>`s, because `disabled` is not something an `<a>` can be.
 
-:::
-
 <Demo src="pagination/links" :min-height="140">
 
 <<< @/.vitepress/demos/pagination/links.tsx
 
 </Demo>
+
+:::
 
 ### size
 
