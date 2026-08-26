@@ -9,6 +9,8 @@ order: 1
 
 <Demo src="table/hero" :min-height="240" />
 
+::: fw react
+
 ```tsx
 import { PlTable, type PlTableColumn } from 'plass-ui';
 
@@ -21,17 +23,66 @@ const columns: PlTableColumn<Invoice>[] = [
 <PlTable columns={columns} rows={invoices} caption="Recent invoices" hoverable />;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlTable<Invoice>(
+  caption: const Text('Recent invoices'),
+  hoverable: true,
+  rows: invoices,
+  columns: <PlTableColumn<Invoice>>[
+    PlTableColumn<Invoice>(
+      header: const Text('Invoice'),
+      cell: (Invoice row, int index) => Text(row.id),
+    ),
+    PlTableColumn<Invoice>(
+      header: const Text('Customer'),
+      cell: (Invoice row, int index) => Text(row.customer),
+    ),
+    PlTableColumn<Invoice>(
+      header: const Text('Total'),
+      align: PlassAlign.end,
+      cell: (Invoice row, int index) => Text(row.total),
+    ),
+  ],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlTable" />
+
+::: fw react
 
 Every native `<div>` attribute passes straight through to the sheet the grid sits on. `color` is excluded because it collides with the `color` in the table above.
 
 `PlTable` is generic in `Row` and therefore not a `forwardRef` — a component wrapped in `React.forwardRef` loses its type parameter, and the row type is the whole point of the API. `ref` is not offered rather than being offered with `Row` widened to `any`.
 
+:::
+
+::: fw flutter
+
+The table is generic in its row's type — `PlTable<Invoice>` — which is the whole point of the API: a column is handed the row, typed, and hands back a widget.
+
+The grid is laid out by Flutter's own `Table`, which is also where the table, row, cell and column-header semantics come from. A column is measured from the content in it, exactly as a browser's automatic table layout measures one, so the same data comes out the same shape in both packages.
+
+:::
+
 ### PlTableColumn
 
 <PropsTable name="PlTableColumn" />
+
+::: fw flutter
+
+`cell` is required, which is the one real difference between the two builds. There a column names a property with `key` and the cell is `row[key]` unless `render` says otherwise; Dart has no such lookup on an arbitrary type, and a map of `dynamic` bought at the price of the row's type would be a worse bargain than writing the accessor.
+
+:::
 
 What the shared axes (`variant` `size` `color` `density` `elevation`) mean across the library is in [prop conventions](../../design/prop-conventions).
 
@@ -41,23 +92,61 @@ What the shared axes (`variant` `size` `color` `density` `elevation`) mean acros
 
 The sheet under the grid, on the same three materials as every other container, and never dyed.
 
-There is no band behind the column names on any of them. The header is muted, semibold text over a firmer rule, and the rows under it are scored with `--plass-divider` — the same hairline a `PlCard` and a `PlList` are scored with. A filled strip across the top of a grid is the fastest way to make data look like chrome, and it puts all of a table's weight in the one place that needs none of it. The exception is `stickyHeader`, where the fill is not decoration: rows pass directly under a pinned header and something has to stop the light.
+There is no band behind the column names on any of them. The header is muted, semibold text over a firmer rule, and the rows under it are scored with the neutral divider ink — the same hairline a `PlCard` and a `PlList` are scored with. A filled strip across the top of a grid is the fastest way to make data look like chrome, and it puts all of a table's weight in the one place that needs none of it.
+
+::: fw react
+
+The exception is `stickyHeader`, where the fill is not decoration: rows pass directly under a pinned header and something has to stop the light.
+
+:::
 
 <Demo src="table/variants" :min-height="360">
 
+::: fw react
+
 <<< @/.vitepress/demos/table/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/table/variants.dart
+
+:::
 
 </Demo>
 
 ### columns
 
+::: fw react
+
 A column names the property it reads with `key`, and `render` takes over when a cell is anything but a string or a number. `width` goes on a `<col>` rather than on the first row's cells — a width set on a `<th>` is one the browser renegotiates against every other row.
+
+:::
+
+::: fw flutter
+
+A column says how to get a cell out of a row, and that is all it says: `cell` is handed the row and its position and hands back a widget.
+
+Width comes in two forms, and they are different questions. `width` is a length in logical pixels, for the column that has to be exactly that wide — a fixed-width action column, a status pill. `flex` is a share of whatever is left after every column has room for its content, which is what the React build's `width: '30%'` actually means once a table has to add up to its own width.
+
+:::
 
 `align` is `start` by default. Numbers usually want `end`, so their digits line up in a column.
 
 <Demo src="table/columns" :min-height="200">
 
+::: fw react
+
 <<< @/.vitepress/demos/table/columns.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/table/columns.dart
+
+:::
 
 </Demo>
 
@@ -67,29 +156,71 @@ A column names the property it reads with `key`, and `render` takes over when a 
 
 <Demo src="table/striped" :min-height="260">
 
+::: fw react
+
 <<< @/.vitepress/demos/table/striped.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/table/striped.dart
+
+:::
 
 </Demo>
 
-### onRowClick
+### <Fw react="onRowClick" flutter="onRowPressed" />
 
-Makes rows activatable, and turns on the hover treatment with it. Each row picks up a tab stop and answers <kbd>Enter</kbd> and <kbd>Space</kbd>, so a row is reachable without a pointer.
+Makes rows activatable, and turns on the hover treatment with it. Each row picks up a focus stop and answers <kbd>Enter</kbd> and <kbd>Space</kbd>, so a row is reachable without a pointer.
+
+::: fw react
 
 A key pressed inside a cell is left alone: a cell can hold a link or a button with an <kbd>Enter</kbd> of its own, and running both would open the row and follow the link at once.
 
+:::
+
+::: fw flutter
+
+The row's focus stop lives in its **first cell**, which is the only place it can: a row here is not a widget — `Table` lays the cells out and paints the band and the ring behind them — so the one thing that can hold focus is a cell, and the ring it lights is the whole row.
+
+A key pressed on a control inside a cell belongs to that control. The row's own keys are on the row's own focus stop, and a button in a cell has a focus stop of its own.
+
+:::
+
 <Demo src="table/rows" :min-height="260">
 
+::: fw react
+
 <<< @/.vitepress/demos/table/rows.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/table/rows.dart
+
+:::
 
 </Demo>
 
 ### empty
 
-A table with no rows still draws its headers, with one cell spanning the grid underneath. The default line is `No data`; `empty` takes anything.
+A table with no rows still draws its headings, with the line <Fw react="in one cell spanning the grid underneath" flutter="centred under the grid" />. The default is `No data`; `empty` takes anything.
 
 <Demo src="table/empty" :min-height="180">
 
+::: fw react
+
 <<< @/.vitepress/demos/table/empty.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/table/empty.dart
+
+:::
 
 </Demo>
 
@@ -99,11 +230,23 @@ Changes cell padding and nothing else, so two tables of the same `size` keep the
 
 <Demo src="table/density" :min-height="240">
 
+::: fw react
+
 <<< @/.vitepress/demos/table/density.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/table/density.dart
+
+:::
 
 </Demo>
 
 ## Accessibility
+
+::: fw react
 
 - Renders a real `<table>` with `<thead>`, `<tbody>`, `<th scope="col">` and `<td>`. A screen reader announces the column header with each cell, the row's position, and the row count.
 - `caption` becomes a `<caption>`, which is the table's accessible name. A table on a page with more than one deserves it.
@@ -111,3 +254,34 @@ Changes cell padding and nothing else, so two tables of the same `size` keep the
 - Clickable rows carry `tabIndex={0}` and answer <kbd>Enter</kbd> and <kbd>Space</kbd>; <kbd>Space</kbd> is prevented from scrolling the page.
 - The focus ring on a row is drawn inset, because the sheet clips at its own rounded edge and an outline outside the first or last row would lose its top or bottom.
 - Cell padding, alignment, backgrounds and **borders** are written as inline styles, and so are the `<table>`'s own `display`, `width`, `margin` and `border-collapse`. Host stylesheets style `table`, `td` and `th` by tag name at a specificity a utility class cannot outrank: a prose stylesheet's `td { border: 1px solid }` draws a full grid of cell rules the design never asked for, its `table { display: block }` stops the grid filling the sheet, and its `table { margin: 20px 0 }` pushes the whole thing off the corner of the pane it is meant to be flush inside. This is the one component in the library that has to work around all of that.
+
+:::
+
+::: fw flutter
+
+- The grid is a real `Table`, so it is announced as a table with rows and cells in it, and a screen reader can move through it a cell at a time.
+- A heading is announced as the column's header, which is what puts the name of the column in front of every number under it.
+- `caption` is drawn at the top of the sheet and read as the line above the grid. `semanticLabel` is there for the case where the table's name has to differ from what is drawn.
+- A row that answers a press keeps its row semantics: the tap action is on the cells, and nothing calls a row a button. A row announced as a button is a row whose cells have been orphaned from the table they belong to.
+- The row's focus stop is in its first cell, and the ring is painted by the row itself — inset, because the sheet clips at its rounded corner and a ring outside the first or last row would come back with its top or bottom sliced off.
+- Every cell is as tall as the tallest one in its row, so a row answers a press on all of itself rather than only on the line of text that happens to be longest.
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `key` names the property, `render` is optional | `cell` is required | Dart has no `row[key]` on an arbitrary type. Writing the accessor is cheaper than widening the row to `dynamic`. |
+| `width: number \| string` | `width: double` and `flex: double` | Pixels stay pixels; a percentage becomes a share of the leftover width, which is what a percentage of a table that must add up to its own width already was. |
+| `stickyHeader` | — | A pinned header means two grids, and two grids each measured from their own content cannot agree on a column width. Page the rows with [`PlPagination`](../inputs/pagination) instead. |
+| `overflow-x: auto` on the sheet | — | The grid is as wide as the sheet. Wrap it in a `SingleChildScrollView` when the columns need more room than there is. |
+| `getRowKey` | `rowKey` | Same job, Flutter's spelling, and it hands back a `LocalKey` rather than a `React.Key`. |
+| `onRowClick` | `onRowPressed` | The package's name for the thing a press calls. |
+| `<caption>` as the accessible name | a drawn line, plus `semanticLabel` | Flutter names a node with a string, and a caption is a widget. The words are still read first. |
+| the inline-style workaround | — | There is no host stylesheet reaching in to restyle `table`, `td` and `th`, so there is nothing to work around. |
+| `className`, `style` | — | There is no class list and no style attribute to pass through. |
+
+:::

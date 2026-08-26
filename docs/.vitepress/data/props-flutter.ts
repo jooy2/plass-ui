@@ -777,6 +777,92 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlTable: [
+    from('PlTable', 'columns', {
+      type: 'List<PlTableColumn<T>>',
+      required: true
+    }),
+    from('PlTable', 'rows', { type: 'List<T>', required: true }),
+    from('PlTable', 'getRowKey', {
+      name: 'rowKey',
+      type: 'LocalKey Function(T row, int index)?',
+      description: {
+        ko: '행마다의 안정적인 key. 없으면 위치로 식별되고, 정렬이나 필터가 있는 표에는 맞지 않습니다',
+        en: 'A stable key per row. Left out, a row is identified by its position, which is wrong for a table that sorts or filters'
+      }
+    }),
+    from('PlTable', 'caption', {
+      type: 'Widget?',
+      description: {
+        ko: '격자 위, 시트 안에 그려집니다',
+        en: 'Drawn above the grid, inside the sheet'
+      }
+    }),
+    from('PlTable', 'empty', { type: 'Widget?', default: "Text('No data')" }),
+    from('PlTable', 'striped', { type: 'bool', default: 'false' }),
+    from('PlTable', 'hoverable', { type: 'bool', default: 'false' }),
+    from('PlTable', 'onRowClick', {
+      name: 'onRowPressed',
+      type: 'void Function(T row, int index)?'
+    }),
+    from('PlTable', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlTable', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlTable', 'color', {
+      type: COLOR,
+      default: 'PlassColor.primary',
+      description: {
+        ko: '의미론적 색 역할. hover 틴트와 focus ring까지만 닿습니다 — 데이터는 자기 색을 가지고 옵니다',
+        en: 'Semantic colour role. It reaches the hover tint and the focus ring and nothing else: data arrives with its own colours'
+      }
+    }),
+    from('PlTable', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlTable', 'elevation', { type: 'int', default: '0' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '표를 스크린 리더가 부를 이름. caption은 그려지면서 읽히므로, 둘이 달라야 할 때만 씁니다',
+        en: 'The name a screen reader gives the table. caption is drawn and read, so this is for when the two have to differ'
+      }
+    }
+  ],
+
+  PlTableColumn: [
+    {
+      name: 'cell',
+      type: 'Widget Function(T row, int index)',
+      required: true,
+      description: {
+        ko: '행에서 셀을 만듭니다. Dart에는 임의의 타입에 대한 row[key]가 없으니 필수입니다',
+        en: 'Builds the cell for a row. Required, because Dart has no row[key] on an arbitrary type'
+      }
+    },
+    from('PlTableColumn', 'header', {
+      type: 'Widget?',
+      description: {
+        ko: '열 제목. 생략하면 제목 없는 열이 됩니다 — 액션 열이 원하는 것이고, 나머지 열은 원하지 않는 것입니다',
+        en: 'The heading. Left out, the column is headed by nothing, which is what an actions column wants and every other column does not'
+      }
+    }),
+    from('PlTableColumn', 'width', {
+      type: 'double?',
+      description: {
+        ko: '고정 너비, 논리 픽셀. 없으면 내용만큼 넓어진 뒤 남은 폭을 flex만큼 나눠 갖습니다',
+        en: 'A fixed width in logical pixels. Left out, the column is as wide as its content and then takes a flex share of what is left'
+      }
+    }),
+    {
+      name: 'flex',
+      type: 'double',
+      default: '1',
+      description: {
+        ko: '모든 열이 내용만큼 자리를 잡은 뒤 남은 폭에서 이 열이 가져가는 몫. React의 width: 30%에 해당합니다',
+        en: "How much of the leftover width this column takes once every column has room for its content — the React build's width: '30%'"
+      }
+    },
+    from('PlTableColumn', 'align', { type: 'PlassAlign', default: 'PlassAlign.start' })
+  ],
+
   PlTabs: [
     from('PlTabs', 'children', {
       name: 'tabs',

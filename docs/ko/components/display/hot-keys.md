@@ -147,15 +147,21 @@ const PlHotKeys(cluster: PlHotKeysCluster(up: 'W', left: 'A', down: 'S', right: 
 
 </Demo>
 
-::: fw react
-
 ### 목록 안에서
-
-:::
 
 <Demo src="hot-keys/list" :min-height="280">
 
+::: fw react
+
 <<< @/.vitepress/demos/hot-keys/list.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/hot_keys/list.dart
+
+:::
 
 </Demo>
 

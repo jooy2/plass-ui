@@ -147,15 +147,21 @@ A cap sits one step down the control ladder — an `md` cap is 32px, not 40px. I
 
 </Demo>
 
-::: fw react
-
 ### In a list
-
-:::
 
 <Demo src="hot-keys/list" :min-height="280">
 
+::: fw react
+
 <<< @/.vitepress/demos/hot-keys/list.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/hot_keys/list.dart
+
+:::
 
 </Demo>
 

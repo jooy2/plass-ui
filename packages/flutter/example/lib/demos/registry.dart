@@ -78,6 +78,7 @@ import 'package:plass_ui_example/demos/highlight/matching.dart';
 import 'package:plass_ui_example/demos/highlight/variants.dart';
 import 'package:plass_ui_example/demos/hot_keys/cluster.dart';
 import 'package:plass_ui_example/demos/hot_keys/hero.dart';
+import 'package:plass_ui_example/demos/hot_keys/list.dart';
 import 'package:plass_ui_example/demos/hot_keys/os.dart';
 import 'package:plass_ui_example/demos/hot_keys/sizes.dart';
 import 'package:plass_ui_example/demos/hot_keys/variants.dart';
@@ -125,6 +126,13 @@ import 'package:plass_ui_example/demos/switch/hero.dart';
 import 'package:plass_ui_example/demos/switch/placement.dart';
 import 'package:plass_ui_example/demos/switch/sizes.dart';
 import 'package:plass_ui_example/demos/switch/states.dart';
+import 'package:plass_ui_example/demos/table/columns.dart';
+import 'package:plass_ui_example/demos/table/density.dart';
+import 'package:plass_ui_example/demos/table/empty.dart';
+import 'package:plass_ui_example/demos/table/hero.dart';
+import 'package:plass_ui_example/demos/table/rows.dart';
+import 'package:plass_ui_example/demos/table/striped.dart';
+import 'package:plass_ui_example/demos/table/variants.dart';
 import 'package:plass_ui_example/demos/tabs/controlled.dart';
 import 'package:plass_ui_example/demos/tabs/full_width.dart';
 import 'package:plass_ui_example/demos/tabs/hero.dart';
@@ -250,6 +258,7 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'hot-keys/sizes': _hotKeysSizes,
   'hot-keys/os': _hotKeysOs,
   'hot-keys/cluster': _hotKeysCluster,
+  'hot-keys/list': _hotKeysList,
   'list/rows': _listRows,
   'list/variants': _listVariants,
   'list/sizes': _listSizes,
@@ -316,6 +325,13 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'accordion/dividers': _accordionDividers,
   'accordion/slots': _accordionSlots,
   'accordion/controlled': _accordionControlled,
+  'table/hero': _tableHero,
+  'table/variants': _tableVariants,
+  'table/columns': _tableColumns,
+  'table/striped': _tableStriped,
+  'table/rows': _tableRows,
+  'table/empty': _tableEmpty,
+  'table/density': _tableDensity,
   'tabs/hero': _tabsHero,
   'tabs/variants': _tabsVariants,
   'tabs/sizes': _tabsSizes,
@@ -421,6 +437,7 @@ Widget _hotKeysVariants(BuildContext context) => const HotKeysVariants();
 Widget _hotKeysSizes(BuildContext context) => const HotKeysSizes();
 Widget _hotKeysOs(BuildContext context) => const HotKeysOs();
 Widget _hotKeysCluster(BuildContext context) => const HotKeysCluster();
+Widget _hotKeysList(BuildContext context) => const HotKeysList();
 
 Widget _listRows(BuildContext context) => const ListRows();
 Widget _listVariants(BuildContext context) => const ListVariants();
@@ -507,3 +524,11 @@ Widget _tabsSizes(BuildContext context) => const TabsSizes();
 Widget _tabsOrientation(BuildContext context) => const TabsOrientation();
 Widget _tabsFullWidth(BuildContext context) => const TabsFullWidth();
 Widget _tabsControlled(BuildContext context) => const TabsControlled();
+
+Widget _tableHero(BuildContext context) => const TableHero();
+Widget _tableVariants(BuildContext context) => const TableVariants();
+Widget _tableColumns(BuildContext context) => const TableColumns();
+Widget _tableStriped(BuildContext context) => const TableStriped();
+Widget _tableRows(BuildContext context) => const TableRows();
+Widget _tableEmpty(BuildContext context) => const TableEmpty();
+Widget _tableDensity(BuildContext context) => const TableDensity();

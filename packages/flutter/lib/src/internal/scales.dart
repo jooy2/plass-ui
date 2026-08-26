@@ -64,6 +64,31 @@ const Map<PlassDensity, Map<PlassSize, double>> paddingX = <PlassDensity, Map<Pl
   },
 };
 
+/// A table cell's vertical padding, and therefore a row's height.
+///
+/// The horizontal track is [paddingX] — a cell is padded the same way a control
+/// is, so a table and the buttons beside it agree about how far text sits from
+/// an edge. This is the other axis, which no other component needs: everything
+/// else states a height and lets the padding fall out of it, and a table cannot,
+/// because a cell that wraps has to grow.
+const Map<PlassDensity, Map<PlassSize, double>> cellPaddingY =
+    <PlassDensity, Map<PlassSize, double>>{
+      PlassDensity.standard: <PlassSize, double>{
+        PlassSize.xs: 6,
+        PlassSize.sm: 8,
+        PlassSize.md: 12,
+        PlassSize.lg: 14,
+        PlassSize.xl: 16,
+      },
+      PlassDensity.compact: <PlassSize, double>{
+        PlassSize.xs: 2,
+        PlassSize.sm: 4,
+        PlassSize.md: 7,
+        PlassSize.lg: 9,
+        PlassSize.xl: 11,
+      },
+    };
+
 /// Between a control's own parts — an icon and its label.
 const Map<PlassSize, double> gap = <PlassSize, double>{
   PlassSize.xs: 4,

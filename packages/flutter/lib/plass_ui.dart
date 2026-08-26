@@ -42,6 +42,7 @@ export 'src/components/segmented_button/pl_segmented_button.dart';
 export 'src/components/skeleton/pl_skeleton.dart';
 export 'src/components/slider/pl_slider.dart';
 export 'src/components/switch/pl_switch.dart';
+export 'src/components/table/pl_table.dart';
 export 'src/components/tabs/pl_tabs.dart';
 export 'src/components/text_field/pl_text_field.dart';
 export 'src/components/text_link/pl_text_link.dart';
