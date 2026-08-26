@@ -128,7 +128,7 @@ The list below is both packages'. The props are the same props under Dart's name
 
 ### Navigation
 
-`PlBottomNavigation` · `PlFloatingBottomNavigation`
+`PlBottomNavigation` · `PlContextMenu` · `PlFloatingBottomNavigation` · `PlMenu`
 
 ### Surfaces
 

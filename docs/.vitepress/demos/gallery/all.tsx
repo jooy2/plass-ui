@@ -29,6 +29,9 @@ import {
   PlIconButton,
   PlList,
   PlListItem,
+  PlMenu,
+  PlMenuItem,
+  PlMenuSeparator,
   PlModal,
   PlModalClose,
   PlNumberField,
@@ -880,6 +883,30 @@ const entries: Entry[] = [
           Account
         </PlFloatingBottomNavigationItem>
       </PlFloatingBottomNavigation>
+    )
+  },
+  {
+    name: 'PlMenu',
+    group: 'navigation',
+    href: 'components/navigation/menu',
+    blurb: {
+      en: 'A list of actions that appears when something is pressed.',
+      ko: '무언가를 눌렀을 때 나타나는 동작 목록입니다.'
+    },
+    preview: (
+      <PlMenu
+        size="sm"
+        trigger={
+          <PlButton size="sm" variant="glass">
+            Actions
+          </PlButton>
+        }
+      >
+        <PlMenuItem shortcut="⌘X">Cut</PlMenuItem>
+        <PlMenuItem shortcut="⌘C">Copy</PlMenuItem>
+        <PlMenuSeparator />
+        <PlMenuItem color="danger">Delete</PlMenuItem>
+      </PlMenu>
     )
   },
   {

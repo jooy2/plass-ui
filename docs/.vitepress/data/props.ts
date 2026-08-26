@@ -2414,6 +2414,310 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlMenu: [
+    {
+      name: 'trigger',
+      type: 'ReactElement',
+      description: {
+        ko: '메뉴를 여는 요소. 선택 사항입니다 — 밖에서 여는 controlled 메뉴에는 트리거가 필요 없습니다',
+        en: 'The element that opens the menu. Optional — a controlled menu opened from elsewhere needs none'
+      }
+    },
+    {
+      name: 'open · defaultOpen · onOpenChange',
+      type: 'boolean · boolean · (open: boolean) => void',
+      description: {
+        ko: '열림 상태. controlled와 uncontrolled 양쪽',
+        en: 'The open state, controlled or uncontrolled'
+      }
+    },
+    {
+      name: 'side',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'bottom'",
+      description: {
+        ko: '트리거의 어느 가장자리에 매달릴지',
+        en: 'Which edge of the trigger it hangs off'
+      }
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'start'",
+      description: { ko: '그 가장자리를 따라 어디에 놓일지', en: 'Where it sits along that edge' }
+    },
+    {
+      name: 'sideOffset',
+      type: 'number',
+      default: '6',
+      description: { ko: '트리거와의 거리(px)', en: 'Distance from the trigger, in pixels' }
+    },
+    {
+      name: 'modal',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '열려 있는 동안 뒤 페이지를 가져갈지',
+        en: 'Whether the page behind is taken away while the menu is open'
+      }
+    },
+    {
+      name: 'openOnHover',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '클릭뿐 아니라 호버로도 엽니다. 메뉴 바를 위한 것입니다',
+        en: 'Opens on hover as well as on click. For a menu bar'
+      }
+    },
+    {
+      name: 'loopFocus',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '화살표 키가 마지막 행에서 첫 행으로 돌아갈지',
+        en: 'Whether the arrow keys wrap from the last row back to the first'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '트리거가 아무것도 열지 않습니다',
+        en: 'The trigger stops opening anything'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '팝업의 반경, 타입 스케일, 행 패딩',
+        en: "The popup's radius, type scale and row padding"
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: '의미론적 색 역할. 행마다 덮어쓸 수 있습니다',
+        en: 'Semantic colour role. A row can override it'
+      }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'default'",
+      shared: true,
+      description: { ko: '행의 패딩만 바꿉니다', en: "Changes a row's padding and nothing else" }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '행들', en: 'The rows' }
+    }
+  ],
+
+  PlMenuItem: [
+    {
+      name: 'onClick',
+      type: '(event: MouseEvent) => void',
+      description: {
+        ko: '행이 하는 일. 주지 않고 링크도 아니면 행은 라벨입니다',
+        en: 'What the row does. Not given, and not a link, the row is a label'
+      }
+    },
+    {
+      name: 'href · target',
+      type: 'string',
+      description: {
+        ko: '행을 진짜 <a>로 렌더링합니다. 링크들의 메뉴는 링크여야 합니다',
+        en: 'Renders the row as a real <a>. A menu of links has to be links'
+      }
+    },
+    {
+      name: 'startIcon · endIcon',
+      type: 'ReactNode',
+      description: { ko: '라벨 앞뒤의 슬롯', en: 'The slots before and after the label' }
+    },
+    {
+      name: 'shortcut',
+      type: 'ReactNode',
+      description: {
+        ko: '같은 일을 하는 키 조합. 행 끝에 흐리게 놓입니다. 텍스트일 뿐이고 바인딩은 앱의 몫입니다',
+        en: 'The keystroke that does the same thing, muted at the end of the row. Text only — the application binds it'
+      }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: {
+        ko: '라벨 아래 한 줄. 한 단계 작고 흐립니다',
+        en: 'A second line under the label, one step down and muted'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      description: {
+        ko: '행의 색 가족을 다시 겨눕니다 — 삭제하는 행에 danger',
+        en: "Re-points the row's colour family — danger for the one that deletes"
+      }
+    },
+    {
+      name: 'closeOnClick',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '행을 고르면 메뉴가 닫힐지',
+        en: 'Whether picking the row closes the menu'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '쓸 수 없습니다. 목록에는 남고 타이프어헤드에도 잡힙니다',
+        en: 'Unavailable. Still listed, and still found by typeahead'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: {
+        ko: '라벨이 평범한 문자열이 아닐 때 타이프어헤드가 맞춰 볼 문자열',
+        en: 'What typeahead matches against, when the label is not a plain string'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '라벨', en: 'The label' }
+    }
+  ],
+
+  PlMenuCheckboxItem: [
+    {
+      name: 'checked · defaultChecked · onCheckedChange',
+      type: 'boolean · boolean · (checked: boolean) => void',
+      description: { ko: '체크 상태', en: 'The checked state' }
+    },
+    {
+      name: 'value',
+      type: 'string | number',
+      required: true,
+      description: {
+        ko: 'PlMenuRadioItem에만: 이 행이 그룹을 무엇으로 설정할지',
+        en: 'PlMenuRadioItem only: what this row sets the group to'
+      }
+    },
+    {
+      name: 'closeOnClick',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '체크했을 때 메뉴가 닫힐지. 평범한 행과 달리 기본이 false입니다',
+        en: 'Whether ticking closes the menu. false here, against a plain row'
+      }
+    },
+    {
+      name: 'endIcon · shortcut · description · color · disabled · label',
+      type: '—',
+      description: { ko: 'PlMenuItem과 같습니다', en: 'As on PlMenuItem' }
+    }
+  ],
+
+  PlMenuSubmenu: [
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: { ko: '서브메뉴를 여는 행의 라벨', en: 'The label on the row that opens it' }
+    },
+    {
+      name: 'startIcon',
+      type: 'ReactNode',
+      description: { ko: '라벨 앞의 슬롯', en: 'The slot before the label' }
+    },
+    {
+      name: 'side',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'right'",
+      description: {
+        ko: '부모 행의 어느 가장자리에서 열릴지',
+        en: 'Which edge of the parent row it opens against'
+      }
+    },
+    {
+      name: 'sideOffset',
+      type: 'number',
+      default: '4',
+      description: { ko: '부모 메뉴와의 거리(px)', en: 'Distance from the parent menu, in pixels' }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '서브메뉴를 열 수 없습니다', en: 'The row stops opening anything' }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '중첩된 행들', en: 'The nested rows' }
+    }
+  ],
+
+  PlContextMenu: [
+    {
+      name: 'content',
+      type: 'ReactNode',
+      required: true,
+      description: {
+        ko: 'PlMenu 안에 쓰는 것과 똑같은 행들',
+        en: 'The rows, exactly as they are written inside a PlMenu'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      required: true,
+      description: {
+        ko: '오른쪽 클릭이나 길게 누르기에 응답하는 영역',
+        en: 'The area that answers a right-click or a long press'
+      }
+    },
+    {
+      name: 'open · defaultOpen · onOpenChange',
+      type: 'boolean · boolean · (open: boolean) => void',
+      description: { ko: '열림 상태', en: 'The open state' }
+    },
+    {
+      name: 'loopFocus',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '화살표 키가 마지막 행에서 첫 행으로 돌아갈지',
+        en: 'Whether the arrow keys wrap from the last row back to the first'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '영역이 아무것도 열지 않습니다', en: 'The area stops opening anything' }
+    },
+    {
+      name: 'size · color · density',
+      type: '—',
+      shared: true,
+      description: { ko: 'PlMenu와 같습니다', en: 'As on PlMenu' }
+    }
+  ],
+
   PlModal: [
     {
       name: 'size',

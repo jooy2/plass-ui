@@ -213,6 +213,20 @@ function NoteIcon(): React.ReactElement {
 }
 
 /**
+ * The filled dot a chosen radio row is marked with.
+ *
+ * A dot and not a tick, which is the distinction `PlCheckbox` and `PlRadioGroup`
+ * make everywhere else: a tick says "and", a dot says "instead of".
+ */
+export function DotIcon(): React.ReactElement {
+  return (
+    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+      <circle cx="8" cy="8" r="3.25" />
+    </svg>
+  );
+}
+
+/**
  * A star, filled, in the same 16-unit box every other glyph here uses.
  *
  * `StarIcon` and `StarOutlineIcon` are the same five points traced twice —
