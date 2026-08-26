@@ -19,7 +19,7 @@ Flutter 패키지는 `package:flutter/widgets.dart`만으로 만들어졌습니�
 
 :::
 
-> **0.0.1은 미리 보기입니다.** prop 어휘와 토큰, 빌드 구조는 이후 모든 것이 부어질 틀이라서 지금 읽어 둘 값어치가 있지만, 컴포넌트 목록은 아직 제품을 올릴 만한 상태가 아닙니다. <Fw react="React 쪽은 서른다섯 개가 공개되어 있습니다. " flutter="Flutter 쪽은 PlButton 하나만 공개되어 있습니다. " />[모든 컴포넌트](../components/)를 보세요.
+> **0.0.1은 미리 보기입니다.** prop 어휘와 토큰, 빌드 구조는 이후 모든 것이 부어질 틀이라서 지금 읽어 둘 값어치가 있지만, 컴포넌트 목록은 아직 제품을 올릴 만한 상태가 아닙니다. 이제 두 패키지에 같은 서른다섯 개가 들어 있습니다. [모든 컴포넌트](../components/)를 보세요.
 
 ## 설치
 
@@ -101,6 +101,21 @@ PlassTheme(
   child: const PlButton(child: Text('Save')),
 )
 ```
+
+### 위쪽에 하나만은 필요합니다
+
+네 개의 컴포넌트가 자기를 트리 밖으로 들어 올립니다 — `PlModal`, `PlOverlay`, `PlTooltip`, 그리고 `PlSelect`의 목록. 들어 올려진 표면에는 들어갈 `Overlay`가 필요합니다. `MaterialApp`에도, navigator가 있는 `WidgetsApp`에도 하나 있습니다. 둘 다 아닌 앱은 직접 두면 됩니다.
+
+```dart
+WidgetsApp(
+  // …
+  builder: (BuildContext context, Widget? child) => Overlay.wrap(child: child!),
+)
+```
+
+들어 올리는 것은 구현 세부가 아니라 요점입니다. 쓰인 자리에 그려진 시트는 자르는 첫 조상에서 잘리고, Plass 페이지에서 그것은 모든 카드입니다.
+
+`PlToast`에는 `Overlay`가 필요 없습니다 — `PlToastProvider`가 이미 스택이 덮어야 할 모든 것 위에 있습니다.
 
 :::
 

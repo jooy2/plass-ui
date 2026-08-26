@@ -899,7 +899,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlPagination', 'label', { type: 'String', default: "'Pagination'" }),
     from('PlPagination', 'pageLabel', {
       type: 'String Function(int)',
-      default: "(page) => 'Page \$page'"
+      default: "(page) => 'Page $page'"
     }),
     {
       name: 'previousLabel · nextLabel · firstLabel · lastLabel',

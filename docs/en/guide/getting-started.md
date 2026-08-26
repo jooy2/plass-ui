@@ -19,7 +19,7 @@ The Flutter package is built on `package:flutter/widgets.dart` alone. It imports
 
 :::
 
-> **0.0.1 is a preview.** The prop vocabulary, the tokens and the build are the shape everything after this will be poured into, so they are worth reading; the component list is not yet worth building a product on. <Fw react="React has thirty-five components released; " flutter="The Flutter package has one component released, PlButton — " />see [all components](../components/).
+> **0.0.1 is a preview.** The prop vocabulary, the tokens and the build are the shape everything after this will be poured into, so they are worth reading; the component list is not yet worth building a product on. Both packages now have the same thirty-five components; see [all components](../components/).
 
 ## Install
 
@@ -101,6 +101,21 @@ PlassTheme(
   child: const PlButton(child: Text('Save')),
 )
 ```
+
+### One thing that does need something above it
+
+Four components lift themselves out of the tree — `PlModal`, `PlOverlay`, `PlTooltip` and `PlSelect`'s list — and a lifted surface needs an `Overlay` to go into. `MaterialApp` has one, and so does a `WidgetsApp` with a navigator; an app with neither can add its own:
+
+```dart
+WidgetsApp(
+  // …
+  builder: (BuildContext context, Widget? child) => Overlay.wrap(child: child!),
+)
+```
+
+Lifting is the point rather than an implementation detail: a sheet drawn where it was written would be clipped by the first ancestor that clips, and on a Plass page that is every card.
+
+`PlToast` needs no `Overlay` — its `PlToastProvider` is already above everything the stack has to cover.
 
 :::
 

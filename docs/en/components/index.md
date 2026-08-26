@@ -10,7 +10,7 @@ aside: false
 
 ::: fw flutter
 
-The gallery below is the **React** build, and it is the whole list. The Flutter package has one component so far — [PlButton](inputs/button) — and the rest are on their way. Every page says for itself whether it has a Flutter half.
+The gallery below is the **React** build, because the cards are one page of thirty-five live previews and a Flutter frame is a whole engine each. The list is the same either way: every component here has a Flutter half, and each page shows it.
 
 :::
 
