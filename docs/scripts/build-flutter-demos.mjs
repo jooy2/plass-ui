@@ -58,6 +58,14 @@ if (!force && existsSync(marker)) {
       '--base-href',
       '/flutter/',
       '--pwa-strategy=none',
+      /*
+       * The gallery ships no icon font, so there is nothing here to tree-shake
+       * — and the shaker refuses outright on the one font that *is* shipped:
+       * Inter, whose two faces in a single family it reads as an icon font it
+       * cannot process. Leaving the flag off costs a build; turning it off
+       * costs nothing, because the subset it would compute is empty.
+       */
+      '--no-tree-shake-icons',
       '--output',
       outDir
     ],
