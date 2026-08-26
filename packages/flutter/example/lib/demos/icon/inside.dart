@@ -18,11 +18,10 @@ class IconInside extends StatelessWidget {
           // label, through the IconTheme it sets.
           PlButton(startIcon: const BoltGlyph(), onPressed: () {}, child: const Text('Deploy now')),
           // And here it is at a fixed size instead, which is what PlIcon is for.
-          PlButton(
-            startIcon: const PlIcon(icon: BoltGlyph(), size: PlassSize.sm),
-            variant: PlassVariant.glass,
-            onPressed: () {},
-            child: const Text('Deploy now'),
+          const PlAlert(
+            color: PlassColor.warning,
+            icon: PlIcon(icon: BoltGlyph(), size: PlassSize.sm),
+            child: Text('The build is running on the fast queue.'),
           ),
           DefaultTextStyle.merge(
             style: TextStyle(color: PlassTheme.of(context).mutedFg),

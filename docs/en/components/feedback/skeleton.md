@@ -77,19 +77,25 @@ The three shapes are the three things a layout is made of — a run of text, a b
 
 </Demo>
 
-::: fw react
-
 ### Standing in for the real thing
 
 The point is that nothing moves when the content arrives. A card that grows by 200px when its image loads has shifted everything below it while somebody was reading.
 
 <Demo src="skeleton/matching" :min-height="200">
 
+::: fw react
+
 <<< @/.vitepress/demos/skeleton/matching.tsx
 
-</Demo>
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/skeleton/matching.dart
 
 :::
+
+</Demo>
 
 ### animated
 

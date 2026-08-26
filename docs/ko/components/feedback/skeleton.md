@@ -77,19 +77,25 @@ const PlSkeleton(shape: PlSkeletonShape.rect, height: 120);
 
 </Demo>
 
-::: fw react
-
 ### 진짜를 대신하기
 
 핵심은 내용이 도착했을 때 아무것도 움직이지 않는 것입니다. 이미지가 로드되면서 200px 자라는 card는 누군가 읽고 있는 동안 그 아래 전부를 밀어낸 것입니다.
 
 <Demo src="skeleton/matching" :min-height="200">
 
+::: fw react
+
 <<< @/.vitepress/demos/skeleton/matching.tsx
 
-</Demo>
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/skeleton/matching.dart
 
 :::
+
+</Demo>
 
 ### animated
 

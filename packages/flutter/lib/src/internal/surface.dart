@@ -352,6 +352,52 @@ PlassSurface controlSurface(
   }
 }
 
+/// A mark that **is** the thing being coloured, and is never pressed — an
+/// avatar, a badge.
+///
+/// Between [controlSurface] and [sheetSurface], and it needs to be: the sheet
+/// takes the tint the way a control's does, because a portrait of one person and
+/// a count of one thing are both about the thing they are coloured for. But
+/// there is no pointer to answer, so there is no hover ladder, and the edge is
+/// the neutral hairline rather than the sheet's own white one — a mark is very
+/// often laid on something opaque, where white light on a cut edge is a claim
+/// about a page wash that is not behind it.
+///
+/// `ghost` keeps a wash at rest rather than being bare, which is the difference
+/// between a mark and a control: a ghost button has nothing until the pointer
+/// arrives, and a ghost badge with nothing in it is not a badge.
+PlassSurface markSurface(
+  PlassTokens tokens,
+  PlassColorFamily family, {
+  required PlassVariant variant,
+  required int elevation,
+  bool lifted = true,
+}) {
+  switch (variant) {
+    case PlassVariant.solid:
+      return PlassSurface(
+        gradient: family.fill,
+        ink: family.onSolid,
+        shadows: <BoxShadow>[...tokens.elevation(elevation), if (lifted) tokens.lift(family)],
+      );
+    case PlassVariant.glass:
+      return PlassSurface(
+        fill: tokens.glass,
+        border: Border.all(color: tokens.border, width: hairline),
+        insets: <PlassInsetShadow>[tokens.glossGlass],
+        ink: family.accent,
+        blur: true,
+        shadows: tokens.elevation(elevation),
+      );
+    case PlassVariant.ghost:
+      return PlassSurface(
+        fill: family.softPress,
+        ink: family.accent,
+        shadows: tokens.elevation(elevation),
+      );
+  }
+}
+
 /// The sheet a **container** is drawn on — a card, an accordion, a table, a
 /// modal's panel. Everything that holds other people's content rather than
 /// being pressed.

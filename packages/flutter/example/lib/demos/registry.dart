@@ -1,5 +1,26 @@
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui_example/demos/alert/colors.dart';
+import 'package:plass_ui_example/demos/alert/dismiss.dart';
+import 'package:plass_ui_example/demos/alert/hero.dart';
+import 'package:plass_ui_example/demos/alert/shapes.dart';
+import 'package:plass_ui_example/demos/alert/sizes.dart';
+import 'package:plass_ui_example/demos/alert/variants.dart';
+import 'package:plass_ui_example/demos/avatar/colors.dart';
+import 'package:plass_ui_example/demos/avatar/fallback.dart';
+import 'package:plass_ui_example/demos/avatar/group.dart';
+import 'package:plass_ui_example/demos/avatar/hero.dart';
+import 'package:plass_ui_example/demos/avatar/shapes.dart';
+import 'package:plass_ui_example/demos/avatar/sizes.dart';
+import 'package:plass_ui_example/demos/avatar/variants.dart';
+import 'package:plass_ui_example/demos/badge/colors.dart';
+import 'package:plass_ui_example/demos/badge/counts.dart';
+import 'package:plass_ui_example/demos/badge/dot.dart';
+import 'package:plass_ui_example/demos/badge/hero.dart';
+import 'package:plass_ui_example/demos/badge/overlap.dart';
+import 'package:plass_ui_example/demos/badge/placement.dart';
+import 'package:plass_ui_example/demos/badge/sizes.dart';
+import 'package:plass_ui_example/demos/badge/variants.dart';
 import 'package:plass_ui_example/demos/blockquote/attribution.dart';
 import 'package:plass_ui_example/demos/blockquote/colors.dart';
 import 'package:plass_ui_example/demos/blockquote/hero.dart';
@@ -14,6 +35,20 @@ import 'package:plass_ui_example/demos/button/icons.dart';
 import 'package:plass_ui_example/demos/button/sizes.dart';
 import 'package:plass_ui_example/demos/button/states.dart';
 import 'package:plass_ui_example/demos/button/variants.dart';
+import 'package:plass_ui_example/demos/card/dividers.dart';
+import 'package:plass_ui_example/demos/card/hero.dart';
+import 'package:plass_ui_example/demos/card/interactive.dart';
+import 'package:plass_ui_example/demos/card/padded.dart';
+import 'package:plass_ui_example/demos/card/sizes.dart';
+import 'package:plass_ui_example/demos/card/slots.dart';
+import 'package:plass_ui_example/demos/card/variants.dart';
+import 'package:plass_ui_example/demos/chip/colors.dart';
+import 'package:plass_ui_example/demos/chip/hero.dart';
+import 'package:plass_ui_example/demos/chip/interactive.dart';
+import 'package:plass_ui_example/demos/chip/selected.dart';
+import 'package:plass_ui_example/demos/chip/sizes.dart';
+import 'package:plass_ui_example/demos/chip/slots.dart';
+import 'package:plass_ui_example/demos/chip/variants.dart';
 import 'package:plass_ui_example/demos/divider/colors.dart';
 import 'package:plass_ui_example/demos/divider/hero.dart';
 import 'package:plass_ui_example/demos/divider/label.dart';
@@ -29,6 +64,8 @@ import 'package:plass_ui_example/demos/icon/hero.dart';
 import 'package:plass_ui_example/demos/icon/inside.dart';
 import 'package:plass_ui_example/demos/icon/sizes.dart';
 import 'package:plass_ui_example/demos/skeleton/animated.dart';
+import 'package:plass_ui_example/demos/skeleton/hero.dart';
+import 'package:plass_ui_example/demos/skeleton/matching.dart';
 import 'package:plass_ui_example/demos/skeleton/shapes.dart';
 import 'package:plass_ui_example/demos/skeleton/sizes.dart';
 import 'package:plass_ui_example/demos/typography/colors.dart';
@@ -84,6 +121,43 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'highlight/variants': _highlightVariants,
   'highlight/colors': _highlightColors,
   'highlight/matching': _highlightMatching,
+  'skeleton/hero': _skeletonHero,
+  'skeleton/matching': _skeletonMatching,
+  'avatar/hero': _avatarHero,
+  'avatar/variants': _avatarVariants,
+  'avatar/sizes': _avatarSizes,
+  'avatar/shapes': _avatarShapes,
+  'avatar/colors': _avatarColors,
+  'avatar/fallback': _avatarFallback,
+  'avatar/group': _avatarGroup,
+  'badge/hero': _badgeHero,
+  'badge/variants': _badgeVariants,
+  'badge/sizes': _badgeSizes,
+  'badge/colors': _badgeColors,
+  'badge/dot': _badgeDot,
+  'badge/counts': _badgeCounts,
+  'badge/placement': _badgePlacement,
+  'badge/overlap': _badgeOverlap,
+  'chip/hero': _chipHero,
+  'chip/variants': _chipVariants,
+  'chip/sizes': _chipSizes,
+  'chip/colors': _chipColors,
+  'chip/selected': _chipSelected,
+  'chip/interactive': _chipInteractive,
+  'chip/slots': _chipSlots,
+  'card/hero': _cardHero,
+  'card/variants': _cardVariants,
+  'card/sizes': _cardSizes,
+  'card/slots': _cardSlots,
+  'card/dividers': _cardDividers,
+  'card/padded': _cardPadded,
+  'card/interactive': _cardInteractive,
+  'alert/hero': _alertHero,
+  'alert/variants': _alertVariants,
+  'alert/sizes': _alertSizes,
+  'alert/colors': _alertColors,
+  'alert/shapes': _alertShapes,
+  'alert/dismiss': _alertDismiss,
 };
 
 Widget _hero(BuildContext context) => const ButtonHero();
@@ -128,3 +202,46 @@ Widget _blockquoteAttribution(BuildContext context) => const BlockquoteAttributi
 Widget _highlightVariants(BuildContext context) => const HighlightVariants();
 Widget _highlightColors(BuildContext context) => const HighlightColors();
 Widget _highlightMatching(BuildContext context) => const HighlightMatching();
+
+Widget _skeletonHero(BuildContext context) => const SkeletonHero();
+Widget _skeletonMatching(BuildContext context) => const SkeletonMatching();
+
+Widget _avatarHero(BuildContext context) => const AvatarHero();
+Widget _avatarVariants(BuildContext context) => const AvatarVariants();
+Widget _avatarSizes(BuildContext context) => const AvatarSizes();
+Widget _avatarShapes(BuildContext context) => const AvatarShapes();
+Widget _avatarColors(BuildContext context) => const AvatarColors();
+Widget _avatarFallback(BuildContext context) => const AvatarFallback();
+Widget _avatarGroup(BuildContext context) => const AvatarGroup();
+
+Widget _badgeHero(BuildContext context) => const BadgeHero();
+Widget _badgeVariants(BuildContext context) => const BadgeVariants();
+Widget _badgeSizes(BuildContext context) => const BadgeSizes();
+Widget _badgeColors(BuildContext context) => const BadgeColors();
+Widget _badgeDot(BuildContext context) => const BadgeDot();
+Widget _badgeCounts(BuildContext context) => const BadgeCounts();
+Widget _badgePlacement(BuildContext context) => const BadgePlacement();
+Widget _badgeOverlap(BuildContext context) => const BadgeOverlap();
+
+Widget _chipHero(BuildContext context) => const ChipHero();
+Widget _chipVariants(BuildContext context) => const ChipVariants();
+Widget _chipSizes(BuildContext context) => const ChipSizes();
+Widget _chipColors(BuildContext context) => const ChipColors();
+Widget _chipSelected(BuildContext context) => const ChipSelected();
+Widget _chipInteractive(BuildContext context) => const ChipInteractive();
+Widget _chipSlots(BuildContext context) => const ChipSlots();
+
+Widget _cardHero(BuildContext context) => const CardHero();
+Widget _cardVariants(BuildContext context) => const CardVariants();
+Widget _cardSizes(BuildContext context) => const CardSizes();
+Widget _cardSlots(BuildContext context) => const CardSlots();
+Widget _cardDividers(BuildContext context) => const CardDividers();
+Widget _cardPadded(BuildContext context) => const CardPadded();
+Widget _cardInteractive(BuildContext context) => const CardInteractive();
+
+Widget _alertHero(BuildContext context) => const AlertHero();
+Widget _alertVariants(BuildContext context) => const AlertVariants();
+Widget _alertSizes(BuildContext context) => const AlertSizes();
+Widget _alertColors(BuildContext context) => const AlertColors();
+Widget _alertShapes(BuildContext context) => const AlertShapes();
+Widget _alertDismiss(BuildContext context) => const AlertDismiss();

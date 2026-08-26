@@ -56,6 +56,83 @@ function sharedProps(component: string): PropRow[] {
 }
 
 export const flutterPropTables: Record<string, PropRow[]> = {
+  PlAlert: [
+    from('PlAlert', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlAlert', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlAlert', 'color', { type: COLOR, default: 'PlassColor.info' }),
+    from('PlAlert', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlAlert', 'elevation', { type: 'int', default: '0' }),
+    from('PlAlert', 'title', { type: 'Widget?' }),
+    from('PlAlert', 'icon', { type: 'Widget?' }),
+    {
+      name: 'showIcon',
+      type: 'bool',
+      default: 'true',
+      description: {
+        ko: '글리프를 그릴지. React는 icon={false}로 말하는 것을, null도 위젯도 아닌 값이 없는 언어에서 이름을 따로 두어 말합니다',
+        en: 'Whether a glyph is drawn at all. React says this with icon={false}; Dart has no value that is neither null nor a widget, so it gets its own name'
+      }
+    },
+    from('PlAlert', 'action', { type: 'Widget?' }),
+    from('PlAlert', 'onClose', { type: 'VoidCallback?' }),
+    from('PlAlert', 'closeLabel', { type: 'String', default: "'Dismiss'" }),
+    from('PlAlert', 'children', { name: 'child', type: 'Widget?' })
+  ],
+
+  PlAvatar: [
+    from('PlAvatar', 'variant', { type: VARIANT, default: 'PlassVariant.ghost' }),
+    from('PlAvatar', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlAvatar', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlAvatar', 'elevation', { type: 'int', default: '0' }),
+    from('PlAvatar', 'src', {
+      name: 'image',
+      type: 'ImageProvider?',
+      description: {
+        ko: '사진. URL이 아니라 ImageProvider입니다 — NetworkImage든 AssetImage든 캐싱 패키지의 provider든 그대로 들어맞습니다. 로드되기 전까지, 그리고 실패하면 영영, 폴백이 그려집니다',
+        en: 'The picture, as an ImageProvider rather than a URL — a NetworkImage, an AssetImage or a provider from a caching package all fit. Until it loads, and forever if it fails, the fallback is what is drawn'
+      }
+    }),
+    from('PlAvatar', 'name', { type: 'String?' }),
+    from('PlAvatar', 'initials', { type: 'String?' }),
+    from('PlAvatar', 'alt', { name: 'semanticLabel', type: 'String?' }),
+    from('PlAvatar', 'shape', { type: 'PlAvatarShape', default: 'PlAvatarShape.circle' }),
+    from('PlAvatar', 'children', { name: 'child', type: 'Widget?' })
+  ],
+
+  PlBadge: [
+    from('PlBadge', 'variant', { type: VARIANT, default: 'PlassVariant.solid' }),
+    from('PlBadge', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlBadge', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlBadge', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlBadge', 'elevation', { type: 'int', default: '0' }),
+    from('PlBadge', 'content', {
+      type: 'Widget?',
+      description: {
+        ko: '숫자가 아닐 때 배지가 하는 말. count와 함께 넘길 수 없습니다',
+        en: 'What the badge says when it is not a number. Cannot be given alongside count'
+      }
+    }),
+    {
+      name: 'count',
+      type: 'int?',
+      description: {
+        ko: '배지가 세는 것. max와 showZero가 숫자에만 뜻이 있어서 content와 나뉘어 있습니다 — 타입이 곧 그 질문입니다',
+        en: 'What the badge counts. Separate from content because max and showZero only mean anything for a number — the type is the question'
+      }
+    },
+    from('PlBadge', 'max', { type: 'int', default: '99' }),
+    from('PlBadge', 'dot', { type: 'bool', default: 'false' }),
+    from('PlBadge', 'showZero', { type: 'bool', default: 'false' }),
+    from('PlBadge', 'invisible', { type: 'bool', default: 'false' }),
+    from('PlBadge', 'placement', { type: 'PlassCorner', default: 'PlassCorner.topEnd' }),
+    from('PlBadge', 'overlap', {
+      type: 'PlBadgeOverlap',
+      default: 'PlBadgeOverlap.square'
+    }),
+    from('PlBadge', 'label', { type: 'String?' }),
+    from('PlBadge', 'children', { name: 'child', type: 'Widget?' })
+  ],
+
   PlBlockquote: [
     from('PlBlockquote', 'variant', { type: VARIANT, default: 'PlassVariant.ghost' }),
     from('PlBlockquote', 'size', { type: SIZE, default: 'PlassSize.md' }),
@@ -75,6 +152,61 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     },
     from('PlBlockquote', 'children', { name: 'child', type: 'Widget?' })
+  ],
+
+  PlCard: [
+    from('PlCard', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlCard', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlCard', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlCard', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlCard', 'elevation', { type: 'int', default: '1' }),
+    from('PlCard', 'title', { type: 'Widget?' }),
+    from('PlCard', 'subtitle', { type: 'Widget?' }),
+    from('PlCard', 'headerAction', { type: 'Widget?' }),
+    from('PlCard', 'footer', {
+      type: 'Widget?',
+      description: {
+        ko: '아래 영역. 위젯 하나이므로, 버튼이 둘 든 푸터는 자기 Row나 Wrap을 가져옵니다',
+        en: 'The bottom area. One widget, so a footer with two buttons in it brings its own Row or Wrap'
+      }
+    }),
+    from('PlCard', 'dividers', { type: 'bool', default: 'false' }),
+    from('PlCard', 'padded', { type: 'bool', default: 'true' }),
+    {
+      name: 'onPressed',
+      type: 'VoidCallback?',
+      description: {
+        ko: '눌렸을 때. 넘기면 카드가 진짜 focus stop이 되고 버튼으로 알려집니다 — 눌러 보이는 카드와 실제로 눌리는 카드의 차이입니다',
+        en: 'Called when pressed. Passing it makes the card a real focus stop, announced as a button — the difference between a card that looks clickable and one that is'
+      }
+    },
+    from('PlCard', 'interactive', { type: 'bool', default: 'false' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '누를 수 있는 카드를 스크린 리더가 부르는 이름. 없으면 안에 든 것으로 불립니다',
+        en: 'The name a screen reader gives a pressable card. Left out, the card is named by what is in it'
+      }
+    },
+    from('PlCard', 'children', { name: 'child', type: 'Widget?' })
+  ],
+
+  PlChip: [
+    from('PlChip', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlChip', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlChip', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlChip', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlChip', 'elevation', { type: 'int', default: '0' }),
+    from('PlChip', 'startIcon', { type: 'Widget?' }),
+    from('PlChip', 'endIcon', { type: 'Widget?' }),
+    from('PlChip', 'count', { type: 'Widget?' }),
+    from('PlChip', 'onClick', { name: 'onPressed', type: 'VoidCallback?' }),
+    from('PlChip', 'onDelete', { name: 'onDeleted', type: 'VoidCallback?' }),
+    from('PlChip', 'deleteLabel', { type: 'String', default: "'Remove'" }),
+    from('PlChip', 'selected', { type: 'bool', default: 'false' }),
+    from('PlChip', 'disabled', { type: 'bool', default: 'false' }),
+    from('PlChip', 'children', { name: 'child', type: 'Widget?' })
   ],
 
   PlDivider: [

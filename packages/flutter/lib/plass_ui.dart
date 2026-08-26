@@ -21,8 +21,13 @@
 /// ```
 library;
 
+export 'src/components/alert/pl_alert.dart';
+export 'src/components/avatar/pl_avatar.dart';
+export 'src/components/badge/pl_badge.dart';
 export 'src/components/blockquote/pl_blockquote.dart';
 export 'src/components/button/pl_button.dart';
+export 'src/components/card/pl_card.dart';
+export 'src/components/chip/pl_chip.dart';
 export 'src/components/divider/pl_divider.dart';
 export 'src/components/highlight/pl_highlight.dart';
 export 'src/components/icon/pl_icon.dart';
