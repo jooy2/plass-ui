@@ -125,6 +125,12 @@ import 'package:plass_ui_example/demos/segmented_button/hero.dart';
 import 'package:plass_ui_example/demos/segmented_button/icons.dart';
 import 'package:plass_ui_example/demos/segmented_button/sizes.dart';
 import 'package:plass_ui_example/demos/segmented_button/variants.dart';
+import 'package:plass_ui_example/demos/select/controlled.dart';
+import 'package:plass_ui_example/demos/select/hero.dart';
+import 'package:plass_ui_example/demos/select/icons.dart';
+import 'package:plass_ui_example/demos/select/sizes.dart';
+import 'package:plass_ui_example/demos/select/states.dart';
+import 'package:plass_ui_example/demos/select/variants.dart';
 import 'package:plass_ui_example/demos/skeleton/animated.dart';
 import 'package:plass_ui_example/demos/skeleton/hero.dart';
 import 'package:plass_ui_example/demos/skeleton/matching.dart';
@@ -233,6 +239,12 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'highlight/variants': _highlightVariants,
   'highlight/colors': _highlightColors,
   'highlight/matching': _highlightMatching,
+  'select/hero': _selectHero,
+  'select/variants': _selectVariants,
+  'select/sizes': _selectSizes,
+  'select/states': _selectStates,
+  'select/controlled': _selectControlled,
+  'select/icons': _selectIcons,
   'skeleton/hero': _skeletonHero,
   'skeleton/matching': _skeletonMatching,
   'avatar/hero': _avatarHero,
@@ -602,3 +614,10 @@ Widget _tooltipAlign(BuildContext context) => const TooltipAlign();
 Widget _tooltipProvider(BuildContext context) => const TooltipProvider();
 Widget _tooltipDelay(BuildContext context) => const TooltipDelay();
 Widget _tooltipSizes(BuildContext context) => const TooltipSizes();
+
+Widget _selectHero(BuildContext context) => const SelectHero();
+Widget _selectVariants(BuildContext context) => const SelectVariants();
+Widget _selectSizes(BuildContext context) => const SelectSizes();
+Widget _selectStates(BuildContext context) => const SelectStates();
+Widget _selectControlled(BuildContext context) => const SelectControlled();
+Widget _selectIcons(BuildContext context) => const SelectIcons();

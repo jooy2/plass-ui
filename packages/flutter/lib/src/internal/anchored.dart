@@ -263,24 +263,26 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
       child: popup,
     );
 
-    // Laid out in the top-left corner and moved by the follower, which is what a
-    // `CompositedTransformFollower` expects: it is a transform, so whatever it
-    // wraps has to have been given room to be its own size first. Loose against
-    // the overlay, so a popup can never be laid out wider than the screen.
-    popup = Positioned(left: 0, top: 0, child: popup);
-
-    return Stack(
-      children: <Widget>[
-        if (widget.onDismiss != null)
-          Positioned.fill(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: widget.onDismiss,
-              child: const SizedBox.expand(),
+    // The popup is an ordinary child of the stack rather than a positioned one,
+    // and the difference matters: a child positioned by only two edges is laid
+    // out **unbounded**, and an unbounded width is not a width. Unpositioned it
+    // is measured loosely against the screen, which is the cap it should have —
+    // and where it actually lands is the follower's business, not the stack's.
+    return SizedBox.expand(
+      child: Stack(
+        alignment: AlignmentDirectional.topStart,
+        children: <Widget>[
+          if (widget.onDismiss != null)
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: widget.onDismiss,
+                child: const SizedBox.expand(),
+              ),
             ),
-          ),
-        popup,
-      ],
+          popup,
+        ],
+      ),
     );
   }
 }

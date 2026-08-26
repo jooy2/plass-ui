@@ -819,6 +819,95 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlSelect: [
+    from('PlSelect', 'items', {
+      name: 'options',
+      type: 'List<PlSelectOption<T>>',
+      required: true,
+      description: {
+        ko: '선택지들. children이 아니라 설명의 목록입니다 — 팝업을 한 번도 열지 않은 trigger도 라벨을 알아야 합니다',
+        en: 'The choices, as a list of descriptions rather than children — the trigger has to know the labels before the list has ever been opened'
+      }
+    }),
+    from('PlSelect', 'value', { type: 'T?', required: true }),
+    from('PlSelect', 'onValueChange', { name: 'onChanged', type: 'ValueChanged<T?>?' }),
+    from('PlSelect', 'placeholder', { type: 'Widget?' }),
+    from('PlSelect', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlSelect', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlSelect', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlSelect', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlSelect', 'elevation', {
+      type: 'int',
+      default: '0',
+      description: {
+        ko: 'trigger의 그림자 깊이. 목록은 사다리 꼭대기로 고정입니다 — 목록은 정말로 페이지 위에 떠 있습니다',
+        en: 'Drop shadow depth of the trigger. The list has its own, fixed at the top of the ladder — it genuinely floats'
+      }
+    }),
+    from('PlSelect', 'label', { type: 'Widget?' }),
+    from('PlSelect', 'description', { type: 'Widget?' }),
+    from('PlSelect', 'error', { type: 'Widget?' }),
+    from('PlSelect', 'invalid', { type: 'bool?' }),
+    from('PlSelect', 'startIcon', {
+      type: 'Widget?',
+      description: {
+        ko: '값 앞에 놓이는 내용. 값의 1.2배로 그려져 글자 크기를 따라갑니다',
+        en: 'Content before the value, drawn at 1.2× it so it tracks the text'
+      }
+    }),
+    from('PlSelect', 'fullWidth', { type: 'bool', default: 'false' }),
+    from('PlSelect', 'readOnly', {
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '값은 보이지만 바꿀 수 없고, 목록도 열리지 않습니다',
+        en: 'The value is shown but cannot be changed, and the list does not open'
+      }
+    }),
+    from('PlSelect', 'disabled', { type: 'bool', default: 'false' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: 'select를 스크린 리더가 부를 이름',
+        en: 'The name a screen reader gives the select'
+      }
+    },
+    {
+      name: 'focusNode',
+      type: 'FocusNode?',
+      description: { ko: '바깥에서 focus를 몹니다', en: 'Drive focus from outside' }
+    },
+    {
+      name: 'autofocus',
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '트리에 들어가는 순간 focus를 가져갑니다',
+        en: 'Takes focus as it is inserted into the tree'
+      }
+    }
+  ],
+
+  PlSelectOption: [
+    from('PlSelectOption', 'value', {
+      type: 'T',
+      required: true,
+      description: {
+        ko: 'PlSelect.value가 담는 값이자 onChanged가 보고하는 값',
+        en: 'What PlSelect.value holds, and what onChanged reports'
+      }
+    }),
+    from('PlSelectOption', 'label', {
+      type: 'Widget?',
+      description: {
+        ko: '목록과 trigger에 보이는 내용. 생략하면 값의 toString이 쓰입니다',
+        en: "Shown in the list and in the trigger. The value's own toString if it is left out"
+      }
+    }),
+    from('PlSelectOption', 'disabled', { type: 'bool', default: 'false' })
+  ],
+
   PlSkeleton: [
     from('PlSkeleton', 'shape', {
       type: 'PlSkeletonShape',

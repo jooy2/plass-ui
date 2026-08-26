@@ -42,6 +42,7 @@ export 'src/components/overlay/pl_overlay.dart';
 export 'src/components/pagination/pl_pagination.dart';
 export 'src/components/radio_group/pl_radio_group.dart';
 export 'src/components/segmented_button/pl_segmented_button.dart';
+export 'src/components/select/pl_select.dart';
 export 'src/components/skeleton/pl_skeleton.dart';
 export 'src/components/slider/pl_slider.dart';
 export 'src/components/switch/pl_switch.dart';
