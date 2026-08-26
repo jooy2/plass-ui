@@ -1783,6 +1783,148 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlFloatingBottomNavigation: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      elevation: '2',
+      variantDescription: {
+        ko: '캡슐의 재질. ghost는 캡슐이 아예 없고 원반만 떠 있습니다',
+        en: 'What the capsule is made of. ghost has no capsule at all — the discs float on their own'
+      },
+      sizeDescription: {
+        ko: '원반의 지름과 바 아래의 틈. 컨트롤 사다리를 씁니다',
+        en: "The disc's diameter and the gap under the bar, on the control ladder"
+      },
+      elevationDescription: {
+        ko: '드롭 섀도 깊이. 2가 기본입니다 — 이 바는 페이지의 일부가 아니라 그 위에 떠 있습니다',
+        en: 'Drop shadow depth. 2, because this bar is not part of the page — it hovers over it'
+      },
+      densityDescription: {
+        ko: '캡슐 안의 여백과 원반 사이 간격만 바꿉니다',
+        en: 'Changes the air inside the capsule and the gap between discs'
+      }
+    }),
+    {
+      name: 'value',
+      type: 'string | number | null',
+      description: {
+        ko: '독자가 있는 목적지. onValueChange와 함께 controlled로 씁니다',
+        en: 'The destination the reader is on. Use with onValueChange for a controlled bar'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'string | number | null',
+      default: 'null',
+      description: {
+        ko: 'uncontrolled일 때 시작 목적지',
+        en: 'Which starts current, for an uncontrolled bar'
+      }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string | number) => void',
+      description: {
+        ko: '고른 목적지로 호출됩니다',
+        en: 'Called with the destination that was chosen'
+      }
+    },
+    {
+      name: 'position',
+      type: "'static' | 'sticky' | 'fixed'",
+      default: "'fixed'",
+      description: {
+        ko: '페이지 스크롤 안에서 바가 놓이는 방식',
+        en: "How the bar sits in the page's scroll"
+      }
+    },
+    {
+      name: 'safeArea',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '바 아래 틈에 홈 인디케이터 높이를 더합니다',
+        en: 'Adds the home indicator to the gap under the bar'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '모든 목적지가 반응하지 않습니다',
+        en: 'Every destination stops answering'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: { ko: '바가 안내되는 이름', en: 'The name the bar is announced by' }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '<nav> 대신 다른 요소로 렌더링합니다',
+        en: 'Renders something other than a <nav>'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: {
+        ko: 'PlFloatingBottomNavigationItem들',
+        en: 'The PlFloatingBottomNavigationItems'
+      }
+    }
+  ],
+
+  PlFloatingBottomNavigationItem: [
+    {
+      name: 'value',
+      type: 'string | number',
+      required: true,
+      description: {
+        ko: '목적지를 식별합니다. onValueChange가 보고하는 값입니다',
+        en: 'Identifies the destination. What onValueChange reports'
+      }
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: {
+        ko: '글리프. 독자가 보는 것의 전부입니다',
+        en: 'The glyph. It is the whole of what a reader sees'
+      }
+    },
+    {
+      name: 'href',
+      type: 'string',
+      description: {
+        ko: '항목을 버튼이 아니라 진짜 링크로 렌더링합니다',
+        en: 'Renders the item as a real link rather than as a button'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '쓸 수 없지만 집합에는 남습니다',
+        en: 'Unavailable, but still part of the set'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: {
+        ko: '목적지의 이름. 절대 그려지지 않고 언제나 읽힙니다',
+        en: "The destination's name. Never drawn, always read"
+      }
+    }
+  ],
+
   PlGrid: [
     {
       name: 'columns',

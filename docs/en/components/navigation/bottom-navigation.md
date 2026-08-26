@@ -94,7 +94,7 @@ The sheet is never dyed, exactly as on a `PlCard`. A bar holds destinations that
 
 `safeArea` keeps the row clear of the home indicator on a phone. The **sheet** still reaches the bottom of the screen — only the items move up — because a bar that stopped above the indicator would leave a stripe of page showing under the glass.
 
-`elevation` is `0`, and flat is right: the bar is attached to the edge of the window rather than floating over the middle of it, and `divider` is what separates it from the content. A bar that floats over the page is a different object, and it says so with a shadow.
+`elevation` is `0`, and flat is right: the bar is attached to the edge of the window rather than floating over the middle of it, and `divider` is what separates it from the content. The bar that floats over the page is a different object, and it is [`PlFloatingBottomNavigation`](./floating-bottom-navigation).
 
 ### size
 

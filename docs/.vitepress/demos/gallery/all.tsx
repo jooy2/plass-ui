@@ -19,6 +19,8 @@ import {
   PlContainer,
   PlDivider,
   PlFilePicker,
+  PlFloatingBottomNavigation,
+  PlFloatingBottomNavigationItem,
   PlGrid,
   PlGridItem,
   PlHighlight,
@@ -856,6 +858,28 @@ const entries: Entry[] = [
           Account
         </PlBottomNavigationItem>
       </PlBottomNavigation>
+    )
+  },
+  {
+    name: 'PlFloatingBottomNavigation',
+    group: 'navigation',
+    href: 'components/navigation/floating-bottom-navigation',
+    blurb: {
+      en: 'Round destinations floating clear of the bottom edge.',
+      ko: '아래 가장자리에서 떠 있는 둥근 목적지들입니다.'
+    },
+    preview: (
+      <PlFloatingBottomNavigation size="sm" position="static" safeArea={false} defaultValue="home">
+        <PlFloatingBottomNavigationItem value="home" icon={<HomeGlyph />}>
+          Home
+        </PlFloatingBottomNavigationItem>
+        <PlFloatingBottomNavigationItem value="search" icon={<SearchGlyph />}>
+          Search
+        </PlFloatingBottomNavigationItem>
+        <PlFloatingBottomNavigationItem value="account" icon={<AccountGlyph />}>
+          Account
+        </PlFloatingBottomNavigationItem>
+      </PlFloatingBottomNavigation>
     )
   },
   {

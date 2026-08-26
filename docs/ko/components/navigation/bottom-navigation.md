@@ -94,7 +94,7 @@ import { PlBottomNavigation, PlBottomNavigationItem } from 'plass-ui';
 
 `safeArea`는 휴대폰의 홈 인디케이터에서 줄을 떼어 놓습니다. **시트**는 여전히 화면 바닥까지 닿습니다 — 움직이는 것은 항목뿐입니다 — 인디케이터 위에서 멈춘 바는 유리 아래로 페이지가 비치는 띠를 남기기 때문입니다.
 
-`elevation`은 `0`이고, 평평한 것이 맞습니다. 이 바는 창 한가운데 위에 떠 있는 것이 아니라 창 가장자리에 붙어 있고, 내용과 갈라 주는 것은 `divider`입니다. 페이지 위에 떠 있는 바는 다른 물건이고, 그 사실을 그림자로 말합니다.
+`elevation`은 `0`이고, 평평한 것이 맞습니다. 이 바는 창 한가운데 위에 떠 있는 것이 아니라 창 가장자리에 붙어 있고, 내용과 갈라 주는 것은 `divider`입니다. 페이지 위에 떠 있는 바는 다른 물건이고, 그것은 [`PlFloatingBottomNavigation`](./floating-bottom-navigation)입니다.
 
 ### size
 

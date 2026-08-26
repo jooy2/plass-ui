@@ -15,6 +15,7 @@ export * from './components/chip';
 export * from './components/container';
 export * from './components/divider';
 export * from './components/file-picker';
+export * from './components/floating-bottom-navigation';
 export * from './components/grid';
 export * from './components/highlight';
 export * from './components/hot-keys';
