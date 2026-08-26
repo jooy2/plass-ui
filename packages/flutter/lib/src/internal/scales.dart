@@ -13,6 +13,8 @@
 /// itself.
 library;
 
+import 'package:flutter/foundation.dart';
+
 import 'package:plass_ui/src/types.dart';
 
 /// The height of a control, and the one number the whole library lines up on.
@@ -130,3 +132,219 @@ const double hoverBrightness = 1.05;
 
 /// The brightness a filled surface takes while it is held down.
 const double pressBrightness = 0.95;
+
+/// A type size paired with the line box it sits in.
+///
+/// Flutter's [TextStyle.height] is a multiple of the font size and CSS's
+/// `font-size/line-height` shorthand is two lengths, so the table is written the
+/// way the stylesheet writes it and the division happens here. Which matters
+/// beyond convenience: the React scales pick line boxes that are **whole
+/// pixels with the same parity as the thing sitting in them** — a 20px line for
+/// an 18px tick — and a ratio would land those on fractions at four steps out
+/// of five.
+@immutable
+class PlassTextScale {
+  /// Creates a type step. [line] is the CSS `line-height`, in logical pixels.
+  const PlassTextScale(this.size, this.line);
+
+  /// The type size.
+  final double size;
+
+  /// The line box the type sits in.
+  final double line;
+
+  /// The same pair as Flutter states it.
+  double get height => line / size;
+}
+
+/// The control type scale with an explicit leading, for the controls that hold
+/// text which may wrap — a multiline field, an option in a list, a table cell.
+///
+/// The line boxes agree with [controlHeight] on purpose: a one-row control that
+/// wraps has to keep lining up with a single-line one beside it.
+const Map<PlassSize, PlassTextScale> controlTextLeading = <PlassSize, PlassTextScale>{
+  PlassSize.xs: PlassTextScale(11, 16),
+  PlassSize.sm: PlassTextScale(13, 18),
+  PlassSize.md: PlassTextScale(14, 20),
+  PlassSize.lg: PlassTextScale(16, 24),
+  PlassSize.xl: PlassTextScale(18, 28),
+};
+
+/// Labels, descriptions and error messages: one step below the control's text.
+const Map<PlassSize, double> metaText = <PlassSize, double>{
+  PlassSize.xs: 10,
+  PlassSize.sm: 11,
+  PlassSize.md: 12,
+  PlassSize.lg: 13,
+  PlassSize.xl: 14,
+};
+
+/// A standalone glyph's box.
+///
+/// Its own ladder rather than a step off [controlHeight], because an icon is
+/// not a control — it is content, and it is measured against the text it sits
+/// beside rather than against the row it sits in. [iconScale] is the other half
+/// of the same idea: that one sizes a glyph *inside* a control.
+const Map<PlassSize, double> iconSize = <PlassSize, double>{
+  PlassSize.xs: 14,
+  PlassSize.sm: 16,
+  PlassSize.md: 20,
+  PlassSize.lg: 24,
+  PlassSize.xl: 28,
+};
+
+/// A tick box: the square a checkbox draws and the circle a radio draws.
+///
+/// Sized against the text beside it rather than against the row it sits in — a
+/// tick is an indicator next to a label, not a control you can put one inside.
+const Map<PlassSize, double> tickSize = <PlassSize, double>{
+  PlassSize.xs: 14,
+  PlassSize.sm: 16,
+  PlassSize.md: 18,
+  PlassSize.lg: 20,
+  PlassSize.xl: 24,
+};
+
+/// And its own radius, well below the control ladder's.
+///
+/// `md` on a control is 12, which on an 18px box is most of the way to a
+/// circle — and a checkbox that is round is a radio button. The intent is the
+/// same fillet, measured against a much smaller object.
+const Map<PlassSize, double> tickRadius = <PlassSize, double>{
+  PlassSize.xs: 4,
+  PlassSize.sm: 5,
+  PlassSize.md: 6,
+  PlassSize.lg: 7,
+  PlassSize.xl: 8,
+};
+
+/// The dot inside a checked radio.
+///
+/// Whole pixels at every step, and whole pixels *of margin* with them: what
+/// decides the offset is `(box − border − border − dot) / 2`, so every dot here
+/// has the same parity as the ring's content box. A 7px dot in an 18px ring
+/// with a 1px edge sits 4.5px from each side, and a circle antialiased at half
+/// coverage on all four sides reads as off-centre — up and to the left, because
+/// that is the way the paint rounds.
+const Map<PlassSize, double> tickDot = <PlassSize, double>{
+  PlassSize.xs: 6,
+  PlassSize.sm: 6,
+  PlassSize.md: 8,
+  PlassSize.lg: 8,
+  PlassSize.xl: 10,
+};
+
+/// The line box a tick and its label share.
+///
+/// [controlTextLeading] rather than a ratio of its own, and that is the whole
+/// point: a ratio produces a fractional line box at every step but one, and a
+/// tick centred in 19.6px starts at 0.8px — which drags the ring, its edge and
+/// the dot inside it off the pixel grid together.
+const Map<PlassSize, PlassTextScale> tickRowText = controlTextLeading;
+
+/// Between a label, the control under it and the text under that.
+const Map<PlassSize, double> stackGap = <PlassSize, double>{
+  PlassSize.xs: 4,
+  PlassSize.sm: 6,
+  PlassSize.md: 6,
+  PlassSize.lg: 8,
+  PlassSize.xl: 8,
+};
+
+/* ---------------------------------------------------------------------------
+ * Sheets
+ *
+ * A control holds one line of text at a fixed height, which is what every
+ * ladder above is about. A *sheet* — a card, an accordion section, an alert, a
+ * modal — holds a heading, a paragraph and a footer, and all three of them
+ * wrap. That is a different problem, and these tables are its answer.
+ *
+ * A sheet's subtitle deliberately has no table of its own: it is [metaText],
+ * the same step below the body that a field's description sits on.
+ * ------------------------------------------------------------------------ */
+
+/// A sheet's own horizontal padding, which is not a control's.
+///
+/// [paddingX] is the room a label needs beside the edge of the key it is
+/// printed on. This is the margin a sheet keeps around whatever it is holding,
+/// and it is bigger, because the thing inside is a paragraph rather than a
+/// word.
+const Map<PlassDensity, Map<PlassSize, double>> sheetPaddingX =
+    <PlassDensity, Map<PlassSize, double>>{
+      PlassDensity.standard: <PlassSize, double>{
+        PlassSize.xs: 10,
+        PlassSize.sm: 14,
+        PlassSize.md: 20,
+        PlassSize.lg: 24,
+        PlassSize.xl: 28,
+      },
+      PlassDensity.compact: <PlassSize, double>{
+        PlassSize.xs: 8,
+        PlassSize.sm: 10,
+        PlassSize.md: 14,
+        PlassSize.lg: 16,
+        PlassSize.xl: 20,
+      },
+    };
+
+/// The other axis of [sheetPaddingX], offered separately: a sheet with
+/// hairlines between its sections gives its vertical padding away to them.
+const Map<PlassDensity, Map<PlassSize, double>> sheetPaddingY =
+    <PlassDensity, Map<PlassSize, double>>{
+      PlassDensity.standard: <PlassSize, double>{
+        PlassSize.xs: 10,
+        PlassSize.sm: 14,
+        PlassSize.md: 20,
+        PlassSize.lg: 24,
+        PlassSize.xl: 28,
+      },
+      PlassDensity.compact: <PlassSize, double>{
+        PlassSize.xs: 8,
+        PlassSize.sm: 10,
+        PlassSize.md: 14,
+        PlassSize.lg: 16,
+        PlassSize.xl: 20,
+      },
+    };
+
+/// A sheet's heading: one step above the body, on the same ladder the controls
+/// use, so a card's title lines up with the buttons that end up inside it.
+const Map<PlassSize, PlassTextScale> sheetTitle = <PlassSize, PlassTextScale>{
+  PlassSize.xs: PlassTextScale(12, 16),
+  PlassSize.sm: PlassTextScale(13, 18),
+  PlassSize.md: PlassTextScale(15, 20),
+  PlassSize.lg: PlassTextScale(17, 24),
+  PlassSize.xl: PlassTextScale(20, 28),
+};
+
+/// Body copy: the control type scale with the leading opened up, because a
+/// label is one line and a body is a paragraph.
+const Map<PlassSize, PlassTextScale> sheetBody = <PlassSize, PlassTextScale>{
+  PlassSize.xs: PlassTextScale(11, 16),
+  PlassSize.sm: PlassTextScale(12, 18),
+  PlassSize.md: PlassTextScale(13, 22),
+  PlassSize.lg: PlassTextScale(15, 24),
+  PlassSize.xl: PlassTextScale(17, 28),
+};
+
+/// Between a sheet's sections, when there are no hairlines to separate them.
+const Map<PlassSize, double> sheetSectionGap = <PlassSize, double>{
+  PlassSize.xs: 6,
+  PlassSize.sm: 8,
+  PlassSize.md: 12,
+  PlassSize.lg: 14,
+  PlassSize.xl: 16,
+};
+
+/// Title to subtitle. Tight — they are one block of text, not two sections.
+const Map<PlassSize, double> sheetHeaderGap = <PlassSize, double>{
+  PlassSize.xs: 2,
+  PlassSize.sm: 2,
+  PlassSize.md: 4,
+  PlassSize.lg: 4,
+  PlassSize.xl: 6,
+};
+
+/// The hairline every Plass surface draws around itself, and the width of a
+/// tick's edge. One value, because two of them is two toolkits.
+const double hairline = 1;

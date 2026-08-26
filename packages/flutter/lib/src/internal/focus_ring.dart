@@ -17,7 +17,11 @@ import 'package:plass_ui/src/internal/scales.dart';
 /// Paints a focus ring around a box of the painter's size.
 class PlassFocusRingPainter extends CustomPainter {
   /// Creates a ring in [color] around a shape with [borderRadius].
-  const PlassFocusRingPainter({required this.color, required this.borderRadius});
+  const PlassFocusRingPainter({
+    required this.color,
+    required this.borderRadius,
+    this.offset = focusRingOffset,
+  });
 
   /// The family's own ring colour.
   final Color color;
@@ -25,13 +29,23 @@ class PlassFocusRingPainter extends CustomPainter {
   /// The control's corner radius, which the ring follows.
   final BorderRadius borderRadius;
 
+  /// How far outside the control the ring sits, as CSS's `outline-offset`.
+  ///
+  /// Negative turns it inward, which is the only way to draw a ring on
+  /// something that lives *inside* something that clips — a segment in a
+  /// groove, a tab on a rail, a fold in a scored pane. A ring drawn outside
+  /// those is a ring with its top or its bottom sliced off by the container's
+  /// own overflow.
+  final double offset;
+
   @override
   void paint(Canvas canvas, Size size) {
     // The stroke is centred on the path, so the path sits half a stroke outside
     // the offset — which puts the ring's *inner* edge exactly `offset` away
     // from the control, as `outline-offset` specifies.
-    final spread = focusRingOffset + focusRingWidth / 2;
-    final shape = (borderRadius + BorderRadius.circular(spread)).toRRect(
+    final spread = offset + focusRingWidth / 2;
+    final radius = borderRadius + BorderRadius.circular(spread);
+    final shape = (spread < 0 ? _floor(radius) : radius).toRRect(
       (Offset.zero & size).inflate(spread),
     );
 
@@ -44,8 +58,25 @@ class PlassFocusRingPainter extends CustomPainter {
     );
   }
 
+  /// A negative spread can take a corner past zero, and a negative radius is a
+  /// painting error rather than a sharp corner.
+  static BorderRadius _floor(BorderRadius radius) {
+    Radius clamp(Radius corner) {
+      return Radius.elliptical(corner.x < 0 ? 0 : corner.x, corner.y < 0 ? 0 : corner.y);
+    }
+
+    return BorderRadius.only(
+      topLeft: clamp(radius.topLeft),
+      topRight: clamp(radius.topRight),
+      bottomLeft: clamp(radius.bottomLeft),
+      bottomRight: clamp(radius.bottomRight),
+    );
+  }
+
   @override
   bool shouldRepaint(PlassFocusRingPainter oldDelegate) {
-    return oldDelegate.color != color || oldDelegate.borderRadius != borderRadius;
+    return oldDelegate.color != color ||
+        oldDelegate.borderRadius != borderRadius ||
+        oldDelegate.offset != offset;
   }
 }

@@ -201,6 +201,9 @@ class PlassTokens {
     required this.glassHover,
     required this.glassPress,
     required this.glassLine,
+    required this.divider,
+    required this.stripe,
+    required this.track,
     required this.blurSigma,
     required this.saturation,
     required this.glossGlass,
@@ -249,6 +252,9 @@ class PlassTokens {
     glassHover: const Color(0xC2FFFFFF),
     glassPress: const Color(0xE0FFFFFF),
     glassLine: const Color(0x99FFFFFF),
+    divider: const Color(0x1A14285A),
+    stripe: const Color(0x0814285A),
+    track: const Color(0x2414285A),
     // 22 is a deliberate, generous smear: unlike a frosted-acrylic language,
     // Plass is not trying to let you read what is behind the sheet — it is
     // trying to make the sheet look thick. Below about 14 the glass reads as a
@@ -280,6 +286,9 @@ class PlassTokens {
     glassHover: const Color(0x1CFFFFFF),
     glassPress: const Color(0x26FFFFFF),
     glassLine: const Color(0x1FFFFFFF),
+    divider: const Color(0x1AFFFFFF),
+    stripe: const Color(0x09FFFFFF),
+    track: const Color(0x29FFFFFF),
     blurSigma: 22,
     saturation: 1.5,
     glossGlass: const PlassInsetShadow(color: Color(0x1AFFFFFF), offset: Offset(0, 1)),
@@ -345,6 +354,26 @@ class PlassTokens {
 
   /// The white hairline around a glass sheet.
   final Color glassLine;
+
+  /// The hairline that scores a sheet into sections — a card's body from its
+  /// footer, one fold of an accordion from the next, one table row from the
+  /// next.
+  ///
+  /// Deliberately **not** the [glassLine] the sheet's own edge is drawn in. That
+  /// line is white light caught on a cut edge, and it reads because what is
+  /// behind it is the page wash. The same white laid *across* the middle of a
+  /// sheet has the sheet behind it instead, and a white line on a 62%-white pane
+  /// over a near-white page is not a line at all.
+  final Color divider;
+
+  /// The wash on every other row of a striped table. Half the strength of
+  /// [divider] and then some — a stripe that is legible as a *colour* is a
+  /// stripe that fights the content on it.
+  final Color stripe;
+
+  /// The groove a slider runs in, and the unfilled half of any progress-shaped
+  /// thing. Darker than [divider] because it is a channel rather than a line.
+  final Color track;
 
   /// How hard a glass sheet blurs what is behind it, as a Gaussian σ.
   final double blurSigma;
