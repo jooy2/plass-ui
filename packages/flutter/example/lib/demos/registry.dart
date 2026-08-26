@@ -84,17 +84,35 @@ import 'package:plass_ui_example/demos/list/hero.dart';
 import 'package:plass_ui_example/demos/list/rows.dart';
 import 'package:plass_ui_example/demos/list/sizes.dart';
 import 'package:plass_ui_example/demos/list/variants.dart';
+import 'package:plass_ui_example/demos/pagination/hero.dart';
+import 'package:plass_ui_example/demos/pagination/sizes.dart';
+import 'package:plass_ui_example/demos/pagination/steppers.dart';
+import 'package:plass_ui_example/demos/pagination/variants.dart';
+import 'package:plass_ui_example/demos/pagination/window.dart';
 import 'package:plass_ui_example/demos/radio_group/colors.dart';
 import 'package:plass_ui_example/demos/radio_group/controlled.dart';
 import 'package:plass_ui_example/demos/radio_group/hero.dart';
 import 'package:plass_ui_example/demos/radio_group/orientation.dart';
 import 'package:plass_ui_example/demos/radio_group/sizes.dart';
 import 'package:plass_ui_example/demos/radio_group/states.dart';
+import 'package:plass_ui_example/demos/segmented_button/colors.dart';
+import 'package:plass_ui_example/demos/segmented_button/full_width.dart';
+import 'package:plass_ui_example/demos/segmented_button/hero.dart';
+import 'package:plass_ui_example/demos/segmented_button/icons.dart';
+import 'package:plass_ui_example/demos/segmented_button/sizes.dart';
+import 'package:plass_ui_example/demos/segmented_button/variants.dart';
 import 'package:plass_ui_example/demos/skeleton/animated.dart';
 import 'package:plass_ui_example/demos/skeleton/hero.dart';
 import 'package:plass_ui_example/demos/skeleton/matching.dart';
 import 'package:plass_ui_example/demos/skeleton/shapes.dart';
 import 'package:plass_ui_example/demos/skeleton/sizes.dart';
+import 'package:plass_ui_example/demos/slider/colors.dart';
+import 'package:plass_ui_example/demos/slider/hero.dart';
+import 'package:plass_ui_example/demos/slider/orientation.dart';
+import 'package:plass_ui_example/demos/slider/range.dart';
+import 'package:plass_ui_example/demos/slider/sizes.dart';
+import 'package:plass_ui_example/demos/slider/states.dart';
+import 'package:plass_ui_example/demos/slider/steps.dart';
 import 'package:plass_ui_example/demos/switch/colors.dart';
 import 'package:plass_ui_example/demos/switch/hero.dart';
 import 'package:plass_ui_example/demos/switch/placement.dart';
@@ -260,6 +278,24 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'text-field/multiline': _textFieldMultiline,
   'text-field/validation': _textFieldValidation,
   'text-field/controlled': _textFieldControlled,
+  'slider/hero': _sliderHero,
+  'slider/sizes': _sliderSizes,
+  'slider/colors': _sliderColors,
+  'slider/orientation': _sliderOrientation,
+  'slider/range': _sliderRange,
+  'slider/states': _sliderStates,
+  'slider/steps': _sliderSteps,
+  'segmented-button/hero': _segmentedButtonHero,
+  'segmented-button/variants': _segmentedButtonVariants,
+  'segmented-button/sizes': _segmentedButtonSizes,
+  'segmented-button/colors': _segmentedButtonColors,
+  'segmented-button/icons': _segmentedButtonIcons,
+  'segmented-button/full-width': _segmentedButtonFullWidth,
+  'pagination/hero': _paginationHero,
+  'pagination/variants': _paginationVariants,
+  'pagination/sizes': _paginationSizes,
+  'pagination/window': _paginationWindow,
+  'pagination/steppers': _paginationSteppers,
 };
 
 Widget _hero(BuildContext context) => const ButtonHero();
@@ -409,3 +445,24 @@ Widget _textFieldIcons(BuildContext context) => const TextFieldIcons();
 Widget _textFieldMultiline(BuildContext context) => const TextFieldMultiline();
 Widget _textFieldValidation(BuildContext context) => const TextFieldValidation();
 Widget _textFieldControlled(BuildContext context) => const TextFieldControlled();
+
+Widget _sliderHero(BuildContext context) => const SliderHero();
+Widget _sliderSizes(BuildContext context) => const SliderSizes();
+Widget _sliderColors(BuildContext context) => const SliderColors();
+Widget _sliderOrientation(BuildContext context) => const SliderOrientation();
+Widget _sliderRange(BuildContext context) => const SliderRange();
+Widget _sliderStates(BuildContext context) => const SliderStates();
+Widget _sliderSteps(BuildContext context) => const SliderSteps();
+
+Widget _segmentedButtonHero(BuildContext context) => const SegmentedButtonHero();
+Widget _segmentedButtonVariants(BuildContext context) => const SegmentedButtonVariants();
+Widget _segmentedButtonSizes(BuildContext context) => const SegmentedButtonSizes();
+Widget _segmentedButtonColors(BuildContext context) => const SegmentedButtonColors();
+Widget _segmentedButtonIcons(BuildContext context) => const SegmentedButtonIcons();
+Widget _segmentedButtonFullWidth(BuildContext context) => const SegmentedButtonFullWidth();
+
+Widget _paginationHero(BuildContext context) => const PaginationHero();
+Widget _paginationVariants(BuildContext context) => const PaginationVariants();
+Widget _paginationSizes(BuildContext context) => const PaginationSizes();
+Widget _paginationWindow(BuildContext context) => const PaginationWindow();
+Widget _paginationSteppers(BuildContext context) => const PaginationSteppers();

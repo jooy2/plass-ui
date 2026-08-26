@@ -471,6 +471,38 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlListItem', 'disabled', { type: 'bool', default: 'false' })
   ],
 
+  PlPagination: [
+    from('PlPagination', 'count', { type: 'int', required: true }),
+    from('PlPagination', 'page', { type: 'int', required: true }),
+    from('PlPagination', 'onPageChange', {
+      name: 'onPageChanged',
+      type: 'ValueChanged<int>?'
+    }),
+    from('PlPagination', 'variant', { type: VARIANT, default: 'PlassVariant.ghost' }),
+    from('PlPagination', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlPagination', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlPagination', 'density', { type: DENSITY, default: 'PlassDensity.compact' }),
+    from('PlPagination', 'elevation', { type: 'int', default: '0' }),
+    from('PlPagination', 'siblingCount', { type: 'int', default: '1' }),
+    from('PlPagination', 'boundaryCount', { type: 'int', default: '1' }),
+    from('PlPagination', 'showEdges', { type: 'bool', default: 'false' }),
+    from('PlPagination', 'showArrows', { type: 'bool', default: 'true' }),
+    from('PlPagination', 'disabled', { type: 'bool', default: 'false' }),
+    from('PlPagination', 'label', { type: 'String', default: "'Pagination'" }),
+    from('PlPagination', 'pageLabel', {
+      type: 'String Function(int)',
+      default: "(page) => 'Page \$page'"
+    }),
+    {
+      name: 'previousLabel · nextLabel · firstLabel · lastLabel',
+      type: 'String',
+      description: {
+        ko: '이동 버튼들의 이름. 그려지지 않습니다',
+        en: 'The names of the steppers. Never drawn'
+      }
+    }
+  ],
+
   PlRadioGroup: [
     {
       name: 'options',
@@ -518,6 +550,50 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlRadio', 'disabled', { type: 'bool', default: 'false' })
   ],
 
+  PlSegment: [
+    from('PlSegment', 'value', { type: 'T', required: true }),
+    from('PlSegment', 'children', { name: 'label', type: 'Widget?' }),
+    from('PlSegment', 'startIcon', { type: 'Widget?' }),
+    from('PlSegment', 'endIcon', { type: 'Widget?' }),
+    from('PlSegment', 'disabled', { type: 'bool', default: 'false' })
+  ],
+
+  PlSegmentedButton: [
+    from('PlSegmentedButton', 'children', {
+      name: 'segments',
+      type: 'List<PlSegment<T>>',
+      required: true,
+      description: {
+        ko: '선택지들. children이 아니라 설명의 목록입니다 — 묶음이 roving focus와 화살표 키, 미끄러지는 타일을 소유합니다',
+        en: 'The choices, as a list of descriptions rather than children — the set owns the roving focus, the arrow keys and the sliding tile'
+      }
+    }),
+    from('PlSegmentedButton', 'value', { type: 'T?', required: true }),
+    from('PlSegmentedButton', 'onValueChange', {
+      name: 'onChanged',
+      type: 'ValueChanged<T>?'
+    }),
+    from('PlSegmentedButton', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlSegmentedButton', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlSegmentedButton', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlSegmentedButton', 'density', {
+      type: DENSITY,
+      default: 'PlassDensity.standard'
+    }),
+    from('PlSegmentedButton', 'elevation', { type: 'int', default: '0' }),
+    from('PlSegmentedButton', 'fullWidth', { type: 'bool', default: 'false' }),
+    from('PlSegmentedButton', 'readOnly', { type: 'bool', default: 'false' }),
+    from('PlSegmentedButton', 'disabled', { type: 'bool', default: 'false' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '묶음을 스크린 리더가 부를 이름. 눈에 보이는 자기 라벨이 없습니다',
+        en: 'The name a screen reader gives the set. It has no visible label of its own'
+      }
+    }
+  ],
+
   PlSkeleton: [
     from('PlSkeleton', 'shape', {
       type: 'PlSkeletonShape',
@@ -536,6 +612,66 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'What a screen reader is told. Without it the placeholder stays out of the semantics tree; give the one that stands for the whole region a label and it becomes a live region with that name'
       }
     })
+  ],
+
+  PlSlider: [
+    from('PlSlider', 'value', {
+      name: 'values',
+      type: 'List<double>',
+      required: true,
+      description: {
+        ko: '고른 값, 또는 고른 구간의 양 끝. 값이 하나여도 목록입니다 — range로 만드는 것은 길이입니다',
+        en: 'The chosen value, or the ends of the chosen range. Always a list: the length is what makes it a range'
+      }
+    }),
+    from('PlSlider', 'onValueChange', {
+      name: 'onChanged',
+      type: 'ValueChanged<List<double>>?'
+    }),
+    {
+      name: 'onChangeEnd',
+      type: 'ValueChanged<List<double>>?',
+      description: {
+        ko: 'thumb을 놓았을 때 한 번',
+        en: 'Called once, when the thumb is let go'
+      }
+    },
+    from('PlSlider', 'min · max · step', { name: 'min · max · step', type: 'double' }),
+    from('PlSlider', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlSlider', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlSlider', 'elevation', { type: 'int', default: '1' }),
+    from('PlSlider', 'orientation', {
+      type: 'PlassOrientation',
+      default: 'PlassOrientation.horizontal'
+    }),
+    {
+      name: 'length',
+      type: 'double?',
+      description: {
+        ko: '구간의 길이. 세로 슬라이더는 자기 길이가 없으므로 여기서 받습니다 — 기본은 160',
+        en: 'How long the run is. A vertical slider has no length of its own, so this is where one comes from — 160 by default'
+      }
+    },
+    from('PlSlider', 'label', { type: 'Widget?' }),
+    from('PlSlider', 'description', { type: 'Widget?' }),
+    from('PlSlider', 'showValue', { type: 'bool', default: 'false' }),
+    {
+      name: 'formatValue',
+      type: 'String Function(List<double>)?',
+      description: {
+        ko: '그 값을 어떻게 쓸지. 빼면 소수점 없이 찍고 en dash로 잇습니다',
+        en: 'Formats that value. Left out, it is printed with no decimals and joined with an en dash'
+      }
+    },
+    from('PlSlider', 'disabled', { type: 'bool', default: 'false' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '보이는 label이 없는 슬라이더를 스크린 리더가 부를 이름',
+        en: 'The name a screen reader announces, for a slider with no visible label'
+      }
+    }
   ],
 
   PlSwitch: [

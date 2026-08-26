@@ -122,6 +122,9 @@ class _SpinnerPainter extends CustomPainter {
 /// library, and a component that wants a different × is a component that has
 /// got dismissal wrong.
 enum PlassGlyphShape {
+  /// Two chevrons, for a stepper that jumps to an end rather than by one page.
+  doubleChevron,
+
   /// The disclosure chevron, drawn pointing **down**.
   ///
   /// One drawing for every direction — an accordion's header, a select's
@@ -283,6 +286,7 @@ class _GlyphPainter extends CustomPainter {
       case PlassGlyphShape.close:
         return 1.75;
       case PlassGlyphShape.chevron:
+      case PlassGlyphShape.doubleChevron:
       case PlassGlyphShape.arrowRight:
       case PlassGlyphShape.ellipsis:
       case PlassGlyphShape.clock:
@@ -304,6 +308,16 @@ class _GlyphPainter extends CustomPainter {
           ..moveTo(4.5, 6.5)
           ..lineTo(8, 10)
           ..lineTo(11.5, 6.5);
+      case PlassGlyphShape.doubleChevron:
+        // Drawn pointing **right**, unlike its single sibling: a stepper is
+        // never turned a quarter, only flipped.
+        line
+          ..moveTo(7.5, 4.5)
+          ..lineTo(11, 8)
+          ..lineTo(7.5, 11.5)
+          ..moveTo(3.5, 4.5)
+          ..lineTo(7, 8)
+          ..lineTo(3.5, 11.5);
       case PlassGlyphShape.arrowRight:
         line
           ..moveTo(3, 8)
