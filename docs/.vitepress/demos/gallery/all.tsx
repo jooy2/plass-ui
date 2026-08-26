@@ -22,6 +22,7 @@ import {
   PlHighlight,
   PlHotKeys,
   PlIcon,
+  PlIconButton,
   PlList,
   PlListItem,
   PlModal,
@@ -106,6 +107,33 @@ function ToastPreview() {
     >
       Raise a toast
     </PlButton>
+  );
+}
+
+/** Three drawings for the icon-button card, which needs glyphs of its own. */
+function HeartGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 20s-7-4.5-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 4.5-7 9-7 9Z" />
+    </svg>
+  );
+}
+
+function ShareGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M12 3v13M8 7l4-4 4 4" />
+    </svg>
+  );
+}
+
+function MoreGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <circle cx="5" cy="12" r="1.6" />
+      <circle cx="12" cy="12" r="1.6" />
+      <circle cx="19" cy="12" r="1.6" />
+    </svg>
   );
 }
 
@@ -727,6 +755,28 @@ const entries: Entry[] = [
           </PlGridItem>
         ))}
       </PlGrid>
+    )
+  },
+  {
+    name: 'PlIconButton',
+    group: 'inputs',
+    href: 'components/inputs/icon-button',
+    blurb: {
+      en: 'A round button with a glyph in it and nothing else.',
+      ko: '글리프 하나만 든 둥근 버튼입니다.'
+    },
+    preview: (
+      <div className="flex flex-wrap items-center gap-2">
+        <PlIconButton size="sm" label="Like" icon={<HeartGlyph />} />
+        <PlIconButton size="sm" variant="glass" label="Share" icon={<ShareGlyph />} />
+        <PlIconButton
+          size="sm"
+          variant="ghost"
+          color="secondary"
+          label="More"
+          icon={<MoreGlyph />}
+        />
+      </div>
     )
   },
   {

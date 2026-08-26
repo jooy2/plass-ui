@@ -18,6 +18,7 @@ export * from './components/grid';
 export * from './components/highlight';
 export * from './components/hot-keys';
 export * from './components/icon';
+export * from './components/icon-button';
 export * from './components/list';
 export * from './components/modal';
 export * from './components/number-field';

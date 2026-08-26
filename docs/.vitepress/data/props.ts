@@ -1908,6 +1908,71 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlIconButton: [
+    ...sharedProps({
+      variant: "'solid'",
+      size: "'md'",
+      elevation: '1',
+      sizeDescription: {
+        ko: '원반의 지름과 안쪽 글리프의 크기. PlButton과 같은 사다리입니다',
+        en: "The disc's diameter and the glyph inside it — the same ladder as PlButton"
+      }
+    }),
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      required: true,
+      description: {
+        ko: '글리프. 그대로 넘기면 버튼에 대한 em으로 크기가 정해집니다',
+        en: 'The glyph. Passed bare it is sized in em against the button'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      required: true,
+      description: {
+        ko: '이 버튼이 하는 일을 말로. 접근 가능한 이름이 되며 화면에는 그려지지 않습니다',
+        en: 'What the button does, in words. It becomes the accessible name and is never drawn'
+      }
+    },
+    {
+      name: 'loading',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '글리프 자리에 스피너를 놓고 실행을 막습니다. 포커스는 유지합니다',
+        en: 'Shows a spinner in place of the glyph and stops the button activating, while keeping it focusable'
+      }
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '색은 지키고 평평해지며 채도를 뺍니다. 흐려지지는 않습니다',
+        en: 'Keeps its colour, goes flat and drains most of its saturation — not dimmed'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '사용할 수 없습니다. 빛과 그림자를 잃고 포커스 순서에서 빠집니다',
+        en: 'Unavailable. Loses its light and its shadow, and leaves the focus order'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '<button> 대신 다른 요소로 렌더링합니다 (<a href="…" />)',
+        en: 'Renders something other than a <button> (<a href="…" />)'
+      }
+    }
+  ],
+
   PlIcon: [
     {
       name: 'icon',
