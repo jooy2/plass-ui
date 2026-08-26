@@ -13,6 +13,10 @@ import 'package:plass_ui_example/demos/alert/hero.dart';
 import 'package:plass_ui_example/demos/alert/shapes.dart';
 import 'package:plass_ui_example/demos/alert/sizes.dart';
 import 'package:plass_ui_example/demos/alert/variants.dart';
+import 'package:plass_ui_example/demos/aspect_ratio/embed.dart';
+import 'package:plass_ui_example/demos/aspect_ratio/fit.dart';
+import 'package:plass_ui_example/demos/aspect_ratio/hero.dart';
+import 'package:plass_ui_example/demos/aspect_ratio/ratios.dart';
 import 'package:plass_ui_example/demos/avatar/colors.dart';
 import 'package:plass_ui_example/demos/avatar/fallback.dart';
 import 'package:plass_ui_example/demos/avatar/group.dart';
@@ -250,6 +254,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'skeleton/shapes': _skeletonShapes,
   'skeleton/sizes': _skeletonSizes,
   'skeleton/animated': _skeletonAnimated,
+  'aspect-ratio/hero': _aspectRatioHero,
+  'aspect-ratio/ratios': _aspectRatioRatios,
+  'aspect-ratio/fit': _aspectRatioFit,
+  'aspect-ratio/embed': _aspectRatioEmbed,
   'blockquote/hero': _blockquoteHero,
   'blockquote/variants': _blockquoteVariants,
   'blockquote/sizes': _blockquoteSizes,
@@ -466,6 +474,11 @@ Widget _dividerLength(BuildContext context) => const DividerLength();
 Widget _skeletonShapes(BuildContext context) => const SkeletonShapes();
 Widget _skeletonSizes(BuildContext context) => const SkeletonSizes();
 Widget _skeletonAnimated(BuildContext context) => const SkeletonAnimated();
+
+Widget _aspectRatioHero(BuildContext context) => const AspectRatioHero();
+Widget _aspectRatioRatios(BuildContext context) => const AspectRatioRatios();
+Widget _aspectRatioFit(BuildContext context) => const AspectRatioFit();
+Widget _aspectRatioEmbed(BuildContext context) => const AspectRatioEmbed();
 
 Widget _blockquoteHero(BuildContext context) => const BlockquoteHero();
 Widget _blockquoteVariants(BuildContext context) => const BlockquoteVariants();

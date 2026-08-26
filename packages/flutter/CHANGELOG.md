@@ -6,6 +6,7 @@ The rest of the library. `PlButton` shipped first and everything else follows it
 
 ### Added
 
+- **`PlAspectRatio`.** A box that keeps a proportion and draws nothing at all. `fit` is nullable here and `null` by default, where React defaults it to `cover`: in a browser `object-fit` only ever reaches a replaced element, and a `FittedBox` reaches whatever it is handed — so a fit applied by default would scale a column of prose.
 - **`PlTypography`.** The type scale on its own, so a page can use it without wrapping its prose in a card. `level` sets the size *and* whether the line is announced as a heading; there is no `size` beside it, because a `size` would let a caller ask for an `h1` at `xs`. `PlTypography.rich` is the span form.
 - **`PlAvatar`.** A picture, or the initials, or a silhouette — never an empty box. `image` is an `ImageProvider` rather than a URL, which is the shape every image in Flutter has, and the fallback is shown until the first frame arrives and for good if none ever does.
 - **`PlBadge`.** `content` and `count` are two parameters rather than one, because `max` and `showZero` only mean anything for a number: the type is the question the React build has to ask at runtime.

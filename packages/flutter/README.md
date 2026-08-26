@@ -20,7 +20,7 @@ This is the Flutter half of that language. The [React package](https://www.npmjs
 - **One shared vocabulary** — `size`, `color`, `variant`, `density`, `elevation`. An `md` is 40px on every control; `primary` is the same family everywhere, and the same family it is in React.
 - **Accessible by construction** — real semantics, focus management and keyboard activation.
 
-> **This is still a preview.** All thirty-five components are here now, alongside the tokens, the scales and the theme they are built on. What a component _says_ — its parameters and its defaults — is settled enough to read; what it will look like after the first round of real use is not.
+> **This is still a preview.** Every component in the React package is here too, alongside the tokens, the scales and the theme they are built on. What a component _says_ — its parameters and its defaults — is settled enough to read; what it will look like after the first round of real use is not.
 
 ## Install
 

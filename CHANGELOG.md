@@ -20,7 +20,7 @@
 
 ### Added
 
-- **A Flutter package**, `plass_ui`, under `packages/flutter`. Same design language, same vocabulary, same numbers, and now the same thirty-five components. See its own changelog for what each of them had to say differently in a language with no CSS.
+- **A Flutter package**, `plass_ui`, under `packages/flutter`. Same design language, same vocabulary, same numbers, and the same library component for component. See its own changelog for what each of them had to say differently in a language with no CSS.
 - **A framework switch on the documentation site**, at the top of the sidebar. It changes the code, the examples and the props table on every page that has something to say for both, and the Flutter previews are the real package compiled for the web rather than a stand-in.
 
 ## 0.0.1 (2026-08-24)

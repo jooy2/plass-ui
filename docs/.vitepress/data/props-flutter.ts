@@ -162,6 +162,28 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlAlert', 'children', { name: 'child', type: 'Widget?' })
   ],
 
+  PlAspectRatio: [
+    from('PlAspectRatio', 'children', { name: 'child', type: 'Widget?' }),
+    from('PlAspectRatio', 'ratio', {
+      type: 'double',
+      default: '1',
+      description: {
+        ko: '지킬 비율, 너비 나누기 높이. 16 / 9처럼 나눗셈으로 씁니다 — Flutter가 다른 곳에서도 종횡비를 말하는 방식입니다',
+        en: 'The proportion, as width over height. Written as the division — 16 / 9 — which is how Flutter states an aspect ratio everywhere else'
+      }
+    }),
+    from('PlAspectRatio', 'fit', {
+      type: 'PlAspectFit?',
+      default: 'null',
+      description: {
+        ko: 'child를 상자에 어떻게 맞출지. null이면 보통대로 배치합니다 — 브라우저와 달리 Flutter에는 "미디어만"이 없어서, 기본으로 걸리면 글 한 단까지 늘어납니다',
+        en: 'How the child is fitted, or null to lay it out normally — Flutter has no "media only" the way a browser does, so a fit applied by default would scale a column of prose'
+      }
+    }),
+    from('PlAspectRatio', 'rounded', { type: 'bool', default: 'false' }),
+    from('PlAspectRatio', 'size', { type: SIZE, default: 'PlassSize.md' })
+  ],
+
   PlAvatar: [
     from('PlAvatar', 'variant', { type: VARIANT, default: 'PlassVariant.ghost' }),
     from('PlAvatar', 'size', { type: SIZE, default: 'PlassSize.md' }),
