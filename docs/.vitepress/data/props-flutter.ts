@@ -762,6 +762,39 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlIconButton: [
+    from('PlIconButton', 'icon', { type: 'Widget', required: true }),
+    from('PlIconButton', 'label', { type: 'String', required: true }),
+    {
+      name: 'onPressed',
+      type: 'VoidCallback?',
+      description: {
+        ko: '눌렸을 때 호출됩니다. 주지 않으면 버튼이 비활성화됩니다',
+        en: 'Called when the button is activated. Leaving it null disables the button'
+      }
+    },
+    {
+      name: 'onLongPress',
+      type: 'VoidCallback?',
+      description: { ko: '길게 눌렀을 때', en: 'Called on a long press' }
+    },
+    from('PlIconButton', 'variant', { type: VARIANT, default: 'PlassVariant.solid' }),
+    from('PlIconButton', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlIconButton', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlIconButton', 'elevation', { type: 'int', default: '1' }),
+    from('PlIconButton', 'loading', { type: 'bool', default: 'false' }),
+    from('PlIconButton', 'readOnly', { type: 'bool', default: 'false' }),
+    from('PlIconButton', 'disabled', { type: 'bool', default: 'false' }),
+    {
+      name: 'focusNode · autofocus',
+      type: 'FocusNode? · bool',
+      description: {
+        ko: '포커스를 밖에서 제어하거나, 트리에 들어가면서 포커스를 가져갑니다',
+        en: 'Drive focus from outside, or take it on insertion'
+      }
+    }
+  ],
+
   PlIcon: [
     from('PlIcon', 'icon', { type: 'Widget', required: true }),
     from('PlIcon', 'size', { type: SIZE, default: 'PlassSize.md' }),

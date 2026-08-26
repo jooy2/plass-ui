@@ -40,6 +40,7 @@ export 'src/components/grid/pl_grid.dart';
 export 'src/components/highlight/pl_highlight.dart';
 export 'src/components/hot_keys/pl_hot_keys.dart';
 export 'src/components/icon/pl_icon.dart';
+export 'src/components/icon_button/pl_icon_button.dart';
 export 'src/components/list/pl_list.dart';
 export 'src/components/modal/pl_modal.dart';
 export 'src/components/number_field/pl_number_field.dart';

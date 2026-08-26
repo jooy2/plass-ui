@@ -54,6 +54,7 @@ class PlButton extends StatefulWidget {
     this.readOnly = false,
     this.fullWidth = false,
     this.disabled = false,
+    this.borderRadius,
     this.focusNode,
     this.autofocus = false,
     this.semanticLabel,
@@ -134,6 +135,15 @@ class PlButton extends StatefulWidget {
   /// leaves the focus order.
   final bool disabled;
 
+  /// The corners, overriding the [size] step of the house radius ladder.
+  ///
+  /// The one escape hatch on this widget, and it exists for [PlIconButton]: the
+  /// React build reaches the same place through an inline `style`, which is a
+  /// door Flutter does not have. Nothing else in the library should reach for
+  /// it — the fillet is the fillet, and a button with corners of its own is a
+  /// button that has stopped matching the field beside it.
+  final BorderRadius? borderRadius;
+
   /// Drive focus from outside. Left out, the button owns one of its own.
   final FocusNode? focusNode;
 
@@ -189,7 +199,7 @@ class _PlButtonState extends State<PlButton> {
 
     final height = controlHeight[widget.size]!;
     final fontSize = controlText[widget.size]!;
-    final radius = BorderRadius.circular(PlassTokens.radius[widget.size]!);
+    final radius = widget.borderRadius ?? BorderRadius.circular(PlassTokens.radius[widget.size]!);
     final iconOnly = widget.child == null;
     final glyph = fontSize * iconScale;
 

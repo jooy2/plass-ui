@@ -121,3 +121,135 @@ class HeartGlyph extends StatelessWidget {
   @override
   Widget build(BuildContext context) => const _Glyph(trace: _trace);
 }
+
+/// A plus.
+class PlusGlyph extends StatelessWidget {
+  /// Creates the plus.
+  const PlusGlyph({super.key});
+
+  static void _trace(Path path) {
+    path
+      ..moveTo(12, 5)
+      ..lineTo(12, 19)
+      ..moveTo(5, 12)
+      ..lineTo(19, 12);
+  }
+
+  @override
+  Widget build(BuildContext context) => const _Glyph(trace: _trace);
+}
+
+/// A share arrow leaving a tray.
+class ShareGlyph extends StatelessWidget {
+  /// Creates the share arrow.
+  const ShareGlyph({super.key});
+
+  static void _trace(Path path) {
+    path
+      ..moveTo(4, 12)
+      ..lineTo(4, 20)
+      ..lineTo(20, 20)
+      ..lineTo(20, 12)
+      ..moveTo(12, 3)
+      ..lineTo(12, 16)
+      ..moveTo(8, 7)
+      ..lineTo(12, 3)
+      ..lineTo(16, 7);
+  }
+
+  @override
+  Widget build(BuildContext context) => const _Glyph(trace: _trace);
+}
+
+/// Three dots in a row — the "more" affordance.
+class MoreGlyph extends StatelessWidget {
+  /// Creates the three dots.
+  const MoreGlyph({super.key});
+
+  static void _trace(Path path) {
+    for (final double x in <double>[5, 12, 19]) {
+      path.addOval(Rect.fromCircle(center: Offset(x, 12), radius: 1.2));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => const _Glyph(trace: _trace);
+}
+
+/// A waste basket.
+class TrashGlyph extends StatelessWidget {
+  /// Creates the basket.
+  const TrashGlyph({super.key});
+
+  static void _trace(Path path) {
+    path
+      ..moveTo(4, 7)
+      ..lineTo(20, 7)
+      ..moveTo(9, 7)
+      ..lineTo(9, 4)
+      ..lineTo(15, 4)
+      ..lineTo(15, 7)
+      ..moveTo(6, 7)
+      ..lineTo(7, 20)
+      ..lineTo(17, 20)
+      ..lineTo(18, 7)
+      ..moveTo(10, 11)
+      ..lineTo(10, 17)
+      ..moveTo(14, 11)
+      ..lineTo(14, 17);
+  }
+
+  @override
+  Widget build(BuildContext context) => const _Glyph(trace: _trace);
+}
+
+/// A floppy disk — the one drawing everybody still reads as "save".
+class SaveGlyph extends StatelessWidget {
+  /// Creates the disk.
+  const SaveGlyph({super.key});
+
+  static void _trace(Path path) {
+    path
+      ..moveTo(5, 4)
+      ..lineTo(16, 4)
+      ..lineTo(19, 7)
+      ..lineTo(19, 20)
+      ..lineTo(5, 20)
+      ..close()
+      ..moveTo(8, 4)
+      ..lineTo(8, 10)
+      ..lineTo(16, 10)
+      ..lineTo(16, 4)
+      ..moveTo(8, 20)
+      ..lineTo(8, 14)
+      ..lineTo(16, 14)
+      ..lineTo(16, 20);
+  }
+
+  @override
+  Widget build(BuildContext context) => const _Glyph(trace: _trace);
+}
+
+/// A five-pointed star.
+class StarGlyph extends StatelessWidget {
+  /// Creates the star.
+  const StarGlyph({super.key});
+
+  static void _trace(Path path) {
+    path
+      ..moveTo(12, 3)
+      ..lineTo(14.6, 8.6)
+      ..lineTo(20.6, 9.4)
+      ..lineTo(16.2, 13.6)
+      ..lineTo(17.3, 19.7)
+      ..lineTo(12, 16.8)
+      ..lineTo(6.7, 19.7)
+      ..lineTo(7.8, 13.6)
+      ..lineTo(3.4, 9.4)
+      ..lineTo(9.4, 8.6)
+      ..close();
+  }
+
+  @override
+  Widget build(BuildContext context) => const _Glyph(trace: _trace);
+}

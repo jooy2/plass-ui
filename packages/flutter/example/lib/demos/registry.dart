@@ -114,6 +114,11 @@ import 'package:plass_ui_example/demos/icon/colors.dart';
 import 'package:plass_ui_example/demos/icon/hero.dart';
 import 'package:plass_ui_example/demos/icon/inside.dart';
 import 'package:plass_ui_example/demos/icon/sizes.dart';
+import 'package:plass_ui_example/demos/icon_button/colors.dart';
+import 'package:plass_ui_example/demos/icon_button/hero.dart';
+import 'package:plass_ui_example/demos/icon_button/sizes.dart';
+import 'package:plass_ui_example/demos/icon_button/states.dart';
+import 'package:plass_ui_example/demos/icon_button/variants.dart';
 import 'package:plass_ui_example/demos/list/dividers.dart';
 import 'package:plass_ui_example/demos/list/hero.dart';
 import 'package:plass_ui_example/demos/list/rows.dart';
@@ -268,6 +273,11 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'aspect-ratio/ratios': _aspectRatioRatios,
   'aspect-ratio/fit': _aspectRatioFit,
   'aspect-ratio/embed': _aspectRatioEmbed,
+  'icon-button/hero': _iconButtonHero,
+  'icon-button/variants': _iconButtonVariants,
+  'icon-button/sizes': _iconButtonSizes,
+  'icon-button/colors': _iconButtonColors,
+  'icon-button/states': _iconButtonStates,
   'grid/hero': _gridHero,
   'grid/span': _gridSpan,
   'grid/responsive': _gridResponsive,
@@ -499,6 +509,12 @@ Widget _aspectRatioHero(BuildContext context) => const AspectRatioHero();
 Widget _aspectRatioRatios(BuildContext context) => const AspectRatioRatios();
 Widget _aspectRatioFit(BuildContext context) => const AspectRatioFit();
 Widget _aspectRatioEmbed(BuildContext context) => const AspectRatioEmbed();
+
+Widget _iconButtonHero(BuildContext context) => const IconButtonHero();
+Widget _iconButtonVariants(BuildContext context) => const IconButtonVariants();
+Widget _iconButtonSizes(BuildContext context) => const IconButtonSizes();
+Widget _iconButtonColors(BuildContext context) => const IconButtonColors();
+Widget _iconButtonStates(BuildContext context) => const IconButtonStates();
 
 Widget _gridHero(BuildContext context) => const GridHero();
 Widget _gridSpan(BuildContext context) => const GridSpan();
