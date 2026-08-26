@@ -32,6 +32,7 @@ import {
   PlPagination,
   PlRadio,
   PlRadioGroup,
+  PlRating,
   PlSegment,
   PlSegmentedButton,
   PlSelect,
@@ -778,6 +779,16 @@ const entries: Entry[] = [
         />
       </div>
     )
+  },
+  {
+    name: 'PlRating',
+    group: 'inputs',
+    href: 'components/inputs/rating',
+    blurb: {
+      en: 'A score out of five, as a row of stars.',
+      ko: '별 한 줄로 표현한 5점 만점의 점수입니다.'
+    },
+    preview: <PlRating defaultValue={4} />
   },
   {
     name: 'PlAccordion',

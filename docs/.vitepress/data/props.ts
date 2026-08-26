@@ -2865,6 +2865,139 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlRating: [
+    {
+      name: 'value',
+      type: 'number',
+      description: {
+        ko: '점수. onValueChange와 함께 controlled로 씁니다',
+        en: 'The score. Use with onValueChange for a controlled rating'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: 'uncontrolled일 때 시작 점수',
+        en: 'Where an uncontrolled rating starts'
+      }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: number) => void',
+      description: {
+        ko: '새 점수로 호출됩니다. 지워지면 0입니다',
+        en: 'Called with the new score. 0 is what a cleared rating reports'
+      }
+    },
+    {
+      name: 'count',
+      type: 'number',
+      default: '5',
+      description: {
+        ko: '별의 개수, 곧 최고 점수',
+        en: 'How many stars there are, and therefore the highest score'
+      }
+    },
+    {
+      name: 'precision',
+      type: 'number',
+      default: '1',
+      description: {
+        ko: '고를 수 있는 가장 작은 단위. 0.5는 반 별. 그려지는 값은 제한하지 않습니다',
+        en: 'The smallest step that can be chosen — 0.5 gives half stars. It never bounds what is drawn'
+      }
+    },
+    {
+      name: 'icon · emptyIcon',
+      type: 'ReactNode',
+      description: {
+        ko: '채워진 별과 빈 별의 글리프. 같은 모양이어야 합니다',
+        en: 'The glyphs a filled and an empty star are drawn with. They have to be the same shape'
+      }
+    },
+    {
+      name: 'clearable',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '이미 고른 점수를 다시 고르면 0으로 지워집니다',
+        en: 'Choosing the score that is already chosen clears it back to 0'
+      }
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '점수를 보여 주기만 합니다. input이 사라지고 이미지 하나가 됩니다',
+        en: 'Shows the score without letting it be changed. The inputs go and it becomes one image'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '사용할 수 없습니다. 줄에서 빛이 꺼집니다',
+        en: 'Unavailable. The light goes out of the whole row'
+      }
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: {
+        ko: '폼 전송에서 값을 식별합니다',
+        en: 'Identifies the value when a form is submitted'
+      }
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '별을 고르기 전까지 폼이 전송되지 않습니다',
+        en: 'A form will not submit until a star has been chosen'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '별 하나의 높이. 독립 글리프 사다리입니다',
+        en: 'Height of one star, on the standalone-glyph ladder'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'warning'",
+      shared: true,
+      description: {
+        ko: '의미론적 색 역할. 기본이 warning인 것은 별에 기대되는 색이기 때문입니다',
+        en: 'Semantic colour role. warning by default, because that is the amber a star is expected to be'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      default: "'Rating'",
+      description: { ko: '컨트롤 전체의 접근 가능한 이름', en: 'Names the whole control' }
+    },
+    {
+      name: 'valueLabel',
+      type: '(value: number, count: number) => string',
+      default: '`{value} out of {count}`',
+      description: {
+        ko: '한 선택지의, 그리고 읽기 전용일 때 컨트롤 전체의 접근 가능한 이름',
+        en: 'What one choice, and the whole control once it is read only, is called'
+      }
+    }
+  ],
+
   PlSegmentedButton: [
     ...sharedProps({
       variant: "'glass'",

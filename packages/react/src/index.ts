@@ -25,6 +25,7 @@ export * from './components/number-field';
 export * from './components/overlay';
 export * from './components/pagination';
 export * from './components/radio-group';
+export * from './components/rating';
 export * from './components/segmented-button';
 export * from './components/select';
 export * from './components/skeleton';

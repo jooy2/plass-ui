@@ -213,6 +213,37 @@ function NoteIcon(): React.ReactElement {
 }
 
 /**
+ * A star, filled, in the same 16-unit box every other glyph here uses.
+ *
+ * `StarIcon` and `StarOutlineIcon` are the same five points traced twice —
+ * once painted, once stroked — and they have to be, because `PlRating` lays one
+ * over the other and clips the top copy to a fraction of the width. Two stars
+ * of two shapes would show as a rim that does not line up with what is inside
+ * it.
+ */
+export function StarIcon(): React.ReactElement {
+  return (
+    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+      <path d="m8 1.6 1.86 3.9 4.14.56-3.02 2.9.76 4.24L8 11.16 4.26 13.2l.76-4.24L2 6.06l4.14-.56z" />
+    </svg>
+  );
+}
+
+/** The same five points, stroked. See `StarIcon`. */
+export function StarOutlineIcon(): React.ReactElement {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="m8 1.6 1.86 3.9 4.14.56-3.02 2.9.76 4.24L8 11.16 4.26 13.2l.76-4.24L2 6.06l4.14-.56z"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/**
  * One drawing per colour family, and a piece of the design language rather than
  * a convenience.
  *
