@@ -92,6 +92,13 @@ import 'package:plass_ui_example/demos/list/hero.dart';
 import 'package:plass_ui_example/demos/list/rows.dart';
 import 'package:plass_ui_example/demos/list/sizes.dart';
 import 'package:plass_ui_example/demos/list/variants.dart';
+import 'package:plass_ui_example/demos/number_field/format.dart';
+import 'package:plass_ui_example/demos/number_field/hero.dart';
+import 'package:plass_ui_example/demos/number_field/sizes.dart';
+import 'package:plass_ui_example/demos/number_field/states.dart';
+import 'package:plass_ui_example/demos/number_field/steppers.dart';
+import 'package:plass_ui_example/demos/number_field/steps.dart';
+import 'package:plass_ui_example/demos/number_field/variants.dart';
 import 'package:plass_ui_example/demos/pagination/hero.dart';
 import 'package:plass_ui_example/demos/pagination/sizes.dart';
 import 'package:plass_ui_example/demos/pagination/steppers.dart';
@@ -313,6 +320,13 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'segmented-button/colors': _segmentedButtonColors,
   'segmented-button/icons': _segmentedButtonIcons,
   'segmented-button/full-width': _segmentedButtonFullWidth,
+  'number-field/hero': _numberFieldHero,
+  'number-field/steppers': _numberFieldSteppers,
+  'number-field/format': _numberFieldFormat,
+  'number-field/steps': _numberFieldSteps,
+  'number-field/variants': _numberFieldVariants,
+  'number-field/states': _numberFieldStates,
+  'number-field/sizes': _numberFieldSizes,
   'pagination/hero': _paginationHero,
   'pagination/variants': _paginationVariants,
   'pagination/sizes': _paginationSizes,
@@ -532,3 +546,11 @@ Widget _tableStriped(BuildContext context) => const TableStriped();
 Widget _tableRows(BuildContext context) => const TableRows();
 Widget _tableEmpty(BuildContext context) => const TableEmpty();
 Widget _tableDensity(BuildContext context) => const TableDensity();
+
+Widget _numberFieldHero(BuildContext context) => const NumberFieldHero();
+Widget _numberFieldSteppers(BuildContext context) => const NumberFieldSteppers();
+Widget _numberFieldFormat(BuildContext context) => const NumberFieldFormat();
+Widget _numberFieldSteps(BuildContext context) => const NumberFieldSteps();
+Widget _numberFieldVariants(BuildContext context) => const NumberFieldVariants();
+Widget _numberFieldStates(BuildContext context) => const NumberFieldStates();
+Widget _numberFieldSizes(BuildContext context) => const NumberFieldSizes();

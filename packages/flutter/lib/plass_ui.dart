@@ -36,6 +36,7 @@ export 'src/components/highlight/pl_highlight.dart';
 export 'src/components/hot_keys/pl_hot_keys.dart';
 export 'src/components/icon/pl_icon.dart';
 export 'src/components/list/pl_list.dart';
+export 'src/components/number_field/pl_number_field.dart';
 export 'src/components/pagination/pl_pagination.dart';
 export 'src/components/radio_group/pl_radio_group.dart';
 export 'src/components/segmented_button/pl_segmented_button.dart';

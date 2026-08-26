@@ -530,6 +530,100 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlListItem', 'disabled', { type: 'bool', default: 'false' })
   ],
 
+  PlNumberField: [
+    from('PlNumberField', 'value', { type: 'double?', required: true }),
+    from('PlNumberField', 'onValueChange', {
+      name: 'onChanged',
+      type: 'ValueChanged<double?>?',
+      description: {
+        ko: '키를 누를 때마다, 걸음마다, 휠마다. 정착한 값이 아니라 입력된 값을 보고합니다',
+        en: 'Called on every change — a keystroke, a step, the wheel. It reports what has been typed, not what it will settle to'
+      }
+    }),
+    from('PlNumberField', 'onValueCommitted', {
+      name: 'onCommitted',
+      type: 'ValueChanged<double?>?'
+    }),
+    from('PlNumberField', 'min', { type: 'double?' }),
+    from('PlNumberField', 'max', { type: 'double?' }),
+    from('PlNumberField', 'step', { type: 'double', default: '1' }),
+    from('PlNumberField', 'largeStep', { type: 'double', default: '10' }),
+    from('PlNumberField', 'smallStep', { type: 'double', default: '0.1' }),
+    from('PlNumberField', 'snapOnStep', { type: 'bool', default: 'false' }),
+    from('PlNumberField', 'allowWheelScrub', { type: 'bool', default: 'false' }),
+    from('PlNumberField', 'format', {
+      type: 'String Function(double value)?',
+      description: {
+        ko: '정착한 값을 어떻게 쓸지. Dart SDK에는 Intl.NumberFormat이 없으니 서식은 함수입니다',
+        en: 'How a settled value is written. There is no Intl.NumberFormat in the Dart SDK, so the format is a function'
+      }
+    }),
+    {
+      name: 'parse',
+      type: 'double? Function(String text)?',
+      description: {
+        ko: '입력된 글자를 어떻게 되읽을지. 생략하면 숫자와 부호, 소수점을 뺀 나머지를 버립니다',
+        en: 'How typed text is read back. Left out, everything but digits, a sign and a decimal point is thrown away'
+      }
+    },
+    from('PlNumberField', 'steppers', {
+      type: 'PlNumberFieldSteppers',
+      default: 'PlNumberFieldSteppers.end'
+    }),
+    from('PlNumberField', 'incrementLabel', { type: 'String', default: "'Increase'" }),
+    from('PlNumberField', 'decrementLabel', { type: 'String', default: "'Decrease'" }),
+    from('PlNumberField', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlNumberField', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlNumberField', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlNumberField', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlNumberField', 'elevation', { type: 'int', default: '0' }),
+    from('PlNumberField', 'label', {
+      type: 'Widget?',
+      description: {
+        ko: '컨트롤 위의 라벨. floating 형태는 일부러 없습니다 — floating label은 움직이는 글자입니다',
+        en: 'Label above the control. There is no floating variant on purpose: a floating label is text that moves'
+      }
+    }),
+    from('PlNumberField', 'description', { type: 'Widget?' }),
+    from('PlNumberField', 'error', { type: 'Widget?' }),
+    from('PlNumberField', 'invalid', { type: 'bool?' }),
+    {
+      name: 'placeholder',
+      type: 'String?',
+      description: {
+        ko: '비어 있는 동안 보이는 글자',
+        en: 'Shown while the field is empty'
+      }
+    },
+    from('PlNumberField', 'startIcon', { type: 'Widget?' }),
+    from('PlNumberField', 'endIcon', { type: 'Widget?' }),
+    from('PlNumberField', 'fullWidth', { type: 'bool', default: 'false' }),
+    from('PlNumberField', 'readOnly', { type: 'bool', default: 'false' }),
+    from('PlNumberField', 'disabled', { type: 'bool', default: 'false' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: 'field를 스크린 리더가 부를 이름',
+        en: 'The name a screen reader gives the field'
+      }
+    },
+    {
+      name: 'focusNode',
+      type: 'FocusNode?',
+      description: { ko: '바깥에서 focus를 몹니다', en: 'Drive focus from outside' }
+    },
+    {
+      name: 'autofocus',
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '트리에 들어가는 순간 focus를 가져갑니다',
+        en: 'Takes focus as it is inserted into the tree'
+      }
+    }
+  ],
+
   PlPagination: [
     from('PlPagination', 'count', { type: 'int', required: true }),
     from('PlPagination', 'page', { type: 'int', required: true }),
