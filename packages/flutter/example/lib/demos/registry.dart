@@ -79,6 +79,12 @@ import 'package:plass_ui_example/demos/divider/label.dart';
 import 'package:plass_ui_example/demos/divider/length.dart';
 import 'package:plass_ui_example/demos/divider/orientation.dart';
 import 'package:plass_ui_example/demos/divider/sizes.dart';
+import 'package:plass_ui_example/demos/file_picker/hero.dart';
+import 'package:plass_ui_example/demos/file_picker/rejections.dart';
+import 'package:plass_ui_example/demos/file_picker/single.dart';
+import 'package:plass_ui_example/demos/file_picker/sizes.dart';
+import 'package:plass_ui_example/demos/file_picker/states.dart';
+import 'package:plass_ui_example/demos/file_picker/variants.dart';
 import 'package:plass_ui_example/demos/highlight/colors.dart';
 import 'package:plass_ui_example/demos/highlight/hero.dart';
 import 'package:plass_ui_example/demos/highlight/matching.dart';
@@ -345,6 +351,12 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'switch/colors': _switchColors,
   'switch/states': _switchStates,
   'switch/placement': _switchPlacement,
+  'file-picker/hero': _filePickerHero,
+  'file-picker/variants': _filePickerVariants,
+  'file-picker/rejections': _filePickerRejections,
+  'file-picker/single': _filePickerSingle,
+  'file-picker/sizes': _filePickerSizes,
+  'file-picker/states': _filePickerStates,
   'highlight/hero': _highlightHero,
   'text-field/hero': _textFieldHero,
   'text-field/variants': _textFieldVariants,
@@ -662,3 +674,10 @@ Widget _chatBubbleStatus(BuildContext context) => const ChatBubbleStatus();
 Widget _chatBubbleMedia(BuildContext context) => const ChatBubbleMedia();
 Widget _chatBubbleActions(BuildContext context) => const ChatBubbleActions();
 Widget _chatBubbleSizes(BuildContext context) => const ChatBubbleSizes();
+
+Widget _filePickerHero(BuildContext context) => const FilePickerHero();
+Widget _filePickerVariants(BuildContext context) => const FilePickerVariants();
+Widget _filePickerRejections(BuildContext context) => const FilePickerRejections();
+Widget _filePickerSingle(BuildContext context) => const FilePickerSingle();
+Widget _filePickerSizes(BuildContext context) => const FilePickerSizes();
+Widget _filePickerStates(BuildContext context) => const FilePickerStates();

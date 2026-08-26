@@ -142,6 +142,9 @@ enum PlassGlyphShape {
   /// The tick: a chosen option, a ticked row, a checked box.
   check,
 
+  /// An arrow rising out of a tray — a file picker's box.
+  upload,
+
   /// Two ticks overlapping by a third of their width — a message that arrived.
   ///
   /// The one glyph in the library a single component has any use for, and the
@@ -300,6 +303,7 @@ class _GlyphPainter extends CustomPainter {
       case PlassGlyphShape.clock:
       case PlassGlyphShape.link:
       case PlassGlyphShape.externalLink:
+      case PlassGlyphShape.upload:
       case PlassGlyphShape.note:
       case PlassGlyphShape.successMark:
       case PlassGlyphShape.warningMark:
@@ -342,6 +346,19 @@ class _GlyphPainter extends CustomPainter {
           ..moveTo(3.5, 8.5)
           ..lineTo(6.5, 11.5)
           ..lineTo(12.5, 5.5);
+      case PlassGlyphShape.upload:
+        line
+          ..moveTo(8, 10.5)
+          ..lineTo(8, 2.75)
+          ..moveTo(5.25, 5.5)
+          ..lineTo(8, 2.75)
+          ..lineTo(10.75, 5.5)
+          ..moveTo(2.75, 9.75)
+          ..lineTo(2.75, 11.5)
+          ..arcToPoint(const Offset(4.5, 13.25), radius: const Radius.circular(1.75))
+          ..lineTo(11.5, 13.25)
+          ..arcToPoint(const Offset(13.25, 11.5), radius: const Radius.circular(1.75))
+          ..lineTo(13.25, 9.75);
       case PlassGlyphShape.doubleCheck:
         line
           ..moveTo(1.5, 8.5)

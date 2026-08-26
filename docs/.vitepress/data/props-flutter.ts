@@ -468,6 +468,131 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlDivider', 'children', { name: 'child', type: 'Widget?' })
   ],
 
+  PlFilePicker: [
+    from('PlFilePicker', 'value', { type: 'List<PlFile>', required: true }),
+    from('PlFilePicker', 'onFilesChange', {
+      name: 'onFilesChanged',
+      type: 'ValueChanged<List<PlFile>>?',
+      description: {
+        ko: '다음에 쥐고 있어야 할 목록으로 불립니다 — 파일이 더해졌거나, 목록에서 하나가 지워졌거나',
+        en: 'Called with the list that should be held next — a file added, or one removed from the list'
+      }
+    }),
+    {
+      name: 'onBrowse',
+      type: 'Future<List<PlFile>> Function()?',
+      description: {
+        ko: '앱 자신의 file picker를 실행하고 찾은 것을 돌려줍니다. 돌아온 것이 규칙에 걸린 뒤 살아남은 것이 onFilesChanged로 보고됩니다',
+        en: "Runs the app's own file picker and hands back what it found. What it returns is checked against the rules, and what survives is reported through onFilesChanged"
+      }
+    },
+    from('PlFilePicker', 'onReject', {
+      name: 'onRejected',
+      type: 'ValueChanged<List<PlFileRejection>>?'
+    }),
+    from('PlFilePicker', 'accept', {
+      type: 'String?',
+      description: {
+        ko: "어떤 파일을 받을지 ('image/*,.pdf'). onBrowse가 돌려준 것에 적용됩니다 — 말해 놓고 강제하지 않는 규칙은 규칙이 아닙니다",
+        en: "Which files are kept ('image/*,.pdf'). Applied to whatever onBrowse hands back: a rule the component states and does not enforce is not a rule"
+      }
+    }),
+    from('PlFilePicker', 'multiple', { type: 'bool', default: 'false' }),
+    from('PlFilePicker', 'maxSize', { type: 'int?' }),
+    from('PlFilePicker', 'maxFiles', { type: 'int?' }),
+    {
+      name: 'dragging',
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '파일이 상자 위에 있는지. 플러그인 없이는 Flutter에 OS 수준의 드래그가 없으므로 앱이 알려 주고, 상자는 그에 맞게 밝아집니다',
+        en: 'Whether a file is over the box. There is no OS-level drag in Flutter without a plugin, so an app that has one tells it and the box lights the way it should'
+      }
+    },
+    from('PlFilePicker', 'label · description · error · invalid', {
+      name: 'label · description · error · invalid',
+      type: 'Widget? · Widget? · Widget? · bool?'
+    }),
+    from('PlFilePicker', 'title', { type: 'Widget?', default: "Text('Choose files')" }),
+    from('PlFilePicker', 'hint', { type: 'Widget?' }),
+    from('PlFilePicker', 'icon', {
+      type: 'Widget?',
+      description: {
+        ko: '제목 위의 글리프. 생략하면 업로드 표식이 쓰입니다',
+        en: 'The glyph above the title. The upload mark if it is left out'
+      }
+    }),
+    {
+      name: 'showIcon',
+      type: 'bool',
+      default: 'true',
+      description: {
+        ko: '글리프를 그릴지. Dart에는 null도 위젯도 아닌 값이 없으니 "치워라"가 자기 이름을 가집니다',
+        en: 'Draws a glyph at all. Dart has no value that is neither null nor a widget, so "take it away" gets its own name'
+      }
+    },
+    from('PlFilePicker', 'showList', { type: 'bool', default: 'true' }),
+    from('PlFilePicker', 'removeLabel', {
+      type: 'String Function(String name)',
+      default: "'Remove {name}'"
+    }),
+    from('PlFilePicker', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlFilePicker', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlFilePicker', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlFilePicker', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlFilePicker', 'elevation', { type: 'int', default: '0' }),
+    from('PlFilePicker', 'fullWidth', { type: 'bool', default: 'true' }),
+    from('PlFilePicker', 'readOnly', { type: 'bool', default: 'false' }),
+    from('PlFilePicker', 'disabled', { type: 'bool', default: 'false' })
+  ],
+
+  PlFile: [
+    {
+      name: 'name',
+      type: 'String',
+      required: true,
+      description: { ko: '파일 이름, 확장자까지', en: 'What it is called, extension and all' }
+    },
+    {
+      name: 'size',
+      type: 'int',
+      required: true,
+      description: { ko: '몇 바이트인지', en: 'How many bytes it is' }
+    },
+    {
+      name: 'mimeType',
+      type: 'String?',
+      description: {
+        ko: '종류 — image/png. 생략하면 accept는 확장자만 봅니다',
+        en: 'Its kind — image/png. Left out, only the extension is checked against accept'
+      }
+    },
+    {
+      name: 'source',
+      type: 'Object?',
+      description: {
+        ko: '앱 자신의 picker가 건넨 것. picker는 들여다보지 않습니다',
+        en: "Whatever the app's own picker handed over. The picker never looks at it"
+      }
+    },
+    {
+      name: 'readableSize',
+      type: 'String',
+      description: {
+        ko: '파일 목록을 읽는 사람이 기대하는 단위의 1.4 MB. 1024가 아니라 1000 기준입니다',
+        en: '1.4 MB, in the units a person reading a file list expects. Base 1000 rather than 1024'
+      }
+    },
+    {
+      name: 'matches',
+      type: 'bool Function(String accept)',
+      description: {
+        ko: 'accept 문자열과 맞는지. .ext, type/subtype, type/* 세 형태 모두',
+        en: 'Whether it matches an accept string — all three forms: .ext, type/subtype, type/*'
+      }
+    }
+  ],
+
   PlHighlight: [
     from('PlHighlight', 'children', {
       name: 'text',
