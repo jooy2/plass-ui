@@ -196,6 +196,12 @@ enum PlassGlyphShape {
 
   /// The same five points, stroked. See [PlassGlyphShape.star].
   starOutline,
+
+  /// A filled dot: the mark on a chosen row of a set.
+  ///
+  /// A dot and not a tick, which is the distinction a checkbox and a radio make
+  /// everywhere else: a tick says "and", a dot says "instead of".
+  dot,
 }
 
 /// The mark that goes with a colour family.
@@ -322,6 +328,7 @@ class _GlyphPainter extends CustomPainter {
       case PlassGlyphShape.dangerMark:
       case PlassGlyphShape.star:
       case PlassGlyphShape.starOutline:
+      case PlassGlyphShape.dot:
         return 1.3;
     }
   }
@@ -467,6 +474,8 @@ class _GlyphPainter extends CustomPainter {
         _star(solid);
       case PlassGlyphShape.starOutline:
         _star(line);
+      case PlassGlyphShape.dot:
+        solid.addOval(Rect.fromCircle(center: const Offset(8, 8), radius: 3.25));
     }
   }
 

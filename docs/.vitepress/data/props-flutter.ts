@@ -931,6 +931,109 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlListItem', 'disabled', { type: 'bool', default: 'false' })
   ],
 
+  PlMenu: [
+    from('PlMenu', 'children', {
+      name: 'items',
+      type: 'List<PlMenuEntry>',
+      required: true,
+      description: {
+        ko: '행들. children이 아니라 설명의 목록입니다 — 메뉴가 강조 이동과 타이프어헤드를 직접 소유해야 합니다',
+        en: 'The rows, as a list of descriptions rather than children — the menu owns the highlight and the typeahead itself'
+      }
+    }),
+    from('PlMenu', 'trigger', {
+      type: 'Widget Function(BuildContext, VoidCallback open, bool isOpen)',
+      required: true,
+      description: {
+        ko: '메뉴를 여는 것. 위젯이 아니라 빌더입니다 — 트리거는 거의 언제나 자기가 열려 있는지 알고 싶어 합니다',
+        en: 'What opens the menu. A builder rather than a widget, because a trigger almost always wants to know whether it is open'
+      }
+    }),
+    from('PlMenu', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlMenu', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlMenu', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlMenu', 'side', { type: 'PlassSide', default: 'PlassSide.bottom' }),
+    from('PlMenu', 'align', { type: 'PlassAlign', default: 'PlassAlign.start' }),
+    from('PlMenu', 'sideOffset', { type: 'double', default: '6' }),
+    from('PlMenu', 'loopFocus', { type: 'bool', default: 'true' }),
+    from('PlMenu', 'disabled', { type: 'bool', default: 'false' }),
+    {
+      name: 'onOpenChange',
+      type: 'ValueChanged<bool>?',
+      description: {
+        ko: '메뉴가 열리거나 닫힐 때마다 호출됩니다',
+        en: 'Told whenever the menu opens or closes'
+      }
+    },
+    {
+      name: 'label',
+      type: 'String?',
+      description: {
+        ko: '스크린 리더가 팝업을 부르는 이름',
+        en: 'The name a screen reader gives the popup'
+      }
+    }
+  ],
+
+  PlMenuItem: [
+    from('PlMenuItem', 'children', {
+      name: 'label',
+      type: 'String',
+      required: true,
+      description: {
+        ko: '라벨. 위젯이 아니라 String입니다 — 그려지고, 안내되고, 타이프어헤드가 맞춰 보는 대상입니다',
+        en: 'The label. A String rather than a widget: it is what is drawn, what is announced, and what typeahead matches against'
+      }
+    }),
+    from('PlMenuItem', 'onClick', { name: 'onPressed', type: 'VoidCallback?' }),
+    from('PlMenuItem', 'startIcon · endIcon', { type: 'Widget?' }),
+    from('PlMenuItem', 'shortcut', { type: 'String?' }),
+    from('PlMenuItem', 'description', { type: 'String?' }),
+    from('PlMenuItem', 'color', { type: COLOR + '?' }),
+    from('PlMenuItem', 'closeOnClick', { name: 'closeOnPress', type: 'bool', default: 'true' }),
+    from('PlMenuItem', 'disabled', { type: 'bool', default: 'false' })
+  ],
+
+  PlMenuCheckboxItem: [
+    from('PlMenuCheckboxItem', 'checked · defaultChecked · onCheckedChange', {
+      name: 'checked · onChanged',
+      type: 'bool · ValueChanged<bool>?',
+      description: {
+        ko: '체크 상태. controlled입니다 — defaultChecked는 없습니다',
+        en: 'The checked state. Controlled: there is no defaultChecked'
+      }
+    }),
+    {
+      name: 'selected · onPressed',
+      type: 'bool · VoidCallback?',
+      description: {
+        ko: 'PlMenuRadioItem에만: 이 행이 고른 것인지, 그리고 고르면 무엇을 하는지. 값을 쥔 그룹이 아니라 행이 듣습니다',
+        en: 'PlMenuRadioItem only: whether this is the chosen one, and what choosing it does. The row is told, rather than a group holding a value'
+      }
+    },
+    from('PlMenuCheckboxItem', 'closeOnClick', {
+      name: 'closeOnPress',
+      type: 'bool',
+      default: 'false'
+    }),
+    {
+      name: 'label · endIcon · shortcut · description · color · disabled',
+      type: '—',
+      description: { ko: 'PlMenuItem과 같습니다', en: 'As on PlMenuItem' }
+    }
+  ],
+
+  PlMenuSubmenu: [
+    from('PlMenuSubmenu', 'label', { type: 'String', required: true }),
+    from('PlMenuSubmenu', 'children', {
+      name: 'items',
+      type: 'List<PlMenuEntry>',
+      required: true
+    }),
+    from('PlMenuSubmenu', 'startIcon', { type: 'Widget?' }),
+    from('PlMenuSubmenu', 'disabled', { type: 'bool', default: 'false' })
+  ],
+
   PlModal: [
     from('PlModal', 'open', { type: 'bool', required: true }),
     from('PlModal', 'onOpenChange', {

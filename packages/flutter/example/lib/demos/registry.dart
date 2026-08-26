@@ -132,6 +132,12 @@ import 'package:plass_ui_example/demos/list/hero.dart';
 import 'package:plass_ui_example/demos/list/rows.dart';
 import 'package:plass_ui_example/demos/list/sizes.dart';
 import 'package:plass_ui_example/demos/list/variants.dart';
+import 'package:plass_ui_example/demos/menu/groups.dart';
+import 'package:plass_ui_example/demos/menu/hero.dart';
+import 'package:plass_ui_example/demos/menu/rows.dart';
+import 'package:plass_ui_example/demos/menu/selection.dart';
+import 'package:plass_ui_example/demos/menu/sizes.dart';
+import 'package:plass_ui_example/demos/menu/submenu.dart';
 import 'package:plass_ui_example/demos/modal/controlled.dart';
 import 'package:plass_ui_example/demos/modal/dismissible.dart';
 import 'package:plass_ui_example/demos/modal/dividers.dart';
@@ -298,6 +304,12 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'floating-bottom-navigation/variants': _floatingBottomNavigationVariants,
   'floating-bottom-navigation/colors': _floatingBottomNavigationColors,
   'floating-bottom-navigation/sizes': _floatingBottomNavigationSizes,
+  'menu/hero': _menuHero,
+  'menu/rows': _menuRows,
+  'menu/groups': _menuGroups,
+  'menu/selection': _menuSelection,
+  'menu/submenu': _menuSubmenu,
+  'menu/sizes': _menuSizes,
   'bottom-navigation/hero': _bottomNavigationHero,
   'bottom-navigation/labels': _bottomNavigationLabels,
   'bottom-navigation/variants': _bottomNavigationVariants,
@@ -559,6 +571,13 @@ Widget _floatingBottomNavigationColors(BuildContext context) =>
     const FloatingBottomNavigationColors();
 Widget _floatingBottomNavigationSizes(BuildContext context) =>
     const FloatingBottomNavigationSizes();
+
+Widget _menuHero(BuildContext context) => const MenuHero();
+Widget _menuRows(BuildContext context) => const MenuRows();
+Widget _menuGroups(BuildContext context) => const MenuGroups();
+Widget _menuSelection(BuildContext context) => const MenuSelection();
+Widget _menuSubmenu(BuildContext context) => const MenuSubmenus();
+Widget _menuSizes(BuildContext context) => const MenuSizes();
 
 Widget _bottomNavigationHero(BuildContext context) => const BottomNavigationHero();
 Widget _bottomNavigationLabels(BuildContext context) => const BottomNavigationLabels();
