@@ -7,7 +7,7 @@ order: 8
 
 <p class="plass-lede">살아 있는 정보를 조금 담고 떠 있는 알약입니다. 돌아가고 있는 녹화, 올라가고 있는 업로드, 아직 읽지 않은 알림 두 개.</p>
 
-<Demo src="pill/hero" :flutter="false" :min-height="140" />
+<Demo src="pill/hero" :min-height="140" />
 
 ::: fw react
 
@@ -15,6 +15,21 @@ order: 8
 import { PlPill } from 'plass-ui';
 
 <PlPill color="danger" title="Recording" description="00:41" startIcon={<Dot />} />;
+```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlPill(
+  color: PlassColor.danger,
+  title: const Text('Recording'),
+  description: const Text('00:41'),
+  startIcon: const RecordingDot(),
+);
 ```
 
 :::
@@ -47,9 +62,19 @@ import { PlPill } from 'plass-ui';
 
 세 재질을 **컨트롤**의 방식으로 말합니다. 표면이 색을 받습니다. [`PlButton`](../inputs/button)이나 [`PlChip`](../display/chip)과 같습니다 — 알약은 남의 내용을 담은 시트가 아니라, 색이 입혀지는 그 물건 자체이기 때문입니다.
 
-<Demo src="pill/variants" :flutter="false" :min-height="280">
+<Demo src="pill/variants" :min-height="280">
+
+::: fw react
 
 <<< @/.vitepress/demos/pill/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/pill/variants.dart
+
+:::
 
 </Demo>
 
@@ -65,11 +90,27 @@ import { PlPill } from 'plass-ui';
 
 `expanded`일 때 드러나는 나머지 절반입니다. 알약은 다른 모양으로 바뀌는 대신 아래로 자랍니다. 한 물건이 더 말하는 것입니다.
 
-높이는 하드코딩이 아니라 **잰 값**입니다 — `ResizeObserver`가 패널을 지켜보므로, 내용이 바뀌는 details 영역(살아 있는 정보가 하는 일이 그것입니다)도 함께 자랍니다. 그리고 아무것도 변형되지 않습니다. [`PlCollapsible`](./collapsible)의 패널이 그렇듯, 알약은 열리는 창입니다.
+높이는 어딘가에 적어 둔 숫자가 아니라 **본문 자신의 것**입니다. 그래서 내용이 바뀌는 details 영역(살아 있는 정보가 하는 일이 그것입니다)도 함께 자랍니다. 그리고 아무것도 변형되지 않습니다. [`PlCollapsible`](./collapsible)의 패널이 그렇듯, 알약은 열리는 창입니다.
 
-<Demo src="pill/details" :flutter="false" :min-height="220">
+::: fw react
+
+내용이 바뀌어도 잰 높이가 정직하게 유지되도록 `ResizeObserver`가 지켜봅니다.
+
+:::
+
+<Demo src="pill/details" :min-height="220">
+
+::: fw react
 
 <<< @/.vitepress/demos/pill/details.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/pill/details.dart
+
+:::
 
 </Demo>
 
@@ -77,11 +118,23 @@ import { PlPill } from 'plass-ui';
 
 접힌 알약은 같은 `size`의 [`PlButton`](../inputs/button)과 나란히 놓았을 때 줄이 맞습니다 — 행의 바닥이 컨트롤 사다리입니다. 높이가 아니라 **최솟값**인데, description을 단 알약은 두 줄 높이이고 고정 높이였다면 두 번째 줄이 잘렸을 것이기 때문입니다.
 
-<Demo src="pill/sizes" :flutter="false" :min-height="300">
+<Demo src="pill/sizes" :min-height="300">
+
+::: fw react
 
 <<< @/.vitepress/demos/pill/sizes.tsx
 
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/pill/sizes.dart
+
+:::
+
 </Demo>
+
+::: fw react
 
 ### position
 
@@ -89,16 +142,34 @@ import { PlPill } from 'plass-ui';
 
 가운데 놓기는 자기 너비의 절반만큼 translate하는 것이 아니라 전폭 상자 안의 `mx-auto`입니다. [표면을 변형하지 않는다는 규칙](../../design/design-language)이 여기서도 지켜지고, `auto` 마진은 방향에 무관하므로 RTL에서도 알약은 가운데 있습니다.
 
-::: fw react
-
 ```tsx
 <PlPill position="fixed" side="bottom" title="Recording" />
 ```
 
 :::
 
+::: fw flutter
+
+여기에는 `position`이 없습니다. [`PlFloatingBottomNavigation`](../navigation/floating-bottom-navigation)에 없는 것과 같은 이유입니다 — `fixed` 요소는 가운데 놓이려면 무언가를 가로질러야 하는데, Flutter 위젯은 화면이 놓아 준 바로 그 자리에 있습니다. 고정된 알약이 놓이는 자리는 `Positioned`가 든 `Stack`이고, 그것은 앱의 것입니다.
+
+:::
+
 ## Accessibility
 
-- `onClick`이 없는 알약은 컨트롤이 아니고 아무것도 주장하지 않습니다. 주면 가운데가 진짜 `<button>`이 되어 키보드로 닿을 수 있고 그것으로 안내됩니다.
+- 누를 것이 없는 알약은 컨트롤이 아니고 아무것도 주장하지 않습니다. 핸들러를 주면 가운데가 진짜 버튼이 되어 키보드로 닿을 수 있고 그것으로 안내됩니다.
 - `endIcon`은 그 버튼 바깥에 있으므로 거기 놓인 컨트롤은 자기 focus stop을 가집니다.
-- 접힌 `details` 패널은 `aria-hidden`만이 아니라 **`inert`**입니다. 높이 0인 상자 안에서도 내용은 여전히 완벽하게 포커스를 받고, `aria-hidden`만 있었다면 스크린 리더가 없다고 들은 자리로 키보드 독자가 탭해 들어갔을 것입니다.
+- 접힌 `details` 패널은 포커스 순서에서 빠지고 **동시에** 접근성 트리에서도 빠집니다. 높이 0인 상자 안에서도 내용은 여전히 완벽하게 포커스를 받고, 스크린 리더에서만 숨겼다면 없다고 들은 자리로 키보드 독자가 탭해 들어갔을 것입니다.
+
+::: fw flutter
+
+## React 빌드와의 차이
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `position`, `side` | — | `fixed` 요소는 가운데 놓이려면 무언가를 가로질러야 합니다. Flutter 위젯은 화면이 놓아 준 자리에 그대로 있고, 고정된 알약은 앱 자신의 `Stack` 속 `Positioned`입니다. |
+| `onClick` | `onPressed` | 누름이 부르는 것에 이 패키지가 붙인 이름입니다. |
+| `children` | `child` | 슬롯 하나이고, Dart는 그것을 `child`라고 씁니다. |
+| 접힌 패널의 `inert` | `ExcludeFocus` + `ExcludeSemantics` | 그 속성이 하는 두 가지를, 그 두 가지를 하는 위젯으로 말한 것입니다. |
+| `className`, `style` | — | 전달할 class 목록도 style 속성도 없습니다. |
+
+:::

@@ -7,7 +7,7 @@ order: 8
 
 <p class="plass-lede">A floating lozenge holding a small amount of live information. A recording that is running, an upload that is climbing, two updates waiting to be read.</p>
 
-<Demo src="pill/hero" :flutter="false" :min-height="140" />
+<Demo src="pill/hero" :min-height="140" />
 
 ::: fw react
 
@@ -15,6 +15,21 @@ order: 8
 import { PlPill } from 'plass-ui';
 
 <PlPill color="danger" title="Recording" description="00:41" startIcon={<Dot />} />;
+```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlPill(
+  color: PlassColor.danger,
+  title: const Text('Recording'),
+  description: const Text('00:41'),
+  startIcon: const RecordingDot(),
+);
 ```
 
 :::
@@ -47,9 +62,19 @@ The radius is pinned to the **row**, not written as `rounded-full`, and the diff
 
 The three materials, said the way a **control** says them: the surface takes the tint, as on a [`PlButton`](../inputs/button) and a [`PlChip`](../display/chip), because a pill is the thing being coloured rather than a sheet holding somebody else's content.
 
-<Demo src="pill/variants" :flutter="false" :min-height="280">
+<Demo src="pill/variants" :min-height="280">
+
+::: fw react
 
 <<< @/.vitepress/demos/pill/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/pill/variants.dart
+
+:::
 
 </Demo>
 
@@ -65,11 +90,27 @@ The three materials, said the way a **control** says them: the surface takes the
 
 The second half, revealed when `expanded`. The pill grows downward into it rather than swapping to a different shape: one object saying more.
 
-The height is **measured**, not hardcoded — a `ResizeObserver` watches the panel, so a details area whose content changes (which is what live information does) grows with it. And nothing is transformed: the pill is a window that opens, exactly as a [`PlCollapsible`](./collapsible)'s panel is.
+The height is **the body's own**, not a number written down somewhere — so a details area whose content changes (which is what live information does) grows with it. And nothing is transformed: the pill is a window that opens, exactly as a [`PlCollapsible`](./collapsible)'s panel is.
 
-<Demo src="pill/details" :flutter="false" :min-height="220">
+::: fw react
+
+A `ResizeObserver` is what keeps the measured height honest as the content changes.
+
+:::
+
+<Demo src="pill/details" :min-height="220">
+
+::: fw react
 
 <<< @/.vitepress/demos/pill/details.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/pill/details.dart
+
+:::
 
 </Demo>
 
@@ -77,11 +118,23 @@ The height is **measured**, not hardcoded — a `ResizeObserver` watches the pan
 
 A collapsed pill lines up with a [`PlButton`](../inputs/button) of the same `size` beside it — the row's floor is the control ladder. It is a **minimum** rather than a height, because a pill carrying a description is two lines tall and a fixed height would clip the second.
 
-<Demo src="pill/sizes" :flutter="false" :min-height="300">
+<Demo src="pill/sizes" :min-height="300">
+
+::: fw react
 
 <<< @/.vitepress/demos/pill/sizes.tsx
 
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/pill/sizes.dart
+
+:::
+
 </Demo>
+
+::: fw react
 
 ### position
 
@@ -89,16 +142,34 @@ A collapsed pill lines up with a [`PlButton`](../inputs/button) of the same `siz
 
 The centring is `mx-auto` inside a full-width box rather than a translate of half its own width: the [rule against transforming a surface](../../design/design-language) holds here too, and `auto` margins are direction-agnostic, so the lozenge stays centred under RTL.
 
-::: fw react
-
 ```tsx
 <PlPill position="fixed" side="bottom" title="Recording" />
 ```
 
 :::
 
+::: fw flutter
+
+There is no `position` here, for the reason [`PlFloatingBottomNavigation`](../navigation/floating-bottom-navigation) has none: a `fixed` element has to span something to be centred in it, and a Flutter widget goes exactly where the screen puts it. A `Stack` with a `Positioned` is where a pinned pill goes, and it is the app's own.
+
+:::
+
 ## Accessibility
 
-- A pill with no `onClick` is not a control and claims nothing. Giving it one makes the middle a real `<button>`, reachable from a keyboard and announced as what it is.
+- A pill with nothing to press is not a control and claims nothing. Giving it a handler makes the middle a real button, reachable from a keyboard and announced as what it is.
 - `endIcon` is outside that button, so a control put there is its own focus stop.
-- A collapsed `details` panel is **`inert`**, not merely `aria-hidden`: a zero-height box is still perfectly focusable inside, and `aria-hidden` alone would leave a keyboard reader tabbing into something their screen reader has been told does not exist.
+- A collapsed `details` panel is taken out of the focus order **and** off the accessibility tree. A zero-height box is still perfectly focusable inside, and hiding it from a screen reader alone would leave a keyboard reader tabbing into something they have been told does not exist.
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `position`, `side` | — | A `fixed` element has to span something to be centred in it. A Flutter widget goes exactly where the screen puts it, and a pinned pill is a `Positioned` in the app's own `Stack`. |
+| `onClick` | `onPressed` | The package's name for the thing a press calls. |
+| `children` | `child` | One slot, and Dart spells it `child`. |
+| `inert` on the collapsed panel | `ExcludeFocus` + `ExcludeSemantics` | The same two things that attribute does, said as the two widgets that do them. |
+| `className`, `style` | — | There is no class list and no style attribute to pass through. |
+
+:::

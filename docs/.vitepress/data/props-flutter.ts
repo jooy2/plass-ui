@@ -1833,6 +1833,36 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlDrawer', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
   ],
 
+  PlPill: [
+    from('PlPill', 'title', { type: 'Widget?' }),
+    from('PlPill', 'description', { type: 'Widget?' }),
+    from('PlPill', 'startIcon', { type: 'Widget?' }),
+    from('PlPill', 'endIcon', { type: 'Widget?' }),
+    from('PlPill', 'details', { type: 'Widget?' }),
+    from('PlPill', 'expanded', { type: 'bool', default: 'false' }),
+    from('PlPill', 'onClick', {
+      name: 'onPressed',
+      type: 'VoidCallback?',
+      description: {
+        ko: '주면 가운데가 진짜 버튼이 됩니다',
+        en: 'Passing it makes the middle a real button'
+      }
+    }),
+    {
+      name: 'child',
+      type: 'Widget?',
+      description: {
+        ko: 'title과 description이 말할 수 없는 것. 그 아래 같은 열에 그려집니다',
+        en: 'Anything the middle needs that title and description cannot say. Drawn under them, in the same column'
+      }
+    },
+    from('PlPill', 'variant', { type: VARIANT, default: 'PlassVariant.solid' }),
+    from('PlPill', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlPill', 'color', { type: COLOR, default: 'PlassColor.secondary' }),
+    from('PlPill', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlPill', 'elevation', { type: 'int', default: '2' })
+  ],
+
   PlScrollZone: [
     {
       name: 'children',

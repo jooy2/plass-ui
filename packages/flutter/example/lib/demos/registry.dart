@@ -185,6 +185,10 @@ import 'package:plass_ui_example/demos/panes/fixed.dart';
 import 'package:plass_ui_example/demos/panes/hero.dart';
 import 'package:plass_ui_example/demos/panes/orientation.dart';
 import 'package:plass_ui_example/demos/panes/sizes.dart';
+import 'package:plass_ui_example/demos/pill/details.dart';
+import 'package:plass_ui_example/demos/pill/hero.dart';
+import 'package:plass_ui_example/demos/pill/sizes.dart';
+import 'package:plass_ui_example/demos/pill/variants.dart';
 import 'package:plass_ui_example/demos/radio_group/colors.dart';
 import 'package:plass_ui_example/demos/radio_group/controlled.dart';
 import 'package:plass_ui_example/demos/radio_group/hero.dart';
@@ -495,6 +499,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'slider/range': _sliderRange,
   'slider/states': _sliderStates,
   'slider/steps': _sliderSteps,
+  'pill/hero': _pillHero,
+  'pill/variants': _pillVariants,
+  'pill/details': _pillDetails,
+  'pill/sizes': _pillSizes,
   'drawer/hero': _drawerHero,
   'drawer/sides': _drawerSides,
   'drawer/inline': _drawerInline,
@@ -797,6 +805,10 @@ Widget _sliderRange(BuildContext context) => const SliderRange();
 Widget _sliderStates(BuildContext context) => const SliderStates();
 Widget _sliderSteps(BuildContext context) => const SliderSteps();
 
+Widget _pillHero(BuildContext context) => const PillHero();
+Widget _pillVariants(BuildContext context) => const PillVariants();
+Widget _pillDetails(BuildContext context) => const PillDetails();
+Widget _pillSizes(BuildContext context) => const PillSizes();
 Widget _drawerHero(BuildContext context) => const DrawerHero();
 Widget _drawerSides(BuildContext context) => const DrawerSides();
 Widget _drawerInline(BuildContext context) => const DrawerInline();
