@@ -281,6 +281,10 @@ import 'package:plass_ui_example/demos/toast/hero.dart';
 import 'package:plass_ui_example/demos/toast/positions.dart';
 import 'package:plass_ui_example/demos/toast/update.dart';
 import 'package:plass_ui_example/demos/toast/variants.dart';
+import 'package:plass_ui_example/demos/toolbar/density.dart';
+import 'package:plass_ui_example/demos/toolbar/hero.dart';
+import 'package:plass_ui_example/demos/toolbar/slots.dart';
+import 'package:plass_ui_example/demos/toolbar/variants.dart';
 import 'package:plass_ui_example/demos/tooltip/align.dart';
 import 'package:plass_ui_example/demos/tooltip/delay.dart';
 import 'package:plass_ui_example/demos/tooltip/hero.dart';
@@ -506,6 +510,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'slider/range': _sliderRange,
   'slider/states': _sliderStates,
   'slider/steps': _sliderSteps,
+  'toolbar/hero': _toolbarHero,
+  'toolbar/slots': _toolbarSlots,
+  'toolbar/variants': _toolbarVariants,
+  'toolbar/density': _toolbarDensity,
   'spoiler/hero': _spoilerHero,
   'spoiler/variants': _spoilerVariants,
   'spoiler/clamped': _spoilerClamped,
@@ -818,6 +826,11 @@ Widget _sliderOrientation(BuildContext context) => const SliderOrientation();
 Widget _sliderRange(BuildContext context) => const SliderRange();
 Widget _sliderStates(BuildContext context) => const SliderStates();
 Widget _sliderSteps(BuildContext context) => const SliderSteps();
+
+Widget _toolbarHero(BuildContext context) => const ToolbarHero();
+Widget _toolbarSlots(BuildContext context) => const ToolbarSlots();
+Widget _toolbarVariants(BuildContext context) => const ToolbarVariants();
+Widget _toolbarDensity(BuildContext context) => const ToolbarDensity();
 
 Widget _spoilerHero(BuildContext context) => const SpoilerHero();
 Widget _spoilerVariants(BuildContext context) => const SpoilerVariants();

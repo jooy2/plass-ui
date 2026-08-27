@@ -2445,6 +2445,56 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     })
   ],
 
+  PlToolbar: [
+    {
+      name: 'child',
+      type: 'Widget?',
+      description: {
+        ko: '가운데. start와 end가 남긴 너비를 차지합니다',
+        en: 'The middle. Takes whatever width start and end leave'
+      }
+    },
+    from('PlToolbar', 'start', {
+      type: 'List<Widget>?',
+      description: {
+        ko: '바의 시작에 고정되는 것 — 로고, 제목, 뒤로 가기. Dart에는 fragment가 없으니 목록을 받고 간격도 줍니다',
+        en: 'Pinned to the start of the bar: a logo, a title, a back button. Dart has no fragment, so the slot takes a list and spaces it'
+      }
+    }),
+    from('PlToolbar', 'end', { type: 'List<Widget>?' }),
+    from('PlToolbar', 'divider', { type: 'bool', default: 'false' }),
+    from('PlToolbar', 'side', {
+      type: 'PlassSide',
+      default: 'PlassSide.top',
+      description: {
+        ko: '바가 향한 쪽. 그것에 달린 것은 하나뿐입니다 — divider를 어느 가장자리에 긋는지',
+        en: 'Which way the bar is facing, and the one thing that depends on it: which edge the divider is drawn along'
+      }
+    }),
+    {
+      name: 'rounded',
+      type: 'bool',
+      default: 'true',
+      description: {
+        ko: '바가 모서리를 가진 시트인지. 화면 가장자리에 붙잡아 둘 때 끕니다 — 맞닿은 둥근 모서리는 뒤에 아무것도 없는 틈입니다',
+        en: 'Whether the bar is a sheet with corners. Turn it off for one held against an edge of the screen: a rounded corner there is a gap with nothing behind it'
+      }
+    },
+    from('PlToolbar', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlToolbar', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlToolbar', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlToolbar', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlToolbar', 'elevation', { type: 'int', default: '0' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '바 자신에게 이름이 필요할 때 스크린 리더가 읽을 이름',
+        en: 'The name a screen reader gives the bar, if it needs one of its own'
+      }
+    }
+  ],
+
   PlTooltip: [
     from('PlTooltip', 'content', {
       type: 'Widget',
