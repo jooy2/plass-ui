@@ -147,6 +147,25 @@ describe('PlSpoiler', () => {
   });
 
   describe('the sheet', () => {
+    it('is at least as tall as its own cover', async () => {
+      const screen = await render(
+        <PlSpoiler data-testid="spoiler" size="lg">
+          .
+        </PlSpoiler>
+      );
+
+      const sheet = screen.getByTestId('spoiler').element();
+      const cover = screen.getByRole('button', { name: 'Reveal' }).element();
+
+      // Content and cover share one grid cell, so a one-character spoiler is as
+      // tall as the button it is asking somebody to press rather than clipping
+      // it.
+      expect(sheet).toHaveClass('grid');
+      expect(cover.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+        sheet.getBoundingClientRect().bottom
+      );
+    });
+
     it('is never dyed, whatever colour it is given', async () => {
       await render(
         <PlSpoiler className="spoiler-under-test" color="danger">

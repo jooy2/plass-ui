@@ -39,6 +39,8 @@ The cover is a **blur**, and that is the whole design. A reader can see that the
 
 Blur alone is not cover, though. It takes a paragraph apart but leaves its colour and its rhythm, and a photograph blurred at 10px is still recognisably a photograph of a face — so a **wash of the page's own surface** goes over the top. That settles two things at once: the content goes to a wash of its own colours, and the button gets something to stand on rather than floating over whatever happened to be underneath it.
 
+A short spoiler is as tall as its own cover, not as tall as its content: the two share one cell, so a one-line spoiler does not clip the button it is asking somebody to press.
+
 ## Examples
 
 ### variant

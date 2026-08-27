@@ -163,7 +163,13 @@ export const PlSpoiler = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSpoi
       <div
         ref={ref}
         className={cx(
-          'relative isolate overflow-hidden',
+          // A grid rather than a box with an absolutely positioned cover on it,
+          // and the difference is what happens to a *short* spoiler: an
+          // absolute cover is laid out against a box the content alone decided
+          // the height of, so a one-line spoiler clips its own Reveal button.
+          // Both children are put in the same cell instead, so the row is as
+          // tall as whichever of them needs more and they stretch to match.
+          'isolate grid overflow-hidden',
           radiusClasses[size],
           sheetRestClasses[variant],
           transitionClasses,
@@ -175,7 +181,7 @@ export const PlSpoiler = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSpoi
         <div
           id={contentId}
           className={cx(
-            'min-w-0',
+            'min-w-0 [grid-area:1/1]',
             padded ? `${insetX} ${insetY}` : '',
             '[transition:filter_var(--plass-duration-slow)_var(--plass-ease)]',
             'motion-reduce:[transition-duration:0ms]',
@@ -202,7 +208,7 @@ export const PlSpoiler = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSpoi
         {open ? null : (
           <div
             className={cx(
-              'absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 text-center',
+              'z-10 flex flex-col items-center justify-center gap-2 text-center [grid-area:1/1]',
               insetX,
               insetY,
               scrimClasses
