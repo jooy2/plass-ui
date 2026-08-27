@@ -1034,6 +1034,65 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlDateTimePicker: [
+    {
+      name: 'value',
+      type: 'DateTime?',
+      required: true,
+      description: {
+        ko: '선택된 순간, 또는 없으면 null',
+        en: 'The chosen moment, or null for none'
+      }
+    },
+    {
+      name: 'onChanged',
+      type: 'ValueChanged<DateTime?>?',
+      description: {
+        ko: '고른 순간과 함께 호출됩니다. 비우면 null입니다',
+        en: 'Called with the moment that was chosen, or null when it is emptied'
+      }
+    },
+    from('PlDateTimePicker', 'open', { type: 'bool?' }),
+    {
+      name: 'onOpenChanged',
+      type: 'ValueChanged<bool>?',
+      description: {
+        ko: '패널들이 열리거나 닫혀야 할 때 호출됩니다',
+        en: 'Called when the panels should open or close'
+      }
+    },
+    from('PlDateTimePicker', 'defaultMonth', { type: 'DateTime?' }),
+    from('PlDateTimePicker', 'minDate', { type: 'DateTime?' }),
+    from('PlDateTimePicker', 'maxDate', { type: 'DateTime?' }),
+    from('PlDateTimePicker', 'shouldDisableDate', { type: 'bool Function(DateTime date)?' }),
+    from('PlDateTimePicker', 'weekStartsOn', { type: 'PlassWeekday?' }),
+    ...timeColumnProps('PlDateTimePicker'),
+    pickerWordProps[0],
+    from('PlDateTimePicker', 'labels', {
+      type: 'PlPickerLabels',
+      default: 'PlPickerLabels.english'
+    }),
+    pickerWordProps[1],
+    from('PlDateTimePicker', 'placeholder', { type: 'Widget?' }),
+    from('PlDateTimePicker', 'clearable', { type: 'bool', default: 'false' }),
+    from('PlDateTimePicker', 'showNowButton', { type: 'bool', default: 'true' }),
+    from('PlDateTimePicker', 'closeOnSelect', { type: 'bool', default: 'false' }),
+    from('PlDateTimePicker', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlDateTimePicker', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlDateTimePicker', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlDateTimePicker', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlDateTimePicker', 'elevation', { type: 'int', default: '0' }),
+    from('PlDateTimePicker', 'label', { type: 'Widget?' }),
+    from('PlDateTimePicker', 'description', { type: 'Widget?' }),
+    from('PlDateTimePicker', 'error', { type: 'Widget?' }),
+    from('PlDateTimePicker', 'invalid', { type: 'bool?' }),
+    from('PlDateTimePicker', 'startIcon', { type: 'Widget?' }),
+    from('PlDateTimePicker', 'fullWidth', { type: 'bool', default: 'false' }),
+    from('PlDateTimePicker', 'readOnly', { type: 'bool', default: 'false' }),
+    from('PlDateTimePicker', 'disabled', { type: 'bool', default: 'false' }),
+    ...pickerHandleProps
+  ],
+
   PlDivider: [
     from('PlDivider', 'orientation', {
       type: 'PlassOrientation',
