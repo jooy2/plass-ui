@@ -88,11 +88,30 @@ export interface PlTableProps<Row>
   /** Lights the row under the pointer. @default false */
   hoverable?: boolean;
   /**
-   * Pins the header while the body scrolls. Only does anything if something
-   * around the table actually constrains its height.
+   * Pins the header while the rows scroll under it.
+   *
+   * It needs something to scroll *in*: a `position: sticky` header in a box
+   * that is as tall as its content has nowhere to stick, so this does nothing
+   * on its own. `maxHeight` is the usual answer and the two are made for each
+   * other; a table inside a pane that already caps its own height works just as
+   * well.
    * @default false
    */
   stickyHeader?: boolean;
+  /**
+   * A hard cap on the grid's height. A number is pixels; a string is any CSS
+   * length (`'24rem'`, `'60vh'`).
+   *
+   * Past it the rows scroll inside the sheet rather than the page growing, and
+   * the sheet keeps the size the layout around it was drawn for. It is the
+   * other half of `stickyHeader`: capped without pinning, the column names
+   * scroll away and the rest of the table is a grid of unlabelled numbers.
+   *
+   * The **grid** and not the sheet: a `caption` sits above the rows and outside
+   * what is capped, because a caption that scrolled away would take the table's
+   * accessible name with it.
+   */
+  maxHeight?: number | string;
   /** Makes rows activatable. Also turns on the hover treatment. */
   onRowClick?: (row: Row, index: number) => void;
 }
@@ -216,6 +235,7 @@ export function PlTable<Row>({
   striped = false,
   hoverable = false,
   stickyHeader = false,
+  maxHeight,
   onRowClick,
   className,
   style,
@@ -225,6 +245,8 @@ export function PlTable<Row>({
   const padY = cellPaddingYValues[density][size];
   const clickable = Boolean(onRowClick);
   const lit = hoverable || clickable;
+  const capped = maxHeight !== undefined;
+  const captionId = React.useId();
 
   // `border: 0` first, then the one edge this cell actually draws. Written as
   // the longhand rather than a `border` shorthand carrying `0` so the rule and
@@ -237,7 +259,15 @@ export function PlTable<Row>({
 
   const headCellStyle: React.CSSProperties = {
     ...cellStyle,
-    borderBottom: headRule,
+    // The rule under the column names, and the one place the table draws an
+    // edge as a shadow rather than as a border. `border-collapse: collapse`
+    // hands a cell's borders to the *table's* border grid, and that grid does
+    // not travel with a `position: sticky` cell — so a pinned header keeps its
+    // fill and leaves its underline behind at the top of the scroll. An inset
+    // shadow belongs to the cell's own box and goes where the cell goes.
+    ...(stickyHeader
+      ? { boxShadow: `inset 0 -1px 0 var(--plass-border)` }
+      : { borderBottom: headRule }),
     // No band behind the column names.
     //
     // The header used to be `--plass-glass-press`, one step up the glass ladder
@@ -270,7 +300,12 @@ export function PlTable<Row>({
   return (
     <div
       className={[
-        'overflow-x-auto',
+        // The sheet clips, and the box inside it scrolls. Two elements rather
+        // than one because a `caption` has to stay out of what scrolls: a
+        // pinned header over rows that pass under it is the point of
+        // `stickyHeader`, and a title that slid away above it would take the
+        // table's name off the screen with it.
+        'overflow-hidden',
         radiusClasses[size],
         sheetRestClasses[variant],
         className ?? ''
@@ -280,118 +315,145 @@ export function PlTable<Row>({
       style={{ ...surfaceSlots(color, elevation), ...style }}
       {...props}
     >
-      <table
-        className={`text-start ${controlTextLeadingClasses[size]} text-(--plass-fg)`}
-        style={tableStyle}
-      >
-        {caption ? (
-          <caption
-            className={`${metaTextClasses[size]} font-semibold text-(--plass-muted-fg)`}
-            style={{ ...cellStyle, borderBottom: rowRule, textAlign: 'start' }}
-          >
-            {caption}
-          </caption>
-        ) : null}
+      {/*
+        A `<div>` and an `aria-labelledby`, not a `<caption>`.
 
-        {/* Widths belong on a `<col>`, not on the first row's cells: a width set
+        The element is the semantically obvious one and it is in the wrong box:
+        a `<caption>` belongs to the `<table>`, so it lives inside whatever
+        scrolls the table — which is the one place a title must not be. Pointing
+        the table at a heading outside it names it exactly as a caption does,
+        and it is also what the Flutter build draws, so the two packages
+        finally agree about where a table's title sits.
+      */}
+      {caption ? (
+        <div
+          id={captionId}
+          className={`${metaTextClasses[size]} font-semibold text-(--plass-muted-fg)`}
+          style={{ ...cellStyle, borderBottom: rowRule, textAlign: 'start' }}
+        >
+          {caption}
+        </div>
+      ) : null}
+
+      <div
+        className={[
+          'overflow-x-auto',
+          // Only when there is a cap to scroll against. A box that is as tall
+          // as its content has nothing to scroll, and `overscroll-contain` on
+          // one of those would swallow the page's own scroll at its edges.
+          capped ? 'overflow-y-auto overscroll-contain' : ''
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        style={capped ? { maxHeight } : undefined}
+      >
+        <table
+          aria-labelledby={caption ? captionId : undefined}
+          className={`text-start ${controlTextLeadingClasses[size]} text-(--plass-fg)`}
+          style={tableStyle}
+        >
+          {/* Widths belong on a `<col>`, not on the first row's cells: a width set
             on a `<th>` is a width the browser is free to renegotiate against
             every other row, and only the column element states it once. */}
-        <colgroup>
-          {columns.map((column) => (
-            <col
-              key={column.key}
-              style={
-                column.width === undefined
-                  ? undefined
-                  : { width: typeof column.width === 'number' ? `${column.width}px` : column.width }
-              }
-            />
-          ))}
-        </colgroup>
-
-        <thead>
-          <tr>
+          <colgroup>
             {columns.map((column) => (
-              <th
+              <col
                 key={column.key}
-                scope="col"
-                className={[
-                  'font-semibold whitespace-nowrap text-(--plass-muted-fg)',
-                  stickyHeader ? 'sticky top-0 z-10' : ''
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-                style={{ ...headCellStyle, textAlign: column.align ?? 'start' }}
-              >
-                {column.header ?? column.key}
-              </th>
-            ))}
-          </tr>
-        </thead>
-
-        <tbody>
-          {rows.length === 0 ? (
-            <tr className={rowClasses}>
-              <td
-                colSpan={columns.length}
-                className="text-(--plass-muted-fg)"
-                style={{ ...cellStyle, padding: `2rem ${padX}`, textAlign: 'center' }}
-              >
-                {empty}
-              </td>
-            </tr>
-          ) : (
-            rows.map((row, index) => (
-              <tr
-                key={getRowKey ? getRowKey(row, index) : index}
-                className={[
-                  rowClasses,
-                  striped && index % 2 === 1 ? '[--p-row:var(--plass-stripe)]' : '',
-                  lit ? 'hover:[--p-row:var(--p-soft)]' : '',
-                  clickable ? clickableRowClasses : ''
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-                style={{ backgroundColor: 'var(--p-row)' }}
-                tabIndex={clickable ? 0 : undefined}
-                onClick={onRowClick ? () => onRowClick(row, index) : undefined}
-                onKeyDown={
-                  onRowClick
-                    ? (event) => {
-                        // Only the row's own keys. A cell can hold a link or a
-                        // button, and those have an Enter of their own — running
-                        // both would open the row and follow the link at once.
-                        if (event.target !== event.currentTarget) {
-                          return;
-                        }
-
-                        if (event.key !== 'Enter' && event.key !== ' ') {
-                          return;
-                        }
-
-                        // Space scrolls the page otherwise, which is the one
-                        // thing a reader pressing it on a row did not ask for.
-                        event.preventDefault();
-                        onRowClick(row, index);
+                style={
+                  column.width === undefined
+                    ? undefined
+                    : {
+                        width: typeof column.width === 'number' ? `${column.width}px` : column.width
                       }
-                    : undefined
                 }
-              >
-                {columns.map((column) => (
-                  <td
-                    key={column.key}
-                    style={{ ...bodyCellStyle(index), textAlign: column.align ?? 'start' }}
-                  >
-                    {column.render
-                      ? column.render(row, index)
-                      : ((row as Record<string, unknown>)[column.key] as React.ReactNode)}
-                  </td>
-                ))}
+              />
+            ))}
+          </colgroup>
+
+          <thead>
+            <tr>
+              {columns.map((column) => (
+                <th
+                  key={column.key}
+                  scope="col"
+                  className={[
+                    'font-semibold whitespace-nowrap text-(--plass-muted-fg)',
+                    stickyHeader ? 'sticky top-0 z-10' : ''
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                  style={{ ...headCellStyle, textAlign: column.align ?? 'start' }}
+                >
+                  {column.header ?? column.key}
+                </th>
+              ))}
+            </tr>
+          </thead>
+
+          <tbody>
+            {rows.length === 0 ? (
+              <tr className={rowClasses}>
+                <td
+                  colSpan={columns.length}
+                  className="text-(--plass-muted-fg)"
+                  style={{ ...cellStyle, padding: `2rem ${padX}`, textAlign: 'center' }}
+                >
+                  {empty}
+                </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              rows.map((row, index) => (
+                <tr
+                  key={getRowKey ? getRowKey(row, index) : index}
+                  className={[
+                    rowClasses,
+                    striped && index % 2 === 1 ? '[--p-row:var(--plass-stripe)]' : '',
+                    lit ? 'hover:[--p-row:var(--p-soft)]' : '',
+                    clickable ? clickableRowClasses : ''
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                  style={{ backgroundColor: 'var(--p-row)' }}
+                  tabIndex={clickable ? 0 : undefined}
+                  onClick={onRowClick ? () => onRowClick(row, index) : undefined}
+                  onKeyDown={
+                    onRowClick
+                      ? (event) => {
+                          // Only the row's own keys. A cell can hold a link or a
+                          // button, and those have an Enter of their own — running
+                          // both would open the row and follow the link at once.
+                          if (event.target !== event.currentTarget) {
+                            return;
+                          }
+
+                          if (event.key !== 'Enter' && event.key !== ' ') {
+                            return;
+                          }
+
+                          // Space scrolls the page otherwise, which is the one
+                          // thing a reader pressing it on a row did not ask for.
+                          event.preventDefault();
+                          onRowClick(row, index);
+                        }
+                      : undefined
+                  }
+                >
+                  {columns.map((column) => (
+                    <td
+                      key={column.key}
+                      style={{ ...bodyCellStyle(index), textAlign: column.align ?? 'start' }}
+                    >
+                      {column.render
+                        ? column.render(row, index)
+                        : ((row as Record<string, unknown>)[column.key] as React.ReactNode)}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

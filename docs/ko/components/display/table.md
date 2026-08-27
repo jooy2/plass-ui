@@ -170,6 +170,26 @@ column이 말하는 것은 행에서 셀을 어떻게 꺼내는지, 그것뿐입
 
 </Demo>
 
+### stickyHeader와 maxHeight
+
+::: fw react
+
+한 아이디어의 두 절반이고, 한쪽만으로는 거의 쓸모가 없습니다.
+
+`maxHeight`는 **격자**의 높이를 제한합니다 — 숫자는 픽셀, 문자열은 아무 CSS 길이나 됩니다 — 그리고 그 높이를 넘으면 페이지가 늘어나는 대신 시트 안에서 행이 스크롤됩니다. `stickyHeader`는 그 스크롤되는 상자의 맨 위에 열 이름을 고정합니다. 고정 없이 높이만 제한하면 이름이 스크롤되어 사라지고 남는 것은 이름표 없는 숫자 격자이며, 높이 제한 없이 고정만 하면 `position: sticky`에는 붙어 있을 상자가 없어서 아무 일도 일어나지 않습니다.
+
+`caption`은 스크롤되는 것 **위**에 놓입니다. 미끄러져 사라지는 제목은 표의 접근 가능한 이름까지 데려가기 때문입니다. `<table>`이 `aria-labelledby`로 가리키는 제목이고, `<caption>`과 똑같이 표의 이름이 되면서 올바른 상자 안에 있습니다.
+
+고정된 헤더는 격자가 칠을 그리는 유일한 자리입니다. 행이 그 바로 밑을 지나가므로 반투명한 헤더는 행을 그대로 통과시킵니다. 그래서 시트의 가장 짙은 유리를 페이지 자신의 surface 색 위에 얹은 것 — 빛을 막기 위해 쌓아 올린 불투명한 두 겹입니다. 그 아래 선은 border가 아니라 inset 그림자인데, 이것은 취향이 아닙니다. `border-collapse: collapse`는 셀의 border를 *표*의 border 격자에 넘기고, 그 격자는 `position: sticky`인 셀을 따라가지 않습니다 — border로 그린 고정 헤더는 자기 밑줄을 스크롤 맨 위에 두고 갑니다.
+
+<Demo src="table/scroll" :flutter="false" :min-height="340">
+
+<<< @/.vitepress/demos/table/scroll.tsx
+
+</Demo>
+
+:::
+
 ### <Fw react="onRowClick" flutter="onRowPressed" />
 
 행을 활성화할 수 있게 만들고, hover 처리도 함께 켭니다. 각 행이 focus stop을 갖고 <kbd>Enter</kbd>와 <kbd>Space</kbd>에 반응하므로, 포인터 없이도 행에 닿을 수 있습니다.

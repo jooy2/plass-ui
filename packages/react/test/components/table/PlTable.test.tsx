@@ -179,4 +179,112 @@ describe('PlTable', () => {
       expect(screen.getByRole('row').elements()).toHaveLength(3);
     });
   });
+
+  describe('a capped height', () => {
+    /** The box between the sheet and the grid — the one that scrolls. */
+    const scrollerOf = () =>
+      document.querySelector<HTMLElement>('.table-under-test > div:last-child');
+
+    it('does not scroll vertically until it is capped', async () => {
+      await render(<PlTable className="table-under-test" columns={columns} rows={rows} />);
+
+      const element = scrollerOf();
+
+      expect(element).not.toHaveClass('overflow-y-auto');
+      expect(element?.style.maxHeight).toBe('');
+    });
+
+    it('caps the grid and scrolls the rows inside it', async () => {
+      await render(
+        <PlTable className="table-under-test" columns={columns} rows={rows} maxHeight={200} />
+      );
+
+      const element = scrollerOf();
+
+      expect(element).toHaveClass('overflow-y-auto');
+      // Kept off the page's own scroll at the ends, which a box with nothing to
+      // scroll must not do — hence only when there is a cap.
+      expect(element).toHaveClass('overscroll-contain');
+      expect(element?.style.maxHeight).toBe('200px');
+    });
+
+    it('takes a CSS length as readily as a number', async () => {
+      await render(
+        <PlTable className="table-under-test" columns={columns} rows={rows} maxHeight="24rem" />
+      );
+
+      expect(scrollerOf()?.style.maxHeight).toBe('24rem');
+    });
+
+    it('leaves the caption above what scrolls', async () => {
+      const screen = await render(
+        <PlTable
+          className="table-under-test"
+          columns={columns}
+          rows={rows}
+          caption="Open invoices"
+          maxHeight={200}
+        />
+      );
+
+      // Still the table's accessible name, and no longer inside the box the
+      // rows scroll in: a title that slid away would take the name with it.
+      await expect
+        .element(screen.getByRole('table', { name: 'Open invoices' }))
+        .toBeInTheDocument();
+      expect(scrollerOf()?.textContent).not.toContain('Open invoices');
+    });
+  });
+
+  describe('a pinned header', () => {
+    it('sticks the column names to the top of what scrolls', async () => {
+      const screen = await render(
+        <PlTable columns={columns} rows={rows} stickyHeader maxHeight={200} />
+      );
+
+      const element = screen.getByRole('columnheader', { name: 'Invoice' }).element();
+
+      expect(element).toHaveClass('sticky');
+      expect(element).toHaveClass('top-0');
+    });
+
+    it('carries its own fill, because rows pass underneath it', async () => {
+      const screen = await render(
+        <PlTable columns={columns} rows={rows} stickyHeader maxHeight={200} />
+      );
+
+      const element = screen
+        .getByRole('columnheader', { name: 'Invoice' })
+        .element() as HTMLElement;
+
+      // Two stacked opaque layers, or the rows show through the names.
+      expect(element.style.background).toContain('var(--plass-surface)');
+    });
+
+    it('takes its rule as an inset shadow rather than a border', async () => {
+      const screen = await render(
+        <PlTable columns={columns} rows={rows} stickyHeader maxHeight={200} />
+      );
+
+      const pinned = screen.getByRole('columnheader', { name: 'Invoice' }).element() as HTMLElement;
+
+      // `border-collapse: collapse` hands a cell's borders to the table's own
+      // border grid, and that grid does not travel with a sticky cell — so a
+      // pinned header drawn with a border leaves its underline behind.
+      expect(pinned.style.boxShadow).toBe('inset 0 -1px 0 var(--plass-border)');
+      // Nothing but the cell's own `border: 0` reset.
+      expect(pinned.style.borderBottom).toBe('0px');
+    });
+
+    it('draws the rule as a border while it is not pinned', async () => {
+      const screen = await render(<PlTable columns={columns} rows={rows} />);
+
+      const element = screen
+        .getByRole('columnheader', { name: 'Invoice' })
+        .element() as HTMLElement;
+
+      expect(element.style.borderBottom).toBe('1px solid var(--plass-border)');
+      expect(element.style.boxShadow).toBe('');
+    });
+  });
 });

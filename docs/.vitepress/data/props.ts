@@ -4494,8 +4494,16 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'boolean',
       default: 'false',
       description: {
-        ko: '본문이 스크롤되는 동안 헤더를 고정합니다. 표의 높이를 제한하는 무언가가 있어야 의미가 있습니다',
-        en: "Pins the header while the body scrolls. Only does anything if something constrains the table's height"
+        ko: '행이 밑으로 지나가는 동안 열 이름을 고정합니다. 스크롤될 상자가 있어야 의미가 있습니다 — 보통은 maxHeight',
+        en: 'Pins the column names while the rows scroll under them. It needs something to scroll in — usually maxHeight'
+      }
+    },
+    {
+      name: 'maxHeight',
+      type: 'number | string',
+      description: {
+        ko: '격자 높이의 상한. 넘으면 페이지가 늘어나는 대신 시트 안에서 행이 스크롤됩니다. caption은 그 위에 남습니다',
+        en: 'A hard cap on the grid. Past it the rows scroll inside the sheet rather than the page growing; the caption stays above it'
       }
     },
     {

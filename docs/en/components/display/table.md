@@ -170,6 +170,26 @@ Width comes in two forms, and they are different questions. `width` is a length 
 
 </Demo>
 
+### stickyHeader and maxHeight
+
+::: fw react
+
+Two halves of one idea, and each is close to useless without the other.
+
+`maxHeight` caps the **grid** — a number in pixels or any CSS length — and past it the rows scroll inside the sheet rather than the page growing under them. `stickyHeader` pins the column names to the top of whatever the rows are scrolling in. Capped without pinning, the names scroll away and the rest is a grid of unlabelled numbers; pinned without a cap, `position: sticky` has nothing to stick inside and does nothing at all.
+
+A `caption` sits **above** what scrolls, because a title that slid away would take the table's accessible name with it — it is a heading the `<table>` points at with `aria-labelledby`, which names the table exactly as a `<caption>` does and is in the right box.
+
+A pinned header is the one place the grid draws a fill. Rows pass directly underneath it, and a translucent header would let them through: it is the sheet's densest glass laid over the page's own surface colour, two opaque layers stacked to stop the light. Its rule is an inset shadow rather than a border, which is not a style preference — `border-collapse: collapse` hands a cell's borders to the *table's* border grid, and that grid does not travel with a `position: sticky` cell, so a pinned header drawn with a border leaves its underline behind at the top of the scroll.
+
+<Demo src="table/scroll" :flutter="false" :min-height="340">
+
+<<< @/.vitepress/demos/table/scroll.tsx
+
+</Demo>
+
+:::
+
 ### <Fw react="onRowClick" flutter="onRowPressed" />
 
 Makes rows activatable, and turns on the hover treatment with it. Each row picks up a focus stop and answers <kbd>Enter</kbd> and <kbd>Space</kbd>, so a row is reachable without a pointer.
