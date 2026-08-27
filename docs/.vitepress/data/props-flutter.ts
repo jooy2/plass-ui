@@ -1863,6 +1863,55 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlPill', 'elevation', { type: 'int', default: '2' })
   ],
 
+  PlPopover: [
+    from('PlPopover', 'open', { type: 'bool', required: true }),
+    from('PlPopover', 'trigger', {
+      type: 'Widget',
+      required: true,
+      description: {
+        ko: '팝업이 매달리는 요소. 여기서는 필수입니다 — LayerLink는 앵커가 없으면 따라갈 것이 없습니다',
+        en: 'The element the popup hangs off. Required here: a LayerLink has nothing to follow without one'
+      }
+    }),
+    {
+      name: 'onOpenChanged',
+      type: 'ValueChanged<bool>?',
+      description: {
+        ko: '열림 상태가 무엇이 되어야 하는지로 호출됩니다',
+        en: 'Called with what the open state should become'
+      }
+    },
+    { name: 'child', type: 'Widget?', description: { ko: '본문', en: 'The body' } },
+    from('PlPopover', 'title', { type: 'Widget?' }),
+    from('PlPopover', 'description', { type: 'Widget?' }),
+    from('PlPopover', 'side', { type: 'PlassSide', default: 'PlassSide.bottom' }),
+    from('PlPopover', 'align', { type: 'PlassAlign', default: 'PlassAlign.center' }),
+    from('PlPopover', 'sideOffset', {
+      name: 'offset',
+      type: 'double',
+      default: '6',
+      description: {
+        ko: '트리거에서 떨어진 거리, 논리 픽셀',
+        en: 'How far it stands off the trigger, in logical pixels'
+      }
+    }),
+    from('PlPopover', 'arrow', { type: 'bool', default: 'false' }),
+    from('PlPopover', 'dismissible', {
+      type: 'bool',
+      default: 'true',
+      description: {
+        ko: '바깥을 누르면 닫히는지',
+        en: 'Whether a press outside closes the popup'
+      }
+    }),
+    from('PlPopover', 'showClose', { type: 'bool', default: 'false' }),
+    from('PlPopover', 'closeLabel', { type: 'String', default: "'Close'" }),
+    from('PlPopover', 'width', { type: 'double?' }),
+    from('PlPopover', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlPopover', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlPopover', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+  ],
+
   PlScrollZone: [
     {
       name: 'children',

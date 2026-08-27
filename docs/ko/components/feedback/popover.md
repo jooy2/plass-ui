@@ -7,7 +7,7 @@ order: 8
 
 <p class="plass-lede">자기를 연 것 옆에 열리는 시트입니다. 툴팁과 달리 닿을 수 있고, 모달과 달리 페이지를 가져가지 않습니다.</p>
 
-<Demo src="popover/hero" :flutter="false" :min-height="140" />
+<Demo src="popover/hero" :min-height="140" />
 
 ::: fw react
 
@@ -17,6 +17,25 @@ import { PlButton, PlPopover } from 'plass-ui';
 <PlPopover trigger={<PlButton>How is this worked out?</PlButton>} title="Effective rate">
   Your rate is the base rate plus whatever your plan adds to it.
 </PlPopover>;
+```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlPopover(
+  open: explaining,
+  onOpenChanged: (bool next) => setState(() => explaining = next),
+  title: const Text('Effective rate'),
+  trigger: PlButton(
+    onPressed: () => setState(() => explaining = true),
+    child: const Text('How is this worked out?'),
+  ),
+  child: const Text('The base rate plus whatever your plan adds to it.'),
+);
 ```
 
 :::
@@ -51,11 +70,21 @@ popover는 그 가운데입니다. 컨트롤에 붙어 있고, 뒤의 페이지�
 
 ### side와 align
 
-트리거의 어느 가장자리에 나타날지, 그리고 그 가장자리를 따라 어디에 놓일지입니다. 자리가 없으면 반대편으로 **뒤집힙니다**. 그게 맞는 동작이고, 이 컴포넌트가 직접 쓴 것도 아닙니다.
+트리거의 어느 가장자리에 나타날지, 그리고 그 가장자리를 따라 어디에 놓일지입니다. 자리가 없으면 반대편으로 **뒤집히고**, 자기가 놓인 가장자리를 따라 _미끄러지지는_ 않습니다 — 그것이 화살표가 자기가 속한 것을 계속 가리키게 하는 장치입니다.
 
-<Demo src="popover/sides" :flutter="false" :min-height="220">
+<Demo src="popover/sides" :min-height="220">
+
+::: fw react
 
 <<< @/.vitepress/demos/popover/sides.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/popover/sides.dart
+
+:::
 
 </Demo>
 
@@ -69,30 +98,65 @@ popover는 그 가운데입니다. 컨트롤에 붙어 있고, 뒤의 페이지�
 
 이것이 툴팁이 아닌 이유의 전부입니다. 안의 것이 포커스를 받을 수 있으므로, 이름 바꾸기·필터·기간 선택은 질문 하나를 하려고 페이지를 통째로 가져가는 모달이 아니라 여기에 놓입니다.
 
-<Demo src="popover/form" :flutter="false" :min-height="140">
+<Demo src="popover/form" :min-height="140">
+
+::: fw react
 
 <<< @/.vitepress/demos/popover/form.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/popover/form.dart
+
+:::
 
 </Demo>
 
 ### dismissible
 
-기본은 켜져 있습니다. Escape와 바깥 클릭 둘 다 닫습니다. 자기만의 출구가 있는 팝업에서만 끄고, **그럴 때는 반드시 하나를 주세요** — 닫기 버튼이든, 그것에 답하는 액션이든. 다른 출구가 없습니다.
+기본은 켜져 있습니다. 바깥을 누르면 닫힙니다. 자기만의 출구가 있는 팝업에서만 끄고, **그럴 때는 반드시 하나를 주세요** — 닫기 버튼이든, 그것에 답하는 액션이든. 다른 출구가 없습니다.
 
 ::: fw react
 
-`dismissible`이 꺼져 있어도 `PlPopoverClose`는 동작합니다. 그것이 거절을 덫으로 만들지 않는 장치입니다.
+Escape로도 닫히고, `dismissible={false}`가 둘 다 취소합니다. 꺼져 있어도 `PlPopoverClose`는 동작하는데, 그것이 거절을 덫으로 만들지 않는 장치입니다.
+
+:::
+
+::: fw flutter
+
+꺼져 있어도 `showClose`와 그 안의 액션은 동작하는데, 그것이 거절을 덫으로 만들지 않는 장치입니다.
 
 :::
 
 ## Accessibility
 
-- 팝업은 트리거에 붙은 dialog입니다. `title`이 이름을 붙이고, `description`이 설명하며, 나갈 때 포커스는 트리거로 돌아갑니다.
-- `modal`이 그렇게 말하지 않는 한 뒤의 페이지를 **가져가지 않습니다**. 페이지를 숨기는 popover는 모양만 더 나쁜 모달입니다.
-- Escape와 바깥 클릭은 둘 다 진짜 닫기이고, `dismissible={false}`로 함께 취소됩니다.
+- `title`이 팝업의 이름이고 heading으로 안내됩니다. `description`은 그 아래에 놓입니다.
+- 뒤의 화면을 **가져가지 않습니다**. 화면을 숨기는 popover는 모양만 더 나쁜 모달입니다.
+- 바깥 누름은 진짜 닫기이고, `dismissible`로 거절할 수 있습니다.
 
 ::: fw react
 
-- 앵커링, 창 가장자리에서의 뒤집기, 바깥 누름과 Escape 처리, 포커스 복귀, `aria-labelledby` / `aria-describedby` 연결은 전부 Base UI의 것입니다.
+- 팝업은 트리거에 붙은 dialog이고, 나갈 때 포커스는 트리거로 돌아갑니다. 앵커링, 창 가장자리에서의 뒤집기, 바깥 누름과 Escape 처리, 포커스 복귀, `aria-labelledby` / `aria-describedby` 연결은 전부 Base UI의 것입니다.
+- `modal="trap-focus"`는 페이지 스크롤을 잠그지 않으면서 포커스만 안에 붙잡아 둡니다.
+
+:::
+
+::: fw flutter
+
+- 들어 올리기, 앵커링, 뒤집기, 바깥 누름은 전부 `PlassAnchoredPortal`의 것입니다. `PlTooltip`과 `PlSelect`의 목록이 서 있는 것과 같은 층이라, 셋 다 같은 이유로 스크롤 중에도 자기 앵커에 붙어 있습니다.
+
+## React 빌드와의 차이
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `open` / `defaultOpen` / `onOpenChange` | `open` / `onOpenChanged` | Flutter의 컨트롤은 controlled이고, 이 패키지의 상태 있는 위젯도 전부 그렇습니다. |
+| 선택적인 `trigger` | 필수인 `trigger` | 브라우저는 앵커 없이도 팝업을 뷰포트에 대해 배치할 수 있지만, `LayerLink`는 앵커가 없으면 따라갈 것이 없습니다. |
+| `modal` | — | 잠글 페이지 스크롤도, 만들 inert 트리도 없습니다. popover가 답해야 할 것은 바깥 누름 하나입니다. |
+| `alignOffset` | — | 앵커링이 뒤집기이지 미끄러짐이 아니므로, 가장자리를 따라 밀 거리가 없습니다. |
+| `PlPopoverClose` | — | 저쪽에서는 _uncontrolled_ popover의 버튼이 부를 것이 필요해서 있습니다. 여기서는 모든 popover가 controlled입니다. |
+| `width: number \| string` | `width: double` | 픽셀은 픽셀 그대로입니다. 받을 CSS 길이가 없습니다. |
+| `className`, `style` | — | 전달할 class 목록도 style 속성도 없습니다. |
 
 :::

@@ -56,6 +56,7 @@ export 'src/components/overlay/pl_overlay.dart';
 export 'src/components/pagination/pl_pagination.dart';
 export 'src/components/panes/pl_panes.dart';
 export 'src/components/pill/pl_pill.dart';
+export 'src/components/popover/pl_popover.dart';
 export 'src/components/radio_group/pl_radio_group.dart';
 export 'src/components/rating/pl_rating.dart';
 export 'src/components/scroll_zone/pl_scroll_zone.dart';

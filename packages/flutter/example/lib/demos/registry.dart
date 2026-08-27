@@ -189,6 +189,9 @@ import 'package:plass_ui_example/demos/pill/details.dart';
 import 'package:plass_ui_example/demos/pill/hero.dart';
 import 'package:plass_ui_example/demos/pill/sizes.dart';
 import 'package:plass_ui_example/demos/pill/variants.dart';
+import 'package:plass_ui_example/demos/popover/form.dart';
+import 'package:plass_ui_example/demos/popover/hero.dart';
+import 'package:plass_ui_example/demos/popover/sides.dart';
 import 'package:plass_ui_example/demos/radio_group/colors.dart';
 import 'package:plass_ui_example/demos/radio_group/controlled.dart';
 import 'package:plass_ui_example/demos/radio_group/hero.dart';
@@ -499,6 +502,9 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'slider/range': _sliderRange,
   'slider/states': _sliderStates,
   'slider/steps': _sliderSteps,
+  'popover/hero': _popoverHero,
+  'popover/sides': _popoverSides,
+  'popover/form': _popoverForm,
   'pill/hero': _pillHero,
   'pill/variants': _pillVariants,
   'pill/details': _pillDetails,
@@ -805,6 +811,9 @@ Widget _sliderRange(BuildContext context) => const SliderRange();
 Widget _sliderStates(BuildContext context) => const SliderStates();
 Widget _sliderSteps(BuildContext context) => const SliderSteps();
 
+Widget _popoverHero(BuildContext context) => const PopoverHero();
+Widget _popoverSides(BuildContext context) => const PopoverSides();
+Widget _popoverForm(BuildContext context) => const PopoverForm();
 Widget _pillHero(BuildContext context) => const PillHero();
 Widget _pillVariants(BuildContext context) => const PillVariants();
 Widget _pillDetails(BuildContext context) => const PillDetails();

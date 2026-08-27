@@ -7,7 +7,7 @@ order: 8
 
 <p class="plass-lede">A sheet that opens beside the thing that opened it. Unlike a tooltip it can be reached; unlike a modal it does not take the page.</p>
 
-<Demo src="popover/hero" :flutter="false" :min-height="140" />
+<Demo src="popover/hero" :min-height="140" />
 
 ::: fw react
 
@@ -17,6 +17,25 @@ import { PlButton, PlPopover } from 'plass-ui';
 <PlPopover trigger={<PlButton>How is this worked out?</PlButton>} title="Effective rate">
   Your rate is the base rate plus whatever your plan adds to it.
 </PlPopover>;
+```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlPopover(
+  open: explaining,
+  onOpenChanged: (bool next) => setState(() => explaining = next),
+  title: const Text('Effective rate'),
+  trigger: PlButton(
+    onPressed: () => setState(() => explaining = true),
+    child: const Text('How is this worked out?'),
+  ),
+  child: const Text('The base rate plus whatever your plan adds to it.'),
+);
 ```
 
 :::
@@ -51,11 +70,21 @@ The three materials answer "how much does this surface assert itself against the
 
 ### side and align
 
-Which edge of the trigger it appears on, and where it sits along that edge. It **flips** to the opposite side when there is no room, which is the right behaviour and is not something this component had to write.
+Which edge of the trigger it appears on, and where it sits along that edge. It **flips** to the opposite side when there is no room, and never _slides_ along the edge it is on — which is what keeps an arrow pointing at the thing it belongs to.
 
-<Demo src="popover/sides" :flutter="false" :min-height="220">
+<Demo src="popover/sides" :min-height="220">
+
+::: fw react
 
 <<< @/.vitepress/demos/popover/sides.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/popover/sides.dart
+
+:::
 
 </Demo>
 
@@ -69,30 +98,65 @@ Turn it on where the trigger is far enough away that the popup needs to say what
 
 This is the whole reason it is not a tooltip. What is inside can take focus, so a rename, a filter or a date range belongs here rather than in a modal that would have taken the page away to ask one question.
 
-<Demo src="popover/form" :flutter="false" :min-height="140">
+<Demo src="popover/form" :min-height="140">
+
+::: fw react
 
 <<< @/.vitepress/demos/popover/form.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/popover/form.dart
+
+:::
 
 </Demo>
 
 ### dismissible
 
-On by default: Escape and a click outside both close it. Turn it off only for a popup that has its own way out, **and then give it one** — a close button, an action that answers it — because there will be no other.
+On by default: a press outside closes it. Turn it off only for a popup that has its own way out, **and then give it one** — a close button, an action that answers it — because there will be no other.
 
 ::: fw react
 
-`PlPopoverClose` still works while `dismissible` is off, which is what keeps a refusal from being a trap.
+Escape closes it too, and `dismissible={false}` cancels both. `PlPopoverClose` still works while it is off, which is what keeps a refusal from being a trap.
+
+:::
+
+::: fw flutter
+
+`showClose` and the actions inside it still work while it is off, which is what keeps a refusal from being a trap.
 
 :::
 
 ## Accessibility
 
-- The popup is a dialog anchored to its trigger: `title` names it, `description` describes it, and focus goes back to the trigger on the way out.
-- The page behind is **not** taken away unless `modal` says so. A popover that hid the page would be a modal with a worse shape.
-- Escape and a click outside are both real dismissals, and both are cancellable together with `dismissible={false}`.
+- `title` names the popup and is announced as a heading; `description` sits under it.
+- The screen behind is **not** taken away. A popover that hid the page would be a modal with a worse shape.
+- A press outside is a real dismissal, and it can be refused with `dismissible`.
 
 ::: fw react
 
-- Base UI owns the anchoring, the flip at the window edge, the outside-press and Escape handling, the focus return and the `aria-labelledby` / `aria-describedby` wiring.
+- The popup is a dialog anchored to its trigger, and focus goes back to the trigger on the way out. Base UI owns the anchoring, the flip at the window edge, the outside-press and Escape handling, the focus return and the `aria-labelledby` / `aria-describedby` wiring.
+- `modal="trap-focus"` holds focus inside without locking the page's scroll.
+
+:::
+
+::: fw flutter
+
+- The lift, the anchoring, the flip and the press outside are `PlassAnchoredPortal`'s — the same layer a `PlTooltip` and a `PlSelect`'s list stand on, so the three stay stuck to their anchors through a scroll for the same reason.
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `open` / `defaultOpen` / `onOpenChange` | `open` / `onOpenChanged` | Flutter's own controls are controlled, and so is every stateful widget in this package. |
+| `trigger` is optional | `trigger` is required | A browser can position a popup against the viewport with no anchor; a `LayerLink` has nothing to follow without one. |
+| `modal` | — | There is no page scroll to lock and no inert tree to build. The press outside is the whole of what a popover needs to answer. |
+| `alignOffset` | — | The anchoring is a flip and never a slide, so there is no along-the-edge shift to offset. |
+| `PlPopoverClose` | — | It exists over there so an _uncontrolled_ popover's button has something to call. Every popover here is controlled. |
+| `width: number \| string` | `width: double` | Pixels stay pixels. There is no CSS length to accept. |
+| `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::
