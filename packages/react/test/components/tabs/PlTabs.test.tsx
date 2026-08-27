@@ -82,7 +82,7 @@ describe('PlTabs', () => {
       await screen.getByRole('tab', { name: 'Billing' }).click();
 
       await expect.element(screen.getByText('Cards and invoices.')).toBeInTheDocument();
-      expect(screen.getByText('Your name and your avatar.').query()).toBeNull();
+      await expect.element(screen.getByText('Your name and your avatar.')).not.toBeInTheDocument();
     });
 
     it('reports the new value to `onValueChange`', async () => {
@@ -91,7 +91,7 @@ describe('PlTabs', () => {
 
       await screen.getByRole('tab', { name: 'Team' }).click();
 
-      expect(onValueChange).toHaveBeenCalledWith('team');
+      await vi.waitFor(() => expect(onValueChange).toHaveBeenCalledWith('team'));
     });
 
     it('obeys `value` rather than the press when controlled', async () => {

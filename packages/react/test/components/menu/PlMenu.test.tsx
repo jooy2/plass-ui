@@ -50,7 +50,7 @@ describe('PlMenu', () => {
 
       await screen.getByRole('button', { name: 'Open' }).click();
 
-      expect(change).toHaveBeenCalledWith(true);
+      await vi.waitFor(() => expect(change).toHaveBeenCalledWith(true));
     });
 
     it('opens where it was told to', async () => {
@@ -87,7 +87,7 @@ describe('PlMenu', () => {
 
       await screen.getByRole('menuitem', { name: 'Cut' }).click();
 
-      expect(pick).toHaveBeenCalledOnce();
+      await vi.waitFor(() => expect(pick).toHaveBeenCalledOnce());
     });
 
     it('is a real link when it has somewhere to go', async () => {
@@ -160,7 +160,7 @@ describe('PlMenu', () => {
 
       await screen.getByRole('menuitemcheckbox', { name: 'Word wrap' }).click();
 
-      expect(change).toHaveBeenCalledWith(true);
+      await vi.waitFor(() => expect(change).toHaveBeenCalledWith(true));
     });
 
     it('stays open when a row is ticked', async () => {
@@ -188,7 +188,7 @@ describe('PlMenu', () => {
 
       await screen.getByRole('menuitemradio', { name: 'Grid' }).click();
 
-      expect(change).toHaveBeenCalledWith('grid');
+      await vi.waitFor(() => expect(change).toHaveBeenCalledWith('grid'));
     });
   });
 

@@ -76,7 +76,7 @@ describe('PlSelect', () => {
       await screen.getByRole('combobox').click();
       await screen.getByRole('option', { name: 'Lisbon' }).click();
 
-      expect(onValueChange).toHaveBeenCalledWith('lisbon');
+      await vi.waitFor(() => expect(onValueChange).toHaveBeenCalledWith('lisbon'));
       await expect.element(screen.getByRole('combobox')).toHaveTextContent('Lisbon');
     });
 
@@ -85,7 +85,7 @@ describe('PlSelect', () => {
 
       await screen.getByRole('combobox').click();
 
-      expect(screen.getByRole('option').elements()).toHaveLength(3);
+      await vi.waitFor(() => expect(screen.getByRole('option').elements()).toHaveLength(3));
     });
 
     it('marks a disabled option as such', async () => {
@@ -93,10 +93,9 @@ describe('PlSelect', () => {
 
       await screen.getByRole('combobox').click();
 
-      expect(screen.getByRole('option', { name: 'Quito' }).element()).toHaveAttribute(
-        'aria-disabled',
-        'true'
-      );
+      await expect
+        .element(screen.getByRole('option', { name: 'Quito' }))
+        .toHaveAttribute('aria-disabled', 'true');
     });
 
     it('obeys `value` rather than the click when controlled', async () => {

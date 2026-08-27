@@ -77,7 +77,7 @@ describe('PlModal', () => {
 
       await screen.getByRole('button', { name: 'Close' }).click();
 
-      expect(onOpenChange).toHaveBeenCalledWith(false);
+      await vi.waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
     });
 
     it('stays open when the caller owns `open`', async () => {

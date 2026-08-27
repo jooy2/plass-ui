@@ -146,7 +146,7 @@ describe('PlAccordion', () => {
 
       await screen.getByRole('button', { name: 'Team' }).click();
 
-      expect(onValueChange).toHaveBeenCalledWith(['team']);
+      await vi.waitFor(() => expect(onValueChange).toHaveBeenCalledWith(['team']));
     });
 
     it('obeys `value` rather than the click when controlled', async () => {
