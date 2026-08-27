@@ -18,6 +18,7 @@ import {
   PlChatBubble,
   PlCheckbox,
   PlChip,
+  PlCollapsible,
   PlContainer,
   PlDivider,
   PlFilePicker,
@@ -756,6 +757,20 @@ const entries: Entry[] = [
           Already did.
         </PlChatBubble>
       </div>
+    )
+  },
+  {
+    name: 'PlCollapsible',
+    group: 'surfaces',
+    href: 'components/surfaces/collapsible',
+    blurb: {
+      en: 'One section that folds, standing on its own.',
+      ko: '혼자 서 있는, 접히는 섹션 하나입니다.'
+    },
+    preview: (
+      <PlCollapsible className="w-full" size="sm" title="Advanced" subtitle="Nine settings">
+        Nothing grows until somebody asks for it.
+      </PlCollapsible>
     )
   },
   {

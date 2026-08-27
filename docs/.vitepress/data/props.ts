@@ -1653,6 +1653,126 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlCollapsible: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: '시트의 재질. 색이 들어가지 않습니다 — 접힘은 남의 내용을 담습니다. ghost는 산문 속이나 카드 안에서 쓰는 것입니다',
+        en: "What the sheet is made of. Never dyed — a fold holds other people's content. ghost is the one for running prose or a card"
+      },
+      sizeDescription: {
+        ko: '반경, 여백, 헤더의 타입 스케일',
+        en: "The radius, the padding and the header's type scale"
+      },
+      elevationDescription: {
+        ko: '드롭 섀도 깊이. 0이 기본입니다 — 접힘은 페이지에 끼워 넣은 것이지 그 위에 뜬 판이 아닙니다',
+        en: 'Drop shadow depth. 0 is the default: a fold is set into the page, not floating over it'
+      }
+    }),
+    {
+      name: 'open',
+      type: 'boolean',
+      description: {
+        ko: '패널이 보이는지. onOpenChange와 함께 controlled로 씁니다',
+        en: 'Whether the panel is showing. Use with onOpenChange for a controlled fold'
+      }
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: 'uncontrolled일 때의 시작 상태', en: 'Where an uncontrolled fold starts' }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: {
+        ko: '트리거가 열거나 닫을 때 호출됩니다',
+        en: 'Called when the trigger opens or closes the panel'
+      }
+    },
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description: { ko: '트리거에 쓰이는 제목', en: 'The heading on the trigger' }
+    },
+    {
+      name: 'subtitle',
+      type: 'ReactNode',
+      description: {
+        ko: '제목 아래 한 줄. 한 단계 작고 muted입니다',
+        en: 'A second line under the title, one step down the type scale and muted'
+      }
+    },
+    {
+      name: 'startIcon',
+      type: 'ReactNode',
+      description: {
+        ko: '제목 앞의 내용 — 아이콘, 상태 점, 개수',
+        en: 'Content before the title — an icon, a status dot, a count'
+      }
+    },
+    {
+      name: 'action',
+      type: 'ReactNode',
+      description: {
+        ko: '헤더 끝에 고정되는 컨트롤. 트리거 **바깥**입니다 — 버튼 안의 버튼은 브라우저가 다시 씁니다',
+        en: 'A control pinned to the end of the header, **outside** the trigger: a button inside a button is markup the browser rewrites'
+      }
+    },
+    {
+      name: 'trigger',
+      type: 'ReactElement',
+      description: {
+        ko: '헤더를 통째로 자기 컨트롤로 바꿉니다. 넘긴 요소가 트리거가 됩니다',
+        en: 'Replaces the header entirely with a control of your own. The element you pass becomes the trigger'
+      }
+    },
+    {
+      name: 'indicator',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '상태를 알리려 돌아가는 셰브런',
+        en: 'The chevron at the end of the header, turned to report the state'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '트리거가 반응하지 않고 패널은 그대로 남습니다',
+        en: 'The trigger stops answering and the panel stays as it is'
+      }
+    },
+    {
+      name: 'padded',
+      type: 'boolean',
+      default: 'true',
+      description: { ko: '패널 내용의 안쪽 여백', en: "Inner padding around the panel's content" }
+    },
+    {
+      name: 'hiddenUntilFound',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '닫힌 패널을 DOM에 남겨 브라우저의 페이지 검색이 찾고 열 수 있게 합니다. keepMounted를 덮어씁니다',
+        en: "Keeps a closed panel in the DOM so the browser's own page search can find and open it. Overrides keepMounted"
+      }
+    },
+    {
+      name: 'keepMounted',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '닫힌 패널을 DOM에 남깁니다. 만드는 비용이 크거나 폼 상태를 가진 내용을 위한 것입니다',
+        en: 'Keeps a closed panel in the DOM. For content that is expensive to build, or that holds form state'
+      }
+    }
+  ],
+
   PlContainer: [
     {
       name: 'maxWidth',
