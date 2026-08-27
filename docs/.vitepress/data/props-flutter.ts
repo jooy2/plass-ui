@@ -1675,6 +1675,66 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlScrollZone: [
+    {
+      name: 'children',
+      type: 'List<Widget>',
+      required: true,
+      description: {
+        ko: '늘어놓을 것들. 자식 하나가 띠의 항목 하나입니다',
+        en: 'What is being laid out. Every child is one item of the strip'
+      }
+    },
+    from('PlScrollZone', 'orientation', { type: 'PlassOrientation' }),
+    from('PlScrollZone', 'lines', { type: 'int', default: '1' }),
+    from('PlScrollZone', 'spacing', {
+      type: 'double',
+      default: '8',
+      description: {
+        ko: '자식 사이의 간격, 논리 픽셀. Dart에는 rem이 없습니다',
+        en: 'The gap between children, in logical pixels. Dart has no rem'
+      }
+    }),
+    from('PlScrollZone', 'buttons', {
+      type: 'PlScrollZoneButtons',
+      default: 'PlScrollZoneButtons.auto'
+    }),
+    from('PlScrollZone', 'buttonPlacement', {
+      type: 'PlScrollZoneButtonPlacement',
+      default: 'PlScrollZoneButtonPlacement.overlay'
+    }),
+    from('PlScrollZone', 'mode', {
+      type: 'PlScrollZoneMode',
+      default: 'PlScrollZoneMode.item'
+    }),
+    from('PlScrollZone', 'step', { type: 'int', default: '1' }),
+    from('PlScrollZone', 'speed', { type: 'double', default: '900' }),
+    from('PlScrollZone', 'snap', { type: 'bool', default: 'false' }),
+    from('PlScrollZone', 'drag', {
+      type: 'bool',
+      default: 'true',
+      description: {
+        ko: '마우스로도 띠를 끌 수 있게 합니다. 터치와 트랙패드는 이미 스크롤합니다',
+        en: 'Lets a mouse drag the strip along. Touch and a trackpad already scroll'
+      }
+    }),
+    from('PlScrollZone', 'scrollbar', { type: 'bool', default: 'false' }),
+    {
+      name: 'controller',
+      type: 'ScrollController?',
+      description: {
+        ko: '스크롤을 바깥에서 움직입니다. 없으면 zone이 자기 것을 하나 갖습니다',
+        en: 'Drive the scroll from outside. Left out, the zone owns one of its own'
+      }
+    },
+    from('PlScrollZone', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlScrollZone', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlScrollZone', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlScrollZone', 'label', { type: 'String?' }),
+    from('PlScrollZone', 'previousLabel', { type: 'String', default: "'Previous'" }),
+    from('PlScrollZone', 'nextLabel', { type: 'String', default: "'Next'" })
+  ],
+
   PlTable: [
     from('PlTable', 'columns', {
       type: 'List<PlTableColumn<T>>',

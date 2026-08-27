@@ -53,6 +53,7 @@ export 'src/components/pagination/pl_pagination.dart';
 export 'src/components/panes/pl_panes.dart';
 export 'src/components/radio_group/pl_radio_group.dart';
 export 'src/components/rating/pl_rating.dart';
+export 'src/components/scroll_zone/pl_scroll_zone.dart';
 export 'src/components/segmented_button/pl_segmented_button.dart';
 export 'src/components/select/pl_select.dart';
 export 'src/components/skeleton/pl_skeleton.dart';

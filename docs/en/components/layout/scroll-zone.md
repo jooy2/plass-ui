@@ -7,7 +7,7 @@ order: 5
 
 <p class="plass-lede">A strip of anything, laid out in one direction and scrolled in it. Cards, chips, avatars or thumbnails run across the box or down it, in as many lines as you ask for, with a pair of buttons for the pointer that has neither a wheel nor a finger.</p>
 
-<Demo src="scroll-zone/hero" :flutter="false" :min-height="240" />
+<Demo src="scroll-zone/hero" :min-height="240" />
 
 ::: fw react
 
@@ -19,6 +19,23 @@ import { PlCard, PlScrollZone } from 'plass-ui';
     <PlCard key={show.name} className="w-40" title={show.name} />
   ))}
 </PlScrollZone>;
+```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlScrollZone(
+  label: 'Continue watching',
+  spacing: 12,
+  children: <Widget>[
+    for (final Show show in shows)
+      SizedBox(width: 160, child: PlCard(title: Text(show.name))),
+  ],
+);
 ```
 
 :::
@@ -37,11 +54,11 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 ## What it is made of
 
-The mechanism is an **ordinary scroll container**, and everything the component offers is a way of driving one. Swiping on a phone, two-finger dragging on a trackpad, the wheel, the arrow keys and the scrollbar are the browser's own and are never intercepted; what is added on top is a pair of buttons for the pointer that has neither a wheel nor a finger, and a mouse drag for the strip that reads as something to pull rather than something to page.
+The mechanism is an **ordinary scroll container**, and everything the component offers is a way of driving one. Swiping, two-finger dragging on a trackpad, the wheel and the scrollbar are the platform's own and are never intercepted; what is added on top is a pair of buttons for the pointer that has neither a wheel nor a finger, and a mouse drag for the strip that reads as something to pull rather than something to page.
 
-Nothing is transformed. A translated track would have to argue for an exception to the [house rule](../../design/design-language); a scroll offset does not — and it is also what makes the strip run the other way under RTL without being told, keeps the scrollbar honest, and lets the browser scroll a focused child into view.
+Nothing is transformed. A translated track would have to argue for an exception to the [house rule](../../design/design-language); a scroll offset does not — and it is also what makes the strip run the other way under RTL without being told, and keeps the scrollbar honest.
 
-It draws **no sheet of its own**, and there is no `elevation` to give it one. A shelf is a way of laying children out, and the children arrive with their own surfaces. `variant`, `size`, `color` and `density` reach the two buttons, which are real [`PlIconButton`](../inputs/icon-button)s.
+It draws **no sheet of its own**, and there is no `elevation` to give it one. A shelf is a way of laying children out, and the children arrive with their own surfaces. `variant`, `size` and `color` reach the two buttons, which are real [`PlIconButton`](../inputs/icon-button)s.
 
 ## Examples
 
@@ -49,11 +66,33 @@ It draws **no sheet of its own**, and there is no `elevation` to give it one. A 
 
 `orientation` decides which way the strip runs and therefore which way it scrolls. `lines` is how many rows a horizontal zone fills before it starts a new column — two lines hold twice as much in the same width, and the strip is still one scroll.
 
-`spacing` is the gap between children, on the same ladder [`PlGrid`](./grid)'s own `spacing` is: `2` is `0.5rem`.
+`spacing` is the gap between children.
 
-<Demo src="scroll-zone/lines" :flutter="false" :min-height="240">
+::: fw react
+
+It is on the same ladder [`PlGrid`](./grid)'s own `spacing` is: `2` is `0.5rem`.
+
+:::
+
+::: fw flutter
+
+It is a length in logical pixels. Dart has no `rem`, and every other measurement in this package is already the same number the other one writes in `rem`.
+
+:::
+
+<Demo src="scroll-zone/lines" :min-height="240">
+
+::: fw react
 
 <<< @/.vitepress/demos/scroll-zone/lines.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/scroll_zone/lines.dart
+
+:::
 
 </Demo>
 
@@ -63,9 +102,19 @@ It draws **no sheet of its own**, and there is no `elevation` to give it one. A 
 
 `snap` brings the nearest child to the leading edge whenever the scrolling stops, however it was scrolled.
 
-<Demo src="scroll-zone/buttons" :flutter="false" :min-height="300">
+<Demo src="scroll-zone/buttons" :min-height="300">
+
+::: fw react
 
 <<< @/.vitepress/demos/scroll-zone/buttons.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/scroll_zone/buttons.dart
+
+:::
 
 </Demo>
 
@@ -75,9 +124,19 @@ It draws **no sheet of its own**, and there is no `elevation` to give it one. A 
 
 An inline button keeps its lane even while it has nowhere to go, or the strip would resize under the pointer that had just reached the end of it.
 
-<Demo src="scroll-zone/placement" :flutter="false" :min-height="300">
+<Demo src="scroll-zone/placement" :min-height="300">
+
+::: fw react
 
 <<< @/.vitepress/demos/scroll-zone/placement.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/scroll_zone/placement.dart
+
+:::
 
 </Demo>
 
@@ -95,13 +154,26 @@ A press too short to be a hold moves one item instead, so a quick tap is never a
 </PlScrollZone>
 ```
 
-An item is **measured** rather than assumed: the children of a scroll zone are whatever the caller put there, so no two of them are necessarily the same width. That measurement is also what makes `lines` work — four children stacked two by two are two columns, and one press should move one column rather than half of one.
+:::
+
+::: fw flutter
+
+```dart
+PlScrollZone(
+  mode: PlScrollZoneMode.hold,
+  speed: 1200,
+  buttons: PlScrollZoneButtons.always,
+  children: items,
+);
+```
 
 :::
 
+An item is **measured** rather than assumed: the children of a scroll zone are whatever the caller put there, so no two of them are necessarily the same width. That measurement is also what makes `lines` work — four children stacked two by two are two columns, and one press should move one column rather than half of one.
+
 ### drag
 
-A finger already scrolls the strip, because the mechanism is an ordinary scroll container and touch scrolling is the browser's own — with momentum, rubber-banding and a scrollbar that no handler reproduces. `drag` adds the same gesture for a mouse or a pen, and the click that would otherwise follow a real drag is swallowed, so pulling the strip past a card never opens it.
+A finger already scrolls the strip, because the mechanism is an ordinary scroll container and touch scrolling is the platform's own — with momentum, rubber-banding and a scrollbar that no handler reproduces. `drag` adds the same gesture for a mouse.
 
 ::: fw react
 
@@ -111,12 +183,51 @@ A finger already scrolls the strip, because the mechanism is an ordinary scroll 
 </PlScrollZone>
 ```
 
+The click that would otherwise follow a real drag is swallowed, so pulling the strip past a card never opens it.
+
+:::
+
+::: fw flutter
+
+```dart
+PlScrollZone(drag: false, scrollbar: true, children: items);
+```
+
+Flutter leaves the mouse out of `dragDevices` by default, which is the same judgement the browser's own scroll containers make and the same one this reverses: dragging a shelf with a mouse is unusual enough to have to be asked for, and a shelf is exactly the place that asks.
+
 :::
 
 ## Accessibility
 
-- The strip is focusable and scrolls with the arrow keys, which is the browser's own key handling on a scroll container — so it is already right under RTL.
-- `label` names the region and is what a screen reader reads before its contents. Without one the strip is focusable but unnamed.
+- `label` names the region and is what a screen reader reads before its contents. Without one the strip has no name at all.
 - The scroll buttons are real buttons with real names, and `previousLabel` / `nextLabel` decide what those names are. A disc with a chevron in it has no accessible name of its own, which is the defect [`PlIconButton`](../inputs/icon-button)'s `label` exists to make impossible.
+- Nothing inside the strip is hidden while it is off screen: it is genuinely reachable by scrolling, and hiding it would be a lie a keyboard reader would fall into.
+
+::: fw react
+
+- The strip is focusable and scrolls with the arrow keys, which is the browser's own key handling on a scroll container — so it is already right under RTL.
 - In `hold` mode the buttons answer <kbd>Enter</kbd> and <kbd>Space</kbd> the same way they answer a press, scrolling while the key is down. A scroll affordance a pointer can use and a keyboard cannot is the one thing this must never be.
-- Nothing inside the strip is hidden while it is off screen: it is genuinely reachable by scrolling, and `aria-hidden` on it would be a lie a keyboard reader would fall into.
+
+:::
+
+::: fw flutter
+
+- In `hold` mode a key press moves one item and the platform's own key repeat carries it, rather than the frame loop a held pointer gets. Either way the buttons are reachable from a keyboard, which is the thing that matters.
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `children` as JSX | `children: List<Widget>` | The idiom the rest of the package uses. |
+| `spacing` on the spacing scale | `spacing`, in logical pixels | There is no `rem`. The numbers are the same either way. |
+| a CSS grid with `grid-template-rows` | a row of columns | `lines` is a fixed number of rows and as many columns as it takes, which is what `grid-auto-flow: column` says there. One thing does not carry over: a CSS grid gives every column the same row heights, and a row of columns does not. |
+| — | `controller` | Flutter drives a scroll view with a `ScrollController`, and a caller who wants the offset should be handed the object that has it. |
+| a pointer-held frame loop **and** a key-held one | a pointer-held frame loop | A held key repeats on its own here, and one item per repeat is what that produces. |
+| `density` | — | The buttons are `PlIconButton`s, and Flutter's has no `density`. |
+| `className`, `style` | — | There is no class list and no style attribute to pass through. |
+
+:::

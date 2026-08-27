@@ -183,6 +183,10 @@ import 'package:plass_ui_example/demos/rating/icons.dart';
 import 'package:plass_ui_example/demos/rating/precision.dart';
 import 'package:plass_ui_example/demos/rating/sizes.dart';
 import 'package:plass_ui_example/demos/rating/states.dart';
+import 'package:plass_ui_example/demos/scroll_zone/buttons.dart';
+import 'package:plass_ui_example/demos/scroll_zone/hero.dart';
+import 'package:plass_ui_example/demos/scroll_zone/lines.dart';
+import 'package:plass_ui_example/demos/scroll_zone/placement.dart';
 import 'package:plass_ui_example/demos/segmented_button/colors.dart';
 import 'package:plass_ui_example/demos/segmented_button/full_width.dart';
 import 'package:plass_ui_example/demos/segmented_button/hero.dart';
@@ -476,6 +480,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'slider/range': _sliderRange,
   'slider/states': _sliderStates,
   'slider/steps': _sliderSteps,
+  'scroll-zone/hero': _scrollZoneHero,
+  'scroll-zone/lines': _scrollZoneLines,
+  'scroll-zone/buttons': _scrollZoneButtons,
+  'scroll-zone/placement': _scrollZonePlacement,
   'segmented-button/hero': _segmentedButtonHero,
   'segmented-button/variants': _segmentedButtonVariants,
   'segmented-button/sizes': _segmentedButtonSizes,
@@ -759,6 +767,10 @@ Widget _sliderRange(BuildContext context) => const SliderRange();
 Widget _sliderStates(BuildContext context) => const SliderStates();
 Widget _sliderSteps(BuildContext context) => const SliderSteps();
 
+Widget _scrollZoneHero(BuildContext context) => const ScrollZoneHero();
+Widget _scrollZoneLines(BuildContext context) => const ScrollZoneLines();
+Widget _scrollZoneButtons(BuildContext context) => const ScrollZoneButtons();
+Widget _scrollZonePlacement(BuildContext context) => const ScrollZonePlacement();
 Widget _segmentedButtonHero(BuildContext context) => const SegmentedButtonHero();
 Widget _segmentedButtonVariants(BuildContext context) => const SegmentedButtonVariants();
 Widget _segmentedButtonSizes(BuildContext context) => const SegmentedButtonSizes();
