@@ -74,6 +74,17 @@ If your project already runs Tailwind v4, import the token sheet instead:
 @import 'plass-ui/tailwind.css';
 ```
 
+`plass-ui/tailwind.css` registers all 45 components with Tailwind, because Tailwind scans files rather than imports — nothing in a build connects `import { PlButton }` to the classes `PlSelect.js` spells out. A project that uses a handful of components can register the handful instead:
+
+```css
+@import 'tailwindcss';
+@import 'plass-ui/css/base.css'; /* tokens + what every component shares */
+@import 'plass-ui/css/button.css';
+@import 'plass-ui/css/text-field.css';
+```
+
+Still one Tailwind pass, so the utilities keep Tailwind's own order — and about 5 kB gzipped smaller for a small set of components. There is one manifest per component, named after its folder in `dist/components`.
+
 ### One more line, and it matters here
 
 Plass does not paint your `<body>`, but a sheet of glass over a flat white page has nothing to be in front of. Two tokens exist for exactly this:
@@ -103,6 +114,14 @@ export default function SignIn() {
   );
 }
 ```
+
+Every component also has an entry point of its own, for a build that cannot tree-shake a barrel — or for a server render, where the barrel loads all 45 components and their dependencies before the first one is used:
+
+```tsx
+import { PlButton } from 'plass-ui/button';
+```
+
+Same component, same types. The barrel is the one to reach for by default; this is the escape hatch when a bundler, a test runner or Node's own loader is the thing paying for it.
 
 ## Components
 
