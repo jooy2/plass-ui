@@ -45,6 +45,7 @@ import {
   PlPanes,
   PlPagination,
   PlPill,
+  PlPopover,
   PlRadio,
   PlRadioGroup,
   PlRating,
@@ -651,6 +652,28 @@ const entries: Entry[] = [
       ko: '창의 한 가장자리에 붙은 판입니다.'
     },
     preview: <DrawerPreview />
+  },
+  {
+    name: 'PlPopover',
+    group: 'feedback',
+    href: 'components/feedback/popover',
+    blurb: {
+      en: 'A sheet that opens beside the thing that opened it.',
+      ko: '자기를 연 것 옆에 열리는 시트입니다.'
+    },
+    preview: (
+      <PlPopover
+        size="sm"
+        trigger={
+          <PlButton size="sm" variant="glass" color="secondary">
+            Explain
+          </PlButton>
+        }
+        title="Effective rate"
+      >
+        The base rate plus whatever your plan adds to it.
+      </PlPopover>
+    )
   },
   {
     name: 'PlModal',

@@ -4098,6 +4098,160 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlPopover: [
+    {
+      name: 'trigger',
+      type: 'ReactElement',
+      description: {
+        ko: '팝업이 매달리고 팝업을 여는 요소',
+        en: 'The element the popup hangs off and that opens it'
+      }
+    },
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description: { ko: '팝업의 이름이 되는 제목', en: 'The heading, and what names the popup' }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: {
+        ko: '제목 아래 한 줄이자 팝업의 접근 가능한 설명',
+        en: "A line under the title, and the popup's accessible description"
+      }
+    },
+    {
+      name: 'side',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'bottom'",
+      shared: true,
+      description: {
+        ko: '트리거의 어느 가장자리에 나타나는지. 자리가 없으면 반대편으로 뒤집힙니다',
+        en: 'Which edge of the trigger it appears on. Flips to the opposite side when there is no room'
+      }
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'center'",
+      shared: true,
+      description: { ko: '그 가장자리를 따라 놓이는 자리', en: 'Where it sits along that edge' }
+    },
+    {
+      name: 'sideOffset',
+      type: 'number',
+      default: '6',
+      description: { ko: '트리거에서 떨어진 거리, px', en: 'Distance from the trigger, in pixels' }
+    },
+    {
+      name: 'alignOffset',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: '그 가장자리를 따라 밀리는 거리, px',
+        en: 'Shift along that edge, in pixels'
+      }
+    },
+    {
+      name: 'arrow',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '트리거를 가리키는 작은 쐐기. 기본은 꺼짐 — 상자 밖으로 나간 쐐기는 흐린 배경을 데려가지 못합니다',
+        en: 'The little wedge pointing at the trigger. Off by default: a wedge past the box cannot carry the blurred backdrop'
+      }
+    },
+    {
+      name: 'open',
+      type: 'boolean',
+      description: {
+        ko: '팝업이 열려 있는지. onOpenChange와 함께 controlled로 씁니다',
+        en: 'Whether the popover is open. Use with onOpenChange for a controlled one'
+      }
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      description: {
+        ko: 'uncontrolled일 때의 시작 상태',
+        en: 'Whether it starts open, for an uncontrolled one'
+      }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: {
+        ko: '열림 상태가 바뀔 때 호출됩니다',
+        en: 'Called when the open state changes'
+      }
+    },
+    {
+      name: 'modal',
+      type: "boolean | 'trap-focus'",
+      default: 'false',
+      description: {
+        ko: '뒤의 페이지를 가져가는지. false가 popover를 모달과 가르는 것입니다',
+        en: 'Whether the page behind is taken away. false is what separates a popover from a modal'
+      }
+    },
+    {
+      name: 'dismissible',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: 'Escape와 바깥 클릭으로 닫히는지',
+        en: 'Whether pressing Escape or clicking outside closes the popup'
+      }
+    },
+    {
+      name: 'showClose',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '모서리의 ×', en: 'Shows the × in the corner' }
+    },
+    {
+      name: 'closeLabel',
+      type: 'string',
+      default: "'Close'",
+      description: { ko: '× 버튼의 접근 가능한 이름', en: 'Accessible name of the × button' }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      description: {
+        ko: '팝업 너비의 상한. size가 정하는 값을 덮어씁니다',
+        en: "A hard cap on the popup's width, overriding the one size implies"
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '반경, 여백, 팝업 너비의 상한',
+        en: 'The radius, the padding and how wide the popup is allowed to get'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: '의미론적 색 역할. 안쪽의 focus ring까지만 닿습니다',
+        en: 'Semantic colour role. It reaches the focus rings inside and nothing else'
+      }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'default'",
+      shared: true,
+      description: { ko: '팝업의 안쪽 여백', en: "The popup's inner padding" }
+    }
+  ],
+
   PlRadioGroup: [
     {
       name: 'size',
