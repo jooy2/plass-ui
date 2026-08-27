@@ -36,6 +36,11 @@ jobs:
         run: npx prettier . --check
       - name: Typecheck
         run: npm run typecheck
+      # Bundles `dist/` for real against fixed scenarios and fails if a change
+      # made a consumer's bundle bigger. Also the only step that loads the
+      # package through Node's own resolver, which is what a server render does.
+      - name: Bundle size budget
+        run: npm run size
 
   run-test-react:
     runs-on: ${{ matrix.os }}
