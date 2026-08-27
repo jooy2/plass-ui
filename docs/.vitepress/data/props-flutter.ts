@@ -1912,6 +1912,52 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlPopover', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
   ],
 
+  PlSpoiler: [
+    {
+      name: 'child',
+      type: 'Widget?',
+      description: { ko: '덮이는 것', en: 'What is being covered' }
+    },
+    from('PlSpoiler', 'revealed', {
+      type: 'bool?',
+      description: {
+        ko: '내용이 드러나 있는지. 비워 두면 스포일러가 스스로 기억합니다 — 패키지에서 uncontrolled로 두어도 좋은 유일한 위젯입니다',
+        en: 'Whether the content is uncovered. Left out, the spoiler keeps its own: the one widget in the package that is happy uncontrolled'
+      }
+    }),
+    from('PlSpoiler', 'onRevealedChange', {
+      name: 'onRevealedChanged',
+      type: 'ValueChanged<bool>?'
+    }),
+    from('PlSpoiler', 'label', {
+      type: 'String',
+      default: "'Reveal'",
+      description: {
+        ko: '드러내기 버튼의 문구이자 그 접근 가능한 이름',
+        en: "The reveal button's words, and its accessible name"
+      }
+    }),
+    from('PlSpoiler', 'hideLabel', { type: 'String', default: "'Hide'" }),
+    from('PlSpoiler', 'description', {
+      type: 'Widget?',
+      default: "Text('This may contain spoilers')",
+      description: {
+        ko: '버튼 위의 한 줄. null이면 아무것도 쓰이지 않은 덮개가 됩니다',
+        en: 'The line above the button. null is a cover with nothing written on it'
+      }
+    }),
+    from('PlSpoiler', 'action', { type: 'Widget?' }),
+    from('PlSpoiler', 'reversible', { type: 'bool', default: 'false' }),
+    from('PlSpoiler', 'maxHeight', { type: 'double?' }),
+    from('PlSpoiler', 'blur', { type: 'double', default: '10' }),
+    from('PlSpoiler', 'padded', { type: 'bool', default: 'true' }),
+    from('PlSpoiler', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlSpoiler', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlSpoiler', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlSpoiler', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlSpoiler', 'elevation', { type: 'int', default: '0' })
+  ],
+
   PlScrollZone: [
     {
       name: 'children',

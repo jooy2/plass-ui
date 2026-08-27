@@ -55,20 +55,20 @@ void main() {
         await tester.pumpWidget(
           host(
             const PlSpoiler(
-              maxHeight: 80,
+              maxHeight: 160,
               child: SizedBox(height: 400, child: Text('He was the killer all along.')),
             ),
             width: 360,
           ),
         );
 
-        expect(tester.getSize(find.byType(PlSpoiler)).height, lessThanOrEqualTo(80));
+        expect(tester.getSize(find.byType(PlSpoiler)).height, lessThanOrEqualTo(160));
 
         await tester.pumpWidget(
           host(
             const PlSpoiler(
               revealed: true,
-              maxHeight: 80,
+              maxHeight: 160,
               child: SizedBox(height: 400, child: Text('He was the killer all along.')),
             ),
             width: 360,
@@ -77,7 +77,7 @@ void main() {
 
         // Revealing something and leaving it in a box with a scrollbar is
         // answering the wrong question.
-        expect(tester.getSize(find.byType(PlSpoiler)).height, greaterThan(80));
+        expect(tester.getSize(find.byType(PlSpoiler)).height, greaterThan(160));
       });
     });
 
@@ -198,6 +198,18 @@ void main() {
     });
 
     group('the sheet', () {
+      testWidgets('is at least as tall as its own cover', (WidgetTester tester) async {
+        await tester.pumpWidget(host(const PlSpoiler(child: Text('.')), width: 360));
+
+        // A one-character spoiler is as tall as the button it is asking somebody
+        // to press, rather than clipping it: the cover's own text and button
+        // count toward the sheet's size.
+        expect(
+          tester.getRect(find.text('Reveal')).bottom,
+          lessThanOrEqualTo(tester.getRect(find.byType(PlSpoiler)).bottom),
+        );
+      });
+
       testWidgets('is never dyed, whatever colour it is given', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(

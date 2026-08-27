@@ -233,6 +233,10 @@ import 'package:plass_ui_example/demos/slider/range.dart';
 import 'package:plass_ui_example/demos/slider/sizes.dart';
 import 'package:plass_ui_example/demos/slider/states.dart';
 import 'package:plass_ui_example/demos/slider/steps.dart';
+import 'package:plass_ui_example/demos/spoiler/clamped.dart';
+import 'package:plass_ui_example/demos/spoiler/hero.dart';
+import 'package:plass_ui_example/demos/spoiler/media.dart';
+import 'package:plass_ui_example/demos/spoiler/variants.dart';
 import 'package:plass_ui_example/demos/switch/colors.dart';
 import 'package:plass_ui_example/demos/switch/hero.dart';
 import 'package:plass_ui_example/demos/switch/placement.dart';
@@ -502,6 +506,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'slider/range': _sliderRange,
   'slider/states': _sliderStates,
   'slider/steps': _sliderSteps,
+  'spoiler/hero': _spoilerHero,
+  'spoiler/variants': _spoilerVariants,
+  'spoiler/clamped': _spoilerClamped,
+  'spoiler/media': _spoilerMedia,
   'popover/hero': _popoverHero,
   'popover/sides': _popoverSides,
   'popover/form': _popoverForm,
@@ -811,6 +819,10 @@ Widget _sliderRange(BuildContext context) => const SliderRange();
 Widget _sliderStates(BuildContext context) => const SliderStates();
 Widget _sliderSteps(BuildContext context) => const SliderSteps();
 
+Widget _spoilerHero(BuildContext context) => const SpoilerHero();
+Widget _spoilerVariants(BuildContext context) => const SpoilerVariants();
+Widget _spoilerClamped(BuildContext context) => const SpoilerClamped();
+Widget _spoilerMedia(BuildContext context) => const SpoilerMedia();
 Widget _popoverHero(BuildContext context) => const PopoverHero();
 Widget _popoverSides(BuildContext context) => const PopoverSides();
 Widget _popoverForm(BuildContext context) => const PopoverForm();

@@ -200,7 +200,12 @@ class _PlSpoilerState extends State<PlSpoiler> {
       );
     }
 
+    // The wash fills whatever the stack ends up being, and the cover's own text
+    // and button are an *unpositioned* child so they count toward that size.
+    // Together that is what keeps a one-line spoiler as tall as the button it is
+    // asking somebody to press, rather than clipping it.
     final sheet = Stack(
+      alignment: Alignment.center,
       children: <Widget>[
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -227,7 +232,11 @@ class _PlSpoilerState extends State<PlSpoiler> {
               ),
           ],
         ),
-        if (!_open) Positioned.fill(child: _cover(tokens, insetX, insetY)),
+        if (!_open)
+          Positioned.fill(
+            child: ColoredBox(color: tokens.surface.withValues(alpha: tokens.surface.a * _scrim)),
+          ),
+        if (!_open) _cover(tokens, insetX, insetY),
       ],
     );
 
@@ -239,33 +248,35 @@ class _PlSpoilerState extends State<PlSpoiler> {
     );
   }
 
-  /// The wash, the notice and the button that lifts them.
+  /// The notice and the button that lifts the cover.
+  ///
+  /// The wash is drawn separately, behind this, because the two answer different
+  /// questions: the wash has to fill the sheet however tall the content made it,
+  /// and this has to be able to *make* the sheet taller when the content is
+  /// shorter than a button.
   Widget _cover(PlassTokens tokens, double insetX, double insetY) {
-    return ColoredBox(
-      color: tokens.surface.withValues(alpha: tokens.surface.a * _scrim),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: insetX, vertical: insetY),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          spacing: _coverGap,
-          children: <Widget>[
-            if (widget.description != null)
-              DefaultTextStyle.merge(
-                style: TextStyle(color: tokens.mutedFg, fontSize: metaText[widget.size]!),
-                textAlign: TextAlign.center,
-                child: widget.description!,
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: insetX, vertical: insetY),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        spacing: _coverGap,
+        children: <Widget>[
+          if (widget.description != null)
+            DefaultTextStyle.merge(
+              style: TextStyle(color: tokens.mutedFg, fontSize: metaText[widget.size]!),
+              textAlign: TextAlign.center,
+              child: widget.description!,
+            ),
+          widget.action ??
+              PlButton(
+                size: widget.size,
+                color: widget.color,
+                density: widget.density,
+                onPressed: () => _change(true),
+                child: Text(widget.label),
               ),
-            widget.action ??
-                PlButton(
-                  size: widget.size,
-                  color: widget.color,
-                  density: widget.density,
-                  onPressed: () => _change(true),
-                  child: Text(widget.label),
-                ),
-          ],
-        ),
+        ],
       ),
     );
   }
