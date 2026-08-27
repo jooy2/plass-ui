@@ -94,11 +94,7 @@ The sheet under the grid, on the same three materials as every other container, 
 
 There is no band behind the column names on any of them. The header is muted, semibold text over a firmer rule, and the rows under it are scored with the neutral divider ink — the same hairline a `PlCard` and a `PlList` are scored with. A filled strip across the top of a grid is the fastest way to make data look like chrome, and it puts all of a table's weight in the one place that needs none of it.
 
-::: fw react
-
 The exception is `stickyHeader`, where the fill is not decoration: rows pass directly under a pinned header and something has to stop the light.
-
-:::
 
 <Demo src="table/variants" :min-height="360">
 
@@ -172,23 +168,45 @@ Width comes in two forms, and they are different questions. `width` is a length 
 
 ### stickyHeader and maxHeight
 
-::: fw react
-
 Two halves of one idea, and each is close to useless without the other.
 
-`maxHeight` caps the **grid** — a number in pixels or any CSS length — and past it the rows scroll inside the sheet rather than the page growing under them. `stickyHeader` pins the column names to the top of whatever the rows are scrolling in. Capped without pinning, the names scroll away and the rest is a grid of unlabelled numbers; pinned without a cap, `position: sticky` has nothing to stick inside and does nothing at all.
+`maxHeight` caps the **grid** and past it the rows scroll inside the sheet rather than the sheet growing. `stickyHeader` pins the column names to the top of what the rows are scrolling in. Capped without pinning, the names scroll away and the rest is a grid of unlabelled numbers; pinned without a cap, there is nothing for the names to stay put inside and nothing happens at all.
 
-A `caption` sits **above** what scrolls, because a title that slid away would take the table's accessible name with it — it is a heading the `<table>` points at with `aria-labelledby`, which names the table exactly as a `<caption>` does and is in the right box.
+A `caption` sits **above** what scrolls, because a title that slid away would take the table's name with it.
 
-A pinned header is the one place the grid draws a fill. Rows pass directly underneath it, and a translucent header would let them through: it is the sheet's densest glass laid over the page's own surface colour, two opaque layers stacked to stop the light. Its rule is an inset shadow rather than a border, which is not a style preference — `border-collapse: collapse` hands a cell's borders to the *table's* border grid, and that grid does not travel with a `position: sticky` cell, so a pinned header drawn with a border leaves its underline behind at the top of the scroll.
+A pinned header is the one place the grid draws a fill. Rows pass directly underneath it, and a translucent header would let them through: it is the sheet's densest glass over the page's own surface colour, two opaque layers stacked to stop the light.
 
-<Demo src="table/scroll" :flutter="false" :min-height="340">
+::: fw react
+
+`maxHeight` is a number in pixels or any CSS length. The caption is a heading the `<table>` points at with `aria-labelledby`, which names the table exactly as a `<caption>` does and is in the right box.
+
+The pinned header's rule is an inset shadow rather than a border, which is not a style preference: `border-collapse: collapse` hands a cell's borders to the *table's* border grid, and that grid does not travel with a `position: sticky` cell — so a pinned header drawn with a border leaves its underline behind at the top of the scroll.
+
+:::
+
+::: fw flutter
+
+`maxHeight` is a `double` in logical pixels. The scroll view is always there, so a table in a box too small for it scrolls rather than overflowing, with or without a cap.
+
+The pinned band is **not a second grid** — that is the whole trick, and the reason this used to be listed as something the Flutter build could not do. Two grids each measured from their own content cannot agree on a column width. So there is still one `Table`, with its header row in it exactly as before, and the band laid over the scroll is a *copy* of that row: each of its cells is put in a box of the width the real header cell was actually laid out at. One grid still decides every column; the band only repeats what it decided. It is also silent — the names are already announced as column headers by the grid, and a copy that spoke would name every column twice.
+
+:::
+
+<Demo src="table/scroll" :min-height="340">
+
+::: fw react
 
 <<< @/.vitepress/demos/table/scroll.tsx
 
-</Demo>
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/table/scroll.dart
 
 :::
+
+</Demo>
 
 ### <Fw react="onRowClick" flutter="onRowPressed" />
 
@@ -296,10 +314,10 @@ Changes cell padding and nothing else, so two tables of the same `size` keep the
 | --- | --- | --- |
 | `key` names the property, `render` is optional | `cell` is required | Dart has no `row[key]` on an arbitrary type. Writing the accessor is cheaper than widening the row to `dynamic`. |
 | `width: number \| string` | `width: double` and `flex: double` | Pixels stay pixels; a percentage becomes a share of the leftover width, which is what a percentage of a table that must add up to its own width already was. |
-| `stickyHeader` | — | A pinned header means two grids, and two grids each measured from their own content cannot agree on a column width. Page the rows with [`PlPagination`](../inputs/pagination) instead. |
-| `overflow-x: auto` on the sheet | — | The grid is as wide as the sheet. Wrap it in a `SingleChildScrollView` when the columns need more room than there is. |
+| `overflow-x: auto` on the sheet | — | The grid is as wide as the sheet. Wrap it in a `SingleChildScrollView` when the columns need more room than there is. The *vertical* scroll is the table's own either way. |
 | `getRowKey` | `rowKey` | Same job, Flutter's spelling, and it hands back a `LocalKey` rather than a `React.Key`. |
 | `onRowClick` | `onRowPressed` | The package's name for the thing a press calls. |
+| `maxHeight: number \| string` | `maxHeight: double` | Pixels stay pixels. There is no CSS length to accept. |
 | `<caption>` as the accessible name | a drawn line, plus `semanticLabel` | Flutter names a node with a string, and a caption is a widget. The words are still read first. |
 | the inline-style workaround | — | There is no host stylesheet reaching in to restyle `table`, `td` and `th`, so there is nothing to work around. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |

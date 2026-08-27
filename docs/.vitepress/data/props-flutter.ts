@@ -1699,6 +1699,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlTable', 'empty', { type: 'Widget?', default: "Text('No data')" }),
     from('PlTable', 'striped', { type: 'bool', default: 'false' }),
     from('PlTable', 'hoverable', { type: 'bool', default: 'false' }),
+    from('PlTable', 'stickyHeader', { type: 'bool', default: 'false' }),
+    from('PlTable', 'maxHeight', {
+      type: 'double?',
+      description: {
+        ko: '격자 높이의 상한, 논리 픽셀. 넘으면 시트 안에서 행이 스크롤됩니다. caption은 그 위에 남습니다',
+        en: 'A hard cap on the grid, in logical pixels. Past it the rows scroll inside the sheet; the caption stays above it'
+      }
+    }),
     from('PlTable', 'onRowClick', {
       name: 'onRowPressed',
       type: 'void Function(T row, int index)?'

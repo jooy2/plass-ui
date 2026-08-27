@@ -217,6 +217,7 @@ import 'package:plass_ui_example/demos/table/density.dart';
 import 'package:plass_ui_example/demos/table/empty.dart';
 import 'package:plass_ui_example/demos/table/hero.dart';
 import 'package:plass_ui_example/demos/table/rows.dart';
+import 'package:plass_ui_example/demos/table/scroll.dart';
 import 'package:plass_ui_example/demos/table/striped.dart';
 import 'package:plass_ui_example/demos/table/variants.dart';
 import 'package:plass_ui_example/demos/tabs/controlled.dart';
@@ -513,6 +514,7 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'table/variants': _tableVariants,
   'table/columns': _tableColumns,
   'table/striped': _tableStriped,
+  'table/scroll': _tableScroll,
   'table/rows': _tableRows,
   'table/empty': _tableEmpty,
   'table/density': _tableDensity,
@@ -789,6 +791,7 @@ Widget _tableHero(BuildContext context) => const TableHero();
 Widget _tableVariants(BuildContext context) => const TableVariants();
 Widget _tableColumns(BuildContext context) => const TableColumns();
 Widget _tableStriped(BuildContext context) => const TableStriped();
+Widget _tableScroll(BuildContext context) => const TableScroll();
 Widget _tableRows(BuildContext context) => const TableRows();
 Widget _tableEmpty(BuildContext context) => const TableEmpty();
 Widget _tableDensity(BuildContext context) => const TableDensity();

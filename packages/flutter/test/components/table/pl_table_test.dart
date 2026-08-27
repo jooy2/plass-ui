@@ -40,6 +40,8 @@ Widget _table({
   bool hoverable = false,
   Widget? caption,
   Widget? empty,
+  bool stickyHeader = false,
+  double? maxHeight,
   void Function(_Build row, int index)? onRowPressed,
 }) {
   return host(
@@ -50,11 +52,18 @@ Widget _table({
       hoverable: hoverable,
       caption: caption,
       empty: empty,
+      stickyHeader: stickyHeader,
+      maxHeight: maxHeight,
       onRowPressed: onRowPressed,
     ),
     width: 420,
   );
 }
+
+/// Twenty-four rows, which is more than any cap in this suite.
+final List<_Build> _many = <_Build>[
+  for (var index = 0; index < 24; index += 1) _Build('#${400 + index}', 'topic/$index'),
+];
 
 /// The decoration [TableRow] number [index] paints — the header is row `0`.
 BoxDecoration _rowDecoration(WidgetTester tester, int index) {
@@ -255,6 +264,133 @@ void main() {
         );
 
         expect(heading.properties.role, SemanticsRole.columnHeader);
+      });
+    });
+
+    group('a capped height', () {
+      testWidgets('is as tall as its rows until it is capped', (WidgetTester tester) async {
+        await tester.pumpWidget(_table(rows: _many));
+
+        final Size uncapped = tester.getSize(find.byType(PlTable<_Build>));
+
+        await tester.pumpWidget(_table(rows: _many, maxHeight: 200));
+
+        expect(uncapped.height, greaterThan(200));
+        expect(tester.getSize(find.byType(PlTable<_Build>)).height, 200);
+      });
+
+      testWidgets('scrolls the rows inside the sheet', (WidgetTester tester) async {
+        await tester.pumpWidget(_table(rows: _many, maxHeight: 200));
+
+        final double before = tester.getTopLeft(find.text('#400')).dy;
+
+        await tester.drag(find.text('#400'), const Offset(0, -120));
+        await tester.pumpAndSettle();
+
+        expect(tester.getTopLeft(find.text('#400')).dy, lessThan(before));
+      });
+
+      testWidgets('lays out where nothing bounds its height', (WidgetTester tester) async {
+        // A table inside the page's own scroll view is handed an unbounded
+        // height, and a column with a flexible child in one of those is not a
+        // layout — it is an assertion.
+        await tester.pumpWidget(
+          host(
+            SingleChildScrollView(
+              child: PlTable<_Build>(rows: _many, columns: _columns()),
+            ),
+            width: 420,
+          ),
+        );
+
+        expect(tester.takeException(), isNull);
+        expect(find.text('#400'), findsOneWidget);
+      });
+
+      testWidgets('leaves the caption above what scrolls', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          _table(rows: _many, maxHeight: 200, caption: const Text('Recent builds')),
+        );
+
+        final double caption = tester.getTopLeft(find.text('Recent builds')).dy;
+
+        await tester.drag(find.text('#400'), const Offset(0, -120));
+        await tester.pumpAndSettle();
+
+        // A title that slid away would take the table's name with it.
+        expect(tester.getTopLeft(find.text('Recent builds')).dy, caption);
+      });
+    });
+
+    group('a pinned header', () {
+      testWidgets('draws no band until it is asked for one', (WidgetTester tester) async {
+        await tester.pumpWidget(_table(rows: _many, maxHeight: 200));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Build'), findsOneWidget);
+      });
+
+      testWidgets('repeats the header over the top of the scroll', (WidgetTester tester) async {
+        await tester.pumpWidget(_table(rows: _many, maxHeight: 200, stickyHeader: true));
+        await tester.pumpAndSettle();
+
+        // The real header inside the grid, and the band laid over it.
+        expect(find.text('Build'), findsNWidgets(2));
+      });
+
+      testWidgets('gives the band the widths the grid laid out', (WidgetTester tester) async {
+        await tester.pumpWidget(_table(rows: _many, maxHeight: 200, stickyHeader: true));
+        await tester.pumpAndSettle();
+
+        final List<Element> headers = find.text('Build').evaluate().toList();
+
+        // One grid still decides every column; the band only repeats what it
+        // decided, so the two cannot disagree about where a column starts.
+        expect(
+          tester.getTopLeft(find.byElementPredicate((Element e) => e == headers.first)).dx,
+          tester.getTopLeft(find.byElementPredicate((Element e) => e == headers.last)).dx,
+        );
+      });
+
+      testWidgets('stays put while the rows go under it', (WidgetTester tester) async {
+        await tester.pumpWidget(_table(rows: _many, maxHeight: 200, stickyHeader: true));
+        await tester.pumpAndSettle();
+
+        final double band = tester.getTopLeft(find.byType(IntrinsicHeight)).dy;
+        final double row = tester.getTopLeft(find.text('#400')).dy;
+
+        await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -120));
+        await tester.pumpAndSettle();
+
+        expect(tester.getTopLeft(find.byType(IntrinsicHeight)).dy, band);
+        expect(tester.getTopLeft(find.text('#400')).dy, lessThan(row));
+      });
+
+      testWidgets('is opaque, because rows pass underneath it', (WidgetTester tester) async {
+        await tester.pumpWidget(_table(rows: _many, maxHeight: 200, stickyHeader: true));
+        await tester.pumpAndSettle();
+
+        final BoxDecoration band = decorationWhere(
+          tester,
+          find
+              .ancestor(of: find.byType(IntrinsicHeight), matching: find.byType(DecoratedBox))
+              .first,
+          (BoxDecoration decoration) => decoration.color != null,
+        );
+
+        expect(band.color!.a, 1.0);
+      });
+
+      testWidgets('names every column once, not twice', (WidgetTester tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(_table(rows: _many, maxHeight: 200, stickyHeader: true));
+        await tester.pumpAndSettle();
+
+        // Two of them are drawn and one of them is read: the band is a copy, and
+        // a copy that spoke would name every column twice.
+        expect(find.bySemanticsLabel('Build'), findsOneWidget);
+
+        handle.dispose();
       });
     });
   });

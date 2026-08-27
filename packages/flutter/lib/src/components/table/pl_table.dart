@@ -1,6 +1,7 @@
 /// A grid of data on a sheet of glass.
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 
@@ -110,6 +111,8 @@ class PlTable<T> extends StatefulWidget {
     this.empty,
     this.striped = false,
     this.hoverable = false,
+    this.stickyHeader = false,
+    this.maxHeight,
     this.onRowPressed,
     this.variant = PlassVariant.glass,
     this.size = PlassSize.md,
@@ -161,6 +164,33 @@ class PlTable<T> extends StatefulWidget {
   /// Lights the row under the pointer.
   final bool hoverable;
 
+  /// Pins the column names to the top of the grid while the rows scroll under
+  /// them.
+  ///
+  /// The React build's page used to say this was impossible here, and the
+  /// reason it gave was right: a pinned header means two grids, and two grids
+  /// each measured from their own content cannot agree on a column width. What
+  /// is drawn is therefore **not** a second grid. There is one [Table], with
+  /// its header row in it exactly as before, and the pinned band is a copy of
+  /// that row laid over the top of the scroll — each of its cells given the
+  /// width the real header cell beside it was actually laid out at. One grid
+  /// still decides every column; the band only repeats what it decided.
+  ///
+  /// It needs something to scroll in, and [maxHeight] is the usual answer — a
+  /// grid as tall as its content has nothing to pin against.
+  final bool stickyHeader;
+
+  /// A hard cap on the grid's height, in logical pixels.
+  ///
+  /// Past it the rows scroll inside the sheet rather than the sheet growing.
+  /// The **grid** and not the sheet: a [caption] sits above what scrolls, so a
+  /// table's title cannot slide away from the table it names.
+  ///
+  /// Left out, the grid is as tall as its rows and scrolls only if something
+  /// around it bounds its height — the scroll view is always there, so a table
+  /// in a box too small for it scrolls rather than overflowing.
+  final double? maxHeight;
+
   /// Makes rows activatable, and turns on the hover treatment with them.
   final void Function(T row, int index)? onRowPressed;
 
@@ -203,7 +233,73 @@ class _PlTableState<T> extends State<PlTable<T>> {
   int? _hovered;
   int? _focused;
 
+  /// One key per column, on the real header's cells, so the pinned band can be
+  /// given the widths the grid actually laid out.
+  final List<GlobalKey> _headerKeys = <GlobalKey>[];
+
+  /// Those widths, once they have been read.
+  List<double>? _columnWidths;
+
+  /// The width the grid was measured at, so a resize is measured again and
+  /// anything else is not.
+  double? _measuredAt;
+
   bool get _interactive => widget.onRowPressed != null;
+
+  @override
+  void initState() {
+    super.initState();
+    _syncKeys();
+  }
+
+  @override
+  void didUpdateWidget(PlTable<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _syncKeys();
+
+    // The columns changed under the measurement, so it is worth nothing.
+    if (widget.columns.length != oldWidget.columns.length) {
+      _measuredAt = null;
+      _columnWidths = null;
+    }
+  }
+
+  void _syncKeys() {
+    while (_headerKeys.length < widget.columns.length) {
+      _headerKeys.add(GlobalKey());
+    }
+
+    if (_headerKeys.length > widget.columns.length) {
+      _headerKeys.removeRange(widget.columns.length, _headerKeys.length);
+    }
+  }
+
+  /// Reads how wide the grid actually laid each column out.
+  ///
+  /// Measured rather than computed, which is the whole of why a pinned header
+  /// is possible at all: the widths belong to the one [Table] that owns every
+  /// row, and a band that asks it for them cannot disagree with it.
+  void _measure() {
+    if (!mounted) {
+      return;
+    }
+
+    final next = <double>[];
+
+    for (final key in _headerKeys) {
+      final box = key.currentContext?.findRenderObject() as RenderBox?;
+
+      if (box == null || !box.hasSize) {
+        return;
+      }
+
+      next.add(box.size.width);
+    }
+
+    if (_columnWidths == null || !listEquals(_columnWidths, next)) {
+      setState(() => _columnWidths = next);
+    }
+  }
 
   void _press(int index) {
     widget.onRowPressed?.call(widget.rows[index], index);
@@ -328,6 +424,34 @@ class _PlTableState<T> extends State<PlTable<T>> {
     final rowRule = BorderSide(color: tokens.divider, width: hairline);
     final headRule = BorderSide(color: tokens.border, width: hairline);
 
+    /// One header cell's content, built the same way for the grid and for the
+    /// band pinned over it — the band is a *copy* of the header, so anything
+    /// written twice here is somewhere the two could come out different.
+    Widget headerCell(PlTableColumn<T> column) {
+      return _cell(
+        DefaultTextStyle.merge(
+          style: TextStyle(
+            color: tokens.mutedFg,
+            fontSize: text.size,
+            height: text.height,
+            fontWeight: FontWeight.w600,
+          ),
+          maxLines: 1,
+          softWrap: false,
+          overflow: TextOverflow.ellipsis,
+          // A heading is announced with every cell under it, which is most of
+          // what makes a grid of numbers readable without eyes.
+          child: Semantics(
+            container: true,
+            role: SemanticsRole.columnHeader,
+            child: column.header ?? const SizedBox.shrink(),
+          ),
+        ),
+        align: column.align,
+        padding: padding,
+      );
+    }
+
     final grid = Table(
       columnWidths: <int, TableColumnWidth>{
         for (var index = 0; index < widget.columns.length; index += 1)
@@ -347,29 +471,10 @@ class _PlTableState<T> extends State<PlTable<T>> {
         TableRow(
           decoration: BoxDecoration(border: Border(bottom: headRule)),
           children: <Widget>[
-            for (final column in widget.columns)
-              _cell(
-                DefaultTextStyle.merge(
-                  style: TextStyle(
-                    color: tokens.mutedFg,
-                    fontSize: text.size,
-                    height: text.height,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  softWrap: false,
-                  overflow: TextOverflow.ellipsis,
-                  // A heading is announced with every cell under it, which is
-                  // most of what makes a grid of numbers readable without eyes.
-                  child: Semantics(
-                    container: true,
-                    role: SemanticsRole.columnHeader,
-                    child: column.header ?? const SizedBox.shrink(),
-                  ),
-                ),
-                align: column.align,
-                padding: padding,
-              ),
+            for (var index = 0; index < widget.columns.length; index += 1)
+              // Keyed only so the pinned band can be told how wide the grid
+              // laid this column out. Nothing else reads them.
+              KeyedSubtree(key: _headerKeys[index], child: headerCell(widget.columns[index])),
           ],
         ),
         for (var index = 0; index < widget.rows.length; index += 1)
@@ -396,42 +501,122 @@ class _PlTableState<T> extends State<PlTable<T>> {
       ],
     );
 
+    // Everything the rows scroll past, and nothing a title should scroll with.
+    Widget scrolling = SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Semantics(label: widget.semanticLabel, child: grid),
+          if (widget.rows.isEmpty)
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: padX, vertical: _emptyPaddingY),
+              child: DefaultTextStyle.merge(
+                style: TextStyle(color: tokens.mutedFg),
+                textAlign: TextAlign.center,
+                child: Center(child: widget.empty ?? const Text('No data')),
+              ),
+            ),
+        ],
+      ),
+    );
+
+    if (widget.maxHeight != null) {
+      scrolling = ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: widget.maxHeight!),
+        child: scrolling,
+      );
+    }
+
+    if (widget.stickyHeader) {
+      scrolling = Stack(
+        children: <Widget>[
+          scrolling,
+          if (_columnWidths != null)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: _PinnedHeader(
+                // Opaque, and it has to be: rows pass directly underneath, and
+                // a translucent band would let them through. The glass at its
+                // densest laid over the page's own surface colour, flattened to
+                // the one colour that is what those two stacked would look
+                // like.
+                fill: Color.alphaBlend(tokens.glassPress, tokens.surface),
+                rule: headRule,
+                widths: _columnWidths!,
+                cells: <Widget>[for (final column in widget.columns) headerCell(column)],
+              ),
+            ),
+        ],
+      );
+
+      // The widths are read after the frame that laid them out, and read again
+      // whenever the grid is laid out at a different width. Assigning the cache
+      // key here rather than inside the callback is what keeps a rebuild from
+      // queueing a second measurement of the same layout.
+      //
+      // Held in a second name rather than reassigned: a builder that returned
+      // the variable it was assigned to would be a widget containing itself.
+      final Widget pinned = scrolling;
+
+      scrolling = LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          if (_measuredAt != constraints.maxWidth) {
+            _measuredAt = constraints.maxWidth;
+            WidgetsBinding.instance.addPostFrameCallback((Duration _) => _measure());
+          }
+
+          return pinned;
+        },
+      );
+    }
+
+    final Widget? band = widget.caption == null
+        ? null
+        // Above what scrolls, so a table's title cannot slide away from the
+        // table it names.
+        : DecoratedBox(
+            decoration: BoxDecoration(border: Border(bottom: rowRule)),
+            child: Padding(
+              padding: padding,
+              child: DefaultTextStyle.merge(
+                style: TextStyle(
+                  color: tokens.mutedFg,
+                  fontSize: metaText[size]!,
+                  fontWeight: FontWeight.w600,
+                  height: 1.4,
+                ),
+                child: widget.caption!,
+              ),
+            ),
+          );
+
     return PlassSurfaceBox(
       surface: sheetSurface(tokens, variant: widget.variant, elevation: widget.elevation),
       borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
       child: DefaultTextStyle.merge(
         style: TextStyle(color: tokens.fg, fontSize: text.size, height: text.height),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            if (widget.caption != null)
-              DecoratedBox(
-                decoration: BoxDecoration(border: Border(bottom: rowRule)),
-                child: Padding(
-                  padding: padding,
-                  child: DefaultTextStyle.merge(
-                    style: TextStyle(
-                      color: tokens.mutedFg,
-                      fontSize: metaText[size]!,
-                      fontWeight: FontWeight.w600,
-                      height: 1.4,
-                    ),
-                    child: widget.caption!,
-                  ),
-                ),
-              ),
-            Semantics(label: widget.semanticLabel, child: grid),
-            if (widget.rows.isEmpty)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: padX, vertical: _emptyPaddingY),
-                child: DefaultTextStyle.merge(
-                  style: TextStyle(color: tokens.mutedFg),
-                  textAlign: TextAlign.center,
-                  child: Center(child: widget.empty ?? const Text('No data')),
-                ),
-              ),
-          ],
+        child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            // The grid gives way when there is a height to give way *to*, so a
+            // table in a box smaller than its rows scrolls rather than
+            // overflowing it. Only then: a `Flexible` in a column with nothing
+            // bounding its height is not a layout, it is an assertion — which
+            // is exactly what a table inside a page's own scroll view would
+            // hand it.
+            final bool bounded = constraints.hasBoundedHeight;
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                ?band,
+                if (bounded) Flexible(child: scrolling) else scrolling,
+              ],
+            );
+          },
         ),
       ),
     );
@@ -468,6 +653,60 @@ class _PlTableState<T> extends State<PlTable<T>> {
       color: fill,
       // Every row but the first, which already has the header's rule above it.
       border: index == 0 ? null : Border(top: rule),
+    );
+  }
+}
+
+/// The column names, held at the top of the grid while the rows go under them.
+///
+/// A copy of the header row rather than a grid of its own: every cell is put in
+/// a box of the width the one [Table] laid the real header cell out at, so the
+/// band cannot disagree with the data beneath it about where a column starts.
+/// The real header is still down there, directly under this one at the top of
+/// the scroll and hidden behind it everywhere else.
+///
+/// Silent, because the row it copies is not: the names are already announced as
+/// column headers by the grid, and a second set would be every column named
+/// twice.
+class _PinnedHeader extends StatelessWidget {
+  const _PinnedHeader({
+    required this.fill,
+    required this.rule,
+    required this.widths,
+    required this.cells,
+  });
+
+  /// An opaque colour. Rows pass under the band, and a translucent one is a
+  /// band they show through.
+  final Color fill;
+
+  /// The rule under the names — the firmer of the table's two.
+  final BorderSide rule;
+
+  /// How wide the grid laid each column out.
+  final List<double> widths;
+
+  /// The names, built the same way the grid built them.
+  final List<Widget> cells;
+
+  @override
+  Widget build(BuildContext context) {
+    return ExcludeSemantics(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: fill,
+          border: Border(bottom: rule),
+        ),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              for (var index = 0; index < cells.length; index += 1)
+                SizedBox(width: index < widths.length ? widths[index] : null, child: cells[index]),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

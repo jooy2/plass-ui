@@ -94,11 +94,7 @@ PlTable<Invoice>(
 
 셋 중 어느 것에도 열 이름 뒤에 띠가 없습니다. 헤더는 조금 더 진한 선 위에 놓인 muted semibold 텍스트이고, 그 아래 행들은 중립 divider 잉크로 나뉩니다 — `PlCard`와 `PlList`에 금을 긋는 것과 같은 헤어라인입니다. 격자 맨 위를 칠한 띠는 데이터를 chrome처럼 보이게 만드는 가장 빠른 방법이고, 표의 무게를 하나도 필요 없는 자리에 몰아 줍니다.
 
-::: fw react
-
 예외는 `stickyHeader`인데, 거기서의 칠은 장식이 아닙니다. 고정된 헤더 밑으로 행이 그대로 지나가므로 빛을 막을 것이 필요합니다.
-
-:::
 
 <Demo src="table/variants" :min-height="360">
 
@@ -172,23 +168,45 @@ column이 말하는 것은 행에서 셀을 어떻게 꺼내는지, 그것뿐입
 
 ### stickyHeader와 maxHeight
 
-::: fw react
-
 한 아이디어의 두 절반이고, 한쪽만으로는 거의 쓸모가 없습니다.
 
-`maxHeight`는 **격자**의 높이를 제한합니다 — 숫자는 픽셀, 문자열은 아무 CSS 길이나 됩니다 — 그리고 그 높이를 넘으면 페이지가 늘어나는 대신 시트 안에서 행이 스크롤됩니다. `stickyHeader`는 그 스크롤되는 상자의 맨 위에 열 이름을 고정합니다. 고정 없이 높이만 제한하면 이름이 스크롤되어 사라지고 남는 것은 이름표 없는 숫자 격자이며, 높이 제한 없이 고정만 하면 `position: sticky`에는 붙어 있을 상자가 없어서 아무 일도 일어나지 않습니다.
+`maxHeight`는 **격자**의 높이를 제한하고, 그 높이를 넘으면 시트가 늘어나는 대신 시트 안에서 행이 스크롤됩니다. `stickyHeader`는 그 스크롤되는 상자의 맨 위에 열 이름을 고정합니다. 고정 없이 높이만 제한하면 이름이 스크롤되어 사라지고 남는 것은 이름표 없는 숫자 격자이며, 높이 제한 없이 고정만 하면 이름이 붙어 있을 상자가 없어서 아무 일도 일어나지 않습니다.
 
-`caption`은 스크롤되는 것 **위**에 놓입니다. 미끄러져 사라지는 제목은 표의 접근 가능한 이름까지 데려가기 때문입니다. `<table>`이 `aria-labelledby`로 가리키는 제목이고, `<caption>`과 똑같이 표의 이름이 되면서 올바른 상자 안에 있습니다.
+`caption`은 스크롤되는 것 **위**에 놓입니다. 미끄러져 사라지는 제목은 자기가 이름 붙인 표에서 떨어져 나가기 때문입니다.
 
-고정된 헤더는 격자가 칠을 그리는 유일한 자리입니다. 행이 그 바로 밑을 지나가므로 반투명한 헤더는 행을 그대로 통과시킵니다. 그래서 시트의 가장 짙은 유리를 페이지 자신의 surface 색 위에 얹은 것 — 빛을 막기 위해 쌓아 올린 불투명한 두 겹입니다. 그 아래 선은 border가 아니라 inset 그림자인데, 이것은 취향이 아닙니다. `border-collapse: collapse`는 셀의 border를 *표*의 border 격자에 넘기고, 그 격자는 `position: sticky`인 셀을 따라가지 않습니다 — border로 그린 고정 헤더는 자기 밑줄을 스크롤 맨 위에 두고 갑니다.
+고정된 헤더는 격자가 칠을 그리는 유일한 자리입니다. 행이 그 바로 밑을 지나가므로 반투명한 헤더는 행을 그대로 통과시킵니다. 그래서 시트의 가장 짙은 유리를 페이지 자신의 surface 색 위에 얹은 것 — 빛을 막기 위해 쌓아 올린 불투명한 두 겹입니다.
 
-<Demo src="table/scroll" :flutter="false" :min-height="340">
+::: fw react
+
+`maxHeight`는 픽셀 숫자이거나 아무 CSS 길이입니다. caption은 `<table>`이 `aria-labelledby`로 가리키는 제목이고, `<caption>`과 똑같이 표의 이름이 되면서 올바른 상자 안에 있습니다.
+
+고정된 헤더 아래의 선은 border가 아니라 inset 그림자인데, 이것은 취향이 아닙니다. `border-collapse: collapse`는 셀의 border를 *표*의 border 격자에 넘기고, 그 격자는 `position: sticky`인 셀을 따라가지 않습니다 — border로 그린 고정 헤더는 자기 밑줄을 스크롤 맨 위에 두고 갑니다.
+
+:::
+
+::: fw flutter
+
+`maxHeight`는 논리 픽셀 단위의 `double`입니다. 스크롤 뷰는 언제나 거기 있으므로, 높이 제한이 있든 없든 표는 자기보다 작은 상자 안에서 넘치는 대신 스크롤됩니다.
+
+고정된 띠는 **두 번째 격자가 아닙니다**. 그것이 요령의 전부이고, 이것이 예전에 Flutter 빌드가 할 수 없는 일로 적혀 있던 이유이기도 합니다. 각자 자기 내용에서 잰 두 격자는 열 너비에 합의할 수 없습니다. 그래서 `Table`은 여전히 하나이고 헤더 행도 예전 그대로 그 안에 있으며, 스크롤 위에 얹힌 띠는 그 행의 *복사본*입니다. 띠의 각 셀은 진짜 헤더 셀이 실제로 배치된 너비의 상자에 담깁니다. 모든 열은 여전히 격자 하나가 정하고, 띠는 그 결정을 되풀이할 뿐입니다. 띠는 말도 하지 않습니다 — 이름은 이미 격자가 열 제목으로 안내하고 있고, 복사본까지 말하면 모든 열이 두 번씩 불립니다.
+
+:::
+
+<Demo src="table/scroll" :min-height="340">
+
+::: fw react
 
 <<< @/.vitepress/demos/table/scroll.tsx
 
-</Demo>
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/table/scroll.dart
 
 :::
+
+</Demo>
 
 ### <Fw react="onRowClick" flutter="onRowPressed" />
 
@@ -296,10 +314,10 @@ column이 말하는 것은 행에서 셀을 어떻게 꺼내는지, 그것뿐입
 | --- | --- | --- |
 | `key`가 속성을 가리키고 `render`는 선택 | `cell`이 필수 | Dart에는 임의의 타입에 대한 `row[key]`가 없습니다. 행을 `dynamic`으로 넓히느니 접근자를 쓰는 편이 쌉니다. |
 | `width: number \| string` | `width: double`과 `flex: double` | 픽셀은 픽셀 그대로, 퍼센트는 남은 폭의 몫이 됩니다. 자기 폭에 맞아떨어져야 하는 표에서 퍼센트란 원래 그것이었습니다. |
-| `stickyHeader` | — | 헤더를 고정한다는 것은 격자가 둘이 된다는 뜻이고, 각자 자기 내용에서 잰 두 격자는 열 너비에 합의할 수 없습니다. 대신 [`PlPagination`](../inputs/pagination)으로 행을 나누세요. |
-| 시트의 `overflow-x: auto` | — | 격자는 시트만큼 넓습니다. 열에 더 넓은 자리가 필요하면 `SingleChildScrollView`로 감싸세요. |
+| 시트의 `overflow-x: auto` | — | 격자는 시트만큼 넓습니다. 열에 더 넓은 자리가 필요하면 `SingleChildScrollView`로 감싸세요. *세로* 스크롤은 어느 쪽이든 표가 직접 갖고 있습니다. |
 | `getRowKey` | `rowKey` | 같은 일, Flutter의 철자. 돌려주는 것은 `React.Key`가 아니라 `LocalKey`입니다. |
 | `onRowClick` | `onRowPressed` | 누름이 부르는 것에 대한 이 패키지의 이름입니다. |
+| `maxHeight: number \| string` | `maxHeight: double` | 픽셀은 픽셀 그대로입니다. 받을 CSS 길이가 없습니다. |
 | 접근 가능한 이름인 `<caption>` | 그려지는 한 줄과 `semanticLabel` | Flutter는 노드에 문자열로 이름을 붙이고, caption은 위젯입니다. 그 문구는 여전히 먼저 읽힙니다. |
 | inline style 우회 | — | `table`, `td`, `th`를 다시 스타일링하려 드는 호스트 스타일시트가 없으니, 우회할 것도 없습니다. |
 | `className`, `style` | — | 전달할 클래스 목록도 style 속성도 없습니다. |
