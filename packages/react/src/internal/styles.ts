@@ -419,6 +419,26 @@ export const focusWithinRingClasses =
 export const focusRingInsetClasses =
   'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:[outline-offset:-2px]';
 
+/**
+ * The × that takes something off a chip.
+ *
+ * Here rather than in `PlChip` because a `PlCombobox` draws the same affordance
+ * on the chips *it* puts in its field, and it cannot reach into the component to
+ * borrow one — Base UI owns that button so the primitive can wire it up. Two
+ * copies of this would be two ×s that stop matching.
+ *
+ * Kept quiet until it is wanted: the glyph sits at 70% until the pointer or the
+ * keyboard arrives.
+ */
+export const chipRemoveClasses = /* @__PURE__ */ [
+  'ms-0.5 inline-flex shrink-0 items-center justify-center rounded-full',
+  'size-[1.15em] cursor-pointer opacity-70',
+  '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
+  'hover:opacity-100 focus-visible:opacity-100',
+  focusRingClasses,
+  'disabled:cursor-not-allowed'
+].join(' ');
+
 /** Icons track their label rather than carrying a size of their own. */
 export const iconClasses = '[&_svg]:pointer-events-none [&_svg]:size-[1.2em] [&_svg]:shrink-0';
 

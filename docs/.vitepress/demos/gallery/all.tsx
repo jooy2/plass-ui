@@ -20,6 +20,7 @@ import {
   PlCheckbox,
   PlChip,
   PlCollapsible,
+  PlCombobox,
   PlContainer,
   PlDivider,
   PlDrawer,
@@ -274,6 +275,27 @@ const entries: Entry[] = [
       ko: '한 줄 또는 여러 줄 텍스트 입력. 라벨과 설명, 오류 메시지를 함께 담습니다.'
     },
     preview: <PlTextField fullWidth size="sm" placeholder="acme-inc" />
+  },
+  {
+    name: 'PlCombobox',
+    group: 'inputs',
+    href: 'components/inputs/combobox',
+    blurb: {
+      en: 'A field you can type into and also choose from.',
+      ko: '입력할 수도 있고 고를 수도 있는 field입니다.'
+    },
+    preview: (
+      <PlCombobox
+        fullWidth
+        size="sm"
+        placeholder="Search…"
+        items={[
+          { value: 'react', label: 'React' },
+          { value: 'vue', label: 'Vue' },
+          { value: 'svelte', label: 'Svelte' }
+        ]}
+      />
+    )
   },
   {
     name: 'PlCheckbox',

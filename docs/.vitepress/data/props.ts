@@ -1934,6 +1934,272 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlCombobox: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: 'field의 재질. PlTextField와 같은 껍데기를 씁니다. solid는 시트에 파인 우물',
+        en: "The material of the field, drawn on PlTextField's shell. solid is the well cut into the sheet"
+      },
+      elevationDescription: {
+        ko: 'field의 그림자 깊이. 팝업은 3으로 고정입니다 — 팝업은 정말로 페이지 위에 떠 있습니다',
+        en: 'Drop shadow depth of the field. The popup has its own, fixed at 3 — it genuinely floats'
+      }
+    }),
+    {
+      name: 'items',
+      type: 'readonly PlComboboxOption[]',
+      required: true,
+      description: {
+        ko: '옵션 목록. PlSelect와 같은 모양입니다 — 호출자가 가진 건 거의 언제나 이미 배열입니다',
+        en: 'The options, as data — the same shape PlSelect takes, because what a caller has is almost always an array already'
+      }
+    },
+    {
+      name: 'multiple',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '값을 여러 개 담을지. 고른 값들이 field 안의 chip이 되고 입력은 계속 필터링합니다',
+        en: 'Whether more than one value may be held. The chosen ones become chips inside the field, and the input goes on filtering after each'
+      }
+    },
+    {
+      name: 'value',
+      type: 'string | number | (string | number)[] | null',
+      description: {
+        ko: '선택된 값. onValueChange와 함께 controlled로 씁니다. multiple이면 배열입니다',
+        en: 'The chosen value. Use with onValueChange for a controlled combobox; an array when multiple'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'string | number | (string | number)[] | null',
+      description: { ko: 'uncontrolled일 때 처음 선택된 값', en: 'The initially chosen value' }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string | number | (string | number)[] | null) => void',
+      description: { ko: '값이 바뀔 때 호출됩니다', en: 'Called with the new value' }
+    },
+    {
+      name: 'onInputValueChange',
+      type: '(inputValue: string) => void',
+      description: {
+        ko: '입력창의 글자가 바뀔 때 — 값이 아니라 필터 질의입니다',
+        en: 'Called as the text in the input changes — the filter query, not the value'
+      }
+    },
+    {
+      name: 'allowCustom',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '목록에 없는 값을 확정할 수 있는지. 입력한 글자가 목록 끝의 행으로 제안됩니다 — blur에서 조용히 확정되는 게 아니라 사용자가 고르는 것입니다',
+        en: 'Whether a value the list does not contain may be committed. The typed text is offered as its own row, so committing it is a choice rather than something that happens on blur'
+      }
+    },
+    {
+      name: 'customLabel',
+      type: '(query: string) => ReactNode',
+      default: 'Add “{query}”',
+      description: { ko: '그 행이 뭐라고 말할지', en: 'What that row says' }
+    },
+    {
+      name: 'clearable',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: 'field를 비우는 ×를 보여 줍니다. 기본이 꺼짐인 건 한 번에 비울 수 있는 field는 실수로도 비워지기 때문입니다',
+        en: 'Shows a × that empties the field. Off by default: a field that can be cleared in one click is a field that can be emptied by accident'
+      }
+    },
+    {
+      name: 'emptyMessage',
+      type: 'ReactNode',
+      default: "'No matches'",
+      description: {
+        ko: '일치하는 것도 없고 추가할 수도 없을 때 팝업이 하는 말',
+        en: 'Shown in the popup when nothing matched and no value may be added'
+      }
+    },
+    {
+      name: 'limit',
+      type: 'number',
+      default: '-1',
+      description: {
+        ko: '한 번에 보여 줄 최대 행 수. -1은 전부',
+        en: 'The most rows the list will show at once. -1 is all of them'
+      }
+    },
+    {
+      name: 'placeholder',
+      type: 'string',
+      description: {
+        ko: '아무것도 입력하지 않았을 때 보이는 내용',
+        en: 'Shown in the input while nothing is typed'
+      }
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: {
+        ko: 'field 위 라벨. Base UI의 Field가 서로 엮어 줍니다',
+        en: "Label above the field, wired to it by Base UI's Field"
+      }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: { ko: 'field 아래 보조 설명', en: 'Helper text below the field' }
+    },
+    {
+      name: 'error',
+      type: 'ReactNode',
+      description: {
+        ko: '오류 메시지. 존재 자체가 invalid 상태를 만듭니다',
+        en: 'Error message below. Its presence also turns the combobox invalid'
+      }
+    },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: {
+        ko: '메시지 없이 invalid로 만듭니다',
+        en: 'Forces the invalid state without a message'
+      }
+    },
+    {
+      name: 'startIcon',
+      type: 'ReactNode',
+      description: {
+        ko: '입력창 앞에 놓이는 내용. 1.2em으로 그려져 글자 크기를 따라갑니다',
+        en: 'Content before the input. Sized in em, so it tracks the text'
+      }
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '컨테이너 너비만큼 확장', en: 'Stretches to the width of the container' }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '사용 불가', en: 'Unavailable' }
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '값은 보이지만 바꿀 수 없음',
+        en: 'The value is shown but cannot be changed'
+      }
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '폼 제출 전에 값이 있어야 하는지',
+        en: 'Whether a value must be chosen before the form is submitted'
+      }
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: {
+        ko: '폼 제출 시 필드를 식별합니다',
+        en: 'Identifies the field when a form is submitted'
+      }
+    },
+    {
+      name: 'open',
+      type: 'boolean',
+      description: {
+        ko: '팝업이 열려 있는지. onOpenChange와 함께 controlled로 씁니다',
+        en: 'The popup is open. Use with onOpenChange for a controlled popup'
+      }
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      description: { ko: '팝업이 열린 채로 시작할지', en: 'Whether the popup starts open' }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: {
+        ko: '팝업이 열리고 닫힐 때 호출됩니다',
+        en: 'Called when the popup opens or closes'
+      }
+    },
+    {
+      name: 'openLabel',
+      type: 'string',
+      default: "'Open'",
+      description: {
+        ko: '목록을 여는 버튼의 접근성 이름',
+        en: 'Accessible name of the button that opens the list'
+      }
+    },
+    {
+      name: 'clearLabel',
+      type: 'string',
+      default: "'Clear'",
+      description: { ko: '× 버튼의 접근성 이름', en: 'Accessible name of the clear button' }
+    },
+    {
+      name: 'removeLabel',
+      type: '(label: string) => string',
+      default: 'Remove {label}',
+      description: {
+        ko: 'chip의 × 버튼 접근성 이름. chip의 라벨을 받습니다',
+        en: "Accessible name of a chip's remove button. Receives the chip's label"
+      }
+    },
+    {
+      name: 'inputRef',
+      type: 'Ref<HTMLInputElement>',
+      description: {
+        ko: '사용자가 입력하는 input에 대한 ref',
+        en: 'A ref to the text input the user types into'
+      }
+    }
+  ],
+
+  PlComboboxOption: [
+    {
+      name: 'value',
+      type: 'string | number',
+      required: true,
+      description: {
+        ko: '제출되는 값이고, value / onValueChange가 말하는 언어입니다',
+        en: 'Submitted, and what value / onValueChange speak in'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: {
+        ko: '목록과 입력창과 chip에 보이는 이름. 없으면 value 자체. ReactNode가 아니라 string인 건 필터가 이걸 대상으로 검색하고 text input에 써 넣기 때문입니다',
+        en: 'Shown in the list, in the input and on the chip. Defaults to the value. A string rather than a ReactNode, because the filter types against it and it is written into a text input'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '고를 수 없지만 목록에는 남습니다',
+        en: 'Unavailable, but still listed'
+      }
+    }
+  ],
+
   PlContainer: [
     {
       name: 'maxWidth',

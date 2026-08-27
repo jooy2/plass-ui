@@ -16,6 +16,7 @@ export * from './components/chat-bubble/index.js';
 export * from './components/checkbox/index.js';
 export * from './components/chip/index.js';
 export * from './components/collapsible/index.js';
+export * from './components/combobox/index.js';
 export * from './components/container/index.js';
 export * from './components/divider/index.js';
 export * from './components/drawer/index.js';

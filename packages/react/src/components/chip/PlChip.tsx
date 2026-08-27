@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { CloseIcon } from '../../internal/icons.js';
 import {
+  chipRemoveClasses,
   controlHeightClasses,
   controlSlots,
   controlTextClasses,
@@ -155,16 +156,6 @@ const labelButtonClasses = /* @__PURE__ */ [
   focusRingClasses
 ].join(' ');
 
-/** The ×, kept quiet until it is wanted. */
-const removeButtonClasses = /* @__PURE__ */ [
-  'ms-0.5 inline-flex shrink-0 items-center justify-center rounded-full',
-  'size-[1.15em] cursor-pointer opacity-70',
-  '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
-  'hover:opacity-100 focus-visible:opacity-100',
-  focusRingClasses,
-  'disabled:cursor-not-allowed'
-].join(' ');
-
 /**
  * A compact token: a tag, a filter, a status, an entity plucked out of a list.
  *
@@ -276,7 +267,7 @@ export const PlChip = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlChipPr
             type="button"
             aria-label={deleteLabel}
             disabled={disabled}
-            className={removeButtonClasses}
+            className={chipRemoveClasses}
             onClick={onDelete}
           >
             <CloseIcon />
