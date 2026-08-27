@@ -4,6 +4,7 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/fold.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
@@ -284,10 +285,7 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
       panel = ExcludeSemantics(child: ExcludeFocus(child: panel));
     }
 
-    // The body is clipped rather than squashed while the panel moves, which is
-    // what makes it a window opening onto the content rather than the content
-    // being scaled.
-    panel = SizeTransition(sizeFactor: _size, alignment: Alignment.topCenter, child: panel);
+    panel = PlassFold(factor: _size, child: panel);
 
     return PlassSurfaceBox(
       surface: sheetSurface(tokens, variant: widget.variant, elevation: widget.elevation),

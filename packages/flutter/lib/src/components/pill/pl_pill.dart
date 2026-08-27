@@ -4,6 +4,7 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/fold.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
@@ -290,9 +291,8 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
             children: <Widget>[
               row,
               if (widget.details != null)
-                SizeTransition(
-                  sizeFactor: _reveal,
-                  alignment: Alignment.topCenter,
+                PlassFold(
+                  factor: _reveal,
                   child: ExcludeFocus(
                     excluding: !widget.expanded,
                     child: ExcludeSemantics(

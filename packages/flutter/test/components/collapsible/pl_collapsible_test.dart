@@ -158,6 +158,7 @@ void main() {
         await tester.pump(PlassTokens.durationSlow ~/ 2);
 
         final double halfway = tester.getSize(find.byType(PlCollapsible)).height;
+        final double bodyHalfway = tester.getSize(find.text('Everything else.')).height;
 
         await tester.pumpAndSettle();
 
@@ -166,7 +167,8 @@ void main() {
         // The sheet grew, and the body inside it never changed size — it was
         // clipped, which is what makes the panel a window.
         expect(halfway, lessThan(open));
-        expect(find.byType(SizeTransition), findsOneWidget);
+        expect(bodyHalfway, tester.getSize(find.text('Everything else.')).height);
+        expect(find.byType(ClipRect), findsWidgets);
       });
 
       testWidgets('does not answer while it is unavailable', (WidgetTester tester) async {
