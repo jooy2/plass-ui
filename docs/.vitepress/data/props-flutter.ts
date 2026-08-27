@@ -1785,6 +1785,54 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlCollapsible', 'elevation', { type: 'int', default: '0' })
   ],
 
+  PlDrawer: [
+    from('PlDrawer', 'open', { type: 'bool', required: true }),
+    {
+      name: 'onOpenChanged',
+      type: 'ValueChanged<bool>?',
+      description: {
+        ko: '열림 상태가 무엇이 되어야 하는지로 호출됩니다. ×와 바깥 누름은 행동하는 대신 보고합니다',
+        en: 'Called with what the open state should become. The × and a press outside report rather than act'
+      }
+    },
+    {
+      name: 'child',
+      type: 'Widget?',
+      description: {
+        ko: '본문 — 스크롤되는 유일한 부분',
+        en: 'The body — the only part that scrolls'
+      }
+    },
+    from('PlDrawer', 'side', { type: 'PlassSide', default: 'PlassSide.left' }),
+    from('PlDrawer', 'mode', { type: 'PlDrawerMode', default: 'PlDrawerMode.overlay' }),
+    from('PlDrawer', 'title', { type: 'Widget?' }),
+    from('PlDrawer', 'description', { type: 'Widget?' }),
+    from('PlDrawer', 'actions', { type: 'List<Widget>?' }),
+    from('PlDrawer', 'dividers', { type: 'bool', default: 'false' }),
+    from('PlDrawer', 'showClose', { type: 'bool?' }),
+    from('PlDrawer', 'closeLabel', { type: 'String', default: "'Close'" }),
+    from('PlDrawer', 'extent', {
+      type: 'double?',
+      description: {
+        ko: '판이 가장자리에서 얼마나 들어오는지, 논리 픽셀 — 좌우는 너비, 상하는 높이',
+        en: 'How far the panel reaches in from its edge, in logical pixels: a width for left/right, a height for top/bottom'
+      }
+    }),
+    from('PlDrawer', 'rounded', { type: 'bool', default: 'true' }),
+    from('PlDrawer', 'modal', {
+      type: 'bool',
+      default: 'true',
+      description: {
+        ko: '뒤의 화면을 키보드뿐 아니라 포인터에서도 가져가는지',
+        en: 'Whether the screen behind is taken away for the pointer as well as the keyboard'
+      }
+    }),
+    from('PlDrawer', 'dismissible', { type: 'bool', default: 'true' }),
+    from('PlDrawer', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlDrawer', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlDrawer', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+  ],
+
   PlScrollZone: [
     {
       name: 'children',

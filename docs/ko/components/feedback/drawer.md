@@ -7,7 +7,7 @@ order: 7
 
 <p class="plass-lede">창의 한 가장자리에 붙은 판입니다. 한 컴포넌트에 두 가지가 들어 있는데, 사실 같은 판이기 때문입니다 — 열어서 쓰는 서랍과, 그냥 페이지의 일부인 서랍.</p>
 
-<Demo src="drawer/hero" :flutter="false" :min-height="140" />
+<Demo src="drawer/hero" :min-height="140" />
 
 ::: fw react
 
@@ -17,6 +17,22 @@ import { PlButton, PlDrawer, PlDrawerClose } from 'plass-ui';
 <PlDrawer side="right" trigger={<PlButton>Filters</PlButton>} title="Filters">
   Everything you can narrow by.
 </PlDrawer>;
+```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlDrawer(
+  side: PlassSide.right,
+  open: filtering,
+  onOpenChanged: (bool next) => setState(() => filtering = next),
+  title: const Text('Filters'),
+  child: const FilterForm(),
+);
 ```
 
 :::
@@ -44,9 +60,19 @@ import { PlButton, PlDrawer, PlDrawerClose } from 'plass-ui';
 
 `defaultOpen`도 그것을 따릅니다. `overlay`에서는 `false`, `inline`에서는 `true`입니다. 나타나기 전에 열어야 하는 고정 사이드바는 고정 사이드바가 아니기 때문입니다.
 
-<Demo src="drawer/inline" :flutter="false" :min-height="300">
+<Demo src="drawer/inline" :min-height="300">
+
+::: fw react
 
 <<< @/.vitepress/demos/drawer/inline.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/drawer/inline.dart
+
+:::
 
 </Demo>
 
@@ -64,9 +90,19 @@ import { PlButton, PlDrawer, PlDrawerClose } from 'plass-ui';
 
 `left`나 `right` 판은 `size`가 뜻하는 너비를 가지고, `top`이나 `bottom` 판은 안에 든 것만큼 높되 창의 85%까지입니다 — 세 줄이 든 바텀 시트는 세 줄 높이여야 합니다. `extent`가 어느 쪽이든 덮어씁니다.
 
-<Demo src="drawer/sides" :flutter="false" :min-height="140">
+<Demo src="drawer/sides" :min-height="140">
+
+::: fw react
 
 <<< @/.vitepress/demos/drawer/sides.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/drawer/sides.dart
+
+:::
 
 </Demo>
 
@@ -84,14 +120,31 @@ import { PlButton, PlDrawer, PlDrawerClose } from 'plass-ui';
 
 ## Accessibility
 
-- `overlay` 서랍은 진짜 dialog입니다. 포커스를 붙잡고, 나갈 때 트리거로 돌려주고, 뒤의 페이지를 접근성 트리에서 빼냅니다. `modal="trap-focus"`는 포커스는 안에 붙잡아 두면서 페이지는 스크롤하고 클릭할 수 있게 남겨 둡니다.
-- `title`이 이름을 붙이고 `description`이 설명합니다. 둘 다 그냥 근처에 놓이는 것이 아니라 판에 연결됩니다.
+- `overlay` 서랍은 떠 있는 동안 포커스를 붙잡고, 나갈 때 원래 자리로 돌려주며, 뒤의 화면을 가져갑니다.
+- `title`이 이름을 붙이고 `description`이 설명합니다. 둘 다 그냥 근처에 놓이는 것이 아니라 판에 연결되고, 제목은 heading으로 안내됩니다.
 - `inline` 서랍은 dialog가 **아니고** 그 어느 것도 주장하지 않습니다. 레이아웃 속의 판이고, 제목도 평범한 제목입니다.
 - `dismissible={false}`는 Escape도 스크림 누름도 거절합니다. 그 둘을 거절하는 서랍에는 그것에 답할 액션을 주세요. 다른 출구가 없습니다.
 
 ::: fw react
 
-- 포커스 트랩, 스크롤 잠금, `aria-labelledby` / `aria-describedby` 연결, 뒤 페이지의 inert 처리는 전부 Base UI의 것입니다.
+- 포커스 트랩, 스크롤 잠금, `aria-labelledby` / `aria-describedby` 연결, 뒤 페이지의 inert 처리는 전부 Base UI의 것입니다. `modal="trap-focus"`는 포커스는 안에 붙잡아 두면서 페이지는 스크롤하고 클릭할 수 있게 남겨 둡니다.
 - `PlDrawerClose`는 uncontrolled 서랍의 Cancel 버튼이 부를 것이 있도록 존재합니다. `render`가 그것을 진짜 Plass 버튼으로 만듭니다 — `<PlDrawerClose render={<PlButton variant="ghost">Cancel</PlButton>} />`.
+
+:::
+
+::: fw flutter
+
+- 들어 올리기, 스크림, focus scope, <kbd>Escape</kbd>, 나갈 때 포커스를 되돌려주는 것은 전부 `PlassPortal`의 것입니다. `PlModal`과 `PlOverlay`가 서 있는 것과 같은 층이라, 오버레이 위에 열린 서랍에 이음매가 보이지 않습니다.
+
+## React 빌드와의 차이
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `open` / `defaultOpen` / `onOpenChange` | `open` / `onOpenChanged` | Flutter의 컨트롤은 controlled이고, 이 패키지의 상태 있는 위젯도 전부 그렇습니다. |
+| `trigger` | — | 여기서는 트리거를 연결할 *대상*이 없습니다. 앱이 `open`을 세워 서랍을 열고, 그 일을 하는 버튼은 앱의 것입니다. |
+| `PlDrawerClose` | — | 저쪽에서는 _uncontrolled_ 서랍의 Cancel 버튼이 부를 것이 필요해서 있습니다. 여기서는 모든 서랍이 controlled이므로 버튼은 이미 `onOpenChanged`를 가지고 있습니다. |
+| `extent: number \| string` | `extent: double` | 픽셀은 픽셀 그대로입니다. 받을 CSS 길이가 없습니다. |
+| `modal: boolean \| 'trap-focus'` | `modal: bool` | 달라지는 두 값은 "포인터를 막는다"와 "막지 않는다"입니다. Flutter에는 세 번째가 될 스크롤 잠금이 없습니다. |
+| `className`, `style` | — | 전달할 class 목록도 style 속성도 없습니다. |
 
 :::

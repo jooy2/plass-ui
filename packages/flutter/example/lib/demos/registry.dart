@@ -103,6 +103,9 @@ import 'package:plass_ui_example/demos/divider/label.dart';
 import 'package:plass_ui_example/demos/divider/length.dart';
 import 'package:plass_ui_example/demos/divider/orientation.dart';
 import 'package:plass_ui_example/demos/divider/sizes.dart';
+import 'package:plass_ui_example/demos/drawer/hero.dart';
+import 'package:plass_ui_example/demos/drawer/inline.dart';
+import 'package:plass_ui_example/demos/drawer/sides.dart';
 import 'package:plass_ui_example/demos/file_picker/hero.dart';
 import 'package:plass_ui_example/demos/file_picker/rejections.dart';
 import 'package:plass_ui_example/demos/file_picker/single.dart';
@@ -492,6 +495,9 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'slider/range': _sliderRange,
   'slider/states': _sliderStates,
   'slider/steps': _sliderSteps,
+  'drawer/hero': _drawerHero,
+  'drawer/sides': _drawerSides,
+  'drawer/inline': _drawerInline,
   'collapsible/hero': _collapsibleHero,
   'collapsible/variants': _collapsibleVariants,
   'collapsible/slots': _collapsibleSlots,
@@ -791,6 +797,9 @@ Widget _sliderRange(BuildContext context) => const SliderRange();
 Widget _sliderStates(BuildContext context) => const SliderStates();
 Widget _sliderSteps(BuildContext context) => const SliderSteps();
 
+Widget _drawerHero(BuildContext context) => const DrawerHero();
+Widget _drawerSides(BuildContext context) => const DrawerSides();
+Widget _drawerInline(BuildContext context) => const DrawerInline();
 Widget _collapsibleHero(BuildContext context) => const CollapsibleHero();
 Widget _collapsibleVariants(BuildContext context) => const CollapsibleVariants();
 Widget _collapsibleSlots(BuildContext context) => const CollapsibleSlots();
