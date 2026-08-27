@@ -67,7 +67,7 @@ It is never drawn. What a reader sees is the glyph; what everything else reads i
 
 A `PlButton` with an icon and no label already goes square — same height, same width, the house fillet cut off it. This is the other shape: a disc.
 
-That disc is a deliberate exception to the radius rule, which holds every corner well short of the 50% that would make a control a pill. The rule is about *labelled* controls: the flat run along the top and bottom edge is where a line of text sits, and a glyph has no line of text. A circle with a single mark centred in it is a punched token rather than a moulded key, so it says the thing the rule exists to protect by a different route.
+That disc is a deliberate exception to the radius rule, which holds every corner well short of the 50% that would make a control a pill. The rule is about _labelled_ controls: the flat run along the top and bottom edge is where a line of text sits, and a glyph has no line of text. A circle with a single mark centred in it is a punched token rather than a moulded key, so it says the thing the rule exists to protect by a different route.
 
 <Demo src="icon-button/variants" :min-height="120">
 

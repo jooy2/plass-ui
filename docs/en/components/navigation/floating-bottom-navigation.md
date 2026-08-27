@@ -90,7 +90,7 @@ The key is **one element**, measured off whichever disc is current and animated 
 
 Nothing is transformed. The key is an empty box moved by its own `left`, `top`, `width` and `height`, so no glyph in the row is resampled while it travels, and the house rule against moving a control survives a component whose entire point is that something moves.
 
-The first placement is instant, however it arrives. A key that has only just mounted has nowhere to travel *from*, so the destination a bar opens on appears under its own disc rather than flying in from the left edge of the capsule.
+The first placement is instant, however it arrives. A key that has only just mounted has nowhere to travel _from_, so the destination a bar opens on appears under its own disc rather than flying in from the left edge of the capsule.
 
 ### Names
 

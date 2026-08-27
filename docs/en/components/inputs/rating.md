@@ -146,7 +146,7 @@ The standalone-glyph ladder — the same one `PlIcon` uses — because a star is
 
 ### color
 
-`warning` by default — the amber a star is expected to be — rather than the `primary` everything else takes. It is the one place in the library where a component's default colour is chosen by what the object *is* instead of by what it means.
+`warning` by default — the amber a star is expected to be — rather than the `primary` everything else takes. It is the one place in the library where a component's default colour is chosen by what the object _is_ instead of by what it means.
 
 <Demo src="rating/colors" :min-height="200">
 

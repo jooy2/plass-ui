@@ -94,7 +94,7 @@ A **percentage** is how a split is usually described and what keeps its meaning 
 
 Panes with no `defaultSize` split whatever is left over equally.
 
-The three props are read by the **split** rather than used by the pane. A pane cannot know what "half" is; only the thing holding all of them can. Which is also why the direct children of a `PlPanes` have to *be* `PlPane`s — a pane wrapped in something else is a pane with no minimum.
+The three props are read by the **split** rather than used by the pane. A pane cannot know what "half" is; only the thing holding all of them can. Which is also why the direct children of a `PlPanes` have to _be_ `PlPane`s — a pane wrapped in something else is a pane with no minimum.
 
 <Demo src="panes/constraints" :min-height="240">
 
@@ -154,7 +154,7 @@ Turn it off for a split that is a layout rather than a control. The handles stay
 
 ### size and color
 
-`size` is how thick a handle is. What is *drawn* is a hairline; what can be **grabbed** is the track around it — the same split a scrollbar makes between the two, and the reason a one-pixel line is not a target.
+`size` is how thick a handle is. What is _drawn_ is a hairline; what can be **grabbed** is the track around it — the same split a scrollbar makes between the two, and the reason a one-pixel line is not a target.
 
 The split draws no sheet, so `color` reaches three things and stops: the handle's hairline when the pointer is on it, the tint under it, and the focus ring.
 

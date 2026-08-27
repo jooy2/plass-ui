@@ -51,7 +51,7 @@ Every native `<div>` attribute passes straight through.
 
 :::
 
-`size` is the only shared axis here, and it is the size of the *sheet* — which radius step `rounded` uses. There is no `variant`, no `color` and no `elevation`: a layout component that drew a surface would make a proportion a visual decision. What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
+`size` is the only shared axis here, and it is the size of the _sheet_ — which radius step `rounded` uses. There is no `variant`, no `color` and no `elevation`: a layout component that drew a surface would make a proportion a visual decision. What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
 ## Examples
 

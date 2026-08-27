@@ -792,6 +792,42 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlBox: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: '시트의 재질. 셋 다 색이 들어가지 않습니다 — box가 담는 것은 자기 색을 가지고 옵니다',
+        en: 'What the sheet is made of. None of the three is dyed: what a box holds arrives with its own colours'
+      },
+      sizeDescription: {
+        ko: '**시트**의 크기 — 반경과 여백. 높이도 타입 스케일도 아닙니다',
+        en: 'The size of the **sheet**: its radius and its padding. Never a height, never the type scale'
+      },
+      elevationDescription: {
+        ko: '드롭 섀도 깊이. 0이 기본이고 평평합니다 — box를 페이지에서 떼어 놓는 것은 유리 가장자리입니다',
+        en: 'Drop shadow depth. 0 and flat: the glass edge is what separates the box from the page'
+      }
+    }),
+    {
+      name: 'padded',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '안쪽 여백. 가장자리까지 닿아야 하는 내용에서는 끄세요',
+        en: 'Inner padding. Turn it off for content that should reach the edges'
+      }
+    },
+    {
+      name: 'render',
+      type: 'useRender.RenderProp',
+      description: {
+        ko: 'div가 아닌 다른 요소로 렌더링합니다 — section, li, 무엇이든',
+        en: 'Renders something other than a div — a section, an li, anything'
+      }
+    }
+  ],
+
   PlBreadcrumb: [
     {
       name: 'size',
@@ -3997,7 +4033,7 @@ export const propTables: Record<string, PropRow[]> = {
       default: '2',
       description: {
         ko: '자식 사이의 간격. PlGrid와 같은 사다리이고 2는 0.5rem입니다',
-        en: 'The gap between children, on PlGrid\'s own ladder: 2 is 0.5rem'
+        en: "The gap between children, on PlGrid's own ladder: 2 is 0.5rem"
       }
     },
     {

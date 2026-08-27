@@ -83,7 +83,7 @@ A select's options are values out of a list a caller already has, so they are da
 
 It is forced. React composes because Base UI reads the DOM the rows are written into: it finds them, counts them, moves a roving highlight through them and matches typeahead against them without anybody handing it a list. There is no tree to walk here, so the menu has to be told — the same reason `PlAccordion`, `PlTabs` and `PlSelect` all take descriptions.
 
-`PlMenuEntry` is a **sealed** hierarchy rather than one class with a discriminator on it, which is what lets a row be a different *kind* of thing and the switch over it be checked.
+`PlMenuEntry` is a **sealed** hierarchy rather than one class with a discriminator on it, which is what lets a row be a different _kind_ of thing and the switch over it be checked.
 
 :::
 
@@ -137,7 +137,7 @@ Both default to **staying open** when they are picked, against the `true` a plai
 
 ::: fw flutter
 
-There is no radio *group*. Every input in this package is controlled, so a `PlMenuRadioItem` is told whether it is the chosen one and reports that it was pressed — a group that owned the value would be the one thing in the library that did not report and forget.
+There is no radio _group_. Every input in this package is controlled, so a `PlMenuRadioItem` is told whether it is the chosen one and reports that it was pressed — a group that owned the value would be the one thing in the library that did not report and forget.
 
 :::
 
@@ -243,7 +243,7 @@ It takes the rows as `content` and the area as `children`, which is `PlTooltip`'
 | React | Flutter | Why |
 | --- | --- | --- |
 | composed rows | `items: List<PlMenuEntry>` | Base UI reads the DOM the rows are written into. There is no tree to walk here, so the menu has to be told what it holds. |
-| `children` on a row | `label`, a `String` | It is drawn, announced *and* matched by typeahead. Only a string can be all three. |
+| `children` on a row | `label`, a `String` | It is drawn, announced _and_ matched by typeahead. Only a string can be all three. |
 | `PlMenuRadioGroup` | `PlMenuRadioItem.selected` | Every input in this package is controlled; a group holding a value would be the one that is not. |
 | `trigger`, an element | `trigger`, a builder | It is handed the callback that opens the menu and whether it is open, which is what a trigger that stays lit needs. |
 | `href` on a row | — | There is no link element and nothing crawls a Flutter app. `onPressed` is where a router is called. |

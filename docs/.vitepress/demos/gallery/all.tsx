@@ -9,6 +9,7 @@ import {
   PlBlockquote,
   PlBottomNavigation,
   PlBottomNavigationItem,
+  PlBox,
   PlBreadcrumb,
   PlBreadcrumbItem,
   PlButton,
@@ -686,6 +687,20 @@ const entries: Entry[] = [
           Rest here
         </PlButton>
       </PlTooltip>
+    )
+  },
+  {
+    name: 'PlBox',
+    group: 'surfaces',
+    href: 'components/surfaces/box',
+    blurb: {
+      en: 'A sheet of glass with content on it, and nothing else claimed.',
+      ko: '내용을 얹은 유리 한 장, 그 이상은 주장하지 않습니다.'
+    },
+    preview: (
+      <PlBox size="sm" className="w-full text-xs">
+        It groups things, and that is all it does.
+      </PlBox>
     )
   },
   {

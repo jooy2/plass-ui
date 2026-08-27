@@ -58,7 +58,7 @@ Every native `<div>` attribute passes straight through, on both.
 
 :::
 
-Neither takes `variant`, `color`, `elevation`, `size` or `density`. A grid is not a surface — it is the arrangement of the surfaces inside it — and a cell that drew a sheet would make `span` a visual decision. There is no padding here either: the gutter round a page is a [`PlContainer`](./container)'s and the padding round content is a `PlCard`'s, and a grid with a track of its own would be a third one to keep in step. `spacing` is the only measurement it owns, and it is the space *between* cells.
+Neither takes `variant`, `color`, `elevation`, `size` or `density`. A grid is not a surface — it is the arrangement of the surfaces inside it — and a cell that drew a sheet would make `span` a visual decision. There is no padding here either: the gutter round a page is a [`PlContainer`](./container)'s and the padding round content is a `PlCard`'s, and a grid with a track of its own would be a third one to keep in step. `spacing` is the only measurement it owns, and it is the space _between_ cells.
 
 ## Examples
 

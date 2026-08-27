@@ -314,7 +314,7 @@ column이 말하는 것은 행에서 셀을 어떻게 꺼내는지, 그것뿐입
 | --- | --- | --- |
 | `key`가 속성을 가리키고 `render`는 선택 | `cell`이 필수 | Dart에는 임의의 타입에 대한 `row[key]`가 없습니다. 행을 `dynamic`으로 넓히느니 접근자를 쓰는 편이 쌉니다. |
 | `width: number \| string` | `width: double`과 `flex: double` | 픽셀은 픽셀 그대로, 퍼센트는 남은 폭의 몫이 됩니다. 자기 폭에 맞아떨어져야 하는 표에서 퍼센트란 원래 그것이었습니다. |
-| 시트의 `overflow-x: auto` | — | 격자는 시트만큼 넓습니다. 열에 더 넓은 자리가 필요하면 `SingleChildScrollView`로 감싸세요. *세로* 스크롤은 어느 쪽이든 표가 직접 갖고 있습니다. |
+| 시트의 `overflow-x: auto` | — | 격자는 시트만큼 넓습니다. 열에 더 넓은 자리가 필요하면 `SingleChildScrollView`로 감싸세요. _세로_ 스크롤은 어느 쪽이든 표가 직접 갖고 있습니다. |
 | `getRowKey` | `rowKey` | 같은 일, Flutter의 철자. 돌려주는 것은 `React.Key`가 아니라 `LocalKey`입니다. |
 | `onRowClick` | `onRowPressed` | 누름이 부르는 것에 대한 이 패키지의 이름입니다. |
 | `maxHeight: number \| string` | `maxHeight: double` | 픽셀은 픽셀 그대로입니다. 받을 CSS 길이가 없습니다. |
