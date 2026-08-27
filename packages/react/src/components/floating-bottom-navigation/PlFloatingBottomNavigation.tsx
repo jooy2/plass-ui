@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import {
   controlHeightClasses,
+  controlSlots,
   controlSquareClasses,
   cx,
   focusRingClasses,
@@ -9,7 +10,6 @@ import {
   hasContent,
   iconSizeClasses,
   srOnlyClasses,
-  surfaceSlots,
   transitionClasses
 } from '../../internal/styles.js';
 import type {
@@ -180,6 +180,40 @@ const capsuleClasses: Record<'solid' | 'glass' | 'ghost', string> = {
 };
 
 /**
+ * The key that slides.
+ *
+ * Always the family's own gradient with that family's tinted shadow under it,
+ * whatever the capsule is made of — a key of tinted glass riding in a clear
+ * sheet is the design language's own sentence, and `variant` is a statement
+ * about the *capsule*. A `ghost` bar is a row of discs with no sheet behind
+ * them; the one that is current is still the one that is current.
+ *
+ * `left`, `top`, `width` and `height` rather than a `translate`: the key is
+ * measured off the disc it belongs under, and moving it by its own box is what
+ * keeps every glyph in the row unresampled while it travels. `left` and not
+ * `inset-inline-start`, because `offsetLeft` is a distance from the left edge
+ * and stays one under RTL — pairing a physical measurement with a logical
+ * property is what would break the direction.
+ *
+ * `data-quiet` is the current destination being unavailable, which is the one
+ * state the key cannot read off its own props: the light goes out on the key
+ * the same way it goes out on the disc over it, or a disabled destination is a
+ * dimmed glyph on a fully lit gradient.
+ */
+const keyClasses = /* @__PURE__ */ [
+  'pointer-events-none absolute rounded-full',
+  'top-(--p-disc-y) left-(--p-disc-x) h-(--p-disc-h) w-(--p-disc-w)',
+  '[background-image:var(--p-fill)]',
+  '[box-shadow:var(--plass-shadow-1),var(--p-lift)]',
+  'data-[quiet]:opacity-50 data-[quiet]:saturate-[0.35]',
+  '[transition-property:left,top,width,height,opacity,filter]',
+  '[transition-timing-function:var(--plass-ease)]',
+  // Nothing until the first measurement has landed; the house duration from
+  // then on.
+  '[transition-duration:0ms] data-[ready]:[transition-duration:var(--plass-duration)]'
+].join(' ');
+
+/**
  * A row of round destinations floating clear of the bottom edge of the window.
  *
  * The other half of `PlBottomNavigation`, and a different object rather than a
@@ -197,6 +231,23 @@ const capsuleClasses: Record<'solid' | 'glass' | 'ghost', string> = {
  *
  * The current destination is a key of **tinted glass** riding in the clear
  * sheet, which is the design language's own sentence with nothing added to it.
+ * The key is **one element that travels**, measured off whichever disc is
+ * current and animated the way a `PlSegmentedButton`'s tile is — not a fill
+ * that appears on one disc while it disappears from another. Two discs
+ * cross-fading is two objects; a bar with a key in it has one, and where it
+ * goes is the whole of what the component has to say.
+ *
+ * Nothing is transformed: the key is an empty box, and no glyph is resampled
+ * while it travels. That is what lets the house no-transform rule survive a
+ * component whose entire point is that something moves.
+ *
+ * It reads `controlSlots` and not the `surfaceSlots` every other container
+ * takes, which is the one place this bar is not a container: the slots a
+ * container is given are deliberately undyed — no `--p-fill`, no `--p-on-solid`
+ * and no `--p-lift` — and the key is made of all three. Asking a container's
+ * slot set for a control's colours is asking for `var(--p-fill)` to resolve to
+ * nothing, which is a `background-image` the browser drops on the floor and a
+ * current destination that looks exactly like the four beside it.
  */
 export const PlFloatingBottomNavigation = /* @__PURE__ */ React.forwardRef<
   HTMLElement,
@@ -228,6 +279,90 @@ export const PlFloatingBottomNavigation = /* @__PURE__ */ React.forwardRef<
   );
   const controlled = valueProp !== undefined;
   const value = controlled ? valueProp : uncontrolled;
+
+  const capsuleRef = React.useRef<HTMLDivElement>(null);
+  const keyRef = React.useRef<HTMLSpanElement>(null);
+
+  /**
+   * Writes the current disc's box onto the key as four custom properties.
+   *
+   * Written straight to the element rather than held in state, exactly as
+   * `PlSegmentedButton` writes its tile: a `setState` here would re-render
+   * every disc on every resize, and nothing in the tree depends on the numbers
+   * except four CSS declarations.
+   *
+   * `animate` is what separates the two callers. A change of destination is the
+   * thing this exists to animate; a resize is the capsule moving under a key
+   * that was already in the right place, and animating that is a key that lags
+   * behind the window being dragged.
+   */
+  const measure = React.useCallback((animate: boolean) => {
+    const capsule = capsuleRef.current;
+    const disc = keyRef.current;
+
+    if (!capsule || !disc) {
+      return;
+    }
+
+    const current = capsule.querySelector<HTMLElement>('[data-disc][data-current]');
+
+    if (!current) {
+      return;
+    }
+
+    // A key that has only just mounted has nowhere to travel *from*, so its
+    // first placement is instant however it was asked for — that is what makes
+    // the first destination appear under its disc rather than fly in from the
+    // left edge of the capsule.
+    const instant = !animate || !disc.hasAttribute('data-ready');
+
+    if (instant) {
+      disc.removeAttribute('data-ready');
+    }
+
+    // `offsetLeft`/`offsetTop` are measured from the offsetParent's padding
+    // edge, and `left`/`top` on an absolutely positioned child resolve against
+    // the same box — so the capsule's own padding is already accounted for and
+    // must not be subtracted again.
+    disc.style.setProperty('--p-disc-x', `${current.offsetLeft}px`);
+    disc.style.setProperty('--p-disc-y', `${current.offsetTop}px`);
+    disc.style.setProperty('--p-disc-w', `${current.offsetWidth}px`);
+    disc.style.setProperty('--p-disc-h', `${current.offsetHeight}px`);
+
+    // Read off the disc rather than off a prop, because the bar does not know
+    // which of its children is unavailable — the items are `children` and the
+    // disabled one is whichever of them said so. The same query that measures
+    // the box answers it, so there is no second pass.
+    disc.toggleAttribute('data-quiet', current.hasAttribute('data-disabled'));
+
+    if (instant) {
+      // Reading a layout property commits the four writes above while the
+      // duration is still 0ms, so turning the transition back on cannot
+      // animate a move that has already happened.
+      void disc.offsetWidth;
+    }
+
+    disc.setAttribute('data-ready', '');
+  }, []);
+
+  // Before the browser paints, or the key is visibly at nothing for a frame.
+  React.useLayoutEffect(() => {
+    measure(true);
+  }, [measure, value, variant, size, density, disabled, children]);
+
+  React.useEffect(() => {
+    const capsule = capsuleRef.current;
+
+    if (!capsule || typeof ResizeObserver === 'undefined') {
+      return;
+    }
+
+    const observer = new ResizeObserver(() => measure(false));
+
+    observer.observe(capsule);
+
+    return () => observer.disconnect();
+  }, [measure]);
 
   const change = React.useCallback(
     (next: PlFloatingBottomNavigationValue) => {
@@ -262,18 +397,32 @@ export const PlFloatingBottomNavigation = /* @__PURE__ */ React.forwardRef<
     props: {
       'aria-label': label,
       className: classNames,
-      style: { ...surfaceSlots(color, elevation), ...style },
+      // `controlSlots` and not `surfaceSlots`: the capsule is undyed like every
+      // other container, but the key riding in it is a control's surface and is
+      // made of three slots a container's set does not carry.
+      style: { ...controlSlots(color, elevation, 'solid'), ...style },
       children: (
         <FloatingBarContext.Provider value={context}>
           <div
+            ref={capsuleRef}
             className={cx(
-              'pointer-events-auto inline-flex items-center rounded-full',
+              // `relative` is load-bearing twice over: it is what makes the
+              // capsule the discs' offsetParent, and what the key is positioned
+              // in.
+              'pointer-events-auto relative inline-flex items-center rounded-full',
               capsuleClasses[variant],
               capsulePaddingClasses[density][size],
               discGapClasses[density][size],
               transitionClasses
             )}
           >
+            {/* Rendered only once a destination is current. A bar with none has
+                no key to slide, and mounting it on the first choice is what
+                makes that choice appear in place rather than fly in. */}
+            {value !== null && value !== undefined ? (
+              <span ref={keyRef} aria-hidden="true" className={keyClasses} />
+            ) : null}
+
             {children}
           </div>
         </FloatingBarContext.Provider>
@@ -302,7 +451,9 @@ export const PlFloatingBottomNavigationItem = /* @__PURE__ */ React.forwardRef<
   const selected = bar.value !== null && bar.value === value;
 
   const classNames = cx(
-    'relative inline-flex shrink-0 items-center justify-center rounded-full',
+    // `z-10` and a stacking context of its own: the key is painted behind the
+    // discs, and without this it would cover the glyph it is under.
+    'relative z-10 inline-flex shrink-0 items-center justify-center rounded-full',
     controlHeightClasses[bar.size],
     controlSquareClasses[bar.size],
     '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
@@ -315,11 +466,11 @@ export const PlFloatingBottomNavigationItem = /* @__PURE__ */ React.forwardRef<
     disabled
       ? 'cursor-not-allowed opacity-50 saturate-[0.35] text-(--plass-muted-fg)'
       : selected
-        ? [
-            'cursor-pointer text-(--p-on-solid) [background-image:var(--p-fill)]',
-            '[box-shadow:var(--plass-shadow-1),var(--p-lift)]',
-            'hover:brightness-105 active:brightness-95'
-          ].join(' ')
+        ? // No surface of its own. What is under the glyph is the key, which
+          // belongs to the bar and is the one thing in the row that travels;
+          // a disc that drew its own fill would be a second key appearing
+          // wherever the first one had just left.
+          'cursor-pointer text-(--p-on-solid)'
         : 'cursor-pointer text-(--plass-muted-fg) hover:text-(--plass-fg) hover:bg-(--plass-glass-hover)',
     className
   );
@@ -343,6 +494,21 @@ export const PlFloatingBottomNavigationItem = /* @__PURE__ */ React.forwardRef<
     </>
   );
 
+  /**
+   * The hooks the key is measured from.
+   *
+   * Attributes rather than a ref per disc, for the reason a `PlSegment` carries
+   * `data-segment`: a ref array would mean keeping it in step with however the
+   * caller composed the items — through a `.map()`, through a fragment, through
+   * a component of their own — and an attribute is the version of that which
+   * cannot fall out of step.
+   */
+  const discAttributes = {
+    'data-disc': '',
+    'data-current': selected ? '' : undefined,
+    'data-disabled': disabled ? '' : undefined
+  };
+
   const press = (event: React.MouseEvent<HTMLElement>) => {
     if (disabled) {
       event.preventDefault();
@@ -360,6 +526,7 @@ export const PlFloatingBottomNavigationItem = /* @__PURE__ */ React.forwardRef<
         href={disabled ? undefined : href}
         aria-current={selected ? 'page' : undefined}
         aria-disabled={disabled || undefined}
+        {...discAttributes}
         className={classNames}
         onClick={press}
         {...(props as React.ComponentPropsWithoutRef<'a'>)}
@@ -375,6 +542,7 @@ export const PlFloatingBottomNavigationItem = /* @__PURE__ */ React.forwardRef<
       type="button"
       disabled={disabled}
       aria-current={selected ? 'page' : undefined}
+      {...discAttributes}
       className={classNames}
       onClick={press}
       {...props}

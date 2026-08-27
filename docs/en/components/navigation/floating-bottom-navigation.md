@@ -84,6 +84,14 @@ Every destination is a disc with a glyph in it and no name drawn, which is what 
 
 The current destination is a key of **tinted glass** riding in the clear sheet. Every other one has no surface until the pointer is on it.
 
+### The key travels
+
+The key is **one element**, measured off whichever disc is current and animated between them the way a [`PlSegmentedButton`](../inputs/segmented-button)'s tile is. It is not a fill that appears on one disc while it disappears from another: two discs cross-fading is two objects, and a bar with a key in it has one — where that key goes is the whole of what this component has to say.
+
+Nothing is transformed. The key is an empty box moved by its own `left`, `top`, `width` and `height`, so no glyph in the row is resampled while it travels, and the house rule against moving a control survives a component whose entire point is that something moves.
+
+The first placement is instant, however it arrives. A key that has only just mounted has nowhere to travel *from*, so the destination a bar opens on appears under its own disc rather than flying in from the left edge of the capsule.
+
 ### Names
 
 `children` is required in practice and **never drawn**. A disc with a glyph in it has no accessible name at all, and a row of glyphs with no names is exactly the defect `PlIconButton`'s `label` exists to make impossible — it would be just as easy to ship here.

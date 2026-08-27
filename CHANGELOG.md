@@ -8,6 +8,7 @@
 
 ### Fixed
 
+- **A floating bottom bar shows which destination you are on, and slides the key there.** `PlFloatingBottomNavigation` painted its current disc with `var(--p-fill)`, `var(--p-on-solid)` and `var(--p-lift)` while taking `surfaceSlots` — the *container* slot set, which deliberately carries none of the three. All three resolved to nothing, so the gradient was a `background-image` the browser dropped and the current destination looked exactly like the four beside it. It reads `controlSlots` now, and the fill has moved off the disc onto a key that **travels**: one element measured off whichever disc is current and animated between them, the way a `PlSegmentedButton`'s tile is. Nothing is transformed, so no glyph in the row is resampled while it moves.
 - **The package now loads in Node.** `tsc` copies a relative specifier through exactly as written, and every import in the source was extensionless — so `dist/index.js` said `export * from './types'`, which every bundler resolves and Node's ESM loader does not. `import { PlButton } from 'plass-ui'` threw `ERR_MODULE_NOT_FOUND` in any environment that is not a bundler: a server render, a React Server Component, a Vitest run that does not inline the dependency. Every relative specifier in the package now carries its `.js`, and `npm run size` loads all 47 entry points through Node's own resolver so this cannot come back.
 
 ### Changed

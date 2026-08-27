@@ -108,7 +108,7 @@ describe('PlFloatingBottomNavigation', () => {
       expect(screen.getByTestId('glyph').element()).toBeInTheDocument();
     });
 
-    it('is a key of tinted glass once it is the one you are on', async () => {
+    it('takes the on-fill ink once it is the one you are on, and no fill of its own', async () => {
       const screen = await render(
         <PlFloatingBottomNavigation value="home">
           <PlFloatingBottomNavigationItem value="home" icon={glyph}>
@@ -120,11 +120,14 @@ describe('PlFloatingBottomNavigation', () => {
         </PlFloatingBottomNavigation>
       );
 
-      expect(screen.getByRole('button', { name: 'Home' }).element()).toHaveClass(
-        '[background-image:var(--p-fill)]'
-      );
-      expect(screen.getByRole('button', { name: 'Search' }).element()).not.toHaveClass(
-        '[background-image:var(--p-fill)]'
+      const current = screen.getByRole('button', { name: 'Home' }).element();
+
+      expect(current).toHaveClass('text-(--p-on-solid)');
+      // The gradient belongs to the key, which travels. A disc that drew one of
+      // its own would be a second key appearing where the first had just left.
+      expect(current).not.toHaveClass('[background-image:var(--p-fill)]');
+      expect(screen.getByRole('button', { name: 'Search' }).element()).toHaveClass(
+        'text-(--plass-muted-fg)'
       );
     });
 
@@ -219,6 +222,118 @@ describe('PlFloatingBottomNavigation', () => {
       );
 
       expect(screen.getByRole('button', { name: 'Home' }).element()).toBeDisabled();
+    });
+  });
+
+  describe('the key', () => {
+    /** The one element in the capsule that is not a destination. */
+    const keyOf = () =>
+      document.querySelector<HTMLElement>('.bar-under-test > div > span[aria-hidden="true"]');
+
+    it('carries the slots a container never gets', async () => {
+      await render(<PlFloatingBottomNavigation className="bar-under-test" />);
+
+      const element = document.querySelector<HTMLElement>('.bar-under-test');
+
+      // A container's slot set is deliberately undyed, and the key is made of
+      // all three of the slots it leaves out — so a bar reading it would draw a
+      // `background-image` of nothing.
+      expect(element?.style.getPropertyValue('--p-fill')).toBe('var(--plass-primary-fill)');
+      expect(element?.style.getPropertyValue('--p-on-solid')).toBe('var(--plass-primary-on-solid)');
+      expect(element?.style.getPropertyValue('--p-lift')).not.toBe('');
+    });
+
+    it('is not drawn while no destination is current', async () => {
+      await render(
+        <PlFloatingBottomNavigation className="bar-under-test">
+          <PlFloatingBottomNavigationItem value="home" icon={glyph}>
+            Home
+          </PlFloatingBottomNavigationItem>
+        </PlFloatingBottomNavigation>
+      );
+
+      expect(keyOf()).toBeNull();
+    });
+
+    it('is one element measured off the disc it is under', async () => {
+      const screen = await render(
+        <PlFloatingBottomNavigation className="bar-under-test" value="home">
+          <PlFloatingBottomNavigationItem value="home" icon={glyph}>
+            Home
+          </PlFloatingBottomNavigationItem>
+          <PlFloatingBottomNavigationItem value="search" icon={glyph}>
+            Search
+          </PlFloatingBottomNavigationItem>
+        </PlFloatingBottomNavigation>
+      );
+
+      const element = keyOf();
+      const disc = screen.getByRole('button', { name: 'Home' }).element() as HTMLElement;
+
+      expect(
+        document.querySelectorAll('.bar-under-test > div > span[aria-hidden="true"]')
+      ).toHaveLength(1);
+      expect(element?.style.getPropertyValue('--p-disc-x')).toBe(`${disc.offsetLeft}px`);
+      expect(element?.style.getPropertyValue('--p-disc-w')).toBe(`${disc.offsetWidth}px`);
+      expect(element?.style.getPropertyValue('--p-disc-h')).toBe(`${disc.offsetHeight}px`);
+    });
+
+    it('travels to the destination that was pressed rather than being redrawn', async () => {
+      const screen = await render(
+        <PlFloatingBottomNavigation className="bar-under-test" defaultValue="home">
+          <PlFloatingBottomNavigationItem value="home" icon={glyph}>
+            Home
+          </PlFloatingBottomNavigationItem>
+          <PlFloatingBottomNavigationItem value="search" icon={glyph}>
+            Search
+          </PlFloatingBottomNavigationItem>
+        </PlFloatingBottomNavigation>
+      );
+
+      const before = keyOf();
+
+      await screen.getByRole('button', { name: 'Search' }).click();
+
+      const after = keyOf();
+      const disc = screen.getByRole('button', { name: 'Search' }).element() as HTMLElement;
+
+      // The same node, moved. Two nodes cross-fading would be two objects.
+      expect(after).toBe(before);
+      expect(after?.style.getPropertyValue('--p-disc-x')).toBe(`${disc.offsetLeft}px`);
+    });
+
+    it('is placed instantly on the first paint and eased from then on', async () => {
+      const screen = await render(
+        <PlFloatingBottomNavigation className="bar-under-test" defaultValue="home">
+          <PlFloatingBottomNavigationItem value="home" icon={glyph}>
+            Home
+          </PlFloatingBottomNavigationItem>
+          <PlFloatingBottomNavigationItem value="search" icon={glyph}>
+            Search
+          </PlFloatingBottomNavigationItem>
+        </PlFloatingBottomNavigation>
+      );
+
+      // `data-ready` is set once the first placement has been committed, and it
+      // is what turns the duration on — the first destination appears under its
+      // disc rather than flying in from the left edge of the capsule.
+      expect(keyOf()).toHaveAttribute('data-ready');
+
+      await screen.getByRole('button', { name: 'Search' }).click();
+
+      expect(keyOf()).toHaveAttribute('data-ready');
+    });
+
+    it('goes out with the destination it is under', async () => {
+      await render(
+        <PlFloatingBottomNavigation className="bar-under-test" value="home">
+          <PlFloatingBottomNavigationItem value="home" icon={glyph} disabled>
+            Home
+          </PlFloatingBottomNavigationItem>
+        </PlFloatingBottomNavigation>
+      );
+
+      expect(keyOf()).toHaveAttribute('data-quiet');
     });
   });
 });
