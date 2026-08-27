@@ -14,6 +14,7 @@ import {
   PlBreadcrumbItem,
   PlButton,
   PlCard,
+  PlCarousel,
   PlChatBubble,
   PlCheckbox,
   PlChip,
@@ -715,6 +716,27 @@ const entries: Entry[] = [
       <PlCard size="xs" className="w-full" title="Team plan" subtitle="Billed yearly">
         Shared projects and audit logs.
       </PlCard>
+    )
+  },
+  {
+    name: 'PlCarousel',
+    group: 'surfaces',
+    href: 'components/surfaces/carousel',
+    blurb: {
+      en: 'A strip of slides, one of which is in view.',
+      ko: '슬라이드가 늘어선 띠이고, 그중 하나가 보입니다.'
+    },
+    preview: (
+      <PlCarousel className="w-full" size="sm" label="Places" arrows={false}>
+        {['Harbour', 'Dunes', 'Pines'].map((place) => (
+          <div
+            key={place}
+            className="flex h-16 items-center justify-center bg-(--plass-primary-soft) text-xs"
+          >
+            {place}
+          </div>
+        ))}
+      </PlCarousel>
     )
   },
   {

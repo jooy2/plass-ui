@@ -1165,6 +1165,118 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlCarousel: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: '프레임의 재질. 색은 들어가지 않습니다 — 캐러셀은 남의 사진을 담습니다. ghost에는 프레임이 아예 없습니다',
+        en: "What the frame is made of. Never dyed — a carousel holds other people's pictures. ghost has no frame at all"
+      },
+      sizeDescription: {
+        ko: '프레임의 반경, 화살표의 크기, 점의 크기',
+        en: "The frame's radius, the size of the arrows and the size of the dots"
+      },
+      elevationDescription: {
+        ko: '프레임의 드롭 섀도 깊이. 0이 기본이고 평평합니다',
+        en: 'Drop shadow depth of the frame. 0 is the default and it is flat'
+      }
+    }),
+    {
+      name: 'value',
+      type: 'number',
+      description: {
+        ko: '보이는 슬라이드, 0부터. onValueChange와 함께 controlled로 씁니다',
+        en: 'Which slide is showing, counted from 0. Use with onValueChange'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: 'uncontrolled일 때 처음 보이는 슬라이드',
+        en: 'Which starts showing, for an uncontrolled carousel'
+      }
+    },
+    {
+      name: 'onValueChange',
+      type: '(index: number) => void',
+      description: {
+        ko: '보이게 된 슬라이드로 호출됩니다',
+        en: 'Called with the slide now in view'
+      }
+    },
+    {
+      name: 'loop',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '화살표가 마지막에서 첫 슬라이드로 감깁니다. 끄면 양 끝에서 반응하지 않습니다',
+        en: 'Whether the arrows wrap from the last slide back to the first. Off, they go inert at the ends'
+      }
+    },
+    {
+      name: 'autoPlay',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '스스로 넘어갑니다. hover·포커스·배경 탭·reduced motion에서 모두 멈춥니다',
+        en: 'Advances on its own. Pauses on hover, on focus, in a background tab, and for reduced motion'
+      }
+    },
+    {
+      name: 'interval',
+      type: 'number',
+      default: '5000',
+      description: {
+        ko: '슬라이드 하나가 머무는 시간, ms',
+        en: 'How long each slide is held, in milliseconds'
+      }
+    },
+    {
+      name: 'arrows',
+      type: 'boolean',
+      default: 'true',
+      description: { ko: '이전/다음 버튼', en: 'The previous/next buttons' }
+    },
+    {
+      name: 'indicators',
+      type: 'boolean',
+      default: 'true',
+      description: { ko: '프레임 아래의 위치 점들', en: 'The row of position dots under the frame' }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      default: "'Carousel'",
+      description: {
+        ko: '캐러셀의 접근 가능한 이름. 절대 그려지지 않습니다',
+        en: "The carousel's accessible name. Never drawn"
+      }
+    },
+    {
+      name: 'previousLabel',
+      type: 'string',
+      default: "'Previous slide'",
+      description: { ko: '화살표의 이름', en: "The arrow's name" }
+    },
+    {
+      name: 'nextLabel',
+      type: 'string',
+      default: "'Next slide'",
+      description: { ko: '화살표의 이름', en: "The arrow's name" }
+    },
+    {
+      name: 'slideLabel',
+      type: '(index: number, count: number) => string',
+      description: {
+        ko: '슬라이드 하나와 그 점의 이름을 짓습니다',
+        en: 'Names one slide, and the dot that goes to it'
+      }
+    }
+  ],
+
   PlChatBubble: [
     {
       name: 'side',
