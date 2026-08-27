@@ -20,7 +20,6 @@ eslint.config.ts
 .prettierignore
 .prettierrc
 .editorconfig
-terser.config.json
 tsconfig.json
 tsconfig.prod.json
 vitest.config.ts

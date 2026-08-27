@@ -18,10 +18,9 @@
     "url": "https://github.com/jooy2/plass-ui/issues"
   },
   "scripts": {
-    "build": "npm run format:fix && tsc --project tsconfig.prod.json && npm run minify && node scripts/build-styles.mjs",
+    "build": "npm run format:fix && tsc --project tsconfig.prod.json && node scripts/build-styles.mjs",
     "lint": "eslint . --report-unused-disable-directives",
     "lint:fix": "eslint . --report-unused-disable-directives --fix",
-    "minify": "terser-glob 'dist/**/*.js' --config-file terser.config.json",
     "prepare": "npm run build",
     "format": "prettier .",
     "format:fix": "prettier . --write",
@@ -111,7 +110,6 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "tailwindcss": "^4.3.3",
-    "terser-glob": "^1.2.1",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.68.0",
     "vite": "^8.2.2",
