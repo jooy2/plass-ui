@@ -1698,6 +1698,52 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlCarousel: [
+    {
+      name: 'children',
+      type: 'List<Widget>',
+      required: true,
+      description: {
+        ko: '슬라이드들. 자식 하나가 슬라이드 하나입니다',
+        en: 'The slides. Every child becomes one'
+      }
+    },
+    from('PlCarousel', 'value', { type: 'int', required: true }),
+    {
+      name: 'onChanged',
+      type: 'ValueChanged<int>?',
+      description: {
+        ko: '보이게 되어야 할 슬라이드로 호출됩니다. 없으면 캐러셀은 그 자리에 얼어붙습니다',
+        en: 'Called with the slide that should come into view. Left out, the carousel is frozen where it is'
+      }
+    },
+    from('PlCarousel', 'loop', { type: 'bool', default: 'true' }),
+    from('PlCarousel', 'autoPlay', { type: 'bool', default: 'false' }),
+    from('PlCarousel', 'interval', {
+      type: 'Duration',
+      default: 'Duration(seconds: 5)'
+    }),
+    from('PlCarousel', 'arrows', { type: 'bool', default: 'true' }),
+    from('PlCarousel', 'indicators', { type: 'bool', default: 'true' }),
+    {
+      name: 'aspectRatio',
+      type: 'double?',
+      description: {
+        ko: '프레임의 가로:세로 비율. PageView는 모든 페이지를 뷰포트 크기로 배치하므로 높이를 받아야 합니다. 비워 두면 바깥 레이아웃이 주는 높이를 씁니다',
+        en: 'How tall the frame is, as a width-to-height ratio. A PageView has to be given a height; left out, the carousel takes what the layout hands down'
+      }
+    },
+    from('PlCarousel', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlCarousel', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlCarousel', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlCarousel', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlCarousel', 'elevation', { type: 'int', default: '0' }),
+    from('PlCarousel', 'label', { type: 'String', default: "'Carousel'" }),
+    from('PlCarousel', 'previousLabel', { type: 'String', default: "'Previous slide'" }),
+    from('PlCarousel', 'nextLabel', { type: 'String', default: "'Next slide'" }),
+    from('PlCarousel', 'slideLabel', { type: 'String Function(int index, int count)?' })
+  ],
+
   PlScrollZone: [
     {
       name: 'children',

@@ -59,6 +59,10 @@ import 'package:plass_ui_example/demos/button/icons.dart';
 import 'package:plass_ui_example/demos/button/sizes.dart';
 import 'package:plass_ui_example/demos/button/states.dart';
 import 'package:plass_ui_example/demos/button/variants.dart';
+import 'package:plass_ui_example/demos/carousel/auto_play.dart';
+import 'package:plass_ui_example/demos/carousel/hero.dart';
+import 'package:plass_ui_example/demos/carousel/loop.dart';
+import 'package:plass_ui_example/demos/carousel/variants.dart';
 import 'package:plass_ui_example/demos/card/dividers.dart';
 import 'package:plass_ui_example/demos/card/hero.dart';
 import 'package:plass_ui_example/demos/card/interactive.dart';
@@ -484,6 +488,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'slider/range': _sliderRange,
   'slider/states': _sliderStates,
   'slider/steps': _sliderSteps,
+  'carousel/hero': _carouselHero,
+  'carousel/variants': _carouselVariants,
+  'carousel/loop': _carouselLoop,
+  'carousel/auto-play': _carouselAutoPlay,
   'box/hero': _boxHero,
   'box/variants': _boxVariants,
   'box/sizes': _boxSizes,
@@ -775,6 +783,10 @@ Widget _sliderRange(BuildContext context) => const SliderRange();
 Widget _sliderStates(BuildContext context) => const SliderStates();
 Widget _sliderSteps(BuildContext context) => const SliderSteps();
 
+Widget _carouselHero(BuildContext context) => const CarouselHero();
+Widget _carouselVariants(BuildContext context) => const CarouselVariants();
+Widget _carouselLoop(BuildContext context) => const CarouselLoop();
+Widget _carouselAutoPlay(BuildContext context) => const CarouselAutoPlay();
 Widget _boxHero(BuildContext context) => const BoxHero();
 Widget _boxVariants(BuildContext context) => const BoxVariants();
 Widget _boxSizes(BuildContext context) => const BoxSizes();
