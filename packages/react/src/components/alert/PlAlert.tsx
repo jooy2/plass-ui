@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { CloseIcon, severityIcons } from '../../internal/icons.js';
+import { CloseIcon, severityIcon } from '../../internal/icons.js';
 import {
   controlSlots,
   focusRingClasses,
@@ -156,7 +156,7 @@ export const PlAlert = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlAlertP
     },
     ref
   ) {
-    const glyph = icon === undefined ? severityIcons[color] : icon;
+    const glyph = icon === undefined ? severityIcon(color) : icon;
     const accent = accentClasses[variant];
     const titled = hasContent(title);
 

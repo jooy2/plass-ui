@@ -268,44 +268,57 @@ export function StarOutlineIcon(): React.ReactElement {
  * `primary` and `secondary` have no severity to draw, so they take the note the
  * informational one uses: three shapes for six families, because the three that
  * mean something are the three worth telling apart.
+ *
+ * A function and not the table of elements it reads like, because a table is
+ * the one shape a bundler cannot take apart: six entries built at module load,
+ * kept whole or not at all, and pulled into every component that touches the
+ * file. A function declaration is dropped outright by anything that does not
+ * call it, which is most of the library.
  */
-export const severityIcons: Record<PlassColor, React.ReactNode> = {
-  primary: <NoteIcon />,
-  secondary: <NoteIcon />,
-  info: <NoteIcon />,
-  success: (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.5" />
-      <path
-        d="m5.25 8.25 1.9 1.9 3.6-3.9"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  ),
-  warning: (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path
-        d="M7.13 2.6 1.9 11.7a1 1 0 0 0 .87 1.5h10.46a1 1 0 0 0 .87-1.5L8.87 2.6a1 1 0 0 0-1.74 0Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
-      <path d="M8 6.1v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <circle cx="8" cy="11.2" r="0.85" fill="currentColor" />
-    </svg>
-  ),
-  danger: (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.5" />
-      <path
-        d="m5.9 5.9 4.2 4.2m0-4.2-4.2 4.2"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-    </svg>
-  )
-};
+export function severityIcon(color: PlassColor): React.ReactElement {
+  if (color === 'success') {
+    return (
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.5" />
+        <path
+          d="m5.25 8.25 1.9 1.9 3.6-3.9"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+
+  if (color === 'warning') {
+    return (
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path
+          d="M7.13 2.6 1.9 11.7a1 1 0 0 0 .87 1.5h10.46a1 1 0 0 0 .87-1.5L8.87 2.6a1 1 0 0 0-1.74 0Z"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
+        <path d="M8 6.1v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <circle cx="8" cy="11.2" r="0.85" fill="currentColor" />
+      </svg>
+    );
+  }
+
+  if (color === 'danger') {
+    return (
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.5" />
+        <path
+          d="m5.9 5.9 4.2 4.2m0-4.2-4.2 4.2"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+      </svg>
+    );
+  }
+
+  return <NoteIcon />;
+}

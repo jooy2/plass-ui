@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { CheckIcon, ClockIcon, LinkIcon, severityIcons } from '../../internal/icons.js';
+import { CheckIcon, ClockIcon, LinkIcon, severityIcon } from '../../internal/icons.js';
 import {
   controlSlots,
   focusRingClasses,
@@ -239,7 +239,7 @@ const statusIcons: Record<PlChatBubbleStatus, React.ReactNode> = {
   sent: <CheckIcon />,
   delivered: <DoubleCheckIcon />,
   read: <DoubleCheckIcon />,
-  failed: severityIcons.danger
+  failed: /* @__PURE__ */ severityIcon('danger')
 };
 
 /**
