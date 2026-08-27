@@ -7,7 +7,7 @@ order: 5
 
 <p class="plass-lede">내용을 얹은 유리 한 장입니다. 라이브러리에서 가장 단순한 표면이고, 하는 일은 묶는 것 하나뿐입니다.</p>
 
-<Demo src="box/hero" :flutter="false" :min-height="180" />
+<Demo src="box/hero" :min-height="180" />
 
 ::: fw react
 
@@ -17,6 +17,16 @@ import { PlBox } from 'plass-ui';
 <PlBox>
   <p>Everything in here is grouped, and nothing else is claimed.</p>
 </PlBox>;
+```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlBox(child: Text('Everything in here is grouped, and nothing else is claimed.'));
 ```
 
 :::
@@ -45,9 +55,19 @@ box 안에 제목과 본문을 손으로 넣고 있는 자신을 발견하는 �
 
 box는 담고 있는 것만큼 높고, 자식들은 자기 타이포그래피를 가지고 옵니다. 타입 스케일을 재설정하는 컨테이너였다면 같은 문단이 무엇으로 감싸였느냐에 따라 두 가지 크기로 렌더링됐을 것입니다. 그래서 `size`는 **시트**의 크기입니다 — 반경과 여백, 그리고 그것뿐입니다.
 
-<Demo src="box/sizes" :flutter="false" :min-height="320">
+<Demo src="box/sizes" :min-height="320">
+
+::: fw react
 
 <<< @/.vitepress/demos/box/sizes.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/box/sizes.dart
+
+:::
 
 </Demo>
 
@@ -59,19 +79,51 @@ box는 담고 있는 것만큼 높고, 자식들은 자기 타이포그래피를
 
 `ghost`는 다른 표면 안에서 쓰는 것입니다. 테두리 있는 사각형 안의 두 번째 테두리 있는 사각형은 그냥 사각형이 하나 더 있는 것입니다.
 
-<Demo src="box/variants" :flutter="false" :min-height="280">
+<Demo src="box/variants" :min-height="280">
+
+::: fw react
 
 <<< @/.vitepress/demos/box/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/box/variants.dart
+
+:::
 
 </Demo>
 
 ### padded
 
-기본은 켜져 있습니다. 가장자리까지 닿아야 하는 내용 — 이미지, 표, 자기 행을 직접 그리는 목록 — 에서는 끄고, 내용이 시트의 모서리에서 잘리도록 box에 `overflow-hidden`을 주세요.
+기본은 켜져 있습니다. 가장자리까지 닿아야 하는 내용 — 이미지, 표, 자기 행을 직접 그리는 목록 — 에서는 끄세요.
 
-<Demo src="box/padded" :flutter="false" :min-height="220">
+::: fw react
+
+내용이 시트의 모서리에서 잘리도록 `overflow-hidden`을 더하세요.
+
+:::
+
+::: fw flutter
+
+`clipped`가 내용을 시트의 모서리에서 잘라 냅니다. React 빌드에서는 클래스 하나면 되는 것이 여기서는 파라미터인데, 클립은 자식이 자기 바깥에 그리는 것 — focus ring을 포함해 — 까지 잘라 내기 때문에 기본은 꺼져 있습니다.
+
+:::
+
+<Demo src="box/padded" :min-height="220">
+
+::: fw react
 
 <<< @/.vitepress/demos/box/padded.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/box/padded.dart
+
+:::
 
 </Demo>
 
@@ -87,6 +139,14 @@ box는 담고 있는 것만큼 높고, 자식들은 자기 타이포그래피를
 
 :::
 
+::: fw flutter
+
+```dart
+PlBox(elevation: 2, child: Text('Floating clear of the page'));
+```
+
+:::
+
 ## Accessibility
 
 - box는 `<div>`이고 아무것도 주장하지 않습니다. role도, 이름도, 문서 개요에서의 자리도 없습니다. 그게 맞습니다 — 눈을 위한 묶음은 스크린 리더를 위한 묶음이 아닙니다.
@@ -95,5 +155,19 @@ box는 담고 있는 것만큼 높고, 자식들은 자기 타이포그래피를
 ::: fw react
 
 `render={<section aria-label="Storage" />}`와 `render={<li />}`가 가장 자주 나오는 둘입니다.
+
+:::
+
+::: fw flutter
+
+box를 감싼 `Semantics(container: true, label: …)`가 그 묶음이 하나임을 말합니다. 시트 안이 아니라 바깥에 놓입니다.
+
+## React 빌드와의 차이
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `render` | — | 바꿔 끼울 요소가 없습니다. `<section>`이 말하던 것은 box를 감싼 `Semantics`가 말합니다. |
+| 클래스로 주는 `overflow-hidden` | `clipped` | 여기서 클립은 속성이 아니라 위젯이라 누군가의 결정이어야 합니다. 그리고 기본은 꺼져 있습니다 — 클립은 자식이 자기 바깥에 그리는 것까지 잘라 냅니다. |
+| `className`, `style` | — | 전달할 class 목록도 style 속성도 없습니다. |
 
 :::

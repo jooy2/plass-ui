@@ -28,6 +28,7 @@ export 'src/components/avatar/pl_avatar.dart';
 export 'src/components/badge/pl_badge.dart';
 export 'src/components/blockquote/pl_blockquote.dart';
 export 'src/components/bottom_navigation/pl_bottom_navigation.dart';
+export 'src/components/box/pl_box.dart';
 export 'src/components/breadcrumb/pl_breadcrumb.dart';
 export 'src/components/button/pl_button.dart';
 export 'src/components/card/pl_card.dart';

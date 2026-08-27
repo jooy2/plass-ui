@@ -1675,6 +1675,29 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlBox: [
+    {
+      name: 'child',
+      type: 'Widget?',
+      description: { ko: '시트 위에 놓이는 것', en: 'What is on the sheet' }
+    },
+    from('PlBox', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlBox', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlBox', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlBox', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlBox', 'elevation', { type: 'int', default: '0' }),
+    from('PlBox', 'padded', { type: 'bool', default: 'true' }),
+    {
+      name: 'clipped',
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '내용을 시트 자신의 모서리에서 잘라 냅니다. 클립은 자식이 바깥에 그리는 것까지 자르므로 기본은 꺼져 있습니다',
+        en: "Clips the content to the sheet's own corners. Off by default: a clip also cuts anything a child draws outside itself"
+      }
+    }
+  ],
+
   PlScrollZone: [
     {
       name: 'children',

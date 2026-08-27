@@ -41,6 +41,10 @@ import 'package:plass_ui_example/demos/bottom_navigation/hero.dart';
 import 'package:plass_ui_example/demos/bottom_navigation/labels.dart';
 import 'package:plass_ui_example/demos/bottom_navigation/sizes.dart';
 import 'package:plass_ui_example/demos/bottom_navigation/variants.dart';
+import 'package:plass_ui_example/demos/box/hero.dart';
+import 'package:plass_ui_example/demos/box/padded.dart';
+import 'package:plass_ui_example/demos/box/sizes.dart';
+import 'package:plass_ui_example/demos/box/variants.dart';
 import 'package:plass_ui_example/demos/breadcrumb/collapse.dart';
 import 'package:plass_ui_example/demos/breadcrumb/current.dart';
 import 'package:plass_ui_example/demos/breadcrumb/hero.dart';
@@ -480,6 +484,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'slider/range': _sliderRange,
   'slider/states': _sliderStates,
   'slider/steps': _sliderSteps,
+  'box/hero': _boxHero,
+  'box/variants': _boxVariants,
+  'box/sizes': _boxSizes,
+  'box/padded': _boxPadded,
   'scroll-zone/hero': _scrollZoneHero,
   'scroll-zone/lines': _scrollZoneLines,
   'scroll-zone/buttons': _scrollZoneButtons,
@@ -767,6 +775,10 @@ Widget _sliderRange(BuildContext context) => const SliderRange();
 Widget _sliderStates(BuildContext context) => const SliderStates();
 Widget _sliderSteps(BuildContext context) => const SliderSteps();
 
+Widget _boxHero(BuildContext context) => const BoxHero();
+Widget _boxVariants(BuildContext context) => const BoxVariants();
+Widget _boxSizes(BuildContext context) => const BoxSizes();
+Widget _boxPadded(BuildContext context) => const BoxPadded();
 Widget _scrollZoneHero(BuildContext context) => const ScrollZoneHero();
 Widget _scrollZoneLines(BuildContext context) => const ScrollZoneLines();
 Widget _scrollZoneButtons(BuildContext context) => const ScrollZoneButtons();
