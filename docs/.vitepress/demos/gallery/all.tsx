@@ -70,6 +70,7 @@ import {
   PlTabs,
   PlTextField,
   PlTextLink,
+  PlTimePicker,
   PlTimeline,
   PlTimelineItem,
   PlToastProvider,
@@ -287,6 +288,16 @@ const entries: Entry[] = [
       ko: '달력에서 하루를 고릅니다. 날짜 라이브러리도, 번역 파일도 없습니다.'
     },
     preview: <PlDatePicker fullWidth size="sm" placeholder="Pick a day" />
+  },
+  {
+    name: 'PlTimePicker',
+    group: 'inputs',
+    href: 'components/inputs/time-picker',
+    blurb: {
+      en: 'A time of day, chosen from columns rather than a dial.',
+      ko: '다이얼이 아니라 열에서 시각을 고릅니다.'
+    },
+    preview: <PlTimePicker fullWidth size="sm" placeholder="Pick a time" minuteStep={15} />
   },
   {
     name: 'PlDateRangePicker',

@@ -390,6 +390,50 @@ const dateBoundsProps: PropRow[] = [
   }
 ];
 
+/** The four the clock columns take, shared by the two pickers that draw one. */
+const timeColumnProps: PropRow[] = [
+  {
+    name: 'hour12',
+    type: 'boolean',
+    description: {
+      ko: 'AM/PM 열이 붙은 12시간 다이얼. 기본은 locale이 하는 대로입니다',
+      en: 'A 12-hour dial with an AM/PM column. Defaults to whatever the locale does'
+    }
+  },
+  {
+    name: 'showSeconds',
+    type: 'boolean',
+    default: 'false',
+    description: { ko: '초 열을 더합니다', en: 'Adds the seconds column' }
+  },
+  {
+    name: 'hourStep',
+    type: 'number',
+    default: '1',
+    description: { ko: '각 열의 행 간격', en: 'How far apart the rows of each column are' }
+  },
+  {
+    name: 'minuteStep',
+    type: 'number',
+    default: '1',
+    description: { ko: 'hourStep를 보세요', en: 'See hourStep' }
+  },
+  {
+    name: 'secondStep',
+    type: 'number',
+    default: '1',
+    description: { ko: 'hourStep를 보세요', en: 'See hourStep' }
+  },
+  {
+    name: 'shouldDisableTime',
+    type: '(value: Date, unit: TimeUnit) => boolean',
+    description: {
+      ko: '개별 행을 막습니다. 열마다 행마다, 그 행이 만들어 낼 시각과 그 행이 속한 열을 받아 한 번씩 호출됩니다 — "오후는 안 됨"만큼 성길 수도, 1분만큼 촘촘할 수도 있습니다',
+      en: 'Blocks individual rows. Called once per row per column with the instant that row would produce and the column it is in, so a rule may be as coarse as "no afternoons" or as fine as one minute'
+    }
+  }
+];
+
 export const propTables: Record<string, PropRow[]> = {
   PlAccordion: [
     ...sharedProps({
@@ -6520,6 +6564,78 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'ReactNode',
       description: { ko: '패널의 내용', en: "The panel's content" }
     }
+  ],
+
+  PlTimePicker: [
+    {
+      name: 'value',
+      type: 'Date | null',
+      description: {
+        ko: '선택된 시각. Date이므로 날짜도 함께 지닙니다 — referenceDate를 보세요',
+        en: 'The chosen time. A Date, so it carries a day as well — see referenceDate'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'Date | null',
+      description: { ko: 'uncontrolled일 때 시작하는 시각', en: 'The time the picker starts on' }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: Date | null) => void',
+      description: { ko: '값이 바뀔 때 호출됩니다', en: 'Called with the new value' }
+    },
+    {
+      name: 'referenceDate',
+      type: 'Date',
+      default: 'today',
+      description: {
+        ko: '아직 값이 없을 때 고른 시각이 얹히는 날. picker가 마운트되어 있는 동안 고정입니다 — 자정을 넘겨 열어 둔 팝업이 값을 다른 날로 옮기면 안 되니까요',
+        en: 'The day a chosen time is written onto while there is no value yet. Held still for as long as the picker is mounted, so a popup left open across midnight does not move the value onto a new day'
+      }
+    },
+    {
+      name: 'minTime',
+      type: 'Date | null',
+      description: {
+        ko: '고를 수 있는 가장 이른 시각. 시계만 읽습니다',
+        en: 'The earliest time of day that may be chosen. Only the clock is read'
+      }
+    },
+    {
+      name: 'maxTime',
+      type: 'Date | null',
+      description: {
+        ko: '고를 수 있는 가장 늦은 시각',
+        en: 'The latest time of day that may be chosen'
+      }
+    },
+    ...timeColumnProps,
+    {
+      name: 'showNowButton',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '푸터에 지금으로 가는 지름길을 둡니다',
+        en: 'Offers the shortcut to the current time in the footer'
+      }
+    },
+    ...pickerProps({
+      format: "{ hour: 'numeric', minute: '2-digit' }",
+      formatDescription: {
+        ko: 'trigger가 시각을 쓰는 방식. Intl로 그대로 넘어갑니다. showSeconds면 초가 붙습니다',
+        en: 'How the trigger writes the chosen time. Passed straight to Intl; seconds are added when showSeconds is on'
+      },
+      closeOnSelect: 'false',
+      closeOnSelectDescription: {
+        ko: '어느 열이든 건드리는 즉시 팝업을 닫습니다. PlDatePicker와 달리 기본이 false인 건 시각이 답 두 개이고, 첫 답에 닫으면 9:30을 고르는 데 팝업을 두 번 열어야 하기 때문입니다',
+        en: 'Closes the popup as soon as any column is touched. false by default, unlike PlDatePicker, because a time is two answers and closing after the first would make choosing 9:30 a matter of opening the popup twice'
+      },
+      nameDescription: {
+        ko: '폼 제출 시 필드를 식별합니다. HH:MM으로, showSeconds면 HH:MM:SS로 보냅니다',
+        en: 'Identifies the field when a form is submitted, as HH:MM — HH:MM:SS when showSeconds is on'
+      }
+    })
   ],
 
   PlTimeline: [

@@ -55,6 +55,7 @@ export * from './components/table/index.js';
 export * from './components/tabs/index.js';
 export * from './components/text-field/index.js';
 export * from './components/text-link/index.js';
+export * from './components/time-picker/index.js';
 export * from './components/timeline/index.js';
 export * from './components/toast/index.js';
 export * from './components/toolbar/index.js';
