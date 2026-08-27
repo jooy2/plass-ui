@@ -1744,6 +1744,47 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlCarousel', 'slideLabel', { type: 'String Function(int index, int count)?' })
   ],
 
+  PlCollapsible: [
+    from('PlCollapsible', 'open', { type: 'bool', required: true }),
+    {
+      name: 'onOpenChanged',
+      type: 'ValueChanged<bool>?',
+      description: {
+        ko: '열림 상태가 무엇이 되어야 하는지로 호출됩니다',
+        en: 'Called with what the open state should become'
+      }
+    },
+    { name: 'child', type: 'Widget?', description: { ko: '본문', en: 'The body' } },
+    from('PlCollapsible', 'title', { type: 'Widget?' }),
+    from('PlCollapsible', 'subtitle', { type: 'Widget?' }),
+    from('PlCollapsible', 'startIcon', { type: 'Widget?' }),
+    from('PlCollapsible', 'action', { type: 'Widget?' }),
+    from('PlCollapsible', 'trigger', {
+      name: 'triggerBuilder',
+      type: 'Widget Function(BuildContext, bool open, VoidCallback toggle)?',
+      description: {
+        ko: '헤더를 통째로 바꿉니다. 위젯이 아니라 빌더입니다 — Dart 위젯은 만들어진 뒤에 탭 핸들러를 받을 수 없습니다',
+        en: 'Replaces the header entirely. A builder rather than a widget: a Dart widget cannot be handed a tap handler after it was made'
+      }
+    }),
+    from('PlCollapsible', 'indicator', { type: 'bool', default: 'true' }),
+    from('PlCollapsible', 'disabled', { type: 'bool', default: 'false' }),
+    from('PlCollapsible', 'padded', { type: 'bool', default: 'true' }),
+    from('PlCollapsible', 'keepMounted', {
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '닫힌 패널을 트리에 남깁니다 — State는 위젯과 함께 사라지므로, 접혀 사라진 필드는 입력을 잊습니다. 그동안 포커스 순서와 semantics에서는 빠집니다',
+        en: 'Keeps a closed panel in the tree: a State goes with its widget, so a folded-away field forgets what was typed. It leaves the focus order and the semantics tree while it is closed'
+      }
+    }),
+    from('PlCollapsible', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlCollapsible', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlCollapsible', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlCollapsible', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlCollapsible', 'elevation', { type: 'int', default: '0' })
+  ],
+
   PlScrollZone: [
     {
       name: 'children',

@@ -89,6 +89,10 @@ import 'package:plass_ui_example/demos/checkbox/hero.dart';
 import 'package:plass_ui_example/demos/checkbox/indeterminate.dart';
 import 'package:plass_ui_example/demos/checkbox/sizes.dart';
 import 'package:plass_ui_example/demos/checkbox/states.dart';
+import 'package:plass_ui_example/demos/collapsible/hero.dart';
+import 'package:plass_ui_example/demos/collapsible/slots.dart';
+import 'package:plass_ui_example/demos/collapsible/trigger.dart';
+import 'package:plass_ui_example/demos/collapsible/variants.dart';
 import 'package:plass_ui_example/demos/container/centered.dart';
 import 'package:plass_ui_example/demos/container/hero.dart';
 import 'package:plass_ui_example/demos/container/padding.dart';
@@ -488,6 +492,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'slider/range': _sliderRange,
   'slider/states': _sliderStates,
   'slider/steps': _sliderSteps,
+  'collapsible/hero': _collapsibleHero,
+  'collapsible/variants': _collapsibleVariants,
+  'collapsible/slots': _collapsibleSlots,
+  'collapsible/trigger': _collapsibleTrigger,
   'carousel/hero': _carouselHero,
   'carousel/variants': _carouselVariants,
   'carousel/loop': _carouselLoop,
@@ -783,6 +791,10 @@ Widget _sliderRange(BuildContext context) => const SliderRange();
 Widget _sliderStates(BuildContext context) => const SliderStates();
 Widget _sliderSteps(BuildContext context) => const SliderSteps();
 
+Widget _collapsibleHero(BuildContext context) => const CollapsibleHero();
+Widget _collapsibleVariants(BuildContext context) => const CollapsibleVariants();
+Widget _collapsibleSlots(BuildContext context) => const CollapsibleSlots();
+Widget _collapsibleTrigger(BuildContext context) => const CollapsibleTrigger();
 Widget _carouselHero(BuildContext context) => const CarouselHero();
 Widget _carouselVariants(BuildContext context) => const CarouselVariants();
 Widget _carouselLoop(BuildContext context) => const CarouselLoop();

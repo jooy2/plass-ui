@@ -7,7 +7,7 @@ order: 7
 
 <p class="plass-lede">One section that folds, standing on its own. The same fold a <code>PlAccordion</code> is a set of, with nothing else beside it — so what it needs is an <code>open</code> of its own rather than a place in somebody's list.</p>
 
-<Demo src="collapsible/hero" :flutter="false" :min-height="200" />
+<Demo src="collapsible/hero" :min-height="200" />
 
 ::: fw react
 
@@ -17,6 +17,22 @@ import { PlCollapsible } from 'plass-ui';
 <PlCollapsible title="Advanced" subtitle="Nine settings">
   Everything the form does not need to ask on the first pass.
 </PlCollapsible>;
+```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlCollapsible(
+  open: showing,
+  onOpenChanged: (bool next) => setState(() => showing = next),
+  title: const Text('Advanced'),
+  subtitle: const Text('Nine settings'),
+  child: const Text('Everything the form does not need to ask on the first pass.'),
+);
 ```
 
 :::
@@ -51,9 +67,19 @@ Content that appears instantly is a page that jumps, which is the failure the ru
 
 The three materials, read as a _container's_: the sheet is never dyed, because a fold holds other people's content. `ghost` is the one to reach for inside running prose or inside a card — a bare "Show more" line owes the page no rectangle of its own.
 
-<Demo src="collapsible/variants" :flutter="false" :min-height="360">
+<Demo src="collapsible/variants" :min-height="360">
+
+::: fw react
 
 <<< @/.vitepress/demos/collapsible/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/collapsible/variants.dart
+
+:::
 
 </Demo>
 
@@ -63,21 +89,53 @@ The three materials, read as a _container's_: the sheet is never dyed, because a
 
 The chevron is turned rather than moved, and it is the only thing on the header that reports the state by moving — which is why the header itself only changes colour.
 
-<Demo src="collapsible/slots" :flutter="false" :min-height="220">
+<Demo src="collapsible/slots" :min-height="220">
+
+::: fw react
 
 <<< @/.vitepress/demos/collapsible/slots.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/collapsible/slots.dart
+
+:::
 
 </Demo>
 
 ### trigger
 
-Replaces the header entirely with a control of your own. The element you pass **becomes** the trigger: it is handed the click handler, the open state and the pointer at the panel, so nothing has to be wired up.
+Replaces the header entirely with a control of your own.
 
 `title` and the slots around it are for the far commoner case of wanting the header that is already there.
 
-<Demo src="collapsible/trigger" :flutter="false" :min-height="200">
+::: fw react
+
+The element you pass **becomes** the trigger: it is handed the click handler, `aria-expanded` and the `aria-controls` pointing at the panel, so nothing has to be wired up.
+
+:::
+
+::: fw flutter
+
+`triggerBuilder` is a **builder** rather than a widget, and that is forced: a React element can be cloned with new props, and a Dart widget cannot be handed a tap handler after it was made. So the builder is given the open state and the callback and wires up whatever it likes.
+
+:::
+
+<Demo src="collapsible/trigger" :min-height="200">
+
+::: fw react
 
 <<< @/.vitepress/demos/collapsible/trigger.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/collapsible/trigger.dart
+
+:::
 
 </Demo>
 
@@ -96,12 +154,29 @@ A closed panel is not in the document, which is what makes an unopened fold cost
 
 ## Accessibility
 
-- The header is a real `<button>` that reports whether the panel is open and points at the panel it opens. Base UI owns that wiring.
-- `action` is outside the trigger, so it is its own focus stop rather than an element nested inside a button — which the browser would rewrite on parse.
-- A disabled fold's trigger is a disabled button: out of the tab order, and the panel stays exactly as it was.
+- The header is announced as a button, reports whether the panel is open, and answers a press from the keyboard as readily as from a pointer.
+- `action` is outside the trigger, so it is its own focus stop rather than a control nested inside another one.
+- A disabled fold's trigger is out of the focus order, and the panel stays exactly as it was.
 
 ::: fw react
 
+- The header is a real `<button>` and Base UI owns the `aria-expanded` / `aria-controls` wiring between it and the panel.
 - With `hiddenUntilFound` the browser's find-in-page opens the fold it found the text in, rather than scrolling to nothing.
+
+:::
+
+::: fw flutter
+
+- With `keepMounted` the closed panel is clipped to nothing **and** taken out of the focus order and off the semantics tree: a panel nobody can see is not one a keyboard should be able to tab into.
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `open` / `defaultOpen` / `onOpenChange` | `open` / `onOpenChanged` | Flutter's own controls are controlled, and so is every stateful widget in this package. |
+| `trigger`, an element | `triggerBuilder`, a builder | A React element can be cloned with new props; a Dart widget cannot be handed a tap handler after it was made. The builder gets the state and the callback instead. |
+| `hiddenUntilFound` | — | There is no browser find-in-page to open a fold from. |
+| `keepMounted` keeps a hidden panel in the DOM | `keepMounted` keeps it in the tree | The same idea and a sharper reason: a Flutter `State` goes with its widget when it leaves the tree, so a folded-away field forgets what was typed into it. |
+| `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::
