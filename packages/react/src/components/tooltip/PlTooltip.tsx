@@ -95,7 +95,7 @@ export type PlTooltipProviderProps = React.ComponentProps<typeof BaseUITooltip.P
  * `--plass-glass-press` is what makes that safe: at its most opaque the sheet is
  * dense enough to read a line of text off, which the 62% pane is not.
  */
-const popupClasses = [
+const popupClasses = /* @__PURE__ */ [
   glassClasses,
   'max-w-64 border text-(--plass-fg) bg-(--plass-glass-press)',
   '[border-color:var(--plass-glass-line)]',

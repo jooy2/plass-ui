@@ -34,7 +34,7 @@ interface AccordionContextValue {
   dividers: boolean;
 }
 
-const AccordionContext = React.createContext<AccordionContextValue>({
+const AccordionContext = /* @__PURE__ */ React.createContext<AccordionContextValue>({
   size: 'md',
   density: 'default',
   dividers: true
@@ -181,65 +181,67 @@ const panelPaddingBottomClasses: Record<PlassDensity, Record<PlassSize, string>>
  * instantly is a page that jumps, which is the failure the rule exists to
  * prevent.
  */
-export const PlAccordion = React.forwardRef<HTMLDivElement, PlAccordionProps>(function PlAccordion(
-  {
-    variant = 'glass',
-    size = 'md',
-    color = 'primary',
-    density = 'default',
-    elevation = 0,
-    multiple = false,
-    value,
-    defaultValue,
-    onValueChange,
-    dividers = true,
-    disabled = false,
-    hiddenUntilFound = false,
-    keepMounted = false,
-    className,
-    style,
-    children,
-    ...props
-  },
-  ref
-) {
-  const context = React.useMemo(() => ({ size, density, dividers }), [size, density, dividers]);
+export const PlAccordion = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlAccordionProps>(
+  function PlAccordion(
+    {
+      variant = 'glass',
+      size = 'md',
+      color = 'primary',
+      density = 'default',
+      elevation = 0,
+      multiple = false,
+      value,
+      defaultValue,
+      onValueChange,
+      dividers = true,
+      disabled = false,
+      hiddenUntilFound = false,
+      keepMounted = false,
+      className,
+      style,
+      children,
+      ...props
+    },
+    ref
+  ) {
+    const context = React.useMemo(() => ({ size, density, dividers }), [size, density, dividers]);
 
-  const classNames = [
-    'flex flex-col',
-    radiusClasses[size],
-    sheetRestClasses[variant],
-    transitionClasses,
-    // Scored, the rules have to reach both edges, so the sheet keeps no padding
-    // of its own and the corners clip whatever runs into them. Unscored, the
-    // sections are tiles and the sheet keeps a hair of padding so a hovered
-    // header does not run into the edge.
-    dividers ? `overflow-hidden ${dividerClasses}` : 'p-1',
-    className ?? ''
-  ]
-    .filter(Boolean)
-    .join(' ');
+    const classNames = [
+      'flex flex-col',
+      radiusClasses[size],
+      sheetRestClasses[variant],
+      transitionClasses,
+      // Scored, the rules have to reach both edges, so the sheet keeps no padding
+      // of its own and the corners clip whatever runs into them. Unscored, the
+      // sections are tiles and the sheet keeps a hair of padding so a hovered
+      // header does not run into the edge.
+      dividers ? `overflow-hidden ${dividerClasses}` : 'p-1',
+      className ?? ''
+    ]
+      .filter(Boolean)
+      .join(' ');
 
-  return (
-    <AccordionContext.Provider value={context}>
-      <BaseUIAccordion.Root
-        ref={ref}
-        multiple={multiple}
-        value={value}
-        defaultValue={defaultValue}
-        onValueChange={(next) => onValueChange?.(next as (string | number)[])}
-        disabled={disabled}
-        hiddenUntilFound={hiddenUntilFound}
-        keepMounted={keepMounted}
-        className={classNames}
-        style={{ ...surfaceSlots(color, elevation), ...style }}
-        {...props}
-      >
-        {children}
-      </BaseUIAccordion.Root>
-    </AccordionContext.Provider>
-  );
-});
+    return (
+      <AccordionContext.Provider value={context}>
+        <BaseUIAccordion.Root
+          ref={ref}
+          multiple={multiple}
+          value={value}
+          defaultValue={defaultValue}
+          onValueChange={(next) => onValueChange?.(next as (string | number)[])}
+          disabled={disabled}
+          hiddenUntilFound={hiddenUntilFound}
+          keepMounted={keepMounted}
+          className={classNames}
+          style={{ ...surfaceSlots(color, elevation), ...style }}
+          {...props}
+        >
+          {children}
+        </BaseUIAccordion.Root>
+      </AccordionContext.Provider>
+    );
+  }
+);
 
 /**
  * One section.
@@ -248,110 +250,111 @@ export const PlAccordion = React.forwardRef<HTMLDivElement, PlAccordionProps>(fu
  * the title and the chevron, with `action` sitting outside that button as a
  * control of its own.
  */
-export const PlAccordionItem = React.forwardRef<HTMLDivElement, PlAccordionItemProps>(
-  function PlAccordionItem(
-    { value, title, subtitle, startIcon, action, disabled = false, className, children, ...props },
-    ref
-  ) {
-    const { size, density, dividers } = React.useContext(AccordionContext);
+export const PlAccordionItem = /* @__PURE__ */ React.forwardRef<
+  HTMLDivElement,
+  PlAccordionItemProps
+>(function PlAccordionItem(
+  { value, title, subtitle, startIcon, action, disabled = false, className, children, ...props },
+  ref
+) {
+  const { size, density, dividers } = React.useContext(AccordionContext);
 
-    const padX = sheetPaddingXClasses[density][size];
-    const padY = sheetPaddingYClasses[density][size];
+  const padX = sheetPaddingXClasses[density][size];
+  const padY = sheetPaddingYClasses[density][size];
 
-    return (
-      <BaseUIAccordion.Item
-        ref={ref}
-        value={value}
-        disabled={disabled}
-        className={['flex flex-col', className ?? ''].filter(Boolean).join(' ')}
-        {...props}
-      >
-        <BaseUIAccordion.Header className="m-0 flex w-full items-center [font:inherit]">
-          <BaseUIAccordion.Trigger
-            className={[
-              'flex min-w-0 flex-1 cursor-pointer items-center text-start',
-              padX,
-              padY,
-              gapClasses[size],
-              transitionClasses,
-              iconClasses,
-              // An outline on a clipped sheet would be cut off at the first and
-              // last section, so it is drawn inside the header instead. Two
-              // whole classes rather than one plus an override: a variant that
-              // only moves the offset resolves against the base by its position
-              // in the generated stylesheet, which is not something to bet a
-              // focus ring on.
-              dividers ? focusRingInsetClasses : `${focusRingClasses} ${itemRadiusClasses[size]}`,
-              'hover:bg-(--p-soft)',
-              'data-[panel-open]:bg-(--p-soft) data-[panel-open]:text-(--p-accent)',
-              'disabled:cursor-not-allowed disabled:bg-transparent disabled:opacity-50'
-            ]
-              .filter(Boolean)
-              .join(' ')}
-          >
-            {hasContent(startIcon) ? (
-              <span className="flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)">
-                {startIcon}
+  return (
+    <BaseUIAccordion.Item
+      ref={ref}
+      value={value}
+      disabled={disabled}
+      className={['flex flex-col', className ?? ''].filter(Boolean).join(' ')}
+      {...props}
+    >
+      <BaseUIAccordion.Header className="m-0 flex w-full items-center [font:inherit]">
+        <BaseUIAccordion.Trigger
+          className={[
+            'flex min-w-0 flex-1 cursor-pointer items-center text-start',
+            padX,
+            padY,
+            gapClasses[size],
+            transitionClasses,
+            iconClasses,
+            // An outline on a clipped sheet would be cut off at the first and
+            // last section, so it is drawn inside the header instead. Two
+            // whole classes rather than one plus an override: a variant that
+            // only moves the offset resolves against the base by its position
+            // in the generated stylesheet, which is not something to bet a
+            // focus ring on.
+            dividers ? focusRingInsetClasses : `${focusRingClasses} ${itemRadiusClasses[size]}`,
+            'hover:bg-(--p-soft)',
+            'data-[panel-open]:bg-(--p-soft) data-[panel-open]:text-(--p-accent)',
+            'disabled:cursor-not-allowed disabled:bg-transparent disabled:opacity-50'
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        >
+          {hasContent(startIcon) ? (
+            <span className="flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)">
+              {startIcon}
+            </span>
+          ) : null}
+
+          <span className={`flex min-w-0 flex-1 flex-col ${sheetHeaderGapClasses[size]}`}>
+            {hasContent(title) ? (
+              <span className={`plass-title truncate font-semibold ${sheetTitleClasses[size]}`}>
+                {title}
               </span>
             ) : null}
+            {hasContent(subtitle) ? (
+              <span className={`truncate text-(--plass-muted-fg) ${metaTextClasses[size]}`}>
+                {subtitle}
+              </span>
+            ) : null}
+          </span>
 
-            <span className={`flex min-w-0 flex-1 flex-col ${sheetHeaderGapClasses[size]}`}>
-              {hasContent(title) ? (
-                <span className={`plass-title truncate font-semibold ${sheetTitleClasses[size]}`}>
-                  {title}
-                </span>
-              ) : null}
-              {hasContent(subtitle) ? (
-                <span className={`truncate text-(--plass-muted-fg) ${metaTextClasses[size]}`}>
-                  {subtitle}
-                </span>
-              ) : null}
-            </span>
-
-            {/* Turned, not moved. It is also the only thing on the header that
+          {/* Turned, not moved. It is also the only thing on the header that
                 reports the open state by moving, which is why the header itself
                 only changes colour. */}
-            <span
-              className={[
-                'flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)',
-                '[transition:rotate_var(--plass-duration)_var(--plass-ease)]',
-                'data-[panel-open]:rotate-180'
-              ].join(' ')}
-            >
-              <ChevronIcon />
-            </span>
-          </BaseUIAccordion.Trigger>
+          <span
+            className={[
+              'flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)',
+              '[transition:rotate_var(--plass-duration)_var(--plass-ease)]',
+              'data-[panel-open]:rotate-180'
+            ].join(' ')}
+          >
+            <ChevronIcon />
+          </span>
+        </BaseUIAccordion.Trigger>
 
-          {hasContent(action) ? (
-            <span className={`flex shrink-0 items-center ${padX}`}>{action}</span>
-          ) : null}
-        </BaseUIAccordion.Header>
+        {hasContent(action) ? (
+          <span className={`flex shrink-0 items-center ${padX}`}>{action}</span>
+        ) : null}
+      </BaseUIAccordion.Header>
 
-        {/*
+      {/*
           `height` from Base UI's measured `--accordion-panel-height` down to 0,
           with `overflow-hidden` so the body is clipped rather than squashed
           while it moves.
         */}
-        <BaseUIAccordion.Panel
+      <BaseUIAccordion.Panel
+        className={[
+          'h-(--accordion-panel-height) overflow-hidden',
+          '[transition:height_var(--plass-duration-slow)_var(--plass-ease)]',
+          'data-[starting-style]:h-0 data-[ending-style]:h-0'
+        ].join(' ')}
+      >
+        <div
           className={[
-            'h-(--accordion-panel-height) overflow-hidden',
-            '[transition:height_var(--plass-duration-slow)_var(--plass-ease)]',
-            'data-[starting-style]:h-0 data-[ending-style]:h-0'
+            'text-(--plass-muted-fg)',
+            sheetBodyClasses[size],
+            padX,
+            panelPaddingTopClasses[density][size],
+            panelPaddingBottomClasses[density][size]
           ].join(' ')}
         >
-          <div
-            className={[
-              'text-(--plass-muted-fg)',
-              sheetBodyClasses[size],
-              padX,
-              panelPaddingTopClasses[density][size],
-              panelPaddingBottomClasses[density][size]
-            ].join(' ')}
-          >
-            {children}
-          </div>
-        </BaseUIAccordion.Panel>
-      </BaseUIAccordion.Item>
-    );
-  }
-);
+          {children}
+        </div>
+      </BaseUIAccordion.Panel>
+    </BaseUIAccordion.Item>
+  );
+});

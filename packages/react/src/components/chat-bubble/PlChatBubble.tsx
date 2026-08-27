@@ -191,11 +191,11 @@ const tailClasses: Record<PlChatBubbleSide, string> = {
  * messages read as yours at a glance rather than one line at a time.
  */
 const variantClasses: Record<PlassVariant, string> = {
-  solid: [
+  solid: /* @__PURE__ */ [
     'text-(--p-on-solid) [background-image:var(--p-fill)]',
     '[box-shadow:var(--p-elev),var(--p-lift)]'
   ].join(' '),
-  glass: [
+  glass: /* @__PURE__ */ [
     glassClasses,
     'border text-(--plass-fg) bg-(--plass-glass)',
     '[border-color:var(--plass-glass-line)]',
@@ -278,7 +278,7 @@ const statusToneClasses: Record<PlChatBubbleStatus, string> = {
  * `glass` the text is the page's ink and the card is a grey one. A fixed token
  * would be invisible against one of the two.
  */
-const previewSurfaceClasses = [
+const previewSurfaceClasses = /* @__PURE__ */ [
   'block overflow-hidden rounded-(--plass-radius-sm) border no-underline',
   '[border-color:color-mix(in_oklab,currentColor_18%,transparent)]',
   '[background-color:color-mix(in_oklab,currentColor_7%,transparent)]',
@@ -297,7 +297,7 @@ const previewSurfaceClasses = [
  * A pointer that cannot hover has nothing to reveal it, so it is simply always
  * there on touch.
  */
-const actionsClasses = [
+const actionsClasses = /* @__PURE__ */ [
   'shrink-0 opacity-0',
   '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
   'group-hover/bubble:opacity-100 group-focus-within/bubble:opacity-100',
@@ -318,7 +318,7 @@ const actionsClasses = [
  * convention, not a law, and a thread that fills neither is a perfectly good
  * thread.
  */
-export const PlChatBubble = React.forwardRef<HTMLDivElement, PlChatBubbleProps>(
+export const PlChatBubble = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlChatBubbleProps>(
   function PlChatBubble(
     {
       side = 'start',

@@ -51,24 +51,30 @@ export interface PlGridItemProps extends React.ComponentPropsWithoutRef<'div'> {
  * than breaking — but it will be a lone width in a plain parent, which is not a
  * layout. Always wrap.
  */
-export const PlGridItem = React.forwardRef<HTMLDivElement, PlGridItemProps>(function PlGridItem(
-  { span, offset, alignSelf, render, className, style, children, ...props },
-  ref
-) {
-  const classNames = cx('plass-grid-item', alignSelf ? alignSelfClasses[alignSelf] : '', className);
+export const PlGridItem = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlGridItemProps>(
+  function PlGridItem(
+    { span, offset, alignSelf, render, className, style, children, ...props },
+    ref
+  ) {
+    const classNames = cx(
+      'plass-grid-item',
+      alignSelf ? alignSelfClasses[alignSelf] : '',
+      className
+    );
 
-  return useRender({
-    render,
-    ref,
-    props: {
-      className: classNames,
-      style: {
-        ...responsiveSlots('span', span, spanValue),
-        ...responsiveSlots('offset', offset, offsetValue),
-        ...style
-      },
-      children,
-      ...props
-    }
-  });
-});
+    return useRender({
+      render,
+      ref,
+      props: {
+        className: classNames,
+        style: {
+          ...responsiveSlots('span', span, spanValue),
+          ...responsiveSlots('offset', offset, offsetValue),
+          ...style
+        },
+        children,
+        ...props
+      }
+    });
+  }
+);

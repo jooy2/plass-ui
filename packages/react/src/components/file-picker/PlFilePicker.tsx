@@ -129,13 +129,13 @@ const zonePaddingClasses: Record<PlassDensity, Record<PlassSize, string>> = {
  * happens when you engage with the thing, not what the thing is.
  */
 const zoneRestClasses: Record<PlassVariant, string> = {
-  solid: [
+  solid: /* @__PURE__ */ [
     glassClasses,
     'border-2 border-dashed text-(--plass-fg) bg-(--plass-glass-press)',
     '[border-color:var(--plass-border)]',
     '[box-shadow:var(--p-elev),var(--plass-gloss-glass)]'
   ].join(' '),
-  glass: [
+  glass: /* @__PURE__ */ [
     glassClasses,
     'border-2 border-dashed text-(--plass-fg) bg-(--plass-glass)',
     '[border-color:var(--plass-border)]',
@@ -250,7 +250,7 @@ function matchesAccept(file: File, accept: string): boolean {
  * with the file list outside that button — the remove buttons cannot be nested
  * inside the browse button.
  */
-export const PlFilePicker = React.forwardRef<HTMLInputElement, PlFilePickerProps>(
+export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, PlFilePickerProps>(
   function PlFilePicker(
     {
       variant = 'glass',

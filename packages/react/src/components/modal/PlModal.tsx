@@ -139,7 +139,7 @@ const maxWidthClasses: Record<PlassSize, string> = {
  * modal that could be told to sit flat on the page would be a modal that could
  * be told to stop being one.
  */
-const popupClasses = [
+const popupClasses = /* @__PURE__ */ [
   glassClasses,
   'relative flex w-full flex-col overflow-hidden',
   'border text-(--plass-fg) bg-(--plass-glass-press)',
@@ -153,7 +153,7 @@ const popupClasses = [
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
 ].join(' ');
 
-const backdropClasses = [
+const backdropClasses = /* @__PURE__ */ [
   'fixed inset-0 z-50 bg-(--plass-scrim)',
   '[backdrop-filter:blur(2px)] [-webkit-backdrop-filter:blur(2px)]',
   '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',

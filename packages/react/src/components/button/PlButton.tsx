@@ -82,7 +82,7 @@ const iconOnlyClasses: Record<PlassSize, string> = {
   xl: `${controlSquareClasses.xl} px-0`
 };
 
-const baseClasses = [
+const baseClasses = /* @__PURE__ */ [
   // `relative` because `.plass-glow` hangs its two light layers off `::before`/`::after`.
   'relative inline-flex shrink-0 select-none items-center justify-center',
   'whitespace-nowrap align-middle font-semibold leading-none',
@@ -107,11 +107,11 @@ const baseClasses = [
  * variant nobody would remember the name of.
  */
 const restClasses: Record<PlassVariant, string> = {
-  solid: [
+  solid: /* @__PURE__ */ [
     'text-(--p-on-solid) [background-image:var(--p-fill)]',
     '[box-shadow:var(--p-elev),var(--p-lift)]'
   ].join(' '),
-  glass: [
+  glass: /* @__PURE__ */ [
     glassClasses,
     'border text-(--p-accent) bg-(--plass-glass)',
     '[border-color:var(--plass-glass-line)]',
@@ -130,13 +130,13 @@ const restClasses: Record<PlassVariant, string> = {
  * is.
  */
 const hoverClasses: Record<PlassVariant, string> = {
-  solid: [
+  solid: /* @__PURE__ */ [
     'hover:brightness-105',
     'hover:[box-shadow:var(--p-elev-hover),var(--p-lift-hover)]',
     'active:brightness-95',
     'active:[box-shadow:var(--p-elev-press),var(--p-lift-press)]'
   ].join(' '),
-  glass: [
+  glass: /* @__PURE__ */ [
     'hover:bg-(--plass-glass-hover) hover:[border-color:var(--p-line)]',
     'hover:[box-shadow:var(--p-elev-hover),var(--plass-gloss-glass)]',
     'active:bg-(--plass-glass-press)',
@@ -150,11 +150,11 @@ const hoverClasses: Record<PlassVariant, string> = {
  * lift and drains most of the saturation.
  */
 const readOnlyClasses: Record<PlassVariant, string> = {
-  solid: [
+  solid: /* @__PURE__ */ [
     'cursor-default text-(--p-on-solid) [background-image:var(--p-fill)]',
     `shadow-none ${readOnlyFilterClasses}`
   ].join(' '),
-  glass: [
+  glass: /* @__PURE__ */ [
     glassClasses,
     'cursor-default border text-(--p-accent) bg-(--plass-glass)',
     '[border-color:var(--plass-glass-line)]',
@@ -163,112 +163,114 @@ const readOnlyClasses: Record<PlassVariant, string> = {
   ghost: `cursor-default text-(--p-accent) bg-transparent ${readOnlyFilterClasses}`
 };
 
-export const PlButton = React.forwardRef<HTMLButtonElement, PlButtonProps>(function PlButton(
-  {
-    variant = 'solid',
-    size = 'md',
-    color = 'primary',
-    density = 'default',
-    elevation = 1,
-    startIcon,
-    endIcon,
-    loading = false,
-    readOnly = false,
-    fullWidth = false,
-    disabled = false,
-    render,
-    className,
-    style,
-    children,
-    onClick,
-    onPointerMove,
-    ...props
-  },
-  ref
-) {
-  const iconOnly = !hasContent(children);
-  // `disabled` and `readOnly` change how the button looks; `loading` only stops
-  // it from firing.
-  const inert = loading || readOnly;
-  const interactive = !disabled && !inert;
+export const PlButton = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlButtonProps>(
+  function PlButton(
+    {
+      variant = 'solid',
+      size = 'md',
+      color = 'primary',
+      density = 'default',
+      elevation = 1,
+      startIcon,
+      endIcon,
+      loading = false,
+      readOnly = false,
+      fullWidth = false,
+      disabled = false,
+      render,
+      className,
+      style,
+      children,
+      onClick,
+      onPointerMove,
+      ...props
+    },
+    ref
+  ) {
+    const iconOnly = !hasContent(children);
+    // `disabled` and `readOnly` change how the button looks; `loading` only stops
+    // it from firing.
+    const inert = loading || readOnly;
+    const interactive = !disabled && !inert;
 
-  const classNames = [
-    baseClasses,
-    sizeClasses[size],
-    iconOnly ? iconOnlyClasses[size] : paddingXClasses[density][size],
-    // Deliberately an if/else rather than stacked `data-*` variants: two
-    // Tailwind variants of equal specificity resolve by their order in the
-    // generated stylesheet, which is not something a component should depend on.
-    disabled
-      ? disabledClasses[variant]
-      : readOnly
-        ? readOnlyClasses[variant]
-        : restClasses[variant],
-    interactive ? `${hoverClasses[variant]} cursor-pointer` : '',
-    // The interaction light. Every variant takes it, because it is about where
-    // the pointer is rather than about what the surface is made of — the two
-    // colour slots behind it are what switch with the variant.
-    interactive ? 'plass-glow' : '',
-    loading ? 'cursor-progress' : '',
-    fullWidth ? 'w-full' : '',
-    className ?? ''
-  ]
-    .filter(Boolean)
-    .join(' ');
+    const classNames = [
+      baseClasses,
+      sizeClasses[size],
+      iconOnly ? iconOnlyClasses[size] : paddingXClasses[density][size],
+      // Deliberately an if/else rather than stacked `data-*` variants: two
+      // Tailwind variants of equal specificity resolve by their order in the
+      // generated stylesheet, which is not something a component should depend on.
+      disabled
+        ? disabledClasses[variant]
+        : readOnly
+          ? readOnlyClasses[variant]
+          : restClasses[variant],
+      interactive ? `${hoverClasses[variant]} cursor-pointer` : '',
+      // The interaction light. Every variant takes it, because it is about where
+      // the pointer is rather than about what the surface is made of — the two
+      // colour slots behind it are what switch with the variant.
+      interactive ? 'plass-glow' : '',
+      loading ? 'cursor-progress' : '',
+      fullWidth ? 'w-full' : '',
+      className ?? ''
+    ]
+      .filter(Boolean)
+      .join(' ');
 
-  /*
-   * `render` deliberately steps around Base UI's PlButton rather than being handed
-   * to it. Told to render a non-`<button>`, that component puts `role="button"`
-   * on whatever it was given — which is right for a `<div>` and wrong for the
-   * case this prop exists for: an `<a href>` under a `role="button"` stops being
-   * a link to everything that reads the page, and the link list, the status bar
-   * and the crawler all lose it.
-   *
-   * What Base UI's PlButton adds over a bare `<button>` is its disabled handling,
-   * and `disabled` is the one thing that cannot travel to an `<a>` anyway.
-   */
-  return useRender({
-    render: render ?? <BaseUIButton disabled={disabled} />,
-    ref,
-    props: {
-      className: classNames,
-      style: { ...controlSlots(color, elevation, variant), ...style },
-      'aria-disabled': inert || undefined,
-      'aria-busy': loading || undefined,
-      'data-loading': loading || undefined,
-      'data-readonly': readOnly || undefined,
-      onClick: (event: React.MouseEvent<HTMLElement>) => {
-        if (inert) {
-          event.preventDefault();
-          event.stopPropagation();
-          return;
-        }
-        onClick?.(event as React.MouseEvent<HTMLButtonElement>);
-      },
-      onPointerMove: (event: React.PointerEvent<HTMLElement>) => {
-        // Feeds the two light layers in `styles.css`. Written straight to the
-        // element rather than held in state: this fires at pointer rate, and a
-        // `setState` here would re-render the tree on every mouse move. Reading
-        // `offsetX/offsetY` costs nothing — no `getBoundingClientRect`, so no
-        // forced layout. Icons carry `pointer-events: none`, so the offsets are
-        // always relative to the button itself.
-        //
-        // It runs while a finger is down too, which is what makes the light
-        // follow a drag on a touch screen — there is no hover there, and the
-        // `:active` layer is the one doing the work.
-        const element = event.currentTarget;
-        element.style.setProperty('--p-mx', `${event.nativeEvent.offsetX}px`);
-        element.style.setProperty('--p-my', `${event.nativeEvent.offsetY}px`);
-        onPointerMove?.(event as React.PointerEvent<HTMLButtonElement>);
-      },
-      ...props,
-      children: (
-        <>
-          {loading ? <Spinner /> : startIcon}
-          {children}
-          {endIcon}
-        </>
-      )
-    }
-  });
-});
+    /*
+     * `render` deliberately steps around Base UI's PlButton rather than being handed
+     * to it. Told to render a non-`<button>`, that component puts `role="button"`
+     * on whatever it was given — which is right for a `<div>` and wrong for the
+     * case this prop exists for: an `<a href>` under a `role="button"` stops being
+     * a link to everything that reads the page, and the link list, the status bar
+     * and the crawler all lose it.
+     *
+     * What Base UI's PlButton adds over a bare `<button>` is its disabled handling,
+     * and `disabled` is the one thing that cannot travel to an `<a>` anyway.
+     */
+    return useRender({
+      render: render ?? <BaseUIButton disabled={disabled} />,
+      ref,
+      props: {
+        className: classNames,
+        style: { ...controlSlots(color, elevation, variant), ...style },
+        'aria-disabled': inert || undefined,
+        'aria-busy': loading || undefined,
+        'data-loading': loading || undefined,
+        'data-readonly': readOnly || undefined,
+        onClick: (event: React.MouseEvent<HTMLElement>) => {
+          if (inert) {
+            event.preventDefault();
+            event.stopPropagation();
+            return;
+          }
+          onClick?.(event as React.MouseEvent<HTMLButtonElement>);
+        },
+        onPointerMove: (event: React.PointerEvent<HTMLElement>) => {
+          // Feeds the two light layers in `styles.css`. Written straight to the
+          // element rather than held in state: this fires at pointer rate, and a
+          // `setState` here would re-render the tree on every mouse move. Reading
+          // `offsetX/offsetY` costs nothing — no `getBoundingClientRect`, so no
+          // forced layout. Icons carry `pointer-events: none`, so the offsets are
+          // always relative to the button itself.
+          //
+          // It runs while a finger is down too, which is what makes the light
+          // follow a drag on a touch screen — there is no hover there, and the
+          // `:active` layer is the one doing the work.
+          const element = event.currentTarget;
+          element.style.setProperty('--p-mx', `${event.nativeEvent.offsetX}px`);
+          element.style.setProperty('--p-my', `${event.nativeEvent.offsetY}px`);
+          onPointerMove?.(event as React.PointerEvent<HTMLButtonElement>);
+        },
+        ...props,
+        children: (
+          <>
+            {loading ? <Spinner /> : startIcon}
+            {children}
+            {endIcon}
+          </>
+        )
+      }
+    });
+  }
+);

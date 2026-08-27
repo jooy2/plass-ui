@@ -83,35 +83,37 @@ const maxWidthClasses: Record<PlassSize, string> = {
  * of a window is the margin a card keeps around a paragraph — not the room a
  * label needs beside the edge of the key it is printed on.
  */
-export const PlContainer = React.forwardRef<HTMLDivElement, PlContainerProps>(function PlContainer(
-  {
-    maxWidth = 'none',
-    padded = true,
-    size = 'md',
-    density = 'default',
-    centered = true,
-    render,
-    className,
-    children,
-    ...props
-  },
-  ref
-) {
-  const classNames = cx(
-    'block w-full',
-    maxWidth === 'none' ? '' : maxWidthClasses[maxWidth],
-    centered ? 'mx-auto' : '',
-    padded ? sheetPaddingXClasses[density][size] : '',
-    className
-  );
-
-  return useRender({
-    render,
-    ref,
-    props: {
-      className: classNames,
+export const PlContainer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlContainerProps>(
+  function PlContainer(
+    {
+      maxWidth = 'none',
+      padded = true,
+      size = 'md',
+      density = 'default',
+      centered = true,
+      render,
+      className,
       children,
       ...props
-    }
-  });
-});
+    },
+    ref
+  ) {
+    const classNames = cx(
+      'block w-full',
+      maxWidth === 'none' ? '' : maxWidthClasses[maxWidth],
+      centered ? 'mx-auto' : '',
+      padded ? sheetPaddingXClasses[density][size] : '',
+      className
+    );
+
+    return useRender({
+      render,
+      ref,
+      props: {
+        className: classNames,
+        children,
+        ...props
+      }
+    });
+  }
+);

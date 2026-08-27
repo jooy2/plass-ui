@@ -130,7 +130,7 @@ const indicatorClasses = `rounded-full [background-image:var(--p-fill)] ${transi
  * no-transform rule is not relaxed just because this particular part carries no
  * label.
  */
-const thumbClasses = [
+const thumbClasses = /* @__PURE__ */ [
   'rounded-full border-2 [background-image:var(--p-fill)]',
   '[border-color:var(--plass-surface)]',
   '[box-shadow:var(--p-elev),var(--p-lift)]',
@@ -154,92 +154,94 @@ const disabledSliderClasses = 'opacity-50 saturate-[0.35] [&_*]:cursor-not-allow
  * one thumb per entry — there is no separate `range` prop, because the shape of
  * the value already says which one this is.
  */
-export const PlSlider = React.forwardRef<HTMLDivElement, PlSliderProps>(function PlSlider(
-  {
-    size = 'md',
-    color = 'primary',
-    elevation = 1,
-    orientation = 'horizontal',
-    label,
-    description,
-    showValue = false,
-    disabled = false,
-    className,
-    style,
-    ...props
-  },
-  ref
-) {
-  const vertical = orientation === 'vertical';
+export const PlSlider = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSliderProps>(
+  function PlSlider(
+    {
+      size = 'md',
+      color = 'primary',
+      elevation = 1,
+      orientation = 'horizontal',
+      label,
+      description,
+      showValue = false,
+      disabled = false,
+      className,
+      style,
+      ...props
+    },
+    ref
+  ) {
+    const vertical = orientation === 'vertical';
 
-  // One thumb per value. The count comes off whichever of the two was given, so
-  // an uncontrolled range slider works without being told it is one.
-  const values = props.value ?? props.defaultValue;
-  const thumbCount = Array.isArray(values) ? values.length : 1;
+    // One thumb per value. The count comes off whichever of the two was given, so
+    // an uncontrolled range slider works without being told it is one.
+    const values = props.value ?? props.defaultValue;
+    const thumbCount = Array.isArray(values) ? values.length : 1;
 
-  return (
-    <BaseUISlider.Root
-      ref={ref}
-      orientation={orientation}
-      disabled={disabled}
-      className={[
-        'flex',
-        vertical ? 'w-fit flex-col items-center gap-2' : 'w-full flex-col gap-1.5',
-        disabled ? disabledSliderClasses : '',
-        className ?? ''
-      ]
-        .filter(Boolean)
-        .join(' ')}
-      // `solid`, always: the run and the thumb are the coloured thing, so the
-      // interaction light on them is white rather than the family's own tint.
-      style={{ ...controlSlots(color, elevation, 'solid'), ...style }}
-      {...props}
-    >
-      {label || showValue ? (
-        <div className={`flex w-full items-baseline gap-2 ${metaTextClasses[size]}`}>
-          {label ? (
-            <BaseUISlider.Label className="font-semibold text-(--plass-fg)">
-              {label}
-            </BaseUISlider.Label>
-          ) : null}
-          {showValue ? (
-            <BaseUISlider.Value className="ms-auto tabular-nums text-(--plass-muted-fg)">
-              {typeof showValue === 'function' ? showValue : null}
-            </BaseUISlider.Value>
-          ) : null}
-        </div>
-      ) : null}
-
-      <BaseUISlider.Control
+    return (
+      <BaseUISlider.Root
+        ref={ref}
+        orientation={orientation}
+        disabled={disabled}
         className={[
-          'flex touch-none items-center justify-center select-none',
-          vertical
-            ? `${trackBoxWidthClasses[size]} h-40 flex-col`
-            : `w-full ${trackBoxHeightClasses[size]}`
-        ].join(' ')}
+          'flex',
+          vertical ? 'w-fit flex-col items-center gap-2' : 'w-full flex-col gap-1.5',
+          disabled ? disabledSliderClasses : '',
+          className ?? ''
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        // `solid`, always: the run and the thumb are the coloured thing, so the
+        // interaction light on them is white rather than the family's own tint.
+        style={{ ...controlSlots(color, elevation, 'solid'), ...style }}
+        {...props}
       >
-        <BaseUISlider.Track
+        {label || showValue ? (
+          <div className={`flex w-full items-baseline gap-2 ${metaTextClasses[size]}`}>
+            {label ? (
+              <BaseUISlider.Label className="font-semibold text-(--plass-fg)">
+                {label}
+              </BaseUISlider.Label>
+            ) : null}
+            {showValue ? (
+              <BaseUISlider.Value className="ms-auto tabular-nums text-(--plass-muted-fg)">
+                {typeof showValue === 'function' ? showValue : null}
+              </BaseUISlider.Value>
+            ) : null}
+          </div>
+        ) : null}
+
+        <BaseUISlider.Control
           className={[
-            railClasses,
+            'flex touch-none items-center justify-center select-none',
             vertical
-              ? `${verticalThicknessClasses[size]} h-full`
-              : `${trackThicknessClasses[size]} w-full`
+              ? `${trackBoxWidthClasses[size]} h-40 flex-col`
+              : `w-full ${trackBoxHeightClasses[size]}`
           ].join(' ')}
         >
-          <BaseUISlider.Indicator className={indicatorClasses} />
-          {Array.from({ length: thumbCount }, (_, index) => (
-            <BaseUISlider.Thumb
-              key={index}
-              index={index}
-              className={`${thumbClasses} ${thumbSizeClasses[size]}`}
-            />
-          ))}
-        </BaseUISlider.Track>
-      </BaseUISlider.Control>
+          <BaseUISlider.Track
+            className={[
+              railClasses,
+              vertical
+                ? `${verticalThicknessClasses[size]} h-full`
+                : `${trackThicknessClasses[size]} w-full`
+            ].join(' ')}
+          >
+            <BaseUISlider.Indicator className={indicatorClasses} />
+            {Array.from({ length: thumbCount }, (_, index) => (
+              <BaseUISlider.Thumb
+                key={index}
+                index={index}
+                className={`${thumbClasses} ${thumbSizeClasses[size]}`}
+              />
+            ))}
+          </BaseUISlider.Track>
+        </BaseUISlider.Control>
 
-      {description ? (
-        <div className={`${metaTextClasses[size]} text-(--plass-muted-fg)`}>{description}</div>
-      ) : null}
-    </BaseUISlider.Root>
-  );
-});
+        {description ? (
+          <div className={`${metaTextClasses[size]} text-(--plass-muted-fg)`}>{description}</div>
+        ) : null}
+      </BaseUISlider.Root>
+    );
+  }
+);

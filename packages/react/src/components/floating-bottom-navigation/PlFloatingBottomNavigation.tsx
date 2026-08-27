@@ -36,7 +36,7 @@ interface FloatingBarContextValue {
   disabled: boolean;
 }
 
-const FloatingBarContext = React.createContext<FloatingBarContextValue>({
+const FloatingBarContext = /* @__PURE__ */ React.createContext<FloatingBarContextValue>({
   value: null,
   change: () => {},
   size: 'md',
@@ -165,12 +165,12 @@ const positionClasses: Record<PlassPosition, string> = {
  * anything has no corners to cut.
  */
 const capsuleClasses: Record<'solid' | 'glass' | 'ghost', string> = {
-  solid: [
+  solid: /* @__PURE__ */ [
     glassClasses,
     'bg-(--plass-glass-press)',
     '[box-shadow:var(--p-elev),var(--plass-gloss-glass)]'
   ].join(' '),
-  glass: [
+  glass: /* @__PURE__ */ [
     glassClasses,
     'border bg-(--plass-glass)',
     '[border-color:var(--plass-glass-line)]',
@@ -198,7 +198,7 @@ const capsuleClasses: Record<'solid' | 'glass' | 'ghost', string> = {
  * The current destination is a key of **tinted glass** riding in the clear
  * sheet, which is the design language's own sentence with nothing added to it.
  */
-export const PlFloatingBottomNavigation = React.forwardRef<
+export const PlFloatingBottomNavigation = /* @__PURE__ */ React.forwardRef<
   HTMLElement,
   PlFloatingBottomNavigationProps
 >(function PlFloatingBottomNavigation(
@@ -290,7 +290,7 @@ export const PlFloatingBottomNavigation = React.forwardRef<
  * the bar, which is the only place they can be set once and mean the same thing
  * for every disc.
  */
-export const PlFloatingBottomNavigationItem = React.forwardRef<
+export const PlFloatingBottomNavigationItem = /* @__PURE__ */ React.forwardRef<
   HTMLElement,
   PlFloatingBottomNavigationItemProps
 >(function PlFloatingBottomNavigationItem(

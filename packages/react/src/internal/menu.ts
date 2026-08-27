@@ -20,7 +20,7 @@ export interface PlassMenuContextValue {
   density: PlassDensity;
 }
 
-export const MenuContext = React.createContext<PlassMenuContextValue>({
+export const MenuContext = /* @__PURE__ */ React.createContext<PlassMenuContextValue>({
   size: 'md',
   color: 'primary',
   density: 'default'

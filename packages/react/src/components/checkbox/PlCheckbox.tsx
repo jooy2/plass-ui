@@ -54,7 +54,7 @@ export interface PlCheckboxProps extends BaseCheckboxProps {
  * the whole surface rather than shifting it a step: "on" and "off" are not two
  * strengths of the same thing.
  */
-const tickBaseClasses = [
+const tickBaseClasses = /* @__PURE__ */ [
   'relative inline-flex shrink-0 items-center justify-center border',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
   transitionClasses,
@@ -78,7 +78,7 @@ const tickBaseClasses = [
  * than on the page wash — and a tick nobody can see is a control nobody can
  * find. A neutral hairline reads on both.
  */
-const restClasses = [
+const restClasses = /* @__PURE__ */ [
   glassClasses,
   'cursor-pointer bg-(--plass-glass) [border-color:var(--plass-border)]',
   'hover:bg-(--plass-glass-hover) hover:[border-color:var(--p-line)]',
@@ -90,7 +90,7 @@ const restClasses = [
   'data-[indeterminate]:[border-color:transparent]'
 ].join(' ');
 
-const readOnlyClasses = [
+const readOnlyClasses = /* @__PURE__ */ [
   glassClasses,
   'cursor-default bg-(--plass-glass) [border-color:var(--plass-border)]',
   'saturate-[0.55]',
@@ -99,7 +99,7 @@ const readOnlyClasses = [
 ].join(' ');
 
 /** Disabled is the light going out, exactly as it is on a PlButton. */
-const disabledTickClasses = [
+const disabledTickClasses = /* @__PURE__ */ [
   glassClasses,
   'cursor-not-allowed bg-(--plass-glass) [border-color:var(--plass-border)]',
   'opacity-50 saturate-[0.35]',
@@ -141,91 +141,93 @@ function DashMark() {
  * wants to decide is what goes in each slot. `children` is not accepted at all —
  * anything a checkbox has to say belongs in one of the three.
  */
-export const PlCheckbox = React.forwardRef<HTMLElement, PlCheckboxProps>(function PlCheckbox(
-  {
-    size = 'md',
-    color = 'primary',
-    label,
-    description,
-    error,
-    invalid,
-    disabled = false,
-    readOnly = false,
-    className,
-    style,
-    ...props
-  },
-  ref
-) {
-  const hasError = hasContent(error);
-  const isInvalid = invalid ?? hasError;
-  // Invalid re-points the whole slot family at `danger`, so the tick, the ring
-  // and the message all turn over together.
-  const family: PlassColor = isInvalid ? 'danger' : color;
+export const PlCheckbox = /* @__PURE__ */ React.forwardRef<HTMLElement, PlCheckboxProps>(
+  function PlCheckbox(
+    {
+      size = 'md',
+      color = 'primary',
+      label,
+      description,
+      error,
+      invalid,
+      disabled = false,
+      readOnly = false,
+      className,
+      style,
+      ...props
+    },
+    ref
+  ) {
+    const hasError = hasContent(error);
+    const isInvalid = invalid ?? hasError;
+    // Invalid re-points the whole slot family at `danger`, so the tick, the ring
+    // and the message all turn over together.
+    const family: PlassColor = isInvalid ? 'danger' : color;
 
-  const tickClasses = [
-    tickBaseClasses,
-    tickSizeClasses[size],
-    tickRadiusClasses[size],
-    // An if/else rather than stacked variants: two Tailwind classes of equal
-    // specificity resolve by their order in the generated stylesheet.
-    disabled ? disabledTickClasses : readOnly ? readOnlyClasses : restClasses
-  ].join(' ');
+    const tickClasses = [
+      tickBaseClasses,
+      tickSizeClasses[size],
+      tickRadiusClasses[size],
+      // An if/else rather than stacked variants: two Tailwind classes of equal
+      // specificity resolve by their order in the generated stylesheet.
+      disabled ? disabledTickClasses : readOnly ? readOnlyClasses : restClasses
+    ].join(' ');
 
-  return (
-    <Field.Root
-      disabled={disabled}
-      invalid={isInvalid}
-      className={['inline-flex flex-col gap-1 align-top', className ?? '']
-        .filter(Boolean)
-        .join(' ')}
-      // `solid`, because a checked tick *is* the coloured thing.
-      style={{ ...controlSlots(family, 0, 'solid'), ...style }}
-    >
-      <div className={`flex items-start gap-2 ${tickRowTextClasses[size]}`}>
-        {/* `1lh` centres the tick on the first line of the label rather than on
+    return (
+      <Field.Root
+        disabled={disabled}
+        invalid={isInvalid}
+        className={['inline-flex flex-col gap-1 align-top', className ?? '']
+          .filter(Boolean)
+          .join(' ')}
+        // `solid`, because a checked tick *is* the coloured thing.
+        style={{ ...controlSlots(family, 0, 'solid'), ...style }}
+      >
+        <div className={`flex items-start gap-2 ${tickRowTextClasses[size]}`}>
+          {/* `1lh` centres the tick on the first line of the label rather than on
             the whole block, so it stays put when the label wraps to three. The
             leading is pinned on the row above so `1lh` and the label's own line
             box are the same number. */}
-        <span className="flex h-[1lh] shrink-0 items-center">
-          <BaseUICheckbox.Root
-            ref={ref}
-            className={tickClasses}
-            disabled={disabled}
-            readOnly={readOnly}
-            {...props}
-          >
-            <BaseUICheckbox.Indicator className={markClasses}>
-              {props.indeterminate ? <DashMark /> : <CheckMark />}
-            </BaseUICheckbox.Indicator>
-          </BaseUICheckbox.Root>
-        </span>
-
-        {label || description ? (
-          <span className="flex min-w-0 flex-col gap-0.5">
-            {label ? (
-              <Field.Label
-                className={
-                  disabled ? 'text-(--plass-muted-fg)' : 'cursor-pointer text-(--plass-fg)'
-                }
-              >
-                {label}
-              </Field.Label>
-            ) : null}
-            {description ? (
-              <Field.Description className={`${metaTextClasses[size]} text-(--plass-muted-fg)`}>
-                {description}
-              </Field.Description>
-            ) : null}
+          <span className="flex h-[1lh] shrink-0 items-center">
+            <BaseUICheckbox.Root
+              ref={ref}
+              className={tickClasses}
+              disabled={disabled}
+              readOnly={readOnly}
+              {...props}
+            >
+              <BaseUICheckbox.Indicator className={markClasses}>
+                {props.indeterminate ? <DashMark /> : <CheckMark />}
+              </BaseUICheckbox.Indicator>
+            </BaseUICheckbox.Root>
           </span>
-        ) : null}
-      </div>
 
-      {hasError ? (
-        <Field.Error match className={`${metaTextClasses[size]} text-(--p-accent)`}>
-          {error}
-        </Field.Error>
-      ) : null}
-    </Field.Root>
-  );
-});
+          {label || description ? (
+            <span className="flex min-w-0 flex-col gap-0.5">
+              {label ? (
+                <Field.Label
+                  className={
+                    disabled ? 'text-(--plass-muted-fg)' : 'cursor-pointer text-(--plass-fg)'
+                  }
+                >
+                  {label}
+                </Field.Label>
+              ) : null}
+              {description ? (
+                <Field.Description className={`${metaTextClasses[size]} text-(--plass-muted-fg)`}>
+                  {description}
+                </Field.Description>
+              ) : null}
+            </span>
+          ) : null}
+        </div>
+
+        {hasError ? (
+          <Field.Error match className={`${metaTextClasses[size]} text-(--p-accent)`}>
+            {error}
+          </Field.Error>
+        ) : null}
+      </Field.Root>
+    );
+  }
+);

@@ -62,7 +62,7 @@ export interface PlAspectRatioProps extends React.ComponentPropsWithoutRef<'div'
  * `iframe` takes the sizing and not the fit: an embed lays its own content out
  * and `object-fit` has nothing to act on.
  */
-const stretchClasses = [
+const stretchClasses = /* @__PURE__ */ [
   '[&>img]:size-full',
   '[&>video]:size-full',
   '[&>canvas]:size-full',
@@ -92,7 +92,7 @@ const fitClasses: Record<PlAspectFit, string> = {
  * media inside is stretched to the box and then fitted, which is the pair of
  * declarations every use of this component would otherwise start with.
  */
-export const PlAspectRatio = React.forwardRef<HTMLDivElement, PlAspectRatioProps>(
+export const PlAspectRatio = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlAspectRatioProps>(
   function PlAspectRatio(
     {
       ratio = 1,

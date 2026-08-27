@@ -81,7 +81,7 @@ const DEFAULT_SPACING = 2;
  * the inner grid re-declares the column count for its own subtree while the item
  * around it keeps the width the outer grid gave it.
  */
-export const PlGrid = React.forwardRef<HTMLDivElement, PlGridProps>(function PlGrid(
+export const PlGrid = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlGridProps>(function PlGrid(
   {
     columns,
     spacing,

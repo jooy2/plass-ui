@@ -61,11 +61,11 @@ export interface PlAlertProps
  * gradient is the form, and a white edge over the top of it reads as lacquer.
  */
 const restClasses: Record<PlassVariant, string> = {
-  solid: [
+  solid: /* @__PURE__ */ [
     'text-(--p-on-solid) [background-image:var(--p-fill)]',
     '[box-shadow:var(--p-elev),var(--p-lift)]'
   ].join(' '),
-  glass: [
+  glass: /* @__PURE__ */ [
     glassClasses,
     'border text-(--plass-fg) bg-(--plass-glass)',
     '[border-color:var(--p-line)]',
@@ -133,94 +133,96 @@ const rolesFor: Record<PlassColor, 'alert' | 'status'> = {
  * only interactive parts it can grow — the action and the dismiss button — are
  * real buttons that the caller either passes in or gets by passing `onClose`.
  */
-export const PlAlert = React.forwardRef<HTMLDivElement, PlAlertProps>(function PlAlert(
-  {
-    variant = 'glass',
-    size = 'md',
-    // An alert with no severity named is an informational one. This is the one
-    // place `primary` would be a lie: it is not the primary anything, it is a
-    // note, and the palette already has the word for that.
-    color = 'info',
-    density = 'default',
-    elevation = 0,
-    title,
-    icon,
-    action,
-    onClose,
-    closeLabel = 'Dismiss',
-    className,
-    style,
-    children,
-    ...props
-  },
-  ref
-) {
-  const glyph = icon === undefined ? severityIcons[color] : icon;
-  const accent = accentClasses[variant];
-  const titled = hasContent(title);
+export const PlAlert = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlAlertProps>(
+  function PlAlert(
+    {
+      variant = 'glass',
+      size = 'md',
+      // An alert with no severity named is an informational one. This is the one
+      // place `primary` would be a lie: it is not the primary anything, it is a
+      // note, and the palette already has the word for that.
+      color = 'info',
+      density = 'default',
+      elevation = 0,
+      title,
+      icon,
+      action,
+      onClose,
+      closeLabel = 'Dismiss',
+      className,
+      style,
+      children,
+      ...props
+    },
+    ref
+  ) {
+    const glyph = icon === undefined ? severityIcons[color] : icon;
+    const accent = accentClasses[variant];
+    const titled = hasContent(title);
 
-  return (
-    <div
-      ref={ref}
-      role={rolesFor[color]}
-      className={[
-        'flex w-full items-start',
-        sheetPaddingXClasses[density][size],
-        sheetPaddingYClasses[density][size],
-        radiusClasses[size],
-        sheetSectionGapClasses[size],
-        sheetBodyClasses[size],
-        transitionClasses,
-        restClasses[variant],
-        iconClasses,
-        className ?? ''
-      ]
-        .filter(Boolean)
-        .join(' ')}
-      style={{ ...controlSlots(color, elevation, variant), ...style }}
-      {...props}
-    >
-      {hasContent(glyph) ? (
-        // `h-[1lh]` rather than a margin: the glyph centres on the first line of
-        // text whatever the type scale turns out to be, so a one-line alert
-        // looks centred and a three-line one still has its glyph at the top.
-        <span className={`flex h-[1lh] shrink-0 items-center ${accent}`}>{glyph}</span>
-      ) : null}
-
-      <div className={`flex min-w-0 flex-1 flex-col ${sheetHeaderGapClasses[size]}`}>
-        {titled ? (
-          <div className={`plass-title font-semibold ${sheetTitleClasses[size]} ${accent}`}>
-            {title}
-          </div>
+    return (
+      <div
+        ref={ref}
+        role={rolesFor[color]}
+        className={[
+          'flex w-full items-start',
+          sheetPaddingXClasses[density][size],
+          sheetPaddingYClasses[density][size],
+          radiusClasses[size],
+          sheetSectionGapClasses[size],
+          sheetBodyClasses[size],
+          transitionClasses,
+          restClasses[variant],
+          iconClasses,
+          className ?? ''
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        style={{ ...controlSlots(color, elevation, variant), ...style }}
+        {...props}
+      >
+        {hasContent(glyph) ? (
+          // `h-[1lh]` rather than a margin: the glyph centres on the first line of
+          // text whatever the type scale turns out to be, so a one-line alert
+          // looks centred and a three-line one still has its glyph at the top.
+          <span className={`flex h-[1lh] shrink-0 items-center ${accent}`}>{glyph}</span>
         ) : null}
-        {hasContent(children) ? (
-          // Under a title the message is supporting detail and steps back to the
-          // muted ink. On its own it *is* the alert, and stays reading text.
-          <div className={titled ? detailClasses[variant] : undefined}>{children}</div>
+
+        <div className={`flex min-w-0 flex-1 flex-col ${sheetHeaderGapClasses[size]}`}>
+          {titled ? (
+            <div className={`plass-title font-semibold ${sheetTitleClasses[size]} ${accent}`}>
+              {title}
+            </div>
+          ) : null}
+          {hasContent(children) ? (
+            // Under a title the message is supporting detail and steps back to the
+            // muted ink. On its own it *is* the alert, and stays reading text.
+            <div className={titled ? detailClasses[variant] : undefined}>{children}</div>
+          ) : null}
+        </div>
+
+        {hasContent(action) ? (
+          <div className="flex h-[1lh] shrink-0 items-center">{action}</div>
+        ) : null}
+
+        {onClose ? (
+          <span className="flex h-[1lh] shrink-0 items-center">
+            <button
+              type="button"
+              aria-label={closeLabel}
+              onClick={onClose}
+              className={[
+                'inline-flex size-[1.15em] cursor-pointer items-center justify-center rounded-full',
+                'opacity-70 [transition:opacity_var(--plass-duration)_var(--plass-ease)]',
+                'hover:opacity-100 focus-visible:opacity-100',
+                focusRingClasses
+              ].join(' ')}
+            >
+              <CloseIcon />
+            </button>
+          </span>
         ) : null}
       </div>
-
-      {hasContent(action) ? (
-        <div className="flex h-[1lh] shrink-0 items-center">{action}</div>
-      ) : null}
-
-      {onClose ? (
-        <span className="flex h-[1lh] shrink-0 items-center">
-          <button
-            type="button"
-            aria-label={closeLabel}
-            onClick={onClose}
-            className={[
-              'inline-flex size-[1.15em] cursor-pointer items-center justify-center rounded-full',
-              'opacity-70 [transition:opacity_var(--plass-duration)_var(--plass-ease)]',
-              'hover:opacity-100 focus-visible:opacity-100',
-              focusRingClasses
-            ].join(' ')}
-          >
-            <CloseIcon />
-          </button>
-        </span>
-      ) : null}
-    </div>
-  );
-});
+    );
+  }
+);

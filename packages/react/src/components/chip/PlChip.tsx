@@ -89,7 +89,7 @@ const chipScale: Record<PlassSize, PlassSize> = {
  */
 const restClasses: Record<PlassVariant, string> = {
   solid: 'text-(--p-on-solid) [background-image:var(--p-fill)] [box-shadow:var(--p-elev)]',
-  glass: [
+  glass: /* @__PURE__ */ [
     glassClasses,
     'border text-(--p-accent) bg-(--plass-glass)',
     '[border-color:var(--plass-glass-line)]',
@@ -125,7 +125,7 @@ const hoverClasses: Record<PlassVariant, string> = {
   ghost: 'hover:bg-(--p-soft-hover) active:bg-(--p-soft-press)'
 };
 
-const baseClasses = [
+const baseClasses = /* @__PURE__ */ [
   // `items-center`, not `items-stretch`: everything in a chip — the icon, the
   // label, the count plate, the × — is centred on one line. The pressable label
   // asks for the height it needs with `self-stretch` instead, so making the
@@ -150,13 +150,13 @@ const baseClasses = [
  * height of the words, and `rounded-[inherit]` so the focus ring traces the
  * shell's corners rather than drawing a second, squarer rectangle inside them.
  */
-const labelButtonClasses = [
+const labelButtonClasses = /* @__PURE__ */ [
   'flex min-w-0 flex-1 cursor-pointer items-center justify-center self-stretch rounded-[inherit]',
   focusRingClasses
 ].join(' ');
 
 /** The ×, kept quiet until it is wanted. */
-const removeButtonClasses = [
+const removeButtonClasses = /* @__PURE__ */ [
   'ms-0.5 inline-flex shrink-0 items-center justify-center rounded-full',
   'size-[1.15em] cursor-pointer opacity-70',
   '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
@@ -178,109 +178,111 @@ const removeButtonClasses = [
  * `<button>` is the most common way it invents a chip that Chrome silently
  * rewrites. This shape is what avoids both.
  */
-export const PlChip = React.forwardRef<HTMLSpanElement, PlChipProps>(function PlChip(
-  {
-    variant = 'glass',
-    size = 'md',
-    color = 'primary',
-    density = 'default',
-    elevation = 0,
-    startIcon,
-    endIcon,
-    count,
-    onDelete,
-    deleteLabel = 'Remove',
-    selected = false,
-    disabled = false,
-    className,
-    style,
-    children,
-    onClick,
-    ...props
-  },
-  ref
-) {
-  const interactive = Boolean(onClick) && !disabled;
-  const step = chipScale[size];
-  const padX = paddingXClasses[density][step];
+export const PlChip = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlChipProps>(
+  function PlChip(
+    {
+      variant = 'glass',
+      size = 'md',
+      color = 'primary',
+      density = 'default',
+      elevation = 0,
+      startIcon,
+      endIcon,
+      count,
+      onDelete,
+      deleteLabel = 'Remove',
+      selected = false,
+      disabled = false,
+      className,
+      style,
+      children,
+      onClick,
+      ...props
+    },
+    ref
+  ) {
+    const interactive = Boolean(onClick) && !disabled;
+    const step = chipScale[size];
+    const padX = paddingXClasses[density][step];
 
-  const shellClasses = [
-    baseClasses,
-    controlHeightClasses[step],
-    controlTextClasses[step],
-    gapClasses[step],
-    radiusClasses[step],
-    // An if/else rather than stacked variants: two Tailwind classes of equal
-    // specificity resolve by their order in the generated stylesheet.
-    disabled ? disabledClasses[variant] : restClasses[variant],
-    !disabled && selected ? selectedClasses[variant] : '',
-    interactive ? hoverClasses[variant] : '',
-    // With a pressable label the padding belongs to the button, so its hit area
-    // covers the whole chip rather than just the words.
-    interactive ? 'ps-0' : padX,
-    // The delete button brings its own padding; stacking the chip's on top of it
-    // would leave the × floating in the middle of a gap.
-    onDelete ? 'pe-1' : interactive ? 'pe-0' : '',
-    className ?? ''
-  ]
-    .filter(Boolean)
-    .join(' ');
+    const shellClasses = [
+      baseClasses,
+      controlHeightClasses[step],
+      controlTextClasses[step],
+      gapClasses[step],
+      radiusClasses[step],
+      // An if/else rather than stacked variants: two Tailwind classes of equal
+      // specificity resolve by their order in the generated stylesheet.
+      disabled ? disabledClasses[variant] : restClasses[variant],
+      !disabled && selected ? selectedClasses[variant] : '',
+      interactive ? hoverClasses[variant] : '',
+      // With a pressable label the padding belongs to the button, so its hit area
+      // covers the whole chip rather than just the words.
+      interactive ? 'ps-0' : padX,
+      // The delete button brings its own padding; stacking the chip's on top of it
+      // would leave the × floating in the middle of a gap.
+      onDelete ? 'pe-1' : interactive ? 'pe-0' : '',
+      className ?? ''
+    ]
+      .filter(Boolean)
+      .join(' ');
 
-  const label = (
-    <>
-      {startIcon}
-      {hasContent(children) ? <span className="min-w-0 truncate">{children}</span> : null}
-      {endIcon}
-      {hasContent(count) ? (
-        <span
-          className={[
-            'ms-0.5 inline-flex shrink-0 items-center justify-center rounded-full px-1.5 py-px',
-            'text-[0.85em] leading-none font-semibold tabular-nums',
-            // On a filled chip the plate is light let through the fill; on a
-            // tinted or a bare one it is the accent showing under the words.
-            variant === 'solid'
-              ? 'bg-(--plass-glow-on-fill) text-(--p-on-solid)'
-              : 'bg-(--p-soft-press) text-(--p-accent)'
-          ].join(' ')}
-        >
-          {count}
-        </span>
-      ) : null}
-    </>
-  );
+    const label = (
+      <>
+        {startIcon}
+        {hasContent(children) ? <span className="min-w-0 truncate">{children}</span> : null}
+        {endIcon}
+        {hasContent(count) ? (
+          <span
+            className={[
+              'ms-0.5 inline-flex shrink-0 items-center justify-center rounded-full px-1.5 py-px',
+              'text-[0.85em] leading-none font-semibold tabular-nums',
+              // On a filled chip the plate is light let through the fill; on a
+              // tinted or a bare one it is the accent showing under the words.
+              variant === 'solid'
+                ? 'bg-(--plass-glow-on-fill) text-(--p-on-solid)'
+                : 'bg-(--p-soft-press) text-(--p-accent)'
+            ].join(' ')}
+          >
+            {count}
+          </span>
+        ) : null}
+      </>
+    );
 
-  return (
-    <span
-      ref={ref}
-      className={shellClasses}
-      style={{ ...controlSlots(color, elevation, variant), ...style }}
-      aria-disabled={disabled && !interactive ? true : undefined}
-      {...props}
-    >
-      {interactive ? (
-        <button
-          type="button"
-          aria-pressed={selected}
-          className={`${labelButtonClasses} ${gapClasses[step]} ${padX}`}
-          onClick={onClick as React.MouseEventHandler<HTMLButtonElement>}
-        >
-          {label}
-        </button>
-      ) : (
-        label
-      )}
+    return (
+      <span
+        ref={ref}
+        className={shellClasses}
+        style={{ ...controlSlots(color, elevation, variant), ...style }}
+        aria-disabled={disabled && !interactive ? true : undefined}
+        {...props}
+      >
+        {interactive ? (
+          <button
+            type="button"
+            aria-pressed={selected}
+            className={`${labelButtonClasses} ${gapClasses[step]} ${padX}`}
+            onClick={onClick as React.MouseEventHandler<HTMLButtonElement>}
+          >
+            {label}
+          </button>
+        ) : (
+          label
+        )}
 
-      {onDelete ? (
-        <button
-          type="button"
-          aria-label={deleteLabel}
-          disabled={disabled}
-          className={removeButtonClasses}
-          onClick={onDelete}
-        >
-          <CloseIcon />
-        </button>
-      ) : null}
-    </span>
-  );
-});
+        {onDelete ? (
+          <button
+            type="button"
+            aria-label={deleteLabel}
+            disabled={disabled}
+            className={removeButtonClasses}
+            onClick={onDelete}
+          >
+            <CloseIcon />
+          </button>
+        ) : null}
+      </span>
+    );
+  }
+);

@@ -185,11 +185,11 @@ const circleInsetClasses: Record<PlassCorner, string> = {
  * a soft tinted mark that reports without shouting.
  */
 const variantClasses: Record<PlassVariant, string> = {
-  solid: [
+  solid: /* @__PURE__ */ [
     'text-(--p-on-solid) [background-image:var(--p-fill)]',
     '[box-shadow:var(--p-elev),var(--p-lift)]'
   ].join(' '),
-  glass: [
+  glass: /* @__PURE__ */ [
     glassClasses,
     'border text-(--p-accent) bg-(--plass-glass)',
     '[border-color:var(--plass-border)]',
@@ -219,98 +219,102 @@ function capContent(content: React.ReactNode, max: number): React.ReactNode {
  * What it does owe a screen reader is a sentence rather than a number, which is
  * what `label` is for — `content={3}` beside a bell reads out as "3".
  */
-export const PlBadge = React.forwardRef<HTMLSpanElement, PlBadgeProps>(function PlBadge(
-  {
-    variant = 'solid',
-    size = 'md',
-    color = 'primary',
-    density = 'default',
-    elevation = 0,
-    content,
-    max = 99,
-    dot = false,
-    showZero = false,
-    invisible = false,
-    placement = 'top-end',
-    overlap = 'square',
-    label,
-    className,
-    style,
-    children,
-    ...props
-  },
-  ref
-) {
-  const anchored = hasContent(children);
-  // `0` is content, and `hasContent` would agree — this is the one place the
-  // library asks a second question, because a count of nothing is not news.
-  const empty = !hasContent(content) || (content === 0 && !showZero);
-  const asDot = dot || empty;
-  const hidden = invisible || (empty && !dot);
+export const PlBadge = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlBadgeProps>(
+  function PlBadge(
+    {
+      variant = 'solid',
+      size = 'md',
+      color = 'primary',
+      density = 'default',
+      elevation = 0,
+      content,
+      max = 99,
+      dot = false,
+      showZero = false,
+      invisible = false,
+      placement = 'top-end',
+      overlap = 'square',
+      label,
+      className,
+      style,
+      children,
+      ...props
+    },
+    ref
+  ) {
+    const anchored = hasContent(children);
+    // `0` is content, and `hasContent` would agree — this is the one place the
+    // library asks a second question, because a count of nothing is not news.
+    const empty = !hasContent(content) || (content === 0 && !showZero);
+    const asDot = dot || empty;
+    const hidden = invisible || (empty && !dot);
 
-  const markerClasses = [
-    'pointer-events-none z-10 inline-flex shrink-0 items-center justify-center',
-    'font-semibold tabular-nums whitespace-nowrap',
-    badgeRadiusClasses,
-    transitionClasses,
-    variantClasses[variant],
-    asDot
-      ? dotSizeClasses[size]
-      : [badgeHeightClasses[size], badgeTextClasses[size], badgePaddingClasses[density][size]].join(
-          ' '
-        ),
-    anchored ? `absolute ${placementClasses[placement]}` : 'relative align-middle',
-    anchored ? (asDot ? cornerOffsets[size].dot : cornerOffsets[size].badge) : '',
-    anchored && overlap === 'circle' ? circleInsetClasses[placement] : '',
-    // Visibility, not opacity: a half-faded badge is a badge you have to squint
-    // at to find out whether it is there. The marker keeps its box either way,
-    // so nothing around it moves when it comes back.
-    hidden ? 'invisible' : '',
-    className ?? ''
-  ]
-    .filter(Boolean)
-    .join(' ');
+    const markerClasses = [
+      'pointer-events-none z-10 inline-flex shrink-0 items-center justify-center',
+      'font-semibold tabular-nums whitespace-nowrap',
+      badgeRadiusClasses,
+      transitionClasses,
+      variantClasses[variant],
+      asDot
+        ? dotSizeClasses[size]
+        : [
+            badgeHeightClasses[size],
+            badgeTextClasses[size],
+            badgePaddingClasses[density][size]
+          ].join(' '),
+      anchored ? `absolute ${placementClasses[placement]}` : 'relative align-middle',
+      anchored ? (asDot ? cornerOffsets[size].dot : cornerOffsets[size].badge) : '',
+      anchored && overlap === 'circle' ? circleInsetClasses[placement] : '',
+      // Visibility, not opacity: a half-faded badge is a badge you have to squint
+      // at to find out whether it is there. The marker keeps its box either way,
+      // so nothing around it moves when it comes back.
+      hidden ? 'invisible' : '',
+      className ?? ''
+    ]
+      .filter(Boolean)
+      .join(' ');
 
-  const capped = capContent(content, max);
+    const capped = capContent(content, max);
 
-  const marker = (
-    <span
-      ref={ref}
-      className={markerClasses}
-      style={{ ...controlSlots(color, elevation, variant), ...style }}
-      // A hidden badge says nothing, and a marker whose whole meaning is already
-      // in `label` would otherwise be read twice — once as "3", once as the
-      // sentence. Everything else is left to speak for itself.
-      aria-hidden={hidden ? true : undefined}
-      {...props}
-    >
-      {/* Four cases, one element. A plain badge shows its count. A badge with a
+    const marker = (
+      <span
+        ref={ref}
+        className={markerClasses}
+        style={{ ...controlSlots(color, elevation, variant), ...style }}
+        // A hidden badge says nothing, and a marker whose whole meaning is already
+        // in `label` would otherwise be read twice — once as "3", once as the
+        // sentence. Everything else is left to speak for itself.
+        aria-hidden={hidden ? true : undefined}
+        {...props}
+      >
+        {/* Four cases, one element. A plain badge shows its count. A badge with a
           `label` shows the count and reads the sentence instead. A dot shows
           nothing and reads whichever of the two it was given — the count is
           still in the DOM, just clipped, so a quiet corner is not a silent one.
           A hidden badge holds none of it: a marker that is not there has nothing
           to say, and text left behind in a clipped box is text a search on the
           page still finds. */}
-      {hidden ? null : (
-        <>
-          {asDot || label ? <span className={srOnlyClasses}>{label ?? capped}</span> : null}
-          {asDot ? null : <span aria-hidden={label ? true : undefined}>{capped}</span>}
-        </>
-      )}
-    </span>
-  );
+        {hidden ? null : (
+          <>
+            {asDot || label ? <span className={srOnlyClasses}>{label ?? capped}</span> : null}
+            {asDot ? null : <span aria-hidden={label ? true : undefined}>{capped}</span>}
+          </>
+        )}
+      </span>
+    );
 
-  if (!anchored) {
-    return marker;
+    if (!anchored) {
+      return marker;
+    }
+
+    // `inline-flex` rather than `inline-block`: the shell has to be exactly as
+    // wide and as tall as what it wraps, or a badged icon button stops lining up
+    // with the bare one beside it.
+    return (
+      <span className="relative inline-flex shrink-0 align-middle">
+        {children}
+        {marker}
+      </span>
+    );
   }
-
-  // `inline-flex` rather than `inline-block`: the shell has to be exactly as
-  // wide and as tall as what it wraps, or a badged icon button stops lining up
-  // with the bare one beside it.
-  return (
-    <span className="relative inline-flex shrink-0 align-middle">
-      {children}
-      {marker}
-    </span>
-  );
-});
+);

@@ -97,7 +97,7 @@ export interface PlOverlayProps extends Omit<
  */
 const toneClasses: Record<PlOverlayTone, string> = {
   scrim: 'bg-(--plass-scrim) [backdrop-filter:blur(2px)] [-webkit-backdrop-filter:blur(2px)]',
-  glass: [
+  glass: /* @__PURE__ */ [
     '[background-color:color-mix(in_oklab,var(--plass-scrim)_45%,transparent)]',
     '[backdrop-filter:var(--plass-blur)] [-webkit-backdrop-filter:var(--plass-blur)]'
   ].join(' '),
@@ -126,7 +126,7 @@ const insetClasses: Record<PlassSize, string> = {
  * thing the house style is against — and unlike a control, this one is usually
  * carrying a sentence.
  */
-const fadeClasses = [
+const fadeClasses = /* @__PURE__ */ [
   '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
 ].join(' ');

@@ -136,17 +136,17 @@ const viewportClasses: Record<PlToastPosition, string> = {
  * pane over a photograph is a pane you read the photograph through.
  */
 const rootClasses: Record<PlassVariant, string> = {
-  solid: [
+  solid: /* @__PURE__ */ [
     'text-(--p-on-solid) [background-image:var(--p-fill)]',
     '[box-shadow:var(--plass-shadow-3),var(--p-lift)]'
   ].join(' '),
-  glass: [
+  glass: /* @__PURE__ */ [
     glassClasses,
     'border text-(--plass-fg) bg-(--plass-glass-press)',
     '[border-color:var(--p-line)]',
     '[box-shadow:var(--plass-shadow-3),var(--plass-gloss-glass)]'
   ].join(' '),
-  ghost: [
+  ghost: /* @__PURE__ */ [
     glassClasses,
     'text-(--plass-fg) bg-(--plass-glass-press)',
     '[box-shadow:var(--plass-shadow-3),var(--plass-gloss-glass)]'

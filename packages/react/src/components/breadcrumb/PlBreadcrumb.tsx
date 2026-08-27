@@ -30,7 +30,7 @@ interface BreadcrumbContextValue {
   last: boolean;
 }
 
-const BreadcrumbContext = React.createContext<BreadcrumbContextValue>({
+const BreadcrumbContext = /* @__PURE__ */ React.createContext<BreadcrumbContextValue>({
   size: 'md',
   last: false
 });
@@ -292,144 +292,149 @@ function isSeparatorName(value: unknown): value is PlBreadcrumbSeparator {
  * There is no `variant` and no `elevation`: a trail is a line of text above the
  * page, not a surface laid on it.
  */
-export const PlBreadcrumb = React.forwardRef<HTMLElement, PlBreadcrumbProps>(function PlBreadcrumb(
-  {
-    size = 'md',
-    color = 'primary',
-    density = 'default',
-    separator = 'chevron',
-    maxItems,
-    itemsBeforeCollapse = 1,
-    itemsAfterCollapse = 1,
-    expandable = true,
-    label = 'Breadcrumb',
-    expandLabel = 'Show the hidden steps',
-    structuredData = false,
-    baseUrl,
-    className,
-    style,
-    children,
-    ...props
-  },
-  ref
-) {
-  const [unfolded, setUnfolded] = React.useState(false);
+export const PlBreadcrumb = /* @__PURE__ */ React.forwardRef<HTMLElement, PlBreadcrumbProps>(
+  function PlBreadcrumb(
+    {
+      size = 'md',
+      color = 'primary',
+      density = 'default',
+      separator = 'chevron',
+      maxItems,
+      itemsBeforeCollapse = 1,
+      itemsAfterCollapse = 1,
+      expandable = true,
+      label = 'Breadcrumb',
+      expandLabel = 'Show the hidden steps',
+      structuredData = false,
+      baseUrl,
+      className,
+      style,
+      children,
+      ...props
+    },
+    ref
+  ) {
+    const [unfolded, setUnfolded] = React.useState(false);
 
-  const steps = React.Children.toArray(children).filter(
-    React.isValidElement
-  ) as React.ReactElement<PlBreadcrumbItemProps>[];
-  const total = steps.length;
+    const steps = React.Children.toArray(children).filter(
+      React.isValidElement
+    ) as React.ReactElement<PlBreadcrumbItemProps>[];
+    const total = steps.length;
 
-  /*
-   * The last step is the page you are on — unless a step says it is. Exactly one
-   * element in a trail may carry `aria-current="page"`, so a caller who marks an
-   * earlier step has to take the mark off the last one, and doing that by hand
-   * would mean writing `current={false}` on a step that never asked for it.
-   */
-  const claimed = steps.some((step) => step.props.current === true);
+    /*
+     * The last step is the page you are on — unless a step says it is. Exactly one
+     * element in a trail may carry `aria-current="page"`, so a caller who marks an
+     * earlier step has to take the mark off the last one, and doing that by hand
+     * would mean writing `current={false}` on a step that never asked for it.
+     */
+    const claimed = steps.some((step) => step.props.current === true);
 
-  const folding =
-    !unfolded &&
-    maxItems !== undefined &&
-    total > Math.max(maxItems, 1) &&
-    // A fold has to actually remove something. With `1` before and `1` after on
-    // a three-step trail the `…` would stand in for exactly one step, which is
-    // longer than the step it replaced.
-    total - itemsBeforeCollapse - itemsAfterCollapse > 1;
+    const folding =
+      !unfolded &&
+      maxItems !== undefined &&
+      total > Math.max(maxItems, 1) &&
+      // A fold has to actually remove something. With `1` before and `1` after on
+      // a three-step trail the `…` would stand in for exactly one step, which is
+      // longer than the step it replaced.
+      total - itemsBeforeCollapse - itemsAfterCollapse > 1;
 
-  const shown = folding
-    ? [
-        ...steps.slice(0, Math.max(0, itemsBeforeCollapse)),
-        null,
-        ...steps.slice(total - Math.max(0, itemsAfterCollapse))
-      ]
-    : steps;
+    const shown = folding
+      ? [
+          ...steps.slice(0, Math.max(0, itemsBeforeCollapse)),
+          null,
+          ...steps.slice(total - Math.max(0, itemsAfterCollapse))
+        ]
+      : steps;
 
-  const mark = isSeparatorName(separator) ? separatorMark(separator) : separator;
+    const mark = isSeparatorName(separator) ? separatorMark(separator) : separator;
 
-  const foldClassNames = cx(
-    'inline-flex items-center rounded-(--plass-radius-xs) px-0.5',
-    'text-(--plass-muted-fg)',
-    transitionClasses,
-    iconClasses,
-    expandable
-      ? cx('cursor-pointer hover:bg-(--p-soft) hover:text-(--p-accent)', focusRingClasses)
-      : ''
-  );
+    const foldClassNames = cx(
+      'inline-flex items-center rounded-(--plass-radius-xs) px-0.5',
+      'text-(--plass-muted-fg)',
+      transitionClasses,
+      iconClasses,
+      expandable
+        ? cx('cursor-pointer hover:bg-(--p-soft) hover:text-(--p-accent)', focusRingClasses)
+        : ''
+    );
 
-  return (
-    <nav
-      ref={ref}
-      aria-label={label}
-      className={cx('flex', controlTextClasses[size], iconClasses, className)}
-      style={
-        {
-          '--p-accent': `var(--plass-${color}-accent)`,
-          '--p-soft': `var(--plass-${color}-soft)`,
-          '--p-ring': `var(--plass-${color}-ring)`,
-          ...style
-        } as React.CSSProperties
-      }
-      {...props}
-    >
-      {/* Beside the markup rather than instead of it: the `<ol>` is what a
+    return (
+      <nav
+        ref={ref}
+        aria-label={label}
+        className={cx('flex', controlTextClasses[size], iconClasses, className)}
+        style={
+          {
+            '--p-accent': `var(--plass-${color}-accent)`,
+            '--p-soft': `var(--plass-${color}-soft)`,
+            '--p-ring': `var(--plass-${color}-ring)`,
+            ...style
+          } as React.CSSProperties
+        }
+        {...props}
+      >
+        {/* Beside the markup rather than instead of it: the `<ol>` is what a
           reader gets and this is what a crawler reads. Every step is in it,
           including any the fold is hiding — what is collapsed is a question of
           room, and the path is the path either way. */}
-      {structuredData && total > 0 ? (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: breadcrumbListData(steps, baseUrl) }}
-        />
-      ) : null}
+        {structuredData && total > 0 ? (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: breadcrumbListData(steps, baseUrl) }}
+          />
+        ) : null}
 
-      <ol
-        // `role="list"` said out loud: Tailwind's reset takes the bullets off
-        // every `<ol>`, and Safari takes the list semantics off with them.
-        role="list"
-        className={cx('flex list-none flex-wrap items-center p-0', trailGapClasses[density][size])}
-      >
-        {shown.map((step, index) => (
-          <React.Fragment key={step ? (step.key ?? index) : 'fold'}>
-            {index > 0 ? (
-              <li
-                aria-hidden="true"
-                className="flex shrink-0 items-center text-(--plass-muted-fg) select-none"
-              >
-                {mark}
-              </li>
-            ) : null}
+        <ol
+          // `role="list"` said out loud: Tailwind's reset takes the bullets off
+          // every `<ol>`, and Safari takes the list semantics off with them.
+          role="list"
+          className={cx(
+            'flex list-none flex-wrap items-center p-0',
+            trailGapClasses[density][size]
+          )}
+        >
+          {shown.map((step, index) => (
+            <React.Fragment key={step ? (step.key ?? index) : 'fold'}>
+              {index > 0 ? (
+                <li
+                  aria-hidden="true"
+                  className="flex shrink-0 items-center text-(--plass-muted-fg) select-none"
+                >
+                  {mark}
+                </li>
+              ) : null}
 
-            {step ? (
-              <BreadcrumbContext.Provider
-                value={{ size, last: !claimed && index === shown.length - 1 }}
-              >
-                {step}
-              </BreadcrumbContext.Provider>
-            ) : (
-              <li className="flex shrink-0 items-center">
-                {expandable ? (
-                  <button
-                    type="button"
-                    className={foldClassNames}
-                    aria-label={expandLabel}
-                    onClick={() => setUnfolded(true)}
-                  >
-                    <EllipsisIcon />
-                  </button>
-                ) : (
-                  <span className={foldClassNames} aria-hidden="true">
-                    <EllipsisIcon />
-                  </span>
-                )}
-              </li>
-            )}
-          </React.Fragment>
-        ))}
-      </ol>
-    </nav>
-  );
-});
+              {step ? (
+                <BreadcrumbContext.Provider
+                  value={{ size, last: !claimed && index === shown.length - 1 }}
+                >
+                  {step}
+                </BreadcrumbContext.Provider>
+              ) : (
+                <li className="flex shrink-0 items-center">
+                  {expandable ? (
+                    <button
+                      type="button"
+                      className={foldClassNames}
+                      aria-label={expandLabel}
+                      onClick={() => setUnfolded(true)}
+                    >
+                      <EllipsisIcon />
+                    </button>
+                  ) : (
+                    <span className={foldClassNames} aria-hidden="true">
+                      <EllipsisIcon />
+                    </span>
+                  )}
+                </li>
+              )}
+            </React.Fragment>
+          ))}
+        </ol>
+      </nav>
+    );
+  }
+);
 
 /**
  * One step of the trail.
@@ -439,70 +444,71 @@ export const PlBreadcrumb = React.forwardRef<HTMLElement, PlBreadcrumbProps>(fun
  * neither — which is what the last step is, because the page you are already on
  * is not somewhere to go.
  */
-export const PlBreadcrumbItem = React.forwardRef<HTMLLIElement, PlBreadcrumbItemProps>(
-  function PlBreadcrumbItem(
-    { href, onClick, startIcon, endIcon, current, disabled = false, className, children, ...props },
-    ref
-  ) {
-    const { size, last } = React.useContext(BreadcrumbContext);
-    const isCurrent = current ?? last;
-    const interactive = Boolean(href || onClick) && !isCurrent && !disabled;
+export const PlBreadcrumbItem = /* @__PURE__ */ React.forwardRef<
+  HTMLLIElement,
+  PlBreadcrumbItemProps
+>(function PlBreadcrumbItem(
+  { href, onClick, startIcon, endIcon, current, disabled = false, className, children, ...props },
+  ref
+) {
+  const { size, last } = React.useContext(BreadcrumbContext);
+  const isCurrent = current ?? last;
+  const interactive = Boolean(href || onClick) && !isCurrent && !disabled;
 
-    const stepClassNames = cx(
-      'inline-flex min-w-0 items-center px-1',
-      gapClasses[size],
-      stepRadiusClasses[size],
-      transitionClasses,
-      // An if/else rather than stacked variants: two Tailwind classes of equal
-      // specificity resolve by their order in the generated stylesheet.
-      disabled
-        ? 'cursor-not-allowed text-(--plass-muted-fg) opacity-50'
-        : isCurrent
-          ? 'font-medium text-(--plass-fg)'
-          : interactive
-            ? cx(
-                'cursor-pointer text-(--plass-muted-fg)',
-                'hover:bg-(--p-soft) hover:text-(--p-accent)',
-                focusRingClasses
-              )
-            : 'text-(--plass-muted-fg)'
-    );
+  const stepClassNames = cx(
+    'inline-flex min-w-0 items-center px-1',
+    gapClasses[size],
+    stepRadiusClasses[size],
+    transitionClasses,
+    // An if/else rather than stacked variants: two Tailwind classes of equal
+    // specificity resolve by their order in the generated stylesheet.
+    disabled
+      ? 'cursor-not-allowed text-(--plass-muted-fg) opacity-50'
+      : isCurrent
+        ? 'font-medium text-(--plass-fg)'
+        : interactive
+          ? cx(
+              'cursor-pointer text-(--plass-muted-fg)',
+              'hover:bg-(--p-soft) hover:text-(--p-accent)',
+              focusRingClasses
+            )
+          : 'text-(--plass-muted-fg)'
+  );
 
-    const body = (
-      <>
-        {hasContent(startIcon) ? (
-          <span className="flex h-[1lh] shrink-0 items-center">{startIcon}</span>
-        ) : null}
-        <span className="truncate">{children}</span>
-        {hasContent(endIcon) ? (
-          <span className="flex h-[1lh] shrink-0 items-center">{endIcon}</span>
-        ) : null}
-      </>
-    );
+  const body = (
+    <>
+      {hasContent(startIcon) ? (
+        <span className="flex h-[1lh] shrink-0 items-center">{startIcon}</span>
+      ) : null}
+      <span className="truncate">{children}</span>
+      {hasContent(endIcon) ? (
+        <span className="flex h-[1lh] shrink-0 items-center">{endIcon}</span>
+      ) : null}
+    </>
+  );
 
-    return (
-      <li ref={ref} className={cx('flex min-w-0 items-center', className)} {...props}>
-        {interactive && href ? (
-          <a href={href} className={stepClassNames} onClick={onClick}>
-            {body}
-          </a>
-        ) : interactive ? (
-          <button type="button" className={stepClassNames} onClick={onClick}>
-            {body}
-          </button>
-        ) : (
-          // `aria-current="page"` rather than `"true"`: a trail is navigation,
-          // and the step the reader is on is a *page*, not the chosen one of a
-          // set of options.
-          <span
-            className={stepClassNames}
-            aria-current={isCurrent ? 'page' : undefined}
-            aria-disabled={disabled || undefined}
-          >
-            {body}
-          </span>
-        )}
-      </li>
-    );
-  }
-);
+  return (
+    <li ref={ref} className={cx('flex min-w-0 items-center', className)} {...props}>
+      {interactive && href ? (
+        <a href={href} className={stepClassNames} onClick={onClick}>
+          {body}
+        </a>
+      ) : interactive ? (
+        <button type="button" className={stepClassNames} onClick={onClick}>
+          {body}
+        </button>
+      ) : (
+        // `aria-current="page"` rather than `"true"`: a trail is navigation,
+        // and the step the reader is on is a *page*, not the chosen one of a
+        // set of options.
+        <span
+          className={stepClassNames}
+          aria-current={isCurrent ? 'page' : undefined}
+          aria-disabled={disabled || undefined}
+        >
+          {body}
+        </span>
+      )}
+    </li>
+  );
+});

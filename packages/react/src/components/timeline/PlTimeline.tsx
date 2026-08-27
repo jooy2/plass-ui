@@ -38,8 +38,8 @@ interface TimelineItemContextValue {
   last: boolean;
 }
 
-const TimelineContext = React.createContext<TimelineContextValue | null>(null);
-const TimelineItemContext = React.createContext<TimelineItemContextValue>({
+const TimelineContext = /* @__PURE__ */ React.createContext<TimelineContextValue | null>(null);
+const TimelineItemContext = /* @__PURE__ */ React.createContext<TimelineItemContextValue>({
   index: 0,
   last: false
 });
@@ -217,7 +217,7 @@ const titleStatusClasses: Record<PlTimelineStatus, string> = {
  * and `active={2}` would stop meaning anything. The `PlTimeline` numbers its
  * children as it walks them, and hands each one its index through a context.
  */
-export const PlTimelineItem = React.forwardRef<HTMLLIElement, PlTimelineItemProps>(
+export const PlTimelineItem = /* @__PURE__ */ React.forwardRef<HTMLLIElement, PlTimelineItemProps>(
   function PlTimelineItem(
     { title, meta, bullet, status, color, connector = 'solid', className, children, ...props },
     ref
@@ -369,55 +369,57 @@ export const PlTimelineItem = React.forwardRef<HTMLLIElement, PlTimelineItemProp
  * has something to count against and inserting a step in the middle does not
  * mean renumbering the ones after it.
  */
-export const PlTimeline = React.forwardRef<HTMLOListElement, PlTimelineProps>(function PlTimeline(
-  {
-    active,
-    size = 'md',
-    color = 'primary',
-    density = 'default',
-    orientation = 'vertical',
-    render,
-    className,
-    style,
-    children,
-    ...props
-  },
-  ref
-) {
-  // `toArray` is what drops the `null`s and `false`s a conditional step leaves
-  // behind, so `active={2}` counts the steps that are actually on the page.
-  const items = React.Children.toArray(children);
-  const count = items.length;
-
-  const context = React.useMemo<TimelineContextValue>(
-    () => ({
-      size,
-      density,
-      orientation,
-      color,
-      active: active ?? null
-    }),
-    [size, density, orientation, color, active]
-  );
-
-  const element = useRender({
-    render: render ?? <ol />,
-    ref,
-    props: {
-      // Tailwind's reset takes the markers off every `<ol>`, and Safari takes
-      // the list semantics off with them. Saying `role="list"` out loud is the
-      // one-line fix, and it costs nothing when the reset is not there.
-      role: 'list',
-      className: cx('flex', orientation === 'horizontal' ? 'flex-row' : 'flex-col', className),
-      style: { ...surfaceSlots(color, 0), ...style },
-      children: items.map((item, index) => (
-        <TimelineItemContext.Provider key={index} value={{ index, last: index === count - 1 }}>
-          {item}
-        </TimelineItemContext.Provider>
-      )),
+export const PlTimeline = /* @__PURE__ */ React.forwardRef<HTMLOListElement, PlTimelineProps>(
+  function PlTimeline(
+    {
+      active,
+      size = 'md',
+      color = 'primary',
+      density = 'default',
+      orientation = 'vertical',
+      render,
+      className,
+      style,
+      children,
       ...props
-    }
-  });
+    },
+    ref
+  ) {
+    // `toArray` is what drops the `null`s and `false`s a conditional step leaves
+    // behind, so `active={2}` counts the steps that are actually on the page.
+    const items = React.Children.toArray(children);
+    const count = items.length;
 
-  return <TimelineContext.Provider value={context}>{element}</TimelineContext.Provider>;
-});
+    const context = React.useMemo<TimelineContextValue>(
+      () => ({
+        size,
+        density,
+        orientation,
+        color,
+        active: active ?? null
+      }),
+      [size, density, orientation, color, active]
+    );
+
+    const element = useRender({
+      render: render ?? <ol />,
+      ref,
+      props: {
+        // Tailwind's reset takes the markers off every `<ol>`, and Safari takes
+        // the list semantics off with them. Saying `role="list"` out loud is the
+        // one-line fix, and it costs nothing when the reset is not there.
+        role: 'list',
+        className: cx('flex', orientation === 'horizontal' ? 'flex-row' : 'flex-col', className),
+        style: { ...surfaceSlots(color, 0), ...style },
+        children: items.map((item, index) => (
+          <TimelineItemContext.Provider key={index} value={{ index, last: index === count - 1 }}>
+            {item}
+          </TimelineItemContext.Provider>
+        )),
+        ...props
+      }
+    });
+
+    return <TimelineContext.Provider value={context}>{element}</TimelineContext.Provider>;
+  }
+);

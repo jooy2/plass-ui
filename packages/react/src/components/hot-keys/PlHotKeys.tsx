@@ -313,11 +313,11 @@ const keyScale: Record<PlassSize, PlassSize> = {
  * the sheet's white hairline, or a cap set on a light card would have no edge.
  */
 const variantClasses: Record<PlassVariant, string> = {
-  solid: [
+  solid: /* @__PURE__ */ [
     'text-(--p-on-solid) [background-image:var(--p-fill)]',
     '[box-shadow:var(--p-elev),0_2px_0_0_var(--p-tint)]'
   ].join(' '),
-  glass: [
+  glass: /* @__PURE__ */ [
     glassClasses,
     'border text-(--p-accent) bg-(--plass-glass)',
     '[border-color:var(--plass-border)]',
@@ -346,7 +346,7 @@ const keyMinWidthClasses: Record<PlassSize, string> = {
  * around it in the common case. On its own it falls back to the page's own ink,
  * so a bare `<PlKbd>` still draws.
  */
-export const PlKbd = React.forwardRef<HTMLElement, PlKbdProps>(function PlKbd(
+export const PlKbd = /* @__PURE__ */ React.forwardRef<HTMLElement, PlKbdProps>(function PlKbd(
   { variant = 'glass', size = 'md', density = 'compact', className, children, ...props },
   ref
 ) {
@@ -398,87 +398,89 @@ export const PlKbd = React.forwardRef<HTMLElement, PlKbdProps>(function PlKbd(
  * `kbd` wrapper is a second box for a host stylesheet to reach into for no gain
  * — the semantics are carried by the keys themselves either way.
  */
-export const PlHotKeys = React.forwardRef<HTMLSpanElement, PlHotKeysProps>(function PlHotKeys(
-  {
-    variant = 'glass',
-    size = 'md',
-    color = 'secondary',
-    density = 'compact',
-    elevation = 0,
-    keys,
-    cluster,
-    os = 'auto',
-    separator,
-    className,
-    style,
-    ...props
-  },
-  ref
-) {
-  const detected = useDetectedOS();
-  const resolved: ResolvedOS = os === 'auto' ? detected : os;
+export const PlHotKeys = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlHotKeysProps>(
+  function PlHotKeys(
+    {
+      variant = 'glass',
+      size = 'md',
+      color = 'secondary',
+      density = 'compact',
+      elevation = 0,
+      keys,
+      cluster,
+      os = 'auto',
+      separator,
+      className,
+      style,
+      ...props
+    },
+    ref
+  ) {
+    const detected = useDetectedOS();
+    const resolved: ResolvedOS = os === 'auto' ? detected : os;
 
-  const slots = { ...controlSlots(color, elevation, variant), ...style };
-  const capProps = { variant, size, density } as const;
-  const gap = size === 'xs' || size === 'sm' ? 'gap-1' : 'gap-1.5';
+    const slots = { ...controlSlots(color, elevation, variant), ...style };
+    const capProps = { variant, size, density } as const;
+    const gap = size === 'xs' || size === 'sm' ? 'gap-1' : 'gap-1.5';
 
-  if (cluster) {
+    if (cluster) {
+      return (
+        <span
+          ref={ref}
+          className={['inline-flex flex-col items-center align-middle', gap, className ?? '']
+            .filter(Boolean)
+            .join(' ')}
+          style={slots}
+          {...props}
+        >
+          <PlKbd {...capProps}>{cluster.up}</PlKbd>
+          <span className={`inline-flex ${gap}`}>
+            <PlKbd {...capProps}>{cluster.left}</PlKbd>
+            <PlKbd {...capProps}>{cluster.down}</PlKbd>
+            <PlKbd {...capProps}>{cluster.right}</PlKbd>
+          </span>
+        </span>
+      );
+    }
+
+    const labels = tokenize(keys ?? []).map((token) => labelFor(token, resolved));
+
+    // macOS writes a shortcut as a run of symbols with nothing between them; the
+    // other two join theirs with a `+`. A caller who passes one gets theirs.
+    const joiner = separator === undefined ? (resolved === 'mac' ? null : '+') : separator;
+
     return (
       <span
         ref={ref}
-        className={['inline-flex flex-col items-center align-middle', gap, className ?? '']
+        className={['inline-flex max-w-full items-center gap-1 align-middle', className ?? '']
           .filter(Boolean)
           .join(' ')}
         style={slots}
         {...props}
       >
-        <PlKbd {...capProps}>{cluster.up}</PlKbd>
-        <span className={`inline-flex ${gap}`}>
-          <PlKbd {...capProps}>{cluster.left}</PlKbd>
-          <PlKbd {...capProps}>{cluster.down}</PlKbd>
-          <PlKbd {...capProps}>{cluster.right}</PlKbd>
-        </span>
+        {labels.map((label, index) => (
+          // The index is a legitimate key here: the list is the `keys` prop, in
+          // order, and two identical keys in one shortcut are the same key.
+          <React.Fragment key={index}>
+            {index > 0 && joiner !== null ? (
+              <span aria-hidden="true" className="text-(--plass-muted-fg)">
+                {joiner}
+              </span>
+            ) : null}
+
+            <PlKbd {...capProps}>
+              {label.symbol === label.name ? (
+                label.symbol
+              ) : (
+                <>
+                  <span aria-hidden="true">{label.symbol}</span>
+                  <span className={srOnlyClasses}>{label.name}</span>
+                </>
+              )}
+            </PlKbd>
+          </React.Fragment>
+        ))}
       </span>
     );
   }
-
-  const labels = tokenize(keys ?? []).map((token) => labelFor(token, resolved));
-
-  // macOS writes a shortcut as a run of symbols with nothing between them; the
-  // other two join theirs with a `+`. A caller who passes one gets theirs.
-  const joiner = separator === undefined ? (resolved === 'mac' ? null : '+') : separator;
-
-  return (
-    <span
-      ref={ref}
-      className={['inline-flex max-w-full items-center gap-1 align-middle', className ?? '']
-        .filter(Boolean)
-        .join(' ')}
-      style={slots}
-      {...props}
-    >
-      {labels.map((label, index) => (
-        // The index is a legitimate key here: the list is the `keys` prop, in
-        // order, and two identical keys in one shortcut are the same key.
-        <React.Fragment key={index}>
-          {index > 0 && joiner !== null ? (
-            <span aria-hidden="true" className="text-(--plass-muted-fg)">
-              {joiner}
-            </span>
-          ) : null}
-
-          <PlKbd {...capProps}>
-            {label.symbol === label.name ? (
-              label.symbol
-            ) : (
-              <>
-                <span aria-hidden="true">{label.symbol}</span>
-                <span className={srOnlyClasses}>{label.name}</span>
-              </>
-            )}
-          </PlKbd>
-        </React.Fragment>
-      ))}
-    </span>
-  );
-});
+);

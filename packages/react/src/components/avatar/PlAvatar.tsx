@@ -125,11 +125,11 @@ const initialsTextClasses: Record<PlassSize, string> = {
  * none: the gradient is the form.
  */
 const variantClasses: Record<PlassVariant, string> = {
-  solid: [
+  solid: /* @__PURE__ */ [
     'text-(--p-on-solid) [background-image:var(--p-fill)]',
     '[box-shadow:var(--p-elev),var(--p-lift)]'
   ].join(' '),
-  glass: [
+  glass: /* @__PURE__ */ [
     glassClasses,
     'border text-(--p-accent) bg-(--plass-glass)',
     '[border-color:var(--plass-border)]',
@@ -138,7 +138,7 @@ const variantClasses: Record<PlassVariant, string> = {
   ghost: 'text-(--p-accent) bg-(--p-soft-press) [box-shadow:var(--p-elev)]'
 };
 
-const baseClasses = [
+const baseClasses = /* @__PURE__ */ [
   'relative inline-flex shrink-0 select-none items-center justify-center overflow-hidden',
   'align-middle leading-none font-semibold tracking-wide whitespace-nowrap',
   // A glyph handed to `children` is drawn against the circle, not against a
@@ -205,82 +205,84 @@ function initialsOf(name: string): string {
  * `PlBadge` with an avatar in it, and inventing a second spelling for that would
  * give the library two of them.
  */
-export const PlAvatar = React.forwardRef<HTMLSpanElement, PlAvatarProps>(function PlAvatar(
-  {
-    src,
-    srcSet,
-    alt,
-    name,
-    initials,
-    shape = 'circle',
-    variant = 'ghost',
-    size = 'md',
-    color = 'primary',
-    elevation = 0,
-    delay,
-    imageProps,
-    onLoadingStatusChange,
-    className,
-    style,
-    children,
-    ...props
-  },
-  ref
-) {
-  const derived = name ? initialsOf(name) : '';
-  const label = alt ?? name;
+export const PlAvatar = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlAvatarProps>(
+  function PlAvatar(
+    {
+      src,
+      srcSet,
+      alt,
+      name,
+      initials,
+      shape = 'circle',
+      variant = 'ghost',
+      size = 'md',
+      color = 'primary',
+      elevation = 0,
+      delay,
+      imageProps,
+      onLoadingStatusChange,
+      className,
+      style,
+      children,
+      ...props
+    },
+    ref
+  ) {
+    const derived = name ? initialsOf(name) : '';
+    const label = alt ?? name;
 
-  // `children` beats the initials beats the silhouette. Only the last of the
-  // three has nothing to say, which is what decides whether the fallback needs
-  // the name spelled out beside it.
-  const stand = hasContent(children) ? children : (initials ?? derived) || <PersonIcon />;
-  const speaks = hasContent(children) || Boolean(initials ?? derived);
+    // `children` beats the initials beats the silhouette. Only the last of the
+    // three has nothing to say, which is what decides whether the fallback needs
+    // the name spelled out beside it.
+    const stand = hasContent(children) ? children : (initials ?? derived) || <PersonIcon />;
+    const speaks = hasContent(children) || Boolean(initials ?? derived);
 
-  const classNames = [
-    baseClasses,
-    controlHeightClasses[size],
-    controlSquareClasses[size],
-    initialsTextClasses[size],
-    shape === 'circle' ? 'rounded-full' : radiusClasses[size],
-    variantClasses[variant],
-    className ?? ''
-  ]
-    .filter(Boolean)
-    .join(' ');
+    const classNames = [
+      baseClasses,
+      controlHeightClasses[size],
+      controlSquareClasses[size],
+      initialsTextClasses[size],
+      shape === 'circle' ? 'rounded-full' : radiusClasses[size],
+      variantClasses[variant],
+      className ?? ''
+    ]
+      .filter(Boolean)
+      .join(' ');
 
-  return (
-    <BaseUIAvatar.Root
-      ref={ref}
-      className={classNames}
-      style={{ ...controlSlots(color, elevation, variant), ...style }}
-      {...props}
-    >
-      {src ? (
-        <BaseUIAvatar.Image
-          src={src}
-          srcSet={srcSet}
-          // Empty rather than absent: an avatar beside the person's own name is
-          // decoration, and `alt` left off is what makes a screen reader read
-          // the file name out instead.
-          alt={label ?? ''}
-          className="size-full object-cover"
-          onLoadingStatusChange={onLoadingStatusChange}
-          {...imageProps}
-        />
-      ) : null}
-
-      <BaseUIAvatar.Fallback
-        delay={src ? delay : undefined}
-        className="flex size-full items-center justify-center"
+    return (
+      <BaseUIAvatar.Root
+        ref={ref}
+        className={classNames}
+        style={{ ...controlSlots(color, elevation, variant), ...style }}
+        {...props}
       >
-        {/* `JD` read out loud is two letters, not a person. When there is a name
+        {src ? (
+          <BaseUIAvatar.Image
+            src={src}
+            srcSet={srcSet}
+            // Empty rather than absent: an avatar beside the person's own name is
+            // decoration, and `alt` left off is what makes a screen reader read
+            // the file name out instead.
+            alt={label ?? ''}
+            className="size-full object-cover"
+            onLoadingStatusChange={onLoadingStatusChange}
+            {...imageProps}
+          />
+        ) : null}
+
+        <BaseUIAvatar.Fallback
+          delay={src ? delay : undefined}
+          className="flex size-full items-center justify-center"
+        >
+          {/* `JD` read out loud is two letters, not a person. When there is a name
             it becomes the fallback's accessible name and the initials are left
             as the picture they are standing in for. */}
-        {label && speaks ? <span className={srOnlyClasses}>{label}</span> : null}
-        <span aria-hidden={label && speaks ? true : undefined} className="contents">
-          {stand}
-        </span>
-      </BaseUIAvatar.Fallback>
-    </BaseUIAvatar.Root>
-  );
-});
+          {label && speaks ? <span className={srOnlyClasses}>{label}</span> : null}
+          <span aria-hidden={label && speaks ? true : undefined} className="contents">
+            {stand}
+          </span>
+        </BaseUIAvatar.Fallback>
+      </BaseUIAvatar.Root>
+    );
+  }
+);

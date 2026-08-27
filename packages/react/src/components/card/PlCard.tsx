@@ -93,7 +93,7 @@ export interface PlCardProps
  * order in the generated stylesheet, which is not something a component should
  * depend on.
  */
-const cardTransitionClasses = [
+const cardTransitionClasses = /* @__PURE__ */ [
   '[transition-property:background-color,border-color,box-shadow,color,transform]',
   '[transition-duration:var(--plass-duration)]',
   '[transition-timing-function:var(--plass-ease)]'
@@ -106,12 +106,12 @@ const cardTransitionClasses = [
  * turn up.
  */
 const interactiveClasses: Record<PlassVariant, string> = {
-  solid: [
+  solid: /* @__PURE__ */ [
     'cursor-pointer hover:-translate-y-0.5',
     'hover:[box-shadow:var(--p-elev-hover),var(--plass-gloss-glass)]',
     'active:translate-y-0 active:[box-shadow:var(--p-elev-press),var(--plass-gloss-glass)]'
   ].join(' '),
-  glass: [
+  glass: /* @__PURE__ */ [
     'cursor-pointer hover:-translate-y-0.5 hover:bg-(--plass-glass-hover)',
     'hover:[border-color:var(--p-line)]',
     'hover:[box-shadow:var(--p-elev-hover),var(--plass-gloss-glass)]',
@@ -133,7 +133,7 @@ const interactiveClasses: Record<PlassVariant, string> = {
  * no interaction to delegate: it is a surface with a layout, and the moment it
  * becomes something you press it is a `render` away from being a real one.
  */
-export const PlCard = React.forwardRef<HTMLDivElement, PlCardProps>(function PlCard(
+export const PlCard = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCardProps>(function PlCard(
   {
     variant = 'glass',
     size = 'md',

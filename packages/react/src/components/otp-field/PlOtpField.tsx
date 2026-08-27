@@ -176,142 +176,147 @@ const validationTypes: Record<PlOtpCharset, 'numeric' | 'alpha' | 'alphanumeric'
  * with `PlTextField` and `PlSelect` — a slot is a field-shaped box, and a form
  * holding both should not look like two form kits stacked on each other.
  */
-export const PlOtpField = React.forwardRef<HTMLDivElement, PlOtpFieldProps>(function PlOtpField(
-  {
-    variant = 'glass',
-    size = 'md',
-    color = 'primary',
-    density = 'default',
-    elevation = 0,
-    length = 6,
-    charset = 'numeric',
-    mask = false,
-    groupSize,
-    separator = '–',
-    value,
-    defaultValue,
-    onValueChange,
-    onComplete,
-    onValueInvalid,
-    autoSubmit = false,
-    label,
-    description,
-    error,
-    invalid,
-    name,
-    required = false,
-    disabled = false,
-    readOnly = false,
-    autoFocus = false,
-    className,
-    style,
-    ...props
-  },
-  ref
-) {
-  const slots = Math.min(MAX_LENGTH, Math.max(MIN_LENGTH, Math.round(length)));
-  const hasError = hasContent(error);
-  const isInvalid = invalid ?? hasError;
-  // Invalid re-points the whole slot family at `danger`, exactly as on
-  // PlTextField, so the edge, the ring, the caret and the message all turn over
-  // together and no state needs tokens of its own.
-  const family: PlassColor = isInvalid ? 'danger' : color;
+export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtpFieldProps>(
+  function PlOtpField(
+    {
+      variant = 'glass',
+      size = 'md',
+      color = 'primary',
+      density = 'default',
+      elevation = 0,
+      length = 6,
+      charset = 'numeric',
+      mask = false,
+      groupSize,
+      separator = '–',
+      value,
+      defaultValue,
+      onValueChange,
+      onComplete,
+      onValueInvalid,
+      autoSubmit = false,
+      label,
+      description,
+      error,
+      invalid,
+      name,
+      required = false,
+      disabled = false,
+      readOnly = false,
+      autoFocus = false,
+      className,
+      style,
+      ...props
+    },
+    ref
+  ) {
+    const slots = Math.min(MAX_LENGTH, Math.max(MIN_LENGTH, Math.round(length)));
+    const hasError = hasContent(error);
+    const isInvalid = invalid ?? hasError;
+    // Invalid re-points the whole slot family at `danger`, exactly as on
+    // PlTextField, so the edge, the ring, the caret and the message all turn over
+    // together and no state needs tokens of its own.
+    const family: PlassColor = isInvalid ? 'danger' : color;
 
-  const slotClassNames = cx(
-    // `font-family` rather than the `font` shorthand: the shorthand would take
-    // the inherited font *size* with it and undo the ladder set on the next
-    // line.
-    'text-center font-medium [font-family:inherit]',
-    slotSizeClasses[size],
-    slotTextClasses[size],
-    slotRadiusClasses[size],
-    transitionClasses,
-    'caret-(--p-accent) selection:bg-(--p-soft-press)',
-    // `focus` rather than `focus-visible`: a slot is put in focus by clicking it
-    // as often as by typing into it, and the ring is the only thing saying which
-    // character the next keystroke lands on.
-    'focus:[outline:2px_solid_var(--p-ring)] focus:[outline-offset:0px]',
-    'focus:[transition-duration:0ms]',
-    // An if/else rather than stacked variants: two Tailwind classes of equal
-    // specificity resolve by their order in the generated stylesheet.
-    disabled
-      ? disabledClasses[variant]
-      : readOnly
-        ? fieldReadOnlyClasses[variant]
-        : fieldRestClasses[variant]
-  );
+    const slotClassNames = cx(
+      // `font-family` rather than the `font` shorthand: the shorthand would take
+      // the inherited font *size* with it and undo the ladder set on the next
+      // line.
+      'text-center font-medium [font-family:inherit]',
+      slotSizeClasses[size],
+      slotTextClasses[size],
+      slotRadiusClasses[size],
+      transitionClasses,
+      'caret-(--p-accent) selection:bg-(--p-soft-press)',
+      // `focus` rather than `focus-visible`: a slot is put in focus by clicking it
+      // as often as by typing into it, and the ring is the only thing saying which
+      // character the next keystroke lands on.
+      'focus:[outline:2px_solid_var(--p-ring)] focus:[outline-offset:0px]',
+      'focus:[transition-duration:0ms]',
+      // An if/else rather than stacked variants: two Tailwind classes of equal
+      // specificity resolve by their order in the generated stylesheet.
+      disabled
+        ? disabledClasses[variant]
+        : readOnly
+          ? fieldReadOnlyClasses[variant]
+          : fieldRestClasses[variant]
+    );
 
-  const separatorEvery = groupSize && groupSize > 0 ? Math.round(groupSize) : 0;
+    const separatorEvery = groupSize && groupSize > 0 ? Math.round(groupSize) : 0;
 
-  return (
-    <Field.Root
-      disabled={disabled}
-      invalid={isInvalid}
-      className={cx('inline-flex flex-col align-top', stackGapClasses[size], className)}
-      style={{ ...surfaceSlots(family, elevation), ...style }}
-    >
-      {hasContent(label) ? (
-        <Field.Label
-          className={cx(
-            metaTextClasses[size],
-            'font-medium',
-            disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)'
-          )}
-        >
-          {label}
-        </Field.Label>
-      ) : null}
-
-      <OTPField.Root
-        ref={ref}
-        length={slots}
-        validationType={validationTypes[charset]}
-        mask={mask}
-        name={name}
-        required={required}
+    return (
+      <Field.Root
         disabled={disabled}
-        readOnly={readOnly}
-        autoSubmit={autoSubmit}
-        value={value}
-        defaultValue={defaultValue}
-        onValueChange={(next) => onValueChange?.(next)}
-        onValueComplete={(next) => onComplete?.(next)}
-        onValueInvalid={(next) => onValueInvalid?.(next)}
-        className={cx('flex items-center', slotGapClasses[density][size])}
-        {...props}
+        invalid={isInvalid}
+        className={cx('inline-flex flex-col align-top', stackGapClasses[size], className)}
+        style={{ ...surfaceSlots(family, elevation), ...style }}
       >
-        {Array.from({ length: slots }, (_, index) => (
-          <React.Fragment key={index}>
-            {/*
+        {hasContent(label) ? (
+          <Field.Label
+            className={cx(
+              metaTextClasses[size],
+              'font-medium',
+              disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)'
+            )}
+          >
+            {label}
+          </Field.Label>
+        ) : null}
+
+        <OTPField.Root
+          ref={ref}
+          length={slots}
+          validationType={validationTypes[charset]}
+          mask={mask}
+          name={name}
+          required={required}
+          disabled={disabled}
+          readOnly={readOnly}
+          autoSubmit={autoSubmit}
+          value={value}
+          defaultValue={defaultValue}
+          onValueChange={(next) => onValueChange?.(next)}
+          onValueComplete={(next) => onComplete?.(next)}
+          onValueInvalid={(next) => onValueInvalid?.(next)}
+          className={cx('flex items-center', slotGapClasses[density][size])}
+          {...props}
+        >
+          {Array.from({ length: slots }, (_, index) => (
+            <React.Fragment key={index}>
+              {/*
               `aria-hidden` and a plain span rather than a `role="separator"`:
               the dash is punctuation inside one value, not a break between two
               things, and a reader that announces it once per group is reading
               out the shape of the box instead of the code in it.
             */}
-            {separatorEvery > 0 && index > 0 && index % separatorEvery === 0 ? (
-              <span
-                aria-hidden="true"
-                className={cx('select-none px-0.5 text-(--plass-muted-fg)', slotTextClasses[size])}
-              >
-                {separator}
-              </span>
-            ) : null}
-            <OTPField.Input className={slotClassNames} autoFocus={autoFocus && index === 0} />
-          </React.Fragment>
-        ))}
-      </OTPField.Root>
+              {separatorEvery > 0 && index > 0 && index % separatorEvery === 0 ? (
+                <span
+                  aria-hidden="true"
+                  className={cx(
+                    'select-none px-0.5 text-(--plass-muted-fg)',
+                    slotTextClasses[size]
+                  )}
+                >
+                  {separator}
+                </span>
+              ) : null}
+              <OTPField.Input className={slotClassNames} autoFocus={autoFocus && index === 0} />
+            </React.Fragment>
+          ))}
+        </OTPField.Root>
 
-      {hasContent(description) ? (
-        <Field.Description className={cx(metaTextClasses[size], 'text-(--plass-muted-fg)')}>
-          {description}
-        </Field.Description>
-      ) : null}
+        {hasContent(description) ? (
+          <Field.Description className={cx(metaTextClasses[size], 'text-(--plass-muted-fg)')}>
+            {description}
+          </Field.Description>
+        ) : null}
 
-      {hasError ? (
-        <Field.Error match className={cx(metaTextClasses[size], 'text-(--p-accent)')}>
-          {error}
-        </Field.Error>
-      ) : null}
-    </Field.Root>
-  );
-});
+        {hasError ? (
+          <Field.Error match className={cx(metaTextClasses[size], 'text-(--p-accent)')}>
+            {error}
+          </Field.Error>
+        ) : null}
+      </Field.Root>
+    );
+  }
+);

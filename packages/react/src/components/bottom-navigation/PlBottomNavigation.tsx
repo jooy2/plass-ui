@@ -53,7 +53,7 @@ interface BottomNavigationContextValue {
   disabled: boolean;
 }
 
-const BottomNavigationContext = React.createContext<BottomNavigationContextValue>({
+const BottomNavigationContext = /* @__PURE__ */ React.createContext<BottomNavigationContextValue>({
   value: null,
   change: () => {},
   size: 'md',
@@ -186,99 +186,100 @@ const itemGapClasses: Record<PlassSize, string> = {
  * The sheet is never dyed, exactly as on a `PlCard`. What carries the colour
  * family is the one item that is current.
  */
-export const PlBottomNavigation = React.forwardRef<HTMLElement, PlBottomNavigationProps>(
-  function PlBottomNavigation(
-    {
-      variant = 'glass',
-      size = 'md',
-      color = 'primary',
-      density = 'default',
-      elevation = 0,
-      value: valueProp,
-      defaultValue = null,
-      onValueChange,
-      position = 'fixed',
-      labels = 'all',
-      divider = true,
-      safeArea = true,
-      disabled = false,
-      label,
-      render,
-      className,
-      style,
-      children,
-      ...props
-    },
-    ref
-  ) {
-    const [uncontrolled, setUncontrolled] = React.useState<PlBottomNavigationValue | null>(
-      defaultValue
-    );
-    const controlled = valueProp !== undefined;
-    const value = controlled ? valueProp : uncontrolled;
+export const PlBottomNavigation = /* @__PURE__ */ React.forwardRef<
+  HTMLElement,
+  PlBottomNavigationProps
+>(function PlBottomNavigation(
+  {
+    variant = 'glass',
+    size = 'md',
+    color = 'primary',
+    density = 'default',
+    elevation = 0,
+    value: valueProp,
+    defaultValue = null,
+    onValueChange,
+    position = 'fixed',
+    labels = 'all',
+    divider = true,
+    safeArea = true,
+    disabled = false,
+    label,
+    render,
+    className,
+    style,
+    children,
+    ...props
+  },
+  ref
+) {
+  const [uncontrolled, setUncontrolled] = React.useState<PlBottomNavigationValue | null>(
+    defaultValue
+  );
+  const controlled = valueProp !== undefined;
+  const value = controlled ? valueProp : uncontrolled;
 
-    const change = React.useCallback(
-      (next: PlBottomNavigationValue) => {
-        if (!controlled) {
-          setUncontrolled(next);
-        }
-
-        onValueChange?.(next);
-      },
-      [controlled, onValueChange]
-    );
-
-    const context = React.useMemo(
-      () => ({ value: value ?? null, change, size, density, labels, disabled }),
-      [value, change, size, density, labels, disabled]
-    );
-
-    const classNames = cx(
-      'w-full min-w-0',
-      // A bar spanning an edge of the window has nothing behind its corners, so
-      // only one sitting in the flow is a sheet with corners at all.
-      position === 'static' ? radiusClasses[size] : '',
-      sheetRestClasses[variant],
-      // A bar that is not in the flow has three edges against the window and one
-      // against the content, so only that one is ever drawn — a hairline down
-      // the left of the screen is a hairline nobody asked for. In the flow it is
-      // an ordinary sheet and keeps the whole outline `sheetRestClasses` gave it.
-      variant === 'glass' && position !== 'static' ? 'border-0' : '',
-      divider ? sheetLineClasses : '',
-      positionClasses[position],
-      // The sheet keeps reaching the bottom of the screen; what the inset moves
-      // is the row inside it. A bar that stopped above the home indicator would
-      // leave a stripe of page showing under the glass.
-      safeArea ? 'pb-[env(safe-area-inset-bottom)]' : '',
-      transitionClasses,
-      className
-    );
-
-    return useRender({
-      render: render ?? <nav />,
-      ref,
-      props: {
-        'aria-label': label,
-        className: classNames,
-        style: { ...surfaceSlots(color, elevation), ...style },
-        children: (
-          <BottomNavigationContext.Provider value={context}>
-            <div
-              className={cx(
-                'flex w-full items-stretch',
-                rowMinHeightClasses[size],
-                rowPaddingClasses[density][size]
-              )}
-            >
-              {children}
-            </div>
-          </BottomNavigationContext.Provider>
-        ),
-        ...props
+  const change = React.useCallback(
+    (next: PlBottomNavigationValue) => {
+      if (!controlled) {
+        setUncontrolled(next);
       }
-    });
-  }
-);
+
+      onValueChange?.(next);
+    },
+    [controlled, onValueChange]
+  );
+
+  const context = React.useMemo(
+    () => ({ value: value ?? null, change, size, density, labels, disabled }),
+    [value, change, size, density, labels, disabled]
+  );
+
+  const classNames = cx(
+    'w-full min-w-0',
+    // A bar spanning an edge of the window has nothing behind its corners, so
+    // only one sitting in the flow is a sheet with corners at all.
+    position === 'static' ? radiusClasses[size] : '',
+    sheetRestClasses[variant],
+    // A bar that is not in the flow has three edges against the window and one
+    // against the content, so only that one is ever drawn — a hairline down
+    // the left of the screen is a hairline nobody asked for. In the flow it is
+    // an ordinary sheet and keeps the whole outline `sheetRestClasses` gave it.
+    variant === 'glass' && position !== 'static' ? 'border-0' : '',
+    divider ? sheetLineClasses : '',
+    positionClasses[position],
+    // The sheet keeps reaching the bottom of the screen; what the inset moves
+    // is the row inside it. A bar that stopped above the home indicator would
+    // leave a stripe of page showing under the glass.
+    safeArea ? 'pb-[env(safe-area-inset-bottom)]' : '',
+    transitionClasses,
+    className
+  );
+
+  return useRender({
+    render: render ?? <nav />,
+    ref,
+    props: {
+      'aria-label': label,
+      className: classNames,
+      style: { ...surfaceSlots(color, elevation), ...style },
+      children: (
+        <BottomNavigationContext.Provider value={context}>
+          <div
+            className={cx(
+              'flex w-full items-stretch',
+              rowMinHeightClasses[size],
+              rowPaddingClasses[density][size]
+            )}
+          >
+            {children}
+          </div>
+        </BottomNavigationContext.Provider>
+      ),
+      ...props
+    }
+  });
+});
 
 /**
  * One destination.
@@ -293,101 +294,102 @@ export const PlBottomNavigation = React.forwardRef<HTMLElement, PlBottomNavigati
  * `<button>`, because a `<div>` carrying a click handler is invisible to a
  * keyboard.
  */
-export const PlBottomNavigationItem = React.forwardRef<HTMLElement, PlBottomNavigationItemProps>(
-  function PlBottomNavigationItem(
-    { value, icon, href, disabled: disabledProp = false, className, children, onClick, ...props },
-    ref
-  ) {
-    const bar = React.useContext(BottomNavigationContext);
-    const disabled = disabledProp || bar.disabled;
-    const selected = bar.value !== null && bar.value === value;
+export const PlBottomNavigationItem = /* @__PURE__ */ React.forwardRef<
+  HTMLElement,
+  PlBottomNavigationItemProps
+>(function PlBottomNavigationItem(
+  { value, icon, href, disabled: disabledProp = false, className, children, onClick, ...props },
+  ref
+) {
+  const bar = React.useContext(BottomNavigationContext);
+  const disabled = disabledProp || bar.disabled;
+  const selected = bar.value !== null && bar.value === value;
 
-    const named = bar.labels === 'all' || (bar.labels === 'selected' && selected);
+  const named = bar.labels === 'all' || (bar.labels === 'selected' && selected);
 
-    const classNames = cx(
-      'flex min-w-0 flex-1 flex-col items-center justify-center px-1 py-1.5',
-      itemGapClasses[bar.size],
-      radiusClasses[bar.size],
-      '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
-      transitionClasses,
-      // Inset rather than offset: the item is inside a sheet that clips, and a
-      // ring drawn outside it would have its top sliced off.
-      focusRingInsetClasses,
-      // An if/else rather than stacked variants: two Tailwind classes of equal
-      // specificity resolve by their order in the generated stylesheet.
-      disabled
-        ? 'cursor-not-allowed opacity-50 saturate-[0.35] text-(--plass-muted-fg)'
-        : selected
-          ? 'cursor-pointer font-medium text-(--p-accent) bg-(--p-soft) hover:bg-(--p-soft-hover)'
-          : 'cursor-pointer text-(--plass-muted-fg) hover:text-(--plass-fg) hover:bg-(--plass-glass-hover)',
-      className
-    );
+  const classNames = cx(
+    'flex min-w-0 flex-1 flex-col items-center justify-center px-1 py-1.5',
+    itemGapClasses[bar.size],
+    radiusClasses[bar.size],
+    '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
+    transitionClasses,
+    // Inset rather than offset: the item is inside a sheet that clips, and a
+    // ring drawn outside it would have its top sliced off.
+    focusRingInsetClasses,
+    // An if/else rather than stacked variants: two Tailwind classes of equal
+    // specificity resolve by their order in the generated stylesheet.
+    disabled
+      ? 'cursor-not-allowed opacity-50 saturate-[0.35] text-(--plass-muted-fg)'
+      : selected
+        ? 'cursor-pointer font-medium text-(--p-accent) bg-(--p-soft) hover:bg-(--p-soft-hover)'
+        : 'cursor-pointer text-(--plass-muted-fg) hover:text-(--plass-fg) hover:bg-(--plass-glass-hover)',
+    className
+  );
 
-    const body = (
-      <>
-        {hasContent(icon) ? (
-          <span
-            className={cx('flex shrink-0 items-center justify-center', iconSizeClasses[bar.size])}
-          >
-            {icon}
-          </span>
-        ) : null}
-
-        {hasContent(children) ? (
-          // Undrawn is not unsaid. A glyph on its own has no accessible name at
-          // all, so the name a hidden label would have carried is kept in the
-          // document rather than dropped with the pixels.
-          <span
-            className={
-              named
-                ? cx('max-w-full truncate leading-tight', metaTextClasses[bar.size])
-                : srOnlyClasses
-            }
-          >
-            {children}
-          </span>
-        ) : null}
-      </>
-    );
-
-    const press = (event: React.MouseEvent<HTMLElement>) => {
-      if (disabled) {
-        event.preventDefault();
-        return;
-      }
-
-      bar.change(value);
-      onClick?.(event as React.MouseEvent<HTMLButtonElement>);
-    };
-
-    if (href) {
-      return (
-        <a
-          ref={ref as React.Ref<HTMLAnchorElement>}
-          href={disabled ? undefined : href}
-          aria-current={selected ? 'page' : undefined}
-          aria-disabled={disabled || undefined}
-          className={classNames}
-          onClick={press}
-          {...(props as React.ComponentPropsWithoutRef<'a'>)}
+  const body = (
+    <>
+      {hasContent(icon) ? (
+        <span
+          className={cx('flex shrink-0 items-center justify-center', iconSizeClasses[bar.size])}
         >
-          {body}
-        </a>
-      );
+          {icon}
+        </span>
+      ) : null}
+
+      {hasContent(children) ? (
+        // Undrawn is not unsaid. A glyph on its own has no accessible name at
+        // all, so the name a hidden label would have carried is kept in the
+        // document rather than dropped with the pixels.
+        <span
+          className={
+            named
+              ? cx('max-w-full truncate leading-tight', metaTextClasses[bar.size])
+              : srOnlyClasses
+          }
+        >
+          {children}
+        </span>
+      ) : null}
+    </>
+  );
+
+  const press = (event: React.MouseEvent<HTMLElement>) => {
+    if (disabled) {
+      event.preventDefault();
+      return;
     }
 
+    bar.change(value);
+    onClick?.(event as React.MouseEvent<HTMLButtonElement>);
+  };
+
+  if (href) {
     return (
-      <button
-        ref={ref as React.Ref<HTMLButtonElement>}
-        type="button"
-        disabled={disabled}
+      <a
+        ref={ref as React.Ref<HTMLAnchorElement>}
+        href={disabled ? undefined : href}
         aria-current={selected ? 'page' : undefined}
+        aria-disabled={disabled || undefined}
         className={classNames}
         onClick={press}
-        {...props}
+        {...(props as React.ComponentPropsWithoutRef<'a'>)}
       >
         {body}
-      </button>
+      </a>
     );
   }
-);
+
+  return (
+    <button
+      ref={ref as React.Ref<HTMLButtonElement>}
+      type="button"
+      disabled={disabled}
+      aria-current={selected ? 'page' : undefined}
+      className={classNames}
+      onClick={press}
+      {...props}
+    >
+      {body}
+    </button>
+  );
+});

@@ -176,48 +176,50 @@ const clampClasses: Record<number, string> = {
  * `level` is the size: a `size` prop alongside it would let a caller ask for an
  * `h1` at `xs`, which is a heading that is not a heading.
  */
-export const PlTypography = React.forwardRef<HTMLElement, PlTypographyProps>(function PlTypography(
-  {
-    level = 'body',
-    color,
-    weight,
-    align,
-    lines,
-    gutter = false,
-    render,
-    className,
-    style,
-    children,
-    ...props
-  },
-  ref
-) {
-  const classNames = [
-    levelClasses[level],
-    weightClasses[weight ?? levelWeights[level]],
-    align ? alignClasses[align] : '',
-    lines ? (clampClasses[lines] ?? 'line-clamp-6') : '',
-    gutter ? gutterClasses[level] : '',
-    color
-      ? 'text-(--p-accent)'
-      : mutedLevels.has(level)
-        ? 'text-(--plass-muted-fg)'
-        : 'text-(--plass-fg)',
-    className ?? ''
-  ]
-    .filter(Boolean)
-    .join(' ');
-
-  return useRender({
-    render: render ?? React.createElement(levelElements[level]),
-    ref,
-    props: {
-      className: classNames,
-      style: (color
-        ? { '--p-accent': `var(--plass-${color}-accent)`, ...style }
-        : style) as React.CSSProperties,
+export const PlTypography = /* @__PURE__ */ React.forwardRef<HTMLElement, PlTypographyProps>(
+  function PlTypography(
+    {
+      level = 'body',
+      color,
+      weight,
+      align,
+      lines,
+      gutter = false,
+      render,
+      className,
+      style,
       children,
       ...props
-    }
-  });
-});
+    },
+    ref
+  ) {
+    const classNames = [
+      levelClasses[level],
+      weightClasses[weight ?? levelWeights[level]],
+      align ? alignClasses[align] : '',
+      lines ? (clampClasses[lines] ?? 'line-clamp-6') : '',
+      gutter ? gutterClasses[level] : '',
+      color
+        ? 'text-(--p-accent)'
+        : mutedLevels.has(level)
+          ? 'text-(--plass-muted-fg)'
+          : 'text-(--plass-fg)',
+      className ?? ''
+    ]
+      .filter(Boolean)
+      .join(' ');
+
+    return useRender({
+      render: render ?? React.createElement(levelElements[level]),
+      ref,
+      props: {
+        className: classNames,
+        style: (color
+          ? { '--p-accent': `var(--plass-${color}-accent)`, ...style }
+          : style) as React.CSSProperties,
+        children,
+        ...props
+      }
+    });
+  }
+);

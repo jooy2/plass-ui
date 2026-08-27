@@ -89,14 +89,14 @@ const ruleClasses = 'border-s-2 [border-inline-start-color:var(--p-accent)]';
  * before there were surfaces to put one on.
  */
 const variantClasses: Record<PlassVariant, string> = {
-  solid: [
+  solid: /* @__PURE__ */ [
     glassClasses,
     'bg-(--plass-glass-press)',
     '[box-shadow:var(--p-elev),var(--plass-gloss-glass)]'
   ].join(' '),
   // `border-s-2` again, after `border`, so the hairline on the other three edges
   // does not flatten the rule back to a pixel.
-  glass: [
+  glass: /* @__PURE__ */ [
     glassClasses,
     'border border-s-2 bg-(--plass-glass)',
     '[border-color:var(--plass-glass-line)]',
@@ -146,96 +146,98 @@ function QuoteMarkIcon() {
  * *outside* the blockquote — a name inside it claims the speaker said their own
  * name — and a `<figure>` with no `<figcaption>` in it is a figure of nothing.
  */
-export const PlBlockquote = React.forwardRef<HTMLElement, PlBlockquoteProps>(function PlBlockquote(
-  {
-    variant = 'ghost',
-    size = 'md',
-    color = 'primary',
-    density = 'default',
-    elevation = 0,
-    author,
-    source,
-    cite,
-    icon,
-    className,
-    style,
-    children,
-    ...props
-  },
-  ref
-) {
-  const attributed = hasContent(author) || hasContent(source);
-  const glyph = icon === undefined ? <QuoteMarkIcon /> : icon;
+export const PlBlockquote = /* @__PURE__ */ React.forwardRef<HTMLElement, PlBlockquoteProps>(
+  function PlBlockquote(
+    {
+      variant = 'ghost',
+      size = 'md',
+      color = 'primary',
+      density = 'default',
+      elevation = 0,
+      author,
+      source,
+      cite,
+      icon,
+      className,
+      style,
+      children,
+      ...props
+    },
+    ref
+  ) {
+    const attributed = hasContent(author) || hasContent(source);
+    const glyph = icon === undefined ? <QuoteMarkIcon /> : icon;
 
-  const shellClasses = [
-    'flex flex-col text-(--plass-fg)',
-    ruleClasses,
-    // The corners on the ruled edge stay square: a 2px rule that curves away
-    // from the text it marks is a bracket, not a margin rule.
-    variant === 'ghost' ? '' : `${radiusClasses[size]} rounded-s-none`,
-    variantClasses[variant],
-    sheetPaddingXClasses[density][size],
-    sheetPaddingYClasses[density][size],
-    transitionClasses,
-    className ?? ''
-  ]
-    .filter(Boolean)
-    .join(' ');
+    const shellClasses = [
+      'flex flex-col text-(--plass-fg)',
+      ruleClasses,
+      // The corners on the ruled edge stay square: a 2px rule that curves away
+      // from the text it marks is a bracket, not a margin rule.
+      variant === 'ghost' ? '' : `${radiusClasses[size]} rounded-s-none`,
+      variantClasses[variant],
+      sheetPaddingXClasses[density][size],
+      sheetPaddingYClasses[density][size],
+      transitionClasses,
+      className ?? ''
+    ]
+      .filter(Boolean)
+      .join(' ');
 
-  const quote = (
-    <blockquote cite={cite} className={quoteTextClasses[size]}>
-      {hasContent(glyph) ? (
-        // The mark tracks the quote's own type scale at twice its size, so one
-        // drawing is the right size at every step of the ladder.
-        <span
-          aria-hidden="true"
-          className="mb-1 block size-[2em] text-(--p-soft-press) [&>svg]:size-full"
-        >
-          {glyph}
-        </span>
-      ) : null}
-      {children}
-    </blockquote>
-  );
-
-  const shellStyle = { ...surfaceSlots(color, elevation), ...style };
-
-  if (!attributed) {
-    return (
-      <div
-        ref={ref as React.Ref<HTMLDivElement>}
-        className={shellClasses}
-        style={shellStyle}
-        {...props}
-      >
-        {quote}
-      </div>
-    );
-  }
-
-  return (
-    <figure ref={ref} className={shellClasses} style={shellStyle} {...props}>
-      {quote}
-
-      <figcaption
-        className={[
-          'mt-2 flex flex-wrap items-baseline gap-x-1.5 text-(--plass-muted-fg)',
-          metaTextClasses[size]
-        ].join(' ')}
-      >
-        {hasContent(author) ? (
-          <span className="font-medium text-(--plass-fg)">
-            {/* An em dash, the way an attribution has been set since print, and
-                `aria-hidden` because a screen reader announcing "em dash" before
-                a name is reading the typography rather than the text. */}
-            <span aria-hidden="true">— </span>
-            {author}
+    const quote = (
+      <blockquote cite={cite} className={quoteTextClasses[size]}>
+        {hasContent(glyph) ? (
+          // The mark tracks the quote's own type scale at twice its size, so one
+          // drawing is the right size at every step of the ladder.
+          <span
+            aria-hidden="true"
+            className="mb-1 block size-[2em] text-(--p-soft-press) [&>svg]:size-full"
+          >
+            {glyph}
           </span>
         ) : null}
-        {/* `<cite>` arrives italic from the browser's own stylesheet. The library
+        {children}
+      </blockquote>
+    );
+
+    const shellStyle = { ...surfaceSlots(color, elevation), ...style };
+
+    if (!attributed) {
+      return (
+        <div
+          ref={ref as React.Ref<HTMLDivElement>}
+          className={shellClasses}
+          style={shellStyle}
+          {...props}
+        >
+          {quote}
+        </div>
+      );
+    }
+
+    return (
+      <figure ref={ref} className={shellClasses} style={shellStyle} {...props}>
+        {quote}
+
+        <figcaption
+          className={[
+            'mt-2 flex flex-wrap items-baseline gap-x-1.5 text-(--plass-muted-fg)',
+            metaTextClasses[size]
+          ].join(' ')}
+        >
+          {hasContent(author) ? (
+            <span className="font-medium text-(--plass-fg)">
+              {/* An em dash, the way an attribution has been set since print, and
+                `aria-hidden` because a screen reader announcing "em dash" before
+                a name is reading the typography rather than the text. */}
+              <span aria-hidden="true">— </span>
+              {author}
+            </span>
+          ) : null}
+          {/* `<cite>` arrives italic from the browser's own stylesheet. The library
             has one type scale and italics are not on it. */}
-        {hasContent(source) ? <cite className="not-italic">{source}</cite> : null}
-      </figcaption>
-    </figure>
-  );
-});
+          {hasContent(source) ? <cite className="not-italic">{source}</cite> : null}
+        </figcaption>
+      </figure>
+    );
+  }
+);

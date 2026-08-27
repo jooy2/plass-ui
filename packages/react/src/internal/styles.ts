@@ -369,7 +369,7 @@ export const glassClasses =
  * undoes the restraint everything else is spending effort on. A surface that
  * holds content rather than being pressed — a Card — may lift, and does.
  */
-export const transitionClasses = [
+export const transitionClasses = /* @__PURE__ */ [
   '[transition-property:background-color,background-image,border-color,box-shadow,color,filter]',
   '[transition-duration:var(--plass-duration)]',
   '[transition-timing-function:var(--plass-ease)]'
@@ -545,11 +545,11 @@ export function surfaceSlots(color: PlassColor, elevation: PlassElevation): Reac
  * the axis.
  */
 export const disabledClasses: Record<PlassVariant, string> = {
-  solid: [
+  solid: /* @__PURE__ */ [
     'cursor-not-allowed text-(--p-on-solid) [background-image:var(--p-fill)]',
     'opacity-50 saturate-[0.35] shadow-none'
   ].join(' '),
-  glass: [
+  glass: /* @__PURE__ */ [
     glassClasses,
     'cursor-not-allowed border text-(--plass-fg) bg-(--plass-glass)',
     '[border-color:var(--plass-border)]',
@@ -591,12 +591,12 @@ export const readOnlyFilterClasses = 'saturate-[0.55]';
  * family reaches the hairline, the focus ring and the caret and stops.
  */
 export const sheetRestClasses: Record<PlassVariant, string> = {
-  solid: [
+  solid: /* @__PURE__ */ [
     glassClasses,
     'text-(--plass-fg) bg-(--plass-glass-press)',
     '[box-shadow:var(--p-elev),var(--plass-gloss-glass)]'
   ].join(' '),
-  glass: [
+  glass: /* @__PURE__ */ [
     glassClasses,
     'border text-(--plass-fg) bg-(--plass-glass)',
     '[border-color:var(--plass-glass-line)]',
@@ -629,14 +629,14 @@ export const sheetRestClasses: Record<PlassVariant, string> = {
  * line rather than two kinds of line that only agree on one background.
  */
 export const fieldRestClasses: Record<PlassVariant, string> = {
-  solid: [
+  solid: /* @__PURE__ */ [
     glassClasses,
     'text-(--plass-fg) bg-(--plass-glass-press)',
     '[box-shadow:var(--p-elev),var(--plass-well)]',
     'hover:bg-(--plass-glass-hover)',
     'focus-within:bg-(--plass-glass-press)'
   ].join(' '),
-  glass: [
+  glass: /* @__PURE__ */ [
     glassClasses,
     'border text-(--plass-fg) bg-(--plass-glass-hover)',
     '[border-color:var(--plass-border)]',
@@ -646,7 +646,7 @@ export const fieldRestClasses: Record<PlassVariant, string> = {
   ].join(' '),
   // No surface until it is wanted — the field in a table cell that only looks
   // like a field once you go near it.
-  ghost: [
+  ghost: /* @__PURE__ */ [
     'text-(--plass-fg) bg-transparent',
     'hover:bg-(--p-soft)',
     'focus-within:bg-(--p-soft-hover)'
@@ -655,12 +655,12 @@ export const fieldRestClasses: Record<PlassVariant, string> = {
 
 /** The same three, held still. */
 export const fieldReadOnlyClasses: Record<PlassVariant, string> = {
-  solid: [
+  solid: /* @__PURE__ */ [
     glassClasses,
     'text-(--plass-fg) bg-(--plass-glass-press)',
     `[box-shadow:var(--plass-well)] ${readOnlyFilterClasses}`
   ].join(' '),
-  glass: [
+  glass: /* @__PURE__ */ [
     glassClasses,
     'border text-(--plass-fg) bg-(--plass-glass-hover)',
     '[border-color:var(--plass-border)]',

@@ -41,7 +41,7 @@ export interface PlIconButtonProps extends Omit<
  * `disabled`. Two components that draw the same surface out of two copies of the
  * same table are two components that will eventually disagree.
  */
-export const PlIconButton = React.forwardRef<HTMLButtonElement, PlIconButtonProps>(
+export const PlIconButton = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlIconButtonProps>(
   function PlIconButton({ icon, label, style, ...props }, ref) {
     return (
       <PlButton

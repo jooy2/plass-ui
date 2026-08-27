@@ -79,42 +79,44 @@ export interface PlIconProps extends Omit<React.ComponentPropsWithoutRef<'span'>
  * and the only thing the design language has to say about ink is which family it
  * is drawn in.
  */
-export const PlIcon = React.forwardRef<HTMLSpanElement, PlIconProps>(function PlIcon(
-  { icon, size = 'md', color = 'inherit', label, className, style, ...props },
-  ref
-) {
-  const classNames = [
-    'inline-flex shrink-0 items-center justify-center align-middle',
-    iconSizeClasses[size],
-    // The glyph fills the box however it was authored. `[font-size:100%]` on the
-    // box itself would be a no-op; what makes an em-sized drawing come out right
-    // is the box being an em, which `size-*` and this pair together arrange.
-    '[&>svg]:block [&>svg]:size-full [&>img]:block [&>img]:size-full',
-    `leading-none ${glyphFontClasses[size]}`,
-    color === 'inherit' ? '' : 'text-(--p-accent)',
-    className ?? ''
-  ]
-    .filter(Boolean)
-    .join(' ');
+export const PlIcon = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlIconProps>(
+  function PlIcon(
+    { icon, size = 'md', color = 'inherit', label, className, style, ...props },
+    ref
+  ) {
+    const classNames = [
+      'inline-flex shrink-0 items-center justify-center align-middle',
+      iconSizeClasses[size],
+      // The glyph fills the box however it was authored. `[font-size:100%]` on the
+      // box itself would be a no-op; what makes an em-sized drawing come out right
+      // is the box being an em, which `size-*` and this pair together arrange.
+      '[&>svg]:block [&>svg]:size-full [&>img]:block [&>img]:size-full',
+      `leading-none ${glyphFontClasses[size]}`,
+      color === 'inherit' ? '' : 'text-(--p-accent)',
+      className ?? ''
+    ]
+      .filter(Boolean)
+      .join(' ');
 
-  return (
-    <span
-      ref={ref}
-      className={classNames}
-      style={
-        (color === 'inherit'
-          ? style
-          : { '--p-accent': `var(--plass-${color}-accent)`, ...style }) as React.CSSProperties
-      }
-      // An icon with something to say is an `img` with a name; one without is
-      // furniture. There is no third case, and `role="img"` on a decorative glyph
-      // is the most common way a screen reader ends up saying "graphic".
-      role={label ? 'img' : undefined}
-      aria-label={label}
-      aria-hidden={label ? undefined : true}
-      {...props}
-    >
-      {icon}
-    </span>
-  );
-});
+    return (
+      <span
+        ref={ref}
+        className={classNames}
+        style={
+          (color === 'inherit'
+            ? style
+            : { '--p-accent': `var(--plass-${color}-accent)`, ...style }) as React.CSSProperties
+        }
+        // An icon with something to say is an `img` with a name; one without is
+        // furniture. There is no third case, and `role="img"` on a decorative glyph
+        // is the most common way a screen reader ends up saying "graphic".
+        role={label ? 'img' : undefined}
+        aria-label={label}
+        aria-hidden={label ? undefined : true}
+        {...props}
+      >
+        {icon}
+      </span>
+    );
+  }
+);

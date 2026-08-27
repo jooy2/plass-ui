@@ -121,96 +121,98 @@ const labelGapClasses: Record<PlassSize, string> = {
  * It is not made of glass, catches no light and casts no shadow — it is the
  * absence of a surface, drawn.
  */
-export const PlDivider = React.forwardRef<HTMLDivElement, PlDividerProps>(function PlDivider(
-  {
-    orientation = 'horizontal',
-    color,
-    size = 'md',
-    length,
-    thickness,
-    textAlign = 'center',
-    className,
-    style,
-    children,
-    ...props
-  },
-  ref
-) {
-  const vertical = orientation === 'vertical';
-  const hasLabel =
-    children !== undefined && children !== null && children !== false && children !== '';
+export const PlDivider = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlDividerProps>(
+  function PlDivider(
+    {
+      orientation = 'horizontal',
+      color,
+      size = 'md',
+      length,
+      thickness,
+      textAlign = 'center',
+      className,
+      style,
+      children,
+      ...props
+    },
+    ref
+  ) {
+    const vertical = orientation === 'vertical';
+    const hasLabel =
+      children !== undefined && children !== null && children !== false && children !== '';
 
-  const slots = {
-    '--p-rule-color': color ? `var(--plass-${color}-line)` : 'var(--plass-border)',
-    '--p-rule': toLength(thickness) ?? '1px'
-  } as React.CSSProperties;
+    const slots = {
+      '--p-rule-color': color ? `var(--plass-${color}-line)` : 'var(--plass-border)',
+      '--p-rule': toLength(thickness) ?? '1px'
+    } as React.CSSProperties;
 
-  // The long axis, and only when it was asked for: left alone, a horizontal
-  // divider is `w-full` and a vertical one stretches to its flex row, which are
-  // the two things a rule between two things should already do.
-  const span = toLength(length);
-  const sizing = span === undefined ? null : vertical ? { height: span } : { width: span };
+    // The long axis, and only when it was asked for: left alone, a horizontal
+    // divider is `w-full` and a vertical one stretches to its flex row, which are
+    // the two things a rule between two things should already do.
+    const span = toLength(length);
+    const sizing = span === undefined ? null : vertical ? { height: span } : { width: span };
 
-  const rootStyle = { ...slots, ...sizing, ...style };
+    const rootStyle = { ...slots, ...sizing, ...style };
 
-  if (!hasLabel) {
+    if (!hasLabel) {
+      return (
+        <Separator
+          ref={ref}
+          orientation={orientation}
+          className={[
+            // The line is a single border edge; the box itself has no thickness,
+            // so a divider never adds a pixel of layout beyond the rule.
+            vertical
+              ? `w-0 border-l [border-left-width:var(--p-rule)] ${span === undefined ? 'self-stretch' : ''}`
+              : 'h-0 w-full border-t [border-top-width:var(--p-rule)]',
+            lineClasses,
+            className ?? ''
+          ]
+            .filter(Boolean)
+            .join(' ')}
+          style={rootStyle}
+          {...props}
+        />
+      );
+    }
+
+    const [before, after] = stubClasses[orientation][textAlign];
+    const edgeClasses = vertical
+      ? 'w-0 border-l [border-left-width:var(--p-rule)]'
+      : 'h-0 border-t [border-top-width:var(--p-rule)]';
+
     return (
       <Separator
         ref={ref}
         orientation={orientation}
+        aria-label={typeof children === 'string' ? children : undefined}
         className={[
-          // The line is a single border edge; the box itself has no thickness,
-          // so a divider never adds a pixel of layout beyond the rule.
-          vertical
-            ? `w-0 border-l [border-left-width:var(--p-rule)] ${span === undefined ? 'self-stretch' : ''}`
-            : 'h-0 w-full border-t [border-top-width:var(--p-rule)]',
-          lineClasses,
+          'flex items-center',
+          vertical ? `w-auto flex-col ${span === undefined ? 'self-stretch' : ''}` : 'w-full',
+          labelGapClasses[size],
           className ?? ''
         ]
           .filter(Boolean)
           .join(' ')}
         style={rootStyle}
         {...props}
-      />
+      >
+        <span aria-hidden="true" className={`${edgeClasses} ${before} ${lineClasses}`} />
+        <span
+          className={[
+            'shrink-0 whitespace-nowrap text-(--plass-muted-fg)',
+            metaTextClasses[size],
+            // A vertical rule's label has to turn with it, or the line grows to
+            // the width of the word and stops being a hairline.
+            vertical ? '[writing-mode:vertical-rl]' : ''
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        >
+          {children}
+        </span>
+        <span aria-hidden="true" className={`${edgeClasses} ${after} ${lineClasses}`} />
+      </Separator>
     );
   }
-
-  const [before, after] = stubClasses[orientation][textAlign];
-  const edgeClasses = vertical
-    ? 'w-0 border-l [border-left-width:var(--p-rule)]'
-    : 'h-0 border-t [border-top-width:var(--p-rule)]';
-
-  return (
-    <Separator
-      ref={ref}
-      orientation={orientation}
-      aria-label={typeof children === 'string' ? children : undefined}
-      className={[
-        'flex items-center',
-        vertical ? `w-auto flex-col ${span === undefined ? 'self-stretch' : ''}` : 'w-full',
-        labelGapClasses[size],
-        className ?? ''
-      ]
-        .filter(Boolean)
-        .join(' ')}
-      style={rootStyle}
-      {...props}
-    >
-      <span aria-hidden="true" className={`${edgeClasses} ${before} ${lineClasses}`} />
-      <span
-        className={[
-          'shrink-0 whitespace-nowrap text-(--plass-muted-fg)',
-          metaTextClasses[size],
-          // A vertical rule's label has to turn with it, or the line grows to
-          // the width of the word and stops being a hairline.
-          vertical ? '[writing-mode:vertical-rl]' : ''
-        ]
-          .filter(Boolean)
-          .join(' ')}
-      >
-        {children}
-      </span>
-      <span aria-hidden="true" className={`${edgeClasses} ${after} ${lineClasses}`} />
-    </Separator>
-  );
-});
+);

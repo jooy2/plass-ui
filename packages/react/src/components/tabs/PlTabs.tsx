@@ -37,7 +37,7 @@ interface TabsContextValue {
   fullWidth: boolean;
 }
 
-const TabsContext = React.createContext<TabsContextValue>({
+const TabsContext = /* @__PURE__ */ React.createContext<TabsContextValue>({
   variant: 'glass',
   size: 'md',
   density: 'default',
@@ -208,7 +208,7 @@ const tabStateClasses =
  * *behind* the tab rather than on it, so the tab needs a stacking context of its
  * own or the indicator would cover the label it is meant to be under.
  */
-export const PlTab = React.forwardRef<HTMLButtonElement, PlTabProps>(function PlTab(
+export const PlTab = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlTabProps>(function PlTab(
   { value, startIcon, endIcon, disabled = false, className, children, ...props },
   ref
 ) {
@@ -254,34 +254,33 @@ export const PlTab = React.forwardRef<HTMLButtonElement, PlTabProps>(function Pl
 });
 
 /** The content behind one tab. */
-export const PlTabPanel = React.forwardRef<HTMLDivElement, PlTabPanelProps>(function PlTabPanel(
-  { value, keepMounted = false, className, children, ...props },
-  ref
-) {
-  const { size } = React.useContext(TabsContext);
+export const PlTabPanel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTabPanelProps>(
+  function PlTabPanel({ value, keepMounted = false, className, children, ...props }, ref) {
+    const { size } = React.useContext(TabsContext);
 
-  return (
-    <BaseUITabs.Panel
-      ref={ref}
-      value={value}
-      keepMounted={keepMounted}
-      className={[
-        'min-w-0 flex-1 text-(--plass-fg)',
-        // The panel takes focus when it holds nothing focusable of its own, so
-        // it is reachable by keyboard — and it gets the house ring rather than
-        // the browser's.
-        focusRingClasses,
-        radiusClasses[size],
-        className ?? ''
-      ]
-        .filter(Boolean)
-        .join(' ')}
-      {...props}
-    >
-      {children}
-    </BaseUITabs.Panel>
-  );
-});
+    return (
+      <BaseUITabs.Panel
+        ref={ref}
+        value={value}
+        keepMounted={keepMounted}
+        className={[
+          'min-w-0 flex-1 text-(--plass-fg)',
+          // The panel takes focus when it holds nothing focusable of its own, so
+          // it is reachable by keyboard — and it gets the house ring rather than
+          // the browser's.
+          focusRingClasses,
+          radiusClasses[size],
+          className ?? ''
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        {...props}
+      >
+        {children}
+      </BaseUITabs.Panel>
+    );
+  }
+);
 
 /**
  * One set of panels, one of which is shown.
@@ -296,7 +295,7 @@ export const PlTabPanel = React.forwardRef<HTMLDivElement, PlTabPanelProps>(func
  * `PlSelect` — because a panel is a subtree, and there is no useful shape for
  * "an array of arbitrary React trees" that is not just children.
  */
-export const PlTabs = React.forwardRef<HTMLDivElement, PlTabsProps>(function PlTabs(
+export const PlTabs = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTabsProps>(function PlTabs(
   {
     variant = 'glass',
     size = 'md',

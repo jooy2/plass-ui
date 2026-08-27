@@ -114,196 +114,198 @@ function defaultValueLabel(value: number, count: number): string {
  * that kept twenty focusable radios would be twenty tab stops on a page that
  * was only reporting a number.
  */
-export const PlRating = React.forwardRef<HTMLDivElement, PlRatingProps>(function PlRating(
-  {
-    value: valueProp,
-    defaultValue = 0,
-    onValueChange,
-    count = 5,
-    precision = 1,
-    icon,
-    emptyIcon,
-    clearable = true,
-    readOnly = false,
-    disabled = false,
-    name: nameProp,
-    required = false,
-    size = 'md',
-    color = 'warning',
-    label = 'Rating',
-    valueLabel = defaultValueLabel,
-    className,
-    style,
-    onPointerLeave,
-    ...props
-  },
-  ref
-) {
-  const generatedName = React.useId();
-  const name = nameProp ?? generatedName;
+export const PlRating = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlRatingProps>(
+  function PlRating(
+    {
+      value: valueProp,
+      defaultValue = 0,
+      onValueChange,
+      count = 5,
+      precision = 1,
+      icon,
+      emptyIcon,
+      clearable = true,
+      readOnly = false,
+      disabled = false,
+      name: nameProp,
+      required = false,
+      size = 'md',
+      color = 'warning',
+      label = 'Rating',
+      valueLabel = defaultValueLabel,
+      className,
+      style,
+      onPointerLeave,
+      ...props
+    },
+    ref
+  ) {
+    const generatedName = React.useId();
+    const name = nameProp ?? generatedName;
 
-  const [uncontrolled, setUncontrolled] = React.useState(defaultValue);
-  const controlled = valueProp !== undefined;
-  const value = controlled ? valueProp : uncontrolled;
+    const [uncontrolled, setUncontrolled] = React.useState(defaultValue);
+    const controlled = valueProp !== undefined;
+    const value = controlled ? valueProp : uncontrolled;
 
-  // What the pointer is currently promising, which is not the value until it is
-  // clicked. `null` is "the pointer is not on the row", not "zero stars".
-  const [hovered, setHovered] = React.useState<number | null>(null);
+    // What the pointer is currently promising, which is not the value until it is
+    // clicked. `null` is "the pointer is not on the row", not "zero stars".
+    const [hovered, setHovered] = React.useState<number | null>(null);
 
-  const stars = Math.max(1, Math.floor(count));
-  const step = precision > 0 && precision <= 1 ? precision : 1;
-  const stepsPerStar = Math.round(1 / step);
+    const stars = Math.max(1, Math.floor(count));
+    const step = precision > 0 && precision <= 1 ? precision : 1;
+    const stepsPerStar = Math.round(1 / step);
 
-  const shown = Math.max(0, Math.min(stars, hovered ?? value));
+    const shown = Math.max(0, Math.min(stars, hovered ?? value));
 
-  const change = (next: number) => {
-    if (!controlled) {
-      setUncontrolled(next);
-    }
+    const change = (next: number) => {
+      if (!controlled) {
+        setUncontrolled(next);
+      }
 
-    onValueChange?.(next);
-  };
+      onValueChange?.(next);
+    };
 
-  const marks = Array.from({ length: stars }, (_, index) => {
-    // How much of *this* star is filled, from 0 to 1.
-    const fill = Math.max(0, Math.min(1, shown - index));
+    const marks = Array.from({ length: stars }, (_, index) => {
+      // How much of *this* star is filled, from 0 to 1.
+      const fill = Math.max(0, Math.min(1, shown - index));
 
-    return (
-      <span
-        key={index}
-        className={cx(
-          'relative inline-flex shrink-0',
-          iconSizeClasses[size],
-          radiusClasses.xs,
-          readOnly || disabled ? '' : focusWithinRingClasses
-        )}
-      >
-        <span className={cx(starClasses, iconSizeClasses[size], 'text-(--p-empty)')}>
-          {emptyIcon ?? <StarOutlineIcon />}
-        </span>
-
-        {/*
-         * The filled copy, clipped to the fraction. `inset-inline-start` and a
-         * width, rather than a `clip-path` with a percentage in it, because the
-         * inner star has to keep its own full width or the glyph would be
-         * squashed into the visible part instead of cropped by it.
-         */}
+      return (
         <span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 start-0 overflow-hidden"
-          style={{ width: `${fill * 100}%` }}
+          key={index}
+          className={cx(
+            'relative inline-flex shrink-0',
+            iconSizeClasses[size],
+            radiusClasses.xs,
+            readOnly || disabled ? '' : focusWithinRingClasses
+          )}
         >
-          <span
-            className={cx(
-              starClasses,
-              iconSizeClasses[size],
-              'text-(--p-accent)',
-              transitionClasses
-            )}
-          >
-            {icon ?? <StarIcon />}
+          <span className={cx(starClasses, iconSizeClasses[size], 'text-(--p-empty)')}>
+            {emptyIcon ?? <StarOutlineIcon />}
           </span>
-        </span>
 
-        {readOnly
-          ? null
-          : Array.from({ length: stepsPerStar }, (_, part) => {
-              const score = Number((index + (part + 1) * step).toFixed(4));
+          {/*
+           * The filled copy, clipped to the fraction. `inset-inline-start` and a
+           * width, rather than a `clip-path` with a percentage in it, because the
+           * inner star has to keep its own full width or the glyph would be
+           * squashed into the visible part instead of cropped by it.
+           */}
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-y-0 start-0 overflow-hidden"
+            style={{ width: `${fill * 100}%` }}
+          >
+            <span
+              className={cx(
+                starClasses,
+                iconSizeClasses[size],
+                'text-(--p-accent)',
+                transitionClasses
+              )}
+            >
+              {icon ?? <StarIcon />}
+            </span>
+          </span>
 
-              return (
-                <label
-                  key={score}
-                  className={cx(
-                    'absolute inset-y-0',
-                    disabled ? 'cursor-not-allowed' : 'cursor-pointer'
-                  )}
-                  style={{
-                    insetInlineStart: `${(part * 100) / stepsPerStar}%`,
-                    width: `${100 / stepsPerStar}%`
-                  }}
-                  onPointerEnter={() => {
-                    if (!disabled) {
-                      setHovered(score);
-                    }
-                  }}
-                >
-                  <input
-                    type="radio"
-                    className={srOnlyClasses}
-                    name={name}
-                    value={score}
-                    checked={value === score}
-                    disabled={disabled}
-                    required={required}
-                    aria-label={valueLabel(score, stars)}
-                    onChange={() => change(score)}
-                    // Clearing cannot ride on `change`: clicking a radio that is
-                    // already checked fires a click and no change at all, and
-                    // that click is exactly the gesture being listened for.
-                    onClick={() => {
-                      if (clearable && value === score) {
-                        change(0);
+          {readOnly
+            ? null
+            : Array.from({ length: stepsPerStar }, (_, part) => {
+                const score = Number((index + (part + 1) * step).toFixed(4));
+
+                return (
+                  <label
+                    key={score}
+                    className={cx(
+                      'absolute inset-y-0',
+                      disabled ? 'cursor-not-allowed' : 'cursor-pointer'
+                    )}
+                    style={{
+                      insetInlineStart: `${(part * 100) / stepsPerStar}%`,
+                      width: `${100 / stepsPerStar}%`
+                    }}
+                    onPointerEnter={() => {
+                      if (!disabled) {
+                        setHovered(score);
                       }
                     }}
-                  />
-                </label>
-              );
-            })}
-      </span>
+                  >
+                    <input
+                      type="radio"
+                      className={srOnlyClasses}
+                      name={name}
+                      value={score}
+                      checked={value === score}
+                      disabled={disabled}
+                      required={required}
+                      aria-label={valueLabel(score, stars)}
+                      onChange={() => change(score)}
+                      // Clearing cannot ride on `change`: clicking a radio that is
+                      // already checked fires a click and no change at all, and
+                      // that click is exactly the gesture being listened for.
+                      onClick={() => {
+                        if (clearable && value === score) {
+                          change(0);
+                        }
+                      }}
+                    />
+                  </label>
+                );
+              })}
+        </span>
+      );
+    });
+
+    const classNames = cx(
+      'inline-flex items-center align-middle',
+      gapClasses[size],
+      // The house treatment, not a grey token: the light goes out of the row and
+      // the page shows through it, which is what unavailable looks like
+      // everywhere else in the library.
+      disabled ? 'cursor-not-allowed opacity-50 saturate-[0.35]' : '',
+      className
     );
-  });
 
-  const classNames = cx(
-    'inline-flex items-center align-middle',
-    gapClasses[size],
-    // The house treatment, not a grey token: the light goes out of the row and
-    // the page shows through it, which is what unavailable looks like
-    // everywhere else in the library.
-    disabled ? 'cursor-not-allowed opacity-50 saturate-[0.35]' : '',
-    className
-  );
+    const styles = {
+      ...controlSlots(color, 0, 'solid'),
+      // An empty star is not a disabled one and not a hairline: it is the ghost of
+      // the star beside it, so it takes the muted ink at enough strength to read
+      // as a shape and not enough to compete with the ones that are filled.
+      '--p-empty': 'color-mix(in oklab, var(--plass-muted-fg) 40%, transparent)',
+      ...style
+    } as React.CSSProperties;
 
-  const styles = {
-    ...controlSlots(color, 0, 'solid'),
-    // An empty star is not a disabled one and not a hairline: it is the ghost of
-    // the star beside it, so it takes the muted ink at enough strength to read
-    // as a shape and not enough to compete with the ones that are filled.
-    '--p-empty': 'color-mix(in oklab, var(--plass-muted-fg) 40%, transparent)',
-    ...style
-  } as React.CSSProperties;
+    if (readOnly) {
+      return (
+        <div
+          ref={ref}
+          role="img"
+          aria-label={valueLabel(Math.max(0, Math.min(stars, value)), stars)}
+          className={classNames}
+          style={styles}
+          onPointerLeave={onPointerLeave}
+          {...props}
+        >
+          {marks}
+        </div>
+      );
+    }
 
-  if (readOnly) {
     return (
       <div
         ref={ref}
-        role="img"
-        aria-label={valueLabel(Math.max(0, Math.min(stars, value)), stars)}
+        role="radiogroup"
+        aria-label={label}
+        aria-disabled={disabled || undefined}
+        aria-required={required || undefined}
         className={classNames}
         style={styles}
-        onPointerLeave={onPointerLeave}
+        onPointerLeave={(event) => {
+          setHovered(null);
+          onPointerLeave?.(event);
+        }}
         {...props}
       >
         {marks}
       </div>
     );
   }
-
-  return (
-    <div
-      ref={ref}
-      role="radiogroup"
-      aria-label={label}
-      aria-disabled={disabled || undefined}
-      aria-required={required || undefined}
-      className={classNames}
-      style={styles}
-      onPointerLeave={(event) => {
-        setHovered(null);
-        onPointerLeave?.(event);
-      }}
-      {...props}
-    >
-      {marks}
-    </div>
-  );
-});
+);

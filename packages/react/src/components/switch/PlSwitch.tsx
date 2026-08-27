@@ -78,7 +78,7 @@ const thumbTravelClasses: Record<PlassSize, string> = {
  * off. A switch is not a sheet — it is a track something runs along, and a
  * track with corners is a track the thumb would have to climb out of.
  */
-const trackBaseClasses = [
+const trackBaseClasses = /* @__PURE__ */ [
   'relative inline-flex shrink-0 rounded-full',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
   // `background-image` is in the list because the on state is the gradient, and
@@ -115,20 +115,20 @@ const trackBaseClasses = [
  * them the two disagreed, and every switch in the library sat 2px from its
  * track on the left and 4px from it on the right.
  */
-const restTrackClasses = [
+const restTrackClasses = /* @__PURE__ */ [
   'cursor-pointer bg-(--plass-track)',
   'hover:brightness-[0.97] dark:hover:brightness-110',
   'data-[checked]:[background-image:var(--p-fill)]',
   'data-[checked]:[box-shadow:var(--p-lift)] data-[checked]:hover:brightness-105'
 ].join(' ');
 
-const readOnlyTrackClasses = [
+const readOnlyTrackClasses = /* @__PURE__ */ [
   'cursor-default bg-(--plass-track) saturate-[0.55]',
   'data-[checked]:[background-image:var(--p-fill)]',
   'data-[checked]:shadow-none'
 ].join(' ');
 
-const disabledTrackClasses = [
+const disabledTrackClasses = /* @__PURE__ */ [
   'cursor-not-allowed bg-(--plass-track)',
   'opacity-50 saturate-[0.35] shadow-none',
   'data-[checked]:[background-image:var(--p-fill)]'
@@ -143,7 +143,7 @@ const disabledTrackClasses = [
  * that genuinely is above the surface it moves along, so it casts something —
  * but a 14px disc under a 4px-blurred, 14px-wide shadow is a knob, not a light.
  */
-const thumbClasses = [
+const thumbClasses = /* @__PURE__ */ [
   'absolute inset-y-0.5 left-0.5 aspect-square rounded-full bg-white',
   '[box-shadow:0_1px_2px_rgb(20_40_90/0.25)]',
   '[transition:left_var(--plass-duration)_var(--plass-ease)]'
@@ -156,101 +156,103 @@ const thumbClasses = [
  * a value that gets submitted with a form, a switch takes effect the moment it
  * moves. If there is a Save button underneath, it should have been a checkbox.
  */
-export const PlSwitch = React.forwardRef<HTMLElement, PlSwitchProps>(function PlSwitch(
-  {
-    size = 'md',
-    color = 'primary',
-    label,
-    description,
-    error,
-    invalid,
-    labelPlacement = 'end',
-    disabled = false,
-    readOnly = false,
-    className,
-    style,
-    ...props
-  },
-  ref
-) {
-  const hasError = hasContent(error);
-  const isInvalid = invalid ?? hasError;
-  const family: PlassColor = isInvalid ? 'danger' : color;
+export const PlSwitch = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSwitchProps>(
+  function PlSwitch(
+    {
+      size = 'md',
+      color = 'primary',
+      label,
+      description,
+      error,
+      invalid,
+      labelPlacement = 'end',
+      disabled = false,
+      readOnly = false,
+      className,
+      style,
+      ...props
+    },
+    ref
+  ) {
+    const hasError = hasContent(error);
+    const isInvalid = invalid ?? hasError;
+    const family: PlassColor = isInvalid ? 'danger' : color;
 
-  const track = (
-    <span className="flex h-[1lh] shrink-0 items-center">
-      <BaseUISwitch.Root
-        ref={ref}
-        className={[
-          trackBaseClasses,
-          trackClasses[size],
-          disabled ? disabledTrackClasses : readOnly ? readOnlyTrackClasses : restTrackClasses
-        ].join(' ')}
+    const track = (
+      <span className="flex h-[1lh] shrink-0 items-center">
+        <BaseUISwitch.Root
+          ref={ref}
+          className={[
+            trackBaseClasses,
+            trackClasses[size],
+            disabled ? disabledTrackClasses : readOnly ? readOnlyTrackClasses : restTrackClasses
+          ].join(' ')}
+          disabled={disabled}
+          readOnly={readOnly}
+          {...props}
+        >
+          <BaseUISwitch.Thumb className={`${thumbClasses} ${thumbTravelClasses[size]}`} />
+        </BaseUISwitch.Root>
+      </span>
+    );
+
+    const text =
+      label || description ? (
+        <span
+          className={[
+            'flex min-w-0 flex-col gap-0.5',
+            // With the label on the left it has to take the slack, or the switch
+            // sits against the text instead of against the edge of the row.
+            labelPlacement === 'start' ? 'flex-1' : ''
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        >
+          {label ? (
+            <Field.Label
+              className={disabled ? 'text-(--plass-muted-fg)' : 'cursor-pointer text-(--plass-fg)'}
+            >
+              {label}
+            </Field.Label>
+          ) : null}
+          {description ? (
+            <Field.Description className={`${metaTextClasses[size]} text-(--plass-muted-fg)`}>
+              {description}
+            </Field.Description>
+          ) : null}
+        </span>
+      ) : null;
+
+    return (
+      <Field.Root
         disabled={disabled}
-        readOnly={readOnly}
-        {...props}
-      >
-        <BaseUISwitch.Thumb className={`${thumbClasses} ${thumbTravelClasses[size]}`} />
-      </BaseUISwitch.Root>
-    </span>
-  );
-
-  const text =
-    label || description ? (
-      <span
-        className={[
-          'flex min-w-0 flex-col gap-0.5',
-          // With the label on the left it has to take the slack, or the switch
-          // sits against the text instead of against the edge of the row.
-          labelPlacement === 'start' ? 'flex-1' : ''
-        ]
+        invalid={isInvalid}
+        className={['inline-flex flex-col gap-1 align-top', className ?? '']
           .filter(Boolean)
           .join(' ')}
+        // `solid`, because an on track *is* the coloured thing.
+        style={{ ...controlSlots(family, 0, 'solid'), ...style }}
       >
-        {label ? (
-          <Field.Label
-            className={disabled ? 'text-(--plass-muted-fg)' : 'cursor-pointer text-(--plass-fg)'}
-          >
-            {label}
-          </Field.Label>
-        ) : null}
-        {description ? (
-          <Field.Description className={`${metaTextClasses[size]} text-(--plass-muted-fg)`}>
-            {description}
-          </Field.Description>
-        ) : null}
-      </span>
-    ) : null;
+        <div className={`flex items-start gap-2.5 ${tickRowTextClasses[size]}`}>
+          {labelPlacement === 'start' ? (
+            <>
+              {text}
+              {track}
+            </>
+          ) : (
+            <>
+              {track}
+              {text}
+            </>
+          )}
+        </div>
 
-  return (
-    <Field.Root
-      disabled={disabled}
-      invalid={isInvalid}
-      className={['inline-flex flex-col gap-1 align-top', className ?? '']
-        .filter(Boolean)
-        .join(' ')}
-      // `solid`, because an on track *is* the coloured thing.
-      style={{ ...controlSlots(family, 0, 'solid'), ...style }}
-    >
-      <div className={`flex items-start gap-2.5 ${tickRowTextClasses[size]}`}>
-        {labelPlacement === 'start' ? (
-          <>
-            {text}
-            {track}
-          </>
-        ) : (
-          <>
-            {track}
-            {text}
-          </>
-        )}
-      </div>
-
-      {hasError ? (
-        <Field.Error match className={`${metaTextClasses[size]} text-(--p-accent)`}>
-          {error}
-        </Field.Error>
-      ) : null}
-    </Field.Root>
-  );
-});
+        {hasError ? (
+          <Field.Error match className={`${metaTextClasses[size]} text-(--p-accent)`}>
+            {error}
+          </Field.Error>
+        ) : null}
+      </Field.Root>
+    );
+  }
+);

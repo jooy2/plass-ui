@@ -105,13 +105,13 @@ const underlineClasses: Record<PlTextLinkUnderline, string> = {
  * and adding one there would put a property on every control in the library
  * that no control draws.
  */
-const transition = [
+const transition = /* @__PURE__ */ [
   '[transition-property:color,text-decoration-color]',
   '[transition-duration:var(--plass-duration)]',
   '[transition-timing-function:var(--plass-ease)]'
 ].join(' ');
 
-const baseClasses = [
+const baseClasses = /* @__PURE__ */ [
   // Both a style hook and the specificity. `styles.css` doubles this class to
   // write the parts of the line that never vary — its thickness, its offset,
   // its colour — above whatever the host page says about an `<a>`, and every
@@ -140,105 +140,107 @@ const baseClasses = [
  * new tab both visibly and for a screen reader, and it takes `render`, so the
  * `Link` a router brings can wear all of it.
  */
-export const PlTextLink = React.forwardRef<HTMLAnchorElement, PlTextLinkProps>(function PlTextLink(
-  {
-    href,
-    underline = 'always',
-    color,
-    size,
-    newTab = false,
-    icon,
-    newTabLabel = '(opens in a new tab)',
-    render,
-    className,
-    style,
-    children,
-    ...props
-  },
-  ref
-) {
-  // `icon` left out follows `newTab`, which is the whole reason it is not a
-  // plain boolean with a `false` default: a link that takes over the window
-  // should say so, and a caller should have to ask for the silent version.
-  const mark = icon ?? newTab;
-  const glyph = mark === true ? newTab ? <ExternalLinkIcon /> : <LinkIcon /> : mark;
-
-  const classNames = [
-    baseClasses,
-    size ? controlTextLeadingClasses[size] : '',
-    underlineClasses[underline],
-    color ? '[&.plass-link]:text-(--p-accent)' : '[&.plass-link]:text-inherit',
-    className ?? ''
-  ]
-    .filter(Boolean)
-    .join(' ');
-
-  /*
-   * The two line colours and the focus ring, as slots.
-   *
-   * `--p-ring` is set even when no family was asked for, because the ring is
-   * written as the `outline` shorthand and an undefined `var()` inside it
-   * makes the browser drop the whole declaration — an uncoloured link would
-   * lose its focus ring entirely rather than fall back to something plainer.
-   *
-   * The line rests at 45% of whatever the text is and goes to the full colour
-   * on hover, so it works the same on an inherited colour as on an accent one.
-   */
-  const slots = {
-    '--p-underline': 'color-mix(in oklab, currentColor 45%, transparent)',
-    '--p-underline-hover': 'currentColor',
-    '--p-ring': `var(--plass-${color ?? 'primary'}-ring)`,
-    ...(color ? { '--p-accent': `var(--plass-${color}-accent)` } : null)
-  } as React.CSSProperties;
-
-  /*
-   * `rel` is the one thing here a caller's own value is merged with rather
-   * than replaced by, and the reason is that the two purposes of the
-   * attribute have nothing to do with each other.
-   *
-   * `noopener` is what stops the new page reaching back through
-   * `window.opener`; `noreferrer` sits beside it for the browsers that still
-   * need the pair. The common reason to write a `rel` by hand is `nofollow`
-   * or `sponsored`, which is an SEO decision — and spelled as a plain
-   * override it would silently take the protection off a link that still
-   * opens in a new tab. Whatever was asked for is kept, with the two tokens
-   * added if they are not already there.
-   */
-  const { rel: askedFor, ...rest } = props;
-  const rel = newTab
-    ? [
-        ...new Set([...(askedFor ?? '').split(/\s+/).filter(Boolean), 'noopener', 'noreferrer'])
-      ].join(' ')
-    : askedFor;
-
-  return useRender({
-    render: render ?? <a />,
-    ref,
-    props: {
+export const PlTextLink = /* @__PURE__ */ React.forwardRef<HTMLAnchorElement, PlTextLinkProps>(
+  function PlTextLink(
+    {
       href,
-      target: newTab ? '_blank' : undefined,
-      className: classNames,
-      style: { ...slots, ...style },
-      children: (
-        <>
-          {children}
-          {glyph ? <span className="ms-[0.25em]">{glyph}</span> : null}
-          {/* Drawn for nobody and read to everybody: the arrow says "new tab"
+      underline = 'always',
+      color,
+      size,
+      newTab = false,
+      icon,
+      newTabLabel = '(opens in a new tab)',
+      render,
+      className,
+      style,
+      children,
+      ...props
+    },
+    ref
+  ) {
+    // `icon` left out follows `newTab`, which is the whole reason it is not a
+    // plain boolean with a `false` default: a link that takes over the window
+    // should say so, and a caller should have to ask for the silent version.
+    const mark = icon ?? newTab;
+    const glyph = mark === true ? newTab ? <ExternalLinkIcon /> : <LinkIcon /> : mark;
+
+    const classNames = [
+      baseClasses,
+      size ? controlTextLeadingClasses[size] : '',
+      underlineClasses[underline],
+      color ? '[&.plass-link]:text-(--p-accent)' : '[&.plass-link]:text-inherit',
+      className ?? ''
+    ]
+      .filter(Boolean)
+      .join(' ');
+
+    /*
+     * The two line colours and the focus ring, as slots.
+     *
+     * `--p-ring` is set even when no family was asked for, because the ring is
+     * written as the `outline` shorthand and an undefined `var()` inside it
+     * makes the browser drop the whole declaration — an uncoloured link would
+     * lose its focus ring entirely rather than fall back to something plainer.
+     *
+     * The line rests at 45% of whatever the text is and goes to the full colour
+     * on hover, so it works the same on an inherited colour as on an accent one.
+     */
+    const slots = {
+      '--p-underline': 'color-mix(in oklab, currentColor 45%, transparent)',
+      '--p-underline-hover': 'currentColor',
+      '--p-ring': `var(--plass-${color ?? 'primary'}-ring)`,
+      ...(color ? { '--p-accent': `var(--plass-${color}-accent)` } : null)
+    } as React.CSSProperties;
+
+    /*
+     * `rel` is the one thing here a caller's own value is merged with rather
+     * than replaced by, and the reason is that the two purposes of the
+     * attribute have nothing to do with each other.
+     *
+     * `noopener` is what stops the new page reaching back through
+     * `window.opener`; `noreferrer` sits beside it for the browsers that still
+     * need the pair. The common reason to write a `rel` by hand is `nofollow`
+     * or `sponsored`, which is an SEO decision — and spelled as a plain
+     * override it would silently take the protection off a link that still
+     * opens in a new tab. Whatever was asked for is kept, with the two tokens
+     * added if they are not already there.
+     */
+    const { rel: askedFor, ...rest } = props;
+    const rel = newTab
+      ? [
+          ...new Set([...(askedFor ?? '').split(/\s+/).filter(Boolean), 'noopener', 'noreferrer'])
+        ].join(' ')
+      : askedFor;
+
+    return useRender({
+      render: render ?? <a />,
+      ref,
+      props: {
+        href,
+        target: newTab ? '_blank' : undefined,
+        className: classNames,
+        style: { ...slots, ...style },
+        children: (
+          <>
+            {children}
+            {glyph ? <span className="ms-[0.25em]">{glyph}</span> : null}
+            {/* Drawn for nobody and read to everybody: the arrow says "new tab"
                 only to a reader who can see it. The space is a real text node,
                 so the accessible name comes out as two words rather than as the
                 label with a bracket stuck to the end of it. */}
-          {newTab ? (
-            <>
-              {' '}
-              <span className={srOnlyClasses}>{newTabLabel}</span>
-            </>
-          ) : null}
-        </>
-      ),
-      ...rest,
-      // After the spread on purpose: this is the merge above, not an override
-      // for a caller to win.
-      rel
-    }
-  });
-});
+            {newTab ? (
+              <>
+                {' '}
+                <span className={srOnlyClasses}>{newTabLabel}</span>
+              </>
+            ) : null}
+          </>
+        ),
+        ...rest,
+        // After the spread on purpose: this is the merge above, not an override
+        // for a caller to win.
+        rel
+      }
+    });
+  }
+);

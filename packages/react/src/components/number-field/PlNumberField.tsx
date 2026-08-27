@@ -143,7 +143,7 @@ export interface PlNumberFieldProps
 }
 
 /** The shell is a `PlTextField`'s, to the pixel — see `fieldRestClasses`. */
-const shellBaseClasses = [
+const shellBaseClasses = /* @__PURE__ */ [
   'group relative flex w-full cursor-text items-center',
   '[-webkit-tap-highlight-color:transparent]',
   transitionClasses,
@@ -159,7 +159,7 @@ const shellBaseClasses = [
  * No `transform` on it, the same rule every control in the library keeps: what
  * moves under the finger is the tint, not the button.
  */
-const stepperClasses = [
+const stepperClasses = /* @__PURE__ */ [
   'inline-flex size-[1.7em] shrink-0 cursor-pointer items-center justify-center',
   'rounded-(--plass-radius-xs) text-(--plass-muted-fg) select-none',
   '[&_svg]:size-[0.9em] [&_svg]:shrink-0',

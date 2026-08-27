@@ -20,7 +20,7 @@ interface PlassPaneContextValue {
   basis: string | null;
 }
 
-const PaneContext = React.createContext<PlassPaneContextValue>({ basis: null });
+const PaneContext = /* @__PURE__ */ React.createContext<PlassPaneContextValue>({ basis: null });
 
 export interface PlPanesProps extends Omit<React.ComponentPropsWithoutRef<'div'>, 'color'> {
   /**
@@ -162,324 +162,326 @@ function initialFractions(
  * to *be* `PlPane`s: the constraints are read off their props, and a pane wrapped
  * in something else is a pane with no minimum.
  */
-export const PlPanes = React.forwardRef<HTMLDivElement, PlPanesProps>(function PlPanes(
-  {
-    orientation = 'horizontal',
-    resizable = true,
-    color = 'primary',
-    size = 'md',
-    onResize,
-    onResizeEnd,
-    className,
-    style,
-    children,
-    ...props
-  },
-  ref
-) {
-  const items = React.Children.toArray(children).filter(
-    React.isValidElement
-  ) as React.ReactElement<PlPaneProps>[];
-  const count = items.length;
-
-  const rootRef = React.useRef<HTMLDivElement | null>(null);
-  const setRootRef = React.useCallback(
-    (node: HTMLDivElement | null) => {
-      rootRef.current = node;
-      if (typeof ref === 'function') ref(node);
-      else if (ref) ref.current = node;
+export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesProps>(
+  function PlPanes(
+    {
+      orientation = 'horizontal',
+      resizable = true,
+      color = 'primary',
+      size = 'md',
+      onResize,
+      onResizeEnd,
+      className,
+      style,
+      children,
+      ...props
     },
-    [ref]
-  );
+    ref
+  ) {
+    const items = React.Children.toArray(children).filter(
+      React.isValidElement
+    ) as React.ReactElement<PlPaneProps>[];
+    const count = items.length;
 
-  // The constraints are read during render and used inside pointer handlers that
-  // outlive it, so they go through a ref rather than through the closure.
-  const constraintsRef = React.useRef<PlPaneProps[]>([]);
-  constraintsRef.current = items.map((item) => item.props);
-
-  const [stored, setFractions] = React.useState<number[] | null>(null);
-  // A pane added or removed leaves the stored split a render behind the children
-  // — the effect below re-splits, but the render in between would be reading a
-  // share off the end of the list. Until the two agree, nobody has a size and
-  // every pane falls back to an even share.
-  const fractions = stored && stored.length === count ? stored : null;
-  const fractionsRef = React.useRef<number[] | null>(null);
-  fractionsRef.current = fractions;
-
-  const horizontal = orientation === 'horizontal';
-  const gutter = handleTrackValues[size] * Math.max(0, count - 1);
-
-  /*
-   * One measurement, for one purpose: turning a `defaultSize` written as a
-   * length into a fraction. It is an observer rather than a single read because
-   * a split inside a closed `PlAccordion` or an unselected `PlTab` is zero wide when
-   * it mounts, and dividing by that would put every pane at nothing.
-   */
-  React.useEffect(() => {
-    const root = rootRef.current;
-    if (!root) return;
-
-    const measure = () => {
-      const rect = root.getBoundingClientRect();
-      const extent = (horizontal ? rect.width : rect.height) - gutter;
-      if (extent <= 0) return;
-
-      setFractions((previous) =>
-        previous && previous.length === count
-          ? previous
-          : initialFractions(constraintsRef.current, extent, root)
-      );
-    };
-
-    measure();
-
-    const observer = new ResizeObserver(measure);
-    observer.observe(root);
-
-    return () => observer.disconnect();
-  }, [count, horizontal, gutter]);
-
-  /**
-   * Everything a drag needs to know, measured at the moment it starts.
-   *
-   * A drag only ever moves the boundary between two panes, so their total is
-   * fixed and one pane's floor is the other's ceiling. Folding all four bounds
-   * into a single range on the first of the pair is what keeps every move to one
-   * clamp and one division.
-   */
-  function grip(index: number) {
-    const root = rootRef.current;
-    const current = fractionsRef.current;
-    if (!resizable || !root || !current || current[index + 1] === undefined) return null;
-
-    const rect = root.getBoundingClientRect();
-    const extent = (horizontal ? rect.width : rect.height) - gutter;
-    if (extent <= 0) return null;
-
-    const before = constraintsRef.current[index];
-    const after = constraintsRef.current[index + 1];
-    const start = current[index] * extent;
-    const pair = start + current[index + 1] * extent;
-
-    const lower = Math.max(
-      toPixels(before?.minSize, extent, root) ?? 0,
-      pair - (toPixels(after?.maxSize, extent, root) ?? pair)
-    );
-    const upper = Math.min(
-      toPixels(before?.maxSize, extent, root) ?? pair,
-      pair - (toPixels(after?.minSize, extent, root) ?? 0)
+    const rootRef = React.useRef<HTMLDivElement | null>(null);
+    const setRootRef = React.useCallback(
+      (node: HTMLDivElement | null) => {
+        rootRef.current = node;
+        if (typeof ref === 'function') ref(node);
+        else if (ref) ref.current = node;
+      },
+      [ref]
     );
 
-    if (upper < lower) return null;
+    // The constraints are read during render and used inside pointer handlers that
+    // outlive it, so they go through a ref rather than through the closure.
+    const constraintsRef = React.useRef<PlPaneProps[]>([]);
+    constraintsRef.current = items.map((item) => item.props);
 
-    return {
-      root,
-      current,
-      extent,
-      start,
-      pair,
-      resize(delta: number) {
-        const sized = Math.min(upper, Math.max(lower, start + delta));
-        const next = [...current];
-        next[index] = sized / extent;
-        next[index + 1] = (pair - sized) / extent;
+    const [stored, setFractions] = React.useState<number[] | null>(null);
+    // A pane added or removed leaves the stored split a render behind the children
+    // — the effect below re-splits, but the render in between would be reading a
+    // share off the end of the list. Until the two agree, nobody has a size and
+    // every pane falls back to an even share.
+    const fractions = stored && stored.length === count ? stored : null;
+    const fractionsRef = React.useRef<number[] | null>(null);
+    fractionsRef.current = fractions;
 
-        setFractions(next);
-        onResize?.(next.map((fraction) => fraction * 100));
-
-        return next;
-      }
-    };
-  }
-
-  /**
-   * How to take a drag in flight apart, held for as long as one is running.
-   *
-   * A drag is torn down by the `pointerup` that ends it, and that event never
-   * arrives if the split goes away first — a route change, a closed accordion, a
-   * pane list that shrank. What is left behind is not only two listeners on a
-   * detached node: the drag takes the whole document's text selection away while
-   * it runs, and nothing else ever puts it back.
-   */
-  const teardownRef = React.useRef<(() => void) | null>(null);
-
-  React.useEffect(() => () => teardownRef.current?.(), []);
-
-  function beginDrag(index: number, event: React.PointerEvent<HTMLDivElement>) {
-    const held = grip(index);
-    if (!held) return;
-
-    const handle = event.currentTarget;
-    handle.setPointerCapture(event.pointerId);
-    handle.dataset.dragging = 'true';
+    const horizontal = orientation === 'horizontal';
+    const gutter = handleTrackValues[size] * Math.max(0, count - 1);
 
     /*
-     * A drag across a page selects the text it passes over, and the obvious cure
-     * — `preventDefault` on the press — also stops the browser focusing the
-     * handle, which leaves the component focusing it by hand and every mouse
-     * press wearing a keyboard focus ring. Taking the selection off the document
-     * for the length of the drag fixes the selection without touching the focus.
-     *
-     * The property is written prefixed and through `setProperty`, because WebKit
-     * implements only `-webkit-user-select`: it has no `userSelect` on a style
-     * declaration, so `style.userSelect = 'none'` hangs a plain JS property off
-     * the object, changes nothing, and Safari selects text through the whole
-     * drag. Chromium and Firefox both read the prefixed name as the standard
-     * one. This is what Tailwind's own `select-none` emits, for the same reason.
+     * One measurement, for one purpose: turning a `defaultSize` written as a
+     * length into a fraction. It is an observer rather than a single read because
+     * a split inside a closed `PlAccordion` or an unselected `PlTab` is zero wide when
+     * it mounts, and dividing by that would put every pane at nothing.
      */
-    const selection = document.body.style.getPropertyValue('-webkit-user-select');
-    document.body.style.setProperty('-webkit-user-select', 'none');
+    React.useEffect(() => {
+      const root = rootRef.current;
+      if (!root) return;
 
-    const origin = horizontal ? event.clientX : event.clientY;
-    // Positive is always "toward the end", so a drag under RTL moves the
-    // boundary the way the pointer went rather than the way the axis is numbered.
-    const towardsEnd = horizontal && getComputedStyle(held.root).direction === 'rtl' ? -1 : 1;
+      const measure = () => {
+        const rect = root.getBoundingClientRect();
+        const extent = (horizontal ? rect.width : rect.height) - gutter;
+        if (extent <= 0) return;
 
-    let latest = held.current;
+        setFractions((previous) =>
+          previous && previous.length === count
+            ? previous
+            : initialFractions(constraintsRef.current, extent, root)
+        );
+      };
 
-    const move = (moveEvent: PointerEvent) => {
-      const position = horizontal ? moveEvent.clientX : moveEvent.clientY;
-      latest = held.resize((position - origin) * towardsEnd);
-    };
+      measure();
 
-    // Everything the drag took from outside itself, given back. Split from `end`
-    // because unmounting has to run this half and must not run the other: a
-    // component that disappeared did not finish resizing, and telling a caller it
-    // did would set state on the way out of the tree.
-    const release = () => {
-      teardownRef.current = null;
-      handle.removeEventListener('pointermove', move);
-      handle.removeEventListener('pointerup', end);
-      handle.removeEventListener('pointercancel', end);
-      delete handle.dataset.dragging;
+      const observer = new ResizeObserver(measure);
+      observer.observe(root);
 
-      // Removed rather than set back to '', so a page that never wrote the
-      // property inline is left with the declaration it actually had.
-      if (selection) document.body.style.setProperty('-webkit-user-select', selection);
-      else document.body.style.removeProperty('-webkit-user-select');
-    };
+      return () => observer.disconnect();
+    }, [count, horizontal, gutter]);
 
-    const end = () => {
-      release();
-      onResizeEnd?.(latest.map((fraction) => fraction * 100));
-    };
+    /**
+     * Everything a drag needs to know, measured at the moment it starts.
+     *
+     * A drag only ever moves the boundary between two panes, so their total is
+     * fixed and one pane's floor is the other's ceiling. Folding all four bounds
+     * into a single range on the first of the pair is what keeps every move to one
+     * clamp and one division.
+     */
+    function grip(index: number) {
+      const root = rootRef.current;
+      const current = fractionsRef.current;
+      if (!resizable || !root || !current || current[index + 1] === undefined) return null;
 
-    teardownRef.current = release;
-    handle.addEventListener('pointermove', move);
-    handle.addEventListener('pointerup', end);
-    handle.addEventListener('pointercancel', end);
-  }
+      const rect = root.getBoundingClientRect();
+      const extent = (horizontal ? rect.width : rect.height) - gutter;
+      if (extent <= 0) return null;
 
-  function nudge(index: number, pixels: number) {
-    const held = grip(index);
-    if (!held) return;
+      const before = constraintsRef.current[index];
+      const after = constraintsRef.current[index + 1];
+      const start = current[index] * extent;
+      const pair = start + current[index + 1] * extent;
 
-    const next = held.resize(pixels);
-    // A key press is a whole gesture on its own — there is no "let go" to wait
-    // for, so the settled callback fires with it.
-    onResizeEnd?.(next.map((fraction) => fraction * 100));
-  }
+      const lower = Math.max(
+        toPixels(before?.minSize, extent, root) ?? 0,
+        pair - (toPixels(after?.maxSize, extent, root) ?? pair)
+      );
+      const upper = Math.min(
+        toPixels(before?.maxSize, extent, root) ?? pair,
+        pair - (toPixels(after?.minSize, extent, root) ?? 0)
+      );
 
-  const handleClassNames = cx(
-    'group/handle relative z-1 flex shrink-0 grow-0 items-center justify-center',
-    handleTrackClasses[size],
-    transitionClasses,
-    '[outline:none] focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-0',
-    resizable
-      ? cx(
-          horizontal ? 'cursor-col-resize' : 'cursor-row-resize',
-          'hover:bg-(--p-soft) data-[dragging]:bg-(--p-soft)'
-        )
-      : ''
-  );
+      if (upper < lower) return null;
 
-  return (
-    <div
-      ref={setRootRef}
-      className={cx(
-        'flex h-full w-full',
-        horizontal ? 'flex-row' : 'flex-col',
-        // A flex item refuses to go below its content's intrinsic size unless it
-        // is told to, which is what turns a pane holding a long line into a pane
-        // that cannot be dragged narrower.
-        'min-h-0 min-w-0',
-        className
-      )}
-      // Three slots rather than the whole `surfaceSlots` set: a split draws no
-      // sheet, so the family only ever shows up in the handle's hairline, the
-      // tint under a hovered handle and the focus ring.
-      style={
-        {
-          '--p-accent': `var(--plass-${color}-accent)`,
-          '--p-soft': `var(--plass-${color}-soft)`,
-          '--p-ring': `var(--plass-${color}-ring)`,
-          ...style
-        } as React.CSSProperties
-      }
-      {...props}
-    >
-      {items.map((item, index) => (
-        <React.Fragment key={item.key ?? index}>
-          {index > 0 ? (
-            <div
-              role="separator"
-              aria-orientation={horizontal ? 'vertical' : 'horizontal'}
-              aria-valuenow={fractions ? Math.round(fractions[index - 1] * 100) : undefined}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-disabled={!resizable || undefined}
-              tabIndex={resizable ? 0 : -1}
-              className={handleClassNames}
-              // No `preventDefault` and no explicit focus: the browser focuses
-              // the handle on a press by itself, and it knows that a press is
-              // not a keystroke — which is what keeps the focus ring off a
-              // handle somebody merely dragged. `beginDrag` takes the page's
-              // text selection away for the length of the drag instead.
-              onPointerDown={(event) => {
-                if (event.button !== 0) return;
-                beginDrag(index - 1, event);
-              }}
-              onKeyDown={(event) => {
-                const back = horizontal ? 'ArrowLeft' : 'ArrowUp';
-                const forward = horizontal ? 'ArrowRight' : 'ArrowDown';
-                if (event.key !== back && event.key !== forward) return;
-                event.preventDefault();
-                nudge(index - 1, event.key === forward ? KEYBOARD_STEP : -KEYBOARD_STEP);
-              }}
-            >
-              {/*
+      return {
+        root,
+        current,
+        extent,
+        start,
+        pair,
+        resize(delta: number) {
+          const sized = Math.min(upper, Math.max(lower, start + delta));
+          const next = [...current];
+          next[index] = sized / extent;
+          next[index + 1] = (pair - sized) / extent;
+
+          setFractions(next);
+          onResize?.(next.map((fraction) => fraction * 100));
+
+          return next;
+        }
+      };
+    }
+
+    /**
+     * How to take a drag in flight apart, held for as long as one is running.
+     *
+     * A drag is torn down by the `pointerup` that ends it, and that event never
+     * arrives if the split goes away first — a route change, a closed accordion, a
+     * pane list that shrank. What is left behind is not only two listeners on a
+     * detached node: the drag takes the whole document's text selection away while
+     * it runs, and nothing else ever puts it back.
+     */
+    const teardownRef = React.useRef<(() => void) | null>(null);
+
+    React.useEffect(() => () => teardownRef.current?.(), []);
+
+    function beginDrag(index: number, event: React.PointerEvent<HTMLDivElement>) {
+      const held = grip(index);
+      if (!held) return;
+
+      const handle = event.currentTarget;
+      handle.setPointerCapture(event.pointerId);
+      handle.dataset.dragging = 'true';
+
+      /*
+       * A drag across a page selects the text it passes over, and the obvious cure
+       * — `preventDefault` on the press — also stops the browser focusing the
+       * handle, which leaves the component focusing it by hand and every mouse
+       * press wearing a keyboard focus ring. Taking the selection off the document
+       * for the length of the drag fixes the selection without touching the focus.
+       *
+       * The property is written prefixed and through `setProperty`, because WebKit
+       * implements only `-webkit-user-select`: it has no `userSelect` on a style
+       * declaration, so `style.userSelect = 'none'` hangs a plain JS property off
+       * the object, changes nothing, and Safari selects text through the whole
+       * drag. Chromium and Firefox both read the prefixed name as the standard
+       * one. This is what Tailwind's own `select-none` emits, for the same reason.
+       */
+      const selection = document.body.style.getPropertyValue('-webkit-user-select');
+      document.body.style.setProperty('-webkit-user-select', 'none');
+
+      const origin = horizontal ? event.clientX : event.clientY;
+      // Positive is always "toward the end", so a drag under RTL moves the
+      // boundary the way the pointer went rather than the way the axis is numbered.
+      const towardsEnd = horizontal && getComputedStyle(held.root).direction === 'rtl' ? -1 : 1;
+
+      let latest = held.current;
+
+      const move = (moveEvent: PointerEvent) => {
+        const position = horizontal ? moveEvent.clientX : moveEvent.clientY;
+        latest = held.resize((position - origin) * towardsEnd);
+      };
+
+      // Everything the drag took from outside itself, given back. Split from `end`
+      // because unmounting has to run this half and must not run the other: a
+      // component that disappeared did not finish resizing, and telling a caller it
+      // did would set state on the way out of the tree.
+      const release = () => {
+        teardownRef.current = null;
+        handle.removeEventListener('pointermove', move);
+        handle.removeEventListener('pointerup', end);
+        handle.removeEventListener('pointercancel', end);
+        delete handle.dataset.dragging;
+
+        // Removed rather than set back to '', so a page that never wrote the
+        // property inline is left with the declaration it actually had.
+        if (selection) document.body.style.setProperty('-webkit-user-select', selection);
+        else document.body.style.removeProperty('-webkit-user-select');
+      };
+
+      const end = () => {
+        release();
+        onResizeEnd?.(latest.map((fraction) => fraction * 100));
+      };
+
+      teardownRef.current = release;
+      handle.addEventListener('pointermove', move);
+      handle.addEventListener('pointerup', end);
+      handle.addEventListener('pointercancel', end);
+    }
+
+    function nudge(index: number, pixels: number) {
+      const held = grip(index);
+      if (!held) return;
+
+      const next = held.resize(pixels);
+      // A key press is a whole gesture on its own — there is no "let go" to wait
+      // for, so the settled callback fires with it.
+      onResizeEnd?.(next.map((fraction) => fraction * 100));
+    }
+
+    const handleClassNames = cx(
+      'group/handle relative z-1 flex shrink-0 grow-0 items-center justify-center',
+      handleTrackClasses[size],
+      transitionClasses,
+      '[outline:none] focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-0',
+      resizable
+        ? cx(
+            horizontal ? 'cursor-col-resize' : 'cursor-row-resize',
+            'hover:bg-(--p-soft) data-[dragging]:bg-(--p-soft)'
+          )
+        : ''
+    );
+
+    return (
+      <div
+        ref={setRootRef}
+        className={cx(
+          'flex h-full w-full',
+          horizontal ? 'flex-row' : 'flex-col',
+          // A flex item refuses to go below its content's intrinsic size unless it
+          // is told to, which is what turns a pane holding a long line into a pane
+          // that cannot be dragged narrower.
+          'min-h-0 min-w-0',
+          className
+        )}
+        // Three slots rather than the whole `surfaceSlots` set: a split draws no
+        // sheet, so the family only ever shows up in the handle's hairline, the
+        // tint under a hovered handle and the focus ring.
+        style={
+          {
+            '--p-accent': `var(--plass-${color}-accent)`,
+            '--p-soft': `var(--plass-${color}-soft)`,
+            '--p-ring': `var(--plass-${color}-ring)`,
+            ...style
+          } as React.CSSProperties
+        }
+        {...props}
+      >
+        {items.map((item, index) => (
+          <React.Fragment key={item.key ?? index}>
+            {index > 0 ? (
+              <div
+                role="separator"
+                aria-orientation={horizontal ? 'vertical' : 'horizontal'}
+                aria-valuenow={fractions ? Math.round(fractions[index - 1] * 100) : undefined}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-disabled={!resizable || undefined}
+                tabIndex={resizable ? 0 : -1}
+                className={handleClassNames}
+                // No `preventDefault` and no explicit focus: the browser focuses
+                // the handle on a press by itself, and it knows that a press is
+                // not a keystroke — which is what keeps the focus ring off a
+                // handle somebody merely dragged. `beginDrag` takes the page's
+                // text selection away for the length of the drag instead.
+                onPointerDown={(event) => {
+                  if (event.button !== 0) return;
+                  beginDrag(index - 1, event);
+                }}
+                onKeyDown={(event) => {
+                  const back = horizontal ? 'ArrowLeft' : 'ArrowUp';
+                  const forward = horizontal ? 'ArrowRight' : 'ArrowDown';
+                  if (event.key !== back && event.key !== forward) return;
+                  event.preventDefault();
+                  nudge(index - 1, event.key === forward ? KEYBOARD_STEP : -KEYBOARD_STEP);
+                }}
+              >
+                {/*
                 The hairline, drawn down the middle of the track. It changes
                 colour and nothing else — the track it sits in has a fixed width,
                 so nothing either side of it moves when the pointer arrives.
               */}
-              <span
-                aria-hidden="true"
-                className={cx(
-                  'pointer-events-none bg-(--plass-border)',
-                  transitionClasses,
-                  horizontal ? 'h-full w-px' : 'h-px w-full',
-                  resizable
-                    ? 'group-hover/handle:bg-(--p-accent) group-focus-visible/handle:bg-(--p-accent) group-data-[dragging]/handle:bg-(--p-accent)'
-                    : ''
-                )}
-              />
-            </div>
-          ) : null}
+                <span
+                  aria-hidden="true"
+                  className={cx(
+                    'pointer-events-none bg-(--plass-border)',
+                    transitionClasses,
+                    horizontal ? 'h-full w-px' : 'h-px w-full',
+                    resizable
+                      ? 'group-hover/handle:bg-(--p-accent) group-focus-visible/handle:bg-(--p-accent) group-data-[dragging]/handle:bg-(--p-accent)'
+                      : ''
+                  )}
+                />
+              </div>
+            ) : null}
 
-          <PaneContext.Provider
-            value={{
-              basis: fractions
-                ? `calc((100% - ${gutter}px) * ${fractions[index].toFixed(6)})`
-                : null
-            }}
-          >
-            {item}
-          </PaneContext.Provider>
-        </React.Fragment>
-      ))}
-    </div>
-  );
-});
+            <PaneContext.Provider
+              value={{
+                basis: fractions
+                  ? `calc((100% - ${gutter}px) * ${fractions[index].toFixed(6)})`
+                  : null
+              }}
+            >
+              {item}
+            </PaneContext.Provider>
+          </React.Fragment>
+        ))}
+      </div>
+    );
+  }
+);
 
 /**
  * One region of a split.
@@ -492,7 +494,7 @@ export const PlPanes = React.forwardRef<HTMLDivElement, PlPanesProps>(function P
  * `defaultSize`, `minSize` and `maxSize` are read by the `PlPanes` around it
  * rather than used here — a pane cannot know what "half" is, only the split can.
  */
-export const PlPane = React.forwardRef<HTMLDivElement, PlPaneProps>(function PlPane(
+export const PlPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPaneProps>(function PlPane(
   // The three sizing props are named here only so they are taken out of the
   // rest, which is spread onto a `<div>` — `defaultSize` on a div is an
   // attribute React does not know and would hand straight to the DOM.

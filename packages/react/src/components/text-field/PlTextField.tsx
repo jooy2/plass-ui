@@ -127,7 +127,7 @@ const resizeClasses: Record<PlTextFieldResize, string> = {
   both: 'resize'
 };
 
-const shellBaseClasses = [
+const shellBaseClasses = /* @__PURE__ */ [
   // `group` so the adornments can answer the control's focus; `cursor-text`
   // because the whole shell behaves as the field, padding included.
   'group relative flex w-full cursor-text',
@@ -147,7 +147,7 @@ const shellBaseClasses = [
 const restClasses = fieldRestClasses;
 const readOnlyClasses = fieldReadOnlyClasses;
 
-export const PlTextField = React.forwardRef<
+export const PlTextField = /* @__PURE__ */ React.forwardRef<
   HTMLInputElement | HTMLTextAreaElement,
   PlTextFieldProps
 >(function PlTextField(

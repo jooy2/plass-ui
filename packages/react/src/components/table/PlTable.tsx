@@ -144,7 +144,7 @@ const tableStyle: React.CSSProperties = {
   borderSpacing: 0
 };
 
-const rowClasses = [
+const rowClasses = /* @__PURE__ */ [
   '[--p-row:transparent]',
   '[transition:background-color_var(--plass-duration)_var(--plass-ease)]'
 ].join(' ');
@@ -163,7 +163,10 @@ const rowClasses = [
  * inside from the table they belong to, and costs a screen reader the column
  * headers, the row position and the count.
  */
-const clickableRowClasses = ['cursor-pointer [outline:none]', focusRingInsetClasses].join(' ');
+const clickableRowClasses = /* @__PURE__ */ [
+  'cursor-pointer [outline:none]',
+  focusRingInsetClasses
+].join(' ');
 
 /**
  * Two weights of rule, and the whole of the table's structure.

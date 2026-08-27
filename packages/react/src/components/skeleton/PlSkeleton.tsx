@@ -154,84 +154,86 @@ function length(value: number | string | undefined): string | undefined {
  * so a `md` line is as tall as `md` type and a `md` circle is exactly a
  * `PlAvatar` at `md`.
  */
-export const PlSkeleton = React.forwardRef<HTMLDivElement, PlSkeletonProps>(function PlSkeleton(
-  {
-    shape = 'line',
-    lines = 1,
-    size = 'md',
-    color = 'secondary',
-    width,
-    height,
-    animated = true,
-    label,
-    render,
-    className,
-    style,
-    ...props
-  },
-  ref
-) {
-  // The sweep lives in `styles.css` rather than in an arbitrary variant for the
-  // reason `.plass-glow` does: a keyframe is not a Tailwind variant, so there is
-  // nothing to express one with.
-  const sweep = animated ? 'plass-skeleton' : '';
-
-  const shapeClasses =
-    shape === 'circle'
-      ? `shrink-0 rounded-full ${controlHeightClasses[size]} ${controlSquareClasses[size]}`
-      : shape === 'rect'
-        ? `w-full ${blockRadiusClasses[size]} ${height === undefined ? blockHeightClasses[size] : ''}`
-        : `w-full ${barRadiusClasses[size]} ${lineHeightClasses[size]}`;
-
-  // Unlabelled it is scenery and says nothing; labelled it is the one element
-  // that reports the wait for the region around it.
-  const announce = label
-    ? ({ role: 'status', 'aria-busy': true, 'aria-label': label } as const)
-    : ({ 'aria-hidden': true } as const);
-
-  // A run of lines is a stack of bars rather than one box, so the gaps between
-  // them are real gaps: text has leading, and a striped gradient would not
-  // survive a caller putting the block in a flex row. The root then holds only
-  // the stacking, which is why it drops the fill and the sweep.
-  const stacked = shape === 'line' && lines > 1;
-
-  return useRender({
-    render,
-    ref,
-    props: {
-      className: (stacked
-        ? ['flex w-full flex-col', lineGapClasses[size], className ?? '']
-        : [fillClasses, sweep, shapeClasses, className ?? '']
-      )
-        .filter(Boolean)
-        .join(' '),
-      style: {
-        ...surfaceSlots(color, 0),
-        width: length(width),
-        height: length(height),
-        ...style
-      },
-      ...announce,
-      ...(stacked
-        ? {
-            children: Array.from({ length: lines }, (_, index) => (
-              <div
-                key={index}
-                className={[
-                  fillClasses,
-                  sweep,
-                  barRadiusClasses[size],
-                  lineHeightClasses[size],
-                  // The last line of a paragraph does not reach the margin.
-                  index === lines - 1 ? 'w-3/5' : 'w-full'
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-              />
-            ))
-          }
-        : null),
+export const PlSkeleton = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSkeletonProps>(
+  function PlSkeleton(
+    {
+      shape = 'line',
+      lines = 1,
+      size = 'md',
+      color = 'secondary',
+      width,
+      height,
+      animated = true,
+      label,
+      render,
+      className,
+      style,
       ...props
-    }
-  });
-});
+    },
+    ref
+  ) {
+    // The sweep lives in `styles.css` rather than in an arbitrary variant for the
+    // reason `.plass-glow` does: a keyframe is not a Tailwind variant, so there is
+    // nothing to express one with.
+    const sweep = animated ? 'plass-skeleton' : '';
+
+    const shapeClasses =
+      shape === 'circle'
+        ? `shrink-0 rounded-full ${controlHeightClasses[size]} ${controlSquareClasses[size]}`
+        : shape === 'rect'
+          ? `w-full ${blockRadiusClasses[size]} ${height === undefined ? blockHeightClasses[size] : ''}`
+          : `w-full ${barRadiusClasses[size]} ${lineHeightClasses[size]}`;
+
+    // Unlabelled it is scenery and says nothing; labelled it is the one element
+    // that reports the wait for the region around it.
+    const announce = label
+      ? ({ role: 'status', 'aria-busy': true, 'aria-label': label } as const)
+      : ({ 'aria-hidden': true } as const);
+
+    // A run of lines is a stack of bars rather than one box, so the gaps between
+    // them are real gaps: text has leading, and a striped gradient would not
+    // survive a caller putting the block in a flex row. The root then holds only
+    // the stacking, which is why it drops the fill and the sweep.
+    const stacked = shape === 'line' && lines > 1;
+
+    return useRender({
+      render,
+      ref,
+      props: {
+        className: (stacked
+          ? ['flex w-full flex-col', lineGapClasses[size], className ?? '']
+          : [fillClasses, sweep, shapeClasses, className ?? '']
+        )
+          .filter(Boolean)
+          .join(' '),
+        style: {
+          ...surfaceSlots(color, 0),
+          width: length(width),
+          height: length(height),
+          ...style
+        },
+        ...announce,
+        ...(stacked
+          ? {
+              children: Array.from({ length: lines }, (_, index) => (
+                <div
+                  key={index}
+                  className={[
+                    fillClasses,
+                    sweep,
+                    barRadiusClasses[size],
+                    lineHeightClasses[size],
+                    // The last line of a paragraph does not reach the margin.
+                    index === lines - 1 ? 'w-3/5' : 'w-full'
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                />
+              ))
+            }
+          : null),
+        ...props
+      }
+    });
+  }
+);

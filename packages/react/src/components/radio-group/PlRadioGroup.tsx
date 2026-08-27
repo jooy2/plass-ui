@@ -29,7 +29,7 @@ interface RadioGroupContextValue {
   readOnly: boolean;
 }
 
-const RadioGroupContext = React.createContext<RadioGroupContextValue>({
+const RadioGroupContext = /* @__PURE__ */ React.createContext<RadioGroupContextValue>({
   size: 'md',
   color: 'primary',
   readOnly: false
@@ -83,7 +83,7 @@ export interface PlRadioProps extends Omit<
  * these", and it is the one convention old enough that breaking it would cost
  * more than it bought.
  */
-const dotBaseClasses = [
+const dotBaseClasses = /* @__PURE__ */ [
   'relative inline-flex shrink-0 items-center justify-center rounded-full border',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
   transitionClasses,
@@ -102,7 +102,7 @@ const dotBaseClasses = [
  * than on the page wash — and a tick nobody can see is a control nobody can
  * find. A neutral hairline reads on both.
  */
-const restDotClasses = [
+const restDotClasses = /* @__PURE__ */ [
   glassClasses,
   'cursor-pointer bg-(--plass-glass) [border-color:var(--plass-border)]',
   'hover:bg-(--plass-glass-hover) hover:[border-color:var(--p-line)]',
@@ -110,7 +110,7 @@ const restDotClasses = [
   'data-[checked]:[border-color:transparent] data-[checked]:hover:brightness-105'
 ].join(' ');
 
-const readOnlyDotClasses = [
+const readOnlyDotClasses = /* @__PURE__ */ [
   glassClasses,
   'cursor-default bg-(--plass-glass) [border-color:var(--plass-border)]',
   'saturate-[0.55]',
@@ -118,7 +118,7 @@ const readOnlyDotClasses = [
   'data-[checked]:[border-color:transparent]'
 ].join(' ');
 
-const disabledDotClasses = [
+const disabledDotClasses = /* @__PURE__ */ [
   glassClasses,
   'cursor-not-allowed bg-(--plass-glass) [border-color:var(--plass-border)]',
   'opacity-50 saturate-[0.35]',
@@ -136,7 +136,7 @@ const indicatorClasses = 'rounded-full bg-current';
  * is the only place they can be set once and mean the same thing for every
  * option in the set.
  */
-export const PlRadio = React.forwardRef<HTMLElement, PlRadioProps>(function PlRadio(
+export const PlRadio = /* @__PURE__ */ React.forwardRef<HTMLElement, PlRadioProps>(function PlRadio(
   { label, description, disabled = false, className, style, ...props },
   ref
 ) {
@@ -202,7 +202,7 @@ export const PlRadio = React.forwardRef<HTMLElement, PlRadioProps>(function PlRa
  * whole reason a radio group is a component at all rather than a `<div>` full of
  * inputs: the set takes one tab stop, and the arrows move within it.
  */
-export const PlRadioGroup = React.forwardRef<HTMLDivElement, PlRadioGroupProps>(
+export const PlRadioGroup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlRadioGroupProps>(
   function PlRadioGroup(
     {
       size = 'md',

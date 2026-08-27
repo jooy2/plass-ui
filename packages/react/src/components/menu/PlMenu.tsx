@@ -190,7 +190,7 @@ export type PlMenuSeparatorProps = React.ComponentPropsWithoutRef<'div'>;
  * select *is* a menu that remembers what you picked, and two floating lists of
  * rows that do not match are two lists the eye has to learn separately.
  */
-const popupClasses = [
+const popupClasses = /* @__PURE__ */ [
   glassClasses,
   'max-h-[min(24rem,var(--available-height))] min-w-40 overflow-y-auto overscroll-contain',
   'border bg-(--plass-glass-press) p-1',

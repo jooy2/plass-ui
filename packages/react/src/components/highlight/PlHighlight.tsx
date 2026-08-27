@@ -257,68 +257,70 @@ function markNode(
  * function of `children` and `query`, so it re-marks on its own the moment the
  * search box changes.
  */
-export const PlHighlight = React.forwardRef<HTMLSpanElement, PlHighlightProps>(function PlHighlight(
-  {
-    query,
-    variant = 'solid',
-    color = 'warning',
-    caseSensitive = false,
-    wholeWord = false,
-    underline = false,
-    weight,
-    className,
-    style,
-    children,
-    ...props
-  },
-  ref
-) {
-  const pattern = React.useMemo(() => buildPattern(query, caseSensitive), [query, caseSensitive]);
+export const PlHighlight = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlHighlightProps>(
+  function PlHighlight(
+    {
+      query,
+      variant = 'solid',
+      color = 'warning',
+      caseSensitive = false,
+      wholeWord = false,
+      underline = false,
+      weight,
+      className,
+      style,
+      children,
+      ...props
+    },
+    ref
+  ) {
+    const pattern = React.useMemo(() => buildPattern(query, caseSensitive), [query, caseSensitive]);
 
-  const markClasses = [
-    // A hair of padding so the surface does not sit flush against the letters,
-    // and the same hair back out as a negative margin so the marked line is the
-    // same length as it was before. A mark must not move the text around it.
-    '-mx-0.5 rounded-[0.25rem] px-0.5',
-    // A mark that wraps across two lines gets its corners on both fragments
-    // rather than one long box with two square ends.
-    'box-decoration-clone',
-    variantClasses[variant],
-    // `decoration-2` and the offset so the rule sits under the descenders rather
-    // than through them, which is the whole difference between an underline and
-    // a strikethrough that missed.
-    underline ? 'underline decoration-2 underline-offset-2' : '',
-    weight ? weightClasses[weight] : '',
-    transitionClasses
-  ]
-    .filter(Boolean)
-    .join(' ');
+    const markClasses = [
+      // A hair of padding so the surface does not sit flush against the letters,
+      // and the same hair back out as a negative margin so the marked line is the
+      // same length as it was before. A mark must not move the text around it.
+      '-mx-0.5 rounded-[0.25rem] px-0.5',
+      // A mark that wraps across two lines gets its corners on both fragments
+      // rather than one long box with two square ends.
+      'box-decoration-clone',
+      variantClasses[variant],
+      // `decoration-2` and the offset so the rule sits under the descenders rather
+      // than through them, which is the whole difference between an underline and
+      // a strikethrough that missed.
+      underline ? 'underline decoration-2 underline-offset-2' : '',
+      weight ? weightClasses[weight] : '',
+      transitionClasses
+    ]
+      .filter(Boolean)
+      .join(' ');
 
-  const marked = pattern
-    ? markNode(children, pattern, wholeWord, (matched, key) => (
-        <mark key={key} className={markClasses}>
-          {matched}
-        </mark>
-      ))
-    : children;
+    const marked = pattern
+      ? markNode(children, pattern, wholeWord, (matched, key) => (
+          <mark key={key} className={markClasses}>
+            {matched}
+          </mark>
+        ))
+      : children;
 
-  return (
-    <span
-      ref={ref}
-      className={className}
-      style={
-        {
-          '--p-fill': `var(--plass-${color}-fill)`,
-          '--p-on-solid': `var(--plass-${color}-on-solid)`,
-          '--p-accent': `var(--plass-${color}-accent)`,
-          '--p-soft': `var(--plass-${color}-soft)`,
-          '--p-line': `var(--plass-${color}-line)`,
-          ...style
-        } as React.CSSProperties
-      }
-      {...props}
-    >
-      {marked}
-    </span>
-  );
-});
+    return (
+      <span
+        ref={ref}
+        className={className}
+        style={
+          {
+            '--p-fill': `var(--plass-${color}-fill)`,
+            '--p-on-solid': `var(--plass-${color}-on-solid)`,
+            '--p-accent': `var(--plass-${color}-accent)`,
+            '--p-soft': `var(--plass-${color}-soft)`,
+            '--p-line': `var(--plass-${color}-line)`,
+            ...style
+          } as React.CSSProperties
+        }
+        {...props}
+      >
+        {marked}
+      </span>
+    );
+  }
+);

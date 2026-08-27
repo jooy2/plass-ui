@@ -40,7 +40,7 @@ interface ListContextValue {
   dividers: boolean;
 }
 
-const ListContext = React.createContext<ListContextValue>({
+const ListContext = /* @__PURE__ */ React.createContext<ListContextValue>({
   size: 'md',
   density: 'default',
   dividers: false
@@ -115,12 +115,12 @@ export interface PlListItemProps extends Omit<
  * and a second bordered rectangle inside it is a second rectangle.
  */
 const variantClasses: Record<PlassVariant, string> = {
-  solid: [
+  solid: /* @__PURE__ */ [
     glassClasses,
     'text-(--plass-fg) bg-(--plass-glass-press)',
     '[box-shadow:var(--p-elev),var(--plass-gloss-glass)]'
   ].join(' '),
-  glass: [
+  glass: /* @__PURE__ */ [
     glassClasses,
     'border text-(--plass-fg) bg-(--plass-glass)',
     '[border-color:var(--plass-glass-line)]',
@@ -187,55 +187,57 @@ const dividerClasses = '[&>li+li]:border-t [&>li+li]:[border-color:var(--plass-d
  * every consumer's plain list of links the semantics of a menu, which is the
  * most common way a component library breaks a screen reader.
  */
-export const PlList = React.forwardRef<HTMLUListElement, PlListProps>(function PlList(
-  {
-    variant = 'glass',
-    size = 'md',
-    color = 'primary',
-    density = 'default',
-    elevation = 0,
-    dividers = false,
-    render,
-    className,
-    style,
-    children,
-    ...props
-  },
-  ref
-) {
-  const context = React.useMemo(() => ({ size, density, dividers }), [size, density, dividers]);
-
-  const classNames = [
-    'flex flex-col',
-    radiusClasses[size],
-    variantClasses[variant],
-    transitionClasses,
-    // Without dividers the rows are tiles and the sheet keeps a hair of padding
-    // so a hovered row does not run into the edge. With them the rules have to
-    // reach the edge, so the padding goes and the rows square off.
-    dividers ? `overflow-hidden ${dividerClasses}` : 'p-1',
-    className ?? ''
-  ]
-    .filter(Boolean)
-    .join(' ');
-
-  const element = useRender({
-    render,
-    ref,
-    props: {
-      // Tailwind's reset takes the bullets off every `<ul>`, and Safari takes
-      // the list semantics off with them. Saying `role="list"` out loud is the
-      // one-line fix, and it costs nothing when the reset is not there.
-      role: 'list',
-      className: classNames,
-      style: { ...surfaceSlots(color, elevation), ...style },
+export const PlList = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlListProps>(
+  function PlList(
+    {
+      variant = 'glass',
+      size = 'md',
+      color = 'primary',
+      density = 'default',
+      elevation = 0,
+      dividers = false,
+      render,
+      className,
+      style,
       children,
       ...props
-    }
-  });
+    },
+    ref
+  ) {
+    const context = React.useMemo(() => ({ size, density, dividers }), [size, density, dividers]);
 
-  return <ListContext.Provider value={context}>{element}</ListContext.Provider>;
-});
+    const classNames = [
+      'flex flex-col',
+      radiusClasses[size],
+      variantClasses[variant],
+      transitionClasses,
+      // Without dividers the rows are tiles and the sheet keeps a hair of padding
+      // so a hovered row does not run into the edge. With them the rules have to
+      // reach the edge, so the padding goes and the rows square off.
+      dividers ? `overflow-hidden ${dividerClasses}` : 'p-1',
+      className ?? ''
+    ]
+      .filter(Boolean)
+      .join(' ');
+
+    const element = useRender({
+      render,
+      ref,
+      props: {
+        // Tailwind's reset takes the bullets off every `<ul>`, and Safari takes
+        // the list semantics off with them. Saying `role="list"` out loud is the
+        // one-line fix, and it costs nothing when the reset is not there.
+        role: 'list',
+        className: classNames,
+        style: { ...surfaceSlots(color, elevation), ...style },
+        children,
+        ...props
+      }
+    });
+
+    return <ListContext.Provider value={context}>{element}</ListContext.Provider>;
+  }
+);
 
 /**
  * One row.
@@ -247,117 +249,119 @@ export const PlList = React.forwardRef<HTMLUListElement, PlListProps>(function P
  * `<span>` carrying a click handler is invisible to a keyboard, and a
  * `<button>` inside a `<button>` is markup the browser silently un-nests.
  */
-export const PlListItem = React.forwardRef<HTMLLIElement, PlListItemProps>(function PlListItem(
-  {
-    startIcon,
-    endIcon,
-    description,
-    action,
-    href,
-    selected = false,
-    disabled = false,
-    className,
-    children,
-    onClick,
-    ...props
-  },
-  ref
-) {
-  const { size, density, dividers } = React.useContext(ListContext);
-  const interactive = Boolean(onClick || href) && !disabled;
+export const PlListItem = /* @__PURE__ */ React.forwardRef<HTMLLIElement, PlListItemProps>(
+  function PlListItem(
+    {
+      startIcon,
+      endIcon,
+      description,
+      action,
+      href,
+      selected = false,
+      disabled = false,
+      className,
+      children,
+      onClick,
+      ...props
+    },
+    ref
+  ) {
+    const { size, density, dividers } = React.useContext(ListContext);
+    const interactive = Boolean(onClick || href) && !disabled;
 
-  const padX = rowPaddingXClasses[density][size];
-  const padY = rowPaddingYClasses[density][size];
+    const padX = rowPaddingXClasses[density][size];
+    const padY = rowPaddingYClasses[density][size];
 
-  const bodyClassNames = [
-    'flex min-w-0 flex-1 items-center text-start',
-    padX,
-    padY,
-    gapClasses[size],
-    sheetBodyClasses[size],
-    transitionClasses,
-    iconClasses,
-    // Squared off when the rows are ruled, for the reason `dividerClasses`
-    // exists: a tile and a line are two different ideas about what a row is.
-    dividers ? '' : rowRadiusClasses[size],
-    // An if/else rather than stacked variants: two Tailwind classes of equal
-    // specificity resolve by their order in the generated stylesheet.
-    disabled
-      ? 'cursor-not-allowed opacity-50 saturate-[0.35]'
-      : selected
-        ? 'bg-(--p-soft-press) font-medium text-(--p-accent)'
-        : '',
-    interactive ? `cursor-pointer ${focusRingClasses}` : '',
-    // Hover deepens the same tint `selected` already uses, one step down, so a
-    // hovered row and the chosen row are the same idea at two strengths.
-    interactive && !selected ? 'hover:bg-(--p-soft)' : '',
-    interactive && selected ? 'hover:bg-(--p-soft-press)' : ''
-  ]
-    .filter(Boolean)
-    .join(' ');
+    const bodyClassNames = [
+      'flex min-w-0 flex-1 items-center text-start',
+      padX,
+      padY,
+      gapClasses[size],
+      sheetBodyClasses[size],
+      transitionClasses,
+      iconClasses,
+      // Squared off when the rows are ruled, for the reason `dividerClasses`
+      // exists: a tile and a line are two different ideas about what a row is.
+      dividers ? '' : rowRadiusClasses[size],
+      // An if/else rather than stacked variants: two Tailwind classes of equal
+      // specificity resolve by their order in the generated stylesheet.
+      disabled
+        ? 'cursor-not-allowed opacity-50 saturate-[0.35]'
+        : selected
+          ? 'bg-(--p-soft-press) font-medium text-(--p-accent)'
+          : '',
+      interactive ? `cursor-pointer ${focusRingClasses}` : '',
+      // Hover deepens the same tint `selected` already uses, one step down, so a
+      // hovered row and the chosen row are the same idea at two strengths.
+      interactive && !selected ? 'hover:bg-(--p-soft)' : '',
+      interactive && selected ? 'hover:bg-(--p-soft-press)' : ''
+    ]
+      .filter(Boolean)
+      .join(' ');
 
-  const body = (
-    <>
-      {hasContent(startIcon) ? (
-        <span className="flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)">
-          {startIcon}
-        </span>
-      ) : null}
-
-      <span className="flex min-w-0 flex-1 flex-col">
-        {hasContent(children) ? <span className="truncate">{children}</span> : null}
-        {hasContent(description) ? (
-          <span className={`truncate text-(--plass-muted-fg) ${metaTextClasses[size]}`}>
-            {description}
+    const body = (
+      <>
+        {hasContent(startIcon) ? (
+          <span className="flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)">
+            {startIcon}
           </span>
         ) : null}
-      </span>
 
-      {hasContent(endIcon) ? (
-        <span className="flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)">
-          {endIcon}
+        <span className="flex min-w-0 flex-1 flex-col">
+          {hasContent(children) ? <span className="truncate">{children}</span> : null}
+          {hasContent(description) ? (
+            <span className={`truncate text-(--plass-muted-fg) ${metaTextClasses[size]}`}>
+              {description}
+            </span>
+          ) : null}
         </span>
-      ) : null}
-    </>
-  );
 
-  return (
-    <li
-      ref={ref}
-      className={['flex w-full items-center', className ?? ''].filter(Boolean).join(' ')}
-      {...props}
-    >
-      {interactive && href ? (
-        // `aria-current="page"` on a link and `"true"` on a button: the first is
-        // "this is the page you are on", the second is "this is the chosen one
-        // of these". `aria-pressed` would be a third thing — a toggle — and a
-        // selected row is not a toggle.
-        <a
-          href={href}
-          className={bodyClassNames}
-          aria-current={selected ? 'page' : undefined}
-          onClick={onClick}
-        >
-          {body}
-        </a>
-      ) : interactive ? (
-        <button
-          type="button"
-          className={bodyClassNames}
-          aria-current={selected ? true : undefined}
-          onClick={onClick}
-        >
-          {body}
-        </button>
-      ) : (
-        <div className={bodyClassNames} aria-disabled={disabled || undefined}>
-          {body}
-        </div>
-      )}
+        {hasContent(endIcon) ? (
+          <span className="flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)">
+            {endIcon}
+          </span>
+        ) : null}
+      </>
+    );
 
-      {hasContent(action) ? (
-        <div className={`flex shrink-0 items-center ${padX}`}>{action}</div>
-      ) : null}
-    </li>
-  );
-});
+    return (
+      <li
+        ref={ref}
+        className={['flex w-full items-center', className ?? ''].filter(Boolean).join(' ')}
+        {...props}
+      >
+        {interactive && href ? (
+          // `aria-current="page"` on a link and `"true"` on a button: the first is
+          // "this is the page you are on", the second is "this is the chosen one
+          // of these". `aria-pressed` would be a third thing — a toggle — and a
+          // selected row is not a toggle.
+          <a
+            href={href}
+            className={bodyClassNames}
+            aria-current={selected ? 'page' : undefined}
+            onClick={onClick}
+          >
+            {body}
+          </a>
+        ) : interactive ? (
+          <button
+            type="button"
+            className={bodyClassNames}
+            aria-current={selected ? true : undefined}
+            onClick={onClick}
+          >
+            {body}
+          </button>
+        ) : (
+          <div className={bodyClassNames} aria-disabled={disabled || undefined}>
+            {body}
+          </div>
+        )}
+
+        {hasContent(action) ? (
+          <div className={`flex shrink-0 items-center ${padX}`}>{action}</div>
+        ) : null}
+      </li>
+    );
+  }
+);
