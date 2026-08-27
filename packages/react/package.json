@@ -44,12 +44,21 @@
       "default": "./dist/types.js"
     },
     "./styles.css": "./dist/styles.css",
-    "./tailwind.css": "./dist/tailwind.css"
+    "./tailwind.css": "./dist/tailwind.css",
+    "./package.json": "./package.json",
+    "./*": {
+      "types": "./dist/components/*/index.d.ts",
+      "module": "./dist/components/*/index.js",
+      "default": "./dist/components/*/index.js"
+    }
   },
   "typesVersions": {
     "*": {
-      "index.d.ts": [
-        "dist/index.d.ts"
+      "types": [
+        "dist/types.d.ts"
+      ],
+      "*": [
+        "dist/components/*/index.d.ts"
       ]
     }
   },
