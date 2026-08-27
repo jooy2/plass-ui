@@ -4424,6 +4424,22 @@ export const propTables: Record<string, PropRow[]> = {
    * The ring takes the bar's table unchanged except for what `size` means. Two
    * shapes, one set of props: that is the claim the three indicators make.
    */
+  PlProgressBox: [
+    ...progressProps({
+      ko: '플레이트 하나의 크기',
+      en: 'Size of one plate'
+    }),
+    {
+      name: 'count',
+      type: 'number',
+      default: '4',
+      description: {
+        ko: '플레이트 몇 장으로 만들지. 기다리는 대상에 진짜로 단계가 있다면 그 수를 주세요',
+        en: 'How many plates the row is made of. Set it to the number of steps when the thing being waited on genuinely has steps'
+      }
+    }
+  ],
+
   PlProgressCircular: [
     ...progressProps({
       ko: '링의 지름. 모든 단계에서 컨트롤 사다리 바로 아래에 앉습니다',

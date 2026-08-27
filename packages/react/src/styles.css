@@ -626,17 +626,17 @@
 }
 
 /* ---------------------------------------------------------------------------
- * The indeterminate indicators
+ * The three indeterminate indicators
  *
- * A determinate indicator needs nothing here: it is a width or a dash offset,
- * and the component writes it. This is the other case — something is happening
- * and nobody knows how much of it is left — and an indicator that does not move
- * while saying so is a decoration.
+ * A determinate bar, ring or row of plates needs nothing here: it is a width, a
+ * dash offset and a set of opacities, all of which the component writes. This
+ * is the other case — something is happening and nobody knows how much of it is
+ * left — and an indicator that does not move while saying so is a decoration.
  *
  * They are in CSS rather than in Tailwind for the reason `.plass-glow` is: a
  * keyframe is not a variant, so there is nothing to express one with.
  *
- * Two rules hold. **Nothing changes the paint.** A Plass fill is a gradient and
+ * Two rules hold across all three. **Nothing changes the paint.** A Plass fill is a gradient and
  * a gradient cannot be interpolated, so what moves is a length or an opacity and
  * the fill itself is either there or not. And **the segment travels on
  * `inset-inline-start`**, not on a `transform` — the same trade the skeleton's
@@ -674,6 +674,32 @@
 .plass-ring-spin {
   transform-origin: center;
   animation: plass-ring-spin 900ms linear infinite;
+}
+
+/*
+ * The plates light in sequence, each held back by its own index.
+ *
+ * The gradient is on the layer underneath at full strength the whole time and
+ * what cycles is its `opacity`, which is what lets a plate light *in* rather
+ * than snapping: `background-image` has no interpolation between a gradient and
+ * nothing. The plates never move — a row of them reads as a surface being
+ * written to rather than as something bouncing in the corner of a page somebody
+ * is reading.
+ */
+@keyframes plass-plate-wave {
+  0%,
+  70%,
+  100% {
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+}
+
+.plass-plate-wave {
+  animation: plass-plate-wave 1.2s var(--plass-ease) infinite;
+  animation-delay: calc(var(--p-i, 0) * 120ms);
 }
 
 /* The reduced-motion stand-in for the travelling segment: it stops travelling,
@@ -892,7 +918,8 @@
   /* The indicators are not switched off either, and for the same reason again:
      one that holds still says the opposite of what it is for. The travelling
      segment stops travelling, fills the groove and breathes instead, and the
-     ring is slowed to where it stops reading as motion. */
+     two that genuinely have to keep turning or cycling are slowed to where they
+     stop reading as motion. */
   .plass-progress-sweep {
     inset-inline-start: 0;
     inline-size: 100%;
@@ -900,6 +927,10 @@
   }
 
   .plass-ring-spin {
+    animation-duration: 2.4s;
+  }
+
+  .plass-plate-wave {
     animation-duration: 2.4s;
   }
 }

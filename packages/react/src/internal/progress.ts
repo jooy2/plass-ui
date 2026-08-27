@@ -1,8 +1,8 @@
 /**
- * What the progress indicators share.
+ * What the three progress indicators share.
  *
- * A bar and a ring, and — as it arrives — a row of plates: different shapes
- * answering one question, how far along is this and is it moving at all. So
+ * `PlProgressLinear`, `PlProgressCircular` and `PlProgressBox` are three shapes
+ * answering one question — how far along is this, and is it moving at all — so
  * everything that is *not* the shape belongs here: the colour slots, the size
  * ladders, and the arithmetic that turns `value`/`min`/`max` into a fraction.
  *
@@ -14,12 +14,12 @@ import type * as React from 'react';
 import type { PlassColor, PlassSize } from '../types.js';
 
 /**
- * The props every indicator takes.
+ * The props all three take.
  *
- * Declared once and extended rather than written out per shape, because the
- * whole claim being made is that these are one component in several shapes: a
- * `value` of `null` has to mean the same thing on a bar as on anything that
- * follows it, or they are separate components that happen to share a prefix.
+ * Declared once and extended rather than written three times, because the whole
+ * claim being made is that these are one component in three shapes: a `value`
+ * of `null` has to mean the same thing on a bar, a ring and a row of plates, or
+ * the trio is three components that happen to share a prefix.
  */
 export interface PlassProgressProps extends Omit<
   React.ComponentPropsWithoutRef<'div'>,
@@ -131,6 +131,36 @@ export const ringStrokes: Record<PlassSize, number> = {
   md: 2,
   lg: 2.5,
   xl: 3
+};
+
+/**
+ * One plate of a `PlProgressBox`, on the tick ladder — an indicator beside a
+ * label, not a control you can put one inside.
+ */
+export const plateSizeClasses: Record<PlassSize, string> = {
+  xs: 'size-2',
+  sm: 'size-2.5',
+  md: 'size-3',
+  lg: 'size-4',
+  xl: 'size-5'
+};
+
+/** The corner cut off a plate: the same ~30% the tick boxes take. */
+export const plateRadiusClasses: Record<PlassSize, string> = {
+  xs: 'rounded-[0.1875rem]',
+  sm: 'rounded-[0.25rem]',
+  md: 'rounded-[0.28125rem]',
+  lg: 'rounded-[0.375rem]',
+  xl: 'rounded-[0.4375rem]'
+};
+
+/** Between the plates. Tight — they are one object, not a row of squares. */
+export const plateGapClasses: Record<PlassSize, string> = {
+  xs: 'gap-1',
+  sm: 'gap-1',
+  md: 'gap-1.5',
+  lg: 'gap-1.5',
+  xl: 'gap-2'
 };
 
 /**

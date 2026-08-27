@@ -47,6 +47,7 @@ import {
   PlPagination,
   PlPill,
   PlPopover,
+  PlProgressBox,
   PlProgressCircular,
   PlProgressLinear,
   PlRadio,
@@ -723,6 +724,16 @@ const entries: Entry[] = [
       ko: '페이지 전체를 덮어 쓸 수 없게 만드는 판입니다.'
     },
     preview: <OverlayPreview />
+  },
+  {
+    name: 'PlProgressBox',
+    group: 'feedback',
+    href: 'components/feedback/progress-box',
+    blurb: {
+      en: 'A row of small glass plates that light up, in order or in sequence.',
+      ko: '불이 들어오는 작은 유리판들의 줄입니다. 차례대로, 또는 순환하며.'
+    },
+    preview: <PlProgressBox size="sm" label="Step 3 of 5" value={3} max={5} count={5} showValue />
   },
   {
     name: 'PlProgressCircular',
