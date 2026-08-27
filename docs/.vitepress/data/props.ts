@@ -5128,6 +5128,114 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlSpoiler: [
+    {
+      name: 'revealed',
+      type: 'boolean',
+      description: {
+        ko: '내용이 드러나 있는지. onRevealedChange와 함께 controlled로 씁니다',
+        en: 'Whether the content is uncovered. Use with onRevealedChange for a controlled one'
+      }
+    },
+    {
+      name: 'defaultRevealed',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: 'uncontrolled일 때의 시작 상태',
+        en: 'Where an uncontrolled spoiler starts'
+      }
+    },
+    {
+      name: 'onRevealedChange',
+      type: '(revealed: boolean) => void',
+      description: {
+        ko: '드러남 상태가 바뀔 때 호출됩니다',
+        en: 'Called when the revealed state changes'
+      }
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      default: "'Reveal'",
+      description: { ko: '드러내기 버튼의 문구', en: "The reveal button's label" }
+    },
+    {
+      name: 'hideLabel',
+      type: 'ReactNode',
+      default: "'Hide'",
+      description: {
+        ko: 'reversible일 때 숨기기 버튼의 문구',
+        en: "The hide button's label, when reversible is on"
+      }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode | false',
+      default: "'This may contain spoilers'",
+      description: {
+        ko: '버튼 위의 한 줄. false면 아무것도 쓰이지 않은 덮개가 됩니다',
+        en: 'The line above the button. false leaves a cover with nothing written on it'
+      }
+    },
+    {
+      name: 'action',
+      type: 'ReactNode',
+      description: {
+        ko: '기본 버튼을 통째로 자기 컨트롤로 바꿉니다. 연결은 직접 해야 합니다',
+        en: 'Replaces the default reveal button entirely. The replacement is yours to wire up'
+      }
+    },
+    {
+      name: 'reversible',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '드러난 뒤 아래에 숨기기 버튼이 나타납니다',
+        en: 'Keeps the content coverable: once revealed, a hide button appears under it'
+      }
+    },
+    {
+      name: 'maxHeight',
+      type: 'number | string',
+      description: {
+        ko: '덮여 있는 상자의 높이 제한. 드러나면 풀립니다',
+        en: 'Clamps the covered box to this height. Revealing releases it'
+      }
+    },
+    {
+      name: 'blur',
+      type: 'number',
+      default: '10',
+      description: {
+        ko: '내용을 얼마나 흐리게 할지, px',
+        en: 'How hard the content is blurred, in pixels'
+      }
+    },
+    {
+      name: 'padded',
+      type: 'boolean',
+      default: 'true',
+      description: { ko: '내용 주변의 안쪽 여백', en: 'Inner padding around the content' }
+    },
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: '시트의 재질. 색이 들어가지 않습니다. ghost는 상자를 아예 그리지 않습니다',
+        en: 'What the sheet is made of. Never dyed. ghost draws no box at all'
+      },
+      sizeDescription: {
+        ko: '시트의 반경과 그 위 버튼의 크기',
+        en: "The sheet's radius, and the size of the button on it"
+      },
+      densityDescription: {
+        ko: '덮개의 문구와 버튼 주변 여백',
+        en: "Padding around the cover's own text and button"
+      }
+    })
+  ],
+
   PlSwitch: [
     {
       name: 'size',

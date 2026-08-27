@@ -42,6 +42,7 @@ export * from './components/segmented-button/index.js';
 export * from './components/select/index.js';
 export * from './components/skeleton/index.js';
 export * from './components/slider/index.js';
+export * from './components/spoiler/index.js';
 export * from './components/switch/index.js';
 export * from './components/table/index.js';
 export * from './components/tabs/index.js';

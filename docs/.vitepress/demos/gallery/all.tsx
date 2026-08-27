@@ -55,6 +55,7 @@ import {
   PlSelect,
   PlSkeleton,
   PlSlider,
+  PlSpoiler,
   PlSwitch,
   PlTab,
   PlTabPanel,
@@ -839,6 +840,20 @@ const entries: Entry[] = [
       ko: '살아 있는 정보를 조금 담고 떠 있는 알약입니다.'
     },
     preview: <PlPill size="sm" color="danger" title="Recording" description="00:41" />
+  },
+  {
+    name: 'PlSpoiler',
+    group: 'surfaces',
+    href: 'components/surfaces/spoiler',
+    blurb: {
+      en: 'Content that is covered until somebody asks for it.',
+      ko: '누군가 요청할 때까지 덮여 있는 내용입니다.'
+    },
+    preview: (
+      <PlSpoiler className="w-full" size="sm">
+        <span className="text-xs">He was the killer all along.</span>
+      </PlSpoiler>
+    )
   },
   {
     name: 'PlTabs',

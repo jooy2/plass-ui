@@ -1,0 +1,86 @@
+---
+title: PlSpoiler
+order: 9
+---
+
+# PlSpoiler
+
+<p class="plass-lede">누군가 요청할 때까지 덮여 있는 내용입니다. 결말, 정답, 아직 아무도 보겠다고 하지 않은 사진.</p>
+
+<Demo src="spoiler/hero" :flutter="false" :min-height="180" />
+
+::: fw react
+
+```tsx
+import { PlSpoiler } from 'plass-ui';
+
+<PlSpoiler reversible>
+  <p>Rosebud was the name painted on the sled he had as a child.</p>
+</PlSpoiler>;
+```
+
+:::
+
+## Props
+
+<PropsTable name="PlSpoiler" />
+
+::: fw react
+
+나머지 `<div>` 속성은 모두 시트로 전달됩니다.
+
+:::
+
+라이브러리 전체에서 공유하는 축이 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
+
+## 왜 숨긴 상자가 아니라 블러인가
+
+덮개는 **블러**이고, 그것이 설계의 전부입니다. 독자는 거기 무언가가 있다는 것과 그것이 대략 얼마만큼인지, 그리고 `maxHeight`가 있다면 잘려 있다는 것까지 볼 수 있습니다. 할 수 없는 것은 실수로 읽는 것이고, 스포일러가 막으려는 것이 그것 하나입니다.
+
+다만 블러만으로는 덮개가 되지 않습니다. 문단은 흐트러뜨리지만 색과 리듬은 남고, 10px로 흐린 사진도 여전히 얼굴 사진으로 알아볼 수 있습니다. 그래서 그 위에 **페이지 자신의 surface 색을 섞은 막**을 얹습니다. 그것이 두 가지를 한 번에 정리합니다 — 내용은 자기 색이 번진 물결이 되고, 버튼은 밑에 무엇이 있든 그 위에 떠 있는 대신 딛고 설 자리를 얻습니다.
+
+## Examples
+
+### variant
+
+세 재질을 *컨테이너*의 방식으로 말합니다. 시트에는 색이 들어가지 않습니다. 스포일러가 담는 것은 사진이고 문단이고 결말이며, 그것들은 자기 색을 가지고 옵니다 — 색 계열은 버튼과 얇은 선까지만 닿고 멈춥니다.
+
+`ghost`는 상자를 아예 그리지 않습니다. 흐르는 산문 속의 스포일러가 대개 원하는 것이 그것입니다.
+
+<Demo src="spoiler/variants" :flutter="false" :min-height="360">
+
+<<< @/.vitepress/demos/spoiler/variants.tsx
+
+</Demo>
+
+### maxHeight
+
+비워 두면 상자는 담고 있는 것만큼 정확히 높습니다. 문단이나 사진에는 그게 맞는 기본값입니다. 흐릿한 내용이 한 페이지를 채우면 아무것도 없는 페이지가 되어 버릴 만큼 긴 것에는 지정하세요.
+
+이 제한은 **덮여 있을 때만** 걸립니다. 무언가를 드러내 놓고 스크롤바 달린 상자에 남겨 두는 것은 엉뚱한 질문에 답하는 것입니다.
+
+<Demo src="spoiler/clamped" :flutter="false" :min-height="260">
+
+<<< @/.vitepress/demos/spoiler/clamped.tsx
+
+</Demo>
+
+### reversible
+
+기본은 꺼져 있습니다. 한 번 드러나면 계속 드러나 있습니다. 켜면 내용 아래에 숨기기 버튼이 나타나는데, 스포일러가 여럿 있는 페이지가 원하는 것이 그것입니다 — 잘못 연 독자가 되돌릴 수 있습니다.
+
+### padded와 미디어
+
+가장자리까지 닿아야 하는 것에서는 여백을 끄세요. 덮인 이미지가 이 컴포넌트를 가장 자주 쓰는 경우이고, 거기서 블러는 진짜 일을 합니다. 형태와 색은 보이고, 무엇인지는 보이지 않습니다.
+
+<Demo src="spoiler/media" :flutter="false" :min-height="240">
+
+<<< @/.vitepress/demos/spoiler/media.tsx
+
+</Demo>
+
+## Accessibility
+
+- 덮여 있는 동안 내용은 **`inert`**입니다. 탭으로 닿을 수 없고, 스크린 리더가 읽지 않으며, 페이지를 가로지르는 드래그로 선택되지도 않습니다. <kbd>Ctrl</kbd>+<kbd>A</kbd>로 뚫리는 스포일러는 스포일러가 아니고, 링크가 여전히 탭되는 것은 그보다 더 나쁩니다.
+- 드러내기 버튼은 자기가 제어하는 상태를 알리고 자기가 여는 내용을 가리킵니다. 그래서 스크린 리더가 그것을 있는 그대로의 disclosure로 안내합니다.
+- `description`은 버튼보다 먼저 읽힙니다. 무엇 때문에 묻고 있는지를 알려 주는 것이 그것입니다. `description={false}`로 끄면 아무 말도 하지 않는 덮개가 남는데, 주변 페이지가 이미 그 말을 하고 있을 때만 할 만합니다.
