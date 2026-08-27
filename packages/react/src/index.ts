@@ -17,6 +17,7 @@ export * from './components/chip/index.js';
 export * from './components/collapsible/index.js';
 export * from './components/container/index.js';
 export * from './components/divider/index.js';
+export * from './components/drawer/index.js';
 export * from './components/file-picker/index.js';
 export * from './components/floating-bottom-navigation/index.js';
 export * from './components/grid/index.js';

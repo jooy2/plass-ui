@@ -21,6 +21,7 @@ import {
   PlCollapsible,
   PlContainer,
   PlDivider,
+  PlDrawer,
   PlFilePicker,
   PlFloatingBottomNavigation,
   PlFloatingBottomNavigationItem,
@@ -106,6 +107,28 @@ function OverlayPreview() {
         <span className="text-sm font-medium text-(--p-accent)">Press anywhere</span>
       </PlOverlay>
     </>
+  );
+}
+
+/** A drawer has to be opened to be seen at all, so its card carries state. */
+function DrawerPreview() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <PlDrawer
+      side="right"
+      size="sm"
+      open={open}
+      onOpenChange={setOpen}
+      trigger={
+        <PlButton size="sm" variant="glass" color="secondary">
+          Open
+        </PlButton>
+      }
+      title="Filters"
+    >
+      A panel attached to one edge of the window.
+    </PlDrawer>
   );
 }
 
@@ -617,6 +640,16 @@ const entries: Entry[] = [
         Your changes are live.
       </PlAlert>
     )
+  },
+  {
+    name: 'PlDrawer',
+    group: 'feedback',
+    href: 'components/feedback/drawer',
+    blurb: {
+      en: 'A panel attached to one edge of the window.',
+      ko: '창의 한 가장자리에 붙은 판입니다.'
+    },
+    preview: <DrawerPreview />
   },
   {
     name: 'PlModal',

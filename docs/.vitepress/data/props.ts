@@ -1900,6 +1900,163 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlDrawer: [
+    {
+      name: 'side',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'left'",
+      shared: true,
+      description: {
+        ko: '판이 붙는 가장자리. 논리적이 아니라 물리적입니다',
+        en: 'Which edge the panel is attached to. Physical rather than logical'
+      }
+    },
+    {
+      name: 'mode',
+      type: "'overlay' | 'inline'",
+      default: "'overlay'",
+      description: {
+        ko: 'overlay는 여는 서랍 — 스크림·포커스 트랩·Escape. inline은 레이아웃 속의 판입니다',
+        en: 'overlay is the drawer you open — a scrim, a focus trap, Escape. inline is a panel in the layout'
+      }
+    },
+    {
+      name: 'open',
+      type: 'boolean',
+      description: {
+        ko: '서랍이 보이는지. onOpenChange와 함께 controlled로 씁니다',
+        en: 'The drawer is shown. Use with onOpenChange for a controlled drawer'
+      }
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      description: {
+        ko: 'uncontrolled일 때의 시작 상태. overlay는 false, inline은 true입니다',
+        en: 'Whether it starts open, for an uncontrolled one. false in overlay, true in inline'
+      }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: {
+        ko: '열림 상태가 바뀔 때 호출됩니다',
+        en: 'Called when the open state changes'
+      }
+    },
+    {
+      name: 'trigger',
+      type: 'ReactElement',
+      description: {
+        ko: '서랍을 여는 요소. overlay 전용입니다',
+        en: 'The element that opens the drawer. overlay only'
+      }
+    },
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description: { ko: '서랍의 이름이 되는 제목', en: 'The heading, and what names the drawer' }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: {
+        ko: '제목 아래 한 줄이자 서랍의 접근 가능한 설명',
+        en: "A line under the title, and the drawer's accessible description"
+      }
+    },
+    {
+      name: 'actions',
+      type: 'ReactNode',
+      description: {
+        ko: '판 아래에 고정되는 줄. 끝 정렬로 배치됩니다',
+        en: 'The bottom row, held against the foot of the panel. Laid out end-aligned'
+      }
+    },
+    {
+      name: 'dividers',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '섹션 사이를 여백 대신 얇은 선으로 가릅니다',
+        en: 'Scores the panel between its sections with a hairline instead of separating them with space'
+      }
+    },
+    {
+      name: 'showClose',
+      type: 'boolean',
+      description: {
+        ko: '모서리의 ×. overlay에서는 켜지고 inline에서는 꺼집니다',
+        en: 'Shows the × in the corner. On in overlay, off in inline'
+      }
+    },
+    {
+      name: 'closeLabel',
+      type: 'string',
+      default: "'Close'",
+      description: { ko: '× 버튼의 접근 가능한 이름', en: 'Accessible name of the × button' }
+    },
+    {
+      name: 'extent',
+      type: 'number | string',
+      description: {
+        ko: '판이 가장자리에서 얼마나 들어오는지 — 좌우는 너비, 상하는 높이',
+        en: 'How far the panel reaches in from its edge: a width for left/right, a height for top/bottom'
+      }
+    },
+    {
+      name: 'rounded',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '페이지를 향한 두 모서리만 깎습니다. 창 가장자리 쪽은 언제나 각집니다',
+        en: 'Rounds the two corners that face the page. The ones against the window edge are always square'
+      }
+    },
+    {
+      name: 'modal',
+      type: "boolean | 'trap-focus'",
+      default: 'true',
+      description: {
+        ko: '뒤의 페이지를 가져가는지. trap-focus는 페이지를 살려 둔 채 포커스만 붙잡습니다',
+        en: "Whether the page behind is taken away. 'trap-focus' keeps it usable while still holding focus inside"
+      }
+    },
+    {
+      name: 'dismissible',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: 'Escape와 스크림 누름으로 닫히는지. overlay 전용입니다',
+        en: 'Whether Escape or a press on the scrim closes it. overlay only'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: { ko: '판의 너비, 반경, 여백', en: "The panel's width, radius and padding" }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: '의미론적 색 역할. 안쪽의 focus ring까지만 닿습니다',
+        en: 'Semantic colour role. It reaches the focus rings inside and nothing else'
+      }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'default'",
+      shared: true,
+      description: { ko: '섹션이 얼마나 촘촘히 놓이는지', en: 'How tightly the sections pack' }
+    }
+  ],
+
   PlFilePicker: [
     ...sharedProps({
       variant: "'glass'",
