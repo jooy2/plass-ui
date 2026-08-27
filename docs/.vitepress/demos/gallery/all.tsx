@@ -47,6 +47,7 @@ import {
   PlPagination,
   PlPill,
   PlPopover,
+  PlProgressCircular,
   PlProgressLinear,
   PlRadio,
   PlRadioGroup,
@@ -722,6 +723,16 @@ const entries: Entry[] = [
       ko: '페이지 전체를 덮어 쓸 수 없게 만드는 판입니다.'
     },
     preview: <OverlayPreview />
+  },
+  {
+    name: 'PlProgressCircular',
+    group: 'feedback',
+    href: 'components/feedback/progress-circular',
+    blurb: {
+      en: 'A ring that fills, for where there is no room for a bar.',
+      ko: '차오르는 링입니다. 바를 놓을 자리가 없는 곳에 씁니다.'
+    },
+    preview: <PlProgressCircular size="sm" label="Syncing" value={68} showValue />
   },
   {
     name: 'PlProgressLinear',

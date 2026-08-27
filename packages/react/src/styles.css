@@ -628,10 +628,10 @@
 /* ---------------------------------------------------------------------------
  * The indeterminate indicators
  *
- * A determinate indicator needs nothing here: it is a width, and the component
- * writes it. This is the other case — something is happening and nobody knows
- * how much of it is left — and an indicator that does not move while saying so
- * is a decoration.
+ * A determinate indicator needs nothing here: it is a width or a dash offset,
+ * and the component writes it. This is the other case — something is happening
+ * and nobody knows how much of it is left — and an indicator that does not move
+ * while saying so is a decoration.
  *
  * They are in CSS rather than in Tailwind for the reason `.plass-glow` is: a
  * keyframe is not a variant, so there is nothing to express one with.
@@ -659,6 +659,21 @@
   inset-block: 0;
   inline-size: 45%;
   animation: plass-progress-sweep 1.15s var(--plass-ease) infinite;
+}
+
+/* The one place the library turns something, and the exception is the same one
+   the spinner already has: an indeterminate indicator that holds still says the
+   opposite of what it is for. `rotate` rather than `transform`, so nothing else
+   on the element is overwritten. */
+@keyframes plass-ring-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+.plass-ring-spin {
+  transform-origin: center;
+  animation: plass-ring-spin 900ms linear infinite;
 }
 
 /* The reduced-motion stand-in for the travelling segment: it stops travelling,
@@ -876,10 +891,15 @@
 
   /* The indicators are not switched off either, and for the same reason again:
      one that holds still says the opposite of what it is for. The travelling
-     segment stops travelling, fills the groove and breathes instead. */
+     segment stops travelling, fills the groove and breathes instead, and the
+     ring is slowed to where it stops reading as motion. */
   .plass-progress-sweep {
     inset-inline-start: 0;
     inline-size: 100%;
     animation: plass-progress-pulse 1.8s var(--plass-ease) infinite;
+  }
+
+  .plass-ring-spin {
+    animation-duration: 2.4s;
   }
 }

@@ -1,7 +1,7 @@
 /**
  * What the progress indicators share.
  *
- * A bar, and — as they arrive — a ring and a row of plates: different shapes
+ * A bar and a ring, and — as it arrives — a row of plates: different shapes
  * answering one question, how far along is this and is it moving at all. So
  * everything that is *not* the shape belongs here: the colour slots, the size
  * ladders, and the arithmetic that turns `value`/`min`/`max` into a fraction.
@@ -75,6 +75,12 @@ export interface PlassProgressProps extends Omit<
 export function progressSlots(color: PlassColor): React.CSSProperties {
   return {
     '--p-fill': `var(--plass-${color}-fill)`,
+    // The two ends of that gradient on their own, which only the ring needs: an
+    // SVG stroke cannot take a CSS gradient, so an arc has to build a
+    // `<linearGradient>` out of the same two stops the bar's fill is made of.
+    // Without them a ring would be a flat arc beside a swept bar.
+    '--p-solid': `var(--plass-${color}-solid)`,
+    '--p-solid-to': `var(--plass-${color}-solid-to)`,
     '--p-accent': `var(--plass-${color}-accent)`,
     '--p-soft': `var(--plass-${color}-soft)`,
     '--p-soft-press': `var(--plass-${color}-soft-press)`
@@ -97,6 +103,34 @@ export const barThicknessClasses: Record<PlassSize, string> = {
   md: 'h-1.5',
   lg: 'h-2',
   xl: 'h-2.5'
+};
+
+/**
+ * The diameter of the ring, in pixels.
+ *
+ * Numbers rather than classes because the same value has to reach the SVG's
+ * `viewBox` arithmetic, and a ring is one of the few things in the library that
+ * cannot be described by a Tailwind class alone.
+ *
+ * They sit just under the control ladder at every step — a `md` ring is 20px
+ * inside a 40px control — so a ring dropped into a button, a field or a table
+ * row never makes the row taller than it already was.
+ */
+export const ringDiameters: Record<PlassSize, number> = {
+  xs: 14,
+  sm: 16,
+  md: 20,
+  lg: 26,
+  xl: 32
+};
+
+/** The ring's stroke, thickening with the ring so the hole stays in proportion. */
+export const ringStrokes: Record<PlassSize, number> = {
+  xs: 1.5,
+  sm: 1.75,
+  md: 2,
+  lg: 2.5,
+  xl: 3
 };
 
 /**
