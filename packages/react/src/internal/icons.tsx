@@ -160,6 +160,30 @@ export function ClockIcon(): React.ReactElement {
   );
 }
 
+/** The calendar: a page with a binding across the top. The pickers' glyph. */
+export function CalendarIcon(): React.ReactElement {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <rect
+        x="2.25"
+        y="3.25"
+        width="11.5"
+        height="10.5"
+        rx="2"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+      <path d="M2.25 6.5h11.5" stroke="currentColor" strokeWidth="1.5" />
+      <path
+        d="M5.5 1.75v2.5M10.5 1.75v2.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 /** The chain: a link that stays on this page. */
 export function LinkIcon(): React.ReactElement {
   return (

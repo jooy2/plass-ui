@@ -22,6 +22,7 @@ import {
   PlCollapsible,
   PlCombobox,
   PlContainer,
+  PlDatePicker,
   PlDivider,
   PlDrawer,
   PlFilePicker,
@@ -275,6 +276,16 @@ const entries: Entry[] = [
       ko: '한 줄 또는 여러 줄 텍스트 입력. 라벨과 설명, 오류 메시지를 함께 담습니다.'
     },
     preview: <PlTextField fullWidth size="sm" placeholder="acme-inc" />
+  },
+  {
+    name: 'PlDatePicker',
+    group: 'inputs',
+    href: 'components/inputs/date-picker',
+    blurb: {
+      en: 'One day, chosen from a calendar. No date library, no translation files.',
+      ko: '달력에서 하루를 고릅니다. 날짜 라이브러리도, 번역 파일도 없습니다.'
+    },
+    preview: <PlDatePicker fullWidth size="sm" placeholder="Pick a day" />
   },
   {
     name: 'PlCombobox',

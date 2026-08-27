@@ -44,6 +44,16 @@ export type PlassSide = 'top' | 'right' | 'bottom' | 'left';
 export type PlassAlign = 'start' | 'center' | 'end';
 
 /**
+ * A day of the week, as `Date.getDay()` counts them: Sunday is `0`.
+ *
+ * `Date`'s own numbering rather than CLDR's, which starts the week on Monday at
+ * `1`. Every comparison a calendar makes is against `getDay()`, and a second
+ * numbering in the same file is a numbering somebody will subtract from the
+ * wrong one.
+ */
+export type PlassWeekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+/**
  * A width the layout answers to.
  *
  * The same five names as `PlassSize`, and deliberately so: a reader who has

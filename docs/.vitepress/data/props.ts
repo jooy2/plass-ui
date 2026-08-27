@@ -182,6 +182,214 @@ function progressProps(sizeDescription: Text): PropRow[] {
   ];
 }
 
+/**
+ * Everything the four pickers agree on.
+ *
+ * Written once because they are one control in four shapes, and a reader who
+ * has learned what `shouldDisableDate` does on a date picker must not have to
+ * read a subtly different sentence about it on a range picker. What each one
+ * adds — a second calendar, a clock, a set of presets — is spelled out in its
+ * own table under these.
+ */
+function pickerProps(options: {
+  /** Its own `format` default, which is the one thing that always differs. */
+  format: string;
+  formatDescription: Text;
+  /** Its own `closeOnSelect` default, and the sentence explaining it. */
+  closeOnSelect: string;
+  closeOnSelectDescription: Text;
+  /** How the hidden input spells the value. */
+  nameDescription: Text;
+}): PropRow[] {
+  return [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: 'trigger의 재질. PlTextField와 같은 껍데기를 씁니다. solid는 시트에 파인 우물',
+        en: "The material of the trigger, drawn on PlTextField's shell. solid is the well cut into the sheet"
+      },
+      elevationDescription: {
+        ko: 'trigger의 그림자 깊이. 팝업은 3으로 고정입니다 — 팝업은 정말로 페이지 위에 떠 있습니다',
+        en: 'Drop shadow depth of the trigger. The popup has its own, fixed at 3 — it genuinely floats'
+      }
+    }),
+    {
+      name: 'open',
+      type: 'boolean',
+      description: {
+        ko: '팝업이 열려 있는지. onOpenChange와 함께 controlled로 씁니다',
+        en: 'Whether the popup is open. Use with onOpenChange to control it'
+      }
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '팝업이 열린 채로 시작할지', en: 'Whether the popup starts open' }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: {
+        ko: '팝업이 열리고 닫힐 때 호출됩니다',
+        en: 'Called when the popup opens or closes'
+      }
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: 'BCP 47 태그. 월과 요일 이름, 헤더 두 버튼의 순서, trigger가 날짜를 쓰는 방식을 정합니다. 기본은 브라우저의 것',
+        en: "BCP 47 tag deciding the month and weekday names, the order of the header's two buttons, and how the trigger writes the value. Defaults to the browser's"
+      }
+    },
+    {
+      name: 'format',
+      type: 'Intl.DateTimeFormatOptions',
+      default: options.format,
+      description: options.formatDescription
+    },
+    {
+      name: 'placeholder',
+      type: 'ReactNode',
+      description: {
+        ko: '아무것도 고르지 않았을 때 trigger에 보이는 내용',
+        en: 'Shown in the trigger while nothing is chosen'
+      }
+    },
+    {
+      name: 'clearable',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '값을 비우는 ×를 보여 줍니다',
+        en: 'Offers the × that empties the control'
+      }
+    },
+    {
+      name: 'closeOnSelect',
+      type: 'boolean',
+      default: options.closeOnSelect,
+      description: options.closeOnSelectDescription
+    },
+    {
+      name: 'labels',
+      type: 'Partial<PlPickerLabels>',
+      description: {
+        ko: 'picker가 스스로 말하는 문자열들. 전부 영어 기본값이 있습니다. 날짜 이름은 여기 없습니다 — 그건 Intl이 압니다',
+        en: 'The strings the picker says on its own behalf. Every one has an English default. The dates are never in here: Intl knows those'
+      }
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: { ko: 'trigger 위 라벨', en: 'Label above the trigger' }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: { ko: 'trigger 아래 보조 설명', en: 'Helper text below the trigger' }
+    },
+    {
+      name: 'error',
+      type: 'ReactNode',
+      description: {
+        ko: '오류 메시지. 존재 자체가 invalid 상태를 만듭니다',
+        en: 'Error message below. Its presence also turns the control invalid'
+      }
+    },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: {
+        ko: '메시지 없이 invalid로 만듭니다',
+        en: 'Forces the invalid state without a message'
+      }
+    },
+    {
+      name: 'startIcon',
+      type: 'ReactNode',
+      description: {
+        ko: '값 앞의 글리프. 기본은 달력(또는 시계)입니다',
+        en: 'The glyph before the value. A calendar, or a clock, by default'
+      }
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '컨테이너 너비만큼 확장', en: 'Stretches to the width of the container' }
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '값은 보이지만 바꿀 수 없고, 팝업도 열리지 않습니다',
+        en: 'The value is shown but cannot be changed, and the popup does not open'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '사용 불가', en: 'Unavailable' }
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '폼 제출 전에 값이 있어야 하는지',
+        en: 'Whether a value must be chosen before the form is submitted'
+      }
+    },
+    { name: 'name', type: 'string', description: options.nameDescription }
+  ];
+}
+
+/** The three bounds every date-carrying picker takes. */
+const dateBoundsProps: PropRow[] = [
+  {
+    name: 'minDate',
+    type: 'Date | null',
+    description: {
+      ko: '고를 수 있는 가장 이른 날. 일 단위입니다 — 시각은 무시됩니다',
+      en: 'The earliest day that may be chosen. Day-granular — the time is ignored'
+    }
+  },
+  {
+    name: 'maxDate',
+    type: 'Date | null',
+    description: { ko: '고를 수 있는 가장 늦은 날', en: 'The latest day that may be chosen' }
+  },
+  {
+    name: 'shouldDisableDate',
+    type: '(date: Date) => boolean',
+    description: {
+      ko: '범위 안이지만 그래도 쓸 수 없는 날을 막습니다 — 주말, 공휴일, 이미 예약된 방',
+      en: 'Blocks individual days that are inside the range but still not available — weekends, holidays, a room that is already booked'
+    }
+  },
+  {
+    name: 'weekStartsOn',
+    type: '0 | 1 | 2 | 3 | 4 | 5 | 6',
+    description: {
+      ko: '한 주가 시작하는 요일. 기본은 locale이 말하는 대로이고, 0이 일요일입니다',
+      en: 'Which day the week starts on. Defaults to whatever the locale says; 0 is Sunday'
+    }
+  },
+  {
+    name: 'defaultMonth',
+    type: 'Date',
+    description: {
+      ko: '값이 없을 때 달력이 열리는 달',
+      en: 'Which month the calendar opens on when there is no value'
+    }
+  }
+];
+
 export const propTables: Record<string, PropRow[]> = {
   PlAccordion: [
     ...sharedProps({
@@ -2258,6 +2466,53 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'ReactNode',
       description: { ko: '페이지', en: 'The page' }
     }
+  ],
+
+  PlDatePicker: [
+    {
+      name: 'value',
+      type: 'Date | null',
+      description: {
+        ko: '선택된 날. onValueChange와 함께 controlled로 씁니다',
+        en: 'The chosen day. Use with onValueChange for a controlled picker'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'Date | null',
+      description: { ko: 'uncontrolled일 때 시작하는 날', en: 'The day the picker starts on' }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: Date | null) => void',
+      description: { ko: '값이 바뀔 때 호출됩니다', en: 'Called with the new value' }
+    },
+    ...dateBoundsProps,
+    {
+      name: 'showTodayButton',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '푸터에 오늘로 가는 지름길을 둡니다',
+        en: 'Offers the shortcut to today in the footer'
+      }
+    },
+    ...pickerProps({
+      format: "{ dateStyle: 'medium' }",
+      formatDescription: {
+        ko: 'trigger가 날짜를 쓰는 방식. Intl로 그대로 넘어갑니다',
+        en: 'How the trigger writes the chosen date. Passed straight to Intl'
+      },
+      closeOnSelect: 'true',
+      closeOnSelectDescription: {
+        ko: '날을 고르는 즉시 팝업을 닫습니다',
+        en: 'Closes the popup as soon as a day is chosen'
+      },
+      nameDescription: {
+        ko: '폼 제출 시 필드를 식별합니다. YYYY-MM-DD로, UTC가 아니라 로컬로 보냅니다',
+        en: 'Identifies the field when a form is submitted, as a local YYYY-MM-DD — never as UTC'
+      }
+    })
   ],
 
   PlDivider: [
