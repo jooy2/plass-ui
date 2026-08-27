@@ -15,7 +15,8 @@ import 'package:plass_ui/src/types.dart';
 ///
 /// A **description rather than a widget**, for the reason a
 /// [PlBottomNavigationItem] is: the bar has to know which destination is
-/// current and how many there are.
+/// current and how many there are — and, since the key that marks the current
+/// one travels between them, where each of them is.
 @immutable
 class PlFloatingBottomNavigationItem<T> {
   /// Creates a destination.
@@ -113,7 +114,16 @@ const Map<PlassDensity, Map<PlassSize, double>> _discGap = <PlassDensity, Map<Pl
 ///
 /// The current destination is a key of **tinted glass** riding in the clear
 /// sheet, which is the design language's own sentence with nothing added.
-class PlFloatingBottomNavigation<T> extends StatelessWidget {
+///
+/// The key is **one widget that travels**: its rectangle is measured off
+/// whichever disc is current and animated between them, the way a
+/// [PlSegmentedButton]'s tile is. It is not a surface that fades up on one disc
+/// while it fades out of another — two discs cross-fading is two objects, and a
+/// bar with a key in it has one, so what a reader follows is where the key went
+/// rather than which two things changed colour. Nothing is transformed either:
+/// the key is an empty box, and no glyph in the row is resampled while it
+/// moves.
+class PlFloatingBottomNavigation<T> extends StatefulWidget {
   /// Creates a floating bar.
   const PlFloatingBottomNavigation({
     required this.items,
@@ -149,13 +159,18 @@ class PlFloatingBottomNavigation<T> extends StatelessWidget {
   /// backdrop with a hairline around it. `solid` is the same sheet at its most
   /// opaque, for a bar that sits over photography. `ghost` has no capsule at
   /// all — the discs float on their own.
+  ///
+  /// It says nothing about the key. A key of tinted glass riding in a clear
+  /// sheet is the design language's own sentence, and a `ghost` bar is a row of
+  /// discs with no sheet behind them — the one that is current is still the one
+  /// that is current.
   final PlassVariant variant;
 
   /// The disc's diameter and the gap under the bar, on the control ladder — so
   /// a floating bar at `md` is a row of 40px discs.
   final PlassSize size;
 
-  /// Semantic colour role, carried by the one disc that is current.
+  /// Semantic colour role, carried by the key.
   final PlassColor color;
 
   /// Changes the air inside the capsule and the gap between discs.
@@ -181,84 +196,176 @@ class PlFloatingBottomNavigation<T> extends StatelessWidget {
   final String? label;
 
   @override
+  State<PlFloatingBottomNavigation<T>> createState() => _PlFloatingBottomNavigationState<T>();
+}
+
+class _PlFloatingBottomNavigationState<T> extends State<PlFloatingBottomNavigation<T>> {
+  /// One key per disc, so the travelling key can be measured off the current
+  /// one.
+  ///
+  /// Measured rather than worked out from the size ladder. Every disc is the
+  /// same square and the arithmetic would be right today — and wrong the first
+  /// time a row is laid out somewhere that changes it. What is actually on the
+  /// screen cannot drift from itself.
+  final List<GlobalKey> _keys = <GlobalKey>[];
+  final GlobalKey _row = GlobalKey();
+
+  /// Where the key is, in the row's own coordinates.
+  Rect? _rect;
+
+  int get _chosen => widget.value == null
+      ? -1
+      : widget.items.indexWhere(
+          (PlFloatingBottomNavigationItem<T> item) => item.value == widget.value,
+        );
+
+  @override
+  void initState() {
+    super.initState();
+    _syncKeys();
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) => _measure());
+  }
+
+  @override
+  void didUpdateWidget(PlFloatingBottomNavigation<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _syncKeys();
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) => _measure());
+  }
+
+  void _syncKeys() {
+    while (_keys.length < widget.items.length) {
+      _keys.add(GlobalKey());
+    }
+
+    if (_keys.length > widget.items.length) {
+      _keys.removeRange(widget.items.length, _keys.length);
+    }
+  }
+
+  /// Reads the current disc's box, in the row's own coordinates.
+  void _measure() {
+    if (!mounted) {
+      return;
+    }
+
+    final chosen = _chosen;
+    final row = _row.currentContext?.findRenderObject() as RenderBox?;
+    final disc = chosen >= 0
+        ? _keys[chosen].currentContext?.findRenderObject() as RenderBox?
+        : null;
+
+    final next = disc != null && row != null && disc.hasSize && row.hasSize
+        ? (disc.localToGlobal(Offset.zero, ancestor: row) & disc.size)
+        : null;
+
+    if (next != _rect) {
+      setState(() => _rect = next);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final PlassTokens tokens = PlassTheme.of(context);
-    final double disc = controlHeight[size]!;
-    final double air = _capsulePadding[density]![size]!;
-    final double inset = safeArea ? MediaQuery.paddingOf(context).bottom : 0;
+    final tokens = PlassTheme.of(context);
+    final family = tokens.family(widget.color);
+    final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final disc = controlHeight[widget.size]!;
+    final air = _capsulePadding[widget.density]![widget.size]!;
+    final inset = widget.safeArea ? MediaQuery.paddingOf(context).bottom : 0.0;
+    final chosen = _chosen;
 
     // A pill, and one of the very few the library allows. It is allowed for the
     // reason a segmented button's groove is: the house fillet is about a sheet
     // with its corners cut, and a sheet that is not lying on anything has no
     // corners to cut.
-    final BorderRadius capsule = BorderRadius.circular(disc / 2 + air);
+    final capsule = BorderRadius.circular(disc / 2 + air);
 
     Widget row = Row(
+      key: _row,
       mainAxisSize: MainAxisSize.min,
-      spacing: _discGap[density]![size]!,
+      spacing: _discGap[widget.density]![widget.size]!,
       children: <Widget>[
-        for (final PlFloatingBottomNavigationItem<T> item in items)
-          _disc(context, item, tokens, disc),
+        for (var index = 0; index < widget.items.length; index += 1)
+          _disc(widget.items[index], tokens, family, disc, index),
+      ],
+    );
+
+    // The key rides *behind* the glyphs, which is why this is a stack rather
+    // than a surface on the current disc: a surface would fade up on one disc
+    // as it faded out of another, and this one travels.
+    row = Stack(
+      children: <Widget>[
+        if (_rect != null)
+          AnimatedPositioned(
+            duration: reduceMotion ? Duration.zero : PlassTokens.duration,
+            curve: PlassTokens.ease,
+            left: _rect!.left,
+            top: _rect!.top,
+            width: _rect!.width,
+            height: _rect!.height,
+            child: _Key(
+              family: family,
+              tokens: tokens,
+              // The light goes out on the key the same way it goes out on the
+              // disc over it, or an unavailable destination is a dimmed glyph
+              // on a fully lit gradient.
+              quiet: widget.onChanged == null || (chosen >= 0 && widget.items[chosen].disabled),
+            ),
+          ),
+        row,
       ],
     );
 
     row = Padding(padding: EdgeInsets.all(air), child: row);
 
-    Widget bar = variant == PlassVariant.ghost
+    Widget bar = widget.variant == PlassVariant.ghost
         ? row
         : PlassSurfaceBox(
-            surface: sheetSurface(tokens, variant: variant, elevation: elevation),
+            surface: sheetSurface(tokens, variant: widget.variant, elevation: widget.elevation),
             borderRadius: capsule,
             duration: PlassTokens.durationSlow,
             child: row,
           );
 
-    if (disabled) {
+    if (widget.disabled) {
       bar = Opacity(opacity: disabledOpacity, child: bar);
     }
 
-    bar = Semantics(container: true, explicitChildNodes: true, label: label, child: bar);
+    bar = Semantics(container: true, explicitChildNodes: true, label: widget.label, child: bar);
 
     // Centred, as tall as the capsule, and held off the floor. There is no
     // strip across the screen to build here — the React build needs one because
     // a fixed element has to span something, and a Flutter app puts this
     // wherever it wants it.
     return Padding(
-      padding: EdgeInsets.only(bottom: _floatGap[size]! + inset),
+      padding: EdgeInsets.only(bottom: _floatGap[widget.size]! + inset),
       child: Align(alignment: Alignment.bottomCenter, heightFactor: 1, child: bar),
     );
   }
 
   Widget _disc(
-    BuildContext context,
     PlFloatingBottomNavigationItem<T> item,
     PlassTokens tokens,
+    PlassColorFamily family,
     double disc,
+    int index,
   ) {
-    final PlassColorFamily family = tokens.family(color);
-    final bool unavailable = disabled || item.disabled || onChanged == null;
-    final bool selected = value != null && value == item.value;
-    final BorderRadius round = BorderRadius.circular(disc / 2);
+    final unavailable = widget.disabled || item.disabled || widget.onChanged == null;
+    final selected = widget.value != null && widget.value == item.value;
+    final round = BorderRadius.circular(disc / 2);
 
     return PlassInteractive(
+      key: _keys[index],
       enabled: !unavailable,
       interactive: !unavailable,
       cursor: unavailable ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
-      onTap: () => onChanged?.call(item.value),
+      onTap: () => widget.onChanged?.call(item.value),
       builder: (BuildContext context, PlassInteraction state) {
-        // The chosen disc is a *control* surface and every other one is bare:
-        // the current destination is the one key of tinted glass in a clear
-        // sheet, and nothing else in the row is pressed-looking until it is
-        // under the pointer.
+        // No surface of its own on the current disc. What is under its glyph is
+        // the key, which belongs to the bar; a disc that drew a fill of its own
+        // would be a second key appearing wherever the first had just left.
         final PlassSurface surface = selected && !unavailable
-            ? controlSurface(
-                tokens,
-                family,
-                variant: PlassVariant.solid,
-                elevation: 1,
-                hovered: state.hovered,
-                pressed: state.pressed,
-              )
+            ? PlassSurface(ink: family.onSolid)
             : PlassSurface(
                 fill: unavailable
                     ? null
@@ -278,20 +385,17 @@ class PlFloatingBottomNavigation<T> extends StatelessWidget {
               child: item.icon == null
                   ? const SizedBox.shrink()
                   : IconTheme.merge(
-                      data: IconThemeData(color: surface.ink, size: iconSize[size]!),
+                      data: IconThemeData(color: surface.ink, size: iconSize[widget.size]!),
                       child: item.icon!,
                     ),
             ),
           ),
         );
 
-        content = plassStateFilter(
-          child: content,
-          disabled: unavailable,
-          hovered: state.hovered,
-          pressed: state.pressed,
-          lit: selected && !unavailable,
-        );
+        // `lit` is off on every disc, the current one included: the light a
+        // filled surface answers the pointer with belongs to the surface, and
+        // the only filled surface in the row is the key.
+        content = plassStateFilter(child: content, disabled: unavailable, lit: false);
 
         if (state.focusVisible) {
           content = CustomPaint(
@@ -314,10 +418,43 @@ class PlFloatingBottomNavigation<T> extends StatelessWidget {
           selected: selected,
           // Never drawn, always read.
           label: item.label,
-          onTap: unavailable ? null : () => onChanged?.call(item.value),
+          onTap: unavailable ? null : () => widget.onChanged?.call(item.value),
           child: ExcludeSemantics(child: content),
         );
       },
     );
+  }
+}
+
+/// The key that slides.
+///
+/// Always the family's own gradient with that family's tinted shadow under it,
+/// whatever the capsule is made of.
+///
+/// It carries no hover and no press light, which is the one thing it gave up by
+/// moving off the disc — and giving it up is right rather than a compromise: a
+/// [PlSegmentedButton]'s tile is the same object solving the same problem and
+/// has none either, and the current destination is the one a reader is already
+/// on.
+class _Key extends StatelessWidget {
+  const _Key({required this.family, required this.tokens, required this.quiet});
+
+  final PlassColorFamily family;
+  final PlassTokens tokens;
+
+  /// Whether the destination under it is unavailable.
+  final bool quiet;
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget key = DecoratedBox(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: family.fill,
+        boxShadow: <BoxShadow>[...tokens.elevation(1), tokens.lift(family)],
+      ),
+    );
+
+    return quiet ? plassStateFilter(child: key, disabled: true, lit: false) : key;
   }
 }
