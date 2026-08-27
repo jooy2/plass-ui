@@ -24,6 +24,7 @@ import {
   PlContainer,
   PlDatePicker,
   PlDateRangePicker,
+  PlDateTimePicker,
   PlDivider,
   PlDrawer,
   PlFilePicker,
@@ -288,6 +289,16 @@ const entries: Entry[] = [
       ko: '달력에서 하루를 고릅니다. 날짜 라이브러리도, 번역 파일도 없습니다.'
     },
     preview: <PlDatePicker fullWidth size="sm" placeholder="Pick a day" />
+  },
+  {
+    name: 'PlDateTimePicker',
+    group: 'inputs',
+    href: 'components/inputs/date-time-picker',
+    blurb: {
+      en: 'A day and a time, in one popup, at full precision.',
+      ko: '한 팝업 안의 날짜와 시각. 경계는 전체 정밀도로 읽습니다.'
+    },
+    preview: <PlDateTimePicker fullWidth size="sm" placeholder="Pick a moment" minuteStep={15} />
   },
   {
     name: 'PlTimePicker',

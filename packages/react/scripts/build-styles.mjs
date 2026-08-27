@@ -23,7 +23,7 @@
  *
  * **The last two names are the small half of the package.** `@source '.'` is
  * generous on purpose: it is one line and it cannot be got wrong. What it costs
- * is that a project running Tailwind generates the utilities for all 62
+ * is that a project running Tailwind generates the utilities for all 63
  * components whether it imports one of them or all of them, because Tailwind
  * scans *files* and not the import graph — there is nothing in a build that
  * connects `import { PlButton }` to the classes `PlSelect.js` spells out.

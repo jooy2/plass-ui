@@ -2666,6 +2666,93 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlDateTimePicker: [
+    {
+      name: 'value',
+      type: 'Date | null',
+      description: {
+        ko: '선택된 순간. onValueChange와 함께 controlled로 씁니다',
+        en: 'The chosen moment. Use with onValueChange for a controlled picker'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'Date | null',
+      description: { ko: 'uncontrolled일 때 시작하는 순간', en: 'The moment the picker starts on' }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: Date | null) => void',
+      description: { ko: '값이 바뀔 때 호출됩니다', en: 'Called with the new value' }
+    },
+    {
+      name: 'minDate',
+      type: 'Date | null',
+      description: {
+        ko: '고를 수 있는 가장 이른 순간. PlDatePicker와 달리 **전체 정밀도로** 읽습니다 — 그 경계가 놓인 날은 달력에서 그대로 고를 수 있고, 그 앞의 시각을 막는 건 시계 열입니다',
+        en: 'The earliest moment that may be chosen. Unlike PlDatePicker, it is read at **full precision**: the day it falls on stays selectable in the calendar and the clock columns block the hours before it'
+      }
+    },
+    {
+      name: 'maxDate',
+      type: 'Date | null',
+      description: {
+        ko: '고를 수 있는 가장 늦은 순간. 역시 전체 정밀도입니다',
+        en: 'The latest moment that may be chosen, likewise at full precision'
+      }
+    },
+    {
+      name: 'shouldDisableDate',
+      type: '(date: Date) => boolean',
+      description: {
+        ko: '범위 안이지만 그래도 쓸 수 없는 날을 막습니다',
+        en: 'Blocks individual days that are inside the range but still not available'
+      }
+    },
+    {
+      name: 'weekStartsOn',
+      type: '0 | 1 | 2 | 3 | 4 | 5 | 6',
+      description: {
+        ko: '한 주가 시작하는 요일. 기본은 locale이 말하는 대로이고, 0이 일요일입니다',
+        en: 'Which day the week starts on. Defaults to whatever the locale says; 0 is Sunday'
+      }
+    },
+    {
+      name: 'defaultMonth',
+      type: 'Date',
+      description: {
+        ko: '값이 없을 때 달력이 열리는 달',
+        en: 'Which month the calendar opens on when there is no value'
+      }
+    },
+    ...timeColumnProps,
+    {
+      name: 'showNowButton',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '푸터에 이 순간으로 가는 지름길을 둡니다',
+        en: 'Offers the shortcut to this moment in the footer'
+      }
+    },
+    ...pickerProps({
+      format: "{ dateStyle: 'medium', timeStyle: 'short' }",
+      formatDescription: {
+        ko: 'trigger가 순간을 쓰는 방식. Intl로 그대로 넘어갑니다',
+        en: 'How the trigger writes the chosen moment. Passed straight to Intl'
+      },
+      closeOnSelect: 'false',
+      closeOnSelectDescription: {
+        ko: '날을 고르는 즉시 팝업을 닫습니다. 여기서는 false, PlDatePicker에서는 true인 건 순간이 날 *그리고* 시각이고 둘 중 첫째에서 닫으면 둘째가 답 없이 남기 때문입니다',
+        en: 'Closes the popup as soon as a day is chosen. false here and true on PlDatePicker, because a moment is a day *and* a time and closing on the first would leave the second unanswered'
+      },
+      nameDescription: {
+        ko: '폼 제출 시 필드를 식별합니다. 로컬 YYYY-MM-DDTHH:MM으로 보냅니다',
+        en: 'Identifies the field when a form is submitted, as a local YYYY-MM-DDTHH:MM'
+      }
+    })
+  ],
+
   PlDivider: [
     {
       name: 'orientation',
