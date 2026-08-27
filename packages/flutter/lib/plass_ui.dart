@@ -58,6 +58,7 @@ export 'src/components/pagination/pl_pagination.dart';
 export 'src/components/panes/pl_panes.dart';
 export 'src/components/pill/pl_pill.dart';
 export 'src/components/popover/pl_popover.dart';
+export 'src/components/progress_circular/pl_progress_circular.dart';
 export 'src/components/progress_linear/pl_progress_linear.dart';
 export 'src/components/radio_group/pl_radio_group.dart';
 export 'src/components/rating/pl_rating.dart';

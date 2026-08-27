@@ -197,6 +197,11 @@ import 'package:plass_ui_example/demos/pill/variants.dart';
 import 'package:plass_ui_example/demos/popover/form.dart';
 import 'package:plass_ui_example/demos/popover/hero.dart';
 import 'package:plass_ui_example/demos/popover/sides.dart';
+import 'package:plass_ui_example/demos/progress_circular/colors.dart';
+import 'package:plass_ui_example/demos/progress_circular/hero.dart';
+import 'package:plass_ui_example/demos/progress_circular/indeterminate.dart';
+import 'package:plass_ui_example/demos/progress_circular/inline.dart';
+import 'package:plass_ui_example/demos/progress_circular/sizes.dart';
 import 'package:plass_ui_example/demos/progress_linear/colors.dart';
 import 'package:plass_ui_example/demos/progress_linear/format.dart';
 import 'package:plass_ui_example/demos/progress_linear/hero.dart';
@@ -327,6 +332,11 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'button/states': _states,
   'button/elevation': _elevation,
   'button/full-width': _fullWidth,
+  'progress-circular/hero': _progressCircularHero,
+  'progress-circular/indeterminate': _progressCircularIndeterminate,
+  'progress-circular/sizes': _progressCircularSizes,
+  'progress-circular/colors': _progressCircularColors,
+  'progress-circular/inline': _progressCircularInline,
   'progress-linear/hero': _progressLinearHero,
   'progress-linear/indeterminate': _progressLinearIndeterminate,
   'progress-linear/sizes': _progressLinearSizes,
@@ -628,6 +638,12 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
 
 Widget _hero(BuildContext context) => const ButtonHero();
 Widget _variants(BuildContext context) => const ButtonVariants();
+Widget _progressCircularHero(BuildContext context) => const ProgressCircularHero();
+Widget _progressCircularIndeterminate(BuildContext context) =>
+    const ProgressCircularIndeterminate();
+Widget _progressCircularSizes(BuildContext context) => const ProgressCircularSizes();
+Widget _progressCircularColors(BuildContext context) => const ProgressCircularColors();
+Widget _progressCircularInline(BuildContext context) => const ProgressCircularInline();
 Widget _progressLinearHero(BuildContext context) => const ProgressLinearHero();
 Widget _progressLinearIndeterminate(BuildContext context) => const ProgressLinearIndeterminate();
 Widget _progressLinearSizes(BuildContext context) => const ProgressLinearSizes();

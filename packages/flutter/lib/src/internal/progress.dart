@@ -43,6 +43,39 @@ const Duration pulseDuration = Duration(milliseconds: 1800);
 /// How much of the groove the travelling segment covers.
 const double sweepWidth = 0.45;
 
+/// The diameter of the ring, in logical pixels.
+///
+/// They sit just under the control ladder at every step — a `md` ring is 20
+/// inside a 40 control — so a ring dropped into a button, a field or a table row
+/// never makes the row taller than it already was.
+const Map<PlassSize, double> ringDiameter = <PlassSize, double>{
+  PlassSize.xs: 14,
+  PlassSize.sm: 16,
+  PlassSize.md: 20,
+  PlassSize.lg: 26,
+  PlassSize.xl: 32,
+};
+
+/// The ring's stroke, thickening with the ring so the hole stays in proportion.
+const Map<PlassSize, double> ringStroke = <PlassSize, double>{
+  PlassSize.xs: 1.5,
+  PlassSize.sm: 1.75,
+  PlassSize.md: 2,
+  PlassSize.lg: 2.5,
+  PlassSize.xl: 3,
+};
+
+/// How much of the circle an indeterminate ring draws while it turns.
+const double ringArcSweep = 0.28;
+
+/// How long that ring takes to go round once.
+const Duration spinDuration = Duration(milliseconds: 900);
+
+/// And how long under a reduced-motion preference, where it is slowed to where
+/// it stops reading as motion rather than being stopped: an indeterminate
+/// indicator that holds still says the opposite of what it is for.
+const Duration slowSpinDuration = Duration(milliseconds: 2400);
+
 /// `value` as a fraction of the range, or `null` when there is nothing to say.
 ///
 /// The clamp is not defensive programming for its own sake — `value` usually

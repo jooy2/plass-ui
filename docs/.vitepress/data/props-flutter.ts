@@ -1381,6 +1381,18 @@ export const flutterPropTables: Record<string, PropRow[]> = {
    * decision on its consumer's behalf. So the Dart side takes the function
    * instead of the options.
    */
+  /** The ring takes the bar's table unchanged except for what `size` means. */
+  PlProgressCircular: [
+    from('PlProgressCircular', 'value', { type: 'double?', default: 'null' }),
+    from('PlProgressCircular', 'min', { type: 'double', default: '0' }),
+    from('PlProgressCircular', 'max', { type: 'double', default: '100' }),
+    from('PlProgressCircular', 'label', { type: 'Widget?' }),
+    from('PlProgressCircular', 'showValue', { type: 'bool', default: 'false' }),
+    from('PlProgressLinear', 'formatValue', { type: 'String Function(double value)?' }),
+    from('PlProgressCircular', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlProgressCircular', 'color', { type: COLOR, default: 'PlassColor.primary' })
+  ],
+
   PlProgressLinear: [
     from('PlProgressLinear', 'value', { type: 'double?', default: 'null' }),
     from('PlProgressLinear', 'min', { type: 'double', default: '0' }),
