@@ -936,3 +936,314 @@ class _PlassCalendarState extends State<PlassCalendar> {
     return KeyEventResult.handled;
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * The clock
+ * ------------------------------------------------------------------------ */
+
+/// How wide one clock column is, as a multiple of a day cell.
+const double clockColumnFactor = 1.75;
+
+/// Hours, minutes and — when asked for — seconds, as columns you scroll rather
+/// than as a dial you drag.
+///
+/// Columns because they are the shape that answers what a time picker is
+/// actually asked: "half past nine" is two glances, and "any time at all, on the
+/// hour" is a column you never touch. A clock face is prettier and needs a
+/// transform to read, which this library does not put on a control.
+///
+/// The chosen row in each column is scrolled into view once, on open. That is
+/// the only imperative work here and it is not optional: a column of sixty
+/// minutes that opens at `00` while the value is `45` has hidden its own answer.
+///
+/// The columns are the same seven cells tall the calendar's grid is, so a
+/// `PlDateTimePicker`'s popup is one rectangle rather than two of different
+/// heights pushed together.
+class PlassTimeGrid extends StatefulWidget {
+  /// Creates the clock.
+  const PlassTimeGrid({
+    required this.value,
+    required this.referenceDate,
+    required this.onChanged,
+    required this.names,
+    required this.labels,
+    required this.hour12,
+    this.size = PlassSize.md,
+    this.density = PlassDensity.standard,
+    this.color = PlassColor.primary,
+    this.showSeconds = false,
+    this.hourStep = 1,
+    this.minuteStep = 1,
+    this.secondStep = 1,
+    this.shouldDisableTime,
+    super.key,
+  });
+
+  /// The time on screen, or `null` while nothing has been chosen.
+  final DateTime? value;
+
+  /// The day the columns write into while [value] is still `null`.
+  final DateTime referenceDate;
+
+  /// Called with the instant the pressed row produces.
+  final ValueChanged<DateTime> onChanged;
+
+  /// Where AM and PM come from.
+  final PlDateNames names;
+
+  /// What the columns are called.
+  final PlPickerLabels labels;
+
+  /// A 12-hour dial with an AM/PM column.
+  final bool hour12;
+
+  /// Height and type scale of one row.
+  final PlassSize size;
+
+  /// How tightly the columns sit together. Never their height.
+  final PlassDensity density;
+
+  /// The family a chosen row is filled with.
+  final PlassColor color;
+
+  /// Adds the seconds column.
+  final bool showSeconds;
+
+  /// How far apart the rows of the hours column are.
+  final int hourStep;
+
+  /// See [hourStep].
+  final int minuteStep;
+
+  /// See [hourStep].
+  final int secondStep;
+
+  /// Blocks individual rows, given the instant a row would produce and the
+  /// column it is in.
+  final bool Function(DateTime value, PlassTimeUnit unit)? shouldDisableTime;
+
+  @override
+  State<PlassTimeGrid> createState() => _PlassTimeGridState();
+}
+
+class _PlassTimeGridState extends State<PlassTimeGrid> {
+  final Map<PlassTimeUnit, ScrollController> _scrollers = <PlassTimeUnit, ScrollController>{
+    for (final PlassTimeUnit unit in PlassTimeUnit.values) unit: ScrollController(),
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    // Once, on open. Re-running it on every change would drag a column back
+    // under the finger that is scrolling it.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _revealChosen());
+  }
+
+  @override
+  void dispose() {
+    for (final ScrollController controller in _scrollers.values) {
+      controller.dispose();
+    }
+
+    super.dispose();
+  }
+
+  DateTime get _base => widget.value ?? widget.referenceDate;
+
+  /// Brings the chosen row of each column into view *inside its own column*.
+  ///
+  /// Computed and jumped rather than asked for with `ensureVisible`, which walks
+  /// every scrollable ancestor: the popup this runs in has only just been
+  /// positioned, and a scroll that reached past the column would move the screen
+  /// behind it.
+  void _revealChosen() {
+    if (!mounted || widget.value == null) {
+      return;
+    }
+
+    final rowHeight = controlHeight[widget.size]! + _rowGap;
+    final viewport = cellSize[widget.size]! * 7;
+
+    void reveal(PlassTimeUnit unit, int index) {
+      final controller = _scrollers[unit]!;
+
+      if (!controller.hasClients) {
+        return;
+      }
+
+      final target = (index * rowHeight - viewport / 2 + rowHeight / 2).clamp(
+        0.0,
+        controller.position.maxScrollExtent,
+      );
+
+      controller.jumpTo(target);
+    }
+
+    reveal(PlassTimeUnit.hour, _hours.indexOf(_displayHour));
+    reveal(PlassTimeUnit.minute, _minutes.indexOf(_base.minute));
+
+    if (widget.showSeconds) {
+      reveal(PlassTimeUnit.second, _seconds.indexOf(_base.second));
+    }
+  }
+
+  int get _displayHour => widget.hour12
+      ? _base.hour % 12 == 0
+            ? 12
+            : _base.hour % 12
+      : _base.hour;
+
+  List<int> get _hours {
+    final count = ((widget.hour12 ? 12 : 24) / widget.hourStep).ceil();
+    final raw = <int>[for (var i = 0; i < count; i += 1) i * widget.hourStep];
+
+    // 12, 1, 2 … 11 — the order a 12-hour dial is read in, not 0…11.
+    return widget.hour12 ? <int>[for (final int hour in raw) hour == 0 ? 12 : hour] : raw;
+  }
+
+  List<int> get _minutes => <int>[
+    for (var i = 0; i < (60 / widget.minuteStep).ceil(); i += 1) i * widget.minuteStep,
+  ];
+
+  List<int> get _seconds => <int>[
+    for (var i = 0; i < (60 / widget.secondStep).ceil(); i += 1) i * widget.secondStep,
+  ];
+
+  /// The instant taking this row would produce.
+  DateTime _candidate(PlassTimeUnit unit, int raw) {
+    switch (unit) {
+      case PlassTimeUnit.hour:
+        return withTime(_base, hours: widget.hour12 ? raw % 12 + (_base.hour >= 12 ? 12 : 0) : raw);
+      case PlassTimeUnit.minute:
+        return withTime(_base, minutes: raw);
+      case PlassTimeUnit.second:
+        return withTime(_base, seconds: raw);
+      case PlassTimeUnit.meridiem:
+        // `raw` is 0 for the first half of the day and 1 for the second.
+        return withTime(_base, hours: _base.hour % 12 + raw * 12);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = PlassTheme.of(context);
+    String pad(int value) => value.toString().padLeft(2, '0');
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      spacing: widget.density == PlassDensity.compact ? 2 : 4,
+      children: <Widget>[
+        _column(
+          PlassTimeUnit.hour,
+          widget.labels.hour,
+          _hours,
+          (int raw) => raw == _displayHour,
+          (int raw) => widget.hour12 ? '$raw' : pad(raw),
+        ),
+        _column(
+          PlassTimeUnit.minute,
+          widget.labels.minute,
+          _minutes,
+          (int raw) => raw == _base.minute,
+          pad,
+        ),
+        if (widget.showSeconds)
+          _column(
+            PlassTimeUnit.second,
+            widget.labels.second,
+            _seconds,
+            (int raw) => raw == _base.second,
+            pad,
+          ),
+        if (widget.hour12)
+          _column(
+            PlassTimeUnit.meridiem,
+            widget.labels.meridiem,
+            const <int>[0, 1],
+            (int raw) => (_base.hour >= 12 ? 1 : 0) == raw,
+            (int raw) => raw == 0 ? widget.names.am : widget.names.pm,
+          ),
+        // Three unlabelled lists of numbers, to anyone reading the screen rather
+        // than looking at it. This is the sentence that says what they add up to.
+        ExcludeSemantics(
+          excluding: widget.value == null,
+          child: Semantics(
+            liveRegion: true,
+            label: widget.value == null ? '' : _spokenTime(),
+            child: SizedBox(width: 0, height: 0, child: Container(color: tokens.surface)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// The whole time as one sentence, out of the picker's own words.
+  String _spokenTime() {
+    final base = _base;
+    final hour = widget.hour12
+        ? base.hour % 12 == 0
+              ? 12
+              : base.hour % 12
+        : base.hour;
+    final minute = base.minute.toString().padLeft(2, '0');
+    final seconds = widget.showSeconds ? ':${base.second.toString().padLeft(2, '0')}' : '';
+    final meridiem = widget.hour12 ? ' ${base.hour < 12 ? widget.names.am : widget.names.pm}' : '';
+
+    return '$hour:$minute$seconds$meridiem';
+  }
+
+  Widget _column(
+    PlassTimeUnit unit,
+    String name,
+    List<int> rows,
+    bool Function(int raw) isChosen,
+    String Function(int raw) render,
+  ) {
+    final side = cellSize[widget.size]!;
+
+    return Semantics(
+      container: true,
+      label: name,
+      explicitChildNodes: true,
+      child: SizedBox(
+        width: side * clockColumnFactor,
+        height: side * 7,
+        child: SingleChildScrollView(
+          controller: _scrollers[unit],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            spacing: _rowGap,
+            children: <Widget>[
+              for (final int raw in rows)
+                Builder(
+                  builder: (BuildContext context) {
+                    final at = _candidate(unit, raw);
+                    final chosen = widget.value != null && isChosen(raw);
+                    final disabled = widget.shouldDisableTime?.call(at, unit) ?? false;
+
+                    return PlassCalendarCell(
+                      label: '${render(raw)} $name',
+                      size: widget.size,
+                      color: widget.color,
+                      width: side * clockColumnFactor,
+                      selected: chosen,
+                      disabled: disabled,
+                      // The clock is not a grid: `Tab` walks past the whole of
+                      // it, and a column is scrolled rather than arrowed.
+                      focused: false,
+                      onPressed: () => widget.onChanged(at),
+                      child: Text(render(raw)),
+                    );
+                  },
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Between two rows of one column.
+const double _rowGap = 2;

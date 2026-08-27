@@ -304,6 +304,11 @@ import 'package:plass_ui_example/demos/text_link/hero.dart';
 import 'package:plass_ui_example/demos/text_link/icons.dart';
 import 'package:plass_ui_example/demos/text_link/sizes.dart';
 import 'package:plass_ui_example/demos/text_link/underline.dart';
+import 'package:plass_ui_example/demos/time_picker/bounds.dart';
+import 'package:plass_ui_example/demos/time_picker/dials.dart';
+import 'package:plass_ui_example/demos/time_picker/hero.dart';
+import 'package:plass_ui_example/demos/time_picker/states.dart';
+import 'package:plass_ui_example/demos/time_picker/steps.dart';
 import 'package:plass_ui_example/demos/timeline/active.dart';
 import 'package:plass_ui_example/demos/timeline/connectors.dart';
 import 'package:plass_ui_example/demos/timeline/hero.dart';
@@ -357,6 +362,11 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'date-range-picker/presets': _dateRangePickerPresets,
   'date-range-picker/bounds': _dateRangePickerBounds,
   'date-range-picker/controlled': _dateRangePickerControlled,
+  'time-picker/hero': _timePickerHero,
+  'time-picker/dials': _timePickerDials,
+  'time-picker/steps': _timePickerSteps,
+  'time-picker/bounds': _timePickerBounds,
+  'time-picker/states': _timePickerStates,
   'date-picker/hero': _datePickerHero,
   'date-picker/locales': _datePickerLocales,
   'date-picker/bounds': _datePickerBounds,
@@ -683,6 +693,11 @@ Widget _dateRangePickerMonths(BuildContext context) => const DateRangePickerMont
 Widget _dateRangePickerPresets(BuildContext context) => const DateRangePickerPresets();
 Widget _dateRangePickerBounds(BuildContext context) => const DateRangePickerBounds();
 Widget _dateRangePickerControlled(BuildContext context) => const DateRangePickerControlled();
+Widget _timePickerHero(BuildContext context) => const TimePickerHero();
+Widget _timePickerDials(BuildContext context) => const TimePickerDials();
+Widget _timePickerSteps(BuildContext context) => const TimePickerSteps();
+Widget _timePickerBounds(BuildContext context) => const TimePickerBounds();
+Widget _timePickerStates(BuildContext context) => const TimePickerStates();
 Widget _datePickerHero(BuildContext context) => const DatePickerHero();
 Widget _datePickerLocales(BuildContext context) => const DatePickerLocales();
 Widget _datePickerBounds(BuildContext context) => const DatePickerBounds();

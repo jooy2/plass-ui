@@ -427,6 +427,50 @@ List<DateTime>? orderedRange(DateTime? a, DateTime? b) {
 /// Seconds since local midnight — what a time bound is compared on.
 int secondsOfDay(DateTime date) => date.hour * 3600 + date.minute * 60 + date.second;
 
+/// Which column of a clock a candidate time is being offered for.
+enum PlassTimeUnit {
+  /// The hours column.
+  hour,
+
+  /// The minutes column.
+  minute,
+
+  /// The seconds column, when it is drawn.
+  second,
+
+  /// The AM/PM column, on a 12-hour dial.
+  meridiem,
+}
+
+/// The span of the day one row of one column covers, in seconds since midnight.
+///
+/// This is the detail that separates a working time picker from a frustrating
+/// one. A bound has to be checked against the *span* a row stands for, not
+/// against one instant inside it: with a `minTime` of 09:30, the hour `9` covers
+/// 09:00:00–09:59:59, which overlaps what is allowed, so it stays available and
+/// the minute column is where `00` through `25` grey out. Comparing the whole
+/// candidate instead hides the 9 and makes half past nine unreachable.
+List<int> timeUnitSpan(PlassTimeUnit unit, DateTime at) {
+  final seconds = secondsOfDay(at);
+
+  switch (unit) {
+    case PlassTimeUnit.hour:
+      final start = seconds ~/ 3600 * 3600;
+
+      return <int>[start, start + 3599];
+    case PlassTimeUnit.minute:
+      final start = seconds ~/ 60 * 60;
+
+      return <int>[start, start + 59];
+    case PlassTimeUnit.second:
+      return <int>[seconds, seconds];
+    case PlassTimeUnit.meridiem:
+      final start = at.hour < 12 ? 0 : 12 * 3600;
+
+      return <int>[start, start + 12 * 3600 - 1];
+  }
+}
+
 /// The same instant with one or more clock fields replaced.
 DateTime withTime(DateTime date, {int? hours, int? minutes, int? seconds}) {
   return DateTime(

@@ -170,6 +170,28 @@ const pickerHandleProps: PropRow[] = [
   }
 ];
 
+/** The clock columns' parameters, shared by the two pickers that draw one. */
+function timeColumnProps(component: string): PropRow[] {
+  return [
+    {
+      name: 'hour12',
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: 'AM/PM 열이 붙은 12시간 다이얼. React가 locale에서 가져오는 자리에서 여기서는 그냥 false입니다 — 물어볼 Intl이 없고, 켰을 때 쓰는 말은 PlDateNames의 am/pm입니다',
+        en: 'A 12-hour dial with an AM/PM column. A plain false where React takes it from the locale: there is no Intl here to ask, and the words it uses when on are PlDateNames.am and .pm'
+      }
+    },
+    from(component, 'showSeconds', { type: 'bool', default: 'false' }),
+    from(component, 'hourStep', { type: 'int', default: '1' }),
+    from(component, 'minuteStep', { type: 'int', default: '1' }),
+    from(component, 'secondStep', { type: 'int', default: '1' }),
+    from(component, 'shouldDisableTime', {
+      type: 'bool Function(DateTime value, PlassTimeUnit unit)?'
+    })
+  ];
+}
+
 export const flutterPropTables: Record<string, PropRow[]> = {
   PlAccordion: [
     from('PlAccordion', 'children', {
@@ -2840,6 +2862,78 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'String',
       default: "'(opens elsewhere)'"
     })
+  ],
+
+  PlTimePicker: [
+    {
+      name: 'value',
+      type: 'DateTime?',
+      required: true,
+      description: {
+        ko: '선택된 시각. DateTime이므로 날짜도 함께 지닙니다',
+        en: 'The chosen time. A DateTime, so it carries a day as well'
+      }
+    },
+    {
+      name: 'onChanged',
+      type: 'ValueChanged<DateTime?>?',
+      description: {
+        ko: '고른 시각과 함께 호출됩니다. 비우면 null입니다',
+        en: 'Called with the time that was chosen, or null when the picker is emptied'
+      }
+    },
+    from('PlTimePicker', 'open', { type: 'bool?' }),
+    {
+      name: 'onOpenChanged',
+      type: 'ValueChanged<bool>?',
+      description: {
+        ko: '열들이 열리거나 닫혀야 할 때 호출됩니다',
+        en: 'Called when the columns should open or close'
+      }
+    },
+    from('PlTimePicker', 'referenceDate', { type: 'DateTime?', default: 'now' }),
+    from('PlTimePicker', 'minTime', { type: 'DateTime?' }),
+    from('PlTimePicker', 'maxTime', { type: 'DateTime?' }),
+    ...timeColumnProps('PlTimePicker'),
+    {
+      name: 'names',
+      type: 'PlDateNames',
+      default: 'PlDateNames.english',
+      description: {
+        ko: 'AM과 PM이 나오는 곳',
+        en: 'Where AM and PM come from'
+      }
+    },
+    from('PlTimePicker', 'labels', {
+      type: 'PlPickerLabels',
+      default: 'PlPickerLabels.english'
+    }),
+    {
+      name: 'formatValue',
+      type: 'String Function(DateTime value)?',
+      description: {
+        ko: 'trigger가 시각을 쓰는 방식. 빼면 H:MM이고, 초와 오전/오후가 켜져 있으면 함께 붙습니다',
+        en: 'How the trigger writes the chosen time. Without it, H:MM — with seconds and a meridiem when those are on'
+      }
+    },
+    from('PlTimePicker', 'placeholder', { type: 'Widget?' }),
+    from('PlTimePicker', 'clearable', { type: 'bool', default: 'false' }),
+    from('PlTimePicker', 'showNowButton', { type: 'bool', default: 'true' }),
+    from('PlTimePicker', 'closeOnSelect', { type: 'bool', default: 'false' }),
+    from('PlTimePicker', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlTimePicker', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlTimePicker', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlTimePicker', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlTimePicker', 'elevation', { type: 'int', default: '0' }),
+    from('PlTimePicker', 'label', { type: 'Widget?' }),
+    from('PlTimePicker', 'description', { type: 'Widget?' }),
+    from('PlTimePicker', 'error', { type: 'Widget?' }),
+    from('PlTimePicker', 'invalid', { type: 'bool?' }),
+    from('PlTimePicker', 'startIcon', { type: 'Widget?' }),
+    from('PlTimePicker', 'fullWidth', { type: 'bool', default: 'false' }),
+    from('PlTimePicker', 'readOnly', { type: 'bool', default: 'false' }),
+    from('PlTimePicker', 'disabled', { type: 'bool', default: 'false' }),
+    ...pickerHandleProps
   ],
 
   PlTimeline: [

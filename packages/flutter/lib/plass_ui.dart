@@ -77,6 +77,7 @@ export 'src/components/table/pl_table.dart';
 export 'src/components/tabs/pl_tabs.dart';
 export 'src/components/text_field/pl_text_field.dart';
 export 'src/components/text_link/pl_text_link.dart';
+export 'src/components/time_picker/pl_time_picker.dart';
 export 'src/components/timeline/pl_timeline.dart';
 export 'src/components/toast/pl_toast.dart';
 export 'src/components/toolbar/pl_toolbar.dart';
