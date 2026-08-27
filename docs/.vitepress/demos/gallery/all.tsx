@@ -43,6 +43,7 @@ import {
   PlRadio,
   PlRadioGroup,
   PlRating,
+  PlScrollZone,
   PlSegment,
   PlSegmentedButton,
   PlSelect,
@@ -934,6 +935,24 @@ const entries: Entry[] = [
           </PlPane>
         </PlPanes>
       </div>
+    )
+  },
+  {
+    name: 'PlScrollZone',
+    group: 'layout',
+    href: 'components/layout/scroll-zone',
+    blurb: {
+      en: 'A strip of anything, laid out in one direction and scrolled in it.',
+      ko: '무엇이든 한 방향으로 늘어놓고 그 방향으로 스크롤하는 띠입니다.'
+    },
+    preview: (
+      <PlScrollZone className="w-full" label="Teams" spacing={2} buttons="always" size="sm">
+        {['Design', 'Engineering', 'Research', 'Support', 'Finance'].map((team) => (
+          <PlChip key={team} size="sm">
+            {team}
+          </PlChip>
+        ))}
+      </PlScrollZone>
     )
   },
   {

@@ -3971,6 +3971,144 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlScrollZone: [
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      shared: true,
+      description: {
+        ko: '자식이 흐르는 방향, 따라서 스크롤되는 방향',
+        en: 'Which way the children run, and therefore which way the zone scrolls'
+      }
+    },
+    {
+      name: 'lines',
+      type: 'number',
+      default: '1',
+      description: {
+        ko: '가로 zone이 새 열을 시작하기 전에 채우는 행의 수. 세로 zone에서는 열의 수',
+        en: 'How many rows a horizontal zone fills before it starts a new column — columns, for a vertical one'
+      }
+    },
+    {
+      name: 'spacing',
+      type: 'number',
+      default: '2',
+      description: {
+        ko: '자식 사이의 간격. PlGrid와 같은 사다리이고 2는 0.5rem입니다',
+        en: 'The gap between children, on PlGrid\'s own ladder: 2 is 0.5rem'
+      }
+    },
+    {
+      name: 'buttons',
+      type: "'auto' | 'always' | 'none'",
+      default: "'auto'",
+      description: {
+        ko: '스크롤 버튼을 언제 그릴지. auto는 갈 곳이 있는 쪽만 그립니다',
+        en: 'When the scroll buttons are drawn. auto draws only the one that has somewhere to go'
+      }
+    },
+    {
+      name: 'buttonPlacement',
+      type: "'overlay' | 'inline'",
+      default: "'overlay'",
+      description: {
+        ko: '버튼이 띠 위에 얹히는지 옆에 서는지',
+        en: 'Whether the buttons sit over the strip or beside it'
+      }
+    },
+    {
+      name: 'mode',
+      type: "'item' | 'page' | 'hold'",
+      default: "'item'",
+      description: {
+        ko: '버튼을 누르면 무슨 일이 일어나는지 — 다음 자식으로, 화면 하나만큼, 또는 누르고 있는 동안',
+        en: 'What pressing one does: to the next child, by a screenful, or for as long as it is held'
+      }
+    },
+    {
+      name: 'step',
+      type: 'number',
+      default: '1',
+      description: {
+        ko: 'item 모드에서 한 번 누를 때 움직이는 자식의 수',
+        en: 'How many children one press moves, in item mode'
+      }
+    },
+    {
+      name: 'speed',
+      type: 'number',
+      default: '900',
+      description: {
+        ko: 'hold 모드에서 초당 스크롤되는 픽셀',
+        en: 'How fast a held button scrolls, in pixels a second'
+      }
+    },
+    {
+      name: 'snap',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '스크롤이 멈추면 가장 가까운 자식을 앞쪽 가장자리로 붙입니다',
+        en: 'Snaps the nearest child to the leading edge when the scrolling stops'
+      }
+    },
+    {
+      name: 'drag',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '마우스와 펜으로도 띠를 끌 수 있게 합니다. 터치는 브라우저에 맡깁니다',
+        en: 'Lets a mouse or a pen drag the strip along. Touch is left to the browser'
+      }
+    },
+    {
+      name: 'scrollbar',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '네이티브 스크롤바를 보입니다', en: 'Shows the native scrollbar' }
+    },
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: '스크롤 버튼의 재질. zone 자신은 시트를 그리지 않습니다',
+        en: 'What the scroll buttons are made of. The zone itself draws no sheet'
+      },
+      sizeDescription: {
+        ko: '버튼의 크기와 버튼이 가장자리에서 떨어진 거리',
+        en: 'The size of the buttons and how far in from the edge they sit'
+      }
+    }).filter((row) => row.name !== 'elevation'),
+    {
+      name: 'label',
+      type: 'string',
+      description: {
+        ko: '스크롤되는 영역의 이름 — "Categories", "Recent files"',
+        en: 'What the scrollable region is called — "Categories", "Recent files"'
+      }
+    },
+    {
+      name: 'previousLabel',
+      type: 'string',
+      default: "'Previous'",
+      description: {
+        ko: '버튼의 이름. 절대 그려지지 않습니다',
+        en: "The button's name. Never drawn"
+      }
+    },
+    {
+      name: 'nextLabel',
+      type: 'string',
+      default: "'Next'",
+      description: {
+        ko: '버튼의 이름. 절대 그려지지 않습니다',
+        en: "The button's name. Never drawn"
+      }
+    }
+  ],
+
   PlSelect: [
     ...sharedProps({
       variant: "'glass'",
