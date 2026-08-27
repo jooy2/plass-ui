@@ -4001,6 +4001,103 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlPill: [
+    ...sharedProps({
+      variant: "'solid'",
+      size: "'md'",
+      color: "'secondary'",
+      elevation: '2',
+      variantDescription: {
+        ko: '표면의 재질. 컨트롤처럼 표면이 색을 받습니다 — 알약은 색이 입혀지는 그 물건 자체입니다',
+        en: 'What the surface is made of. The surface takes the tint, the way a control does: a pill is the thing being coloured'
+      },
+      sizeDescription: {
+        ko: '행의 최소 높이와 타입 스케일. 같은 size의 PlButton과 줄이 맞습니다',
+        en: "The row's minimum height and the type scale. A collapsed pill lines up with a PlButton of the same size"
+      },
+      elevationDescription: {
+        ko: '드롭 섀도 깊이. 2가 기본입니다 — 알약은 페이지의 일부가 아니라 그 위에 떠 있습니다',
+        en: 'Drop shadow depth. 2, because a pill is not part of the page — it hovers over it'
+      },
+      densityDescription: {
+        ko: '가운데 열의 양옆 여백을 반으로 줄입니다',
+        en: 'Halves the air either side of the middle'
+      }
+    }),
+    {
+      name: 'startIcon',
+      type: 'ReactNode',
+      description: {
+        ko: '앞쪽 슬롯 — 글리프, 아바타, 상태 점, 사진. 원으로 잘린 정사각형 상자에 들어갑니다',
+        en: 'The leading slot — a glyph, an avatar, a status dot, a photo. It goes in a square box clipped to a circle'
+      }
+    },
+    {
+      name: 'endIcon',
+      type: 'ReactNode',
+      description: {
+        ko: '뒤쪽 슬롯. 누를 수 있는 영역 바깥이라 그 자체가 컨트롤일 수 있습니다',
+        en: 'The trailing slot. Outside the pressable area, so it can be a control of its own'
+      }
+    },
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description: {
+        ko: '가운데의 표제 — 알약이 지금 무엇에 대한 것인지',
+        en: 'The headline in the middle — what the pill is currently about'
+      }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: {
+        ko: '제목 아래 둘째 줄. 한 단계 작고 조용합니다',
+        en: 'The second line, under the title. One step down and quieter'
+      }
+    },
+    {
+      name: 'details',
+      type: 'ReactNode',
+      description: {
+        ko: 'expanded일 때 드러나는 나머지 절반. 알약이 아래로 자랍니다',
+        en: 'The second half, revealed when expanded. The pill grows downward into it'
+      }
+    },
+    {
+      name: 'expanded',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: 'details가 보이는지', en: 'Whether details is showing' }
+    },
+    {
+      name: 'position',
+      type: "'static' | 'sticky' | 'fixed'",
+      default: "'static'",
+      description: {
+        ko: '페이지 스크롤 안에서 놓이는 방식. fixed는 뷰포트에 고정하고 가운데 놓습니다',
+        en: "How it sits in the page's scroll. fixed pins it against the viewport and centres it"
+      }
+    },
+    {
+      name: 'side',
+      type: "'top' | 'bottom'",
+      default: "'top'",
+      description: {
+        ko: 'position이 static이 아닐 때 붙잡히는 가장자리',
+        en: 'Which edge it is held against when position is not static'
+      }
+    },
+    {
+      name: 'onClick',
+      type: 'MouseEventHandler<HTMLButtonElement>',
+      description: {
+        ko: '주면 가운데가 진짜 버튼이 됩니다',
+        en: 'Passing it makes the middle a real button'
+      }
+    }
+  ],
+
   PlRadioGroup: [
     {
       name: 'size',

@@ -44,6 +44,7 @@ import {
   PlPane,
   PlPanes,
   PlPagination,
+  PlPill,
   PlRadio,
   PlRadioGroup,
   PlRating,
@@ -805,6 +806,16 @@ const entries: Entry[] = [
         Nothing grows until somebody asks for it.
       </PlCollapsible>
     )
+  },
+  {
+    name: 'PlPill',
+    group: 'surfaces',
+    href: 'components/surfaces/pill',
+    blurb: {
+      en: 'A floating lozenge holding a small amount of live information.',
+      ko: '살아 있는 정보를 조금 담고 떠 있는 알약입니다.'
+    },
+    preview: <PlPill size="sm" color="danger" title="Recording" description="00:41" />
   },
   {
     name: 'PlTabs',
