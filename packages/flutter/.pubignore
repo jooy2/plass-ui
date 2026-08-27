@@ -1,4 +1,5 @@
 test/
+tool/
 pubspec.lock
 
 # The gallery under `example/` is published — pub.dev looks for an example and
