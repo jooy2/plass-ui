@@ -6,8 +6,8 @@ import {
   paddingXClasses,
   radiusClasses,
   surfaceSlots
-} from '../../internal/styles';
-import type { PlassAlign, PlassSide, PlassSize, PlassStyleProps } from '../../types';
+} from '../../internal/styles.js';
+import type { PlassAlign, PlassSide, PlassSize, PlassStyleProps } from '../../types.js';
 
 export interface PlTooltipProps
   extends

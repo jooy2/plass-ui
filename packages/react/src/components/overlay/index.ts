@@ -1,2 +1,2 @@
-export { PlOverlay } from './PlOverlay';
-export type { PlOverlayProps, PlOverlayTone } from './PlOverlay';
+export { PlOverlay } from './PlOverlay.js';
+export type { PlOverlayProps, PlOverlayTone } from './PlOverlay.js';

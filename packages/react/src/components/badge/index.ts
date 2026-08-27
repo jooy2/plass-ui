@@ -1,2 +1,2 @@
-export { PlBadge } from './PlBadge';
-export type { PlBadgeOverlap, PlBadgeProps } from './PlBadge';
+export { PlBadge } from './PlBadge.js';
+export type { PlBadgeOverlap, PlBadgeProps } from './PlBadge.js';

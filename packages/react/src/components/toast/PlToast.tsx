@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Toast as BaseUIToast } from '@base-ui/react/toast';
-import { CloseIcon, severityIcons } from '../../internal/icons';
+import { CloseIcon, severityIcons } from '../../internal/icons.js';
 import {
   controlSlots,
   focusRingClasses,
@@ -15,8 +15,14 @@ import {
   sheetPaddingYClasses,
   sheetSectionGapClasses,
   sheetTitleClasses
-} from '../../internal/styles';
-import type { PlassAlign, PlassColor, PlassSize, PlassStyleProps, PlassVariant } from '../../types';
+} from '../../internal/styles.js';
+import type {
+  PlassAlign,
+  PlassColor,
+  PlassSize,
+  PlassStyleProps,
+  PlassVariant
+} from '../../types.js';
 
 /**
  * Where the stack sits.

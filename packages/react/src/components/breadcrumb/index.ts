@@ -1,6 +1,6 @@
-export { PlBreadcrumb, PlBreadcrumbItem } from './PlBreadcrumb';
+export { PlBreadcrumb, PlBreadcrumbItem } from './PlBreadcrumb.js';
 export type {
   PlBreadcrumbItemProps,
   PlBreadcrumbProps,
   PlBreadcrumbSeparator
-} from './PlBreadcrumb';
+} from './PlBreadcrumb.js';

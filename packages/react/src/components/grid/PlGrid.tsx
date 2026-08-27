@@ -8,9 +8,9 @@ import {
   responsiveSlots,
   spacingValue,
   withBaseline
-} from '../../internal/grid';
-import { cx } from '../../internal/styles';
-import type { PlassAlignItems, PlassJustify, PlassResponsive } from '../../types';
+} from '../../internal/grid.js';
+import { cx } from '../../internal/styles.js';
+import type { PlassAlignItems, PlassJustify, PlassResponsive } from '../../types.js';
 
 export interface PlGridProps extends React.ComponentPropsWithoutRef<'div'> {
   /**

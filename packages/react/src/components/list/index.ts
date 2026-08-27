@@ -1,2 +1,2 @@
-export { PlList, PlListItem } from './PlList';
-export type { PlListItemProps, PlListProps } from './PlList';
+export { PlList, PlListItem } from './PlList.js';
+export type { PlListItemProps, PlListProps } from './PlList.js';

@@ -13,14 +13,14 @@ import {
   radiusClasses,
   surfaceSlots,
   transitionClasses
-} from '../../internal/styles';
+} from '../../internal/styles.js';
 import type {
   PlassDensity,
   PlassOrientation,
   PlassSize,
   PlassStyleProps,
   PlassVariant
-} from '../../types';
+} from '../../types.js';
 
 /**
  * What a `PlTab` inherits from the `PlTabs` around it.

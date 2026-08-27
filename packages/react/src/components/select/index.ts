@@ -1,2 +1,2 @@
-export { PlSelect } from './PlSelect';
-export type { PlSelectOption, PlSelectProps, PlSelectValue } from './PlSelect';
+export { PlSelect } from './PlSelect.js';
+export type { PlSelectOption, PlSelectProps, PlSelectValue } from './PlSelect.js';

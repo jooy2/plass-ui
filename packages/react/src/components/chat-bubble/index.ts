@@ -1,7 +1,7 @@
-export { PlChatBubble } from './PlChatBubble';
+export { PlChatBubble } from './PlChatBubble.js';
 export type {
   PlChatBubbleLinkPreview,
   PlChatBubbleProps,
   PlChatBubbleSide,
   PlChatBubbleStatus
-} from './PlChatBubble';
+} from './PlChatBubble.js';

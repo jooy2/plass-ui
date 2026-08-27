@@ -1,2 +1,2 @@
-export { PlTextField } from './PlTextField';
-export type { PlTextFieldProps, PlTextFieldResize } from './PlTextField';
+export { PlTextField } from './PlTextField.js';
+export type { PlTextFieldProps, PlTextFieldResize } from './PlTextField.js';

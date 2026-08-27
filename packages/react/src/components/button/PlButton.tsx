@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Button as BaseUIButton } from '@base-ui/react/button';
 import { useRender } from '@base-ui/react/use-render';
-import { Spinner } from '../../internal/icons';
+import { Spinner } from '../../internal/icons.js';
 import {
   controlHeightClasses,
   controlSlots,
@@ -17,8 +17,8 @@ import {
   radiusClasses,
   readOnlyFilterClasses,
   transitionClasses
-} from '../../internal/styles';
-import type { PlassElevation, PlassSize, PlassStyleProps, PlassVariant } from '../../types';
+} from '../../internal/styles.js';
+import type { PlassElevation, PlassSize, PlassStyleProps, PlassVariant } from '../../types.js';
 
 export interface PlButtonProps
   extends PlassStyleProps, Omit<React.ComponentPropsWithoutRef<'button'>, 'color'> {

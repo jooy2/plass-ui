@@ -1,2 +1,2 @@
-export { PlSwitch } from './PlSwitch';
-export type { PlSwitchLabelPlacement, PlSwitchProps } from './PlSwitch';
+export { PlSwitch } from './PlSwitch.js';
+export type { PlSwitchLabelPlacement, PlSwitchProps } from './PlSwitch.js';

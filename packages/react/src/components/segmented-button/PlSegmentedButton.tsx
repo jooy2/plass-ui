@@ -12,14 +12,14 @@ import {
   iconClasses,
   paddingXClasses,
   transitionClasses
-} from '../../internal/styles';
+} from '../../internal/styles.js';
 import type {
   PlassDensity,
   PlassElevation,
   PlassSize,
   PlassStyleProps,
   PlassVariant
-} from '../../types';
+} from '../../types.js';
 
 /** A segment's value. The same restraint `PlSelect` puts on its own. */
 export type PlSegmentValue = string | number;

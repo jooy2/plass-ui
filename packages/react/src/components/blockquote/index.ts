@@ -1,2 +1,2 @@
-export { PlBlockquote } from './PlBlockquote';
-export type { PlBlockquoteProps } from './PlBlockquote';
+export { PlBlockquote } from './PlBlockquote.js';
+export type { PlBlockquoteProps } from './PlBlockquote.js';

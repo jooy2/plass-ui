@@ -1,2 +1,2 @@
-export { PlChip } from './PlChip';
-export type { PlChipProps } from './PlChip';
+export { PlChip } from './PlChip.js';
+export type { PlChipProps } from './PlChip.js';

@@ -5,8 +5,8 @@ import {
   focusRingClasses,
   metaTextClasses,
   transitionClasses
-} from '../../internal/styles';
-import type { PlassColor, PlassElevation, PlassOrientation, PlassSize } from '../../types';
+} from '../../internal/styles.js';
+import type { PlassColor, PlassElevation, PlassOrientation, PlassSize } from '../../types.js';
 
 type BaseSliderProps = Omit<
   React.ComponentPropsWithoutRef<typeof BaseUISlider.Root>,

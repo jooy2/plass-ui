@@ -1,2 +1,2 @@
-export { PlIcon } from './PlIcon';
-export type { PlIconProps } from './PlIcon';
+export { PlIcon } from './PlIcon.js';
+export type { PlIconProps } from './PlIcon.js';

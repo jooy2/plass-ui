@@ -1,2 +1,2 @@
-export { PlAlert } from './PlAlert';
-export type { PlAlertProps } from './PlAlert';
+export { PlAlert } from './PlAlert.js';
+export type { PlAlertProps } from './PlAlert.js';

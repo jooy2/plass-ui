@@ -1,7 +1,7 @@
 import * as React from 'react';
-import type { PlTypographyWeight } from '../typography/PlTypography';
-import { transitionClasses } from '../../internal/styles';
-import type { PlassColor, PlassVariant } from '../../types';
+import type { PlTypographyWeight } from '../typography/PlTypography.js';
+import { transitionClasses } from '../../internal/styles.js';
+import type { PlassColor, PlassVariant } from '../../types.js';
 
 export interface PlHighlightProps extends Omit<React.ComponentPropsWithoutRef<'span'>, 'color'> {
   /**

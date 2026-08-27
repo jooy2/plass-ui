@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { CloseIcon, severityIcons } from '../../internal/icons';
+import { CloseIcon, severityIcons } from '../../internal/icons.js';
 import {
   controlSlots,
   focusRingClasses,
@@ -14,8 +14,8 @@ import {
   sheetSectionGapClasses,
   sheetTitleClasses,
   transitionClasses
-} from '../../internal/styles';
-import type { PlassColor, PlassElevation, PlassStyleProps, PlassVariant } from '../../types';
+} from '../../internal/styles.js';
+import type { PlassColor, PlassElevation, PlassStyleProps, PlassVariant } from '../../types.js';
 
 export interface PlAlertProps
   extends PlassStyleProps, Omit<React.ComponentPropsWithoutRef<'div'>, 'color' | 'title'> {

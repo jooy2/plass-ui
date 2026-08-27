@@ -8,8 +8,8 @@ import {
   radiusClasses,
   srOnlyClasses,
   transitionClasses
-} from '../../internal/styles';
-import type { PlassElevation, PlassSize, PlassStyleProps, PlassVariant } from '../../types';
+} from '../../internal/styles.js';
+import type { PlassElevation, PlassSize, PlassStyleProps, PlassVariant } from '../../types.js';
 
 /**
  * Which keyboard the shortcut is being read on.

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { PlButton, type PlButtonProps } from '../button/PlButton';
+import { PlButton, type PlButtonProps } from '../button/PlButton.js';
 
 export interface PlIconButtonProps extends Omit<
   PlButtonProps,

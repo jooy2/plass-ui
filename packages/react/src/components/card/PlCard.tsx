@@ -14,8 +14,8 @@ import {
   sheetSectionGapClasses,
   sheetTitleClasses,
   surfaceSlots
-} from '../../internal/styles';
-import type { PlassElevation, PlassStyleProps, PlassVariant } from '../../types';
+} from '../../internal/styles.js';
+import type { PlassElevation, PlassStyleProps, PlassVariant } from '../../types.js';
 
 export interface PlCardProps
   extends PlassStyleProps, Omit<React.ComponentPropsWithoutRef<'div'>, 'color' | 'title'> {

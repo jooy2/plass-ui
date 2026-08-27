@@ -1,2 +1,2 @@
-export { PlAspectRatio } from './PlAspectRatio';
-export type { PlAspectFit, PlAspectRatioProps } from './PlAspectRatio';
+export { PlAspectRatio } from './PlAspectRatio.js';
+export type { PlAspectFit, PlAspectRatioProps } from './PlAspectRatio.js';

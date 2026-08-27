@@ -9,8 +9,8 @@ import {
   radiusClasses,
   srOnlyClasses,
   transitionClasses
-} from '../../internal/styles';
-import type { PlassColor, PlassElevation, PlassSize, PlassVariant } from '../../types';
+} from '../../internal/styles.js';
+import type { PlassColor, PlassElevation, PlassSize, PlassVariant } from '../../types.js';
 
 /** What Base UI reports about the picture as it loads. */
 export type PlAvatarLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';

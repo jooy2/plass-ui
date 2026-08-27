@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { CloseIcon } from '../../internal/icons';
+import { CloseIcon } from '../../internal/icons.js';
 import {
   controlHeightClasses,
   controlSlots,
@@ -13,8 +13,8 @@ import {
   paddingXClasses,
   radiusClasses,
   transitionClasses
-} from '../../internal/styles';
-import type { PlassElevation, PlassSize, PlassStyleProps, PlassVariant } from '../../types';
+} from '../../internal/styles.js';
+import type { PlassElevation, PlassSize, PlassStyleProps, PlassVariant } from '../../types.js';
 
 export interface PlChipProps
   extends PlassStyleProps, Omit<React.ComponentPropsWithoutRef<'span'>, 'color'> {

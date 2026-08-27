@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
-import { alignSelfClasses, offsetValue, responsiveSlots, spanValue } from '../../internal/grid';
-import { cx } from '../../internal/styles';
-import type { PlassAlignSelf, PlassResponsive } from '../../types';
+import { alignSelfClasses, offsetValue, responsiveSlots, spanValue } from '../../internal/grid.js';
+import { cx } from '../../internal/styles.js';
+import type { PlassAlignSelf, PlassResponsive } from '../../types.js';
 
 export interface PlGridItemProps extends React.ComponentPropsWithoutRef<'div'> {
   /**

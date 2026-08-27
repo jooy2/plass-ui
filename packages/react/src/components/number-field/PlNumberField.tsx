@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { NumberField as BaseUINumberField } from '@base-ui/react/number-field';
 import { Field } from '@base-ui/react/field';
-import { MinusIcon, PlusIcon } from '../../internal/icons';
+import { MinusIcon, PlusIcon } from '../../internal/icons.js';
 import {
   controlHeightClasses,
   controlTextLeadingClasses,
@@ -19,8 +19,8 @@ import {
   stackGapClasses,
   surfaceSlots,
   transitionClasses
-} from '../../internal/styles';
-import type { PlassColor, PlassElevation, PlassStyleProps } from '../../types';
+} from '../../internal/styles.js';
+import type { PlassColor, PlassElevation, PlassStyleProps } from '../../types.js';
 
 /**
  * Where the two steppers sit.

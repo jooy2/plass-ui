@@ -9,7 +9,7 @@
  */
 
 import * as React from 'react';
-import type { PlassColor } from '../types';
+import type { PlassColor } from '../types.js';
 
 /**
  * The one thing in the library that moves on its own, and the only place that

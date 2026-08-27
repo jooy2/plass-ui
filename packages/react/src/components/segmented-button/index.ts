@@ -1,2 +1,6 @@
-export { PlSegment, PlSegmentedButton } from './PlSegmentedButton';
-export type { PlSegmentProps, PlSegmentValue, PlSegmentedButtonProps } from './PlSegmentedButton';
+export { PlSegment, PlSegmentedButton } from './PlSegmentedButton.js';
+export type {
+  PlSegmentProps,
+  PlSegmentValue,
+  PlSegmentedButtonProps
+} from './PlSegmentedButton.js';

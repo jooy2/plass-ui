@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
-import { cx, sheetPaddingXClasses } from '../../internal/styles';
-import type { PlassDensity, PlassSize } from '../../types';
+import { cx, sheetPaddingXClasses } from '../../internal/styles.js';
+import type { PlassDensity, PlassSize } from '../../types.js';
 
 /**
  * How wide the content is allowed to get.

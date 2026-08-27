@@ -1,2 +1,2 @@
-export { PlSlider } from './PlSlider';
-export type { PlSliderProps } from './PlSlider';
+export { PlSlider } from './PlSlider.js';
+export type { PlSliderProps } from './PlSlider.js';

@@ -9,8 +9,8 @@ import {
   sheetTitleClasses,
   surfaceSlots,
   transitionClasses
-} from '../../internal/styles';
-import type { PlassColor, PlassDensity, PlassOrientation, PlassSize } from '../../types';
+} from '../../internal/styles.js';
+import type { PlassColor, PlassDensity, PlassOrientation, PlassSize } from '../../types.js';
 
 /**
  * How far along one item is.

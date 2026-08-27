@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Field } from '@base-ui/react/field';
 import { Input } from '@base-ui/react/input';
-import { Spinner } from '../../internal/icons';
+import { Spinner } from '../../internal/icons.js';
 import {
   controlHeightClasses,
   controlTextLeadingClasses,
@@ -18,8 +18,8 @@ import {
   stackGapClasses,
   surfaceSlots,
   transitionClasses
-} from '../../internal/styles';
-import type { PlassColor, PlassElevation, PlassSize, PlassStyleProps } from '../../types';
+} from '../../internal/styles.js';
+import type { PlassColor, PlassElevation, PlassSize, PlassStyleProps } from '../../types.js';
 
 /** How the multiline control may be resized by the user. Ignored when single line. */
 export type PlTextFieldResize = 'none' | 'vertical' | 'horizontal' | 'both';

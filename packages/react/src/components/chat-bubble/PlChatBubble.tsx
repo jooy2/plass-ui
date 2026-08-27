@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { CheckIcon, ClockIcon, LinkIcon, severityIcons } from '../../internal/icons';
+import { CheckIcon, ClockIcon, LinkIcon, severityIcons } from '../../internal/icons.js';
 import {
   controlSlots,
   focusRingClasses,
@@ -11,14 +11,14 @@ import {
   sheetHeaderGapClasses,
   srOnlyClasses,
   transitionClasses
-} from '../../internal/styles';
+} from '../../internal/styles.js';
 import type {
   PlassColor,
   PlassDensity,
   PlassElevation,
   PlassSize,
   PlassVariant
-} from '../../types';
+} from '../../types.js';
 
 /**
  * Whose message this is.

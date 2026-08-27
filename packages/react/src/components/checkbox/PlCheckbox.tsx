@@ -11,8 +11,8 @@ import {
   tickRowTextClasses,
   tickSizeClasses,
   transitionClasses
-} from '../../internal/styles';
-import type { PlassColor, PlassSize } from '../../types';
+} from '../../internal/styles.js';
+import type { PlassColor, PlassSize } from '../../types.js';
 
 /**
  * Base UI's own props, minus the ones this component owns: `className` and

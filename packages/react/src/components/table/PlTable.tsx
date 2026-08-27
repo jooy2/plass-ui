@@ -7,14 +7,14 @@ import {
   radiusClasses,
   sheetRestClasses,
   surfaceSlots
-} from '../../internal/styles';
+} from '../../internal/styles.js';
 import type {
   PlassAlign,
   PlassDensity,
   PlassElevation,
   PlassSize,
   PlassStyleProps
-} from '../../types';
+} from '../../types.js';
 
 /** Which edge the text in a column lines up against. */
 export type PlTableAlign = PlassAlign;

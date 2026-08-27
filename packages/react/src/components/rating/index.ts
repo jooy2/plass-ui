@@ -1,2 +1,2 @@
-export { PlRating } from './PlRating';
-export type { PlRatingProps } from './PlRating';
+export { PlRating } from './PlRating.js';
+export type { PlRatingProps } from './PlRating.js';

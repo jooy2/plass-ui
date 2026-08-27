@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Dialog as BaseUIDialog } from '@base-ui/react/dialog';
-import { CloseIcon } from '../../internal/icons';
+import { CloseIcon } from '../../internal/icons.js';
 import {
   focusRingClasses,
   glassClasses,
@@ -15,8 +15,8 @@ import {
   sheetSectionGapClasses,
   sheetTitleClasses,
   surfaceSlots
-} from '../../internal/styles';
-import type { PlassSize, PlassStyleProps } from '../../types';
+} from '../../internal/styles.js';
+import type { PlassSize, PlassStyleProps } from '../../types.js';
 
 /**
  * A modal takes `size`, `color` and `density` and stops there.

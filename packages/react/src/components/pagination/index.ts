@@ -1,2 +1,2 @@
-export { PlPagination } from './PlPagination';
-export type { PlPaginationProps } from './PlPagination';
+export { PlPagination } from './PlPagination.js';
+export type { PlPaginationProps } from './PlPagination.js';

@@ -22,7 +22,7 @@ import type {
   PlassBreakpoint,
   PlassJustify,
   PlassResponsive
-} from '../types';
+} from '../types.js';
 
 /** Smallest first, which is also the order the media queries have to be in. */
 export const breakpoints: readonly PlassBreakpoint[] = ['xs', 'sm', 'md', 'lg', 'xl'];

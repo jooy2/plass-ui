@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { PlButton } from '../button/PlButton';
-import { ChevronIcon } from '../../internal/icons';
-import { controlTextClasses, gapClasses, srOnlyClasses } from '../../internal/styles';
-import type { PlassElevation, PlassSize, PlassStyleProps } from '../../types';
+import { PlButton } from '../button/PlButton.js';
+import { ChevronIcon } from '../../internal/icons.js';
+import { controlTextClasses, gapClasses, srOnlyClasses } from '../../internal/styles.js';
+import type { PlassElevation, PlassSize, PlassStyleProps } from '../../types.js';
 
 export interface PlPaginationProps
   extends PlassStyleProps, Omit<React.ComponentPropsWithoutRef<'nav'>, 'color' | 'onChange'> {

@@ -1,2 +1,2 @@
-export { PlDivider } from './PlDivider';
-export type { PlDividerProps, PlDividerTextAlign } from './PlDivider';
+export { PlDivider } from './PlDivider.js';
+export type { PlDividerProps, PlDividerTextAlign } from './PlDivider.js';

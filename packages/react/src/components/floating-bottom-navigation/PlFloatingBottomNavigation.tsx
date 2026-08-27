@@ -11,14 +11,14 @@ import {
   srOnlyClasses,
   surfaceSlots,
   transitionClasses
-} from '../../internal/styles';
+} from '../../internal/styles.js';
 import type {
   PlassDensity,
   PlassElevation,
   PlassPosition,
   PlassSize,
   PlassStyleProps
-} from '../../types';
+} from '../../types.js';
 
 /** A destination's value. The same restraint `PlBottomNavigation` puts on its own. */
 export type PlFloatingBottomNavigationValue = string | number;

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StarIcon, StarOutlineIcon } from '../../internal/icons';
+import { StarIcon, StarOutlineIcon } from '../../internal/icons.js';
 import {
   controlSlots,
   cx,
@@ -9,8 +9,8 @@ import {
   radiusClasses,
   srOnlyClasses,
   transitionClasses
-} from '../../internal/styles';
-import type { PlassColor, PlassSize } from '../../types';
+} from '../../internal/styles.js';
+import type { PlassColor, PlassSize } from '../../types.js';
 
 export interface PlRatingProps extends Omit<
   React.ComponentPropsWithoutRef<'div'>,

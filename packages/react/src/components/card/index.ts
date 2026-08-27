@@ -1,2 +1,2 @@
-export { PlCard } from './PlCard';
-export type { PlCardProps } from './PlCard';
+export { PlCard } from './PlCard.js';
+export type { PlCardProps } from './PlCard.js';

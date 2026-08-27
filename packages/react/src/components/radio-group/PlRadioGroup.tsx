@@ -12,8 +12,8 @@ import {
   tickRowTextClasses,
   tickSizeClasses,
   transitionClasses
-} from '../../internal/styles';
-import type { PlassColor, PlassOrientation, PlassSize } from '../../types';
+} from '../../internal/styles.js';
+import type { PlassColor, PlassOrientation, PlassSize } from '../../types.js';
 
 /**
  * What a `PlRadio` inherits from the group around it.

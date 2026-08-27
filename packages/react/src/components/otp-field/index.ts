@@ -1,2 +1,2 @@
-export { PlOtpField } from './PlOtpField';
-export type { PlOtpCharset, PlOtpFieldProps } from './PlOtpField';
+export { PlOtpField } from './PlOtpField.js';
+export type { PlOtpCharset, PlOtpFieldProps } from './PlOtpField.js';

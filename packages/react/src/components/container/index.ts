@@ -1,2 +1,2 @@
-export { PlContainer } from './PlContainer';
-export type { PlContainerProps, PlContainerWidth } from './PlContainer';
+export { PlContainer } from './PlContainer.js';
+export type { PlContainerProps, PlContainerWidth } from './PlContainer.js';

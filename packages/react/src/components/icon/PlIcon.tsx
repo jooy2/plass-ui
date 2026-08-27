@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { iconSizeClasses } from '../../internal/styles';
-import type { PlassColor, PlassSize } from '../../types';
+import { iconSizeClasses } from '../../internal/styles.js';
+import type { PlassColor, PlassSize } from '../../types.js';
 
 /**
  * The same five lengths as `iconSizeClasses`, as a font size.

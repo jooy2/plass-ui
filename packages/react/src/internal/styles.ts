@@ -16,7 +16,13 @@
  */
 
 import type * as React from 'react';
-import type { PlassColor, PlassDensity, PlassElevation, PlassSize, PlassVariant } from '../types';
+import type {
+  PlassColor,
+  PlassDensity,
+  PlassElevation,
+  PlassSize,
+  PlassVariant
+} from '../types.js';
 
 /* ---------------------------------------------------------------------------
  * Scales

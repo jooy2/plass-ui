@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ArrowRightIcon, ChevronIcon, EllipsisIcon } from '../../internal/icons';
+import { ArrowRightIcon, ChevronIcon, EllipsisIcon } from '../../internal/icons.js';
 import {
   controlTextClasses,
   cx,
@@ -9,8 +9,8 @@ import {
   iconClasses,
   radiusClasses,
   transitionClasses
-} from '../../internal/styles';
-import type { PlassColor, PlassDensity, PlassSize } from '../../types';
+} from '../../internal/styles.js';
+import type { PlassColor, PlassDensity, PlassSize } from '../../types.js';
 
 /**
  * What is drawn between two steps of the trail.

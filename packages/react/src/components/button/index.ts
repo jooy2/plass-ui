@@ -1,2 +1,2 @@
-export { PlButton } from './PlButton';
-export type { PlButtonProps } from './PlButton';
+export { PlButton } from './PlButton.js';
+export type { PlButtonProps } from './PlButton.js';

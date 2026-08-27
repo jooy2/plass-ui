@@ -1,2 +1,2 @@
-export { PlFilePicker, formatFileSize } from './PlFilePicker';
-export type { PlFilePickerProps, PlFileRejection, PlFileRejectionReason } from './PlFilePicker';
+export { PlFilePicker, formatFileSize } from './PlFilePicker.js';
+export type { PlFilePickerProps, PlFileRejection, PlFileRejectionReason } from './PlFilePicker.js';

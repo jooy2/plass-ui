@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { CloseIcon } from '../../internal/icons';
+import { CloseIcon } from '../../internal/icons.js';
 import {
   controlTextLeadingClasses,
   disabledClasses,
@@ -15,7 +15,7 @@ import {
   stackGapClasses,
   surfaceSlots,
   transitionClasses
-} from '../../internal/styles';
+} from '../../internal/styles.js';
 import type {
   PlassColor,
   PlassDensity,
@@ -23,7 +23,7 @@ import type {
   PlassSize,
   PlassStyleProps,
   PlassVariant
-} from '../../types';
+} from '../../types.js';
 
 /** Why a file was turned away. One reason per file, in the order they are checked. */
 export type PlFileRejectionReason = 'type' | 'size' | 'count';

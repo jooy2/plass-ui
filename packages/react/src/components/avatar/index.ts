@@ -1,2 +1,2 @@
-export { PlAvatar } from './PlAvatar';
-export type { PlAvatarLoadingStatus, PlAvatarProps, PlAvatarShape } from './PlAvatar';
+export { PlAvatar } from './PlAvatar.js';
+export type { PlAvatarLoadingStatus, PlAvatarProps, PlAvatarShape } from './PlAvatar.js';

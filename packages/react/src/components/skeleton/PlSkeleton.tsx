@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
-import { controlHeightClasses, controlSquareClasses, surfaceSlots } from '../../internal/styles';
-import type { PlassColor, PlassSize } from '../../types';
+import { controlHeightClasses, controlSquareClasses, surfaceSlots } from '../../internal/styles.js';
+import type { PlassColor, PlassSize } from '../../types.js';
 
 /**
  * What the placeholder is standing in for.

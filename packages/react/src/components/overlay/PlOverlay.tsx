@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Dialog as BaseUIDialog } from '@base-ui/react/dialog';
-import { surfaceSlots } from '../../internal/styles';
-import type { PlassAlign, PlassColor, PlassSize } from '../../types';
+import { surfaceSlots } from '../../internal/styles.js';
+import type { PlassAlign, PlassColor, PlassSize } from '../../types.js';
 
 /**
  * How much of the page the overlay takes away.

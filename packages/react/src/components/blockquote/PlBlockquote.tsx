@@ -8,8 +8,8 @@ import {
   sheetPaddingYClasses,
   surfaceSlots,
   transitionClasses
-} from '../../internal/styles';
-import type { PlassElevation, PlassSize, PlassStyleProps, PlassVariant } from '../../types';
+} from '../../internal/styles.js';
+import type { PlassElevation, PlassSize, PlassStyleProps, PlassVariant } from '../../types.js';
 
 /**
  * The props are a `<figure>`'s rather than a `<blockquote>`'s, which is a

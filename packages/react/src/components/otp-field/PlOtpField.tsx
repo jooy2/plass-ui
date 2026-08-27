@@ -11,14 +11,14 @@ import {
   stackGapClasses,
   surfaceSlots,
   transitionClasses
-} from '../../internal/styles';
+} from '../../internal/styles.js';
 import type {
   PlassColor,
   PlassDensity,
   PlassElevation,
   PlassSize,
   PlassStyleProps
-} from '../../types';
+} from '../../types.js';
 
 /**
  * What may be typed into a slot.

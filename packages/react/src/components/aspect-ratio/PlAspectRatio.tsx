@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
-import { cx, radiusClasses } from '../../internal/styles';
-import type { PlassSize } from '../../types';
+import { cx, radiusClasses } from '../../internal/styles.js';
+import type { PlassSize } from '../../types.js';
 
 /**
  * How the media inside is fitted to the box, spelled the way CSS spells it.

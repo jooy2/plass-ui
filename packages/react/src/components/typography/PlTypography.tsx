@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
-import type { PlassColor } from '../../types';
+import type { PlassColor } from '../../types.js';
 
 /**
  * What a piece of text *is*, which decides both its type scale and the element

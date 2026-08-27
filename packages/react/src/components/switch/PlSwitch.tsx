@@ -7,8 +7,8 @@ import {
   hasContent,
   metaTextClasses,
   tickRowTextClasses
-} from '../../internal/styles';
-import type { PlassAlign, PlassColor, PlassSize } from '../../types';
+} from '../../internal/styles.js';
+import type { PlassAlign, PlassColor, PlassSize } from '../../types.js';
 
 /** Which side of the track the label sits on. */
 export type PlSwitchLabelPlacement = Extract<PlassAlign, 'start' | 'end'>;

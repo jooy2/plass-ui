@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { cx, transitionClasses } from '../../internal/styles';
-import type { PlassColor, PlassOrientation, PlassSize } from '../../types';
+import { cx, transitionClasses } from '../../internal/styles.js';
+import type { PlassColor, PlassOrientation, PlassSize } from '../../types.js';
 
 /**
  * A pane's share of the split, as a percentage of the container or as a CSS

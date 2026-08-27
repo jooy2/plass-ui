@@ -12,7 +12,7 @@
  */
 
 import * as React from 'react';
-import type { PlassColor, PlassDensity, PlassSize } from '../types';
+import type { PlassColor, PlassDensity, PlassSize } from '../types.js';
 
 export interface PlassMenuContextValue {
   size: PlassSize;

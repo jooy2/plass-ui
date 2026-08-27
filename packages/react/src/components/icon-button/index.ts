@@ -1,2 +1,2 @@
-export { PlIconButton } from './PlIconButton';
-export type { PlIconButtonProps } from './PlIconButton';
+export { PlIconButton } from './PlIconButton.js';
+export type { PlIconButtonProps } from './PlIconButton.js';

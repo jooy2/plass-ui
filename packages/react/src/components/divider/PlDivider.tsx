@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Separator } from '@base-ui/react/separator';
-import { metaTextClasses } from '../../internal/styles';
-import type { PlassAlign, PlassColor, PlassOrientation, PlassSize } from '../../types';
+import { metaTextClasses } from '../../internal/styles.js';
+import type { PlassAlign, PlassColor, PlassOrientation, PlassSize } from '../../types.js';
 
 /** Where the label sits along a labelled divider. Ignored without a label. */
 export type PlDividerTextAlign = PlassAlign;

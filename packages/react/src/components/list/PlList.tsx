@@ -12,14 +12,14 @@ import {
   sheetBodyClasses,
   surfaceSlots,
   transitionClasses
-} from '../../internal/styles';
+} from '../../internal/styles.js';
 import type {
   PlassDensity,
   PlassElevation,
   PlassSize,
   PlassStyleProps,
   PlassVariant
-} from '../../types';
+} from '../../types.js';
 
 /**
  * What a `PlListItem` inherits from the `PlList` around it.

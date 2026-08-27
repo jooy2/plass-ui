@@ -1,2 +1,2 @@
-export { PlAccordion, PlAccordionItem } from './PlAccordion';
-export type { PlAccordionProps, PlAccordionItemProps } from './PlAccordion';
+export { PlAccordion, PlAccordionItem } from './PlAccordion.js';
+export type { PlAccordionProps, PlAccordionItemProps } from './PlAccordion.js';

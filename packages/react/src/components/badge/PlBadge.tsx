@@ -5,7 +5,7 @@ import {
   hasContent,
   srOnlyClasses,
   transitionClasses
-} from '../../internal/styles';
+} from '../../internal/styles.js';
 import type {
   PlassCorner,
   PlassDensity,
@@ -13,7 +13,7 @@ import type {
   PlassSize,
   PlassStyleProps,
   PlassVariant
-} from '../../types';
+} from '../../types.js';
 
 /**
  * The shape of the thing underneath, which is what decides how far the marker

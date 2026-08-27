@@ -8,7 +8,7 @@ export {
   PlMenuRadioItem,
   PlMenuSeparator,
   PlMenuSubmenu
-} from './PlMenu';
+} from './PlMenu.js';
 export type {
   PlContextMenuProps,
   PlMenuCheckboxItemProps,
@@ -19,4 +19,4 @@ export type {
   PlMenuRadioItemProps,
   PlMenuSeparatorProps,
   PlMenuSubmenuProps
-} from './PlMenu';
+} from './PlMenu.js';

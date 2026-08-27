@@ -1,2 +1,2 @@
-export { PlSkeleton } from './PlSkeleton';
-export type { PlSkeletonProps, PlSkeletonShape } from './PlSkeleton';
+export { PlSkeleton } from './PlSkeleton.js';
+export type { PlSkeletonProps, PlSkeletonShape } from './PlSkeleton.js';

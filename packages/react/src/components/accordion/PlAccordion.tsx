@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Accordion as BaseUIAccordion } from '@base-ui/react/accordion';
-import { ChevronIcon } from '../../internal/icons';
+import { ChevronIcon } from '../../internal/icons.js';
 import {
   focusRingClasses,
   focusRingInsetClasses,
@@ -17,8 +17,8 @@ import {
   sheetTitleClasses,
   surfaceSlots,
   transitionClasses
-} from '../../internal/styles';
-import type { PlassDensity, PlassElevation, PlassSize, PlassStyleProps } from '../../types';
+} from '../../internal/styles.js';
+import type { PlassDensity, PlassElevation, PlassSize, PlassStyleProps } from '../../types.js';
 
 /**
  * What a `PlAccordionItem` inherits from the `PlAccordion` around it.

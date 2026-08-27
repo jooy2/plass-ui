@@ -1,9 +1,9 @@
 export {
   PlFloatingBottomNavigation,
   PlFloatingBottomNavigationItem
-} from './PlFloatingBottomNavigation';
+} from './PlFloatingBottomNavigation.js';
 export type {
   PlFloatingBottomNavigationItemProps,
   PlFloatingBottomNavigationProps,
   PlFloatingBottomNavigationValue
-} from './PlFloatingBottomNavigation';
+} from './PlFloatingBottomNavigation.js';

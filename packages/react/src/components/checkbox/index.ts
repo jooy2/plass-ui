@@ -1,2 +1,2 @@
-export { PlCheckbox } from './PlCheckbox';
-export type { PlCheckboxProps } from './PlCheckbox';
+export { PlCheckbox } from './PlCheckbox.js';
+export type { PlCheckboxProps } from './PlCheckbox.js';
