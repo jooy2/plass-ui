@@ -74,6 +74,11 @@ jobs:
         run: flutter analyze
         working-directory: ./packages/flutter/example
 
+      # `--no-tree-shake-icons` for the same reason the documentation build
+      # passes it: the gallery ships no icon font, so the subset the shaker
+      # would compute is empty — and it refuses outright on the one font that
+      # *is* shipped, Inter, whose two faces in a single family it reads as an
+      # icon font it cannot process.
       - name: Build for the web
-        run: flutter build web --release
+        run: flutter build web --release --no-tree-shake-icons
         working-directory: ./packages/flutter/example
