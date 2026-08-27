@@ -45,6 +45,8 @@
     },
     "./styles.css": "./dist/styles.css",
     "./tailwind.css": "./dist/tailwind.css",
+    "./tokens.css": "./dist/tokens.css",
+    "./css/*.css": "./dist/css/*.css",
     "./package.json": "./package.json",
     "./*": {
       "types": "./dist/components/*/index.d.ts",
