@@ -66,6 +66,7 @@ import {
   PlTimeline,
   PlTimelineItem,
   PlToastProvider,
+  PlToolbar,
   PlTooltip,
   usePlToast,
   PlTypography
@@ -853,6 +854,27 @@ const entries: Entry[] = [
       <PlSpoiler className="w-full" size="sm">
         <span className="text-xs">He was the killer all along.</span>
       </PlSpoiler>
+    )
+  },
+  {
+    name: 'PlToolbar',
+    group: 'surfaces',
+    href: 'components/surfaces/toolbar',
+    blurb: {
+      en: 'A bar of controls: a header, an action row, an editor strip.',
+      ko: '컨트롤이 늘어선 바입니다 — 헤더, 액션 줄, 에디터의 띠.'
+    },
+    preview: (
+      <PlToolbar
+        className="w-full"
+        size="sm"
+        start={<span className="text-xs font-semibold">Reports</span>}
+        end={
+          <PlButton size="sm" variant="glass" color="secondary">
+            New
+          </PlButton>
+        }
+      />
     )
   },
   {

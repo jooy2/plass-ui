@@ -6041,6 +6041,77 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlToolbar: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: '바의 재질. 색이 들어가지 않습니다 — 툴바는 남의 컨트롤을 담습니다',
+        en: "What the bar is made of. Never dyed: a toolbar holds other people's controls"
+      },
+      sizeDescription: {
+        ko: '바의 여백과 반경. 높이는 안에 든 컨트롤이 정합니다',
+        en: "The bar's padding and radius. The height is whatever the controls in it need"
+      },
+      elevationDescription: {
+        ko: '드롭 섀도 깊이. 고정되어도 0입니다 — 헤더 아래 그림자는 스크롤된 뒤에야 참이 됩니다',
+        en: 'Drop shadow depth. 0 even when pinned: a shadow under a header is only true once the page has scrolled'
+      },
+      densityDescription: {
+        ko: '여백만 바꿉니다. 타입 스케일은 그대로',
+        en: 'Padding only — never the type scale'
+      }
+    }),
+    {
+      name: 'position',
+      type: "'static' | 'sticky' | 'fixed'",
+      default: "'static'",
+      description: {
+        ko: '페이지 스크롤 안에서 바가 놓이는 방식. sticky는 자기 자리를 차지하고, fixed는 흐름에서 빠집니다',
+        en: "How the bar sits in the page's scroll. sticky takes up its own space; fixed leaves the flow"
+      }
+    },
+    {
+      name: 'side',
+      type: "'top' | 'bottom'",
+      default: "'top'",
+      description: {
+        ko: 'position이 static이 아닐 때 붙잡히는 가장자리',
+        en: 'Which edge it is held against when position is not static'
+      }
+    },
+    {
+      name: 'divider',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '내용을 향한 가장자리에 얇은 선을 긋습니다',
+        en: 'Draws a hairline along the edge that faces the content'
+      }
+    },
+    {
+      name: 'start',
+      type: 'ReactNode',
+      description: {
+        ko: '바의 시작에 고정되는 것 — 로고, 제목, 뒤로 가기',
+        en: 'Pinned to the start of the bar: a logo, a title, a back button'
+      }
+    },
+    {
+      name: 'end',
+      type: 'ReactNode',
+      description: { ko: '끝에 고정되는 것 — 액션들', en: 'Pinned to the end: the actions' }
+    },
+    {
+      name: 'render',
+      type: 'useRender.RenderProp',
+      description: {
+        ko: 'div가 아닌 다른 요소로 렌더링합니다 — header, nav',
+        en: 'Renders something other than a div — a header, a nav'
+      }
+    }
+  ],
+
   PlTooltip: [
     {
       name: 'content',
