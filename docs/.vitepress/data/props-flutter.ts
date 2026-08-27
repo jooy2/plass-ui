@@ -115,6 +115,61 @@ const formatValueProp: PropRow = {
   }
 };
 
+/**
+ * The picker parameters with no React counterpart at all.
+ *
+ * `names` and `formatValue` are the localisation trade — there is no `Intl` in
+ * the framework, so the words and the format arrive as an object and a callback
+ * — and the last three are what every Flutter widget takes and no DOM element
+ * needs. `from()` cannot derive a row that does not exist over there, so these
+ * are written out once and shared by the pickers.
+ */
+const pickerWordProps: PropRow[] = [
+  {
+    name: 'names',
+    type: 'PlDateNames',
+    default: 'PlDateNames.english',
+    description: {
+      ko: '달력이 그리는 월과 요일 이름, 그리고 헤더가 그것들을 쓰는 순서. **React의 locale 문자열에 해당합니다** — 프레임워크에 Intl이 없으므로 단어를 객체로 받습니다',
+      en: 'The month and weekday names the calendar draws, and the order the header writes them in. **This is what a locale string is in the React build**: there is no Intl in the framework, so the words arrive as an object'
+    }
+  },
+  {
+    name: 'formatValue',
+    type: 'String Function(DateTime value)?',
+    description: {
+      ko: 'trigger가 값을 쓰는 방식. React의 Intl 옵션 대신 콜백입니다. 빼면 names의 medium 형식으로 씁니다',
+      en: "How the trigger writes the value. A callback rather than React's Intl options; without it it is written out of names in its medium form"
+    }
+  }
+];
+
+/** What every Flutter widget takes and no DOM element needs. */
+const pickerHandleProps: PropRow[] = [
+  {
+    name: 'semanticLabel',
+    type: 'String?',
+    description: {
+      ko: '보이는 label이 없는 trigger를 스크린 리더가 부를 이름',
+      en: 'The name a screen reader gives a trigger with no visible label'
+    }
+  },
+  {
+    name: 'focusNode',
+    type: 'FocusNode?',
+    description: { ko: '포커스를 밖에서 제어할 때 넘깁니다', en: 'Drive focus from outside' }
+  },
+  {
+    name: 'autofocus',
+    type: 'bool',
+    default: 'false',
+    description: {
+      ko: '트리에 들어가면서 포커스를 가져갑니다',
+      en: 'Takes focus as it is inserted into the tree'
+    }
+  }
+];
+
 export const flutterPropTables: Record<string, PropRow[]> = {
   PlAccordion: [
     from('PlAccordion', 'children', {
@@ -872,6 +927,87 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       description: {
         ko: '이 언어에서 한 주가 시작하는 요일. picker의 weekStartsOn이 우선합니다',
         en: 'Which day the week starts on in this language. A picker’s own weekStartsOn overrides it'
+      }
+    }
+  ],
+
+  PlDateRangePicker: [
+    {
+      name: 'value',
+      type: 'PlDateRange',
+      required: true,
+      description: {
+        ko: '선택된 구간. null이 아닙니다 — 비어 있는 것은 PlDateRange.empty입니다',
+        en: 'The chosen range. Never null — an empty one is PlDateRange.empty'
+      }
+    },
+    {
+      name: 'onChanged',
+      type: 'ValueChanged<PlDateRange>?',
+      description: {
+        ko: '새 구간과 함께 언제나 객체로 호출됩니다. 한 번의 선택에 두 번 울립니다 — 첫 누름에 start만, 둘째에 양 끝',
+        en: 'Called with the new range, always as an object. It fires twice per selection: once with only a start, and once with both ends'
+      }
+    },
+    from('PlDateRangePicker', 'open', { type: 'bool?' }),
+    {
+      name: 'onOpenChanged',
+      type: 'ValueChanged<bool>?',
+      description: {
+        ko: '달력이 열리거나 닫혀야 할 때 호출됩니다',
+        en: 'Called when the calendars should open or close'
+      }
+    },
+    from('PlDateRangePicker', 'defaultMonth', { type: 'DateTime?' }),
+    from('PlDateRangePicker', 'minDate', { type: 'DateTime?' }),
+    from('PlDateRangePicker', 'maxDate', { type: 'DateTime?' }),
+    from('PlDateRangePicker', 'shouldDisableDate', { type: 'bool Function(DateTime date)?' }),
+    from('PlDateRangePicker', 'weekStartsOn', { type: 'PlassWeekday?' }),
+    pickerWordProps[0],
+    from('PlDateRangePicker', 'labels', {
+      type: 'PlPickerLabels',
+      default: 'PlPickerLabels.english'
+    }),
+    pickerWordProps[1],
+    from('PlDateRangePicker', 'monthCount', { type: 'int', default: '2' }),
+    from('PlDateRangePicker', 'startPlaceholder', { type: 'Widget?' }),
+    from('PlDateRangePicker', 'endPlaceholder', { type: 'Widget?' }),
+    from('PlDateRangePicker', 'presets', {
+      type: 'List<PlDateRangePreset>',
+      default: 'const []'
+    }),
+    from('PlDateRangePicker', 'clearable', { type: 'bool', default: 'false' }),
+    from('PlDateRangePicker', 'closeOnSelect', { type: 'bool', default: 'true' }),
+    from('PlDateRangePicker', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlDateRangePicker', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlDateRangePicker', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlDateRangePicker', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlDateRangePicker', 'elevation', { type: 'int', default: '0' }),
+    from('PlDateRangePicker', 'label', { type: 'Widget?' }),
+    from('PlDateRangePicker', 'description', { type: 'Widget?' }),
+    from('PlDateRangePicker', 'error', { type: 'Widget?' }),
+    from('PlDateRangePicker', 'invalid', { type: 'bool?' }),
+    from('PlDateRangePicker', 'startIcon', { type: 'Widget?' }),
+    from('PlDateRangePicker', 'fullWidth', { type: 'bool', default: 'false' }),
+    from('PlDateRangePicker', 'readOnly', { type: 'bool', default: 'false' }),
+    from('PlDateRangePicker', 'disabled', { type: 'bool', default: 'false' }),
+    ...pickerHandleProps
+  ],
+
+  PlDateRange: [
+    from('PlDateRange', 'start', { type: 'DateTime?', required: false }),
+    from('PlDateRange', 'end', { type: 'DateTime?', required: false })
+  ],
+
+  PlDateRangePreset: [
+    from('PlDateRangePreset', 'label', { type: 'Widget', required: true }),
+    {
+      name: 'build',
+      type: 'PlDateRange Function()',
+      required: true,
+      description: {
+        ko: '그것이 뜻하는 구간. React가 값도 허용하는 자리에서 여기서는 언제나 콜백입니다 — preset은 거의 언제나 오늘에 달려 있고, 시작할 때 한 번 계산한 "지난 7일"은 앱을 밤새 열어 둔 사람에게 틀린 값입니다',
+        en: 'The range it stands for. A callback rather than a value, and always: a preset almost always depends on today, and "the last 7 days" computed once at startup is wrong for anyone who left the app open overnight'
       }
     }
   ],
