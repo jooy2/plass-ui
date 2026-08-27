@@ -38,6 +38,7 @@ export 'src/components/chat_bubble/pl_chat_bubble.dart';
 export 'src/components/checkbox/pl_checkbox.dart';
 export 'src/components/chip/pl_chip.dart';
 export 'src/components/collapsible/pl_collapsible.dart';
+export 'src/components/combobox/pl_combobox.dart';
 export 'src/components/container/pl_container.dart';
 export 'src/components/divider/pl_divider.dart';
 export 'src/components/drawer/pl_drawer.dart';

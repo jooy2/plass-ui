@@ -98,6 +98,11 @@ import 'package:plass_ui_example/demos/collapsible/hero.dart';
 import 'package:plass_ui_example/demos/collapsible/slots.dart';
 import 'package:plass_ui_example/demos/collapsible/trigger.dart';
 import 'package:plass_ui_example/demos/collapsible/variants.dart';
+import 'package:plass_ui_example/demos/combobox/custom.dart';
+import 'package:plass_ui_example/demos/combobox/hero.dart';
+import 'package:plass_ui_example/demos/combobox/multiple.dart';
+import 'package:plass_ui_example/demos/combobox/sizes.dart';
+import 'package:plass_ui_example/demos/combobox/states.dart';
 import 'package:plass_ui_example/demos/container/centered.dart';
 import 'package:plass_ui_example/demos/container/hero.dart';
 import 'package:plass_ui_example/demos/container/padding.dart';
@@ -337,6 +342,11 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'button/states': _states,
   'button/elevation': _elevation,
   'button/full-width': _fullWidth,
+  'combobox/hero': _comboboxHero,
+  'combobox/custom': _comboboxCustom,
+  'combobox/multiple': _comboboxMultiple,
+  'combobox/sizes': _comboboxSizes,
+  'combobox/states': _comboboxStates,
   'progress-box/hero': _progressBoxHero,
   'progress-box/indeterminate': _progressBoxIndeterminate,
   'progress-box/count': _progressBoxCount,
@@ -648,6 +658,11 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
 
 Widget _hero(BuildContext context) => const ButtonHero();
 Widget _variants(BuildContext context) => const ButtonVariants();
+Widget _comboboxHero(BuildContext context) => const ComboboxHero();
+Widget _comboboxCustom(BuildContext context) => const ComboboxCustom();
+Widget _comboboxMultiple(BuildContext context) => const ComboboxMultiple();
+Widget _comboboxSizes(BuildContext context) => const ComboboxSizes();
+Widget _comboboxStates(BuildContext context) => const ComboboxStates();
 Widget _progressBoxHero(BuildContext context) => const ProgressBoxHero();
 Widget _progressBoxIndeterminate(BuildContext context) => const ProgressBoxIndeterminate();
 Widget _progressBoxCount(BuildContext context) => const ProgressBoxCount();

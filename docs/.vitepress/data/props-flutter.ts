@@ -571,6 +571,112 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlChip', 'children', { name: 'child', type: 'Widget?' })
   ],
 
+  PlCombobox: [
+    {
+      name: 'options',
+      type: 'List<PlComboboxOption<T>>',
+      required: true,
+      description: {
+        ko: '선택지 목록. 필터가 이들의 label을 읽습니다',
+        en: 'The choices, in order. The filter reads their labels'
+      }
+    },
+    {
+      name: 'value',
+      type: 'T?',
+      required: true,
+      description: {
+        ko: '선택된 값. 단일 폼에만 있습니다',
+        en: 'The chosen value. Single form only'
+      }
+    },
+    {
+      name: 'onChanged',
+      type: 'ValueChanged<T?>?',
+      description: {
+        ko: '값이 정해졌을 때 호출됩니다. multiple 폼에서는 ValueChanged<List<T>>입니다',
+        en: 'Called with the value that was chosen. On the multiple form it is a ValueChanged<List<T>>'
+      }
+    },
+    {
+      name: 'values',
+      type: 'List<T>',
+      required: true,
+      description: {
+        ko: '선택된 값들. PlCombobox.multiple에만 있습니다',
+        en: 'The chosen values. PlCombobox.multiple only'
+      }
+    },
+    {
+      name: 'onCreate',
+      type: 'T Function(String query)?',
+      description: {
+        ko: '입력한 글자를 값으로 바꿉니다. **이걸 주는 것이 곧 allowCustom입니다** — React에서는 값이 언제나 string이나 number라 field가 스스로 만들 수 있지만, 여기서는 T이고 그걸 만드는 법은 호출자만 압니다',
+        en: 'Turns what was typed into a value, and **passing it is what allows one**. React can default this to on because a value there is always a string or a number; here it is a T, and only the caller knows how to make one'
+      }
+    },
+    {
+      name: 'customLabel',
+      type: 'Widget Function(String query)?',
+      description: { ko: '그 행이 뭐라고 말할지', en: 'What that row says' }
+    },
+    from('PlCombobox', 'onInputValueChange', {
+      name: 'onQueryChanged',
+      type: 'ValueChanged<String>?'
+    }),
+    from('PlCombobox', 'placeholder', { type: 'String?' }),
+    from('PlCombobox', 'emptyMessage', { type: 'String', default: "'No matches'" }),
+    from('PlCombobox', 'limit', { type: 'int?', default: 'null' }),
+    from('PlCombobox', 'clearable', { type: 'bool', default: 'false' }),
+    from('PlCombobox', 'clearLabel', { type: 'String', default: "'Clear'" }),
+    from('PlCombobox', 'openLabel', { type: 'String', default: "'Open'" }),
+    from('PlCombobox', 'removeLabel', { type: 'String Function(String label)' }),
+    from('PlCombobox', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlCombobox', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlCombobox', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlCombobox', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlCombobox', 'elevation', { type: 'int', default: '0' }),
+    from('PlCombobox', 'label', { type: 'Widget?' }),
+    from('PlCombobox', 'description', { type: 'Widget?' }),
+    from('PlCombobox', 'error', { type: 'Widget?' }),
+    from('PlCombobox', 'invalid', { type: 'bool?' }),
+    from('PlCombobox', 'startIcon', { type: 'Widget?' }),
+    from('PlCombobox', 'fullWidth', { type: 'bool', default: 'false' }),
+    from('PlCombobox', 'readOnly', { type: 'bool', default: 'false' }),
+    from('PlCombobox', 'disabled', { type: 'bool', default: 'false' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '보이는 label이 없는 field를 스크린 리더가 부를 이름',
+        en: 'The name a screen reader gives a field with no visible label'
+      }
+    },
+    {
+      name: 'focusNode',
+      type: 'FocusNode?',
+      description: {
+        ko: '포커스를 밖에서 제어할 때 넘깁니다',
+        en: 'Drive focus from outside'
+      }
+    },
+    {
+      name: 'autofocus',
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '트리에 들어가면서 포커스를 가져갑니다',
+        en: 'Takes focus as it is inserted into the tree'
+      }
+    }
+  ],
+
+  PlComboboxOption: [
+    from('PlComboboxOption', 'value', { type: 'T', required: true }),
+    from('PlComboboxOption', 'label', { type: 'String', required: true }),
+    from('PlComboboxOption', 'disabled', { type: 'bool', default: 'false' })
+  ],
+
   PlContainer: [
     from('PlContainer', 'children', { name: 'child', type: 'Widget?' }),
     from('PlContainer', 'maxWidth', {
