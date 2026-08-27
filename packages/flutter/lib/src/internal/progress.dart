@@ -76,6 +76,70 @@ const Duration spinDuration = Duration(milliseconds: 900);
 /// indicator that holds still says the opposite of what it is for.
 const Duration slowSpinDuration = Duration(milliseconds: 2400);
 
+/// One plate of a `PlProgressBox`, on the tick ladder — an indicator beside a
+/// label, not a control you can put one inside.
+const Map<PlassSize, double> plateSize = <PlassSize, double>{
+  PlassSize.xs: 8,
+  PlassSize.sm: 10,
+  PlassSize.md: 12,
+  PlassSize.lg: 16,
+  PlassSize.xl: 20,
+};
+
+/// The corner cut off a plate: the same ~30% the tick boxes take.
+const Map<PlassSize, double> plateRadius = <PlassSize, double>{
+  PlassSize.xs: 3,
+  PlassSize.sm: 4,
+  PlassSize.md: 4.5,
+  PlassSize.lg: 6,
+  PlassSize.xl: 7,
+};
+
+/// Between the plates. Tight — they are one object, not a row of squares.
+const Map<PlassSize, double> plateGap = <PlassSize, double>{
+  PlassSize.xs: 4,
+  PlassSize.sm: 4,
+  PlassSize.md: 6,
+  PlassSize.lg: 6,
+  PlassSize.xl: 8,
+};
+
+/// How long the wave takes to cross a row of plates once.
+const Duration waveDuration = Duration(milliseconds: 1200);
+
+/// And how long under a reduced-motion preference.
+const Duration slowWaveDuration = Duration(milliseconds: 2400);
+
+/// How far behind its neighbour each plate lights, as a fraction of the cycle.
+///
+/// 120ms of 1200 in the stylesheet, and the same ratio here so a row of plates
+/// in the two packages travels at the same speed.
+const double plateStagger = 0.1;
+
+/// How much of the cycle one plate spends lit, as a fraction.
+///
+/// The keyframes are `0%, 70%, 100%` dark with the peak at `35%`, so a plate is
+/// doing something for the first 70% of its own cycle and dark for the rest.
+const double plateLitWindow = 0.7;
+
+/// A plate's opacity at [phase] through the cycle, `0`…`1`.
+///
+/// A triangle rather than a curve, which is the shape of the three keyframes:
+/// up from nothing to full at the middle of the window and back down. Outside
+/// the window it is dark, which is what makes the wave read as a wave rather
+/// than as a row breathing in unison.
+double plateOpacity(double phase) {
+  final cycle = phase % 1;
+
+  if (cycle >= plateLitWindow) {
+    return 0;
+  }
+
+  final within = cycle / plateLitWindow;
+
+  return 1 - (within * 2 - 1).abs();
+}
+
 /// `value` as a fraction of the range, or `null` when there is nothing to say.
 ///
 /// The clamp is not defensive programming for its own sake — `value` usually
