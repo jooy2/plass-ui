@@ -313,6 +313,39 @@ enum PlassCorner {
   bottomEnd,
 }
 
+/// A day of the week, **Sunday first**.
+///
+/// The React package spells this as `0`–`6`, matching `Date.getDay()`; an enum
+/// here for the reason every other axis is one, and in the same order — its
+/// `index` is that number, so the two packages count the week identically.
+///
+/// Not `DateTime.weekday`, which counts Monday as 1 through Sunday as 7. The
+/// calendar converts once, at the one place it reads a real date, rather than
+/// carrying two numberings that somebody will eventually subtract from each
+/// other.
+enum PlassWeekday {
+  /// `0`.
+  sunday,
+
+  /// `1`.
+  monday,
+
+  /// `2`.
+  tuesday,
+
+  /// `3`.
+  wednesday,
+
+  /// `4`.
+  thursday,
+
+  /// `5`.
+  friday,
+
+  /// `6`.
+  saturday,
+}
+
 /// What a surface is made of.
 ///
 /// This is the library's own name, and the two materials in it are the whole

@@ -166,6 +166,9 @@ enum PlassGlyphShape {
   /// The clock: something that has been started and has not finished.
   clock,
 
+  /// The calendar: a page with a binding across the top. The pickers' glyph.
+  calendar,
+
   /// The chain: a link that stays on this page.
   link,
 
@@ -319,6 +322,7 @@ class _GlyphPainter extends CustomPainter {
       case PlassGlyphShape.arrowRight:
       case PlassGlyphShape.ellipsis:
       case PlassGlyphShape.clock:
+      case PlassGlyphShape.calendar:
       case PlassGlyphShape.link:
       case PlassGlyphShape.externalLink:
       case PlassGlyphShape.upload:
@@ -410,6 +414,20 @@ class _GlyphPainter extends CustomPainter {
           ..moveTo(8, 4.5)
           ..lineTo(8, 8)
           ..lineTo(10.4, 9.6);
+      case PlassGlyphShape.calendar:
+        line
+          ..addRRect(
+            RRect.fromRectAndRadius(
+              const Rect.fromLTRB(2.25, 3.25, 13.75, 13.75),
+              const Radius.circular(2),
+            ),
+          )
+          ..moveTo(2.25, 6.5)
+          ..lineTo(13.75, 6.5)
+          ..moveTo(5.5, 1.75)
+          ..lineTo(5.5, 4.25)
+          ..moveTo(10.5, 1.75)
+          ..lineTo(10.5, 4.25);
       case PlassGlyphShape.link:
         line
           ..moveTo(6.5, 9.5)

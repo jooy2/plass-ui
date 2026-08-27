@@ -40,6 +40,7 @@ export 'src/components/chip/pl_chip.dart';
 export 'src/components/collapsible/pl_collapsible.dart';
 export 'src/components/combobox/pl_combobox.dart';
 export 'src/components/container/pl_container.dart';
+export 'src/components/date_picker/pl_date_picker.dart';
 export 'src/components/divider/pl_divider.dart';
 export 'src/components/drawer/pl_drawer.dart';
 export 'src/components/file_picker/pl_file_picker.dart';

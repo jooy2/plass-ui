@@ -107,6 +107,11 @@ import 'package:plass_ui_example/demos/container/centered.dart';
 import 'package:plass_ui_example/demos/container/hero.dart';
 import 'package:plass_ui_example/demos/container/padding.dart';
 import 'package:plass_ui_example/demos/container/widths.dart';
+import 'package:plass_ui_example/demos/date_picker/bounds.dart';
+import 'package:plass_ui_example/demos/date_picker/format.dart';
+import 'package:plass_ui_example/demos/date_picker/hero.dart';
+import 'package:plass_ui_example/demos/date_picker/locales.dart';
+import 'package:plass_ui_example/demos/date_picker/states.dart';
 import 'package:plass_ui_example/demos/divider/colors.dart';
 import 'package:plass_ui_example/demos/divider/hero.dart';
 import 'package:plass_ui_example/demos/divider/label.dart';
@@ -342,6 +347,11 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'button/states': _states,
   'button/elevation': _elevation,
   'button/full-width': _fullWidth,
+  'date-picker/hero': _datePickerHero,
+  'date-picker/locales': _datePickerLocales,
+  'date-picker/bounds': _datePickerBounds,
+  'date-picker/format': _datePickerFormat,
+  'date-picker/states': _datePickerStates,
   'combobox/hero': _comboboxHero,
   'combobox/custom': _comboboxCustom,
   'combobox/multiple': _comboboxMultiple,
@@ -658,6 +668,11 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
 
 Widget _hero(BuildContext context) => const ButtonHero();
 Widget _variants(BuildContext context) => const ButtonVariants();
+Widget _datePickerHero(BuildContext context) => const DatePickerHero();
+Widget _datePickerLocales(BuildContext context) => const DatePickerLocales();
+Widget _datePickerBounds(BuildContext context) => const DatePickerBounds();
+Widget _datePickerFormat(BuildContext context) => const DatePickerFormat();
+Widget _datePickerStates(BuildContext context) => const DatePickerStates();
 Widget _comboboxHero(BuildContext context) => const ComboboxHero();
 Widget _comboboxCustom(BuildContext context) => const ComboboxCustom();
 Widget _comboboxMultiple(BuildContext context) => const ComboboxMultiple();

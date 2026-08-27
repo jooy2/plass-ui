@@ -693,6 +693,189 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlContainer', 'centered', { type: 'bool', default: 'true' })
   ],
 
+  /*
+   * The pickers, and the one place the two packages genuinely differ.
+   *
+   * React gets `Intl` from the platform, so a `locale` string is enough to
+   * produce every month name and the order the header writes them in. The
+   * framework ships nothing of the kind, so the words arrive as a `PlDateNames`
+   * and the trigger's format as a callback — the same trade the indicators
+   * already make with `formatValue`.
+   */
+  PlDatePicker: [
+    {
+      name: 'value',
+      type: 'DateTime?',
+      required: true,
+      description: {
+        ko: '선택된 날, 또는 없으면 null. 패키지의 다른 모든 입력과 마찬가지로 controlled입니다',
+        en: 'The chosen day, or null for none. Controlled, like every other input in the package'
+      }
+    },
+    {
+      name: 'onChanged',
+      type: 'ValueChanged<DateTime?>?',
+      description: {
+        ko: '고른 날과 함께 호출됩니다. 비우면 null입니다',
+        en: 'Called with the day that was chosen, or null when the picker is emptied'
+      }
+    },
+    from('PlDatePicker', 'open', { type: 'bool?' }),
+    {
+      name: 'onOpenChanged',
+      type: 'ValueChanged<bool>?',
+      description: {
+        ko: '달력이 열리거나 닫혀야 할 때 호출됩니다',
+        en: 'Called when the calendar should open or close'
+      }
+    },
+    from('PlDatePicker', 'defaultMonth', { type: 'DateTime?' }),
+    from('PlDatePicker', 'minDate', { type: 'DateTime?' }),
+    from('PlDatePicker', 'maxDate', { type: 'DateTime?' }),
+    from('PlDatePicker', 'shouldDisableDate', { type: 'bool Function(DateTime date)?' }),
+    from('PlDatePicker', 'weekStartsOn', {
+      type: 'PlassWeekday?',
+      description: {
+        ko: '한 주가 시작하는 요일. 기본은 names가 말하는 대로입니다',
+        en: 'Which day the week starts on. Defaults to what names says'
+      }
+    }),
+    {
+      name: 'names',
+      type: 'PlDateNames',
+      default: 'PlDateNames.english',
+      description: {
+        ko: '달력이 그리는 월과 요일 이름, 그리고 헤더가 그것들을 쓰는 순서. **React의 locale 문자열에 해당합니다** — 프레임워크에 Intl이 없으므로 단어를 객체로 받습니다',
+        en: 'The month and weekday names the calendar draws, and the order the header writes them in. **This is what a locale string is in the React build**: there is no Intl in the framework, so the words arrive as an object'
+      }
+    },
+    {
+      name: 'labels',
+      type: 'PlPickerLabels',
+      default: 'PlPickerLabels.english',
+      description: {
+        ko: 'picker가 스스로 말하는 문자열들. 전부 영어 기본값이 있습니다',
+        en: 'The words the picker says about itself. Every one has an English default'
+      }
+    },
+    {
+      name: 'formatValue',
+      type: 'String Function(DateTime value)?',
+      description: {
+        ko: 'trigger가 날짜를 쓰는 방식. React의 Intl 옵션 대신 콜백입니다. 빼면 names의 medium 형식으로 씁니다',
+        en: "How the trigger writes the day. A callback rather than React's Intl options; without it the day is written out of names in its medium form"
+      }
+    },
+    from('PlDatePicker', 'placeholder', { type: 'Widget?' }),
+    from('PlDatePicker', 'clearable', { type: 'bool', default: 'false' }),
+    from('PlDatePicker', 'showTodayButton', { type: 'bool', default: 'true' }),
+    from('PlDatePicker', 'closeOnSelect', { type: 'bool', default: 'true' }),
+    from('PlDatePicker', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlDatePicker', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlDatePicker', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlDatePicker', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlDatePicker', 'elevation', { type: 'int', default: '0' }),
+    from('PlDatePicker', 'label', { type: 'Widget?' }),
+    from('PlDatePicker', 'description', { type: 'Widget?' }),
+    from('PlDatePicker', 'error', { type: 'Widget?' }),
+    from('PlDatePicker', 'invalid', { type: 'bool?' }),
+    from('PlDatePicker', 'startIcon', { type: 'Widget?' }),
+    from('PlDatePicker', 'fullWidth', { type: 'bool', default: 'false' }),
+    from('PlDatePicker', 'readOnly', { type: 'bool', default: 'false' }),
+    from('PlDatePicker', 'disabled', { type: 'bool', default: 'false' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '보이는 label이 없는 trigger를 스크린 리더가 부를 이름',
+        en: 'The name a screen reader gives a trigger with no visible label'
+      }
+    },
+    {
+      name: 'focusNode',
+      type: 'FocusNode?',
+      description: { ko: '포커스를 밖에서 제어할 때 넘깁니다', en: 'Drive focus from outside' }
+    },
+    {
+      name: 'autofocus',
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '트리에 들어가면서 포커스를 가져갑니다',
+        en: 'Takes focus as it is inserted into the tree'
+      }
+    }
+  ],
+
+  PlDateNames: [
+    {
+      name: 'months',
+      type: 'List<String>',
+      default: 'English',
+      description: {
+        ko: '월 이름 열둘, 1월부터',
+        en: 'The twelve month names in full, January first'
+      }
+    },
+    {
+      name: 'monthsShort',
+      type: 'List<String>',
+      default: 'English',
+      description: {
+        ko: '같은 열둘의 약칭. 월 그리드가 그립니다',
+        en: 'The same twelve, abbreviated. What the month grid draws'
+      }
+    },
+    {
+      name: 'weekdays',
+      type: 'List<String>',
+      default: 'English',
+      description: {
+        ko: '요일 이름 일곱, **일요일부터**. 어느 요일로 시작해 그리든 회전은 달력의 몫입니다',
+        en: 'The seven weekday names in full, **Sunday first**, whatever the week is drawn as starting on — rotating them is the calendar’s job'
+      }
+    },
+    {
+      name: 'weekdaysShort',
+      type: 'List<String>',
+      default: 'English',
+      description: {
+        ko: '같은 일곱의 약칭. 열 머리글이 그립니다 — narrow가 아니라 short인 건 영어의 narrow가 S M T W T F S이기 때문입니다',
+        en: 'The same seven, abbreviated. What the column headers draw — abbreviated rather than narrow, because narrow gives S M T W T F S in English'
+      }
+    },
+    {
+      name: 'am',
+      type: 'String',
+      default: "'AM'",
+      description: { ko: '12시간제의 오전', en: 'The first half of the day, for a 12-hour clock' }
+    },
+    {
+      name: 'pm',
+      type: 'String',
+      default: "'PM'",
+      description: { ko: '그리고 오후', en: 'And the second' }
+    },
+    {
+      name: 'monthBeforeYear',
+      type: 'bool',
+      default: 'true',
+      description: {
+        ko: '헤더가 월을 연도보다 먼저 쓰는지. 헤더는 문자열 하나가 아니라 버튼 둘이라 formatter가 준 것을 그대로 찍을 수 없고, 어느 쪽이 먼저인지 들어야 합니다',
+        en: 'Whether the header writes the month before the year. It is two buttons rather than one string, so it cannot print what a formatter gives it and has to be told which comes first'
+      }
+    },
+    {
+      name: 'firstDayOfWeek',
+      type: 'PlassWeekday',
+      default: 'PlassWeekday.sunday',
+      description: {
+        ko: '이 언어에서 한 주가 시작하는 요일. picker의 weekStartsOn이 우선합니다',
+        en: 'Which day the week starts on in this language. A picker’s own weekStartsOn overrides it'
+      }
+    }
+  ],
+
   PlDivider: [
     from('PlDivider', 'orientation', {
       type: 'PlassOrientation',
