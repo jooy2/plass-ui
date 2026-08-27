@@ -4,6 +4,7 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/button/pl_button.dart';
+import 'package:plass_ui/src/internal/button_group.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/types.dart';
 
@@ -42,18 +43,18 @@ class PlIconButton extends StatelessWidget {
     required this.label,
     this.onPressed,
     this.onLongPress,
-    this.variant = PlassVariant.solid,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.elevation = 1,
+    this.variant,
+    this.size,
+    this.color,
+    this.elevation,
     this.loading = false,
     this.readOnly = false,
-    this.disabled = false,
+    this.disabled,
     this.focusNode,
     this.autofocus = false,
     super.key,
   }) : assert(
-         elevation >= plassElevationMin && elevation <= plassElevationMax,
+         elevation == null || (elevation >= plassElevationMin && elevation <= plassElevationMax),
          'elevation must be between $plassElevationMin and $plassElevationMax',
        );
 
@@ -81,18 +82,21 @@ class PlIconButton extends StatelessWidget {
   final VoidCallback? onLongPress;
 
   /// What the surface is made of. See [PlassVariant].
-  final PlassVariant variant;
+  ///
+  /// Nullable for the reason [PlButton]'s is: `null` means *this button did not
+  /// say*, so a [PlButtonGroup] above it answers instead.
+  final PlassVariant? variant;
 
   /// The disc's diameter and the glyph inside it, on [PlButton]'s own ladder —
   /// so a disc and a labelled button on one row keep their baseline.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. Six only.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Drop shadow depth, `0`–`3`. `1`, as on a [PlButton]: a moulded token rests
   /// on the sheet rather than lying flush with it.
-  final PlassElevation elevation;
+  final PlassElevation? elevation;
 
   /// Shows a spinner in place of the glyph and stops the button activating,
   /// while keeping it focusable.
@@ -103,7 +107,7 @@ class PlIconButton extends StatelessWidget {
   final bool readOnly;
 
   /// Unavailable. Loses its light and its shadow, and leaves the focus order.
-  final bool disabled;
+  final bool? disabled;
 
   /// Drive focus from outside. Left out, the button owns one of its own.
   final FocusNode? focusNode;
@@ -113,6 +117,11 @@ class PlIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The disc's diameter is the one thing here that cannot be left unresolved:
+    // a radius is a number. Everything else goes on to PlButton as it arrived,
+    // `null` included, so a run around it still answers for it.
+    final step = size ?? PlassButtonGroupScope.maybeOf(context)?.size ?? PlassSize.md;
+
     return PlButton(
       // The glyph goes in `startIcon` rather than in `child`, which is what puts
       // PlButton on its icon-only path: square footprint, no horizontal
@@ -122,7 +131,7 @@ class PlIconButton extends StatelessWidget {
       // Half the height, rather than a number large enough to be clamped: the
       // radius has to be exactly the radius of the box, or the paint scales it
       // and the disc stops being one at the ends.
-      borderRadius: BorderRadius.circular(controlHeight[size]! / 2),
+      borderRadius: BorderRadius.circular(controlHeight[step]! / 2),
       onPressed: onPressed,
       onLongPress: onLongPress,
       variant: variant,

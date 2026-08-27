@@ -7,6 +7,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/button_group.dart';
 import 'package:plass_ui/src/internal/css.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/glow.dart';
@@ -39,28 +40,33 @@ class PlButton extends StatefulWidget {
   ///
   /// [elevation] is a rung on a four-step ladder; anything outside `0..3` is a
   /// mistake rather than a clamp, so it asserts.
+  ///
+  /// The five style axes and [disabled] are nullable, and `null` is not a
+  /// value: it means *this button did not say*, so a [PlButtonGroup] above it
+  /// answers, and failing that the default named on each field does. A button
+  /// that states one itself always wins.
   const PlButton({
     this.child,
     this.onPressed,
     this.onLongPress,
-    this.variant = PlassVariant.solid,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
-    this.elevation = 1,
+    this.variant,
+    this.size,
+    this.color,
+    this.density,
+    this.elevation,
     this.startIcon,
     this.endIcon,
     this.loading = false,
     this.readOnly = false,
     this.fullWidth = false,
-    this.disabled = false,
+    this.disabled,
     this.borderRadius,
     this.focusNode,
     this.autofocus = false,
     this.semanticLabel,
     super.key,
   }) : assert(
-         elevation >= plassElevationMin && elevation <= plassElevationMax,
+         elevation == null || (elevation >= plassElevationMin && elevation <= plassElevationMax),
          'elevation must be between $plassElevationMin and $plassElevationMax',
        );
 
@@ -79,12 +85,16 @@ class PlButton extends StatefulWidget {
   final VoidCallback? onLongPress;
 
   /// What the surface is made of. See [PlassVariant].
-  final PlassVariant variant;
+  ///
+  /// Defaults to [PlassVariant.solid], or to the [PlButtonGroup] above it.
+  final PlassVariant? variant;
 
   /// Height and type scale together: `xs` 24 · `sm` 32 · `md` 40 · `lg` 48 ·
   /// `xl` 56. `md` is the desktop default, and `lg` and `xl` both clear the
   /// 44px mobile touch target.
-  final PlassSize size;
+  ///
+  /// Defaults to [PlassSize.md], or to the [PlButtonGroup] above it.
+  final PlassSize? size;
 
   /// Semantic colour role. Six only; arbitrary colours are not accepted.
   ///
@@ -92,12 +102,16 @@ class PlButton extends StatefulWidget {
   /// and `ghost` it is the label — which is why a `glass` button with
   /// [PlassColor.secondary] is the quiet neutral button rather than a fourth
   /// variant.
-  final PlassColor color;
+  ///
+  /// Defaults to [PlassColor.primary], or to the [PlButtonGroup] above it.
+  final PlassColor? color;
 
   /// Changes horizontal padding and nothing else. Two buttons of the same
   /// [size] are the same height whatever their density, so a mixed row keeps
   /// its baseline.
-  final PlassDensity density;
+  ///
+  /// Defaults to [PlassDensity.standard], or to the [PlButtonGroup] above it.
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`.
   ///
@@ -107,7 +121,9 @@ class PlButton extends StatefulWidget {
   ///
   /// The tinted shadow a `solid` button casts in its own colour is **not** part
   /// of this ladder and does not scale with it.
-  final PlassElevation elevation;
+  ///
+  /// Defaults to `1`, or to the [PlButtonGroup] above it.
+  final PlassElevation? elevation;
 
   /// Drawn before the label, at 1.2× the label's size — so it tracks the label
   /// and never needs a size of its own. An [Icon] picks that up from the
@@ -133,7 +149,10 @@ class PlButton extends StatefulWidget {
 
   /// Unavailable. Loses its light and its shadow, lets the page through, and
   /// leaves the focus order.
-  final bool disabled;
+  ///
+  /// Defaults to `false`, or to the [PlButtonGroup] above it — which is what
+  /// lets a whole run be turned off at once.
+  final bool? disabled;
 
   /// The corners, overriding the [size] step of the house radius ladder.
   ///
@@ -164,11 +183,35 @@ class _PlButtonState extends State<PlButton> {
   bool _focusVisible = false;
   Offset? _pointer;
 
+  /// The run this button is in, or `null`. Read here rather than in `build`
+  /// because the resolved values below are wanted by the gesture callbacks too,
+  /// and a callback has no build context to ask with.
+  PlassButtonGroupScope? _group;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _group = PlassButtonGroupScope.maybeOf(context);
+  }
+
+  /* The six axes a group may answer for. `null` on the widget is "this button
+     did not say", so the group is asked next and the house default last. */
+
+  PlassVariant get _variant => widget.variant ?? _group?.variant ?? PlassVariant.solid;
+
+  PlassSize get _size => widget.size ?? _group?.size ?? PlassSize.md;
+
+  PlassColor get _color => widget.color ?? _group?.color ?? PlassColor.primary;
+
+  PlassDensity get _density => widget.density ?? _group?.density ?? PlassDensity.standard;
+
+  PlassElevation get _elevation => widget.elevation ?? _group?.elevation ?? 1;
+
   /// `loading` and `readOnly` stop the button firing without changing whether
   /// it can be reached; `disabled` does both.
   bool get _inert => widget.loading || widget.readOnly;
 
-  bool get _disabled => widget.disabled || widget.onPressed == null;
+  bool get _disabled => (widget.disabled ?? _group?.disabled ?? false) || widget.onPressed == null;
 
   bool get _interactive => !_disabled && !_inert;
 
@@ -194,20 +237,37 @@ class _PlButtonState extends State<PlButton> {
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final family = tokens.family(widget.color);
+    final family = tokens.family(_color);
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
-    final height = controlHeight[widget.size]!;
-    final fontSize = controlText[widget.size]!;
-    final radius = widget.borderRadius ?? BorderRadius.circular(PlassTokens.radius[widget.size]!);
+    final height = controlHeight[_size]!;
+    final fontSize = controlText[_size]!;
     final iconOnly = widget.child == null;
     final glyph = fontSize * iconScale;
+
+    final direction = Directionality.maybeOf(context) ?? TextDirection.ltr;
+    final group = _group;
+    final step = PlassTokens.radius[_size]!;
+
+    /* The corners that face a neighbour are squared off. `borderRadius` still
+       wins, which is what keeps a `PlIconButton` a disc inside a run — the same
+       thing its inline `border-radius` does in the React build. */
+    final radius =
+        widget.borderRadius ?? group?.corners(step, direction) ?? BorderRadius.circular(step);
+
+    /// A hairline, with the sides that face a neighbour dropped so a seam is
+    /// one line rather than two. See `internal/button_group.dart`.
+    BoxBorder edge(Color color) {
+      final side = BorderSide(color: color, width: hairline);
+
+      return group?.border(side, direction) ?? Border.fromBorderSide(side);
+    }
 
     // Hover and press only *look* like anything while the button can be used.
     final hovered = _interactive && _hovered;
     final pressed = _interactive && _pressed;
 
-    final glass = widget.variant == PlassVariant.glass;
+    final glass = _variant == PlassVariant.glass;
 
     /* -----------------------------------------------------------------------
      * The surface
@@ -226,13 +286,13 @@ class _PlButtonState extends State<PlButton> {
     PlassInsetShadow? gloss;
 
     if (_disabled) {
-      switch (widget.variant) {
+      switch (_variant) {
         case PlassVariant.solid:
           gradient = family.fill;
           ink = family.onSolid;
         case PlassVariant.glass:
           fill = tokens.glass;
-          border = Border.all(color: tokens.border);
+          border = edge(tokens.border);
           // The neutral foreground, not the family's: a disabled control has
           // stopped being a `danger` button and become a shape.
           ink = tokens.fg;
@@ -240,13 +300,13 @@ class _PlButtonState extends State<PlButton> {
           ink = family.accent;
       }
     } else if (widget.readOnly) {
-      switch (widget.variant) {
+      switch (_variant) {
         case PlassVariant.solid:
           gradient = family.fill;
           ink = family.onSolid;
         case PlassVariant.glass:
           fill = tokens.glass;
-          border = Border.all(color: tokens.glassLine);
+          border = edge(tokens.glassLine);
           gloss = tokens.glossGlass;
           ink = family.accent;
         case PlassVariant.ghost:
@@ -254,12 +314,12 @@ class _PlButtonState extends State<PlButton> {
       }
     } else {
       final level = pressed
-          ? widget.elevation - 1
+          ? _elevation - 1
           : hovered
-          ? widget.elevation + 1
-          : widget.elevation;
+          ? _elevation + 1
+          : _elevation;
 
-      switch (widget.variant) {
+      switch (_variant) {
         case PlassVariant.solid:
           gradient = family.fill;
           ink = family.onSolid;
@@ -278,7 +338,7 @@ class _PlButtonState extends State<PlButton> {
               : hovered
               ? tokens.glassHover
               : tokens.glass;
-          border = Border.all(color: hovered || pressed ? family.line : tokens.glassLine);
+          border = edge(hovered || pressed ? family.line : tokens.glassLine);
           gloss = tokens.glossGlass;
           ink = family.accent;
           shadows = tokens.elevation(level);
@@ -298,9 +358,7 @@ class _PlButtonState extends State<PlButton> {
      * -------------------------------------------------------------------- */
 
     final content = Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: iconOnly ? 0 : paddingX[widget.density]![widget.size]!,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: iconOnly ? 0 : paddingX[_density]![_size]!),
       child: DefaultTextStyle.merge(
         style: TextStyle(
           color: ink,
@@ -375,7 +433,7 @@ class _PlButtonState extends State<PlButton> {
               child: PlassGlowLayer(
                 pointer: _pointer,
                 visible: hovered,
-                color: tokens.glow(family, widget.variant),
+                color: tokens.glow(family, _variant),
                 radius: glowRadius,
                 duration: PlassTokens.glowDuration,
                 reduceMotion: reduceMotion,
@@ -389,7 +447,7 @@ class _PlButtonState extends State<PlButton> {
               child: PlassGlowLayer(
                 pointer: _pointer,
                 visible: pressed,
-                color: tokens.flash(family, widget.variant),
+                color: tokens.flash(family, _variant),
                 radius: flashRadius,
                 duration: PlassTokens.flashDuration,
                 curve: PlassTokens.flashEase,
@@ -590,7 +648,7 @@ class _PlButtonState extends State<PlButton> {
       return parts;
     }
 
-    final spacing = gap[widget.size]!;
+    final spacing = gap[_size]!;
     final spaced = <Widget>[parts.first];
 
     for (final part in parts.skip(1)) {

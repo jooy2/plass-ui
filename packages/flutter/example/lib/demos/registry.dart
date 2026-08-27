@@ -59,6 +59,11 @@ import 'package:plass_ui_example/demos/button/icons.dart';
 import 'package:plass_ui_example/demos/button/sizes.dart';
 import 'package:plass_ui_example/demos/button/states.dart';
 import 'package:plass_ui_example/demos/button/variants.dart';
+import 'package:plass_ui_example/demos/button_group/full_width.dart';
+import 'package:plass_ui_example/demos/button_group/hero.dart';
+import 'package:plass_ui_example/demos/button_group/orientation.dart';
+import 'package:plass_ui_example/demos/button_group/sizes.dart';
+import 'package:plass_ui_example/demos/button_group/variants.dart';
 import 'package:plass_ui_example/demos/carousel/auto_play.dart';
 import 'package:plass_ui_example/demos/carousel/hero.dart';
 import 'package:plass_ui_example/demos/carousel/loop.dart';
@@ -317,6 +322,11 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'button/states': _states,
   'button/elevation': _elevation,
   'button/full-width': _fullWidth,
+  'button-group/hero': _buttonGroupHero,
+  'button-group/variants': _buttonGroupVariants,
+  'button-group/sizes': _buttonGroupSizes,
+  'button-group/orientation': _buttonGroupOrientation,
+  'button-group/full-width': _buttonGroupFullWidth,
   'typography/hero': _typographyHero,
   'typography/levels': _typographyLevels,
   'typography/weight': _typographyWeight,
@@ -608,6 +618,11 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
 
 Widget _hero(BuildContext context) => const ButtonHero();
 Widget _variants(BuildContext context) => const ButtonVariants();
+Widget _buttonGroupHero(BuildContext context) => const ButtonGroupHero();
+Widget _buttonGroupVariants(BuildContext context) => const ButtonGroupVariants();
+Widget _buttonGroupSizes(BuildContext context) => const ButtonGroupSizes();
+Widget _buttonGroupOrientation(BuildContext context) => const ButtonGroupOrientation();
+Widget _buttonGroupFullWidth(BuildContext context) => const ButtonGroupFullWidth();
 Widget _colors(BuildContext context) => const ButtonColors();
 Widget _sizes(BuildContext context) => const ButtonSizes();
 Widget _density(BuildContext context) => const ButtonDensity();

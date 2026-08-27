@@ -55,6 +55,23 @@ function sharedProps(component: string): PropRow[] {
   ];
 }
 
+/**
+ * The same five axes for a widget a `PlButtonGroup` may answer for.
+ *
+ * Nullable, because `null` has to be distinguishable from a value: it means the
+ * widget did not state the axis, so the run above it does, and the default
+ * named in the `default` column is only what is left when neither did.
+ */
+function groupedAxes(component: string, options: { elevation: string }): PropRow[] {
+  return [
+    from(component, 'variant', { type: `${VARIANT}?`, default: 'PlassVariant.solid' }),
+    from(component, 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from(component, 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from(component, 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
+    from(component, 'elevation', { type: 'int?', default: options.elevation })
+  ];
+}
+
 /** What a key cap and the strip of them are both made of. */
 const capProps: PropRow[] = [
   from('PlKbd', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
@@ -360,6 +377,29 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     },
     from('PlBlockquote', 'children', { name: 'child', type: 'Widget?' })
+  ],
+
+  PlButtonGroup: [
+    {
+      name: 'children',
+      type: 'List<Widget>',
+      required: true,
+      description: {
+        ko: '버튼들, 순서대로. 하나의 child가 아니라 목록인 건 그룹이 양 끝이 누구인지 알아야 모서리를 정할 수 있기 때문입니다',
+        en: 'The buttons, in order. A list rather than one child, because the group has to know which member is at each end to decide which corners to square'
+      }
+    },
+    from('PlButtonGroup', 'variant', { type: `${VARIANT}?` }),
+    from('PlButtonGroup', 'size', { type: `${SIZE}?` }),
+    from('PlButtonGroup', 'color', { type: `${COLOR}?` }),
+    from('PlButtonGroup', 'density', { type: `${DENSITY}?` }),
+    from('PlButtonGroup', 'elevation', { type: 'int?' }),
+    from('PlButtonGroup', 'orientation', {
+      type: 'PlassOrientation',
+      default: 'PlassOrientation.horizontal'
+    }),
+    from('PlButtonGroup', 'disabled', { type: 'bool?' }),
+    from('PlButtonGroup', 'fullWidth', { type: 'bool', default: 'false' })
   ],
 
   PlCard: [
@@ -873,13 +913,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'VoidCallback?',
       description: { ko: '길게 눌렀을 때', en: 'Called on a long press' }
     },
-    from('PlIconButton', 'variant', { type: VARIANT, default: 'PlassVariant.solid' }),
-    from('PlIconButton', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlIconButton', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlIconButton', 'elevation', { type: 'int', default: '1' }),
+    // Nullable for the same reason `PlButton`'s are: a disc in a run inherits.
+    from('PlIconButton', 'variant', { type: `${VARIANT}?`, default: 'PlassVariant.solid' }),
+    from('PlIconButton', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlIconButton', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlIconButton', 'elevation', { type: 'int?', default: '1' }),
     from('PlIconButton', 'loading', { type: 'bool', default: 'false' }),
     from('PlIconButton', 'readOnly', { type: 'bool', default: 'false' }),
-    from('PlIconButton', 'disabled', { type: 'bool', default: 'false' }),
+    from('PlIconButton', 'disabled', { type: 'bool?', default: 'false' }),
     {
       name: 'focusNode · autofocus',
       type: 'FocusNode? · bool',
@@ -2622,13 +2663,20 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     })
   ],
 
+  /*
+   * The one table where the five axes are nullable.
+   *
+   * `null` is not a value here, it is *this button did not say* — which is what
+   * lets a `PlButtonGroup` answer for a whole run. The React build reaches the
+   * same place by leaving a prop off; Dart needs the type to say so.
+   */
   PlButton: [
-    ...sharedProps('PlButton'),
+    ...groupedAxes('PlButton', { elevation: '1' }),
     from('PlButton', 'startIcon', { type: 'Widget?' }),
     from('PlButton', 'endIcon', { type: 'Widget?' }),
     from('PlButton', 'loading', { type: 'bool', default: 'false' }),
     from('PlButton', 'readOnly', { type: 'bool', default: 'false' }),
-    from('PlButton', 'disabled', { type: 'bool', default: 'false' }),
+    from('PlButton', 'disabled', { type: 'bool?', default: 'false' }),
     from('PlButton', 'fullWidth', { type: 'bool', default: 'false' }),
     {
       name: 'onPressed',

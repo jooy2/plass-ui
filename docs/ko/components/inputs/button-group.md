@@ -7,7 +7,7 @@ order: 2
 
 <p class="plass-lede">함께 묶이는 버튼 한 줄입니다. 이웃과 맞닿는 모서리를 각지게 깎고, <code>variant</code> <code>size</code> <code>color</code> <code>density</code> <code>elevation</code> <code>disabled</code>를 묶음 단위로 한 번만 지정합니다.</p>
 
-<Demo src="button-group/hero" :flutter="false" :min-height="120" />
+<Demo src="button-group/hero" :min-height="120" />
 
 ::: fw react
 
@@ -23,6 +23,24 @@ import { PlButton, PlButtonGroup } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlButtonGroup(
+  variant: PlassVariant.glass,
+  color: PlassColor.secondary,
+  children: <Widget>[
+    PlButton(onPressed: showDay, child: const Text('Day')),
+    PlButton(onPressed: showWeek, child: const Text('Week')),
+    PlButton(onPressed: showMonth, child: const Text('Month')),
+  ],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlButtonGroup" />
@@ -30,6 +48,14 @@ import { PlButton, PlButtonGroup } from 'plass-ui';
 ::: fw react
 
 나머지 `<div>` 속성은 그대로 통과합니다. `color`는 위 표의 `color`와 이름이 겹쳐 제외했습니다.
+
+:::
+
+::: fw flutter
+
+`children`이 하나의 `child`가 아니라 목록인 건 Flutter의 관례이기도 하지만, 그것만은 아닙니다. 그룹은 어느 멤버가 양 끝에 있는지 알아야 어느 모서리를 깎을지 정할 수 있고, 불투명한 subtree 하나만 받은 widget은 그걸 알 수 없습니다.
+
+축들은 **`PlButton`과 `PlIconButton`에서도 nullable입니다** — `PlassVariant?`, `PlassSize?`, `int?`. Dart에는 기본값과 실제로 넘어온 값을 구분할 방법이 없기 때문입니다. 거기서 `null`은 _이 버튼은 말하지 않았다_ 는 뜻이고, 그래야 그룹이 대신 답할 수 있습니다.
 
 :::
 
@@ -51,9 +77,19 @@ import { PlButton, PlButtonGroup } from 'plass-ui';
 
 `solid`는 그렇게 하면 안 됩니다. 겹칠 테두리가 없고, 겹치면 한 키의 그러데이션이 다음 키의 시작을 덮습니다.
 
-<Demo src="button-group/variants" :flutter="false" :min-height="140">
+<Demo src="button-group/variants" :min-height="140">
+
+::: fw react
 
 <<< @/.vitepress/demos/button-group/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/button_group/variants.dart
+
+:::
 
 </Demo>
 
@@ -61,9 +97,19 @@ import { PlButton, PlButtonGroup } from 'plass-ui';
 
 한 번만 지정하니 버튼 하나만 크기가 어긋날 수 없습니다. 높이는 라이브러리의 컨트롤 사다리 그대로입니다.
 
-<Demo src="button-group/sizes" :flutter="false" :min-height="260">
+<Demo src="button-group/sizes" :min-height="260">
+
+::: fw react
 
 <<< @/.vitepress/demos/button-group/sizes.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/button_group/sizes.dart
+
+:::
 
 </Demo>
 
@@ -71,9 +117,19 @@ import { PlButton, PlButtonGroup } from 'plass-ui';
 
 `vertical`은 줄을 세로로 쌓고, 옆면 대신 위아래를 각지게 깎습니다. 동등한 액션을 쌓은 메뉴에 쓰고, 기본값이 `horizontal`인 건 툴바가 그 모양이기 때문입니다.
 
-<Demo src="button-group/orientation" :flutter="false" :min-height="180">
+<Demo src="button-group/orientation" :min-height="180">
+
+::: fw react
 
 <<< @/.vitepress/demos/button-group/orientation.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/button_group/orientation.dart
+
+:::
 
 </Demo>
 
@@ -81,9 +137,19 @@ import { PlButton, PlButtonGroup } from 'plass-ui';
 
 그룹을 컨테이너 너비만큼 늘리고 버튼끼리 너비를 똑같이 나눠 갖게 합니다. 카드 아래 액션 세 개가 서로 다른 길이의 단어 셋이 아니라 똑같은 삼등분이 됩니다.
 
-<Demo src="button-group/full-width" :flutter="false" :min-height="120">
+<Demo src="button-group/full-width" :min-height="120">
+
+::: fw react
 
 <<< @/.vitepress/demos/button-group/full-width.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/button_group/full_width.dart
+
+:::
 
 </Demo>
 
@@ -94,3 +160,16 @@ import { PlButton, PlButtonGroup } from 'plass-ui';
 - 모서리는 logical property로 깎으므로, RTL에서는 첫 버튼이 오른쪽에 오고 깎이는 면도 따라갑니다.
 - 버튼마다 stacking context가 생겨, border box 바깥에 그려지는 focus ring이 뒤에 오는 이웃에 덮이지 않습니다.
 - 그룹의 `disabled`는 안의 모든 버튼을 끕니다. 버튼이 직접 지정한 `disabled`는 그대로 우선합니다.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| 임의의 `children` | `children: List<Widget>` | 어느 모서리를 깎을지 정하려면 그룹이 양 끝이 누구인지 알아야 합니다. |
+| glass 키를 1px 당겨 hairline 둘을 겹칩니다 | 이웃과 맞닿는 면을 아예 그리지 않습니다 | Flutter에는 음수 margin이 없고(`EdgeInsets`가 non-negative를 assert합니다), 대안은 `Transform`인데 이 라이브러리는 컨트롤에 transform을 걸지 않습니다. 둘 다 이음매마다 hairline 하나라는 같은 결과에 닿습니다. |
+| 축을 그냥 빼면 됩니다 | 같은 파라미터가 nullable입니다 | Dart는 기본값과 넘어온 값을 구분하지 못하므로, _말하지 않았다_ 를 타입이 담을 수 있는 값으로 만들어야 합니다. |
+| `className`, `style`, 네이티브 속성 | — | 통과시킬 class 목록도 style 속성도 없습니다. |
+
+:::

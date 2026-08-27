@@ -31,6 +31,7 @@ export 'src/components/bottom_navigation/pl_bottom_navigation.dart';
 export 'src/components/box/pl_box.dart';
 export 'src/components/breadcrumb/pl_breadcrumb.dart';
 export 'src/components/button/pl_button.dart';
+export 'src/components/button_group/pl_button_group.dart';
 export 'src/components/card/pl_card.dart';
 export 'src/components/carousel/pl_carousel.dart';
 export 'src/components/chat_bubble/pl_chat_bubble.dart';
