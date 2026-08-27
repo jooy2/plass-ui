@@ -36,6 +36,7 @@ export * from './components/pagination/index.js';
 export * from './components/panes/index.js';
 export * from './components/pill/index.js';
 export * from './components/popover/index.js';
+export * from './components/progress-linear/index.js';
 export * from './components/radio-group/index.js';
 export * from './components/rating/index.js';
 export * from './components/scroll-zone/index.js';

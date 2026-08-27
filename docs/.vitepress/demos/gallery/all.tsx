@@ -47,6 +47,7 @@ import {
   PlPagination,
   PlPill,
   PlPopover,
+  PlProgressLinear,
   PlRadio,
   PlRadioGroup,
   PlRating,
@@ -721,6 +722,18 @@ const entries: Entry[] = [
       ko: '페이지 전체를 덮어 쓸 수 없게 만드는 판입니다.'
     },
     preview: <OverlayPreview />
+  },
+  {
+    name: 'PlProgressLinear',
+    group: 'feedback',
+    href: 'components/feedback/progress-linear',
+    blurb: {
+      en: 'A bar that fills, or sweeps when nobody knows how far along it is.',
+      ko: '차오르는 바입니다. 얼마나 남았는지 모를 때는 훑고 지나갑니다.'
+    },
+    preview: (
+      <PlProgressLinear className="w-full" size="sm" label="Uploading" value={62} showValue />
+    )
   },
   {
     name: 'PlSkeleton',

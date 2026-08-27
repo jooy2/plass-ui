@@ -626,6 +626,54 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * The indeterminate indicators
+ *
+ * A determinate indicator needs nothing here: it is a width, and the component
+ * writes it. This is the other case — something is happening and nobody knows
+ * how much of it is left — and an indicator that does not move while saying so
+ * is a decoration.
+ *
+ * They are in CSS rather than in Tailwind for the reason `.plass-glow` is: a
+ * keyframe is not a variant, so there is nothing to express one with.
+ *
+ * Two rules hold. **Nothing changes the paint.** A Plass fill is a gradient and
+ * a gradient cannot be interpolated, so what moves is a length or an opacity and
+ * the fill itself is either there or not. And **the segment travels on
+ * `inset-inline-start`**, not on a `transform` — the same trade the skeleton's
+ * highlight makes, and for the same two reasons: it runs the other way under RTL
+ * without being told, and the layout pass it costs is confined to a box with
+ * nothing in it.
+ * ------------------------------------------------------------------------- */
+
+@keyframes plass-progress-sweep {
+  from {
+    inset-inline-start: -45%;
+  }
+  to {
+    inset-inline-start: 100%;
+  }
+}
+
+.plass-progress-sweep {
+  position: absolute;
+  inset-block: 0;
+  inline-size: 45%;
+  animation: plass-progress-sweep 1.15s var(--plass-ease) infinite;
+}
+
+/* The reduced-motion stand-in for the travelling segment: it stops travelling,
+   fills the groove, and breathes instead. */
+@keyframes plass-progress-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ---------------------------------------------------------------------------
  * The travelling highlight on a placeholder
  *
  * `inset-inline-start` rather than a `transform`, which is the same trade the
@@ -824,5 +872,14 @@
      somebody is still typing, and dots that hold still say the opposite. */
   .plass-typing-dot {
     animation-duration: 2.6s;
+  }
+
+  /* The indicators are not switched off either, and for the same reason again:
+     one that holds still says the opposite of what it is for. The travelling
+     segment stops travelling, fills the groove and breathes instead. */
+  .plass-progress-sweep {
+    inset-inline-start: 0;
+    inline-size: 100%;
+    animation: plass-progress-pulse 1.8s var(--plass-ease) infinite;
   }
 }

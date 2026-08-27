@@ -4339,6 +4339,82 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  /**
+   * The bar, and the shared half of every indicator that follows it.
+   *
+   * No `sharedProps`: an indicator has no `variant` (it is one material), no
+   * `density` (there is nothing to pad) and no `elevation` (it is cut into the
+   * surface it sits on, and a groove does not float).
+   */
+  PlProgressLinear: [
+    {
+      name: 'value',
+      type: 'number | null',
+      default: 'null',
+      description: {
+        ko: 'min과 max 사이의 진행도. null은 indeterminate — 뭔가 진행 중이고 얼마나 남았는지는 아무도 모르는 경우입니다',
+        en: 'How far along, between min and max. null is the indeterminate case: something is happening and nobody knows how much of it is left'
+      }
+    },
+    {
+      name: 'min',
+      type: 'number',
+      default: '0',
+      description: { ko: '범위의 아래끝', en: 'The bottom of the range' }
+    },
+    {
+      name: 'max',
+      type: 'number',
+      default: '100',
+      description: { ko: '범위의 위끝', en: 'The top of the range' }
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: {
+        ko: '무엇이 진행 중인지. 값과 함께 스크린리더가 읽습니다',
+        en: 'A name for what is loading. Read out with the value by a screen reader'
+      }
+    },
+    {
+      name: 'showValue',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '값을 글자로 함께 보여 줍니다. format이 없으면 범위에 대한 백분율입니다',
+        en: 'Shows the value as text beside the shape. A percentage of the range unless format says otherwise'
+      }
+    },
+    {
+      name: 'format',
+      type: 'Intl.NumberFormatOptions',
+      description: {
+        ko: '값을 어떻게 쓸지. Intl.NumberFormat 옵션이라 바이트나 통화도 그대로 됩니다',
+        en: 'How to format the value when it is shown — Intl.NumberFormat options, so bytes and currencies work as well as plain numbers'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '홈의 두께. 바에서 크기를 갖는 건 이것뿐입니다',
+        en: 'Thickness of the groove. Nothing else on a bar has a size'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: '의미론적 색 역할. 채워지는 쪽의 그러데이션이 됩니다',
+        en: 'Semantic colour role. It becomes the gradient of the filled part'
+      }
+    }
+  ],
+
   PlRadioGroup: [
     {
       name: 'size',
