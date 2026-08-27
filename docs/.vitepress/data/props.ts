@@ -2515,6 +2515,113 @@ export const propTables: Record<string, PropRow[]> = {
     })
   ],
 
+  PlDateRangePicker: [
+    {
+      name: 'value',
+      type: 'PlDateRange | null',
+      description: {
+        ko: '선택된 구간. onValueChange와 함께 controlled로 씁니다',
+        en: 'The chosen range. Use with onValueChange for a controlled picker'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'PlDateRange | null',
+      description: { ko: 'uncontrolled일 때 시작하는 구간', en: 'The range the picker starts on' }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: PlDateRange) => void',
+      description: {
+        ko: '언제나 객체와 함께 호출됩니다. 비워진 구간은 { start: null, end: null }입니다',
+        en: 'Always called with an object. A cleared range is { start: null, end: null }'
+      }
+    },
+    ...dateBoundsProps,
+    {
+      name: 'monthCount',
+      type: '1 | 2',
+      default: '2',
+      description: {
+        ko: '한 번에 보여 줄 달의 수. 달을 넘나드는 구간이 예외가 아니라 보통이라 2가 기본입니다',
+        en: 'How many months are on screen at once. Two by default, because a range that crosses a month boundary is the ordinary case'
+      }
+    },
+    {
+      name: 'startPlaceholder',
+      type: 'ReactNode',
+      description: {
+        ko: '아직 정하지 않은 쪽에 보이는 내용. trigger의 각 반쪽마다 하나씩',
+        en: 'Shown in each half of the trigger while that end is unchosen'
+      }
+    },
+    {
+      name: 'endPlaceholder',
+      type: 'ReactNode',
+      description: { ko: 'startPlaceholder를 보세요', en: 'See startPlaceholder' }
+    },
+    {
+      name: 'presets',
+      type: 'readonly PlDateRangePreset[]',
+      description: {
+        ko: '달력 옆에 놓이는 지름길 — "지난 7일", "이번 달"',
+        en: 'Shortcuts listed beside the calendars — "Last 7 days", "This month"'
+      }
+    },
+    ...pickerProps({
+      format: "{ dateStyle: 'medium' }",
+      formatDescription: {
+        ko: 'trigger가 양 끝을 쓰는 방식. Intl로 그대로 넘어갑니다',
+        en: 'How the trigger writes each end. Passed straight to Intl'
+      },
+      closeOnSelect: 'true',
+      closeOnSelectDescription: {
+        ko: '양 끝이 다 정해지면 팝업을 닫습니다',
+        en: 'Closes the popup once both ends are chosen'
+      },
+      nameDescription: {
+        ko: '폼 제출 시 필드를 식별합니다. 같은 이름의 hidden input 둘이라 양 끝이 FormData.getAll(name)으로 옵니다',
+        en: 'Identifies the field when a form is submitted. Two hidden inputs of the same name, so the two ends arrive as FormData.getAll(name)'
+      }
+    })
+  ],
+
+  PlDateRange: [
+    {
+      name: 'start',
+      type: 'Date | null',
+      required: true,
+      description: { ko: '구간의 시작', en: 'The first day of the span' }
+    },
+    {
+      name: 'end',
+      type: 'Date | null',
+      required: true,
+      description: {
+        ko: '끝. 첫 클릭과 둘째 클릭 사이에는 null입니다 — 반쪽짜리 구간은 실제로 존재하는 상태입니다',
+        en: 'The last. null between the first click and the second: half a range is a real state'
+      }
+    }
+  ],
+
+  PlDateRangePreset: [
+    {
+      name: 'label',
+      type: 'ReactNode',
+      required: true,
+      description: { ko: '버튼에 적히는 이름', en: 'What the button says' }
+    },
+    {
+      name: 'value',
+      type: 'PlDateRange | (() => PlDateRange)',
+      required: true,
+      description: {
+        ko: '그것이 뜻하는 구간. 오늘에 달려 있다면 함수로 주세요 — 대개 그렇습니다. 모듈 로드 시점에 계산한 "지난 7일"은 탭을 밤새 열어 둔 사람에게 틀린 값입니다',
+        en: 'The range it stands for. A function when it depends on today, which is almost always: "the last 7 days" computed at module scope is wrong for anyone who left the tab open overnight'
+      }
+    }
+  ],
+
   PlDivider: [
     {
       name: 'orientation',

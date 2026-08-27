@@ -23,6 +23,7 @@ import {
   PlCombobox,
   PlContainer,
   PlDatePicker,
+  PlDateRangePicker,
   PlDivider,
   PlDrawer,
   PlFilePicker,
@@ -286,6 +287,24 @@ const entries: Entry[] = [
       ko: '달력에서 하루를 고릅니다. 날짜 라이브러리도, 번역 파일도 없습니다.'
     },
     preview: <PlDatePicker fullWidth size="sm" placeholder="Pick a day" />
+  },
+  {
+    name: 'PlDateRangePicker',
+    group: 'inputs',
+    href: 'components/inputs/date-range-picker',
+    blurb: {
+      en: 'A span between two days, banded as the pointer moves.',
+      ko: '두 날 사이의 구간. 포인터를 따라 띠가 그려집니다.'
+    },
+    preview: (
+      <PlDateRangePicker
+        fullWidth
+        size="sm"
+        monthCount={1}
+        startPlaceholder="From"
+        endPlaceholder="To"
+      />
+    )
   },
   {
     name: 'PlCombobox',
