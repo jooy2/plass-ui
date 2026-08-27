@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Button as BaseUIButton } from '@base-ui/react/button';
 import { useRender } from '@base-ui/react/use-render';
+import { ButtonGroupContext } from '../../internal/button-group.js';
 import { Spinner } from '../../internal/icons.js';
 import {
   controlHeightClasses,
@@ -166,17 +167,17 @@ const readOnlyClasses: Record<PlassVariant, string> = {
 export const PlButton = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlButtonProps>(
   function PlButton(
     {
-      variant = 'solid',
-      size = 'md',
-      color = 'primary',
-      density = 'default',
-      elevation = 1,
+      variant: variantProp,
+      size: sizeProp,
+      color: colorProp,
+      density: densityProp,
+      elevation: elevationProp,
       startIcon,
       endIcon,
       loading = false,
       readOnly = false,
       fullWidth = false,
-      disabled = false,
+      disabled: disabledProp,
       render,
       className,
       style,
@@ -187,6 +188,20 @@ export const PlButton = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlBu
     },
     ref
   ) {
+    /*
+     * A `PlButtonGroup` around this button sets the axes once for the set. The
+     * button's own prop still wins — a row of secondary actions with one danger
+     * button in it is a real thing — and with no group around it the fallbacks
+     * are the defaults they always were.
+     */
+    const group = React.useContext(ButtonGroupContext);
+    const variant = variantProp ?? group?.variant ?? 'solid';
+    const size = sizeProp ?? group?.size ?? 'md';
+    const color = colorProp ?? group?.color ?? 'primary';
+    const density = densityProp ?? group?.density ?? 'default';
+    const elevation = elevationProp ?? group?.elevation ?? 1;
+    const disabled = disabledProp ?? group?.disabled ?? false;
+
     const iconOnly = !hasContent(children);
     // `disabled` and `readOnly` change how the button looks; `loading` only stops
     // it from firing.

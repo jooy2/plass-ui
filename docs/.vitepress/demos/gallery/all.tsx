@@ -13,6 +13,7 @@ import {
   PlBreadcrumb,
   PlBreadcrumbItem,
   PlButton,
+  PlButtonGroup,
   PlCard,
   PlCarousel,
   PlChatBubble,
@@ -243,6 +244,22 @@ const entries: Entry[] = [
           Delete
         </PlButton>
       </div>
+    )
+  },
+  {
+    name: 'PlButtonGroup',
+    group: 'inputs',
+    href: 'components/inputs/button-group',
+    blurb: {
+      en: 'A run of buttons that belong together, stated once for the set.',
+      ko: '함께 묶이는 버튼 한 줄. 스타일을 묶음 단위로 한 번만 지정합니다.'
+    },
+    preview: (
+      <PlButtonGroup size="sm" variant="glass" color="secondary">
+        <PlButton>Day</PlButton>
+        <PlButton>Week</PlButton>
+        <PlButton>Month</PlButton>
+      </PlButtonGroup>
     )
   },
   {

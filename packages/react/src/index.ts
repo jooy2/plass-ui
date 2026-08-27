@@ -9,6 +9,7 @@ export * from './components/bottom-navigation/index.js';
 export * from './components/box/index.js';
 export * from './components/breadcrumb/index.js';
 export * from './components/button/index.js';
+export * from './components/button-group/index.js';
 export * from './components/card/index.js';
 export * from './components/carousel/index.js';
 export * from './components/chat-bubble/index.js';

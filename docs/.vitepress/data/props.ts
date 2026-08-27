@@ -1073,6 +1073,93 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  /**
+   * Every axis here is deliberately without a default.
+   *
+   * A group states the axes once for the set, and an axis it does not state is
+   * one a button falls back to its *own* default on — so the table cannot use
+   * `sharedProps`, which exists to print a default per component.
+   */
+  PlButtonGroup: [
+    {
+      name: 'variant',
+      type: VARIANT,
+      shared: true,
+      description: {
+        ko: '그룹 전체의 재질. 지정하지 않으면 각 버튼의 기본값(solid)을 씁니다',
+        en: 'The material of the whole run. Unset, each button keeps its own default (solid)'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      shared: true,
+      description: {
+        ko: '그룹 전체의 높이와 타입 스케일. 한 버튼만 크기가 다른 그룹을 막는 것이 이 컴포넌트의 절반입니다',
+        en: 'Height and type scale for the whole run. A group with one button a size out is the failure this prevents'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      shared: true,
+      description: {
+        ko: '그룹 전체의 색 역할. 버튼이 스스로 정한 color가 우선합니다',
+        en: "Semantic colour role for the run. A button's own color still wins"
+      }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      shared: true,
+      description: { ko: '그룹 전체의 가로 패딩', en: 'Horizontal padding for the run' }
+    },
+    {
+      name: 'elevation',
+      type: ELEVATION,
+      shared: true,
+      description: {
+        ko: '그룹 전체의 그림자 깊이',
+        en: 'Drop shadow depth for the run'
+      }
+    },
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      shared: true,
+      description: {
+        ko: '버튼이 늘어서는 방향. vertical은 동등한 액션을 쌓은 메뉴입니다',
+        en: 'Which way the buttons run. vertical is a stacked menu of equal actions'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      description: {
+        ko: '그룹의 모든 버튼을 한 번에 비활성화합니다',
+        en: 'Disables every button in the group at once'
+      }
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '컨테이너 너비만큼 늘리고 버튼끼리 너비를 똑같이 나눠 갖습니다',
+        en: 'Stretches to the container and divides the width evenly between buttons'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: {
+        ko: '버튼들. 진짜 PlButton으로 남습니다',
+        en: 'The buttons. They stay real PlButtons'
+      }
+    }
+  ],
+
   PlCard: [
     ...sharedProps({
       variant: "'glass'",
