@@ -197,6 +197,11 @@ import 'package:plass_ui_example/demos/pill/variants.dart';
 import 'package:plass_ui_example/demos/popover/form.dart';
 import 'package:plass_ui_example/demos/popover/hero.dart';
 import 'package:plass_ui_example/demos/popover/sides.dart';
+import 'package:plass_ui_example/demos/progress_linear/colors.dart';
+import 'package:plass_ui_example/demos/progress_linear/format.dart';
+import 'package:plass_ui_example/demos/progress_linear/hero.dart';
+import 'package:plass_ui_example/demos/progress_linear/indeterminate.dart';
+import 'package:plass_ui_example/demos/progress_linear/sizes.dart';
 import 'package:plass_ui_example/demos/radio_group/colors.dart';
 import 'package:plass_ui_example/demos/radio_group/controlled.dart';
 import 'package:plass_ui_example/demos/radio_group/hero.dart';
@@ -322,6 +327,11 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'button/states': _states,
   'button/elevation': _elevation,
   'button/full-width': _fullWidth,
+  'progress-linear/hero': _progressLinearHero,
+  'progress-linear/indeterminate': _progressLinearIndeterminate,
+  'progress-linear/sizes': _progressLinearSizes,
+  'progress-linear/colors': _progressLinearColors,
+  'progress-linear/format': _progressLinearFormat,
   'button-group/hero': _buttonGroupHero,
   'button-group/variants': _buttonGroupVariants,
   'button-group/sizes': _buttonGroupSizes,
@@ -618,6 +628,11 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
 
 Widget _hero(BuildContext context) => const ButtonHero();
 Widget _variants(BuildContext context) => const ButtonVariants();
+Widget _progressLinearHero(BuildContext context) => const ProgressLinearHero();
+Widget _progressLinearIndeterminate(BuildContext context) => const ProgressLinearIndeterminate();
+Widget _progressLinearSizes(BuildContext context) => const ProgressLinearSizes();
+Widget _progressLinearColors(BuildContext context) => const ProgressLinearColors();
+Widget _progressLinearFormat(BuildContext context) => const ProgressLinearFormat();
 Widget _buttonGroupHero(BuildContext context) => const ButtonGroupHero();
 Widget _buttonGroupVariants(BuildContext context) => const ButtonGroupVariants();
 Widget _buttonGroupSizes(BuildContext context) => const ButtonGroupSizes();

@@ -1372,6 +1372,33 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlPane', 'maxSize', { type: 'PlPaneSize?' })
   ],
 
+  /**
+   * The bar, and the shared half of the indicators that follow it.
+   *
+   * `format` is the one prop that could not cross: there is no
+   * `Intl.NumberFormat` in the framework to hand options to, and a package that
+   * pulled `package:intl` in to provide one would be making a dependency
+   * decision on its consumer's behalf. So the Dart side takes the function
+   * instead of the options.
+   */
+  PlProgressLinear: [
+    from('PlProgressLinear', 'value', { type: 'double?', default: 'null' }),
+    from('PlProgressLinear', 'min', { type: 'double', default: '0' }),
+    from('PlProgressLinear', 'max', { type: 'double', default: '100' }),
+    from('PlProgressLinear', 'label', { type: 'Widget?' }),
+    from('PlProgressLinear', 'showValue', { type: 'bool', default: 'false' }),
+    {
+      name: 'formatValue',
+      type: 'String Function(double value)?',
+      description: {
+        ko: '값을 어떻게 쓸지. React의 format 옵션 객체 대신 함수를 받습니다 — 프레임워크에 Intl.NumberFormat이 없고, 그것 때문에 package:intl을 끌어오는 건 소비자 대신 의존성을 정하는 일이기 때문입니다',
+        en: "How to write the value, as a function rather than React's options object: there is no Intl.NumberFormat in the framework, and pulling package:intl in to provide one would be a dependency decision made on the consumer's behalf"
+      }
+    },
+    from('PlProgressLinear', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlProgressLinear', 'color', { type: COLOR, default: 'PlassColor.primary' })
+  ],
+
   PlRadioGroup: [
     {
       name: 'options',

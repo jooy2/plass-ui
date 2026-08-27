@@ -7,7 +7,7 @@ order: 9
 
 <p class="plass-lede">A bar that fills. The one indicator that can show <em>how much</em> is left at a glance, because length is the one quantity a reader can compare without counting.</p>
 
-<Demo src="progress-linear/hero" :flutter="false" :min-height="140" />
+<Demo src="progress-linear/hero" :min-height="140" />
 
 ::: fw react
 
@@ -19,6 +19,16 @@ import { PlProgressLinear } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlProgressLinear(label: const Text('Uploading'), value: 62, showValue: true);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlProgressLinear" />
@@ -26,6 +36,12 @@ import { PlProgressLinear } from 'plass-ui';
 ::: fw react
 
 Every native `<div>` attribute passes straight through. `color` is excluded because it collides with the `color` in the table above, and `children` because a bar holds nothing.
+
+:::
+
+::: fw flutter
+
+`formatValue` is a function where React takes an options object, and it is the one prop that could not cross: there is no `Intl.NumberFormat` in the framework to hand options to, and a package that pulled `package:intl` in to provide one would be making a dependency decision on its consumer's behalf. Whatever formats numbers in the app already can format this one.
 
 :::
 
@@ -49,9 +65,19 @@ Both the groove and the segment are fully rounded, and that is the one place the
 
 A value outside `min`…`max` is clamped rather than drawn: `value` usually arrives from a division somewhere, and a bar that renders 140% wide because one request finished twice is a worse bug than a bar that sits full.
 
-<Demo src="progress-linear/indeterminate" :flutter="false" :min-height="140">
+<Demo src="progress-linear/indeterminate" :min-height="140">
+
+::: fw react
 
 <<< @/.vitepress/demos/progress-linear/indeterminate.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/progress_linear/indeterminate.dart
+
+:::
 
 </Demo>
 
@@ -59,17 +85,37 @@ A value outside `min`…`max` is clamped rather than drawn: `value` usually arri
 
 Thickness only. A bar is not a control you can put a label inside, and at `md` it wants to be the weight of a rule between two paragraphs rather than a quarter of a button — so these are `PlSlider`'s rail thicknesses, deliberately: a rail and a bar are the same channel, one of which you drag and one of which you watch.
 
-<Demo src="progress-linear/sizes" :flutter="false" :min-height="240">
+<Demo src="progress-linear/sizes" :min-height="240">
+
+::: fw react
 
 <<< @/.vitepress/demos/progress-linear/sizes.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/progress_linear/sizes.dart
+
+:::
 
 </Demo>
 
 ### color
 
-<Demo src="progress-linear/colors" :flutter="false" :min-height="280">
+<Demo src="progress-linear/colors" :min-height="280">
+
+::: fw react
 
 <<< @/.vitepress/demos/progress-linear/colors.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/progress_linear/colors.dart
+
+:::
 
 </Demo>
 
@@ -79,16 +125,48 @@ Without `format` the value is written as a percentage of `min`…`max`, which is
 
 With it, the number goes straight to `Intl.NumberFormat`, so bytes, currencies and units all work and the value keeps whatever meaning the caller gave it.
 
-<Demo src="progress-linear/format" :flutter="false" :min-height="160">
+<Demo src="progress-linear/format" :min-height="160">
+
+::: fw react
 
 <<< @/.vitepress/demos/progress-linear/format.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/progress_linear/format.dart
+
+:::
 
 </Demo>
 
 ## Accessibility
+
+::: fw react
 
 - Base UI renders a `role="progressbar"` and keeps `aria-valuenow`, `aria-valuemin` and `aria-valuemax` in step with the props.
 - An indeterminate bar reports **no value at all** rather than zero, which is what tells a screen reader to announce indeterminate progress.
 - `aria-valuetext` is the same string `showValue` draws, so what is heard and what is read are one sentence. Without `format` that is a percentage of the range, not of 100.
 - `label` names what is loading. A bar with no label is a bar a screen reader can only describe as a number.
 - Under `prefers-reduced-motion` the segment stops travelling, fills the groove and breathes instead. It is not stopped: an indeterminate indicator that holds still says the opposite of what it is for.
+
+:::
+
+::: fw flutter
+
+- The bar is one merged semantics node carrying `SemanticsRole.progressBar` and its value, so the label and the bar are read together rather than as a name floating beside an unnamed indicator.
+- With no value the role is `SemanticsRole.loadingSpinner` and there is no value at all — which is what tells the platform to announce indeterminate progress rather than zero.
+- The drawn percentage is behind `ExcludeSemantics`: the same string is already the node's value, and it should be heard once.
+- With `MediaQuery.disableAnimations` the segment stops travelling, fills the groove and breathes instead — the same stand-in, on the same axis.
+
+:::
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `format: Intl.NumberFormatOptions` | `formatValue: String Function(double)` | There is no `Intl.NumberFormat` in the framework, and pulling `package:intl` in to provide one would be a dependency decision made on the consumer's behalf. |
+| `label: ReactNode`, and `min`/`max`/`value` are `number` | `Widget?` and `double` | Dart's own names for the same things. |
+| the segment travels on `inset-inline-start` | it travels on a directional `Alignment` | Neither is a transform, and both run the other way under RTL without being told. |
+| `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
