@@ -37,6 +37,7 @@ A thing that is pressed is **tinted glass**: a gradient that sweeps between two 
 | Page | What you will find |
 | --- | --- |
 | [**Getting started**](https://plass.cdget.com/guide/getting-started) | Install and setup, end to end. |
+| [**Examples**](https://plass.cdget.com/examples/dashboard) | Whole screens built out of the components — a dashboard, a landing page, a sign-up flow. |
 | [**All components**](https://plass.cdget.com/components/) | Every component, one page each: live previews and the full props table. |
 | [**Design language**](https://plass.cdget.com/design/design-language) | Why a Plass surface looks and behaves the way it does. |
 | [**Prop conventions**](https://plass.cdget.com/design/prop-conventions) | The shared vocabulary every component draws from. |

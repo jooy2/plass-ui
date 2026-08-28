@@ -135,14 +135,27 @@ const commonSidebarConfig: VitePressSidebarOptions = {
 /**
  * The sidebar groups the folder tree cannot name.
  *
- * `design/` has no `index.md` and the changelog is a loose page, so neither can
- * take its heading from a page the way every other group does. Left to the
- * generator, `design/` would be capitalised to "Design" over Korean pages and
- * the changelog would sit at the root with no heading over it at all.
+ * `design/` and `examples/` have no `index.md` and the changelog is a loose
+ * page, so none of them can take its heading from a page the way every other
+ * group does. Left to the generator, `design/` would be capitalised to "Design"
+ * over Korean pages and the changelog would sit at the root with no heading over
+ * it at all.
+ *
+ * `examples/` has no index on purpose: `/examples/` is not a page, it is the
+ * three screens under it, and an index that said so in one line would be a page
+ * a reader has to click through before reaching one.
  */
-const groupLabels: Record<string, { overview: string; design: string; more: string }> = {
-  en: { overview: 'All components', design: 'Design', more: 'Discover more' },
-  ko: { overview: '모든 컴포넌트', design: '디자인', more: '더 알아보기' }
+const groupLabels: Record<
+  string,
+  { overview: string; examples: string; design: string; more: string }
+> = {
+  en: {
+    overview: 'All components',
+    examples: 'Examples',
+    design: 'Design',
+    more: 'Discover more'
+  },
+  ko: { overview: '모든 컴포넌트', examples: '예제', design: '디자인', more: '더 알아보기' }
 };
 
 const vitePressSidebarConfig = [
@@ -158,10 +171,11 @@ const vitePressSidebarConfig = [
   })
 ];
 
-/** The same two destinations in every locale, prefixed with its base. */
-const navFor = (lang: string, labels: [string, string]) => [
+/** The same three destinations in every locale, prefixed with its base. */
+const navFor = (lang: string, labels: [string, string, string]) => [
   { text: labels[0], link: `${localeBase(lang)}guide/getting-started` },
-  { text: labels[1], link: `${localeBase(lang)}components/` }
+  { text: labels[1], link: `${localeBase(lang)}examples/dashboard` },
+  { text: labels[2], link: `${localeBase(lang)}components/` }
 ];
 
 const vitePressI18nConfig: VitePressI18nOptions = {
@@ -173,8 +187,8 @@ const vitePressI18nConfig: VitePressI18nOptions = {
     en: 'A UI component library made of glass and gradients — smooth tinted surfaces, shadows in their own colour, and light that follows the pointer. Ships for React and for Flutter, accessible and themeable, dark mode built in.'
   },
   themeConfig: {
-    ko: { nav: navFor('ko', ['가이드', '컴포넌트']) },
-    en: { nav: navFor('en', ['Guide', 'Components']) }
+    ko: { nav: navFor('ko', ['가이드', '예제', '컴포넌트']) },
+    en: { nav: navFor('en', ['Guide', 'Examples', 'Components']) }
   }
 };
 
@@ -625,12 +639,16 @@ function byText(a: GeneratedSidebarItem, b: GeneratedSidebarItem): number {
 }
 
 /**
- * Guide, Components, Design, Discover more — with the component groups kept as
- * headings inside Components.
+ * Guide, Examples, Components, Design, Discover more — with the component groups
+ * kept as headings inside Components.
  *
  * Most of that cannot be stated by the folder tree, which is what this function
  * is for:
  *
+ * - **Examples comes before Components.** A reader who has not decided yet
+ *   wants to see the library doing something before they are handed fifty-odd
+ *   reference pages, and the folder tree sorts `components/` above `examples/`
+ *   whichever way you name them.
  * - **The index page is an entry rather than the heading's link.** Left to the
  *   generator, `/components/` is only reachable by clicking the word
  *   "Components" above the menu, which does not look like a link and is easy to
@@ -651,6 +669,7 @@ function arrangeSidebar<T extends GeneratedSidebarItem>(items: T[], lang: string
   const labels = groupLabels[lang] ?? groupLabels[defaultLocale];
 
   const guide = items.find(startsWith('guide/'));
+  const examples = items.find(startsWith('examples/'));
   const components = items.find(startsWith('components/'));
   const design = items.find(startsWith('design/'));
   const changelog = items.find(startsWith('changelog'));
@@ -675,6 +694,10 @@ function arrangeSidebar<T extends GeneratedSidebarItem>(items: T[], lang: string
     components.items = [...([overview].filter(Boolean) as T[]), ...loose, ...groups];
   }
 
+  if (examples) {
+    examples.text = labels.examples;
+  }
+
   if (design) {
     design.text = labels.design;
   }
@@ -683,10 +706,10 @@ function arrangeSidebar<T extends GeneratedSidebarItem>(items: T[], lang: string
   // anything that is neither a guide nor a component ends up.
   const more = changelog ? ({ text: labels.more, items: [changelog] } as unknown as T) : undefined;
 
-  const moved = new Set([guide, components, design, changelog].filter(Boolean));
+  const moved = new Set([guide, examples, components, design, changelog].filter(Boolean));
 
   return [
-    ...([guide, components, design, more].filter(Boolean) as T[]),
+    ...([guide, examples, components, design, more].filter(Boolean) as T[]),
     ...items.filter((item) => !moved.has(item))
   ];
 }

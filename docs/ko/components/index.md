@@ -18,6 +18,7 @@ aside: false
 
 ## 다음
 
+- 이 부품들로 만든 화면 셋은 예제에 있습니다 — [관리자 대시보드](../examples/dashboard), [랜딩 페이지](../examples/landing), [가입](../examples/signup).
 - 한 화면에 모아 놓은 모습은 [홈](../)에서 볼 수 있습니다.
 - 공통 prop이 뜻하는 것은 [Prop 규칙](../design/prop-conventions)에 있습니다.
 - 표면과 색, 모션이 왜 이렇게 생겼는지는 [디자인 언어](../design/design-language)에 있습니다.

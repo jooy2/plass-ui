@@ -29,6 +29,14 @@ Documentation is available in English (served from `/`) and Korean (served from 
 - [Colour](https://plass.cdget.com/design/color): The six semantic families as gradient sweeps, the three hand-picked tokens per family, why a family's colour does not change with the theme, the measured contrast table (every stop within 0.15 of 4.5:1), and how to override a family.
 - [Prop conventions](https://plass.cdget.com/design/prop-conventions): What the shared props mean, the naming rules a new component is checked against, and the three state props with their focus and native-attribute behaviour.
 
+## Examples
+
+Whole screens rather than single controls — every one a live React composition of released components, with the source in `docs/.vitepress/demos/examples/`.
+
+- [Admin dashboard](https://plass.cdget.com/examples/dashboard): A back office. A nav rail, a sticky app bar, four figures, a filter row, and a table with select-all, per-row menus, bulk actions behind a confirm dialog, and pagination. Shows what a size ladder looks like when a `PlTextField`, a `PlSelect` and a `PlDateRangePicker` share one row.
+- [Landing page](https://plass.cdget.com/examples/landing): A marketing page. Hero, tabbed product views, a feature grid, a testimonial carousel, monthly/yearly pricing on a `PlSegmentedButton`, an FAQ accordion and a sign-up strip. The featured plan is marked with elevation and a chip rather than a saturated fill.
+- [Sign-up](https://plass.cdget.com/examples/signup): A three-step form — account, code, profile — with real validation. Every control is a different component, which is where a shared vocabulary for `size`, `label`, `description` and `error` has to hold.
+
 ## Components
 
 - [All components](https://plass.cdget.com/components/): Every released component on one page, each card a running preview rather than a picture.

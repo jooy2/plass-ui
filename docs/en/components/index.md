@@ -18,6 +18,7 @@ The gallery below is the **React** build, because the cards are one page of thir
 
 ## Next
 
+- Three whole screens built out of these parts are under Examples: [Admin dashboard](../examples/dashboard), [Landing page](../examples/landing) and [Sign-up](../examples/signup).
 - See them together on one screen on the [home page](../).
 - What the shared props mean is in [Prop conventions](../design/prop-conventions).
 - Why the surfaces, colours and motion look like this is in the [Design language](../design/design-language).
