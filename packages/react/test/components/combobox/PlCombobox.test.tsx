@@ -94,7 +94,10 @@ describe('PlCombobox', () => {
       await screen.getByRole('button', { name: 'Open' }).click();
       await screen.getByRole('option', { name: 'Lisbon' }).click();
 
-      expect(screen.getByRole('combobox').element()).toHaveValue('Seoul');
+      // Retried rather than read once: the click and React's re-render off the
+      // unchanged `value` are two separate turns, and which of them a browser
+      // has finished by the time the click promise settles is not fixed.
+      await expect.element(screen.getByRole('combobox')).toHaveValue('Seoul');
     });
   });
 
