@@ -116,12 +116,18 @@ const props = defineProps({
    */
   flutter: { type: Boolean, default: true },
   /**
-   * Height the mount point holds, in px or as a CSS length.
+   * Height the mount point holds **while it is empty**, in px or as a CSS length.
    *
    * The box is empty until React is in the browser, so without this the page
-   * reflows under the reader the moment a preview arrives. It stays applied
-   * after mounting too: a reserve that is dropped once the content is there
-   * moves the page a second time, which is the same jump twice.
+   * reflows under the reader the moment a preview arrives. It is given up the
+   * instant the components land — the rule is on `:empty`, so nothing has to
+   * measure anything — because a reserve is a guess about a height nobody knew
+   * yet, and a guess that outlives the content it stood in for is a band of
+   * dead canvas under every preview on the page. A preview mounts 300px before
+   * it is scrolled to, so the release almost always happens off screen.
+   *
+   * The Flutter frame keeps it as a real height until the gallery reports its
+   * own: an `<iframe>` has no content of ours to measure.
    */
   minHeight: { type: [Number, String], default: 40 }
 });
@@ -436,7 +442,9 @@ onBeforeUnmount(() => {
         v-show="!embedded"
         ref="host"
         class="plass-scope plass-demo-mount"
-        :style="{ minHeight: typeof minHeight === 'number' ? `${minHeight}px` : minHeight }"
+        :style="{
+          '--plass-demo-reserve': typeof minHeight === 'number' ? `${minHeight}px` : minHeight
+        }"
       />
       <template v-if="embedded">
         <p v-if="built === false" class="plass-fw-missing plass-demo-unbuilt">

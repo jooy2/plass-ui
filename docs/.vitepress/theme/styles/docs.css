@@ -123,9 +123,24 @@
   -webkit-font-smoothing: antialiased;
 }
 
-/* The height a preview holds while it is empty is `Demo.vue`'s `minHeight`, set
-   inline — it has to be per-preview, and it stays applied once the components
-   are there so that reserving the space does not itself become a second jump. */
+/*
+ * The height a preview holds while it is waiting for React.
+ *
+ * `Demo.vue` sets `--plass-demo-reserve` inline, because the figure is
+ * per-preview; the rule is here, because the *condition* is not something an
+ * inline style can express. `:empty` is the whole mechanism: the mount point
+ * has no children until `createRoot().render()` puts some there, so the
+ * reserve applies for exactly as long as there is nothing to hold the space
+ * open and is gone the frame the components arrive.
+ *
+ * It has to be released. A reserve is a guess made before anyone knew how tall
+ * the preview would be, and every one that guessed high left a band of empty
+ * canvas under the components for the life of the page — which is what a
+ * reader sees, and reads as the preview being broken rather than as padding.
+ */
+.plass-demo-mount:empty {
+  min-height: var(--plass-demo-reserve, 40px);
+}
 
 /*
  * A canvas with a framework badge in it.
