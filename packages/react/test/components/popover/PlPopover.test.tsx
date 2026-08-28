@@ -34,8 +34,8 @@ describe('PlPopover', () => {
       );
 
       await expect
-        .element(screen.getByRole('dialog', { description: 'Updated hourly' }))
-        .toBeInTheDocument();
+        .element(screen.getByRole('dialog'))
+        .toHaveAccessibleDescription('Updated hourly');
     });
 
     it('closes on Escape', async () => {

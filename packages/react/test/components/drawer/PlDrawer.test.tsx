@@ -32,8 +32,8 @@ describe('PlDrawer', () => {
       );
 
       await expect
-        .element(screen.getByRole('dialog', { description: 'Nothing is applied yet' }))
-        .toBeInTheDocument();
+        .element(screen.getByRole('dialog'))
+        .toHaveAccessibleDescription('Nothing is applied yet');
     });
 
     it('shows the × and closes on it', async () => {
