@@ -45,6 +45,22 @@ const pubUrl = `https://pub.dev/packages/${
   )?.[1] ?? 'plass_ui'
 }`;
 
+/**
+ * Dart's own logo, for the pub.dev link in the navbar.
+ *
+ * A social link's icon is either a name VitePress ships or an SVG string, and
+ * there is no name for pub.dev. `currentColor` on the path is what lets the
+ * navbar hover it like the two icons beside it.
+ */
+const dartIcon =
+  '<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">' +
+  '<title>pub.dev</title>' +
+  '<path fill="currentColor" d="M4.105 4.105S9.158 1.58 11.684.316a3.1 3.1 0 0 1 1.481-.315c.766.047 ' +
+  '1.677.788 1.677.788L24 9.948v9.789h-4.263V24H9.789l-9-9C.303 14.5 0 13.795 0 13.105c0-.319.18-.818' +
+  '.316-1.105zm.679.679v11.787c.002.543.021 1.024.498 1.508L10.204 23h8.533v-4.263zm12.055-.678c-.899' +
+  '-.896-1.809-1.78-2.74-2.643c-.302-.267-.567-.468-1.07-.462c-.37.014-.87.195-.87.195L6.341 4.105z"/>' +
+  '</svg>';
+
 /** A glob Vite can read on either platform — `resolve` gives Windows backslashes. */
 const glob = (pattern: string) => resolve(rootDir, pattern).replaceAll('\\', '/');
 
@@ -528,8 +544,19 @@ const vitePressConfig: UserConfig = {
     editLink: {
       pattern: editLinkPattern
     },
+    /*
+     * One per place the library is published, plus the source.
+     *
+     * VitePress knows npm and GitHub by name and has never heard of pub.dev, so
+     * that one arrives as a drawing. The drawing is Dart's, not Flutter's, and
+     * the difference is the point: the link goes to a package on a *Dart*
+     * registry, and the Flutter mark is already spoken for by the sidebar's
+     * switch, where it means "the Flutter half of this page" rather than "the
+     * package".
+     */
     socialLinks: [
       { icon: 'npm', link: npmUrl },
+      { icon: { svg: dartIcon }, link: pubUrl, ariaLabel: 'pub.dev' },
       { icon: 'github', link: repoUrl }
     ],
     footer: {
