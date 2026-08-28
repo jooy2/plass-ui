@@ -129,7 +129,23 @@ html[data-fw='flutter'] .plass-fw[data-fw]:not([data-fw~='flutter']) {
   color: var(--vp-c-text-1);
 }
 
-.plass-lang-option.is-active {
+/*
+ * The chosen option, read off `<html>` rather than off a class the component
+ * writes.
+ *
+ * Which is a detour, and it is the same detour the top of this file takes for
+ * the `::: fw` blocks, for the same reason: `data-fw` is set by the inline head
+ * script before the first paint, and a class is set by Vue after hydration. A
+ * pre-rendered page whose switch is drawn from a class shows the *default*
+ * highlighted for as long as it takes the bundle to arrive — on the one control
+ * whose whole job is to say which of the two you are reading.
+ *
+ * One rule per framework, since a child cannot be matched against an ancestor's
+ * attribute value in CSS. See `FrameworkSelect.vue` for the half of this that
+ * keeps the radio itself honest.
+ */
+html[data-fw='react'] .plass-lang-option[data-fw='react'],
+html[data-fw='flutter'] .plass-lang-option[data-fw='flutter'] {
   background-color: var(--vp-c-bg);
   color: var(--vp-c-text-1);
   box-shadow:
@@ -151,7 +167,8 @@ html[data-fw='flutter'] .plass-fw[data-fw]:not([data-fw~='flutter']) {
   transition: opacity 0.16s;
 }
 
-.plass-lang-option.is-active .plass-lang-mark,
+html[data-fw='react'] .plass-lang-option[data-fw='react'] .plass-lang-mark,
+html[data-fw='flutter'] .plass-lang-option[data-fw='flutter'] .plass-lang-mark,
 .plass-lang-option:hover .plass-lang-mark {
   opacity: 1;
 }

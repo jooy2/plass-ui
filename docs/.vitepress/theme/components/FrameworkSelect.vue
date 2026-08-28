@@ -1,9 +1,9 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useData } from 'vitepress';
 import FrameworkMark from './FrameworkMark.vue';
 import { framework, setFramework } from '../../data/framework';
-import { FRAMEWORKS } from '../../data/frameworks';
+import { DEFAULT_FRAMEWORK, FRAMEWORKS } from '../../data/frameworks';
 import { localeOf, t } from '../../data/i18n';
 
 /**
@@ -27,23 +27,46 @@ import { localeOf, t } from '../../data/i18n';
  */
 const { lang } = useData();
 const locale = computed(() => localeOf(lang.value));
+
+/*
+ * Which option the radios say is chosen — and it is deliberately behind the
+ * page for one tick.
+ *
+ * The pre-rendered HTML is built with the default selected, because that is all
+ * a build can know. `syncFramework()` then runs in `enhanceApp`, *before*
+ * hydration, so by the time this component first renders in the browser it
+ * already holds the stored choice — and a first render that disagrees with the
+ * server's DOM is precisely what Vue does not repair: hydration patches event
+ * handlers and `value`, and leaves `checked` and `class` as the server wrote
+ * them. Nothing changes afterwards, so nothing is ever patched, and a reader
+ * who picked Flutter came back to a page in Flutter with React ticked.
+ *
+ * Rendering the default first and correcting it in `onMounted` makes the
+ * correction an ordinary update, which Vue does apply. What the eye reads
+ * meanwhile is not this at all — the active option is drawn from
+ * `html[data-fw]`, which the inline head script sets before the first paint —
+ * so the tick is right for assistive technology and the arrow keys, the
+ * highlight is right immediately, and neither has to wait for the other.
+ */
+const hydrated = ref(false);
+
+onMounted(() => {
+  hydrated.value = true;
+});
+
+const checked = computed(() => (hydrated.value ? framework.value : DEFAULT_FRAMEWORK));
 </script>
 
 <template>
   <div class="plass-lang">
     <p :id="'plass-lang-label'" class="plass-lang-title">{{ t(locale, 'languageLabel') }}</p>
     <div class="plass-lang-track" role="radiogroup" aria-labelledby="plass-lang-label">
-      <label
-        v-for="item in FRAMEWORKS"
-        :key="item.id"
-        class="plass-lang-option"
-        :class="{ 'is-active': framework === item.id }"
-      >
+      <label v-for="item in FRAMEWORKS" :key="item.id" class="plass-lang-option" :data-fw="item.id">
         <input
           type="radio"
           name="plass-lang"
           :value="item.id"
-          :checked="framework === item.id"
+          :checked="checked === item.id"
           @change="setFramework(item.id)"
         />
         <FrameworkMark :framework="item.id" />
