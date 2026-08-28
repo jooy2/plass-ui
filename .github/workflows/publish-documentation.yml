@@ -62,6 +62,15 @@ jobs:
       - name: Build VitePress site
         run: npm run build
         working-directory: ./docs
+        env:
+          # VitePress builds a client bundle, an SSR bundle and every page in
+          # one process, and this site is a component library's worth of them:
+          # 140 pages, ~350 React demos and two framework halves of each page.
+          # It peaks around 6 GB, and Node's default heap ceiling is ~4 GB
+          # whatever the machine has — the runner itself has 16 GB. Without
+          # this the build dies with `Reached heap limit` partway through the
+          # bundles, which reads as a code error and is not one.
+          NODE_OPTIONS: --max-old-space-size=8192
 
       # @see https://github.com/crazy-max/ghaction-github-pages
       - name: Deploy to GitHub Pages
