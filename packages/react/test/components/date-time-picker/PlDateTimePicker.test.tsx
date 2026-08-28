@@ -1,9 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlDateTimePicker } from 'plass-ui';
+import { fullDate, mediumDate } from '../../support/dates';
 
 /** Half past nine on 27 July 2026, so nothing here depends on when it is run. */
 const MOMENT = new Date(2026, 6, 27, 9, 30);
+const JULY_15 = new Date(2026, 6, 15);
+const JULY_26 = new Date(2026, 6, 26);
+const AUGUST_3 = new Date(2026, 7, 3, 14, 0);
 
 describe('PlDateTimePicker', () => {
   describe('rendering', () => {
@@ -17,7 +21,7 @@ describe('PlDateTimePicker', () => {
       const screen = await render(<PlDateTimePicker locale="en-GB" defaultValue={MOMENT} />);
       const trigger = screen.getByRole('button').element();
 
-      expect(trigger.textContent).toContain('27 Jul 2026');
+      expect(trigger.textContent).toContain(mediumDate(MOMENT));
       expect(trigger.textContent).toContain('9:30');
     });
 
@@ -32,17 +36,13 @@ describe('PlDateTimePicker', () => {
         <PlDateTimePicker locale="en-GB" value={MOMENT} onValueChange={() => {}} />
       );
 
-      expect(screen.getByRole('button').element().textContent).toContain('27 Jul 2026');
+      expect(screen.getByRole('button').element().textContent).toContain(mediumDate(MOMENT));
 
       await screen.rerender(
-        <PlDateTimePicker
-          locale="en-GB"
-          value={new Date(2026, 7, 3, 14, 0)}
-          onValueChange={() => {}}
-        />
+        <PlDateTimePicker locale="en-GB" value={AUGUST_3} onValueChange={() => {}} />
       );
 
-      expect(screen.getByRole('button').element().textContent).toContain('3 Aug 2026');
+      expect(screen.getByRole('button').element().textContent).toContain(mediumDate(AUGUST_3));
     });
   });
 
@@ -93,7 +93,7 @@ describe('PlDateTimePicker', () => {
         />
       );
 
-      await screen.getByRole('gridcell', { name: 'Wednesday, 15 July 2026' }).click();
+      await screen.getByRole('gridcell', { name: fullDate(JULY_15) }).click();
 
       await vi.waitFor(() => expect(onValueChange).toHaveBeenCalled());
 
@@ -132,7 +132,7 @@ describe('PlDateTimePicker', () => {
         <PlDateTimePicker locale="en-GB" defaultValue={MOMENT} defaultOpen />
       );
 
-      await screen.getByRole('gridcell', { name: 'Wednesday, 15 July 2026' }).click();
+      await screen.getByRole('gridcell', { name: fullDate(JULY_15) }).click();
 
       await expect.element(screen.getByRole('listbox', { name: 'Hour' })).toBeInTheDocument();
     });
@@ -142,7 +142,7 @@ describe('PlDateTimePicker', () => {
         <PlDateTimePicker locale="en-GB" defaultValue={MOMENT} defaultOpen closeOnSelect />
       );
 
-      await screen.getByRole('gridcell', { name: 'Wednesday, 15 July 2026' }).click();
+      await screen.getByRole('gridcell', { name: fullDate(JULY_15) }).click();
 
       await vi.waitFor(() => expect(screen.getByRole('grid').query()).toBeNull());
     });
@@ -179,7 +179,7 @@ describe('PlDateTimePicker', () => {
 
       // The 27th itself is still available — the bound is inside it.
       await expect
-        .element(screen.getByRole('gridcell', { name: 'Monday, 27 July 2026' }))
+        .element(screen.getByRole('gridcell', { name: fullDate(MOMENT) }))
         .not.toHaveAttribute('aria-disabled');
 
       const hours = screen.getByRole('listbox', { name: 'Hour' }).element();
@@ -200,7 +200,7 @@ describe('PlDateTimePicker', () => {
       );
 
       await expect
-        .element(screen.getByRole('gridcell', { name: 'Sunday, 26 July 2026' }))
+        .element(screen.getByRole('gridcell', { name: fullDate(JULY_26) }))
         .toHaveAttribute('aria-disabled', 'true');
     });
 

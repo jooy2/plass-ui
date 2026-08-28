@@ -1,8 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlDateRangePicker, type PlDateRange } from 'plass-ui';
+import { fullDate, mediumDate } from '../../support/dates';
 
 const JULY = { start: new Date(2026, 6, 10), end: new Date(2026, 6, 20) };
+const JULY_15 = new Date(2026, 6, 15);
+const AUGUST_1 = new Date(2026, 7, 1);
+const AUGUST_5 = new Date(2026, 7, 5);
 
 describe('PlDateRangePicker', () => {
   describe('rendering', () => {
@@ -16,8 +20,8 @@ describe('PlDateRangePicker', () => {
       const screen = await render(<PlDateRangePicker locale="en-GB" defaultValue={JULY} />);
       const trigger = screen.getByRole('button').element();
 
-      expect(trigger.textContent).toContain('10 Jul 2026');
-      expect(trigger.textContent).toContain('20 Jul 2026');
+      expect(trigger.textContent).toContain(mediumDate(JULY.start));
+      expect(trigger.textContent).toContain(mediumDate(JULY.end));
     });
 
     it('shows a placeholder in each half', async () => {
@@ -34,17 +38,17 @@ describe('PlDateRangePicker', () => {
         <PlDateRangePicker locale="en-GB" value={JULY} onValueChange={() => {}} />
       );
 
-      expect(screen.getByRole('button').element().textContent).toContain('10 Jul 2026');
+      expect(screen.getByRole('button').element().textContent).toContain(mediumDate(JULY.start));
 
       await screen.rerender(
         <PlDateRangePicker
           locale="en-GB"
-          value={{ start: new Date(2026, 7, 1), end: new Date(2026, 7, 5) }}
+          value={{ start: AUGUST_1, end: AUGUST_5 }}
           onValueChange={() => {}}
         />
       );
 
-      expect(screen.getByRole('button').element().textContent).toContain('1 Aug 2026');
+      expect(screen.getByRole('button').element().textContent).toContain(mediumDate(AUGUST_1));
     });
   });
 
@@ -108,9 +112,9 @@ describe('PlDateRangePicker', () => {
       // 1 August is the first day of the right panel; the left panel leaves a
       // hole where its trailing days would be rather than naming it twice.
       await vi.waitFor(() =>
-        expect(
-          screen.getByRole('gridcell', { name: 'Saturday, 1 August 2026' }).elements()
-        ).toHaveLength(1)
+        expect(screen.getByRole('gridcell', { name: fullDate(AUGUST_1) }).elements()).toHaveLength(
+          1
+        )
       );
     });
   });
@@ -127,7 +131,7 @@ describe('PlDateRangePicker', () => {
         />
       );
 
-      await screen.getByRole('gridcell', { name: 'Wednesday, 15 July 2026' }).click();
+      await screen.getByRole('gridcell', { name: fullDate(JULY_15) }).click();
 
       await vi.waitFor(() => expect(onValueChange).toHaveBeenCalled());
 
@@ -148,8 +152,8 @@ describe('PlDateRangePicker', () => {
         />
       );
 
-      await screen.getByRole('gridcell', { name: 'Wednesday, 15 July 2026' }).click();
-      await screen.getByRole('gridcell', { name: 'Monday, 20 July 2026' }).click();
+      await screen.getByRole('gridcell', { name: fullDate(JULY_15) }).click();
+      await screen.getByRole('gridcell', { name: fullDate(JULY.end) }).click();
 
       await vi.waitFor(() => expect(onValueChange).toHaveBeenCalledTimes(2));
 
@@ -170,8 +174,8 @@ describe('PlDateRangePicker', () => {
         />
       );
 
-      await screen.getByRole('gridcell', { name: 'Monday, 20 July 2026' }).click();
-      await screen.getByRole('gridcell', { name: 'Wednesday, 15 July 2026' }).click();
+      await screen.getByRole('gridcell', { name: fullDate(JULY.end) }).click();
+      await screen.getByRole('gridcell', { name: fullDate(JULY_15) }).click();
 
       await vi.waitFor(() => expect(onValueChange).toHaveBeenCalledTimes(2));
 
@@ -186,7 +190,7 @@ describe('PlDateRangePicker', () => {
         <PlDateRangePicker locale="en-GB" defaultValue={JULY} defaultOpen />
       );
 
-      const between = screen.getByRole('gridcell', { name: 'Wednesday, 15 July 2026' }).element();
+      const between = screen.getByRole('gridcell', { name: fullDate(JULY_15) }).element();
 
       // Inside a range, not chosen: the soft wash rather than the gradient.
       expect(between.className).toContain('bg-(--p-soft)');
@@ -199,10 +203,10 @@ describe('PlDateRangePicker', () => {
       );
 
       await expect
-        .element(screen.getByRole('gridcell', { name: 'Friday, 10 July 2026' }))
+        .element(screen.getByRole('gridcell', { name: fullDate(JULY.start) }))
         .toHaveAttribute('aria-selected', 'true');
       await expect
-        .element(screen.getByRole('gridcell', { name: 'Monday, 20 July 2026' }))
+        .element(screen.getByRole('gridcell', { name: fullDate(JULY.end) }))
         .toHaveAttribute('aria-selected', 'true');
     });
 
@@ -213,7 +217,7 @@ describe('PlDateRangePicker', () => {
 
       await expect.element(screen.getByText('Start')).toBeInTheDocument();
 
-      await screen.getByRole('gridcell', { name: 'Wednesday, 15 July 2026' }).click();
+      await screen.getByRole('gridcell', { name: fullDate(JULY_15) }).click();
 
       await expect.element(screen.getByText('End')).toBeInTheDocument();
     });

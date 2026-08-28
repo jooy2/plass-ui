@@ -1,9 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlDatePicker } from 'plass-ui';
+import { fullDate, mediumDate } from '../../support/dates';
 
 /** A fixed day to work against, so nothing here depends on when it is run. */
 const JULY_27 = new Date(2026, 6, 27);
+const JULY_15 = new Date(2026, 6, 15);
+const JULY_18 = new Date(2026, 6, 18);
+const AUGUST_3 = new Date(2026, 7, 3);
 
 describe('PlDatePicker', () => {
   describe('rendering', () => {
@@ -22,7 +26,7 @@ describe('PlDatePicker', () => {
     it('writes the chosen date the way the locale does', async () => {
       const screen = await render(<PlDatePicker locale="en-GB" defaultValue={JULY_27} />);
 
-      await expect.element(screen.getByRole('button')).toHaveTextContent('27 Jul 2026');
+      await expect.element(screen.getByRole('button')).toHaveTextContent(mediumDate(JULY_27));
     });
 
     it('takes an Intl format', async () => {
@@ -30,7 +34,7 @@ describe('PlDatePicker', () => {
         <PlDatePicker locale="en-GB" defaultValue={JULY_27} format={{ dateStyle: 'full' }} />
       );
 
-      await expect.element(screen.getByRole('button')).toHaveTextContent('Monday, 27 July 2026');
+      await expect.element(screen.getByRole('button')).toHaveTextContent(fullDate(JULY_27));
     });
 
     it('renders the label, the description and the error', async () => {
@@ -53,13 +57,13 @@ describe('PlDatePicker', () => {
         <PlDatePicker locale="en-GB" value={JULY_27} onValueChange={() => {}} />
       );
 
-      await expect.element(screen.getByRole('button')).toHaveTextContent('27 Jul 2026');
+      await expect.element(screen.getByRole('button')).toHaveTextContent(mediumDate(JULY_27));
 
       await screen.rerender(
-        <PlDatePicker locale="en-GB" value={new Date(2026, 7, 3)} onValueChange={() => {}} />
+        <PlDatePicker locale="en-GB" value={AUGUST_3} onValueChange={() => {}} />
       );
 
-      await expect.element(screen.getByRole('button')).toHaveTextContent('3 Aug 2026');
+      await expect.element(screen.getByRole('button')).toHaveTextContent(mediumDate(AUGUST_3));
     });
 
     it('keeps caller-supplied class names alongside its own', async () => {
@@ -103,7 +107,7 @@ describe('PlDatePicker', () => {
         />
       );
 
-      await screen.getByRole('gridcell', { name: 'Wednesday, 15 July 2026' }).click();
+      await screen.getByRole('gridcell', { name: fullDate(JULY_15) }).click();
 
       await vi.waitFor(() => expect(onValueChange).toHaveBeenCalled());
 
@@ -125,7 +129,7 @@ describe('PlDatePicker', () => {
         />
       );
 
-      await screen.getByRole('gridcell', { name: 'Wednesday, 15 July 2026' }).click();
+      await screen.getByRole('gridcell', { name: fullDate(JULY_15) }).click();
 
       await vi.waitFor(() => expect(onValueChange).toHaveBeenCalled());
 
@@ -189,7 +193,7 @@ describe('PlDatePicker', () => {
       );
 
       await expect
-        .element(screen.getByRole('gridcell', { name: 'Wednesday, 15 July 2026' }))
+        .element(screen.getByRole('gridcell', { name: fullDate(JULY_15) }))
         .toHaveAttribute('aria-disabled', 'true');
     });
 
@@ -204,7 +208,7 @@ describe('PlDatePicker', () => {
       );
 
       await expect
-        .element(screen.getByRole('gridcell', { name: 'Wednesday, 15 July 2026' }))
+        .element(screen.getByRole('gridcell', { name: fullDate(JULY_15) }))
         .toHaveAttribute('aria-disabled', 'true');
     });
 
@@ -219,10 +223,10 @@ describe('PlDatePicker', () => {
       );
 
       await expect
-        .element(screen.getByRole('gridcell', { name: 'Saturday, 18 July 2026' }))
+        .element(screen.getByRole('gridcell', { name: fullDate(JULY_18) }))
         .toHaveAttribute('aria-disabled', 'true');
       await expect
-        .element(screen.getByRole('gridcell', { name: 'Wednesday, 15 July 2026' }))
+        .element(screen.getByRole('gridcell', { name: fullDate(JULY_15) }))
         .not.toHaveAttribute('aria-disabled');
     });
 
@@ -241,9 +245,7 @@ describe('PlDatePicker', () => {
       // A raw DOM click rather than the driver's: Playwright refuses to press
       // something carrying `aria-disabled`, which is itself half the guarantee.
       // The other half is the component's own guard, and this is what reaches it.
-      (
-        screen.getByRole('gridcell', { name: 'Wednesday, 15 July 2026' }).element() as HTMLElement
-      ).click();
+      (screen.getByRole('gridcell', { name: fullDate(JULY_15) }).element() as HTMLElement).click();
 
       expect(onValueChange).not.toHaveBeenCalled();
     });
