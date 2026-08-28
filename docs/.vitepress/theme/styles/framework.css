@@ -62,13 +62,32 @@ html[data-fw='flutter'] .plass-fw[data-fw]:not([data-fw~='flutter']) {
  * see `FrameworkMark.vue`.
  * ------------------------------------------------------------------------- */
 
+/*
+ * Pinned to the top of the sidebar's own scroller.
+ *
+ * The menu is fifty entries long and the switch decides what every one of them
+ * will say, so a reader four groups down who wants the other framework should
+ * not have to scroll back up to a control they can no longer see. It is the one
+ * thing in the sidebar that is not a link, which is also what makes it safe to
+ * pin: nothing is hidden behind it that the reader was on their way to.
+ *
+ * `top: 0` is the scrollport's own top, above the sidebar's 64px of top
+ * padding, so the switch comes to rest tight under the navbar — its own 12px is
+ * the gap. It needs the sidebar's background to be opaque, and a z-index over
+ * VitePress's `.curtain`, which is the sticky band already masking that padding.
+ */
 .plass-lang {
+  position: sticky;
+  z-index: 2;
+  top: 0;
   /* The sidebar hands its content the top edge, and a control pressed against
      it reads as part of the header above rather than as the first thing in the
-     menu. */
-  padding: 12px 0 20px;
-  margin-bottom: 4px;
+     menu. The gap below the rule is padding rather than margin, because a
+     margin is transparent — and 4px of transparency on a pinned strip is 4px of
+     the menu sliding through it. */
+  padding: 12px 0 24px;
   border-bottom: 1px solid var(--vp-c-divider);
+  background-color: var(--vp-sidebar-bg-color);
 }
 
 .plass-lang-title {
