@@ -129,7 +129,9 @@ So `external` does two: it draws the arrow leaving its box, and it gives the lin
 
 :::
 
-The glyph rides at `0.95em` rather than the `1.2em` an icon inside a control takes: this one sits in a sentence, and an icon as tall as the line spaces the words around it apart.
+`startIcon` is the other half and the plain one: a mark **before** the label — a favicon, a file type, a lock — with no opinion at all. Nothing is drawn there unless something is put there, which is the difference from `icon` above: that one is about where the link _goes_ and turns itself on for a link that leaves.
+
+The glyph rides at `0.95em` rather than the `1.2em` an icon inside a control takes: this one sits in a sentence, and an icon as tall as the line spaces the words around it apart. Both marks are that size and both sit a quarter-em from the label, so a link wearing either still reads as a word in a paragraph.
 
 <Demo src="text-link/icons" :min-height="160">
 

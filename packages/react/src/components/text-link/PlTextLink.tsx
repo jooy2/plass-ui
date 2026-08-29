@@ -58,8 +58,22 @@ export interface PlTextLinkProps extends Omit<React.ComponentPropsWithoutRef<'a'
    * of your own replaces the glyph.
    *
    * Left out, it follows `newTab`.
+   *
+   * It is `icon` rather than `endIcon`, and the difference from every other
+   * component's is the reason: this one is about the link's *destination*, and
+   * it has an opinion — a link that takes over the window says so unless it is
+   * told not to. An `endIcon` elsewhere is a node and nothing else.
    */
   icon?: React.ReactNode | boolean;
+  /**
+   * A mark before the label — a favicon, a file type, a lock.
+   *
+   * A plain node with no opinion, unlike `icon` above: nothing is drawn here
+   * unless something is put here. It rides on the label at the same size,
+   * separated by the same quarter-em, so a link with one in front of it still
+   * sits inside a sentence.
+   */
+  startIcon?: React.ReactNode;
   /**
    * What a screen reader hears after the label on a `newTab` link. Never drawn.
    * @default '(opens in a new tab)'
@@ -151,6 +165,7 @@ export const PlTextLink = /* @__PURE__ */ React.forwardRef<HTMLAnchorElement, Pl
       size,
       newTab = false,
       icon,
+      startIcon,
       newTabLabel = '(opens in a new tab)',
       render,
       className,
@@ -224,6 +239,7 @@ export const PlTextLink = /* @__PURE__ */ React.forwardRef<HTMLAnchorElement, Pl
         style: { ...slots, ...style },
         children: (
           <>
+            {startIcon ? <span className="me-[0.25em]">{startIcon}</span> : null}
             {children}
             {glyph ? <span className="ms-[0.25em]">{glyph}</span> : null}
             {/* Drawn for nobody and read to everybody: the arrow says "new tab"

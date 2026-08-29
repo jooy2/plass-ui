@@ -150,6 +150,50 @@ describe('PlTextLink', () => {
     });
   });
 
+  describe('startIcon', () => {
+    it('draws nothing unless something is put there', async () => {
+      await render(
+        <PlTextLink className="link-under-test" href="/pricing">
+          Pricing
+        </PlTextLink>
+      );
+
+      expect(document.querySelector('.link-under-test svg')).toBeNull();
+    });
+
+    it('puts the mark in front of the label', async () => {
+      await render(
+        <PlTextLink className="link-under-test" href="/pricing" startIcon={<span>★</span>}>
+          Pricing
+        </PlTextLink>
+      );
+
+      const link = document.querySelector('.link-under-test') as HTMLElement;
+
+      expect(link.textContent).toBe('★Pricing');
+    });
+
+    it('sits on the same link as the destination mark', async () => {
+      const screen = await render(
+        <PlTextLink
+          className="link-under-test"
+          href="https://example.com"
+          newTab
+          startIcon={<span>★</span>}
+        >
+          Docs
+        </PlTextLink>
+      );
+
+      const link = document.querySelector('.link-under-test') as HTMLElement;
+
+      await expect.element(screen.getByText('★')).toBeInTheDocument();
+      // The leading mark, the label, then the arrow the new tab put there.
+      expect(link.querySelector('svg')).toBeInTheDocument();
+      expect(link.textContent?.startsWith('★Docs')).toBe(true);
+    });
+  });
+
   describe('underline', () => {
     it('draws the line by default', async () => {
       const screen = await render(<PlTextLink href="/a">Pricing</PlTextLink>);

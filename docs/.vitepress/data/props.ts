@@ -7154,6 +7154,14 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'startIcon',
+      type: 'ReactNode',
+      description: {
+        ko: '라벨 앞의 표시 — 파비콘, 파일 종류, 자물쇠. icon과 달리 넣지 않으면 아무것도 그리지 않습니다',
+        en: 'A mark before the label — a favicon, a file type, a lock. Unlike icon it has no opinion: nothing is drawn unless something is put there'
+      }
+    },
+    {
       name: 'newTabLabel',
       type: 'string',
       default: "'(opens in a new tab)'",
