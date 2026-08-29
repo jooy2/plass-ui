@@ -28,6 +28,7 @@ export 'src/components/animate_blink/pl_animate_blink.dart';
 export 'src/components/animate_fade/pl_animate_fade.dart';
 export 'src/components/animate_grow/pl_animate_grow.dart';
 export 'src/components/animate_lighting/pl_animate_lighting.dart';
+export 'src/components/animate_marquee/pl_animate_marquee.dart';
 export 'src/components/animate_rotate/pl_animate_rotate.dart';
 export 'src/components/animate_slide/pl_animate_slide.dart';
 export 'src/components/animate_zoom/pl_animate_zoom.dart';

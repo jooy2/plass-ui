@@ -400,7 +400,22 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   @override
   void didUpdateWidget(PlassAnimateRun oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.settings.duration == widget.settings.duration) {
+      return;
+    }
+
     _controller.duration = widget.settings.duration;
+
+    // A controller reads its `duration` when a simulation *starts*, so a pass
+    // already in flight would finish at the old rate. That matters exactly
+    // once, and it is the case a marquee lives in: the strip is measured after
+    // the first frame, so the run that has already begun is the run whose
+    // duration has just become correct. `forward()` from where it is scales the
+    // new duration by what is left, so nothing jumps.
+    if (_controller.isAnimating) {
+      _controller.forward();
+    }
   }
 
   @override

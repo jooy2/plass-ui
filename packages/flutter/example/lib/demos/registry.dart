@@ -26,6 +26,9 @@ import 'package:plass_ui_example/demos/animate_appear/direction.dart';
 import 'package:plass_ui_example/demos/animate_lighting/hero.dart';
 import 'package:plass_ui_example/demos/animate_lighting/shape.dart';
 import 'package:plass_ui_example/demos/animate_lighting/colors.dart';
+import 'package:plass_ui_example/demos/animate_marquee/hero.dart';
+import 'package:plass_ui_example/demos/animate_marquee/speed.dart';
+import 'package:plass_ui_example/demos/animate_marquee/orientation.dart';
 import 'package:plass_ui_example/demos/accordion/controlled.dart';
 import 'package:plass_ui_example/demos/accordion/dividers.dart';
 import 'package:plass_ui_example/demos/accordion/hero.dart';
@@ -744,6 +747,9 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'animate-lighting/hero': _animateLightingHero,
   'animate-lighting/shape': _animateLightingShape,
   'animate-lighting/colors': _animateLightingColors,
+  'animate-marquee/hero': _animateMarqueeHero,
+  'animate-marquee/speed': _animateMarqueeSpeed,
+  'animate-marquee/orientation': _animateMarqueeOrientation,
 };
 
 Widget _hero(BuildContext context) => const ButtonHero();
@@ -1164,3 +1170,6 @@ Widget _animateAppearDirection(BuildContext context) => const AnimateAppearDirec
 Widget _animateLightingHero(BuildContext context) => const AnimateLightingHero();
 Widget _animateLightingShape(BuildContext context) => const AnimateLightingShape();
 Widget _animateLightingColors(BuildContext context) => const AnimateLightingColors();
+Widget _animateMarqueeHero(BuildContext context) => const AnimateMarqueeHero();
+Widget _animateMarqueeSpeed(BuildContext context) => const AnimateMarqueeSpeed();
+Widget _animateMarqueeOrientation(BuildContext context) => const AnimateMarqueeOrientation();

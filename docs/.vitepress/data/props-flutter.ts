@@ -335,6 +335,28 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlAnimateMarquee: [
+    {
+      name: 'children',
+      type: 'List<Widget>',
+      required: true,
+      description: { ko: '지나가는 것들', en: 'The things that scroll past' }
+    },
+    from('PlAnimateMarquee', 'orientation', {
+      type: 'PlassOrientation',
+      default: 'PlassOrientation.horizontal'
+    }),
+    from('PlAnimateMarquee', 'reverse', { type: 'bool', default: 'false' }),
+    from('PlAnimateMarquee', 'speed', { type: 'double', default: '60' }),
+    from('PlAnimateMarquee', 'gap', { type: 'double', default: '32' }),
+    from('PlAnimateMarquee', 'copies', { type: 'int', default: '2' }),
+    from('PlAnimateMarquee', 'pauseOnHover', { type: 'bool', default: 'true' }),
+    ...animateFlutterProps('PlAnimateMarquee', {
+      duration: 'measured from speed',
+      repeat: 'null'
+    }).map((row) => (row.name === 'duration' ? { ...row, type: 'Duration?' } : row))
+  ],
+
   PlAnimateRotate: [
     from('PlAnimateRotate', 'mode', {
       type: 'PlassAnimateMode',
