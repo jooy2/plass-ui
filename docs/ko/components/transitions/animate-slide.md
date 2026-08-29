@@ -23,6 +23,23 @@ import { PlAnimateSlide } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+const ClipRect(
+  child: PlAnimateSlide(
+    from: PlassSide.right,
+    child: PlCard(title: Text('New message'), child: Text('Ada replied to your review.')),
+  ),
+);
+```
+
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlAnimateSlide" />
@@ -30,6 +47,12 @@ import { PlAnimateSlide } from 'plass-ui';
 ::: fw react
 
 네이티브 `<div>` 속성은 그대로 통과하고, `render`로 요소 자체를 바꿀 수 있습니다.
+
+:::
+
+::: fw flutter
+
+`distance`는 논리 픽셀 단위의 `double?`이고, **기본값인 `null`이 widget 자신의 너비나 높이**입니다. 적을 CSS 길이가 없습니다. widget 자기 크기에 대한 비율은 `FractionalTranslation`이 이미 뜻하는 것이고, 거리가 주어지지 않으면 widget이 그것을 씁니다.
 
 :::
 
@@ -51,6 +74,12 @@ import { PlAnimateSlide } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_slide/sides.dart
+
+:::
+
 </Demo>
 
 ### distance
@@ -62,6 +91,12 @@ import { PlAnimateSlide } from 'plass-ui';
 ::: fw react
 
 <<< @/.vitepress/demos/animate-slide/distance.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_slide/distance.dart
 
 :::
 
@@ -77,3 +112,33 @@ import { PlAnimateSlide } from 'plass-ui';
 - 목록을 훨씬 짧은 거리로 하나씩 지나가게 하려면 [PlAnimateAppear](./animate-appear)를 쓰세요. 그 효과를 만드는 것은 시차이고, 자식마다 slide를 두면 delay를 직접 써야 합니다.
 
 :::
+
+::: fw flutter
+
+- 플랫폼에서 애니메이션이 꺼져 있으면(`MediaQuery.disableAnimations`) 효과가 통째로 없어지고 내용은 그냥 거기 있습니다.
+- 실행되는 동안 주변의 어떤 것도 다시 레이아웃되지 않습니다. 레이아웃 변화가 아니라 widget을 움직이는 것입니다.
+- 화면 밖에서 시작하는 slide는 담고 있는 상자가 잘라 내지 않으면 넘칩니다. `ClipRect`로 감싸세요.
+- 목록을 훨씬 짧은 거리로 하나씩 지나가게 하려면 [PlAnimateAppear](./animate-appear)를 쓰세요.
+
+:::
+
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `distance`가 CSS 길이 또는 숫자 | `double?`, `null`이 자기 크기 | widget 자기 크기에 대한 비율은 `FractionalTranslation`이 이미 뜻하는 것이라, 문자열로 적을 것이 없습니다. |
+| `mode="in" \| "out"` | `PlassAnimateMode.enter` / `.exit` | `in`은 Dart의 예약어입니다. |
+| wrapper의 `overflow: hidden` | `ClipRect` | 같은 잘라 내기에 대한 프레임워크 자신의 이름입니다. |
+| `render` | — | Flutter에는 다형적 요소가 없습니다. |
+| `duration`, `delay`가 밀리초 | `Duration` | 프레임워크에 이미 타입이 있습니다. |
+| `easing`이 CSS 문자열 | `curve`, `Curve` | 같은 것에 대한 Dart 자신의 이름입니다. |
+| `repeat: number \| 'infinite'` | `int?`, `null`이 멈추지 않음 | 적을 `'infinite'`가 없고, `-1`은 caller가 찾아봐야 하는 sentinel입니다. |
+| `trigger="visible"`이 `IntersectionObserver` | 가장 가까운 `Scrollable`을 봅니다 | 여기에는 observer가 없습니다. 위에 scrollable이 없으면 볼 것이 없으므로 그냥 돕니다. |
+| `prefers-reduced-motion` | `MediaQuery.disableAnimations` | 플랫폼 자신의 신호입니다. |
+| `className`, `style` | — | 통과시킬 class 목록도 style 속성도 없습니다. |
+
+:::
+```

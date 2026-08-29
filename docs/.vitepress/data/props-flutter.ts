@@ -315,6 +315,34 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlAnimateSlide: [
+    from('PlAnimateSlide', 'mode', {
+      type: 'PlassAnimateMode',
+      default: 'PlassAnimateMode.enter',
+      description: {
+        ko: '들어오는지 나가는지. exit는 들어왔을 그 모서리로 나갑니다. in이 Dart의 예약어라 enter/exit입니다',
+        en: 'Whether the content slides in or slides away. exit leaves by the same edge it would have come from. enter/exit rather than in/out, because in is a reserved word in Dart'
+      }
+    }),
+    from('PlAnimateSlide', 'from', { type: 'PlassSide', default: 'PlassSide.bottom' }),
+    from('PlAnimateSlide', 'distance', {
+      type: 'double?',
+      default: 'its own size',
+      description: {
+        ko: '이동 거리(논리 픽셀). null이면 widget 자신의 너비나 높이라, 자기 모서리 뒤에서 나타나게 됩니다',
+        en: "How far it travels, in logical pixels. null is the widget's own width or height, which is what makes it appear from behind its own edge"
+      }
+    }),
+    from('PlAnimateSlide', 'fade', { type: 'bool', default: 'true' }),
+    ...animateFlutterProps('PlAnimateSlide', { duration: 'Duration(milliseconds: 360)' }),
+    {
+      name: 'child',
+      type: 'Widget',
+      required: true,
+      description: { ko: '무엇이 이동하는지', en: 'What travels' }
+    }
+  ],
+
   PlAnimateZoom: [
     from('PlAnimateZoom', 'mode', {
       type: 'PlassAnimateMode',

@@ -23,6 +23,23 @@ import { PlAnimateSlide } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+const ClipRect(
+  child: PlAnimateSlide(
+    from: PlassSide.right,
+    child: PlCard(title: Text('New message'), child: Text('Ada replied to your review.')),
+  ),
+);
+```
+
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlAnimateSlide" />
@@ -30,6 +47,12 @@ import { PlAnimateSlide } from 'plass-ui';
 ::: fw react
 
 Every native `<div>` attribute passes straight through, and `render` swaps the element for another one.
+
+:::
+
+::: fw flutter
+
+`distance` is a `double?` in logical pixels, and **`null` — the default — is the widget's own width or height**. There is no CSS length to write: a fraction of a widget's own size is what `FractionalTranslation` already means, and that is what the widget uses when no distance is given.
 
 :::
 
@@ -51,6 +74,12 @@ Four edges, and `mode="out"` leaves by whichever one it would have arrived from.
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_slide/sides.dart
+
+:::
+
 </Demo>
 
 ### distance
@@ -62,6 +91,12 @@ A number is pixels, a string is any CSS length. `'100%'` is the element's own wi
 ::: fw react
 
 <<< @/.vitepress/demos/animate-slide/distance.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_slide/distance.dart
 
 :::
 
@@ -77,3 +112,33 @@ A number is pixels, a string is any CSS length. `'100%'` is the element's own wi
 - For a much shorter travel across a list of things, one after another, use [PlAnimateAppear](./animate-appear) — the stagger is what makes that effect, and a slide per child would leave you writing the delays yourself.
 
 :::
+
+::: fw flutter
+
+- When the platform has animations turned off (`MediaQuery.disableAnimations`) the effect is dropped entirely and the content is simply there.
+- Nothing around it is laid out again while it runs. This moves the widget rather than changing the layout.
+- A slide that starts out of frame will overflow whatever is holding it unless that box clips. Wrap it in a `ClipRect`.
+- For a much shorter travel across a list of things, one after another, use [PlAnimateAppear](./animate-appear).
+
+:::
+
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `distance` as a CSS length or a number | `double?`, `null` is its own size | A fraction of a widget's own size is what `FractionalTranslation` already means, so there is nothing to spell as a string. |
+| `mode="in" \| "out"` | `PlassAnimateMode.enter` / `.exit` | `in` is a reserved word in Dart. |
+| `overflow: hidden` on a wrapper | `ClipRect` | The framework's own name for the same clip. |
+| `render` | — | Flutter has no polymorphic element. |
+| `duration`, `delay` in milliseconds | `Duration` | The framework already has the type. |
+| `easing` as a CSS string | `curve`, a `Curve` | Dart's own name for the same thing. |
+| `repeat: number \| 'infinite'` | `int?`, `null` never stops | There is no `'infinite'` to write, and `-1` would be a sentinel a caller has to look up. |
+| `trigger="visible"` via `IntersectionObserver` | watches the nearest `Scrollable` | There is no observer here; with no scrollable above it there is nothing to watch, so it runs. |
+| `prefers-reduced-motion` | `MediaQuery.disableAnimations` | The platform's own signal. |
+| `className`, `style` | — | There is no class list and no style attribute to pass through. |
+
+:::
+```
