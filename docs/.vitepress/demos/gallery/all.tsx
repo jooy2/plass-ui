@@ -4,6 +4,7 @@ import {
   PlAccordionItem,
   PlAlert,
   PlAnimateFade,
+  PlAnimateGrow,
   PlAspectRatio,
   PlAvatar,
   PlBadge,
@@ -1270,6 +1271,20 @@ const entries: Entry[] = [
       <PlAnimateFade duration={1400} repeat="infinite" alternate>
         <PlChip color="primary">Fading</PlChip>
       </PlAnimateFade>
+    )
+  },
+  {
+    name: 'PlAnimateGrow',
+    group: 'transitions',
+    href: 'components/transitions/animate-grow',
+    blurb: {
+      en: 'Content unfolding from a point you choose.',
+      ko: '고른 한 점에서 펼쳐지는 내용입니다.'
+    },
+    preview: (
+      <PlAnimateGrow origin="top" from={0.5} duration={1400} repeat="infinite" alternate>
+        <PlChip color="primary">Growing</PlChip>
+      </PlAnimateGrow>
     )
   }
 ];

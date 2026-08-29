@@ -780,6 +780,53 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlAnimateGrow: [
+    {
+      name: 'mode',
+      type: "'in' | 'out'",
+      default: "'in'",
+      description: {
+        ko: '내용이 펼쳐지는지 접히는지. out은 같은 키프레임을 거꾸로 돌린 것입니다',
+        en: 'Whether the content unfolds or folds away. out is the same keyframe run backwards'
+      }
+    },
+    {
+      name: 'from',
+      type: 'number',
+      default: '0.8',
+      description: {
+        ko: '최종 크기에 대한 배수로서, 시작하는 배율. 1보다 크면 페이지 위로 솟아오르는 대신 내려앉습니다',
+        en: 'The scale it starts from, as a multiple of its final size. Above 1 it settles down onto the page instead of up out of it'
+      }
+    },
+    {
+      name: 'origin',
+      type: 'string',
+      default: "'center'",
+      description: {
+        ko: '나머지가 움직이는 동안 제자리에 있는 점 — CSS transform-origin 그대로. top은 아래로 펼치고, bottom left는 모서리에서 나옵니다',
+        en: 'Which point stays put while the rest moves — any CSS transform-origin. top unfolds downwards, bottom left out of a corner'
+      }
+    },
+    {
+      name: 'fade',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '커지면서 함께 나타납니다. 이미 페이지에 있고 크기만 바뀌는 것이라면 끄세요',
+        en: 'Fades in as it grows. Turn it off for something already on the page that is only changing size'
+      }
+    },
+    ...animateProps({ duration: '320' }),
+    {
+      name: 'render',
+      type: 'ReactElement | (props, state) => ReactElement',
+      description: {
+        ko: '<div> 대신 다른 요소로 렌더링합니다',
+        en: 'Renders something other than a <div>'
+      }
+    }
+  ],
   PlAspectRatio: [
     {
       name: 'ratio',

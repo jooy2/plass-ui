@@ -1,0 +1,89 @@
+---
+title: PlAnimateGrow
+order: 4
+---
+
+# PlAnimateGrow
+
+<p class="plass-lede">한 점에서 펼쳐지는 내용입니다. 최종 크기에 가까운 데서 시작하고 어느 모서리에도 고정할 수 있어서, 옆에 있는 것에서 열려 나오는 것처럼 읽힙니다.</p>
+
+<Demo src="animate-grow/hero" :min-height="260" />
+
+::: fw react
+
+```tsx
+import { PlAnimateGrow } from 'plass-ui';
+
+<PlAnimateGrow origin="top">
+  <PlBox>Sort, group and column visibility.</PlBox>
+</PlAnimateGrow>;
+```
+
+:::
+
+## Props
+
+<PropsTable name="PlAnimateGrow" />
+
+::: fw react
+
+네이티브 `<div>` 속성은 그대로 통과하고, `render`로 요소 자체를 바꿀 수 있습니다.
+
+:::
+
+공유되는 열 가지 설정 — `duration`, `delay`, `easing`, `repeat`, `alternate`, `paused`, `trigger`, `play`, `once`, `threshold` — 은 모든 `PlAnimate*` 컴포넌트에서 같습니다. `trigger`의 네 값은 [PlAnimateFade](./animate-fade) 페이지에 있습니다.
+
+## Examples
+
+### origin
+
+고정점이 이것과 `PlAnimateZoom`을 가르는 전부입니다. `top`에서 펼쳐지는 패널은 위에 있는 컨트롤에서 나오는 패널이고, `bottom right`에서 펼쳐지는 것은 고정된 모서리에서 나오는 것입니다. 가운데에 고정된 것은 zoom이고, 그 생각에 대한 컴포넌트는 하나뿐입니다.
+
+<Demo src="animate-grow/origin" :min-height="160">
+
+::: fw react
+
+<<< @/.vitepress/demos/animate-grow/origin.tsx
+
+:::
+
+</Demo>
+
+### from
+
+`1`보다 크면 실제보다 크게 도착해서 제자리로 내려앉습니다. 짧은 이동 거리가 유리 위에서 이것을 안전하게 만듭니다. `0.8`에서 커지는 시트는 처음부터 끝까지 알아볼 수 있는 같은 시트이고, 뒤의 blur가 곧 될 크기의 5분의 1짜리 표면을 풀어내야 할 일이 없습니다.
+
+<Demo src="animate-grow/from" :min-height="140">
+
+::: fw react
+
+<<< @/.vitepress/demos/animate-grow/from.tsx
+
+:::
+
+</Demo>
+
+### 패널 열기
+
+가장 흔한 쓰임이고, 기본값이 그것을 위해 골라졌습니다. `origin="top"`, 짧은 거리, 빠른 duration. 패널이 옆에 나타나는 대신 그것을 연 컨트롤에서 펼쳐집니다.
+
+<Demo src="animate-grow/panel" :min-height="180">
+
+::: fw react
+
+<<< @/.vitepress/demos/animate-grow/panel.tsx
+
+:::
+
+</Demo>
+
+## Accessibility
+
+::: fw react
+
+- `prefers-reduced-motion`에서는 애니메이션이 통째로 없어지고 내용은 그냥 거기 있습니다.
+- wrapper는 role도 label도 붙이지 않습니다. 이미 자기가 무엇인지 말하는 내용을 감싼 `<div>`일 뿐입니다.
+- 배율 변화는 안에 있는 것을 다시 샘플링하므로, 본문 위에서는 이동 거리를 짧게 두세요. `from`의 기본값이 `0.8`인 이유입니다. 긴 이동은 도형이나 아이콘, 사진의 몫입니다.
+- 이것은 wrapper이지 disclosure가 아닙니다. 내용을 mount하고 unmount하는 것은 caller의 몫이고, 그 일을 한 컨트롤에 붙을 `aria-expanded`도 마찬가지입니다.
+
+:::

@@ -932,6 +932,23 @@
   animation-name: plass-anim-fade;
 }
 
+/* Grow and Zoom share this one: they are the same arithmetic at two strengths,
+   separated by their defaults and by their origin rather than by their maths. */
+@keyframes plass-anim-scale {
+  from {
+    opacity: var(--p-anim-opacity, 0);
+    scale: var(--p-anim-scale, 0.8);
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+.plass-anim-scale {
+  animation-name: plass-anim-scale;
+}
+
 /* ---------------------------------------------------------------------------
  * Reduced motion
  *
