@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.0.0 (2026-08-29)
 
 The rest of the library. `PlButton` shipped first and everything else follows it, ported from the React package the same way it was — value for value, with the places where "the same number" would have been wrong written down where the conversion happens.
 
