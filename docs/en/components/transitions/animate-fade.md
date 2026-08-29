@@ -69,7 +69,7 @@ Four ways in, and they are the whole of what the shared settings are for. `mount
 
 ### delay
 
-A delay per element is what turns a set of things into a sequence. For a list where every child takes the same effect one after another, `PlAnimateAppear` counts the steps for you.
+A delay per element is what turns a set of things into a sequence. For a list where every child takes the same effect one after another, [PlAnimateAppear](./animate-appear) counts the steps for you.
 
 <Demo src="animate-fade/timing" :min-height="140">
 

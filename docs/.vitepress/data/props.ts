@@ -751,6 +751,60 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlAnimateAppear: [
+    {
+      name: 'stagger',
+      type: 'number',
+      default: '70',
+      description: {
+        ko: '한 자식 뒤 다음 자식이 시작하기까지의 시간(ms). 이것이 효과의 전부이고, 나머지는 자식 하나가 하는 일입니다',
+        en: 'How long after one child the next one starts, in milliseconds. This is the whole effect — everything else is what a single child does'
+      }
+    },
+    {
+      name: 'from',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'bottom'",
+      shared: true,
+      description: { ko: '각 자식이 들어오는 모서리', en: 'Which edge each child drifts in from' }
+    },
+    {
+      name: 'distance',
+      type: 'number | string',
+      default: "'0.75rem'",
+      description: {
+        ko: '각 자식이 이동하는 거리. 짧은 것은 의도입니다 — 화면 밖에서의 등장이 아니라 내려앉음이고, 여덟 개짜리 목록 위의 긴 이동은 덩어리 전체를 움직이는 것으로 만듭니다',
+        en: 'How far each child travels. Short on purpose: this is a settling, not an entrance from off screen, and a long travel over a list of eight turns the whole block into something moving'
+      }
+    },
+    {
+      name: 'fade',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '각 자식이 내려앉으면서 함께 나타납니다',
+        en: 'Fades each child in as it settles'
+      }
+    },
+    {
+      name: 'reverse',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '마지막 자식부터 첫 자식까지 목록을 거꾸로 돌립니다',
+        en: 'Runs the list from the last child to the first'
+      }
+    },
+    ...animateProps({ duration: '380' }),
+    {
+      name: 'render',
+      type: 'ReactElement | (props, state) => ReactElement',
+      description: {
+        ko: '<div> 대신 다른 요소로 렌더링합니다',
+        en: 'Renders something other than a <div>'
+      }
+    }
+  ],
   PlAnimateBlink: [
     {
       name: 'min',

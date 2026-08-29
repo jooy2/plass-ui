@@ -4,6 +4,7 @@ import {
   PlAccordionItem,
   PlAlert,
   PlAnimateFade,
+  PlAnimateAppear,
   PlAnimateBlink,
   PlAnimateRotate,
   PlAnimateSlide,
@@ -1352,6 +1353,22 @@ const entries: Entry[] = [
       <PlAnimateBlink duration={1400} min={0.3}>
         <PlChip color="danger">Live</PlChip>
       </PlAnimateBlink>
+    )
+  },
+  {
+    name: 'PlAnimateAppear',
+    group: 'transitions',
+    href: 'components/transitions/animate-appear',
+    blurb: {
+      en: 'A list of things settling into place one after another.',
+      ko: '여럿이 차례로 제자리에 내려앉습니다.'
+    },
+    preview: (
+      <PlAnimateAppear duration={1400} className="flex flex-wrap items-center gap-2">
+        {['one', 'two', 'three'].map((word) => (
+          <PlChip key={word}>{word}</PlChip>
+        ))}
+      </PlAnimateAppear>
     )
   }
 ];

@@ -74,6 +74,6 @@ import { PlAnimateSlide } from 'plass-ui';
 - `prefers-reduced-motion`에서는 애니메이션이 통째로 없어지고 내용은 그냥 거기 있습니다.
 - 실행되는 동안 페이지의 어떤 것도 reflow하지 않습니다. 레이아웃 변화가 아니라 `translate`이므로 요소 *주변*은 움직이지 않습니다.
 - 화면 밖에서 시작하는 slide는 담고 있는 상자가 잘라 내지 않으면 넘칩니다. 잘라 내세요. 아니면 애니메이션이 도는 동안 페이지에 스크롤바가 생깁니다.
-- 목록을 훨씬 짧은 거리로 하나씩 지나가게 하려면 `PlAnimateAppear`를 쓰세요. 그 효과를 만드는 것은 시차이고, 자식마다 slide를 두면 delay를 직접 써야 합니다.
+- 목록을 훨씬 짧은 거리로 하나씩 지나가게 하려면 [PlAnimateAppear](./animate-appear)를 쓰세요. 그 효과를 만드는 것은 시차이고, 자식마다 slide를 두면 delay를 직접 써야 합니다.
 
 :::

@@ -74,6 +74,6 @@ A number is pixels, a string is any CSS length. `'100%'` is the element's own wi
 - Under `prefers-reduced-motion` the animation is dropped entirely and the content is simply there.
 - Nothing on the page reflows while it runs. This is a `translate` rather than a change of layout, so what is _around_ the element does not move.
 - A slide that starts out of frame will overflow whatever is holding it unless that box clips. Clip it, or the page grows a scrollbar for the length of the animation.
-- For a much shorter travel across a list of things, one after another, use `PlAnimateAppear` — the stagger is what makes that effect, and a slide per child would leave you writing the delays yourself.
+- For a much shorter travel across a list of things, one after another, use [PlAnimateAppear](./animate-appear) — the stagger is what makes that effect, and a slide per child would leave you writing the delays yourself.
 
 :::

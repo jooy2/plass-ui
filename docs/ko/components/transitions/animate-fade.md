@@ -69,7 +69,7 @@ import { PlAnimateFade } from 'plass-ui';
 
 ### delay
 
-요소마다 다른 delay가 여러 개를 하나의 순서로 만듭니다. 목록의 자식들이 같은 효과를 차례로 받는 경우라면 `PlAnimateAppear`가 단계를 대신 세어 줍니다.
+요소마다 다른 delay가 여러 개를 하나의 순서로 만듭니다. 목록의 자식들이 같은 효과를 차례로 받는 경우라면 [PlAnimateAppear](./animate-appear)가 단계를 대신 세어 줍니다.
 
 <Demo src="animate-fade/timing" :min-height="140">
 
