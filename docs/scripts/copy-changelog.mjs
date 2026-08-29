@@ -1,10 +1,10 @@
 /**
- * Puts the repository's own `CHANGELOG.md` on the docs site.
+ * Puts the React package's `CHANGELOG.md` on the docs site.
  *
- * There is one changelog and it lives at the repository root, where a reader
- * browsing the repository and every package tool already expects to find it. Keeping a second
- * copy under `docs/` would be two files that say the same thing until the day
- * one of them does not, so the docs' copy is generated instead — written before
+ * Each package keeps its changelog beside its manifest, where npm, pub.dev and
+ * a reader browsing that package all expect to find it. Keeping a second copy
+ * under `docs/` would be two files that say the same thing until the day one of
+ * them does not, so the docs' copy is generated instead — written before
  * VitePress starts and ignored by git.
  *
  * The only thing added is the frontmatter: the sidebar reads `title` for the
@@ -24,7 +24,7 @@ const titles = {
   ko: '변경 기록'
 };
 
-const changelog = readFileSync(resolve(repoRoot, 'CHANGELOG.md'), 'utf8');
+const changelog = readFileSync(resolve(repoRoot, 'packages/react/CHANGELOG.md'), 'utf8');
 
 for (const [locale, title] of Object.entries(titles)) {
   const target = resolve(docsDir, locale, 'changelog.md');

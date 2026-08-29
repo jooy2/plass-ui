@@ -27,7 +27,7 @@ Live previews and full props for every component, in both frameworks. This READM
 | [`packages/react`](packages/react) | [npm: `plass-ui`](https://www.npmjs.com/package/plass-ui) | React 18 or 19, Node.js 20.19 or later | [README](packages/react/README.md) |
 | [`packages/flutter`](packages/flutter) | [pub.dev: `plass_ui`](https://pub.dev/packages/plass_ui) | Flutter 3.41 or newer (Dart 3.11) | [README](packages/flutter/README.md) |
 
-The two **version independently** and keep separate changelogs — [`CHANGELOG.md`](CHANGELOG.md) is the React package's, [`packages/flutter/CHANGELOG.md`](packages/flutter/CHANGELOG.md) the Flutter one's. A release on one side is not a release on the other, so the numbers will not always agree.
+The two **version independently** and keep separate changelogs — [`packages/react/CHANGELOG.md`](packages/react/CHANGELOG.md) is the React package's, [`packages/flutter/CHANGELOG.md`](packages/flutter/CHANGELOG.md) the Flutter one's. A release on one side is not a release on the other, so the numbers will not always agree.
 
 ## Install
 

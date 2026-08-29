@@ -10,7 +10,6 @@ on:
       # a change to either package changes the site.
       - packages/**
       - .github/workflows/publish-documentation.yml
-      - CHANGELOG.md
   # trigger deployment manually
   workflow_dispatch:
 
