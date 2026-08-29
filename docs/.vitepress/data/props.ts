@@ -827,6 +827,51 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlAnimateSlide: [
+    {
+      name: 'mode',
+      type: "'in' | 'out'",
+      default: "'in'",
+      description: {
+        ko: '들어오는지 나가는지. out은 들어왔을 그 모서리로 나갑니다',
+        en: 'Whether the content slides in or slides away. out leaves by the same edge it would have come from'
+      }
+    },
+    {
+      name: 'from',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'bottom'",
+      shared: true,
+      description: {
+        ko: '어느 모서리에서 오는지. 라이브러리 전체가 그렇듯 물리적입니다 — 위에서 내려오는 패널은 어떤 쓰기 방향에서도 위에서 내려옵니다',
+        en: 'Which edge it travels from. Physical, as it is everywhere in the library: a panel coming down from the top comes from the top in every writing direction'
+      }
+    },
+    {
+      name: 'distance',
+      type: 'number | string',
+      default: "'100%'",
+      description: {
+        ko: "얼마나 이동할지 — CSS 길이 또는 픽셀 숫자. '100%'는 요소 자신의 너비나 높이라, 자기 모서리 뒤에서 나타나게 됩니다",
+        en: "How far it travels — a CSS length, or a number in pixels. '100%' is the element's own width or height, which is what makes it appear from behind its own edge"
+      }
+    },
+    {
+      name: 'fade',
+      type: 'boolean',
+      default: 'true',
+      description: { ko: '미끄러지면서 함께 나타납니다', en: 'Fades in as it slides' }
+    },
+    ...animateProps({ duration: '360' }),
+    {
+      name: 'render',
+      type: 'ReactElement | (props, state) => ReactElement',
+      description: {
+        ko: '<div> 대신 다른 요소로 렌더링합니다',
+        en: 'Renders something other than a <div>'
+      }
+    }
+  ],
   PlAnimateZoom: [
     {
       name: 'mode',

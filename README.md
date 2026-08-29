@@ -75,7 +75,7 @@ If your project already runs Tailwind v4, import the token sheet instead:
 @import 'plass-ui/tailwind.css';
 ```
 
-`plass-ui/tailwind.css` registers all 66 components with Tailwind, because Tailwind scans files rather than imports — nothing in a build connects `import { PlButton }` to the classes `PlSelect.js` spells out. A project that uses a handful of components can register the handful instead:
+`plass-ui/tailwind.css` registers all 67 components with Tailwind, because Tailwind scans files rather than imports — nothing in a build connects `import { PlButton }` to the classes `PlSelect.js` spells out. A project that uses a handful of components can register the handful instead:
 
 ```css
 @import 'tailwindcss';
@@ -116,7 +116,7 @@ export default function SignIn() {
 }
 ```
 
-Every component also has an entry point of its own, for a build that cannot tree-shake a barrel — or for a server render, where the barrel loads all 66 components and their dependencies before the first one is used:
+Every component also has an entry point of its own, for a build that cannot tree-shake a barrel — or for a server render, where the barrel loads all 67 components and their dependencies before the first one is used:
 
 ```tsx
 import { PlButton } from 'plass-ui/button';
@@ -156,7 +156,7 @@ The list below is both packages'. The props are the same props under Dart's name
 
 ### Transitions
 
-`PlAnimateFade` · `PlAnimateGrow` · `PlAnimateZoom`
+`PlAnimateFade` · `PlAnimateGrow` · `PlAnimateSlide` · `PlAnimateZoom`
 
 ## Development
 

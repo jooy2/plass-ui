@@ -4,6 +4,7 @@ import {
   PlAccordionItem,
   PlAlert,
   PlAnimateFade,
+  PlAnimateSlide,
   PlAnimateZoom,
   PlAnimateGrow,
   PlAspectRatio,
@@ -1300,6 +1301,20 @@ const entries: Entry[] = [
       <PlAnimateZoom from={0.3} duration={1300} repeat="infinite" alternate>
         <PlChip color="success">Zooming</PlChip>
       </PlAnimateZoom>
+    )
+  },
+  {
+    name: 'PlAnimateSlide',
+    group: 'transitions',
+    href: 'components/transitions/animate-slide',
+    blurb: {
+      en: 'Content travelling in from one edge.',
+      ko: '한쪽 모서리에서 들어오는 내용입니다.'
+    },
+    preview: (
+      <PlAnimateSlide from="left" distance={20} duration={1200} repeat="infinite" alternate>
+        <PlChip color="info">Sliding</PlChip>
+      </PlAnimateSlide>
     )
   }
 ];
