@@ -8,19 +8,16 @@ Live previews and full parameters for every component — pick **Flutter** in th
 
 ---
 
-**Plass UI is a component library with a material rather than a theme.** Every surface answers one question — is this pressed, or does it hold something? — and the answer decides everything else.
+> **Plass is one design language, shipped as two libraries.** Every surface answers a single question — is this pressed, or does it hold something? A thing you press is **tinted glass**: a gradient that _turns_ through its colour family rather than darkening, a shadow thrown in that same colour, and a bloom of light that follows your pointer across it. A thing that holds something is **clear glass**: translucent, deeply blurred, edged with a white hairline, never dyed. Nothing is bevelled, nothing is embossed and nothing moves when you press it — depth is carried by light, colour and blur.
 
-A thing that is pressed is **tinted glass**: a gradient that sweeps between two ends of its colour family at 135°, a drop shadow tinted with that family, and a bloom of light that follows the pointer across it. A thing that holds something is **clear glass**: translucent, heavily blurred, a white hairline round it, and never dyed. There is no third answer.
+This is the Flutter half. The [React package](https://www.npmjs.com/package/plass-ui) is the other one, and the two hold the same components under the same names, the same parameter vocabulary and the same numbers. They version independently, so this package's number and the npm one's will not always agree.
 
-This is the Flutter half of that language. The [React package](https://www.npmjs.com/package/plass-ui) is the other one, and the two are the same numbers.
-
-- **No Material, no Cupertino.** Built on `package:flutter/widgets.dart` alone, so it sits inside a Material app, a Cupertino app or a bare `WidgetsApp` without dragging a second design system in behind it — and it is unaffected by those two libraries moving out of the framework into `material_ui` and `cupertino_ui`.
-- **No dependencies.** None. No assets, no platform channels, no plugins.
-- **No setup.** There is no stylesheet to import and no provider to install. A component follows the platform's brightness until a `PlassTheme` overrides it.
-- **One shared vocabulary** — `size`, `color`, `variant`, `density`, `elevation`. An `md` is 40px on every control; `primary` is the same family everywhere, and the same family it is in React.
-- **Accessible by construction** — real semantics, focus management and keyboard activation.
-
-> **Both packages ship the same library.** Every component in the React package is here too, alongside the tokens, the scales and the theme they are built on, under the same parameter vocabulary. They version independently, so this package's number and the npm one's will not always agree.
+- **Finished the moment it is installed.** There is no stylesheet to import, no provider to install and no theme file to fill in. A component follows the platform's brightness until a `PlassTheme` overrides it.
+- **Five parameters, not fifty.** `size`, `color`, `variant`, `density` and `elevation` mean the same thing on every component — an `md` control is 40px, `primary` is the same family — so the tenth one costs nothing to learn after the first.
+- **Readable because it was measured.** Every gradient stop clears 4.5:1 against its own label, the lightest corner included. A colour choice here is not a contrast bug waiting for an audit.
+- **Accessible without the checklist.** Real semantics, focus management and keyboard activation, inside the widgets.
+- **Dark mode you do not write.** Follows `MediaQuery.platformBrightness`, and can be forced either way by wrapping a subtree. No second palette, no colours redeclared.
+- **Nothing you did not ask for.** No dependencies at all — no assets, no platform channels, no plugins. It is built on `package:flutter/widgets.dart` alone, so it drops into any Flutter app without bringing a second design system in behind it, and it is unaffected by `material.dart` and `cupertino.dart` moving out of the framework into `material_ui` and `cupertino_ui`.
 
 ## Install
 

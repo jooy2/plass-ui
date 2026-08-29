@@ -8,22 +8,17 @@ Live previews and full props for every component — pick **React** in the sideb
 
 ---
 
-**Plass UI is a component library with a material rather than a theme.** Every surface answers one question — is this pressed, or does it hold something? — and the answer decides everything else.
+> **Plass is one design language, shipped as two libraries.** Every surface answers a single question — is this pressed, or does it hold something? A thing you press is **tinted glass**: a gradient that _turns_ through its colour family rather than darkening, a shadow thrown in that same colour, and a bloom of light that follows your pointer across it. A thing that holds something is **clear glass**: translucent, deeply blurred, edged with a white hairline, never dyed. Nothing is bevelled, nothing is embossed and nothing moves when you press it — depth is carried by light, colour and blur.
 
-A thing that is pressed is **tinted glass**: a gradient that sweeps between two ends of its colour family at 135°, a drop shadow tinted with that family, and a bloom of light that follows the pointer across it. A thing that holds something is **clear glass**: translucent, heavily blurred, a white hairline round it, and never dyed. There is no third answer.
+This is the React half. The [Flutter package](https://pub.dev/packages/plass_ui) is the other one, and the two hold the same components under the same names, the same prop vocabulary and the same numbers. They version independently, so this package's number and the pub.dev one's will not always agree.
 
-This is the React half of that language. The [Flutter package](https://pub.dev/packages/plass_ui) is the other one, and the two are the same numbers.
-
-- **Two materials, one language** — `solid`, `glass`, `ghost`. Not `filled`, `outlined`, `text`.
-- **Light instead of relief** — no bevels and no highlights. The gradient carries the form, and a soft glow follows your pointer across the control.
-- **One shared vocabulary** — `size`, `color`, `variant`, `density`, `elevation`. An `md` is 40px on every control; `primary` is the same family everywhere, and the same family it is in Flutter.
-- **Accessible by construction** — real roles, labels, focus management and keyboard support, not `div`s with click handlers.
-- **Contrast that was checked** — every gradient stop clears 4.5:1 against its own label, the lightest corner included.
-- **Dark mode with no work** — follows `prefers-color-scheme`, and can be forced either way per subtree.
-- **ESM only**, TypeScript declarations included, tree-shakeable, with an entry point per component.
-- **One runtime dependency**, [Base UI](https://base-ui.com), which is where the interaction and accessibility behaviour comes from.
-
-> **Both packages ship the same library.** Every component listed below exists in each, under the same prop vocabulary and the same tokens. They version independently, so this package's number and the Flutter one's will not always agree.
+- **Finished the moment it is installed.** The gradients, the shadows, the blur, the focus ring and the press response are already decided and already agree with each other. One CSS import and the first screen looks like something.
+- **Five props, not fifty.** `size`, `color`, `variant`, `density` and `elevation` mean the same thing on every component — an `md` control is 40px, `primary` is the same family — so the tenth one costs nothing to learn after the first.
+- **Readable because it was measured.** Every gradient stop clears 4.5:1 against its own label, the lightest corner included. A colour choice here is not a contrast bug waiting for an audit.
+- **Accessible without the checklist.** Real roles, labels, focus management and keyboard support, not `div`s with click handlers.
+- **Dark mode you do not write.** Follows `prefers-color-scheme`, and can be forced either way on any subtree. No second palette, no colours redeclared.
+- **Types in the box.** TypeScript declarations ship with the package, so your editor knows the prop names and the values they take before you do.
+- **Nothing you did not ask for.** ESM only, tree-shakeable, a single runtime dependency, and an entry point per component for a build that cannot shake a barrel.
 
 ## Install
 
