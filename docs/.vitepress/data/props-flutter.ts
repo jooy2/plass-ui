@@ -201,30 +201,34 @@ function timeColumnProps(component: string): PropRow[] {
  */
 function animateFlutterProps(
   component: string,
-  options: { duration: string; repeat?: string }
+  options: { duration: string; repeat?: string; omit?: string[] }
 ): PropRow[] {
-  return [
-    from(component, 'duration', { type: 'Duration', default: options.duration }),
-    from(component, 'delay', { type: 'Duration', default: 'Duration.zero' }),
-    from(component, 'easing', { name: 'curve', type: 'Curve?', default: 'the house curve' }),
-    from(component, 'repeat', {
+  // Built from a list of names rather than filtered afterwards, because `from`
+  // throws on a React prop that is not there — and a prop this widget genuinely
+  // does not take is not there on the React side either.
+  const patches: Record<string, Partial<PropRow>> = {
+    duration: { type: 'Duration', default: options.duration },
+    delay: { type: 'Duration', default: 'Duration.zero' },
+    easing: { name: 'curve', type: 'Curve?', default: 'the house curve' },
+    repeat: {
       type: 'int?',
       default: options.repeat ?? '1',
       description: {
         ko: "몇 번 반복할지. null이 멈추지 않음을 뜻합니다 — 적을 'infinite'가 없고, -1은 찾아봐야 하는 sentinel입니다",
         en: "How many times it runs. null is what never stops: there is no 'infinite' to write, and -1 would be a sentinel a caller has to look up"
       }
-    }),
-    from(component, 'alternate', { type: 'bool', default: 'false' }),
-    from(component, 'paused', { type: 'bool', default: 'false' }),
-    from(component, 'trigger', {
-      type: 'PlassAnimateTrigger',
-      default: 'PlassAnimateTrigger.mount'
-    }),
-    from(component, 'play', { type: 'bool', default: 'false' }),
-    from(component, 'once', { type: 'bool', default: 'true' }),
-    from(component, 'threshold', { type: 'double', default: '0.2' })
-  ];
+    },
+    alternate: { type: 'bool', default: 'false' },
+    paused: { type: 'bool', default: 'false' },
+    trigger: { type: 'PlassAnimateTrigger', default: 'PlassAnimateTrigger.mount' },
+    play: { type: 'bool', default: 'false' },
+    once: { type: 'bool', default: 'true' },
+    threshold: { type: 'double', default: '0.2' }
+  };
+
+  return Object.entries(patches)
+    .filter(([name]) => !options.omit?.includes(name))
+    .map(([name, patch]) => from(component, name, patch));
 }
 
 export const flutterPropTables: Record<string, PropRow[]> = {
@@ -313,6 +317,39 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       required: true,
       description: { ko: '무엇이 펼쳐지는지', en: 'What unfolds' }
     }
+  ],
+
+  PlAnimateHeadline: [
+    {
+      name: 'children',
+      type: 'List<Widget>',
+      required: true,
+      description: {
+        ko: '읽어야 할 순서대로의 줄들',
+        en: 'The lines, in the order they should be read'
+      }
+    },
+    from('PlAnimateHeadline', 'interval', {
+      type: 'Duration',
+      default: 'Duration(milliseconds: 2600)'
+    }),
+    from('PlAnimateHeadline', 'index', { type: 'int?' }),
+    from('PlAnimateHeadline', 'defaultIndex', { type: 'int', default: '0' }),
+    from('PlAnimateHeadline', 'onIndexChange', { type: 'ValueChanged<int>?' }),
+    from('PlAnimateHeadline', 'loop', { type: 'bool', default: 'true' }),
+    from('PlAnimateHeadline', 'rise', {
+      type: 'double?',
+      default: "one line's own height",
+      description: {
+        ko: '줄이 올라오거나 나갈 때 이동하는 거리(논리 픽셀). null이면 줄 하나의 높이입니다',
+        en: "How far a line travels as it comes up or leaves, in logical pixels. null is one line's own height"
+      }
+    }),
+    ...animateFlutterProps('PlAnimateHeadline', {
+      duration: 'Duration(milliseconds: 460)',
+      repeat: 'null',
+      omit: ['alternate']
+    })
   ],
 
   PlAnimateLighting: [
