@@ -4,91 +4,98 @@
 
 ### 📘 [**plass.cdget.com**](https://plass.cdget.com)
 
-Live previews and full props for every component. This README is just the quick start.
+Live previews and full props for every component, in both frameworks. This README is the map; each package has a quick start of its own.
 
 ---
 
 **Plass UI is a component library with a material rather than a theme.** Every surface answers one question — is this pressed, or does it hold something? — and the answer decides everything else.
 
-It ships for **React** and for **Flutter**, from one design language: the same vocabulary, the same tokens, the same numbers. The documentation is one site with a framework switch in the sidebar rather than two sites that will disagree by the third release.
-
 A thing that is pressed is **tinted glass**: a gradient that sweeps between two ends of its colour family at 135°, a drop shadow tinted with that family, and a bloom of light that follows the pointer across it. A thing that holds something is **clear glass**: translucent, heavily blurred, a white hairline round it, and never dyed. There is no third answer.
+
+It ships for **React** and for **Flutter**, from one design language: the same vocabulary, the same tokens, the same numbers. The documentation is one site with a framework switch in the sidebar rather than two sites that will disagree by the third release.
 
 - **Two materials, one language** — `solid`, `glass`, `ghost`. Not `filled`, `outlined`, `text`.
 - **Light instead of relief** — no bevels and no highlights. The gradient carries the form, and a soft glow follows your pointer across the control.
-- **One shared vocabulary** — `size`, `color`, `variant`, `density`, `elevation`. An `md` is 40px on every control; `primary` is the same family everywhere.
-- **Accessible by construction** — real roles, labels, focus management and keyboard support, not `div`s with click handlers.
+- **One shared vocabulary** — `size`, `color`, `variant`, `density`, `elevation`. An `md` is 40px on every control; `primary` is the same family everywhere, and the same family in the other framework.
+- **Accessible by construction** — real roles, labels, focus management and keyboard support, in both packages.
 - **Contrast that was checked** — every gradient stop clears 4.5:1 against its own label, the lightest corner included.
-- **Dark mode with no work** — follows the system, and can be forced either way per subtree.
-- **ESM only**, TypeScript declarations included, tree-shakeable.
-- **One runtime dependency** on React (18 or 19, Node.js 20.19 or later); **none at all** on Flutter, which is also built without `material.dart` or `cupertino.dart`.
-
-> **0.0.1 is a preview.** Both packages ship the same library — every component listed below exists in each. The shape they are poured into — the prop vocabulary, the tokens, the build — is settled. The API is not frozen yet.
+- **Dark mode with no work** — follows the platform, and can be forced either way per subtree.
+- **The same 74 components on both sides**, listed at the bottom of this page.
 
 ## Packages
 
-| Package | Registry | Requires |
-| --- | --- | --- |
-| [`packages/react`](packages/react) | [npm: `plass-ui`](https://www.npmjs.com/package/plass-ui) | React 18 or 19 |
-| [`packages/flutter`](packages/flutter) | [pub.dev: `plass_ui`](https://pub.dev/packages/plass_ui) | Flutter 3.41 or newer |
+| Package | Registry | Requires | Quick start |
+| --- | --- | --- | --- |
+| [`packages/react`](packages/react) | [npm: `plass-ui`](https://www.npmjs.com/package/plass-ui) | React 18 or 19, Node.js 20.19 or later | [README](packages/react/README.md) |
+| [`packages/flutter`](packages/flutter) | [pub.dev: `plass_ui`](https://pub.dev/packages/plass_ui) | Flutter 3.41 or newer (Dart 3.11) | [README](packages/flutter/README.md) |
 
-## Documentation
+The two **version independently** and keep separate changelogs — [`CHANGELOG.md`](CHANGELOG.md) is the React package's, [`packages/flutter/CHANGELOG.md`](packages/flutter/CHANGELOG.md) the Flutter one's. A release on one side is not a release on the other, so the numbers will not always agree.
 
-| Page | What you will find |
-| --- | --- |
-| [**Getting started**](https://plass.cdget.com/guide/getting-started) | Install and setup, end to end. |
-| [**Examples**](https://plass.cdget.com/examples/dashboard) | Whole screens built out of the components — a dashboard, a landing page, a sign-up flow. |
-| [**All components**](https://plass.cdget.com/components/) | Every component, one page each: live previews and the full props table. |
-| [**Design language**](https://plass.cdget.com/design/design-language) | Why a Plass surface looks and behaves the way it does. |
-| [**Prop conventions**](https://plass.cdget.com/design/prop-conventions) | The shared vocabulary every component draws from. |
-| [**Colour**](https://plass.cdget.com/design/color) | The token families, the measured contrast, and how to theme them. |
-| [**Changelog**](https://plass.cdget.com/changelog) | What changed in each release. |
+## Install
 
-## Installation
+### React
 
 ```bash
 npm install plass-ui
 ```
 
-`react` and `react-dom` are peer dependencies — React 18 or 19.
+```css
+/* your app's CSS entry point */
+@import 'plass-ui/styles.css';
+```
+
+```tsx
+import { PlButton, PlTextField } from 'plass-ui';
+
+<PlTextField label="Email" type="email" fullWidth />
+<PlButton type="submit">Sign in</PlButton>
+<PlButton variant="glass" color="secondary">Cancel</PlButton>
+```
+
+`react` and `react-dom` are peer dependencies; the one runtime dependency is [Base UI](https://base-ui.com). The stylesheet is finished CSS — [Tailwind CSS](https://tailwindcss.com) v4 builds this package and does not have to be installed in yours, though there is a second entry point for projects that already run it. Every component also has an entry point of its own (`plass-ui/button`), and every component carries `'use client'`, so a Next.js Server Component can import one with nothing configured.
+
+[**The React quick start**](packages/react/README.md) has the rest.
+
+### Flutter
 
 ```bash
 flutter pub add plass_ui
 ```
 
-Nothing else to install: the Flutter package has no dependencies, no assets and no platform channels. There is no stylesheet to wire up either — a component works with no ancestor, following the platform's brightness until a `PlassTheme` says otherwise.
+```dart
+import 'package:flutter/widgets.dart';
+import 'package:plass_ui/plass_ui.dart';
 
-### Setup
-
-Add one line to your app's CSS entry point:
-
-```css
-@import 'plass-ui/styles.css';
+PlButton(
+  onPressed: save,
+  child: const Text('Save'),
+)
 ```
 
-`plass-ui/styles.css` is finished CSS — the design tokens, the compiled rules for every utility class the components use, and a small reset whose every rule is specificity 0 so your own styles always win. [Tailwind CSS](https://tailwindcss.com) v4 builds this package; it does not have to be installed in yours.
+Nothing else to install: no dependencies, no assets, no platform channels, no stylesheet and no provider. It is built on `package:flutter/widgets.dart` alone — no Material and no Cupertino — so it sits inside a Material app, a Cupertino app or a bare `WidgetsApp` without dragging a second design system in behind it, and it is unaffected by those two libraries moving out of the framework into `material_ui` and `cupertino_ui`.
 
-If your project already runs Tailwind v4, import the token sheet instead:
+[**The Flutter quick start**](packages/flutter/README.md) has the rest.
 
-```css
-@import 'tailwindcss';
-@import 'plass-ui/tailwind.css';
-```
+## What is the same, and what is not
 
-`plass-ui/tailwind.css` registers all 74 components with Tailwind, because Tailwind scans files rather than imports — nothing in a build connects `import { PlButton }` to the classes `PlSelect.js` spells out. A project that uses a handful of components can register the handful instead:
+The design is the same on both sides, down to the number. What differs is only what the platform decides — how a stylesheet gets in, how a theme is read, what a callback is called.
 
-```css
-@import 'tailwindcss';
-@import 'plass-ui/css/base.css'; /* tokens + what every component shares */
-@import 'plass-ui/css/button.css';
-@import 'plass-ui/css/text-field.css';
-```
+| | React | Flutter |
+| --- | --- | --- |
+| Component names | `PlButton`, `PlTextField` | `PlButton`, `PlTextField` |
+| Shared vocabulary | `size`, `color`, `variant`, `density`, `elevation` | `PlassSize`, `PlassColor`, `PlassVariant`, `PlassDensity`, `PlassElevation` |
+| Setup | one CSS import | none |
+| Runtime dependencies | [Base UI](https://base-ui.com) | none |
+| Tokens | CSS custom properties, `--plass-*` | `PlassTheme.of(context)` |
+| Dark mode | `prefers-color-scheme`; forced with `.dark` / `[data-theme]` on any ancestor | `MediaQuery.platformBrightness`; forced with `PlassTheme(brightness: …)` |
+| Handlers | `onClick`, `onValueChange` | `onPressed`, `onChanged` |
+| Docs | [plass.cdget.com](https://plass.cdget.com), **React** in the sidebar | the same page, **Flutter** in the sidebar |
 
-Still one Tailwind pass, so the utilities keep Tailwind's own order — and about 5 kB gzipped smaller for a small set of components. There is one manifest per component, named after its folder in `dist/components`.
+A component's page says exactly what differs where it differs. Where it says nothing, there is nothing.
 
-### One more line, and it matters here
+### The page under the components
 
-Plass does not paint your `<body>`, but a sheet of glass over a flat white page has nothing to be in front of. Two tokens exist for exactly this:
+This is the one setup step neither package can do for you, and skipping it is the fastest way to conclude the glass is broken. Plass draws controls and sheets; it does not paint your background — but a sheet of glass over a flat white page has nothing to be in front of, and every translucent surface will read as opaque. Two tokens exist for exactly this, and they are the same two on both sides:
 
 ```css
 body {
@@ -98,35 +105,34 @@ body {
 }
 ```
 
-## Usage
+```dart
+final tokens = PlassTheme.of(context);
 
-```tsx
-import { PlButton, PlTextField } from 'plass-ui';
-
-export default function SignIn() {
-  return (
-    <form onSubmit={submit}>
-      <PlTextField label="Email" type="email" fullWidth />
-      <PlButton type="submit">Sign in</PlButton>
-      <PlButton variant="glass" color="secondary">
-        Cancel
-      </PlButton>
-    </form>
-  );
-}
+DecoratedBox(
+  decoration: BoxDecoration(
+    gradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: <Color>[tokens.bgFrom, tokens.bgTo],
+    ),
+  ),
+  child: ...,
+)
 ```
 
-Every component also has an entry point of its own, for a build that cannot tree-shake a barrel — or for a server render, where the barrel loads all 74 components and their dependencies before the first one is used:
+Any backdrop with structure in it works. What does not work is nothing at all.
 
-```tsx
-import { PlButton } from 'plass-ui/button';
-```
+## Documentation
 
-Same component, same types. The barrel is the one to reach for by default; this is the escape hatch when a bundler, a test runner or Node's own loader is the thing paying for it.
-
-### Next.js and server components
-
-Every component carries `'use client'`, so a Server Component can import one directly and there is nothing to configure — no `transpilePackages`, no `next.config` entry, no provider. What the directive cannot do is carry a function across the server boundary: a file that passes `onClick`, `onValueChange` or `render` needs its own `'use client'`, which is React's rule for every client component rather than this library's. Outside a server-component graph the directive is inert.
+| Page | What you will find |
+| --- | --- |
+| [**Getting started**](https://plass.cdget.com/guide/getting-started) | Install and setup, end to end, in either framework. |
+| [**Examples**](https://plass.cdget.com/examples/dashboard) | Whole screens built out of the components — a dashboard, a landing page, a sign-up flow. |
+| [**All components**](https://plass.cdget.com/components/) | Every component, one page each: live previews and the full props table. |
+| [**Design language**](https://plass.cdget.com/design/design-language) | Why a Plass surface looks and behaves the way it does. |
+| [**Prop conventions**](https://plass.cdget.com/design/prop-conventions) | The shared vocabulary every component draws from. |
+| [**Colour**](https://plass.cdget.com/design/color) | The token families, the measured contrast, and how to theme them. |
+| [**Changelog**](https://plass.cdget.com/changelog) | What changed in each release. |
 
 ## Components
 
@@ -164,7 +170,7 @@ The list below is both packages'. The props are the same props under Dart's name
 
 ## Development
 
-Each package is installed and run from its own folder; there is no root install.
+One design language, three things built out of it. Each is entered and run on its own — there is no install at the repository root and no root `package.json`.
 
 ```bash
 cd packages/react
@@ -192,6 +198,8 @@ npm run build
 ```
 
 The site renders the React components from `packages/react/src` through a Vite alias and embeds the Flutter gallery as a frame per preview, so `npm run dev` is the develop-and-eyeball loop for both; there is no separate demo app. Editing a component shows up immediately on the React side; the Flutter side needs `npm run flutter:demos` again.
+
+[CONTRIBUTING.md](CONTRIBUTING.md) is the rest — where things live, and how a change to a component is expected to arrive.
 
 ## License
 
