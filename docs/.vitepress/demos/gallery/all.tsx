@@ -4,6 +4,7 @@ import {
   PlAccordionItem,
   PlAlert,
   PlAnimateFade,
+  PlAnimateLighting,
   PlAnimateAppear,
   PlAnimateBlink,
   PlAnimateRotate,
@@ -1369,6 +1370,20 @@ const entries: Entry[] = [
           <PlChip key={word}>{word}</PlChip>
         ))}
       </PlAnimateAppear>
+    )
+  },
+  {
+    name: 'PlAnimateLighting',
+    group: 'transitions',
+    href: 'components/transitions/animate-lighting',
+    blurb: {
+      en: 'A light travelling around the outside of something.',
+      ko: '무언가의 바깥을 도는 빛입니다.'
+    },
+    preview: (
+      <PlAnimateLighting size="sm" color="primary">
+        <PlChip variant="glass">Live</PlChip>
+      </PlAnimateLighting>
     )
   }
 ];

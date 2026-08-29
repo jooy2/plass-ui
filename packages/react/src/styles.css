@@ -997,6 +997,64 @@
   animation-name: plass-anim-blink;
 }
 
+/*
+ * The light travelling around the outside of something.
+ *
+ * What moves is the `from` angle of a conic gradient, which is only animatable
+ * because the angle is a registered custom property with a type. The
+ * alternative — rotating the pseudo-element itself — swings its corners out
+ * past the element on every quarter turn.
+ *
+ * The arc **turns in hue along its length**, between the two ends of the family
+ * at one lightness, exactly as a `solid` fill does. A flat arc would be the one
+ * place in the library where a coloured surface is paint rather than glass.
+ *
+ * `z-index: -1` inside an isolated stacking context puts the light behind the
+ * content but still inside the component, so it reads as a glow escaping from
+ * under a sheet rather than as a border drawn around one.
+ */
+@property --plass-glow-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes plass-anim-lighting {
+  to {
+    --plass-glow-angle: 360deg;
+  }
+}
+
+.plass-anim-lighting {
+  position: relative;
+  isolation: isolate;
+}
+
+.plass-anim-lighting::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: calc(-1 * var(--p-anim-glow-width, 3px));
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--plass-glow-angle),
+    transparent 0deg,
+    var(--p-anim-glow-from) calc(var(--p-anim-glow-arc, 50deg) * 0.5),
+    var(--p-anim-glow-to) var(--p-anim-glow-arc, 50deg),
+    transparent calc(var(--p-anim-glow-arc, 50deg) * 2),
+    transparent 360deg
+  );
+  filter: blur(var(--p-anim-glow-blur, 5px));
+  animation-name: plass-anim-lighting;
+  animation-duration: var(--p-anim-duration, 3s);
+  animation-delay: var(--p-anim-delay, 0ms);
+  animation-timing-function: linear;
+  animation-iteration-count: var(--p-anim-repeat, infinite);
+  animation-direction: var(--p-anim-direction, normal);
+  animation-fill-mode: both;
+  animation-play-state: var(--p-anim-state, running);
+}
+
 /* ---------------------------------------------------------------------------
  * Reduced motion
  *
@@ -1062,6 +1120,13 @@
    * reader's preference would blank the page.
    */
   .plass-anim {
+    animation: none;
+  }
+
+  /* The arc stops travelling and becomes an even glow. The same trade the
+     skeleton makes: the decoration survives, the motion does not. */
+  .plass-anim-lighting::before {
+    background: var(--p-anim-glow-to);
     animation: none;
   }
 }

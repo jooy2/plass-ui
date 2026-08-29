@@ -901,6 +901,78 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlAnimateLighting: [
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: '빛이 그려지는 계열. 호는 지나가면서 그 계열의 두 끝 사이를 돕니다 — solid 채움과 같은 규칙입니다',
+        en: 'Which family the light is drawn in. The arc turns between that family two ends as it travels, exactly as a solid fill does'
+      }
+    },
+    {
+      name: 'glow',
+      type: 'string',
+      description: {
+        ko: '의미론적 계열이 원하는 바가 아닐 때의 CSS 색. color를 덮어쓰고, 그러면 호는 도는 것을 멈춥니다 — 색 하나는 돌아갈 곳이 없습니다',
+        en: 'A CSS colour, when a semantic family is not what is wanted. Overrides color, and the arc stops turning — one colour has nowhere to turn to'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '빛이 따라가는 radius. 안에 있는 것과 맞아야 합니다. 아니면 내용이 이미 둥글게 깎아 낸 모서리를 빛이 잘라 냅니다',
+        en: 'The radius the light follows. It has to match what is inside, or the glow will cut a corner the content has rounded off'
+      }
+    },
+    {
+      name: 'spread',
+      type: 'number',
+      default: '3',
+      description: {
+        ko: '빛이 내용 바깥으로 뻗는 거리(px)',
+        en: 'How far past the content the light reaches, in pixels'
+      }
+    },
+    {
+      name: 'arc',
+      type: 'number',
+      default: '50',
+      description: {
+        ko: '윤곽선 중 한 번에 밝아지는 각도. 작으면 달리는 불꽃, 크면 훑고 지나가는 빛입니다',
+        en: 'How much of the outline is lit at once, in degrees. Small is a travelling spark; large is a sweep'
+      }
+    },
+    {
+      name: 'blur',
+      type: 'number',
+      default: '5',
+      description: {
+        ko: '빛의 부드러움(px). 0이면 가장자리가 딱 떨어지는 쐐기라 빛이 아니라 도형으로 읽힙니다',
+        en: 'How soft the light is, in pixels. At 0 it is a hard-edged wedge, which reads as a graphic rather than as light'
+      }
+    },
+    {
+      name: 'reverse',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '빛을 반대 방향으로 돌립니다', en: 'Runs the light the other way round' }
+    },
+    ...animateProps({ duration: '3000', repeat: "'infinite'" }),
+    {
+      name: 'render',
+      type: 'ReactElement | (props, state) => ReactElement',
+      description: {
+        ko: '<div> 대신 다른 요소로 렌더링합니다',
+        en: 'Renders something other than a <div>'
+      }
+    }
+  ],
   PlAnimateRotate: [
     {
       name: 'mode',
