@@ -315,6 +315,26 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlAnimateLighting: [
+    from('PlAnimateLighting', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlAnimateLighting', 'glow', { type: 'Color?' }),
+    from('PlAnimateLighting', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlAnimateLighting', 'spread', { type: 'double', default: '3' }),
+    from('PlAnimateLighting', 'arc', { type: 'double', default: '50' }),
+    from('PlAnimateLighting', 'blur', { type: 'double', default: '5' }),
+    from('PlAnimateLighting', 'reverse', { type: 'bool', default: 'false' }),
+    ...animateFlutterProps('PlAnimateLighting', {
+      duration: 'Duration(milliseconds: 3000)',
+      repeat: 'null'
+    }),
+    {
+      name: 'child',
+      type: 'Widget',
+      required: true,
+      description: { ko: '무엇이 빛나는지', en: 'What is lit' }
+    }
+  ],
+
   PlAnimateRotate: [
     from('PlAnimateRotate', 'mode', {
       type: 'PlassAnimateMode',

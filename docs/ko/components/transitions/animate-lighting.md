@@ -23,6 +23,21 @@ import { PlAnimateLighting } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+const PlAnimateLighting(
+  size: PlassSize.lg,
+  child: PlCard(size: PlassSize.lg, title: Text('Recommended'), child: Text('…')),
+);
+```
+
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlAnimateLighting" />
@@ -30,6 +45,12 @@ import { PlAnimateLighting } from 'plass-ui';
 ::: fw react
 
 네이티브 `<div>` 속성은 그대로 통과합니다. `color`는 여기서 Plass prop이라 통과에서 제외되고, `render`로 요소 자체를 바꿀 수 있습니다.
+
+:::
+
+::: fw flutter
+
+`glow`는 CSS 색 문자열이 아니라 `Color?`입니다. `spread`와 `blur`는 논리 픽셀 단위의 `double`이고, `arc`는 도 단위입니다.
 
 :::
 
@@ -53,6 +74,12 @@ import { PlAnimateLighting } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_lighting/colors.dart
+
+:::
+
 </Demo>
 
 ### arc, blur and spread
@@ -67,6 +94,12 @@ import { PlAnimateLighting } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_lighting/shape.dart
+
+:::
+
 </Demo>
 
 ## Accessibility
@@ -78,3 +111,33 @@ import { PlAnimateLighting } from 'plass-ui';
 - 화면에 하나만. 세 개가 빛나는 페이지에는 지금 살아 있는 하나가 없습니다.
 
 :::
+
+::: fw flutter
+
+- 플랫폼에서 애니메이션이 꺼져 있으면(`MediaQuery.disableAnimations`) 호가 도는 것을 멈추고 고른 빛이 됩니다. 장식은 남고 움직임은 사라집니다.
+- 빛은 스크린리더에게 아무 말도 하지 않고, 그럴 필요도 없습니다. 그것이 표시하고 있는 것은 내용에도 적혀 있어야 합니다.
+- 화면에 하나만. 세 개가 빛나는 화면에는 지금 살아 있는 하나가 없습니다.
+
+:::
+
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `glow`가 CSS 색 문자열 | `Color?` | 프레임워크에 이미 타입이 있습니다. |
+| `::before` 위의 conic gradient | 자식 뒤 `Positioned` 레이어 위의 `SweepGradient` | 가상 요소가 없습니다. 레이어는 `clipBehavior: Clip.none`인 `Stack`의 첫 자식이라, 빛이 내용 바깥까지 닿으면서도 그 아래에 있습니다. |
+| 각도를 애니메이션하려는 `@property` | sweep 위의 `GradientRotation` | 움직이는 것은 레이어가 아니라 그러데이션 자신의 회전입니다. 레이어를 돌리면 4분의 1 회전마다 모서리가 내용 밖으로 튀어나오고, CSS가 요소 대신 각도를 애니메이션하는 이유도 같습니다. |
+| `filter: blur()` | `ImageFiltered` | 같은 필터에 대한 프레임워크 자신의 이름입니다. |
+| `render` | — | Flutter에는 다형적 요소가 없습니다. |
+| `duration`, `delay`가 밀리초 | `Duration` | 프레임워크에 이미 타입이 있습니다. |
+| `easing`이 CSS 문자열 | `curve`, `Curve` | 같은 것에 대한 Dart 자신의 이름입니다. |
+| `repeat: number \| 'infinite'` | `int?`, `null`이 멈추지 않음 | 적을 `'infinite'`가 없고, `-1`은 caller가 찾아봐야 하는 sentinel입니다. |
+| `trigger="visible"`이 `IntersectionObserver` | 가장 가까운 `Scrollable`을 봅니다 | 여기에는 observer가 없습니다. 위에 scrollable이 없으면 볼 것이 없으므로 그냥 돕니다. |
+| `prefers-reduced-motion` | `MediaQuery.disableAnimations` | 플랫폼 자신의 신호입니다. |
+| `className`, `style` | — | 통과시킬 class 목록도 style 속성도 없습니다. |
+
+:::
+```

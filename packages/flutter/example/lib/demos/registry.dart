@@ -23,6 +23,9 @@ import 'package:plass_ui_example/demos/animate_blink/count.dart';
 import 'package:plass_ui_example/demos/animate_appear/hero.dart';
 import 'package:plass_ui_example/demos/animate_appear/stagger.dart';
 import 'package:plass_ui_example/demos/animate_appear/direction.dart';
+import 'package:plass_ui_example/demos/animate_lighting/hero.dart';
+import 'package:plass_ui_example/demos/animate_lighting/shape.dart';
+import 'package:plass_ui_example/demos/animate_lighting/colors.dart';
 import 'package:plass_ui_example/demos/accordion/controlled.dart';
 import 'package:plass_ui_example/demos/accordion/dividers.dart';
 import 'package:plass_ui_example/demos/accordion/hero.dart';
@@ -738,6 +741,9 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'animate-appear/hero': _animateAppearHero,
   'animate-appear/stagger': _animateAppearStagger,
   'animate-appear/direction': _animateAppearDirection,
+  'animate-lighting/hero': _animateLightingHero,
+  'animate-lighting/shape': _animateLightingShape,
+  'animate-lighting/colors': _animateLightingColors,
 };
 
 Widget _hero(BuildContext context) => const ButtonHero();
@@ -1155,3 +1161,6 @@ Widget _animateBlinkCount(BuildContext context) => const AnimateBlinkCount();
 Widget _animateAppearHero(BuildContext context) => const AnimateAppearHero();
 Widget _animateAppearStagger(BuildContext context) => const AnimateAppearStagger();
 Widget _animateAppearDirection(BuildContext context) => const AnimateAppearDirection();
+Widget _animateLightingHero(BuildContext context) => const AnimateLightingHero();
+Widget _animateLightingShape(BuildContext context) => const AnimateLightingShape();
+Widget _animateLightingColors(BuildContext context) => const AnimateLightingColors();
