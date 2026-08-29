@@ -827,6 +827,41 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlAnimateZoom: [
+    {
+      name: 'mode',
+      type: "'in' | 'out'",
+      default: "'in'",
+      description: {
+        ko: '내용이 앞으로 나오는지 뒤로 물러나는지. out은 같은 키프레임을 거꾸로 돌린 것입니다',
+        en: 'Whether the content comes forward or falls away. out is the same keyframe run backwards'
+      }
+    },
+    {
+      name: 'from',
+      type: 'number',
+      default: '0.4',
+      description: {
+        ko: '최종 크기에 대한 배수로서, 시작하는 배율. 1보다 크면 실제보다 크게 도착해 제자리로 내려앉고, 읽는 사람 쪽으로 오는 것처럼 읽힙니다',
+        en: 'The scale it starts from, as a multiple of its final size. Above 1 it arrives oversized and settles back, which reads as coming towards the reader'
+      }
+    },
+    {
+      name: 'fade',
+      type: 'boolean',
+      default: 'true',
+      description: { ko: 'zoom하면서 함께 나타납니다', en: 'Fades in as it zooms' }
+    },
+    ...animateProps({ duration: '320' }),
+    {
+      name: 'render',
+      type: 'ReactElement | (props, state) => ReactElement',
+      description: {
+        ko: '<div> 대신 다른 요소로 렌더링합니다',
+        en: 'Renders something other than a <div>'
+      }
+    }
+  ],
   PlAspectRatio: [
     {
       name: 'ratio',

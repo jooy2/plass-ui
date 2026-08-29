@@ -4,6 +4,7 @@ import {
   PlAccordionItem,
   PlAlert,
   PlAnimateFade,
+  PlAnimateZoom,
   PlAnimateGrow,
   PlAspectRatio,
   PlAvatar,
@@ -1285,6 +1286,20 @@ const entries: Entry[] = [
       <PlAnimateGrow origin="top" from={0.5} duration={1400} repeat="infinite" alternate>
         <PlChip color="primary">Growing</PlChip>
       </PlAnimateGrow>
+    )
+  },
+  {
+    name: 'PlAnimateZoom',
+    group: 'transitions',
+    href: 'components/transitions/animate-zoom',
+    blurb: {
+      en: 'Content arriving from the middle of where it will end up.',
+      ko: '끝날 자리의 한가운데에서 도착하는 내용입니다.'
+    },
+    preview: (
+      <PlAnimateZoom from={0.3} duration={1300} repeat="infinite" alternate>
+        <PlChip color="success">Zooming</PlChip>
+      </PlAnimateZoom>
     )
   }
 ];
