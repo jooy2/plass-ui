@@ -4,6 +4,7 @@ import {
   PlAccordionItem,
   PlAlert,
   PlAnimateFade,
+  PlAnimateTyping,
   PlAnimateHeadline,
   PlAnimateMarquee,
   PlAnimateLighting,
@@ -1422,6 +1423,25 @@ const entries: Entry[] = [
           </PlChip>
         ))}
       </PlAnimateHeadline>
+    )
+  },
+  {
+    name: 'PlAnimateTyping',
+    group: 'transitions',
+    href: 'components/transitions/animate-typing',
+    blurb: {
+      en: 'Text appearing one character at a time.',
+      ko: '글자가 하나씩 나타납니다.'
+    },
+    preview: (
+      <PlAnimateTyping
+        className="font-mono"
+        text="npm install plass-ui"
+        speed={14}
+        hold={1400}
+        erase
+        repeat="infinite"
+      />
     )
   }
 ];

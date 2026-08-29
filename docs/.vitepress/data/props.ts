@@ -1194,6 +1194,65 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlAnimateTyping: [
+    {
+      name: 'text',
+      type: 'string',
+      description: {
+        ko: '텍스트. 중첩해 쓰는 것보다 넘기는 편이 쉬울 때. children을 덮어씁니다',
+        en: 'The text, when it is easier to pass than to nest. Overrides children'
+      }
+    },
+    {
+      name: 'speed',
+      type: 'number',
+      default: '24',
+      description: {
+        ko: '치는 속도(초당 글자 수). 긴 문단과 짧은 문단이 같은 시간이 아니라 같은 속도로 쳐지도록',
+        en: 'How fast it is typed, in characters per second, so a long paragraph and a short one are typed at the same pace rather than in the same time'
+      }
+    },
+    {
+      name: 'hold',
+      type: 'number',
+      default: '1400',
+      description: {
+        ko: '다 친 텍스트를 반복 전에 붙들어 두는 시간(ms)',
+        en: 'How long the finished text is held before it repeats, in milliseconds'
+      }
+    },
+    {
+      name: 'erase',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '반복 전에 한 프레임에 지우는 대신 다시 지웁니다. repeat가 한 번을 넘을 때만 뜻이 있습니다',
+        en: 'Deletes the text again before repeating, rather than clearing it in one frame. Only means anything when repeat is more than once'
+      }
+    },
+    {
+      name: 'eraseSpeed',
+      type: 'number',
+      default: 'twice speed',
+      description: {
+        ko: '지우는 속도(초당 글자 수). 지우는 것은 보통 치는 것의 두 배쯤 빠릅니다 — 사람이 실제로 그렇게 합니다',
+        en: 'How fast it is deleted, in characters per second. Deleting is usually about twice as fast as typing, which is what a person actually does'
+      }
+    },
+    {
+      name: 'caret',
+      type: 'boolean',
+      default: 'true',
+      description: { ko: '텍스트 뒤의 블록', en: 'The block after the text' }
+    },
+    {
+      name: 'caretChar',
+      type: 'ReactNode',
+      default: "'|'",
+      description: { ko: 'caret을 무엇으로 그릴지', en: 'What the caret is drawn as' }
+    },
+    ...animateProps({ duration: 'speed decides', omit: ['easing', 'alternate'] })
+  ],
   PlAnimateZoom: [
     {
       name: 'mode',

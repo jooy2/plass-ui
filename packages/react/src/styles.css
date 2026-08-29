@@ -1170,6 +1170,28 @@
   animation-name: plass-anim-headline-out;
 }
 
+/* The block after a typewriter. `step-end` rather than a fade, because a caret
+   that eases is a caret that looks like it is being rendered slowly.
+
+   `.plass-caret` and not `.plass-typing-*`, which is already taken by the three
+   dots in a bubble somebody is writing into — two unrelated things, one of them
+   a state and the other an effect. */
+@keyframes plass-anim-caret {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  55%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.plass-caret {
+  display: inline-block;
+  animation: plass-anim-caret 1s step-end infinite;
+}
+
 /* ---------------------------------------------------------------------------
  * Reduced motion
  *
@@ -1236,7 +1258,8 @@
    */
   .plass-anim,
   .plass-marquee-track,
-  .plass-headline-item {
+  .plass-headline-item,
+  .plass-caret {
     animation: none;
   }
 
