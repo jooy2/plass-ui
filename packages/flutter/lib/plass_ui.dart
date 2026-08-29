@@ -25,6 +25,7 @@ export 'src/components/accordion/pl_accordion.dart';
 export 'src/components/alert/pl_alert.dart';
 export 'src/components/animate_fade/pl_animate_fade.dart';
 export 'src/components/animate_grow/pl_animate_grow.dart';
+export 'src/components/animate_rotate/pl_animate_rotate.dart';
 export 'src/components/animate_slide/pl_animate_slide.dart';
 export 'src/components/animate_zoom/pl_animate_zoom.dart';
 export 'src/components/aspect_ratio/pl_aspect_ratio.dart';

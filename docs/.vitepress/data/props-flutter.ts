@@ -315,6 +315,35 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlAnimateRotate: [
+    from('PlAnimateRotate', 'mode', {
+      type: 'PlassAnimateMode',
+      default: 'PlassAnimateMode.enter',
+      description: {
+        ko: '제자리로 돌아 들어오는지 돌아 나가는지. in이 Dart의 예약어라 enter/exit입니다',
+        en: 'Whether the content turns into place or out of it. enter/exit rather than in/out, because in is a reserved word in Dart'
+      }
+    }),
+    from('PlAnimateRotate', 'from', {
+      type: 'double',
+      default: '-180',
+      description: {
+        ko: '시작하는 각도. radian이 아니라 도입니다 — 프레임워크는 radian으로 세지만 디자인 언어는 도로 셉니다',
+        en: 'The angle it starts at, in degrees rather than radians: the framework counts in radians and the design language counts in degrees'
+      }
+    }),
+    from('PlAnimateRotate', 'to', { type: 'double', default: '0' }),
+    from('PlAnimateRotate', 'origin', { type: 'Alignment', default: 'Alignment.center' }),
+    from('PlAnimateRotate', 'fade', { type: 'bool', default: 'true' }),
+    ...animateFlutterProps('PlAnimateRotate', { duration: 'Duration(milliseconds: 440)' }),
+    {
+      name: 'child',
+      type: 'Widget',
+      required: true,
+      description: { ko: '무엇이 도는지', en: 'What turns' }
+    }
+  ],
+
   PlAnimateSlide: [
     from('PlAnimateSlide', 'mode', {
       type: 'PlassAnimateMode',

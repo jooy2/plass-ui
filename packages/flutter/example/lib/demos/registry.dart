@@ -14,6 +14,9 @@ import 'package:plass_ui_example/demos/animate_zoom/result.dart';
 import 'package:plass_ui_example/demos/animate_slide/hero.dart';
 import 'package:plass_ui_example/demos/animate_slide/sides.dart';
 import 'package:plass_ui_example/demos/animate_slide/distance.dart';
+import 'package:plass_ui_example/demos/animate_rotate/hero.dart';
+import 'package:plass_ui_example/demos/animate_rotate/spin.dart';
+import 'package:plass_ui_example/demos/animate_rotate/origin.dart';
 import 'package:plass_ui_example/demos/accordion/controlled.dart';
 import 'package:plass_ui_example/demos/accordion/dividers.dart';
 import 'package:plass_ui_example/demos/accordion/hero.dart';
@@ -720,6 +723,9 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'animate-slide/hero': _animateSlideHero,
   'animate-slide/sides': _animateSlideSides,
   'animate-slide/distance': _animateSlideDistance,
+  'animate-rotate/hero': _animateRotateHero,
+  'animate-rotate/spin': _animateRotateSpin,
+  'animate-rotate/origin': _animateRotateOrigin,
 };
 
 Widget _hero(BuildContext context) => const ButtonHero();
@@ -1128,3 +1134,6 @@ Widget _animateZoomResult(BuildContext context) => const AnimateZoomResult();
 Widget _animateSlideHero(BuildContext context) => const AnimateSlideHero();
 Widget _animateSlideSides(BuildContext context) => const AnimateSlideSides();
 Widget _animateSlideDistance(BuildContext context) => const AnimateSlideDistance();
+Widget _animateRotateHero(BuildContext context) => const AnimateRotateHero();
+Widget _animateRotateSpin(BuildContext context) => const AnimateRotateSpin();
+Widget _animateRotateOrigin(BuildContext context) => const AnimateRotateOrigin();

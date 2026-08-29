@@ -21,6 +21,26 @@ import { PlAnimateRotate } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+const PlAnimateRotate(
+  from: 0,
+  to: 360,
+  duration: Duration(milliseconds: 2400),
+  curve: Curves.linear,
+  repeat: null,
+  fade: false,
+  child: PlIcon(icon: RefreshGlyph()),
+);
+```
+
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlAnimateRotate" />
@@ -28,6 +48,12 @@ import { PlAnimateRotate } from 'plass-ui';
 ::: fw react
 
 Every native `<div>` attribute passes straight through, and `render` swaps the element for another one.
+
+:::
+
+::: fw flutter
+
+`from` and `to` are **degrees**, not radians. The framework counts in radians and the design language counts in degrees — every gradient in the package is at 135° — so the conversion happens inside the widget, once, rather than at every call site. `origin` is an `Alignment`.
 
 :::
 
@@ -47,6 +73,12 @@ The ten shared settings — `duration`, `delay`, `easing`, `repeat`, `alternate`
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_rotate/spin.dart
+
+:::
+
 </Demo>
 
 ### origin
@@ -61,6 +93,12 @@ Any CSS `transform-origin`. Turning about a corner is a hinge rather than a whee
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_rotate/origin.dart
+
+:::
+
 </Demo>
 
 ## Accessibility
@@ -72,3 +110,32 @@ Any CSS `transform-origin`. Turning about a corner is a hinge rather than a whee
 - Something that turns forever in the corner of a page somebody is reading is the one kind of motion the rest of this library refuses. Give it a reason.
 
 :::
+
+::: fw flutter
+
+- When the platform has animations turned off (`MediaQuery.disableAnimations`) the effect is dropped entirely and the content is simply there. That is right for an arrival and worth thinking about for a spin: if the turning is what says *something is happening*, use [PlProgressCircular](../feedback/progress-circular) instead, which slows rather than stopping.
+- **Not for text.** A rotated word is resampled along its whole length.
+- Something that turns forever in the corner of a screen somebody is reading is the one kind of motion the rest of this package refuses. Give it a reason.
+
+:::
+
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `from`, `to` in degrees | `double` degrees, converted inside | The framework counts in radians; the design language counts in degrees, and the conversion belongs in one place. |
+| `origin` as a CSS `transform-origin` string | `Alignment` | The framework already has the type. |
+| `easing="linear"` | `curve: Curves.linear` | Dart's own name for the same curve. |
+| `render` | — | Flutter has no polymorphic element. |
+| `duration`, `delay` in milliseconds | `Duration` | The framework already has the type. |
+| `easing` as a CSS string | `curve`, a `Curve` | Dart's own name for the same thing. |
+| `repeat: number \| 'infinite'` | `int?`, `null` never stops | There is no `'infinite'` to write, and `-1` would be a sentinel a caller has to look up. |
+| `trigger="visible"` via `IntersectionObserver` | watches the nearest `Scrollable` | There is no observer here; with no scrollable above it there is nothing to watch, so it runs. |
+| `prefers-reduced-motion` | `MediaQuery.disableAnimations` | The platform's own signal. |
+| `className`, `style` | — | There is no class list and no style attribute to pass through. |
+
+:::
+```
