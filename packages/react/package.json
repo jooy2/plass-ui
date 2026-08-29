@@ -1,6 +1,6 @@
 {
   "name": "plass-ui",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A React UI component library made of glass and gradients — smooth tinted surfaces, shadows in their own colour, and light that follows the pointer. Accessible and themeable, ESM only, types included, dark mode built in.",
   "type": "module",
   "types": "dist/index.d.ts",
