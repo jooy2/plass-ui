@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlAnimateGrow } from 'plass-ui';
+import { transformOrigin } from '../../support/styles';
 
 describe('PlAnimateGrow', () => {
   it('renders a div holding its children', async () => {
@@ -52,7 +53,7 @@ describe('PlAnimateGrow', () => {
 
       const root = document.querySelector('.grow-under-test') as HTMLElement;
 
-      expect(root.style.transformOrigin).toBe('center center');
+      expect(transformOrigin(root)).toBe('center center');
     });
 
     it('anchors to whichever point it was given', async () => {
@@ -64,7 +65,7 @@ describe('PlAnimateGrow', () => {
 
       const root = document.querySelector('.grow-under-test') as HTMLElement;
 
-      expect(root.style.transformOrigin).toBe('left bottom');
+      expect(transformOrigin(root)).toBe('left bottom');
     });
   });
 

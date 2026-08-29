@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlAnimateZoom } from 'plass-ui';
+import { transformOrigin } from '../../support/styles';
 
 describe('PlAnimateZoom', () => {
   it('renders a div holding its children', async () => {
@@ -37,7 +38,7 @@ describe('PlAnimateZoom', () => {
 
     const root = document.querySelector('.zoom-under-test') as HTMLElement;
 
-    expect(root.style.transformOrigin).toBe('center center');
+    expect(transformOrigin(root)).toBe('center center');
   });
 
   it('takes a scale above one, which arrives oversized and settles back', async () => {

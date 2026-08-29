@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlAnimateRotate } from 'plass-ui';
+import { transformOrigin } from '../../support/styles';
 
 describe('PlAnimateRotate', () => {
   it('renders a div holding its children', async () => {
@@ -52,7 +53,7 @@ describe('PlAnimateRotate', () => {
 
     const root = document.querySelector('.rotate-under-test') as HTMLElement;
 
-    expect(root.style.transformOrigin).toBe('left top');
+    expect(transformOrigin(root)).toBe('left top');
   });
 
   it('stays fully drawn for a continuous spin', async () => {
