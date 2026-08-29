@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { NumberField as BaseUINumberField } from '@base-ui/react/number-field';
 import { Field } from '@base-ui/react/field';

@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { iconSizeClasses } from '../../internal/styles.js';
 import type { PlassColor, PlassSize } from '../../types.js';

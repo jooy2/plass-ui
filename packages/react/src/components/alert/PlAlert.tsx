@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { CloseIcon, severityIcon } from '../../internal/icons.js';
 import {

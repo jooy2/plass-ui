@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { PlButton } from '../button/PlButton.js';
 import { Calendar, usePickerLabels, type PlassPickerLabels } from '../../internal/calendar.js';

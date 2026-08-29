@@ -124,6 +124,10 @@ import { PlButton } from 'plass-ui/button';
 
 Same component, same types. The barrel is the one to reach for by default; this is the escape hatch when a bundler, a test runner or Node's own loader is the thing paying for it.
 
+### Next.js and server components
+
+Every component carries `'use client'`, so a Server Component can import one directly and there is nothing to configure — no `transpilePackages`, no `next.config` entry, no provider. What the directive cannot do is carry a function across the server boundary: a file that passes `onClick`, `onValueChange` or `render` needs its own `'use client'`, which is React's rule for every client component rather than this library's. Outside a server-component graph the directive is inert.
+
 ## Components
 
 Every component is exported under a `Pl` prefix — `Button`, `Card` and `Table` are the most-taken identifiers in the ecosystem, and a consumer should not have to alias ours on import.

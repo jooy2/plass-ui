@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { Field } from '@base-ui/react/field';
 import { OTPField } from '@base-ui/react/otp-field';

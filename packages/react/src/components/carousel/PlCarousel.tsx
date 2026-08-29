@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { PlIconButton } from '../icon-button/PlIconButton.js';
 import { ChevronIcon } from '../../internal/icons.js';

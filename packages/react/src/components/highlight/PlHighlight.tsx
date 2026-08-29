@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import type { PlTypographyWeight } from '../typography/PlTypography.js';
 import { transitionClasses } from '../../internal/styles.js';

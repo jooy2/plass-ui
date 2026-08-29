@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { Tabs as BaseUITabs } from '@base-ui/react/tabs';
 import {

@@ -210,6 +210,50 @@ class App extends StatelessWidget {
 
 :::
 
+::: fw react
+
+## Next.js and server components
+
+Every component ships with `'use client'` on it already, so there is nothing to add on your side. Import one straight into a Server Component — a `page.tsx` or a `layout.tsx` in Next.js's App Router — and it renders.
+
+```tsx
+// app/page.tsx — a Server Component, with no directive of its own
+import { PlButton, PlCard } from 'plass-ui';
+
+export default function Page() {
+  return (
+    <PlCard>
+      <PlButton>Save</PlButton>
+    </PlCard>
+  );
+}
+```
+
+What the directive cannot do is let a Server Component hand a component a function. That is React's rule for every client component rather than this library's: `onClick`, `onValueChange` and `render` are functions, and a function does not cross the server boundary. The file that passes one is the file that needs `'use client'` — yours, not ours.
+
+```tsx
+'use client';
+
+import { PlButton } from 'plass-ui';
+
+export function SaveButton() {
+  return <PlButton onClick={() => save()}>Save</PlButton>;
+}
+```
+
+The stylesheet is imported once, in the root layout, and the background belongs in whichever global stylesheet that layout already imports.
+
+```tsx
+// app/layout.tsx
+import 'plass-ui/styles.css';
+```
+
+Nothing else is configured: no `transpilePackages`, no `next.config` entry, no provider. `dist/` is compiled ESM carrying a `.js` on every relative import, which a bundler, Node's own loader and a server render all read the same way.
+
+> **Outside a server-component graph the directive is inert.** Vite, Remix, React Router, Astro and a plain `tsc` build all ignore a module-level `'use client'`. It costs a project that has no server components nothing, which is why every component carries one rather than a chosen few.
+
+:::
+
 ## Dark mode
 
 ::: fw react

@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { Separator } from '@base-ui/react/separator';
 import { metaTextClasses } from '../../internal/styles.js';

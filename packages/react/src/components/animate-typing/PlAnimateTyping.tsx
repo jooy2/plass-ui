@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { isInfinite, useAnimationRun, usePrefersReducedMotion } from '../../internal/animate.js';
 import { srOnlyClasses } from '../../internal/styles.js';

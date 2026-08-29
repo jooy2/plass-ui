@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { Accordion as BaseUIAccordion } from '@base-ui/react/accordion';
 import { ChevronIcon } from '../../internal/icons.js';

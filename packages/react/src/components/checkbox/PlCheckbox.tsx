@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { Checkbox as BaseUICheckbox } from '@base-ui/react/checkbox';
 import { Field } from '@base-ui/react/field';

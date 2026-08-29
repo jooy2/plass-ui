@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { cx, transitionClasses } from '../../internal/styles.js';
 import type { PlassColor, PlassOrientation, PlassSize } from '../../types.js';

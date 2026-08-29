@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { cx, sheetPaddingXClasses } from '../../internal/styles.js';

@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { PlButton, type PlButtonProps } from '../button/PlButton.js';
 

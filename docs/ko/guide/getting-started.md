@@ -210,6 +210,50 @@ class App extends StatelessWidget {
 
 :::
 
+::: fw react
+
+## Next.js와 server component
+
+모든 컴포넌트에는 `'use client'`가 이미 붙어 있습니다. 따로 추가할 것은 없고, Next.js App Router의 `page.tsx`나 `layout.tsx` 같은 Server Component에서 그대로 import해 쓰면 됩니다.
+
+```tsx
+// app/page.tsx — directive 없는 Server Component
+import { PlButton, PlCard } from 'plass-ui';
+
+export default function Page() {
+  return (
+    <PlCard>
+      <PlButton>Save</PlButton>
+    </PlCard>
+  );
+}
+```
+
+directive가 해결해 주지 않는 것이 하나 있습니다. Server Component에서 컴포넌트에 함수를 넘기는 일입니다. 이건 이 라이브러리의 제약이 아니라 모든 client component에 적용되는 React의 규칙으로, `onClick`, `onValueChange`, `render`는 전부 함수이고 함수는 server 경계를 넘지 못합니다. `'use client'`가 필요한 파일은 그 함수를 넘기는 파일 — 라이브러리 쪽이 아니라 여러분 쪽입니다.
+
+```tsx
+'use client';
+
+import { PlButton } from 'plass-ui';
+
+export function SaveButton() {
+  return <PlButton onClick={() => save()}>Save</PlButton>;
+}
+```
+
+스타일시트는 root layout에서 한 번만 import하고, 배경은 그 layout이 이미 불러오고 있는 global 스타일시트에 두면 됩니다.
+
+```tsx
+// app/layout.tsx
+import 'plass-ui/styles.css';
+```
+
+그 밖에 설정할 것은 없습니다. `transpilePackages`도, `next.config` 항목도, provider도 필요 없습니다. `dist/`는 모든 상대 경로 import에 `.js`가 붙은 컴파일된 ESM이고, 이는 bundler와 Node의 resolver, server render가 모두 똑같이 읽는 형태입니다.
+
+> **server component가 없는 곳에서 이 directive는 아무 일도 하지 않습니다.** Vite, Remix, React Router, Astro, 그리고 순수한 `tsc` 빌드는 모듈 최상단의 `'use client'`를 무시합니다. 쓰지 않는 프로젝트가 치르는 비용이 없기 때문에, 일부만 고르지 않고 모든 컴포넌트에 붙였습니다.
+
+:::
+
 ## 다크 모드
 
 ::: fw react

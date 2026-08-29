@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { Combobox as BaseUICombobox } from '@base-ui/react/combobox';
 import { Field } from '@base-ui/react/field';

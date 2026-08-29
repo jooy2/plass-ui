@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { Button as BaseUIButton } from '@base-ui/react/button';
 import { useRender } from '@base-ui/react/use-render';

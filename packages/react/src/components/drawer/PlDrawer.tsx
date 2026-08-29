@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { Dialog as BaseUIDialog } from '@base-ui/react/dialog';
 import { CloseIcon } from '../../internal/icons.js';
