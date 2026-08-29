@@ -387,3 +387,39 @@ const int plassElevationMax = 3;
 /// `0` is flat, and it is the right default for anything a reader looks *into*
 /// rather than presses — a field, a well, a panel behind other content.
 typedef PlassElevation = int;
+
+/// What makes a `PlAnimate*` widget run.
+///
+/// - [mount] — as soon as it is on screen. The default, and the only one that
+///   needs nothing from the caller.
+/// - [visible] — when it is scrolled into view inside the nearest scrollable.
+///   Once, unless `once` is off. With no scrollable above it there is nothing to
+///   watch, so it runs immediately rather than waiting forever.
+/// - [hover] — while the pointer is on it, starting again on each entry. Focus
+///   counts, or the effect would be unreachable without a mouse.
+/// - [manual] — never on its own. `play` is what runs it.
+enum PlassAnimateTrigger {
+  /// As soon as it is on screen.
+  mount,
+
+  /// When it is scrolled into view.
+  visible,
+
+  /// While the pointer or focus is on it.
+  hover,
+
+  /// Only when `play` says so.
+  manual,
+}
+
+/// Whether an effect brings its content in or takes it away.
+///
+/// [enter] and [exit] rather than the React package's `'in'` and `'out'`,
+/// because `in` is a reserved word in Dart and cannot be an enum value.
+enum PlassAnimateMode {
+  /// The content arrives.
+  enter,
+
+  /// The same run backwards, held where it ends.
+  exit,
+}

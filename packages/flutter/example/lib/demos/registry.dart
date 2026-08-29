@@ -1,5 +1,9 @@
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui_example/demos/animate_fade/hero.dart';
+import 'package:plass_ui_example/demos/animate_fade/mode.dart';
+import 'package:plass_ui_example/demos/animate_fade/timing.dart';
+import 'package:plass_ui_example/demos/animate_fade/triggers.dart';
 import 'package:plass_ui_example/demos/accordion/controlled.dart';
 import 'package:plass_ui_example/demos/accordion/dividers.dart';
 import 'package:plass_ui_example/demos/accordion/hero.dart';
@@ -692,6 +696,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'tabs/orientation': _tabsOrientation,
   'tabs/full-width': _tabsFullWidth,
   'tabs/controlled': _tabsControlled,
+  'animate-fade/hero': _animateFadeHero,
+  'animate-fade/mode': _animateFadeMode,
+  'animate-fade/timing': _animateFadeTiming,
+  'animate-fade/triggers': _animateFadeTriggers,
 };
 
 Widget _hero(BuildContext context) => const ButtonHero();
@@ -1086,3 +1094,7 @@ Widget _filePickerRejections(BuildContext context) => const FilePickerRejections
 Widget _filePickerSingle(BuildContext context) => const FilePickerSingle();
 Widget _filePickerSizes(BuildContext context) => const FilePickerSizes();
 Widget _filePickerStates(BuildContext context) => const FilePickerStates();
+Widget _animateFadeHero(BuildContext context) => const AnimateFadeHero();
+Widget _animateFadeMode(BuildContext context) => const AnimateFadeMode();
+Widget _animateFadeTiming(BuildContext context) => const AnimateFadeTiming();
+Widget _animateFadeTriggers(BuildContext context) => const AnimateFadeTriggers();

@@ -23,6 +23,7 @@ library;
 
 export 'src/components/accordion/pl_accordion.dart';
 export 'src/components/alert/pl_alert.dart';
+export 'src/components/animate_fade/pl_animate_fade.dart';
 export 'src/components/aspect_ratio/pl_aspect_ratio.dart';
 export 'src/components/avatar/pl_avatar.dart';
 export 'src/components/badge/pl_badge.dart';

@@ -192,6 +192,41 @@ function timeColumnProps(component: string): PropRow[] {
   ];
 }
 
+/**
+ * The nine settings every `PlAnimate*` widget takes, under Dart's names.
+ *
+ * Written once for the reason `animateProps` is on the React side, and it says
+ * only what differs: `Duration` for the two times, `Curve` for the easing, and
+ * an `int?` for the repeat, where `null` is what never stops.
+ */
+function animateFlutterProps(
+  component: string,
+  options: { duration: string; repeat?: string }
+): PropRow[] {
+  return [
+    from(component, 'duration', { type: 'Duration', default: options.duration }),
+    from(component, 'delay', { type: 'Duration', default: 'Duration.zero' }),
+    from(component, 'easing', { name: 'curve', type: 'Curve?', default: 'the house curve' }),
+    from(component, 'repeat', {
+      type: 'int?',
+      default: options.repeat ?? '1',
+      description: {
+        ko: "몇 번 반복할지. null이 멈추지 않음을 뜻합니다 — 적을 'infinite'가 없고, -1은 찾아봐야 하는 sentinel입니다",
+        en: "How many times it runs. null is what never stops: there is no 'infinite' to write, and -1 would be a sentinel a caller has to look up"
+      }
+    }),
+    from(component, 'alternate', { type: 'bool', default: 'false' }),
+    from(component, 'paused', { type: 'bool', default: 'false' }),
+    from(component, 'trigger', {
+      type: 'PlassAnimateTrigger',
+      default: 'PlassAnimateTrigger.mount'
+    }),
+    from(component, 'play', { type: 'bool', default: 'false' }),
+    from(component, 'once', { type: 'bool', default: 'true' }),
+    from(component, 'threshold', { type: 'double', default: '0.2' })
+  ];
+}
+
 export const flutterPropTables: Record<string, PropRow[]> = {
   PlAccordion: [
     from('PlAccordion', 'children', {
@@ -250,6 +285,25 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }),
     from('PlAccordionItem', 'disabled', { type: 'bool', default: 'false' }),
     from('PlAccordionItem', 'children', { name: 'child', type: 'Widget?' })
+  ],
+
+  PlAnimateFade: [
+    from('PlAnimateFade', 'mode', {
+      type: 'PlassAnimateMode',
+      default: 'PlassAnimateMode.enter',
+      description: {
+        ko: '내용이 도착하는지 떠나는지. exit는 같은 곡선을 거꾸로 돌린 것이고 끝난 자리에 붙들려 있습니다. in이 Dart의 예약어라 enter/exit입니다',
+        en: 'Whether the content arrives or leaves. exit is the same curve run backwards and is held where it ends. enter/exit rather than in/out, because in is a reserved word in Dart'
+      }
+    }),
+    from('PlAnimateFade', 'from', { type: 'double', default: '0' }),
+    ...animateFlutterProps('PlAnimateFade', { duration: 'Duration(milliseconds: 300)' }),
+    {
+      name: 'child',
+      type: 'Widget',
+      required: true,
+      description: { ko: '무엇이 나타나거나 사라지는지', en: 'What fades' }
+    }
   ],
 
   PlAlert: [
