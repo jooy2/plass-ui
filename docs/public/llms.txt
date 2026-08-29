@@ -18,7 +18,7 @@ type PlassElevation = 0 | 1 | 2 | 3;
 
 `color` is one of six semantic families, never an arbitrary value like `#3558ef`. Setup is `npm install plass-ui`, then one line in the app's CSS entry point — `@import 'plass-ui/styles.css';`. That file ships compiled, so Tailwind is not a requirement on the consumer's side. A project that already runs Tailwind v4 imports `plass-ui/tailwind.css` instead, which is the token sheet and registers the package as a Tailwind source, so consumers never write an `@source` of their own.
 
-**Version 0.0.1 is a preview.** Seventy-four components are released, across seven groups: display, feedback, inputs, layout, navigation, surfaces and transitions. Every component is exported under a `Pl` prefix — `PlButton`, `PlTextField`, `PlAccordion` — because the bare names are the most-taken identifiers in the ecosystem, and because the design language is meant to be portable to other toolkits. The shared prop vocabulary keeps the `Plass` prefix (`PlassSize`), and so do the CSS tokens (`--plass-*`).
+Seventy-four components are released, across seven groups: display, feedback, inputs, layout, navigation, surfaces and transitions. Every component is exported under a `Pl` prefix — `PlButton`, `PlTextField`, `PlAccordion` — because the bare names are the most-taken identifiers in the ecosystem, and because the design language is meant to be portable to other toolkits. The shared prop vocabulary keeps the `Plass` prefix (`PlassSize`), and so do the CSS tokens (`--plass-*`).
 
 Documentation is available in English (served from `/`) and Korean (served from `/ko/`). The links below are the English pages; prefix any path with `/ko` for the Korean version.
 
