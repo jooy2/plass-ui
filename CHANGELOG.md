@@ -4,6 +4,21 @@
 > [`packages/flutter/CHANGELOG.md`](https://github.com/jooy2/plass-ui/blob/main/packages/flutter/CHANGELOG.md),
 > because the two version independently.
 
+## Unreleased
+
+### Fixed
+
+- **The package has a `README` on npm.** There has only ever been one in this repository and it is at the root — a directory `npm publish` does not look at from `packages/react` — so from the moment the repository became a monorepo in 1.0.0, every release has arrived on npm with nothing under the install line but the fields `package.json` fills in. `packages/react/README.md` is now the React quick start, shaped like the Flutter package's own so the two siblings read the same way: install, the stylesheet and the two Tailwind routes, the background a sheet of glass needs behind it, usage, the per-component entry points, the server-component note, dark mode, the component list and the scripts. None of it is new writing — it is what the root `README` already said, moved to where the reader actually is. Links that leave the package are absolute, because npm resolves a relative one against the repository root rather than against `packages/react`.
+- **The npm page's Repository link points at `packages/react`.** `repository.directory` is the field that says a package is one folder of a monorepo rather than the whole of it. Without it npm sends a reader to the repository root — which is now a map to two packages rather than this one's documentation — and resolves a relative link in the published `README` from there as well.
+
+### Documentation
+
+- **The root `README` is a map to both packages rather than the React quick start with a Flutter paragraph in it.** What left is everything a React consumer needs and a repository visitor does not. What is there instead belongs to neither half alone: a packages table carrying both registries, both quick starts and the fact that the two version independently, the shortest possible install and first component for each, a table of what genuinely differs between them — setup, runtime dependencies, tokens, dark mode, handler names — and the background caveat written twice, once in CSS and once in Dart, because it is the one setup step neither package can perform for the caller and the fastest way to conclude the glass is broken. The claim that `0.0.1` is a preview went with it: both packages are past `1.0.0`.
+
+### Notes
+
+- Documentation and packaging only. No component, type or stylesheet changed.
+
 ## 1.0.1 (2026-08-29)
 
 ### Changed
