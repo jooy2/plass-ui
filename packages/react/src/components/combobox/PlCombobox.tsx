@@ -559,7 +559,10 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
         <BaseUICombobox.Portal>
           {/* `plass-portal` is a hook, not a style: a portalled popup leaves the
               subtree its host may have scoped a CSS reset to. */}
-          <BaseUICombobox.Positioner className="plass-portal z-50 [outline:none]" sideOffset={6}>
+          <BaseUICombobox.Positioner
+            className="plass-portal z-(--plass-z-portal) [outline:none]"
+            sideOffset={6}
+          >
             <BaseUICombobox.Popup
               className={cx(popupClasses, radiusClasses[size], controlTextLeadingClasses[size])}
               style={surfaceSlots(family, 3)}

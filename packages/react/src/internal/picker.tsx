@@ -319,7 +319,7 @@ export function PickerShell({
           {/* `plass-portal` is a hook, not a style: a portalled popup leaves the
               subtree a host may have scoped its CSS reset to. */}
           <Popover.Positioner
-            className="plass-portal z-50 [outline:none]"
+            className="plass-portal z-(--plass-z-portal) [outline:none]"
             sideOffset={6}
             align="start"
           >

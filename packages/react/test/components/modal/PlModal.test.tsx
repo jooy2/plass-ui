@@ -35,7 +35,7 @@ describe('PlModal', () => {
     // The four tests below use `modal="trap-focus"` rather than the default. A
     // fully modal Base UI dialog renders an inert overlay with inline
     // `position: fixed; inset: 0`, and nothing loads Tailwind into the test run
-    // — so the `z-50` that puts the sheet above it in a real app is an inert
+    // — so the `z-(--plass-z-portal)` that puts the sheet above it in a real app is an inert
     // string here and every click lands on the overlay. The wiring under test is
     // the same either way.
     it('closes from the ×', async () => {

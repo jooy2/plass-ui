@@ -148,6 +148,31 @@ describe('plass-ui/styles.css', () => {
       expect(background).not.toBe('rgba(0, 0, 0, 0)');
     });
 
+    it('put every portal on one stacking level a page can move', async () => {
+      const screen = await render(<PlButton>Save</PlButton>);
+      const element = screen.getByRole('button').element();
+
+      expect(token(element, '--plass-z-portal')).toBe('50');
+    });
+
+    it('keep the portal level out of the theme blocks, so a page override survives one', async () => {
+      // `.light` and `.dark` re-declare everything they carry. A token that
+      // lived in them would reset a consumer's own value on any nested element
+      // wearing a theme class — which is every themed preview on a docs page.
+      const screen = await render(<PlButton>Save</PlButton>);
+      const element = screen.getByRole('button').element();
+
+      document.documentElement.style.setProperty('--plass-z-portal', '1200');
+      document.documentElement.setAttribute('data-theme', 'dark');
+
+      try {
+        expect(token(element, '--plass-z-portal')).toBe('1200');
+      } finally {
+        document.documentElement.removeAttribute('data-theme');
+        document.documentElement.style.removeProperty('--plass-z-portal');
+      }
+    });
+
     it('answer to a forced theme without any further setup', async () => {
       const screen = await render(<PlButton>Save</PlButton>);
       const element = screen.getByRole('button').element();

@@ -75,6 +75,32 @@
  * its ink is dark, so it runs the other way and has room to spare.
  * ------------------------------------------------------------------------- */
 
+/* ---------------------------------------------------------------------------
+ * Where a portal sits in the page's stack
+ *
+ * Every surface this library sends through a portal — a modal, a drawer, a
+ * menu, a select's list, a popover, a tooltip, a toast — is painted at this
+ * level, and it is a token rather than a number in fifteen class strings
+ * because it is the one value about them that belongs to the *page* rather than
+ * to the library. An app with a header of its own, a cookie bar, a video player
+ * or a game field has already decided what floats over what, and 50 is a guess
+ * at a ladder somebody else built.
+ *
+ * It is declared here, on a bare `:root`, and not repeated in either theme
+ * block. That is deliberate: `.light` and `.dark` re-declare everything they
+ * carry, so a token that lived in them would reset a consumer's own value on
+ * any nested element carrying a theme class.
+ *
+ * `z-index` is unitless and inherits like any other custom property, so one
+ * line in a consumer's stylesheet moves the whole set together — which is the
+ * point. Moving them apart is how a select opened inside a modal ends up behind
+ * it.
+ * ------------------------------------------------------------------------- */
+
+:root {
+  --plass-z-portal: 50;
+}
+
 :root {
   --plass-primary-solid: #3f63f2;
   --plass-primary-solid-to: #1b78cb;

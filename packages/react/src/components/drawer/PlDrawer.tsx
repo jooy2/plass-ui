@@ -239,7 +239,7 @@ const fadeClasses = /* @__PURE__ */ [
 ].join(' ');
 
 const backdropClasses = /* @__PURE__ */ [
-  'fixed inset-0 z-50 bg-(--plass-scrim)',
+  'fixed inset-0 z-(--plass-z-portal) bg-(--plass-scrim)',
   '[backdrop-filter:blur(2px)] [-webkit-backdrop-filter:blur(2px)]',
   fadeClasses
 ].join(' ');
@@ -464,7 +464,10 @@ export function PlDrawer({
         <BaseUIDialog.Backdrop className={`plass-portal ${backdropClasses}`} />
 
         <BaseUIDialog.Viewport
-          className={cx('plass-portal fixed inset-0 z-50 flex', viewportClasses[side])}
+          className={cx(
+            'plass-portal fixed inset-0 z-(--plass-z-portal) flex',
+            viewportClasses[side]
+          )}
         >
           <BaseUIDialog.Popup
             className={panel}

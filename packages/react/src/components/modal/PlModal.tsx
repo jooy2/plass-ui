@@ -156,7 +156,7 @@ const popupClasses = /* @__PURE__ */ [
 ].join(' ');
 
 const backdropClasses = /* @__PURE__ */ [
-  'fixed inset-0 z-50 bg-(--plass-scrim)',
+  'fixed inset-0 z-(--plass-z-portal) bg-(--plass-scrim)',
   '[backdrop-filter:blur(2px)] [-webkit-backdrop-filter:blur(2px)]',
   '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
@@ -247,7 +247,7 @@ export function PlModal({
 
         <BaseUIDialog.Viewport
           className={[
-            'plass-portal fixed inset-0 z-50 flex justify-center',
+            'plass-portal fixed inset-0 z-(--plass-z-portal) flex justify-center',
             // `items-center` alone would clip the top of a modal taller than the
             // viewport, because a centred flex item cannot scroll past its own
             // container's start edge. The popup caps its height instead and

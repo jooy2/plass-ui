@@ -183,7 +183,7 @@ export function PlOverlay({
         {/* `plass-portal` is a hook, not a style: a portalled surface leaves the
             subtree a host may have scoped its CSS reset to. */}
         <BaseUIDialog.Backdrop
-          className={`plass-portal fixed inset-0 z-50 ${fadeClasses} ${toneClasses[tone]}`}
+          className={`plass-portal fixed inset-0 z-(--plass-z-portal) ${fadeClasses} ${toneClasses[tone]}`}
         />
 
         {/* The viewport is what the content is centred in, and it is also what
@@ -192,7 +192,7 @@ export function PlOverlay({
             the overlay itself. */}
         <BaseUIDialog.Viewport
           className={[
-            'plass-portal fixed inset-0 z-50 flex justify-center',
+            'plass-portal fixed inset-0 z-(--plass-z-portal) flex justify-center',
             alignClasses[align],
             insetClasses[size]
           ].join(' ')}

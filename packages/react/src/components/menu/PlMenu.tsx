@@ -591,7 +591,7 @@ export function PlMenuSubmenu({
 
       <BaseUIMenu.Portal>
         <BaseUIMenu.Positioner
-          className="plass-portal z-50 [outline:none]"
+          className="plass-portal z-(--plass-z-portal) [outline:none]"
           side={side}
           sideOffset={sideOffset}
           align="start"
@@ -673,7 +673,7 @@ export function PlMenu({
             such a host can hang the same reset off.
           */}
           <BaseUIMenu.Positioner
-            className="plass-portal z-50 [outline:none]"
+            className="plass-portal z-(--plass-z-portal) [outline:none]"
             side={side}
             align={align}
             sideOffset={sideOffset}
@@ -734,7 +734,7 @@ export function PlContextMenu({
         <BaseUIContextMenu.Trigger>{children}</BaseUIContextMenu.Trigger>
 
         <BaseUIContextMenu.Portal>
-          <BaseUIContextMenu.Positioner className="plass-portal z-50 [outline:none]">
+          <BaseUIContextMenu.Positioner className="plass-portal z-(--plass-z-portal) [outline:none]">
             <BaseUIContextMenu.Popup
               className={cx(
                 popupClasses,

@@ -7,7 +7,7 @@ describe('PlDrawer', () => {
     // Three of the tests below use `modal="trap-focus"` rather than the
     // default, for the reason `PlModal`'s suite gives: a fully modal Base UI
     // dialog renders an inert overlay with inline `position: fixed; inset: 0`,
-    // and nothing loads Tailwind into the test run — so the `z-50` that puts
+    // and nothing loads Tailwind into the test run — so the `z-(--plass-z-portal)` that puts
     // the panel above it in a real app is an inert string here and every click
     // lands on the overlay. The wiring under test is the same either way.
     it('opens from its trigger and names itself', async () => {

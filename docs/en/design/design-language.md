@@ -247,6 +247,14 @@ This is the only kind of reason to step outside Tailwind: **step outside only wh
 
 A custom property resolves its `var()`s **on the element that declares it**. `--plass-primary-tint` reads `--plass-tint-strength`, which is per-theme — declared only on `:root` it would freeze to the light theme's value inside a `.dark` subtree. That is why the derived block's selector is `:root, .dark, .light, [data-theme='dark'], [data-theme='light']`.
 
+### A portal's stacking level is the page's, not the library's
+
+Every surface that leaves the flow — a modal, a drawer, a menu, a select's list, a popover, a tooltip, a toast — is painted at `var(--plass-z-portal)`, which is `50` and is one line for a page to change. Which thing floats over which is a decision an app has already made by the time it reaches for a dialog: it has a header, or a cookie bar, or a video player, and a number chosen here is a guess at somebody else's ladder.
+
+They all read the **same** token on purpose. Moving them apart is how a select opened inside a modal ends up behind it.
+
+It is declared on a bare `:root` and repeated in neither theme block, which is the exception to the rule above and for the same reason it exists: a theme block re-declares what it carries, so a token living in one would reset a consumer's own value on every nested element wearing a theme class.
+
 ### Move it to CSS when it stops being readable
 
 `.plass-glow` is a real class in `styles.css` rather than a set of Tailwind utilities because `[&::before]:[background:radial-gradient(…)]` is technically expressible and impossible to maintain. Styling that puts a gradient on a pseudo-element belongs in CSS.

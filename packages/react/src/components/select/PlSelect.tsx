@@ -300,7 +300,7 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
               subtree its host may have scoped a CSS reset to, and this is what
               such a host can hang the same reset off. */}
             <BaseUISelect.Positioner
-              className="plass-portal z-50 [outline:none]"
+              className="plass-portal z-(--plass-z-portal) [outline:none]"
               sideOffset={6}
               alignItemWithTrigger={false}
             >

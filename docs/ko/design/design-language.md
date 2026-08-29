@@ -247,6 +247,14 @@ Tailwind 바깥으로 나가는 이유는 이 종류뿐입니다. **Tailwind가 
 
 custom property는 자기 `var()`를 **그것이 선언된 요소에서** 풉니다. `--plass-primary-tint`는 테마별 값인 `--plass-tint-strength`를 읽으므로, `:root`에만 선언하면 `.dark` 하위 트리 안에서도 라이트 테마 값으로 굳습니다. 파생 블록의 selector가 `:root, .dark, .light, [data-theme='dark'], [data-theme='light']`인 이유입니다.
 
+### 포털의 쌓임 순서는 라이브러리가 아니라 페이지의 것입니다
+
+흐름을 벗어나는 표면 — modal, drawer, menu, select의 목록, popover, tooltip, toast — 은 전부 `var(--plass-z-portal)` 높이에 그려집니다. 기본값은 `50`이고, 페이지가 한 줄로 바꿀 수 있습니다. 무엇이 무엇 위에 뜨는지는 앱이 dialog를 꺼내기 전에 이미 정해 둔 문제입니다. 헤더가 있거나, 쿠키 배너가 있거나, 비디오 플레이어가 있고, 여기서 고른 숫자는 남이 세운 사다리에 대한 추측일 뿐입니다.
+
+전부 **같은** 토큰을 읽는 것도 의도입니다. 서로 다른 값을 주는 순간, modal 안에서 연 select가 modal 뒤로 들어갑니다.
+
+이 토큰은 맨 `:root`에만 선언하고 어느 테마 블록에도 반복하지 않습니다. 바로 위 규칙의 예외이고, 그 규칙이 있는 이유와 같은 이유입니다. 테마 블록은 자기가 가진 것을 다시 선언하므로, 그 안에 들어간 토큰은 테마 클래스를 단 중첩 요소마다 소비자가 정한 값을 되돌려 버립니다.
+
 ### 읽히지 않게 되면 CSS로 옮깁니다
 
 `.plass-glow`가 Tailwind utility 묶음이 아니라 `styles.css`의 실제 클래스인 이유는 `[&::before]:[background:radial-gradient(…)]`가 기술적으로는 표현 가능하지만 유지할 수 없기 때문입니다. pseudo-element에 그러데이션을 얹는 스타일은 CSS에 속합니다.
