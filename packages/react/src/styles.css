@@ -528,8 +528,8 @@
  * — the pointer position, written straight to the element's inline style on
  * `pointermove` — and both no-ops until those slots have colour in them.
  *
- * This is the one thing PlZon's own controls do not do, and it is here because
- * a surface made of glass should answer where it is being touched. It replaces
+ * This is the one thing a conventional toolkit's controls do not do, and it is
+ * here because a surface made of glass should answer where it is being touched. It replaces
  * a static specular highlight that used to sit over every filled control: a
  * highlight that is always on is a claim about a lamp somewhere off-screen,
  * and it read as lacquer. Light that arrives with the pointer is a claim about
