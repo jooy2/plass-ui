@@ -4,6 +4,12 @@
 > [`packages/flutter/CHANGELOG.md`](https://github.com/jooy2/plass-ui/blob/main/packages/flutter/CHANGELOG.md),
 > because the two version independently.
 
+## Unreleased
+
+### Changed
+
+- **`dist` is minified again, and the annotations survive it.** Terser strips `/* @__PURE__ */` unless it is asked not to, which is what made minifying a library a losing trade in 1.0.0 — but `format.preserve_annotations` re-emits every annotation it reads, and `keep_fnames` on both `compress` and `mangle` keeps the inner `function PlButton` that React DevTools names a `forwardRef` component by. All 189 annotations reach `dist`, and `scripts/minify.mjs` fails the build rather than the tarball if one of them does not, so the tree shaking 1.0.0 bought is not being spent here: the package is 222 kB packed and 785 kB installed rather than 338 kB and 1.21 MB, while every scenario `npm run size` measures moves by less than 0.3% — a consumer's own minifier had already done that work.
+
 ## 1.0.0 (2026-08-29)
 
 ### Fixed
