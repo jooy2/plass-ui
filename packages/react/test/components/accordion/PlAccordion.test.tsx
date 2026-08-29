@@ -34,6 +34,45 @@ describe('PlAccordion', () => {
       );
     });
 
+    it('lets a title longer than the header wrap rather than ellipsing it', async () => {
+      const screen = await render(
+        <PlAccordion>
+          <PlAccordionItem value="q" title="A question long enough to need a second line">
+            Body
+          </PlAccordionItem>
+        </PlAccordion>
+      );
+
+      const title = screen.getByText('A question long enough to need a second line').element();
+
+      expect(title).not.toHaveClass('truncate');
+    });
+
+    it('holds the title and the subtitle to one line with `truncate`', async () => {
+      const screen = await render(
+        <PlAccordion>
+          <PlAccordionItem value="q" title="Billing" subtitle="Cards and invoices" truncate>
+            Body
+          </PlAccordionItem>
+        </PlAccordion>
+      );
+
+      expect(screen.getByText('Billing').element()).toHaveClass('truncate');
+      expect(screen.getByText('Cards and invoices').element()).toHaveClass('truncate');
+    });
+
+    it('keeps `truncate` off the rendered section', async () => {
+      const screen = await render(
+        <PlAccordion>
+          <PlAccordionItem value="q" title="Billing" truncate data-testid="section">
+            Body
+          </PlAccordionItem>
+        </PlAccordion>
+      );
+
+      expect(screen.getByTestId('section').element()).not.toHaveAttribute('truncate');
+    });
+
     it('renders the subtitle under the title, inside the same trigger', async () => {
       const screen = await render(
         <PlAccordion>

@@ -153,6 +153,8 @@ On by default: a hairline reaching both edges is what says the folds are parts o
 
 ### title · subtitle · startIcon · action
 
+The title and the subtitle **wrap**. A fold's heading is most often a whole sentence — an FAQ is a list of questions — and ellipsing one costs the reader the end of it with no tooltip and no way to see it, while wrapping costs a header that is two lines tall in a component whose whole job is to change height. `truncate` puts each of them back on one line, for a header carrying a name from a database beside a control.
+
 `action` is rendered **outside** the fold. A header that both folds and holds a button has two things to press, and one of them cannot be inside the other.
 
 ::: fw react

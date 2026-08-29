@@ -116,6 +116,20 @@ export interface PlAccordionItemProps extends Omit<
    * other — the browser rewrites a `<button>` inside a `<button>` on parse.
    */
   action?: React.ReactNode;
+  /**
+   * Holds the header's title and subtitle to one line each, ellipsing whatever
+   * runs past.
+   *
+   * **Off, and that is the reversal of what this used to do.** A fold's title is
+   * a heading rather than a cell — an accordion is most often a list of
+   * questions, and a question is a sentence. Ellipsing one costs the reader the
+   * end of it with no tooltip and no way to see it, while wrapping costs a row
+   * that is two lines tall in a component whose whole job is to change height.
+   * The one place the old behaviour is right is a header carrying a name from a
+   * database beside a control, and that is what this prop is for.
+   * @default false
+   */
+  truncate?: boolean;
   /** Unavailable. This section stops folding; the rest keep working. */
   disabled?: boolean;
   /** The body. */
@@ -256,13 +270,27 @@ export const PlAccordionItem = /* @__PURE__ */ React.forwardRef<
   HTMLDivElement,
   PlAccordionItemProps
 >(function PlAccordionItem(
-  { value, title, subtitle, startIcon, action, disabled = false, className, children, ...props },
+  {
+    value,
+    title,
+    subtitle,
+    startIcon,
+    action,
+    truncate = false,
+    disabled = false,
+    className,
+    children,
+    ...props
+  },
   ref
 ) {
   const { size, density, dividers } = React.useContext(AccordionContext);
 
   const padX = sheetPaddingXClasses[density][size];
   const padY = sheetPaddingYClasses[density][size];
+  // `min-w-0` on the column is what lets a wrapped line break inside a flex row
+  // at all, and it is already there for the ellipsis this used to draw.
+  const clamp = truncate ? 'truncate' : '';
 
   return (
     <BaseUIAccordion.Item
@@ -303,12 +331,14 @@ export const PlAccordionItem = /* @__PURE__ */ React.forwardRef<
 
           <span className={`flex min-w-0 flex-1 flex-col ${sheetHeaderGapClasses[size]}`}>
             {hasContent(title) ? (
-              <span className={`plass-title truncate font-semibold ${sheetTitleClasses[size]}`}>
+              <span
+                className={`plass-title font-semibold ${clamp} ${sheetTitleClasses[size]}`.trim()}
+              >
                 {title}
               </span>
             ) : null}
             {hasContent(subtitle) ? (
-              <span className={`truncate text-(--plass-muted-fg) ${metaTextClasses[size]}`}>
+              <span className={`text-(--plass-muted-fg) ${clamp} ${metaTextClasses[size]}`.trim()}>
                 {subtitle}
               </span>
             ) : null}

@@ -677,6 +677,15 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'truncate',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '제목과 부제를 각각 한 줄로 자르고 넘치면 말줄임합니다. 기본값이 false인 이유는 접힘 제목이 대개 한 문장이기 때문입니다',
+        en: 'Holds the title and the subtitle to one line each, ellipsing what runs past. Off by default, because the heading on a fold is usually a whole sentence'
+      }
+    },
+    {
       name: 'disabled',
       type: 'boolean',
       default: 'false',

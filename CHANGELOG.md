@@ -4,6 +4,12 @@
 > [`packages/flutter/CHANGELOG.md`](https://github.com/jooy2/plass-ui/blob/main/packages/flutter/CHANGELOG.md),
 > because the two version independently.
 
+## Unreleased
+
+### Changed
+
+- **A `PlAccordionItem`'s title and subtitle wrap.** They were each held to one line and ellipsed, which is the right rule for a table cell and the wrong one for a fold: an accordion is most often a list of questions, and a question is a sentence. A heading that ran past the header lost its end with no tooltip, no `title` attribute and nothing to press for the rest — a fold opens its *body*, not its heading — and the narrower the screen, the more of the question went. What wrapping costs is a header two lines tall, in the one component whose entire job is to change height. `truncate` puts both back on one line for the header the old behaviour was right for: a name out of a database sitting beside a control.
+
 ## 1.0.2 (2026-08-29)
 
 ### Fixed
