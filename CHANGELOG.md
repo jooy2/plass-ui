@@ -4,7 +4,7 @@
 > [`packages/flutter/CHANGELOG.md`](https://github.com/jooy2/plass-ui/blob/main/packages/flutter/CHANGELOG.md),
 > because the two version independently.
 
-## Unreleased
+## 1.0.0 (2026-08-29)
 
 ### Fixed
 
