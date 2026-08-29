@@ -15,7 +15,12 @@ import 'package:plass_ui/plass_ui.dart';
 /// the page hands its padding over to the frame.
 class PlassCanvas extends StatelessWidget {
   /// Wraps [child] in the canvas.
-  const PlassCanvas({required this.child, this.align = Alignment.topLeft, super.key});
+  const PlassCanvas({
+    required this.child,
+    this.align = Alignment.topLeft,
+    this.lead = 0,
+    super.key,
+  });
 
   /// What is drawn on it.
   final Widget child;
@@ -23,6 +28,15 @@ class PlassCanvas extends StatelessWidget {
   /// `Alignment.topCenter` for a single control that would look lost against a
   /// left edge.
   final Alignment align;
+
+  /// Empty canvas held above the content, in logical pixels.
+  ///
+  /// Room for a popup that opened *upwards*, and it has to be room rather than
+  /// a taller frame: an `<iframe>` cannot draw above itself, so the only way to
+  /// bring a popup that reaches above the demo back into view is to push the
+  /// demo down. `room.dart` measures how much. Zero for a preview with nothing
+  /// open, which is nearly all of them nearly all of the time.
+  final double lead;
 
   /// The padding the documentation site's canvas would otherwise apply.
   ///
@@ -54,7 +68,7 @@ class PlassCanvas extends StatelessWidget {
         // should be a scroll, not a broken preview.
         child: SingleChildScrollView(
           child: Padding(
-            padding: padding,
+            padding: padding + EdgeInsets.only(top: lead),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: align == Alignment.topCenter

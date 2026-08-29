@@ -4,6 +4,7 @@ import 'package:plass_ui/plass_ui.dart';
 import 'package:plass_ui_example/canvas.dart';
 import 'package:plass_ui_example/demos/registry.dart';
 import 'package:plass_ui_example/host_bridge.dart';
+import 'package:plass_ui_example/room.dart';
 
 /// The Plass component gallery.
 ///
@@ -114,41 +115,67 @@ class _Embedded extends StatefulWidget {
 class _EmbeddedState extends State<_Embedded> {
   static const HostBridge _host = HostBridge();
 
-  final GlobalKey _content = GlobalKey();
-  double? _reported;
-
-  /// Measures after every frame and reports a height that has changed.
+  /// How tall a preview is while something has taken the whole app.
   ///
-  /// After layout rather than during it, because the height is a *result* of
+  /// A `PlModal`, a `PlDrawer` and a `PlOverlay` cover the window they are in,
+  /// and in a preview that window is the frame — so a sheet opened over a
+  /// hundred pixels of frame is a sheet nobody can read. There is nothing to
+  /// measure here the way there is for a popup, because a sheet is exactly as
+  /// tall as whatever it is given. So it is given a screen.
+  static const double _screen = 360;
+
+  final GlobalKey _content = GlobalKey();
+
+  /// The frame this preview last asked the page for.
+  PreviewRoom _room = PreviewRoom.none;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(_measure);
+  }
+
+  /// Measures after every frame, and reports a frame that has changed.
+  ///
+  /// After layout rather than during it, because the room is a *result* of
   /// laying the demo out — and reporting the same number twice would put the
   /// page into a resize loop with the frame it is resizing.
+  ///
+  /// It arms itself for the next frame rather than being armed by `build`, and
+  /// that is the difference between measuring the demo and measuring what the
+  /// demo has opened: a popup goes up on a `setState` **below** this widget,
+  /// which never rebuilds it. Re-arming costs nothing on a preview that is
+  /// sitting still, because a preview that is sitting still produces no frames.
   void _measure(Duration _) {
-    final box = _content.currentContext?.findRenderObject() as RenderBox?;
-
-    if (box == null || !box.hasSize) {
+    if (!mounted) {
       return;
     }
 
-    final height = box.size.height;
+    WidgetsBinding.instance.addPostFrameCallback(_measure);
 
-    // The canvas's own padding is drawn inside the frame, so the page has to
-    // reserve room for it too.
-    final total = height + PlassCanvas.padding.vertical;
+    final room = measureRoom(
+      context: context,
+      content: _content,
+      lead: _room.lead,
+      padding: PlassCanvas.padding,
+      screen: _screen,
+    );
 
-    if (_reported == null || (total - _reported!).abs() > 0.5) {
-      _reported = total;
-      _host.reportHeight(total);
+    if (room == null || room.matches(_room)) {
+      return;
     }
+
+    setState(() => _room = room);
+    _host.reportHeight(room.height);
   }
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback(_measure);
-
     final build = demos[widget.demo];
 
     return PlassCanvas(
       align: widget.align == 'center' ? Alignment.topCenter : Alignment.topLeft,
+      lead: _room.lead,
       child: KeyedSubtree(
         key: _content,
         child: build == null ? _Missing(demo: widget.demo) : build(context),
