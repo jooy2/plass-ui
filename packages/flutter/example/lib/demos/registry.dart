@@ -8,6 +8,9 @@ import 'package:plass_ui_example/demos/animate_grow/hero.dart';
 import 'package:plass_ui_example/demos/animate_grow/origin.dart';
 import 'package:plass_ui_example/demos/animate_grow/from.dart';
 import 'package:plass_ui_example/demos/animate_grow/panel.dart';
+import 'package:plass_ui_example/demos/animate_zoom/hero.dart';
+import 'package:plass_ui_example/demos/animate_zoom/from.dart';
+import 'package:plass_ui_example/demos/animate_zoom/result.dart';
 import 'package:plass_ui_example/demos/accordion/controlled.dart';
 import 'package:plass_ui_example/demos/accordion/dividers.dart';
 import 'package:plass_ui_example/demos/accordion/hero.dart';
@@ -708,6 +711,9 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'animate-grow/origin': _animateGrowOrigin,
   'animate-grow/from': _animateGrowFrom,
   'animate-grow/panel': _animateGrowPanel,
+  'animate-zoom/hero': _animateZoomHero,
+  'animate-zoom/from': _animateZoomFrom,
+  'animate-zoom/result': _animateZoomResult,
 };
 
 Widget _hero(BuildContext context) => const ButtonHero();
@@ -1110,3 +1116,6 @@ Widget _animateGrowHero(BuildContext context) => const AnimateGrowHero();
 Widget _animateGrowOrigin(BuildContext context) => const AnimateGrowOrigin();
 Widget _animateGrowFrom(BuildContext context) => const AnimateGrowFrom();
 Widget _animateGrowPanel(BuildContext context) => const AnimateGrowPanel();
+Widget _animateZoomHero(BuildContext context) => const AnimateZoomHero();
+Widget _animateZoomFrom(BuildContext context) => const AnimateZoomFrom();
+Widget _animateZoomResult(BuildContext context) => const AnimateZoomResult();

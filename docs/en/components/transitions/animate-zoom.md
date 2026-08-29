@@ -21,6 +21,20 @@ import { PlAnimateZoom } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+const PlAnimateZoom(
+  child: PlBox(color: PlassColor.success, child: Text('92')),
+);
+```
+
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlAnimateZoom" />
@@ -28,6 +42,12 @@ import { PlAnimateZoom } from 'plass-ui';
 ::: fw react
 
 Every native `<div>` attribute passes straight through, and `render` swaps the element for another one.
+
+:::
+
+::: fw flutter
+
+`duration` and `delay` are `Duration`s, `curve` is a `Curve`, and `repeat` is an `int?` where `null` never stops.
 
 :::
 
@@ -49,6 +69,12 @@ More than twice a grow's distance by default, and that is the whole difference i
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_zoom/from.dart
+
+:::
+
 </Demo>
 
 ### Announcing a result
@@ -60,6 +86,12 @@ What the effect is for. One thing on the screen, once, at the moment it becomes 
 ::: fw react
 
 <<< @/.vitepress/demos/animate-zoom/result.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_zoom/result.dart
 
 :::
 
@@ -75,3 +107,32 @@ What the effect is for. One thing on the screen, once, at the moment it becomes 
 - Nothing repeats by default, and this is the effect to leave that way. Something that zooms twice is something that failed to arrive the first time.
 
 :::
+
+::: fw flutter
+
+- When the platform has animations turned off (`MediaQuery.disableAnimations`) the effect is dropped entirely and the content is simply there.
+- The widget adds no semantics of its own. A result that has to be announced needs a `Semantics(liveRegion: true)` of its own — the effect is what a reader sees, not what a screen reader is told.
+- The travel is long enough to resample text noticeably. Keep it for a figure, a glyph or a small card; a paragraph wants [PlAnimateFade](./animate-fade).
+- Nothing repeats by default, and this is the effect to leave that way.
+
+:::
+
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `mode="in" \| "out"` | `PlassAnimateMode.enter` / `.exit` | `in` is a reserved word in Dart. |
+| `fade` draws an always-present opacity layer | no `Opacity` widget at all when `fade` is off | One fewer layer to composite. |
+| `render` | — | Flutter has no polymorphic element. |
+| `duration`, `delay` in milliseconds | `Duration` | The framework already has the type. |
+| `easing` as a CSS string | `curve`, a `Curve` | Dart's own name for the same thing. |
+| `repeat: number \| 'infinite'` | `int?`, `null` never stops | There is no `'infinite'` to write, and `-1` would be a sentinel a caller has to look up. |
+| `trigger="visible"` via `IntersectionObserver` | watches the nearest `Scrollable` | There is no observer here; with no scrollable above it there is nothing to watch, so it runs. |
+| `prefers-reduced-motion` | `MediaQuery.disableAnimations` | The platform's own signal. |
+| `className`, `style` | — | There is no class list and no style attribute to pass through. |
+
+:::
+```

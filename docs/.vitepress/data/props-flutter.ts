@@ -315,6 +315,26 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlAnimateZoom: [
+    from('PlAnimateZoom', 'mode', {
+      type: 'PlassAnimateMode',
+      default: 'PlassAnimateMode.enter',
+      description: {
+        ko: '내용이 앞으로 나오는지 뒤로 물러나는지. in이 Dart의 예약어라 enter/exit입니다',
+        en: 'Whether the content comes forward or falls away. enter/exit rather than in/out, because in is a reserved word in Dart'
+      }
+    }),
+    from('PlAnimateZoom', 'from', { type: 'double', default: '0.4' }),
+    from('PlAnimateZoom', 'fade', { type: 'bool', default: 'true' }),
+    ...animateFlutterProps('PlAnimateZoom', { duration: 'Duration(milliseconds: 320)' }),
+    {
+      name: 'child',
+      type: 'Widget',
+      required: true,
+      description: { ko: '무엇이 도착하는지', en: 'What arrives' }
+    }
+  ],
+
   PlAnimateFade: [
     from('PlAnimateFade', 'mode', {
       type: 'PlassAnimateMode',
