@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Documentation
+
+- **The `README` no longer calls the package a preview.** It said a component's parameters and defaults were "settled enough to read" and what it would look like after real use was not — true of a package that had not reached `1.0.0`, and no longer true once it did. In its place is the thing a reader of one half actually needs to know about the other: both packages hold the same components under the same parameter vocabulary and the same tokens, and they version independently, so this package's number and the npm one's will not always agree. Nothing under `lib/` changed.
+
 ## 1.0.0 (2026-08-29)
 
 The rest of the library. `PlButton` shipped first and everything else follows it, ported from the React package the same way it was — value for value, with the places where "the same number" would have been wrong written down where the conversion happens.
