@@ -90,6 +90,7 @@ class PlAccordionItem<T> {
     this.subtitle,
     this.startIcon,
     this.action,
+    this.truncate = false,
     this.disabled = false,
     this.child,
   });
@@ -112,6 +113,18 @@ class PlAccordionItem<T> {
   /// holds a switch has two things to press, and one of them cannot be inside
   /// the other.
   final Widget? action;
+
+  /// Holds the title and the subtitle to one line each, ellipsing what runs
+  /// past.
+  ///
+  /// **Off, and that is the reversal of what this used to do.** A fold's title
+  /// is a heading rather than a cell — an accordion is most often a list of
+  /// questions, and a question is a sentence. Ellipsing one costs the reader
+  /// the end of it with nothing to press to see the rest, while wrapping costs
+  /// a row two lines tall in a component whose whole job is to change height.
+  /// The one place the old behaviour is right is a header carrying a name from
+  /// a database beside a control, and that is what this is for.
+  final bool truncate;
 
   /// Unavailable. This section stops folding; the rest keep working.
   final bool disabled;
@@ -352,17 +365,17 @@ class _Section<T> extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                           leadingDistribution: TextLeadingDistribution.even,
                         ),
-                        maxLines: 1,
-                        softWrap: false,
-                        overflow: TextOverflow.ellipsis,
+                        maxLines: item.truncate ? 1 : null,
+                        softWrap: !item.truncate,
+                        overflow: item.truncate ? TextOverflow.ellipsis : TextOverflow.clip,
                         child: item.title!,
                       ),
                     if (item.subtitle != null)
                       DefaultTextStyle.merge(
                         style: TextStyle(color: tokens.mutedFg, fontSize: metaText[size]!),
-                        maxLines: 1,
-                        softWrap: false,
-                        overflow: TextOverflow.ellipsis,
+                        maxLines: item.truncate ? 1 : null,
+                        softWrap: !item.truncate,
+                        overflow: item.truncate ? TextOverflow.ellipsis : TextOverflow.clip,
                         child: item.subtitle!,
                       ),
                   ],

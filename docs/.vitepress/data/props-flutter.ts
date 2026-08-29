@@ -287,6 +287,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'A control pinned to the end of the header, before the chevron. It sits outside the fold, so a button is safe there'
       }
     }),
+    from('PlAccordionItem', 'truncate', { type: 'bool', default: 'false' }),
     from('PlAccordionItem', 'disabled', { type: 'bool', default: 'false' }),
     from('PlAccordionItem', 'children', { name: 'child', type: 'Widget?' })
   ],

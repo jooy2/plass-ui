@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changed
+
+- **A `PlAccordionItem`'s title and subtitle wrap.** They were each held to one line and ellipsed, which is the right rule for a table cell and the wrong one for a fold: an accordion is most often a list of questions, and a question is a sentence. A heading that ran past the header lost its end with nothing to press for the rest — a fold opens its *body*, not its heading — and the narrower the screen, the more of the question went. What wrapping costs is a header two lines tall, in the one component whose entire job is to change height. `truncate` puts both back on one line for the header the old behaviour was right for: a name out of a database sitting beside a control.
+
 ### Documentation
 
 - **The `README` no longer calls the package a preview.** It said a component's parameters and defaults were "settled enough to read" and what it would look like after real use was not — true of a package that had not reached `1.0.0`, and no longer true once it did. In its place is the thing a reader of one half actually needs to know about the other: both packages hold the same components under the same parameter vocabulary and the same tokens, and they version independently, so this package's number and the npm one's will not always agree. Nothing under `lib/` changed.

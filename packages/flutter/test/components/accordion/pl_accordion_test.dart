@@ -30,6 +30,69 @@ void main() {
         expect(find.text('Three seats'), findsNothing);
       });
 
+      testWidgets('lets a title longer than the header wrap', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            const PlAccordion<String>(
+              items: <PlAccordionItem<String>>[
+                PlAccordionItem<String>(
+                  value: 'q',
+                  title: Text('A question long enough to need a second line'),
+                  child: Text('Body'),
+                ),
+              ],
+              value: <String>{},
+            ),
+            width: 260,
+          ),
+        );
+
+        final DefaultTextStyle wrapped = tester.widget<DefaultTextStyle>(
+          find
+              .ancestor(
+                of: find.text('A question long enough to need a second line'),
+                matching: find.byType(DefaultTextStyle),
+              )
+              .first,
+        );
+
+        expect(wrapped.maxLines, isNull);
+        expect(wrapped.softWrap, isTrue);
+        expect(wrapped.overflow, TextOverflow.clip);
+      });
+
+      testWidgets('holds the title to one line with truncate', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            const PlAccordion<String>(
+              items: <PlAccordionItem<String>>[
+                PlAccordionItem<String>(
+                  value: 'q',
+                  title: Text('A question long enough to need a second line'),
+                  truncate: true,
+                  child: Text('Body'),
+                ),
+              ],
+              value: <String>{},
+            ),
+            width: 260,
+          ),
+        );
+
+        final DefaultTextStyle clipped = tester.widget<DefaultTextStyle>(
+          find
+              .ancestor(
+                of: find.text('A question long enough to need a second line'),
+                matching: find.byType(DefaultTextStyle),
+              )
+              .first,
+        );
+
+        expect(clipped.maxLines, 1);
+        expect(clipped.softWrap, isFalse);
+        expect(clipped.overflow, TextOverflow.ellipsis);
+      });
+
       testWidgets('scores the sheet between sections by default', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(const PlAccordion<String>(items: sections, value: <String>{}), width: 400),
