@@ -443,8 +443,13 @@ const timeColumnProps: PropRow[] = [
  * two numbers that genuinely differ per effect — how long one run takes, and
  * how many times it runs — are passed in.
  */
-function animateProps(options: { duration: string; repeat?: string }): PropRow[] {
-  return [
+function animateProps(options: {
+  duration: string;
+  repeat?: string;
+  /** Names a component genuinely does not take — a reel has no direction. */
+  omit?: string[];
+}): PropRow[] {
+  const rows: PropRow[] = [
     {
       name: 'duration',
       type: 'number',
@@ -542,6 +547,8 @@ function animateProps(options: { duration: string; repeat?: string }): PropRow[]
       }
     }
   ];
+
+  return options.omit ? rows.filter((row) => !options.omit!.includes(row.name)) : rows;
 }
 
 export const propTables: Record<string, PropRow[]> = {
@@ -900,6 +907,61 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'Renders something other than a <div>'
       }
     }
+  ],
+  PlAnimateHeadline: [
+    {
+      name: 'interval',
+      type: 'number',
+      default: '2600',
+      description: {
+        ko: '다음 줄이 올라오기까지 한 줄을 붙들어 두는 시간(ms). 줄이 도착한 순간부터 세므로 주기 길이가 아니라 읽는 시간입니다',
+        en: 'How long each line is held before the next one comes up, in milliseconds. Counted from the moment a line arrives, so it is reading time rather than a cycle length'
+      }
+    },
+    {
+      name: 'index',
+      type: 'number',
+      description: {
+        ko: '어느 줄이 떠 있는지. 넘기면 릴을 직접 몰 수 있고, 컴포넌트는 자기 타이머를 돌리지 않습니다',
+        en: 'Which line is showing. Pass it to drive the reel yourself, and the component stops running a timer of its own'
+      }
+    },
+    {
+      name: 'defaultIndex',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: 'uncontrolled 릴이 시작하는 자리',
+        en: 'Where an uncontrolled reel starts'
+      }
+    },
+    {
+      name: 'onIndexChange',
+      type: '(index: number) => void',
+      description: {
+        ko: '방금 올라온 줄과 함께 호출됩니다',
+        en: 'Called with the line that has just come up'
+      }
+    },
+    {
+      name: 'loop',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '마지막 줄 다음에 다시 시작합니다. 끄면 마지막 줄에서 멈춰 그대로 있습니다',
+        en: 'Starts again after the last line. Off, the reel stops on the last one and stays there'
+      }
+    },
+    {
+      name: 'rise',
+      type: 'number | string',
+      default: "'100%'",
+      description: {
+        ko: "줄이 올라오거나 나갈 때 이동하는 거리. '100%'는 줄 하나의 높이입니다",
+        en: "How far a line travels as it comes up or leaves. '100%' is one line's own height"
+      }
+    },
+    ...animateProps({ duration: '460', repeat: "'infinite'", omit: ['alternate'] })
   ],
   PlAnimateLighting: [
     {

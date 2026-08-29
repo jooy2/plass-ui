@@ -1118,6 +1118,58 @@
   animation-play-state: paused;
 }
 
+/*
+ * Headline: one line replacing another from below.
+ *
+ * Every item is in the same grid cell, so the box is as tall as the tallest of
+ * them and never resizes as the reel turns. The ones not on screen keep their
+ * space with `visibility` rather than `display`, which is what makes that true.
+ */
+@keyframes plass-anim-headline-in {
+  from {
+    translate: 0 var(--p-anim-rise, 100%);
+    opacity: 0;
+  }
+  to {
+    translate: 0 0;
+    opacity: 1;
+  }
+}
+
+@keyframes plass-anim-headline-out {
+  from {
+    translate: 0 0;
+    opacity: 1;
+  }
+  to {
+    translate: 0 calc(-1 * var(--p-anim-rise, 100%));
+    opacity: 0;
+  }
+}
+
+.plass-headline {
+  display: grid;
+  overflow: hidden;
+}
+
+.plass-headline-item {
+  grid-area: 1 / 1;
+  visibility: hidden;
+  animation-duration: var(--p-anim-duration, 460ms);
+  animation-timing-function: var(--p-anim-ease, var(--plass-ease));
+  animation-fill-mode: both;
+}
+
+.plass-headline-item[data-state='active'] {
+  visibility: visible;
+  animation-name: plass-anim-headline-in;
+}
+
+.plass-headline-item[data-state='leaving'] {
+  visibility: visible;
+  animation-name: plass-anim-headline-out;
+}
+
 /* ---------------------------------------------------------------------------
  * Reduced motion
  *
@@ -1183,7 +1235,8 @@
    * reader's preference would blank the page.
    */
   .plass-anim,
-  .plass-marquee-track {
+  .plass-marquee-track,
+  .plass-headline-item {
     animation: none;
   }
 

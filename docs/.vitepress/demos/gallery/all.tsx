@@ -4,6 +4,7 @@ import {
   PlAccordionItem,
   PlAlert,
   PlAnimateFade,
+  PlAnimateHeadline,
   PlAnimateMarquee,
   PlAnimateLighting,
   PlAnimateAppear,
@@ -1403,6 +1404,24 @@ const entries: Entry[] = [
           </PlChip>
         ))}
       </PlAnimateMarquee>
+    )
+  },
+  {
+    name: 'PlAnimateHeadline',
+    group: 'transitions',
+    href: 'components/transitions/animate-headline',
+    blurb: {
+      en: 'One line replacing the one above it, on a timer.',
+      ko: '한 줄이 위의 줄을 대신합니다, 타이머에 맞춰서.'
+    },
+    preview: (
+      <PlAnimateHeadline interval={1800}>
+        {['faster', 'simpler', 'lighter'].map((word) => (
+          <PlChip key={word} color="primary">
+            {word}
+          </PlChip>
+        ))}
+      </PlAnimateHeadline>
     )
   }
 ];
