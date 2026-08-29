@@ -8,19 +8,17 @@ Live previews and full props for every component, in both frameworks. This READM
 
 ---
 
-**Plass UI is a component library with a material rather than a theme.** Every surface answers one question — is this pressed, or does it hold something? — and the answer decides everything else.
+> **Plass is one design language, shipped as two libraries.** Every surface answers a single question — is this pressed, or does it hold something? A thing you press is **tinted glass**: a gradient that *turns* through its colour family rather than darkening, a shadow thrown in that same colour, and a bloom of light that follows your pointer across it. A thing that holds something is **clear glass**: translucent, deeply blurred, edged with a white hairline, never dyed. Nothing is bevelled, nothing is embossed and nothing moves when you press it — depth is carried by light, colour and blur. That is the whole system, and it is the same seventy-four components under the same names and the same numbers whether you build in **React** or in **Flutter**.
 
-A thing that is pressed is **tinted glass**: a gradient that sweeps between two ends of its colour family at 135°, a drop shadow tinted with that family, and a bloom of light that follows the pointer across it. A thing that holds something is **clear glass**: translucent, heavily blurred, a white hairline round it, and never dyed. There is no third answer.
+## Why Plass
 
-It ships for **React** and for **Flutter**, from one design language: the same vocabulary, the same tokens, the same numbers. The documentation is one site with a framework switch in the sidebar rather than two sites that will disagree by the third release.
-
-- **Two materials, one language** — `solid`, `glass`, `ghost`. Not `filled`, `outlined`, `text`.
-- **Light instead of relief** — no bevels and no highlights. The gradient carries the form, and a soft glow follows your pointer across the control.
-- **One shared vocabulary** — `size`, `color`, `variant`, `density`, `elevation`. An `md` is 40px on every control; `primary` is the same family everywhere, and the same family in the other framework.
-- **Accessible by construction** — real roles, labels, focus management and keyboard support, in both packages.
-- **Contrast that was checked** — every gradient stop clears 4.5:1 against its own label, the lightest corner included.
-- **Dark mode with no work** — follows the platform, and can be forced either way per subtree.
-- **The same 74 components on both sides**, listed at the bottom of this page.
+- **Finished the moment it is installed.** The gradients, the shadows, the blur, the focus ring and the press response are already decided and already agree with each other. There is no theme file to fill in before the first screen looks like something.
+- **Learn it once, use it on both.** Seventy-four components in React and in Flutter under the same names: an `md` control is 40px on either side, `primary` is the same colour family, and one documentation page — with a framework switch in the sidebar — covers the two rather than drifting apart by the third release.
+- **Five props, not fifty.** `size`, `color`, `variant`, `density` and `elevation` mean the same thing on every component, so the tenth one costs nothing to learn after the first.
+- **Readable because it was measured.** Every gradient stop clears 4.5:1 against its own label, the lightest corner included. A colour choice here is not a contrast bug waiting for an audit.
+- **Accessible without the checklist.** Roles, labels, keyboard operation and focus management live inside the components rather than being bolted on afterwards.
+- **Dark mode you do not write.** It follows the platform and can be forced either way on any subtree. No second palette, no colours redeclared.
+- **Nothing you did not ask for.** The npm package is ESM and tree-shakeable with a single runtime dependency, so only what you import is bundled. The pub package has no dependencies at all — no assets, no plugins, no stylesheet, no provider.
 
 ## Packages
 
@@ -52,7 +50,7 @@ import { PlButton, PlTextField } from 'plass-ui';
 <PlButton variant="glass" color="secondary">Cancel</PlButton>
 ```
 
-`react` and `react-dom` are peer dependencies; the one runtime dependency is [Base UI](https://base-ui.com). The stylesheet is finished CSS — [Tailwind CSS](https://tailwindcss.com) v4 builds this package and does not have to be installed in yours, though there is a second entry point for projects that already run it. Every component also has an entry point of its own (`plass-ui/button`), and every component carries `'use client'`, so a Next.js Server Component can import one with nothing configured.
+`react` and `react-dom` are peer dependencies — React 18 or 19. The stylesheet is finished CSS: [Tailwind CSS](https://tailwindcss.com) v4 builds this package and does not have to be installed in yours, though there is a second entry point for a project that already runs it. Every component has an entry point of its own (`plass-ui/button`) and carries `'use client'`, so a Next.js Server Component can import one with nothing configured.
 
 [**The React quick start**](packages/react/README.md) has the rest.
 
@@ -72,28 +70,11 @@ PlButton(
 )
 ```
 
-Nothing else to install: no dependencies, no assets, no platform channels, no stylesheet and no provider. It is built on `package:flutter/widgets.dart` alone — no Material and no Cupertino — so it sits inside a Material app, a Cupertino app or a bare `WidgetsApp` without dragging a second design system in behind it, and it is unaffected by those two libraries moving out of the framework into `material_ui` and `cupertino_ui`.
+Nothing else to install: no dependencies, no assets, no platform channels, no stylesheet and no provider. It is built on `package:flutter/widgets.dart` alone, so it drops into any Flutter app without bringing a second design system in behind it — and it is unaffected by `material.dart` and `cupertino.dart` moving out of the framework into `material_ui` and `cupertino_ui`.
 
 [**The Flutter quick start**](packages/flutter/README.md) has the rest.
 
-## What is the same, and what is not
-
-The design is the same on both sides, down to the number. What differs is only what the platform decides — how a stylesheet gets in, how a theme is read, what a callback is called.
-
-| | React | Flutter |
-| --- | --- | --- |
-| Component names | `PlButton`, `PlTextField` | `PlButton`, `PlTextField` |
-| Shared vocabulary | `size`, `color`, `variant`, `density`, `elevation` | `PlassSize`, `PlassColor`, `PlassVariant`, `PlassDensity`, `PlassElevation` |
-| Setup | one CSS import | none |
-| Runtime dependencies | [Base UI](https://base-ui.com) | none |
-| Tokens | CSS custom properties, `--plass-*` | `PlassTheme.of(context)` |
-| Dark mode | `prefers-color-scheme`; forced with `.dark` / `[data-theme]` on any ancestor | `MediaQuery.platformBrightness`; forced with `PlassTheme(brightness: …)` |
-| Handlers | `onClick`, `onValueChange` | `onPressed`, `onChanged` |
-| Docs | [plass.cdget.com](https://plass.cdget.com), **React** in the sidebar | the same page, **Flutter** in the sidebar |
-
-A component's page says exactly what differs where it differs. Where it says nothing, there is nothing.
-
-### The page under the components
+## The page under the components
 
 This is the one setup step neither package can do for you, and skipping it is the fastest way to conclude the glass is broken. Plass draws controls and sheets; it does not paint your background — but a sheet of glass over a flat white page has nothing to be in front of, and every translucent surface will read as opaque. Two tokens exist for exactly this, and they are the same two on both sides:
 
