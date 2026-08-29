@@ -216,6 +216,33 @@ describe('PlTable', () => {
       expect(scrollerOf()?.style.maxHeight).toBe('24rem');
     });
 
+    it('names the table with a `<caption>` rather than an id, so nothing here is a hook', async () => {
+      const screen = await render(
+        <PlTable className="table-under-test" columns={columns} rows={rows} caption="Invoices" />
+      );
+
+      const table = screen.getByRole('table', { name: 'Invoices' }).element();
+
+      // No `aria-labelledby` means no generated id, which means no `useId` —
+      // which is what lets a server component render this table with the
+      // `render` callbacks its own columns are made of.
+      expect(table).not.toHaveAttribute('aria-labelledby');
+      expect(table.querySelector('caption')).toBeInTheDocument();
+    });
+
+    it('draws the caption once, and reads it once', async () => {
+      const screen = await render(
+        <PlTable className="table-under-test" columns={columns} rows={rows} caption="Invoices" />
+      );
+
+      // The drawn copy is out of the accessibility tree, so the name is not
+      // announced twice.
+      expect(screen.getByRole('table', { name: 'Invoices' }).element()).toBeInTheDocument();
+      expect(
+        document.querySelector('.table-under-test > div[aria-hidden="true"]')
+      ).toHaveTextContent('Invoices');
+    });
+
     it('leaves the caption above what scrolls', async () => {
       const screen = await render(
         <PlTable
@@ -227,12 +254,15 @@ describe('PlTable', () => {
         />
       );
 
-      // Still the table's accessible name, and no longer inside the box the
-      // rows scroll in: a title that slid away would take the name with it.
+      // Still the table's accessible name, and the *drawn* title is still
+      // outside the box the rows scroll in: a heading that slid away would take
+      // the table's name off the screen with it. What is inside the scroller is
+      // the `<caption>` that carries the name, which is never drawn.
       await expect
         .element(screen.getByRole('table', { name: 'Open invoices' }))
         .toBeInTheDocument();
-      expect(scrollerOf()?.textContent).not.toContain('Open invoices');
+      expect(scrollerOf()?.previousElementSibling).toHaveTextContent('Open invoices');
+      expect(scrollerOf()?.querySelector('caption')).toHaveTextContent('Open invoices');
     });
   });
 

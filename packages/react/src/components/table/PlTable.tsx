@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import {
   controlTextLeadingClasses,
@@ -8,6 +6,7 @@ import {
   paddingXValues,
   radiusClasses,
   sheetRestClasses,
+  srOnlyClasses,
   surfaceSlots
 } from '../../internal/styles.js';
 import type {
@@ -248,7 +247,6 @@ export function PlTable<Row>({
   const clickable = Boolean(onRowClick);
   const lit = hoverable || clickable;
   const capped = maxHeight !== undefined;
-  const captionId = React.useId();
 
   // `border: 0` first, then the one edge this cell actually draws. Written as
   // the longhand rather than a `border` shorthand carrying `0` so the rule and
@@ -318,18 +316,26 @@ export function PlTable<Row>({
       {...props}
     >
       {/*
-        A `<div>` and an `aria-labelledby`, not a `<caption>`.
+        The title is drawn here and *named* down in the `<table>`, and the split
+        is the whole reason this component has no hook in it.
 
-        The element is the semantically obvious one and it is in the wrong box:
-        a `<caption>` belongs to the `<table>`, so it lives inside whatever
-        scrolls the table — which is the one place a title must not be. Pointing
-        the table at a heading outside it names it exactly as a caption does,
-        and it is also what the Flutter build draws, so the two packages
-        finally agree about where a table's title sits.
+        A `<caption>` is the semantically obvious element and it is in the wrong
+        box: it belongs to the `<table>`, so it lives inside whatever scrolls
+        the table — which is the one place a title must not be. So the visible
+        one stays out here, where the Flutter build draws it too, and is marked
+        `aria-hidden` because a screen reader gets the same words from the real
+        `<caption>` instead.
+
+        That used to be an `aria-labelledby`, which needed an id, which needed
+        `React.useId` — and a component that calls a hook is a client component,
+        which cost this one the ability to be rendered by a server component at
+        all. Every column here takes a `render` callback, and a function cannot
+        cross that boundary: a table on a server-rendered page could not use its
+        own API. A native caption names the table with no id to generate.
       */}
       {caption ? (
         <div
-          id={captionId}
+          aria-hidden="true"
           className={`${metaTextClasses[size]} font-semibold text-(--plass-muted-fg)`}
           style={{ ...cellStyle, borderBottom: rowRule, textAlign: 'start' }}
         >
@@ -350,10 +356,12 @@ export function PlTable<Row>({
         style={capped ? { maxHeight } : undefined}
       >
         <table
-          aria-labelledby={caption ? captionId : undefined}
           className={`text-start ${controlTextLeadingClasses[size]} text-(--plass-fg)`}
           style={tableStyle}
         >
+          {/* The accessible name, and nothing a sighted reader meets: the same
+              words are already drawn above the sheet. */}
+          {caption ? <caption className={srOnlyClasses}>{caption}</caption> : null}
           {/* Widths belong on a `<col>`, not on the first row's cells: a width set
             on a `<th>` is a width the browser is free to renegotiate against
             every other row, and only the column element states it once. */}

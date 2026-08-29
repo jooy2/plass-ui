@@ -105,7 +105,9 @@ Same component, same types. The barrel is the one to reach for by default; this 
 
 ### Next.js and server components
 
-Every component carries `'use client'`, so a Server Component can import one directly and there is nothing to configure — no `transpilePackages`, no `next.config` entry, no provider. What the directive cannot do is carry a function across the server boundary: a file that passes `onClick`, `onValueChange` or `render` needs its own `'use client'`, which is React's rule for every client component rather than this library's. Outside a server-component graph the directive is inert.
+Nearly every component carries `'use client'`, so a Server Component can import one directly and there is nothing to configure — no `transpilePackages`, no `next.config` entry, no provider. What the directive cannot do is carry a function across the server boundary: a file that passes `onClick`, `onValueChange` or `render` needs its own `'use client'`, which is React's rule for every client component rather than this library's. Outside a server-component graph the directive is inert.
+
+`PlTable` is the exception and has no directive, because that rule would otherwise have cost it its own API: every column is a `render` callback, and a table belongs on a page that fetches its own rows. A Server Component renders it whole; a client module that imports it gets a client component, as it does for anything else it imports.
 
 ### Dark mode
 

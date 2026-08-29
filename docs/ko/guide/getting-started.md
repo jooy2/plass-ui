@@ -214,7 +214,7 @@ class App extends StatelessWidget {
 
 ## Next.js와 server component
 
-모든 컴포넌트에는 `'use client'`가 이미 붙어 있습니다. 따로 추가할 것은 없고, Next.js App Router의 `page.tsx`나 `layout.tsx` 같은 Server Component에서 그대로 import해 쓰면 됩니다.
+거의 모든 컴포넌트에는 `'use client'`가 이미 붙어 있습니다. 따로 추가할 것은 없고, Next.js App Router의 `page.tsx`나 `layout.tsx` 같은 Server Component에서 그대로 import해 쓰면 됩니다.
 
 ```tsx
 // app/page.tsx — directive 없는 Server Component
@@ -250,7 +250,28 @@ import 'plass-ui/styles.css';
 
 그 밖에 설정할 것은 없습니다. `transpilePackages`도, `next.config` 항목도, provider도 필요 없습니다. `dist/`는 모든 상대 경로 import에 `.js`가 붙은 컴파일된 ESM이고, 이는 bundler와 Node의 resolver, server render가 모두 똑같이 읽는 형태입니다.
 
-> **server component가 없는 곳에서 이 directive는 아무 일도 하지 않습니다.** Vite, Remix, React Router, Astro, 그리고 순수한 `tsc` 빌드는 모듈 최상단의 `'use client'`를 무시합니다. 쓰지 않는 프로젝트가 치르는 비용이 없기 때문에, 일부만 고르지 않고 모든 컴포넌트에 붙였습니다.
+`PlTable`은 예외이고, 의도한 예외입니다. **directive가 없어서 Server Component가 통째로 렌더링합니다.** 이 컴포넌트는 모든 컬럼이 `render` 콜백이라, 위의 규칙을 그대로 적용하면 표가 가장 어울리는 페이지 — 자기 행을 직접 가져오는 페이지 — 에서 쓸 수 없게 됩니다. 클라이언트 쪽에서 부를 때 달라지는 것은 없습니다. 최상단에 `'use client'`가 있는 모듈이 `PlTable`을 import하면, 다른 무엇을 import할 때와 똑같이 client component가 됩니다.
+
+```tsx
+// app/invoices/page.tsx — 여전히 Server Component
+import { PlTable } from 'plass-ui';
+
+export default async function Page() {
+  const rows = await db.invoices();
+
+  return (
+    <PlTable
+      rows={rows}
+      columns={[
+        { key: 'ref', header: 'Reference' },
+        { key: 'total', header: 'Total', align: 'end', render: (row) => money(row.total) }
+      ]}
+    />
+  );
+}
+```
+
+> **server component가 없는 곳에서 이 directive는 아무 일도 하지 않습니다.** Vite, Remix, React Router, Astro, 그리고 순수한 `tsc` 빌드는 모듈 최상단의 `'use client'`를 무시합니다. 쓰지 않는 프로젝트가 치르는 비용이 없기 때문에, 필요할 가능성이 있으면 붙이는 쪽을 택했습니다 — 감사를 거쳐 하나씩 골라내지 않고요.
 
 :::
 

@@ -178,7 +178,7 @@ A pinned header is the one place the grid draws a fill. Rows pass directly under
 
 ::: fw react
 
-`maxHeight` is a number in pixels or any CSS length. The caption is a heading the `<table>` points at with `aria-labelledby`, which names the table exactly as a `<caption>` does and is in the right box.
+`maxHeight` is a number in pixels or any CSS length. The caption is drawn as a heading outside the scroller and marked `aria-hidden`, with a real `<caption>` inside the `<table>` carrying the same words for a screen reader. Two copies of one string, and the reason is the next section: naming the table by id would mean generating one, and a component that generates an id is a client component.
 
 The pinned header's rule is an inset shadow rather than a border, which is not a style preference: `border-collapse: collapse` hands a cell's borders to the _table's_ border grid, and that grid does not travel with a `position: sticky` cell — so a pinned header drawn with a border leaves its underline behind at the top of the scroll.
 
@@ -281,6 +281,18 @@ Changes cell padding and nothing else, so two tables of the same `size` keep the
 :::
 
 </Demo>
+
+::: fw react
+
+## It renders on the server
+
+`PlTable` is the one component in the library with no `'use client'` on it, so a React Server Component renders the whole table — the sheet, the header, every row and every `render` callback in the columns.
+
+That is not a size optimisation, it is the component's own API. A client boundary cannot be handed a function, and every column here _is_ a function; with the directive on, a table could not be built by the page that fetches its rows, which is the page a table belongs on. Keeping it off cost one thing, and the caption above is where it was paid.
+
+Nothing changes for a caller on the client. A module with `'use client'` at the top that imports `PlTable` gets a client component, the way it does for everything else it imports — and `onRowClick`, which is a function, needs such a module either way.
+
+:::
 
 ## Accessibility
 

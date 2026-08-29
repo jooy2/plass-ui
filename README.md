@@ -50,7 +50,7 @@ import { PlButton, PlTextField } from 'plass-ui';
 <PlButton variant="glass" color="secondary">Cancel</PlButton>
 ```
 
-`react` and `react-dom` are peer dependencies — React 18 or 19. The stylesheet is finished CSS: [Tailwind CSS](https://tailwindcss.com) v4 builds this package and does not have to be installed in yours, though there is a second entry point for a project that already runs it. Every component has an entry point of its own (`plass-ui/button`) and carries `'use client'`, so a Next.js Server Component can import one with nothing configured.
+`react` and `react-dom` are peer dependencies — React 18 or 19. The stylesheet is finished CSS: [Tailwind CSS](https://tailwindcss.com) v4 builds this package and does not have to be installed in yours, though there is a second entry point for a project that already runs it. Every component has an entry point of its own (`plass-ui/button`) and nearly all of them carry `'use client'`, so a Next.js Server Component can import one with nothing configured — and `PlTable`, whose columns are `render` callbacks, deliberately does not, so a server-rendered page can use its own API.
 
 [**The React quick start**](packages/react/README.md) has the rest.
 

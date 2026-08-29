@@ -214,7 +214,7 @@ class App extends StatelessWidget {
 
 ## Next.js and server components
 
-Every component ships with `'use client'` on it already, so there is nothing to add on your side. Import one straight into a Server Component — a `page.tsx` or a `layout.tsx` in Next.js's App Router — and it renders.
+Nearly every component ships with `'use client'` on it already, so there is nothing to add on your side. Import one straight into a Server Component — a `page.tsx` or a `layout.tsx` in Next.js's App Router — and it renders.
 
 ```tsx
 // app/page.tsx — a Server Component, with no directive of its own
@@ -250,7 +250,28 @@ import 'plass-ui/styles.css';
 
 Nothing else is configured: no `transpilePackages`, no `next.config` entry, no provider. `dist/` is compiled ESM carrying a `.js` on every relative import, which a bundler, Node's own loader and a server render all read the same way.
 
-> **Outside a server-component graph the directive is inert.** Vite, Remix, React Router, Astro and a plain `tsc` build all ignore a module-level `'use client'`. It costs a project that has no server components nothing, which is why every component carries one rather than a chosen few.
+`PlTable` is the exception, and it is one on purpose: **it has no directive, so a Server Component renders it whole.** Every column in that component is a `render` callback, so the rule above would have made a table unusable on exactly the page a table belongs on — one that fetches its own rows. Nothing changes for a client-side caller: a module with `'use client'` at the top of it that imports `PlTable` gets a client component, the way it gets one for anything else it imports.
+
+```tsx
+// app/invoices/page.tsx — still a Server Component
+import { PlTable } from 'plass-ui';
+
+export default async function Page() {
+  const rows = await db.invoices();
+
+  return (
+    <PlTable
+      rows={rows}
+      columns={[
+        { key: 'ref', header: 'Reference' },
+        { key: 'total', header: 'Total', align: 'end', render: (row) => money(row.total) }
+      ]}
+    />
+  );
+}
+```
+
+> **Outside a server-component graph the directive is inert.** Vite, Remix, React Router, Astro and a plain `tsc` build all ignore a module-level `'use client'`. It costs a project with no server components nothing, which is why a component carries one whenever it might need it rather than being audited into a corner.
 
 :::
 

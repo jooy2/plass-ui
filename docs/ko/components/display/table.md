@@ -178,7 +178,7 @@ column이 말하는 것은 행에서 셀을 어떻게 꺼내는지, 그것뿐입
 
 ::: fw react
 
-`maxHeight`는 픽셀 숫자이거나 아무 CSS 길이입니다. caption은 `<table>`이 `aria-labelledby`로 가리키는 제목이고, `<caption>`과 똑같이 표의 이름이 되면서 올바른 상자 안에 있습니다.
+`maxHeight`는 픽셀 숫자이거나 아무 CSS 길이입니다. caption은 스크롤 상자 바깥에 제목으로 그려지고 `aria-hidden`이 붙습니다. 같은 말을 담은 진짜 `<caption>`이 `<table>` 안에 따로 들어가 스크린리더에게 읽힙니다. 한 문장이 두 벌인 이유는 바로 다음 절에 있습니다 — id로 표에 이름을 붙이려면 id를 만들어야 하고, id를 만드는 컴포넌트는 client component입니다.
 
 고정된 헤더 아래의 선은 border가 아니라 inset 그림자인데, 이것은 취향이 아닙니다. `border-collapse: collapse`는 셀의 border를 *표*의 border 격자에 넘기고, 그 격자는 `position: sticky`인 셀을 따라가지 않습니다 — border로 그린 고정 헤더는 자기 밑줄을 스크롤 맨 위에 두고 갑니다.
 
@@ -281,6 +281,18 @@ column이 말하는 것은 행에서 셀을 어떻게 꺼내는지, 그것뿐입
 :::
 
 </Demo>
+
+::: fw react
+
+## 서버에서 렌더링됩니다
+
+`PlTable`은 라이브러리에서 `'use client'`가 붙지 않은 유일한 컴포넌트입니다. React Server Component가 표 전체를 렌더링합니다 — 시트도, 헤더도, 모든 행도, 컬럼의 `render` 콜백까지도.
+
+크기를 줄이려는 최적화가 아니라 이 컴포넌트의 API 문제입니다. client 경계에는 함수를 넘길 수 없는데 여기서는 모든 컬럼이 _곧_ 함수입니다. directive가 붙어 있으면 행을 직접 가져오는 페이지가 표를 만들 수 없게 되는데, 그 페이지야말로 표가 있어야 할 자리입니다. directive를 떼면서 치른 값은 하나뿐이고, 그게 위의 caption입니다.
+
+클라이언트에서 부를 때 달라지는 것은 없습니다. 최상단에 `'use client'`가 있는 모듈이 `PlTable`을 import하면 다른 무엇을 import할 때와 똑같이 client component가 되고, 함수인 `onRowClick`은 어차피 그런 모듈이 있어야 넘길 수 있습니다.
+
+:::
 
 ## Accessibility
 
