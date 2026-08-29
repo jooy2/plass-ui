@@ -186,7 +186,7 @@ Three things move together and they all say the same thing: the control has gone
 
 ### Light arrives with the pointer
 
-`.plass-glow` is two stacked layers on every interactive control, and it is the one thing PlZon's own controls do not do.
+`.plass-glow` is two stacked layers on every interactive control.
 
 - **`::before` is the bloom** — a soft radial light centred on the pointer, fading in over 240ms when the pointer arrives and following it across the surface.
 - **`::after` is the press** — the same shape a shade brighter, at `0ms` in and ~700ms out. The flash lands on the frame of the click and is still visibly draining a beat after the finger lifts.
