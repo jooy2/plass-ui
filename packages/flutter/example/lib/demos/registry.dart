@@ -32,6 +32,9 @@ import 'package:plass_ui_example/demos/animate_marquee/orientation.dart';
 import 'package:plass_ui_example/demos/animate_headline/hero.dart';
 import 'package:plass_ui_example/demos/animate_headline/controlled.dart';
 import 'package:plass_ui_example/demos/animate_headline/rise.dart';
+import 'package:plass_ui_example/demos/animate_typing/hero.dart';
+import 'package:plass_ui_example/demos/animate_typing/speed.dart';
+import 'package:plass_ui_example/demos/animate_typing/erase.dart';
 import 'package:plass_ui_example/demos/accordion/controlled.dart';
 import 'package:plass_ui_example/demos/accordion/dividers.dart';
 import 'package:plass_ui_example/demos/accordion/hero.dart';
@@ -756,6 +759,9 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'animate-headline/hero': _animateHeadlineHero,
   'animate-headline/controlled': _animateHeadlineControlled,
   'animate-headline/rise': _animateHeadlineRise,
+  'animate-typing/hero': _animateTypingHero,
+  'animate-typing/speed': _animateTypingSpeed,
+  'animate-typing/erase': _animateTypingErase,
 };
 
 Widget _hero(BuildContext context) => const ButtonHero();
@@ -1182,3 +1188,6 @@ Widget _animateMarqueeOrientation(BuildContext context) => const AnimateMarqueeO
 Widget _animateHeadlineHero(BuildContext context) => const AnimateHeadlineHero();
 Widget _animateHeadlineControlled(BuildContext context) => const AnimateHeadlineControlled();
 Widget _animateHeadlineRise(BuildContext context) => const AnimateHeadlineRise();
+Widget _animateTypingHero(BuildContext context) => const AnimateTypingHero();
+Widget _animateTypingSpeed(BuildContext context) => const AnimateTypingSpeed();
+Widget _animateTypingErase(BuildContext context) => const AnimateTypingErase();

@@ -451,6 +451,30 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlAnimateTyping: [
+    from('PlAnimateTyping', 'text', {
+      type: 'String',
+      required: true,
+      description: {
+        ko: '칠 텍스트. widget이 아니라 String입니다 — 타자기는 문자열을 grapheme 단위로 드러내고, 링크의 절반을 정직하게 드러낼 방법은 없습니다',
+        en: 'The text to type. A String and not a widget: a typewriter reveals a string one grapheme at a time, and there is no honest way to reveal half of a link'
+      }
+    }),
+    from('PlAnimateTyping', 'speed', { type: 'double', default: '24' }),
+    from('PlAnimateTyping', 'hold', {
+      type: 'Duration',
+      default: 'Duration(milliseconds: 1400)'
+    }),
+    from('PlAnimateTyping', 'erase', { type: 'bool', default: 'false' }),
+    from('PlAnimateTyping', 'eraseSpeed', { type: 'double?', default: 'twice speed' }),
+    from('PlAnimateTyping', 'caret', { type: 'bool', default: 'true' }),
+    from('PlAnimateTyping', 'caretChar', { type: 'String', default: "'|'" }),
+    ...animateFlutterProps('PlAnimateTyping', {
+      duration: 'speed decides',
+      omit: ['easing', 'alternate']
+    }).map((row) => (row.name === 'duration' ? { ...row, type: 'Duration?' } : row))
+  ],
+
   PlAnimateZoom: [
     from('PlAnimateZoom', 'mode', {
       type: 'PlassAnimateMode',
