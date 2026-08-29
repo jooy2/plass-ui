@@ -973,6 +973,64 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlAnimateMarquee: [
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      shared: true,
+      description: {
+        ko: '띠가 흐르는 방향. 세로로 쓰려면 상자에 높이가 있어야 합니다',
+        en: 'Which way the strip runs. Vertical needs a height on the box'
+      }
+    },
+    {
+      name: 'reverse',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '반대로 돌립니다 — 왼쪽에서 오른쪽으로, 또는 아래에서 위로',
+        en: 'Runs it the other way — left to right, or bottom to top'
+      }
+    },
+    {
+      name: 'speed',
+      type: 'number',
+      default: '60',
+      description: {
+        ko: '내용이 흐르는 속도(초당 픽셀). duration이 아니라 speed라서, 로고 넷짜리 띠와 마흔짜리 띠가 같은 속도로 움직입니다',
+        en: 'How fast the content travels, in pixels per second. A speed rather than a duration, so a strip of four logos and a strip of forty move at the same pace'
+      }
+    },
+    {
+      name: 'gap',
+      type: 'number | string',
+      default: "'2rem'",
+      description: {
+        ko: '항목 사이, 그리고 마지막 항목과 다음 회차의 첫 항목 사이의 간격',
+        en: 'The gap between items, and between the last item and the first of the next pass'
+      }
+    },
+    {
+      name: 'copies',
+      type: 'number',
+      default: '2',
+      description: {
+        ko: '내용을 몇 벌 이어 붙일지. 컨테이너만큼 넓은 내용이라면 둘로 충분하고, 자기 뒤에 구멍을 남길 만큼 짧을 때 올리세요',
+        en: 'How many copies of the content are laid end to end. Two is enough for anything at least as wide as its container; raise it when the content is short enough to leave a hole behind itself'
+      }
+    },
+    {
+      name: 'pauseOnHover',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '포인터가 올라가 있는 동안 멈춥니다. 지나가는 것을 실제로 읽거나 누를 수 있도록',
+        en: 'Stops while the pointer is on it, so something scrolling past can actually be read or clicked'
+      }
+    },
+    ...animateProps({ duration: 'measured from speed', repeat: "'infinite'" })
+  ],
   PlAnimateRotate: [
     {
       name: 'mode',

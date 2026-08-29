@@ -4,6 +4,7 @@ import {
   PlAccordionItem,
   PlAlert,
   PlAnimateFade,
+  PlAnimateMarquee,
   PlAnimateLighting,
   PlAnimateAppear,
   PlAnimateBlink,
@@ -1384,6 +1385,24 @@ const entries: Entry[] = [
       <PlAnimateLighting size="sm" color="primary">
         <PlChip variant="glass">Live</PlChip>
       </PlAnimateLighting>
+    )
+  },
+  {
+    name: 'PlAnimateMarquee',
+    group: 'transitions',
+    href: 'components/transitions/animate-marquee',
+    blurb: {
+      en: 'Content scrolling steadily past, forever.',
+      ko: '끝없이 일정하게 흘러가는 내용입니다.'
+    },
+    preview: (
+      <PlAnimateMarquee className="w-full" gap="1rem" speed={40}>
+        {['Northwind', 'Contoso', 'Fabrikam'].map((name) => (
+          <PlChip key={name} variant="glass" color="secondary">
+            {name}
+          </PlChip>
+        ))}
+      </PlAnimateMarquee>
     )
   }
 ];

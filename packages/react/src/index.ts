@@ -6,6 +6,7 @@ export * from './components/animate-blink/index.js';
 export * from './components/animate-fade/index.js';
 export * from './components/animate-grow/index.js';
 export * from './components/animate-lighting/index.js';
+export * from './components/animate-marquee/index.js';
 export * from './components/animate-rotate/index.js';
 export * from './components/animate-slide/index.js';
 export * from './components/animate-zoom/index.js';

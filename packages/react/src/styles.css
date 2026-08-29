@@ -1055,6 +1055,69 @@
   animation-play-state: var(--p-anim-state, running);
 }
 
+/*
+ * Marquee: two identical copies, both moving by exactly one copy plus the gap.
+ *
+ * Which is the whole trick — when the first copy has travelled its own width,
+ * the second is standing precisely where the first began, so there is no seam
+ * and no frame where the strip is empty. A percentage `translate` resolves
+ * against the element's own box, so neither copy has to be measured for this to
+ * hold; measuring only ever decides how *fast* it goes.
+ */
+@keyframes plass-anim-marquee-x {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: calc(-100% - var(--p-anim-gap, 0px)) 0;
+  }
+}
+
+@keyframes plass-anim-marquee-y {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 0 calc(-100% - var(--p-anim-gap, 0px));
+  }
+}
+
+.plass-marquee {
+  display: flex;
+  overflow: hidden;
+  gap: var(--p-anim-gap, 0px);
+}
+
+.plass-marquee-vertical {
+  flex-direction: column;
+}
+
+.plass-marquee-track {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--p-anim-gap, 0px);
+  animation-name: plass-anim-marquee-x;
+  animation-duration: var(--p-anim-duration, 12s);
+  animation-delay: var(--p-anim-delay, 0ms);
+  /* Linear unless a caller insists otherwise. An eased marquee slows at both
+     ends of a loop that has no ends, which reads as the page stuttering. */
+  animation-timing-function: var(--p-anim-ease, linear);
+  animation-iteration-count: var(--p-anim-repeat, infinite);
+  animation-direction: var(--p-anim-direction, normal);
+  animation-fill-mode: both;
+  animation-play-state: var(--p-anim-state, running);
+}
+
+.plass-marquee-vertical .plass-marquee-track {
+  flex-direction: column;
+  animation-name: plass-anim-marquee-y;
+}
+
+.plass-marquee[data-pause-on-hover]:hover .plass-marquee-track {
+  animation-play-state: paused;
+}
+
 /* ---------------------------------------------------------------------------
  * Reduced motion
  *
@@ -1119,7 +1182,8 @@
    * element on its own first frame at `opacity: 0`. Left in place, respecting a
    * reader's preference would blank the page.
    */
-  .plass-anim {
+  .plass-anim,
+  .plass-marquee-track {
     animation: none;
   }
 
