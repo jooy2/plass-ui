@@ -1,6 +1,7 @@
 export * from './types.js';
 export * from './components/accordion/index.js';
 export * from './components/alert/index.js';
+export * from './components/animate-fade/index.js';
 export * from './components/aspect-ratio/index.js';
 export * from './components/avatar/index.js';
 export * from './components/badge/index.js';

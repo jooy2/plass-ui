@@ -434,6 +434,116 @@ const timeColumnProps: PropRow[] = [
   }
 ];
 
+/**
+ * The settings every `PlAnimate*` component takes.
+ *
+ * Written once for the reason the shared style axes are: a `delay` of 200 has
+ * to mean the same thing on a fade and on a marquee, and eleven hand-written
+ * tables would be eleven subtly different sentences by the third edit. Only the
+ * two numbers that genuinely differ per effect — how long one run takes, and
+ * how many times it runs — are passed in.
+ */
+function animateProps(options: { duration: string; repeat?: string }): PropRow[] {
+  return [
+    {
+      name: 'duration',
+      type: 'number',
+      default: options.duration,
+      shared: true,
+      description: {
+        ko: '한 번 도는 데 걸리는 시간(ms). CSS 문자열이 아니라 숫자입니다',
+        en: 'How long one run takes, in milliseconds. A number, never a CSS string'
+      }
+    },
+    {
+      name: 'delay',
+      type: 'number',
+      default: '0',
+      shared: true,
+      description: {
+        ko: '시작하기까지 기다리는 시간(ms)',
+        en: 'How long before it starts, in milliseconds'
+      }
+    },
+    {
+      name: 'easing',
+      type: 'string',
+      default: 'the house curve',
+      shared: true,
+      description: {
+        ko: 'CSS가 쓰는 그대로의 이징 곡선',
+        en: 'The easing curve, written the way CSS writes it'
+      }
+    },
+    {
+      name: 'repeat',
+      type: "number | 'infinite'",
+      default: options.repeat ?? '1',
+      shared: true,
+      description: {
+        ko: "몇 번 반복할지. 끝없이 돌리려면 Infinity가 아니라 'infinite' — CSS에 그 단어로 그대로 쓰이기 때문입니다",
+        en: "How many times it runs. 'infinite' rather than Infinity, because that word is what reaches CSS"
+      }
+    },
+    {
+      name: 'alternate',
+      type: 'boolean',
+      default: 'false',
+      shared: true,
+      description: {
+        ko: '한 번 걸러 거꾸로 돌립니다. 반복이 처음으로 튀어 돌아가는 대신 되돌아옵니다',
+        en: 'Runs every other pass backwards, so a repeat returns instead of jumping'
+      }
+    },
+    {
+      name: 'paused',
+      type: 'boolean',
+      default: 'false',
+      shared: true,
+      description: { ko: '있는 자리에 멈춰 세웁니다', en: 'Holds the animation where it is' }
+    },
+    {
+      name: 'trigger',
+      type: "'mount' | 'visible' | 'hover' | 'manual'",
+      default: "'mount'",
+      shared: true,
+      description: {
+        ko: '무엇이 시작시키는지. mount는 화면에 올라오자마자, visible은 스크롤되어 보일 때, hover는 포인터나 focus가 닿을 때, manual은 play가 시킬 때만',
+        en: 'What starts it: mount as soon as it is on the page, visible when it is scrolled into view, hover while the pointer or focus is on it, manual only when play says so'
+      }
+    },
+    {
+      name: 'play',
+      type: 'boolean',
+      shared: true,
+      description: {
+        ko: 'trigger가 manual일 때 실행합니다. false → true가 될 때마다 처음부터 다시 돕니다',
+        en: 'Runs it when trigger is manual. Each false → true starts it over'
+      }
+    },
+    {
+      name: 'once',
+      type: 'boolean',
+      default: 'true',
+      shared: true,
+      description: {
+        ko: 'trigger="visible"에서 처음 한 번만 돌릴지. 끄면 화면에 다시 들어올 때마다 다시 돕니다',
+        en: 'With trigger="visible", whether it runs only the first time. Off, it runs again every time the element comes back into view'
+      }
+    },
+    {
+      name: 'threshold',
+      type: 'number',
+      default: '0.2',
+      shared: true,
+      description: {
+        ko: 'trigger="visible"에서 얼마나 보여야 보이는 것으로 칠지, 0에서 1 사이',
+        en: 'With trigger="visible", how much of the element has to be on screen before it counts as visible, from 0 to 1'
+      }
+    }
+  ];
+}
+
 export const propTables: Record<string, PropRow[]> = {
   PlAccordion: [
     ...sharedProps({
@@ -641,6 +751,35 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlAnimateFade: [
+    {
+      name: 'mode',
+      type: "'in' | 'out'",
+      default: "'in'",
+      description: {
+        ko: '내용이 도착하는지 떠나는지. out은 같은 키프레임을 거꾸로 돌린 것이고, 끝난 자리에 그대로 붙들려 있습니다',
+        en: 'Whether the content arrives or leaves. out is the same keyframe run backwards, and it is held where it ends'
+      }
+    },
+    {
+      name: 'from',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: '시작하는 불투명도, 0과 1 사이. 완전히 사라지면 안 되는 내용이라면 올려 잡으세요',
+        en: 'The opacity it starts from, between 0 and 1. Raise it for content that should never be completely gone'
+      }
+    },
+    ...animateProps({ duration: '300' }),
+    {
+      name: 'render',
+      type: 'ReactElement | (props, state) => ReactElement',
+      description: {
+        ko: '<div> 대신 다른 요소로 렌더링합니다',
+        en: 'Renders something other than a <div>'
+      }
+    }
+  ],
   PlAspectRatio: [
     {
       name: 'ratio',

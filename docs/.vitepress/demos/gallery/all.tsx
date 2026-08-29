@@ -3,6 +3,7 @@ import {
   PlAccordion,
   PlAccordionItem,
   PlAlert,
+  PlAnimateFade,
   PlAspectRatio,
   PlAvatar,
   PlBadge,
@@ -95,7 +96,8 @@ interface GalleryProps {
 }
 
 /** The sidebar's own groups, in the sidebar's own order. */
-type Group = 'display' | 'feedback' | 'inputs' | 'layout' | 'navigation' | 'surfaces';
+type Group =
+  'display' | 'feedback' | 'inputs' | 'layout' | 'navigation' | 'surfaces' | 'transitions';
 
 /**
  * The one preview in the gallery that needs state of its own: an overlay has to
@@ -1255,6 +1257,20 @@ const entries: Entry[] = [
         </PlAccordionItem>
       </PlAccordion>
     )
+  },
+  {
+    name: 'PlAnimateFade',
+    group: 'transitions',
+    href: 'components/transitions/animate-fade',
+    blurb: {
+      en: 'Content arriving or leaving on opacity alone.',
+      ko: '불투명도만으로 도착하거나 떠나는 내용입니다.'
+    },
+    preview: (
+      <PlAnimateFade duration={1400} repeat="infinite" alternate>
+        <PlChip color="primary">Fading</PlChip>
+      </PlAnimateFade>
+    )
   }
 ];
 
@@ -1269,7 +1285,8 @@ const groups: { key: Group; label: Record<'en' | 'ko', string> }[] = [
   { key: 'inputs', label: { en: 'Inputs', ko: 'Inputs' } },
   { key: 'layout', label: { en: 'Layout', ko: 'Layout' } },
   { key: 'navigation', label: { en: 'Navigation', ko: 'Navigation' } },
-  { key: 'surfaces', label: { en: 'Surfaces', ko: 'Surfaces' } }
+  { key: 'surfaces', label: { en: 'Surfaces', ko: 'Surfaces' } },
+  { key: 'transitions', label: { en: 'Transitions', ko: 'Transitions' } }
 ];
 
 export default function Gallery({ locale = 'en', base = '' }: GalleryProps) {

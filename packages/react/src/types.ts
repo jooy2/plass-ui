@@ -163,3 +163,86 @@ export interface PlassStyleProps {
   /** @default 'default' */
   density?: PlassDensity;
 }
+
+/* ---------------------------------------------------------------------------
+ * Motion
+ *
+ * The vocabulary the `PlAnimate*` components share. It is one set of names for
+ * the same reason `PlassSize` is: a `delay` of 200 has to mean the same thing
+ * on a fade and on a marquee, or a screen running two of them is written in two
+ * units.
+ * ------------------------------------------------------------------------- */
+
+/**
+ * The six effects the `PlAnimate*` components are built out of.
+ *
+ * Named after what a reader sees rather than after the CSS property
+ * underneath: `zoom` and `grow` are both a change of scale, and they are two
+ * words because they are two *gestures* — one arrives from the middle of where
+ * it will end up, the other unfolds from an edge.
+ *
+ * Everything past these six is a component rather than a value. A typewriter, a
+ * marquee and a headline reel have to know what their children *are*, and a
+ * name that only picks a keyframe cannot.
+ */
+export type PlassAnimation = 'fade' | 'grow' | 'slide' | 'zoom' | 'rotate' | 'blink';
+
+/**
+ * What makes an animation run.
+ *
+ * - `mount` — as soon as it is on the page. The default, and the only one that
+ *   needs nothing from the caller.
+ * - `visible` — when it is scrolled into view. Once, unless `once` is off.
+ * - `hover` — while the pointer is on it, starting again on each entry.
+ *   Keyboard focus counts, or the effect would be unreachable without a mouse.
+ * - `manual` — never on its own. `play` is what runs it.
+ */
+export type PlassAnimateTrigger = 'mount' | 'visible' | 'hover' | 'manual';
+
+/** Whether an effect brings its content in or takes it away. */
+export type PlassAnimateMode = 'in' | 'out';
+
+/**
+ * How many times an animation runs. `'infinite'` rather than `Infinity`,
+ * because it is written into CSS as that word and a caller who typed the number
+ * would be surprised by which one worked.
+ */
+export type PlassAnimateRepeat = number | 'infinite';
+
+/**
+ * The settings every `PlAnimate*` component takes.
+ *
+ * Durations and delays are milliseconds — numbers, not CSS strings. A prop
+ * typed `string` invites `'0.4s'`, and then two components on one screen are
+ * written in two units.
+ */
+export interface PlassAnimateProps {
+  /** How long one run takes, in milliseconds. */
+  duration?: number;
+  /** How long before it starts, in milliseconds. @default 0 */
+  delay?: number;
+  /** The easing curve, as CSS writes it. @default the house curve */
+  easing?: string;
+  /** How many times it runs. @default 1 */
+  repeat?: PlassAnimateRepeat;
+  /** Runs every other pass backwards, so a repeat returns instead of jumping. */
+  alternate?: boolean;
+  /** Holds the animation where it is. @default false */
+  paused?: boolean;
+  /** What starts it. @default 'mount' */
+  trigger?: PlassAnimateTrigger;
+  /** Runs it, when `trigger` is `manual`. Each `false` → `true` starts it over. */
+  play?: boolean;
+  /**
+   * With `trigger="visible"`, whether it runs only the first time. Off, it runs
+   * again every time the element comes back into view.
+   * @default true
+   */
+  once?: boolean;
+  /**
+   * With `trigger="visible"`, how much of the element has to be on screen
+   * before it counts as visible, from `0` to `1`.
+   * @default 0.2
+   */
+  threshold?: number;
+}

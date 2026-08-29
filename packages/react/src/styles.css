@@ -883,6 +883,56 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * Motion
+ *
+ * The `PlAnimate*` components. Real CSS for the reason the loading indicators
+ * above are: a keyframe is not a Tailwind variant, so there is nothing to
+ * express one with.
+ *
+ * The whole set is built on one idea. An effect is a single `@keyframes` that
+ * runs from a state written entirely in `--p-anim-*` custom properties to the
+ * element's natural one — so `src/internal/animate.ts` never generates CSS, it
+ * only fills slots, and running an effect backwards is `animation-direction:
+ * reverse` rather than a second keyframe. That is what makes `mode="out"` cost
+ * nothing.
+ *
+ * `fill-mode` is `both` throughout, which is what lets an animation that has
+ * not been triggered yet sit paused on its own first frame. Without it, an
+ * element waiting to be scrolled into view would be fully drawn and then blink
+ * out the moment it arrived.
+ *
+ * This is also where the rule against transforms is at its narrowest. A
+ * *control* never moves — that rule is about a key resampling its label under
+ * the pointer, and it holds without exception. A `PlAnimate*` wraps content a
+ * caller asked to have moved, and it moves it with the independent `translate`,
+ * `scale` and `rotate` properties rather than the `transform` shorthand, so a
+ * caller's own transform on the same element survives.
+ * ------------------------------------------------------------------------- */
+
+.plass-anim {
+  animation-duration: var(--p-anim-duration, 300ms);
+  animation-delay: var(--p-anim-delay, 0ms);
+  animation-timing-function: var(--p-anim-ease, var(--plass-ease));
+  animation-iteration-count: var(--p-anim-repeat, 1);
+  animation-direction: var(--p-anim-direction, normal);
+  animation-fill-mode: both;
+  animation-play-state: var(--p-anim-state, running);
+}
+
+@keyframes plass-anim-fade {
+  from {
+    opacity: var(--p-anim-opacity, 0);
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.plass-anim-fade {
+  animation-name: plass-anim-fade;
+}
+
+/* ---------------------------------------------------------------------------
  * Reduced motion
  *
  * Nothing in Plass animates on its own except a spinner, so this is about the
@@ -932,5 +982,21 @@
 
   .plass-plate-wave {
     animation-duration: 2.4s;
+  }
+
+  /*
+   * The `PlAnimate*` components go the other way from the indicators above, and
+   * the difference is what each of them is saying. A spinner that stops is
+   * lying about whether anything is happening; an entrance that does not play
+   * has still delivered its content, which is the only thing it was ever
+   * carrying.
+   *
+   * `animation: none` rather than a zero duration, because the shorthand also
+   * clears `fill-mode` — and the fill is what was holding an untriggered
+   * element on its own first frame at `opacity: 0`. Left in place, respecting a
+   * reader's preference would blank the page.
+   */
+  .plass-anim {
+    animation: none;
   }
 }
