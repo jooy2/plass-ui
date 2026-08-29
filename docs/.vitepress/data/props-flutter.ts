@@ -3225,6 +3225,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlTextLink', 'icon', { type: 'Widget?' }),
+    from('PlTextLink', 'startIcon', { type: 'Widget?' }),
     {
       name: 'showIcon',
       type: 'bool?',

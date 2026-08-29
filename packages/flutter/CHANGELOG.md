@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- **`PlTextLink` takes a `startIcon`.** Its one icon slot was the mark *after* the label, and it is not a general one: `icon` is about the link's destination and has an opinion, drawing the arrow for an `external` link unless `showIcon` says otherwise. There was nowhere to put the other kind — a favicon, a file type, a lock — so a caller built their own `Row` and paid for the gap by hand. `startIcon` is the plain widget the rest of the package spells the same way: nothing is drawn unless something is put there, and it rides at the link's own mark size a quarter-em from the label, the same as the one on the other side.
+
 ### Changed
 
 - **A `PlAccordionItem`'s title and subtitle wrap.** They were each held to one line and ellipsed, which is the right rule for a table cell and the wrong one for a fold: an accordion is most often a list of questions, and a question is a sentence. A heading that ran past the header lost its end with nothing to press for the rest — a fold opens its *body*, not its heading — and the narrower the screen, the more of the question went. What wrapping costs is a header two lines tall, in the one component whose entire job is to change height. `truncate` puts both back on one line for the header the old behaviour was right for: a name out of a database sitting beside a control.

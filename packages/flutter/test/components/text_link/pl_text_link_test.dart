@@ -128,6 +128,42 @@ void main() {
       });
     });
 
+    group('startIcon', () {
+      testWidgets('draws nothing unless something is put there', (WidgetTester tester) async {
+        await tester.pumpWidget(host(PlTextLink(onPressed: () {}, child: const Text('go'))));
+
+        expect(find.text('★'), findsNothing);
+      });
+
+      testWidgets('puts the mark in front of the label', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(PlTextLink(onPressed: () {}, startIcon: const Text('★'), child: const Text('go'))),
+        );
+
+        final Offset mark = tester.getCenter(find.text('★'));
+        final Offset label = tester.getCenter(find.text('go'));
+
+        expect(mark.dx, lessThan(label.dx));
+      });
+
+      testWidgets('sits on the same link as the destination mark', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            PlTextLink(
+              onPressed: () {},
+              external: true,
+              startIcon: const Text('★'),
+              child: const Text('go'),
+            ),
+          ),
+        );
+
+        expect(find.text('★'), findsOneWidget);
+        expect(find.byType(PlassGlyph), findsOneWidget);
+        expect(tester.getCenter(find.text('★')).dx, lessThan(tester.getCenter(find.text('go')).dx));
+      });
+    });
+
     group('accessibility', () {
       testWidgets('is a link rather than a button', (WidgetTester tester) async {
         final handle = tester.ensureSemantics();

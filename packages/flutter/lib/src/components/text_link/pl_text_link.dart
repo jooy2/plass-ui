@@ -66,6 +66,7 @@ class PlTextLink extends StatelessWidget {
     this.size,
     this.external = false,
     this.icon,
+    this.startIcon,
     this.showIcon,
     this.externalLabel = '(opens elsewhere)',
     this.focusNode,
@@ -108,7 +109,20 @@ class PlTextLink extends StatelessWidget {
 
   /// The mark after the label. Left out, the house glyph is used: the arrow
   /// leaving its box when [external] is on, and the chain otherwise.
+  ///
+  /// It is [icon] rather than `endIcon`, and the difference from every other
+  /// component's is the reason: this one is about the link's *destination* and
+  /// it has an opinion — a link that leaves the app says so unless it is told
+  /// not to. An `endIcon` elsewhere is a widget and nothing else.
   final Widget? icon;
+
+  /// A mark before the label — a favicon, a file type, a lock.
+  ///
+  /// A plain widget with no opinion, unlike [icon] above: nothing is drawn here
+  /// unless something is put here. It rides on the label at the same size and
+  /// the same quarter-em away, so a link with one in front of it still sits
+  /// inside a sentence.
+  final Widget? startIcon;
 
   /// Whether a mark is drawn at all. Left out, it follows [external].
   ///
@@ -163,7 +177,7 @@ class PlTextLink extends StatelessWidget {
           child: child,
         );
 
-        if (marked) {
+        if (marked || startIcon != null) {
           final glyphSize = (scale?.size ?? inherited.fontSize ?? 14) * _markScale;
 
           label = Row(
@@ -171,18 +185,27 @@ class PlTextLink extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: <Widget>[
+              if (startIcon != null) ...<Widget>[
+                IconTheme.merge(
+                  data: IconThemeData(color: ink, size: glyphSize),
+                  child: startIcon!,
+                ),
+                SizedBox(width: glyphSize * 0.25),
+              ],
               Flexible(child: label),
-              SizedBox(width: glyphSize * 0.25),
-              IconTheme.merge(
-                data: IconThemeData(color: ink, size: glyphSize),
-                child:
-                    icon ??
-                    PlassGlyph(
-                      external ? PlassGlyphShape.externalLink : PlassGlyphShape.link,
-                      size: glyphSize,
-                      color: ink,
-                    ),
-              ),
+              if (marked) ...<Widget>[
+                SizedBox(width: glyphSize * 0.25),
+                IconTheme.merge(
+                  data: IconThemeData(color: ink, size: glyphSize),
+                  child:
+                      icon ??
+                      PlassGlyph(
+                        external ? PlassGlyphShape.externalLink : PlassGlyphShape.link,
+                        size: glyphSize,
+                        color: ink,
+                      ),
+                ),
+              ],
             ],
           );
         }
