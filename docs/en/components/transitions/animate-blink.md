@@ -21,6 +21,21 @@ import { PlAnimateBlink } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+const PlAnimateBlink(
+  min: 0.45,
+  child: PlChip(color: PlassColor.warning, child: Text('Awaiting approval')),
+);
+```
+
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlAnimateBlink" />
@@ -28,6 +43,12 @@ import { PlAnimateBlink } from 'plass-ui';
 ::: fw react
 
 Every native `<div>` attribute passes straight through, and `render` swaps the element for another one.
+
+:::
+
+::: fw flutter
+
+`repeat` is an `int?` and it is left at its default here, which is `null` — the value that never stops. There is no `mode` and no `fade`: a blink is a cycle rather than an arrival.
 
 :::
 
@@ -49,6 +70,12 @@ How faint it gets at the bottom of the cycle. At `0` the content disappears; rai
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_blink/min.dart
+
+:::
+
 </Demo>
 
 ### repeat
@@ -63,6 +90,12 @@ A count is the way to draw attention to something once, rather than forever. The
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_blink/count.dart
+
+:::
+
 </Demo>
 
 ## Accessibility
@@ -74,3 +107,30 @@ A count is the way to draw attention to something once, rather than forever. The
 - Keep it well away from three flashes a second. This is a slow pulse by default and it should stay one.
 
 :::
+
+::: fw flutter
+
+- When the platform has animations turned off (`MediaQuery.disableAnimations`) the effect is dropped and the content sits at full opacity. **So `min` must never be the only thing carrying the message** — if it is urgent, say so in words as well.
+- Something that never stops moving in the corner of a screen somebody is reading is the one kind of motion the rest of this package refuses. Prefer a count over a `null` repeat, and prefer a colour over either.
+- Keep it well away from three flashes a second. This is a slow pulse by default and it should stay one.
+
+:::
+
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `repeat="infinite"` | `repeat: null` | The default here, and the value that never stops. |
+| `render` | — | Flutter has no polymorphic element. |
+| `duration`, `delay` in milliseconds | `Duration` | The framework already has the type. |
+| `easing` as a CSS string | `curve`, a `Curve` | Dart's own name for the same thing. |
+| `repeat: number \| 'infinite'` | `int?`, `null` never stops | There is no `'infinite'` to write, and `-1` would be a sentinel a caller has to look up. |
+| `trigger="visible"` via `IntersectionObserver` | watches the nearest `Scrollable` | There is no observer here; with no scrollable above it there is nothing to watch, so it runs. |
+| `prefers-reduced-motion` | `MediaQuery.disableAnimations` | The platform's own signal. |
+| `className`, `style` | — | There is no class list and no style attribute to pass through. |
+
+:::
+```

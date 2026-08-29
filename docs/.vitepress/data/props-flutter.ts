@@ -392,6 +392,20 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlAnimateBlink: [
+    from('PlAnimateBlink', 'min', { type: 'double', default: '0' }),
+    ...animateFlutterProps('PlAnimateBlink', {
+      duration: 'Duration(milliseconds: 1000)',
+      repeat: 'null'
+    }),
+    {
+      name: 'child',
+      type: 'Widget',
+      required: true,
+      description: { ko: '무엇이 맥동하는지', en: 'What pulses' }
+    }
+  ],
+
   PlAnimateFade: [
     from('PlAnimateFade', 'mode', {
       type: 'PlassAnimateMode',

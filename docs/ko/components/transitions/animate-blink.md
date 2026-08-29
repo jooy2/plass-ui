@@ -21,6 +21,21 @@ import { PlAnimateBlink } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+const PlAnimateBlink(
+  min: 0.45,
+  child: PlChip(color: PlassColor.warning, child: Text('Awaiting approval')),
+);
+```
+
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlAnimateBlink" />
@@ -28,6 +43,12 @@ import { PlAnimateBlink } from 'plass-ui';
 ::: fw react
 
 네이티브 `<div>` 속성은 그대로 통과하고, `render`로 요소 자체를 바꿀 수 있습니다.
+
+:::
+
+::: fw flutter
+
+`repeat`은 `int?`이고 여기서는 기본값 그대로 `null`, 즉 멈추지 않음입니다. `mode`도 `fade`도 없습니다. blink는 도착이 아니라 주기입니다.
 
 :::
 
@@ -49,6 +70,12 @@ import { PlAnimateBlink } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_blink/min.dart
+
+:::
+
 </Demo>
 
 ### repeat
@@ -63,6 +90,12 @@ import { PlAnimateBlink } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_blink/count.dart
+
+:::
+
 </Demo>
 
 ## Accessibility
@@ -74,3 +107,30 @@ import { PlAnimateBlink } from 'plass-ui';
 - 초당 세 번 깜빡이는 것과는 확실히 거리를 두세요. 기본값이 느린 맥동이고, 그대로 두어야 합니다.
 
 :::
+
+::: fw flutter
+
+- 플랫폼에서 애니메이션이 꺼져 있으면(`MediaQuery.disableAnimations`) 효과가 없어지고 내용은 완전한 불투명도로 남습니다. **그러므로 `min`이 메시지를 나르는 유일한 수단이어서는 안 됩니다.** 급한 일이라면 말로도 쓰세요.
+- 누군가 읽고 있는 화면 구석에서 끝없이 움직이는 것은 이 패키지의 나머지가 거부하는 유일한 종류의 움직임입니다. `null` repeat보다는 횟수를, 둘보다는 색을 먼저 쓰세요.
+- 초당 세 번 깜빡이는 것과는 확실히 거리를 두세요. 기본값이 느린 맥동이고, 그대로 두어야 합니다.
+
+:::
+
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `repeat="infinite"` | `repeat: null` | 여기서의 기본값이고, 멈추지 않음을 뜻하는 값입니다. |
+| `render` | — | Flutter에는 다형적 요소가 없습니다. |
+| `duration`, `delay`가 밀리초 | `Duration` | 프레임워크에 이미 타입이 있습니다. |
+| `easing`이 CSS 문자열 | `curve`, `Curve` | 같은 것에 대한 Dart 자신의 이름입니다. |
+| `repeat: number \| 'infinite'` | `int?`, `null`이 멈추지 않음 | 적을 `'infinite'`가 없고, `-1`은 caller가 찾아봐야 하는 sentinel입니다. |
+| `trigger="visible"`이 `IntersectionObserver` | 가장 가까운 `Scrollable`을 봅니다 | 여기에는 observer가 없습니다. 위에 scrollable이 없으면 볼 것이 없으므로 그냥 돕니다. |
+| `prefers-reduced-motion` | `MediaQuery.disableAnimations` | 플랫폼 자신의 신호입니다. |
+| `className`, `style` | — | 통과시킬 class 목록도 style 속성도 없습니다. |
+
+:::
+```
