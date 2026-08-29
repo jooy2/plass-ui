@@ -964,6 +964,23 @@
   animation-name: plass-anim-slide;
 }
 
+/* Two angles rather than one, so the same keyframe covers both the quarter turn
+   something arrives on and the endless one a badge spins through. */
+@keyframes plass-anim-rotate {
+  from {
+    opacity: var(--p-anim-opacity, 0);
+    rotate: var(--p-anim-angle, -180deg);
+  }
+  to {
+    opacity: 1;
+    rotate: var(--p-anim-angle-to, 0deg);
+  }
+}
+
+.plass-anim-rotate {
+  animation-name: plass-anim-rotate;
+}
+
 /* ---------------------------------------------------------------------------
  * Reduced motion
  *

@@ -4,6 +4,7 @@ import {
   PlAccordionItem,
   PlAlert,
   PlAnimateFade,
+  PlAnimateRotate,
   PlAnimateSlide,
   PlAnimateZoom,
   PlAnimateGrow,
@@ -1315,6 +1316,27 @@ const entries: Entry[] = [
       <PlAnimateSlide from="left" distance={20} duration={1200} repeat="infinite" alternate>
         <PlChip color="info">Sliding</PlChip>
       </PlAnimateSlide>
+    )
+  },
+  {
+    name: 'PlAnimateRotate',
+    group: 'transitions',
+    href: 'components/transitions/animate-rotate',
+    blurb: {
+      en: 'Content turning about a point — an arrival, or a spin that never lands.',
+      ko: '한 점을 중심으로 도는 내용입니다. 도착일 수도, 끝나지 않는 회전일 수도 있습니다.'
+    },
+    preview: (
+      <PlAnimateRotate
+        from={0}
+        to={360}
+        duration={3000}
+        easing="linear"
+        repeat="infinite"
+        fade={false}
+      >
+        <PlChip color="secondary">Turning</PlChip>
+      </PlAnimateRotate>
     )
   }
 ];

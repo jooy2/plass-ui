@@ -827,6 +827,62 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlAnimateRotate: [
+    {
+      name: 'mode',
+      type: "'in' | 'out'",
+      default: "'in'",
+      description: {
+        ko: '제자리로 돌아 들어오는지 돌아 나가는지',
+        en: 'Whether the content turns into place or out of it'
+      }
+    },
+    {
+      name: 'from',
+      type: 'number',
+      default: '-180',
+      description: {
+        ko: '시작하는 각도(도). 음수는 반시계 방향입니다',
+        en: 'The angle it starts at, in degrees. Negative is anticlockwise'
+      }
+    },
+    {
+      name: 'to',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: '끝나는 각도(도). from과 함께라서 컴포넌트 하나가 제자리로 들어오는 회전과 끝나지 않는 회전을 모두 담습니다 — from={0} to={360} repeat="infinite"',
+        en: 'The angle it ends at, in degrees. Together with from this is what makes one component cover both a turn into place and an endless spin: from={0} to={360} repeat="infinite"'
+      }
+    },
+    {
+      name: 'origin',
+      type: 'string',
+      default: "'center'",
+      description: {
+        ko: '무엇을 중심으로 도는지 — CSS transform-origin 그대로',
+        en: 'Which point it turns about — any CSS transform-origin'
+      }
+    },
+    {
+      name: 'fade',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '돌면서 함께 나타납니다. 계속 도는 경우에는 끄세요 — 반복되는 fade는 깜빡임으로 읽힙니다',
+        en: 'Fades in as it turns. Turn it off for a continuous spin, where a repeating fade would read as flickering'
+      }
+    },
+    ...animateProps({ duration: '440' }),
+    {
+      name: 'render',
+      type: 'ReactElement | (props, state) => ReactElement',
+      description: {
+        ko: '<div> 대신 다른 요소로 렌더링합니다',
+        en: 'Renders something other than a <div>'
+      }
+    }
+  ],
   PlAnimateSlide: [
     {
       name: 'mode',
