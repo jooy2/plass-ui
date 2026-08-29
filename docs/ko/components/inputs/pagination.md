@@ -127,6 +127,17 @@ PlPagination(
 
 현재 페이지와 범위 끝의 이동 버튼은 `<button>`으로 남습니다. `disabled`는 `<a>`가 될 수 있는 상태가 아니기 때문입니다.
 
+그 링크가 무엇으로 만들어질지는 `renderLink`가 정합니다. 맨 `<a>`는 SPA에서 전체 문서 로드입니다 — 라우터가 클릭을 보지 못하니 숫자 하나 바꾸려고 페이지 전체를 다시 받고, 파싱하고, 부팅합니다. 쓰고 있는 라우터의 `Link`를 돌려주면 됩니다. 주소는 이미 만들어져서 들어오므로 그 안에 `getPageHref`를 한 번 더 쓸 필요가 없습니다. `rel="prev"`와 `rel="next"`는 돌려준 것 위에 그대로 얹힙니다.
+
+```tsx
+<PlPagination
+  count={12}
+  page={page}
+  getPageHref={(to) => `/articles?page=${to}`}
+  renderLink={(to, href) => <Link href={href} />}
+/>
+```
+
 <Demo src="pagination/links" :min-height="140">
 
 <<< @/.vitepress/demos/pagination/links.tsx
@@ -185,7 +196,7 @@ PlPagination(
 
 | React | Flutter | 이유 |
 | --- | --- | --- |
-| `getPageHref` | — | Flutter에는 링크 요소가 없고 Flutter 앱을 크롤링하는 것도 없으니, 줄은 버튼이고 라우터는 `onPageChanged`에서 부릅니다. |
+| `getPageHref`, `renderLink` | — | Flutter에는 링크 요소가 없고 Flutter 앱을 크롤링하는 것도 없으니, 줄은 버튼이고 라우터는 `onPageChanged`에서 부릅니다. |
 | `defaultPage` / `onPageChange` | `page` / `onPageChanged` | Flutter 자신의 컨트롤이 controlled이고, 콜백 이름도 Flutter의 것입니다. |
 | live region인 `statusLabel` | — | 현재 페이지는 focus가 닿을 때 그 버튼의 이름으로 알려지고, 페이지가 바뀔 때마다 울리는 live region은 방금 갈아 끼운 목록 위에 말을 겹쳐 놓게 됩니다. |
 | `<ul>`을 감싼 `<nav>` | 이름이 붙은 semantics 묶음 | 건너뛸 landmark도, 리셋이 앗아 갈 목록 의미도 없습니다. |

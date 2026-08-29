@@ -127,6 +127,17 @@ With an `href` **and** an `onPageChange`, the handler wins and the navigation is
 
 The current page and a stepper at the end of the row stay `<button>`s, because `disabled` is not something an `<a>` can be.
 
+`renderLink` decides what that link is made of. A bare `<a>` is a full document load in a single-page app — the router never sees the press, so the whole page is fetched, parsed and booted again to change one number. Hand back the `Link` your router brings and the address arrives already built, so there is no second copy of `getPageHref` inside it. `rel="prev"` and `rel="next"` are merged onto whatever comes back.
+
+```tsx
+<PlPagination
+  count={12}
+  page={page}
+  getPageHref={(to) => `/articles?page=${to}`}
+  renderLink={(to, href) => <Link href={href} />}
+/>
+```
+
 <Demo src="pagination/links" :min-height="140">
 
 <<< @/.vitepress/demos/pagination/links.tsx
@@ -182,7 +193,7 @@ The same height ladder as `PlButton`, so a pagination and a button on the same r
 
 | React | Flutter | Why |
 | --- | --- | --- |
-| `getPageHref` | — | Flutter has no link element and nothing crawls a Flutter app, so the row is buttons and `onPageChanged` is where a router is called. |
+| `getPageHref`, `renderLink` | — | Flutter has no link element and nothing crawls a Flutter app, so the row is buttons and `onPageChanged` is where a router is called. |
 | `defaultPage` / `onPageChange` | `page` / `onPageChanged` | Flutter's own controls are controlled, and its name for the callback. |
 | `statusLabel`, as a live region | — | The current page is announced by its own button's name when focus reaches it, and a live region that fired on every page change would talk over the list it just replaced. |
 | `<nav>` around a `<ul>` | a named semantics group | There is no landmark to skip to, and no list semantics for a reset to take away. |

@@ -204,6 +204,55 @@ describe('PlPagination', () => {
       expect(link).toHaveAttribute('href', '/posts?page=3');
     });
 
+    it('wears the element `renderLink` returns, with the address already built', async () => {
+      const RouterLink = (props: React.ComponentPropsWithoutRef<'a'>) => (
+        <a data-router="" {...props} />
+      );
+      const screen = await render(
+        <PlPagination
+          count={5}
+          getPageHref={(page) => `/posts?page=${page}`}
+          renderLink={(_page, href) => <RouterLink href={href} />}
+        />
+      );
+      const link = screen.getByRole('link', { name: 'Page 3' }).element();
+
+      expect(link).toHaveAttribute('data-router');
+      expect(link).toHaveAttribute('href', '/posts?page=3');
+    });
+
+    it('hands `renderLink` the page beside its address', async () => {
+      const seen: Array<[number, string]> = [];
+      await render(
+        <PlPagination
+          count={3}
+          getPageHref={(page) => `/posts?page=${page}`}
+          renderLink={(page, href) => {
+            seen.push([page, href]);
+            return <a href={href} />;
+          }}
+        />
+      );
+
+      expect(seen).toContainEqual([3, '/posts?page=3']);
+    });
+
+    it('keeps `rel` on a `renderLink` stepper', async () => {
+      const screen = await render(
+        <PlPagination
+          count={9}
+          defaultPage={5}
+          getPageHref={(page) => `/posts?page=${page}`}
+          renderLink={(_page, href) => <a data-router="" href={href} />}
+        />
+      );
+
+      expect(screen.getByRole('link', { name: 'Next page' }).element()).toHaveAttribute(
+        'rel',
+        'next'
+      );
+    });
+
     it('leaves the current page a button, since a link cannot be disabled', async () => {
       const screen = await render(
         <PlPagination count={5} defaultPage={2} getPageHref={(page) => `/posts?page=${page}`} />

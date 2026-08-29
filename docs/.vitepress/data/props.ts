@@ -5448,6 +5448,14 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'renderLink',
+      type: '(page: number, href: string) => ReactElement',
+      description: {
+        ko: '각 페이지 링크를 <a> 대신 다른 것으로 그립니다 — 보통 라우터의 Link. 없으면 SPA에서 매 클릭이 전체 문서 로드가 됩니다',
+        en: "Renders each page's link as something other than an <a> — a router's Link. Without it, every press in a single-page app is a full document load"
+      }
+    },
+    {
       name: 'label',
       type: 'string',
       default: "'Pagination'",

@@ -56,6 +56,29 @@ export interface PlPaginationProps
    */
   getPageHref?: (page: number) => string;
   /**
+   * Renders each page's link as something other than an `<a>` — the `Link` a
+   * router brings, most of the time.
+   *
+   * Without it a `getPageHref` row is plain anchors, and in a single-page app
+   * every one of them is a full document load: the router never sees the press,
+   * so the whole page is fetched, parsed and booted again to change one number.
+   * The address is handed in already built, so a router's own component needs
+   * no second copy of the `getPageHref` above it.
+   *
+   * `rel="prev"` and `rel="next"` are merged onto whatever comes back, so the
+   * two steppers keep saying what they are.
+   *
+   * ```tsx
+   * <PlPagination
+   *   count={12}
+   *   page={page}
+   *   getPageHref={(to) => `/articles?page=${to}`}
+   *   renderLink={(to, href) => <Link href={href} />}
+   * />
+   * ```
+   */
+  renderLink?: (page: number, href: string) => React.ReactElement;
+  /**
    * The accessible names, none of which is ever drawn.
    *
    * They are props rather than being read from a message catalogue for the same
@@ -202,6 +225,7 @@ export const PlPagination = /* @__PURE__ */ React.forwardRef<HTMLElement, PlPagi
       showArrows = true,
       disabled = false,
       getPageHref,
+      renderLink,
       label = 'Pagination',
       pageLabel = (value) => `Page ${value}`,
       previousLabel = 'Previous page',
@@ -246,9 +270,21 @@ export const PlPagination = /* @__PURE__ */ React.forwardRef<HTMLElement, PlPagi
      * stepper at the end of the row are both `disabled`, and `disabled` is not
      * something an `<a>` can be — a link that only looks unavailable is one a
      * keyboard still lands on and a crawler still follows.
+     *
+     * `rel` rides beside `render` rather than being written into the element,
+     * so it lands on whatever the caller's `renderLink` returned as well as on
+     * the plain `<a>`. `PlButton` spreads what it is given onto the rendered
+     * element, which is the same path `href` takes.
      */
-    const linkProps = (to: number, inert: boolean, rel?: 'prev' | 'next') =>
-      getPageHref && !inert ? { render: <a href={getPageHref(to)} rel={rel} /> } : null;
+    const linkProps = (to: number, inert: boolean, rel?: 'prev' | 'next') => {
+      if (!getPageHref || inert) {
+        return null;
+      }
+
+      const href = getPageHref(to);
+
+      return { render: renderLink ? renderLink(to, href) : <a href={href} />, rel };
+    };
 
     /*
      * Who answers the press.
