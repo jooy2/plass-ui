@@ -22,6 +22,10 @@
 
 - **A `PlAccordionItem`'s title and subtitle wrap.** They were each held to one line and ellipsed, which is the right rule for a table cell and the wrong one for a fold: an accordion is most often a list of questions, and a question is a sentence. A heading that ran past the header lost its end with no tooltip, no `title` attribute and nothing to press for the rest — a fold opens its *body*, not its heading — and the narrower the screen, the more of the question went. What wrapping costs is a header two lines tall, in the one component whose entire job is to change height. `truncate` puts both back on one line for the header the old behaviour was right for: a name out of a database sitting beside a control.
 
+### Documentation
+
+- **The `README` opens on what Plass is rather than on a word that reads as Material.** It led with "a component library with a material rather than a theme" — *material* meaning the stuff a surface is made of, which is not the reading anyone arriving from a Flutter or an Android background will reach for, and this library has nothing to do with Material. What is there instead is one paragraph describing the design itself: the question every surface answers, the tinted glass and the clear glass that answer it, and the fact that nothing is bevelled, embossed, or moved by a press. It is worded to serve as the library's summary wherever one is needed, and the root and Flutter `README`s carry it identically. The bullets under it are written from the caller's side — what is already decided, what is learned once, what nobody has to write — and the runtime dependency is a count rather than a name, since the count is what a reader is weighing and `package.json` has the name.
+
 ## 1.0.2 (2026-08-29)
 
 ### Fixed

@@ -13,6 +13,7 @@
 ### Documentation
 
 - **The `README` no longer calls the package a preview.** It said a component's parameters and defaults were "settled enough to read" and what it would look like after real use was not — true of a package that had not reached `1.0.0`, and no longer true once it did. In its place is the thing a reader of one half actually needs to know about the other: both packages hold the same components under the same parameter vocabulary and the same tokens, and they version independently, so this package's number and the npm one's will not always agree. Nothing under `lib/` changed.
+- **The `README` opens on the design rather than on the word "material".** It led with "a component library with a material rather than a theme", meaning *material* as the stuff a surface is made of — which is not the reading a Flutter developer reaches for first, in a package that goes out of its way to import neither `material.dart` nor `cupertino.dart`. One paragraph describing the design itself takes its place, shared word for word with the React package and the repository's own `README`, and the points under it are written from the caller's side. Importing neither library is still said, in the bullet about bringing nothing in behind it, where it is a benefit rather than a headline.
 
 ## 1.0.0 (2026-08-29)
 
