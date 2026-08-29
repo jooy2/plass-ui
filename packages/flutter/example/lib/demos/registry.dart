@@ -20,6 +20,9 @@ import 'package:plass_ui_example/demos/animate_rotate/origin.dart';
 import 'package:plass_ui_example/demos/animate_blink/hero.dart';
 import 'package:plass_ui_example/demos/animate_blink/min.dart';
 import 'package:plass_ui_example/demos/animate_blink/count.dart';
+import 'package:plass_ui_example/demos/animate_appear/hero.dart';
+import 'package:plass_ui_example/demos/animate_appear/stagger.dart';
+import 'package:plass_ui_example/demos/animate_appear/direction.dart';
 import 'package:plass_ui_example/demos/accordion/controlled.dart';
 import 'package:plass_ui_example/demos/accordion/dividers.dart';
 import 'package:plass_ui_example/demos/accordion/hero.dart';
@@ -732,6 +735,9 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'animate-blink/hero': _animateBlinkHero,
   'animate-blink/min': _animateBlinkMin,
   'animate-blink/count': _animateBlinkCount,
+  'animate-appear/hero': _animateAppearHero,
+  'animate-appear/stagger': _animateAppearStagger,
+  'animate-appear/direction': _animateAppearDirection,
 };
 
 Widget _hero(BuildContext context) => const ButtonHero();
@@ -1146,3 +1152,6 @@ Widget _animateRotateOrigin(BuildContext context) => const AnimateRotateOrigin()
 Widget _animateBlinkHero(BuildContext context) => const AnimateBlinkHero();
 Widget _animateBlinkMin(BuildContext context) => const AnimateBlinkMin();
 Widget _animateBlinkCount(BuildContext context) => const AnimateBlinkCount();
+Widget _animateAppearHero(BuildContext context) => const AnimateAppearHero();
+Widget _animateAppearStagger(BuildContext context) => const AnimateAppearStagger();
+Widget _animateAppearDirection(BuildContext context) => const AnimateAppearDirection();

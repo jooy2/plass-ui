@@ -23,6 +23,23 @@ import { PlAnimateAppear } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlAnimateAppear(
+  spacing: 8,
+  children: <Widget>[
+    for (final Service service in services) PlCard(title: Text(service.name)),
+  ],
+);
+```
+
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlAnimateAppear" />
@@ -32,6 +49,12 @@ import { PlAnimateAppear } from 'plass-ui';
 The animation is written **onto the children themselves** rather than onto wrappers around them. A row of `<li>`s stays a row of `<li>`s, a grid's cells stay its direct children, and nothing about the layout changes because the list is being animated — so the class and style each child already had are kept alongside the ones this adds. Only a bare string has no element to write onto, and that one is wrapped in a `<span>`.
 
 Every native `<div>` attribute passes straight through, and `render` swaps the container for another one.
+
+:::
+
+::: fw flutter
+
+It **lays its children out**, which the React build does not have to: there is no stylesheet here to put a `display: flex` on the container, so `orientation` and `spacing` are what a `className` would have done. Anything more elaborate than a row or a column belongs *inside* one child — which also makes that whole arrangement one step of the stagger. `distance` is a `double` in logical pixels.
 
 :::
 
@@ -53,6 +76,12 @@ It counts **children**, not leaves: eight children are eight steps, and one chil
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_appear/stagger.dart
+
+:::
+
 </Demo>
 
 ### from and reverse
@@ -64,6 +93,12 @@ It counts **children**, not leaves: eight children are eight steps, and one chil
 ::: fw react
 
 <<< @/.vitepress/demos/animate-appear/direction.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_appear/direction.dart
 
 :::
 
@@ -79,3 +114,33 @@ It counts **children**, not leaves: eight children are eight steps, and one chil
 - The stagger is decoration, not order. If the sequence matters, it has to be in the markup.
 
 :::
+
+::: fw flutter
+
+- When the platform has animations turned off (`MediaQuery.disableAnimations`) the effect is dropped entirely and the whole list is simply there.
+- Nothing is hidden from a screen reader at any point. Every child is in the tree from the first frame — what is staggered is when each one is drawn, not when it exists.
+- Keep the total short. Eight children at 70ms is half a second before the last one lands; at 300ms it is two and a half.
+- The stagger is decoration, not order. If the sequence matters, it has to be in the tree.
+
+:::
+
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| the animation is written onto the children's own `className` and `style` | each child is wrapped | There is no class list to add to. Wrapping is transparent to a `Flex`, but a child that has to be the direct child of something — an `Expanded` — belongs outside this widget. |
+| the container is a bare `<div>` the caller styles | `orientation` and `spacing` | No stylesheet, so the widget has to lay its children out. |
+| `distance` as a CSS length | `double` | Logical pixels. |
+| `render` | — | Flutter has no polymorphic element. |
+| `duration`, `delay` in milliseconds | `Duration` | The framework already has the type. |
+| `easing` as a CSS string | `curve`, a `Curve` | Dart's own name for the same thing. |
+| `repeat: number \| 'infinite'` | `int?`, `null` never stops | There is no `'infinite'` to write, and `-1` would be a sentinel a caller has to look up. |
+| `trigger="visible"` via `IntersectionObserver` | watches the nearest `Scrollable` | There is no observer here; with no scrollable above it there is nothing to watch, so it runs. |
+| `prefers-reduced-motion` | `MediaQuery.disableAnimations` | The platform's own signal. |
+| `className`, `style` | — | There is no class list and no style attribute to pass through. |
+
+:::
+```

@@ -392,6 +392,46 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlAnimateAppear: [
+    {
+      name: 'children',
+      type: 'List<Widget>',
+      required: true,
+      description: {
+        ko: '차례로 나타나는 것들. 시차는 자식마다 세므로, 여덟 개를 담은 자식 하나는 한 단계입니다',
+        en: 'The things that appear, one after another. The stagger counts children, so one child holding eight things is one step'
+      }
+    },
+    {
+      name: 'orientation',
+      type: 'PlassOrientation',
+      default: 'PlassOrientation.vertical',
+      shared: true,
+      description: {
+        ko: '묶음이 흐르는 방향. React 쪽에서 className이 하던 일입니다 — 여기에는 컨테이너에 display를 걸어 줄 스타일시트가 없습니다',
+        en: 'Which way the set runs. What a className does on the React side: there is no stylesheet here to put a display on the container'
+      }
+    },
+    {
+      name: 'spacing',
+      type: 'double',
+      default: '0',
+      description: {
+        ko: '자식 사이의 간격(논리 픽셀)',
+        en: 'The gap between children, in logical pixels'
+      }
+    },
+    from('PlAnimateAppear', 'stagger', {
+      type: 'Duration',
+      default: 'Duration(milliseconds: 70)'
+    }),
+    from('PlAnimateAppear', 'from', { type: 'PlassSide', default: 'PlassSide.bottom' }),
+    from('PlAnimateAppear', 'distance', { type: 'double', default: '12' }),
+    from('PlAnimateAppear', 'fade', { type: 'bool', default: 'true' }),
+    from('PlAnimateAppear', 'reverse', { type: 'bool', default: 'false' }),
+    ...animateFlutterProps('PlAnimateAppear', { duration: 'Duration(milliseconds: 380)' })
+  ],
+
   PlAnimateBlink: [
     from('PlAnimateBlink', 'min', { type: 'double', default: '0' }),
     ...animateFlutterProps('PlAnimateBlink', {

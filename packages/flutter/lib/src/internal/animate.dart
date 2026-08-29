@@ -40,6 +40,8 @@
 /// None of this is exported from `plass_ui.dart`.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
@@ -381,6 +383,13 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   int _pass = 1;
   int _startedRuns = -1;
 
+  /// The wait before the first pass, held so it can be called off.
+  ///
+  /// A `Future.delayed` would do the same job and leave a timer running after
+  /// the widget was gone — which a widget test reports as a pending timer, and
+  /// which in an app would start an animation on a disposed controller.
+  Timer? _waiting;
+
   @override
   void initState() {
     super.initState();
@@ -396,6 +405,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
 
   @override
   void dispose() {
+    _waiting?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -424,6 +434,8 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// Starts, holds or rewinds, from whatever the gate is currently saying.
   void _drive(bool running, int runs) {
     if (!running) {
+      _waiting?.cancel();
+
       if (_controller.isAnimating) {
         _controller.stop();
       }
@@ -448,6 +460,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     _startedRuns = runs;
     _pass = 1;
     _controller.value = 0;
+    _waiting?.cancel();
 
     if (widget.settings.delay == Duration.zero) {
       _controller.forward();
@@ -455,7 +468,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
       return;
     }
 
-    Future<void>.delayed(widget.settings.delay, () {
+    _waiting = Timer(widget.settings.delay, () {
       if (mounted && _startedRuns == runs) {
         _controller.forward();
       }
