@@ -287,6 +287,34 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlAccordionItem', 'children', { name: 'child', type: 'Widget?' })
   ],
 
+  PlAnimateGrow: [
+    from('PlAnimateGrow', 'mode', {
+      type: 'PlassAnimateMode',
+      default: 'PlassAnimateMode.enter',
+      description: {
+        ko: '내용이 펼쳐지는지 접히는지. in이 Dart의 예약어라 enter/exit입니다',
+        en: 'Whether the content unfolds or folds away. enter/exit rather than in/out, because in is a reserved word in Dart'
+      }
+    }),
+    from('PlAnimateGrow', 'from', { type: 'double', default: '0.8' }),
+    from('PlAnimateGrow', 'origin', {
+      type: 'Alignment',
+      default: 'Alignment.center',
+      description: {
+        ko: '나머지가 움직이는 동안 제자리에 있는 점. CSS 문자열이 아니라 Alignment입니다 — topCenter는 아래로 펼치고, bottomLeft는 모서리에서 나옵니다',
+        en: 'Which point stays put while the rest moves. An Alignment rather than a CSS string: topCenter unfolds downwards, bottomLeft out of a corner'
+      }
+    }),
+    from('PlAnimateGrow', 'fade', { type: 'bool', default: 'true' }),
+    ...animateFlutterProps('PlAnimateGrow', { duration: 'Duration(milliseconds: 320)' }),
+    {
+      name: 'child',
+      type: 'Widget',
+      required: true,
+      description: { ko: '무엇이 펼쳐지는지', en: 'What unfolds' }
+    }
+  ],
+
   PlAnimateFade: [
     from('PlAnimateFade', 'mode', {
       type: 'PlassAnimateMode',

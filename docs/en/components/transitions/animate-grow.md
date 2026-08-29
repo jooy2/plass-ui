@@ -21,6 +21,21 @@ import { PlAnimateGrow } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+const PlAnimateGrow(
+  origin: Alignment.topCenter,
+  child: PlBox(child: Text('Sort, group and column visibility.')),
+);
+```
+
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlAnimateGrow" />
@@ -28,6 +43,12 @@ import { PlAnimateGrow } from 'plass-ui';
 ::: fw react
 
 Every native `<div>` attribute passes straight through, and `render` swaps the element for another one.
+
+:::
+
+::: fw flutter
+
+`origin` is an `Alignment` rather than a CSS `transform-origin` string, because the framework already has the type. `duration` and `delay` are `Duration`s, `curve` is a `Curve`, and `repeat` is an `int?` where `null` never stops.
 
 :::
 
@@ -47,6 +68,12 @@ The anchor is the whole difference between this and `PlAnimateZoom`. A panel tha
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_grow/origin.dart
+
+:::
+
 </Demo>
 
 ### from
@@ -58,6 +85,12 @@ Above `1` it arrives oversized and settles back. Short travel is what keeps it s
 ::: fw react
 
 <<< @/.vitepress/demos/animate-grow/from.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_grow/from.dart
 
 :::
 
@@ -75,6 +108,12 @@ The common use, and the one the defaults were chosen for: `origin="top"`, a shor
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_grow/panel.dart
+
+:::
+
 </Demo>
 
 ## Accessibility
@@ -87,3 +126,33 @@ The common use, and the one the defaults were chosen for: `origin="top"`, a shor
 - This is a wrapper, not a disclosure. Mounting and unmounting the content is the caller's job, and so is whatever `aria-expanded` belongs on the control that did it.
 
 :::
+
+::: fw flutter
+
+- When the platform has animations turned off (`MediaQuery.disableAnimations`) the effect is dropped entirely and the content is simply there.
+- The widget adds no semantics of its own. It is a `Transform` around content that already says what it is.
+- Scaling resamples whatever is inside, so keep the travel short over text — that is what `from` defaults to `0.8` for. Long travel belongs on a shape, an icon or a picture.
+- This is a wrapper, not a disclosure. Adding and removing the content is the caller's job, and so is whatever a screen reader should be told about it.
+
+:::
+
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `origin` as a CSS `transform-origin` string | `Alignment` | The framework already has the type, and `Alignment.topCenter` reads better than `'top'`. |
+| `fade` draws an always-present opacity layer | no `Opacity` widget at all when `fade` is off | One fewer layer to composite, and nothing in the tree claiming to be doing something it is not. |
+| `mode="in" \| "out"` | `PlassAnimateMode.enter` / `.exit` | `in` is a reserved word in Dart. |
+| `render` | — | Flutter has no polymorphic element. |
+| `duration`, `delay` in milliseconds | `Duration` | The framework already has the type. |
+| `easing` as a CSS string | `curve`, a `Curve` | Dart's own name for the same thing. |
+| `repeat: number \| 'infinite'` | `int?`, `null` never stops | There is no `'infinite'` to write, and `-1` would be a sentinel a caller has to look up. |
+| `trigger="visible"` via `IntersectionObserver` | watches the nearest `Scrollable` | There is no observer here; with no scrollable above it there is nothing to watch, so it runs. |
+| `prefers-reduced-motion` | `MediaQuery.disableAnimations` | The platform's own signal. |
+| `className`, `style` | — | There is no class list and no style attribute to pass through. |
+
+:::
+```

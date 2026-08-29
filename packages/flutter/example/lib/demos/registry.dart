@@ -4,6 +4,10 @@ import 'package:plass_ui_example/demos/animate_fade/hero.dart';
 import 'package:plass_ui_example/demos/animate_fade/mode.dart';
 import 'package:plass_ui_example/demos/animate_fade/timing.dart';
 import 'package:plass_ui_example/demos/animate_fade/triggers.dart';
+import 'package:plass_ui_example/demos/animate_grow/hero.dart';
+import 'package:plass_ui_example/demos/animate_grow/origin.dart';
+import 'package:plass_ui_example/demos/animate_grow/from.dart';
+import 'package:plass_ui_example/demos/animate_grow/panel.dart';
 import 'package:plass_ui_example/demos/accordion/controlled.dart';
 import 'package:plass_ui_example/demos/accordion/dividers.dart';
 import 'package:plass_ui_example/demos/accordion/hero.dart';
@@ -700,6 +704,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'animate-fade/mode': _animateFadeMode,
   'animate-fade/timing': _animateFadeTiming,
   'animate-fade/triggers': _animateFadeTriggers,
+  'animate-grow/hero': _animateGrowHero,
+  'animate-grow/origin': _animateGrowOrigin,
+  'animate-grow/from': _animateGrowFrom,
+  'animate-grow/panel': _animateGrowPanel,
 };
 
 Widget _hero(BuildContext context) => const ButtonHero();
@@ -1098,3 +1106,7 @@ Widget _animateFadeHero(BuildContext context) => const AnimateFadeHero();
 Widget _animateFadeMode(BuildContext context) => const AnimateFadeMode();
 Widget _animateFadeTiming(BuildContext context) => const AnimateFadeTiming();
 Widget _animateFadeTriggers(BuildContext context) => const AnimateFadeTriggers();
+Widget _animateGrowHero(BuildContext context) => const AnimateGrowHero();
+Widget _animateGrowOrigin(BuildContext context) => const AnimateGrowOrigin();
+Widget _animateGrowFrom(BuildContext context) => const AnimateGrowFrom();
+Widget _animateGrowPanel(BuildContext context) => const AnimateGrowPanel();
