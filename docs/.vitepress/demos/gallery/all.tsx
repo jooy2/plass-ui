@@ -4,6 +4,7 @@ import {
   PlAccordionItem,
   PlAlert,
   PlAnimateFade,
+  PlAnimateBlink,
   PlAnimateRotate,
   PlAnimateSlide,
   PlAnimateZoom,
@@ -1337,6 +1338,20 @@ const entries: Entry[] = [
       >
         <PlChip color="secondary">Turning</PlChip>
       </PlAnimateRotate>
+    )
+  },
+  {
+    name: 'PlAnimateBlink',
+    group: 'transitions',
+    href: 'components/transitions/animate-blink',
+    blurb: {
+      en: 'Content pulsing between full opacity and a floor.',
+      ko: '완전한 불투명도와 바닥값 사이를 오가며 맥동하는 내용입니다.'
+    },
+    preview: (
+      <PlAnimateBlink duration={1400} min={0.3}>
+        <PlChip color="danger">Live</PlChip>
+      </PlAnimateBlink>
     )
   }
 ];

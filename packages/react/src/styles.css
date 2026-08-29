@@ -981,6 +981,22 @@
   animation-name: plass-anim-rotate;
 }
 
+/* Symmetric on purpose: a blink that ended anywhere but where it started would
+   leave the element half drawn whenever the count ran out. */
+@keyframes plass-anim-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: var(--p-anim-opacity, 0);
+  }
+}
+
+.plass-anim-blink {
+  animation-name: plass-anim-blink;
+}
+
 /* ---------------------------------------------------------------------------
  * Reduced motion
  *

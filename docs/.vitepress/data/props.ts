@@ -751,6 +751,26 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlAnimateBlink: [
+    {
+      name: 'min',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: '주기의 바닥에서 얼마나 옅어지는지, 0과 1 사이. 맥동하는 동안에도 읽혀야 하는 것이라면 올려 잡으세요',
+        en: 'How faint it gets at the bottom of the cycle, between 0 and 1. Raise it for something that has to stay readable while it pulses'
+      }
+    },
+    ...animateProps({ duration: '1000', repeat: "'infinite'" }),
+    {
+      name: 'render',
+      type: 'ReactElement | (props, state) => ReactElement',
+      description: {
+        ko: '<div> 대신 다른 요소로 렌더링합니다',
+        en: 'Renders something other than a <div>'
+      }
+    }
+  ],
   PlAnimateFade: [
     {
       name: 'mode',
