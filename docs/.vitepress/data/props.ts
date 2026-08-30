@@ -4043,6 +4043,106 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlHeader: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: '시트의 재질. 바에는 색이 들어가지 않습니다 — 위에 얹힌 것들이 자기 색을 갖고 옵니다',
+        en: 'What the sheet is made of. The bar is never dyed — what is on it arrives with colours of its own'
+      },
+      sizeDescription: {
+        ko: '바의 높이 하한, gutter, 슬롯 사이의 공기. PlBox처럼 여기서 size는 시트의 크기입니다',
+        en: "The bar's height floor, its gutter and the air around its slots. As on PlBox, size here is the size of the sheet"
+      },
+      elevationDescription: {
+        ko: '그림자 깊이. 0이 기본이고 평평합니다 — 헤더는 창 위쪽에 붙어 있지 떠 있지 않습니다',
+        en: 'Drop shadow depth. 0 is the default and it is flat: a header is attached to the top of the window rather than floating over it'
+      }
+    }),
+    {
+      name: 'brand',
+      type: 'ReactNode',
+      description: {
+        ko: '앞쪽 슬롯 — 로고, 제품 이름, 모든 페이지에서 같은 것',
+        en: "The leading slot: the logo, the product's name, the thing that is the same on every page"
+      }
+    },
+    {
+      name: 'actions',
+      type: 'ReactNode',
+      description: {
+        ko: '뒤쪽 슬롯 — 계정 메뉴, 테마 스위치, 콜 투 액션. 끝 정렬로 배치되므로 버튼 여러 개에 wrapper가 필요 없습니다',
+        en: 'The trailing slot: the account menu, the theme switch, the call to action. End-aligned, so a row of buttons needs no wrapper'
+      }
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'start'",
+      shared: true,
+      description: {
+        ko: '가운데 슬롯이 어디에 앉는지. center는 남은 공간이 아니라 바 자신의 중심선에 맞춥니다',
+        en: "Where the middle slot sits. center is on the bar's own midline, not in the space left over"
+      }
+    },
+    {
+      name: 'position',
+      type: "'static' | 'sticky' | 'fixed'",
+      default: "'sticky'",
+      shared: true,
+      description: {
+        ko: '바가 페이지 스크롤 안에서 어떻게 앉는지. CSS가 쓰는 그대로입니다',
+        en: "How the bar sits in the page's scroll, spelled the way CSS spells it"
+      }
+    },
+    {
+      name: 'divider',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '아래 가장자리에 헤어라인을 그립니다. 스크롤되는 페이지 위에 고정된 바는 아래로 늘 내용이 지나가므로 기본으로 켜져 있습니다',
+        en: 'Draws a hairline along the bottom edge. On by default: a pinned bar has content passing underneath it at every moment'
+      }
+    },
+    {
+      name: 'maxWidth',
+      type: "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'none'",
+      default: "'none'",
+      description: {
+        ko: '시트는 창을 가로지른 채로, 슬롯의 행만 measure에 맞춰 가운데 둡니다. PlContainer의 maxWidth와 같은 사다리입니다',
+        en: "Holds the row of slots to a measure and centres it while the sheet still spans the window. The same ladder PlContainer's maxWidth uses"
+      }
+    },
+    {
+      name: 'padded',
+      type: 'boolean',
+      default: 'true',
+      description: { ko: '행 양쪽의 gutter', en: 'The gutter down each side of the row' }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: {
+        ko: '바가 불리는 이름. 페이지에 <header>가 둘 이상일 때 써 둘 값어치가 있습니다',
+        en: 'The name the bar is announced by. Worth writing when a page has more than one <header> in it'
+      }
+    },
+    {
+      name: 'render',
+      type: 'useRender.RenderProp',
+      description: {
+        ko: '<header> 대신 다른 요소로 렌더링합니다. 대개 원하는 것이 아닙니다 — 페이지 위쪽의 바는 banner이고, 그걸 말해 주는 것이 태그입니다',
+        en: 'Renders something other than a <header>. Rarely what you want: the bar at the top of a page is a banner, and the tag is what says so'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '가운데 슬롯', en: 'The middle slot' }
+    }
+  ],
+
   PlHighlight: [
     {
       name: 'query',

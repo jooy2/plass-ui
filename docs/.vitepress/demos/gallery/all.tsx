@@ -43,6 +43,7 @@ import {
   PlFloatingBottomNavigationItem,
   PlGrid,
   PlGridItem,
+  PlHeader,
   PlHighlight,
   PlHotKeys,
   PlIcon,
@@ -1205,6 +1206,24 @@ const entries: Entry[] = [
         <PlMenuSeparator />
         <PlMenuItem color="danger">Delete</PlMenuItem>
       </PlMenu>
+    )
+  },
+  {
+    name: 'PlHeader',
+    group: 'layout',
+    href: 'components/layout/header',
+    blurb: {
+      en: "The bar across the top of a page, and the page's banner landmark.",
+      ko: '페이지 위쪽을 가로지르는 바이자, 그 페이지의 banner landmark입니다.'
+    },
+    preview: (
+      <PlHeader
+        position="static"
+        size="xs"
+        className="w-full"
+        brand={<span className="text-xs font-semibold">Acme</span>}
+        actions={<span className="text-xs text-(--plass-muted-fg)">Account</span>}
+      />
     )
   },
   {
