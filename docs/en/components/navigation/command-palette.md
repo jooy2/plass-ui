@@ -7,7 +7,7 @@ order: 5
 
 <p class="plass-lede">Everything an application can do, behind one field. The shape a keyboard-first product takes once it has more actions than a menu bar can hold: a reader types what they want instead of remembering where it was put.</p>
 
-<Demo src="command-palette/hero" :flutter="false" :min-height="200" />
+<Demo src="command-palette/hero" :min-height="200" />
 
 ::: fw react
 
@@ -18,6 +18,23 @@ import { PlCommandPalette } from 'plass-ui';
   items={[{ value: 'new', label: 'New document', group: 'File', shortcut: 'Mod+N' }]}
   onSelect={(item) => run(item.value)}
 />;
+```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlCommandPalette(
+  open: open,
+  onOpenChanged: (bool next) => setState(() => open = next),
+  onSelect: (PlCommandItem item) => run(item.value),
+  items: const <PlCommandItem>[
+    PlCommandItem(value: 'new', label: 'New document', group: 'File', shortcut: 'Mod+N'),
+  ],
+);
 ```
 
 :::
@@ -49,9 +66,19 @@ Commands are drawn in the order they are given, and a heading appears each time 
 
 The filter folds case and combining marks, so `cafe` finds `Café`. Each command's searchable text is folded **once per list** rather than once per comparison — a `normalize` on every command for every character typed is exactly the cost that makes a palette feel slow.
 
-<Demo src="command-palette/groups" :flutter="false" :min-height="160">
+<Demo src="command-palette/groups" :min-height="160">
+
+::: fw react
 
 <<< @/.vitepress/demos/command-palette/groups.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/command_palette/groups.dart
+
+:::
 
 </Demo>
 
@@ -69,9 +96,19 @@ The sheet's width, the field's height and the rows' type scale. The field sits o
 
 `density` moves the row height and nothing else.
 
-<Demo src="command-palette/sizes" :flutter="false" :min-height="140">
+<Demo src="command-palette/sizes" :min-height="140">
+
+::: fw react
 
 <<< @/.vitepress/demos/command-palette/sizes.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/command_palette/sizes.dart
+
+:::
 
 </Demo>
 
@@ -80,6 +117,22 @@ The sheet's width, the field's height and the rows' type scale. The field sits o
 Pass `open` with `onOpenChange`. The palette still asks — the keystroke fires `onOpenChange(true)` — and does not open until the caller says so, which is what a route guard or a "not while the editor is busy" rule needs.
 
 The query is dropped on the way **out** rather than on the way in, so the sheet never flashes the last search as it fades.
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `open` / `defaultOpen` | `open`, required | There is no uncontrolled mode: what opens a palette is a key bound on the whole app, and an app that binds one already holds the state. |
+| `shortcut: false` | `shortcut: null` | Dart's way of saying "bind nothing". |
+| the list keys handled by Base UI's Autocomplete | handled before the focus system, in the palette's own key handler | The field has the focus and an `EditableText` consumes the arrow keys and Enter itself. Reading them first is the only way the field keeps every character while the list keeps its four keys. |
+| a `combobox` with `aria-activedescendant` | a field and a list of `button`s, one marked selected | Flutter's semantics tree has no `activedescendant`. What survives is the thing that matters: the highlight is one mark, and it is announced on the row it is on. |
+| the fold strips case **and** combining marks | case only | Dart's core has no `String.normalize`, and this package has no dependencies. |
+| `width`, `maxHeight` as a number or a CSS length | `double` | There is no second unit to name. |
+| `className`, `style` | — | There is no class list and no style attribute to pass through. |
+
+:::
 
 ## Accessibility
 

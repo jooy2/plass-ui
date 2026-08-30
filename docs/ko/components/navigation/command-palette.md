@@ -7,7 +7,7 @@ order: 5
 
 <p class="plass-lede">애플리케이션이 할 수 있는 모든 것을 필드 하나 뒤에 둡니다. 메뉴 바가 담을 수 있는 것보다 액션이 많아진 키보드 중심 제품이 취하는 형태입니다 — 어디에 뒀는지 기억하는 대신 원하는 것을 칩니다.</p>
 
-<Demo src="command-palette/hero" :flutter="false" :min-height="200" />
+<Demo src="command-palette/hero" :min-height="200" />
 
 ::: fw react
 
@@ -18,6 +18,23 @@ import { PlCommandPalette } from 'plass-ui';
   items={[{ value: 'new', label: 'New document', group: 'File', shortcut: 'Mod+N' }]}
   onSelect={(item) => run(item.value)}
 />;
+```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlCommandPalette(
+  open: open,
+  onOpenChanged: (bool next) => setState(() => open = next),
+  onSelect: (PlCommandItem item) => run(item.value),
+  items: const <PlCommandItem>[
+    PlCommandItem(value: 'new', label: 'New document', group: 'File', shortcut: 'Mod+N'),
+  ],
+);
 ```
 
 :::
@@ -49,9 +66,19 @@ import { PlCommandPalette } from 'plass-ui';
 
 필터는 대소문자와 결합 문자를 접으므로 `cafe`가 `Café`를 찾습니다. 각 명령의 검색 대상 텍스트는 비교마다가 아니라 **목록당 한 번** 접힙니다 — 글자를 칠 때마다 모든 명령에 `normalize`를 도는 것이 팔레트를 느리게 만드는 바로 그 비용입니다.
 
-<Demo src="command-palette/groups" :flutter="false" :min-height="160">
+<Demo src="command-palette/groups" :min-height="160">
+
+::: fw react
 
 <<< @/.vitepress/demos/command-palette/groups.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/command_palette/groups.dart
+
+:::
 
 </Demo>
 
@@ -69,9 +96,19 @@ import { PlCommandPalette } from 'plass-ui';
 
 `density`는 행 높이만 옮깁니다.
 
-<Demo src="command-palette/sizes" :flutter="false" :min-height="140">
+<Demo src="command-palette/sizes" :min-height="140">
+
+::: fw react
 
 <<< @/.vitepress/demos/command-palette/sizes.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/command_palette/sizes.dart
+
+:::
 
 </Demo>
 
@@ -80,6 +117,22 @@ import { PlCommandPalette } from 'plass-ui';
 `open`을 `onOpenChange`와 함께 넘기세요. 팔레트는 여전히 묻고 — 키를 누르면 `onOpenChange(true)`가 발생하고 — 호출하는 쪽이 그렇다고 하기 전까지 열리지 않습니다. route guard나 "에디터가 바쁠 때는 안 됨" 같은 규칙에 필요한 것이 그것입니다.
 
 질의는 들어올 때가 아니라 **나갈 때** 버려집니다. 그래야 시트가 사라지면서 마지막 검색어를 번쩍 보여 주지 않습니다.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `open` / `defaultOpen` | 필수인 `open` | uncontrolled 모드가 없습니다. 팔레트를 여는 것은 앱 전체에 걸린 키이고, 그런 키를 거는 앱은 이미 상태를 쥐고 있습니다. |
+| `shortcut: false` | `shortcut: null` | "아무것도 바인딩하지 않는다"를 Dart가 말하는 방식입니다. |
+| Base UI Autocomplete가 다루는 목록 키 | focus 시스템보다 먼저, 팔레트 자신의 키 핸들러에서 | 필드가 focus를 쥐고 있고 `EditableText`가 화살표 키와 Enter를 스스로 삼킵니다. 먼저 읽는 것만이 필드가 모든 글자를, 목록이 자기 네 키를 지키는 길입니다. |
+| `aria-activedescendant`를 지닌 `combobox` | 필드 하나와 `button` 목록, 그중 하나가 selected | Flutter semantics에는 `activedescendant`가 없습니다. 남는 것은 중요한 쪽입니다 — 하이라이트는 하나이고, 그것이 얹힌 행에서 알려집니다. |
+| 대소문자 **와** 결합 문자를 접음 | 대소문자만 | Dart 코어에는 `String.normalize`가 없고, 이 패키지에는 의존성이 없습니다. |
+| 숫자나 CSS 길이인 `width`, `maxHeight` | `double` | 이름 붙일 두 번째 단위가 없습니다. |
+| `className`, `style` | — | 전달할 class 목록도 style 속성도 없습니다. |
+
+:::
 
 ## 접근성
 

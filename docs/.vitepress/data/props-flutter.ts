@@ -1071,6 +1071,54 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlComboboxOption', 'disabled', { type: 'bool', default: 'false' })
   ],
 
+  PlCommandPalette: [
+    from('PlCommandPalette', 'items', { type: 'List<PlCommandItem>', required: true }),
+    from('PlCommandPalette', 'open', {
+      type: 'bool',
+      required: true,
+      description: {
+        ko: '팔레트가 열려 있는지. uncontrolled 모드는 없습니다 — 팔레트를 여는 것은 앱 전체에 걸린 키이고, 그런 키를 거는 앱은 이미 상태를 쥐고 있습니다',
+        en: 'Whether the palette is open. There is no uncontrolled mode: the thing that opens a palette is a key bound on the whole app, and an app that binds one already holds the state'
+      }
+    }),
+    from('PlCommandPalette', 'onOpenChange', {
+      name: 'onOpenChanged',
+      type: 'ValueChanged<bool>?'
+    }),
+    from('PlCommandPalette', 'onSelect', { type: 'ValueChanged<PlCommandItem>?' }),
+    from('PlCommandPalette', 'shortcut', {
+      type: 'String?',
+      default: "'Mod+K'",
+      description: {
+        ko: '팔레트를 여는 키. 키보드에 바인딩됩니다. PlHotKeys와 같은 표기라 Mod는 Mac에서 Command, 그 외에서 Control입니다. null이면 아무것도 바인딩하지 않습니다',
+        en: 'The keystroke that opens the palette, bound on the keyboard. Written the way PlHotKeys writes them, so Mod is Command on a Mac and Control everywhere else. null binds nothing'
+      }
+    }),
+    from('PlCommandPalette', 'width', { type: 'double?' }),
+    from('PlCommandPalette', 'maxHeight', { type: 'double', default: '320' }),
+    from('PlCommandPalette', 'placeholder', { type: 'String', default: "'Search commands'" }),
+    from('PlCommandPalette', 'emptyMessage', {
+      type: 'String',
+      default: "'No commands found'"
+    }),
+    from('PlCommandPalette', 'label', { type: 'String', default: "'Command palette'" }),
+    from('PlCommandPalette', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlCommandPalette', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlCommandPalette', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+  ],
+
+  PlCommandItem: [
+    from('PlCommandItem', 'value', { type: 'String', required: true }),
+    from('PlCommandItem', 'label', { type: 'String', required: true }),
+    from('PlCommandItem', 'description', { type: 'String?' }),
+    from('PlCommandItem', 'icon', { type: 'Widget?' }),
+    from('PlCommandItem', 'shortcut', { type: 'String?' }),
+    from('PlCommandItem', 'group', { type: 'String?' }),
+    from('PlCommandItem', 'keywords', { type: 'List<String>', default: 'const []' }),
+    from('PlCommandItem', 'disabled', { type: 'bool', default: 'false' }),
+    from('PlCommandItem', 'onSelect', { type: 'VoidCallback?' })
+  ],
+
   PlContainer: [
     from('PlContainer', 'children', { name: 'child', type: 'Widget?' }),
     from('PlContainer', 'maxWidth', {

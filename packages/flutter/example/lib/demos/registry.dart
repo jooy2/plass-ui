@@ -248,6 +248,9 @@ import 'package:plass_ui_example/demos/header/hero.dart';
 import 'package:plass_ui_example/demos/header/measure.dart';
 import 'package:plass_ui_example/demos/header/sizes.dart';
 import 'package:plass_ui_example/demos/header/variants.dart';
+import 'package:plass_ui_example/demos/command_palette/groups.dart';
+import 'package:plass_ui_example/demos/command_palette/hero.dart';
+import 'package:plass_ui_example/demos/command_palette/sizes.dart';
 import 'package:plass_ui_example/demos/fieldset/disabled.dart';
 import 'package:plass_ui_example/demos/fieldset/hero.dart';
 import 'package:plass_ui_example/demos/fieldset/on_a_sheet.dart';
@@ -592,6 +595,9 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'header/variants': _headerVariants,
   'header/sizes': _headerSizes,
   'header/measure': _headerMeasure,
+  'command-palette/hero': _commandPaletteHero,
+  'command-palette/groups': _commandPaletteGroups,
+  'command-palette/sizes': _commandPaletteSizes,
   'fieldset/hero': _fieldsetHero,
   'fieldset/disabled': _fieldsetDisabled,
   'fieldset/sizes': _fieldsetSizes,
@@ -1024,6 +1030,10 @@ Widget _headerAlign(BuildContext context) => const HeaderAlign();
 Widget _headerVariants(BuildContext context) => const HeaderVariants();
 Widget _headerSizes(BuildContext context) => const HeaderSizes();
 Widget _headerMeasure(BuildContext context) => const HeaderMeasure();
+
+Widget _commandPaletteHero(BuildContext context) => const CommandPaletteHero();
+Widget _commandPaletteGroups(BuildContext context) => const CommandPaletteGroups();
+Widget _commandPaletteSizes(BuildContext context) => const CommandPaletteSizes();
 
 Widget _fieldsetHero(BuildContext context) => const FieldsetHero();
 Widget _fieldsetDisabled(BuildContext context) => const FieldsetDisabled();

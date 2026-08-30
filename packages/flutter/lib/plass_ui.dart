@@ -50,6 +50,7 @@ export 'src/components/checkbox/pl_checkbox.dart';
 export 'src/components/chip/pl_chip.dart';
 export 'src/components/collapsible/pl_collapsible.dart';
 export 'src/components/combobox/pl_combobox.dart';
+export 'src/components/command_palette/pl_command_palette.dart';
 export 'src/components/container/pl_container.dart';
 export 'src/components/date_picker/pl_date_picker.dart';
 export 'src/components/date_range_picker/pl_date_range_picker.dart';

@@ -23,3 +23,12 @@ library;
 String searchText(String? value) {
   return value == null ? '' : value.toLowerCase();
 }
+
+/// Every string a row can be found by, folded once and joined into one
+/// haystack.
+///
+/// The seam is a character no keyboard produces, so a query cannot span the
+/// join between two fields and find a row on text that is not next to itself.
+String searchHaystack(List<String?> values) {
+  return values.map(searchText).join('\u0000');
+}
