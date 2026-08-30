@@ -93,6 +93,7 @@ import {
   PlToggle,
   PlToggleGroup,
   PlToolbar,
+  PlTransfer,
   PlTooltip,
   usePlToast,
   PlTypography
@@ -1014,6 +1015,28 @@ const entries: Entry[] = [
         <PlToggle value="center">Center</PlToggle>
         <PlToggle value="right">Right</PlToggle>
       </PlToggleGroup>
+    )
+  },
+  {
+    name: 'PlTransfer',
+    group: 'inputs',
+    href: 'components/inputs/transfer',
+    blurb: {
+      en: 'Two lists and the arrows between them, for a choice that is long.',
+      ko: '두 목록과 그 사이의 화살표. 선택지가 길 때를 위한 것입니다.'
+    },
+    preview: (
+      <PlTransfer
+        className="w-full"
+        size="xs"
+        height={72}
+        items={[
+          { value: 'a', label: 'Name' },
+          { value: 'b', label: 'Email' },
+          { value: 'c', label: 'Role' }
+        ]}
+        defaultValue={['b']}
+      />
     )
   },
   {

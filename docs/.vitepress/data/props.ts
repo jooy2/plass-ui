@@ -8653,6 +8653,156 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlTransfer: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: '두 패널의 재질. 필드와 같은 껍데기입니다 — 목록은 값을 담지, 눌리지 않습니다',
+        en: 'What the two panels are made of. The same shell a field wears: a list holds a value rather than being pressed'
+      },
+      sizeDescription: {
+        ko: '체크박스, 화살표, 타입 스케일, 여백이 함께 움직입니다',
+        en: 'The checkboxes, the arrows, the type scale and the padding, moving together'
+      }
+    }),
+    {
+      name: 'items',
+      type: 'readonly PlTransferItem[]',
+      required: true,
+      description: {
+        ko: '양쪽에 있을 수 있는 모든 것. 두 목록이 보여 주는 순서이기도 합니다',
+        en: 'Everything that can be on either side, in the order both lists show it'
+      }
+    },
+    {
+      name: 'value',
+      type: 'readonly string[]',
+      description: {
+        ko: '뒤쪽에 있는 것. onValueChange와 함께 controlled로 씁니다',
+        en: 'What is on the trailing side. Use with onValueChange for a controlled pair'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'readonly string[]',
+      description: { ko: '뒤쪽에서 시작하는 것', en: 'What starts there, for an uncontrolled one' }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string[]) => void',
+      description: {
+        ko: '뭔가 건너갔거나 돌아왔을 때',
+        en: 'Called when something moves across or back'
+      }
+    },
+    {
+      name: 'sourceLabel',
+      type: 'ReactNode',
+      default: "'Available'",
+      description: { ko: '앞쪽 목록 위의 제목', en: 'The heading over the leading list' }
+    },
+    {
+      name: 'targetLabel',
+      type: 'ReactNode',
+      default: "'Selected'",
+      description: { ko: '뒤쪽 목록 위의 제목', en: 'And over the trailing one' }
+    },
+    {
+      name: 'searchable',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '각 목록 위에 필터를 둡니다', en: 'Puts a filter above each list' }
+    },
+    {
+      name: 'searchLabel',
+      type: 'string',
+      default: "'Search'",
+      description: {
+        ko: '그 필터가 비어 있을 때 말하는 내용',
+        en: 'What that filter says while it is empty'
+      }
+    },
+    {
+      name: 'emptyLabel',
+      type: 'string',
+      default: "'Nothing here'",
+      description: {
+        ko: '아무것도 없는 목록이 말하는 내용',
+        en: 'What a list with nothing in it says'
+      }
+    },
+    {
+      name: 'selectAllLabel',
+      type: 'string',
+      default: "'Select all'",
+      description: {
+        ko: '목록 제목의 체크박스가 불리는 이름',
+        en: "What the tick in a list's heading is announced as"
+      }
+    },
+    {
+      name: 'toTargetLabel',
+      type: 'string',
+      default: "'Move to selected'",
+      description: {
+        ko: '건너가는 화살표가 불리는 이름',
+        en: 'What the outward arrow is announced as'
+      }
+    },
+    {
+      name: 'toSourceLabel',
+      type: 'string',
+      default: "'Move to available'",
+      description: {
+        ko: '돌아오는 화살표가 불리는 이름',
+        en: 'What the returning arrow is announced as'
+      }
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      default: '220',
+      description: {
+        ko: '각 목록의 높이. 픽셀 수 또는 CSS 길이',
+        en: 'How tall each list is. A number of pixels or any CSS length'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '아무것도 체크하거나 옮길 수 없습니다',
+        en: 'Nothing can be ticked or moved'
+      }
+    }
+  ],
+
+  PlTransferItem: [
+    {
+      name: 'value',
+      type: 'string',
+      required: true,
+      description: {
+        ko: '이 항목을 식별하는 것이자, value가 담는 것',
+        en: 'What identifies it, and what value is a list of'
+      }
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      required: true,
+      description: { ko: '행이 말하는 내용', en: 'What the row says' }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '목록에는 있지만 옮길 수 없습니다', en: 'In the list but not movable' }
+    }
+  ],
+
   PlTypography: [
     {
       name: 'level',
