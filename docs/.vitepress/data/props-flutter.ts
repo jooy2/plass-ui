@@ -1660,6 +1660,33 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     })
   ],
 
+  PlFooter: [
+    from('PlFooter', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlFooter', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlFooter', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlFooter', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlFooter', 'elevation', { type: 'int', default: '0' }),
+    from('PlFooter', 'divider', { type: 'bool', default: 'true' }),
+    from('PlFooter', 'maxWidth', {
+      type: 'PlassSize?',
+      default: 'null',
+      description: {
+        ko: '시트는 받은 너비를 가로지른 채로, 내용만 measure에 맞춰 가운데 둡니다. null이면 measure 없음입니다',
+        en: 'Holds the content to a measure and centres it while the sheet still spans the width it was given. null is no measure'
+      }
+    }),
+    from('PlFooter', 'padded', { type: 'bool', default: 'true' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '스크린 리더가 이 영역을 부르는 이름. 화면에 footer가 둘일 때 써 둘 값어치가 있습니다',
+        en: 'The name a screen reader gives the region. Worth writing when a screen has two footers in it'
+      }
+    },
+    from('PlFooter', 'children', { name: 'child', type: 'Widget?' })
+  ],
+
   PlHeader: [
     from('PlHeader', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
     from('PlHeader', 'size', { type: SIZE, default: 'PlassSize.md' }),

@@ -239,6 +239,10 @@ import 'package:plass_ui_example/demos/pagination/sizes.dart';
 import 'package:plass_ui_example/demos/pagination/steppers.dart';
 import 'package:plass_ui_example/demos/pagination/variants.dart';
 import 'package:plass_ui_example/demos/pagination/window.dart';
+import 'package:plass_ui_example/demos/footer/hero.dart';
+import 'package:plass_ui_example/demos/footer/measure.dart';
+import 'package:plass_ui_example/demos/footer/sizes.dart';
+import 'package:plass_ui_example/demos/footer/variants.dart';
 import 'package:plass_ui_example/demos/header/align.dart';
 import 'package:plass_ui_example/demos/header/hero.dart';
 import 'package:plass_ui_example/demos/header/measure.dart';
@@ -555,6 +559,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'chip/selected': _chipSelected,
   'chip/interactive': _chipInteractive,
   'chip/slots': _chipSlots,
+  'footer/hero': _footerHero,
+  'footer/variants': _footerVariants,
+  'footer/sizes': _footerSizes,
+  'footer/measure': _footerMeasure,
   'header/hero': _headerHero,
   'header/align': _headerAlign,
   'header/variants': _headerVariants,
@@ -957,6 +965,11 @@ Widget _chipColors(BuildContext context) => const ChipColors();
 Widget _chipSelected(BuildContext context) => const ChipSelected();
 Widget _chipInteractive(BuildContext context) => const ChipInteractive();
 Widget _chipSlots(BuildContext context) => const ChipSlots();
+
+Widget _footerHero(BuildContext context) => const FooterHero();
+Widget _footerVariants(BuildContext context) => const FooterVariants();
+Widget _footerSizes(BuildContext context) => const FooterSizes();
+Widget _footerMeasure(BuildContext context) => const FooterMeasure();
 
 Widget _headerHero(BuildContext context) => const HeaderHero();
 Widget _headerAlign(BuildContext context) => const HeaderAlign();

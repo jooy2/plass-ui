@@ -7,7 +7,7 @@ order: 8
 
 <p class="plass-lede">The sheet at the end of a page. A real <code>&lt;footer&gt;</code>, which is what makes it the site's own information rather than more of the article — and it has no slots, because a footer's content is nobody's to guess.</p>
 
-<Demo src="footer/hero" :flutter="false" :min-height="280" />
+<Demo src="footer/hero" :min-height="280" />
 
 ::: fw react
 
@@ -17,6 +17,16 @@ import { PlFooter } from 'plass-ui';
 <PlFooter>
   <p>© 2026 Acme</p>
 </PlFooter>;
+```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlFooter(child: const Text('© 2026 Acme'));
 ```
 
 :::
@@ -41,6 +51,8 @@ A footer is not like that. It is four columns of links on one site, a copyright 
 
 ## Examples
 
+::: fw react
+
 ### position
 
 `static` is the default, and it is the opposite of a header's. A footer is the end of the document and is reached by scrolling to it.
@@ -53,15 +65,27 @@ A footer is not like that. It is four columns of links on one site, a copyright 
 
 </Demo>
 
+:::
+
 ### variant
 
 The three materials, read the way a **container** reads them. The sheet is never dyed: what is on a footer is links and text, and they arrive with colours of their own.
 
 `divider` is on by default and rules the **top** edge — the one that faces content. A footer is the one sheet on a page with something directly above it and nothing below, so that line is the whole of what says the document ended.
 
-<Demo src="footer/variants" :flutter="false" :min-height="260">
+<Demo src="footer/variants" :min-height="260">
+
+::: fw react
 
 <<< @/.vitepress/demos/footer/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/footer/variants.dart
+
+:::
 
 </Demo>
 
@@ -71,9 +95,19 @@ The three materials, read the way a **container** reads them. The sheet is never
 
 `density` moves the padding and nothing else.
 
-<Demo src="footer/sizes" :flutter="false" :min-height="380">
+<Demo src="footer/sizes" :min-height="380">
+
+::: fw react
 
 <<< @/.vitepress/demos/footer/sizes.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/footer/sizes.dart
+
+:::
 
 </Demo>
 
@@ -81,15 +115,53 @@ The three materials, read the way a **container** reads them. The sheet is never
 
 Holds the content to a measure and centres it while the sheet still spans the window, on the same `rem` ladder [`PlContainer`](./container)'s `maxWidth` uses — so the last line of the page and the first line of the footer sit on one edge.
 
-<Demo src="footer/measure" :flutter="false" :min-height="200">
+<Demo src="footer/measure" :min-height="200">
+
+::: fw react
 
 <<< @/.vitepress/demos/footer/measure.tsx
 
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/footer/measure.dart
+
+:::
+
 </Demo>
 
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `position` | — | A `fixed` or `sticky` element has to span something. A widget goes exactly where the screen puts it, and a save row that has to stay in reach belongs in the screen's own layout. |
+| registering with the layout | — | A `Column` has already left the band exactly what the footer did not take; there is no height to reserve. |
+| `maxWidth: 'none'` | `maxWidth: null` | Dart's way of saying "no measure was named". |
+| `<footer>`, the `contentinfo` landmark | `SemanticsRole.contentInfo` | The same landmark under the framework's own name — and here it is claimed always, rather than depending on where in the document the tag happens to sit. |
+| `label` | `semanticLabel` | Flutter's name. |
+| `render` | — | There is no tag to swap. |
+| `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
+
+:::
+
 ## Accessibility
+
+::: fw react
 
 - It renders a real `<footer>`. At the top level of a document that is the `contentinfo` landmark, which is what a screen reader's landmark list and a reader mode read.
 - `label` names the bar. Worth writing when a page has two of them — an article's own footer and the site's — because the landmark list otherwise offers "contentinfo" twice.
 - A footer **inside** an `<article>` or a `<section>` is not `contentinfo`; the browser only promotes the tag at the top level of the document. That is the tag's own rule, not this component's.
 - Columns of links belong in a `<nav>` with a name of their own, put inside the footer. The footer names the region; the `<nav>` names the list.
+
+:::
+
+::: fw flutter
+
+- It claims `SemanticsRole.contentInfo`, the same landmark the `<footer>` tag carries on the other side — and it claims it unconditionally, because a widget has no "top level of the document" to be promoted at.
+- `semanticLabel` names the region. Worth writing when a screen has two of them, because a landmark list that says "contentInfo" twice has told the reader which is which not at all. Flutter says so out loud: a duplicated landmark with no label is an error.
+- Columns of links belong in a `PlSidebar` or a named region of their own inside the footer. The footer names the region; what is in it names itself.
+
+:::
