@@ -6,6 +6,7 @@ import { RadioGroup as BaseUIRadioGroup } from '@base-ui/react/radio-group';
 import { Field } from '@base-ui/react/field';
 import {
   controlSlots,
+  cx,
   focusRingClasses,
   glassClasses,
   hasContent,
@@ -15,7 +16,7 @@ import {
   tickSizeClasses,
   transitionClasses
 } from '../../internal/styles.js';
-import type { PlassColor, PlassOrientation, PlassSize } from '../../types.js';
+import type { PlassColor, PlassFieldClassNames, PlassOrientation, PlassSize } from '../../types.js';
 
 /**
  * What a `PlRadio` inherits from the group around it.
@@ -41,6 +42,8 @@ export interface PlRadioGroupProps extends Omit<
   React.ComponentPropsWithoutRef<typeof BaseUIRadioGroup>,
   'className' | 'style' | 'render'
 > {
+  /** Classes on the parts a `className` does not reach. */
+  classNames?: PlassFieldClassNames;
   /** @default 'md' */
   size?: PlassSize;
   /** @default 'primary' */
@@ -217,6 +220,7 @@ export const PlRadioGroup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlR
       disabled = false,
       readOnly = false,
       className,
+      classNames,
       style,
       children,
       ...props
@@ -245,18 +249,25 @@ export const PlRadioGroup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlR
         >
           {label ? (
             <Field.Label
-              className={[
+              className={cx(
                 metaTextClasses[size],
                 'font-semibold',
-                disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)'
-              ].join(' ')}
+                disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)',
+                classNames?.label
+              )}
             >
               {label}
             </Field.Label>
           ) : null}
 
           {description ? (
-            <Field.Description className={`${metaTextClasses[size]} text-(--plass-muted-fg)`}>
+            <Field.Description
+              className={cx(
+                metaTextClasses[size],
+                'text-(--plass-muted-fg)',
+                classNames?.description
+              )}
+            >
               {description}
             </Field.Description>
           ) : null}
@@ -265,10 +276,13 @@ export const PlRadioGroup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlR
             ref={ref}
             disabled={disabled}
             readOnly={readOnly}
-            className={[
+            className={cx(
               'flex',
-              orientation === 'horizontal' ? 'flex-row flex-wrap gap-x-5 gap-y-2' : 'flex-col gap-2'
-            ].join(' ')}
+              orientation === 'horizontal'
+                ? 'flex-row flex-wrap gap-x-5 gap-y-2'
+                : 'flex-col gap-2',
+              classNames?.control
+            )}
             {...props}
           >
             {children}
@@ -283,11 +297,16 @@ export const PlRadioGroup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlR
               and a field that goes red with nothing said is one a reader has to
               guess at. */}
           {hasError ? (
-            <Field.Error match className={`${metaTextClasses[size]} text-(--p-accent)`}>
+            <Field.Error
+              match
+              className={cx(metaTextClasses[size], 'text-(--p-accent)', classNames?.error)}
+            >
               {error}
             </Field.Error>
           ) : (
-            <Field.Error className={`${metaTextClasses[size]} text-(--p-accent)`} />
+            <Field.Error
+              className={cx(metaTextClasses[size], 'text-(--p-accent)', classNames?.error)}
+            />
           )}
         </Field.Root>
       </RadioGroupContext.Provider>

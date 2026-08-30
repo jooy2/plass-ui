@@ -7,6 +7,7 @@ import { MinusIcon, PlusIcon } from '../../internal/icons.js';
 import {
   controlHeightClasses,
   controlTextLeadingClasses,
+  cx,
   disabledClasses,
   fieldReadOnlyClasses,
   fieldRestClasses,
@@ -22,7 +23,12 @@ import {
   surfaceSlots,
   transitionClasses
 } from '../../internal/styles.js';
-import type { PlassColor, PlassElevation, PlassStyleProps } from '../../types.js';
+import type {
+  PlassColor,
+  PlassElevation,
+  PlassFieldClassNames,
+  PlassStyleProps
+} from '../../types.js';
 
 /**
  * Where the two steppers sit.
@@ -43,6 +49,8 @@ export interface PlNumberFieldProps
   extends
     PlassStyleProps,
     Omit<React.ComponentPropsWithoutRef<'div'>, 'color' | 'defaultValue' | 'children'> {
+  /** Classes on the parts a `className` does not reach. */
+  classNames?: PlassFieldClassNames;
   /**
    * Drop shadow depth. `0` is the default — a field is a well cut into the
    * sheet, not a key resting on it.
@@ -227,6 +235,7 @@ export function PlNumberField({
   placeholder,
   id,
   className,
+  classNames,
   style,
   ...props
 }: PlNumberFieldProps) {
@@ -277,13 +286,12 @@ export function PlNumberField({
     >
       {label ? (
         <Field.Label
-          className={[
+          className={cx(
             metaTextClasses[size],
             'font-medium text-(--plass-fg)',
-            disabled ? 'opacity-50' : ''
-          ]
-            .filter(Boolean)
-            .join(' ')}
+            disabled ? 'opacity-50' : '',
+            classNames?.label
+          )}
         >
           {label}
         </Field.Label>
@@ -326,8 +334,11 @@ export function PlNumberField({
               ? disabledClasses[variant]
               : readOnly
                 ? fieldReadOnlyClasses[variant]
-                : fieldRestClasses[variant]
-          ].join(' ')}
+                : fieldRestClasses[variant],
+            classNames?.control
+          ]
+            .filter(Boolean)
+            .join(' ')}
         >
           {showSteppers && steppers === 'split' ? decrement : null}
 
@@ -373,7 +384,9 @@ export function PlNumberField({
       </BaseUINumberField.Root>
 
       {description ? (
-        <Field.Description className={`${metaTextClasses[size]} text-(--plass-muted-fg)`}>
+        <Field.Description
+          className={cx(metaTextClasses[size], 'text-(--plass-muted-fg)', classNames?.description)}
+        >
           {description}
         </Field.Description>
       ) : null}
@@ -387,11 +400,16 @@ export function PlNumberField({
           and a field that goes red with nothing said is one a reader has to
           guess at. */}
       {hasError ? (
-        <Field.Error match className={`${metaTextClasses[size]} text-(--p-accent)`}>
+        <Field.Error
+          match
+          className={cx(metaTextClasses[size], 'text-(--p-accent)', classNames?.error)}
+        >
           {error}
         </Field.Error>
       ) : (
-        <Field.Error className={`${metaTextClasses[size]} text-(--p-accent)`} />
+        <Field.Error
+          className={cx(metaTextClasses[size], 'text-(--p-accent)', classNames?.error)}
+        />
       )}
     </Field.Root>
   );

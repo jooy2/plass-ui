@@ -41,6 +41,8 @@ PlCheckbox(
 
 Every other prop on Base UI's `Checkbox.Root` passes straight through. `className` and `style` land on the field wrapper rather than on the tick, and `render` is not offered — replacing the tick would leave something that is no longer a checkbox.
 
+`classNames` reaches the four parts inside that wrapper: `label`, `control` — the tick — `description` and `error`.
+
 :::
 
 ::: fw flutter

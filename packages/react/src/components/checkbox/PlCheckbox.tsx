@@ -5,6 +5,7 @@ import { Checkbox as BaseUICheckbox } from '@base-ui/react/checkbox';
 import { Field } from '@base-ui/react/field';
 import {
   controlSlots,
+  cx,
   focusRingClasses,
   glassClasses,
   hasContent,
@@ -14,7 +15,7 @@ import {
   tickSizeClasses,
   transitionClasses
 } from '../../internal/styles.js';
-import type { PlassColor, PlassSize } from '../../types.js';
+import type { PlassColor, PlassFieldClassNames, PlassSize } from '../../types.js';
 
 /**
  * Base UI's own props, minus the ones this component owns: `className` and
@@ -27,6 +28,8 @@ type BaseCheckboxProps = Omit<
 >;
 
 export interface PlCheckboxProps extends BaseCheckboxProps {
+  /** Classes on the parts a `className` does not reach. */
+  classNames?: PlassFieldClassNames;
   /** @default 'md' */
   size?: PlassSize;
   /** @default 'primary' */
@@ -155,6 +158,7 @@ export const PlCheckbox = /* @__PURE__ */ React.forwardRef<HTMLElement, PlCheckb
       disabled = false,
       readOnly = false,
       className,
+      classNames,
       style,
       ...props
     },
@@ -166,14 +170,15 @@ export const PlCheckbox = /* @__PURE__ */ React.forwardRef<HTMLElement, PlCheckb
     // and the message all turn over together.
     const family: PlassColor = isInvalid ? 'danger' : color;
 
-    const tickClasses = [
+    const tickClasses = cx(
       tickBaseClasses,
       tickSizeClasses[size],
       tickRadiusClasses[size],
       // An if/else rather than stacked variants: two Tailwind classes of equal
       // specificity resolve by their order in the generated stylesheet.
-      disabled ? disabledTickClasses : readOnly ? readOnlyClasses : restClasses
-    ].join(' ');
+      disabled ? disabledTickClasses : readOnly ? readOnlyClasses : restClasses,
+      classNames?.control
+    );
 
     return (
       <Field.Root
@@ -208,15 +213,22 @@ export const PlCheckbox = /* @__PURE__ */ React.forwardRef<HTMLElement, PlCheckb
             <span className="flex min-w-0 flex-col gap-0.5">
               {label ? (
                 <Field.Label
-                  className={
-                    disabled ? 'text-(--plass-muted-fg)' : 'cursor-pointer text-(--plass-fg)'
-                  }
+                  className={cx(
+                    disabled ? 'text-(--plass-muted-fg)' : 'cursor-pointer text-(--plass-fg)',
+                    classNames?.label
+                  )}
                 >
                   {label}
                 </Field.Label>
               ) : null}
               {description ? (
-                <Field.Description className={`${metaTextClasses[size]} text-(--plass-muted-fg)`}>
+                <Field.Description
+                  className={cx(
+                    metaTextClasses[size],
+                    'text-(--plass-muted-fg)',
+                    classNames?.description
+                  )}
+                >
                   {description}
                 </Field.Description>
               ) : null}
@@ -233,11 +245,16 @@ export const PlCheckbox = /* @__PURE__ */ React.forwardRef<HTMLElement, PlCheckb
             and a field that goes red with nothing said is one a reader has to
             guess at. */}
         {hasError ? (
-          <Field.Error match className={`${metaTextClasses[size]} text-(--p-accent)`}>
+          <Field.Error
+            match
+            className={cx(metaTextClasses[size], 'text-(--p-accent)', classNames?.error)}
+          >
             {error}
           </Field.Error>
         ) : (
-          <Field.Error className={`${metaTextClasses[size]} text-(--p-accent)`} />
+          <Field.Error
+            className={cx(metaTextClasses[size], 'text-(--p-accent)', classNames?.error)}
+          />
         )}
       </Field.Root>
     );

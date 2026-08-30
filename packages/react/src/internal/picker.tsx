@@ -23,7 +23,13 @@ import {
   transitionClasses
 } from './styles.js';
 import type { PlassPickerLabels } from './calendar.js';
-import type { PlassColor, PlassElevation, PlassSize, PlassStyleProps } from '../types.js';
+import type {
+  PlassColor,
+  PlassElevation,
+  PlassFieldClassNames,
+  PlassSize,
+  PlassStyleProps
+} from '../types.js';
 
 /**
  * The shell all four pickers wear: a field-shaped trigger with a popup hanging
@@ -133,6 +139,8 @@ export interface PlassPickerShellProps
   invalid?: boolean;
   /** The glyph before the value — a calendar or a clock. */
   startIcon?: React.ReactNode;
+  /** Classes on the parts a `className` does not reach. */
+  classNames?: PlassFieldClassNames;
   /** Stretches to the width of the container. */
   fullWidth?: boolean;
   /** Unavailable. */
@@ -192,6 +200,7 @@ export function PickerShell({
   required = false,
   id,
   className,
+  classNames,
   style,
   display,
   samples,
@@ -241,7 +250,8 @@ export function PickerShell({
           className={cx(
             metaTextClasses[size],
             'font-semibold',
-            disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)'
+            disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)',
+            classNames?.label
           )}
         >
           {label}
@@ -263,7 +273,8 @@ export function PickerShell({
               ? disabledClasses[variant]
               : readOnly
                 ? fieldReadOnlyClasses[variant]
-                : fieldRestClasses[variant]
+                : fieldRestClasses[variant],
+            classNames?.control
           )}
         >
           <Popover.Trigger
@@ -345,14 +356,18 @@ export function PickerShell({
       {description ? (
         <Field.Description
           id={descriptionId}
-          className={cx(metaTextClasses[size], 'text-(--plass-muted-fg)')}
+          className={cx(metaTextClasses[size], 'text-(--plass-muted-fg)', classNames?.description)}
         >
           {description}
         </Field.Description>
       ) : null}
 
       {hasError ? (
-        <Field.Error id={errorId} match className={cx(metaTextClasses[size], 'text-(--p-accent)')}>
+        <Field.Error
+          id={errorId}
+          match
+          className={cx(metaTextClasses[size], 'text-(--p-accent)', classNames?.error)}
+        >
           {error}
         </Field.Error>
       ) : null}

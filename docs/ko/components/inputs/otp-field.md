@@ -41,6 +41,8 @@ PlOtpField(
 
 네이티브 `<div>` 속성은 바깥의 field가 아니라 칸이 늘어선 줄에 그대로 전달됩니다. `color`는 여기서 Plass의 prop이라, `onChange`는 이 컴포넌트가 `onValueChange`로 쓰기 때문에, `children`은 칸들이 곧 children이기 때문에 제외됩니다.
 
+`className`은 label과 control, 그 아래 두 줄을 함께 담는 stack에 붙습니다. 그 안쪽 네 부분에 닿는 것이 `classNames`입니다 — `label`, `control`(칸이 늘어선 줄), `description`, `error`.
+
 :::
 
 ::: fw flutter

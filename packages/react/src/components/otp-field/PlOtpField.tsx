@@ -18,6 +18,7 @@ import type {
   PlassColor,
   PlassDensity,
   PlassElevation,
+  PlassFieldClassNames,
   PlassSize,
   PlassStyleProps
 } from '../../types.js';
@@ -42,6 +43,8 @@ export interface PlOtpFieldProps
       React.ComponentPropsWithoutRef<'div'>,
       'color' | 'defaultValue' | 'onChange' | 'children'
     > {
+  /** Classes on the parts a `className` does not reach. */
+  classNames?: PlassFieldClassNames;
   /** Drop shadow depth. `0` is the default — a field is cut into the sheet. */
   elevation?: PlassElevation;
   /**
@@ -207,6 +210,7 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
       readOnly = false,
       autoFocus = false,
       className,
+      classNames,
       style,
       ...props
     },
@@ -258,7 +262,8 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
             className={cx(
               metaTextClasses[size],
               'font-medium',
-              disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)'
+              disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)',
+              classNames?.label
             )}
           >
             {label}
@@ -280,7 +285,7 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
           onValueChange={(next) => onValueChange?.(next)}
           onValueComplete={(next) => onComplete?.(next)}
           onValueInvalid={(next) => onValueInvalid?.(next)}
-          className={cx('flex items-center', slotGapClasses[density][size])}
+          className={cx('flex items-center', slotGapClasses[density][size], classNames?.control)}
           {...props}
         >
           {Array.from({ length: slots }, (_, index) => (
@@ -308,7 +313,13 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
         </OTPField.Root>
 
         {hasContent(description) ? (
-          <Field.Description className={cx(metaTextClasses[size], 'text-(--plass-muted-fg)')}>
+          <Field.Description
+            className={cx(
+              metaTextClasses[size],
+              'text-(--plass-muted-fg)',
+              classNames?.description
+            )}
+          >
             {description}
           </Field.Description>
         ) : null}
@@ -322,11 +333,16 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
             and a field that goes red with nothing said is one a reader has to
             guess at. */}
         {hasError ? (
-          <Field.Error match className={cx(metaTextClasses[size], 'text-(--p-accent)')}>
+          <Field.Error
+            match
+            className={cx(metaTextClasses[size], 'text-(--p-accent)', classNames?.error)}
+          >
             {error}
           </Field.Error>
         ) : (
-          <Field.Error className={cx(metaTextClasses[size], 'text-(--p-accent)')} />
+          <Field.Error
+            className={cx(metaTextClasses[size], 'text-(--p-accent)', classNames?.error)}
+          />
         )}
       </Field.Root>
     );

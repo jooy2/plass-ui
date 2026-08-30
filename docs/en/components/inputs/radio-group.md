@@ -48,6 +48,8 @@ PlRadioGroup<String>(
 
 Every other prop on Base UI's `RadioGroup` passes straight through. `className` and `style` land on the field wrapper; `render` is not offered.
 
+`classNames` reaches the four parts inside that wrapper: `label`, `control` — the run of radios — `description` and `error`.
+
 :::
 
 ::: fw flutter

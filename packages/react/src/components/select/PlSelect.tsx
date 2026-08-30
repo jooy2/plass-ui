@@ -8,6 +8,7 @@ import { WidthSizer } from '../../internal/sizer.js';
 import {
   controlHeightClasses,
   controlTextLeadingClasses,
+  cx,
   disabledClasses,
   fieldReadOnlyClasses,
   fieldRestClasses,
@@ -23,7 +24,12 @@ import {
   surfaceSlots,
   transitionClasses
 } from '../../internal/styles.js';
-import type { PlassColor, PlassElevation, PlassStyleProps } from '../../types.js';
+import type {
+  PlassColor,
+  PlassElevation,
+  PlassFieldClassNames,
+  PlassStyleProps
+} from '../../types.js';
 
 /**
  * What a select's value may be.
@@ -49,6 +55,8 @@ export interface PlSelectProps
   extends
     PlassStyleProps,
     Omit<React.ComponentPropsWithoutRef<'div'>, 'color' | 'defaultValue' | 'children'> {
+  /** Classes on the parts a `className` does not reach. */
+  classNames?: PlassFieldClassNames;
   /**
    * The options, as data. There is no `<PlSelect.Option>` to compose: what a
    * caller has is almost always an array already, and the list has to be
@@ -174,6 +182,7 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
       name,
       id,
       className,
+      classNames,
       style,
       ...props
     },
@@ -221,11 +230,12 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
       >
         {label ? (
           <Field.Label
-            className={[
+            className={cx(
               metaTextClasses[size],
               'font-semibold',
-              disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)'
-            ].join(' ')}
+              disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)',
+              classNames?.label
+            )}
           >
             {label}
           </Field.Label>
@@ -257,8 +267,11 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
                 ? disabledClasses[variant]
                 : readOnly
                   ? `${fieldReadOnlyClasses[variant]} cursor-default`
-                  : fieldRestClasses[variant]
-            ].join(' ')}
+                  : fieldRestClasses[variant],
+              classNames?.control
+            ]
+              .filter(Boolean)
+              .join(' ')}
           >
             {startIcon ? (
               <span className="flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)">
@@ -329,7 +342,13 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
         </BaseUISelect.Root>
 
         {description ? (
-          <Field.Description className={`${metaTextClasses[size]} text-(--plass-muted-fg)`}>
+          <Field.Description
+            className={cx(
+              metaTextClasses[size],
+              'text-(--plass-muted-fg)',
+              classNames?.description
+            )}
+          >
             {description}
           </Field.Description>
         ) : null}
@@ -343,11 +362,16 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
             and a field that goes red with nothing said is one a reader has to
             guess at. */}
         {hasError ? (
-          <Field.Error match className={`${metaTextClasses[size]} text-(--p-accent)`}>
+          <Field.Error
+            match
+            className={cx(metaTextClasses[size], 'text-(--p-accent)', classNames?.error)}
+          >
             {error}
           </Field.Error>
         ) : (
-          <Field.Error className={`${metaTextClasses[size]} text-(--p-accent)`} />
+          <Field.Error
+            className={cx(metaTextClasses[size], 'text-(--p-accent)', classNames?.error)}
+          />
         )}
       </Field.Root>
     );

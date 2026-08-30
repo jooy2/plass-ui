@@ -41,6 +41,8 @@ PlOtpField(
 
 Every native `<div>` attribute passes straight through, onto the row of slots rather than onto the field around it. `color` is excluded because it is a Plass prop here, `onChange` because the component spells it `onValueChange`, and `children` because the slots are the children.
 
+A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control` — the row of slots — `description` and `error`.
+
 :::
 
 ::: fw flutter

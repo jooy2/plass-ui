@@ -122,6 +122,23 @@ function sharedProps(options: SharedOptions): PropRow[] {
  * cannot assume it.
  */
 /**
+ * The four parts of a labelled control a `className` does not reach.
+ *
+ * A field's `className` lands on the *stack* — the wrapper holding the label,
+ * the control and the two lines of text under it — because that is the element
+ * a caller positions and sizes. `control` is the one inside it that is acted
+ * on, and it is the override most people are actually reaching for.
+ */
+const fieldClassNames: PropRow = {
+  name: 'classNames',
+  type: '{ label?, control?, description?, error?: string }',
+  description: {
+    ko: 'className이 닿지 않는 부분에 붙는 class. control은 실제로 조작하는 부분입니다',
+    en: 'Classes on the parts a className does not reach. control is the part a reader acts on'
+  }
+};
+
+/**
  * The one part of a portalled surface a `className` does not reach.
  *
  * `className` lands on the surface itself — the sheet, the panel, the popup —
@@ -2763,7 +2780,8 @@ export const propTables: Record<string, PropRow[]> = {
         ko: '네이티브 form 제출을 위한 것들. Base UI가 그대로 받습니다',
         en: 'For a native form submission. Passed straight to Base UI'
       }
-    }
+    },
+    fieldClassNames
   ],
 
   PlChip: [
@@ -3392,7 +3410,8 @@ export const propTables: Record<string, PropRow[]> = {
         ko: '사용자가 입력하는 input에 대한 ref',
         en: 'A ref to the text input the user types into'
       }
-    }
+    },
+    fieldClassNames
   ],
 
   PlComboboxOption: [
@@ -3712,7 +3731,8 @@ export const propTables: Record<string, PropRow[]> = {
         ko: '폼 제출 시 필드를 식별합니다. YYYY-MM-DD로, UTC가 아니라 로컬로 보냅니다',
         en: 'Identifies the field when a form is submitted, as a local YYYY-MM-DD — never as UTC'
       }
-    })
+    }),
+    fieldClassNames
   ],
 
   PlDateRangePicker: [
@@ -3783,7 +3803,8 @@ export const propTables: Record<string, PropRow[]> = {
         ko: '폼 제출 시 필드를 식별합니다. 같은 이름의 hidden input 둘이라 양 끝이 FormData.getAll(name)으로 옵니다',
         en: 'Identifies the field when a form is submitted. Two hidden inputs of the same name, so the two ends arrive as FormData.getAll(name)'
       }
-    })
+    }),
+    fieldClassNames
   ],
 
   PlDateRange: [
@@ -3906,7 +3927,8 @@ export const propTables: Record<string, PropRow[]> = {
         ko: '폼 제출 시 필드를 식별합니다. 로컬 YYYY-MM-DDTHH:MM으로 보냅니다',
         en: 'Identifies the field when a form is submitted, as a local YYYY-MM-DDTHH:MM'
       }
-    })
+    }),
+    fieldClassNames
   ],
 
   PlDivider: [
@@ -6138,7 +6160,8 @@ export const propTables: Record<string, PropRow[]> = {
       default: 'false',
       shared: true,
       description: { ko: '사용할 수 없음', en: 'Unavailable' }
-    }
+    },
+    fieldClassNames
   ],
 
   PlOtpField: [
@@ -6302,7 +6325,8 @@ export const propTables: Record<string, PropRow[]> = {
         ko: '마운트 시 첫 칸에 캐럿을 놓습니다',
         en: 'Puts the caret in the first slot on mount'
       }
-    }
+    },
+    fieldClassNames
   ],
 
   PlOverlay: [
@@ -7202,7 +7226,8 @@ export const propTables: Record<string, PropRow[]> = {
         ko: '네이티브 form 제출을 위한 것들. Base UI가 그대로 받습니다',
         en: 'For a native form submission. Passed straight to Base UI'
       }
-    }
+    },
+    fieldClassNames
   ],
 
   PlRadio: [
@@ -7773,7 +7798,8 @@ export const propTables: Record<string, PropRow[]> = {
         ko: 'form 제출 시 이 필드를 식별하는 이름',
         en: 'Identifies the field when a form is submitted'
       }
-    }
+    },
+    fieldClassNames
   ],
 
   PlSelectOption: [
@@ -8399,7 +8425,8 @@ export const propTables: Record<string, PropRow[]> = {
         ko: '네이티브 form 제출을 위한 것들. Base UI가 그대로 받습니다',
         en: 'For a native form submission. Passed straight to Base UI'
       }
-    }
+    },
+    fieldClassNames
   ],
 
   PlTable: [
@@ -8835,7 +8862,8 @@ export const propTables: Record<string, PropRow[]> = {
         ko: '폼 제출 시 필드를 식별합니다. HH:MM으로, showSeconds면 HH:MM:SS로 보냅니다',
         en: 'Identifies the field when a form is submitted, as HH:MM — HH:MM:SS when showSeconds is on'
       }
-    })
+    }),
+    fieldClassNames
   ],
 
   PlTimeline: [
@@ -9880,6 +9908,7 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'boolean',
       default: 'false',
       description: { ko: '컨테이너 너비만큼 확장', en: 'Stretches to the width of the container' }
-    }
+    },
+    fieldClassNames
   ]
 };

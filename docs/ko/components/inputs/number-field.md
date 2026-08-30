@@ -51,6 +51,8 @@ PlNumberField(
 
 네이티브 `<div>` 속성은 field를 감싸는 요소에 그대로 전달됩니다. `color`, `defaultValue`, `children`은 셋 다 여기서는 Plass의 prop이라 전달 대상에서 제외됩니다.
 
+`className`은 label과 control, 그 아래 두 줄을 함께 담는 stack에 붙습니다. 그 안쪽 네 부분에 닿는 것이 `classNames`입니다 — `label`, `control`(stepper까지 포함한 껍데기), `description`, `error`.
+
 :::
 
 ::: fw flutter

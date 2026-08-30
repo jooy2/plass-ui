@@ -41,6 +41,8 @@ PlSwitch(
 
 Every other prop on Base UI's `Switch.Root` passes straight through. `className` and `style` land on the field wrapper rather than on the track, and `render` is not offered.
 
+`classNames` reaches the four parts inside that wrapper: `label`, `control` — the track — `description` and `error`.
+
 :::
 
 ::: fw flutter

@@ -25,7 +25,13 @@ import {
   surfaceSlots,
   transitionClasses
 } from '../../internal/styles.js';
-import type { PlassColor, PlassElevation, PlassSize, PlassStyleProps } from '../../types.js';
+import type {
+  PlassColor,
+  PlassElevation,
+  PlassFieldClassNames,
+  PlassSize,
+  PlassStyleProps
+} from '../../types.js';
 
 /**
  * What a combobox's value may be — the same two types a PlSelect submits, and
@@ -60,6 +66,8 @@ export interface PlComboboxProps<Multiple extends boolean | undefined = false>
   extends
     PlassStyleProps,
     Omit<React.ComponentPropsWithoutRef<'div'>, 'color' | 'defaultValue' | 'children'> {
+  /** Classes on the parts a `className` does not reach. */
+  classNames?: PlassFieldClassNames;
   /**
    * The options, as data — the same shape PlSelect takes, and for the same
    * reason: what a caller has is almost always an array already.
@@ -298,6 +306,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
   inputRef,
   id,
   className,
+  classNames,
   style,
   ...props
 }: PlComboboxProps<Multiple>) {
@@ -447,7 +456,8 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
           className={cx(
             metaTextClasses[size],
             'font-semibold',
-            disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)'
+            disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)',
+            classNames?.label
           )}
         >
           {label}
@@ -488,7 +498,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
         readOnly={readOnly}
         required={required}
       >
-        <BaseUICombobox.InputGroup className={shellClasses}>
+        <BaseUICombobox.InputGroup className={cx(shellClasses, classNames?.control)}>
           {startIcon ? (
             <span className="flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)">
               {startIcon}
@@ -605,7 +615,9 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
       </BaseUICombobox.Root>
 
       {description ? (
-        <Field.Description className={cx(metaTextClasses[size], 'text-(--plass-muted-fg)')}>
+        <Field.Description
+          className={cx(metaTextClasses[size], 'text-(--plass-muted-fg)', classNames?.description)}
+        >
           {description}
         </Field.Description>
       ) : null}
@@ -619,11 +631,16 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
           and a field that goes red with nothing said is one a reader has to
           guess at. */}
       {hasError ? (
-        <Field.Error match className={cx(metaTextClasses[size], 'text-(--p-accent)')}>
+        <Field.Error
+          match
+          className={cx(metaTextClasses[size], 'text-(--p-accent)', classNames?.error)}
+        >
           {error}
         </Field.Error>
       ) : (
-        <Field.Error className={cx(metaTextClasses[size], 'text-(--p-accent)')} />
+        <Field.Error
+          className={cx(metaTextClasses[size], 'text-(--p-accent)', classNames?.error)}
+        />
       )}
     </Field.Root>
   );

@@ -7,6 +7,7 @@ import { Spinner } from '../../internal/icons.js';
 import {
   controlHeightClasses,
   controlTextLeadingClasses,
+  cx,
   disabledClasses,
   fieldReadOnlyClasses,
   fieldRestClasses,
@@ -21,7 +22,13 @@ import {
   surfaceSlots,
   transitionClasses
 } from '../../internal/styles.js';
-import type { PlassColor, PlassElevation, PlassSize, PlassStyleProps } from '../../types.js';
+import type {
+  PlassColor,
+  PlassElevation,
+  PlassFieldClassNames,
+  PlassSize,
+  PlassStyleProps
+} from '../../types.js';
 
 /** How the multiline control may be resized by the user. Ignored when single line. */
 export type PlTextFieldResize = 'none' | 'vertical' | 'horizontal' | 'both';
@@ -37,6 +44,8 @@ type NativeControlProps = Omit<
 >;
 
 export interface PlTextFieldProps extends PlassStyleProps, NativeControlProps {
+  /** Classes on the parts a `className` does not reach. */
+  classNames?: PlassFieldClassNames;
   /**
    * Drop shadow depth. `0` is the default — a field is a well cut into the
    * sheet, not a key resting on it, and the one place in the library where a
@@ -174,6 +183,7 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
     disabled = false,
     type = 'text',
     className,
+    classNames,
     style,
     ...props
   },
@@ -246,18 +256,19 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
     >
       {label ? (
         <Field.Label
-          className={[
+          className={cx(
             metaTextClasses[size],
             'font-semibold',
-            disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)'
-          ].join(' ')}
+            disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)',
+            classNames?.label
+          )}
         >
           {label}
         </Field.Label>
       ) : null}
 
       <span
-        className={shellClasses}
+        className={cx(shellClasses, classNames?.control)}
         onPointerDown={(event) => {
           // Clicking the shell's own padding should put the caret in the field,
           // the way clicking anywhere inside a native input does. Only when the
@@ -292,7 +303,9 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
       </span>
 
       {description ? (
-        <Field.Description className={[metaTextClasses[size], 'text-(--plass-muted-fg)'].join(' ')}>
+        <Field.Description
+          className={cx(metaTextClasses[size], 'text-(--plass-muted-fg)', classNames?.description)}
+        >
           {description}
         </Field.Description>
       ) : null}
@@ -306,11 +319,16 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
           and a field that goes red with nothing said is one a reader has to
           guess at. */}
       {hasError ? (
-        <Field.Error match className={[metaTextClasses[size], 'text-(--p-accent)'].join(' ')}>
+        <Field.Error
+          match
+          className={cx(metaTextClasses[size], 'text-(--p-accent)', classNames?.error)}
+        >
           {error}
         </Field.Error>
       ) : (
-        <Field.Error className={[metaTextClasses[size], 'text-(--p-accent)'].join(' ')} />
+        <Field.Error
+          className={cx(metaTextClasses[size], 'text-(--p-accent)', classNames?.error)}
+        />
       )}
     </Field.Root>
   );

@@ -41,6 +41,8 @@ PlCheckbox(
 
 Base UI `Checkbox.Root`의 나머지 prop은 그대로 전달됩니다. `className`과 `style`은 tick이 아니라 field wrapper에 붙고, `render`는 제공하지 않습니다 — tick을 갈아 끼우면 더 이상 checkbox가 아니기 때문입니다.
 
+그 wrapper 안쪽 네 부분에 닿는 것이 `classNames`입니다 — `label`, `control`(tick), `description`, `error`.
+
 :::
 
 ::: fw flutter

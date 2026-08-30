@@ -48,6 +48,8 @@ PlRadioGroup<String>(
 
 Base UI `RadioGroup`의 나머지 prop은 그대로 전달됩니다. `className`과 `style`은 field wrapper에 붙고, `render`는 제공하지 않습니다.
 
+그 wrapper 안쪽 네 부분에 닿는 것이 `classNames`입니다 — `label`, `control`(radio들이 늘어선 줄), `description`, `error`.
+
 :::
 
 ::: fw flutter

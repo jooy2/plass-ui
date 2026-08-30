@@ -51,6 +51,8 @@ PlNumberField(
 
 Every native `<div>` attribute passes straight through, onto the field's wrapper. `color`, `defaultValue` and `children` are excluded from the pass-through because all three are Plass props here.
 
+A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control` — the shell, steppers included — `description` and `error`.
+
 :::
 
 ::: fw flutter

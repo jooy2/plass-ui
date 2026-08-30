@@ -181,6 +181,31 @@ export interface PlassStyleProps {
  * part everywhere, exactly as the prop vocabulary above does.
  * ------------------------------------------------------------------------- */
 
+/**
+ * The parts of a labelled control a `className` does not reach.
+ *
+ * A field is four things stacked, and only the stack itself is addressable
+ * otherwise: `className` lands on the wrapper that holds the label, the control
+ * and the two lines of text under it. That is right for the layout — a
+ * `w-full`, a margin, a grid position — and it is the wrong element for every
+ * other override a caller reaches for.
+ *
+ * `control` is the part a reader acts on: the box a `PlTextField` is typed
+ * into, the button a `PlSelect` opens, the tick, the track, the row of radios.
+ * It is the one of the four that is worth naming even when the other three are
+ * not there.
+ */
+export interface PlassFieldClassNames {
+  /** The text above the control. */
+  label?: string;
+  /** The part a reader acts on. */
+  control?: string;
+  /** The helper text below it. */
+  description?: string;
+  /** The message below it, shown when the field is invalid. */
+  error?: string;
+}
+
 /** The parts of a portalled surface a `className` does not reach. */
 export interface PlassPortalClassNames {
   /**

@@ -42,6 +42,8 @@ PlTextField(
 
 Every native `<input>` attribute passes straight through, and in `multiline` mode every `<textarea>` attribute does. The exceptions are `color` and `size`, which are the shared axes above.
 
+A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control` — the box the text goes in — `description` and `error`.
+
 :::
 
 ::: fw flutter

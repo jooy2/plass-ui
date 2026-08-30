@@ -55,6 +55,8 @@ PlCombobox<String>(
 
 나머지 `<div>` 속성은 field 래퍼로 그대로 통과합니다. `color`는 위 표의 `color`와 겹쳐서, `defaultValue`는 DOM 속성이 아니라 값으로 쓰기 때문에, `children`은 옵션이 `items`이기 때문에 제외했습니다.
 
+`className`은 label과 control, 그 아래 두 줄을 함께 담는 stack에 붙습니다. 그 안쪽 네 부분에 닿는 것이 `classNames`입니다 — `label`, `control`(chip까지 포함한 field의 껍데기), `description`, `error`.
+
 :::
 
 ::: fw flutter

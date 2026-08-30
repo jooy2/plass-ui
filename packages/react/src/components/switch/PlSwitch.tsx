@@ -5,12 +5,13 @@ import { Switch as BaseUISwitch } from '@base-ui/react/switch';
 import { Field } from '@base-ui/react/field';
 import {
   controlSlots,
+  cx,
   focusRingClasses,
   hasContent,
   metaTextClasses,
   tickRowTextClasses
 } from '../../internal/styles.js';
-import type { PlassAlign, PlassColor, PlassSize } from '../../types.js';
+import type { PlassAlign, PlassColor, PlassFieldClassNames, PlassSize } from '../../types.js';
 
 /** Which side of the track the label sits on. */
 export type PlSwitchLabelPlacement = Extract<PlassAlign, 'start' | 'end'>;
@@ -21,6 +22,8 @@ type BaseSwitchProps = Omit<
 >;
 
 export interface PlSwitchProps extends BaseSwitchProps {
+  /** Classes on the parts a `className` does not reach. */
+  classNames?: PlassFieldClassNames;
   /** @default 'md' */
   size?: PlassSize;
   /** @default 'primary' */
@@ -171,6 +174,7 @@ export const PlSwitch = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSwitchPr
       disabled = false,
       readOnly = false,
       className,
+      classNames,
       style,
       ...props
     },
@@ -184,11 +188,12 @@ export const PlSwitch = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSwitchPr
       <span className="flex h-[1lh] shrink-0 items-center">
         <BaseUISwitch.Root
           ref={ref}
-          className={[
+          className={cx(
             trackBaseClasses,
             trackClasses[size],
-            disabled ? disabledTrackClasses : readOnly ? readOnlyTrackClasses : restTrackClasses
-          ].join(' ')}
+            disabled ? disabledTrackClasses : readOnly ? readOnlyTrackClasses : restTrackClasses,
+            classNames?.control
+          )}
           disabled={disabled}
           readOnly={readOnly}
           {...props}
@@ -212,13 +217,22 @@ export const PlSwitch = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSwitchPr
         >
           {label ? (
             <Field.Label
-              className={disabled ? 'text-(--plass-muted-fg)' : 'cursor-pointer text-(--plass-fg)'}
+              className={cx(
+                disabled ? 'text-(--plass-muted-fg)' : 'cursor-pointer text-(--plass-fg)',
+                classNames?.label
+              )}
             >
               {label}
             </Field.Label>
           ) : null}
           {description ? (
-            <Field.Description className={`${metaTextClasses[size]} text-(--plass-muted-fg)`}>
+            <Field.Description
+              className={cx(
+                metaTextClasses[size],
+                'text-(--plass-muted-fg)',
+                classNames?.description
+              )}
+            >
               {description}
             </Field.Description>
           ) : null}
@@ -258,11 +272,16 @@ export const PlSwitch = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSwitchPr
             and a field that goes red with nothing said is one a reader has to
             guess at. */}
         {hasError ? (
-          <Field.Error match className={`${metaTextClasses[size]} text-(--p-accent)`}>
+          <Field.Error
+            match
+            className={cx(metaTextClasses[size], 'text-(--p-accent)', classNames?.error)}
+          >
             {error}
           </Field.Error>
         ) : (
-          <Field.Error className={`${metaTextClasses[size]} text-(--p-accent)`} />
+          <Field.Error
+            className={cx(metaTextClasses[size], 'text-(--p-accent)', classNames?.error)}
+          />
         )}
       </Field.Root>
     );

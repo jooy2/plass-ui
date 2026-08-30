@@ -44,6 +44,8 @@ The columns lift themselves out of the tree, so a picker needs an `Overlay` abov
 
 Every native `<div>` attribute passes straight through to the field wrapper. `color` is excluded because it collides with the `color` in the table above, `defaultValue` because the picker spells it as a value rather than a DOM attribute, and `children` because the columns are the component.
 
+A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control` — the trigger — `description` and `error`.
+
 :::
 
 ::: fw flutter

@@ -42,6 +42,8 @@ PlTextField(
 
 네이티브 `<input>` 속성은 그대로 전달되고, `multiline`일 때는 `<textarea>` 속성이 그대로 전달됩니다. 예외는 위 공통 축과 이름이 겹치는 `color`와 `size`입니다.
 
+`className`은 label과 control, 그 아래 두 줄을 함께 담는 stack에 붙습니다. 그 안쪽 네 부분에 닿는 것이 `classNames`입니다 — `label`, `control`(글자가 들어가는 상자), `description`, `error`.
+
 :::
 
 ::: fw flutter
