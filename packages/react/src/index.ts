@@ -74,6 +74,7 @@ export * from './components/text-link/index.js';
 export * from './components/time-picker/index.js';
 export * from './components/timeline/index.js';
 export * from './components/toast/index.js';
+export * from './components/toggle/index.js';
 export * from './components/toolbar/index.js';
 export * from './components/tooltip/index.js';
 export * from './components/typography/index.js';

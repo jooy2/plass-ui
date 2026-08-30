@@ -90,6 +90,8 @@ import {
   PlTimeline,
   PlTimelineItem,
   PlToastProvider,
+  PlToggle,
+  PlToggleGroup,
   PlToolbar,
   PlTooltip,
   usePlToast,
@@ -996,6 +998,22 @@ const entries: Entry[] = [
       <PlSpoiler className="w-full" size="sm">
         <span className="text-xs">He was the killer all along.</span>
       </PlSpoiler>
+    )
+  },
+  {
+    name: 'PlToggle',
+    group: 'inputs',
+    href: 'components/inputs/toggle',
+    blurb: {
+      en: 'A button that stays down, and a set of them that share one state.',
+      ko: '눌린 채로 남는 버튼, 그리고 하나의 상태를 나누는 그 묶음입니다.'
+    },
+    preview: (
+      <PlToggleGroup size="sm" defaultValue={['left']}>
+        <PlToggle value="left">Left</PlToggle>
+        <PlToggle value="center">Center</PlToggle>
+        <PlToggle value="right">Right</PlToggle>
+      </PlToggleGroup>
     )
   },
   {

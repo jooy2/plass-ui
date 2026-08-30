@@ -8289,6 +8289,170 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlToggle: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: '**꺼져 있을 때** 키가 무엇으로 만들어졌는지. 켜지면 어느 재질이든 색 계열이 나섭니다',
+        en: 'What the key is made of while it is **off**. On is always the colour family asserting itself, whichever material was asked for'
+      },
+      elevationDescription: {
+        ko: '그림자 깊이. 0이 기본이고 PlButton보다 한 단계 아래입니다 — 토글은 액션이 아니라 상태이고, 상태는 페이지 위에 떠서 기다리지 않습니다',
+        en: "Drop shadow depth. 0 is the default and one below a PlButton's: a toggle is a state rather than an action, and a state does not float off the page waiting to be taken"
+      }
+    }),
+    {
+      name: 'pressed',
+      type: 'boolean',
+      description: {
+        ko: '켜져 있는지. onPressedChange와 함께 controlled로 씁니다',
+        en: 'Whether it is on. Use with onPressedChange for a controlled toggle'
+      }
+    },
+    {
+      name: 'defaultPressed',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '켜진 채로 시작할지', en: 'Whether it starts on, for an uncontrolled one' }
+    },
+    {
+      name: 'onPressedChange',
+      type: '(pressed: boolean) => void',
+      description: { ko: '켜지거나 꺼질 때', en: 'Called when it goes on or off' }
+    },
+    {
+      name: 'value',
+      type: 'string',
+      description: {
+        ko: 'PlToggleGroup 안에서 이 토글을 식별합니다',
+        en: 'Identifies the toggle inside a PlToggleGroup'
+      }
+    },
+    {
+      name: 'startIcon',
+      type: 'ReactNode',
+      description: {
+        ko: '라벨 앞에 놓이는 내용. em으로 크기가 정해져 라벨을 따릅니다',
+        en: 'Content placed before the label. Sized in em, so it tracks the label'
+      }
+    },
+    {
+      name: 'endIcon',
+      type: 'ReactNode',
+      description: { ko: '라벨 뒤에 놓이는 내용', en: 'Content placed after the label' }
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '컨테이너 너비까지 늘어납니다',
+        en: 'Stretches to the width of the container'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '눌 수 없게 하고 tab 순서에서 뺍니다',
+        en: 'Makes it unpressable and takes it out of the tab order'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: {
+        ko: '라벨. 없으면 받은 아이콘 둘레로 정사각형이 됩니다 — 그래도 aria-label은 필요합니다',
+        en: 'The label. Left out, the toggle goes square around whatever icon it was given — which still needs an aria-label'
+      }
+    }
+  ],
+
+  PlToggleGroup: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: '세트의 모든 토글에 전달됩니다',
+        en: 'Passed to every toggle in the set'
+      },
+      elevationDescription: {
+        ko: '그림자 깊이. 세트의 모든 토글에 전달됩니다',
+        en: 'Drop shadow depth, passed to every toggle in the set'
+      }
+    }),
+    {
+      name: 'value',
+      type: 'readonly string[]',
+      description: {
+        ko: '어느 토글이 켜져 있는지, value로. 하나든 여럿이든 배열입니다 — multiple을 켜도 타입이 바뀌지 않는 모양입니다',
+        en: 'Which toggles are on, by their value. An array in both cases — the shape that does not change type when multiple is turned on'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'readonly string[]',
+      description: {
+        ko: '어느 것이 켜진 채로 시작할지',
+        en: 'Which start on, for an uncontrolled set'
+      }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string[]) => void',
+      description: { ko: '세트의 값이 바뀔 때', en: "Called when the set's value changes" }
+    },
+    {
+      name: 'multiple',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '한 번에 둘 이상 켜질 수 있는지. 꺼져 있으면 하나를 켤 때 이전 것이 꺼집니다',
+        en: 'Whether more than one can be on at a time. Off, turning one on turns the last one off'
+      }
+    },
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      shared: true,
+      description: { ko: '토글이 늘어서는 방향', en: 'Which way the toggles run' }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      description: {
+        ko: '세트의 모든 토글을 한 번에 끕니다',
+        en: 'Disables every toggle in the set at once'
+      }
+    },
+    {
+      name: 'loopFocus',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '화살표 키가 양 끝에서 돌아가는지',
+        en: 'Whether the arrow keys wrap around at the ends'
+      }
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '컨테이너까지 늘어나고 너비를 토글들에 고르게 나눕니다',
+        en: 'Stretches to the container and divides the width evenly between toggles'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '세트를 이루는 PlToggle들', en: 'The PlToggles that make up the set' }
+    }
+  ],
+
   PlToolbar: [
     ...sharedProps({
       variant: "'glass'",
