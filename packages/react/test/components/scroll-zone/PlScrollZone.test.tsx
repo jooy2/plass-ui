@@ -200,6 +200,48 @@ describe('PlScrollZone', () => {
       ).toBe(true);
     });
 
+    /*
+     * The one thing the note at the top of this file rules out everywhere else:
+     * a strip that has genuinely been scrolled. Every other test here reads the
+     * buttons at rest, so nothing was checking the half of the component that
+     * only happens once the box has moved — and a zone whose buttons never
+     * change is a zone that scrolls once and then lies about where it is.
+     *
+     * It needs real `overflow`, which no component test loads CSS for, so the
+     * two declarations the assertion actually depends on are written out here.
+     */
+    it('changes which button it offers as the strip moves', async () => {
+      const style = document.createElement('style');
+
+      style.textContent =
+        '[data-testid="zone"] > [tabindex="0"] { overflow-x: auto; width: 400px; }';
+      document.head.append(style);
+
+      try {
+        const screen = await render(<PlScrollZone data-testid="zone">{cards}</PlScrollZone>);
+        const box = scroller(screen);
+
+        // Six 300px cards in 400px: there is a long way forward and no way back.
+        await expect.element(screen.getByRole('button', { name: 'Next' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Previous' }).query()).toBeNull();
+
+        box.scrollTo({ left: 300, behavior: 'auto' });
+
+        // Both, now — the only position where the zone offers a choice.
+        await expect.element(screen.getByRole('button', { name: 'Previous' })).toBeInTheDocument();
+        await expect.element(screen.getByRole('button', { name: 'Next' })).toBeInTheDocument();
+
+        box.scrollTo({ left: box.scrollWidth - box.clientWidth, behavior: 'auto' });
+
+        // And the mirror of the first assertion, which is the one that fails if
+        // the scroll never reaches the measurement.
+        await expect.element(screen.getByRole('button', { name: 'Previous' })).toBeInTheDocument();
+        await expect.element(screen.getByRole('button', { name: 'Next' })).not.toBeInTheDocument();
+      } finally {
+        style.remove();
+      }
+    });
+
     // A lane that came and went would resize the strip under the pointer that
     // had just reached the end of it.
     it('keeps the lane of a button that has nowhere to go', async () => {
