@@ -1437,6 +1437,29 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlDivider', 'children', { name: 'child', type: 'Widget?' })
   ],
 
+  PlFieldset: [
+    {
+      name: 'children',
+      type: 'List<Widget>',
+      required: true,
+      description: {
+        ko: '한 질문에 함께 답하는 컨트롤들',
+        en: 'The controls that answer one question together'
+      }
+    },
+    from('PlFieldset', 'legend', { type: 'Widget?' }),
+    from('PlFieldset', 'description', { type: 'Widget?' }),
+    from('PlFieldset', 'disabled', {
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '안의 모든 것에서 포인터와 focus를 거두고 묶음을 비웁니다. 브라우저의 fieldset 같은 cascade가 여기에는 없습니다',
+        en: 'Takes the pointer and the focus away from everything inside, and drains the group. There is no browser-style cascade here'
+      }
+    }),
+    from('PlFieldset', 'size', { type: SIZE, default: 'PlassSize.md' })
+  ],
+
   PlFilePicker: [
     from('PlFilePicker', 'value', { type: 'List<PlFile>', required: true }),
     from('PlFilePicker', 'onFilesChange', {

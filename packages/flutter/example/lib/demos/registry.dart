@@ -248,6 +248,10 @@ import 'package:plass_ui_example/demos/header/hero.dart';
 import 'package:plass_ui_example/demos/header/measure.dart';
 import 'package:plass_ui_example/demos/header/sizes.dart';
 import 'package:plass_ui_example/demos/header/variants.dart';
+import 'package:plass_ui_example/demos/fieldset/disabled.dart';
+import 'package:plass_ui_example/demos/fieldset/hero.dart';
+import 'package:plass_ui_example/demos/fieldset/on_a_sheet.dart';
+import 'package:plass_ui_example/demos/fieldset/sizes.dart';
 import 'package:plass_ui_example/demos/form/errors.dart';
 import 'package:plass_ui_example/demos/form/hero.dart';
 import 'package:plass_ui_example/demos/navigation_menu/columns.dart';
@@ -588,6 +592,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'header/variants': _headerVariants,
   'header/sizes': _headerSizes,
   'header/measure': _headerMeasure,
+  'fieldset/hero': _fieldsetHero,
+  'fieldset/disabled': _fieldsetDisabled,
+  'fieldset/sizes': _fieldsetSizes,
+  'fieldset/on-a-sheet': _fieldsetOnASheet,
   'form/hero': _formHero,
   'form/errors': _formErrors,
   'navigation-menu/hero': _navigationMenuHero,
@@ -1016,6 +1024,11 @@ Widget _headerAlign(BuildContext context) => const HeaderAlign();
 Widget _headerVariants(BuildContext context) => const HeaderVariants();
 Widget _headerSizes(BuildContext context) => const HeaderSizes();
 Widget _headerMeasure(BuildContext context) => const HeaderMeasure();
+
+Widget _fieldsetHero(BuildContext context) => const FieldsetHero();
+Widget _fieldsetDisabled(BuildContext context) => const FieldsetDisabled();
+Widget _fieldsetSizes(BuildContext context) => const FieldsetSizes();
+Widget _fieldsetOnASheet(BuildContext context) => const FieldsetOnASheet();
 
 Widget _formHero(BuildContext context) => const FormHero();
 Widget _formErrors(BuildContext context) => const FormErrors();
