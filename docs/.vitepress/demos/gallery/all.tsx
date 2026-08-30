@@ -59,6 +59,7 @@ import {
   PlOverlay,
   PlPane,
   PlPanes,
+  PlPageLayout,
   PlPagination,
   PlPill,
   PlPopover,
@@ -1204,6 +1205,42 @@ const entries: Entry[] = [
         <PlMenuSeparator />
         <PlMenuItem color="danger">Delete</PlMenuItem>
       </PlMenu>
+    )
+  },
+  {
+    name: 'PlPageLayout',
+    group: 'layout',
+    href: 'components/layout/page-layout',
+    blurb: {
+      en: 'The skeleton a page is hung on, and the landmarks that come with it.',
+      ko: '페이지를 걸어 두는 뼈대이고, 함께 따라오는 landmark입니다.'
+    },
+    preview: (
+      <div className="h-20 w-full overflow-hidden rounded-(--plass-radius-sm)">
+        <PlPageLayout
+          height="auto"
+          scroll="content"
+          collapseBelow="none"
+          skipLink={false}
+          header={
+            <div className="border-b [border-color:var(--plass-divider)] px-2 py-1 text-[0.625rem]">
+              header
+            </div>
+          }
+          sidebar={
+            <div className="w-14 border-e [border-color:var(--plass-divider)] px-2 py-1 text-[0.625rem]">
+              nav
+            </div>
+          }
+          footer={
+            <div className="border-t [border-color:var(--plass-divider)] px-2 py-1 text-[0.625rem]">
+              footer
+            </div>
+          }
+        >
+          <div className="flex h-full items-center justify-center text-xs">main</div>
+        </PlPageLayout>
+      </div>
     )
   },
   {

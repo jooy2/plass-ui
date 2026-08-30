@@ -5349,6 +5349,183 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlPageLayout: [
+    {
+      name: 'header',
+      type: 'ReactNode',
+      description: {
+        ko: '위쪽 바. 보통 PlHeader가 들어갑니다',
+        en: 'The bar across the top. A PlHeader, usually'
+      }
+    },
+    {
+      name: 'footer',
+      type: 'ReactNode',
+      description: {
+        ko: '맨 아래 시트. 보통 PlFooter가 들어갑니다',
+        en: 'The sheet at the end. A PlFooter, usually'
+      }
+    },
+    {
+      name: 'sidebar',
+      type: 'ReactNode',
+      description: {
+        ko: '앞쪽 열 — 영어 페이지의 왼쪽, 아랍어 페이지의 오른쪽. 안에 든 PlSidebar는 자기가 어느 끝인지 전달받으므로 side를 쓸 필요가 없습니다',
+        en: 'The leading column — the left of an English page, the right of an Arabic one. A PlSidebar in here is told which end it is on and needs no side of its own'
+      }
+    },
+    {
+      name: 'endSidebar',
+      type: 'ReactNode',
+      description: {
+        ko: '뒤쪽 열. 한쪽은 내비게이션, 다른 쪽은 목차나 인스펙터나 필터 패널인 레이아웃을 위한 것입니다',
+        en: 'The trailing column, for the layouts that have two: navigation down one side and a table of contents, an inspector or a filter panel down the other'
+      }
+    },
+    {
+      name: 'headerSpan',
+      type: "'full' | 'content'",
+      default: "'full'",
+      description: {
+        ko: '헤더와 사이드바 중 어느 쪽이 위 모서리를 차지하는지. full은 웹사이트의 배치, content는 애플리케이션의 배치입니다',
+        en: 'Which of the header and the sidebars takes the top corner. full is the arrangement of a website, content that of an application'
+      }
+    },
+    {
+      name: 'footerSpan',
+      type: "'full' | 'content'",
+      default: "'full'",
+      description: {
+        ko: '푸터에 대한 같은 질문. 따로 답할 값어치가 있습니다 — 전체 높이 내비게이션 레일이 있는 대시보드도 저작권 줄은 보통 콘텐츠 아래에 둡니다',
+        en: 'The same question for the footer, and worth answering separately: a dashboard with a full-height rail still usually wants its copyright line under the content'
+      }
+    },
+    {
+      name: 'scroll',
+      type: "'page' | 'content'",
+      default: "'page'",
+      description: {
+        ko: '무엇이 스크롤되는지 — 문서 전체인지, 헤더와 푸터 사이만인지. page가 거의 모든 페이지가 원하는 값입니다',
+        en: 'What scrolls: the document, or only the region between the header and the footer. page is what almost every page wants'
+      }
+    },
+    {
+      name: 'height',
+      type: "'viewport' | 'auto' | number | string",
+      default: "'viewport'",
+      description: {
+        ko: '레이아웃의 높이. 페이지가 스크롤될 때는 최소 높이, 콘텐츠만 스크롤될 때는 정확한 높이가 됩니다',
+        en: 'How tall the layout is. A floor while the page scrolls and an exact height while only the content does'
+      }
+    },
+    {
+      name: 'collapseBelow',
+      type: "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'none'",
+      default: "'md'",
+      description: {
+        ko: '사이드바가 열이기를 그만두고 드로어가 되는 창 너비. none이면 어떤 너비에서도 열로 남습니다',
+        en: 'The window width below which the sidebars become drawers instead of columns. none keeps them columns at every width'
+      }
+    },
+    {
+      name: 'sidebarOpen',
+      type: 'boolean',
+      description: {
+        ko: '앞쪽 사이드바의 드로어가 열려 있는지. onSidebarOpenChange와 함께 controlled로 씁니다',
+        en: "Whether the leading sidebar's drawer is open. Use with onSidebarOpenChange for a controlled layout"
+      }
+    },
+    {
+      name: 'defaultSidebarOpen',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '어느 상태로 시작할지', en: 'Which state it starts in' }
+    },
+    {
+      name: 'onSidebarOpenChange',
+      type: '(open: boolean) => void',
+      description: {
+        ko: '앞쪽 드로어가 열리거나 닫힐 때',
+        en: 'Called when the leading drawer opens or closes'
+      }
+    },
+    {
+      name: 'endSidebarOpen',
+      type: 'boolean',
+      description: {
+        ko: '뒤쪽 사이드바에 대한 같은 세 가지',
+        en: 'The same three for the trailing sidebar'
+      }
+    },
+    {
+      name: 'defaultEndSidebarOpen',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '뒤쪽 드로어가 시작하는 상태',
+        en: 'Which state the trailing drawer starts in'
+      }
+    },
+    {
+      name: 'onEndSidebarOpenChange',
+      type: '(open: boolean) => void',
+      description: {
+        ko: '뒤쪽 드로어가 열리거나 닫힐 때',
+        en: 'Called when the trailing drawer opens or closes'
+      }
+    },
+    {
+      name: 'skipLink',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '문서 맨 앞에 본문으로 건너뛰는 링크를 둡니다. focus를 받을 때만 그려집니다',
+        en: 'Puts a skip link first in the document, drawn only while it holds the focus'
+      }
+    },
+    {
+      name: 'skipLabel',
+      type: 'ReactNode',
+      default: "'Skip to content'",
+      description: { ko: '그 링크가 말하는 내용', en: 'What that link says' }
+    },
+    {
+      name: 'mainId',
+      type: 'string',
+      default: "'main'",
+      description: {
+        ko: '건너뛰기 링크가 향하는 id. <main>에 붙습니다',
+        en: 'The id the skip link jumps to, put on the <main>'
+      }
+    },
+    {
+      name: 'mainProps',
+      type: "Omit<ComponentPropsWithoutRef<'main'>, 'id' | 'children'>",
+      description: {
+        ko: '<main>에 필요한 나머지 — className, aria-label',
+        en: 'Anything else the <main> needs — a className, an aria-label'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: '건너뛰기 링크가 켜지는 색 계열. 레이아웃 자체는 아무 표면도 그리지 않습니다',
+        en: 'The colour family the skip link lights up in. The layout itself draws no surface'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: {
+        ko: '페이지. <main> 안에 그려집니다',
+        en: 'The page. Rendered inside the <main>'
+      }
+    }
+  ],
+
   PlPagination: [
     ...sharedProps({
       variant: "'ghost'",

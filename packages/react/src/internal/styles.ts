@@ -689,6 +689,18 @@ export const fieldReadOnlyClasses: Record<PlassVariant, string> = {
   ghost: `text-(--plass-fg) bg-transparent ${readOnlyFilterClasses}`
 };
 
+/**
+ * A length a caller may have written as a bare number.
+ *
+ * Turns `2` into `2px` and leaves `'0.5rem'` alone, which is the one conversion
+ * every prop that accepts a CSS length needs — a divider's thickness, a page
+ * layout's height, a sidebar's width. Here rather than in each of them because
+ * three copies of two lines are three copies that can disagree about `0`.
+ */
+export function toLength(value: number | string | undefined): string | undefined {
+  return typeof value === 'number' ? `${value}px` : value;
+}
+
 /** `false`, `null`, `undefined` and `''` all mean "this slot is not filled". */
 export function hasContent(node: React.ReactNode): boolean {
   return node !== undefined && node !== null && node !== false && node !== '';

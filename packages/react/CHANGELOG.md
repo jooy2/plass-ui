@@ -2,6 +2,12 @@
 
 > This package's history. The Flutter package keeps its own at [`packages/flutter/CHANGELOG.md`](https://github.com/jooy2/plass-ui/blob/main/packages/flutter/CHANGELOG.md), because the two version independently.
 
+## Unreleased
+
+### Added
+
+- **`PlPageLayout`.** The skeleton a page is hung on: a header, a footer, one sidebar or two, and the content between them. What it is really for is the **landmarks** — a page assembled out of `<div>`s is one undifferentiated region to a screen reader and one undifferentiated blob to a search engine, and the same page built out of `<header>`, `<nav>`, `<aside>`, `<main>` and `<footer>` is a page with a table of contents. It draws no surface of its own and contributes exactly one element to the document, plus the `<main>` and the skip link that jumps to it; it draws no gutter and no measure either, because that is `PlContainer`'s job and a layout that did both would be a second spelling of one idea. The arrangement is flexbox and media queries rather than JavaScript, so it is right in the first frame the browser paints and right in a page with scripting turned off. The only thing measured is how much the two bars take out of the window, and only because a sidebar that holds its place has to start below a header whose height nobody but the header knows — written onto the root as `--p-layout-header` and `--p-layout-footer` plus an `-inset` for each, because a `sticky` bar takes nothing out of the flow while still sitting across the top and a `fixed` one has to be reserved for. Which of the two a bar is is read off its own `position` rather than plumbed through a prop.
+
 ## 1.0.3 (2026-08-29)
 
 ### Added

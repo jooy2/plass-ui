@@ -47,6 +47,7 @@ export * from './components/modal/index.js';
 export * from './components/number-field/index.js';
 export * from './components/otp-field/index.js';
 export * from './components/overlay/index.js';
+export * from './components/page-layout/index.js';
 export * from './components/pagination/index.js';
 export * from './components/panes/index.js';
 export * from './components/pill/index.js';
