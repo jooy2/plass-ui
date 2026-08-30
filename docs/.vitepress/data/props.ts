@@ -5046,6 +5046,191 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlNavigationMenu: [
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '행의 높이와 타입 스케일. 패널의 반경과 여백도 함께 갑니다',
+        en: "The row's height and type scale, and the panel's radius and padding with it"
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: '의미론적 색 역할. hover와 열린 패널과 focus ring까지 갑니다 — 시트에는 색이 들어가지 않습니다',
+        en: 'Semantic colour role. It reaches the hover, the open item and the focus rings; the sheet is never dyed'
+      }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'default'",
+      shared: true,
+      description: { ko: '여백만 바꿉니다', en: 'Padding only' }
+    },
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      shared: true,
+      description: {
+        ko: '행이 늘어서는 방향. vertical은 패널이 옆으로 열리는 nav rail입니다',
+        en: 'Which way the row runs. vertical is a nav rail whose panels open beside it'
+      }
+    },
+    {
+      name: 'value',
+      type: 'string | null',
+      description: {
+        ko: '어느 항목의 패널이 열려 있는지, value로. nullish는 닫힘입니다',
+        en: "Which item's panel is open, by its value. Nullish means closed"
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'string | null',
+      description: {
+        ko: '어느 것이 열린 채로 시작할지',
+        en: 'Which starts open, for an uncontrolled menu'
+      }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string | null) => void',
+      description: { ko: '열린 패널이 바뀔 때', en: 'Called when the open panel changes' }
+    },
+    {
+      name: 'delay',
+      type: 'number',
+      description: {
+        ko: '패널이 열리기까지 포인터가 머무는 시간, 밀리초',
+        en: 'How long the pointer rests before a panel opens, in milliseconds'
+      }
+    },
+    {
+      name: 'closeDelay',
+      type: 'number',
+      description: {
+        ko: '포인터가 떠난 뒤 패널이 남는 시간, 밀리초',
+        en: 'How long a panel stays after the pointer leaves, in milliseconds'
+      }
+    },
+    {
+      name: 'sideOffset',
+      type: 'number',
+      default: '8',
+      description: { ko: '행에서 떨어진 거리, 픽셀', en: 'Distance from the row, in pixels' }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '항목들', en: 'The items' }
+    }
+  ],
+
+  PlNavigationMenuItem: [
+    {
+      name: 'label',
+      type: 'ReactNode',
+      required: true,
+      description: { ko: '행에 쓰이는 단어', en: 'The word in the row' }
+    },
+    {
+      name: 'href',
+      type: 'string',
+      description: {
+        ko: '패널을 여는 대신 그냥 링크로 만듭니다. href만 있고 children이 없는 항목은 목적지이고, 그렇게 알려집니다',
+        en: 'Makes the item a plain link rather than something that opens a panel. An item with an href and no children is a destination, and it is announced as one'
+      }
+    },
+    {
+      name: 'target',
+      type: 'string',
+      description: {
+        ko: '링크가 열리는 곳. 이 탭이 아니면 rel에 noopener noreferrer가 합쳐집니다',
+        en: 'Where the link opens. Anything other than this tab also gets noopener noreferrer merged into its rel'
+      }
+    },
+    {
+      name: 'rel',
+      type: 'string',
+      description: { ko: '링크의 rel', en: "The link's rel" }
+    },
+    {
+      name: 'startIcon',
+      type: 'ReactNode',
+      description: { ko: '라벨 앞에 놓이는 내용', en: 'Content before the label' }
+    },
+    {
+      name: 'value',
+      type: 'string',
+      description: {
+        ko: 'controlled 메뉴에서 항목을 식별합니다',
+        en: 'Identifies the item, for a controlled menu'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '쓸 수 없습니다. 단어는 행에 남고 아무것도 열지 않습니다',
+        en: 'Unavailable. The word stays in the row and opens nothing'
+      }
+    },
+    {
+      name: 'columns',
+      type: 'number',
+      default: '1',
+      description: {
+        ko: '패널이 링크를 몇 열로 배치할지',
+        en: 'How many columns the panel lays its links out in'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: {
+        ko: '패널의 내용. 보통 PlNavigationMenuLink들입니다',
+        en: "The panel's contents — usually PlNavigationMenuLinks"
+      }
+    }
+  ],
+
+  PlNavigationMenuLink: [
+    {
+      name: 'href',
+      type: 'string',
+      required: true,
+      description: { ko: '어디로 가는지', en: 'Where it goes' }
+    },
+    {
+      name: 'title',
+      type: 'ReactNode',
+      required: true,
+      description: { ko: '행의 이름', en: "The row's name" }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: {
+        ko: '그 아래 한 줄. 타입 스케일 한 단계 아래의 muted 텍스트',
+        en: 'A second line under it, one step down the scale and muted'
+      }
+    },
+    {
+      name: 'startIcon',
+      type: 'ReactNode',
+      description: { ko: '제목 앞의 글리프', en: 'A glyph before the title' }
+    }
+  ],
+
   PlNumberField: [
     ...sharedProps({
       variant: "'glass'",

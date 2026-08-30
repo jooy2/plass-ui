@@ -56,6 +56,9 @@ import {
   PlMenuSeparator,
   PlModal,
   PlModalClose,
+  PlNavigationMenu,
+  PlNavigationMenuItem,
+  PlNavigationMenuLink,
   PlNumberField,
   PlOtpField,
   PlOverlay,
@@ -1225,6 +1228,25 @@ const entries: Entry[] = [
           Account
         </PlFloatingBottomNavigationItem>
       </PlFloatingBottomNavigation>
+    )
+  },
+  {
+    name: 'PlNavigationMenu',
+    group: 'navigation',
+    href: 'components/navigation/navigation-menu',
+    previewHasLinks: true,
+    blurb: {
+      en: 'A row of destinations, some of which open a panel of more of them.',
+      ko: '목적지의 행이고, 그중 일부는 더 많은 목적지가 든 패널을 엽니다.'
+    },
+    preview: (
+      <PlNavigationMenu size="sm">
+        <PlNavigationMenuItem label="Product">
+          <PlNavigationMenuLink href="#" title="Analytics" />
+          <PlNavigationMenuLink href="#" title="Billing" />
+        </PlNavigationMenuItem>
+        <PlNavigationMenuItem label="Pricing" href="#" />
+      </PlNavigationMenu>
     )
   },
   {

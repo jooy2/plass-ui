@@ -8,6 +8,7 @@ import {
   focusRingClasses,
   srOnlyClasses
 } from '../../internal/styles.js';
+import { safeRel } from '../../internal/link.js';
 import type { PlassColor, PlassSize } from '../../types.js';
 
 /**
@@ -219,19 +220,6 @@ export const PlTextLink = /* @__PURE__ */ React.forwardRef<HTMLAnchorElement, Pl
     } as React.CSSProperties;
 
     /*
-     * `rel` is the one thing here a caller's own value is merged with rather
-     * than replaced by, and the reason is that the two purposes of the
-     * attribute have nothing to do with each other.
-     *
-     * `noopener` is what stops the new page reaching back through
-     * `window.opener`; `noreferrer` sits beside it for the browsers that still
-     * need the pair. The common reason to write a `rel` by hand is `nofollow`
-     * or `sponsored`, which is an SEO decision — and spelled as a plain
-     * override it would silently take the protection off a link that still
-     * opens in a new tab. Whatever was asked for is kept, with the two tokens
-     * added if they are not already there.
-     */
-    /*
      * Whether the caller's own element already knows where it goes.
      *
      * A router's `Link` resolves an address rather than forwarding one, and
@@ -244,12 +232,12 @@ export const PlTextLink = /* @__PURE__ */ React.forwardRef<HTMLAnchorElement, Pl
     const rendersItsOwnHref =
       React.isValidElement(render) && (render.props as { href?: string }).href !== undefined;
 
+    /*
+     * `rel` is merged rather than replaced — see `internal/link.ts` for why
+     * that is a security decision rather than a convenience.
+     */
     const { rel: askedFor, ...rest } = props;
-    const rel = newTab
-      ? [
-          ...new Set([...(askedFor ?? '').split(/\s+/).filter(Boolean), 'noopener', 'noreferrer'])
-        ].join(' ')
-      : askedFor;
+    const rel = safeRel(newTab ? '_blank' : undefined, askedFor);
 
     return useRender({
       render: render ?? <a />,

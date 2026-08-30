@@ -46,6 +46,7 @@ export * from './components/icon-button/index.js';
 export * from './components/list/index.js';
 export * from './components/menu/index.js';
 export * from './components/modal/index.js';
+export * from './components/navigation-menu/index.js';
 export * from './components/number-field/index.js';
 export * from './components/otp-field/index.js';
 export * from './components/overlay/index.js';
