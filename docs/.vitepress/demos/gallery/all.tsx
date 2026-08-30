@@ -32,6 +32,7 @@ import {
   PlChip,
   PlCollapsible,
   PlCombobox,
+  PlCommandPalette,
   PlContainer,
   PlDatePicker,
   PlDateRangePicker,
@@ -166,6 +167,29 @@ function DrawerPreview() {
     >
       A panel attached to one edge of the window.
     </PlDrawer>
+  );
+}
+
+/** A palette has to be opened to be seen at all, so its card carries state. */
+function CommandPalettePreview() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <PlButton size="sm" variant="glass" color="secondary" onClick={() => setOpen(true)}>
+        Open
+      </PlButton>
+      <PlCommandPalette
+        shortcut={false}
+        open={open}
+        onOpenChange={setOpen}
+        size="sm"
+        items={[
+          { value: 'new', label: 'New document', group: 'File' },
+          { value: 'copy', label: 'Copy', group: 'Edit' }
+        ]}
+      />
+    </>
   );
 }
 
@@ -1281,6 +1305,16 @@ const entries: Entry[] = [
         <PlNavigationMenuItem label="Pricing" href="#" />
       </PlNavigationMenu>
     )
+  },
+  {
+    name: 'PlCommandPalette',
+    group: 'navigation',
+    href: 'components/navigation/command-palette',
+    blurb: {
+      en: 'Everything an application can do, behind one field.',
+      ko: '애플리케이션이 할 수 있는 모든 것을, 필드 하나 뒤에.'
+    },
+    preview: <CommandPalettePreview />
   },
   {
     name: 'PlMenu',

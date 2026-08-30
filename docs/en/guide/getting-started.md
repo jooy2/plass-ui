@@ -19,7 +19,7 @@ The Flutter package is built on `package:flutter/widgets.dart` alone. It imports
 
 :::
 
-> **Both packages ship the same library** — the same eighty-three components, the same prop vocabulary, the same tokens. They version independently, so the npm and pub.dev numbers will not always agree; see [all components](../components/).
+> **Both packages ship the same library** — the same eighty-four components, the same prop vocabulary, the same tokens. They version independently, so the npm and pub.dev numbers will not always agree; see [all components](../components/).
 
 ## Install
 
@@ -87,7 +87,7 @@ This path carries no reset, because Preflight already is one.
 
 #### Registering only the components you use
 
-`plass-ui/tailwind.css` registers all 83 components at once, and that is the right default — but it is also a floor you pay whether you use one component or all of them. Tailwind scans _files_, not imports: nothing in a build connects `import { PlButton }` to the classes `PlSelect.js` spells out, so the only way to generate less CSS is to hand Tailwind fewer files.
+`plass-ui/tailwind.css` registers all 84 components at once, and that is the right default — but it is also a floor you pay whether you use one component or all of them. Tailwind scans _files_, not imports: nothing in a build connects `import { PlButton }` to the classes `PlSelect.js` spells out, so the only way to generate less CSS is to hand Tailwind fewer files.
 
 The package ships that scan in pieces. `plass-ui/css/base.css` is the tokens plus the classes every component shares; `plass-ui/css/<component>.css` is one line registering one component, named after its folder in `dist/components`.
 
@@ -98,7 +98,7 @@ The package ships that scan in pieces. `plass-ui/css/base.css` is the tokens plu
 @import 'plass-ui/css/text-field.css';
 ```
 
-For a project using a handful of components this is about 5 kB gzipped smaller than the blanket import. It is still **one** Tailwind pass, so the utilities come out in Tailwind's own order — which is why this is shipped as a narrower scan rather than as 83 pre-compiled stylesheets. Concatenating pre-compiled files would put every shared utility ahead of every component-specific one, and Tailwind's sort is what decides which of two conflicting utilities wins.
+For a project using a handful of components this is about 5 kB gzipped smaller than the blanket import. It is still **one** Tailwind pass, so the utilities come out in Tailwind's own order — which is why this is shipped as a narrower scan rather than as 84 pre-compiled stylesheets. Concatenating pre-compiled files would put every shared utility ahead of every component-specific one, and Tailwind's sort is what decides which of two conflicting utilities wins.
 
 Registering fewer components than you import is the one way to get this wrong, and it fails visibly: the component renders unstyled. When in doubt, `plass-ui/tailwind.css` is always correct.
 

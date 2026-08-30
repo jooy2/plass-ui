@@ -28,6 +28,7 @@ export * from './components/checkbox/index.js';
 export * from './components/chip/index.js';
 export * from './components/collapsible/index.js';
 export * from './components/combobox/index.js';
+export * from './components/command-palette/index.js';
 export * from './components/container/index.js';
 export * from './components/date-picker/index.js';
 export * from './components/date-range-picker/index.js';

@@ -3108,6 +3108,188 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlCommandPalette: [
+    {
+      name: 'items',
+      type: 'readonly PlCommandItem[]',
+      required: true,
+      description: { ko: '팔레트가 할 수 있는 모든 것', en: 'Everything the palette can do' }
+    },
+    {
+      name: 'open',
+      type: 'boolean',
+      description: {
+        ko: '팔레트가 열려 있는지. onOpenChange와 함께 controlled로 씁니다',
+        en: 'Whether the palette is open. Use with onOpenChange for a controlled one'
+      }
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '열린 채로 시작할지',
+        en: 'Whether it starts open, for an uncontrolled one'
+      }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: { ko: '열리거나 닫힐 때', en: 'Called when it opens or closes' }
+    },
+    {
+      name: 'onSelect',
+      type: '(item: PlCommandItem) => void',
+      description: {
+        ko: '명령이 실행됐을 때, 그 명령 자신의 onSelect 다음에. 어느 쪽이든 팔레트는 닫힙니다',
+        en: 'Called when a command is run, after its own onSelect. The palette closes either way'
+      }
+    },
+    {
+      name: 'shortcut',
+      type: 'string | false',
+      default: "'Mod+K'",
+      description: {
+        ko: '팔레트를 여는 키. window에 바인딩됩니다. PlHotKeys와 같은 표기라 Mod는 Mac에서 Command, 그 외에서 Control입니다. false면 아무것도 바인딩하지 않습니다',
+        en: 'The keystroke that opens the palette, bound on the window. Written the way PlHotKeys writes them, so Mod is Command on a Mac and Control everywhere else. false binds nothing'
+      }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      description: {
+        ko: '시트가 넓어질 수 있는 한계. 픽셀 수 또는 CSS 길이',
+        en: 'How wide the sheet may get. A number of pixels or any CSS length'
+      }
+    },
+    {
+      name: 'maxHeight',
+      type: 'number | string',
+      default: '320',
+      description: {
+        ko: '목록이 스크롤되기 전까지 높아질 수 있는 한계',
+        en: 'How tall the list may get before it scrolls'
+      }
+    },
+    {
+      name: 'placeholder',
+      type: 'string',
+      default: "'Search commands'",
+      description: { ko: '필드의 placeholder', en: 'The placeholder in the field' }
+    },
+    {
+      name: 'emptyMessage',
+      type: 'ReactNode',
+      default: "'No commands found'",
+      description: {
+        ko: '아무것도 맞지 않았을 때 행이 있었을 자리에 오는 줄',
+        en: 'The line where the rows would be, when nothing matched'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      default: "'Command palette'",
+      description: {
+        ko: '보이는 제목이 없는 이 dialog의 접근 가능한 이름',
+        en: 'The accessible name of the dialog, which has no visible title'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '시트의 너비, 필드의 높이, 행의 타입 스케일',
+        en: "The sheet's width, the field's height and the rows' type scale"
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: '의미론적 색 역할. 하이라이트, caret, focus ring까지 갑니다 — 시트에는 색이 들어가지 않습니다',
+        en: 'Semantic colour role. It reaches the highlight, the caret and the focus rings; the sheet is never dyed'
+      }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'default'",
+      shared: true,
+      description: { ko: '행의 높이만 바꿉니다', en: 'The height of a row, and nothing else' }
+    }
+  ],
+
+  PlCommandItem: [
+    {
+      name: 'value',
+      type: 'string',
+      required: true,
+      description: { ko: '이 명령을 식별하는 것', en: 'What identifies the command' }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      required: true,
+      description: {
+        ko: '행이 말하는 내용이자, 질의가 맞춰지는 대상',
+        en: 'What the row says, and what the query is matched against'
+      }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: {
+        ko: '그 아래 한 줄 — 명령이 어디로 가는지, 무엇을 바꾸는지',
+        en: 'A second line under it — where the command goes, or what it changes'
+      }
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: { ko: '라벨 앞의 글리프', en: 'A glyph before the label' }
+    },
+    {
+      name: 'shortcut',
+      type: 'string',
+      description: {
+        ko: '같은 일을 하는 키. 행 끝에 놓입니다. 팔레트는 그것을 바인딩하지 않습니다 — 애플리케이션이 합니다',
+        en: 'The keystroke that does the same thing, set at the end of the row. The palette does not bind it — the application does'
+      }
+    },
+    {
+      name: 'group',
+      type: 'string',
+      description: {
+        ko: '이 명령이 속한 제목. 명령은 주어진 순서대로 그려지고 제목은 그룹이 바뀔 때마다 그려지므로, 한 그룹의 명령은 붙여서 나열해야 합니다',
+        en: "The heading this command sits under. Commands are drawn in the order they are given and a heading is drawn each time the group changes, so a group's commands have to be listed together"
+      }
+    },
+    {
+      name: 'keywords',
+      type: 'readonly string[]',
+      description: {
+        ko: '질의에는 맞춰지지만 그려지지는 않는 말들 — 다른 제품이 같은 명령에 붙인 이름, 약어, 사람들이 검색했을 단어',
+        en: "Extra words the query is matched against but that are never drawn — the name somebody else's product gives the same command, an abbreviation, the word a reader would have searched for"
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '목록에는 있지만 실행할 수 없습니다', en: 'In the list but not runnable' }
+    },
+    {
+      name: 'onSelect',
+      type: '() => void',
+      description: { ko: '실행하면 무엇을 하는지', en: 'What running it does' }
+    }
+  ],
+
   PlContainer: [
     {
       name: 'maxWidth',
