@@ -19,7 +19,7 @@ Flutter 패키지는 `package:flutter/widgets.dart`만으로 만들어졌습니�
 
 :::
 
-> **두 패키지는 같은 라이브러리를 냅니다** — 같은 일흔여섯 개 컴포넌트, 같은 prop 어휘, 같은 토큰. 버전은 각각 매겨지므로 npm과 pub.dev의 번호가 늘 같지는 않습니다. [모든 컴포넌트](../components/)를 보세요.
+> **두 패키지는 같은 라이브러리를 냅니다** — 같은 일흔일곱 개 컴포넌트, 같은 prop 어휘, 같은 토큰. 버전은 각각 매겨지므로 npm과 pub.dev의 번호가 늘 같지는 않습니다. [모든 컴포넌트](../components/)를 보세요.
 
 ## 설치
 
@@ -87,7 +87,7 @@ import 'plass-ui/styles.css';
 
 #### 쓰는 컴포넌트만 등록하기
 
-`plass-ui/tailwind.css`는 76개 컴포넌트를 한 번에 등록합니다. 기본값으로는 그게 맞지만, 컴포넌트를 하나만 쓰든 전부 쓰든 똑같이 내는 고정비이기도 합니다. Tailwind는 import 그래프가 아니라 **파일**을 스캔합니다. 빌드 어디에도 `import { PlButton }`과 `PlSelect.js`가 적어 둔 클래스를 이어 주는 연결이 없으므로, CSS를 줄이는 방법은 Tailwind에 파일을 덜 주는 것뿐입니다.
+`plass-ui/tailwind.css`는 77개 컴포넌트를 한 번에 등록합니다. 기본값으로는 그게 맞지만, 컴포넌트를 하나만 쓰든 전부 쓰든 똑같이 내는 고정비이기도 합니다. Tailwind는 import 그래프가 아니라 **파일**을 스캔합니다. 빌드 어디에도 `import { PlButton }`과 `PlSelect.js`가 적어 둔 클래스를 이어 주는 연결이 없으므로, CSS를 줄이는 방법은 Tailwind에 파일을 덜 주는 것뿐입니다.
 
 패키지는 그 스캔을 조각으로도 배포합니다. `plass-ui/css/base.css`는 토큰과 모든 컴포넌트가 공유하는 클래스이고, `plass-ui/css/<component>.css`는 컴포넌트 하나를 등록하는 한 줄입니다. 이름은 `dist/components` 아래 폴더 이름과 같습니다.
 
@@ -98,7 +98,7 @@ import 'plass-ui/styles.css';
 @import 'plass-ui/css/text-field.css';
 ```
 
-컴포넌트를 몇 개만 쓰는 프로젝트라면 통짜 import보다 gzip 기준 약 5 kB 작습니다. 그러면서도 Tailwind pass는 여전히 **한 번**이라 utility가 Tailwind 자신의 순서대로 나옵니다. 76개의 컴파일된 스타일시트가 아니라 더 좁은 스캔으로 배포하는 이유가 이것입니다. 컴파일된 파일을 이어 붙이면 공유 utility가 전부 컴포넌트 전용 utility 앞에 놓이는데, 충돌하는 두 utility 중 어느 쪽이 이기는지는 Tailwind의 정렬이 정합니다.
+컴포넌트를 몇 개만 쓰는 프로젝트라면 통짜 import보다 gzip 기준 약 5 kB 작습니다. 그러면서도 Tailwind pass는 여전히 **한 번**이라 utility가 Tailwind 자신의 순서대로 나옵니다. 77개의 컴파일된 스타일시트가 아니라 더 좁은 스캔으로 배포하는 이유가 이것입니다. 컴파일된 파일을 이어 붙이면 공유 utility가 전부 컴포넌트 전용 utility 앞에 놓이는데, 충돌하는 두 utility 중 어느 쪽이 이기는지는 Tailwind의 정렬이 정합니다.
 
 import한 것보다 적게 등록하는 것이 이 방식에서 유일하게 틀릴 수 있는 지점이고, 틀리면 눈에 보이게 틀립니다. 해당 컴포넌트가 스타일 없이 렌더링됩니다. 헷갈리면 `plass-ui/tailwind.css`가 언제나 정답입니다.
 

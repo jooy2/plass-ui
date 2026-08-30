@@ -3926,6 +3926,79 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlFooter: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: '시트의 재질. 바에는 색이 들어가지 않습니다 — 위에 얹힌 것들이 자기 색을 갖고 옵니다',
+        en: 'What the sheet is made of. The bar is never dyed — what is on it arrives with colours of its own'
+      },
+      sizeDescription: {
+        ko: 'gutter와 내용 위아래의 공기. PlBox처럼 여기서 size는 시트의 크기입니다',
+        en: 'The gutter and the air above and below the content. As on PlBox, size here is the size of the sheet'
+      }
+    }),
+    {
+      name: 'position',
+      type: "'static' | 'sticky' | 'fixed'",
+      default: "'static'",
+      shared: true,
+      description: {
+        ko: '바가 페이지 스크롤 안에서 어떻게 앉는지. static이 기본이고 PlHeader와 정반대입니다 — 푸터는 스크롤해서 닿는 문서의 끝입니다',
+        en: "How the bar sits in the page's scroll. static is the default and the opposite of PlHeader's: a footer is the end of the document, reached by scrolling to it"
+      }
+    },
+    {
+      name: 'divider',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '위 가장자리에 헤어라인을 그립니다. 기본으로 켜져 있습니다 — 푸터는 바로 위에 내용이 있고 아래에는 아무것도 없는 유일한 시트라, 문서가 끝났다고 말하는 것이 그 선입니다',
+        en: 'Draws a hairline along the top edge. On by default: a footer is the one sheet with content directly above it and nothing below, so the line is what says the document ended'
+      }
+    },
+    {
+      name: 'maxWidth',
+      type: "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'none'",
+      default: "'none'",
+      description: {
+        ko: '시트는 창을 가로지른 채로, 내용만 measure에 맞춰 가운데 둡니다. PlContainer의 maxWidth와 같은 사다리입니다',
+        en: "Holds the content to a measure and centres it while the sheet still spans the window. The same ladder PlContainer's maxWidth uses"
+      }
+    },
+    {
+      name: 'padded',
+      type: 'boolean',
+      default: 'true',
+      description: { ko: 'gutter와 위아래의 공기', en: 'The gutter and the air above and below' }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: {
+        ko: '바가 불리는 이름. 페이지에 <footer>가 둘 이상일 때 써 둘 값어치가 있습니다',
+        en: 'The name the bar is announced by. Worth writing when a page has more than one <footer> in it'
+      }
+    },
+    {
+      name: 'render',
+      type: 'useRender.RenderProp',
+      description: {
+        ko: '<footer> 대신 다른 요소로 렌더링합니다. 대개 원하는 것이 아닙니다 — 문서 최상위의 그 태그는 contentinfo landmark입니다',
+        en: 'Renders something other than a <footer>. Rarely what you want: at the top level of a document that tag is the contentinfo landmark'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: {
+        ko: '안에 든 전부. 푸터의 내용은 링크 열, 저작권 줄, 로고 — 전부 호출하는 쪽의 것이라 슬롯이 하나도 없습니다',
+        en: "Everything in it. A footer's content is columns of links, a copyright line, a logo — all of it the caller's, which is why there are no slots"
+      }
+    }
+  ],
+
   PlGrid: [
     {
       name: 'columns',

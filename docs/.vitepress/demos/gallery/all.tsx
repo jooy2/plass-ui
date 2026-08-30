@@ -41,6 +41,7 @@ import {
   PlFilePicker,
   PlFloatingBottomNavigation,
   PlFloatingBottomNavigationItem,
+  PlFooter,
   PlGrid,
   PlGridItem,
   PlHeader,
@@ -1206,6 +1207,20 @@ const entries: Entry[] = [
         <PlMenuSeparator />
         <PlMenuItem color="danger">Delete</PlMenuItem>
       </PlMenu>
+    )
+  },
+  {
+    name: 'PlFooter',
+    group: 'layout',
+    href: 'components/layout/footer',
+    blurb: {
+      en: "The sheet at the end of a page, and the site's own information.",
+      ko: '페이지 끝의 시트이자, 사이트 자신의 정보입니다.'
+    },
+    preview: (
+      <PlFooter size="xs" density="compact" className="w-full">
+        <span className="text-xs text-(--plass-muted-fg)">© 2026 Acme</span>
+      </PlFooter>
     )
   },
   {
