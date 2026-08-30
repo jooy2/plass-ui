@@ -171,29 +171,7 @@ avatar는 색을 입는 **대상 자체**입니다 — 특정한 한 사람의 �
 
 ### 겹쳐 쌓기
 
-`PlAvatarGroup`은 없습니다. 쌓기는 겹침과 ring일 뿐이고, 얼마나 겹칠지와 ring을 무엇에 대고 그릴지는 둘 다 컴포넌트가 아니라 페이지의 몫입니다.
-
-::: fw flutter
-
-음수 margin은 Flutter의 `Padding`이 받아 주지 않으므로, 아래 예제는 각 얼굴을 한 칸씩 옮겨 놓는 `Stack`입니다. 어차피 더 정직한 모양이기도 합니다 — avatar를 쌓은 것은 stack입니다.
-
-:::
-
-<Demo src="avatar/group" :min-height="120">
-
-::: fw react
-
-<<< @/.vitepress/demos/avatar/group.tsx
-
-:::
-
-::: fw flutter
-
-<<< @/../packages/flutter/example/lib/demos/avatar/group.dart
-
-:::
-
-</Demo>
+얼굴을 겹쳐 쌓고 끝에 `+n`을 붙인 것은 [`PlAvatarGroup`](./avatar-group)입니다. 축을 쌓기 전체에 한 번에 정하고, 그 안에서도 avatar 자신의 prop이 이깁니다.
 
 ## Accessibility
 

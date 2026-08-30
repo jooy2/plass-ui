@@ -171,29 +171,7 @@ The control heights, so an avatar and the button beside it in a toolbar sit on t
 
 ### A stack of them
 
-There is no `PlAvatarGroup`. A stack is an overlap and a ring — a layout decision about how far they overlap and what the ring is drawn against, both of which belong to the page rather than to the component.
-
-::: fw flutter
-
-A negative margin is not something Flutter's `Padding` will take, so the demo below is a `Stack` with each face positioned along a step. Which is the more honest shape anyway: a stack of avatars is a stack.
-
-:::
-
-<Demo src="avatar/group" :min-height="120">
-
-::: fw react
-
-<<< @/.vitepress/demos/avatar/group.tsx
-
-:::
-
-::: fw flutter
-
-<<< @/../packages/flutter/example/lib/demos/avatar/group.dart
-
-:::
-
-</Demo>
+A stack of overlapping faces with a `+n` on the end is a [`PlAvatarGroup`](./avatar-group). It sets the axes once for the whole stack, and an avatar's own prop still wins inside it.
 
 ## Accessibility
 

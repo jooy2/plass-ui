@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { Avatar as BaseUIAvatar } from '@base-ui/react/avatar';
+import { AvatarGroupContext } from '../../internal/avatar-group.js';
 import {
   controlHeightClasses,
   controlSlots,
@@ -215,11 +216,11 @@ export const PlAvatar = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlAvat
       alt,
       name,
       initials,
-      shape = 'circle',
-      variant = 'ghost',
-      size = 'md',
-      color = 'primary',
-      elevation = 0,
+      shape: shapeProp,
+      variant: variantProp,
+      size: sizeProp,
+      color: colorProp,
+      elevation: elevationProp,
       delay,
       imageProps,
       onLoadingStatusChange,
@@ -230,6 +231,19 @@ export const PlAvatar = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlAvat
     },
     ref
   ) {
+    /*
+     * A `PlAvatarGroup` around this avatar sets the axes once for the stack. The
+     * avatar's own prop still wins, which is what lets one face in a row be
+     * marked out from the rest, and with no group around it the fallbacks are
+     * the defaults they always were.
+     */
+    const group = React.useContext(AvatarGroupContext);
+    const shape = shapeProp ?? group?.shape ?? 'circle';
+    const variant = variantProp ?? group?.variant ?? 'ghost';
+    const size = sizeProp ?? group?.size ?? 'md';
+    const color = colorProp ?? group?.color ?? 'primary';
+    const elevation = elevationProp ?? group?.elevation ?? 0;
+
     const derived = name ? initialsOf(name) : '';
     const label = alt ?? name;
 

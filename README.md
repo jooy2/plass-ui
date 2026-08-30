@@ -10,12 +10,12 @@ Live previews and full props for every component, in both frameworks. This READM
 
 ---
 
-> **Plass is one design language, shipped as two libraries.** Every surface answers a single question — is this pressed, or does it hold something? A thing you press is **tinted glass**: a gradient that _turns_ through its colour family rather than darkening, a shadow thrown in that same colour, and a bloom of light that follows your pointer across it. A thing that holds something is **clear glass**: translucent, deeply blurred, edged with a white hairline, never dyed. Nothing is bevelled, nothing is embossed and nothing moves when you press it — depth is carried by light, colour and blur. That is the whole system, and it is the same eighty-six components under the same names and the same numbers whether you build in **React** or in **Flutter**.
+> **Plass is one design language, shipped as two libraries.** Every surface answers a single question — is this pressed, or does it hold something? A thing you press is **tinted glass**: a gradient that _turns_ through its colour family rather than darkening, a shadow thrown in that same colour, and a bloom of light that follows your pointer across it. A thing that holds something is **clear glass**: translucent, deeply blurred, edged with a white hairline, never dyed. Nothing is bevelled, nothing is embossed and nothing moves when you press it — depth is carried by light, colour and blur. That is the whole system, and it is the same eighty-seven components under the same names and the same numbers whether you build in **React** or in **Flutter**.
 
 ## Why Plass
 
 - **Finished the moment it is installed.** The gradients, the shadows, the blur, the focus ring and the press response are already decided and already agree with each other. There is no theme file to fill in before the first screen looks like something.
-- **Learn it once, use it on both.** Eighty-six components in React and in Flutter under the same names: an `md` control is 40px on either side, `primary` is the same colour family, and one documentation page — with a framework switch in the sidebar — covers the two rather than drifting apart by the third release.
+- **Learn it once, use it on both.** Eighty-seven components in React and in Flutter under the same names: an `md` control is 40px on either side, `primary` is the same colour family, and one documentation page — with a framework switch in the sidebar — covers the two rather than drifting apart by the third release.
 - **Five props, not fifty.** `size`, `color`, `variant`, `density` and `elevation` mean the same thing on every component, so the tenth one costs nothing to learn after the first.
 - **Readable because it was measured.** Every gradient stop clears 4.5:1 against its own label, the lightest corner included. A colour choice here is not a contrast bug waiting for an audit.
 - **Accessible without the checklist.** Roles, labels, keyboard operation and focus management live inside the components rather than being bolted on afterwards.
@@ -24,10 +24,10 @@ Live previews and full props for every component, in both frameworks. This READM
 
 ## Packages
 
-| Package | Registry | Requires | Quick start |
-| --- | --- | --- | --- |
-| [`packages/react`](packages/react) | [npm: `plass-ui`](https://www.npmjs.com/package/plass-ui) | React 18 or 19, Node.js 20.19 or later | [README](packages/react/README.md) |
-| [`packages/flutter`](packages/flutter) | [pub.dev: `plass_ui`](https://pub.dev/packages/plass_ui) | Flutter 3.41 or newer (Dart 3.11) | [README](packages/flutter/README.md) |
+| Package                                | Registry                                                  | Requires                               | Quick start                          |
+| -------------------------------------- | --------------------------------------------------------- | -------------------------------------- | ------------------------------------ |
+| [`packages/react`](packages/react)     | [npm: `plass-ui`](https://www.npmjs.com/package/plass-ui) | React 18 or 19, Node.js 20.19 or later | [README](packages/react/README.md)   |
+| [`packages/flutter`](packages/flutter) | [pub.dev: `plass_ui`](https://pub.dev/packages/plass_ui)  | Flutter 3.41 or newer (Dart 3.11)      | [README](packages/flutter/README.md) |
 
 The two **version independently** and keep separate changelogs — [`packages/react/CHANGELOG.md`](packages/react/CHANGELOG.md) is the React package's, [`packages/flutter/CHANGELOG.md`](packages/flutter/CHANGELOG.md) the Flutter one's. A release on one side is not a release on the other, so the numbers will not always agree.
 
@@ -41,7 +41,7 @@ npm install plass-ui
 
 ```css
 /* your app's CSS entry point */
-@import 'plass-ui/styles.css';
+@import "plass-ui/styles.css";
 ```
 
 ```tsx
@@ -107,15 +107,15 @@ Any backdrop with structure in it works. What does not work is nothing at all.
 
 ## Documentation
 
-| Page | What you will find |
-| --- | --- |
-| [**Getting started**](https://plass.cdget.com/guide/getting-started) | Install and setup, end to end, in either framework. |
-| [**Examples**](https://plass.cdget.com/examples/dashboard) | Whole screens built out of the components — a dashboard, a landing page, a sign-up flow. |
-| [**All components**](https://plass.cdget.com/components/) | Every component, one page each: live previews and the full props table. |
-| [**Design language**](https://plass.cdget.com/design/design-language) | Why a Plass surface looks and behaves the way it does. |
-| [**Prop conventions**](https://plass.cdget.com/design/prop-conventions) | The shared vocabulary every component draws from. |
-| [**Colour**](https://plass.cdget.com/design/color) | The token families, the measured contrast, and how to theme them. |
-| [**Changelog**](https://plass.cdget.com/changelog) | What changed in each release. |
+| Page                                                                    | What you will find                                                                       |
+| ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| [**Getting started**](https://plass.cdget.com/guide/getting-started)    | Install and setup, end to end, in either framework.                                      |
+| [**Examples**](https://plass.cdget.com/examples/dashboard)              | Whole screens built out of the components — a dashboard, a landing page, a sign-up flow. |
+| [**All components**](https://plass.cdget.com/components/)               | Every component, one page each: live previews and the full props table.                  |
+| [**Design language**](https://plass.cdget.com/design/design-language)   | Why a Plass surface looks and behaves the way it does.                                   |
+| [**Prop conventions**](https://plass.cdget.com/design/prop-conventions) | The shared vocabulary every component draws from.                                        |
+| [**Colour**](https://plass.cdget.com/design/color)                      | The token families, the measured contrast, and how to theme them.                        |
+| [**Changelog**](https://plass.cdget.com/changelog)                      | What changed in each release.                                                            |
 
 ## Components
 
@@ -125,7 +125,7 @@ The list below is both packages'. The props are the same props under Dart's name
 
 ### Display
 
-`PlAvatar` · `PlBadge` · `PlBlockquote` · `PlBreadcrumb` · `PlChip` · `PlDivider` · `PlHighlight` · `PlHotKeys` · `PlIcon` · `PlList` · `PlTable` · `PlTextLink` · `PlTimeline` · `PlTypography`
+`PlAvatar` · `PlAvatarGroup` · `PlBadge` · `PlBlockquote` · `PlBreadcrumb` · `PlChip` · `PlDivider` · `PlHighlight` · `PlHotKeys` · `PlIcon` · `PlList` · `PlTable` · `PlTextLink` · `PlTimeline` · `PlTypography`
 
 ### Feedback
 

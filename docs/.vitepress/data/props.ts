@@ -1474,6 +1474,87 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlAvatarGroup: [
+    {
+      name: 'max',
+      type: 'number',
+      description: {
+        ko: '나머지가 숫자가 되기 전까지 몇 개를 그릴지. 없으면 전부 그립니다',
+        en: 'How many avatars are drawn before the rest become a count. Left out, every one of them is drawn'
+      }
+    },
+    {
+      name: 'total',
+      type: 'number',
+      description: {
+        ko: '앞의 몇 개만 넘겼을 때 전체가 몇 명인지. 없으면 children에서 세는데, 그것은 전부 넘겼을 때만 맞습니다',
+        en: 'How many there are altogether, when the group was handed only the first few. Without it the count is worked out from the children, which is right only when all of them were passed'
+      }
+    },
+    {
+      name: 'overlap',
+      type: 'number | string',
+      description: {
+        ko: '각 avatar가 앞의 것 아래로 얼마나 들어갈지 — px 숫자나 아무 CSS 길이. 없으면 size의 일정 비율이라 어느 단계에서나 겹침이 같아 보입니다',
+        en: 'How far each avatar sits under the one before it — a number of pixels or any CSS length. Left out it is a fraction of `size`, which keeps the overlap looking the same at every step'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '그룹의 모든 avatar에 전달됩니다. avatar 자신의 prop이 이깁니다',
+        en: "Passed to every avatar in the group. An avatar's own prop still wins"
+      }
+    },
+    {
+      name: 'shape',
+      type: "'circle' | 'square'",
+      default: "'circle'",
+      description: {
+        ko: '그룹의 모든 avatar에 전달됩니다',
+        en: 'Passed to every avatar in the group'
+      }
+    },
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'ghost'",
+      shared: true,
+      description: {
+        ko: '그룹의 모든 avatar에 전달됩니다',
+        en: 'Passed to every avatar in the group'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: '그룹의 모든 avatar에 전달됩니다',
+        en: 'Passed to every avatar in the group'
+      }
+    },
+    {
+      name: 'elevation',
+      type: ELEVATION,
+      default: '0',
+      shared: true,
+      description: {
+        ko: '그룹의 모든 avatar에 전달됩니다',
+        en: 'Passed to every avatar in the group'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: 'avatar들', en: 'The avatars' }
+    }
+  ],
+
   PlBadge: [
     ...sharedProps({
       variant: "'solid'",

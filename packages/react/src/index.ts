@@ -14,6 +14,7 @@ export * from './components/animate-typing/index.js';
 export * from './components/animate-zoom/index.js';
 export * from './components/aspect-ratio/index.js';
 export * from './components/avatar/index.js';
+export * from './components/avatar-group/index.js';
 export * from './components/badge/index.js';
 export * from './components/blockquote/index.js';
 export * from './components/bottom-navigation/index.js';

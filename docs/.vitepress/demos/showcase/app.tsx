@@ -4,6 +4,7 @@ import {
   PlAccordionItem,
   PlAlert,
   PlAvatar,
+  PlAvatarGroup,
   PlBadge,
   PlBlockquote,
   PlBreadcrumb,
@@ -207,6 +208,14 @@ function SettingsScreen() {
         </PlCard>
 
         <PlCard title="Members" elevation={2} render={<section />}>
+          <PlAvatarGroup size="sm" max={4} total={12} aria-label="Twelve members">
+            <PlAvatar name="Ada Lovelace" src="/portrait-1.svg" />
+            <PlAvatar name="Grace Hopper" src="/portrait-2.svg" />
+            <PlAvatar name="홍길동" />
+            <PlAvatar name="Katherine Johnson" />
+            <PlAvatar name="Alan Turing" />
+          </PlAvatarGroup>
+
           <PlList variant="ghost" size="sm" dividers>
             <PlListItem
               startIcon={<PlAvatar size="xs" name="Ada Lovelace" src="/portrait-1.svg" />}

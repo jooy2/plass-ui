@@ -16,6 +16,7 @@ import {
   PlAnimateGrow,
   PlAspectRatio,
   PlAvatar,
+  PlAvatarGroup,
   PlBadge,
   PlBlockquote,
   PlBottomNavigation,
@@ -582,17 +583,28 @@ const entries: Entry[] = [
       ko: '사람이나 사물의 사진. 절대 빈 상자가 되지 않습니다.'
     },
     preview: (
-      <div className="flex items-center">
+      <div className="flex items-center gap-2">
         <PlAvatar size="sm" name="Ada Lovelace" src="/portrait-1.svg" />
-        <PlAvatar size="sm" name="Grace Hopper" className="-ms-2 ring-2 ring-(--plass-surface)" />
-        <PlAvatar
-          size="sm"
-          variant="solid"
-          color="info"
-          name="홍길동"
-          className="-ms-2 ring-2 ring-(--plass-surface)"
-        />
+        <PlAvatar size="sm" name="Grace Hopper" />
+        <PlAvatar size="sm" variant="solid" color="info" name="홍길동" />
       </div>
+    )
+  },
+  {
+    name: 'PlAvatarGroup',
+    group: 'display',
+    href: 'components/display/avatar-group',
+    blurb: {
+      en: 'A stack of avatars, with the ones that did not fit as a count.',
+      ko: '겹쳐 쌓은 avatar들. 들어가지 못한 나머지는 숫자가 됩니다.'
+    },
+    preview: (
+      <PlAvatarGroup size="sm" max={3} total={9}>
+        <PlAvatar name="Ada Lovelace" src="/portrait-1.svg" />
+        <PlAvatar name="Grace Hopper" src="/portrait-2.svg" />
+        <PlAvatar name="홍길동" />
+        <PlAvatar name="Katherine Johnson" />
+      </PlAvatarGroup>
     )
   },
   {
