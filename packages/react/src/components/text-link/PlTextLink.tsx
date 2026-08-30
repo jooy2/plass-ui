@@ -81,8 +81,17 @@ export interface PlTextLinkProps extends Omit<React.ComponentPropsWithoutRef<'a'
   newTabLabel?: string;
   /**
    * Renders something other than an `<a>` — the `Link` a router brings, most of
-   * the time. `href` still goes through, so `render={<NextLink href="…" />}`
-   * needs it written once, on the `PlTextLink`.
+   * the time.
+   *
+   * **An `href` on what comes back wins.** A router's `Link` does not pass its
+   * address through; it *resolves* one — a locale prefix, a base path, a typed
+   * route — and hands the anchor the result. So when the element carries an
+   * `href` of its own, this component's is not merged over it, and the router
+   * keeps what it worked out. Written the other way round, every localised link
+   * in an app silently lost its prefix.
+   *
+   * The element having none is the ordinary case (`render={<a />}`), and there
+   * the `href` above is used.
    */
   render?: useRender.RenderProp;
   /** The label. */
@@ -222,6 +231,19 @@ export const PlTextLink = /* @__PURE__ */ React.forwardRef<HTMLAnchorElement, Pl
      * opens in a new tab. Whatever was asked for is kept, with the two tokens
      * added if they are not already there.
      */
+    /*
+     * Whether the caller's own element already knows where it goes.
+     *
+     * A router's `Link` resolves an address rather than forwarding one, and
+     * what it resolves reaches the anchor through its own render — so merging
+     * this component's `href` on top of it throws that work away and puts the
+     * raw string back. Only an element is checked: a render *function* builds
+     * its element from the props it is handed, which is the other half of the
+     * same contract.
+     */
+    const rendersItsOwnHref =
+      React.isValidElement(render) && (render.props as { href?: string }).href !== undefined;
+
     const { rel: askedFor, ...rest } = props;
     const rel = newTab
       ? [
@@ -233,7 +255,7 @@ export const PlTextLink = /* @__PURE__ */ React.forwardRef<HTMLAnchorElement, Pl
       render: render ?? <a />,
       ref,
       props: {
-        href,
+        ...(rendersItsOwnHref ? null : { href }),
         target: newTab ? '_blank' : undefined,
         className: classNames,
         style: { ...slots, ...style },

@@ -173,7 +173,9 @@ Also has no default: a link inside a sentence is the size of the sentence. Set i
 
 ### render
 
-Takes the router's own `Link` while keeping the line, the mark and the focus ring. `href` still goes through, so it is written once.
+Takes the router's own `Link` while keeping the line, the mark and the focus ring.
+
+**An `href` on what comes back wins.** A router's `Link` does not forward an address, it _resolves_ one — a locale prefix, a base path, a typed route — and hands the anchor the result. So when the element carries an `href` of its own it is left alone, and only an element with none is given the `href` above. Written the other way round, every localised link in an app quietly loses its prefix: the anchor ends up with the raw string and the crawler, the middle click and the copied address all get the wrong page.
 
 ```tsx
 import NextLink from 'next/link';

@@ -20,6 +20,37 @@ describe('PlTextLink', () => {
       await expect.element(screen.getByRole('link', { name: 'After' })).toBeInTheDocument();
     });
 
+    it('lets the element `render` returns keep its own address', async () => {
+      // A router's `Link` resolves an address rather than forwarding one — a
+      // locale prefix, a base path — and hands the anchor the result. Merging
+      // this component's `href` over it would put the raw string back, which is
+      // every localised link in an app quietly losing its prefix.
+      const Resolved = (props: React.ComponentPropsWithoutRef<'a'>) => (
+        <a data-router="" {...props} href="/ko/pricing" />
+      );
+      const screen = await render(
+        <PlTextLink href="/pricing" render={<Resolved href="/pricing" />}>
+          Pricing
+        </PlTextLink>
+      );
+      const link = screen.getByRole('link').element();
+
+      expect(link).toHaveAttribute('data-router');
+      expect(link).toHaveAttribute('href', '/ko/pricing');
+    });
+
+    it('gives its own address to an element that has none', async () => {
+      const screen = await render(
+        <PlTextLink href="/pricing" render={<a data-plain="" />}>
+          Pricing
+        </PlTextLink>
+      );
+      const link = screen.getByRole('link').element();
+
+      expect(link).toHaveAttribute('data-plain');
+      expect(link).toHaveAttribute('href', '/pricing');
+    });
+
     it('keeps caller-supplied class names alongside its own', async () => {
       const screen = await render(
         <PlTextLink href="/a" className="my-own-class">
