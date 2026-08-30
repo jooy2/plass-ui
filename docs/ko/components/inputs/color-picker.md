@@ -7,7 +7,7 @@ order: 20
 
 <p class="plass-lede">눈으로 고르는 색입니다. 채도 사각형 옆에 색상 레일이 놓이는데, 모든 디자인 도구가 정착한 배치입니다 — 한 색상의 모든 색이 포인터 한 번의 움직임 안에 들어오기 때문입니다.</p>
 
-<Demo src="color-picker/hero" :flutter="false" :min-height="220" />
+<Demo src="color-picker/hero" :min-height="220" />
 
 ::: fw react
 
@@ -15,6 +15,20 @@ order: 20
 import { PlColorPicker } from 'plass-ui';
 
 <PlColorPicker label="Project colour" value={color} onValueChange={setColor} />;
+```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlColorPicker(
+  label: const Text('Project colour'),
+  value: colour,
+  onValueChanged: (String next) => setState(() => colour = next),
+);
 ```
 
 :::
@@ -45,9 +59,19 @@ import { PlColorPicker } from 'plass-ui';
 
 트리거 없이 페이지에 패널을 그립니다. 색이 열 개 중 한 필드가 아니라 편집 대상 자체인 사이드바나 설정 창을 위한 것입니다.
 
-<Demo src="color-picker/inline" :flutter="false" :min-height="360">
+<Demo src="color-picker/inline" :min-height="360">
+
+::: fw react
 
 <<< @/.vitepress/demos/color-picker/inline.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/color_picker/inline.dart
+
+:::
 
 </Demo>
 
@@ -57,9 +81,19 @@ import { PlColorPicker } from 'plass-ui';
 
 셋 다 색이 불투명하면 alpha를 뺍니다. `alpha`를 켠 적 없는 호출자가 세 채널만 쓴 컨트롤에서 `rgba(…, 1)`을 보게 되면 안 되니까요.
 
-<Demo src="color-picker/formats" :flutter="false" :min-height="160">
+<Demo src="color-picker/formats" :min-height="160">
+
+::: fw react
 
 <<< @/.vitepress/demos/color-picker/formats.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/color_picker/formats.dart
+
+:::
 
 </Demo>
 
@@ -67,9 +101,19 @@ import { PlColorPicker } from 'plass-ui';
 
 세 번째 레일을 더하고 값이 네 번째 채널을 갖게 합니다. 레일은 체커보드 위에 그려지고, 체커는 conic 그러데이션 둘이 아니라 45°의 linear stop 넷입니다. conic으로 그린 체커는 소수 device pixel ratio에서 모든 타일 한가운데에 이음매가 생깁니다.
 
-<Demo src="color-picker/alpha" :flutter="false" :min-height="420">
+<Demo src="color-picker/alpha" :min-height="420">
+
+::: fw react
 
 <<< @/.vitepress/demos/color-picker/alpha.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/color_picker/alpha.dart
+
+:::
 
 </Demo>
 
@@ -81,9 +125,19 @@ import { PlColorPicker } from 'plass-ui';
 
 선택된 스와치의 체크는 상대 휘도로 정해진 검정 또는 흰색입니다 — 고정된 흰 체크는 노랑 위에서 사라지고, 밝기만 보면 초록에서 반대로 놓입니다.
 
-<Demo src="color-picker/swatches" :flutter="false" :min-height="380">
+<Demo src="color-picker/swatches" :min-height="380">
+
+::: fw react
 
 <<< @/.vitepress/demos/color-picker/swatches.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/color_picker/swatches.dart
+
+:::
 
 </Demo>
 
@@ -93,9 +147,19 @@ import { PlColorPicker } from 'plass-ui';
 
 `readOnly` 피커는 색을 보여 주고 아무것도 받지 않습니다. 레일은 값을 지키고 tab stop을 잃습니다. `disabled`는 tab 순서에서 빠집니다.
 
-<Demo src="color-picker/states" :flutter="false" :min-height="180">
+<Demo src="color-picker/states" :min-height="180">
+
+::: fw react
 
 <<< @/.vitepress/demos/color-picker/states.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/color_picker/states.dart
+
+:::
 
 </Demo>
 
@@ -104,6 +168,22 @@ import { PlColorPicker } from 'plass-ui';
 변환은 `internal/color.ts`입니다 — HSV, RGB, HSL과 파서 하나, 포매터 하나. 삼각함수 없는 산수 백 줄 남짓입니다. 색을 _계산하는_ 컴포넌트가 그걸 해 주는 의존성 없이 배포되는 이유가 전부 그것입니다.
 
 읽는 것: 네 가지 길이의 hex, 그리고 콤마와 공백 문법 양쪽의 `rgb()`/`rgba()`/`hsl()`/`hsla()`. 일부러 읽지 않는 것: 이름 있는 색과 `color()`. 피커는 읽을 수 있는 모든 값을 쓸 수도 있어야 하는데, `rebeccapurple`에서 패널 위의 한 점으로 정직하게 돌아올 길이 없습니다.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `value` / `defaultValue` | nullable인 `value` | `null`은 "피커 자신의 파랑"입니다. 첫 변경 이후로는 문자열이 호출자의 것이고, 이 패키지의 다른 모든 필드가 그렇습니다. |
+| `swatches: false` | `swatches: []` | 빈 리스트가 두 번째 타입 없이 같은 말을 합니다. |
+| `open` / `defaultOpen` / `onOpenChange` | — | 팝업은 피커 자신의 것이고, 그것을 붙들어야 하는 route guard 같은 모양이 여기에는 없습니다. |
+| `name`과 hidden input | — | 참여할 네이티브 폼 제출이 없습니다. |
+| linear 그러데이션 넷으로 만든 체커 | painter | `CustomPainter`에는 피할 이음매도, 싸울 타일링도 없습니다. |
+| partial인 `labels` | 기본값을 가진 클래스 `PlColorPickerLabels` | Dart는 선택적 필드에 이름을 붙입니다. 레코드의 partial 같은 것은 없습니다. |
+| `className`, `style` | — | 전달할 class 목록도 style 속성도 없습니다. |
+
+:::
 
 ## 접근성
 

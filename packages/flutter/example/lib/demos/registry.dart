@@ -248,6 +248,12 @@ import 'package:plass_ui_example/demos/header/hero.dart';
 import 'package:plass_ui_example/demos/header/measure.dart';
 import 'package:plass_ui_example/demos/header/sizes.dart';
 import 'package:plass_ui_example/demos/header/variants.dart';
+import 'package:plass_ui_example/demos/color_picker/alpha.dart';
+import 'package:plass_ui_example/demos/color_picker/formats.dart';
+import 'package:plass_ui_example/demos/color_picker/hero.dart';
+import 'package:plass_ui_example/demos/color_picker/inline.dart';
+import 'package:plass_ui_example/demos/color_picker/states.dart';
+import 'package:plass_ui_example/demos/color_picker/swatches.dart';
 import 'package:plass_ui_example/demos/command_palette/groups.dart';
 import 'package:plass_ui_example/demos/command_palette/hero.dart';
 import 'package:plass_ui_example/demos/command_palette/sizes.dart';
@@ -595,6 +601,12 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'header/variants': _headerVariants,
   'header/sizes': _headerSizes,
   'header/measure': _headerMeasure,
+  'color-picker/hero': _colorPickerHero,
+  'color-picker/inline': _colorPickerInline,
+  'color-picker/formats': _colorPickerFormats,
+  'color-picker/alpha': _colorPickerAlpha,
+  'color-picker/swatches': _colorPickerSwatches,
+  'color-picker/states': _colorPickerStates,
   'command-palette/hero': _commandPaletteHero,
   'command-palette/groups': _commandPaletteGroups,
   'command-palette/sizes': _commandPaletteSizes,
@@ -1030,6 +1042,13 @@ Widget _headerAlign(BuildContext context) => const HeaderAlign();
 Widget _headerVariants(BuildContext context) => const HeaderVariants();
 Widget _headerSizes(BuildContext context) => const HeaderSizes();
 Widget _headerMeasure(BuildContext context) => const HeaderMeasure();
+
+Widget _colorPickerHero(BuildContext context) => const ColorPickerHero();
+Widget _colorPickerInline(BuildContext context) => const ColorPickerInline();
+Widget _colorPickerFormats(BuildContext context) => const ColorPickerFormats();
+Widget _colorPickerAlpha(BuildContext context) => const ColorPickerAlpha();
+Widget _colorPickerSwatches(BuildContext context) => const ColorPickerSwatches();
+Widget _colorPickerStates(BuildContext context) => const ColorPickerStates();
 
 Widget _commandPaletteHero(BuildContext context) => const CommandPaletteHero();
 Widget _commandPaletteGroups(BuildContext context) => const CommandPaletteGroups();

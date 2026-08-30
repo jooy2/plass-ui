@@ -965,6 +965,52 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlChip', 'children', { name: 'child', type: 'Widget?' })
   ],
 
+  PlColorPicker: [
+    from('PlColorPicker', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlColorPicker', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlColorPicker', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlColorPicker', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlColorPicker', 'elevation', { type: 'int', default: '0' }),
+    from('PlColorPicker', 'value', {
+      type: 'String?',
+      description: {
+        ko: '색, CSS 문자열로. null이면 피커 자신의 파랑에서 시작합니다',
+        en: 'The colour, as a CSS string. null starts the picker on its own blue'
+      }
+    }),
+    from('PlColorPicker', 'onValueChange', {
+      name: 'onValueChanged',
+      type: 'ValueChanged<String>?'
+    }),
+    from('PlColorPicker', 'format', {
+      type: 'PlColorFormat',
+      default: 'PlColorFormat.hex'
+    }),
+    from('PlColorPicker', 'alpha', { type: 'bool', default: 'false' }),
+    from('PlColorPicker', 'swatches', {
+      type: 'List<String>',
+      default: 'defaultSwatches',
+      description: {
+        ko: '패널 아래의 기성 색들. 빈 리스트면 그리지 않습니다',
+        en: 'The ready-made colours under the panel. An empty list draws none'
+      }
+    }),
+    from('PlColorPicker', 'inline', { type: 'bool', default: 'false' }),
+    from('PlColorPicker', 'editable', { type: 'bool', default: 'true' }),
+    from('PlColorPicker', 'label', { type: 'Widget?' }),
+    from('PlColorPicker', 'description', { type: 'Widget?' }),
+    from('PlColorPicker', 'error', { type: 'Widget?' }),
+    from('PlColorPicker', 'invalid', { type: 'bool?' }),
+    from('PlColorPicker', 'disabled', { type: 'bool', default: 'false' }),
+    from('PlColorPicker', 'readOnly', { type: 'bool', default: 'false' }),
+    from('PlColorPicker', 'fullWidth', { type: 'bool', default: 'false' }),
+    from('PlColorPicker', 'clearable', { type: 'bool', default: 'false' }),
+    from('PlColorPicker', 'labels', {
+      type: 'PlColorPickerLabels',
+      default: 'const PlColorPickerLabels()'
+    })
+  ],
+
   PlCombobox: [
     {
       name: 'options',

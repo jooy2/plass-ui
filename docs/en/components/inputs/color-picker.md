@@ -7,7 +7,7 @@ order: 20
 
 <p class="plass-lede">A colour, chosen by eye. A saturation square with a hue rail beside it — the arrangement every design tool has settled on, because it puts every colour of a hue within one movement of the pointer.</p>
 
-<Demo src="color-picker/hero" :flutter="false" :min-height="220" />
+<Demo src="color-picker/hero" :min-height="220" />
 
 ::: fw react
 
@@ -15,6 +15,20 @@ order: 20
 import { PlColorPicker } from 'plass-ui';
 
 <PlColorPicker label="Project colour" value={color} onValueChange={setColor} />;
+```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlColorPicker(
+  label: const Text('Project colour'),
+  value: colour,
+  onValueChanged: (String next) => setState(() => colour = next),
+);
 ```
 
 :::
@@ -45,9 +59,19 @@ An incoming `value` re-seeds the model only when it means something different, a
 
 Draws the panel in the page with no trigger, for a sidebar or a settings pane where the colour is the thing being edited rather than one field among ten.
 
-<Demo src="color-picker/inline" :flutter="false" :min-height="360">
+<Demo src="color-picker/inline" :min-height="360">
+
+::: fw react
 
 <<< @/.vitepress/demos/color-picker/inline.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/color_picker/inline.dart
+
+:::
 
 </Demo>
 
@@ -57,9 +81,19 @@ Which notation the value is written in on the way out: `hex`, `rgb` or `hsl`.
 
 All three drop their alpha when the colour is opaque — a caller who never turned `alpha` on should never see `rgba(…, 1)` come out of a control they only used three channels of.
 
-<Demo src="color-picker/formats" :flutter="false" :min-height="160">
+<Demo src="color-picker/formats" :min-height="160">
+
+::: fw react
 
 <<< @/.vitepress/demos/color-picker/formats.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/color_picker/formats.dart
+
+:::
 
 </Demo>
 
@@ -67,9 +101,19 @@ All three drop their alpha when the colour is opaque — a caller who never turn
 
 Adds a third rail and lets the value carry a fourth channel. The rail is drawn over a chequerboard, and the chequer is four linear stops at 45° rather than two conic gradients: a conic chequer has a seam down the middle of every tile at a fractional device pixel ratio.
 
-<Demo src="color-picker/alpha" :flutter="false" :min-height="420">
+<Demo src="color-picker/alpha" :min-height="420">
+
+::: fw react
 
 <<< @/.vitepress/demos/color-picker/alpha.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/color_picker/alpha.dart
+
+:::
 
 </Demo>
 
@@ -81,9 +125,19 @@ The built-in set is a plain spectrum plus the greys, and it is deliberately **no
 
 A chosen swatch is ticked in black or white, decided by relative luminance — a fixed white tick disappears on yellow, and lightness alone puts it the wrong way round on green.
 
-<Demo src="color-picker/swatches" :flutter="false" :min-height="380">
+<Demo src="color-picker/swatches" :min-height="380">
+
+::: fw react
 
 <<< @/.vitepress/demos/color-picker/swatches.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/color_picker/swatches.dart
+
+:::
 
 </Demo>
 
@@ -93,9 +147,19 @@ A chosen swatch is ticked in black or white, decided by relative luminance — a
 
 A `readOnly` picker shows its colour and takes nothing: the rails keep their values and lose their tab stops. A `disabled` one leaves the tab order.
 
-<Demo src="color-picker/states" :flutter="false" :min-height="180">
+<Demo src="color-picker/states" :min-height="180">
+
+::: fw react
 
 <<< @/.vitepress/demos/color-picker/states.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/color_picker/states.dart
+
+:::
 
 </Demo>
 
@@ -104,6 +168,22 @@ A `readOnly` picker shows its colour and takes nothing: the rails keep their val
 The conversions are `internal/color.ts` — HSV, RGB and HSL, one parser and one formatter, about a hundred lines of arithmetic with no trigonometry in it. That is the whole reason a component that _computes_ colours ships without a dependency that does.
 
 What it reads: hex in all four lengths, and `rgb()`/`rgba()`/`hsl()`/`hsla()` in both the comma and the space syntax. What it deliberately does not: named colours and `color()`. A picker has to be able to write every value it can read, and there is no honest way back from `rebeccapurple` to a point on the panel.
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `value` / `defaultValue` | `value`, nullable | `null` is "the picker's own blue"; the caller owns the string from the first change onwards, as it does for every other field in this package. |
+| `swatches: false` | `swatches: []` | An empty list is the same statement without a second type. |
+| `open` / `defaultOpen` / `onOpenChange` | — | The popup is the picker's own; there is no route guard shape here that needs to hold it. |
+| `name`, the hidden input | — | There is no native form submission to be part of. |
+| a chequer of four linear gradients | a painter | A `CustomPainter` has no seam to avoid and no tiling to fight. |
+| `labels` as a partial | `PlColorPickerLabels`, a class with defaults | Dart names its optional fields; a partial of a record is not a thing it has. |
+| `className`, `style` | — | There is no class list and no style attribute to pass through. |
+
+:::
 
 ## Accessibility
 
