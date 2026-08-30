@@ -7,7 +7,7 @@ order: 6
 
 <p class="plass-lede">페이지를 걸어 두는 뼈대입니다. header, footer, sidebar 하나 또는 둘, 그리고 그 사이의 콘텐츠. 자기 표면은 아무것도 그리지 않고, 배치와 landmark만 보탭니다.</p>
 
-<Demo src="page-layout/hero" :flutter="false" :min-height="360" />
+<Demo src="page-layout/hero" :min-height="360" />
 
 ::: fw react
 
@@ -21,6 +21,21 @@ import { PlPageLayout } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlPageLayout(
+  header: const PlToolbar(child: Text('Acme')),
+  sidebar: const SizedBox(width: 200, child: Text('Navigation')),
+  footer: const PlToolbar(side: PlassSide.bottom, child: Text('© 2026 Acme')),
+  child: page,
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlPageLayout" />
@@ -28,6 +43,12 @@ import { PlPageLayout } from 'plass-ui';
 ::: fw react
 
 네이티브 `<div>` 속성은 모두 root로 그대로 전달됩니다. `color`는 여기서 Plass의 prop이라 제외됩니다.
+
+:::
+
+::: fw flutter
+
+레이아웃은 받은 공간을 채웁니다 — header, [`Expanded`](https://api.flutter.dev/flutter/widgets/Expanded-class.html) band, footer의 구성이라 높이가 정해진 것 아래에 두세요. 콘텐츠는 scroll view로 감싸지 않습니다. 무엇이 어느 방향으로 스크롤되는지는 `child`에 넣은 것의 몫입니다.
 
 :::
 
@@ -51,11 +72,23 @@ header와 sidebar 중 어느 쪽이 위 모서리를 차지하는지입니다.
 
 footer는 같은 질문에 따로 답합니다. 전체 높이 내비게이션 레일이 있는 대시보드도 저작권 줄은 보통 레일 아래가 아니라 콘텐츠 아래에 두기 때문입니다.
 
-<Demo src="page-layout/spans" :flutter="false" :min-height="260">
+<Demo src="page-layout/spans" :min-height="260">
+
+::: fw react
 
 <<< @/.vitepress/demos/page-layout/spans.tsx
 
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/page_layout/spans.dart
+
+:::
+
 </Demo>
+
+::: fw react
 
 ### scroll · height
 
@@ -71,6 +104,10 @@ footer는 같은 질문에 따로 답합니다. 전체 높이 내비게이션 �
 
 </Demo>
 
+:::
+
+::: fw react
+
 ### skipLink
 
 기본으로 켜져 있고, 여기서 유일하게 스타일 결정이 아닌 항목입니다. 내비게이션에 링크가 마흔 개 있는 페이지에 도착한 키보드 사용자는 글에 닿기까지 매 페이지마다 마흔 개를 지나야 합니다. 이 링크 하나가 그걸 면하게 해 주고, focus를 받기 전까지는 보이지 않으므로 눈으로 읽는 사람에게는 아무 비용도 들지 않습니다.
@@ -83,11 +120,27 @@ footer는 같은 질문에 따로 답합니다. 전체 높이 내비게이션 �
 
 </Demo>
 
+:::
+
 ### collapseBelow
+
+::: fw react
 
 sidebar가 열이기를 그만두고 drawer가 되는 창 너비입니다. `none`이면 어떤 너비에서도 열로 남고, sidebar가 없는 레이아웃과 이 페이지의 미리 보기들이 그 값을 씁니다.
 
+:::
+
+::: fw flutter
+
+sidebar가 열이기를 그만두고 drawer가 되는 너비입니다. `null`이면 어떤 너비에서도 열로 남고, sidebar가 없는 레이아웃과 이 페이지의 미리 보기들이 그 값을 씁니다.
+
+비교 대상은 창이 아니라 **이 레이아웃이 받은 공간**입니다. media query가 못 하는 것이 이것입니다 — 어떤 pane 안에 든 앱 셸은 창이 아니라 그 pane이 좁을 때 접힙니다.
+
+:::
+
 각 drawer가 열려 있는지도 레이아웃이 쥡니다. route가 바뀔 때 닫을 수 있도록, 앞쪽 열은 `sidebarOpen` / `onSidebarOpenChange`, 뒤쪽 열은 `endSidebarOpen` / `onEndSidebarOpenChange`입니다.
+
+::: fw react
 
 ## 바를 어떻게 재는가
 
@@ -97,10 +150,41 @@ sidebar가 열이기를 그만두고 drawer가 되는 창 너비입니다. `none
 
 등록하지 않은 바는 0으로 남습니다. 측정은 `querySelector`가 아니라 슬롯이 스스로 참여하는 계약이라서, `render={<MyBar />}`로 그려진 바도 그렇지 않은 바만큼 확실하게 찾힙니다.
 
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `scroll`, `height` | — | 레이아웃은 받은 공간을 채우고, 스크롤되는 것은 `child`에 넣은 것입니다. 영역 대신 스크롤할 문서라는 것이 없습니다. |
+| 측정된 `--p-layout-*` 속성 | — | `Column`이 이미 그 산수를 끝냈습니다. header 아래의 band는 정확히 header가 남긴 만큼이라 잴 것이 없습니다. |
+| 창 너비 기준의 `collapseBelow` | 이 레이아웃 자신의 너비 기준 | `LayoutBuilder`는 레이아웃이 받은 constraints를 봅니다. media query는 창만 봅니다. |
+| `'none'` | `null` | "정해 둔 하한이 없다"를 Dart가 말하는 방식입니다. |
+| `skipLink`, `skipLabel`, `mainId` | — | 건너뛰기 링크는 fragment로 가는 링크입니다. fragment가 없고, 순회 순서도 문서가 아니라 semantics 트리의 것입니다. |
+| `mainProps`, `color` | `mainSemanticLabel` | React 빌드가 `<main>`에 얹던 것 중 여기에 대응하는 것은 이름뿐입니다. 레이아웃은 아무것도 칠하지 않으므로 나를 색도 없습니다. |
+| `defaultSidebarOpen` | — | uncontrolled가 기본입니다. `sidebarOpen`을 빼면 레이아웃이 닫힌 상태로 시작해 상태를 쥡니다. |
+| `children` | `child` | Flutter의 이름입니다. |
+
+:::
+
 ## 접근성
+
+::: fw react
 
 - children은 진짜 `<main>` 안에 들어가고, 그것이 `main` landmark입니다. 페이지당 정확히 하나여야 하며, 그걸 보장하는 것이 레이아웃입니다.
 - 건너뛰기 링크는 문서의 맨 앞이고, 숨겨지는 대신 1px로 잘려 있어서 Tab 키가 찾을 수 있습니다. `hidden`이면 화면과 함께 접근성 트리에서도 사라져 tab할 것이 남지 않습니다.
 - `<main>`에는 `tabindex`를 주지 않습니다. 거기로 건너뛰는 것은 읽는 위치를 옮기는 일이고 그게 핵심입니다. focus 가능하게 만들면 모든 페이지에 tab stop이 하나 늘어납니다.
 - 이름 붙일 영역이 둘 이상인 페이지라면 `aria-label`은 `mainProps`에 넣습니다.
 - 레이아웃 자체는 어떤 role도 주장하지 않습니다. `<div>` 하나를 보탤 뿐이고, landmark는 안에 든 컴포넌트들이 그리는 태그에서 나옵니다.
+
+:::
+
+::: fw flutter
+
+- 콘텐츠는 `SemanticsRole.main`으로 감싸집니다. 반대쪽의 `<main>` 요소가 하는 것과 같은 주장입니다 — 여기가 chrome이 아닌 부분이라는 것.
+- 이름 붙일 영역이 둘 이상인 화면이라면 `mainSemanticLabel`이 그 영역의 이름입니다. 없으면 안에 든 것으로 불립니다.
+- 레이아웃은 그 밖에 아무것도 주장하지 않습니다. 나머지 이름은 안에 든 컴포넌트들에서 나옵니다.
+
+:::

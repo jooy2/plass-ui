@@ -2140,6 +2140,60 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlOverlay', 'label', { type: 'String', default: "'Overlay'" })
   ],
 
+  PlPageLayout: [
+    from('PlPageLayout', 'header', { type: 'Widget?' }),
+    from('PlPageLayout', 'footer', { type: 'Widget?' }),
+    from('PlPageLayout', 'sidebar', { type: 'Widget?' }),
+    from('PlPageLayout', 'endSidebar', { type: 'Widget?' }),
+    from('PlPageLayout', 'headerSpan', {
+      type: 'PlPageLayoutSpan',
+      default: 'PlPageLayoutSpan.full'
+    }),
+    from('PlPageLayout', 'footerSpan', {
+      type: 'PlPageLayoutSpan',
+      default: 'PlPageLayoutSpan.full'
+    }),
+    from('PlPageLayout', 'collapseBelow', {
+      type: 'PlassBreakpoint?',
+      default: 'PlassBreakpoint.md',
+      description: {
+        ko: 'sidebar가 열이기를 그만두고 drawer가 되는 너비. null이면 어떤 너비에서도 열로 남습니다. 창이 아니라 이 레이아웃이 받은 공간과 비교합니다',
+        en: 'The width below which the sidebars become drawers instead of columns. null keeps them columns at every width, and the comparison is against the space this layout was given rather than the window'
+      }
+    }),
+    from('PlPageLayout', 'sidebarOpen', {
+      type: 'bool?',
+      description: {
+        ko: '앞쪽 sidebar의 drawer가 열려 있는지. 넘기면 controlled가 되어 레이아웃은 상태를 쥐지 않습니다',
+        en: "Whether the leading sidebar's drawer is open. Passing it makes the drawer controlled and the layout stops holding the state"
+      }
+    }),
+    from('PlPageLayout', 'onSidebarOpenChange', {
+      name: 'onSidebarOpenChanged',
+      type: 'ValueChanged<bool>?'
+    }),
+    from('PlPageLayout', 'endSidebarOpen', {
+      type: 'bool?',
+      description: {
+        ko: '뒤쪽 sidebar에 대한 같은 둘',
+        en: 'The same two for the trailing sidebar'
+      }
+    }),
+    from('PlPageLayout', 'onEndSidebarOpenChange', {
+      name: 'onEndSidebarOpenChanged',
+      type: 'ValueChanged<bool>?'
+    }),
+    {
+      name: 'mainSemanticLabel',
+      type: 'String?',
+      description: {
+        ko: '스크린 리더가 main 영역을 부르는 이름. 없으면 안에 든 것으로 불립니다',
+        en: 'The name a screen reader gives the main region. Left out, it is announced by what is in it'
+      }
+    },
+    from('PlPageLayout', 'children', { name: 'child', type: 'Widget?' })
+  ],
+
   PlPagination: [
     from('PlPagination', 'count', { type: 'int', required: true }),
     from('PlPagination', 'page', { type: 'int', required: true }),

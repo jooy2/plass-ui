@@ -239,6 +239,8 @@ import 'package:plass_ui_example/demos/pagination/sizes.dart';
 import 'package:plass_ui_example/demos/pagination/steppers.dart';
 import 'package:plass_ui_example/demos/pagination/variants.dart';
 import 'package:plass_ui_example/demos/pagination/window.dart';
+import 'package:plass_ui_example/demos/page_layout/hero.dart';
+import 'package:plass_ui_example/demos/page_layout/spans.dart';
 import 'package:plass_ui_example/demos/panes/constraints.dart';
 import 'package:plass_ui_example/demos/panes/fixed.dart';
 import 'package:plass_ui_example/demos/panes/hero.dart';
@@ -548,6 +550,8 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'chip/selected': _chipSelected,
   'chip/interactive': _chipInteractive,
   'chip/slots': _chipSlots,
+  'page-layout/hero': _pageLayoutHero,
+  'page-layout/spans': _pageLayoutSpans,
   'card/hero': _cardHero,
   'card/variants': _cardVariants,
   'card/sizes': _cardSizes,
@@ -943,6 +947,9 @@ Widget _chipColors(BuildContext context) => const ChipColors();
 Widget _chipSelected(BuildContext context) => const ChipSelected();
 Widget _chipInteractive(BuildContext context) => const ChipInteractive();
 Widget _chipSlots(BuildContext context) => const ChipSlots();
+
+Widget _pageLayoutHero(BuildContext context) => const PageLayoutHero();
+Widget _pageLayoutSpans(BuildContext context) => const PageLayoutSpans();
 
 Widget _cardHero(BuildContext context) => const CardHero();
 Widget _cardVariants(BuildContext context) => const CardVariants();

@@ -69,6 +69,7 @@ export 'src/components/modal/pl_modal.dart';
 export 'src/components/number_field/pl_number_field.dart';
 export 'src/components/otp_field/pl_otp_field.dart';
 export 'src/components/overlay/pl_overlay.dart';
+export 'src/components/page_layout/pl_page_layout.dart';
 export 'src/components/pagination/pl_pagination.dart';
 export 'src/components/panes/pl_panes.dart';
 export 'src/components/pill/pl_pill.dart';
