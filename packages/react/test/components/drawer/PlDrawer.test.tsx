@@ -221,4 +221,30 @@ describe('PlDrawer', () => {
       );
     });
   });
+  describe('the backdrop', () => {
+    it('takes classes of its own on an overlay drawer', async () => {
+      await render(
+        <PlDrawer open title="Filters" classNames={{ backdrop: 'my-own-backdrop' }}>
+          Body
+        </PlDrawer>
+      );
+
+      const backdrop = document.querySelector('.my-own-backdrop');
+
+      expect(backdrop).not.toBeNull();
+      expect(backdrop).toHaveClass('plass-portal');
+    });
+
+    it('has none to give an inline drawer, and does not fail over it', async () => {
+      await render(
+        <PlDrawer mode="inline" title="Filters" classNames={{ backdrop: 'my-own-backdrop' }}>
+          Body
+        </PlDrawer>
+      );
+
+      // An inline drawer sits in the flow: there is no scrim, so there is
+      // nothing for the class to land on and nothing to go wrong either.
+      expect(document.querySelector('.my-own-backdrop')).toBeNull();
+    });
+  });
 });

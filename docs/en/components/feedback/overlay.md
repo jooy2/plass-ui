@@ -45,6 +45,8 @@ An overlay lifts itself out of the tree, so it needs an `Overlay` above it — `
 
 Every native `<div>` attribute passes straight through, onto the popup. `color` and `children` are excluded from the pass-through because both are Plass props here.
 
+A `className` lands on the popup with them. The scrim underneath is what `classNames.backdrop` reaches.
+
 :::
 
 ::: fw flutter

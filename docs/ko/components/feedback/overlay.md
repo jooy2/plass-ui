@@ -45,6 +45,8 @@ PlOverlay(
 
 네이티브 `<div>` 속성은 popup에 그대로 전달됩니다. `color`와 `children`은 둘 다 여기서는 Plass의 prop이라 전달 대상에서 제외됩니다.
 
+`className`도 함께 popup에 붙습니다. 그 아래 scrim에 닿는 것이 `classNames.backdrop`입니다.
+
 :::
 
 ::: fw flutter

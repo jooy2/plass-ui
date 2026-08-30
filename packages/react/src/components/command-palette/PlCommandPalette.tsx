@@ -15,7 +15,7 @@ import {
   surfaceSlots,
   toLength
 } from '../../internal/styles.js';
-import type { PlassSize, PlassStyleProps } from '../../types.js';
+import type { PlassPortalClassNames, PlassSize, PlassStyleProps } from '../../types.js';
 
 /** One thing the palette can do. */
 export interface PlCommandItem {
@@ -85,6 +85,8 @@ export interface PlCommandPaletteProps extends Pick<PlassStyleProps, 'size' | 'c
   className?: string;
   /** Inline styles on the sheet, applied over the tokens it sets. */
   style?: React.CSSProperties;
+  /** Classes on the parts a `className` does not reach. */
+  classNames?: PlassPortalClassNames;
 }
 
 const backdropClasses = /* @__PURE__ */ [
@@ -233,6 +235,7 @@ export function PlCommandPalette({
   color = 'primary',
   density = 'default',
   className,
+  classNames,
   style
 }: PlCommandPaletteProps): React.ReactElement {
   const [uncontrolled, setUncontrolled] = React.useState(defaultOpen);
@@ -300,7 +303,9 @@ export function PlCommandPalette({
       }}
     >
       <BaseUIDialog.Portal>
-        <BaseUIDialog.Backdrop className={cx('plass-portal', backdropClasses)} />
+        <BaseUIDialog.Backdrop
+          className={cx('plass-portal', backdropClasses, classNames?.backdrop)}
+        />
 
         <BaseUIDialog.Viewport className="plass-portal fixed inset-0 z-(--plass-z-portal) flex justify-center p-4 pt-[12vh]">
           <BaseUIDialog.Popup

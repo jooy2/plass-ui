@@ -264,4 +264,22 @@ describe('PlCommandPalette', () => {
       expect(sheet.getAttribute('style')).toContain('--p-accent');
     });
   });
+  describe('the backdrop', () => {
+    it('takes classes of its own without losing the scrim', async () => {
+      await render(
+        <PlCommandPalette
+          items={items}
+          shortcut={false}
+          defaultOpen
+          classNames={{ backdrop: 'my-own-backdrop' }}
+        />
+      );
+
+      const backdrop = document.querySelector('.my-own-backdrop');
+
+      expect(backdrop).not.toBeNull();
+      expect(backdrop).toHaveClass('plass-portal');
+      expect(backdrop?.className).toContain('bg-(--plass-scrim)');
+    });
+  });
 });

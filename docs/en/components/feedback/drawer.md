@@ -43,7 +43,7 @@ PlDrawer(
 
 ::: fw react
 
-Every other `<div>` attribute passes through to the panel.
+Every other `<div>` attribute passes through to the panel, and so does a `className`. The scrim an overlay drawer draws behind it is a second element in the same portal — `classNames.backdrop` is the way to reach it, and an inline drawer has none for it to land on.
 
 :::
 

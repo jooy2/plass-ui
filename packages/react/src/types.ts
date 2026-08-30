@@ -165,6 +165,32 @@ export interface PlassStyleProps {
 }
 
 /* ---------------------------------------------------------------------------
+ * Slots
+ *
+ * A `className` lands on the one element a reader would point at and call "the
+ * component" — a button's button, a modal's sheet, a field's stack. That is the
+ * right default and it is where nearly every override belongs.
+ *
+ * Some components draw more than that, though, and the rest of it is out of
+ * reach: a modal also paints the scrim behind it, and a field also draws its
+ * own label and the line of red under it. `classNames` is a map to those, and
+ * it is deliberately **only** those — a component's main surface has one prop
+ * and not two, so there is never a question of which of them wins.
+ *
+ * The keys are named for what the part *is*, and the same word means the same
+ * part everywhere, exactly as the prop vocabulary above does.
+ * ------------------------------------------------------------------------- */
+
+/** The parts of a portalled surface a `className` does not reach. */
+export interface PlassPortalClassNames {
+  /**
+   * The sheet drawn over the page behind the surface — the scrim, the blur, and
+   * the thing a click outside the surface lands on.
+   */
+  backdrop?: string;
+}
+
+/* ---------------------------------------------------------------------------
  * The token channel
  *
  * A `className` is not the only way a caller changes how a component looks, and

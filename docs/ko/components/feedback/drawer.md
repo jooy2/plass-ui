@@ -43,7 +43,7 @@ PlDrawer(
 
 ::: fw react
 
-나머지 `<div>` 속성은 모두 판으로 전달됩니다.
+나머지 `<div>` 속성은 모두 판으로 전달되고, `className`도 마찬가지입니다. overlay 모드에서 판 뒤에 깔리는 scrim은 같은 portal 안의 다른 요소이므로 `classNames.backdrop`으로 닿습니다. inline 모드에는 그 scrim이 없습니다.
 
 :::
 

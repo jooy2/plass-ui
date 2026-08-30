@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import { Dialog as BaseUIDialog } from '@base-ui/react/dialog';
-import { surfaceSlots } from '../../internal/styles.js';
-import type { PlassAlign, PlassColor, PlassSize } from '../../types.js';
+import { cx, surfaceSlots } from '../../internal/styles.js';
+import type { PlassAlign, PlassColor, PlassPortalClassNames, PlassSize } from '../../types.js';
 
 /**
  * How much of the page the overlay takes away.
@@ -37,6 +37,8 @@ export interface PlOverlayProps extends Omit<
   React.ComponentPropsWithoutRef<'div'>,
   'color' | 'children'
 > {
+  /** Classes on the parts a `className` does not reach. */
+  classNames?: PlassPortalClassNames;
   /** The overlay is shown. Use with `onOpenChange` for a controlled overlay. */
   open?: boolean;
   /** Whether the overlay starts shown, for an uncontrolled one. */
@@ -158,6 +160,7 @@ export function PlOverlay({
   color = 'primary',
   label = 'Overlay',
   className,
+  classNames,
   style,
   children,
   ...props
@@ -183,7 +186,12 @@ export function PlOverlay({
         {/* `plass-portal` is a hook, not a style: a portalled surface leaves the
             subtree a host may have scoped its CSS reset to. */}
         <BaseUIDialog.Backdrop
-          className={`plass-portal fixed inset-0 z-(--plass-z-portal) ${fadeClasses} ${toneClasses[tone]}`}
+          className={cx(
+            'plass-portal fixed inset-0 z-(--plass-z-portal)',
+            fadeClasses,
+            toneClasses[tone],
+            classNames?.backdrop
+          )}
         />
 
         {/* The viewport is what the content is centred in, and it is also what

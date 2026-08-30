@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Dialog as BaseUIDialog } from '@base-ui/react/dialog';
 import { CloseIcon } from '../../internal/icons.js';
 import {
+  cx,
   focusRingClasses,
   glassClasses,
   hasContent,
@@ -18,7 +19,7 @@ import {
   sheetTitleClasses,
   surfaceSlots
 } from '../../internal/styles.js';
-import type { PlassSize, PlassStyleProps } from '../../types.js';
+import type { PlassPortalClassNames, PlassSize, PlassStyleProps } from '../../types.js';
 
 /**
  * A modal takes `size`, `color` and `density` and stops there.
@@ -31,6 +32,8 @@ export interface PlModalProps
   extends
     Pick<PlassStyleProps, 'size' | 'color' | 'density'>,
     Omit<React.ComponentPropsWithoutRef<'div'>, 'color' | 'title' | 'children'> {
+  /** Classes on the parts a `className` does not reach. */
+  classNames?: PlassPortalClassNames;
   /** The modal is shown. Use with `onOpenChange` for a controlled modal. */
   open?: boolean;
   /** Whether it starts open, for an uncontrolled one. */
@@ -208,6 +211,7 @@ export function PlModal({
   modal = true,
   dismissible = true,
   className,
+  classNames,
   style,
   children,
   ...props
@@ -243,7 +247,9 @@ export function PlModal({
       <BaseUIDialog.Portal>
         {/* `plass-portal` is a hook, not a style: a portalled surface leaves the
             subtree a host may have scoped its CSS reset to. */}
-        <BaseUIDialog.Backdrop className={`plass-portal ${backdropClasses}`} />
+        <BaseUIDialog.Backdrop
+          className={cx('plass-portal', backdropClasses, classNames?.backdrop)}
+        />
 
         <BaseUIDialog.Viewport
           className={[

@@ -213,4 +213,35 @@ describe('PlModal', () => {
       expect(dialog).not.toHaveClass('max-w-lg');
     });
   });
+  describe('the backdrop', () => {
+    it('takes classes of its own without losing the scrim', async () => {
+      await render(
+        <PlModal defaultOpen title="Wide" classNames={{ backdrop: 'my-own-backdrop' }}>
+          Body
+        </PlModal>
+      );
+
+      const backdrop = document.querySelector('.my-own-backdrop');
+
+      expect(backdrop).not.toBeNull();
+      expect(backdrop).toHaveClass('plass-portal');
+      expect(backdrop?.className).toContain('bg-(--plass-scrim)');
+    });
+
+    it('leaves the sheet where its own `className` put it', async () => {
+      const screen = await render(
+        <PlModal
+          defaultOpen
+          title="Wide"
+          className="my-own-sheet"
+          classNames={{ backdrop: 'my-own-backdrop' }}
+        >
+          Body
+        </PlModal>
+      );
+
+      expect(screen.getByRole('dialog').element()).toHaveClass('my-own-sheet');
+      expect(screen.getByRole('dialog').element()).not.toHaveClass('my-own-backdrop');
+    });
+  });
 });

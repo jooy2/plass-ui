@@ -125,4 +125,18 @@ describe('PlOverlay', () => {
       expect(screen.getByTestId('sheet').element()).toBeInTheDocument();
     });
   });
+  describe('the backdrop', () => {
+    it('takes classes of its own without losing the tone', async () => {
+      await render(
+        <PlOverlay open modal="trap-focus" classNames={{ backdrop: 'my-own-backdrop' }}>
+          Saving
+        </PlOverlay>
+      );
+
+      const backdrop = document.querySelector('.my-own-backdrop');
+
+      expect(backdrop).not.toBeNull();
+      expect(backdrop).toHaveClass('plass-portal');
+    });
+  });
 });

@@ -45,7 +45,7 @@ PlCommandPalette(
 
 ::: fw react
 
-No native attribute passes through: the palette renders a portalled dialog rather than an element in your tree, so there is nothing for a stray `id` or `onClick` to land on. `className` and `style` are the two that reach it, and both land on the sheet.
+No native attribute passes through: the palette renders a portalled dialog rather than an element in your tree, so there is nothing for a stray `id` or `onClick` to land on. `className` and `style` are the two that reach it, and both land on the sheet. The scrim behind it is what `classNames.backdrop` reaches.
 
 :::
 

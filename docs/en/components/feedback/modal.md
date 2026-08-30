@@ -58,6 +58,8 @@ A modal lifts itself out of the tree, so it needs an `Overlay` above it — `Wid
 
 Every native `<div>` attribute passes straight through to the sheet. `color`, `title` and `children` are excluded because all three are Plass props here.
 
+A `className` therefore lands on the sheet. The scrim behind it is a second element in the same portal, and `classNames.backdrop` is the way to reach it.
+
 :::
 
 ::: fw flutter

@@ -121,6 +121,23 @@ function sharedProps(options: SharedOptions): PropRow[] {
  * to; these rows are for the ones whose prop types are closed, where a reader
  * cannot assume it.
  */
+/**
+ * The one part of a portalled surface a `className` does not reach.
+ *
+ * `className` lands on the surface itself — the sheet, the panel, the popup —
+ * because that is what a reader points at and calls the component. The scrim is
+ * a second element behind it, drawn into the same portal, and this is the only
+ * way to say anything about it.
+ */
+const portalClassNames: PropRow = {
+  name: 'classNames',
+  type: '{ backdrop?: string }',
+  description: {
+    ko: 'className이 닿지 않는 부분에 붙는 class. backdrop은 표면 뒤에 깔리는 scrim입니다',
+    en: 'Classes on the parts a className does not reach. backdrop is the scrim drawn behind the surface'
+  }
+};
+
 function stylingProps(where: Text): PropRow[] {
   return [
     {
@@ -3521,7 +3538,8 @@ export const propTables: Record<string, PropRow[]> = {
       shared: true,
       description: { ko: '행의 높이만 바꿉니다', en: 'The height of a row, and nothing else' }
     },
-    ...stylingProps({ ko: '시트', en: 'the sheet' })
+    ...stylingProps({ ko: '시트', en: 'the sheet' }),
+    portalClassNames
   ],
 
   PlCommandItem: [
@@ -4112,7 +4130,8 @@ export const propTables: Record<string, PropRow[]> = {
       default: "'default'",
       shared: true,
       description: { ko: '섹션이 얼마나 촘촘히 놓이는지', en: 'How tightly the sections pack' }
-    }
+    },
+    portalClassNames
   ],
 
   PlFieldset: [
@@ -5718,7 +5737,8 @@ export const propTables: Record<string, PropRow[]> = {
         ko: '본문. 스크롤되는 유일한 부분',
         en: 'The body — the only part that scrolls'
       }
-    }
+    },
+    portalClassNames
   ],
 
   PlNavigationMenu: [
@@ -6380,7 +6400,8 @@ export const propTables: Record<string, PropRow[]> = {
         ko: 'scrim 위에 놓이는 것 — spinner, 한 줄의 글, 작은 card',
         en: 'What sits on top of the scrim — a spinner, a line of text, a small card'
       }
-    }
+    },
+    portalClassNames
   ],
 
   PlPageLayout: [

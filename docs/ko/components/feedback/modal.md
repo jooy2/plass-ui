@@ -58,6 +58,8 @@ modal은 자기를 트리 밖으로 들어 올리므로 위쪽에 `Overlay`가 �
 
 네이티브 `<div>` 속성은 시트로 그대로 전달됩니다. `color`, `title`, `children`은 셋 다 여기서는 Plass의 prop이라 제외됩니다.
 
+따라서 `className`은 시트에 붙습니다. 그 뒤의 scrim은 같은 portal 안의 다른 요소이고, 거기에 닿는 방법이 `classNames.backdrop`입니다.
+
 :::
 
 ::: fw flutter

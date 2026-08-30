@@ -18,7 +18,7 @@ import {
   sheetTitleClasses,
   surfaceSlots
 } from '../../internal/styles.js';
-import type { PlassSide, PlassSize, PlassStyleProps } from '../../types.js';
+import type { PlassPortalClassNames, PlassSide, PlassSize, PlassStyleProps } from '../../types.js';
 
 /**
  * How the panel relates to the page.
@@ -49,6 +49,8 @@ export interface PlDrawerProps
   extends
     Pick<PlassStyleProps, 'size' | 'color' | 'density'>,
     Omit<React.ComponentPropsWithoutRef<'div'>, 'color' | 'title' | 'children'> {
+  /** Classes on the parts a `className` does not reach. */
+  classNames?: PlassPortalClassNames;
   /**
    * Which edge the panel is attached to. Physical rather than logical, the way
    * `PlassSide` is everywhere: a drawer along the top of the window is along the
@@ -305,6 +307,7 @@ export function PlDrawer({
   modal = true,
   dismissible = true,
   className,
+  classNames,
   style,
   children,
   ...props
@@ -461,7 +464,9 @@ export function PlDrawer({
       <BaseUIDialog.Portal>
         {/* `plass-portal` is a hook, not a style: a portalled surface leaves the
             subtree a host may have scoped its CSS reset to. */}
-        <BaseUIDialog.Backdrop className={`plass-portal ${backdropClasses}`} />
+        <BaseUIDialog.Backdrop
+          className={cx('plass-portal', backdropClasses, classNames?.backdrop)}
+        />
 
         <BaseUIDialog.Viewport
           className={cx(
