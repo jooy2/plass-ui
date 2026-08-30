@@ -248,6 +248,10 @@ import 'package:plass_ui_example/demos/header/hero.dart';
 import 'package:plass_ui_example/demos/header/measure.dart';
 import 'package:plass_ui_example/demos/header/sizes.dart';
 import 'package:plass_ui_example/demos/header/variants.dart';
+import 'package:plass_ui_example/demos/navigation_menu/columns.dart';
+import 'package:plass_ui_example/demos/navigation_menu/hero.dart';
+import 'package:plass_ui_example/demos/navigation_menu/orientation.dart';
+import 'package:plass_ui_example/demos/navigation_menu/states.dart';
 import 'package:plass_ui_example/demos/page_layout/hero.dart';
 import 'package:plass_ui_example/demos/transfer/hero.dart';
 import 'package:plass_ui_example/demos/transfer/searchable.dart';
@@ -582,6 +586,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'header/variants': _headerVariants,
   'header/sizes': _headerSizes,
   'header/measure': _headerMeasure,
+  'navigation-menu/hero': _navigationMenuHero,
+  'navigation-menu/columns': _navigationMenuColumns,
+  'navigation-menu/orientation': _navigationMenuOrientation,
+  'navigation-menu/states': _navigationMenuStates,
   'transfer/hero': _transferHero,
   'transfer/searchable': _transferSearchable,
   'transfer/variants': _transferVariants,
@@ -1004,6 +1012,11 @@ Widget _headerAlign(BuildContext context) => const HeaderAlign();
 Widget _headerVariants(BuildContext context) => const HeaderVariants();
 Widget _headerSizes(BuildContext context) => const HeaderSizes();
 Widget _headerMeasure(BuildContext context) => const HeaderMeasure();
+
+Widget _navigationMenuHero(BuildContext context) => const NavigationMenuHero();
+Widget _navigationMenuColumns(BuildContext context) => const NavigationMenuColumns();
+Widget _navigationMenuOrientation(BuildContext context) => const NavigationMenuOrientation();
+Widget _navigationMenuStates(BuildContext context) => const NavigationMenuStates();
 
 Widget _transferHero(BuildContext context) => const TransferHero();
 Widget _transferSearchable(BuildContext context) => const TransferSearchable();

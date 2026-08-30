@@ -7,7 +7,7 @@ order: 4
 
 <p class="plass-lede">사이트의 내비게이션입니다. 목적지의 행이고, 그중 일부는 더 많은 목적지가 든 패널을 엽니다. 모든 행이 진짜 링크이고, 이것이 menu가 아닌 이유가 전부 거기 있습니다.</p>
 
-<Demo src="navigation-menu/hero" :flutter="false" :min-height="200" />
+<Demo src="navigation-menu/hero" :min-height="200" />
 
 ::: fw react
 
@@ -20,6 +20,27 @@ import { PlNavigationMenu, PlNavigationMenuItem, PlNavigationMenuLink } from 'pl
   </PlNavigationMenuItem>
   <PlNavigationMenuItem label="Pricing" href="/pricing" />
 </PlNavigationMenu>;
+```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlNavigationMenu(
+  items: <PlNavigationMenuItem>[
+    PlNavigationMenuItem(
+      label: 'Product',
+      columns: 2,
+      links: <PlNavigationMenuLink>[
+        PlNavigationMenuLink(title: 'Analytics', onPressed: openAnalytics),
+      ],
+    ),
+    PlNavigationMenuItem(label: 'Pricing', onPressed: openPricing),
+  ],
+);
 ```
 
 :::
@@ -62,9 +83,19 @@ import { PlNavigationMenu, PlNavigationMenuItem, PlNavigationMenuLink } from 'pl
 
 차이는 겉모습이 아닙니다. 앞의 것은 목적지로, 뒤의 것은 펼쳐지는 것으로 알려지므로, 스크린 리더가 둘 중 무엇을 누르려는지 미리 말해 줍니다.
 
-<Demo src="navigation-menu/states" :flutter="false" :min-height="180">
+<Demo src="navigation-menu/states" :min-height="180">
+
+::: fw react
 
 <<< @/.vitepress/demos/navigation-menu/states.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/navigation_menu/states.dart
+
+:::
 
 </Demo>
 
@@ -74,9 +105,19 @@ import { PlNavigationMenu, PlNavigationMenuItem, PlNavigationMenuLink } from 'pl
 
 한 번에 하나의 패널만 열려 있고, 닫혔다 다시 열리는 대신 항목 사이를 **크기를 바꾸며 이동**합니다. 행을 가로지르는 것이 셋이 아니라 하나의 표면으로 읽히는 이유가 그것입니다.
 
-<Demo src="navigation-menu/columns" :flutter="false" :min-height="200">
+<Demo src="navigation-menu/columns" :min-height="200">
+
+::: fw react
 
 <<< @/.vitepress/demos/navigation-menu/columns.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/navigation_menu/columns.dart
+
+:::
 
 </Demo>
 
@@ -84,9 +125,19 @@ import { PlNavigationMenu, PlNavigationMenuItem, PlNavigationMenuLink } from 'pl
 
 `vertical`은 패널이 아래가 아니라 옆으로 열리는 nav rail입니다. 화살표 키는 어느 쪽이든 따라갑니다.
 
-<Demo src="navigation-menu/orientation" :flutter="false" :min-height="200">
+<Demo src="navigation-menu/orientation" :min-height="200">
+
+::: fw react
 
 <<< @/.vitepress/demos/navigation-menu/orientation.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/navigation_menu/orientation.dart
+
+:::
 
 </Demo>
 
@@ -101,6 +152,22 @@ import { PlNavigationMenu, PlNavigationMenuItem, PlNavigationMenuLink } from 'pl
 항목의 `target`은 `<a>`에서 하는 일을 그대로 하고, 이 탭이 아닌 곳으로 열리면 요청된 `rel`에 `noopener noreferrer`가 **합쳐집니다**.
 
 대체가 아니라 합침입니다. `rel`을 손으로 쓰는 흔한 이유는 `nofollow`나 `sponsored`인데, 그것을 덮어쓰기로 적으면 다른 곳에서 열리는 링크의 보호가 조용히 사라집니다.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| 항목과 링크의 `href` | `onPressed` | 이 패키지에는 navigator도, 해석할 주소도 없습니다. 목적지가 *어디인지*는 앱 자신의 라우터의 몫입니다. |
+| 조합된 `PlNavigationMenuItem` 자식 | 데이터인 `items: List<PlNavigationMenuItem>` | 한 번에 하나의 패널만 열어 두려면 행이 어느 항목이 어느 것인지 알아야 하고, 셀 수 있는 것이 리스트입니다. |
+| `value` / `defaultValue` | `initialValue` | `String?`으로는 "호출자가 말하지 않았다"와 "닫혔다고 말했다"를 구분할 수 없어서, controlled 모드는 바깥에서 닫을 수 없는 모드가 됩니다. 어느 패널이 열려 있는지는 앱이 아니라 포인터의 상태입니다. |
+| 항목 사이에서 크기가 바뀌는 하나의 패널 | 항목마다 하나씩, 페이드 | 크기 변화는 Base UI가 나가는 패널과 들어오는 패널을 재어 그 사이를 애니메이션하는 것입니다. 여기서는 각 항목이 자기 팝업을 앵커하므로, 행을 가로지르면 패널이 자라는 대신 바뀝니다. |
+| `target`과 합쳐지는 `rel` | — | 앵커가 없으니 지킬 `rel`도 없습니다. |
+| `<nav>` landmark | `SemanticsRole.navigation` | 프레임워크 자신의 이름으로 된 같은 landmark입니다. |
+| `className`, `style`, 네이티브 속성 | — | 전달할 class 목록도 style 속성도 없습니다. |
+
+:::
 
 ## 접근성
 

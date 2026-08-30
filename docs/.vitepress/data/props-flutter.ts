@@ -2026,6 +2026,95 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlModal', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
   ],
 
+  PlNavigationMenu: [
+    from('PlNavigationMenu', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlNavigationMenu', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlNavigationMenu', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    {
+      name: 'items',
+      type: 'List<PlNavigationMenuItem>',
+      required: true,
+      description: {
+        ko: '항목들. 여기서는 조합된 자식이 아니라 데이터입니다 — 어느 항목이 양 끝인지, 어느 것이 열려 있는지를 행이 알아야 하기 때문입니다',
+        en: 'The items — data here rather than composed children, because the row has to know which item is which to open one panel at a time'
+      }
+    },
+    from('PlNavigationMenu', 'value', {
+      name: 'initialValue',
+      type: 'String?',
+      description: {
+        ko: '어느 항목의 패널이 열린 채로 시작할지. controlled 모드는 없습니다 — 어느 패널이 열려 있는지는 앱의 데이터가 아니라 포인터와 키보드의 것입니다',
+        en: "Which item's panel starts open. There is no controlled mode: which panel is open is the pointer's and the keyboard's, not the app's data"
+      }
+    }),
+    from('PlNavigationMenu', 'onValueChange', {
+      name: 'onValueChanged',
+      type: 'ValueChanged<String?>?'
+    }),
+    from('PlNavigationMenu', 'orientation', {
+      type: 'PlassOrientation',
+      default: 'PlassOrientation.horizontal'
+    }),
+    from('PlNavigationMenu', 'delay', {
+      type: 'Duration',
+      default: 'Duration(milliseconds: 50)'
+    }),
+    from('PlNavigationMenu', 'closeDelay', {
+      type: 'Duration',
+      default: 'Duration(milliseconds: 100)'
+    }),
+    from('PlNavigationMenu', 'sideOffset', { type: 'double', default: '8' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '내비게이션 영역이 불리는 이름. 화면에 둘 이상 있을 때 반드시 써야 합니다',
+        en: 'The name the navigation region is announced by. Required when a screen has more than one'
+      }
+    }
+  ],
+
+  PlNavigationMenuItem: [
+    from('PlNavigationMenuItem', 'label', { type: 'String', required: true }),
+    from('PlNavigationMenuItem', 'value', {
+      type: 'String?',
+      description: {
+        ko: '메뉴의 값 안에서 항목을 식별합니다. 없으면 label이 쓰입니다',
+        en: "Identifies the item in the menu's value. Left out, the label is used"
+      }
+    }),
+    from('PlNavigationMenuItem', 'href', {
+      name: 'onPressed',
+      type: 'VoidCallback?',
+      description: {
+        ko: '패널을 여는 대신 목적지로 만듭니다. 여기에는 href가 없습니다 — 목적지가 어디인지는 앱의 라우터가 정합니다',
+        en: "Makes the item a destination rather than something that opens a panel. There is no href here: where a destination is belongs to the app's own router"
+      }
+    }),
+    from('PlNavigationMenuItem', 'startIcon', { type: 'Widget?' }),
+    from('PlNavigationMenuItem', 'disabled', { type: 'bool', default: 'false' }),
+    from('PlNavigationMenuItem', 'columns', { type: 'int', default: '1' }),
+    from('PlNavigationMenuItem', 'children', {
+      name: 'links',
+      type: 'List<PlNavigationMenuLink>',
+      default: 'const []'
+    })
+  ],
+
+  PlNavigationMenuLink: [
+    from('PlNavigationMenuLink', 'title', { type: 'String', required: true }),
+    from('PlNavigationMenuLink', 'description', { type: 'String?' }),
+    from('PlNavigationMenuLink', 'startIcon', { type: 'Widget?' }),
+    from('PlNavigationMenuLink', 'href', {
+      name: 'onPressed',
+      type: 'VoidCallback?',
+      description: {
+        ko: '어디로 가는지. 이 패키지에는 navigator가 없으므로 그것을 정하는 자리가 여기입니다',
+        en: 'Where it goes. There is no navigator in this package, so this is where that is decided'
+      }
+    })
+  ],
+
   PlNumberField: [
     from('PlNumberField', 'value', { type: 'double?', required: true }),
     from('PlNumberField', 'onValueChange', {
