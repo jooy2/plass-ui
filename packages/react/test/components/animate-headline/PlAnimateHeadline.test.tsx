@@ -145,18 +145,32 @@ describe('PlAnimateHeadline', () => {
     });
 
     it('stops on the last line when it is not looping', async () => {
-      await render(
-        <PlAnimateHeadline className="headline-under-test" interval={20} duration={10} loop={false}>
+      const onIndexChange = vi.fn();
+
+      const screen = await render(
+        <PlAnimateHeadline
+          className="headline-under-test"
+          interval={20}
+          duration={10}
+          loop={false}
+          onIndexChange={onIndexChange}
+        >
           <span>faster</span>
           <span>simpler</span>
         </PlAnimateHeadline>
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 150));
+      // Waited for rather than slept through: a loaded CI machine takes an
+      // order of magnitude longer than the interval to turn the reel once, and
+      // a fixed sleep long enough to cover that is a slow test everywhere else.
+      await expect.element(screen.getByText('simpler')).toHaveAttribute('data-state', 'active');
 
-      const lines = document.querySelectorAll('.headline-under-test > *');
+      // Several more intervals. A looping reel would have gone back to the
+      // first line by now, and would have said so.
+      await new Promise((resolve) => setTimeout(resolve, 120));
 
-      expect(lines[1]).toHaveAttribute('data-state', 'active');
+      await expect.element(screen.getByText('simpler')).toHaveAttribute('data-state', 'active');
+      expect(onIndexChange).toHaveBeenCalledTimes(1);
     });
 
     it('holds still while it is paused', async () => {
