@@ -7,7 +7,7 @@ order: 17
 
 <p class="plass-lede">두 목록과 그 사이의 화살표입니다. 고를 수 있는 모든 것이 한쪽에, 고른 것이 다른 쪽에 있습니다. 체크는 선택이 아닙니다 — 체크는 다음 누름이 무엇을 옮길지를 말합니다.</p>
 
-<Demo src="transfer/hero" :flutter="false" :min-height="320" />
+<Demo src="transfer/hero" :min-height="320" />
 
 ::: fw react
 
@@ -21,6 +21,22 @@ import { PlTransfer } from 'plass-ui';
   sourceLabel="Available columns"
   targetLabel="In the report"
 />;
+```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlTransfer(
+  items: columns,
+  value: value,
+  onValueChanged: (List<String> next) => setState(() => value = next),
+  sourceLabel: 'Available columns',
+  targetLabel: 'In the report',
+);
 ```
 
 :::
@@ -67,9 +83,19 @@ import { PlTransfer } from 'plass-ui';
 
 문자열이 아니라 노드인 라벨은 맞춰 볼 텍스트가 없으므로 **남습니다**. 그러지 않으면 결코 만족시킬 수 없는 필터에서 행이 사라지게 됩니다.
 
-<Demo src="transfer/searchable" :flutter="false" :min-height="300">
+<Demo src="transfer/searchable" :min-height="300">
+
+::: fw react
 
 <<< @/.vitepress/demos/transfer/searchable.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/transfer/searchable.dart
+
+:::
 
 </Demo>
 
@@ -79,9 +105,19 @@ import { PlTransfer } from 'plass-ui';
 
 어느 패널에도 색이 들어가지 않습니다. 담고 있는 것은 누군가의 데이터이고, 색 계열은 체크, 화살표, focus ring까지 갑니다.
 
-<Demo src="transfer/variants" :flutter="false" :min-height="420">
+<Demo src="transfer/variants" :min-height="420">
+
+::: fw react
 
 <<< @/.vitepress/demos/transfer/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/transfer/variants.dart
+
+:::
 
 </Demo>
 
@@ -91,15 +127,39 @@ import { PlTransfer } from 'plass-ui';
 
 쌍 전체의 `disabled`는 모든 것을 한 번에 멈춥니다.
 
-<Demo src="transfer/states" :flutter="false" :min-height="400">
+<Demo src="transfer/states" :min-height="400">
+
+::: fw react
 
 <<< @/.vitepress/demos/transfer/states.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/transfer/states.dart
+
+:::
 
 </Demo>
 
 ### Controlled
 
 `value`를 `onValueChange`와 함께 넘기세요. 값은 뒤쪽에 있는 `value`들의 목록이고 `items` 순서입니다. 객체가 아닙니다 — transfer는 폼 컨트롤이고, 담는 것은 폼이 제출하는 것입니다. 식별자는 여기 두고 객체는 반대편에서 찾으세요.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `ReactNode`인 `label`, 문자열이 아니면 필터가 남겨 둠 | `String`인 `label` | 필터는 라벨을 읽고, 읽을 수 없는 행은 결코 만족시킬 수 없는 검색에서 사라지는 행입니다. 텍스트로 만드는 것이 모든 행을 구조적으로 검색 가능하게 합니다. |
+| 대소문자 **와** 결합 문자를 접음 | 대소문자만 | Dart 코어에는 `String.normalize`가 없고, 이 패키지에는 의존성이 없습니다. 검색 상자가 악센트를 접자고 의존성을 들이면 비교 한 번을 위해 모든 소비자의 바이너리에 그것이 들어갑니다. |
+| 숫자나 CSS 길이인 `height` | `double`인 `height` | 이름 붙일 두 번째 단위가 없습니다. |
+| `onValueChange` | `onValueChanged` | Flutter의 이름입니다. |
+| `className`, `style`, 네이티브 속성 | — | 전달할 class 목록도 style 속성도 없습니다. |
+
+:::
 
 ## 접근성
 

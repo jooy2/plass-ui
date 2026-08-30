@@ -7,7 +7,7 @@ order: 17
 
 <p class="plass-lede">Two lists and the arrows between them: everything that could be chosen on one side, everything that has been on the other. Ticking is not choosing — the ticks say what the next press will move.</p>
 
-<Demo src="transfer/hero" :flutter="false" :min-height="320" />
+<Demo src="transfer/hero" :min-height="320" />
 
 ::: fw react
 
@@ -21,6 +21,22 @@ import { PlTransfer } from 'plass-ui';
   sourceLabel="Available columns"
   targetLabel="In the report"
 />;
+```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlTransfer(
+  items: columns,
+  value: value,
+  onValueChanged: (List<String> next) => setState(() => value = next),
+  sourceLabel: 'Available columns',
+  targetLabel: 'In the report',
+);
 ```
 
 :::
@@ -67,9 +83,19 @@ The fold is case- and accent-insensitive — `cafe` finds `Café` — and it is 
 
 A label that is a node rather than a string has no text to match and **stays**. The alternative is a row that disappears from a filter it could never satisfy.
 
-<Demo src="transfer/searchable" :flutter="false" :min-height="300">
+<Demo src="transfer/searchable" :min-height="300">
+
+::: fw react
 
 <<< @/.vitepress/demos/transfer/searchable.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/transfer/searchable.dart
+
+:::
 
 </Demo>
 
@@ -79,9 +105,19 @@ The two panels wear the **field** shell rather than the sheet one, because a lis
 
 Neither panel is dyed. What they hold is somebody's data, and the family reaches the ticks, the arrows and the focus rings.
 
-<Demo src="transfer/variants" :flutter="false" :min-height="420">
+<Demo src="transfer/variants" :min-height="420">
+
+::: fw react
 
 <<< @/.vitepress/demos/transfer/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/transfer/variants.dart
+
+:::
 
 </Demo>
 
@@ -91,15 +127,39 @@ Neither panel is dyed. What they hold is somebody's data, and the family reaches
 
 `disabled` on the pair stops everything at once.
 
-<Demo src="transfer/states" :flutter="false" :min-height="400">
+<Demo src="transfer/states" :min-height="400">
+
+::: fw react
 
 <<< @/.vitepress/demos/transfer/states.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/transfer/states.dart
+
+:::
 
 </Demo>
 
 ### Controlled
 
 Pass `value` with `onValueChange`. The value is the list of `value`s on the trailing side, in `items` order — not the objects: a transfer is a form control, and what it holds is what the form submits. Keep the identifiers here and look the objects up on the other side.
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `label` of `ReactNode`, a non-string one kept by the filter | `label` of `String` | The filter reads the label, and a row it cannot read is a row that disappears from a search it could never satisfy. Making it text is what keeps every row searchable by construction. |
+| the fold strips case **and** combining marks | case only | Dart's core has no `String.normalize`, and this package has no dependencies. Pulling one in so a search box folds accents would put it in every consumer's binary for the sake of one comparison. |
+| `height` as a number or a CSS length | `height` as a `double` | There is no second unit to name. |
+| `onValueChange` | `onValueChanged` | Flutter's name. |
+| `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
+
+:::
 
 ## Accessibility
 

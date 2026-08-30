@@ -249,6 +249,10 @@ import 'package:plass_ui_example/demos/header/measure.dart';
 import 'package:plass_ui_example/demos/header/sizes.dart';
 import 'package:plass_ui_example/demos/header/variants.dart';
 import 'package:plass_ui_example/demos/page_layout/hero.dart';
+import 'package:plass_ui_example/demos/transfer/hero.dart';
+import 'package:plass_ui_example/demos/transfer/searchable.dart';
+import 'package:plass_ui_example/demos/transfer/states.dart';
+import 'package:plass_ui_example/demos/transfer/variants.dart';
 import 'package:plass_ui_example/demos/toggle/group.dart';
 import 'package:plass_ui_example/demos/toggle/hero.dart';
 import 'package:plass_ui_example/demos/toggle/icons.dart';
@@ -578,6 +582,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'header/variants': _headerVariants,
   'header/sizes': _headerSizes,
   'header/measure': _headerMeasure,
+  'transfer/hero': _transferHero,
+  'transfer/searchable': _transferSearchable,
+  'transfer/variants': _transferVariants,
+  'transfer/states': _transferStates,
   'toggle/hero': _toggleHero,
   'toggle/variants': _toggleVariants,
   'toggle/sizes': _toggleSizes,
@@ -996,6 +1004,11 @@ Widget _headerAlign(BuildContext context) => const HeaderAlign();
 Widget _headerVariants(BuildContext context) => const HeaderVariants();
 Widget _headerSizes(BuildContext context) => const HeaderSizes();
 Widget _headerMeasure(BuildContext context) => const HeaderMeasure();
+
+Widget _transferHero(BuildContext context) => const TransferHero();
+Widget _transferSearchable(BuildContext context) => const TransferSearchable();
+Widget _transferVariants(BuildContext context) => const TransferVariants();
+Widget _transferStates(BuildContext context) => const TransferStates();
 
 Widget _toggleHero(BuildContext context) => const ToggleHero();
 Widget _toggleVariants(BuildContext context) => const ToggleVariants();

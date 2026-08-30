@@ -3854,6 +3854,43 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlTransfer: [
+    from('PlTransfer', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlTransfer', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlTransfer', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlTransfer', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlTransfer', 'items', { type: 'List<PlTransferItem>', required: true }),
+    from('PlTransfer', 'value', { type: 'List<String>?' }),
+    from('PlTransfer', 'defaultValue', { type: 'List<String>', default: '<String>[]' }),
+    from('PlTransfer', 'onValueChange', {
+      name: 'onValueChanged',
+      type: 'ValueChanged<List<String>>?'
+    }),
+    from('PlTransfer', 'sourceLabel', { type: 'String', default: "'Available'" }),
+    from('PlTransfer', 'targetLabel', { type: 'String', default: "'Selected'" }),
+    from('PlTransfer', 'searchable', { type: 'bool', default: 'false' }),
+    from('PlTransfer', 'searchLabel', { type: 'String', default: "'Search'" }),
+    from('PlTransfer', 'emptyLabel', { type: 'String', default: "'Nothing here'" }),
+    from('PlTransfer', 'selectAllLabel', { type: 'String', default: "'Select all'" }),
+    from('PlTransfer', 'toTargetLabel', { type: 'String', default: "'Move to selected'" }),
+    from('PlTransfer', 'toSourceLabel', { type: 'String', default: "'Move to available'" }),
+    from('PlTransfer', 'height', { type: 'double', default: '220' }),
+    from('PlTransfer', 'disabled', { type: 'bool', default: 'false' })
+  ],
+
+  PlTransferItem: [
+    from('PlTransferItem', 'value', { type: 'String', required: true }),
+    from('PlTransferItem', 'label', {
+      type: 'String',
+      required: true,
+      description: {
+        ko: '행이 말하는 내용. 위젯이 아니라 String이라, 필터가 읽을 수 없는 행이 생기지 않습니다',
+        en: 'What the row says. A String rather than a widget, so there is no row the filter cannot read'
+      }
+    }),
+    from('PlTransferItem', 'disabled', { type: 'bool', default: 'false' })
+  ],
+
   PlTypography: [
     from('PlTypography', 'level', {
       type: 'PlTypographyLevel',
