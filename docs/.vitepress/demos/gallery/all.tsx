@@ -58,6 +58,8 @@ import {
   PlMenu,
   PlMenuItem,
   PlMenuSeparator,
+  PlMenubar,
+  PlMenubarMenu,
   PlModal,
   PlModalClose,
   PlNavigationMenu,
@@ -1296,6 +1298,27 @@ const entries: Entry[] = [
           Account
         </PlFloatingBottomNavigationItem>
       </PlFloatingBottomNavigation>
+    )
+  },
+  {
+    name: 'PlMenubar',
+    group: 'navigation',
+    href: 'components/navigation/menubar',
+    blurb: {
+      en: 'The strip of words at the top of an application, each opening a menu.',
+      ko: '애플리케이션 위쪽의 단어 띠이고, 각각이 메뉴를 엽니다.'
+    },
+    preview: (
+      <PlMenubar size="sm">
+        <PlMenubarMenu label="File">
+          <PlMenuItem>New</PlMenuItem>
+          <PlMenuSeparator />
+          <PlMenuItem>Save</PlMenuItem>
+        </PlMenubarMenu>
+        <PlMenubarMenu label="Edit">
+          <PlMenuItem>Copy</PlMenuItem>
+        </PlMenubarMenu>
+      </PlMenubar>
     )
   },
   {

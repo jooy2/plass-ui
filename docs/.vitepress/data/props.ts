@@ -5344,6 +5344,112 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlMenubar: [
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '스트립의 높이와 타입 스케일. 매 단계에서 컨트롤 사다리보다 한 칸 아래입니다',
+        en: "The strip's height and type scale — a rung below the control ladder at every step"
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: '의미론적 색 역할. hover와 열린 메뉴와 focus ring까지 갑니다 — 바는 아무것도 그리지 않습니다',
+        en: 'Semantic colour role. It reaches the hover, the open menu and the focus rings; the bar draws nothing'
+      }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'default'",
+      shared: true,
+      description: {
+        ko: '단어의 좌우 여백. 기본값도 compact 트랙을 씁니다 — 스트립은 버튼 행이 아닙니다',
+        en: 'The padding beside each word. Even the default uses the compact track: a strip is not a row of buttons'
+      }
+    },
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      shared: true,
+      description: {
+        ko: '바가 늘어서는 방향. 화살표 키가 그것을 따릅니다',
+        en: 'Which way the bar runs. The arrow keys follow it'
+      }
+    },
+    {
+      name: 'modal',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '열린 메뉴가 페이지를 가져가는지. 켜져 있으면 포인터가 말을 거는 대상은 열린 메뉴입니다',
+        en: 'Whether an open menu takes the page away. On, an open menu is what the pointer is talking to'
+      }
+    },
+    {
+      name: 'loopFocus',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '화살표 키가 바의 양 끝에서 돌아가는지',
+        en: 'Whether the arrow keys wrap around at the ends of the bar'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '바의 모든 메뉴를 한 번에 끕니다',
+        en: 'Disables every menu on the bar at once'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '메뉴들', en: 'The menus' }
+    }
+  ],
+
+  PlMenubarMenu: [
+    {
+      name: 'label',
+      type: 'ReactNode',
+      required: true,
+      description: { ko: '바에 쓰이는 단어', en: 'The word on the bar' }
+    },
+    {
+      name: 'startIcon',
+      type: 'ReactNode',
+      description: { ko: '라벨 앞에 놓이는 내용', en: 'Content before the label' }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '쓸 수 없습니다. 단어는 바에 남고 아무것도 열지 않습니다',
+        en: 'Unavailable. The word stays on the bar and opens nothing'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: {
+        ko: 'PlMenu 안에 쓰는 것과 정확히 같은 행들',
+        en: 'The rows, written exactly as they are inside a PlMenu'
+      }
+    }
+  ],
+
   PlModal: [
     {
       name: 'size',
