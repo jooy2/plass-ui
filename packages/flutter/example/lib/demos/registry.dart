@@ -212,6 +212,10 @@ import 'package:plass_ui_example/demos/menu/rows.dart';
 import 'package:plass_ui_example/demos/menu/selection.dart';
 import 'package:plass_ui_example/demos/menu/sizes.dart';
 import 'package:plass_ui_example/demos/menu/submenu.dart';
+import 'package:plass_ui_example/demos/menubar/hero.dart';
+import 'package:plass_ui_example/demos/menubar/orientation.dart';
+import 'package:plass_ui_example/demos/menubar/rows.dart';
+import 'package:plass_ui_example/demos/menubar/sizes.dart';
 import 'package:plass_ui_example/demos/modal/controlled.dart';
 import 'package:plass_ui_example/demos/modal/dismissible.dart';
 import 'package:plass_ui_example/demos/modal/dividers.dart';
@@ -517,6 +521,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'menu/selection': _menuSelection,
   'menu/submenu': _menuSubmenu,
   'menu/sizes': _menuSizes,
+  'menubar/hero': _menubarHero,
+  'menubar/rows': _menubarRows,
+  'menubar/orientation': _menubarOrientation,
+  'menubar/sizes': _menubarSizes,
   'bottom-navigation/hero': _bottomNavigationHero,
   'bottom-navigation/labels': _bottomNavigationLabels,
   'bottom-navigation/variants': _bottomNavigationVariants,
@@ -949,6 +957,10 @@ Widget _menuGroups(BuildContext context) => const MenuGroups();
 Widget _menuSelection(BuildContext context) => const MenuSelection();
 Widget _menuSubmenu(BuildContext context) => const MenuSubmenus();
 Widget _menuSizes(BuildContext context) => const MenuSizes();
+Widget _menubarHero(BuildContext context) => const MenubarHero();
+Widget _menubarRows(BuildContext context) => const MenubarRows();
+Widget _menubarOrientation(BuildContext context) => const MenubarOrientation();
+Widget _menubarSizes(BuildContext context) => const MenubarSizes();
 
 Widget _bottomNavigationHero(BuildContext context) => const BottomNavigationHero();
 Widget _bottomNavigationLabels(BuildContext context) => const BottomNavigationLabels();

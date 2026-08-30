@@ -2162,6 +2162,46 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlMenuSubmenu', 'disabled', { type: 'bool', default: 'false' })
   ],
 
+  PlMenubar: [
+    from('PlMenubar', 'children', {
+      name: 'menus',
+      type: 'List<PlMenubarMenu>',
+      required: true,
+      description: {
+        ko: '메뉴들. 여기서는 조합된 자식이 아니라 데이터입니다',
+        en: 'The menus — data here rather than composed children'
+      }
+    }),
+    from('PlMenubar', 'orientation', {
+      type: 'PlassOrientation',
+      default: 'PlassOrientation.horizontal',
+      description: { ko: '바가 늘어서는 방향', en: 'Which way the bar runs' }
+    }),
+    from('PlMenubar', 'disabled', { type: 'bool', default: 'false' }),
+    from('PlMenubar', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlMenubar', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlMenubar', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '스크린 리더가 바를 부르는 이름',
+        en: 'The name a screen reader gives the bar'
+      }
+    }
+  ],
+
+  PlMenubarMenu: [
+    from('PlMenubarMenu', 'label', { type: 'String', required: true }),
+    from('PlMenubarMenu', 'children', {
+      name: 'items',
+      type: 'List<PlMenuEntry>',
+      required: true
+    }),
+    from('PlMenubarMenu', 'startIcon', { type: 'Widget?' }),
+    from('PlMenubarMenu', 'disabled', { type: 'bool', default: 'false' })
+  ],
+
   PlModal: [
     from('PlModal', 'open', { type: 'bool', required: true }),
     from('PlModal', 'onOpenChange', {
