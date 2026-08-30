@@ -109,6 +109,40 @@ function sharedProps(options: SharedOptions): PropRow[] {
 }
 
 /**
+ * The two props a caller reaches a component's own surface with.
+ *
+ * Written once because they are one contract rather than two per-component
+ * decisions: a `className` joins the component's own classes rather than
+ * replacing them, and a `style` is applied over the custom properties the
+ * component wrote. Only the name of *what they land on* differs, which is what
+ * `where` says.
+ *
+ * A component whose props extend a DOM element's takes both without being told
+ * to; these rows are for the ones whose prop types are closed, where a reader
+ * cannot assume it.
+ */
+function stylingProps(where: Text): PropRow[] {
+  return [
+    {
+      name: 'className',
+      type: 'string',
+      description: {
+        ko: `${where.ko}에 붙는 class. 컴포넌트 자신의 class를 대체하지 않고 함께 적용됩니다`,
+        en: `Classes on ${where.en}, alongside the component's own rather than in place of them`
+      }
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: {
+        ko: `${where.ko}에 붙는 inline style. 컴포넌트가 쓴 custom property 위에 적용됩니다`,
+        en: `Inline styles on ${where.en}, applied over the custom properties it wrote`
+      }
+    }
+  ];
+}
+
+/**
  * Every prop an indicator takes, with one sentence swapped.
  *
  * Written once because the whole claim the three shapes make is that they are
@@ -3486,7 +3520,8 @@ export const propTables: Record<string, PropRow[]> = {
       default: "'default'",
       shared: true,
       description: { ko: '행의 높이만 바꿉니다', en: 'The height of a row, and nothing else' }
-    }
+    },
+    ...stylingProps({ ko: '시트', en: 'the sheet' })
   ],
 
   PlCommandItem: [
@@ -5528,7 +5563,8 @@ export const propTables: Record<string, PropRow[]> = {
         ko: 'PlMenu 안에 쓰는 것과 정확히 같은 행들',
         en: 'The rows, written exactly as they are inside a PlMenu'
       }
-    }
+    },
+    ...stylingProps({ ko: '이 메뉴를 여는 단어', en: 'the word this menu is opened by' })
   ],
 
   PlModal: [
@@ -5839,7 +5875,8 @@ export const propTables: Record<string, PropRow[]> = {
         ko: '패널의 내용. 보통 PlNavigationMenuLink들입니다',
         en: "The panel's contents — usually PlNavigationMenuLinks"
       }
-    }
+    },
+    ...stylingProps({ ko: '행에 쓰인 단어', en: 'the word in the row' })
   ],
 
   PlNavigationMenuLink: [
@@ -9119,7 +9156,8 @@ export const propTables: Record<string, PropRow[]> = {
         ko: '사라지는 애니메이션이 끝나고 DOM에서 나갔을 때',
         en: 'Called once it has finished animating out and left the DOM'
       }
-    }
+    },
+    ...stylingProps({ ko: '이 토스트', en: 'this toast' })
   ],
 
   PlToggle: [

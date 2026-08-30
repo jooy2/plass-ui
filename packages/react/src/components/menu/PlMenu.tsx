@@ -144,6 +144,7 @@ export interface PlMenuGroupProps {
   label?: React.ReactNode;
   children?: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export interface PlMenuCheckboxItemProps extends Omit<
@@ -169,6 +170,7 @@ export interface PlMenuRadioGroupProps {
   disabled?: boolean;
   children?: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export interface PlMenuRadioItemProps extends Omit<
@@ -456,7 +458,8 @@ export function PlMenuRadioGroup({
   onValueChange,
   disabled = false,
   children,
-  className
+  className,
+  style
 }: PlMenuRadioGroupProps) {
   return (
     <BaseUIMenu.RadioGroup
@@ -465,6 +468,7 @@ export function PlMenuRadioGroup({
       onValueChange={(next) => onValueChange?.(next as string | number)}
       disabled={disabled}
       className={className}
+      style={style}
     >
       {children}
     </BaseUIMenu.RadioGroup>
@@ -520,11 +524,11 @@ export function PlMenuRadioItem({
 }
 
 /** A named run of rows. The label is a heading, not a row — it cannot be picked. */
-export function PlMenuGroup({ label, children, className }: PlMenuGroupProps) {
+export function PlMenuGroup({ label, children, className, style }: PlMenuGroupProps) {
   const { size, density } = React.useContext(MenuContext);
 
   return (
-    <BaseUIMenu.Group className={className}>
+    <BaseUIMenu.Group className={className} style={style}>
       {hasContent(label) ? (
         <BaseUIMenu.GroupLabel
           className={cx(

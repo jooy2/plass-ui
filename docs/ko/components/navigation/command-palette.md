@@ -43,6 +43,12 @@ PlCommandPalette(
 
 <PropsTable name="PlCommandPalette" />
 
+::: fw react
+
+네이티브 속성은 전달되지 않습니다. 팔레트는 트리 안의 요소가 아니라 portal로 띄운 dialog를 그리므로, 지나가던 `id`나 `onClick`이 닿을 곳이 없습니다. 닿는 것은 `className`과 `style` 둘이고, 둘 다 시트에 붙습니다.
+
+:::
+
 ### PlCommandItem
 
 <PropsTable name="PlCommandItem" />

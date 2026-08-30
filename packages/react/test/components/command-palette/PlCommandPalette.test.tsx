@@ -233,4 +233,35 @@ describe('PlCommandPalette', () => {
       expect(onOpenChange).not.toHaveBeenCalled();
     });
   });
+  describe('caller styling', () => {
+    it('keeps caller-supplied class names on the sheet alongside its own', async () => {
+      const screen = await render(
+        <PlCommandPalette items={items} shortcut={false} defaultOpen className="my-own-class" />
+      );
+
+      const sheet = screen.getByRole('dialog').element();
+
+      expect(sheet).toHaveClass('my-own-class');
+      // Still the palette's own surface, not a class list that replaced it.
+      expect(sheet.className).toContain('bg-(--plass-glass-press)');
+    });
+
+    it('applies a caller-supplied style over the tokens the sheet sets', async () => {
+      const screen = await render(
+        <PlCommandPalette
+          items={items}
+          shortcut={false}
+          defaultOpen
+          width={480}
+          style={{ maxWidth: '600px' }}
+        />
+      );
+
+      const sheet = screen.getByRole('dialog').element() as HTMLElement;
+
+      expect(sheet.style.maxWidth).toBe('600px');
+      // The colour slots the sheet wrote are still under it.
+      expect(sheet.getAttribute('style')).toContain('--p-accent');
+    });
+  });
 });

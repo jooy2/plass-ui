@@ -49,6 +49,10 @@ export interface PlMenubarMenuProps {
   disabled?: boolean;
   /** The rows, written exactly as they are inside a `PlMenu`. */
   children?: React.ReactNode;
+  /** Classes on the word this menu is opened by, alongside the bar's own. */
+  className?: string;
+  /** Inline styles on that word. */
+  style?: React.CSSProperties;
 }
 
 /**
@@ -99,7 +103,9 @@ export function PlMenubarMenu({
   label,
   startIcon,
   disabled = false,
-  children
+  children,
+  className,
+  style
 }: PlMenubarMenuProps): React.ReactElement {
   const { size, color, density } = React.useContext(MenuContext);
 
@@ -127,8 +133,10 @@ export function PlMenubarMenu({
             // step, because the default one would space three words like three
             // buttons.
             paddingXClasses[density === 'default' ? 'compact' : density][size],
-            radiusClasses[size]
+            radiusClasses[size],
+            className
           )}
+          style={style}
         >
           {hasContent(startIcon) ? startIcon : null}
           {label}

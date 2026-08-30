@@ -296,4 +296,35 @@ describe('PlContextMenu', () => {
 
     expect(document.querySelector('.menu-under-test')).toHaveClass('bg-(--plass-glass-press)');
   });
+  describe('caller styling', () => {
+    it("applies a group's style to the group", async () => {
+      await render(
+        <PlMenu open trigger={trigger}>
+          <PlMenuGroup label="Recent" className="group-under-test" style={{ order: 3 }}>
+            <PlMenuItem>Report.pdf</PlMenuItem>
+          </PlMenuGroup>
+        </PlMenu>
+      );
+
+      const group = document.querySelector<HTMLElement>('.group-under-test');
+
+      expect(group).not.toBeNull();
+      expect(group?.style.order).toBe('3');
+    });
+
+    it("applies a radio group's style to the radio group", async () => {
+      await render(
+        <PlMenu open trigger={trigger}>
+          <PlMenuRadioGroup defaultValue="list" className="radios-under-test" style={{ order: 4 }}>
+            <PlMenuRadioItem value="list">List</PlMenuRadioItem>
+          </PlMenuRadioGroup>
+        </PlMenu>
+      );
+
+      const group = document.querySelector<HTMLElement>('.radios-under-test');
+
+      expect(group).not.toBeNull();
+      expect(group?.style.order).toBe('4');
+    });
+  });
 });

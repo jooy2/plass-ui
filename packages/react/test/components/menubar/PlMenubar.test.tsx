@@ -179,4 +179,34 @@ describe('PlMenubar', () => {
       }
     });
   });
+  describe('caller styling', () => {
+    it("keeps a menu's class names on the word it is opened by", async () => {
+      const screen = await render(
+        <PlMenubar>
+          <PlMenubarMenu label="File" className="my-own-class">
+            <PlMenuItem>New</PlMenuItem>
+          </PlMenubarMenu>
+        </PlMenubar>
+      );
+
+      const trigger = screen.getByRole('menuitem', { name: 'File' }).element();
+
+      expect(trigger).toHaveClass('my-own-class');
+      expect(trigger.className).toContain('font-medium');
+    });
+
+    it("applies a menu's own style to that word", async () => {
+      const screen = await render(
+        <PlMenubar>
+          <PlMenubarMenu label="File" style={{ letterSpacing: '2px' }}>
+            <PlMenuItem>New</PlMenuItem>
+          </PlMenubarMenu>
+        </PlMenubar>
+      );
+
+      const trigger = screen.getByRole('menuitem', { name: 'File' }).element() as HTMLElement;
+
+      expect(trigger.style.letterSpacing).toBe('2px');
+    });
+  });
 });

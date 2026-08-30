@@ -45,6 +45,16 @@ export interface PlToastData {
   color?: PlassColor;
   variant?: PlassVariant;
   icon?: React.ReactNode | false;
+  /**
+   * Classes on this toast, alongside the ones the provider gives every toast.
+   *
+   * A toast has no element a caller can put a `className` on — it is raised
+   * from a click handler rather than written into a tree — so the class travels
+   * with the message, in the same `data` the colour and the variant do.
+   */
+  className?: string;
+  /** Inline styles on this toast, applied over the tokens it sets. */
+  style?: React.CSSProperties;
 }
 
 export interface PlToastOptions extends PlToastData {
@@ -170,11 +180,11 @@ const accentClasses: Record<PlassVariant, string> = {
  * `type` props that mean different things.
  */
 function toManagerOptions(options: PlToastOptions) {
-  const { color, variant, icon, actionLabel, onAction, ...rest } = options;
+  const { color, variant, icon, className, style, actionLabel, onAction, ...rest } = options;
 
   return {
     ...rest,
-    data: { color, variant, icon } satisfies PlToastData,
+    data: { color, variant, icon, className, style } satisfies PlToastData,
     actionProps:
       actionLabel === undefined
         ? undefined
@@ -280,11 +290,12 @@ function ToastItem({
         // back; it just has nothing to say while it waits.
         'data-[limited]:hidden',
         focusRingClasses,
-        '[outline:none]'
+        '[outline:none]',
+        toast.data?.className ?? ''
       ]
         .filter(Boolean)
         .join(' ')}
-      style={controlSlots(color, 3, variant)}
+      style={{ ...controlSlots(color, 3, variant), ...toast.data?.style }}
     >
       {hasContent(glyph) ? (
         <span className={`flex h-[1lh] shrink-0 items-center ${accent}`}>{glyph}</span>

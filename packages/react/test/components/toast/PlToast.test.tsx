@@ -203,4 +203,38 @@ describe('PlToast', () => {
       expect(screen.getByText('Uploading').query()).toBeNull();
     });
   });
+  describe('caller styling', () => {
+    it('carries a class name raised with the toast onto that toast', async () => {
+      const screen = await render(
+        <PlToastProvider>
+          <Raise title="Saved" className="my-own-class" />
+        </PlToastProvider>
+      );
+
+      await screen.getByRole('button', { name: 'Raise' }).click();
+      await expect.element(screen.getByText('Saved')).toBeInTheDocument();
+
+      const raised = document.querySelector('.my-own-class');
+
+      expect(raised).not.toBeNull();
+      // Still on the toast's own surface rather than in place of it.
+      expect(raised?.className).toContain('pointer-events-auto');
+    });
+
+    it('applies a style raised with the toast over the tokens it sets', async () => {
+      const screen = await render(
+        <PlToastProvider>
+          <Raise title="Saved" className="styled-toast" style={{ order: 5 }} />
+        </PlToastProvider>
+      );
+
+      await screen.getByRole('button', { name: 'Raise' }).click();
+      await expect.element(screen.getByText('Saved')).toBeInTheDocument();
+
+      const raised = document.querySelector<HTMLElement>('.styled-toast');
+
+      expect(raised?.style.order).toBe('5');
+      expect(raised?.getAttribute('style')).toContain('--p-accent');
+    });
+  });
 });

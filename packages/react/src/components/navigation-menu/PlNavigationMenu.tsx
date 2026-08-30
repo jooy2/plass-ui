@@ -97,6 +97,10 @@ export interface PlNavigationMenuItemProps {
   columns?: number;
   /** The panel's contents — usually `PlNavigationMenuLink`s. */
   children?: React.ReactNode;
+  /** Classes on the word in the row, alongside the component's own. */
+  className?: string;
+  /** Inline styles on that word. */
+  style?: React.CSSProperties;
 }
 
 export interface PlNavigationMenuLinkProps extends Omit<
@@ -233,7 +237,9 @@ export function PlNavigationMenuItem({
   value,
   disabled = false,
   columns = 1,
-  children
+  children,
+  className,
+  style
 }: PlNavigationMenuItemProps): React.ReactElement {
   const { size, density } = React.useContext(NavigationMenuContext);
   const isLink = href !== undefined && !hasContent(children);
@@ -244,7 +250,8 @@ export function PlNavigationMenuItem({
     controlTextClasses[size],
     gapClasses[size],
     paddingXClasses[density][size],
-    radiusClasses[size]
+    radiusClasses[size],
+    className
   );
 
   return (
@@ -255,13 +262,14 @@ export function PlNavigationMenuItem({
           target={target}
           rel={safeRel(target, rel)}
           className={chrome}
+          style={style}
         >
           {hasContent(startIcon) ? startIcon : null}
           {label}
         </BaseUINavigationMenu.Link>
       ) : (
         <>
-          <BaseUINavigationMenu.Trigger disabled={disabled} className={chrome}>
+          <BaseUINavigationMenu.Trigger disabled={disabled} className={chrome} style={style}>
             {hasContent(startIcon) ? startIcon : null}
             {label}
             {/* Drawn pointing down and turned when the panel is open, which is

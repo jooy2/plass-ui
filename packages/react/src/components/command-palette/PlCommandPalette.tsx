@@ -81,6 +81,10 @@ export interface PlCommandPaletteProps extends Pick<PlassStyleProps, 'size' | 'c
   emptyMessage?: React.ReactNode;
   /** The accessible name of the dialog, which has no visible title. @default 'Command palette' */
   label?: string;
+  /** Classes on the sheet, alongside the component's own. */
+  className?: string;
+  /** Inline styles on the sheet, applied over the tokens it sets. */
+  style?: React.CSSProperties;
 }
 
 const backdropClasses = /* @__PURE__ */ [
@@ -227,7 +231,9 @@ export function PlCommandPalette({
   label = 'Command palette',
   size = 'md',
   color = 'primary',
-  density = 'default'
+  density = 'default',
+  className,
+  style
 }: PlCommandPaletteProps): React.ReactElement {
   const [uncontrolled, setUncontrolled] = React.useState(defaultOpen);
   const [query, setQuery] = React.useState('');
@@ -304,11 +310,13 @@ export function PlCommandPalette({
               radiusClasses[size],
               controlTextLeadingClasses[size],
               sheetWidth === undefined ? widthClasses[size] : '',
-              'self-start'
+              'self-start',
+              className
             )}
             style={{
               ...surfaceSlots(color, 3),
-              ...(sheetWidth === undefined ? null : { maxWidth: sheetWidth })
+              ...(sheetWidth === undefined ? null : { maxWidth: sheetWidth }),
+              ...style
             }}
           >
             <Autocomplete.Root

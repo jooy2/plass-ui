@@ -2,6 +2,12 @@
 
 > This package's history. The Flutter package keeps its own at [`packages/flutter/CHANGELOG.md`](https://github.com/jooy2/plass-ui/blob/main/packages/flutter/CHANGELOG.md), because the two version independently.
 
+## Unreleased
+
+### Added
+
+- **Every component that draws something now takes a `className` and a `style`.** Six did not, and each for its own reason rather than by decision: `PlCommandPalette`'s prop type is closed because it renders a portalled dialog rather than an element in the caller's tree, `PlMenubarMenu` and `PlNavigationMenuItem` describe a row that their parent draws, `PlMenuGroup` and `PlMenuRadioGroup` had the class and not the style, and a toast has no element to put either on — it is raised from a click handler. The first four take both on the element a reader would point at: the palette's sheet, the word on the bar, the word in the row. A toast takes them in the same `data` its colour and its variant already travel in, so `toast.add({ title, className })` reaches the one message rather than every message the provider will ever show. In all six the class **joins** the component's own rather than replacing them, and the style is applied **over** the custom properties the component wrote, which is the arrangement the rest of the library already had.
+
 ## 1.1.0 (2026-08-30)
 
 ### Added

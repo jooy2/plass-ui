@@ -205,4 +205,33 @@ describe('PlNavigationMenu', () => {
       expect(style).toContain('--plass-danger-soft');
     });
   });
+  describe('caller styling', () => {
+    it("keeps an item's class names on the link it renders", async () => {
+      const screen = await render(
+        <PlNavigationMenu>
+          <PlNavigationMenuItem label="Pricing" href="/pricing" className="my-own-class" />
+        </PlNavigationMenu>
+      );
+
+      const link = screen.getByRole('link', { name: 'Pricing' }).element();
+
+      expect(link).toHaveClass('my-own-class');
+      expect(link.className).toContain('font-medium');
+    });
+
+    it('keeps them on the trigger when the item opens a panel instead', async () => {
+      const screen = await render(
+        <PlNavigationMenu>
+          <PlNavigationMenuItem label="Product" className="my-own-class" style={{ order: 2 }}>
+            <PlNavigationMenuLink href="/a" title="Analytics" />
+          </PlNavigationMenuItem>
+        </PlNavigationMenu>
+      );
+
+      const trigger = screen.getByRole('button', { name: /Product/ }).element() as HTMLElement;
+
+      expect(trigger).toHaveClass('my-own-class');
+      expect(trigger.style.order).toBe('2');
+    });
+  });
 });
