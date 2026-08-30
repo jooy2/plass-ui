@@ -3633,6 +3633,49 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlFieldset: [
+    {
+      name: 'legend',
+      type: 'ReactNode',
+      description: {
+        ko: '이 묶음의 이름. 안에 든 모든 컨트롤의 접근 가능한 이름에 들어가므로, 각각 앞에 놓아도 말이 되는 구절이어야 합니다 — "받는 주소"이지 "어디로 보낼까요?"가 아닙니다',
+        en: 'What the group is called. It becomes part of the accessible name of every control inside, so it has to read correctly in front of each of them — "Billing address", not "Where should we send it?"'
+      }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: { ko: 'legend 아래 한 줄', en: 'A line under the legend' }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '안의 모든 컨트롤을 한 번에 끕니다. <fieldset>이 늘 해 온 그대로입니다',
+        en: 'Disables every control inside at once, the way a <fieldset> always has'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: 'legend의 타입 스케일과 컨트롤 사이의 간격',
+        en: 'The type scale of the legend and the gap between the controls'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: {
+        ko: '한 질문에 함께 답하는 컨트롤들',
+        en: 'The controls that answer one question together'
+      }
+    }
+  ],
+
   PlFilePicker: [
     ...sharedProps({
       variant: "'glass'",

@@ -1,0 +1,90 @@
+---
+title: PlFieldset
+order: 19
+---
+
+# PlFieldset
+
+<p class="plass-lede">A group of controls that answer one question together, with a name on it. It draws no surface — a grouping is not a sheet, and the sheet already exists.</p>
+
+<Demo src="fieldset/hero" :flutter="false" :min-height="300" />
+
+::: fw react
+
+```tsx
+import { PlFieldset, PlTextField } from 'plass-ui';
+
+<PlFieldset legend="Billing address" description="Where the invoice goes.">
+  <PlTextField label="Street" />
+  <PlTextField label="City" />
+</PlFieldset>;
+```
+
+:::
+
+## Props
+
+<PropsTable name="PlFieldset" />
+
+::: fw react
+
+Every native `<fieldset>` attribute passes straight through. `color` is excluded because a fieldset has no surface to colour.
+
+:::
+
+What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
+
+## What it owns
+
+Three things, and nothing else:
+
+- **The legend**, which becomes part of the accessible name of every control inside. That is why it has to be a phrase that still reads correctly in front of each of them — "Billing address", not "Where should we send it?".
+- **The gap** the controls stand at, on the sheet ladder.
+- **`disabled`**, which is the one thing only a real `<fieldset>` can do: it reaches every control inside, including one a component three levels down rendered and never heard of.
+
+It draws no surface and takes no `color`, `variant` or `elevation`. A group of fields is a grouping; put it inside a [`PlCard`](../surfaces/card) or a [`PlBox`](../surfaces/box) when a sheet is wanted.
+
+## Examples
+
+### disabled
+
+The reason to reach for a fieldset rather than a `<div>`. Turning it on takes every control inside out of the tab order and out of the form, without the fieldset knowing what any of them are.
+
+<Demo src="fieldset/disabled" :flutter="false" :min-height="280">
+
+<<< @/.vitepress/demos/fieldset/disabled.tsx
+
+</Demo>
+
+### size
+
+The legend's type scale and the gap between the controls, on the sheet ladder — the same one a [`PlCard`](../surfaces/card) scores its sections with, because a fieldset is a section of a form rather than a control in one.
+
+<Demo src="fieldset/sizes" :flutter="false" :min-height="360">
+
+<<< @/.vitepress/demos/fieldset/sizes.tsx
+
+</Demo>
+
+### Inside a sheet
+
+Two fieldsets on one card is the usual arrangement, and it is what makes the no-surface rule pay: the card is the sheet, and each group is a name and a gap on it.
+
+<Demo src="fieldset/on-a-sheet" :flutter="false" :min-height="360">
+
+<<< @/.vitepress/demos/fieldset/on-a-sheet.tsx
+
+</Demo>
+
+## Two things the browser is talked out of
+
+A `<fieldset>` arrives with a border, padding and a margin of its own, and none of the three is the library's. They are undone.
+
+So is `min-width: min-content`, which every browser gives a fieldset and nothing else. It is the reason a fieldset holding a wide table refuses to shrink inside a flex row, and `min-w-0` is what puts it back.
+
+## Accessibility
+
+- It is a real `<fieldset>`, which is a `group`, and the legend names it.
+- The legend is a `<div>` pointed at by `aria-labelledby` rather than a rendered `<legend>`. That is Base UI's decision, and it is what makes the group an ordinary flex container: a real `<legend>` is lifted out of its fieldset's content box by every browser, so a `gap` would put no space under it at all.
+- `disabled` on the fieldset is the native attribute, so it disables descendants the way the platform does — no context, no prop threading, and nothing to forget on a control that was added later.
+- A fieldset with neither `legend` nor `description` draws no heading block at all. An empty name is worse than none: it puts a blank in front of every control's own.

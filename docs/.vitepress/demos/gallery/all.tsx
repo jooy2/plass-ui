@@ -38,6 +38,7 @@ import {
   PlDateTimePicker,
   PlDivider,
   PlDrawer,
+  PlFieldset,
   PlFilePicker,
   PlFloatingBottomNavigation,
   PlFloatingBottomNavigationItem,
@@ -1137,6 +1138,20 @@ const entries: Entry[] = [
           </PlGridItem>
         ))}
       </PlGrid>
+    )
+  },
+  {
+    name: 'PlFieldset',
+    group: 'inputs',
+    href: 'components/inputs/fieldset',
+    blurb: {
+      en: 'A group of controls that answer one question together, with a name on it.',
+      ko: '한 질문에 함께 답하는 컨트롤 묶음이고, 그 위에 이름이 붙습니다.'
+    },
+    preview: (
+      <PlFieldset size="sm" legend="Billing address" className="w-full">
+        <PlTextField size="sm" label="Street" fullWidth />
+      </PlFieldset>
     )
   },
   {
