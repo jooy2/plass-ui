@@ -3642,6 +3642,80 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     })
   ],
 
+  PlToggle: [
+    from('PlToggle', 'variant', { type: `${VARIANT}?`, default: 'PlassVariant.glass' }),
+    from('PlToggle', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlToggle', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlToggle', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
+    from('PlToggle', 'elevation', { type: 'int?', default: '0' }),
+    from('PlToggle', 'pressed', { type: 'bool?' }),
+    from('PlToggle', 'defaultPressed', { type: 'bool', default: 'false' }),
+    from('PlToggle', 'onPressedChange', {
+      name: 'onPressedChanged',
+      type: 'ValueChanged<bool>?'
+    }),
+    from('PlToggle', 'value', { type: 'String?' }),
+    from('PlToggle', 'startIcon', { type: 'Widget?' }),
+    from('PlToggle', 'endIcon', { type: 'Widget?' }),
+    from('PlToggle', 'fullWidth', { type: 'bool', default: 'false' }),
+    from('PlToggle', 'disabled', { type: 'bool?', default: 'false' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '스크린 리더가 부르는 이름. 라벨 없이 아이콘만 있는 토글에는 사실상 필수입니다',
+        en: 'The name a screen reader gives it. Required in practice on a toggle with an icon and no label'
+      }
+    },
+    {
+      name: 'focusNode',
+      type: 'FocusNode?',
+      description: {
+        ko: '바깥에서 focus를 옮겨야 하는 호출자를 위한 focus node',
+        en: 'An external focus node, for a caller that has to move focus here itself'
+      }
+    },
+    {
+      name: 'autofocus',
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '처음 지어질 때 focus를 가져갈지',
+        en: 'Whether it takes focus when it is first built'
+      }
+    },
+    from('PlToggle', 'children', { name: 'child', type: 'Widget?' })
+  ],
+
+  PlToggleGroup: [
+    from('PlToggleGroup', 'children', {
+      type: 'List<Widget>',
+      required: true,
+      description: {
+        ko: '세트를 이루는 토글들. 세트에 속하려면 각자 value가 있어야 합니다',
+        en: 'The toggles that make up the set. Each needs a value to be part of it'
+      }
+    }),
+    from('PlToggleGroup', 'value', { type: 'List<String>?' }),
+    from('PlToggleGroup', 'defaultValue', { type: 'List<String>', default: '<String>[]' }),
+    from('PlToggleGroup', 'onValueChange', {
+      name: 'onValueChanged',
+      type: 'ValueChanged<List<String>>?'
+    }),
+    from('PlToggleGroup', 'multiple', { type: 'bool', default: 'false' }),
+    from('PlToggleGroup', 'orientation', {
+      type: 'PlassOrientation',
+      default: 'PlassOrientation.horizontal'
+    }),
+    from('PlToggleGroup', 'variant', { type: `${VARIANT}?` }),
+    from('PlToggleGroup', 'size', { type: `${SIZE}?` }),
+    from('PlToggleGroup', 'color', { type: `${COLOR}?` }),
+    from('PlToggleGroup', 'density', { type: `${DENSITY}?` }),
+    from('PlToggleGroup', 'elevation', { type: 'int?' }),
+    from('PlToggleGroup', 'disabled', { type: 'bool?' }),
+    from('PlToggleGroup', 'fullWidth', { type: 'bool', default: 'false' })
+  ],
+
   PlToolbar: [
     {
       name: 'child',

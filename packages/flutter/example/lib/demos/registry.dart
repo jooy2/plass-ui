@@ -249,6 +249,11 @@ import 'package:plass_ui_example/demos/header/measure.dart';
 import 'package:plass_ui_example/demos/header/sizes.dart';
 import 'package:plass_ui_example/demos/header/variants.dart';
 import 'package:plass_ui_example/demos/page_layout/hero.dart';
+import 'package:plass_ui_example/demos/toggle/group.dart';
+import 'package:plass_ui_example/demos/toggle/hero.dart';
+import 'package:plass_ui_example/demos/toggle/icons.dart';
+import 'package:plass_ui_example/demos/toggle/sizes.dart';
+import 'package:plass_ui_example/demos/toggle/variants.dart';
 import 'package:plass_ui_example/demos/sidebar/collapse.dart';
 import 'package:plass_ui_example/demos/sidebar/hero.dart';
 import 'package:plass_ui_example/demos/sidebar/resizable.dart';
@@ -573,6 +578,11 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'header/variants': _headerVariants,
   'header/sizes': _headerSizes,
   'header/measure': _headerMeasure,
+  'toggle/hero': _toggleHero,
+  'toggle/variants': _toggleVariants,
+  'toggle/sizes': _toggleSizes,
+  'toggle/group': _toggleGroup,
+  'toggle/icons': _toggleIcons,
   'sidebar/hero': _sidebarHero,
   'sidebar/sides': _sidebarSides,
   'sidebar/collapse': _sidebarCollapse,
@@ -986,6 +996,12 @@ Widget _headerAlign(BuildContext context) => const HeaderAlign();
 Widget _headerVariants(BuildContext context) => const HeaderVariants();
 Widget _headerSizes(BuildContext context) => const HeaderSizes();
 Widget _headerMeasure(BuildContext context) => const HeaderMeasure();
+
+Widget _toggleHero(BuildContext context) => const ToggleHero();
+Widget _toggleVariants(BuildContext context) => const ToggleVariants();
+Widget _toggleSizes(BuildContext context) => const ToggleSizes();
+Widget _toggleGroup(BuildContext context) => const ToggleGroupDemo();
+Widget _toggleIcons(BuildContext context) => const ToggleIcons();
 
 Widget _sidebarHero(BuildContext context) => const SidebarHero();
 Widget _sidebarSides(BuildContext context) => const SidebarSides();

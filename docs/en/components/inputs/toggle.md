@@ -7,7 +7,7 @@ order: 16
 
 <p class="plass-lede">A button that stays down, and a set of them that share one state. Off is neutral, because a toggle at rest is not an action waiting to be taken — it is a state that is currently false.</p>
 
-<Demo src="toggle/hero" :flutter="false" :min-height="180" />
+<Demo src="toggle/hero" :min-height="180" />
 
 ::: fw react
 
@@ -22,6 +22,30 @@ import { PlToggle, PlToggleGroup } from 'plass-ui';
   <PlToggle value="bold">Bold</PlToggle>
   <PlToggle value="italic">Italic</PlToggle>
 </PlToggleGroup>;
+```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlToggle(
+  pressed: bold,
+  onPressedChanged: (bool next) => setState(() => bold = next),
+  child: const Text('Bold'),
+);
+
+PlToggleGroup(
+  multiple: true,
+  value: marks,
+  onValueChanged: (List<String> next) => setState(() => marks = next),
+  children: const <Widget>[
+    PlToggle(value: 'bold', child: Text('Bold')),
+    PlToggle(value: 'italic', child: Text('Italic')),
+  ],
+);
 ```
 
 :::
@@ -57,9 +81,19 @@ What the key is made of while it is **off**. On is always the colour family asse
 
 Off, the ink is `--plass-muted-fg` in all three and none of them is dyed. An off toggle is a piece of clear glass; the family arrives with the press and not before it.
 
-<Demo src="toggle/variants" :flutter="false" :min-height="220">
+<Demo src="toggle/variants" :min-height="220">
+
+::: fw react
 
 <<< @/.vitepress/demos/toggle/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/toggle/variants.dart
+
+:::
 
 </Demo>
 
@@ -73,9 +107,19 @@ It defaults to `0`, one below a [`PlButton`](./button)'s, for the same reason.
 
 The control ladder, unchanged: a `md` toggle is 40px and lines up with the field and the button beside it. `density` moves the padding and nothing else.
 
-<Demo src="toggle/sizes" :flutter="false" :min-height="140">
+<Demo src="toggle/sizes" :min-height="140">
+
+::: fw react
 
 <<< @/.vitepress/demos/toggle/sizes.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/toggle/sizes.dart
+
+:::
 
 </Demo>
 
@@ -85,9 +129,19 @@ Two things are happening and only one of them is visual. The corners facing a ne
 
 The value is an **array in both cases**, which is the one shape that does not change type when `multiple` is turned on.
 
-<Demo src="toggle/group" :flutter="false" :min-height="300">
+<Demo src="toggle/group" :min-height="300">
+
+::: fw react
 
 <<< @/.vitepress/demos/toggle/group.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/toggle/group.dart
+
+:::
 
 </Demo>
 
@@ -95,16 +149,55 @@ The value is an **array in both cases**, which is the one shape that does not ch
 
 Left out, `children` makes the toggle go square around whatever icon it was given — which is what a toolbar toggle is. It still needs an `aria-label`: a control whose whole label is a drawing has no accessible name at all.
 
-<Demo src="toggle/icons" :flutter="false" :min-height="140">
+<Demo src="toggle/icons" :min-height="140">
+
+::: fw react
 
 <<< @/.vitepress/demos/toggle/icons.tsx
 
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/toggle/icons.dart
+
+:::
+
 </Demo>
 
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `aria-pressed` from Base UI | `Semantics(toggled:)` | The same claim under the framework's own name: a button with a state rather than a button that does something. |
+| one tab stop for the group, arrow keys inside it | one focus stop per toggle | Base UI's roving tab index has no counterpart in `widgets.dart`, and a roving focus implemented badly is worse than the platform's own traversal. `PlSegmentedButton` carries the real thing where a value genuinely needs it. |
+| `children` composed freely | `children: List<Widget>` on the group | The group has to know which member is at each end to square off the right corners, and a list is what it can count. |
+| `loopFocus` | — | There is no roving focus to wrap. |
+| `onPressedChange` | `onPressedChanged` | Flutter's name. |
+| `aria-label` | `semanticLabel` | Flutter's name. |
+| `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
+
+:::
+
 ## Accessibility
+
+::: fw react
 
 - Base UI renders a real `<button>` with `aria-pressed`, which is what says "this is a state" rather than "this does something".
 - A `PlToggleGroup` is one tab stop with the arrow keys moving between its members, which is what makes a toolbar of eight toggles two key presses deep instead of eight. `loopFocus` decides whether the arrows wrap at the ends.
 - An icon-only toggle needs an `aria-label`. Nothing else can name it.
 - `disabled` takes the toggle out of the tab order. A group's `disabled` does it to every member at once.
 - The pointer light is off while the toggle is disabled, so a surface nobody can press does not answer the pointer.
+
+:::
+
+::: fw flutter
+
+- The toggle is a `Semantics(button: true, toggled: …)`, which is the same claim `aria-pressed` makes on the other side.
+- A toggle with an icon and no label needs a `semanticLabel`. Nothing else can name it.
+- `disabled` takes the toggle out of the focus order and stops it answering the pointer at all — the light goes out with it.
+- Each toggle in a group is its own focus stop. There is no roving focus here, which is the one thing the React build has that this does not.
+
+:::

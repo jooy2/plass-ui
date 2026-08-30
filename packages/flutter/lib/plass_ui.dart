@@ -97,6 +97,8 @@ export 'src/components/text_link/pl_text_link.dart';
 export 'src/components/time_picker/pl_time_picker.dart';
 export 'src/components/timeline/pl_timeline.dart';
 export 'src/components/toast/pl_toast.dart';
+export 'src/components/toggle/pl_toggle.dart';
+export 'src/components/toggle/pl_toggle_group.dart';
 export 'src/components/toolbar/pl_toolbar.dart';
 export 'src/components/tooltip/pl_tooltip.dart';
 export 'src/components/typography/pl_typography.dart';

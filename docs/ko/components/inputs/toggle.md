@@ -7,7 +7,7 @@ order: 16
 
 <p class="plass-lede">눌린 채로 남는 버튼, 그리고 하나의 상태를 나누는 그 묶음입니다. 꺼진 상태는 중립입니다 — 쉬고 있는 토글은 아직 취해지지 않은 액션이 아니라, 지금 거짓인 상태이기 때문입니다.</p>
 
-<Demo src="toggle/hero" :flutter="false" :min-height="180" />
+<Demo src="toggle/hero" :min-height="180" />
 
 ::: fw react
 
@@ -22,6 +22,30 @@ import { PlToggle, PlToggleGroup } from 'plass-ui';
   <PlToggle value="bold">Bold</PlToggle>
   <PlToggle value="italic">Italic</PlToggle>
 </PlToggleGroup>;
+```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlToggle(
+  pressed: bold,
+  onPressedChanged: (bool next) => setState(() => bold = next),
+  child: const Text('Bold'),
+);
+
+PlToggleGroup(
+  multiple: true,
+  value: marks,
+  onValueChanged: (List<String> next) => setState(() => marks = next),
+  children: const <Widget>[
+    PlToggle(value: 'bold', child: Text('Bold')),
+    PlToggle(value: 'italic', child: Text('Italic')),
+  ],
+);
 ```
 
 :::
@@ -57,9 +81,19 @@ import { PlToggle, PlToggleGroup } from 'plass-ui';
 
 꺼져 있을 때 잉크는 셋 다 `--plass-muted-fg`이고, 어느 것에도 색이 들어가지 않습니다. 꺼진 토글은 맑은 유리 한 조각이고, 색 계열은 누름과 함께 도착하지 그전에는 오지 않습니다.
 
-<Demo src="toggle/variants" :flutter="false" :min-height="220">
+<Demo src="toggle/variants" :min-height="220">
+
+::: fw react
 
 <<< @/.vitepress/demos/toggle/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/toggle/variants.dart
+
+:::
 
 </Demo>
 
@@ -73,9 +107,19 @@ import { PlToggle, PlToggleGroup } from 'plass-ui';
 
 컨트롤 사다리 그대로입니다. `md` 토글은 40px이고 옆의 필드·버튼과 줄이 맞습니다. `density`는 여백만 옮깁니다.
 
-<Demo src="toggle/sizes" :flutter="false" :min-height="140">
+<Demo src="toggle/sizes" :min-height="140">
+
+::: fw react
 
 <<< @/.vitepress/demos/toggle/sizes.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/toggle/sizes.dart
+
+:::
 
 </Demo>
 
@@ -85,9 +129,19 @@ import { PlToggle, PlToggleGroup } from 'plass-ui';
 
 값은 **두 경우 모두 배열**입니다. `multiple`을 켜도 타입이 바뀌지 않는 유일한 모양입니다.
 
-<Demo src="toggle/group" :flutter="false" :min-height="300">
+<Demo src="toggle/group" :min-height="300">
+
+::: fw react
 
 <<< @/.vitepress/demos/toggle/group.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/toggle/group.dart
+
+:::
 
 </Demo>
 
@@ -95,16 +149,55 @@ import { PlToggle, PlToggleGroup } from 'plass-ui';
 
 `children`을 빼면 토글은 받은 아이콘 둘레로 정사각형이 됩니다. 툴바 토글이 바로 그것입니다. 그래도 `aria-label`은 필요합니다 — 라벨이 통째로 그림인 컨트롤에는 접근 가능한 이름이 아예 없습니다.
 
-<Demo src="toggle/icons" :flutter="false" :min-height="140">
+<Demo src="toggle/icons" :min-height="140">
+
+::: fw react
 
 <<< @/.vitepress/demos/toggle/icons.tsx
 
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/toggle/icons.dart
+
+:::
+
 </Demo>
 
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| Base UI의 `aria-pressed` | `Semantics(toggled:)` | 프레임워크 자신의 이름으로 된 같은 주장입니다 — 무언가를 하는 버튼이 아니라 상태를 가진 버튼. |
+| 그룹 전체가 tab stop 하나, 안에서는 화살표 키 | 토글마다 focus stop 하나 | Base UI의 roving tab index에 대응하는 것이 `widgets.dart`에는 없고, 잘못 구현한 roving focus는 플랫폼 자신의 순회보다 나쁩니다. 값이 정말로 필요한 자리에서는 `PlSegmentedButton`이 진짜를 지니고 있습니다. |
+| 자유롭게 조합하는 `children` | 그룹의 `children: List<Widget>` | 어느 구성원이 양 끝인지 알아야 올바른 모서리를 각지게 할 수 있고, 그룹이 셀 수 있는 것이 리스트입니다. |
+| `loopFocus` | — | 돌릴 roving focus가 없습니다. |
+| `onPressedChange` | `onPressedChanged` | Flutter의 이름입니다. |
+| `aria-label` | `semanticLabel` | Flutter의 이름입니다. |
+| `className`, `style`, 네이티브 속성 | — | 전달할 class 목록도 style 속성도 없습니다. |
+
+:::
+
 ## 접근성
+
+::: fw react
 
 - Base UI가 `aria-pressed`를 지닌 진짜 `<button>`을 그립니다. "이건 무언가를 한다"가 아니라 "이건 상태다"라고 말하는 것이 그것입니다.
 - `PlToggleGroup`은 tab stop 하나이고 화살표 키가 구성원 사이를 움직입니다. 토글 여덟 개짜리 툴바가 여덟 번이 아니라 두 번의 키 누름 깊이가 되는 이유입니다. `loopFocus`가 양 끝에서 화살표가 돌아가는지 정합니다.
 - 아이콘만 있는 토글에는 `aria-label`이 필요합니다. 다른 무엇도 그것에 이름을 주지 못합니다.
 - `disabled`는 토글을 tab 순서에서 뺍니다. 그룹의 `disabled`는 모든 구성원에 한 번에 그렇게 합니다.
 - 포인터 빛은 disabled인 동안 꺼집니다. 아무도 누를 수 없는 표면이 포인터에 답하지 않도록.
+
+:::
+
+::: fw flutter
+
+- 토글은 `Semantics(button: true, toggled: …)`이고, 반대쪽의 `aria-pressed`와 같은 주장입니다.
+- 라벨 없이 아이콘만 있는 토글에는 `semanticLabel`이 필요합니다. 다른 무엇도 그것에 이름을 주지 못합니다.
+- `disabled`는 토글을 focus 순서에서 빼고 포인터에 아예 답하지 않게 합니다. 빛도 함께 꺼집니다.
+- 그룹 안의 토글은 각자 하나의 focus stop입니다. roving focus는 여기에 없고, React 빌드에 있고 여기에 없는 유일한 것이 그것입니다.
+
+:::
