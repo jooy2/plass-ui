@@ -249,6 +249,11 @@ import 'package:plass_ui_example/demos/header/measure.dart';
 import 'package:plass_ui_example/demos/header/sizes.dart';
 import 'package:plass_ui_example/demos/header/variants.dart';
 import 'package:plass_ui_example/demos/page_layout/hero.dart';
+import 'package:plass_ui_example/demos/sidebar/collapse.dart';
+import 'package:plass_ui_example/demos/sidebar/hero.dart';
+import 'package:plass_ui_example/demos/sidebar/resizable.dart';
+import 'package:plass_ui_example/demos/sidebar/sides.dart';
+import 'package:plass_ui_example/demos/sidebar/variants.dart';
 import 'package:plass_ui_example/demos/page_layout/spans.dart';
 import 'package:plass_ui_example/demos/panes/constraints.dart';
 import 'package:plass_ui_example/demos/panes/fixed.dart';
@@ -568,6 +573,11 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'header/variants': _headerVariants,
   'header/sizes': _headerSizes,
   'header/measure': _headerMeasure,
+  'sidebar/hero': _sidebarHero,
+  'sidebar/sides': _sidebarSides,
+  'sidebar/collapse': _sidebarCollapse,
+  'sidebar/resizable': _sidebarResizable,
+  'sidebar/variants': _sidebarVariants,
   'page-layout/hero': _pageLayoutHero,
   'page-layout/spans': _pageLayoutSpans,
   'card/hero': _cardHero,
@@ -976,6 +986,12 @@ Widget _headerAlign(BuildContext context) => const HeaderAlign();
 Widget _headerVariants(BuildContext context) => const HeaderVariants();
 Widget _headerSizes(BuildContext context) => const HeaderSizes();
 Widget _headerMeasure(BuildContext context) => const HeaderMeasure();
+
+Widget _sidebarHero(BuildContext context) => const SidebarHero();
+Widget _sidebarSides(BuildContext context) => const SidebarSides();
+Widget _sidebarCollapse(BuildContext context) => const SidebarCollapse();
+Widget _sidebarResizable(BuildContext context) => const SidebarResizable();
+Widget _sidebarVariants(BuildContext context) => const SidebarVariants();
 
 Widget _pageLayoutHero(BuildContext context) => const PageLayoutHero();
 Widget _pageLayoutSpans(BuildContext context) => const PageLayoutSpans();

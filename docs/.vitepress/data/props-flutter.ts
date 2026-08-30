@@ -2595,6 +2595,86 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlSelectOption', 'disabled', { type: 'bool', default: 'false' })
   ],
 
+  PlSidebar: [
+    from('PlSidebar', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlSidebar', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlSidebar', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlSidebar', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlSidebar', 'elevation', { type: 'int', default: '0' }),
+    from('PlSidebar', 'side', { type: 'PlassSidebarSide?', default: 'PlassSidebarSide.start' }),
+    from('PlSidebar', 'width', { type: 'double?' }),
+    from('PlSidebar', 'minWidth', { type: 'double', default: '160' }),
+    from('PlSidebar', 'maxWidth', { type: 'double', default: '480' }),
+    from('PlSidebar', 'resizable', { type: 'bool', default: 'false' }),
+    from('PlSidebar', 'onResize', { type: 'ValueChanged<double>?' }),
+    from('PlSidebar', 'onResizeEnd', { type: 'ValueChanged<double>?' }),
+    from('PlSidebar', 'collapseBelow', {
+      type: 'PlassBreakpoint?',
+      description: {
+        ko: '열이 drawer가 되는 창 너비. 없으면 위의 PlPageLayout이 정하고, 레이아웃 밖에서는 접히지 않습니다',
+        en: 'The width below which the column becomes a drawer, measured against the window. Left out, the PlPageLayout above decides — and outside a layout it never collapses'
+      }
+    }),
+    from('PlSidebar', 'open', { type: 'bool?' }),
+    from('PlSidebar', 'onOpenChange', {
+      name: 'onOpenChanged',
+      type: 'ValueChanged<bool>?'
+    }),
+    from('PlSidebar', 'title', {
+      type: 'Widget?',
+      description: {
+        ko: 'drawer일 때만 그려지는 제목. 없으면 semanticLabel이 제목이 됩니다 — 화면을 덮은 패널은 자기가 그리는 것으로 불립니다',
+        en: 'The heading, drawn only while the sidebar is a drawer. Left out, semanticLabel is drawn as the heading instead: a panel that has covered the screen is named by what it draws'
+      }
+    }),
+    from('PlSidebar', 'divider', { type: 'bool', default: 'true' }),
+    from('PlSidebar', 'padded', { type: 'bool', default: 'true' }),
+    from('PlSidebar', 'label', {
+      name: 'semanticLabel',
+      type: 'String',
+      default: "'Sidebar'"
+    }),
+    from('PlSidebar', 'closeLabel', { type: 'String', default: "'Close sidebar'" }),
+    from('PlSidebar', 'resizeLabel', { type: 'String', default: "'Resize sidebar'" }),
+    from('PlSidebar', 'children', { name: 'child', type: 'Widget?' })
+  ],
+
+  PlSidebarTrigger: [
+    from('PlSidebarTrigger', 'side', {
+      type: 'PlassSidebarSide',
+      default: 'PlassSidebarSide.start'
+    }),
+    from('PlSidebarTrigger', 'icon', { type: 'Widget?' }),
+    from('PlSidebarTrigger', 'label', {
+      type: 'String?',
+      default: "'Open sidebar' / 'Close sidebar'"
+    }),
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: 'PlassVariant.ghost',
+      shared: true,
+      description: {
+        ko: '키의 재질. 이미 시트인 바 위에 앉으므로 기본이 ghost입니다',
+        en: 'What the key is made of. ghost by default: it sits on a bar that is already a sheet'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: 'PlassSize.md',
+      shared: true,
+      description: { ko: '키의 크기', en: "The key's size" }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: 'PlassColor.primary',
+      shared: true,
+      description: { ko: '의미론적 색 역할', en: 'Semantic colour role' }
+    }
+  ],
+
   PlSkeleton: [
     from('PlSkeleton', 'shape', {
       type: 'PlSkeletonShape',

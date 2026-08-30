@@ -84,6 +84,8 @@ export 'src/components/rating/pl_rating.dart';
 export 'src/components/scroll_zone/pl_scroll_zone.dart';
 export 'src/components/segmented_button/pl_segmented_button.dart';
 export 'src/components/select/pl_select.dart';
+export 'src/components/sidebar/pl_sidebar.dart';
+export 'src/components/sidebar/pl_sidebar_trigger.dart';
 export 'src/components/skeleton/pl_skeleton.dart';
 export 'src/components/slider/pl_slider.dart';
 export 'src/components/spoiler/pl_spoiler.dart';

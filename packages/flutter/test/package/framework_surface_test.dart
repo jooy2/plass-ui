@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// The one size decision in this package that cannot be undone by a compiler.
 ///
 /// Dart's tree shaker is whole-program and it is good: a gallery that uses all
-/// 77 components compiles to about 158 kB gzipped more than an empty Flutter
+/// 78 components compiles to about 158 kB gzipped more than an empty Flutter
 /// app, and an app that uses one light component pays single-digit kilobytes.
 /// Almost nothing in a widget library can move that number.
 ///

@@ -7,7 +7,7 @@ order: 9
 
 <p class="plass-lede">A column beside the page's content, and a drawer once the window is too narrow to hold one. Two presentations of one panel, so a caller never swaps components at a breakpoint.</p>
 
-<Demo src="sidebar/hero" :flutter="false" :min-height="360" />
+<Demo src="sidebar/hero" :min-height="360" />
 
 ::: fw react
 
@@ -15,6 +15,19 @@ order: 9
 import { PlPageLayout, PlSidebar } from 'plass-ui';
 
 <PlPageLayout sidebar={<PlSidebar label="Main navigation">{nav}</PlSidebar>}>{page}</PlPageLayout>;
+```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlPageLayout(
+  sidebar: PlSidebar(semanticLabel: 'Main navigation', child: navigation),
+  child: page,
+);
 ```
 
 :::
@@ -53,9 +66,19 @@ Logical rather than physical: `start` is the left of an English page and the rig
 
 Inside a [`PlPageLayout`](./page-layout) it is already decided by which slot the sidebar was handed to, and setting it again is only a way of disagreeing with the layout.
 
-<Demo src="sidebar/sides" :flutter="false" :min-height="260">
+<Demo src="sidebar/sides" :min-height="260">
+
+::: fw react
 
 <<< @/.vitepress/demos/sidebar/sides.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/sidebar/sides.dart
+
+:::
 
 </Demo>
 
@@ -67,9 +90,19 @@ The window width below which the column becomes a drawer. It defaults to the lay
 
 `title` is drawn only while the sidebar is a drawer: a column has the page around it to say what it is, and a panel that has covered the page does not.
 
-<Demo src="sidebar/collapse" :flutter="false" :min-height="300">
+<Demo src="sidebar/collapse" :min-height="300">
+
+::: fw react
 
 <<< @/.vitepress/demos/sidebar/collapse.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/sidebar/collapse.dart
+
+:::
 
 </Demo>
 
@@ -81,9 +114,19 @@ The dragged width is written straight onto the element rather than into state: n
 
 The handle straddles the edge rather than sitting inside it — a hairline one pixel wide is a target one pixel wide — which is the same split between what is drawn and what can be grabbed that a scrollbar makes.
 
-<Demo src="sidebar/resizable" :flutter="false" :min-height="260">
+<Demo src="sidebar/resizable" :min-height="260">
+
+::: fw react
 
 <<< @/.vitepress/demos/sidebar/resizable.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/sidebar/resizable.dart
+
+:::
 
 </Demo>
 
@@ -93,17 +136,51 @@ The three materials, read the way a **container** reads them. The panel is never
 
 `divider` rules the **inner** edge — the one facing the content. The outer edge is against the window, where there is nothing on the other side to be separated from.
 
-<Demo src="sidebar/variants" :flutter="false" :min-height="220">
+<Demo src="sidebar/variants" :min-height="220">
+
+::: fw react
 
 <<< @/.vitepress/demos/sidebar/variants.tsx
 
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/sidebar/variants.dart
+
+:::
+
 </Demo>
+
+::: fw react
 
 ### sticky
 
 On by default, and it costs nothing when it is not needed. With the page scrolling, the column is `sticky` and as tall as what is left of the window under the header — which is what `--p-layout-header` and `--p-layout-footer` are measured for. With only the content scrolling, the column is already as tall as the layout and this changes nothing.
 
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `collapseBelow` against the window, defaulting to the layout's | the same, but the layout's answer is against **its own width** | A `LayoutBuilder` sees the constraints the layout was handed; a media query only ever sees the window. Set it here and the window is what is measured, which is the override. |
+| `'none'` | `null` | Dart's way of saying "no floor was named". |
+| the trigger hidden by a media query | the trigger not built at all | The class exists on the web to keep the button in the markup a server sends. There is no first paint to hold together here. |
+| `sticky` | — | The column is as tall as the band the layout gave it. There is no document scroll for it to hold its place against. |
+| `title` falling back to an `aria-label` | `title` falling back to `semanticLabel`, **drawn** | A `PlDrawer` is named by what it draws, so the region's name becomes its heading rather than an invisible label. |
+| a `role="separator"` handle with `aria-valuenow` | a `Semantics(slider: true)` handle with a value in logical pixels | Flutter's semantics tree has no separator role and no `valuenow`. A handle is what it actually is: a control with a value that can be turned up and down. |
+| the width written onto the element | the width in a `ValueNotifier` | Same decision, different spelling: nothing but one box depends on the number, and rebuilding the panel on every pointer move would rebuild every row in it. |
+| `label` | `semanticLabel` | Flutter's name. |
+| `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
+
+:::
+
 ## Accessibility
+
+::: fw react
 
 - The column is a real `<aside>`, which is the `complementary` landmark.
 - `label` is required in practice and defaults to `Sidebar`. A page with two sidebars **must** give each one a name, or a screen reader offers two regions called "complementary".
@@ -111,3 +188,15 @@ On by default, and it costs nothing when it is not needed. With the page scrolli
 - The trigger carries `aria-expanded`, so a screen reader is told whether the panel is open before it is pressed.
 - The resize handle is a `role="separator"` with `aria-orientation="vertical"`, a tab stop while `resizable`, and moved by <kbd>←</kbd> <kbd>→</kbd>. A key press fires `onResizeEnd` as well as `onResize`, because it is a whole gesture on its own.
 - A drag takes the page's text selection away as `-webkit-user-select` — the only name WebKit implements — rather than calling `preventDefault`, which would stop the browser focusing the handle.
+
+:::
+
+::: fw flutter
+
+- The column claims `SemanticsRole.complementary`, the same landmark the `<aside>` tag carries on the other side.
+- `semanticLabel` names it and defaults to `Sidebar`. A screen with two sidebars **must** name each one: Flutter refuses a duplicated landmark with no label outright.
+- Collapsed, it is a `PlDrawer`: focus is trapped, the barrier dismisses it, and focus returns to whatever opened it.
+- The resize handle is a `Semantics(slider: true)` with the width as its value and `onIncrease` / `onDecrease` wired to the same step the arrow keys use — so a screen reader can move the edge without a pointer.
+- The trigger is a real `PlIconButton` with a name that says what pressing it will do.
+
+:::
