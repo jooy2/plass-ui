@@ -69,7 +69,7 @@ watch(framework, () => nextTick(syncOutline));
     <template #home-hero-info-before>
       <img
         class="plass-home-logo"
-        :src="withBase('/logo.svg')"
+        :src="withBase('/256x256.png')"
         alt="Plass"
         width="96"
         height="96"

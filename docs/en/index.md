@@ -20,7 +20,7 @@ hero:
       text: Design language
       link: /design/design-language
   image:
-    src: /logo.svg
+    src: /logo-32.png
     alt: Plass
 
 features:

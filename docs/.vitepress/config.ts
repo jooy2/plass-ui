@@ -45,6 +45,9 @@ const pubUrl = `https://pub.dev/packages/${
   )?.[1] ?? 'plass_ui'
 }`;
 
+/** The card image. A square mark, which is why the Twitter card is `summary`. */
+const socialImage = `${siteUrl}/256x256.png`;
+
 /**
  * Dart's own logo, for the pub.dev link in the navbar.
  *
@@ -413,7 +416,11 @@ const vitePressConfig: UserConfig = {
     [`${defaultLocale}/:rest*`]: ':rest*'
   },
   head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/logo-32.png' }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/logo-16.png' }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '256x256', href: '/256x256.png' }],
+    ['link', { rel: 'apple-touch-icon', sizes: '180x180', href: '/256x256.png' }],
+    ['link', { rel: 'shortcut icon', href: '/favicon.ico' }],
     // `--plass-primary-solid`, as a literal: a `<meta>` cannot read a custom
     // property, and this is the one place in the site that has to repeat one.
     ['meta', { name: 'theme-color', content: '#3558ef' }],
@@ -422,7 +429,14 @@ const vitePressConfig: UserConfig = {
     // per page and lives in `transformHead`.
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:site_name', content: 'Plass UI' }],
+    ['meta', { property: 'og:image', content: socialImage }],
+    ['meta', { property: 'og:image:width', content: '256' }],
+    ['meta', { property: 'og:image:height', content: '256' }],
+    ['meta', { property: 'og:image:alt', content: 'Plass' }],
+    // `summary` and not `summary_large_image`: the image is a square mark, and
+    // a wide card would letterbox it into a strip of background.
     ['meta', { name: 'twitter:card', content: 'summary' }],
+    ['meta', { name: 'twitter:image', content: socialImage }],
     // Which framework's half of every page is displayed, applied to `<html>`
     // before the first paint. See `data/frameworks.ts`.
     ['script', {}, FRAMEWORK_HEAD_SCRIPT]
@@ -545,7 +559,7 @@ const vitePressConfig: UserConfig = {
     }
   },
   themeConfig: {
-    logo: { src: '/logo.svg', width: 24, height: 24 },
+    logo: { src: '/logo-32.png', width: 24, height: 24 },
     /**
      * `h2` and `h3`, nested.
      *

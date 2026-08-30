@@ -20,7 +20,7 @@ hero:
       text: 디자인 언어
       link: /ko/design/design-language
   image:
-    src: /logo.svg
+    src: /logo-32.png
     alt: Plass
 
 features:

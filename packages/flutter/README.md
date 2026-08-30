@@ -1,3 +1,5 @@
+<img src="https://plass.cdget.com/128x128.png" alt="Plass UI" width="96" height="96" />
+
 # Plass UI for Flutter
 
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/jooy2/plass-ui/blob/main/LICENSE) [![pub package](https://img.shields.io/pub/v/plass_ui.svg)](https://pub.dev/packages/plass_ui)

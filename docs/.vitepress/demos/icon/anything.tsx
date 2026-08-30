@@ -24,7 +24,7 @@ export default function IconAnything() {
       <PlIcon icon={<HeartIcon />} size="lg" />
       <PlIcon icon={<EmHeartIcon />} size="lg" />
       <PlIcon icon="★" size="lg" />
-      <PlIcon icon={<img src="/logo.svg" alt="" />} size="lg" />
+      <PlIcon icon={<img src="/128x128.png" alt="" />} size="lg" />
     </div>
   );
 }

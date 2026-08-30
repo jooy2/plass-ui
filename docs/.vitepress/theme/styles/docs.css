@@ -448,8 +448,8 @@
  *
  * A logo is the one thing on this page that is not a component, so it is the
  * one thing that says whose components these are — and the hero already had
- * nothing in the top-left corner but text. Drawn from an SVG, so there is no
- * source resolution to keep it ahead of.
+ * nothing in the top-left corner but text. Drawn from the 256px mark, which is
+ * more than twice the size it is ever displayed at.
  *
  * `inline-block` rather than a block with `margin: 0 auto`: the hero centres
  * its column below 960px and left-aligns it above, and an inline box follows

@@ -7,7 +7,7 @@ export default function AvatarHero() {
       <PlAvatar size="lg" name="Jane Doe" />
       <PlAvatar size="lg" name="홍길동" variant="solid" color="info" />
       <PlAvatar size="lg" shape="square" variant="glass" name="Plass UI">
-        <img src="/logo.svg" alt="" />
+        <img src="/128x128.png" alt="" />
       </PlAvatar>
       <PlAvatar size="lg" />
     </div>
