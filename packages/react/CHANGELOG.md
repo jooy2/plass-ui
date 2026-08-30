@@ -2,7 +2,7 @@
 
 > This package's history. The Flutter package keeps its own at [`packages/flutter/CHANGELOG.md`](https://github.com/jooy2/plass-ui/blob/main/packages/flutter/CHANGELOG.md), because the two version independently.
 
-## Unreleased
+## 1.2.0 (2026-08-30)
 
 ### Added
 
