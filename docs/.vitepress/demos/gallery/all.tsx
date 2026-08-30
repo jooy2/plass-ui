@@ -31,6 +31,7 @@ import {
   PlCheckbox,
   PlChip,
   PlCollapsible,
+  PlColorPicker,
   PlCombobox,
   PlCommandPalette,
   PlContainer,
@@ -375,6 +376,16 @@ const entries: Entry[] = [
         endPlaceholder="To"
       />
     )
+  },
+  {
+    name: 'PlColorPicker',
+    group: 'inputs',
+    href: 'components/inputs/color-picker',
+    blurb: {
+      en: 'A colour, chosen by eye — a saturation square with a hue rail beside it.',
+      ko: '눈으로 고르는 색입니다. 채도 사각형 옆에 색상 레일이 놓입니다.'
+    },
+    preview: <PlColorPicker size="sm" defaultValue="#1a58d1" />
   },
   {
     name: 'PlCombobox',

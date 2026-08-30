@@ -2842,6 +2842,190 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlColorPicker: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: '트리거의 재질. 폼 안의 다른 필드와 같은 껍데기입니다',
+        en: 'What the trigger is made of. The same shell every other field in a form wears'
+      },
+      sizeDescription: {
+        ko: '트리거의 높이, 패널의 너비, 사각형과 레일의 크기',
+        en: "The trigger's height, the panel's width, and the size of the square and the rails"
+      }
+    }),
+    {
+      name: 'value',
+      type: 'string',
+      description: {
+        ko: '색, CSS 문자열로. 직접 몰고 싶으면 넘기세요',
+        en: 'The colour, as a CSS string. Pass it to drive the picker yourself'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'string',
+      default: "'#1a58d1'",
+      description: {
+        ko: 'uncontrolled 피커가 시작하는 색',
+        en: 'Where an uncontrolled picker starts'
+      }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string) => void',
+      description: {
+        ko: '새 색과 함께, format대로 쓰여서',
+        en: 'Called with the new colour, written in format'
+      }
+    },
+    {
+      name: 'format',
+      type: "'hex' | 'rgb' | 'hsl'",
+      default: "'hex'",
+      description: {
+        ko: '나가는 값이 쓰이는 표기법',
+        en: 'Which notation the value is written in on the way out'
+      }
+    },
+    {
+      name: 'alpha',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '불투명도 레일을 내주고, 값이 네 번째 채널을 갖게 합니다',
+        en: 'Offers an opacity rail, and lets the value carry a fourth channel'
+      }
+    },
+    {
+      name: 'swatches',
+      type: 'readonly string[] | false',
+      description: {
+        ko: '패널 아래의 기성 색들. false면 그리지 않고, 배열이면 기본 세트를 대체합니다',
+        en: 'The ready-made colours under the panel. false draws none; an array replaces the built-in set'
+      }
+    },
+    {
+      name: 'inline',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '팝업 대신 페이지에 패널을 그립니다. 트리거는 없습니다',
+        en: 'Draws the panel in the page instead of in a popup, with no trigger'
+      }
+    },
+    {
+      name: 'editable',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '값을 타이핑할 수 있는 패널 아래의 필드',
+        en: 'The field under the panel that the value can be typed into'
+      }
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: { ko: '컨트롤 위의 라벨', en: 'Label above the control' }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: { ko: '아래의 도움말', en: 'Helper text below it' }
+    },
+    {
+      name: 'error',
+      type: 'ReactNode',
+      description: {
+        ko: '아래의 오류 메시지. 있으면 컨트롤이 invalid가 됩니다',
+        en: 'Error message below. Its presence also turns the control invalid'
+      }
+    },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: { ko: '메시지 없이 같은 상태로', en: 'The same state, without a message' }
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '라벨에 필수 표시를 붙입니다', en: 'Marks the label as required' }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '쓸 수 없고 tab 순서에서 빠집니다',
+        en: 'Unusable and out of the tab order'
+      }
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '색을 보여 주고 바꾸지 못하게 합니다',
+        en: 'Shows the colour and forbids changing it'
+      }
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '트리거를 컨테이너까지 늘립니다',
+        en: 'Stretches the trigger to its container'
+      }
+    },
+    {
+      name: 'clearable',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '컨트롤을 비우는 ×를 내줍니다',
+        en: 'Offers the × that empties the control'
+      }
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: {
+        ko: '이 이름으로 폼과 함께 제출됩니다',
+        en: 'Submits with a form under this name'
+      }
+    },
+    {
+      name: 'open',
+      type: 'boolean',
+      description: { ko: '팝업이 열려 있는지', en: 'Whether the popup is open' }
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: 'uncontrolled 팝업이 시작하는 상태',
+        en: 'Where an uncontrolled popup starts'
+      }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: { ko: '팝업이 열리거나 닫힐 때', en: 'Called when the popup opens or closes' }
+    },
+    {
+      name: 'labels',
+      type: 'Partial<PlColorPickerLabels>',
+      description: {
+        ko: '글자가 없는 부분들의 접근 가능한 이름을 하나씩 덮어씁니다',
+        en: 'Overrides for the accessible names of the parts that have no text on them'
+      }
+    }
+  ],
+
   PlCombobox: [
     ...sharedProps({
       variant: "'glass'",
