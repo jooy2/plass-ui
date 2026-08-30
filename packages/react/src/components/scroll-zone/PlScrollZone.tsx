@@ -100,6 +100,23 @@ export interface PlScrollZoneProps
    * @default true
    */
   drag?: boolean;
+  /**
+   * Turns a vertical wheel over a horizontal strip into scrolling along it.
+   *
+   * A mouse has one wheel and it points the wrong way for a strip that runs
+   * across the box. What a browser does with it there is its own business,
+   * which is the problem: it makes the answer depend on which browser the
+   * reader happens to be in. The pointer being on the strip is them saying
+   * which of the two things under it they meant to move.
+   *
+   * Only the vertical half of a gesture, and only while the strip has somewhere
+   * to go. A trackpad's two fingers, a tilt wheel and Shift held down already
+   * scroll it sideways and are left alone; and the moment it reaches an end the
+   * wheel goes back to the page, so a reader on their way down a long page is
+   * held up by one shelf rather than caught in it.
+   * @default true
+   */
+  wheel?: boolean;
   /** Shows the native scrollbar. @default false */
   scrollbar?: boolean;
   /** What the scrollable region is called — "Categories", "Recent files". */
@@ -147,6 +164,12 @@ const DRAG_THRESHOLD = 4;
 /** Under this, a press in `hold` mode was a tap and moves one item instead. */
 const TAP_MS = 140;
 
+/**
+ * What one line is worth in pixels, for the browsers that report a wheel in
+ * lines rather than in pixels.
+ */
+const WHEEL_LINE = 16;
+
 /** A reader who has asked for less motion gets the cut rather than the travel. */
 function scrollBehavior(): ScrollBehavior {
   return typeof window !== 'undefined' &&
@@ -160,10 +183,11 @@ function scrollBehavior(): ScrollBehavior {
  *
  * The mechanism is an ordinary scroll container, and everything the component
  * offers is a way of driving one. Swiping on a phone, two-finger dragging on a
- * trackpad, the wheel, the arrow keys and the scrollbar are the browser's own
- * and are never intercepted; what is added on top is a pair of buttons for the
- * pointer that has neither a wheel nor a finger, and a mouse drag for the strip
- * that reads as something to pull rather than something to page.
+ * trackpad, the arrow keys and the scrollbar are the browser's own and are
+ * never intercepted; what is added on top is a pair of buttons for the pointer
+ * that has neither a wheel nor a finger, a mouse drag for the strip that reads
+ * as something to pull rather than something to page, and the vertical wheel a
+ * horizontal strip would otherwise have no use for.
  *
  * Nothing is transformed. A translated track would have to argue for an
  * exception to the house rule; a scroll offset does not, and it is also what
@@ -192,6 +216,7 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
       speed = 900,
       snap = false,
       drag = true,
+      wheel = true,
       scrollbar = false,
       variant = 'glass',
       size = 'md',
@@ -301,6 +326,59 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
       },
       [horizontal]
     );
+
+    /*
+     * The wheel, and the one place the component takes an event off the
+     * browser. What a vertical wheel does over a strip that runs across the box
+     * is not the same in every browser, and leaving it alone buys a shelf that
+     * answers the wheel on one machine and sits still on the next.
+     *
+     * A native listener rather than `onWheel`, because React attaches its own
+     * wheel listener to the root passively, and `preventDefault` inside a
+     * passive listener does nothing but log.
+     */
+    React.useEffect(() => {
+      const element = scrollerRef.current;
+
+      if (!element || !wheel || !horizontal) {
+        return;
+      }
+
+      const onWheel = (event: WheelEvent) => {
+        // A gesture that already has a horizontal half is one the browser
+        // scrolls the strip with by itself: a trackpad, a tilt wheel, or Shift
+        // held down.
+        if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) {
+          return;
+        }
+
+        const distance =
+          event.deltaMode === event.DOM_DELTA_LINE
+            ? event.deltaY * WHEEL_LINE
+            : event.deltaMode === event.DOM_DELTA_PAGE
+              ? event.deltaY * element.clientWidth
+              : event.deltaY;
+
+        // `abs`, for the reason `measure` gives: a right-to-left container
+        // counts its scroll backwards from zero.
+        const along = Math.abs(element.scrollLeft);
+        const room =
+          distance > 0 ? element.scrollWidth - element.clientWidth - along > 1 : along > 1;
+
+        // Nothing left this way, so the page has it back. A shelf that swallowed
+        // the wheel at both ends would be a hole a reader scrolls into.
+        if (!room) {
+          return;
+        }
+
+        event.preventDefault();
+        scrollByPixels(distance * forwardSign(), false);
+      };
+
+      element.addEventListener('wheel', onWheel, { passive: false });
+
+      return () => element.removeEventListener('wheel', onWheel);
+    }, [forwardSign, horizontal, scrollByPixels, wheel]);
 
     /**
      * Where each child starts, measured from the leading edge of the viewport

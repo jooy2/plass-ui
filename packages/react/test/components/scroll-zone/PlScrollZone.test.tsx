@@ -32,6 +32,20 @@ function track(screen: Awaited<ReturnType<typeof render>>) {
   return scroller(screen).firstElementChild as HTMLElement;
 }
 
+/**
+ * The two declarations a scroll offset depends on, since no component test
+ * loads CSS and a box that does not clip cannot be scrolled at all. Returns the
+ * undo, which every test that calls this owes a `finally`.
+ */
+function clip() {
+  const style = document.createElement('style');
+
+  style.textContent = '[data-testid="zone"] > [tabindex="0"] { overflow-x: auto; width: 400px; }';
+  document.head.append(style);
+
+  return () => style.remove();
+}
+
 describe('PlScrollZone', () => {
   describe('rendering', () => {
     it('renders every child', async () => {
@@ -277,6 +291,117 @@ describe('PlScrollZone', () => {
 
       expect(screen.getByTestId('zone').element()).toHaveClass('flex-col');
       expect(screen.getByTestId('zone').element().children).toHaveLength(3);
+    });
+  });
+
+  describe('the wheel', () => {
+    /**
+     * A wheel event of the kind a mouse produces, dispatched at the strip. It
+     * is untrusted, so the browser scrolls nothing of its own accord — what
+     * moves the box is the component, which is the whole point of the block.
+     */
+    function wheel(element: HTMLElement, init: WheelEventInit) {
+      const event = new WheelEvent('wheel', { bubbles: true, cancelable: true, ...init });
+
+      element.dispatchEvent(event);
+
+      return event;
+    }
+
+    it('scrolls the strip along on a vertical wheel', async () => {
+      const restore = clip();
+
+      try {
+        const screen = await render(<PlScrollZone data-testid="zone">{cards}</PlScrollZone>);
+        const box = scroller(screen);
+
+        expect(wheel(box, { deltaY: 120 }).defaultPrevented).toBe(true);
+        await expect.poll(() => box.scrollLeft).toBe(120);
+      } finally {
+        restore();
+      }
+    });
+
+    it('counts a wheel that arrives in lines rather than in pixels', async () => {
+      const restore = clip();
+
+      try {
+        const screen = await render(<PlScrollZone data-testid="zone">{cards}</PlScrollZone>);
+        const box = scroller(screen);
+
+        // Three lines, which is one notch of a wheel in the browsers that
+        // report them.
+        wheel(box, { deltaY: 3, deltaMode: 1 });
+
+        await expect.poll(() => box.scrollLeft).toBe(48);
+      } finally {
+        restore();
+      }
+    });
+
+    it('leaves a sideways gesture to the browser', async () => {
+      const restore = clip();
+
+      try {
+        const screen = await render(<PlScrollZone data-testid="zone">{cards}</PlScrollZone>);
+        const box = scroller(screen);
+
+        // A trackpad, a tilt wheel, or Shift held down: the browser already
+        // scrolls the strip with these, and a second handler would double them.
+        expect(wheel(box, { deltaX: 120 }).defaultPrevented).toBe(false);
+        expect(box.scrollLeft).toBe(0);
+      } finally {
+        restore();
+      }
+    });
+
+    it('gives the wheel back once the strip has reached its end', async () => {
+      const restore = clip();
+
+      try {
+        const screen = await render(<PlScrollZone data-testid="zone">{cards}</PlScrollZone>);
+        const box = scroller(screen);
+
+        // Backwards from the start, and forwards from the end: both of them
+        // belong to the page, or a shelf would be a hole a reader scrolls into.
+        expect(wheel(box, { deltaY: -120 }).defaultPrevented).toBe(false);
+
+        box.scrollTo({ left: box.scrollWidth - box.clientWidth, behavior: 'auto' });
+
+        await expect.poll(() => wheel(box, { deltaY: 120 }).defaultPrevented).toBe(false);
+      } finally {
+        restore();
+      }
+    });
+
+    it('leaves the wheel alone when it is turned off', async () => {
+      const restore = clip();
+
+      try {
+        const screen = await render(
+          <PlScrollZone wheel={false} data-testid="zone">
+            {cards}
+          </PlScrollZone>
+        );
+        const box = scroller(screen);
+
+        expect(wheel(box, { deltaY: 120 }).defaultPrevented).toBe(false);
+        expect(box.scrollLeft).toBe(0);
+      } finally {
+        restore();
+      }
+    });
+
+    it('leaves a strip that runs down the page alone', async () => {
+      const screen = await render(
+        <PlScrollZone orientation="vertical" data-testid="zone">
+          {cards}
+        </PlScrollZone>
+      );
+
+      // A vertical wheel over a vertical strip is the browser's own, and it
+      // does the whole job — the overscroll, the momentum and the chaining.
+      expect(wheel(scroller(screen), { deltaY: 120 }).defaultPrevented).toBe(false);
     });
   });
 

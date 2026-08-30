@@ -7532,6 +7532,15 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'wheel',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '가로 zone 위에서 세로로 굴린 휠이 띠를 따라 스크롤하게 합니다. 끝에 닿으면 휠은 페이지로 돌아갑니다',
+        en: 'Turns a vertical wheel over a horizontal zone into scrolling along the strip. At either end it goes back to the page'
+      }
+    },
+    {
       name: 'scrollbar',
       type: 'boolean',
       default: 'false',

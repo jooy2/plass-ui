@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -21,6 +22,7 @@ Widget _zone({
   PlScrollZoneMode mode = PlScrollZoneMode.item,
   int step = 1,
   bool snap = false,
+  bool wheel = true,
   String? label,
   String previousLabel = 'Previous',
   String nextLabel = 'Next',
@@ -36,6 +38,7 @@ Widget _zone({
       mode: mode,
       step: step,
       snap: snap,
+      wheel: wheel,
       label: label,
       previousLabel: previousLabel,
       nextLabel: nextLabel,
@@ -285,6 +288,88 @@ void main() {
         // A lane that came and went would resize the strip under the pointer
         // that had just reached the end of it.
         expect(tester.getSize(find.byType(SingleChildScrollView)).width, withSpare);
+      });
+    });
+
+    group('the wheel', () {
+      /// A mouse parked on the strip, and one turn of its wheel.
+      Future<void> spin(WidgetTester tester, Offset delta, {Finder? on}) async {
+        final pointer = TestPointer(1, PointerDeviceKind.mouse);
+
+        pointer.hover(tester.getCenter(on ?? find.byType(SingleChildScrollView)));
+        await tester.sendEventToBinding(pointer.scroll(delta));
+        await tester.pump();
+      }
+
+      testWidgets('scrolls the strip along on a vertical wheel', (WidgetTester tester) async {
+        final controller = ScrollController();
+        addTearDown(controller.dispose);
+
+        await tester.pumpWidget(_zone(controller: controller));
+        await tester.pumpAndSettle();
+
+        // A horizontal `Scrollable` reads the horizontal half of a scroll and a
+        // mouse wheel only ever produces the vertical one, so without this the
+        // strip under the pointer would not move at all.
+        await spin(tester, const Offset(0, 100));
+
+        expect(controller.offset, 100);
+      });
+
+      testWidgets('leaves the wheel alone when it is turned off', (WidgetTester tester) async {
+        final controller = ScrollController();
+        addTearDown(controller.dispose);
+
+        await tester.pumpWidget(_zone(controller: controller, wheel: false));
+        await tester.pumpAndSettle();
+
+        await spin(tester, const Offset(0, 100));
+
+        expect(controller.offset, 0);
+      });
+
+      testWidgets('hands the wheel back once the strip has reached its end', (
+        WidgetTester tester,
+      ) async {
+        final inner = ScrollController();
+        final outer = ScrollController();
+        addTearDown(inner.dispose);
+        addTearDown(outer.dispose);
+
+        await tester.pumpWidget(
+          host(
+            SingleChildScrollView(
+              controller: outer,
+              child: Column(
+                children: <Widget>[
+                  PlScrollZone(
+                    controller: inner,
+                    spacing: 8,
+                    buttons: PlScrollZoneButtons.none,
+                    children: _cards(),
+                  ),
+                  const SizedBox(height: 600),
+                ],
+              ),
+            ),
+            width: 300,
+            height: 200,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await spin(tester, const Offset(0, 10000), on: find.byType(PlScrollZone));
+
+        expect(inner.offset, inner.position.maxScrollExtent);
+        expect(outer.offset, 0);
+
+        await spin(tester, const Offset(0, 100), on: find.byType(PlScrollZone));
+
+        // The strip has nothing left, so what is behind it takes the wheel. A
+        // shelf that swallowed it at both ends would be a hole a reader scrolls
+        // into.
+        expect(outer.offset, 100);
+        expect(inner.offset, inner.position.maxScrollExtent);
       });
     });
 

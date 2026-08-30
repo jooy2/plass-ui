@@ -133,11 +133,11 @@ class _DragBehavior extends ScrollBehavior {
 /// ```
 ///
 /// The mechanism is an **ordinary scroll view**, and everything the widget
-/// offers is a way of driving one. Swiping, a trackpad, the wheel and the
-/// scrollbar are Flutter's own and are never intercepted; what is added on top
-/// is a pair of buttons for the pointer that has neither a wheel nor a finger,
-/// and a mouse drag for the strip that reads as something to pull rather than
-/// something to page.
+/// offers is a way of driving one. Swiping, a trackpad and the scrollbar are
+/// Flutter's own and are never intercepted; what is added on top is a pair of
+/// buttons for the pointer that has neither a wheel nor a finger, a mouse drag
+/// for the strip that reads as something to pull rather than something to page,
+/// and the vertical wheel a horizontal strip would otherwise have no use for.
 ///
 /// Nothing is transformed. A translated track would have to argue for an
 /// exception to the house rule; a scroll offset does not, and it is also what
@@ -165,6 +165,7 @@ class PlScrollZone extends StatefulWidget {
     this.speed = 900,
     this.snap = false,
     this.drag = true,
+    this.wheel = true,
     this.scrollbar = false,
     this.controller,
     this.variant = PlassVariant.glass,
@@ -217,6 +218,21 @@ class PlScrollZone extends StatefulWidget {
 
   /// Lets a mouse drag the strip along, the way a finger already does.
   final bool drag;
+
+  /// Turns a vertical wheel over a horizontal strip into scrolling along it.
+  ///
+  /// The one gesture the framework has no answer for: a horizontal [Scrollable]
+  /// reads the horizontal half of a scroll and a mouse wheel only ever produces
+  /// the vertical one, so the shelf under the pointer sits still while whatever
+  /// is behind it moves instead. A mouse has one wheel and it points the wrong
+  /// way; the pointer being on the strip is the reader saying which of the two
+  /// things under it they meant to move.
+  ///
+  /// Only the vertical half of a gesture, and only while the strip has
+  /// somewhere to go. A trackpad's two fingers and a tilt wheel already scroll
+  /// it sideways and are left to the framework, and the moment it reaches an
+  /// end the wheel goes back to whatever is behind it.
+  final bool wheel;
 
   /// Draws a scrollbar over the strip.
   final bool scrollbar;
@@ -450,6 +466,42 @@ class _PlScrollZoneState extends State<PlScrollZone> with SingleTickerProviderSt
     _hold = null;
   }
 
+  /// The wheel, and the one place the widget takes an event off the framework.
+  ///
+  /// Registered through the [PointerSignalResolver] rather than acted on where
+  /// it arrives: a scroll view that has claimed the same event — a trackpad's
+  /// two fingers, a tilt wheel, anything with a horizontal half — is deeper in
+  /// the hit test than this listener and registers first, which is what keeps
+  /// the two of them from both moving the strip.
+  void _onPointerSignal(PointerSignalEvent event) {
+    if (event is! PointerScrollEvent || !_scroll.hasClients) {
+      return;
+    }
+
+    final Offset delta = event.scrollDelta;
+
+    if (delta.dy == 0 || delta.dy.abs() <= delta.dx.abs()) {
+      return;
+    }
+
+    final position = _scroll.position;
+    final double target = (position.pixels + delta.dy).clamp(
+      position.minScrollExtent,
+      position.maxScrollExtent,
+    );
+
+    // Nothing left this way, so whatever is behind the strip has it back. A
+    // shelf that swallowed the wheel at both ends would be a hole a reader
+    // scrolls into.
+    if (target == position.pixels) {
+      return;
+    }
+
+    GestureBinding.instance.pointerSignalResolver.register(event, (PointerSignalEvent _) {
+      _scroll.jumpTo(target);
+    });
+  }
+
   /// Snaps to the nearest group when the scrolling stops, however it stopped.
   bool _onScrollEnd(ScrollEndNotification notification) {
     if (!widget.snap || !_scroll.hasClients) {
@@ -633,6 +685,10 @@ class _PlScrollZoneState extends State<PlScrollZone> with SingleTickerProviderSt
         child: strip,
       ),
     );
+
+    if (widget.wheel && _horizontal) {
+      strip = Listener(onPointerSignal: _onPointerSignal, child: strip);
+    }
 
     if (widget.label != null) {
       strip = Semantics(container: true, label: widget.label, child: strip);

@@ -54,7 +54,7 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 ## What it is made of
 
-The mechanism is an **ordinary scroll container**, and everything the component offers is a way of driving one. Swiping, two-finger dragging on a trackpad, the wheel and the scrollbar are the platform's own and are never intercepted; what is added on top is a pair of buttons for the pointer that has neither a wheel nor a finger, and a mouse drag for the strip that reads as something to pull rather than something to page.
+The mechanism is an **ordinary scroll container**, and everything the component offers is a way of driving one. Swiping, two-finger dragging on a trackpad and the scrollbar are the platform's own and are never intercepted; what is added on top is a pair of buttons for the pointer that has neither a wheel nor a finger, a mouse drag for the strip that reads as something to pull rather than something to page, and the vertical wheel a horizontal strip would otherwise have no use for.
 
 Nothing is transformed. A translated track would have to argue for an exception to the [house rule](../../design/design-language); a scroll offset does not — and it is also what makes the strip run the other way under RTL without being told, and keeps the scrollbar honest.
 
@@ -194,6 +194,32 @@ PlScrollZone(drag: false, scrollbar: true, children: items);
 ```
 
 Flutter leaves the mouse out of `dragDevices` by default, which is the same judgement the browser's own scroll containers make and the same one this reverses: dragging a shelf with a mouse is unusual enough to have to be asked for, and a shelf is exactly the place that asks.
+
+:::
+
+### wheel
+
+A vertical wheel over a strip that runs across the box scrolls it along. A mouse has one wheel and it points the wrong way for a horizontal strip, and what happens there is the platform's own business — which is the problem, since it makes the answer depend on which browser or which machine the reader is on. The pointer being on the strip is them saying which of the two things under it they meant to move.
+
+Only the vertical half of a gesture, and only while the strip has somewhere to go: a trackpad's two fingers and a tilt wheel already scroll it sideways and are left alone, and the moment the strip reaches an end the wheel goes back to the page — so a reader on their way down a long page is held up by one shelf rather than caught in it. A vertical zone is left alone entirely, since the wheel already runs the way it does.
+
+::: fw react
+
+```tsx
+<PlScrollZone wheel={false}>{items}</PlScrollZone>
+```
+
+Shift held down is a horizontal gesture too, and is the browser's.
+
+:::
+
+::: fw flutter
+
+```dart
+PlScrollZone(wheel: false, children: items);
+```
+
+A horizontal `Scrollable` reads the horizontal half of a scroll and a mouse wheel only ever produces the vertical one, so without this a shelf under the pointer does not move at all.
 
 :::
 

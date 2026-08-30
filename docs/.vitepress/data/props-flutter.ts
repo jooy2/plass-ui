@@ -3470,6 +3470,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'Lets a mouse drag the strip along. Touch and a trackpad already scroll'
       }
     }),
+    from('PlScrollZone', 'wheel', {
+      type: 'bool',
+      default: 'true',
+      description: {
+        ko: '가로 zone 위에서 세로로 굴린 휠이 띠를 따라 스크롤하게 합니다. 끝에 닿으면 휠은 뒤에 있는 것에게 돌아갑니다',
+        en: 'Turns a vertical wheel over a horizontal zone into scrolling along the strip. At either end it goes back to whatever is behind it'
+      }
+    }),
     from('PlScrollZone', 'scrollbar', { type: 'bool', default: 'false' }),
     {
       name: 'controller',
