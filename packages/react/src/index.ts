@@ -62,6 +62,7 @@ export * from './components/rating/index.js';
 export * from './components/scroll-zone/index.js';
 export * from './components/segmented-button/index.js';
 export * from './components/select/index.js';
+export * from './components/sidebar/index.js';
 export * from './components/skeleton/index.js';
 export * from './components/slider/index.js';
 export * from './components/spoiler/index.js';

@@ -75,6 +75,7 @@ import {
   PlSegment,
   PlSegmentedButton,
   PlSelect,
+  PlSidebar,
   PlSkeleton,
   PlSlider,
   PlSpoiler,
@@ -1207,6 +1208,32 @@ const entries: Entry[] = [
         <PlMenuSeparator />
         <PlMenuItem color="danger">Delete</PlMenuItem>
       </PlMenu>
+    )
+  },
+  {
+    name: 'PlSidebar',
+    group: 'layout',
+    href: 'components/layout/sidebar',
+    blurb: {
+      en: 'A column beside the content, and a drawer once the window is too narrow.',
+      ko: '콘텐츠 옆의 열이고, 창이 좁아지면 drawer가 됩니다.'
+    },
+    preview: (
+      <div className="h-20 w-full overflow-hidden rounded-(--plass-radius-sm)">
+        <PlPageLayout
+          height="auto"
+          scroll="content"
+          collapseBelow="none"
+          skipLink={false}
+          sidebar={
+            <PlSidebar size="xs" width={72} label="Navigation">
+              <span className="text-[0.625rem]">Nav</span>
+            </PlSidebar>
+          }
+        >
+          <div className="flex h-full items-center justify-center text-xs">Content</div>
+        </PlPageLayout>
+      </div>
     )
   },
   {

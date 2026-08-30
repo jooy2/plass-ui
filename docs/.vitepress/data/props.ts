@@ -6914,6 +6914,206 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlSidebar: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: '패널의 재질. 색은 들어가지 않습니다 — 위에 얹힌 것들이 자기 색을 갖고 옵니다',
+        en: 'What the panel is made of. Never dyed — what is on it arrives with colours of its own'
+      },
+      sizeDescription: {
+        ko: '패널의 기본 너비와 내용 둘레의 공기',
+        en: "The panel's default width and the air around its content"
+      }
+    }),
+    {
+      name: 'side',
+      type: "'start' | 'end'",
+      default: "'start'",
+      description: {
+        ko: '어느 끝을 차지하는지. 물리적이 아니라 논리적입니다. PlPageLayout 안에서는 어느 슬롯에 넘겼는지가 이미 정하므로 다시 쓸 필요가 없습니다',
+        en: 'Which end of the band it takes. Logical rather than physical. Inside a PlPageLayout the slot it was handed to has already decided this'
+      }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      description: {
+        ko: '열의 너비 — 픽셀 수 또는 CSS 길이. 없으면 size가 함의하는 너비입니다',
+        en: 'How wide the column is — a number in pixels or any CSS length. Left out, it is the width size implies'
+      }
+    },
+    {
+      name: 'minWidth',
+      type: 'number | string',
+      default: '160',
+      description: { ko: '얼마나 좁게까지 끌 수 있는지', en: 'How narrow it may be dragged' }
+    },
+    {
+      name: 'maxWidth',
+      type: 'number | string',
+      default: '480',
+      description: { ko: '그리고 얼마나 넓게까지', en: 'And how wide' }
+    },
+    {
+      name: 'resizable',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '안쪽 가장자리를 끌어 열의 너비를 바꿀 수 있게 합니다',
+        en: "Lets the reader drag the inner edge to change the column's width"
+      }
+    },
+    {
+      name: 'onResize',
+      type: '(width: number) => void',
+      description: {
+        ko: '가장자리를 끄는 동안 픽셀 너비와 함께 발생합니다',
+        en: 'Fires with the width in pixels while the edge is being dragged'
+      }
+    },
+    {
+      name: 'onResizeEnd',
+      type: '(width: number) => void',
+      description: {
+        ko: '놓았을 때 같은 숫자와 함께 한 번 발생합니다',
+        en: 'Fires once, with the same number, when it is let go'
+      }
+    },
+    {
+      name: 'collapseBelow',
+      type: "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'none'",
+      description: {
+        ko: '열이기를 그만두고 drawer가 되는 창 너비. PlPageLayout의 값이 기본이고, 레이아웃 밖에서는 none입니다',
+        en: "The window width below which it becomes a drawer instead of a column. Defaults to the PlPageLayout's own, and to none outside one"
+      }
+    },
+    {
+      name: 'open',
+      type: 'boolean',
+      description: {
+        ko: 'drawer가 열려 있는지. 접힌 뒤에만 뜻이 있습니다. PlPageLayout 안에서는 레이아웃이 쥡니다',
+        en: 'Whether the drawer is open. Only meaningful once collapsed; inside a PlPageLayout the layout owns it'
+      }
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '레이아웃 밖의 uncontrolled sidebar가 시작하는 상태',
+        en: 'Which state it starts in, for an uncontrolled standalone sidebar'
+      }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: { ko: 'drawer가 열리거나 닫힐 때', en: 'Called when the drawer opens or closes' }
+    },
+    {
+      name: 'sticky',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '페이지가 지나갈 때 열이 자기 자리를 지키는지. 필요 없을 때는 아무 비용도 들지 않습니다',
+        en: 'Whether the column holds its place while the page scrolls past it. It costs nothing when it is not needed'
+      }
+    },
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description: {
+        ko: 'drawer일 때만 그려지는 제목. 열에는 자기가 무엇인지 말해 줄 페이지가 둘레에 있지만, 페이지를 덮은 패널에는 없습니다',
+        en: 'The heading, drawn only while the sidebar is a drawer. A column has the page around it to say what it is; a panel that has covered the page does not'
+      }
+    },
+    {
+      name: 'divider',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '안쪽 가장자리 — 콘텐츠를 마주하는 쪽 — 에 헤어라인을 그립니다',
+        en: 'Draws a hairline down the inner edge — the one facing the content'
+      }
+    },
+    {
+      name: 'padded',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: 'gutter와 내용 위아래의 공기',
+        en: 'The gutter and the air above and below the content'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      default: "'Sidebar'",
+      description: {
+        ko: '영역이 불리는 이름. sidebar가 둘인 페이지는 반드시 써야 합니다',
+        en: 'The name the region is announced by. A page with two sidebars must write one'
+      }
+    },
+    {
+      name: 'closeLabel',
+      type: 'string',
+      default: "'Close sidebar'",
+      description: {
+        ko: '접힌 뒤 drawer의 닫기 버튼이 말하는 내용',
+        en: "What the drawer's close button says, once the sidebar has collapsed"
+      }
+    },
+    {
+      name: 'resizeLabel',
+      type: 'string',
+      default: "'Resize sidebar'",
+      description: { ko: '드래그 손잡이가 불리는 이름', en: 'What the drag handle is announced as' }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: {
+        ko: '안에 든 전부 — nav, 필터 패널, 목차',
+        en: 'Everything in it: a nav, a filter panel, a table of contents'
+      }
+    }
+  ],
+
+  PlSidebarTrigger: [
+    {
+      name: 'side',
+      type: "'start' | 'end'",
+      default: "'start'",
+      description: {
+        ko: '레이아웃의 두 sidebar 중 어느 쪽을 여는지',
+        en: "Which of the layout's two sidebars it opens"
+      }
+    },
+    {
+      name: 'collapseBelow',
+      type: "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'none'",
+      description: {
+        ko: '버튼이 나타나는 너비. sidebar가 접히는 그 너비이고, PlPageLayout에서 물려받습니다',
+        en: 'The width below which the button appears — the same one the sidebar collapses at. Inherited from the PlPageLayout'
+      }
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: {
+        ko: '글리프. 주지 않으면 여기서 그리는 햄버거입니다',
+        en: 'The glyph. A hamburger, drawn here, unless something else is given'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      default: "'Open sidebar' / 'Close sidebar'",
+      description: { ko: '무엇을 하는지, 말로', en: 'What it does, in words' }
+    }
+  ],
+
   PlSkeleton: [
     {
       name: 'shape',
