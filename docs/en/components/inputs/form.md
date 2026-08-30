@@ -7,7 +7,7 @@ order: 18
 
 <p class="plass-lede">A <code>&lt;form&gt;</code> that knows which of its fields is wrong. It collects every field's validity on submit, focuses the first that failed, and puts a server's answer back on the field it belongs to.</p>
 
-<Demo src="form/hero" :flutter="false" :min-height="280" />
+<Demo src="form/hero" :min-height="280" />
 
 ::: fw react
 
@@ -22,6 +22,24 @@ import { PlButton, PlForm, PlTextField } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlForm(
+  key: formKey,
+  errors: errors,
+  onSubmit: save,
+  children: <Widget>[
+    emailField,
+    PlButton(onPressed: () => formKey.currentState?.submit(), child: const Text('Sign in')),
+  ],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlForm" />
@@ -29,6 +47,16 @@ import { PlButton, PlForm, PlTextField } from 'plass-ui';
 ::: fw react
 
 Every native `<form>` attribute passes straight through. `onSubmit` is excluded because this one reports the form's **values** rather than a DOM event, and prevents the native submit so nothing navigates.
+
+:::
+
+::: fw flutter
+
+### PlFormScope
+
+<PropsTable name="PlFormScope" />
+
+What a field and a submit button read off the form around them. It is exported rather than internal for the reason in the differences below: a field here is not part of a native form, so the wiring that is automatic on the web has to be something a caller can reach.
 
 :::
 
@@ -66,9 +94,19 @@ Keyed by the `name` of the field each belongs to. The message is shown on that f
 
 This is where a schema's output goes, and where a form action's response goes. Everything a caller already has for validation stays where it is.
 
-<Demo src="form/errors" :flutter="false" :min-height="240">
+<Demo src="form/errors" :min-height="240">
+
+::: fw react
 
 <<< @/.vitepress/demos/form/errors.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/form/errors.dart
+
+:::
 
 </Demo>
 
@@ -87,6 +125,23 @@ Called with the form's values, and only when every field is valid. The native su
 ```
 
 The values come from the fields' `name`s, which is the same contract a native form has. A field with no `name` is not in the object — and is not in a native submission either.
+
+::: fw flutter
+
+## Differences from the React build
+
+Both of them are the same fact: **there is no native form here.** On the web a field's `name` puts it in the submission and its constraint validation is the browser's, so the form can collect values and route messages on its own. In Flutter a field is a widget holding a controller the caller already made.
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `onSubmit(values)` | `onSubmit()` | The caller owns the controllers, so it already has the values. What the form can say is _that the form is valid_. |
+| `errors` routed to fields automatically | `errors` read with `PlFormScope.errorFor(name)` | Nothing here knows a field's name, so the lookup is explicit — and it is the one piece of wiring this build asks for. |
+| the submit button is `type="submit"` | `PlFormScope.maybeOf(context)?.submit()`, or a `GlobalKey<PlFormState>` | There is no native submit for a button to trigger. |
+| validity from the browser | validity from Flutter's own `FormField` | A `PlTextField` is not a `FormField`; wrap it in one, which is what the demos do. |
+| `validationMode` | the same three names, mapped to `AutovalidateMode` | The names are kept so a reader who has learned one build has learned the other. |
+| `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
+
+:::
 
 ## Accessibility
 

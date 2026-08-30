@@ -248,6 +248,8 @@ import 'package:plass_ui_example/demos/header/hero.dart';
 import 'package:plass_ui_example/demos/header/measure.dart';
 import 'package:plass_ui_example/demos/header/sizes.dart';
 import 'package:plass_ui_example/demos/header/variants.dart';
+import 'package:plass_ui_example/demos/form/errors.dart';
+import 'package:plass_ui_example/demos/form/hero.dart';
 import 'package:plass_ui_example/demos/navigation_menu/columns.dart';
 import 'package:plass_ui_example/demos/navigation_menu/hero.dart';
 import 'package:plass_ui_example/demos/navigation_menu/orientation.dart';
@@ -586,6 +588,8 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'header/variants': _headerVariants,
   'header/sizes': _headerSizes,
   'header/measure': _headerMeasure,
+  'form/hero': _formHero,
+  'form/errors': _formErrors,
   'navigation-menu/hero': _navigationMenuHero,
   'navigation-menu/columns': _navigationMenuColumns,
   'navigation-menu/orientation': _navigationMenuOrientation,
@@ -1012,6 +1016,9 @@ Widget _headerAlign(BuildContext context) => const HeaderAlign();
 Widget _headerVariants(BuildContext context) => const HeaderVariants();
 Widget _headerSizes(BuildContext context) => const HeaderSizes();
 Widget _headerMeasure(BuildContext context) => const HeaderMeasure();
+
+Widget _formHero(BuildContext context) => const FormHero();
+Widget _formErrors(BuildContext context) => const FormErrors();
 
 Widget _navigationMenuHero(BuildContext context) => const NavigationMenuHero();
 Widget _navigationMenuColumns(BuildContext context) => const NavigationMenuColumns();

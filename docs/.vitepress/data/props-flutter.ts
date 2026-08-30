@@ -1608,6 +1608,71 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlFloatingBottomNavigationItem', 'disabled', { type: 'bool', default: 'false' })
   ],
 
+  PlForm: [
+    {
+      name: 'children',
+      type: 'List<Widget>',
+      required: true,
+      description: { ko: '필드들과 제출 버튼', en: 'The fields, and the button that submits them' }
+    },
+    from('PlForm', 'errors', {
+      type: 'Map<String, String>',
+      default: 'const {}',
+      description: {
+        ko: '앱 자신의 검증 바깥에서 온 오류를 필드 이름으로 묶은 것. PlFormScope.errorFor로 읽어 필드의 error에 넘깁니다',
+        en: "Errors from outside the app's own validation, keyed by the name of the field each belongs to. Read with PlFormScope.errorFor and handed to a field's error"
+      }
+    }),
+    from('PlForm', 'onSubmit', {
+      type: 'VoidCallback?',
+      description: {
+        ko: '유효한 제출에서 호출됩니다. 값은 함께 오지 않습니다 — 여기서 필드는 호출자가 만든 controller를 쥐고 있으므로 값은 이미 호출자의 것입니다',
+        en: 'Called on a valid submit — with no values, because a field here holds a controller the caller made, so the caller already has them'
+      }
+    }),
+    from('PlForm', 'validationMode', {
+      type: 'PlFormValidationMode',
+      default: 'PlFormValidationMode.onSubmit',
+      description: {
+        ko: '안의 FormField가 언제 유효성을 판단하는지. Flutter의 AutovalidateMode로 옮겨집니다',
+        en: 'When a FormField inside decides whether it is valid. It maps onto a Flutter AutovalidateMode'
+      }
+    }),
+    from('PlForm', 'size', { type: SIZE, default: 'PlassSize.md' })
+  ],
+
+  PlFormScope: [
+    {
+      name: 'errors',
+      type: 'Map<String, String>',
+      description: { ko: '폼이 지닌 오류들', en: 'The errors the form is holding' }
+    },
+    {
+      name: 'errorFor',
+      type: 'String? Function(String name)',
+      description: {
+        ko: '해당 이름의 필드에 대한 메시지, 없으면 null',
+        en: 'The message for the field called name, or null when there is none'
+      }
+    },
+    {
+      name: 'submit',
+      type: 'bool Function()',
+      description: {
+        ko: '폼의 모든 FormField를 검증하고, 전부 통과하면 onSubmit을 부릅니다',
+        en: "Validates every FormField in the form and, if they all pass, calls the form's onSubmit"
+      }
+    },
+    {
+      name: 'maybeOf',
+      type: 'static PlFormScope? Function(BuildContext)',
+      description: {
+        ko: 'context 위의 폼, 없으면 null',
+        en: 'The form above a context, or null when there is not one'
+      }
+    }
+  ],
+
   PlGrid: [
     from('PlGrid', 'children', {
       name: 'items',

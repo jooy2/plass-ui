@@ -7,7 +7,7 @@ order: 18
 
 <p class="plass-lede">자기 필드 중 무엇이 틀렸는지 아는 <code>&lt;form&gt;</code>입니다. 제출할 때 모든 필드의 유효성을 한 번에 모으고, 처음 실패한 필드로 focus를 옮기고, 서버의 답을 그것이 속한 필드에 되돌려 놓습니다.</p>
 
-<Demo src="form/hero" :flutter="false" :min-height="280" />
+<Demo src="form/hero" :min-height="280" />
 
 ::: fw react
 
@@ -22,6 +22,24 @@ import { PlButton, PlForm, PlTextField } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlForm(
+  key: formKey,
+  errors: errors,
+  onSubmit: save,
+  children: <Widget>[
+    emailField,
+    PlButton(onPressed: () => formKey.currentState?.submit(), child: const Text('Sign in')),
+  ],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlForm" />
@@ -29,6 +47,16 @@ import { PlButton, PlForm, PlTextField } from 'plass-ui';
 ::: fw react
 
 네이티브 `<form>` 속성은 모두 그대로 전달됩니다. `onSubmit`은 DOM 이벤트가 아니라 폼의 **값**을 보고하고 네이티브 제출을 막아 아무 데도 이동하지 않기 때문에 제외됩니다.
+
+:::
+
+::: fw flutter
+
+### PlFormScope
+
+<PropsTable name="PlFormScope" />
+
+필드와 제출 버튼이 둘레의 폼에서 읽는 것입니다. internal이 아니라 export되어 있는데, 이유는 아래 차이점에 있습니다 — 여기서 필드는 네이티브 form의 일부가 아니므로, 웹에서 자동인 배선을 호출하는 쪽이 닿을 수 있어야 합니다.
 
 :::
 
@@ -66,9 +94,19 @@ import { PlButton, PlForm, PlTextField } from 'plass-ui';
 
 스키마의 출력이 여기로 오고, form action의 응답도 여기로 옵니다. 검증을 위해 이미 가진 것은 전부 있던 자리에 그대로 둡니다.
 
-<Demo src="form/errors" :flutter="false" :min-height="240">
+<Demo src="form/errors" :min-height="240">
+
+::: fw react
 
 <<< @/.vitepress/demos/form/errors.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/form/errors.dart
+
+:::
 
 </Demo>
 
@@ -87,6 +125,23 @@ import { PlButton, PlForm, PlTextField } from 'plass-ui';
 ```
 
 값은 필드의 `name`에서 나옵니다. 네이티브 폼과 같은 계약입니다. `name`이 없는 필드는 이 객체에 없고, 네이티브 제출에도 없습니다.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+둘 다 같은 사실에서 나옵니다. **여기에는 네이티브 form이 없습니다.** 웹에서는 필드의 `name`이 그것을 제출에 넣고 제약 검증은 브라우저의 것이라, 폼이 스스로 값을 모으고 메시지를 배달할 수 있습니다. Flutter에서 필드는 호출자가 이미 만든 controller를 쥔 위젯입니다.
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `onSubmit(values)` | `onSubmit()` | controller가 호출자의 것이므로 값도 이미 호출자에게 있습니다. 폼이 말할 수 있는 것은 *폼이 유효하다*는 사실입니다. |
+| 자동으로 필드에 배달되는 `errors` | `PlFormScope.errorFor(name)`으로 읽는 `errors` | 여기서는 아무것도 필드의 이름을 모르므로 조회가 명시적입니다. 이 빌드가 요구하는 유일한 배선이 그것입니다. |
+| `type="submit"`인 제출 버튼 | `PlFormScope.maybeOf(context)?.submit()` 또는 `GlobalKey<PlFormState>` | 버튼이 촉발할 네이티브 제출이 없습니다. |
+| 브라우저에서 오는 유효성 | Flutter 자신의 `FormField`에서 오는 유효성 | `PlTextField`는 `FormField`가 아닙니다. 데모가 하듯 하나로 감싸세요. |
+| `validationMode` | 같은 세 이름, `AutovalidateMode`로 옮김 | 한쪽을 배운 독자가 다른 쪽도 배운 것이 되도록 이름을 유지합니다. |
+| `className`, `style`, 네이티브 속성 | — | 전달할 class 목록도 style 속성도 없습니다. |
+
+:::
 
 ## 접근성
 
