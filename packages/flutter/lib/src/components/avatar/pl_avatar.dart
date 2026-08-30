@@ -4,6 +4,7 @@ library;
 
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/avatar_group.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -69,15 +70,15 @@ class PlAvatar extends StatefulWidget {
     this.name,
     this.initials,
     this.semanticLabel,
-    this.shape = PlAvatarShape.circle,
-    this.variant = PlassVariant.ghost,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.elevation = 0,
+    this.shape,
+    this.variant,
+    this.size,
+    this.color,
+    this.elevation,
     this.child,
     super.key,
   }) : assert(
-         elevation >= plassElevationMin && elevation <= plassElevationMax,
+         elevation == null || (elevation >= plassElevationMin && elevation <= plassElevationMax),
          'elevation must be between $plassElevationMin and $plassElevationMax',
        );
 
@@ -109,28 +110,29 @@ class PlAvatar extends StatefulWidget {
   /// out says the name twice.
   final String? semanticLabel;
 
-  /// The crop.
-  final PlAvatarShape shape;
+  /// The crop. `null` is "this avatar did not say" — a [PlAvatarGroup] around
+  /// it answers next, and [PlAvatarShape.circle] last.
+  final PlAvatarShape? shape;
 
   /// What the sheet behind the fallback is made of. Invisible once a picture has
   /// loaded, apart from the edge it keeps.
   ///
   /// [PlassVariant.ghost] is the default: a directory is a page of avatars, and
   /// a page of saturated circles is a page nobody can read a name off.
-  final PlassVariant variant;
+  final PlassVariant? variant;
 
   /// The box the picture is drawn in — the control heights, so an avatar and the
   /// button beside it in a toolbar are the same height.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Drop shadow depth, `0`–`3`.
   ///
   /// `0` is the default: an avatar is a picture set into the page rather than a
   /// key resting on it.
-  final PlassElevation elevation;
+  final PlassElevation? elevation;
 
   /// The fallback, drawn instead of the initials. An icon, a logo, a single
   /// emoji — whatever stands in for this particular thing when there is no
@@ -175,6 +177,28 @@ class _PlAvatarState extends State<PlAvatar> {
   /// arrived is the same case as one that never will.
   bool _failed = false;
 
+  /// The stack this face is in, or `null`.
+  PlassAvatarGroupScope? _group;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _group = PlassAvatarGroupScope.maybeOf(context);
+  }
+
+  /* The five axes a stack may answer for. `null` on the widget is "this avatar
+     did not say", so the group is asked next and the house default last. */
+
+  PlAvatarShape get _shape => widget.shape ?? _group?.shape ?? PlAvatarShape.circle;
+
+  PlassVariant get _variant => widget.variant ?? _group?.variant ?? PlassVariant.ghost;
+
+  PlassSize get _size => widget.size ?? _group?.size ?? PlassSize.md;
+
+  PlassColor get _color => widget.color ?? _group?.color ?? PlassColor.primary;
+
+  PlassElevation get _elevation => widget.elevation ?? _group?.elevation ?? 0;
+
   @override
   void didUpdateWidget(PlAvatar oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -187,8 +211,8 @@ class _PlAvatarState extends State<PlAvatar> {
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final family = tokens.family(widget.color);
-    final box = controlHeight[widget.size]!;
+    final family = tokens.family(_color);
+    final box = controlHeight[_size]!;
 
     final derived = widget.name != null ? PlAvatar.initialsOf(widget.name!) : '';
     final standIn = widget.initials ?? (derived.isEmpty ? null : derived);
@@ -199,21 +223,16 @@ class _PlAvatarState extends State<PlAvatar> {
     // the name spelled out beside it.
     final speaks = widget.child != null || standIn != null;
 
-    final surface = markSurface(
-      tokens,
-      family,
-      variant: widget.variant,
-      elevation: widget.elevation,
-    );
+    final surface = markSurface(tokens, family, variant: _variant, elevation: _elevation);
 
-    final radius = widget.shape == PlAvatarShape.circle
+    final radius = _shape == PlAvatarShape.circle
         ? BorderRadius.circular(box)
-        : BorderRadius.circular(PlassTokens.radius[widget.size]!);
+        : BorderRadius.circular(PlassTokens.radius[_size]!);
 
     Widget fallback = DefaultTextStyle.merge(
       style: TextStyle(
         color: surface.ink,
-        fontSize: _initialsText[widget.size]!,
+        fontSize: _initialsText[_size]!,
         fontWeight: FontWeight.w600,
         letterSpacing: 0.4,
         height: 1,

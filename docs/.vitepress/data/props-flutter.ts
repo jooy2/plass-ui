@@ -615,10 +615,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
   ],
 
   PlAvatar: [
-    from('PlAvatar', 'variant', { type: VARIANT, default: 'PlassVariant.ghost' }),
-    from('PlAvatar', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlAvatar', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlAvatar', 'elevation', { type: 'int', default: '0' }),
+    from('PlAvatar', 'variant', { type: 'PlassVariant?', default: 'PlassVariant.ghost' }),
+    from('PlAvatar', 'size', { type: 'PlassSize?', default: 'PlassSize.md' }),
+    from('PlAvatar', 'color', { type: 'PlassColor?', default: 'PlassColor.primary' }),
+    from('PlAvatar', 'elevation', { type: 'int?', default: '0' }),
     from('PlAvatar', 'src', {
       name: 'image',
       type: 'ImageProvider?',
@@ -630,8 +630,42 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlAvatar', 'name', { type: 'String?' }),
     from('PlAvatar', 'initials', { type: 'String?' }),
     from('PlAvatar', 'alt', { name: 'semanticLabel', type: 'String?' }),
-    from('PlAvatar', 'shape', { type: 'PlAvatarShape', default: 'PlAvatarShape.circle' }),
+    from('PlAvatar', 'shape', { type: 'PlAvatarShape?', default: 'PlAvatarShape.circle' }),
     from('PlAvatar', 'children', { name: 'child', type: 'Widget?' })
+  ],
+
+  PlAvatarGroup: [
+    from('PlAvatarGroup', 'children', {
+      name: 'avatars',
+      type: 'List<PlAvatar>',
+      required: true,
+      description: {
+        ko: '얼굴들. Widget이 아니라 PlAvatar인 것은, 다음 얼굴을 얹으려면 앞의 것이 얼마나 넓은지 알아야 하기 때문입니다',
+        en: 'The faces — typed as PlAvatar rather than as widgets, because the stack has to know how wide a face is to lay the next one over it'
+      }
+    }),
+    from('PlAvatarGroup', 'max', { type: 'int?' }),
+    from('PlAvatarGroup', 'total', { type: 'int?' }),
+    from('PlAvatarGroup', 'overlap', {
+      type: 'double?',
+      description: {
+        ko: '각 avatar가 앞의 것 아래로 얼마나 들어갈지, 논리 픽셀로. 없으면 size의 일정 비율입니다',
+        en: 'How far each avatar sits under the one before it, in logical pixels. Left out it is a fraction of size'
+      }
+    }),
+    from('PlAvatarGroup', 'shape', { type: 'PlAvatarShape', default: 'PlAvatarShape.circle' }),
+    from('PlAvatarGroup', 'variant', { type: VARIANT, default: 'PlassVariant.ghost' }),
+    from('PlAvatarGroup', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlAvatarGroup', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlAvatarGroup', 'elevation', { type: 'int', default: '0' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '이 쌓기가 무엇의 집합인지. 다른 것이 그것을 말하고 있지 않을 때 이름을 주세요',
+        en: 'What the stack is a stack *of*. Name it when nothing else is saying so'
+      }
+    }
   ],
 
   PlBadge: [

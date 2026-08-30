@@ -54,11 +54,15 @@ import 'package:plass_ui_example/demos/aspect_ratio/hero.dart';
 import 'package:plass_ui_example/demos/aspect_ratio/ratios.dart';
 import 'package:plass_ui_example/demos/avatar/colors.dart';
 import 'package:plass_ui_example/demos/avatar/fallback.dart';
-import 'package:plass_ui_example/demos/avatar/group.dart';
 import 'package:plass_ui_example/demos/avatar/hero.dart';
 import 'package:plass_ui_example/demos/avatar/shapes.dart';
 import 'package:plass_ui_example/demos/avatar/sizes.dart';
 import 'package:plass_ui_example/demos/avatar/variants.dart';
+import 'package:plass_ui_example/demos/avatar_group/hero.dart';
+import 'package:plass_ui_example/demos/avatar_group/max.dart';
+import 'package:plass_ui_example/demos/avatar_group/overlap.dart';
+import 'package:plass_ui_example/demos/avatar_group/sizes.dart';
+import 'package:plass_ui_example/demos/avatar_group/variants.dart';
 import 'package:plass_ui_example/demos/badge/colors.dart';
 import 'package:plass_ui_example/demos/badge/counts.dart';
 import 'package:plass_ui_example/demos/badge/dot.dart';
@@ -584,7 +588,11 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'avatar/shapes': _avatarShapes,
   'avatar/colors': _avatarColors,
   'avatar/fallback': _avatarFallback,
-  'avatar/group': _avatarGroup,
+  'avatar-group/hero': _avatarGroupHero,
+  'avatar-group/variants': _avatarGroupVariants,
+  'avatar-group/max': _avatarGroupMax,
+  'avatar-group/overlap': _avatarGroupOverlap,
+  'avatar-group/sizes': _avatarGroupSizes,
   'badge/hero': _badgeHero,
   'badge/variants': _badgeVariants,
   'badge/sizes': _badgeSizes,
@@ -1025,7 +1033,11 @@ Widget _avatarSizes(BuildContext context) => const AvatarSizes();
 Widget _avatarShapes(BuildContext context) => const AvatarShapes();
 Widget _avatarColors(BuildContext context) => const AvatarColors();
 Widget _avatarFallback(BuildContext context) => const AvatarFallback();
-Widget _avatarGroup(BuildContext context) => const AvatarGroup();
+Widget _avatarGroupHero(BuildContext context) => const AvatarGroupHero();
+Widget _avatarGroupVariants(BuildContext context) => const AvatarGroupVariants();
+Widget _avatarGroupMax(BuildContext context) => const AvatarGroupMax();
+Widget _avatarGroupOverlap(BuildContext context) => const AvatarGroupOverlap();
+Widget _avatarGroupSizes(BuildContext context) => const AvatarGroupSizes();
 
 Widget _badgeHero(BuildContext context) => const BadgeHero();
 Widget _badgeVariants(BuildContext context) => const BadgeVariants();
