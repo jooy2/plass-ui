@@ -117,6 +117,46 @@ order: 2
 2. **두 끝끼리의 관계.** 밝기가 아니라 _hue_ 가 달라야 합니다. 그냥 더 어두운 두 번째 끝은 컨트롤을 다시 성형된 키로 만들고, 그건 이 라이브러리가 한 버전을 들여 벗어난 모양입니다.
 3. **두 테마 모두에서 accent와 페이지의 대비.** _읽어야_ 하는 값입니다.
 
+## React에서 토큰 지정하기
+
+::: fw react
+
+토큰을 꼭 스타일시트에 써야 하는 것은 아닙니다. `--plass-*`는 모두 평범한 custom property이므로 inline `style`로 지정할 수 있고, 이건 보기보다 중요합니다. inline 선언은 어떤 class보다도 강하기 때문입니다.
+
+라이브러리는 테두리와 그림자, focus ring, fill을 Tailwind의 _arbitrary property_ — `[box-shadow:var(--p-elev),var(--p-lift)]` 같은 형태 — 로 씁니다. Tailwind는 이런 클래스를 생성된 스타일시트의 가장 뒤에 정렬하므로, 그 뒤에 덧붙인 `shadow-none`은 내용과 무관하게 순서에서 집니다. 그 아래에 있는 토큰은 지지 않습니다.
+
+```tsx
+<PlButton style={{ '--plass-radius-md': '4px' }}>Save</PlButton>
+```
+
+그리고 custom property는 cascade되므로, 감싸는 요소에 한 줄이면 그 안 전체가 바뀝니다.
+
+```tsx
+<div style={{ '--plass-radius-md': '4px', '--plass-blur': '10px' }}>
+  <PlCard>…</PlCard>
+  <PlButton>Save</PlButton>
+</div>
+```
+
+TypeScript도 둘 다 받습니다. React의 `CSSProperties`에는 index signature가 없어서, 패키지를 import하면 `--plass-*` 키를 받도록 넓혀 줍니다. 넓어지는 것은 그것뿐이라 다른 custom property의 오타는 여전히 오타입니다.
+
+한 번 써 두고 여러 곳에 쓰는 override 묶음이라면 `PlassTokens`가 더 엄격한 형태입니다. 토큰이 아닌 이름은 컴파일되지 않습니다.
+
+```tsx
+import type { PlassTokens } from 'plass-ui';
+
+const quiet: PlassTokens = {
+  '--plass-radius-md': '4px',
+  '--plass-shadow-1': 'none'
+};
+
+<PlButton style={quiet}>Save</PlButton>;
+```
+
+컴포넌트가 _자기 자신에게_ 쓰는 `--p-*`는 여기에 포함되지 않습니다. 그건 라이브러리 자신의 계산값 — 이 컨트롤이 어떤 계열로 정해졌는지, 이 `elevation`에서 그림자가 얼마인지 — 이고, 그것을 정하는 것은 `color`, `variant`, `elevation` prop입니다.
+
+:::
+
 ## 중립색
 
 | 토큰 | 하는 일 |

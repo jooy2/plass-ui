@@ -117,6 +117,46 @@ Three things to check when you do:
 2. **The two ends against each other.** They should differ in _hue_, not in lightness. A second end that is merely darker turns the control back into a moulded key, which is the shape this library spent a version getting rid of.
 3. **The accent against the page**, in both themes. It is the value that has to be _read_.
 
+## Setting a token from React
+
+::: fw react
+
+A token does not have to be set in a stylesheet. Every `--plass-*` value is an ordinary custom property, so an inline `style` sets one — and that matters more than it looks, because an inline declaration beats every class there is.
+
+The library writes its edge, its shadow, its focus ring and its fill as Tailwind _arbitrary properties_ — `[box-shadow:var(--p-elev),var(--p-lift)]` and the like — and Tailwind sorts those last in the generated stylesheet. A `shadow-none` appended after one loses on order, whatever it says. The token underneath it does not.
+
+```tsx
+<PlButton style={{ '--plass-radius-md': '4px' }}>Save</PlButton>
+```
+
+And because a custom property cascades, one declaration on a wrapper is a whole section:
+
+```tsx
+<div style={{ '--plass-radius-md': '4px', '--plass-blur': '10px' }}>
+  <PlCard>…</PlCard>
+  <PlButton>Save</PlButton>
+</div>
+```
+
+TypeScript accepts both. React's `CSSProperties` has no index signature of its own, so importing the package widens it to take any `--plass-*` key — and only those, so a typo in any other custom property is still a typo.
+
+For a set of overrides written once and used in several places, `PlassTokens` is the stricter form: a name that is not a token fails to compile.
+
+```tsx
+import type { PlassTokens } from 'plass-ui';
+
+const quiet: PlassTokens = {
+  '--plass-radius-md': '4px',
+  '--plass-shadow-1': 'none'
+};
+
+<PlButton style={quiet}>Save</PlButton>;
+```
+
+The `--p-*` properties a component writes onto _itself_ are not part of this. Those are the library's own working values — which family this control resolved to, what its shadow costs at this `elevation` — and `color`, `variant` and `elevation` are the props that decide them.
+
+:::
+
 ## Neutrals
 
 | Token | Job |

@@ -165,6 +165,115 @@ export interface PlassStyleProps {
 }
 
 /* ---------------------------------------------------------------------------
+ * The token channel
+ *
+ * A `className` is not the only way a caller changes how a component looks, and
+ * on the parts of a Plass surface that matter most it is not even the effective
+ * one. The library writes its edge, its shadow, its focus ring and its fill as
+ * Tailwind *arbitrary properties* — `[box-shadow:var(--p-elev),var(--p-lift)]`
+ * and friends — and those sort last in the generated stylesheet, so an ordinary
+ * utility appended after them loses on order no matter what it says.
+ *
+ * What does reach them is the custom property underneath: every one of those
+ * declarations reads a `--plass-*` token, and a token set in an inline `style`
+ * beats every class there is. It also *cascades*, which the other channel does
+ * not — set one on a wrapping `<div>` and every Plass component inside it
+ * answers, which is usually what a caller actually wanted.
+ *
+ * So the tokens are the library's real theming surface, and the only thing
+ * standing between a caller and them was TypeScript: React's `CSSProperties`
+ * has no index signature, so `style={{ '--plass-radius-md': '4px' }}` is an
+ * error before it is anything else. The augmentation at the bottom of this
+ * section is what opens it, and it is deliberately narrow — `--plass-*` and
+ * nothing else, so a typo in any other custom property is still a typo.
+ * ------------------------------------------------------------------------- */
+
+/**
+ * The twelve slots a colour family is cut into.
+ *
+ * Not a vocabulary a caller invents in: these are the names `styles.css`
+ * declares six times over, once per family, and a component reads them through
+ * its `--p-*` locals rather than by name. They are spelled out here so that
+ * `PlassToken` can be a real union rather than a string.
+ */
+export type PlassColorSlot =
+  | 'accent'
+  | 'fill'
+  | 'line'
+  | 'line-hover'
+  | 'on-solid'
+  | 'ring'
+  | 'soft'
+  | 'soft-hover'
+  | 'soft-press'
+  | 'solid'
+  | 'solid-to'
+  | 'tint';
+
+/**
+ * Every design token a caller may set, by name.
+ *
+ * The `--p-*` locals a component writes onto itself are **not** here on
+ * purpose. Those are the library talking to itself — which family this control
+ * resolved to, what its shadow costs at this `elevation` — and a caller who
+ * sets one is setting the answer rather than the question. `color`, `variant`
+ * and `elevation` are the props that decide them.
+ */
+export type PlassToken =
+  | `--plass-${PlassColor}-${PlassColorSlot}`
+  | `--plass-radius-${PlassSize}`
+  | `--plass-shadow-${0 | 1 | 2 | 3 | 4}`
+  | '--plass-shadow-ambient'
+  | '--plass-bg-from'
+  | '--plass-bg-to'
+  | '--plass-blur'
+  | '--plass-border'
+  | '--plass-divider'
+  | '--plass-duration'
+  | '--plass-duration-slow'
+  | '--plass-ease'
+  | '--plass-fg'
+  | '--plass-flash-on-fill'
+  | '--plass-glass'
+  | '--plass-glass-hover'
+  | '--plass-glass-line'
+  | '--plass-glass-press'
+  | '--plass-gloss-glass'
+  | '--plass-glow-angle'
+  | '--plass-glow-on-fill'
+  | '--plass-muted-fg'
+  | '--plass-scrim'
+  | '--plass-stripe'
+  | '--plass-surface'
+  | '--plass-tint-strength'
+  | '--plass-track'
+  | '--plass-well'
+  | '--plass-z-portal';
+
+/**
+ * A set of token overrides, on its own.
+ *
+ * Not a `style` object — deliberately. The augmentation below widens
+ * `CSSProperties` to accept any `--plass-*` key, which is what makes the
+ * channel usable at all but also means a typo inside a `style` is a
+ * declaration nobody reads rather than an error. This type is not widened, so
+ * a name that is not a token fails to compile: write the theme here, once, and
+ * spread it into as many `style` props as it applies to.
+ */
+export type PlassTokens = Partial<Record<PlassToken, string | number>>;
+
+declare module 'react' {
+  interface CSSProperties {
+    /**
+     * A Plass design token. See `PlassToken` for the names, and
+     * [the token reference](https://plass.cdget.com/design/color) for what each
+     * one paints.
+     */
+    [token: `--plass-${string}`]: string | number | undefined;
+  }
+}
+
+/* ---------------------------------------------------------------------------
  * Motion
  *
  * The vocabulary the `PlAnimate*` components share. It is one set of names for

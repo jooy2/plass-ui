@@ -206,4 +206,32 @@ describe('plass-ui/styles.css', () => {
       }
     });
   });
+
+  describe('the token channel', () => {
+    it('lets a token set on the component itself beat the class that reads it', async () => {
+      const screen = await render(<PlButton>Save</PlButton>);
+      const plain = getComputedStyle(screen.getByRole('button').element()).borderRadius;
+
+      await screen.rerender(<PlButton style={{ '--plass-radius-md': '3px' }}>Save</PlButton>);
+      const overridden = getComputedStyle(screen.getByRole('button').element()).borderRadius;
+
+      // Not a claim about what the radius *is* — only that the token reached
+      // the `rounded-(--plass-radius-md)` the component wrote, which is what no
+      // appended utility can be relied on to do.
+      expect(overridden).toBe('3px');
+      expect(overridden).not.toBe(plain);
+    });
+
+    it('lets a token set on an ancestor reach every component under it', async () => {
+      const screen = await render(
+        <div style={{ '--plass-radius-md': '3px' }}>
+          <PlButton>Save</PlButton>
+        </div>
+      );
+
+      // The half a `className` cannot do at all: one declaration on a wrapper,
+      // and everything inside it answers, because a custom property cascades.
+      expect(getComputedStyle(screen.getByRole('button').element()).borderRadius).toBe('3px');
+    });
+  });
 });
