@@ -3999,6 +3999,49 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlForm: [
+    {
+      name: 'validationMode',
+      type: "'onSubmit' | 'onBlur' | 'onChange'",
+      default: "'onSubmit'",
+      description: {
+        ko: '필드가 언제 유효성을 판단하는지. onSubmit은 제출할 때, 그리고 그 뒤로는 바뀔 때마다입니다',
+        en: 'When a field validates. onSubmit is on submit, and on every change afterwards'
+      }
+    },
+    {
+      name: 'errors',
+      type: 'Record<string, string | string[]>',
+      description: {
+        ko: '브라우저 자신의 검증 바깥에서 온 오류 — 서버, form action, 스키마 — 를 필드의 name으로 묶은 것. 해당 필드에 표시되고, 그 필드가 바뀌면 지워집니다',
+        en: "Errors from outside the browser's own validation — a server, a form action, a schema — keyed by the name of the field each belongs to. Shown on that field, and cleared as soon as it changes"
+      }
+    },
+    {
+      name: 'onSubmit',
+      type: '(values: Record<string, unknown>) => void',
+      description: {
+        ko: '유효한 제출에서 폼의 값과 함께 호출됩니다. 네이티브 submit은 막히므로 아무 데도 이동하지 않습니다',
+        en: "Called on a valid submit, with the form's values. The native submit event is prevented, so nothing navigates"
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '자식들 사이의 간격. 폼은 스택이고, 이건 어느 칸에 쌓을지입니다',
+        en: "The gap between the form's children. A form is a stack, and this is which rung it stacks on"
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '필드들과 제출 버튼', en: 'The fields, and the button that submits them' }
+    }
+  ],
+
   PlGrid: [
     {
       name: 'columns',

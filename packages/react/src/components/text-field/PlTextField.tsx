@@ -297,11 +297,21 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
         </Field.Description>
       ) : null}
 
+      {/* Two branches rather than one, because Base UI's own message is what
+          the second is for. With a caller's `error` the box is theirs and
+          `match` shows it unconditionally; without one it is left to render
+          whatever made the field invalid — the browser's constraint message,
+          or a `PlForm`'s `errors` entry for this field's `name`. Passing
+          `children` in that case would overwrite the message with nothing,
+          and a field that goes red with nothing said is one a reader has to
+          guess at. */}
       {hasError ? (
         <Field.Error match className={[metaTextClasses[size], 'text-(--p-accent)'].join(' ')}>
           {error}
         </Field.Error>
-      ) : null}
+      ) : (
+        <Field.Error className={[metaTextClasses[size], 'text-(--p-accent)'].join(' ')} />
+      )}
     </Field.Root>
   );
 });

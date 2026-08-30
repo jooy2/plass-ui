@@ -42,6 +42,7 @@ import {
   PlFloatingBottomNavigation,
   PlFloatingBottomNavigationItem,
   PlFooter,
+  PlForm,
   PlGrid,
   PlGridItem,
   PlHeader,
@@ -1136,6 +1137,23 @@ const entries: Entry[] = [
           </PlGridItem>
         ))}
       </PlGrid>
+    )
+  },
+  {
+    name: 'PlForm',
+    group: 'inputs',
+    href: 'components/inputs/form',
+    blurb: {
+      en: 'A form that knows which of its fields is wrong.',
+      ko: '자기 필드 중 무엇이 틀렸는지 아는 폼입니다.'
+    },
+    preview: (
+      <PlForm size="sm" className="w-full">
+        <PlTextField name="email" size="sm" label="Email" required />
+        <PlButton type="submit" size="sm">
+          Sign in
+        </PlButton>
+      </PlForm>
     )
   },
   {

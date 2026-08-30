@@ -37,6 +37,7 @@ export * from './components/drawer/index.js';
 export * from './components/file-picker/index.js';
 export * from './components/floating-bottom-navigation/index.js';
 export * from './components/footer/index.js';
+export * from './components/form/index.js';
 export * from './components/grid/index.js';
 export * from './components/header/index.js';
 export * from './components/highlight/index.js';
