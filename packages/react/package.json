@@ -1,6 +1,6 @@
 {
   "name": "plass-ui",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "A React UI component library made of glass and gradients — smooth tinted surfaces, shadows in their own colour, and light that follows the pointer. Accessible and themeable, ESM only, types included, dark mode built in.",
   "type": "module",
   "types": "dist/index.d.ts",
@@ -103,11 +103,11 @@
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@tailwindcss/postcss": "^4.3.3",
-    "@types/node": "^26.3.0",
+    "@types/node": "^26.4.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",
     "@typescript-eslint/parser": "^8.68.0",
-    "@vitejs/plugin-react": "^6.1.0",
+    "@vitejs/plugin-react": "^6.1.1",
     "@vitest/browser": "^4.1.11",
     "@vitest/browser-playwright": "^4.1.11",
     "esbuild": "^0.28.2",
