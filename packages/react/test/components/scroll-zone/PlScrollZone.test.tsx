@@ -362,7 +362,26 @@ describe('PlScrollZone', () => {
 
         // A trackpad, a tilt wheel, or Shift held down: the browser already
         // scrolls the strip with these, and a second handler would double them.
-        expect(wheel(box, { deltaX: 120 }).defaultPrevented).toBe(false);
+        //
+        // WebKit runs that default scroll for a scripted event too, so the
+        // browser's own half is taken off the box by a listener sitting behind
+        // the component's. What is read there is whether the component took the
+        // event first, and what is left on the box is whatever it scrolled.
+        let taken: boolean | undefined;
+        const behind = (event: WheelEvent) => {
+          taken = event.defaultPrevented;
+          event.preventDefault();
+        };
+
+        box.addEventListener('wheel', behind, { passive: false });
+
+        try {
+          wheel(box, { deltaX: 120 });
+        } finally {
+          box.removeEventListener('wheel', behind);
+        }
+
+        expect(taken).toBe(false);
         expect(box.scrollLeft).toBe(0);
       } finally {
         restore();

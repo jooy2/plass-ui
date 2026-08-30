@@ -96,7 +96,13 @@ describe('PlCommandPalette', () => {
       const screen = await render(<PlCommandPalette items={items} shortcut={false} defaultOpen />);
 
       await expect.element(screen.getByText('Put it on the clipboard')).toBeVisible();
-      await expect.element(screen.getByText('⌘', { exact: false })).toBeVisible();
+
+      // `Mod` is a different cap on every platform — `⌘` on a Mac and `Ctrl`
+      // everywhere else — so what is asserted on is the letter beside it, which
+      // is the same wherever the suite runs.
+      await expect
+        .element(screen.getByRole('option').first().getByText('N', { exact: true }))
+        .toBeVisible();
     });
   });
 
