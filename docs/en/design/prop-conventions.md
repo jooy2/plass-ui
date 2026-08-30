@@ -53,6 +53,73 @@ These are the rules a new component is checked against.
 - **`render` is the escape hatch**, spelled the same way everywhere — Base UI's own prop, passed through. It replaces the element without changing the surface.
 - **Native attributes pass through.** A component that wraps an `<input>` takes every `<input>` attribute, minus the ones that collide with an axis above (`color`, `size`).
 
+## Styling a component from outside
+
+::: fw react
+
+Four channels, and they are not interchangeable. Reach for them in this order.
+
+### 1. `className`, for layout
+
+A `className` lands on the one element a reader would point at and call the component: a `PlButton`'s `<button>`, a `PlModal`'s sheet, a field's stack. It joins the component's own classes rather than replacing them, and each component's Props section says which element that is.
+
+It is the right channel for where a component sits and how much room it takes — a `w-full`, a margin, a grid position. Those are properties the library does not set on itself, so nothing is competing for them.
+
+### 2. `classNames`, for the parts `className` cannot reach
+
+Some components draw more than one thing. A field draws its label and the two lines of text under it; a portalled surface paints a scrim behind itself. `classNames` is a map to those parts, and only to those — the component's own surface keeps one prop and not two, so there is never a question of which of them wins.
+
+```tsx
+<PlTextField
+  label="Email"
+  className="w-full"
+  classNames={{ control: 'font-mono', error: 'italic' }}
+/>
+```
+
+The keys mean the same part everywhere they appear: `label`, `control`, `description` and `error` on a labelled control; `backdrop` on a portalled surface.
+
+### 3. Tokens, for anything the component already paints
+
+**This is the one that always works**, and the reason is worth understanding rather than taking on trust.
+
+The library writes its edge, its shadow, its focus ring and its fill as Tailwind _arbitrary properties_ — `[box-shadow:var(--p-elev),var(--p-lift)]` and the like. Tailwind sorts those **last** in the generated stylesheet, and a stylesheet is what decides which of two classes wins. Appending `shadow-none` after one puts it earlier in the file, so it loses.
+
+The custom property underneath does not, because an inline `style` beats every class there is. See [Setting a token from React](./color#setting-a-token-from-react).
+
+### Where a plain `className` loses
+
+The order of two classes in an attribute means nothing. What decides is their order in the generated stylesheet, and Tailwind's sort is by _name_ — numeric scales ascending, everything else alphabetically — which has no relationship to what a caller intended.
+
+| The component writes                    | You write     | Wins              |
+| --------------------------------------- | ------------- | ----------------- |
+| `text-sm` (at `size="sm"`)              | `text-lg`     | **the component** |
+| `bg-transparent` (at `variant="ghost"`) | `bg-red-500`  | **the component** |
+| `w-full` (at `fullWidth`)               | `w-auto`      | **the component** |
+| `h-10` (at `size="md"`)                 | `h-8`         | **the component** |
+| `[box-shadow:…]`                        | `shadow-none` | **the component** |
+| `h-10`                                  | `h-12`        | you               |
+| `rounded-(--plass-radius-md)`           | `rounded-3xl` | you               |
+| `p-4`                                   | `px-8`        | you               |
+
+Two ways out, both reliable:
+
+- **A token**, per the section above. It is the only channel that reaches an arbitrary property at all.
+- **The `!` modifier** — `shadow-none!`, `text-lg!`. Nothing in the library is `!important`, so an important utility always wins. The one place it is not optional is `PlTextLink`, whose `.plass-link.plass-link` rule outranks a single class whatever the order.
+
+### It also depends on which stylesheet you imported
+
+| Import | What decides a conflict |
+| --- | --- |
+| `plass-ui/tailwind.css` or `plass-ui/css/*.css` | Tailwind's sort, per the table above — your classes and the components' are generated in one pass |
+| `plass-ui/styles.css` | **The order of your `@import`s.** The package's CSS is already compiled, so it cannot take part in your Tailwind build; import it _before_ your own stylesheet or it outranks everything in it |
+
+### 4. `render`, when the element itself is wrong
+
+Base UI's own prop, passed through where it makes sense — `<PlButton render={<a href="/pricing" />}>`. It replaces the element without changing the surface, which is the thing no amount of CSS can do.
+
+:::
+
 ## What a state prop must not do
 
 Three states exist and each has its own axis; a fourth that overlaps one of them is a bug in the API rather than in the styling.

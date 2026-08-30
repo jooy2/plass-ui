@@ -69,7 +69,7 @@ Every rule in it is wrapped in `:where()`, so it has **specificity 0**. A single
 
 ### If you already use Tailwind
 
-When Tailwind v4 is already in your project, import the token sheet instead of the compiled one. Nothing is generated twice, and a `className` you pass to a component sorts correctly against the component's own classes.
+When Tailwind v4 is already in your project, import the token sheet instead of the compiled one. Nothing is generated twice, and a `className` you pass to a component is sorted against the component's own classes by Tailwind rather than by import order — see [styling a component from outside](../design/prop-conventions#styling-a-component-from-outside) for what that sort does and does not decide.
 
 ```css
 @import 'tailwindcss';

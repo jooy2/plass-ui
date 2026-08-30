@@ -69,7 +69,7 @@ import 'plass-ui/styles.css';
 
 ### 이미 Tailwind를 쓰고 있다면
 
-프로젝트에 Tailwind v4가 이미 있다면 컴파일된 쪽 대신 토큰 시트를 import하세요. 무엇도 두 번 생성되지 않고, 컴포넌트에 넘긴 `className`이 컴포넌트 자신의 클래스와 올바르게 정렬됩니다.
+프로젝트에 Tailwind v4가 이미 있다면 컴파일된 쪽 대신 토큰 시트를 import하세요. 무엇도 두 번 생성되지 않고, 컴포넌트에 넘긴 `className`은 import 순서가 아니라 Tailwind의 정렬에 따라 컴포넌트 자신의 class와 나란히 놓입니다. 그 정렬이 무엇을 정하고 무엇을 정하지 않는지는 [바깥에서 컴포넌트에 스타일 입히기](../design/prop-conventions#바깥에서-컴포넌트에-스타일-입히기)에 있습니다.
 
 ```css
 @import 'tailwindcss';

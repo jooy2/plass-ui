@@ -53,6 +53,73 @@ order: 3
 - **`render`가 탈출구이고** 어디서나 같은 이름입니다. Base UI 자신의 prop을 그대로 전달합니다. 표면을 바꾸지 않고 요소만 바꿉니다.
 - **네이티브 속성은 그대로 전달됩니다.** `<input>`을 감싸는 컴포넌트는 위 축과 이름이 겹치는 것(`color`, `size`)을 뺀 모든 `<input>` 속성을 받습니다.
 
+## 바깥에서 컴포넌트에 스타일 입히기
+
+::: fw react
+
+채널은 넷이고, 서로 대체되지 않습니다. 이 순서로 손을 뻗으세요.
+
+### 1. `className` — 레이아웃용
+
+`className`은 읽는 사람이 손가락으로 가리키며 "이 컴포넌트"라고 부를 요소 하나에 붙습니다. `PlButton`의 `<button>`, `PlModal`의 시트, field의 stack입니다. 컴포넌트 자신의 class를 대체하지 않고 함께 적용되며, 어느 요소인지는 각 컴포넌트의 Props 절에 적혀 있습니다.
+
+컴포넌트가 어디에 놓이고 얼마나 자리를 차지하는지 — `w-full`, margin, grid 위치 — 에 맞는 채널입니다. 라이브러리가 자기 자신에게 지정하지 않는 속성들이라 다툴 상대가 없습니다.
+
+### 2. `classNames` — `className`이 닿지 않는 부분용
+
+어떤 컴포넌트는 하나보다 많이 그립니다. field는 label과 그 아래 두 줄을 그리고, portal로 뜨는 표면은 뒤에 scrim을 깝니다. `classNames`는 그 부분들에만 닿는 map입니다. 컴포넌트 자신의 표면은 prop 하나만 갖기 때문에, 둘 중 어느 쪽이 이기는지 물을 일이 없습니다.
+
+```tsx
+<PlTextField
+  label="Email"
+  className="w-full"
+  classNames={{ control: 'font-mono', error: 'italic' }}
+/>
+```
+
+키는 어디에 나오든 같은 부분을 뜻합니다. 라벨 있는 컨트롤에서는 `label`, `control`, `description`, `error`이고, portal 표면에서는 `backdrop`입니다.
+
+### 3. 토큰 — 컴포넌트가 이미 칠한 것을 바꿀 때
+
+**항상 통하는 채널이고**, 그 이유는 그냥 믿기보다 알아 두는 편이 낫습니다.
+
+라이브러리는 테두리와 그림자, focus ring, fill을 Tailwind의 _arbitrary property_ — `[box-shadow:var(--p-elev),var(--p-lift)]` 같은 형태 — 로 씁니다. Tailwind는 이런 클래스를 생성된 스타일시트의 **맨 뒤**에 정렬하고, 두 class 중 어느 쪽이 이기는지는 스타일시트가 정합니다. 뒤에 `shadow-none`을 덧붙이면 파일에서는 더 **앞**에 놓이므로 집니다.
+
+그 아래의 custom property는 지지 않습니다. inline `style`은 어떤 class보다도 강하기 때문입니다. [React에서 토큰 지정하기](./color#react에서-토큰-지정하기)를 보세요.
+
+### 그냥 붙인 `className`이 지는 곳
+
+class 속성 안에서의 순서는 아무 의미가 없습니다. 결정하는 것은 생성된 스타일시트 안에서의 순서이고, Tailwind의 정렬은 _이름_ 기준입니다 — 숫자 스케일은 오름차순, 나머지는 알파벳순. 호출자의 의도와는 아무 관계가 없습니다.
+
+| 컴포넌트가 쓰는 것                   | 당신이 쓰는 것 | 이기는 쪽    |
+| ------------------------------------ | -------------- | ------------ |
+| `text-sm` (`size="sm"`)              | `text-lg`      | **컴포넌트** |
+| `bg-transparent` (`variant="ghost"`) | `bg-red-500`   | **컴포넌트** |
+| `w-full` (`fullWidth`)               | `w-auto`       | **컴포넌트** |
+| `h-10` (`size="md"`)                 | `h-8`          | **컴포넌트** |
+| `[box-shadow:…]`                     | `shadow-none`  | **컴포넌트** |
+| `h-10`                               | `h-12`         | 당신         |
+| `rounded-(--plass-radius-md)`        | `rounded-3xl`  | 당신         |
+| `p-4`                                | `px-8`         | 당신         |
+
+확실한 우회로는 둘입니다.
+
+- **토큰.** 바로 위 절에서 설명한 방법입니다. arbitrary property에 닿는 유일한 채널이기도 합니다.
+- **`!` 수식자** — `shadow-none!`, `text-lg!`. 라이브러리에는 `!important`가 한 곳도 없으므로 important 유틸리티는 언제나 이깁니다. 선택이 아닌 곳이 하나 있는데, `.plass-link.plass-link` 규칙이 단일 class를 순서와 무관하게 이기는 `PlTextLink`입니다.
+
+### 어느 스타일시트를 import했는지도 영향을 줍니다
+
+| import | 충돌을 결정하는 것 |
+| --- | --- |
+| `plass-ui/tailwind.css` 또는 `plass-ui/css/*.css` | 위 표대로 Tailwind의 정렬 — 당신의 class와 컴포넌트의 class가 한 번의 패스에서 생성됩니다 |
+| `plass-ui/styles.css` | **`@import` 순서.** 패키지의 CSS는 이미 컴파일된 것이라 당신의 Tailwind 빌드에 참여할 수 없습니다. 당신의 스타일시트보다 _앞에_ import하지 않으면 그 안의 모든 것을 이겨 버립니다 |
+
+### 4. `render` — 요소 자체가 잘못됐을 때
+
+Base UI 자신의 prop이고, 의미가 있는 곳에서 그대로 전달됩니다. `<PlButton render={<a href="/pricing" />}>` 처럼요. 표면을 바꾸지 않고 요소만 바꾸는데, 이건 CSS로는 아무리 해도 못 하는 일입니다.
+
+:::
+
 ## 상태 prop이 하면 안 되는 것
 
 상태는 셋이고 각자 자기 축을 가집니다. 그중 하나와 겹치는 네 번째는 스타일이 아니라 API의 버그입니다.
