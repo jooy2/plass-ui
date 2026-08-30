@@ -120,7 +120,7 @@ It is a length in logical pixels. Dart has no `rem`, and every other measurement
 
 ### buttonPlacement
 
-`overlay` — the default — puts the buttons over the ends of the strip, which keeps every pixel of the box for content and lets an item pass under a button. `inline` puts them beside it: the scroller stops where the button starts, so an item is **cut off** at the button's edge rather than sliding beneath it, and the button is legible over the page rather than over whatever it landed on.
+`inline` — the default — puts the buttons beside the strip: the scroller stops where the button starts, so an item is **cut off** at the button's edge rather than sliding beneath it, and the button is legible over the page rather than over whatever it landed on. `overlay` puts them over the ends of the strip instead, which keeps every pixel of the box for content and lets an item pass under a button.
 
 An inline button keeps its lane even while it has nowhere to go, or the strip would resize under the pointer that had just reached the end of it.
 

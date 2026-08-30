@@ -18,15 +18,15 @@ export default function ScrollZonePlacement() {
   return (
     <div className="flex w-full flex-col gap-6">
       <div className="flex flex-col gap-1">
-        <PlTypography level="caption">buttonPlacement=&quot;overlay&quot;</PlTypography>
-        <PlScrollZone label="Overlaid" buttons="always">
+        <PlTypography level="caption">buttonPlacement=&quot;inline&quot;</PlTypography>
+        <PlScrollZone label="Beside" buttons="always">
           <Strip />
         </PlScrollZone>
       </div>
 
       <div className="flex flex-col gap-1">
-        <PlTypography level="caption">buttonPlacement=&quot;inline&quot;</PlTypography>
-        <PlScrollZone label="Beside" buttons="always" buttonPlacement="inline">
+        <PlTypography level="caption">buttonPlacement=&quot;overlay&quot;</PlTypography>
+        <PlScrollZone label="Overlaid" buttons="always" buttonPlacement="overlay">
           <Strip />
         </PlScrollZone>
       </div>

@@ -3453,7 +3453,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }),
     from('PlScrollZone', 'buttonPlacement', {
       type: 'PlScrollZoneButtonPlacement',
-      default: 'PlScrollZoneButtonPlacement.overlay'
+      default: 'PlScrollZoneButtonPlacement.inline'
     }),
     from('PlScrollZone', 'mode', {
       type: 'PlScrollZoneMode',

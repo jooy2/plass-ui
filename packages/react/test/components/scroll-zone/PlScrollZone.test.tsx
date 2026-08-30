@@ -133,7 +133,14 @@ describe('PlScrollZone', () => {
 
   describe('the buttons', () => {
     it('offers the one that has somewhere to go', async () => {
-      const screen = await render(<PlScrollZone data-testid="zone">{cards}</PlScrollZone>);
+      // Overlaid, because that is the placement where a button with nowhere to
+      // go is gone rather than holding an empty lane. The lane is the test at
+      // the end of the block below.
+      const screen = await render(
+        <PlScrollZone buttonPlacement="overlay" data-testid="zone">
+          {cards}
+        </PlScrollZone>
+      );
 
       await expect.element(screen.getByRole('button', { name: 'Next' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Previous' }).query()).toBeNull();
@@ -188,30 +195,36 @@ describe('PlScrollZone', () => {
     // Overlaid, the strip keeps every pixel of its box and an item passes under
     // a button. Inline, the scroller stops where the button starts, so an item
     // is cut off at its edge rather than half-hidden behind it.
-    it('overlays them by default', async () => {
-      const screen = await render(<PlScrollZone data-testid="zone">{cards}</PlScrollZone>);
-      const root = screen.getByTestId('zone').element();
-
-      await expect.element(screen.getByRole('button', { name: 'Next' })).toBeInTheDocument();
-      // The scroller and the overlay the buttons are in, and nothing else.
-      expect(root.children).toHaveLength(2);
-      expect(root.children[1]).toHaveClass('absolute');
-    });
-
-    it('puts them beside the strip when it is asked to', async () => {
+    it('puts them beside the strip by default', async () => {
       const screen = await render(
-        <PlScrollZone buttonPlacement="inline" buttons="always" data-testid="zone">
+        <PlScrollZone buttons="always" data-testid="zone">
           {cards}
         </PlScrollZone>
       );
       const root = screen.getByTestId('zone').element();
 
       await expect.element(screen.getByRole('button', { name: 'Next' })).toBeInTheDocument();
+      // A button, the scroller, and the other button — the strip stops where
+      // the control starts.
       expect(root.children).toHaveLength(3);
       expect(root.children[1]).toBe(scroller(screen));
       expect(
         root.children[2].contains(screen.getByRole('button', { name: 'Next' }).element())
       ).toBe(true);
+    });
+
+    it('overlays them when it is asked to', async () => {
+      const screen = await render(
+        <PlScrollZone buttonPlacement="overlay" data-testid="zone">
+          {cards}
+        </PlScrollZone>
+      );
+      const root = screen.getByTestId('zone').element();
+
+      await expect.element(screen.getByRole('button', { name: 'Next' })).toBeInTheDocument();
+      // The scroller and the overlay the buttons are in, and nothing else.
+      expect(root.children).toHaveLength(2);
+      expect(root.children[1]).toHaveClass('absolute');
     });
 
     /*
@@ -221,18 +234,19 @@ describe('PlScrollZone', () => {
      * only happens once the box has moved — and a zone whose buttons never
      * change is a zone that scrolls once and then lies about where it is.
      *
-     * It needs real `overflow`, which no component test loads CSS for, so the
-     * two declarations the assertion actually depends on are written out here.
+     * It needs real `overflow`, which no component test loads CSS for, and the
+     * overlay, which is the placement where a button that cannot move is gone
+     * rather than invisible.
      */
     it('changes which button it offers as the strip moves', async () => {
-      const style = document.createElement('style');
-
-      style.textContent =
-        '[data-testid="zone"] > [tabindex="0"] { overflow-x: auto; width: 400px; }';
-      document.head.append(style);
+      const restore = clip();
 
       try {
-        const screen = await render(<PlScrollZone data-testid="zone">{cards}</PlScrollZone>);
+        const screen = await render(
+          <PlScrollZone buttonPlacement="overlay" data-testid="zone">
+            {cards}
+          </PlScrollZone>
+        );
         const box = scroller(screen);
 
         // Six 300px cards in 400px: there is a long way forward and no way back.
@@ -252,7 +266,7 @@ describe('PlScrollZone', () => {
         await expect.element(screen.getByRole('button', { name: 'Previous' })).toBeInTheDocument();
         await expect.element(screen.getByRole('button', { name: 'Next' })).not.toBeInTheDocument();
       } finally {
-        style.remove();
+        restore();
       }
     });
 

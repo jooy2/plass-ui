@@ -37,19 +37,21 @@ export type PlScrollZoneMode = 'item' | 'page' | 'hold';
 /**
  * Where the scroll buttons sit, which is also where the strip ends.
  *
+ * - `inline` — beside the strip, in the layout. The default: the scroller stops
+ *   where the button starts, so an item is *cut off* at the button's edge
+ *   rather than sliding beneath it, nothing is ever half-hidden behind a
+ *   control, and the button is legible over the page rather than over whatever
+ *   it landed on.
  * - `overlay` — over the ends of the strip, which keeps every pixel of the box
- *   for content and lets an item pass under a button. The default, and what a
- *   shelf of pictures wants.
- * - `inline` — beside the strip, in the layout. The scroller stops where the
- *   button starts, so an item is *cut off* at the button's edge rather than
- *   sliding beneath it: nothing is ever half-hidden behind a control, and the
- *   button is legible over the page rather than over whatever it landed on.
+ *   for content and lets an item pass under a button. What a shelf of pictures
+ *   wants, where the strip reaching the edge of its box is worth more than
+ *   seeing the whole of the item a button came to rest on.
  *
  * The lane an `inline` button sits in is kept even while that button has
  * nowhere to go, or the strip would resize under the pointer every time it
  * reached an end.
  */
-export type PlScrollZoneButtonPlacement = 'overlay' | 'inline';
+export type PlScrollZoneButtonPlacement = 'inline' | 'overlay';
 
 export interface PlScrollZoneProps
   extends PlassStyleProps, Omit<React.ComponentPropsWithoutRef<'div'>, 'color'> {
@@ -74,10 +76,10 @@ export interface PlScrollZoneProps
   /** When the scroll buttons are drawn. @default 'auto' */
   buttons?: PlScrollZoneButtons;
   /**
-   * Whether the buttons sit over the strip or beside it. `inline` is what to
-   * reach for when an item disappearing under a button reads as a bug rather
-   * than as depth.
-   * @default 'overlay'
+   * Whether the buttons sit beside the strip or over it. `overlay` is what to
+   * reach for when the strip reaching the edge of its box is worth more than
+   * seeing the whole of the item a button came to rest on.
+   * @default 'inline'
    */
   buttonPlacement?: PlScrollZoneButtonPlacement;
   /** What pressing one does. @default 'item' */
@@ -210,7 +212,7 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
       lines = 1,
       spacing = 2,
       buttons = 'auto',
-      buttonPlacement = 'overlay',
+      buttonPlacement = 'inline',
       mode = 'item',
       step = 1,
       speed = 900,

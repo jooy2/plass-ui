@@ -7479,11 +7479,11 @@ export const propTables: Record<string, PropRow[]> = {
     },
     {
       name: 'buttonPlacement',
-      type: "'overlay' | 'inline'",
-      default: "'overlay'",
+      type: "'inline' | 'overlay'",
+      default: "'inline'",
       description: {
-        ko: '버튼이 띠 위에 얹히는지 옆에 서는지',
-        en: 'Whether the buttons sit over the strip or beside it'
+        ko: '버튼이 띠 옆에 서는지 위에 얹히는지',
+        en: 'Whether the buttons sit beside the strip or over it'
       }
     },
     {

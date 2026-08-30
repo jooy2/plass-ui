@@ -28,6 +28,10 @@
 
 - **A `render` element's own `href` survives `PlTextLink`.** The component merged its `href` over whatever came back from `render`, and the documentation said to write the address once, on the `PlTextLink`. That is exactly wrong for the thing `render` exists to take: a router's `Link` does not forward an address, it _resolves_ one — a locale prefix, a base path, a typed route — and hands the anchor the result, which the merge then overwrote with the raw string. A localised app got `/pricing` on every anchor where its router had worked out `/ko/pricing`; the click still went to the right page, because the router's own handler was still attached, so what broke silently was every crawler, middle click and copied address. An element carrying an `href` is now left with it, and only an element without one — `render={<a />}` — is given the component's.
 
+### Changed
+
+- **A `PlScrollZone`'s buttons stand beside the strip rather than over it.** `buttonPlacement` now defaults to `inline`. An item sliding under a button reads as something being hidden far more often than it reads as depth, and the two scroll buttons are the one thing on a shelf that must never be mistaken for part of what is on it — so the scroller stops where the button starts and an item is cut off at its edge instead. `overlay` is unchanged and is still what a shelf of pictures wants, where the strip reaching the edge of its box is worth more than seeing the whole of the item a button came to rest on.
+
 ## 1.0.3 (2026-08-29)
 
 ### Added

@@ -254,24 +254,26 @@ void main() {
     });
 
     group('where the buttons sit', () {
-      testWidgets('overlays them by default, so the strip keeps its whole box', (
-        WidgetTester tester,
-      ) async {
-        await tester.pumpWidget(_zone());
-        await tester.pumpAndSettle();
-
-        expect(tester.getSize(find.byType(SingleChildScrollView)).width, 300);
-      });
-
-      testWidgets('puts them beside the strip when it is asked to', (WidgetTester tester) async {
+      testWidgets('puts them beside the strip by default', (WidgetTester tester) async {
+        // Built without a `buttonPlacement` rather than through the helper,
+        // which passes one: what is being tested is the default itself.
         await tester.pumpWidget(
-          _zone(placement: PlScrollZoneButtonPlacement.inline, buttons: PlScrollZoneButtons.always),
+          host(PlScrollZone(spacing: 8, children: _cards()), width: 300, height: 200),
         );
         await tester.pumpAndSettle();
 
         // The scroller stops where the button starts, so nothing is ever
         // half-hidden behind a control.
         expect(tester.getSize(find.byType(SingleChildScrollView)).width, lessThan(300));
+      });
+
+      testWidgets('overlays them when it is asked to, so the strip keeps its whole box', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(_zone());
+        await tester.pumpAndSettle();
+
+        expect(tester.getSize(find.byType(SingleChildScrollView)).width, 300);
       });
 
       testWidgets('keeps the lane of a button that has nowhere to go', (WidgetTester tester) async {
