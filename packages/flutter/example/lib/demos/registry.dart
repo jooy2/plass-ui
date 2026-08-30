@@ -239,6 +239,11 @@ import 'package:plass_ui_example/demos/pagination/sizes.dart';
 import 'package:plass_ui_example/demos/pagination/steppers.dart';
 import 'package:plass_ui_example/demos/pagination/variants.dart';
 import 'package:plass_ui_example/demos/pagination/window.dart';
+import 'package:plass_ui_example/demos/header/align.dart';
+import 'package:plass_ui_example/demos/header/hero.dart';
+import 'package:plass_ui_example/demos/header/measure.dart';
+import 'package:plass_ui_example/demos/header/sizes.dart';
+import 'package:plass_ui_example/demos/header/variants.dart';
 import 'package:plass_ui_example/demos/page_layout/hero.dart';
 import 'package:plass_ui_example/demos/page_layout/spans.dart';
 import 'package:plass_ui_example/demos/panes/constraints.dart';
@@ -550,6 +555,11 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'chip/selected': _chipSelected,
   'chip/interactive': _chipInteractive,
   'chip/slots': _chipSlots,
+  'header/hero': _headerHero,
+  'header/align': _headerAlign,
+  'header/variants': _headerVariants,
+  'header/sizes': _headerSizes,
+  'header/measure': _headerMeasure,
   'page-layout/hero': _pageLayoutHero,
   'page-layout/spans': _pageLayoutSpans,
   'card/hero': _cardHero,
@@ -947,6 +957,12 @@ Widget _chipColors(BuildContext context) => const ChipColors();
 Widget _chipSelected(BuildContext context) => const ChipSelected();
 Widget _chipInteractive(BuildContext context) => const ChipInteractive();
 Widget _chipSlots(BuildContext context) => const ChipSlots();
+
+Widget _headerHero(BuildContext context) => const HeaderHero();
+Widget _headerAlign(BuildContext context) => const HeaderAlign();
+Widget _headerVariants(BuildContext context) => const HeaderVariants();
+Widget _headerSizes(BuildContext context) => const HeaderSizes();
+Widget _headerMeasure(BuildContext context) => const HeaderMeasure();
 
 Widget _pageLayoutHero(BuildContext context) => const PageLayoutHero();
 Widget _pageLayoutSpans(BuildContext context) => const PageLayoutSpans();

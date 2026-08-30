@@ -1660,6 +1660,42 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     })
   ],
 
+  PlHeader: [
+    from('PlHeader', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlHeader', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlHeader', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlHeader', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlHeader', 'elevation', { type: 'int', default: '0' }),
+    from('PlHeader', 'brand', {
+      type: 'List<Widget>?',
+      description: {
+        ko: '앞쪽 슬롯 — 로고, 제품 이름. 슬롯은 행이므로 리스트입니다. 로고와 그 옆 이름 사이의 간격은 바가 정합니다',
+        en: "The leading slot: the logo, the product's name. A list because a slot is a row — the gap between a logo and the name beside it is the bar's to decide"
+      }
+    }),
+    from('PlHeader', 'actions', { type: 'List<Widget>?' }),
+    from('PlHeader', 'align', { type: 'PlassAlign', default: 'PlassAlign.start' }),
+    from('PlHeader', 'divider', { type: 'bool', default: 'true' }),
+    from('PlHeader', 'maxWidth', {
+      type: 'PlassSize?',
+      default: 'null',
+      description: {
+        ko: '시트는 받은 너비를 가로지른 채로, 슬롯의 행만 measure에 맞춰 가운데 둡니다. null이면 measure 없음이고 기본값입니다',
+        en: 'Holds the row of slots to a measure and centres it while the sheet still spans the width it was given. null is no measure, and is the default'
+      }
+    }),
+    from('PlHeader', 'padded', { type: 'bool', default: 'true' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '스크린 리더가 바를 부르는 이름. 이름을 주면 landmark(region)가 되고, 없으면 아무것도 주장하지 않습니다 — 라벨 없는 region은 아무것도 설명하지 못한다는 프레임워크의 규칙입니다',
+        en: "The name a screen reader gives the bar. Naming it also makes it a region landmark; without a name it claims nothing, which is the framework's rule rather than this package's"
+      }
+    },
+    from('PlHeader', 'children', { name: 'child', type: 'Widget?' })
+  ],
+
   PlHighlight: [
     from('PlHighlight', 'children', {
       name: 'text',
