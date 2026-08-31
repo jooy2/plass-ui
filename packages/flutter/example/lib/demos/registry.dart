@@ -161,6 +161,7 @@ import 'package:plass_ui_example/demos/empty/kinds.dart';
 import 'package:plass_ui_example/demos/empty/table.dart';
 import 'package:plass_ui_example/demos/stat/hero.dart';
 import 'package:plass_ui_example/demos/stat/direction.dart';
+import 'package:plass_ui_example/demos/back_top/hero.dart';
 import 'package:plass_ui_example/demos/calendar/hero.dart';
 import 'package:plass_ui_example/demos/calendar/precision.dart';
 import 'package:plass_ui_example/demos/calendar/bounds.dart';
@@ -494,6 +495,7 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'empty/table': _emptyTable,
   'stat/hero': _statHero,
   'stat/direction': _statDirection,
+  'back-top/hero': _backTopHero,
   'calendar/hero': _calendarHero,
   'calendar/precision': _calendarPrecision,
   'calendar/bounds': _calendarBounds,
@@ -947,6 +949,8 @@ Widget _emptyTable(BuildContext context) => const EmptyTable();
 Widget _statHero(BuildContext context) => const StatHero();
 
 Widget _statDirection(BuildContext context) => const StatDirection();
+
+Widget _backTopHero(BuildContext context) => const BackTopHero();
 
 Widget _calendarHero(BuildContext context) => const CalendarHero();
 

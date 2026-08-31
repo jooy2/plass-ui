@@ -1434,6 +1434,32 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlStat', 'color', { type: COLOR, default: 'PlassColor.primary' }),
     from('PlStat', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
   ],
+  PlBackTop: [
+    from('PlBackTop', 'target', {
+      name: 'controller',
+      type: 'ScrollController?',
+      default: 'PrimaryScrollController',
+      description: {
+        ko: '무엇을 스크롤하고 무엇을 지켜볼지. 생략하면 PrimaryScrollController — 자체 controller가 없는 ListView가 붙는 곳이고, 따라서 "창"에 해당합니다',
+        en: 'What is scrolled, and what is watched. Left out, the PrimaryScrollController — which is what a ListView with no controller of its own is attached to, and is therefore the equivalent of "the window"'
+      }
+    }),
+    from('PlBackTop', 'visibilityHeight', { type: 'double', default: '400' }),
+    from('PlBackTop', 'label', { type: 'String', default: "'Back to top'" }),
+    from('PlBackTop', 'icon', { type: 'Widget?' }),
+    {
+      name: 'onPressed',
+      type: 'VoidCallback?',
+      description: {
+        ko: '스크롤 대신 실행됩니다. "위"가 offset 0이 아닌 화면 — 대화 기록, 중간에서 시작하는 목록 — 을 위한 것',
+        en: 'Runs instead of the scroll. For the screen whose "up" is somewhere other than offset zero'
+      }
+    },
+    from('PlBackTop', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlBackTop', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlBackTop', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlBackTop', 'elevation', { type: 'int', default: '2' })
+  ],
   PlCalendar: [
     {
       name: 'value',

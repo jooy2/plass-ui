@@ -19,11 +19,34 @@ import { PlBackTop } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+Stack(
+  children: <Widget>[
+    ListView(controller: controller, children: rows),
+    Positioned(right: 24, bottom: 24, child: PlBackTop(controller: controller)),
+  ],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlBackTop" />
 
 Every native `<button>` attribute passes straight through, and everything else is a [`PlIconButton`](../inputs/icon-button)'s — the three materials, the elevation ladder, the pointer light.
+
+::: fw flutter
+
+**There is no `floating`, and no equivalent of it.** Flutter has no `position: fixed`, so where the button goes is the caller's: a `Stack` over the scrollable with a `Positioned` or an `Align` in it, which is how a Flutter screen pins anything to a corner.
+
+`controller` is the `ScrollController` — left out, the `PrimaryScrollController`, which is what a `ListView` with no controller of its own attaches to and is therefore this framework's "the window". `onPressed` runs **instead of** the scroll rather than before it, which is the shape a Dart caller wants: there is no event to `preventDefault`.
+
+:::
 
 ## Hidden until it is useful
 

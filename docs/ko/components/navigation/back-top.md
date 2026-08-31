@@ -19,11 +19,34 @@ import { PlBackTop } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+Stack(
+  children: <Widget>[
+    ListView(controller: controller, children: rows),
+    Positioned(right: 24, bottom: 24, child: PlBackTop(controller: controller)),
+  ],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlBackTop" />
 
 네이티브 `<button>` 속성은 그대로 통과하고, 나머지는 전부 [`PlIconButton`](../inputs/icon-button)의 것입니다 — 세 재질, elevation 사다리, 포인터 빛.
+
+::: fw flutter
+
+**`floating`이 없고, 그에 해당하는 것도 없습니다.** Flutter에는 `position: fixed`가 없으므로 버튼이 어디에 놓일지는 호출자의 몫입니다 — 스크롤 영역 위의 `Stack`과 그 안의 `Positioned`나 `Align`이고, 그것이 Flutter 화면이 무언가를 구석에 고정하는 방법입니다.
+
+`controller`가 `ScrollController`입니다. 생략하면 `PrimaryScrollController`인데, 자체 controller가 없는 `ListView`가 붙는 곳이고 따라서 이 프레임워크의 "창"입니다. `onPressed`는 스크롤 **앞이 아니라 대신** 돕니다. Dart 호출자가 원하는 모양이 그것입니다 — `preventDefault`할 이벤트가 없습니다.
+
+:::
 
 ## 쓸모 있어질 때까지 숨어 있습니다
 
