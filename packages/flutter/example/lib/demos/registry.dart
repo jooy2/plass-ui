@@ -151,6 +151,8 @@ import 'package:plass_ui_example/demos/date_picker/format.dart';
 import 'package:plass_ui_example/demos/stepper/hero.dart';
 import 'package:plass_ui_example/demos/stepper/vertical.dart';
 import 'package:plass_ui_example/demos/stepper/status.dart';
+import 'package:plass_ui_example/demos/tree/hero.dart';
+import 'package:plass_ui_example/demos/tree/selection.dart';
 import 'package:plass_ui_example/demos/calendar/hero.dart';
 import 'package:plass_ui_example/demos/calendar/precision.dart';
 import 'package:plass_ui_example/demos/calendar/bounds.dart';
@@ -474,6 +476,8 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'stepper/hero': _stepperHero,
   'stepper/vertical': _stepperVertical,
   'stepper/status': _stepperStatus,
+  'tree/hero': _treeHero,
+  'tree/selection': _treeSelection,
   'calendar/hero': _calendarHero,
   'calendar/precision': _calendarPrecision,
   'calendar/bounds': _calendarBounds,
@@ -907,6 +911,10 @@ Widget _stepperHero(BuildContext context) => const StepperHero();
 Widget _stepperVertical(BuildContext context) => const StepperVertical();
 
 Widget _stepperStatus(BuildContext context) => const StepperStatus();
+
+Widget _treeHero(BuildContext context) => const TreeHero();
+
+Widget _treeSelection(BuildContext context) => const TreeSelection();
 
 Widget _calendarHero(BuildContext context) => const CalendarHero();
 

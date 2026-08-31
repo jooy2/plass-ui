@@ -1294,6 +1294,74 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     })
   ],
+  PlTree: [
+    from('PlTree', 'items', { type: 'List<PlTreeNode>', required: true }),
+    from('PlTree', 'expanded', {
+      type: 'Set<String>',
+      default: '{}',
+      description: {
+        ko: '열려 있는 가지의 id들. controlled입니다',
+        en: 'The ids of the branches that are open. Controlled'
+      }
+    }),
+    from('PlTree', 'onExpandedChange', {
+      name: 'onExpandedChanged',
+      type: 'ValueChanged<Set<String>>?',
+      description: {
+        ko: '가지가 열리거나 닫힌 뒤 열린 집합 전체와 함께 호출됩니다',
+        en: 'Called with the whole open set after a branch is opened or closed'
+      }
+    }),
+    from('PlTree', 'selected', {
+      type: 'Set<String>',
+      default: '{}',
+      description: {
+        ko: '선택된 행의 id들. controlled입니다',
+        en: 'The ids of the selected rows. Controlled'
+      }
+    }),
+    from('PlTree', 'onSelectedChange', {
+      name: 'onSelectedChanged',
+      type: 'ValueChanged<Set<String>>?',
+      description: {
+        ko: '행을 누른 뒤 선택 집합 전체와 함께 호출됩니다',
+        en: 'Called with the whole selection after a row is pressed'
+      }
+    }),
+    from('PlTree', 'selection', { type: 'PlTreeSelection', default: 'PlTreeSelection.single' }),
+    from('PlTree', 'onItemClick', {
+      name: 'onItemPressed',
+      type: 'ValueChanged<PlTreeNode>?',
+      description: {
+        ko: '행을 눌렀을 때. 고를 수 있든 아니든',
+        en: 'Called when a row is pressed, selectable or not'
+      }
+    }),
+    from('PlTree', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlTree', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlTree', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '스크린 리더가 트리 전체에 주는 이름',
+        en: 'The name a screen reader gives the whole tree'
+      }
+    }
+  ],
+  PlTreeNode: [
+    from('PlTreeNode', 'id', { type: 'String', required: true }),
+    from('PlTreeNode', 'label', { type: 'Widget', required: true }),
+    from('PlTreeNode', 'icon', { type: 'Widget?' }),
+    from('PlTreeNode', 'children', {
+      type: 'List<PlTreeNode>?',
+      description: {
+        ko: '자식들. 빈 리스트는 아무것도 없는 **가지**이고, null은 **잎**입니다 — 서로 다릅니다',
+        en: 'Its own children. An empty list is a **branch** with nothing in it; null is a **leaf**. They are different things'
+      }
+    }),
+    from('PlTreeNode', 'disabled', { type: 'bool', default: 'false' })
+  ],
   PlCalendar: [
     {
       name: 'value',

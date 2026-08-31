@@ -24,6 +24,27 @@ const items: PlTreeNode[] = [
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+const List<PlTreeNode> items = <PlTreeNode>[
+  PlTreeNode(id: 'src', label: Text('src'), children: <PlTreeNode>[
+    PlTreeNode(id: 'index', label: Text('index.ts')),
+  ]),
+  PlTreeNode(id: 'readme', label: Text('README.md')),
+];
+
+PlTree(
+  items: items,
+  expanded: open,
+  onExpandedChanged: (Set<String> next) => setState(() => open = next),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlTree" />
@@ -33,6 +54,12 @@ const items: PlTreeNode[] = [
 <PropsTable name="PlTreeNode" />
 
 Every native `<div>` attribute passes straight through. What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
+
+::: fw flutter
+
+`expanded` and `selected` are **`Set<String>`** and both are controlled — there is no uncontrolled form, which is the package's rule for every input in it. Each callback hands back the whole set rather than the one id that changed, so a caller assigns it and is done.
+
+:::
 
 ## Examples
 
@@ -45,6 +72,12 @@ Every native `<div>` attribute passes straight through. What the shared axes mea
 ::: fw react
 
 <<< @/.vitepress/demos/tree/selection.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/tree/selection.dart
 
 :::
 
@@ -84,3 +117,11 @@ That is what makes a lazily-loaded tree possible: give a folder an empty array, 
 - <kbd>↓</kbd> and <kbd>↑</kbd> walk the rows that are actually **visible**, <kbd>→</kbd> opens a branch and then steps into it — two presses, so a reader can open a branch without leaving the row that told them it was there — <kbd>←</kbd> closes it or steps out to the parent, <kbd>Home</kbd> and <kbd>End</kbd> jump to the ends, and <kbd>Enter</kbd> or <kbd>Space</kbd> selects.
 - A `disabled` row is `aria-disabled` and is not a stop for the arrow keys. It is left in the tree rather than removed, because a hierarchy with a hole in it is a hierarchy nobody can read.
 - The twisty is `aria-hidden`: a screen reader is told a branch is open by `aria-expanded`, and would otherwise be told twice.
+
+::: fw flutter
+
+Every row is a `Semantics` node with `expanded` on a branch and `selected` on a selectable row, and the tree itself takes an `explicitChildNodes` container so the rows are not merged into one.
+
+**One tab stop, the same way.** Every row's `FocusNode` but the current one carries `skipTraversal`, which takes it out of the Tab order while leaving it in the focus tree — so the arrow keys can still reach it. The current stop follows the focus rather than leading it.
+
+:::

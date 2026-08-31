@@ -10,7 +10,7 @@ Live previews and full props for every component, in both frameworks. This READM
 
 ---
 
-> **Plass is one design language, shipped as two libraries.** Every surface answers a single question — is this pressed, or does it hold something? A thing you press is **tinted glass**: a gradient that _turns_ through its colour family rather than darkening, a shadow thrown in that same colour, and a bloom of light that follows your pointer across it. A thing that holds something is **clear glass**: translucent, deeply blurred, edged with a white hairline, never dyed. Nothing is bevelled, nothing is embossed and nothing moves when you press it — depth is carried by light, colour and blur. That is the whole system, and it is the same eighty-nine components under the same names and the same numbers whether you build in **React** or in **Flutter**.
+> **Plass is one design language, shipped as two libraries.** Every surface answers a single question — is this pressed, or does it hold something? A thing you press is **tinted glass**: a gradient that _turns_ through its colour family rather than darkening, a shadow thrown in that same colour, and a bloom of light that follows your pointer across it. A thing that holds something is **clear glass**: translucent, deeply blurred, edged with a white hairline, never dyed. Nothing is bevelled, nothing is embossed and nothing moves when you press it — depth is carried by light, colour and blur. That is the whole system, and it is the same ninety components under the same names and the same numbers whether you build in **React** or in **Flutter**.
 
 ## Why Plass
 
@@ -127,7 +127,7 @@ A **†** marks the few that are React-only. They are not omissions — each one
 
 ### Display
 
-`PlAvatar` · `PlAvatarGroup` · `PlBadge` · `PlBlockquote` · `PlBreadcrumb` · `PlChip` · `PlDivider` · `PlHighlight` · `PlHotKeys` · `PlIcon` · `PlImage`† · `PlList` · `PlTable` · `PlStat`† · `PlTextLink` · `PlTimeline` · `PlTree`† · `PlTypography` · `PlVisuallyHidden`†
+`PlAvatar` · `PlAvatarGroup` · `PlBadge` · `PlBlockquote` · `PlBreadcrumb` · `PlChip` · `PlDivider` · `PlHighlight` · `PlHotKeys` · `PlIcon` · `PlImage`† · `PlList` · `PlTable` · `PlStat`† · `PlTextLink` · `PlTimeline` · `PlTree` · `PlTypography` · `PlVisuallyHidden`†
 
 ### Feedback
 

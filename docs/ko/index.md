@@ -29,7 +29,7 @@ features:
     link: /ko/design/design-language
     linkText: 디자인 언어
   - title: 두 프레임워크, 하나의 라이브러리
-    details: React에도 Flutter에도 같은 여든아홉 개가 들어 있습니다. 같은 prop, 같은 토큰, 같은 숫자. 한 페이지가 둘 다 설명합니다.
+    details: React에도 Flutter에도 같은 아흔 개가 들어 있습니다. 같은 prop, 같은 토큰, 같은 숫자. 한 페이지가 둘 다 설명합니다.
   - title: 다크 모드 기본 제공
     details: 플랫폼을 따라가고, 원하면 어느 subtree에서든 한쪽으로 고정할 수 있습니다. 두 번째 테마를 쓸 일도, 색을 다시 선언할 일도 없습니다.
   - title: 하나의 공통 어휘

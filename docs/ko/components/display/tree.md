@@ -24,6 +24,27 @@ const items: PlTreeNode[] = [
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+const List<PlTreeNode> items = <PlTreeNode>[
+  PlTreeNode(id: 'src', label: Text('src'), children: <PlTreeNode>[
+    PlTreeNode(id: 'index', label: Text('index.ts')),
+  ]),
+  PlTreeNode(id: 'readme', label: Text('README.md')),
+];
+
+PlTree(
+  items: items,
+  expanded: open,
+  onExpandedChanged: (Set<String> next) => setState(() => open = next),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlTree" />
@@ -33,6 +54,12 @@ const items: PlTreeNode[] = [
 <PropsTable name="PlTreeNode" />
 
 네이티브 `<div>` 속성은 그대로 통과합니다. 공유 축이 라이브러리 전체에서 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
+
+::: fw flutter
+
+`expanded`와 `selected`는 **`Set<String>`**이고 둘 다 controlled입니다 — uncontrolled 형태가 없고, 그것이 이 패키지의 모든 입력에 대한 규칙입니다. 각 콜백은 바뀐 id 하나가 아니라 집합 전체를 돌려주므로, 호출자는 그것을 대입하면 끝입니다.
+
+:::
 
 ## Examples
 
@@ -45,6 +72,12 @@ const items: PlTreeNode[] = [
 ::: fw react
 
 <<< @/.vitepress/demos/tree/selection.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/tree/selection.dart
 
 :::
 
@@ -84,3 +117,11 @@ const items: PlTreeNode[] = [
 - <kbd>↓</kbd>와 <kbd>↑</kbd>는 실제로 **보이는** 행을 걷고, <kbd>→</kbd>는 가지를 열고 그다음에 안으로 들어갑니다 — 두 번 누름입니다. 그래야 그 가지가 있다고 알려 준 행을 떠나지 않고도 열 수 있습니다. <kbd>←</kbd>는 닫거나 부모로 나가고, <kbd>Home</kbd>과 <kbd>End</kbd>는 양끝으로 뛰고, <kbd>Enter</kbd>나 <kbd>Space</kbd>가 선택합니다.
 - `disabled` 행은 `aria-disabled`이고 화살표 키의 정거장이 아닙니다. 지우는 대신 트리에 남깁니다 — 구멍 난 계층은 아무도 읽을 수 없는 계층이기 때문입니다.
 - 삼각형은 `aria-hidden`입니다. 스크린 리더는 가지가 열렸다는 것을 `aria-expanded`로 듣고, 그러지 않으면 두 번 듣게 됩니다.
+
+::: fw flutter
+
+모든 행이 `Semantics` node이고, 가지에는 `expanded`가, 고를 수 있는 행에는 `selected`가 붙습니다. 트리 자체는 `explicitChildNodes` 컨테이너라서 행들이 하나로 합쳐지지 않습니다.
+
+**tab stop 하나도 같은 방식입니다.** 현재 행을 뺀 모든 행의 `FocusNode`가 `skipTraversal`을 답니다 — Tab 순서에서는 빠지고 focus 트리에는 남으므로, 화살표 키는 여전히 닿을 수 있습니다. 그 하나의 정거장은 focus를 이끄는 대신 따라갑니다.
+
+:::
