@@ -1460,6 +1460,38 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlBackTop', 'color', { type: COLOR, default: 'PlassColor.primary' }),
     from('PlBackTop', 'elevation', { type: 'int', default: '2' })
   ],
+  PlConfirmProvider: [
+    {
+      name: 'child',
+      type: 'Widget',
+      required: true,
+      description: { ko: '애플리케이션', en: 'The application' }
+    },
+    from('PlConfirmProvider', 'confirmLabel', {
+      type: 'Widget',
+      default: "Text('Confirm')"
+    }),
+    from('PlConfirmProvider', 'cancelLabel', { type: 'Widget', default: "Text('Cancel')" }),
+    from('PlConfirmProvider', 'acknowledgeLabel', { type: 'Widget', default: "Text('OK')" }),
+    from('PlConfirmProvider', 'width', { type: 'double?' }),
+    from('PlConfirmProvider', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlConfirmProvider', 'color', { type: COLOR, default: 'PlassColor.primary' })
+  ],
+  PlConfirmOptions: [
+    from('PlConfirmOptions', 'title', { type: 'Widget?' }),
+    from('PlConfirmOptions', 'description', { type: 'Widget?' }),
+    from('PlConfirmOptions', 'children', { name: 'child', type: 'Widget?' }),
+    from('PlConfirmOptions', 'confirmLabel', { type: 'Widget?' }),
+    from('PlConfirmOptions', 'cancelLabel', { type: 'Widget?' }),
+    from('PlConfirmOptions', 'color', { type: COLOR }),
+    from('PlConfirmOptions', 'size', { type: SIZE }),
+    from('PlConfirmOptions', 'initialFocus', {
+      type: 'PlConfirmFocus',
+      default: 'PlConfirmFocus.cancel'
+    }),
+    from('PlConfirmOptions', 'dismissible', { type: 'bool', default: 'true' }),
+    from('PlConfirmOptions', 'width', { type: 'double?' })
+  ],
   PlCalendar: [
     {
       name: 'value',

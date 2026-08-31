@@ -29,6 +29,24 @@ if (await confirm({ title: 'Delete this project?', color: 'danger' })) {
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+// once, near the root
+PlConfirmProvider(child: MyApp());
+
+// anywhere under it
+if (await PlConfirmProvider.of(context).confirm(
+  const PlConfirmOptions(title: Text('Delete this project?'), color: PlassColor.danger),
+)) {
+  await remove(project);
+}
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlConfirmProvider" />
@@ -38,6 +56,14 @@ The provider's props are defaults for every question asked under it. A single ca
 ### PlConfirmOptions
 
 <PropsTable name="PlConfirmOptions" />
+
+::: fw flutter
+
+`PlConfirmProvider.of(context)` rather than a hook — the same lookup `PlToastProvider` offers, and the framework's own shape for this. It **asserts** outside a provider rather than returning `null`, for the reason the React build throws.
+
+`initialFocus` takes a `PlConfirmFocus` rather than a string. There is no `dismissible: false` equivalent to worry about: a press outside and the × both report through the same path.
+
+:::
 
 ## Why a hook rather than a component
 
@@ -59,6 +85,12 @@ One button and no answer. It resolves when the message has been acknowledged, wh
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/confirm/alert.dart
+
+:::
+
 </Demo>
 
 ### initialFocus
@@ -72,6 +104,12 @@ Move it for a question whose yes is the harmless answer — "Save before closing
 ::: fw react
 
 <<< @/.vitepress/demos/confirm/focus.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/confirm/focus.dart
 
 :::
 

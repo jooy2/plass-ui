@@ -29,6 +29,24 @@ if (await confirm({ title: 'Delete this project?', color: 'danger' })) {
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+// 루트 근처에 한 번
+PlConfirmProvider(child: MyApp());
+
+// 그 아래 어디서든
+if (await PlConfirmProvider.of(context).confirm(
+  const PlConfirmOptions(title: Text('Delete this project?'), color: PlassColor.danger),
+)) {
+  await remove(project);
+}
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlConfirmProvider" />
@@ -38,6 +56,14 @@ provider의 prop은 그 아래에서 던지는 모든 질문의 기본값입니�
 ### PlConfirmOptions
 
 <PropsTable name="PlConfirmOptions" />
+
+::: fw flutter
+
+hook이 아니라 `PlConfirmProvider.of(context)`입니다 — `PlToastProvider`가 내주는 그 조회이고, 프레임워크 자신의 모양입니다. provider 밖에서는 `null`을 돌려주는 대신 **assert합니다.** React 빌드가 throw하는 그 이유입니다.
+
+`initialFocus`는 문자열이 아니라 `PlConfirmFocus`를 받습니다. 걱정할 `dismissible: false` 차이는 없습니다 — 바깥 누름과 ×가 같은 경로로 보고됩니다.
+
+:::
 
 ## 컴포넌트가 아니라 hook인 이유
 
@@ -59,6 +85,12 @@ provider의 prop은 그 아래에서 던지는 모든 질문의 기본값입니�
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/confirm/alert.dart
+
+:::
+
 </Demo>
 
 ### initialFocus
@@ -72,6 +104,12 @@ yes 쪽이 무해한 질문 — "닫기 전에 저장할까요?" — 에서는 �
 ::: fw react
 
 <<< @/.vitepress/demos/confirm/focus.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/confirm/focus.dart
 
 :::
 

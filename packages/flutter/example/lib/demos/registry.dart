@@ -162,6 +162,9 @@ import 'package:plass_ui_example/demos/empty/table.dart';
 import 'package:plass_ui_example/demos/stat/hero.dart';
 import 'package:plass_ui_example/demos/stat/direction.dart';
 import 'package:plass_ui_example/demos/back_top/hero.dart';
+import 'package:plass_ui_example/demos/confirm/hero.dart';
+import 'package:plass_ui_example/demos/confirm/alert.dart';
+import 'package:plass_ui_example/demos/confirm/focus.dart';
 import 'package:plass_ui_example/demos/calendar/hero.dart';
 import 'package:plass_ui_example/demos/calendar/precision.dart';
 import 'package:plass_ui_example/demos/calendar/bounds.dart';
@@ -496,6 +499,9 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'stat/hero': _statHero,
   'stat/direction': _statDirection,
   'back-top/hero': _backTopHero,
+  'confirm/hero': _confirmHero,
+  'confirm/alert': _confirmAlert,
+  'confirm/focus': _confirmFocus,
   'calendar/hero': _calendarHero,
   'calendar/precision': _calendarPrecision,
   'calendar/bounds': _calendarBounds,
@@ -951,6 +957,12 @@ Widget _statHero(BuildContext context) => const StatHero();
 Widget _statDirection(BuildContext context) => const StatDirection();
 
 Widget _backTopHero(BuildContext context) => const BackTopHero();
+
+Widget _confirmHero(BuildContext context) => const ConfirmHero();
+
+Widget _confirmAlert(BuildContext context) => const ConfirmAlert();
+
+Widget _confirmFocus(BuildContext context) => const ConfirmFocus();
 
 Widget _calendarHero(BuildContext context) => const CalendarHero();
 
