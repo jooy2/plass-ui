@@ -181,6 +181,7 @@ React-only, and the machinery the library already ran on rather than anything ne
 | `usePlReducedMotion` | Whether the reader has asked their platform for less movement |
 | `usePlHotKeys` | Binds keyboard chords, spelled the way `PlHotKeys` draws them |
 | `usePlassDefaults` | What the nearest `PlassProvider` decided |
+| `usePlColorScheme` | The dark mode toggle — the choice, where it is kept, and what it writes |
 | `usePlToast` | Raises a toast from a click handler, under a `PlToastProvider` |
 
 Flutter answers the same questions with framework calls — `MediaQuery`, `PlassTheme` — rather than with anything this package would add. Each hook's page names the Dart equivalent.

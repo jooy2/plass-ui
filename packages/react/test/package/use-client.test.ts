@@ -34,31 +34,32 @@
 import { describe, expect, it } from 'vitest';
 
 /** Every component implementation module, as source text. */
-const sources = import.meta.glob('../../src/components/*/Pl*.tsx', {
-  query: '?raw',
-  import: 'default',
-  eager: true
-});
-
-/**
- * The public hooks. Every one of them *is* a hook, so the directive is not a
- * judgement call here the way it is for a component — a module whose whole
- * export is `useSyncExternalStore` under another name has no server half.
- */
-const hooks = {
-  ...import.meta.glob('../../src/hooks/use*.ts', {
+const sources = {
+  ...import.meta.glob('../../src/components/*/Pl*.tsx', {
     query: '?raw',
     import: 'default',
     eager: true
   }),
-  // The provider is here rather than beside the components for the same reason:
-  // it writes a context, which is a client-only thing to do.
+  // The root-level ones follow the same rule and not a stricter one:
+  // `PlassProvider` writes a context and declares itself, and
+  // `PlColorSchemeScript` renders a `<script>` and must *not*.
   ...import.meta.glob('../../src/provider/Pl*.tsx', {
     query: '?raw',
     import: 'default',
     eager: true
   })
 };
+
+/**
+ * The public hooks. Every one of them *is* a hook, so the directive is not a
+ * judgement call here the way it is for a component — a module whose whole
+ * export is `useSyncExternalStore` under another name has no server half.
+ */
+const hooks = import.meta.glob('../../src/hooks/use*.ts', {
+  query: '?raw',
+  import: 'default',
+  eager: true
+});
 
 /** The barrels, which must *not* carry it — a client barrel is a client library. */
 const barrels = {
@@ -115,7 +116,9 @@ const reachesForAHook = (source: string) =>
  */
 const serverRenderable: Record<string, string> = {
   'src/components/table/PlTable.tsx':
-    'every column is a `render` callback, and a server component cannot hand a function across a client boundary'
+    'every column is a `render` callback, and a server component cannot hand a function across a client boundary',
+  'src/provider/PlColorSchemeScript.tsx':
+    'it exists to run before the bundle arrives, so a client component here would be too late by definition'
 };
 
 describe("'use client'", () => {
