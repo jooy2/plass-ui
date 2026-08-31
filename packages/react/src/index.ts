@@ -1,5 +1,6 @@
 export * from './types.js';
 export * from './hooks/index.js';
+export * from './provider/index.js';
 export * from './components/accordion/index.js';
 export * from './components/alert/index.js';
 export * from './components/animate-appear/index.js';

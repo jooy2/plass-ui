@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Accordion as BaseUIAccordion } from '@base-ui/react/accordion';
 import { ChevronIcon } from '../../internal/icons.js';
 import {
@@ -201,9 +202,9 @@ export const PlAccordion = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlAc
   function PlAccordion(
     {
       variant = 'glass',
-      size = 'md',
-      color = 'primary',
-      density = 'default',
+      size: sizeProp,
+      color: colorProp,
+      density: densityProp,
       elevation = 0,
       multiple = false,
       value,
@@ -220,6 +221,11 @@ export const PlAccordion = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlAc
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+    const density = densityProp ?? defaults.density ?? 'default';
+
     const context = React.useMemo(() => ({ size, density, dividers }), [size, density, dividers]);
 
     const classNames = [

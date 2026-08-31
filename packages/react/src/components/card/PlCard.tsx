@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { useRender } from '@base-ui/react/use-render';
 import {
   focusRingClasses,
@@ -138,9 +139,9 @@ const interactiveClasses: Record<PlassVariant, string> = {
 export const PlCard = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCardProps>(function PlCard(
   {
     variant = 'glass',
-    size = 'md',
-    color = 'primary',
-    density = 'default',
+    size: sizeProp,
+    color: colorProp,
+    density: densityProp,
     elevation = 1,
     title,
     subtitle,
@@ -157,6 +158,11 @@ export const PlCard = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCardPro
   },
   ref
 ) {
+  const defaults = useDefaults();
+  const size = sizeProp ?? defaults.size ?? 'md';
+  const color = colorProp ?? defaults.color ?? 'primary';
+  const density = densityProp ?? defaults.density ?? 'default';
+
   const insetX = padded ? sheetPaddingXClasses[density][size] : '';
   const insetY = padded ? sheetPaddingYClasses[density][size] : '';
   // Scored, the rules have to reach both edges, so the sheet gives up its

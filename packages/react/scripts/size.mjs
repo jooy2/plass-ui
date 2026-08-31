@@ -78,6 +78,7 @@ function checkNodeResolution(componentDirs) {
     'plass-ui',
     'plass-ui/types',
     'plass-ui/hooks',
+    'plass-ui/provider',
     ...componentDirs.map((d) => `plass-ui/${d}`)
   ];
   const dir = mkdtempSync(resolve(tmpdir(), 'plass-resolve-'));

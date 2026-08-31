@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Checkbox as BaseUICheckbox } from '@base-ui/react/checkbox';
 import { Field } from '@base-ui/react/field';
 import {
@@ -149,8 +150,8 @@ function DashMark() {
 export const PlCheckbox = /* @__PURE__ */ React.forwardRef<HTMLElement, PlCheckboxProps>(
   function PlCheckbox(
     {
-      size = 'md',
-      color = 'primary',
+      size: sizeProp,
+      color: colorProp,
       label,
       description,
       error,
@@ -164,6 +165,10 @@ export const PlCheckbox = /* @__PURE__ */ React.forwardRef<HTMLElement, PlCheckb
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+
     const hasError = hasContent(error);
     const isInvalid = invalid ?? hasError;
     // Invalid re-points the whole slot family at `danger`, so the tick, the ring

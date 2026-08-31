@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import {
   glassClasses,
   hasContent,
@@ -152,9 +153,9 @@ export const PlBlockquote = /* @__PURE__ */ React.forwardRef<HTMLElement, PlBloc
   function PlBlockquote(
     {
       variant = 'ghost',
-      size = 'md',
-      color = 'primary',
-      density = 'default',
+      size: sizeProp,
+      color: colorProp,
+      density: densityProp,
       elevation = 0,
       author,
       source,
@@ -167,6 +168,11 @@ export const PlBlockquote = /* @__PURE__ */ React.forwardRef<HTMLElement, PlBloc
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+    const density = densityProp ?? defaults.density ?? 'default';
+
     const attributed = hasContent(author) || hasContent(source);
     const glyph = icon === undefined ? <QuoteMarkIcon /> : icon;
 

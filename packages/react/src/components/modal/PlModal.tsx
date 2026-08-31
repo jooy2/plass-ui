@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Dialog as BaseUIDialog } from '@base-ui/react/dialog';
 import { CloseIcon } from '../../internal/icons.js';
 import {
@@ -192,9 +193,9 @@ export const PlModalClose = BaseUIDialog.Close;
  * `dividers` matters more here than on a PlCard.
  */
 export function PlModal({
-  size = 'md',
-  color = 'primary',
-  density = 'default',
+  size: sizeProp,
+  color: colorProp,
+  density: densityProp,
   open,
   defaultOpen,
   onOpenChange,
@@ -216,6 +217,11 @@ export function PlModal({
   children,
   ...props
 }: PlModalProps) {
+  const defaults = useDefaults();
+  const size = sizeProp ?? defaults.size ?? 'md';
+  const color = colorProp ?? defaults.color ?? 'primary';
+  const density = densityProp ?? defaults.density ?? 'default';
+
   const insetX = sheetPaddingXClasses[density][size];
   const insetY = sheetPaddingYClasses[density][size];
   // With dividers the lines have to reach both edges, so the sheet gives up its

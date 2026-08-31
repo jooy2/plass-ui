@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { CloseIcon, severityIcon } from '../../internal/icons.js';
 import {
   controlSlots,
@@ -139,12 +140,12 @@ export const PlAlert = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlAlertP
   function PlAlert(
     {
       variant = 'glass',
-      size = 'md',
+      size: sizeProp,
       // An alert with no severity named is an informational one. This is the one
       // place `primary` would be a lie: it is not the primary anything, it is a
       // note, and the palette already has the word for that.
-      color = 'info',
-      density = 'default',
+      color: colorProp,
+      density: densityProp,
       elevation = 0,
       title,
       icon,
@@ -158,6 +159,11 @@ export const PlAlert = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlAlertP
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'info';
+    const density = densityProp ?? defaults.density ?? 'default';
+
     const glyph = icon === undefined ? severityIcon(color) : icon;
     const accent = accentClasses[variant];
     const titled = hasContent(title);

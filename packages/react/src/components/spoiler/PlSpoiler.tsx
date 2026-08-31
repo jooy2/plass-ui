@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { PlButton } from '../button/PlButton.js';
 import {
   cx,
@@ -133,9 +134,9 @@ export const PlSpoiler = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSpoi
       blur = 10,
       padded = true,
       variant = 'glass',
-      size = 'md',
-      color = 'primary',
-      density = 'default',
+      size: sizeProp,
+      color: colorProp,
+      density: densityProp,
       elevation = 0,
       className,
       style,
@@ -144,6 +145,11 @@ export const PlSpoiler = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSpoi
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+    const density = densityProp ?? defaults.density ?? 'default';
+
     const contentId = React.useId();
 
     const [uncontrolled, setUncontrolled] = React.useState(defaultRevealed);

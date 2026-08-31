@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { PlDrawer } from '../drawer/PlDrawer.js';
 import {
   drawerSide,
@@ -242,9 +243,9 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
       sticky = true,
       title,
       variant = 'glass',
-      size = 'md',
-      color = 'primary',
-      density = 'default',
+      size: sizeProp,
+      color: colorProp,
+      density: densityProp,
       elevation = 0,
       divider = true,
       padded = true,
@@ -258,6 +259,11 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+    const density = densityProp ?? defaults.density ?? 'default';
+
     const layout = React.useContext(PlPageLayoutContext);
     const slotSide = React.useContext(PlassSidebarSideContext);
     const side = sideProp ?? slotSide ?? 'start';

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { useRender } from '@base-ui/react/use-render';
 import {
   cx,
@@ -110,9 +111,9 @@ export const PlToolbar = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTool
   function PlToolbar(
     {
       variant = 'glass',
-      size = 'md',
-      color = 'primary',
-      density = 'default',
+      size: sizeProp,
+      color: colorProp,
+      density: densityProp,
       elevation = 0,
       position = 'static',
       side = 'top',
@@ -127,6 +128,11 @@ export const PlToolbar = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTool
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+    const density = densityProp ?? defaults.density ?? 'default';
+
     const classNames = cx(
       'flex w-full min-w-0 items-center',
       sheetPaddingXClasses[density][size],

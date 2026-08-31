@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Calendar, usePickerLabels, type PlassPickerLabels } from '../../internal/calendar.js';
 import { popupPaddingClasses } from '../../internal/picker.js';
 import {
@@ -146,8 +147,8 @@ export const PlCalendar = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCal
   function PlCalendar(
     {
       variant = 'glass',
-      size = 'md',
-      color = 'primary',
+      size: sizeProp,
+      color: colorProp,
       elevation = 1,
       value: valueProp,
       defaultValue,
@@ -159,8 +160,8 @@ export const PlCalendar = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCal
       minDate,
       maxDate,
       shouldDisableDate,
-      locale,
-      weekStartsOn,
+      locale: localeProp,
+      weekStartsOn: weekStartsOnProp,
       showOutsideDays = true,
       autoFocus = false,
       disabled = false,
@@ -172,8 +173,13 @@ export const PlCalendar = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCal
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const locale = localeProp ?? defaults.locale;
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+
     const labels = usePickerLabels(labelOverrides);
-    const firstDay = weekStartsOn ?? localeWeekStart(locale);
+    const firstDay = weekStartsOnProp ?? defaults.weekStartsOn ?? localeWeekStart(locale);
 
     const [uncontrolledValue, setUncontrolledValue] = React.useState<Date | null>(
       defaultValue ?? null

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Toggle as BaseUIToggle } from '@base-ui/react/toggle';
 import { ButtonGroupContext } from '../../internal/button-group.js';
 import {
@@ -203,11 +204,12 @@ export const PlToggle = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlTo
   ) {
     // A `PlToggleGroup` and a `PlButtonGroup` publish the same context, so a
     // toggle picks up the set it is in either way. Its own prop still wins.
+    const defaults = useDefaults();
     const group = React.useContext(ButtonGroupContext);
     const variant = variantProp ?? group?.variant ?? 'glass';
-    const size = sizeProp ?? group?.size ?? 'md';
-    const color = colorProp ?? group?.color ?? 'primary';
-    const density = densityProp ?? group?.density ?? 'default';
+    const size = sizeProp ?? group?.size ?? defaults.size ?? 'md';
+    const color = colorProp ?? group?.color ?? defaults.color ?? 'primary';
+    const density = densityProp ?? group?.density ?? defaults.density ?? 'default';
     const elevation = elevationProp ?? group?.elevation ?? 0;
     const disabled = disabledProp ?? group?.disabled ?? false;
 

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { PlIconButton } from '../icon-button/PlIconButton.js';
 import { ChevronIcon } from '../../internal/icons.js';
 import {
@@ -124,9 +125,9 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
   function PlCarousel(
     {
       variant = 'glass',
-      size = 'md',
-      color = 'primary',
-      density = 'default',
+      size: sizeProp,
+      color: colorProp,
+      density: densityProp,
       elevation = 0,
       value,
       defaultValue = 0,
@@ -147,6 +148,11 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+    const density = densityProp ?? defaults.density ?? 'default';
+
     const nameSlide =
       slideLabel ?? ((index: number, total: number) => `Slide ${index} of ${total}`);
 

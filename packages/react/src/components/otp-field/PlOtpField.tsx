@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Field } from '@base-ui/react/field';
 import { OTPField } from '@base-ui/react/otp-field';
 import { hotKeyHandler } from '../../internal/keys.js';
@@ -196,9 +197,9 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
   function PlOtpField(
     {
       variant = 'glass',
-      size = 'md',
-      color = 'primary',
-      density = 'default',
+      size: sizeProp,
+      color: colorProp,
+      density: densityProp,
       elevation = 0,
       length = 6,
       charset = 'numeric',
@@ -228,6 +229,11 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+    const density = densityProp ?? defaults.density ?? 'default';
+
     const slots = Math.min(MAX_LENGTH, Math.max(MIN_LENGTH, Math.round(length)));
     const hasError = hasContent(error);
     const isInvalid = invalid ?? hasError;

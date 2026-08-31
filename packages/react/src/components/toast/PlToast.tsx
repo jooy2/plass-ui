@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Toast as BaseUIToast } from '@base-ui/react/toast';
 import { CloseIcon, severityIcon } from '../../internal/icons.js';
 import {
@@ -392,9 +393,9 @@ function ToastViewport(
  */
 export function PlToastProvider({
   variant = 'glass',
-  size = 'md',
-  color = 'primary',
-  density = 'default',
+  size: sizeProp,
+  color: colorProp,
+  density: densityProp,
   position = 'bottom-end',
   timeout = 5000,
   limit = 3,
@@ -402,6 +403,11 @@ export function PlToastProvider({
   closeLabel = 'Close',
   children
 }: PlToastProviderProps) {
+  const defaults = useDefaults();
+  const size = sizeProp ?? defaults.size ?? 'md';
+  const color = colorProp ?? defaults.color ?? 'primary';
+  const density = densityProp ?? defaults.density ?? 'default';
+
   return (
     <BaseUIToast.Provider timeout={timeout} limit={limit}>
       {children}

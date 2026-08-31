@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { useRender } from '@base-ui/react/use-render';
 import { cx, sheetPaddingXClasses } from '../../internal/styles.js';
 import type { PlassDensity, PlassSize } from '../../types.js';
@@ -90,8 +91,8 @@ export const PlContainer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCo
     {
       maxWidth = 'none',
       padded = true,
-      size = 'md',
-      density = 'default',
+      size: sizeProp,
+      density: densityProp,
       centered = true,
       render,
       className,
@@ -100,6 +101,10 @@ export const PlContainer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCo
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const density = densityProp ?? defaults.density ?? 'default';
+
     const classNames = cx(
       'block w-full',
       maxWidth === 'none' ? '' : maxWidthClasses[maxWidth],

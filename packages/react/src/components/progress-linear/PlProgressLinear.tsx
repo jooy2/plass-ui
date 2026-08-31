@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Progress } from '@base-ui/react/progress';
 import {
   barThicknessClasses,
@@ -48,8 +49,8 @@ export const PlProgressLinear = /* @__PURE__ */ React.forwardRef<
   PlProgressLinearProps
 >(function PlProgressLinear(
   {
-    size = 'md',
-    color = 'primary',
+    size: sizeProp,
+    color: colorProp,
     value = null,
     min = 0,
     max = 100,
@@ -62,6 +63,10 @@ export const PlProgressLinear = /* @__PURE__ */ React.forwardRef<
   },
   ref
 ) {
+  const defaults = useDefaults();
+  const size = sizeProp ?? defaults.size ?? 'md';
+  const color = colorProp ?? defaults.color ?? 'primary';
+
   const fraction = progressFraction(value, min, max);
   const indeterminate = fraction === null;
   const hasFormat = format !== undefined;

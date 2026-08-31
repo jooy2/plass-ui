@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { PlCheckbox } from '../checkbox/PlCheckbox.js';
 import { PlIconButton } from '../icon-button/PlIconButton.js';
 import { PlTextField } from '../text-field/PlTextField.js';
@@ -246,14 +247,19 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
       height = 220,
       disabled = false,
       variant = 'glass',
-      size = 'md',
-      color = 'primary',
-      density = 'default',
+      size: sizeProp,
+      color: colorProp,
+      density: densityProp,
       className,
       ...props
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+    const density = densityProp ?? defaults.density ?? 'default';
+
     const [uncontrolled, setUncontrolled] = React.useState<readonly string[]>(defaultValue ?? []);
     const selected = value ?? uncontrolled;
 

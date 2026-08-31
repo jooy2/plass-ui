@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Radio as BaseUIRadio } from '@base-ui/react/radio';
 import { RadioGroup as BaseUIRadioGroup } from '@base-ui/react/radio-group';
 import { Field } from '@base-ui/react/field';
@@ -210,8 +211,8 @@ export const PlRadio = /* @__PURE__ */ React.forwardRef<HTMLElement, PlRadioProp
 export const PlRadioGroup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlRadioGroupProps>(
   function PlRadioGroup(
     {
-      size = 'md',
-      color = 'primary',
+      size: sizeProp,
+      color: colorProp,
       orientation = 'vertical',
       label,
       description,
@@ -227,6 +228,10 @@ export const PlRadioGroup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlR
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+
     const hasError = hasContent(error);
     const isInvalid = invalid ?? hasError;
     // Invalid re-points the whole slot family at `danger`, so every dot, the

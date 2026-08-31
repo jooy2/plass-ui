@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { StarIcon, StarOutlineIcon } from '../../internal/icons.js';
 import {
   controlSlots,
@@ -131,8 +132,8 @@ export const PlRating = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlRatin
       disabled = false,
       name: nameProp,
       required = false,
-      size = 'md',
-      color = 'warning',
+      size: sizeProp,
+      color: colorProp,
       label = 'Rating',
       valueLabel = defaultValueLabel,
       className,
@@ -142,6 +143,10 @@ export const PlRating = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlRatin
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'warning';
+
     const generatedName = React.useId();
     const name = nameProp ?? generatedName;
 

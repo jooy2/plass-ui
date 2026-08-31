@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Dialog as BaseUIDialog } from '@base-ui/react/dialog';
 import { PlHotKeys } from '../hot-keys/PlHotKeys.js';
@@ -209,13 +210,18 @@ export function PlCommandPalette({
   placeholder = 'Search commands',
   emptyMessage = 'No commands found',
   label = 'Command palette',
-  size = 'md',
-  color = 'primary',
-  density = 'default',
+  size: sizeProp,
+  color: colorProp,
+  density: densityProp,
   className,
   classNames,
   style
 }: PlCommandPaletteProps): React.ReactElement {
+  const defaults = useDefaults();
+  const size = sizeProp ?? defaults.size ?? 'md';
+  const color = colorProp ?? defaults.color ?? 'primary';
+  const density = densityProp ?? defaults.density ?? 'default';
+
   const [uncontrolled, setUncontrolled] = React.useState(defaultOpen);
   const [query, setQuery] = React.useState('');
 

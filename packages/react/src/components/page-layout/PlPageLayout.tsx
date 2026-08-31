@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import {
   PlPageLayoutContext,
   PlassSidebarSideContext,
@@ -179,7 +180,7 @@ export const PlPageLayout = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlP
       skipLabel = 'Skip to content',
       mainId = 'main',
       mainProps,
-      color = 'primary',
+      color: colorProp,
       className,
       style,
       children,
@@ -187,6 +188,9 @@ export const PlPageLayout = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlP
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const color = colorProp ?? defaults.color ?? 'primary';
+
     const [ownStart, setOwnStart] = React.useState(defaultSidebarOpen);
     const [ownEnd, setOwnEnd] = React.useState(defaultEndSidebarOpen);
 

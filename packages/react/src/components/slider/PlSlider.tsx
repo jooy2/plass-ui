@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Slider as BaseUISlider } from '@base-ui/react/slider';
 import {
   controlSlots,
@@ -159,8 +160,8 @@ const disabledSliderClasses = 'opacity-50 saturate-[0.35] [&_*]:cursor-not-allow
 export const PlSlider = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSliderProps>(
   function PlSlider(
     {
-      size = 'md',
-      color = 'primary',
+      size: sizeProp,
+      color: colorProp,
       elevation = 1,
       orientation = 'horizontal',
       label,
@@ -173,6 +174,10 @@ export const PlSlider = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSlide
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+
     const vertical = orientation === 'vertical';
 
     // One thumb per value. The count comes off whichever of the two was given, so

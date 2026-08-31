@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Progress } from '@base-ui/react/progress';
 import {
   progressAriaText,
@@ -38,8 +39,8 @@ export const PlProgressCircular = /* @__PURE__ */ React.forwardRef<
   PlProgressCircularProps
 >(function PlProgressCircular(
   {
-    size = 'md',
-    color = 'primary',
+    size: sizeProp,
+    color: colorProp,
     value = null,
     min = 0,
     max = 100,
@@ -52,6 +53,10 @@ export const PlProgressCircular = /* @__PURE__ */ React.forwardRef<
   },
   ref
 ) {
+  const defaults = useDefaults();
+  const size = sizeProp ?? defaults.size ?? 'md';
+  const color = colorProp ?? defaults.color ?? 'primary';
+
   const fraction = progressFraction(value, min, max);
   const indeterminate = fraction === null;
   const hasFormat = format !== undefined;

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useDefaults } from './defaults.js';
 import { PlButton } from '../components/button/PlButton.js';
 import { ChevronIcon } from './icons.js';
 import { dateFormatter } from './format.js';
@@ -123,11 +124,24 @@ export const defaultPickerLabels: PlassPickerLabels = {
   end: 'End'
 };
 
-/** Merges a caller's overrides over the defaults, once per render. */
+/**
+ * The labels a picker says, resolved once per render.
+ *
+ * Three layers, narrowest last: the English defaults above, whatever a
+ * `PlassProvider` set for the application, and the component's own overrides.
+ * That order is what lets an application translate the vocabulary once and a
+ * single picker still say something different — a "Check in" where the rest of
+ * the app says "Start".
+ */
 export function usePickerLabels(overrides?: Partial<PlassPickerLabels>): PlassPickerLabels {
+  const { labels } = useDefaults();
+
   return React.useMemo(
-    () => (overrides ? { ...defaultPickerLabels, ...overrides } : defaultPickerLabels),
-    [overrides]
+    () =>
+      labels || overrides
+        ? { ...defaultPickerLabels, ...labels, ...overrides }
+        : defaultPickerLabels,
+    [labels, overrides]
   );
 }
 

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { PlIconButton } from '../icon-button/PlIconButton.js';
 import { spacingValue } from '../../internal/grid.js';
 import { ChevronIcon } from '../../internal/icons.js';
@@ -221,9 +222,9 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
       wheel = true,
       scrollbar = false,
       variant = 'glass',
-      size = 'md',
-      color = 'primary',
-      density = 'default',
+      size: sizeProp,
+      color: colorProp,
+      density: densityProp,
       label,
       previousLabel = 'Previous',
       nextLabel = 'Next',
@@ -234,6 +235,11 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+    const density = densityProp ?? defaults.density ?? 'default';
+
     const horizontal = orientation === 'horizontal';
     const rows = Math.max(1, Math.round(lines));
     const items = Math.max(1, Math.round(step));

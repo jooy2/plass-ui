@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { useRender } from '@base-ui/react/use-render';
 import {
   cx,
@@ -64,9 +65,9 @@ export interface PlBoxProps
 export const PlBox = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlBoxProps>(function PlBox(
   {
     variant = 'glass',
-    size = 'md',
-    color = 'primary',
-    density = 'default',
+    size: sizeProp,
+    color: colorProp,
+    density: densityProp,
     elevation = 0,
     padded = true,
     render,
@@ -77,6 +78,11 @@ export const PlBox = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlBoxProps
   },
   ref
 ) {
+  const defaults = useDefaults();
+  const size = sizeProp ?? defaults.size ?? 'md';
+  const color = colorProp ?? defaults.color ?? 'primary';
+  const density = densityProp ?? defaults.density ?? 'default';
+
   const classNames = cx(
     'block',
     radiusClasses[size],

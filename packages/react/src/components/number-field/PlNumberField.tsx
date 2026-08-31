@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { NumberField as BaseUINumberField } from '@base-ui/react/number-field';
 import { Field } from '@base-ui/react/field';
 import { MinusIcon, PlusIcon } from '../../internal/icons.js';
@@ -212,9 +213,9 @@ const stepperClasses = /* @__PURE__ */ [
  */
 export function PlNumberField({
   variant = 'glass',
-  size = 'md',
-  color = 'primary',
-  density = 'default',
+  size: sizeProp,
+  color: colorProp,
+  density: densityProp,
   elevation = 0,
   value,
   defaultValue,
@@ -228,7 +229,7 @@ export function PlNumberField({
   snapOnStep,
   allowWheelScrub = false,
   format,
-  locale,
+  locale: localeProp,
   steppers = 'end',
   incrementLabel = 'Increase',
   decrementLabel = 'Decrease',
@@ -251,6 +252,12 @@ export function PlNumberField({
   style,
   ...props
 }: PlNumberFieldProps) {
+  const defaults = useDefaults();
+  const locale = localeProp ?? defaults.locale;
+  const size = sizeProp ?? defaults.size ?? 'md';
+  const color = colorProp ?? defaults.color ?? 'primary';
+  const density = densityProp ?? defaults.density ?? 'default';
+
   const hasError = hasContent(error);
   const isInvalid = invalid ?? hasError;
   // Invalid re-points the whole slot family at `danger`, so the edge, the ring,

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import {
   controlSlots,
   glassClasses,
@@ -225,9 +226,9 @@ export const PlBadge = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlBadge
   function PlBadge(
     {
       variant = 'solid',
-      size = 'md',
-      color = 'primary',
-      density = 'default',
+      size: sizeProp,
+      color: colorProp,
+      density: densityProp,
       elevation = 0,
       content,
       max = 99,
@@ -244,6 +245,11 @@ export const PlBadge = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlBadge
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+    const density = densityProp ?? defaults.density ?? 'default';
+
     const anchored = hasContent(children);
     // `0` is content, and `hasContent` would agree — this is the one place the
     // library asks a second question, because a count of nothing is not news.

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Combobox as BaseUICombobox } from '@base-ui/react/combobox';
 import { Field } from '@base-ui/react/field';
 import { PlChip } from '../chip/PlChip.js';
@@ -282,9 +283,9 @@ function toArray(value: unknown): PlComboboxValue[] {
  */
 export function PlCombobox<Multiple extends boolean | undefined = false>({
   variant = 'glass',
-  size = 'md',
-  color = 'primary',
-  density = 'default',
+  size: sizeProp,
+  color: colorProp,
+  density: densityProp,
   elevation = 0,
   items,
   multiple,
@@ -322,6 +323,11 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
   style,
   ...props
 }: PlComboboxProps<Multiple>) {
+  const defaults = useDefaults();
+  const size = sizeProp ?? defaults.size ?? 'md';
+  const color = colorProp ?? defaults.color ?? 'primary';
+  const density = densityProp ?? defaults.density ?? 'default';
+
   const hasError = hasContent(error);
   const isInvalid = invalid ?? hasError;
   // Invalid re-points the whole slot family at `danger`, so the edge, the ring,

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Dialog as BaseUIDialog } from '@base-ui/react/dialog';
 import { CloseIcon } from '../../internal/icons.js';
 import {
@@ -289,9 +290,9 @@ export const PlDrawerClose = BaseUIDialog.Close;
 export function PlDrawer({
   side = 'left',
   mode = 'overlay',
-  size = 'md',
-  color = 'primary',
-  density = 'default',
+  size: sizeProp,
+  color: colorProp,
+  density: densityProp,
   open,
   defaultOpen,
   onOpenChange,
@@ -312,6 +313,11 @@ export function PlDrawer({
   children,
   ...props
 }: PlDrawerProps) {
+  const defaults = useDefaults();
+  const size = sizeProp ?? defaults.size ?? 'md';
+  const color = colorProp ?? defaults.color ?? 'primary';
+  const density = densityProp ?? defaults.density ?? 'default';
+
   const overlay = mode === 'overlay';
   const along = side === 'left' || side === 'right';
   const showCloseButton = showClose ?? overlay;

@@ -50,6 +50,11 @@
       "module": "./dist/hooks/index.js",
       "default": "./dist/hooks/index.js"
     },
+    "./provider": {
+      "types": "./dist/provider/index.d.ts",
+      "module": "./dist/provider/index.js",
+      "default": "./dist/provider/index.js"
+    },
     "./styles.css": "./dist/styles.css",
     "./tailwind.css": "./dist/tailwind.css",
     "./tokens.css": "./dist/tokens.css",
@@ -68,6 +73,9 @@
       ],
       "hooks": [
         "dist/hooks/index.d.ts"
+      ],
+      "provider": [
+        "dist/provider/index.d.ts"
       ],
       "*": [
         "dist/components/*/index.d.ts"

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Radio as BaseUIRadio } from '@base-ui/react/radio';
 import { RadioGroup as BaseUIRadioGroup } from '@base-ui/react/radio-group';
 import {
@@ -229,9 +230,9 @@ export const PlSegmentedButton = /* @__PURE__ */ React.forwardRef<
 >(function PlSegmentedButton(
   {
     variant = 'glass',
-    size = 'md',
-    color = 'primary',
-    density = 'default',
+    size: sizeProp,
+    color: colorProp,
+    density: densityProp,
     elevation = 0,
     value: valueProp,
     defaultValue = null,
@@ -247,6 +248,11 @@ export const PlSegmentedButton = /* @__PURE__ */ React.forwardRef<
   },
   ref
 ) {
+  const defaults = useDefaults();
+  const size = sizeProp ?? defaults.size ?? 'md';
+  const color = colorProp ?? defaults.color ?? 'primary';
+  const density = densityProp ?? defaults.density ?? 'default';
+
   const [uncontrolled, setUncontrolled] = React.useState<PlSegmentValue | null>(defaultValue);
   const controlled = valueProp !== undefined;
   const value = controlled ? valueProp : uncontrolled;

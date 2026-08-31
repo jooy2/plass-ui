@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { useRender } from '@base-ui/react/use-render';
 import {
   cx,
@@ -194,9 +195,9 @@ export const PlBottomNavigation = /* @__PURE__ */ React.forwardRef<
 >(function PlBottomNavigation(
   {
     variant = 'glass',
-    size = 'md',
-    color = 'primary',
-    density = 'default',
+    size: sizeProp,
+    color: colorProp,
+    density: densityProp,
     elevation = 0,
     value: valueProp,
     defaultValue = null,
@@ -215,6 +216,11 @@ export const PlBottomNavigation = /* @__PURE__ */ React.forwardRef<
   },
   ref
 ) {
+  const defaults = useDefaults();
+  const size = sizeProp ?? defaults.size ?? 'md';
+  const color = colorProp ?? defaults.color ?? 'primary';
+  const density = densityProp ?? defaults.density ?? 'default';
+
   const [uncontrolled, setUncontrolled] = React.useState<PlBottomNavigationValue | null>(
     defaultValue
   );

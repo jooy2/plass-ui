@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { useRender } from '@base-ui/react/use-render';
 import { PlPageLayoutContext } from '../../internal/page-layout.js';
 import {
@@ -243,9 +244,9 @@ export const PlHeader = /* @__PURE__ */ React.forwardRef<HTMLElement, PlHeaderPr
       align = 'start',
       position = 'sticky',
       variant = 'glass',
-      size = 'md',
-      color = 'primary',
-      density = 'default',
+      size: sizeProp,
+      color: colorProp,
+      density: densityProp,
       elevation = 0,
       divider = true,
       maxWidth = 'none',
@@ -259,6 +260,11 @@ export const PlHeader = /* @__PURE__ */ React.forwardRef<HTMLElement, PlHeaderPr
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+    const density = densityProp ?? defaults.density ?? 'default';
+
     const { register } = React.useContext(PlPageLayoutContext);
 
     const setRef = React.useCallback(

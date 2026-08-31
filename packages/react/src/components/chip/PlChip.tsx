@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { CloseIcon } from '../../internal/icons.js';
 import {
   chipRemoveClasses,
@@ -175,9 +176,9 @@ export const PlChip = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlChipPr
   function PlChip(
     {
       variant = 'glass',
-      size = 'md',
-      color = 'primary',
-      density = 'default',
+      size: sizeProp,
+      color: colorProp,
+      density: densityProp,
       elevation = 0,
       startIcon,
       endIcon,
@@ -194,6 +195,11 @@ export const PlChip = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlChipPr
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+    const density = densityProp ?? defaults.density ?? 'default';
+
     const interactive = Boolean(onClick) && !disabled;
     const step = chipScale[size];
     const padX = paddingXClasses[density][step];

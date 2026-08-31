@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { PlButton } from '../button/PlButton.js';
 import { ChevronIcon } from '../../internal/icons.js';
 import { controlTextClasses, gapClasses, srOnlyClasses } from '../../internal/styles.js';
@@ -211,9 +212,9 @@ export const PlPagination = /* @__PURE__ */ React.forwardRef<HTMLElement, PlPagi
   function PlPagination(
     {
       variant = 'ghost',
-      size = 'md',
-      color = 'primary',
-      density = 'compact',
+      size: sizeProp,
+      color: colorProp,
+      density: densityProp,
       elevation = 0,
       count,
       page: pageProp,
@@ -239,6 +240,11 @@ export const PlPagination = /* @__PURE__ */ React.forwardRef<HTMLElement, PlPagi
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+    const density = densityProp ?? defaults.density ?? 'compact';
+
     const [uncontrolled, setUncontrolled] = React.useState(defaultPage);
     const current = Math.min(Math.max(pageProp ?? uncontrolled, 1), Math.max(count, 1));
 

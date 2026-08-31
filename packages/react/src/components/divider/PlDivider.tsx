@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Separator } from '@base-ui/react/separator';
 import { metaTextClasses, toLength } from '../../internal/styles.js';
 import type { PlassAlign, PlassColor, PlassOrientation, PlassSize } from '../../types.js';
@@ -123,7 +124,7 @@ export const PlDivider = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlDivi
     {
       orientation = 'horizontal',
       color,
-      size = 'md',
+      size: sizeProp,
       length,
       thickness,
       textAlign = 'center',
@@ -134,6 +135,9 @@ export const PlDivider = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlDivi
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+
     const vertical = orientation === 'vertical';
     const hasLabel =
       children !== undefined && children !== null && children !== false && children !== '';

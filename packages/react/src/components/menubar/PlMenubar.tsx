@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Menubar as BaseUIMenubar } from '@base-ui/react/menubar';
 import { PlMenu } from '../menu/PlMenu.js';
 import { MenuContext } from '../../internal/menu.js';
@@ -164,9 +165,9 @@ export function PlMenubarMenu({
 export const PlMenubar = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlMenubarProps>(
   function PlMenubar(
     {
-      size = 'md',
-      color = 'primary',
-      density = 'default',
+      size: sizeProp,
+      color: colorProp,
+      density: densityProp,
       orientation = 'horizontal',
       modal = true,
       loopFocus = true,
@@ -178,6 +179,11 @@ export const PlMenubar = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlMenu
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+    const density = densityProp ?? defaults.density ?? 'default';
+
     const context = React.useMemo(() => ({ size, color, density }), [size, color, density]);
 
     return (

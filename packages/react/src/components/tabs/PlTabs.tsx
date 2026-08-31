@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Tabs as BaseUITabs } from '@base-ui/react/tabs';
 import {
   controlHeightClasses,
@@ -300,9 +301,9 @@ export const PlTabPanel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTab
 export const PlTabs = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTabsProps>(function PlTabs(
   {
     variant = 'glass',
-    size = 'md',
-    color = 'primary',
-    density = 'default',
+    size: sizeProp,
+    color: colorProp,
+    density: densityProp,
     value,
     defaultValue,
     onValueChange,
@@ -317,6 +318,11 @@ export const PlTabs = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTabsPro
   },
   ref
 ) {
+  const defaults = useDefaults();
+  const size = sizeProp ?? defaults.size ?? 'md';
+  const color = colorProp ?? defaults.color ?? 'primary';
+  const density = densityProp ?? defaults.density ?? 'default';
+
   const context = React.useMemo(
     () => ({ variant, size, density, orientation, fullWidth }),
     [variant, size, density, orientation, fullWidth]

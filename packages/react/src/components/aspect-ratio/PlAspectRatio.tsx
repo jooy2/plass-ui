@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { useRender } from '@base-ui/react/use-render';
 import { cx, radiusClasses } from '../../internal/styles.js';
 import type { PlassSize } from '../../types.js';
@@ -100,7 +101,7 @@ export const PlAspectRatio = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
       ratio = 1,
       fit = 'cover',
       rounded = false,
-      size = 'md',
+      size: sizeProp,
       render,
       className,
       style,
@@ -109,6 +110,9 @@ export const PlAspectRatio = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+
     const classNames = cx(
       // `overflow-hidden` is not decoration: without it a `cover` image spills
       // out of the proportion it was just given, and the box would only be

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Switch as BaseUISwitch } from '@base-ui/react/switch';
 import { Field } from '@base-ui/react/field';
 import {
@@ -164,8 +165,8 @@ const thumbClasses = /* @__PURE__ */ [
 export const PlSwitch = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSwitchProps>(
   function PlSwitch(
     {
-      size = 'md',
-      color = 'primary',
+      size: sizeProp,
+      color: colorProp,
       label,
       description,
       error,
@@ -180,6 +181,10 @@ export const PlSwitch = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSwitchPr
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+
     const hasError = hasContent(error);
     const isInvalid = invalid ?? hasError;
     const family: PlassColor = isInvalid ? 'danger' : color;

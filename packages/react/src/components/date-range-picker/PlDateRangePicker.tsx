@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { PlButton } from '../button/PlButton.js';
 import { Calendar, usePickerLabels, type PlassPickerLabels } from '../../internal/calendar.js';
 import { ArrowRightIcon, CalendarIcon } from '../../internal/icons.js';
@@ -128,8 +129,8 @@ export const PlDateRangePicker = /* @__PURE__ */ React.forwardRef<
     minDate,
     maxDate,
     shouldDisableDate,
-    locale,
-    weekStartsOn,
+    locale: localeProp,
+    weekStartsOn: weekStartsOnProp,
     format = { dateStyle: 'medium' },
     monthCount = 2,
     startPlaceholder,
@@ -139,8 +140,8 @@ export const PlDateRangePicker = /* @__PURE__ */ React.forwardRef<
     closeOnSelect = true,
     labels: labelOverrides,
     name,
-    size = 'md',
-    color = 'primary',
+    size: sizeProp,
+    color: colorProp,
     readOnly = false,
     disabled = false,
     startIcon,
@@ -148,8 +149,13 @@ export const PlDateRangePicker = /* @__PURE__ */ React.forwardRef<
   },
   ref
 ) {
+  const defaults = useDefaults();
+  const locale = localeProp ?? defaults.locale;
+  const size = sizeProp ?? defaults.size ?? 'md';
+  const color = colorProp ?? defaults.color ?? 'primary';
+
   const labels = usePickerLabels(labelOverrides);
-  const firstDay = weekStartsOn ?? localeWeekStart(locale);
+  const firstDay = weekStartsOnProp ?? defaults.weekStartsOn ?? localeWeekStart(locale);
 
   const [uncontrolledValue, setUncontrolledValue] = React.useState<PlDateRange>(
     defaultValue ?? EMPTY

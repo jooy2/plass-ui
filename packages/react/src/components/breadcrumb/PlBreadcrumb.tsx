@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { ArrowRightIcon, ChevronIcon, EllipsisIcon } from '../../internal/icons.js';
 import {
   controlTextClasses,
@@ -297,9 +298,9 @@ function isSeparatorName(value: unknown): value is PlBreadcrumbSeparator {
 export const PlBreadcrumb = /* @__PURE__ */ React.forwardRef<HTMLElement, PlBreadcrumbProps>(
   function PlBreadcrumb(
     {
-      size = 'md',
-      color = 'primary',
-      density = 'default',
+      size: sizeProp,
+      color: colorProp,
+      density: densityProp,
       separator = 'chevron',
       maxItems,
       itemsBeforeCollapse = 1,
@@ -316,6 +317,11 @@ export const PlBreadcrumb = /* @__PURE__ */ React.forwardRef<HTMLElement, PlBrea
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+    const density = densityProp ?? defaults.density ?? 'default';
+
     const [unfolded, setUnfolded] = React.useState(false);
 
     const steps = React.Children.toArray(children).filter(

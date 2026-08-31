@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Menu as BaseUIMenu } from '@base-ui/react/menu';
 import { ContextMenu as BaseUIContextMenu } from '@base-ui/react/context-menu';
 import { MenuContext } from '../../internal/menu.js';
@@ -636,9 +637,9 @@ export function PlMenuSubmenu({
  * discriminated union.
  */
 export function PlMenu({
-  size = 'md',
-  color = 'primary',
-  density = 'default',
+  size: sizeProp,
+  color: colorProp,
+  density: densityProp,
   trigger,
   open,
   defaultOpen,
@@ -654,6 +655,11 @@ export function PlMenu({
   style,
   children
 }: PlMenuProps) {
+  const defaults = useDefaults();
+  const size = sizeProp ?? defaults.size ?? 'md';
+  const color = colorProp ?? defaults.color ?? 'primary';
+  const density = densityProp ?? defaults.density ?? 'default';
+
   const context = React.useMemo(() => ({ size, color, density }), [size, color, density]);
 
   return (
@@ -711,9 +717,9 @@ export function PlMenu({
  * screen at all.
  */
 export function PlContextMenu({
-  size = 'md',
-  color = 'primary',
-  density = 'default',
+  size: sizeProp,
+  color: colorProp,
+  density: densityProp,
   content,
   children,
   open,
@@ -724,6 +730,11 @@ export function PlContextMenu({
   className,
   style
 }: PlContextMenuProps) {
+  const defaults = useDefaults();
+  const size = sizeProp ?? defaults.size ?? 'md';
+  const color = colorProp ?? defaults.color ?? 'primary';
+  const density = densityProp ?? defaults.density ?? 'default';
+
   const context = React.useMemo(() => ({ size, color, density }), [size, color, density]);
 
   return (

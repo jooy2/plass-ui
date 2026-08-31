@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { useRender } from '@base-ui/react/use-render';
 import {
   cx,
@@ -375,9 +376,9 @@ export const PlTimeline = /* @__PURE__ */ React.forwardRef<HTMLOListElement, PlT
   function PlTimeline(
     {
       active,
-      size = 'md',
-      color = 'primary',
-      density = 'default',
+      size: sizeProp,
+      color: colorProp,
+      density: densityProp,
       orientation = 'vertical',
       render,
       className,
@@ -387,6 +388,11 @@ export const PlTimeline = /* @__PURE__ */ React.forwardRef<HTMLOListElement, PlT
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+    const density = densityProp ?? defaults.density ?? 'default';
+
     // `toArray` is what drops the `null`s and `false`s a conditional step leaves
     // behind, so `active={2}` counts the steps that are actually on the page.
     const items = React.Children.toArray(children);

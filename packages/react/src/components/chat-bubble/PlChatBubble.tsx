@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { CheckIcon, ClockIcon, LinkIcon, severityIcon } from '../../internal/icons.js';
 import {
   controlSlots,
@@ -335,9 +336,9 @@ export const PlChatBubble = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlC
       preview,
       actions,
       variant = 'glass',
-      size = 'md',
-      color = 'primary',
-      density = 'default',
+      size: sizeProp,
+      color: colorProp,
+      density: densityProp,
       elevation = 0,
       className,
       style,
@@ -346,6 +347,11 @@ export const PlChatBubble = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlC
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+    const density = densityProp ?? defaults.density ?? 'default';
+
     const end = side === 'end';
 
     const hasHeader = hasContent(name) || hasContent(time);

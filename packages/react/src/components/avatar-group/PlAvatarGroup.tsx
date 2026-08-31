@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { PlAvatar, type PlAvatarShape } from '../avatar/PlAvatar.js';
 import {
   AvatarGroupContext,
@@ -86,10 +87,10 @@ export const PlAvatarGroup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
       max,
       total,
       overlap,
-      size = 'md',
+      size: sizeProp,
       shape = 'circle',
       variant = 'ghost',
-      color = 'primary',
+      color: colorProp,
       elevation = 0,
       className,
       style,
@@ -98,6 +99,10 @@ export const PlAvatarGroup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+
     const context = React.useMemo<PlassAvatarGroupContextValue>(
       () => ({ size, shape, variant, color, elevation }),
       [size, shape, variant, color, elevation]

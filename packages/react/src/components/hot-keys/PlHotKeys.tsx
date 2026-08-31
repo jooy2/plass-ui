@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { canonicalKey, detectOS } from '../../internal/keys.js';
 import {
   controlHeightClasses,
@@ -361,9 +362,9 @@ export const PlHotKeys = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlHot
   function PlHotKeys(
     {
       variant = 'glass',
-      size = 'md',
-      color = 'secondary',
-      density = 'compact',
+      size: sizeProp,
+      color: colorProp,
+      density: densityProp,
       elevation = 0,
       keys,
       cluster,
@@ -375,6 +376,11 @@ export const PlHotKeys = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlHot
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'secondary';
+    const density = densityProp ?? defaults.density ?? 'compact';
+
     const detected = useDetectedOS();
     const resolved: ResolvedOS = os === 'auto' ? detected : os;
 

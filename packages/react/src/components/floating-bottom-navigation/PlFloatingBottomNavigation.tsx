@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { useRender } from '@base-ui/react/use-render';
 import {
   controlHeightClasses,
@@ -257,9 +258,9 @@ export const PlFloatingBottomNavigation = /* @__PURE__ */ React.forwardRef<
 >(function PlFloatingBottomNavigation(
   {
     variant = 'glass',
-    size = 'md',
-    color = 'primary',
-    density = 'default',
+    size: sizeProp,
+    color: colorProp,
+    density: densityProp,
     elevation = 2,
     value: valueProp,
     defaultValue = null,
@@ -276,6 +277,11 @@ export const PlFloatingBottomNavigation = /* @__PURE__ */ React.forwardRef<
   },
   ref
 ) {
+  const defaults = useDefaults();
+  const size = sizeProp ?? defaults.size ?? 'md';
+  const color = colorProp ?? defaults.color ?? 'primary';
+  const density = densityProp ?? defaults.density ?? 'default';
+
   const [uncontrolled, setUncontrolled] = React.useState<PlFloatingBottomNavigationValue | null>(
     defaultValue
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { useRender } from '@base-ui/react/use-render';
 import { isInfinite, useAnimateElement } from '../../internal/animate.js';
 import { cx, radiusClasses } from '../../internal/styles.js';
@@ -86,9 +87,9 @@ export const PlAnimateLighting = /* @__PURE__ */ React.forwardRef<
     play,
     once = true,
     threshold = 0.2,
-    color = 'primary',
+    color: colorProp,
     glow,
-    size = 'md',
+    size: sizeProp,
     spread = 3,
     arc = 50,
     blur = 5,
@@ -101,6 +102,10 @@ export const PlAnimateLighting = /* @__PURE__ */ React.forwardRef<
   },
   ref
 ) {
+  const defaults = useDefaults();
+  const color = colorProp ?? defaults.color ?? 'primary';
+  const size = sizeProp ?? defaults.size ?? 'md';
+
   const animate = useAnimateElement({
     // The keyframe runs on a pseudo-element rather than on the root, so there
     // is no effect class to apply here — only the slots it reads.

@@ -153,6 +153,22 @@ A **†** marks the few that are React-only. They are not omissions — each one
 
 `PlAnimateAppear` · `PlAnimateBlink` · `PlAnimateFade` · `PlAnimateGrow` · `PlAnimateHeadline` · `PlAnimateLighting` · `PlAnimateMarquee` · `PlAnimateRotate` · `PlAnimateSlide` · `PlAnimateTyping` · `PlAnimateZoom`
 
+## Setting defaults
+
+`size`, `color`, `density` and the date vocabulary can be decided once for an application rather than at every call site. Optional — the library is finished without it.
+
+```tsx
+import { PlassProvider } from 'plass-ui';
+
+<PlassProvider size="sm" density="compact" locale="ko-KR">
+  <App />
+</PlassProvider>;
+```
+
+It deliberately does **not** set `variant` or `elevation`: those name what a surface is made of and how far off the page it sits, and both are decided per component by the design language — a button is `solid` and rests on the sheet, a field is cut into it. [The guide](https://plass.cdget.com/guide/defaults) has the long version, and the precedence: a component's own prop beats the set it is in, which beats the provider.
+
+React-only for now; the Flutter package has `PlassTheme` for brightness and tokens.
+
 ## Hooks
 
 React-only, and the machinery the library already ran on rather than anything new. Import them from the barrel or from `plass-ui/hooks`.
@@ -164,6 +180,7 @@ React-only, and the machinery the library already ran on rather than anything ne
 | `usePlBreakpointValue` | What a `PlassResponsive` map resolves to at that rung |
 | `usePlReducedMotion` | Whether the reader has asked their platform for less movement |
 | `usePlHotKeys` | Binds keyboard chords, spelled the way `PlHotKeys` draws them |
+| `usePlassDefaults` | What the nearest `PlassProvider` decided |
 | `usePlToast` | Raises a toast from a click handler, under a `PlToastProvider` |
 
 Flutter answers the same questions with framework calls — `MediaQuery`, `PlassTheme` — rather than with anything this package would add. Each hook's page names the Dart equivalent.

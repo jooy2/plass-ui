@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Button as BaseUIButton } from '@base-ui/react/button';
 import { useRender } from '@base-ui/react/use-render';
 import { ButtonGroupContext } from '../../internal/button-group.js';
@@ -196,11 +197,12 @@ export const PlButton = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlBu
      * button in it is a real thing — and with no group around it the fallbacks
      * are the defaults they always were.
      */
+    const defaults = useDefaults();
     const group = React.useContext(ButtonGroupContext);
     const variant = variantProp ?? group?.variant ?? 'solid';
-    const size = sizeProp ?? group?.size ?? 'md';
-    const color = colorProp ?? group?.color ?? 'primary';
-    const density = densityProp ?? group?.density ?? 'default';
+    const size = sizeProp ?? group?.size ?? defaults.size ?? 'md';
+    const color = colorProp ?? group?.color ?? defaults.color ?? 'primary';
+    const density = densityProp ?? group?.density ?? defaults.density ?? 'default';
     const elevation = elevationProp ?? group?.elevation ?? 1;
     const disabled = disabledProp ?? group?.disabled ?? false;
 

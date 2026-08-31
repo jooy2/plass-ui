@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import {
   controlSlots,
   controlTextClasses,
@@ -223,9 +224,9 @@ const positionClasses: Record<PlassPosition, Record<'top' | 'bottom', string>> =
 export const PlPill = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPillProps>(function PlPill(
   {
     variant = 'solid',
-    size = 'md',
-    color = 'secondary',
-    density = 'default',
+    size: sizeProp,
+    color: colorProp,
+    density: densityProp,
     elevation = 2,
     startIcon,
     endIcon,
@@ -243,6 +244,11 @@ export const PlPill = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPillPro
   },
   ref
 ) {
+  const defaults = useDefaults();
+  const size = sizeProp ?? defaults.size ?? 'md';
+  const color = colorProp ?? defaults.color ?? 'secondary';
+  const density = densityProp ?? defaults.density ?? 'default';
+
   const detailsRef = React.useRef<HTMLDivElement>(null);
   const [detailsHeight, setDetailsHeight] = React.useState(0);
 

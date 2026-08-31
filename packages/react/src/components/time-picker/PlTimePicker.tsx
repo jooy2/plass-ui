@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { PlButton } from '../button/PlButton.js';
 import {
   TimeGrid,
@@ -127,7 +128,7 @@ export const PlTimePicker = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, 
       hourStep = 1,
       minuteStep = 1,
       secondStep = 1,
-      locale,
+      locale: localeProp,
       format,
       placeholder,
       clearable = false,
@@ -135,9 +136,9 @@ export const PlTimePicker = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, 
       closeOnSelect = false,
       labels: labelOverrides,
       name,
-      size = 'md',
-      color = 'primary',
-      density = 'default',
+      size: sizeProp,
+      color: colorProp,
+      density: densityProp,
       readOnly = false,
       disabled = false,
       startIcon,
@@ -145,6 +146,12 @@ export const PlTimePicker = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, 
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const locale = localeProp ?? defaults.locale;
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+    const density = densityProp ?? defaults.density ?? 'default';
+
     const labels = usePickerLabels(labelOverrides);
     const hour12 = hour12Prop ?? isHour12(locale);
 

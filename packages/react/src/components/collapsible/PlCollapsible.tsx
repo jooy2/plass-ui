@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Collapsible as BaseUICollapsible } from '@base-ui/react/collapsible';
 import { ChevronIcon } from '../../internal/icons.js';
 import {
@@ -136,9 +137,9 @@ export const PlCollapsible = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
   function PlCollapsible(
     {
       variant = 'glass',
-      size = 'md',
-      color = 'primary',
-      density = 'default',
+      size: sizeProp,
+      color: colorProp,
+      density: densityProp,
       elevation = 0,
       open,
       defaultOpen = false,
@@ -160,6 +161,11 @@ export const PlCollapsible = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+    const density = densityProp ?? defaults.density ?? 'default';
+
     const padX = sheetPaddingXClasses[density][size];
     const padY = sheetPaddingYClasses[density][size];
 

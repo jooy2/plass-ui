@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Avatar as BaseUIAvatar } from '@base-ui/react/avatar';
 import { AvatarGroupContext } from '../../internal/avatar-group.js';
 import {
@@ -237,11 +238,12 @@ export const PlAvatar = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlAvat
      * marked out from the rest, and with no group around it the fallbacks are
      * the defaults they always were.
      */
+    const defaults = useDefaults();
     const group = React.useContext(AvatarGroupContext);
     const shape = shapeProp ?? group?.shape ?? 'circle';
     const variant = variantProp ?? group?.variant ?? 'ghost';
-    const size = sizeProp ?? group?.size ?? 'md';
-    const color = colorProp ?? group?.color ?? 'primary';
+    const size = sizeProp ?? group?.size ?? defaults.size ?? 'md';
+    const color = colorProp ?? group?.color ?? defaults.color ?? 'primary';
     const elevation = elevationProp ?? group?.elevation ?? 0;
 
     const derived = name ? initialsOf(name) : '';

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { useRender } from '@base-ui/react/use-render';
 import { controlHeightClasses, controlSquareClasses, surfaceSlots } from '../../internal/styles.js';
 import type { PlassColor, PlassSize } from '../../types.js';
@@ -161,8 +162,8 @@ export const PlSkeleton = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSke
     {
       shape = 'line',
       lines = 1,
-      size = 'md',
-      color = 'secondary',
+      size: sizeProp,
+      color: colorProp,
       width,
       height,
       animated = true,
@@ -174,6 +175,10 @@ export const PlSkeleton = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSke
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'secondary';
+
     // The sweep lives in `styles.css` rather than in an arbitrary variant for the
     // reason `.plass-glow` does: a keyframe is not a Tailwind variant, so there is
     // nothing to express one with.

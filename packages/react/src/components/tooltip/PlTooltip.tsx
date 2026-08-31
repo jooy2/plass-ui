@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Tooltip as BaseUITooltip } from '@base-ui/react/tooltip';
 import {
   glassClasses,
@@ -154,12 +155,12 @@ const arrowSizes: Record<PlassSize, number> = {
 export function PlTooltip({
   content,
   children,
-  size = 'sm',
+  size: sizeProp,
   // A tooltip is a note about something else, never the thing itself, so the
   // neutral family is the honest default. A red tooltip on a delete button would
   // be saying something the tooltip does not know.
-  color = 'secondary',
-  density = 'default',
+  color: colorProp,
+  density: densityProp,
   side = 'top',
   align = 'center',
   sideOffset = 6,
@@ -174,6 +175,11 @@ export function PlTooltip({
   style,
   ...props
 }: PlTooltipProps) {
+  const defaults = useDefaults();
+  const size = sizeProp ?? defaults.size ?? 'sm';
+  const color = colorProp ?? defaults.color ?? 'secondary';
+  const density = densityProp ?? defaults.density ?? 'default';
+
   const arrowSize = arrowSizes[size];
   const popupId = React.useId();
 

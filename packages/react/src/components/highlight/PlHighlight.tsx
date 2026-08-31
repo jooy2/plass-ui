@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import type { PlTypographyWeight } from '../typography/PlTypography.js';
 import { transitionClasses } from '../../internal/styles.js';
 import type { PlassColor, PlassVariant } from '../../types.js';
@@ -264,7 +265,7 @@ export const PlHighlight = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlH
     {
       query,
       variant = 'solid',
-      color = 'warning',
+      color: colorProp,
       caseSensitive = false,
       wholeWord = false,
       underline = false,
@@ -276,6 +277,9 @@ export const PlHighlight = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlH
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const color = colorProp ?? defaults.color ?? 'warning';
+
     const pattern = React.useMemo(() => buildPattern(query, caseSensitive), [query, caseSensitive]);
 
     const markClasses = [

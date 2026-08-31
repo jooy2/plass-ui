@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { cx, transitionClasses } from '../../internal/styles.js';
 import type { PlassColor, PlassOrientation, PlassSize } from '../../types.js';
 
@@ -169,8 +170,8 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
     {
       orientation = 'horizontal',
       resizable = true,
-      color = 'primary',
-      size = 'md',
+      color: colorProp,
+      size: sizeProp,
       onResize,
       onResizeEnd,
       className,
@@ -180,6 +181,10 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const color = colorProp ?? defaults.color ?? 'primary';
+    const size = sizeProp ?? defaults.size ?? 'md';
+
     const items = React.Children.toArray(children).filter(
       React.isValidElement
     ) as React.ReactElement<PlPaneProps>[];

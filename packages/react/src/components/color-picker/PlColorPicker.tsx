@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { defaultPickerLabels } from '../../internal/calendar.js';
 import { PickerShell } from '../../internal/picker.js';
 import { CheckIcon } from '../../internal/icons.js';
@@ -591,9 +592,9 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
       onOpenChange,
       labels: labelOverrides,
       variant = 'glass',
-      size = 'md',
-      color = 'primary',
-      density = 'default',
+      size: sizeProp,
+      color: colorProp,
+      density: densityProp,
       elevation = 0,
       className,
       style,
@@ -601,6 +602,11 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+    const density = densityProp ?? defaults.density ?? 'default';
+
     const labels: PlColorPickerLabels = React.useMemo(
       () => ({ ...defaultColorPickerLabels, ...labelOverrides }),
       [labelOverrides]

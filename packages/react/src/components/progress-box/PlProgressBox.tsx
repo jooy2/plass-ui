@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDefaults } from '../../internal/defaults.js';
 import { Progress } from '@base-ui/react/progress';
 import {
   fillTransitionClasses,
@@ -49,8 +50,8 @@ export interface PlProgressBoxProps extends PlassProgressProps {
 export const PlProgressBox = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlProgressBoxProps>(
   function PlProgressBox(
     {
-      size = 'md',
-      color = 'primary',
+      size: sizeProp,
+      color: colorProp,
       count = 4,
       value = null,
       min = 0,
@@ -64,6 +65,10 @@ export const PlProgressBox = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
     },
     ref
   ) {
+    const defaults = useDefaults();
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+
     const fraction = progressFraction(value, min, max);
     const indeterminate = fraction === null;
     const hasFormat = format !== undefined;

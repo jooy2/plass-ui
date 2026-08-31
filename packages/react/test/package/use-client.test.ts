@@ -45,11 +45,20 @@ const sources = import.meta.glob('../../src/components/*/Pl*.tsx', {
  * judgement call here the way it is for a component — a module whose whole
  * export is `useSyncExternalStore` under another name has no server half.
  */
-const hooks = import.meta.glob('../../src/hooks/use*.ts', {
-  query: '?raw',
-  import: 'default',
-  eager: true
-});
+const hooks = {
+  ...import.meta.glob('../../src/hooks/use*.ts', {
+    query: '?raw',
+    import: 'default',
+    eager: true
+  }),
+  // The provider is here rather than beside the components for the same reason:
+  // it writes a context, which is a client-only thing to do.
+  ...import.meta.glob('../../src/provider/Pl*.tsx', {
+    query: '?raw',
+    import: 'default',
+    eager: true
+  })
+};
 
 /** The barrels, which must *not* carry it — a client barrel is a client library. */
 const barrels = {
@@ -59,6 +68,11 @@ const barrels = {
     eager: true
   }),
   ...import.meta.glob('../../src/hooks/index.ts', {
+    query: '?raw',
+    import: 'default',
+    eager: true
+  }),
+  ...import.meta.glob('../../src/provider/index.ts', {
     query: '?raw',
     import: 'default',
     eager: true
@@ -142,7 +156,7 @@ describe("'use client'", () => {
   });
 
   it.each(Object.entries(hooks))(
-    '%s declares itself, because a hook has no server half',
+    '%s declares itself, because it has no server half',
     (path, source) => {
       expect({ file: name(path), declared: hasDirective(source as string) }).toEqual({
         file: name(path),
