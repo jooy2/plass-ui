@@ -38,6 +38,16 @@
 
   Three decisions worth stating. **Cancel holds the focus by default**: a confirm dialog exists to make somebody stop, and an Enter key that lands on the destructive action defeats the whole thing — `initialFocus: 'confirm'` moves it for a question whose yes is the harmless answer. **Questions asked while one is open are queued**, in order, with the sheet's content changing rather than the dialog closing and reopening; the alternative is a promise nobody ever resolves, which is a hung button rather than a visible bug, and a provider that unmounts with questions outstanding resolves them all `false` for the same reason. And **`usePlConfirm` throws outside a provider** rather than answering `false`, because a silent `false` is a delete button that quietly does nothing, which is worse than a missing provider that says so on the first press.
 
+### Fixed
+
+- **Three components ran the wrong way under RTL.** The library has always been written in logical properties, and that turned out to be the easy half — what nobody had was a test, so the three places the rule had been broken had been broken quietly. A **`PlPanes`** handle nudged with the arrow keys moved the boundary _away_ from the key it was pressed with: the drag path read the writing direction and the keyboard path did not, which made the component page's own claim that "the arrow keys follow the writing direction, exactly as a drag does" false. A **`PlSwitch`**'s thumb travelled on `left`, so under RTL it sat at the wrong end of its track and moved the wrong way — every platform's own switch puts off at the inline start, which is the right-hand end. And a **`PlCard`**'s `headerAction` was pushed out with `ml-auto`, landing it on the left of a right-to-left header. `PlDivider`'s vertical rule moved to `border-inline-start` with them; it drew identically either way, and now it is spelled the way everything else is.
+
+  The test that found them is `test/package/rtl.test.tsx`, and it is a contract test rather than a component one for the reason the contract is: RTL is not a feature any component has, it is a rule every component follows, and it breaks one component at a time in a class name nobody looked at twice. It drives a real `dir="rtl"` document for the parts that are decided in JavaScript, and reads every component's source for a physical direction utility that is not on a short list of deliberate exceptions — each of which is a place where the **thing being measured** is physical too (`offsetLeft` for a moving indicator, Base UI's own `data-side` for a tooltip arrow, `PlassSide` for a drawer's edge). Pairing a logical property with a physical measurement is what would actually break the direction.
+
+### Documentation
+
+- **[Right to left](https://plass.cdget.com/design/rtl) is a page.** The support was there and undocumented, which is nearly the same as not having it: a reader evaluating the library had no way to find out. It says what the one-attribute setup is, what flips and what deliberately does not, and names the three places the direction is read in JavaScript and why each one has to be.
+
 ## 1.2.0 (2026-08-30)
 
 ### Added

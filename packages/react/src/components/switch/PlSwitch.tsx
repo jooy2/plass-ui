@@ -69,11 +69,11 @@ const trackClasses: Record<PlassSize, string> = {
 };
 
 const thumbTravelClasses: Record<PlassSize, string> = {
-  xs: 'data-[checked]:left-[calc(100%-0.75rem)]',
-  sm: 'data-[checked]:left-[calc(100%-0.875rem)]',
-  md: 'data-[checked]:left-[calc(100%-1.125rem)]',
-  lg: 'data-[checked]:left-[calc(100%-1.375rem)]',
-  xl: 'data-[checked]:left-[calc(100%-1.625rem)]'
+  xs: 'data-[checked]:start-[calc(100%-0.75rem)]',
+  sm: 'data-[checked]:start-[calc(100%-0.875rem)]',
+  md: 'data-[checked]:start-[calc(100%-1.125rem)]',
+  lg: 'data-[checked]:start-[calc(100%-1.375rem)]',
+  xl: 'data-[checked]:start-[calc(100%-1.625rem)]'
 };
 
 /**
@@ -116,7 +116,7 @@ const trackBaseClasses = /* @__PURE__ */ [
  * focus ring arrived.
  *
  * Dropping the border also squares the thumb's travel. `inset-y-0.5` and
- * `left-0.5` are measured from the padding box; the `left` a checked thumb
+ * `start-0.5` are measured from the padding box; the offset a checked thumb
  * travels to is measured from the track's *width*. With a 1px edge between
  * them the two disagreed, and every switch in the library sat 2px from its
  * track on the left and 4px from it on the right.
@@ -150,9 +150,13 @@ const disabledTrackClasses = /* @__PURE__ */ [
  * but a 14px disc under a 4px-blurred, 14px-wide shadow is a knob, not a light.
  */
 const thumbClasses = /* @__PURE__ */ [
-  'absolute inset-y-0.5 left-0.5 aspect-square rounded-full bg-white',
+  // `start`, not `left`, and the transition is on the logical property too: a
+  // switch is one of the controls that genuinely flips — its off position is
+  // the inline start in both directions, which is the right-hand end under RTL,
+  // the same way every platform's own switch behaves.
+  'absolute inset-y-0.5 start-0.5 aspect-square rounded-full bg-white',
   '[box-shadow:0_1px_2px_rgb(20_40_90/0.25)]',
-  '[transition:left_var(--plass-duration)_var(--plass-ease)]'
+  '[transition:inset-inline-start_var(--plass-duration)_var(--plass-ease)]'
 ].join(' ');
 
 /**

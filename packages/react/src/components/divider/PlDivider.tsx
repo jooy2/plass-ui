@@ -164,7 +164,7 @@ export const PlDivider = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlDivi
             // The line is a single border edge; the box itself has no thickness,
             // so a divider never adds a pixel of layout beyond the rule.
             vertical
-              ? `w-0 border-l [border-left-width:var(--p-rule)] ${span === undefined ? 'self-stretch' : ''}`
+              ? `w-0 border-s [border-inline-start-width:var(--p-rule)] ${span === undefined ? 'self-stretch' : ''}`
               : 'h-0 w-full border-t [border-top-width:var(--p-rule)]',
             lineClasses,
             className ?? ''
@@ -179,7 +179,7 @@ export const PlDivider = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlDivi
 
     const [before, after] = stubClasses[orientation][textAlign];
     const edgeClasses = vertical
-      ? 'w-0 border-l [border-left-width:var(--p-rule)]'
+      ? 'w-0 border-s [border-inline-start-width:var(--p-rule)]'
       : 'h-0 border-t [border-top-width:var(--p-rule)]';
 
     return (

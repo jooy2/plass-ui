@@ -184,7 +184,7 @@ export const PlCard = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCardPro
           ) : null}
         </div>
       ) : null}
-      {hasContent(headerAction) ? <div className="ml-auto shrink-0">{headerAction}</div> : null}
+      {hasContent(headerAction) ? <div className="ms-auto shrink-0">{headerAction}</div> : null}
     </>
   );
 

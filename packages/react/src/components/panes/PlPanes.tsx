@@ -452,7 +452,16 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
                   const forward = horizontal ? 'ArrowRight' : 'ArrowDown';
                   if (event.key !== back && event.key !== forward) return;
                   event.preventDefault();
-                  nudge(index - 1, event.key === forward ? KEYBOARD_STEP : -KEYBOARD_STEP);
+                  // The same flip a drag makes, and for the same reason: the
+                  // arrow keys are physical, the split is not, and a boundary
+                  // that moved left when ArrowRight was pressed would be moving
+                  // away from the key under RTL.
+                  const towardsEnd =
+                    horizontal && getComputedStyle(event.currentTarget).direction === 'rtl'
+                      ? -1
+                      : 1;
+                  const step = event.key === forward ? KEYBOARD_STEP : -KEYBOARD_STEP;
+                  nudge(index - 1, step * towardsEnd);
                 }}
               >
                 {/*
