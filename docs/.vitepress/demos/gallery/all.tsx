@@ -108,6 +108,7 @@ import {
   PlToggleGroup,
   PlToolbar,
   PlTransfer,
+  PlTree,
   PlTooltip,
   usePlConfirm,
   usePlToast,
@@ -837,6 +838,34 @@ const entries: Entry[] = [
         <PlTimelineItem title="Packed" bullet="2" />
         <PlTimelineItem title="Shipped" bullet="3" />
       </PlTimeline>
+    )
+  },
+  {
+    name: 'PlTree',
+    group: 'display',
+    href: 'components/display/tree',
+    blurb: {
+      en: 'A hierarchy, opened one branch at a time.',
+      ko: '한 번에 한 가지씩 펼치는 계층입니다.'
+    },
+    preview: (
+      <PlTree
+        size="xs"
+        className="w-full"
+        defaultExpanded={['src']}
+        defaultSelected={['button']}
+        items={[
+          {
+            id: 'src',
+            label: 'src',
+            children: [
+              { id: 'index', label: 'index.ts' },
+              { id: 'button', label: 'PlButton.tsx' }
+            ]
+          },
+          { id: 'readme', label: 'README.md' }
+        ]}
+      />
     )
   },
   {

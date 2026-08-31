@@ -10394,6 +10394,132 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlTree: [
+    {
+      name: 'items',
+      type: 'readonly PlTreeNode[]',
+      required: true,
+      description: { ko: '트리 전체를 데이터로', en: 'The whole tree, as data' }
+    },
+    {
+      name: 'expanded',
+      type: 'readonly string[]',
+      description: {
+        ko: '열려 있는 가지의 id들. 제어하려면 onExpandedChange와 함께',
+        en: 'The ids of the branches that are open. Use with onExpandedChange to control them'
+      }
+    },
+    {
+      name: 'defaultExpanded',
+      type: 'readonly string[]',
+      description: { ko: '처음부터 열려 있을 가지들', en: 'The branches that start open' }
+    },
+    {
+      name: 'onExpandedChange',
+      type: '(expanded: string[]) => void',
+      description: { ko: '가지가 열리거나 닫혔을 때', en: 'Called when a branch opens or closes' }
+    },
+    {
+      name: 'selected',
+      type: 'readonly string[]',
+      description: {
+        ko: '선택된 행의 id들. 제어하려면 onSelectedChange와 함께',
+        en: 'The ids of the selected rows. Use with onSelectedChange to control them'
+      }
+    },
+    {
+      name: 'defaultSelected',
+      type: 'readonly string[]',
+      description: { ko: '처음부터 선택돼 있을 행들', en: 'What starts selected' }
+    },
+    {
+      name: 'onSelectedChange',
+      type: '(selected: string[]) => void',
+      description: { ko: '선택이 바뀌었을 때', en: 'Called when the selection changes' }
+    },
+    {
+      name: 'selection',
+      type: "'none' | 'single' | 'multiple'",
+      default: "'single'",
+      description: {
+        ko: '클릭 하나가 몇 행을 켠 채로 둘 수 있는지. none은 고르는 도구가 아니라 둘러보는 도구입니다',
+        en: 'How many rows a click can leave selected. none makes it a browser rather than a chooser'
+      }
+    },
+    {
+      name: 'onItemClick',
+      type: '(node: PlTreeNode) => void',
+      description: {
+        ko: '행을 눌렀을 때. 선택 가능하든 아니든',
+        en: 'Called when a row is clicked, selectable or not'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '행 높이 · 들여쓰기 · 타입 스케일',
+        en: 'Row height, indent and type scale'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: { ko: '선택된 행이 쓰는 색 역할', en: 'The family a selected row takes' }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'default'",
+      shared: true,
+      description: {
+        ko: '행의 세로 여백만 바꿉니다',
+        en: "A row's vertical padding, and nothing else"
+      }
+    }
+  ],
+  PlTreeNode: [
+    {
+      name: 'id',
+      type: 'string',
+      required: true,
+      description: {
+        ko: '트리 전체에서 유일한 식별자',
+        en: 'What identifies it, unique across the whole tree'
+      }
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      required: true,
+      description: { ko: '행이 말하는 것', en: 'What the row says' }
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: { ko: 'label 앞의 글리프', en: 'A glyph before the label' }
+    },
+    {
+      name: 'children',
+      type: 'readonly PlTreeNode[]',
+      description: {
+        ko: '자식들. 빈 배열은 아무것도 없는 **가지**이고, undefined는 **잎**입니다 — 서로 다릅니다',
+        en: 'Its own children. An empty array is a **branch** with nothing in it; undefined is a **leaf**. They are different things'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      description: {
+        ko: '트리에는 있지만 고를 수 없고, 화살표 키의 정거장도 아닙니다',
+        en: 'In the tree but not selectable, and not a stop for the arrow keys'
+      }
+    }
+  ],
   PlVisuallyHidden: [
     {
       name: 'children',

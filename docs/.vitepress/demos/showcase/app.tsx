@@ -50,6 +50,7 @@ import {
   PlTooltip,
   usePlConfirm,
   usePlToast,
+  PlTree,
   PlTypography,
   PlVisuallyHidden
 } from 'plass-ui';
@@ -331,6 +332,24 @@ function SettingsScreen() {
       </div>
 
       <div className="flex flex-wrap items-start gap-4">
+        <PlTree
+          size="sm"
+          className="w-56"
+          defaultExpanded={['reports']}
+          defaultSelected={['july']}
+          items={[
+            {
+              id: 'reports',
+              label: 'Reports',
+              children: [
+                { id: 'july', label: 'July' },
+                { id: 'august', label: 'August' }
+              ]
+            },
+            { id: 'archive', label: 'Archive', children: [] }
+          ]}
+        />
+
         <PlCalendar
           size="sm"
           locale="en-GB"
