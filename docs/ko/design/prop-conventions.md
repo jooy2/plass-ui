@@ -75,7 +75,7 @@ order: 3
 
 ::: fw flutter
 
-map은 위젯 자신의 키 처리보다 focus node에 더 가깝게 묶입니다. 그래서 caller가 컨트롤에서 키를 가져올 수 있습니다. 예외가 하나 있고 `PlSelect`가 그것을 밝힙니다 — 맨 <kbd>Enter</kbd>는 목록을 열고 확정하며, 그 바인딩이 더 가깝습니다.
+map은 위젯 자신의 키 처리보다 focus node에 더 가깝게 묶입니다. 그래서 caller가 컨트롤에서 키를 가져올 수 있습니다. `PlSelect`만은 감싸는 것으로 안 되는데 — `FocusableActionDetector`가 Enter를 필드가 감쌀 수 있는 그 어떤 것보다 가깝게 묶기 때문입니다 — 그래서 map이 Enter를 요구하면 trigger가 **물러납니다**.
 
 이 아래에 `onKeyDown`은 없습니다. chord map보다 세밀한 키 처리가 필요한 위젯은 필드를 자기 `Focus`로 감쌉니다.
 

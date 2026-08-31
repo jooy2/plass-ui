@@ -67,6 +67,9 @@ export const keyAliases: Record<string, string> = {
   option: 'alt',
   opt: 'alt',
   return: 'enter',
+  // A numpad Enter is an Enter. `event.key` already says so; a chord written
+  // the long way should reach the same key.
+  numpadenter: 'enter',
   esc: 'escape',
   del: 'delete',
   caps: 'capslock'

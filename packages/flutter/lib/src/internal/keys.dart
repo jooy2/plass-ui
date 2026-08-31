@@ -45,6 +45,9 @@ const Map<String, String> plassKeyAliases = <String, String>{
   'option': 'alt',
   'opt': 'alt',
   'return': 'enter',
+  // A numpad Enter is an Enter. The framework labels it apart; a key cap does
+  // not, and neither does anyone reaching for it.
+  'numpadenter': 'enter',
   'esc': 'escape',
   'del': 'delete',
   'caps': 'capslock',
@@ -104,7 +107,38 @@ bool plassMatchesHotKey(String chord, KeyEvent event) {
     }
   }
 
-  return event.logicalKey.keyLabel.toLowerCase().replaceAll(' ', '') == key;
+  return _foldLabel(event.logicalKey.keyLabel) == key;
+}
+
+/// What the framework calls a key, folded onto the name a cap is written with.
+///
+/// A one-character label is lower-cased and left alone — anything else would
+/// turn the space bar's own label, which is a space, into an empty string. The
+/// rest goes through the full fold, so `Arrow Up` reaches `arrowup` and
+/// `Numpad Enter` reaches `enter` by way of the alias table.
+String _foldLabel(String label) {
+  return label.length == 1 ? label.toLowerCase() : plassCanonicalKey(label);
+}
+
+/// Does [hotKeys] claim [key] with no modifiers on it?
+///
+/// A control that binds its own activation keys through a `Shortcuts` asks this
+/// so it can **stand down**. Of two handlers the one nearer the focused node
+/// answers first, and a `FocusableActionDetector`'s is nearer than anything a
+/// field can wrap around it — so the only way a caller's bare `Enter` can be
+/// theirs is for the control to stop claiming it while they are asking for it.
+///
+/// [key] is a canonical name, so `'enter'` and never `'Enter'`.
+bool plassClaimsBareKey(PlassHotKeys? hotKeys, String key) {
+  if (hotKeys == null) {
+    return false;
+  }
+
+  return hotKeys.keys.any((String chord) {
+    final List<String> parts = chord.split('+');
+
+    return parts.length == 1 && plassCanonicalKey(parts.single) == key;
+  });
 }
 
 /// Runs whichever chord this key event is, and says whether one was.

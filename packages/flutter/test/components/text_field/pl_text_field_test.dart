@@ -276,6 +276,27 @@ void main() {
         expect(saved, 0);
       });
 
+      testWidgets('matches the keys the framework labels differently from the cap', (
+        WidgetTester tester,
+      ) async {
+        var spaced = 0;
+        var entered = 0;
+
+        await pumpBound(tester, <String, VoidCallback>{
+          'Space': () => spaced += 1,
+          'Enter': () => entered += 1,
+        });
+
+        // The space bar's own label *is* a space, and the numpad Enter's is two
+        // words. Both are the key printed on the cap.
+        await tester.sendKeyEvent(LogicalKeyboardKey.space);
+        await tester.sendKeyEvent(LogicalKeyboardKey.numpadEnter);
+        await tester.pump();
+
+        expect(spaced, 1);
+        expect(entered, 1);
+      });
+
       testWidgets('consumes the key it answered and lets every other one by', (
         WidgetTester tester,
       ) async {

@@ -2940,8 +2940,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     {
       ...hotKeysProp,
       description: {
-        ko: "trigger가 답할 chord들. PlHotKeys가 그리는 것과 같은 철자입니다 — { 'Mod+Enter': save, 'Escape': cancel }. 맞는 chord는 **소비됩니다**. 예외는 하나, 맨 Enter는 목록을 열고 확정하는 trigger 자신의 키입니다",
-        en: "Chords the trigger answers to, spelled the way PlHotKeys draws them — { 'Mod+Enter': save, 'Escape': cancel }. A chord that matches is **consumed**, with one exception: a bare Enter opens and commits the list and stays the trigger's own"
+        ko: "trigger가 답할 chord들. PlHotKeys가 그리는 것과 같은 철자입니다 — { 'Mod+Enter': save, 'Escape': cancel }. 맞는 chord는 **소비됩니다**. 맨 Enter를 묶으면 목록을 열고 확정하던 trigger에게서 그 키를 가져옵니다",
+        en: "Chords the trigger answers to, spelled the way PlHotKeys draws them — { 'Mod+Enter': save, 'Escape': cancel }. A chord that matches is **consumed** — binding a bare Enter takes it from the trigger, which otherwise uses it to open and commit the list"
       }
     }
   ],

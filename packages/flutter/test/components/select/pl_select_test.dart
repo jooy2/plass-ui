@@ -267,6 +267,57 @@ void main() {
 
         expect(cleared, 1);
       });
+
+      testWidgets('takes a bare Enter from the trigger when it is asked for', (
+        WidgetTester tester,
+      ) async {
+        var saved = 0;
+        String? chosen = 'kr-11';
+
+        await tester.pumpWidget(
+          host(
+            PlSelect<String>(
+              options: _cities,
+              value: chosen,
+              onChanged: (String? next) => chosen = next,
+              autofocus: true,
+              hotKeys: <String, VoidCallback>{'Enter': () => saved += 1},
+            ),
+            width: 320,
+            overlay: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+
+        // The trigger stands down rather than opening the list underneath it.
+        expect(saved, 1);
+        expect(_row('Tokyo'), findsNothing);
+      });
+
+      testWidgets('keeps Enter for itself when nobody asked for it', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            PlSelect<String>(
+              options: _cities,
+              value: null,
+              onChanged: (String? _) {},
+              autofocus: true,
+              hotKeys: <String, VoidCallback>{'Escape': () {}},
+            ),
+            width: 320,
+            overlay: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+
+        expect(_row('Tokyo'), findsOneWidget);
+      });
     });
   });
 }

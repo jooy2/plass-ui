@@ -497,6 +497,16 @@ describe('PlTextField', () => {
       expect(save).not.toHaveBeenCalled();
     });
 
+    it('matches the keys a browser spells differently from the cap', async () => {
+      const spaced = vi.fn();
+      const screen = await render(<PlTextField label="Note" hotKeys={{ Space: spaced }} />);
+
+      // `event.key` for the space bar is a literal space, not the word.
+      press(screen.getByRole('textbox').element(), ' ');
+
+      expect(spaced).toHaveBeenCalledTimes(1);
+    });
+
     it('consumes the key it answered, so the form around it never sees it', async () => {
       const onKeyDown = vi.fn();
       const screen = await render(

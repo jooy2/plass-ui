@@ -143,11 +143,8 @@ class PlSelect<T> extends StatefulWidget {
   /// `{'Mod+Enter': save, 'Escape': cancel}` — the same string a [PlHotKeys]
   /// beside the field would print, so the cap and the binding cannot drift. A
   /// chord that matches is **consumed**: the callback runs and the key goes no
-  /// further.
-  ///
-  /// With one exception, and it is the trigger's own: a bare `Enter` opens and
-  /// commits the list, and that binding sits closer to the focused node than
-  /// this map does. `Shift+Enter` and `Mod+Enter` are free.
+  /// further. Binding a bare `Enter` takes it from the trigger, which otherwise
+  /// uses it to open and commit the list.
   final PlassHotKeys? hotKeys;
 
   /// What the trigger's well is cut into.
@@ -334,7 +331,14 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
       autofocus: widget.autofocus,
       // Space would scroll a page under a closed select, and the arrow keys
       // below are what opens it from the keyboard anyway.
-      shortcuts: PlassInteractive.enterOnly,
+      //
+      // And the trigger stands down from Enter entirely when the caller has
+      // bound it: this binding sits closer to the focused node than a `hotKeys`
+      // map can, so standing down is the only way a chord a caller asked for is
+      // actually theirs.
+      shortcuts: plassClaimsBareKey(widget.hotKeys, 'enter')
+          ? const <ShortcutActivator, Intent>{}
+          : PlassInteractive.enterOnly,
       onFocusChange: (bool has) {
         if (!has) {
           _close();
@@ -457,9 +461,9 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
           ),
         },
         // Nearer the focused node than the list's own shortcuts above it, so a
-        // caller who binds `Escape` or an arrow takes it from the list. The one
-        // key it cannot take is a bare `Enter`, which `PlassInteractive` binds
-        // closer still — `Shift+Enter` and `Mod+Enter` are free.
+        // caller who binds `Escape` or an arrow takes it from the list. Enter is
+        // the one the trigger has to be told to give up, which is what the
+        // `shortcuts` above does.
         child: plassHotKeyScope(hotKeys: widget.hotKeys, child: trigger),
       ),
     );

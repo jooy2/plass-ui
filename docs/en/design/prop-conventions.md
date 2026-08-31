@@ -75,7 +75,7 @@ Three rules hold across all five.
 
 ::: fw flutter
 
-The map is bound closer to the focused node than the widget's own key handling, which is what lets a caller take a key from the control. One exception, and `PlSelect` names it: a bare <kbd>Enter</kbd> opens and commits the list, and that binding sits closer still.
+The map is bound closer to the focused node than the widget's own key handling, which is what lets a caller take a key from the control. `PlSelect` is the one place that cannot be done by nesting — a `FocusableActionDetector` binds Enter closer than anything a field can wrap around it — so the trigger **stands down** from Enter instead, whenever the map asks for it.
 
 There is no `onKeyDown` underneath this one. A widget that needs finer key handling than a chord map wraps the field in its own `Focus`.
 
