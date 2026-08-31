@@ -79,24 +79,22 @@ void main() {
       testWidgets('rules the inner edge, which is the one facing the content', (
         WidgetTester tester,
       ) async {
-        // The rule the sidebar draws is on one vertical edge only; the sheet's
-        // own glass hairline is a border on all four.
-        Border? ruleOf(WidgetTester tester) => decorationsOf(tester, find.byType(PlSidebar))
-            .map((BoxDecoration decoration) => decoration.border)
-            .whereType<Border>()
-            .where(
-              (Border border) =>
-                  border.top == BorderSide.none &&
-                  border.bottom == BorderSide.none &&
-                  (border.left != BorderSide.none || border.right != BorderSide.none),
-            )
-            .firstOrNull;
+        // The rule the sidebar draws is on one vertical edge only, and it is
+        // directional — the edge facing the content is the far one in both
+        // writing directions. The sheet's own glass hairline is a `Border` on
+        // all four, which is what tells the two apart.
+        BorderDirectional? ruleOf(WidgetTester tester) =>
+            decorationsOf(tester, find.byType(PlSidebar))
+                .map((BoxDecoration decoration) => decoration.border)
+                .whereType<BorderDirectional>()
+                .firstOrNull;
 
         await tester.pumpWidget(
           host(column(const PlSidebar(child: Text('Links'))), width: 500, height: 400),
         );
 
-        expect(ruleOf(tester)!.right, isNot(BorderSide.none));
+        expect(ruleOf(tester)!.end, isNot(BorderSide.none));
+        expect(ruleOf(tester)!.start, BorderSide.none);
 
         await tester.pumpWidget(
           host(
@@ -106,7 +104,8 @@ void main() {
           ),
         );
 
-        expect(ruleOf(tester)!.left, isNot(BorderSide.none));
+        expect(ruleOf(tester)!.start, isNot(BorderSide.none));
+        expect(ruleOf(tester)!.end, BorderSide.none);
 
         await tester.pumpWidget(
           host(
@@ -152,13 +151,14 @@ void main() {
           ),
         );
 
-        final Border rule = decorationsOf(tester, find.byType(PlSidebar))
-            .map((BoxDecoration decoration) => decoration.border)
-            .whereType<Border>()
-            .firstWhere((Border border) => border.top == BorderSide.none);
+        final BorderDirectional rule = decorationsOf(
+          tester,
+          find.byType(PlSidebar),
+        ).map((BoxDecoration decoration) => decoration.border).whereType<BorderDirectional>().first;
 
         // The trailing slot, so the rule is on the leading edge.
-        expect(rule.right, BorderSide.none);
+        expect(rule.end, BorderSide.none);
+        expect(rule.start, isNot(BorderSide.none));
       });
     });
 

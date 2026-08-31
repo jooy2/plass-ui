@@ -133,6 +133,8 @@ class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
 
   bool get _vertical => widget.orientation == PlassOrientation.vertical;
 
+  bool get _rtl => Directionality.of(context) == TextDirection.rtl;
+
   @override
   void initState() {
     super.initState();
@@ -195,8 +197,13 @@ class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
         // strip has delivered is the content standing where it started.
         final double shift = (still ? 0 : t) * _travel;
 
+        // A strip travels *towards* the reader's start: in English it enters on
+        // the right and leaves on the left, and in Arabic it does the opposite,
+        // because otherwise the words arrive backwards.
+        final double away = _rtl ? shift : -shift;
+
         return Transform.translate(
-          offset: _vertical ? Offset(0, -shift) : Offset(-shift, 0),
+          offset: _vertical ? Offset(0, -shift) : Offset(away, 0),
           child: inner,
         );
       },
@@ -207,7 +214,7 @@ class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
     // clip the paint and leave a `RenderFlex` asserting that it overflowed.
     strip = UnconstrainedBox(
       constrainedAxis: _vertical ? Axis.horizontal : Axis.vertical,
-      alignment: _vertical ? Alignment.topCenter : Alignment.centerLeft,
+      alignment: _vertical ? Alignment.topCenter : AlignmentDirectional.centerStart,
       clipBehavior: Clip.hardEdge,
       child: strip,
     );

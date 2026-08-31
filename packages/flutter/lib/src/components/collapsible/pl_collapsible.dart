@@ -275,9 +275,9 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
               leadingDistribution: TextLeadingDistribution.even,
             ),
             child: Padding(
-              padding: EdgeInsets.only(
-                left: widget.padded ? padX : 0,
-                right: widget.padded ? padX : 0,
+              padding: EdgeInsetsDirectional.only(
+                start: widget.padded ? padX : 0,
+                end: widget.padded ? padX : 0,
                 top: widget.padded && widget.triggerBuilder != null
                     ? _panelPaddingTop[_density]![_size]!
                     : 0,

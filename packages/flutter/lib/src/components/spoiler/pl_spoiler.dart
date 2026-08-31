@@ -222,7 +222,7 @@ class _PlSpoilerState extends State<PlSpoiler> {
                 // The row takes the sheet's padding and then gives the top back:
                 // padded content already ends with a full gap, and two of them
                 // stacked is a hole between the text and the way back out.
-                padding: EdgeInsets.only(left: insetX, right: insetX, bottom: insetY),
+                padding: EdgeInsetsDirectional.only(start: insetX, end: insetX, bottom: insetY),
                 child: Align(
                   alignment: AlignmentDirectional.centerEnd,
                   child: PlButton(

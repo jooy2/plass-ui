@@ -146,10 +146,10 @@ class PlAnimateLighting extends StatelessWidget {
       // own bounds unless told not to.
       clipBehavior: Clip.none,
       children: <Widget>[
-        Positioned(
-          left: -spread,
+        PositionedDirectional(
+          start: -spread,
           top: -spread,
-          right: -spread,
+          end: -spread,
           bottom: -spread,
           child: PlassAnimateRun(
             mode: reverse ? PlassAnimateMode.exit : PlassAnimateMode.enter,

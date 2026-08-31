@@ -298,7 +298,12 @@ class _PlNavigationMenuState extends State<PlNavigationMenu> {
 
     return PlassAnchoredPortal(
       open: open,
-      side: widget.orientation == PlassOrientation.vertical ? PlassSide.right : PlassSide.bottom,
+      // A vertical menu's panel flies out sideways, and which side that is
+      // depends on the reader: `PlassSide` names an edge of the screen, so a
+      // menu on the right of an Arabic page would otherwise open off it.
+      side: widget.orientation == PlassOrientation.vertical
+          ? (Directionality.of(context) == TextDirection.rtl ? PlassSide.left : PlassSide.right)
+          : PlassSide.bottom,
       align: PlassAlign.start,
       offset: widget.sideOffset,
       onDismiss: () => _set(null),

@@ -456,9 +456,9 @@ class _Section<T> extends StatelessWidget {
                 leadingDistribution: TextLeadingDistribution.even,
               ),
               child: Padding(
-                padding: EdgeInsets.only(
-                  left: padX,
-                  right: padX,
+                padding: EdgeInsetsDirectional.only(
+                  start: padX,
+                  end: padX,
                   top: _panelPaddingTop[density]![size]!,
                   bottom: _panelPaddingBottom[density]![size]!,
                 ),

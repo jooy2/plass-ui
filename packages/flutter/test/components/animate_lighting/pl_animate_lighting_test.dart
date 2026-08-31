@@ -29,7 +29,7 @@ void main() {
         find.descendant(of: find.byType(PlAnimateLighting), matching: find.byType(Stack)),
       );
 
-      expect(stack.children.first, isA<Positioned>());
+      expect(stack.children.first, isA<PositionedDirectional>());
       expect(stack.children.last, isA<Text>());
       // The glow reaches past the content, so the stack must not clip.
       expect(stack.clipBehavior, Clip.none);

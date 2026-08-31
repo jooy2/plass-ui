@@ -184,9 +184,24 @@ class _PlassCalendarCellState extends State<PlassCalendarCell> {
     final round = Radius.circular(step);
     const square = Radius.zero;
 
+    // A run opens at the reading start of the week and closes at its end, and
+    // in a right-to-left calendar those are the other way round on the screen.
+    // Resolved here rather than written as a `BorderRadiusDirectional` because
+    // the same value reaches a `BoxDecoration` and the focus-ring painter, and
+    // the painter takes a resolved [BorderRadius].
+    final bool rtl = Directionality.of(context) == TextDirection.rtl;
+    final BorderRadius opening = BorderRadius.horizontal(
+      left: rtl ? square : round,
+      right: rtl ? round : square,
+    );
+    final BorderRadius closing = BorderRadius.horizontal(
+      left: rtl ? round : square,
+      right: rtl ? square : round,
+    );
+
     final BorderRadius radius = switch (widget.rangeEdge) {
-      PlassRangeEdge.start => BorderRadius.horizontal(left: round),
-      PlassRangeEdge.end => BorderRadius.horizontal(right: round),
+      PlassRangeEdge.start => opening,
+      PlassRangeEdge.end => closing,
       PlassRangeEdge.middle => BorderRadius.zero,
       _ => BorderRadius.all(round),
     };

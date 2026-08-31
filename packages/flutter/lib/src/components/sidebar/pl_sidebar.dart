@@ -326,11 +326,14 @@ class _PlSidebarState extends State<PlSidebar> {
 
     if (widget.divider) {
       final BorderSide rule = BorderSide(color: tokens.divider, width: hairline);
-      final bool leading = (side == PlassSidebarSide.start) == (direction == TextDirection.ltr);
 
       panel = DecoratedBox(
         decoration: BoxDecoration(
-          border: leading ? Border(right: rule) : Border(left: rule),
+          // The rule goes on the edge that faces the page, which is the far
+          // edge of whichever side the panel is on.
+          border: side == PlassSidebarSide.start
+              ? BorderDirectional(end: rule)
+              : BorderDirectional(start: rule),
         ),
         child: panel,
       );

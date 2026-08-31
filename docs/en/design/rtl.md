@@ -29,9 +29,21 @@ Directionality(textDirection: TextDirection.rtl, child: child);
 
 ## The rule
 
-**`start`/`end`, never `left`/`right`.** Every padding, margin, border, radius and inset in the library is written as a logical property, so what a component calls its start edge is the left one in English and the right one in Arabic. Nothing measures the direction to decide; the browser does it.
+**`start`/`end`, never `left`/`right`.** Every padding, margin, border, radius and inset in the library is written as a logical property, so what a component calls its start edge is the left one in English and the right one in Arabic.
 
-The same rule reaches the prop vocabulary: [`PlassAlign`](./prop-conventions) is `start | center | end` for exactly this reason, and a `PlSidebar` takes `side="start"` rather than `side="left"`.
+::: fw react
+
+Nothing measures the direction to decide; the browser does it.
+
+:::
+
+::: fw flutter
+
+Nothing measures the direction to decide; `EdgeInsetsDirectional`, `PositionedDirectional`, `AlignmentDirectional`, `BorderRadiusDirectional` and `BorderDirectional` resolve themselves against the ambient `Directionality`. A `Row`, a `CrossAxisAlignment.start` and a `TextAlign.start` already do.
+
+:::
+
+The same rule reaches the prop vocabulary: [`PlassAlign`](./prop-conventions) is `start | center | end` for exactly this reason, and a `PlSidebar` takes a `start` side rather than a left one.
 
 ## What flips, and what does not
 
@@ -42,29 +54,68 @@ The same rule reaches the prop vocabulary: [`PlassAlign`](./prop-conventions) is
 | A chevron that points along the reading direction — a breadcrumb's, a pagination stepper's, a submenu's | **Flip.** One glyph, turned |
 | A `PlSwitch`'s thumb | **Flips.** Off is the inline start, which is the right-hand end under RTL — as every platform's own switch behaves |
 | A `PlPanes` handle, a `PlSidebar` drag, a `PlCarousel` or `PlScrollZone` strip | **Flip**, including the arrow keys |
+| A `PlChatBubble`'s tail corner, a `PlButtonGroup`'s squared edges, a date range's open and closed ends | **Flip.** They face the reader's start |
 | `PlassSide` — a tooltip's `side`, a drawer's edge | **Physical, on purpose.** A tooltip above a button is above it in every writing direction |
+| A `PlColorPicker`'s rails | **Do not flip.** A hue rail is a colour space rather than a reading axis: 0° sits where 0° sits in every picker, and a mirrored one would be unrecognisable |
+| A `PlSkeleton`'s sweep | **Does not flip.** It is a light crossing a surface, and a light that changed direction with the locale would read as a different material |
 | An icon that is not directional — a star, a bin, a spinner | Does not flip, and should not |
-| Numbers, dates and times | The browser's and `Intl`'s. Set `locale` on the components that take one |
+| Numbers, dates and times | The platform's own. Set `locale` on the components that take one |
 
-## Three places direction is read in JavaScript
+## Where the direction is read in code
 
-Almost nothing needs to: CSS answers the question. The exceptions are the ones where the **thing being measured** is physical too, and all three read `getComputedStyle(…).direction` rather than guessing:
+Almost nothing needs to. The exceptions are the places where the **thing being measured** is physical too, and pairing a logical property with a physical measurement is what would actually break the direction.
+
+::: fw react
+
+Three, and all three read `getComputedStyle(…).direction` rather than guessing:
 
 - a **`PlPanes`** handle dragged with the pointer or nudged with the arrow keys — a pointer's `clientX` grows to the right in both directions, so the delta has to be turned round;
 - a **`PlSidebar`**'s resize drag, for the same reason, and the edge a collapsed one turns into a `PlDrawer` on;
-- the moving indicator in **`PlTabs`**, **`PlSegmentedButton`** and **`PlFloatingBottomNavigation`**, which is placed from `offsetLeft` — a distance from the left edge in both directions. Those three keep `left` on purpose: pairing a logical property with a physical measurement is what would actually break the direction.
+- the moving indicator in **`PlTabs`**, **`PlSegmentedButton`** and **`PlFloatingBottomNavigation`**, which is placed from `offsetLeft` — a distance from the left edge in both directions.
+
+:::
+
+::: fw flutter
+
+All of them read `Directionality.of(context)`, and they fall into three kinds:
+
+- **A pointer or an arrow key against a physical axis.** A drag's `delta.dx` grows to the right in both directions, so `PlPanes`, `PlSidebar`, `PlSlider` and `PlScrollZone` turn it round — and with it the left/right arrow keys, which mean "further along the line" rather than "further right".
+- **A corner that has to be handed over resolved.** `PlButtonGroup`'s squared edges, `PlChatBubble`'s tail and a date range's open and closed ends are written as a `BorderRadius` rather than as a `BorderRadiusDirectional`, because the same value reaches a `ClipRRect`, a `BoxDecoration` and a painter — and the painter takes a resolved one.
+- **A `PlassSide` chosen for the reader.** `PlassSide` names an edge of the screen, so a `PlNavigationMenu` picks which edge its panel flies out towards rather than always taking the right.
+
+Two of those are worth naming, because they turn over more than a margin. A **`PlSlider`** puts its minimum at the inline start, so the paint, the press mapping and the left/right arrow keys all mirror together — a control where only some of them did would be arguing with itself. And a **`PlAnimateMarquee`** travels towards the reading start, so the words arrive in the order they are read.
+
+Everything else is a `*Directional` widget, and the package test below is what keeps it that way.
+
+:::
 
 ## Checking your own
+
+::: fw react
 
 ```tsx
 <div dir="rtl">{/* a screen */}</div>
 ```
 
-`dir` can go on any element, so a single component can be checked without the whole page moving. What to look for is a gap that has landed on the wrong side, an icon that should have turned and did not, and text that is still ragged on the wrong edge.
+`dir` can go on any element, so a single component can be checked without the whole page moving.
 
-A component that gets it wrong is a bug — the library carries a package test that renders in a real `dir="rtl"` document and reads every component's source for a physical utility that is not on a short, documented list.
+:::
+
+::: fw flutter
+
+```dart
+Directionality(textDirection: TextDirection.rtl, child: screen);
+```
+
+`Directionality` can wrap any subtree, so a single widget can be checked without the whole app moving.
+
+:::
+
+What to look for is a gap that has landed on the wrong side, an icon that should have turned and did not, and text that is still ragged on the wrong edge.
+
+A component that gets it wrong is a bug. Both packages carry a test for it, in two halves: one drives a real right-to-left tree and asserts the handful of behaviours that must turn over, and the other reads every component's source and fails on a physical property that is not on a short, documented list. The second half is the one that catches the _next_ component.
 
 ## Notes
 
-- The library ships no translations. `PlTable`'s `empty`, `PlPagination`'s labels, `PlAlert`'s `closeLabel` and the pickers' `labels` are plain props, and a `PlassProvider` sets the picker vocabulary once. A library that shipped translations would have to be told which language a page is in, and the page already knows.
-- `PlassProvider`'s `locale` reaches the date, time and number components. It does not set `dir` — that is the document's, and a library has no business writing on `<html>`.
+- The library ships no translations. `PlTable`'s `empty`, `PlPagination`'s labels, `PlAlert`'s `closeLabel` and the pickers' `labels` are plain props, and the app-wide defaults set the picker vocabulary once. A library that shipped translations would have to be told which language a page is in, and the page already knows.
+- The `locale` default reaches the date, time and number components. It does not set the direction — that belongs to the document in React and to the app in Flutter, and a component library has no business writing on either.

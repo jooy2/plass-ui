@@ -438,7 +438,12 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
                         if (rows[index].group != null &&
                             (index == 0 || rows[index - 1].group != rows[index].group))
                           Padding(
-                            padding: EdgeInsets.only(left: inset, right: inset, top: 8, bottom: 4),
+                            padding: EdgeInsetsDirectional.only(
+                              start: inset,
+                              end: inset,
+                              top: 8,
+                              bottom: 4,
+                            ),
                             child: Text(
                               rows[index].group!,
                               style: TextStyle(

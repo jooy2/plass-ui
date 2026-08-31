@@ -193,6 +193,15 @@ class _PlSliderState extends State<PlSlider> {
 
   bool get _vertical => widget.orientation == PlassOrientation.vertical;
 
+  /// Whether the run is mirrored.
+  ///
+  /// A slider is a value laid along a line, and a line is read in the direction
+  /// the page is read: the minimum belongs at the inline start. So three things
+  /// turn over together — where the fill is painted, which end a press maps to,
+  /// and which way an arrow key counts — and they have to turn over together or
+  /// the control disagrees with itself.
+  bool get _rtl => Directionality.of(context) == TextDirection.rtl;
+
   /// Where [value] sits along the run, as 0..1.
   double _fraction(double value) {
     return ((value - widget.min) / (widget.max - widget.min)).clamp(0, 1);
@@ -242,7 +251,13 @@ class _PlSliderState extends State<PlSlider> {
   double _fractionOf(Offset local, Size box) {
     // A vertical slider runs bottom to top, which is what "up is more" means
     // everywhere outside a scroll bar.
-    return _vertical ? 1 - local.dy / box.height : local.dx / box.width;
+    if (_vertical) {
+      return 1 - local.dy / box.height;
+    }
+
+    final fraction = local.dx / box.width;
+
+    return _rtl ? 1 - fraction : fraction;
   }
 
   KeyEventResult _onKey(int index, KeyEvent event) {
@@ -253,13 +268,19 @@ class _PlSliderState extends State<PlSlider> {
     final range = widget.max - widget.min;
     double? next;
 
+    // Up and down are up and down in every writing direction; right and left
+    // are the ones that mean "further along the line".
+    final along = _rtl ? -widget.step : widget.step;
+
     switch (event.logicalKey) {
       case LogicalKeyboardKey.arrowUp:
-      case LogicalKeyboardKey.arrowRight:
         next = widget.values[index] + widget.step;
       case LogicalKeyboardKey.arrowDown:
-      case LogicalKeyboardKey.arrowLeft:
         next = widget.values[index] - widget.step;
+      case LogicalKeyboardKey.arrowRight:
+        next = widget.values[index] + along;
+      case LogicalKeyboardKey.arrowLeft:
+        next = widget.values[index] - along;
       case LogicalKeyboardKey.home:
         next = widget.min;
       case LogicalKeyboardKey.end:
@@ -331,9 +352,9 @@ class _PlSliderState extends State<PlSlider> {
                           ),
                         ),
                       ),
-                      Positioned(
-                        left: _vertical ? 0 : from * run,
-                        right: _vertical ? 0 : (1 - to) * run,
+                      PositionedDirectional(
+                        start: _vertical ? 0 : from * run,
+                        end: _vertical ? 0 : (1 - to) * run,
                         top: _vertical ? (1 - to) * run : 0,
                         bottom: _vertical ? from * run : 0,
                         child: DecoratedBox(
@@ -348,8 +369,8 @@ class _PlSliderState extends State<PlSlider> {
                 ),
               ),
               for (var index = 0; index < widget.values.length; index += 1)
-                Positioned(
-                  left: _vertical ? null : _fraction(widget.values[index]) * travel,
+                PositionedDirectional(
+                  start: _vertical ? null : _fraction(widget.values[index]) * travel,
                   bottom: _vertical ? _fraction(widget.values[index]) * travel : null,
                   child: _Thumb(
                     size: thumb,

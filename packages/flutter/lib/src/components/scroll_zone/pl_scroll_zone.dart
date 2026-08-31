@@ -398,7 +398,18 @@ class _PlScrollZoneState extends State<PlScrollZone> with SingleTickerProviderSt
 
       // Back to an absolute scroll offset: where the group sits in the viewport
       // right now, plus how far the viewport has already been scrolled.
-      starts.add((_horizontal ? local.dx : local.dy) + _scroll.position.pixels);
+      //
+      // A horizontal strip under RTL scrolls the other way, so a group's
+      // distance along the run is measured from the far edge — `dx` is still a
+      // distance from the *left*, and that is the leading edge only in one of
+      // the two directions.
+      final double along = _horizontal
+          ? (Directionality.of(context) == TextDirection.rtl
+                ? viewport.size.width - local.dx - box.size.width
+                : local.dx)
+          : local.dy;
+
+      starts.add(along + _scroll.position.pixels);
     }
 
     starts.sort();

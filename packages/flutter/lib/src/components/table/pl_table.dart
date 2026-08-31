@@ -538,10 +538,10 @@ class _PlTableState<T> extends State<PlTable<T>> {
         children: <Widget>[
           scrolling,
           if (_columnWidths != null)
-            Positioned(
+            PositionedDirectional(
               top: 0,
-              left: 0,
-              right: 0,
+              start: 0,
+              end: 0,
               child: _PinnedHeader(
                 // Opaque, and it has to be: rows pass directly underneath, and
                 // a translucent band would let them through. The glass at its

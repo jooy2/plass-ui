@@ -260,9 +260,16 @@ class PlChatBubble extends StatelessWidget {
     final ink = solid ? family.onSolid : tokens.fg;
 
     final radius = PlassTokens.radius[size]!;
+
+    // The tightened corner is the one that faces the sender, and which side of
+    // the screen that is depends on the writing direction as much as on `side`.
+    // Resolved here rather than written as a `BorderRadiusDirectional` because
+    // the same value reaches a `ClipRRect` and a `PlassSurface`, and one of
+    // those takes a resolved [BorderRadius].
+    final tailRight = end != (Directionality.of(context) == TextDirection.rtl);
     final corners = BorderRadius.only(
-      topLeft: Radius.circular(end ? radius : _tailRadius),
-      topRight: Radius.circular(end ? _tailRadius : radius),
+      topLeft: Radius.circular(tailRight ? radius : _tailRadius),
+      topRight: Radius.circular(tailRight ? _tailRadius : radius),
       bottomLeft: Radius.circular(radius),
       bottomRight: Radius.circular(radius),
     );

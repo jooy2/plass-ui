@@ -239,9 +239,9 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
         final surface = _surface(tokens, family, state, interactive: interactive);
 
         Widget row = Padding(
-          padding: EdgeInsets.only(
-            left: widget.startIcon != null || !interactive ? padX : 0,
-            right: widget.endIcon != null ? 4 : (interactive ? 0 : padX),
+          padding: EdgeInsetsDirectional.only(
+            start: widget.startIcon != null || !interactive ? padX : 0,
+            end: widget.endIcon != null ? 4 : (interactive ? 0 : padX),
             top: _rowPaddingY,
             bottom: _rowPaddingY,
           ),
@@ -303,7 +303,7 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
                     child: ExcludeSemantics(
                       excluding: !widget.expanded,
                       child: Padding(
-                        padding: EdgeInsets.only(left: padX, right: padX, bottom: 8),
+                        padding: EdgeInsetsDirectional.only(start: padX, end: padX, bottom: 8),
                         child: DefaultTextStyle.merge(
                           style: TextStyle(
                             fontSize: sheetBody[_size]!.size,
