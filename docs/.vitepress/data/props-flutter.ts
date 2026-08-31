@@ -1412,6 +1412,28 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlEmpty', 'color', { type: COLOR, default: 'PlassColor.secondary' }),
     from('PlEmpty', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
   ],
+  PlStat: [
+    from('PlStat', 'label', { type: 'Widget?' }),
+    from('PlStat', 'value', {
+      type: 'Widget?',
+      description: {
+        ko: '이미 서식이 정해진 숫자 그 자체. 숫자 타입이 아닌 이유는 통화 · 자릿수 · 소수점 · 로케일이 화면의 결정이고, 이 패키지에는 짐작할 의존성이 없기 때문입니다',
+        en: "The figure itself, already formatted. A widget rather than a number, because the currency, grouping, decimals and locale are the screen's decision and this package has no dependencies to guess with"
+      }
+    }),
+    from('PlStat', 'description', { type: 'Widget?' }),
+    from('PlStat', 'icon', { type: 'Widget?' }),
+    from('PlStat', 'change', { type: 'double?' }),
+    from('PlStat', 'changeLabel', { type: 'Widget?' }),
+    from('PlStat', 'improvesWhen', {
+      type: 'PlStatDirection',
+      default: 'PlStatDirection.up'
+    }),
+    from('PlStat', 'loading', { type: 'bool', default: 'false' }),
+    from('PlStat', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlStat', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlStat', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+  ],
   PlCalendar: [
     {
       name: 'value',

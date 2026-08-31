@@ -99,6 +99,7 @@ export 'src/components/sidebar/pl_sidebar_trigger.dart';
 export 'src/components/skeleton/pl_skeleton.dart';
 export 'src/components/slider/pl_slider.dart';
 export 'src/components/spoiler/pl_spoiler.dart';
+export 'src/components/stat/pl_stat.dart';
 export 'src/components/stepper/pl_stepper.dart';
 export 'src/components/switch/pl_switch.dart';
 export 'src/components/table/pl_table.dart';

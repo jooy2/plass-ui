@@ -19,6 +19,21 @@ import { PlStat } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlStat(
+  label: const Text('Revenue'),
+  value: const Text('£48,120'),
+  change: 12.4,
+  description: const Text('vs last month'),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlStat" />
@@ -39,6 +54,12 @@ The one thing a naive version of this gets wrong. **The colour of a movement is 
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/stat/direction.dart
+
+:::
+
 </Demo>
 
 ## value takes a node
@@ -51,6 +72,21 @@ Not a number, and deliberately. How a figure is written — the currency, the gr
   value={new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(total)}
 />
 ```
+
+::: fw flutter
+
+The same, with `package:intl` doing the formatting — this package has no dependencies to do it with, which is the other half of the reason `value` is a widget.
+
+```dart
+PlStat(
+  label: const Text('Revenue'),
+  value: Text(NumberFormat.simpleCurrency(locale: 'en_GB').format(total)),
+);
+```
+
+`PlStat.formatChange` is the one number the widget does write: at most one decimal, and a sign on a rise. Anything more particular is what `changeLabel` is for.
+
+:::
 
 ## Examples
 
@@ -82,3 +118,9 @@ Draws a skeleton where the figure will be, and holds the change back with it —
 - The arrow is `aria-hidden` and the sign is **in the text** — "+12.4%" reads correctly on its own, and a screen reader is not told about a triangle.
 - The colour is never the only thing carrying the direction, for the same reason: the sign and the arrow both say it.
 - It has no role and no heading. A row of figures is a set of `<div>`s to a screen reader unless the page says otherwise — put them in a list, or give the row a `<h2>`, depending on what the page is.
+
+::: fw flutter
+
+The arrow is inside an `ExcludeSemantics` and the sign is in the text, so a screen reader hears "+12.4%" and not a triangle.
+
+:::

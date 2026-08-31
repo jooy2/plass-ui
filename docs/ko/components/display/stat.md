@@ -19,6 +19,21 @@ import { PlStat } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlStat(
+  label: const Text('Revenue'),
+  value: const Text('₩48,120'),
+  change: 12.4,
+  description: const Text('vs last month'),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlStat" />
@@ -39,6 +54,12 @@ import { PlStat } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/stat/direction.dart
+
+:::
+
 </Demo>
 
 ## value는 node를 받습니다
@@ -51,6 +72,21 @@ import { PlStat } from 'plass-ui';
   value={new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(total)}
 />
 ```
+
+::: fw flutter
+
+같은 이야기이고, 서식은 `package:intl`이 맡습니다 — 이 패키지에는 그것을 할 의존성이 없고, 그것이 `value`가 위젯인 나머지 절반의 이유입니다.
+
+```dart
+PlStat(
+  label: const Text('매출'),
+  value: Text(NumberFormat.simpleCurrency(locale: 'ko_KR').format(total)),
+);
+```
+
+위젯이 직접 쓰는 숫자는 `PlStat.formatChange` 하나뿐입니다 — 소수점 한 자리까지, 상승에는 부호. 그보다 특정한 것이 필요하면 `changeLabel`이 그 자리입니다.
+
+:::
 
 ## Examples
 
@@ -82,3 +118,9 @@ import { PlStat } from 'plass-ui';
 - 화살표는 `aria-hidden`이고 부호는 **텍스트 안에** 있습니다 — "+12.4%"는 그 자체로 올바르게 읽히고, 스크린 리더가 삼각형에 대해 듣지 않습니다.
 - 색이 방향을 나르는 유일한 것인 적이 없습니다. 같은 이유로, 부호와 화살표가 둘 다 그것을 말합니다.
 - role도 heading도 없습니다. 숫자 줄은 페이지가 달리 말하지 않는 한 스크린 리더에게 `<div>` 몇 개입니다. 페이지가 무엇이냐에 따라 리스트에 넣거나 줄에 `<h2>`를 주세요.
+
+::: fw flutter
+
+화살표는 `ExcludeSemantics` 안에 있고 부호는 텍스트 안에 있습니다. 그래서 스크린 리더가 삼각형이 아니라 "+12.4%"를 듣습니다.
+
+:::
