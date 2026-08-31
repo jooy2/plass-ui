@@ -45,7 +45,8 @@ import {
   PlToastProvider,
   PlTooltip,
   usePlToast,
-  PlTypography
+  PlTypography,
+  PlVisuallyHidden
 } from 'plass-ui';
 
 /**
@@ -105,6 +106,10 @@ function SettingsScreen() {
         <PlBreadcrumbItem href="#showcase">Organisation</PlBreadcrumbItem>
         <PlBreadcrumbItem>Settings</PlBreadcrumbItem>
       </PlBreadcrumb>
+
+      {/* The design has no heading here — the breadcrumb and the search row say
+          where you are. A screen reader gets one anyway. */}
+      <PlVisuallyHidden render={<h2 />}>Organisation settings</PlVisuallyHidden>
 
       <div className="flex flex-wrap items-center gap-3">
         <PlBadge dot color="success" overlap="circle" label="Online">

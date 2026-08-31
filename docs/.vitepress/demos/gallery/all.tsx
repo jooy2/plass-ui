@@ -106,7 +106,8 @@ import {
   PlTransfer,
   PlTooltip,
   usePlToast,
-  PlTypography
+  PlTypography,
+  PlVisuallyHidden
 } from 'plass-ui';
 
 /**
@@ -795,6 +796,38 @@ const entries: Entry[] = [
         <PlTypography level="overline">Section</PlTypography>
         <PlTypography level="h4">A material rather than a theme</PlTypography>
         <PlTypography level="caption">Ten levels, one ladder.</PlTypography>
+      </div>
+    )
+  },
+  {
+    name: 'PlVisuallyHidden',
+    group: 'display',
+    href: 'components/display/visually-hidden',
+    blurb: {
+      en: 'Content for a screen reader and for nobody else.',
+      ko: '스크린 리더에게만 주는 내용입니다.'
+    },
+    preview: (
+      <div className="flex w-full flex-col items-center gap-2">
+        <div className="flex gap-2">
+          {[
+            { glyph: '★', name: 'Add to favourites' },
+            { glyph: '⌫', name: 'Delete' },
+            { glyph: '✕', name: 'Close' }
+          ].map((action) => (
+            <button
+              key={action.name}
+              type="button"
+              className="inline-flex size-9 items-center justify-center rounded-(--plass-radius-md) border bg-(--plass-glass) [border-color:var(--plass-border)]"
+            >
+              <span aria-hidden="true">{action.glyph}</span>
+              <PlVisuallyHidden>{action.name}</PlVisuallyHidden>
+            </button>
+          ))}
+        </div>
+        <span className="text-[0.625rem] text-(--plass-muted-fg)">
+          Three glyphs drawn, three names announced.
+        </span>
       </div>
     )
   },

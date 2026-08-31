@@ -123,9 +123,11 @@ Every component is exported under a `Pl` prefix — `Button`, `Card` and `Table`
 
 The list below is both packages'. The props are the same props under Dart's names, and each component's page says exactly what differs.
 
+A **†** marks the few that are React-only. They are not omissions — each one answers a problem only the DOM has, and the Dart answer is a line of framework code rather than a component. Their pages say which.
+
 ### Display
 
-`PlAvatar` · `PlAvatarGroup` · `PlBadge` · `PlBlockquote` · `PlBreadcrumb` · `PlChip` · `PlDivider` · `PlHighlight` · `PlHotKeys` · `PlIcon` · `PlList` · `PlTable` · `PlTextLink` · `PlTimeline` · `PlTypography`
+`PlAvatar` · `PlAvatarGroup` · `PlBadge` · `PlBlockquote` · `PlBreadcrumb` · `PlChip` · `PlDivider` · `PlHighlight` · `PlHotKeys` · `PlIcon` · `PlList` · `PlTable` · `PlTextLink` · `PlTimeline` · `PlTypography` · `PlVisuallyHidden`†
 
 ### Feedback
 

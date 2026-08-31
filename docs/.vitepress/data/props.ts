@@ -9940,5 +9940,40 @@ export const propTables: Record<string, PropRow[]> = {
     },
     hotKeysProp,
     fieldClassNames
+  ],
+  PlVisuallyHidden: [
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: {
+        ko: '읽히되 그려지지는 않을 내용',
+        en: 'What is read out and drawn nowhere'
+      }
+    },
+    {
+      name: 'focusable',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '안쪽 어딘가가 focus를 쥐고 있는 동안 내용을 flow로 되돌립니다. skip link를 위한 것입니다',
+        en: 'Brings the content back into the flow while anything inside holds the focus. For a skip link'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '<span> 대신 다른 요소로 렌더링합니다 (<div />, <h2 />)',
+        en: 'Renders something other than a <span> (<div />, <h2 />)'
+      }
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: {
+        ko: '컴포넌트 자신의 클래스와 나란히 놓입니다',
+        en: 'Sits alongside the component’s own classes'
+      }
+    }
   ]
 };
