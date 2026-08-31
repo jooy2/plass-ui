@@ -19,6 +19,19 @@ import { PlCalendar } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlCalendar(
+  value: day,
+  onChanged: (DateTime? next) => setState(() => day = next),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlCalendar" />
@@ -26,6 +39,14 @@ import { PlCalendar } from 'plass-ui';
 ::: fw react
 
 Every native `<div>` attribute passes straight through. There is no `label`, `description` or `error`: this is not a field, so it has no text around it — put it in a [`PlFieldset`](./fieldset) if it needs a caption.
+
+:::
+
+::: fw flutter
+
+There is no `label`, `description` or `error`: this is not a field, so it has no text around it — put it in a [`PlFieldset`](./fieldset) if it needs a caption.
+
+Two differences from the React build, both the ones every date component in this package has. `names` and `labels` take the words rather than a `locale` string, because the framework ships no `Intl` — English is the default, and an app that already has `package:intl` builds a `PlDateNames` from it in three lines. And there is **no `name`**: a Dart form is not an HTML one, so there is no hidden input to submit and the value is the caller's to send.
 
 :::
 
@@ -53,6 +74,12 @@ The value is normalised to the start of what was chosen: the 1st of the month, t
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/calendar/precision.dart
+
+:::
+
 </Demo>
 
 ### minDate, maxDate and shouldDisableDate
@@ -67,6 +94,12 @@ The two bounds are read at the calendar's own `precision`, so a `minDate` of 15 
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/calendar/bounds.dart
+
+:::
+
 </Demo>
 
 ### variant
@@ -78,6 +111,12 @@ The two bounds are read at the calendar's own `precision`, so a `minDate` of 15 
 ::: fw react
 
 <<< @/.vitepress/demos/calendar/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/calendar/variants.dart
 
 :::
 
@@ -97,6 +136,8 @@ Uncontrolled, the month follows the value: choosing a day out of a trailing week
 
 ### In a form
 
+::: fw react
+
 `name` adds a hidden input. The spelling follows `precision` — `YYYY-MM-DD`, then `YYYY-MM` and `YYYY`, which is what the native inputs of the same shape submit.
 
 ```tsx
@@ -104,6 +145,14 @@ Uncontrolled, the month follows the value: choosing a day out of a trailing week
   <PlCalendar name="departure" />
 </form>
 ```
+
+:::
+
+::: fw flutter
+
+There is nothing to add. A Dart form is not an HTML one, so there is no hidden input and no name to give it — the value arrives in `onChanged` and sending it is the caller's.
+
+:::
 
 ### disabled
 

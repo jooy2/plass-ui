@@ -19,6 +19,19 @@ import { PlCalendar } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlCalendar(
+  value: day,
+  onChanged: (DateTime? next) => setState(() => day = next),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlCalendar" />
@@ -26,6 +39,14 @@ import { PlCalendar } from 'plass-ui';
 ::: fw react
 
 네이티브 `<div>` 속성은 그대로 통과합니다. `label`도 `description`도 `error`도 없습니다 — 이것은 field가 아니라서 둘러싼 텍스트가 없습니다. 설명이 필요하면 [`PlFieldset`](./fieldset) 안에 넣으세요.
+
+:::
+
+::: fw flutter
+
+`label`도 `description`도 `error`도 없습니다 — 이것은 field가 아니라서 둘러싼 텍스트가 없습니다. 설명이 필요하면 [`PlFieldset`](./fieldset) 안에 넣으세요.
+
+React 빌드와 다른 점 둘은, 이 패키지의 모든 날짜 컴포넌트가 갖는 그 둘입니다. `names`와 `labels`가 `locale` 문자열 대신 말 자체를 받습니다 — 프레임워크에 `Intl`이 없기 때문입니다. 기본은 영어이고, 이미 `package:intl`을 쓰는 앱은 세 줄로 `PlDateNames`를 만듭니다. 그리고 **`name`이 없습니다.** Dart의 폼은 HTML의 폼이 아니므로 제출할 hidden input도 없고, 값을 보내는 것은 호출자의 몫입니다.
 
 :::
 
@@ -53,6 +74,12 @@ import { PlCalendar } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/calendar/precision.dart
+
+:::
+
 </Demo>
 
 ### minDate, maxDate, shouldDisableDate
@@ -67,6 +94,12 @@ import { PlCalendar } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/calendar/bounds.dart
+
+:::
+
 </Demo>
 
 ### variant
@@ -78,6 +111,12 @@ import { PlCalendar } from 'plass-ui';
 ::: fw react
 
 <<< @/.vitepress/demos/calendar/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/calendar/variants.dart
 
 :::
 
@@ -97,6 +136,8 @@ const [month, setMonth] = useState(startOfMonth(new Date()));
 
 ### 폼 안에서
 
+::: fw react
+
 `name`은 hidden input을 답니다. 표기는 `precision`을 따릅니다 — `YYYY-MM-DD`, 그다음 `YYYY-MM`과 `YYYY`. 같은 모양의 네이티브 input이 제출하는 형식입니다.
 
 ```tsx
@@ -104,6 +145,14 @@ const [month, setMonth] = useState(startOfMonth(new Date()));
   <PlCalendar name="departure" />
 </form>
 ```
+
+:::
+
+::: fw flutter
+
+더할 것이 없습니다. Dart의 폼은 HTML의 폼이 아니므로 hidden input도, 거기 줄 이름도 없습니다 — 값은 `onChanged`로 오고, 그것을 보내는 것은 호출자의 몫입니다.
+
+:::
 
 ### disabled
 

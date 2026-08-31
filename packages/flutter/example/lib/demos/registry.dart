@@ -148,6 +148,10 @@ import 'package:plass_ui_example/demos/container/padding.dart';
 import 'package:plass_ui_example/demos/container/widths.dart';
 import 'package:plass_ui_example/demos/date_picker/bounds.dart';
 import 'package:plass_ui_example/demos/date_picker/format.dart';
+import 'package:plass_ui_example/demos/calendar/hero.dart';
+import 'package:plass_ui_example/demos/calendar/precision.dart';
+import 'package:plass_ui_example/demos/calendar/bounds.dart';
+import 'package:plass_ui_example/demos/calendar/variants.dart';
 import 'package:plass_ui_example/demos/date_picker/hero.dart';
 import 'package:plass_ui_example/demos/date_picker/locales.dart';
 import 'package:plass_ui_example/demos/date_picker/precision.dart';
@@ -464,6 +468,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'date-time-picker/precision': _dateTimePickerPrecision,
   'date-time-picker/steps': _dateTimePickerSteps,
   'date-time-picker/states': _dateTimePickerStates,
+  'calendar/hero': _calendarHero,
+  'calendar/precision': _calendarPrecision,
+  'calendar/bounds': _calendarBounds,
+  'calendar/variants': _calendarVariants,
   'date-picker/hero': _datePickerHero,
   'date-picker/locales': _datePickerLocales,
   'date-picker/precision': _datePickerPrecision,
@@ -888,6 +896,14 @@ Widget _dateTimePickerHero(BuildContext context) => const DateTimePickerHero();
 Widget _dateTimePickerPrecision(BuildContext context) => const DateTimePickerPrecision();
 Widget _dateTimePickerSteps(BuildContext context) => const DateTimePickerSteps();
 Widget _dateTimePickerStates(BuildContext context) => const DateTimePickerStates();
+Widget _calendarHero(BuildContext context) => const CalendarHero();
+
+Widget _calendarPrecision(BuildContext context) => const CalendarPrecision();
+
+Widget _calendarBounds(BuildContext context) => const CalendarBounds();
+
+Widget _calendarVariants(BuildContext context) => const CalendarVariants();
+
 Widget _datePickerHero(BuildContext context) => const DatePickerHero();
 
 Widget _datePickerPrecision(BuildContext context) => const DatePickerPrecision();

@@ -1236,6 +1236,72 @@ export const flutterPropTables: Record<string, PropRow[]> = {
    * and the trigger's format as a callback — the same trade the indicators
    * already make with `formatValue`.
    */
+  PlCalendar: [
+    {
+      name: 'value',
+      type: 'DateTime?',
+      required: true,
+      description: {
+        ko: '고른 날, 또는 없으면 null. 패키지의 다른 모든 입력과 마찬가지로 controlled입니다',
+        en: 'The chosen day, or null for none. Controlled, like every other input in the package'
+      }
+    },
+    {
+      name: 'onChanged',
+      type: 'ValueChanged<DateTime?>?',
+      description: {
+        ko: '고른 날과 함께 호출됩니다. null이면 calendar가 비활성입니다',
+        en: 'Called with the day that was taken. A null onChanged makes it inert'
+      }
+    },
+    from('PlCalendar', 'precision', {
+      type: 'PlCalendarPrecision',
+      default: 'PlCalendarPrecision.day'
+    }),
+    from('PlCalendar', 'month', { type: 'DateTime?' }),
+    from('PlCalendar', 'defaultMonth', { type: 'DateTime?' }),
+    from('PlCalendar', 'onMonthChange', {
+      name: 'onMonthChanged',
+      type: 'ValueChanged<DateTime>?'
+    }),
+    from('PlCalendar', 'minDate', { type: 'DateTime?' }),
+    from('PlCalendar', 'maxDate', { type: 'DateTime?' }),
+    from('PlCalendar', 'shouldDisableDate', { type: 'bool Function(DateTime)?' }),
+    from('PlCalendar', 'weekStartsOn', { type: 'PlassWeekday?' }),
+    {
+      name: 'names',
+      type: 'PlDateNames',
+      default: 'PlDateNames.english',
+      description: {
+        ko: 'calendar가 그리는 말들 — 월, 요일. React의 locale 문자열에 해당합니다',
+        en: 'The words the calendar draws — the months, the weekdays. This is what a locale string is in the React build'
+      }
+    },
+    {
+      name: 'labels',
+      type: 'PlPickerLabels',
+      default: 'PlPickerLabels.english',
+      description: {
+        ko: 'calendar가 자기 자신에 대해 말하는 것 — 스테퍼, 제목',
+        en: 'The words it says about itself — the steppers, the headings'
+      }
+    },
+    from('PlCalendar', 'showOutsideDays', { type: 'bool', default: 'true' }),
+    from('PlCalendar', 'autoFocus', { name: 'autofocus', type: 'bool', default: 'false' }),
+    from('PlCalendar', 'disabled', { type: 'bool', default: 'false' }),
+    from('PlCalendar', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlCalendar', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlCalendar', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlCalendar', 'elevation', { type: 'int', default: '1' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '스크린 리더가 grid 전체에 주는 이름',
+        en: 'The name a screen reader gives the whole grid'
+      }
+    }
+  ],
   PlDatePicker: [
     {
       name: 'value',
