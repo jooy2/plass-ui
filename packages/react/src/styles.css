@@ -1107,7 +1107,7 @@
     translate: 0 0;
   }
   to {
-    translate: calc(-100% - var(--p-anim-gap, 0px)) 0;
+    translate: calc((-100% - var(--p-anim-gap, 0px)) * var(--p-anim-along, 1)) 0;
   }
 }
 
@@ -1150,6 +1150,22 @@
 .plass-marquee-vertical .plass-marquee-track {
   flex-direction: column;
   animation-name: plass-anim-marquee-y;
+}
+
+/*
+ * A strip travels *towards* the reader's start: in English it enters on the
+ * right and leaves on the left, and in Arabic it does the opposite, or the
+ * words arrive backwards.
+ *
+ * There is no logical `translate`, so the sign is flipped by hand. The flex
+ * track has already reversed on its own, which is what puts the overflow on the
+ * other side for the translate to bring in. Written against the attribute as
+ * well as `:dir()` because `:dir()` is newer than the rest of this sheet's
+ * floor; the two agree on every page that set `dir`.
+ */
+[dir='rtl'] .plass-marquee-track,
+.plass-marquee-track:dir(rtl) {
+  --p-anim-along: -1;
 }
 
 .plass-marquee[data-pause-on-hover]:hover .plass-marquee-track {

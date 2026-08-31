@@ -33,6 +33,7 @@
 
 import * as React from 'react';
 import type { PlassPickerLabels } from './calendar.js';
+import type { PlassDirection } from './direction.js';
 import type { PlassColor, PlassDensity, PlassSize, PlassWeekday } from '../types.js';
 
 /** Everything a `PlassProvider` can decide for the tree under it. */
@@ -49,6 +50,15 @@ export interface PlassDefaults {
   weekStartsOn?: PlassWeekday;
   /** The strings a picker says that `Intl` has no opinion about. */
   labels?: Partial<PlassPickerLabels>;
+  /**
+   * Which way the tree runs, for the behaviours that read it in JavaScript.
+   *
+   * Left out is not "left to right" — it is **"read it off the document"**,
+   * which is what a page that wrote `dir="rtl"` already said. Set it only for a
+   * subtree that runs the other way from the page around it, or on a server
+   * that knows the answer before there is a document to ask.
+   */
+  direction?: PlassDirection;
 }
 
 /**

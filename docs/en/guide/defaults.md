@@ -51,6 +51,12 @@ PlassTheme.merge(
 | `weekStartsOn` | Which day their weeks start on, as `Date` counts them — Sunday is `0`       |
 | `labels`       | The strings a picker says that `Intl` has no opinion about                  |
 
+::: fw react
+
+It carries one more thing that is not a default: **the reading direction**. See [Right to left](../design/rtl) — a `dir="rtl"` document turns the layout over on its own, and this is what carries that to the behaviours that read the direction in JavaScript. There is nothing to set; `direction` is only for a subtree that runs the other way from the page around it.
+
+:::
+
 ::: fw flutter
 
 `locale` is `names` and `labels` here — the framework ships no `Intl`, so the words themselves are what a theme carries. `PlDateNames` and `PlPickerLabels` are the same two objects every date widget already took.
@@ -130,7 +136,7 @@ For a component of your own that has to line up with the ones around it. Every f
 ::: fw react
 
 - **`PlTable` does not read the provider**, and it is the only component that does not. It is kept out of the React Server Component client graph on purpose — every one of its columns is a `render` callback, and a server component cannot hand a function across that boundary — and reading a context would make it a client component. Set its `size` and `density` on the component.
-- The provider renders no element and draws nothing. It costs one context read per component.
+- The provider renders no element and draws nothing. It costs one context read per component, plus one observer on `<html>` for the whole page — the direction is read off the document rather than configured.
 - It is not a theme. The colours, the radii, the blur and the shadows are CSS custom properties, and the place to change those is [Colour](../design/color#overriding-a-family) — a second copy of them in JavaScript would be a second source of truth.
 
 :::

@@ -1,7 +1,9 @@
 'use client';
 
 import * as React from 'react';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { DefaultsContext, type PlassDefaults } from '../internal/defaults.js';
+import { useDocumentDirection } from '../internal/direction.js';
 
 export interface PlassProviderProps extends PlassDefaults {
   children?: React.ReactNode;
@@ -32,6 +34,13 @@ export interface PlassProviderProps extends PlassDefaults {
  *
  * Providers **nest and merge**, so a section of a page can be compact inside an
  * application that is not, and a component's own prop always wins over both.
+ *
+ * **It also carries the reading direction**, and that one is not a default the
+ * caller sets — it is read off the document. `dir="rtl"` turns the layout over
+ * on its own, but Base UI reads the direction from a React context, so without
+ * this the arrow keys, the composite navigation and the popup alignment would
+ * all still be running left to right under a right-to-left page. See
+ * `internal/direction.ts`.
  */
 export function PlassProvider({
   size,
@@ -40,6 +49,7 @@ export function PlassProvider({
   locale,
   weekStartsOn,
   labels,
+  direction,
   children
 }: PlassProviderProps) {
   const outer = React.useContext(DefaultsContext);
@@ -56,10 +66,20 @@ export function PlassProvider({
       density: density ?? outer.density,
       locale: locale ?? outer.locale,
       weekStartsOn: weekStartsOn ?? outer.weekStartsOn,
-      labels: labels ?? outer.labels
+      labels: labels ?? outer.labels,
+      direction: direction ?? outer.direction
     }),
-    [size, color, density, locale, weekStartsOn, labels, outer]
+    [size, color, density, locale, weekStartsOn, labels, direction, outer]
   );
 
-  return <DefaultsContext.Provider value={value}>{children}</DefaultsContext.Provider>;
+  // The document is the fallback rather than the override: a provider that was
+  // told a direction is describing a subtree that runs the other way, and the
+  // page around it is not the authority on that.
+  const document = useDocumentDirection();
+
+  return (
+    <DirectionProvider direction={value.direction ?? document}>
+      <DefaultsContext.Provider value={value}>{children}</DefaultsContext.Provider>
+    </DirectionProvider>
+  );
 }

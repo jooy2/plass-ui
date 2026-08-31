@@ -5,7 +5,7 @@ order: 4
 
 # Right to left
 
-<p class="plass-lede">One attribute on one element. Every component is laid out in logical properties, so <code>dir="rtl"</code> is the whole setup — there is no provider, no plugin and nothing to configure.</p>
+<p class="plass-lede">One attribute on one element. Every component is laid out in logical properties, so <code>dir="rtl"</code> is the whole of it — there is nothing to configure and no direction to declare twice.</p>
 
 <Demo src="rtl/direction" :min-height="420" />
 
@@ -13,6 +13,14 @@ order: 4
 
 ```html
 <html dir="rtl"></html>
+```
+
+That is the layout, and it needs no JavaScript at all. **A handful of behaviours read the direction in JavaScript** — a slider's arrow keys, the way ←/→ walk a tab list, which physical edge a popup's `align="start"` resolves to — and those hear about it through a [`PlassProvider`](../guide/defaults), which reads the document's own direction. Nothing to pass; the provider is the wire, not a second place to declare the answer.
+
+```tsx
+<PlassProvider>
+  <App />
+</PlassProvider>
 ```
 
 :::
@@ -54,7 +62,9 @@ The same rule reaches the prop vocabulary: [`PlassAlign`](./prop-conventions) is
 | A chevron that points along the reading direction — a breadcrumb's, a pagination stepper's, a submenu's | **Flip.** One glyph, turned |
 | A `PlSwitch`'s thumb | **Flips.** Off is the inline start, which is the right-hand end under RTL — as every platform's own switch behaves |
 | A `PlPanes` handle, a `PlSidebar` drag, a `PlCarousel` or `PlScrollZone` strip | **Flip**, including the arrow keys |
+| A `PlSlider`'s run | **Flips.** The minimum is at the inline start, so the paint, the press mapping and the left/right arrow keys turn over together |
 | A `PlChatBubble`'s tail corner, a `PlButtonGroup`'s squared edges, a date range's open and closed ends | **Flip.** They face the reader's start |
+| A `PlAnimateMarquee` | **Flips.** A strip travels towards the reading start, so the words arrive in the order they are read |
 | `PlassSide` — a tooltip's `side`, a drawer's edge | **Physical, on purpose.** A tooltip above a button is above it in every writing direction |
 | A `PlColorPicker`'s rails | **Do not flip.** A hue rail is a colour space rather than a reading axis: 0° sits where 0° sits in every picker, and a mirrored one would be unrecognisable |
 | A `PlSkeleton`'s sweep | **Does not flip.** It is a light crossing a surface, and a light that changed direction with the locale would read as a different material |
@@ -73,6 +83,10 @@ Three, and all three read `getComputedStyle(…).direction` rather than guessing
 - a **`PlSidebar`**'s resize drag, for the same reason, and the edge a collapsed one turns into a `PlDrawer` on;
 - the moving indicator in **`PlTabs`**, **`PlSegmentedButton`** and **`PlFloatingBottomNavigation`**, which is placed from `offsetLeft` — a distance from the left edge in both directions.
 
+Base UI's own primitives read it from a **React context** instead, and that is the one thing a page has to do something about: with no provider its `useDirection()` answers `ltr` however the document is written. `PlassProvider` renders that context from the document's direction, which is why a page that set `dir` and nothing else would look right and behave the other way round.
+
+There is one place CSS answers it instead of JavaScript, and it is the exception that proves the rule: there is no logical `translate`, so `.plass-marquee-track` flips its sign under `[dir='rtl']`.
+
 :::
 
 ::: fw flutter
@@ -83,7 +97,7 @@ All of them read `Directionality.of(context)`, and they fall into three kinds:
 - **A corner that has to be handed over resolved.** `PlButtonGroup`'s squared edges, `PlChatBubble`'s tail and a date range's open and closed ends are written as a `BorderRadius` rather than as a `BorderRadiusDirectional`, because the same value reaches a `ClipRRect`, a `BoxDecoration` and a painter — and the painter takes a resolved one.
 - **A `PlassSide` chosen for the reader.** `PlassSide` names an edge of the screen, so a `PlNavigationMenu` picks which edge its panel flies out towards rather than always taking the right.
 
-Two of those are worth naming, because they turn over more than a margin. A **`PlSlider`** puts its minimum at the inline start, so the paint, the press mapping and the left/right arrow keys all mirror together — a control where only some of them did would be arguing with itself. And a **`PlAnimateMarquee`** travels towards the reading start, so the words arrive in the order they are read.
+A **`PlSlider`** is worth naming, because it turns over more than a margin: the paint, the press mapping and the left/right arrow keys mirror together, and a control where only some of them did would be arguing with itself.
 
 Everything else is a `*Directional` widget, and the package test below is what keeps it that way.
 
@@ -97,7 +111,7 @@ Everything else is a `*Directional` widget, and the package test below is what k
 <div dir="rtl">{/* a screen */}</div>
 ```
 
-`dir` can go on any element, so a single component can be checked without the whole page moving.
+`dir` can go on any element, so a single component can be checked without the whole page moving. A subtree that runs the other way from its page wants a `PlassProvider direction="rtl"` around it as well, for the same reason the page does.
 
 :::
 

@@ -5,7 +5,7 @@ order: 4
 
 # 오른쪽에서 왼쪽으로
 
-<p class="plass-lede">element 하나에 속성 하나. 모든 컴포넌트가 논리 속성으로 배치돼 있으므로 <code>dir="rtl"</code>이 설정의 전부입니다 — provider도, 플러그인도, 설정할 것도 없습니다.</p>
+<p class="plass-lede">element 하나에 속성 하나. 모든 컴포넌트가 논리 속성으로 배치돼 있으므로 <code>dir="rtl"</code>이 전부입니다 — 설정할 것도, 방향을 두 번 적을 일도 없습니다.</p>
 
 <Demo src="rtl/direction" :min-height="420" />
 
@@ -13,6 +13,14 @@ order: 4
 
 ```html
 <html dir="rtl"></html>
+```
+
+여기까지가 배치이고, JavaScript는 한 줄도 필요 없습니다. **JavaScript에서 방향을 읽는 동작이 몇 가지 있습니다** — slider의 화살표 키, ←/→가 탭 목록을 걷는 방향, popup의 `align="start"`가 어느 물리적 가장자리로 풀리는지 — 그리고 그것들은 [`PlassProvider`](../guide/defaults)를 통해 듣습니다. provider는 문서 자신의 방향을 읽습니다. 넘길 것은 없습니다. provider는 배선이지, 답을 다시 적는 자리가 아닙니다.
+
+```tsx
+<PlassProvider>
+  <App />
+</PlassProvider>
 ```
 
 :::
@@ -54,7 +62,9 @@ Directionality(textDirection: TextDirection.rtl, child: child);
 | 읽는 방향을 가리키는 chevron — breadcrumb, pagination 스테퍼, 서브메뉴 | **뒤집힙니다.** 글리프 하나를 돌립니다 |
 | `PlSwitch`의 thumb | **뒤집힙니다.** off는 inline start이고, RTL에서 그것은 오른쪽 끝입니다 — 어느 플랫폼의 스위치든 그렇게 동작합니다 |
 | `PlPanes` 핸들, `PlSidebar` 드래그, `PlCarousel`과 `PlScrollZone` 스트립 | **뒤집힙니다.** 화살표 키까지 포함해서 |
+| `PlSlider`의 run | **뒤집힙니다.** 최솟값이 inline start에 있으므로 그림과 누른 자리의 해석, 좌우 화살표 키가 한꺼번에 돌아갑니다 |
 | `PlChatBubble`의 꼬리 모서리, `PlButtonGroup`의 각진 가장자리, 날짜 range의 시작과 끝 | **뒤집힙니다.** 읽는 사람의 start를 향합니다 |
+| `PlAnimateMarquee` | **뒤집힙니다.** 스트립은 읽는 방향의 start를 향해 흐르므로 단어가 읽는 순서대로 도착합니다 |
 | `PlassSide` — tooltip의 `side`, drawer의 가장자리 | **일부러 물리적입니다.** 버튼 위의 tooltip은 어느 쓰기 방향에서도 위에 있습니다 |
 | `PlColorPicker`의 rail | **뒤집히지 않습니다.** hue rail은 읽는 축이 아니라 색 공간입니다. 0°는 어느 picker에서든 같은 자리에 있고, 뒤집힌 것은 알아볼 수 없습니다 |
 | `PlSkeleton`의 sweep | **뒤집히지 않습니다.** 표면을 가로지르는 빛이고, 로케일에 따라 방향이 바뀌는 빛은 다른 재질로 읽힙니다 |
@@ -73,6 +83,10 @@ Directionality(textDirection: TextDirection.rtl, child: child);
 - 같은 이유로 **`PlSidebar`**의 리사이즈 드래그, 그리고 접힌 사이드바가 `PlDrawer`가 될 때 붙는 가장자리.
 - **`PlTabs`** · **`PlSegmentedButton`** · **`PlFloatingBottomNavigation`**의 움직이는 표시자. `offsetLeft`로 놓이는데, 그것은 어느 방향에서든 왼쪽 가장자리로부터의 거리입니다.
 
+Base UI 자신의 primitive들은 대신 **React context**에서 방향을 읽고, 페이지가 손을 대야 하는 것은 그 하나뿐입니다. provider가 없으면 `useDirection()`은 문서가 무엇이라고 적혀 있든 `ltr`이라고 답합니다. `PlassProvider`가 그 context를 문서의 방향으로 렌더링하는 이유이고, `dir`만 적고 만 페이지가 보기에는 맞고 동작은 반대인 이유입니다.
+
+CSS가 JavaScript 대신 답하는 자리가 한 곳 있고, 그것이 규칙을 증명하는 예외입니다. 논리 `translate`는 없으므로 `.plass-marquee-track`이 `[dir='rtl']` 아래에서 부호를 뒤집습니다.
+
 :::
 
 ::: fw flutter
@@ -83,7 +97,7 @@ Directionality(textDirection: TextDirection.rtl, child: child);
 - **풀린 채로 넘겨야 하는 모서리.** `PlButtonGroup`의 각진 가장자리, `PlChatBubble`의 꼬리, 날짜 range의 시작과 끝은 `BorderRadiusDirectional`이 아니라 `BorderRadius`로 적혀 있습니다. 같은 값이 `ClipRRect`와 `BoxDecoration`, 그리고 painter에 닿는데 painter는 풀린 것을 받기 때문입니다.
 - **읽는 사람에 맞춰 고르는 `PlassSide`.** `PlassSide`는 화면의 가장자리를 가리키므로, `PlNavigationMenu`는 패널이 날아갈 가장자리를 늘 오른쪽으로 두는 대신 그때그때 고릅니다.
 
-이 중 둘은 따로 짚을 만합니다. 여백 하나보다 많은 것이 함께 돌아가기 때문입니다. **`PlSlider`**는 최솟값을 inline start에 두므로 그림과 누른 자리의 해석, 좌우 화살표 키가 한꺼번에 뒤집힙니다 — 그중 일부만 뒤집히는 컨트롤은 자기 자신과 어긋나 있는 컨트롤입니다. **`PlAnimateMarquee`**는 읽는 방향의 start를 향해 흐르므로 단어가 읽는 순서대로 도착합니다.
+**`PlSlider`**는 따로 짚을 만합니다. 여백 하나보다 많은 것이 함께 돌아가기 때문입니다 — 그림과 누른 자리의 해석, 좌우 화살표 키가 한꺼번에 뒤집히고, 그중 일부만 뒤집히는 컨트롤은 자기 자신과 어긋나 있는 컨트롤입니다.
 
 나머지는 전부 `*Directional` widget이고, 아래의 패키지 테스트가 그 상태를 유지시킵니다.
 
@@ -97,7 +111,7 @@ Directionality(textDirection: TextDirection.rtl, child: child);
 <div dir="rtl">{/* 화면 하나 */}</div>
 ```
 
-`dir`는 어떤 element에나 붙일 수 있으므로 페이지 전체를 옮기지 않고 컴포넌트 하나만 확인할 수 있습니다.
+`dir`는 어떤 element에나 붙일 수 있으므로 페이지 전체를 옮기지 않고 컴포넌트 하나만 확인할 수 있습니다. 주변 페이지와 반대로 흐르는 subtree라면 페이지와 같은 이유로 `PlassProvider direction="rtl"`도 함께 감싸 주세요.
 
 :::
 

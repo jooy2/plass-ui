@@ -51,6 +51,12 @@ PlassTheme.merge(
 | `weekStartsOn` | 주가 시작하는 요일. `Date`가 세는 방식이라 일요일이 `0`             |
 | `labels`       | picker가 말하는, `Intl`이 의견을 갖지 않는 문자열들                 |
 
+::: fw react
+
+기본값은 아니지만 하나를 더 나릅니다. **읽는 방향**입니다. [오른쪽에서 왼쪽으로](../design/rtl)를 보세요 — `dir="rtl"` 문서는 배치를 스스로 뒤집지만, JavaScript에서 방향을 읽는 동작들에게 그것을 전해 주는 것이 이 provider입니다. 설정할 것은 없습니다. `direction`은 주변 페이지와 반대로 흐르는 subtree에만 씁니다.
+
+:::
+
 ::: fw flutter
 
 여기서는 `locale`이 `names`와 `labels`입니다 — 프레임워크에 `Intl`이 없으므로 theme이 나르는 것은 말 자체입니다. `PlDateNames`와 `PlPickerLabels`는 모든 날짜 widget이 이미 받던 그 둘입니다.
@@ -130,7 +136,7 @@ const { size, locale } = usePlassDefaults();
 ::: fw react
 
 - **`PlTable`은 provider를 읽지 않습니다.** 유일한 예외입니다. 이 컴포넌트는 일부러 React Server Component의 client graph 밖에 두었고 — 모든 column이 `render` 콜백인데, server component는 그 경계 너머로 함수를 건넬 수 없습니다 — context를 읽으면 client component가 됩니다. `size`와 `density`는 컴포넌트에 직접 주세요.
-- provider는 element를 렌더링하지 않고 아무것도 그리지 않습니다. 컴포넌트당 context read 하나가 비용입니다.
+- provider는 element를 렌더링하지 않고 아무것도 그리지 않습니다. 컴포넌트당 context read 하나, 그리고 페이지 전체에 대해 `<html>` observer 하나가 비용입니다 — 방향은 설정받는 것이 아니라 문서에서 읽습니다.
 - theme이 아닙니다. 색 · 반경 · blur · 그림자는 CSS custom property이고, 그것을 바꾸는 자리는 [Colour](../design/color#overriding-a-family)입니다 — JavaScript에 그 사본을 하나 더 두면 진실이 둘이 됩니다.
 
 :::
