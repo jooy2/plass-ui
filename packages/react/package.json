@@ -45,6 +45,11 @@
       "module": "./dist/types.js",
       "default": "./dist/types.js"
     },
+    "./hooks": {
+      "types": "./dist/hooks/index.d.ts",
+      "module": "./dist/hooks/index.js",
+      "default": "./dist/hooks/index.js"
+    },
     "./styles.css": "./dist/styles.css",
     "./tailwind.css": "./dist/tailwind.css",
     "./tokens.css": "./dist/tokens.css",
@@ -60,6 +65,9 @@
     "*": {
       "types": [
         "dist/types.d.ts"
+      ],
+      "hooks": [
+        "dist/hooks/index.d.ts"
       ],
       "*": [
         "dist/components/*/index.d.ts"

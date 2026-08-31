@@ -1,0 +1,87 @@
+'use client';
+
+import { breakpointMap, breakpoints } from '../internal/grid.js';
+import { useMediaQuery } from '../internal/media.js';
+import type { PlassBreakpoint, PlassResponsive } from '../types.js';
+
+/**
+ * The floor of each rung, as a query.
+ *
+ * The same four widths `PlGrid`'s CSS and Tailwind's own `sm:`/`md:`/`lg:`/`xl:`
+ * use, so a layout decided here and a layout decided in a class change at the
+ * same moment. `xs` has no query: its floor is zero and there is no width below
+ * it, which is also why it is the answer when none of the four match.
+ */
+const floors: Record<Exclude<PlassBreakpoint, 'xs'>, string> = {
+  sm: '(width >= 40rem)',
+  md: '(width >= 48rem)',
+  lg: '(width >= 64rem)',
+  xl: '(width >= 80rem)'
+};
+
+/**
+ * Which rung of the breakpoint ladder the window is on.
+ *
+ * Four queries rather than one `innerWidth` read, and deliberately: a width
+ * measured in JavaScript is a number that has to be compared against a `rem`,
+ * and a `rem` is whatever the reader has set their font size to. `matchMedia`
+ * asks the same engine the stylesheet asks, so a component that switches at
+ * `md` here switches with the `md:` utilities beside it rather than a few
+ * pixels away from them.
+ *
+ * **`xs` is the server's answer**, and the first one a browser renders. See
+ * `usePlMediaQuery` for what follows from that.
+ */
+export function usePlBreakpoint(): PlassBreakpoint {
+  const sm = useMediaQuery(floors.sm);
+  const md = useMediaQuery(floors.md);
+  const lg = useMediaQuery(floors.lg);
+  const xl = useMediaQuery(floors.xl);
+
+  if (xl) return 'xl';
+  if (lg) return 'lg';
+  if (md) return 'md';
+  if (sm) return 'sm';
+
+  return 'xs';
+}
+
+/**
+ * A `PlassResponsive` value, resolved for the width the window is at.
+ *
+ * The same shape and the same rule as `PlGrid`'s own props: a bare value
+ * applies everywhere, and a map applies each entry **from its own breakpoint
+ * up**, so `{ xs: 1, md: 3 }` is `1` on a phone and `3` from 48rem. An entry
+ * cascades to the rungs above it, which is what keeps a responsive value to the
+ * breakpoints it actually names.
+ *
+ * It exists because there is a class of decision CSS cannot make — how many
+ * items to fetch, which of two components to mount, how many characters to
+ * truncate at — and writing it out by hand means repeating the ladder in
+ * numbers a stylesheet will later disagree with.
+ *
+ * `undefined` when the map named no rung at or below the current one:
+ * `{ lg: 3 }` on a phone is not `3`, and guessing a value the caller did not
+ * write would be worse than saying so.
+ *
+ * An object is read as a **map**, exactly as it is in a responsive prop — so a
+ * value that is itself an object has to be wrapped in a map to be passed
+ * through: `{ xs: { … } }`.
+ */
+export function usePlBreakpointValue<T>(value: PlassResponsive<T>): T | undefined {
+  const at = usePlBreakpoint();
+  const map = breakpointMap(value);
+
+  // Down from the current rung rather than up from `xs`: the nearest entry at
+  // or below the window is the one that applies, and walking down finds it
+  // without having to know which rungs were named.
+  for (let index = breakpoints.indexOf(at); index >= 0; index -= 1) {
+    const found = map[breakpoints[index]];
+
+    if (found !== undefined) {
+      return found;
+    }
+  }
+
+  return undefined;
+}

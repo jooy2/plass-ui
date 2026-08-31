@@ -40,12 +40,30 @@ const sources = import.meta.glob('../../src/components/*/Pl*.tsx', {
   eager: true
 });
 
-/** The barrels, which must *not* carry it — a client barrel is a client library. */
-const barrels = import.meta.glob('../../src/components/*/index.ts', {
+/**
+ * The public hooks. Every one of them *is* a hook, so the directive is not a
+ * judgement call here the way it is for a component — a module whose whole
+ * export is `useSyncExternalStore` under another name has no server half.
+ */
+const hooks = import.meta.glob('../../src/hooks/use*.ts', {
   query: '?raw',
   import: 'default',
   eager: true
 });
+
+/** The barrels, which must *not* carry it — a client barrel is a client library. */
+const barrels = {
+  ...import.meta.glob('../../src/components/*/index.ts', {
+    query: '?raw',
+    import: 'default',
+    eager: true
+  }),
+  ...import.meta.glob('../../src/hooks/index.ts', {
+    query: '?raw',
+    import: 'default',
+    eager: true
+  })
+};
 
 const name = (path: string) => path.replace(/^.*\/src\//, 'src/');
 
@@ -122,6 +140,16 @@ describe("'use client'", () => {
       hook: false
     });
   });
+
+  it.each(Object.entries(hooks))(
+    '%s declares itself, because a hook has no server half',
+    (path, source) => {
+      expect({ file: name(path), declared: hasDirective(source as string) }).toEqual({
+        file: name(path),
+        declared: true
+      });
+    }
+  );
 
   it.each(Object.entries(barrels))('%s does not carry it', (path, source) => {
     expect({ file: name(path), directive: /^\s*(['"])use client\1/.test(source) }).toEqual({

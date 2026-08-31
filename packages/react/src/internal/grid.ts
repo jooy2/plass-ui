@@ -39,7 +39,7 @@ export const breakpoints: readonly PlassBreakpoint[] = ['xs', 'sm', 'md', 'lg', 
 const SPACING_STEP = 0.25;
 
 /** A bare value means "from `xs` up"; a map is already per-breakpoint. */
-function breakpointMap<T>(
+export function breakpointMap<T>(
   value: PlassResponsive<T> | undefined
 ): Partial<Record<PlassBreakpoint, T>> {
   if (value === undefined || value === null) return {};

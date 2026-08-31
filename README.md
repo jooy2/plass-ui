@@ -153,6 +153,19 @@ A **†** marks the few that are React-only. They are not omissions — each one
 
 `PlAnimateAppear` · `PlAnimateBlink` · `PlAnimateFade` · `PlAnimateGrow` · `PlAnimateHeadline` · `PlAnimateLighting` · `PlAnimateMarquee` · `PlAnimateRotate` · `PlAnimateSlide` · `PlAnimateTyping` · `PlAnimateZoom`
 
+## Hooks
+
+React-only, and the machinery the library already ran on rather than anything new. Import them from the barrel or from `plass-ui/hooks`.
+
+| Hook | What it answers |
+| --- | --- |
+| `usePlMediaQuery` | Whether the window matches a CSS media query, re-rendering when it stops |
+| `usePlBreakpoint` | Which rung of the breakpoint ladder the window is on |
+| `usePlBreakpointValue` | What a `PlassResponsive` map resolves to at that rung |
+| `usePlToast` | Raises a toast from a click handler, under a `PlToastProvider` |
+
+Flutter answers the same questions with framework calls — `MediaQuery`, `PlassTheme` — rather than with anything this package would add. Each hook's page names the Dart equivalent.
+
 ## Development
 
 One design language, three things built out of it. Each is entered and run on its own — there is no install at the repository root and no root `package.json`.

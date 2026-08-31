@@ -150,15 +150,23 @@ const commonSidebarConfig: VitePressSidebarOptions = {
  */
 const groupLabels: Record<
   string,
-  { overview: string; examples: string; design: string; more: string }
+  { overview: string; examples: string; hooks: string; design: string; more: string }
 > = {
   en: {
     overview: 'All components',
     examples: 'Examples',
+    hooks: 'Hooks',
     design: 'Design',
     more: 'Discover more'
   },
-  ko: { overview: '모든 컴포넌트', examples: '예제', design: '디자인', more: '더 알아보기' }
+  ko: {
+    overview: '모든 컴포넌트',
+    examples: '예제',
+    // Left in English, like every other technical term in the Korean docs.
+    hooks: 'Hooks',
+    design: '디자인',
+    more: '더 알아보기'
+  }
 };
 
 const vitePressSidebarConfig = [
@@ -672,8 +680,12 @@ function byText(a: GeneratedSidebarItem, b: GeneratedSidebarItem): number {
  *   input and a Card is a surface. What is flattened is only what is *inside* a
  *   group, so a folder that gains a subfolder does not push its pages a level
  *   deeper.
- * - **Design and Discover more** are named here rather than by an `index.md`,
- *   for the reason `groupLabels` explains.
+ * - **Hooks, Design and Discover more** are named here rather than by an
+ *   `index.md`, for the reason `groupLabels` explains.
+ * - **Hooks comes after Components**, because a hook is something a reader
+ *   reaches for once a component has not answered their question — and every
+ *   one of them is React-only, which is not the first thing to put in front of
+ *   somebody reading the Flutter half of the site.
  *
  * Inside a group the pages are sorted by name rather than by their `order`
  * frontmatter, because nobody remembers where a component sits in a curated
@@ -685,6 +697,7 @@ function arrangeSidebar<T extends GeneratedSidebarItem>(items: T[], lang: string
   const guide = items.find(startsWith('guide/'));
   const examples = items.find(startsWith('examples/'));
   const components = items.find(startsWith('components/'));
+  const hooks = items.find(startsWith('hooks/'));
   const design = items.find(startsWith('design/'));
   const changelog = items.find(startsWith('changelog'));
 
@@ -712,6 +725,10 @@ function arrangeSidebar<T extends GeneratedSidebarItem>(items: T[], lang: string
     examples.text = labels.examples;
   }
 
+  if (hooks) {
+    hooks.text = labels.hooks;
+  }
+
   if (design) {
     design.text = labels.design;
   }
@@ -720,10 +737,10 @@ function arrangeSidebar<T extends GeneratedSidebarItem>(items: T[], lang: string
   // anything that is neither a guide nor a component ends up.
   const more = changelog ? ({ text: labels.more, items: [changelog] } as unknown as T) : undefined;
 
-  const moved = new Set([guide, examples, components, design, changelog].filter(Boolean));
+  const moved = new Set([guide, examples, components, hooks, design, changelog].filter(Boolean));
 
   return [
-    ...([guide, examples, components, design, more].filter(Boolean) as T[]),
+    ...([guide, examples, components, hooks, design, more].filter(Boolean) as T[]),
     ...items.filter((item) => !moved.has(item))
   ];
 }

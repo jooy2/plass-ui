@@ -74,7 +74,12 @@ async function allExports() {
  * for SSR while every test in the suite passes.
  */
 function checkNodeResolution(componentDirs) {
-  const specifiers = ['plass-ui', 'plass-ui/types', ...componentDirs.map((d) => `plass-ui/${d}`)];
+  const specifiers = [
+    'plass-ui',
+    'plass-ui/types',
+    'plass-ui/hooks',
+    ...componentDirs.map((d) => `plass-ui/${d}`)
+  ];
   const dir = mkdtempSync(resolve(tmpdir(), 'plass-resolve-'));
   try {
     writeFileSync(

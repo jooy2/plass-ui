@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useMediaQuery } from './media.js';
 import type { PlassBreakpoint, PlassSide } from '../types.js';
 
 /**
@@ -166,39 +167,15 @@ export const expandedOnlyClasses: Record<PlPageLayoutCollapse, string> = {
  * Whether the window is currently narrower than the breakpoint a sidebar
  * collapses at.
  *
- * `useSyncExternalStore` rather than an effect and a `useState`, for the one
- * reason that matters here: it has a server snapshot, and the server's answer
- * has to be "not collapsed". A collapsed sidebar is a `PlDrawer`, a drawer is a
- * portal, and a portal rendered into `document.body` on the server is not a
- * thing — so the markup that ships is the column, and the classes above are
- * what keep that column off a narrow screen until this hook can say otherwise.
+ * The store behind it is `internal/media.ts`, and the one reason that matters
+ * here is its server snapshot: the server's answer has to be "not collapsed". A
+ * collapsed sidebar is a `PlDrawer`, a drawer is a portal, and a portal
+ * rendered into `document.body` on the server is not a thing — so the markup
+ * that ships is the column, and the classes above are what keep that column off
+ * a narrow screen until this hook can say otherwise.
  */
 export function useCollapsed(breakpoint: PlPageLayoutCollapse): boolean {
-  const query = breakpoint === 'none' ? null : collapseQueries[breakpoint];
-
-  const subscribe = React.useCallback(
-    (onChange: () => void) => {
-      if (!query || typeof window === 'undefined' || !window.matchMedia) {
-        return () => {};
-      }
-
-      const list = window.matchMedia(query);
-      list.addEventListener('change', onChange);
-
-      return () => list.removeEventListener('change', onChange);
-    },
-    [query]
-  );
-
-  const snapshot = React.useCallback(() => {
-    if (!query || typeof window === 'undefined' || !window.matchMedia) {
-      return false;
-    }
-
-    return window.matchMedia(query).matches;
-  }, [query]);
-
-  return React.useSyncExternalStore(subscribe, snapshot, () => false);
+  return useMediaQuery(breakpoint === 'none' ? null : collapseQueries[breakpoint]);
 }
 
 /**
