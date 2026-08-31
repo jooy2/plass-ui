@@ -13,20 +13,27 @@ import {
   surfaceSlots,
   transitionClasses
 } from '../../internal/styles.js';
+import {
+  bulletGapClasses,
+  bulletSizeValues,
+  bulletStatusClasses,
+  connectorColorClasses,
+  connectorStyleClasses,
+  statusAt,
+  titleStatusClasses,
+  type PlassStepConnector,
+  type PlassStepStatus
+} from '../../internal/steps.js';
 import type { PlassColor, PlassDensity, PlassOrientation, PlassSize } from '../../types.js';
 
 /**
- * How far along one item is.
- *
- * Three states rather than two, because "the one you are on" is not the same
- * claim as "done", and a sequence that cannot say which step is current is a
- * list. Each gets its own axis — a filled bullet, a filled bullet with a halo
- * around it, an empty one — rather than three shades of the same thing.
+ * How far along one item is. The same three a `PlStepper` draws, from
+ * `internal/steps.ts`, because a haloed bullet must not mean two things.
  */
-export type PlTimelineStatus = 'complete' | 'current' | 'upcoming';
+export type PlTimelineStatus = PlassStepStatus;
 
 /** How the line between two items is drawn. `none` leaves the gap open. */
-export type PlTimelineConnector = 'solid' | 'dashed' | 'dotted' | 'none';
+export type PlTimelineConnector = PlassStepConnector;
 
 interface TimelineContextValue {
   size: PlassSize;
@@ -112,36 +119,11 @@ export interface PlTimelineItemProps extends Omit<
 
 /* ---------------------------------------------------------------------------
  * Scales
+ *
+ * The bullet, its gap and the three states it draws in are in
+ * `internal/steps.ts`, shared with `PlStepper`. What is here is what only a
+ * timeline has: how far apart two items sit.
  * ------------------------------------------------------------------------- */
-
-/**
- * The bullet.
- *
- * Its own ladder rather than a step off `controlHeightClasses`, for the reason
- * `tickSizeClasses` has one: a bullet is not a control you can put a label
- * inside. It is a mark beside one, sized against the title next to it — which is
- * why the steps are close to the tick ladder and not to the control ladder.
- *
- * It is written as a custom property rather than as a class because the
- * connector has to know it: the line is centred on the bullet, and centring is
- * arithmetic on this number.
- */
-const bulletSizeValues: Record<PlassSize, string> = {
-  xs: '0.875rem',
-  sm: '1rem',
-  md: '1.25rem',
-  lg: '1.5rem',
-  xl: '1.875rem'
-};
-
-/** Between the bullet column and the content beside it. */
-const bulletGapClasses: Record<PlassSize, string> = {
-  xs: 'gap-2',
-  sm: 'gap-2.5',
-  md: 'gap-3',
-  lg: 'gap-3.5',
-  xl: 'gap-4'
-};
 
 /**
  * How far apart two items sit, and the one thing `density` is allowed to touch
@@ -163,53 +145,6 @@ const itemGapClasses: Record<PlassDensity, Record<PlassSize, string>> = {
 const itemGapXClasses: Record<PlassDensity, Record<PlassSize, string>> = {
   default: { xs: 'pe-5', sm: 'pe-6', md: 'pe-7', lg: 'pe-8', xl: 'pe-10' },
   compact: { xs: 'pe-3', sm: 'pe-3.5', md: 'pe-4', lg: 'pe-5', xl: 'pe-6' }
-};
-
-const borderStyleClasses: Record<PlTimelineConnector, string> = {
-  solid: 'border-solid',
-  dashed: 'border-dashed',
-  dotted: 'border-dotted',
-  none: ''
-};
-
-/**
- * The bullet at each of the three states.
- *
- * Every one of them is a different axis, never a different opacity: `complete`
- * is the family's gradient, `current` is that gradient with a halo of the soft
- * tint around it, and `upcoming` is a hairline ring on the page's own surface. A
- * reader who cannot tell the colours apart still has a filled shape, a haloed
- * shape and an empty one.
- *
- * There is no gloss line on the two filled ones, for the reason a filled
- * `PlButton` has none — the gradient is the form. The `upcoming` ring is drawn
- * in the neutral hairline rather than the sheet's white one, the same call a
- * checkbox's edge makes: a bullet is small enough that its edge *is* the object,
- * and white light on a translucent pane disappears on a light card.
- */
-const bulletStatusClasses: Record<PlTimelineStatus, string> = {
-  complete: '[background-image:var(--p-fill)] text-(--p-on-solid)',
-  current:
-    '[background-image:var(--p-fill)] text-(--p-on-solid) [box-shadow:0_0_0_0.25rem_var(--p-soft)]',
-  upcoming:
-    'border-2 bg-(--plass-surface) text-(--plass-muted-fg) [border-color:var(--plass-border)]'
-};
-
-/**
- * The line *after* an item, which is what makes it the item's own property: a
- * connector is coloured by whether the step it leaves has been reached, not by
- * where it arrives.
- */
-const connectorColorClasses: Record<PlTimelineStatus, string> = {
-  complete: '[border-color:var(--p-line-hover)]',
-  current: '[border-color:var(--plass-border)]',
-  upcoming: '[border-color:var(--plass-border)]'
-};
-
-const titleStatusClasses: Record<PlTimelineStatus, string> = {
-  complete: 'text-(--plass-fg)',
-  current: 'text-(--p-accent)',
-  upcoming: 'text-(--plass-muted-fg)'
 };
 
 /**
@@ -236,15 +171,7 @@ export const PlTimelineItem = /* @__PURE__ */ React.forwardRef<HTMLLIElement, Pl
     const family = color ?? timeline?.color ?? 'primary';
     const active = timeline?.active ?? null;
 
-    const resolved: PlTimelineStatus =
-      status ??
-      (active === null
-        ? 'upcoming'
-        : index < active
-          ? 'complete'
-          : index === active
-            ? 'current'
-            : 'upcoming');
+    const resolved: PlTimelineStatus = status ?? statusAt(index, active);
 
     const horizontal = orientation === 'horizontal';
     // The last item's line would run off the end of the sequence into nothing.
@@ -288,7 +215,7 @@ export const PlTimelineItem = /* @__PURE__ */ React.forwardRef<HTMLLIElement, Pl
           horizontal
             ? 'top-[calc(var(--p-bullet)/2_-_1px)] end-0 start-(--p-bullet) border-t-2'
             : 'top-(--p-bullet) bottom-0 start-[calc(var(--p-bullet)/2_-_1px)] border-s-2',
-          borderStyleClasses[connector],
+          connectorStyleClasses[connector],
           connectorColorClasses[resolved],
           transitionClasses
         )}

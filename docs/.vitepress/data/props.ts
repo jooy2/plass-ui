@@ -10253,6 +10253,147 @@ export const propTables: Record<string, PropRow[]> = {
       description: { ko: '시트가 커질 수 있는 최대 너비', en: 'How wide the sheet may get' }
     }
   ],
+  PlStepper: [
+    {
+      name: 'active',
+      type: 'number',
+      description: {
+        ko: '사용자가 있는 step의 인덱스. 제어하려면 onActiveChange와 함께',
+        en: 'The index of the step the reader is on. Use with onActiveChange for a controlled stepper'
+      }
+    },
+    {
+      name: 'defaultActive',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: '제어하지 않을 때 시작하는 step',
+        en: 'The step it starts on, for an uncontrolled one'
+      }
+    },
+    {
+      name: 'onActiveChange',
+      type: '(active: number) => void',
+      description: { ko: 'step을 눌렀을 때', en: 'Called when a step is pressed' }
+    },
+    {
+      name: 'linear',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '현재보다 앞선 step으로 건너뛸 수 있는지. 뒤의 step은 언제나 닿을 수 있습니다',
+        en: 'Whether a step ahead of the current one can be jumped to. A step behind is always reachable'
+      }
+    },
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      shared: true,
+      description: {
+        ko: '가로는 패널을 레일 아래에, 세로는 각 step 안에 놓습니다',
+        en: 'Horizontal puts the panel under the rail; vertical puts each one inside its own step'
+      }
+    },
+    {
+      name: 'connector',
+      type: "'solid' | 'dashed' | 'dotted' | 'none'",
+      default: "'solid'",
+      description: {
+        ko: 'step 사이의 선. none은 간격을 비웁니다',
+        en: 'The line between two steps. none leaves the gap open'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: { ko: 'bullet과 타입 스케일', en: 'Bullet and type scale' }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: { ko: '레일의 색 역할', en: 'The family the rail takes' }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'default'",
+      shared: true,
+      description: {
+        ko: 'step 사이의 간격만 바꿉니다',
+        en: 'The space between steps, and nothing else'
+      }
+    }
+  ],
+  PlStep: [
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: { ko: 'step의 이름', en: 'What the step is called' }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: {
+        ko: '아래 한 줄 — 이 step이 무엇을 묻는지',
+        en: 'A second line under it — what the step asks for'
+      }
+    },
+    {
+      name: 'bullet',
+      type: 'ReactNode',
+      description: {
+        ko: 'bullet 안에 그릴 것. 기본은 step의 번호이고, 지나가면 체크입니다',
+        en: "What is drawn in the bullet. The step's own number by default, and a tick once it is complete"
+      }
+    },
+    {
+      name: 'status',
+      type: "'complete' | 'current' | 'upcoming'",
+      description: {
+        ko: '시퀀스가 말하는 위치를 덮어씁니다. 사용자가 더 간 사이 유효성 검사에 걸린 step을 위한 것',
+        en: 'Overrides where the sequence says this step is. For the one that failed validation while the reader moved on'
+      }
+    },
+    {
+      name: 'optional',
+      type: 'boolean | ReactNode',
+      description: {
+        ko: '건너뛸 수 있음을 표시합니다. true는 "Optional"을, node는 그 node를 그립니다',
+        en: 'Marks the step skippable. true draws the word "Optional"; a node draws that node'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: 'linear가 무엇이든 닿을 수 없습니다',
+        en: 'Cannot be reached, whatever linear says'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      shared: true,
+      description: {
+        ko: '이 step만 stepper의 family를 덮어씁니다',
+        en: "Overrides the stepper's family for this one step"
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: {
+        ko: '현재 step일 때 보여 줄 패널',
+        en: 'The panel this step shows while it is the current one'
+      }
+    }
+  ],
   PlVisuallyHidden: [
     {
       name: 'children',

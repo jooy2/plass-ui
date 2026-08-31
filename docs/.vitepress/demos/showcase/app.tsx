@@ -35,6 +35,8 @@ import {
   PlSelect,
   PlSkeleton,
   PlSlider,
+  PlStep,
+  PlStepper,
   PlSwitch,
   PlTab,
   PlTabPanel,
@@ -341,6 +343,12 @@ function SettingsScreen() {
           screen, so there is nothing to open.
         </PlTypography>
       </div>
+
+      <PlStepper size="sm" active={1} className="max-w-xl">
+        <PlStep label="Plan" description="Ten seats" />
+        <PlStep label="Billing" description="Card on file" />
+        <PlStep label="Invite" optional />
+      </PlStepper>
 
       <PlTimeline size="sm" orientation="horizontal" active={2}>
         <PlTimelineItem title="Trial" bullet="1" />

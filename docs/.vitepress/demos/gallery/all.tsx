@@ -91,6 +91,8 @@ import {
   PlSkeleton,
   PlSlider,
   PlSpoiler,
+  PlStep,
+  PlStepper,
   PlSwitch,
   PlTab,
   PlTabPanel,
@@ -1411,6 +1413,22 @@ const entries: Entry[] = [
           Account
         </PlFloatingBottomNavigationItem>
       </PlFloatingBottomNavigation>
+    )
+  },
+  {
+    name: 'PlStepper',
+    group: 'navigation',
+    href: 'components/navigation/stepper',
+    blurb: {
+      en: 'A process the reader is moving through, and where they are in it.',
+      ko: '사용자가 지나가고 있는 절차, 그리고 그 안의 지금 자리.'
+    },
+    preview: (
+      <PlStepper size="xs" active={1} className="w-full">
+        <PlStep label="Account" />
+        <PlStep label="Verify" />
+        <PlStep label="Profile" />
+      </PlStepper>
     )
   },
   {
