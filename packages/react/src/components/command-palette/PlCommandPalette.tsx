@@ -4,10 +4,10 @@ import * as React from 'react';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Dialog as BaseUIDialog } from '@base-ui/react/dialog';
 import { PlHotKeys } from '../hot-keys/PlHotKeys.js';
-// The same vocabulary `PlHotKeys` draws, read rather than written — a shortcut
+// The same vocabulary `PlHotKeys` draws, bound rather than written — a shortcut
 // a component displays and a shortcut it binds must be spelled the same way, or
 // the cap on the screen is a claim nobody checked.
-import { matchesHotKey } from '../../internal/keys.js';
+import { usePlHotKeys } from '../../hooks/usePlHotKeys.js';
 import { searchHaystack, searchText } from '../../internal/search.js';
 import {
   controlTextLeadingClasses,
@@ -229,24 +229,13 @@ export function PlCommandPalette({
     [open, onOpenChange]
   );
 
-  React.useEffect(() => {
-    if (shortcut === false) return undefined;
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (!matchesHotKey(event, shortcut)) return;
-
-      // The browser's own Mod+K is a search bar in some of them, and the page
-      // asked for this key.
-      event.preventDefault();
-      setOpen(true);
-    };
-
-    window.addEventListener('keydown', onKeyDown);
-
-    return () => window.removeEventListener('keydown', onKeyDown);
-    // `setOpen` is memoised on the pair that decides what it does, so this
-    // rebinds when the palette opens and closes and at no other time.
-  }, [shortcut, setOpen]);
+  // `whileTyping`, because a palette is reached from wherever the reader is —
+  // including the field they are halfway through filling in. `Mod+K` carries a
+  // modifier and would be answered there anyway; a caller who sets `shortcut`
+  // to a bare key means it.
+  usePlHotKeys(shortcut === false ? undefined : { [shortcut]: () => setOpen(true) }, {
+    whileTyping: true
+  });
 
   // Folded once per list rather than once per comparison — `searchText`
   // normalizes, and doing that inside the filter puts a `normalize` on every

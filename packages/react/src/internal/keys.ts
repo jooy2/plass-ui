@@ -111,6 +111,91 @@ export interface PlassKeyState {
 }
 
 /**
+ * Does the chord carry a modifier a reader cannot type?
+ *
+ * `Mod`, `Ctrl`, `Meta` and `Alt` cannot appear in a text field's value, so a
+ * chord holding one of them is safe to answer wherever the focus happens to be.
+ * **Shift deliberately does not count**: `Shift+A` is how a capital A is typed.
+ *
+ * This is what lets a global binding be answered while somebody is writing an
+ * email without also stealing the letters out of it.
+ */
+export function hasHardModifier(chord: string): boolean {
+  return chord
+    .split('+')
+    .slice(0, -1)
+    .map(canonicalKey)
+    .some((part) => part === 'mod' || part === 'ctrl' || part === 'meta' || part === 'alt');
+}
+
+/**
+ * The keys that do something inside a text field.
+ *
+ * Everything printable — one code unit of `event.key` is one character a reader
+ * just tried to enter — plus the ones that edit or move through what is already
+ * there. `Escape`, `Tab` and the function keys are deliberately **not** here:
+ * none of them changes a field's value, so a global binding on one is not
+ * taking anything away from somebody who is writing.
+ */
+const editingKeys = new Set([
+  'enter',
+  'backspace',
+  'delete',
+  'arrowleft',
+  'arrowright',
+  'arrowup',
+  'arrowdown',
+  'home',
+  'end',
+  'pageup',
+  'pagedown'
+]);
+
+/** Whether this key would have done something in a field. */
+export function editsText(key: string): boolean {
+  return key.length === 1 || editingKeys.has(key.toLowerCase());
+}
+
+/**
+ * Whether the event landed somewhere a reader is entering text.
+ *
+ * A `<select>` counts: its own typeahead is how a reader picks an option, and a
+ * bare letter taken out from under it is a control that stops working. An
+ * `<input type="checkbox">` does not — nothing is being typed into it.
+ */
+export function isTypingTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+
+  if (target.isContentEditable) {
+    return true;
+  }
+
+  if (target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
+    return true;
+  }
+
+  if (target.tagName === 'INPUT') {
+    const type = (target as HTMLInputElement).type;
+
+    return ![
+      'button',
+      'checkbox',
+      'color',
+      'file',
+      'image',
+      'radio',
+      'range',
+      'reset',
+      'submit'
+    ].includes(type);
+  }
+
+  return false;
+}
+
+/**
  * Is this the chord?
  *
  * Every modifier is checked in **both** directions, which is the difference
