@@ -3,7 +3,7 @@ description: >-
   A Flutter UI component library made of glass and gradients — tinted surfaces,
   coloured shadows, and light that follows the pointer. Accessible, themeable,
   dark mode built in.
-version: 1.1.0
+version: 1.2.0
 repository: https://github.com/jooy2/plass-ui
 homepage: https://plass.cdget.com
 issue_tracker: https://github.com/jooy2/plass-ui/issues
