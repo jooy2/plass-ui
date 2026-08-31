@@ -29,7 +29,7 @@ features:
     link: /design/design-language
     linkText: Design language
   - title: Two frameworks, one library
-    details: The same ninety-one components in React and in Flutter — same props, same tokens, same numbers. One page documents both.
+    details: The same ninety-two components in React and in Flutter — same props, same tokens, same numbers. One page documents both.
   - title: Dark mode built in
     details: Follows the platform, and can be forced either way on any subtree. No second theme to write, no colours to redeclare.
   - title: One shared vocabulary

@@ -19,7 +19,7 @@ The Flutter package is built on `package:flutter/widgets.dart` alone. It imports
 
 :::
 
-> **Both packages ship the same library** — the same ninety-one components, the same prop vocabulary, the same tokens. They version independently, so the npm and pub.dev numbers will not always agree; see [all components](../components/).
+> **Both packages ship the same library** — the same ninety-two components, the same prop vocabulary, the same tokens. They version independently, so the npm and pub.dev numbers will not always agree; see [all components](../components/).
 
 ## Install
 

@@ -24,11 +24,32 @@ import { PlEmpty } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlEmpty(
+  icon: const Icon(Icons.inbox),
+  title: const Text('No projects yet'),
+  description: const Text('Start one and it will show up here.'),
+  actions: <Widget>[PlButton(onPressed: create, child: const Text('New project'))],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlEmpty" />
 
 네이티브 `<div>` 속성은 그대로 통과합니다. 공유 축이 라이브러리 전체에서 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
+
+::: fw flutter
+
+`actions`는 React 빌드의 슬롯 하나가 아니라 `Wrap`에 담기는 `List<Widget>`입니다 — Dart 호출자에게는 버튼 둘을 넣을 fragment가 없습니다.
+
+:::
 
 ## 넷이 아니라 하나
 
@@ -48,6 +69,12 @@ import { PlEmpty } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/empty/kinds.dart
+
+:::
+
 </Demo>
 
 ## 표면을 그리지 않습니다
@@ -59,6 +86,12 @@ import { PlEmpty } from 'plass-ui';
 ::: fw react
 
 <<< @/.vitepress/demos/empty/table.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/empty/table.dart
 
 :::
 
@@ -77,3 +110,9 @@ import { PlEmpty } from 'plass-ui';
 - 글리프는 `aria-hidden`입니다. title이 그것이 말하는 바를 말하고, 사용자가 두 번 들어서는 안 됩니다.
 - **자체 role이 없습니다.** 그 비어 있음이 사용자가 방금 한 일의 *결과*일 때 — 필터를 지웠거나 검색을 돌렸을 때 — `role="status"`를 붙여 변화가 알려지게 하세요. 페이지가 로드될 때부터 비어 있던 목록에는 붙이지 마세요. 이미 읽혔습니다.
 - title은 heading이 아니라 `<p>`입니다. 문서 개요에서 그것이 어디에 속하는지는 페이지의 결정이지 이 컴포넌트의 것이 아닙니다. heading이어야 한다면 위에 `PlTypography`를 두세요.
+
+::: fw flutter
+
+글리프는 `ExcludeSemantics`로 감쌉니다. role은 없습니다 — 그 비어 있음이 사용자가 방금 한 일의 *결과*라면 `Semantics(liveRegion: true)` 안에 넣으세요.
+
+:::

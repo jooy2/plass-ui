@@ -1395,6 +1395,23 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'ValueChanged<PlImageStatus>?'
     })
   ],
+  PlEmpty: [
+    from('PlEmpty', 'icon', { type: 'Widget?' }),
+    from('PlEmpty', 'title', { type: 'Widget?' }),
+    from('PlEmpty', 'description', { type: 'Widget?' }),
+    from('PlEmpty', 'actions', { type: 'List<Widget>', default: '[]' }),
+    {
+      name: 'child',
+      type: 'Widget?',
+      description: {
+        ko: 'description과 actions 사이에 들어갈 그 밖의 것',
+        en: 'Anything else that belongs between the description and the actions'
+      }
+    },
+    from('PlEmpty', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlEmpty', 'color', { type: COLOR, default: 'PlassColor.secondary' }),
+    from('PlEmpty', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+  ],
   PlCalendar: [
     {
       name: 'value',

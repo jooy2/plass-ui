@@ -24,11 +24,32 @@ import { PlEmpty } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlEmpty(
+  icon: const Icon(Icons.inbox),
+  title: const Text('No projects yet'),
+  description: const Text('Start one and it will show up here.'),
+  actions: <Widget>[PlButton(onPressed: create, child: const Text('New project'))],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlEmpty" />
 
 Every native `<div>` attribute passes straight through. What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
+
+::: fw flutter
+
+`actions` is a `List<Widget>` laid out in a `Wrap`, rather than the single slot the React build takes — a Dart caller has no fragment to put two buttons in.
+
+:::
 
 ## One component, not four
 
@@ -48,6 +69,12 @@ An empty list, a search with no results, a request that failed and a flow that f
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/empty/kinds.dart
+
+:::
+
 </Demo>
 
 ## It draws no surface
@@ -59,6 +86,12 @@ An empty state is always **inside** something — a card, a table, a panel — a
 ::: fw react
 
 <<< @/.vitepress/demos/empty/table.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/empty/table.dart
 
 :::
 
@@ -77,3 +110,9 @@ If there is genuinely nothing to do — a search with no results, where the acti
 - The glyph is `aria-hidden`. The title says what it says, and a reader should not be told twice.
 - It has **no role of its own**. Put `role="status"` on it when the emptiness is the _result_ of something the reader just did — clearing a filter, running a search — so the change is announced. Leave it off for a list that was empty when the page loaded, which has already been read.
 - The title is a `<p>` rather than a heading. Where it belongs in a document's outline is the page's decision and not this component's; pass `render` on a `PlTypography` above it if it needs to be one.
+
+::: fw flutter
+
+The glyph is wrapped in an `ExcludeSemantics`, and there is no role: put the empty state inside a `Semantics(liveRegion: true)` when the emptiness is the _result_ of something the reader just did.
+
+:::

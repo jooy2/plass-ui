@@ -60,6 +60,7 @@ export 'src/components/date_range_picker/pl_date_range_picker.dart';
 export 'src/components/date_time_picker/pl_date_time_picker.dart';
 export 'src/components/divider/pl_divider.dart';
 export 'src/components/drawer/pl_drawer.dart';
+export 'src/components/empty/pl_empty.dart';
 export 'src/components/fieldset/pl_fieldset.dart';
 export 'src/components/file_picker/pl_file_picker.dart';
 export 'src/components/floating_bottom_navigation/pl_floating_bottom_navigation.dart';

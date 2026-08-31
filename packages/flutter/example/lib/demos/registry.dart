@@ -156,6 +156,9 @@ import 'package:plass_ui_example/demos/tree/selection.dart';
 import 'package:plass_ui_example/demos/image/hero.dart';
 import 'package:plass_ui_example/demos/image/states.dart';
 import 'package:plass_ui_example/demos/image/preview.dart';
+import 'package:plass_ui_example/demos/empty/hero.dart';
+import 'package:plass_ui_example/demos/empty/kinds.dart';
+import 'package:plass_ui_example/demos/empty/table.dart';
 import 'package:plass_ui_example/demos/calendar/hero.dart';
 import 'package:plass_ui_example/demos/calendar/precision.dart';
 import 'package:plass_ui_example/demos/calendar/bounds.dart';
@@ -484,6 +487,9 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'image/hero': _imageHero,
   'image/states': _imageStates,
   'image/preview': _imagePreview,
+  'empty/hero': _emptyHero,
+  'empty/kinds': _emptyKinds,
+  'empty/table': _emptyTable,
   'calendar/hero': _calendarHero,
   'calendar/precision': _calendarPrecision,
   'calendar/bounds': _calendarBounds,
@@ -927,6 +933,12 @@ Widget _imageHero(BuildContext context) => const ImageHero();
 Widget _imageStates(BuildContext context) => const ImageStates();
 
 Widget _imagePreview(BuildContext context) => const ImagePreview();
+
+Widget _emptyHero(BuildContext context) => const EmptyHero();
+
+Widget _emptyKinds(BuildContext context) => const EmptyKinds();
+
+Widget _emptyTable(BuildContext context) => const EmptyTable();
 
 Widget _calendarHero(BuildContext context) => const CalendarHero();
 
