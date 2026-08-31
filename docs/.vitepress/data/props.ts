@@ -10117,6 +10117,142 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlConfirmProvider: [
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '모든 질문의 기본 크기. 호출 하나가 덮어쓸 수 있습니다',
+        en: 'The default size for every question. A single call can override it'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: '확인 버튼이 기본으로 쓰는 색 역할',
+        en: 'The family the confirming button takes by default'
+      }
+    },
+    {
+      name: 'confirmLabel',
+      type: 'ReactNode',
+      default: "'Confirm'",
+      description: {
+        ko: '예라고 답하는 버튼의 기본 문구',
+        en: 'The default word on the button that answers yes'
+      }
+    },
+    {
+      name: 'cancelLabel',
+      type: 'ReactNode',
+      default: "'Cancel'",
+      description: {
+        ko: '아니오라고 답하는 버튼의 기본 문구',
+        en: 'The default word on the button that answers no'
+      }
+    },
+    {
+      name: 'acknowledgeLabel',
+      type: 'ReactNode',
+      default: "'OK'",
+      description: {
+        ko: 'alert의 버튼 하나가 말하는 기본 문구',
+        en: "The default word on an alert's single button"
+      }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      description: { ko: '시트가 커질 수 있는 최대 너비', en: 'How wide the sheet may get' }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '질문을 던질 수 있는 트리', en: 'The tree that can ask questions' }
+    }
+  ],
+  PlConfirmOptions: [
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description: {
+        ko: '질문. dialog에 이름을 주는 <h2>입니다',
+        en: 'The question, as the <h2> that names the dialog'
+      }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: {
+        ko: '그 아래 한 줄이자 dialog의 accessible description. 무슨 일이 일어나는지 쓰세요',
+        en: "A line under it, and the dialog's accessible description. Say what happens"
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '본문에 들어갈 그 밖의 것', en: 'Anything more that belongs in the body' }
+    },
+    {
+      name: 'confirmLabel',
+      type: 'ReactNode',
+      description: {
+        ko: '예라고 답하는 버튼의 문구',
+        en: 'The word on the button that answers yes'
+      }
+    },
+    {
+      name: 'cancelLabel',
+      type: 'ReactNode',
+      description: {
+        ko: '아니오라고 답하는 버튼의 문구. alert은 그리지 않습니다',
+        en: 'The word on the button that answers no. Not drawn by alert'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      shared: true,
+      description: {
+        ko: '확인 버튼의 색 역할. 무언가를 없애는 질문이면 danger',
+        en: 'The family the confirming button takes. danger for anything that removes something'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      shared: true,
+      description: { ko: '이 질문의 크기', en: 'The size of this one question' }
+    },
+    {
+      name: 'initialFocus',
+      type: "'confirm' | 'cancel'",
+      default: "'cancel'",
+      description: {
+        ko: '열릴 때 어느 버튼이 focus를 쥘지. 기본이 cancel인 이유는, Enter가 파괴적인 동작에 떨어지면 confirm dialog가 무의미해지기 때문입니다',
+        en: 'Which button holds the focus when it opens. cancel by default, because an Enter key landing on the destructive action defeats the dialog'
+      }
+    },
+    {
+      name: 'dismissible',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: 'Escape와 바깥 클릭이 아니오로 답할지. 빠져나갈 수 없는 질문은 덫입니다',
+        en: 'Whether Escape and a click outside answer no. A question that cannot be escaped is a trap'
+      }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      description: { ko: '시트가 커질 수 있는 최대 너비', en: 'How wide the sheet may get' }
+    }
+  ],
   PlVisuallyHidden: [
     {
       name: 'children',

@@ -33,6 +33,7 @@ import {
   PlCheckbox,
   PlChip,
   PlCollapsible,
+  PlConfirmProvider,
   PlColorPicker,
   PlCombobox,
   PlCommandPalette,
@@ -106,6 +107,7 @@ import {
   PlToolbar,
   PlTransfer,
   PlTooltip,
+  usePlConfirm,
   usePlToast,
   PlTypography,
   PlVisuallyHidden
@@ -129,8 +131,40 @@ type Group =
   'display' | 'feedback' | 'inputs' | 'layout' | 'navigation' | 'surfaces' | 'transitions';
 
 /**
- * The one preview in the gallery that needs state of its own: an overlay has to
- * be opened to be seen at all. Its words stay English like every other preview
+ * The other preview that needs state of its own: a confirm dialog is a promise
+ * rather than an element, so there is nothing to draw until something asks.
+ */
+function ConfirmPreview() {
+  const { confirm } = usePlConfirm();
+  const [answer, setAnswer] = useState<string | null>(null);
+
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <PlButton
+        size="sm"
+        color="danger"
+        onClick={async () => {
+          const ok = await confirm({
+            title: 'Delete this project?',
+            description: 'It cannot be undone.',
+            confirmLabel: 'Delete',
+            color: 'danger'
+          });
+
+          setAnswer(ok ? 'Deleted.' : 'Kept.');
+        }}
+      >
+        Delete
+      </PlButton>
+      <span className="text-[0.625rem] text-(--plass-muted-fg)">
+        {answer ?? 'await confirm(…)'}
+      </span>
+    </div>
+  );
+}
+
+/**
+ * An overlay has to be opened to be seen at all. Its words stay English like every other preview
  * here — the localised part of a card is its blurb.
  */
 function OverlayPreview() {
@@ -863,6 +897,20 @@ const entries: Entry[] = [
       <PlAlert size="xs" color="success" className="w-full">
         Your changes are live.
       </PlAlert>
+    )
+  },
+  {
+    name: 'PlConfirmProvider',
+    group: 'feedback',
+    href: 'components/feedback/confirm',
+    blurb: {
+      en: 'One dialog, asked for from anywhere and awaited.',
+      ko: 'dialog 하나를 어디서든 불러 쓰고 기다립니다.'
+    },
+    preview: (
+      <PlConfirmProvider>
+        <ConfirmPreview />
+      </PlConfirmProvider>
     )
   },
   {

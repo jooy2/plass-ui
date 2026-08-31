@@ -34,6 +34,10 @@
 
   The stylesheet gained one declaration with them: **`color-scheme`**, stated per theme block. Scrollbars, the caret, a native `<select>` popup and a date input's own calendar are the browser's to paint and none of them is ours to style — they were white on a page forced to dark, which reads as broken rather than themed.
 
+- **`PlConfirmProvider` and `usePlConfirm`.** `await confirm({ title: 'Delete this project?', color: 'danger' })` resolves with the answer, so the branch after a question stays in the handler that asked it. The argument for a hook rather than a component is the same one `PlToastProvider` made: what a caller has at the moment a question is warranted is a **click handler**, not a place in the tree — and without this, adding a confirmation to one button means a piece of state, a `<PlModal>` kept mounted beside it, and the work after the answer torn in half across a callback, repeated at every button that needs one. `alert` is the one-button form and resolves when it has been acknowledged, which is what makes it awaitable in the middle of a sequence.
+
+  Three decisions worth stating. **Cancel holds the focus by default**: a confirm dialog exists to make somebody stop, and an Enter key that lands on the destructive action defeats the whole thing — `initialFocus: 'confirm'` moves it for a question whose yes is the harmless answer. **Questions asked while one is open are queued**, in order, with the sheet's content changing rather than the dialog closing and reopening; the alternative is a promise nobody ever resolves, which is a hung button rather than a visible bug, and a provider that unmounts with questions outstanding resolves them all `false` for the same reason. And **`usePlConfirm` throws outside a provider** rather than answering `false`, because a silent `false` is a delete button that quietly does nothing, which is worse than a missing provider that says so on the first press.
+
 ## 1.2.0 (2026-08-30)
 
 ### Added

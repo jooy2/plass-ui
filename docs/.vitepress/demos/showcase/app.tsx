@@ -11,6 +11,7 @@ import {
   PlBreadcrumbItem,
   PlButton,
   PlCalendar,
+  PlConfirmProvider,
   PlCard,
   PlChatBubble,
   PlCheckbox,
@@ -45,6 +46,7 @@ import {
   PlTimelineItem,
   PlToastProvider,
   PlTooltip,
+  usePlConfirm,
   usePlToast,
   PlTypography,
   PlVisuallyHidden
@@ -79,13 +81,16 @@ function BoltIcon() {
 export default function ShowcaseApp() {
   return (
     <PlToastProvider position="bottom-end">
-      <SettingsScreen />
+      <PlConfirmProvider>
+        <SettingsScreen />
+      </PlConfirmProvider>
     </PlToastProvider>
   );
 }
 
 function SettingsScreen() {
   const toast = usePlToast();
+  const { confirm } = usePlConfirm();
   const [name, setName] = useState('Acme Inc');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -289,6 +294,20 @@ function SettingsScreen() {
                   </>
                 }
               />
+              <PlButton
+                variant="glass"
+                color="danger"
+                onClick={async () => {
+                  // The other half of the same idea: a `PlModal` above is the
+                  // declarative one, and this is the same question asked from
+                  // inside the handler that acts on the answer.
+                  if (await confirm({ title: 'Reset every setting?', color: 'danger' })) {
+                    toast.add({ title: 'Settings reset', color: 'danger' });
+                  }
+                }}
+              >
+                Reset settings
+              </PlButton>
               <PlButton variant="glass" color="secondary" readOnly>
                 Export first
               </PlButton>
