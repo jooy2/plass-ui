@@ -1362,6 +1362,39 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }),
     from('PlTreeNode', 'disabled', { type: 'bool', default: 'false' })
   ],
+  PlImage: [
+    from('PlImage', 'src', {
+      name: 'image',
+      type: 'ImageProvider<Object>',
+      required: true,
+      description: {
+        ko: '사진. URL이 아니라 ImageProvider입니다 — 네트워크 · 에셋 · 파일 · 메모리가 공유하는 모양이기 때문입니다',
+        en: 'The picture. An ImageProvider rather than a URL, because that is the shape every source has in common'
+      }
+    }),
+    from('PlImage', 'alt', {
+      name: 'semanticLabel',
+      type: 'String?',
+      required: false,
+      description: {
+        ko: '스크린 리더가 읽는 설명. null은 장식이라는 진짜 답이고, fallback이 물러설 자리이기도 합니다',
+        en: 'The description a screen reader reads. null marks the picture decorative, and is also what the fallback falls back to'
+      }
+    }),
+    from('PlImage', 'ratio', { type: 'double?' }),
+    from('PlImage', 'fit', { type: 'PlAspectFit', default: 'PlAspectFit.cover' }),
+    from('PlImage', 'rounded', { type: 'bool', default: 'false' }),
+    from('PlImage', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlImage', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlImage', 'placeholder', { type: 'Widget?' }),
+    from('PlImage', 'fallback', { type: 'Widget?' }),
+    from('PlImage', 'preview', { type: 'bool', default: 'false' }),
+    from('PlImage', 'previewLabel', { type: 'String', default: "'Preview'" }),
+    from('PlImage', 'onStatusChange', {
+      name: 'onStatusChanged',
+      type: 'ValueChanged<PlImageStatus>?'
+    })
+  ],
   PlCalendar: [
     {
       name: 'value',

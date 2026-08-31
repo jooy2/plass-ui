@@ -153,6 +153,9 @@ import 'package:plass_ui_example/demos/stepper/vertical.dart';
 import 'package:plass_ui_example/demos/stepper/status.dart';
 import 'package:plass_ui_example/demos/tree/hero.dart';
 import 'package:plass_ui_example/demos/tree/selection.dart';
+import 'package:plass_ui_example/demos/image/hero.dart';
+import 'package:plass_ui_example/demos/image/states.dart';
+import 'package:plass_ui_example/demos/image/preview.dart';
 import 'package:plass_ui_example/demos/calendar/hero.dart';
 import 'package:plass_ui_example/demos/calendar/precision.dart';
 import 'package:plass_ui_example/demos/calendar/bounds.dart';
@@ -478,6 +481,9 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'stepper/status': _stepperStatus,
   'tree/hero': _treeHero,
   'tree/selection': _treeSelection,
+  'image/hero': _imageHero,
+  'image/states': _imageStates,
+  'image/preview': _imagePreview,
   'calendar/hero': _calendarHero,
   'calendar/precision': _calendarPrecision,
   'calendar/bounds': _calendarBounds,
@@ -915,6 +921,12 @@ Widget _stepperStatus(BuildContext context) => const StepperStatus();
 Widget _treeHero(BuildContext context) => const TreeHero();
 
 Widget _treeSelection(BuildContext context) => const TreeSelection();
+
+Widget _imageHero(BuildContext context) => const ImageHero();
+
+Widget _imageStates(BuildContext context) => const ImageStates();
+
+Widget _imagePreview(BuildContext context) => const ImagePreview();
 
 Widget _calendarHero(BuildContext context) => const CalendarHero();
 

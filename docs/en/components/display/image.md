@@ -19,11 +19,34 @@ import { PlImage } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlImage(
+  image: const NetworkImage('https://example.com/cover.jpg'),
+  semanticLabel: 'The 2026 team',
+  ratio: 16 / 9,
+  rounded: true,
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlImage" />
 
 Every native `<img>` attribute passes straight through, `srcSet`, `sizes` and `crossOrigin` included. `onLoad` and `onError` are the two exceptions — the component owns them, and `onStatusChange` is what it offers instead.
+
+::: fw flutter
+
+`image` is an `ImageProvider` rather than a URL, because that is the shape every source has in common — a network image, an asset, a file, a memory buffer — and `semanticLabel` is what `alt` is: `null` marks the picture decorative.
+
+**Without a `ratio` the widget is the picture's own intrinsic size**, which is `Image`'s behaviour and is deliberately not overridden. `ratio` is what makes it fill the width it is given, which is the other half of reserving the space.
+
+:::
 
 ## What this adds to an `<img>`
 
@@ -45,6 +68,12 @@ An `<img>` is one tag and it works, so it is worth saying what this is for rathe
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/states.dart
+
+:::
+
 </Demo>
 
 `placeholder` replaces the skeleton — `null` draws nothing and leaves the reserved box empty. `fallback` replaces the alt text, which is the default because it is the one thing that is certainly available and certainly describes what is missing.
@@ -58,6 +87,12 @@ Opens the picture over the page when it is pressed. Off by default: a picture th
 ::: fw react
 
 <<< @/.vitepress/demos/image/preview.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/preview.dart
 
 :::
 
@@ -95,3 +130,9 @@ const [at, setAt] = useState<number | null>(null);
 - The fallback drawn on failure is the `alt` text, so a sighted reader and a screen reader are told the same thing when the picture does not arrive.
 - The `<img>` stays in the document while it loads. An `<img>` that is not in the document never loads, so a placeholder that unmounted it would be a picture that never arrives.
 - `loading="lazy"` by default. Set `loading="eager"` on the one picture that is above the fold — a lazily-loaded hero is a hero that arrives late.
+
+::: fw flutter
+
+The inner `Image` is `excludeFromSemantics`, so the picture is named exactly once — by the wrapper — and never read twice.
+
+:::

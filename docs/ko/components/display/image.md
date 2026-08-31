@@ -19,11 +19,34 @@ import { PlImage } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlImage(
+  image: const NetworkImage('https://example.com/cover.jpg'),
+  semanticLabel: 'The 2026 team',
+  ratio: 16 / 9,
+  rounded: true,
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlImage" />
 
 네이티브 `<img>` 속성은 `srcSet` · `sizes` · `crossOrigin`을 포함해 그대로 통과합니다. `onLoad`와 `onError` 둘만 예외입니다 — 컴포넌트가 그것들을 씁니다. 대신 내주는 것이 `onStatusChange`입니다.
+
+::: fw flutter
+
+`image`는 URL이 아니라 `ImageProvider`입니다. 네트워크 이미지 · 에셋 · 파일 · 메모리 버퍼가 공유하는 모양이 그것이기 때문입니다. `semanticLabel`이 `alt`에 해당하고, `null`은 사진을 장식으로 표시합니다.
+
+**`ratio`가 없으면 위젯은 사진 자신의 intrinsic 크기입니다.** `Image`의 동작이고 일부러 덮어쓰지 않았습니다. 받은 너비를 채우게 만드는 것이 `ratio`이고, 그것이 자리를 잡아 두는 일의 나머지 절반입니다.
+
+:::
 
 ## `<img>`에 무엇을 더하는가
 
@@ -45,6 +68,12 @@ import { PlImage } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/states.dart
+
+:::
+
 </Demo>
 
 `placeholder`가 skeleton을 대체합니다 — `null`은 아무것도 그리지 않고 잡아 둔 상자를 비워 둡니다. `fallback`이 alt 텍스트를 대체하고, alt가 기본인 이유는 그것이 확실히 존재하고 확실히 없는 것을 설명하는 유일한 것이기 때문입니다.
@@ -58,6 +87,12 @@ import { PlImage } from 'plass-ui';
 ::: fw react
 
 <<< @/.vitepress/demos/image/preview.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/preview.dart
 
 :::
 
@@ -95,3 +130,9 @@ const [at, setAt] = useState<number | null>(null);
 - 실패했을 때 그리는 fallback이 `alt` 텍스트입니다. 그래서 보는 사람과 스크린 리더가 사진이 오지 않았을 때 같은 것을 듣습니다.
 - `<img>`는 로드되는 동안 문서에 남아 있습니다. 문서에 없는 `<img>`는 절대 로드되지 않으므로, 그것을 unmount하는 placeholder는 영영 도착하지 않는 사진입니다.
 - 기본은 `loading="lazy"`입니다. 화면 위쪽의 사진 하나에는 `loading="eager"`를 주세요 — 지연 로드되는 히어로는 늦게 도착하는 히어로입니다.
+
+::: fw flutter
+
+안쪽 `Image`는 `excludeFromSemantics`입니다. 그래서 사진은 정확히 한 번 — 바깥 wrapper가 — 이름 붙이고, 두 번 읽히지 않습니다.
+
+:::

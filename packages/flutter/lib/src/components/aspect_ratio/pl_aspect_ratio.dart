@@ -93,7 +93,7 @@ class PlAspectRatio extends StatelessWidget {
     Widget? held = child;
 
     if (held != null && fit != null) {
-      held = FittedBox(fit: _boxFit(fit!), child: held);
+      held = FittedBox(fit: boxFit(fit!), child: held);
     }
 
     // The box clips whatever it holds, rounded or not. Without that a `cover`
@@ -108,7 +108,11 @@ class PlAspectRatio extends StatelessWidget {
     return AspectRatio(aspectRatio: ratio, child: held);
   }
 
-  static BoxFit _boxFit(PlAspectFit fit) {
+  /// The [BoxFit] a [PlAspectFit] names.
+  ///
+  /// Public because [PlImage] answers the same five words and must answer them
+  /// the same way — two copies of a five-arm switch are two copies that drift.
+  static BoxFit boxFit(PlAspectFit fit) {
     switch (fit) {
       case PlAspectFit.cover:
         return BoxFit.cover;
