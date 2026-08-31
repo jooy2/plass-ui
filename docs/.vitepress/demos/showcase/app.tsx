@@ -21,6 +21,7 @@ import {
   PlHighlight,
   PlHotKeys,
   PlIcon,
+  PlImage,
   PlList,
   PlListItem,
   PlModal,
@@ -332,6 +333,14 @@ function SettingsScreen() {
       </div>
 
       <div className="flex flex-wrap items-start gap-4">
+        <PlImage
+          src="/portrait-2.svg"
+          alt="The office, from the street"
+          ratio="4 / 3"
+          rounded
+          className="w-40"
+        />
+
         <PlTree
           size="sm"
           className="w-56"

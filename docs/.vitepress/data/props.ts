@@ -10520,6 +10520,100 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlImage: [
+    { name: 'src', type: 'string', description: { ko: '사진의 주소', en: 'Where the picture is' } },
+    {
+      name: 'alt',
+      type: 'string',
+      required: true,
+      description: {
+        ko: '스크린 리더가 읽는 설명. ""는 장식이라는 진짜 답입니다',
+        en: 'The description a screen reader reads. "" is a real answer — it marks the picture decorative'
+      }
+    },
+    {
+      name: 'ratio',
+      type: 'number | string',
+      description: {
+        ko: '도착하기 전까지 지킬 비율. CSS가 쓰는 그대로. 이것이 자리를 잡아 둡니다',
+        en: 'The proportion the box holds while the picture is on its way. This is what reserves the space'
+      }
+    },
+    {
+      name: 'fit',
+      type: "'cover' | 'contain' | 'fill' | 'none'",
+      default: "'cover'",
+      description: { ko: '사진을 상자에 어떻게 맞출지', en: 'How the picture is fitted to the box' }
+    },
+    {
+      name: 'rounded',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '모서리를 size 단계의 하우스 반경으로 깎습니다',
+        en: 'Rounds the corners to the size step of the house ladder'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: { ko: 'rounded가 쓰는 반경 단계', en: 'Which radius step rounded uses' }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: 'skeleton과 focus ring의 색 역할',
+        en: 'The family the skeleton and the focus ring take'
+      }
+    },
+    {
+      name: 'placeholder',
+      type: 'ReactNode',
+      description: {
+        ko: '로딩 중에 그릴 것. 기본은 PlSkeleton이고 null은 아무것도 그리지 않습니다',
+        en: 'What is drawn while loading. A PlSkeleton by default; null draws nothing'
+      }
+    },
+    {
+      name: 'fallback',
+      type: 'ReactNode',
+      description: {
+        ko: '도착하지 않았을 때 그릴 것. 기본은 alt 텍스트입니다',
+        en: 'What is drawn when the picture does not arrive. The alt text by default'
+      }
+    },
+    {
+      name: 'preview',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '누르면 사진을 페이지 위로 엽니다',
+        en: 'Opens the picture over the page when it is pressed'
+      }
+    },
+    {
+      name: 'previewLabel',
+      type: 'string',
+      default: "'Preview'",
+      description: {
+        ko: '미리 보기 오버레이의 accessible name',
+        en: 'The accessible name of the preview overlay'
+      }
+    },
+    {
+      name: 'onStatusChange',
+      type: "(status: 'loading' | 'loaded' | 'error') => void",
+      description: {
+        ko: '도착했을 때, 그리고 실패했을 때',
+        en: 'Called when the picture has loaded, and when it has failed'
+      }
+    }
+  ],
   PlVisuallyHidden: [
     {
       name: 'children',

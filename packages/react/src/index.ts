@@ -52,6 +52,7 @@ export * from './components/highlight/index.js';
 export * from './components/hot-keys/index.js';
 export * from './components/icon/index.js';
 export * from './components/icon-button/index.js';
+export * from './components/image/index.js';
 export * from './components/list/index.js';
 export * from './components/menu/index.js';
 export * from './components/menubar/index.js';

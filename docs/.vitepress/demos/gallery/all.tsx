@@ -56,6 +56,7 @@ import {
   PlHotKeys,
   PlIcon,
   PlIconButton,
+  PlImage,
   PlList,
   PlListItem,
   PlMenu,
@@ -587,6 +588,21 @@ const entries: Entry[] = [
       <div className="flex flex-col gap-2">
         <PlSwitch size="sm" label="Dark mode" defaultChecked />
         <PlSwitch size="sm" label="Beta features" />
+      </div>
+    )
+  },
+  {
+    name: 'PlImage',
+    group: 'display',
+    href: 'components/display/image',
+    blurb: {
+      en: 'A picture, and the two states it spends most of its life in.',
+      ko: '사진, 그리고 그것이 일생의 대부분을 보내는 두 상태입니다.'
+    },
+    preview: (
+      <div className="grid w-full grid-cols-2 gap-2">
+        <PlImage src="/portrait-1.svg" alt="A portrait" ratio="1" rounded size="sm" />
+        <PlImage src="/does-not-exist.png" alt="Did not arrive" ratio="1" rounded size="sm" />
       </div>
     )
   },
