@@ -135,7 +135,7 @@ A **†** marks the few that are React-only. They are not omissions — each one
 
 ### Inputs
 
-`PlButton` · `PlButtonGroup` · `PlCheckbox` · `PlColorPicker` · `PlCombobox` · `PlDatePicker` · `PlDateRangePicker` · `PlDateTimePicker` · `PlFieldset` · `PlFilePicker` · `PlForm` · `PlIconButton` · `PlNumberField` · `PlOtpField` · `PlPagination` · `PlRadioGroup` · `PlRating` · `PlSegmentedButton` · `PlSelect` · `PlSlider` · `PlSwitch` · `PlTextField` · `PlTimePicker` · `PlToggle` · `PlToggleGroup` · `PlTransfer`
+`PlButton` · `PlButtonGroup` · `PlCalendar`† · `PlCheckbox` · `PlColorPicker` · `PlCombobox` · `PlDatePicker` · `PlDateRangePicker` · `PlDateTimePicker` · `PlFieldset` · `PlFilePicker` · `PlForm` · `PlIconButton` · `PlNumberField` · `PlOtpField` · `PlPagination` · `PlRadioGroup` · `PlRating` · `PlSegmentedButton` · `PlSelect` · `PlSlider` · `PlSwitch` · `PlTextField` · `PlTimePicker` · `PlToggle` · `PlToggleGroup` · `PlTransfer`
 
 ### Layout
 

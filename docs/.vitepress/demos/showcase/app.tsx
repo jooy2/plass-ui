@@ -10,6 +10,7 @@ import {
   PlBreadcrumb,
   PlBreadcrumbItem,
   PlButton,
+  PlCalendar,
   PlCard,
   PlChatBubble,
   PlCheckbox,
@@ -306,6 +307,20 @@ function SettingsScreen() {
         <PlChip size="sm" variant="ghost" color="secondary" onDelete={() => {}}>
           last 30 days
         </PlChip>
+      </div>
+
+      <div className="flex flex-wrap items-start gap-4">
+        <PlCalendar
+          size="sm"
+          locale="en-GB"
+          defaultMonth={new Date(2026, 6, 1)}
+          defaultValue={new Date(2026, 6, 15)}
+        />
+
+        <PlTypography level="body" className="max-w-xs text-(--plass-muted-fg)">
+          The next invoice date, as a grid rather than as a field — the answer is the thing on
+          screen, so there is nothing to open.
+        </PlTypography>
       </div>
 
       <PlTimeline size="sm" orientation="horizontal" active={2}>

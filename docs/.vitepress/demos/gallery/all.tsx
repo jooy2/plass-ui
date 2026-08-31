@@ -26,6 +26,7 @@ import {
   PlBreadcrumbItem,
   PlButton,
   PlButtonGroup,
+  PlCalendar,
   PlCard,
   PlCarousel,
   PlChatBubble,
@@ -332,6 +333,25 @@ const entries: Entry[] = [
       ko: '한 줄 또는 여러 줄 텍스트 입력. 라벨과 설명, 오류 메시지를 함께 담습니다.'
     },
     preview: <PlTextField fullWidth size="sm" placeholder="acme-inc" />
+  },
+  {
+    name: 'PlCalendar',
+    group: 'inputs',
+    href: 'components/inputs/calendar',
+    blurb: {
+      en: 'A month, on the page rather than in a popup.',
+      ko: 'popup 안이 아니라 페이지 위의 한 달입니다.'
+    },
+    preview: (
+      <PlCalendar
+        locale="en-GB"
+        size="xs"
+        variant="ghost"
+        elevation={0}
+        defaultMonth={new Date(2026, 6, 1)}
+        defaultValue={new Date(2026, 6, 15)}
+      />
+    )
   },
   {
     name: 'PlDatePicker',

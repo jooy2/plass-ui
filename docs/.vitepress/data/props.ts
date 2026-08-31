@@ -9941,6 +9941,182 @@ export const propTables: Record<string, PropRow[]> = {
     hotKeysProp,
     fieldClassNames
   ],
+  PlCalendar: [
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'glass'",
+      shared: true,
+      description: {
+        ko: '시트의 재질. 이미 시트를 그리는 것 안에 넣는다면 ghost',
+        en: 'What the sheet is made of. ghost when it is already inside something that draws one'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '셀 · 반경 · 타입 스케일이 함께 움직입니다. density는 없습니다',
+        en: 'Cell, radius and type scale together. There is no density'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: '고른 날, 오늘 표시, focus ring이 쓰는 색 역할',
+        en: 'The family the chosen day, the today marker and the focus ring take'
+      }
+    },
+    {
+      name: 'elevation',
+      type: ELEVATION,
+      default: '1',
+      shared: true,
+      description: {
+        ko: '그림자 깊이. 0은 그림자 없음',
+        en: 'Drop shadow depth. 0 means no shadow at all'
+      }
+    },
+    {
+      name: 'value',
+      type: 'Date | null',
+      description: {
+        ko: '고른 날. 제어하려면 onValueChange와 함께',
+        en: 'The chosen day. Use with onValueChange for a controlled calendar'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'Date | null',
+      description: {
+        ko: '제어하지 않을 때 시작하는 날',
+        en: 'The day it starts on, for an uncontrolled one'
+      }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: Date | null) => void',
+      description: { ko: '날이 골렸을 때', en: 'Called when a day is chosen' }
+    },
+    {
+      name: 'precision',
+      type: "'day' | 'month' | 'year'",
+      default: "'day'",
+      description: {
+        ko: '되돌려주는 가장 작은 단위. 시작 화면이 아니라 바닥이며, 값은 그 단위의 시작으로 정규화됩니다',
+        en: 'The smallest unit it hands back. A floor rather than a starting view, and the value is normalised to the start of it'
+      }
+    },
+    {
+      name: 'month',
+      type: 'Date',
+      description: {
+        ko: '화면에 있는 달. onMonthChange와 함께 쓰면 제어됩니다',
+        en: 'The month on screen. Use with onMonthChange to control it'
+      }
+    },
+    {
+      name: 'defaultMonth',
+      type: 'Date',
+      description: {
+        ko: '처음 보여 줄 달. 기본은 값의 달, 값이 없으면 이번 달',
+        en: "The month it opens on. Defaults to the value's, or this month"
+      }
+    },
+    {
+      name: 'onMonthChange',
+      type: '(month: Date) => void',
+      description: { ko: '화면의 달이 바뀌었을 때', en: 'Called when the month on screen changes' }
+    },
+    {
+      name: 'minDate',
+      type: 'Date | null',
+      description: {
+        ko: '이 날 이전은 고를 수 없습니다. calendar의 precision으로 읽습니다',
+        en: "Nothing before this day can be chosen. Read at the calendar's precision"
+      }
+    },
+    {
+      name: 'maxDate',
+      type: 'Date | null',
+      description: {
+        ko: '이 날 이후는 고를 수 없습니다. calendar의 precision으로 읽습니다',
+        en: "Nothing after it can be chosen. Read at the calendar's precision"
+      }
+    },
+    {
+      name: 'shouldDisableDate',
+      type: '(date: Date) => boolean',
+      description: {
+        ko: '개별 날짜를 막습니다 — 주말, 공휴일, 이미 찬 날. 일 단위라 month/year에서는 참조하지 않습니다',
+        en: 'Blocks individual days — weekends, holidays, a booked date. Day-granular, so month and year never consult it'
+      }
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '월 이름 · 요일 머리글자 · 주의 첫날이 나오는 BCP 47 태그. 기본은 페이지의 로케일',
+        en: "The BCP 47 tag the month names, weekday initials and first day of the week come from. The page's own by default"
+      }
+    },
+    {
+      name: 'weekStartsOn',
+      type: '0 | 1 | 2 | 3 | 4 | 5 | 6',
+      description: {
+        ko: '주가 시작하는 요일. Date가 세는 방식이라 일요일이 0입니다. 없으면 locale에서 정합니다',
+        en: 'Which day the week starts on, as Date counts them — Sunday is 0. Worked out from locale when absent'
+      }
+    },
+    {
+      name: 'showOutsideDays',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '이웃한 달에 속한 앞뒤 날들을 그립니다',
+        en: 'Draws the leading and trailing days belonging to the neighbouring months'
+      }
+    },
+    {
+      name: 'autoFocus',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '마운트할 때 focus를 가져갑니다. 페이지 안의 calendar는 popup이 아니므로 기본은 꺼짐',
+        en: 'Takes the focus on mount. Off, because a calendar in a page is not a popup'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '전체를 흐리게 하고 inert로 탭 순서에서 뺍니다. readOnly는 없습니다',
+        en: 'Greys the whole calendar and takes it out of the tab order with inert. There is no readOnly'
+      }
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: {
+        ko: '폼과 함께 제출합니다. 표기는 precision을 따릅니다 — YYYY-MM-DD, YYYY-MM, YYYY',
+        en: 'Submits with a form. The spelling follows precision — YYYY-MM-DD, YYYY-MM, YYYY'
+      }
+    },
+    {
+      name: 'labels',
+      type: 'Partial<PlPickerLabels>',
+      description: {
+        ko: 'Intl이 의견을 갖지 않는 문자열들 — 버튼과 제목',
+        en: 'The strings Intl has no opinion about — the buttons and the headings'
+      }
+    }
+  ],
   PlVisuallyHidden: [
     {
       name: 'children',
