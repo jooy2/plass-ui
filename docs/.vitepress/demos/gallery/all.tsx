@@ -43,6 +43,7 @@ import {
   PlDateTimePicker,
   PlDivider,
   PlDrawer,
+  PlEmpty,
   PlFieldset,
   PlFilePicker,
   PlFloatingBottomNavigation,
@@ -1007,6 +1008,24 @@ const entries: Entry[] = [
         title="Delete “Aurora”?"
         description="Everything in it goes with it."
         actions={<PlModalClose render={<PlButton size="sm">Close</PlButton>} />}
+      />
+    )
+  },
+  {
+    name: 'PlEmpty',
+    group: 'feedback',
+    href: 'components/feedback/empty',
+    blurb: {
+      en: 'The place where there is nothing, and the way out of it.',
+      ko: '아무것도 없는 자리, 그리고 거기서 빠져나갈 길입니다.'
+    },
+    preview: (
+      <PlEmpty
+        size="xs"
+        icon={<span>📭</span>}
+        title="No projects yet"
+        description="Start one and it will show up here."
+        actions={<PlButton size="xs">New project</PlButton>}
       />
     )
   },

@@ -41,6 +41,7 @@ export * from './components/date-range-picker/index.js';
 export * from './components/date-time-picker/index.js';
 export * from './components/divider/index.js';
 export * from './components/drawer/index.js';
+export * from './components/empty/index.js';
 export * from './components/fieldset/index.js';
 export * from './components/file-picker/index.js';
 export * from './components/floating-bottom-navigation/index.js';

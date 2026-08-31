@@ -17,6 +17,7 @@ import {
   PlCheckbox,
   PlChip,
   PlDivider,
+  PlEmpty,
   PlFilePicker,
   PlHighlight,
   PlHotKeys,
@@ -253,6 +254,15 @@ function SettingsScreen() {
               <PlSkeleton size="xs" width={130} label="Loading the fourth member" />
             </PlListItem>
           </PlList>
+        </PlCard>
+
+        <PlCard title="Archived" elevation={2} render={<section />}>
+          <PlEmpty
+            size="sm"
+            icon={<span>📦</span>}
+            title="Nothing archived yet"
+            description="Projects you archive are kept here for ninety days."
+          />
         </PlCard>
 
         <PlCard title="Danger zone" elevation={2} render={<section />}>

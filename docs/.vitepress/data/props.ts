@@ -10614,6 +10614,67 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlEmpty: [
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: {
+        ko: '글자 위의 글리프나 그림. size에 맞춰 크기가 정해집니다',
+        en: 'The glyph or drawing above the words. Sized off size'
+      }
+    },
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description: {
+        ko: '무엇이 없는지 말하는 한 줄',
+        en: 'The one line that says what is not here'
+      }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: {
+        ko: '그것에 대해 무엇을 할지. 한두 문장이지 문단이 아닙니다',
+        en: 'What to do about it. One or two sentences, never a paragraph'
+      }
+    },
+    {
+      name: 'actions',
+      type: 'ReactNode',
+      description: {
+        ko: '빠져나갈 길 — 보통 PlButton 하나',
+        en: 'The way out — usually one PlButton'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '글리프 · 타입 스케일 · 주위 공간',
+        en: 'Glyph, type scale and the space around it'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'secondary'",
+      shared: true,
+      description: {
+        ko: '글리프의 색 역할. secondary는 아직 없음, danger는 잘못됨, success는 끝남',
+        en: 'The family the glyph takes. secondary is nothing yet, danger is something went wrong, success is you are done'
+      }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'default'",
+      shared: true,
+      description: { ko: '세로 여백만 바꿉니다', en: 'The vertical padding, and nothing else' }
+    }
+  ],
   PlVisuallyHidden: [
     {
       name: 'children',
