@@ -39,6 +39,7 @@ import {
   PlSelect,
   PlSkeleton,
   PlSlider,
+  PlStat,
   PlStep,
   PlStepper,
   PlSwitch,
@@ -395,6 +396,37 @@ function SettingsScreen() {
           The next invoice date, as a grid rather than as a field — the answer is the thing on
           screen, so there is nothing to open.
         </PlTypography>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <PlCard>
+          <PlStat
+            size="sm"
+            label="Revenue"
+            value="£48,120"
+            change={12.4}
+            description="vs last month"
+          />
+        </PlCard>
+        <PlCard>
+          <PlStat
+            size="sm"
+            label="Sign-ups"
+            value="1,204"
+            change={8.1}
+            description="vs last month"
+          />
+        </PlCard>
+        <PlCard>
+          <PlStat
+            size="sm"
+            label="Churn"
+            value="4.2%"
+            change={2.6}
+            improvesWhen="down"
+            description="vs last month"
+          />
+        </PlCard>
       </div>
 
       <PlStepper size="sm" active={1} className="max-w-xl">

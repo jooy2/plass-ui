@@ -10865,6 +10865,98 @@ export const propTables: Record<string, PropRow[]> = {
       description: { ko: '그림자 깊이', en: 'Drop shadow depth' }
     }
   ],
+  PlStat: [
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: {
+        ko: '무엇의 숫자인지. 위의 줄입니다',
+        en: 'What the figure is of. The line above it'
+      }
+    },
+    {
+      name: 'value',
+      type: 'ReactNode',
+      description: {
+        ko: '이미 서식이 정해진 숫자 그 자체. 숫자 타입이 아닌 이유는 통화 · 자릿수 · 소수점 · 로케일이 페이지의 결정이기 때문입니다',
+        en: "The figure itself, already formatted. A node rather than a number, because the currency, grouping, decimals and locale are the page's decision"
+      }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: {
+        ko: '숫자 아래 한 줄. 보통 무엇과 비교했는지',
+        en: 'A line under the figure. What it is compared with, usually'
+      }
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: { ko: 'label 옆의 글리프', en: 'A glyph beside the label' }
+    },
+    {
+      name: 'change',
+      type: 'number',
+      description: {
+        ko: '얼마나 움직였는지, 퍼센트로. 화살표와 함께 그려지고, 부호가 아니라 좋은 소식인지로 색이 정해집니다',
+        en: 'How much it moved, as a percentage. Drawn with an arrow, and coloured by whether that is good news rather than by its sign'
+      }
+    },
+    {
+      name: 'changeLabel',
+      type: 'ReactNode',
+      description: {
+        ko: '퍼센트 대신 변화가 말할 것. 비율이 아니라 개수로 움직인 숫자를 위한 것',
+        en: 'What the change says instead of the formatted percentage. For a figure that moved by a count'
+      }
+    },
+    {
+      name: 'improvesWhen',
+      type: "'up' | 'down'",
+      default: "'up'",
+      description: {
+        ko: '어느 쪽이 좋은 소식인지. 이탈률 · 지연 시간 · 비용에는 down',
+        en: 'Which way is good news. down for churn, latency and cost'
+      }
+    },
+    {
+      name: 'loading',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '숫자가 올 자리에 skeleton을 그립니다',
+        en: 'Draws a skeleton where the figure will be'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '숫자와 그 주위 글자의 타입 스케일',
+        en: 'The type scale of the figure and the words around it'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: { ko: '아이콘이 쓰는 색 역할', en: 'The family the icon takes' }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'default'",
+      shared: true,
+      description: {
+        ko: '세 줄 사이의 간격만 바꿉니다',
+        en: 'The space between the three lines, and nothing else'
+      }
+    }
+  ],
   PlVisuallyHidden: [
     {
       name: 'children',

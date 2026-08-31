@@ -95,6 +95,7 @@ import {
   PlSkeleton,
   PlSlider,
   PlSpoiler,
+  PlStat,
   PlStep,
   PlStepper,
   PlSwitch,
@@ -887,6 +888,21 @@ const entries: Entry[] = [
         <PlTimelineItem title="Packed" bullet="2" />
         <PlTimelineItem title="Shipped" bullet="3" />
       </PlTimeline>
+    )
+  },
+  {
+    name: 'PlStat',
+    group: 'display',
+    href: 'components/display/stat',
+    blurb: {
+      en: 'One figure, and what has happened to it.',
+      ko: '숫자 하나, 그리고 그것에 무슨 일이 일어났는지.'
+    },
+    preview: (
+      <div className="grid w-full grid-cols-2 gap-3">
+        <PlStat size="xs" label="Revenue" value="£48,120" change={12.4} />
+        <PlStat size="xs" label="Churn" value="4.2%" change={2.6} improvesWhen="down" />
+      </div>
     )
   },
   {
