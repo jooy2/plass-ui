@@ -30,6 +30,7 @@ import {
   PlNumberField,
   PlOverlay,
   PlPagination,
+  PlPopconfirm,
   PlRadio,
   PlRadioGroup,
   PlSegment,
@@ -307,6 +308,19 @@ function SettingsScreen() {
                     <PlModalClose render={<PlButton color="danger">Delete</PlButton>} />
                   </>
                 }
+              />
+              <PlPopconfirm
+                title="Revoke every API key?"
+                description="Anything using one stops working."
+                confirmLabel="Revoke"
+                trigger={
+                  <PlButton variant="ghost" color="danger">
+                    Revoke keys
+                  </PlButton>
+                }
+                onConfirm={() => {
+                  toast.add({ title: 'Keys revoked', color: 'danger' });
+                }}
               />
               <PlButton
                 variant="glass"

@@ -10675,6 +10675,122 @@ export const propTables: Record<string, PropRow[]> = {
       description: { ko: '세로 여백만 바꿉니다', en: 'The vertical padding, and nothing else' }
     }
   ],
+  PlPopconfirm: [
+    {
+      name: 'trigger',
+      type: 'ReactElement',
+      required: true,
+      description: {
+        ko: '이것을 여는 element. 원래 갖고 있던 것은 그대로 유지합니다',
+        en: 'What opens it. The element keeps everything it already had'
+      }
+    },
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description: {
+        ko: '질문. popup에 이름을 주는 제목입니다',
+        en: 'The question, as the heading that names the popup'
+      }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: {
+        ko: '아래 한 줄. 무슨 일이 일어나는지 쓰세요',
+        en: 'A line under it. Say what happens'
+      }
+    },
+    {
+      name: 'confirmLabel',
+      type: 'ReactNode',
+      default: "'Confirm'",
+      description: {
+        ko: '예라고 답하는 버튼의 문구',
+        en: 'The word on the button that answers yes'
+      }
+    },
+    {
+      name: 'cancelLabel',
+      type: 'ReactNode',
+      default: "'Cancel'",
+      description: {
+        ko: '아니오라고 답하는 버튼의 문구',
+        en: 'The word on the button that answers no'
+      }
+    },
+    {
+      name: 'onConfirm',
+      type: '() => void | Promise<unknown>',
+      description: {
+        ko: '확인이 하는 일. promise는 기다립니다 — resolve될 때만 popup이 닫히고, reject는 잡혀서 더 가지 않습니다',
+        en: 'What confirming does. A promise is waited for — the popup closes only if it resolves, and a rejection is caught and goes no further'
+      }
+    },
+    {
+      name: 'onCancel',
+      type: '() => void',
+      description: { ko: '취소가 닫는 것 말고 하는 일', en: 'What cancelling does, beyond closing' }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'danger'",
+      shared: true,
+      description: { ko: '확인 버튼의 색 역할', en: 'The family the confirming button takes' }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: { ko: 'popup과 두 버튼의 크기', en: 'The size of the popup and its two buttons' }
+    },
+    {
+      name: 'side',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'top'",
+      shared: true,
+      description: {
+        ko: 'trigger의 어느 가장자리에 열릴지',
+        en: 'Which edge of the trigger it opens against'
+      }
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'center'",
+      shared: true,
+      description: { ko: '그 가장자리 위 어디에 놓일지', en: 'Where it sits along that edge' }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      default: '280',
+      description: { ko: '시트가 커질 수 있는 최대 너비', en: 'How wide the sheet may get' }
+    },
+    {
+      name: 'open',
+      type: 'boolean',
+      description: {
+        ko: 'popup이 열려 있는지. 제어하려면 onOpenChange와 함께',
+        en: 'The popup is open. Use with onOpenChange for a controlled one'
+      }
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      description: {
+        ko: '제어하지 않을 때 열린 채 시작할지',
+        en: 'Whether it starts open, for an uncontrolled one'
+      }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: { ko: '열리거나 닫혔을 때', en: 'Called when it opens or closes' }
+    }
+  ],
   PlVisuallyHidden: [
     {
       name: 'children',

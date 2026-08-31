@@ -131,7 +131,7 @@ A **†** marks the few that are React-only. They are not omissions — each one
 
 ### Feedback
 
-`PlAlert` · `PlConfirmProvider`† · `PlDrawer` · `PlEmpty`† · `PlModal` · `PlOverlay` · `PlPopover` · `PlProgressBox` · `PlProgressCircular` · `PlProgressLinear` · `PlSkeleton` · `PlToast` · `PlTooltip`
+`PlAlert` · `PlConfirmProvider`† · `PlDrawer` · `PlEmpty`† · `PlModal` · `PlOverlay` · `PlPopconfirm`† · `PlPopover` · `PlProgressBox` · `PlProgressCircular` · `PlProgressLinear` · `PlSkeleton` · `PlToast` · `PlTooltip`
 
 ### Inputs
 

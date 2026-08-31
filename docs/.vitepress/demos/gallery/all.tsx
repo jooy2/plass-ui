@@ -78,6 +78,7 @@ import {
   PlPageLayout,
   PlPagination,
   PlPill,
+  PlPopconfirm,
   PlPopover,
   PlProgressBox,
   PlProgressCircular,
@@ -1026,6 +1027,27 @@ const entries: Entry[] = [
         title="No projects yet"
         description="Start one and it will show up here."
         actions={<PlButton size="xs">New project</PlButton>}
+      />
+    )
+  },
+  {
+    name: 'PlPopconfirm',
+    group: 'feedback',
+    href: 'components/feedback/popconfirm',
+    blurb: {
+      en: 'A question asked where it was raised.',
+      ko: '물음이 일어난 자리에서 묻습니다.'
+    },
+    preview: (
+      <PlPopconfirm
+        title="Delete this row?"
+        description="It cannot be undone."
+        confirmLabel="Delete"
+        trigger={
+          <PlButton size="sm" variant="glass" color="danger">
+            Delete
+          </PlButton>
+        }
       />
     )
   },
