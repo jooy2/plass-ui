@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/keys.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -125,6 +126,7 @@ class PlOtpField extends StatefulWidget {
     this.onChanged,
     this.onCompleted,
     this.onRejected,
+    this.hotKeys,
     this.variant = PlassVariant.glass,
     this.size = PlassSize.md,
     this.color = PlassColor.primary,
@@ -165,6 +167,14 @@ class PlOtpField extends StatefulWidget {
   /// A slot that silently swallows a keystroke is a slot the reader thinks is
   /// broken, which is the whole reason a refusal has somewhere to go.
   final ValueChanged<String>? onRejected;
+
+  /// Chords this field answers to, in the vocabulary [PlHotKeys] draws.
+  ///
+  /// `{'Mod+Enter': save, 'Escape': cancel}` — the same string a [PlHotKeys]
+  /// beside the field would print, so the cap and the binding cannot drift. A
+  /// chord that matches is **consumed**: the callback runs and the key reaches
+  /// neither the control's own key handling nor the route above it.
+  final PlassHotKeys? hotKeys;
 
   /// What a slot is made of. `solid` is the **well** rather than a tinted pane,
   /// for the reason it is on a text field: a caret and a selection have to stay
@@ -411,7 +421,9 @@ class _PlOtpFieldState extends State<PlOtpField> {
           spacing: _slotGap[widget.density]![widget.size]!,
           children: row,
         ),
-        Positioned.fill(child: editor),
+        Positioned.fill(
+          child: plassHotKeyScope(hotKeys: widget.hotKeys, child: editor),
+        ),
       ],
     );
 

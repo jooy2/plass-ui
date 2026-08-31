@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlOtpField } from 'plass-ui';
+import { press } from '../../support/keys';
 
 /**
  * Every slot in the row, in order.
@@ -201,6 +202,17 @@ describe('PlOtpField', () => {
       await render(<PlOtpField className="otp-under-test" name="code" defaultValue="12" />);
 
       expect(document.querySelector('input[name="code"]')).not.toBeNull();
+    });
+  });
+  describe('hotKeys', () => {
+    it('answers a chord pressed in a slot', async () => {
+      const resend = vi.fn();
+
+      await render(<PlOtpField className="otp-under-test" hotKeys={{ 'Shift+Enter': resend }} />);
+
+      press(slots()[2], 'Enter', { shiftKey: true });
+
+      expect(resend).toHaveBeenCalledTimes(1);
     });
   });
 });

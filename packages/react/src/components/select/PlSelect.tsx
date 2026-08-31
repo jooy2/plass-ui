@@ -5,6 +5,7 @@ import { Select as BaseUISelect } from '@base-ui/react/select';
 import { Field } from '@base-ui/react/field';
 import { CheckIcon, ChevronIcon } from '../../internal/icons.js';
 import { WidthSizer } from '../../internal/sizer.js';
+import { hotKeyHandler } from '../../internal/keys.js';
 import {
   controlHeightClasses,
   controlTextLeadingClasses,
@@ -28,6 +29,7 @@ import type {
   PlassColor,
   PlassElevation,
   PlassFieldClassNames,
+  PlassHotKeys,
   PlassStyleProps
 } from '../../types.js';
 
@@ -57,6 +59,15 @@ export interface PlSelectProps
     Omit<React.ComponentPropsWithoutRef<'div'>, 'color' | 'defaultValue' | 'children'> {
   /** Classes on the parts a `className` does not reach. */
   classNames?: PlassFieldClassNames;
+  /**
+   * Chords this field answers to, in the vocabulary `PlHotKeys` draws.
+   *
+   * `{ 'Mod+Enter': save, Escape: cancel }` — the same string a `PlHotKeys`
+   * beside the field would print, so the cap and the binding cannot drift. A
+   * chord that matches is **consumed**: the handler runs and the key reaches
+   * neither the control's own behaviour nor the form around it.
+   */
+  hotKeys?: PlassHotKeys;
   /**
    * The options, as data. There is no `<PlSelect.Option>` to compose: what a
    * caller has is almost always an array already, and the list has to be
@@ -182,6 +193,7 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
       name,
       id,
       className,
+      hotKeys,
       classNames,
       style,
       ...props
@@ -254,6 +266,10 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
         >
           <BaseUISelect.Trigger
             ref={ref}
+            // On the trigger rather than on the stack `...props` lands on: a chord
+            // is answered by the thing that has the focus, and a wrapper would
+            // fire for a key pressed on the label beside it.
+            onKeyDown={hotKeyHandler(hotKeys, undefined)}
             className={[
               triggerBaseClasses,
               controlHeightClasses[size],

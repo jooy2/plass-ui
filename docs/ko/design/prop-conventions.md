@@ -53,6 +53,34 @@ order: 3
 - **`render`가 탈출구이고** 어디서나 같은 이름입니다. Base UI 자신의 prop을 그대로 전달합니다. 표면을 바꾸지 않고 요소만 바꿉니다.
 - **네이티브 속성은 그대로 전달됩니다.** `<input>`을 감싸는 컴포넌트는 위 축과 이름이 겹치는 것(`color`, `size`)을 뺀 모든 `<input>` 속성을 받습니다.
 
+## 키를 묶기
+
+`PlTextField`, `PlNumberField`, `PlOtpField`, `PlCombobox`, `PlSelect`는 **`hotKeys`** map을 받습니다. chord와, 그 chord를 눌렀을 때 일어나는 일입니다.
+
+```tsx
+<PlTextField hotKeys={{ 'Mod+Enter': save, Escape: cancel }} />
+```
+
+다섯 곳 모두에 세 가지 규칙이 적용됩니다.
+
+- **chord는 키캡을 쓰는 방식으로 씁니다** — [`PlHotKeys`](../components/display/hot-keys)가 그리는 것과 같은 vocabulary입니다. `Mod`는 platform에 따라 정해지고(Mac에서는 ⌘, 그 밖에서는 <kbd>Ctrl</kbd>), `Esc`, `Return`, `Cmd`, `Option`도 키캡과 같은 키로 접힙니다. 컴포넌트가 **보여 주는** 단축키와 **묶는** 단축키가 한 문자열이 아니면, 화면의 키캡은 아무도 확인하지 않은 주장이 됩니다.
+- **modifier는 양방향으로 검사합니다.** `Enter`는 <kbd>Shift</kbd>+<kbd>Enter</kbd>에 반응하지 않습니다. Enter로 저장하는 필드가 Enter로 끝나는 모든 chord에서 저장되지는 않는다는 뜻입니다.
+- **맞는 chord는 소비됩니다.** handler가 실행되고 키는 더 이상 가지 않습니다 — 컨트롤 자신의 키 처리에도, form에도, 그 위의 dialog에도. 글자가 아니라 chord를 묶으세요. `{ a: … }`인 필드는 `a`를 칠 수 없습니다.
+
+::: fw react
+
+`hotKeys`는 감싸는 stack이 아니라 **control**에 붙습니다. chord에 답하는 건 focus를 쥔 쪽이기 때문입니다. `onKeyDown`을 대체하는 게 아니라 그 위의 편의입니다 — raw handler는 그대로 같은 요소로 전달되고, **먼저** 실행됩니다. 거기서 `preventDefault()`를 부르면 map은 건너뜁니다.
+
+:::
+
+::: fw flutter
+
+map은 위젯 자신의 키 처리보다 focus node에 더 가깝게 묶입니다. 그래서 caller가 컨트롤에서 키를 가져올 수 있습니다. 예외가 하나 있고 `PlSelect`가 그것을 밝힙니다 — 맨 <kbd>Enter</kbd>는 목록을 열고 확정하며, 그 바인딩이 더 가깝습니다.
+
+이 아래에 `onKeyDown`은 없습니다. chord map보다 세밀한 키 처리가 필요한 위젯은 필드를 자기 `Focus`로 감쌉니다.
+
+:::
+
 ## 바깥에서 컴포넌트에 스타일 입히기
 
 ::: fw react

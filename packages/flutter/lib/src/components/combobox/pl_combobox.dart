@@ -9,6 +9,7 @@ import 'package:plass_ui/src/internal/anchored.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
+import 'package:plass_ui/src/internal/keys.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -110,6 +111,7 @@ class PlCombobox<T> extends StatefulWidget {
     this.clearLabel = 'Clear',
     this.openLabel = 'Open',
     this.removeLabel = _defaultRemoveLabel,
+    this.hotKeys,
     this.variant = PlassVariant.glass,
     this.size = PlassSize.md,
     this.color = PlassColor.primary,
@@ -150,6 +152,7 @@ class PlCombobox<T> extends StatefulWidget {
     this.clearLabel = 'Clear',
     this.openLabel = 'Open',
     this.removeLabel = _defaultRemoveLabel,
+    this.hotKeys,
     this.variant = PlassVariant.glass,
     this.size = PlassSize.md,
     this.color = PlassColor.primary,
@@ -238,6 +241,14 @@ class PlCombobox<T> extends StatefulWidget {
   /// Named after its chip — `Remove Seoul`, not `Remove` — because a screen
   /// reader reading a row of six identical buttons has told the reader nothing.
   final String Function(String label) removeLabel;
+
+  /// Chords this field answers to, in the vocabulary [PlHotKeys] draws.
+  ///
+  /// `{'Mod+Enter': save, 'Escape': cancel}` — the same string a [PlHotKeys]
+  /// beside the field would print, so the cap and the binding cannot drift. A
+  /// chord that matches is **consumed**: the callback runs and the key reaches
+  /// neither the control's own key handling nor the route above it.
+  final PlassHotKeys? hotKeys;
 
   /// What the field's well is cut into.
   final PlassVariant variant;
@@ -685,6 +696,8 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
         ],
       );
     }
+
+    editor = plassHotKeyScope(hotKeys: widget.hotKeys, child: editor);
 
     final chips = widget.multiple && widget.values.isNotEmpty
         ? <Widget>[

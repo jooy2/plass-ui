@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlNumberField } from 'plass-ui';
+import { press } from '../../support/keys';
 
 describe('PlNumberField', () => {
   describe('rendering', () => {
@@ -147,6 +148,16 @@ describe('PlNumberField', () => {
         'aria-invalid',
         'true'
       );
+    });
+  });
+  describe('hotKeys', () => {
+    it('answers a chord pressed in the input', async () => {
+      const save = vi.fn();
+      const screen = await render(<PlNumberField label="Quantity" hotKeys={{ Enter: save }} />);
+
+      press(screen.getByRole('textbox').element(), 'Enter');
+
+      expect(save).toHaveBeenCalledTimes(1);
     });
   });
 });

@@ -231,6 +231,17 @@ function animateFlutterProps(
     .map(([name, patch]) => from(component, name, patch));
 }
 
+/**
+ * The chord map a field takes.
+ *
+ * One row rather than five, for the reason the React table's is: a reader who
+ * has learned what `hotKeys` does on a text field must not have to read a
+ * subtly different sentence about it on a combobox.
+ */
+const hotKeysProp: PropRow = from('PlTextField', 'hotKeys', {
+  type: 'PlassHotKeys?'
+});
+
 export const flutterPropTables: Record<string, PropRow[]> = {
   PlAccordion: [
     from('PlAccordion', 'children', {
@@ -1142,7 +1153,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         ko: '트리에 들어가면서 포커스를 가져갑니다',
         en: 'Takes focus as it is inserted into the tree'
       }
-    }
+    },
+    hotKeysProp
   ],
 
   PlComboboxOption: [
@@ -2466,7 +2478,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         ko: '트리에 들어가는 순간 focus를 가져갑니다',
         en: 'Takes focus as it is inserted into the tree'
       }
-    }
+    },
+    hotKeysProp
   ],
 
   PlOtpField: [
@@ -2523,7 +2536,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         ko: '포커스를 밖에서 제어하거나, 트리에 들어가면서 캐럿을 놓습니다',
         en: 'Drive focus from outside, or put the caret in the row on insertion'
       }
-    }
+    },
+    hotKeysProp
   ],
 
   PlOverlay: [
@@ -2921,6 +2935,13 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       description: {
         ko: '트리에 들어가는 순간 focus를 가져갑니다',
         en: 'Takes focus as it is inserted into the tree'
+      }
+    },
+    {
+      ...hotKeysProp,
+      description: {
+        ko: "trigger가 답할 chord들. PlHotKeys가 그리는 것과 같은 철자입니다 — { 'Mod+Enter': save, 'Escape': cancel }. 맞는 chord는 **소비됩니다**. 예외는 하나, 맨 Enter는 목록을 열고 확정하는 trigger 자신의 키입니다",
+        en: "Chords the trigger answers to, spelled the way PlHotKeys draws them — { 'Mod+Enter': save, 'Escape': cancel }. A chord that matches is **consumed**, with one exception: a bare Enter opens and commits the list and stays the trigger's own"
       }
     }
   ],
@@ -3750,7 +3771,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         ko: '보이는 label이 없는 필드를 스크린 리더가 부를 이름. placeholder는 이름이 아닙니다',
         en: 'The name a screen reader announces, for a field with no visible label. A placeholder is not a name'
       }
-    }
+    },
+    hotKeysProp
   ],
 
   PlTextLink: [

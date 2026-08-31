@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Field } from '@base-ui/react/field';
 import { Input } from '@base-ui/react/input';
 import { Spinner } from '../../internal/icons.js';
+import { hotKeyHandler } from '../../internal/keys.js';
 import {
   controlHeightClasses,
   controlTextLeadingClasses,
@@ -26,6 +27,7 @@ import type {
   PlassColor,
   PlassElevation,
   PlassFieldClassNames,
+  PlassHotKeys,
   PlassSize,
   PlassStyleProps
 } from '../../types.js';
@@ -46,6 +48,15 @@ type NativeControlProps = Omit<
 export interface PlTextFieldProps extends PlassStyleProps, NativeControlProps {
   /** Classes on the parts a `className` does not reach. */
   classNames?: PlassFieldClassNames;
+  /**
+   * Chords this field answers to, in the vocabulary `PlHotKeys` draws.
+   *
+   * `{ 'Mod+Enter': save, Escape: cancel }` — the same string a `PlHotKeys`
+   * beside the field would print, so the cap and the binding cannot drift. A
+   * chord that matches is **consumed**: the handler runs and the key reaches
+   * neither the control's own behaviour nor the form around it.
+   */
+  hotKeys?: PlassHotKeys;
   /**
    * Drop shadow depth. `0` is the default — a field is a well cut into the
    * sheet, not a key resting on it, and the one place in the library where a
@@ -182,6 +193,8 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
     readOnly = false,
     disabled = false,
     type = 'text',
+    hotKeys,
+    onKeyDown,
     className,
     classNames,
     style,
@@ -289,6 +302,10 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
           readOnly={readOnly}
           aria-busy={loading || undefined}
           data-loading={loading || undefined}
+          // On the control rather than on the shell: a chord is answered by the
+          // thing that has the focus, and `hotKeys` on a wrapper would fire for
+          // a key pressed on the label beside it.
+          onKeyDown={hotKeyHandler(hotKeys, onKeyDown)}
           {...(multiline ? { render: <textarea rows={rows} /> } : { type })}
           {...props}
         />

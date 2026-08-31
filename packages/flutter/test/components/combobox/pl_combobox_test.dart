@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -498,6 +499,36 @@ void main() {
         );
 
         expect(_rows(tester), isNot(contains('Lisbon')));
+      });
+    });
+    group('hotKeys', () {
+      testWidgets('answers a chord pressed in the field, ahead of the list’s own keys', (
+        WidgetTester tester,
+      ) async {
+        var cleared = 0;
+
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<String>(
+              options: _cities,
+              value: null,
+              onChanged: (String? _) {},
+              autofocus: true,
+              hotKeys: <String, VoidCallback>{'Escape': () => cleared += 1},
+            ),
+          ),
+        );
+        await tester.pump();
+
+        // Focused the way a reader focuses it. `autofocus` alone leaves the field
+        // without a text connection, and the chord never reaches the editor.
+        await tester.tap(find.byType(EditableText));
+        await tester.pump();
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pump();
+
+        expect(cleared, 1);
       });
     });
   });

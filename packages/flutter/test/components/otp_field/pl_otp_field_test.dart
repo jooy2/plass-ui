@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -309,6 +310,26 @@ void main() {
         expect(find.bySemanticsLabel('Verification code'), findsOneWidget);
 
         handle.dispose();
+      });
+    });
+    group('hotKeys', () {
+      testWidgets('answers a chord pressed in the row', (WidgetTester tester) async {
+        var resent = 0;
+
+        await tester.pumpWidget(
+          host(
+            PlOtpField(
+              autofocus: true,
+              hotKeys: <String, VoidCallback>{'Escape': () => resent += 1},
+            ),
+          ),
+        );
+        await tester.pump();
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pump();
+
+        expect(resent, 1);
       });
     });
   });

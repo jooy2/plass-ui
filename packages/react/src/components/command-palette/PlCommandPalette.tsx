@@ -4,6 +4,10 @@ import * as React from 'react';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Dialog as BaseUIDialog } from '@base-ui/react/dialog';
 import { PlHotKeys } from '../hot-keys/PlHotKeys.js';
+// The same vocabulary `PlHotKeys` draws, read rather than written — a shortcut
+// a component displays and a shortcut it binds must be spelled the same way, or
+// the cap on the screen is a claim nobody checked.
+import { matchesHotKey } from '../../internal/keys.js';
 import { searchHaystack, searchText } from '../../internal/search.js';
 import {
   controlTextLeadingClasses,
@@ -178,32 +182,6 @@ function haystackOf(item: PlCommandItem): string {
 }
 
 /**
- * `Mod+K` and its friends, as a predicate over a real keyboard event.
- *
- * The same vocabulary `PlHotKeys` draws, read rather than written — a shortcut a
- * component displays and a shortcut it binds must be spelled the same way, or
- * the label on the screen is a claim nobody checked.
- */
-function pressed(event: KeyboardEvent, shortcut: string): boolean {
-  const parts = shortcut.toLowerCase().split('+');
-  const key = parts[parts.length - 1];
-  const wanted = new Set(parts.slice(0, -1));
-  const mac = /mac|iphone|ipad/i.test(
-    typeof navigator === 'undefined' ? '' : navigator.platform || navigator.userAgent
-  );
-
-  const mod = mac ? event.metaKey : event.ctrlKey;
-
-  if (wanted.has('mod') !== mod) return false;
-  if (wanted.has('shift') !== event.shiftKey) return false;
-  if (wanted.has('alt') !== event.altKey) return false;
-  if (!wanted.has('mod') && wanted.has('ctrl') !== event.ctrlKey) return false;
-  if (!wanted.has('mod') && wanted.has('meta') !== event.metaKey) return false;
-
-  return event.key.toLowerCase() === key;
-}
-
-/**
  * Everything an application can do, behind one field.
  *
  * The shape a keyboard-first product takes once it has more actions than a menu
@@ -255,7 +233,7 @@ export function PlCommandPalette({
     if (shortcut === false) return undefined;
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (!pressed(event, shortcut)) return;
+      if (!matchesHotKey(event, shortcut)) return;
 
       // The browser's own Mod+K is a search bar in some of them, and the page
       // asked for this key.

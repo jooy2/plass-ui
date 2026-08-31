@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlTextField } from 'plass-ui';
+import { press } from '../../support/keys';
 
 describe('PlTextField', () => {
   describe('rendering', () => {
@@ -447,6 +448,108 @@ describe('PlTextField', () => {
       const root = screen.getByRole('textbox').element().closest('div') as HTMLElement;
 
       expect(root.style.getPropertyValue('--p-accent')).toBe('var(--plass-danger-accent)');
+    });
+  });
+  describe('hotKeys', () => {
+    it('runs a bare chord', async () => {
+      const save = vi.fn();
+      const screen = await render(<PlTextField label="Note" hotKeys={{ Enter: save }} />);
+
+      press(screen.getByRole('textbox').element(), 'Enter');
+
+      expect(save).toHaveBeenCalledTimes(1);
+    });
+
+    it('reads the same spellings a key cap is written with', async () => {
+      const cancel = vi.fn();
+      const screen = await render(<PlTextField label="Note" hotKeys={{ Esc: cancel }} />);
+
+      press(screen.getByRole('textbox').element(), 'Escape');
+
+      expect(cancel).toHaveBeenCalledTimes(1);
+    });
+
+    it('answers Mod with whichever of the two this platform means by it', async () => {
+      const save = vi.fn();
+      const screen = await render(<PlTextField label="Note" hotKeys={{ 'Mod+Enter': save }} />);
+      const input = screen.getByRole('textbox').element();
+
+      press(input, 'Enter', { metaKey: true });
+      press(input, 'Enter', { ctrlKey: true });
+
+      // Exactly one of ⌘ and Ctrl is `Mod`, and which one is the platform's
+      // business rather than this test's. Neither would mean the chord never
+      // fires; both would mean it fires on a shortcut the reader did not press.
+      expect(save).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not mistake a chord for the bare key inside it', async () => {
+      const save = vi.fn();
+      const newline = vi.fn();
+      const screen = await render(
+        <PlTextField label="Note" multiline hotKeys={{ Enter: save, 'Shift+Enter': newline }} />
+      );
+      const input = screen.getByRole('textbox').element();
+
+      press(input, 'Enter', { shiftKey: true });
+
+      expect(newline).toHaveBeenCalledTimes(1);
+      expect(save).not.toHaveBeenCalled();
+    });
+
+    it('consumes the key it answered, so the form around it never sees it', async () => {
+      const onKeyDown = vi.fn();
+      const screen = await render(
+        <form onKeyDown={onKeyDown}>
+          <PlTextField label="Note" hotKeys={{ Enter: () => {} }} />
+        </form>
+      );
+      const input = screen.getByRole('textbox').element();
+      const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
+
+      input.dispatchEvent(event);
+
+      expect(event.defaultPrevented).toBe(true);
+      expect(onKeyDown).not.toHaveBeenCalled();
+    });
+
+    it('leaves every other key alone', async () => {
+      const save = vi.fn();
+      const screen = await render(<PlTextField label="Note" hotKeys={{ 'Mod+Enter': save }} />);
+      const input = screen.getByRole('textbox').element();
+      const event = new KeyboardEvent('keydown', { key: 'a', bubbles: true, cancelable: true });
+
+      input.dispatchEvent(event);
+
+      expect(save).not.toHaveBeenCalled();
+      expect(event.defaultPrevented).toBe(false);
+    });
+
+    it('runs the caller’s own onKeyDown first, and lets it overrule the map', async () => {
+      const order: string[] = [];
+      const screen = await render(
+        <PlTextField
+          label="Note"
+          onKeyDown={(event) => {
+            order.push('onKeyDown');
+
+            if (event.key === 'Escape') {
+              event.preventDefault();
+            }
+          }}
+          hotKeys={{
+            Enter: () => order.push('Enter'),
+            Escape: () => order.push('Escape')
+          }}
+        />
+      );
+      const input = screen.getByRole('textbox').element();
+
+      press(input, 'Enter');
+      press(input, 'Escape');
+
+      // The raw hook sees both keys; the map sees the one it did not consume.
+      expect(order).toEqual(['onKeyDown', 'Enter', 'onKeyDown']);
     });
   });
 });

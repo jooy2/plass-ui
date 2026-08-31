@@ -4,6 +4,7 @@ import * as React from 'react';
 import { NumberField as BaseUINumberField } from '@base-ui/react/number-field';
 import { Field } from '@base-ui/react/field';
 import { MinusIcon, PlusIcon } from '../../internal/icons.js';
+import { hotKeyHandler } from '../../internal/keys.js';
 import {
   controlHeightClasses,
   controlTextLeadingClasses,
@@ -27,6 +28,7 @@ import type {
   PlassColor,
   PlassElevation,
   PlassFieldClassNames,
+  PlassHotKeys,
   PlassStyleProps
 } from '../../types.js';
 
@@ -51,6 +53,15 @@ export interface PlNumberFieldProps
     Omit<React.ComponentPropsWithoutRef<'div'>, 'color' | 'defaultValue' | 'children'> {
   /** Classes on the parts a `className` does not reach. */
   classNames?: PlassFieldClassNames;
+  /**
+   * Chords this field answers to, in the vocabulary `PlHotKeys` draws.
+   *
+   * `{ 'Mod+Enter': save, Escape: cancel }` — the same string a `PlHotKeys`
+   * beside the field would print, so the cap and the binding cannot drift. A
+   * chord that matches is **consumed**: the handler runs and the key reaches
+   * neither the control's own behaviour nor the form around it.
+   */
+  hotKeys?: PlassHotKeys;
   /**
    * Drop shadow depth. `0` is the default — a field is a well cut into the
    * sheet, not a key resting on it.
@@ -235,6 +246,7 @@ export function PlNumberField({
   placeholder,
   id,
   className,
+  hotKeys,
   classNames,
   style,
   ...props
@@ -350,6 +362,9 @@ export function PlNumberField({
 
           <BaseUINumberField.Input
             placeholder={placeholder}
+            // On the input rather than on the stack `...props` lands on: a chord
+            // is answered by the thing that has the focus.
+            onKeyDown={hotKeyHandler(hotKeys, undefined)}
             className={[
               'min-w-0 flex-1 self-stretch bg-transparent [font:inherit] text-inherit',
               // Not `outline-none`: that utility zeroes `--tw-outline-style`, and

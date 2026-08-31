@@ -9,6 +9,7 @@ import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
+import 'package:plass_ui/src/internal/keys.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -102,6 +103,7 @@ class PlSelect<T> extends StatefulWidget {
     required this.value,
     this.onChanged,
     this.placeholder,
+    this.hotKeys,
     this.variant = PlassVariant.glass,
     this.size = PlassSize.md,
     this.color = PlassColor.primary,
@@ -135,6 +137,18 @@ class PlSelect<T> extends StatefulWidget {
 
   /// Shown in the trigger while nothing is chosen.
   final Widget? placeholder;
+
+  /// Chords the trigger answers to, in the vocabulary [PlHotKeys] draws.
+  ///
+  /// `{'Mod+Enter': save, 'Escape': cancel}` — the same string a [PlHotKeys]
+  /// beside the field would print, so the cap and the binding cannot drift. A
+  /// chord that matches is **consumed**: the callback runs and the key goes no
+  /// further.
+  ///
+  /// With one exception, and it is the trigger's own: a bare `Enter` opens and
+  /// commits the list, and that binding sits closer to the focused node than
+  /// this map does. `Shift+Enter` and `Mod+Enter` are free.
+  final PlassHotKeys? hotKeys;
 
   /// What the trigger's well is cut into.
   final PlassVariant variant;
@@ -442,7 +456,11 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
             },
           ),
         },
-        child: trigger,
+        // Nearer the focused node than the list's own shortcuts above it, so a
+        // caller who binds `Escape` or an arrow takes it from the list. The one
+        // key it cannot take is a bare `Enter`, which `PlassInteractive` binds
+        // closer still — `Shift+Enter` and `Mod+Enter` are free.
+        child: plassHotKeyScope(hotKeys: widget.hotKeys, child: trigger),
       ),
     );
 

@@ -6,6 +6,8 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/hot_keys/pl_hot_keys.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
+// The same vocabulary [PlHotKeys] draws, read rather than written.
+import 'package:plass_ui/src/internal/keys.dart';
 import 'package:plass_ui/src/internal/portal.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/search.dart';
@@ -103,36 +105,6 @@ const Map<PlassSize, double> _rowPadY = <PlassSize, double>{
   PlassSize.lg: 10,
   PlassSize.xl: 12,
 };
-
-/// `Mod+K` and its friends, as a predicate over a real key event.
-///
-/// The same vocabulary [PlHotKeys] draws, read rather than written — a shortcut
-/// a widget displays and a shortcut it binds must be spelled the same way, or
-/// the cap on the screen is a claim nobody checked.
-bool _pressed(String shortcut, KeyEvent event) {
-  final List<String> parts = shortcut
-      .toLowerCase()
-      .split('+')
-      .map((String part) => part.trim())
-      .toList(growable: false);
-  final String key = parts.last;
-  final Set<String> wanted = parts.sublist(0, parts.length - 1).toSet();
-
-  final HardwareKeyboard keyboard = HardwareKeyboard.instance;
-  final bool mac = PlHotKeys.platform == PlHotKeysOS.mac;
-  final bool mod = mac ? keyboard.isMetaPressed : keyboard.isControlPressed;
-
-  if (wanted.contains('mod') != mod) return false;
-  if (wanted.contains('shift') != keyboard.isShiftPressed) return false;
-  if (wanted.contains('alt') != keyboard.isAltPressed) return false;
-
-  if (!wanted.contains('mod')) {
-    if (wanted.contains('ctrl') != keyboard.isControlPressed) return false;
-    if (wanted.contains('meta') != keyboard.isMetaPressed) return false;
-  }
-
-  return event.logicalKey.keyLabel.toLowerCase() == key;
-}
 
 /// Everything an application can do, behind one field.
 ///
@@ -278,7 +250,7 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
     if (!widget.open) {
       final String? shortcut = widget.shortcut;
 
-      if (shortcut == null || !_pressed(shortcut, event)) {
+      if (shortcut == null || !plassMatchesHotKey(shortcut, event)) {
         return false;
       }
 

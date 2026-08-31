@@ -218,6 +218,30 @@ An adornment is centred on the control's **first line**, so it stays where it is
 
 </Demo>
 
+### hotKeys
+
+A field that saves on <kbd>Mod</kbd>+<kbd>Enter</kbd> and clears on <kbd>Escape</kbd> is a form of keyboard affordance that has nowhere else to live. `hotKeys` is a map from a chord to what pressing it does, written in **the same vocabulary [`PlHotKeys`](../display/hot-keys) draws** — so the cap printed beside the field and the key that actually works come from one string, and cannot drift apart.
+
+`Mod` resolves per platform: one entry is ⌘ on a Mac and <kbd>Ctrl</kbd> everywhere else. `Esc`, `Return`, `Cmd` and `Option` fold onto the same keys their caps do.
+
+A chord that matches is **consumed** — the handler runs and the key goes no further, so `Escape` bound here does not also close the dialog around the field, and `Enter` does not also submit the form. That is what binding a key means, and it is why these are chords rather than letters: `{ a: … }` is a field that cannot type an `a`.
+
+<Demo src="text-field/hot-keys" :min-height="280">
+
+::: fw react
+
+<<< @/.vitepress/demos/text-field/hot-keys.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/text_field/hot_keys.dart
+
+:::
+
+</Demo>
+
 ### Controlled
 
 ::: fw react

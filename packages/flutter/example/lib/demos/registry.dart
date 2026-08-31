@@ -385,6 +385,7 @@ import 'package:plass_ui_example/demos/tabs/sizes.dart';
 import 'package:plass_ui_example/demos/tabs/variants.dart';
 import 'package:plass_ui_example/demos/text_field/controlled.dart';
 import 'package:plass_ui_example/demos/text_field/hero.dart';
+import 'package:plass_ui_example/demos/text_field/hot_keys.dart';
 import 'package:plass_ui_example/demos/text_field/icons.dart';
 import 'package:plass_ui_example/demos/text_field/multiline.dart';
 import 'package:plass_ui_example/demos/text_field/sizes.dart';
@@ -725,6 +726,7 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'file-picker/states': _filePickerStates,
   'highlight/hero': _highlightHero,
   'text-field/hero': _textFieldHero,
+  'text-field/hot-keys': _textFieldHotKeys,
   'text-field/variants': _textFieldVariants,
   'text-field/sizes': _textFieldSizes,
   'text-field/states': _textFieldStates,
@@ -1185,6 +1187,8 @@ Widget _switchPlacement(BuildContext context) => const SwitchPlacement();
 Widget _highlightHero(BuildContext context) => const HighlightHero();
 
 Widget _textFieldHero(BuildContext context) => const TextFieldHero();
+
+Widget _textFieldHotKeys(BuildContext context) => const TextFieldHotKeys();
 Widget _textFieldVariants(BuildContext context) => const TextFieldVariants();
 Widget _textFieldSizes(BuildContext context) => const TextFieldSizes();
 Widget _textFieldStates(BuildContext context) => const TextFieldStates();

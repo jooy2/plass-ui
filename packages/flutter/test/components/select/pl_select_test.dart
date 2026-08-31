@@ -241,5 +241,32 @@ void main() {
         );
       });
     });
+    group('hotKeys', () {
+      testWidgets('answers a chord pressed on the trigger, ahead of the list’s own keys', (
+        WidgetTester tester,
+      ) async {
+        var cleared = 0;
+
+        await tester.pumpWidget(
+          host(
+            PlSelect<String>(
+              options: _cities,
+              value: null,
+              onChanged: (String? _) {},
+              autofocus: true,
+              hotKeys: <String, VoidCallback>{'Escape': () => cleared += 1},
+            ),
+            width: 320,
+            overlay: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pump();
+
+        expect(cleared, 1);
+      });
+    });
   });
 }

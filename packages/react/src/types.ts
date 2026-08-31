@@ -206,6 +206,24 @@ export interface PlassFieldClassNames {
   error?: string;
 }
 
+/**
+ * Chords a control answers to, in the vocabulary `PlHotKeys` draws.
+ *
+ * The key is a shortcut written the way a key cap is written — `'Enter'`,
+ * `'Escape'`, `'Mod+Enter'`, `'Shift+Enter'` — and `Mod` resolves per platform,
+ * so one entry is ⌘ on a Mac and Ctrl everywhere else. It is deliberately the
+ * *same* string a `PlHotKeys` beside the field would print: a shortcut a
+ * component displays and a shortcut it binds have to be spelled one way, or the
+ * cap on the screen is a claim nobody checked.
+ *
+ * A chord that matches is **consumed** — the handler runs and the key goes no
+ * further, so `Escape` bound on a field does not also close the dialog around
+ * it and `Enter` does not also submit the form. That is what binding a key
+ * means, and it is why these are chords rather than letters: `hotKeys={{ a }}`
+ * is a field that cannot type an `a`.
+ */
+export type PlassHotKeys = Record<string, () => void>;
+
 /** The parts of a portalled surface a `className` does not reach. */
 export interface PlassPortalClassNames {
   /**

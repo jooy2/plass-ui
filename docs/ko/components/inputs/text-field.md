@@ -218,6 +218,30 @@ adornment는 컨트롤의 **첫 줄**을 기준으로 가운데 정렬되므로,
 
 </Demo>
 
+### hotKeys
+
+<kbd>Mod</kbd>+<kbd>Enter</kbd>로 저장하고 <kbd>Escape</kbd>로 비우는 필드는 달리 둘 곳이 없는 키보드 어포던스입니다. `hotKeys`는 chord와 그 chord가 하는 일의 map이고, **[`PlHotKeys`](../display/hot-keys)가 그리는 것과 같은 vocabulary**로 씁니다 — 필드 옆에 찍힌 키캡과 실제로 동작하는 키가 문자열 하나에서 나오므로 서로 어긋날 수가 없습니다.
+
+`Mod`는 platform에 따라 정해집니다. 항목 하나가 Mac에서는 ⌘, 그 밖에서는 <kbd>Ctrl</kbd>입니다. `Esc`, `Return`, `Cmd`, `Option`도 키캡과 같은 키로 접힙니다.
+
+맞는 chord는 **소비됩니다** — handler가 실행되고 키는 더 이상 가지 않습니다. 그래서 여기 묶은 `Escape`는 필드를 감싼 dialog를 닫지 않고, `Enter`는 form을 제출하지 않습니다. 키를 묶는다는 게 그런 뜻이고, 그래서 이건 글자가 아니라 chord여야 합니다 — `{ a: … }`는 `a`를 칠 수 없는 필드입니다.
+
+<Demo src="text-field/hot-keys" :min-height="280">
+
+::: fw react
+
+<<< @/.vitepress/demos/text-field/hot-keys.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/text_field/hot_keys.dart
+
+:::
+
+</Demo>
+
 ### Controlled
 
 ::: fw react

@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -166,6 +168,129 @@ void main() {
         );
 
         handle.dispose();
+      });
+    });
+    group('hotKeys', () {
+      /// A field with a chord map, under a listener that counts what got past it.
+      ///
+      /// The listener is how "consumed" is actually asserted: a chord the field
+      /// answered must never reach anything above it, and a key it did not
+      /// answer must.
+      Future<void> pumpBound(
+        WidgetTester tester,
+        PlassHotKeys hotKeys, [
+        List<LogicalKeyboardKey>? escaped,
+      ]) async {
+        await tester.pumpWidget(
+          host(
+            Focus(
+              canRequestFocus: false,
+              onKeyEvent: (FocusNode node, KeyEvent event) {
+                if (event is KeyDownEvent) {
+                  escaped?.add(event.logicalKey);
+                }
+
+                return KeyEventResult.ignored;
+              },
+              child: PlTextField(fullWidth: true, autofocus: true, hotKeys: hotKeys),
+            ),
+            width: 300,
+          ),
+        );
+        await tester.pump();
+      }
+
+      testWidgets('runs a bare chord', (WidgetTester tester) async {
+        var saved = 0;
+
+        await pumpBound(tester, <String, VoidCallback>{'Enter': () => saved += 1});
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pump();
+
+        expect(saved, 1);
+      });
+
+      testWidgets('reads the same spellings a key cap is written with', (
+        WidgetTester tester,
+      ) async {
+        var cancelled = 0;
+
+        await pumpBound(tester, <String, VoidCallback>{'Esc': () => cancelled += 1});
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pump();
+
+        expect(cancelled, 1);
+      });
+
+      testWidgets('resolves Mod against the platform, the way the cap does', (
+        WidgetTester tester,
+      ) async {
+        var saved = 0;
+
+        Future<void> press(LogicalKeyboardKey modifier) async {
+          await tester.sendKeyDownEvent(modifier);
+          await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+          await tester.sendKeyUpEvent(modifier);
+          await tester.pump();
+        }
+
+        debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+
+        await pumpBound(tester, <String, VoidCallback>{'Mod+Enter': () => saved += 1});
+
+        await press(LogicalKeyboardKey.metaLeft);
+        expect(saved, 1, reason: 'Mod is ⌘ on a Mac');
+
+        await press(LogicalKeyboardKey.controlLeft);
+        expect(saved, 1, reason: 'and Ctrl is not');
+
+        debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+
+        await press(LogicalKeyboardKey.controlLeft);
+        expect(saved, 2, reason: 'Mod is Ctrl everywhere else');
+
+        // Put back inside the body rather than in a tear-down: the binding
+        // checks for a leaked debug variable before tear-downs run.
+        debugDefaultTargetPlatformOverride = null;
+      });
+
+      testWidgets('does not mistake a chord for the bare key inside it', (
+        WidgetTester tester,
+      ) async {
+        var saved = 0;
+        var newline = 0;
+
+        await pumpBound(tester, <String, VoidCallback>{
+          'Enter': () => saved += 1,
+          'Shift+Enter': () => newline += 1,
+        });
+
+        await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+        await tester.pump();
+
+        expect(newline, 1);
+        expect(saved, 0);
+      });
+
+      testWidgets('consumes the key it answered and lets every other one by', (
+        WidgetTester tester,
+      ) async {
+        final escaped = <LogicalKeyboardKey>[];
+        var cancelled = 0;
+
+        await pumpBound(tester, <String, VoidCallback>{'Escape': () => cancelled += 1}, escaped);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.sendKeyEvent(LogicalKeyboardKey.f2);
+        await tester.pump();
+
+        expect(cancelled, 1);
+        // The chord stopped at the field; the key nobody claimed carried on.
+        expect(escaped, <LogicalKeyboardKey>[LogicalKeyboardKey.f2]);
       });
     });
   });

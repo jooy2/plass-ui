@@ -310,5 +310,28 @@ void main() {
         handle.dispose();
       });
     });
+    group('hotKeys', () {
+      testWidgets('answers a chord pressed in the editor', (WidgetTester tester) async {
+        var saved = 0;
+
+        await tester.pumpWidget(
+          host(
+            PlNumberField(
+              value: 1,
+              onChanged: (double? _) {},
+              autofocus: true,
+              hotKeys: <String, VoidCallback>{'Escape': () => saved += 1},
+            ),
+            width: 300,
+          ),
+        );
+        await tester.pump();
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pump();
+
+        expect(saved, 1);
+      });
+    });
   });
 }

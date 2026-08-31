@@ -53,6 +53,34 @@ These are the rules a new component is checked against.
 - **`render` is the escape hatch**, spelled the same way everywhere — Base UI's own prop, passed through. It replaces the element without changing the surface.
 - **Native attributes pass through.** A component that wraps an `<input>` takes every `<input>` attribute, minus the ones that collide with an axis above (`color`, `size`).
 
+## Binding a key
+
+`PlTextField`, `PlNumberField`, `PlOtpField`, `PlCombobox` and `PlSelect` take a **`hotKeys`** map: a chord, and what pressing it does.
+
+```tsx
+<PlTextField hotKeys={{ 'Mod+Enter': save, Escape: cancel }} />
+```
+
+Three rules hold across all five.
+
+- **The chord is spelled the way a key cap is spelled** — the same vocabulary [`PlHotKeys`](../components/display/hot-keys) draws. `Mod` resolves per platform (⌘ on a Mac, <kbd>Ctrl</kbd> everywhere else), and `Esc`, `Return`, `Cmd` and `Option` fold onto the same keys their caps do. A shortcut a component displays and a shortcut it binds must be one string, or the cap on the screen is a claim nobody checked.
+- **A modifier is checked in both directions.** `Enter` does not fire on <kbd>Shift</kbd>+<kbd>Enter</kbd>, so a field that saves on Enter does not also save on every chord that happens to end in one.
+- **A chord that matches is consumed.** The handler runs and the key goes no further — not to the control's own key handling, not to the form, not to the dialog above it. Bind chords rather than letters: a field with `{ a: … }` cannot type an `a`.
+
+::: fw react
+
+`hotKeys` sits on the **control** rather than on the stack around it, so a chord is answered by the thing that has the focus. It is a convenience over `onKeyDown`, not a replacement: the raw handler is still there, still passes through to the same element, and runs **first** — if it calls `preventDefault()`, the map is skipped.
+
+:::
+
+::: fw flutter
+
+The map is bound closer to the focused node than the widget's own key handling, which is what lets a caller take a key from the control. One exception, and `PlSelect` names it: a bare <kbd>Enter</kbd> opens and commits the list, and that binding sits closer still.
+
+There is no `onKeyDown` underneath this one. A widget that needs finer key handling than a chord map wraps the field in its own `Focus`.
+
+:::
+
 ## Styling a component from outside
 
 ::: fw react

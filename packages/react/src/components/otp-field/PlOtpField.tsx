@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Field } from '@base-ui/react/field';
 import { OTPField } from '@base-ui/react/otp-field';
+import { hotKeyHandler } from '../../internal/keys.js';
 import {
   cx,
   disabledClasses,
@@ -19,6 +20,7 @@ import type {
   PlassDensity,
   PlassElevation,
   PlassFieldClassNames,
+  PlassHotKeys,
   PlassSize,
   PlassStyleProps
 } from '../../types.js';
@@ -45,6 +47,15 @@ export interface PlOtpFieldProps
     > {
   /** Classes on the parts a `className` does not reach. */
   classNames?: PlassFieldClassNames;
+  /**
+   * Chords this field answers to, in the vocabulary `PlHotKeys` draws.
+   *
+   * `{ 'Mod+Enter': save, Escape: cancel }` — the same string a `PlHotKeys`
+   * beside the field would print, so the cap and the binding cannot drift. A
+   * chord that matches is **consumed**: the handler runs and the key reaches
+   * neither the control's own behaviour nor the form around it.
+   */
+  hotKeys?: PlassHotKeys;
   /** Drop shadow depth. `0` is the default — a field is cut into the sheet. */
   elevation?: PlassElevation;
   /**
@@ -210,6 +221,7 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
       readOnly = false,
       autoFocus = false,
       className,
+      hotKeys,
       classNames,
       style,
       ...props
@@ -272,6 +284,10 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
 
         <OTPField.Root
           ref={ref}
+          // On the run of slots rather than on the stack `...props` lands on: the
+          // slot that has the focus is one of these, and a key pressed in it
+          // reaches here and no higher.
+          onKeyDown={hotKeyHandler(hotKeys, undefined)}
           length={slots}
           validationType={validationTypes[charset]}
           mask={mask}

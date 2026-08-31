@@ -129,6 +129,22 @@ function sharedProps(options: SharedOptions): PropRow[] {
  * a caller positions and sizes. `control` is the one inside it that is acted
  * on, and it is the override most people are actually reaching for.
  */
+/**
+ * The chord map a field takes.
+ *
+ * One row rather than five, for the reason `pickerProps` is one function: a
+ * reader who has learned what `hotKeys` does on a text field must not have to
+ * read a subtly different sentence about it on a combobox.
+ */
+const hotKeysProp: PropRow = {
+  name: 'hotKeys',
+  type: 'Record<string, () => void>',
+  description: {
+    ko: "이 컨트롤이 답할 chord들. PlHotKeys가 그리는 것과 같은 철자입니다 — { 'Mod+Enter': save, Escape: cancel }. 맞는 chord는 **소비됩니다**",
+    en: "Chords this control answers to, spelled the way PlHotKeys draws them — { 'Mod+Enter': save, Escape: cancel }. A chord that matches is **consumed**"
+  }
+};
+
 const fieldClassNames: PropRow = {
   name: 'classNames',
   type: '{ label?, control?, description?, error?: string }',
@@ -3411,6 +3427,7 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'A ref to the text input the user types into'
       }
     },
+    hotKeysProp,
     fieldClassNames
   ],
 
@@ -6170,6 +6187,7 @@ export const propTables: Record<string, PropRow[]> = {
       shared: true,
       description: { ko: '사용할 수 없음', en: 'Unavailable' }
     },
+    hotKeysProp,
     fieldClassNames
   ],
 
@@ -6335,6 +6353,7 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'Puts the caret in the first slot on mount'
       }
     },
+    hotKeysProp,
     fieldClassNames
   ],
 
@@ -7808,6 +7827,7 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'Identifies the field when a form is submitted'
       }
     },
+    hotKeysProp,
     fieldClassNames
   ],
 
@@ -9918,6 +9938,7 @@ export const propTables: Record<string, PropRow[]> = {
       default: 'false',
       description: { ko: '컨테이너 너비만큼 확장', en: 'Stretches to the width of the container' }
     },
+    hotKeysProp,
     fieldClassNames
   ]
 };

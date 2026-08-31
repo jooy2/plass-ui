@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { canonicalKey, detectOS } from '../../internal/keys.js';
 import {
   controlHeightClasses,
   controlSlots,
@@ -167,24 +168,6 @@ const keyLabels: Record<string, Record<ResolvedOS, KeyLabel>> = {
   }
 };
 
-/** The tokens that name one key by more than one word. */
-const keyAliases: Record<string, string> = {
-  cmdorctrl: 'mod',
-  commandorcontrol: 'mod',
-  cmd: 'meta',
-  command: 'meta',
-  super: 'meta',
-  win: 'meta',
-  windows: 'meta',
-  control: 'ctrl',
-  option: 'alt',
-  opt: 'alt',
-  return: 'enter',
-  esc: 'escape',
-  del: 'delete',
-  caps: 'capslock'
-};
-
 /**
  * The keys drawn as arrows on every platform, not just on a Mac. An arrow is not
  * a Mac convention — it is what is printed on the key.
@@ -202,8 +185,9 @@ const arrowLabels: Record<string, KeyLabel> = {
 
 /** Resolves one token into what to draw and what to announce. */
 function labelFor(token: string, os: ResolvedOS): KeyLabel {
-  const normalized = token.toLowerCase().replace(/[\s_-]/g, '');
-  const canonical = keyAliases[normalized] ?? normalized;
+  // The same fold the binder applies, out of `internal/keys` — a cap and a
+  // chord that disagreed about what `Esc` means would be two vocabularies.
+  const canonical = canonicalKey(token);
 
   const arrow = arrowLabels[canonical];
 
@@ -236,33 +220,6 @@ function tokenize(keys: string | string[]): string[] {
     .split('+')
     .map((key) => key.trim())
     .filter(Boolean);
-}
-
-/**
- * What the browser says it is running on.
- *
- * `userAgentData.platform` is the modern spelling and `navigator.platform` the
- * deprecated one that every browser still answers; the user agent string is the
- * last resort. All three are matched at once because the question here is coarse
- * — which of three key caps to print — and getting it slightly wrong is a label,
- * not a bug.
- */
-function detectOS(): ResolvedOS {
-  if (typeof navigator === 'undefined') {
-    return 'windows';
-  }
-
-  const data = (navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData;
-  const haystack = `${data?.platform ?? ''} ${navigator.platform ?? ''} ${navigator.userAgent ?? ''}`;
-
-  if (/mac|iphone|ipad|ipod/i.test(haystack)) {
-    return 'mac';
-  }
-  if (/win/i.test(haystack)) {
-    return 'windows';
-  }
-
-  return 'linux';
 }
 
 /** The platform never changes under a running page, so there is nothing to subscribe to. */

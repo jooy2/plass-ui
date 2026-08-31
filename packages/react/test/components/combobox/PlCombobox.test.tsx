@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlCombobox, type PlComboboxOption } from 'plass-ui';
+import { press } from '../../support/keys';
 
 const items: PlComboboxOption[] = [
   { value: 'seoul', label: 'Seoul' },
@@ -278,6 +279,18 @@ describe('PlCombobox', () => {
       const form = screen.getByRole('button', { name: 'Save' }).element().closest('form');
 
       expect(new FormData(form as HTMLFormElement).get('city')).toBe('lisbon');
+    });
+  });
+  describe('hotKeys', () => {
+    it('answers a chord pressed in the input', async () => {
+      const create = vi.fn();
+      const screen = await render(
+        <PlCombobox label="City" items={items} hotKeys={{ 'Shift+Enter': create }} />
+      );
+
+      press(screen.getByRole('combobox').element(), 'Enter', { shiftKey: true });
+
+      expect(create).toHaveBeenCalledTimes(1);
     });
   });
 });

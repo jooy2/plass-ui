@@ -5,6 +5,7 @@ library;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/keys.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -151,23 +152,6 @@ const Map<String, Map<PlHotKeysOS, _KeyLabel>> _keyLabels = <String, Map<PlHotKe
 /// Deliberate rather than generous: `Cmd`, `Command` and `Meta` are three names
 /// one key already has, and a component that accepted only one of them would be
 /// a component every caller has to look up.
-const Map<String, String> _keyAliases = <String, String>{
-  'cmdorctrl': 'mod',
-  'commandorcontrol': 'mod',
-  'cmd': 'meta',
-  'command': 'meta',
-  'super': 'meta',
-  'win': 'meta',
-  'windows': 'meta',
-  'control': 'ctrl',
-  'option': 'alt',
-  'opt': 'alt',
-  'return': 'enter',
-  'esc': 'escape',
-  'del': 'delete',
-  'caps': 'capslock',
-};
-
 /// The keys drawn as arrows on every platform, not just on a Mac. An arrow is
 /// not a Mac convention — it is what is printed on the key.
 const Map<String, _KeyLabel> _arrowLabels = <String, _KeyLabel>{
@@ -427,23 +411,24 @@ class PlHotKeys extends StatelessWidget {
   /// [defaultTargetPlatform], so a `debugDefaultTargetPlatformOverride` in a
   /// test or a preview moves it.
   static PlHotKeysOS get platform {
-    switch (defaultTargetPlatform) {
-      case TargetPlatform.macOS:
-      case TargetPlatform.iOS:
-        return PlHotKeysOS.mac;
-      case TargetPlatform.windows:
-        return PlHotKeysOS.windows;
-      case TargetPlatform.linux:
-      case TargetPlatform.android:
-      case TargetPlatform.fuchsia:
-        return PlHotKeysOS.linux;
+    // `plassModIsMeta` rather than a fourth reading of `defaultTargetPlatform`:
+    // which cap is drawn and which modifier `Mod` binds are the same question,
+    // and two answers to it is the drift this file exists to prevent.
+    if (plassModIsMeta) {
+      return PlHotKeysOS.mac;
     }
+
+    return defaultTargetPlatform == TargetPlatform.windows
+        ? PlHotKeysOS.windows
+        : PlHotKeysOS.linux;
   }
 
   /// Resolves one token into what to draw and what to announce.
   static _KeyLabel _labelFor(String token, PlHotKeysOS os) {
-    final normalized = token.toLowerCase().replaceAll(RegExp(r'[\s_-]'), '');
-    final canonical = _keyAliases[normalized] ?? normalized;
+    // The same fold the binder applies, out of `internal/keys.dart` — a cap
+    // and a chord that disagreed about what `Esc` means would be two
+    // vocabularies rather than one.
+    final canonical = plassCanonicalKey(token);
 
     final arrow = _arrowLabels[canonical];
 

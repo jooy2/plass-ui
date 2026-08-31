@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlSelect, type PlSelectOption } from 'plass-ui';
+import { press } from '../../support/keys';
 
 const items: PlSelectOption[] = [
   { value: 'seoul', label: 'Seoul' },
@@ -146,6 +147,18 @@ describe('PlSelect', () => {
       const form = screen.getByRole('button', { name: 'Save' }).element().closest('form');
 
       expect(new FormData(form as HTMLFormElement).get('city')).toBe('lisbon');
+    });
+  });
+  describe('hotKeys', () => {
+    it('answers a chord pressed on the trigger', async () => {
+      const clear = vi.fn();
+      const screen = await render(
+        <PlSelect label="City" items={items} hotKeys={{ Escape: clear }} />
+      );
+
+      press(screen.getByRole('combobox').element(), 'Escape');
+
+      expect(clear).toHaveBeenCalledTimes(1);
     });
   });
 });
