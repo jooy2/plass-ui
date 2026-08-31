@@ -5,6 +5,7 @@ import {
   PlAlert,
   PlAvatar,
   PlAvatarGroup,
+  PlBackTop,
   PlBadge,
   PlBlockquote,
   PlBreadcrumb,
@@ -470,6 +471,11 @@ function SettingsScreen() {
           Point a URL at an event and we will POST to it.
         </PlAccordionItem>
       </PlAccordion>
+
+      {/* `floating={false}`, because a `fixed` button inside a documentation
+          frame would pin itself to the browser window rather than to this
+          screen. On a real page it is left on. */}
+      <PlBackTop floating={false} size="sm" visibilityHeight={0} className="self-center" />
     </div>
   );
 }

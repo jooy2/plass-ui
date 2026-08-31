@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import {
   PlAccordion,
   PlAccordionItem,
@@ -17,6 +17,7 @@ import {
   PlAspectRatio,
   PlAvatar,
   PlAvatarGroup,
+  PlBackTop,
   PlBadge,
   PlBlockquote,
   PlBottomNavigation,
@@ -135,6 +136,36 @@ interface GalleryProps {
 /** The sidebar's own groups, in the sidebar's own order. */
 type Group =
   'display' | 'feedback' | 'inputs' | 'layout' | 'navigation' | 'surfaces' | 'transitions';
+
+/**
+ * `PlBackTop` is hidden until it is useful, so a preview of it needs something
+ * to have scrolled. The panel is its own target and its own reason to exist.
+ */
+function BackTopPreview() {
+  const panel = useRef<HTMLDivElement>(null);
+
+  return (
+    <div className="relative w-full">
+      <div
+        ref={panel}
+        className="h-24 overflow-y-auto rounded-(--plass-radius-sm) bg-(--plass-glass-press) p-2 text-[0.625rem]"
+      >
+        {Array.from({ length: 20 }, (_, index) => (
+          <div key={index} className="py-0.5 text-(--plass-muted-fg)">
+            Line {index + 1}
+          </div>
+        ))}
+      </div>
+      <PlBackTop
+        target={panel}
+        visibilityHeight={40}
+        floating={false}
+        size="xs"
+        className="absolute end-2 bottom-2"
+      />
+    </div>
+  );
+}
 
 /**
  * The other preview that needs state of its own: a confirm dialog is a promise
@@ -1500,6 +1531,16 @@ const entries: Entry[] = [
         </PlFloatingBottomNavigationItem>
       </PlFloatingBottomNavigation>
     )
+  },
+  {
+    name: 'PlBackTop',
+    group: 'navigation',
+    href: 'components/navigation/back-top',
+    blurb: {
+      en: 'The way back up, once there is a way back up to want.',
+      ko: '올라갈 길이 생겼을 때의, 올라갈 길입니다.'
+    },
+    preview: <BackTopPreview />
   },
   {
     name: 'PlStepper',

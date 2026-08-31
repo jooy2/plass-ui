@@ -10791,6 +10791,80 @@ export const propTables: Record<string, PropRow[]> = {
       description: { ko: '열리거나 닫혔을 때', en: 'Called when it opens or closes' }
     }
   ],
+  PlBackTop: [
+    {
+      name: 'target',
+      type: 'Window | HTMLElement | RefObject<HTMLElement | null> | (() => Window | HTMLElement | null)',
+      default: 'window',
+      description: {
+        ko: '무엇을 스크롤할지. 페이지 안에서 스크롤되는 패널에는 ref를 주세요',
+        en: 'What is scrolled. A ref for a panel that scrolls inside the page'
+      }
+    },
+    {
+      name: 'visibilityHeight',
+      type: 'number',
+      default: '400',
+      description: {
+        ko: '나타나기 전까지 얼마나 내려가야 하는지, 픽셀로. 노트북에서 대략 한 화면입니다',
+        en: 'How far down the reader has to be before it appears, in pixels. Roughly one screen on a laptop'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      default: "'Back to top'",
+      description: {
+        ko: '무엇을 하는지, 말로. accessible name입니다',
+        en: 'What it does, in words, and its accessible name'
+      }
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: {
+        ko: '글리프. 기본은 위쪽 chevron입니다',
+        en: 'The glyph. An upward chevron by default'
+      }
+    },
+    {
+      name: 'floating',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '창의 아래 구석에 스스로 고정할지',
+        en: 'Whether it pins itself to the bottom corner of the window'
+      }
+    },
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'glass'",
+      shared: true,
+      description: { ko: '표면의 재질', en: 'What the surface is made of' }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: { ko: '디스크의 크기', en: 'The size of the disc' }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: { ko: '의미론적 색 역할', en: 'Semantic colour role' }
+    },
+    {
+      name: 'elevation',
+      type: ELEVATION,
+      default: '2',
+      shared: true,
+      description: { ko: '그림자 깊이', en: 'Drop shadow depth' }
+    }
+  ],
   PlVisuallyHidden: [
     {
       name: 'children',

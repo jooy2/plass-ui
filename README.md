@@ -143,7 +143,7 @@ A **†** marks the few that are React-only. They are not omissions — each one
 
 ### Navigation
 
-`PlBottomNavigation` · `PlCommandPalette` · `PlContextMenu` · `PlFloatingBottomNavigation` · `PlMenu` · `PlMenubar` · `PlNavigationMenu` · `PlStepper`†
+`PlBackTop`† · `PlBottomNavigation` · `PlCommandPalette` · `PlContextMenu` · `PlFloatingBottomNavigation` · `PlMenu` · `PlMenubar` · `PlNavigationMenu` · `PlStepper`†
 
 ### Surfaces
 
