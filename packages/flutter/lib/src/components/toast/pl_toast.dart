@@ -210,9 +210,9 @@ class PlToastProvider extends StatefulWidget {
     this.width = _defaultWidth,
     this.closeLabel = 'Close',
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     super.key,
   });
 
@@ -240,13 +240,13 @@ class PlToastProvider extends StatefulWidget {
   final PlassVariant variant;
 
   /// Type scale, radius and padding.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// The default colour family. A single toast overrides it.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// How tightly a toast packs.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// The controller for the nearest provider above [context].
   static PlToastController of(BuildContext context) {
@@ -292,6 +292,11 @@ class _Entry {
 class _PlToastProviderState extends State<PlToastProvider>
     with TickerProviderStateMixin
     implements PlToastController {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   final List<_Entry> _entries = <_Entry>[];
   int _sequence = 0;
 
@@ -510,9 +515,9 @@ class _PlToastProviderState extends State<PlToastProvider>
                                 key: ValueKey<String>(entry.toast.id!),
                                 toast: entry.toast,
                                 variant: entry.toast.variant ?? widget.variant,
-                                color: entry.toast.color ?? widget.color,
-                                size: widget.size,
-                                density: widget.density,
+                                color: entry.toast.color ?? _color,
+                                size: _size,
+                                density: _density,
                                 closeLabel: widget.closeLabel,
                                 onClose: () => _dismiss(entry),
                               ),

@@ -9,6 +9,7 @@ import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/picker.dart';
 import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
 export 'package:plass_ui/src/internal/date.dart' show PlassTimeUnit;
@@ -65,17 +66,17 @@ class PlTimePicker extends StatefulWidget {
     this.hourStep = 1,
     this.minuteStep = 1,
     this.secondStep = 1,
-    this.names = PlDateNames.english,
-    this.labels = PlPickerLabels.english,
+    this.names,
+    this.labels,
     this.formatValue,
     this.placeholder,
     this.clearable = false,
     this.showNowButton = true,
     this.closeOnSelect = false,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.label,
     this.description,
@@ -145,10 +146,10 @@ class PlTimePicker extends StatefulWidget {
   final int secondStep;
 
   /// Where AM and PM come from.
-  final PlDateNames names;
+  final PlDateNames? names;
 
   /// The words the picker says about itself.
-  final PlPickerLabels labels;
+  final PlPickerLabels? labels;
 
   /// How the trigger writes the chosen time. Without it, `H:MM` — with seconds
   /// and a meridiem when those are on.
@@ -174,13 +175,13 @@ class PlTimePicker extends StatefulWidget {
   final PlassVariant variant;
 
   /// Height and type scale, of the trigger and of one clock row alike.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// How tightly the columns sit together. Never their height.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth of the **trigger**.
   final PlassElevation elevation;
@@ -223,6 +224,16 @@ class PlTimePicker extends StatefulWidget {
 }
 
 class _PlTimePickerState extends State<PlTimePicker> {
+  PlDateNames get _names =>
+      widget.names ?? PlassTheme.defaultsOf(context).names ?? PlDateNames.english;
+  PlPickerLabels get _labels =>
+      widget.labels ?? PlassTheme.defaultsOf(context).labels ?? PlPickerLabels.english;
+
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   bool _ownOpen = false;
 
   /// Held for as long as the picker is mounted. See [PlTimePicker.referenceDate].
@@ -273,7 +284,7 @@ class _PlTimePickerState extends State<PlTimePicker> {
         : value.hour;
     final minute = value.minute.toString().padLeft(2, '0');
     final seconds = widget.showSeconds ? ':${value.second.toString().padLeft(2, '0')}' : '';
-    final meridiem = widget.hour12 ? ' ${value.hour < 12 ? widget.names.am : widget.names.pm}' : '';
+    final meridiem = widget.hour12 ? ' ${value.hour < 12 ? _names.am : _names.pm}' : '';
 
     return '${widget.hour12 ? hour : hour.toString().padLeft(2, '0')}:$minute$seconds$meridiem';
   }
@@ -292,9 +303,9 @@ class _PlTimePickerState extends State<PlTimePicker> {
 
     return PlassPickerShell(
       variant: widget.variant,
-      size: widget.size,
-      color: widget.color,
-      density: widget.density,
+      size: _size,
+      color: _color,
+      density: _density,
       elevation: widget.elevation,
       label: widget.label,
       description: widget.description,
@@ -302,10 +313,7 @@ class _PlTimePickerState extends State<PlTimePicker> {
       invalid: widget.invalid,
       startIcon:
           widget.startIcon ??
-          PlassGlyph(
-            PlassGlyphShape.clock,
-            size: controlTextLeading[widget.size]!.size * iconScale,
-          ),
+          PlassGlyph(PlassGlyphShape.clock, size: controlTextLeading[_size]!.size * iconScale),
       fullWidth: widget.fullWidth,
       readOnly: widget.readOnly,
       disabled: widget.disabled,
@@ -323,7 +331,7 @@ class _PlTimePickerState extends State<PlTimePicker> {
       empty: value == null,
       clearable: widget.clearable,
       onClear: () => widget.onChanged?.call(null),
-      clearLabel: widget.labels.clear,
+      clearLabel: _labels.clear,
       open: _open,
       onOpenChanged: _setOpen,
       popup: Column(
@@ -341,12 +349,12 @@ class _PlTimePickerState extends State<PlTimePicker> {
                 _setOpen(false);
               }
             },
-            names: widget.names,
-            labels: widget.labels,
+            names: _names,
+            labels: _labels,
             hour12: widget.hour12,
-            size: widget.size,
-            density: widget.density,
-            color: widget.color,
+            size: _size,
+            density: _density,
+            color: _color,
             showSeconds: widget.showSeconds,
             hourStep: widget.hourStep,
             minuteStep: widget.minuteStep,
@@ -355,42 +363,42 @@ class _PlTimePickerState extends State<PlTimePicker> {
           ),
           if (hasFooter)
             PlassPickerFooter(
-              size: widget.size,
+              size: _size,
               children: <Widget>[
                 if (widget.clearable)
                   PlButton(
                     variant: PlassVariant.ghost,
-                    size: widget.size,
-                    color: widget.color,
+                    size: _size,
+                    color: _color,
                     density: PlassDensity.compact,
                     onPressed: () {
                       widget.onChanged?.call(null);
                       _setOpen(false);
                     },
-                    child: Text(widget.labels.clear),
+                    child: Text(_labels.clear),
                   ),
                 if (widget.showNowButton)
                   PlButton(
                     variant: PlassVariant.ghost,
-                    size: widget.size,
-                    color: widget.color,
+                    size: _size,
+                    color: _color,
                     density: PlassDensity.compact,
                     disabled: _isBlocked(nowValue, PlassTimeUnit.second),
                     onPressed: () {
                       widget.onChanged?.call(nowValue);
                       _setOpen(false);
                     },
-                    child: Text(widget.labels.now),
+                    child: Text(_labels.now),
                   ),
                 // The popup stays open while the columns are being read, so there
                 // has to be something to press that means "that is the one".
                 if (!widget.closeOnSelect)
                   PlButton(
-                    size: widget.size,
-                    color: widget.color,
+                    size: _size,
+                    color: _color,
                     density: PlassDensity.compact,
                     onPressed: () => _setOpen(false),
-                    child: Text(widget.labels.done),
+                    child: Text(_labels.done),
                   ),
               ],
             ),

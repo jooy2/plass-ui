@@ -128,8 +128,8 @@ class PlPanes extends StatefulWidget {
     required this.panes,
     this.orientation = PlassOrientation.horizontal,
     this.resizable = true,
-    this.color = PlassColor.primary,
-    this.size = PlassSize.md,
+    this.color,
+    this.size,
     this.onResize,
     this.onResizeEnd,
     this.label,
@@ -152,10 +152,10 @@ class PlPanes extends StatefulWidget {
   /// A split draws no sheet, so the family only ever shows up in three places:
   /// the handle's hairline under the pointer, the tint behind it, and the focus
   /// ring.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// How thick a handle is, and how wide the target the pointer has to hit.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Fires with every pane's share, in percent, while a handle is dragged.
   final ValueChanged<List<double>>? onResize;
@@ -172,13 +172,15 @@ class PlPanes extends StatefulWidget {
 }
 
 class _PlPanesState extends State<PlPanes> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+
   /// Every pane's share, summing to one, once anything has moved a handle.
   List<double>? _fractions;
 
   bool get _horizontal => widget.orientation == PlassOrientation.horizontal;
 
-  double get _gutter =>
-      _handleTrack[widget.size]! * (widget.panes.length - 1).clamp(0, double.infinity);
+  double get _gutter => _handleTrack[_size]! * (widget.panes.length - 1).clamp(0, double.infinity);
 
   /// The split as it stands, which is what was dragged to or — until something
   /// has been — what the panes asked for.
@@ -268,7 +270,7 @@ class _PlPanesState extends State<PlPanes> {
   @override
   Widget build(BuildContext context) {
     final PlassTokens tokens = PlassTheme.of(context);
-    final PlassColorFamily family = tokens.family(widget.color);
+    final PlassColorFamily family = tokens.family(_color);
 
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
@@ -324,7 +326,7 @@ class _PlPanesState extends State<PlPanes> {
     double extent,
     List<double> fractions,
   ) {
-    final double track = _handleTrack[widget.size]!;
+    final double track = _handleTrack[_size]!;
 
     return _Handle(
       track: track,

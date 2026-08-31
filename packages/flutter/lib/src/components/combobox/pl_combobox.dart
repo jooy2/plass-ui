@@ -113,9 +113,9 @@ class PlCombobox<T> extends StatefulWidget {
     this.removeLabel = _defaultRemoveLabel,
     this.hotKeys,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.label,
     this.description,
@@ -154,9 +154,9 @@ class PlCombobox<T> extends StatefulWidget {
     this.removeLabel = _defaultRemoveLabel,
     this.hotKeys,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.label,
     this.description,
@@ -255,14 +255,14 @@ class PlCombobox<T> extends StatefulWidget {
 
   /// Height and type scale. With `PlCombobox.multiple` it is a **minimum**
   /// height rather than a height, because chips wrap.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the edge, the ring, the caret and the
   /// chosen row.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Horizontal padding. Never the height.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth of the **field**. `0`, like a [PlTextField]: a field is
   /// cut into the sheet rather than resting on it.
@@ -323,6 +323,11 @@ class _Row<T> {
 }
 
 class _PlComboboxState<T> extends State<PlCombobox<T>> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   final ScrollController _scroll = ScrollController();
   late final TextEditingController _text = TextEditingController(text: _labelOfValue());
   FocusNode? _owned;
@@ -566,9 +571,9 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     final tokens = PlassTheme.of(context);
     final hasError = widget.error != null;
     final isInvalid = widget.invalid ?? hasError;
-    final family = tokens.family(isInvalid ? PlassColor.danger : widget.color);
+    final family = tokens.family(isInvalid ? PlassColor.danger : _color);
 
-    final size = widget.size;
+    final size = _size;
     final scale = controlTextLeading[size]!;
     final meta = metaText[size]!;
     final radius = BorderRadius.circular(PlassTokens.radius[size]!);
@@ -630,7 +635,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     PlassTextScale scale,
     BorderRadius radius,
   ) {
-    final size = widget.size;
+    final size = _size;
 
     final surface = fieldSurface(
       tokens,
@@ -704,9 +709,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
             for (final value in widget.values)
               PlChip(
                 size: size,
-                color: family == tokens.family(PlassColor.danger)
-                    ? PlassColor.danger
-                    : widget.color,
+                color: family == tokens.family(PlassColor.danger) ? PlassColor.danger : _color,
                 density: PlassDensity.compact,
                 disabled: widget.disabled,
                 deleteLabel: widget.removeLabel(_labelOf(value)),
@@ -759,7 +762,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     // height becomes a minimum and the padding is what keeps a one-row combobox
     // exactly as tall as the field beside it.
     Widget shell = Padding(
-      padding: EdgeInsets.symmetric(horizontal: paddingX[widget.density]![size]!),
+      padding: EdgeInsets.symmetric(horizontal: paddingX[_density]![size]!),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
@@ -881,7 +884,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   }
 
   Widget _list(PlassTokens tokens, PlassColorFamily family, PlassTextScale scale) {
-    final size = widget.size;
+    final size = _size;
     final rows = _rows;
 
     return ConstrainedBox(

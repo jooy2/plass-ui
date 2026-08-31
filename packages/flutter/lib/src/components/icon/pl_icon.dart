@@ -28,7 +28,7 @@ import 'package:plass_ui/src/types.dart';
 /// family it is drawn in.
 class PlIcon extends StatelessWidget {
   /// Creates an icon.
-  const PlIcon({required this.icon, this.size = PlassSize.md, this.color, this.label, super.key});
+  const PlIcon({required this.icon, this.size, this.color, this.label, super.key});
 
   /// The glyph.
   ///
@@ -42,7 +42,7 @@ class PlIcon extends StatelessWidget {
   /// The box the glyph is drawn in: 14, 16, 20, 24 and 28px. Its own ladder
   /// rather than the control heights, because an icon is not a control — it is
   /// content, measured against the text beside it.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role, or `null` — the default — to take the colour of
   /// whatever the icon is sitting in.
@@ -65,6 +65,8 @@ class PlIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+
     final box = iconSize[size]!;
     final ink = color != null ? PlassTheme.of(context).family(color!).accent : null;
 

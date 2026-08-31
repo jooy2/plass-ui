@@ -82,9 +82,9 @@ class PlSidebar extends StatefulWidget {
     this.divider = true,
     this.padded = true,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.semanticLabel = 'Sidebar',
     this.closeLabel = 'Close sidebar',
@@ -173,14 +173,14 @@ class PlSidebar extends StatefulWidget {
   final PlassVariant variant;
 
   /// The panel's default width and the air around its content.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the focus ring on the handle and the
   /// rings inside, and nothing else.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Changes the padding and nothing else.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`. `0` and flat.
   final PlassElevation elevation;
@@ -203,6 +203,11 @@ class PlSidebar extends StatefulWidget {
 }
 
 class _PlSidebarState extends State<PlSidebar> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   /// The dragged width, held in a notifier rather than in `setState`.
   ///
   /// Nothing in the panel depends on the number except one `SizedBox`, and a
@@ -212,14 +217,30 @@ class _PlSidebarState extends State<PlSidebar> {
   late final ValueNotifier<double> _width = ValueNotifier<double>(_initialWidth);
 
   bool _ownOpen = false;
+  bool _sized = false;
 
-  double get _initialWidth => widget.width ?? _widths[widget.size]!;
+  double get _initialWidth => widget.width ?? _widths[_size]!;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // The first place with a context that is safe to resolve a theme default
+    // in. `_width` is `late final` and reads `_size` to initialise, so leaving
+    // it to be touched first by `dispose` — which is what happens to a sidebar
+    // nobody ever dragged — would mean an inherited lookup on a deactivated
+    // element. That is an error rather than a warning.
+    if (!_sized) {
+      _sized = true;
+      _width.value = _clamp(_initialWidth);
+    }
+  }
 
   @override
   void didUpdateWidget(PlSidebar oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (widget.width != oldWidget.width || widget.size != oldWidget.size) {
+    if (widget.width != oldWidget.width || _size != oldWidget.size) {
       _width.value = _clamp(_initialWidth);
     }
   }
@@ -282,9 +303,9 @@ class _PlSidebarState extends State<PlSidebar> {
         // article beside it and a panel sized against a phone are two different
         // numbers, and the drawer's own ladder already knows the second.
         extent: widget.width,
-        size: widget.size,
-        color: widget.color,
-        density: widget.density,
+        size: _size,
+        color: _color,
+        density: _density,
         child: widget.child,
       );
     }
@@ -292,8 +313,8 @@ class _PlSidebarState extends State<PlSidebar> {
     Widget panel = Padding(
       padding: widget.padded
           ? EdgeInsets.symmetric(
-              horizontal: sheetPaddingX[widget.density]![widget.size]!,
-              vertical: sheetPaddingY[widget.density]![widget.size]!,
+              horizontal: sheetPaddingX[_density]![_size]!,
+              vertical: sheetPaddingY[_density]![_size]!,
             )
           : EdgeInsets.zero,
       child: widget.child ?? const SizedBox.shrink(),
@@ -336,7 +357,7 @@ class _PlSidebarState extends State<PlSidebar> {
             end: side == PlassSidebarSide.start ? -_handleTrack / 2 : null,
             width: _handleTrack,
             child: _ResizeHandle(
-              family: tokens.family(widget.color),
+              family: tokens.family(_color),
               label: widget.resizeLabel,
               outwards: side == PlassSidebarSide.start ? 1 : -1,
               width: _width,

@@ -61,9 +61,9 @@ class PlSpoiler extends StatefulWidget {
     this.blur = 10,
     this.padded = true,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     super.key,
   }) : assert(
@@ -128,13 +128,13 @@ class PlSpoiler extends StatefulWidget {
   final PlassVariant variant;
 
   /// The sheet's radius, and the size of the button on it.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the button and the hairline.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Padding around the cover's own text and button.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`. `0` and flat.
   final PlassElevation elevation;
@@ -144,6 +144,11 @@ class PlSpoiler extends StatefulWidget {
 }
 
 class _PlSpoilerState extends State<PlSpoiler> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   late bool _uncontrolled = widget.revealed ?? false;
 
   bool get _open => widget.revealed ?? _uncontrolled;
@@ -159,9 +164,9 @@ class _PlSpoilerState extends State<PlSpoiler> {
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final radius = BorderRadius.circular(PlassTokens.radius[widget.size]!);
-    final insetX = sheetPaddingX[widget.density]![widget.size]!;
-    final insetY = sheetPaddingY[widget.density]![widget.size]!;
+    final radius = BorderRadius.circular(PlassTokens.radius[_size]!);
+    final insetX = sheetPaddingX[_density]![_size]!;
+    final insetY = sheetPaddingY[_density]![_size]!;
 
     Widget content = widget.child ?? const SizedBox.shrink();
 
@@ -222,9 +227,9 @@ class _PlSpoilerState extends State<PlSpoiler> {
                   alignment: AlignmentDirectional.centerEnd,
                   child: PlButton(
                     variant: PlassVariant.ghost,
-                    size: widget.size,
-                    color: widget.color,
-                    density: widget.density,
+                    size: _size,
+                    color: _color,
+                    density: _density,
                     onPressed: () => _change(false),
                     child: Text(widget.hideLabel),
                   ),
@@ -264,15 +269,15 @@ class _PlSpoilerState extends State<PlSpoiler> {
         children: <Widget>[
           if (widget.description != null)
             DefaultTextStyle.merge(
-              style: TextStyle(color: tokens.mutedFg, fontSize: metaText[widget.size]!),
+              style: TextStyle(color: tokens.mutedFg, fontSize: metaText[_size]!),
               textAlign: TextAlign.center,
               child: widget.description!,
             ),
           widget.action ??
               PlButton(
-                size: widget.size,
-                color: widget.color,
-                density: widget.density,
+                size: _size,
+                color: _color,
+                density: _density,
                 onPressed: () => _change(true),
                 child: Text(widget.label),
               ),

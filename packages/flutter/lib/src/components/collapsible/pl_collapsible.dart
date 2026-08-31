@@ -96,9 +96,9 @@ class PlCollapsible extends StatefulWidget {
     this.padded = true,
     this.keepMounted = false,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     super.key,
   }) : assert(
@@ -169,13 +169,13 @@ class PlCollapsible extends StatefulWidget {
   final PlassVariant variant;
 
   /// The radius, the padding and the header's type scale.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the open header's ink and the focus ring.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// How tightly the header and the body pack.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`. `0` — a fold is set into the screen rather
   /// than floating over it.
@@ -186,13 +186,23 @@ class PlCollapsible extends StatefulWidget {
 }
 
 class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProviderStateMixin {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   late final AnimationController _fold = AnimationController(
     vsync: this,
     duration: PlassTokens.durationSlow,
     value: widget.open ? 1 : 0,
   );
 
-  late final Animation<double> _size = CurvedAnimation(parent: _fold, curve: PlassTokens.ease);
+  /// The fold's own curve. Named for what it drives rather than `_size`, which
+  /// is the style axis two lines above it.
+  late final Animation<double> _foldFactor = CurvedAnimation(
+    parent: _fold,
+    curve: PlassTokens.ease,
+  );
 
   bool get _interactive => !widget.disabled && widget.onOpenChanged != null;
 
@@ -240,12 +250,12 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final family = tokens.family(widget.color);
+    final family = tokens.family(_color);
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
-    final radius = BorderRadius.circular(PlassTokens.radius[widget.size]!);
-    final padX = sheetPaddingX[widget.density]![widget.size]!;
-    final padY = sheetPaddingY[widget.density]![widget.size]!;
-    final body = sheetBody[widget.size]!;
+    final radius = BorderRadius.circular(PlassTokens.radius[_size]!);
+    final padX = sheetPaddingX[_density]![_size]!;
+    final padY = sheetPaddingY[_density]![_size]!;
+    final body = sheetBody[_size]!;
 
     final header = widget.triggerBuilder != null
         ? widget.triggerBuilder!(context, widget.open, _toggle)
@@ -269,9 +279,9 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
                 left: widget.padded ? padX : 0,
                 right: widget.padded ? padX : 0,
                 top: widget.padded && widget.triggerBuilder != null
-                    ? _panelPaddingTop[widget.density]![widget.size]!
+                    ? _panelPaddingTop[_density]![_size]!
                     : 0,
-                bottom: widget.padded ? _panelPaddingBottom[widget.density]![widget.size]! : 0,
+                bottom: widget.padded ? _panelPaddingBottom[_density]![_size]! : 0,
               ),
               child: widget.child!,
             ),
@@ -285,7 +295,7 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
       panel = ExcludeSemantics(child: ExcludeFocus(child: panel));
     }
 
-    panel = PlassFold(factor: _size, child: panel);
+    panel = PlassFold(factor: _foldFactor, child: panel);
 
     return PlassSurfaceBox(
       surface: sheetSurface(tokens, variant: widget.variant, elevation: widget.elevation),
@@ -325,7 +335,7 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
     required double padX,
     required double padY,
   }) {
-    final title = sheetTitle[widget.size]!;
+    final title = sheetTitle[_size]!;
 
     return PlassInteractive(
       onTap: _toggle,
@@ -346,7 +356,7 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
           decoration: BoxDecoration(color: lit && !widget.disabled ? family.soft : null),
           padding: EdgeInsets.symmetric(horizontal: padX, vertical: padY),
           child: Row(
-            spacing: gap[widget.size]!,
+            spacing: gap[_size]!,
             children: <Widget>[
               if (widget.startIcon != null)
                 IconTheme.merge(
@@ -357,7 +367,7 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
-                  spacing: sheetHeaderGap[widget.size]!,
+                  spacing: sheetHeaderGap[_size]!,
                   children: <Widget>[
                     if (widget.title != null)
                       DefaultTextStyle.merge(
@@ -375,7 +385,7 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
                       ),
                     if (widget.subtitle != null)
                       DefaultTextStyle.merge(
-                        style: TextStyle(color: tokens.mutedFg, fontSize: metaText[widget.size]!),
+                        style: TextStyle(color: tokens.mutedFg, fontSize: metaText[_size]!),
                         maxLines: 1,
                         softWrap: false,
                         overflow: TextOverflow.ellipsis,

@@ -87,8 +87,8 @@ class PlSlider extends StatefulWidget {
     this.min = 0,
     this.max = 100,
     this.step = 1,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
+    this.size,
+    this.color,
     this.elevation = 1,
     this.orientation = PlassOrientation.horizontal,
     this.length,
@@ -135,10 +135,10 @@ class PlSlider extends StatefulWidget {
   final double step;
 
   /// Groove thickness and thumb diameter together.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Drop shadow depth of the **thumb**.
   ///
@@ -182,6 +182,9 @@ class PlSlider extends StatefulWidget {
 }
 
 class _PlSliderState extends State<PlSlider> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+
   /// Which thumb the pointer or the keyboard is on, or `null` for none.
   int? _active;
   int? _hovered;
@@ -279,13 +282,13 @@ class _PlSliderState extends State<PlSlider> {
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final family = tokens.family(widget.color);
+    final family = tokens.family(_color);
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
-    final meta = metaText[widget.size]!;
+    final meta = metaText[_size]!;
 
-    final rail = _railThickness[widget.size]!;
-    final thumb = _thumbSize[widget.size]!;
-    final box = _boxThickness[widget.size]!;
+    final rail = _railThickness[_size]!;
+    final thumb = _thumbSize[_size]!;
+    final box = _boxThickness[_size]!;
 
     Widget strip = LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {

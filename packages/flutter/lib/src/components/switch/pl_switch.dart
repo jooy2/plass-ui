@@ -69,8 +69,8 @@ class PlSwitch extends StatelessWidget {
   const PlSwitch({
     required this.value,
     this.onChanged,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
+    this.size,
+    this.color,
     this.label,
     this.description,
     this.error,
@@ -97,10 +97,10 @@ class PlSwitch extends StatelessWidget {
   final ValueChanged<bool>? onChanged;
 
   /// The track's ladder — 24×14 to 52×28.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// The text beside the track. Pressing it flips the switch.
   final Widget? label;
@@ -142,6 +142,9 @@ class PlSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+
     final tokens = PlassTheme.of(context);
     final hasError = error != null;
     final isInvalid = invalid ?? hasError;

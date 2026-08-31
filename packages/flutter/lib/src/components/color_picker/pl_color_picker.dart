@@ -161,9 +161,9 @@ class PlColorPicker extends StatefulWidget {
     this.clearable = false,
     this.labels = const PlColorPickerLabels(),
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     super.key,
   });
@@ -221,14 +221,14 @@ class PlColorPicker extends StatefulWidget {
 
   /// The trigger's height, the panel's width, and the size of the square and
   /// the rails.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role — the family the control lights up in, not the colour
   /// it is holding.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Changes the padding and nothing else.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth on the trigger.
   final PlassElevation elevation;
@@ -238,6 +238,11 @@ class PlColorPicker extends StatefulWidget {
 }
 
 class _PlColorPickerState extends State<PlColorPicker> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   static const PlassHsv _fallback = PlassHsv(217, 87, 82);
 
   late PlassColorValue _model =
@@ -320,25 +325,25 @@ class _PlColorPickerState extends State<PlColorPicker> {
       withAlpha: widget.alpha,
       swatches: widget.swatches,
       editable: widget.editable,
-      size: widget.size,
-      color: widget.color,
+      size: _size,
+      color: _color,
       inert: _inert,
       labels: widget.labels,
     );
 
     if (widget.inline) {
-      final PlassColor family = invalid ? PlassColor.danger : widget.color;
+      final PlassColor family = invalid ? PlassColor.danger : _color;
 
       return Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: stackGap[widget.size]!,
+        spacing: stackGap[_size]!,
         children: <Widget>[
           if (widget.label != null)
             DefaultTextStyle.merge(
               style: TextStyle(
                 color: widget.disabled ? tokens.mutedFg : tokens.fg,
-                fontSize: metaText[widget.size]!,
+                fontSize: metaText[_size]!,
                 fontWeight: FontWeight.w600,
               ),
               child: widget.label!,
@@ -346,15 +351,12 @@ class _PlColorPickerState extends State<PlColorPicker> {
           panel,
           if (widget.description != null)
             DefaultTextStyle.merge(
-              style: TextStyle(color: tokens.mutedFg, fontSize: metaText[widget.size]!),
+              style: TextStyle(color: tokens.mutedFg, fontSize: metaText[_size]!),
               child: widget.description!,
             ),
           if (widget.error != null)
             DefaultTextStyle.merge(
-              style: TextStyle(
-                color: tokens.family(family).accent,
-                fontSize: metaText[widget.size]!,
-              ),
+              style: TextStyle(color: tokens.family(family).accent, fontSize: metaText[_size]!),
               child: widget.error!,
             ),
         ],
@@ -363,9 +365,9 @@ class _PlColorPickerState extends State<PlColorPicker> {
 
     return PlassPickerShell(
       variant: widget.variant,
-      size: widget.size,
-      color: widget.color,
-      density: widget.density,
+      size: _size,
+      color: _color,
+      density: _density,
       elevation: widget.elevation,
       label: widget.label,
       description: widget.description,
@@ -385,7 +387,7 @@ class _PlColorPickerState extends State<PlColorPicker> {
       onOpenChanged: (bool next) => setState(() => _open = next),
       startIcon: _Chip(
         tokens: tokens,
-        size: _thumbSize[widget.size]! + 4,
+        size: _thumbSize[_size]! + 4,
         color: _empty
             ? const Color(0x00000000)
             : hsvToColor(_model.hsv, widget.alpha ? _model.alpha : 1),

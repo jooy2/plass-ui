@@ -39,9 +39,9 @@ class PlBox extends StatelessWidget {
   const PlBox({
     this.child,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.padded = true,
     this.clipped = false,
@@ -59,14 +59,14 @@ class PlBox extends StatelessWidget {
 
   /// The size of the **sheet** — its radius and its padding. Never a height,
   /// never the type scale.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the hairline and the focus rings inside
   /// and nothing else.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Changes the padding and nothing else.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`.
   ///
@@ -91,6 +91,9 @@ class PlBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
     final tokens = PlassTheme.of(context);
     final radius = BorderRadius.circular(PlassTokens.radius[size]!);
 

@@ -60,9 +60,9 @@ class PlChip extends StatelessWidget {
     this.onDeleted,
     this.deleteLabel = 'Remove',
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.startIcon,
     this.endIcon,
@@ -95,13 +95,13 @@ class PlChip extends StatelessWidget {
   final PlassVariant variant;
 
   /// The chip's own step of the ladder — one below a control's. See [_chipScale].
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Changes horizontal padding and nothing else.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`.
   ///
@@ -139,6 +139,9 @@ class PlChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+
     final tokens = PlassTheme.of(context);
     final family = tokens.family(color);
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
@@ -204,6 +207,8 @@ class PlChip extends StatelessWidget {
     required PlassInteraction state,
     required bool padded,
   }) {
+    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
     var surface = controlSurface(
       tokens,
       family,
@@ -273,7 +278,7 @@ class PlChip extends StatelessWidget {
             ?startIcon,
             if (child != null) Flexible(child: child!),
             ?endIcon,
-            if (count != null) _countPlate(tokens, family, fontSize: fontSize),
+            if (count != null) _countPlate(context, tokens, family, fontSize: fontSize),
           ],
         ),
       ),
@@ -343,7 +348,12 @@ class PlChip extends StatelessWidget {
   ///
   /// On a filled chip it is light let through the fill; on a tinted or a bare
   /// one it is the accent showing under the words.
-  Widget _countPlate(PlassTokens tokens, PlassColorFamily family, {required double fontSize}) {
+  Widget _countPlate(
+    BuildContext context,
+    PlassTokens tokens,
+    PlassColorFamily family, {
+    required double fontSize,
+  }) {
     final filled = variant == PlassVariant.solid;
 
     return DecoratedBox(

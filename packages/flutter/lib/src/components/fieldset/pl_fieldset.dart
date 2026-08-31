@@ -41,7 +41,7 @@ class PlFieldset extends StatelessWidget {
     this.legend,
     this.description,
     this.disabled = false,
-    this.size = PlassSize.md,
+    this.size,
     super.key,
   });
 
@@ -63,10 +63,12 @@ class PlFieldset extends StatelessWidget {
   final bool disabled;
 
   /// The type scale of the legend and the gap between the controls.
-  final PlassSize size;
+  final PlassSize? size;
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+
     final PlassTokens tokens = PlassTheme.of(context);
     final bool hasLegend = legend != null || description != null;
 

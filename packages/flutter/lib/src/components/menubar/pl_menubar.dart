@@ -86,9 +86,9 @@ class PlMenubar extends StatefulWidget {
     required this.menus,
     this.orientation = PlassOrientation.horizontal,
     this.disabled = false,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.semanticLabel,
     super.key,
   });
@@ -103,15 +103,15 @@ class PlMenubar extends StatefulWidget {
   final bool disabled;
 
   /// The strip's height and type scale — a rung below the control ladder.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the hover, the open menu and the focus
   /// rings; the bar draws nothing.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// The padding beside each word. Even the default uses the compact track: a
   /// strip is not a row of buttons.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// The name a screen reader gives the bar.
   final String? semanticLabel;
@@ -121,6 +121,11 @@ class PlMenubar extends StatefulWidget {
 }
 
 class _PlMenubarState extends State<PlMenubar> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   @override
   Widget build(BuildContext context) {
     final bool vertical = widget.orientation == PlassOrientation.vertical;
@@ -133,10 +138,10 @@ class _PlMenubarState extends State<PlMenubar> {
         ? Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: gap[widget.size]!,
+            spacing: gap[_size]!,
             children: words,
           )
-        : Row(mainAxisSize: MainAxisSize.min, spacing: gap[widget.size]!, children: words);
+        : Row(mainAxisSize: MainAxisSize.min, spacing: gap[_size]!, children: words);
 
     return Semantics(
       role: SemanticsRole.menuBar,
@@ -152,9 +157,9 @@ class _PlMenubarState extends State<PlMenubar> {
 
     return PlMenu(
       items: menu.items,
-      size: widget.size,
-      color: widget.color,
-      density: widget.density,
+      size: _size,
+      color: _color,
+      density: _density,
       disabled: disabled,
       sideOffset: 4,
       label: menu.label,
@@ -162,9 +167,9 @@ class _PlMenubarState extends State<PlMenubar> {
         menu: menu,
         open: isOpen,
         disabled: disabled,
-        size: widget.size,
-        color: widget.color,
-        density: widget.density,
+        size: _size,
+        color: _color,
+        density: _density,
         onPressed: open,
       ),
     );

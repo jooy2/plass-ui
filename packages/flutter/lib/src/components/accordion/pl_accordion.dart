@@ -159,9 +159,9 @@ class PlAccordion<T> extends StatelessWidget {
     this.onChanged,
     this.multiple = false,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.dividers = true,
     this.disabled = false,
@@ -193,13 +193,13 @@ class PlAccordion<T> extends StatelessWidget {
   final PlassVariant variant;
 
   /// Type scale, radius and padding.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches an open header's wash and its title.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// How tightly the sections pack.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`.
   ///
@@ -219,6 +219,10 @@ class PlAccordion<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
     final tokens = PlassTheme.of(context);
     final family = tokens.family(color);
     final surface = sheetSurface(tokens, variant: variant, elevation: elevation);

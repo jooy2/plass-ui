@@ -142,9 +142,11 @@ class _PlToggleState extends State<PlToggle> {
     final PlassToggleGroupScope? set = PlassToggleGroupScope.maybeOf(context);
 
     final PlassVariant variant = widget.variant ?? group?.variant ?? PlassVariant.glass;
-    final PlassSize size = widget.size ?? group?.size ?? PlassSize.md;
-    final PlassColor color = widget.color ?? group?.color ?? PlassColor.primary;
-    final PlassDensity density = widget.density ?? group?.density ?? PlassDensity.standard;
+    final PlassSize size = widget.size ?? group?.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final PlassColor color =
+        widget.color ?? group?.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+    final PlassDensity density =
+        widget.density ?? group?.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
     final PlassElevation elevation = widget.elevation ?? group?.elevation ?? 0;
     final bool disabled = widget.disabled ?? group?.disabled ?? false;
 

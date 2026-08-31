@@ -4,6 +4,7 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// When a field decides whether it is valid.
@@ -91,7 +92,7 @@ class PlForm extends StatefulWidget {
     this.errors = const <String, String>{},
     this.onSubmit,
     this.validationMode = PlFormValidationMode.onSubmit,
-    this.size = PlassSize.md,
+    this.size,
     super.key,
   });
 
@@ -115,7 +116,7 @@ class PlForm extends StatefulWidget {
 
   /// The gap between the form's children. A form is a stack, and this is which
   /// rung of the ladder it stacks on.
-  final PlassSize size;
+  final PlassSize? size;
 
   @override
   State<PlForm> createState() => PlFormState();
@@ -123,6 +124,8 @@ class PlForm extends StatefulWidget {
 
 /// The state of a [PlForm], for a caller holding a `GlobalKey<PlFormState>`.
 class PlFormState extends State<PlForm> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
   /// Validates every [FormField] in the form and, if they all pass, calls
@@ -159,7 +162,7 @@ class PlFormState extends State<PlForm> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: sheetSectionGap[widget.size]!,
+          spacing: sheetSectionGap[_size]!,
           children: widget.children,
         ),
       ),

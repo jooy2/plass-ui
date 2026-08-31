@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/button/pl_button.dart';
 import 'package:plass_ui/src/components/modal/pl_modal.dart';
+import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// Which button holds the focus when the dialog opens.
@@ -121,8 +122,8 @@ class PlConfirmProvider extends StatefulWidget {
     this.cancelLabel = const Text('Cancel'),
     this.acknowledgeLabel = const Text('OK'),
     this.width,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
+    this.size,
+    this.color,
     super.key,
   });
 
@@ -142,10 +143,10 @@ class PlConfirmProvider extends StatefulWidget {
   final double? width;
 
   /// The default size of a question.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// The default family the confirming button takes.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// The controller for the nearest provider above [context].
   static PlConfirmController of(BuildContext context) {
@@ -184,6 +185,9 @@ class _Request {
 }
 
 class _PlConfirmProviderState extends State<PlConfirmProvider> implements PlConfirmController {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+
   final List<_Request> _queue = <_Request>[];
 
   _Request? _live;
@@ -261,8 +265,8 @@ class _PlConfirmProviderState extends State<PlConfirmProvider> implements PlConf
     final isAlert = _live?.alert ?? false;
     final focusConfirm =
         isAlert || (options?.initialFocus ?? PlConfirmFocus.cancel) == PlConfirmFocus.confirm;
-    final size = options?.size ?? widget.size;
-    final color = options?.color ?? widget.color;
+    final size = options?.size ?? _size;
+    final color = options?.color ?? _color;
 
     return _PlConfirmScope(
       controller: this,

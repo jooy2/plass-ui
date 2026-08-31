@@ -81,9 +81,9 @@ class PlSegmentedButton<T> extends StatefulWidget {
     required this.value,
     this.onChanged,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.fullWidth = false,
     this.readOnly = false,
@@ -118,13 +118,13 @@ class PlSegmentedButton<T> extends StatefulWidget {
   final PlassVariant variant;
 
   /// Height and type scale, shared by every segment.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Changes horizontal padding and nothing else.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth of the groove. `0` is the default — a groove is cut into
   /// the page, not laid on it.
@@ -153,6 +153,11 @@ class PlSegmentedButton<T> extends StatefulWidget {
 }
 
 class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   /// One key per segment, so the tile can be measured off the chosen one.
   ///
   /// A key per segment rather than a fraction of the width: the segments are as
@@ -270,10 +275,10 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>> {
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final family = tokens.family(widget.color);
+    final family = tokens.family(_color);
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
-    final height = controlHeight[widget.size]!;
+    final height = controlHeight[_size]!;
     final ghost = widget.variant == PlassVariant.ghost;
     final inset = ghost ? 0.0 : _troughInset;
 
@@ -308,8 +313,8 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>> {
           key: _keys[index],
           segment: widget.segments[index],
           chosen: index == chosen,
-          size: widget.size,
-          density: widget.density,
+          size: _size,
+          density: _density,
           variant: widget.variant,
           family: family,
           tokens: tokens,

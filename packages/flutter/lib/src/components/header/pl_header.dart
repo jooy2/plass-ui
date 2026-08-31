@@ -89,9 +89,9 @@ class PlHeader extends StatelessWidget {
     this.maxWidth,
     this.padded = true,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.semanticLabel,
     super.key,
@@ -144,13 +144,13 @@ class PlHeader extends StatelessWidget {
 
   /// The bar's height floor, its gutter and the air around its slots. As on
   /// [PlBox], `size` here is the size of the *sheet*.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the focus rings inside and nothing else.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Changes the gutter and nothing else.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`.
   ///
@@ -169,6 +169,9 @@ class PlHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
     final PlassTokens tokens = PlassTheme.of(context);
     final double slotGap = sheetSectionGap[size]!;
     final bool centred = align == PlassAlign.center;

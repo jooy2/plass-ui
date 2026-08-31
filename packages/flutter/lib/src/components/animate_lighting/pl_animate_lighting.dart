@@ -42,9 +42,9 @@ class PlAnimateLighting extends StatelessWidget {
   /// Creates a travelling light.
   const PlAnimateLighting({
     required this.child,
-    this.color = PlassColor.primary,
+    this.color,
     this.glow,
-    this.size = PlassSize.md,
+    this.size,
     this.spread = 3,
     this.arc = 50,
     this.blur = 5,
@@ -66,7 +66,7 @@ class PlAnimateLighting extends StatelessWidget {
   ///
   /// The arc turns between that family's two ends as it travels, exactly as a
   /// [PlassVariant.solid] fill does.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// A colour, when a semantic family is not what is wanted.
   ///
@@ -75,7 +75,7 @@ class PlAnimateLighting extends StatelessWidget {
   final Color? glow;
 
   /// The radius the light follows, on the shared ladder.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// How far past the content the light reaches, in logical pixels.
   final double spread;
@@ -131,6 +131,9 @@ class PlAnimateLighting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+
     final PlassTokens tokens = PlassTheme.of(context);
     final PlassColorFamily family = tokens.family(color);
     final Color start = glow ?? family.solid;

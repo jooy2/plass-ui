@@ -68,14 +68,14 @@ class PlCalendar extends StatefulWidget {
     this.maxDate,
     this.shouldDisableDate,
     this.weekStartsOn,
-    this.names = PlDateNames.english,
-    this.labels = PlPickerLabels.english,
+    this.names,
+    this.labels,
     this.showOutsideDays = true,
     this.autofocus = false,
     this.disabled = false,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
+    this.size,
+    this.color,
     this.elevation = 1,
     this.semanticLabel,
     super.key,
@@ -120,10 +120,10 @@ class PlCalendar extends StatefulWidget {
   /// This is what a `locale` string is in the React build: the framework ships
   /// no `Intl`, so English is the default and an app that already has
   /// `package:intl` builds a [PlDateNames] from it in three lines.
-  final PlDateNames names;
+  final PlDateNames? names;
 
   /// The words it says about itself — the steppers, the headings.
-  final PlPickerLabels labels;
+  final PlPickerLabels? labels;
 
   /// Draws the leading and trailing days belonging to the neighbouring months.
   final bool showOutsideDays;
@@ -146,10 +146,10 @@ class PlCalendar extends StatefulWidget {
 
   /// Cell, radius and type scale together. There is no `density` — padding on a
   /// grid of forty-two squares is what stops them being squares.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// The family the chosen day, the today marker and the focus ring take.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Drop shadow depth.
   final int elevation;
@@ -162,11 +162,20 @@ class PlCalendar extends StatefulWidget {
 }
 
 class _PlCalendarState extends State<PlCalendar> {
+  PlDateNames get _names =>
+      widget.names ?? PlassTheme.defaultsOf(context).names ?? PlDateNames.english;
+  PlPickerLabels get _labels =>
+      widget.labels ?? PlassTheme.defaultsOf(context).labels ?? PlPickerLabels.english;
+
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+
   late DateTime _ownMonth = startOfMonth(widget.value ?? widget.defaultMonth ?? todayDate());
 
   DateTime get _month => widget.month ?? _ownMonth;
 
-  PlassWeekday get _weekStart => widget.weekStartsOn ?? widget.names.firstDayOfWeek;
+  PlassWeekday get _weekStart =>
+      widget.weekStartsOn ?? PlassTheme.defaultsOf(context).weekStartsOn ?? _names.firstDayOfWeek;
 
   void _setMonth(DateTime next) {
     if (widget.month == null) {
@@ -193,7 +202,7 @@ class _PlCalendarState extends State<PlCalendar> {
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
-    final radius = BorderRadius.circular(PlassTokens.radius[widget.size]!);
+    final radius = BorderRadius.circular(PlassTokens.radius[_size]!);
     final inert = widget.disabled || widget.onChanged == null;
 
     Widget calendar = PlassCalendar(
@@ -201,12 +210,12 @@ class _PlCalendarState extends State<PlCalendar> {
       onMonthChanged: _setMonth,
       selected: <DateTime?>[widget.value],
       onSelect: _select,
-      names: widget.names,
-      labels: widget.labels,
+      names: _names,
+      labels: _labels,
       weekStartsOn: _weekStart,
       precision: _views[widget.precision]!,
-      size: widget.size,
-      color: widget.color,
+      size: _size,
+      color: _color,
       minDate: widget.minDate,
       maxDate: widget.maxDate,
       shouldDisableDate: widget.shouldDisableDate,
@@ -229,7 +238,7 @@ class _PlCalendarState extends State<PlCalendar> {
         surface: sheetSurface(tokens, variant: widget.variant, elevation: widget.elevation),
         borderRadius: radius,
         reduceMotion: reduceMotion,
-        child: Padding(padding: EdgeInsets.all(popupPadding[widget.size]!), child: calendar),
+        child: Padding(padding: EdgeInsets.all(popupPadding[_size]!), child: calendar),
       ),
     );
   }

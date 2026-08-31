@@ -117,9 +117,9 @@ class PlNumberField extends StatefulWidget {
     this.decrementLabel = 'Decrease',
     this.hotKeys,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.label,
     this.description,
@@ -222,14 +222,14 @@ class PlNumberField extends StatefulWidget {
   final PlassVariant variant;
 
   /// Height and type scale.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the edge, the ring, the caret and the
   /// steppers' hover.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Horizontal padding. Never the height.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`.
   ///
@@ -281,6 +281,11 @@ class PlNumberField extends StatefulWidget {
 }
 
 class _PlNumberFieldState extends State<PlNumberField> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   late final TextEditingController _controller;
   FocusNode? _owned;
   Timer? _repeat;
@@ -494,13 +499,13 @@ class _PlNumberFieldState extends State<PlNumberField> {
     final tokens = PlassTheme.of(context);
     final hasError = widget.error != null;
     final isInvalid = widget.invalid ?? hasError;
-    final family = tokens.family(isInvalid ? PlassColor.danger : widget.color);
+    final family = tokens.family(isInvalid ? PlassColor.danger : _color);
 
-    final size = widget.size;
+    final size = _size;
     final scale = controlTextLeading[size]!;
     final meta = metaText[size]!;
     final radius = BorderRadius.circular(PlassTokens.radius[size]!);
-    final padX = paddingX[widget.density]![size]!;
+    final padX = paddingX[_density]![size]!;
     final showSteppers = widget.steppers != PlNumberFieldSteppers.none && !widget.readOnly;
     final split = widget.steppers == PlNumberFieldSteppers.split;
 

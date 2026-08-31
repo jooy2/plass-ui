@@ -135,8 +135,8 @@ class PlTooltip extends StatefulWidget {
     this.onOpenChanged,
     this.disabled = false,
     this.semanticLabel,
-    this.size = PlassSize.sm,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.density,
     super.key,
   });
 
@@ -195,16 +195,20 @@ class PlTooltip extends StatefulWidget {
   /// delete button would be saying something the tooltip does not know. In the
   /// React build the family reached the slots the content read; here content
   /// arrives with its own colours.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// How tightly the plate packs its text.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   @override
   State<PlTooltip> createState() => _PlTooltipState();
 }
 
 class _PlTooltipState extends State<PlTooltip> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.sm;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   bool _open = false;
   PlassSide _side = PlassSide.top;
   Timer? _timer;
@@ -323,7 +327,7 @@ class _PlTooltipState extends State<PlTooltip> {
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final size = widget.size;
+    final size = _size;
     final radius = PlassTokens.radius[size]!;
     final arrow = _arrowSize[size]!;
 
@@ -341,7 +345,7 @@ class _PlTooltipState extends State<PlTooltip> {
         borderRadius: BorderRadius.circular(radius),
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: paddingX[widget.density]![size]!,
+            horizontal: paddingX[_density]![size]!,
             vertical: _paddingY[size]!,
           ),
           child: DefaultTextStyle.merge(

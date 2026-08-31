@@ -70,8 +70,8 @@ class PlRadioGroup<T> extends StatefulWidget {
     required this.options,
     required this.value,
     this.onChanged,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
+    this.size,
+    this.color,
     this.orientation = PlassOrientation.vertical,
     this.label,
     this.description,
@@ -97,10 +97,10 @@ class PlRadioGroup<T> extends StatefulWidget {
   final ValueChanged<T>? onChanged;
 
   /// The tick ladder's step, shared by every option.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role, shared by every option.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Which way the options stack.
   ///
@@ -140,6 +140,9 @@ class PlRadioGroup<T> extends StatefulWidget {
 }
 
 class _PlRadioGroupState<T> extends State<PlRadioGroup<T>> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+
   bool get _disabled => widget.disabled || widget.onChanged == null;
 
   bool get _interactive => !_disabled && !widget.readOnly;
@@ -213,15 +216,15 @@ class _PlRadioGroupState<T> extends State<PlRadioGroup<T>> {
     final isInvalid = widget.invalid ?? hasError;
     // Invalid re-points the whole family at `danger`, so every dot, the ring and
     // the message all turn over together.
-    final family = tokens.family(isInvalid ? PlassColor.danger : widget.color);
-    final meta = metaText[widget.size]!;
+    final family = tokens.family(isInvalid ? PlassColor.danger : _color);
+    final meta = metaText[_size]!;
 
     final options = <Widget>[
       for (var index = 0; index < widget.options.length; index += 1)
         _Radio<T>(
           option: widget.options[index],
           selected: widget.options[index].value == widget.value,
-          size: widget.size,
+          size: _size,
           family: family,
           tokens: tokens,
           disabled: _disabled || widget.options[index].disabled,

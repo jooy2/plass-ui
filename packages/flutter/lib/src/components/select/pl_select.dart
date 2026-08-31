@@ -105,9 +105,9 @@ class PlSelect<T> extends StatefulWidget {
     this.placeholder,
     this.hotKeys,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.label,
     this.description,
@@ -151,13 +151,13 @@ class PlSelect<T> extends StatefulWidget {
   final PlassVariant variant;
 
   /// Height and type scale.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the edge, the ring and the chosen row.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Horizontal padding. Never the height.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth of the **trigger**.
   ///
@@ -204,6 +204,11 @@ class PlSelect<T> extends StatefulWidget {
 }
 
 class _PlSelectState<T> extends State<PlSelect<T>> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   final ScrollController _scroll = ScrollController();
   FocusNode? _owned;
   bool _open = false;
@@ -310,9 +315,9 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
     final tokens = PlassTheme.of(context);
     final hasError = widget.error != null;
     final isInvalid = widget.invalid ?? hasError;
-    final family = tokens.family(isInvalid ? PlassColor.danger : widget.color);
+    final family = tokens.family(isInvalid ? PlassColor.danger : _color);
 
-    final size = widget.size;
+    final size = _size;
     final scale = controlTextLeading[size]!;
     final meta = metaText[size]!;
     final radius = BorderRadius.circular(PlassTokens.radius[size]!);
@@ -362,7 +367,7 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
             surface: surface,
             borderRadius: radius,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: paddingX[widget.density]![size]!),
+              padding: EdgeInsets.symmetric(horizontal: paddingX[_density]![size]!),
               child: Row(
                 mainAxisSize: widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
                 spacing: gap[size]!,
@@ -559,7 +564,7 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
   }
 
   Widget _list(PlassTokens tokens, PlassColorFamily family, PlassTextScale scale) {
-    final size = widget.size;
+    final size = _size;
     final radius = PlassTokens.radius[size]!;
     final chosen = _chosen;
 

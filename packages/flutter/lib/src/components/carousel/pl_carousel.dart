@@ -77,9 +77,9 @@ class PlCarousel extends StatefulWidget {
     this.indicators = true,
     this.aspectRatio,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.label = 'Carousel',
     this.previousLabel = 'Previous slide',
@@ -139,13 +139,13 @@ class PlCarousel extends StatefulWidget {
   final PlassVariant variant;
 
   /// The frame's radius, and the size of the arrows and the dots.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the arrows and the current dot.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// How tightly the arrows pack.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth of the frame, `0`–`3`.
   final PlassElevation elevation;
@@ -169,6 +169,9 @@ class PlCarousel extends StatefulWidget {
 }
 
 class _PlCarouselState extends State<PlCarousel> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+
   late final PageController _pages = PageController(initialPage: _index);
   Timer? _timer;
 
@@ -257,9 +260,9 @@ class _PlCarouselState extends State<PlCarousel> {
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final family = tokens.family(widget.color);
-    final radius = BorderRadius.circular(PlassTokens.radius[widget.size]!);
-    final dot = _dot[widget.size]!;
+    final family = tokens.family(_color);
+    final radius = BorderRadius.circular(PlassTokens.radius[_size]!);
+    final dot = _dot[_size]!;
 
     Widget strip = PageView.builder(
       controller: _pages,
@@ -289,14 +292,14 @@ class _PlCarouselState extends State<PlCarousel> {
           frame,
           Positioned.directional(
             textDirection: Directionality.of(context),
-            start: _arrowInset[widget.size]!,
+            start: _arrowInset[_size]!,
             top: 0,
             bottom: 0,
             child: Align(child: _arrow(context, forward: false)),
           ),
           Positioned.directional(
             textDirection: Directionality.of(context),
-            end: _arrowInset[widget.size]!,
+            end: _arrowInset[_size]!,
             top: 0,
             bottom: 0,
             child: Align(child: _arrow(context, forward: true)),
@@ -360,8 +363,8 @@ class _PlCarouselState extends State<PlCarousel> {
       ),
       label: forward ? widget.nextLabel : widget.previousLabel,
       variant: PlassVariant.glass,
-      size: widget.size,
-      color: widget.color,
+      size: _size,
+      color: _color,
       elevation: 1,
       disabled: widget.onChanged == null || (!widget.loop && atEnd),
       onPressed: () => _go(forward ? _index + 1 : _index - 1),

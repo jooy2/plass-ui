@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/button/pl_button.dart';
 import 'package:plass_ui/src/components/popover/pl_popover.dart';
+import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// A question asked where it was raised, rather than in the middle of the
@@ -52,8 +53,8 @@ class PlPopconfirm extends StatefulWidget {
     this.cancelLabel = const Text('Cancel'),
     this.onConfirm,
     this.onCancel,
-    this.color = PlassColor.danger,
-    this.size = PlassSize.md,
+    this.color,
+    this.size,
     this.side = PlassSide.top,
     this.align = PlassAlign.center,
     this.width = 280,
@@ -96,10 +97,10 @@ class PlPopconfirm extends StatefulWidget {
   final VoidCallback? onCancel;
 
   /// The family the confirming button takes.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// The size of the popup and its two buttons.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Which edge of the trigger it opens against.
   final PlassSide side;
@@ -115,6 +116,9 @@ class PlPopconfirm extends StatefulWidget {
 }
 
 class _PlPopconfirmState extends State<PlPopconfirm> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.danger;
+
   bool _running = false;
 
   Future<void> _confirm() async {
@@ -167,8 +171,8 @@ class _PlPopconfirmState extends State<PlPopconfirm> {
       side: widget.side,
       align: widget.align,
       width: widget.width,
-      color: widget.color,
-      size: widget.size,
+      color: _color,
+      size: _size,
       child: Padding(
         padding: const EdgeInsets.only(top: 12),
         // A `Wrap` rather than a `Row`: two buttons whose labels have been
@@ -183,7 +187,7 @@ class _PlPopconfirmState extends State<PlPopconfirm> {
             PlButton(
               variant: PlassVariant.ghost,
               color: PlassColor.secondary,
-              size: widget.size,
+              size: _size,
               density: PlassDensity.compact,
               disabled: _running,
               onPressed: () {
@@ -193,8 +197,8 @@ class _PlPopconfirmState extends State<PlPopconfirm> {
               child: widget.cancelLabel,
             ),
             PlButton(
-              color: widget.color,
-              size: widget.size,
+              color: _color,
+              size: _size,
               density: PlassDensity.compact,
               loading: _running,
               // The focus lands here rather than on Cancel, which is the other

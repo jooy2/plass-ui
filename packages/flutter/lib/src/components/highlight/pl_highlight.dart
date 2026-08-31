@@ -46,7 +46,7 @@ class PlHighlight extends StatelessWidget {
     this.text, {
     required this.query,
     this.variant = PlassVariant.solid,
-    this.color = PlassColor.warning,
+    this.color,
     this.caseSensitive = false,
     this.wholeWord = false,
     this.underline = false,
@@ -97,7 +97,7 @@ class PlHighlight extends StatelessWidget {
   /// whose gradient is light with dark ink on it, so a `solid` `warning` mark is
   /// a yellow highlighter over black text rather than a white word on a block of
   /// colour.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Whether `a` and `A` are different letters.
   final bool caseSensitive;
@@ -138,6 +138,8 @@ class PlHighlight extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.warning;
+
     final tokens = PlassTheme.of(context);
     final family = tokens.family(color);
     final base = DefaultTextStyle.of(context).style.merge(style);

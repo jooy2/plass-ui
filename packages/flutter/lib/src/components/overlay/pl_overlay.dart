@@ -84,7 +84,7 @@ class PlOverlay extends StatelessWidget {
     this.dismissible = false,
     this.modal = true,
     this.align = PlassAlign.center,
-    this.size = PlassSize.md,
+    this.size,
     this.label = 'Overlay',
     super.key,
   });
@@ -120,7 +120,7 @@ class PlOverlay extends StatelessWidget {
   final PlassAlign align;
 
   /// The padding between the content and the edge of the screen.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// The name a screen reader gives the overlay. Never drawn.
   ///
@@ -131,6 +131,8 @@ class PlOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+
     final tokens = PlassTheme.of(context);
 
     return PlassPortal(

@@ -102,8 +102,8 @@ class PlSkeleton extends StatelessWidget {
   const PlSkeleton({
     this.shape = PlSkeletonShape.line,
     this.lines = 1,
-    this.size = PlassSize.md,
-    this.color = PlassColor.secondary,
+    this.size,
+    this.color,
     this.width,
     this.height,
     this.animated = true,
@@ -123,14 +123,14 @@ class PlSkeleton extends StatelessWidget {
 
   /// The scale of the thing being stood in for: the type scale for a line, the
   /// diameter for a circle, the default block height for a rect.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Colour family.
   ///
   /// [PlassColor.secondary] by default, and it is worth leaving there: a
   /// placeholder that carries a semantic colour is saying something about
   /// content that has not arrived yet.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// An explicit width.
   final double? width;
@@ -156,6 +156,9 @@ class PlSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.secondary;
+
     final tokens = PlassTheme.of(context);
     final family = tokens.family(color);
     final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
@@ -176,16 +179,16 @@ class PlSkeleton extends StatelessWidget {
                   alignment: AlignmentDirectional.centerStart,
                   // The last line of a paragraph does not reach the margin.
                   widthFactor: index == lines - 1 ? _lastLineFraction : 1,
-                  child: _bar(family, still: still),
+                  child: _bar(context, family, still: still),
                 ),
             ],
           )
-        : _bar(family, still: still);
+        : _bar(context, family, still: still);
 
     if (width != null || height != null || shape != PlSkeletonShape.line) {
       placeholder = SizedBox(
         width: width ?? (shape == PlSkeletonShape.circle ? controlHeight[size]! : null),
-        height: height ?? _defaultHeight,
+        height: height ?? _defaultHeight(size),
         child: placeholder,
       );
     }
@@ -195,7 +198,9 @@ class PlSkeleton extends StatelessWidget {
         : ExcludeSemantics(child: placeholder);
   }
 
-  double? get _defaultHeight {
+  /// Takes the **resolved** size rather than reading the field, which is null
+  /// whenever the caller left it to the theme.
+  double? _defaultHeight(PlassSize size) {
     switch (shape) {
       case PlSkeletonShape.circle:
         return controlHeight[size]!;
@@ -207,7 +212,9 @@ class PlSkeleton extends StatelessWidget {
   }
 
   /// One filled shape, with the highlight travelling across it.
-  Widget _bar(PlassColorFamily family, {required bool still}) {
+  Widget _bar(BuildContext context, PlassColorFamily family, {required bool still}) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+
     final radius = shape == PlSkeletonShape.circle
         ? BorderRadius.circular(controlHeight[size]!)
         : shape == PlSkeletonShape.rect

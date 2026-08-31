@@ -313,9 +313,9 @@ class PlMenu extends StatefulWidget {
   const PlMenu({
     required this.items,
     required this.trigger,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.side = PlassSide.bottom,
     this.align = PlassAlign.start,
     this.sideOffset = _standoff,
@@ -337,13 +337,13 @@ class PlMenu extends StatefulWidget {
   final Widget Function(BuildContext context, VoidCallback open, bool isOpen) trigger;
 
   /// The popup's radius, type scale and row padding.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. A row can override it.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Changes a row's padding and nothing else.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Which edge of the trigger the menu hangs off.
   final PlassSide side;
@@ -371,6 +371,11 @@ class PlMenu extends StatefulWidget {
 }
 
 class _PlMenuState extends State<PlMenu> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   final FocusNode _focusNode = FocusNode(debugLabel: 'PlMenu');
 
   bool _open = false;
@@ -693,7 +698,7 @@ class _PlMenuState extends State<PlMenu> {
             insets: <PlassInsetShadow>[tokens.glossGlass],
             shadows: tokens.elevation(plassElevationMax),
           ),
-          borderRadius: BorderRadius.circular(PlassTokens.radius[widget.size]!),
+          borderRadius: BorderRadius.circular(PlassTokens.radius[_size]!),
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(_popupInset),
             child: Column(
@@ -740,12 +745,12 @@ class _PlMenuState extends State<PlMenu> {
 
   Widget _heading(PlassTokens tokens, String label) {
     return Padding(
-      padding: _rowPadding[widget.density]![widget.size]!,
+      padding: _rowPadding[_density]![_size]!,
       child: Text(
         label.toUpperCase(),
         style: TextStyle(
           color: tokens.mutedFg,
-          fontSize: metaText[widget.size]!,
+          fontSize: metaText[_size]!,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.6,
         ),
@@ -770,12 +775,12 @@ class _PlMenuState extends State<PlMenu> {
     required int level,
     required bool deepest,
   }) {
-    final PlassColorFamily family = tokens.family(_colorOf(entry) ?? widget.color);
+    final PlassColorFamily family = tokens.family(_colorOf(entry) ?? _color);
     final bool accented = _colorOf(entry) != null;
     final bool available = _pickable(entry);
     final bool lit = deepest && _highlighted == index;
     final bool opened = !deepest && _path.length > level && _path[level] == index;
-    final PlassTextScale scale = controlTextLeading[widget.size]!;
+    final PlassTextScale scale = controlTextLeading[_size]!;
 
     final Widget row = MouseRegion(
       cursor: available ? SystemMouseCursors.click : SystemMouseCursors.basic,
@@ -790,12 +795,12 @@ class _PlMenuState extends State<PlMenu> {
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: lit || opened ? family.softHover : null,
-            borderRadius: BorderRadius.circular(PlassTokens.radius[_rowRadiusStep[widget.size]!]!),
+            borderRadius: BorderRadius.circular(PlassTokens.radius[_rowRadiusStep[_size]!]!),
           ),
           child: Opacity(
             opacity: available ? 1 : disabledOpacity,
             child: Padding(
-              padding: _rowPadding[widget.density]![widget.size]!,
+              padding: _rowPadding[_density]![_size]!,
               child: _rowBody(
                 tokens,
                 entry,
@@ -885,7 +890,7 @@ class _PlMenuState extends State<PlMenu> {
     final bool marked = entry is PlMenuCheckboxItem || entry is PlMenuRadioItem;
 
     return Row(
-      spacing: gap[widget.size]!,
+      spacing: gap[_size]!,
       children: <Widget>[
         if (mark != null || marked) slot(mark, marked ? family.accent : tokens.mutedFg),
         Expanded(
@@ -897,7 +902,7 @@ class _PlMenuState extends State<PlMenu> {
             _shortcutOf(entry)!,
             style: TextStyle(
               color: tokens.mutedFg,
-              fontSize: metaText[widget.size]!,
+              fontSize: metaText[_size]!,
               fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
             ),
           ),
@@ -935,7 +940,7 @@ class _PlMenuState extends State<PlMenu> {
           description,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(color: tokens.mutedFg, fontSize: metaText[widget.size]!),
+          style: TextStyle(color: tokens.mutedFg, fontSize: metaText[_size]!),
         ),
       ],
     );

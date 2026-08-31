@@ -48,9 +48,9 @@ class PlToolbar extends StatelessWidget {
     this.side = PlassSide.top,
     this.rounded = true,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.semanticLabel,
     super.key,
@@ -98,13 +98,13 @@ class PlToolbar extends StatelessWidget {
   final PlassVariant variant;
 
   /// The bar's padding and radius. The height is whatever the controls need.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the focus rings inside and nothing else.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Changes the padding and nothing else.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`.
   ///
@@ -119,6 +119,9 @@ class PlToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
     final tokens = PlassTheme.of(context);
     final radius = PlassTokens.radius[size]!;
 

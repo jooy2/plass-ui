@@ -38,8 +38,8 @@ class PlProgressBox extends StatefulWidget {
     this.label,
     this.showValue = false,
     this.formatValue,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
+    this.size,
+    this.color,
     super.key,
   });
 
@@ -74,16 +74,19 @@ class PlProgressBox extends StatefulWidget {
   final String Function(double value)? formatValue;
 
   /// Size of one plate.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It becomes the gradient a lit plate is filled with.
-  final PlassColor color;
+  final PlassColor? color;
 
   @override
   State<PlProgressBox> createState() => _PlProgressBoxState();
 }
 
 class _PlProgressBoxState extends State<PlProgressBox> with SingleTickerProviderStateMixin {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+
   late final AnimationController _wave = AnimationController(vsync: this, duration: waveDuration);
 
   double? get _fraction => progressFraction(widget.value, widget.min, widget.max);
@@ -134,14 +137,14 @@ class _PlProgressBoxState extends State<PlProgressBox> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final family = tokens.family(widget.color);
+    final family = tokens.family(_color);
     final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     final fraction = _fraction;
     final plates = _plates;
-    final side = plateSize[widget.size]!;
-    final radius = BorderRadius.circular(plateRadius[widget.size]!);
-    final meta = metaText[widget.size]!;
+    final side = plateSize[_size]!;
+    final radius = BorderRadius.circular(plateRadius[_size]!);
+    final meta = metaText[_size]!;
 
     final text = fraction == null
         ? null
@@ -151,7 +154,7 @@ class _PlProgressBoxState extends State<PlProgressBox> with SingleTickerProvider
 
     final row = Row(
       mainAxisSize: MainAxisSize.min,
-      spacing: plateGap[widget.size]!,
+      spacing: plateGap[_size]!,
       children: <Widget>[
         for (var index = 0; index < plates; index += 1)
           _Plate(
@@ -172,7 +175,7 @@ class _PlProgressBoxState extends State<PlProgressBox> with SingleTickerProvider
 
     final head = widget.label != null || (widget.showValue && text != null)
         ? Padding(
-            padding: EdgeInsets.only(bottom: stackGap[widget.size]!),
+            padding: EdgeInsets.only(bottom: stackGap[_size]!),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,

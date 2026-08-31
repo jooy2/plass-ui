@@ -203,9 +203,9 @@ class PlKbd extends StatelessWidget {
   const PlKbd({
     required this.child,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.secondary,
-    this.density = PlassDensity.compact,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.semanticLabel,
     super.key,
@@ -221,13 +221,13 @@ class PlKbd extends StatelessWidget {
   final PlassVariant variant;
 
   /// The cap's own step of the ladder — one below a control's.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// How tightly the cap packs its label.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`.
   ///
@@ -242,6 +242,10 @@ class PlKbd extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.secondary;
+    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.compact;
+
     final tokens = PlassTheme.of(context);
     final family = tokens.family(color);
     final step = _keyScale[size]!;
@@ -351,9 +355,9 @@ class PlHotKeys extends StatelessWidget {
     this.os = PlHotKeysOS.auto,
     this.separator,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.secondary,
-    this.density = PlassDensity.compact,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     super.key,
   }) : assert(
@@ -393,13 +397,13 @@ class PlHotKeys extends StatelessWidget {
   final PlassVariant variant;
 
   /// The cap ladder's step.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// How tightly a cap packs its label.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`. See [PlKbd.elevation].
   final PlassElevation elevation;
@@ -464,6 +468,10 @@ class PlHotKeys extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.secondary;
+    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.compact;
+
     final resolved = os == PlHotKeysOS.auto ? platform : os;
     final spacing = size == PlassSize.xs || size == PlassSize.sm ? 4.0 : 6.0;
 

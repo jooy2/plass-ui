@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
@@ -54,7 +55,7 @@ class PlAspectRatio extends StatelessWidget {
     this.ratio = 1,
     this.fit,
     this.rounded = false,
-    this.size = PlassSize.md,
+    this.size,
     super.key,
   }) : assert(ratio > 0, 'ratio must be greater than zero');
 
@@ -86,10 +87,12 @@ class PlAspectRatio extends StatelessWidget {
   final bool rounded;
 
   /// Which step of the radius ladder [rounded] cuts to.
-  final PlassSize size;
+  final PlassSize? size;
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+
     Widget? held = child;
 
     if (held != null && fit != null) {

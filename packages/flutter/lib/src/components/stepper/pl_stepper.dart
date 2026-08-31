@@ -147,9 +147,9 @@ class PlStepper extends StatelessWidget {
     this.onActiveChanged,
     this.linear = true,
     this.orientation = PlassOrientation.horizontal,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     super.key,
   });
 
@@ -176,13 +176,13 @@ class PlStepper extends StatelessWidget {
   final PlassOrientation orientation;
 
   /// Bullet and type scale.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// The family the rail takes.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// The space between steps, and nothing else.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   bool _reachable(int index) {
     if (steps[index].disabled || onActiveChanged == null) {
@@ -196,6 +196,10 @@ class PlStepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
     final tokens = PlassTheme.of(context);
     final horizontal = orientation == PlassOrientation.horizontal;
 

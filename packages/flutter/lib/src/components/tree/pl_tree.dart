@@ -127,9 +127,9 @@ class PlTree extends StatefulWidget {
     this.onSelectedChanged,
     this.selection = PlTreeSelection.single,
     this.onItemPressed,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.semanticLabel,
     super.key,
   });
@@ -156,13 +156,13 @@ class PlTree extends StatefulWidget {
   final ValueChanged<PlTreeNode>? onItemPressed;
 
   /// Row height, indent and type scale.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// The family a selected row takes.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// A row's vertical padding, and nothing else.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// The name a screen reader gives the whole tree.
   final String? semanticLabel;
@@ -172,6 +172,11 @@ class PlTree extends StatefulWidget {
 }
 
 class _PlTreeState extends State<PlTree> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   /// One node per row that can hold the focus, kept across rebuilds so the tree
   /// hands `Tab` back to the row it was left on.
   final Map<String, FocusNode> _nodes = <String, FocusNode>{};
@@ -323,7 +328,7 @@ class _PlTreeState extends State<PlTree> {
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final family = tokens.family(widget.color);
+    final family = tokens.family(_color);
     final rows = _visible(widget.items);
     final reachable = rows.where((_Row row) => !row.node.disabled).toList(growable: false);
 
@@ -346,8 +351,8 @@ class _PlTreeState extends State<PlTree> {
               row: row,
               tokens: tokens,
               family: family,
-              size: widget.size,
-              density: widget.density,
+              size: _size,
+              density: _density,
               expanded: row.node.children != null && widget.expanded.contains(row.node.id),
               selected: widget.selected.contains(row.node.id),
               selectable: widget.selection != PlTreeSelection.none,

@@ -128,9 +128,9 @@ class PlOtpField extends StatefulWidget {
     this.onRejected,
     this.hotKeys,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.length = 6,
     this.charset = PlOtpCharset.numeric,
@@ -183,14 +183,14 @@ class PlOtpField extends StatefulWidget {
 
   /// The slot's box and the type inside it — the slot's own ladder rather than
   /// the control one.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the hairline, the ring and the caret; the
   /// glass is never dyed.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Changes the gap between slots and nothing else.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`. `0` is the default — a slot is a well.
   final PlassElevation elevation;
@@ -246,6 +246,11 @@ class PlOtpField extends StatefulWidget {
 }
 
 class _PlOtpFieldState extends State<PlOtpField> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   TextEditingController? _fallback;
   FocusNode? _ownedFocus;
   bool _focused = false;
@@ -335,12 +340,12 @@ class _PlOtpFieldState extends State<PlOtpField> {
     // Invalid re-points the whole slot family at `danger`, exactly as on a text
     // field, so the edge, the ring, the caret and the message all turn over
     // together and no state needs tokens of its own.
-    final PlassColorFamily family = tokens.family(isInvalid ? PlassColor.danger : widget.color);
+    final PlassColorFamily family = tokens.family(isInvalid ? PlassColor.danger : _color);
 
-    final Size box = _slotSize[widget.size]!;
-    final double radius = _slotRadius[widget.size]!;
-    final double type = _slotText[widget.size]!;
-    final double meta = metaText[widget.size]!;
+    final Size box = _slotSize[_size]!;
+    final double radius = _slotRadius[_size]!;
+    final double type = _slotText[_size]!;
+    final double meta = metaText[_size]!;
     final String text = _controller.text;
     final int caret = text.characters.length.clamp(0, _slots - 1);
     final int? every = widget.groupSize != null && widget.groupSize! > 0 ? widget.groupSize : null;
@@ -416,11 +421,7 @@ class _PlOtpFieldState extends State<PlOtpField> {
 
     Widget slots = Stack(
       children: <Widget>[
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: _slotGap[widget.density]![widget.size]!,
-          children: row,
-        ),
+        Row(mainAxisSize: MainAxisSize.min, spacing: _slotGap[_density]![_size]!, children: row),
         Positioned.fill(
           child: plassHotKeyScope(hotKeys: widget.hotKeys, child: editor),
         ),
@@ -449,7 +450,7 @@ class _PlOtpFieldState extends State<PlOtpField> {
     final Column stack = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
-      spacing: stackGap[widget.size]!,
+      spacing: stackGap[_size]!,
       children: <Widget>[
         if (widget.label != null)
           DefaultTextStyle.merge(

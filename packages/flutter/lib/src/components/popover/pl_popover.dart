@@ -87,9 +87,9 @@ class PlPopover extends StatefulWidget {
     this.showClose = false,
     this.closeLabel = 'Close',
     this.width,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     super.key,
   });
 
@@ -152,19 +152,24 @@ class PlPopover extends StatefulWidget {
   final double? width;
 
   /// The radius, the padding and how wide the popup is allowed to get.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the focus rings inside and nothing else.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// The popup's inner padding.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   @override
   State<PlPopover> createState() => _PlPopoverState();
 }
 
 class _PlPopoverState extends State<PlPopover> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   /// The side the popup actually ended up on, once a flip has been resolved.
   late PlassSide _side = widget.side;
 
@@ -180,11 +185,11 @@ class _PlPopoverState extends State<PlPopover> {
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final family = tokens.family(widget.color);
-    final insetX = sheetPaddingX[widget.density]![widget.size]!;
-    final insetY = sheetPaddingY[widget.density]![widget.size]!;
-    final body = sheetBody[widget.size]!;
-    final radius = BorderRadius.circular(PlassTokens.radius[widget.size]!);
+    final family = tokens.family(_color);
+    final insetX = sheetPaddingX[_density]![_size]!;
+    final insetY = sheetPaddingY[_density]![_size]!;
+    final body = sheetBody[_size]!;
+    final radius = BorderRadius.circular(PlassTokens.radius[_size]!);
     final hasHeader = widget.title != null || widget.description != null;
 
     void close() => widget.onOpenChanged?.call(false);
@@ -202,7 +207,7 @@ class _PlPopoverState extends State<PlPopover> {
     );
 
     Widget popup = ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: widget.width ?? _maxWidth[widget.size]!),
+      constraints: BoxConstraints(maxWidth: widget.width ?? _maxWidth[_size]!),
       child: PlassSurfaceBox(
         surface: surface,
         borderRadius: radius,
@@ -219,7 +224,7 @@ class _PlPopoverState extends State<PlPopover> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
-              spacing: sheetSectionGap[widget.size]!,
+              spacing: sheetSectionGap[_size]!,
               children: <Widget>[
                 if (hasHeader || widget.showClose)
                   Row(
@@ -230,14 +235,14 @@ class _PlPopoverState extends State<PlPopover> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
-                          spacing: sheetHeaderGap[widget.size]!,
+                          spacing: sheetHeaderGap[_size]!,
                           children: <Widget>[
                             if (widget.title != null)
                               DefaultTextStyle.merge(
                                 style: TextStyle(
                                   color: tokens.fg,
-                                  fontSize: sheetTitle[widget.size]!.size,
-                                  height: sheetTitle[widget.size]!.height,
+                                  fontSize: sheetTitle[_size]!.size,
+                                  height: sheetTitle[_size]!.height,
                                   fontWeight: FontWeight.w600,
                                   leadingDistribution: TextLeadingDistribution.even,
                                 ),
@@ -248,10 +253,7 @@ class _PlPopoverState extends State<PlPopover> {
                               ),
                             if (widget.description != null)
                               DefaultTextStyle.merge(
-                                style: TextStyle(
-                                  color: tokens.mutedFg,
-                                  fontSize: metaText[widget.size]!,
-                                ),
+                                style: TextStyle(color: tokens.mutedFg, fontSize: metaText[_size]!),
                                 child: widget.description!,
                               ),
                           ],
@@ -261,7 +263,7 @@ class _PlPopoverState extends State<PlPopover> {
                         PlassDismissButton(
                           label: widget.closeLabel,
                           onPressed: close,
-                          size: sheetTitle[widget.size]!.size * _closeScale,
+                          size: sheetTitle[_size]!.size * _closeScale,
                           color: tokens.mutedFg,
                           ring: family.ring,
                         ),
@@ -278,7 +280,7 @@ class _PlPopoverState extends State<PlPopover> {
     if (widget.arrow) {
       popup = _Wedged(
         side: _side,
-        size: _arrowSize[widget.size]!,
+        size: _arrowSize[_size]!,
         fill: tokens.glassPress,
         line: tokens.glassLine,
         child: popup,

@@ -127,9 +127,9 @@ class PlBreadcrumb extends StatefulWidget {
   /// Creates a trail.
   const PlBreadcrumb({
     required this.items,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.separator = PlBreadcrumbSeparator.chevron,
     this.separatorWidget,
     this.maxItems,
@@ -145,13 +145,13 @@ class PlBreadcrumb extends StatefulWidget {
   final List<PlBreadcrumbItem> items;
 
   /// Type scale.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// The colour family a step picks up when it is hovered.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// How tightly the steps pack. Spacing only.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// The mark between two steps.
   final PlBreadcrumbSeparator separator;
@@ -184,12 +184,17 @@ class PlBreadcrumb extends StatefulWidget {
 }
 
 class _PlBreadcrumbState extends State<PlBreadcrumb> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   bool _unfolded = false;
 
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final family = tokens.family(widget.color);
+    final family = tokens.family(_color);
     final total = widget.items.length;
 
     // The last step is the page you are on — unless a step says it is. Exactly
@@ -232,7 +237,7 @@ class _PlBreadcrumbState extends State<PlBreadcrumb> {
             ? _Fold(
                 expandable: widget.expandable,
                 label: widget.expandLabel,
-                size: widget.size,
+                size: _size,
                 family: family,
                 muted: tokens.mutedFg,
                 onPressed: () => setState(() => _unfolded = true),
@@ -240,7 +245,7 @@ class _PlBreadcrumbState extends State<PlBreadcrumb> {
             : _Step(
                 item: step,
                 current: step.current ?? (!claimed && index == shown.length - 1),
-                size: widget.size,
+                size: _size,
                 family: family,
                 tokens: tokens,
               ),
@@ -252,11 +257,11 @@ class _PlBreadcrumbState extends State<PlBreadcrumb> {
       explicitChildNodes: true,
       label: widget.label,
       child: DefaultTextStyle.merge(
-        style: TextStyle(fontSize: controlText[widget.size]!, height: 1.4),
+        style: TextStyle(fontSize: controlText[_size]!, height: 1.4),
         child: Wrap(
           crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: _trailGap[widget.density]![widget.size]!,
-          runSpacing: _trailGap[widget.density]![widget.size]!,
+          spacing: _trailGap[_density]![_size]!,
+          runSpacing: _trailGap[_density]![_size]!,
           children: trail,
         ),
       ),
@@ -271,7 +276,7 @@ class _PlBreadcrumbState extends State<PlBreadcrumb> {
   /// RTL, because a trail runs the way the language does.
   Widget _mark(PlassTokens tokens, PlassColorFamily family) {
     final rtl = Directionality.of(context) == TextDirection.rtl;
-    final glyph = controlText[widget.size]! * iconScale;
+    final glyph = controlText[_size]! * iconScale;
 
     switch (widget.separator) {
       case PlBreadcrumbSeparator.chevron:

@@ -88,9 +88,9 @@ class PlTabs<T> extends StatefulWidget {
     required this.value,
     this.onChanged,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.orientation = PlassOrientation.horizontal,
     this.fullWidth = false,
     this.semanticLabel,
@@ -113,13 +113,13 @@ class PlTabs<T> extends StatefulWidget {
 
   /// Height and type scale. A tab takes the control ladder, so an `md` tab and
   /// an `md` button are the same 40px and a bar in a toolbar keeps its baseline.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the indicator and the chosen tab's label.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Changes horizontal padding and nothing else.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Which way the bar runs.
   final PlassOrientation orientation;
@@ -141,6 +141,11 @@ class PlTabs<T> extends StatefulWidget {
 }
 
 class _PlTabsState<T> extends State<PlTabs<T>> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   final List<GlobalKey> _keys = <GlobalKey>[];
   final GlobalKey _bar = GlobalKey();
 
@@ -254,7 +259,7 @@ class _PlTabsState<T> extends State<PlTabs<T>> {
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final family = tokens.family(widget.color);
+    final family = tokens.family(_color);
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
     final solid = widget.variant == PlassVariant.solid;
     final inset = solid ? _troughInset : 0.0;
@@ -266,8 +271,8 @@ class _PlTabsState<T> extends State<PlTabs<T>> {
           key: _keys[index],
           tab: widget.tabs[index],
           chosen: index == chosen,
-          size: widget.size,
-          density: widget.density,
+          size: _size,
+          density: _density,
           family: family,
           tokens: tokens,
           disabled: widget.tabs[index].disabled || widget.onChanged == null,
@@ -295,12 +300,7 @@ class _PlTabsState<T> extends State<PlTabs<T>> {
           );
 
     final motion = reduceMotion ? Duration.zero : PlassTokens.duration;
-    final mark = _Indicator(
-      variant: widget.variant,
-      family: family,
-      tokens: tokens,
-      size: widget.size,
-    );
+    final mark = _Indicator(variant: widget.variant, family: family, tokens: tokens, size: _size);
 
     strip = Stack(
       key: _bar,
@@ -351,7 +351,7 @@ class _PlTabsState<T> extends State<PlTabs<T>> {
           blur: true,
           insets: <PlassInsetShadow>[tokens.well],
         ),
-        borderRadius: BorderRadius.circular(PlassTokens.radius[widget.size]!),
+        borderRadius: BorderRadius.circular(PlassTokens.radius[_size]!),
         child: Padding(padding: EdgeInsets.all(inset), child: strip),
       );
     } else if (widget.variant == PlassVariant.glass) {

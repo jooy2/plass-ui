@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/icon_button/pl_icon_button.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
@@ -48,8 +49,8 @@ class PlBackTop extends StatefulWidget {
     this.icon,
     this.onPressed,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
+    this.size,
+    this.color,
     this.elevation = 2,
     super.key,
   });
@@ -83,10 +84,10 @@ class PlBackTop extends StatefulWidget {
   final PlassVariant variant;
 
   /// The size of the disc.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Drop shadow depth.
   final int elevation;
@@ -96,6 +97,9 @@ class PlBackTop extends StatefulWidget {
 }
 
 class _PlBackTopState extends State<PlBackTop> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+
   ScrollController? _attached;
   bool _shown = false;
 
@@ -191,8 +195,8 @@ class _PlBackTopState extends State<PlBackTop> {
               label: widget.label,
               onPressed: _toTop,
               variant: widget.variant,
-              size: widget.size,
-              color: widget.color,
+              size: _size,
+              color: _color,
               elevation: widget.elevation,
             ),
           ),

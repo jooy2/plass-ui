@@ -60,9 +60,9 @@ class PlStat extends StatelessWidget {
     this.changeLabel,
     this.improvesWhen = PlStatDirection.up,
     this.loading = false,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     super.key,
   });
 
@@ -98,13 +98,13 @@ class PlStat extends StatelessWidget {
   final bool loading;
 
   /// The type scale of the figure and the words around it.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// The family the icon takes.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// The space between the three lines, and nothing else.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// How the percentage is written when [changeLabel] does not say.
   ///
@@ -122,6 +122,10 @@ class PlStat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
     final tokens = PlassTheme.of(context);
     final family = tokens.family(color);
     final space = density == PlassDensity.compact ? 2.0 : stackGap[size]!;

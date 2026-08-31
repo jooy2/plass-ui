@@ -205,9 +205,9 @@ class PlFilePicker extends StatefulWidget {
     this.showList = true,
     this.removeLabel = _defaultRemoveLabel,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.fullWidth = true,
     this.readOnly = false,
@@ -294,14 +294,14 @@ class PlFilePicker extends StatefulWidget {
   final PlassVariant variant;
 
   /// Type scale, radius and padding.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the glyph, the edge under the pointer and
   /// the ring.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// How tightly the box packs.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`.
   ///
@@ -325,6 +325,11 @@ class PlFilePicker extends StatefulWidget {
 }
 
 class _PlFilePickerState extends State<PlFilePicker> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   bool get _inert => widget.disabled || widget.readOnly;
 
   bool get _usable => !_inert && widget.onBrowse != null && widget.onFilesChanged != null;
@@ -385,9 +390,9 @@ class _PlFilePickerState extends State<PlFilePicker> {
     final isInvalid = widget.invalid ?? hasError;
     // Invalid re-points the whole family at `danger`, so the edge, the ring and
     // the message all turn over together — the same wiring a text field uses.
-    final family = tokens.family(isInvalid ? PlassColor.danger : widget.color);
+    final family = tokens.family(isInvalid ? PlassColor.danger : _color);
 
-    final size = widget.size;
+    final size = _size;
     final meta = metaText[size]!;
     final radius = BorderRadius.circular(PlassTokens.radius[size]!);
 
@@ -439,7 +444,7 @@ class _PlFilePickerState extends State<PlFilePicker> {
           ),
           borderRadius: radius,
           child: Padding(
-            padding: EdgeInsets.all(_zonePadding[widget.density]![size]!),
+            padding: EdgeInsets.all(_zonePadding[_density]![size]!),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -564,7 +569,7 @@ class _PlFilePickerState extends State<PlFilePicker> {
     required double meta,
   }) {
     final file = widget.value[index];
-    final scale = controlTextLeading[widget.size]!;
+    final scale = controlTextLeading[_size]!;
 
     return DecoratedBox(
       decoration: BoxDecoration(

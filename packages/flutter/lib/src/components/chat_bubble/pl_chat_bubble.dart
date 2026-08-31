@@ -168,9 +168,9 @@ class PlChatBubble extends StatelessWidget {
     this.preview,
     this.actions,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.child,
     super.key,
@@ -228,13 +228,13 @@ class PlChatBubble extends StatelessWidget {
   final PlassVariant variant;
 
   /// Type scale, radius and padding.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Padding inside the bubble, and nothing else.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`.
   ///
@@ -247,6 +247,10 @@ class PlChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
     final tokens = PlassTheme.of(context);
     final family = tokens.family(color);
     final end = side == PlChatBubbleSide.end;

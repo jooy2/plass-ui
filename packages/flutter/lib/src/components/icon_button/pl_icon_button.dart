@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/components/button/pl_button.dart';
 import 'package:plass_ui/src/internal/button_group.dart';
 import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// A round button with a glyph in it and nothing else.
@@ -120,7 +121,11 @@ class PlIconButton extends StatelessWidget {
     // The disc's diameter is the one thing here that cannot be left unresolved:
     // a radius is a number. Everything else goes on to PlButton as it arrived,
     // `null` included, so a run around it still answers for it.
-    final step = size ?? PlassButtonGroupScope.maybeOf(context)?.size ?? PlassSize.md;
+    final step =
+        size ??
+        PlassButtonGroupScope.maybeOf(context)?.size ??
+        PlassTheme.sizeOf(context) ??
+        PlassSize.md;
 
     return PlButton(
       // The glyph goes in `startIcon` rather than in `child`, which is what puts

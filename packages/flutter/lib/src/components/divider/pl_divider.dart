@@ -39,7 +39,7 @@ class PlDivider extends StatelessWidget {
   const PlDivider({
     this.orientation = PlassOrientation.horizontal,
     this.color,
-    this.size = PlassSize.md,
+    this.size,
     this.length,
     this.thickness = hairline,
     this.textAlign = PlassAlign.center,
@@ -67,7 +67,7 @@ class PlDivider extends StatelessWidget {
   final PlassColor? color;
 
   /// Type scale of the label. Nothing else on a divider has a size.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// How far the rule runs — the width of a horizontal divider, the height of a
   /// vertical one.
@@ -109,7 +109,7 @@ class PlDivider extends StatelessWidget {
     final rule = color != null ? tokens.family(color!).line : tokens.border;
 
     Widget divider = child == null
-        ? _line(rule, vertical: vertical)
+        ? _line(context, rule, vertical: vertical)
         : _labelled(context, tokens.mutedFg, rule, vertical: vertical);
 
     if (length != null) {
@@ -139,7 +139,7 @@ class PlDivider extends StatelessWidget {
 
   /// The hairline: a box with no thickness on its long axis, so a divider never
   /// adds a pixel of layout beyond the rule itself.
-  Widget _line(Color rule, {required bool vertical}) {
+  Widget _line(BuildContext context, Color rule, {required bool vertical}) {
     return DecoratedBox(
       decoration: BoxDecoration(color: rule),
       child: SizedBox(
@@ -150,11 +150,13 @@ class PlDivider extends StatelessWidget {
   }
 
   Widget _labelled(BuildContext context, Color ink, Color rule, {required bool vertical}) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+
     final leadingStub = textAlign == PlassAlign.start;
     final trailingStub = textAlign == PlassAlign.end;
 
     Widget stub(bool fixed) {
-      final edge = _line(rule, vertical: vertical);
+      final edge = _line(context, rule, vertical: vertical);
 
       return fixed
           ? SizedBox(width: vertical ? null : _stub, height: vertical ? _stub : null, child: edge)

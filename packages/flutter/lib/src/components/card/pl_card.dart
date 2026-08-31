@@ -49,9 +49,9 @@ class PlCard extends StatelessWidget {
     this.headerAction,
     this.footer,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 1,
     this.dividers = false,
     this.padded = true,
@@ -94,14 +94,14 @@ class PlCard extends StatelessWidget {
   final PlassVariant variant;
 
   /// Type scale, radius and padding.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the hairline and the focus ring, never the
   /// sheet.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// How tightly the card packs its content.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`.
   ///
@@ -172,6 +172,9 @@ class PlCard extends StatelessWidget {
   }
 
   Widget _sheet(BuildContext context, PlassInteraction state) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+
     final tokens = PlassTheme.of(context);
     final family = tokens.family(color);
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
@@ -209,7 +212,7 @@ class PlCard extends StatelessWidget {
       surface: surface,
       borderRadius: radius,
       reduceMotion: reduceMotion,
-      child: _body(tokens),
+      child: _body(context, tokens),
     );
 
     if (_lifts) {
@@ -234,7 +237,10 @@ class PlCard extends StatelessWidget {
     return card;
   }
 
-  Widget _body(PlassTokens tokens) {
+  Widget _body(BuildContext context, PlassTokens tokens) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
     final insetX = padded ? sheetPaddingX[density]![size]! : 0.0;
     final insetY = padded ? sheetPaddingY[density]![size]! : 0.0;
     final body = sheetBody[size]!;

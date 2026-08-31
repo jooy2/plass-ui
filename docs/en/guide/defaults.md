@@ -23,11 +23,20 @@ import { PlassProvider } from 'plass-ui';
 
 ::: fw flutter
 
-There is no provider yet on the Flutter side. `PlassTheme` pins a subtree's brightness and its tokens, and the style axes are still written per widget:
-
 ```dart
-PlassTheme(brightness: Brightness.dark, child: child);
+import 'package:plass_ui/plass_ui.dart';
+
+PlassTheme.merge(
+  defaults: const PlassDefaults(
+    size: PlassSize.sm,
+    density: PlassDensity.compact,
+    names: PlDateNames(months: <String>['January', '…']),
+  ),
+  child: const MyApp(),
+);
 ```
+
+**Reach for `PlassTheme.merge`, not the plain constructor.** The constructor _replaces_ the defaults in scope and `merge` keeps the ones above it — exactly as `DefaultTextStyle` replaces a style and `DefaultTextStyle.merge` merges one, and for the same reason: an `InheritedWidget` has no context of its own to read an ancestor with, so merging has to happen where there _is_ one. `merge` keeps the brightness in scope too, so a section of a dark screen can be made compact without going light.
 
 :::
 
@@ -41,6 +50,12 @@ PlassTheme(brightness: Brightness.dark, child: child);
 | `locale`       | The BCP 47 tag the date, time and number components format and read against |
 | `weekStartsOn` | Which day their weeks start on, as `Date` counts them — Sunday is `0`       |
 | `labels`       | The strings a picker says that `Intl` has no opinion about                  |
+
+::: fw flutter
+
+`locale` is `names` and `labels` here — the framework ships no `Intl`, so the words themselves are what a theme carries. `PlDateNames` and `PlPickerLabels` are the same two objects every date widget already took.
+
+:::
 
 ## What it does not set, and why
 
@@ -85,6 +100,12 @@ Providers **nest and merge**. A section that is compact inside an application th
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/provider/locale.dart
+
+:::
+
 </Demo>
 
 ### Reading what is in scope
@@ -99,6 +120,17 @@ For a component of your own that has to line up with the ones around it. Every f
 
 ## Notes
 
+::: fw flutter
+
+- **Every widget reads it**, `PlTable` included: there is no server-component boundary here, so the one exception the React build has does not exist.
+- A `PlassTheme` given only `defaults` still needs `merge` to keep the brightness above it — see the note under the first example.
+
+:::
+
+::: fw react
+
 - **`PlTable` does not read the provider**, and it is the only component that does not. It is kept out of the React Server Component client graph on purpose — every one of its columns is a `render` callback, and a server component cannot hand a function across that boundary — and reading a context would make it a client component. Set its `size` and `density` on the component.
 - The provider renders no element and draws nothing. It costs one context read per component.
 - It is not a theme. The colours, the radii, the blur and the shadows are CSS custom properties, and the place to change those is [Colour](../design/color#overriding-a-family) — a second copy of them in JavaScript would be a second source of truth.
+
+:::

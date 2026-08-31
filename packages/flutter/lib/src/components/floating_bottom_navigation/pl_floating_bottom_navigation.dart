@@ -130,9 +130,9 @@ class PlFloatingBottomNavigation<T> extends StatefulWidget {
     required this.value,
     this.onChanged,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 2,
     this.safeArea = true,
     this.disabled = false,
@@ -168,13 +168,13 @@ class PlFloatingBottomNavigation<T> extends StatefulWidget {
 
   /// The disc's diameter and the gap under the bar, on the control ladder — so
   /// a floating bar at `md` is a row of 40px discs.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role, carried by the key.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Changes the air inside the capsule and the gap between discs.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`. `2`, against the `0` almost everything else
   /// takes.
@@ -200,6 +200,11 @@ class PlFloatingBottomNavigation<T> extends StatefulWidget {
 }
 
 class _PlFloatingBottomNavigationState<T> extends State<PlFloatingBottomNavigation<T>> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   /// One key per disc, so the travelling key can be measured off the current
   /// one.
   ///
@@ -267,10 +272,10 @@ class _PlFloatingBottomNavigationState<T> extends State<PlFloatingBottomNavigati
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final family = tokens.family(widget.color);
+    final family = tokens.family(_color);
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
-    final disc = controlHeight[widget.size]!;
-    final air = _capsulePadding[widget.density]![widget.size]!;
+    final disc = controlHeight[_size]!;
+    final air = _capsulePadding[_density]![_size]!;
     final inset = widget.safeArea ? MediaQuery.paddingOf(context).bottom : 0.0;
     final chosen = _chosen;
 
@@ -283,7 +288,7 @@ class _PlFloatingBottomNavigationState<T> extends State<PlFloatingBottomNavigati
     Widget row = Row(
       key: _row,
       mainAxisSize: MainAxisSize.min,
-      spacing: _discGap[widget.density]![widget.size]!,
+      spacing: _discGap[_density]![_size]!,
       children: <Widget>[
         for (var index = 0; index < widget.items.length; index += 1)
           _disc(widget.items[index], tokens, family, disc, index),
@@ -338,7 +343,7 @@ class _PlFloatingBottomNavigationState<T> extends State<PlFloatingBottomNavigati
     // a fixed element has to span something, and a Flutter app puts this
     // wherever it wants it.
     return Padding(
-      padding: EdgeInsets.only(bottom: _floatGap[widget.size]! + inset),
+      padding: EdgeInsets.only(bottom: _floatGap[_size]! + inset),
       child: Align(alignment: Alignment.bottomCenter, heightFactor: 1, child: bar),
     );
   }
@@ -385,7 +390,7 @@ class _PlFloatingBottomNavigationState<T> extends State<PlFloatingBottomNavigati
               child: item.icon == null
                   ? const SizedBox.shrink()
                   : IconTheme.merge(
-                      data: IconThemeData(color: surface.ink, size: iconSize[widget.size]!),
+                      data: IconThemeData(color: surface.ink, size: iconSize[_size]!),
                       child: item.icon!,
                     ),
             ),

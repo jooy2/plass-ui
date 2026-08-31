@@ -14,7 +14,9 @@ library;
 
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/theme/defaults.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
+import 'package:plass_ui/src/types.dart';
 
 /// Pins everything below it to one theme.
 ///
@@ -26,14 +28,61 @@ import 'package:plass_ui/src/theme/tokens.dart';
 /// ```
 class PlassTheme extends InheritedWidget {
   /// Pins [child] and its subtree to [brightness].
-  PlassTheme({required Brightness brightness, required super.child, super.key})
-    : tokens = PlassTokens.of(brightness);
+  PlassTheme({
+    required Brightness brightness,
+    required super.child,
+    this.defaults = PlassDefaults.none,
+    super.key,
+  }) : tokens = PlassTokens.of(brightness);
 
   /// Pins [child] and its subtree to a token set you resolved yourself.
-  const PlassTheme.tokens({required this.tokens, required super.child, super.key});
+  const PlassTheme.tokens({
+    required this.tokens,
+    required super.child,
+    this.defaults = PlassDefaults.none,
+    super.key,
+  });
 
-  /// The resolved tokens this subtree reads.
-  final PlassTokens tokens;
+  const PlassTheme._({required this.tokens, required this.defaults, required super.child});
+
+  /// Sets defaults for a subtree, keeping whatever the theme above it decided.
+  ///
+  /// This is the one to reach for. The plain constructors **replace** the
+  /// defaults in scope, exactly as `DefaultTextStyle` replaces a style and
+  /// `DefaultTextStyle.merge` merges one — and for the same reason: an
+  /// `InheritedWidget` has no context of its own to read an ancestor with, so
+  /// merging has to happen where there *is* one.
+  ///
+  /// It keeps the brightness in scope too, so a section of a dark screen can be
+  /// made compact without going light.
+  ///
+  /// ```dart
+  /// PlassTheme.merge(
+  ///   defaults: const PlassDefaults(size: PlassSize.sm, density: PlassDensity.compact),
+  ///   child: const SettingsPanel(),
+  /// )
+  /// ```
+  static Widget merge({required PlassDefaults defaults, required Widget child}) {
+    return Builder(
+      builder: (BuildContext context) {
+        return PlassTheme._(
+          tokens: maybeOf(context),
+          defaults: defaults.merge(defaultsOf(context)),
+          child: child,
+        );
+      },
+    );
+  }
+
+  /// The resolved tokens this subtree reads, or `null` when this theme only
+  /// carries [defaults] and the brightness is still the platform's.
+  final PlassTokens? tokens;
+
+  /// What every widget under this theme starts from.
+  ///
+  /// Every field is optional and nothing is decided until something decides it —
+  /// see [PlassDefaults], including why `variant` and `elevation` are not in it.
+  final PlassDefaults defaults;
 
   /// The tokens in scope, or the platform's own theme if none were pinned.
   ///
@@ -43,8 +92,8 @@ class PlassTheme extends InheritedWidget {
   static PlassTokens of(BuildContext context) {
     final pinned = context.dependOnInheritedWidgetOfExactType<PlassTheme>();
 
-    if (pinned != null) {
-      return pinned.tokens;
+    if (pinned?.tokens != null) {
+      return pinned!.tokens!;
     }
 
     return PlassTokens.of(MediaQuery.maybePlatformBrightnessOf(context) ?? Brightness.light);
@@ -59,6 +108,28 @@ class PlassTheme extends InheritedWidget {
     return context.dependOnInheritedWidgetOfExactType<PlassTheme>()?.tokens;
   }
 
+  /// What the nearest theme above [context] decided.
+  ///
+  /// The **nearest**, not the chain: a plain [PlassTheme] replaces the defaults
+  /// under it, and [PlassTheme.merge] is what keeps the ones above. Every widget
+  /// in the library reads this and resolves in the same order — **the widget's
+  /// own parameter, then whatever set it is in, then the theme, then the
+  /// widget's own default.**
+  static PlassDefaults defaultsOf(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<PlassTheme>()?.defaults ?? PlassDefaults.none;
+  }
+
+  /// The size in scope, or `null`.
+  static PlassSize? sizeOf(BuildContext context) => defaultsOf(context).size;
+
+  /// The family in scope, or `null`.
+  static PlassColor? colorOf(BuildContext context) => defaultsOf(context).color;
+
+  /// The density in scope, or `null`.
+  static PlassDensity? densityOf(BuildContext context) => defaultsOf(context).density;
+
   @override
-  bool updateShouldNotify(PlassTheme oldWidget) => oldWidget.tokens != tokens;
+  bool updateShouldNotify(PlassTheme oldWidget) {
+    return oldWidget.tokens != tokens || oldWidget.defaults != defaults;
+  }
 }

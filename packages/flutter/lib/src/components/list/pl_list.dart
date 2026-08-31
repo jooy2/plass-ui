@@ -112,9 +112,9 @@ class PlList extends StatelessWidget {
   const PlList({
     required this.children,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.dividers = false,
     super.key,
@@ -134,14 +134,14 @@ class PlList extends StatelessWidget {
   final PlassVariant variant;
 
   /// The rows' type scale and padding. A property of the stack, not of a row.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches a row's wash and its focus ring, never the
   /// sheet.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// How tightly the rows pack.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`.
   ///
@@ -159,6 +159,10 @@ class PlList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
     final tokens = PlassTheme.of(context);
     final surface = sheetSurface(tokens, variant: variant, elevation: elevation);
 

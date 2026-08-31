@@ -48,9 +48,9 @@ class PlEmpty extends StatelessWidget {
     this.description,
     this.actions = const <Widget>[],
     this.child,
-    this.size = PlassSize.md,
-    this.color = PlassColor.secondary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     super.key,
   });
 
@@ -70,7 +70,7 @@ class PlEmpty extends StatelessWidget {
   final Widget? child;
 
   /// Glyph, type scale and the space around it.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// The family the glyph takes.
   ///
@@ -78,13 +78,17 @@ class PlEmpty extends StatelessWidget {
   /// state and an alert: nothing has gone wrong. Reach for `danger` when
   /// something has, and `success` for the end of a flow — which is what turns
   /// this into the "your order is confirmed" screen without a second widget.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// The vertical padding, and nothing else.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.secondary;
+    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
     final tokens = PlassTheme.of(context);
     final family = tokens.family(color);
     final pad = sheetPaddingY[density]![size]!;

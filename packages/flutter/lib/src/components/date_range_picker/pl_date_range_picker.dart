@@ -110,8 +110,8 @@ class PlDateRangePicker extends StatefulWidget {
     this.maxDate,
     this.shouldDisableDate,
     this.weekStartsOn,
-    this.names = PlDateNames.english,
-    this.labels = PlPickerLabels.english,
+    this.names,
+    this.labels,
     this.formatValue,
     this.monthCount = 2,
     this.startPlaceholder,
@@ -120,9 +120,9 @@ class PlDateRangePicker extends StatefulWidget {
     this.clearable = false,
     this.closeOnSelect = true,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.label,
     this.description,
@@ -173,10 +173,10 @@ class PlDateRangePicker extends StatefulWidget {
   final PlassWeekday? weekStartsOn;
 
   /// The month and weekday names, and the order the header writes them in.
-  final PlDateNames names;
+  final PlDateNames? names;
 
   /// The words the picker says about itself.
-  final PlPickerLabels labels;
+  final PlPickerLabels? labels;
 
   /// How each half of the trigger writes its end.
   final String Function(DateTime value)? formatValue;
@@ -203,13 +203,13 @@ class PlDateRangePicker extends StatefulWidget {
   final PlassVariant variant;
 
   /// Height and type scale, of the trigger and of one calendar cell alike.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Horizontal padding. Never the height.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth of the **trigger**.
   final PlassElevation elevation;
@@ -252,6 +252,16 @@ class PlDateRangePicker extends StatefulWidget {
 }
 
 class _PlDateRangePickerState extends State<PlDateRangePicker> {
+  PlDateNames get _names =>
+      widget.names ?? PlassTheme.defaultsOf(context).names ?? PlDateNames.english;
+  PlPickerLabels get _labels =>
+      widget.labels ?? PlassTheme.defaultsOf(context).labels ?? PlPickerLabels.english;
+
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   bool _ownOpen = false;
 
   /// The first of the two presses.
@@ -268,7 +278,8 @@ class _PlDateRangePickerState extends State<PlDateRangePicker> {
 
   bool get _open => widget.open ?? _ownOpen;
 
-  PlassWeekday get _weekStart => widget.weekStartsOn ?? widget.names.firstDayOfWeek;
+  PlassWeekday get _weekStart =>
+      widget.weekStartsOn ?? PlassTheme.defaultsOf(context).weekStartsOn ?? _names.firstDayOfWeek;
 
   void _setOpen(bool next) {
     if (next && (widget.readOnly || widget.disabled || widget.onChanged == null)) {
@@ -342,7 +353,7 @@ class _PlDateRangePickerState extends State<PlDateRangePicker> {
   }
 
   String _write(DateTime date) {
-    return widget.formatValue?.call(date) ?? widget.names.medium(date);
+    return widget.formatValue?.call(date) ?? _names.medium(date);
   }
 
   @override
@@ -350,13 +361,13 @@ class _PlDateRangePickerState extends State<PlDateRangePicker> {
     final tokens = PlassTheme.of(context);
     final start = widget.value.start;
     final end = widget.value.end;
-    final glyph = controlTextLeading[widget.size]!.size * iconScale;
+    final glyph = controlTextLeading[_size]!.size * iconScale;
 
     return PlassPickerShell(
       variant: widget.variant,
-      size: widget.size,
-      color: widget.color,
-      density: widget.density,
+      size: _size,
+      color: _color,
+      density: _density,
       elevation: widget.elevation,
       label: widget.label,
       description: widget.description,
@@ -387,7 +398,7 @@ class _PlDateRangePickerState extends State<PlDateRangePicker> {
       empty: widget.value.isEmpty,
       clearable: widget.clearable,
       onClear: () => widget.onChanged?.call(PlDateRange.empty),
-      clearLabel: widget.labels.clear,
+      clearLabel: _labels.clear,
       open: _open,
       onOpenChanged: _setOpen,
       popup: _popup(tokens),
@@ -436,9 +447,9 @@ class _PlDateRangePickerState extends State<PlDateRangePicker> {
     // its two halves, but the trigger is behind the popup while the popup is up,
     // so the footer is the only place that can say it where it will be read.
     final String? hint = _anchor != null
-        ? widget.labels.end
+        ? _labels.end
         : start == null
-        ? widget.labels.start
+        ? _labels.start
         : null;
 
     PlassCalendar calendar({
@@ -453,11 +464,11 @@ class _PlDateRangePickerState extends State<PlDateRangePicker> {
         onMonthChanged: onMonthChanged,
         selected: <DateTime?>[start, end, _anchor],
         onSelect: _select,
-        names: widget.names,
-        labels: widget.labels,
+        names: _names,
+        labels: _labels,
         weekStartsOn: _weekStart,
-        size: widget.size,
-        color: widget.color,
+        size: _size,
+        color: _color,
         rangeStart: bandStart,
         rangeEnd: bandEnd,
         onPreviewChanged: (DateTime? date) {
@@ -492,7 +503,7 @@ class _PlDateRangePickerState extends State<PlDateRangePicker> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
-            spacing: gap[widget.size]!,
+            spacing: gap[_size]!,
             children: <Widget>[
               if (widget.presets.isNotEmpty)
                 // `IntrinsicWidth`, because a scroll view fills whatever cross
@@ -500,7 +511,7 @@ class _PlDateRangePickerState extends State<PlDateRangePicker> {
                 // column of shortcuts is as wide as its longest one.
                 IntrinsicWidth(
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(maxHeight: cellSize[widget.size]! * 8),
+                    constraints: BoxConstraints(maxHeight: cellSize[_size]! * 8),
                     child: SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -509,8 +520,8 @@ class _PlDateRangePickerState extends State<PlDateRangePicker> {
                           for (final PlDateRangePreset preset in widget.presets)
                             PlButton(
                               variant: PlassVariant.ghost,
-                              size: widget.size,
-                              color: widget.color,
+                              size: _size,
+                              color: _color,
                               density: PlassDensity.compact,
                               onPressed: () => _applyPreset(preset),
                               child: preset.label,
@@ -540,20 +551,20 @@ class _PlDateRangePickerState extends State<PlDateRangePicker> {
         ),
         if (widget.clearable || hint != null)
           PlassPickerFooter(
-            size: widget.size,
+            size: _size,
             children: <Widget>[
               if (hint != null)
                 Expanded(
                   child: Text(
                     hint,
-                    style: TextStyle(color: tokens.mutedFg, fontSize: metaText[widget.size]!),
+                    style: TextStyle(color: tokens.mutedFg, fontSize: metaText[_size]!),
                   ),
                 ),
               if (widget.clearable)
                 PlButton(
                   variant: PlassVariant.ghost,
-                  size: widget.size,
-                  color: widget.color,
+                  size: _size,
+                  color: _color,
                   density: PlassDensity.compact,
                   onPressed: () {
                     setState(() {
@@ -563,7 +574,7 @@ class _PlDateRangePickerState extends State<PlDateRangePicker> {
                     widget.onChanged?.call(PlDateRange.empty);
                     _setOpen(false);
                   },
-                  child: Text(widget.labels.clear),
+                  child: Text(_labels.clear),
                 ),
             ],
           ),

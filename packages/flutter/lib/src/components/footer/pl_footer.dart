@@ -42,9 +42,9 @@ class PlFooter extends StatelessWidget {
     this.maxWidth,
     this.padded = true,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.semanticLabel,
     super.key,
@@ -80,13 +80,13 @@ class PlFooter extends StatelessWidget {
 
   /// The gutter and the air above and below the content. As on [PlBox], `size`
   /// here is the size of the *sheet*.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the focus rings inside and nothing else.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Changes the padding and nothing else.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`. `0` and flat.
   final PlassElevation elevation;
@@ -100,6 +100,9 @@ class PlFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
     final PlassTokens tokens = PlassTheme.of(context);
 
     Widget content = Padding(

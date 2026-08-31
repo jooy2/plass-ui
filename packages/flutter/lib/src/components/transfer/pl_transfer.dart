@@ -92,9 +92,9 @@ class PlTransfer extends StatefulWidget {
     this.height = 220,
     this.disabled = false,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     super.key,
   });
 
@@ -145,20 +145,25 @@ class PlTransfer extends StatefulWidget {
   final PlassVariant variant;
 
   /// The checkboxes, the arrows, the type scale and the padding, together.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the ticks, the arrows and the focus
   /// rings; neither panel is dyed.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Changes the padding and nothing else.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   @override
   State<PlTransfer> createState() => _PlTransferState();
 }
 
 class _PlTransferState extends State<PlTransfer> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   late List<String> _ownValue = List<String>.of(widget.defaultValue);
   final Set<String> _ticked = <String>{};
   final TextEditingController _sourceSearch = TextEditingController();
@@ -282,8 +287,8 @@ class _PlTransferState extends State<PlTransfer> {
           spacing: 8,
           children: <Widget>[
             PlIconButton(
-              size: widget.size,
-              color: widget.color,
+              size: _size,
+              color: _color,
               variant: arrows,
               label: widget.toTargetLabel,
               onPressed: widget.disabled || !canSend
@@ -292,8 +297,8 @@ class _PlTransferState extends State<PlTransfer> {
               icon: const PlassGlyph(PlassGlyphShape.arrowRight),
             ),
             PlIconButton(
-              size: widget.size,
-              color: widget.color,
+              size: _size,
+              color: _color,
               variant: arrows,
               label: widget.toSourceLabel,
               onPressed: widget.disabled || !canReturn
@@ -325,8 +330,8 @@ class _PlTransferState extends State<PlTransfer> {
     required ValueChanged<bool> onTickAll,
   }) {
     final PlassTokens tokens = PlassTheme.of(context);
-    final PlassSize size = widget.size;
-    final double insetX = paddingX[widget.density]![size]!;
+    final PlassSize size = _size;
+    final double insetX = paddingX[_density]![size]!;
     final double padY = _panelPadY[size]!;
     final double caption = metaText[size]!;
 
@@ -346,7 +351,7 @@ class _PlTransferState extends State<PlTransfer> {
         children: <Widget>[
           PlCheckbox(
             size: size,
-            color: widget.color,
+            color: _color,
             value: all,
             indeterminate: some,
             disabled: widget.disabled || movable.isEmpty,
@@ -390,7 +395,7 @@ class _PlTransferState extends State<PlTransfer> {
                         padding: EdgeInsets.symmetric(vertical: _rowPadY[size]!),
                         child: PlCheckbox(
                           size: size,
-                          color: widget.color,
+                          color: _color,
                           value: _ticked.contains(row.value),
                           disabled: widget.disabled || row.disabled,
                           label: Text(row.label),
@@ -406,7 +411,7 @@ class _PlTransferState extends State<PlTransfer> {
     return PlassSurfaceBox(
       surface: fieldSurface(
         tokens,
-        tokens.family(widget.color),
+        tokens.family(_color),
         variant: widget.variant,
         elevation: 0,
         disabled: widget.disabled,
@@ -431,8 +436,8 @@ class _PlTransferState extends State<PlTransfer> {
               child: PlTextField(
                 controller: controller,
                 size: size,
-                color: widget.color,
-                density: widget.density,
+                color: _color,
+                density: _density,
                 variant: PlassVariant.ghost,
                 fullWidth: true,
                 disabled: widget.disabled,

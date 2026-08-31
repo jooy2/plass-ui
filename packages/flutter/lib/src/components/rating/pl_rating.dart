@@ -47,8 +47,8 @@ class PlRating extends StatefulWidget {
     this.clearable = true,
     this.readOnly = false,
     this.disabled = false,
-    this.size = PlassSize.md,
-    this.color = PlassColor.warning,
+    this.size,
+    this.color,
     this.label = 'Rating',
     this.valueLabel = defaultValueLabel,
     this.focusNode,
@@ -99,7 +99,7 @@ class PlRating extends StatefulWidget {
 
   /// Height of one star, on the standalone-glyph ladder — a star is content
   /// rather than a control, so it is measured against the text beside it.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role.
   ///
@@ -107,7 +107,7 @@ class PlRating extends StatefulWidget {
   /// rather than the `primary` everything else takes. It is the one place in
   /// the library where a widget's default colour is chosen by what the object
   /// *is* instead of by what it means.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Names the whole control.
   final String label;
@@ -141,6 +141,9 @@ class PlRating extends StatefulWidget {
 }
 
 class _PlRatingState extends State<PlRating> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.warning;
+
   /// What the pointer is currently promising, which is not the value until it
   /// is tapped. `null` is "the pointer is not on the row", not "zero stars".
   double? _hovered;
@@ -192,9 +195,9 @@ class _PlRatingState extends State<PlRating> {
   @override
   Widget build(BuildContext context) {
     final PlassTokens tokens = PlassTheme.of(context);
-    final PlassColorFamily family = tokens.family(widget.color);
-    final double box = iconSize[widget.size]!;
-    final double spacing = gap[widget.size]!;
+    final PlassColorFamily family = tokens.family(_color);
+    final double box = iconSize[_size]!;
+    final double spacing = gap[_size]!;
 
     // An empty star is not a disabled one and not a hairline: it is the ghost
     // of the star beside it, so it takes the muted ink at enough strength to

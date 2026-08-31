@@ -115,9 +115,9 @@ class PlDrawer extends StatelessWidget {
     this.rounded = true,
     this.modal = true,
     this.dismissible = true,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     super.key,
   });
 
@@ -200,14 +200,14 @@ class PlDrawer extends StatelessWidget {
   final bool dismissible;
 
   /// The panel's width, radius and padding.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the focus rings inside and nothing else:
   /// what a drawer holds arrives with its own colours.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// How tightly the sections pack.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   bool get _along => side == PlassSide.left || side == PlassSide.right;
 
@@ -258,6 +258,10 @@ class PlDrawer extends StatelessWidget {
     VoidCallback close, {
     required bool floating,
   }) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
     final family = tokens.family(color);
     final insetX = sheetPaddingX[density]![size]!;
     final insetY = sheetPaddingY[density]![size]!;

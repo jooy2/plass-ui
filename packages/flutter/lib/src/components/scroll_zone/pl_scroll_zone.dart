@@ -175,8 +175,8 @@ class PlScrollZone extends StatefulWidget {
     this.scrollbar = false,
     this.controller,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
+    this.size,
+    this.color,
     this.label,
     this.previousLabel = 'Previous',
     this.nextLabel = 'Next',
@@ -250,10 +250,10 @@ class PlScrollZone extends StatefulWidget {
   final PlassVariant variant;
 
   /// The size of the buttons and how far in from the edge they sit.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role, carried by the buttons.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// What the scrollable region is called — "Categories", "Recent files".
   final String? label;
@@ -271,6 +271,9 @@ class PlScrollZone extends StatefulWidget {
 }
 
 class _PlScrollZoneState extends State<PlScrollZone> with SingleTickerProviderStateMixin {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+
   ScrollController? _own;
   Ticker? _hold;
 
@@ -550,8 +553,8 @@ class _PlScrollZoneState extends State<PlScrollZone> with SingleTickerProviderSt
       icon: PlassGlyph(PlassGlyphShape.chevron, quarterTurns: turns),
       label: forward ? widget.nextLabel : widget.previousLabel,
       variant: widget.variant,
-      size: widget.size,
-      color: widget.color,
+      size: _size,
+      color: _color,
       elevation: 1,
       disabled: !available,
       onPressed: () {
@@ -709,7 +712,7 @@ class _PlScrollZoneState extends State<PlScrollZone> with SingleTickerProviderSt
     }
 
     if (widget.buttonPlacement == PlScrollZoneButtonPlacement.inline) {
-      final gap = _buttonGap[widget.size]!;
+      final gap = _buttonGap[_size]!;
 
       return _horizontal
           ? Row(
@@ -730,7 +733,7 @@ class _PlScrollZoneState extends State<PlScrollZone> with SingleTickerProviderSt
             );
     }
 
-    final inset = _buttonInset[widget.size]!;
+    final inset = _buttonInset[_size]!;
 
     return Stack(
       children: <Widget>[

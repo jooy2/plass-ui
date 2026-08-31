@@ -147,7 +147,7 @@ class PlTextLink extends StatelessWidget {
     final inherited = DefaultTextStyle.of(context).style;
     final scale = size != null ? controlTextLeading[size!] : null;
     final ink = color != null ? tokens.family(color!).accent : inherited.color ?? tokens.fg;
-    final ring = tokens.family(color ?? PlassColor.primary).ring;
+    final ring = tokens.family(color ?? PlassTheme.colorOf(context) ?? PlassColor.primary).ring;
     final marked = showIcon ?? external;
 
     return PlassInteractive(

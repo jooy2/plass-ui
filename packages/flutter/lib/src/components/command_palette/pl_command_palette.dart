@@ -136,9 +136,9 @@ class PlCommandPalette extends StatefulWidget {
     this.placeholder = 'Search commands',
     this.emptyMessage = 'No commands found',
     this.label = 'Command palette',
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     super.key,
   });
 
@@ -181,20 +181,25 @@ class PlCommandPalette extends StatefulWidget {
   final String label;
 
   /// The sheet's width, the field's height and the rows' type scale.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the highlight and the caret; the sheet is
   /// never dyed.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// The height of a row, and nothing else.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   @override
   State<PlCommandPalette> createState() => _PlCommandPaletteState();
 }
 
 class _PlCommandPaletteState extends State<PlCommandPalette> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   final TextEditingController _query = TextEditingController();
   final FocusNode _field = FocusNode(debugLabel: 'PlCommandPalette');
   final ScrollController _scroll = ScrollController();
@@ -333,7 +338,7 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: widget.width ?? _sheetWidth[widget.size]!),
+            constraints: BoxConstraints(maxWidth: widget.width ?? _sheetWidth[_size]!),
             child: _sheet(tokens, rows, highlighted),
           ),
         ),
@@ -342,7 +347,7 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
   }
 
   Widget _sheet(PlassTokens tokens, List<PlCommandItem> rows, int highlighted) {
-    final PlassSize size = widget.size;
+    final PlassSize size = _size;
     final double inset = _insetX[size]!;
     final PlassTextScale text = controlTextLeading[size]!;
 
@@ -357,9 +362,9 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
             focusNode: _field,
             onChanged: (String _) => setState(() => _highlighted = 0),
             style: TextStyle(color: tokens.fg, fontSize: text.size, height: text.height),
-            cursorColor: tokens.family(widget.color).accent,
+            cursorColor: tokens.family(_color).accent,
             backgroundCursorColor: tokens.mutedFg,
-            selectionColor: tokens.family(widget.color).softPress,
+            selectionColor: tokens.family(_color).softPress,
           ),
         ),
       ),
@@ -447,8 +452,8 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
                           item: rows[index],
                           highlighted: index == highlighted,
                           size: size,
-                          color: widget.color,
-                          density: widget.density,
+                          color: _color,
+                          density: _density,
                           onHover: () => setState(() => _highlighted = index),
                           onRun: () => _run(rows[index]),
                         ),

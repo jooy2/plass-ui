@@ -37,12 +37,12 @@ class PlAlert extends StatelessWidget {
     this.child,
     this.title,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
+    this.size,
     // An alert with no severity named is an informational one. This is the one
     // place `primary` would be a lie: it is not the primary anything, it is a
     // note, and the palette already has the word for that.
-    this.color = PlassColor.info,
-    this.density = PlassDensity.standard,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.icon,
     this.showIcon = true,
@@ -72,13 +72,13 @@ class PlAlert extends StatelessWidget {
   final PlassVariant variant;
 
   /// Type scale, radius and padding.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Which severity this is. The glyph follows it unless [icon] says otherwise.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// How tightly the alert packs its content.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`.
   ///
@@ -113,10 +113,18 @@ class PlAlert extends StatelessWidget {
   /// one live region rather than two politeness levels, so what the React build
   /// says with `role="alert"` against `role="status"` becomes whether the alert
   /// is a live region at all.
-  bool get _interrupts => color == PlassColor.warning || color == PlassColor.danger;
+  /// Takes the **resolved** family rather than reading the field: an alert whose
+  /// colour comes from the theme rather than from its own parameter is still a
+  /// warning, and a getter reading the nullable field would have said otherwise.
+  static bool _interrupts(PlassColor color) =>
+      color == PlassColor.warning || color == PlassColor.danger;
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.info;
+    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
     final tokens = PlassTheme.of(context);
     final family = tokens.family(color);
     final body = sheetBody[size]!;
@@ -201,7 +209,7 @@ class PlAlert extends StatelessWidget {
 
     return Semantics(
       container: true,
-      liveRegion: _interrupts,
+      liveRegion: _interrupts(color),
       child: PlassSurfaceBox(
         surface: surface,
         borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),

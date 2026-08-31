@@ -53,8 +53,8 @@ class PlImage extends StatefulWidget {
     this.ratio,
     this.fit = PlAspectFit.cover,
     this.rounded = false,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
+    this.size,
+    this.color,
     this.placeholder,
     this.fallback,
     this.preview = false,
@@ -89,10 +89,10 @@ class PlImage extends StatefulWidget {
   final bool rounded;
 
   /// Which step of the radius ladder [rounded] uses.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// The family the skeleton and the focus ring take.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// What is drawn while the picture is loading. A [PlSkeleton] by default.
   final Widget? placeholder;
@@ -121,6 +121,9 @@ class PlImage extends StatefulWidget {
 }
 
 class _PlImageState extends State<PlImage> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+
   PlImageStatus _status = PlImageStatus.loading;
   bool _open = false;
 
@@ -155,12 +158,11 @@ class _PlImageState extends State<PlImage> {
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final family = tokens.family(widget.color);
-    final radius = BorderRadius.circular(widget.rounded ? PlassTokens.radius[widget.size]! : 0);
+    final family = tokens.family(_color);
+    final radius = BorderRadius.circular(widget.rounded ? PlassTokens.radius[_size]! : 0);
 
     final placeholder =
-        widget.placeholder ??
-        PlSkeleton(shape: PlSkeletonShape.rect, size: widget.size, color: widget.color);
+        widget.placeholder ?? PlSkeleton(shape: PlSkeletonShape.rect, size: _size, color: _color);
 
     final fallback =
         widget.fallback ??

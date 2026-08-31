@@ -105,9 +105,9 @@ class PlPill extends StatefulWidget {
     this.onPressed,
     this.child,
     this.variant = PlassVariant.solid,
-    this.size = PlassSize.md,
-    this.color = PlassColor.secondary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 2,
     super.key,
   }) : assert(
@@ -157,13 +157,13 @@ class PlPill extends StatefulWidget {
   final PlassVariant variant;
 
   /// The row's minimum height and the type scale.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Halves the air either side of the middle.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`. `2`, against the `0` almost everything else
   /// takes.
@@ -180,6 +180,11 @@ class PlPill extends StatefulWidget {
 }
 
 class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.secondary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   late final AnimationController _open = AnimationController(
     vsync: this,
     duration: PlassTokens.durationSlow,
@@ -214,16 +219,16 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final family = tokens.family(widget.color);
+    final family = tokens.family(_color);
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
-    final text = controlText[widget.size]!;
-    final padX = paddingX[widget.density]![widget.size]!;
+    final text = controlText[_size]!;
+    final padX = paddingX[_density]![_size]!;
     final interactive = widget.onPressed != null;
 
     // Exactly half the row's minimum height, so a collapsed pill is a true
     // stadium — and the same number once it has grown, which is what keeps a
     // two-line pill from having a corner that eats its own text.
-    final corner = BorderRadius.circular(_rowMinHeight[widget.size]! / 2);
+    final corner = BorderRadius.circular(_rowMinHeight[_size]! / 2);
 
     return PlassInteractive(
       onTap: widget.onPressed,
@@ -242,7 +247,7 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
-            spacing: gap[widget.size]!,
+            spacing: gap[_size]!,
             children: <Widget>[
               if (widget.startIcon != null)
                 // A square the size of a standalone glyph, clipped round: an
@@ -250,10 +255,10 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
                 // which is what a 20px portrait wants.
                 ClipOval(
                   child: SizedBox(
-                    width: iconSize[widget.size]!,
-                    height: iconSize[widget.size]!,
+                    width: iconSize[_size]!,
+                    height: iconSize[_size]!,
                     child: IconTheme.merge(
-                      data: IconThemeData(color: surface.ink, size: iconSize[widget.size]!),
+                      data: IconThemeData(color: surface.ink, size: iconSize[_size]!),
                       child: Center(child: widget.startIcon!),
                     ),
                   ),
@@ -266,7 +271,7 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
         );
 
         row = ConstrainedBox(
-          constraints: BoxConstraints(minHeight: _rowMinHeight[widget.size]!),
+          constraints: BoxConstraints(minHeight: _rowMinHeight[_size]!),
           child: row,
         );
 
@@ -301,8 +306,8 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
                         padding: EdgeInsets.only(left: padX, right: padX, bottom: 8),
                         child: DefaultTextStyle.merge(
                           style: TextStyle(
-                            fontSize: sheetBody[widget.size]!.size,
-                            height: sheetBody[widget.size]!.height,
+                            fontSize: sheetBody[_size]!.size,
+                            height: sheetBody[_size]!.height,
                             fontWeight: FontWeight.w400,
                           ),
                           child: widget.details!,
@@ -356,7 +361,7 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
   /// what is in it.
   Widget _middle(PlassTokens tokens, Color ink) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: _centerPadding[widget.density]![widget.size]!),
+      padding: EdgeInsets.symmetric(horizontal: _centerPadding[_density]![_size]!),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -373,7 +378,7 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
             DefaultTextStyle.merge(
               style: TextStyle(
                 color: ink.withValues(alpha: ink.a * _descriptionInk),
-                fontSize: metaText[widget.size]!,
+                fontSize: metaText[_size]!,
                 fontWeight: FontWeight.w400,
               ),
               maxLines: 1,

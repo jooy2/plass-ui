@@ -57,8 +57,8 @@ class PlAvatarGroup extends StatelessWidget {
     this.overlap,
     this.shape = PlAvatarShape.circle,
     this.variant = PlassVariant.ghost,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
+    this.size,
+    this.color,
     this.elevation = 0,
     this.semanticLabel,
     super.key,
@@ -96,10 +96,10 @@ class PlAvatarGroup extends StatelessWidget {
   final PlassVariant variant;
 
   /// See [shape].
-  final PlassSize size;
+  final PlassSize? size;
 
   /// See [shape].
-  final PlassColor color;
+  final PlassColor? color;
 
   /// See [shape].
   final PlassElevation elevation;
@@ -112,6 +112,9 @@ class PlAvatarGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+
     final PlassTokens tokens = PlassTheme.of(context);
 
     final List<PlAvatar> shown = max == null

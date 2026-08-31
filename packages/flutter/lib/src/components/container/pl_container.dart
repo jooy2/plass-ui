@@ -4,6 +4,7 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// Horizontal breathing room, and optionally a measure.
@@ -27,8 +28,8 @@ class PlContainer extends StatelessWidget {
     this.child,
     this.maxWidth,
     this.padded = true,
-    this.size = PlassSize.md,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.density,
     this.centered = true,
     super.key,
   });
@@ -59,10 +60,10 @@ class PlContainer extends StatelessWidget {
   /// The size of the *sheet* — it never touches a height or the type scale —
   /// and it is independent of [maxWidth], which is how wide the content gets
   /// rather than how far it sits from the edge.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Changes the gutter and nothing else.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Centres the content once [maxWidth] is narrower than the screen. No effect
   /// while [maxWidth] is null, because there is nothing left over to centre in.
@@ -83,6 +84,9 @@ class PlContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
     Widget content = child ?? const SizedBox.shrink();
 
     if (padded) {

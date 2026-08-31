@@ -125,9 +125,9 @@ class PlBadge extends StatelessWidget {
     this.placement = PlassCorner.topEnd,
     this.overlap = PlBadgeOverlap.square,
     this.variant = PlassVariant.solid,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.label,
     this.child,
@@ -182,13 +182,13 @@ class PlBadge extends StatelessWidget {
   final PlassVariant variant;
 
   /// The marker's own ladder — 14 to 24px, well below the control heights.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Halves the horizontal padding around the digits.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`.
   ///
@@ -216,6 +216,9 @@ class PlBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+
     final tokens = PlassTheme.of(context);
     final family = tokens.family(color);
 
@@ -227,7 +230,7 @@ class PlBadge extends StatelessWidget {
 
     final surface = controlSurface(tokens, family, variant: variant, elevation: elevation);
 
-    Widget marker = _marker(tokens, surface, asDot: asDot, hidden: hidden);
+    Widget marker = _marker(context, tokens, surface, asDot: asDot, hidden: hidden);
 
     // Visibility rather than opacity: a half-faded badge is a badge you have to
     // squint at to find out whether it is there. The marker keeps its box either
@@ -268,11 +271,15 @@ class PlBadge extends StatelessWidget {
   }
 
   Widget _marker(
+    BuildContext context,
     PlassTokens tokens,
     PlassSurface surface, {
     required bool asDot,
     required bool hidden,
   }) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
     // A badge sits well below the radius ladder — at 18px tall, `xs` (8px) is
     // already most of the way to a pill, and a badge *is* the one thing in the
     // library allowed to be one. That is not a hole in the design language, it

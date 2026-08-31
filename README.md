@@ -167,7 +167,7 @@ import { PlassProvider } from 'plass-ui';
 
 It deliberately does **not** set `variant` or `elevation`: those name what a surface is made of and how far off the page it sits, and both are decided per component by the design language — a button is `solid` and rests on the sheet, a field is cut into it. [The guide](https://plass.cdget.com/guide/defaults) has the long version, and the precedence: a component's own prop beats the set it is in, which beats the provider.
 
-React-only for now; the Flutter package has `PlassTheme` for brightness and tokens.
+The Flutter package does the same through `PlassTheme.merge`, which also carries the date vocabulary — `names` and `labels` are what a `locale` is there, since the framework ships no `Intl`.
 
 ## Hooks
 

@@ -137,9 +137,9 @@ class PlNavigationMenu extends StatefulWidget {
     this.delay = const Duration(milliseconds: 50),
     this.closeDelay = const Duration(milliseconds: 100),
     this.sideOffset = 8,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.semanticLabel,
     super.key,
   });
@@ -175,14 +175,14 @@ class PlNavigationMenu extends StatefulWidget {
   final double sideOffset;
 
   /// The row's height and type scale, and the panel's radius and padding.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the hover, the open item and the focus
   /// rings; the sheet is never dyed.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Changes the padding and nothing else.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// The name the navigation region is announced by.
   ///
@@ -196,6 +196,11 @@ class PlNavigationMenu extends StatefulWidget {
 }
 
 class _PlNavigationMenuState extends State<PlNavigationMenu> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   late String? _value = widget.initialValue;
   Timer? _openTimer;
   Timer? _closeTimer;
@@ -257,10 +262,10 @@ class _PlNavigationMenuState extends State<PlNavigationMenu> {
         ? Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: gap[widget.size]!,
+            spacing: gap[_size]!,
             children: row,
           )
-        : Row(mainAxisSize: MainAxisSize.min, spacing: gap[widget.size]!, children: row);
+        : Row(mainAxisSize: MainAxisSize.min, spacing: gap[_size]!, children: row);
 
     return Semantics(
       role: SemanticsRole.navigation,
@@ -276,9 +281,9 @@ class _PlNavigationMenuState extends State<PlNavigationMenu> {
     final Widget trigger = _Trigger(
       item: item,
       open: open,
-      size: widget.size,
-      color: widget.color,
-      density: widget.density,
+      size: _size,
+      color: _color,
+      density: _density,
       onHover: () => _hover(item),
       onPressed: item.disabled
           ? null
@@ -299,9 +304,9 @@ class _PlNavigationMenuState extends State<PlNavigationMenu> {
       onDismiss: () => _set(null),
       popup: _Panel(
         item: item,
-        size: widget.size,
-        color: widget.color,
-        density: widget.density,
+        size: _size,
+        color: _color,
+        density: _density,
         onEnter: () => _closeTimer?.cancel(),
         onExit: _leave,
         onChosen: () => _set(null),

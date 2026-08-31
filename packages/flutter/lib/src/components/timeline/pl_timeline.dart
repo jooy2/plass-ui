@@ -42,7 +42,6 @@ const Map<PlassDensity, Map<PlassSize, double>> _itemGap = <PlassDensity, Map<Pl
   },
 };
 
-
 /// One step of a [PlTimeline].
 ///
 /// A description rather than a widget, for the reason a `PlBreadcrumbItem` is
@@ -112,9 +111,9 @@ class PlTimeline extends StatelessWidget {
   const PlTimeline({
     required this.items,
     this.active,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.orientation = PlassOrientation.vertical,
     super.key,
   });
@@ -132,13 +131,13 @@ class PlTimeline extends StatelessWidget {
   final int? active;
 
   /// Type scale and bullet size.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Spacing between steps. Never the type scale, never the bullet.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Which way the sequence runs.
   ///
@@ -150,6 +149,10 @@ class PlTimeline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
     final horizontal = orientation == PlassOrientation.horizontal;
 
     final steps = <Widget>[

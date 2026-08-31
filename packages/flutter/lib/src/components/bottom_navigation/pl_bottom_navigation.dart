@@ -130,9 +130,9 @@ class PlBottomNavigation<T> extends StatelessWidget {
     required this.value,
     this.onChanged,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.labels = PlBottomNavigationLabels.all,
     this.divider = true,
@@ -160,13 +160,13 @@ class PlBottomNavigation<T> extends StatelessWidget {
 
   /// The row's floor, the glyph's size, and the type scale of the name under
   /// it.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role, carried by the one item that is current.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Changes the air inside the sheet and nothing else.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`.
   ///
@@ -202,6 +202,9 @@ class PlBottomNavigation<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
     final PlassTokens tokens = PlassTheme.of(context);
     final double inset = safeArea ? MediaQuery.paddingOf(context).bottom : 0;
 
@@ -258,6 +261,9 @@ class PlBottomNavigation<T> extends StatelessWidget {
   }
 
   Widget _item(BuildContext context, PlBottomNavigationItem<T> item, PlassTokens tokens) {
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+
     final PlassColorFamily family = tokens.family(color);
     final bool unavailable = disabled || item.disabled || onChanged == null;
     final bool selected = value != null && value == item.value;

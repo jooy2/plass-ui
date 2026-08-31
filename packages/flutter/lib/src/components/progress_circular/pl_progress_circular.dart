@@ -43,8 +43,8 @@ class PlProgressCircular extends StatefulWidget {
     this.label,
     this.showValue = false,
     this.formatValue,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
+    this.size,
+    this.color,
     super.key,
   });
 
@@ -69,10 +69,10 @@ class PlProgressCircular extends StatefulWidget {
   final String Function(double value)? formatValue;
 
   /// Diameter of the ring.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It becomes the gradient of the arc.
-  final PlassColor color;
+  final PlassColor? color;
 
   @override
   State<PlProgressCircular> createState() => _PlProgressCircularState();
@@ -80,6 +80,9 @@ class PlProgressCircular extends StatefulWidget {
 
 class _PlProgressCircularState extends State<PlProgressCircular>
     with SingleTickerProviderStateMixin {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+
   late final AnimationController _spin = AnimationController(vsync: this, duration: spinDuration);
 
   double? get _fraction => progressFraction(widget.value, widget.min, widget.max);
@@ -128,12 +131,12 @@ class _PlProgressCircularState extends State<PlProgressCircular>
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final family = tokens.family(widget.color);
+    final family = tokens.family(_color);
     final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     final fraction = _fraction;
-    final diameter = ringDiameter[widget.size]!;
-    final meta = metaText[widget.size]!;
+    final diameter = ringDiameter[_size]!;
+    final meta = metaText[_size]!;
 
     final text = fraction == null
         ? null
@@ -152,7 +155,7 @@ class _PlProgressCircularState extends State<PlProgressCircular>
                     track: tokens.track,
                     from: family.solid,
                     to: family.solidTo,
-                    stroke: ringStroke[widget.size]!,
+                    stroke: ringStroke[_size]!,
                     // A fixed quarter-arc, turned. Determinate holds still and
                     // lets the gap close instead; both are one arc on one
                     // circle.
@@ -170,7 +173,7 @@ class _PlProgressCircularState extends State<PlProgressCircular>
                     track: tokens.track,
                     from: family.solid,
                     to: family.solidTo,
-                    stroke: ringStroke[widget.size]!,
+                    stroke: ringStroke[_size]!,
                     sweep: value,
                     turn: 0,
                   ),
@@ -187,7 +190,7 @@ class _PlProgressCircularState extends State<PlProgressCircular>
         child: Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
-          spacing: gap[widget.size]!,
+          spacing: gap[_size]!,
           children: <Widget>[
             ring,
             if (widget.label != null)

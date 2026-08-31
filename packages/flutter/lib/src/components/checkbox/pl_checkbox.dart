@@ -38,8 +38,8 @@ class PlCheckbox extends StatelessWidget {
   const PlCheckbox({
     required this.value,
     this.onChanged,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
+    this.size,
+    this.color,
     this.label,
     this.description,
     this.error,
@@ -65,10 +65,10 @@ class PlCheckbox extends StatelessWidget {
 
   /// The tick's own ladder — 14 to 24px, sized against the label beside it
   /// rather than against the row it sits in.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// The text beside the tick. Pressing it toggles the box.
   final Widget? label;
@@ -108,6 +108,9 @@ class PlCheckbox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+
     final tokens = PlassTheme.of(context);
     final hasError = error != null;
     final isInvalid = invalid ?? hasError;

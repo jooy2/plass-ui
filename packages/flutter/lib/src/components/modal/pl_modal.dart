@@ -102,9 +102,9 @@ class PlModal extends StatelessWidget {
     this.fullScreen = false,
     this.modal = true,
     this.dismissible = true,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     super.key,
   });
 
@@ -177,17 +177,19 @@ class PlModal extends StatelessWidget {
   final bool dismissible;
 
   /// Type scale, radius, padding, and how wide the sheet is allowed to get.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the focus rings inside and nothing else:
   /// what a modal holds arrives with its own colours.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// How tightly the sections pack.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+
     final tokens = PlassTheme.of(context);
 
     void close() => onOpenChanged?.call(false);
@@ -218,6 +220,10 @@ class PlModal extends StatelessWidget {
   }
 
   Widget _sheet(BuildContext context, PlassTokens tokens, VoidCallback close) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
     final family = tokens.family(color);
     final insetX = sheetPaddingX[density]![size]!;
     final insetY = sheetPaddingY[density]![size]!;

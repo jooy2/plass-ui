@@ -115,9 +115,9 @@ class PlTable<T> extends StatefulWidget {
     this.maxHeight,
     this.onRowPressed,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.semanticLabel,
     super.key,
@@ -198,14 +198,14 @@ class PlTable<T> extends StatefulWidget {
   final PlassVariant variant;
 
   /// Type scale and cell padding.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the hover tint and the focus ring, and
   /// nothing else: data arrives with its own colours.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// How tightly the rows pack. Padding only — never the type scale.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`.
   ///
@@ -224,6 +224,11 @@ class PlTable<T> extends StatefulWidget {
 }
 
 class _PlTableState<T> extends State<PlTable<T>> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   /// Which row the pointer is over, and which one the keyboard is on.
   ///
   /// Two fields rather than one interaction state, because a table's row is not
@@ -406,13 +411,13 @@ class _PlTableState<T> extends State<PlTable<T>> {
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final family = tokens.family(widget.color);
-    final size = widget.size;
+    final family = tokens.family(_color);
+    final size = _size;
     final text = controlTextLeading[size]!;
-    final padX = paddingX[widget.density]![size]!;
+    final padX = paddingX[_density]![size]!;
     final padding = EdgeInsets.symmetric(
       horizontal: padX,
-      vertical: cellPaddingY[widget.density]![size]!,
+      vertical: cellPaddingY[_density]![size]!,
     );
 
     // Two weights of rule, and the whole of the table's structure. `divider`

@@ -9,6 +9,7 @@ import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/picker.dart';
 import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
 export 'package:plass_ui/src/internal/date.dart' show PlDateNames, PlPickerLabels;
@@ -106,17 +107,17 @@ class PlDatePicker extends StatefulWidget {
     this.maxDate,
     this.shouldDisableDate,
     this.weekStartsOn,
-    this.names = PlDateNames.english,
-    this.labels = PlPickerLabels.english,
+    this.names,
+    this.labels,
     this.formatValue,
     this.placeholder,
     this.clearable = false,
     this.showTodayButton = true,
     this.closeOnSelect = true,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.label,
     this.description,
@@ -177,10 +178,10 @@ class PlDatePicker extends StatefulWidget {
   final PlassWeekday? weekStartsOn;
 
   /// The month and weekday names, and the order the header writes them in.
-  final PlDateNames names;
+  final PlDateNames? names;
 
   /// The words the picker says about itself. Every one has an English default.
-  final PlPickerLabels labels;
+  final PlPickerLabels? labels;
 
   /// How the trigger writes the chosen day.
   ///
@@ -207,13 +208,13 @@ class PlDatePicker extends StatefulWidget {
   final PlassVariant variant;
 
   /// Height and type scale, of the trigger and of one calendar cell alike.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the edge, the ring and the chosen day.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Horizontal padding. Never the height.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth of the **trigger**. `0`, like a [PlTextField].
   final PlassElevation elevation;
@@ -256,12 +257,23 @@ class PlDatePicker extends StatefulWidget {
 }
 
 class _PlDatePickerState extends State<PlDatePicker> {
+  PlDateNames get _names =>
+      widget.names ?? PlassTheme.defaultsOf(context).names ?? PlDateNames.english;
+  PlPickerLabels get _labels =>
+      widget.labels ?? PlassTheme.defaultsOf(context).labels ?? PlPickerLabels.english;
+
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   bool _ownOpen = false;
   late DateTime _month = startOfMonth(widget.value ?? widget.defaultMonth ?? todayDate());
 
   bool get _open => widget.open ?? _ownOpen;
 
-  PlassWeekday get _weekStart => widget.weekStartsOn ?? widget.names.firstDayOfWeek;
+  PlassWeekday get _weekStart =>
+      widget.weekStartsOn ?? PlassTheme.defaultsOf(context).weekStartsOn ?? _names.firstDayOfWeek;
 
   void _setOpen(bool next) {
     if (next && (widget.readOnly || widget.disabled || widget.onChanged == null)) {
@@ -304,8 +316,8 @@ class _PlDatePickerState extends State<PlDatePicker> {
     }
 
     return switch (widget.precision) {
-      PlDatePickerPrecision.day => widget.names.medium(date),
-      PlDatePickerPrecision.month => widget.names.monthYear(date),
+      PlDatePickerPrecision.day => _names.medium(date),
+      PlDatePickerPrecision.month => _names.monthYear(date),
       PlDatePickerPrecision.year => '${date.year}',
     };
   }
@@ -318,18 +330,18 @@ class _PlDatePickerState extends State<PlDatePicker> {
     return switch (widget.precision) {
       PlDatePickerPrecision.day => (
         now,
-        widget.labels.today,
+        _labels.today,
         isDayOutside(now, widget.minDate, widget.maxDate) ||
             (widget.shouldDisableDate?.call(now) ?? false),
       ),
       PlDatePickerPrecision.month => (
         startOfMonth(now),
-        widget.labels.thisMonth,
+        _labels.thisMonth,
         isMonthOutside(now, widget.minDate, widget.maxDate),
       ),
       PlDatePickerPrecision.year => (
         startOfYear(now),
-        widget.labels.thisYear,
+        _labels.thisYear,
         isYearOutside(now, widget.minDate, widget.maxDate),
       ),
     };
@@ -344,9 +356,9 @@ class _PlDatePickerState extends State<PlDatePicker> {
 
     return PlassPickerShell(
       variant: widget.variant,
-      size: widget.size,
-      color: widget.color,
-      density: widget.density,
+      size: _size,
+      color: _color,
+      density: _density,
       elevation: widget.elevation,
       label: widget.label,
       description: widget.description,
@@ -354,10 +366,7 @@ class _PlDatePickerState extends State<PlDatePicker> {
       invalid: widget.invalid,
       startIcon:
           widget.startIcon ??
-          PlassGlyph(
-            PlassGlyphShape.calendar,
-            size: controlTextLeading[widget.size]!.size * iconScale,
-          ),
+          PlassGlyph(PlassGlyphShape.calendar, size: controlTextLeading[_size]!.size * iconScale),
       fullWidth: widget.fullWidth,
       readOnly: widget.readOnly,
       disabled: widget.disabled,
@@ -375,7 +384,7 @@ class _PlDatePickerState extends State<PlDatePicker> {
       empty: value == null,
       clearable: widget.clearable,
       onClear: () => widget.onChanged?.call(null),
-      clearLabel: widget.labels.clear,
+      clearLabel: _labels.clear,
       open: _open,
       onOpenChanged: _setOpen,
       popup: Column(
@@ -388,12 +397,12 @@ class _PlDatePickerState extends State<PlDatePicker> {
             onMonthChanged: (DateTime next) => setState(() => _month = next),
             selected: <DateTime?>[value],
             onSelect: _select,
-            names: widget.names,
-            labels: widget.labels,
+            names: _names,
+            labels: _labels,
             weekStartsOn: _weekStart,
             precision: _precisionViews[widget.precision]!,
-            size: widget.size,
-            color: widget.color,
+            size: _size,
+            color: _color,
             minDate: widget.minDate,
             maxDate: widget.maxDate,
             shouldDisableDate: widget.shouldDisableDate,
@@ -401,25 +410,25 @@ class _PlDatePickerState extends State<PlDatePicker> {
           ),
           if (hasFooter)
             PlassPickerFooter(
-              size: widget.size,
+              size: _size,
               children: <Widget>[
                 if (widget.clearable)
                   PlButton(
                     variant: PlassVariant.ghost,
-                    size: widget.size,
-                    color: widget.color,
+                    size: _size,
+                    color: _color,
                     density: PlassDensity.compact,
                     onPressed: () {
                       widget.onChanged?.call(null);
                       _setOpen(false);
                     },
-                    child: Text(widget.labels.clear),
+                    child: Text(_labels.clear),
                   ),
                 if (widget.showTodayButton)
                   PlButton(
                     variant: PlassVariant.ghost,
-                    size: widget.size,
-                    color: widget.color,
+                    size: _size,
+                    color: _color,
                     density: PlassDensity.compact,
                     disabled: shortcutBlocked,
                     onPressed: () => _select(shortcut),

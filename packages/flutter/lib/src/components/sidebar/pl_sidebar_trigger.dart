@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/icon_button/pl_icon_button.dart';
 import 'package:plass_ui/src/internal/page_layout.dart';
+import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// Three lines.
@@ -68,8 +69,8 @@ class PlSidebarTrigger extends StatelessWidget {
     this.icon,
     this.label,
     this.variant = PlassVariant.ghost,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
+    this.size,
+    this.color,
     super.key,
   });
 
@@ -87,13 +88,16 @@ class PlSidebarTrigger extends StatelessWidget {
   final PlassVariant variant;
 
   /// The key's size.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role.
-  final PlassColor color;
+  final PlassColor? color;
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+
     final PlassPageLayoutScope? layout = PlassPageLayoutScope.maybeOf(context);
 
     // Nothing to open, and — unlike the React build, which hides the button

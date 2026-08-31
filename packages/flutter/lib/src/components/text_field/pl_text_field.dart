@@ -56,9 +56,9 @@ class PlTextField extends StatefulWidget {
     this.onSubmitted,
     this.hotKeys,
     this.variant = PlassVariant.glass,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.multiline = false,
     this.rows = 3,
@@ -109,14 +109,14 @@ class PlTextField extends StatefulWidget {
 
   /// Height and type scale together, the same ladder a button walks — so a field
   /// and the button beside it in a row sit on one baseline.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the hairline, the ring and the caret; the
   /// glass is never dyed.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// Changes horizontal padding and nothing else.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`. `0` is the default — a field is a well.
   final PlassElevation elevation;
@@ -197,6 +197,11 @@ class PlTextField extends StatefulWidget {
 }
 
 class _PlTextFieldState extends State<PlTextField> {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
   FocusNode? _owned;
   TextEditingController? _fallback;
   bool _hovered = false;
@@ -242,9 +247,9 @@ class _PlTextFieldState extends State<PlTextField> {
     // Invalid re-points the whole family at `danger`, so the edge, the ring, the
     // caret and the message all turn over together and no state needs its own
     // set of tokens.
-    final family = tokens.family(isInvalid ? PlassColor.danger : widget.color);
+    final family = tokens.family(isInvalid ? PlassColor.danger : _color);
 
-    final size = widget.size;
+    final size = _size;
     final scale = controlTextLeading[size]!;
     final meta = metaText[size]!;
     final radius = BorderRadius.circular(PlassTokens.radius[size]!);
@@ -368,7 +373,7 @@ class _PlTextFieldState extends State<PlTextField> {
 
     shell = Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: paddingX[widget.density]![size]!,
+        horizontal: paddingX[_density]![size]!,
         vertical: widget.multiline ? _multilinePaddingY[size]! : 0,
       ),
       child: shell,

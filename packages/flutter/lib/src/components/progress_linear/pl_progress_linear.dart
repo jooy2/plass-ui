@@ -43,8 +43,8 @@ class PlProgressLinear extends StatefulWidget {
     this.label,
     this.showValue = false,
     this.formatValue,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
+    this.size,
+    this.color,
     super.key,
   });
 
@@ -86,16 +86,19 @@ class PlProgressLinear extends StatefulWidget {
   final String Function(double value)? formatValue;
 
   /// Thickness of the groove. Nothing else on a bar has a size.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It becomes the gradient of the filled part.
-  final PlassColor color;
+  final PlassColor? color;
 
   @override
   State<PlProgressLinear> createState() => _PlProgressLinearState();
 }
 
 class _PlProgressLinearState extends State<PlProgressLinear> with SingleTickerProviderStateMixin {
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+
   late final AnimationController _sweep = AnimationController(vsync: this, duration: sweepDuration);
 
   double? get _fraction => progressFraction(widget.value, widget.min, widget.max);
@@ -148,13 +151,13 @@ class _PlProgressLinearState extends State<PlProgressLinear> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final family = tokens.family(widget.color);
+    final family = tokens.family(_color);
     final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     final fraction = _fraction;
-    final thickness = barThickness[widget.size]!;
+    final thickness = barThickness[_size]!;
     final radius = BorderRadius.circular(thickness);
-    final meta = metaText[widget.size]!;
+    final meta = metaText[_size]!;
 
     final text = fraction == null
         ? null
@@ -190,7 +193,7 @@ class _PlProgressLinearState extends State<PlProgressLinear> with SingleTickerPr
 
     final head = widget.label != null || (widget.showValue && text != null)
         ? Padding(
-            padding: EdgeInsets.only(bottom: stackGap[widget.size]!),
+            padding: EdgeInsets.only(bottom: stackGap[_size]!),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,

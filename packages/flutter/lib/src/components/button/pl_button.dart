@@ -199,11 +199,13 @@ class _PlButtonState extends State<PlButton> {
 
   PlassVariant get _variant => widget.variant ?? _group?.variant ?? PlassVariant.solid;
 
-  PlassSize get _size => widget.size ?? _group?.size ?? PlassSize.md;
+  PlassSize get _size => widget.size ?? _group?.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
 
-  PlassColor get _color => widget.color ?? _group?.color ?? PlassColor.primary;
+  PlassColor get _color =>
+      widget.color ?? _group?.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
 
-  PlassDensity get _density => widget.density ?? _group?.density ?? PlassDensity.standard;
+  PlassDensity get _density =>
+      widget.density ?? _group?.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
 
   PlassElevation get _elevation => widget.elevation ?? _group?.elevation ?? 1;
 

@@ -108,9 +108,9 @@ class PlPagination extends StatelessWidget {
     required this.page,
     this.onPageChanged,
     this.variant = PlassVariant.ghost,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.compact,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.siblingCount = 1,
     this.boundaryCount = 1,
@@ -142,14 +142,14 @@ class PlPagination extends StatelessWidget {
   final PlassVariant variant;
 
   /// Height and type scale.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// How tightly a page button packs its digits. `compact` by default, because
   /// a page number is one or two characters.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth of the page buttons.
   ///
@@ -200,6 +200,10 @@ class PlPagination extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.compact;
+
     // One page is not a set of pages, and no pages is not a thing to say out
     // loud. A row that draws a lone disabled "1" is a control advertising that
     // it has nothing to do.

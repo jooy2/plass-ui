@@ -51,9 +51,9 @@ class PlBlockquote extends StatelessWidget {
   const PlBlockquote({
     this.child,
     this.variant = PlassVariant.ghost,
-    this.size = PlassSize.md,
-    this.color = PlassColor.primary,
-    this.density = PlassDensity.standard,
+    this.size,
+    this.color,
+    this.density,
     this.elevation = 0,
     this.author,
     this.source,
@@ -72,13 +72,13 @@ class PlBlockquote extends StatelessWidget {
   final PlassVariant variant;
 
   /// Type scale and padding.
-  final PlassSize size;
+  final PlassSize? size;
 
   /// Semantic colour role. It reaches the rule and the quotation mark.
-  final PlassColor color;
+  final PlassColor? color;
 
   /// How tightly the quote packs its content.
-  final PlassDensity density;
+  final PlassDensity? density;
 
   /// Drop shadow depth, `0`–`3`.
   ///
@@ -106,6 +106,10 @@ class PlBlockquote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
     final tokens = PlassTheme.of(context);
     final family = tokens.family(color);
     final quote = _quoteText[size]!;
