@@ -1236,6 +1236,64 @@ export const flutterPropTables: Record<string, PropRow[]> = {
    * and the trigger's format as a callback — the same trade the indicators
    * already make with `formatValue`.
    */
+  PlStepper: [
+    {
+      name: 'steps',
+      type: 'List<PlStep>',
+      required: true,
+      description: { ko: '순서대로의 step들', en: 'The steps, in order' }
+    },
+    from('PlStepper', 'active', { type: 'int', required: true }),
+    from('PlStepper', 'onActiveChange', {
+      name: 'onActiveChanged',
+      type: 'ValueChanged<int>?',
+      description: {
+        ko: '눌린 step과 함께 호출됩니다. null이면 모든 step이 비활성입니다 — 구동하지 않고 보여 주기만 하는 방법입니다',
+        en: 'Called with the step that was pressed. A null handler makes every step inert, which is how a stepper is shown without being driven'
+      }
+    }),
+    from('PlStepper', 'linear', { type: 'bool', default: 'true' }),
+    from('PlStepper', 'orientation', {
+      type: 'PlassOrientation',
+      default: 'PlassOrientation.horizontal'
+    }),
+    from('PlStepper', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlStepper', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlStepper', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+  ],
+  PlStep: [
+    from('PlStep', 'label', { type: 'Widget?' }),
+    from('PlStep', 'description', { type: 'Widget?' }),
+    from('PlStep', 'bullet', { type: 'Widget?' }),
+    from('PlStep', 'status', { type: 'PlStepStatus?' }),
+    {
+      name: 'optional',
+      type: 'Widget?',
+      description: {
+        ko: '건너뛸 수 있음을 표시하고, 그 말로 말합니다. 기본 문자열이 없습니다 — 패키지는 번역을 싣지 않고, 지어낸 단어는 어느 한 언어의 것이기 때문입니다',
+        en: 'Marks the step skippable, and says so in these words. There is no default string, because the package ships no translations and a word it invented would be in one language'
+      }
+    },
+    from('PlStep', 'disabled', { type: 'bool', default: 'false' }),
+    from('PlStep', 'color', { type: COLOR }),
+    {
+      name: 'connector',
+      type: 'PlassStepConnector',
+      default: 'PlassStepConnector.solid',
+      description: {
+        ko: '다음 step으로 가는 선. none은 간격을 비웁니다',
+        en: 'How the line to the next step is drawn. none leaves the gap open'
+      }
+    },
+    from('PlStep', 'children', {
+      name: 'child',
+      type: 'Widget?',
+      description: {
+        ko: '현재 step일 때 보여 줄 패널',
+        en: 'The panel this step shows while it is the current one'
+      }
+    })
+  ],
   PlCalendar: [
     {
       name: 'value',

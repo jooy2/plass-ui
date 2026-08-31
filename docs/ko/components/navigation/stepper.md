@@ -25,6 +25,24 @@ import { PlStep, PlStepper } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlStepper(
+  active: step,
+  onActiveChanged: (int next) => setState(() => step = next),
+  steps: const <PlStep>[
+    PlStep(label: Text('Account'), child: Text('…')),
+    PlStep(label: Text('Verify'), child: Text('…')),
+    PlStep(label: Text('Profile'), optional: Text('Optional'), child: Text('…')),
+  ],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlStepper" />
@@ -34,6 +52,14 @@ import { PlStep, PlStepper } from 'plass-ui';
 <PropsTable name="PlStep" />
 
 네이티브 `<div>` 속성은 stepper로, `<li>` 속성은 step으로 그대로 통과합니다. 공유 축이 라이브러리 전체에서 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
+
+::: fw flutter
+
+step은 children이 아니라 **리스트**입니다. `PlTimeline`의 것이 그런 이유와 같습니다 — stepper가 그것들에 대해 *추론*해야 하고(어느 것이 complete인지는 인덱스 산수이고, 어느 것에 닿을 수 있는지도 같은 인덱스 산수입니다), 두 질문 모두 불투명한 `Widget`에게는 물을 수 없습니다. React 빌드가 경고해야 하는 날카로운 모서리도 그것으로 사라집니다 — step 셋을 품은 wrapper를 건넬 방법이 아예 없습니다.
+
+`optional`은 `bool`이 아니라 `Widget`을 받습니다. 물러설 기본 문자열이 없기 때문입니다 — 패키지는 번역을 싣지 않고, 지어낸 단어는 어느 한 언어의 것입니다.
+
+:::
 
 ## stepper인가 timeline인가
 
@@ -78,6 +104,12 @@ timeline의 것과 똑같이 값이 아니라 **인덱스**입니다 — stepper
 
 :::
 
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/stepper/vertical.dart
+
+:::
+
 </Demo>
 
 ### status와 color
@@ -89,6 +121,12 @@ timeline의 것과 똑같이 값이 아니라 **인덱스**입니다 — stepper
 ::: fw react
 
 <<< @/.vitepress/demos/stepper/status.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/stepper/status.dart
 
 :::
 
@@ -104,10 +142,20 @@ timeline의 것과 똑같이 값이 아니라 **인덱스**입니다 — stepper
 
 ## Notes
 
+::: fw react
+
 > **step은 stepper의 직계 자식이어야 합니다.** stepper는 자식을 걸어가며 번호를 매기므로, step 세 개를 돌려주는 여러분의 컴포넌트는 셋을 품은 자식 **하나**이고 그 안의 모든 step이 1번이 됩니다. 감싸는 컴포넌트 대신 `.map()`이나 배열로 목록을 만드세요 — 둘 다 평탄화됩니다.
 
 - 아무것도 렌더링하지 않은 조건부 step은 뒤 step들의 번호를 밀지 않습니다.
 - stepper 밖의 step도 렌더링됩니다. 앞뒤에 아무것도 없는 step 하나입니다.
+
+:::
+
+::: fw flutter
+
+step이 리스트이므로 잘못 감쌀 wrapper 자체가 없습니다 — props 표 위의 설명을 보세요.
+
+:::
 
 ## Accessibility
 
@@ -115,3 +163,9 @@ timeline의 것과 똑같이 값이 아니라 **인덱스**입니다 — stepper
 - 일부러 `role="tablist"`가 **아닙니다.** tab list는 키보드 사용자에게 tab stop 하나와 화살표 키를, 스크린 리더에게 탭마다 패널 하나를 빚집니다. stepper는 서로 다른 컨트롤의 시퀀스이고, 동작 없이 role만 주장하는 것은 아예 주장하지 않는 것보다 나쁩니다. 닿을 수 있는 각 step이 각자의 tab stop이며, 그것이 stepper의 step이 하는 일입니다.
 - 닿을 수 없는 step은 disabled 버튼이 아니라 아예 버튼이 아닙니다 — 아직 누를 것이 거기 없습니다.
 - 패널은 그것이 속한 step으로 이름 붙습니다. 그래서 패널에 도착한 스크린 리더가 어느 step의 패널인지 듣습니다.
+
+::: fw flutter
+
+현재 step은 `selected`로 표시합니다. 프레임워크가 가진 것 중 `aria-current="step"`에 가장 가까운 것입니다. 닿을 수 없는 step은 disabled 버튼이 아니라 그냥 상자입니다.
+
+:::

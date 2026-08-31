@@ -4,64 +4,18 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/internal/steps.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// How far along one item is.
 ///
-/// Three states rather than two, because "the one you are on" is not the same
-/// claim as "done", and a sequence that cannot say which step is current is a
-/// list. Each gets its own axis — a filled bullet, a filled bullet with a halo
-/// around it, an empty one — rather than three shades of the same thing.
-enum PlTimelineStatus {
-  /// Behind the sequence. The family's gradient.
-  complete,
-
-  /// The one being worked on. The gradient with a halo of the soft tint round
-  /// it.
-  current,
-
-  /// Still to come. A hairline ring on the page's own surface.
-  upcoming,
-}
+/// The same three a [PlStepper] draws, from `internal/steps.dart`, because a
+/// haloed bullet must not mean two things.
+typedef PlTimelineStatus = PlassStepStatus;
 
 /// How the line between two items is drawn.
-enum PlTimelineConnector {
-  /// An unbroken rule.
-  solid,
-
-  /// A dashed one.
-  dashed,
-
-  /// A dotted one.
-  dotted,
-
-  /// None at all — the gap is left open.
-  none,
-}
-
-/// The bullet.
-///
-/// Its own ladder rather than a step off [controlHeight], for the reason
-/// [tickSize] has one: a bullet is not a control you can put a label inside. It
-/// is a mark beside one, sized against the title next to it.
-const Map<PlassSize, double> _bulletSize = <PlassSize, double>{
-  PlassSize.xs: 14,
-  PlassSize.sm: 16,
-  PlassSize.md: 20,
-  PlassSize.lg: 24,
-  PlassSize.xl: 30,
-};
-
-/// Between the bullet column and the content beside it.
-const Map<PlassSize, double> _bulletGap = <PlassSize, double>{
-  PlassSize.xs: 8,
-  PlassSize.sm: 10,
-  PlassSize.md: 12,
-  PlassSize.lg: 14,
-  PlassSize.xl: 16,
-};
+typedef PlTimelineConnector = PlassStepConnector;
 
 /// How far apart two items sit, and the one thing density is allowed to touch
 /// here — a compact timeline is the same type at the same bullet size with less
@@ -88,11 +42,6 @@ const Map<PlassDensity, Map<PlassSize, double>> _itemGap = <PlassDensity, Map<Pl
   },
 };
 
-/// How thick the connector is, and the halo around a current bullet.
-const double _connectorWidth = 2;
-
-/// How far the halo reaches past a current bullet.
-const double _halo = 4;
 
 /// One step of a [PlTimeline].
 ///
@@ -268,7 +217,7 @@ class _Step extends StatelessWidget {
     final tokens = PlassTheme.of(context);
     final family = tokens.family(color);
     final horizontal = orientation == PlassOrientation.horizontal;
-    final bullet = _bulletSize[size]!;
+    final bullet = stepBulletSize[size]!;
     final gap = last ? 0.0 : _itemGap[density]![size]!;
 
     // The last item's line would run off the end of the sequence into nothing.
@@ -319,7 +268,7 @@ class _Step extends StatelessWidget {
       ],
     );
 
-    final mark = _Bullet(
+    final mark = PlassStepBullet(
       status: status,
       family: family,
       tokens: tokens,
@@ -329,7 +278,7 @@ class _Step extends StatelessWidget {
 
     // The line starts at the far edge of the bullet and runs to the edge of the
     // item, which is where the next bullet begins.
-    final line = _Connector(
+    final line = PlassStepConnectorLine(
       style: item.connector,
       color: status == PlTimelineStatus.complete ? family.lineHover : tokens.border,
       horizontal: horizontal,
@@ -370,7 +319,7 @@ class _Step extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(width: _bulletGap[size]!),
+          SizedBox(width: stepBulletGap[size]!),
           Expanded(
             child: Padding(
               padding: EdgeInsets.only(bottom: gap),
@@ -380,159 +329,5 @@ class _Step extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-/// The bullet at one of the three states.
-class _Bullet extends StatelessWidget {
-  const _Bullet({
-    required this.status,
-    required this.family,
-    required this.tokens,
-    required this.size,
-    this.child,
-  });
-
-  final PlTimelineStatus status;
-  final PlassColorFamily family;
-  final PlassTokens tokens;
-  final double size;
-  final Widget? child;
-
-  @override
-  Widget build(BuildContext context) {
-    final filled = status != PlTimelineStatus.upcoming;
-    final ink = filled ? family.onSolid : tokens.mutedFg;
-
-    return ExcludeSemantics(
-      child: SizedBox.square(
-        dimension: size,
-        child: AnimatedContainer(
-          duration: PlassTokens.duration,
-          curve: PlassTokens.ease,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: filled ? family.fill : null,
-            color: filled ? null : tokens.surface,
-            border: filled
-                ? null
-                // The neutral hairline rather than the sheet's white one, the
-                // same call a checkbox's edge makes: a bullet is small enough
-                // that its edge *is* the object.
-                : Border.all(color: tokens.border, width: _connectorWidth),
-            boxShadow: status == PlTimelineStatus.current
-                ? <BoxShadow>[BoxShadow(color: family.soft, spreadRadius: _halo)]
-                : null,
-          ),
-          child: Center(
-            child: DefaultTextStyle.merge(
-              style: TextStyle(
-                color: ink,
-                // The label inside the bullet is sized off the bullet rather
-                // than off the page's own text, so a number in an `xs` bullet is
-                // not the same 8px it would be in an `xl` one.
-                fontSize: size * 0.5,
-                fontWeight: FontWeight.w600,
-                height: 1,
-                leadingDistribution: TextLeadingDistribution.even,
-                fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
-              ),
-              child: IconTheme.merge(
-                data: IconThemeData(color: ink, size: size * 0.6),
-                child: child ?? const SizedBox.shrink(),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// The line between two bullets.
-///
-/// Painted rather than drawn as a border, because Flutter's `BorderSide` has no
-/// dashes: `dashed` and `dotted` are runs laid down by hand, at the same weight
-/// the solid one is.
-class _Connector extends StatelessWidget {
-  const _Connector({required this.style, required this.color, required this.horizontal});
-
-  final PlTimelineConnector style;
-  final Color color;
-  final bool horizontal;
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      size: horizontal
-          ? const Size(double.infinity, _connectorWidth)
-          : const Size(_connectorWidth, double.infinity),
-      painter: _ConnectorPainter(style: style, color: color, horizontal: horizontal),
-      child: SizedBox(
-        width: horizontal ? double.infinity : _connectorWidth,
-        height: horizontal ? _connectorWidth : double.infinity,
-      ),
-    );
-  }
-}
-
-class _ConnectorPainter extends CustomPainter {
-  const _ConnectorPainter({required this.style, required this.color, required this.horizontal});
-
-  final PlTimelineConnector style;
-  final Color color;
-  final bool horizontal;
-
-  /// The dash and the gap, per style. A dot is a round cap on a zero-length run,
-  /// which is what makes it a circle rather than a short square.
-  (double, double) get _pattern {
-    switch (style) {
-      case PlTimelineConnector.dashed:
-        return (6, 4);
-      case PlTimelineConnector.dotted:
-        return (0, 4);
-      case PlTimelineConnector.solid:
-      case PlTimelineConnector.none:
-        return (0, 0);
-    }
-  }
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (style == PlTimelineConnector.none) {
-      return;
-    }
-
-    final length = horizontal ? size.width : size.height;
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = _connectorWidth
-      ..strokeCap = style == PlTimelineConnector.dotted ? StrokeCap.round : StrokeCap.butt;
-
-    Offset at(double distance) {
-      return horizontal ? Offset(distance, size.height / 2) : Offset(size.width / 2, distance);
-    }
-
-    if (style == PlTimelineConnector.solid) {
-      canvas.drawLine(at(0), at(length), paint);
-
-      return;
-    }
-
-    final (dash, gap) = _pattern;
-    final step = dash + gap;
-
-    for (var distance = 0.0; distance < length; distance += step) {
-      final end = distance + dash > length ? length : distance + dash;
-
-      canvas.drawLine(at(distance), at(end), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(_ConnectorPainter oldDelegate) {
-    return oldDelegate.style != style ||
-        oldDelegate.color != color ||
-        oldDelegate.horizontal != horizontal;
   }
 }

@@ -148,6 +148,9 @@ import 'package:plass_ui_example/demos/container/padding.dart';
 import 'package:plass_ui_example/demos/container/widths.dart';
 import 'package:plass_ui_example/demos/date_picker/bounds.dart';
 import 'package:plass_ui_example/demos/date_picker/format.dart';
+import 'package:plass_ui_example/demos/stepper/hero.dart';
+import 'package:plass_ui_example/demos/stepper/vertical.dart';
+import 'package:plass_ui_example/demos/stepper/status.dart';
 import 'package:plass_ui_example/demos/calendar/hero.dart';
 import 'package:plass_ui_example/demos/calendar/precision.dart';
 import 'package:plass_ui_example/demos/calendar/bounds.dart';
@@ -468,6 +471,9 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'date-time-picker/precision': _dateTimePickerPrecision,
   'date-time-picker/steps': _dateTimePickerSteps,
   'date-time-picker/states': _dateTimePickerStates,
+  'stepper/hero': _stepperHero,
+  'stepper/vertical': _stepperVertical,
+  'stepper/status': _stepperStatus,
   'calendar/hero': _calendarHero,
   'calendar/precision': _calendarPrecision,
   'calendar/bounds': _calendarBounds,
@@ -896,6 +902,12 @@ Widget _dateTimePickerHero(BuildContext context) => const DateTimePickerHero();
 Widget _dateTimePickerPrecision(BuildContext context) => const DateTimePickerPrecision();
 Widget _dateTimePickerSteps(BuildContext context) => const DateTimePickerSteps();
 Widget _dateTimePickerStates(BuildContext context) => const DateTimePickerStates();
+Widget _stepperHero(BuildContext context) => const StepperHero();
+
+Widget _stepperVertical(BuildContext context) => const StepperVertical();
+
+Widget _stepperStatus(BuildContext context) => const StepperStatus();
+
 Widget _calendarHero(BuildContext context) => const CalendarHero();
 
 Widget _calendarPrecision(BuildContext context) => const CalendarPrecision();
