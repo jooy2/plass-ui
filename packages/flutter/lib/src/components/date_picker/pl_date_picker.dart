@@ -13,6 +13,31 @@ import 'package:plass_ui/src/types.dart';
 
 export 'package:plass_ui/src/internal/date.dart' show PlDateNames, PlPickerLabels;
 
+/// The smallest unit a [PlDatePicker] asks for.
+///
+/// A birthday is a day, a card's expiry is a month and a model year is a year,
+/// and a control that makes someone answer a question it did not need the answer
+/// to — *which* day of December 2027 does this card expire? — is a control that
+/// will be answered wrongly.
+enum PlDatePickerPrecision {
+  /// One day, from the day grid. The calendar everyone means.
+  day,
+
+  /// One month, from the month grid. There is no day grid under it.
+  month,
+
+  /// One year, from the year grid.
+  year,
+}
+
+/// The view each precision floors the calendar at.
+const Map<PlDatePickerPrecision, PlassCalendarView> _precisionViews =
+    <PlDatePickerPrecision, PlassCalendarView>{
+      PlDatePickerPrecision.day: PlassCalendarView.day,
+      PlDatePickerPrecision.month: PlassCalendarView.month,
+      PlDatePickerPrecision.year: PlassCalendarView.year,
+    };
+
 /// Twenty-four instants that between them exercise everything a picker's display
 /// can vary by: all twelve month names, all seven weekday names and a two-digit
 /// day.
@@ -53,6 +78,11 @@ final List<DateTime> _displaySamples = List<DateTime>.generate(
 /// its own — twelve months, then twelve years at a time. Any month of the year on
 /// screen is two presses; any year at all is three.
 ///
+/// [precision] stops the drilling short. A card's expiry is a month and a model
+/// year is a year, and a control that makes someone answer a question it did not
+/// need the answer to is a control that will be answered wrongly — so a month
+/// picker's month grid is the last grid, and it has no day grid under it at all.
+///
 /// **There is no typing into the trigger.** Parsing a date out of free text is
 /// locale-dependent in a way that cannot be done honestly without a date library,
 /// and this package has no dependencies at all.
@@ -68,6 +98,7 @@ class PlDatePicker extends StatefulWidget {
   const PlDatePicker({
     required this.value,
     this.onChanged,
+    this.precision = PlDatePickerPrecision.day,
     this.open,
     this.onOpenChanged,
     this.defaultMonth,
@@ -110,6 +141,19 @@ class PlDatePicker extends StatefulWidget {
   /// Called with the day that was chosen, or `null` when the picker is emptied.
   final ValueChanged<DateTime?>? onChanged;
 
+  /// How far down the picker goes: a day, a month or a year.
+  ///
+  /// The calendar opens on the grid for that unit and pressing a cell in it
+  /// answers — a [PlDatePickerPrecision.month] picker never shows a day grid at
+  /// all. The value is always a `DateTime`, normalised to the start of whatever
+  /// was chosen: the 1st of the month, or the 1st of January.
+  ///
+  /// [minDate] and [maxDate] are then read at the same precision. A [minDate] of
+  /// 15 July leaves July pickable on a month picker and hands back 1 July,
+  /// because a bound on a control that returns a month is a bound on months.
+  /// [shouldDisableDate] is day-granular and is not consulted at all.
+  final PlDatePickerPrecision precision;
+
   /// Whether the calendar is up. Leave it out and the picker holds its own.
   final bool? open;
 
@@ -142,7 +186,8 @@ class PlDatePicker extends StatefulWidget {
   ///
   /// A callback rather than React's `Intl.DateTimeFormatOptions`, for the reason
   /// [names] exists: there is no `Intl` in the framework to hand options to.
-  /// Without it the day is written out of [names] in its medium form.
+  /// Without it the value is written out of [names] at whatever [precision]
+  /// asked for — the medium day, the month and year, or the bare year.
   final String Function(DateTime value)? formatValue;
 
   /// Shown in the trigger while nothing is chosen.
@@ -151,7 +196,8 @@ class PlDatePicker extends StatefulWidget {
   /// Offers the × that empties the control.
   final bool clearable;
 
-  /// Offers the shortcut to today in the footer.
+  /// Offers the shortcut to today in the footer — to this month or this year on
+  /// a picker whose [precision] says so.
   final bool showTodayButton;
 
   /// Closes the popup as soon as a day is chosen.
@@ -253,16 +299,47 @@ class _PlDatePickerState extends State<PlDatePicker> {
   }
 
   String _write(DateTime date) {
-    return widget.formatValue?.call(date) ?? widget.names.medium(date);
+    if (widget.formatValue != null) {
+      return widget.formatValue!(date);
+    }
+
+    return switch (widget.precision) {
+      PlDatePickerPrecision.day => widget.names.medium(date),
+      PlDatePickerPrecision.month => widget.names.monthYear(date),
+      PlDatePickerPrecision.year => '${date.year}',
+    };
+  }
+
+  /// The footer's shortcut, which is "today" only on a picker that asks for a
+  /// day. On the other two it is this month and this year, blocked by the same
+  /// rule their grids grey a cell out with — `shouldDisableDate` is day-granular
+  /// and has nothing to say about either.
+  (DateTime, String, bool) _shortcut(DateTime now) {
+    return switch (widget.precision) {
+      PlDatePickerPrecision.day => (
+        now,
+        widget.labels.today,
+        isDayOutside(now, widget.minDate, widget.maxDate) ||
+            (widget.shouldDisableDate?.call(now) ?? false),
+      ),
+      PlDatePickerPrecision.month => (
+        startOfMonth(now),
+        widget.labels.thisMonth,
+        isMonthOutside(now, widget.minDate, widget.maxDate),
+      ),
+      PlDatePickerPrecision.year => (
+        startOfYear(now),
+        widget.labels.thisYear,
+        isYearOutside(now, widget.minDate, widget.maxDate),
+      ),
+    };
   }
 
   @override
   Widget build(BuildContext context) {
     final value = widget.value;
     final now = todayDate();
-    final todayBlocked =
-        isDayOutside(now, widget.minDate, widget.maxDate) ||
-        (widget.shouldDisableDate?.call(now) ?? false);
+    final (DateTime shortcut, String shortcutLabel, bool shortcutBlocked) = _shortcut(now);
     final hasFooter = widget.showTodayButton || widget.clearable;
 
     return PlassPickerShell(
@@ -314,6 +391,7 @@ class _PlDatePickerState extends State<PlDatePicker> {
             names: widget.names,
             labels: widget.labels,
             weekStartsOn: _weekStart,
+            precision: _precisionViews[widget.precision]!,
             size: widget.size,
             color: widget.color,
             minDate: widget.minDate,
@@ -343,9 +421,9 @@ class _PlDatePickerState extends State<PlDatePicker> {
                     size: widget.size,
                     color: widget.color,
                     density: PlassDensity.compact,
-                    disabled: todayBlocked,
-                    onPressed: () => _select(now),
-                    child: Text(widget.labels.today),
+                    disabled: shortcutBlocked,
+                    onPressed: () => _select(shortcut),
+                    child: Text(shortcutLabel),
                   ),
               ],
             ),

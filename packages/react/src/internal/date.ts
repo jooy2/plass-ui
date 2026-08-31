@@ -78,6 +78,11 @@ export function startOfMonth(date: Date): Date {
   return makeDate(date.getFullYear(), date.getMonth(), 1);
 }
 
+/** The 1st of January of the year this date is in, at midnight. */
+export function startOfYear(date: Date): Date {
+  return makeDate(date.getFullYear(), 0, 1);
+}
+
 /** How many days a month has, leap years included. */
 export function daysInMonth(year: number, month: number): number {
   return makeDate(year, month + 1, 0).getDate();
@@ -179,6 +184,34 @@ export function isDayOutside(date: Date, min?: Date | null, max?: Date | null): 
   }
 
   return isValidDate(max) && compareDay(date, max) > 0;
+}
+
+/**
+ * Is *every* day of this month outside the allowed span?
+ *
+ * A month is unreachable only when nothing in it is reachable: the month a
+ * `minDate` of the 15th falls in still exists, it just starts late. That is the
+ * rule the month grid has always drawn, and it is also what a `month` picker
+ * reads its bounds at — a bound on a picker that returns a month is a bound on
+ * months.
+ */
+export function isMonthOutside(date: Date, min?: Date | null, max?: Date | null): boolean {
+  const year = date.getFullYear();
+  const month = date.getMonth();
+
+  return (
+    isDayOutside(makeDate(year, month, daysInMonth(year, month)), min, null) ||
+    isDayOutside(makeDate(year, month, 1), null, max)
+  );
+}
+
+/** The same question about a whole year, for a `year` picker. */
+export function isYearOutside(date: Date, min?: Date | null, max?: Date | null): boolean {
+  const year = date.getFullYear();
+
+  return (
+    (isValidDate(min) && year < min.getFullYear()) || (isValidDate(max) && year > max.getFullYear())
+  );
 }
 
 /* ---------------------------------------------------------------------------
@@ -364,6 +397,19 @@ export function toISODate(date: Date): string {
   const pad = (value: number) => String(value).padStart(2, '0');
 
   return `${String(date.getFullYear()).padStart(4, '0')}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+/**
+ * The two shorter spellings, for a picker that only asked for a month or a
+ * year. `YYYY-MM` is what the native `<input type="month">` submits; there is no
+ * native control that submits a year, so a year is just the year.
+ */
+export function toISOMonth(date: Date): string {
+  return `${String(date.getFullYear()).padStart(4, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
+export function toISOYear(date: Date): string {
+  return String(date.getFullYear()).padStart(4, '0');
 }
 
 export function toISOTime(date: Date, withSeconds = false): string {

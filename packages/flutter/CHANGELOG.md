@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- **A `PlDatePicker` can stop at a month or a year.** `precision` is `PlDatePickerPrecision.day`, `.month` or `.year`, and it is a _floor_: the calendar opens on the grid for that unit and pressing a cell in it answers, so a month picker's month grid is the last grid and there is no day grid under it at all. That last part is the point rather than a side effect — a card's expiry is a month, and a control that makes someone answer _which day of December 2027_ is a control that will be answered wrongly. The value stays a `DateTime`, normalised to the start of what was chosen: the 1st of the month, or the 1st of January, never whichever day or month the cursor happened to be resting on when the year was pressed. Two things follow it without being asked for — what the trigger writes when there is no `formatValue` (a new `PlDateNames.monthYear`, which swaps its two halves the way `medium` already does), and the footer's shortcut, which reads "This month" or "This year" rather than "Today" and brings two new `PlPickerLabels` entries with it. `minDate` and `maxDate` are then read **at the same precision**: a `minDate` of 15 July leaves July pickable on a month picker and hands back 1 July, because a bound on a control that returns a month is a bound on months. `shouldDisableDate` is day-granular and is not consulted at all.
+
+### Fixed
+
+- **Switching a calendar's view no longer overflows the panel for a frame.** The three grids' cells were matched by position across a view change, so each one's `AnimatedContainer` tweened from the grid it came from to the grid it was now in — and three month cells standing beside a fourth year cell is wider than the seven-cell panel holding them. Dropping from the month grid down to the days was the same thing four cells over. The grids are keyed now, so a view change builds fresh cells already at the right width.
+
 ## 1.1.0 (2026-08-30)
 
 ### Added

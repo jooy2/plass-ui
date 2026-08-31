@@ -2,6 +2,12 @@
 
 > This package's history. The Flutter package keeps its own at [`packages/flutter/CHANGELOG.md`](https://github.com/jooy2/plass-ui/blob/main/packages/flutter/CHANGELOG.md), because the two version independently.
 
+## Unreleased
+
+### Added
+
+- **A `PlDatePicker` can stop at a month or a year.** `precision` is `'day'`, `'month'` or `'year'`, and it is a _floor_: the calendar opens on the grid for that unit and pressing a cell in it answers, so a `month` picker's month grid is the last grid and there is no day grid under it at all. That last part is the point rather than a side effect — a card's expiry is a month, and a control that makes someone answer _which day of December 2027_ is a control that will be answered wrongly. The value stays a `Date`, normalised to the start of what was chosen: the 1st of the month, or the 1st of January, never whichever day or month the cursor happened to be resting on when the year was pressed. Three things follow it without being asked for — the trigger's default `format`, the hidden input's spelling (`YYYY-MM-DD`, then `YYYY-MM` and `YYYY`, which is what a native `<input type="month">` submits), and the footer's shortcut, which reads "This month" or "This year" rather than "Today" and brings two new `labels` entries with it. `minDate` and `maxDate` are then read **at the same precision**: a `minDate` of 15 July leaves July pickable on a `month` picker and hands back 1 July, because a bound on a control that returns a month is a bound on months. `shouldDisableDate` is day-granular and is not consulted at all.
+
 ## 1.2.0 (2026-08-30)
 
 ### Added

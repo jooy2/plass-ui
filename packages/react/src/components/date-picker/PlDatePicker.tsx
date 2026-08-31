@@ -9,12 +9,17 @@ import {
   displaySamples,
   formatDate,
   isDayOutside,
+  isMonthOutside,
   isValidDate,
+  isYearOutside,
   localeWeekStart,
   mergeDateAndTime,
   startOfDay,
   startOfMonth,
+  startOfYear,
   toISODate,
+  toISOMonth,
+  toISOYear,
   today,
   withPlaceholder
 } from '../../internal/date.js';
@@ -24,12 +29,51 @@ import type { PlassWeekday } from '../../types.js';
 /** The strings a picker says that `Intl` has no opinion about. */
 export type PlPickerLabels = PlassPickerLabels;
 
+/**
+ * The smallest unit the picker asks for.
+ *
+ * A birthday is a day, an expiry is a month and a model year is a year, and a
+ * control that makes someone answer a question it did not need the answer to —
+ * *which* day of December 2027 does this card expire? — is a control that will
+ * be answered wrongly.
+ */
+export type PlDatePickerPrecision = 'day' | 'month' | 'year';
+
+/** What the trigger writes when the caller has not said. One per precision. */
+const defaultFormats: Record<PlDatePickerPrecision, Intl.DateTimeFormatOptions> = {
+  day: { dateStyle: 'medium' },
+  month: { year: 'numeric', month: 'long' },
+  year: { year: 'numeric' }
+};
+
+/** And how the hidden input spells it, which is the machine-readable half. */
+const spellings: Record<PlDatePickerPrecision, (date: Date) => string> = {
+  day: toISODate,
+  month: toISOMonth,
+  year: toISOYear
+};
+
 export interface PlDatePickerProps extends PlassPickerShellProps {
   /** The chosen day. Use with `onValueChange` for a controlled picker. */
   value?: Date | null;
   /** The day the picker starts on, for an uncontrolled one. */
   defaultValue?: Date | null;
   onValueChange?: (value: Date | null) => void;
+  /**
+   * How far down the picker goes: a day, a month or a year.
+   *
+   * The calendar opens on the grid for that unit and pressing a cell in it
+   * answers — a `month` picker never shows a day grid at all. The value is
+   * always a `Date`, normalised to the start of whatever was chosen: the 1st of
+   * the month, or the 1st of January.
+   *
+   * `minDate` and `maxDate` are then read at the same precision. A `minDate` of
+   * 15 July leaves July pickable on a `month` picker and hands back 1 July,
+   * because a bound on a control that returns a month is a bound on months.
+   * `shouldDisableDate` is day-granular and is not consulted at all.
+   * @default 'day'
+   */
+  precision?: PlDatePickerPrecision;
   /** Whether the calendar is open. Use with `onOpenChange` to control it. */
   open?: boolean;
   defaultOpen?: boolean;
@@ -55,6 +99,9 @@ export interface PlDatePickerProps extends PlassPickerShellProps {
   /**
    * How the trigger writes the chosen date. Passed straight to `Intl`, so
    * `{ dateStyle: 'full' }` and `{ year: '2-digit', month: 'narrow' }` both work.
+   *
+   * The default follows `precision`: a medium date, a long month and year, or a
+   * bare year.
    * @default { dateStyle: 'medium' }
    */
   format?: Intl.DateTimeFormatOptions;
@@ -62,13 +109,20 @@ export interface PlDatePickerProps extends PlassPickerShellProps {
   placeholder?: React.ReactNode;
   /** Offers the × that empties the control. @default false */
   clearable?: boolean;
-  /** Offers the shortcut to today in the footer. @default true */
+  /**
+   * Offers the shortcut to today in the footer — to this month or this year on
+   * a picker whose `precision` says so. @default true
+   */
   showTodayButton?: boolean;
   /** Closes the popup as soon as a day is chosen. @default true */
   closeOnSelect?: boolean;
   /** The strings the picker says. Every one has an English default. */
   labels?: Partial<PlassPickerLabels>;
-  /** Identifies the field when a form is submitted, as `YYYY-MM-DD`. */
+  /**
+   * Identifies the field when a form is submitted, as `YYYY-MM-DD` — or as
+   * `YYYY-MM` and `YYYY` at the two shorter precisions, which is what a native
+   * `<input type="month">` submits.
+   */
   name?: string;
 }
 
@@ -86,6 +140,11 @@ export interface PlDatePickerProps extends PlassPickerShellProps {
  * its own — twelve months, then twelve years at a time. Any month of the year on
  * screen is two clicks; any year at all is three.
  *
+ * `precision` stops the drilling short. A card's expiry is a month and a model
+ * year is a year, and a control that makes someone answer a question it did not
+ * need the answer to is a control that will be answered wrongly — so a `month`
+ * picker's month grid is the last grid, and it has no day grid under it at all.
+ *
  * There is no typing into the trigger. Parsing a date out of free text is
  * locale-dependent in a way that cannot be done honestly without a date library,
  * and a field that understands `27/7/26` in one browser and not in the next is
@@ -97,6 +156,7 @@ export const PlDatePicker = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, 
       value: valueProp,
       defaultValue,
       onValueChange,
+      precision = 'day',
       open: openProp,
       defaultOpen,
       onOpenChange,
@@ -106,7 +166,7 @@ export const PlDatePicker = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, 
       shouldDisableDate,
       locale,
       weekStartsOn,
-      format = { dateStyle: 'medium' },
+      format: formatProp,
       placeholder,
       clearable = false,
       showTodayButton = true,
@@ -124,6 +184,7 @@ export const PlDatePicker = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, 
   ) {
     const labels = usePickerLabels(labelOverrides);
     const firstDay = weekStartsOn ?? localeWeekStart(locale);
+    const format = formatProp ?? defaultFormats[precision];
 
     const [uncontrolledValue, setUncontrolledValue] = React.useState<Date | null>(
       defaultValue ?? null
@@ -188,7 +249,26 @@ export const PlDatePicker = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, 
     };
 
     const now = today();
-    const todayBlocked = isDayOutside(now, minDate, maxDate) || (shouldDisableDate?.(now) ?? false);
+
+    // The footer's shortcut, which is "today" only on a picker that asks for a
+    // day. On the other two it is this month and this year, blocked by the same
+    // rule their grids grey a cell out with — `shouldDisableDate` is
+    // day-granular and has nothing to say about either.
+    const shortcut =
+      precision === 'day' ? now : precision === 'month' ? startOfMonth(now) : startOfYear(now);
+    const shortcutLabel =
+      precision === 'day'
+        ? labels.today
+        : precision === 'month'
+          ? labels.thisMonth
+          : labels.thisYear;
+    const shortcutBlocked =
+      precision === 'day'
+        ? isDayOutside(now, minDate, maxDate) || (shouldDisableDate?.(now) ?? false)
+        : precision === 'month'
+          ? isMonthOutside(now, minDate, maxDate)
+          : isYearOutside(now, minDate, maxDate);
+
     const hasFooter = showTodayButton || clearable;
 
     // Holds the trigger open at the width of the longest date it could show, so
@@ -216,7 +296,9 @@ export const PlDatePicker = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, 
         onOpenChange={setOpen}
         labels={labels}
         hiddenValues={
-          name ? [{ name, value: isValidDate(value) ? toISODate(value) : '' }] : undefined
+          name
+            ? [{ name, value: isValidDate(value) ? spellings[precision](value) : '' }]
+            : undefined
         }
       >
         <div className={cx('flex flex-col', hasFooter && 'gap-1.5')}>
@@ -227,6 +309,7 @@ export const PlDatePicker = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, 
             weekStartsOn={firstDay}
             month={month}
             onMonthChange={setMonth}
+            precision={precision}
             selected={[value]}
             onSelect={select}
             minDate={minDate}
@@ -258,10 +341,10 @@ export const PlDatePicker = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, 
                   size={size}
                   color={color}
                   density="compact"
-                  disabled={todayBlocked}
-                  onClick={() => select(now)}
+                  disabled={shortcutBlocked}
+                  onClick={() => select(shortcut)}
                 >
-                  {labels.today}
+                  {shortcutLabel}
                 </PlButton>
               ) : null}
             </PickerFooter>

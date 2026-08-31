@@ -177,6 +177,17 @@ class PlDateNames {
     return monthBeforeYear ? '$month ${date.day}, ${date.year}' : '${date.year} $month ${date.day}';
   }
 
+  /// The month and the year alone, for a picker whose `precision` stops there.
+  ///
+  /// `July 2026` in English and `2026 7월` in Korean — the same swap [medium]
+  /// makes, because a control that asks for a month must not write it in an
+  /// order the reader does not use.
+  String monthYear(DateTime date) {
+    final month = months[date.month - 1];
+
+    return monthBeforeYear ? '$month ${date.year}' : '${date.year} $month';
+  }
+
   static const List<String> _englishMonths = <String>[
     'January',
     'February',
@@ -247,6 +258,8 @@ class PlPickerLabels {
     this.chooseMonth = 'Choose a month',
     this.chooseYear = 'Choose a year',
     this.today = 'Today',
+    this.thisMonth = 'This month',
+    this.thisYear = 'This year',
     this.now = 'Now',
     this.clear = 'Clear',
     this.done = 'Done',
@@ -288,6 +301,12 @@ class PlPickerLabels {
   /// The footer's shortcut to today.
   final String today;
 
+  /// The same shortcut on a picker that only asks for a month or a year.
+  final String thisMonth;
+
+  /// See [thisMonth].
+  final String thisYear;
+
   /// Its shortcut to this moment.
   final String now;
 
@@ -325,6 +344,9 @@ DateTime startOfDay(DateTime date) => DateTime(date.year, date.month, date.day);
 
 /// The first day of the month this date is in, at midnight.
 DateTime startOfMonth(DateTime date) => DateTime(date.year, date.month);
+
+/// The 1st of January of the year this date is in, at midnight.
+DateTime startOfYear(DateTime date) => DateTime(date.year);
 
 /// How many days a month has, leap years included.
 ///
@@ -409,6 +431,27 @@ bool isDayOutside(DateTime date, DateTime? min, DateTime? max) {
   }
 
   return max != null && compareDay(date, max) > 0;
+}
+
+/// Is *every* day of this month outside the allowed span?
+///
+/// A month is unreachable only when nothing in it is reachable: the month a
+/// `minDate` of the 15th falls in still exists, it just starts late. That is the
+/// rule the month grid has always drawn, and it is also what a `month` picker
+/// reads its bounds at — a bound on a control that returns a month is a bound on
+/// months.
+bool isMonthOutside(DateTime date, DateTime? min, DateTime? max) {
+  return isDayOutside(
+        DateTime(date.year, date.month, daysInMonth(date.year, date.month)),
+        min,
+        null,
+      ) ||
+      isDayOutside(DateTime(date.year, date.month), null, max);
+}
+
+/// The same question about a whole year, for a `year` picker.
+bool isYearOutside(DateTime date, DateTime? min, DateTime? max) {
+  return (min != null && date.year < min.year) || (max != null && date.year > max.year);
 }
 
 /// The two ends of a band, smallest first, whichever way round they arrived.

@@ -364,6 +364,11 @@ class _PlassCalendarCellState extends State<PlassCalendarCell> {
 /// stop, so `Tab` leaves the grid instead of walking forty-two cells — the
 /// pattern the ARIA date-picker practice describes, and the reason no cell is
 /// ever removed from the focus order.
+///
+/// [precision] is the floor. A calendar asked for a month opens on the month
+/// grid and has no day grid under it at all, and one asked for a year opens on
+/// the years — because a control that makes someone answer a question it did not
+/// need the answer to is a control that will be answered wrongly.
 class PlassCalendar extends StatefulWidget {
   /// Creates a calendar.
   const PlassCalendar({
@@ -374,6 +379,7 @@ class PlassCalendar extends StatefulWidget {
     required this.names,
     required this.labels,
     required this.weekStartsOn,
+    this.precision = PlassCalendarView.day,
     this.size = PlassSize.md,
     this.color = PlassColor.primary,
     this.rangeStart,
@@ -409,6 +415,15 @@ class PlassCalendar extends StatefulWidget {
 
   /// Which day the week starts on.
   final PlassWeekday weekStartsOn;
+
+  /// The smallest unit this calendar hands back.
+  ///
+  /// [PlassCalendarView.day] is the calendar everyone means. The other two stop
+  /// the drilling one and two steps short: the grid the reader lands on is the
+  /// last one, so pressing a cell in it selects rather than opening the grid
+  /// below. The day grid is not merely hidden — it is unreachable, which is what
+  /// makes the value the picker returns honest.
+  final PlassCalendarView precision;
 
   /// Height and type scale of one cell.
   final PlassSize size;
@@ -460,7 +475,13 @@ class PlassCalendar extends StatefulWidget {
 class _PlassCalendarState extends State<PlassCalendar> {
   final FocusNode _cursor = FocusNode(debugLabel: 'PlassCalendar cursor');
 
-  PlassCalendarView _view = PlassCalendarView.day;
+  late PlassCalendarView _openedView = widget.precision;
+
+  /// The view actually drawn, clamped so a [PlassCalendar.precision] that
+  /// tightens after the calendar is already up cannot leave a day grid on screen
+  /// in a month picker. The enum is declared in drill order, deepest first.
+  PlassCalendarView get _view =>
+      _openedView.index < widget.precision.index ? widget.precision : _openedView;
 
   /// The one cell that carries the tab stop.
   ///
@@ -557,7 +578,7 @@ class _PlassCalendarState extends State<PlassCalendar> {
   void _changeView(PlassCalendarView next) {
     setState(() {
       _pendingFocus = true;
-      _view = next;
+      _openedView = next;
     });
     WidgetsBinding.instance.addPostFrameCallback((_) => _applyFocus());
   }
@@ -632,7 +653,7 @@ class _PlassCalendarState extends State<PlassCalendar> {
       density: PlassDensity.compact,
       semanticLabel: labels.chooseMonth,
       onPressed: () => _changeView(
-        _view == PlassCalendarView.month ? PlassCalendarView.day : PlassCalendarView.month,
+        _view == PlassCalendarView.month ? widget.precision : PlassCalendarView.month,
       ),
       endIcon: disclosure(_view == PlassCalendarView.month),
       child: Text(widget.names.months[widget.month.month - 1]),
@@ -645,9 +666,8 @@ class _PlassCalendarState extends State<PlassCalendar> {
       color: widget.color,
       density: PlassDensity.compact,
       semanticLabel: labels.chooseYear,
-      onPressed: () => _changeView(
-        _view == PlassCalendarView.year ? PlassCalendarView.day : PlassCalendarView.year,
-      ),
+      onPressed: () =>
+          _changeView(_view == PlassCalendarView.year ? widget.precision : PlassCalendarView.year),
       endIcon: disclosure(_view == PlassCalendarView.year),
       child: Text('${widget.month.year}'),
     );
@@ -696,10 +716,21 @@ class _PlassCalendarState extends State<PlassCalendar> {
   }
 
   Widget _grid() {
+    // Keyed, so switching view builds a fresh grid rather than reusing the last
+    // one's cells. Without a key the cells are matched by position and their
+    // `AnimatedContainer`s tween from the old grid's cell width to the new
+    // one's — and three month cells beside a year cell is wider than the panel,
+    // so the first frame of that tween overflows the row it is in.
     return switch (_view) {
-      PlassCalendarView.day => _dayGrid(),
-      PlassCalendarView.month => _monthGrid(),
-      PlassCalendarView.year => _yearGrid(),
+      PlassCalendarView.day => KeyedSubtree(key: const ValueKey<String>('day'), child: _dayGrid()),
+      PlassCalendarView.month => KeyedSubtree(
+        key: const ValueKey<String>('month'),
+        child: _monthGrid(),
+      ),
+      PlassCalendarView.year => KeyedSubtree(
+        key: const ValueKey<String>('year'),
+        child: _yearGrid(),
+      ),
     };
   }
 
@@ -829,11 +860,7 @@ class _PlassCalendarState extends State<PlassCalendar> {
                 Builder(
                   builder: (BuildContext context) {
                     final index = row * 3 + column;
-                    // A month is out of bounds only when every day in it is: the
-                    // month a `minDate` falls in is still reachable, it just
-                    // starts late.
                     final first = DateTime(year, index + 1);
-                    final last = DateTime(year, index + 1, daysInMonth(year, index + 1));
 
                     return PlassCalendarCell(
                       label: '${widget.names.months[index]} $year',
@@ -845,15 +872,24 @@ class _PlassCalendarState extends State<PlassCalendar> {
                             entry != null && entry.year == year && entry.month == index + 1,
                       ),
                       current: now.year == year && now.month == index + 1,
-                      disabled:
-                          (widget.minDate != null && compareDay(last, widget.minDate!) < 0) ||
-                          (widget.maxDate != null && compareDay(first, widget.maxDate!) > 0),
+                      // A month is out of bounds only when every day in it is:
+                      // the month a `minDate` falls in is still reachable, it
+                      // just starts late.
+                      disabled: isMonthOutside(first, widget.minDate, widget.maxDate),
                       focused: index + 1 == widget.month.month,
                       focusNode: index + 1 == widget.month.month ? _cursor : null,
                       onKey: (KeyEvent event) => _onCursorKey(event, months: true),
                       onPressed: () {
-                        widget.onMonthChanged(DateTime(year, index + 1));
-                        _changeView(PlassCalendarView.day);
+                        widget.onMonthChanged(first);
+
+                        // The floor. A month picker's month grid is the last
+                        // one, so pressing a cell in it answers the question
+                        // rather than opening the grid below.
+                        if (widget.precision == PlassCalendarView.month) {
+                          widget.onSelect(first);
+                        } else {
+                          _changeView(PlassCalendarView.day);
+                        }
                       },
                       child: Text(widget.names.monthsShort[index]),
                     );
@@ -891,15 +927,25 @@ class _PlassCalendarState extends State<PlassCalendar> {
                         (DateTime? entry) => entry != null && entry.year == year,
                       ),
                       current: year == now,
-                      disabled:
-                          (widget.minDate != null && year < widget.minDate!.year) ||
-                          (widget.maxDate != null && year > widget.maxDate!.year),
+                      disabled: isYearOutside(DateTime(year), widget.minDate, widget.maxDate),
                       focused: year == widget.month.year,
                       focusNode: year == widget.month.year ? _cursor : null,
                       onKey: (KeyEvent event) => _onCursorKey(event, months: false),
                       onPressed: () {
-                        widget.onMonthChanged(DateTime(year, widget.month.month));
-                        _changeView(PlassCalendarView.month);
+                        final terminal = widget.precision == PlassCalendarView.year;
+                        // January, not whichever month the cursor happened to be
+                        // on: the value a year picker hands back has to *be* a
+                        // year, and one carrying an arbitrary month is a date
+                        // wearing a year's clothes.
+                        final picked = DateTime(year, terminal ? 1 : widget.month.month);
+
+                        widget.onMonthChanged(picked);
+
+                        if (terminal) {
+                          widget.onSelect(picked);
+                        } else {
+                          _changeView(PlassCalendarView.month);
+                        }
                       },
                       child: Text('$year'),
                     );

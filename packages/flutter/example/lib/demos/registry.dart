@@ -150,6 +150,7 @@ import 'package:plass_ui_example/demos/date_picker/bounds.dart';
 import 'package:plass_ui_example/demos/date_picker/format.dart';
 import 'package:plass_ui_example/demos/date_picker/hero.dart';
 import 'package:plass_ui_example/demos/date_picker/locales.dart';
+import 'package:plass_ui_example/demos/date_picker/precision.dart';
 import 'package:plass_ui_example/demos/date_picker/states.dart';
 import 'package:plass_ui_example/demos/date_range_picker/bounds.dart';
 import 'package:plass_ui_example/demos/date_range_picker/controlled.dart';
@@ -464,6 +465,7 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'date-time-picker/states': _dateTimePickerStates,
   'date-picker/hero': _datePickerHero,
   'date-picker/locales': _datePickerLocales,
+  'date-picker/precision': _datePickerPrecision,
   'date-picker/bounds': _datePickerBounds,
   'date-picker/format': _datePickerFormat,
   'date-picker/states': _datePickerStates,
@@ -885,6 +887,8 @@ Widget _dateTimePickerPrecision(BuildContext context) => const DateTimePickerPre
 Widget _dateTimePickerSteps(BuildContext context) => const DateTimePickerSteps();
 Widget _dateTimePickerStates(BuildContext context) => const DateTimePickerStates();
 Widget _datePickerHero(BuildContext context) => const DatePickerHero();
+
+Widget _datePickerPrecision(BuildContext context) => const DatePickerPrecision();
 Widget _datePickerLocales(BuildContext context) => const DatePickerLocales();
 Widget _datePickerBounds(BuildContext context) => const DatePickerBounds();
 Widget _datePickerFormat(BuildContext context) => const DatePickerFormat();

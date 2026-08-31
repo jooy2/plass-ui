@@ -116,6 +116,30 @@ PlDateNames(
 
 세 뷰는 너비도 _높이도_ 같아서, 뷰를 바꿔도 그것을 연 포인터 아래에서 팝업 크기가 변하지 않습니다. 날짜 그리드가 언제나 여섯 주인 것도 같은 이유입니다 — 네 줄이면 되는 2월과 여섯 줄이 필요한 3월 사이를 넘길 때마다 모든 칸이 움직일 테니까요.
 
+### precision
+
+생일은 날이고, 카드 만료는 월이고, 연식은 연도입니다. `precision`이 그중 무엇인지를 정하고, 달력은 그 단위의 그리드에서 열립니다 — `month` picker의 월 그리드가 마지막 그리드이고, 그 아래에 날짜 그리드는 아예 없습니다. 2027년 12월 며칠에 카드가 만료되느냐고 묻는 것은 잘못 답해질 질문을 던지는 일입니다.
+
+값은 그대로 `Date`이고, 고른 단위의 시작으로 맞춰집니다 — 그 달의 1일, 또는 1월 1일. `minDate`와 `maxDate`도 같은 정밀도로 읽힙니다. `minDate`가 7월 15일이어도 `month` picker에서 7월은 그대로 고를 수 있고 7월 1일이 돌아옵니다 — 월을 돌려주는 컨트롤의 경계는 월의 경계니까요. `shouldDisableDate`는 일 단위라 아예 참조되지 않습니다.
+
+trigger의 기본 format도 따라가고, 푸터의 지름길도 마찬가지입니다. "Today"가 아니라 "This month", "This year"가 됩니다.
+
+<Demo src="date-picker/precision" :min-height="360">
+
+::: fw react
+
+<<< @/.vitepress/demos/date-picker/precision.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/date_picker/precision.dart
+
+:::
+
+</Demo>
+
 ### 단어들
 
 ::: fw react
@@ -255,7 +279,7 @@ PlDateNames(
 - 모든 칸의 접근성 이름은 숫자 하나가 아니라 **날짜 전체** 입니다 — picker 자신의 로캘로, `Intl`에서 나온 `2026년 7월 27일 월요일`.
 - 오늘은 `aria-current="date"`와 링이 아닌 점을 답니다. 링은 포커스 표시의 몫이고, 한 칸 안의 링 둘은 아무 말도 하지 않는 칸이기 때문입니다.
 - 요일 헤더는 전체 이름을 라벨로 단 `columnheader`입니다. 눈으로 보는 독자가 "월"을 볼 때 스크린리더는 "월요일"을 듣습니다.
-- `name`이 있으면 hidden input이 값을 **로컬** `YYYY-MM-DD`로 담습니다. `toISOString()`은 절대 아닙니다 — 서울의 picker라면 화면에 보이는 날의 전날을 제출하게 됩니다.
+- `name`이 있으면 hidden input이 값을 **로컬** `YYYY-MM-DD`로 담습니다. precision이 짧으면 `YYYY-MM`, `YYYY`이고, 이는 네이티브 `<input type="month">`가 제출하는 형태와 같습니다. `toISOString()`은 절대 아닙니다 — 서울의 picker라면 화면에 보이는 날의 전날을 제출하게 됩니다.
 - trigger는 담을 수 있는 가장 긴 날짜의 너비로 붙잡혀 있습니다. 그 샘플들은 `aria-hidden`이고 generated content로 그려지므로, 더 읽히는 것도 페이지 내 검색에 걸리는 것도 없습니다.
 - 팝업은 `<body>` 끝으로 portal되고 positioner가 `.plass-portal`을 답니다. CSS 리셋을 subtree에 한정한 호스트가 같은 리셋을 걸 수 있는 자리입니다.
 

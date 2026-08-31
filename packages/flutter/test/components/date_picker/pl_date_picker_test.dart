@@ -219,6 +219,22 @@ void main() {
         expect(find.bySemanticsLabel('March 2020'), findsOneWidget);
       });
 
+      testWidgets('and comes back down to the days', (WidgetTester tester) async {
+        await _pump(tester, PlDatePicker(value: july27, onChanged: (DateTime? _) {}));
+        await _open(tester);
+
+        await tester.tap(find.text('2026'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('2020'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.bySemanticsLabel('March 2020'));
+        await tester.pumpAndSettle();
+
+        // Six weeks of March 2020, and nothing overflowing on the way: cells
+        // re-used across a view change would animate three columns into seven.
+        expect(find.byType(PlassCalendarCell), findsNWidgets(42));
+      });
+
       testWidgets('writes the header in the order the names ask for', (WidgetTester tester) async {
         await _pump(
           tester,
@@ -324,6 +340,163 @@ void main() {
         // Still there, and still in the arrow-key path: a reader arrowing across
         // a month must not fall into a hole at every blocked day.
         expect(find.bySemanticsLabel('Wednesday, July 15, 2026'), findsOneWidget);
+      });
+    });
+
+    group('precision', () {
+      testWidgets('opens a month picker on the month grid, with no day grid under it', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlDatePicker(
+            value: july27,
+            onChanged: (DateTime? _) {},
+            precision: PlDatePickerPrecision.month,
+          ),
+        );
+        await _open(tester);
+
+        // Twelve months rather than forty-two days, and the day grid is not
+        // merely hidden — there is no way down to it.
+        expect(find.byType(PlassCalendarCell), findsNWidgets(12));
+        expect(find.bySemanticsLabel('Monday, July 27, 2026'), findsNothing);
+        expect(find.bySemanticsLabel('Choose a month'), findsNothing);
+      });
+
+      testWidgets('commits the 1st of the month it was handed', (WidgetTester tester) async {
+        DateTime? chosen;
+
+        await _pump(
+          tester,
+          PlDatePicker(
+            value: july27,
+            onChanged: (DateTime? next) => chosen = next,
+            precision: PlDatePickerPrecision.month,
+          ),
+        );
+        await _open(tester);
+        await tester.tap(find.bySemanticsLabel('October 2026'));
+        await tester.pumpAndSettle();
+
+        expect(chosen, equals(DateTime(2026, 10)));
+      });
+
+      testWidgets('still reaches every year, and comes back to the months', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlDatePicker(
+            value: july27,
+            onChanged: (DateTime? _) {},
+            precision: PlDatePickerPrecision.month,
+          ),
+        );
+        await _open(tester);
+
+        await tester.tap(find.text('2026'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('2020'));
+        await tester.pumpAndSettle();
+
+        expect(find.bySemanticsLabel('March 2020'), findsOneWidget);
+      });
+
+      testWidgets('opens a year picker on the year grid and commits 1 January', (
+        WidgetTester tester,
+      ) async {
+        DateTime? chosen;
+
+        await _pump(
+          tester,
+          PlDatePicker(
+            value: july27,
+            onChanged: (DateTime? next) => chosen = next,
+            precision: PlDatePickerPrecision.year,
+          ),
+        );
+        await _open(tester);
+
+        expect(find.bySemanticsLabel('July 2026'), findsNothing);
+
+        await tester.tap(find.text('2020'));
+        await tester.pumpAndSettle();
+
+        expect(chosen, equals(DateTime(2020)));
+      });
+
+      testWidgets('writes the trigger at the precision it asked for', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          PlDatePicker(
+            value: july27,
+            onChanged: (DateTime? _) {},
+            precision: PlDatePickerPrecision.month,
+          ),
+        );
+
+        expect(find.text('July 2026'), findsOneWidget);
+
+        await _pump(
+          tester,
+          PlDatePicker(
+            value: july27,
+            onChanged: (DateTime? _) {},
+            precision: PlDatePickerPrecision.year,
+          ),
+        );
+
+        expect(find.text('2026'), findsOneWidget);
+      });
+
+      testWidgets('reads the bounds at the same precision', (WidgetTester tester) async {
+        DateTime? chosen;
+
+        await _pump(
+          tester,
+          PlDatePicker(
+            value: july27,
+            onChanged: (DateTime? next) => chosen = next,
+            precision: PlDatePickerPrecision.month,
+            // Mid-July, so July itself is still reachable and June is not.
+            minDate: DateTime(2026, 7, 15),
+          ),
+        );
+        await _open(tester);
+
+        await tester.tap(find.bySemanticsLabel('June 2026'));
+        await tester.pumpAndSettle();
+        expect(chosen, isNull);
+
+        await tester.tap(find.bySemanticsLabel('July 2026'));
+        await tester.pumpAndSettle();
+        expect(chosen, equals(DateTime(2026, 7)));
+      });
+
+      testWidgets('renames the footer shortcut after the unit it jumps to', (
+        WidgetTester tester,
+      ) async {
+        DateTime? chosen;
+
+        await _pump(
+          tester,
+          PlDatePicker(
+            value: july27,
+            onChanged: (DateTime? next) => chosen = next,
+            precision: PlDatePickerPrecision.month,
+          ),
+        );
+        await _open(tester);
+
+        expect(find.text('Today'), findsNothing);
+
+        await tester.tap(find.text('This month'));
+        await tester.pumpAndSettle();
+
+        final DateTime now = DateTime.now();
+
+        expect(chosen, equals(DateTime(now.year, now.month)));
       });
     });
 

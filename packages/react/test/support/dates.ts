@@ -18,3 +18,8 @@ export function fullDate(date: Date, locale = 'en-GB'): string {
 export function mediumDate(date: Date, locale = 'en-GB'): string {
   return new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(date);
 }
+
+/** And what it writes at `precision="month"`, where the day is not asked for. */
+export function monthAndYear(date: Date, locale = 'en-GB'): string {
+  return new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long' }).format(date);
+}

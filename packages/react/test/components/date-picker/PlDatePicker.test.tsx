@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlDatePicker } from 'plass-ui';
-import { fullDate, mediumDate } from '../../support/dates';
+import { fullDate, mediumDate, monthAndYear } from '../../support/dates';
 
 /** A fixed day to work against, so nothing here depends on when it is run. */
 const JULY_27 = new Date(2026, 6, 27);
@@ -248,6 +248,162 @@ describe('PlDatePicker', () => {
       (screen.getByRole('gridcell', { name: fullDate(JULY_15) }).element() as HTMLElement).click();
 
       expect(onValueChange).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('precision', () => {
+    it('opens a month picker on the month grid, with no day grid under it', async () => {
+      const screen = await render(
+        <PlDatePicker locale="en-GB" precision="month" defaultValue={JULY_27} defaultOpen />
+      );
+
+      await expect.element(screen.getByRole('gridcell', { name: 'July 2026' })).toBeInTheDocument();
+
+      // The day grid is unreachable, and so is the button that would open it.
+      expect(screen.getByRole('gridcell', { name: fullDate(JULY_27) }).query()).toBeNull();
+      expect(screen.getByRole('button', { name: 'Choose a month' }).query()).toBeNull();
+    });
+
+    it('commits the 1st of the month it was handed', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlDatePicker
+          locale="en-GB"
+          precision="month"
+          defaultValue={JULY_27}
+          defaultOpen
+          onValueChange={onValueChange}
+        />
+      );
+
+      await screen.getByRole('gridcell', { name: 'October 2026' }).click();
+
+      await vi.waitFor(() => expect(onValueChange).toHaveBeenCalled());
+
+      const chosen = onValueChange.mock.calls[0][0] as Date;
+
+      expect(chosen.getFullYear()).toBe(2026);
+      expect(chosen.getMonth()).toBe(9);
+      expect(chosen.getDate()).toBe(1);
+    });
+
+    it('still reaches every year, and comes back to the months', async () => {
+      const screen = await render(
+        <PlDatePicker locale="en-GB" precision="month" defaultValue={JULY_27} defaultOpen />
+      );
+
+      await screen.getByRole('button', { name: 'Choose a year' }).click();
+      await screen.getByRole('gridcell', { name: '2020' }).click();
+
+      await expect
+        .element(screen.getByRole('gridcell', { name: 'March 2020' }))
+        .toBeInTheDocument();
+    });
+
+    it('opens a year picker on the year grid and commits 1 January', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlDatePicker
+          locale="en-GB"
+          precision="year"
+          defaultValue={JULY_27}
+          defaultOpen
+          onValueChange={onValueChange}
+        />
+      );
+
+      expect(screen.getByRole('gridcell', { name: 'July 2026' }).query()).toBeNull();
+
+      await screen.getByRole('gridcell', { name: '2020' }).click();
+
+      await vi.waitFor(() => expect(onValueChange).toHaveBeenCalled());
+
+      const chosen = onValueChange.mock.calls[0][0] as Date;
+
+      expect(chosen.getFullYear()).toBe(2020);
+      expect(chosen.getMonth()).toBe(0);
+      expect(chosen.getDate()).toBe(1);
+    });
+
+    it('writes the trigger at the precision it asked for', async () => {
+      const screen = await render(
+        <PlDatePicker locale="en-GB" precision="month" defaultValue={JULY_27} />
+      );
+
+      await expect.element(screen.getByRole('button')).toHaveTextContent(monthAndYear(JULY_27));
+
+      await screen.rerender(
+        <PlDatePicker locale="en-GB" precision="year" defaultValue={JULY_27} />
+      );
+
+      await expect.element(screen.getByRole('button')).toHaveTextContent('2026');
+    });
+
+    it('reads the bounds at the same precision', async () => {
+      const screen = await render(
+        <PlDatePicker
+          locale="en-GB"
+          precision="month"
+          defaultValue={JULY_27}
+          defaultOpen
+          // Mid-July, so July itself is still reachable and June is not.
+          minDate={JULY_15}
+        />
+      );
+
+      await expect
+        .element(screen.getByRole('gridcell', { name: 'June 2026' }))
+        .toHaveAttribute('aria-disabled', 'true');
+      await expect
+        .element(screen.getByRole('gridcell', { name: 'July 2026' }))
+        .not.toHaveAttribute('aria-disabled');
+    });
+
+    it('renames the footer shortcut after the unit it jumps to', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlDatePicker
+          precision="month"
+          defaultOpen
+          defaultValue={JULY_27}
+          onValueChange={onValueChange}
+        />
+      );
+
+      expect(screen.getByRole('button', { name: 'Today' }).query()).toBeNull();
+
+      await screen.getByRole('button', { name: 'This month' }).click();
+
+      await vi.waitFor(() => expect(onValueChange).toHaveBeenCalled());
+
+      const chosen = onValueChange.mock.calls[0][0] as Date;
+      const now = new Date();
+
+      expect(chosen.getMonth()).toBe(now.getMonth());
+      expect(chosen.getDate()).toBe(1);
+    });
+
+    it('submits the two shorter spellings', async () => {
+      const screen = await render(
+        <form>
+          <PlDatePicker name="expiry" precision="month" defaultValue={JULY_27} />
+        </form>
+      );
+
+      const read = () =>
+        new FormData(screen.getByRole('button').element().closest('form') as HTMLFormElement).get(
+          'expiry'
+        );
+
+      expect(read()).toBe('2026-07');
+
+      await screen.rerender(
+        <form>
+          <PlDatePicker name="expiry" precision="year" defaultValue={JULY_27} />
+        </form>
+      );
+
+      expect(read()).toBe('2026');
     });
   });
 

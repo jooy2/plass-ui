@@ -116,6 +116,30 @@ A picker that only steps a month at a time puts a birthday thirty years back a h
 
 All three views are the same width _and_ the same height, so switching between them never resizes the popup under the pointer that opened it. The day grid is always six weeks for the same reason: a February that needs four rows and a March that needs six would move every cell as you stepped between them.
 
+### precision
+
+A birthday is a day, a card's expiry is a month and a model year is a year. `precision` says which, and the calendar opens on the grid for that unit — a `month` picker's month grid is the last grid, and there is no day grid under it at all. Asking someone which day of December 2027 their card expires is asking a question that will be answered wrongly.
+
+The value is still a `Date`, normalised to the start of what was chosen: the 1st of the month, or the 1st of January. `minDate` and `maxDate` are then read at the same precision, so a `minDate` of 15 July leaves July pickable on a `month` picker and hands back 1 July — a bound on a control that returns a month is a bound on months. `shouldDisableDate` is day-granular and is not consulted at all.
+
+The trigger's default format follows along, and so does the footer's shortcut: "This month" and "This year" rather than "Today".
+
+<Demo src="date-picker/precision" :min-height="360">
+
+::: fw react
+
+<<< @/.vitepress/demos/date-picker/precision.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/date_picker/precision.dart
+
+:::
+
+</Demo>
+
 ### The words
 
 ::: fw react
@@ -255,7 +279,7 @@ Pass `value` with `onValueChange`. The value is a `Date` at local midnight — o
 - Every cell's accessible name is the **full date**, never the bare number: `Monday 27 July 2026`, from `Intl`, in the picker's own locale.
 - Today carries `aria-current="date"` and a dot rather than a ring, because the ring belongs to the focus indicator and two rings in one cell is a cell saying nothing.
 - The weekday headers are `columnheader`s labelled with the full name, so a screen reader hears "Monday" where a sighted reader sees "Mon".
-- With `name`, a hidden input carries the value as a **local** `YYYY-MM-DD`. Never `toISOString()`: a picker in Seoul would submit the day before the one on screen.
+- With `name`, a hidden input carries the value as a **local** `YYYY-MM-DD` — or as `YYYY-MM` and `YYYY` at the two shorter precisions, which is what a native `<input type="month">` submits. Never `toISOString()`: a picker in Seoul would submit the day before the one on screen.
 - The trigger is held open at the width of the longest date it could show. Those samples are `aria-hidden` and drawn as generated content, so nothing extra is read out or found by find-in-page.
 - The popup is portalled to the end of `<body>` and its positioner carries `.plass-portal`, which is where a host that scopes a CSS reset can hang the same reset.
 

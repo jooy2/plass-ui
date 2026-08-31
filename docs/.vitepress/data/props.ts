@@ -3706,21 +3706,30 @@ export const propTables: Record<string, PropRow[]> = {
       type: '(value: Date | null) => void',
       description: { ko: '값이 바뀔 때 호출됩니다', en: 'Called with the new value' }
     },
+    {
+      name: 'precision',
+      type: "'day' | 'month' | 'year'",
+      default: "'day'",
+      description: {
+        ko: '어디까지 내려가는지 — 일, 월, 연. 그 단위의 그리드에서 바로 확정되고, month picker에는 일 그리드가 아예 없습니다. 값은 언제나 그 단위의 시작(1일, 1월 1일)입니다',
+        en: 'How far down the picker goes: a day, a month or a year. The grid for that unit is the last one, and a month picker has no day grid at all. The value is always the start of what was chosen — the 1st of the month, or the 1st of January'
+      }
+    },
     ...dateBoundsProps,
     {
       name: 'showTodayButton',
       type: 'boolean',
       default: 'true',
       description: {
-        ko: '푸터에 오늘로 가는 지름길을 둡니다',
-        en: 'Offers the shortcut to today in the footer'
+        ko: '푸터에 오늘로 가는 지름길을 둡니다. precision에 따라 "이번 달", "올해"가 됩니다',
+        en: 'Offers the shortcut to today in the footer — to this month or this year, as precision says'
       }
     },
     ...pickerProps({
       format: "{ dateStyle: 'medium' }",
       formatDescription: {
-        ko: 'trigger가 날짜를 쓰는 방식. Intl로 그대로 넘어갑니다',
-        en: 'How the trigger writes the chosen date. Passed straight to Intl'
+        ko: 'trigger가 날짜를 쓰는 방식. Intl로 그대로 넘어갑니다. 기본값은 precision을 따릅니다',
+        en: 'How the trigger writes the chosen date. Passed straight to Intl; the default follows precision'
       },
       closeOnSelect: 'true',
       closeOnSelectDescription: {
@@ -3728,8 +3737,8 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'Closes the popup as soon as a day is chosen'
       },
       nameDescription: {
-        ko: '폼 제출 시 필드를 식별합니다. YYYY-MM-DD로, UTC가 아니라 로컬로 보냅니다',
-        en: 'Identifies the field when a form is submitted, as a local YYYY-MM-DD — never as UTC'
+        ko: '폼 제출 시 필드를 식별합니다. YYYY-MM-DD로, UTC가 아니라 로컬로 보냅니다. precision이 짧으면 YYYY-MM, YYYY입니다',
+        en: 'Identifies the field when a form is submitted, as a local YYYY-MM-DD — never as UTC. YYYY-MM and YYYY at the two shorter precisions'
       }
     }),
     fieldClassNames

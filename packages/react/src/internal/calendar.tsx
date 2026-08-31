@@ -8,12 +8,13 @@ import {
   addYears,
   calendarWeeks,
   compareDay,
-  daysInMonth,
   isDayOutside,
   isMonthBeforeYear,
+  isMonthOutside,
   isSameDay,
   isSameMonth,
   isValidDate,
+  isYearOutside,
   makeDate,
   meridiemLabels,
   monthLabels,
@@ -83,6 +84,9 @@ export interface PlassPickerLabels {
   chooseYear: string;
   /** The footer's actions. */
   today: string;
+  /** The same shortcut on a picker that only asks for a month or a year. */
+  thisMonth: string;
+  thisYear: string;
   now: string;
   clear: string;
   done: string;
@@ -106,6 +110,8 @@ export const defaultPickerLabels: PlassPickerLabels = {
   chooseMonth: 'Choose a month',
   chooseYear: 'Choose a year',
   today: 'Today',
+  thisMonth: 'This month',
+  thisYear: 'This year',
   now: 'Now',
   clear: 'Clear',
   done: 'Done',
@@ -124,6 +130,9 @@ export function usePickerLabels(overrides?: Partial<PlassPickerLabels>): PlassPi
     [overrides]
   );
 }
+
+/** How far down each view drills, so a `precision` can be read as a floor. */
+const viewDepth: Record<CalendarView, number> = { year: 0, month: 1, day: 2 };
 
 /* ---------------------------------------------------------------------------
  * Scale
@@ -328,6 +337,8 @@ interface HeaderProps {
   size: PlassSize;
   color: PlassColor;
   view: CalendarView;
+  /** The view the calendar returns to when a disclosure is pressed shut. */
+  precision: CalendarView;
   month: Date;
   locale: string | undefined;
   labels: PlassPickerLabels;
@@ -349,11 +360,17 @@ interface HeaderProps {
  * in English, `2026년 7월` in Korean. `Intl` is asked which part comes first
  * rather than being guessed at, because a header in the wrong order reads as
  * broken to exactly the readers it is wrong for.
+ *
+ * A calendar that stops at a month or a year has fewer of them. `precision` is
+ * the floor, so a month picker's header is the year button alone and a year
+ * picker's is the page range it already was — there is nothing to disclose
+ * below the unit the picker is asking for.
  */
 function Header({
   size,
   color,
   view,
+  precision,
   month,
   locale,
   labels,
@@ -420,7 +437,7 @@ function Header({
       density="compact"
       aria-label={labels.chooseMonth}
       aria-expanded={view === 'month'}
-      onClick={() => onViewChange(view === 'month' ? 'day' : 'month')}
+      onClick={() => onViewChange(view === 'month' ? precision : 'month')}
       endIcon={disclosure(view === 'month')}
     >
       {monthName}
@@ -437,7 +454,7 @@ function Header({
       className="tabular-nums"
       aria-label={labels.chooseYear}
       aria-expanded={view === 'year'}
-      onClick={() => onViewChange(view === 'year' ? 'day' : 'year')}
+      onClick={() => onViewChange(view === 'year' ? precision : 'year')}
       endIcon={disclosure(view === 'year')}
     >
       {yearName}
@@ -495,6 +512,17 @@ export interface CalendarProps {
   /** The month on screen. Controlled, so two panels can be kept a month apart. */
   month: Date;
   onMonthChange: (month: Date) => void;
+  /**
+   * The smallest unit this calendar hands back.
+   *
+   * `day` is the calendar everyone means. `month` and `year` stop the drilling
+   * one and two steps short: the grid the caller lands on is the last one, so
+   * pressing a cell in it selects rather than opening the grid below. The day
+   * grid is not merely hidden — it is unreachable, which is what makes the
+   * value the picker returns honest.
+   * @default 'day'
+   */
+  precision?: CalendarView;
   /** The days drawn filled — one for a single picker, up to two for a range. */
   selected: readonly (Date | null | undefined)[];
   /** The two ends the band is drawn between. Both `null` outside range mode. */
@@ -548,6 +576,7 @@ export function Calendar({
   weekStartsOn,
   month,
   onMonthChange,
+  precision = 'day',
   selected,
   rangeStart = null,
   rangeEnd = null,
@@ -563,7 +592,10 @@ export function Calendar({
   labels,
   className
 }: CalendarProps) {
-  const [view, setView] = React.useState<CalendarView>('day');
+  const [openedView, setView] = React.useState<CalendarView>(precision);
+  // Clamped rather than stored raw, so a `precision` that tightens after the
+  // calendar is already up cannot leave a day grid on screen in a month picker.
+  const view = viewDepth[openedView] > viewDepth[precision] ? precision : openedView;
   const chosen = React.useMemo(() => selected.filter(isValidDate), [selected]);
 
   // The one cell that carries the tab stop. It starts on the chosen day, or on
@@ -657,6 +689,7 @@ export function Calendar({
         size={size}
         color={color}
         view={view}
+        precision={precision}
         month={month}
         locale={locale}
         labels={labels}
@@ -697,8 +730,18 @@ export function Calendar({
             maxDate={maxDate}
             onMoveCursor={moveCursor}
             onPick={(index) => {
-              onMonthChange(makeDate(month.getFullYear(), index, 1));
-              changeView('day');
+              const picked = makeDate(month.getFullYear(), index, 1);
+
+              onMonthChange(picked);
+
+              // The floor. A month picker's month grid is the last one, so
+              // pressing a cell in it answers the question rather than opening
+              // the grid below.
+              if (precision === 'month') {
+                onSelect(picked);
+              } else {
+                changeView('day');
+              }
             }}
           />
         ) : (
@@ -710,8 +753,18 @@ export function Calendar({
             maxDate={maxDate}
             onMoveCursor={moveCursor}
             onPick={(year) => {
-              onMonthChange(makeDate(year, month.getMonth(), 1));
-              changeView('month');
+              // January, not whichever month the cursor happened to be on: the
+              // value a year picker hands back has to *be* a year, and one
+              // carrying an arbitrary month is a date wearing a year's clothes.
+              const picked = makeDate(year, precision === 'year' ? 0 : month.getMonth(), 1);
+
+              onMonthChange(picked);
+
+              if (precision === 'year') {
+                onSelect(picked);
+              } else {
+                changeView('month');
+              }
             }}
           />
         )}
@@ -934,10 +987,6 @@ function MonthGrid({
         <div role="row" key={row} className="grid grid-cols-3 gap-1">
           {[0, 1, 2].map((column) => {
             const index = row * 3 + column;
-            // A month is out of bounds only when every day in it is: the month a
-            // `minDate` falls in is still reachable, it just starts late.
-            const first = makeDate(year, index, 1);
-            const last = makeDate(year, index, daysInMonth(year, index));
 
             return (
               <Cell
@@ -948,10 +997,10 @@ function MonthGrid({
                   (entry) => entry.getFullYear() === year && entry.getMonth() === index
                 )}
                 current={now.getFullYear() === year && now.getMonth() === index}
-                disabled={
-                  (isValidDate(minDate) && compareDay(last, minDate) < 0) ||
-                  (isValidDate(maxDate) && compareDay(first, maxDate) > 0)
-                }
+                // A month is out of bounds only when every day in it is: the
+                // month a `minDate` falls in is still reachable, it just starts
+                // late.
+                disabled={isMonthOutside(makeDate(year, index, 1), minDate, maxDate)}
                 focused={index === month.getMonth()}
                 className={cx('h-(--p-cell) w-full', controlTextClasses[size])}
                 onClick={() => onPick(index)}
@@ -1015,10 +1064,7 @@ function YearGrid({ size, month, chosen, minDate, maxDate, onMoveCursor, onPick 
                 label={String(year)}
                 selected={chosen.some((entry) => entry.getFullYear() === year)}
                 current={year === now}
-                disabled={
-                  (isValidDate(minDate) && year < minDate.getFullYear()) ||
-                  (isValidDate(maxDate) && year > maxDate.getFullYear())
-                }
+                disabled={isYearOutside(makeDate(year, 0, 1), minDate, maxDate)}
                 focused={year === month.getFullYear()}
                 className={cx('h-(--p-cell) w-full', controlTextClasses[size])}
                 onClick={() => onPick(year)}

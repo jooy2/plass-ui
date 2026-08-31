@@ -1242,6 +1242,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'Called with the day that was chosen, or null when the picker is emptied'
       }
     },
+    from('PlDatePicker', 'precision', {
+      type: 'PlDatePickerPrecision',
+      default: 'PlDatePickerPrecision.day'
+    }),
     from('PlDatePicker', 'open', { type: 'bool?' }),
     {
       name: 'onOpenChanged',
@@ -1284,8 +1288,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       name: 'formatValue',
       type: 'String Function(DateTime value)?',
       description: {
-        ko: 'trigger가 날짜를 쓰는 방식. React의 Intl 옵션 대신 콜백입니다. 빼면 names의 medium 형식으로 씁니다',
-        en: "How the trigger writes the day. A callback rather than React's Intl options; without it the day is written out of names in its medium form"
+        ko: 'trigger가 날짜를 쓰는 방식. React의 Intl 옵션 대신 콜백입니다. 빼면 precision이 요구한 만큼 names로 씁니다 — medium 형식의 날, 월과 연, 또는 연도만',
+        en: "How the trigger writes the day. A callback rather than React's Intl options; without it the value is written out of names at whatever precision asked for — the medium day, the month and year, or the bare year"
       }
     },
     from('PlDatePicker', 'placeholder', { type: 'Widget?' }),
