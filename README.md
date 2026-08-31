@@ -162,6 +162,7 @@ React-only, and the machinery the library already ran on rather than anything ne
 | `usePlMediaQuery` | Whether the window matches a CSS media query, re-rendering when it stops |
 | `usePlBreakpoint` | Which rung of the breakpoint ladder the window is on |
 | `usePlBreakpointValue` | What a `PlassResponsive` map resolves to at that rung |
+| `usePlReducedMotion` | Whether the reader has asked their platform for less movement |
 | `usePlToast` | Raises a toast from a click handler, under a `PlToastProvider` |
 
 Flutter answers the same questions with framework calls — `MediaQuery`, `PlassTheme` — rather than with anything this package would add. Each hook's page names the Dart equivalent.

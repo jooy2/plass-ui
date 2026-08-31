@@ -61,7 +61,17 @@ export default defineConfig({
       provider: playwright(),
       headless: true,
       screenshotFailures: false,
-      instances: resolveBrowsers().map((browser) => ({ browser }))
+      instances: resolveBrowsers().map((browser) => ({ browser })),
+      // Playwright's media emulation, handed to the suite. The library answers
+      // `prefers-reduced-motion` and `prefers-color-scheme` in JavaScript as
+      // well as in CSS, and neither can be asserted from inside the page: they
+      // are the browser's answer, not the document's. Declared for TypeScript
+      // in `test/env.d.ts`.
+      commands: {
+        async emulateMedia({ page }, options) {
+          await page.emulateMedia(options);
+        }
+      }
     }
   }
 });

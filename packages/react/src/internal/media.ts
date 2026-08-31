@@ -46,6 +46,16 @@ function onServer(): boolean {
 }
 
 /**
+ * The one query the library asks on its own behalf rather than the caller's.
+ *
+ * Named here rather than in `internal/animate.ts` because it is not only the
+ * animations' business: a loading indicator answers it the other way round —
+ * slowing rather than stopping, since a spinner that stopped would be lying
+ * about whether anything is happening.
+ */
+export const reducedMotionQuery = '(prefers-reduced-motion: reduce)';
+
+/**
  * Whether the window matches `query` right now, re-rendering when it stops.
  *
  * `null` is a query that cannot be asked — the `xs` rung of a ladder whose
@@ -77,4 +87,16 @@ export function useMediaQuery(query: string | null): boolean {
   }, [query]);
 
   return React.useSyncExternalStore(subscribe, snapshot, onServer);
+}
+
+/**
+ * Whether the reader has asked their platform for less movement.
+ *
+ * A server has no reader and so no preference, which is the store's own answer
+ * and is the right one here: the markup that ships is the one with the motion
+ * in it, and a reader who asked for less gets it in the render after hydration
+ * — before any of these animations has had a frame to run in.
+ */
+export function usePrefersReducedMotion(): boolean {
+  return useMediaQuery(reducedMotionQuery);
 }

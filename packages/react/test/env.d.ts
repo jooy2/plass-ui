@@ -31,3 +31,22 @@ interface ImportMeta {
     options: { query: '?raw'; import: 'default'; eager: true }
   ): Record<string, string>;
 }
+
+/**
+ * The one custom browser command the suite registers, in `vitest.config.ts`.
+ *
+ * `prefers-reduced-motion` and `prefers-color-scheme` are the browser's answers
+ * rather than the document's, so nothing inside the page can change them —
+ * which would leave the hooks that read them testable only against whatever the
+ * runner happened to be set to. Playwright can change them, and a command is
+ * how a test reaches Playwright.
+ */
+declare module 'vitest/internal/browser' {
+  interface BrowserCommands {
+    emulateMedia: (options: {
+      reducedMotion?: 'reduce' | 'no-preference' | null;
+      colorScheme?: 'light' | 'dark' | 'no-preference' | null;
+      forcedColors?: 'active' | 'none' | null;
+    }) => Promise<void>;
+  }
+}

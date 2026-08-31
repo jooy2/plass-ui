@@ -1,7 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { isInfinite, useAnimationRun, usePrefersReducedMotion } from '../../internal/animate.js';
+import { isInfinite, useAnimationRun } from '../../internal/animate.js';
+import { usePrefersReducedMotion } from '../../internal/media.js';
 import { srOnlyClasses } from '../../internal/styles.js';
 import type { PlassAnimateProps } from '../../types.js';
 
