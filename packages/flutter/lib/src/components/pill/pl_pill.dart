@@ -93,6 +93,14 @@ const double _descriptionInk = 0.72;
 /// [details] is revealed by clipping a body that never changes size, exactly as
 /// a [PlCollapsible]'s panel is: nothing is transformed and no text is
 /// resampled — the pill is simply a window that opens.
+///
+/// **A pill fills the width it is given, and takes its own where it is given
+/// none.** Offered a bounded width it spans it, so a pill in a column of cards
+/// lines up with them — and a [Wrap] counts, since a loose constraint is still
+/// a bounded one. Offered an unbounded width — inside a [Row], or a
+/// [Positioned] that named only its top and its start, which is how a lozenge
+/// floating over a screen is placed — it is as wide as its widest part and no
+/// wider. Neither case needs an [Expanded] or a [SizedBox] around it.
 class PlPill extends StatefulWidget {
   /// Creates a pill.
   const PlPill({
@@ -290,33 +298,49 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
             height: 1.2,
             fontWeight: FontWeight.w500,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              row,
-              if (widget.details != null)
-                PlassFold(
-                  factor: _reveal,
-                  child: ExcludeFocus(
-                    excluding: !widget.expanded,
-                    child: ExcludeSemantics(
+          // Stretched so the row and the panel under it are one width — and
+          // the constraints are asked first, because there is not always a
+          // width to stretch to.
+          //
+          // A pill is offered an unbounded one more often than most things
+          // here: a `Row` hands its children an unbounded main axis, and so
+          // does a `Positioned` that named only its top and its start, which is
+          // exactly how a lozenge that floats over a screen is placed.
+          // `stretch` against an unbounded constraint asks for a *tight
+          // infinite* width, which is a layout error rather than a wide pill.
+          // So where there is nothing to fill, the pill takes the width of its
+          // own widest part and centres the rest on it.
+          child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) => Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: constraints.hasBoundedWidth
+                  ? CrossAxisAlignment.stretch
+                  : CrossAxisAlignment.center,
+              children: <Widget>[
+                row,
+                if (widget.details != null)
+                  PlassFold(
+                    factor: _reveal,
+                    child: ExcludeFocus(
                       excluding: !widget.expanded,
-                      child: Padding(
-                        padding: EdgeInsetsDirectional.only(start: padX, end: padX, bottom: 8),
-                        child: DefaultTextStyle.merge(
-                          style: TextStyle(
-                            fontSize: sheetBody[_size]!.size,
-                            height: sheetBody[_size]!.height,
-                            fontWeight: FontWeight.w400,
+                      child: ExcludeSemantics(
+                        excluding: !widget.expanded,
+                        child: Padding(
+                          padding: EdgeInsetsDirectional.only(start: padX, end: padX, bottom: 8),
+                          child: DefaultTextStyle.merge(
+                            style: TextStyle(
+                              fontSize: sheetBody[_size]!.size,
+                              height: sheetBody[_size]!.height,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            child: widget.details!,
                           ),
-                          child: widget.details!,
                         ),
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         );
 

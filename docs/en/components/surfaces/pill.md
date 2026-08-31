@@ -134,6 +134,35 @@ A collapsed pill lines up with a [`PlButton`](../inputs/button) of the same `siz
 
 </Demo>
 
+### Width
+
+::: fw react
+
+A pill is `inline-flex`, so it is always as wide as its content — in a block, in a flex row, anywhere. Give it a width by putting it in something that has one.
+
+:::
+
+::: fw flutter
+
+**A pill fills a width it is given and takes its own where it is given none.** Inside a `SizedBox`, a `PlCard` or a `Wrap` it spans the room offered, so a pill in a column of cards lines up with them. Inside a `Row`, or a `Positioned` that named only one corner, there is no width to fill and the pill is as wide as its widest part:
+
+```dart
+Stack(
+  children: <Widget>[
+    const MyScreen(),
+    PositionedDirectional(
+      top: 16,
+      start: 16,
+      child: PlPill(title: const Text('Recording'), description: const Text('00:41')),
+    ),
+  ],
+)
+```
+
+Neither case needs an `Expanded` or a `SizedBox` around it. A loose constraint still counts as a width, which is why a `Wrap` of pills is a column of them rather than a row — reach for a [`PlChip`](../display/chip) where that is what was wanted.
+
+:::
+
 ::: fw react
 
 ### position
@@ -171,5 +200,6 @@ There is no `position` here, for the reason [`PlFloatingBottomNavigation`](../na
 | `children` | `child` | One slot, and Dart spells it `child`. |
 | `inert` on the collapsed panel | `ExcludeFocus` + `ExcludeSemantics` | The same two things that attribute does, said as the two widgets that do them. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
+| Always as wide as its content | Fills a bounded width | `inline-flex` shrink-wraps wherever it is put. A Flutter widget offered a width takes it, which is the framework's own convention — see [Width](#width) for the two cases and what each is for. |
 
 :::

@@ -200,5 +200,87 @@ void main() {
         expect(tester.getSize(find.byType(PlPill)).height, greaterThan(closed));
       });
     });
+
+    group('how wide it is', () {
+      testWidgets('fills a width it is given', (WidgetTester tester) async {
+        await tester.pumpWidget(host(const PlPill(title: Text('Recording')), width: 320));
+
+        expect(tester.getSize(find.byType(PlPill)).width, 320);
+      });
+
+      testWidgets('fills a loose one too, which is what a Wrap hands out', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(const Wrap(children: <Widget>[PlPill(title: Text('Recording'))]), width: 320),
+        );
+
+        // Loose is still bounded: a `Wrap` offers the whole line and the pill
+        // takes it, so a row of pills is a column of them. Worth knowing before
+        // reaching for one where a `PlChip` was meant.
+        expect(tester.getSize(find.byType(PlPill)).width, 320);
+      });
+
+      // Every one of these hands the pill an *unbounded* width, and each one is
+      // somewhere a lozenge is ordinarily put — beside something in a row, or
+      // floating over a screen from a corner. A pill that could only stand in a
+      // box of a known width could not be used in any of them.
+      for (final (String where, Widget Function(Widget pill) put)
+          in <(String, Widget Function(Widget))>[
+            ('a Row', (Widget pill) => Row(children: <Widget>[const Text('Live'), pill])),
+            (
+              'a Positioned that named one corner',
+              (Widget pill) => Stack(
+                children: <Widget>[
+                  const SizedBox.expand(),
+                  PositionedDirectional(top: 16, start: 16, child: pill),
+                ],
+              ),
+            ),
+          ]) {
+        testWidgets('stands in $where, and takes its own width there', (WidgetTester tester) async {
+          await tester.pumpWidget(
+            host(put(const PlPill(title: Text('Recording'))), width: 320, height: 200),
+          );
+
+          expect(tester.takeException(), isNull);
+
+          final double width = tester.getSize(find.byType(PlPill)).width;
+
+          expect(width, greaterThan(0));
+          expect(width, lessThan(320), reason: 'it took the room rather than its own width');
+        });
+      }
+
+      testWidgets('is as wide as its widest part once the panel is open', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            Row(
+              children: <Widget>[
+                const PlPill(
+                  expanded: true,
+                  title: Text('Rec'),
+                  details: Text('A line longer than the row above it'),
+                ),
+              ],
+            ),
+            width: 640,
+            height: 200,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(tester.takeException(), isNull);
+
+        // The panel is the widest part, so it is the panel that sets the width
+        // — the same thing `stretch` does inside a box, without one.
+        final Size pill = tester.getSize(find.byType(PlPill));
+        final Size details = tester.getSize(find.text('A line longer than the row above it'));
+
+        expect(pill.width, greaterThan(details.width));
+      });
+    });
   });
 }

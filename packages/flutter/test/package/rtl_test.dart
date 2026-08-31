@@ -235,9 +235,7 @@ void main() {
       final Map<String, Widget> screen = <String, Widget>{
         'PlCard': PlCard(
           title: const Text('Seats'),
-          // A chip rather than a pill: `PlPill` lays a `Flexible` out along the
-          // row and so needs a bounded width, which a `Row` child is not given.
-          headerAction: const PlChip(child: Text('12')),
+          headerAction: const PlPill(child: Text('12')),
           child: const Text('Ten left.'),
         ),
         'PlList': PlList(

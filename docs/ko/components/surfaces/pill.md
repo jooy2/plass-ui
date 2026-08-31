@@ -134,6 +134,35 @@ PlPill(
 
 </Demo>
 
+### 너비
+
+::: fw react
+
+알약은 `inline-flex`이므로 어디에 두든 늘 내용만큼 넓습니다 — block 안이든 flex row 안이든. 너비를 주고 싶다면 너비가 있는 것 안에 넣으세요.
+
+:::
+
+::: fw flutter
+
+**알약은 주어진 너비를 채우고, 주어지지 않은 곳에서는 자기 너비를 가집니다.** `SizedBox` · `PlCard` · `Wrap` 안에서는 제공된 자리를 채우므로, 카드가 늘어선 열 안의 알약은 카드와 줄이 맞습니다. `Row` 안이나 모서리 하나만 지정한 `Positioned` 안에서는 채울 너비가 없고, 알약은 자기 가장 넓은 부분만큼만 넓습니다.
+
+```dart
+Stack(
+  children: <Widget>[
+    const MyScreen(),
+    PositionedDirectional(
+      top: 16,
+      start: 16,
+      child: PlPill(title: const Text('Recording'), description: const Text('00:41')),
+    ),
+  ],
+)
+```
+
+어느 쪽도 `Expanded`나 `SizedBox`로 감쌀 필요가 없습니다. loose constraint도 너비로 치므로 `Wrap`에 담은 알약들은 행이 아니라 열이 됩니다 — 그쪽을 원했다면 [`PlChip`](../display/chip)을 쓰세요.
+
+:::
+
 ::: fw react
 
 ### position
@@ -171,5 +200,6 @@ PlPill(
 | `children` | `child` | 슬롯 하나이고, Dart는 그것을 `child`라고 씁니다. |
 | 접힌 패널의 `inert` | `ExcludeFocus` + `ExcludeSemantics` | 그 속성이 하는 두 가지를, 그 두 가지를 하는 위젯으로 말한 것입니다. |
 | `className`, `style` | — | 전달할 class 목록도 style 속성도 없습니다. |
+| 늘 내용만큼 넓음 | 주어진 너비를 채움 | `inline-flex`는 어디에 두든 내용에 맞춰 줄어듭니다. 너비를 제안받은 Flutter widget은 그것을 받는 것이 프레임워크의 관례입니다 — 두 경우와 각각의 쓰임은 [너비](#너비)를 보세요. |
 
 :::
