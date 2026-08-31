@@ -165,6 +165,8 @@ import 'package:plass_ui_example/demos/back_top/hero.dart';
 import 'package:plass_ui_example/demos/confirm/hero.dart';
 import 'package:plass_ui_example/demos/confirm/alert.dart';
 import 'package:plass_ui_example/demos/confirm/focus.dart';
+import 'package:plass_ui_example/demos/popconfirm/hero.dart';
+import 'package:plass_ui_example/demos/popconfirm/async.dart';
 import 'package:plass_ui_example/demos/calendar/hero.dart';
 import 'package:plass_ui_example/demos/calendar/precision.dart';
 import 'package:plass_ui_example/demos/calendar/bounds.dart';
@@ -502,6 +504,8 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'confirm/hero': _confirmHero,
   'confirm/alert': _confirmAlert,
   'confirm/focus': _confirmFocus,
+  'popconfirm/hero': _popconfirmHero,
+  'popconfirm/async': _popconfirmAsync,
   'calendar/hero': _calendarHero,
   'calendar/precision': _calendarPrecision,
   'calendar/bounds': _calendarBounds,
@@ -963,6 +967,10 @@ Widget _confirmHero(BuildContext context) => const ConfirmHero();
 Widget _confirmAlert(BuildContext context) => const ConfirmAlert();
 
 Widget _confirmFocus(BuildContext context) => const ConfirmFocus();
+
+Widget _popconfirmHero(BuildContext context) => const PopconfirmHero();
+
+Widget _popconfirmAsync(BuildContext context) => const PopconfirmAsync();
 
 Widget _calendarHero(BuildContext context) => const CalendarHero();
 

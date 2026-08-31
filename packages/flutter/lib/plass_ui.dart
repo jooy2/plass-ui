@@ -87,6 +87,7 @@ export 'src/components/page_layout/pl_page_layout.dart';
 export 'src/components/pagination/pl_pagination.dart';
 export 'src/components/panes/pl_panes.dart';
 export 'src/components/pill/pl_pill.dart';
+export 'src/components/popconfirm/pl_popconfirm.dart';
 export 'src/components/popover/pl_popover.dart';
 export 'src/components/progress_box/pl_progress_box.dart';
 export 'src/components/progress_circular/pl_progress_circular.dart';

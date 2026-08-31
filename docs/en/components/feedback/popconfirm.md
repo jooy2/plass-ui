@@ -25,9 +25,38 @@ import { PlPopconfirm } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlPopconfirm(
+  open: asking,
+  onOpenChanged: (bool next) => setState(() => asking = next),
+  title: const Text('Delete this row?'),
+  confirmLabel: const Text('Delete'),
+  onConfirm: () => remove(row),
+  trigger: PlButton(
+    color: PlassColor.danger,
+    onPressed: () => setState(() => asking = true),
+    child: const Text('Delete'),
+  ),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlPopconfirm" />
+
+::: fw flutter
+
+`open` is **controlled**, like everything stateful in this package — there is no uncontrolled form, and no `defaultOpen`. `onConfirm` returns a `FutureOr<void>`, which is the Dart shape of "a promise is waited for": a plain callback closes at once, a `Future` holds the question up until it completes.
+
+The two buttons sit in a `Wrap` rather than a `Row`, so a translated pair of labels that does not fit the sheet stacks instead of overflowing.
+
+:::
 
 ## Popconfirm or confirm dialog
 
@@ -53,6 +82,12 @@ The rule of thumb is what happens if they answer by accident. **If the answer is
 ::: fw react
 
 <<< @/.vitepress/demos/popconfirm/async.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/popconfirm/async.dart
 
 :::
 

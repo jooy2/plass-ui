@@ -149,7 +149,10 @@ export function PlPopconfirm({
       showClose={false}
       className={className}
     >
-      <div className={cx('mt-3 flex items-center justify-end gap-2')}>
+      {/* `flex-wrap`, because two buttons whose labels have been translated into
+          something longer than "Confirm" and "Cancel" are two buttons that do
+          not fit a 280px sheet. */}
+      <div className={cx('mt-3 flex flex-wrap items-center justify-end gap-2')}>
         <PlButton
           variant="ghost"
           color="secondary"

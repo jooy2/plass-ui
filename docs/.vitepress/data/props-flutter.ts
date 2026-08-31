@@ -1492,6 +1492,33 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlConfirmOptions', 'dismissible', { type: 'bool', default: 'true' }),
     from('PlConfirmOptions', 'width', { type: 'double?' })
   ],
+  PlPopconfirm: [
+    {
+      name: 'open',
+      type: 'bool',
+      required: true,
+      description: {
+        ko: 'popup이 올라와 있는지. 여기의 다른 모든 상태와 마찬가지로 controlled입니다',
+        en: 'Whether the popup is up. Controlled, like everything stateful here'
+      }
+    },
+    from('PlPopconfirm', 'trigger', { type: 'Widget', required: true }),
+    from('PlPopconfirm', 'onOpenChange', {
+      name: 'onOpenChanged',
+      type: 'ValueChanged<bool>?'
+    }),
+    from('PlPopconfirm', 'title', { type: 'Widget?' }),
+    from('PlPopconfirm', 'description', { type: 'Widget?' }),
+    from('PlPopconfirm', 'confirmLabel', { type: 'Widget', default: "Text('Confirm')" }),
+    from('PlPopconfirm', 'cancelLabel', { type: 'Widget', default: "Text('Cancel')" }),
+    from('PlPopconfirm', 'onConfirm', { type: 'FutureOr<void> Function()?' }),
+    from('PlPopconfirm', 'onCancel', { type: 'VoidCallback?' }),
+    from('PlPopconfirm', 'color', { type: COLOR, default: 'PlassColor.danger' }),
+    from('PlPopconfirm', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlPopconfirm', 'side', { type: 'PlassSide', default: 'PlassSide.top' }),
+    from('PlPopconfirm', 'align', { type: 'PlassAlign', default: 'PlassAlign.center' }),
+    from('PlPopconfirm', 'width', { type: 'double', default: '280' })
+  ],
   PlCalendar: [
     {
       name: 'value',

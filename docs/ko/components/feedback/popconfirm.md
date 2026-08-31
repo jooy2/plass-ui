@@ -25,9 +25,38 @@ import { PlPopconfirm } from 'plass-ui';
 
 :::
 
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+PlPopconfirm(
+  open: asking,
+  onOpenChanged: (bool next) => setState(() => asking = next),
+  title: const Text('Delete this row?'),
+  confirmLabel: const Text('Delete'),
+  onConfirm: () => remove(row),
+  trigger: PlButton(
+    color: PlassColor.danger,
+    onPressed: () => setState(() => asking = true),
+    child: const Text('Delete'),
+  ),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlPopconfirm" />
+
+::: fw flutter
+
+`open`은 이 패키지의 모든 상태와 마찬가지로 **controlled**입니다 — uncontrolled 형태도, `defaultOpen`도 없습니다. `onConfirm`은 `FutureOr<void>`를 돌려주는데, "promise는 기다린다"의 Dart 모양입니다. 평범한 콜백이면 바로 닫히고, `Future`이면 완료될 때까지 질문을 붙잡아 둡니다.
+
+두 버튼은 `Row`가 아니라 `Wrap`에 놓입니다. 그래서 시트에 맞지 않는 번역된 label 쌍은 넘치는 대신 줄바꿈합니다.
+
+:::
 
 ## popconfirm인가 confirm dialog인가
 
@@ -53,6 +82,12 @@ import { PlPopconfirm } from 'plass-ui';
 ::: fw react
 
 <<< @/.vitepress/demos/popconfirm/async.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/popconfirm/async.dart
 
 :::
 
