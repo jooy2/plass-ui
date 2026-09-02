@@ -363,7 +363,7 @@ declare module 'react' {
  * marquee and a headline reel have to know what their children *are*, and a
  * name that only picks a keyframe cannot.
  */
-export type PlassAnimation = 'fade' | 'grow' | 'slide' | 'zoom' | 'rotate' | 'blink';
+export type PlassAnimation = 'fade' | 'grow' | 'slide' | 'zoom' | 'rotate' | 'blink' | 'reveal';
 
 /**
  * What makes an animation run.

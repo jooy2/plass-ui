@@ -1,6 +1,6 @@
 ---
 title: PlAnimateTyping
-order: 10
+order: 11
 ---
 
 # PlAnimateTyping

@@ -30,6 +30,7 @@ export 'src/components/animate_grow/pl_animate_grow.dart';
 export 'src/components/animate_headline/pl_animate_headline.dart';
 export 'src/components/animate_lighting/pl_animate_lighting.dart';
 export 'src/components/animate_marquee/pl_animate_marquee.dart';
+export 'src/components/animate_reveal/pl_animate_reveal.dart';
 export 'src/components/animate_rotate/pl_animate_rotate.dart';
 export 'src/components/animate_slide/pl_animate_slide.dart';
 export 'src/components/animate_typing/pl_animate_typing.dart';

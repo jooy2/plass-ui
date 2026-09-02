@@ -11,6 +11,8 @@ import 'package:plass_ui_example/demos/animate_grow/panel.dart';
 import 'package:plass_ui_example/demos/animate_zoom/hero.dart';
 import 'package:plass_ui_example/demos/animate_zoom/from.dart';
 import 'package:plass_ui_example/demos/animate_zoom/result.dart';
+import 'package:plass_ui_example/demos/animate_reveal/hero.dart';
+import 'package:plass_ui_example/demos/animate_reveal/sides.dart';
 import 'package:plass_ui_example/demos/animate_slide/hero.dart';
 import 'package:plass_ui_example/demos/animate_slide/sides.dart';
 import 'package:plass_ui_example/demos/animate_slide/distance.dart';
@@ -896,6 +898,8 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'animate-zoom/hero': _animateZoomHero,
   'animate-zoom/from': _animateZoomFrom,
   'animate-zoom/result': _animateZoomResult,
+  'animate-reveal/hero': _animateRevealHero,
+  'animate-reveal/sides': _animateRevealSides,
   'animate-slide/hero': _animateSlideHero,
   'animate-slide/sides': _animateSlideSides,
   'animate-slide/distance': _animateSlideDistance,
@@ -1442,6 +1446,8 @@ Widget _animateGrowPanel(BuildContext context) => const AnimateGrowPanel();
 Widget _animateZoomHero(BuildContext context) => const AnimateZoomHero();
 Widget _animateZoomFrom(BuildContext context) => const AnimateZoomFrom();
 Widget _animateZoomResult(BuildContext context) => const AnimateZoomResult();
+Widget _animateRevealHero(BuildContext context) => const AnimateRevealHero();
+Widget _animateRevealSides(BuildContext context) => const AnimateRevealSides();
 Widget _animateSlideHero(BuildContext context) => const AnimateSlideHero();
 Widget _animateSlideSides(BuildContext context) => const AnimateSlideSides();
 Widget _animateSlideDistance(BuildContext context) => const AnimateSlideDistance();

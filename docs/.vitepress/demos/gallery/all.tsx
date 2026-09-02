@@ -10,6 +10,7 @@ import {
   PlAnimateLighting,
   PlAnimateAppear,
   PlAnimateBlink,
+  PlAnimateReveal,
   PlAnimateRotate,
   PlAnimateSlide,
   PlAnimateZoom,
@@ -1858,6 +1859,20 @@ const entries: Entry[] = [
       <PlAnimateSlide from="left" distance={20} duration={1200} repeat="infinite" alternate>
         <PlChip color="info">Sliding</PlChip>
       </PlAnimateSlide>
+    )
+  },
+  {
+    name: 'PlAnimateReveal',
+    group: 'transitions',
+    href: 'components/transitions/animate-reveal',
+    blurb: {
+      en: 'Content uncovered behind a moving edge — nothing moves, no colour changes.',
+      ko: '움직이는 가장자리 뒤로 드러나는 내용입니다. 아무것도 움직이지 않고 색도 바뀌지 않습니다.'
+    },
+    preview: (
+      <PlAnimateReveal duration={1400} repeat="infinite" alternate>
+        <PlChip color="warning">Revealing</PlChip>
+      </PlAnimateReveal>
     )
   },
   {

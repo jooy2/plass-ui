@@ -435,6 +435,26 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlAnimateReveal: [
+    from('PlAnimateReveal', 'mode', {
+      type: 'PlassAnimateMode',
+      default: 'PlassAnimateMode.enter',
+      description: {
+        ko: '드러나는지 다시 덮이는지. exit는 같은 와이프를 거꾸로 돌린 것이라, 열린 쪽으로 닫힙니다. in이 Dart의 예약어라 enter/exit입니다',
+        en: 'Whether the content is uncovered or covered again. exit is the same wipe run backwards, so it closes from the edge it opened towards. enter/exit rather than in/out, because in is a reserved word in Dart'
+      }
+    }),
+    from('PlAnimateReveal', 'from', { type: 'PlassSide', default: 'PlassSide.left' }),
+    from('PlAnimateReveal', 'fade', { type: 'bool', default: 'false' }),
+    ...animateFlutterProps('PlAnimateReveal', { duration: 'Duration(milliseconds: 520)' }),
+    {
+      name: 'child',
+      type: 'Widget',
+      required: true,
+      description: { ko: '무엇이 드러나는지', en: 'What is uncovered' }
+    }
+  ],
+
   PlAnimateSlide: [
     from('PlAnimateSlide', 'mode', {
       type: 'PlassAnimateMode',

@@ -1263,6 +1263,45 @@ export const propTables: Record<string, PropRow[]> = {
     },
     ...animateProps({ duration: 'measured from speed', repeat: "'infinite'" })
   ],
+  PlAnimateReveal: [
+    {
+      name: 'mode',
+      type: "'in' | 'out'",
+      default: "'in'",
+      description: {
+        ko: '드러나는지 다시 덮이는지. out은 같은 와이프를 거꾸로 돌린 것이라, 열린 쪽으로 닫힙니다',
+        en: 'Whether the content is uncovered or covered again. out is the same wipe run backwards, so it closes from the edge it opened towards'
+      }
+    },
+    {
+      name: 'from',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'left'",
+      shared: true,
+      description: {
+        ko: '와이프가 시작하는 모서리. 라이브러리 전체가 그렇듯 물리적입니다 — 위에서 걷히는 제목은 어떤 쓰기 방향에서도 위에서 걷힙니다',
+        en: 'Which edge the wipe starts at. Physical, as it is everywhere in the library: a heading uncovered from the top is uncovered from the top in every writing direction'
+      }
+    },
+    {
+      name: 'fade',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '와이프 뒤에서 함께 나타납니다. 다른 모든 효과와 반대로 기본이 꺼짐입니다 — reveal은 fade가 아니라는 것이 이 효과의 전부이기 때문입니다',
+        en: 'Fades in behind the wipe. Off by default, the opposite of every other effect, because a reveal not being a fade is the whole point of it'
+      }
+    },
+    ...animateProps({ duration: '520', stagger: true, timeline: true }),
+    {
+      name: 'render',
+      type: 'ReactElement | (props, state) => ReactElement',
+      description: {
+        ko: '<div> 대신 다른 요소로 렌더링합니다',
+        en: 'Renders something other than a <div>'
+      }
+    }
+  ],
   PlAnimateRotate: [
     {
       name: 'mode',

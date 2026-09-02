@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Added
+
+- **`PlAnimateReveal`.** Content uncovered behind a moving edge, and the only entrance in the set where **nothing moves and no colour changes**. A fade changes the ink, a slide changes the position, a grow changes the size; this changes how much of the widget is painted and leaves every pixel it has painted exactly where it will finally be — which is what makes it the effect for anything whose _position is the information_: a heading over its own paragraph, a divider between two sections, a chart's plot area, a column of figures.
+
+  A `ClipRect` with a clipper rather than an `Align` with a `widthFactor`, and the difference is the one this effect exists for: an `Align` resizes the box and everything beside it moves, while a clipper is asked for a rectangle at paint time and the layout never hears about it. `from` is physical — `PlassSide` is everywhere — and `PlassAnimateMode.exit` closes from whichever edge it opened towards. **`fade` is off by default**, alone among the effects that offer it: fading a reveal asks for two entrances at once.
+
 ### Fixed
 
 - **A `PlTabs` bar with more tabs than room scrolls, rather than overflowing its box.** Eight tabs in a 240px box was a `RenderFlex overflowed by 474 pixels`, and the documentation's answer — wrap it in a `SingleChildScrollView` yourself — does not work: a scroll view around a `PlTabs` scrolls the panel along with the bar. The strip scrolls on its own now, inside the trough and inside the rule, so neither of those travels with the tabs. It comes with the signal the React build gained in the same cycle: a `ShaderMask` fades the end that still has tabs behind it, and only that end. A bar whose tabs all fit still shrink-wraps to them and pays for no compositing layer at all. The gradient is laid out with `AlignmentDirectional`, so the two ends stay the reader's two ends under RTL.

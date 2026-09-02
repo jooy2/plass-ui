@@ -1,6 +1,6 @@
 ---
 title: PlAnimateSlide
-order: 9
+order: 10
 ---
 
 # PlAnimateSlide

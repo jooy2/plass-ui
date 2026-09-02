@@ -1075,6 +1075,36 @@
   animation-name: plass-anim-scale;
 }
 
+/*
+ * The one entrance that moves nothing and changes no colour.
+ *
+ * `clip-path` rather than a mask or an `overflow` box, and the choice is worth
+ * writing down because the alternatives look equivalent. A mask needs a
+ * gradient that has to be kept in step with the direction; an `overflow`
+ * wrapper puts a second element into the layout, which is exactly what an
+ * effect for something whose *position* is the information must not do. And
+ * `inset(0)` already means "nothing is cut off", so the to-state is the
+ * element's own natural one rather than a number that has to be chosen.
+ *
+ * The opacity slot defaults to `1` here and to `0` everywhere else in this
+ * file. A reveal is not a fade — the whole reason to reach for it is that the
+ * ink does not change — so fading is opt-in rather than something to turn off.
+ */
+@keyframes plass-anim-reveal {
+  from {
+    opacity: var(--p-anim-opacity, 1);
+    clip-path: var(--p-anim-clip, inset(0 100% 0 0));
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0);
+  }
+}
+
+.plass-anim-reveal {
+  animation-name: plass-anim-reveal;
+}
+
 @keyframes plass-anim-slide {
   from {
     opacity: var(--p-anim-opacity, 0);

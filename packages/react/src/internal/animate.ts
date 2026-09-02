@@ -74,7 +74,8 @@ export const animationClasses: Record<PlassAnimation, string> = {
   slide: 'plass-anim-slide',
   zoom: 'plass-anim-scale',
   rotate: 'plass-anim-rotate',
-  blink: 'plass-anim-blink'
+  blink: 'plass-anim-blink',
+  reveal: 'plass-anim-reveal'
 };
 
 /** The class that reads the slots. Always paired with one of the above. */
@@ -133,6 +134,8 @@ export interface AnimationSlotOptions extends PlassAnimateTimelineProps {
   y?: string;
   angle?: string;
   angleTo?: string;
+  /** The `clip-path` a reveal is uncovered from. */
+  clip?: string;
 }
 
 /**
@@ -186,7 +189,31 @@ export function animationSlots(options: AnimationSlotOptions): React.CSSProperti
     slots['--p-anim-angle-to'] = options.angleTo;
   }
 
+  if (options.clip !== undefined) {
+    slots['--p-anim-clip'] = options.clip;
+  }
+
   return slots as React.CSSProperties;
+}
+
+/**
+ * The `clip-path` a reveal starts from, given the edge it uncovers from.
+ *
+ * `inset()` takes its four sides in the physical order CSS writes them, and
+ * `PlassSide` is physical for the same reason it is on a slide: a title wiped
+ * in from the top is wiped in from the top in every writing direction.
+ */
+export function revealClip(from: PlassSide): string {
+  switch (from) {
+    case 'top':
+      return 'inset(0 0 100% 0)';
+    case 'bottom':
+      return 'inset(100% 0 0 0)';
+    case 'right':
+      return 'inset(0 0 0 100%)';
+    default:
+      return 'inset(0 100% 0 0)';
+  }
 }
 
 /**

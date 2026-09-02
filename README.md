@@ -15,7 +15,7 @@ Live previews and full props for every component, in both frameworks. This READM
 ## Why Plass
 
 - **Finished the moment it is installed.** The gradients, the shadows, the blur, the focus ring and the press response are already decided and already agree with each other. There is no theme file to fill in before the first screen looks like something.
-- **Learn it once, use it on both.** Eighty-seven components in React and in Flutter under the same names: an `md` control is 40px on either side, `primary` is the same colour family, and one documentation page — with a framework switch in the sidebar — covers the two rather than drifting apart by the third release.
+- **Learn it once, use it on both.** Ninety-seven components in React and in Flutter under the same names: an `md` control is 40px on either side, `primary` is the same colour family, and one documentation page — with a framework switch in the sidebar — covers the two rather than drifting apart by the third release.
 - **Five props, not fifty.** `size`, `color`, `variant`, `density` and `elevation` mean the same thing on every component, so the tenth one costs nothing to learn after the first.
 - **Readable because it was measured.** Every gradient stop clears 4.5:1 against its own label, the lightest corner included. A colour choice here is not a contrast bug waiting for an audit.
 - **Accessible without the checklist.** Roles, labels, keyboard operation and focus management live inside the components rather than being bolted on afterwards.
@@ -151,7 +151,7 @@ A **†** marks the few that are React-only. They are not omissions — each one
 
 ### Transitions
 
-`PlAnimateAppear` · `PlAnimateBlink` · `PlAnimateFade` · `PlAnimateGrow` · `PlAnimateHeadline` · `PlAnimateLighting` · `PlAnimateMarquee` · `PlAnimateRotate` · `PlAnimateSlide` · `PlAnimateTyping` · `PlAnimateZoom`
+`PlAnimateAppear` · `PlAnimateBlink` · `PlAnimateFade` · `PlAnimateGrow` · `PlAnimateHeadline` · `PlAnimateLighting` · `PlAnimateMarquee` · `PlAnimateReveal` · `PlAnimateRotate` · `PlAnimateSlide` · `PlAnimateTyping` · `PlAnimateZoom`
 
 ## Setting defaults
 
