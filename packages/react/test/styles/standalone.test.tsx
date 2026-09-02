@@ -21,7 +21,7 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlButton, PlTextField } from 'plass-ui';
+import { PlButton, PlStack, PlTextField } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
 import pkg from '../../package.json';
 
@@ -205,6 +205,63 @@ describe('plass-ui/styles.css', () => {
         document.documentElement.removeAttribute('data-theme');
       }
     });
+  });
+
+  describe('an overlapping pile measures what it draws', () => {
+    /*
+     * Here rather than in `test/components/stack/`, for the reason at the top of
+     * this file: the promise is the *stylesheet's*. `PlStack` overlaps with a
+     * negative margin written as a Tailwind arbitrary variant, and with no
+     * compiled utilities there is no `display: flex` and no negative margin to
+     * measure — so the assertion would be about the missing stylesheet rather
+     * than about the pile.
+     *
+     * What it is worth asserting at all is the whole argument for the component
+     * being a layout instead of an offset: a translated pile is laid out one
+     * item wide, draws outside its own box, and every element after it on the
+     * page is placed against a width the reader never sees.
+     */
+    const five = Array.from({ length: 5 }, (_, index) => (
+      <span key={index} style={{ display: 'block', width: 32, height: 32, background: '#888' }} />
+    ));
+
+    /** The union of the items' own boxes, in page coordinates. */
+    function drawn(root: HTMLElement) {
+      const boxes = [...root.querySelectorAll('span > span > span')].map((node) =>
+        node.getBoundingClientRect()
+      );
+
+      return {
+        width:
+          Math.max(...boxes.map((box) => box.right)) - Math.min(...boxes.map((box) => box.left)),
+        height:
+          Math.max(...boxes.map((box) => box.bottom)) - Math.min(...boxes.map((box) => box.top))
+      };
+    }
+
+    // Five 32px items at 10px of overlap: 5 x 32 - 4 x 10 across, and the
+    // diagonal falls a further 4 x 10 down.
+    const expected = {
+      horizontal: { width: 120, height: 32 },
+      vertical: { width: 32, height: 120 },
+      diagonal: { width: 120, height: 72 }
+    } as const;
+
+    for (const direction of ['horizontal', 'vertical', 'diagonal'] as const) {
+      it(`fits the pile exactly — ${direction}`, async () => {
+        const screen = await render(
+          <PlStack data-testid="pile" direction={direction} overlap={10}>
+            {five}
+          </PlStack>
+        );
+
+        const root = screen.getByTestId('pile').element() as HTMLElement;
+        const box = root.getBoundingClientRect();
+
+        expect({ width: box.width, height: box.height }).toEqual(expected[direction]);
+        expect({ width: box.width, height: box.height }).toEqual(drawn(root));
+      });
+    }
   });
 
   describe('the token channel', () => {

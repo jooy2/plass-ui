@@ -171,7 +171,7 @@ avatar는 색을 입는 **대상 자체**입니다 — 특정한 한 사람의 �
 
 ### 겹쳐 쌓기
 
-얼굴을 겹쳐 쌓고 끝에 `+n`을 붙인 것은 [`PlAvatarGroup`](./avatar-group)입니다. 축을 쌓기 전체에 한 번에 정하고, 그 안에서도 avatar 자신의 prop이 이깁니다.
+얼굴을 겹쳐 쌓고 끝에 `+n`을 붙인 것은 avatar를 담은 [`PlStack`](../layout/stack)입니다. avatar 전용이 아니라 일반적인 더미이므로 담은 것에 축을 정해 주지 않습니다 — `size`와 `color`는 `PlassProvider`로 감싸고, 나머지는 avatar에 직접 쓰세요.
 
 ## Accessibility
 

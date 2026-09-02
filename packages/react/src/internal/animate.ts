@@ -453,9 +453,10 @@ export function staggerSlots(
  * accept a `className` and a `style` — and it is taken here and nowhere else in
  * the library. It is bearable because what is being copied is *only* the
  * animation, so a child that ignores both is a child that does not animate,
- * rather than a child that lands in the wrong place. A `PlAvatarGroup` passes
- * its axes through a context precisely because that failure would not be
- * survivable.
+ * rather than a child that lands in the wrong place. `PlStack` draws a wrapper
+ * per item instead, and takes the layout cost, precisely because *there* the
+ * failure would not be survivable: a child that dropped the class would land in
+ * the wrong place rather than merely arriving without an entrance.
  *
  * A bare string has no element to write onto, so that one is wrapped in a
  * `<span>`. It is the only case that gets a wrapper.

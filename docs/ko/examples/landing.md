@@ -17,7 +17,7 @@ aside: false
 | 블록 | 컴포넌트 | 눈여겨볼 점 |
 | --- | --- | --- |
 | Nav | `PlToolbar` `PlTextLink` `PlButton` | `render={<header />}`가 진짜 landmark로 만들고, `position="sticky"`가 call to action을 계속 손 닿는 곳에 둡니다 |
-| Hero | `PlChip` `PlTypography` `PlButton` `PlAvatar` `PlRating` | 겹친 avatar는 음수 margin과 ring입니다. `PlAvatarGroup`은 의도적으로 없습니다 |
+| Hero | `PlChip` `PlTypography` `PlButton` `PlAvatar` `PlRating` | 겹친 avatar는 `PlStack`입니다. 음수 margin과 ring이고, avatar에 대한 것은 아무것도 없습니다 |
 | 제품 화면 | `PlTabs` `PlTab` `PlTabPanel` `PlAspectRatio` | 같은 비율의 panel 셋이라 전환해도 페이지가 움직이지 않습니다 |
 | 기능 | `PlGrid` `PlGridItem` `PlCard` `PlIcon` | 각 item에 responsive `span` 하나 — 12, 6, 3 — 이 그 줄의 규칙 전부입니다 |
 | 후기 | `PlCarousel` `PlBlockquote` | scroll snap 위에 얹혀 있어서 휴대폰에서 스와이프되고 RTL에서 방향이 뒤집힙니다 |

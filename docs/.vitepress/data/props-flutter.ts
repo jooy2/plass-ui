@@ -665,40 +665,6 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlAvatar', 'children', { name: 'child', type: 'Widget?' })
   ],
 
-  PlAvatarGroup: [
-    from('PlAvatarGroup', 'children', {
-      name: 'avatars',
-      type: 'List<PlAvatar>',
-      required: true,
-      description: {
-        ko: '얼굴들. Widget이 아니라 PlAvatar인 것은, 다음 얼굴을 얹으려면 앞의 것이 얼마나 넓은지 알아야 하기 때문입니다',
-        en: 'The faces — typed as PlAvatar rather than as widgets, because the stack has to know how wide a face is to lay the next one over it'
-      }
-    }),
-    from('PlAvatarGroup', 'max', { type: 'int?' }),
-    from('PlAvatarGroup', 'total', { type: 'int?' }),
-    from('PlAvatarGroup', 'overlap', {
-      type: 'double?',
-      description: {
-        ko: '각 avatar가 앞의 것 아래로 얼마나 들어갈지, 논리 픽셀로. 없으면 size의 일정 비율입니다',
-        en: 'How far each avatar sits under the one before it, in logical pixels. Left out it is a fraction of size'
-      }
-    }),
-    from('PlAvatarGroup', 'shape', { type: 'PlAvatarShape', default: 'PlAvatarShape.circle' }),
-    from('PlAvatarGroup', 'variant', { type: VARIANT, default: 'PlassVariant.ghost' }),
-    from('PlAvatarGroup', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlAvatarGroup', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlAvatarGroup', 'elevation', { type: 'int', default: '0' }),
-    {
-      name: 'semanticLabel',
-      type: 'String?',
-      description: {
-        ko: '이 쌓기가 무엇의 집합인지. 다른 것이 그것을 말하고 있지 않을 때 이름을 주세요',
-        en: 'What the stack is a stack *of*. Name it when nothing else is saying so'
-      }
-    }
-  ],
-
   PlBadge: [
     from('PlBadge', 'variant', { type: VARIANT, default: 'PlassVariant.solid' }),
     from('PlBadge', 'size', { type: SIZE, default: 'PlassSize.md' }),
@@ -1432,6 +1398,52 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlEmpty', 'color', { type: COLOR, default: 'PlassColor.secondary' }),
     from('PlEmpty', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
   ],
+  PlStack: [
+    from('PlStack', 'children', { type: 'List<Widget>', required: true }),
+    from('PlStack', 'direction', {
+      type: 'PlStackDirection',
+      default: 'PlStackDirection.horizontal'
+    }),
+    from('PlStack', 'overlap', {
+      type: 'double?',
+      default: 'a fraction of size',
+      description: {
+        ko: '흐르는 축에서 각 항목이 앞 항목 아래로 들어가는 거리(논리 픽셀)',
+        en: 'How far each item sits under the one before it, in logical pixels, along the axis the pile flows on'
+      }
+    }),
+    from('PlStack', 'drop', { type: 'double?', default: 'whatever overlap resolved to' }),
+    from('PlStack', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlStack', 'max', { type: 'int?' }),
+    from('PlStack', 'total', { type: 'int?' }),
+    from('PlStack', 'overflow', {
+      type: 'Widget Function(int hidden)?',
+      description: {
+        ko: '넘친 개수를 받아 맨 뒤 항목을 만듭니다. widget이 아니라 builder인 이유는 그 숫자가 곧 항목이기 때문입니다',
+        en: 'Builds a last item standing for the ones that did not fit, given how many that is. A builder rather than a widget, because the number is the item'
+      }
+    }),
+    from('PlStack', 'front', { type: 'PlStackFront', default: 'PlStackFront.last' }),
+    from('PlStack', 'scaleStep', { type: 'double', default: '1' }),
+    from('PlStack', 'opacityStep', { type: 'double', default: '1' }),
+    from('PlStack', 'ring', {
+      type: 'BorderRadius?',
+      default: 'null',
+      description: {
+        ko: '각 항목 둘레에 그리는 페이지 표면색 실선의 모서리. bool이 아니라 반지름인 것이 React와 갈리는 한 곳입니다 — 거기서는 CSS가 요소 자신의 border-radius를 공짜로 주지만, 여기서는 자식의 모양을 읽을 방법이 없습니다',
+        en: 'The corners of the hairline drawn around each item. A radius rather than a bool, which is the one place this diverges from React: there CSS gives a ring the element’s own border-radius for nothing, and here nothing can read a child’s shape'
+      }
+    }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '이 더미가 무엇의 집합인지. 다른 것이 그것을 말하고 있지 않을 때 이름을 주세요',
+        en: 'What the pile is a pile *of*. Name it when nothing else is saying so'
+      }
+    }
+  ],
+
   PlStat: [
     from('PlStat', 'label', { type: 'Widget?' }),
     from('PlStat', 'value', {

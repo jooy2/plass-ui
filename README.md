@@ -127,7 +127,7 @@ A **†** marks the few that are React-only. They are not omissions — each one
 
 ### Display
 
-`PlAvatar` · `PlAvatarGroup` · `PlBadge` · `PlBlockquote` · `PlBreadcrumb` · `PlChip` · `PlDivider` · `PlHighlight` · `PlHotKeys` · `PlIcon` · `PlImage` · `PlList` · `PlTable` · `PlStat` · `PlTextLink` · `PlTimeline` · `PlTree` · `PlTypography` · `PlVisuallyHidden`†
+`PlAvatar` · `PlBadge` · `PlBlockquote` · `PlBreadcrumb` · `PlChip` · `PlDivider` · `PlHighlight` · `PlHotKeys` · `PlIcon` · `PlImage` · `PlList` · `PlTable` · `PlStat` · `PlTextLink` · `PlTimeline` · `PlTree` · `PlTypography` · `PlVisuallyHidden`†
 
 ### Feedback
 

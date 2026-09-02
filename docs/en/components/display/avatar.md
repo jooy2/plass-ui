@@ -171,7 +171,7 @@ The control heights, so an avatar and the button beside it in a toolbar sit on t
 
 ### A stack of them
 
-A stack of overlapping faces with a `+n` on the end is a [`PlAvatarGroup`](./avatar-group). It sets the axes once for the whole stack, and an avatar's own prop still wins inside it.
+A stack of overlapping faces with a `+n` on the end is a [`PlStack`](../layout/stack) with avatars in it. It is a general pile rather than an avatar component, so it sets no axes on what it holds — put a `PlassProvider` around it for `size` and `color`, and write the rest on the avatars.
 
 ## Accessibility
 

@@ -60,11 +60,6 @@ import 'package:plass_ui_example/demos/avatar/hero.dart';
 import 'package:plass_ui_example/demos/avatar/shapes.dart';
 import 'package:plass_ui_example/demos/avatar/sizes.dart';
 import 'package:plass_ui_example/demos/avatar/variants.dart';
-import 'package:plass_ui_example/demos/avatar_group/hero.dart';
-import 'package:plass_ui_example/demos/avatar_group/max.dart';
-import 'package:plass_ui_example/demos/avatar_group/overlap.dart';
-import 'package:plass_ui_example/demos/avatar_group/sizes.dart';
-import 'package:plass_ui_example/demos/avatar_group/variants.dart';
 import 'package:plass_ui_example/demos/badge/colors.dart';
 import 'package:plass_ui_example/demos/badge/counts.dart';
 import 'package:plass_ui_example/demos/badge/dot.dart';
@@ -161,6 +156,10 @@ import 'package:plass_ui_example/demos/image/preview.dart';
 import 'package:plass_ui_example/demos/empty/hero.dart';
 import 'package:plass_ui_example/demos/empty/kinds.dart';
 import 'package:plass_ui_example/demos/empty/table.dart';
+import 'package:plass_ui_example/demos/stack/hero.dart';
+import 'package:plass_ui_example/demos/stack/directions.dart';
+import 'package:plass_ui_example/demos/stack/deck.dart';
+import 'package:plass_ui_example/demos/stack/overflow.dart';
 import 'package:plass_ui_example/demos/stat/hero.dart';
 import 'package:plass_ui_example/demos/stat/direction.dart';
 import 'package:plass_ui_example/demos/back_top/hero.dart';
@@ -502,6 +501,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'empty/hero': _emptyHero,
   'empty/kinds': _emptyKinds,
   'empty/table': _emptyTable,
+  'stack/hero': _stackHero,
+  'stack/directions': _stackDirections,
+  'stack/deck': _stackDeck,
+  'stack/overflow': _stackOverflow,
   'stat/hero': _statHero,
   'stat/direction': _statDirection,
   'back-top/hero': _backTopHero,
@@ -643,11 +646,6 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'avatar/shapes': _avatarShapes,
   'avatar/colors': _avatarColors,
   'avatar/fallback': _avatarFallback,
-  'avatar-group/hero': _avatarGroupHero,
-  'avatar-group/variants': _avatarGroupVariants,
-  'avatar-group/max': _avatarGroupMax,
-  'avatar-group/overlap': _avatarGroupOverlap,
-  'avatar-group/sizes': _avatarGroupSizes,
   'badge/hero': _badgeHero,
   'badge/variants': _badgeVariants,
   'badge/sizes': _badgeSizes,
@@ -964,6 +962,10 @@ Widget _emptyKinds(BuildContext context) => const EmptyKinds();
 
 Widget _emptyTable(BuildContext context) => const EmptyTable();
 
+Widget _stackHero(BuildContext context) => const StackHero();
+Widget _stackDirections(BuildContext context) => const StackDirections();
+Widget _stackDeck(BuildContext context) => const StackDeck();
+Widget _stackOverflow(BuildContext context) => const StackOverflow();
 Widget _statHero(BuildContext context) => const StatHero();
 
 Widget _statDirection(BuildContext context) => const StatDirection();
@@ -1143,11 +1145,6 @@ Widget _avatarSizes(BuildContext context) => const AvatarSizes();
 Widget _avatarShapes(BuildContext context) => const AvatarShapes();
 Widget _avatarColors(BuildContext context) => const AvatarColors();
 Widget _avatarFallback(BuildContext context) => const AvatarFallback();
-Widget _avatarGroupHero(BuildContext context) => const AvatarGroupHero();
-Widget _avatarGroupVariants(BuildContext context) => const AvatarGroupVariants();
-Widget _avatarGroupMax(BuildContext context) => const AvatarGroupMax();
-Widget _avatarGroupOverlap(BuildContext context) => const AvatarGroupOverlap();
-Widget _avatarGroupSizes(BuildContext context) => const AvatarGroupSizes();
 
 Widget _badgeHero(BuildContext context) => const BadgeHero();
 Widget _badgeVariants(BuildContext context) => const BadgeVariants();

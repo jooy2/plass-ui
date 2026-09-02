@@ -1674,87 +1674,6 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
-  PlAvatarGroup: [
-    {
-      name: 'max',
-      type: 'number',
-      description: {
-        ko: '나머지가 숫자가 되기 전까지 몇 개를 그릴지. 없으면 전부 그립니다',
-        en: 'How many avatars are drawn before the rest become a count. Left out, every one of them is drawn'
-      }
-    },
-    {
-      name: 'total',
-      type: 'number',
-      description: {
-        ko: '앞의 몇 개만 넘겼을 때 전체가 몇 명인지. 없으면 children에서 세는데, 그것은 전부 넘겼을 때만 맞습니다',
-        en: 'How many there are altogether, when the group was handed only the first few. Without it the count is worked out from the children, which is right only when all of them were passed'
-      }
-    },
-    {
-      name: 'overlap',
-      type: 'number | string',
-      description: {
-        ko: '각 avatar가 앞의 것 아래로 얼마나 들어갈지 — px 숫자나 아무 CSS 길이. 없으면 size의 일정 비율이라 어느 단계에서나 겹침이 같아 보입니다',
-        en: 'How far each avatar sits under the one before it — a number of pixels or any CSS length. Left out it is a fraction of `size`, which keeps the overlap looking the same at every step'
-      }
-    },
-    {
-      name: 'size',
-      type: SIZE,
-      default: "'md'",
-      shared: true,
-      description: {
-        ko: '그룹의 모든 avatar에 전달됩니다. avatar 자신의 prop이 이깁니다',
-        en: "Passed to every avatar in the group. An avatar's own prop still wins"
-      }
-    },
-    {
-      name: 'shape',
-      type: "'circle' | 'square'",
-      default: "'circle'",
-      description: {
-        ko: '그룹의 모든 avatar에 전달됩니다',
-        en: 'Passed to every avatar in the group'
-      }
-    },
-    {
-      name: 'variant',
-      type: VARIANT,
-      default: "'ghost'",
-      shared: true,
-      description: {
-        ko: '그룹의 모든 avatar에 전달됩니다',
-        en: 'Passed to every avatar in the group'
-      }
-    },
-    {
-      name: 'color',
-      type: COLOR,
-      default: "'primary'",
-      shared: true,
-      description: {
-        ko: '그룹의 모든 avatar에 전달됩니다',
-        en: 'Passed to every avatar in the group'
-      }
-    },
-    {
-      name: 'elevation',
-      type: ELEVATION,
-      default: '0',
-      shared: true,
-      description: {
-        ko: '그룹의 모든 avatar에 전달됩니다',
-        en: 'Passed to every avatar in the group'
-      }
-    },
-    {
-      name: 'children',
-      type: 'ReactNode',
-      description: { ko: 'avatar들', en: 'The avatars' }
-    }
-  ],
-
   PlBadge: [
     ...sharedProps({
       variant: "'solid'",
@@ -10979,6 +10898,107 @@ export const propTables: Record<string, PropRow[]> = {
       default: '2',
       shared: true,
       description: { ko: '그림자 깊이', en: 'Drop shadow depth' }
+    }
+  ],
+  PlStack: [
+    {
+      name: 'direction',
+      type: "'horizontal' | 'vertical' | 'diagonal'",
+      default: "'horizontal'",
+      description: {
+        ko: '더미가 자라는 방향. diagonal은 진짜 45°가 아니라 부채꼴입니다 — 가로 전진량은 항목 너비에서 overlap을 뺀 값인데, 임의의 자식을 받는 컴포넌트는 그 너비를 모릅니다',
+        en: 'Which way the pile grows. diagonal is a fan rather than a true 45°: the horizontal advance is the item width less the overlap, and a component that takes arbitrary children does not know that width'
+      }
+    },
+    {
+      name: 'overlap',
+      type: 'number | string',
+      default: 'a fraction of size',
+      description: {
+        ko: '흐르는 축에서 각 항목이 앞 항목 아래로 들어가는 거리 — 픽셀 숫자 또는 CSS 길이',
+        en: 'How far each item sits under the one before it, along the axis the pile flows on — a number of pixels or any CSS length'
+      }
+    },
+    {
+      name: 'drop',
+      type: 'number | string',
+      default: 'whatever overlap resolved to',
+      description: {
+        ko: 'diagonal에서만 쓰이는, 흐르지 않는 축의 낙차',
+        en: 'The step on the other axis, for direction="diagonal" only'
+      }
+    },
+    {
+      name: 'size',
+      type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'",
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '기본 overlap이 어느 칸에서 나오는지. 그 외에는 아무것도 정하지 않습니다 — 더미는 자기 표면도 글자도 없습니다',
+        en: 'Which rung the default overlap comes off. It decides nothing else: a pile draws no surface of its own and has no type in it'
+      }
+    },
+    {
+      name: 'max',
+      type: 'number',
+      description: {
+        ko: '그리는 개수. 빼면 전부 그립니다',
+        en: 'How many items are drawn. Left out, every one of them is'
+      }
+    },
+    {
+      name: 'total',
+      type: 'number',
+      description: {
+        ko: '앞의 몇 개만 넘겼을 때의 전체 개수. 없으면 자식 수로 셉니다',
+        en: 'How many there are altogether, when the pile was handed only the first few'
+      }
+    },
+    {
+      name: 'overflow',
+      type: '(hidden: number) => ReactNode',
+      description: {
+        ko: '넘친 개수를 받아 맨 뒤 항목을 만듭니다. 노드가 아니라 함수인 이유는 그 숫자가 곧 항목이기 때문입니다',
+        en: 'Draws a last item standing for the ones that did not fit, given how many that is. A function rather than a node, because the number is the item'
+      }
+    },
+    {
+      name: 'front',
+      type: "'first' | 'last'",
+      default: "'last'",
+      description: {
+        ko: '어느 쪽 끝이 맨 위인지. last는 DOM이 스스로 하는 답이고 얼굴 줄이 원하는 것, first는 카드 덱입니다',
+        en: 'Which end of the list is on top. last is what the DOM does on its own and what a row of faces wants; first is what a deck of cards is'
+      }
+    },
+    {
+      name: 'scaleStep',
+      type: 'number',
+      default: '1',
+      description: {
+        ko: '뒤로 갈수록 곱해지는 배율. 독립 scale 속성에 실리므로 caller가 건 transform이 살아남습니다',
+        en: 'What each item further back is multiplied by, compounding. On the standalone scale property, so a caller’s own transform survives'
+      }
+    },
+    {
+      name: 'opacityStep',
+      type: 'number',
+      default: '1',
+      description: { ko: '투명도에 대한 같은 값', en: 'The same, for opacity' }
+    },
+    {
+      name: 'ring',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '각 항목 둘레에 페이지 표면색 실선을 그립니다. 넘긴 요소 자신에 걸리므로 그 요소의 모양을 따릅니다',
+        en: 'Draws a hairline of the page’s own surface colour around each item. It lands on the element you passed, so it takes that element’s shape'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '더미에 쌓이는 것들', en: 'The things in the pile' }
     }
   ],
   PlStat: [

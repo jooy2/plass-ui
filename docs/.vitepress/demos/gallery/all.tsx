@@ -17,7 +17,6 @@ import {
   PlAnimateGrow,
   PlAspectRatio,
   PlAvatar,
-  PlAvatarGroup,
   PlBackTop,
   PlBadge,
   PlBlockquote,
@@ -96,6 +95,7 @@ import {
   PlSkeleton,
   PlSlider,
   PlSpoiler,
+  PlStack,
   PlStat,
   PlStep,
   PlStepper,
@@ -700,23 +700,6 @@ const entries: Entry[] = [
     )
   },
   {
-    name: 'PlAvatarGroup',
-    group: 'display',
-    href: 'components/display/avatar-group',
-    blurb: {
-      en: 'A stack of avatars, with the ones that did not fit as a count.',
-      ko: '겹쳐 쌓은 avatar들. 들어가지 못한 나머지는 숫자가 됩니다.'
-    },
-    preview: (
-      <PlAvatarGroup size="sm" max={3} total={9}>
-        <PlAvatar name="Ada Lovelace" src="/portrait-1.svg" />
-        <PlAvatar name="Grace Hopper" src="/portrait-2.svg" />
-        <PlAvatar name="홍길동" />
-        <PlAvatar name="Katherine Johnson" />
-      </PlAvatarGroup>
-    )
-  },
-  {
     name: 'PlBadge',
     group: 'display',
     href: 'components/display/badge',
@@ -889,6 +872,23 @@ const entries: Entry[] = [
         <PlTimelineItem title="Packed" bullet="2" />
         <PlTimelineItem title="Shipped" bullet="3" />
       </PlTimeline>
+    )
+  },
+  {
+    name: 'PlStack',
+    group: 'layout',
+    href: 'components/layout/stack',
+    blurb: {
+      en: 'Things piled up, overlapping — faces, cards, thumbnails.',
+      ko: '겹쳐 쌓인 것들입니다 — 얼굴이든 카드든 썸네일이든.'
+    },
+    preview: (
+      <PlStack ring max={3} total={9} overflow={(hidden) => <PlAvatar initials={`+${hidden}`} />}>
+        <PlAvatar size="sm" name="Ada Lovelace" src="/portrait-1.svg" />
+        <PlAvatar size="sm" name="Grace Hopper" src="/portrait-2.svg" />
+        <PlAvatar size="sm" name="홍길동" />
+        <PlAvatar size="sm" name="Katherine Johnson" />
+      </PlStack>
     )
   },
   {

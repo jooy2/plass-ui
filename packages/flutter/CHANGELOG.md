@@ -17,6 +17,15 @@
 - **A `reversible` `PlSpoiler` changed height when it was opened, and again when it was closed.** The Hide row was drawn only once the spoiler was uncovered, so revealing grew the sheet by the height of a button and covering it again shrank it back — the page moving twice around the control somebody is pressing. The row is built from the start now and merely held invisible and out of reach under the cover, so its space is paid for once. The generalisation is worth keeping: **a control that appears with a state should reserve its space in the other state**, because the space is the part a reader notices.
 
 - **A `ghost` `PlToggle` that was off drew itself as one that was on the moment the pointer arrived.** Its hover was the family's `soft`, and `soft` is exactly what a `ghost` toggle _on_ is painted with — so the two states differed by their ink alone, which is not a difference a reader is going to read. The hover climbs the neutral glass ladder in all three variants now, the same two rungs `solid` and `glass` were already using. The rule is the one a two-state control fails quietly: **a control with two states cannot put the colour family on the false one**, and a hover is still the false state.
+### Changed
+
+- **`PlStack` replaces `PlAvatarGroup`, and this is a breaking change.** A row of overlapping faces is one arrangement of a pile rather than a widget of its own, so `PlStack` takes whatever it is given and never looks inside. `max`, `total` and `overlap` carry over; `direction`, `drop`, `front`, `scaleStep`, `opacityStep`, `overflow` and `ring` are new.
+
+  **The overlap is real layout, never a `Transform`.** A translated pile is laid out one item wide, paints outside its own box, and everything after it is placed against a size the reader never sees. Flutter has no negative margin — `EdgeInsets` asserts it is non-negative and so does `Flex.spacing` — so the pile is laid out by a render object of its own, which is the only place child sizes are known. It reports the same box the React build does: five 32px items at 10px of overlap are **120×32 `horizontal`, 32×120 `vertical`, 120×72 `diagonal`**. It grows from the reader's start, so it mirrors under RTL, and it hit-tests front to back so the item a reader can see at a point is the one their finger lands on.
+
+  Two things diverge from React and the page says why. `ring` takes a **`BorderRadius?`** rather than a `bool`: there a ring is a box shadow and CSS gives it the element's own `border-radius` for nothing, and here nothing can read a child's shape. It is painted as a spread shadow, so it costs no layout and the overlap arithmetic stays about the item rather than the item plus its ring.
+
+  **What is lost is the group scope, and it could not be kept**: a pile that accepts arbitrary children has no way to know one of them is a face. `PlAvatar` no longer reads one — `size` and `color` come off the nearest `PlassTheme`, and `shape`, `variant` and `elevation` are the avatar's own.
 
 ## 1.2.0 (2026-08-31)
 

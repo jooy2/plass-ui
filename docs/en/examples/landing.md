@@ -17,7 +17,7 @@ The whole page is one file: `docs/.vitepress/demos/examples/landing.tsx`. It is 
 | Block | Components | Worth noticing |
 | --- | --- | --- |
 | Nav | `PlToolbar` `PlTextLink` `PlButton` | `render={<header />}` makes it a real landmark, and `position="sticky"` keeps the call to action reachable |
-| Hero | `PlChip` `PlTypography` `PlButton` `PlAvatar` `PlRating` | The stacked avatars are a negative margin and a ring — there is no `PlAvatarGroup`, on purpose |
+| Hero | `PlChip` `PlTypography` `PlButton` `PlAvatar` `PlRating` | The stacked avatars are a `PlStack` — a negative margin and a ring, and nothing about avatars |
 | Product views | `PlTabs` `PlTab` `PlTabPanel` `PlAspectRatio` | Three panels of the same shape, so switching between them does not move the page |
 | Features | `PlGrid` `PlGridItem` `PlCard` `PlIcon` | One responsive `span` on each item — twelve, then six, then three — is the whole rule for that row |
 | Voices | `PlCarousel` `PlBlockquote` | Built on scroll snap, so it swipes on a phone and reverses under RTL |

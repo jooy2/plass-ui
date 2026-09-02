@@ -4,7 +4,7 @@ import {
   PlAccordionItem,
   PlAlert,
   PlAvatar,
-  PlAvatarGroup,
+  PlStack,
   PlBackTop,
   PlBadge,
   PlBlockquote,
@@ -227,13 +227,19 @@ function SettingsScreen() {
         </PlCard>
 
         <PlCard title="Members" elevation={2} render={<section />}>
-          <PlAvatarGroup size="sm" max={4} total={12} aria-label="Twelve members">
-            <PlAvatar name="Ada Lovelace" src="/portrait-1.svg" />
-            <PlAvatar name="Grace Hopper" src="/portrait-2.svg" />
-            <PlAvatar name="홍길동" />
-            <PlAvatar name="Katherine Johnson" />
-            <PlAvatar name="Alan Turing" />
-          </PlAvatarGroup>
+          <PlStack
+            ring
+            max={4}
+            total={12}
+            aria-label="Twelve members"
+            overflow={(hidden) => <PlAvatar size="sm" initials={`+${hidden}`} />}
+          >
+            <PlAvatar size="sm" name="Ada Lovelace" src="/portrait-1.svg" />
+            <PlAvatar size="sm" name="Grace Hopper" src="/portrait-2.svg" />
+            <PlAvatar size="sm" name="홍길동" />
+            <PlAvatar size="sm" name="Katherine Johnson" />
+            <PlAvatar size="sm" name="Alan Turing" />
+          </PlStack>
 
           <PlList variant="ghost" size="sm" dividers>
             <PlListItem

@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { Avatar as BaseUIAvatar } from '@base-ui/react/avatar';
-import { AvatarGroupContext } from '../../internal/avatar-group.js';
 import {
   controlHeightClasses,
   controlSlots,
@@ -233,18 +232,20 @@ export const PlAvatar = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlAvat
     ref
   ) {
     /*
-     * A `PlAvatarGroup` around this avatar sets the axes once for the stack. The
-     * avatar's own prop still wins, which is what lets one face in a row be
-     * marked out from the rest, and with no group around it the fallbacks are
-     * the defaults they always were.
+     * `size` and `color` come off the nearest `PlassProvider` when the caller
+     * did not say; the other three are this component's own, because a shape and
+     * a material are not axes an application sets once.
+     *
+     * A `PlAvatarGroup` used to answer for all five, and `PlStack` deliberately
+     * cannot: it takes arbitrary children and has no way to know one of them is
+     * an avatar. A provider around the stack is what replaces the first two.
      */
     const defaults = useDefaults();
-    const group = React.useContext(AvatarGroupContext);
-    const shape = shapeProp ?? group?.shape ?? 'circle';
-    const variant = variantProp ?? group?.variant ?? 'ghost';
-    const size = sizeProp ?? group?.size ?? defaults.size ?? 'md';
-    const color = colorProp ?? group?.color ?? defaults.color ?? 'primary';
-    const elevation = elevationProp ?? group?.elevation ?? 0;
+    const shape = shapeProp ?? 'circle';
+    const variant = variantProp ?? 'ghost';
+    const size = sizeProp ?? defaults.size ?? 'md';
+    const color = colorProp ?? defaults.color ?? 'primary';
+    const elevation = elevationProp ?? 0;
 
     const derived = name ? initialsOf(name) : '';
     const label = alt ?? name;

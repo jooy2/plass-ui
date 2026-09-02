@@ -4,7 +4,6 @@ library;
 
 import 'package:flutter/widgets.dart';
 
-import 'package:plass_ui/src/internal/avatar_group.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -110,8 +109,7 @@ class PlAvatar extends StatefulWidget {
   /// out says the name twice.
   final String? semanticLabel;
 
-  /// The crop. `null` is "this avatar did not say" — a [PlAvatarGroup] around
-  /// it answers next, and [PlAvatarShape.circle] last.
+  /// The crop. `null` is [PlAvatarShape.circle].
   final PlAvatarShape? shape;
 
   /// What the sheet behind the fallback is made of. Invisible once a picture has
@@ -177,28 +175,23 @@ class _PlAvatarState extends State<PlAvatar> {
   /// arrived is the same case as one that never will.
   bool _failed = false;
 
-  /// The stack this face is in, or `null`.
-  PlassAvatarGroupScope? _group;
+  /* `size` and `color` come off the nearest [PlassTheme] when the widget did
+     not say; the other three are this widget's own, because a shape and a
+     material are not axes an application sets once.
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _group = PlassAvatarGroupScope.maybeOf(context);
-  }
+     A `PlAvatarGroup` used to answer for all five, and [PlStack] deliberately
+     cannot: it takes arbitrary children and has no way to know one of them is a
+     face. A theme around the pile is what replaces the first two. */
 
-  /* The five axes a stack may answer for. `null` on the widget is "this avatar
-     did not say", so the group is asked next and the house default last. */
+  PlAvatarShape get _shape => widget.shape ?? PlAvatarShape.circle;
 
-  PlAvatarShape get _shape => widget.shape ?? _group?.shape ?? PlAvatarShape.circle;
+  PlassVariant get _variant => widget.variant ?? PlassVariant.ghost;
 
-  PlassVariant get _variant => widget.variant ?? _group?.variant ?? PlassVariant.ghost;
+  PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
 
-  PlassSize get _size => widget.size ?? _group?.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
 
-  PlassColor get _color =>
-      widget.color ?? _group?.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
-
-  PlassElevation get _elevation => widget.elevation ?? _group?.elevation ?? 0;
+  PlassElevation get _elevation => widget.elevation ?? 0;
 
   @override
   void didUpdateWidget(PlAvatar oldWidget) {
