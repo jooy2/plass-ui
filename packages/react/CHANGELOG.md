@@ -6,6 +6,20 @@
 
 ### Added
 
+- **The breakpoint ladder is written down once, and a project can move it.** Every width in the library now comes from Tailwind's own `--breakpoint-*` theme, so one line moves both halves of it:
+
+  ```css
+  @theme {
+    --breakpoint-md: 50rem;
+  }
+  ```
+
+  The reason it takes an arrangement rather than a prop is worth stating: **a media query's condition cannot read a custom property.** `@media (width >= var(--x))` is not valid CSS, so no provider and no runtime value can move a breakpoint the stylesheet decides at. What the CSS half can do is resolve the theme at _build_ time, which is what `@variant` does — `PlGrid`'s four cascade blocks were hand-written `@media (width >= 48rem)` literals and are `@variant md` now. Measured: a `@theme` override moves a `@variant` block to 50rem and leaves a hand-written one at 48.
+
+  The JavaScript half asks `matchMedia`, where a breakpoint is a **value** rather than a condition — so it can read the same answer off the document. `--plass-breakpoint-sm` … `--plass-breakpoint-xl` are four new tokens carrying exactly that, each falling back to Tailwind's default so they are still right on a server, on a first paint before the CSS has arrived, and on the precompiled `plass-ui/styles.css` where our values are baked in. `usePlBreakpoint` and a `PlSidebar`'s `collapseBelow` both read them, and `internal/breakpoints.ts` is the one place that does.
+
+  A new package test fails the build if a width is ever written out by hand again, which is the failure that would otherwise be invisible: a page whose `md:` utilities change at one width and whose `PlGrid` changes at another still renders, still passes every component test, and is simply wrong on a laptop.
+
 - **`PlAnimateReveal`.** Content uncovered behind a moving edge, and the only entrance in the set where **nothing moves and no colour changes**. A fade changes the ink, a slide changes the position, a grow changes the size; this changes how much of the element is drawn and leaves every pixel it has drawn exactly where it will finally be. That is what makes it the effect for anything whose _position is the information_ — a heading over the paragraph it belongs to, a divider between two sections, a chart's plot area, a column of figures that must not be read from the wrong place.
 
   It is a `clip-path: inset()` rather than a mask or an `overflow` wrapper, and both alternatives were considered. A mask brings a gradient that has to be kept in step with the direction; a wrapper puts a second element into the layout, which is exactly what an effect for something positional must not do. `inset(0)` already means "nothing is cut off", so the to-state is the element's own natural one rather than a number somebody had to choose — and the page around it never learns that anything happened.

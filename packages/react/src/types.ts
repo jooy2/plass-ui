@@ -70,6 +70,16 @@ export type PlassWeekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type PlassBreakpoint = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 /**
+ * Every rung but `xs`, which is the one with nothing below it.
+ *
+ * The type of a question about a *floor* — "from here up", "below here". `xs`
+ * has no floor to ask about: everything is at or above it, so `from="xs"` would
+ * mean "always" and `until="xs"` would mean "never", and a prop with two values
+ * that do nothing is a prop that invites them.
+ */
+export type PlassBreakpointFloor = Exclude<PlassBreakpoint, 'xs'>;
+
+/**
  * A value that may change with the width of the window.
  *
  * A bare value applies everywhere: `span={6}` is six columns at every width.
@@ -297,6 +307,10 @@ export type PlassToken =
   | '--plass-bg-to'
   | '--plass-blur'
   | '--plass-border'
+  | '--plass-breakpoint-sm'
+  | '--plass-breakpoint-md'
+  | '--plass-breakpoint-lg'
+  | '--plass-breakpoint-xl'
   | '--plass-divider'
   | '--plass-duration'
   | '--plass-duration-slow'

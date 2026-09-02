@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { belowQuery } from './breakpoints.js';
 import { useMediaQuery } from './media.js';
 import type { PlassBreakpoint, PlassSide } from '../types.js';
 
@@ -122,13 +123,9 @@ export const PlassSidebarSideContext = /* @__PURE__ */ React.createContext<Plass
  * `xs` has no query because its floor is zero: there is no width below it, so a
  * sidebar that collapses there never collapses.
  */
-const collapseQueries: Record<PlassBreakpoint, string | null> = {
-  xs: null,
-  sm: '(width < 40rem)',
-  md: '(width < 48rem)',
-  lg: '(width < 64rem)',
-  xl: '(width < 80rem)'
-};
+function collapseQuery(breakpoint: PlassBreakpoint): string | null {
+  return breakpoint === 'xs' ? null : belowQuery(breakpoint);
+}
 
 /**
  * The same five widths as Tailwind variants, for the parts of this that are
@@ -175,7 +172,7 @@ export const expandedOnlyClasses: Record<PlPageLayoutCollapse, string> = {
  * a narrow screen until this hook can say otherwise.
  */
 export function useCollapsed(breakpoint: PlPageLayoutCollapse): boolean {
-  return useMediaQuery(breakpoint === 'none' ? null : collapseQueries[breakpoint]);
+  return useMediaQuery(breakpoint === 'none' ? null : collapseQuery(breakpoint));
 }
 
 /**

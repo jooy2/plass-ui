@@ -133,6 +133,43 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * The breakpoint ladder
+ *
+ * Four widths, and **one place they are written down**. Everything in this
+ * library that changes with the width of the window reads them: the grid's
+ * `@variant` blocks below, the classes that keep a sidebar off a narrow screen,
+ * and the `matchMedia` queries `usePlBreakpoint` asks.
+ *
+ * They are Tailwind's own, which is the whole point — a layout decided by a
+ * `md:` utility and a layout decided by this library have to change at the same
+ * moment, or a page has two answers about how wide it is. So the source is
+ * Tailwind's `--breakpoint-*` theme, and a project that moves one moves both:
+ *
+ *   @theme { --breakpoint-md: 50rem; }
+ *
+ * A media query's *condition* cannot read a custom property — `@media (width >=
+ * var(--x))` is not valid CSS and never will be — so the CSS half cannot follow
+ * a value set at runtime. It follows the theme at build time instead, through
+ * the `@variant` blocks, and these four tokens are how the **JavaScript** half
+ * reads the same answer: it is a value rather than a condition there, so it can
+ * be read off the document.
+ *
+ * The fallback is what makes them safe to read before Tailwind has resolved
+ * anything at all — a consumer on the precompiled `plass-ui/styles.css` has our
+ * values baked in, and these say what they are.
+ *
+ * Setting a `--plass-breakpoint-*` directly moves the JavaScript half **and not
+ * the CSS half**, which is almost never what anybody wants. Set Tailwind's.
+ * ------------------------------------------------------------------------- */
+
+:root {
+  --plass-breakpoint-sm: var(--breakpoint-sm, 40rem);
+  --plass-breakpoint-md: var(--breakpoint-md, 48rem);
+  --plass-breakpoint-lg: var(--breakpoint-lg, 64rem);
+  --plass-breakpoint-xl: var(--breakpoint-xl, 80rem);
+}
+
+/* ---------------------------------------------------------------------------
  * Light theme (default)
  *
  * `.light` and `[data-theme='light']` carry the same block rather than only
@@ -910,7 +947,7 @@
   margin-inline-start: calc(var(--p-track) * min(var(--p-offset), var(--p-cols, 12)));
 }
 
-@media (width >= 40rem) {
+@variant sm {
   .plass-grid {
     --p-cols: var(--p-cols-sm, var(--p-cols-xs, 12));
     --p-gap-x: var(--p-gap-x-sm, var(--p-gap-x-xs, 0px));
@@ -923,7 +960,7 @@
   }
 }
 
-@media (width >= 48rem) {
+@variant md {
   .plass-grid {
     --p-cols: var(--p-cols-md, var(--p-cols-sm, var(--p-cols-xs, 12)));
     --p-gap-x: var(--p-gap-x-md, var(--p-gap-x-sm, var(--p-gap-x-xs, 0px)));
@@ -936,7 +973,7 @@
   }
 }
 
-@media (width >= 64rem) {
+@variant lg {
   .plass-grid {
     --p-cols: var(--p-cols-lg, var(--p-cols-md, var(--p-cols-sm, var(--p-cols-xs, 12))));
     --p-gap-x: var(--p-gap-x-lg, var(--p-gap-x-md, var(--p-gap-x-sm, var(--p-gap-x-xs, 0px))));
@@ -952,7 +989,7 @@
   }
 }
 
-@media (width >= 80rem) {
+@variant xl {
   .plass-grid {
     --p-cols: var(
       --p-cols-xl,

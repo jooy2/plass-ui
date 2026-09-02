@@ -1,23 +1,9 @@
 'use client';
 
+import { fromQuery } from '../internal/breakpoints.js';
 import { breakpointMap, breakpoints } from '../internal/grid.js';
 import { useMediaQuery } from '../internal/media.js';
 import type { PlassBreakpoint, PlassResponsive } from '../types.js';
-
-/**
- * The floor of each rung, as a query.
- *
- * The same four widths `PlGrid`'s CSS and Tailwind's own `sm:`/`md:`/`lg:`/`xl:`
- * use, so a layout decided here and a layout decided in a class change at the
- * same moment. `xs` has no query: its floor is zero and there is no width below
- * it, which is also why it is the answer when none of the four match.
- */
-const floors: Record<Exclude<PlassBreakpoint, 'xs'>, string> = {
-  sm: '(width >= 40rem)',
-  md: '(width >= 48rem)',
-  lg: '(width >= 64rem)',
-  xl: '(width >= 80rem)'
-};
 
 /**
  * Which rung of the breakpoint ladder the window is on.
@@ -29,14 +15,17 @@ const floors: Record<Exclude<PlassBreakpoint, 'xs'>, string> = {
  * `md` here switches with the `md:` utilities beside it rather than a few
  * pixels away from them.
  *
+ * The widths come off the document — see `internal/breakpoints.ts` — so a
+ * project that moves a breakpoint in its Tailwind theme moves this too.
+ *
  * **`xs` is the server's answer**, and the first one a browser renders. See
  * `usePlMediaQuery` for what follows from that.
  */
 export function usePlBreakpoint(): PlassBreakpoint {
-  const sm = useMediaQuery(floors.sm);
-  const md = useMediaQuery(floors.md);
-  const lg = useMediaQuery(floors.lg);
-  const xl = useMediaQuery(floors.xl);
+  const sm = useMediaQuery(fromQuery('sm'));
+  const md = useMediaQuery(fromQuery('md'));
+  const lg = useMediaQuery(fromQuery('lg'));
+  const xl = useMediaQuery(fromQuery('xl'));
 
   if (xl) return 'xl';
   if (lg) return 'lg';

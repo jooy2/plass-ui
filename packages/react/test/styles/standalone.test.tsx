@@ -264,6 +264,22 @@ describe('plass-ui/styles.css', () => {
     }
   });
 
+  describe('the breakpoint ladder', () => {
+    it('resolves each rung to a width the JavaScript half can read', () => {
+      // `usePlBreakpoint` builds its `matchMedia` queries from these, so a
+      // token that resolved to nothing would put the hook on the built-in
+      // fallback while the stylesheet around it had moved.
+      for (const [rung, width] of [
+        ['sm', '40rem'],
+        ['md', '48rem'],
+        ['lg', '64rem'],
+        ['xl', '80rem']
+      ]) {
+        expect(token(document.documentElement, `--plass-breakpoint-${rung}`)).toBe(width);
+      }
+    });
+  });
+
   describe('the token channel', () => {
     it('lets a token set on the component itself beat the class that reads it', async () => {
       const screen = await render(<PlButton>Save</PlButton>);
