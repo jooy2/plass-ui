@@ -6,6 +6,12 @@
 
 ### Added
 
+- **`timeline="view"` hands an effect to the reader's scroll position.** Two CSS declarations behind an `@supports` give every keyframe in the library a scroll-linked mode: the effect stops being something that happens at a moment and becomes something that tracks where the element sits in the scrollport, so scrolling back up plays it backwards and a reader who stops halfway leaves it halfway. There is no new component and there should not be — this changes what _advances_ an effect, not what the effect is.
+
+  Four settings stop meaning anything and are **ignored** rather than half-working: `duration`, `delay` and `repeat` belong to a clock, and so does the whole idea of a `trigger`, since the scroll position is the trigger. That last one is load-bearing rather than tidy — an effect held `paused` waiting to be scrolled into view shows its own first frame and nothing else, however far it is scrolled — so a scroll-linked effect is always let go. `paused` still works, because that is a caller saying "hold it" rather than "wait for something". `range` replaces `duration`: an `animation-range` as CSS writes it, defaulting to `entry 0% cover 45%`, which finishes while the element is still arriving rather than when it reaches the middle of the screen.
+
+  **A browser with no `animation-timeline` gets one clock-driven run**, which is what the `@supports` is for: degraded is allowed, blank is not. The slots are written only when a caller asks for `view`, so the default costs nothing — `auto` is what the property already resolves to, and writing it into every inline style would be the same answer a hundred times. On the same six effects `stagger` is on and absent from the same four, because `animation-timeline` is a property of the element the keyframe runs on. **+0.1 kB on the whole library.**
+
 - **Six effects can now be told off across their children.** `stagger` is milliseconds added to each child's delay, `durationStep` is the same for its duration, and `reverse` starts from the end of the set — on `PlAnimateFade`, `PlAnimateGrow`, `PlAnimateSlide`, `PlAnimateZoom`, `PlAnimateRotate` and `PlAnimateBlink`. `stagger` defaults to `0`, which plays the box, so nothing that exists changes.
 
   **There is deliberately no `PlAnimateStagger`.** A stagger is a _differential_ rather than an effect, and a wrapper would be a second way to spell something all six can already say — the same rule that keeps a `Pulse` (`blink` + `alternate`) and a `Bounce` (`grow` + `alternate`) out of the library. Turning it on takes the animation **off the root entirely**: eight children fading in under a box that is also fading in is the same content faded twice, and the second one is not free.
@@ -13,7 +19,6 @@
   The four effects that already read their children do not take these and cannot — a marquee lays its children down twice, a headline swaps between them, a typewriter counts their graphemes, and a lighting keeps its motion on a pseudo-element, which there is no way to put on somebody else's child. `PlAnimateAppear` has had the same three props under the same names since it existed and **now runs on the same code**: `animateChildren` and `staggerSlots` moved into `internal/animate.ts`, because two implementations of "one after another" would be two opinions about the arithmetic. It gains `durationStep` on the way past.
 
   The effect is written onto the children themselves rather than onto wrappers, so a row of `<li>`s stays a row of `<li>`s and a grid's cells stay its direct children; the cost is that a child has to accept a `className` and a `style`. The `transform-origin` a `PlAnimateGrow` was given travels with it, since that property is not inherited and a staggered grow would otherwise unfold every child from its own middle. **+0.2 kB on the whole library**, nothing on any component that does not import an effect.
-
 
 ### Fixed
 

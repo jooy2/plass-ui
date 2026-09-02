@@ -52,6 +52,89 @@ describe('PlAnimateFade', () => {
     expect(root.style.getPropertyValue('--p-anim-opacity')).toBe('0.3');
   });
 
+  describe('timeline', () => {
+    it('leaves the slots empty on the clock, which is what CSS already resolves to', async () => {
+      await render(<PlAnimateFade className="fade-under-test">Arriving</PlAnimateFade>);
+
+      const root = document.querySelector('.fade-under-test') as HTMLElement;
+
+      // `auto` is the property's own initial value, so writing it here would be
+      // the same answer copied into every inline style on the page.
+      expect(root.style.getPropertyValue('--p-anim-timeline')).toBe('');
+      expect(root.style.getPropertyValue('--p-anim-range')).toBe('');
+    });
+
+    it('hands the effect to the scroll position when it is asked to', async () => {
+      await render(
+        <PlAnimateFade className="fade-under-test" timeline="view">
+          Arriving
+        </PlAnimateFade>
+      );
+
+      const root = document.querySelector('.fade-under-test') as HTMLElement;
+
+      expect(root.style.getPropertyValue('--p-anim-timeline')).toBe('view()');
+      expect(root.style.getPropertyValue('--p-anim-range')).toBe('entry 0% cover 45%');
+    });
+
+    it('takes a range of its own', async () => {
+      await render(
+        <PlAnimateFade className="fade-under-test" timeline="view" range="cover 20% cover 80%">
+          Arriving
+        </PlAnimateFade>
+      );
+
+      const root = document.querySelector('.fade-under-test') as HTMLElement;
+
+      expect(root.style.getPropertyValue('--p-anim-range')).toBe('cover 20% cover 80%');
+    });
+
+    it('runs whatever the trigger said, because the scroll position is the trigger', async () => {
+      await render(
+        <PlAnimateFade className="fade-under-test" timeline="view" trigger="visible">
+          Arriving
+        </PlAnimateFade>
+      );
+
+      const root = document.querySelector('.fade-under-test') as HTMLElement;
+
+      // A scroll-linked animation held `paused` shows its first frame and
+      // nothing else, so an effect waiting to be scrolled into view would never
+      // be seen no matter how far it was scrolled.
+      expect(root.style.getPropertyValue('--p-anim-state')).toBe('running');
+      expect(root).toHaveAttribute('data-state', 'running');
+    });
+
+    it('still stops where a caller says stop', async () => {
+      await render(
+        <PlAnimateFade className="fade-under-test" timeline="view" paused>
+          Arriving
+        </PlAnimateFade>
+      );
+
+      const root = document.querySelector('.fade-under-test') as HTMLElement;
+
+      // `paused` is a caller saying "hold it" rather than "wait for something",
+      // which is a different sentence from `trigger` and survives.
+      expect(root.style.getPropertyValue('--p-anim-state')).toBe('paused');
+    });
+
+    it('reaches the children of a staggered set, which each get their own', async () => {
+      await render(
+        <PlAnimateFade className="fade-under-test" timeline="view" stagger={70}>
+          <span>One</span>
+          <span>Two</span>
+        </PlAnimateFade>
+      );
+
+      const root = document.querySelector('.fade-under-test') as HTMLElement;
+
+      for (const child of [...root.children] as HTMLElement[]) {
+        expect(child.style.getPropertyValue('--p-anim-timeline')).toBe('view()');
+      }
+    });
+  });
+
   describe('stagger', () => {
     /** The three children, in document order, whatever order they play in. */
     function children() {

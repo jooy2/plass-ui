@@ -127,6 +127,32 @@ const PlAnimateFade(
 
 </Demo>
 
+### timeline
+
+::: fw react
+
+`timeline="view"`는 효과를 시계가 아니라 독자의 **스크롤 위치**에 맡깁니다. 어느 순간에 일어나는 일이기를 그만두고, 요소가 스크롤포트 안 어디에 있는지를 따라가는 일이 됩니다. 그래서 위로 되감아 스크롤하면 거꾸로 재생되고, 중간에서 멈춘 독자에게는 중간에서 멈춰 있습니다.
+
+<Demo src="animate-fade/timeline" :min-height="280">
+
+<<< @/.vitepress/demos/animate-fade/timeline.tsx
+
+</Demo>
+
+설정 네 가지는 뜻을 잃고 어중간하게 동작하는 대신 **무시됩니다**. `duration`, `delay`, `repeat`은 모두 시계의 것이고, `trigger`라는 개념 전체도 그렇습니다 — 스크롤 위치가 곧 트리거입니다. 그래서 트리거를 기다리며 일시정지된 채로 붙들려 있는 일도 없습니다. `duration`을 대신하는 것은 `range`입니다. CSS가 `animation-range`를 쓰는 그대로이고, 기본값 `entry 0% cover 45%`는 요소가 화면 한가운데 도착할 때가 아니라 아직 들어오는 중에 끝납니다.
+
+`animation-timeline`이 없는 브라우저는 시계 기반 1회 재생으로 폴백하므로 내용은 그대로 도착합니다. **degraded는 되어도 blank는 안 됩니다.** 이것이 이 기능이 JavaScript로 재는 무언가가 아니라 `@supports` 뒤의 선언 두 줄인 이유입니다.
+
+`stagger`가 있는 여섯 효과에 똑같이 있고, 없는 넷에서 똑같이 없습니다. `animation-timeline`은 키프레임이 도는 요소의 속성인데, marquee의 움직임은 복제된 트랙에 있고 typewriter의 것은 애초에 키프레임이 아니며 lighting의 것은 pseudo-element에 있습니다. 끝이 없는 장식에는 스크롤 위치가 진행시켜 데려갈 도착점도 없습니다.
+
+:::
+
+::: fw flutter
+
+제공하지 않습니다. `animation-timeline`은 여기에 대응물이 없는 CSS 속성입니다. Flutter에서 스크롤 연동 효과는 `ScrollPosition`으로 구동하는 `AnimationController`이고, 그것은 위젯이 prop으로 받을 수 있는 것이 아니라 애플리케이션 자신의 배선입니다.
+
+:::
+
 ### 자식들을 하나씩 떼어 놓기
 
 ::: fw react
@@ -167,6 +193,7 @@ const PlAnimateFade(
 - wrapper는 role도 label도 붙이지 않습니다. 이미 자기가 무엇인지 말하는 내용을 감싼 `<div>`일 뿐입니다.
 - 여기 있는 어떤 것도 내용을 숨기는 방법이 아닙니다. `mode="out"`인 요소도 문서에 그대로 있고 그대로 읽힙니다. 없어져야 한다면 unmount하세요.
 - `trigger="hover"`는 focus에서도 시작하므로, 키보드로 닿을 수 있는 것 위의 효과는 마우스를 쥐고 있지 않은 사람에게도 돕니다.
+- `timeline="view"`도 `prefers-reduced-motion`에서 같은 이유로 같은 결과로 걷히고, `animation-timeline`이 없는 브라우저에서는 시계 기반 1회 재생으로 폴백합니다. 어느 쪽도 빈 화면을 남기지 않습니다.
 
 :::
 
@@ -193,6 +220,7 @@ const PlAnimateFade(
 | `prefers-reduced-motion` | `MediaQuery.disableAnimations` | 플랫폼 자신의 신호입니다. |
 | `render` | — | Flutter에는 다형적 요소가 없습니다. |
 | `stagger`, `durationStep`, `reverse` | — | React 빌드는 효과를 자식들 자신에게 써 넣으므로 호출자의 레이아웃은 그대로입니다. Flutter에는 집합을 배치할 스타일시트가 없어서, 차등을 준 효과는 행이나 열까지 자기가 가져야 합니다. 그것이 바로 [`PlAnimateAppear`](./animate-appear)이고, 그것을 여섯 개 더 만드는 일이 됩니다. |
+| `timeline="view"` | — | `animation-timeline`은 여기에 대응물이 없는 CSS 속성입니다. Flutter에서 스크롤 연동 효과는 `ScrollPosition`으로 구동하는 `AnimationController`이고, 위젯이 prop으로 받는 것이 아니라 애플리케이션 자신의 배선입니다. |
 | `className`, `style` | — | 통과시킬 class 목록도 style 속성도 없습니다. |
 
 :::

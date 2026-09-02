@@ -49,6 +49,7 @@ import * as React from 'react';
 import type {
   PlassAnimateRepeat,
   PlassAnimateStaggerProps,
+  PlassAnimateTimelineProps,
   PlassAnimateTrigger,
   PlassAnimation,
   PlassSide
@@ -109,7 +110,16 @@ export function directionValue(mode: 'in' | 'out', alternate: boolean | undefine
   return alternate ? 'alternate' : 'normal';
 }
 
-export interface AnimationSlotOptions {
+/**
+ * Where a scroll-linked effect starts and finishes, as an `animation-range`.
+ *
+ * Finished while the element is still arriving rather than when it reaches the
+ * middle of the screen: an entrance that is only half drawn by the time a
+ * reader has read past it is an entrance that never happened.
+ */
+export const defaultViewRange = 'entry 0% cover 45%';
+
+export interface AnimationSlotOptions extends PlassAnimateTimelineProps {
   duration: number;
   delay: number;
   easing?: string;
@@ -142,6 +152,14 @@ export function animationSlots(options: AnimationSlotOptions): React.CSSProperti
 
   if (options.easing) {
     slots['--p-anim-ease'] = options.easing;
+  }
+
+  // Only when a caller asked for it. `auto` is what the property already
+  // resolves to, so writing it here would be the same answer copied into every
+  // inline style in the page.
+  if (options.timeline === 'view') {
+    slots['--p-anim-timeline'] = 'view()';
+    slots['--p-anim-range'] = options.range ?? defaultViewRange;
   }
 
   if (options.opacity !== undefined) {
@@ -493,7 +511,19 @@ export function useAnimateElement(params: AnimateElementParams): AnimateElement 
     ...slots
   } = params;
 
-  const run = useAnimationRun({ trigger, play, once, threshold, paused, infinite });
+  // A scroll timeline has no use for a trigger: the scroll position *is* the
+  // trigger, and an effect left `paused` waiting to be scrolled into view would
+  // sit on its own first frame while the reader scrolled straight past it. So
+  // the run is told it mounted, which starts it, and `paused` — a caller saying
+  // "hold it" rather than "wait for something" — goes on working.
+  const run = useAnimationRun({
+    trigger: slots.timeline === 'view' ? 'mount' : trigger,
+    play,
+    once,
+    threshold,
+    paused,
+    infinite
+  });
 
   const effectClass = effect ? `${animBaseClass} ${animationClasses[effect]}` : '';
   const spread = stagger !== 0 && effect !== null;

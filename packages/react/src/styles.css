@@ -1017,6 +1017,34 @@
   animation-play-state: var(--p-anim-state, running);
 }
 
+/*
+ * `timeline="view"`, and the whole of it.
+ *
+ * Two declarations give **every** keyframe in this file a scroll-linked mode:
+ * the effect stops being a thing that happens at a moment and becomes a thing
+ * that tracks where the element is in the scrollport. There is no component for
+ * it and there should not be, because there is nothing a component would add —
+ * an effect already knows what it draws, and this only changes what advances
+ * it.
+ *
+ * `@supports` is not optional. `animation-timeline` is progressively enhanced
+ * and an engine that does not know the property would drop these two lines but
+ * keep the `animation-duration` above, which is the *right* fallback: a clock
+ * plays the effect once and the content arrives. Handing an unsupported browser
+ * a timeline it cannot resolve is what would leave a blank page. Degraded is
+ * allowed; blank is not.
+ *
+ * The slots are only filled when a caller asks for `view`, so the default costs
+ * nothing at all: `auto` is what the property already resolves to, and writing
+ * it into a hundred inline styles would be a hundred copies of the same answer.
+ */
+@supports (animation-timeline: view()) {
+  .plass-anim {
+    animation-timeline: var(--p-anim-timeline, auto);
+    animation-range: var(--p-anim-range, normal);
+  }
+}
+
 @keyframes plass-anim-fade {
   from {
     opacity: var(--p-anim-opacity, 0);

@@ -58,7 +58,7 @@ Every native `<div>` attribute passes straight through, and `render` swaps the e
 
 `from` is **physical** — `top`, `right`, `bottom`, `left` — as `PlassSide` is everywhere in the library. A panel coming down from the top comes from the top in every writing direction.
 
-The ten shared settings — `duration`, `delay`, `easing`, `repeat`, `alternate`, `paused`, `trigger`, `play`, `once`, `threshold` — are the same on every `PlAnimate*` component. The four `trigger` values are shown on the [PlAnimateFade](./animate-fade) page.
+The ten shared settings — `duration`, `delay`, `easing`, `repeat`, `alternate`, `paused`, `trigger`, `play`, `once`, `threshold` — are the same on every `PlAnimate*` component. The four `trigger` values are shown on the [PlAnimateFade](./animate-fade) page. `timeline="view"` and `range` are there too, and hand the effect to the reader's scroll position instead of the clock.
 
 ::: fw react
 
@@ -145,6 +145,7 @@ A number is pixels, a string is any CSS length. `'100%'` is the element's own wi
 | `trigger="visible"` via `IntersectionObserver` | watches the nearest `Scrollable` | There is no observer here; with no scrollable above it there is nothing to watch, so it runs. |
 | `prefers-reduced-motion` | `MediaQuery.disableAnimations` | The platform's own signal. |
 | `stagger`, `durationStep`, `reverse` | — | The React build writes the effect onto the children themselves, so the caller's own layout is untouched. Flutter has no stylesheet to lay a set out with, so a staggered effect would have to own the row or the column as well — which is what [`PlAnimateAppear`](./animate-appear) is, and six more of it would be six more of it. |
+| `timeline="view"` | — | `animation-timeline` is a CSS property with no counterpart here. A scroll-linked effect in Flutter is an `AnimationController` driven from a `ScrollPosition`, which is an application's own wiring rather than something a widget takes as a prop. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::

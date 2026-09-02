@@ -537,6 +537,8 @@ function animateProps(options: {
    * their children. The four that already read their children cannot.
    */
   stagger?: boolean;
+  /** The two scroll-linked props, on the same six and absent from the same four. */
+  timeline?: boolean;
 }): PropRow[] {
   const rows: PropRow[] = [
     {
@@ -636,6 +638,31 @@ function animateProps(options: {
       }
     }
   ];
+
+  if (options.timeline) {
+    rows.push(
+      {
+        name: 'timeline',
+        type: "'auto' | 'view'",
+        default: "'auto'",
+        shared: true,
+        description: {
+          ko: '무엇이 애니메이션을 진행시키는지 — 시계인지 독자의 스크롤 위치인지. view는 duration, delay, repeat, trigger를 무시하고 range로 달립니다',
+          en: "What advances the animation: the clock, or the reader's scroll position. view ignores duration, delay, repeat and trigger, and runs against range instead"
+        }
+      },
+      {
+        name: 'range',
+        type: 'string',
+        default: "'entry 0% cover 45%'",
+        shared: true,
+        description: {
+          ko: 'CSS가 animation-range를 쓰는 그대로. timeline이 view일 때만 읽힙니다',
+          en: 'As CSS writes an animation-range. Only read when timeline is view'
+        }
+      }
+    );
+  }
 
   if (options.stagger) {
     rows.push(
@@ -965,7 +992,7 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'How faint it gets at the bottom of the cycle, between 0 and 1. Raise it for something that has to stay readable while it pulses'
       }
     },
-    ...animateProps({ duration: '1000', repeat: "'infinite'", stagger: true }),
+    ...animateProps({ duration: '1000', repeat: "'infinite'", stagger: true, timeline: true }),
     {
       name: 'render',
       type: 'ReactElement | (props, state) => ReactElement',
@@ -994,7 +1021,7 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'The opacity it starts from, between 0 and 1. Raise it for content that should never be completely gone'
       }
     },
-    ...animateProps({ duration: '300', stagger: true }),
+    ...animateProps({ duration: '300', stagger: true, timeline: true }),
     {
       name: 'render',
       type: 'ReactElement | (props, state) => ReactElement',
@@ -1041,7 +1068,7 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'Fades in as it grows. Turn it off for something already on the page that is only changing size'
       }
     },
-    ...animateProps({ duration: '320', stagger: true }),
+    ...animateProps({ duration: '320', stagger: true, timeline: true }),
     {
       name: 'render',
       type: 'ReactElement | (props, state) => ReactElement',
@@ -1282,7 +1309,7 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'Fades in as it turns. Turn it off for a continuous spin, where a repeating fade would read as flickering'
       }
     },
-    ...animateProps({ duration: '440', stagger: true }),
+    ...animateProps({ duration: '440', stagger: true, timeline: true }),
     {
       name: 'render',
       type: 'ReactElement | (props, state) => ReactElement',
@@ -1327,7 +1354,7 @@ export const propTables: Record<string, PropRow[]> = {
       default: 'true',
       description: { ko: '미끄러지면서 함께 나타납니다', en: 'Fades in as it slides' }
     },
-    ...animateProps({ duration: '360', stagger: true }),
+    ...animateProps({ duration: '360', stagger: true, timeline: true }),
     {
       name: 'render',
       type: 'ReactElement | (props, state) => ReactElement',
@@ -1421,7 +1448,7 @@ export const propTables: Record<string, PropRow[]> = {
       default: 'true',
       description: { ko: 'zoom하면서 함께 나타납니다', en: 'Fades in as it zooms' }
     },
-    ...animateProps({ duration: '320', stagger: true }),
+    ...animateProps({ duration: '320', stagger: true, timeline: true }),
     {
       name: 'render',
       type: 'ReactElement | (props, state) => ReactElement',

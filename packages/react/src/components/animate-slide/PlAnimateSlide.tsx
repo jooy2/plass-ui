@@ -8,11 +8,16 @@ import type {
   PlassAnimateMode,
   PlassAnimateProps,
   PlassAnimateStaggerProps,
+  PlassAnimateTimelineProps,
   PlassSide
 } from '../../types.js';
 
 export interface PlAnimateSlideProps
-  extends PlassAnimateProps, PlassAnimateStaggerProps, React.ComponentPropsWithoutRef<'div'> {
+  extends
+    PlassAnimateProps,
+    PlassAnimateStaggerProps,
+    PlassAnimateTimelineProps,
+    React.ComponentPropsWithoutRef<'div'> {
   /**
    * Whether the content slides in or slides away. `out` leaves by the same edge
    * it would have come from.
@@ -69,6 +74,8 @@ export const PlAnimateSlide = /* @__PURE__ */ React.forwardRef<HTMLDivElement, P
       play,
       once = true,
       threshold = 0.2,
+      timeline,
+      range,
       stagger = 0,
       durationStep = 0,
       reverse = false,
@@ -103,6 +110,8 @@ export const PlAnimateSlide = /* @__PURE__ */ React.forwardRef<HTMLDivElement, P
       threshold,
       paused,
       infinite: isInfinite(repeat),
+      timeline,
+      range,
       stagger,
       durationStep,
       reverse,

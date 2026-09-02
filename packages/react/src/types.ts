@@ -377,6 +377,25 @@ export type PlassAnimation = 'fade' | 'grow' | 'slide' | 'zoom' | 'rotate' | 'bl
  */
 export type PlassAnimateTrigger = 'mount' | 'visible' | 'hover' | 'manual';
 
+/**
+ * What advances an animation.
+ *
+ * - `auto` — the clock. The default, and what every effect did before this
+ *   existed.
+ * - `view` — the reader's scroll position. The effect no longer *happens*; it
+ *   tracks where the element sits in the scrollport, and scrolling back plays
+ *   it backwards.
+ *
+ * `view` makes three of the other settings meaningless, and they are ignored
+ * rather than quietly half-working: `duration`, `delay` and `repeat` all belong
+ * to a clock, and so does the whole idea of a `trigger` — the scroll position
+ * *is* the trigger. `range` is what replaces `duration`.
+ *
+ * A browser without `animation-timeline` falls back to one clock-driven run, so
+ * the content still arrives. Degraded is allowed; blank is not.
+ */
+export type PlassAnimateTimeline = 'auto' | 'view';
+
 /** Whether an effect brings its content in or takes it away. */
 export type PlassAnimateMode = 'in' | 'out';
 
@@ -481,4 +500,41 @@ export interface PlassAnimateProps {
    * @default 0.2
    */
   threshold?: number;
+}
+
+/**
+ * The two props that hand an effect to the reader's scroll position.
+ *
+ * On the same six as `PlassAnimateStaggerProps` and absent from the same four,
+ * for a different reason: `animation-timeline` is a property of the element the
+ * keyframe is running on, and a marquee's motion is on a duplicated track, a
+ * typewriter's is not a keyframe at all, and a lighting's is on a
+ * pseudo-element. An endless decoration also has nothing a scroll position
+ * could advance it *to*.
+ *
+ * There is no `PlAnimateOnScroll`, for the reason there is no
+ * `PlAnimateStagger`: this changes what advances an effect, not what the effect
+ * is, so every effect can take it and none of them needs a twin.
+ */
+export interface PlassAnimateTimelineProps {
+  /**
+   * What advances the animation: the clock, or the reader's scroll position.
+   *
+   * `view` ignores `duration`, `delay`, `repeat` and `trigger` — all four
+   * belong to a clock, and with a scroll timeline the scroll position *is* the
+   * trigger — and runs the effect against `range` instead.
+   * @default 'auto'
+   */
+  timeline?: PlassAnimateTimeline;
+  /**
+   * How much of the element's pass through the scrollport the effect is spread
+   * over, as CSS writes an `animation-range`. Only read when `timeline` is
+   * `view`.
+   *
+   * The default finishes while the element is still arriving rather than when
+   * it reaches the middle of the screen, which is what keeps a reader from
+   * scrolling past a half-drawn entrance.
+   * @default 'entry 0% cover 45%'
+   */
+  range?: string;
 }

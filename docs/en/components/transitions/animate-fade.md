@@ -127,6 +127,32 @@ A delay per element is what turns a set of things into a sequence. For a list wh
 
 </Demo>
 
+### timeline
+
+::: fw react
+
+`timeline="view"` hands the effect to the reader's **scroll position** instead of the clock. It stops being something that happens at a moment and becomes something that tracks where the element sits in the scrollport — so scrolling back up plays it backwards, and a reader who stops halfway leaves it halfway.
+
+<Demo src="animate-fade/timeline" :min-height="280">
+
+<<< @/.vitepress/demos/animate-fade/timeline.tsx
+
+</Demo>
+
+Four settings stop meaning anything and are **ignored** rather than half-working: `duration`, `delay` and `repeat` all belong to a clock, and so does the whole idea of a `trigger` — the scroll position _is_ the trigger, which is also why the effect is never held paused waiting for one. `range` is what replaces `duration`: it is an `animation-range` as CSS writes it, and the default `entry 0% cover 45%` finishes while the element is still arriving rather than when it reaches the middle of the screen.
+
+A browser without `animation-timeline` falls back to one clock-driven run, so the content still arrives. **Degraded is allowed; blank is not** — which is the reason this is two declarations behind an `@supports` rather than anything measured in JavaScript.
+
+It is on the same six effects `stagger` is on, and absent from the same four: `animation-timeline` is a property of the element the keyframe runs on, and a marquee's motion is on a duplicated track, a typewriter's is not a keyframe at all, and a lighting's is on a pseudo-element. An endless decoration also has nothing a scroll position could advance it _to_.
+
+:::
+
+::: fw flutter
+
+Not offered. `animation-timeline` is a CSS property with no counterpart here; a scroll-linked effect in Flutter is an `AnimationController` driven from a `ScrollPosition`, which is an application's own wiring rather than something a widget can take as a prop.
+
+:::
+
 ### Telling the children apart
 
 ::: fw react
@@ -167,6 +193,7 @@ A staggered set is [`PlAnimateAppear`](./animate-appear). The React build can wr
 - The wrapper adds no role and no label. It is a `<div>` around content that already says what it is.
 - Nothing here is a way to hide content. A `mode="out"` element is still in the document and still read out; if it should be gone, unmount it.
 - `trigger="hover"` also starts on focus, so an effect on something keyboard-reachable runs for a reader who is not holding a mouse.
+- `timeline="view"` is dropped under `prefers-reduced-motion` for the same reason and with the same result, and it falls back to one clock-driven run in a browser that has no `animation-timeline`. Neither leaves anything blank.
 
 :::
 
@@ -193,6 +220,7 @@ A staggered set is [`PlAnimateAppear`](./animate-appear). The React build can wr
 | `prefers-reduced-motion` | `MediaQuery.disableAnimations` | The platform's own signal. |
 | `render` | — | Flutter has no polymorphic element. |
 | `stagger`, `durationStep`, `reverse` | — | The React build writes the effect onto the children themselves, so the caller's own layout is untouched. Flutter has no stylesheet to lay a set out with, so a staggered effect would have to own the row or the column as well — which is what [`PlAnimateAppear`](./animate-appear) is, and six more of it would be six more of it. |
+| `timeline="view"` | — | `animation-timeline` is a CSS property with no counterpart here. A scroll-linked effect in Flutter is an `AnimationController` driven from a `ScrollPosition`, which is an application's own wiring rather than something a widget takes as a prop. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::
