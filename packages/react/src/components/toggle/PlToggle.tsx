@@ -117,6 +117,18 @@ const offClasses: Record<PlassVariant, string> = {
   ghost: 'text-(--plass-muted-fg) bg-transparent'
 };
 
+/**
+ * Off, under the pointer — and the one place a two-state control can undo
+ * everything the state colours settle above.
+ *
+ * `ghost` used to hover to `--p-soft`, which is exactly what `ghost` *on* is
+ * painted with. A toggle that was off drew itself as a toggle that was on the
+ * moment the pointer arrived, and the only thing still carrying the state was
+ * the ink. So the hover is the neutral glass ladder in all three now — the same
+ * two rungs the `solid` and `glass` variants already climb, and the same wash
+ * an unselected `PlBottomNavigation` item takes for the same reason. The colour
+ * family stays where the state is: on, and nowhere else.
+ */
 const offHoverClasses: Record<PlassVariant, string> = {
   solid: /* @__PURE__ */ [
     'hover:bg-(--plass-glass-press) hover:text-(--plass-fg)',
@@ -129,7 +141,7 @@ const offHoverClasses: Record<PlassVariant, string> = {
     'active:bg-(--plass-glass-press)',
     'active:[box-shadow:var(--p-elev-press),var(--plass-gloss-glass)]'
   ].join(' '),
-  ghost: 'hover:bg-(--p-soft) hover:text-(--plass-fg) active:bg-(--p-soft-hover)'
+  ghost: 'hover:bg-(--plass-glass-hover) hover:text-(--plass-fg) active:bg-(--plass-glass-press)'
 };
 
 /**

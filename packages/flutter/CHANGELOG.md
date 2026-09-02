@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **A `ghost` `PlToggle` that was off drew itself as one that was on the moment the pointer arrived.** Its hover was the family's `soft`, and `soft` is exactly what a `ghost` toggle _on_ is painted with — so the two states differed by their ink alone, which is not a difference a reader is going to read. The hover climbs the neutral glass ladder in all three variants now, the same two rungs `solid` and `glass` were already using. The rule is the one a two-state control fails quietly: **a control with two states cannot put the colour family on the false one**, and a hover is still the false state.
+
 ## 1.2.0 (2026-08-31)
 
 ### Added

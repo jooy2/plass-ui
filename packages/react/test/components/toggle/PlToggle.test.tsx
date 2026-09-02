@@ -81,6 +81,45 @@ describe('PlToggle', () => {
       expect(screen.getByRole('button').element()).toHaveClass('text-(--p-accent)');
     });
 
+    it('never reaches for the family while it is off, under the pointer either', async () => {
+      // The rule a two-state control lives by, and the one a hover can undo
+      // without anybody noticing: `--p-soft` is the family's wash and it is
+      // what an `on` toggle is painted with, so an `off` toggle that reached
+      // for it under the pointer drew itself as an on one — with the ink as
+      // the only thing still carrying the state.
+      //
+      // Asserted on the classes rather than on a colour because the suite runs
+      // with no stylesheet, and because `:hover` has no computed style to read
+      // until something is actually hovering. What holds either way is that the
+      // family never appears in the off state's declarations at all.
+      //
+      // Five toggles at once rather than a rerender: a toggle cannot be made to
+      // change what it started as, controlled or not.
+      const screen = await render(
+        <div>
+          <PlToggle variant="solid">Solid off</PlToggle>
+          <PlToggle variant="glass">Glass off</PlToggle>
+          <PlToggle variant="ghost">Ghost off</PlToggle>
+          <PlToggle variant="glass" defaultPressed>
+            Glass on
+          </PlToggle>
+          <PlToggle variant="ghost" defaultPressed>
+            Ghost on
+          </PlToggle>
+        </div>
+      );
+
+      for (const name of ['Solid off', 'Glass off', 'Ghost off']) {
+        expect(screen.getByRole('button', { name }).element().className).not.toMatch(/--p-soft/);
+      }
+
+      // And the other half, so neutralising both states is not a way to pass:
+      // on is still the family asserting itself.
+      for (const name of ['Glass on', 'Ghost on']) {
+        expect(screen.getByRole('button', { name }).element().className).toMatch(/bg-\(--p-soft\)/);
+      }
+    });
+
     it('fills with the gradient on solid, and wears the on-fill ink', async () => {
       const screen = await render(
         <PlToggle variant="solid" defaultPressed>

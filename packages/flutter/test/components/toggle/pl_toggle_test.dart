@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -96,6 +97,57 @@ void main() {
         final PlassTokens tokens = PlassTokens.light();
 
         expect(styleOf(tester, 'Bold').color, tokens.family(PlassColor.primary).accent);
+      });
+
+      testWidgets('never reaches for the family while it is off, under the pointer either', (
+        WidgetTester tester,
+      ) async {
+        // The rule a two-state control lives by, and the one a hover can undo
+        // without anybody noticing: `soft` is the family's wash and it is what
+        // an on `ghost` toggle is painted with, so an off one that reached for
+        // it under the pointer drew itself as an on toggle — with the ink as
+        // the only thing still carrying the state.
+        final PlassTokens tokens = PlassTokens.light();
+        final PlassColorFamily family = tokens.family(PlassColor.primary);
+
+        await tester.pumpWidget(
+          host(const PlToggle(variant: PlassVariant.ghost, child: Text('Bold'))),
+        );
+
+        final TestGesture pointer = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+        await pointer.addPointer(location: Offset.zero);
+        addTearDown(pointer.removePointer);
+
+        await pointer.moveTo(tester.getCenter(find.byType(PlToggle)));
+        await tester.pumpAndSettle();
+
+        final Iterable<Color?> hovered = decorationsOf(
+          tester,
+          find.byType(PlToggle),
+        ).map((BoxDecoration decoration) => decoration.color);
+
+        expect(hovered, isNot(contains(family.soft)));
+        expect(hovered, contains(tokens.glassHover));
+
+        // And the other half, so neutralising both states is not a way to pass.
+        // The pointer goes back to the corner first: `on` under the pointer is
+        // `softHover`, and what is being asserted here is the resting state.
+        await pointer.moveTo(Offset.zero);
+        await tester.pumpAndSettle();
+
+        await tester.pumpWidget(
+          host(const PlToggle(variant: PlassVariant.ghost, pressed: true, child: Text('Bold'))),
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          decorationsOf(
+            tester,
+            find.byType(PlToggle),
+          ).map((BoxDecoration decoration) => decoration.color),
+          contains(family.soft),
+        );
       });
 
       testWidgets('fills with the gradient on solid, and wears the on-fill ink', (

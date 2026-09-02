@@ -301,6 +301,13 @@ class _PlToggleState extends State<PlToggle> {
 ///
 /// The ink is the muted foreground in all three and none of them is dyed: an
 /// off toggle is a piece of clear glass, and the family arrives with the press.
+///
+/// That holds under the pointer as well, which is where it used to give way:
+/// `ghost` hovered to [PlassColorFamily.soft], and `soft` is exactly what
+/// `ghost` *on* is painted with — so an off toggle drew itself as an on one the
+/// moment the pointer arrived, with only the ink still carrying the state. The
+/// hover is the neutral glass ladder in all three now, the same two rungs the
+/// other variants already climb.
 PlassSurface _off(
   PlassTokens tokens,
   PlassColorFamily family, {
@@ -344,9 +351,9 @@ PlassSurface _off(
     case PlassVariant.ghost:
       return PlassSurface(
         fill: pressed
-            ? family.softHover
+            ? tokens.glassPress
             : hovered
-            ? family.soft
+            ? tokens.glassHover
             : null,
         ink: ink,
       );

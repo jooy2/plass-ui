@@ -81,6 +81,8 @@ What the key is made of while it is **off**. On is always the colour family asse
 
 Off, the ink is `--plass-muted-fg` in all three and none of them is dyed. An off toggle is a piece of clear glass; the family arrives with the press and not before it.
 
+That holds **under the pointer as well**, which is the easy half to lose. A hover is still the off state, so it climbs the neutral glass ladder — the same two rungs `solid` and `glass` were already using, and never the family's own wash, which is what `on` is painted with. A control with two states cannot draw the false one in the colour of the true one and leave the ink to carry the difference.
+
 <Demo src="toggle/variants" :min-height="220">
 
 ::: fw react
