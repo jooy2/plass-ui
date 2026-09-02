@@ -80,6 +80,30 @@ describe('PlAnimateRotate', () => {
     expect(root.style.getPropertyValue('--p-anim-direction')).toBe('reverse');
   });
 
+  it('turns each child in turn when it is given a stagger', async () => {
+    await render(
+      <PlAnimateRotate className="rotate-under-test" stagger={60} origin="top left">
+        <span>One</span>
+        <span>Two</span>
+      </PlAnimateRotate>
+    );
+
+    const root = document.querySelector('.rotate-under-test') as HTMLElement;
+    const children = [...root.children] as HTMLElement[];
+
+    expect(root).not.toHaveClass('plass-anim-rotate');
+    expect(children.map((child) => child.style.getPropertyValue('--p-anim-delay'))).toEqual([
+      '0ms',
+      '60ms'
+    ]);
+
+    // `transform-origin` is not inherited, so an origin left on the box would
+    // turn every child about its own middle.
+    for (const child of children) {
+      expect(child.style.transformOrigin).toContain('left top');
+    }
+  });
+
   it('renders something else entirely when asked', async () => {
     const screen = await render(<PlAnimateRotate render={<span />}>Turning</PlAnimateRotate>);
 

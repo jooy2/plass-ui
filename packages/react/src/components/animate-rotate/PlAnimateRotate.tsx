@@ -71,6 +71,9 @@ export const PlAnimateRotate = /* @__PURE__ */ React.forwardRef<
     play,
     once = true,
     threshold = 0.2,
+    stagger = 0,
+    durationStep = 0,
+    reverse = false,
     mode = 'in',
     from = -180,
     to = 0,
@@ -100,7 +103,14 @@ export const PlAnimateRotate = /* @__PURE__ */ React.forwardRef<
     once,
     threshold,
     paused,
-    infinite: isInfinite(repeat)
+    infinite: isInfinite(repeat),
+    // The origin travels with the effect: staggered, it is each child that
+    // turns, and `transform-origin` is not an inherited property.
+    origin,
+    stagger,
+    durationStep,
+    reverse,
+    children
   });
 
   return useRender({
@@ -109,9 +119,9 @@ export const PlAnimateRotate = /* @__PURE__ */ React.forwardRef<
     props: {
       ...props,
       className: cx(animate.className, className),
-      style: { transformOrigin: origin, ...animate.style, ...style },
+      style: { ...animate.style, ...style },
       ...animate.props,
-      children
+      children: animate.children
     }
   });
 });
