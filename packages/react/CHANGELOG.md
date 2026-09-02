@@ -2,6 +2,12 @@
 
 > This package's history. The Flutter package keeps its own at [`packages/flutter/CHANGELOG.md`](https://github.com/jooy2/plass-ui/blob/main/packages/flutter/CHANGELOG.md), because the two version independently.
 
+## Unreleased
+
+### Fixed
+
+- **The build empties `dist/` before it writes to it.** `tsc` writes and never removes, so a component deleted from `src/` went on being published: `package.json` ships the whole directory and the `./*` export resolves `plass-ui/thing` straight out of it, which means a removed name goes on importing and goes on being typed for everybody but the person who removed it. Two more things read that directory rather than the source — `scripts/build-styles.mjs` writes one `plass-ui/css/*.css` scan manifest per folder it finds under `dist/components`, and `scripts/minify.mjs` counts `@__PURE__` annotations across whatever is there — so a leftover folder was also a stale stylesheet manifest and a count that quietly disagreed with the source it was a count of. None of it failed a build; it failed in somebody else's install. `npm run clean` is the first step of `npm run build` now, and is its own script so it can be run on its own.
+
 ## 1.3.0 (2026-08-31)
 
 ### Added

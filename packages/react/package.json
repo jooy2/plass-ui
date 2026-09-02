@@ -19,7 +19,8 @@
     "url": "https://github.com/jooy2/plass-ui/issues"
   },
   "scripts": {
-    "build": "npm run format:fix && tsc --project tsconfig.prod.json && node scripts/minify.mjs && node scripts/build-styles.mjs",
+    "build": "npm run format:fix && npm run clean && tsc --project tsconfig.prod.json && node scripts/minify.mjs && node scripts/build-styles.mjs",
+    "clean": "node scripts/clean.mjs",
     "lint": "eslint . --report-unused-disable-directives",
     "lint:fix": "eslint . --report-unused-disable-directives --fix",
     "prepare": "npm run build",
