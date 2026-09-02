@@ -7895,6 +7895,35 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlShow: [
+    {
+      name: 'from',
+      type: "'sm' | 'md' | 'lg' | 'xl'",
+      shared: true,
+      description: {
+        ko: '그려지는 가장 좁은 너비. 그 아래에서는 아무것도 그려지지 않습니다',
+        en: 'The narrowest width this is drawn at. Below it, nothing'
+      }
+    },
+    {
+      name: 'until',
+      type: "'sm' | 'md' | 'lg' | 'xl'",
+      shared: true,
+      description: {
+        ko: '그려지기를 멈추는 너비. 미포함이라, 한쪽의 until="md"와 다른 쪽의 from="md"가 한 결정의 두 쪽이 됩니다',
+        en: 'The width it stops being drawn at. Exclusive, so until="md" on one element and from="md" on another are the two halves of one decision'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: {
+        ko: '보이는 너비에서 보이는 것',
+        en: 'What is shown, at the widths it is shown at'
+      }
+    }
+  ],
+
   PlSidebar: [
     ...sharedProps({
       variant: "'glass'",

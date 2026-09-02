@@ -3346,6 +3346,20 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlSelectOption', 'disabled', { type: 'bool', default: 'false' })
   ],
 
+  PlShow: [
+    from('PlShow', 'from', { type: 'PlassBreakpointFloor?' }),
+    from('PlShow', 'until', { type: 'PlassBreakpointFloor?' }),
+    {
+      name: 'child',
+      type: 'Widget',
+      required: true,
+      description: {
+        ko: '보이는 너비에서 보이는 것',
+        en: 'What is shown, at the widths it is shown at'
+      }
+    }
+  ],
+
   PlSidebar: [
     from('PlSidebar', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
     from('PlSidebar', 'size', { type: SIZE, default: 'PlassSize.md' }),

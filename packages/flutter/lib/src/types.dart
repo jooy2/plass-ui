@@ -159,6 +159,37 @@ enum PlassBreakpoint {
   }
 }
 
+/// Every rung but [PlassBreakpoint.xs], which is the one with nothing below it.
+///
+/// The type of a question about a *floor* — "from here up", "until here". `xs`
+/// has no floor to ask about: everything is at or above it, so `from: xs` would
+/// mean "always" and `until: xs` would mean "never", and a prop with two values
+/// that do nothing is a prop that invites them.
+///
+/// It carries the breakpoint rather than repeating its width, so there is still
+/// one place a number is written down.
+enum PlassBreakpointFloor {
+  /// From 640 logical pixels up.
+  sm(PlassBreakpoint.sm),
+
+  /// From 768 up.
+  md(PlassBreakpoint.md),
+
+  /// From 1024 up.
+  lg(PlassBreakpoint.lg),
+
+  /// From 1280 up.
+  xl(PlassBreakpoint.xl);
+
+  const PlassBreakpointFloor(this.breakpoint);
+
+  /// The rung this floor is the bottom of.
+  final PlassBreakpoint breakpoint;
+
+  /// The width, in logical pixels, at which it starts.
+  double get width => breakpoint.width;
+}
+
 /// A value that may change with the width of the window.
 ///
 /// The base value applies from zero up and every override applies **from its

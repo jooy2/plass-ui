@@ -61,7 +61,7 @@ The same ladder the breakpoints use — `xs` 30rem, `sm` 40rem, `md` 48rem, `lg`
 
 **It also takes any length**, and that is not a convenience: the five rungs are `rem`, and the measure a paragraph actually wants is in _characters_. `maxWidth="72ch"` is the one no ladder can spell. A number is pixels.
 
-**And it is responsive** — `maxWidth={{ xs: 'none', md: 'lg' }}`. It resolves in **CSS** rather than in JavaScript, which is what makes it free: the first paint a server sends is already right at every width, and a window being dragged costs no re-render. See [breakpoints](../../design/breakpoints).
+**And it is responsive** — `maxWidth` takes `{ xs: 'none', md: 'lg' }`. It resolves in **CSS** rather than in JavaScript, which is what makes it free: the first paint a server sends is already right at every width, and a window being dragged costs no re-render. See [breakpoints](../../design/breakpoints).
 
 :::
 

@@ -6,7 +6,15 @@
 
 ### Added
 
-- **A `PlContainer`'s `maxWidth` is responsive, and takes any length.** `maxWidth={{ xs: 'none', md: 'lg' }}` narrows a page as the window widens, and `maxWidth="72ch"` is the measure a paragraph actually wants — the five rungs are `rem` and no ladder of `rem` can spell a measure in _characters_. A number is pixels; the rungs are unchanged.
+- **`PlShow`.** Content at some widths and not others — `from`, `until`, or both as a band. It decides in **CSS**, which is the whole component rather than an implementation note: a media query answered in JavaScript is `false` on a server and on the first frame a browser renders, so a `useMediaQuery` and a ternary draw the wrong half of a responsive layout and then throw it away. That is a flash on every page load, not an edge case. It is also the only way to gate on width for a project that imports `plass-ui/styles.css` and has no Tailwind of its own — there is no `md:hidden` to reach for there.
+
+  **It is not a box.** While showing it is `display: contents`, so its children take part in the surrounding layout exactly as they would have without it: a gate inside a flex row does not become a flex item. Which also means a `className` carrying a margin or a width lands on nothing — put your own element inside.
+
+  What it costs is that **both halves are in the document**. Hiding is `display: none`, which takes the subtree off the accessibility tree and out of the tab order, so nothing is read out twice and nothing is drawn — but both were rendered and both were sent. Right for two arrangements of the same content; wrong for a subtree that fetches, is expensive, or must not mount at all, and `usePlBreakpointValue` is what mounts exactly one of those at the cost of a server rendering the `xs` answer.
+
+  `until` is **exclusive**, so `until="md"` on one element and `from="md"` on another are the two halves of one decision with no width that draws both and none that draws neither. There is no `xs` bound — everything is at or above the bottom rung, so it would mean "always" and "never" — and there is no `PlHide`, because `until` is already the inverse of `from`.
+
+- **A `PlContainer`'s `maxWidth` is responsive, and takes any length.** `maxWidth` takes `{ xs: 'none', md: 'lg' }` and narrows a page as the window widens, and `maxWidth="72ch"` is the measure a paragraph actually wants — the five rungs are `rem` and no ladder of `rem` can spell a measure in _characters_. A number is pixels; the rungs are unchanged.
 
   It resolves in **CSS**, not in JavaScript, and that is the part worth knowing: one `--p-maxw-*` slot per rung the caller named, cascaded by the same `@variant` blocks the grid uses. So the first paint a server sends is already right at every width, and a window being dragged costs no re-render. Measured in a browser: `none` at 500px, `1024px` at 900px, `72ch` at 1400px, from one declaration.
 

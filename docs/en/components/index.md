@@ -10,7 +10,7 @@ aside: false
 
 ::: fw flutter
 
-The gallery below is the **React** build, because the cards are one page of ninety-eight live previews and a Flutter frame is a whole engine each. The list is the same either way: every component here has a Flutter half, and each page shows it.
+The gallery below is the **React** build, because the cards are one page of ninety-nine live previews and a Flutter frame is a whole engine each. The list is the same either way: every component here has a Flutter half, and each page shows it.
 
 :::
 

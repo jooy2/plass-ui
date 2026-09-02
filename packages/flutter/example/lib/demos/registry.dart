@@ -312,6 +312,7 @@ import 'package:plass_ui_example/demos/toggle/hero.dart';
 import 'package:plass_ui_example/demos/toggle/icons.dart';
 import 'package:plass_ui_example/demos/toggle/sizes.dart';
 import 'package:plass_ui_example/demos/toggle/variants.dart';
+import 'package:plass_ui_example/demos/show/hero.dart';
 import 'package:plass_ui_example/demos/sidebar/collapse.dart';
 import 'package:plass_ui_example/demos/sidebar/hero.dart';
 import 'package:plass_ui_example/demos/sidebar/resizable.dart';
@@ -698,6 +699,7 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'toggle/sizes': _toggleSizes,
   'toggle/group': _toggleGroup,
   'toggle/icons': _toggleIcons,
+  'show/hero': _showHero,
   'sidebar/hero': _sidebarHero,
   'sidebar/sides': _sidebarSides,
   'sidebar/collapse': _sidebarCollapse,
@@ -1209,6 +1211,7 @@ Widget _toggleSizes(BuildContext context) => const ToggleSizes();
 Widget _toggleGroup(BuildContext context) => const ToggleGroupDemo();
 Widget _toggleIcons(BuildContext context) => const ToggleIcons();
 
+Widget _showHero(BuildContext context) => const ShowHero();
 Widget _sidebarHero(BuildContext context) => const SidebarHero();
 Widget _sidebarSides(BuildContext context) => const SidebarSides();
 Widget _sidebarCollapse(BuildContext context) => const SidebarCollapse();

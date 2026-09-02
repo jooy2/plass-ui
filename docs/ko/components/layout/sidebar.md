@@ -1,6 +1,6 @@
 ---
 title: PlSidebar
-order: 10
+order: 11
 ---
 
 # PlSidebar

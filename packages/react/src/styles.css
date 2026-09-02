@@ -897,6 +897,91 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * Showing something at some widths and not others
+ *
+ * `PlShow`, and the reason it is CSS rather than a `useMediaQuery` and a
+ * ternary. A media query answered in JavaScript is `false` on a server and on
+ * the first frame a browser renders, so a JavaScript gate draws the wrong half
+ * and then throws it away — a flash on every page load rather than an edge
+ * case. The stylesheet knows the width before React has been asked anything.
+ *
+ * `display: contents` while it is showing, so the element is **not a box**: its
+ * children take part in the parent's layout exactly as they would have without
+ * it, and a gate inside a flex row does not become a flex item. `display: none`
+ * is what hides, which also takes the subtree off the accessibility tree — a
+ * gate that only moved it off screen would leave a screen reader reading both
+ * halves of a responsive layout.
+ *
+ * Attribute selectors rather than Tailwind's `max-md:hidden`, and that is not a
+ * preference: the real classes in this file are emitted *after* the utilities so
+ * they can outrank them, which would make a `display: contents` here beat the
+ * very variant meant to hide it. Nine rules that only fight each other are
+ * simpler than one that has to win a sort it does not control.
+ *
+ * Both bounds at once is `[data-from]` and `[data-until]` on one element, and
+ * it resolves by source order: the `from` rules come first, so a rung at or
+ * above `until` is hidden by the later rule whatever `from` said.
+ * ------------------------------------------------------------------------- */
+
+.plass-show {
+  display: contents;
+}
+
+/* Below its floor, a gate with a `from` is closed. Each rung then opens it. */
+.plass-show[data-from] {
+  display: none;
+}
+
+@variant sm {
+  .plass-show[data-from='sm'] {
+    display: contents;
+  }
+}
+
+@variant md {
+  .plass-show[data-from='md'] {
+    display: contents;
+  }
+}
+
+@variant lg {
+  .plass-show[data-from='lg'] {
+    display: contents;
+  }
+}
+
+@variant xl {
+  .plass-show[data-from='xl'] {
+    display: contents;
+  }
+}
+
+/* And `until` closes it again from its own rung up. */
+@variant sm {
+  .plass-show[data-until='sm'] {
+    display: none;
+  }
+}
+
+@variant md {
+  .plass-show[data-until='md'] {
+    display: none;
+  }
+}
+
+@variant lg {
+  .plass-show[data-until='lg'] {
+    display: none;
+  }
+}
+
+@variant xl {
+  .plass-show[data-until='xl'] {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
  * The grid, and the responsive slots
  *
  * `PlGrid` is a flex row and `PlGridItem` is a width in it, which is the shape

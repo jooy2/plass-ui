@@ -4,6 +4,12 @@
 
 ### Added
 
+- **`PlShow`.** Content at some widths and not others — `from`, `until`, or both as a band, on the same ladder everything else uses. `until` is **exclusive**, which is what lets it and `from` be the two halves of one decision: no width draws both and none draws neither.
+
+  It builds **nothing at all** at a width it is closed at — not an empty box with a size, and not an `Offstage` subtree. That differs from the React build, which sends both halves and hides one with `display: none`, and it cuts both ways: an expensive subtree is free here while it is closed, and any state inside one is lost when the window crosses the boundary. Lift that state above the gate.
+
+  `PlassBreakpointFloor` comes with it — the four rungs that have a floor to ask about. `xs` has nothing below it, so `from: xs` would mean "always" and `until: xs` would mean "never".
+
 - **`PlAnimateReveal`.** Content uncovered behind a moving edge, and the only entrance in the set where **nothing moves and no colour changes**. A fade changes the ink, a slide changes the position, a grow changes the size; this changes how much of the widget is painted and leaves every pixel it has painted exactly where it will finally be — which is what makes it the effect for anything whose _position is the information_: a heading over its own paragraph, a divider between two sections, a chart's plot area, a column of figures.
 
   A `ClipRect` with a clipper rather than an `Align` with a `widthFactor`, and the difference is the one this effect exists for: an `Align` resizes the box and everything beside it moves, while a clipper is asked for a rectangle at paint time and the layout never hears about it. `from` is physical — `PlassSide` is everywhere — and `PlassAnimateMode.exit` closes from whichever edge it opened towards. **`fade` is off by default**, alone among the effects that offer it: fading a reveal asks for two entrances at once.

@@ -91,6 +91,7 @@ import {
   PlSegment,
   PlSegmentedButton,
   PlSelect,
+  PlShow,
   PlSidebar,
   PlSkeleton,
   PlSlider,
@@ -872,6 +873,29 @@ const entries: Entry[] = [
         <PlTimelineItem title="Packed" bullet="2" />
         <PlTimelineItem title="Shipped" bullet="3" />
       </PlTimeline>
+    )
+  },
+  {
+    name: 'PlShow',
+    group: 'layout',
+    href: 'components/layout/show',
+    blurb: {
+      en: 'Content at some widths and not others, decided in CSS.',
+      ko: '어떤 너비에서는 보이고 어떤 너비에서는 보이지 않는 내용. CSS가 정합니다.'
+    },
+    preview: (
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        <PlShow until="md">
+          <PlChip size="sm" variant="solid" color="warning">
+            Narrow
+          </PlChip>
+        </PlShow>
+        <PlShow from="md">
+          <PlChip size="sm" variant="solid" color="success">
+            Wide
+          </PlChip>
+        </PlShow>
+      </div>
     )
   },
   {
