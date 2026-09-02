@@ -118,6 +118,14 @@ const scrimClasses = '[background-color:color-mix(in_oklab,var(--plass-surface)_
  * The sheet is never dyed, exactly as on a `PlCard`: what a spoiler holds is a
  * photograph, a paragraph, a plot twist, and it arrives with its own colours.
  * The family shows up on the button and in the hairline and stops there.
+ *
+ * **The box is the same height covered and uncovered**, which takes both of the
+ * things that could move it. The cover shares a grid cell with what it covers
+ * rather than being positioned over it, so a cover that is taller than a
+ * one-line spoiler makes the sheet taller instead of being clipped by it; and
+ * the `reversible` Hide row is drawn from the start and merely held invisible,
+ * so it is not a button's worth of height that arrives on the way in and leaves
+ * again on the way out.
  */
 export const PlSpoiler = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSpoilerProps>(
   function PlSpoiler(
@@ -175,8 +183,9 @@ export const PlSpoiler = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSpoi
           // and the difference is what happens to a *short* spoiler: an
           // absolute cover is laid out against a box the content alone decided
           // the height of, so a one-line spoiler clips its own Reveal button.
-          // Both children are put in the same cell instead, so the row is as
-          // tall as whichever of them needs more and they stretch to match.
+          // The covered stack and the cover are put in the same cell instead,
+          // so the row is as tall as whichever of them needs more and they
+          // stretch to match.
           'isolate grid overflow-hidden',
           radiusClasses[size],
           sheetRestClasses[variant],
@@ -186,31 +195,76 @@ export const PlSpoiler = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSpoi
         style={{ ...surfaceSlots(color, elevation), ...style }}
         {...props}
       >
-        <div
-          id={contentId}
-          className={cx(
-            'min-w-0 [grid-area:1/1]',
-            padded ? `${insetX} ${insetY}` : '',
-            '[transition:filter_var(--plass-duration-slow)_var(--plass-ease)]',
-            'motion-reduce:[transition-duration:0ms]',
-            open ? '' : 'select-none'
-          )}
-          style={{
-            filter: open ? undefined : `blur(${blur}px)`,
-            // The clamp is only ever on the covered state: revealing something
-            // and leaving it in a box with a scrollbar is answering the wrong
-            // question.
-            maxHeight: open ? undefined : maxHeight,
-            overflow: open ? undefined : 'hidden'
-          }}
-          // `inert` rather than `aria-hidden`: it takes the content out of the
-          // tab order, off the accessibility tree and out of the selection in
-          // one attribute — and `aria-hidden` alone would leave a keyboard
-          // reader tabbing into a link their screen reader has been told is not
-          // there.
-          inert={!open}
-        >
-          {children}
+        {/*
+          The content and the way back out are one grid item rather than two,
+          and that is what makes the box a fixed height. `reversible` used to
+          draw its Hide row only once the spoiler was open, so revealing
+          something grew the sheet by the height of a button and covering it
+          again shrank it back — a page that moves twice around a control
+          somebody is pressing. The row is drawn from the start now and simply
+          held `invisible` while it is covered, so the space it takes is paid
+          for once. Stacking it *inside* the covered cell is the other half:
+          the cover is what makes a reserved empty row invisible rather than a
+          gap under the blur.
+        */}
+        <div className="flex min-w-0 flex-col [grid-area:1/1]">
+          <div
+            id={contentId}
+            className={cx(
+              'min-w-0',
+              padded ? `${insetX} ${insetY}` : '',
+              '[transition:filter_var(--plass-duration-slow)_var(--plass-ease)]',
+              'motion-reduce:[transition-duration:0ms]',
+              open ? '' : 'select-none'
+            )}
+            style={{
+              filter: open ? undefined : `blur(${blur}px)`,
+              // The clamp is only ever on the covered state: revealing
+              // something and leaving it in a box with a scrollbar is answering
+              // the wrong question.
+              maxHeight: open ? undefined : maxHeight,
+              overflow: open ? undefined : 'hidden'
+            }}
+            // `inert` rather than `aria-hidden`: it takes the content out of
+            // the tab order, off the accessibility tree and out of the
+            // selection in one attribute — and `aria-hidden` alone would leave
+            // a keyboard reader tabbing into a link their screen reader has
+            // been told is not there.
+            inert={!open}
+          >
+            {children}
+          </div>
+
+          {reversible ? (
+            <div
+              className={cx(
+                'flex justify-end',
+                insetX,
+                // The row takes the sheet's padding on both axes and then gives
+                // the top back: `padded` content already ends with a full gap,
+                // and two of them stacked is a hole between the text and the way
+                // back out. `pt-0` beating `py-*` is Tailwind's own
+                // longhand-after-shorthand ordering rather than an accident of
+                // how these are concatenated.
+                insetY,
+                'pt-0',
+                open ? '' : 'invisible'
+              )}
+              inert={!open}
+            >
+              <PlButton
+                variant="ghost"
+                size={size}
+                color={color}
+                density={density}
+                onClick={() => change(false)}
+                aria-expanded
+                aria-controls={contentId}
+              >
+                {hideLabel}
+              </PlButton>
+            </div>
+          ) : null}
         </div>
 
         {open ? null : (
@@ -240,35 +294,6 @@ export const PlSpoiler = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSpoi
             )}
           </div>
         )}
-
-        {open && reversible ? (
-          <div
-            className={cx(
-              'flex justify-end',
-              insetX,
-              // The row takes the sheet's padding on both axes and then gives
-              // the top back: `padded` content already ends with a full gap, and
-              // two of them stacked is a hole between the text and the way back
-              // out. `pt-0` beating `py-*` is Tailwind's own
-              // longhand-after-shorthand ordering rather than an accident of how
-              // these are concatenated.
-              insetY,
-              'pt-0'
-            )}
-          >
-            <PlButton
-              variant="ghost"
-              size={size}
-              color={color}
-              density={density}
-              onClick={() => change(false)}
-              aria-expanded
-              aria-controls={contentId}
-            >
-              {hideLabel}
-            </PlButton>
-          </div>
-        ) : null}
       </div>
     );
   }

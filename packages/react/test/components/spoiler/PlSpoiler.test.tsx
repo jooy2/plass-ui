@@ -166,6 +166,32 @@ describe('PlSpoiler', () => {
       );
     });
 
+    it('reserves the way back out from the start, so the box does not move', async () => {
+      const screen = await render(<PlSpoiler reversible>He was the killer all along.</PlSpoiler>);
+
+      const row = screen.getByRole('button', { name: 'Hide' }).element().parentElement;
+
+      // Drawn while the spoiler is still covered, which is the whole point: a
+      // Hide row that arrived with the reveal grew the sheet by a button on the
+      // way in and shrank it back on the way out — the page moving twice around
+      // the control somebody is pressing. It is held `invisible` under the
+      // cover and `inert` with it, so the space is paid for once and there is
+      // nothing to tab into while it cannot be seen.
+      //
+      // The rule is asserted rather than the pixels. The suite carries no
+      // stylesheet, so `grid` does not apply and the cover stacks under the
+      // content instead of sharing its cell — a height measured here would be
+      // measuring the missing stylesheet. What holds without one is that the
+      // row is in the document in both states.
+      expect(row).toHaveClass('invisible');
+      expect(row).toHaveAttribute('inert');
+
+      await screen.getByRole('button', { name: 'Reveal' }).click();
+
+      expect(row).not.toHaveClass('invisible');
+      expect(row).not.toHaveAttribute('inert');
+    });
+
     it('is never dyed, whatever colour it is given', async () => {
       await render(
         <PlSpoiler className="spoiler-under-test" color="danger">

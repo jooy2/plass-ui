@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- **A `reversible` `PlSpoiler` changed height when it was opened, and again when it was closed.** The Hide row was drawn only once the spoiler was uncovered, so revealing grew the sheet by the height of a button and covering it again shrank it back — the page moving twice around the control somebody is pressing. The row is built from the start now and merely held invisible and out of reach under the cover, so its space is paid for once. The generalisation is worth keeping: **a control that appears with a state should reserve its space in the other state**, because the space is the part a reader notices.
+
 - **A `ghost` `PlToggle` that was off drew itself as one that was on the moment the pointer arrived.** Its hover was the family's `soft`, and `soft` is exactly what a `ghost` toggle _on_ is painted with — so the two states differed by their ink alone, which is not a difference a reader is going to read. The hover climbs the neutral glass ladder in all three variants now, the same two rungs `solid` and `glass` were already using. The rule is the one a two-state control fails quietly: **a control with two states cannot put the colour family on the false one**, and a hover is still the false state.
 
 ## 1.2.0 (2026-08-31)

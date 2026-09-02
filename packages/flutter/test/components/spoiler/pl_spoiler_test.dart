@@ -210,6 +210,52 @@ void main() {
         );
       });
 
+      testWidgets('is the same height covered and uncovered, way back out included', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            const PlSpoiler(reversible: true, child: Text('He was the killer all along.')),
+            width: 360,
+          ),
+        );
+
+        final double covered = tester.getSize(find.byType(PlSpoiler)).height;
+
+        await tester.tap(find.text('Reveal'));
+        await tester.pumpAndSettle();
+
+        // The Hide row is built from the start and held invisible under the
+        // cover, so revealing does not grow the sheet by a button and covering
+        // it again does not shrink it back. A page that moves twice around the
+        // control somebody is pressing is the bug the reserved space answers.
+        expect(tester.getSize(find.byType(PlSpoiler)).height, covered);
+
+        await tester.tap(find.text('Hide'));
+        await tester.pumpAndSettle();
+
+        expect(tester.getSize(find.byType(PlSpoiler)).height, covered);
+      });
+
+      testWidgets('keeps the way back out unreachable while the content is covered', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            const PlSpoiler(reversible: true, child: Text('He was the killer all along.')),
+            width: 360,
+          ),
+        );
+
+        // Reserved space rather than a live control: the row holds its size so
+        // the box does not move, and is off the semantics tree with it.
+        expect(find.text('Hide'), findsOneWidget);
+        expect(
+          find.descendant(of: find.byType(PlSpoiler), matching: find.bySemanticsLabel('Hide')),
+          findsNothing,
+        );
+      });
+
       testWidgets('is never dyed, whatever colour it is given', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(

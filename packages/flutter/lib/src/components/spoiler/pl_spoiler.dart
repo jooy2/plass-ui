@@ -46,6 +46,14 @@ const double _coverGap = 8;
 /// The sheet is never dyed, exactly as on a [PlCard]: what a spoiler holds is a
 /// photograph, a paragraph, a plot twist, and it arrives with its own colours.
 /// The family shows up on the button and in the hairline and stops there.
+///
+/// **The box is the same height covered and uncovered**, which takes both of the
+/// things that could move it. The cover is an unpositioned child of the same
+/// stack as the content rather than something laid over it, so a cover taller
+/// than a one-line spoiler makes the sheet taller instead of being clipped by
+/// it; and the [reversible] Hide row is built from the start and merely held
+/// invisible, so it is not a button's worth of height that arrives on the way in
+/// and leaves again on the way out.
 class PlSpoiler extends StatefulWidget {
   /// Creates a spoiler.
   const PlSpoiler({
@@ -215,27 +223,7 @@ class _PlSpoilerState extends State<PlSpoiler> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            content,
-            if (_open && widget.reversible)
-              Padding(
-                // The row takes the sheet's padding and then gives the top back:
-                // padded content already ends with a full gap, and two of them
-                // stacked is a hole between the text and the way back out.
-                padding: EdgeInsetsDirectional.only(start: insetX, end: insetX, bottom: insetY),
-                child: Align(
-                  alignment: AlignmentDirectional.centerEnd,
-                  child: PlButton(
-                    variant: PlassVariant.ghost,
-                    size: _size,
-                    color: _color,
-                    density: _density,
-                    onPressed: () => _change(false),
-                    child: Text(widget.hideLabel),
-                  ),
-                ),
-              ),
-          ],
+          children: <Widget>[content, if (widget.reversible) _hideRow(insetX, insetY)],
         ),
         if (!_open)
           Positioned.fill(
@@ -250,6 +238,53 @@ class _PlSpoilerState extends State<PlSpoiler> {
       borderRadius: radius,
       duration: PlassTokens.durationSlow,
       child: ClipRRect(borderRadius: radius, child: sheet),
+    );
+  }
+
+  /// The way back out, drawn whether or not it can be seen.
+  ///
+  /// It used to be built only once the spoiler was open, which grew the sheet by
+  /// the height of a button on the way in and shrank it back on the way out —
+  /// the page moving twice around the control somebody is pressing. The row is
+  /// in the column from the start now and merely held invisible, so its space is
+  /// paid for once; the cover is painted over it, so what is reserved reads as
+  /// part of the covered sheet rather than as a gap under the blur.
+  ///
+  /// [Visibility] with `maintainSize` keeps the space and takes the row off the
+  /// pointer and out of the semantics, and [ExcludeFocus] takes it out of the
+  /// traversal — between them the three things `inert` does in the other
+  /// package, which is the same trio the covered content is wrapped in.
+  Widget _hideRow(double insetX, double insetY) {
+    final Widget row = Padding(
+      // The row takes the sheet's padding and then gives the top back: padded
+      // content already ends with a full gap, and two of them stacked is a hole
+      // between the text and the way back out.
+      padding: EdgeInsetsDirectional.only(start: insetX, end: insetX, bottom: insetY),
+      child: Align(
+        alignment: AlignmentDirectional.centerEnd,
+        child: PlButton(
+          variant: PlassVariant.ghost,
+          size: _size,
+          color: _color,
+          density: _density,
+          onPressed: () => _change(false),
+          child: Text(widget.hideLabel),
+        ),
+      ),
+    );
+
+    if (_open) {
+      return row;
+    }
+
+    return ExcludeFocus(
+      child: Visibility(
+        visible: false,
+        maintainSize: true,
+        maintainAnimation: true,
+        maintainState: true,
+        child: row,
+      ),
     );
   }
 

@@ -104,6 +104,8 @@ The clamp is **only ever on the covered state**. Revealing something and leaving
 
 Off by default: once it is uncovered, it stays uncovered. Turn it on and a hide button appears under the content, which is what a page full of them wants — a reader who revealed the wrong one can put it back.
 
+The row is **reserved from the start** rather than added when the spoiler opens, and held invisible under the cover until it is needed. A control that arrives with a reveal is a button's worth of height that grows the sheet on the way in and shrinks it back on the way out, which moves the page twice around the thing somebody is pressing. The empty row is never seen, because the cover is drawn over it.
+
 ### padded and media
 
 Turn the padding off for something that should reach the edges. A covered image is the case this component is most often reached for, and the blur is doing real work there: the shape and the colours are visible, the subject is not.
