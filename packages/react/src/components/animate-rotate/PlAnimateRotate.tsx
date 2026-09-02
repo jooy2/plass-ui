@@ -4,10 +4,10 @@ import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { isInfinite, useAnimateElement } from '../../internal/animate.js';
 import { cx } from '../../internal/styles.js';
-import type { PlassAnimateMode, PlassAnimateProps } from '../../types.js';
+import type { PlassAnimateMode, PlassAnimateProps, PlassAnimateStaggerProps } from '../../types.js';
 
 export interface PlAnimateRotateProps
-  extends PlassAnimateProps, React.ComponentPropsWithoutRef<'div'> {
+  extends PlassAnimateProps, PlassAnimateStaggerProps, React.ComponentPropsWithoutRef<'div'> {
   /**
    * Whether the content turns into place or out of it.
    * @default 'in'

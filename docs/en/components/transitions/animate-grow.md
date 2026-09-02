@@ -54,6 +54,12 @@ Every native `<div>` attribute passes straight through, and `render` swaps the e
 
 The ten shared settings — `duration`, `delay`, `easing`, `repeat`, `alternate`, `paused`, `trigger`, `play`, `once`, `threshold` — are the same on every `PlAnimate*` component. The four `trigger` values are shown on the [PlAnimateFade](./animate-fade) page.
 
+::: fw react
+
+Three more move the effect off the box and onto the things inside it: `stagger` holds each child back by its position, `durationStep` gives each one a longer or shorter run than the last, and `reverse` starts from the end of the set. They are on all six single-keyframe effects and are shown on the [PlAnimateFade](./animate-fade) page.
+
+:::
+
 ## Examples
 
 ### origin
@@ -152,6 +158,7 @@ The common use, and the one the defaults were chosen for: `origin="top"`, a shor
 | `repeat: number \| 'infinite'` | `int?`, `null` never stops | There is no `'infinite'` to write, and `-1` would be a sentinel a caller has to look up. |
 | `trigger="visible"` via `IntersectionObserver` | watches the nearest `Scrollable` | There is no observer here; with no scrollable above it there is nothing to watch, so it runs. |
 | `prefers-reduced-motion` | `MediaQuery.disableAnimations` | The platform's own signal. |
+| `stagger`, `durationStep`, `reverse` | — | The React build writes the effect onto the children themselves, so the caller's own layout is untouched. Flutter has no stylesheet to lay a set out with, so a staggered effect would have to own the row or the column as well — which is what [`PlAnimateAppear`](./animate-appear) is, and six more of it would be six more of it. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::

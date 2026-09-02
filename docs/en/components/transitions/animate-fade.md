@@ -59,6 +59,12 @@ Every native `<div>` attribute passes straight through, and `render` swaps the e
 
 The ten shared settings — `duration`, `delay`, `easing`, `repeat`, `alternate`, `paused`, `trigger`, `play`, `once`, `threshold` — are the same on every `PlAnimate*` component and mean the same thing on each. What the shared style axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
+::: fw react
+
+Three more move the effect off the box and onto the things inside it — `stagger`, `durationStep` and `reverse`. See [Telling the children apart](#telling-the-children-apart) below.
+
+:::
+
 ## Examples
 
 ### trigger
@@ -121,6 +127,38 @@ A delay per element is what turns a set of things into a sequence. For a list wh
 
 </Demo>
 
+### Telling the children apart
+
+::: fw react
+
+`stagger` moves the effect **off the box and onto the things inside it**, one after another. It is milliseconds added to each child's delay, and `0` — the default — plays the box, which is what an effect should go on doing when it wraps one thing.
+
+The box stops animating entirely once it is on: eight children fading in under a box that is also fading in is the same content faded twice, and the second one is not free.
+
+<Demo src="animate-fade/stagger" :min-height="140">
+
+<<< @/.vitepress/demos/animate-fade/stagger.tsx
+
+</Demo>
+
+`durationStep` gives each child a longer run than the last, or — negative — a shorter one, floored at `0`. `reverse` starts from the end of the set: the **order** turns round and nothing else, because an effect that runs backwards is `mode="out"`.
+
+The step is per _child_, so what you pass matters — five children are five steps, and one child holding five things is one step. That is also how to opt part of a set out: group it.
+
+The animation is written onto the children themselves rather than onto wrappers, so a row of `<li>`s stays a row of `<li>`s and a grid's cells stay its direct children. The cost is that a child has to accept a `className` and a `style`; one that does not is a child that will not animate. A bare string has no element to write onto and is the one case that gets a `<span>`.
+
+All six single-keyframe effects take these three. [`PlAnimateMarquee`](./animate-marquee), [`PlAnimateHeadline`](./animate-headline), [`PlAnimateTyping`](./animate-typing) and [`PlAnimateLighting`](./animate-lighting) do not, and cannot: the first three already read their children, and the last keeps its motion on a pseudo-element, which there is no way to put on somebody else's child. [`PlAnimateAppear`](./animate-appear) is the same three props under the same names, with a `stagger` that defaults to `70` — a set with no stagger is not a set.
+
+**There is no `PlAnimateStagger`, on purpose.** A stagger is a differential rather than an effect, and a wrapper would be a second way to spell something the effects can already say. It is the same rule that keeps a `Pulse` (`blink` + `alternate`) and a `Bounce` (`grow` + `alternate`) out of the library.
+
+:::
+
+::: fw flutter
+
+A staggered set is [`PlAnimateAppear`](./animate-appear). The React build can write an effect onto arbitrary children because the caller's own CSS is still laying them out; here there is no stylesheet to do that, so a staggered effect has to own the row or the column too — which is what `PlAnimateAppear` is, and six more of it would be six more of it.
+
+:::
+
 ## Accessibility
 
 ::: fw react
@@ -154,6 +192,7 @@ A delay per element is what turns a set of things into a sequence. For a list wh
 | `trigger="visible"` via `IntersectionObserver` | watches the nearest `Scrollable` | There is no observer here. With no scrollable above it there is nothing to watch, so it runs — exactly as the React build does when the browser has none. |
 | `prefers-reduced-motion` | `MediaQuery.disableAnimations` | The platform's own signal. |
 | `render` | — | Flutter has no polymorphic element. |
+| `stagger`, `durationStep`, `reverse` | — | The React build writes the effect onto the children themselves, so the caller's own layout is untouched. Flutter has no stylesheet to lay a set out with, so a staggered effect would have to own the row or the column as well — which is what [`PlAnimateAppear`](./animate-appear) is, and six more of it would be six more of it. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::

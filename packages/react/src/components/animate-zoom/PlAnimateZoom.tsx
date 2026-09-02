@@ -4,10 +4,10 @@ import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { isInfinite, useAnimateElement } from '../../internal/animate.js';
 import { cx } from '../../internal/styles.js';
-import type { PlassAnimateMode, PlassAnimateProps } from '../../types.js';
+import type { PlassAnimateMode, PlassAnimateProps, PlassAnimateStaggerProps } from '../../types.js';
 
 export interface PlAnimateZoomProps
-  extends PlassAnimateProps, React.ComponentPropsWithoutRef<'div'> {
+  extends PlassAnimateProps, PlassAnimateStaggerProps, React.ComponentPropsWithoutRef<'div'> {
   /**
    * Whether the content comes forward or falls away.
    * @default 'in'
@@ -54,6 +54,9 @@ export const PlAnimateZoom = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
       play,
       once = true,
       threshold = 0.2,
+      stagger = 0,
+      durationStep = 0,
+      reverse = false,
       mode = 'in',
       from = 0.4,
       fade = true,
@@ -80,7 +83,12 @@ export const PlAnimateZoom = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
       once,
       threshold,
       paused,
-      infinite: isInfinite(repeat)
+      infinite: isInfinite(repeat),
+      origin: 'center',
+      stagger,
+      durationStep,
+      reverse,
+      children
     });
 
     return useRender({
@@ -89,9 +97,9 @@ export const PlAnimateZoom = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
       props: {
         ...props,
         className: cx(animate.className, className),
-        style: { transformOrigin: 'center', ...animate.style, ...style },
+        style: { ...animate.style, ...style },
         ...animate.props,
-        children
+        children: animate.children
       }
     });
   }

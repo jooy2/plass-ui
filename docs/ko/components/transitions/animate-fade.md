@@ -59,6 +59,12 @@ const PlAnimateFade(
 
 공유되는 열 가지 설정 — `duration`, `delay`, `easing`, `repeat`, `alternate`, `paused`, `trigger`, `play`, `once`, `threshold` — 은 모든 `PlAnimate*` 컴포넌트에서 같고, 각각에서 같은 것을 뜻합니다. 라이브러리 전체의 공유 스타일 축이 무엇을 뜻하는지는 [prop 규칙](../../design/prop-conventions)에 있습니다.
 
+::: fw react
+
+세 가지가 더 있고, 이들은 효과를 상자에서 떼어 안의 것들로 옮깁니다 — `stagger`, `durationStep`, `reverse`. 아래 [자식들을 하나씩 떼어 놓기](#자식들을-하나씩-떼어-놓기)를 보세요.
+
+:::
+
 ## Examples
 
 ### trigger
@@ -121,6 +127,38 @@ const PlAnimateFade(
 
 </Demo>
 
+### 자식들을 하나씩 떼어 놓기
+
+::: fw react
+
+`stagger`는 효과를 **상자에서 떼어 안의 것들로** 옮겨, 하나씩 차례로 재생하게 합니다. 각 자식의 delay에 더해지는 밀리초이고, 기본값 `0`은 상자 자체를 재생합니다. 하나를 감쌀 때는 그것이 계속 옳습니다.
+
+켜지는 순간 상자는 애니메이션을 완전히 멈춥니다. 자식 여덟이 나타나는 위에서 상자까지 나타나면 같은 내용을 두 번 나타내는 것이고, 두 번째는 공짜가 아닙니다.
+
+<Demo src="animate-fade/stagger" :min-height="140">
+
+<<< @/.vitepress/demos/animate-fade/stagger.tsx
+
+</Demo>
+
+`durationStep`은 자식마다 앞의 것보다 긴 — 음수면 짧은 — 재생 시간을 주며, `0` 아래로는 내려가지 않습니다. `reverse`는 집합의 끝에서부터 시작합니다. **순서**만 뒤집히고 그 외에는 아무것도 바뀌지 않습니다. 거꾸로 도는 효과는 `mode="out"`이기 때문입니다.
+
+간격은 자식 *하나*마다이므로 무엇을 넘기는지가 중요합니다. 자식 다섯은 다섯 단계이고, 다섯 개를 담은 자식 하나는 한 단계입니다. 집합의 일부를 빼는 방법도 이것입니다 — 묶으세요.
+
+애니메이션은 자식을 감싼 래퍼가 아니라 자식 자신에게 쓰이므로, `<li>` 줄은 `<li>` 줄로 남고 그리드의 칸은 그리드의 직계 자식으로 남습니다. 대가는 자식이 `className`과 `style`을 받아야 한다는 것입니다. 받지 않는 자식은 애니메이션되지 않습니다. 문자열 하나는 쓸 요소가 없으므로, 유일하게 `<span>`으로 감싸집니다.
+
+키프레임 하나짜리 효과 여섯 개가 모두 이 셋을 받습니다. [`PlAnimateMarquee`](./animate-marquee), [`PlAnimateHeadline`](./animate-headline), [`PlAnimateTyping`](./animate-typing), [`PlAnimateLighting`](./animate-lighting)은 받지 않고, 받을 수도 없습니다. 앞의 셋은 이미 자식이 무엇인지 읽고 있고, 마지막은 움직임이 pseudo-element에 있어서 남의 자식에 얹을 방법이 없습니다. [`PlAnimateAppear`](./animate-appear)는 같은 이름의 같은 세 prop이고, `stagger`의 기본값만 `70`입니다. 간격이 없는 집합은 집합이 아니기 때문입니다.
+
+**`PlAnimateStagger`는 의도적으로 없습니다.** 간격은 효과가 아니라 차등이고, 래퍼는 효과들이 이미 말할 수 있는 것을 두 번째 방식으로 철자하는 일이 됩니다. `Pulse`(`blink` + `alternate`)와 `Bounce`(`grow` + `alternate`)를 라이브러리에 넣지 않는 것과 같은 규칙입니다.
+
+:::
+
+::: fw flutter
+
+차등을 준 집합은 [`PlAnimateAppear`](./animate-appear)입니다. React 빌드는 호출자의 CSS가 여전히 자식들을 배치하고 있으므로 임의의 자식에 효과를 써 넣을 수 있습니다. 여기에는 그 일을 할 스타일시트가 없어서, 차등을 준 효과는 행이나 열까지 자기가 가져야 합니다. 그것이 바로 `PlAnimateAppear`이고, 그것을 여섯 개 더 만드는 일이 됩니다.
+
+:::
+
 ## Accessibility
 
 ::: fw react
@@ -154,6 +192,7 @@ const PlAnimateFade(
 | `trigger="visible"`이 `IntersectionObserver` | 가장 가까운 `Scrollable`을 봅니다 | 여기에는 observer가 없습니다. 위에 scrollable이 없으면 볼 것이 없으므로 그냥 돕니다. 브라우저에 observer가 없을 때 React 빌드가 하는 것과 같습니다. |
 | `prefers-reduced-motion` | `MediaQuery.disableAnimations` | 플랫폼 자신의 신호입니다. |
 | `render` | — | Flutter에는 다형적 요소가 없습니다. |
+| `stagger`, `durationStep`, `reverse` | — | React 빌드는 효과를 자식들 자신에게 써 넣으므로 호출자의 레이아웃은 그대로입니다. Flutter에는 집합을 배치할 스타일시트가 없어서, 차등을 준 효과는 행이나 열까지 자기가 가져야 합니다. 그것이 바로 [`PlAnimateAppear`](./animate-appear)이고, 그것을 여섯 개 더 만드는 일이 됩니다. |
 | `className`, `style` | — | 통과시킬 class 목록도 style 속성도 없습니다. |
 
 :::

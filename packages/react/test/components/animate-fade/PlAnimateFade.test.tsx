@@ -52,6 +52,140 @@ describe('PlAnimateFade', () => {
     expect(root.style.getPropertyValue('--p-anim-opacity')).toBe('0.3');
   });
 
+  describe('stagger', () => {
+    /** The three children, in document order, whatever order they play in. */
+    function children() {
+      return [
+        ...(document.querySelector('.fade-under-test') as HTMLElement).children
+      ] as HTMLElement[];
+    }
+
+    it('plays the box itself when nobody asked for one', async () => {
+      await render(
+        <PlAnimateFade className="fade-under-test">
+          <span>One</span>
+          <span>Two</span>
+        </PlAnimateFade>
+      );
+
+      const root = document.querySelector('.fade-under-test') as HTMLElement;
+
+      expect(root).toHaveClass('plass-anim-fade');
+      expect(children().every((child) => !child.classList.contains('plass-anim'))).toBe(true);
+    });
+
+    it('moves the effect onto the children, and off the box', async () => {
+      await render(
+        <PlAnimateFade className="fade-under-test" delay={100} stagger={70}>
+          <span>One</span>
+          <span>Two</span>
+          <span>Three</span>
+        </PlAnimateFade>
+      );
+
+      const root = document.querySelector('.fade-under-test') as HTMLElement;
+
+      // Three children fading in under a box that is also fading in is the same
+      // content faded twice, and the second one is not free.
+      expect(root).not.toHaveClass('plass-anim-fade');
+      expect(root.style.getPropertyValue('--p-anim-duration')).toBe('');
+
+      expect(children().map((child) => child.style.getPropertyValue('--p-anim-delay'))).toEqual([
+        '100ms',
+        '170ms',
+        '240ms'
+      ]);
+    });
+
+    it('keeps the play state on the box, where every child reads it', async () => {
+      await render(
+        <PlAnimateFade className="fade-under-test" stagger={70} trigger="manual">
+          <span>One</span>
+          <span>Two</span>
+        </PlAnimateFade>
+      );
+
+      const root = document.querySelector('.fade-under-test') as HTMLElement;
+
+      // One declaration that every child inherits, rather than the same answer
+      // written once per child.
+      expect(root.style.getPropertyValue('--p-anim-state')).toBe('paused');
+      expect(root).toHaveAttribute('data-state', 'paused');
+    });
+
+    it('steps the duration, and never below zero', async () => {
+      await render(
+        <PlAnimateFade className="fade-under-test" duration={300} stagger={10} durationStep={-200}>
+          <span>One</span>
+          <span>Two</span>
+          <span>Three</span>
+        </PlAnimateFade>
+      );
+
+      // A negative `animation-duration` is invalid, and an invalid declaration
+      // is dropped — which would leave that one child running at the CSS
+      // default while its neighbours honoured the prop.
+      expect(children().map((child) => child.style.getPropertyValue('--p-anim-duration'))).toEqual([
+        '300ms',
+        '100ms',
+        '0ms'
+      ]);
+    });
+
+    it('turns the order round without turning the children round', async () => {
+      await render(
+        <PlAnimateFade className="fade-under-test" stagger={70} reverse>
+          <span>One</span>
+          <span>Two</span>
+          <span>Three</span>
+        </PlAnimateFade>
+      );
+
+      const held = children();
+
+      expect(held.map((child) => child.textContent)).toEqual(['One', 'Two', 'Three']);
+      expect(held.map((child) => child.style.getPropertyValue('--p-anim-delay'))).toEqual([
+        '140ms',
+        '70ms',
+        '0ms'
+      ]);
+      // Each child still plays forwards. An effect that runs backwards is
+      // `mode="out"`.
+      expect(held.map((child) => child.style.getPropertyValue('--p-anim-direction'))).toEqual([
+        'normal',
+        'normal',
+        'normal'
+      ]);
+    });
+
+    it("joins a child's own className and loses to its own style", async () => {
+      await render(
+        <PlAnimateFade className="fade-under-test" stagger={70}>
+          <span className="mine" style={{ opacity: 0.5 }}>
+            One
+          </span>
+        </PlAnimateFade>
+      );
+
+      const child = children()[0];
+
+      expect(child).toHaveClass('mine');
+      expect(child).toHaveClass('plass-anim-fade');
+      expect(child.style.opacity).toBe('0.5');
+    });
+
+    it('wraps a bare string, which has no element to write onto', async () => {
+      await render(
+        <PlAnimateFade className="fade-under-test" stagger={70}>
+          One
+        </PlAnimateFade>
+      );
+
+      expect(children()[0].tagName).toBe('SPAN');
+      expect(children()[0]).toHaveClass('plass-anim-fade');
+    });
+  });
+
   describe('mode', () => {
     it('runs forwards coming in', async () => {
       await render(<PlAnimateFade className="fade-under-test">Arriving</PlAnimateFade>);

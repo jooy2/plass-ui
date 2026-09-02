@@ -4,10 +4,10 @@ import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { isInfinite, useAnimateElement } from '../../internal/animate.js';
 import { cx } from '../../internal/styles.js';
-import type { PlassAnimateMode, PlassAnimateProps } from '../../types.js';
+import type { PlassAnimateMode, PlassAnimateProps, PlassAnimateStaggerProps } from '../../types.js';
 
 export interface PlAnimateFadeProps
-  extends PlassAnimateProps, React.ComponentPropsWithoutRef<'div'> {
+  extends PlassAnimateProps, PlassAnimateStaggerProps, React.ComponentPropsWithoutRef<'div'> {
   /**
    * Whether the content arrives or leaves.
    * @default 'in'
@@ -52,6 +52,9 @@ export const PlAnimateFade = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
       play,
       once = true,
       threshold = 0.2,
+      stagger = 0,
+      durationStep = 0,
+      reverse = false,
       mode = 'in',
       from = 0,
       render,
@@ -76,7 +79,11 @@ export const PlAnimateFade = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
       once,
       threshold,
       paused,
-      infinite: isInfinite(repeat)
+      infinite: isInfinite(repeat),
+      stagger,
+      durationStep,
+      reverse,
+      children
     });
 
     return useRender({
@@ -87,7 +94,7 @@ export const PlAnimateFade = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
         className: cx(animate.className, className),
         style: { ...animate.style, ...style },
         ...animate.props,
-        children
+        children: animate.children
       }
     });
   }

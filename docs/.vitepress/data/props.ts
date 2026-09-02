@@ -532,6 +532,11 @@ function animateProps(options: {
   repeat?: string;
   /** Names a component genuinely does not take — a reel has no direction. */
   omit?: string[];
+  /**
+   * The three per-child props, for the effects that can be told off across
+   * their children. The four that already read their children cannot.
+   */
+  stagger?: boolean;
 }): PropRow[] {
   const rows: PropRow[] = [
     {
@@ -631,6 +636,41 @@ function animateProps(options: {
       }
     }
   ];
+
+  if (options.stagger) {
+    rows.push(
+      {
+        name: 'stagger',
+        type: 'number',
+        default: '0',
+        shared: true,
+        description: {
+          ko: '자식마다 delay에 더해지는 시간(ms). 0이면 상자 자체가 재생되고, 그 외에는 효과가 자식들로 옮겨 가면서 상자에서는 빠집니다',
+          en: "Milliseconds added to each child's delay. 0 plays the box itself; anything else moves the effect onto the children and takes it off the box"
+        }
+      },
+      {
+        name: 'durationStep',
+        type: 'number',
+        default: '0',
+        shared: true,
+        description: {
+          ko: '자식마다 duration에 더해지는 시간(ms). 음수도 되고, 0 아래로는 내려가지 않습니다',
+          en: "Milliseconds added to each child's duration. Negative is allowed; floored at 0"
+        }
+      },
+      {
+        name: 'reverse',
+        type: 'boolean',
+        default: 'false',
+        shared: true,
+        description: {
+          ko: '마지막 자식부터 첫 자식까지 순서를 뒤집습니다. 순서만 뒤집히고 각 자식은 그대로 앞으로 재생됩니다',
+          en: 'Runs the set from the last child to the first. Only the order turns round; each child still plays forwards'
+        }
+      }
+    );
+  }
 
   return options.omit ? rows.filter((row) => !options.omit!.includes(row.name)) : rows;
 }
@@ -862,6 +902,16 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'durationStep',
+      type: 'number',
+      default: '0',
+      shared: true,
+      description: {
+        ko: '자식마다 duration에 더해지는 시간(ms). 음수도 되고, 0 아래로는 내려가지 않습니다',
+        en: "Milliseconds added to each child's duration. Negative is allowed; floored at 0"
+      }
+    },
+    {
       name: 'from',
       type: "'top' | 'right' | 'bottom' | 'left'",
       default: "'bottom'",
@@ -915,7 +965,7 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'How faint it gets at the bottom of the cycle, between 0 and 1. Raise it for something that has to stay readable while it pulses'
       }
     },
-    ...animateProps({ duration: '1000', repeat: "'infinite'" }),
+    ...animateProps({ duration: '1000', repeat: "'infinite'", stagger: true }),
     {
       name: 'render',
       type: 'ReactElement | (props, state) => ReactElement',
@@ -944,7 +994,7 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'The opacity it starts from, between 0 and 1. Raise it for content that should never be completely gone'
       }
     },
-    ...animateProps({ duration: '300' }),
+    ...animateProps({ duration: '300', stagger: true }),
     {
       name: 'render',
       type: 'ReactElement | (props, state) => ReactElement',
@@ -991,7 +1041,7 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'Fades in as it grows. Turn it off for something already on the page that is only changing size'
       }
     },
-    ...animateProps({ duration: '320' }),
+    ...animateProps({ duration: '320', stagger: true }),
     {
       name: 'render',
       type: 'ReactElement | (props, state) => ReactElement',
@@ -1232,7 +1282,7 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'Fades in as it turns. Turn it off for a continuous spin, where a repeating fade would read as flickering'
       }
     },
-    ...animateProps({ duration: '440' }),
+    ...animateProps({ duration: '440', stagger: true }),
     {
       name: 'render',
       type: 'ReactElement | (props, state) => ReactElement',
@@ -1277,7 +1327,7 @@ export const propTables: Record<string, PropRow[]> = {
       default: 'true',
       description: { ko: '미끄러지면서 함께 나타납니다', en: 'Fades in as it slides' }
     },
-    ...animateProps({ duration: '360' }),
+    ...animateProps({ duration: '360', stagger: true }),
     {
       name: 'render',
       type: 'ReactElement | (props, state) => ReactElement',
@@ -1371,7 +1421,7 @@ export const propTables: Record<string, PropRow[]> = {
       default: 'true',
       description: { ko: 'zoom하면서 함께 나타납니다', en: 'Fades in as it zooms' }
     },
-    ...animateProps({ duration: '320' }),
+    ...animateProps({ duration: '320', stagger: true }),
     {
       name: 'render',
       type: 'ReactElement | (props, state) => ReactElement',

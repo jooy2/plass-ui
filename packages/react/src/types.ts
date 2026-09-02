@@ -388,6 +388,64 @@ export type PlassAnimateMode = 'in' | 'out';
 export type PlassAnimateRepeat = number | 'infinite';
 
 /**
+ * The three props that turn an effect on a box into the same effect on each of
+ * the things inside it.
+ *
+ * There is deliberately no `PlAnimateStagger`. A stagger is not an effect — it
+ * is a *differential*, and every one of the six single-keyframe effects can
+ * take one. A wrapper would have been a second way to spell something they can
+ * already say, and the rule against two spellings of one idea is the same rule
+ * that keeps a `Pulse` (`blink` + `alternate`) and a `Bounce` (`grow` +
+ * `alternate`) out of the library.
+ *
+ * The four effects that do **not** take these are the four that already know
+ * what their children are: a `PlAnimateMarquee` lays them down twice, a
+ * `PlAnimateHeadline` swaps between them, a `PlAnimateTyping` counts their
+ * graphemes, and a `PlAnimateLighting` keeps its motion on a pseudo-element,
+ * which there is no way to put on somebody else's child. A
+ * `PlAnimateAppear` is a *set* rather than an effect and has had its own
+ * `stagger` from the start; these are the same three props under the same
+ * names.
+ */
+export interface PlassAnimateStaggerProps {
+  /**
+   * Milliseconds added to each child's delay, so the children run one after
+   * another rather than together.
+   *
+   * `0` — the default — plays the **box**, which is what an effect does without
+   * this and what it should go on doing when it wraps one thing. Anything else
+   * moves the effect onto the children and takes it off the box entirely: eight
+   * children fading in under a box that is also fading in is the same content
+   * faded twice.
+   *
+   * The step is per *child*, so what is passed matters — eight children are
+   * eight steps and one child holding eight things is one step, which is also
+   * how to opt part of a set out.
+   *
+   * The animation is written onto the children themselves rather than onto
+   * wrappers, so a row of `<li>`s stays a row of `<li>`s. The cost is that a
+   * child has to accept a `className` and a `style`; one that does not is a
+   * child that will not animate.
+   * @default 0
+   */
+  stagger?: number;
+  /**
+   * Milliseconds added to each child's duration, so later children take longer
+   * — or, negative, less long. Floored at `0`.
+   * @default 0
+   */
+  durationStep?: number;
+  /**
+   * Runs the set from the last child to the first.
+   *
+   * The *order* turns round and nothing else: each child still plays forwards.
+   * An effect that runs backwards is `mode="out"`.
+   * @default false
+   */
+  reverse?: boolean;
+}
+
+/**
  * The settings every `PlAnimate*` component takes.
  *
  * Durations and delays are milliseconds — numbers, not CSS strings. A prop

@@ -4,13 +4,14 @@ import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import {
   animBaseClass,
+  animateChildren,
   animationClasses,
   animationSlots,
   isInfinite,
   slideOffsets,
+  staggerSlots,
   useAnimationRun
 } from '../../internal/animate.js';
-import { cx } from '../../internal/styles.js';
 import type { PlassAnimateProps, PlassSide } from '../../types.js';
 
 export interface PlAnimateAppearProps
@@ -18,9 +19,19 @@ export interface PlAnimateAppearProps
   /**
    * How long after one child the next one starts, in milliseconds. This is the
    * whole effect — everything else is what a single child does.
+   *
+   * The same prop the six single-keyframe effects take, and the same machinery
+   * under it; what differs is the default, because a stagger of `0` on a set is
+   * a set that is not a set.
    * @default 70
    */
   stagger?: number;
+  /**
+   * Milliseconds added to each child's duration, so later children take longer
+   * — or, negative, less long. Floored at `0`.
+   * @default 0
+   */
+  durationStep?: number;
   /**
    * Which edge each child drifts in from.
    * @default 'bottom'
@@ -82,6 +93,7 @@ export const PlAnimateAppear = /* @__PURE__ */ React.forwardRef<
     once = true,
     threshold = 0.2,
     stagger = 70,
+    durationStep = 0,
     from = 'bottom',
     distance = '0.75rem',
     fade = true,
@@ -104,37 +116,21 @@ export const PlAnimateAppear = /* @__PURE__ */ React.forwardRef<
   });
 
   const { x, y } = slideOffsets(from, distance);
-  const items = React.Children.toArray(children);
-  const itemClassName = `${animBaseClass} ${animationClasses.slide}`;
 
-  const animated = items.map((child, index) => {
-    const step = reverse ? items.length - 1 - index : index;
-    const slots = animationSlots({
-      duration,
-      delay: delay + step * stagger,
-      easing,
-      repeat,
-      alternate,
-      x,
-      y,
-      opacity: fade ? 0 : 1
-    });
-
-    if (!React.isValidElement(child)) {
-      return (
-        <span key={index} className={itemClassName} style={slots}>
-          {child}
-        </span>
-      );
-    }
-
-    const childProps = child.props as { className?: string; style?: React.CSSProperties };
-
-    return React.cloneElement(child as React.ReactElement<Record<string, unknown>>, {
-      className: cx(itemClassName, childProps.className),
-      style: { ...slots, ...childProps.style }
-    });
-  });
+  // The same helper the six single-keyframe effects reach for when they are
+  // given a `stagger`. It used to live here and only here, which meant the
+  // library was one prop away from having two staggers in it.
+  const animated = animateChildren(
+    children,
+    `${animBaseClass} ${animationClasses.slide}`,
+    (index, count) =>
+      animationSlots(
+        staggerSlots(
+          { duration, delay, easing, repeat, alternate, x, y, opacity: fade ? 0 : 1 },
+          { index, count, stagger, durationStep, reverse }
+        )
+      )
+  );
 
   return useRender({
     render,

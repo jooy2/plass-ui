@@ -4,10 +4,10 @@ import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { isInfinite, useAnimateElement } from '../../internal/animate.js';
 import { cx } from '../../internal/styles.js';
-import type { PlassAnimateProps } from '../../types.js';
+import type { PlassAnimateProps, PlassAnimateStaggerProps } from '../../types.js';
 
 export interface PlAnimateBlinkProps
-  extends PlassAnimateProps, React.ComponentPropsWithoutRef<'div'> {
+  extends PlassAnimateProps, PlassAnimateStaggerProps, React.ComponentPropsWithoutRef<'div'> {
   /**
    * How faint it gets at the bottom of the cycle, between `0` and `1`. Raise it
    * for something that has to stay readable while it pulses.
@@ -47,6 +47,9 @@ export const PlAnimateBlink = /* @__PURE__ */ React.forwardRef<HTMLDivElement, P
       play,
       once = true,
       threshold = 0.2,
+      stagger = 0,
+      durationStep = 0,
+      reverse = false,
       min = 0,
       render,
       className,
@@ -69,7 +72,11 @@ export const PlAnimateBlink = /* @__PURE__ */ React.forwardRef<HTMLDivElement, P
       once,
       threshold,
       paused,
-      infinite: isInfinite(repeat)
+      infinite: isInfinite(repeat),
+      stagger,
+      durationStep,
+      reverse,
+      children
     });
 
     return useRender({
@@ -80,7 +87,7 @@ export const PlAnimateBlink = /* @__PURE__ */ React.forwardRef<HTMLDivElement, P
         className: cx(animate.className, className),
         style: { ...animate.style, ...style },
         ...animate.props,
-        children
+        children: animate.children
       }
     });
   }

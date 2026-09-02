@@ -67,6 +67,23 @@ describe('PlAnimateGrow', () => {
 
       expect(transformOrigin(root)).toBe('left bottom');
     });
+
+    it('travels with the effect when the children are the ones scaling', async () => {
+      await render(
+        <PlAnimateGrow className="grow-under-test" origin="bottom left" stagger={70}>
+          <span>One</span>
+          <span>Two</span>
+        </PlAnimateGrow>
+      );
+
+      const root = document.querySelector('.grow-under-test') as HTMLElement;
+
+      // `transform-origin` is not inherited, so a staggered grow whose origin
+      // stayed on the box would unfold every child from its own middle.
+      for (const child of [...root.children] as HTMLElement[]) {
+        expect(transformOrigin(child)).toBe('left bottom');
+      }
+    });
   });
 
   describe('fade', () => {

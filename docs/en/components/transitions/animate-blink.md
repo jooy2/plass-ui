@@ -56,6 +56,12 @@ There is no `mode` and no `fade`. A blink is a cycle rather than an arrival, so 
 
 `repeat` defaults to `'infinite'` here and to `1` everywhere else, because a single blink is a flicker and nobody asks for a flicker. The rest of the shared settings — `duration`, `delay`, `easing`, `alternate`, `paused`, `trigger`, `play`, `once`, `threshold` — mean what they mean on every other `PlAnimate*` component.
 
+::: fw react
+
+Three more move the effect off the box and onto the things inside it: `stagger` holds each child back by its position, `durationStep` gives each one a longer or shorter run than the last, and `reverse` starts from the end of the set. They are on all six single-keyframe effects and are shown on the [PlAnimateFade](./animate-fade) page.
+
+:::
+
 ## Examples
 
 ### min
@@ -130,6 +136,7 @@ A count is the way to draw attention to something once, rather than forever. The
 | `repeat: number \| 'infinite'` | `int?`, `null` never stops | There is no `'infinite'` to write, and `-1` would be a sentinel a caller has to look up. |
 | `trigger="visible"` via `IntersectionObserver` | watches the nearest `Scrollable` | There is no observer here; with no scrollable above it there is nothing to watch, so it runs. |
 | `prefers-reduced-motion` | `MediaQuery.disableAnimations` | The platform's own signal. |
+| `stagger`, `durationStep`, `reverse` | — | The React build writes the effect onto the children themselves, so the caller's own layout is untouched. Flutter has no stylesheet to lay a set out with, so a staggered effect would have to own the row or the column as well — which is what [`PlAnimateAppear`](./animate-appear) is, and six more of it would be six more of it. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::

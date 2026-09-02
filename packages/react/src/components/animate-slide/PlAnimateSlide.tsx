@@ -4,10 +4,15 @@ import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { isInfinite, slideOffsets, useAnimateElement } from '../../internal/animate.js';
 import { cx } from '../../internal/styles.js';
-import type { PlassAnimateMode, PlassAnimateProps, PlassSide } from '../../types.js';
+import type {
+  PlassAnimateMode,
+  PlassAnimateProps,
+  PlassAnimateStaggerProps,
+  PlassSide
+} from '../../types.js';
 
 export interface PlAnimateSlideProps
-  extends PlassAnimateProps, React.ComponentPropsWithoutRef<'div'> {
+  extends PlassAnimateProps, PlassAnimateStaggerProps, React.ComponentPropsWithoutRef<'div'> {
   /**
    * Whether the content slides in or slides away. `out` leaves by the same edge
    * it would have come from.
@@ -64,6 +69,9 @@ export const PlAnimateSlide = /* @__PURE__ */ React.forwardRef<HTMLDivElement, P
       play,
       once = true,
       threshold = 0.2,
+      stagger = 0,
+      durationStep = 0,
+      reverse = false,
       mode = 'in',
       from = 'bottom',
       distance = '100%',
@@ -94,7 +102,11 @@ export const PlAnimateSlide = /* @__PURE__ */ React.forwardRef<HTMLDivElement, P
       once,
       threshold,
       paused,
-      infinite: isInfinite(repeat)
+      infinite: isInfinite(repeat),
+      stagger,
+      durationStep,
+      reverse,
+      children
     });
 
     return useRender({
@@ -105,7 +117,7 @@ export const PlAnimateSlide = /* @__PURE__ */ React.forwardRef<HTMLDivElement, P
         className: cx(animate.className, className),
         style: { ...animate.style, ...style },
         ...animate.props,
-        children
+        children: animate.children
       }
     });
   }

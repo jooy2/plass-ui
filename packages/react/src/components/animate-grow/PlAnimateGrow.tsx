@@ -4,10 +4,10 @@ import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { isInfinite, useAnimateElement } from '../../internal/animate.js';
 import { cx } from '../../internal/styles.js';
-import type { PlassAnimateMode, PlassAnimateProps } from '../../types.js';
+import type { PlassAnimateMode, PlassAnimateProps, PlassAnimateStaggerProps } from '../../types.js';
 
 export interface PlAnimateGrowProps
-  extends PlassAnimateProps, React.ComponentPropsWithoutRef<'div'> {
+  extends PlassAnimateProps, PlassAnimateStaggerProps, React.ComponentPropsWithoutRef<'div'> {
   /**
    * Whether the content unfolds or folds away.
    * @default 'in'
@@ -62,6 +62,9 @@ export const PlAnimateGrow = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
       play,
       once = true,
       threshold = 0.2,
+      stagger = 0,
+      durationStep = 0,
+      reverse = false,
       mode = 'in',
       from = 0.8,
       origin = 'center',
@@ -89,7 +92,14 @@ export const PlAnimateGrow = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
       once,
       threshold,
       paused,
-      infinite: isInfinite(repeat)
+      infinite: isInfinite(repeat),
+      // The origin travels with the effect: staggered, it is each child that
+      // scales, and `transform-origin` is not an inherited property.
+      origin,
+      stagger,
+      durationStep,
+      reverse,
+      children
     });
 
     return useRender({
@@ -100,9 +110,9 @@ export const PlAnimateGrow = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
         className: cx(animate.className, className),
         // `transform-origin` governs the standalone `scale` property too, which
         // is what lets the effect stay off the `transform` shorthand entirely.
-        style: { transformOrigin: origin, ...animate.style, ...style },
+        style: { ...animate.style, ...style },
         ...animate.props,
-        children
+        children: animate.children
       }
     });
   }

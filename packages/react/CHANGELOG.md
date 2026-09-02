@@ -4,6 +4,17 @@
 
 ## Unreleased
 
+### Added
+
+- **Six effects can now be told off across their children.** `stagger` is milliseconds added to each child's delay, `durationStep` is the same for its duration, and `reverse` starts from the end of the set — on `PlAnimateFade`, `PlAnimateGrow`, `PlAnimateSlide`, `PlAnimateZoom`, `PlAnimateRotate` and `PlAnimateBlink`. `stagger` defaults to `0`, which plays the box, so nothing that exists changes.
+
+  **There is deliberately no `PlAnimateStagger`.** A stagger is a _differential_ rather than an effect, and a wrapper would be a second way to spell something all six can already say — the same rule that keeps a `Pulse` (`blink` + `alternate`) and a `Bounce` (`grow` + `alternate`) out of the library. Turning it on takes the animation **off the root entirely**: eight children fading in under a box that is also fading in is the same content faded twice, and the second one is not free.
+
+  The four effects that already read their children do not take these and cannot — a marquee lays its children down twice, a headline swaps between them, a typewriter counts their graphemes, and a lighting keeps its motion on a pseudo-element, which there is no way to put on somebody else's child. `PlAnimateAppear` has had the same three props under the same names since it existed and **now runs on the same code**: `animateChildren` and `staggerSlots` moved into `internal/animate.ts`, because two implementations of "one after another" would be two opinions about the arithmetic. It gains `durationStep` on the way past.
+
+  The effect is written onto the children themselves rather than onto wrappers, so a row of `<li>`s stays a row of `<li>`s and a grid's cells stay its direct children; the cost is that a child has to accept a `className` and a `style`. The `transform-origin` a `PlAnimateGrow` was given travels with it, since that property is not inherited and a staggered grow would otherwise unfold every child from its own middle. **+0.2 kB on the whole library**, nothing on any component that does not import an effect.
+
+
 ### Fixed
 
 - **A `PlTabs` bar that scrolls now says so.** The bar has always scrolled when there were more tabs than room — what it could not do was tell anyone. A macOS scrollbar is an overlay that appears while the strip is moving and is invisible the rest of the time, which is every moment a reader is deciding whether there is more to look at; the Windows one is fifteen pixels of permanent furniture under a row of labels. Both are taken away and the ends are faded instead — **only** the end that still has tabs behind it, which is what makes it a signal rather than a decoration. The fade is a `mask-image` rather than two gradient overlays because a bar can sit on anything, and an overlay would have to be painted in the colour of a background the component cannot know; taking the pixels away is right on every surface. It is dropped entirely while a tab inside is showing a focus ring, since focusing a tab scrolls it flush against the edge the fade is strongest at. Measured rather than declared — whether a bar overflows depends on the room it was given, so there is no prop that could answer it — and published as `data-overflow` on the tab list (`none` / `start` / `end` / `both`, in the reader's order) so a page can style against it. **+0.4 kB on the whole library** and nothing at all on a bundle that does not import `PlTabs`, measured with `npm run size`.

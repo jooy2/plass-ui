@@ -25,21 +25,35 @@
  * `rotate` properties rather than on the `transform` shorthand, so a caller's
  * own transform on the same element survives.
  *
+ * ## Telling the children apart
+ *
+ * `stagger`, `durationStep` and `reverse` move an effect off the box and onto
+ * the things inside it, one after another. There is no `PlAnimateStagger`
+ * component and there should not be: a stagger is a *differential* rather than
+ * an effect, and a wrapper would be a second way to spell something all six
+ * effects can already say. `animateChildren` and `staggerSlots` are what
+ * `PlAnimateAppear` — which was staggering long before the six could — now runs
+ * on as well, because two implementations of "one after another" is two
+ * opinions about the arithmetic.
+ *
  * ## What is deliberately not here
  *
  * An effect that has to know what its children *are* — a marquee that lays them
  * down twice, a headline that swaps between them, a typewriter that counts
  * graphemes — cannot be a class name and a few numbers. Those are components,
- * and their logic stays in their own files.
+ * and their logic stays in their own files. They are also the four that cannot
+ * take a `stagger`, for the same reason: their children are already spoken for.
  */
 
 import * as React from 'react';
 import type {
   PlassAnimateRepeat,
+  PlassAnimateStaggerProps,
   PlassAnimateTrigger,
   PlassAnimation,
   PlassSide
 } from '../types.js';
+import { cx } from './styles.js';
 
 /* ---------------------------------------------------------------------------
  * Slots
@@ -348,12 +362,94 @@ export function useAnimationRun({
 }
 
 /* ---------------------------------------------------------------------------
+ * One effect, told off across the children
+ * ------------------------------------------------------------------------- */
+
+export interface StaggerPosition extends Required<PlassAnimateStaggerProps> {
+  index: number;
+  count: number;
+}
+
+/**
+ * Where one child sits in a staggered run.
+ *
+ * `reverse` turns the *order* round and nothing else: the last child goes
+ * first and every child still plays forwards. An effect that ran backwards is
+ * `mode="out"`, which is a different question and already has an answer.
+ *
+ * The duration is floored at zero rather than allowed to go negative, because a
+ * negative `animation-duration` is invalid and an invalid declaration is
+ * dropped — which would leave that one child playing at the CSS default while
+ * its neighbours honoured the prop.
+ */
+export function staggerSlots(
+  slots: AnimationSlotOptions,
+  { index, count, stagger, durationStep, reverse }: StaggerPosition
+): AnimationSlotOptions {
+  const step = reverse ? count - 1 - index : index;
+
+  return {
+    ...slots,
+    delay: slots.delay + step * stagger,
+    duration: Math.max(0, slots.duration + step * durationStep)
+  };
+}
+
+/**
+ * Writes one effect onto each child, with that child's own slots.
+ *
+ * Onto the children **themselves** rather than onto wrappers around them, which
+ * is the whole reason this is worth sharing: a row of `<li>`s stays a row of
+ * `<li>`s, a grid's cells stay its direct children, and nothing about the
+ * layout changes because the set is being animated. A wrapper per child would
+ * break every one of those.
+ *
+ * The trade is the one `React.cloneElement` always makes — a child has to
+ * accept a `className` and a `style` — and it is taken here and nowhere else in
+ * the library. It is bearable because what is being copied is *only* the
+ * animation, so a child that ignores both is a child that does not animate,
+ * rather than a child that lands in the wrong place. A `PlAvatarGroup` passes
+ * its axes through a context precisely because that failure would not be
+ * survivable.
+ *
+ * A bare string has no element to write onto, so that one is wrapped in a
+ * `<span>`. It is the only case that gets a wrapper.
+ */
+export function animateChildren(
+  children: React.ReactNode,
+  className: string,
+  slotsFor: (index: number, count: number) => React.CSSProperties
+): React.ReactNode[] {
+  const items = React.Children.toArray(children);
+
+  return items.map((child, index) => {
+    const style = slotsFor(index, items.length);
+
+    if (!React.isValidElement(child)) {
+      return React.createElement('span', { key: index, className, style }, child);
+    }
+
+    const childProps = child.props as { className?: string; style?: React.CSSProperties };
+
+    return React.cloneElement(child as React.ReactElement<Record<string, unknown>>, {
+      className: cx(className, childProps.className),
+      style: { ...style, ...childProps.style }
+    });
+  });
+}
+
+/* ---------------------------------------------------------------------------
  * The six, assembled
  * ------------------------------------------------------------------------- */
 
-export interface AnimateElementParams extends AnimationSlotOptions, AnimationRunOptions {
+export interface AnimateElementParams
+  extends AnimationSlotOptions, AnimationRunOptions, PlassAnimateStaggerProps {
   /** Which keyframe. `null` for the components that write their own. */
   effect: PlassAnimation | null;
+  /** `transform-origin`, for the two effects that turn about a point. */
+  origin?: string;
+  /** Needed only to be handed back staggered. Passed straight through otherwise. */
+  children?: React.ReactNode;
 }
 
 export interface AnimateElement {
@@ -362,6 +458,8 @@ export interface AnimateElement {
   style: React.CSSProperties;
   /** The hover handlers and the two data attributes, ready to be spread. */
   props: React.HTMLAttributes<HTMLElement> & Record<string, unknown>;
+  /** The children, with the effect written onto them if it was staggered. */
+  children: React.ReactNode;
 }
 
 /**
@@ -379,18 +477,49 @@ export interface AnimateElement {
  * changes.
  */
 export function useAnimateElement(params: AnimateElementParams): AnimateElement {
-  const { effect, trigger, play, once, threshold, paused, infinite, ...slots } = params;
+  const {
+    effect,
+    trigger,
+    play,
+    once,
+    threshold,
+    paused,
+    infinite,
+    stagger = 0,
+    durationStep = 0,
+    reverse = false,
+    origin,
+    children,
+    ...slots
+  } = params;
 
   const run = useAnimationRun({ trigger, play, once, threshold, paused, infinite });
 
+  const effectClass = effect ? `${animBaseClass} ${animationClasses[effect]}` : '';
+  const spread = stagger !== 0 && effect !== null;
+  const originStyle = origin === undefined ? null : { transformOrigin: origin };
+
   return {
     ref: run.ref,
-    className: effect ? `${animBaseClass} ${animationClasses[effect]}` : '',
-    style: { ...animationSlots(slots), '--p-anim-state': run.state } as React.CSSProperties,
+    // Nothing on the root once the children are carrying the effect. Eight
+    // children fading in under a box that is also fading in is the same content
+    // faded twice, and the second one is not free.
+    className: spread ? '' : effectClass,
+    style: {
+      ...originStyle,
+      ...(spread ? null : animationSlots(slots)),
+      '--p-anim-state': run.state
+    } as React.CSSProperties,
     props: {
       ...run.handlers,
       'data-plass-animation': effect ?? undefined,
       'data-state': run.state
-    }
+    },
+    children: spread
+      ? animateChildren(children, effectClass, (index, count) => ({
+          ...originStyle,
+          ...animationSlots(staggerSlots(slots, { index, count, stagger, durationStep, reverse }))
+        }))
+      : children
   };
 }

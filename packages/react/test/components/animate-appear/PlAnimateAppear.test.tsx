@@ -72,6 +72,25 @@ describe('PlAnimateAppear', () => {
       expect(children[1].style.getPropertyValue('--p-anim-delay')).toBe('350ms');
     });
 
+    it('steps the duration too, and never below zero', async () => {
+      await render(
+        <PlAnimateAppear className="appear-under-test" duration={400} durationStep={-300}>
+          <p>One</p>
+          <p>Two</p>
+          <p>Three</p>
+        </PlAnimateAppear>
+      );
+
+      const children = document.querySelectorAll<HTMLElement>('.appear-under-test > *');
+
+      // The same three props the six single-keyframe effects gained, running on
+      // the same helper — this component is where the implementation came from,
+      // and a second copy of it would be a second opinion about the arithmetic.
+      expect(children[0].style.getPropertyValue('--p-anim-duration')).toBe('400ms');
+      expect(children[1].style.getPropertyValue('--p-anim-duration')).toBe('100ms');
+      expect(children[2].style.getPropertyValue('--p-anim-duration')).toBe('0ms');
+    });
+
     it('runs the list backwards when asked', async () => {
       await render(
         <PlAnimateAppear className="appear-under-test" stagger={100} reverse>
