@@ -3,25 +3,42 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useRender } from '@base-ui/react/use-render';
-import { cx, sheetPaddingXClasses } from '../../internal/styles.js';
-import type { PlassDensity, PlassSize } from '../../types.js';
+import { responsiveSlots } from '../../internal/responsive.js';
+import { cx, sheetPaddingXClasses, toLength } from '../../internal/styles.js';
+import type { PlassDensity, PlassResponsive, PlassSize } from '../../types.js';
 
 /**
- * How wide the content is allowed to get.
+ * How wide the content is allowed to get: a rung of the measure ladder, any CSS
+ * length, a number of pixels, or `none`.
  *
  * `none` is the extra step and the default, because a `PlContainer`'s job is
  * the gutter — a measure is a second decision, and a page should have to ask
  * for one.
+ *
+ * The `string` half is written as `string & {}` so that the five rungs still
+ * autocomplete. A bare `string` in the union would swallow them and the ladder
+ * would be five names a caller has to remember rather than five the editor
+ * offers.
  */
-export type PlContainerWidth = PlassSize | 'none';
+export type PlContainerWidth = PlassSize | 'none' | number | (string & {});
 
 export interface PlContainerProps extends React.ComponentPropsWithoutRef<'div'> {
   /**
-   * How wide the content is allowed to get, on the same ladder the breakpoints
-   * use — `xs` 30rem, `sm` 40rem, `md` 48rem, `lg` 64rem, `xl` 80rem.
+   * How wide the content is allowed to get.
+   *
+   * The five rungs are the same widths the breakpoints are — `xs` 30rem, `sm`
+   * 40rem, `md` 48rem, `lg` 64rem, `xl` 80rem — so a container capped at `lg`
+   * ends where an `lg:` utility begins. Anything else is taken as a length: a
+   * number is pixels, and a string is any CSS length, which is how a measure in
+   * **characters** gets written. `maxWidth="72ch"` is the one a paragraph
+   * actually wants, and no ladder of `rem` can spell it.
+   *
+   * Responsive, and resolved in CSS rather than in JavaScript — so it is right
+   * in the first paint a server sends, and a window being dragged costs no
+   * re-render.
    * @default 'none'
    */
-  maxWidth?: PlContainerWidth;
+  maxWidth?: PlassResponsive<PlContainerWidth>;
   /**
    * The gutter, on the `size`/`density` scale. Turn it off to keep the centring
    * and the measure without the padding.
@@ -60,14 +77,33 @@ export interface PlContainerProps extends React.ComponentPropsWithoutRef<'div'> 
  * Tailwind's own container scale is a different set of numbers, and having two
  * ladders called `lg` on one page is how a layout drifts by a few pixels for no
  * reason anybody can find later.
+ *
+ * Written out rather than read from `--plass-breakpoint-*`, which they happen
+ * to equal from `sm` up. They are not the same question: a breakpoint is where
+ * the window changes shape and a measure is how wide text may get, and a
+ * project that moved one because it wanted the other would have moved the wrong
+ * thing.
  */
-const maxWidthClasses: Record<PlassSize, string> = {
-  xs: 'max-w-[30rem]',
-  sm: 'max-w-[40rem]',
-  md: 'max-w-[48rem]',
-  lg: 'max-w-[64rem]',
-  xl: 'max-w-[80rem]'
+const measures: Record<PlassSize, string> = {
+  xs: '30rem',
+  sm: '40rem',
+  md: '48rem',
+  lg: '64rem',
+  xl: '80rem'
 };
+
+/** A rung if it is one of the five, `none` as itself, anything else a length. */
+function measureValue(value: PlContainerWidth): string {
+  if (value === 'none') {
+    return 'none';
+  }
+
+  if (typeof value === 'string' && value in measures) {
+    return measures[value as PlassSize];
+  }
+
+  return toLength(value) as string;
+}
 
 /**
  * Horizontal breathing room, and optionally a measure.
@@ -89,7 +125,7 @@ const maxWidthClasses: Record<PlassSize, string> = {
 export const PlContainer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlContainerProps>(
   function PlContainer(
     {
-      maxWidth = 'none',
+      maxWidth,
       padded = true,
       size: sizeProp,
       density: densityProp,
@@ -107,7 +143,9 @@ export const PlContainer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCo
 
     const classNames = cx(
       'block w-full',
-      maxWidth === 'none' ? '' : maxWidthClasses[maxWidth],
+      // Only when there is a measure to carry: a container with none needs
+      // neither the class nor the slot, and the CSS's own fallback is `none`.
+      maxWidth === undefined ? '' : 'plass-container',
       centered ? 'mx-auto' : '',
       padded ? sheetPaddingXClasses[density][size] : '',
       className
@@ -118,6 +156,7 @@ export const PlContainer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCo
       ref,
       props: {
         className: classNames,
+        style: responsiveSlots('maxw', maxWidth, measureValue),
         children,
         ...props
       }

@@ -7,15 +7,48 @@ describe('PlContainer', () => {
     it('holds the content to nothing unless it is asked to', async () => {
       await render(<PlContainer className="page-under-test" />);
 
-      const element = document.querySelector('.page-under-test');
+      const element = document.querySelector('.page-under-test') as HTMLElement;
 
-      expect(element?.className).not.toMatch(/max-w-/);
+      // Neither the class nor the slot: a container with no measure has nothing
+      // to carry, and the stylesheet's own fallback is `none`.
+      expect(element).not.toHaveClass('plass-container');
+      expect(element.getAttribute('style')).toBeNull();
+    });
+
+    it('takes any length, which is how a measure in characters gets written', async () => {
+      const screen = await render(<PlContainer className="page-under-test" maxWidth="72ch" />);
+
+      const element = document.querySelector('.page-under-test') as HTMLElement;
+
+      // The rung ladder is `rem` and a paragraph's measure is characters. No
+      // ladder can spell `72ch`, which is exactly why the prop takes a length.
+      expect(element.style.getPropertyValue('--p-maxw-xs')).toBe('72ch');
+
+      await screen.rerender(<PlContainer className="page-under-test" maxWidth={640} />);
+
+      expect(element.style.getPropertyValue('--p-maxw-xs')).toBe('640px');
+    });
+
+    it('changes measure with the window, and resolves it in CSS', async () => {
+      await render(<PlContainer className="page-under-test" maxWidth={{ xs: 'none', md: 'lg' }} />);
+
+      const element = document.querySelector('.page-under-test') as HTMLElement;
+
+      // One slot per rung the caller named, and the cascade in the stylesheet
+      // fills the rest — so a window being dragged costs no re-render and a
+      // server's first paint is already right at every width.
+      expect(element.style.getPropertyValue('--p-maxw-xs')).toBe('none');
+      expect(element.style.getPropertyValue('--p-maxw-md')).toBe('64rem');
+      expect(element.style.getPropertyValue('--p-maxw-sm')).toBe('');
     });
 
     it('takes the step it was named', async () => {
       await render(<PlContainer className="page-under-test" maxWidth="lg" />);
 
-      expect(document.querySelector('.page-under-test')).toHaveClass('max-w-[64rem]');
+      const element = document.querySelector('.page-under-test') as HTMLElement;
+
+      expect(element).toHaveClass('plass-container');
+      expect(element.style.getPropertyValue('--p-maxw-xs')).toBe('64rem');
     });
   });
 
@@ -55,9 +88,9 @@ describe('PlContainer', () => {
     it('keeps the measure and the centring without it', async () => {
       await render(<PlContainer className="page-under-test" maxWidth="md" padded={false} />);
 
-      const element = document.querySelector('.page-under-test');
+      const element = document.querySelector('.page-under-test') as HTMLElement;
 
-      expect(element).toHaveClass('max-w-[48rem]');
+      expect(element.style.getPropertyValue('--p-maxw-xs')).toBe('48rem');
       expect(element).toHaveClass('mx-auto');
     });
   });

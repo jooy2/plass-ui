@@ -897,7 +897,7 @@
 }
 
 /* ---------------------------------------------------------------------------
- * The grid
+ * The grid, and the responsive slots
  *
  * `PlGrid` is a flex row and `PlGridItem` is a width in it, which is the shape
  * a twelve-column grid has had since long before CSS had one of its own — and
@@ -919,8 +919,15 @@
  * chains get long at `xl`; that is the cost of keeping the DOM lean, and it is
  * paid once here rather than on every grid item in a consumer's app.
  *
- * The widths are Tailwind's own breakpoints, so a Plass grid and an `md:`
- * utility change at the same moment.
+ * The widths are Tailwind's own breakpoints — `@variant` rather than a written
+ * out `@media`, so a project that moves one in its theme moves this with it.
+ * See "The breakpoint ladder" above.
+ *
+ * `.plass-container`'s measure rides the same four blocks, and any responsive
+ * prop added later should too. That is the whole cost of one: a slot in
+ * `internal/responsive.ts` and four lines here. CSS has no loop, so four lines
+ * is the floor — which is the reason to keep the number of responsive props
+ * deliberate rather than to make every prop responsive because it could be.
  * ------------------------------------------------------------------------- */
 
 .plass-grid {
@@ -947,7 +954,26 @@
   margin-inline-start: calc(var(--p-track) * min(var(--p-offset), var(--p-cols, 12)));
 }
 
+/*
+ * The measure, and the one thing a container draws.
+ *
+ * A slot rather than five `max-w-*` classes, because a responsive measure would
+ * otherwise be five classes times five rungs. It also takes any length a caller
+ * writes, which the class ladder could not: `maxWidth="72ch"` is a measure in
+ * characters, and a measure in characters is the one a paragraph actually
+ * wants.
+ */
+.plass-container {
+  --p-maxw: var(--p-maxw-xs, none);
+
+  max-width: var(--p-maxw);
+}
+
 @variant sm {
+  .plass-container {
+    --p-maxw: var(--p-maxw-sm, var(--p-maxw-xs, none));
+  }
+
   .plass-grid {
     --p-cols: var(--p-cols-sm, var(--p-cols-xs, 12));
     --p-gap-x: var(--p-gap-x-sm, var(--p-gap-x-xs, 0px));
@@ -961,6 +987,10 @@
 }
 
 @variant md {
+  .plass-container {
+    --p-maxw: var(--p-maxw-md, var(--p-maxw-sm, var(--p-maxw-xs, none)));
+  }
+
   .plass-grid {
     --p-cols: var(--p-cols-md, var(--p-cols-sm, var(--p-cols-xs, 12)));
     --p-gap-x: var(--p-gap-x-md, var(--p-gap-x-sm, var(--p-gap-x-xs, 0px)));
@@ -974,6 +1004,10 @@
 }
 
 @variant lg {
+  .plass-container {
+    --p-maxw: var(--p-maxw-lg, var(--p-maxw-md, var(--p-maxw-sm, var(--p-maxw-xs, none))));
+  }
+
   .plass-grid {
     --p-cols: var(--p-cols-lg, var(--p-cols-md, var(--p-cols-sm, var(--p-cols-xs, 12))));
     --p-gap-x: var(--p-gap-x-lg, var(--p-gap-x-md, var(--p-gap-x-sm, var(--p-gap-x-xs, 0px))));
@@ -990,6 +1024,13 @@
 }
 
 @variant xl {
+  .plass-container {
+    --p-maxw: var(
+      --p-maxw-xl,
+      var(--p-maxw-lg, var(--p-maxw-md, var(--p-maxw-sm, var(--p-maxw-xs, none))))
+    );
+  }
+
   .plass-grid {
     --p-cols: var(
       --p-cols-xl,

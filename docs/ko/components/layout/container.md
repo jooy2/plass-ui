@@ -57,6 +57,14 @@ PlContainer(maxWidth: PlassSize.lg, child: page);
 
 기본값은 <Fw react="'none'" flutter="null" code />입니다. 컨테이너가 하는 일은 여백이고, 최대 너비는 두 번째 결정입니다. 페이지가 요청해야 합니다.
 
+::: fw react
+
+**길이도 그대로 받습니다.** 편의 기능이 아닙니다. 다섯 칸은 `rem`인데, 문단이 실제로 원하는 measure는 *글자 수*입니다. `maxWidth="72ch"`는 어떤 사다리로도 쓸 수 없는 값입니다. 숫자는 픽셀입니다.
+
+**그리고 반응형입니다** — `maxWidth={{ xs: 'none', md: 'lg' }}`. JavaScript가 아니라 **CSS**에서 풀리고, 그것이 이 방식이 공짜인 이유입니다. 서버가 보내는 첫 페인트가 이미 모든 너비에서 맞고, 창을 끄는 동안 리렌더가 없습니다. [브레이크포인트](../../design/breakpoints) 참고.
+
+:::
+
 <Demo src="container/widths" :min-height="220">
 
 ::: fw react

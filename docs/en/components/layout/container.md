@@ -57,6 +57,14 @@ The same ladder the breakpoints use — `xs` 30rem, `sm` 40rem, `md` 48rem, `lg`
 
 <Fw react="'none'" flutter="null" code /> is the default. A container's job is the gutter; a measure is a second decision, and a page should have to ask for one.
 
+::: fw react
+
+**It also takes any length**, and that is not a convenience: the five rungs are `rem`, and the measure a paragraph actually wants is in _characters_. `maxWidth="72ch"` is the one no ladder can spell. A number is pixels.
+
+**And it is responsive** — `maxWidth={{ xs: 'none', md: 'lg' }}`. It resolves in **CSS** rather than in JavaScript, which is what makes it free: the first paint a server sends is already right at every width, and a window being dragged costs no re-render. See [breakpoints](../../design/breakpoints).
+
+:::
+
 <Demo src="container/widths" :min-height="220">
 
 ::: fw react

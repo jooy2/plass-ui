@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
-import { alignSelfClasses, offsetValue, responsiveSlots, spanValue } from '../../internal/grid.js';
+import { alignSelfClasses, offsetValue, spanValue } from '../../internal/grid.js';
+import { responsiveSlots } from '../../internal/responsive.js';
 import { cx } from '../../internal/styles.js';
 import type { PlassAlignSelf, PlassResponsive } from '../../types.js';
 

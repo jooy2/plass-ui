@@ -3682,11 +3682,11 @@ export const propTables: Record<string, PropRow[]> = {
   PlContainer: [
     {
       name: 'maxWidth',
-      type: SIZE + " | 'none'",
+      type: `PlassResponsive<${SIZE} | 'none' | number | string>`,
       default: "'none'",
       description: {
-        ko: '내용이 넓어질 수 있는 한계. 브레이크포인트와 같은 사다리 — xs 30rem · sm 40rem · md 48rem · lg 64rem · xl 80rem',
-        en: 'How wide the content is allowed to get, on the same ladder the breakpoints use — xs 30rem, sm 40rem, md 48rem, lg 64rem, xl 80rem'
+        ko: '내용이 넓어질 수 있는 한계. 다섯 칸은 브레이크포인트와 같은 사다리(xs 30rem · sm 40rem · md 48rem · lg 64rem · xl 80rem)이고, 그 외에는 길이로 읽습니다 — 숫자는 픽셀, 문자열은 아무 CSS 길이나. 반응형이며 CSS에서 풀립니다',
+        en: 'How wide the content is allowed to get. The five rungs are the breakpoint widths (xs 30rem, sm 40rem, md 48rem, lg 64rem, xl 80rem); anything else is read as a length — a number is pixels, a string is any CSS length. Responsive, and resolved in CSS'
       }
     },
     {

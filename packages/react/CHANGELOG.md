@@ -6,6 +6,12 @@
 
 ### Added
 
+- **A `PlContainer`'s `maxWidth` is responsive, and takes any length.** `maxWidth={{ xs: 'none', md: 'lg' }}` narrows a page as the window widens, and `maxWidth="72ch"` is the measure a paragraph actually wants — the five rungs are `rem` and no ladder of `rem` can spell a measure in _characters_. A number is pixels; the rungs are unchanged.
+
+  It resolves in **CSS**, not in JavaScript, and that is the part worth knowing: one `--p-maxw-*` slot per rung the caller named, cascaded by the same `@variant` blocks the grid uses. So the first paint a server sends is already right at every width, and a window being dragged costs no re-render. Measured in a browser: `none` at 500px, `1024px` at 900px, `72ch` at 1400px, from one declaration.
+
+  The machinery moved out of `internal/grid.ts` into `internal/responsive.ts` with it, since it now has a second user. That file also writes down **where a responsive value can be resolved and where it cannot**: a value that only decides style belongs in CSS, and a value that decides structure — an orientation changes the DOM, the ARIA and the arrow keys — has to be JavaScript and pays the server's `xs` first render for it.
+
 - **The breakpoint ladder is written down once, and a project can move it.** Every width in the library now comes from Tailwind's own `--breakpoint-*` theme, so one line moves both halves of it:
 
   ```css

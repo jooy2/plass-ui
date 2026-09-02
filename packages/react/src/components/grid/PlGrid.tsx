@@ -7,10 +7,9 @@ import {
   alignItemsClasses,
   columnCount,
   justifyClasses,
-  responsiveSlots,
-  spacingValue,
-  withBaseline
+  spacingValue
 } from '../../internal/grid.js';
+import { responsiveSlots, withBaseline } from '../../internal/responsive.js';
 import { cx } from '../../internal/styles.js';
 import type { PlassAlignItems, PlassJustify, PlassResponsive } from '../../types.js';
 

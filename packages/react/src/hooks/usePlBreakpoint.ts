@@ -1,7 +1,7 @@
 'use client';
 
 import { fromQuery } from '../internal/breakpoints.js';
-import { breakpointMap, breakpoints } from '../internal/grid.js';
+import { breakpointMap, breakpoints } from '../internal/responsive.js';
 import { useMediaQuery } from '../internal/media.js';
 import type { PlassBreakpoint, PlassResponsive } from '../types.js';
 

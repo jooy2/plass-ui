@@ -15,82 +15,7 @@
  * per-instance values go in inline custom properties, never in class names.
  */
 
-import type * as React from 'react';
-import type {
-  PlassAlignItems,
-  PlassAlignSelf,
-  PlassBreakpoint,
-  PlassJustify,
-  PlassResponsive
-} from '../types.js';
-
-/** Smallest first, which is also the order the media queries have to be in. */
-export const breakpoints: readonly PlassBreakpoint[] = ['xs', 'sm', 'md', 'lg', 'xl'];
-
-/**
- * One step of `spacing`, in `rem`.
- *
- * This is Tailwind's spacing scale and not Material's 8px one: `spacing={4}` is
- * `1rem`, exactly what `gap-4` already means and what `p-4` in the sheet
- * padding tables already is. Every other number in this library is on that
- * ladder, and a grid that measured its gutters differently from the card around
- * it would be the one place a caller has to stop and convert.
- */
-const SPACING_STEP = 0.25;
-
-/** A bare value means "from `xs` up"; a map is already per-breakpoint. */
-export function breakpointMap<T>(
-  value: PlassResponsive<T> | undefined
-): Partial<Record<PlassBreakpoint, T>> {
-  if (value === undefined || value === null) return {};
-  if (typeof value === 'object') return value as Partial<Record<PlassBreakpoint, T>>;
-
-  return { xs: value };
-}
-
-/**
- * Turns a responsive value into the `--p-{name}-{breakpoint}` slots the CSS
- * reads, emitting only the breakpoints the caller actually named.
- *
- * The gaps are filled in by CSS rather than here: each breakpoint's rule falls
- * back through the ones below it, so `{ md: 6 }` needs one slot and not five.
- * That keeps the inline style on a grid item down to what was asked for.
- */
-export function responsiveSlots<T>(
-  name: string,
-  value: PlassResponsive<T> | undefined,
-  toCss: (value: T) => string
-): React.CSSProperties {
-  const map = breakpointMap(value);
-  const slots: Record<string, string> = {};
-
-  for (const breakpoint of breakpoints) {
-    const entry = map[breakpoint];
-    if (entry !== undefined) slots[`--p-${name}-${breakpoint}`] = toCss(entry);
-  }
-
-  return slots as React.CSSProperties;
-}
-
-/**
- * Fills in the `xs` entry of a partial map with the prop's own default.
- *
- * Without this, `spacing={{ md: 4 }}` would be a grid with no gutter at all
- * below 48rem — the CSS fallback rather than the documented default — and a
- * caller who narrowed one breakpoint would silently lose every other one. A map
- * says "from here up, use this instead"; it does not say "and nothing below".
- */
-export function withBaseline<T>(
-  value: PlassResponsive<T> | undefined,
-  baseline: T
-): PlassResponsive<T> {
-  if (value === undefined || value === null) return baseline;
-  if (typeof value === 'object') {
-    return { xs: baseline, ...(value as Partial<Record<PlassBreakpoint, T>>) };
-  }
-
-  return value;
-}
+import type { PlassAlignItems, PlassAlignSelf, PlassJustify } from '../types.js';
 
 /**
  * A count of columns, as a plain number for `calc()` to divide by.
@@ -110,6 +35,17 @@ export function columnUnits(value: number, min: number): string {
 
 export const spanValue = (value: number) => columnUnits(value, 1);
 export const offsetValue = (value: number) => columnUnits(value, 0);
+
+/**
+ * One step of `spacing`, in `rem`.
+ *
+ * This is Tailwind's spacing scale and not Material's 8px one: `spacing={4}` is
+ * `1rem`, exactly what `gap-4` already means and what `p-4` in the sheet
+ * padding tables already is. Every other number in this library is on that
+ * ladder, and a grid that measured its gutters differently from the card around
+ * it would be the one place a caller has to stop and convert.
+ */
+const SPACING_STEP = 0.25;
 
 /**
  * A gutter, as a length.
