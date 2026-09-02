@@ -16,6 +16,22 @@ function Settings(props: React.ComponentProps<typeof PlTabs>) {
   );
 }
 
+/**
+ * The two declarations an overflowing bar depends on, since no component test
+ * loads CSS and a box that does not clip has nothing to scroll. Returns the
+ * undo, which every test that calls this owes a `finally`.
+ */
+function clip() {
+  const style = document.createElement('style');
+
+  style.textContent =
+    '[role="tablist"] { display: flex; overflow-x: auto; width: 160px; }' +
+    '[role="tab"] { flex: 0 0 auto; width: 120px; }';
+  document.head.append(style);
+
+  return () => style.remove();
+}
+
 describe('PlTabs', () => {
   describe('rendering', () => {
     it('renders a tablist holding one tab per child', async () => {
@@ -176,6 +192,72 @@ describe('PlTabs', () => {
       for (const tab of screen.getByRole('tab').elements()) {
         expect(tab).toHaveClass('flex-1');
       }
+    });
+  });
+
+  describe('a bar with more tabs than room', () => {
+    it('says nothing while every tab fits', async () => {
+      const screen = await render(<Settings />);
+
+      // The bar scrolls rather than wrapping, so it has to say when it is
+      // scrolling — and, just as importantly, when it is not. A bar with a
+      // faded end that goes nowhere is a bar that lies.
+      expect(screen.getByRole('tablist').element()).toHaveAttribute('data-overflow', 'none');
+    });
+
+    it('says which way the tabs it cannot show went', async () => {
+      const restore = clip();
+
+      try {
+        const screen = await render(<Settings />);
+        const list = screen.getByRole('tablist').element();
+
+        expect(list.scrollWidth).toBeGreaterThan(list.clientWidth);
+
+        // Measured rather than declared: whether a bar overflows depends on the
+        // room it was given, which no prop can answer.
+        await expect.element(screen.getByRole('tablist')).toHaveAttribute('data-overflow', 'end');
+
+        list.scrollTo({ left: 60, behavior: 'auto' });
+
+        await expect.element(screen.getByRole('tablist')).toHaveAttribute('data-overflow', 'both');
+
+        list.scrollTo({ left: list.scrollWidth, behavior: 'auto' });
+
+        await expect.element(screen.getByRole('tablist')).toHaveAttribute('data-overflow', 'start');
+      } finally {
+        restore();
+      }
+    });
+
+    it('fades only the end that still has something behind it', async () => {
+      const restore = clip();
+
+      try {
+        const screen = await render(<Settings />);
+        const list = screen.getByRole('tablist').element() as HTMLElement;
+
+        // The lengths are physical because a CSS gradient is, and the state
+        // above is logical because a reader is. This is the one place the two
+        // meet, and left-to-right is where they agree.
+        expect(list.style.getPropertyValue('--p-fade-left')).toBe('');
+        expect(list.style.getPropertyValue('--p-fade-right')).toBe('var(--p-fade)');
+
+        list.scrollTo({ left: list.scrollWidth, behavior: 'auto' });
+
+        await expect.element(screen.getByRole('tablist')).toHaveAttribute('data-overflow', 'start');
+
+        expect(list.style.getPropertyValue('--p-fade-left')).toBe('var(--p-fade)');
+        expect(list.style.getPropertyValue('--p-fade-right')).toBe('');
+      } finally {
+        restore();
+      }
+    });
+
+    it('leaves a vertical bar alone, which runs down the side and does not', async () => {
+      const screen = await render(<Settings orientation="vertical" />);
+
+      expect(screen.getByRole('tablist').element()).not.toHaveAttribute('data-overflow');
     });
   });
 });

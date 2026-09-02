@@ -285,6 +285,122 @@ export const PlTabPanel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTab
   }
 );
 
+/* ---------------------------------------------------------------------------
+ * Saying that the bar scrolls
+ * ------------------------------------------------------------------------- */
+
+/** How far along the strip is, in the reader's order rather than the screen's. */
+type PlTabsOverflow = 'none' | 'start' | 'end' | 'both';
+
+/** The fade, and the state that decides it. Empty while the bar runs down the side. */
+interface ListOverflow {
+  style: React.CSSProperties | undefined;
+  onScroll: (() => void) | undefined;
+  state: PlTabsOverflow | undefined;
+}
+
+/**
+ * Whether there are more tabs than room, and which way they went.
+ *
+ * The bar has always scrolled — this is what makes it possible to tell. A
+ * macOS scrollbar is an overlay that is invisible except while the strip is
+ * moving, so a reader deciding whether to look further had nothing at all to
+ * read; the Windows one is fifteen pixels of furniture under a row of labels,
+ * which is not the same problem but is not a signal either. Both are taken away
+ * in `plass-fade-x` and the ends are faded instead.
+ *
+ * **Measured rather than derived**, and it has to be: whether a bar overflows
+ * depends on the room it was given, so there is no prop that could answer it
+ * and no render at which the answer is known in advance. Three things change it
+ * — the strip being scrolled, the bar being resized, and the tabs inside it
+ * changing — and only the first is an event, which is why this measures on
+ * every commit as well as observing the box.
+ *
+ * The state is published as `data-overflow` for the same reason the animations
+ * publish `data-state`: it is the fact, it can be styled against from outside,
+ * and it can be asserted in a test that carries no stylesheet at all.
+ */
+function useListOverflow(
+  node: React.RefObject<HTMLDivElement | null>,
+  active: boolean
+): ListOverflow {
+  const [reach, setReach] = React.useState({ start: false, end: false, rtl: false });
+
+  const measure = React.useCallback(() => {
+    const element = node.current;
+
+    if (!element) {
+      return;
+    }
+
+    const room = element.scrollWidth - element.clientWidth;
+    // `abs`, because a right-to-left container counts its scroll backwards from
+    // zero. How far along we are is a distance either way.
+    const along = Math.abs(element.scrollLeft);
+    const rtl = getComputedStyle(element).direction === 'rtl';
+
+    // A pixel of slack: a fractional layout leaves a strip that fits reporting
+    // a scrollWidth a hair wider than its box, and a bar that fades because of
+    // rounding is a bar that lies.
+    const next = { start: along > 1, end: room - along > 1, rtl };
+
+    setReach((previous) =>
+      previous.start === next.start && previous.end === next.end && previous.rtl === next.rtl
+        ? previous
+        : next
+    );
+  }, [node]);
+
+  // Every commit, not only the ones a dependency changed: adding a tab, or
+  // renaming one, changes the scroll width without changing the box, so there
+  // is nothing there for a `ResizeObserver` on the list to see.
+  //
+  // The rule this suppresses is about cascading renders, and there is no
+  // cascade: `measure` hands back the previous state object whenever the answer
+  // has not moved, so the common commit sets no state at all. What it costs is
+  // two layout reads on a component that renders when its selection changes.
+  React.useLayoutEffect(() => {
+    if (active) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      measure();
+    }
+  });
+
+  React.useEffect(() => {
+    const element = node.current;
+
+    if (!element || !active || typeof ResizeObserver === 'undefined') {
+      return;
+    }
+
+    const observer = new ResizeObserver(measure);
+
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, [active, measure, node]);
+
+  if (!active) {
+    return { style: undefined, onScroll: undefined, state: undefined };
+  }
+
+  // The one turn from the reader's order into the screen's. A gradient runs in
+  // a physical direction and a reader does not, so the swap happens here rather
+  // than in the stylesheet — the same split the indicator's `left` already
+  // makes, one property over.
+  const left = reach.rtl ? reach.end : reach.start;
+  const right = reach.rtl ? reach.start : reach.end;
+
+  return {
+    style: {
+      '--p-fade-left': left ? 'var(--p-fade)' : undefined,
+      '--p-fade-right': right ? 'var(--p-fade)' : undefined
+    } as React.CSSProperties,
+    onScroll: measure,
+    state: reach.start ? (reach.end ? 'both' : 'start') : reach.end ? 'end' : 'none'
+  };
+}
+
 /**
  * One set of panels, one of which is shown.
  *
@@ -328,6 +444,9 @@ export const PlTabs = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTabsPro
     [variant, size, density, orientation, fullWidth]
   );
 
+  const listRef = React.useRef<HTMLDivElement>(null);
+  const overflow = useListOverflow(listRef, orientation === 'horizontal');
+
   // Everything a caller writes between the tags is either a tab or a panel, and
   // the two go in different boxes — so they are sorted here rather than made the
   // caller's problem with a `<PlTabList>` wrapper they would have to remember.
@@ -361,6 +480,7 @@ export const PlTabs = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTabsPro
         {...props}
       >
         <BaseUITabs.List
+          ref={listRef}
           activateOnFocus={activateOnFocus}
           loopFocus={loopFocus}
           className={[
@@ -371,10 +491,16 @@ export const PlTabs = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTabsPro
             // A bar with more tabs than room scrolls rather than wrapping: a tab
             // bar on two lines has stopped being a bar, and the indicator has
             // nowhere sensible to sit.
-            orientation === 'horizontal' ? 'overflow-x-auto overflow-y-hidden' : ''
+            //
+            // Which is exactly why it has to *say* that it scrolls. See
+            // `useListOverflow`.
+            orientation === 'horizontal' ? 'plass-fade-x overflow-x-auto overflow-y-hidden' : ''
           ]
             .filter(Boolean)
             .join(' ')}
+          style={overflow.style}
+          onScroll={overflow.onScroll}
+          data-overflow={overflow.state}
         >
           {tabs}
 

@@ -19,6 +19,9 @@ const double _indicatorThickness = 2;
 /// The room a `solid` bar keeps around the tile riding in it.
 const double _troughInset = 4;
 
+/// How much of each end of an overflowing bar is faded out.
+const double _fadeLength = 24;
+
 /// One tab, and the panel it opens.
 ///
 /// A description rather than a widget: the bar owns the roving focus, the arrow
@@ -343,6 +346,15 @@ class _PlTabsState<T> extends State<PlTabs<T>> {
       ],
     );
 
+    // A bar with more tabs than room scrolls rather than wrapping: a tab bar on
+    // two lines has stopped being a bar, and the indicator has nowhere sensible
+    // to sit. Inside the trough and inside the rule, so that neither of them
+    // travels with the tabs — the edge belongs to the bar rather than to what
+    // is in it.
+    if (!_vertical) {
+      strip = _EdgeFade(child: strip);
+    }
+
     if (solid) {
       strip = PlassSurfaceBox(
         surface: PlassSurface(
@@ -399,6 +411,134 @@ class _PlTabsState<T> extends State<PlTabs<T>> {
 }
 
 /// The indicator: a tile on a `solid` bar, a rule on the other two.
+/// A bar that runs off the end of its own box, and the fade that says so.
+///
+/// The bar scrolls, which is what makes this necessary: a scroll bar under a row
+/// of tab labels is fifteen pixels of furniture on Windows and an overlay that
+/// is invisible except while the strip is moving on a Mac — and the moment a
+/// reader is deciding whether there is anything more to look at is exactly the
+/// moment nothing is moving. So the ends are faded instead, and *only* the end
+/// that still has something behind it, which is what makes it a signal rather
+/// than a decoration.
+///
+/// A [ShaderMask] rather than two gradients laid over the ends, for the reason
+/// the React package uses a CSS mask: an overlay has to be painted in the colour
+/// of whatever is behind the bar, and a bar can sit on anything. Taking the
+/// pixels away instead is right on every surface.
+///
+/// The mask is skipped entirely while both ends are settled, so a bar whose tabs
+/// all fit pays for no compositing layer at all.
+class _EdgeFade extends StatefulWidget {
+  const _EdgeFade({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_EdgeFade> createState() => _EdgeFadeState();
+}
+
+class _EdgeFadeState extends State<_EdgeFade> {
+  final ScrollController _controller = ScrollController();
+
+  bool _start = false;
+  bool _end = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) => _onScroll());
+  }
+
+  @override
+  void didUpdateWidget(_EdgeFade oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // A tab added or renamed changes how far the strip runs without anybody
+    // scrolling and without the bar being resized.
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) => _onScroll());
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (mounted && _controller.hasClients) {
+      _read(_controller.position);
+    }
+  }
+
+  void _read(ScrollMetrics metrics) {
+    // A pixel of slack: a fractional layout leaves a strip that fits reporting
+    // an extent a hair longer than its box, and a bar that fades because of
+    // rounding is a bar that lies.
+    final bool start = metrics.pixels > 1;
+    final bool end = metrics.maxScrollExtent - metrics.pixels > 1;
+
+    if (start != _start || end != _end) {
+      setState(() {
+        _start = start;
+        _end = end;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // The metrics change without anybody scrolling when the bar is resized, and
+    // that is the case a scroll listener cannot see. The notification is
+    // dispatched after the frame it belongs to, so this may set state directly.
+    Widget strip = NotificationListener<ScrollMetricsNotification>(
+      onNotification: (ScrollMetricsNotification notification) {
+        _read(notification.metrics);
+
+        return false;
+      },
+      child: SingleChildScrollView(
+        controller: _controller,
+        scrollDirection: Axis.horizontal,
+        child: widget.child,
+      ),
+    );
+
+    if (!_start && !_end) {
+      return strip;
+    }
+
+    // The gradient runs in the *reader's* direction rather than the screen's,
+    // which is what lets the two middle stops stay the two ends of the strip: a
+    // directional alignment resolved against the ambient direction turns the
+    // whole thing round under RTL, and nothing else here has to know that it
+    // did. The React package cannot do this — a CSS gradient names a physical
+    // direction — so it turns the measurement round by hand instead.
+    final TextDirection direction = Directionality.of(context);
+
+    strip = ShaderMask(
+      blendMode: BlendMode.dstIn,
+      shaderCallback: (Rect bounds) {
+        final double fade = bounds.width > 0 ? (_fadeLength / bounds.width).clamp(0.0, 0.5) : 0.0;
+
+        return LinearGradient(
+          begin: AlignmentDirectional.centerStart,
+          end: AlignmentDirectional.centerEnd,
+          colors: const <Color>[
+            Color(0x00000000),
+            Color(0xFF000000),
+            Color(0xFF000000),
+            Color(0x00000000),
+          ],
+          stops: <double>[0, _start ? fade : 0, _end ? 1 - fade : 1, 1],
+        ).createShader(bounds, textDirection: direction);
+      },
+      child: strip,
+    );
+
+    return strip;
+  }
+}
+
 class _Indicator extends StatelessWidget {
   const _Indicator({
     required this.variant,

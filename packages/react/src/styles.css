@@ -800,6 +800,66 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * A strip that runs off the end of its own box
+ *
+ * A row that scrolls has to say so, and on a Mac it cannot: the scrollbar is an
+ * overlay that appears while the strip is moving and is invisible the rest of
+ * the time, which is every moment a reader is deciding whether there is
+ * anything more to look at. On Windows the same bar is fifteen pixels of
+ * permanent furniture under a row of tab labels. Neither is a signal, so both
+ * are taken away and the ends are faded instead — and *only* the end that still
+ * has something behind it, which is the part that makes it a signal rather than
+ * a decoration.
+ *
+ * The fade is a `mask-image` rather than two gradient overlays because a bar
+ * can sit on anything. An overlay has to be painted in the colour of whatever
+ * is behind the strip, and a component does not know that: a `PlTabs` inside a
+ * `PlCard` inside a tinted section has three candidate backgrounds and no way
+ * to choose. A mask takes the pixels away instead, so whatever is behind shows
+ * through and the answer is right on every surface.
+ *
+ * The two lengths are per-instance slots because *which* end fades is measured
+ * rather than declared — it depends on how far along the strip is, which no
+ * prop can know. `0px` on both ends is a gradient with no transition in it at
+ * all, so a strip that fits is not paying for a mask it does not need.
+ *
+ * They are physical (`left`, `right`) while the state the component publishes
+ * is logical, and the split is the same one `PlTabs` already makes for its
+ * indicator: a CSS gradient runs in a physical direction and a reader runs in
+ * a writing direction, so the measurement is turned round once, here, rather
+ * than in four places that could disagree.
+ *
+ * The mask is dropped entirely while something inside holds a visible focus
+ * ring. Focusing a tab scrolls it flush against the edge it came from, which is
+ * exactly where the fade is strongest — so the one control whose outline has to
+ * be legible would be the one drawn half transparent. `:focus-visible` and not
+ * `:focus-within`: a tab that was clicked has the focus and no ring, and a bar
+ * that stopped fading for the rest of the session because somebody pressed a
+ * tab would have lost the signal at the first interaction.
+ * ------------------------------------------------------------------------- */
+
+.plass-fade-x {
+  --p-fade: 1.5rem;
+
+  scrollbar-width: none;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 var(--p-fade-left, 0px),
+    #000 calc(100% - var(--p-fade-right, 0px)),
+    transparent
+  );
+}
+
+.plass-fade-x::-webkit-scrollbar {
+  display: none;
+}
+
+.plass-fade-x:has(:focus-visible) {
+  mask-image: none;
+}
+
+/* ---------------------------------------------------------------------------
  * The grid
  *
  * `PlGrid` is a flex row and `PlGridItem` is a width in it, which is the shape

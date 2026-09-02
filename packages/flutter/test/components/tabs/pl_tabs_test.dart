@@ -119,6 +119,77 @@ void main() {
       });
     });
 
+    group('a bar with more tabs than room', () {
+      /// Eight tabs, so a narrow box genuinely runs out of room for them.
+      const List<PlTab<String>> many = <PlTab<String>>[
+        PlTab<String>(value: 'a', label: Text('Overview'), panel: Text('A')),
+        PlTab<String>(value: 'b', label: Text('Activity'), panel: Text('B')),
+        PlTab<String>(value: 'c', label: Text('Settings'), panel: Text('C')),
+        PlTab<String>(value: 'd', label: Text('Members'), panel: Text('D')),
+        PlTab<String>(value: 'e', label: Text('Billing'), panel: Text('E')),
+        PlTab<String>(value: 'f', label: Text('Integrations'), panel: Text('F')),
+        PlTab<String>(value: 'g', label: Text('Notifications'), panel: Text('G')),
+        PlTab<String>(value: 'h', label: Text('Danger zone'), panel: Text('H')),
+      ];
+
+      testWidgets('scrolls rather than overflowing its box', (WidgetTester tester) async {
+        // A tab bar on two lines has stopped being a bar and the indicator has
+        // nowhere sensible to sit, so the strip scrolls. What it used to do was
+        // neither: eight tabs in a 240px box was a `RenderFlex overflowed`.
+        await tester.pumpWidget(host(const PlTabs<String>(tabs: many, value: 'a'), width: 240));
+        await tester.pumpAndSettle();
+
+        expect(tester.takeException(), isNull);
+
+        final ScrollableState scroller = tester.state(find.byType(Scrollable));
+
+        expect(scroller.position.maxScrollExtent, greaterThan(0));
+        expect(tester.getSize(find.byType(SingleChildScrollView)).width, 240);
+      });
+
+      testWidgets('fades the end that still has tabs behind it', (WidgetTester tester) async {
+        await tester.pumpWidget(host(const PlTabs<String>(tabs: many, value: 'a'), width: 240));
+        await tester.pumpAndSettle();
+
+        // The mask is the signal. A scroll bar under a row of labels is
+        // furniture on Windows and invisible on a Mac, and the moment a reader
+        // wants to know whether there is more is the moment nothing is moving.
+        expect(find.byType(ShaderMask), findsOneWidget);
+      });
+
+      testWidgets('says nothing at all while every tab fits', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(const PlTabs<String>(tabs: panes, value: 'overview'), width: 640),
+        );
+        await tester.pumpAndSettle();
+
+        final ScrollableState scroller = tester.state(find.byType(Scrollable));
+
+        // A bar with a faded end that goes nowhere is a bar that lies — and a
+        // bar that fits pays for no compositing layer either.
+        expect(scroller.position.maxScrollExtent, 0);
+        expect(find.byType(ShaderMask), findsNothing);
+      });
+
+      testWidgets('leaves a vertical bar alone, which runs down the side', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            const PlTabs<String>(
+              tabs: panes,
+              value: 'overview',
+              orientation: PlassOrientation.vertical,
+            ),
+            width: 480,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byType(SingleChildScrollView), findsNothing);
+      });
+    });
+
     group('accessibility', () {
       testWidgets('a tab says it is one of a set', (WidgetTester tester) async {
         final handle = tester.ensureSemantics();

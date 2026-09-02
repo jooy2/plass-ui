@@ -178,6 +178,22 @@ A tab is a control, so it takes the control height ladder — a `md` tab and a `
 
 </Demo>
 
+### A bar with more tabs than room
+
+A bar with more tabs than room **scrolls** rather than wrapping: a tab bar on two lines has stopped being a bar, and the indicator has nowhere sensible to sit.
+
+Which is why it has to say that it is scrolling, and a scrollbar does not. On a Mac it is an overlay that appears while the strip is moving and is invisible the rest of the time — which is every moment a reader is deciding whether there is anything more to look at; on Windows the same bar is fifteen pixels of permanent furniture under a row of labels. Both are taken away, and the end that still has tabs behind it is faded out instead. Only that end: a bar with a faded edge that goes nowhere is a bar that lies.
+
+The fade takes the pixels away rather than painting over them, so it is right whatever the bar is sitting on — a component cannot know whether it is on the page, on a `PlCard` or on a tinted section, and a gradient painted in the wrong colour would be worse than no signal at all. It is dropped while a tab inside is showing a focus ring, because focusing a tab scrolls it flush against the edge the fade is strongest at.
+
+Whether a bar overflows depends on the room it was given, so this is **measured** rather than declared. There is no prop for it.
+
+::: fw react
+
+The state is published as `data-overflow` on the tab list — `none`, `start`, `end` or `both`, in the reader's order — so a page can style against it or assert on it.
+
+:::
+
 ### Controlled
 
 <Demo src="tabs/controlled" :min-height="200">
@@ -205,7 +221,7 @@ A tab is a control, so it takes the control height ladder — a `md` tab and a `
 - A panel with nothing focusable inside takes focus itself, so its content is reachable from the keyboard.
 - The focus ring on a tab is drawn inset, because an offset ring on a tab inside a `solid` groove would be painted over its neighbours.
 - The indicator animates `left`, `top`, `width` and `height` rather than a `transform`. It is an empty box: nothing with text in it moves.
-- A bar with more tabs than room scrolls rather than wrapping. A tab bar on two lines has stopped being a bar, and the indicator has nowhere sensible to sit.
+- A bar with more tabs than room scrolls rather than wrapping, and fades the end that still has tabs behind it. A tab bar on two lines has stopped being a bar, and the indicator has nowhere sensible to sit.
 
 :::
 
@@ -217,6 +233,7 @@ A tab is a control, so it takes the control height ladder — a `md` tab and a `
 - Moving the focus **moves the choice**, because only the chosen panel is built and a bar that let focus and content disagree would be showing one thing and reading another. If a panel is expensive, keep the work out of `build` rather than out of the tab.
 - A tab's focus ring turns **inward**, because a ring drawn outside a tab in a `solid` groove would be painted over its neighbours.
 - The indicator animates its **box** — position and size — rather than a transform. It is an empty rectangle: nothing with text in it moves. With animations turned off at the OS it jumps.
+- A bar with more tabs than room scrolls rather than wrapping, and fades the end that still has tabs behind it. It used to be as wide as its tabs and overflow its box, and the advice was to wrap it yourself — which does not work: a `SingleChildScrollView` around a `PlTabs` scrolls the panel with the bar.
 
 :::
 
@@ -233,7 +250,6 @@ A tab is a control, so it takes the control height ladder — a `md` tab and a `
 | `activateOnFocus` | — | Moving focus moves the choice, always, because the panel is built from the choice. |
 | `aria-label` | `semanticLabel` | Flutter's name. |
 | the `tab` / `tabpanel` roles, `aria-controls` | a mutually exclusive selected node, and one panel | Flutter names the state on the node itself; there is no id to point at. |
-| a bar that scrolls when it overflows | a bar that is as wide as its tabs | Wrap it in a `SingleChildScrollView` when it might not fit; the bar does not decide that for you. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::
