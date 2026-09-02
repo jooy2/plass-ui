@@ -13,11 +13,15 @@ import 'package:plass_ui/src/types.dart';
 
 /// When the scroll buttons are drawn.
 enum PlScrollZoneButtons {
-  /// Only the one that has somewhere to go, and neither of them while
-  /// everything fits.
+  /// Neither of them while everything fits, which is the whole of what it
+  /// decides.
   ///
-  /// The default: a control that cannot do anything is worse than no control,
-  /// and a row that does not overflow is not a scroller.
+  /// The default, and the rule is that a row which does not overflow is not a
+  /// scroller. Once it is one, both lanes are drawn and the one with nowhere to
+  /// go is `disabled`, exactly as [always] draws it: what `auto` removes is a
+  /// *pair of controls on a strip that has nothing to scroll*, not one control
+  /// on a strip that does. An [PlScrollZoneButtonPlacement.overlay] button is
+  /// still dropped outright, because there its space costs nothing to give up.
   auto,
 
   /// Both, from the first frame, with the one that has nowhere to go disabled
@@ -56,7 +60,10 @@ enum PlScrollZoneButtonPlacement {
   ///
   /// The lane an inline button sits in is kept even while that button has
   /// nowhere to go, or the strip would resize under the pointer every time it
-  /// reached an end.
+  /// reached an end — and the button is drawn in it, `disabled`, rather than
+  /// held invisible. The lane is paid for either way, and a reserved empty lane
+  /// beside a strip does not read as restraint; it reads as odd padding on one
+  /// side of the box.
   inline,
 
   /// Over the ends of the strip, which keeps every pixel of the box for content
@@ -552,7 +559,6 @@ class _PlScrollZoneState extends State<PlScrollZone> with SingleTickerProviderSt
 
   Widget _button(BuildContext context, {required bool forward}) {
     final available = forward ? _forward : _back;
-    final spare = widget.buttons == PlScrollZoneButtons.auto && !available;
     final rtl = Directionality.of(context) == TextDirection.rtl;
 
     // Drawn pointing down and turned, which is the one allowance the
@@ -603,23 +609,6 @@ class _PlScrollZoneState extends State<PlScrollZone> with SingleTickerProviderSt
         onPointerUp: (PointerUpEvent _) => _stopHold(),
         onPointerCancel: (PointerCancelEvent _) => _stopHold(),
         child: button,
-      );
-    }
-
-    if (widget.buttonPlacement == PlScrollZoneButtonPlacement.overlay) {
-      return button;
-    }
-
-    // An inline button leaves its lane behind when it has nowhere to go, because
-    // a lane that came and went would resize the strip under the pointer that
-    // had just reached the end of it. `ExcludeFocus` and `ExcludeSemantics` are
-    // what keep it out of the tab order and off the accessibility tree while it
-    // is invisible.
-    if (spare) {
-      return ExcludeSemantics(
-        child: ExcludeFocus(
-          child: Opacity(opacity: 0, child: IgnorePointer(child: button)),
-        ),
       );
     }
 

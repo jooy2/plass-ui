@@ -272,7 +272,7 @@ describe('PlScrollZone', () => {
 
     // A lane that came and went would resize the strip under the pointer that
     // had just reached the end of it.
-    it('keeps the lane of a button that has nowhere to go', async () => {
+    it('draws a button that has nowhere to go rather than reserving an empty lane', async () => {
       const screen = await render(
         <PlScrollZone buttonPlacement="inline" data-testid="zone">
           {cards}
@@ -281,14 +281,17 @@ describe('PlScrollZone', () => {
       const root = screen.getByTestId('zone').element();
 
       await expect.element(screen.getByRole('button', { name: 'Next' })).toBeInTheDocument();
-      // The button is still in the markup, holding its lane open — and `inert`,
-      // which is what keeps it out of the tab order and off the accessibility
-      // tree while it is invisible.
-      expect(root.children[0]).toHaveClass('invisible');
-      expect(root.children[0]).toHaveAttribute('inert');
-      expect(screen.getByRole('button', { name: 'Previous' }).element().closest('[inert]')).toBe(
-        root.children[0]
-      );
+
+      // The lane is paid for either way, so the only question is what stands in
+      // it. An empty reserved lane reads as odd padding on one side of the box;
+      // a `disabled` button reads as what it is. It is also what
+      // `buttons="always"` draws in the same position, so the two settings
+      // agree about how "nowhere to go" looks.
+      const previous = screen.getByRole('button', { name: 'Previous' }).element();
+
+      expect(previous).toBeDisabled();
+      expect(root.children[0]).not.toHaveClass('invisible');
+      expect(previous.closest('[inert]')).toBeNull();
     });
 
     it('runs the strip down the page with the buttons above and below it', async () => {

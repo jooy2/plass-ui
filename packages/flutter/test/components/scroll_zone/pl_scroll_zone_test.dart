@@ -291,6 +291,27 @@ void main() {
         // that had just reached the end of it.
         expect(tester.getSize(find.byType(SingleChildScrollView)).width, withSpare);
       });
+
+      testWidgets('draws the button in that lane rather than reserving it empty', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(_zone(placement: PlScrollZoneButtonPlacement.inline));
+        await tester.pumpAndSettle();
+
+        // The lane is paid for either way, so the only question is what stands
+        // in it. An empty reserved lane reads as odd padding on one side of the
+        // box; a disabled button reads as what it is. It is also what `always`
+        // draws in the same position, so the two settings agree about how
+        // "nowhere to go" looks.
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('Previous')),
+          isNot(matchesSemantics(hasEnabledState: true, isEnabled: true)),
+        );
+        expect(find.bySemanticsLabel('Next'), findsOneWidget);
+
+        handle.dispose();
+      });
     });
 
     group('the wheel', () {

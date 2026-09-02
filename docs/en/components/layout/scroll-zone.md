@@ -98,7 +98,7 @@ It is a length in logical pixels. Dart has no `rem`, and every other measurement
 
 ### buttons and snap
 
-`auto` — the default — draws only the button that has somewhere to go, and neither of them while everything fits: a control that cannot do anything is worse than no control, and a row that does not overflow is not a scroller. `always` draws both from the first paint and disables the one that cannot move, which is what a strip whose content arrives later wants. `none` draws neither and leaves the strip to the wheel, the arrow keys and dragging.
+`auto` — the default — draws neither button while everything fits, because a row that does not overflow is not a scroller. Once it is one, both are drawn and the one with nowhere to go is disabled, exactly as `always` draws it: what `auto` decides is whether the strip has scroll buttons at all, not which of them exists this second. `always` draws both from the first paint, which is what a strip whose content arrives later wants. `none` draws neither and leaves the strip to the wheel, the arrow keys and dragging.
 
 `snap` brings the nearest child to the leading edge whenever the scrolling stops, however it was scrolled.
 
@@ -122,7 +122,7 @@ It is a length in logical pixels. Dart has no `rem`, and every other measurement
 
 `inline` — the default — puts the buttons beside the strip: the scroller stops where the button starts, so an item is **cut off** at the button's edge rather than sliding beneath it, and the button is legible over the page rather than over whatever it landed on. `overlay` puts them over the ends of the strip instead, which keeps every pixel of the box for content and lets an item pass under a button.
 
-An inline button keeps its lane even while it has nowhere to go, or the strip would resize under the pointer that had just reached the end of it.
+An inline button keeps its lane even while it has nowhere to go, or the strip would resize under the pointer that had just reached the end of it — and it is **drawn in that lane, disabled**, rather than held invisible. The lane is paid for either way, and a reserved empty one beside a strip does not read as restraint; it reads as odd padding on one side of the box. An `overlay` button is the other case and goes: there is no lane to keep, so removing it costs nothing.
 
 <Demo src="scroll-zone/placement" :min-height="300">
 

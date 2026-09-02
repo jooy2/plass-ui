@@ -11,9 +11,13 @@ import type { PlassOrientation, PlassSize, PlassStyleProps } from '../../types.j
 /**
  * When the scroll buttons are drawn.
  *
- * - `auto` — only the one that has somewhere to go, and neither of them while
- *   everything fits. The default: a control that cannot do anything is worse
- *   than no control, and a row that does not overflow is not a scroller.
+ * - `auto` — neither of them while everything fits, which is the whole of what
+ *   it decides: a row that does not overflow is not a scroller. Once it is one,
+ *   both lanes are drawn and the one with nowhere to go is `disabled`, exactly
+ *   as `always` draws it. What `auto` removes is a **pair of controls on a
+ *   strip that has nothing to scroll**, not one control on a strip that does.
+ *   `overlay` still drops the spare button outright, because there its lane
+ *   costs nothing to give up.
  * - `always` — both, from the first paint, with the one that has nowhere to go
  *   `disabled` rather than gone. What a row whose content arrives later wants,
  *   since the buttons do not appear under the pointer half a second in.
@@ -644,12 +648,20 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
     function scrollButton(forward: boolean) {
       const available = forward ? reach.forward : reach.back;
 
-      // An overlay button with nowhere to go is not drawn at all; an inline one
-      // leaves its lane behind, because a lane that came and went would resize
-      // the strip under the pointer that had just reached the end of it.
-      // `inert` rather than `hidden`, so the space is kept and the button is out
-      // of the tab order and out of the accessibility tree while it is
-      // invisible.
+      // What a button with nowhere to go does depends on what removing it
+      // costs. An `overlay` button is drawn over the strip, so taking it away
+      // gives its space back to the content and nothing moves — it goes. An
+      // `inline` one holds a lane in the layout, and that lane cannot be given
+      // up: a lane that came and went would resize the strip under the pointer
+      // that had just reached the end of it.
+      //
+      // So the lane is paid for either way, and the question is only what
+      // stands in it. It used to be nothing — the button was drawn `invisible`
+      // — and a reserved empty lane beside a strip does not read as restraint,
+      // it reads as odd padding on one side of the box. A `disabled` button
+      // reads as what it is: there is nothing that way. It is also what
+      // `buttons="always"` has always drawn in the same position, so the two
+      // settings no longer disagree about how "nowhere to go" looks.
       if (buttons === 'auto' && !available && !inline) {
         return <span />;
       }
@@ -661,8 +673,6 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
         : forward
           ? ''
           : 'rotate-180';
-
-      const spare = buttons === 'auto' && !available;
 
       const button = (
         <PlIconButton
@@ -689,14 +699,7 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
         return button;
       }
 
-      return (
-        <span
-          className={cx('flex shrink-0 items-center justify-center', spare ? 'invisible' : '')}
-          inert={spare}
-        >
-          {button}
-        </span>
-      );
+      return <span className="flex shrink-0 items-center justify-center">{button}</span>;
     }
 
     return (
