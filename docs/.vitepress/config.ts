@@ -120,6 +120,41 @@ function componentDependencies(): string[] {
 }
 
 /** `/` for whichever locale is the default, `/{lang}/` for every other one. */
+/**
+ * The `id` a heading gets, and the target its `#link` has to hit.
+ *
+ * VitePress's own slug is `NFKD` — decompose, drop the combining marks, keep
+ * the rest — which is right for Latin, where it is what turns `Café` into
+ * `cafe`. It is wrong for Hangul: `NFKD` splits a syllable into its jamo,
+ * those jamo are not combining marks so nothing removes them, and the id
+ * comes out as a string of `U+1100` letters that *renders* identically to the
+ * heading and matches nothing anybody would type. A Korean page's own table of
+ * contents worked because VitePress wrote both ends of it; every `#anchor`
+ * written by hand in a Markdown link silently scrolled nowhere.
+ *
+ * So the pipeline is VitePress's, with one step on the end: compose back to
+ * `NFC`. Hangul jamo recombine into the syllables they came from; a stripped
+ * Latin accent has nothing to recombine with, and the compatibility half of
+ * `NFKD` — `ﬁ` to `fi`, `①` to `1` — is not canonical and does not come back.
+ * Every ASCII id is byte-for-byte what it was.
+ */
+const rControl = /[\u0000-\u001f]/g;
+const rSpecial = /[\s~`!@#$%^&*()\-_+=[\]{}|\\;:"'\u201c\u201d\u2018\u2019<>,.?/]+/g;
+const rCombining = /[\u0300-\u036f]/g;
+
+function slugify(text: string): string {
+  return text
+    .normalize('NFKD')
+    .replace(rCombining, '')
+    .replace(rControl, '')
+    .replace(rSpecial, '-')
+    .replace(/-{2,}/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .replace(/^(\d)/, '_$1')
+    .toLowerCase()
+    .normalize('NFC');
+}
+
 const localeBase = (lang: string) => (lang === defaultLocale ? '/' : `/${lang}/`);
 
 const commonSidebarConfig: VitePressSidebarOptions = {
@@ -488,6 +523,7 @@ const vitePressConfig: UserConfig = {
    * framework they had selected.
    */
   markdown: {
+    anchor: { slugify },
     config(md: MarkdownRenderer) {
       md.use(container, 'fw', {
         validate: (params: string) => /^fw(\s+\S+)+$/.test(params.trim()),
