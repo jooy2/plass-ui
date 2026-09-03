@@ -153,6 +153,8 @@ The bar's floor is a control of the same `size` with air above and below it — 
 
 Holds the row of slots to a measure and centres it while the sheet still spans the window — which is what a site header on a wide screen almost always wants.
 
+**The same ladder and the same type a [`PlContainer`](./container) takes**, and one implementation behind all three — a bar whose measure did not line up with the container under it is the defect that prevents. <Fw react="It is responsive and takes any CSS length with it." flutter="It is responsive, and takes an exact width as well as a rung." />
+
 It is the same `rem` ladder [`PlContainer`](./container)'s `maxWidth` uses (`xs` 30 · `sm` 40 · `md` 48 · `lg` 64 · `xl` 80), so the logo and the first paragraph of the page under it sit on one edge rather than two that nearly agree.
 
 <Demo src="header/measure" :min-height="200">

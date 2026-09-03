@@ -6,6 +6,8 @@
 
 ### Added
 
+- **`PlHeader` and `PlFooter` hold their content to the same measure a `PlContainer` does, from one implementation.** All three took a `maxWidth` on "`PlContainer`'s ladder" and all three carried their own copy of it — three tables that could disagree, and a bar whose measure did not line up with the container under it is a page with a visible seam down one edge. There is one ladder now, in `internal/responsive.ts`, and all three take the same type: a rung, any CSS length, a number of pixels, or `none`, responsive, resolved in CSS.
+
 - **Six components turn with the window.** `orientation` on `PlPanes`, `PlTabs`, `PlScrollZone`, `PlTimeline` and `PlStepper`, and `direction` on `PlStack`, all take a responsive value: `orientation` takes `{ xs: 'vertical', md: 'horizontal' }` and a tab bar is a column on a phone and a row on a laptop.
 
   **These resolve in JavaScript rather than in CSS, and that is not an oversight.** An orientation decides which DOM a component builds, which `aria-orientation` it claims and which way its arrow keys walk; no stylesheet can do any of that. So they pay what every JavaScript answer about width pays — a server renders the `xs` entry and the browser corrects it on hydration — which is exactly why `PlContainer`'s `maxWidth`, which only decides style, does **not** come this way. The line is written down in `internal/responsive.ts` and on the [breakpoints](https://plass.cdget.com/design/breakpoints) page.

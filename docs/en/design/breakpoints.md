@@ -97,7 +97,7 @@ Which props take one:
 | --- | --- |
 | [`PlGrid`](../components/layout/grid) | `columns` `spacing` `rowSpacing` `columnSpacing` |
 | [`PlGridItem`](../components/layout/grid) | `span` `offset` |
-| [`PlContainer`](../components/layout/container) | `maxWidth` |
+| [`PlContainer`](../components/layout/container) [`PlHeader`](../components/layout/header) [`PlFooter`](../components/layout/footer) | `maxWidth` |
 | [`PlPanes`](../components/layout/panes) [`PlTabs`](../components/surfaces/tabs) [`PlScrollZone`](../components/layout/scroll-zone) [`PlTimeline`](../components/display/timeline) [`PlStepper`](../components/navigation/stepper) | `orientation` |
 | [`PlStack`](../components/layout/stack) | `direction` |
 

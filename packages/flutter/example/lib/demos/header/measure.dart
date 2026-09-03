@@ -12,13 +12,13 @@ class HeaderMeasure extends StatelessWidget {
         children: <Widget>[
           const PlHeader(
             size: PlassSize.sm,
-            maxWidth: PlassSize.xs,
+            maxWidth: PlassResponsive<PlContainerWidth?>(PlContainerWidth.rung(PlassSize.xs)),
             brand: <Widget>[Text('Acme', style: TextStyle(fontWeight: FontWeight.w600))],
             actions: <Widget>[Text('Account')],
           ),
           const PlContainer(
             size: PlassSize.sm,
-            maxWidth: PlassSize.xs,
+            maxWidth: PlassResponsive<PlContainerWidth?>(PlContainerWidth.rung(PlassSize.xs)),
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 16),
               child: Text(

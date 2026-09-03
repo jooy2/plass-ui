@@ -13,6 +13,93 @@ Rect _inner(WidgetTester tester) => tester.getRect(find.byKey(const ValueKey<Str
 void main() {
   group('PlContainer', () {
     group('maxWidth', () {
+      /// The limit the container is currently imposing, whatever room it was
+      /// given — asserted on the constraint rather than on a laid-out width,
+      /// which is the test surface's answer as much as the container's.
+      double? limitOf(WidgetTester tester) {
+        final Iterable<ConstrainedBox> boxes = tester.widgetList<ConstrainedBox>(
+          find.descendant(of: find.byType(PlContainer), matching: find.byType(ConstrainedBox)),
+        );
+
+        for (final ConstrainedBox box in boxes) {
+          if (box.constraints.maxWidth.isFinite) {
+            return box.constraints.maxWidth;
+          }
+        }
+
+        return null;
+      }
+
+      Future<void> atWidth(WidgetTester tester, double width, Widget child) async {
+        await tester.pumpWidget(
+          host(
+            Builder(
+              builder: (BuildContext context) => MediaQuery(
+                data: MediaQuery.of(context).copyWith(size: Size(width, 800)),
+                child: child,
+              ),
+            ),
+          ),
+        );
+      }
+
+      testWidgets('changes with the window, and takes an exact width', (WidgetTester tester) async {
+        const Widget page = PlContainer(
+          padded: false,
+          maxWidth: PlassResponsive<PlContainerWidth?>(
+            null,
+            md: PlContainerWidth.rung(PlassSize.lg),
+            xl: PlContainerWidth.pixels(720),
+          ),
+          child: Text('page'),
+        );
+
+        // `null` as an entry is a real answer — no limit at all below `md`.
+        await atWidth(tester, 500, page);
+        expect(limitOf(tester), isNull);
+
+        await atWidth(tester, 900, page);
+        expect(limitOf(tester), 1024);
+
+        // The exact width is the one worth having: a measure in characters is
+        // what a paragraph wants, and no ladder of five numbers can spell it.
+        await atWidth(tester, 1400, page);
+        expect(limitOf(tester), 720);
+      });
+
+      testWidgets('reads the same ladder a header and a footer do', (WidgetTester tester) async {
+        // Three widgets hold content to a measure and there is one ladder
+        // behind them — a header whose measure did not line up with the
+        // container under it is what that prevents. Asserted through the three
+        // rather than against the table, which is internal.
+        const PlassResponsive<PlContainerWidth?> lg = PlassResponsive<PlContainerWidth?>(
+          PlContainerWidth.rung(PlassSize.lg),
+        );
+
+        await atWidth(tester, 1400, const PlContainer(maxWidth: lg, child: Text('page')));
+        final double? container = limitOf(tester);
+
+        await tester.pumpWidget(
+          host(
+            Builder(
+              builder: (BuildContext context) => MediaQuery(
+                data: MediaQuery.of(context).copyWith(size: const Size(1400, 800)),
+                child: const PlHeader(maxWidth: lg, brand: <Widget>[Text('Acme')]),
+              ),
+            ),
+          ),
+        );
+
+        final ConstrainedBox header = tester
+            .widgetList<ConstrainedBox>(
+              find.descendant(of: find.byType(PlHeader), matching: find.byType(ConstrainedBox)),
+            )
+            .firstWhere((ConstrainedBox box) => box.constraints.maxWidth.isFinite);
+
+        expect(container, 1024);
+        expect(header.constraints.maxWidth, container);
+      });
+
       testWidgets('holds the content to nothing unless it is asked to', (
         WidgetTester tester,
       ) async {
@@ -26,7 +113,11 @@ void main() {
       testWidgets('takes the step it was named', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(
-            const PlContainer(maxWidth: PlassSize.xs, padded: false, child: _probe),
+            const PlContainer(
+              maxWidth: PlassResponsive<PlContainerWidth?>(PlContainerWidth.rung(PlassSize.xs)),
+              padded: false,
+              child: _probe,
+            ),
             width: 700,
             height: 100,
           ),
@@ -38,7 +129,11 @@ void main() {
       testWidgets('is a limit rather than a width', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(
-            const PlContainer(maxWidth: PlassSize.xl, padded: false, child: _probe),
+            const PlContainer(
+              maxWidth: PlassResponsive<PlContainerWidth?>(PlContainerWidth.rung(PlassSize.xl)),
+              padded: false,
+              child: _probe,
+            ),
             width: 400,
             height: 100,
           ),
@@ -52,7 +147,11 @@ void main() {
       testWidgets('centres what is left over by default', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(
-            const PlContainer(maxWidth: PlassSize.xs, padded: false, child: _probe),
+            const PlContainer(
+              maxWidth: PlassResponsive<PlContainerWidth?>(PlContainerWidth.rung(PlassSize.xs)),
+              padded: false,
+              child: _probe,
+            ),
             width: 700,
             height: 100,
           ),
@@ -67,7 +166,7 @@ void main() {
         await tester.pumpWidget(
           host(
             const PlContainer(
-              maxWidth: PlassSize.xs,
+              maxWidth: PlassResponsive<PlContainerWidth?>(PlContainerWidth.rung(PlassSize.xs)),
               padded: false,
               centered: false,
               child: _probe,
@@ -86,7 +185,7 @@ void main() {
         await tester.pumpWidget(
           host(
             const PlContainer(
-              maxWidth: PlassSize.xs,
+              maxWidth: PlassResponsive<PlContainerWidth?>(PlContainerWidth.rung(PlassSize.xs)),
               padded: false,
               centered: false,
               child: _probe,
@@ -122,7 +221,14 @@ void main() {
 
       testWidgets('is measured inside the limit, not outside it', (WidgetTester tester) async {
         await tester.pumpWidget(
-          host(const PlContainer(maxWidth: PlassSize.xs, child: _probe), width: 700, height: 100),
+          host(
+            const PlContainer(
+              maxWidth: PlassResponsive<PlContainerWidth?>(PlContainerWidth.rung(PlassSize.xs)),
+              child: _probe,
+            ),
+            width: 700,
+            height: 100,
+          ),
         );
 
         expect(_inner(tester).width, 480 - 20 * 2);

@@ -15,7 +15,9 @@ import 'package:plass_ui/src/types.dart';
 /// it holds a single paragraph, and a grid needs no container around it.
 ///
 /// ```dart
-/// PlContainer(maxWidth: PlassSize.lg, child: page)
+/// PlContainer(maxWidth: const PlassResponsive<PlContainerWidth?>(
+///   PlContainerWidth.rung(PlassSize.lg),
+/// ), child: page)
 /// ```
 ///
 /// It draws nothing, and there is no `variant`, `color` or `elevation` to make
@@ -37,18 +39,24 @@ class PlContainer extends StatelessWidget {
   /// The page.
   final Widget? child;
 
-  /// How wide the content is allowed to get, on the same ladder the
-  /// breakpoints use — `xs` 480 · `sm` 640 · `md` 768 · `lg` 1024 · `xl` 1280.
+  /// How wide the content is allowed to get — a rung of the measure ladder or
+  /// an exact width, and either of them per breakpoint.
   ///
-  /// **Null is the default, and it means no limit.** The React package spells
-  /// that `'none'`, because a TypeScript union can carry an extra word and a
-  /// missing prop already means "take the default"; Dart has `null` for exactly
-  /// this and a `PlassSize` with a sixth value in it would be a second size
-  /// ladder.
+  /// ```dart
+  /// PlContainer(maxWidth: const PlassResponsive<PlContainerWidth?>(
+  ///   null,
+  ///   md: PlContainerWidth.rung(PlassSize.lg),
+  /// ), child: page)
+  /// ```
+  ///
+  /// **Null is the default, and it means no limit** — including as an entry, so
+  /// a screen can be uncapped on a phone and capped from `md` up. The React
+  /// package spells that `'none'`, because a TypeScript union can carry an extra
+  /// word; Dart has `null` for exactly this.
   ///
   /// A container's job is the gutter. A measure is a second decision, and a
   /// screen should have to ask for one.
-  final PlassSize? maxWidth;
+  final PlassResponsive<PlContainerWidth?>? maxWidth;
 
   /// The gutter. Turn it off to keep the centring and the measure without the
   /// padding — which is what a container nested inside one that already pads
@@ -74,13 +82,6 @@ class PlContainer extends StatelessWidget {
   /// The React package writes these in `rem` against a 16px root, and a logical
   /// pixel is that same unit — so `40rem` is 640 and a container's `sm` and a
   /// `sm:` utility in the other package are the same width.
-  static const Map<PlassSize, double> _measure = <PlassSize, double>{
-    PlassSize.xs: 480,
-    PlassSize.sm: 640,
-    PlassSize.md: 768,
-    PlassSize.lg: 1024,
-    PlassSize.xl: 1280,
-  };
 
   @override
   Widget build(BuildContext context) {
@@ -106,9 +107,13 @@ class PlContainer extends StatelessWidget {
     // the same thing `box-sizing: border-box` does in the other package.
     content = SizedBox(width: double.infinity, child: content);
 
-    if (maxWidth != null) {
+    // The window's width, as every breakpoint in the package is: two containers
+    // side by side are on the same rung however wide each of them ended up.
+    final double? limit = measureAt(maxWidth, MediaQuery.sizeOf(context).width);
+
+    if (limit != null) {
       content = ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: _measure[maxWidth]!),
+        constraints: BoxConstraints(maxWidth: limit),
         child: content,
       );
     }

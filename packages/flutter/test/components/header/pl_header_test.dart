@@ -176,7 +176,13 @@ void main() {
         WidgetTester tester,
       ) async {
         await tester.pumpWidget(
-          host(const PlHeader(maxWidth: PlassSize.xs, brand: <Widget>[Text('Acme')]), width: 700),
+          host(
+            const PlHeader(
+              maxWidth: PlassResponsive<PlContainerWidth?>(PlContainerWidth.rung(PlassSize.xs)),
+              brand: <Widget>[Text('Acme')],
+            ),
+            width: 700,
+          ),
         );
 
         expect(tester.getSize(find.byType(PlHeader)).width, 700);

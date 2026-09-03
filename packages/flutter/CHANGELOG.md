@@ -4,6 +4,12 @@
 
 ### Added
 
+- **`maxWidth` is responsive and takes an exact width, on `PlContainer`, `PlHeader` and `PlFooter` alike.** `PlassResponsive<PlContainerWidth?>` — `PlContainerWidth.rung(PlassSize.lg)` is a rung of the measure ladder and `PlContainerWidth.pixels(720)` is a width, two constructors rather than one nullable pair because only one of them can be true at a time and Dart has no untagged union. `null` still means no limit, including as an entry, so a screen can be uncapped on a phone and capped from `md` up.
+
+  The exact width is the one worth having: the ladder is five numbers chosen against the breakpoints, and the measure a paragraph actually wants is a count of characters at whatever size it is set in. No ladder can spell that.
+
+  The three widgets each carried their own copy of the ladder and now share one — a bar whose measure did not line up with the container under it is a screen with a visible seam down one edge, and a test asserts the two agree rather than asserting a number twice.
+
 - **`PlShow`.** Content at some widths and not others — `from`, `until`, or both as a band, on the same ladder everything else uses. `until` is **exclusive**, which is what lets it and `from` be the two halves of one decision: no width draws both and none draws neither.
 
   It builds **nothing at all** at a width it is closed at — not an empty box with a size, and not an `Offstage` subtree. That differs from the React build, which sends both halves and hides one with `display: none`, and it cuts both ways: an expensive subtree is free here while it is closed, and any state inside one is lost when the window crosses the boundary. Lift that state above the gate.

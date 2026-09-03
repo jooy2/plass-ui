@@ -31,7 +31,8 @@
 import type * as React from 'react';
 import { fromQuery } from './breakpoints.js';
 import { useMediaQuery } from './media.js';
-import type { PlassBreakpoint, PlassResponsive } from '../types.js';
+import { toLength } from './styles.js';
+import type { PlassBreakpoint, PlassResponsive, PlassSize } from '../types.js';
 
 /** Smallest first, which is also the order the media queries have to be in. */
 export const breakpoints: readonly PlassBreakpoint[] = ['xs', 'sm', 'md', 'lg', 'xl'];
@@ -158,4 +159,72 @@ export function withBaseline<T>(
   }
 
   return value;
+}
+
+/* ---------------------------------------------------------------------------
+ * The measure
+ * ------------------------------------------------------------------------- */
+
+/**
+ * How wide content is allowed to get, and the three components that ask.
+ *
+ * A rung of the ladder, `none`, a number of pixels, or any CSS length. The
+ * `string & {}` half is what keeps the five rungs autocompleting: a bare
+ * `string` in the union would swallow them and the ladder would be five names a
+ * caller has to remember rather than five an editor offers.
+ */
+export type PlassMeasure = PlassSize | 'none' | number | (string & {});
+
+/**
+ * The measure ladder, in `rem` rather than in Tailwind's named `max-w-*` steps,
+ * so that a container's `lg` and an `lg:` utility are the same 64rem. Two
+ * ladders called `lg` on one page is how a layout drifts by a few pixels for no
+ * reason anybody can find later.
+ *
+ * Written out rather than read from `--plass-breakpoint-*`, which they happen to
+ * equal from `sm` up. They are not the same question: a breakpoint is where the
+ * window changes shape and a measure is how wide text may get, and a project
+ * that moved one because it wanted the other would have moved the wrong thing.
+ */
+const measures: Record<PlassSize, string> = {
+  xs: '30rem',
+  sm: '40rem',
+  md: '48rem',
+  lg: '64rem',
+  xl: '80rem'
+};
+
+/** A rung if it is one of the five, `none` as itself, anything else a length. */
+export function measureValue(value: PlassMeasure): string {
+  if (value === 'none') {
+    return 'none';
+  }
+
+  if (typeof value === 'string' && value in measures) {
+    return measures[value as PlassSize];
+  }
+
+  return toLength(value) as string;
+}
+
+/**
+ * The class and the slots a measure is carried by, or nothing at all.
+ *
+ * `PlContainer`, `PlHeader` and `PlFooter` each hold their content to a measure
+ * and each used to carry a copy of the ladder. One implementation, because they
+ * are one decision written three times — a header whose measure did not line up
+ * with the container under it is the defect this prevents.
+ */
+export function measureSlots(value: PlassResponsive<PlassMeasure> | undefined): {
+  className: string;
+  style: React.CSSProperties | undefined;
+} {
+  if (value === undefined) {
+    return { className: '', style: undefined };
+  }
+
+  return {
+    className: 'plass-container',
+    style: responsiveSlots('maxw', value, measureValue)
+  };
 }

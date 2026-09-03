@@ -48,15 +48,6 @@ const Map<PlassSize, double> _barGap = <PlassSize, double>{
   PlassSize.xl: 32,
 };
 
-/// The measure, on [PlContainer]'s ladder so the two line up on one edge.
-const Map<PlassSize, double> _maxWidth = <PlassSize, double>{
-  PlassSize.xs: 480,
-  PlassSize.sm: 640,
-  PlassSize.md: 768,
-  PlassSize.lg: 1024,
-  PlassSize.xl: 1280,
-};
-
 /// The bar across the top of a screen.
 ///
 /// ```dart
@@ -133,7 +124,7 @@ class PlHeader extends StatelessWidget {
   ///
   /// `null` is no measure, which is the default. The ladder is [PlContainer]'s,
   /// so a header and the container under it line up on the same edge.
-  final PlassSize? maxWidth;
+  final PlassResponsive<PlContainerWidth?>? maxWidth;
 
   /// The gutter down each side of the row.
   final bool padded;
@@ -253,10 +244,15 @@ class PlHeader extends StatelessWidget {
       ),
     );
 
-    if (maxWidth != null) {
+    // One measure ladder for the three widgets that hold content to one: a
+    // header whose measure did not line up with the container under it is what
+    // one implementation prevents.
+    final double? limit = measureAt(maxWidth, MediaQuery.sizeOf(context).width);
+
+    if (limit != null) {
       bar = Center(
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: _maxWidth[maxWidth]!),
+          constraints: BoxConstraints(maxWidth: limit),
           child: bar,
         ),
       );

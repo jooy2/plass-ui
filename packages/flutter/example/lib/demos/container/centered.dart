@@ -30,7 +30,9 @@ class ContainerCentered extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: PlContainer(
-                      maxWidth: PlassSize.xs,
+                      maxWidth: const PlassResponsive<PlContainerWidth?>(
+                        PlContainerWidth.rung(PlassSize.xs),
+                      ),
                       centered: centered,
                       child: DecoratedBox(
                         decoration: BoxDecoration(

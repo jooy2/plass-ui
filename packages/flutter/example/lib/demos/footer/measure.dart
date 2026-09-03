@@ -14,7 +14,7 @@ class FooterMeasure extends StatelessWidget {
         children: <Widget>[
           const PlContainer(
             size: PlassSize.sm,
-            maxWidth: PlassSize.xs,
+            maxWidth: PlassResponsive<PlContainerWidth?>(PlContainerWidth.rung(PlassSize.xs)),
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 16),
               child: Text(
@@ -25,7 +25,7 @@ class FooterMeasure extends StatelessWidget {
           ),
           PlFooter(
             size: PlassSize.sm,
-            maxWidth: PlassSize.xs,
+            maxWidth: PlassResponsive<PlContainerWidth?>(PlContainerWidth.rung(PlassSize.xs)),
             child: Text('© 2026 Acme', style: TextStyle(fontSize: 12, color: tokens.mutedFg)),
           ),
         ],

@@ -1200,11 +1200,11 @@ export const flutterPropTables: Record<string, PropRow[]> = {
   PlContainer: [
     from('PlContainer', 'children', { name: 'child', type: 'Widget?' }),
     from('PlContainer', 'maxWidth', {
-      type: 'PlassSize?',
+      type: 'PlassResponsive<PlContainerWidth?>?',
       default: 'null',
       description: {
-        ko: '내용이 넓어질 수 있는 한계. null이면 한계가 없습니다 — xs 480 · sm 640 · md 768 · lg 1024 · xl 1280 논리 픽셀',
-        en: 'How wide the content is allowed to get, or null for no limit — xs 480, sm 640, md 768, lg 1024, xl 1280 logical pixels'
+        ko: '내용이 넓어질 수 있는 한계. PlContainerWidth.rung(PlassSize)는 사다리 한 칸, PlContainerWidth.pixels(double)는 정확한 너비입니다. null은 제한 없음이고, 항목으로 써도 그렇습니다',
+        en: 'How wide the content is allowed to get. PlContainerWidth.rung(PlassSize) is a rung of the ladder and PlContainerWidth.pixels(double) is an exact width. null means no limit, including as an entry'
       }
     }),
     from('PlContainer', 'padded', { type: 'bool', default: 'true' }),
@@ -2281,11 +2281,11 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlFooter', 'elevation', { type: 'int', default: '0' }),
     from('PlFooter', 'divider', { type: 'bool', default: 'true' }),
     from('PlFooter', 'maxWidth', {
-      type: 'PlassSize?',
+      type: 'PlassResponsive<PlContainerWidth?>?',
       default: 'null',
       description: {
-        ko: '시트는 받은 너비를 가로지른 채로, 내용만 measure에 맞춰 가운데 둡니다. null이면 measure 없음입니다',
-        en: 'Holds the content to a measure and centres it while the sheet still spans the width it was given. null is no measure'
+        ko: '내용이 넓어질 수 있는 한계. PlContainerWidth.rung(PlassSize)는 사다리 한 칸, PlContainerWidth.pixels(double)는 정확한 너비입니다. null은 제한 없음이고, 항목으로 써도 그렇습니다',
+        en: 'How wide the content is allowed to get. PlContainerWidth.rung(PlassSize) is a rung of the ladder and PlContainerWidth.pixels(double) is an exact width. null means no limit, including as an entry'
       }
     }),
     from('PlFooter', 'padded', { type: 'bool', default: 'true' }),
@@ -2317,11 +2317,11 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlHeader', 'align', { type: 'PlassAlign', default: 'PlassAlign.start' }),
     from('PlHeader', 'divider', { type: 'bool', default: 'true' }),
     from('PlHeader', 'maxWidth', {
-      type: 'PlassSize?',
+      type: 'PlassResponsive<PlContainerWidth?>?',
       default: 'null',
       description: {
-        ko: '시트는 받은 너비를 가로지른 채로, 슬롯의 행만 measure에 맞춰 가운데 둡니다. null이면 measure 없음이고 기본값입니다',
-        en: 'Holds the row of slots to a measure and centres it while the sheet still spans the width it was given. null is no measure, and is the default'
+        ko: '내용이 넓어질 수 있는 한계. PlContainerWidth.rung(PlassSize)는 사다리 한 칸, PlContainerWidth.pixels(double)는 정확한 너비입니다. null은 제한 없음이고, 항목으로 써도 그렇습니다',
+        en: 'How wide the content is allowed to get. PlContainerWidth.rung(PlassSize) is a rung of the ladder and PlContainerWidth.pixels(double) is an exact width. null means no limit, including as an entry'
       }
     }),
     from('PlHeader', 'padded', { type: 'bool', default: 'true' }),

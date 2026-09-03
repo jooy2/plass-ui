@@ -103,7 +103,14 @@ void main() {
         WidgetTester tester,
       ) async {
         await tester.pumpWidget(
-          host(const PlFooter(maxWidth: PlassSize.xs, padded: false, child: Text('©')), width: 700),
+          host(
+            const PlFooter(
+              maxWidth: PlassResponsive<PlContainerWidth?>(PlContainerWidth.rung(PlassSize.xs)),
+              padded: false,
+              child: Text('©'),
+            ),
+            width: 700,
+          ),
         );
 
         expect(tester.getSize(find.byType(PlFooter)).width, 700);

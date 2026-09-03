@@ -373,3 +373,31 @@ const Map<PlassSize, double> sheetHeaderGap = <PlassSize, double>{
 /// The hairline every Plass surface draws around itself, and the width of a
 /// tick's edge. One value, because two of them is two toolkits.
 const double hairline = 1;
+
+/// The measure ladder, in logical pixels.
+///
+/// The same widths the breakpoints are from `sm` up, and written out rather
+/// than read from [PlassBreakpoint]: a breakpoint is where the screen changes
+/// shape and a measure is how wide text may get, and a project that moved one
+/// because it wanted the other would have moved the wrong thing.
+const Map<PlassSize, double> containerMeasure = <PlassSize, double>{
+  PlassSize.xs: 480,
+  PlassSize.sm: 640,
+  PlassSize.md: 768,
+  PlassSize.lg: 1024,
+  PlassSize.xl: 1280,
+};
+
+/// The limit a responsive measure comes to at one width, or `null` for none.
+///
+/// The window's width, as every breakpoint in the package is: two containers
+/// side by side are on the same rung however wide each of them ended up.
+double? measureAt(PlassResponsive<PlContainerWidth?>? maxWidth, double width) {
+  final PlContainerWidth? measure = maxWidth?.resolve(PlassBreakpoint.of(width));
+
+  if (measure == null) {
+    return null;
+  }
+
+  return measure.pixels ?? containerMeasure[measure.rung]!;
+}

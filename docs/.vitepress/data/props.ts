@@ -4587,7 +4587,7 @@ export const propTables: Record<string, PropRow[]> = {
     },
     {
       name: 'maxWidth',
-      type: "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'none'",
+      type: `PlassResponsive<${SIZE} | 'none' | number | string>`,
       default: "'none'",
       description: {
         ko: '시트는 창을 가로지른 채로, 내용만 measure에 맞춰 가운데 둡니다. PlContainer의 maxWidth와 같은 사다리입니다',
@@ -4850,7 +4850,7 @@ export const propTables: Record<string, PropRow[]> = {
     },
     {
       name: 'maxWidth',
-      type: "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'none'",
+      type: `PlassResponsive<${SIZE} | 'none' | number | string>`,
       default: "'none'",
       description: {
         ko: '시트는 창을 가로지른 채로, 슬롯의 행만 measure에 맞춰 가운데 둡니다. PlContainer의 maxWidth와 같은 사다리입니다',

@@ -115,6 +115,8 @@ PlFooter(child: const Text('© 2026 Acme'));
 
 시트는 창을 가로지른 채로, 내용만 measure에 맞춰 가운데 둡니다. [`PlContainer`](./container)의 `maxWidth`와 같은 `rem` 사다리이므로, 페이지의 마지막 줄과 푸터의 첫 줄이 하나의 선 위에 놓입니다.
 
+**[`PlContainer`](./container)와 같은 사다리, 같은 타입**이고 셋 뒤에 구현이 하나입니다. 아래 컨테이너와 measure가 어긋나는 바가 그것이 막는 결함입니다. <Fw react="반응형이고 아무 CSS 길이나 함께 받습니다." flutter="반응형이고, 사다리 한 칸뿐 아니라 정확한 너비도 받습니다." />
+
 <Demo src="footer/measure" :min-height="200">
 
 ::: fw react

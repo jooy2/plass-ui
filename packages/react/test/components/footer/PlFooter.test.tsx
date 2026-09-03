@@ -132,7 +132,11 @@ describe('PlFooter', () => {
       const inner = bar.firstElementChild!;
 
       expect(bar).toHaveClass('w-full');
-      expect(inner).toHaveClass('max-w-[64rem]');
+      // One measure ladder, carried as a slot rather than a class per rung —
+      // the same one a `PlContainer` under this bar reads, so the two line up
+      // on one edge.
+      expect(inner).toHaveClass('plass-container');
+      expect((inner as HTMLElement).style.getPropertyValue('--p-maxw-xs')).toBe('64rem');
       expect(inner).toHaveClass('mx-auto');
     });
   });

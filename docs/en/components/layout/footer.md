@@ -115,6 +115,8 @@ The three materials, read the way a **container** reads them. The sheet is never
 
 Holds the content to a measure and centres it while the sheet still spans the window, on the same `rem` ladder [`PlContainer`](./container)'s `maxWidth` uses — so the last line of the page and the first line of the footer sit on one edge.
 
+**The same ladder and the same type a [`PlContainer`](./container) takes**, and one implementation behind all three — a bar whose measure did not line up with the container under it is the defect that prevents. <Fw react="It is responsive and takes any CSS length with it." flutter="It is responsive, and takes an exact width as well as a rung." />
+
 <Demo src="footer/measure" :min-height="200">
 
 ::: fw react

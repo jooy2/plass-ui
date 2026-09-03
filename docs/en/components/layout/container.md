@@ -26,7 +26,10 @@ import { PlContainer } from 'plass-ui';
 ```dart
 import 'package:plass_ui/plass_ui.dart';
 
-PlContainer(maxWidth: PlassSize.lg, child: page);
+PlContainer(
+  maxWidth: const PlassResponsive<PlContainerWidth?>(PlContainerWidth.rung(PlassSize.lg)),
+  child: page,
+);
 ```
 
 :::
@@ -43,7 +46,7 @@ Every native `<div>` attribute passes straight through.
 
 ::: fw flutter
 
-`maxWidth` is a nullable `PlassSize` and `null` is "no limit", where React spells that `'none'`. A TypeScript union can carry an extra word; Dart has `null` for exactly this, and a `PlassSize` with a sixth value in it would be a second size ladder.
+`maxWidth` takes a `PlassResponsive<PlContainerWidth?>`. `PlContainerWidth.rung(PlassSize.lg)` is a rung of the ladder and `PlContainerWidth.pixels(720)` is an exact width — two constructors rather than one nullable pair, because only one of them can be true at a time and Dart has no untagged union. `null` is "no limit", where React spells that `'none'`: a TypeScript union can carry an extra word, and Dart has `null` for exactly this.
 
 :::
 

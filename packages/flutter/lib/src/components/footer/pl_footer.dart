@@ -10,15 +10,6 @@ import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
-/// The measure, on [PlContainer]'s ladder so the two line up on one edge.
-const Map<PlassSize, double> _maxWidth = <PlassSize, double>{
-  PlassSize.xs: 480,
-  PlassSize.sm: 640,
-  PlassSize.md: 768,
-  PlassSize.lg: 1024,
-  PlassSize.xl: 1280,
-};
-
 /// The sheet at the end of a screen.
 ///
 /// ```dart
@@ -69,7 +60,7 @@ class PlFooter extends StatelessWidget {
 
   /// Holds the content to a measure and centres it, while the sheet itself
   /// still spans the width it was given. `null` is no measure.
-  final PlassSize? maxWidth;
+  final PlassResponsive<PlContainerWidth?>? maxWidth;
 
   /// The gutter and the air above and below.
   final bool padded;
@@ -115,10 +106,15 @@ class PlFooter extends StatelessWidget {
       child: child ?? const SizedBox.shrink(),
     );
 
-    if (maxWidth != null) {
+    // One measure ladder for the three widgets that hold content to one: a
+    // header whose measure did not line up with the container under it is what
+    // one implementation prevents.
+    final double? limit = measureAt(maxWidth, MediaQuery.sizeOf(context).width);
+
+    if (limit != null) {
       content = Center(
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: _maxWidth[maxWidth]!),
+          constraints: BoxConstraints(maxWidth: limit),
           // The box fills up to the measure rather than shrinking to its
           // content, which is what `max-width` plus `margin: auto` does on the
           // other side: a one-line copyright still sits at the measure's

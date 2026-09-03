@@ -16,7 +16,7 @@ class ContainerWidths extends StatelessWidget {
         children: <Widget>[
           for (final PlassSize width in PlassSize.values)
             PlContainer(
-              maxWidth: width,
+              maxWidth: PlassResponsive<PlContainerWidth?>(PlContainerWidth.rung(width)),
               padded: false,
               child: DecoratedBox(
                 decoration: BoxDecoration(

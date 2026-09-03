@@ -26,7 +26,10 @@ import { PlContainer } from 'plass-ui';
 ```dart
 import 'package:plass_ui/plass_ui.dart';
 
-PlContainer(maxWidth: PlassSize.lg, child: page);
+PlContainer(
+  maxWidth: const PlassResponsive<PlContainerWidth?>(PlContainerWidth.rung(PlassSize.lg)),
+  child: page,
+);
 ```
 
 :::
@@ -43,7 +46,7 @@ PlContainer(maxWidth: PlassSize.lg, child: page);
 
 ::: fw flutter
 
-`maxWidth`는 nullable `PlassSize`이고 `null`이 "한계 없음"입니다. React는 그것을 `'none'`으로 씁니다. TypeScript의 유니온은 단어를 하나 더 얹을 수 있지만, Dart에는 바로 그 뜻의 `null`이 있고, 여섯 번째 값이 들어간 `PlassSize`는 두 번째 크기 사다리가 됩니다.
+`maxWidth`는 `PlassResponsive<PlContainerWidth?>`를 받습니다. `PlContainerWidth.rung(PlassSize.lg)`는 사다리의 한 칸이고 `PlContainerWidth.pixels(720)`은 정확한 너비입니다. nullable 한 쌍이 아니라 생성자 둘인 이유는 둘 중 하나만 참일 수 있고 Dart에는 태그 없는 union이 없기 때문입니다. `null`이 "한계 없음"이고, React는 그것을 `'none'`으로 씁니다. TypeScript의 유니온은 단어를 하나 더 얹을 수 있지만, Dart에는 바로 그 뜻의 `null`이 있습니다.
 
 :::
 

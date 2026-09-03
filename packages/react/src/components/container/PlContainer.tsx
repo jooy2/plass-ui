@@ -3,8 +3,8 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useRender } from '@base-ui/react/use-render';
-import { responsiveSlots } from '../../internal/responsive.js';
-import { cx, sheetPaddingXClasses, toLength } from '../../internal/styles.js';
+import { measureSlots, type PlassMeasure } from '../../internal/responsive.js';
+import { cx, sheetPaddingXClasses } from '../../internal/styles.js';
 import type { PlassDensity, PlassResponsive, PlassSize } from '../../types.js';
 
 /**
@@ -15,12 +15,11 @@ import type { PlassDensity, PlassResponsive, PlassSize } from '../../types.js';
  * the gutter — a measure is a second decision, and a page should have to ask
  * for one.
  *
- * The `string` half is written as `string & {}` so that the five rungs still
- * autocomplete. A bare `string` in the union would swallow them and the ladder
- * would be five names a caller has to remember rather than five the editor
- * offers.
+ * The same type a `PlHeader` and a `PlFooter` take, and the same ladder behind
+ * all three: a header whose measure did not line up with the container under it
+ * is what one implementation prevents.
  */
-export type PlContainerWidth = PlassSize | 'none' | number | (string & {});
+export type PlContainerWidth = PlassMeasure;
 
 export interface PlContainerProps extends React.ComponentPropsWithoutRef<'div'> {
   /**
@@ -71,41 +70,6 @@ export interface PlContainerProps extends React.ComponentPropsWithoutRef<'div'> 
 }
 
 /**
- * The measure ladder, in `rem` rather than in Tailwind's named `max-w-*` steps,
- * so that a container's `lg` and an `lg:` utility are the same 64rem.
- *
- * Tailwind's own container scale is a different set of numbers, and having two
- * ladders called `lg` on one page is how a layout drifts by a few pixels for no
- * reason anybody can find later.
- *
- * Written out rather than read from `--plass-breakpoint-*`, which they happen
- * to equal from `sm` up. They are not the same question: a breakpoint is where
- * the window changes shape and a measure is how wide text may get, and a
- * project that moved one because it wanted the other would have moved the wrong
- * thing.
- */
-const measures: Record<PlassSize, string> = {
-  xs: '30rem',
-  sm: '40rem',
-  md: '48rem',
-  lg: '64rem',
-  xl: '80rem'
-};
-
-/** A rung if it is one of the five, `none` as itself, anything else a length. */
-function measureValue(value: PlContainerWidth): string {
-  if (value === 'none') {
-    return 'none';
-  }
-
-  if (typeof value === 'string' && value in measures) {
-    return measures[value as PlassSize];
-  }
-
-  return toLength(value) as string;
-}
-
-/**
  * Horizontal breathing room, and optionally a measure.
  *
  * It draws nothing — no sheet, no hairline, no shadow — for the same reason
@@ -141,11 +105,14 @@ export const PlContainer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCo
     const size = sizeProp ?? defaults.size ?? 'md';
     const density = densityProp ?? defaults.density ?? 'default';
 
+    // Only when there is a measure to carry: a container with none needs
+    // neither the class nor the slots, and the stylesheet's own fallback is
+    // `none`.
+    const measure = measureSlots(maxWidth);
+
     const classNames = cx(
       'block w-full',
-      // Only when there is a measure to carry: a container with none needs
-      // neither the class nor the slot, and the CSS's own fallback is `none`.
-      maxWidth === undefined ? '' : 'plass-container',
+      measure.className,
       centered ? 'mx-auto' : '',
       padded ? sheetPaddingXClasses[density][size] : '',
       className
@@ -156,7 +123,7 @@ export const PlContainer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCo
       ref,
       props: {
         className: classNames,
-        style: responsiveSlots('maxw', maxWidth, measureValue),
+        style: measure.style,
         children,
         ...props
       }

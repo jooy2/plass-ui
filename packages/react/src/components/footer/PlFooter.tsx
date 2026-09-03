@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useRender } from '@base-ui/react/use-render';
 import { PlPageLayoutContext } from '../../internal/page-layout.js';
+import { measureSlots, type PlassMeasure } from '../../internal/responsive.js';
 import {
   cx,
   sheetPaddingXClasses,
@@ -17,12 +18,13 @@ import type {
   PlassDensity,
   PlassElevation,
   PlassPosition,
+  PlassResponsive,
   PlassSize,
   PlassVariant
 } from '../../types.js';
 
 /** How wide the content inside the sheet is allowed to get. */
-export type PlFooterWidth = PlassSize | 'none';
+export type PlFooterWidth = PlassMeasure;
 
 export interface PlFooterProps extends Omit<
   React.ComponentPropsWithoutRef<'footer'>,
@@ -69,7 +71,7 @@ export interface PlFooterProps extends Omit<
    * spans the window. The same ladder `PlContainer`'s `maxWidth` uses.
    * @default 'none'
    */
-  maxWidth?: PlFooterWidth;
+  maxWidth?: PlassResponsive<PlFooterWidth>;
   /** The gutter and the air above and below. @default true */
   padded?: boolean;
   /**
@@ -105,15 +107,6 @@ const positionClasses: Record<PlassPosition, string> = {
   fixed: 'fixed inset-x-0 bottom-0 z-30'
 };
 
-/** The measure, on `PlContainer`'s ladder so the two line up on one edge. */
-const maxWidthClasses: Record<PlassSize, string> = {
-  xs: 'max-w-[30rem]',
-  sm: 'max-w-[40rem]',
-  md: 'max-w-[48rem]',
-  lg: 'max-w-[64rem]',
-  xl: 'max-w-[80rem]'
-};
-
 /**
  * The sheet at the end of a page.
  *
@@ -143,7 +136,7 @@ export const PlFooter = /* @__PURE__ */ React.forwardRef<HTMLElement, PlFooterPr
       density: densityProp,
       elevation = 0,
       divider = true,
-      maxWidth = 'none',
+      maxWidth,
       padded = true,
       label,
       render,
@@ -154,6 +147,11 @@ export const PlFooter = /* @__PURE__ */ React.forwardRef<HTMLElement, PlFooterPr
     },
     ref
   ) {
+    // One measure ladder for the three components that hold content to one:
+    // a header whose measure did not line up with the container under it is
+    // what one implementation prevents.
+    const measure = measureSlots(maxWidth);
+
     const defaults = useDefaults();
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
@@ -192,12 +190,14 @@ export const PlFooter = /* @__PURE__ */ React.forwardRef<HTMLElement, PlFooterPr
         style: { ...surfaceSlots(color, elevation), ...style },
         children: (
           <div
+            style={measure.style}
             className={cx(
               'w-full',
               padded
                 ? cx(sheetPaddingXClasses[density][size], sheetPaddingYClasses[density][size])
                 : '',
-              maxWidth === 'none' ? '' : cx(maxWidthClasses[maxWidth], 'mx-auto')
+              measure.className,
+              maxWidth === undefined ? '' : 'mx-auto'
             )}
           >
             {children}

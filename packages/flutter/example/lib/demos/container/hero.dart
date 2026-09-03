@@ -18,7 +18,7 @@ class ContainerHero extends StatelessWidget {
         child: const Padding(
           padding: EdgeInsets.symmetric(vertical: 16),
           child: PlContainer(
-            maxWidth: PlassSize.xs,
+            maxWidth: PlassResponsive<PlContainerWidth?>(PlContainerWidth.rung(PlassSize.xs)),
             child: PlCard(
               title: Text('Inside the measure'),
               child: Text(

@@ -137,7 +137,11 @@ describe('PlHeader', () => {
       const row = bar.firstElementChild!;
 
       expect(bar).toHaveClass('w-full');
-      expect(row).toHaveClass('max-w-[64rem]');
+      // One measure ladder, carried as a slot rather than a class per rung —
+      // the same one a `PlContainer` under this bar reads, so the two line up
+      // on one edge.
+      expect(row).toHaveClass('plass-container');
+      expect((row as HTMLElement).style.getPropertyValue('--p-maxw-xs')).toBe('64rem');
       expect(row).toHaveClass('mx-auto');
     });
 

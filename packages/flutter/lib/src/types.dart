@@ -159,6 +159,38 @@ enum PlassBreakpoint {
   }
 }
 
+/// How wide content is allowed to get, and the three widgets that ask.
+///
+/// A rung of the measure ladder or an exact width, and only one of them can be
+/// true at a time — which is why it is two constructors rather than one
+/// nullable pair. The React package spells it as a union, `maxWidth="lg"` or
+/// `maxWidth="72ch"`, which TypeScript can carry and Dart cannot.
+///
+/// The exact width is the one worth having. The ladder is five numbers chosen
+/// against the breakpoints, and the measure a paragraph actually wants is a
+/// count of characters at whatever size it is set in. No ladder can spell that.
+@immutable
+class PlContainerWidth {
+  /// A rung of the measure ladder.
+  const PlContainerWidth.rung(PlassSize this.rung) : pixels = null;
+
+  /// An exact width, in logical pixels.
+  const PlContainerWidth.pixels(double this.pixels) : rung = null;
+
+  /// The rung, when it was named as one.
+  final PlassSize? rung;
+
+  /// The width, when it was given as one.
+  final double? pixels;
+
+  @override
+  bool operator ==(Object other) =>
+      other is PlContainerWidth && other.rung == rung && other.pixels == pixels;
+
+  @override
+  int get hashCode => Object.hash(rung, pixels);
+}
+
 /// Every rung but [PlassBreakpoint.xs], which is the one with nothing below it.
 ///
 /// The type of a question about a *floor* — "from here up", "until here". `xs`
