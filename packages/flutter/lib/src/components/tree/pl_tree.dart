@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/fold.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
@@ -338,6 +339,55 @@ class _PlTreeState extends State<PlTree> {
         ? _tabStop
         : (reachable.isEmpty ? null : reachable.first.node.id);
 
+    // Nested rather than flat, which is what the fold needs: a branch that
+    // travels is a branch whose rows are laid out inside one box, and a flat
+    // column has no box to give it. The keyboard still walks `rows`, which is
+    // flat — where a row *is* and how it is *reached* are different questions.
+    List<Widget> build(List<PlTreeNode> nodes, int level) {
+      final children = <Widget>[];
+
+      for (final PlTreeNode node in nodes) {
+        final row = _Row(node, level);
+        final isBranch = node.children != null;
+
+        children.add(
+          _TreeRow(
+            row: row,
+            tokens: tokens,
+            family: family,
+            size: _size,
+            density: _density,
+            expanded: isBranch && widget.expanded.contains(node.id),
+            selected: widget.selected.contains(node.id),
+            selectable: widget.selection != PlTreeSelection.none,
+            focusNode: node.disabled ? null : _nodeFor(node.id),
+            isTabStop: node.id == current,
+            onPressed: node.disabled ? null : () => _press(node),
+            onFocused: () => setState(() => _tabStop = node.id),
+            onKey: node.disabled ? null : (KeyEvent event) => _onKey(row, reachable, event),
+          ),
+        );
+
+        if (isBranch && node.children!.isNotEmpty) {
+          children.add(
+            _Branch(
+              open: widget.expanded.contains(node.id),
+              // A callback rather than a widget: a shut branch never builds its
+              // rows at all, and a tree with four hundred closed folders in it
+              // is the case that pays for.
+              builder: () => Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: build(node.children!, level + 1),
+              ),
+            ),
+          );
+        }
+      }
+
+      return children;
+    }
+
     return Semantics(
       container: true,
       explicitChildNodes: true,
@@ -345,25 +395,100 @@ class _PlTreeState extends State<PlTree> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          for (final _Row row in rows)
-            _TreeRow(
-              row: row,
-              tokens: tokens,
-              family: family,
-              size: _size,
-              density: _density,
-              expanded: row.node.children != null && widget.expanded.contains(row.node.id),
-              selected: widget.selected.contains(row.node.id),
-              selectable: widget.selection != PlTreeSelection.none,
-              focusNode: row.node.disabled ? null : _nodeFor(row.node.id),
-              isTabStop: row.node.id == current,
-              onPressed: row.node.disabled ? null : () => _press(row.node),
-              onFocused: () => setState(() => _tabStop = row.node.id),
-              onKey: row.node.disabled ? null : (KeyEvent event) => _onKey(row, reachable, event),
-            ),
-        ],
+        children: build(widget.items, 1),
       ),
+    );
+  }
+}
+
+/// A branch's rows, and the height they travel over.
+///
+/// The same fold a `PlCollapsible` opens on, at the same slow duration, because
+/// what is moving in both cases is the page under the thing being pressed. It
+/// is written here rather than reached for because a tree's fold has to answer
+/// two things a collapsible's does not: it is built from a callback, so a shut
+/// branch costs nothing at all, and it drops its rows again the moment it has
+/// finished shutting rather than keeping them for a `keepMounted` nobody asked
+/// for.
+///
+/// Folds nest exactly, and that is the reason for a height *factor* rather than
+/// a measured height: an outer fold at rest asks its child for whatever size it
+/// currently is, so an inner one opening inside it is contained frame for frame
+/// with nothing to catch up to.
+class _Branch extends StatefulWidget {
+  const _Branch({required this.open, required this.builder});
+
+  /// Whether the branch is showing.
+  final bool open;
+
+  /// The rows, built only when there is something to show them for.
+  final Widget Function() builder;
+
+  @override
+  State<_Branch> createState() => _BranchState();
+}
+
+class _BranchState extends State<_Branch> with SingleTickerProviderStateMixin {
+  late final AnimationController _fold = AnimationController(
+    vsync: this,
+    duration: PlassTokens.durationSlow,
+    value: widget.open ? 1 : 0,
+  );
+
+  late final Animation<double> _factor = CurvedAnimation(parent: _fold, curve: PlassTokens.ease);
+
+  @override
+  void initState() {
+    super.initState();
+    // The rows are dropped once the fold has finished closing, and nothing else
+    // would rebuild at that moment — a branch that stayed built after it shut
+    // would be a branch that never gave its rows back.
+    _fold.addStatusListener(_onFold);
+  }
+
+  void _onFold(AnimationStatus status) {
+    if (status == AnimationStatus.dismissed && mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void didUpdateWidget(_Branch oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.open != oldWidget.open) {
+      widget.open ? _fold.forward() : _fold.reverse();
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _fold.duration = (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
+        ? Duration.zero
+        : PlassTokens.durationSlow;
+  }
+
+  @override
+  void dispose() {
+    _fold.removeStatusListener(_onFold);
+    _fold.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!widget.open && _fold.value == 0) {
+      return const SizedBox.shrink();
+    }
+
+    // Out of the way as well as out of sight while it shuts: a row nobody can
+    // see is not one a keyboard should reach or a screen reader should read.
+    return PlassFold(
+      factor: _factor,
+      child: widget.open
+          ? widget.builder()
+          : ExcludeSemantics(child: ExcludeFocus(child: widget.builder())),
     );
   }
 }

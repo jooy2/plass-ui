@@ -140,6 +140,40 @@ void main() {
         expect(find.text('index.ts'), findsNothing);
       });
 
+      testWidgets('travels the branch open rather than dropping it in', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, const _Host());
+
+        double branch() {
+          return tester.getSize(find.byType(ClipRect).first).height;
+        }
+
+        await tester.tap(find.text('src'));
+        await tester.pump();
+        await tester.pump(PlassTokens.durationSlow ~/ 2);
+
+        final double halfway = branch();
+
+        await tester.pumpAndSettle();
+
+        final double whole = branch();
+
+        // Part of the way down halfway through, and no further: a branch that
+        // dropped in would be at its full height on the first frame.
+        expect(halfway, greaterThan(0));
+        expect(halfway, lessThan(whole));
+      });
+
+      testWidgets('builds nothing at all for a branch that is shut', (WidgetTester tester) async {
+        await _pump(tester, const _Host());
+
+        // Not merely clipped: a shut branch never builds its rows, which is
+        // what keeps a tree of four hundred closed folders free.
+        expect(find.byType(ClipRect), findsNothing);
+        expect(find.text('index.ts'), findsNothing);
+      });
+
       testWidgets('turns the twisty rather than jumping it between two angles', (
         WidgetTester tester,
       ) async {

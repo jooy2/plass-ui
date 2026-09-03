@@ -123,6 +123,23 @@ describe('PlTree', () => {
       expect(twisty()).toHaveClass('rotate-0');
     });
 
+    it('travels the branch open rather than dropping it in', async () => {
+      const screen = await render(<PlTree items={items} defaultExpanded={['src']} />);
+
+      const group = document.querySelector<HTMLElement>('[role="group"]')!;
+
+      expect(group.className).toContain('--collapsible-panel-height');
+      expect(group.className).toContain('transition:height');
+      expect(group).toHaveClass('overflow-hidden');
+
+      // Closed, the rows are not merely hidden: Base UI takes them out of the
+      // document once the fold has finished shutting, so nothing inside a shut
+      // branch is in the tab order or on the accessibility tree.
+      await screen.getByRole('treeitem', { name: 'src' }).click();
+
+      expect(document.querySelector('[role="group"]')).toBeNull();
+    });
+
     it('does not open a controlled tree on its own', async () => {
       const screen = await render(
         <PlTree items={items} expanded={[]} onExpandedChange={() => {}} />

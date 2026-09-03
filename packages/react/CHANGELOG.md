@@ -66,6 +66,12 @@
 
 ### Fixed
 
+- **A `PlTree`'s branch dropped in and vanished rather than opening.** It was the last fold in the library that did not travel: an accordion, a collapsible and a pill all move a height over 260ms, and this one swapped its rows in and out between two frames — under the twisty that had just been pressed, which is exactly where a reader is looking. The branch is a Base UI `Collapsible` now, written with the two lines a `PlCollapsible`'s panel is written with.
+
+  Folds nest exactly, which is the part worth checking rather than assuming: Base UI sizes an idle-open panel `auto` and only measures a pixel height for the length of the transition, so an outer branch contains an inner one opening inside it frame for frame with nothing to catch up to. Measured in a browser — 192px, then 224px with an inner branch open, with the outer at `auto` throughout.
+
+  The cost is that **a shut branch's rows are built and not mounted**, because rows dropped from the document on the frame the twisty turns have nothing to travel. React discards the elements, so it is a cost of building rather than of rendering, and `children: undefined` until a branch is opened is the answer for a tree with hundreds of closed folders in it. The Flutter build does not pay it — a fold there takes a callback — and the [tree](https://plass.cdget.com/components/display/tree) page says so. **+0.3 kB on the whole library** and nothing at all on a bundle that does not import `PlTree`, measured with `npm run size`: the primitive was already on the graph for `PlAccordion` and `PlCollapsible`.
+
 - **A `PlSlider`'s thumb teleported to any value nobody dragged it to.** An arrow key, a press on the rail, a value set from outside — the thumb was in one place on one frame and somewhere else on the next, on the one control whose whole subject is _where along here_. It travels over the house duration now, and the run behind it fills at the same rate.
 
   **Nothing at all while the pointer is down.** A thumb that eased towards a finger would be a thumb lagging behind it, which reads as the control being slow rather than as the motion being smooth, so `data-dragging` zeroes the duration on both parts. The properties are `inset-inline-start` / `bottom` and the indicator's `width` — the ones Base UI writes the value into — rather than a `translate`, which is why this does not bend the [no-transform rule](https://plass.cdget.com/design/design-language#controls-do-not-move): nothing is shifted off its own place, because the thing being moved is the value.

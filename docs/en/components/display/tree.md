@@ -112,6 +112,24 @@ The twisty **turns** over the house duration rather than jumping between its two
 
 That is what makes a lazily-loaded tree possible: give a folder an empty array, and fill it in when `onExpandedChange` says it was opened.
 
+### How a branch opens
+
+A branch **travels** over the same 260ms an [accordion](../surfaces/accordion) or a [collapsible](../surfaces/collapsible) panel does, clipped rather than squashed while it moves — what is moving in all three cases is the page under the row somebody just pressed. Folds nest exactly: an outer branch at rest is sized to whatever it currently holds, so an inner one opening inside it is contained frame for frame with nothing to catch up to.
+
+Nothing inside a shut branch is reachable. The rows leave the accessibility tree and the tab order the moment the fold has finished shutting, so the arrow keys walk what is visible and nothing else.
+
+::: fw react
+
+The rows of a shut branch are **built and not mounted** — a row dropped from the document on the frame the twisty turns has nothing to travel. React discards the elements it built, so the cost is building them rather than rendering them, and it is a cost worth knowing about for a tree with hundreds of closed folders in it. `children: undefined` until a branch is opened is the answer there, and it is the same answer as for a tree too big to send at all.
+
+:::
+
+::: fw flutter
+
+A shut branch is **not built at all**: the rows come from a callback the fold only calls when there is something to show them for. That differs from the React build, where the elements are built and thrown away, and it is the one place a tree of four hundred closed folders costs less here.
+
+:::
+
 ## Accessibility
 
 - A real `role="tree"` of `role="treeitem"`s, with `role="group"` around the children of an open branch, and `aria-level`, `aria-expanded` and `aria-selected` on each row.

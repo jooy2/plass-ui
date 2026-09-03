@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { Collapsible as BaseUICollapsible } from '@base-ui/react/collapsible';
 import { ChevronIcon } from '../../internal/icons.js';
 import {
   controlTextLeadingClasses,
@@ -14,6 +15,29 @@ import {
   transitionClasses
 } from '../../internal/styles.js';
 import type { PlassColor, PlassDensity, PlassSize } from '../../types.js';
+
+/**
+ * A branch's children, and the height they travel over.
+ *
+ * `height` from Base UI's measured `--collapsible-panel-height` down to 0, plus
+ * `overflow-hidden` so the rows are clipped rather than squashed while they
+ * move — the same two lines a `PlCollapsible`'s panel is written with, at the
+ * same slow duration, because what is moving in all three cases is the page
+ * under the thing being pressed.
+ *
+ * The branch is built whether or not it is open, which is what pays for the
+ * animation: rows that are dropped from the document on the frame the twisty
+ * turns have nothing to travel. Base UI is what decides whether they are
+ * *mounted*, and it takes them off the accessibility tree and out of the tab
+ * order the moment the fold is shut. **A tree big enough for that to cost
+ * anything should load its branches instead**, which is what `children:
+ * undefined` on an unopened branch is for.
+ */
+const groupClasses = /* @__PURE__ */ [
+  'h-(--collapsible-panel-height) overflow-hidden',
+  '[transition:height_var(--plass-duration-slow)_var(--plass-ease)]',
+  'data-[starting-style]:h-0 data-[ending-style]:h-0'
+].join(' ');
 
 /** One node. A branch is a node with `children`; a leaf is one without. */
 export interface PlTreeNode {
@@ -333,10 +357,12 @@ export const PlTree = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTreePro
           <span className="truncate">{node.label}</span>
         </div>
 
-        {isBranch && isOpen && node.children!.length > 0 ? (
-          <div role="group">
-            {node.children!.map((child) => renderRow({ node: child, level: level + 1 }))}
-          </div>
+        {isBranch && node.children!.length > 0 ? (
+          <BaseUICollapsible.Root open={isOpen}>
+            <BaseUICollapsible.Panel role="group" className={groupClasses}>
+              {node.children!.map((child) => renderRow({ node: child, level: level + 1 }))}
+            </BaseUICollapsible.Panel>
+          </BaseUICollapsible.Root>
         ) : null}
       </React.Fragment>
     );
