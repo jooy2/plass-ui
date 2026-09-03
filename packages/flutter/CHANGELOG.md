@@ -26,6 +26,8 @@
 
 ### Fixed
 
+- **A `PlTree`'s twisty jumped between its two angles.** It was the one chevron in the package still drawn with `RotatedBox`, which turns the *layout* and cannot be animated — every other one is an `AnimatedRotation`, and this one is now too. It matters more than the size of it suggests: the twisty is the only thing on a row that says whether the branch is open.
+
 - **A `PlCheckbox` and a `PlRadioGroup` cut every animation they had, and the tick and the dot had none to begin with.** Both widgets passed `lit: marked` to `plassStateFilter`, and `lit` is what decides whether the brightness filter is *in the tree at all* — so flipping it with the value swapped the widget at that slot and threw away the whole subtree under it. The tick's own `AnimatedContainer` was starting over from nothing on every tap, which is why the glass-to-gradient swap was a hard cut rather than the 150ms it was written as. The rule the two of them broke is worth stating: **a wrapper that comes and goes with a value destroys the state of everything under it.** The same thing is said by `hovered`, which was already saying it, and saying it once is enough.
 
   With the tree steady, the marks animate. **The tick draws itself along its own path** — measured with `PathMetric` and cut at the fraction laid down, which is the same statement the React build makes with a `stroke-dashoffset`. **The dot grows out of the middle of its ring**, as a box and not a `Transform`: the ring centres a fixed-size child, so both ends of the change are laid out about the same point. Both are built in either state, because a mark thrown away the moment the value is cleared cannot travel back out.

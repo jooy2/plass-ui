@@ -403,6 +403,7 @@ class _TreeRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final node = row.node;
     final isBranch = node.children != null;
+    final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     if (focusNode != null) {
       // Written onto the node itself rather than into a second `Focus` around
@@ -430,13 +431,25 @@ class _TreeRow extends StatelessWidget {
         children: <Widget>[
           // A leaf keeps the twisty's space rather than losing it, so every
           // label at one level starts on the same edge.
+          //
+          // Turned rather than swapped, and turned over the house duration —
+          // the twisty is the only thing on a row that reports the branch's
+          // state, so a glyph that jumps between two angles is the state
+          // change happening off-screen. `AnimatedRotation` is what every
+          // other chevron in the package turns on; this row was the one still
+          // using `RotatedBox`, which rotates the layout and cannot be
+          // animated.
           Opacity(
             opacity: isBranch ? 1 : 0,
-            child: PlassGlyph(
-              PlassGlyphShape.chevron,
-              size: iconSize[size]!,
-              color: tokens.mutedFg,
-              quarterTurns: expanded ? 0 : -1,
+            child: AnimatedRotation(
+              turns: expanded ? 0 : -0.25,
+              duration: reduceMotion ? Duration.zero : PlassTokens.duration,
+              curve: PlassTokens.ease,
+              child: PlassGlyph(
+                PlassGlyphShape.chevron,
+                size: iconSize[size]!,
+                color: tokens.mutedFg,
+              ),
             ),
           ),
           SizedBox(width: gap[size]!),

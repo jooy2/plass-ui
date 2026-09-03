@@ -66,6 +66,8 @@
 
 ### Fixed
 
+- **A `PlTree`'s twisty jumped between its two angles.** It carried the house transition and nothing else, and the house transition deliberately has no `rotate` in it — so on a span whose only colour is a constant it was a transition of nothing at all. The turn names itself now, the way an accordion's and a select's chevrons already do. It matters more here than the size of it suggests: the twisty is the only thing on a row that says whether the branch is open, and every other chevron in the library turns.
+
 - **A tick and a radio dot arrived whole, on the frame the box filled.** Both were the last state change in the library still expressed as a swap: the mark was there or it was not, on a control whose whole job is to answer a click, and the mark is the part a reader is looking at.
 
   Neither is scaled into place, because [controls do not move](https://plass.cdget.com/design/design-language#controls-do-not-move) and that rule is not bent for the small parts. **A tick draws itself along its own path** — the stroke is dashed at exactly its own length and slid out of view by exactly that, so how much of the mark exists is one number, and `pathLength="1"` renormalises the tick and the dash to the same 0-to-1 whatever their real geometry is. **A dot grows out of the middle of its ring** — the ring centres a fixed-size child, so a width and a height are laid out about the same point and nothing outside the ring can be moved by either.

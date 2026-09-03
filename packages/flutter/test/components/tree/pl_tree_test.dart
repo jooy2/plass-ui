@@ -140,6 +140,49 @@ void main() {
         expect(find.text('index.ts'), findsNothing);
       });
 
+      testWidgets('turns the twisty rather than jumping it between two angles', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, const _Host());
+
+        double turnsOf(String label) {
+          return tester
+              .widget<AnimatedRotation>(
+                find
+                    .descendant(
+                      of: find.ancestor(of: find.text(label), matching: find.byType(Row)).last,
+                      matching: find.byType(AnimatedRotation),
+                    )
+                    .first,
+              )
+              .turns;
+        }
+
+        expect(turnsOf('src'), -0.25);
+
+        await tester.tap(find.text('src'));
+        await tester.pump();
+        await tester.pump(PlassTokens.duration ~/ 2);
+
+        // Mid-turn there is a rotation on the way to zero rather than a glyph
+        // that has already arrived at it.
+        final RotationTransition turning = tester.widget<RotationTransition>(
+          find
+              .descendant(
+                of: find.ancestor(of: find.text('src'), matching: find.byType(Row)).last,
+                matching: find.byType(RotationTransition),
+              )
+              .first,
+        );
+
+        expect(turning.turns.value, greaterThan(-0.25));
+        expect(turning.turns.value, lessThan(0));
+
+        await tester.pumpAndSettle();
+
+        expect(turnsOf('src'), 0);
+      });
+
       testWidgets('reports the whole open set', (WidgetTester tester) async {
         Set<String>? open;
 

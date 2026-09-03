@@ -307,11 +307,18 @@ export const PlTree = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTreePro
           )}
           style={{ paddingInlineStart: `${(level - 1) * indentValues[size] + 6}px` }}
         >
+          {/* Turned, not swapped — and the turn has to name itself, because the
+              house transition carries colour and depth and deliberately carries
+              no `rotate`. It used to carry the house transition alone, which on
+              a span whose only colour is a constant was a transition of nothing
+              at all: the twisty jumped between its two angles, and it is the
+              only thing on a row that says whether the branch is open. Written
+              as an accordion's and a select's chevrons write it. */}
           <span
             aria-hidden="true"
             className={cx(
               'flex shrink-0 items-center text-(--plass-muted-fg)',
-              transitionClasses,
+              '[transition:rotate_var(--plass-duration)_var(--plass-ease)]',
               // A leaf keeps the twisty's space rather than losing it, so every
               // label at one level starts on the same edge.
               isBranch ? '' : 'invisible',

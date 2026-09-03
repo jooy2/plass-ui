@@ -99,6 +99,8 @@ Every native `<div>` attribute passes straight through. What the shared axes mea
 
 Both are arrays of ids, and both are uncontrolled with `defaultExpanded` / `defaultSelected`.
 
+The twisty **turns** over the house duration rather than jumping between its two angles. It is the only thing on a row that reports whether the branch is open, so a glyph that changes angle between two frames is a state change that happened off-screen — and it is the same turn an [accordion](../surfaces/accordion)'s chevron makes, which is what tells a reader the two controls are the same kind of thing.
+
 ### A branch with nothing in it
 
 `children: []` and `children: undefined` are **different things**, and the difference is visible: the first is a branch that opens and shows nothing, the second is a leaf with no twisty at all.

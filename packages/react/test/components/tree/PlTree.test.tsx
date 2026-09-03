@@ -109,6 +109,20 @@ describe('PlTree', () => {
       expect(onExpandedChange).toHaveBeenCalledWith(['src']);
     });
 
+    it('turns the twisty rather than jumping it between two angles', async () => {
+      const screen = await render(<PlTree items={items} />);
+
+      const twisty = () =>
+        screen.getByRole('treeitem', { name: 'src' }).element().querySelector('span')!;
+
+      expect(twisty().className).toContain('transition:rotate');
+      expect(twisty()).toHaveClass('-rotate-90');
+
+      await screen.getByRole('treeitem', { name: 'src' }).click();
+
+      expect(twisty()).toHaveClass('rotate-0');
+    });
+
     it('does not open a controlled tree on its own', async () => {
       const screen = await render(
         <PlTree items={items} expanded={[]} onExpandedChange={() => {}} />
