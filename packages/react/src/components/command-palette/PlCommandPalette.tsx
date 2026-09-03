@@ -97,7 +97,7 @@ export interface PlCommandPaletteProps extends Pick<PlassStyleProps, 'size' | 'c
 const backdropClasses = /* @__PURE__ */ [
   'fixed inset-0 z-(--plass-z-portal) bg-(--plass-scrim)',
   '[backdrop-filter:blur(2px)] [-webkit-backdrop-filter:blur(2px)]',
-  '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
+  '[transition:opacity_var(--plass-duration-slow)_var(--plass-ease)]',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
 ].join(' ');
 
@@ -110,7 +110,10 @@ const popupClasses = /* @__PURE__ */ [
   '[outline:none]',
   // Opacity only. A palette that slid in would move the row a reader is already
   // reaching for, which is the one thing a list under a cursor must never do.
-  '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
+  //
+  // At the slow duration, with the scrim: this one takes the page, and the
+  // control duration on a surface that size is a cut rather than a fade.
+  '[transition:opacity_var(--plass-duration-slow)_var(--plass-ease)]',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
 ].join(' ');
 

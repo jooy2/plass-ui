@@ -236,8 +236,13 @@ const panelClasses = /* @__PURE__ */ [
 const overlayShadowClasses = '[box-shadow:var(--plass-shadow-4),var(--plass-gloss-glass)]';
 const inlineShadowClasses = '[box-shadow:var(--plass-gloss-glass)]';
 
+/**
+ * The slow duration, shared by the panel and the scrim so the two arrive as one
+ * thing. A drawer takes the page the way a modal does, and the control duration
+ * on a surface that size is a cut with a hint of blur on it rather than a fade.
+ */
 const fadeClasses = /* @__PURE__ */ [
-  '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
+  '[transition:opacity_var(--plass-duration-slow)_var(--plass-ease)]',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
 ].join(' ');
 

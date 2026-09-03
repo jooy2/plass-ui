@@ -153,16 +153,22 @@ const popupClasses = /* @__PURE__ */ [
   '[box-shadow:var(--plass-shadow-4),var(--plass-gloss-glass)]',
   '[outline:none]',
   // Opacity only. A modal that scales or slides in drags its own text across
-  // the screen for 200ms, which is the exact thing the house style is against —
-  // and unlike a control, this one is full of text.
-  '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
+  // the screen, which is the exact thing the house style is against — and
+  // unlike a control, this one is full of text.
+  //
+  // At the **slow** duration rather than the control one, and that is the line
+  // between the two: 150ms is a key going down, and on a sheet the size of a
+  // dialog it is not a fade but a cut. A page that changes this completely that
+  // fast leaves a reader looking for what moved. The scrim under it takes the
+  // same duration, so the two arrive as one thing.
+  '[transition:opacity_var(--plass-duration-slow)_var(--plass-ease)]',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
 ].join(' ');
 
 const backdropClasses = /* @__PURE__ */ [
   'fixed inset-0 z-(--plass-z-portal) bg-(--plass-scrim)',
   '[backdrop-filter:blur(2px)] [-webkit-backdrop-filter:blur(2px)]',
-  '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
+  '[transition:opacity_var(--plass-duration-slow)_var(--plass-ease)]',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
 ].join(' ');
 

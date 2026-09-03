@@ -281,5 +281,25 @@ describe('PlCommandPalette', () => {
       expect(backdrop).toHaveClass('plass-portal');
       expect(backdrop?.className).toContain('bg-(--plass-scrim)');
     });
+
+    it('fades with the sheet, at the slow duration', async () => {
+      const screen = await render(
+        <PlCommandPalette
+          items={items}
+          shortcut={false}
+          defaultOpen
+          classNames={{ backdrop: 'my-own-backdrop' }}
+        />
+      );
+
+      // This one takes the page, so it opens on the duration a modal opens on
+      // rather than the one a menu hanging off a control does.
+      for (const element of [
+        document.querySelector('.my-own-backdrop')!,
+        screen.getByRole('dialog').element()
+      ]) {
+        expect(element.className).toContain('--plass-duration-slow');
+      }
+    });
   });
 });

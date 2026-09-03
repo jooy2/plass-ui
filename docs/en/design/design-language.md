@@ -193,6 +193,15 @@ Three things move together and they all say the same thing: the control has gone
 
 `--plass-duration` is 150ms and `--plass-ease` is one curve, applied identically in both directions. A key going down and a key coming back up are the same spring; an asymmetric press belongs to a different material.
 
+### The second duration is for what takes the page
+
+`--plass-duration-slow` is 260ms, and exactly one thing decides which of the two a surface gets: **whether it takes the page or hangs off a control.**
+
+- **Takes the page** — a modal, a drawer, an overlay, a command palette. The sheet and its scrim both fade on the slow duration, so the two arrive as one thing. 150ms across the whole window is not a fade, it is a cut with a hint of blur on it, and a page that changes that completely that fast leaves a reader looking for what moved.
+- **Hangs off a control** — a menu, a popover, a tooltip, a select or combobox list, a date picker's sheet. These stay at 150ms, because they are the size of the control they came from and a reader is usually on their way to something inside one.
+
+The same 260ms is also what a height travels over — an accordion, a collapsible, a pill — for the same reason: what is moving is the page under it.
+
 ### Light arrives with the pointer
 
 `.plass-glow` is two stacked layers on every interactive control.

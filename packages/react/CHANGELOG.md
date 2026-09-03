@@ -93,6 +93,12 @@
 
 ### Changed
 
+- **A surface that takes the page now opens at 260ms rather than 150ms.** `PlModal`, `PlDrawer`, `PlOverlay` and `PlCommandPalette` — the sheet and its scrim together, so the two arrive as one thing. `--plass-duration-slow` already existed and was already what a height travels over; it was never applied to the thing it describes best.
+
+  150ms is a key going down. Across the whole window it is not a fade, it is a cut with a hint of blur on it, and a page that changes this completely that fast leaves a reader looking for what moved rather than reading what arrived. The line is written down on the [motion](https://plass.cdget.com/design/design-language#the-second-duration-is-for-what-takes-the-page) page and it is one question: **does the surface take the page, or hang off a control?** A menu, a popover, a tooltip, a select's list and a picker's sheet all still open at 150ms, because they are the size of the control they came from.
+
+  Nothing about the shape of the motion changed. It is still opacity and nothing else, in both directions, on the same curve.
+
 - **`PlStack` replaces `PlAvatarGroup`, and this is a breaking change.** A row of overlapping faces is one arrangement of a pile rather than a component of its own: a deck of cards, a stack of documents, a fan of thumbnails and a row of avatars differ in what is in them, not in how they are laid out. `PlStack` takes whatever it is given and never looks inside.
 
   **The overlap is real layout, never a transform**, and that is the whole component. A translated pile is laid out one item wide: it paints outside its own box, and every element after it on the page is placed against a size the reader never sees — so it cannot go in a paragraph, a table cell, or a flex row beside a label without pushing something out of place. A negative margin makes the box measure exactly what it draws. Five 32px items at 10px of overlap: **120×32 `horizontal`, 32×120 `vertical`, 120×72 `diagonal`**, measured in a browser with the stylesheet loaded rather than reasoned about.

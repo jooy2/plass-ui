@@ -235,6 +235,24 @@ describe('PlDrawer', () => {
       expect(backdrop).toHaveClass('plass-portal');
     });
 
+    it('fades with the panel, at the slow duration', async () => {
+      const screen = await render(
+        <PlDrawer open title="Filters" classNames={{ backdrop: 'my-own-backdrop' }}>
+          Body
+        </PlDrawer>
+      );
+
+      // A drawer takes the page the way a modal does, so it opens on the same
+      // duration — and the scrim opens with it rather than a beat apart.
+      for (const element of [
+        document.querySelector('.my-own-backdrop')!,
+        screen.getByRole('dialog').element()
+      ]) {
+        expect(element.className).toContain('--plass-duration-slow');
+        expect(element).toHaveClass('data-[starting-style]:opacity-0');
+      }
+    });
+
     it('has none to give an inline drawer, and does not fail over it', async () => {
       await render(
         <PlDrawer mode="inline" title="Filters" classNames={{ backdrop: 'my-own-backdrop' }}>

@@ -96,6 +96,31 @@ void main() {
         expect(tester.getSize(find.text('This cannot be undone.')).width, lessThanOrEqualTo(280));
       });
 
+      testWidgets('fades at the slow duration rather than the control one', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, const _Harness());
+
+        double opacity() {
+          return tester.widget<FadeTransition>(find.byType(FadeTransition).first).opacity.value;
+        }
+
+        expect(opacity(), 1);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pump();
+        await tester.pump(PlassTokens.duration);
+
+        // Still travelling a whole control duration in, which is the point:
+        // 150ms on a sheet the size of the window is a cut with a hint of blur
+        // on it rather than a fade.
+        expect(opacity(), greaterThan(0));
+
+        await tester.pumpAndSettle();
+
+        expect(find.text('This cannot be undone.'), findsNothing);
+      });
+
       testWidgets('scores the sheet when asked', (WidgetTester tester) async {
         await _pump(tester, const _Harness(dividers: true));
 

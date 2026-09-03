@@ -228,6 +228,26 @@ describe('PlModal', () => {
       expect(backdrop?.className).toContain('bg-(--plass-scrim)');
     });
 
+    it('fades with the sheet, at the slow duration', async () => {
+      const screen = await render(
+        <PlModal defaultOpen title="Wide" classNames={{ backdrop: 'my-own-backdrop' }}>
+          Body
+        </PlModal>
+      );
+
+      const backdrop = document.querySelector('.my-own-backdrop')!;
+      const sheet = screen.getByRole('dialog').element();
+
+      // The two arrive as one thing, so they take one duration — and it is the
+      // slow one, because 150ms on a surface this size is a cut rather than a
+      // fade.
+      for (const element of [backdrop, sheet]) {
+        expect(element.className).toContain('--plass-duration-slow');
+        expect(element).toHaveClass('data-[starting-style]:opacity-0');
+        expect(element.className).not.toContain('translate');
+      }
+    });
+
     it('leaves the sheet where its own `className` put it', async () => {
       const screen = await render(
         <PlModal

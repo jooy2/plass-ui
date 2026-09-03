@@ -130,9 +130,15 @@ const insetClasses: Record<PlassSize, string> = {
  * slides drags whatever is written on it across the screen, which is the one
  * thing the house style is against — and unlike a control, this one is usually
  * carrying a sentence.
+ *
+ * At the **slow** duration, which is the one thing separating a surface that
+ * takes the page from one that hangs off a control. 150ms is a key going down;
+ * on a sheet the size of the window it is not a fade, it is a cut with a hint
+ * of blur on it, and a page that changes that completely that fast leaves a
+ * reader looking for what moved.
  */
 const fadeClasses = /* @__PURE__ */ [
-  '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
+  '[transition:opacity_var(--plass-duration-slow)_var(--plass-ease)]',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
 ].join(' ');
 

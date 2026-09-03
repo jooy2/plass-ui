@@ -138,5 +138,20 @@ describe('PlOverlay', () => {
       expect(backdrop).not.toBeNull();
       expect(backdrop).toHaveClass('plass-portal');
     });
+
+    it('fades at the slow duration, with nothing sliding', async () => {
+      await render(
+        <PlOverlay open modal="trap-focus" classNames={{ backdrop: 'my-own-backdrop' }}>
+          Saving
+        </PlOverlay>
+      );
+
+      const backdrop = document.querySelector('.my-own-backdrop')!;
+
+      // A sheet over the whole page is not a control, and the control duration
+      // on something this size is a cut rather than a fade.
+      expect(backdrop.className).toContain('--plass-duration-slow');
+      expect(backdrop.className).not.toContain('translate');
+    });
   });
 });

@@ -25,6 +25,13 @@ import 'package:plass_ui/src/theme/tokens.dart';
 /// whatever is written on it across the screen, which is the one thing the house
 /// style is against — and unlike a control, a sheet is usually carrying a
 /// sentence.
+///
+/// It runs at [PlassTokens.durationSlow] rather than the control duration, and
+/// that is the line between this and [PlassAnchoredPortal]: 150ms is a key going
+/// down, and on a sheet the size of the window it is not a fade but a cut with a
+/// hint of blur on it. A page that changes this completely that fast leaves a
+/// reader looking for what moved. A popup that hangs off a control stays at the
+/// control duration, because it is the size of one.
 class PlassPortal extends StatefulWidget {
   /// Creates a layer.
   const PlassPortal({
@@ -75,9 +82,12 @@ class PlassPortal extends StatefulWidget {
 class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStateMixin {
   final OverlayPortalController _portal = OverlayPortalController();
   final FocusScopeNode _scope = FocusScopeNode(debugLabel: 'PlassPortal');
+  // Overwritten in `build`, which is where the reader's motion preference can
+  // be read. The value here is what the first frame would use if it ran before
+  // one, so it is the one `build` will set rather than a different number.
   late final AnimationController _fade = AnimationController(
     vsync: this,
-    duration: PlassTokens.duration,
+    duration: PlassTokens.durationSlow,
   );
 
   /// Where focus was before the layer went up, so it can be put back.
@@ -172,7 +182,7 @@ class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStat
   Widget build(BuildContext context) {
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
-    _fade.duration = reduceMotion ? Duration.zero : PlassTokens.duration;
+    _fade.duration = reduceMotion ? Duration.zero : PlassTokens.durationSlow;
 
     return OverlayPortal(
       controller: _portal,
