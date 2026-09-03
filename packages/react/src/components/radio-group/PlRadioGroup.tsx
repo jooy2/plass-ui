@@ -132,8 +132,26 @@ const disabledDotClasses = /* @__PURE__ */ [
   'data-[checked]:[border-color:transparent]'
 ].join(' ');
 
-/** The inner dot: `currentColor`, so it inherits the on-fill ink. */
-const indicatorClasses = 'rounded-full bg-current';
+/**
+ * The inner dot: `currentColor`, so it inherits the on-fill ink.
+ *
+ * It grows out of the middle of the ring instead of being there or not being
+ * there. A dot that appears whole on the frame the ring fills reads as a swap
+ * rather than as an answer to the click, and it is the one part of the control
+ * a reader is actually looking at.
+ *
+ * What is animated is the box, not a `transform`: the ring is a fixed-size flex
+ * centre, so a width and a height are laid out about the same point and cost
+ * nothing outside it. The dot is kept mounted so it can shrink back out again
+ * when another option in the set takes the value.
+ */
+const indicatorClasses = /* @__PURE__ */ [
+  'rounded-full bg-current',
+  '[transition-property:width,height]',
+  '[transition-duration:var(--plass-duration)]',
+  '[transition-timing-function:var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]'
+].join(' ');
 
 /**
  * One option in a `PlRadioGroup`.
@@ -171,6 +189,7 @@ export const PlRadio = /* @__PURE__ */ React.forwardRef<HTMLElement, PlRadioProp
             {...props}
           >
             <BaseUIRadio.Indicator
+              keepMounted
               className={`${indicatorClasses} ${tickDotClasses[group.size]}`}
             />
           </BaseUIRadio.Root>

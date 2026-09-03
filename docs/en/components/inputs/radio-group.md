@@ -90,6 +90,8 @@ It carries no `size` and no `color` either, and could not: a radio button says n
 
 :::
 
+The dot **grows out of the middle of its ring** rather than switching on with the fill, and shrinks back out when another option in the set takes the value. It is the box that grows and not a `transform`: the ring centres a fixed-size child, so both ends of the change are laid out about the same point and nothing around the option moves. See [motion](../../design/design-language#a-mark-is-drawn-not-switched-on).
+
 What the shared axes (`size` `color` `orientation`) mean across the library is in [prop conventions](../../design/prop-conventions).
 
 ## Examples

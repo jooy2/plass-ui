@@ -345,14 +345,21 @@ class _Radio<T> extends StatelessWidget {
                   width: hairline,
                 ),
         ),
+        // The dot grows out of the middle rather than being there or not being
+        // there. A dot that appears whole on the frame the ring fills reads as
+        // a swap rather than as an answer to the tap, and it is the one part of
+        // the control a reader is looking at.
+        //
+        // It is the box that grows and not a `Transform`: the ring centres a
+        // fixed-size child, so both ends of the animation are laid out about
+        // the same point and nothing outside the ring can be moved by either.
         child: Center(
-          child: SizedBox.square(
-            dimension: selected ? dot : 0,
-            child: selected
-                ? DecoratedBox(
-                    decoration: BoxDecoration(shape: BoxShape.circle, color: family.onSolid),
-                  )
-                : null,
+          child: AnimatedContainer(
+            duration: reduceMotion ? Duration.zero : PlassTokens.duration,
+            curve: PlassTokens.ease,
+            width: selected ? dot : 0,
+            height: selected ? dot : 0,
+            decoration: BoxDecoration(shape: BoxShape.circle, color: family.onSolid),
           ),
         ),
       );
@@ -363,9 +370,13 @@ class _Radio<T> extends StatelessWidget {
         child: circle,
         disabled: disabled,
         readOnly: readOnly,
+        // Only a filled ring brightens under the pointer, and `hovered` is the
+        // one place that rule may be written. Saying it again through `lit`
+        // would decide whether the filter is in the tree at all, and a wrapper
+        // that comes and goes with the value throws away the subtree under it
+        // — dot, ring and every animation either of them was in the middle of.
         hovered: state.hovered && selected,
         reduceMotion: reduceMotion,
-        lit: selected,
       );
 
       if (state.focusVisible) {

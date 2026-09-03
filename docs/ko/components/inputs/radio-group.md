@@ -90,6 +90,8 @@ Base UI `RadioGroup`의 나머지 prop은 그대로 전달됩니다. `className`
 
 :::
 
+점은 채움과 함께 켜지지 않고 **고리 한가운데에서 자라며**, 묶음의 다른 옵션이 값을 가져가면 다시 줄어듭니다. 커지는 것은 상자이지 `transform`이 아닙니다. 고리가 고정 크기 자식을 가운데 두므로 변화의 양쪽 끝이 같은 점을 중심으로 배치되고, 옵션 주위의 무엇도 움직이지 않습니다. [모션](../../design/design-language#표식은-켜지는-것이-아니라-그려집니다)을 보세요.
+
 라이브러리 전체에서 공유 축(`size` `color` `orientation`)이 뜻하는 바는 [prop 규칙](../../design/prop-conventions)에 있습니다.
 
 ## Examples

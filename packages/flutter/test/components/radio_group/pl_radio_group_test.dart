@@ -79,6 +79,58 @@ void main() {
         await tester.tap(find.text('B'));
         expect(chosen, isNull);
       });
+
+      testWidgets('grows the dot out of the ring rather than switching it on', (
+        WidgetTester tester,
+      ) async {
+        String plan = 'starter';
+
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return PlRadioGroup<String>(
+                  options: plans,
+                  value: plan,
+                  onChanged: (String next) => setState(() => plan = next),
+                );
+              },
+            ),
+            width: 320,
+          ),
+        );
+
+        // The dot is the innermost box in an option, and it is a real size
+        // rather than a scaled one — the ring centres it, so both ends of the
+        // animation are laid out about the same point.
+        double dotOf(String label) {
+          return tester
+              .getSize(
+                find
+                    .descendant(
+                      of: find.ancestor(of: find.text(label), matching: find.byType(Row)).last,
+                      matching: find.byType(AnimatedContainer),
+                    )
+                    .last,
+              )
+              .width;
+        }
+
+        expect(dotOf('Enterprise'), 0);
+
+        await tester.tap(find.text('Enterprise'));
+        await tester.pump();
+        await tester.pump(PlassTokens.duration ~/ 2);
+
+        final double halfway = dotOf('Enterprise');
+
+        expect(halfway, greaterThan(0));
+
+        await tester.pumpAndSettle();
+
+        expect(dotOf('Enterprise'), greaterThan(halfway));
+        expect(dotOf('Starter'), 0);
+      });
     });
 
     group('the arrow keys', () {

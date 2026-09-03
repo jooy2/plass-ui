@@ -1,6 +1,8 @@
 /// A single yes/no, or one member of a set of them.
 library;
 
+import 'dart:ui' show PathMetric;
+
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
@@ -148,14 +150,28 @@ class PlCheckbox extends StatelessWidget {
                   width: hairline,
                 ),
         ),
+        // The mark draws itself on rather than appearing. A glyph that arrives
+        // whole, on the frame the box fills, is a glyph that was not put there
+        // by the tap — it reads as a swap. What is animated is how much of the
+        // stroke has been laid down, so nothing moves that was not going to be
+        // there and no `Transform` is involved: this is how a mark enters in a
+        // library that will not scale one.
+        //
+        // The painter is built in both states, because a tick that is thrown
+        // away the moment the box is cleared cannot travel back out again.
         child: Center(
           child: SizedBox.square(
             dimension: box * _markFraction,
-            child: marked
-                ? CustomPaint(
-                    painter: _TickPainter(color: family.onSolid, dash: indeterminate),
-                  )
-                : null,
+            child: TweenAnimationBuilder<double>(
+              tween: Tween<double>(end: marked ? 1 : 0),
+              duration: reduceMotion ? Duration.zero : PlassTokens.duration,
+              curve: PlassTokens.ease,
+              builder: (BuildContext context, double drawn, Widget? child) {
+                return CustomPaint(
+                  painter: _TickPainter(color: family.onSolid, dash: indeterminate, drawn: drawn),
+                );
+              },
+            ),
           ),
         ),
       );
@@ -166,11 +182,19 @@ class PlCheckbox extends StatelessWidget {
         child: surface,
         disabled: _disabled,
         readOnly: readOnly,
+        // A filled tick brightens under the pointer the way a filled key does;
+        // an empty one answers with its hairline instead — which is what this
+        // says, and it is the only place it may be said.
+        //
+        // `lit` used to carry the same rule, and carrying it twice cost the
+        // component every animation inside the tick: `lit` decides whether the
+        // filter is *there*, so flipping it with the value swapped the widget
+        // at that slot and threw away the subtree under it, state and all. The
+        // box's own fill was reverting to a hard cut for exactly that reason.
+        // Leaving `lit` at its default keeps the wrapper in the tree at all
+        // times, passing its child straight through at a brightness of 1.
         hovered: state.hovered && marked,
         reduceMotion: reduceMotion,
-        // A filled tick brightens under the pointer the way a filled key does;
-        // an empty one answers with its hairline instead.
-        lit: marked,
       );
 
       if (state.focusVisible) {
@@ -279,14 +303,24 @@ class PlCheckbox extends StatelessWidget {
 /// Both are drawn in the same 12-unit box the React package's SVGs use, at the
 /// same weight — a dash a quarter-point lighter than the tick beside it in a
 /// tree of checkboxes reads as two controls.
+///
+/// [drawn] is how much of the stroke has been laid down, from nothing at 0 to
+/// the whole mark at 1. The React build spends a `stroke-dashoffset` on the
+/// same effect; here the path is measured and cut, which is the same statement
+/// in the medium that has `PathMetric`.
 class _TickPainter extends CustomPainter {
-  const _TickPainter({required this.color, required this.dash});
+  const _TickPainter({required this.color, required this.dash, required this.drawn});
 
   final Color color;
   final bool dash;
+  final double drawn;
 
   @override
   void paint(Canvas canvas, Size size) {
+    if (drawn <= 0) {
+      return;
+    }
+
     final path = Path();
 
     if (dash) {
@@ -304,7 +338,7 @@ class _TickPainter extends CustomPainter {
       ..save()
       ..scale(size.shortestSide / 12)
       ..drawPath(
-        path,
+        drawn >= 1 ? path : _upTo(path, drawn),
         Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2
@@ -315,8 +349,32 @@ class _TickPainter extends CustomPainter {
       ..restore();
   }
 
+  /// The leading [fraction] of [path], measured along the path rather than
+  /// across the box — so the tick's short leg and its long one are laid down at
+  /// the same speed rather than in the same time.
+  static Path _upTo(Path path, double fraction) {
+    final metrics = path.computeMetrics().toList();
+    final total = metrics.fold<double>(0, (double sum, PathMetric m) => sum + m.length);
+    final cut = Path();
+    double remaining = total * fraction;
+
+    for (final PathMetric metric in metrics) {
+      if (remaining <= 0) {
+        break;
+      }
+
+      cut.addPath(
+        metric.extractPath(0, remaining < metric.length ? remaining : metric.length),
+        Offset.zero,
+      );
+      remaining -= metric.length;
+    }
+
+    return cut;
+  }
+
   @override
   bool shouldRepaint(_TickPainter oldDelegate) {
-    return oldDelegate.color != color || oldDelegate.dash != dash;
+    return oldDelegate.color != color || oldDelegate.dash != dash || oldDelegate.drawn != drawn;
   }
 }

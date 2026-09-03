@@ -182,13 +182,21 @@ export const tickRadiusClasses: Record<PlassSize, string> = {
  * So every dot here has the same parity as the ring's content box: 12/6, 14/6,
  * 16/8, 18/8, 22/10. The ratio wanders between 38% and 44% as a result, which
  * is the price, and it is invisible next to the thing it buys.
+ *
+ * **The dot grows out of the middle rather than appearing at full size**, so
+ * the size is a pair: nothing until the option is chosen, and the diameter
+ * above once it is. It is the box that grows and not a `scale` — the ring is a
+ * fixed-size flex centre, so the two values are laid out around the same point
+ * and nothing outside the ring can be moved by either of them. Both classes
+ * have to be written out here rather than composed at the call site, because
+ * Tailwind only generates a utility it has seen spelled out in a source file.
  */
 export const tickDotClasses: Record<PlassSize, string> = {
-  xs: 'size-1.5',
-  sm: 'size-1.5',
-  md: 'size-2',
-  lg: 'size-2',
-  xl: 'size-2.5'
+  xs: 'size-0 data-[checked]:size-1.5',
+  sm: 'size-0 data-[checked]:size-1.5',
+  md: 'size-0 data-[checked]:size-2',
+  lg: 'size-0 data-[checked]:size-2',
+  xl: 'size-0 data-[checked]:size-2.5'
 };
 
 /**

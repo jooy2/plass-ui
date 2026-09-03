@@ -49,6 +49,30 @@ describe('PlCheckbox', () => {
       expect(screen.getByRole('checkbox').element()).toHaveAttribute('aria-checked', 'mixed');
     });
 
+    it('draws the tick on instead of swapping it in', async () => {
+      const screen = await render(<PlCheckbox label="Email me" />);
+      const tick = screen.getByRole('checkbox').element();
+      const mark = () => tick.querySelector('span')!;
+
+      // Kept in the document while the box is empty, because a mark that is
+      // unmounted cannot travel back out again.
+      expect(mark()).toHaveAttribute('data-unchecked');
+      expect(mark().querySelector('path')).toHaveAttribute('pathLength', '1');
+
+      await screen.getByRole('checkbox').click();
+
+      await vi.waitFor(() => expect(mark()).toHaveAttribute('data-checked'));
+      expect(mark()).not.toHaveAttribute('data-unchecked');
+    });
+
+    it('draws the dash on the same way when indeterminate', async () => {
+      const screen = await render(<PlCheckbox label="All" indeterminate />);
+      const mark = screen.getByRole('checkbox').element().querySelector('span')!;
+
+      expect(mark).toHaveAttribute('data-indeterminate');
+      expect(mark).not.toHaveAttribute('data-unchecked');
+    });
+
     it('reflects a changed label on re-render', async () => {
       const screen = await render(<PlCheckbox label="Before" />);
 

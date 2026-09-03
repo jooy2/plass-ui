@@ -163,5 +163,21 @@ describe('PlRadioGroup', () => {
         expect(radio).toHaveClass('size-6');
       }
     });
+
+    it('grows the dot out of the ring rather than switching it on', async () => {
+      const screen = await render(<Plans />);
+      const radios = screen.getByRole('radio').elements();
+      const dot = (radio: Element) => radio.querySelector('span')!;
+
+      // Kept in the document at zero, because a dot that is unmounted cannot
+      // shrink back out when another option in the set takes the value.
+      expect(dot(radios[0])).toHaveClass('size-0');
+      expect(dot(radios[0])).not.toHaveAttribute('data-checked');
+
+      await screen.getByText('Starter').click();
+
+      await vi.waitFor(() => expect(dot(radios[0])).toHaveAttribute('data-checked'));
+      expect(dot(radios[0]).className).toContain('transition-property');
+    });
   });
 });

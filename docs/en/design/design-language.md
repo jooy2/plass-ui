@@ -169,6 +169,15 @@ Only `solid` gets one. A sheet of clear glass casts a neutral shadow, because it
 
 A surface that _holds_ content rather than being pressed — a Card, a row — may lift, and should. The rule is about the thing under the finger.
 
+### A mark is drawn, not switched on
+
+The rule above leaves an obvious hole: a tick and a radio dot are not there and then they are, and neither of them may be scaled into place. So they are not put there at all — they are **drawn**.
+
+- **A tick draws itself along its own path.** The stroke is dashed at exactly its own length and slid out of view by exactly that, so how much of the mark exists is one number between 0 and 1. In CSS that is a `stroke-dashoffset`; in Flutter it is the path measured and cut. Nothing appears anywhere it was not going to end up.
+- **A radio dot grows out of the middle of its ring.** The ring centres a fixed-size child, so a width and a height are laid out about the same point — the box grows, and no `transform` is involved. Nothing outside the ring can be moved by it.
+
+The mark is **kept in the document while it is not there**, at zero. A mark that is thrown away the moment the value is cleared cannot travel back out, and a control that animates one way and cuts the other is a control that means two different things by the same click.
+
 ### Press is light, not paint
 
 The fill is a gradient, and a gradient cannot be transitioned. So hover and press are `filter: brightness()`:

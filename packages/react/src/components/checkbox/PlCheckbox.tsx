@@ -114,14 +114,44 @@ const disabledTickClasses = /* @__PURE__ */ [
   'data-[indeterminate]:[background-image:var(--p-fill)] data-[indeterminate]:text-(--p-on-solid)'
 ].join(' ');
 
-/** The mark is drawn at 70% of the box, so it never touches the corners. */
-const markClasses = 'flex size-[70%] items-center justify-center';
+/**
+ * The mark is drawn at 70% of the box, so it never touches the corners.
+ *
+ * **It draws itself on rather than appearing.** The tick used to arrive whole,
+ * on the same frame the box filled, and a glyph that arrives whole is a glyph
+ * that was not put there by the click — it reads as a swap. The stroke is dashed
+ * at exactly its own length and slid out of view by exactly that, so the state
+ * is one number and the change between the two is the pen travelling along the
+ * path it will end up occupying. Nothing moves that was not going to be there,
+ * and no `transform` is involved, which is the point: this is the way to animate
+ * a mark in a library that will not scale one.
+ *
+ * `pathLength="1"` is what makes it one number rather than a measurement. It
+ * renormalises the path to a length of 1 whatever its real geometry is, so the
+ * tick and the dash — 11.3 and 7 user units — take the same two classes, and a
+ * change to either `d` cannot silently leave the dash the wrong length.
+ *
+ * The indicator is kept mounted so the mark can travel back out again. Base UI
+ * would otherwise unmount it as soon as the box is cleared, and it waits for
+ * animations on the indicator itself rather than on the `<path>` inside it, so
+ * an exit would be cut off on its first frame.
+ */
+const markClasses = /* @__PURE__ */ [
+  'flex size-[70%] items-center justify-center',
+  '[&_path]:[stroke-dasharray:1] [&_path]:[stroke-dashoffset:0]',
+  '[&_path]:[transition:stroke-dashoffset_var(--plass-duration)_var(--plass-ease)]',
+  'motion-reduce:[&_path]:[transition-duration:0ms]',
+  // `data-unchecked` rather than the absence of `data-checked`: an
+  // indeterminate box carries neither, and its dash is drawn too.
+  'data-[unchecked]:[&_path]:[stroke-dashoffset:1]'
+].join(' ');
 
 function CheckMark() {
   return (
     <svg viewBox="0 0 12 12" fill="none" aria-hidden="true" className="size-full">
       <path
         d="M2 6.2 4.6 8.8 10 3.4"
+        pathLength={1}
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
@@ -134,7 +164,13 @@ function CheckMark() {
 function DashMark() {
   return (
     <svg viewBox="0 0 12 12" fill="none" aria-hidden="true" className="size-full">
-      <path d="M2.5 6h7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path
+        d="M2.5 6h7"
+        pathLength={1}
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -208,7 +244,7 @@ export const PlCheckbox = /* @__PURE__ */ React.forwardRef<HTMLElement, PlCheckb
               readOnly={readOnly}
               {...props}
             >
-              <BaseUICheckbox.Indicator className={markClasses}>
+              <BaseUICheckbox.Indicator keepMounted className={markClasses}>
                 {props.indeterminate ? <DashMark /> : <CheckMark />}
               </BaseUICheckbox.Indicator>
             </BaseUICheckbox.Root>

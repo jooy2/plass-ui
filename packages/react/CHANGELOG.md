@@ -66,6 +66,12 @@
 
 ### Fixed
 
+- **A tick and a radio dot arrived whole, on the frame the box filled.** Both were the last state change in the library still expressed as a swap: the mark was there or it was not, on a control whose whole job is to answer a click, and the mark is the part a reader is looking at.
+
+  Neither is scaled into place, because [controls do not move](https://plass.cdget.com/design/design-language#controls-do-not-move) and that rule is not bent for the small parts. **A tick draws itself along its own path** — the stroke is dashed at exactly its own length and slid out of view by exactly that, so how much of the mark exists is one number, and `pathLength="1"` renormalises the tick and the dash to the same 0-to-1 whatever their real geometry is. **A dot grows out of the middle of its ring** — the ring centres a fixed-size child, so a width and a height are laid out about the same point and nothing outside the ring can be moved by either.
+
+  Both marks are now **kept in the document at nothing** rather than unmounted, because Base UI waits for animations on the indicator itself and not on the `<path>` inside it — an exit would otherwise be cut off on its first frame, and a control that animates one way and cuts the other means two different things by the same click.
+
 - **A `PlSelect` and a `PlCombobox` popup arrived and left between two frames.** Every other floating surface in the library fades — a modal, a drawer, a menu, a tooltip, a popover, a date picker's sheet — and these two were the ones that did not, so the same gesture had two different answers depending on which control the reader was standing on. They fade now, on the same one line the others use.
 
   Opacity only, which is the point rather than a shortcut: a list that slid or grew in would be dragging its own options across the field they are being read against, and the options are the thing being looked at. Base UI keeps the popup in the document for the length of the ending transition, so a list closes the way it opened instead of vanishing.

@@ -55,6 +55,8 @@ The checkbox is **controlled**: it is handed a `value` and reports what the valu
 
 There is no `variant`. On and off are not two strengths of one material, so the box swaps its whole surface rather than shifting a step along a ladder — the one place in the library a state is expressed that way.
 
+The tick **draws itself on** rather than appearing whole on the frame the box fills, and draws itself back off when the box is cleared. A mark that arrives all at once is a mark that was swapped in rather than one the click put there. Nothing is scaled to do it — the stroke is dashed at its own length and the dash is what moves, so no part of the tick is ever anywhere it will not end up. See [motion](../../design/design-language#a-mark-is-drawn-not-switched-on).
+
 What the shared axes (`size` `color`) mean across the library is in [prop conventions](../../design/prop-conventions).
 
 ## Examples

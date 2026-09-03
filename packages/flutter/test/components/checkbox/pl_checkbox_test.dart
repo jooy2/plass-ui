@@ -12,6 +12,22 @@ BoxDecoration tickOf(WidgetTester tester) {
   );
 }
 
+/// The painter that lays the mark down.
+///
+/// The only `painter` inside a checkbox — the focus ring is a
+/// `foregroundPainter`, so it is not one of these. How far along it is stays
+/// private to the component, which is why the tests below compare two of them
+/// through `shouldRepaint` rather than reading a number off one.
+CustomPainter markPainterOf(WidgetTester tester) {
+  return tester
+      .widgetList<CustomPaint>(
+        find.descendant(of: find.byType(PlCheckbox), matching: find.byType(CustomPaint)),
+      )
+      .map((CustomPaint paint) => paint.painter)
+      .whereType<CustomPainter>()
+      .single;
+}
+
 void main() {
   group('PlCheckbox', () {
     group('rendering', () {
@@ -70,6 +86,55 @@ void main() {
 
         expect(tickOf(tester).gradient, isNotNull);
         expect(find.byType(CustomPaint), findsWidgets);
+      });
+
+      testWidgets('draws the mark on rather than swapping it in', (WidgetTester tester) async {
+        bool value = false;
+
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return PlCheckbox(
+                  value: value,
+                  onChanged: (bool next) => setState(() => value = next),
+                );
+              },
+            ),
+            width: 200,
+          ),
+        );
+
+        final CustomPainter empty = markPainterOf(tester);
+
+        await tester.tap(find.byType(PlCheckbox));
+        await tester.pump();
+        await tester.pump(PlassTokens.duration ~/ 2);
+
+        final CustomPainter halfway = markPainterOf(tester);
+
+        await tester.pumpAndSettle();
+
+        final CustomPainter whole = markPainterOf(tester);
+
+        // Three states rather than two is the whole claim: a mark that arrives
+        // whole arrived by a swap rather than by the tap.
+        expect(halfway.shouldRepaint(empty), isTrue);
+        expect(whole.shouldRepaint(halfway), isTrue);
+      });
+
+      testWidgets('is whole from the first frame when it opens ticked', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(const PlCheckbox(value: true), width: 200));
+
+        final CustomPainter first = markPainterOf(tester);
+
+        await tester.pumpAndSettle();
+
+        // No entrance for a box that was already ticked: the animation is the
+        // answer to a tap, and nobody tapped this one.
+        expect(markPainterOf(tester).shouldRepaint(first), isFalse);
       });
     });
 
