@@ -89,6 +89,17 @@ describe('PlSelect', () => {
       await vi.waitFor(() => expect(screen.getByRole('option').elements()).toHaveLength(3));
     });
 
+    it('fades the popup in and never slides it', async () => {
+      const screen = await render(<PlSelect items={items} placeholder="Pick" />);
+
+      await screen.getByRole('combobox').click();
+
+      const popup = await vi.waitFor(() => screen.getByRole('listbox').element());
+
+      expect(popup.className).toContain('data-[starting-style]:opacity-0');
+      expect(popup.className).not.toContain('translate');
+    });
+
     it('marks a disabled option as such', async () => {
       const screen = await render(<PlSelect items={items} placeholder="Pick" />);
 

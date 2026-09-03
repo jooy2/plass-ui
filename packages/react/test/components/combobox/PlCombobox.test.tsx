@@ -100,6 +100,21 @@ describe('PlCombobox', () => {
       // has finished by the time the click promise settles is not fixed.
       await expect.element(screen.getByRole('combobox')).toHaveValue('Seoul');
     });
+
+    it('fades the popup in and never slides it', async () => {
+      const screen = await render(<PlCombobox items={items} />);
+
+      await screen.getByRole('combobox').click();
+
+      // The popup is the sheet around the list rather than the list itself,
+      // which is the element carrying `role="listbox"`.
+      const popup = await vi.waitFor(() =>
+        screen.getByRole('listbox').element().closest('.plass-portal > *')!
+      );
+
+      expect(popup.className).toContain('data-[starting-style]:opacity-0');
+      expect(popup.className).not.toContain('translate');
+    });
   });
 
   describe('filtering', () => {

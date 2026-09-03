@@ -66,6 +66,10 @@
 
 ### Fixed
 
+- **A `PlSelect` and a `PlCombobox` popup arrived and left between two frames.** Every other floating surface in the library fades — a modal, a drawer, a menu, a tooltip, a popover, a date picker's sheet — and these two were the ones that did not, so the same gesture had two different answers depending on which control the reader was standing on. They fade now, on the same one line the others use.
+
+  Opacity only, which is the point rather than a shortcut: a list that slid or grew in would be dragging its own options across the field they are being read against, and the options are the thing being looked at. Base UI keeps the popup in the document for the length of the ending transition, so a list closes the way it opened instead of vanishing.
+
 - **Three things that were written as fades were not fading.** `opacity` was missing from the house transition's property list, and three states are expressed in this library as an opacity and nothing else: `opacity-50` is what every disabled control looks like, a `PlBackTop` arrives and leaves on `opacity-0`, and a `PlImage` uncovers itself the moment the picture decodes. All three changed between two frames — a button that blinked into the corner of the page, a photograph that replaced its own skeleton, a key that went grey the instant it was disabled.
 
   It is one word in one array, and the reason it is worth a line here is the rule it restores rather than the size of it: **a value that carries a state has to be in the transition that carries states.** The list is otherwise unchanged, `transform` included — it is still not in it and still should not be.

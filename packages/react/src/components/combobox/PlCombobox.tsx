@@ -222,6 +222,11 @@ const chipsInsetClasses: Record<PlassSize, string> = {
  * is outside the element the slots were declared on, and a `var()` with nothing
  * to resolve to is not a fallback — `border-color` collapses to `currentColor`
  * and `background-color` to transparent.
+ *
+ * Opacity only, exactly as on a `PlSelect`: a list that slid or grew would be
+ * dragging its own options across the field they are being typed into. Base UI
+ * holds the popup in the document for the length of the ending transition, so
+ * the way out is the way in reversed rather than a disappearance.
  */
 const popupClasses = /* @__PURE__ */ [
   glassClasses,
@@ -229,7 +234,9 @@ const popupClasses = /* @__PURE__ */ [
   'w-[var(--anchor-width)] border bg-(--plass-glass-press) p-1',
   '[border-color:var(--plass-glass-line)]',
   '[box-shadow:var(--plass-shadow-3),var(--plass-gloss-glass)]',
-  '[outline:none]'
+  '[outline:none]',
+  '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
+  'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
 ].join(' ');
 
 const itemClasses = /* @__PURE__ */ [
