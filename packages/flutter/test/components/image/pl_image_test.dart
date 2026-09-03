@@ -126,6 +126,16 @@ void main() {
 
         expect(find.byType(PlSkeleton), findsOneWidget);
       });
+
+      testWidgets('holds the picture at nothing under the placeholder', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, const PlImage(image: _PendingImage(), semanticLabel: 'A portrait'));
+
+        // Built rather than absent, and at zero: a widget created at 1 has
+        // nothing to travel from, so the picture would arrive on one frame.
+        expect(tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity)).opacity, 0);
+      });
     });
 
     group('when it does not arrive', () {

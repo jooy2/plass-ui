@@ -160,6 +160,7 @@ class _PlImageState extends State<PlImage> {
     final tokens = PlassTheme.of(context);
     final family = tokens.family(_color);
     final radius = BorderRadius.circular(widget.rounded ? PlassTokens.radius[_size]! : 0);
+    final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     final placeholder =
         widget.placeholder ?? PlSkeleton(shape: PlSkeletonShape.rect, size: _size, color: _color);
@@ -182,14 +183,43 @@ class _PlImageState extends State<PlImage> {
       fit: PlAspectRatio.boxFit(widget.fit),
       // Only ever named once, by the `Semantics` below.
       excludeFromSemantics: true,
+      // The picture fades up over the placeholder rather than replacing it
+      // between two frames. A photograph that cuts in has decoded, which is
+      // true and is not what the reader is being told — what a hard cut reads
+      // as is the layout changing its mind, and it reads that way hardest on
+      // the slow connection the placeholder exists for.
+      //
+      // Both branches build the same `AnimatedOpacity`, which is what makes it
+      // animate at all: a widget created at 1 has nothing to travel from. A
+      // picture that was already decoded is handed back whole and unwrapped —
+      // `sync` is the frame where there was never anything to wait for, and an
+      // entrance there would be an entrance for a picture that never arrived.
       frameBuilder: (BuildContext context, Widget child, int? frame, bool sync) {
-        if (frame == null && !sync) {
-          return placeholder;
+        if (sync) {
+          _settle(PlImageStatus.loaded);
+
+          return child;
         }
 
-        _settle(PlImageStatus.loaded);
+        if (frame != null) {
+          _settle(PlImageStatus.loaded);
+        }
 
-        return child;
+        final Widget fading = AnimatedOpacity(
+          opacity: frame == null ? 0 : 1,
+          duration: reduceMotion ? Duration.zero : PlassTokens.duration,
+          curve: PlassTokens.ease,
+          child: child,
+        );
+
+        if (frame != null) {
+          return fading;
+        }
+
+        // `StackFit.passthrough` so the placeholder is measured by whatever the
+        // picture would have been measured by, and the undecoded image under it
+        // takes no room of its own.
+        return Stack(fit: StackFit.passthrough, children: <Widget>[placeholder, fading]);
       },
       errorBuilder: (BuildContext context, Object error, StackTrace? stack) {
         _settle(PlImageStatus.error);

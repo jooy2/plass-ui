@@ -55,6 +55,7 @@ An `<img>` is one tag and it works, so it is worth saying what this is for rathe
 1. **The space is reserved** before the picture arrives, so the paragraph under it does not move when it does. That is `ratio`, and it is the prop worth reaching for every time — without it there is nothing to reserve, because the box is however tall the picture turns out to be and nobody knows that until it lands.
 2. **A failure is drawn** rather than left as the browser's broken-image glyph and the alt text in a serif nobody chose.
 3. **The two are one state machine**, so the placeholder is not still sitting behind a picture that has already loaded, and a changed `src` starts again rather than inheriting the last one's success.
+4. **The picture fades up over the placeholder** rather than replacing it between two frames. A photograph that cuts in reads as the layout changing its mind, and it reads that way hardest on the slow connection the placeholder exists for. A picture that was already decoded is drawn whole, because an entrance for something that never had to be waited for is an entrance for nothing.
 
 ## Examples
 
