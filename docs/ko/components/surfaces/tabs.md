@@ -124,6 +124,12 @@ tabs는 내용 패널 전체를 바꿉니다. [segmented button](../inputs/segme
 
 `vertical`은 탭을 옆으로 세우고 패널을 그 옆에 놓으며, 방향키를 다른 축으로 옮깁니다. <Fw react="Base UI가 하는 일이고" flutter="바가 직접 하는 일이고" />, 세로 탭 바에 닿을 수 있게 만드는 것이 바로 이것입니다.
 
+::: fw react
+
+**반응형입니다.** 그리고 CSS가 아니라 JavaScript에서 풀립니다 — orientation은 DOM과 ARIA와 방향키가 걷는 방향을 정하는데, 어떤 스타일시트도 그것을 할 수 없습니다. 그래서 서버는 `xs` 항목을 렌더링하고 브라우저가 hydration에서 고칩니다. 맨값은 아무것도 구독하지 않습니다. [브레이크포인트](../../design/breakpoints) 참고.
+
+:::
+
 <Demo src="tabs/orientation" :min-height="200">
 
 ::: fw react

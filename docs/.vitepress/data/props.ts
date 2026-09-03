@@ -6811,7 +6811,7 @@ export const propTables: Record<string, PropRow[]> = {
   PlPanes: [
     {
       name: 'orientation',
-      type: "'horizontal' | 'vertical'",
+      type: "PlassResponsive<'horizontal' | 'vertical'>",
       default: "'horizontal'",
       shared: true,
       description: {
@@ -7588,7 +7588,7 @@ export const propTables: Record<string, PropRow[]> = {
   PlScrollZone: [
     {
       name: 'orientation',
-      type: "'horizontal' | 'vertical'",
+      type: "PlassResponsive<'horizontal' | 'vertical'>",
       default: "'horizontal'",
       shared: true,
       description: {
@@ -8761,7 +8761,7 @@ export const propTables: Record<string, PropRow[]> = {
     }),
     {
       name: 'orientation',
-      type: "'horizontal' | 'vertical'",
+      type: "PlassResponsive<'horizontal' | 'vertical'>",
       default: "'horizontal'",
       shared: true,
       description: {
@@ -8997,7 +8997,7 @@ export const propTables: Record<string, PropRow[]> = {
     },
     {
       name: 'orientation',
-      type: "'horizontal' | 'vertical'",
+      type: "PlassResponsive<'horizontal' | 'vertical'>",
       default: "'vertical'",
       shared: true,
       description: {
@@ -10351,7 +10351,7 @@ export const propTables: Record<string, PropRow[]> = {
     },
     {
       name: 'orientation',
-      type: "'horizontal' | 'vertical'",
+      type: "PlassResponsive<'horizontal' | 'vertical'>",
       default: "'horizontal'",
       shared: true,
       description: {
@@ -10932,7 +10932,7 @@ export const propTables: Record<string, PropRow[]> = {
   PlStack: [
     {
       name: 'direction',
-      type: "'horizontal' | 'vertical' | 'diagonal'",
+      type: "PlassResponsive<'horizontal' | 'vertical' | 'diagonal'>",
       default: "'horizontal'",
       description: {
         ko: '더미가 자라는 방향. diagonal은 진짜 45°가 아니라 부채꼴입니다 — 가로 전진량은 항목 너비에서 overlap을 뺀 값인데, 임의의 자식을 받는 컴포넌트는 그 너비를 모릅니다',

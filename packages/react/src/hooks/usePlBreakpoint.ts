@@ -1,7 +1,7 @@
 'use client';
 
 import { fromQuery } from '../internal/breakpoints.js';
-import { breakpointMap, breakpoints } from '../internal/responsive.js';
+import { resolveAt } from '../internal/responsive.js';
 import { useMediaQuery } from '../internal/media.js';
 import type { PlassBreakpoint, PlassResponsive } from '../types.js';
 
@@ -58,19 +58,5 @@ export function usePlBreakpoint(): PlassBreakpoint {
  * through: `{ xs: { … } }`.
  */
 export function usePlBreakpointValue<T>(value: PlassResponsive<T>): T | undefined {
-  const at = usePlBreakpoint();
-  const map = breakpointMap(value);
-
-  // Down from the current rung rather than up from `xs`: the nearest entry at
-  // or below the window is the one that applies, and walking down finds it
-  // without having to know which rungs were named.
-  for (let index = breakpoints.indexOf(at); index >= 0; index -= 1) {
-    const found = map[breakpoints[index]];
-
-    if (found !== undefined) {
-      return found;
-    }
-  }
-
-  return undefined;
+  return resolveAt(value, usePlBreakpoint());
 }

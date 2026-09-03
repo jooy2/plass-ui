@@ -154,6 +154,12 @@ It belongs to the item it leaves rather than the one it arrives at, which is wha
 
 `vertical` is the default and the one that takes an arbitrary number of steps with an arbitrary amount to say about each. `horizontal` is the stepper across the top of a checkout, and it is only honest while every label is short.
 
+::: fw react
+
+**It is responsive**, and resolved in JavaScript rather than in CSS — an orientation decides the DOM, the ARIA and the way the arrow keys walk, and no stylesheet can do that. So a server renders the `xs` entry and the browser corrects it on hydration; a bare value subscribes to nothing at all. See [breakpoints](../../design/breakpoints).
+
+:::
+
 <Demo src="timeline/orientation" :min-height="160">
 
 ::: fw react

@@ -3,7 +3,8 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { cx, toLength } from '../../internal/styles.js';
-import type { PlassSize } from '../../types.js';
+import { useResponsiveValue } from '../../internal/responsive.js';
+import type { PlassResponsive, PlassSize } from '../../types.js';
 
 /** Which way the pile grows. */
 export type PlStackDirection = 'horizontal' | 'vertical' | 'diagonal';
@@ -21,7 +22,7 @@ export interface PlStackProps extends Omit<React.ComponentPropsWithoutRef<'div'>
    * vertical step, stated separately, and the two are independent on purpose.
    * @default 'horizontal'
    */
-  direction?: PlStackDirection;
+  direction?: PlassResponsive<PlStackDirection>;
   /**
    * How far each item sits under the one before it, along the axis the pile
    * flows on — a number of pixels or any CSS length.
@@ -182,7 +183,7 @@ const ringClasses = '[&>*>*>*]:ring-2 [&>*>*>*]:ring-(--plass-surface)';
 export const PlStack = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlStackProps>(
   function PlStack(
     {
-      direction = 'horizontal',
+      direction: directionProp,
       overlap,
       drop,
       size: sizeProp,
@@ -200,6 +201,12 @@ export const PlStack = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlStackP
     },
     ref
   ) {
+    // Resolved here rather than in CSS: the direction decides which margin
+    // axis each item takes and which one the drop is multiplied on, and those
+    // are different declarations rather than one value. A bare direction
+    // subscribes to nothing.
+    const direction = useResponsiveValue(directionProp, 'horizontal');
+
     const defaults = useDefaults();
     const size = sizeProp ?? defaults.size ?? 'md';
 

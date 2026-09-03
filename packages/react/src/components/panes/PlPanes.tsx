@@ -3,7 +3,8 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { cx, transitionClasses } from '../../internal/styles.js';
-import type { PlassColor, PlassOrientation, PlassSize } from '../../types.js';
+import { useResponsiveValue } from '../../internal/responsive.js';
+import type { PlassColor, PlassOrientation, PlassResponsive, PlassSize } from '../../types.js';
 
 /**
  * A pane's share of the split, as a percentage of the container or as a CSS
@@ -31,7 +32,7 @@ export interface PlPanesProps extends Omit<React.ComponentPropsWithoutRef<'div'>
    * handles between them; `vertical` stacks them.
    * @default 'horizontal'
    */
-  orientation?: PlassOrientation;
+  orientation?: PlassResponsive<PlassOrientation>;
   /**
    * Whether the handles between the panes can be dragged. Turn it off for a
    * split that is a layout rather than a control.
@@ -168,7 +169,7 @@ function initialFractions(
 export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesProps>(
   function PlPanes(
     {
-      orientation = 'horizontal',
+      orientation: orientationProp,
       resizable = true,
       color: colorProp,
       size: sizeProp,
@@ -181,6 +182,13 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
     },
     ref
   ) {
+    // Resolved here rather than in CSS, and it has to be: an orientation
+    // changes which DOM this builds, which ARIA it claims and which way its
+    // arrow keys go. The cost is the one every JavaScript answer about width
+    // pays — a server renders the `xs` entry — and a bare value subscribes to
+    // nothing at all.
+    const orientation = useResponsiveValue(orientationProp, 'horizontal');
+
     const defaults = useDefaults();
     const color = colorProp ?? defaults.color ?? 'primary';
     const size = sizeProp ?? defaults.size ?? 'md';

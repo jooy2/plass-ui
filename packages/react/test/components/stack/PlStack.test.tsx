@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { page } from 'vitest/browser';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlStack } from 'plass-ui';
 
@@ -21,6 +22,16 @@ function depths() {
  * two things together as one item — group them.
  */
 const three = ['One', 'Two', 'Three'].map((label) => <span key={label}>{label}</span>);
+
+let initialViewport: [number, number];
+
+beforeAll(() => {
+  initialViewport = [window.innerWidth, window.innerHeight];
+});
+
+afterAll(async () => {
+  await page.viewport(...initialViewport);
+});
 
 describe('PlStack', () => {
   it('renders what it was given, whatever that is', async () => {
@@ -114,6 +125,31 @@ describe('PlStack', () => {
       await render(<PlStack className="stack-under-test">{three}</PlStack>);
 
       expect(wrappers().every((wrapper) => wrapper.style.marginBlockStart === '')).toBe(true);
+    });
+  });
+
+  describe('a responsive direction', () => {
+    it('turns at the rung it was named', async () => {
+      await page.viewport(500, 600);
+
+      await render(
+        <PlStack className="stack-under-test" direction={{ xs: 'vertical', md: 'horizontal' }}>
+          {three}
+        </PlStack>
+      );
+
+      const root = document.querySelector('.stack-under-test') as HTMLElement;
+
+      // Resolved in JavaScript rather than in CSS because the direction picks
+      // *which margin axis* each item takes — different declarations rather
+      // than one value a slot could carry.
+      await expect.poll(() => root.classList.contains('flex-col')).toBe(true);
+      expect(root.className).toContain('margin-block-start:calc(var(--p-overlap)*-1)');
+
+      await page.viewport(900, 600);
+
+      await expect.poll(() => root.classList.contains('flex-row')).toBe(true);
+      expect(root.className).toContain('margin-inline-start:calc(var(--p-overlap)*-1)');
     });
   });
 

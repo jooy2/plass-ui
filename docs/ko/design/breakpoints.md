@@ -98,6 +98,8 @@ Dart에는 태그 없는 union이 없으므로 base 값이 첫 위치 인자이�
 | [`PlGrid`](../components/layout/grid) | `columns` `spacing` `rowSpacing` `columnSpacing` |
 | [`PlGridItem`](../components/layout/grid) | `span` `offset` |
 | [`PlContainer`](../components/layout/container) | `maxWidth` |
+| [`PlPanes`](../components/layout/panes) [`PlTabs`](../components/surfaces/tabs) [`PlScrollZone`](../components/layout/scroll-zone) [`PlTimeline`](../components/display/timeline) [`PlStepper`](../components/navigation/stepper) | `orientation` |
+| [`PlStack`](../components/layout/stack) | `direction` |
 
 ## 반응형 값이 어디서 풀리는가
 

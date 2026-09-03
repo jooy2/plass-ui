@@ -66,6 +66,12 @@ It draws **no sheet of its own**, and there is no `elevation` to give it one. A 
 
 `orientation` decides which way the strip runs and therefore which way it scrolls. `lines` is how many rows a horizontal zone fills before it starts a new column — two lines hold twice as much in the same width, and the strip is still one scroll.
 
+::: fw react
+
+**It is responsive**, and resolved in JavaScript rather than in CSS — an orientation decides the DOM, the ARIA and the way the arrow keys walk, and no stylesheet can do that. So a server renders the `xs` entry and the browser corrects it on hydration; a bare value subscribes to nothing at all. See [breakpoints](../../design/breakpoints).
+
+:::
+
 `spacing` is the gap between children.
 
 ::: fw react

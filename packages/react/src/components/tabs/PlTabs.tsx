@@ -17,9 +17,11 @@ import {
   surfaceSlots,
   transitionClasses
 } from '../../internal/styles.js';
+import { useResponsiveValue } from '../../internal/responsive.js';
 import type {
   PlassDensity,
   PlassOrientation,
+  PlassResponsive,
   PlassSize,
   PlassStyleProps,
   PlassVariant
@@ -80,7 +82,7 @@ export interface PlTabsProps
    * UI's doing, and is what makes a vertical tab bar reachable.
    * @default 'horizontal'
    */
-  orientation?: PlassOrientation;
+  orientation?: PlassResponsive<PlassOrientation>;
   /**
    * Whether moving the arrow keys also chooses the tab it lands on.
    *
@@ -423,7 +425,7 @@ export const PlTabs = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTabsPro
     value,
     defaultValue,
     onValueChange,
-    orientation = 'horizontal',
+    orientation: orientationProp,
     activateOnFocus = false,
     loopFocus = true,
     fullWidth = false,
@@ -434,6 +436,13 @@ export const PlTabs = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTabsPro
   },
   ref
 ) {
+  // Resolved here rather than in CSS, and it has to be: an orientation
+  // changes which DOM this builds, which ARIA it claims and which way its
+  // arrow keys go. The cost is the one every JavaScript answer about width
+  // pays — a server renders the `xs` entry — and a bare value subscribes to
+  // nothing at all.
+  const orientation = useResponsiveValue(orientationProp, 'horizontal');
+
   const defaults = useDefaults();
   const size = sizeProp ?? defaults.size ?? 'md';
   const color = colorProp ?? defaults.color ?? 'primary';

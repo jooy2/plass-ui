@@ -1,4 +1,5 @@
-import { describe, expect, it, vi } from 'vitest';
+import { page } from 'vitest/browser';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlTab, PlTabPanel, PlTabs } from 'plass-ui';
 
@@ -31,6 +32,16 @@ function clip() {
 
   return () => style.remove();
 }
+
+let initialViewport: [number, number];
+
+beforeAll(() => {
+  initialViewport = [window.innerWidth, window.innerHeight];
+});
+
+afterAll(async () => {
+  await page.viewport(...initialViewport);
+});
 
 describe('PlTabs', () => {
   describe('rendering', () => {
@@ -192,6 +203,45 @@ describe('PlTabs', () => {
       for (const tab of screen.getByRole('tab').elements()) {
         expect(tab).toHaveClass('flex-1');
       }
+    });
+  });
+
+  describe('a responsive orientation', () => {
+    it('turns at the rung it was named, ARIA and all', async () => {
+      await page.viewport(500, 600);
+
+      const screen = await render(<Settings orientation={{ xs: 'vertical', md: 'horizontal' }} />);
+      const list = () => screen.getByRole('tablist').element();
+
+      // Not a class swap: an orientation decides the DOM, the `aria-orientation`
+      // and which way the arrow keys walk, which is why it is resolved in
+      // JavaScript rather than in the stylesheet.
+      await expect.poll(() => list().getAttribute('aria-orientation')).toBe('vertical');
+      expect(list()).toHaveClass('flex-col');
+
+      await page.viewport(900, 600);
+
+      // `horizontal` is ARIA's own default for a tab list, so Base UI leaves the
+      // attribute off rather than writing it out.
+      await expect.poll(() => list().getAttribute('aria-orientation')).toBeNull();
+      expect(list()).not.toHaveClass('flex-col');
+    });
+
+    it('subscribes to nothing at all for a bare orientation', async () => {
+      const listen = vi.spyOn(MediaQueryList.prototype, 'addEventListener');
+
+      await render(<Settings orientation="vertical" />);
+
+      // The whole reason a responsive prop is safe to add to a component that
+      // is on every page: `useMediaQuery(null)` adds no listener, so a bar whose
+      // orientation is one word costs exactly what it cost before.
+      expect(listen).not.toHaveBeenCalled();
+
+      await render(<Settings orientation={{ xs: 'vertical', md: 'horizontal' }} />);
+
+      expect(listen).toHaveBeenCalled();
+
+      listen.mockRestore();
     });
   });
 

@@ -116,6 +116,12 @@ The three props are read by the **split** rather than used by the pane. A pane c
 
 `horizontal` puts the panes side by side with upright handles between them; `vertical` stacks them. Nesting one inside a pane of the other is how a three-region layout is built.
 
+::: fw react
+
+**It is responsive**, and resolved in JavaScript rather than in CSS — an orientation decides the DOM, the ARIA and the way the arrow keys walk, and no stylesheet can do that. So a server renders the `xs` entry and the browser corrects it on hydration; a bare value subscribes to nothing at all. See [breakpoints](../../design/breakpoints).
+
+:::
+
 <Demo src="panes/orientation" :min-height="260">
 
 ::: fw react

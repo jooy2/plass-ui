@@ -25,7 +25,14 @@ import {
   surfaceSlots,
   transitionClasses
 } from '../../internal/styles.js';
-import type { PlassColor, PlassDensity, PlassOrientation, PlassSize } from '../../types.js';
+import { useResponsiveValue } from '../../internal/responsive.js';
+import type {
+  PlassColor,
+  PlassDensity,
+  PlassOrientation,
+  PlassResponsive,
+  PlassSize
+} from '../../types.js';
 
 /** The same three a `PlTimeline` draws, and the same marks. */
 export type PlStepStatus = PlassStepStatus;
@@ -73,7 +80,7 @@ export interface PlStepperProps extends Omit<React.ComponentPropsWithoutRef<'div
    */
   linear?: boolean;
   /** @default 'horizontal' */
-  orientation?: PlassOrientation;
+  orientation?: PlassResponsive<PlassOrientation>;
   /** How the line between two steps is drawn. @default 'solid' */
   connector?: PlStepConnector;
   /** @default 'md' */
@@ -155,7 +162,7 @@ export const PlStepper = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlStep
       defaultActive = 0,
       onActiveChange,
       linear = true,
-      orientation = 'horizontal',
+      orientation: orientationProp,
       connector = 'solid',
       size: sizeProp,
       color: colorProp,
@@ -167,6 +174,13 @@ export const PlStepper = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlStep
     },
     ref
   ) {
+    // Resolved here rather than in CSS, and it has to be: an orientation
+    // changes which DOM this builds, which ARIA it claims and which way its
+    // arrow keys go. The cost is the one every JavaScript answer about width
+    // pays — a server renders the `xs` entry — and a bare value subscribes to
+    // nothing at all.
+    const orientation = useResponsiveValue(orientationProp, 'horizontal');
+
     const defaults = useDefaults();
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';

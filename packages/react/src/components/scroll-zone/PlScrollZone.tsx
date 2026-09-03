@@ -6,7 +6,8 @@ import { PlIconButton } from '../icon-button/PlIconButton.js';
 import { spacingValue } from '../../internal/grid.js';
 import { ChevronIcon } from '../../internal/icons.js';
 import { cx } from '../../internal/styles.js';
-import type { PlassOrientation, PlassSize, PlassStyleProps } from '../../types.js';
+import { useResponsiveValue } from '../../internal/responsive.js';
+import type { PlassOrientation, PlassResponsive, PlassSize, PlassStyleProps } from '../../types.js';
 
 /**
  * When the scroll buttons are drawn.
@@ -64,7 +65,7 @@ export interface PlScrollZoneProps
    * Which way the children run, and therefore which way the zone scrolls.
    * @default 'horizontal'
    */
-  orientation?: PlassOrientation;
+  orientation?: PlassResponsive<PlassOrientation>;
   /**
    * How many rows a horizontal zone lays its children out in before it starts a
    * new column — and how many columns a vertical one uses. `2` is the shelf
@@ -213,7 +214,7 @@ function scrollBehavior(): ScrollBehavior {
 export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlScrollZoneProps>(
   function PlScrollZone(
     {
-      orientation = 'horizontal',
+      orientation: orientationProp,
       lines = 1,
       spacing = 2,
       buttons = 'auto',
@@ -239,6 +240,13 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
     },
     ref
   ) {
+    // Resolved here rather than in CSS, and it has to be: an orientation
+    // changes which DOM this builds, which ARIA it claims and which way its
+    // arrow keys go. The cost is the one every JavaScript answer about width
+    // pays — a server renders the `xs` entry — and a bare value subscribes to
+    // nothing at all.
+    const orientation = useResponsiveValue(orientationProp, 'horizontal');
+
     const defaults = useDefaults();
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';

@@ -6,6 +6,12 @@
 
 ### Added
 
+- **Six components turn with the window.** `orientation` on `PlPanes`, `PlTabs`, `PlScrollZone`, `PlTimeline` and `PlStepper`, and `direction` on `PlStack`, all take a responsive value: `orientation` takes `{ xs: 'vertical', md: 'horizontal' }` and a tab bar is a column on a phone and a row on a laptop.
+
+  **These resolve in JavaScript rather than in CSS, and that is not an oversight.** An orientation decides which DOM a component builds, which `aria-orientation` it claims and which way its arrow keys walk; no stylesheet can do any of that. So they pay what every JavaScript answer about width pays — a server renders the `xs` entry and the browser corrects it on hydration — which is exactly why `PlContainer`'s `maxWidth`, which only decides style, does **not** come this way. The line is written down in `internal/responsive.ts` and on the [breakpoints](https://plass.cdget.com/design/breakpoints) page.
+
+  **A bare value subscribes to nothing.** `useMediaQuery(null)` is a hook that installs no listener, so the four queries are only asked when there is a map to answer with: twenty tab bars that never change shape install no listeners between them. Measured — 0 for `orientation="vertical"`, 4 for a map.
+
 - **`PlShow`.** Content at some widths and not others — `from`, `until`, or both as a band. It decides in **CSS**, which is the whole component rather than an implementation note: a media query answered in JavaScript is `false` on a server and on the first frame a browser renders, so a `useMediaQuery` and a ternary draw the wrong half of a responsive layout and then throw it away. That is a flash on every page load, not an edge case. It is also the only way to gate on width for a project that imports `plass-ui/styles.css` and has no Tailwind of its own — there is no `md:hidden` to reach for there.
 
   **It is not a box.** While showing it is `display: contents`, so its children take part in the surrounding layout exactly as they would have without it: a gate inside a flex row does not become a flex item. Which also means a `className` carrying a margin or a width lands on nothing — put your own element inside.

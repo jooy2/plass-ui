@@ -93,6 +93,12 @@ PlStack(
 
 </Demo>
 
+::: fw react
+
+**`direction`은 반응형입니다.** 그리고 CSS가 아니라 JavaScript에서 풀립니다 — 각 항목이 어느 축의 margin을 받고 drop이 어느 축에 곱해지는지를 정하는데, 그것은 슬롯 하나가 실어 나를 수 있는 값이 아니라 서로 다른 선언들입니다. 서버는 `xs` 항목을 렌더링하고, 맨값은 아무것도 구독하지 않습니다. [브레이크포인트](../../design/breakpoints) 참고.
+
+:::
+
 ## Examples
 
 ### max, total, overflow

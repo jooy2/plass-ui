@@ -24,7 +24,14 @@ import {
   type PlassStepConnector,
   type PlassStepStatus
 } from '../../internal/steps.js';
-import type { PlassColor, PlassDensity, PlassOrientation, PlassSize } from '../../types.js';
+import { useResponsiveValue } from '../../internal/responsive.js';
+import type {
+  PlassColor,
+  PlassDensity,
+  PlassOrientation,
+  PlassResponsive,
+  PlassSize
+} from '../../types.js';
 
 /**
  * How far along one item is. The same three a `PlStepper` draws, from
@@ -78,7 +85,7 @@ export interface PlTimelineProps extends Omit<React.ComponentPropsWithoutRef<'ol
    * only honest while every label is short.
    * @default 'vertical'
    */
-  orientation?: PlassOrientation;
+  orientation?: PlassResponsive<PlassOrientation>;
   /** Renders something other than an `<ol>` — Base UI's own escape hatch. */
   render?: useRender.RenderProp;
   children?: React.ReactNode;
@@ -306,7 +313,7 @@ export const PlTimeline = /* @__PURE__ */ React.forwardRef<HTMLOListElement, PlT
       size: sizeProp,
       color: colorProp,
       density: densityProp,
-      orientation = 'vertical',
+      orientation: orientationProp,
       render,
       className,
       style,
@@ -315,6 +322,13 @@ export const PlTimeline = /* @__PURE__ */ React.forwardRef<HTMLOListElement, PlT
     },
     ref
   ) {
+    // Resolved here rather than in CSS, and it has to be: an orientation
+    // changes which DOM this builds, which ARIA it claims and which way its
+    // arrow keys go. The cost is the one every JavaScript answer about width
+    // pays — a server renders the `xs` entry — and a bare value subscribes to
+    // nothing at all.
+    const orientation = useResponsiveValue(orientationProp, 'vertical');
+
     const defaults = useDefaults();
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';

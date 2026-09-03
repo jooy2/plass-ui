@@ -96,6 +96,12 @@ Turn it off for a review screen, where every step has been answered and the read
 
 Horizontal puts the panel under the whole rail. **Vertical puts each step's panel inside the step**, which is the reason to lay one out vertically at all: the answer sits under the question rather than under the rail.
 
+::: fw react
+
+**It is responsive**, and resolved in JavaScript rather than in CSS — an orientation decides the DOM, the ARIA and the way the arrow keys walk, and no stylesheet can do that. So a server renders the `xs` entry and the browser corrects it on hydration; a bare value subscribes to nothing at all. See [breakpoints](../../design/breakpoints).
+
+:::
+
 <Demo src="stepper/vertical" :min-height="340">
 
 ::: fw react

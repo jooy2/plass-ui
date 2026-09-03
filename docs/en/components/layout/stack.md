@@ -93,6 +93,12 @@ Which is also why `diagonal` is a **fan** rather than a true 45°: the horizonta
 
 </Demo>
 
+::: fw react
+
+**`direction` is responsive**, and resolved in JavaScript rather than in CSS — it decides which margin axis each item takes and which one the drop is multiplied on, and those are different declarations rather than one value a slot could carry. A server renders the `xs` entry; a bare direction subscribes to nothing. See [breakpoints](../../design/breakpoints).
+
+:::
+
 ## Examples
 
 ### max, total and overflow

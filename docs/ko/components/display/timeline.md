@@ -154,6 +154,12 @@ Flutter의 `BorderSide`에는 점선이 없어서 선은 직접 칠합니다. `d
 
 기본값 `vertical`은 단계 수에도, 각 단계에 대해 할 말의 양에도 제한이 없습니다. `horizontal`은 결제 화면 위쪽을 가로지르는 stepper이고, 모든 라벨이 짧을 때만 정직합니다.
 
+::: fw react
+
+**반응형입니다.** 그리고 CSS가 아니라 JavaScript에서 풀립니다 — orientation은 DOM과 ARIA와 방향키가 걷는 방향을 정하는데, 어떤 스타일시트도 그것을 할 수 없습니다. 그래서 서버는 `xs` 항목을 렌더링하고 브라우저가 hydration에서 고칩니다. 맨값은 아무것도 구독하지 않습니다. [브레이크포인트](../../design/breakpoints) 참고.
+
+:::
+
 <Demo src="timeline/orientation" :min-height="160">
 
 ::: fw react

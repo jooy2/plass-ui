@@ -29,6 +29,8 @@
  */
 
 import type * as React from 'react';
+import { fromQuery } from './breakpoints.js';
+import { useMediaQuery } from './media.js';
 import type { PlassBreakpoint, PlassResponsive } from '../types.js';
 
 /** Smallest first, which is also the order the media queries have to be in. */
@@ -42,6 +44,76 @@ export function breakpointMap<T>(
   if (typeof value === 'object') return value as Partial<Record<PlassBreakpoint, T>>;
 
   return { xs: value };
+}
+
+/** Whether a value is a per-breakpoint map rather than one answer for all of them. */
+export function isResponsiveMap<T>(value: PlassResponsive<T> | undefined): boolean {
+  return value !== undefined && value !== null && typeof value === 'object';
+}
+
+/**
+ * A responsive value at one rung of the ladder.
+ *
+ * Walks **down** from that rung rather than up from `xs`: the nearest entry at
+ * or below the window is the one that applies, and walking down finds it
+ * without having to know which rungs were named.
+ *
+ * `undefined` when the map named no rung at or below — `{ lg: 3 }` on a phone
+ * is not `3`, and guessing a value the caller did not write would be worse than
+ * saying so.
+ */
+export function resolveAt<T>(
+  value: PlassResponsive<T> | undefined,
+  at: PlassBreakpoint
+): T | undefined {
+  const map = breakpointMap(value);
+
+  for (let index = breakpoints.indexOf(at); index >= 0; index -= 1) {
+    const found = map[breakpoints[index]];
+
+    if (found !== undefined) {
+      return found;
+    }
+  }
+
+  return undefined;
+}
+
+/**
+ * A responsive prop a component has to resolve **itself**, with its own default
+ * behind it.
+ *
+ * For the props CSS cannot decide: an orientation changes which DOM a component
+ * builds, which ARIA it claims and which way its arrow keys go, and no
+ * stylesheet can do any of that. The cost is the one every JavaScript answer
+ * about width pays — a server renders the `xs` entry and the browser corrects
+ * it on hydration — which is why a prop that only decides *style* should use
+ * `responsiveSlots` instead and never come here.
+ *
+ * **A bare value subscribes to nothing.** `useMediaQuery(null)` is a hook that
+ * adds no listener, so a component whose orientation is one word costs exactly
+ * what it cost before this existed: the four queries are only asked when there
+ * is a map to answer with. Twenty tab bars on a page that never change shape
+ * install no listeners between them.
+ */
+export function useResponsiveValue<T>(value: PlassResponsive<T> | undefined, fallback: T): T {
+  const responsive = isResponsiveMap(value);
+
+  const sm = useMediaQuery(responsive ? fromQuery('sm') : null);
+  const md = useMediaQuery(responsive ? fromQuery('md') : null);
+  const lg = useMediaQuery(responsive ? fromQuery('lg') : null);
+  const xl = useMediaQuery(responsive ? fromQuery('xl') : null);
+
+  if (!responsive) {
+    return (value ?? fallback) as T;
+  }
+
+  const at: PlassBreakpoint = xl ? 'xl' : lg ? 'lg' : md ? 'md' : sm ? 'sm' : 'xs';
+
+  // A map that named nothing at or below the window falls back to the
+  // component's own default rather than to nothing: `{ md: 'vertical' }` is
+  // "vertical from md", and below it the component is what it always was.
+  return resolveAt(value, at) ?? fallback;
 }
 
 /**
