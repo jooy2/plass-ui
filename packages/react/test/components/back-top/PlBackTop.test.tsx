@@ -71,6 +71,14 @@ describe('PlBackTop', () => {
       expect(button().tabIndex).not.toBe(-1);
     });
 
+    it('fades rather than blinking on and off', async () => {
+      await render(<Panel visibilityHeight={400} />);
+
+      expect(button().className).toContain('opacity');
+      expect(button().className).toContain('transition-property');
+      expect(button().className).toContain(',opacity]');
+    });
+
     it('goes away again on the way back up', async () => {
       await render(<Panel visibilityHeight={400} />);
 

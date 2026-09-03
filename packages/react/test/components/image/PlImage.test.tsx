@@ -119,6 +119,15 @@ describe('PlImage', () => {
       await expect.poll(() => onStatusChange.mock.calls).toEqual([['loaded']]);
     });
 
+    it('fades the picture in rather than swapping it for the placeholder', async () => {
+      await render(<PlImage src={OK} alt="A portrait" />);
+
+      const picture = document.querySelector('img')!;
+
+      expect(picture.className).toContain('transition-property');
+      expect(picture.className).toContain(',opacity]');
+    });
+
     it('starts again when the src changes', async () => {
       const onStatusChange = vi.fn();
 

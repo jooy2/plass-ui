@@ -364,13 +364,20 @@ export const glassClasses =
  * is in the list because a gradient fill is the thing being changed on a solid
  * surface, and `filter` because that is what hover and press actually move.
  *
+ * `opacity` is in it because half the library already writes an opacity as a
+ * *state*: `opacity-50` is what disabled looks like everywhere, a `PlBackTop`
+ * appears and goes on `opacity-0`, and a `PlImage` uncovers itself the moment
+ * the picture decodes. Without it in the list every one of those is a value
+ * that changes between two frames, which is the one thing the house transition
+ * exists to prevent.
+ *
  * There is no `transform` in the list and none should be added to a *control*:
  * scaling a key resamples its label, and text that shimmers under the cursor
  * undoes the restraint everything else is spending effort on. A surface that
  * holds content rather than being pressed — a Card — may lift, and does.
  */
 export const transitionClasses = /* @__PURE__ */ [
-  '[transition-property:background-color,background-image,border-color,box-shadow,color,filter]',
+  '[transition-property:background-color,background-image,border-color,box-shadow,color,filter,opacity]',
   '[transition-duration:var(--plass-duration)]',
   '[transition-timing-function:var(--plass-ease)]'
 ].join(' ');
