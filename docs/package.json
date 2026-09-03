@@ -10,7 +10,7 @@
     "changelog": "node scripts/copy-changelog.mjs",
     "flutter:demos": "node scripts/build-flutter-demos.mjs",
     "dev": "npm run changelog && vitepress dev",
-    "build": "npm run changelog && npm run flutter:demos && vitepress build",
+    "build": "npm run changelog && npm run flutter:demos && node scripts/build-site.mjs",
     "serve": "npm run build && vitepress serve",
     "lint": "eslint . --report-unused-disable-directives",
     "lint:fix": "eslint . --report-unused-disable-directives --fix",
