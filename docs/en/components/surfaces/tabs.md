@@ -124,11 +124,7 @@ Tabs swap whole panels of content. A [segmented button](../inputs/segmented-butt
 
 `vertical` puts the tabs down the side and the panel beside them, and moves the arrow keys onto the other axis — <Fw react="which is Base UI's doing" flutter="which the bar does itself" />, and is what makes a vertical tab bar reachable.
 
-::: fw react
-
-**It is responsive**, and resolved in JavaScript rather than in CSS — an orientation decides the DOM, the ARIA and the way the arrow keys walk, and no stylesheet can do that. So a server renders the `xs` entry and the browser corrects it on hydration; a bare value subscribes to nothing at all. See [breakpoints](../../design/breakpoints).
-
-:::
+**It is responsive**, so a set can run one way on a phone and the other on a laptop. <Fw react="It is resolved in JavaScript rather than in CSS — an orientation decides the DOM, the ARIA and the way the arrow keys walk, and no stylesheet can do that, so a server renders the xs entry and the browser corrects it on hydration; a bare value subscribes to nothing at all." flutter="It is resolved against the window's width in build, so it is right on the first frame — and it is the window's width rather than this widget's own box, which is what makes two of these side by side agree about which rung they are on." /> See [breakpoints](../../design/breakpoints).
 
 <Demo src="tabs/orientation" :min-height="200">
 

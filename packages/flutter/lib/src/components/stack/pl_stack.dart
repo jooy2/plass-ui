@@ -6,6 +6,7 @@ import 'dart:math' as math;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -88,7 +89,7 @@ class PlStack extends StatelessWidget {
   /// Creates a pile.
   const PlStack({
     required this.children,
-    this.direction = PlStackDirection.horizontal,
+    this.direction = const PlassResponsive<PlStackDirection>(PlStackDirection.horizontal),
     this.overlap,
     this.drop,
     this.size,
@@ -107,7 +108,12 @@ class PlStack extends StatelessWidget {
   final List<Widget> children;
 
   /// Which way the pile grows.
-  final PlStackDirection direction;
+  ///
+  /// **Responsive**, so a set can run one way on a phone and the other on a
+  /// laptop. It is resolved against the window's width in `build` rather than
+  /// laid out by a constraint, which is what makes two of these side by side
+  /// agree about which rung they are on.
+  final PlassResponsive<PlStackDirection> direction;
 
   /// How far each item sits under the one before it, in logical pixels, along
   /// the axis the pile flows on.
@@ -181,6 +187,7 @@ class PlStack extends StatelessWidget {
   Widget build(BuildContext context) {
     final PlassTokens tokens = PlassTheme.of(context);
     final PlassSize size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final PlStackDirection direction = resolveResponsive(context, this.direction);
 
     final double step = overlap ?? _overlap[size]!;
     final double fall = drop ?? step;

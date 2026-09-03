@@ -16,7 +16,7 @@ class _StepperVerticalState extends State<StepperVertical> {
     return SizedBox(
       width: 380,
       child: PlStepper(
-        orientation: PlassOrientation.vertical,
+        orientation: const PlassResponsive<PlassOrientation>(PlassOrientation.vertical),
         active: _active,
         onActiveChanged: (int next) => setState(() => _active = next),
         steps: <PlStep>[

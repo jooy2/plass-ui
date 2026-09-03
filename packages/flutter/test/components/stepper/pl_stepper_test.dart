@@ -224,7 +224,7 @@ void main() {
           PlStepper(
             steps: steps,
             active: 1,
-            orientation: PlassOrientation.vertical,
+            orientation: const PlassResponsive<PlassOrientation>(PlassOrientation.vertical),
             onActiveChanged: (int _) {},
           ),
         );

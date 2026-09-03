@@ -15,7 +15,9 @@ List<Widget> _cards({int count = 6}) {
 
 Widget _zone({
   List<Widget>? children,
-  PlassOrientation orientation = PlassOrientation.horizontal,
+  PlassResponsive<PlassOrientation> orientation = const PlassResponsive<PlassOrientation>(
+    PlassOrientation.horizontal,
+  ),
   int lines = 1,
   PlScrollZoneButtons buttons = PlScrollZoneButtons.auto,
   PlScrollZoneButtonPlacement placement = PlScrollZoneButtonPlacement.overlay,
@@ -72,7 +74,9 @@ void main() {
       });
 
       testWidgets('runs down the box when it is asked to', (WidgetTester tester) async {
-        await tester.pumpWidget(_zone(orientation: PlassOrientation.vertical));
+        await tester.pumpWidget(
+          _zone(orientation: const PlassResponsive<PlassOrientation>(PlassOrientation.vertical)),
+        );
         await tester.pumpAndSettle();
 
         expect(

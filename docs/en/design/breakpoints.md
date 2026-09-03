@@ -117,7 +117,7 @@ The library reaches for the CSS half whenever it can, and you should too.
 
 ::: fw flutter
 
-Everything is resolved in the widget, against `MediaQuery.sizeOf(context).width`, and it is correct on the first frame — there is no server render to disagree with. The breakpoint is the **window's** width rather than the widget's own box, which is what a media query measures and what makes two widgets side by side agree about which rung they are on however wide each of them ended up.
+Everything is resolved in the widget, against `MediaQuery.sizeOf(context).width`, and it is correct on the first frame — there is no server render to disagree with, so the split the React build has to make does not arise here. The breakpoint is the **window's** width rather than the widget's own box, which is what a media query measures and what makes two widgets side by side agree about which rung they are on however wide each of them ended up.
 
 :::
 

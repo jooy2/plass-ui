@@ -126,7 +126,7 @@ class PlPanes extends StatefulWidget {
   /// Creates a split.
   const PlPanes({
     required this.panes,
-    this.orientation = PlassOrientation.horizontal,
+    this.orientation = const PlassResponsive<PlassOrientation>(PlassOrientation.horizontal),
     this.resizable = true,
     this.color,
     this.size,
@@ -141,7 +141,12 @@ class PlPanes extends StatefulWidget {
 
   /// Which way they run. `horizontal` puts them side by side with upright
   /// handles between them; `vertical` stacks them.
-  final PlassOrientation orientation;
+  ///
+  /// **Responsive**, so a set can run one way on a phone and the other on a
+  /// laptop. It is resolved against the window's width in `build` rather than
+  /// laid out by a constraint, which is what makes two of these side by side
+  /// agree about which rung they are on.
+  final PlassResponsive<PlassOrientation> orientation;
 
   /// Whether the handles can be dragged. Turn it off for a split that is a
   /// layout rather than a control.
@@ -178,7 +183,8 @@ class _PlPanesState extends State<PlPanes> {
   /// Every pane's share, summing to one, once anything has moved a handle.
   List<double>? _fractions;
 
-  bool get _horizontal => widget.orientation == PlassOrientation.horizontal;
+  bool get _horizontal =>
+      resolveResponsive(context, widget.orientation) == PlassOrientation.horizontal;
 
   double get _gutter => _handleTrack[_size]! * (widget.panes.length - 1).clamp(0, double.infinity);
 

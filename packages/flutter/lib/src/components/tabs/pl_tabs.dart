@@ -94,7 +94,7 @@ class PlTabs<T> extends StatefulWidget {
     this.size,
     this.color,
     this.density,
-    this.orientation = PlassOrientation.horizontal,
+    this.orientation = const PlassResponsive<PlassOrientation>(PlassOrientation.horizontal),
     this.fullWidth = false,
     this.semanticLabel,
     this.focusNode,
@@ -125,7 +125,12 @@ class PlTabs<T> extends StatefulWidget {
   final PlassDensity? density;
 
   /// Which way the bar runs.
-  final PlassOrientation orientation;
+  ///
+  /// **Responsive**, so a set can run one way on a phone and the other on a
+  /// laptop. It is resolved against the window's width in `build` rather than
+  /// laid out by a constraint, which is what makes two of these side by side
+  /// agree about which rung they are on.
+  final PlassResponsive<PlassOrientation> orientation;
 
   /// The tabs share the bar's width, each taking an equal part of it.
   final bool fullWidth;
@@ -154,7 +159,7 @@ class _PlTabsState<T> extends State<PlTabs<T>> {
 
   Rect? _indicator;
 
-  bool get _vertical => widget.orientation == PlassOrientation.vertical;
+  bool get _vertical => resolveResponsive(context, widget.orientation) == PlassOrientation.vertical;
 
   int get _chosen => widget.tabs.indexWhere((PlTab<T> one) => one.value == widget.value);
 

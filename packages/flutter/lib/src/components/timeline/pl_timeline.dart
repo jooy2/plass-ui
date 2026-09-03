@@ -114,7 +114,7 @@ class PlTimeline extends StatelessWidget {
     this.size,
     this.color,
     this.density,
-    this.orientation = PlassOrientation.vertical,
+    this.orientation = const PlassResponsive<PlassOrientation>(PlassOrientation.vertical),
     super.key,
   });
 
@@ -145,7 +145,12 @@ class PlTimeline extends StatelessWidget {
   /// arbitrary number of steps with an arbitrary amount to say about each;
   /// horizontal is the stepper across the top of a checkout, and it is only
   /// honest while every label is short.
-  final PlassOrientation orientation;
+  ///
+  /// **Responsive**, so a set can run one way on a phone and the other on a
+  /// laptop. It is resolved against the window's width in `build` rather than
+  /// laid out by a constraint, which is what makes two of these side by side
+  /// agree about which rung they are on.
+  final PlassResponsive<PlassOrientation> orientation;
 
   @override
   Widget build(BuildContext context) {
@@ -153,6 +158,7 @@ class PlTimeline extends StatelessWidget {
     final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
     final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
 
+    final PlassOrientation orientation = resolveResponsive(context, this.orientation);
     final horizontal = orientation == PlassOrientation.horizontal;
 
     final steps = <Widget>[

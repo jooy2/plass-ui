@@ -4,6 +4,10 @@
 
 ### Added
 
+- **Six widgets turn with the window.** `orientation` on `PlPanes`, `PlTabs`, `PlScrollZone`, `PlTimeline` and `PlStepper`, and `direction` on `PlStack`, all take a `PlassResponsive` — so a tab bar is a column on a phone and a row on a laptop from one argument.
+
+  Resolved against `MediaQuery.sizeOf(context).width` in `build`, so it is right on the first frame; there is no server render here to disagree with, which is the one place this is simpler than the React build. It is the **window's** width rather than the widget's own box, as every breakpoint in the package is: two of these side by side agree about which rung they are on however wide each of them ended up.
+
 - **`maxWidth` is responsive and takes an exact width, on `PlContainer`, `PlHeader` and `PlFooter` alike.** `PlassResponsive<PlContainerWidth?>` — `PlContainerWidth.rung(PlassSize.lg)` is a rung of the measure ladder and `PlContainerWidth.pixels(720)` is a width, two constructors rather than one nullable pair because only one of them can be true at a time and Dart has no untagged union. `null` still means no limit, including as an entry, so a screen can be uncapped on a phone and capped from `md` up.
 
   The exact width is the one worth having: the ladder is five numbers chosen against the breakpoints, and the measure a paragraph actually wants is a count of characters at whatever size it is set in. No ladder can spell that.

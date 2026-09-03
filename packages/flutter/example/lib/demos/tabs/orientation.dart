@@ -16,7 +16,7 @@ class _TabsOrientationState extends State<TabsOrientation> {
     return SizedBox(
       width: 512,
       child: PlTabs<String>(
-        orientation: PlassOrientation.vertical,
+        orientation: const PlassResponsive<PlassOrientation>(PlassOrientation.vertical),
         value: _tab,
         onChanged: (String next) => setState(() => _tab = next),
         tabs: const <PlTab<String>>[

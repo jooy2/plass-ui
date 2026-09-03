@@ -17,7 +17,7 @@ class PanesOrientation extends StatelessWidget {
             PlPane(defaultSize: PlPaneSize.percent(40), child: Filled('Left')),
             PlPane(
               child: PlPanes(
-                orientation: PlassOrientation.vertical,
+                orientation: PlassResponsive<PlassOrientation>(PlassOrientation.vertical),
                 panes: <PlPane>[
                   PlPane(child: Filled('Top right')),
                   PlPane(child: Filled('Bottom right')),

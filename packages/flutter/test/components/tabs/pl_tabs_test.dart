@@ -179,7 +179,7 @@ void main() {
             const PlTabs<String>(
               tabs: panes,
               value: 'overview',
-              orientation: PlassOrientation.vertical,
+              orientation: PlassResponsive<PlassOrientation>(PlassOrientation.vertical),
             ),
             width: 480,
           ),
@@ -188,6 +188,51 @@ void main() {
 
         expect(find.byType(SingleChildScrollView), findsNothing);
       });
+    });
+
+    testWidgets('turns at the rung it was named', (WidgetTester tester) async {
+      Future<void> at(double width) async {
+        await tester.pumpWidget(
+          host(
+            Builder(
+              builder: (BuildContext context) => MediaQuery(
+                data: MediaQuery.of(context).copyWith(size: Size(width, 800)),
+                child: const PlTabs<String>(
+                  tabs: panes,
+                  value: 'overview',
+                  orientation: PlassResponsive<PlassOrientation>(
+                    PlassOrientation.vertical,
+                    md: PlassOrientation.horizontal,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+      }
+
+      /// Which way the bar and its panel are laid out against each other — the
+      /// one thing the orientation decides that is visible from outside.
+      Axis axis() {
+        return tester
+            .widget<Flex>(
+              find.descendant(of: find.byType(PlTabs<String>), matching: find.byType(Flex)).first,
+            )
+            .direction;
+      }
+
+      // A bar that is a column on a phone and a row on a laptop, from one prop.
+      // The orientation is the *window's* answer rather than this bar's own box,
+      // so two of them side by side agree about which rung they are on.
+      //
+      // A vertical bar puts its tabs beside the panel, so the outer flex runs
+      // the other way from the bar itself.
+      await at(500);
+      expect(axis(), Axis.horizontal);
+
+      await at(900);
+      expect(axis(), Axis.vertical);
     });
 
     group('accessibility', () {

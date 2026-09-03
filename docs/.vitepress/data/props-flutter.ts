@@ -1240,7 +1240,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }),
     from('PlStepper', 'linear', { type: 'bool', default: 'true' }),
     from('PlStepper', 'orientation', {
-      type: 'PlassOrientation',
+      type: 'PlassResponsive<PlassOrientation>',
       default: 'PlassOrientation.horizontal'
     }),
     from('PlStepper', 'size', { type: SIZE, default: 'PlassSize.md' }),
@@ -1401,7 +1401,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
   PlStack: [
     from('PlStack', 'children', { type: 'List<Widget>', required: true }),
     from('PlStack', 'direction', {
-      type: 'PlStackDirection',
+      type: 'PlassResponsive<PlStackDirection>',
       default: 'PlStackDirection.horizontal'
     }),
     from('PlStack', 'overlap', {
@@ -3044,7 +3044,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlPanes', 'orientation', {
-      type: 'PlassOrientation',
+      type: 'PlassResponsive<PlassOrientation>',
       default: 'PlassOrientation.horizontal'
     }),
     from('PlPanes', 'resizable', { type: 'bool', default: 'true' }),
@@ -3857,7 +3857,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'What is being laid out. Every child is one item of the strip'
       }
     },
-    from('PlScrollZone', 'orientation', { type: 'PlassOrientation' }),
+    from('PlScrollZone', 'orientation', { type: 'PlassResponsive<PlassOrientation>' }),
     from('PlScrollZone', 'lines', { type: 'int', default: '1' }),
     from('PlScrollZone', 'spacing', {
       type: 'double',
@@ -4036,7 +4036,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlTabs', 'color', { type: COLOR, default: 'PlassColor.primary' }),
     from('PlTabs', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
     from('PlTabs', 'orientation', {
-      type: 'PlassOrientation',
+      type: 'PlassResponsive<PlassOrientation>',
       default: 'PlassOrientation.horizontal'
     }),
     from('PlTabs', 'fullWidth', { type: 'bool', default: 'false' }),
@@ -4299,7 +4299,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlTimeline', 'color', { type: COLOR, default: 'PlassColor.primary' }),
     from('PlTimeline', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
     from('PlTimeline', 'orientation', {
-      type: 'PlassOrientation',
+      type: 'PlassResponsive<PlassOrientation>',
       default: 'PlassOrientation.vertical'
     })
   ],

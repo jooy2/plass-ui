@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/icon_button/pl_icon_button.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -168,7 +169,7 @@ class PlScrollZone extends StatefulWidget {
   /// Creates a scroll zone.
   const PlScrollZone({
     required this.children,
-    this.orientation = PlassOrientation.horizontal,
+    this.orientation = const PlassResponsive<PlassOrientation>(PlassOrientation.horizontal),
     this.lines = 1,
     this.spacing = 8,
     this.buttons = PlScrollZoneButtons.auto,
@@ -195,7 +196,12 @@ class PlScrollZone extends StatefulWidget {
   final List<Widget> children;
 
   /// Which way the children run, and therefore which way the zone scrolls.
-  final PlassOrientation orientation;
+  ///
+  /// **Responsive**, so a set can run one way on a phone and the other on a
+  /// laptop. It is resolved against the window's width in `build` rather than
+  /// laid out by a constraint, which is what makes two of these side by side
+  /// agree about which rung they are on.
+  final PlassResponsive<PlassOrientation> orientation;
 
   /// How many rows a horizontal zone lays its children out in before it starts
   /// a new column — and how many columns a vertical one uses.
@@ -301,7 +307,8 @@ class _PlScrollZoneState extends State<PlScrollZone> with SingleTickerProviderSt
 
   ScrollController get _scroll => widget.controller ?? (_own ??= ScrollController());
 
-  bool get _horizontal => widget.orientation == PlassOrientation.horizontal;
+  bool get _horizontal =>
+      resolveResponsive(context, widget.orientation) == PlassOrientation.horizontal;
 
   /// The children, chunked into the groups [lines] asks for.
   List<List<Widget>> get _groups {

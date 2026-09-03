@@ -146,7 +146,7 @@ class PlStepper extends StatelessWidget {
     required this.active,
     this.onActiveChanged,
     this.linear = true,
-    this.orientation = PlassOrientation.horizontal,
+    this.orientation = const PlassResponsive<PlassOrientation>(PlassOrientation.horizontal),
     this.size,
     this.color,
     this.density,
@@ -173,7 +173,12 @@ class PlStepper extends StatelessWidget {
 
   /// Horizontal puts the panel under the rail; vertical puts each one inside its
   /// own step, which is the reason to lay one out vertically at all.
-  final PlassOrientation orientation;
+  ///
+  /// **Responsive**, so a set can run one way on a phone and the other on a
+  /// laptop. It is resolved against the window's width in `build` rather than
+  /// laid out by a constraint, which is what makes two of these side by side
+  /// agree about which rung they are on.
+  final PlassResponsive<PlassOrientation> orientation;
 
   /// Bullet and type scale.
   final PlassSize? size;
@@ -201,6 +206,7 @@ class PlStepper extends StatelessWidget {
     final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
 
     final tokens = PlassTheme.of(context);
+    final PlassOrientation orientation = resolveResponsive(context, this.orientation);
     final horizontal = orientation == PlassOrientation.horizontal;
 
     final rail = <Widget>[

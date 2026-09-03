@@ -116,11 +116,7 @@ The three props are read by the **split** rather than used by the pane. A pane c
 
 `horizontal` puts the panes side by side with upright handles between them; `vertical` stacks them. Nesting one inside a pane of the other is how a three-region layout is built.
 
-::: fw react
-
-**It is responsive**, and resolved in JavaScript rather than in CSS — an orientation decides the DOM, the ARIA and the way the arrow keys walk, and no stylesheet can do that. So a server renders the `xs` entry and the browser corrects it on hydration; a bare value subscribes to nothing at all. See [breakpoints](../../design/breakpoints).
-
-:::
+**It is responsive**, so a set can run one way on a phone and the other on a laptop. <Fw react="It is resolved in JavaScript rather than in CSS — an orientation decides the DOM, the ARIA and the way the arrow keys walk, and no stylesheet can do that, so a server renders the xs entry and the browser corrects it on hydration; a bare value subscribes to nothing at all." flutter="It is resolved against the window's width in build, so it is right on the first frame — and it is the window's width rather than this widget's own box, which is what makes two of these side by side agree about which rung they are on." /> See [breakpoints](../../design/breakpoints).
 
 <Demo src="panes/orientation" :min-height="260">
 

@@ -13,7 +13,7 @@ class StackDirections extends StatelessWidget {
       children: <Widget>[
         for (final PlStackDirection direction in PlStackDirection.values)
           PlStack(
-            direction: direction,
+            direction: PlassResponsive<PlStackDirection>(direction),
             overlap: 14,
             children: const <Widget>[
               PlChip(variant: PlassVariant.solid, color: PlassColor.secondary, child: Text('One')),

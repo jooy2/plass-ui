@@ -92,7 +92,10 @@ void main() {
       testWidgets('stacks the panes when it is told to', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(
-            PlPanes(orientation: PlassOrientation.vertical, panes: <PlPane>[pane('a'), pane('b')]),
+            PlPanes(
+              orientation: const PlassResponsive<PlassOrientation>(PlassOrientation.vertical),
+              panes: <PlPane>[pane('a'), pane('b')],
+            ),
             width: 400,
             height: 208,
           ),

@@ -7,7 +7,7 @@ class StackDeck extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PlStack(
-      direction: PlStackDirection.diagonal,
+      direction: const PlassResponsive<PlStackDirection>(PlStackDirection.diagonal),
       front: PlStackFront.first,
       overlap: 200,
       drop: 14,

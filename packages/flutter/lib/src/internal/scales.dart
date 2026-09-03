@@ -13,7 +13,7 @@
 /// itself.
 library;
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/types.dart';
 
@@ -387,6 +387,18 @@ const Map<PlassSize, double> containerMeasure = <PlassSize, double>{
   PlassSize.lg: 1024,
   PlassSize.xl: 1280,
 };
+
+/// A responsive value at the width the window is currently at.
+///
+/// The **window's** width rather than the widget's own box, which is what a CSS
+/// media query measures and what makes two widgets side by side agree about
+/// which rung they are on however wide each of them ended up.
+///
+/// It is called from `build` so the dependency is registered and the widget is
+/// rebuilt when the window crosses a rung.
+T resolveResponsive<T>(BuildContext context, PlassResponsive<T> value) {
+  return value.resolve(PlassBreakpoint.of(MediaQuery.sizeOf(context).width));
+}
 
 /// The limit a responsive measure comes to at one width, or `null` for none.
 ///

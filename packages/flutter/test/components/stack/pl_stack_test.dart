@@ -40,7 +40,13 @@ void main() {
 
         for (final MapEntry<PlStackDirection, Size> entry in expected.entries) {
           await tester.pumpWidget(
-            host(PlStack(direction: entry.key, overlap: 10, children: _five())),
+            host(
+              PlStack(
+                direction: PlassResponsive<PlStackDirection>(entry.key),
+                overlap: 10,
+                children: _five(),
+              ),
+            ),
           );
 
           expect(tester.getSize(find.byType(PlStack)), entry.value, reason: '${entry.key}');
@@ -72,7 +78,13 @@ void main() {
 
       testWidgets('runs down the page when it is told to', (WidgetTester tester) async {
         await tester.pumpWidget(
-          host(PlStack(direction: PlStackDirection.vertical, overlap: 10, children: _five())),
+          host(
+            PlStack(
+              direction: const PlassResponsive<PlStackDirection>(PlStackDirection.vertical),
+              overlap: 10,
+              children: _five(),
+            ),
+          ),
         );
 
         expect(_offsets(tester).map((Offset offset) => offset.dy), <double>[0, 22, 44, 66, 88]);
@@ -84,7 +96,12 @@ void main() {
       ) async {
         await tester.pumpWidget(
           host(
-            PlStack(direction: PlStackDirection.diagonal, overlap: 10, drop: 10, children: _five()),
+            PlStack(
+              direction: const PlassResponsive<PlStackDirection>(PlStackDirection.diagonal),
+              overlap: 10,
+              drop: 10,
+              children: _five(),
+            ),
           ),
         );
 
@@ -102,7 +119,13 @@ void main() {
 
       testWidgets('falls back to the overlap for the drop', (WidgetTester tester) async {
         await tester.pumpWidget(
-          host(PlStack(direction: PlStackDirection.diagonal, overlap: 10, children: _five())),
+          host(
+            PlStack(
+              direction: const PlassResponsive<PlStackDirection>(PlStackDirection.diagonal),
+              overlap: 10,
+              children: _five(),
+            ),
+          ),
         );
 
         expect(_offsets(tester)[4], const Offset(88, 40));

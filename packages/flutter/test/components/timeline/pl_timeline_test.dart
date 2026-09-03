@@ -128,7 +128,10 @@ void main() {
       testWidgets('runs across when asked', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(
-            const PlTimeline(items: steps, orientation: PlassOrientation.horizontal),
+            const PlTimeline(
+              items: steps,
+              orientation: PlassResponsive<PlassOrientation>(PlassOrientation.horizontal),
+            ),
             width: 600,
           ),
         );
