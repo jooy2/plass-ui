@@ -202,6 +202,22 @@ class _PlSliderState extends State<PlSlider> {
   /// the control disagrees with itself.
   bool get _rtl => Directionality.of(context) == TextDirection.rtl;
 
+  /// How long the thumb and the run take to reach a new value.
+  ///
+  /// **Nothing at all while a finger is on it.** A thumb that eased towards the
+  /// pointer would be a thumb that lags behind it, which reads as the control
+  /// being slow rather than as the motion being smooth. Every other way a value
+  /// arrives — an arrow key, a press on the rail, a value set from outside —
+  /// travels over the house duration, because there is no finger for it to fall
+  /// behind.
+  ///
+  /// This is the one place in the package a *position* is animated, and it does
+  /// not touch the rule against moving a control: nothing is being shifted off
+  /// its own place, because the thing being moved is the value.
+  static Duration _travel(bool reduceMotion, bool dragging) {
+    return reduceMotion || dragging ? Duration.zero : PlassTokens.duration;
+  }
+
   /// Where [value] sits along the run, as 0..1.
   double _fraction(double value) {
     return ((value - widget.min) / (widget.max - widget.min)).clamp(0, 1);
@@ -352,7 +368,9 @@ class _PlSliderState extends State<PlSlider> {
                           ),
                         ),
                       ),
-                      PositionedDirectional(
+                      AnimatedPositionedDirectional(
+                        duration: _travel(reduceMotion, _active != null),
+                        curve: PlassTokens.ease,
                         start: _vertical ? 0 : from * run,
                         end: _vertical ? 0 : (1 - to) * run,
                         top: _vertical ? (1 - to) * run : 0,
@@ -369,7 +387,9 @@ class _PlSliderState extends State<PlSlider> {
                 ),
               ),
               for (var index = 0; index < widget.values.length; index += 1)
-                PositionedDirectional(
+                AnimatedPositionedDirectional(
+                  duration: _travel(reduceMotion, _active == index),
+                  curve: PlassTokens.ease,
                   start: _vertical ? null : _fraction(widget.values[index]) * travel,
                   bottom: _vertical ? _fraction(widget.values[index]) * travel : null,
                   child: _Thumb(

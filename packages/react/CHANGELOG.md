@@ -66,6 +66,10 @@
 
 ### Fixed
 
+- **A `PlSlider`'s thumb teleported to any value nobody dragged it to.** An arrow key, a press on the rail, a value set from outside — the thumb was in one place on one frame and somewhere else on the next, on the one control whose whole subject is _where along here_. It travels over the house duration now, and the run behind it fills at the same rate.
+
+  **Nothing at all while the pointer is down.** A thumb that eased towards a finger would be a thumb lagging behind it, which reads as the control being slow rather than as the motion being smooth, so `data-dragging` zeroes the duration on both parts. The properties are `inset-inline-start` / `bottom` and the indicator's `width` — the ones Base UI writes the value into — rather than a `translate`, which is why this does not bend the [no-transform rule](https://plass.cdget.com/design/design-language#controls-do-not-move): nothing is shifted off its own place, because the thing being moved is the value.
+
 - **A `PlTree`'s twisty jumped between its two angles.** It carried the house transition and nothing else, and the house transition deliberately has no `rotate` in it — so on a span whose only colour is a constant it was a transition of nothing at all. The turn names itself now, the way an accordion's and a select's chevrons already do. It matters more here than the size of it suggests: the twisty is the only thing on a row that says whether the branch is open, and every other chevron in the library turns.
 
 - **A tick and a radio dot arrived whole, on the frame the box filled.** Both were the last state change in the library still expressed as a swap: the mark was there or it was not, on a control whose whole job is to answer a click, and the mark is the part a reader is looking at.

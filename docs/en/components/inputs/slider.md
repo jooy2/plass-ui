@@ -54,6 +54,8 @@ Every other prop on Base UI's `Slider.Root` passes straight through — `minStep
 
 There is no `variant` here. The three materials answer "what is this surface made of", and a slider is two surfaces at once: a groove and a key travelling along it. Neither has a choice to offer.
 
+The thumb **travels** to a value it was not dragged to — an arrow key, a press on the rail, a value set from elsewhere — over the same duration everything else here moves over, and the run behind it fills at the same rate. Under a finger it travels not at all: a thumb that eased towards the pointer would lag behind it, which reads as the control being slow rather than as the motion being smooth. This is the one place in the library a position is animated, and it does not bend the [no-transform rule](../../design/design-language#controls-do-not-move) — nothing is shifted off its own place, because the thing being moved is the value.
+
 What the shared axes (`size` `color` `elevation` `orientation`) mean across the library is in [prop conventions](../../design/prop-conventions).
 
 ## Examples

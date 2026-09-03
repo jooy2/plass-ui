@@ -139,6 +139,56 @@ void main() {
         expect(reported!.first, 40);
       });
 
+      testWidgets('travels to the new value rather than jumping to it', (
+        WidgetTester tester,
+      ) async {
+        double value = 50;
+
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return PlSlider(
+                  values: <double>[value],
+                  autofocus: true,
+                  onChanged: (List<double> next) => setState(() => value = next.first),
+                );
+              },
+            ),
+            width: 300,
+          ),
+        );
+        await tester.pump();
+
+        // The thumb is the last thing placed in the slider's stack, and what is
+        // read here is the `Positioned` the implicit animation *built* rather
+        // than the one it is heading for — so a value that jumped would read
+        // its destination on the first frame.
+        double thumb() {
+          return tester
+              .widgetList<Positioned>(
+                find.descendant(of: find.byType(PlSlider), matching: find.byType(Positioned)),
+              )
+              .last
+              .left!;
+        }
+
+        final double before = thumb();
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.end);
+        await tester.pump();
+        await tester.pump(PlassTokens.duration ~/ 2);
+
+        final double halfway = thumb();
+
+        await tester.pumpAndSettle();
+
+        final double after = thumb();
+
+        expect(halfway, greaterThan(before));
+        expect(halfway, lessThan(after));
+      });
+
       testWidgets('goes to the ends on Home and End', (WidgetTester tester) async {
         List<double>? reported;
         await tester.pumpWidget(

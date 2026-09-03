@@ -169,6 +169,8 @@ Only `solid` gets one. A sheet of clear glass casts a neutral shadow, because it
 
 A surface that _holds_ content rather than being pressed — a Card, a row — may lift, and should. The rule is about the thing under the finger.
 
+The one position that is animated is a [`PlSlider`](../components/inputs/slider)'s thumb, and it is not an exception: nothing is being shifted off its own place, because the thing being moved _is_ the value. It travels for a step nobody dragged — an arrow key, a press on the rail — and not at all under a finger, where easing towards the pointer would only read as lag.
+
 ### A mark is drawn, not switched on
 
 The rule above leaves an obvious hole: a tick and a radio dot are not there and then they are, and neither of them may be scaled into place. So they are not put there at all — they are **drawn**.

@@ -62,6 +62,21 @@ describe('PlSlider', () => {
       expect(screen.getByRole('slider').element()).toHaveAttribute('aria-valuenow', '70');
     });
 
+    it('travels to a new value, and stops travelling under a finger', async () => {
+      const screen = await render(<PlSlider defaultValue={20} />);
+      const thumb = screen.getByRole('slider').element().parentElement!;
+
+      // The two edges the value is written into, in the same declaration as
+      // the halo — a second one would have taken the property list from it.
+      expect(thumb.className).toContain('inset-inline-start');
+      expect(thumb.className).toContain('bottom');
+      expect(thumb.className).toContain('box-shadow');
+
+      // Nothing at all while the pointer is down: a thumb that eased towards a
+      // finger is a thumb lagging behind it.
+      expect(thumb.className).toContain('data-[dragging]:[transition-duration:0ms]');
+    });
+
     it('keeps caller-supplied class names alongside its own', async () => {
       await render(<PlSlider className="my-own-class" defaultValue={10} />);
 

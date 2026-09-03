@@ -3,12 +3,7 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { Slider as BaseUISlider } from '@base-ui/react/slider';
-import {
-  controlSlots,
-  focusRingClasses,
-  metaTextClasses,
-  transitionClasses
-} from '../../internal/styles.js';
+import { controlSlots, focusRingClasses, metaTextClasses } from '../../internal/styles.js';
 import type { PlassColor, PlassElevation, PlassOrientation, PlassSize } from '../../types.js';
 
 type BaseSliderProps = Omit<
@@ -121,7 +116,35 @@ const trackBoxWidthClasses: Record<PlassSize, string> = {
  * something travels along, not a sheet.
  */
 const railClasses = 'rounded-full bg-(--plass-track)';
-const indicatorClasses = `rounded-full [background-image:var(--p-fill)] ${transitionClasses}`;
+
+/**
+ * The travel: what the thumb and the run both move over, and the one place in
+ * the library a *position* is animated at all.
+ *
+ * Base UI writes the value straight into `inset-inline-start` (or `bottom`, run
+ * the other way) and into the indicator's `width`, so those are the properties
+ * rather than a `translate` — and that is why this does not touch the rule
+ * against transforms on a control. Nothing is being scaled or shifted off its
+ * own place; the thing being moved *is* the value.
+ *
+ * **Zero while a finger is on it.** A thumb that eased towards the pointer
+ * would be a thumb that lags behind it, which reads as the control being slow
+ * rather than as the motion being smooth. So the duration is the house one for
+ * a step the reader did not drag — an arrow key, a press on the rail, a value
+ * set from elsewhere — and nothing at all for the one they did.
+ */
+const travelClasses = /* @__PURE__ */ [
+  '[transition-duration:var(--plass-duration)]',
+  '[transition-timing-function:var(--plass-ease)]',
+  'data-[dragging]:[transition-duration:0ms]',
+  'motion-reduce:[transition-duration:0ms]'
+].join(' ');
+
+const indicatorClasses = /* @__PURE__ */ [
+  'rounded-full [background-image:var(--p-fill)]',
+  '[transition-property:width,height,inset-inline-start,bottom,filter,opacity]',
+  travelClasses
+].join(' ');
 
 /**
  * The thumb is a key of tinted glass on the same gradient as the run behind it,
@@ -138,7 +161,11 @@ const thumbClasses = /* @__PURE__ */ [
   '[border-color:var(--plass-surface)]',
   '[box-shadow:var(--p-elev),var(--p-lift)]',
   'cursor-grab select-none active:cursor-grabbing',
-  transitionClasses,
+  // Its own property list rather than the house one: the only thing on a thumb
+  // that changes with a state is the halo, and the two edges it travels along
+  // have to be in the same declaration as that halo or one of them wins.
+  '[transition-property:box-shadow,inset-inline-start,bottom,filter,opacity]',
+  travelClasses,
   'hover:[box-shadow:var(--p-elev-hover),var(--p-lift-hover),0_0_0_4px_var(--p-soft)]',
   focusRingClasses,
   'data-[dragging]:[box-shadow:var(--p-elev-press),var(--p-lift-press),0_0_0_6px_var(--p-soft-hover)]'
