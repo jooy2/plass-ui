@@ -59,7 +59,7 @@ Directionality(textDirection: TextDirection.rtl, child: child);
 | --- | --- |
 | padding · margin · border · radius · inset | **뒤집힙니다.** 논리 속성입니다 |
 | 텍스트 정렬, 리스트 마커, 표의 열 | **뒤집힙니다.** 브라우저 자신의 것입니다 |
-| 읽는 방향을 가리키는 chevron — breadcrumb, pagination 스테퍼, 서브메뉴 | **뒤집힙니다.** 글리프 하나를 돌립니다 |
+| 읽는 방향을 가리키는 chevron — breadcrumb, pagination 스테퍼, 서브메뉴, `PlTree`의 접힌 삼각형 | **뒤집힙니다.** 글리프 하나를 돌립니다 |
 | `PlSwitch`의 thumb | **뒤집힙니다.** off는 inline start이고, RTL에서 그것은 오른쪽 끝입니다 — 어느 플랫폼의 스위치든 그렇게 동작합니다 |
 | `PlPanes` 핸들, `PlSidebar` 드래그, `PlCarousel`과 `PlScrollZone` 스트립 | **뒤집힙니다.** 화살표 키까지 포함해서 |
 | `PlSlider`의 run | **뒤집힙니다.** 최솟값이 inline start에 있으므로 그림과 누른 자리의 해석, 좌우 화살표 키가 한꺼번에 돌아갑니다 |

@@ -198,6 +198,38 @@ void main() {
       expect(await inset(TextDirection.rtl), closeTo(await inset(TextDirection.ltr), 0.5));
     });
 
+    testWidgets('PlTree points its closed twisty the way the rows run', (
+      WidgetTester tester,
+    ) async {
+      Future<double> turns(TextDirection direction) async {
+        await tester.pumpWidget(
+          host(
+            const PlTree(
+              items: <PlTreeNode>[
+                PlTreeNode(
+                  id: 'src',
+                  label: Text('src'),
+                  children: <PlTreeNode>[PlTreeNode(id: 'index', label: Text('index.ts'))],
+                ),
+              ],
+              expanded: <String>{},
+            ),
+            width: 320,
+            textDirection: direction,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        return tester.widget<AnimatedRotation>(find.byType(AnimatedRotation).first).turns;
+      }
+
+      // A quarter turn either way, and opposite ways: a twisty that pointed at
+      // the screen's right in both directions would be pointing back up the
+      // rows in one of them.
+      expect(await turns(TextDirection.ltr), -0.25);
+      expect(await turns(TextDirection.rtl), 0.25);
+    });
+
     testWidgets('PlAnimateMarquee travels towards the reading start', (WidgetTester tester) async {
       Future<double> shift(TextDirection direction) async {
         await tester.pumpWidget(

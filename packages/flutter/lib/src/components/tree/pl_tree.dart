@@ -404,6 +404,7 @@ class _TreeRow extends StatelessWidget {
     final node = row.node;
     final isBranch = node.children != null;
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final rtl = Directionality.of(context) == TextDirection.rtl;
 
     if (focusNode != null) {
       // Written onto the node itself rather than into a second `Focus` around
@@ -442,7 +443,17 @@ class _TreeRow extends StatelessWidget {
           Opacity(
             opacity: isBranch ? 1 : 0,
             child: AnimatedRotation(
-              turns: expanded ? 0 : -0.25,
+              // A closed twisty points the way the rows run, so it turns the
+              // other way under RTL. `AnimatedRotation` is a paint-time turn
+              // and knows nothing about the direction it is painting in, so
+              // this is one of the few places the direction is read by hand —
+              // and the glyph is square, so nothing about the row's layout
+              // depends on which quarter it ends up in.
+              turns: expanded
+                  ? 0
+                  : rtl
+                  ? 0.25
+                  : -0.25,
               duration: reduceMotion ? Duration.zero : PlassTokens.duration,
               curve: PlassTokens.ease,
               child: PlassGlyph(
