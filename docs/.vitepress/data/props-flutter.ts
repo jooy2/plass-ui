@@ -473,6 +473,18 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlAnimateShake: [
+    from('PlAnimateShake', 'replay', { type: 'Object?' }),
+    from('PlAnimateShake', 'distance', { type: 'double', default: '6' }),
+    ...animateFlutterProps('PlAnimateShake', { duration: 'Duration(milliseconds: 400)' }),
+    {
+      name: 'child',
+      type: 'Widget',
+      required: true,
+      description: { ko: '무엇이 거절되는지', en: 'What is refused' }
+    }
+  ],
+
   PlAnimateSlide: [
     from('PlAnimateSlide', 'mode', {
       type: 'PlassAnimateMode',

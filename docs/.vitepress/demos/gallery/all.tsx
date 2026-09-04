@@ -12,6 +12,7 @@ import {
   PlAnimateAppear,
   PlAnimateBlink,
   PlAnimateReveal,
+  PlAnimateShake,
   PlAnimateRotate,
   PlAnimateSlide,
   PlAnimateZoom,
@@ -2118,6 +2119,20 @@ const entries: Entry[] = [
       <PlAnimateZoom from={0.3} duration={1300} repeat="infinite" alternate>
         <PlChip color="success">Zooming</PlChip>
       </PlAnimateZoom>
+    )
+  },
+  {
+    name: 'PlAnimateShake',
+    group: 'transitions',
+    href: 'components/transitions/animate-shake',
+    blurb: {
+      en: 'A refusal — the one effect here that answers rather than arrives.',
+      ko: '거절입니다. 여기서 도착이 아니라 응답인 유일한 효과입니다.'
+    },
+    preview: (
+      <PlAnimateShake play repeat="infinite" duration={1600}>
+        <PlChip color="danger">Wrong password</PlChip>
+      </PlAnimateShake>
     )
   },
   {

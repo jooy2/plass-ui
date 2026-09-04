@@ -6,6 +6,18 @@
 
 ### Added
 
+- **`PlAnimateShake`.** A refusal. The one effect in the set that is a **response** rather than an entrance — what a form does when the password was wrong again, what a locked control does when it is pressed — so it starts held still, where every other effect here starts on mount.
+
+  **`replay` is the prop it exists around, and it is a new shape in the animation API.** A refusal can happen twice, and `play` — being a boolean — cannot say "again": replaying with it means toggling off and on, which is two renders for one event and a piece of state whose only job is to be flipped back. A value that has _changed_ is the closest React has to an event, and the count of failed attempts a form already keeps is exactly that value. It never plays on the first render, because a shake that shook itself on mount would be answering an event that has not happened.
+
+  It lands **exactly where it started** — three shudders either side of home and back to nothing. That matters more here than anywhere else in the group, because this is the one effect a caller will run over content that is still being typed into, and a field left a few pixels off its label would be a worse defect than the error it was reporting.
+
+  It is not in `PlassAnimation`, for `PlAnimateFloat`'s reason: that union is the set of ways content can arrive, and a response is not an arrival.
+
+  The page says the thing the component cannot enforce. **A reader who asked for less motion sees none of it**, so whatever the refusal is saying has to be said in text as well — the field's own `error` and `invalid` — and the shake is emphasis, never the message.
+
+  Measured with `npm run size`: **+0.2 kB on the whole library and +0.0 kB on all four other scenarios**.
+
 - **`PlAnimateFloat`.** Content drifting gently, and not going anywhere. It is the odd one out in the group and the page says so: every other effect here is an **entrance**, played once when content arrives, and this one never finishes.
 
   Three things follow from that. It repeats **infinitely** by default, because one drift out and back is a nudge and nobody asks for a nudge. It has **no `mode`**, because the cycle is symmetric and running a symmetric cycle backwards is the same cycle. And it is **not in `PlassAnimation`**.

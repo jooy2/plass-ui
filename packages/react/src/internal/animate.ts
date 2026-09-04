@@ -251,6 +251,17 @@ export interface AnimationRunOptions {
   paused?: boolean;
   /** An infinite effect stops when the pointer leaves; a finite one finishes. */
   infinite: boolean;
+  /**
+   * A value that plays the effect again whenever it changes, and never on the
+   * first render.
+   *
+   * `play` is a boolean, so replaying with it means toggling off and on — two
+   * renders for one event, and a piece of state whose only job is to be
+   * flipped back. A response to something that can happen twice needs the
+   * *event*, and a value that has changed is the closest React has to one: a
+   * count of failed attempts already is this.
+   */
+  nonce?: unknown;
 }
 
 export interface AnimationRun {
@@ -289,7 +300,8 @@ export function useAnimationRun({
   once,
   threshold,
   paused,
-  infinite
+  infinite,
+  nonce
 }: AnimationRunOptions): AnimationRun {
   const node = React.useRef<HTMLElement | null>(null);
   const [started, setStarted] = React.useState(trigger === 'mount');
@@ -360,6 +372,20 @@ export function useAnimationRun({
 
     return () => observer.disconnect();
   }, [trigger, once, threshold, start]);
+
+  // Held rather than compared against the previous render, so the first pass is
+  // never a change: a shake that played itself on mount would be answering an
+  // event that has not happened.
+  const seen = React.useRef(nonce);
+
+  React.useEffect(() => {
+    if (Object.is(nonce, seen.current)) {
+      return;
+    }
+
+    seen.current = nonce;
+    start();
+  }, [nonce, start]);
 
   React.useEffect(() => {
     if (trigger !== 'manual') {
@@ -531,6 +557,7 @@ export function useAnimateElement(params: AnimateElementParams): AnimateElement 
     threshold,
     paused,
     infinite,
+    nonce,
     stagger = 0,
     durationStep = 0,
     reverse = false,
@@ -550,7 +577,8 @@ export function useAnimateElement(params: AnimateElementParams): AnimateElement 
     once,
     threshold,
     paused,
-    infinite
+    infinite,
+    nonce
   });
 
   const effectClass = effect ? `${animBaseClass} ${animationClasses[effect]}` : '';

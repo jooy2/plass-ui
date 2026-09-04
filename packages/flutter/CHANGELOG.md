@@ -4,6 +4,12 @@
 
 ### Added
 
+- **`PlAnimateShake`.** A refusal — the one effect in the set that answers something the reader did rather than announcing that content has arrived, so `trigger` defaults to `PlassAnimateTrigger.manual` and it starts held still.
+
+  `replay` is what it exists around: a refusal can happen twice and a `bool` cannot say "again". A value that has changed is the closest a widget tree has to an event, and it never plays on the first build. `PlassAnimateSettings` takes a `nonce` for it, and the gate calls `restart` rather than `_set(true)` — the second refusal has to play even though the first one already started the run.
+
+  A damped sine that completes a whole number of cycles, so the widget lands exactly where it started rather than wherever the curve happened to be when the run stopped.
+
 - **`PlAnimateFloat`.** Content drifting gently and not going anywhere — the odd one out among the `PlAnimate*` widgets, because every other one is an entrance played once when content arrives and this one never finishes.
 
   The cycle is symmetric, home to out to home, so a run that ends leaves the widget exactly where it found it. `curve` defaults to `Curves.easeInOut` rather than to the house curve: the house curve is an entrance's, and a drift with it would lurch at each end of the cycle instead of turning around.

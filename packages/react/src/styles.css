@@ -1374,6 +1374,40 @@
 }
 
 /*
+ * A refusal.
+ *
+ * Three shudders either side of home and back to nothing, so an element that
+ * has been shaken is exactly where it was — this is the one effect in the file
+ * that a caller will run over content that is still being typed into, and a
+ * field left a few pixels off its label would be worse than the error it was
+ * reporting.
+ *
+ * Not one of the entrances, and not in `PlassAnimation`, for `plass-anim-float`'s
+ * reason: that union is the set of ways content can *arrive*, and a response to
+ * something a reader did is not an arrival.
+ */
+@keyframes plass-anim-shake {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  15%,
+  45%,
+  75% {
+    translate: calc(var(--p-anim-x, 6px) * -1) 0;
+  }
+  30%,
+  60%,
+  90% {
+    translate: var(--p-anim-x, 6px) 0;
+  }
+}
+
+.plass-anim-shake {
+  animation-name: plass-anim-shake;
+}
+
+/*
  * An endless drift.
  *
  * Symmetric like the blink above and for the same reason: however many times it

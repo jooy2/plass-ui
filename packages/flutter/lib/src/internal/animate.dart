@@ -71,6 +71,7 @@ class PlassAnimateSettings {
     this.play = false,
     this.once = true,
     this.threshold = defaultVisibleThreshold,
+    this.nonce,
   });
 
   /// How long one run takes.
@@ -102,6 +103,16 @@ class PlassAnimateSettings {
 
   /// With [PlassAnimateTrigger.visible], how much has to be on screen.
   final double threshold;
+
+  /// A value that plays the effect again whenever it changes, and never on the
+  /// first build.
+  ///
+  /// [play] is a bool, so replaying with it means toggling off and on — two
+  /// builds for one event, and a piece of state whose only job is to be flipped
+  /// back. A response to something that can happen twice needs the *event*, and
+  /// a value that has changed is the closest a widget tree has to one: a count
+  /// of failed attempts already is this.
+  final Object? nonce;
 
   /// Whether this run never stops on its own.
   bool get infinite => repeat == null;
@@ -195,6 +206,15 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
     // `play` is a caller pressing go, and each false → true starts it over.
     if (now.trigger == PlassAnimateTrigger.manual && now.play != before.play) {
       _set(now.play);
+    }
+
+    // Compared against the last build rather than held in a field, so the first
+    // one is never a change: an effect that played itself on mount would be
+    // answering an event that has not happened.
+    if (now.nonce != before.nonce) {
+      // `restart` rather than `_set(true)`: the second refusal has to play even
+      // though the first one already started it.
+      restart();
     }
   }
 

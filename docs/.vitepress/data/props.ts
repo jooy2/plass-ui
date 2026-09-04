@@ -1389,6 +1389,38 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlAnimateShake: [
+    {
+      name: 'replay',
+      type: 'unknown',
+      description: {
+        ko: '이 값이 바뀔 때마다 다시 흔듭니다. 첫 렌더링에서는 절대 재생하지 않습니다 — 거절은 두 번 일어날 수 있고 bool로는 "또"라고 말할 수 없습니다',
+        en: 'Plays the shake again whenever this value changes, and never on the first render. A refusal can happen twice, and a boolean cannot say "again"'
+      }
+    },
+    {
+      name: 'distance',
+      type: 'number | string',
+      default: '6',
+      description: {
+        ko: '시작한 자리 양옆으로 얼마나 움직이는지',
+        en: 'How far it travels either side of where it started'
+      }
+    },
+    ...animateProps({
+      duration: '400',
+      omit: ['mode', 'stagger', 'durationStep', 'reverse', 'timeline', 'range']
+    }),
+    {
+      name: 'render',
+      type: 'ReactElement | (props, state) => ReactElement',
+      description: {
+        ko: '<div> 대신 다른 요소로 렌더링합니다',
+        en: 'Renders something other than a <div>'
+      }
+    }
+  ],
+
   PlAnimateSlide: [
     {
       name: 'mode',
