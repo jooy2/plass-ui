@@ -168,6 +168,10 @@
 
   The effect is written onto the children themselves rather than onto wrappers, so a row of `<li>`s stays a row of `<li>`s and a grid's cells stay its direct children; the cost is that a child has to accept a `className` and a `style`. The `transform-origin` a `PlAnimateGrow` was given travels with it, since that property is not inherited and a staggered grow would otherwise unfold every child from its own middle. **+0.2 kB on the whole library**, nothing on any component that does not import an effect.
 
+### Changed
+
+- **A `PlButtonGroup` and a `PlToggleGroup` draw one run of keys rather than two copies of it.** The squared corners, the hairline overlap and the stacking context each key gets were written out in both components — the same three lists, and two places for the seam to stop lining up. They live in `internal/button-group.ts` now, beside the context both groups already publish. Nothing renders differently.
+
 ### Fixed
 
 - **A `PlTree`'s branch dropped in and vanished rather than opening.** It was the last fold in the library that did not travel: an accordion, a collapsible and a pill all move a height over 260ms, and this one swapped its rows in and out between two frames — under the twisty that had just been pressed, which is exactly where a reader is looking. The branch is a Base UI `Collapsible` now, written with the two lines a `PlCollapsible`'s panel is written with.

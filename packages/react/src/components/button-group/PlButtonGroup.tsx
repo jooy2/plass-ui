@@ -3,6 +3,9 @@
 import * as React from 'react';
 import {
   ButtonGroupContext,
+  groupBaseClasses,
+  groupJoinClasses,
+  groupOverlapClasses,
   type PlassButtonGroupContextValue
 } from '../../internal/button-group.js';
 import { cx } from '../../internal/styles.js';
@@ -24,45 +27,6 @@ export interface PlButtonGroupProps
   fullWidth?: boolean;
   children?: React.ReactNode;
 }
-
-/**
- * The corners that face a neighbour are squared off, so the run reads as one
- * piece scored into segments rather than as three keys that happen to be
- * touching.
- *
- * Logical properties (`s`/`e`) rather than left/right: under RTL the first
- * button is on the right, and `rounded-l-none` would flatten the wrong side.
- */
-const joinClasses: Record<PlassOrientation, string> = {
-  horizontal: '[&>*:not(:first-child)]:rounded-s-none [&>*:not(:last-child)]:rounded-e-none',
-  vertical: '[&>*:not(:first-child)]:rounded-t-none [&>*:not(:last-child)]:rounded-b-none'
-};
-
-/**
- * Only `glass` needs the overlap, because it is the only variant that draws an
- * edge. Two glass keys meeting would otherwise show both of their hairlines and
- * the seam would be twice as heavy as every other edge on the page; pulling the
- * second one back a pixel makes the two share one line.
- *
- * A `solid` group must **not** do this. Its keys have no border to double up,
- * and overlapping would put one gradient over the start of the next — which is
- * exactly the join the squared corners are drawing.
- */
-const overlapClasses: Record<PlassOrientation, string> = {
-  horizontal: '[&>*:not(:first-child)]:-ms-px',
-  vertical: '[&>*:not(:first-child)]:-mt-px'
-};
-
-const baseClasses = /* @__PURE__ */ [
-  'inline-flex align-middle',
-  // Every child gets a stacking context so the hovered or focused one can come
-  // forward. Without it the focus ring — which is drawn outside the border box —
-  // is painted over by whichever neighbour happens to come after it.
-  '[&>*]:relative [&>*:hover]:z-10 [&>*:focus-visible]:z-10',
-  // A group is a set of equal actions, so they stay the same height even when
-  // one of them has an icon and the others do not.
-  '[&>*]:shrink-0'
-].join(' ');
 
 /**
  * A run of buttons that belong together.
@@ -109,12 +73,12 @@ export const PlButtonGroup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
           ref={ref}
           role="group"
           className={cx(
-            baseClasses,
+            groupBaseClasses,
             orientation === 'vertical' ? 'flex-col' : 'flex-row',
-            joinClasses[orientation],
+            groupJoinClasses[orientation],
             // `variant` defaults to `solid` on a PlButton, so a group that says
             // nothing is a solid group and must not overlap.
-            (variant ?? 'solid') === 'glass' ? overlapClasses[orientation] : '',
+            (variant ?? 'solid') === 'glass' ? groupOverlapClasses[orientation] : '',
             fullWidth ? 'flex w-full [&>*]:flex-1' : '',
             className
           )}
