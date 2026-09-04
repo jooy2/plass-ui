@@ -6,6 +6,18 @@
 
 ### Added
 
+- **`PlHoverCard`.** A preview of what is behind a link, shown when the pointer rests on it. The library now has all three floating surfaces, and the pages tell them apart by **what opens them and what a reader can do once they are open** rather than by how they look — all three are the same sheet. A tooltip names the thing under the pointer and nothing in it can be reached; a hover card previews what is behind it and the pointer can move _onto_ it; a popover was asked for, stays until it is dismissed, and can be typed into.
+
+  **The rule that decides whether it is the right component at all is written on the page: nothing may live only in here.** A card that opens on hover does not open for a finger, so a link, a button or a fact that exists nowhere else is one that every touch reader misses. Everything inside is a preview of something already reachable — which is what makes it safe to have, and why it needs no dismiss button, no focus trap and no scroll lock.
+
+  **The delays are the component.** `delay` is 600ms and deliberately long: a card that opens the moment a pointer crosses a link opens on every link a reader passes on the way somewhere else, which turns a page of prose into a page that flinches. `closeDelay` is 300ms and cannot be zero — the gap between the trigger and the card has no pointer in it, so a card that closed the instant the pointer left could never be reached, and reaching it is the whole difference from a tooltip.
+
+  It opens on **keyboard focus** as well as on hover, so a reader tabbing along a paragraph of links gets the same preview a pointer would. The trigger is rendered rather than wrapped, so a link keeps its `href`, its styling and its place in the tab order. The sheet is a `PlPopover`'s, one `size` rung wider at every step: a popover is a detail beside a control, and a preview squeezed to the width of a hint is a preview nobody reads.
+
+  Base UI's `PreviewCard` owns the anchoring, the flip at the window edge, the two delays and the dismissal.
+
+  Measured with `npm run size`: **+3.4 kB on the whole library and +0.0 kB on all four other scenarios** — the primitive, paid for only where the component is.
+
 - **`PlScrollArea`.** A bounded box that scrolls, with the library's own scrollbar in it. The reason to reach for it over `overflow: auto` is the **bar**: a platform scrollbar is either an overlay that vanishes the moment the content stops moving or a strip of permanent grey furniture, and neither of them belongs beside a translucent sheet. The thumb is `--plass-track`, the same neutral ink a `PlSlider`'s rail and a progress groove are cut in, and the lane is overlaid so drawing it costs the content no width.
 
   **It is not a `PlScrollZone`, and the pages say which is which.** A scroll zone is the other answer to the same fact — content that runs off the end of its box — and it takes the bar away entirely, fades the end that still has something behind it and adds a pair of buttons. That is right for a strip of tabs or chips, where a bar under one line of labels is heavier than the labels. A scroll area is right for a panel of content, where the bar is the honest signal and where a reader wants to know **how far through** they are, which a fade cannot say. There is deliberately no fade here for the same reason: two signals for one fact, one measured and one not, is one more than the box needs.

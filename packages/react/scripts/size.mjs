@@ -2,7 +2,7 @@
  * What a consumer actually pays, measured the way they would pay it.
  *
  * `npm pack`'s size and bundlephobia's number both answer a different question
- * than the one that matters for a library of 103 components: what does an app
+ * than the one that matters for a library of 104 components: what does an app
  * that imports *three* of them ship? Tree shaking is the whole answer to that,
  * and tree shaking is the one thing neither of those numbers can see — a
  * package can double a consumer's bundle without its own tarball changing by a

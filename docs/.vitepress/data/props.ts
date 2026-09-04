@@ -5203,6 +5203,122 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlHoverCard: [
+    {
+      name: 'trigger',
+      type: 'ReactElement',
+      required: true,
+      description: {
+        ko: '카드가 미리 보여 주는 대상. 보통 링크이고, 감싸지 않고 그대로 렌더링됩니다',
+        en: 'What the card previews. Usually a link, and it is rendered rather than wrapped'
+      }
+    },
+    {
+      name: 'title · description',
+      type: 'ReactNode',
+      description: { ko: '제목과 그 아래 한 줄', en: 'The heading and a line under it' }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '본문', en: 'The body' }
+    },
+    {
+      name: 'side',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'bottom'",
+      description: {
+        ko: '트리거의 어느 모서리에 나타날지. 자리가 없으면 반대쪽으로 뒤집힙니다',
+        en: 'Which edge of the trigger it appears on. Flips to the opposite side when there is no room'
+      }
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'center'",
+      description: { ko: '그 모서리를 따라 어디에 놓일지', en: 'Where it sits along that edge' }
+    },
+    {
+      name: 'sideOffset · alignOffset',
+      type: 'number',
+      default: '8 · 0',
+      description: {
+        ko: '트리거에서 떨어진 거리와 모서리를 따라 밀린 거리, 픽셀',
+        en: 'Distance from the trigger and shift along that edge, in pixels'
+      }
+    },
+    {
+      name: 'delay',
+      type: 'number',
+      default: '600',
+      description: {
+        ko: '열리기까지 포인터가 머물러야 하는 시간(ms). 지나가는 길의 모든 링크에서 열리지 않도록 깁니다',
+        en: 'How long the pointer has to rest before it opens, in ms. Long, so it does not fire at every link a reader passes'
+      }
+    },
+    {
+      name: 'closeDelay',
+      type: 'number',
+      default: '300',
+      description: {
+        ko: '포인터가 떠난 뒤 기다리는 시간(ms). 0일 수 없습니다 — 트리거와 카드 사이의 틈에는 포인터가 없습니다',
+        en: 'How long it waits after the pointer leaves, in ms. It cannot be zero: the gap between the trigger and the card has no pointer in it'
+      }
+    },
+    {
+      name: 'arrow',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '트리거를 가리키는 작은 쐐기를 그립니다',
+        en: 'Draws the little wedge pointing at the trigger'
+      }
+    },
+    {
+      name: 'open · defaultOpen · onOpenChange',
+      type: 'boolean · boolean · (open) => void',
+      description: {
+        ko: '바깥에서 여닫기. 주지 않으면 포인터와 키보드에 맡깁니다',
+        en: 'Drives it from outside. Without them it is left to the pointer and the keyboard'
+      }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      description: {
+        ko: 'size가 정하는 최대 너비를 덮어씁니다',
+        en: "A hard cap on the card's width, overriding the one size implies"
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '시트의 타입 스케일과 radius와 패딩',
+        en: 'Type scale, radius and padding of the sheet'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: { ko: '안쪽이 쓰는 색 역할', en: 'The family anything inside takes' }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'default'",
+      shared: true,
+      description: {
+        ko: '시트가 내용을 얼마나 촘촘히 담을지',
+        en: 'How tightly the sheet packs its content'
+      }
+    }
+  ],
+
   PlIcon: [
     {
       name: 'icon',

@@ -267,6 +267,8 @@ const deliberate: Record<string, string> = {
   'src/components/tooltip/PlTooltip.tsx':
     "the arrow is placed against Base UI's own physical `data-side`",
   'src/components/popover/PlPopover.tsx':
+    "the arrow is placed against Base UI's `data-side`, as above",
+  'src/components/hover-card/PlHoverCard.tsx':
     "the arrow is placed against Base UI's `data-side`, as above"
 };
 

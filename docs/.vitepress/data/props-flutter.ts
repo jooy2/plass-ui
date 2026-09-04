@@ -2449,6 +2449,39 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlHoverCard: [
+    from('PlHoverCard', 'trigger', { type: 'Widget', required: true }),
+    from('PlHoverCard', 'title · description', { type: 'Widget?' }),
+    from('PlHoverCard', 'children', { name: 'child', type: 'Widget?' }),
+    from('PlHoverCard', 'side', { type: 'PlassSide', default: 'PlassSide.bottom' }),
+    from('PlHoverCard', 'align', { type: 'PlassAlign', default: 'PlassAlign.center' }),
+    from('PlHoverCard', 'sideOffset · alignOffset', {
+      name: 'offset',
+      type: 'double',
+      default: '8'
+    }),
+    from('PlHoverCard', 'delay', { type: 'Duration', default: '600ms' }),
+    from('PlHoverCard', 'closeDelay', { type: 'Duration', default: '300ms' }),
+    from('PlHoverCard', 'arrow', { type: 'bool', default: 'false' }),
+    from('PlHoverCard', 'open · defaultOpen · onOpenChange', {
+      name: 'open · onOpenChanged',
+      type: 'bool? · ValueChanged<bool>?'
+    }),
+    {
+      name: 'disabled',
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '트리거를 비활성화하지 않으면서 카드만 열리지 않게 합니다',
+        en: 'Stops the card opening at all, without disabling the trigger'
+      }
+    },
+    from('PlHoverCard', 'width', { type: 'double?' }),
+    from('PlHoverCard', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlHoverCard', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlHoverCard', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+  ],
+
   PlIcon: [
     from('PlIcon', 'icon', { type: 'Widget', required: true }),
     from('PlIcon', 'size', { type: SIZE, default: 'PlassSize.md' }),

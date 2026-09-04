@@ -4,6 +4,14 @@
 
 ### Added
 
+- **`PlHoverCard`.** A preview of what is behind a link, shown when the pointer rests on it — the Dart half of the React component, and the third of the floating surfaces. What separates it from a `PlTooltip` is that the pointer can move **onto** it and what is inside can be pressed; what separates it from a `PlPopover` is that nobody asked for it.
+
+  The pointer is tracked on the trigger **and** on the card, as two flags rather than one. That is not tidiness: the gap between them has no pointer in it, so a single flag would close the card on the way to it and it could never be reached.
+
+  `delay` is 600ms so the card does not fire at every link a pointer crosses, and focus opens it too — a reader who tabs onto the link gets the same preview, which is the half a hover-only card loses.
+
+  The wedge moved out of `PlPopover` into `internal/wedge.dart` on the way, because two surfaces now draw it and a second copy of a triangle painter is a second place for the hairline to stop lining up with the sheet's.
+
 - **`PlScrollArea`.** A bounded box that scrolls, with the library's own scrollbar in it — the Dart half of the React component. Built on `RawScrollbar` from `package:flutter/widgets.dart`, because the framework's own `Scrollbar` lives in `material.dart` and this package imports neither that nor `cupertino.dart`. The thumb is `PlassTokens.track`, the same neutral ink a `PlSlider`'s rail and a progress groove are cut in.
 
   `height` is a parameter rather than an enclosing `SizedBox` for the reason the React prop is one: a vertical scroll area has to be bounded by something or its content has nothing to overflow, so it is the measurement without which the widget does nothing. `maxHeight` is the ceiling form.

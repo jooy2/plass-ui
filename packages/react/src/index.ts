@@ -53,6 +53,7 @@ export * from './components/grid/index.js';
 export * from './components/header/index.js';
 export * from './components/highlight/index.js';
 export * from './components/hot-keys/index.js';
+export * from './components/hover-card/index.js';
 export * from './components/icon/index.js';
 export * from './components/icon-button/index.js';
 export * from './components/image/index.js';

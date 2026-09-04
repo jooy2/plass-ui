@@ -57,6 +57,7 @@ import {
   PlHeader,
   PlHighlight,
   PlHotKeys,
+  PlHoverCard,
   PlIcon,
   PlIconButton,
   PlImage,
@@ -1335,6 +1336,29 @@ const entries: Entry[] = [
       <PlCollapsible className="w-full" size="sm" title="Advanced" subtitle="Nine settings">
         Nothing grows until somebody asks for it.
       </PlCollapsible>
+    )
+  },
+  {
+    name: 'PlHoverCard',
+    group: 'surfaces',
+    href: 'components/surfaces/hover-card',
+    blurb: {
+      en: 'A preview of what is behind a link, shown when the pointer rests on it.',
+      ko: '포인터가 머물면 링크 뒤에 무엇이 있는지 미리 보여 줍니다.'
+    },
+    previewHasLinks: true,
+    preview: (
+      <p className="text-sm">
+        Written by{' '}
+        <PlHoverCard
+          size="sm"
+          title="Ada Lovelace"
+          description="Mathematician"
+          trigger={<PlTextLink href="#ada">Ada Lovelace</PlTextLink>}
+        >
+          Wrote the first algorithm intended for a machine.
+        </PlHoverCard>
+      </p>
     )
   },
   {
