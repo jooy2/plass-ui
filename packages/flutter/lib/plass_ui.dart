@@ -77,6 +77,7 @@ export 'src/components/header/pl_header.dart';
 export 'src/components/highlight/pl_highlight.dart';
 export 'src/components/hot_keys/pl_hot_keys.dart';
 export 'src/components/hover_card/pl_hover_card.dart';
+export 'src/components/how_to_steps/pl_how_to_steps.dart';
 export 'src/components/icon/pl_icon.dart';
 export 'src/components/icon_button/pl_icon_button.dart';
 export 'src/components/image/pl_image.dart';

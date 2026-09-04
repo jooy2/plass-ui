@@ -63,6 +63,8 @@ import {
   PlHighlight,
   PlHotKeys,
   PlHoverCard,
+  PlHowToStep,
+  PlHowToSteps,
   PlIcon,
   PlIconButton,
   PlImage,
@@ -1400,6 +1402,21 @@ const entries: Entry[] = [
           Wrote the first algorithm intended for a machine.
         </PlHoverCard>
       </p>
+    )
+  },
+  {
+    name: 'PlHowToSteps',
+    group: 'surfaces',
+    href: 'components/surfaces/how-to-steps',
+    blurb: {
+      en: 'Instructions, numbered, with what to do under each one.',
+      ko: '번호가 붙은 지시와, 각 단계 아래의 할 일입니다.'
+    },
+    preview: (
+      <PlHowToSteps className="w-full" size="sm" density="compact" active={1}>
+        <PlHowToStep title="Install">One command.</PlHowToStep>
+        <PlHowToStep title="Import">One line.</PlHowToStep>
+      </PlHowToSteps>
     )
   },
   {

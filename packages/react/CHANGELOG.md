@@ -6,6 +6,20 @@
 
 ### Added
 
+- **`PlHowToSteps` and `PlHowToStep`.** Instructions, numbered, with what to do under each one. Three components in the library now put things in order and the difference is not the drawing: a `PlStepper` and a `PlTimeline` both say **where you are** — one in a process the reader is moving through now, the other in a sequence that has already happened — and this one says **what to do**.
+
+  That is the shape everything else follows from: **every step's body is open at once.** Somebody following instructions reads ahead, goes back a step, and works at their own pace, so a guide that showed one step at a time would be hiding the answer to "what am I about to be asked for".
+
+  It is also why `active` is **optional** here. A guide that claimed to know how far a reader had got would be guessing; it is for the guide that genuinely knows, such as a setup wizard reporting what it has already done.
+
+  `numbered` is on by default, because "do this, then this" is an order and the number is how a reader finds their place again after looking away. Off — usually with `connector="none"` — is a checklist, which has no order. An `icon` replaces the number in the disc and keeps the step's place in it: a step never takes an index, the guide numbers its children as it walks them, and a conditional step that rendered nothing does not take a number with it.
+
+  It is a real `<ol>` of `<li>`s, and that is the accessibility of it. A screen reader announces "list, five items, item two" on its own — the position a heading per step would only approximate — so the numbers a reader sees are the ones the list carries.
+
+  The bullet, the halo and the connector come from `internal/steps.ts`, the same table the stepper and the timeline draw from, because a haloed bullet must not mean two things in one library.
+
+  Measured with `npm run size`: **+0.6 kB on the whole library and +0.0 kB on all four other scenarios**.
+
 - **`PlFloatingActionButton`.** The one action a screen is about, floating over it. It is a `PlButton` in a corner and everything that makes it one is the button's — the three materials, the elevation ladder, the pointer light, `loading`, `readOnly`, `disabled`. What it adds is the pinning, the shape, and one rule.
 
   **`label` is required and is always the accessible name.** A floating button is a disc with a mark in it nine times out of ten, and `extended` decides only whether the words are _also_ drawn — never whether they exist. An icon-only button with no name is the single most common accessibility defect this pattern ships with, and a required prop is the only fix that survives review.

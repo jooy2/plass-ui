@@ -5653,6 +5653,107 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlHowToSteps: [
+    {
+      name: 'active',
+      type: 'number',
+      description: {
+        ko: '지금 하고 있는 단계의 인덱스. 선택입니다 — 어디까지 왔는지 안다고 주장하는 안내는 추측을 하는 것입니다',
+        en: 'Which step is being worked on now, as an index. Optional: a guide that claimed to know how far a reader had got would be guessing'
+      }
+    },
+    {
+      name: 'numbered',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '단계에 번호를 매깁니다. 끄면 순서가 없는 체크리스트가 됩니다',
+        en: 'Numbers the steps. Off makes it a checklist, which has no order'
+      }
+    },
+    {
+      name: 'connector',
+      type: "'solid' | 'dashed' | 'dotted' | 'none'",
+      default: "'solid'",
+      description: {
+        ko: '한 단계와 다음 단계 사이의 선',
+        en: 'The line between one step and the next'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '제목과 본문의 타입 스케일',
+        en: 'The type scale of the titles and the bodies'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: { ko: '불릿이 쓰는 색 역할', en: 'The family the bullets take' }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'default'",
+      shared: true,
+      description: {
+        ko: '단계 사이의 간격. 타입 스케일도 불릿도 아닙니다',
+        en: 'The space between steps. Never the type scale, never the bullet'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '<ol> 대신 다른 요소로 렌더링합니다',
+        en: 'Renders something other than an <ol>'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: 'PlHowToStep들', en: 'The PlHowToSteps' }
+    }
+  ],
+
+  PlHowToStep: [
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description: {
+        ko: '단계가 무엇인지. 훑을 때 찾는 줄입니다',
+        en: 'What the step is. The line the reader scans for'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '무엇을 할지', en: 'What to do' }
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: {
+        ko: '번호 대신 놓이는 글리프. 순서에서의 자리는 그대로입니다',
+        en: 'A glyph in place of the number. The step keeps its place in the order'
+      }
+    },
+    {
+      name: 'status',
+      type: "'complete' | 'current' | 'upcoming'",
+      description: {
+        ko: '안내가 active로 계산한 것을 덮어씁니다',
+        en: 'Overrides what the guide worked out from active'
+      }
+    }
+  ],
+
   PlIcon: [
     {
       name: 'icon',

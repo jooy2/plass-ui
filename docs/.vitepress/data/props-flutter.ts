@@ -2585,6 +2585,43 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlHoverCard', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
   ],
 
+  PlHowToSteps: [
+    {
+      name: 'steps',
+      type: 'List<PlHowToStep>',
+      required: true,
+      description: {
+        ko: '따라야 할 순서대로의 지시들',
+        en: 'The instructions, in the order they are to be followed'
+      }
+    },
+    from('PlHowToSteps', 'active', { type: 'int?' }),
+    from('PlHowToSteps', 'numbered', { type: 'bool', default: 'true' }),
+    from('PlHowToSteps', 'connector', {
+      type: 'PlHowToStepsConnector',
+      default: 'PlassStepConnector.solid'
+    }),
+    {
+      name: 'semanticStepLabel',
+      type: 'String Function(int step, int total)?',
+      default: "'Step 2 of 5'",
+      description: {
+        ko: '스크린 리더가 각 단계 앞에 듣는 말. React는 진짜 <ol>에서 공짜로 얻지만 Flutter에는 물려받을 순서 목록이 없습니다',
+        en: 'What a screen reader hears before each step. React gets it free from a real <ol>; Flutter has no ordered list to inherit it from'
+      }
+    },
+    from('PlHowToSteps', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlHowToSteps', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlHowToSteps', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+  ],
+
+  PlHowToStep: [
+    from('PlHowToStep', 'title', { type: 'Widget?' }),
+    from('PlHowToStep', 'children', { name: 'child', type: 'Widget?' }),
+    from('PlHowToStep', 'icon', { type: 'Widget?' }),
+    from('PlHowToStep', 'status', { type: 'PlHowToStepStatus?' })
+  ],
+
   PlIcon: [
     from('PlIcon', 'icon', { type: 'Widget', required: true }),
     from('PlIcon', 'size', { type: SIZE, default: 'PlassSize.md' }),

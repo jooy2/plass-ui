@@ -4,6 +4,12 @@
 
 ### Added
 
+- **`PlHowToSteps` and `PlHowToStep`.** Instructions, numbered, with what to do under each one — the Dart half of the React component. A `PlStepper` and a `PlTimeline` say where you are; this says what to do, so every step's body is open at once.
+
+  **The position is written into each step's semantics**, which is the one place this parts company with the React build: there a real `<ol>` makes a screen reader say "list, five items, item two" for nothing, and Flutter has no ordered list to inherit that from. `semanticStepLabel` says the words, and it is a callback rather than a pair of strings for `PlProgressLinear.formatValue`'s reason — there is no `Intl` in the framework, and pulling `package:intl` in would be a dependency decision made on a consumer's behalf.
+
+  The bullet, the halo and the connector come from `internal/steps.dart`, the same place the stepper and the timeline take theirs.
+
 - **`PlFloatingActionButton`.** The one action a screen is about, floating over it — the Dart half of the React component, and a `PlButton` or a `PlIconButton` underneath depending on whether the words are drawn.
 
   `label` is **required** and is always what a screen reader hears, whether or not `extended` draws it: an icon-only button with no name is the defect this pattern ships with everywhere else.
