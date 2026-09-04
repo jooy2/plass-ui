@@ -4,6 +4,12 @@
 
 ### Added
 
+- **`PlAppLogo`.** A product's mark and its name beside it — the Dart half of the React component. `PlAppLogoShape.bare` is the default for the same reason: a mark drawn with its own background or its own margin is finished artwork, and a plate would give it two edges.
+
+  The mark is a widget rather than a URL, so it is whatever draws the artwork — a `PlImage`, an `Image.asset`, a `CustomPaint` — and `semanticLabel` is what a screen reader hears when there is no `name`. With a `name` the mark is wrapped in `ExcludeSemantics`, because a wordmark beside a picture of the wordmark is the product's name read twice.
+
+  `onPressed` is the Dart shape of React's `render={<a href="/" />}`: a logo is nearly always the way back to the front screen, and leaving it null draws the same logo and presses nothing.
+
 - **`PlHoverCard`.** A preview of what is behind a link, shown when the pointer rests on it — the Dart half of the React component, and the third of the floating surfaces. What separates it from a `PlTooltip` is that the pointer can move **onto** it and what is inside can be pressed; what separates it from a `PlPopover` is that nobody asked for it.
 
   The pointer is tracked on the trigger **and** on the card, as two flags rather than one. That is not tidiness: the gap between them has no pointer in it, so a single flag would close the card on the way to it and it could never be reached.

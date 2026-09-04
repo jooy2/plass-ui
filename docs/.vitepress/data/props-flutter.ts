@@ -623,6 +623,31 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlAlert', 'children', { name: 'child', type: 'Widget?' })
   ],
 
+  PlAppLogo: [
+    from('PlAppLogo', 'children', { name: 'child', type: 'Widget', required: true }),
+    from('PlAppLogo', 'alt', {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '마크가 말하는 것. name이 있으면 빼십시오 — 옆의 워드마크가 이미 말합니다',
+        en: 'What the mark says. Leave it out when name is set: the wordmark already says it'
+      }
+    }),
+    from('PlAppLogo', 'name · description', { type: 'Widget?' }),
+    from('PlAppLogo', 'shape', { type: 'PlAppLogoShape', default: 'PlAppLogoShape.bare' }),
+    from('PlAppLogo', 'variant', { type: VARIANT, default: 'PlassVariant.solid' }),
+    from('PlAppLogo', 'render', {
+      name: 'onPressed',
+      type: 'VoidCallback?',
+      description: {
+        ko: '로고를 첫 화면으로 돌아가는 길로 만듭니다. null이면 같은 로고를 그리고 아무것도 누르지 않습니다',
+        en: 'Makes the logo the way back to the front screen. Null draws the same logo and presses nothing'
+      }
+    }),
+    from('PlAppLogo', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlAppLogo', 'color', { type: COLOR, default: 'PlassColor.primary' })
+  ],
+
   PlAspectRatio: [
     from('PlAspectRatio', 'children', { name: 'child', type: 'Widget?' }),
     from('PlAspectRatio', 'ratio', {

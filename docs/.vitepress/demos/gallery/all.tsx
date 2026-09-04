@@ -15,6 +15,7 @@ import {
   PlAnimateSlide,
   PlAnimateZoom,
   PlAnimateGrow,
+  PlAppLogo,
   PlAspectRatio,
   PlAvatar,
   PlBackTop,
@@ -687,6 +688,27 @@ const entries: Entry[] = [
           { metric: 'Errors', value: '18' }
         ]}
       />
+    )
+  },
+  {
+    name: 'PlAppLogo',
+    group: 'display',
+    href: 'components/display/app-logo',
+    blurb: {
+      en: "A product's mark, and its name beside it.",
+      ko: '제품의 마크와 그 옆의 이름입니다.'
+    },
+    preview: (
+      <PlAppLogo shape="plate" size="sm" name="Acme" description="Staging">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M4 20 12 4l8 16"
+            stroke="currentColor"
+            strokeWidth="2.4"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </PlAppLogo>
     )
   },
   {

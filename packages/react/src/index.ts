@@ -15,6 +15,7 @@ export * from './components/animate-rotate/index.js';
 export * from './components/animate-slide/index.js';
 export * from './components/animate-typing/index.js';
 export * from './components/animate-zoom/index.js';
+export * from './components/app-logo/index.js';
 export * from './components/aspect-ratio/index.js';
 export * from './components/avatar/index.js';
 export * from './components/back-top/index.js';

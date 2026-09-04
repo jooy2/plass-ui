@@ -35,6 +35,7 @@ export 'src/components/animate_rotate/pl_animate_rotate.dart';
 export 'src/components/animate_slide/pl_animate_slide.dart';
 export 'src/components/animate_typing/pl_animate_typing.dart';
 export 'src/components/animate_zoom/pl_animate_zoom.dart';
+export 'src/components/app_logo/pl_app_logo.dart';
 export 'src/components/aspect_ratio/pl_aspect_ratio.dart';
 export 'src/components/avatar/pl_avatar.dart';
 export 'src/components/back_top/pl_back_top.dart';

@@ -6,6 +6,18 @@
 
 ### Added
 
+- **`PlAppLogo`.** A product's mark and its name beside it. The whole component is the **framing**, and the default is the answer project after project gets wrong: `bare` draws the artwork as it was given, at the height `size` asks for and whatever width that comes to.
+
+  That is the default because most marks already have a frame. A mark drawn with its own background, its own margin, or the product's name set into it is finished artwork — putting it on a plate gives it two edges, and cropping it to a circle cuts the name in half. `plate` and `circle` are for a mark drawn as a bare glyph, which cannot sit next to anything else until it has been given an edge, and a plate insets the artwork to about seventy percent of the tile rather than filling it: the margin every app icon has.
+
+  It is **not a `PlAvatar`**, and the page says why. An avatar is a picture of a person or a thing, always a circle or a fillet, with initials behind it when the picture does not arrive, because there is always something to draw. A logo is artwork the product owns: it has no fallback worth inventing, and its shape is a decision somebody already made — which is why the shape is a prop here and a house rule there.
+
+  **With a `name`, the mark is taken off the accessibility tree.** The wordmark beside it already says what the product is called, and a picture that says it again is a screen reader reading the name twice. Without one the mark speaks, through an `alt` whose empty default is a real answer.
+
+  `variant` and `color` are read only when there is a plate: a bare mark is the product's own artwork and the library does not tint it. `render={<a href="/" />}` makes it the way home, which is nearly always what a logo is.
+
+  Measured with `npm run size`: **+0.5 kB on the whole library and +0.0 kB on all four other scenarios**.
+
 - **`PlHoverCard`.** A preview of what is behind a link, shown when the pointer rests on it. The library now has all three floating surfaces, and the pages tell them apart by **what opens them and what a reader can do once they are open** rather than by how they look — all three are the same sheet. A tooltip names the thing under the pointer and nothing in it can be reached; a hover card previews what is behind it and the pointer can move _onto_ it; a popover was asked for, stays until it is dismissed, and can be typed into.
 
   **The rule that decides whether it is the right component at all is written on the page: nothing may live only in here.** A card that opens on hover does not open for a finger, so a link, a button or a fact that exists nowhere else is one that every touch reader misses. Everything inside is a preview of something already reachable — which is what makes it safe to have, and why it needs no dismiss button, no focus trap and no scroll lock.

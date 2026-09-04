@@ -1497,6 +1497,86 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlAppLogo: [
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: {
+        ko: '마크. 제품의 아트워크가 실제로 무엇이든',
+        en: "The mark — whatever the product's artwork actually is"
+      }
+    },
+    {
+      name: 'src',
+      type: 'string',
+      description: {
+        ko: 'children 대신 <img>로 그릴 그림',
+        en: 'A picture to draw as the mark, instead of children'
+      }
+    },
+    {
+      name: 'alt',
+      type: 'string',
+      default: "''",
+      description: {
+        ko: '그림이 말하는 것. name이 있으면 비워 두십시오 — 옆의 워드마크가 이미 말합니다',
+        en: 'What the picture says. Leave it empty when name is set: the wordmark already says it'
+      }
+    },
+    {
+      name: 'name · description',
+      type: 'ReactNode',
+      description: {
+        ko: '마크 옆의 제품 이름과, 그 아래 한 줄(환경 · 테넌트 · 요금제)',
+        en: "The product's name beside the mark, and a line under it — an environment, a tenant, a plan"
+      }
+    },
+    {
+      name: 'shape',
+      type: "'bare' | 'plate' | 'circle'",
+      default: "'bare'",
+      description: {
+        ko: '아트워크를 어떻게 두를지. bare가 기본인 이유는 대부분의 마크가 이미 자기 틀을 가지고 있기 때문입니다',
+        en: 'How the artwork is framed. bare is the default because most marks already have a frame of their own'
+      }
+    },
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'solid'",
+      shared: true,
+      description: {
+        ko: '판이 무엇으로 만들어지는지. shape가 bare가 아닐 때만 읽습니다',
+        en: 'What the plate is made of. Only read when shape is not bare'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '마크의 높이와 옆 이름의 타입 스케일',
+        en: 'The height of the mark, and the type scale of the name beside it'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: { ko: '판이 쓰는 색 역할', en: 'The family the plate takes' }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '<span> 대신 다른 요소로. 로고는 거의 언제나 첫 페이지로 가는 길입니다 (<a href="/" />)',
+        en: 'Renders something other than a <span>. A logo is nearly always the way home (<a href="/" />)'
+      }
+    }
+  ],
+
   PlAspectRatio: [
     {
       name: 'ratio',

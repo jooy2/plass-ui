@@ -160,6 +160,8 @@ import 'package:plass_ui_example/demos/stack/hero.dart';
 import 'package:plass_ui_example/demos/stack/directions.dart';
 import 'package:plass_ui_example/demos/stack/deck.dart';
 import 'package:plass_ui_example/demos/stack/overflow.dart';
+import 'package:plass_ui_example/demos/app_logo/hero.dart';
+import 'package:plass_ui_example/demos/app_logo/shapes.dart';
 import 'package:plass_ui_example/demos/hover_card/hero.dart';
 import 'package:plass_ui_example/demos/hover_card/delays.dart';
 import 'package:plass_ui_example/demos/scroll_area/hero.dart';
@@ -512,6 +514,8 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'stack/directions': _stackDirections,
   'stack/deck': _stackDeck,
   'stack/overflow': _stackOverflow,
+  'app-logo/hero': _appLogoHero,
+  'app-logo/shapes': _appLogoShapes,
   'hover-card/hero': _hoverCardHero,
   'hover-card/delays': _hoverCardDelays,
   'scroll-area/hero': _scrollAreaHero,
@@ -980,6 +984,10 @@ Widget _stackHero(BuildContext context) => const StackHero();
 Widget _stackDirections(BuildContext context) => const StackDirections();
 Widget _stackDeck(BuildContext context) => const StackDeck();
 Widget _stackOverflow(BuildContext context) => const StackOverflow();
+Widget _appLogoHero(BuildContext context) => const AppLogoHero();
+
+Widget _appLogoShapes(BuildContext context) => const AppLogoShapes();
+
 Widget _hoverCardHero(BuildContext context) => const HoverCardHero();
 
 Widget _hoverCardDelays(BuildContext context) => const HoverCardDelays();
