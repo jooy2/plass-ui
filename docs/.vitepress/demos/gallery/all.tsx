@@ -66,6 +66,7 @@ import {
   PlMenuItem,
   PlMenuSeparator,
   PlMenubar,
+  PlMeter,
   PlMenubarMenu,
   PlModal,
   PlModalClose,
@@ -1171,6 +1172,30 @@ const entries: Entry[] = [
       ko: '차오르는 링입니다. 바를 놓을 자리가 없는 곳에 씁니다.'
     },
     preview: <PlProgressCircular size="sm" label="Syncing" value={68} showValue />
+  },
+  {
+    name: 'PlMeter',
+    group: 'feedback',
+    href: 'components/feedback/meter',
+    blurb: {
+      en: 'A quantity inside a range — already known, not advancing.',
+      ko: '범위 안의 양입니다. 진행 중인 것이 아니라 이미 알고 있는 것입니다.'
+    },
+    preview: (
+      <div className="flex w-full flex-col gap-3">
+        <PlMeter size="sm" value={62} label="Seats taken" showValue />
+        <PlMeter
+          size="sm"
+          value={94}
+          label="Disk used"
+          showValue
+          thresholds={[
+            { from: 75, color: 'warning' },
+            { from: 90, color: 'danger' }
+          ]}
+        />
+      </div>
+    )
   },
   {
     name: 'PlProgressLinear',

@@ -5763,6 +5763,104 @@ export const propTables: Record<string, PropRow[]> = {
     ...stylingProps({ ko: '이 메뉴를 여는 단어', en: 'the word this menu is opened by' })
   ],
 
+  PlMeter: [
+    {
+      name: 'value',
+      type: 'number',
+      required: true,
+      description: {
+        ko: '얼마나 있는지. 필수이고, 그것이 PlProgressLinear와의 차이 전부입니다 — meter는 이미 알고 있는 양을 보고하므로 미확정 상태가 없습니다',
+        en: 'How much there is. Required, and that is the whole difference from a PlProgressLinear: a meter reports a quantity that is already known, so there is no indeterminate case'
+      }
+    },
+    {
+      name: 'min',
+      type: 'number',
+      default: '0',
+      description: { ko: '범위의 아래', en: 'The bottom of the range' }
+    },
+    {
+      name: 'max',
+      type: 'number',
+      default: '100',
+      description: { ko: '범위의 위', en: 'The top of it' }
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: {
+        ko: '무엇을 재는지에 대한 이름. 값과 함께 읽힙니다',
+        en: 'A name for what is being measured. Read out with the value'
+      }
+    },
+    {
+      name: 'showValue',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '값을 막대 옆에 글자로 그립니다. format이 없으면 범위의 백분율입니다',
+        en: 'Shows the value as text beside the bar. A percentage of the range unless format says otherwise'
+      }
+    },
+    {
+      name: 'format',
+      type: 'Intl.NumberFormatOptions',
+      description: {
+        ko: '값을 어떻게 쓸지. 바이트도 통화도 됩니다',
+        en: 'How the value is written — Intl.NumberFormat options, so bytes and currencies work too'
+      }
+    },
+    {
+      name: 'thresholds',
+      type: 'readonly PlMeterThreshold[]',
+      description: {
+        ko: '값이 올라가면서 막대의 색 계열을 바꾸는 구간들. 값 이하의 from 중 가장 큰 것이 이기고, 순서는 상관없습니다',
+        en: "Bands that change the bar's family as the value climbs. The highest from at or below the value wins, and order does not matter"
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '홈의 두께. meter에서 크기를 가지는 건 그것뿐입니다',
+        en: 'Thickness of the groove. Nothing else on a meter has a size'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: '어떤 구간에도 걸리지 않을 때 막대가 쓰는 색 계열',
+        en: 'The family the bar takes where no threshold applies'
+      }
+    }
+  ],
+
+  PlMeterThreshold: [
+    {
+      name: 'from',
+      type: 'number',
+      required: true,
+      description: {
+        ko: '구간이 시작되는 값. 백분율이 아니라 meter 자신의 단위입니다',
+        en: "The value the band begins at, in the meter's own units rather than a percentage"
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      required: true,
+      description: {
+        ko: '값이 이 구간에 있는 동안 막대가 쓰는 색 계열',
+        en: 'The family the bar takes while the value is in this band'
+      }
+    }
+  ],
+
   PlModal: [
     {
       name: 'size',

@@ -3108,6 +3108,23 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlProgressCircular', 'color', { type: COLOR, default: 'PlassColor.primary' })
   ],
 
+  PlMeter: [
+    from('PlMeter', 'value', { type: 'double', required: true }),
+    from('PlMeter', 'min', { type: 'double', default: '0' }),
+    from('PlMeter', 'max', { type: 'double', default: '100' }),
+    from('PlMeter', 'label', { type: 'Widget?' }),
+    from('PlMeter', 'showValue', { type: 'bool', default: 'false' }),
+    formatValueProp,
+    from('PlMeter', 'thresholds', { type: 'List<PlMeterThreshold>?' }),
+    from('PlMeter', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlMeter', 'color', { type: COLOR, default: 'PlassColor.primary' })
+  ],
+
+  PlMeterThreshold: [
+    from('PlMeterThreshold', 'from', { type: 'double', required: true }),
+    from('PlMeterThreshold', 'color', { type: COLOR, required: true })
+  ],
+
   PlProgressLinear: [
     from('PlProgressLinear', 'value', { type: 'double?', default: 'null' }),
     from('PlProgressLinear', 'min', { type: 'double', default: '0' }),

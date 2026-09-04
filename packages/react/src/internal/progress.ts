@@ -8,6 +8,12 @@
  *
  * What is left in each component is the shape, which is the point: it is the
  * only thing that genuinely differs.
+ *
+ * `PlMeter` borrows the groove, the thickness ladder, the fill slots and the
+ * clamp from here without being one of the three. It is the same channel cut
+ * into the same surface; what it reports is a quantity that is already known
+ * rather than something advancing, which is why it keeps its own props and its
+ * own role.
  */
 
 import type * as React from 'react';

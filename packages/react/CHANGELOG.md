@@ -6,6 +6,16 @@
 
 ### Added
 
+- **`PlMeter`.** A quantity inside a range, drawn as a bar. It is cut out of the same groove as a `PlProgressLinear` and it is deliberately not one, because the difference decides which to reach for: **progress is something advancing, and a meter is something already known.** Disk used, seats taken, a password's strength, how full a battery is — none of them is going anywhere on its own.
+
+  That follows into the API and into the semantics. `value` is **required** and there is no sweep, because a meter with nothing to report is not a meter but a bar that should not have been drawn yet; and the role is `meter` rather than `progressbar`, since telling somebody a static figure is in progress is telling them to wait for something that will never finish.
+
+  **`thresholds` is the prop it exists for.** Bands of `{ from, color }`, where the highest `from` at or below the value wins — read rather than walked, so the order they were written in does not matter — and `from` is in the meter's own **units** rather than a percentage. A quota bar that turns amber at three quarters and red at ninety percent says something a fixed colour cannot, and the colour comes from the value rather than from the moment somebody was looking. The page pairs it with `showValue` every time it appears: a band is a second way of saying how full something is and must never be the only one.
+
+  Base UI's `Meter` owns the semantics — the role, the range attributes, `aria-valuetext`, the formatting and the fill width — the same way its `Progress` owns a progress bar's, so what is left here is the material: the groove is `--plass-track` and the fill the family's gradient, travelling on the width. A value outside the range is clamped on both halves, the bar and the announced value together, so what is read out and what is on screen never disagree.
+
+  Measured with `npm run size`: **+1.0 kB on the whole library and +0.0 kB on all four other scenarios**, the Base UI primitive included.
+
 - **`PlPortal`.** Children rendered somewhere else in the document. It is `createPortal` plus the three things a library has to add, and the first is the only real reason to reach for it.
 
   **It carries `plass-portal`.** Every surface the library already sends through a portal — a modal, a drawer, a menu, a popover, a tooltip, a toast — lands with that class on it, because a portalled subtree leaves whatever element a host had scoped its CSS reset to and the class is how that host finds it again. A caller's own portal without it was the one subtree on the page the reset missed.

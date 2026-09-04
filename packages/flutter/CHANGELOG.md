@@ -4,6 +4,14 @@
 
 ### Added
 
+- **`PlMeter`.** A quantity inside a range, drawn as a bar — the Dart half of the React component, out of the same groove a `PlProgressLinear` is cut into and deliberately not one of them. **Progress is something advancing; a meter is something already known**, so `value` is required, there is no sweep, and there is no indeterminate case to have a default for.
+
+  `thresholds` is what it exists for: `PlMeterThreshold(from:, color:)` bands where the highest `from` at or below the value wins, read rather than walked so their order does not matter, and `from` is in the meter's own units rather than a percentage.
+
+  **The semantics are where the two builds genuinely differ, and it is written down rather than left to be found.** `SemanticsRole` has no `meter`, and claiming `progressBar` would announce the one thing this widget exists to deny — so it reports a named node carrying a value and no role at all. That is what the platforms read out for either one in practice; what is given up is the role name.
+
+  `formatValue` is a callback rather than an options object, for the reason `PlProgressLinear`'s is: there is no `Intl.NumberFormat` in the framework, and pulling `package:intl` in to provide one would be a dependency decision made on a consumer's behalf.
+
 - **Six widgets turn with the window.** `orientation` on `PlPanes`, `PlTabs`, `PlScrollZone`, `PlTimeline` and `PlStepper`, and `direction` on `PlStack`, all take a `PlassResponsive` — so a tab bar is a column on a phone and a row on a laptop from one argument.
 
   Resolved against `MediaQuery.sizeOf(context).width` in `build`, so it is right on the first frame; there is no server render here to disagree with, which is the one place this is simpler than the React build. It is the **window's** width rather than the widget's own box, as every breakpoint in the package is: two of these side by side agree about which rung they are on however wide each of them ended up.
