@@ -6,6 +6,16 @@
 
 ### Added
 
+- **Three hooks: `usePlDisclosure`, `usePlElementSize` and `usePlOnScreen`.** Each of them is a piece of machinery the library already ran on internally, and each is public because the hand-written version has a decision in it that is easy to get wrong.
+
+  **`usePlDisclosure`** is one boolean and the four callbacks that change it. It is worth a hook rather than a snippet for one reason: written by hand it is a `useState` _plus three arrow functions that are new on every render_, and an inline `() => setOpen(false)` handed to a memoised trigger defeats the memo it was handed to. Every callback here is stable, `onToggle` included, because it uses the updater form rather than `!open`. The names are the props — `setOpen` fits `onOpenChange` exactly — so the ordinary use is two lines.
+
+  **`usePlElementSize`** adds two things to a `ResizeObserver`. The **first measurement** is taken in a layout effect rather than waiting for the observer, whose first callback arrives after a frame has been painted — a component that laid itself out from `0 × 0` for that frame flashes. And it reports the **content box**: the room actually left inside the element once its padding has been taken off, where a hand-written version nearly always reports `getBoundingClientRect()` or `borderBoxSize` and gets a number that includes the padding and the border.
+
+  **`usePlOnScreen`** has `once` **on** by default. The question a caller almost always has is "has this been seen yet" rather than "is it on screen right now", and a hook that kept answering the second one would re-render a page of lazily loaded pictures every time the reader scrolled past any of them. It answers `false` before it knows, which is safe for both of its uses, and `true` where there is no `IntersectionObserver`, because a picture that never loads is worse than one that loads early.
+
+  Measured with `npm run size`: **+0.4 kB on the whole library and +0.0 kB on all four other scenarios**, the three of them together.
+
 - **`PlAnimateSplit`.** A line of text arriving one part at a time. The other effects tell themselves off across their **children**, which a line of text does not have — so this one makes them, and hands the set to exactly the same `stagger` machinery a `PlAnimateFade` around a list of `<li>`s uses. `effect`, `stagger`, `durationStep` and `reverse` all mean what they mean everywhere else; the component is the splitting and nothing more.
 
   **`by="character"` is not safe in every script**, and the page says so rather than leaving it to be discovered. A character part breaks the shaping between letters: Arabic stops joining, Devanagari conjuncts come apart, and an emoji built out of several code points is cut into its pieces. `word` has none of those problems and is the default.
