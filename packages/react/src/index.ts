@@ -38,6 +38,7 @@ export * from './components/combobox/index.js';
 export * from './components/confirm/index.js';
 export * from './components/command-palette/index.js';
 export * from './components/container/index.js';
+export * from './components/data-list/index.js';
 export * from './components/date-picker/index.js';
 export * from './components/date-range-picker/index.js';
 export * from './components/date-time-picker/index.js';

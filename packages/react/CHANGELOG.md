@@ -6,6 +6,18 @@
 
 ### Added
 
+- **`PlDataList` and `PlDataListItem`.** A list of labels and the values that go with them — the panel every detail screen ends with, and the whole reason it is a component is the **markup**. It is a real `<dl>` with real `<dt>`s and `<dd>`s, each pair grouped in a `<div>`, which the HTML specification allows and which is what lets a row be laid out side by side without giving up the grouping that makes it a pair.
+
+  **A details panel built as a two-column table is the mistake this replaces**, and it is not a styling one: a table claims a row-and-column relationship that is not there, so a reader navigating it by cell is told there are two columns of data when there is a column of names and a column of values. One thing and its fields is a description list; many things with the same fields is a `PlTable`; a run of items of the same kind is a `PlList`.
+
+  The label column is a **fixed width** rather than the width of the longest label, which is what makes two panels on one screen line up and what stops a value moving when somebody renames a field. `labelWidth` takes any length, and `'12ch'` is usually the right one — a label column is measured in characters and no ladder of `rem` can spell that.
+
+  `divider` rules between the rows and **only** between them: a line above the first or below the last would be a box drawn around a list that has no box.
+
+  The rows are children rather than data, unlike a `PlTable`'s columns. A details panel is written out once and read in source order, and every value in it is a different shape — a chip, a date, an avatar, a link — so a data array would be an array of `render` functions.
+
+  Measured with `npm run size`: **+0.4 kB on the whole library and +0.0 kB on all four other scenarios**.
+
 - **`PlAppLogo`.** A product's mark and its name beside it. The whole component is the **framing**, and the default is the answer project after project gets wrong: `bare` draws the artwork as it was given, at the height `size` asks for and whatever width that comes to.
 
   That is the default because most marks already have a frame. A mark drawn with its own background, its own margin, or the product's name set into it is finished artwork — putting it on a plate gives it two edges, and cropping it to a circle cuts the name in half. `plate` and `circle` are for a mark drawn as a bare glyph, which cannot sit next to anything else until it has been given an edge, and a plate insets the artwork to about seventy percent of the tile rather than filling it: the margin every app icon has.

@@ -1642,6 +1642,24 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlDataList: [
+    from('PlDataList', 'children', { type: 'List<Widget>', required: true }),
+    from('PlDataList', 'orientation', {
+      type: 'PlassOrientation',
+      default: 'PlassOrientation.horizontal'
+    }),
+    from('PlDataList', 'labelWidth', { type: 'double?', default: '160' }),
+    from('PlDataList', 'divider', { type: 'bool', default: 'false' }),
+    from('PlDataList', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlDataList', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+  ],
+
+  PlDataListItem: [
+    from('PlDataListItem', 'label', { type: 'Widget?' }),
+    from('PlDataListItem', 'value', { type: 'Widget?' }),
+    from('PlDataListItem', 'icon', { type: 'Widget?' })
+  ],
+
   PlDatePicker: [
     {
       name: 'value',

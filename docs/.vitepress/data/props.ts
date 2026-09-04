@@ -3819,6 +3819,84 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlDataList: [
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      description: {
+        ko: '라벨이 값 옆에 오는지 위에 오는지',
+        en: 'Whether the label sits beside the value or above it'
+      }
+    },
+    {
+      name: 'labelWidth',
+      type: 'number | string',
+      default: "'10rem'",
+      description: {
+        ko: '라벨 열의 너비. 가장 긴 라벨이 아니라 고정 너비라, 한 화면의 두 패널이 서로 맞습니다',
+        en: 'How wide the label column is. A fixed width rather than the longest label, so two panels on one screen line up'
+      }
+    },
+    {
+      name: 'divider',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '줄과 줄 사이에만 실선을 긋습니다',
+        en: 'Draws a hairline between the rows, and only between them'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '라벨과 값의 타입 스케일',
+        en: 'The type scale of the labels and the values'
+      }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'default'",
+      shared: true,
+      description: { ko: '줄 사이의 간격', en: 'The space between the rows' }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: 'PlDataListItem들', en: 'The PlDataListItems' }
+    }
+  ],
+
+  PlDataListItem: [
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: { ko: '값이 무엇의 값인지', en: 'What the value is of' }
+    },
+    {
+      name: 'value',
+      type: 'ReactNode',
+      description: {
+        ko: '값. 마크업이 들어가는 값은 children으로 주십시오',
+        en: 'The value. Use children for a value with markup in it'
+      }
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: { ko: '라벨 앞의 글리프', en: 'A glyph before the label' }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '문자열이 아닐 때의 값', en: 'The value, when it is more than a string' }
+    }
+  ],
+
   PlDatePicker: [
     {
       name: 'value',

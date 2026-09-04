@@ -4,6 +4,12 @@
 
 ### Added
 
+- **`PlDataList` and `PlDataListItem`.** A list of labels and the values that go with them — the Dart half of the React component, and the panel every detail screen ends with.
+
+  What a `<dl>` does over there, `MergeSemantics` does here: **each label and its value are announced as one pair.** A label read on its own is a word, and a value read on its own is a fact nobody can place. That is the whole reason it is a widget rather than a column of rows.
+
+  The label column is a fixed width rather than the longest label, so two panels on one screen line up and a value does not move when a field is renamed. `divider` rules between the rows and only between them, and the **list** draws those lines rather than the rows, because a row does not know whether it is the first one.
+
 - **`PlAppLogo`.** A product's mark and its name beside it — the Dart half of the React component. `PlAppLogoShape.bare` is the default for the same reason: a mark drawn with its own background or its own margin is finished artwork, and a plate would give it two edges.
 
   The mark is a widget rather than a URL, so it is whatever draws the artwork — a `PlImage`, an `Image.asset`, a `CustomPaint` — and `semanticLabel` is what a screen reader hears when there is no `name`. With a `name` the mark is wrapped in `ExcludeSemantics`, because a wordmark beside a picture of the wordmark is the product's name read twice.

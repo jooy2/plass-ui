@@ -40,6 +40,8 @@ import {
   PlCombobox,
   PlCommandPalette,
   PlContainer,
+  PlDataList,
+  PlDataListItem,
   PlDatePicker,
   PlDateRangePicker,
   PlDateTimePicker,
@@ -884,6 +886,21 @@ const entries: Entry[] = [
         </PlTextLink>
         .
       </p>
+    )
+  },
+  {
+    name: 'PlDataList',
+    group: 'display',
+    href: 'components/display/data-list',
+    blurb: {
+      en: 'One thing and its fields, as a real description list.',
+      ko: '하나와 그 필드들. 진짜 설명 목록으로 그립니다.'
+    },
+    preview: (
+      <PlDataList className="w-full" size="sm" labelWidth="6rem">
+        <PlDataListItem label="Owner" value="Ada Lovelace" />
+        <PlDataListItem label="Plan" value="Team" />
+      </PlDataList>
     )
   },
   {
