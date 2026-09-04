@@ -45,6 +45,7 @@ export * from './components/drawer/index.js';
 export * from './components/empty/index.js';
 export * from './components/fieldset/index.js';
 export * from './components/file-picker/index.js';
+export * from './components/flex/index.js';
 export * from './components/floating-bottom-navigation/index.js';
 export * from './components/footer/index.js';
 export * from './components/form/index.js';

@@ -1,9 +1,11 @@
 /**
- * The arithmetic and the vocabulary `PlGrid` and `PlGridItem` share.
+ * The arithmetic and the vocabulary `PlGrid`, `PlGridItem` and `PlFlex` share.
  *
  * Like `internal/styles.ts` this is the library talking to itself, and it lives
- * here rather than in either component's folder for one reason: the two are one
- * system in two elements, and neither should have to import the other.
+ * here rather than in any of their folders for one reason: the grid is one
+ * system in two elements and neither should have to import the other, and a
+ * flex box distributes and aligns its children with the same five words — so a
+ * caller who has learned `justify` on one has learned it on all three.
  *
  * What is *not* here is the layout itself. A column width is
  * `(100% + gap) * span / columns - gap`, it has to change at four breakpoints,

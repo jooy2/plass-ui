@@ -1008,17 +1008,39 @@
  * out `@media`, so a project that moves one in its theme moves this with it.
  * See "The breakpoint ladder" above.
  *
- * `.plass-container`'s measure rides the same four blocks, and any responsive
- * prop added later should too. That is the whole cost of one: a slot in
- * `internal/responsive.ts` and four lines here. CSS has no loop, so four lines
- * is the floor — which is the reason to keep the number of responsive props
- * deliberate rather than to make every prop responsive because it could be.
+ * `.plass-container`'s measure and `.plass-flex`'s axis ride the same four
+ * blocks, and any responsive prop added later should too. That is the whole
+ * cost of one: a slot in `internal/responsive.ts` and four lines here. CSS has
+ * no loop, so four lines is the floor — which is the reason to keep the number
+ * of responsive props deliberate rather than to make every prop responsive
+ * because it could be.
+ *
+ * The two gutters are declared for `.plass-grid` and `.plass-flex` together.
+ * They are one question asked by two components — the space *between* the
+ * things in a box — and a second copy of the chain is a second place for it to
+ * drift.
  * ------------------------------------------------------------------------- */
+
+.plass-grid,
+.plass-flex {
+  --p-gap-x: var(--p-gap-x-xs, 0px);
+  --p-gap-y: var(--p-gap-y-xs, 0px);
+}
 
 .plass-grid {
   --p-cols: var(--p-cols-xs, 12);
-  --p-gap-x: var(--p-gap-x-xs, 0px);
-  --p-gap-y: var(--p-gap-y-xs, 0px);
+}
+
+/*
+ * `PlFlex`'s axis. One slot rather than two, because `reverse` is not
+ * responsive and the direction is: the component folds the two into the four
+ * values `flex-direction` takes, so a breakpoint changes the axis without
+ * having to restate which end it starts from.
+ */
+.plass-flex {
+  --p-dir: var(--p-dir-xs, row);
+
+  flex-direction: var(--p-dir);
 }
 
 .plass-grid-item {
@@ -1059,10 +1081,18 @@
     --p-maxw: var(--p-maxw-sm, var(--p-maxw-xs, none));
   }
 
-  .plass-grid {
-    --p-cols: var(--p-cols-sm, var(--p-cols-xs, 12));
+  .plass-grid,
+  .plass-flex {
     --p-gap-x: var(--p-gap-x-sm, var(--p-gap-x-xs, 0px));
     --p-gap-y: var(--p-gap-y-sm, var(--p-gap-y-xs, 0px));
+  }
+
+  .plass-grid {
+    --p-cols: var(--p-cols-sm, var(--p-cols-xs, 12));
+  }
+
+  .plass-flex {
+    --p-dir: var(--p-dir-sm, var(--p-dir-xs, row));
   }
 
   .plass-grid-item {
@@ -1076,10 +1106,18 @@
     --p-maxw: var(--p-maxw-md, var(--p-maxw-sm, var(--p-maxw-xs, none)));
   }
 
-  .plass-grid {
-    --p-cols: var(--p-cols-md, var(--p-cols-sm, var(--p-cols-xs, 12)));
+  .plass-grid,
+  .plass-flex {
     --p-gap-x: var(--p-gap-x-md, var(--p-gap-x-sm, var(--p-gap-x-xs, 0px)));
     --p-gap-y: var(--p-gap-y-md, var(--p-gap-y-sm, var(--p-gap-y-xs, 0px)));
+  }
+
+  .plass-grid {
+    --p-cols: var(--p-cols-md, var(--p-cols-sm, var(--p-cols-xs, 12)));
+  }
+
+  .plass-flex {
+    --p-dir: var(--p-dir-md, var(--p-dir-sm, var(--p-dir-xs, row)));
   }
 
   .plass-grid-item {
@@ -1093,10 +1131,18 @@
     --p-maxw: var(--p-maxw-lg, var(--p-maxw-md, var(--p-maxw-sm, var(--p-maxw-xs, none))));
   }
 
-  .plass-grid {
-    --p-cols: var(--p-cols-lg, var(--p-cols-md, var(--p-cols-sm, var(--p-cols-xs, 12))));
+  .plass-grid,
+  .plass-flex {
     --p-gap-x: var(--p-gap-x-lg, var(--p-gap-x-md, var(--p-gap-x-sm, var(--p-gap-x-xs, 0px))));
     --p-gap-y: var(--p-gap-y-lg, var(--p-gap-y-md, var(--p-gap-y-sm, var(--p-gap-y-xs, 0px))));
+  }
+
+  .plass-grid {
+    --p-cols: var(--p-cols-lg, var(--p-cols-md, var(--p-cols-sm, var(--p-cols-xs, 12))));
+  }
+
+  .plass-flex {
+    --p-dir: var(--p-dir-lg, var(--p-dir-md, var(--p-dir-sm, var(--p-dir-xs, row))));
   }
 
   .plass-grid-item {
@@ -1116,11 +1162,8 @@
     );
   }
 
-  .plass-grid {
-    --p-cols: var(
-      --p-cols-xl,
-      var(--p-cols-lg, var(--p-cols-md, var(--p-cols-sm, var(--p-cols-xs, 12))))
-    );
+  .plass-grid,
+  .plass-flex {
     --p-gap-x: var(
       --p-gap-x-xl,
       var(--p-gap-x-lg, var(--p-gap-x-md, var(--p-gap-x-sm, var(--p-gap-x-xs, 0px))))
@@ -1128,6 +1171,20 @@
     --p-gap-y: var(
       --p-gap-y-xl,
       var(--p-gap-y-lg, var(--p-gap-y-md, var(--p-gap-y-sm, var(--p-gap-y-xs, 0px))))
+    );
+  }
+
+  .plass-grid {
+    --p-cols: var(
+      --p-cols-xl,
+      var(--p-cols-lg, var(--p-cols-md, var(--p-cols-sm, var(--p-cols-xs, 12))))
+    );
+  }
+
+  .plass-flex {
+    --p-dir: var(
+      --p-dir-xl,
+      var(--p-dir-lg, var(--p-dir-md, var(--p-dir-sm, var(--p-dir-xs, row))))
     );
   }
 

@@ -4553,6 +4553,100 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlFlex: [
+    {
+      name: 'direction',
+      type: "PlassResponsive<'horizontal' | 'vertical'>",
+      default: "'horizontal'",
+      description: {
+        ko: '자식이 어느 쪽으로 흐를지. CSS에서 풀리므로 서버가 보내는 첫 페인트가 이미 맞습니다',
+        en: 'Which way the children run. Resolved in CSS, so a server render is already right at every width'
+      }
+    },
+    {
+      name: 'reverse',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '축의 반대 방향으로 놓습니다. 그리는 순서만 바뀌고 DOM 순서는 그대로입니다',
+        en: 'Runs the children the other way along the axis. A painting order only — the DOM order does not move'
+      }
+    },
+    {
+      name: 'spacing',
+      type: 'PlassResponsive<number>',
+      default: '2',
+      description: {
+        ko: '자식 사이 간격. Tailwind spacing 스케일이라 4는 1rem이고, 분수도 됩니다',
+        en: "The gap between children, on Tailwind's spacing scale — 4 is 1rem, and fractions are allowed"
+      }
+    },
+    {
+      name: 'rowSpacing · columnSpacing',
+      type: 'PlassResponsive<number>',
+      description: {
+        ko: '한 축만의 간격. 주지 않으면 spacing으로 떨어집니다',
+        en: 'The gap on one axis only. Falls back to spacing'
+      }
+    },
+    {
+      name: 'justify',
+      type: "'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly' | 'stretch'",
+      description: {
+        ko: '자식이 쓰지 않은 자리를 축을 따라 어떻게 나눠 가질지',
+        en: 'How the box distributes the space its children did not use, along the axis'
+      }
+    },
+    {
+      name: 'alignItems',
+      type: "'start' | 'center' | 'end' | 'stretch' | 'baseline'",
+      default: "'stretch'",
+      description: {
+        ko: '축을 가로질러 자식들이 서로에 대해 어떻게 놓일지',
+        en: 'How the children sit against each other across the axis'
+      }
+    },
+    {
+      name: 'alignContent',
+      type: "'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly' | 'stretch'",
+      description: {
+        ko: '상자가 내용보다 넓을 때 줄들이 어디에 놓일지',
+        en: 'Where the lines sit when the box is longer across than its content'
+      }
+    },
+    {
+      name: 'wrap',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '자리가 모자란 자식이 다음 줄로 이어질지',
+        en: 'Whether children that run out of room continue on the next line'
+      }
+    },
+    {
+      name: 'inline',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '글줄 안에 놓고 자식만큼만 넓게 만듭니다',
+        en: 'Lays the box out inline, only as wide as its children'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '<div> 대신 다른 요소로 렌더링합니다 (<ul />, <nav />)',
+        en: 'Renders something other than a <div> (<ul />, <nav />)'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '배치할 내용', en: 'What is laid out' }
+    }
+  ],
+
   PlFooter: [
     ...sharedProps({
       variant: "'glass'",

@@ -6,6 +6,20 @@
 
 ### Added
 
+- **`PlFlex`.** A row or a column and the gap between the things in it — the layout box with no arithmetic in it. A [PlGrid](https://plass.cdget.com/components/layout/grid) divides a row into twelve columns and needs a `PlGridItem` to take them; a [PlStack](https://plass.cdget.com/components/layout/stack) overlaps what it is handed. This one only decides which way its children run.
+
+  **`direction` is responsive and resolves in CSS**, which is the reason it is worth a component rather than three Tailwind classes. `direction` takes `{ xs: 'vertical', md: 'horizontal' }`, a form that stacks on a phone and lines up on a laptop, decided by the stylesheet: one `--p-dir-*` slot per rung the caller named, cascaded by the same `@variant` blocks a grid's columns already ride. So a server renders it correctly at every width, dragging a window costs no re-render, and no listener is installed. It is also the only way to say that in a project that imports `plass-ui/styles.css` and has no Tailwind of its own.
+
+  `reverse` folds into that same slot instead of taking one of its own, and that is why it is deliberately not responsive: one custom property carries the whole answer, so a breakpoint changes the axis without having to restate which end it starts from. It is a **painting order** and moves nothing in the document — what a screen reader reads and what the Tab key walks is unchanged — so it is for an arrangement and never for content whose order is the information.
+
+  `wrap` defaults to **`false`**, unlike a `PlGrid`'s. That is what a flex box already does, and the opposite default would silently reflow a toolbar somebody had sized to fit.
+
+  The two gutters are now declared for `.plass-grid` and `.plass-flex` together rather than copied. They are one question asked by two components — the space _between_ the things in a box — and `spacing` is the same Tailwind scale on both, so a flex box's gap and a grid's gutter of `4` are the same `1rem`.
+
+  It is **React-only**, and that is not an omission: `Row`, `Column` and `Wrap` are already in `package:flutter/widgets.dart` and already take a `spacing`. The half worth having in Dart is the responsive axis, and that is a `LayoutBuilder` rather than a widget. The component page shows it.
+
+  Measured with `npm run size`: **+0.2 kB on the whole library and +0.0 kB on all four other scenarios**, because nothing else imports it.
+
 - **`PlHeader` and `PlFooter` hold their content to the same measure a `PlContainer` does, from one implementation.** All three took a `maxWidth` on "`PlContainer`'s ladder" and all three carried their own copy of it — three tables that could disagree, and a bar whose measure did not line up with the container under it is a page with a visible seam down one edge. There is one ladder now, in `internal/responsive.ts`, and all three take the same type: a rung, any CSS length, a number of pixels, or `none`, responsive, resolved in CSS.
 
 - **Six components turn with the window.** `orientation` on `PlPanes`, `PlTabs`, `PlScrollZone`, `PlTimeline` and `PlStepper`, and `direction` on `PlStack`, all take a responsive value: `orientation` takes `{ xs: 'vertical', md: 'horizontal' }` and a tab bar is a column on a phone and a row on a laptop.

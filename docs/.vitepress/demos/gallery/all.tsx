@@ -49,6 +49,7 @@ import {
   PlFilePicker,
   PlFloatingBottomNavigation,
   PlFloatingBottomNavigationItem,
+  PlFlex,
   PlFooter,
   PlForm,
   PlGrid,
@@ -1448,6 +1449,27 @@ const entries: Entry[] = [
           </PlGridItem>
         ))}
       </PlGrid>
+    )
+  },
+  {
+    name: 'PlFlex',
+    group: 'layout',
+    href: 'components/layout/flex',
+    blurb: {
+      en: 'A row or a column, and the gap between the things in it.',
+      ko: '가로 한 줄 또는 세로 한 칸, 그리고 그 사이의 간격입니다.'
+    },
+    preview: (
+      <PlFlex className="w-full" spacing={2} alignItems="center" justify="space-between">
+        {['one', 'two', 'three'].map((label) => (
+          <div
+            key={label}
+            className="rounded-(--plass-radius-sm) bg-(--plass-glass-press) px-3 py-1.5 text-center text-xs"
+          >
+            {label}
+          </div>
+        ))}
+      </PlFlex>
     )
   },
   {
