@@ -330,6 +330,9 @@ import 'package:plass_ui_example/demos/navigation_menu/hero.dart';
 import 'package:plass_ui_example/demos/navigation_menu/orientation.dart';
 import 'package:plass_ui_example/demos/navigation_menu/states.dart';
 import 'package:plass_ui_example/demos/page_layout/hero.dart';
+import 'package:plass_ui_example/demos/tour/hero.dart';
+import 'package:plass_ui_example/demos/tour/mask.dart';
+import 'package:plass_ui_example/demos/tour/sides.dart';
 import 'package:plass_ui_example/demos/transfer/hero.dart';
 import 'package:plass_ui_example/demos/transfer/searchable.dart';
 import 'package:plass_ui_example/demos/transfer/states.dart';
@@ -744,6 +747,9 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'navigation-menu/columns': _navigationMenuColumns,
   'navigation-menu/orientation': _navigationMenuOrientation,
   'navigation-menu/states': _navigationMenuStates,
+  'tour/hero': _tourHero,
+  'tour/mask': _tourMask,
+  'tour/sides': _tourSides,
   'transfer/hero': _transferHero,
   'transfer/searchable': _transferSearchable,
   'transfer/variants': _transferVariants,
@@ -1307,6 +1313,12 @@ Widget _navigationMenuHero(BuildContext context) => const NavigationMenuHero();
 Widget _navigationMenuColumns(BuildContext context) => const NavigationMenuColumns();
 Widget _navigationMenuOrientation(BuildContext context) => const NavigationMenuOrientation();
 Widget _navigationMenuStates(BuildContext context) => const NavigationMenuStates();
+
+Widget _tourHero(BuildContext context) => const TourHero();
+
+Widget _tourMask(BuildContext context) => const TourMask();
+
+Widget _tourSides(BuildContext context) => const TourSides();
 
 Widget _transferHero(BuildContext context) => const TransferHero();
 Widget _transferSearchable(BuildContext context) => const TransferSearchable();

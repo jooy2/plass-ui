@@ -64,6 +64,7 @@ const PlassLabels ko = PlassLabels(
   now: '지금',
   clear: '지우기',
   done: '완료',
+  skip: '건너뛰기',
   hour: '시',
   minute: '분',
   second: '초',

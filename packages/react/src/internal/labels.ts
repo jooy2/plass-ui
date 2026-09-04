@@ -46,8 +46,10 @@ export interface PlassLabels {
   confirm: string;
   /** Empties a field, a picker, a search. */
   clear: string;
-  /** Finishes with a picker. */
+  /** Finishes with a picker, or with a tour. */
   done: string;
+  /** Leaves a sequence before the end of it. */
+  skip: string;
   /** Names a search field the caller did not name. */
   search: string;
   /** Ticks everything in a list at once. */
@@ -166,6 +168,7 @@ export const defaultLabels: PlassLabels = {
   confirm: 'Confirm',
   clear: 'Clear',
   done: 'Done',
+  skip: 'Skip',
   search: 'Search',
   selectAll: 'Select all',
   selectRow: 'Select row',

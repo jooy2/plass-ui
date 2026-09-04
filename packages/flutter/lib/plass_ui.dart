@@ -132,6 +132,7 @@ export 'src/components/toggle/pl_toggle.dart';
 export 'src/components/toggle/pl_toggle_group.dart';
 export 'src/components/toolbar/pl_toolbar.dart';
 export 'src/components/tooltip/pl_tooltip.dart';
+export 'src/components/tour/pl_tour.dart';
 export 'src/components/transfer/pl_transfer.dart';
 export 'src/components/tree/pl_tree.dart';
 export 'src/components/typography/pl_typography.dart';

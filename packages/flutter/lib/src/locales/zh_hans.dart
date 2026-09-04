@@ -64,6 +64,7 @@ const PlassLabels zhHans = PlassLabels(
   now: '此刻',
   clear: '清除',
   done: '完成',
+  skip: '跳过',
   hour: '时',
   minute: '分',
   second: '秒',

@@ -64,6 +64,7 @@ const PlassLabels de = PlassLabels(
   now: 'Jetzt',
   clear: 'Leeren',
   done: 'Fertig',
+  skip: 'Überspringen',
   hour: 'Stunde',
   minute: 'Minute',
   second: 'Sekunde',

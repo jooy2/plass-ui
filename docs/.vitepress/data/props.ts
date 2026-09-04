@@ -11125,6 +11125,215 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlTour: [
+    {
+      name: 'steps',
+      type: 'readonly PlTourStep[]',
+      required: true,
+      description: { ko: '들를 곳들, 순서대로', en: 'The stops, in order' }
+    },
+    {
+      name: 'open',
+      type: 'boolean',
+      description: {
+        ko: '투어가 돌고 있는지. onOpenChange와 함께 넘기면 제어됩니다',
+        en: 'Whether the tour is running. Pass it with onOpenChange to control one'
+      }
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '투어가 스스로 들고 있을 때, 처음부터 돌고 있는지',
+        en: 'Whether it starts running, when the tour keeps that itself'
+      }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: {
+        ko: 'open이 되어야 할 값으로 불립니다',
+        en: 'Called with what open should become'
+      }
+    },
+    {
+      name: 'step',
+      type: 'number',
+      description: {
+        ko: '몇 번째 정거장인지, 0부터. onStepChange와 함께 넘기면 제어됩니다',
+        en: 'Which stop, counted from 0. Pass it with onStepChange to control one'
+      }
+    },
+    {
+      name: 'defaultStep',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: '투어가 스스로 들고 있을 때 시작하는 정거장',
+        en: 'Which one it starts on, when the tour keeps that itself'
+      }
+    },
+    {
+      name: 'onStepChange',
+      type: '(step: number) => void',
+      description: {
+        ko: 'Next나 Previous를 누를 때 그 정거장으로 불립니다',
+        en: 'Called with the stop a Next or Previous press asks for'
+      }
+    },
+    {
+      name: 'onFinish',
+      type: '() => void',
+      description: {
+        ko: '마지막 단계의 버튼을 누를 때, 투어가 닫히기 전에 불립니다',
+        en: "Called when the last step's button is pressed, before the tour closes"
+      }
+    },
+    {
+      name: 'mask',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '페이지를 어둡게 하고 대상만 그 어둠에서 오려 냅니다',
+        en: 'Dims the page and cuts the target out of the dimming'
+      }
+    },
+    {
+      name: 'skippable',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '카운터 옆에 Skip 버튼을 그립니다',
+        en: 'Draws the Skip button beside the counter'
+      }
+    },
+    {
+      name: 'dismissible',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: 'Escape와 ×로 투어를 끝낼 수 있는지',
+        en: 'Whether Escape and the × end the tour'
+      }
+    },
+    {
+      name: 'scrollIntoView',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '단계가 바뀔 때 대상을 화면 안으로 스크롤합니다',
+        en: 'Scrolls each target into view as the tour reaches it'
+      }
+    },
+    {
+      name: 'previousLabel',
+      type: 'ReactNode',
+      default: 'labels.previous',
+      description: { ko: 'Previous 버튼', en: 'The Previous button' }
+    },
+    {
+      name: 'nextLabel',
+      type: 'ReactNode',
+      default: 'labels.next',
+      description: { ko: 'Next 버튼', en: 'The Next button' }
+    },
+    {
+      name: 'doneLabel',
+      type: 'ReactNode',
+      default: 'labels.done',
+      description: {
+        ko: '마지막 단계에서 Next가 되는 것',
+        en: 'What Next becomes on the last step'
+      }
+    },
+    {
+      name: 'skipLabel',
+      type: 'ReactNode',
+      default: 'labels.skip',
+      description: { ko: 'Skip 버튼', en: 'The Skip button' }
+    },
+    ...sharedProps({
+      variant: '—',
+      size: "'md'",
+      sizeDescription: {
+        ko: '타입 스케일과 카드의 너비',
+        en: "Type scale and the card's width"
+      },
+      colorDescription: {
+        ko: '의미론적 색 역할: 버튼과 focus ring',
+        en: 'Semantic colour role: the buttons and the focus ring'
+      },
+      densityDescription: {
+        ko: '카드의 여백만 바꿉니다. 타입 스케일은 그대로',
+        en: "The card's padding. Never the type scale"
+      }
+    }).filter((row) => row.name !== 'variant' && row.name !== 'elevation'),
+    {
+      name: 'classNames',
+      type: 'PlTourClassNames',
+      description: {
+        ko: '카드 바깥 부분들의 클래스 이름: mask · title · content · close · footer',
+        en: 'Class names for the parts around the card: mask, title, content, close and footer'
+      }
+    }
+  ],
+
+  PlTourStep: [
+    {
+      name: 'target',
+      type: 'string | RefObject<Element | null> | (() => Element | null)',
+      description: {
+        ko: '이 단계가 가리키는 것. 없으면 카드가 화면 가운데에 놓이고 아무것도 오려 내지 않습니다',
+        en: 'What this step is about. Left out, the card is centred over the page and nothing is cut out'
+      }
+    },
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description: { ko: '단계의 제목', en: "The step's heading" }
+    },
+    {
+      name: 'content',
+      type: 'ReactNode',
+      description: { ko: '단계가 하는 말', en: 'What it says' }
+    },
+    {
+      name: 'side',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'bottom'",
+      shared: true,
+      description: {
+        ko: '대상의 어느 변에 카드가 붙는지',
+        en: 'Which edge of the target the card sits on'
+      }
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'center'",
+      shared: true,
+      description: { ko: '그 변의 어디쯤에', en: 'Where along that edge' }
+    },
+    {
+      name: 'padding',
+      type: 'number',
+      default: '6',
+      description: {
+        ko: '오려 낸 구멍이 대상보다 얼마나 큰지, px',
+        en: 'How far the cut-out is grown past the target, in pixels'
+      }
+    },
+    {
+      name: 'radius',
+      type: 'number',
+      description: {
+        ko: '구멍의 모서리 반지름, px. 없으면 size의 값',
+        en: "The cut-out's corner radius in pixels. Defaults to the size's own"
+      }
+    }
+  ],
+
   PlTransfer: [
     ...sharedProps({
       variant: "'glass'",

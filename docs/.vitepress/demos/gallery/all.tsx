@@ -135,6 +135,7 @@ import {
   PlTransfer,
   PlTree,
   PlTooltip,
+  PlTour,
   usePlConfirm,
   usePlToast,
   PlTypography,
@@ -225,6 +226,33 @@ function ConfirmPreview() {
  * An overlay has to be opened to be seen at all. Its words stay English like every other preview
  * here — the localised part of a card is its blurb.
  */
+/**
+ * A tour needs something to point at and something to start it, which is more
+ * than a card's `preview` can be written as inline JSX.
+ */
+function TourPreview() {
+  const target = useRef<HTMLButtonElement>(null);
+  const [running, setRunning] = useState(false);
+
+  return (
+    <div className="flex items-center gap-2">
+      <PlButton ref={target} size="sm" variant="ghost">
+        This one
+      </PlButton>
+      <PlButton size="sm" onClick={() => setRunning(true)}>
+        Show me
+      </PlButton>
+      <PlTour
+        open={running}
+        onOpenChange={setRunning}
+        scrollIntoView={false}
+        size="sm"
+        steps={[{ target, title: 'Right here', content: 'And the page still works.' }]}
+      />
+    </div>
+  );
+}
+
 function OverlayPreview() {
   const [open, setOpen] = useState(false);
 
@@ -1218,6 +1246,16 @@ const entries: Entry[] = [
         }
       />
     )
+  },
+  {
+    name: 'PlTour',
+    group: 'feedback',
+    href: 'components/feedback/tour',
+    blurb: {
+      en: 'A guided walk over a screen that already exists.',
+      ko: '이미 있는 화면 위를 함께 걷는 안내입니다.'
+    },
+    preview: <TourPreview />
   },
   {
     name: 'PlOverlay',

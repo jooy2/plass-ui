@@ -6,6 +6,22 @@
 
 ### Added
 
+- **`PlTour`.** A guided walk over a page that already exists — the three things a new reader has to be shown once, pointed at where they actually are.
+
+  It is `PlHowToSteps` turned inside out. That component puts the instructions _in_ the page and the reader follows them; this one leaves the page as it is and stands over it. So a step **says what it is about** rather than describing it: what a tour points at is already on screen, and a second copy inside the card is a second copy to keep in step.
+
+  **The dimming takes the pointer and the light does not**, and the whole component rests on it. The scrim is one layer over the viewport with the target cut out of it as a **clip** rather than as a painted hole, and a clipped-away region is not hit-tested — so the reader can use the control being pointed at and nothing else. That is the difference between a tour and a dialog with a picture of a control in it, and it falls out of the geometry rather than being a second mechanism that has to agree with it.
+
+  The same clip is why the dimming can **blur**. A hole drawn as a box shadow or as four rectangles around the target can only paint a colour; a clipped layer carries a `backdrop-filter`, so the page around the light is out of focus as well as dark — this library's own material rather than a grey wash over it.
+
+  `target` takes a **ref, a selector or a getter**, and the ref is the one to reach for: a selector is a string that stops matching the moment somebody renames a class, and the tour would go on running with the hole over an empty piece of background. The selector is offered because it is the only form that works for an element the page did not render.
+
+  Escape, the ×, Skip and Done are the only ways out. A press outside the card is ignored and so is the focus leaving it, because using the page is exactly what a tour is for. `open` and `step` are each controllable on their own, `onFinish` runs before the tour closes — which is where "this reader has seen it" goes — and the component remembers nothing itself.
+
+  The counter is **two numbers rather than a sentence**: "3 of 7" is a string that has to be translated and a word order that differs by language, and the count itself does not. One new label, `skip`, in all seven packs.
+
+  Measured with `npm run size`: **+1.5 kB on the whole library and +0.0 kB on all four other scenarios**.
+
 - **`PlDataTable`.** A table that owns its rows: it sorts them, narrows them to what was typed, hands them out a page at a time and remembers which of them are ticked.
 
   `PlTable` stays exactly what it was, and the split is not a size decision. A table whose every column is a `render` callback is the one component in this library a React Server Component has to be able to render, and reading a context would take that away — so the component that has to remember four things between renders is a second component rather than a prop on the first.
@@ -16,9 +32,9 @@
 
   **Sorting rotates ascending, descending, then back to the order the rows arrived in.** That third press is the part most tables leave out and it is the one that matters: the arrival order is usually the order the server chose, and a table that can never be put back has thrown it away. The mark is drawn faintly on every sortable heading rather than appearing under the pointer, because a heading that only looks pressable once you are on it is a heading nobody presses. Values are compared as what they are, text with `localeCompare` — sorting by code point puts every capitalised word above every lower-case one — and **nothing sorts last in both directions**, because a blank in a column of amounts is not the smallest amount.
 
-  A column's `value` is what the sort and the search see, where `render` is what the reader sees. Most columns need neither; the moment a cell is *drawn* rather than printed the two come apart, and a total column printing `$1,240.00` sorts as a string that puts `$89` after it.
+  A column's `value` is what the sort and the search see, where `render` is what the reader sees. Most columns need neither; the moment a cell is _drawn_ rather than printed the two come apart, and a total column printing `$1,240.00` sorts as a string that puts `$89` after it.
 
-  **The selection hands back rows from every page**, not from the page on screen, and the header box goes indeterminate when part of a page is chosen — a half-filled page under a plain unticked box reads as the opposite of what is true. Shift extends the range in the order the rows are *currently* in, which is what a reader dragging down a sorted page means by "these". A chosen row carries `aria-selected` as well as the tint, and a press on the tick is not also a press on the row.
+  **The selection hands back rows from every page**, not from the page on screen, and the header box goes indeterminate when part of a page is chosen — a half-filled page under a plain unticked box reads as the opposite of what is true. Shift extends the range in the order the rows are _currently_ in, which is what a reader dragging down a sorted page means by "these". A chosen row carries `aria-selected` as well as the tint, and a press on the tick is not also a press on the row.
 
   `aria-sort` goes on the **heading**, not on the button inside it: the heading is what a screen reader reads on entering a cell in that column. The sort control is a bare `<button>` wearing the heading's own type, because a `PlButton` there would be a control on a control — a background, a radius and a height inside a cell whose job is to sit flush against the rule under it.
 
@@ -28,7 +44,7 @@
 
   Measured with `npm run size`: **+2.8 kB on the whole library and +0.0 kB on all four other scenarios**.
 
-- **Locale bundles: the library's own words, translated.** Every component that says something of its own — a close button's name, a pager's landmark, the line an empty list shows — now reads from one set of sixty-three strings, and seven translations of that set ship with the package.
+- **Locale bundles: the library's own words, translated.** Every component that says something of its own — a close button's name, a pager's landmark, the line an empty list shows — now reads from one set of sixty-four strings, and seven translations of that set ship with the package.
 
   ```tsx
   import { PlassProvider } from 'plass-ui';

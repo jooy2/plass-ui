@@ -4,6 +4,18 @@
 
 ### Added
 
+- **`PlTour`.** A guided walk over a screen that already exists — the three things a new reader has to be shown once, pointed at where they actually are.
+
+  It is `PlHowToSteps` turned inside out: that widget puts the instructions _in_ the screen and the reader follows them, and this one leaves the screen as it is and stands over it. So a step says what it is about rather than describing it.
+
+  **The dimming takes the pointer and the light does not.** The scrim is one layer over the screen with the target cut out of it by a `ClipPath`, and a clip takes hit testing with the painting — so the control being pointed at goes on working and nothing else does. It is also what lets the dimming carry a `BackdropFilter`: four rectangles around a target can only paint a colour, and the corners of a four-piece scrim never quite meet.
+
+  It is deliberately **not** built on the internal portal every other layer in this package uses. That helper holds focus inside itself, which is right for a modal and wrong here: a tour whose reader cannot reach the control it is pointing at has pointed at a picture. So this one lifts itself into the `Overlay`, keeps `Escape`, and takes neither the route nor the focus.
+
+  `target` is a `GlobalKey` and nothing else — every widget on the screen was written by somebody who can put a key on it, and a key is checked by the compiler where the React build's selector is a string. For a screen that scrolls, `controller` is the same parameter `PlAnchor` takes and for the same reason: the tour is up in the overlay and cannot see a scroll notification from down there.
+
+  The card's buttons wrap to a second line rather than running off the edge, because a translation whose words are longer than English's is three buttons wider than the card. One new label, `skip`, in all seven packs.
+
 - **`PlDataTable`.** A table that owns its rows: it sorts them, narrows them to what was typed, hands them out a page at a time and remembers which of them are ticked.
 
   **`PlTable` is now a thin wrapper on the same grid.** Everything below the columns — the measured column widths, the hover band, the one focus stop per row, the rule between rows and the header pinned over the scroll — moved into `internal/table.dart` as `PlassGrid`, and both widgets build one. `PlTable`'s own behaviour is unchanged and its suite passes untouched; what changed is that a second table cannot drift away from the first.
@@ -20,7 +32,7 @@
 
   Four things it deliberately does not do — virtualize, drag-resize or reorder columns, export, or sort on more than one column — and the page says why for each.
 
-- **Locale bundles: the package's own words, translated.** Every widget that says something of its own — a close button's name, a pager's landmark, the line an empty list shows — now reads from one set of sixty-five strings, and seven translations of that set ship with the package.
+- **Locale bundles: the package's own words, translated.** Every widget that says something of its own — a close button's name, a pager's landmark, the line an empty list shows — now reads from one set of sixty-six strings, and seven translations of that set ship with the package.
 
   ```dart
   import 'package:plass_ui/locales.dart';
@@ -36,7 +48,7 @@
 
   **A key is a meaning, not a widget.** `close` is the × on a modal, a drawer, a popover and a toast, and it is translated once. A key exists per widget only where the word genuinely differs: `paginationNext` moves by a page and `carouselNext` moves by a slide.
 
-  `PlassLabels` is what `PlPickerLabels` grew into, and `PlPickerLabels` is now another name for it, so nothing that took the old one has to change. Each of its sixty-five fields still defaults to English in the constructor, which is what makes a partial set legal; `copyWith` is new, and it is how a screen keeps a pack and changes one line of it — `ko.copyWith(start: '체크인')`. `PlassTheme.labelsOf(context)` reads what is in scope, answering `PlassLabels.english` when nothing has decided.
+  `PlassLabels` is what `PlPickerLabels` grew into, and `PlPickerLabels` is now another name for it, so nothing that took the old one has to change. Each of its sixty-six fields still defaults to English in the constructor, which is what makes a partial set legal; `copyWith` is new, and it is how a screen keeps a pack and changes one line of it — `ko.copyWith(start: '체크인')`. `PlassTheme.labelsOf(context)` reads what is in scope, answering `PlassLabels.english` when nothing has decided.
 
   The twenty-four widgets that were carrying their own English default now take it from the set, and every one of them still takes the word as a parameter that wins.
 

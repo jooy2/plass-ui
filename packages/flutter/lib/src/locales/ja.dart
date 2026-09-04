@@ -64,6 +64,7 @@ const PlassLabels ja = PlassLabels(
   now: '現在',
   clear: 'クリア',
   done: '完了',
+  skip: 'スキップ',
   hour: '時',
   minute: '分',
   second: '秒',

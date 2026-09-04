@@ -7,6 +7,7 @@ export const ja: PlassLabels = {
   confirm: '確認',
   clear: 'クリア',
   done: '完了',
+  skip: 'スキップ',
   search: '検索',
   selectAll: 'すべて選択',
   selectRow: '行を選択',

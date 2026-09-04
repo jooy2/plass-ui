@@ -5133,6 +5133,77 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlTour: [
+    from('PlTour', 'steps', { type: 'List<PlTourStep>', required: true }),
+    from('PlTour', 'open', { type: 'bool', default: 'false' }),
+    from('PlTour', 'onOpenChange', { name: 'onOpenChanged', type: 'ValueChanged<bool>?' }),
+    from('PlTour', 'step', { type: 'int?' }),
+    from('PlTour', 'defaultStep', { name: 'initialStep', type: 'int', default: '0' }),
+    from('PlTour', 'onStepChange', { name: 'onStepChanged', type: 'ValueChanged<int>?' }),
+    from('PlTour', 'onFinish', { type: 'VoidCallback?' }),
+    {
+      name: 'controller',
+      type: 'ScrollController?',
+      description: {
+        ko: '대상이 들어 있는 스크롤. 빛이 대상을 따라가게 합니다 — PlAnchor가 받는 그것이고, 이유도 같습니다',
+        en: 'The scroll the targets live in, so the light follows them. The same parameter PlAnchor takes and for the same reason'
+      }
+    },
+    from('PlTour', 'mask', {
+      type: 'bool',
+      default: 'true',
+      description: {
+        ko: '화면을 어둡게 하고 대상만 그 어둠에서 오려 냅니다',
+        en: 'Dims the screen and cuts the target out of the dimming'
+      }
+    }),
+    from('PlTour', 'skippable', { type: 'bool', default: 'true' }),
+    from('PlTour', 'dismissible', { type: 'bool', default: 'true' }),
+    from('PlTour', 'scrollIntoView', { type: 'bool', default: 'true' }),
+    from('PlTour', 'previousLabel', { type: 'Widget?', default: 'Text(labels.previous)' }),
+    from('PlTour', 'nextLabel', { type: 'Widget?', default: 'Text(labels.next)' }),
+    from('PlTour', 'doneLabel', { type: 'Widget?', default: 'Text(labels.done)' }),
+    from('PlTour', 'skipLabel', { type: 'Widget?', default: 'Text(labels.skip)' }),
+    {
+      name: 'closeLabel',
+      type: 'String?',
+      default: 'labels.close',
+      description: { ko: '×를 스크린 리더가 부를 이름', en: 'The name a screen reader gives the ×' }
+    },
+    from('PlTour', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlTour', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlTour', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' })
+  ],
+
+  PlTourStep: [
+    from('PlTourStep', 'target', {
+      type: 'GlobalKey?',
+      description: {
+        ko: '이 단계가 가리키는 것, 위젯 자신에 붙인 GlobalKey로. 없으면 카드가 화면 가운데에 놓이고 아무것도 오려 내지 않습니다',
+        en: 'What this step is about, as a GlobalKey on the widget itself. Left out, the card is centred over the screen and nothing is cut out'
+      }
+    }),
+    from('PlTourStep', 'title', { type: 'Widget?' }),
+    from('PlTourStep', 'content', { type: 'Widget?' }),
+    from('PlTourStep', 'side', { type: 'PlassSide', default: 'PlassSide.bottom' }),
+    from('PlTourStep', 'align', { type: 'PlassAlign', default: 'PlassAlign.center' }),
+    from('PlTourStep', 'padding', {
+      type: 'double',
+      default: '6',
+      description: {
+        ko: '오려 낸 구멍이 대상보다 얼마나 큰지, 논리 픽셀',
+        en: 'How far the cut-out is grown past the target, in logical pixels'
+      }
+    }),
+    from('PlTourStep', 'radius', {
+      type: 'double?',
+      description: {
+        ko: '구멍의 모서리 반지름. 없으면 size의 값',
+        en: "The cut-out's corner radius. Defaults to the size's own"
+      }
+    })
+  ],
+
   PlTransfer: [
     from('PlTransfer', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
     from('PlTransfer', 'size', { type: SIZE, default: 'PlassSize.md' }),

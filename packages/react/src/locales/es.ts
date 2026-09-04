@@ -7,6 +7,7 @@ export const es: PlassLabels = {
   confirm: 'Confirmar',
   clear: 'Borrar',
   done: 'Hecho',
+  skip: 'Omitir',
   search: 'Buscar',
   selectAll: 'Seleccionar todo',
   selectRow: 'Seleccionar fila',

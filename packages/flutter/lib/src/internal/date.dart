@@ -322,6 +322,7 @@ class PlassLabels {
     this.now = 'Now',
     this.clear = 'Clear',
     this.done = 'Done',
+    this.skip = 'Skip',
     this.hour = 'Hour',
     this.minute = 'Minute',
     this.second = 'Second',
@@ -397,6 +398,7 @@ class PlassLabels {
     String? now,
     String? clear,
     String? done,
+    String? skip,
     String? hour,
     String? minute,
     String? second,
@@ -464,6 +466,7 @@ class PlassLabels {
       now: now ?? this.now,
       clear: clear ?? this.clear,
       done: done ?? this.done,
+      skip: skip ?? this.skip,
       hour: hour ?? this.hour,
       minute: minute ?? this.minute,
       second: second ?? this.second,
@@ -654,8 +657,11 @@ class PlassLabels {
   /// The action that empties the picker.
   final String clear;
 
-  /// And the one that closes it.
+  /// And the one that closes it, or a tour.
   final String done;
+
+  /// Leaves a sequence before the end of it.
+  final String skip;
 
   /// The clock's columns.
   final String hour;

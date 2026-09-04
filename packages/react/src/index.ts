@@ -112,6 +112,7 @@ export * from './components/toast/index.js';
 export * from './components/toggle/index.js';
 export * from './components/toolbar/index.js';
 export * from './components/tooltip/index.js';
+export * from './components/tour/index.js';
 export * from './components/tree/index.js';
 export * from './components/transfer/index.js';
 export * from './components/typography/index.js';
