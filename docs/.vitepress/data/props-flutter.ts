@@ -648,6 +648,43 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlAppLogo', 'color', { type: COLOR, default: 'PlassColor.primary' })
   ],
 
+  PlAnchor: [
+    from('PlAnchor', 'items', { type: 'List<PlAnchorItem>', required: true }),
+    {
+      name: 'controller',
+      type: 'ScrollController?',
+      description: {
+        ko: '목록이 따라가는 스크롤. 없으면 그리고 눌리기는 하되 아무것도 켜지지 않습니다 — 잴 대상이 없기 때문입니다',
+        en: 'The scroll the list is following. Without one it still draws and still moves the screen, but lights nothing: there is nothing to measure against'
+      }
+    },
+    from('PlAnchor', 'active', { type: 'PlAnchorItem?' }),
+    from('PlAnchor', 'offset', { type: 'double', default: '0' }),
+    from('PlAnchor', 'onSelect', { type: 'ValueChanged<PlAnchorItem>?' }),
+    from('PlAnchor', 'label', { type: 'Widget?' }),
+    from('PlAnchor', 'navLabel', {
+      name: 'semanticLabel',
+      type: 'String',
+      default: "'On this page'"
+    }),
+    from('PlAnchor', 'size', { type: SIZE, default: 'PlassSize.sm' }),
+    from('PlAnchor', 'color', { type: COLOR, default: 'PlassColor.primary' })
+  ],
+
+  PlAnchorItem: [
+    from('PlAnchorItem', 'href', {
+      name: 'target',
+      type: 'GlobalKey',
+      required: true,
+      description: {
+        ko: '제목 위젯의 key. Flutter 화면에는 가리킬 URL이 없고, render object의 위치를 잡는 손잡이가 key뿐입니다',
+        en: "A GlobalKey on the heading itself: a Flutter screen has no URL to point into, and a key is the only handle on a render object's position"
+      }
+    }),
+    from('PlAnchorItem', 'label', { type: 'Widget', required: true }),
+    from('PlAnchorItem', 'depth', { type: 'int', default: '0' })
+  ],
+
   PlAspectRatio: [
     from('PlAspectRatio', 'children', { name: 'child', type: 'Widget?' }),
     from('PlAspectRatio', 'ratio', {

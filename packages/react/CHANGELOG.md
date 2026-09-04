@@ -6,6 +6,22 @@
 
 ### Added
 
+- **`PlAnchor`.** A table of contents that follows the reader down the page. Anyone can draw a list of links; what is worth writing once is deciding **which one is lit**, and the rule is not the obvious one.
+
+  The lit row is the last heading whose top has **passed the reading line** — not whichever heading happens to be visible. Three can be on screen at once, and the one a reader is inside is the highest of them that is already above them. That is why the tracking is a measurement rather than an `IntersectionObserver`: an observer answers "is it visible", and the question here is "which one did I pass last".
+
+  Two ends are handled separately, and both are what a hand-rolled version gets wrong. **Above the first heading nothing is lit**, because the reader has not reached a section and lighting the first row before they arrive is a claim about where they are. **At the very bottom the last row is lit** whatever the measurement says, because a short final section never reaches the line and a list without this goes dead exactly where a reader is looking for it.
+
+  `offset` is where that line sits — the height of whatever is pinned over the page. Without it a heading goes on counting as the _next_ one after it has slid out of sight behind a sticky header, so the list sits a section behind the reader for the bar's whole height.
+
+  The headings arrive as a **flat array** rather than as children, which is the opposite of most of this library: a table of contents is generated, and generators produce a flat list in document order with a level on each entry. It stays flat, deliberately — real documents skip levels, so a nesting built from that list would be a guess at a shape nobody wrote.
+
+  Only where there is something to scroll: a page that fits on the screen is always at its own bottom, and lighting the last row there would say a reader had reached the end before they had read anything.
+
+  It measures at most once per frame, because scroll fires far more often than a page paints and the answer cannot change between two paints. The lit row carries `aria-current="location"` — where the reader is _within_ the document, and not `page` — with a rule down its leading edge, so colour is never the only thing saying where they are.
+
+  Measured with `npm run size`: **+0.6 kB on the whole library and +0.0 kB on all four other scenarios**.
+
 - **`PlDataList` and `PlDataListItem`.** A list of labels and the values that go with them — the panel every detail screen ends with, and the whole reason it is a component is the **markup**. It is a real `<dl>` with real `<dt>`s and `<dd>`s, each pair grouped in a `<div>`, which the HTML specification allows and which is what lets a row be laid out side by side without giving up the grouping that makes it a pair.
 
   **A details panel built as a two-column table is the mistake this replaces**, and it is not a styling one: a table claims a row-and-column relationship that is not there, so a reader navigating it by cell is told there are two columns of data when there is a column of names and a column of values. One thing and its fields is a description list; many things with the same fields is a `PlTable`; a run of items of the same kind is a `PlList`.

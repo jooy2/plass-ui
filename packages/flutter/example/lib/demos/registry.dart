@@ -160,6 +160,7 @@ import 'package:plass_ui_example/demos/stack/hero.dart';
 import 'package:plass_ui_example/demos/stack/directions.dart';
 import 'package:plass_ui_example/demos/stack/deck.dart';
 import 'package:plass_ui_example/demos/stack/overflow.dart';
+import 'package:plass_ui_example/demos/anchor/hero.dart';
 import 'package:plass_ui_example/demos/data_list/hero.dart';
 import 'package:plass_ui_example/demos/data_list/orientation.dart';
 import 'package:plass_ui_example/demos/app_logo/hero.dart';
@@ -516,6 +517,7 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'stack/directions': _stackDirections,
   'stack/deck': _stackDeck,
   'stack/overflow': _stackOverflow,
+  'anchor/hero': _anchorHero,
   'data-list/hero': _dataListHero,
   'data-list/orientation': _dataListOrientation,
   'app-logo/hero': _appLogoHero,
@@ -988,6 +990,8 @@ Widget _stackHero(BuildContext context) => const StackHero();
 Widget _stackDirections(BuildContext context) => const StackDirections();
 Widget _stackDeck(BuildContext context) => const StackDeck();
 Widget _stackOverflow(BuildContext context) => const StackOverflow();
+Widget _anchorHero(BuildContext context) => const AnchorHero();
+
 Widget _dataListHero(BuildContext context) => const DataListHero();
 
 Widget _dataListOrientation(BuildContext context) => const DataListOrientation();

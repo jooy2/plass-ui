@@ -15,6 +15,7 @@ import {
   PlAnimateSlide,
   PlAnimateZoom,
   PlAnimateGrow,
+  PlAnchor,
   PlAppLogo,
   PlAspectRatio,
   PlAvatar,
@@ -1700,6 +1701,28 @@ const entries: Entry[] = [
           Account
         </PlFloatingBottomNavigationItem>
       </PlFloatingBottomNavigation>
+    )
+  },
+  {
+    name: 'PlAnchor',
+    group: 'navigation',
+    href: 'components/navigation/anchor',
+    blurb: {
+      en: 'A table of contents that follows the reader down the page.',
+      ko: '읽는 사람을 따라 페이지를 내려가는 목차입니다.'
+    },
+    previewHasLinks: true,
+    preview: (
+      <PlAnchor
+        className="w-full"
+        size="sm"
+        active="#install"
+        items={[
+          { href: '#overview', label: 'Overview' },
+          { href: '#install', label: 'Install' },
+          { href: '#options', label: 'Options', depth: 1 }
+        ]}
+      />
     )
   },
   {

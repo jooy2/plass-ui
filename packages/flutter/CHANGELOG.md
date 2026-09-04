@@ -4,6 +4,14 @@
 
 ### Added
 
+- **`PlAnchor`.** A table of contents that follows the reader down the screen — the Dart half of the React component, and the same rule: the lit row is the last heading whose top has passed the reading line, nothing is lit above the first, and the last row is lit at the bottom whatever the measurement says.
+
+  An item points at a **`GlobalKey`** rather than at a fragment, because a Flutter screen has no URL to point into: what is tracked is a render object's position, and a key is the only handle on one. A press calls `Scrollable.ensureVisible`.
+
+  The bottom rule is guarded the same way the React one is: only where there is something to scroll, because a screen that fits is always at its own bottom.
+
+  It measures against the scroll view rather than against the list, which matters for the ordinary arrangement: a list pinned beside the page moves with it, and measuring from the list itself would make every answer depend on where the list happens to be.
+
 - **`PlDataList` and `PlDataListItem`.** A list of labels and the values that go with them — the Dart half of the React component, and the panel every detail screen ends with.
 
   What a `<dl>` does over there, `MergeSemantics` does here: **each label and its value are announced as one pair.** A label read on its own is a word, and a value read on its own is a fact nobody can place. That is the whole reason it is a widget rather than a column of rows.

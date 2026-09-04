@@ -1577,6 +1577,101 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlAnchor: [
+    {
+      name: 'items',
+      type: 'readonly PlAnchorItem[]',
+      required: true,
+      description: {
+        ko: '제목들. 문서에 나오는 순서대로, 평평한 배열입니다',
+        en: 'The headings, in the order they appear in the document, as a flat array'
+      }
+    },
+    {
+      name: 'active',
+      type: 'string',
+      description: {
+        ko: '불이 켜질 줄의 href. 주면 추적을 대신합니다',
+        en: 'The href of the row that is lit, taking the tracking over'
+      }
+    },
+    {
+      name: 'offset',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: '읽는 선이 창 위에서 얼마나 내려와 있는지(px). 페이지 위에 고정된 것의 높이입니다',
+        en: 'How far below the top of the window the reading line sits, in pixels — the height of whatever is pinned over the page'
+      }
+    },
+    {
+      name: 'onSelect',
+      type: '(item, event) => void',
+      description: {
+        ko: '브라우저가 움직이기 전에 눌린 항목을 알립니다',
+        en: 'Called with the item that was clicked, before the browser moves'
+      }
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: {
+        ko: '목록 자신의 제목. 위에 그려집니다',
+        en: 'A heading for the list itself, drawn above it'
+      }
+    },
+    {
+      name: 'navLabel',
+      type: 'string',
+      default: "'On this page'",
+      description: {
+        ko: '내비게이션 영역의 접근성 이름. 그려지지 않습니다',
+        en: 'Accessible name of the navigation region. Never drawn'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'sm'",
+      shared: true,
+      description: { ko: '줄의 타입 스케일', en: 'The type scale of the rows' }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: { ko: '켜진 줄이 쓰는 색 역할', en: 'The family the lit row takes' }
+    }
+  ],
+
+  PlAnchorItem: [
+    {
+      name: 'href',
+      type: 'string',
+      required: true,
+      description: {
+        ko: '가리키는 fragment. 거기 적힌 id가 목록이 재는 대상입니다',
+        en: 'The fragment it points at. The id it names is what the list measures'
+      }
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      required: true,
+      description: { ko: '줄에 적히는 것', en: 'What the row says' }
+    },
+    {
+      name: 'depth',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: '제목이 얼마나 깊은지. 들여쓰기만 이 값을 씁니다',
+        en: 'How deep the heading sits. Only the indent depends on it'
+      }
+    }
+  ],
+
   PlAspectRatio: [
     {
       name: 'ratio',
