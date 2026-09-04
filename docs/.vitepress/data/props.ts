@@ -1465,6 +1465,74 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlAnimateScramble: [
+    {
+      name: 'children',
+      type: 'string',
+      required: true,
+      description: {
+        ko: '풀려 나오는 줄. 문자열이어야 합니다 — 효과가 글자 단위로 동작하고 <strong> 안에는 글자가 없습니다',
+        en: 'The line that resolves. A string, and it has to be: the effect works on characters, and there is no character in a <strong>'
+      }
+    },
+    {
+      name: 'characters',
+      type: 'string',
+      description: {
+        ko: '가라앉지 않은 글자를 뽑아 오는 글리프. 주지 않으면 그 줄 자신의 글자입니다 — 기본 알파벳을 가진 스크램블러는 예외 없이 영어 알파벳을 가집니다',
+        en: "The glyphs the unsettled characters are drawn from. Left out, it is the line's own characters: every scrambler with a default alphabet ships an English one"
+      }
+    },
+    {
+      name: 'duration',
+      type: 'number',
+      default: '1200',
+      shared: true,
+      description: {
+        ko: '줄이 가라앉는 데 걸리는 시간(ms)',
+        en: 'How long the line takes to settle'
+      }
+    },
+    {
+      name: 'delay',
+      type: 'number',
+      default: '0',
+      shared: true,
+      description: { ko: '시작하기까지 기다리는 시간(ms)', en: 'How long it waits before starting' }
+    },
+    {
+      name: 'tick',
+      type: 'number',
+      default: '45',
+      description: {
+        ko: '가라앉지 않은 글자를 얼마나 자주 다시 그릴지(ms). 매 프레임이 아닌 것은 의도입니다 — 초당 예순 번은 깜빡임입니다',
+        en: 'How often the unsettled characters are redrawn. Not every frame, on purpose: sixty a second is a flicker'
+      }
+    },
+    {
+      name: 'trigger',
+      type: "'mount' | 'visible' | 'hover' | 'manual'",
+      default: "'visible'",
+      description: {
+        ko: '무엇이 시작하는지. 화면 밖에서 풀린 줄이 전달한 것은 이미 거기 있던 글입니다',
+        en: 'What starts it. A line that resolved off screen delivered text that was simply already there'
+      }
+    },
+    {
+      name: 'play · once · threshold · paused',
+      type: 'boolean · boolean · number · boolean',
+      description: { ko: '다른 트랜지션과 같은 넷', en: 'The same four the other transitions take' }
+    },
+    {
+      name: 'render',
+      type: 'ReactElement | (props, state) => ReactElement',
+      description: {
+        ko: '<span> 대신 다른 요소로 렌더링합니다',
+        en: 'Renders something other than a <span>'
+      }
+    }
+  ],
+
   PlAnimateShake: [
     {
       name: 'replay',

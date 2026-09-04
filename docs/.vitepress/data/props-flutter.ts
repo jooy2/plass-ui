@@ -473,6 +473,32 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlAnimateScramble: [
+    from('PlAnimateScramble', 'children', { name: 'text', type: 'String', required: true }),
+    from('PlAnimateScramble', 'characters', { type: 'String?' }),
+    {
+      name: 'style',
+      type: 'TextStyle?',
+      description: {
+        ko: '줄을 그리는 글자 스타일',
+        en: 'The text style the line is drawn in'
+      }
+    },
+    from('PlAnimateScramble', 'duration', {
+      type: 'Duration',
+      default: 'Duration(milliseconds: 1200)'
+    }),
+    from('PlAnimateScramble', 'delay', { type: 'Duration', default: 'Duration.zero' }),
+    from('PlAnimateScramble', 'tick', { type: 'Duration', default: 'Duration(milliseconds: 45)' }),
+    from('PlAnimateScramble', 'trigger', {
+      type: 'PlassAnimateTrigger',
+      default: 'PlassAnimateTrigger.visible'
+    }),
+    from('PlAnimateScramble', 'play · once · threshold · paused', {
+      type: 'bool · bool · double · bool'
+    })
+  ],
+
   PlAnimateShake: [
     from('PlAnimateShake', 'replay', { type: 'Object?' }),
     from('PlAnimateShake', 'distance', { type: 'double', default: '6' }),

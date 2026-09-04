@@ -13,6 +13,7 @@ import {
   PlAnimateBlink,
   PlAnimateCounter,
   PlAnimateReveal,
+  PlAnimateScramble,
   PlAnimateShake,
   PlAnimateRotate,
   PlAnimateSlide,
@@ -2134,6 +2135,18 @@ const entries: Entry[] = [
       <PlAnimateZoom from={0.3} duration={1300} repeat="infinite" alternate>
         <PlChip color="success">Zooming</PlChip>
       </PlAnimateZoom>
+    )
+  },
+  {
+    name: 'PlAnimateScramble',
+    group: 'transitions',
+    href: 'components/transitions/animate-scramble',
+    blurb: {
+      en: 'A line resolving out of noise made of its own characters.',
+      ko: '자기 글자로 만든 잡음에서 풀려 나오는 한 줄입니다.'
+    },
+    preview: (
+      <PlAnimateScramble className="text-lg font-semibold">Ship it on Friday</PlAnimateScramble>
     )
   },
   {

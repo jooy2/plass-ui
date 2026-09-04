@@ -4,6 +4,10 @@
 
 ### Added
 
+- **`PlAnimateScramble`.** A line of text resolving out of noise — the Dart half of the React component, and with the same decision at the centre of it: **the noise is made of the line's own characters**, because every scrambler that ships a default alphabet ships an English one and English noise over a Korean headline is a different script flickering rather than a word arriving.
+
+  It settles left to right, never scrambles whitespace, and steps the redraw at `tick` rather than at the refresh rate. The settling line is wrapped in `ExcludeSemantics` and the real line is put on the node instead.
+
 - **`PlAnimateCounter`.** A number counting up to what it is — the Dart half of the React component, and the one widget in the package whose `trigger` defaults to `PlassAnimateTrigger.visible` rather than `mount`: a count that ran off screen delivered a number that was already sitting there.
 
   `formatValue` is a callback rather than an options object, for `PlProgressLinear`'s reason. The ticking figure is wrapped in `ExcludeSemantics` and the answer is put on the node instead, because a number changing sixty times a second in the semantics tree is either silence or sixty announcements.

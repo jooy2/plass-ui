@@ -6,6 +6,18 @@
 
 ### Added
 
+- **`PlAnimateScramble`.** A line of text resolving out of noise, and the second of the two effects that animate **content** rather than a box.
+
+  **The noise is made of the line's own characters.** Every scrambler that ships with a default alphabet ships an English one, and over a Korean, Greek or Arabic headline that is not a word resolving — it is a different script flickering where a word is about to be, and a reader watching their own language arrive out of somebody else's is watching a bug. Shuffling the line's own glyphs is right in every script and costs nothing; it also keeps the line's colour and width steady, because every frame is drawn out of exactly the characters the finished line is made of. `characters` overrides it for the caller who genuinely wants a terminal look.
+
+  It settles **left to right** rather than at random — a word arriving is something a reader can follow, and a reader who looks away and back has not lost their place — and **whitespace is never scrambled**, because the gaps between words are what keeps a line of noise looking like a sentence.
+
+  The redraw is stepped at `tick`, 45ms by default, rather than taken every frame. At sixty a second a line of changing glyphs strobes, which is unpleasant to look at and is exactly the flicker a reader with a sensitivity to it must never be handed.
+
+  It takes a `string` rather than a node for the reason `PlAnimateCounter` takes a number, waits to be seen for the same reason, and tells a screen reader the line once and never the noise.
+
+  Measured with `npm run size`: **+0.5 kB on the whole library and +0.0 kB on all four other scenarios**.
+
 - **`PlAnimateCounter`.** A number counting up to what it is — the one effect in the group that animates **content** rather than a box.
 
   **It is not a keyframe, and the reason is formatting.** A registered custom property and a CSS `counter()` tick a number perfectly well, and that would be the neater implementation; what they cannot do is put a thousands separator in one, or a currency symbol, or fold 1,200,000 into `1.2M`. A counter that cannot be formatted is a counter nobody can put on a dashboard, so the frame loop decides only which number is being drawn and `Intl.NumberFormat` decides what it looks like. `easing` is a **function** here for the same reason: there is no CSS animation running to hand a string to.

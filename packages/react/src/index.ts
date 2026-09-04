@@ -15,6 +15,7 @@ export * from './components/animate-lighting/index.js';
 export * from './components/animate-marquee/index.js';
 export * from './components/animate-reveal/index.js';
 export * from './components/animate-rotate/index.js';
+export * from './components/animate-scramble/index.js';
 export * from './components/animate-shake/index.js';
 export * from './components/animate-slide/index.js';
 export * from './components/animate-typing/index.js';
