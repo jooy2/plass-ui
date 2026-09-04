@@ -68,7 +68,7 @@ class PlTextLink extends StatelessWidget {
     this.icon,
     this.startIcon,
     this.showIcon,
-    this.externalLabel = '(opens elsewhere)',
+    this.externalLabel,
     this.focusNode,
     this.autofocus = false,
     super.key,
@@ -133,7 +133,7 @@ class PlTextLink extends StatelessWidget {
 
   /// What a screen reader hears after the label on an [external] link. Never
   /// drawn.
-  final String externalLabel;
+  final String? externalLabel;
 
   /// Drive focus from outside.
   final FocusNode? focusNode;
@@ -227,7 +227,7 @@ class PlTextLink extends StatelessWidget {
           onTap: onPressed,
           // Drawn for nobody and read to everybody: the arrow says "leaves the
           // app" only to a reader who can see it.
-          hint: external ? externalLabel : null,
+          hint: external ? externalLabel ?? PlassTheme.labelsOf(context).newTab : null,
           child: label,
         );
       },

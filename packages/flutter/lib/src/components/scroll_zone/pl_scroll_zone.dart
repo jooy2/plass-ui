@@ -186,8 +186,8 @@ class PlScrollZone extends StatefulWidget {
     this.size,
     this.color,
     this.label,
-    this.previousLabel = 'Previous',
-    this.nextLabel = 'Next',
+    this.previousLabel,
+    this.nextLabel,
     super.key,
   }) : assert(lines >= 1, 'lines must be at least 1'),
        assert(step >= 1, 'step must be at least 1');
@@ -274,10 +274,10 @@ class PlScrollZone extends StatefulWidget {
   /// What the buttons are called. Never drawn — a disc with a chevron in it has
   /// no accessible name of its own, which is the defect [PlIconButton]'s
   /// `label` exists to make impossible.
-  final String previousLabel;
+  final String? previousLabel;
 
   /// See [previousLabel].
-  final String nextLabel;
+  final String? nextLabel;
 
   @override
   State<PlScrollZone> createState() => _PlScrollZoneState();
@@ -575,7 +575,9 @@ class _PlScrollZoneState extends State<PlScrollZone> with SingleTickerProviderSt
 
     Widget button = PlIconButton(
       icon: PlassGlyph(PlassGlyphShape.chevron, quarterTurns: turns),
-      label: forward ? widget.nextLabel : widget.previousLabel,
+      label: forward
+          ? widget.nextLabel ?? PlassTheme.labelsOf(context).next
+          : widget.previousLabel ?? PlassTheme.labelsOf(context).previous,
       variant: widget.variant,
       size: _size,
       color: _color,

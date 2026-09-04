@@ -81,14 +81,14 @@ class PlTransfer extends StatefulWidget {
     this.value,
     this.defaultValue = const <String>[],
     this.onValueChanged,
-    this.sourceLabel = 'Available',
-    this.targetLabel = 'Selected',
+    this.sourceLabel,
+    this.targetLabel,
     this.searchable = false,
-    this.searchLabel = 'Search',
-    this.emptyLabel = 'Nothing here',
-    this.selectAllLabel = 'Select all',
-    this.toTargetLabel = 'Move to selected',
-    this.toSourceLabel = 'Move to available',
+    this.searchLabel,
+    this.emptyLabel,
+    this.selectAllLabel,
+    this.toTargetLabel,
+    this.toSourceLabel,
     this.height = 220,
     this.disabled = false,
     this.variant = PlassVariant.glass,
@@ -111,28 +111,28 @@ class PlTransfer extends StatefulWidget {
   final ValueChanged<List<String>>? onValueChanged;
 
   /// The heading over the leading list.
-  final String sourceLabel;
+  final String? sourceLabel;
 
   /// And over the trailing one.
-  final String targetLabel;
+  final String? targetLabel;
 
   /// Puts a filter above each list.
   final bool searchable;
 
   /// What that filter says while it is empty.
-  final String searchLabel;
+  final String? searchLabel;
 
   /// What a list with nothing in it says.
-  final String emptyLabel;
+  final String? emptyLabel;
 
   /// What the tick in a list's heading is announced as.
-  final String selectAllLabel;
+  final String? selectAllLabel;
 
   /// What the outward arrow is announced as.
-  final String toTargetLabel;
+  final String? toTargetLabel;
 
   /// What the returning arrow is announced as.
-  final String toSourceLabel;
+  final String? toSourceLabel;
 
   /// How tall each list is.
   final double height;
@@ -276,7 +276,7 @@ class _PlTransferState extends State<PlTransfer> {
       children: <Widget>[
         Expanded(
           child: _panel(
-            title: widget.sourceLabel,
+            title: widget.sourceLabel ?? PlassTheme.labelsOf(context).transferAvailable,
             rows: sourceRows,
             controller: _sourceSearch,
             onTickAll: (bool on) => _tickAll(sourceRows, on),
@@ -290,7 +290,7 @@ class _PlTransferState extends State<PlTransfer> {
               size: _size,
               color: _color,
               variant: arrows,
-              label: widget.toTargetLabel,
+              label: widget.toTargetLabel ?? PlassTheme.labelsOf(context).transferToSelected,
               onPressed: widget.disabled || !canSend
                   ? null
                   : () => _move(sourceRows, toTarget: true),
@@ -300,7 +300,7 @@ class _PlTransferState extends State<PlTransfer> {
               size: _size,
               color: _color,
               variant: arrows,
-              label: widget.toSourceLabel,
+              label: widget.toSourceLabel ?? PlassTheme.labelsOf(context).transferToAvailable,
               onPressed: widget.disabled || !canReturn
                   ? null
                   : () => _move(targetRows, toTarget: false),
@@ -312,7 +312,7 @@ class _PlTransferState extends State<PlTransfer> {
         ),
         Expanded(
           child: _panel(
-            title: widget.targetLabel,
+            title: widget.targetLabel ?? PlassTheme.labelsOf(context).transferSelected,
             rows: targetRows,
             controller: _targetSearch,
             onTickAll: (bool on) => _tickAll(targetRows, on),
@@ -355,7 +355,7 @@ class _PlTransferState extends State<PlTransfer> {
             value: all,
             indeterminate: some,
             disabled: widget.disabled || movable.isEmpty,
-            semanticLabel: widget.selectAllLabel,
+            semanticLabel: widget.selectAllLabel ?? PlassTheme.labelsOf(context).selectAll,
             onChanged: (bool next) => onTickAll(next),
           ),
           Expanded(
@@ -383,7 +383,7 @@ class _PlTransferState extends State<PlTransfer> {
               ? Padding(
                   padding: EdgeInsets.symmetric(vertical: _rowPadY[size]!),
                   child: Text(
-                    widget.emptyLabel,
+                    widget.emptyLabel ?? PlassTheme.labelsOf(context).empty,
                     style: TextStyle(fontSize: caption, color: tokens.mutedFg),
                   ),
                 )
@@ -441,8 +441,8 @@ class _PlTransferState extends State<PlTransfer> {
                 variant: PlassVariant.ghost,
                 fullWidth: true,
                 disabled: widget.disabled,
-                placeholder: widget.searchLabel,
-                semanticLabel: widget.searchLabel,
+                placeholder: widget.searchLabel ?? PlassTheme.labelsOf(context).search,
+                semanticLabel: widget.searchLabel ?? PlassTheme.labelsOf(context).search,
                 onChanged: (String _) => setState(() {}),
               ),
             ),

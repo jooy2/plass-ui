@@ -60,8 +60,8 @@ class PlSpoiler extends StatefulWidget {
     this.child,
     this.revealed,
     this.onRevealedChanged,
-    this.label = 'Reveal',
-    this.hideLabel = 'Hide',
+    this.label,
+    this.hideLabel,
     this.description = const Text('This may contain spoilers'),
     this.action,
     this.reversible = false,
@@ -95,10 +95,10 @@ class PlSpoiler extends StatefulWidget {
   final ValueChanged<bool>? onRevealedChanged;
 
   /// The name a screen reader gives the reveal button, and what it says.
-  final String label;
+  final String? label;
 
   /// The same for the hide button, when [reversible] is on.
-  final String hideLabel;
+  final String? hideLabel;
 
   /// The line above the button, saying why the content is covered. `null` is a
   /// cover with nothing written on it.
@@ -268,7 +268,7 @@ class _PlSpoilerState extends State<PlSpoiler> {
           color: _color,
           density: _density,
           onPressed: () => _change(false),
-          child: Text(widget.hideLabel),
+          child: Text(widget.hideLabel ?? PlassTheme.labelsOf(context).hide),
         ),
       ),
     );
@@ -314,7 +314,7 @@ class _PlSpoilerState extends State<PlSpoiler> {
                 color: _color,
                 density: _density,
                 onPressed: () => _change(true),
-                child: Text(widget.label),
+                child: Text(widget.label ?? PlassTheme.labelsOf(context).reveal),
               ),
         ],
       ),

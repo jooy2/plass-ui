@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { PlIconButton } from '../icon-button/PlIconButton.js';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import { usePrefersReducedMotion } from '../../internal/media.js';
 import { cx, transitionClasses } from '../../internal/styles.js';
 import type { PlassColor, PlassElevation, PlassSize, PlassVariant } from '../../types.js';
@@ -101,7 +102,7 @@ export const PlBackTop = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlB
     {
       target,
       visibilityHeight = 400,
-      label = 'Back to top',
+      label: labelProp,
       icon,
       floating = true,
       variant = 'glass',
@@ -115,6 +116,8 @@ export const PlBackTop = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlB
     ref
   ) {
     const defaults = useDefaults();
+    const labels = useLabels();
+    const label = labelProp ?? labels.backToTop;
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const still = usePrefersReducedMotion();

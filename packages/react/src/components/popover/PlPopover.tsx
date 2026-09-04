@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import { Popover as BaseUIPopover } from '@base-ui/react/popover';
 import { CloseIcon } from '../../internal/icons.js';
 import {
@@ -200,13 +201,15 @@ export function PlPopover({
   modal = false,
   dismissible = true,
   showClose = false,
-  closeLabel = 'Close',
+  closeLabel: closeLabelProp,
   width,
   className,
   style,
   ...props
 }: PlPopoverProps) {
   const defaults = useDefaults();
+  const labels = useLabels();
+  const closeLabel = closeLabelProp ?? labels.close;
   const size = sizeProp ?? defaults.size ?? 'md';
   const color = colorProp ?? defaults.color ?? 'primary';
   const density = densityProp ?? defaults.density ?? 'default';

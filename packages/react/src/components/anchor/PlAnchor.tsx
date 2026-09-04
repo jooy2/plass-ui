@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import {
   controlTextLeadingClasses,
   cx,
@@ -142,7 +143,7 @@ export const PlAnchor = /* @__PURE__ */ React.forwardRef<HTMLElement, PlAnchorPr
       offset = 0,
       onSelect,
       label,
-      navLabel = 'On this page',
+      navLabel: navLabelProp,
       size: sizeProp,
       color: colorProp,
       className,
@@ -152,6 +153,8 @@ export const PlAnchor = /* @__PURE__ */ React.forwardRef<HTMLElement, PlAnchorPr
     ref
   ) {
     const defaults = useDefaults();
+    const labels = useLabels();
+    const navLabel = navLabelProp ?? labels.onThisPage;
     const size = sizeProp ?? defaults.size ?? 'sm';
     const color = colorProp ?? defaults.color ?? 'primary';
 

@@ -113,8 +113,8 @@ class PlNumberField extends StatefulWidget {
     this.format,
     this.parse,
     this.steppers = PlNumberFieldSteppers.end,
-    this.incrementLabel = 'Increase',
-    this.decrementLabel = 'Decrease',
+    this.incrementLabel,
+    this.decrementLabel,
     this.hotKeys,
     this.variant = PlassVariant.glass,
     this.size,
@@ -205,10 +205,10 @@ class PlNumberField extends StatefulWidget {
   final PlNumberFieldSteppers steppers;
 
   /// The name of the increment button. Never drawn.
-  final String incrementLabel;
+  final String? incrementLabel;
 
   /// The decrement button's.
-  final String decrementLabel;
+  final String? decrementLabel;
 
   /// Chords this field answers to, in the vocabulary [PlHotKeys] draws.
   ///
@@ -705,7 +705,9 @@ class _PlNumberFieldState extends State<PlNumberField> {
               container: true,
               button: true,
               enabled: !inert,
-              label: direction > 0 ? widget.incrementLabel : widget.decrementLabel,
+              label: direction > 0
+                  ? widget.incrementLabel ?? PlassTheme.labelsOf(context).increase
+                  : widget.decrementLabel ?? PlassTheme.labelsOf(context).decrease,
               child: Opacity(opacity: inert ? disabledOpacity : 1, child: button),
             ),
           );

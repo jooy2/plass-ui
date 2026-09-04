@@ -96,7 +96,7 @@ class PlModal extends StatelessWidget {
     this.child,
     this.dividers = false,
     this.showClose = true,
-    this.closeLabel = 'Close',
+    this.closeLabel,
     this.width,
     this.fullWidth = true,
     this.fullScreen = false,
@@ -148,7 +148,7 @@ class PlModal extends StatelessWidget {
   final bool showClose;
 
   /// The name a screen reader gives the ×. Never drawn.
-  final String closeLabel;
+  final String? closeLabel;
 
   /// A hard cap on the sheet's width, overriding the one [size] implies.
   ///
@@ -282,7 +282,7 @@ class PlModal extends StatelessWidget {
               ),
               if (showClose)
                 PlassDismissButton(
-                  label: closeLabel,
+                  label: closeLabel ?? PlassTheme.labelsOf(context).close,
                   onPressed: close,
                   size: sheetTitle[size]!.size * _closeScale,
                   color: tokens.mutedFg,

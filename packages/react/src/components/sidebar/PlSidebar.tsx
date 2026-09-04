@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import { PlDrawer } from '../drawer/PlDrawer.js';
 import {
   drawerSide,
@@ -249,9 +250,9 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
       elevation = 0,
       divider = true,
       padded = true,
-      label = 'Sidebar',
-      closeLabel = 'Close sidebar',
-      resizeLabel = 'Resize sidebar',
+      label: labelProp,
+      closeLabel: closeLabelProp,
+      resizeLabel: resizeLabelProp,
       className,
       style,
       children,
@@ -260,6 +261,10 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
     ref
   ) {
     const defaults = useDefaults();
+    const labels = useLabels();
+    const label = labelProp ?? labels.sidebar;
+    const closeLabel = closeLabelProp ?? labels.sidebarClose;
+    const resizeLabel = resizeLabelProp ?? labels.sidebarResize;
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';

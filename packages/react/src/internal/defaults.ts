@@ -32,7 +32,7 @@
  */
 
 import * as React from 'react';
-import type { PlassPickerLabels } from './calendar.js';
+import type { PlassLabels } from './labels.js';
 import type { PlassDirection } from './direction.js';
 import type { PlassColor, PlassDensity, PlassSize, PlassWeekday } from '../types.js';
 
@@ -48,8 +48,13 @@ export interface PlassDefaults {
   locale?: string;
   /** Which day their weeks start on, as `Date` counts them — Sunday is `0`. */
   weekStartsOn?: PlassWeekday;
-  /** The strings a picker says that `Intl` has no opinion about. */
-  labels?: Partial<PlassPickerLabels>;
+  /**
+   * The words the library says on its own behalf, translated.
+   *
+   * A partial: whatever is not in it stays English, so a caller can replace one
+   * string without owning the other sixty. `plass-ui/locales` ships whole ones.
+   */
+  labels?: Partial<PlassLabels>;
   /**
    * Which way the tree runs, for the behaviours that read it in JavaScript.
    *

@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import { Dialog as BaseUIDialog } from '@base-ui/react/dialog';
 import { CloseIcon } from '../../internal/icons.js';
 import {
@@ -307,7 +308,7 @@ export function PlDrawer({
   actions,
   dividers = false,
   showClose,
-  closeLabel = 'Close',
+  closeLabel: closeLabelProp,
   extent,
   rounded = true,
   modal = true,
@@ -319,6 +320,8 @@ export function PlDrawer({
   ...props
 }: PlDrawerProps) {
   const defaults = useDefaults();
+  const labels = useLabels();
+  const closeLabel = closeLabelProp ?? labels.close;
   const size = sizeProp ?? defaults.size ?? 'md';
   const color = colorProp ?? defaults.color ?? 'primary';
   const density = densityProp ?? defaults.density ?? 'default';

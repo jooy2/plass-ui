@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import { PlCheckbox } from '../checkbox/PlCheckbox.js';
 import { PlIconButton } from '../icon-button/PlIconButton.js';
 import { PlTextField } from '../text-field/PlTextField.js';
@@ -236,14 +237,14 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
       value,
       defaultValue,
       onValueChange,
-      sourceLabel = 'Available',
-      targetLabel = 'Selected',
+      sourceLabel: sourceLabelProp,
+      targetLabel: targetLabelProp,
       searchable = false,
-      searchLabel = 'Search',
-      emptyLabel = 'Nothing here',
-      selectAllLabel = 'Select all',
-      toTargetLabel = 'Move to selected',
-      toSourceLabel = 'Move to available',
+      searchLabel: searchLabelProp,
+      emptyLabel: emptyLabelProp,
+      selectAllLabel: selectAllLabelProp,
+      toTargetLabel: toTargetLabelProp,
+      toSourceLabel: toSourceLabelProp,
       height = 220,
       disabled = false,
       variant = 'glass',
@@ -256,6 +257,14 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
     ref
   ) {
     const defaults = useDefaults();
+    const labels = useLabels();
+    const sourceLabel = sourceLabelProp ?? labels.transferAvailable;
+    const targetLabel = targetLabelProp ?? labels.transferSelected;
+    const searchLabel = searchLabelProp ?? labels.search;
+    const emptyLabel = emptyLabelProp ?? labels.empty;
+    const selectAllLabel = selectAllLabelProp ?? labels.selectAll;
+    const toTargetLabel = toTargetLabelProp ?? labels.transferToSelected;
+    const toSourceLabel = toSourceLabelProp ?? labels.transferToAvailable;
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';

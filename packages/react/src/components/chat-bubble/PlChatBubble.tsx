@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import { CheckIcon, ClockIcon, LinkIcon, severityIcon } from '../../internal/icons.js';
 import {
   controlSlots,
@@ -331,7 +332,7 @@ export const PlChatBubble = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlC
       status,
       statusLabel,
       typing = false,
-      typingLabel = 'Typing…',
+      typingLabel: typingLabelProp,
       media,
       preview,
       actions,
@@ -348,6 +349,8 @@ export const PlChatBubble = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlC
     ref
   ) {
     const defaults = useDefaults();
+    const labels = useLabels();
+    const typingLabel = typingLabelProp ?? labels.typing;
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';

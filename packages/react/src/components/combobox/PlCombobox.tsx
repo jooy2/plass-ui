@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import { Combobox as BaseUICombobox } from '@base-ui/react/combobox';
 import { Field } from '@base-ui/react/field';
 import { PlChip } from '../chip/PlChip.js';
@@ -319,8 +320,8 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
   open,
   defaultOpen,
   onOpenChange,
-  openLabel = 'Open',
-  clearLabel = 'Clear',
+  openLabel: openLabelProp,
+  clearLabel: clearLabelProp,
   removeLabel = (chip: string) => `Remove ${chip}`,
   inputRef,
   id,
@@ -331,6 +332,9 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
   ...props
 }: PlComboboxProps<Multiple>) {
   const defaults = useDefaults();
+  const labels = useLabels();
+  const openLabel = openLabelProp ?? labels.open;
+  const clearLabel = clearLabelProp ?? labels.clear;
   const size = sizeProp ?? defaults.size ?? 'md';
   const color = colorProp ?? defaults.color ?? 'primary';
   const density = densityProp ?? defaults.density ?? 'default';

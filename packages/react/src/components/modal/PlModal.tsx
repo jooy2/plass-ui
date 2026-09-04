@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import { Dialog as BaseUIDialog } from '@base-ui/react/dialog';
 import { CloseIcon } from '../../internal/icons.js';
 import {
@@ -211,7 +212,7 @@ export function PlModal({
   actions,
   dividers = false,
   showClose = true,
-  closeLabel = 'Close',
+  closeLabel: closeLabelProp,
   width,
   fullWidth = true,
   fullScreen = false,
@@ -224,6 +225,8 @@ export function PlModal({
   ...props
 }: PlModalProps) {
   const defaults = useDefaults();
+  const labels = useLabels();
+  const closeLabel = closeLabelProp ?? labels.close;
   const size = sizeProp ?? defaults.size ?? 'md';
   const color = colorProp ?? defaults.color ?? 'primary';
   const density = densityProp ?? defaults.density ?? 'default';

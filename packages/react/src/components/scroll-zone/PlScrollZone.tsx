@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import { PlIconButton } from '../icon-button/PlIconButton.js';
 import { spacingValue } from '../../internal/grid.js';
 import { ChevronIcon } from '../../internal/icons.js';
@@ -231,8 +232,8 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
       color: colorProp,
       density: densityProp,
       label,
-      previousLabel = 'Previous',
-      nextLabel = 'Next',
+      previousLabel: previousLabelProp,
+      nextLabel: nextLabelProp,
       className,
       style,
       children,
@@ -248,6 +249,9 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
     const orientation = useResponsiveValue(orientationProp, 'horizontal');
 
     const defaults = useDefaults();
+    const labels = useLabels();
+    const previousLabel = previousLabelProp ?? labels.previous;
+    const nextLabel = nextLabelProp ?? labels.next;
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';

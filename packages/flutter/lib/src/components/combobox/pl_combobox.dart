@@ -108,8 +108,8 @@ class PlCombobox<T> extends StatefulWidget {
     this.emptyMessage = 'No matches',
     this.limit,
     this.clearable = false,
-    this.clearLabel = 'Clear',
-    this.openLabel = 'Open',
+    this.clearLabel,
+    this.openLabel,
     this.removeLabel = _defaultRemoveLabel,
     this.hotKeys,
     this.variant = PlassVariant.glass,
@@ -149,8 +149,8 @@ class PlCombobox<T> extends StatefulWidget {
     this.emptyMessage = 'No matches',
     this.limit,
     this.clearable = false,
-    this.clearLabel = 'Clear',
-    this.openLabel = 'Open',
+    this.clearLabel,
+    this.openLabel,
     this.removeLabel = _defaultRemoveLabel,
     this.hotKeys,
     this.variant = PlassVariant.glass,
@@ -231,10 +231,10 @@ class PlCombobox<T> extends StatefulWidget {
   final bool clearable;
 
   /// The name a screen reader gives that ×.
-  final String clearLabel;
+  final String? clearLabel;
 
   /// And the one it gives the button that opens the list.
-  final String openLabel;
+  final String? openLabel;
 
   /// The name a chip's × takes, given the chip's label.
   ///
@@ -798,10 +798,14 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
                   ),
           ),
           if (showClear)
-            adornment(shape: PlassGlyphShape.close, label: widget.clearLabel, onTap: _clear),
+            adornment(
+              shape: PlassGlyphShape.close,
+              label: widget.clearLabel ?? PlassTheme.labelsOf(context).clear,
+              onTap: _clear,
+            ),
           adornment(
             shape: PlassGlyphShape.chevron,
-            label: widget.openLabel,
+            label: widget.openLabel ?? PlassTheme.labelsOf(context).open,
             onTap: _usable ? (_open ? _close : _openList) : null,
             turns: _open ? 0.5 : 0,
           ),

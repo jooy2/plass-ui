@@ -6,6 +6,27 @@
 
 ### Added
 
+- **Locale bundles: the library's own words, translated.** Every component that says something of its own — a close button's name, a pager's landmark, the line an empty list shows — now reads from one set of sixty-two strings, and seven translations of that set ship with the package.
+
+  ```tsx
+  import { PlassProvider } from 'plass-ui';
+  import { ko } from 'plass-ui/locales';
+
+  <PlassProvider locale="ko-KR" labels={ko}>
+    <App />
+  </PlassProvider>;
+  ```
+
+  `de`, `en`, `es`, `fr`, `ja`, `ko` and `zhHans`. The list is short on purpose: a pack is worth shipping once somebody who reads the language has read it.
+
+  **Each pack is a named export from its own module rather than an entry in a `locales['ko']` table.** A lookup would be the shorter API and the wrong one, because for a key to be found in a table the table has to be in the build — a French application would ship the Korean strings, the Japanese strings and the rest. An import ships one, and an application that switches language while it runs imports the packs it offers and picks between them, which is what it already does for its own copy.
+
+  **A key is a meaning, not a component.** `close` is the × on a modal, a drawer, a popover and a toast, and it is translated once. A key exists per component only where the word genuinely differs: `paginationNext` moves by a page and `carouselNext` moves by a slide, so a language that distinguishes those has somewhere to put the distinction.
+
+  `PlassLabels` widens what used to be the pickers' own `PlassPickerLabels`, which had already grown past the pickers; the twenty-five components that were carrying their own English string now take it from the set. Nothing about the precedence changed — the component's own prop still wins, a partial `labels` still leaves the rest English — so an application that named its words by hand keeps working exactly as it did.
+
+  Measured with `npm run size`: **+0.7 kB on the five overlays and +0.8 kB on the whole library**, which is the registry being shared rather than inlined; `PlButton` and `PlTypography` alone are unchanged. A pack is about **0.9 kB gzipped** and is only in the build if it was imported.
+
 - **Three hooks: `usePlDisclosure`, `usePlElementSize` and `usePlOnScreen`.** Each of them is a piece of machinery the library already ran on internally, and each is public because the hand-written version has a decision in it that is easy to get wrong.
 
   **`usePlDisclosure`** is one boolean and the four callbacks that change it. It is worth a hook rather than a snippet for one reason: written by hand it is a `useState` _plus three arrow functions that are new on every render_, and an inline `() => setOpen(false)` handed to a memoised trigger defeats the memo it was handed to. Every callback here is stable, `onToggle` included, because it uses the updater form rather than `!open`. The names are the props — `setOpen` fits `onOpenChange` exactly — so the ordinary use is two lines.

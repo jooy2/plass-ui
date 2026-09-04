@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useLabels } from '../../internal/labels.js';
 import { useRender } from '@base-ui/react/use-render';
 import { ExternalLinkIcon, LinkIcon } from '../../internal/icons.js';
 import {
@@ -176,7 +177,7 @@ export const PlTextLink = /* @__PURE__ */ React.forwardRef<HTMLAnchorElement, Pl
       newTab = false,
       icon,
       startIcon,
-      newTabLabel = '(opens in a new tab)',
+      newTabLabel: newTabLabelProp,
       render,
       className,
       style,
@@ -185,6 +186,9 @@ export const PlTextLink = /* @__PURE__ */ React.forwardRef<HTMLAnchorElement, Pl
     },
     ref
   ) {
+    const labels = useLabels();
+    const newTabLabel = newTabLabelProp ?? labels.newTab;
+
     // `icon` left out follows `newTab`, which is the whole reason it is not a
     // plain boolean with a `false` default: a link that takes over the window
     // should say so, and a caller should have to ask for the silent version.

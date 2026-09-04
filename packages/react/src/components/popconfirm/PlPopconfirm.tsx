@@ -4,6 +4,7 @@ import * as React from 'react';
 import { PlButton } from '../button/PlButton.js';
 import { PlPopover } from '../popover/PlPopover.js';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import { cx } from '../../internal/styles.js';
 import type { PlassAlign, PlassColor, PlassSize, PlassSide } from '../../types.js';
 
@@ -70,8 +71,8 @@ export function PlPopconfirm({
   trigger,
   title,
   description,
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
+  confirmLabel: confirmLabelProp,
+  cancelLabel: cancelLabelProp,
   onConfirm,
   onCancel,
   color: colorProp,
@@ -85,6 +86,9 @@ export function PlPopconfirm({
   className
 }: PlPopconfirmProps) {
   const defaults = useDefaults();
+  const labels = useLabels();
+  const confirmLabel = confirmLabelProp ?? labels.confirm;
+  const cancelLabel = cancelLabelProp ?? labels.cancel;
   const size = sizeProp ?? defaults.size ?? 'md';
   const color = colorProp ?? 'danger';
 

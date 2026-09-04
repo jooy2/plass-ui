@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Dialog as BaseUIDialog } from '@base-ui/react/dialog';
 import { PlHotKeys } from '../hot-keys/PlHotKeys.js';
@@ -210,9 +211,9 @@ export function PlCommandPalette({
   shortcut = 'Mod+K',
   width,
   maxHeight = 320,
-  placeholder = 'Search commands',
+  placeholder: placeholderProp,
   emptyMessage = 'No commands found',
-  label = 'Command palette',
+  label: labelProp,
   size: sizeProp,
   color: colorProp,
   density: densityProp,
@@ -221,6 +222,9 @@ export function PlCommandPalette({
   style
 }: PlCommandPaletteProps): React.ReactElement {
   const defaults = useDefaults();
+  const labels = useLabels();
+  const label = labelProp ?? labels.commandPalette;
+  const placeholder = placeholderProp ?? labels.commandPalettePlaceholder;
   const size = sizeProp ?? defaults.size ?? 'md';
   const color = colorProp ?? defaults.color ?? 'primary';
   const density = densityProp ?? defaults.density ?? 'default';

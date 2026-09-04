@@ -58,7 +58,7 @@ class PlImage extends StatefulWidget {
     this.placeholder,
     this.fallback,
     this.preview = false,
-    this.previewLabel = 'Preview',
+    this.previewLabel,
     this.onStatusChanged,
     super.key,
   });
@@ -111,7 +111,7 @@ class PlImage extends StatefulWidget {
   final bool preview;
 
   /// The name of the preview overlay.
-  final String previewLabel;
+  final String? previewLabel;
 
   /// Called when the picture has loaded, and when it has failed.
   final ValueChanged<PlImageStatus>? onStatusChanged;
@@ -277,7 +277,7 @@ class _PlImageState extends State<PlImage> {
             onOpenChanged: (bool next) => setState(() => _open = next),
             tone: PlOverlayTone.glass,
             dismissible: true,
-            label: widget.previewLabel,
+            label: widget.previewLabel ?? PlassTheme.labelsOf(context).preview,
             child: Image(image: widget.image, fit: BoxFit.contain, excludeFromSemantics: true),
           ),
         ],

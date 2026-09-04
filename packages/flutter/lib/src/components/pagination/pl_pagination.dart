@@ -117,12 +117,12 @@ class PlPagination extends StatelessWidget {
     this.showEdges = false,
     this.showArrows = true,
     this.disabled = false,
-    this.label = 'Pagination',
+    this.label,
     this.pageLabel = _defaultPageLabel,
-    this.previousLabel = 'Previous page',
-    this.nextLabel = 'Next page',
-    this.firstLabel = 'First page',
-    this.lastLabel = 'Last page',
+    this.previousLabel,
+    this.nextLabel,
+    this.firstLabel,
+    this.lastLabel,
     super.key,
   }) : assert(
          elevation >= plassElevationMin && elevation <= plassElevationMax,
@@ -179,22 +179,22 @@ class PlPagination extends StatelessWidget {
   /// for the same reason a table takes its empty line as one: a library that
   /// shipped translations would have to be told which language a screen is in,
   /// and the screen already knows.
-  final String label;
+  final String? label;
 
   /// The name of a page button. Never drawn.
   final String Function(int page) pageLabel;
 
   /// The name of the previous stepper.
-  final String previousLabel;
+  final String? previousLabel;
 
   /// The next one's.
-  final String nextLabel;
+  final String? nextLabel;
 
   /// The jump-to-first stepper's.
-  final String firstLabel;
+  final String? firstLabel;
 
   /// The jump-to-last one's.
-  final String lastLabel;
+  final String? lastLabel;
 
   static String _defaultPageLabel(int page) => 'Page $page';
 
@@ -243,16 +243,32 @@ class PlPagination extends StatelessWidget {
       );
     }
 
+    final words = PlassTheme.labelsOf(context);
+
     return Semantics(
       container: true,
       explicitChildNodes: true,
-      label: label,
+      label: label ?? words.pagination,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         spacing: gap[size]!,
         children: <Widget>[
-          if (showEdges) stepper(firstLabel, 1, atStart, PlassGlyphShape.doubleChevron, 1),
-          if (showArrows) stepper(previousLabel, current - 1, atStart, PlassGlyphShape.chevron, 1),
+          if (showEdges)
+            stepper(
+              firstLabel ?? words.paginationFirst,
+              1,
+              atStart,
+              PlassGlyphShape.doubleChevron,
+              1,
+            ),
+          if (showArrows)
+            stepper(
+              previousLabel ?? words.paginationPrevious,
+              current - 1,
+              atStart,
+              PlassGlyphShape.chevron,
+              1,
+            ),
           for (final slot in slots)
             switch (slot) {
               _Page(:final int number) => PlButton(
@@ -295,8 +311,22 @@ class PlPagination extends StatelessWidget {
                 ),
               ),
             },
-          if (showArrows) stepper(nextLabel, current + 1, atEnd, PlassGlyphShape.chevron, -1),
-          if (showEdges) stepper(lastLabel, count, atEnd, PlassGlyphShape.doubleChevron, -1),
+          if (showArrows)
+            stepper(
+              nextLabel ?? words.paginationNext,
+              current + 1,
+              atEnd,
+              PlassGlyphShape.chevron,
+              -1,
+            ),
+          if (showEdges)
+            stepper(
+              lastLabel ?? words.paginationLast,
+              count,
+              atEnd,
+              PlassGlyphShape.doubleChevron,
+              -1,
+            ),
         ],
       ),
     );

@@ -51,6 +51,11 @@
       "module": "./dist/hooks/index.js",
       "default": "./dist/hooks/index.js"
     },
+    "./locales": {
+      "types": "./dist/locales/index.d.ts",
+      "module": "./dist/locales/index.js",
+      "default": "./dist/locales/index.js"
+    },
     "./provider": {
       "types": "./dist/provider/index.d.ts",
       "module": "./dist/provider/index.js",
@@ -74,6 +79,9 @@
       ],
       "hooks": [
         "dist/hooks/index.d.ts"
+      ],
+      "locales": [
+        "dist/locales/index.d.ts"
       ],
       "provider": [
         "dist/provider/index.d.ts"

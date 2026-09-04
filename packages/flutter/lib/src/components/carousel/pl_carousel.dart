@@ -81,9 +81,9 @@ class PlCarousel extends StatefulWidget {
     this.color,
     this.density,
     this.elevation = 0,
-    this.label = 'Carousel',
-    this.previousLabel = 'Previous slide',
-    this.nextLabel = 'Next slide',
+    this.label,
+    this.previousLabel,
+    this.nextLabel,
     this.slideLabel,
     super.key,
   }) : assert(
@@ -151,13 +151,13 @@ class PlCarousel extends StatefulWidget {
   final PlassElevation elevation;
 
   /// The carousel's name. Never drawn.
-  final String label;
+  final String? label;
 
   /// The arrows' names. Never drawn.
-  final String previousLabel;
+  final String? previousLabel;
 
   /// See [previousLabel].
-  final String nextLabel;
+  final String? nextLabel;
 
   /// Names one slide, and the dot that goes to it.
   ///
@@ -316,7 +316,7 @@ class _PlCarouselState extends State<PlCarousel> {
 
     return Semantics(
       container: true,
-      label: widget.label,
+      label: widget.label ?? PlassTheme.labelsOf(context).carousel,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
@@ -361,7 +361,9 @@ class _PlCarouselState extends State<PlCarousel> {
         PlassGlyphShape.chevron,
         quarterTurns: forward ? (rtl ? 1 : -1) : (rtl ? -1 : 1),
       ),
-      label: forward ? widget.nextLabel : widget.previousLabel,
+      label: forward
+          ? widget.nextLabel ?? PlassTheme.labelsOf(context).carouselNext
+          : widget.previousLabel ?? PlassTheme.labelsOf(context).carouselPrevious,
       variant: PlassVariant.glass,
       size: _size,
       color: _color,

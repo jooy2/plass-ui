@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useDefaults } from './defaults.js';
+import { defaultLabels, useLabels, type PlassLabels } from './labels.js';
 import { PlButton } from '../components/button/PlButton.js';
 import { ChevronIcon } from './icons.js';
 import { dateFormatter } from './format.js';
@@ -63,66 +63,41 @@ import type { PlassColor, PlassDensity, PlassSize, PlassWeekday } from '../types
 /**
  * Every string a picker says that is not a date.
  *
- * One object rather than eighteen props. These are a set: a caller who has to
- * translate "Previous month" has to translate "Next month" in the same breath,
- * and a component with eighteen `*Label` props is a component whose signature is
- * mostly apology. The dates themselves are never in here — those come from
- * `Intl`, which already knows what July is called in more languages than this
- * file ever will.
+ * A slice of `PlassLabels` rather than a set of its own, which it used to be:
+ * the words were collected here first, and when the rest of the library's own
+ * vocabulary was gathered they went in beside them. The type stays, because
+ * the pickers are the one place that needs *all* of these and nothing else, and
+ * because a caller who has only translated a picker still has a name for what
+ * they translated.
+ *
+ * The dates themselves are never in here — those come from `Intl`, which
+ * already knows what July is called in more languages than this file ever will.
  */
-export interface PlassPickerLabels {
-  /** The calendar's steppers, in day view. */
-  previousMonth: string;
-  nextMonth: string;
-  /** The same steppers in month view, where they move by a year. */
-  previousYear: string;
-  nextYear: string;
-  /** And in year view, where they move by a page of twelve. */
-  previousYears: string;
-  nextYears: string;
-  /** The two header buttons that open the month grid and the year grid. */
-  chooseMonth: string;
-  chooseYear: string;
-  /** The footer's actions. */
-  today: string;
-  /** The same shortcut on a picker that only asks for a month or a year. */
-  thisMonth: string;
-  thisYear: string;
-  now: string;
-  clear: string;
-  done: string;
-  /** The clock's columns. */
-  hour: string;
-  minute: string;
-  second: string;
-  meridiem: string;
-  /** Which end of a range the calendar is currently asking for. */
-  start: string;
-  end: string;
-}
+export type PlassPickerLabels = Pick<
+  PlassLabels,
+  | 'previousMonth'
+  | 'nextMonth'
+  | 'previousYear'
+  | 'nextYear'
+  | 'previousYears'
+  | 'nextYears'
+  | 'chooseMonth'
+  | 'chooseYear'
+  | 'today'
+  | 'thisMonth'
+  | 'thisYear'
+  | 'now'
+  | 'clear'
+  | 'done'
+  | 'hour'
+  | 'minute'
+  | 'second'
+  | 'meridiem'
+  | 'start'
+  | 'end'
+>;
 
-export const defaultPickerLabels: PlassPickerLabels = {
-  previousMonth: 'Previous month',
-  nextMonth: 'Next month',
-  previousYear: 'Previous year',
-  nextYear: 'Next year',
-  previousYears: 'Previous years',
-  nextYears: 'Next years',
-  chooseMonth: 'Choose a month',
-  chooseYear: 'Choose a year',
-  today: 'Today',
-  thisMonth: 'This month',
-  thisYear: 'This year',
-  now: 'Now',
-  clear: 'Clear',
-  done: 'Done',
-  hour: 'Hour',
-  minute: 'Minute',
-  second: 'Second',
-  meridiem: 'AM/PM',
-  start: 'Start',
-  end: 'End'
-};
+export const defaultPickerLabels: PlassPickerLabels = defaultLabels;
 
 /**
  * The labels a picker says, resolved once per render.
@@ -134,13 +109,10 @@ export const defaultPickerLabels: PlassPickerLabels = {
  * the app says "Start".
  */
 export function usePickerLabels(overrides?: Partial<PlassPickerLabels>): PlassPickerLabels {
-  const { labels } = useDefaults();
+  const labels = useLabels();
 
   return React.useMemo(
-    () =>
-      labels || overrides
-        ? { ...defaultPickerLabels, ...labels, ...overrides }
-        : defaultPickerLabels,
+    () => (overrides ? { ...labels, ...overrides } : labels),
     [labels, overrides]
   );
 }

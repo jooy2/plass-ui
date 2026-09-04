@@ -110,7 +110,7 @@ class PlDrawer extends StatelessWidget {
     this.actions,
     this.dividers = false,
     this.showClose,
-    this.closeLabel = 'Close',
+    this.closeLabel,
     this.extent,
     this.rounded = true,
     this.modal = true,
@@ -172,7 +172,7 @@ class PlDrawer extends StatelessWidget {
   final bool? showClose;
 
   /// The name a screen reader gives the ×. Never drawn.
-  final String closeLabel;
+  final String? closeLabel;
 
   /// How far the panel reaches in from its edge: a **width** for
   /// [PlassSide.left] and [PlassSide.right], a **height** for [PlassSide.top]
@@ -343,7 +343,7 @@ class PlDrawer extends StatelessWidget {
               ),
               if (drawClose)
                 PlassDismissButton(
-                  label: closeLabel,
+                  label: closeLabel ?? PlassTheme.labelsOf(context).close,
                   onPressed: close,
                   size: sheetTitle[size]!.size * _closeScale,
                   color: tokens.mutedFg,

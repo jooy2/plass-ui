@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import { PlButton } from '../button/PlButton.js';
 import {
   cx,
@@ -133,8 +134,8 @@ export const PlSpoiler = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSpoi
       revealed,
       defaultRevealed = false,
       onRevealedChange,
-      label = 'Reveal',
-      hideLabel = 'Hide',
+      label: labelProp,
+      hideLabel: hideLabelProp,
       description = 'This may contain spoilers',
       action,
       reversible = false,
@@ -154,6 +155,9 @@ export const PlSpoiler = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSpoi
     ref
   ) {
     const defaults = useDefaults();
+    const labels = useLabels();
+    const label = labelProp ?? labels.reveal;
+    const hideLabel = hideLabelProp ?? labels.hide;
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';

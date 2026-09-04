@@ -567,7 +567,11 @@ const vitePressConfig: UserConfig = {
         // Anchored, so `plass-ui/styles.css` is not rewritten into the barrel too.
         // Pointing at the source rather than `dist/` is what lets a component
         // edit show up in the docs without a rebuild.
-        { find: /^plass-ui$/, replacement: resolve(reactDir, 'src/index.ts') }
+        { find: /^plass-ui$/, replacement: resolve(reactDir, 'src/index.ts') },
+        {
+          find: /^plass-ui\/locales$/,
+          replacement: resolve(reactDir, 'src/locales/index.ts')
+        }
       ]
     },
     optimizeDeps: {

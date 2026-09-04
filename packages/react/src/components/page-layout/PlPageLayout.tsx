@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import {
   PlPageLayoutContext,
   PlassSidebarSideContext,
@@ -177,7 +178,7 @@ export const PlPageLayout = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlP
       defaultEndSidebarOpen = false,
       onEndSidebarOpenChange,
       skipLink = true,
-      skipLabel = 'Skip to content',
+      skipLabel: skipLabelProp,
       mainId = 'main',
       mainProps,
       color: colorProp,
@@ -189,6 +190,8 @@ export const PlPageLayout = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlP
     ref
   ) {
     const defaults = useDefaults();
+    const labels = useLabels();
+    const skipLabel = skipLabelProp ?? labels.skipToContent;
     const color = colorProp ?? defaults.color ?? 'primary';
 
     const [ownStart, setOwnStart] = React.useState(defaultSidebarOpen);

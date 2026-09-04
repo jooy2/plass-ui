@@ -60,8 +60,9 @@ class PlassDefaults {
   /// The words the date widgets draw — the months, the weekdays.
   final PlDateNames? names;
 
-  /// The words they say about themselves — the steppers, the headings.
-  final PlPickerLabels? labels;
+  /// The words the widgets say about themselves — the steppers, the headings,
+  /// the landmark every assistive technology reads a region by.
+  final PlassLabels? labels;
 
   /// Which day their weeks start on.
   final PlassWeekday? weekStartsOn;

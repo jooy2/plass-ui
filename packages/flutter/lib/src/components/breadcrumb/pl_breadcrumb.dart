@@ -136,8 +136,8 @@ class PlBreadcrumb extends StatefulWidget {
     this.itemsBeforeCollapse = 1,
     this.itemsAfterCollapse = 1,
     this.expandable = true,
-    this.label = 'Breadcrumb',
-    this.expandLabel = 'Show the hidden steps',
+    this.label,
+    this.expandLabel,
     super.key,
   });
 
@@ -174,10 +174,10 @@ class PlBreadcrumb extends StatefulWidget {
   final bool expandable;
 
   /// The name the trail is announced by. Never drawn.
-  final String label;
+  final String? label;
 
   /// What the `…` is announced as. Never drawn.
-  final String expandLabel;
+  final String? expandLabel;
 
   @override
   State<PlBreadcrumb> createState() => _PlBreadcrumbState();
@@ -236,7 +236,7 @@ class _PlBreadcrumbState extends State<PlBreadcrumb> {
         step == null
             ? _Fold(
                 expandable: widget.expandable,
-                label: widget.expandLabel,
+                label: widget.expandLabel ?? PlassTheme.labelsOf(context).breadcrumbExpand,
                 size: _size,
                 family: family,
                 muted: tokens.mutedFg,
@@ -255,7 +255,7 @@ class _PlBreadcrumbState extends State<PlBreadcrumb> {
     return Semantics(
       container: true,
       explicitChildNodes: true,
-      label: widget.label,
+      label: widget.label ?? PlassTheme.labelsOf(context).breadcrumb,
       child: DefaultTextStyle.merge(
         style: TextStyle(fontSize: controlText[_size]!, height: 1.4),
         child: Wrap(

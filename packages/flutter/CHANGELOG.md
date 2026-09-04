@@ -4,6 +4,26 @@
 
 ### Added
 
+- **Locale bundles: the package's own words, translated.** Every widget that says something of its own — a close button's name, a pager's landmark, the line an empty list shows — now reads from one set of sixty-two strings, and seven translations of that set ship with the package.
+
+  ```dart
+  import 'package:plass_ui/locales.dart';
+  import 'package:plass_ui/plass_ui.dart';
+
+  PlassTheme.merge(
+    defaults: const PlassDefaults(labels: ko),
+    child: const MyApp(),
+  );
+  ```
+
+  `de`, `en`, `es`, `fr`, `ja`, `ko` and `zhHans`, in a **library of their own** rather than behind `plass_ui.dart`. That import is in every file of an application, and putting seven translations behind it would make every one of those files carry them.
+
+  **A key is a meaning, not a widget.** `close` is the × on a modal, a drawer, a popover and a toast, and it is translated once. A key exists per widget only where the word genuinely differs: `paginationNext` moves by a page and `carouselNext` moves by a slide.
+
+  `PlassLabels` is what `PlPickerLabels` grew into, and `PlPickerLabels` is now another name for it, so nothing that took the old one has to change. Each of its sixty-two fields still defaults to English in the constructor, which is what makes a partial set legal; `copyWith` is new, and it is how a screen keeps a pack and changes one line of it — `ko.copyWith(start: '체크인')`. `PlassTheme.labelsOf(context)` reads what is in scope, answering `PlassLabels.english` when nothing has decided.
+
+  The twenty-four widgets that were carrying their own English default now take it from the set, and every one of them still takes the word as a parameter that wins.
+
 - **`PlAnimateSplit`.** A line of text arriving one part at a time — the Dart half of the React component. A `PlAnimateAppear` tells one entrance off across a set of children, which a line of text does not have; this makes them.
 
   The entrance is spelled as a **side, a distance and a fade**, exactly as `PlAnimateAppear` spells it, where the React build names a CSS keyframe. That is not an inconsistency and the page says why: over there an effect *is* a named thing the stylesheet knows about, and here every effect is built out of widgets, so a split takes the parameters the widget beside it already takes.

@@ -85,7 +85,7 @@ class PlOverlay extends StatelessWidget {
     this.modal = true,
     this.align = PlassAlign.center,
     this.size,
-    this.label = 'Overlay',
+    this.label,
     super.key,
   });
 
@@ -127,7 +127,7 @@ class PlOverlay extends StatelessWidget {
   /// An overlay holding nothing readable — a bare spinner, a clear sheet — still
   /// has to say what it is, which is why this has a default rather than being
   /// left empty.
-  final String label;
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
@@ -138,7 +138,7 @@ class PlOverlay extends StatelessWidget {
     return PlassPortal(
       open: open,
       modal: modal,
-      label: label,
+      label: label ?? PlassTheme.labelsOf(context).overlay,
       barrierColor: switch (tone) {
         PlOverlayTone.scrim => tokens.scrim,
         PlOverlayTone.glass => colorMix(tokens.scrim, _glassScrim),

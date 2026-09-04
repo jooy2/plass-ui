@@ -12,7 +12,7 @@ import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
-export 'package:plass_ui/src/internal/date.dart' show PlDateNames, PlPickerLabels;
+export 'package:plass_ui/src/internal/date.dart' show PlDateNames, PlPickerLabels, PlassLabels;
 
 /// The smallest unit a [PlDatePicker] asks for.
 ///
@@ -259,8 +259,7 @@ class PlDatePicker extends StatefulWidget {
 class _PlDatePickerState extends State<PlDatePicker> {
   PlDateNames get _names =>
       widget.names ?? PlassTheme.defaultsOf(context).names ?? PlDateNames.english;
-  PlPickerLabels get _labels =>
-      widget.labels ?? PlassTheme.defaultsOf(context).labels ?? PlPickerLabels.english;
+  PlPickerLabels get _labels => widget.labels ?? PlassTheme.labelsOf(context);
 
   PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
   PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;

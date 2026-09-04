@@ -86,7 +86,7 @@ class PlPopover extends StatefulWidget {
     this.arrow = false,
     this.dismissible = true,
     this.showClose = false,
-    this.closeLabel = 'Close',
+    this.closeLabel,
     this.width,
     this.size,
     this.color,
@@ -147,7 +147,7 @@ class PlPopover extends StatefulWidget {
   final bool showClose;
 
   /// The name a screen reader gives the ×. Never drawn.
-  final String closeLabel;
+  final String? closeLabel;
 
   /// A hard cap on the popup's width, overriding the one [size] implies.
   final double? width;
@@ -262,7 +262,7 @@ class _PlPopoverState extends State<PlPopover> {
                       ),
                       if (widget.showClose)
                         PlassDismissButton(
-                          label: widget.closeLabel,
+                          label: widget.closeLabel ?? PlassTheme.labelsOf(context).close,
                           onPressed: close,
                           size: sheetTitle[_size]!.size * _closeScale,
                           color: tokens.mutedFg,

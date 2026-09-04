@@ -163,7 +163,7 @@ class PlChatBubble extends StatelessWidget {
     this.status,
     this.statusLabel,
     this.typing = false,
-    this.typingLabel = 'Typing…',
+    this.typingLabel,
     this.media,
     this.preview,
     this.actions,
@@ -208,7 +208,7 @@ class PlChatBubble extends StatelessWidget {
   final bool typing;
 
   /// What the dots are read out as. Never drawn.
-  final String typingLabel;
+  final String? typingLabel;
 
   /// A picture, a video, a map — drawn edge to edge above the text, so the
   /// bubble's corners crop it.
@@ -328,7 +328,11 @@ class PlChatBubble extends StatelessWidget {
                   spacing: 8,
                   children: <Widget>[
                     if (typing)
-                      _TypingDots(color: ink, line: body.line, label: typingLabel)
+                      _TypingDots(
+                        color: ink,
+                        line: body.line,
+                        label: typingLabel ?? PlassTheme.labelsOf(context).typing,
+                      )
                     else
                       ?child,
                     if (preview != null) _Preview(preview: preview!, ink: ink, ring: family.ring),

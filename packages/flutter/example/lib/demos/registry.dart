@@ -189,6 +189,7 @@ import 'package:plass_ui_example/demos/confirm/focus.dart';
 import 'package:plass_ui_example/demos/popconfirm/hero.dart';
 import 'package:plass_ui_example/demos/popconfirm/async.dart';
 import 'package:plass_ui_example/demos/provider/defaults.dart';
+import 'package:plass_ui_example/demos/provider/labels.dart';
 import 'package:plass_ui_example/demos/provider/locale.dart';
 import 'package:plass_ui_example/demos/calendar/hero.dart';
 import 'package:plass_ui_example/demos/calendar/precision.dart';
@@ -555,6 +556,7 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'popconfirm/hero': _popconfirmHero,
   'popconfirm/async': _popconfirmAsync,
   'provider/defaults': _providerDefaults,
+  'provider/labels': _providerLabels,
   'provider/locale': _providerLocale,
   'calendar/hero': _calendarHero,
   'calendar/precision': _calendarPrecision,
@@ -1065,6 +1067,8 @@ Widget _popconfirmHero(BuildContext context) => const PopconfirmHero();
 Widget _popconfirmAsync(BuildContext context) => const PopconfirmAsync();
 
 Widget _providerDefaults(BuildContext context) => const ProviderDefaults();
+
+Widget _providerLabels(BuildContext context) => const ProviderLabels();
 
 Widget _providerLocale(BuildContext context) => const ProviderLocale();
 

@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import { Dialog as BaseUIDialog } from '@base-ui/react/dialog';
 import { cx, surfaceSlots } from '../../internal/styles.js';
 import type { PlassAlign, PlassColor, PlassPortalClassNames, PlassSize } from '../../types.js';
@@ -165,7 +166,7 @@ export function PlOverlay({
   align = 'center',
   size: sizeProp,
   color: colorProp,
-  label = 'Overlay',
+  label: labelProp,
   className,
   classNames,
   style,
@@ -173,6 +174,8 @@ export function PlOverlay({
   ...props
 }: PlOverlayProps) {
   const defaults = useDefaults();
+  const labels = useLabels();
+  const label = labelProp ?? labels.overlay;
   const size = sizeProp ?? defaults.size ?? 'md';
   const color = colorProp ?? defaults.color ?? 'primary';
 

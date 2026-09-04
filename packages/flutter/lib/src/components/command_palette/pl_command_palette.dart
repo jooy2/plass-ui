@@ -135,7 +135,7 @@ class PlCommandPalette extends StatefulWidget {
     this.maxHeight = 320,
     this.placeholder = 'Search commands',
     this.emptyMessage = 'No commands found',
-    this.label = 'Command palette',
+    this.label,
     this.size,
     this.color,
     this.density,
@@ -178,7 +178,7 @@ class PlCommandPalette extends StatefulWidget {
   final String emptyMessage;
 
   /// The name a screen reader gives the sheet, which has no visible title.
-  final String label;
+  final String? label;
 
   /// The sheet's width, the field's height and the rows' type scale.
   final PlassSize? size;
@@ -332,7 +332,7 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
       modal: true,
       barrierColor: tokens.scrim,
       onDismiss: () => widget.onOpenChanged?.call(false),
-      label: widget.label,
+      label: widget.label ?? PlassTheme.labelsOf(context).commandPalette,
       child: Align(
         alignment: const Alignment(0, -0.6),
         child: Padding(

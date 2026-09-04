@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import { Toast as BaseUIToast } from '@base-ui/react/toast';
 import { CloseIcon, severityIcon } from '../../internal/icons.js';
 import {
@@ -400,10 +401,12 @@ export function PlToastProvider({
   timeout = 5000,
   limit = 3,
   width = 380,
-  closeLabel = 'Close',
+  closeLabel: closeLabelProp,
   children
 }: PlToastProviderProps) {
   const defaults = useDefaults();
+  const labels = useLabels();
+  const closeLabel = closeLabelProp ?? labels.close;
   const size = sizeProp ?? defaults.size ?? 'md';
   const color = colorProp ?? defaults.color ?? 'primary';
   const density = densityProp ?? defaults.density ?? 'default';

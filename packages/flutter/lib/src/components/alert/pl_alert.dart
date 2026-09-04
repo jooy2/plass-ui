@@ -48,7 +48,7 @@ class PlAlert extends StatelessWidget {
     this.showIcon = true,
     this.action,
     this.onClose,
-    this.closeLabel = 'Dismiss',
+    this.closeLabel,
     super.key,
   }) : assert(
          elevation >= plassElevationMin && elevation <= plassElevationMax,
@@ -105,7 +105,7 @@ class PlAlert extends StatelessWidget {
   final VoidCallback? onClose;
 
   /// The name a screen reader gives that button. Never drawn.
-  final String closeLabel;
+  final String? closeLabel;
 
   /// Whether this severity is worth interrupting a screen reader for.
   ///
@@ -197,7 +197,7 @@ class PlAlert extends StatelessWidget {
         if (onClose != null)
           onFirstLine(
             PlassDismissButton(
-              label: closeLabel,
+              label: closeLabel ?? PlassTheme.labelsOf(context).dismiss,
               onPressed: onClose,
               size: body.size * dismissScale,
               color: surface.ink,

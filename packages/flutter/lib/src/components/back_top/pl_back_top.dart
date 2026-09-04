@@ -45,7 +45,7 @@ class PlBackTop extends StatefulWidget {
   const PlBackTop({
     this.controller,
     this.visibilityHeight = 400,
-    this.label = 'Back to top',
+    this.label,
     this.icon,
     this.onPressed,
     this.variant = PlassVariant.glass,
@@ -69,7 +69,7 @@ class PlBackTop extends StatefulWidget {
   final double visibilityHeight;
 
   /// What it does, in words, and the name a screen reader gives it.
-  final String label;
+  final String? label;
 
   /// The glyph. An upward chevron by default.
   final Widget? icon;
@@ -192,7 +192,7 @@ class _PlBackTopState extends State<PlBackTop> {
             excluding: !_shown,
             child: PlIconButton(
               icon: widget.icon ?? const PlassGlyph(PlassGlyphShape.chevron, quarterTurns: 2),
-              label: widget.label,
+              label: widget.label ?? PlassTheme.labelsOf(context).backToTop,
               onPressed: _toTop,
               variant: widget.variant,
               size: _size,

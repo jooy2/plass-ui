@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import { NumberField as BaseUINumberField } from '@base-ui/react/number-field';
 import { Field } from '@base-ui/react/field';
 import { MinusIcon, PlusIcon } from '../../internal/icons.js';
@@ -231,8 +232,8 @@ export function PlNumberField({
   format,
   locale: localeProp,
   steppers = 'end',
-  incrementLabel = 'Increase',
-  decrementLabel = 'Decrease',
+  incrementLabel: incrementLabelProp,
+  decrementLabel: decrementLabelProp,
   label,
   description,
   error,
@@ -253,6 +254,9 @@ export function PlNumberField({
   ...props
 }: PlNumberFieldProps) {
   const defaults = useDefaults();
+  const labels = useLabels();
+  const incrementLabel = incrementLabelProp ?? labels.increase;
+  const decrementLabel = decrementLabelProp ?? labels.decrease;
   const locale = localeProp ?? defaults.locale;
   const size = sizeProp ?? defaults.size ?? 'md';
   const color = colorProp ?? defaults.color ?? 'primary';

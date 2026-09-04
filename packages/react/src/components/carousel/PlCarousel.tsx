@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import { PlIconButton } from '../icon-button/PlIconButton.js';
 import { ChevronIcon } from '../../internal/icons.js';
 import {
@@ -137,9 +138,9 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
       interval = 5000,
       arrows = true,
       indicators = true,
-      label = 'Carousel',
-      previousLabel = 'Previous slide',
-      nextLabel = 'Next slide',
+      label: labelProp,
+      previousLabel: previousLabelProp,
+      nextLabel: nextLabelProp,
       slideLabel,
       className,
       style,
@@ -149,6 +150,10 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
     ref
   ) {
     const defaults = useDefaults();
+    const labels = useLabels();
+    const label = labelProp ?? labels.carousel;
+    const previousLabel = previousLabelProp ?? labels.carouselPrevious;
+    const nextLabel = nextLabelProp ?? labels.carouselNext;
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';

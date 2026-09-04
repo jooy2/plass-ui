@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import { StarIcon, StarOutlineIcon } from '../../internal/icons.js';
 import {
   controlSlots,
@@ -134,7 +135,7 @@ export const PlRating = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlRatin
       required = false,
       size: sizeProp,
       color: colorProp,
-      label = 'Rating',
+      label: labelProp,
       valueLabel = defaultValueLabel,
       className,
       style,
@@ -144,6 +145,8 @@ export const PlRating = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlRatin
     ref
   ) {
     const defaults = useDefaults();
+    const labels = useLabels();
+    const label = labelProp ?? labels.rating;
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'warning';
 

@@ -208,7 +208,7 @@ class PlToastProvider extends StatefulWidget {
     this.timeout = _defaultTimeout,
     this.limit = _defaultLimit,
     this.width = _defaultWidth,
-    this.closeLabel = 'Close',
+    this.closeLabel,
     this.variant = PlassVariant.glass,
     this.size,
     this.color,
@@ -234,7 +234,7 @@ class PlToastProvider extends StatefulWidget {
   final double width;
 
   /// The name a screen reader gives every toast's ×. Never drawn.
-  final String closeLabel;
+  final String? closeLabel;
 
   /// What a toast is made of, unless it says otherwise.
   final PlassVariant variant;
@@ -518,7 +518,7 @@ class _PlToastProviderState extends State<PlToastProvider>
                                 color: entry.toast.color ?? _color,
                                 size: _size,
                                 density: _density,
-                                closeLabel: widget.closeLabel,
+                                closeLabel: widget.closeLabel ?? PlassTheme.labelsOf(context).close,
                                 onClose: () => _dismiss(entry),
                               ),
                             ),

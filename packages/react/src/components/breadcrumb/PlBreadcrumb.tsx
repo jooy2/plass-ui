@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import { ArrowRightIcon, ChevronIcon, EllipsisIcon } from '../../internal/icons.js';
 import {
   controlTextClasses,
@@ -306,8 +307,8 @@ export const PlBreadcrumb = /* @__PURE__ */ React.forwardRef<HTMLElement, PlBrea
       itemsBeforeCollapse = 1,
       itemsAfterCollapse = 1,
       expandable = true,
-      label = 'Breadcrumb',
-      expandLabel = 'Show the hidden steps',
+      label: labelProp,
+      expandLabel: expandLabelProp,
       structuredData = false,
       baseUrl,
       className,
@@ -318,6 +319,9 @@ export const PlBreadcrumb = /* @__PURE__ */ React.forwardRef<HTMLElement, PlBrea
     ref
   ) {
     const defaults = useDefaults();
+    const labels = useLabels();
+    const label = labelProp ?? labels.breadcrumb;
+    const expandLabel = expandLabelProp ?? labels.breadcrumbExpand;
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';

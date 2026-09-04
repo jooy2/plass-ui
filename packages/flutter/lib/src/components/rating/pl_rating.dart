@@ -49,7 +49,7 @@ class PlRating extends StatefulWidget {
     this.disabled = false,
     this.size,
     this.color,
-    this.label = 'Rating',
+    this.label,
     this.valueLabel = defaultValueLabel,
     this.focusNode,
     this.autofocus = false,
@@ -110,7 +110,7 @@ class PlRating extends StatefulWidget {
   final PlassColor? color;
 
   /// Names the whole control.
-  final String label;
+  final String? label;
 
   /// What one choice, and the whole control once it is read only, is called.
   final PlRatingValueLabel valueLabel;
@@ -247,7 +247,7 @@ class _PlRatingState extends State<PlRating> {
 
     return Semantics(
       container: true,
-      label: widget.label,
+      label: widget.label ?? PlassTheme.labelsOf(context).rating,
       enabled: _interactive,
       child: FocusableActionDetector(
         enabled: _interactive,

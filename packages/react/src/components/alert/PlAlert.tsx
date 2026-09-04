@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import { CloseIcon, severityIcon } from '../../internal/icons.js';
 import {
   controlSlots,
@@ -151,7 +152,7 @@ export const PlAlert = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlAlertP
       icon,
       action,
       onClose,
-      closeLabel = 'Dismiss',
+      closeLabel: closeLabelProp,
       className,
       style,
       children,
@@ -160,6 +161,8 @@ export const PlAlert = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlAlertP
     ref
   ) {
     const defaults = useDefaults();
+    const labels = useLabels();
+    const closeLabel = closeLabelProp ?? labels.dismiss;
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'info';
     const density = densityProp ?? defaults.density ?? 'default';

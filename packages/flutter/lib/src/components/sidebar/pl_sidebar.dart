@@ -86,9 +86,9 @@ class PlSidebar extends StatefulWidget {
     this.color,
     this.density,
     this.elevation = 0,
-    this.semanticLabel = 'Sidebar',
-    this.closeLabel = 'Close sidebar',
-    this.resizeLabel = 'Resize sidebar',
+    this.semanticLabel,
+    this.closeLabel,
+    this.resizeLabel,
     super.key,
   }) : assert(minWidth <= maxWidth, 'minWidth must not be wider than maxWidth'),
        assert(
@@ -190,13 +190,13 @@ class PlSidebar extends StatefulWidget {
   /// Named by default, because a screen with two unnamed sidebars is a screen
   /// offering two regions called "complementary" — which Flutter refuses
   /// outright.
-  final String semanticLabel;
+  final String? semanticLabel;
 
   /// What the drawer's close button says, once the sidebar has collapsed.
-  final String closeLabel;
+  final String? closeLabel;
 
   /// What the drag handle is announced as.
-  final String resizeLabel;
+  final String? resizeLabel;
 
   @override
   State<PlSidebar> createState() => _PlSidebarState();
@@ -296,8 +296,8 @@ class _PlSidebarState extends State<PlSidebar> {
         side: drawerSide(side, direction),
         // A panel that has covered the screen is named by what it draws, so the
         // region's name becomes its heading when nobody gave it one.
-        title: widget.title ?? Text(widget.semanticLabel),
-        closeLabel: widget.closeLabel,
+        title: widget.title ?? Text(widget.semanticLabel ?? PlassTheme.labelsOf(context).sidebar),
+        closeLabel: widget.closeLabel ?? PlassTheme.labelsOf(context).sidebarClose,
         // An explicit width is the caller's decision and survives the change of
         // shape; the default one does not, because a column sized against the
         // article beside it and a panel sized against a phone are two different
@@ -361,7 +361,7 @@ class _PlSidebarState extends State<PlSidebar> {
             width: _handleTrack,
             child: _ResizeHandle(
               family: tokens.family(_color),
-              label: widget.resizeLabel,
+              label: widget.resizeLabel ?? PlassTheme.labelsOf(context).sidebarResize,
               outwards: side == PlassSidebarSide.start ? 1 : -1,
               width: _width,
               min: widget.minWidth,
@@ -381,7 +381,7 @@ class _PlSidebarState extends State<PlSidebar> {
       role: SemanticsRole.complementary,
       container: true,
       explicitChildNodes: true,
-      label: widget.semanticLabel,
+      label: widget.semanticLabel ?? PlassTheme.labelsOf(context).sidebar,
       child: ValueListenableBuilder<double>(
         valueListenable: _width,
         builder: (BuildContext context, double width, Widget? child) =>

@@ -58,7 +58,7 @@ class PlChip extends StatelessWidget {
     this.child,
     this.onPressed,
     this.onDeleted,
-    this.deleteLabel = 'Remove',
+    this.deleteLabel,
     this.variant = PlassVariant.glass,
     this.size,
     this.color,
@@ -89,7 +89,7 @@ class PlChip extends StatelessWidget {
   final VoidCallback? onDeleted;
 
   /// The name a screen reader gives the delete affordance. Never drawn.
-  final String deleteLabel;
+  final String? deleteLabel;
 
   /// What the surface is made of. See [PlassVariant].
   final PlassVariant variant;
@@ -299,7 +299,7 @@ class PlChip extends StatelessWidget {
           Padding(
             padding: EdgeInsetsDirectional.only(end: padX / 2),
             child: PlassDismissButton(
-              label: deleteLabel,
+              label: deleteLabel ?? PlassTheme.labelsOf(context).remove,
               onPressed: disabled ? null : onDeleted,
               size: fontSize * dismissScale,
               color: surface.ink,

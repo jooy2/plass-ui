@@ -14,6 +14,7 @@ library;
 
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/theme/defaults.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -127,6 +128,15 @@ class PlassTheme extends InheritedWidget {
 
   /// The density in scope, or `null`.
   static PlassDensity? densityOf(BuildContext context) => defaultsOf(context).density;
+
+  /// The words in scope, or the English ones where nothing said otherwise.
+  ///
+  /// Two layers: the defaults above, and whatever a [PlassTheme] set. A widget's
+  /// own `*Label` parameter is the third and narrowest, and it is applied at the
+  /// call site rather than here — which is what lets an application translate
+  /// the vocabulary once and one button still say something else.
+  static PlassLabels labelsOf(BuildContext context) =>
+      defaultsOf(context).labels ?? PlassLabels.english;
 
   @override
   bool updateShouldNotify(PlassTheme oldWidget) {

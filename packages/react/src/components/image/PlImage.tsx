@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import { PlOverlay } from '../overlay/PlOverlay.js';
 import { PlSkeleton } from '../skeleton/PlSkeleton.js';
 import { cx, focusRingClasses, radiusClasses, transitionClasses } from '../../internal/styles.js';
@@ -102,7 +103,7 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
       placeholder,
       fallback,
       preview = false,
-      previewLabel = 'Preview',
+      previewLabel: previewLabelProp,
       onStatusChange,
       className,
       style,
@@ -112,6 +113,8 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
     ref
   ) {
     const defaults = useDefaults();
+    const labels = useLabels();
+    const previewLabel = previewLabelProp ?? labels.preview;
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
 

@@ -70,7 +70,7 @@ class PlAnchor extends StatefulWidget {
     this.offset = 0,
     this.onSelect,
     this.label,
-    this.semanticLabel = 'On this page',
+    this.semanticLabel,
     this.size,
     this.color,
     super.key,
@@ -103,7 +103,7 @@ class PlAnchor extends StatefulWidget {
   final Widget? label;
 
   /// What a screen reader calls the list.
-  final String semanticLabel;
+  final String? semanticLabel;
 
   /// The type scale of the rows.
   final PlassSize? size;
@@ -234,7 +234,7 @@ class _PlAnchorState extends State<PlAnchor> {
 
     return Semantics(
       container: true,
-      label: widget.semanticLabel,
+      label: widget.semanticLabel ?? PlassTheme.labelsOf(context).onThisPage,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,

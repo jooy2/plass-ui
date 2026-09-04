@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import { CloseIcon } from '../../internal/icons.js';
 import {
   chipRemoveClasses,
@@ -184,7 +185,7 @@ export const PlChip = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlChipPr
       endIcon,
       count,
       onDelete,
-      deleteLabel = 'Remove',
+      deleteLabel: deleteLabelProp,
       selected = false,
       disabled = false,
       className,
@@ -196,6 +197,8 @@ export const PlChip = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlChipPr
     ref
   ) {
     const defaults = useDefaults();
+    const labels = useLabels();
+    const deleteLabel = deleteLabelProp ?? labels.remove;
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';

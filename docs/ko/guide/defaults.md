@@ -49,7 +49,7 @@ PlassTheme.merge(
 | `density`      | 내용을 얼마나 빽빽하게 담을지                                       |
 | `locale`       | 날짜 · 시간 · 숫자 컴포넌트가 서식하고 읽는 기준이 되는 BCP 47 태그 |
 | `weekStartsOn` | 주가 시작하는 요일. `Date`가 세는 방식이라 일요일이 `0`             |
-| `labels`       | picker가 말하는, `Intl`이 의견을 갖지 않는 문자열들                 |
+| `labels`       | 컴포넌트가 말하는, `Intl`이 의견을 갖지 않는 문자열들               |
 
 ::: fw react
 
@@ -59,7 +59,7 @@ PlassTheme.merge(
 
 ::: fw flutter
 
-여기서는 `locale`이 `names`와 `labels`입니다 — 프레임워크에 `Intl`이 없으므로 theme이 나르는 것은 말 자체입니다. `PlDateNames`와 `PlPickerLabels`는 모든 날짜 widget이 이미 받던 그 둘입니다.
+여기서는 `locale`이 `names`와 `labels`입니다 — 프레임워크에 `Intl`이 없으므로 theme이 나르는 것은 말 자체입니다. `PlDateNames`는 달과 요일을 들고 있고, `PlassLabels`는 widget이 스스로에 대해 하는 말을 전부 들고 있습니다. 그 이야기는 [말 번역하기](locales)에 있습니다.
 
 :::
 
@@ -96,7 +96,7 @@ provider는 **중첩되고 병합됩니다**. compact가 아닌 애플리케이�
 
 ### locale 하나, picker 다섯
 
-`locale`은 `PlCalendar` · `PlDatePicker` · `PlDateRangePicker` · `PlTimePicker` · `PlDateTimePicker` · `PlNumberField`에 닿습니다. `labels`는 각 컴포넌트 자신의 것 **아래로** 병합되므로, 애플리케이션이 어휘를 한 번 번역해 두고도 picker 하나는 다른 말을 할 수 있습니다 — 나머지가 전부 "시작"이라고 할 때 하나만 "체크인"이라고.
+`locale`은 `PlCalendar` · `PlDatePicker` · `PlDateRangePicker` · `PlTimePicker` · `PlDateTimePicker` · `PlNumberField`에 닿습니다. `labels`는 각 컴포넌트 자신의 것 **아래로** 병합되므로, 애플리케이션이 어휘를 한 번 번역해 두고도 picker 하나는 다른 말을 할 수 있습니다 — 나머지가 전부 "시작"이라고 할 때 하나만 "체크인"이라고. 그 어휘는 번역된 채로 함께 배포됩니다. [말 번역하기](locales)를 보세요.
 
 <Demo src="provider/locale" :min-height="200">
 

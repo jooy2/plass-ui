@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import { PlButton } from '../button/PlButton.js';
 import { ChevronIcon } from '../../internal/icons.js';
 import { controlTextClasses, gapClasses, srOnlyClasses } from '../../internal/styles.js';
@@ -227,12 +228,12 @@ export const PlPagination = /* @__PURE__ */ React.forwardRef<HTMLElement, PlPagi
       disabled = false,
       getPageHref,
       renderLink,
-      label = 'Pagination',
+      label: labelProp,
       pageLabel = (value) => `Page ${value}`,
-      previousLabel = 'Previous page',
-      nextLabel = 'Next page',
-      firstLabel = 'First page',
-      lastLabel = 'Last page',
+      previousLabel: previousLabelProp,
+      nextLabel: nextLabelProp,
+      firstLabel: firstLabelProp,
+      lastLabel: lastLabelProp,
       statusLabel = (value, total) => `Page ${value} of ${total}`,
       className,
       children,
@@ -241,6 +242,12 @@ export const PlPagination = /* @__PURE__ */ React.forwardRef<HTMLElement, PlPagi
     ref
   ) {
     const defaults = useDefaults();
+    const labels = useLabels();
+    const label = labelProp ?? labels.pagination;
+    const previousLabel = previousLabelProp ?? labels.paginationPrevious;
+    const nextLabel = nextLabelProp ?? labels.paginationNext;
+    const firstLabel = firstLabelProp ?? labels.paginationFirst;
+    const lastLabel = lastLabelProp ?? labels.paginationLast;
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'compact';
