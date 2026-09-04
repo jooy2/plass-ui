@@ -6,6 +6,20 @@
 
 ### Added
 
+- **`PlFloatingActionButton`.** The one action a screen is about, floating over it. It is a `PlButton` in a corner and everything that makes it one is the button's — the three materials, the elevation ladder, the pointer light, `loading`, `readOnly`, `disabled`. What it adds is the pinning, the shape, and one rule.
+
+  **`label` is required and is always the accessible name.** A floating button is a disc with a mark in it nine times out of ten, and `extended` decides only whether the words are _also_ drawn — never whether they exist. An icon-only button with no name is the single most common accessibility defect this pattern ships with, and a required prop is the only fix that survives review.
+
+  The icon-only form is a **disc**, which is `PlIconButton`'s deliberate exception to the radius rule: the flat run along a control's edge is there for a line of text to sit on, and a glyph has no line of text. The extended form is **not a pill** for exactly that reason — it has words along its edge, so it takes the house fillet like every other labelled control.
+
+  `elevation` defaults to **3**, the top of the ladder, and unlike every other default in the library that is not a compromise: this is the one control that genuinely floats over the content rather than resting on it. `size` defaults to `lg`, one step up from a button's, because it is a target for a thumb.
+
+  The insets are **logical and inline**: `corner` is `start`/`end` as everywhere, so the button crosses the screen under RTL with everything else, and an inline declaration is the one form that wins over a utility deterministically — which a caller's `offset` needs, being a value rather than a class. `floating={false}` keeps the shape and the shadow and drops the positioning.
+
+  The page says the two things a component cannot enforce: **one per screen**, because two primary actions is none; and that it covers content, so a scrolling list needs room at its end for the row underneath it.
+
+  Measured with `npm run size`: **+0.1 kB on the whole library**, because it is a `PlButton` and a `PlIconButton` and nothing else.
+
 - **`PlAnchor`.** A table of contents that follows the reader down the page. Anyone can draw a list of links; what is worth writing once is deciding **which one is lit**, and the rule is not the obvious one.
 
   The lit row is the last heading whose top has **passed the reading line** — not whichever heading happens to be visible. Three can be on screen at once, and the one a reader is inside is the highest of them that is already above them. That is why the tracking is a measurement rather than an `IntersectionObserver`: an observer answers "is it visible", and the question here is "which one did I pass last".

@@ -2353,6 +2353,29 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     })
   ],
 
+  PlFloatingActionButton: [
+    from('PlFloatingActionButton', 'icon', { type: 'Widget', required: true }),
+    from('PlFloatingActionButton', 'label', { type: 'String', required: true }),
+    {
+      name: 'onPressed',
+      type: 'VoidCallback?',
+      description: {
+        ko: '누르면 하는 일. null이면 버튼이 비활성화됩니다',
+        en: 'What pressing it does. Leaving it null disables the button'
+      }
+    },
+    from('PlFloatingActionButton', 'extended', { type: 'bool', default: 'false' }),
+    from('PlFloatingActionButton', 'corner', {
+      type: 'PlassCorner',
+      default: 'PlassCorner.bottomEnd'
+    }),
+    from('PlFloatingActionButton', 'offset', { type: 'double', default: '24' }),
+    from('PlFloatingActionButton', 'floating', { type: 'bool', default: 'true' }),
+    from('PlFloatingActionButton', 'variant', { type: VARIANT, default: 'PlassVariant.solid' }),
+    from('PlFloatingActionButton', 'size', { type: SIZE, default: 'PlassSize.lg' }),
+    from('PlFloatingActionButton', 'elevation', { type: 'int', default: '3' })
+  ],
+
   PlFooter: [
     from('PlFooter', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
     from('PlFooter', 'size', { type: SIZE, default: 'PlassSize.md' }),

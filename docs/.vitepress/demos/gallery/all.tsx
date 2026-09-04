@@ -51,6 +51,7 @@ import {
   PlEmpty,
   PlFieldset,
   PlFilePicker,
+  PlFloatingActionButton,
   PlFloatingBottomNavigation,
   PlFloatingBottomNavigationItem,
   PlFlex,
@@ -1609,6 +1610,50 @@ const entries: Entry[] = [
           Sign in
         </PlButton>
       </PlForm>
+    )
+  },
+  {
+    name: 'PlFloatingActionButton',
+    group: 'inputs',
+    href: 'components/inputs/floating-action-button',
+    blurb: {
+      en: 'The one action a screen is about, floating over it.',
+      ko: '화면이 다루는 단 하나의 액션이 그 위에 떠 있습니다.'
+    },
+    preview: (
+      <div className="flex items-center gap-3">
+        <PlFloatingActionButton
+          floating={false}
+          size="sm"
+          icon={
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path
+                d="M8 3.5v9M3.5 8h9"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              />
+            </svg>
+          }
+          label="New project"
+        />
+        <PlFloatingActionButton
+          floating={false}
+          size="sm"
+          extended
+          icon={
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path
+                d="M8 3.5v9M3.5 8h9"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              />
+            </svg>
+          }
+          label="New project"
+        />
+      </div>
     )
   },
   {

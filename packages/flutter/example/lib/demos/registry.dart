@@ -160,6 +160,8 @@ import 'package:plass_ui_example/demos/stack/hero.dart';
 import 'package:plass_ui_example/demos/stack/directions.dart';
 import 'package:plass_ui_example/demos/stack/deck.dart';
 import 'package:plass_ui_example/demos/stack/overflow.dart';
+import 'package:plass_ui_example/demos/floating_action_button/hero.dart';
+import 'package:plass_ui_example/demos/floating_action_button/extended.dart';
 import 'package:plass_ui_example/demos/anchor/hero.dart';
 import 'package:plass_ui_example/demos/data_list/hero.dart';
 import 'package:plass_ui_example/demos/data_list/orientation.dart';
@@ -517,6 +519,8 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'stack/directions': _stackDirections,
   'stack/deck': _stackDeck,
   'stack/overflow': _stackOverflow,
+  'floating-action-button/hero': _fabHero,
+  'floating-action-button/extended': _fabExtended,
   'anchor/hero': _anchorHero,
   'data-list/hero': _dataListHero,
   'data-list/orientation': _dataListOrientation,
@@ -990,6 +994,10 @@ Widget _stackHero(BuildContext context) => const StackHero();
 Widget _stackDirections(BuildContext context) => const StackDirections();
 Widget _stackDeck(BuildContext context) => const StackDeck();
 Widget _stackOverflow(BuildContext context) => const StackOverflow();
+Widget _fabHero(BuildContext context) => const FloatingActionButtonHero();
+
+Widget _fabExtended(BuildContext context) => const FloatingActionButtonExtended();
+
 Widget _anchorHero(BuildContext context) => const AnchorHero();
 
 Widget _dataListHero(BuildContext context) => const DataListHero();

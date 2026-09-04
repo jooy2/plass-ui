@@ -4900,6 +4900,87 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlFloatingActionButton: [
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      required: true,
+      description: { ko: '글리프', en: 'The glyph' }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      required: true,
+      description: {
+        ko: '버튼이 하는 일. 글자가 그려지든 아니든 언제나 접근성 이름입니다',
+        en: 'What the button does. The accessible name whether or not the words are drawn'
+      }
+    },
+    {
+      name: 'extended',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '글리프 옆에 라벨을 그립니다',
+        en: 'Draws the label beside the glyph'
+      }
+    },
+    {
+      name: 'corner',
+      type: "'top-start' | 'top-end' | 'bottom-start' | 'bottom-end'",
+      default: "'bottom-end'",
+      description: {
+        ko: '창의 어느 모서리에 놓일지. left/right가 아니라 start/end입니다',
+        en: 'Which corner of the window it sits in. start/end rather than left/right'
+      }
+    },
+    {
+      name: 'offset',
+      type: 'number | string',
+      default: "'1.5rem'",
+      description: {
+        ko: '맞닿은 두 모서리에서 떨어져 서는 거리',
+        en: 'How far it stands off the two edges it is against'
+      }
+    },
+    {
+      name: 'floating',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '창에 스스로를 고정할지. 끄면 모양과 그림자는 남고 위치 지정만 빠집니다',
+        en: 'Whether it pins itself to the window. Off keeps the shape and the shadow and drops the positioning'
+      }
+    },
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'solid'",
+      shared: true,
+      description: { ko: '키가 무엇으로 만들어지는지', en: 'What the key is made of' }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'lg'",
+      shared: true,
+      description: {
+        ko: 'PlButton보다 한 칸 위. 떠 있는 버튼은 엄지가 겨누는 표적입니다',
+        en: "One step up from a PlButton's. A floating button is a target for a thumb"
+      }
+    },
+    {
+      name: 'elevation',
+      type: ELEVATION,
+      default: '3',
+      shared: true,
+      description: {
+        ko: '사다리 꼭대기. 내용 위에 얹힌 것이 아니라 정말로 떠 있는 유일한 컨트롤입니다',
+        en: 'The top of the ladder. This is the one control that genuinely floats over the content rather than resting on it'
+      }
+    }
+  ],
+
   PlFooter: [
     ...sharedProps({
       variant: "'glass'",

@@ -4,6 +4,12 @@
 
 ### Added
 
+- **`PlFloatingActionButton`.** The one action a screen is about, floating over it — the Dart half of the React component, and a `PlButton` or a `PlIconButton` underneath depending on whether the words are drawn.
+
+  `label` is **required** and is always what a screen reader hears, whether or not `extended` draws it: an icon-only button with no name is the defect this pattern ships with everywhere else.
+
+  While `floating` it is a `PositionedDirectional`, so it belongs in a `Stack` — which is what a screen's body usually already is once anything floats over it — and the corner is `start`/`end` rather than left/right, so it crosses the screen under RTL with everything else.
+
 - **`PlAnchor`.** A table of contents that follows the reader down the screen — the Dart half of the React component, and the same rule: the lit row is the last heading whose top has passed the reading line, nothing is lit above the first, and the last row is lit at the bottom whatever the measurement says.
 
   An item points at a **`GlobalKey`** rather than at a fragment, because a Flutter screen has no URL to point into: what is tracked is a render object's position, and a key is the only handle on one. A press calls `Scrollable.ensureVisible`.

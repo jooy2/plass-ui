@@ -68,6 +68,7 @@ export 'src/components/drawer/pl_drawer.dart';
 export 'src/components/empty/pl_empty.dart';
 export 'src/components/fieldset/pl_fieldset.dart';
 export 'src/components/file_picker/pl_file_picker.dart';
+export 'src/components/floating_action_button/pl_floating_action_button.dart';
 export 'src/components/floating_bottom_navigation/pl_floating_bottom_navigation.dart';
 export 'src/components/footer/pl_footer.dart';
 export 'src/components/form/pl_form.dart';
