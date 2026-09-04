@@ -7260,6 +7260,48 @@ export const propTables: Record<string, PropRow[]> = {
    * The ring takes the bar's table unchanged except for what `size` means. Two
    * shapes, one set of props: that is the claim the three indicators make.
    */
+  PlPortal: [
+    {
+      name: 'container',
+      type: 'Element | DocumentFragment | RefObject<Element | null> | (() => Element | DocumentFragment | null)',
+      default: 'document.body',
+      description: {
+        ko: '자식이 갈 자리. 마운트 뒤에 풀리므로 ref나 조회 함수도 됩니다. 아무것도 아닌 것으로 풀리면 body로 떨어집니다',
+        en: 'Where the children go. Resolved after mount, so a ref or a lookup works. Anything resolving to nothing falls back to the body'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '옮기지 않고 제자리에 그립니다. 마운트 시점에 한 번 정하십시오. 뒤집으면 안쪽이 다시 마운트됩니다',
+        en: 'Renders in place instead of moving anything. Decide it once, at mount — flipping it remounts everything inside'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '<div> 대신 다른 요소로 렌더링합니다 (<li />, <tbody />)',
+        en: 'Renders something other than a <div> (<li />, <tbody />)'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '옮겨질 내용', en: 'What is moved' }
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: {
+        ko: '컴포넌트 자신의 plass-portal 옆에 놓입니다',
+        en: 'Sits alongside the component’s own plass-portal'
+      }
+    }
+  ],
+
   PlProgressBox: [
     ...progressProps({
       ko: '플레이트 하나의 크기',

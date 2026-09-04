@@ -6,6 +6,20 @@
 
 ### Added
 
+- **`PlPortal`.** Children rendered somewhere else in the document. It is `createPortal` plus the three things a library has to add, and the first is the only real reason to reach for it.
+
+  **It carries `plass-portal`.** Every surface the library already sends through a portal — a modal, a drawer, a menu, a popover, a tooltip, a toast — lands with that class on it, because a portalled subtree leaves whatever element a host had scoped its CSS reset to and the class is how that host finds it again. A caller's own portal without it was the one subtree on the page the reset missed.
+
+  **It renders nothing until it has mounted.** There is no `document` on a server, so the HTML that ships never contains a portalled subtree and neither does the hydrating render. That is what a portal _is_ rather than a limitation to work around, and the page says so: anything that has to be in the server's HTML does not belong in one.
+
+  **`container` is resolved after mount**, which is what lets it be a **ref**. The element a portal targets is usually one React has not created yet at the moment the prop is written, so a ref is `null` and a `getElementById` finds nothing; reading the prop during render would get the wrong answer every time. An element and a `DocumentFragment` are taken as they are, a function is called, and anything that resolves to nothing falls back to `document.body` rather than dropping the children.
+
+  What it does **not** carry is the colour scheme, and that is written down rather than left to be discovered. The stylesheet answers to a `.dark` or a `[data-theme]` on an _ancestor_, and a portal to the body has left every ancestor it had. The library's own popups have the same gap and the same fix: point `container` at an element inside the theme. React context does cross a portal — the tree it is read from is the React one — so a `PlassProvider` above still decides `size`, `color`, `density` and `locale`.
+
+  It is **React-only**: an `overflow: hidden` ancestor and a stacking context that cannot be escaped from the inside are DOM problems, and Flutter's answer is the `Overlay` every app already has.
+
+  Measured with `npm run size`: **+0.1 kB on the whole library and +0.0 kB on all four other scenarios**.
+
 - **`PlFlex`.** A row or a column and the gap between the things in it — the layout box with no arithmetic in it. A [PlGrid](https://plass.cdget.com/components/layout/grid) divides a row into twelve columns and needs a `PlGridItem` to take them; a [PlStack](https://plass.cdget.com/components/layout/stack) overlaps what it is handed. This one only decides which way its children run.
 
   **`direction` is responsive and resolves in CSS**, which is the reason it is worth a component rather than three Tailwind classes. `direction` takes `{ xs: 'vertical', md: 'horizontal' }`, a form that stacks on a phone and lines up on a laptop, decided by the stylesheet: one `--p-dir-*` slot per rung the caller named, cascaded by the same `@variant` blocks a grid's columns already ride. So a server renders it correctly at every width, dragging a window costs no re-render, and no listener is installed. It is also the only way to say that in a project that imports `plass-ui/styles.css` and has no Tailwind of its own.

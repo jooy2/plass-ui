@@ -70,6 +70,7 @@ export * from './components/panes/index.js';
 export * from './components/pill/index.js';
 export * from './components/popconfirm/index.js';
 export * from './components/popover/index.js';
+export * from './components/portal/index.js';
 export * from './components/progress-box/index.js';
 export * from './components/progress-circular/index.js';
 export * from './components/progress-linear/index.js';

@@ -82,6 +82,7 @@ import {
   PlPill,
   PlPopconfirm,
   PlPopover,
+  PlPortal,
   PlProgressBox,
   PlProgressCircular,
   PlProgressLinear,
@@ -896,6 +897,23 @@ const entries: Entry[] = [
             Wide
           </PlChip>
         </PlShow>
+      </div>
+    )
+  },
+  {
+    name: 'PlPortal',
+    group: 'layout',
+    href: 'components/layout/portal',
+    blurb: {
+      en: 'Children, rendered somewhere else in the document.',
+      ko: '문서의 다른 자리에 그려지는 자식들입니다.'
+    },
+    preview: (
+      <div className="w-full rounded-(--plass-radius-sm) border border-dashed border-(--plass-border) p-3 text-center text-xs text-(--plass-muted-fg)">
+        Written here
+        <PlPortal disabled className="mt-2 text-(--plass-fg)">
+          Drawn wherever it was sent
+        </PlPortal>
       </div>
     )
   },
