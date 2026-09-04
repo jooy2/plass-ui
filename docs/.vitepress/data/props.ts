@@ -7819,6 +7819,71 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlScrollArea: [
+    {
+      name: 'orientation',
+      type: "'vertical' | 'horizontal' | 'both'",
+      default: "'vertical'",
+      description: {
+        ko: '어느 축이 스크롤될지. both는 모서리마다 레인 하나씩과 만나는 자리의 조각을 그립니다',
+        en: 'Which axes may scroll. both draws a lane on each edge and a corner where they meet'
+      }
+    },
+    {
+      name: 'height · maxHeight',
+      type: 'number | string',
+      description: {
+        ko: '고정 높이, 또는 넘칠 때까지는 줄어드는 천장. 세로 스크롤 영역은 무언가로 크기가 정해져야 합니다',
+        en: 'A fixed height, or a ceiling it shrinks under. A vertical scroll area has to be bounded by something'
+      }
+    },
+    {
+      name: 'width · maxWidth',
+      type: 'number | string',
+      description: { ko: '가로 영역을 위한 같은 짝', en: 'The same pair for a horizontal area' }
+    },
+    {
+      name: 'scrollbars',
+      type: "'auto' | 'always'",
+      default: "'auto'",
+      description: {
+        ko: '레인을 언제 그릴지. auto는 포인터가 위에 있거나 내용이 움직이는 동안만. 어느 쪽이든 내용의 폭은 줄지 않습니다',
+        en: 'When the lanes are drawn. auto is while the pointer is over the box or the content is moving. Either way the content loses no width'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: {
+        ko: 'region의 이름. 안에 포커스 가능한 것이 없어도 스크롤 상자는 tab 대상이 되므로, 이름 없는 도착점이 되지 않게 합니다',
+        en: 'A name for the region. A scrollable box is a tab stop even when nothing inside it is focusable, and a landing point with no name is announced as nothing'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '스크롤바 두께와 상자가 잘리는 모서리',
+        en: 'Thickness of the scrollbars and the corner the box is cut to'
+      }
+    },
+    {
+      name: 'classNames',
+      type: '{ viewport, scrollbar, thumb }',
+      description: {
+        ko: 'className이 닿지 않는 부분의 클래스',
+        en: 'Classes on the parts a className does not reach'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '스크롤되는 내용', en: 'What scrolls' }
+    }
+  ],
+
   PlScrollZone: [
     {
       name: 'orientation',

@@ -90,6 +90,7 @@ import {
   PlRadio,
   PlRadioGroup,
   PlRating,
+  PlScrollArea,
   PlScrollZone,
   PlSegment,
   PlSegmentedButton,
@@ -1855,6 +1856,24 @@ const entries: Entry[] = [
           </PlPane>
         </PlPanes>
       </div>
+    )
+  },
+  {
+    name: 'PlScrollArea',
+    group: 'layout',
+    href: 'components/layout/scroll-area',
+    blurb: {
+      en: "A bounded box that scrolls, with the library's own scrollbar in it.",
+      ko: '스크롤되는, 크기가 정해진 상자입니다. 라이브러리 자신의 스크롤바가 들어 있습니다.'
+    },
+    preview: (
+      <PlScrollArea className="w-full" height={96} size="sm" scrollbars="always" label="Preview">
+        <div className="flex flex-col gap-2 pe-3 text-xs text-(--plass-muted-fg)">
+          {['One', 'Two', 'Three', 'Four', 'Five', 'Six'].map((line) => (
+            <span key={line}>{line}</span>
+          ))}
+        </div>
+      </PlScrollArea>
     )
   },
   {

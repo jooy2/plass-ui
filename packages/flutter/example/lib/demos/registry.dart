@@ -160,6 +160,8 @@ import 'package:plass_ui_example/demos/stack/hero.dart';
 import 'package:plass_ui_example/demos/stack/directions.dart';
 import 'package:plass_ui_example/demos/stack/deck.dart';
 import 'package:plass_ui_example/demos/stack/overflow.dart';
+import 'package:plass_ui_example/demos/scroll_area/hero.dart';
+import 'package:plass_ui_example/demos/scroll_area/axes.dart';
 import 'package:plass_ui_example/demos/meter/hero.dart';
 import 'package:plass_ui_example/demos/meter/thresholds.dart';
 import 'package:plass_ui_example/demos/stat/hero.dart';
@@ -508,6 +510,8 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'stack/directions': _stackDirections,
   'stack/deck': _stackDeck,
   'stack/overflow': _stackOverflow,
+  'scroll-area/hero': _scrollAreaHero,
+  'scroll-area/axes': _scrollAreaAxes,
   'meter/hero': _meterHero,
   'meter/thresholds': _meterThresholds,
   'stat/hero': _statHero,
@@ -972,6 +976,10 @@ Widget _stackHero(BuildContext context) => const StackHero();
 Widget _stackDirections(BuildContext context) => const StackDirections();
 Widget _stackDeck(BuildContext context) => const StackDeck();
 Widget _stackOverflow(BuildContext context) => const StackOverflow();
+Widget _scrollAreaHero(BuildContext context) => const ScrollAreaHero();
+
+Widget _scrollAreaAxes(BuildContext context) => const ScrollAreaAxes();
+
 Widget _meterHero(BuildContext context) => const MeterHero();
 
 Widget _meterThresholds(BuildContext context) => const MeterThresholds();

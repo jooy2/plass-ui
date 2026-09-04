@@ -95,6 +95,7 @@ export 'src/components/progress_circular/pl_progress_circular.dart';
 export 'src/components/progress_linear/pl_progress_linear.dart';
 export 'src/components/radio_group/pl_radio_group.dart';
 export 'src/components/rating/pl_rating.dart';
+export 'src/components/scroll_area/pl_scroll_area.dart';
 export 'src/components/scroll_zone/pl_scroll_zone.dart';
 export 'src/components/segmented_button/pl_segmented_button.dart';
 export 'src/components/select/pl_select.dart';

@@ -6,6 +6,20 @@
 
 ### Added
 
+- **`PlScrollArea`.** A bounded box that scrolls, with the library's own scrollbar in it. The reason to reach for it over `overflow: auto` is the **bar**: a platform scrollbar is either an overlay that vanishes the moment the content stops moving or a strip of permanent grey furniture, and neither of them belongs beside a translucent sheet. The thumb is `--plass-track`, the same neutral ink a `PlSlider`'s rail and a progress groove are cut in, and the lane is overlaid so drawing it costs the content no width.
+
+  **It is not a `PlScrollZone`, and the pages say which is which.** A scroll zone is the other answer to the same fact — content that runs off the end of its box — and it takes the bar away entirely, fades the end that still has something behind it and adds a pair of buttons. That is right for a strip of tabs or chips, where a bar under one line of labels is heavier than the labels. A scroll area is right for a panel of content, where the bar is the honest signal and where a reader wants to know **how far through** they are, which a fade cannot say. There is deliberately no fade here for the same reason: two signals for one fact, one measured and one not, is one more than the box needs.
+
+  **`height` is a prop rather than a class**, which is the one API decision worth stating: a vertical scroll area has to be bounded by something or there is nothing for the content to overflow, so it is the measurement without which the component does nothing at all. `maxHeight` is the ceiling form for a panel that should shrink to short content; `width` and `maxWidth` are the pair for a horizontal one.
+
+  `orientation` takes `both`, which draws a lane on each edge with a corner in the join. `scrollbars` is `auto` — while the pointer is over the box or the content is moving — or `always`, which is right more often than it looks: for a panel whose whole point is that there is more below, a bar that appears on hover is a signal nobody standing back from the screen ever sees.
+
+  `label` is worth giving and the reason is not obvious. **A scrollable box is a tab stop when nothing inside it is focusable**, because somebody using a keyboard has to be able to scroll it, and a landing point with no name is announced as nothing at all. With a name it is a region; without one it claims no landmark, deliberately, because an unnamed region is something a screen reader lists as "region" and nothing else.
+
+  Base UI's `ScrollArea` owns the behaviour: the overlay measurement, the thumb's size and position, the drag, and making the viewport a tab stop exactly while there is something to scroll.
+
+  Measured with `npm run size`: **+4.7 kB on the whole library and +0.0 kB on all four other scenarios** — the Base UI primitive, which is the largest of the ones the library imports and is paid for only by the pages that import this component.
+
 - **`PlMeter`.** A quantity inside a range, drawn as a bar. It is cut out of the same groove as a `PlProgressLinear` and it is deliberately not one, because the difference decides which to reach for: **progress is something advancing, and a meter is something already known.** Disk used, seats taken, a password's strength, how full a battery is — none of them is going anywhere on its own.
 
   That follows into the API and into the semantics. `value` is **required** and there is no sweep, because a meter with nothing to report is not a meter but a bar that should not have been drawn yet; and the role is `meter` rather than `progressbar`, since telling somebody a static figure is in progress is telling them to wait for something that will never finish.

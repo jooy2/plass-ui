@@ -4,6 +4,14 @@
 
 ### Added
 
+- **`PlScrollArea`.** A bounded box that scrolls, with the library's own scrollbar in it — the Dart half of the React component. Built on `RawScrollbar` from `package:flutter/widgets.dart`, because the framework's own `Scrollbar` lives in `material.dart` and this package imports neither that nor `cupertino.dart`. The thumb is `PlassTokens.track`, the same neutral ink a `PlSlider`'s rail and a progress groove are cut in.
+
+  `height` is a parameter rather than an enclosing `SizedBox` for the reason the React prop is one: a vertical scroll area has to be bounded by something or its content has nothing to overflow, so it is the measurement without which the widget does nothing. `maxHeight` is the ceiling form.
+
+  `orientation: PlScrollAreaAxis.both` is **two scrollables, one nested inside the other**, and each bar answers only its own through a `notificationPredicate`. A horizontal bar that moved when the page scrolled down would be reporting the wrong axis.
+
+  `scrollbars: PlScrollbars.auto` shows the bars while the pointer is over the box or the content is moving, which is what the React build's hover state does — a `MouseRegion` rather than a scroll-only fade, because a reader deciding whether there is more below has not scrolled yet.
+
 - **`PlMeter`.** A quantity inside a range, drawn as a bar — the Dart half of the React component, out of the same groove a `PlProgressLinear` is cut into and deliberately not one of them. **Progress is something advancing; a meter is something already known**, so `value` is required, there is no sweep, and there is no indeterminate case to have a default for.
 
   `thresholds` is what it exists for: `PlMeterThreshold(from:, color:)` bands where the highest `from` at or below the value wins, read rather than walked so their order does not matter, and `from` is in the meter's own units rather than a percentage.

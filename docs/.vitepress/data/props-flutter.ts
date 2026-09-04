@@ -3864,6 +3864,19 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlSpoiler', 'elevation', { type: 'int', default: '0' })
   ],
 
+  PlScrollArea: [
+    from('PlScrollArea', 'children', { name: 'child', type: 'Widget', required: true }),
+    from('PlScrollArea', 'orientation', {
+      type: 'PlScrollAreaAxis',
+      default: 'PlScrollAreaAxis.vertical'
+    }),
+    from('PlScrollArea', 'height · maxHeight', { type: 'double?' }),
+    from('PlScrollArea', 'width · maxWidth', { type: 'double?' }),
+    from('PlScrollArea', 'scrollbars', { type: 'PlScrollbars', default: 'PlScrollbars.auto' }),
+    from('PlScrollArea', 'label', { type: 'String?' }),
+    from('PlScrollArea', 'size', { type: SIZE, default: 'PlassSize.md' })
+  ],
+
   PlScrollZone: [
     {
       name: 'children',
