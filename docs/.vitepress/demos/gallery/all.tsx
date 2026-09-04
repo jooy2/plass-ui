@@ -11,6 +11,7 @@ import {
   PlAnimateLighting,
   PlAnimateAppear,
   PlAnimateBlink,
+  PlAnimateCounter,
   PlAnimateReveal,
   PlAnimateShake,
   PlAnimateRotate,
@@ -2061,6 +2062,20 @@ const entries: Entry[] = [
           Thirty days from delivery.
         </PlAccordionItem>
       </PlAccordion>
+    )
+  },
+  {
+    name: 'PlAnimateCounter',
+    group: 'transitions',
+    href: 'components/transitions/animate-counter',
+    blurb: {
+      en: 'A number counting up to what it is.',
+      ko: '지금의 값까지 세어 올라가는 숫자입니다.'
+    },
+    preview: (
+      <span className="text-2xl font-semibold">
+        <PlAnimateCounter value={4812} />
+      </span>
     )
   },
   {

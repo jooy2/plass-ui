@@ -6,6 +6,18 @@
 
 ### Added
 
+- **`PlAnimateCounter`.** A number counting up to what it is — the one effect in the group that animates **content** rather than a box.
+
+  **It is not a keyframe, and the reason is formatting.** A registered custom property and a CSS `counter()` tick a number perfectly well, and that would be the neater implementation; what they cannot do is put a thousands separator in one, or a currency symbol, or fold 1,200,000 into `1.2M`. A counter that cannot be formatted is a counter nobody can put on a dashboard, so the frame loop decides only which number is being drawn and `Intl.NumberFormat` decides what it looks like. `easing` is a **function** here for the same reason: there is no CSS animation running to hand a string to.
+
+  **`trigger` defaults to `visible`**, and it is the one component in the library that does not start on mount. An entrance played off screen has still delivered its content; a count that ran off screen delivered a number that was already sitting there, which is the one thing a counter cannot afford — being watched is the whole point of it.
+
+  **A screen reader is told the answer, once.** The ticking figure is hidden from the accessibility tree and the final number sits beside it in a clipped span, because a number changing sixty times a second in that tree is either silence or sixty announcements and neither of those is the figure. Until the count starts, what is shown is the number it will count _from_ — the same rule every keyframe here follows about its own first frame — so nothing claims a value it has not reached.
+
+  Changing `value` counts again from wherever the last one landed, so a figure that updates on a timer needs nothing said to it.
+
+  Measured with `npm run size`: **+0.3 kB on the whole library and +0.0 kB on all four other scenarios**.
+
 - **`PlAnimateShake`.** A refusal. The one effect in the set that is a **response** rather than an entrance — what a form does when the password was wrong again, what a locked control does when it is pressed — so it starts held still, where every other effect here starts on mount.
 
   **`replay` is the prop it exists around, and it is a new shape in the animation API.** A refusal can happen twice, and `play` — being a boolean — cannot say "again": replaying with it means toggling off and on, which is two renders for one event and a piece of state whose only job is to be flipped back. A value that has _changed_ is the closest React has to an event, and the count of failed attempts a form already keeps is exactly that value. It never plays on the first render, because a shake that shook itself on mount would be answering an event that has not happened.

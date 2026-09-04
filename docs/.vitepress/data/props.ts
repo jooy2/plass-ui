@@ -1002,6 +1002,82 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlAnimateCounter: [
+    {
+      name: 'value',
+      type: 'number',
+      required: true,
+      description: {
+        ko: '도착하는 숫자이자 스크린 리더가 듣는 숫자',
+        en: 'The number it arrives at, and the one a screen reader is told'
+      }
+    },
+    {
+      name: 'from',
+      type: 'number',
+      default: '0',
+      description: { ko: '세기 시작하는 숫자', en: 'The number it starts from' }
+    },
+    {
+      name: 'duration',
+      type: 'number',
+      default: '1200',
+      shared: true,
+      description: {
+        ko: '세는 데 걸리는 시간(ms)',
+        en: 'How long the count takes, in milliseconds'
+      }
+    },
+    {
+      name: 'delay',
+      type: 'number',
+      default: '0',
+      shared: true,
+      description: { ko: '시작하기까지 기다리는 시간(ms)', en: 'How long it waits before starting' }
+    },
+    {
+      name: 'format',
+      type: 'Intl.NumberFormatOptions',
+      description: {
+        ko: '숫자를 어떻게 쓸지. 카운트가 keyframe이 아니라 JavaScript인 이유입니다 — CSS는 숫자를 셀 수는 있어도 천 단위 구분을 넣지는 못합니다',
+        en: 'How the number is written. This is why the count is JavaScript rather than a keyframe: CSS can tick a number and cannot put a thousands separator in one'
+      }
+    },
+    {
+      name: 'easing',
+      type: '(t: number) => number',
+      description: {
+        ko: '카운트의 모양. CSS 문자열이 아니라 함수입니다 — 건넬 CSS 애니메이션이 없습니다. 기본은 ease out입니다',
+        en: 'The shape of the count, as a function. Not a CSS easing string: there is no CSS animation to hand one to. It eases out by default'
+      }
+    },
+    {
+      name: 'trigger',
+      type: "'mount' | 'visible' | 'hover' | 'manual'",
+      default: "'visible'",
+      description: {
+        ko: '무엇이 카운트를 시작하는지. 라이브러리에서 마운트에 시작하지 않는 유일한 컴포넌트입니다 — 화면 밖에서 돈 카운트는 이미 거기 있던 숫자를 전달한 것입니다',
+        en: 'What starts the count. The one component in the library that does not start on mount: a count that ran off screen delivered a number that was already there'
+      }
+    },
+    {
+      name: 'play · once · threshold · paused',
+      type: 'boolean · boolean · number · boolean',
+      description: {
+        ko: '다른 트랜지션과 같은 넷',
+        en: 'The same four the other transitions take'
+      }
+    },
+    {
+      name: 'render',
+      type: 'ReactElement | (props, state) => ReactElement',
+      description: {
+        ko: '<span> 대신 다른 요소로 렌더링합니다',
+        en: 'Renders something other than a <span>'
+      }
+    }
+  ],
+
   PlAnimateFade: [
     {
       name: 'mode',

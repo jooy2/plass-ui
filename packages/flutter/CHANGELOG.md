@@ -4,6 +4,10 @@
 
 ### Added
 
+- **`PlAnimateCounter`.** A number counting up to what it is — the Dart half of the React component, and the one widget in the package whose `trigger` defaults to `PlassAnimateTrigger.visible` rather than `mount`: a count that ran off screen delivered a number that was already sitting there.
+
+  `formatValue` is a callback rather than an options object, for `PlProgressLinear`'s reason. The ticking figure is wrapped in `ExcludeSemantics` and the answer is put on the node instead, because a number changing sixty times a second in the semantics tree is either silence or sixty announcements.
+
 - **`PlAnimateShake`.** A refusal — the one effect in the set that answers something the reader did rather than announcing that content has arrived, so `trigger` defaults to `PlassAnimateTrigger.manual` and it starts held still.
 
   `replay` is what it exists around: a refusal can happen twice and a `bool` cannot say "again". A value that has changed is the closest a widget tree has to an event, and it never plays on the first build. `PlassAnimateSettings` takes a `nonce` for it, and the gate calls `restart` rather than `_set(true)` — the second refusal has to play even though the first one already started the run.

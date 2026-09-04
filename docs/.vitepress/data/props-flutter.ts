@@ -611,6 +611,44 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlAnimateCounter: [
+    from('PlAnimateCounter', 'value', { type: 'double', required: true }),
+    from('PlAnimateCounter', 'from', { type: 'double', default: '0' }),
+    from('PlAnimateCounter', 'format', {
+      name: 'formatValue',
+      type: 'String Function(double value)?',
+      description: {
+        ko: '숫자를 어떻게 쓸지. 옵션 객체가 아니라 콜백입니다 — 프레임워크에 Intl이 없습니다',
+        en: 'How the number is written, as a callback rather than an options object: there is no Intl in the framework'
+      }
+    }),
+    {
+      name: 'style',
+      type: 'TextStyle?',
+      description: {
+        ko: '수치를 그리는 글자 스타일. 주지 않으면 주변의 것을 씁니다',
+        en: 'The text style the figure is drawn in. The surrounding one when it is not given'
+      }
+    },
+    from('PlAnimateCounter', 'duration', {
+      type: 'Duration',
+      default: 'Duration(milliseconds: 1200)'
+    }),
+    from('PlAnimateCounter', 'delay', { type: 'Duration', default: 'Duration.zero' }),
+    from('PlAnimateCounter', 'easing', {
+      name: 'curve',
+      type: 'Curve',
+      default: 'Curves.easeOutCubic'
+    }),
+    from('PlAnimateCounter', 'trigger', {
+      type: 'PlassAnimateTrigger',
+      default: 'PlassAnimateTrigger.visible'
+    }),
+    from('PlAnimateCounter', 'play · once · threshold · paused', {
+      type: 'bool · bool · double · bool'
+    })
+  ],
+
   PlAnimateFade: [
     from('PlAnimateFade', 'mode', {
       type: 'PlassAnimateMode',

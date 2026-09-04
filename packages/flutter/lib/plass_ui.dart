@@ -26,6 +26,7 @@ export 'src/components/alert/pl_alert.dart';
 export 'src/components/anchor/pl_anchor.dart';
 export 'src/components/animate_appear/pl_animate_appear.dart';
 export 'src/components/animate_blink/pl_animate_blink.dart';
+export 'src/components/animate_counter/pl_animate_counter.dart';
 export 'src/components/animate_fade/pl_animate_fade.dart';
 export 'src/components/animate_float/pl_animate_float.dart';
 export 'src/components/animate_grow/pl_animate_grow.dart';
