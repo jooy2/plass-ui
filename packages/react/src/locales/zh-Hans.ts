@@ -9,6 +9,7 @@ export const zhHans: PlassLabels = {
   done: '完成',
   search: '搜索',
   selectAll: '全选',
+  selectRow: '选择该行',
   remove: '移除',
   dismiss: '关闭',
   open: '打开',

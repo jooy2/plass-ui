@@ -1826,6 +1826,179 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlDataListItem', 'icon', { type: 'Widget?' })
   ],
 
+  PlDataTable: [
+    from('PlDataTable', 'columns', {
+      type: 'List<PlDataTableColumn<T>>',
+      required: true
+    }),
+    from('PlDataTable', 'rows', { type: 'List<T>', required: true }),
+    from('PlDataTable', 'getRowKey', {
+      name: 'rowKey',
+      type: 'Object Function(T row, int index)?',
+      description: {
+        ko: '행마다의 안정적인 key. 다른 무엇보다 먼저 정할 값입니다 — 없으면 위치로 식별되고, 정렬이 행을 옮기면 위치는 뒤에 남습니다',
+        en: 'A stable key per row, and the one thing worth setting before anything else. Left out, a row is identified by its position, which stays behind when a sort moves the row'
+      }
+    }),
+    from('PlDataTable', 'caption', {
+      type: 'Widget?',
+      description: {
+        ko: '격자 위, 시트 안에 그려집니다',
+        en: 'Drawn above the grid, inside the sheet'
+      }
+    }),
+    from('PlDataTable', 'empty', { type: 'Widget?', default: 'Text(labels.empty)' }),
+    from('PlDataTable', 'striped', { type: 'bool', default: 'false' }),
+    from('PlDataTable', 'hoverable', { type: 'bool', default: 'false' }),
+    from('PlDataTable', 'stickyHeader', { type: 'bool', default: 'true' }),
+    from('PlDataTable', 'maxHeight', {
+      type: 'double?',
+      description: {
+        ko: '격자 높이의 상한, 논리 픽셀. 넘으면 시트 안에서 행이 스크롤됩니다',
+        en: 'A hard cap on the grid, in logical pixels. Past it the rows scroll inside the sheet'
+      }
+    }),
+    from('PlDataTable', 'onRowClick', {
+      name: 'onRowPressed',
+      type: 'void Function(T row, int index)?'
+    }),
+    from('PlDataTable', 'sort', { type: 'PlDataTableSort?' }),
+    from('PlDataTable', 'defaultSort', {
+      name: 'initialSort',
+      type: 'PlDataTableSort?',
+      default: 'null'
+    }),
+    from('PlDataTable', 'onSortChange', {
+      name: 'onSortChanged',
+      type: 'ValueChanged<PlDataTableSort?>?'
+    }),
+    from('PlDataTable', 'searchable', { type: 'bool', default: 'false' }),
+    from('PlDataTable', 'search', { type: 'String?' }),
+    from('PlDataTable', 'defaultSearch', { name: 'initialSearch', type: 'String', default: "''" }),
+    from('PlDataTable', 'onSearchChange', {
+      name: 'onSearchChanged',
+      type: 'ValueChanged<String>?'
+    }),
+    from('PlDataTable', 'searchPlaceholder', { type: 'String?', default: 'labels.search' }),
+    from('PlDataTable', 'selection', {
+      type: 'PlDataTableSelection',
+      default: 'PlDataTableSelection.none'
+    }),
+    from('PlDataTable', 'selected', { type: 'List<Object>?' }),
+    from('PlDataTable', 'defaultSelected', {
+      name: 'initialSelected',
+      type: 'List<Object>?',
+      default: '[]'
+    }),
+    from('PlDataTable', 'onSelectedChange', {
+      name: 'onSelectedChanged',
+      type: 'void Function(List<Object> selected, List<T> rows)?'
+    }),
+    from('PlDataTable', 'isRowSelectable', { type: 'bool Function(T row, int index)?' }),
+    from('PlDataTable', 'paging', {
+      type: 'PlDataTablePaging',
+      default: 'PlDataTablePaging.scroll'
+    }),
+    from('PlDataTable', 'pageSize', { type: 'int', default: '10' }),
+    from('PlDataTable', 'page', { type: 'int?' }),
+    from('PlDataTable', 'defaultPage', { name: 'initialPage', type: 'int', default: '1' }),
+    from('PlDataTable', 'onPageChange', { name: 'onPageChanged', type: 'ValueChanged<int>?' }),
+    from('PlDataTable', 'rowCount', { type: 'int?' }),
+    from('PlDataTable', 'manual', { type: 'List<PlDataTableStage>', default: '[]' }),
+    from('PlDataTable', 'loading', {
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '행 대신 막대를 그립니다',
+        en: 'Draws bars in place of the rows'
+      }
+    }),
+    from('PlDataTable', 'toolbar', { type: 'Widget?' }),
+    from('PlDataTable', 'footer', { type: 'Widget?' }),
+    from('PlDataTable', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
+    from('PlDataTable', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlDataTable', 'color', {
+      type: COLOR,
+      default: 'PlassColor.primary',
+      description: {
+        ko: '의미론적 색 역할. hover 틴트와 선택 틴트, 체크박스, focus ring까지만 닿습니다 — 데이터는 자기 색을 가지고 옵니다',
+        en: 'Semantic colour role. It reaches the hover tint, the selection tint, the ticks and the focus ring and nothing else: data arrives with its own colours'
+      }
+    }),
+    from('PlDataTable', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlDataTable', 'elevation', { type: 'int', default: '0' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '표를 스크린 리더가 부를 이름',
+        en: 'The name a screen reader gives the table'
+      }
+    },
+    {
+      name: 'selectAllLabel',
+      type: 'String?',
+      default: 'labels.selectAll',
+      description: {
+        ko: '체크 열 맨 위 상자의 이름',
+        en: 'Names the box at the top of the tick column'
+      }
+    },
+    {
+      name: 'selectRowLabel',
+      type: 'String?',
+      default: 'labels.selectRow',
+      description: { ko: '행 체크박스의 이름', en: "Names a row's own tick" }
+    },
+    {
+      name: 'searchLabel',
+      type: 'String?',
+      default: 'labels.search',
+      description: { ko: '검색 필드의 이름', en: 'Names the search field' }
+    }
+  ],
+
+  PlDataTableColumn: [
+    from('PlDataTableColumn', 'key', { type: 'String', required: true }),
+    {
+      name: 'cell',
+      type: 'Widget Function(T row, int index)',
+      required: true,
+      description: {
+        ko: '행에서 셀을 만듭니다. Dart에는 임의의 타입에 대한 row[key]가 없으니 필수입니다',
+        en: 'Builds the cell for a row. Required, because Dart has no row[key] on an arbitrary type'
+      }
+    },
+    from('PlDataTableColumn', 'header', { type: 'Widget?' }),
+    from('PlDataTableColumn', 'width', {
+      type: 'double?',
+      description: {
+        ko: '고정 너비, 논리 픽셀. 없으면 내용만큼 넓어진 뒤 남은 폭을 flex만큼 나눠 갖습니다',
+        en: 'A fixed width in logical pixels. Left out, the column is as wide as its content and then takes a flex share of what is left'
+      }
+    }),
+    {
+      name: 'flex',
+      type: 'double',
+      default: '1',
+      description: {
+        ko: '남은 폭을 나눠 가질 때의 몫. width가 있으면 무시됩니다',
+        en: 'How much of the leftover width this column takes. Ignored when width is set'
+      }
+    },
+    from('PlDataTableColumn', 'align', { type: 'PlassAlign', default: 'PlassAlign.start' }),
+    from('PlDataTableColumn', 'value', {
+      type: 'Object? Function(T row)?',
+      description: {
+        ko: '정렬과 검색이 보는 값. 정렬하거나 검색되는 열에는 필요합니다 — cell은 위젯을 돌려주고, 위젯에는 순서도 읽을 글자도 없습니다',
+        en: 'What the sort and the search see. A sortable or searchable column needs it: cell returns a widget, and a widget has no order and no text to look inside'
+      }
+    }),
+    from('PlDataTableColumn', 'sortable', { type: 'bool', default: 'false' }),
+    from('PlDataTableColumn', 'compare', { type: 'int Function(T a, T b)?' }),
+    from('PlDataTableColumn', 'unsearchable', { type: 'bool', default: 'false' })
+  ],
+
   PlDatePicker: [
     {
       name: 'value',

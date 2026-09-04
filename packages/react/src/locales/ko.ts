@@ -9,6 +9,7 @@ export const ko: PlassLabels = {
   done: '완료',
   search: '검색',
   selectAll: '전체 선택',
+  selectRow: '행 선택',
   remove: '삭제',
   dismiss: '닫기',
   open: '열기',

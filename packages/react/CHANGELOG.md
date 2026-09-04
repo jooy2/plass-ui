@@ -6,7 +6,29 @@
 
 ### Added
 
-- **Locale bundles: the library's own words, translated.** Every component that says something of its own — a close button's name, a pager's landmark, the line an empty list shows — now reads from one set of sixty-two strings, and seven translations of that set ship with the package.
+- **`PlDataTable`.** A table that owns its rows: it sorts them, narrows them to what was typed, hands them out a page at a time and remembers which of them are ticked.
+
+  `PlTable` stays exactly what it was, and the split is not a size decision. A table whose every column is a `render` callback is the one component in this library a React Server Component has to be able to render, and reading a context would take that away — so the component that has to remember four things between renders is a second component rather than a prop on the first.
+
+  **Below the columns they are the same grid.** The measured widths, the hover band, the rule between rows, the pinned header and every inline style that keeps a host stylesheet's `td { border: 1px solid }` off them now live in `internal/table.ts`, and both components draw out of it. Two copies of that is how the rows under a sorted table end up a shade off the rows under a plain one.
+
+  **Sort, search, selection and page are each uncontrolled by default and controllable one at a time.** That is what lets one component cover both of the tables people build: the ordinary one is `columns` and `rows`, and a table backed by a server is the same markup with `manual` and four handlers. Nothing in between changes shape.
+
+  **Sorting rotates ascending, descending, then back to the order the rows arrived in.** That third press is the part most tables leave out and it is the one that matters: the arrival order is usually the order the server chose, and a table that can never be put back has thrown it away. The mark is drawn faintly on every sortable heading rather than appearing under the pointer, because a heading that only looks pressable once you are on it is a heading nobody presses. Values are compared as what they are, text with `localeCompare` — sorting by code point puts every capitalised word above every lower-case one — and **nothing sorts last in both directions**, because a blank in a column of amounts is not the smallest amount.
+
+  A column's `value` is what the sort and the search see, where `render` is what the reader sees. Most columns need neither; the moment a cell is *drawn* rather than printed the two come apart, and a total column printing `$1,240.00` sorts as a string that puts `$89` after it.
+
+  **The selection hands back rows from every page**, not from the page on screen, and the header box goes indeterminate when part of a page is chosen — a half-filled page under a plain unticked box reads as the opposite of what is true. Shift extends the range in the order the rows are *currently* in, which is what a reader dragging down a sorted page means by "these". A chosen row carries `aria-selected` as well as the tint, and a press on the tick is not also a press on the row.
+
+  `aria-sort` goes on the **heading**, not on the button inside it: the heading is what a screen reader reads on entering a cell in that column. The sort control is a bare `<button>` wearing the heading's own type, because a `PlButton` there would be a control on a control — a background, a radius and a height inside a cell whose job is to sit flush against the rule under it.
+
+  Four things it deliberately does not do, and the page says so rather than leaving them to be looked for: it does not virtualize (the honest answer is `paging="pages"`, which is also the only shape that works when the rows are being fetched), it does not drag-resize or reorder columns (both need somewhere to persist what the reader dragged), it does not export (the application's data and the application's filename — `toolbar` is where the button goes), and it sorts on one column (a sort three keys deep is a query the reader cannot see).
+
+  One new label, `selectRow`, in all seven packs.
+
+  Measured with `npm run size`: **+2.8 kB on the whole library and +0.0 kB on all four other scenarios**.
+
+- **Locale bundles: the library's own words, translated.** Every component that says something of its own — a close button's name, a pager's landmark, the line an empty list shows — now reads from one set of sixty-three strings, and seven translations of that set ship with the package.
 
   ```tsx
   import { PlassProvider } from 'plass-ui';

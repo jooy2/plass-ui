@@ -48,6 +48,7 @@ import {
   PlContainer,
   PlDataList,
   PlDataListItem,
+  PlDataTable,
   PlDatePicker,
   PlDateRangePicker,
   PlDateTimePicker,
@@ -910,6 +911,31 @@ const entries: Entry[] = [
         <PlDataListItem label="Owner" value="Ada Lovelace" />
         <PlDataListItem label="Plan" value="Team" />
       </PlDataList>
+    )
+  },
+  {
+    name: 'PlDataTable',
+    group: 'display',
+    href: 'components/display/data-table',
+    blurb: {
+      en: 'A table that sorts, searches, ticks and pages its own rows.',
+      ko: '자기 행을 정렬하고 검색하고 체크하고 페이지로 나누는 표입니다.'
+    },
+    preview: (
+      <PlDataTable
+        size="xs"
+        className="w-full"
+        columns={[
+          { key: 'name', header: 'Name', sortable: true },
+          { key: 'runs', header: 'Runs', align: 'end', sortable: true }
+        ]}
+        rows={[
+          { id: 1, name: 'Nightly', runs: 412 },
+          { id: 2, name: 'Release', runs: 38 }
+        ]}
+        getRowKey={(row) => row.id}
+        selection="multiple"
+      />
     )
   },
   {

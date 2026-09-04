@@ -9,6 +9,7 @@ export const de: PlassLabels = {
   done: 'Fertig',
   search: 'Suchen',
   selectAll: 'Alle auswählen',
+  selectRow: 'Zeile auswählen',
   remove: 'Entfernen',
   dismiss: 'Ausblenden',
   open: 'Öffnen',

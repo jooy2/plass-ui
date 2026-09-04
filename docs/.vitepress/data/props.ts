@@ -4238,6 +4238,369 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlDataTable: [
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      sizeDescription: {
+        ko: '셀의 타입 스케일과 행 높이',
+        en: 'The type scale of a cell and the height of a row'
+      },
+      densityDescription: {
+        ko: '셀 여백만 바꿉니다. 타입 스케일은 그대로',
+        en: 'Cell padding only — never the type scale'
+      }
+    }),
+    {
+      name: 'columns',
+      type: 'readonly PlDataTableColumn<Row>[]',
+      required: true,
+      description: {
+        ko: '열 정의. 나타나는 순서대로',
+        en: 'The columns, in the order they appear'
+      }
+    },
+    {
+      name: 'rows',
+      type: 'readonly Row[]',
+      required: true,
+      description: {
+        ko: '행 데이터. 도착한 순서 그대로',
+        en: 'The rows, in the order they arrived in'
+      }
+    },
+    {
+      name: 'getRowKey',
+      type: '(row: Row, index: number) => Key',
+      description: {
+        ko: '행마다의 안정적인 key. 다른 무엇보다 먼저 정할 값입니다 — 기본값인 index는 정렬이 행을 옮기면 뒤에 남습니다',
+        en: 'A stable key per row, and the one prop worth setting before any other: the index it defaults to stays behind when a sort moves the row'
+      }
+    },
+    {
+      name: 'caption',
+      type: 'ReactNode',
+      description: {
+        ko: '표 위에 놓이며, 표의 접근 가능한 이름으로 읽힙니다',
+        en: "Shown above the grid, and read out as the table's accessible name"
+      }
+    },
+    {
+      name: 'empty',
+      type: 'ReactNode',
+      default: 'labels.empty',
+      description: {
+        ko: '남은 행이 없을 때 대신 보여 줄 내용',
+        en: 'What to show instead of rows when there are none left to show'
+      }
+    },
+    {
+      name: 'striped',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '한 행 걸러 하나씩 옅게 칠합니다',
+        en: 'Tints every other row'
+      }
+    },
+    {
+      name: 'hoverable',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '포인터 아래 행에 불을 켭니다', en: 'Lights the row under the pointer' }
+    },
+    {
+      name: 'stickyHeader',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '행이 밑으로 지나가는 동안 열 이름을 고정합니다. 정렬하는 표는 읽는 사람이 스크롤하는 표입니다',
+        en: 'Pins the column names while the rows scroll under them. A table that sorts is a table a reader scrolls'
+      }
+    },
+    {
+      name: 'maxHeight',
+      type: 'number | string',
+      description: {
+        ko: '격자 높이의 상한. 넘으면 시트 안에서 행이 스크롤됩니다',
+        en: 'A hard cap on the grid. Past it the rows scroll inside the sheet'
+      }
+    },
+    {
+      name: 'onRowClick',
+      type: '(row: Row, index: number) => void',
+      description: {
+        ko: '행을 활성화할 수 있게 만듭니다. hover 처리도 함께 켜집니다',
+        en: 'Makes rows activatable. Also turns on the hover treatment'
+      }
+    },
+    {
+      name: 'sort',
+      type: 'PlDataTableSort | null',
+      description: {
+        ko: '정렬된 열과 방향. 넘기면 정렬을 직접 제어합니다',
+        en: 'The sorted column and its direction. Pass it to control the sort'
+      }
+    },
+    {
+      name: 'defaultSort',
+      type: 'PlDataTableSort | null',
+      default: 'null',
+      description: {
+        ko: '표가 정렬을 스스로 들고 있을 때의 출발점',
+        en: 'Where the sort starts when the table keeps it itself'
+      }
+    },
+    {
+      name: 'onSortChange',
+      type: '(sort: PlDataTableSort | null) => void',
+      description: {
+        ko: '제목을 누를 때마다 다음 정렬로 불립니다. 세 번째 누름은 null',
+        en: 'Called with the sort a heading press asks for, null for the third press'
+      }
+    },
+    {
+      name: 'searchable',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '격자 위에 입력한 것으로 행을 좁히는 필드를 그립니다',
+        en: 'Draws a field above the grid that narrows the rows to what was typed'
+      }
+    },
+    {
+      name: 'search',
+      type: 'string',
+      description: {
+        ko: '검색어. 넘기면 필드를 직접 제어합니다',
+        en: 'The query. Pass it to control the field'
+      }
+    },
+    {
+      name: 'defaultSearch',
+      type: 'string',
+      default: "''",
+      description: {
+        ko: '표가 검색어를 스스로 들고 있을 때의 출발점',
+        en: 'Where the query starts when the table keeps it itself'
+      }
+    },
+    {
+      name: 'onSearchChange',
+      type: '(search: string) => void',
+      description: {
+        ko: '읽는 사람이 입력한 문자열로 불립니다',
+        en: 'Called with what the reader typed'
+      }
+    },
+    {
+      name: 'searchPlaceholder',
+      type: 'string',
+      default: 'labels.search',
+      description: { ko: '검색 필드의 placeholder', en: "The field's placeholder" }
+    },
+    {
+      name: 'selection',
+      type: "'none' | 'single' | 'multiple'",
+      default: "'none'",
+      description: {
+        ko: '한 번에 고를 수 있는 행의 수',
+        en: 'How many rows may be ticked at once'
+      }
+    },
+    {
+      name: 'selected',
+      type: 'readonly Key[]',
+      description: {
+        ko: '체크된 행의 key. 넘기면 선택을 직접 제어합니다',
+        en: 'The ticked rows, as their keys. Pass it to control the selection'
+      }
+    },
+    {
+      name: 'defaultSelected',
+      type: 'readonly Key[]',
+      default: '[]',
+      description: {
+        ko: '표가 선택을 스스로 들고 있을 때의 출발점',
+        en: 'Where the selection starts when the table keeps it itself'
+      }
+    },
+    {
+      name: 'onSelectedChange',
+      type: '(selected: Key[], rows: Row[]) => void',
+      description: {
+        ko: '체크된 모든 행의 key와 행 자체로 불립니다',
+        en: 'Called with the keys of every ticked row, and with the rows themselves'
+      }
+    },
+    {
+      name: 'isRowSelectable',
+      type: '(row: Row, index: number) => boolean',
+      description: {
+        ko: '선택에서 제외할 행을 정합니다 — 합계 줄, 이미 처리된 행',
+        en: 'Keeps a row out of the selection — a total line, a row already spent'
+      }
+    },
+    {
+      name: 'paging',
+      type: "'scroll' | 'pages'",
+      default: "'scroll'",
+      description: { ko: '행을 나눠 주는 방식', en: 'How the rows are handed out' }
+    },
+    {
+      name: 'pageSize',
+      type: 'number',
+      default: '10',
+      description: { ko: '한 페이지에 들어가는 행의 수', en: 'How many rows a page holds' }
+    },
+    {
+      name: 'page',
+      type: 'number',
+      description: {
+        ko: '읽고 있는 페이지, 1부터. 넘기면 페이저를 직접 제어합니다',
+        en: 'The page being read, counted from 1. Pass it to control the pager'
+      }
+    },
+    {
+      name: 'defaultPage',
+      type: 'number',
+      default: '1',
+      description: {
+        ko: '표가 페이지를 스스로 들고 있을 때의 출발점',
+        en: 'Where the pager starts when the table keeps it itself'
+      }
+    },
+    {
+      name: 'onPageChange',
+      type: '(page: number) => void',
+      description: {
+        ko: '페이저를 누를 때마다 그 페이지로 불립니다',
+        en: 'Called with the page a pager press asks for'
+      }
+    },
+    {
+      name: 'rowCount',
+      type: 'number',
+      description: {
+        ko: '표가 한 페이지만 건네받을 때의 전체 행 수. manual 페이징에 필요하고, 그 밖에서는 무시됩니다',
+        en: 'How many rows there are in total when the table is only handed one page. Required for manual paging and ignored without it'
+      }
+    },
+    {
+      name: 'manual',
+      type: "readonly ('sort' | 'search' | 'pages')[]",
+      description: {
+        ko: '애플리케이션이 rows에 이미 적용해 둔 단계',
+        en: 'The stages an application has already done to rows itself'
+      }
+    },
+    {
+      name: 'loading',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '행 대신 막대를 그리고 격자를 aria-busy로 표시합니다',
+        en: 'Draws bars in place of the rows and marks the grid busy'
+      }
+    },
+    {
+      name: 'toolbar',
+      type: 'ReactNode',
+      description: {
+        ko: '툴바 끝에 그려집니다 — 필터, 버튼, 자기만의 개수',
+        en: 'Drawn in the toolbar, at the end. A filter, a button, a count of its own'
+      }
+    },
+    {
+      name: 'footer',
+      type: 'ReactNode',
+      description: {
+        ko: '푸터 앞쪽에, 행 개수 대신 그려집니다',
+        en: 'Drawn in the footer, at the start, in place of the row count'
+      }
+    }
+  ],
+
+  PlDataTableColumn: [
+    {
+      name: 'key',
+      type: 'string',
+      required: true,
+      description: {
+        ko: '열을 식별하고, value나 render가 없으면 각 행에서 읽을 속성 이름이 됩니다',
+        en: 'Identifies the column, and — unless value or render says otherwise — names the property to read off each row'
+      }
+    },
+    {
+      name: 'header',
+      type: 'ReactNode',
+      description: {
+        ko: '열 제목. 생략하면 key가 그대로 쓰입니다',
+        en: 'The heading. Defaults to the key, which is usually not what you want'
+      }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      description: {
+        ko: '기본 너비. 숫자는 px, 문자열은 CSS 길이',
+        en: 'The default width. A number is pixels, a string is any CSS length'
+      }
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'start'",
+      shared: true,
+      description: {
+        ko: '텍스트 정렬. 숫자는 자릿수가 맞도록 보통 end',
+        en: 'Text alignment. Numbers usually want end so their digits line up'
+      }
+    },
+    {
+      name: 'render',
+      type: '(row: Row, index: number) => ReactNode',
+      description: {
+        ko: '셀을 직접 그립니다. 없으면 row[key]를 그대로 렌더링합니다',
+        en: 'Renders the cell. Without it the cell is row[key] rendered as-is'
+      }
+    },
+    {
+      name: 'value',
+      type: '(row: Row) => unknown',
+      description: {
+        ko: '정렬과 검색이 보는 값. 기본값은 row[key]이고, 셀을 그리는 열이라면 필요합니다',
+        en: 'What the sort and the search see. Defaults to row[key], and is needed whenever the cell is drawn rather than printed'
+      }
+    },
+    {
+      name: 'sortable',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '제목을 정렬 순환에 넣습니다: 오름차순, 내림차순, 그리고 원래 순서',
+        en: 'Puts the heading in the sort rotation: ascending, descending, then back to the order the rows arrived in'
+      }
+    },
+    {
+      name: 'compare',
+      type: '(a: Row, b: Row) => number',
+      description: {
+        ko: '두 행의 순서를 직접 정합니다. 방향은 여기에 답한 결과에 적용됩니다',
+        en: 'Orders two rows against each other. The direction is applied to whatever it says'
+      }
+    },
+    {
+      name: 'unsearchable',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '이 열을 검색에서 제외합니다',
+        en: 'Keeps this column out of the search'
+      }
+    }
+  ],
+
   PlDatePicker: [
     {
       name: 'value',

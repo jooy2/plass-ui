@@ -268,6 +268,9 @@ class PlassLabels {
     this.confirm = 'Confirm',
     this.search = 'Search',
     this.selectAll = 'Select all',
+    this.selectRow = 'Select row',
+    this.sortedAscending = 'Sorted, smallest first',
+    this.sortedDescending = 'Sorted, largest first',
     this.remove = 'Remove',
     this.dismiss = 'Dismiss',
     this.open = 'Open',
@@ -340,6 +343,9 @@ class PlassLabels {
     String? confirm,
     String? search,
     String? selectAll,
+    String? selectRow,
+    String? sortedAscending,
+    String? sortedDescending,
     String? remove,
     String? dismiss,
     String? open,
@@ -404,6 +410,9 @@ class PlassLabels {
       confirm: confirm ?? this.confirm,
       search: search ?? this.search,
       selectAll: selectAll ?? this.selectAll,
+      selectRow: selectRow ?? this.selectRow,
+      sortedAscending: sortedAscending ?? this.sortedAscending,
+      sortedDescending: sortedDescending ?? this.sortedDescending,
       remove: remove ?? this.remove,
       dismiss: dismiss ?? this.dismiss,
       open: open ?? this.open,
@@ -478,6 +487,22 @@ class PlassLabels {
 
   /// Ticks everything in a list at once.
   final String selectAll;
+
+  /// Ticks one row of a table, whose own name is the row's contents.
+  final String selectRow;
+
+  /// What a sorted column heading says it is.
+  ///
+  /// These two have no counterpart in the React package, and the difference is
+  /// the platform rather than an oversight: a `<th aria-sort="ascending">`
+  /// carries the same meaning without a word, and every screen reader speaks it
+  /// in the reader's own language. Flutter's semantics have no sort direction,
+  /// so the widget has to say it out loud, and a word said out loud has to be
+  /// translated.
+  final String sortedAscending;
+
+  /// The other direction. See [sortedAscending].
+  final String sortedDescending;
 
   /// Takes one thing out of a set.
   final String remove;

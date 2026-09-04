@@ -31,13 +31,13 @@ order: 3
 
 `locale` is the BCP 47 tag `Intl` formats against. It decides that a date reads `2026. 9. 4.` rather than `9/4/2026`, what July is called, and where the thousands separator goes. The platform owns all of it, so the library does not ship a month name.
 
-`labels` is the sixty-two strings `Intl` has no opinion about. "Close" is not a date and not a number; nothing in the platform knows it.
+`labels` is the sixty-three strings `Intl` has no opinion about. "Close" is not a date and not a number; nothing in the platform knows it.
 
 :::
 
 ::: fw flutter
 
-`labels` is the sixty-two strings the widgets say about themselves. The framework ships no `Intl`, so the dates are a second object — `PlDateNames` carries the months and the weekday abbreviations, and it is set the same way. See [Setting defaults](defaults).
+`labels` is the sixty-five strings the widgets say about themselves. Three more than the React set, and the page on [`PlDataTable`](../components/display/data-table) says why: `aria-sort` carries a meaning here that has to be said in words. The framework ships no `Intl`, so the dates are a second object — `PlDateNames` carries the months and the weekday abbreviations, and it is set the same way. See [Setting defaults](defaults).
 
 :::
 
@@ -153,7 +153,7 @@ PlassTheme.merge(
 
 ::: fw react
 
-The merge is per key, so a provider that sets four words leaves the other fifty-eight English, and a provider nested inside another one replaces what it names and inherits the rest.
+The merge is per key, so a provider that sets four words leaves the other fifty-nine English, and a provider nested inside another one replaces what it names and inherits the rest.
 
 Reading what is in scope, for a component of your own that has to line up with the ones around it:
 

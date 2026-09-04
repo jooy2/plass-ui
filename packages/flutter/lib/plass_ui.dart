@@ -65,6 +65,7 @@ export 'src/components/command_palette/pl_command_palette.dart';
 export 'src/components/confirm/pl_confirm.dart';
 export 'src/components/container/pl_container.dart';
 export 'src/components/data_list/pl_data_list.dart';
+export 'src/components/data_table/pl_data_table.dart';
 export 'src/components/date_picker/pl_date_picker.dart';
 export 'src/components/date_range_picker/pl_date_range_picker.dart';
 export 'src/components/date_time_picker/pl_date_time_picker.dart';

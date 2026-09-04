@@ -4,7 +4,23 @@
 
 ### Added
 
-- **Locale bundles: the package's own words, translated.** Every widget that says something of its own — a close button's name, a pager's landmark, the line an empty list shows — now reads from one set of sixty-two strings, and seven translations of that set ship with the package.
+- **`PlDataTable`.** A table that owns its rows: it sorts them, narrows them to what was typed, hands them out a page at a time and remembers which of them are ticked.
+
+  **`PlTable` is now a thin wrapper on the same grid.** Everything below the columns — the measured column widths, the hover band, the one focus stop per row, the rule between rows and the header pinned over the scroll — moved into `internal/table.dart` as `PlassGrid`, and both widgets build one. `PlTable`'s own behaviour is unchanged and its suite passes untouched; what changed is that a second table cannot drift away from the first.
+
+  **Sort, search, selection and page are each uncontrolled by default and controllable one at a time**, so the ordinary table is `columns` and `rows` and a server-backed one is the same code with `manual` and four callbacks. The starting values are `initialSort`, `initialSearch`, `initialSelected` and `initialPage`, which is this framework's own convention rather than React's `default…`.
+
+  **Sorting rotates ascending, descending, then back to the order the rows arrived in** — that order is usually the server's, and a table that can never be put back has thrown it away. Nothing sorts last in both directions. Text compares case-insensitively but **does not fold accents**, for the reason `internal/search.dart` already gives: Dart's core has no `String.normalize` and this package has no dependencies. The React build uses `localeCompare` and the page says which is which.
+
+  `value` is required on any column that sorts or searches, not only on a drawn one: `cell` returns a widget in every case, and a widget has no order and no text to look inside.
+
+  **A sorted heading says its direction out loud.** That is the one place the two builds differ in kind rather than in spelling: `aria-sort` is a platform affordance every screen reader speaks in the reader's own language, and Flutter's semantics have no equivalent — so the word has to be said, and a word that is said has to be translated. `sortedAscending` and `sortedDescending` are new in `PlassLabels` and have no React counterpart. `selectRow` is new in both.
+
+  The tick column is measured rather than given a width, because the box is a different size on every rung of the ladder; `PlassGridColumn.flex` gained a `null` for it, which keeps a column out of the share-out of whatever the sheet has left over.
+
+  Four things it deliberately does not do — virtualize, drag-resize or reorder columns, export, or sort on more than one column — and the page says why for each.
+
+- **Locale bundles: the package's own words, translated.** Every widget that says something of its own — a close button's name, a pager's landmark, the line an empty list shows — now reads from one set of sixty-five strings, and seven translations of that set ship with the package.
 
   ```dart
   import 'package:plass_ui/locales.dart';
@@ -20,7 +36,7 @@
 
   **A key is a meaning, not a widget.** `close` is the × on a modal, a drawer, a popover and a toast, and it is translated once. A key exists per widget only where the word genuinely differs: `paginationNext` moves by a page and `carouselNext` moves by a slide.
 
-  `PlassLabels` is what `PlPickerLabels` grew into, and `PlPickerLabels` is now another name for it, so nothing that took the old one has to change. Each of its sixty-two fields still defaults to English in the constructor, which is what makes a partial set legal; `copyWith` is new, and it is how a screen keeps a pack and changes one line of it — `ko.copyWith(start: '체크인')`. `PlassTheme.labelsOf(context)` reads what is in scope, answering `PlassLabels.english` when nothing has decided.
+  `PlassLabels` is what `PlPickerLabels` grew into, and `PlPickerLabels` is now another name for it, so nothing that took the old one has to change. Each of its sixty-five fields still defaults to English in the constructor, which is what makes a partial set legal; `copyWith` is new, and it is how a screen keeps a pack and changes one line of it — `ko.copyWith(start: '체크인')`. `PlassTheme.labelsOf(context)` reads what is in scope, answering `PlassLabels.english` when nothing has decided.
 
   The twenty-four widgets that were carrying their own English default now take it from the set, and every one of them still takes the word as a parameter that wins.
 

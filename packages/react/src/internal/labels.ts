@@ -52,6 +52,8 @@ export interface PlassLabels {
   search: string;
   /** Ticks everything in a list at once. */
   selectAll: string;
+  /** Ticks one row of a table, whose own name is the row's contents. */
+  selectRow: string;
   /** Takes one thing out of a set. */
   remove: string;
   /** Sends a message away without answering it. */
@@ -166,6 +168,7 @@ export const defaultLabels: PlassLabels = {
   done: 'Done',
   search: 'Search',
   selectAll: 'Select all',
+  selectRow: 'Select row',
   remove: 'Remove',
   dismiss: 'Dismiss',
   open: 'Open',

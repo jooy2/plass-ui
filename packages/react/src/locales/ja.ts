@@ -9,6 +9,7 @@ export const ja: PlassLabels = {
   done: '完了',
   search: '検索',
   selectAll: 'すべて選択',
+  selectRow: '行を選択',
   remove: '削除',
   dismiss: '閉じる',
   open: '開く',

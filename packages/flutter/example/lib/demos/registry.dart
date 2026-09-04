@@ -143,6 +143,12 @@ import 'package:plass_ui_example/demos/container/centered.dart';
 import 'package:plass_ui_example/demos/container/hero.dart';
 import 'package:plass_ui_example/demos/container/padding.dart';
 import 'package:plass_ui_example/demos/container/widths.dart';
+import 'package:plass_ui_example/demos/data_table/hero.dart';
+import 'package:plass_ui_example/demos/data_table/loading.dart';
+import 'package:plass_ui_example/demos/data_table/paging.dart';
+import 'package:plass_ui_example/demos/data_table/selection.dart';
+import 'package:plass_ui_example/demos/data_table/server.dart';
+import 'package:plass_ui_example/demos/data_table/sorting.dart';
 import 'package:plass_ui_example/demos/date_picker/bounds.dart';
 import 'package:plass_ui_example/demos/date_picker/format.dart';
 import 'package:plass_ui_example/demos/stepper/hero.dart';
@@ -562,6 +568,12 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'calendar/precision': _calendarPrecision,
   'calendar/bounds': _calendarBounds,
   'calendar/variants': _calendarVariants,
+  'data-table/hero': _dataTableHero,
+  'data-table/loading': _dataTableLoading,
+  'data-table/paging': _dataTablePaging,
+  'data-table/selection': _dataTableSelection,
+  'data-table/server': _dataTableServer,
+  'data-table/sorting': _dataTableSorting,
   'date-picker/hero': _datePickerHero,
   'date-picker/locales': _datePickerLocales,
   'date-picker/precision': _datePickerPrecision,
@@ -1079,6 +1091,18 @@ Widget _calendarPrecision(BuildContext context) => const CalendarPrecision();
 Widget _calendarBounds(BuildContext context) => const CalendarBounds();
 
 Widget _calendarVariants(BuildContext context) => const CalendarVariants();
+
+Widget _dataTableHero(BuildContext context) => const DataTableHero();
+
+Widget _dataTableLoading(BuildContext context) => const DataTableLoading();
+
+Widget _dataTablePaging(BuildContext context) => const DataTablePaging();
+
+Widget _dataTableSelection(BuildContext context) => const DataTablePicking();
+
+Widget _dataTableServer(BuildContext context) => const DataTableServer();
+
+Widget _dataTableSorting(BuildContext context) => const DataTableSorting();
 
 Widget _datePickerHero(BuildContext context) => const DatePickerHero();
 
