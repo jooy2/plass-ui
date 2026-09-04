@@ -539,6 +539,41 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlAnimateSplit: [
+    from('PlAnimateSplit', 'children', { name: 'text', type: 'String', required: true }),
+    from('PlAnimateSplit', 'by', {
+      type: 'PlAnimateSplitBy',
+      default: 'PlAnimateSplitBy.word'
+    }),
+    {
+      name: 'style · textAlign',
+      type: 'TextStyle? · TextAlign?',
+      description: {
+        ko: '줄을 그리는 글자 스타일과, 줄이 넘어갔을 때의 정렬',
+        en: 'The text style the line is drawn in, and how the parts align once they wrap'
+      }
+    },
+    from('PlAnimateSplit', 'effect', {
+      name: 'from · distance · fade',
+      type: 'PlassSide · double · bool',
+      default: 'bottom · 12 · true',
+      description: {
+        ko: '등장을 방향과 거리와 fade로 적습니다. React는 CSS keyframe의 이름을 적는데, 저쪽에서는 효과가 이름 붙은 것이고 여기서는 위젯으로 만들어지기 때문입니다',
+        en: 'The entrance, spelled as a side, a distance and a fade. React names a CSS keyframe instead, because there an effect is a named thing and here every effect is built out of widgets'
+      }
+    }),
+    {
+      name: 'stagger · reverse',
+      type: 'Duration · bool',
+      default: '40ms · false',
+      description: {
+        ko: '한 조각 뒤 다음 조각이 얼마나 늦게 시작하는지, 그리고 줄의 끝에서부터 시작할지',
+        en: 'How long after one part the next one starts, and whether it starts from the end of the line'
+      }
+    },
+    ...animateFlutterProps('PlAnimateSplit', { duration: 'Duration(milliseconds: 400)' })
+  ],
+
   PlAnimateTyping: [
     from('PlAnimateTyping', 'text', {
       type: 'String',

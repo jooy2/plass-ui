@@ -4,6 +4,12 @@
 
 ### Added
 
+- **`PlAnimateSplit`.** A line of text arriving one part at a time — the Dart half of the React component. A `PlAnimateAppear` tells one entrance off across a set of children, which a line of text does not have; this makes them.
+
+  The entrance is spelled as a **side, a distance and a fade**, exactly as `PlAnimateAppear` spells it, where the React build names a CSS keyframe. That is not an inconsistency and the page says why: over there an effect *is* a named thing the stylesheet knows about, and here every effect is built out of widgets, so a split takes the parameters the widget beside it already takes.
+
+  `PlAnimateSplitBy.character` breaks the shaping between letters — Arabic stops joining, an emoji is cut into its pieces — and the page says so. Whitespace is glued onto the part before it rather than becoming a part of its own, which keeps a `Wrap` breaking lines between words and stops a gap taking a step of the stagger. The parts are excluded from the semantics and the whole line is put on the node instead.
+
 - **`PlAnimateScramble`.** A line of text resolving out of noise — the Dart half of the React component, and with the same decision at the centre of it: **the noise is made of the line's own characters**, because every scrambler that ships a default alphabet ships an English one and English noise over a Korean headline is a different script flickering rather than a word arriving.
 
   It settles left to right, never scrambles whitespace, and steps the redraw at `tick` rather than at the refresh rate. The settling line is wrapped in `ExcludeSemantics` and the real line is put on the node instead.

@@ -38,6 +38,7 @@ export 'src/components/animate_rotate/pl_animate_rotate.dart';
 export 'src/components/animate_scramble/pl_animate_scramble.dart';
 export 'src/components/animate_shake/pl_animate_shake.dart';
 export 'src/components/animate_slide/pl_animate_slide.dart';
+export 'src/components/animate_split/pl_animate_split.dart';
 export 'src/components/animate_typing/pl_animate_typing.dart';
 export 'src/components/animate_zoom/pl_animate_zoom.dart';
 export 'src/components/app_logo/pl_app_logo.dart';

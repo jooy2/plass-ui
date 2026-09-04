@@ -18,6 +18,7 @@ export * from './components/animate-rotate/index.js';
 export * from './components/animate-scramble/index.js';
 export * from './components/animate-shake/index.js';
 export * from './components/animate-slide/index.js';
+export * from './components/animate-split/index.js';
 export * from './components/animate-typing/index.js';
 export * from './components/animate-zoom/index.js';
 export * from './components/app-logo/index.js';

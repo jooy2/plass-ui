@@ -1610,6 +1610,45 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlAnimateSplit: [
+    {
+      name: 'children',
+      type: 'string',
+      required: true,
+      description: {
+        ko: '줄. 문자열이어야 합니다 — 컴포넌트가 그것을 자르고, <strong> 안에는 자를 것이 없습니다',
+        en: 'The line. A string, and it has to be: the component cuts it up, and there is nothing to cut inside a <strong>'
+      }
+    },
+    {
+      name: 'by',
+      type: "'word' | 'character'",
+      default: "'word'",
+      description: {
+        ko: '무엇으로 자를지. character는 모든 문자 체계에서 안전하지 않습니다 — 아랍 문자가 이어지지 않고 이모지가 조각납니다',
+        en: 'What it is cut into. character is not safe in every script: Arabic stops joining and an emoji is cut into its pieces'
+      }
+    },
+    {
+      name: 'effect',
+      type: "'fade' | 'grow' | 'slide' | 'zoom' | 'rotate' | 'blink' | 'reveal'",
+      default: "'fade'",
+      description: {
+        ko: '각 조각이 재생하는 등장',
+        en: 'Which of the entrances each part plays'
+      }
+    },
+    ...animateProps({ duration: '400', stagger: true, timeline: true }),
+    {
+      name: 'render',
+      type: 'ReactElement | (props, state) => ReactElement',
+      description: {
+        ko: '<span> 대신 다른 요소로 렌더링합니다 (<h2 />)',
+        en: 'Renders something other than a <span> (<h2 />)'
+      }
+    }
+  ],
+
   PlAnimateTyping: [
     {
       name: 'text',

@@ -6,6 +6,18 @@
 
 ### Added
 
+- **`PlAnimateSplit`.** A line of text arriving one part at a time. The other effects tell themselves off across their **children**, which a line of text does not have — so this one makes them, and hands the set to exactly the same `stagger` machinery a `PlAnimateFade` around a list of `<li>`s uses. `effect`, `stagger`, `durationStep` and `reverse` all mean what they mean everywhere else; the component is the splitting and nothing more.
+
+  **`by="character"` is not safe in every script**, and the page says so rather than leaving it to be discovered. A character part breaks the shaping between letters: Arabic stops joining, Devanagari conjuncts come apart, and an emoji built out of several code points is cut into its pieces. `word` has none of those problems and is the default.
+
+  **The gaps are not parts.** Whitespace is never given an entrance of its own — animating the space between two words is nothing arriving — and it does not take a step of the stagger with it either, so the second word starts one step after the first rather than two. That is why this component reaches for `useAnimationRun` directly rather than `useAnimateElement`, which is the arrangement `internal/animate.ts` already describes for the components that have to understand their own children.
+
+  Each part is `inline-block`, because a transform does not apply to a non-replaced inline element and a slide would otherwise fade without moving.
+
+  **A screen reader is told the line, once.** The parts are hidden from the accessibility tree and the whole line sits beside them, which is what stops a split headline being read out one word — or one letter — at a time: the defect this pattern is known for everywhere it appears without it.
+
+  Measured with `npm run size`: **+0.4 kB on the whole library and +0.0 kB on all four other scenarios**.
+
 - **`PlAnimateScramble`.** A line of text resolving out of noise, and the second of the two effects that animate **content** rather than a box.
 
   **The noise is made of the line's own characters.** Every scrambler that ships with a default alphabet ships an English one, and over a Korean, Greek or Arabic headline that is not a word resolving — it is a different script flickering where a word is about to be, and a reader watching their own language arrive out of somebody else's is watching a bug. Shuffling the line's own glyphs is right in every script and costs nothing; it also keeps the line's colour and width steady, because every frame is drawn out of exactly the characters the finished line is made of. `characters` overrides it for the caller who genuinely wants a terminal look.

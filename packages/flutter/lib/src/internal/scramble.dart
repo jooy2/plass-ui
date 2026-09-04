@@ -65,3 +65,45 @@ String scrambleAt(String text, String pool, double progress, int seed) {
 
   return buffer.toString();
 }
+
+/// A line cut into the parts an entrance is told off across.
+///
+/// Whitespace is glued onto the end of the part before it rather than becoming
+/// a part of its own, which is what keeps a `Wrap` breaking lines between words
+/// rather than in front of a lone space — and what stops the gap between two
+/// words taking a step of the stagger with it.
+List<String> splitParts(String text, {required bool byCharacter}) {
+  final parts = <String>[];
+  final buffer = StringBuffer();
+  bool afterSpace = false;
+
+  void flush() {
+    if (buffer.isNotEmpty) {
+      parts.add(buffer.toString());
+      buffer.clear();
+    }
+
+    afterSpace = false;
+  }
+
+  for (final String character in text.split('')) {
+    if (character.trim().isEmpty) {
+      buffer.write(character);
+      afterSpace = true;
+
+      continue;
+    }
+
+    // A space ends the part it was written into, and cutting by character ends
+    // every part after one glyph.
+    if (afterSpace || (byCharacter && buffer.isNotEmpty)) {
+      flush();
+    }
+
+    buffer.write(character);
+  }
+
+  flush();
+
+  return parts;
+}

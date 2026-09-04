@@ -17,6 +17,7 @@ import {
   PlAnimateShake,
   PlAnimateRotate,
   PlAnimateSlide,
+  PlAnimateSplit,
   PlAnimateZoom,
   PlAnimateGrow,
   PlAnchor,
@@ -2290,6 +2291,20 @@ const entries: Entry[] = [
           </PlChip>
         ))}
       </PlAnimateHeadline>
+    )
+  },
+  {
+    name: 'PlAnimateSplit',
+    group: 'transitions',
+    href: 'components/transitions/animate-split',
+    blurb: {
+      en: 'A line of text arriving one part at a time.',
+      ko: '한 줄의 글이 조각별로 차례로 도착합니다.'
+    },
+    preview: (
+      <PlAnimateSplit className="text-lg font-semibold" effect="slide" stagger={60}>
+        One part at a time
+      </PlAnimateSplit>
     )
   },
   {
