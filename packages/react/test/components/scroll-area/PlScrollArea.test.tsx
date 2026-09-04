@@ -132,9 +132,15 @@ describe('PlScrollArea', () => {
       );
 
       await expect.poll(() => lanes().length).toBe(1);
-      // The lane is there and transparent, so a bar that appears under the
-      // pointer fades in rather than arriving as a jump.
-      expect(getComputedStyle(lanes()[0]).opacity).toBe('0');
+
+      // The classes rather than the computed opacity: whether the pointer is
+      // over the box is the browser's answer, and where it happens to be left
+      // by the file that ran before this one is not something a test may
+      // depend on. The lane is there and transparent, and hovering or
+      // scrolling is what brings it up.
+      expect(lanes()[0].className).toContain('opacity-0');
+      expect(lanes()[0].className).toContain('data-[hovering]:opacity-100');
+      expect(lanes()[0].className).toContain('data-[scrolling]:opacity-100');
     });
 
     it('holds it open when it was asked to', async () => {

@@ -11,9 +11,6 @@
  * means scrolling the runner's own document — which leaves the browser session
  * unstable for the files that run after this one. The Dart suite scrolls a
  * `ScrollController` inside its own test surface and covers it there.
- *
- * Rendered trees are not torn down between tests, so every query below is
- * scoped to the **last** list in the document rather than the first.
  */
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
@@ -61,11 +58,9 @@ function Page({
   );
 }
 
-/** The list this test rendered, which is the last one in the document. */
+/** The list under test. */
 function anchor(): HTMLElement {
-  const all = document.querySelectorAll<HTMLElement>('.anchor-under-test');
-
-  return all[all.length - 1];
+  return document.querySelector<HTMLElement>('.anchor-under-test')!;
 }
 
 function rows(): HTMLAnchorElement[] {
