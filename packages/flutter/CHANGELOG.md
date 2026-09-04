@@ -4,6 +4,10 @@
 
 ### Added
 
+- **`PlAnimateFloat`.** Content drifting gently and not going anywhere — the odd one out among the `PlAnimate*` widgets, because every other one is an entrance played once when content arrives and this one never finishes.
+
+  The cycle is symmetric, home to out to home, so a run that ends leaves the widget exactly where it found it. `curve` defaults to `Curves.easeInOut` rather than to the house curve: the house curve is an entrance's, and a drift with it would lurch at each end of the cycle instead of turning around.
+
 - **`PlHowToSteps` and `PlHowToStep`.** Instructions, numbered, with what to do under each one — the Dart half of the React component. A `PlStepper` and a `PlTimeline` say where you are; this says what to do, so every step's body is open at once.
 
   **The position is written into each step's semantics**, which is the one place this parts company with the React build: there a real `<ol>` makes a screen reader say "list, five items, item two" for nothing, and Flutter has no ordered list to inherit that from. `semanticStepLabel` says the words, and it is a callback rather than a pair of strings for `PlProgressLinear.formatValue`'s reason — there is no `Intl` in the framework, and pulling `package:intl` in would be a dependency decision made on a consumer's behalf.

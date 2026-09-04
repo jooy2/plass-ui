@@ -1031,6 +1031,37 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlAnimateFloat: [
+    {
+      name: 'distance',
+      type: 'number | string',
+      default: '8',
+      description: {
+        ko: '시작한 자리에서 얼마나 멀어지는지. 작은 것이 의도입니다 — 열두 픽셀쯤을 넘으면 표류가 아니라 움직이는 무언가가 됩니다',
+        en: 'How far it drifts from where it started. Small on purpose: past about a dozen pixels it stops being a drift'
+      }
+    },
+    {
+      name: 'orientation',
+      type: "'vertical' | 'horizontal'",
+      default: "'vertical'",
+      description: { ko: '어느 쪽으로 떠다닐지', en: 'Which way it drifts' }
+    },
+    ...animateProps({
+      duration: '3000',
+      repeat: "'infinite'",
+      omit: ['mode', 'stagger', 'durationStep', 'reverse', 'timeline', 'range']
+    }),
+    {
+      name: 'render',
+      type: 'ReactElement | (props, state) => ReactElement',
+      description: {
+        ko: '<div> 대신 다른 요소로 렌더링합니다',
+        en: 'Renders something other than a <div>'
+      }
+    }
+  ],
+
   PlAnimateGrow: [
     {
       name: 'mode',

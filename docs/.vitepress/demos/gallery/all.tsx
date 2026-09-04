@@ -4,6 +4,7 @@ import {
   PlAccordionItem,
   PlAlert,
   PlAnimateFade,
+  PlAnimateFloat,
   PlAnimateTyping,
   PlAnimateHeadline,
   PlAnimateMarquee,
@@ -2073,6 +2074,22 @@ const entries: Entry[] = [
       <PlAnimateFade duration={1400} repeat="infinite" alternate>
         <PlChip color="primary">Fading</PlChip>
       </PlAnimateFade>
+    )
+  },
+  {
+    name: 'PlAnimateFloat',
+    group: 'transitions',
+    href: 'components/transitions/animate-float',
+    blurb: {
+      en: 'Content drifting gently, and not going anywhere.',
+      ko: '가만히 떠서 흔들릴 뿐 어디로도 가지 않습니다.'
+    },
+    preview: (
+      <PlAnimateFloat>
+        <div className="flex size-12 items-center justify-center rounded-2xl [background-image:var(--plass-primary-fill)] text-lg text-(--plass-primary-on-solid)">
+          ☁
+        </div>
+      </PlAnimateFloat>
     )
   },
   {

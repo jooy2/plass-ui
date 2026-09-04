@@ -303,6 +303,24 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlAccordionItem', 'children', { name: 'child', type: 'Widget?' })
   ],
 
+  PlAnimateFloat: [
+    from('PlAnimateFloat', 'distance', { type: 'double', default: '8' }),
+    from('PlAnimateFloat', 'orientation', {
+      type: 'PlassOrientation',
+      default: 'PlassOrientation.vertical'
+    }),
+    ...animateFlutterProps('PlAnimateFloat', {
+      duration: 'Duration(milliseconds: 3000)',
+      repeat: 'null'
+    }),
+    {
+      name: 'child',
+      type: 'Widget',
+      required: true,
+      description: { ko: '무엇이 떠다니는지', en: 'What drifts' }
+    }
+  ],
+
   PlAnimateGrow: [
     from('PlAnimateGrow', 'mode', {
       type: 'PlassAnimateMode',

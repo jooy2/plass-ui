@@ -6,6 +6,18 @@
 
 ### Added
 
+- **`PlAnimateFloat`.** Content drifting gently, and not going anywhere. It is the odd one out in the group and the page says so: every other effect here is an **entrance**, played once when content arrives, and this one never finishes.
+
+  Three things follow from that. It repeats **infinitely** by default, because one drift out and back is a nudge and nobody asks for a nudge. It has **no `mode`**, because the cycle is symmetric and running a symmetric cycle backwards is the same cycle. And it is **not in `PlassAnimation`**.
+
+  That last one is the decision worth recording. The union is the set of ways content can _arrive_, and an object literal does not tree-shake per key — so every component importing the effect map pays for each row whether or not it uses it. An endless drift is not an arrival and is a row nothing else could ever want, which is exactly the line the `PlAnimateReveal` entry drew when it joined the union. It runs its own keyframe instead.
+
+  The cycle is home, out, home, so however many times it runs it ends where it started: a float stopped mid-cycle would leave the element permanently a few pixels out of place, which reads as a layout bug rather than as an effect that ended.
+
+  `easing` defaults to `ease-in-out`, and it is **the one component in the library that does not take the house curve**. The house curve is an entrance's — fast out of the gate, slow into place — and a drift with it lurches at each end of the cycle instead of turning around, because there is no gate: the element is already there and is only breathing.
+
+  Measured with `npm run size`: **+0.2 kB on the whole library and +0.0 kB on all four other scenarios**, which is what staying out of the union bought.
+
 - **`PlHowToSteps` and `PlHowToStep`.** Instructions, numbered, with what to do under each one. Three components in the library now put things in order and the difference is not the drawing: a `PlStepper` and a `PlTimeline` both say **where you are** — one in a process the reader is moving through now, the other in a sequence that has already happened — and this one says **what to do**.
 
   That is the shape everything else follows from: **every step's body is open at once.** Somebody following instructions reads ahead, goes back a step, and works at their own pace, so a guide that showed one step at a time would be hiding the answer to "what am I about to be asked for".

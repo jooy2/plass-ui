@@ -1374,6 +1374,33 @@
 }
 
 /*
+ * An endless drift.
+ *
+ * Symmetric like the blink above and for the same reason: however many times it
+ * runs it ends where it started, so a float that was stopped mid-cycle does not
+ * leave the element permanently a few pixels out of place.
+ *
+ * It is **not** one of the entrances, and it is not in `PlassAnimation` either.
+ * That union is the set of ways content can *arrive*, and every component
+ * importing the map that backs it pays for each row whether it uses it or not;
+ * a drift that never finishes is not an arrival and would be a row nothing else
+ * could ever want.
+ */
+@keyframes plass-anim-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: var(--p-anim-x, 0) var(--p-anim-y, 0);
+  }
+}
+
+.plass-anim-float {
+  animation-name: plass-anim-float;
+}
+
+/*
  * The light travelling around the outside of something.
  *
  * What moves is the `from` angle of a conic gradient, which is only animatable
