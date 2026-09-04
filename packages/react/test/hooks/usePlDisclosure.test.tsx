@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useState } from 'react';
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { usePlDisclosure } from 'plass-ui';
@@ -9,8 +9,19 @@ import { usePlDisclosure } from 'plass-ui';
  */
 function Subject({ initial }: { initial?: boolean }) {
   const disclosure = usePlDisclosure(initial);
-  const first = useRef(disclosure.onOpen);
-  const stable = first.current === disclosure.onOpen;
+  // State rather than a ref, because the note is read during the render that
+  // compares against it, and a ref read there is the thing refs are not for.
+  const [first] = useState(() => ({
+    onOpen: disclosure.onOpen,
+    onClose: disclosure.onClose,
+    onToggle: disclosure.onToggle,
+    setOpen: disclosure.setOpen
+  }));
+  const stable =
+    first.onOpen === disclosure.onOpen &&
+    first.onClose === disclosure.onClose &&
+    first.onToggle === disclosure.onToggle &&
+    first.setOpen === disclosure.setOpen;
 
   return (
     <div>
