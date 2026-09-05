@@ -3,10 +3,10 @@
   "scenarios": {
     "PlButton 하나": 6379,
     "PlTypography 하나": 3069,
-    "PlImage 하나": 5663,
-    "PlGallery 하나": 7929,
+    "PlImage 하나": 6543,
+    "PlGallery 하나": 8770,
     "폼 5개": 20321,
     "오버레이 5개": 89409,
-    "전체": 286384
+    "전체": 287236
   }
 }
