@@ -41,6 +41,7 @@ import {
   PlCheckbox,
   PlChip,
   PlCodeBlock,
+  PlLineChart,
   PlGallery,
   PlCollapsible,
   PlConfirmProvider,
@@ -160,7 +161,14 @@ interface GalleryProps {
 
 /** The sidebar's own groups, in the sidebar's own order. */
 type Group =
-  'display' | 'feedback' | 'inputs' | 'layout' | 'navigation' | 'surfaces' | 'transitions';
+  | 'charts'
+  | 'display'
+  | 'feedback'
+  | 'inputs'
+  | 'layout'
+  | 'navigation'
+  | 'surfaces'
+  | 'transitions';
 
 /**
  * `PlBackTop` is hidden until it is useful, so a preview of it needs something
@@ -1106,6 +1114,31 @@ const entries: Entry[] = [
           { src: '/gallery-4.svg', alt: 'A market' },
           { src: '/gallery-5.svg', alt: 'Dunes' },
           { src: '/gallery-6.svg', alt: 'A terrace' }
+        ]}
+      />
+    )
+  },
+  {
+    name: 'PlLineChart',
+    group: 'charts',
+    href: 'components/charts/line-chart',
+    blurb: {
+      en: 'A value against time, or against anything else with an order to it.',
+      ko: '시간에 대한, 또는 순서가 있는 무엇에 대한 값입니다.'
+    },
+    preview: (
+      <PlLineChart
+        size="xs"
+        className="w-full"
+        height={96}
+        legend={false}
+        xAxis={{ hidden: true }}
+        yAxis={{ hidden: true }}
+        markers="none"
+        curve="smooth"
+        series={[
+          { name: 'Europe', data: [42, 45, 51, 49, 58, 63, 61, 68, 72] },
+          { name: 'Asia', data: [28, 31, 30, 36, 39, 42, 48, 47, 53] }
         ]}
       />
     )

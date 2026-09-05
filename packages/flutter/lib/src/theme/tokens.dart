@@ -213,6 +213,9 @@ class PlassTokens {
     required this.shadowAmbient,
     required this.tintStrength,
     required this.scrim,
+    required this.chart,
+    required this.chartSequential,
+    required this.chartDiverging,
     required this.families,
   });
 
@@ -271,6 +274,30 @@ class PlassTokens {
     shadowAmbient: const Color(0x1A14285A),
     tintStrength: 35,
     scrim: const Color(0x66101828),
+    chart: <Color>[
+      Color(0xFF3F63F2),
+      Color(0xFFCF5C00),
+      Color(0xFFE23895),
+      Color(0xFF997B00),
+      Color(0xFF0288B8),
+      Color(0xFF039227),
+      Color(0xFFA657ED),
+      Color(0xFF058F80),
+    ],
+    chartSequential: <Color>[
+      Color(0xFF95B5EE),
+      Color(0xFF6E9AEC),
+      Color(0xFF477EE8),
+      Color(0xFF2763D7),
+      Color(0xFF1346AB),
+    ],
+    chartDiverging: <Color>[
+      Color(0xFF055D7E),
+      Color(0xFF2095C5),
+      Color(0xFFB1B4B9),
+      Color(0xFFD4614C),
+      Color(0xFF9A210C),
+    ],
     families: _familiesFor(accents: _lightAccents, tintStrength: 35),
   );
 
@@ -298,6 +325,30 @@ class PlassTokens {
     shadowAmbient: const Color(0x6B000000),
     tintStrength: 55,
     scrim: const Color(0x99000000),
+    chart: <Color>[
+      Color(0xFF93A8FF),
+      Color(0xFFE66700),
+      Color(0xFFEF45A0),
+      Color(0xFFB08E05),
+      Color(0xFF049FD6),
+      Color(0xFF07B031),
+      Color(0xFFB264FB),
+      Color(0xFF02A998),
+    ],
+    chartSequential: <Color>[
+      Color(0xFF294C91),
+      Color(0xFF3263C3),
+      Color(0xFF3F7CF3),
+      Color(0xFF6A9CFB),
+      Color(0xFF9EBEF8),
+    ],
+    chartDiverging: <Color>[
+      Color(0xFF066082),
+      Color(0xFF0892C4),
+      Color(0xFFAEB1B6),
+      Color(0xFFD15E49),
+      Color(0xFF9A2B19),
+    ],
     families: _familiesFor(accents: _darkAccents, tintStrength: 55),
   );
 
@@ -415,6 +466,43 @@ class PlassTokens {
 
   /// The scrim behind a modal surface.
   final Color scrim;
+
+  /// Eight hues in a fixed order, and the one place in the library where a
+  /// colour is not a semantic role.
+  ///
+  /// A series is an *entity* — a region, a plan, a competitor — and nothing
+  /// about it says success or danger. What the colour has to do is stay the
+  /// same colour when the chart is filtered, and be tellable apart from its
+  /// neighbours by every reader. So these are not the six families reused:
+  /// those were picked to mean something on a control, they are only six, and
+  /// two of them sit close enough in hue that adjacent series would collapse.
+  ///
+  /// Every slot clears 4:1 on the light surface and 4.9:1 on the dark one, and
+  /// adjacent pairs are at least 10.4 apart in OKLab (×100) under simulated
+  /// protanopia and deuteranopia — the pair that touches in a stack or a
+  /// legend. Slots are handed out **in sequence and never cycled**, which is
+  /// what keeps the adjacent pairs the ones that were checked; a ninth series
+  /// is not a ninth colour, it is an "Other" row or a second chart.
+  ///
+  /// Slot one is the page's own `primary`, so a one-series chart looks like it
+  /// belongs to the screen it is on.
+  final List<Color> chart;
+
+  /// One hue, light to dark, for a mark whose colour is a **magnitude** rather
+  /// than an identity.
+  ///
+  /// A different job from [chart] and so a different set, not a subset of it: a
+  /// heatmap coloured from a categorical ramp says its cells are five unrelated
+  /// things. Five steps and not a continuum, because a reader cannot rank a
+  /// continuum by eye and can rank five steps against a legend.
+  final List<Color> chartSequential;
+
+  /// Two hues away from a pale neutral, for a value with a **middle** — a
+  /// change against last quarter, a temperature against the average.
+  ///
+  /// The neutral is not white: a cell at zero is a reading, and a white cell is
+  /// a hole in the grid.
+  final List<Color> chartDiverging;
 
   /// The six colour families, resolved for this theme.
   final Map<PlassColor, PlassColorFamily> families;

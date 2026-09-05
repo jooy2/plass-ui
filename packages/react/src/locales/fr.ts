@@ -31,6 +31,7 @@ export const fr: PlassLabels = {
   commandPalette: 'Palette de commandes',
   commandPalettePlaceholder: 'Rechercher une commande',
   gallery: 'Galerie',
+  chart: 'Graphique',
   overlay: 'Voile',
   pagination: 'Pagination',
   paginationPrevious: 'Page précédente',

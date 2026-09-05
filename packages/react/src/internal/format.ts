@@ -47,3 +47,21 @@ export function dateFormatter(
 
   return formatter;
 }
+
+const numberFormatters = new Map<string, Intl.NumberFormat>();
+
+/** A memoised `Intl.NumberFormat`. */
+export function numberFormatter(
+  locale: string | undefined,
+  options?: Intl.NumberFormatOptions
+): Intl.NumberFormat {
+  const key = cacheKey(locale, options);
+  let formatter = numberFormatters.get(key);
+
+  if (!formatter) {
+    formatter = new Intl.NumberFormat(locale, options);
+    numberFormatters.set(key, formatter);
+  }
+
+  return formatter;
+}

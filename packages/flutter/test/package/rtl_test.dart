@@ -380,6 +380,10 @@ void main() {
       'lib/src/components/color_picker/pl_color_picker.dart':
           'a hue rail is a colour space rather than a reading axis: 0° sits where 0° sits in every '
           'picker in every locale, and a mirrored one would be unrecognisable',
+      'lib/src/internal/chart_frame.dart':
+          'a plot is painted in canvas coordinates and its tooltip is placed against where the '
+          'pointer physically is; the axis itself runs left to right in every locale, which is '
+          'what every chart a reader has ever seen does with time',
     };
 
     test('lib/src is not empty (the scan below would pass vacuously)', () {

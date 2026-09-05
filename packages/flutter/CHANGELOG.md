@@ -4,6 +4,22 @@
 
 ### Added
 
+- **`PlLineChart`, and the foundation every chart after it stands on.** A value against time, or against anything else with an order to it.
+
+  **A gap is never a zero.** `PlassChartDatum.gap()` breaks the line, and a point with a gap either side is drawn as a dot rather than dropped. A chart that renders missing data as zero reports an outage as a collapse.
+
+  `PlChartCurve.smooth` is a **monotone cubic and not a spline**: a plain spline overshoots between two close points, so a series that never goes below zero would draw a curve that does.
+
+  The palette is eight hues in a fixed order, on `PlassTokens.chart`, and it is the one place in the library where a colour is not a semantic role. Slots follow a series' index in the list it was passed, never its position among the visible ones. `chartSequential` and `chartDiverging` are the two five-step ramps, for a mark whose colour is a magnitude rather than an identity.
+
+  `internal/chart.dart` is the same arithmetic the React build runs, function for function — the two must not disagree about where a tick goes, and the only way to be sure of that is for it to be the same arithmetic. `internal/chart_frame.dart` is the axes, the grid, the crosshair, the legend and the tooltip, painted rather than laid out as widgets.
+
+  **A tap leaves the tooltip up and a second tap on the same column takes it down**, which the React build has no need of: clearing it on the release would be a tooltip a reader with no pointer never gets to read, since on a touch screen the press and the release are a tenth of a second apart. A drag scrubs along the axis.
+
+  `PlChartLegend(hidden: true)` is how this side spells React's `legend={false}` — Dart has no union type — and its `side` and `align` are the library's own `PlassSide` and `PlassAlign`.
+
+  One new label, `chart`, in all seven packs.
+
 - **`PlGallery`.** A set of pictures, arranged — four layouts, captions, a pointer treatment and an optional viewer, with everything but the arrangement identical across all four.
 
   `grid` is a contact sheet, `masonry` keeps each picture's proportion and stacks the columns, `justified` keeps the proportions **and** fills every row to the edge, and `quilted` is a grid whose tiles span more than one cell, packed densely so a tile too wide for the space left drops to the next row that fits it and a later, narrower one fills the hole.

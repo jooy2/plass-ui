@@ -31,6 +31,7 @@ export const zhHans: PlassLabels = {
   commandPalette: '命令面板',
   commandPalettePlaceholder: '搜索命令',
   gallery: '图库',
+  chart: '图表',
   overlay: '遮罩',
   pagination: '分页',
   paginationPrevious: '上一页',

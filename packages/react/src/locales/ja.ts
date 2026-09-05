@@ -31,6 +31,7 @@ export const ja: PlassLabels = {
   commandPalette: 'コマンドパレット',
   commandPalettePlaceholder: 'コマンドを検索',
   gallery: 'ギャラリー',
+  chart: 'グラフ',
   overlay: 'オーバーレイ',
   pagination: 'ページ送り',
   paginationPrevious: '前のページ',

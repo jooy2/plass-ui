@@ -12458,6 +12458,187 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlLineChart: [
+    {
+      name: 'series',
+      type: 'readonly PlassChartSeries[]',
+      required: true,
+      description: { ko: '데이터', en: 'The data' }
+    },
+    {
+      name: 'categories',
+      type: 'readonly PlassChartCategory[]',
+      description: {
+        ko: 'category 축이 말하는 것. point가 직접 x를 지니지 않을 때',
+        en: 'What the category axis says, when the points do not carry it themselves'
+      }
+    },
+    {
+      name: 'curve',
+      type: "'linear' | 'smooth' | 'step'",
+      default: "'linear'",
+      description: {
+        ko: '선이 다음 점으로 가는 방법. smooth는 monotone cubic이라 이웃 둘보다 낮은 값으로 내려가지 않습니다',
+        en: 'How the line gets from one point to the next. smooth is a monotone cubic and will not dip below a value both neighbours are above'
+      }
+    },
+    {
+      name: 'markers',
+      type: "'none' | 'auto' | 'all'",
+      default: "'auto'",
+      description: {
+        ko: '점 위의 dot. auto는 열넷까지. 무엇이든 포인터 아래의 점에는 늘 붙습니다',
+        en: 'Dots on the points. auto stops at fourteen; whatever this says, the point under the pointer always gets one'
+      }
+    },
+    {
+      name: 'connectNulls',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '빈 곳에서 끊지 않고 선을 통과시킵니다. 이어 붙인 공백은 차트가 지어낸 숫자입니다',
+        en: 'Draws the line straight through a gap. A bridged gap is a number the chart made up'
+      }
+    },
+    {
+      name: 'valueLabels',
+      type: "'none' | 'last' | 'extremes' | 'all'",
+      default: "'none'",
+      description: {
+        ko: '선 위에 어떤 값을 적을지. last가 손이 가는 것입니다 — 각 series가 어디서 끝났는지',
+        en: 'Which values are written on the line. last is the one to reach for — where each series ended up'
+      }
+    },
+    {
+      name: 'stacked',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: 'series를 쌓습니다. 선 차트에서는 드물고 두 번 생각할 일입니다',
+        en: 'Stacks the series. Rare on a line chart and worth thinking twice about'
+      }
+    },
+    {
+      name: 'gradient',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '선을 자기 색의 옅은 단계에서 온전한 색으로 흐리게 합니다',
+        en: 'Fades the line from a paler step of its own hue at the start to the full colour at the end'
+      }
+    },
+    {
+      name: 'xAxis',
+      type: 'PlassChartAxis',
+      description: { ko: 'category 축', en: 'The category axis' }
+    },
+    {
+      name: 'yAxis',
+      type: 'PlassChartAxis',
+      description: { ko: '값 축', en: 'The value axis' }
+    },
+    {
+      name: 'legend',
+      type: 'PlassChartLegend',
+      description: { ko: '범례', en: 'The legend' }
+    },
+    {
+      name: 'tooltip',
+      type: 'PlassChartTooltip',
+      description: { ko: '툴팁', en: 'The tooltip' }
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      description: {
+        ko: 'plot의 높이. size 사다리로 떨어집니다',
+        en: 'How tall the plot is. Falls back to the size ladder'
+      }
+    },
+    {
+      name: 'format',
+      type: 'Intl.NumberFormatOptions',
+      description: {
+        ko: '값을 쓰는 방식. Intl에 그대로 넘어갑니다',
+        en: 'How a value is written. Passed straight to Intl'
+      }
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: 'BCP 47 태그. 숫자와 날짜의 형식을 정합니다',
+        en: 'BCP 47 tag deciding how numbers and dates are formatted'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      default: "'Chart'",
+      description: { ko: '그림 전체의 접근성 이름', en: 'What the whole drawing is called' }
+    },
+    {
+      name: 'empty',
+      type: 'ReactNode',
+      description: {
+        ko: '그릴 것이 없을 때 그리는 것',
+        en: 'What is drawn when there is nothing to draw'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '타입 스케일, plot 높이, 선 굵기, marker 반지름',
+        en: 'Type scale, plot height, line weight and marker radius'
+      }
+    },
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'ghost'",
+      shared: true,
+      description: {
+        ko: '차트가 놓인 시트. 기본은 없음 — 차트는 시트가 아니라 그림입니다',
+        en: 'The sheet the chart sits on. None by default: a chart is a drawing, not a sheet'
+      }
+    }
+  ],
+  PlassChartSeries: [
+    {
+      name: 'data',
+      type: 'readonly PlassChartDatum[]',
+      required: true,
+      description: { ko: 'category 순서대로의 값들', en: 'The values, in category order' }
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: {
+        ko: '범례·툴팁·표에서의 이름',
+        en: 'Its name in the legend, the tooltip and the data table'
+      }
+    },
+    {
+      name: 'color',
+      type: `${COLOR} | (string & {})`,
+      description: {
+        ko: '팔레트 자리를 덮어씁니다. 라이브러리에서 색이 의미 역할이 아닌 유일한 곳입니다',
+        en: 'Overrides the palette slot. The one place in the library where a colour is not a semantic role'
+      }
+    },
+    {
+      name: 'hidden',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '꺼진 채로 시작합니다. 상호작용하는 범례가 다시 켭니다',
+        en: 'Starts the series hidden. An interactive legend is what turns it back on'
+      }
+    }
+  ],
   PlCodeBlock: [
     {
       name: 'code',

@@ -10,6 +10,8 @@
 /// it is marked where it happens.
 library;
 
+import 'dart:ui' show Color;
+
 import 'package:flutter/foundation.dart';
 
 /// Scale of a component. [PlassSize.md] is the desktop default.
@@ -502,3 +504,183 @@ enum PlassAnimateMode {
 /// binding a key means, and it is why these are chords rather than letters:
 /// `hotKeys: {'a': …}` is a field that cannot type an `a`.
 typedef PlassHotKeys = Map<String, VoidCallback>;
+
+/* ---------------------------------------------------------------------------
+ * Charts
+ *
+ * The vocabulary the chart widgets share, and the reason it is here rather than
+ * in one of them: a `series` handed to a [PlLineChart] has to be the same
+ * `series` a [PlBarChart] takes, or switching a dashboard tile from one to the
+ * other is a rewrite instead of a rename. The same argument [PlassSize] makes.
+ *
+ * Everything below describes *data*. How a chart draws it — the curve, the
+ * stacking, the hole in a donut — belongs to the widget, because that is
+ * exactly the part that differs.
+ * ------------------------------------------------------------------------- */
+
+/// Where a point sits along the category axis.
+///
+/// A closed union of the three things a category can be, which is what Dart
+/// gives instead of React's `string | number | Date`. A `DateTime` is accepted
+/// because a time series is the common case, and converting one to a string at
+/// the call site is what makes two charts of the same data label their axes
+/// differently.
+class PlassChartCategory {
+  /// A category that is a word.
+  const PlassChartCategory.text(String this.text) : number = null, date = null;
+
+  /// One that is a position on a number line.
+  const PlassChartCategory.number(double this.number) : text = null, date = null;
+
+  /// One that is a moment.
+  const PlassChartCategory.date(DateTime this.date) : text = null, number = null;
+
+  /// The word, when it is one.
+  final String? text;
+
+  /// The number, when it is one.
+  final double? number;
+
+  /// The moment, when it is one.
+  final DateTime? date;
+
+  @override
+  String toString() {
+    if (text != null) {
+      return text!;
+    }
+
+    if (date != null) {
+      return date!.toIso8601String();
+    }
+
+    final double value = number!;
+
+    return value == value.roundToDouble() ? value.toInt().toString() : value.toString();
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is PlassChartCategory &&
+        other.text == text &&
+        other.number == number &&
+        other.date == date;
+  }
+
+  @override
+  int get hashCode => Object.hash(text, number, date);
+}
+
+/// One value, with everything the chart might want to know about it.
+///
+/// `y` of `null` is a **gap** and not a zero — a sensor that was offline, a
+/// month that has not closed yet. A line breaks across it, an area breaks with
+/// it, and a bar is not drawn. This distinction is the whole reason a datum may
+/// be null at all: a chart that renders missing data as zero is a chart that
+/// reports an outage as a collapse.
+class PlassChartPoint {
+  /// Creates a point.
+  const PlassChartPoint({this.y, this.x, this.z, this.color, this.label});
+
+  /// The reading, or `null` for a gap.
+  final double? y;
+
+  /// Where it sits along the category axis, when the point carries its own.
+  final PlassChartCategory? x;
+
+  /// A third dimension — the area of a bubble, the weight of a cell.
+  final double? z;
+
+  /// A colour for this one point, overriding the series'.
+  ///
+  /// The exception to the palette, for the bar that is the reader's own and the
+  /// slice that is "Other". Use it sparingly: a chart where every point picks
+  /// its own colour has no palette at all.
+  final Color? color;
+
+  /// What the tooltip and the table call this point.
+  final String? label;
+}
+
+/// One datum: either a bare reading or a point that says more about itself.
+class PlassChartDatum {
+  /// A bare reading, or `null` for a gap.
+  const PlassChartDatum(this.value) : point = null;
+
+  /// A gap.
+  const PlassChartDatum.gap() : value = null, point = null;
+
+  /// A reading with a category, a weight, a colour or a name on it.
+  const PlassChartDatum.point(PlassChartPoint this.point) : value = null;
+
+  /// The bare reading, when it is one.
+  final double? value;
+
+  /// The point, when it is one.
+  final PlassChartPoint? point;
+}
+
+/// One line, one band or one run of bars, and everything about it.
+class PlassChartSeries {
+  /// Creates a series.
+  const PlassChartSeries({
+    required this.data,
+    this.id,
+    this.name,
+    this.color,
+    this.dashed = false,
+    this.hidden = false,
+  });
+
+  /// The readings, in category order.
+  final List<PlassChartDatum> data;
+
+  /// What identifies it. Defaults to its place in the list.
+  final String? id;
+
+  /// What the legend, the tooltip and the table call it.
+  final String? name;
+
+  /// Its colour, overriding the palette slot its index would have given it.
+  final Color? color;
+
+  /// Draws the line dashed — a forecast, a target, a last year.
+  final bool dashed;
+
+  /// Starts the series switched off in the legend.
+  final bool hidden;
+}
+
+/// How much of a tooltip a pointer summons.
+enum PlassChartTooltipMode {
+  /// The whole column: every series at the category under the pointer. The
+  /// default, because a chart is nearly always read across.
+  ///
+  /// Spelled `column` and not `index`, which is what the React build calls it:
+  /// every Dart enum already has an `index`, and a value of that name cannot be
+  /// declared. The word is better anyway — what it summons *is* the column.
+  column,
+
+  /// Only the mark actually under the pointer.
+  item,
+
+  /// None at all.
+  none,
+}
+
+/// Which values are written onto the marks.
+enum PlassChartValueLabels {
+  /// None. The default: a chart with a number on every point is a table drawn
+  /// badly.
+  none,
+
+  /// The last point of each series — where it ended up, which is the question a
+  /// line chart is usually being asked.
+  last,
+
+  /// The highest and the lowest.
+  extremes,
+
+  /// Every one of them.
+  all,
+}

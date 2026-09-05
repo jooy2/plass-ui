@@ -70,6 +70,7 @@ export * from './components/how-to-steps/index.js';
 export * from './components/icon/index.js';
 export * from './components/icon-button/index.js';
 export * from './components/image/index.js';
+export * from './components/line-chart/index.js';
 export * from './components/list/index.js';
 export * from './components/menu/index.js';
 export * from './components/menubar/index.js';

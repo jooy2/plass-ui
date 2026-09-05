@@ -10,12 +10,12 @@ Live previews and full props for every component, in both frameworks. This READM
 
 ---
 
-> **Plass is one design language, shipped as two libraries.** Every surface answers a single question — is this pressed, or does it hold something? A thing you press is **tinted glass**: a gradient that _turns_ through its colour family rather than darkening, a shadow thrown in that same colour, and a bloom of light that follows your pointer across it. A thing that holds something is **clear glass**: translucent, deeply blurred, edged with a white hairline, never dyed. Nothing is bevelled, nothing is embossed and nothing moves when you press it — depth is carried by light, colour and blur. That is the whole system, and it is the same hundred and sixteen components under the same names and the same numbers whether you build in **React** or in **Flutter**.
+> **Plass is one design language, shipped as two libraries.** Every surface answers a single question — is this pressed, or does it hold something? A thing you press is **tinted glass**: a gradient that _turns_ through its colour family rather than darkening, a shadow thrown in that same colour, and a bloom of light that follows your pointer across it. A thing that holds something is **clear glass**: translucent, deeply blurred, edged with a white hairline, never dyed. Nothing is bevelled, nothing is embossed and nothing moves when you press it — depth is carried by light, colour and blur. That is the whole system, and it is the same hundred and seventeen components under the same names and the same numbers whether you build in **React** or in **Flutter**.
 
 ## Why Plass
 
 - **Finished the moment it is installed.** The gradients, the shadows, the blur, the focus ring and the press response are already decided and already agree with each other. There is no theme file to fill in before the first screen looks like something.
-- **Learn it once, use it on both.** A hundred and sixteen components in React and in Flutter under the same names: an `md` control is 40px on either side, `primary` is the same colour family, and one documentation page — with a framework switch in the sidebar — covers the two rather than drifting apart by the third release.
+- **Learn it once, use it on both.** A hundred and seventeen components in React and in Flutter under the same names: an `md` control is 40px on either side, `primary` is the same colour family, and one documentation page — with a framework switch in the sidebar — covers the two rather than drifting apart by the third release.
 - **Five props, not fifty.** `size`, `color`, `variant`, `density` and `elevation` mean the same thing on every component, so the tenth one costs nothing to learn after the first.
 - **Readable because it was measured.** Every gradient stop clears 4.5:1 against its own label, the lightest corner included. A colour choice here is not a contrast bug waiting for an audit.
 - **Accessible without the checklist.** Roles, labels, keyboard operation and focus management live inside the components rather than being bolted on afterwards.
@@ -125,6 +125,10 @@ The list below is both packages'. The props are the same props under Dart's name
 
 A **†** marks the few that are React-only. They are not omissions — each one answers a problem only the DOM has, and the Dart answer is a line of framework code rather than a component. Their pages say which.
 
+### Charts
+
+`PlLineChart`
+
 ### Display
 
 `PlAvatar` · `PlBadge` · `PlBlockquote` · `PlBreadcrumb` · `PlChip` · `PlCodeBlock` · `PlDivider` · `PlGallery` · `PlHighlight` · `PlHotKeys` · `PlIcon` · `PlImage` · `PlList` · `PlTable` · `PlStat` · `PlTextLink` · `PlTimeline` · `PlTree` · `PlTypography` · `PlVisuallyHidden`†
@@ -158,7 +162,7 @@ A **†** marks the few that are React-only. They are not omissions — each one
 `size`, `color`, `density` and the date vocabulary can be decided once for an application rather than at every call site. Optional — the library is finished without it.
 
 ```tsx
-import { PlassProvider } from 'plass-ui';
+import { PlassProvider } from "plass-ui";
 
 <PlassProvider size="sm" density="compact" locale="ko-KR">
   <App />
@@ -173,16 +177,16 @@ The Flutter package does the same through `PlassTheme.merge`, which also carries
 
 React-only, and the machinery the library already ran on rather than anything new. Import them from the barrel or from `plass-ui/hooks`.
 
-| Hook | What it answers |
-| --- | --- |
-| `usePlMediaQuery` | Whether the window matches a CSS media query, re-rendering when it stops |
-| `usePlBreakpoint` | Which rung of the breakpoint ladder the window is on |
-| `usePlBreakpointValue` | What a `PlassResponsive` map resolves to at that rung |
-| `usePlReducedMotion` | Whether the reader has asked their platform for less movement |
-| `usePlHotKeys` | Binds keyboard chords, spelled the way `PlHotKeys` draws them |
-| `usePlassDefaults` | What the nearest `PlassProvider` decided |
-| `usePlColorScheme` | The dark mode toggle — the choice, where it is kept, and what it writes |
-| `usePlToast` | Raises a toast from a click handler, under a `PlToastProvider` |
+| Hook                   | What it answers                                                          |
+| ---------------------- | ------------------------------------------------------------------------ |
+| `usePlMediaQuery`      | Whether the window matches a CSS media query, re-rendering when it stops |
+| `usePlBreakpoint`      | Which rung of the breakpoint ladder the window is on                     |
+| `usePlBreakpointValue` | What a `PlassResponsive` map resolves to at that rung                    |
+| `usePlReducedMotion`   | Whether the reader has asked their platform for less movement            |
+| `usePlHotKeys`         | Binds keyboard chords, spelled the way `PlHotKeys` draws them            |
+| `usePlassDefaults`     | What the nearest `PlassProvider` decided                                 |
+| `usePlColorScheme`     | The dark mode toggle — the choice, where it is kept, and what it writes  |
+| `usePlToast`           | Raises a toast from a click handler, under a `PlToastProvider`           |
 
 Flutter answers the same questions with framework calls — `MediaQuery`, `PlassTheme` — rather than with anything this package would add. Each hook's page names the Dart equivalent.
 

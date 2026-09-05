@@ -89,6 +89,8 @@ export interface PlassLabels {
   carouselNext: string;
   /** The wall of pictures' own landmark. */
   gallery: string;
+  /** What a drawing of numbers is called when the caller has not named it. */
+  chart: string;
   /** The palette's landmark and the placeholder in its field. */
   commandPalette: string;
   commandPalettePlaceholder: string;
@@ -203,6 +205,7 @@ export const defaultLabels: PlassLabels = {
   commandPalette: 'Command palette',
   commandPalettePlaceholder: 'Search commands',
   gallery: 'Gallery',
+  chart: 'Chart',
   overlay: 'Overlay',
   pagination: 'Pagination',
   paginationPrevious: 'Previous page',

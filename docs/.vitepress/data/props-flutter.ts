@@ -1588,6 +1588,69 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlGalleryItem', 'cols', { type: 'int', default: '1' }),
     from('PlGalleryItem', 'rows', { type: 'int', default: '1' })
   ],
+  PlLineChart: [
+    from('PlLineChart', 'series', { type: 'List<PlassChartSeries>', required: true }),
+    from('PlLineChart', 'categories', { type: 'List<PlassChartCategory>?' }),
+    from('PlLineChart', 'curve', { type: 'PlChartCurve', default: 'PlChartCurve.linear' }),
+    from('PlLineChart', 'markers', { type: 'PlChartMarkers', default: 'PlChartMarkers.auto' }),
+    from('PlLineChart', 'connectNulls', { type: 'bool', default: 'false' }),
+    from('PlLineChart', 'valueLabels', {
+      type: 'PlassChartValueLabels',
+      default: 'PlassChartValueLabels.none'
+    }),
+    from('PlLineChart', 'xAxis', { type: 'PlChartAxis', default: 'PlChartAxis()' }),
+    from('PlLineChart', 'yAxis', { type: 'PlChartAxis', default: 'PlChartAxis()' }),
+    from('PlLineChart', 'legend', {
+      type: 'PlChartLegend',
+      default: 'PlChartLegend()',
+      description: {
+        ko: '범례. React의 `legend={false}`는 여기서 `PlChartLegend(hidden: true)`입니다 — Dart에는 union 타입이 없습니다',
+        en: "The legend. React's `legend={false}` is `PlChartLegend(hidden: true)` here, because Dart has no union type"
+      }
+    }),
+    from('PlLineChart', 'tooltip', {
+      type: 'PlChartTooltip',
+      default: 'PlChartTooltip()',
+      description: {
+        ko: '툴팁. 끄는 것은 `PlChartTooltip(hidden: true)`입니다',
+        en: 'The tooltip. Turning it off is `PlChartTooltip(hidden: true)`'
+      }
+    }),
+    from('PlLineChart', 'height', { type: 'double?' }),
+    from('PlLineChart', 'format', {
+      type: 'String Function(double)?',
+      description: {
+        ko: '값을 쓰는 방식. 프레임워크에 Intl이 없으므로 옵션이 아니라 콜백입니다',
+        en: 'How a value is written. A callback rather than Intl options, because the framework ships no Intl'
+      }
+    }),
+    from('PlLineChart', 'label', { name: 'semanticLabel', type: 'String?', default: "'Chart'" }),
+    from('PlLineChart', 'empty', { type: 'Widget?' }),
+    from('PlLineChart', 'size', { type: SIZE, default: 'PlassSize.md' })
+  ],
+  PlassChartSeries: [
+    from('PlassChartSeries', 'data', { type: 'List<PlassChartDatum>', required: true }),
+    from('PlassChartSeries', 'name', { type: 'String?' }),
+    from('PlassChartSeries', 'color', { type: 'Color?' }),
+    from('PlassChartSeries', 'hidden', { type: 'bool', default: 'false' }),
+    {
+      name: 'id',
+      type: 'String?',
+      description: {
+        ko: '무엇이 이 series인지. 기본은 리스트에서의 자리입니다',
+        en: 'What identifies it. Defaults to its place in the list'
+      }
+    },
+    {
+      name: 'dashed',
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '선을 점선으로 — 예측, 목표, 작년',
+        en: 'Draws the line dashed — a forecast, a target, a last year'
+      }
+    }
+  ],
   PlCodeBlock: [
     from('PlCodeBlock', 'code', { type: 'String', required: true }),
     {

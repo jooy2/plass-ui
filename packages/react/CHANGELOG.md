@@ -10,6 +10,24 @@
 
 ### Added
 
+- **`PlLineChart`, and the foundation every chart after it stands on.** A value against time, or against anything else with an order to it.
+
+  The line is the mark that says *change*: it claims the space between two points is a journey rather than two separate facts, which is true of a temperature and false of four product categories.
+
+  **A `null` is a gap and never a zero** — a sensor that was offline, a month that has not closed yet. The line breaks across it, and a point with a gap either side is drawn as a dot rather than dropped. A chart that renders missing data as zero reports an outage as a collapse; `connectNulls` bridges it and should stay off unless the gap is an artefact of collection.
+
+  `curve="smooth"` is a **monotone cubic and not a spline**. A plain spline overshoots between two close points, so a series that never goes below zero draws a curve that does: a chart is allowed to be curved and it is not allowed to show a value that is not in the data.
+
+  **The value axis leaves zero out, and a bar chart's will not.** A line encodes a *position*, so cropping the scale moves every point by the same amount and the shape survives; a bar encodes a *length*, which stops meaning anything the moment it starts from 98.
+
+  The palette is **eight hues in a fixed order** — `--plass-chart-1` through `-8` — and it is the one place in the library where a colour is not a semantic role: a series is an entity, not a severity. Every slot clears 4:1 on the light surface and 4.9:1 on the dark one, and adjacent pairs are at least 10.4 apart in OKLab under simulated protanopia and deuteranopia, which is the pair that touches in a stack or a legend. Slot one is the page's own `primary`, so a one-series chart looks like it belongs. **Slots follow a series' index in the array it was passed**, never its position among the visible ones: a reader who learned that Europe is blue has learned something a filter is not allowed to take back. There are also a five-step sequential ramp and a five-step diverging one, for a mark whose colour is a magnitude rather than an identity.
+
+  Two internals arrive with it and are the reason the next eight charts are small. `internal/chart.ts` is the arithmetic — scales, nice numbers, band scales, path building, colour — and knows nothing about React or SVG. `internal/chart-frame.tsx` is everything a chart draws that is *not* its marks: the axes, the grid, the crosshair, the legend, the tooltip, the empty state, the hidden table a screen reader reads instead of the picture, and the measurement that turns a percentage width into the pixels an SVG needs.
+
+  One new label, `chart`, in all seven packs.
+
+  Measured with `npm run size`: **+8.4 kB on the whole library and +0.0 kB on all four other scenarios** — the foundation is most of it, and the eight charts after this one pay for it once.
+
 - **`PlGallery`.** A set of pictures, arranged — four layouts, captions, a pointer treatment and an optional lightbox, with everything but the arrangement identical across all four.
 
   `grid` is a contact sheet: every tile the gallery's own ratio, whatever shape the file is. `masonry` keeps each picture's proportion and stacks the columns. `justified` keeps the proportions **and** fills every row to the edge — the only arrangement where nothing is cropped and no space is left over. `quilted` is a grid whose tiles span more than one cell, packed densely so a tile too wide for the space left drops to the next row that fits it and a later, narrower one fills the hole.

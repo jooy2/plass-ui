@@ -302,6 +302,15 @@ export type PlassToken =
   | `--plass-${PlassColor}-${PlassColorSlot}`
   | `--plass-radius-${PlassSize}`
   | `--plass-shadow-${0 | 1 | 2 | 3 | 4}`
+  // The chart palette: eight categorical slots and the two five-step ramps, plus
+  // what is legible written *on* a ramp step. Templated rather than written out
+  // because the numbers are a ladder and the only thing to get wrong is how far
+  // it goes.
+  | `--plass-chart-${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8}`
+  | `--plass-chart-seq-${1 | 2 | 3 | 4 | 5}`
+  | `--plass-chart-div-${1 | 2 | 3 | 4 | 5}`
+  | `--plass-chart-seq-on-${1 | 2 | 3 | 4 | 5}`
+  | `--plass-chart-div-on-${1 | 2 | 3 | 4 | 5}`
   | '--plass-shadow-ambient'
   | '--plass-bg-from'
   | '--plass-bg-to'
@@ -551,4 +560,244 @@ export interface PlassAnimateTimelineProps {
    * @default 'entry 0% cover 45%'
    */
   range?: string;
+}
+
+/* ---------------------------------------------------------------------------
+ * Charts
+ *
+ * The vocabulary the chart components share, and the reason it is here rather
+ * than in one of them: a `series` handed to a PlLineChart has to be the same
+ * `series` a PlBarChart takes, or switching a dashboard tile from one to the
+ * other is a rewrite instead of a rename. The same argument `PlassSize` makes.
+ *
+ * Everything below describes *data*. How a chart draws it — the curve, the
+ * stacking, the hole in a donut — belongs to the component, because that is
+ * exactly the part that differs.
+ * ------------------------------------------------------------------------- */
+
+/**
+ * Where a point sits along the category axis.
+ *
+ * A `Date` is accepted because a time series is the common case and converting
+ * one to a string at the call site is what makes two charts of the same data
+ * label their axes differently.
+ */
+export type PlassChartCategory = string | number | Date;
+
+/**
+ * One value, with everything the chart might want to know about it.
+ *
+ * `y` of `null` is a **gap** and not a zero — a sensor that was offline, a month
+ * that has not closed yet. A line breaks across it, an area breaks with it, and
+ * a bar is not drawn. This distinction is the whole reason a datum may be
+ * `null` at all: a chart that renders missing data as zero is a chart that
+ * reports an outage as a collapse.
+ */
+export interface PlassChartPoint {
+  /**
+   * Its place on the category axis. Optional — without it the point is placed
+   * by its index, against `categories` if the chart was given any.
+   */
+  x?: PlassChartCategory;
+  /** The value. `null` is a gap. */
+  y: number | null;
+  /**
+   * A second magnitude, for the marks that have one: the radius of a bubble,
+   * the weight of a tile. Ignored by the charts that do not.
+   */
+  z?: number;
+  /**
+   * Overrides the series' colour for this one point — the slice worth pointing
+   * at, the bar that is over budget. Any CSS colour, or a `PlassColor` family.
+   */
+  color?: string;
+  /** What the tooltip, the legend and any value label say instead of `y`. */
+  label?: React.ReactNode;
+}
+
+/** A number, a gap, or a point that says more about itself. */
+export type PlassChartDatum = number | null | PlassChartPoint;
+
+/**
+ * One line, one band of bars, one ring of slices — and the unit identity is
+ * attached to.
+ *
+ * Colour follows the series, never its position in the drawing: a chart whose
+ * legend is filtered keeps every survivor on the colour it had. That is why the
+ * slot a series takes is decided by where it sits in this array and not by how
+ * many of its neighbours are currently visible.
+ */
+export interface PlassChartSeries {
+  /**
+   * Its name in the legend, the tooltip and the data table. A chart with two or
+   * more series always shows a legend, so a series without a name is a series
+   * the reader cannot identify.
+   */
+  name?: string;
+  /** The values, in category order. */
+  data: readonly PlassChartDatum[];
+  /**
+   * Overrides the palette slot this series would otherwise take. A `PlassColor`
+   * family name, or any CSS colour.
+   *
+   * This is the one place in the library where a colour is not a semantic role,
+   * and it is deliberate: a series is an *entity* — a region, a plan, a
+   * competitor — and nothing about it means success or danger. Reach for it to
+   * match a brand or to hold a colour steady across two charts, not to say how
+   * a number should be felt.
+   */
+  color?: PlassColor | (string & {});
+  /**
+   * Starts the series hidden. Only meaningful with an interactive legend, which
+   * is what turns it back on.
+   * @default false
+   */
+  hidden?: boolean;
+}
+
+/**
+ * One span on a [PlTimelineChart] — a stretch of time with two ends.
+ *
+ * Its own type rather than a `z2` or an `x2` bolted onto `PlassChartPoint`,
+ * because a second position on the axis is a field the other six charts would
+ * carry and never read. The trade the whole `types.ts` makes is that a name
+ * means one thing everywhere; a `PlassChartPoint` that sometimes has an end and
+ * usually does not is the opposite of that.
+ *
+ * `start` and `end` rather than `x` and `end`: a span has two places on the
+ * axis, and naming one of them `x` only reads correctly to someone who already
+ * knows which one it is.
+ */
+export interface PlassTimelinePoint {
+  /** When it begins. A `Date`, or a number of milliseconds. */
+  start: PlassChartCategory;
+  /** And when it is done. A span that ends before it starts is drawn either way round. */
+  end: PlassChartCategory;
+  /** What the span is called, in the tooltip and the table. */
+  label?: React.ReactNode;
+  /** Overrides its row's colour for this one span. */
+  color?: PlassColor | (string & {});
+}
+
+/**
+ * One row of a PlTimelineChart, and everything on it.
+ *
+ * A row is a series — one entity, one name, one colour — but its data are
+ * spans rather than values, so it cannot be a `PlassChartSeries`. There is no
+ * `hidden` here and no legend to pair it with: a Gantt's rows *are* its
+ * category axis, already named down the side, and a twenty-entry legend
+ * restating them is not a filter anyone wants.
+ */
+export interface PlassTimelineSeries {
+  /** Its name on the axis, in the tooltip and in the table. */
+  name?: string;
+  /** The spans on this row. Overlapping ones are drawn over each other. */
+  data: readonly PlassTimelinePoint[];
+  /** Overrides the palette slot this row would otherwise take. */
+  color?: PlassColor | (string & {});
+}
+
+/** How a line gets from one point to the next. */
+export type PlassChartCurve = 'linear' | 'smooth' | 'step';
+
+/**
+ * Which values are written onto the marks themselves.
+ *
+ * The default is `none` everywhere, and that is not timidity — a number beside
+ * every point is the most reliable way to make a chart unreadable. Label the
+ * end, or the extremes, and let the axis and the tooltip carry the rest;
+ * `'all'` is there for the eight-bar chart where it genuinely is the answer.
+ */
+export type PlassChartValueLabels = 'none' | 'last' | 'extremes' | 'all';
+
+/**
+ * What the pointer uncovers.
+ *
+ * - `index` — every series at the category under the pointer, with a crosshair.
+ *   The default on anything with a shared x axis, because the question a line
+ *   chart is asked is "what happened in March", not "what is this pixel".
+ * - `item` — the one mark being pointed at.
+ * - `none` — no tooltip. The values still have to be readable some other way.
+ */
+export type PlassChartTooltipMode = 'index' | 'item' | 'none';
+
+/** One series' answer at the category the pointer is on. */
+export interface PlassChartTooltipItem {
+  /** Its place in the `series` array — the same index its colour came from. */
+  seriesIndex: number;
+  name?: string;
+  color: string;
+  value: number | null;
+  /** `value` run through the chart's `format`. */
+  formatted: string;
+  /** What the point called itself, if it said. */
+  label?: React.ReactNode;
+}
+
+/** What a custom tooltip is handed. */
+export interface PlassChartTooltipContext {
+  index: number;
+  category: PlassChartCategory;
+  /** Only the series that are visible and have a value here. */
+  items: readonly PlassChartTooltipItem[];
+}
+
+/** The tooltip, when a bare `true` or `false` is not enough. */
+export interface PlassChartTooltip {
+  /** @default 'index' */
+  mode?: PlassChartTooltipMode;
+  /**
+   * The line dropped through the plot at the active category. On in `index`
+   * mode, where it is what says which column the numbers belong to.
+   */
+  crosshair?: boolean;
+  /** Draws the panel. Without it the chart draws its own. */
+  render?: (context: PlassChartTooltipContext) => React.ReactNode;
+}
+
+/** One axis of a cartesian chart. */
+export interface PlassChartAxis {
+  /** Leaves the axis undrawn — its rule, its ticks and its labels. */
+  hidden?: boolean;
+  /** A name for what the axis measures, set beside it. */
+  label?: React.ReactNode;
+  /**
+   * The gridlines this axis casts across the plot. On by default for the value
+   * axis and off for the category axis, which is the only arrangement where the
+   * grid helps read a value without turning the plot into graph paper.
+   */
+  grid?: boolean;
+  /**
+   * Where the scale starts and ends. Left out, both are taken from the data —
+   * the value axis from zero, so a bar's length stays proportional to its
+   * value. Set `min` only when zero is genuinely not the baseline.
+   */
+  min?: number;
+  max?: number;
+  /** Roughly how many ticks. The scale still rounds to clean numbers. */
+  tickCount?: number;
+  /** How a tick is written, overriding the chart's own `format`. */
+  tickFormat?: (value: PlassChartCategory, index: number) => React.ReactNode;
+  /**
+   * How much room the axis keeps for its ticks and its label, in pixels.
+   * Measured from the ticks themselves otherwise; set it when a long category
+   * name needs more, or when two charts stacked on a dashboard have to line
+   * their plots up.
+   */
+  thickness?: number;
+}
+
+/** Where the legend sits, and whether it does anything when clicked. */
+export interface PlassChartLegend {
+  /** Which edge of the plot. @default 'bottom' */
+  side?: PlassSide;
+  /** Where along that edge. @default 'center' */
+  align?: PlassAlign;
+  /**
+   * Clicking an entry hides and shows its series; hovering one dims the rest.
+   * @default true
+   */
+  interactive?: boolean;
+  /** Draws each series' current value beside its name. @default false */
+  showValue?: boolean;
 }

@@ -89,6 +89,7 @@ export 'src/components/how_to_steps/pl_how_to_steps.dart';
 export 'src/components/icon/pl_icon.dart';
 export 'src/components/icon_button/pl_icon_button.dart';
 export 'src/components/image/pl_image.dart';
+export 'src/components/line_chart/pl_line_chart.dart';
 export 'src/components/list/pl_list.dart';
 export 'src/components/menu/pl_menu.dart';
 export 'src/components/menubar/pl_menubar.dart';

@@ -290,6 +290,7 @@ class PlassLabels {
     this.commandPalette = 'Command palette',
     this.commandPalettePlaceholder = 'Search commands',
     this.gallery = 'Gallery',
+    this.chart = 'Chart',
     this.overlay = 'Overlay',
     this.pagination = 'Pagination',
     this.paginationPrevious = 'Previous page',
@@ -372,6 +373,7 @@ class PlassLabels {
     String? commandPalette,
     String? commandPalettePlaceholder,
     String? gallery,
+    String? chart,
     String? overlay,
     String? pagination,
     String? paginationPrevious,
@@ -446,6 +448,7 @@ class PlassLabels {
       commandPalette: commandPalette ?? this.commandPalette,
       commandPalettePlaceholder: commandPalettePlaceholder ?? this.commandPalettePlaceholder,
       gallery: gallery ?? this.gallery,
+      chart: chart ?? this.chart,
       overlay: overlay ?? this.overlay,
       pagination: pagination ?? this.pagination,
       paginationPrevious: paginationPrevious ?? this.paginationPrevious,
@@ -581,6 +584,9 @@ class PlassLabels {
 
   /// The wall of pictures' own landmark.
   final String gallery;
+
+  /// What a drawing of numbers is called when the caller has not named it.
+  final String chart;
 
   /// What a sheet over the whole screen is called when it has no name.
   final String overlay;

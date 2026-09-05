@@ -52,6 +52,7 @@ List<String> words(PlassLabels labels) => <String>[
   labels.commandPalette,
   labels.commandPalettePlaceholder,
   labels.gallery,
+  labels.chart,
   labels.overlay,
   labels.pagination,
   labels.paginationPrevious,

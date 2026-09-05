@@ -271,6 +271,10 @@ import 'package:plass_ui_example/demos/icon_button/hero.dart';
 import 'package:plass_ui_example/demos/icon_button/sizes.dart';
 import 'package:plass_ui_example/demos/icon_button/states.dart';
 import 'package:plass_ui_example/demos/icon_button/variants.dart';
+import 'package:plass_ui_example/demos/line_chart/curve.dart';
+import 'package:plass_ui_example/demos/line_chart/gaps.dart';
+import 'package:plass_ui_example/demos/line_chart/hero.dart';
+import 'package:plass_ui_example/demos/line_chart/labels.dart';
 import 'package:plass_ui_example/demos/list/dividers.dart';
 import 'package:plass_ui_example/demos/list/hero.dart';
 import 'package:plass_ui_example/demos/list/rows.dart';
@@ -811,6 +815,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'hot-keys/os': _hotKeysOs,
   'hot-keys/cluster': _hotKeysCluster,
   'hot-keys/list': _hotKeysList,
+  'line-chart/curve': _lineChartCurve,
+  'line-chart/gaps': _lineChartGaps,
+  'line-chart/hero': _lineChartHero,
+  'line-chart/labels': _lineChartLabels,
   'list/rows': _listRows,
   'list/variants': _listVariants,
   'list/sizes': _listSizes,
@@ -1051,6 +1059,14 @@ Widget _galleryHero(BuildContext context) => const GalleryHero();
 Widget _galleryLayouts(BuildContext context) => const GalleryLayouts();
 
 Widget _galleryQuilted(BuildContext context) => const GalleryQuilted();
+
+Widget _lineChartCurve(BuildContext context) => const LineChartCurve();
+
+Widget _lineChartGaps(BuildContext context) => const LineChartGaps();
+
+Widget _lineChartHero(BuildContext context) => const LineChartHero();
+
+Widget _lineChartLabels(BuildContext context) => const LineChartLabels();
 
 Widget _treeSelectBranches(BuildContext context) => const TreeSelectBranches();
 

@@ -302,6 +302,92 @@
   --plass-warning-accent: #96600c;
   --plass-danger-accent: #bb3339;
   --plass-info-accent: #1668ae;
+
+  /* Eight hues in a fixed order, and the one place in the library where a
+     colour is not a semantic role.
+
+     A series is an *entity* — a region, a plan, a competitor — and nothing
+     about it says success or danger. What the colour has to do is stay the same
+     colour when the chart is filtered, and be tellable apart from its
+     neighbours by every reader. So these are not the six families reused: those
+     were picked to mean something on a control, they are only six, and two of
+     them (`secondary`, `info`) sit close enough in hue that adjacent series
+     would collapse.
+
+     What the eight satisfy, measured against this file's own grounds rather
+     than asserted:
+
+     - every slot at 4:1 or better on white and 4.9:1 or better on the dark
+       sheet, so a 2px line is a line;
+     - adjacent pairs at least 10.4 apart in OKLab (×100) under simulated
+       protanopia and deuteranopia, which is the pair that touches in a stack
+       or a legend;
+     - chroma at or above 0.10, below which a hue reads as grey and stops
+       carrying identity at all.
+
+     The order is the mechanism, not a preference: slots are handed out in
+     sequence and never cycled, which is what keeps the *adjacent* pairs the
+     ones that were checked. A ninth series is not a ninth colour; it is an
+     "Other" row, or a second chart.
+
+     Slot one is the page's own `primary`, not a solved hue like the rest — a
+     one-series chart should look like it belongs to the page it is on. It is
+     the one slot louder than its neighbours (4.9:1 against their 4:1), and
+     that is the price. */
+  --plass-chart-1: #3f63f2;
+  --plass-chart-2: #cf5c00;
+  --plass-chart-3: #e23895;
+  --plass-chart-4: #997b00;
+  --plass-chart-5: #0288b8;
+  --plass-chart-6: #039227;
+  --plass-chart-7: #a657ed;
+  --plass-chart-8: #058f80;
+
+  /* The sequential ramp — one hue, light to dark, for a mark whose colour is a
+     *magnitude* rather than an identity.
+
+     A different job from the eight above and so a different set, not a subset
+     of them. The eight are solved to be as far apart as possible, which is
+     exactly what a magnitude must not be: a heatmap coloured from a categorical
+     ramp says its cells are five unrelated things. Here the order is the whole
+     meaning, so what is solved for is the opposite — one hue throughout,
+     lightness strictly falling, and the palest step still at 2.07:1 on the
+     sheet, because below that the low end of the scale reads as empty rather
+     than as small.
+
+     Five steps and not a continuous gradient, because a reader cannot rank a
+     continuum by eye and can rank five steps against a legend. */
+  --plass-chart-seq-1: #95b5ee;
+  --plass-chart-seq-2: #6e9aec;
+  --plass-chart-seq-3: #477ee8;
+  --plass-chart-seq-4: #2763d7;
+  --plass-chart-seq-5: #1346ab;
+
+  /* And the diverging ramp, for a value with a **middle** — a change against
+     last quarter, a temperature against the average. Two hues away from a pale
+     neutral, so which side of zero a cell is on is the first thing read and how
+     far from it the second. The neutral is not white: a cell at zero is a
+     reading, and a white cell is a hole in the grid. */
+  --plass-chart-div-1: #055d7e;
+  --plass-chart-div-2: #2095c5;
+  --plass-chart-div-3: #b1b4b9;
+  --plass-chart-div-4: #d4614c;
+  --plass-chart-div-5: #9a210c;
+
+  /* What is legible written *on* a ramp step, which flips partway down both.
+     A heatmap that writes its numbers in the cells needs this and nothing else
+     does. */
+  --plass-chart-seq-on-1: var(--plass-fg);
+  --plass-chart-seq-on-2: var(--plass-fg);
+  --plass-chart-seq-on-3: var(--plass-fg);
+  --plass-chart-seq-on-4: var(--plass-surface);
+  --plass-chart-seq-on-5: var(--plass-surface);
+
+  --plass-chart-div-on-1: var(--plass-surface);
+  --plass-chart-div-on-2: var(--plass-fg);
+  --plass-chart-div-on-3: var(--plass-fg);
+  --plass-chart-div-on-4: var(--plass-fg);
+  --plass-chart-div-on-5: var(--plass-surface);
 }
 
 /* ---------------------------------------------------------------------------
@@ -356,6 +442,39 @@
     --plass-warning-accent: #f2b74e;
     --plass-danger-accent: #ff8a8f;
     --plass-info-accent: #5fb4ee;
+
+    --plass-chart-1: #93a8ff;
+    --plass-chart-2: #e66700;
+    --plass-chart-3: #ef45a0;
+    --plass-chart-4: #b08e05;
+    --plass-chart-5: #049fd6;
+    --plass-chart-6: #07b031;
+    --plass-chart-7: #b264fb;
+    --plass-chart-8: #02a998;
+
+    --plass-chart-seq-1: #294c91;
+    --plass-chart-seq-2: #3263c3;
+    --plass-chart-seq-3: #3f7cf3;
+    --plass-chart-seq-4: #6a9cfb;
+    --plass-chart-seq-5: #9ebef8;
+
+    --plass-chart-div-1: #066082;
+    --plass-chart-div-2: #0892c4;
+    --plass-chart-div-3: #aeb1b6;
+    --plass-chart-div-4: #d15e49;
+    --plass-chart-div-5: #9a2b19;
+
+    --plass-chart-seq-on-1: var(--plass-fg);
+    --plass-chart-seq-on-2: var(--plass-fg);
+    --plass-chart-seq-on-3: var(--plass-surface);
+    --plass-chart-seq-on-4: var(--plass-surface);
+    --plass-chart-seq-on-5: var(--plass-surface);
+
+    --plass-chart-div-on-1: var(--plass-fg);
+    --plass-chart-div-on-2: var(--plass-surface);
+    --plass-chart-div-on-3: var(--plass-surface);
+    --plass-chart-div-on-4: var(--plass-surface);
+    --plass-chart-div-on-5: var(--plass-fg);
   }
 }
 
@@ -400,6 +519,39 @@
   --plass-warning-accent: #f2b74e;
   --plass-danger-accent: #ff8a8f;
   --plass-info-accent: #5fb4ee;
+
+  --plass-chart-1: #93a8ff;
+  --plass-chart-2: #e66700;
+  --plass-chart-3: #ef45a0;
+  --plass-chart-4: #b08e05;
+  --plass-chart-5: #049fd6;
+  --plass-chart-6: #07b031;
+  --plass-chart-7: #b264fb;
+  --plass-chart-8: #02a998;
+
+  --plass-chart-seq-1: #294c91;
+  --plass-chart-seq-2: #3263c3;
+  --plass-chart-seq-3: #3f7cf3;
+  --plass-chart-seq-4: #6a9cfb;
+  --plass-chart-seq-5: #9ebef8;
+
+  --plass-chart-div-1: #066082;
+  --plass-chart-div-2: #0892c4;
+  --plass-chart-div-3: #aeb1b6;
+  --plass-chart-div-4: #d15e49;
+  --plass-chart-div-5: #9a2b19;
+
+  --plass-chart-seq-on-1: var(--plass-fg);
+  --plass-chart-seq-on-2: var(--plass-fg);
+  --plass-chart-seq-on-3: var(--plass-surface);
+  --plass-chart-seq-on-4: var(--plass-surface);
+  --plass-chart-seq-on-5: var(--plass-surface);
+
+  --plass-chart-div-on-1: var(--plass-fg);
+  --plass-chart-div-on-2: var(--plass-surface);
+  --plass-chart-div-on-3: var(--plass-surface);
+  --plass-chart-div-on-4: var(--plass-surface);
+  --plass-chart-div-on-5: var(--plass-fg);
 }
 
 /* ---------------------------------------------------------------------------
