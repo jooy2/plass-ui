@@ -216,6 +216,8 @@ class PlassTokens {
     required this.chart,
     required this.chartSequential,
     required this.chartDiverging,
+    required this.chartSequentialOn,
+    required this.chartDivergingOn,
     required this.chartGrid,
     required this.chartAxis,
     required this.chartBaseline,
@@ -301,6 +303,20 @@ class PlassTokens {
       Color(0xFFD4614C),
       Color(0xFF9A210C),
     ],
+    chartSequentialOn: const <Color>[
+      Color(0xFF1B1E27),
+      Color(0xFF1B1E27),
+      Color(0xFF1B1E27),
+      Color(0xFFFFFFFF),
+      Color(0xFFFFFFFF),
+    ],
+    chartDivergingOn: const <Color>[
+      Color(0xFFFFFFFF),
+      Color(0xFF1B1E27),
+      Color(0xFF1B1E27),
+      Color(0xFF1B1E27),
+      Color(0xFFFFFFFF),
+    ],
     chartGrid: const Color(0xB3D5DEEF),
     chartAxis: const Color(0xFFD5DEEF),
     chartBaseline: const Color(0x595B6376),
@@ -354,6 +370,20 @@ class PlassTokens {
       Color(0xFFAEB1B6),
       Color(0xFFD15E49),
       Color(0xFF9A2B19),
+    ],
+    chartSequentialOn: const <Color>[
+      Color(0xFFE7EAF3),
+      Color(0xFFE7EAF3),
+      Color(0xFF141B30),
+      Color(0xFF141B30),
+      Color(0xFF141B30),
+    ],
+    chartDivergingOn: const <Color>[
+      Color(0xFFE7EAF3),
+      Color(0xFF141B30),
+      Color(0xFF141B30),
+      Color(0xFF141B30),
+      Color(0xFFE7EAF3),
     ],
     chartGrid: const Color(0x8099A2BA),
     chartAxis: const Color(0xB399A2BA),
@@ -512,6 +542,18 @@ class PlassTokens {
   /// The neutral is not white: a cell at zero is a reading, and a white cell is
   /// a hole in the grid.
   final List<Color> chartDiverging;
+
+  /// The ink a label wears **on** each step of [chartSequential].
+  ///
+  /// Per step rather than one answer for the ramp, because the ramp crosses the
+  /// point where ink stops reading and the sheet's own colour starts — and it
+  /// crosses it at a different rung in each theme. A heatmap that writes its
+  /// numbers in the cells needs this and nothing else does.
+  final List<Color> chartSequentialOn;
+
+  /// And the same for [chartDiverging], which crosses it twice: once at each
+  /// deep end.
+  final List<Color> chartDivergingOn;
 
   /// The rules a chart casts across its plot.
   ///

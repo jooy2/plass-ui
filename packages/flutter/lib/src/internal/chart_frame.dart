@@ -1466,3 +1466,114 @@ class _MarkTooltip extends StatelessWidget {
     );
   }
 }
+
+/// The ladder a heatmap's colours are read against.
+///
+/// Its own widget rather than the swatch legend with different content: what
+/// this names is a *scale* and not a set of series, so there is nothing to
+/// switch off and nothing to hover. The two ends are labelled and the middle
+/// only when a diverging scale has one — written beside the bar rather than in
+/// its own column, a middle label reads as a third end.
+class PlassChartScaleLegend extends StatelessWidget {
+  /// Creates the ladder.
+  const PlassChartScaleLegend({
+    required this.steps,
+    required this.from,
+    required this.to,
+    required this.tokens,
+    required this.size,
+    this.middle,
+    this.align = PlassAlign.center,
+    this.vertical = false,
+    super.key,
+  });
+
+  /// The ramp, pale end first.
+  final List<Color> steps;
+
+  /// What the pale end is worth.
+  final String from;
+
+  /// And the deep end.
+  final String to;
+
+  /// The palette in scope.
+  final PlassTokens tokens;
+
+  /// The type scale.
+  final PlassSize size;
+
+  /// Where a diverging scale turns over, written under the bar.
+  final String? middle;
+
+  /// Where the row sits along the chart's width.
+  final PlassAlign align;
+
+  /// Whether the legend is beside the plot rather than under it.
+  final bool vertical;
+
+  @override
+  Widget build(BuildContext context) {
+    final TextStyle ink = TextStyle(fontSize: metaText[size]!, color: tokens.mutedFg);
+
+    final Widget bar = ClipRRect(
+      borderRadius: BorderRadius.circular(3),
+      child: SizedBox(
+        width: vertical ? 80 : 96,
+        height: 10,
+        child: Row(
+          children: <Widget>[
+            for (final Color step in steps)
+              Expanded(
+                child: ColoredBox(color: step, child: const SizedBox.expand()),
+              ),
+          ],
+        ),
+      ),
+    );
+
+    final Widget ladder = Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Row(
+        mainAxisAlignment: switch (align) {
+          PlassAlign.start => MainAxisAlignment.start,
+          PlassAlign.center => MainAxisAlignment.center,
+          PlassAlign.end => MainAxisAlignment.end,
+        },
+        children: <Widget>[
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text(from, style: ink),
+                  const SizedBox(width: 8),
+                  bar,
+                  const SizedBox(width: 8),
+                  Text(to, style: ink),
+                ],
+              ),
+              if (middle != null)
+                SizedBox(
+                  width: vertical ? 80 : 96,
+                  child: Text(middle!, textAlign: TextAlign.center, style: ink),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+
+    // Its own node rather than two or three loose numbers. Left to merge, the
+    // ends of the ramp are absorbed into whatever container is above them —
+    // which on a heatmap is the chart's own name, so `Chart` reads as
+    // `Chart 4 40`.
+    return Semantics(
+      container: true,
+      label: middle == null ? '$from – $to' : '$from – $middle – $to',
+      excludeSemantics: true,
+      child: ladder,
+    );
+  }
+}

@@ -85,6 +85,7 @@ export 'src/components/gallery/pl_gallery.dart';
 export 'src/components/gauge_chart/pl_gauge_chart.dart';
 export 'src/components/grid/pl_grid.dart';
 export 'src/components/header/pl_header.dart';
+export 'src/components/heatmap_chart/pl_heatmap_chart.dart';
 export 'src/components/highlight/pl_highlight.dart';
 export 'src/components/hot_keys/pl_hot_keys.dart';
 export 'src/components/hover_card/pl_hover_card.dart';

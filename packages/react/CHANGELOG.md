@@ -24,6 +24,18 @@
 
 ### Added
 
+- **`PlHeatmapChart`.** A magnitude per cell, coloured rather than measured.
+
+  Two shapes of one idea. A `grid` is for two categorical axes and one magnitude — which hour of which day, which cohort in which week — where a bar chart of the same data would be forty bars nobody can scan. A `treemap` is for parts of a whole with more parts than a `PlPieChart` can hold, and it is the same component because the data is the same shape: a row of a heatmap and a group of a treemap are both a named series of named magnitudes.
+
+  **Colour here encodes size and not identity**, so it comes off a one-hue ramp rather than the categorical palette. One ladder covers the whole chart rather than one per row, because the colour of a cell has to mean the same number wherever it is — which is the entire promise a heatmap makes.
+
+  `scale="diverging"` is for a value with a _middle_ that means something. It is read from that middle rather than from the bottom, and both arms reach as far as the further one, so a set running from −2 to +40 does not paint every negative the deepest blue there is.
+
+  The treemap packing is squarified rather than sliced: a slice-and-dice treemap of twenty values ends in slivers a pixel wide, and a sliver's area is unreadable however exact it is. A tile's area is its share, so a negative value stays in the table and off the picture.
+
+  A label that does not fit its cell is dropped rather than clipped — a missing label sends the reader to the tooltip and a clipped one sends them nowhere.
+
 - **`PlGaugeChart`.** One number on a scale that is known in advance, drawn as a dial.
 
   It is a `PlMeter` bent into an arc, and the two are deliberately the same idea in two shapes: `value`, `min`, `max` and `thresholds` mean exactly what they mean there, so a page can move a reading from a bar to a dial without changing what it says. It is **not** a `PlPieChart` with `shape="semi"` — a pie is parts of a whole and every slice is a category, while this is one value against a scale and the unfilled arc is the rest of the dial rather than a second category.

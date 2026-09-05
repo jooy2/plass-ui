@@ -265,6 +265,9 @@ import 'package:plass_ui_example/demos/floating_bottom_navigation/colors.dart';
 import 'package:plass_ui_example/demos/floating_bottom_navigation/hero.dart';
 import 'package:plass_ui_example/demos/floating_bottom_navigation/sizes.dart';
 import 'package:plass_ui_example/demos/floating_bottom_navigation/variants.dart';
+import 'package:plass_ui_example/demos/heatmap_chart/diverging.dart';
+import 'package:plass_ui_example/demos/heatmap_chart/hero.dart';
+import 'package:plass_ui_example/demos/heatmap_chart/treemap.dart';
 import 'package:plass_ui_example/demos/highlight/colors.dart';
 import 'package:plass_ui_example/demos/highlight/hero.dart';
 import 'package:plass_ui_example/demos/highlight/matching.dart';
@@ -743,6 +746,9 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'blockquote/sizes': _blockquoteSizes,
   'blockquote/colors': _blockquoteColors,
   'blockquote/attribution': _blockquoteAttribution,
+  'heatmap-chart/hero': _heatmapChartHero,
+  'heatmap-chart/treemap': _heatmapChartTreemap,
+  'heatmap-chart/diverging': _heatmapChartDiverging,
   'highlight/variants': _highlightVariants,
   'highlight/colors': _highlightColors,
   'highlight/matching': _highlightMatching,
@@ -1383,6 +1389,12 @@ Widget _blockquoteVariants(BuildContext context) => const BlockquoteVariants();
 Widget _blockquoteSizes(BuildContext context) => const BlockquoteSizes();
 Widget _blockquoteColors(BuildContext context) => const BlockquoteColors();
 Widget _blockquoteAttribution(BuildContext context) => const BlockquoteAttribution();
+
+Widget _heatmapChartHero(BuildContext context) => const HeatmapChartHero();
+
+Widget _heatmapChartTreemap(BuildContext context) => const HeatmapChartTreemap();
+
+Widget _heatmapChartDiverging(BuildContext context) => const HeatmapChartDiverging();
 
 Widget _highlightVariants(BuildContext context) => const HighlightVariants();
 Widget _highlightColors(BuildContext context) => const HighlightColors();

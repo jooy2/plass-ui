@@ -4,6 +4,14 @@
 
 ### Added
 
+- **`PlHeatmapChart`.** A magnitude per cell, coloured rather than measured.
+
+  A grid for two categorical axes, or a squarified treemap for parts of a whole. Colour encodes size and not identity, so it comes off a one-hue ramp rather than the categorical palette, and one ladder covers the whole chart.
+
+  `internal/chart.dart` gains `PlChartScaleKind`, `rampStep`, `squarify` and `TreemapTile`, matching the React half function for function. `PlassTokens` gains `chartSequentialOn` and `chartDivergingOn`: the ink a label wears **on** each step of a ramp, per step rather than one answer, because the ramp crosses the point where ink stops reading at a different rung in each theme. `PlassChartScaleLegend` joins `internal/chart_frame.dart` — its own widget rather than the swatch legend with different content, since what it names is a scale and there is nothing on one to switch off.
+
+  Two things the Dart side does differently, both forced by the absence of unions: `valueLabels` is `PlHeatmapLabels` and `scale` is the re-exported `PlChartScaleKind`.
+
 - **`PlGaugeChart`.** One number on a scale that is known in advance, drawn as a dial.
 
   A `PlMeter` bent into an arc, sharing its vocabulary exactly, and not a `PlPieChart` with `PlPieShape.semi`: the unfilled part of the arc is the rest of the dial rather than a second category.

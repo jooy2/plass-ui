@@ -45,6 +45,7 @@ import {
   PlCodeBlock,
   PlLineChart,
   PlGaugeChart,
+  PlHeatmapChart,
   PlPieChart,
   PlScatterChart,
   PlSparkline,
@@ -1233,6 +1234,29 @@ const entries: Entry[] = [
       ko: '미리 알려진 척도 위의 숫자 하나입니다.'
     },
     preview: <PlGaugeChart size="xs" className="w-full" height={96} value={68} showRange={false} />
+  },
+  {
+    name: 'PlHeatmapChart',
+    group: 'charts',
+    href: 'components/charts/heatmap-chart',
+    blurb: {
+      en: 'A magnitude per cell, coloured rather than measured.',
+      ko: '칸마다의 크기를, 재는 대신 색으로 말합니다.'
+    },
+    preview: (
+      <PlHeatmapChart
+        size="xs"
+        className="w-full"
+        height={96}
+        legend={false}
+        categories={['00', '06', '12', '18']}
+        series={[
+          { name: 'Mon', data: [2, 4, 26, 14] },
+          { name: 'Wed', data: [2, 6, 31, 16] },
+          { name: 'Fri', data: [4, 6, 24, 21] }
+        ]}
+      />
+    )
   },
   {
     name: 'PlPieChart',

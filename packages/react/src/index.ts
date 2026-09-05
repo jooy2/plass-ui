@@ -66,6 +66,7 @@ export * from './components/gallery/index.js';
 export * from './components/gauge-chart/index.js';
 export * from './components/grid/index.js';
 export * from './components/header/index.js';
+export * from './components/heatmap-chart/index.js';
 export * from './components/highlight/index.js';
 export * from './components/hot-keys/index.js';
 export * from './components/hover-card/index.js';

@@ -6049,6 +6049,115 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlHeatmapChart: [
+    {
+      name: 'series',
+      type: 'readonly PlassChartSeries[]',
+      required: true,
+      description: {
+        ko: '행. series 하나가 격자의 한 행이거나 treemap의 한 묶음입니다',
+        en: 'The rows. Each series is a row of the grid or a group of the treemap'
+      }
+    },
+    {
+      name: 'categories',
+      type: 'readonly PlassChartCategory[]',
+      description: { ko: '열 이름', en: 'The column names' }
+    },
+    {
+      name: 'shape',
+      type: "'grid' | 'treemap'",
+      default: "'grid'",
+      description: {
+        ko: '격자는 두 category 축과 하나의 크기, treemap은 비중대로 상자를 채운 타일',
+        en: 'A grid for two categorical axes and one magnitude; a treemap for tiles packed by share'
+      }
+    },
+    {
+      name: 'scale',
+      type: "'sequential' | 'diverging'",
+      default: "'sequential'",
+      description: {
+        ko: '한 색조의 옅고 짙음, 또는 중립을 사이에 둔 두 색조',
+        en: 'One hue pale to deep, or two hues either side of a neutral'
+      }
+    },
+    {
+      name: 'midpoint',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: 'diverging 척도가 뒤집히는 자리',
+        en: 'Where a diverging scale turns over'
+      }
+    },
+    {
+      name: 'min',
+      type: 'number',
+      description: {
+        ko: '척도의 아래끝. 비우면 데이터에서 가져옵니다',
+        en: 'Where the scale starts. Taken from the data otherwise'
+      }
+    },
+    {
+      name: 'max',
+      type: 'number',
+      description: { ko: '척도의 위끝', en: 'And where it ends' }
+    },
+    {
+      name: 'valueLabels',
+      type: "'none' | 'all'",
+      default: "'none'",
+      description: {
+        ko: '칸이 담을 만큼 클 때 값을 적습니다. 들어가지 않으면 자르지 않고 지웁니다',
+        en: "Writes each cell's value on it where it fits. A label that does not fit is dropped"
+      }
+    },
+    {
+      name: 'legend',
+      type: "boolean | Pick<PlassChartLegend, 'side' | 'align'>",
+      description: {
+        ko: '척도 legend가 놓이는 자리. false면 뺍니다',
+        en: 'Where the scale legend sits. false leaves it off'
+      }
+    },
+    {
+      name: 'tooltip',
+      type: 'PlassChartTooltip',
+      description: { ko: '툴팁', en: 'The tooltip' }
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      description: { ko: 'plot의 높이', en: 'How tall the plot is' }
+    },
+    {
+      name: 'format',
+      type: 'Intl.NumberFormatOptions',
+      description: { ko: '값을 쓰는 방식', en: 'How a value is written' }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      default: "'Chart'",
+      description: { ko: '그림 전체의 접근성 이름', en: 'What the whole drawing is called' }
+    },
+    {
+      name: 'empty',
+      type: 'ReactNode',
+      description: {
+        ko: '그릴 것이 없을 때 그리는 것',
+        en: 'What is drawn when there is nothing to draw'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: { ko: '타입 스케일과 plot 높이', en: 'Type scale and plot height' }
+    }
+  ],
   PlHighlight: [
     {
       name: 'query',

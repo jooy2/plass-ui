@@ -3155,6 +3155,36 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlHeader', 'children', { name: 'child', type: 'Widget?' })
   ],
 
+  PlHeatmapChart: [
+    from('PlHeatmapChart', 'series', { type: 'List<PlassChartSeries>', required: true }),
+    from('PlHeatmapChart', 'categories', { type: 'List<PlassChartCategory>?' }),
+    from('PlHeatmapChart', 'shape', { type: 'PlHeatmapShape', default: 'PlHeatmapShape.grid' }),
+    from('PlHeatmapChart', 'scale', {
+      type: 'PlChartScaleKind',
+      default: 'PlChartScaleKind.sequential'
+    }),
+    from('PlHeatmapChart', 'midpoint', { type: 'double', default: '0' }),
+    from('PlHeatmapChart', 'min', { type: 'double?' }),
+    from('PlHeatmapChart', 'max', { type: 'double?' }),
+    from('PlHeatmapChart', 'valueLabels', {
+      type: 'PlHeatmapLabels',
+      default: 'PlHeatmapLabels.none'
+    }),
+    from('PlHeatmapChart', 'legend', {
+      type: 'PlChartLegend',
+      default: 'PlChartLegend()',
+      description: {
+        ko: '척도 legend. side와 align만 읽습니다 — 척도에는 끌 것이 없습니다',
+        en: 'The scale legend. Only its side and align are read: there is nothing on a scale to switch off'
+      }
+    }),
+    from('PlHeatmapChart', 'tooltip', { type: 'PlChartTooltip', default: 'PlChartTooltip()' }),
+    from('PlHeatmapChart', 'height', { type: 'double?' }),
+    from('PlHeatmapChart', 'format', { type: 'String Function(double)?' }),
+    from('PlHeatmapChart', 'label', { name: 'semanticLabel', type: 'String?', default: "'Chart'" }),
+    from('PlHeatmapChart', 'empty', { type: 'Widget?' }),
+    from('PlHeatmapChart', 'size', { type: SIZE, default: 'PlassSize.md' })
+  ],
   PlHighlight: [
     from('PlHighlight', 'children', {
       name: 'text',

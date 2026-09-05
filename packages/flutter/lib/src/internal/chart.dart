@@ -1056,3 +1056,189 @@ Path arcPath(double cx, double cy, double outer, double inner, double from, doub
     ..arcTo(Rect.fromCircle(center: Offset(cx, cy), radius: inner), start + sweep, -sweep, false)
     ..close();
 }
+
+/* ---------------------------------------------------------------------------
+ * Magnitude colour
+ * ------------------------------------------------------------------------- */
+
+/// Which way a magnitude is coloured.
+enum PlChartScaleKind {
+  /// One hue, pale to deep. Right whenever more is simply more.
+  sequential,
+
+  /// Two hues either side of a neutral, for a value with a *middle* that means
+  /// something. Reached for on a plain magnitude it invents a boundary the data
+  /// has none of.
+  diverging,
+}
+
+/// How many steps each ramp has. Five, and the reason is in `styles.css`.
+const int rampSteps = 5;
+
+/// The step a value lands on.
+///
+/// A magnitude is not an identity, so it does not come off the eight-slot
+/// categorical ramp. It comes off a one-hue ladder, and which rung is
+/// arithmetic on the value.
+///
+/// A diverging scale is read from its *middle* rather than from its bottom, so
+/// it is the distance either side of the neutral that is scaled — and by the
+/// larger of the two arms, so a set running from −2 to +40 does not paint every
+/// negative the deepest blue there is.
+int rampStep(double value, double min, double max, PlChartScaleKind kind, {double midpoint = 0}) {
+  if (kind == PlChartScaleKind.diverging) {
+    final double reach = math.max((max - midpoint).abs(), (midpoint - min).abs());
+
+    if (!(reach > 0)) {
+      return 2;
+    }
+
+    // Two rungs each side of the neutral, which is the middle rung.
+    return math.min(4, math.max(0, 2 + (value - midpoint) / reach * 2).round());
+  }
+
+  final double span = max - min;
+
+  if (!(span > 0)) {
+    return rampSteps - 1;
+  }
+
+  return math.min(rampSteps - 1, math.max(0, ((value - min) / span * rampSteps).floor()));
+}
+
+/* ---------------------------------------------------------------------------
+ * Treemap
+ * ------------------------------------------------------------------------- */
+
+/// One tile, in pixels, and which value it came from.
+class TreemapTile {
+  /// Creates a tile.
+  const TreemapTile({required this.index, required this.rect});
+
+  /// Its place in the list as it was passed.
+  final int index;
+
+  /// Where it goes.
+  final Rect rect;
+}
+
+/// A squarified treemap: the values as boxes whose areas are proportional, laid
+/// out as close to square as they can be got.
+///
+/// Squarified rather than sliced, and the difference is the whole reason the
+/// forty lines are worth it. A slice-and-dice treemap of twenty values ends in
+/// slivers a pixel wide, and a sliver's *area* is unreadable however exact it
+/// is — the reader compares its length instead, which is not the encoded
+/// quantity. Bruls, Huizing and van Wijk's answer is greedy and simple: fill a
+/// row along the box's shorter side, keep adding to it while the worst aspect
+/// ratio in it improves, and start a new row the moment it stops.
+///
+/// The order is the caller's; the layout sorts descending internally because
+/// the algorithm needs it and hands the original index back on every tile, so a
+/// tile's colour and its name are still its own.
+List<TreemapTile> squarify(List<double> values, double width, double height) {
+  double total = 0;
+
+  for (final double value in values) {
+    total += math.max(0, value);
+  }
+
+  if (!(total > 0) || width <= 0 || height <= 0) {
+    return <TreemapTile>[];
+  }
+
+  final double scale = width * height / total;
+  final items = <_Area>[
+    for (int i = 0; i < values.length; i += 1)
+      if (math.max(0, values[i]) * scale > 0) _Area(i, math.max(0, values[i]) * scale),
+  ]..sort((_Area a, _Area b) => b.area.compareTo(a.area));
+
+  final tiles = <TreemapTile>[];
+
+  double x = 0;
+  double y = 0;
+  double boxWidth = width;
+  double boxHeight = height;
+  var row = <_Area>[];
+
+  /// The worst aspect ratio in a row laid along the current short side.
+  double worst(List<_Area> candidate) {
+    final double side = math.min(boxWidth, boxHeight);
+    double sum = 0;
+
+    for (final _Area one in candidate) {
+      sum += one.area;
+    }
+
+    if (!(sum > 0) || !(side > 0)) {
+      return double.infinity;
+    }
+
+    // Sorted descending, so the first is the largest and the last the smallest.
+    return math.max(
+      side * side * candidate.first.area / (sum * sum),
+      sum * sum / (side * side * candidate.last.area),
+    );
+  }
+
+  void place() {
+    double sum = 0;
+
+    for (final _Area one in row) {
+      sum += one.area;
+    }
+
+    final double side = math.min(boxWidth, boxHeight);
+    final double thickness = side > 0 ? sum / side : 0;
+    final bool across = boxWidth >= boxHeight;
+    double along = 0;
+
+    for (final _Area one in row) {
+      final double length = thickness > 0 ? one.area / thickness : 0;
+
+      tiles.add(
+        TreemapTile(
+          index: one.index,
+          rect: across
+              ? Rect.fromLTWH(x, y + along, thickness, length)
+              : Rect.fromLTWH(x + along, y, length, thickness),
+        ),
+      );
+
+      along += length;
+    }
+
+    if (across) {
+      x += thickness;
+      boxWidth -= thickness;
+    } else {
+      y += thickness;
+      boxHeight -= thickness;
+    }
+
+    row = <_Area>[];
+  }
+
+  for (final _Area one in items) {
+    if (row.isEmpty || worst(<_Area>[...row, one]) <= worst(row)) {
+      row.add(one);
+    } else {
+      place();
+      row.add(one);
+    }
+  }
+
+  if (row.isNotEmpty) {
+    place();
+  }
+
+  return tiles;
+}
+
+/// A value's area, and where it came from.
+class _Area {
+  const _Area(this.index, this.area);
+
+  final int index;
+  final double area;
+}
