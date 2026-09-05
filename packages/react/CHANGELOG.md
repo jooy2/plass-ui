@@ -10,19 +10,31 @@
 
 ### Added
 
+- **`PlAreaChart`.** A line with the space under it filled — which changes what the chart is about.
+
+  A line says where a value went. An area says how much of something there _was_, and stacked it says how that amount was made up. That is the whole test for reaching for it instead of a `PlLineChart`: if the quantity does not add up to anything — a temperature, a rate, a score — the fill under it is decoration, and a chart with two of them is two washes fighting.
+
+  Unstacked bands are a **wash fading downward**, so two of them overlapping stay readable and the line along the top is what carries the value. Stacked bands take a flatter, opaquer tint, because there the fill _is_ the mark and a band that faded out would have no bottom edge — and a stacked band is deliberately **not** also given a line along its top, since a stroke between two marks is ink that is not data.
+
+  `stacked="full"` normalises every category to a hundred, so the chart stops being about size and starts being about **share**. The normalising is a change to the _data_ rather than to the drawing, which is what lets the axis, the tooltip and the table all agree that the number is a share — and the tooltip still carries the number the caller passed, because a chart that can only tell you percentages has thrown the data away.
+
+  **The baseline is always zero**, which is the one axis rule it does not share with the line chart: an area's fill is its magnitude, so a cropped scale makes the band's thickness meaningless.
+
+  Measured with `npm run size`: **−0.1 kB on the whole library** and nothing anywhere else. The component is forty lines on top of the frame and the line painter that shipped with `PlLineChart`; the difference is compression noise, and it is what the foundation was for.
+
 - **`PlLineChart`, and the foundation every chart after it stands on.** A value against time, or against anything else with an order to it.
 
-  The line is the mark that says *change*: it claims the space between two points is a journey rather than two separate facts, which is true of a temperature and false of four product categories.
+  The line is the mark that says _change_: it claims the space between two points is a journey rather than two separate facts, which is true of a temperature and false of four product categories.
 
   **A `null` is a gap and never a zero** — a sensor that was offline, a month that has not closed yet. The line breaks across it, and a point with a gap either side is drawn as a dot rather than dropped. A chart that renders missing data as zero reports an outage as a collapse; `connectNulls` bridges it and should stay off unless the gap is an artefact of collection.
 
   `curve="smooth"` is a **monotone cubic and not a spline**. A plain spline overshoots between two close points, so a series that never goes below zero draws a curve that does: a chart is allowed to be curved and it is not allowed to show a value that is not in the data.
 
-  **The value axis leaves zero out, and a bar chart's will not.** A line encodes a *position*, so cropping the scale moves every point by the same amount and the shape survives; a bar encodes a *length*, which stops meaning anything the moment it starts from 98.
+  **The value axis leaves zero out, and a bar chart's will not.** A line encodes a _position_, so cropping the scale moves every point by the same amount and the shape survives; a bar encodes a _length_, which stops meaning anything the moment it starts from 98.
 
   The palette is **eight hues in a fixed order** — `--plass-chart-1` through `-8` — and it is the one place in the library where a colour is not a semantic role: a series is an entity, not a severity. Every slot clears 4:1 on the light surface and 4.9:1 on the dark one, and adjacent pairs are at least 10.4 apart in OKLab under simulated protanopia and deuteranopia, which is the pair that touches in a stack or a legend. Slot one is the page's own `primary`, so a one-series chart looks like it belongs. **Slots follow a series' index in the array it was passed**, never its position among the visible ones: a reader who learned that Europe is blue has learned something a filter is not allowed to take back. There are also a five-step sequential ramp and a five-step diverging one, for a mark whose colour is a magnitude rather than an identity.
 
-  Two internals arrive with it and are the reason the next eight charts are small. `internal/chart.ts` is the arithmetic — scales, nice numbers, band scales, path building, colour — and knows nothing about React or SVG. `internal/chart-frame.tsx` is everything a chart draws that is *not* its marks: the axes, the grid, the crosshair, the legend, the tooltip, the empty state, the hidden table a screen reader reads instead of the picture, and the measurement that turns a percentage width into the pixels an SVG needs.
+  Two internals arrive with it and are the reason the next eight charts are small. `internal/chart.ts` is the arithmetic — scales, nice numbers, band scales, path building, colour — and knows nothing about React or SVG. `internal/chart-frame.tsx` is everything a chart draws that is _not_ its marks: the axes, the grid, the crosshair, the legend, the tooltip, the empty state, the hidden table a screen reader reads instead of the picture, and the measurement that turns a percentage width into the pixels an SVG needs.
 
   One new label, `chart`, in all seven packs.
 

@@ -39,6 +39,7 @@ import {
   PlCarousel,
   PlChatBubble,
   PlCheckbox,
+  PlAreaChart,
   PlChip,
   PlCodeBlock,
   PlLineChart,
@@ -1114,6 +1115,31 @@ const entries: Entry[] = [
           { src: '/gallery-4.svg', alt: 'A market' },
           { src: '/gallery-5.svg', alt: 'Dunes' },
           { src: '/gallery-6.svg', alt: 'A terrace' }
+        ]}
+      />
+    )
+  },
+  {
+    name: 'PlAreaChart',
+    group: 'charts',
+    href: 'components/charts/area-chart',
+    blurb: {
+      en: 'A line with the space under it filled.',
+      ko: '아래 공간이 채워진 선입니다.'
+    },
+    preview: (
+      <PlAreaChart
+        size="xs"
+        className="w-full"
+        height={96}
+        stacked
+        curve="smooth"
+        legend={false}
+        xAxis={{ hidden: true }}
+        yAxis={{ hidden: true }}
+        series={[
+          { name: 'Direct', data: [12, 14, 13, 17, 19, 21] },
+          { name: 'Search', data: [9, 11, 13, 12, 15, 17] }
         ]}
       />
     )

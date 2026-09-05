@@ -22,6 +22,7 @@ export * from './components/animate-split/index.js';
 export * from './components/animate-typing/index.js';
 export * from './components/animate-zoom/index.js';
 export * from './components/app-logo/index.js';
+export * from './components/area-chart/index.js';
 export * from './components/aspect-ratio/index.js';
 export * from './components/avatar/index.js';
 export * from './components/back-top/index.js';

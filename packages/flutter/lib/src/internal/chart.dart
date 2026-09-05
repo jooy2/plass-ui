@@ -703,43 +703,71 @@ void _monotone(Path path, List<Offset> points) {
   }
 }
 
-/// The same path closed down to a baseline, for an area.
+/// The same path closed back along a second edge, for an area.
 ///
-/// Built from the runs rather than from the whole line so a gap is a gap in the
-/// fill too — an area that closes across a missing month fills in a value that
-/// was never measured, which is the same lie the bridged line tells, painted
-/// over a larger part of the chart.
-Path areaPath(List<Offset?> points, double baseline, PlChartCurve curve) {
+/// Two lists rather than a path and a number, because a stacked band's floor is
+/// the band below it and moves with every category. Built from the runs rather
+/// than from the whole line so a gap is a gap in the fill too — an area that
+/// closes across a missing month fills in a value that was never measured,
+/// which is the same lie the bridged line tells, painted over a larger part of
+/// the chart.
+Path areaPath(List<Offset?> top, List<Offset?> under, PlChartCurve curve) {
   final path = Path();
-  var run = <Offset>[];
+  var run = <int>[];
 
   void flush() {
     if (run.length < 2) {
-      run = <Offset>[];
+      run = <int>[];
 
       return;
     }
 
-    final Path top = linePath(List<Offset?>.from(run), curve);
+    final List<Offset?> above = <Offset?>[for (final int i in run) top[i]];
+    final List<Offset?> below = <Offset?>[for (final int i in run.reversed) under[i]];
 
     path
-      ..addPath(top, Offset.zero)
-      ..lineTo(run.last.dx, baseline)
-      ..lineTo(run.first.dx, baseline)
+      ..addPath(linePath(above, curve), Offset.zero)
+      ..addPath(_reverseEdge(below, curve), Offset.zero)
       ..close();
 
-    run = <Offset>[];
+    run = <int>[];
   }
 
-  for (final Offset? point in points) {
-    if (point == null) {
+  for (int i = 0; i < top.length; i += 1) {
+    if (i >= under.length || top[i] == null || under[i] == null) {
       flush();
     } else {
-      run.add(point);
+      run.add(i);
     }
   }
 
   flush();
+
+  return path;
+}
+
+/// The floor of a band, walked back the way it came.
+///
+/// A line rather than the curve the top took: the two meet at the ends either
+/// way, and a stacked band's floor is the band below it — which has already
+/// been drawn with its own curve, so curving it again here would put a second,
+/// slightly different edge over the first.
+Path _reverseEdge(List<Offset?> points, PlChartCurve curve) {
+  final path = Path();
+  bool started = false;
+
+  for (final Offset? point in points) {
+    if (point == null) {
+      continue;
+    }
+
+    if (!started) {
+      path.moveTo(point.dx, point.dy);
+      started = true;
+    } else {
+      path.lineTo(point.dx, point.dy);
+    }
+  }
 
   return path;
 }

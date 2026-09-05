@@ -4,6 +4,14 @@
 
 ### Added
 
+- **`PlAreaChart`.** A line with the space under it filled — which changes what the chart is about.
+
+  A line says where a value went; an area says how much of something there _was_, and stacked it says how that amount was made up. If the quantity does not add up to anything, the fill under it is decoration.
+
+  The line and the band come out of one painter, `internal/chart_line.dart`, which is the Dart half of the split the React build makes for the same reason: an area is a line with the space under it filled, and writing the path arithmetic twice would mean a `smooth` that curves differently depending on which widget a caller reached for. `areaPath` grew a second edge with it, because a stacked band's floor is the band below it and moves with every category.
+
+  `stacking` is **one enum with three states** rather than React's `boolean | 'full'`. Dart has no union type, and three named states read better than a boolean with an exception bolted onto it.
+
 - **`PlLineChart`, and the foundation every chart after it stands on.** A value against time, or against anything else with an order to it.
 
   **A gap is never a zero.** `PlassChartDatum.gap()` breaks the line, and a point with a gap either side is drawn as a dot rather than dropped. A chart that renders missing data as zero reports an outage as a collapse.

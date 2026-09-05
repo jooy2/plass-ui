@@ -1588,6 +1588,35 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlGalleryItem', 'cols', { type: 'int', default: '1' }),
     from('PlGalleryItem', 'rows', { type: 'int', default: '1' })
   ],
+  PlAreaChart: [
+    from('PlAreaChart', 'series', { type: 'List<PlassChartSeries>', required: true }),
+    from('PlAreaChart', 'categories', { type: 'List<PlassChartCategory>?' }),
+    from('PlAreaChart', 'curve', { type: 'PlChartCurve', default: 'PlChartCurve.linear' }),
+    from('PlAreaChart', 'stacked', {
+      name: 'stacking',
+      type: 'PlAreaStacking',
+      default: 'PlAreaStacking.none',
+      description: {
+        ko: "띠를 어떻게 쌓을지. React의 boolean | 'full' 대신 enum 하나입니다 — Dart에는 union 타입이 없고, 세 상태에 이름이 붙는 편이 낫습니다",
+        en: "How the bands are stacked. A single enum rather than React's boolean | 'full', because Dart has no union type — and three named states read better than a boolean with an exception bolted on"
+      }
+    }),
+    from('PlAreaChart', 'markers', { type: 'PlChartMarkers', default: 'PlChartMarkers.none' }),
+    from('PlAreaChart', 'valueLabels', {
+      type: 'PlassChartValueLabels',
+      default: 'PlassChartValueLabels.none'
+    }),
+    from('PlAreaChart', 'connectNulls', { type: 'bool', default: 'false' }),
+    from('PlAreaChart', 'xAxis', { type: 'PlChartAxis', default: 'PlChartAxis()' }),
+    from('PlAreaChart', 'yAxis', { type: 'PlChartAxis', default: 'PlChartAxis()' }),
+    from('PlAreaChart', 'legend', { type: 'PlChartLegend', default: 'PlChartLegend()' }),
+    from('PlAreaChart', 'tooltip', { type: 'PlChartTooltip', default: 'PlChartTooltip()' }),
+    from('PlAreaChart', 'height', { type: 'double?' }),
+    from('PlAreaChart', 'format', { type: 'String Function(double)?' }),
+    from('PlAreaChart', 'label', { name: 'semanticLabel', type: 'String?', default: "'Chart'" }),
+    from('PlAreaChart', 'empty', { type: 'Widget?' }),
+    from('PlAreaChart', 'size', { type: SIZE, default: 'PlassSize.md' })
+  ],
   PlLineChart: [
     from('PlLineChart', 'series', { type: 'List<PlassChartSeries>', required: true }),
     from('PlLineChart', 'categories', { type: 'List<PlassChartCategory>?' }),

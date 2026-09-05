@@ -50,6 +50,9 @@ import 'package:plass_ui_example/demos/alert/hero.dart';
 import 'package:plass_ui_example/demos/alert/shapes.dart';
 import 'package:plass_ui_example/demos/alert/sizes.dart';
 import 'package:plass_ui_example/demos/alert/variants.dart';
+import 'package:plass_ui_example/demos/area_chart/hero.dart';
+import 'package:plass_ui_example/demos/area_chart/overlap.dart';
+import 'package:plass_ui_example/demos/area_chart/share.dart';
 import 'package:plass_ui_example/demos/aspect_ratio/embed.dart';
 import 'package:plass_ui_example/demos/aspect_ratio/fit.dart';
 import 'package:plass_ui_example/demos/aspect_ratio/hero.dart';
@@ -647,6 +650,9 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'skeleton/shapes': _skeletonShapes,
   'skeleton/sizes': _skeletonSizes,
   'skeleton/animated': _skeletonAnimated,
+  'area-chart/hero': _areaChartHero,
+  'area-chart/overlap': _areaChartOverlap,
+  'area-chart/share': _areaChartShare,
   'aspect-ratio/hero': _aspectRatioHero,
   'aspect-ratio/ratios': _aspectRatioRatios,
   'aspect-ratio/fit': _aspectRatioFit,
@@ -1067,6 +1073,12 @@ Widget _lineChartGaps(BuildContext context) => const LineChartGaps();
 Widget _lineChartHero(BuildContext context) => const LineChartHero();
 
 Widget _lineChartLabels(BuildContext context) => const LineChartLabels();
+
+Widget _areaChartHero(BuildContext context) => const AreaChartHero();
+
+Widget _areaChartOverlap(BuildContext context) => const AreaChartOverlap();
+
+Widget _areaChartShare(BuildContext context) => const AreaChartShare();
 
 Widget _treeSelectBranches(BuildContext context) => const TreeSelectBranches();
 

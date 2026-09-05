@@ -12458,6 +12458,115 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlAreaChart: [
+    {
+      name: 'series',
+      type: 'readonly PlassChartSeries[]',
+      required: true,
+      description: { ko: '데이터', en: 'The data' }
+    },
+    {
+      name: 'categories',
+      type: 'readonly PlassChartCategory[]',
+      description: { ko: 'category 축이 말하는 것', en: 'What the category axis says' }
+    },
+    {
+      name: 'curve',
+      type: "'linear' | 'smooth' | 'step'",
+      default: "'linear'",
+      description: {
+        ko: '띠의 가장자리가 다음 점으로 가는 방법. PlLineChart와 같은 세 모양입니다',
+        en: 'How the edge of the band gets from one point to the next. The same three shapes PlLineChart offers'
+      }
+    },
+    {
+      name: 'stacked',
+      type: "boolean | 'full'",
+      default: 'false',
+      description: {
+        ko: '띠를 쌓습니다. full은 각 category를 100%로 정규화해 크기가 아니라 비중에 대한 차트로 만듭니다',
+        en: "Stacks the bands. 'full' normalises every category to 100%, so the chart is about share and stops being about size"
+      }
+    },
+    {
+      name: 'markers',
+      type: "'none' | 'auto' | 'all'",
+      default: "'none'",
+      description: {
+        ko: '점 위의 dot. 채워진 띠에는 이미 보이는 가장자리가 있으므로 기본은 none입니다',
+        en: 'Dots on the points. none by default: a filled band already has a visible edge'
+      }
+    },
+    {
+      name: 'valueLabels',
+      type: "'none' | 'last' | 'extremes' | 'all'",
+      default: "'none'",
+      description: { ko: '띠 위에 어떤 값을 적을지', en: 'Which values are written on the bands' }
+    },
+    {
+      name: 'connectNulls',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '빈 곳에서 끊지 않고 띠를 통과시킵니다. 선보다 더 중요합니다 — 닫힌 채움은 지어낸 숫자를 더 넓게 칠합니다',
+        en: 'Draws the band through a gap. It matters more than on a line: a fill that closes across a gap paints a made-up number over a larger part of the chart'
+      }
+    },
+    {
+      name: 'xAxis',
+      type: 'PlassChartAxis',
+      description: { ko: 'category 축', en: 'The category axis' }
+    },
+    {
+      name: 'yAxis',
+      type: 'PlassChartAxis',
+      description: { ko: '값 축', en: 'The value axis' }
+    },
+    {
+      name: 'legend',
+      type: 'PlassChartLegend',
+      description: { ko: '범례', en: 'The legend' }
+    },
+    {
+      name: 'tooltip',
+      type: 'PlassChartTooltip',
+      description: { ko: '툴팁', en: 'The tooltip' }
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      description: { ko: 'plot의 높이', en: 'How tall the plot is' }
+    },
+    {
+      name: 'format',
+      type: 'Intl.NumberFormatOptions',
+      description: { ko: '값을 쓰는 방식', en: 'How a value is written' }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      default: "'Chart'",
+      description: { ko: '그림 전체의 접근성 이름', en: 'What the whole drawing is called' }
+    },
+    {
+      name: 'empty',
+      type: 'ReactNode',
+      description: {
+        ko: '그릴 것이 없을 때 그리는 것',
+        en: 'What is drawn when there is nothing to draw'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '타입 스케일, plot 높이, 선 굵기',
+        en: 'Type scale, plot height and line weight'
+      }
+    }
+  ],
   PlLineChart: [
     {
       name: 'series',
