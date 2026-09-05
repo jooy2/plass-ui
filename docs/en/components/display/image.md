@@ -185,7 +185,7 @@ The overlay is a **separate chunk**, reached through `React.lazy`. It is several
 
 ### A gallery
 
-There is no gallery component and no next/previous inside the preview, deliberately: a gallery is a list with a state of its own, and it composes out of what is already here.
+For a set of pictures, use [`PlGallery`](./gallery): it arranges them, captions them, and opens each one in a lightbox. Compose the grid yourself when you need a layout or a selection state of your own. The `preview` here shows one picture and has no next or previous control.
 
 ```tsx
 const [at, setAt] = useState<number | null>(null);
