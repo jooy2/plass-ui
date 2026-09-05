@@ -10,6 +10,10 @@ import type { PlassColor, PlassSize } from '../../types.js';
 /** How the picture is fitted to the box. `object-fit`'s own words. */
 export type PlImageFit = 'cover' | 'contain' | 'fill' | 'none';
 
+/** The treatments that have a name. Anything else is written as CSS. */
+export type PlImageFilter =
+  'none' | 'grayscale' | 'sepia' | 'saturate' | 'desaturate' | 'contrast' | 'dim';
+
 export interface PlImageProps extends Omit<
   React.ComponentPropsWithoutRef<'img'>,
   'color' | 'onError' | 'onLoad'
@@ -32,6 +36,16 @@ export interface PlImageProps extends Omit<
   ratio?: number | string;
   /** @default 'cover' */
   fit?: PlImageFit;
+  /**
+   * A treatment laid over the picture: one of the named ones, or any CSS
+   * `filter` chain of your own — `'blur(2px) hue-rotate(20deg)'` is as valid a
+   * value as `'sepia'`.
+   *
+   * It rides the same transition as the picture's own fade, so a caller who
+   * swaps the filter on hover gets a change that travels rather than one that
+   * snaps.
+   */
+  filter?: PlImageFilter | (string & {});
   /** Rounds the corners to the `size` step of the house ladder. @default false */
   rounded?: boolean;
   /** Which step of the radius ladder `rounded` uses. @default 'md' */
@@ -67,6 +81,25 @@ export interface PlImageProps extends Omit<
 
 /** Where the picture has got to. */
 export type PlImageStatus = 'loading' | 'loaded' | 'error';
+
+/**
+ * What each named treatment is, as the CSS it stands for.
+ *
+ * Six names rather than a dial per effect. A picture is either being held back
+ * from the page around it or it is not, and a component library that shipped
+ * `saturation={1.35}` would be asking every caller to invent the same number.
+ * The escape hatch is the whole of the rest: any other string is a `filter`
+ * chain and is passed through untouched.
+ */
+const filterChains: Record<PlImageFilter, string> = {
+  none: 'none',
+  grayscale: 'grayscale(1)',
+  sepia: 'sepia(0.72)',
+  saturate: 'saturate(1.35)',
+  desaturate: 'saturate(0.45)',
+  contrast: 'contrast(1.2)',
+  dim: 'brightness(0.82)'
+};
 
 const fitClasses: Record<PlImageFit, string> = {
   cover: 'object-cover',
@@ -108,6 +141,7 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
       src,
       ratio,
       fit = 'cover',
+      filter,
       rounded = false,
       size: sizeProp,
       color: colorProp,
@@ -210,6 +244,14 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
 
     const radius = rounded ? radiusClasses[size] : '';
 
+    /*
+     * A named treatment, or a chain the caller wrote. Anything that is not one
+     * of the six names is CSS, which is what makes the escape hatch free: there
+     * is nothing to parse and nothing to allow.
+     */
+    const filterChain =
+      filter === undefined ? undefined : (filterChains[filter as PlImageFilter] ?? filter);
+
     const picture = (
       <img
         ref={setImgRef}
@@ -218,9 +260,20 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
         loading={loading}
         onLoad={() => settle('loaded')}
         onError={() => settle('error')}
+        // A slot rather than `filter` itself, so a caller's own rule — a
+        // gallery tile dimming what is under the pointer — can still reach it.
+        style={
+          filterChain === undefined
+            ? undefined
+            : ({ '--p-filter': filterChain } as React.CSSProperties)
+        }
         className={cx(
           'block size-full',
           fitClasses[fit],
+          // `filter` is already on the house transition, so a treatment swapped
+          // on hover travels at the same pace as the picture's own fade instead
+          // of snapping while the fade is still moving.
+          filterChain === undefined ? '' : '[filter:var(--p-filter,none)]',
           transitionClasses,
           // Hidden rather than unmounted: an `<img>` that is not in the document
           // never loads, so unmounting it while it loads is a picture that never

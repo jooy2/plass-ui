@@ -79,6 +79,34 @@ An `<img>` is one tag and it works, so it is worth saying what this is for rathe
 
 `placeholder` replaces the skeleton — `null` draws nothing and leaves the reserved box empty. `fallback` replaces the alt text, which is the default because it is the one thing that is certainly available and certainly describes what is missing.
 
+### filter
+
+A treatment laid over the picture. Six of them have names — `grayscale`, `sepia`, `saturate`, `desaturate`, `contrast` and `dim` — and anything else you pass is a CSS `filter` chain, used exactly as written.
+
+<Demo src="image/filter" :min-height="220">
+
+::: fw react
+
+<<< @/.vitepress/demos/image/filter.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/filter.dart
+
+:::
+
+</Demo>
+
+It rides the same transition as the picture's own fade, so a filter swapped on hover travels rather than snapping while the fade is still moving. Nothing is applied to the placeholder or to the fallback — a greyed-out skeleton is not what `grayscale` was asked for.
+
+::: fw flutter
+
+The escape hatch is `colorFilter`, which takes a `ColorFilter` of your own and wins over a named `filter`. A CSS chain has nothing to mean here, and a `ColorFilter` is what the same idea is in Flutter. The named ones resolve to the same amounts the React build writes, so `sepia` is one colour across the two packages rather than two that look alike.
+
+:::
+
 ### preview
 
 Opens the picture over the page when it is pressed. Off by default: a picture that grows when you click it is a promise that there is more of it to see, and most pictures on a page are not making it.

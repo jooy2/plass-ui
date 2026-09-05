@@ -6,11 +6,40 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/components/aspect_ratio/pl_aspect_ratio.dart';
 import 'package:plass_ui/src/components/overlay/pl_overlay.dart';
 import 'package:plass_ui/src/components/skeleton/pl_skeleton.dart';
+import 'package:plass_ui/src/internal/css.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
+
+/// The treatments that have a name.
+///
+/// The escape hatch is [PlImage.colorFilter], which takes a [ColorFilter] of
+/// your own — the React build takes a CSS `filter` chain there instead, because
+/// that is what an escape hatch is in each place.
+enum PlImageFilter {
+  /// Left as it is.
+  none,
+
+  /// All the colour taken out.
+  grayscale,
+
+  /// Warmed and aged.
+  sepia,
+
+  /// The colour pushed up.
+  saturate,
+
+  /// And most of the way down, without going to grey.
+  desaturate,
+
+  /// The darks darker and the lights lighter.
+  contrast,
+
+  /// Held back from the page around it.
+  dim,
+}
 
 /// Where the picture has got to.
 enum PlImageStatus {
@@ -52,6 +81,8 @@ class PlImage extends StatefulWidget {
     this.semanticLabel,
     this.ratio,
     this.fit = PlAspectFit.cover,
+    this.filter = PlImageFilter.none,
+    this.colorFilter,
     this.rounded = false,
     this.size,
     this.color,
@@ -84,6 +115,15 @@ class PlImage extends StatefulWidget {
 
   /// How the picture is fitted to the box.
   final PlAspectFit fit;
+
+  /// A treatment laid over the picture.
+  ///
+  /// [colorFilter] wins where both are given, which is what makes it the escape
+  /// hatch: the named ones are the common answers and it is the rest.
+  final PlImageFilter filter;
+
+  /// Any [ColorFilter] of your own, in place of a named [filter].
+  final ColorFilter? colorFilter;
 
   /// Rounds the corners to the [size] step of the house ladder.
   final bool rounded;
@@ -155,6 +195,45 @@ class _PlImageState extends State<PlImage> {
     });
   }
 
+  /// The picture with its treatment on it, or the picture as it is.
+  ///
+  /// [PlImage.colorFilter] wins where both are given: the named ones are the
+  /// common answers and the raw filter is the rest, so a caller who reached for
+  /// the escape hatch has already said the names did not cover it.
+  Widget _treat(Widget child) {
+    final ColorFilter? filter = widget.colorFilter ?? _named(widget.filter);
+
+    if (filter == null) {
+      return child;
+    }
+
+    return ColorFiltered(colorFilter: filter, child: child);
+  }
+
+  /// The CSS each name stands for, as a colour matrix.
+  ///
+  /// The amounts are the same numbers the React build writes into its `filter`
+  /// chain, so `sepia` is one colour across the two packages rather than two
+  /// that look alike.
+  ColorFilter? _named(PlImageFilter filter) {
+    switch (filter) {
+      case PlImageFilter.none:
+        return null;
+      case PlImageFilter.grayscale:
+        return saturationFilter(0);
+      case PlImageFilter.sepia:
+        return sepiaFilter(0.72);
+      case PlImageFilter.saturate:
+        return saturationFilter(1.35);
+      case PlImageFilter.desaturate:
+        return saturationFilter(0.45);
+      case PlImageFilter.contrast:
+        return contrastFilter(1.2);
+      case PlImageFilter.dim:
+        return brightnessFilter(0.82);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
@@ -195,10 +274,16 @@ class _PlImageState extends State<PlImage> {
       // `sync` is the frame where there was never anything to wait for, and an
       // entrance there would be an entrance for a picture that never arrived.
       frameBuilder: (BuildContext context, Widget child, int? frame, bool sync) {
+        // The treatment goes on the picture and on nothing else. Wrapping the
+        // whole `Image` would put it over the placeholder and the fallback too,
+        // and a greyed-out skeleton is not what `filter: grayscale` was asked
+        // for.
+        final Widget treated = _treat(child);
+
         if (sync) {
           _settle(PlImageStatus.loaded);
 
-          return child;
+          return treated;
         }
 
         if (frame != null) {
@@ -209,7 +294,7 @@ class _PlImageState extends State<PlImage> {
           opacity: frame == null ? 0 : 1,
           duration: reduceMotion ? Duration.zero : PlassTokens.duration,
           curve: PlassTokens.ease,
-          child: child,
+          child: treated,
         );
 
         if (frame != null) {

@@ -14195,6 +14195,15 @@ export const propTables: Record<string, PropRow[]> = {
       description: { ko: '사진을 상자에 어떻게 맞출지', en: 'How the picture is fitted to the box' }
     },
     {
+      name: 'filter',
+      type: "'none' | 'grayscale' | 'sepia' | 'saturate' | 'desaturate' | 'contrast' | 'dim' | string",
+      default: "'none'",
+      description: {
+        ko: '사진에 얹는 처리. 이름 붙은 여섯 가지, 또는 직접 쓴 CSS filter 체인',
+        en: 'A treatment laid over the picture: one of the six names, or any CSS filter chain of your own'
+      }
+    },
+    {
       name: 'rounded',
       type: 'boolean',
       default: 'false',

@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/css.dart';
 
 import '../../support/host.dart';
 
@@ -186,6 +187,78 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(status, equals(PlImageStatus.loaded));
+      });
+    });
+
+    group('filter', () {
+      /// The filter the picture is actually drawn through, or `null`.
+      ColorFilter? applied(WidgetTester tester) {
+        final Finder filtered = find.descendant(
+          of: find.byType(PlImage),
+          matching: find.byType(ColorFiltered),
+        );
+
+        return filtered.evaluate().isEmpty
+            ? null
+            : tester.widget<ColorFiltered>(filtered.first).colorFilter;
+      }
+
+      testWidgets('draws nothing of its own until it is asked to', (WidgetTester tester) async {
+        await tester.pumpWidget(host(PlImage(image: _ok, semanticLabel: 'A portrait')));
+        await tester.pumpAndSettle();
+
+        expect(applied(tester), isNull);
+      });
+
+      testWidgets('resolves a named treatment to a colour matrix', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(PlImage(image: _ok, semanticLabel: 'A portrait', filter: PlImageFilter.grayscale)),
+        );
+        await tester.pumpAndSettle();
+
+        // The same numbers the React build writes into its `filter` chain, so
+        // the two packages agree about what `grayscale` looks like.
+        expect(applied(tester), saturationFilter(0));
+      });
+
+      testWidgets('lets a colorFilter of its own win', (WidgetTester tester) async {
+        const ColorFilter own = ColorFilter.mode(Color(0x330000FF), BlendMode.srcOver);
+
+        await tester.pumpWidget(
+          host(
+            PlImage(
+              image: _ok,
+              semanticLabel: 'A portrait',
+              filter: PlImageFilter.sepia,
+              colorFilter: own,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // A caller who reached for the escape hatch has already said the names
+        // did not cover it.
+        expect(applied(tester), own);
+      });
+
+      testWidgets('treats the picture and not the placeholder', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            const PlImage(
+              image: _PendingImage(),
+              semanticLabel: 'A portrait',
+              filter: PlImageFilter.grayscale,
+            ),
+          ),
+        );
+        await tester.pump();
+
+        // A greyed-out skeleton is not what `grayscale` was asked for.
+        expect(find.byType(PlSkeleton), findsOneWidget);
+        expect(
+          find.descendant(of: find.byType(ColorFiltered), matching: find.byType(PlSkeleton)),
+          findsNothing,
+        );
       });
     });
 

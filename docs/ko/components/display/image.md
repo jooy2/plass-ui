@@ -79,6 +79,34 @@ PlImage(
 
 `placeholder`가 skeleton을 대체합니다 — `null`은 아무것도 그리지 않고 잡아 둔 상자를 비워 둡니다. `fallback`이 alt 텍스트를 대체하고, alt가 기본인 이유는 그것이 확실히 존재하고 확실히 없는 것을 설명하는 유일한 것이기 때문입니다.
 
+### filter
+
+사진에 얹는 처리입니다. 여섯 가지에 이름이 있고 — `grayscale`, `sepia`, `saturate`, `desaturate`, `contrast`, `dim` — 그 밖에 넘기는 것은 CSS `filter` 체인이라 쓴 그대로 적용됩니다.
+
+<Demo src="image/filter" :min-height="220">
+
+::: fw react
+
+<<< @/.vitepress/demos/image/filter.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/filter.dart
+
+:::
+
+</Demo>
+
+사진 자체의 fade와 같은 transition을 타므로, hover에서 filter를 바꿔도 fade가 아직 움직이는 중에 툭 튀지 않고 함께 이동합니다. placeholder와 fallback에는 걸리지 않습니다. 회색이 된 skeleton은 `grayscale`이 요청한 것이 아닙니다.
+
+::: fw flutter
+
+탈출구는 `colorFilter`이고, 직접 만든 `ColorFilter`를 받아 이름 붙은 `filter`를 이깁니다. CSS 체인은 여기서 의미가 없고, Flutter에서 같은 생각은 `ColorFilter`입니다. 이름 붙은 것들은 React 빌드가 쓰는 것과 같은 수치로 풀리므로, `sepia`는 두 패키지에서 비슷해 보이는 두 색이 아니라 하나의 색입니다.
+
+:::
+
 ### preview
 
 누르면 사진을 페이지 위로 엽니다. 기본은 꺼짐입니다. 클릭하면 커지는 사진은 볼 것이 더 있다는 약속이고, 페이지의 사진 대부분은 그 약속을 하고 있지 않습니다.

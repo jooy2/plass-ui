@@ -168,3 +168,36 @@ ColorFilter saturationFilter(double amount) {
     0, 0, 0, 1, 0, //
   ]);
 }
+
+/// A `filter: sepia()`, as a colour matrix.
+///
+/// The coefficients are the CSS filter spec's own, interpolated toward the
+/// identity by `amount` exactly as the spec interpolates them — so a
+/// `sepia(72%)` here lands on the same colour as the same declaration in the
+/// stylesheet the other package ships.
+ColorFilter sepiaFilter(double amount) {
+  final double rest = 1 - amount;
+
+  return ColorFilter.matrix(<double>[
+    0.393 + 0.607 * rest, 0.769 - 0.769 * rest, 0.189 - 0.189 * rest, 0, 0, //
+    0.349 - 0.349 * rest, 0.686 + 0.314 * rest, 0.168 - 0.168 * rest, 0, 0, //
+    0.272 - 0.272 * rest, 0.534 - 0.534 * rest, 0.131 + 0.869 * rest, 0, 0, //
+    0, 0, 0, 1, 0, //
+  ]);
+}
+
+/// A `filter: contrast()`, as a colour matrix.
+///
+/// The slope is the amount and the intercept is what keeps mid-grey where it
+/// is. The intercept is in 0–255 because that is the range the matrix's last
+/// column is added in, while every other coefficient is a ratio.
+ColorFilter contrastFilter(double amount) {
+  final double intercept = (0.5 - 0.5 * amount) * 255;
+
+  return ColorFilter.matrix(<double>[
+    amount, 0, 0, 0, intercept, //
+    0, amount, 0, 0, intercept, //
+    0, 0, amount, 0, intercept, //
+    0, 0, 0, 1, 0, //
+  ]);
+}

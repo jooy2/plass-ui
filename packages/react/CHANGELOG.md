@@ -12,6 +12,10 @@
 
 - **`PlImage` no longer hides a picture that had already arrived.** The component moved out of its loading state on the `<img>`'s `load` event alone, and an event is only heard by something already listening: a file served from the cache — or one a server rendered, so the browser began fetching it while parsing the HTML — can finish decoding before React attaches the handler. The picture then sat at `opacity: 0` behind its own placeholder for good. It now asks the element where it got to on mount and on every `src` change, so a picture that is already `complete` is shown rather than waited for.
 
+### Added
+
+- **`PlImage` takes a `filter`.** Six named treatments — `grayscale`, `sepia`, `saturate`, `desaturate`, `contrast` and `dim` — and anything else you pass is used as a CSS `filter` chain exactly as written. It is set through a `--p-filter` slot and rides the house transition, which `filter` was already on, so a treatment swapped on hover travels at the same pace as the picture's own fade instead of snapping while the fade is still moving. The placeholder and the fallback are left alone.
+
 ### Changed
 
 - **`PlImage`'s preview overlay is now a separate chunk.** `preview` is off by default and the overlay is several times the weight of the picture component that opens it, so it is reached through `React.lazy` — as `PlGallery`'s viewer already was. Importing `PlImage` alone costs 5.5 kB gzipped where it cost 26.8 kB, and `PlGallery`, which draws its tiles with one, drops from 28.9 kB to 7.7 kB: its own lazy viewer had been undone by this import. Nothing to configure, and no API change; on a cold cache the overlay now appears a moment after the first press.

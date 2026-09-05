@@ -197,6 +197,46 @@ describe('PlImage', () => {
     });
   });
 
+  describe('filter', () => {
+    it('draws nothing of its own until it is asked to', async () => {
+      await render(<PlImage src={OK} alt="A portrait" />);
+
+      expect(image().style.getPropertyValue('--p-filter')).toBe('');
+      expect(image().className).not.toContain('--p-filter');
+    });
+
+    it('resolves a named treatment to the CSS it stands for', async () => {
+      await render(<PlImage src={OK} alt="A portrait" filter="grayscale" />);
+
+      expect(image().style.getPropertyValue('--p-filter')).toBe('grayscale(1)');
+    });
+
+    it('passes a chain of its own straight through', async () => {
+      // Anything that is not one of the names is CSS, which is what makes the
+      // escape hatch free — there is nothing to parse and nothing to allow.
+      await render(<PlImage src={OK} alt="A portrait" filter="blur(2px) hue-rotate(20deg)" />);
+
+      expect(image().style.getPropertyValue('--p-filter')).toBe('blur(2px) hue-rotate(20deg)');
+    });
+
+    it('travels on the same transition as the picture’s own fade', async () => {
+      await render(<PlImage src={OK} alt="A portrait" filter="sepia" />);
+
+      // A treatment swapped on hover has to move at the pace the fade moves at,
+      // or it snaps while the fade is still going.
+      expect(image().className).toContain('[filter:var(--p-filter,none)]');
+      expect(image().className).toContain('filter,opacity');
+    });
+
+    it('changes on a re-render', async () => {
+      const screen = await render(<PlImage src={OK} alt="A portrait" filter="sepia" />);
+
+      await screen.rerender(<PlImage src={OK} alt="A portrait" filter="dim" />);
+
+      expect(image().style.getPropertyValue('--p-filter')).toBe('brightness(0.82)');
+    });
+  });
+
   describe('a picture that was already decoded', () => {
     /*
      * The case `load` cannot cover. A file that is in the cache, or one a server
