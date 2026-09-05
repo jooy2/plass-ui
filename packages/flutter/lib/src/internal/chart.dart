@@ -18,7 +18,7 @@
 library;
 
 import 'dart:math' as math;
-import 'dart:ui' show Color, Offset, Path, Rect;
+import 'dart:ui' show Color, Offset, Path, RRect, Radius, Rect;
 
 import 'package:plass_ui/src/types.dart';
 
@@ -770,6 +770,70 @@ Path _reverseEdge(List<Offset?> points, PlChartCurve curve) {
   }
 
   return path;
+}
+
+/// Which end of a bar its value is at, and so which corners are cut.
+enum PlBarEnd {
+  /// A vertical bar growing upward.
+  up,
+
+  /// One growing downward, for a negative value.
+  down,
+
+  /// A horizontal bar growing toward the ending edge.
+  right,
+
+  /// One growing toward the starting edge.
+  left,
+}
+
+/// One bar, with the corners cut off its **data** end only.
+///
+/// The baseline end stays square: that is where the value starts from, and a
+/// rounded foot makes the axis look scalloped. The radius is clamped to half
+/// the bar in both directions, so a bar shorter than its own corner comes out
+/// as a lozenge rather than as a shape turned inside out.
+Path barPath(double x, double y, double width, double height, double radius, PlBarEnd end) {
+  final double r = math.max(0, math.min(radius, math.min(width / 2, height / 2)));
+  final rect = Rect.fromLTWH(x, y, width, height);
+
+  if (r == 0 || width <= 0 || height <= 0) {
+    return Path()..addRect(rect);
+  }
+
+  final zero = Radius.zero;
+  final round = Radius.circular(r);
+
+  return Path()..addRRect(switch (end) {
+    PlBarEnd.up => RRect.fromRectAndCorners(
+      rect,
+      topLeft: round,
+      topRight: round,
+      bottomLeft: zero,
+      bottomRight: zero,
+    ),
+    PlBarEnd.down => RRect.fromRectAndCorners(
+      rect,
+      topLeft: zero,
+      topRight: zero,
+      bottomLeft: round,
+      bottomRight: round,
+    ),
+    PlBarEnd.right => RRect.fromRectAndCorners(
+      rect,
+      topLeft: zero,
+      topRight: round,
+      bottomLeft: zero,
+      bottomRight: round,
+    ),
+    PlBarEnd.left => RRect.fromRectAndCorners(
+      rect,
+      topLeft: round,
+      topRight: zero,
+      bottomLeft: round,
+      bottomRight: zero,
+    ),
+  });
 }
 
 /// The shapes a marker is drawn in, in the order they are handed out.

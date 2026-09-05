@@ -694,6 +694,18 @@
   --plass-info-line: color-mix(in srgb, var(--plass-info-accent) 30%, transparent);
   --plass-info-line-hover: color-mix(in srgb, var(--plass-info-accent) 48%, transparent);
   --plass-info-ring: color-mix(in srgb, var(--plass-info-solid) 55%, transparent);
+  /* The three greys a chart draws its frame with, derived so a project that
+     re-tones its border moves the grid with it.
+
+     The grid is the faintest thing on the plot on purpose: a gridline that
+     competes with a data line is a reader deciding which is which. The axis is
+     the border at full strength, because it is the edge of the picture rather
+     than a reading. And the baseline is allowed to be darker than either — it
+     is where a bar starts from and where zero is, which is a fact about the
+     data rather than furniture. */
+  --plass-chart-grid: color-mix(in srgb, var(--plass-border) 70%, transparent);
+  --plass-chart-axis: var(--plass-border);
+  --plass-chart-baseline: color-mix(in srgb, var(--plass-muted-fg) 35%, transparent);
 }
 
 /* ---------------------------------------------------------------------------

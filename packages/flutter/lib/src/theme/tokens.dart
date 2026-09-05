@@ -216,6 +216,9 @@ class PlassTokens {
     required this.chart,
     required this.chartSequential,
     required this.chartDiverging,
+    required this.chartGrid,
+    required this.chartAxis,
+    required this.chartBaseline,
     required this.families,
   });
 
@@ -298,6 +301,9 @@ class PlassTokens {
       Color(0xFFD4614C),
       Color(0xFF9A210C),
     ],
+    chartGrid: const Color(0xB3D5DEEF),
+    chartAxis: const Color(0xFFD5DEEF),
+    chartBaseline: const Color(0x595B6376),
     families: _familiesFor(accents: _lightAccents, tintStrength: 35),
   );
 
@@ -349,6 +355,9 @@ class PlassTokens {
       Color(0xFFD15E49),
       Color(0xFF9A2B19),
     ],
+    chartGrid: const Color(0x8099A2BA),
+    chartAxis: const Color(0xB399A2BA),
+    chartBaseline: const Color(0x8099A2BA),
     families: _familiesFor(accents: _darkAccents, tintStrength: 55),
   );
 
@@ -503,6 +512,21 @@ class PlassTokens {
   /// The neutral is not white: a cell at zero is a reading, and a white cell is
   /// a hole in the grid.
   final List<Color> chartDiverging;
+
+  /// The rules a chart casts across its plot.
+  ///
+  /// The faintest thing on it on purpose: a gridline that competes with a data
+  /// line is a reader deciding which is which.
+  final Color chartGrid;
+
+  /// The rule along an axis — the edge of the picture rather than a reading.
+  final Color chartAxis;
+
+  /// Where a bar starts from, and where zero is.
+  ///
+  /// Allowed to be darker than either of the two above, because it is a fact
+  /// about the data rather than furniture.
+  final Color chartBaseline;
 
   /// The six colour families, resolved for this theme.
   final Map<PlassColor, PlassColorFamily> families;

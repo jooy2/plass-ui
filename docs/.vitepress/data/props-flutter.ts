@@ -1617,6 +1617,39 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlAreaChart', 'empty', { type: 'Widget?' }),
     from('PlAreaChart', 'size', { type: SIZE, default: 'PlassSize.md' })
   ],
+  PlBarChart: [
+    from('PlBarChart', 'series', { type: 'List<PlassChartSeries>', required: true }),
+    from('PlBarChart', 'categories', { type: 'List<PlassChartCategory>?' }),
+    from('PlBarChart', 'orientation', {
+      type: 'PlassOrientation',
+      default: 'PlassOrientation.vertical'
+    }),
+    from('PlBarChart', 'stacked', {
+      name: 'stacking',
+      type: 'PlBarStacking',
+      default: 'PlBarStacking.grouped',
+      description: {
+        ko: "series가 서로 어떻게 놓이는지. React의 boolean | 'full' 대신 이름 붙은 세 상태입니다",
+        en: "How the series sit relative to each other. Three named states rather than React's boolean | 'full'"
+      }
+    }),
+    from('PlBarChart', 'rounded', { type: 'bool', default: 'true' }),
+    from('PlBarChart', 'barSize', { type: 'double?' }),
+    from('PlBarChart', 'valueLabels', {
+      type: 'PlassChartValueLabels',
+      default: 'PlassChartValueLabels.none'
+    }),
+    from('PlBarChart', 'xAxis', { type: 'PlChartAxis', default: 'PlChartAxis()' }),
+    from('PlBarChart', 'yAxis', { type: 'PlChartAxis', default: 'PlChartAxis()' }),
+    from('PlBarChart', 'legend', { type: 'PlChartLegend', default: 'PlChartLegend()' }),
+    from('PlBarChart', 'tooltip', { type: 'PlChartTooltip', default: 'PlChartTooltip()' }),
+    from('PlBarChart', 'height', { type: 'double?' }),
+    from('PlBarChart', 'format', { type: 'String Function(double)?' }),
+    from('PlBarChart', 'label', { name: 'semanticLabel', type: 'String?', default: "'Chart'" }),
+    from('PlBarChart', 'empty', { type: 'Widget?' }),
+    from('PlBarChart', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlBarChart', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+  ],
   PlLineChart: [
     from('PlLineChart', 'series', { type: 'List<PlassChartSeries>', required: true }),
     from('PlLineChart', 'categories', { type: 'List<PlassChartCategory>?' }),

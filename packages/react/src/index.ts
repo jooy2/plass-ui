@@ -27,6 +27,7 @@ export * from './components/aspect-ratio/index.js';
 export * from './components/avatar/index.js';
 export * from './components/back-top/index.js';
 export * from './components/badge/index.js';
+export * from './components/bar-chart/index.js';
 export * from './components/blockquote/index.js';
 export * from './components/bottom-navigation/index.js';
 export * from './components/box/index.js';

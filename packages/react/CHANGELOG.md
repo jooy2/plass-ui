@@ -8,7 +8,23 @@
 
 - **A read-only `PlSelect` opened its popup again.** Base UI 1.8 redefined `readOnly` on a select to mean "nothing in the popup can be chosen" and lets it open regardless; every other picker in this library promises that a read-only control's popup does not open at all, and a select that opened beside a date picker that did not is the form that looks assembled rather than designed. `PlSelect` now holds the popup's open state itself and keeps it shut while `readOnly` — held rather than passed conditionally, so a field unlocked while it is on screen does not switch between controlled and uncontrolled underneath Base UI.
 
+- **A chart's grid, axis rules and baseline were invisible.** `internal/chart-frame` draws all three with `var(--plass-chart-grid)`, `var(--plass-chart-axis)` and `var(--plass-chart-baseline)`, and none of the three was ever declared — an unresolvable `var()` on a `stroke` computes to `none`, so `PlLineChart` and `PlAreaChart` shipped with no gridlines, no axis rule and no baseline at all. The faint horizontal lines visible in the docs were the demo canvas's own background showing through the translucent sheet.
+
+  The three are declared now, derived rather than picked so a project that re-tones its border moves the grid with it: the grid is the border at 70%, the axis is the border, and the baseline — which is where a bar starts from and where zero is, a fact about the data rather than furniture — is the muted foreground at 35%. `PlassToken` names them, which is what the package test that caught the omission checks.
+
 ### Added
+
+- **`PlBarChart`.** Lengths, compared.
+
+  A bar says _how much_, and it says it by being longer — which is the whole reason its axis starts at zero and cannot be talked out of it. Crop the scale and a bar twice as long stops meaning twice as much, and the reader has no way to know it happened.
+
+  A `null` is a gap and the bar is simply **not drawn**, which matters more here than anywhere: a zero-length bar and a missing bar are the same picture, and only one of them is honest.
+
+  `orientation="horizontal"` is the right answer whenever the category names are words — it has a whole column for them where a vertical chart has the width of one bar — and everything swaps with it: which band each axis reserves, which way the grid and the crosshair run, and which end of a bar is rounded.
+
+  Grouped bars answer "which series is bigger here"; stacked bars answer "what is this total made of". They are different questions and the chart should be asked only one of them at a time. **The gap between two stacked segments is taken off the far end of each**, so the stack still totals the right length and the seam is the sheet showing through rather than a line drawn on it — a border around a bar is ink that is not data. The two arms accumulate separately, so a series that dips does not shorten the one above it, and the baseline is redrawn _over_ the bars because every one of them starts there.
+
+  `rounded` cuts the corners off the **data** end only: a rounded foot makes the axis look scalloped.
 
 - **`PlAreaChart`.** A line with the space under it filled — which changes what the chart is about.
 

@@ -40,6 +40,7 @@ import {
   PlChatBubble,
   PlCheckbox,
   PlAreaChart,
+  PlBarChart,
   PlChip,
   PlCodeBlock,
   PlLineChart,
@@ -1141,6 +1142,26 @@ const entries: Entry[] = [
           { name: 'Direct', data: [12, 14, 13, 17, 19, 21] },
           { name: 'Search', data: [9, 11, 13, 12, 15, 17] }
         ]}
+      />
+    )
+  },
+  {
+    name: 'PlBarChart',
+    group: 'charts',
+    href: 'components/charts/bar-chart',
+    blurb: {
+      en: 'Lengths, compared.',
+      ko: '비교되는 길이입니다.'
+    },
+    preview: (
+      <PlBarChart
+        size="xs"
+        className="w-full"
+        height={96}
+        legend={false}
+        yAxis={{ hidden: true }}
+        series={[{ name: 'Revenue', data: [42, 58, 31, 47, 39] }]}
+        categories={['EU', 'AS', 'AM', 'AF', 'OC']}
       />
     )
   },

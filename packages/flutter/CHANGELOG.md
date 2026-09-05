@@ -4,6 +4,16 @@
 
 ### Added
 
+- **`PlBarChart`.** Lengths, compared.
+
+  A bar says _how much_ by being longer, which is why its axis starts at zero and cannot be talked out of it. A gap is a bar that is not drawn: a zero-length bar and a missing bar are the same picture and only one of them is honest.
+
+  **The frame learned to run either way round with it.** `horizontal` swaps which band each axis reserves, which way the grid and the crosshair go, which axis the pointer runs along, and which edge the category labels sit on — and a horizontal chart's labels are stacked, so what the stride has to clear is a line of text rather than the width of a word.
+
+  `PlassTokens` gains `chartGrid`, `chartAxis` and `chartBaseline`, so the two builds draw a chart's furniture from the same three greys.
+
+  `stacking` is three named states rather than React's `boolean | 'full'`, as on the area chart.
+
 - **`PlAreaChart`.** A line with the space under it filled — which changes what the chart is about.
 
   A line says where a value went; an area says how much of something there _was_, and stacked it says how that amount was made up. If the quantity does not add up to anything, the fill under it is decoration.

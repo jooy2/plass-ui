@@ -12567,6 +12567,128 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlBarChart: [
+    {
+      name: 'series',
+      type: 'readonly PlassChartSeries[]',
+      required: true,
+      description: { ko: '데이터', en: 'The data' }
+    },
+    {
+      name: 'categories',
+      type: 'readonly PlassChartCategory[]',
+      description: { ko: 'category 축이 말하는 것', en: 'What the category axis says' }
+    },
+    {
+      name: 'orientation',
+      type: "'vertical' | 'horizontal'",
+      default: "'vertical'",
+      description: {
+        ko: '막대가 나는 방향. category 이름이 낱말이면 horizontal이 맞습니다 — 가로 차트에는 이름을 위한 열이 통째로 있습니다',
+        en: 'Which way the bars run. horizontal is the right answer whenever the category names are words: it has a whole column for them'
+      }
+    },
+    {
+      name: 'stacked',
+      type: "boolean | 'full'",
+      default: 'false',
+      description: {
+        ko: '나란히가 아니라 위로 쌓습니다. full은 모든 막대를 같은 길이로 만들어 크기가 아니라 비중에 대한 차트로 바꿉니다',
+        en: "Puts the series on top of each other instead of beside each other. 'full' makes every bar the same length, so the chart is about share rather than size"
+      }
+    },
+    {
+      name: 'rounded',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '막대의 데이터 쪽 끝만 모서리를 깎습니다. 기준선 쪽은 각진 채로 — 둥근 발은 축을 물결지게 만듭니다',
+        en: 'Cuts the corners off the data end of each bar. The baseline end stays square: a rounded foot makes the axis look scalloped'
+      }
+    },
+    {
+      name: 'barSize',
+      type: 'number',
+      default: 'the size ladder — 24 at md',
+      description: {
+        ko: '막대가 가질 수 있는 최대 두께. 그 아래에서는 band를 나눠 채우고, 넘으면 남는 만큼이 여백이 됩니다',
+        en: 'How thick a bar may get. Below the cap the bars fill their share of the band; above it the leftover stays as air'
+      }
+    },
+    {
+      name: 'valueLabels',
+      type: "'none' | 'last' | 'extremes' | 'all'",
+      default: "'none'",
+      description: {
+        ko: '막대 위에 어떤 값을 적을지. 여기서는 all이 선 차트에서와 달리 변호할 만합니다 — 숫자가 붙은 막대 여덟이면 차트이자 표입니다',
+        en: 'Which values are written on the bars. all is defensible here in a way it is not on a line chart: eight bars with their numbers on them is a chart and a table at once'
+      }
+    },
+    {
+      name: 'xAxis',
+      type: 'PlassChartAxis',
+      description: { ko: 'category 축', en: 'The category axis' }
+    },
+    {
+      name: 'yAxis',
+      type: 'PlassChartAxis',
+      description: { ko: '값 축', en: 'The value axis' }
+    },
+    {
+      name: 'legend',
+      type: 'PlassChartLegend',
+      description: { ko: '범례', en: 'The legend' }
+    },
+    {
+      name: 'tooltip',
+      type: 'PlassChartTooltip',
+      description: { ko: '툴팁', en: 'The tooltip' }
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      description: { ko: 'plot의 높이', en: 'How tall the plot is' }
+    },
+    {
+      name: 'format',
+      type: 'Intl.NumberFormatOptions',
+      description: { ko: '값을 쓰는 방식', en: 'How a value is written' }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      default: "'Chart'",
+      description: { ko: '그림 전체의 접근성 이름', en: 'What the whole drawing is called' }
+    },
+    {
+      name: 'empty',
+      type: 'ReactNode',
+      description: {
+        ko: '그릴 것이 없을 때 그리는 것',
+        en: 'What is drawn when there is nothing to draw'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '타입 스케일, plot 높이, 막대 두께 상한',
+        en: 'Type scale, plot height and the bar thickness cap'
+      }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'default'",
+      shared: true,
+      description: {
+        ko: 'category 한 칸에서 막대가 차지하는 비율. 높이는 아닙니다',
+        en: "How much of a category's slot the bars in it may take. Never the height"
+      }
+    }
+  ],
   PlLineChart: [
     {
       name: 'series',

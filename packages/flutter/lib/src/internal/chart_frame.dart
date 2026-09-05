@@ -145,6 +145,8 @@ class PlassChartLayout {
     required this.categories,
     required this.size,
     required this.inset,
+    required this.horizontal,
+    required this.density,
     required this.activeIndex,
     required this.hovered,
     required this.tokens,
@@ -178,6 +180,16 @@ class PlassChartLayout {
   /// band — a line does, a bar does not.
   final bool inset;
 
+  /// Whether the marks run along the category axis rather than across it.
+  ///
+  /// A horizontal bar chart is the right answer whenever the category names are
+  /// words: it has a whole column for them, where a vertical one has the width
+  /// of one bar.
+  final bool horizontal;
+
+  /// How much of a category's slot the marks in it may take.
+  final PlassDensity density;
+
   /// The category under the pointer, or `null`.
   final int? activeIndex;
 
@@ -190,10 +202,16 @@ class PlassChartLayout {
   /// How many categories there are.
   int get count => categories.length;
 
-  /// Where a value sits along the value axis, in pixels from the chart's edge.
-  double valuePx(double value) => plot.top + (1 - scale.fraction(value)) * plot.height;
+  /// How long the category axis is, in pixels.
+  double get categoryLength => horizontal ? plot.height : plot.width;
 
-  /// Where a category's centre sits along the category axis.
+  /// Where a value sits along the value axis, in pixels from the chart's edge.
+  double valuePx(double value) => horizontal
+      ? plot.left + scale.fraction(value) * plot.width
+      : plot.top + (1 - scale.fraction(value)) * plot.height;
+
+  /// Where a category's centre sits **along the category axis**, measured from
+  /// the plot's own start rather than from the chart's edge.
   ///
   /// A line's first point sits *on* the axis and a bar's first band starts at
   /// it, which is one half-step apart; [inset] is which of the two this is.
@@ -202,11 +220,13 @@ class PlassChartLayout {
       return band.centre(index);
     }
 
-    return count <= 1 ? plot.width / 2 : plot.width * index / (count - 1);
+    return count <= 1 ? categoryLength / 2 : categoryLength * index / (count - 1);
   }
 
-  /// The two combined.
-  Offset point(int index, double value) => Offset(plot.left + categoryPx(index), valuePx(value));
+  /// The two combined, whichever way round the chart runs.
+  Offset point(int index, double value) => horizontal
+      ? Offset(valuePx(value), plot.top + categoryPx(index))
+      : Offset(plot.left + categoryPx(index), valuePx(value));
 
   /// Where the baseline is along the value axis.
   double get zeroPx => valuePx(math.min(math.max(0, scale.min), scale.max));
@@ -229,6 +249,8 @@ class PlassCartesianChart extends StatefulWidget {
     this.height,
     this.stacked = false,
     this.inset = false,
+    this.horizontal = false,
+    this.density,
     this.includeZero = true,
     this.headroom = 0,
     this.format,
@@ -268,6 +290,12 @@ class PlassCartesianChart extends StatefulWidget {
   /// Whether the first mark sits *on* the category axis.
   final bool inset;
 
+  /// Whether the marks run along the category axis rather than across it.
+  final bool horizontal;
+
+  /// How much of a category's slot the marks in it may take. Never the height.
+  final PlassDensity? density;
+
   /// Whether zero stays in range.
   final bool includeZero;
 
@@ -299,6 +327,8 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
   Offset? _pointer;
 
   PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+  PlassDensity get _density =>
+      widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
 
   String _write(double value) {
     if (widget.format != null) {
@@ -384,18 +414,17 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
         final double valueBand = widget.yAxis.hidden
             ? 0
             : widestTick + 10 + (widget.yAxis.label != null ? axisLabelBand : 0);
-        final double left = widget.yAxis.thickness ?? valueBand;
-        final double bottom =
-            widget.xAxis.thickness ??
-            (widget.xAxis.hidden
-                ? 0
-                : fontSize + 12 + (widget.xAxis.label != null ? axisLabelBand : 0));
 
-        final double slot = (width - left - 16) / math.max(1, count);
+        // A horizontal chart gives each category label a row of its own on the
+        // starting edge; a vertical one gives it the width of one slot.
+        final double slot = (width - valueBand - 16) / math.max(1, count);
         final List<String> categoryTexts = categories
             .map(
-              (PlassChartCategory category) =>
-                  truncateLabel(category.toString(), math.max(0, slot - 6), fontSize),
+              (PlassChartCategory category) => truncateLabel(
+                category.toString(),
+                widget.horizontal ? 150 : math.max(0, slot - 6),
+                fontSize,
+              ),
             )
             .toList();
         final double widestCategory = categoryTexts.fold<double>(
@@ -403,10 +432,33 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
           (double most, String text) => math.max(most, textWidth(text, fontSize)),
         );
 
+        // `thickness` belongs to whichever axis is actually on that edge, which
+        // swaps with the orientation — read off the wrong one, a bar chart
+        // turned on its side would take its start margin from the axis along
+        // the bottom.
+        final double categoryBand = widget.xAxis.hidden
+            ? 0
+            : widestCategory + 10 + (widget.xAxis.label != null ? axisLabelBand : 0);
+        final double left = widget.horizontal
+            ? (widget.xAxis.thickness ?? categoryBand)
+            : (widget.yAxis.thickness ?? valueBand);
+        final double bottom = widget.horizontal
+            ? (widget.yAxis.thickness ??
+                  (widget.yAxis.hidden
+                      ? 0
+                      : fontSize + 12 + (widget.yAxis.label != null ? axisLabelBand : 0)))
+            : (widget.xAxis.thickness ??
+                  (widget.xAxis.hidden
+                      ? 0
+                      : fontSize + 12 + (widget.xAxis.label != null ? axisLabelBand : 0)));
+
         // The last category's label is centred on the last tick, so half of it
         // hangs past the plot. Reserving that half is what stops a chart
-        // clipping the one label a reader looks for first.
-        final double rightPad = math.max(8, categoryTexts.isEmpty ? 8 : widestCategory / 2);
+        // clipping the one label a reader looks for first — and a horizontal
+        // chart needs none of it, because its category labels are in a column.
+        final double rightPad = widget.horizontal
+            ? 12
+            : math.max(8, categoryTexts.isEmpty ? 8 : widestCategory / 2);
         // A mark is drawn from its centre, so half of the widest one hangs over
         // the top of the plot.
         final double topPad = markerRadii[size]! + 4 + widget.headroom;
@@ -424,8 +476,8 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
         // way.
         final band = BandScale(
           widget.inset ? math.max(1, count - 1) : count,
-          box.width,
-          barBandRatio[PlassDensity.standard]!,
+          widget.horizontal ? box.height : box.width,
+          barBandRatio[_density]!,
         );
 
         final layout = PlassChartLayout(
@@ -438,6 +490,8 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
           categories: categories,
           size: size,
           inset: widget.inset,
+          horizontal: widget.horizontal,
+          density: _density,
           activeIndex: _activeIndex,
           hovered: _hovered,
           tokens: tokens,
@@ -450,9 +504,12 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
             return;
           }
 
-          final double along = (local.dx - box.left).clamp(0, box.width);
+          final double length = widget.horizontal ? box.height : box.width;
+          final double along = widget.horizontal
+              ? (local.dy - box.top).clamp(0, length)
+              : (local.dx - box.left).clamp(0, length);
           final int index = widget.inset
-              ? (count <= 1 ? 0 : (along / (box.width / math.max(1, count - 1))).round())
+              ? (count <= 1 ? 0 : (along / (length / math.max(1, count - 1))).round())
               : (along / band.step).floor();
           final int clamped = index.clamp(0, count - 1);
 
@@ -659,7 +716,7 @@ class _FramePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final PlotBox box = layout.plot;
     final grid = Paint()
-      ..color = tokens.divider
+      ..color = tokens.chartGrid
       ..strokeWidth = hairline
       ..style = PaintingStyle.stroke;
 
@@ -668,34 +725,50 @@ class _FramePainter extends CustomPainter {
     // language wants none.
     if (yAxis.grid && !yAxis.hidden) {
       for (final double tick in layout.scale.ticks) {
-        final double y = layout.valuePx(tick);
+        final double at = layout.valuePx(tick);
 
-        canvas.drawLine(Offset(box.left, y), Offset(box.right, y), grid);
+        canvas.drawLine(
+          layout.horizontal ? Offset(at, box.top) : Offset(box.left, at),
+          layout.horizontal ? Offset(at, box.bottom) : Offset(box.right, at),
+          grid,
+        );
       }
     }
 
     if (!yAxis.hidden) {
       for (int i = 0; i < layout.scale.ticks.length; i += 1) {
+        final double at = layout.valuePx(layout.scale.ticks[i]);
+
         _text(
           canvas,
           tickTexts[i],
-          Offset(box.left - 8, layout.valuePx(layout.scale.ticks[i])),
+          layout.horizontal ? Offset(at, box.bottom + fontSize) : Offset(box.left - 8, at),
           tokens.mutedFg,
-          TextAlign.right,
+          layout.horizontal ? TextAlign.center : TextAlign.right,
         );
       }
     }
 
     if (!xAxis.hidden && layout.count > 0) {
+      final double length = layout.categoryLength;
       final double step = layout.inset
-          ? (layout.count <= 1 ? box.width : box.width / math.max(1, layout.count - 1))
+          ? (layout.count <= 1 ? length : length / math.max(1, layout.count - 1))
           : layout.band.step;
       final double widest = categoryTexts.fold<double>(
         0,
         (double most, String text) => math.max(most, textWidth(text, fontSize)),
       );
-      final int stride = tickStride(layout.count, box.width, widest + 12);
-      final bool roomForLast = fitsLast(layout.count, stride, step, widest);
+      // A horizontal chart's labels are stacked, so what has to clear is a line
+      // of text rather than the width of a word.
+      final int stride = layout.horizontal
+          ? tickStride(layout.count, length, fontSize + 8)
+          : tickStride(layout.count, length, widest + 12);
+      final bool roomForLast = fitsLast(
+        layout.count,
+        stride,
+        step,
+        layout.horizontal ? fontSize : widest,
+      );
 
       for (int i = 0; i < layout.count; i += 1) {
         if (!showsTick(i, layout.count, stride, roomForLast: roomForLast)) {
@@ -705,9 +778,11 @@ class _FramePainter extends CustomPainter {
         _text(
           canvas,
           categoryTexts[i],
-          Offset(box.left + layout.categoryPx(i), box.bottom + fontSize),
+          layout.horizontal
+              ? Offset(box.left - 8, box.top + layout.categoryPx(i))
+              : Offset(box.left + layout.categoryPx(i), box.bottom + fontSize),
           tokens.mutedFg,
-          TextAlign.center,
+          layout.horizontal ? TextAlign.right : TextAlign.center,
         );
       }
     }
@@ -716,19 +791,22 @@ class _FramePainter extends CustomPainter {
     // turned on its side, which is the one rotation in the library and is what
     // every chart has always done: written across, a two-word name would take a
     // third of the plot's width.
-    if (!yAxis.hidden && yAxis.label != null) {
+    final PlChartAxis alongTheSide = layout.horizontal ? xAxis : yAxis;
+    final PlChartAxis alongTheFoot = layout.horizontal ? yAxis : xAxis;
+
+    if (!alongTheSide.hidden && alongTheSide.label != null) {
       canvas
         ..save()
         ..translate(axisLabelBand / 2, box.top + box.height / 2)
         ..rotate(-math.pi / 2);
-      _text(canvas, yAxis.label!, Offset.zero, tokens.mutedFg, TextAlign.center);
+      _text(canvas, alongTheSide.label!, Offset.zero, tokens.mutedFg, TextAlign.center);
       canvas.restore();
     }
 
-    if (!xAxis.hidden && xAxis.label != null) {
+    if (!alongTheFoot.hidden && alongTheFoot.label != null) {
       _text(
         canvas,
-        xAxis.label!,
+        alongTheFoot.label!,
         Offset(box.left + box.width / 2, size.height - axisLabelBand / 2),
         tokens.mutedFg,
         TextAlign.center,
@@ -738,11 +816,11 @@ class _FramePainter extends CustomPainter {
     // The crosshair goes under the marks, so a line is never drawn over by the
     // thing pointing at it.
     if (layout.activeIndex != null && layout.count > 0) {
-      final double x = box.left + layout.categoryPx(layout.activeIndex!);
+      final double at = layout.categoryPx(layout.activeIndex!);
 
       canvas.drawLine(
-        Offset(x, box.top),
-        Offset(x, box.bottom),
+        layout.horizontal ? Offset(box.left, box.top + at) : Offset(box.left + at, box.top),
+        layout.horizontal ? Offset(box.right, box.top + at) : Offset(box.left + at, box.bottom),
         Paint()
           ..color = tokens.mutedFg.withValues(alpha: 0.35)
           ..strokeWidth = hairline,

@@ -63,6 +63,10 @@ import 'package:plass_ui_example/demos/avatar/hero.dart';
 import 'package:plass_ui_example/demos/avatar/shapes.dart';
 import 'package:plass_ui_example/demos/avatar/sizes.dart';
 import 'package:plass_ui_example/demos/avatar/variants.dart';
+import 'package:plass_ui_example/demos/bar_chart/hero.dart';
+import 'package:plass_ui_example/demos/bar_chart/negative.dart';
+import 'package:plass_ui_example/demos/bar_chart/orientation.dart';
+import 'package:plass_ui_example/demos/bar_chart/stacked.dart';
 import 'package:plass_ui_example/demos/badge/colors.dart';
 import 'package:plass_ui_example/demos/badge/counts.dart';
 import 'package:plass_ui_example/demos/badge/dot.dart';
@@ -734,6 +738,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'avatar/shapes': _avatarShapes,
   'avatar/colors': _avatarColors,
   'avatar/fallback': _avatarFallback,
+  'bar-chart/hero': _barChartHero,
+  'bar-chart/negative': _barChartNegative,
+  'bar-chart/orientation': _barChartOrientation,
+  'bar-chart/stacked': _barChartStacked,
   'badge/hero': _badgeHero,
   'badge/variants': _badgeVariants,
   'badge/sizes': _badgeSizes,
@@ -1079,6 +1087,14 @@ Widget _areaChartHero(BuildContext context) => const AreaChartHero();
 Widget _areaChartOverlap(BuildContext context) => const AreaChartOverlap();
 
 Widget _areaChartShare(BuildContext context) => const AreaChartShare();
+
+Widget _barChartHero(BuildContext context) => const BarChartHero();
+
+Widget _barChartNegative(BuildContext context) => const BarChartNegative();
+
+Widget _barChartOrientation(BuildContext context) => const BarChartOrientation();
+
+Widget _barChartStacked(BuildContext context) => const BarChartStacked();
 
 Widget _treeSelectBranches(BuildContext context) => const TreeSelectBranches();
 

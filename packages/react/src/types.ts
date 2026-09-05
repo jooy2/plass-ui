@@ -311,6 +311,9 @@ export type PlassToken =
   | `--plass-chart-div-${1 | 2 | 3 | 4 | 5}`
   | `--plass-chart-seq-on-${1 | 2 | 3 | 4 | 5}`
   | `--plass-chart-div-on-${1 | 2 | 3 | 4 | 5}`
+  | '--plass-chart-grid'
+  | '--plass-chart-axis'
+  | '--plass-chart-baseline'
   | '--plass-shadow-ambient'
   | '--plass-bg-from'
   | '--plass-bg-to'
