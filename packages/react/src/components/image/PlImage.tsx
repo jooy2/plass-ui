@@ -121,23 +121,87 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
     const [status, setStatus] = React.useState<PlImageStatus>('loading');
     const [open, setOpen] = React.useState(false);
 
-    // A new `src` starts again. Without this a second picture would inherit the
-    // first one's `loaded`, and its own load event would be the only thing that
-    // ever moved it back — which never fires for a cached image.
-    React.useEffect(() => {
-      setStatus('loading');
-    }, [src]);
+    const imgRef = React.useRef<HTMLImageElement | null>(null);
+    const setImgRef = React.useCallback(
+      (node: HTMLImageElement | null) => {
+        imgRef.current = node;
+
+        if (typeof ref === 'function') {
+          ref(node);
+        } else if (ref) {
+          ref.current = node;
+        }
+      },
+      [ref]
+    );
+
+    /*
+     * What `onStatusChange` was last told.
+     *
+     * A picture can settle twice — the effect below finding it already decoded,
+     * and its own `load` arriving a task later — and a caller counting loads
+     * should not hear about that.
+     */
+    const reported = React.useRef<PlImageStatus>('loading');
 
     const settle = (next: PlImageStatus) => {
+      if (reported.current === next) {
+        return;
+      }
+
+      reported.current = next;
       setStatus(next);
       onStatusChange?.(next);
     };
+
+    /*
+     * Where the picture actually got to, asked of the element rather than waited
+     * for.
+     *
+     * `load` is an event, and an event is only heard by somebody already
+     * listening. A file that is in the cache — or that a server rendered, so the
+     * browser began fetching it while parsing the HTML — can be decoded before
+     * React ever attaches a handler, and then the one thing that would have
+     * moved this out of `loading` has already happened. The picture stays at
+     * `opacity: 0` behind its own placeholder for good.
+     *
+     * So the element is asked instead, on mount and whenever `src` changes.
+     * `complete` says whether it has finished and `naturalWidth` says which way
+     * it went, which between them is the whole state machine — with one hole to
+     * step around: an `<img>` that was never given a `src` is `complete` too,
+     * and it has not failed, it has not been asked for anything.
+     *
+     * A layout effect rather than a passive one because this runs on the frame
+     * the picture is already decoded on. Left to `useEffect` the placeholder
+     * gets a frame it has no business being painted for.
+     */
+    React.useLayoutEffect(() => {
+      const node = imgRef.current;
+
+      if (node === null) {
+        return;
+      }
+
+      if (node.getAttribute('src') && node.complete) {
+        settle(node.naturalWidth > 0 ? 'loaded' : 'error');
+
+        return;
+      }
+
+      // A new `src` starts again. Without this a second picture would inherit
+      // the first one's `loaded` and be shown before it had arrived.
+      reported.current = 'loading';
+      setStatus('loading');
+      // `settle` closes over `onStatusChange`, which a caller is free to write
+      // inline; depending on it would restart every picture on every render.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [src]);
 
     const radius = rounded ? radiusClasses[size] : '';
 
     const picture = (
       <img
-        ref={ref}
+        ref={setImgRef}
         src={src}
         alt={alt}
         loading={loading}

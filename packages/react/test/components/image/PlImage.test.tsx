@@ -11,7 +11,10 @@
  * one picture that genuinely never settles — an `<img>` with no `src` is never
  * fetched, so neither `load` nor `error` ever fires.
  */
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import * as React from 'react';
+import { hydrateRoot } from 'react-dom/client';
+import { renderToString } from 'react-dom/server';
 import { render } from 'vitest-browser-react';
 import { PlImage } from 'plass-ui';
 
@@ -194,7 +197,123 @@ describe('PlImage', () => {
     });
   });
 
+  describe('a picture that was already decoded', () => {
+    /*
+     * The case `load` cannot cover. A file that is in the cache, or one a server
+     * rendered so the browser started fetching it while parsing the HTML, can
+     * finish before React attaches a single handler — and an event nobody was
+     * listening for is an event that did not happen.
+     *
+     * Hydration is where it is reproducible rather than merely likely: the
+     * markup is in the document and the picture is decoded off it *before*
+     * React runs at all, so the ordering is settled rather than raced.
+     */
+    /*
+     * A picture no run of this file has fetched before.
+     *
+     * The cache is what makes this case hard to write rather than hard to fix:
+     * a file an earlier test already pulled is `complete` the instant the markup
+     * is parsed, while its `load` is still a task waiting its turn — so React
+     * gets handed the event after all and the test passes for the wrong reason.
+     * A URL nothing has seen has to be fetched, which is what makes the event
+     * something the test can *watch* rather than guess at.
+     */
+    let servedCount = 0;
+    const hosts: HTMLElement[] = [];
+
+    // Swept up here rather than at the end of each test, so a failing assertion
+    // does not leave a stray `<img>` for the next test's `document.querySelector`
+    // to find.
+    afterEach(() => {
+      hosts.splice(0).forEach((host) => host.remove());
+    });
+
+    function freshPicture() {
+      servedCount += 1;
+
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${servedCount}" height="8"></svg>`;
+
+      return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+    }
+
+    /**
+     * Puts the server's markup in the document and does not come back until the
+     * picture off it has both decoded and spent its `load` event — which is the
+     * state a cached or server-rendered file reaches before React runs.
+     */
+    async function serveAndDecode(src: string, markup: string) {
+      const host = document.createElement('div');
+
+      document.body.append(host);
+      hosts.push(host);
+      host.innerHTML = markup;
+
+      const served = host.querySelector('img')!;
+
+      // The premise of the test: the event fires while nothing is listening for
+      // it but this line.
+      expect(served.complete).toBe(false);
+      await new Promise((done) => served.addEventListener('load', done, { once: true }));
+      await new Promise((done) => setTimeout(done, 0));
+
+      expect(served.complete).toBe(true);
+      expect(served.naturalWidth).toBeGreaterThan(0);
+      expect(served.getAttribute('src')).toBe(src);
+
+      return host;
+    }
+
+    it('is loaded when React arrives after the load event', async () => {
+      const src = freshPicture();
+      const host = await serveAndDecode(
+        src,
+        renderToString(<PlImage src={src} alt="A portrait" />)
+      );
+
+      await React.act(async () => {
+        hydrateRoot(host, <PlImage src={src} alt="A portrait" />);
+      });
+
+      await expect.poll(() => host.querySelector('img')!.className).toContain('opacity-100');
+    });
+
+    it('reports the status it found rather than staying silent', async () => {
+      const onStatusChange = vi.fn();
+      const src = freshPicture();
+      const host = await serveAndDecode(
+        src,
+        renderToString(<PlImage src={src} alt="A portrait" />)
+      );
+
+      await React.act(async () => {
+        hydrateRoot(host, <PlImage src={src} alt="A portrait" onStatusChange={onStatusChange} />);
+      });
+
+      await expect.poll(() => onStatusChange.mock.calls).toEqual([['loaded']]);
+    });
+
+    it('leaves a picture with no src alone', async () => {
+      // An `<img>` that was never given a `src` is `complete` too, and it has
+      // not failed — it has not been asked for anything.
+      await render(<PlImage alt="A portrait" />);
+
+      expect(image().complete).toBe(true);
+      expect(image().className).toContain('opacity-0');
+      expect(document.querySelector('.plass-skeleton')).toBeInTheDocument();
+    });
+  });
+
   describe('caller styling', () => {
+    it('hands the img back through a forwarded ref', async () => {
+      // The component keeps a ref of its own to ask the element how it got on,
+      // so the caller's has to survive being merged with it.
+      const seen = vi.fn();
+
+      await render(<PlImage src={OK} alt="A portrait" ref={seen} />);
+
+      expect(seen).toHaveBeenCalledWith(image());
+    });
+
     it('keeps a caller-supplied class alongside its own', async () => {
       await render(<PlImage src={OK} alt="A portrait" className="my-own-class" />);
 
