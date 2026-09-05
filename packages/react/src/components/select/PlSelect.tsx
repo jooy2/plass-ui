@@ -238,6 +238,15 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
     // switch between controlled and uncontrolled under Base UI.
     const [open, setOpen] = React.useState(false);
 
+    // Locking a field that is open shuts the popup through the `open` prop
+    // below, and Base UI does not report a close it did not decide on. Forget it
+    // here as well, or the state says open for as long as the lock lasts.
+    React.useEffect(() => {
+      if (readOnly) {
+        setOpen(false);
+      }
+    }, [readOnly]);
+
     // Holds the trigger open at the width of the longest thing it could say, so
     // choosing a shorter option does not shrink the field out from under the
     // pointer that chose it.
@@ -288,7 +297,11 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
           readOnly={readOnly}
           required={required}
           open={open && !readOnly}
-          onOpenChange={setOpen}
+          // A request made while the field is locked is not a request. Recorded,
+          // it would spring the popup open the moment the read-only lifted, and
+          // a form that unlocks a section would drop a menu over it at nobody's
+          // asking.
+          onOpenChange={(next) => setOpen(next && !readOnly)}
         >
           <BaseUISelect.Trigger
             ref={ref}

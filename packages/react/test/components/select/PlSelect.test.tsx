@@ -140,6 +140,25 @@ describe('PlSelect', () => {
       expect(screen.getByRole('option').query()).toBeNull();
     });
 
+    it('does not spring open when the read-only is lifted', async () => {
+      const screen = await render(<PlSelect items={items} readOnly defaultValue="seoul" />);
+
+      // The click the lock swallowed must not be remembered: unlocking the
+      // field is not the reader asking for the list. Settled before the lock
+      // lifts and again after it, because WebKit hands Base UI the click a tick
+      // late — without the first wait the request would arrive unlocked, which
+      // is a different test passing for the wrong reason.
+      await screen.getByRole('combobox').click();
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      expect(screen.getByRole('option').query()).toBeNull();
+
+      await screen.rerender(<PlSelect items={items} defaultValue="seoul" />);
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      expect(screen.getByRole('option', { name: 'Seoul' }).query()).toBeNull();
+    });
+
     it('opens again once the read-only is lifted', async () => {
       const screen = await render(<PlSelect items={items} readOnly defaultValue="seoul" />);
 
