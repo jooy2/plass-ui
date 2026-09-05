@@ -56,7 +56,7 @@ Every native `<div>` attribute passes straight through. `color` is excluded beca
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## What makes it a bar
+## Composition
 
 Not the look. A row of separate [`PlMenu`](./menu)s would look the same and differ in the ways that matter: it would be a row of buttons to a screen reader rather than one `menubar` whose words are `menuitem`s, and nothing would keep two of them from being open at once.
 
@@ -66,7 +66,7 @@ On a bar, crossing the strip also walks through the menus and the arrow keys mov
 
 :::
 
-## It is the same menu
+## Shared with PlMenu
 
 A `PlMenubarMenu` takes the rows a [`PlMenu`](./menu) takes — `PlMenuItem`, `PlMenuSeparator`, `PlMenuGroup`, `PlMenuSubmenu`, `PlMenuCheckboxItem`, `PlMenuRadioItem` — because it is the same menu with a different trigger.
 
@@ -102,7 +102,7 @@ Both are the same decision: a menu bar is a strip of _words_, and it is usually 
 
 </Demo>
 
-### It draws no surface
+### No surface
 
 A menu bar sits _on_ something, and a sheet under a strip that is already on a sheet is two sheets. The bar contributes a flex row and four colour slots, and nothing else.
 

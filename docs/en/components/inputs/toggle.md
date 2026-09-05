@@ -66,7 +66,7 @@ Every native `<button>` attribute passes straight through. `color` is excluded b
 
 What the shared axes (`variant` `size` `color` `density` `elevation`) mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## Which control this is
+## Toggle, switch or checkbox
 
 - A **toggle** changes the state of the thing beside it — bold on the selected words, the grid on the canvas, the filter on the list. It is a control, and it never goes in a form.
 - A [`PlSwitch`](./switch) changes a setting, and the change _is_ the point.
@@ -99,7 +99,7 @@ That holds **under the pointer as well**, which is the easy half to lose. A hove
 
 </Demo>
 
-### The elevation does not move
+### The elevation
 
 A toggle that is on is not a toggle that is elevated. `elevation` is the same in both states and only the colour changes, because "on" is a fact about the thing beside the toggle rather than about how far the key is off the page.
 

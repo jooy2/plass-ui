@@ -44,7 +44,7 @@ PlShow(until: PlassBreakpointFloor.md, child: PlList(children: rows));
 
 There is no `xs`. Everything is at or above the bottom rung, so `from="xs"` would mean "always" — which is what leaving the prop out already means — and `until="xs"` would mean "never".
 
-## Why a component and not a media query
+## Compared with a media query
 
 ::: fw react
 
@@ -60,7 +60,7 @@ It is also the only way this works for a project that imports `plass-ui/styles.c
 
 :::
 
-## It is not a box
+## No element in the layout
 
 ::: fw react
 
@@ -70,7 +70,7 @@ Which also means **a `className` carrying a margin or a width does nothing here.
 
 :::
 
-## What it costs
+## Cost
 
 ::: fw react
 

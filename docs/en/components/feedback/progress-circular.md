@@ -47,7 +47,7 @@ Every native `<div>` attribute passes straight through. `color` is excluded beca
 
 :::
 
-## The arc is a gradient
+## The arc
 
 ::: fw react
 
@@ -65,7 +65,7 @@ Either way it is worth the extra work: a flat ring beside a swept bar is two mat
 
 The track under it is `--plass-track`, the same neutral ink the bar's groove is — so a ring and a bar on one screen are cut into the same surface.
 
-## The value sits beside the ring
+## The value label
 
 Not inside it. A number in the middle of a dial is the picture everyone has of this component, and it works at two of the five sizes: at `xs` the ring is fourteen pixels across and there is nowhere for "40%" to go. Beside it, every size reads.
 

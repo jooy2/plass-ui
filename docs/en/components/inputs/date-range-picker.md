@@ -65,13 +65,13 @@ Everything a [`PlDatePicker`](./date-picker) says about `locale`, the header, th
 
 <PropsTable name="PlDateRangePreset" />
 
-## The value is one object
+## The value
 
 Not a `[Date, Date]` tuple, and not two props. A range is **one value**: it is chosen in one gesture, cleared in one gesture and validated as a whole, and the two names are what stop a caller writing the end into the start.
 
 Half a range is a real state — it is what the picker holds between the first press and the second — so the callback reports a range with only a `start` after the first press and the complete range after the second. A controlled caller is never handed a range mid-gesture that it did not ask for: the pending anchor lives inside the component, not in your form.
 
-## The preview is the whole affordance
+## The preview band
 
 The band is drawn between the anchor and whatever the pointer is currently over, before the second click lands. Without it the first click has no visible consequence, and the control looks broken for the second or so between the two.
 

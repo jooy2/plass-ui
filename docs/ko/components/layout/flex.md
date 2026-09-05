@@ -57,7 +57,7 @@ LayoutBuilder(
 
 네이티브 `<div>` 속성은 그대로 통과합니다. 라이브러리 전체에서 공유 축이 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
 
-## 세 가지 레이아웃 상자 중 무엇을 쓸까
+## PlFlex, PlStack, PlGrid 중 고르기
 
 자식을 한 줄로 놓는 컴포넌트가 셋 있는데, 서로의 변형이 아닙니다.
 

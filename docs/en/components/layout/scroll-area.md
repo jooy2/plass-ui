@@ -53,7 +53,7 @@ A number is pixels and a string is any CSS length, so `height={200}` and `height
 
 :::
 
-## Not a PlScrollZone
+## PlScrollArea or PlScrollZone
 
 Two components, one fact — content that runs off the end of its box — and two different answers.
 
@@ -64,7 +64,7 @@ Two components, one fact — content that runs off the end of its box — and tw
 
 There is deliberately **no fade here**. A fade says "there is more"; the bar says that _and_ how much and where you are. Two signals for one fact, one measured and one not, is one more than the box needs.
 
-## Which axes
+## Axes
 
 `orientation` is `vertical` by default, `horizontal` for a row, and `both` for a grid that runs off two edges — where a lane is drawn along each and a corner fills the join.
 

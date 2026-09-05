@@ -69,7 +69,7 @@ Three more move the effect off the box and onto the things inside it — `stagge
 
 ### trigger
 
-Four ways in, and they are the whole of what the shared settings are for. `mount` needs nothing from the caller. `visible` waits for the element to be scrolled into view — paused on its own first frame while it waits, so it is not fully drawn and then blinked out at the moment it arrives. `hover` starts on the pointer **and on focus**, or the effect would be unreachable without a mouse. `manual` never runs on its own, and each `false` → `true` on `play` starts it over.
+Four ways in, and they are what the shared settings exist for. `mount` needs nothing from the caller. `visible` waits for the element to be scrolled into view, paused on its own first frame while it waits, so it is not fully drawn and then blinked out as it arrives. `hover` starts on the pointer **and on focus**, or the effect would be unreachable without a mouse. `manual` never runs on its own, and each `false` to `true` on `play` starts it over.
 
 <Demo src="animate-fade/triggers" :min-height="280">
 
@@ -139,7 +139,7 @@ A delay per element is what turns a set of things into a sequence. For a list wh
 
 </Demo>
 
-Four settings stop meaning anything and are **ignored** rather than half-working: `duration`, `delay` and `repeat` all belong to a clock, and so does the whole idea of a `trigger` — the scroll position _is_ the trigger, which is also why the effect is never held paused waiting for one. `range` is what replaces `duration`: it is an `animation-range` as CSS writes it, and the default `entry 0% cover 45%` finishes while the element is still arriving rather than when it reaches the middle of the screen.
+Four settings stop meaning anything and are **ignored** rather than half-working. `duration`, `delay` and `repeat` all belong to a clock, and so does `trigger`, since the scroll position is the trigger. `range` replaces `duration`: it is an `animation-range` exactly as CSS writes it, and the default `entry 0% cover 45%` finishes while the element is still arriving rather than when it reaches the middle of the screen.
 
 A browser without `animation-timeline` falls back to one clock-driven run, so the content still arrives. **Degraded is allowed; blank is not** — which is the reason this is two declarations behind an `@supports` rather than anything measured in JavaScript.
 
@@ -173,7 +173,7 @@ The step is per _child_, so what you pass matters — five children are five ste
 
 The animation is written onto the children themselves rather than onto wrappers, so a row of `<li>`s stays a row of `<li>`s and a grid's cells stay its direct children. The cost is that a child has to accept a `className` and a `style`; one that does not is a child that will not animate. A bare string has no element to write onto and is the one case that gets a `<span>`.
 
-All six single-keyframe effects take these three. [`PlAnimateMarquee`](./animate-marquee), [`PlAnimateHeadline`](./animate-headline), [`PlAnimateTyping`](./animate-typing) and [`PlAnimateLighting`](./animate-lighting) do not, and cannot: the first three already read their children, and the last keeps its motion on a pseudo-element, which there is no way to put on somebody else's child. [`PlAnimateAppear`](./animate-appear) is the same three props under the same names, with a `stagger` that defaults to `70` — a set with no stagger is not a set.
+All six single-keyframe effects take these three. [`PlAnimateMarquee`](./animate-marquee), [`PlAnimateHeadline`](./animate-headline), [`PlAnimateTyping`](./animate-typing) and [`PlAnimateLighting`](./animate-lighting) do not: the first three already read their children, and the last keeps its motion on a pseudo-element. [`PlAnimateAppear`](./animate-appear) takes the same three under the same names, plus a `stagger` that defaults to `70`.
 
 **There is no `PlAnimateStagger`, on purpose.** A stagger is a differential rather than an effect, and a wrapper would be a second way to spell something the effects can already say. It is the same rule that keeps a `Pulse` (`blink` + `alternate`) and a `Bounce` (`grow` + `alternate`) out of the library.
 

@@ -60,7 +60,7 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 ### variant
 
-`glass` is the default: a sheet with a hairline round it, which is what a field is on a Plass screen. The hairline is `--plass-border`, the same neutral line a tick, a switch and a tabs rail draw — not the sheet's own white edge, because a field is very often set on a card rather than on the page wash, and a white line round a near-white box on a white card is a field whose shape cannot be seen. `solid` is the **well** — the glass at its most opaque with the one inset shadow in the library falling into it — for a field that has to look recessed rather than raised. `ghost` has no surface until the pointer is on it, for a field in a table cell.
+`glass` is the default: a sheet with a hairline round it, drawn in `--plass-border` rather than the sheet's own white edge. A field usually sits on a card, and a white line round a near-white box on a white card has no visible shape. `solid` is the **well**, the glass at its most opaque with the library's one inset shadow in it, for a field that should read as recessed. `ghost` has no surface until the pointer is on it, for a field in a table cell.
 
 A `solid` field is deliberately **not** a tinted pane. A gradient under a caret, a text selection and a placeholder is not legible, so the family shows up in the hairline, the ring and the caret instead.
 

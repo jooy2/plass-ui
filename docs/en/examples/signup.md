@@ -12,7 +12,7 @@ aside: false
 
 The whole flow is one file: `docs/.vitepress/demos/examples/signup.tsx`. It is live — submit the first step empty and watch the errors arrive, then type any six digits to get past the code.
 
-## What it is made of
+## Composition
 
 | Block | Components | Worth noticing |
 | --- | --- | --- |

@@ -57,7 +57,7 @@ LayoutBuilder(
 
 Every native `<div>` attribute passes straight through. What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## Which of the three layout boxes
+## PlFlex, PlStack or PlGrid
 
 Three components lay children out in a line, and they are not variations on each other.
 

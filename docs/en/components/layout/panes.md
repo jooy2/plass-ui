@@ -68,7 +68,7 @@ A pane carries no surface of its own, and neither does the split: this is layout
 
 ## Examples
 
-### How a split is measured
+### Measuring a split
 
 The panes are sized in **fractions**, written out as `flex-basis: calc((100% − gutters) × fraction)`.
 
@@ -116,7 +116,7 @@ The three props are read by the **split** rather than used by the pane. A pane c
 
 `horizontal` puts the panes side by side with upright handles between them; `vertical` stacks them. Nesting one inside a pane of the other is how a three-region layout is built.
 
-**It is responsive**, so a set can run one way on a phone and the other on a laptop. <Fw react="It is resolved in JavaScript rather than in CSS — an orientation decides the DOM, the ARIA and the way the arrow keys walk, and no stylesheet can do that, so a server renders the xs entry and the browser corrects it on hydration; a bare value subscribes to nothing at all." flutter="It is resolved against the window's width in build, so it is right on the first frame — and it is the window's width rather than this widget's own box, which is what makes two of these side by side agree about which rung they are on." /> See [breakpoints](../../design/breakpoints).
+**It is responsive**, so a set can run one way on a phone and the other on a laptop. <Fw react="A server renders the xs entry and the browser corrects it on hydration." flutter="It is resolved against the window's width during build, so the first frame is already right." /> See [breakpoints](../../design/breakpoints).
 
 <Demo src="panes/orientation" :min-height="260">
 

@@ -57,7 +57,7 @@ PlTransfer(
 
 공용 축(`variant` `size` `color` `density` `elevation`)이 라이브러리 전체에서 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
 
-## 언제 이 컨트롤인가
+## 언제 쓰나
 
 선택지가 **길** 때입니다. 필드에 칩이 마흔 개 든 [`PlCombobox`](./combobox)는 더 이상 읽히지 않고, 체크박스 마흔 개의 목록은 "내가 결국 뭘 골랐지"에 아무 답도 주지 못합니다.
 

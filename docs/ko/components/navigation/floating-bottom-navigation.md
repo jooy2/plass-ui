@@ -66,7 +66,7 @@ PlFloatingBottomNavigation<String>(
 
 라이브러리 전체에서 공유 축이 뜻하는 바는 [prop 규칙](../../design/prop-conventions)에 있습니다.
 
-## 왜 별도의 컴포넌트인가
+## PlBottomNavigation과의 차이
 
 [`PlBottomNavigation`](./bottom-navigation)의 나머지 절반이고, 그것의 변형이 아니라 다른 물건입니다.
 
@@ -84,7 +84,7 @@ PlFloatingBottomNavigation<String>(
 
 현재 목적지는 맑은 시트 안에 올라탄 **색이 든 유리** 키입니다. 나머지는 포인터가 올 때까지 아무 표면도 갖지 않습니다.
 
-### 키는 이동합니다
+### 움직이는 키
 
 키는 **하나의 요소**입니다. 현재인 원반에서 치수를 재고, [`PlSegmentedButton`](../inputs/segmented-button)의 타일과 같은 방식으로 원반 사이를 애니메이션합니다. 한 원반에서 칠이 나타나는 동안 다른 원반에서 칠이 사라지는 것이 아닙니다. 두 원반이 크로스페이드하는 것은 물건 두 개이고, 키가 든 바에는 물건이 하나뿐입니다 — 그 키가 어디로 가는지가 이 컴포넌트가 말하려는 전부입니다.
 

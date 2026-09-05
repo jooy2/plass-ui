@@ -56,11 +56,11 @@ The picker is **controlled**: `value` with `onChanged`, and `null` is a picker w
 
 The calendar is [`PlDatePicker`](./date-picker)'s and the columns are [`PlTimePicker`](./time-picker)'s, both unchanged: everything those two pages say about the words, the header, the columns and the absence of a date library holds here.
 
-## One rectangle, not two panels
+## One popup
 
 The calendar's grid is seven rows counting its header. The clock's columns are seven of the same cell. They read the same cell ladder for exactly that reason, so the popup is one rectangle rather than two of different sizes pushed together — and switching the calendar to its month or year view does not change that.
 
-## The bounds do more work here
+## The bounds
 
 `minDate` and `maxDate` are read at **full precision**, which is the one place this parts company with [`PlDatePicker`](./date-picker). There, a bound is about which days exist and the time of day on it is ignored. Here, a minimum of 09:30 on the 27th leaves the 27th selectable in the calendar and greys out the morning in the clock.
 
@@ -92,7 +92,7 @@ With no day chosen yet the clock writes onto today, and picking a day afterwards
 
 `closeOnSelect` is `false` here for the same reason: a moment is two answers, so the footer carries a **Done**.
 
-### The steps
+### The step intervals
 
 `hourStep`, `minuteStep` and `secondStep` are [`PlTimePicker`](./time-picker)'s, unchanged.
 
@@ -112,7 +112,7 @@ With no day chosen yet the clock writes onto today, and picking a day afterwards
 
 </Demo>
 
-### The words
+### Names and labels
 
 ::: fw react
 

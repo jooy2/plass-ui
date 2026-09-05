@@ -22,7 +22,7 @@ order: 2
 
 The two values are the ends of a 135° gradient, and they are **a hue sweep at one lightness** rather than a shade — indigo to azure, green to teal, vermilion to rose. `warning` is the exception: amber has nowhere to turn that is still amber, so it is the one family whose ends differ in lightness instead.
 
-## What is hand-picked and what is derived
+## Hand-picked and derived values
 
 Four values per family are written down. Three of them are the same in both themes:
 
@@ -45,7 +45,7 @@ Everything a component actually reads is computed from those, in the derived blo
 
 So **adding a colour family is two edits**: one entry in the `PlassColor` union, and three lines plus a per-theme `accent` in `styles.css`.
 
-## The key does not change with the theme
+## The key colour across themes
 
 `--plass-{c}-solid`, `--plass-{c}-solid-to` and `--plass-{c}-on-solid` are declared once, on `:root`, outside every theme block. **A pane of blue glass is the same pane in a dark room.**
 
@@ -61,7 +61,7 @@ What dark mode changes is the ground under it:
 
 The tint strength is turned up rather than the shadow being made bigger: a tinted shadow has almost nothing to sit on over a near-black page.
 
-## The marks a sheet makes on itself
+## The sheet's own lines
 
 `--plass-glass-line` is white light caught on a cut edge, and it reads because what is behind it is the page wash. Turn it **inward** and there is no wash behind it any more — there is the sheet — and a white rule across a white pane is nothing at all. Three tokens exist for the jobs that face inward, and every one of them is a neutral ink rather than more light:
 

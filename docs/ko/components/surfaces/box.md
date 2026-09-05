@@ -43,7 +43,7 @@ PlBox(child: Text('Everything in here is grouped, and nothing else is claimed.')
 
 라이브러리 전체에서 공유하는 축이 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
 
-## PlCard가 아닌 이유
+## PlBox와 PlCard
 
 제목, 부제, 푸터, 섹션을 가르는 얇은 선 같은 구조는 전부 [`PlCard`](./card)의 것입니다. 카드는 그 섹션들을 얹어 놓은 box입니다. 여기 남는 것은 시트 자체이고, 그것만으로도 따로 둘 값어치가 있습니다. 화면이 묶는 것의 대부분에는 제목이 없기 때문입니다 — 폼 뒤의 우물, 선반 위의 타일, 차트를 감싼 판.
 

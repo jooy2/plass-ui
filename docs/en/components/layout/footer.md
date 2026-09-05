@@ -43,11 +43,11 @@ Every native `<footer>` attribute passes straight through. `color` and `title` a
 
 What the shared axes (`variant` `size` `color` `density` `elevation`) mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## It has no slots, and that is the point
+## No slots
 
 [`PlHeader`](./header) has three, because a header's regions are a fixed arrangement — brand, middle, actions — worth writing once so that two pages of the same site cannot drift.
 
-A footer is not like that. It is four columns of links on one site, a copyright line on the next, and a language switcher and an address on the third. A component that guessed at the arrangement would be one every second site fights, so this one decides the **sheet** and nothing else: the surface, the gutter, the measure, the hairline that says the document ended, and whether the bar stays in reach.
+A footer is not like that. It is four columns of links on one site, a copyright line on the next, and a language switcher and an address on the third. So this component decides the **sheet** and nothing else: the surface, the gutter, the measure, the hairline that says the document ended, and whether the bar stays in reach.
 
 ## Examples
 

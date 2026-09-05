@@ -39,17 +39,17 @@ Overlay.of(context).insert(
 
 Every native `<div>` attribute passes straight through. What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## Why not `createPortal`
+## Beyond `createPortal`
 
 Reach for `createPortal` and three things are yours to remember. This component is those three, and the first is the only real reason it exists.
 
-### It carries `plass-portal`
+### The `plass-portal` class
 
 Every surface the library sends through a portal — a [modal](../feedback/modal), a [drawer](../feedback/drawer), a [menu](../navigation/menu), a [popover](../feedback/popover), a [tooltip](../feedback/tooltip), a [toast](../feedback/toast) — lands with that class on it. A portalled subtree leaves whatever element a host had scoped its CSS reset to, and the class is how that host finds it again. A caller's own portal without it is the one subtree on the page the reset misses.
 
 It is a hook and not a style: the library declares nothing for it.
 
-### It renders nothing until it has mounted
+### Nothing before mount
 
 There is no `document` on a server, so the HTML that ships never contains a portalled subtree, and neither does the render that hydrates it.
 
@@ -71,7 +71,7 @@ Which is what lets it be a **ref**. The element a portal targets is usually one 
 
 An element and a `DocumentFragment` are taken as they are, a function is called, and anything that resolves to nothing falls back to `document.body` rather than dropping the children on the floor.
 
-## What it does not carry
+## Limits
 
 **The colour scheme.** The stylesheet answers to a `.dark` or a `[data-theme]` on any ancestor, and a portal to `document.body` has left every ancestor it had — so a subtree pinned to one theme goes back to the page's.
 

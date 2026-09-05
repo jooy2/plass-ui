@@ -90,7 +90,7 @@ It carries no `size` and no `color` either, and could not: a radio button says n
 
 :::
 
-The dot **grows out of the middle of its ring** rather than switching on with the fill, and shrinks back out when another option in the set takes the value. It is the box that grows and not a `transform`: the ring centres a fixed-size child, so both ends of the change are laid out about the same point and nothing around the option moves. See [motion](../../design/design-language#a-mark-is-drawn-not-switched-on).
+The dot **grows out of the middle of its ring** rather than switching on with the fill, and shrinks back out when another option in the set takes the value. It is the box that grows and not a `transform`: the ring centres a fixed-size child, so both ends of the change are laid out about the same point and nothing around the option moves. See [motion](../../design/design-language#drawing-a-mark).
 
 What the shared axes (`size` `color` `orientation`) mean across the library is in [prop conventions](../../design/prop-conventions).
 
@@ -140,7 +140,7 @@ Chosen, the dot fills with the family's gradient and the inner disc is the famil
 
 Set on the group and inherited by every option, so a set cannot end up with two dot sizes in it.
 
-Every step's inner disc has the same **parity** as the ring's content box — 12/6, 14/6, 16/8, 18/8, 22/10 — so the margin round it is a whole number of pixels. A 7px disc inside an 18px ring with a 1px edge is exactly centred and sits 4.5px from each side, and a circle antialiased at half coverage on all four sides reads as though it has drifted up and to the left. The line box the dot and its label share is a whole number for the same reason. The ratio wanders between 38% and 44% as a result, which is the price, and it is invisible next to the thing it buys.
+Every step's inner disc has the same **parity** as the ring's content box (12/6, 14/6, 16/8, 18/8, 22/10), so the margin round it is a whole number of pixels. A 7px disc inside an 18px ring with a 1px edge sits 4.5px from each side, and a circle antialiased at half coverage on all four sides reads as though it has drifted up and to the left. The line box the dot and its label share is a whole number for the same reason. The ratio wanders between 38% and 44% as a result.
 
 <Demo src="radio-group/sizes" :min-height="180">
 

@@ -12,7 +12,7 @@ aside: false
 
 The whole page is one file: `docs/.vitepress/demos/examples/landing.tsx`. It is live — switch the pricing to monthly, page through the quotes, open a question in the FAQ.
 
-## What it is made of
+## Composition
 
 | Block | Components | Worth noticing |
 | --- | --- | --- |

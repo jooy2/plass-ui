@@ -56,7 +56,7 @@ PlMenubar(
 
 공용 축이 라이브러리 전체에서 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
 
-## 무엇이 이것을 바로 만드는가
+## 구성
 
 겉모습이 아닙니다. 따로 놓인 [`PlMenu`](./menu) 여러 개도 똑같이 보이지만, 중요한 곳에서 다르게 굽니다. 스크린 리더에게는 단어들이 `menuitem`인 하나의 `menubar`가 아니라 버튼이 늘어선 행이고, 둘이 동시에 열리는 것을 막는 것도 없습니다.
 
@@ -66,7 +66,7 @@ PlMenubar(
 
 :::
 
-## 같은 메뉴입니다
+## PlMenu와 공유하는 것
 
 `PlMenubarMenu`는 [`PlMenu`](./menu)가 받는 행들을 그대로 받습니다 — `PlMenuItem`, `PlMenuSeparator`, `PlMenuGroup`, `PlMenuSubmenu`, `PlMenuCheckboxItem`, `PlMenuRadioItem`. trigger만 다른 같은 메뉴이기 때문입니다.
 
@@ -102,7 +102,7 @@ PlMenubar(
 
 </Demo>
 
-### 표면을 그리지 않습니다
+### 표면 없음
 
 메뉴 바는 무언가 _위에_ 앉습니다. 이미 시트 위에 있는 띠 아래에 또 시트를 두면 시트가 둘입니다. 바가 보태는 것은 flex row 하나와 색 슬롯 넷, 그게 전부입니다.
 

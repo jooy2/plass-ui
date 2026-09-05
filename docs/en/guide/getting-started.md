@@ -81,7 +81,7 @@ When Tailwind v4 is already in your project, import the token sheet instead of t
 | `@import 'tailwindcss'` | Tailwind itself |
 | `@import 'plass-ui/tailwind.css'` | The design tokens, the `.plass-glow` layer, and the `@source` that registers the package |
 
-You do not write an `@source` of your own on this path either. The classes Plass's components use are Tailwind utilities, so Tailwind has to read the package's compiled files to find them; `plass-ui/tailwind.css` takes care of that by declaring `@source '.'` inside itself. `@source` resolves relative to the file it is written in, which here is `node_modules/plass-ui/dist/`, right next to those files. An explicitly registered source is scanned even inside `node_modules`, which automatic detection skips.
+You do not write an `@source` of your own on this path either. Plass's components use Tailwind utilities, so Tailwind has to read the package's compiled files to find them, and `plass-ui/tailwind.css` declares `@source '.'` inside itself to arrange that. `@source` resolves relative to the file it is written in, which here is `node_modules/plass-ui/dist/`, right next to those files. A registered source is scanned even inside `node_modules`, which automatic detection skips.
 
 This path carries no reset, because Preflight already is one.
 
@@ -119,7 +119,7 @@ PlassTheme(
 )
 ```
 
-### One thing that does need something above it
+### The one provider you may need
 
 Four components lift themselves out of the tree — `PlModal`, `PlOverlay`, `PlTooltip` and `PlSelect`'s list — and a lifted surface needs an `Overlay` to go into. `MaterialApp` has one, and so does a `WidgetsApp` with a navigator; an app with neither can add its own:
 
@@ -250,7 +250,7 @@ import 'plass-ui/styles.css';
 
 Nothing else is configured: no `transpilePackages`, no `next.config` entry, no provider. `dist/` is compiled ESM carrying a `.js` on every relative import, which a bundler, Node's own loader and a server render all read the same way.
 
-`PlTable` is the exception, and it is one on purpose: **it has no directive, so a Server Component renders it whole.** Every column in that component is a `render` callback, so the rule above would have made a table unusable on exactly the page a table belongs on — one that fetches its own rows. Nothing changes for a client-side caller: a module with `'use client'` at the top of it that imports `PlTable` gets a client component, the way it gets one for anything else it imports.
+`PlTable` is a deliberate exception: **it has no directive, so a Server Component renders it whole.** Every column in it is a `render` callback, so the rule above would have made a table unusable on the page a table belongs on, the one that fetches its own rows. Nothing changes for a client-side caller: a module with `'use client'` at the top of it gets a client component from `PlTable`, the way it does from anything else it imports.
 
 ```tsx
 // app/invoices/page.tsx — still a Server Component
@@ -299,7 +299,7 @@ PlassTheme(brightness: Brightness.dark, child: ...)
 
 :::
 
-One thing does **not** change with the theme, and it is deliberate: the colour of a key. See [Colour](../design/color#the-key-does-not-change-with-the-theme).
+One thing does **not** change with the theme, and it is deliberate: the colour of a key. See [Colour](../design/color#the-key-colour-across-themes).
 
 ## Next
 

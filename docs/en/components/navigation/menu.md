@@ -67,7 +67,7 @@ There is no `variant`, for the reason `PlModal` has none: the three materials an
 
 ## Examples
 
-### Where the rows come from
+### The items array
 
 ::: fw react
 

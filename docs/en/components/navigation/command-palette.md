@@ -55,7 +55,7 @@ No native attribute passes through: the palette renders a portalled dialog rathe
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## Which control this is
+## Command palette or menu
 
 - It is **not a [`PlMenu`](./menu)**. A menu is a short list in one place, and every row is visible before you go looking for it.
 - It is **not a [`PlCombobox`](../inputs/combobox)** either. What comes back is not a value — it is something happening.

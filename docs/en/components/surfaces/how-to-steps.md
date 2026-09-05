@@ -47,7 +47,7 @@ PlHowToSteps(
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## Where you are, or what to do
+## PlHowToSteps, PlStepper or PlTimeline
 
 Three components put things in order, and the difference is not the drawing.
 

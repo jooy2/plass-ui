@@ -45,13 +45,13 @@ function usePlElementSize(
 | `target` | A ref to the element to measure.                              |
 | returns  | Its content box, or `null` while there is nothing to measure. |
 
-## The first measurement is not the observer's
+## The first measurement
 
 A `ResizeObserver`'s first callback arrives **after a frame has been painted**. A component that laid itself out from `0 × 0` for that frame flashes, and on a slow device it flashes visibly.
 
 So the size is read in a **layout effect** as well, which runs before the browser paints. The observer then keeps it up to date.
 
-## It reports the content box
+## The box it reports
 
 The room actually left inside the element once its own padding has been taken off.
 

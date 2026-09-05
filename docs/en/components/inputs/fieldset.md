@@ -48,7 +48,7 @@ Every native `<fieldset>` attribute passes straight through. `color` is excluded
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## What it owns
+## The three things it owns
 
 Three things, and nothing else:
 
@@ -120,7 +120,7 @@ Two fieldsets on one card is the usual arrangement, and it is what makes the no-
 
 </Demo>
 
-## Two things the browser is talked out of
+## Two browser defaults undone
 
 A `<fieldset>` arrives with a border, padding and a margin of its own, and none of the three is the library's. They are undone.
 

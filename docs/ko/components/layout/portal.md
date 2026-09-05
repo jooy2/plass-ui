@@ -41,17 +41,17 @@ Overlay.of(context).insert(
 
 네이티브 `<div>` 속성은 그대로 통과합니다. 라이브러리 전체에서 공유 축이 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
 
-## `createPortal`을 그냥 쓰지 않는 이유
+## `createPortal`에 더한 것
 
 `createPortal`을 쓰면 세 가지를 직접 기억해야 합니다. 이 컴포넌트가 그 세 가지이고, 첫 번째가 이것이 존재하는 진짜 이유입니다.
 
-### `plass-portal`을 달고 갑니다
+### `plass-portal` 클래스
 
 라이브러리가 portal로 내보내는 모든 표면 — [modal](../feedback/modal), [drawer](../feedback/drawer), [menu](../navigation/menu), [popover](../feedback/popover), [tooltip](../feedback/tooltip), [toast](../feedback/toast) — 이 이 클래스를 달고 내려앉습니다. portal된 서브트리는 호스트가 CSS 리셋을 걸어 둔 요소 바깥으로 나가고, 호스트가 그 서브트리를 다시 찾는 방법이 이 클래스입니다. 이 클래스가 없는 호출자의 portal은 페이지에서 리셋이 닿지 않는 유일한 서브트리가 됩니다.
 
 스타일이 아니라 표식입니다. 라이브러리는 이 클래스에 아무것도 선언하지 않습니다.
 
-### 마운트되기 전에는 아무것도 그리지 않습니다
+### 마운트 전에는 아무것도 그리지 않음
 
 서버에는 `document`가 없으므로, 나가는 HTML에는 portal된 서브트리가 들어 있지 않고 hydration하는 렌더링에도 들어 있지 않습니다.
 
@@ -73,7 +73,7 @@ Overlay.of(context).insert(
 
 요소와 `DocumentFragment`는 그대로 쓰고, 함수는 호출하며, 아무것도 아닌 것으로 풀리면 자식을 버리지 않고 `document.body`로 떨어집니다.
 
-## 가져가지 않는 것
+## 한계
 
 **색 스킴입니다.** 스타일시트는 조상 어딘가의 `.dark`나 `[data-theme]`에 답하는데, `document.body`로 간 portal은 가지고 있던 조상을 전부 떠났습니다. 그래서 한쪽 테마에 고정해 둔 서브트리가 페이지의 테마로 돌아갑니다.
 

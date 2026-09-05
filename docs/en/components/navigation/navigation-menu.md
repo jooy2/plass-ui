@@ -65,7 +65,7 @@ Every native `<nav>` attribute passes straight through. `color` is excluded beca
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## It is not a PlMenu
+## PlNavigationMenu or PlMenu
 
 The difference is what the rows **are**.
 
@@ -141,7 +141,7 @@ One panel is open at a time and it **resizes between items** rather than closing
 
 </Demo>
 
-### The row has no surface
+### The row's surface
 
 At rest the items are the page's own words: no fill, no edge, no shadow. Five bordered boxes across the top of a site is a toolbar rather than a navigation, and a navigation should read as text until it is reached for.
 

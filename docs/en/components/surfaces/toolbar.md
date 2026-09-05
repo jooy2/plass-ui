@@ -48,7 +48,7 @@ Every other `<div>` attribute passes through, and `render` swaps the element.
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## It takes no height
+## Height
 
 A toolbar is as tall as the controls in it plus its padding, and that padding is the `size` / `density` pair every other surface uses. So `density="compact"` gives the dense bar without a second prop meaning the same thing — and without the type scale moving under it.
 
@@ -68,7 +68,7 @@ A toolbar is as tall as the controls in it plus its padding, and that padding is
 
 </Demo>
 
-## It has no toolbar role
+## No toolbar role
 
 Deliberately. `role="toolbar"` — and the semantics behind it — is a **promise about keyboard behaviour**: one tab stop for the whole bar, arrow keys between the controls in it. A bar that claims it without implementing it is worse for a keyboard reader than one that never claimed anything.
 

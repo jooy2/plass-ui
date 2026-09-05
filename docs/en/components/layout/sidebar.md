@@ -56,7 +56,7 @@ Above `collapseBelow` the sidebar is an `<aside>` in the layout that the content
 
 They are one component because they are one thing — and because the children then exist **once** either way, rather than being rendered twice into the document for a screen reader to read twice.
 
-Which of the two is showing is a media query, and it is answered in CSS for the first paint and in JavaScript from then on. That split is deliberate: the markup a server sends is the column, so a narrow screen would draw a full-width sidebar and throw it away a moment later. The class that hides it below the breakpoint is what stops that; `matchMedia` is what decides, once there is a window to ask, that the drawer should exist at all.
+Which of the two is showing is a media query, answered in CSS for the first paint and in JavaScript from then on. The markup a server sends is the column, so a narrow screen would otherwise draw a full-width sidebar and throw it away a moment later. The class that hides it below the breakpoint is what stops that, and `matchMedia` decides, once there is a window to ask, that the drawer should exist at all.
 
 ## Examples
 

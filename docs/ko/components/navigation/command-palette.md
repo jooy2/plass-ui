@@ -55,7 +55,7 @@ PlCommandPalette(
 
 공용 축이 라이브러리 전체에서 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
 
-## 어느 컨트롤인가
+## Command palette와 menu
 
 - [`PlMenu`](./menu)가 **아닙니다**. 메뉴는 한 자리에 있는 짧은 목록이고, 찾으러 가기 전에 모든 행이 이미 보입니다.
 - [`PlCombobox`](../inputs/combobox)도 **아닙니다**. 돌아오는 것은 값이 아니라 일어나는 일입니다.

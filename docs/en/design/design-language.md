@@ -83,7 +83,7 @@ The base colour is `#3558ef`. Everything else comes off its palette.
 | `danger`    | A muted vermilion                                      |
 | `info`      | The analogous azure                                    |
 
-### Three values are hand-picked per family
+### Three hand-picked values per family
 
 ```
 --plass-{color}-solid       one end of the sweep, and the family's identity
@@ -94,9 +94,9 @@ The base colour is `#3558ef`. Everything else comes off its palette.
 
 Everything else (`-fill`, `-tint`, `-soft`, `-line`, `-ring`) is computed with `color-mix()` in the derived block. **Adding a colour family is two edits** — one entry in the `PlassColor` union and three lines in `styles.css`, plus its `accent` in each theme.
 
-### The key does not change with the theme
+### The key colour across themes
 
-This is the rule Plass is most likely to be argued with about, and it is deliberate. **A pane of blue glass is the same pane in a dark room.** What changes in dark mode is the ground it rests on: the clear glass loses its white and becomes a smoked pane, the shadow goes black and deepens, and the tint bleeding into that shadow is turned up because a coloured shadow has almost nothing to sit on over a near-black page.
+**A pane of blue glass is the same pane in a dark room.** What changes in dark mode is the ground it rests on: the clear glass loses its white and becomes a smoked pane, the shadow goes black and deepens, and the tint bleeding into that shadow is turned up, because a coloured shadow has almost nothing to sit on over a near-black page.
 
 The one family value that _is_ per-theme is `accent` — the colour that has to be **read** off a surface rather than looked at.
 
@@ -126,7 +126,7 @@ The ladder is a flat 8px per step and it starts higher than a dense desktop tool
 
 `lg` at 48px and `xl` at 56px both clear the 44px mobile touch target.
 
-### The radius is a fillet, not a percentage
+### The radius is a fillet
 
 It grows far more slowly than the height does — 33% of an `xs` control, 29% at `md`, 29% at `xl`. That near-constant radius is what makes two controls of different sizes read as two pieces cast in the same mould. A radius pinned to a percentage of the height gives you a small pill and a large rectangle instead.
 
@@ -171,7 +171,7 @@ A surface that _holds_ content rather than being pressed — a Card, a row — m
 
 The one position that is animated is a [`PlSlider`](../components/inputs/slider)'s thumb, and it is not an exception: nothing is being shifted off its own place, because the thing being moved _is_ the value. It travels for a step nobody dragged — an arrow key, a press on the rail — and not at all under a finger, where easing towards the pointer would only read as lag.
 
-### A mark is drawn, not switched on
+### Drawing a mark
 
 The rule above leaves an obvious hole: a tick and a radio dot are not there and then they are, and neither of them may be scaled into place. So they are not put there at all — they are **drawn**.
 
@@ -195,7 +195,7 @@ Three things move together and they all say the same thing: the control has gone
 
 `--plass-duration` is 150ms and `--plass-ease` is one curve, applied identically in both directions. A key going down and a key coming back up are the same spring; an asymmetric press belongs to a different material.
 
-### The second duration is for what takes the page
+### The second duration
 
 `--plass-duration-slow` is 260ms, and exactly one thing decides which of the two a surface gets: **whether it takes the page or hangs off a control.**
 
@@ -267,7 +267,7 @@ This is the only kind of reason to step outside Tailwind: **step outside only wh
 
 A custom property resolves its `var()`s **on the element that declares it**. `--plass-primary-tint` reads `--plass-tint-strength`, which is per-theme — declared only on `:root` it would freeze to the light theme's value inside a `.dark` subtree. That is why the derived block's selector is `:root, .dark, .light, [data-theme='dark'], [data-theme='light']`.
 
-### A portal's stacking level is the page's, not the library's
+### A portal's stacking level
 
 Every surface that leaves the flow — a modal, a drawer, a menu, a select's list, a popover, a tooltip, a toast — is painted at `var(--plass-z-portal)`, which is `50` and is one line for a page to change. Which thing floats over which is a decision an app has already made by the time it reaches for a dialog: it has a header, or a cookie bar, or a video player, and a number chosen here is a guess at somebody else's ladder.
 
@@ -287,7 +287,7 @@ Tailwind v4's `outline-*` utilities route the style through `--tw-outline-style`
 focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:[outline-offset:0px]
 ```
 
-### The ring is flush
+### Ring placement
 
 The offset is `0`, and it is `0` on every control in the library. A ring held 2px off a control that draws an edge of its own — a field, a select, a tick, a switch — is read as three concentric rectangles round one object, and the object looks as though it has come loose from the ring. Flush, the outline sits directly against the outside of the edge, and the edge simply thickens and takes the family's colour.
 
@@ -295,6 +295,6 @@ Nothing is lost on a control with no edge either: an outline is always drawn **o
 
 The one exception is a control that something else clips — a tab on a rail, a segment in a groove, a row inside a rounded sheet, an accordion header in a scored pane. Those take `focus-visible:[outline-offset:-2px]`, because a ring drawn outside them is a ring with its top or its bottom sliced off.
 
-### The ring is an `outline` and not a `ring`
+### The ring is an `outline`
 
 Tailwind's `ring-*` is a `box-shadow`, and every Plass surface already spends its `box-shadow` on the elevation, the tint and the glass hairline. A ring would have to be spliced into that chain in each of the three variants, and the first one that forgot would silently lose its focus ring.

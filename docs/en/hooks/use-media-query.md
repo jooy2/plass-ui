@@ -42,7 +42,7 @@ function usePlMediaQuery(query: string): boolean;
 
 It is also available from `plass-ui/hooks` for a project that wants the hooks without the barrel.
 
-## The first answer is the server's answer
+## The first answer
 
 There is no window to measure while HTML is being generated, so this returns `false` on the server **and through the render that hydrates it**. The real answer arrives in the render after that.
 

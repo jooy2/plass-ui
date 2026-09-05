@@ -53,7 +53,7 @@ Every native `<header>` attribute passes straight through. `color` and `title` a
 
 What the shared axes (`variant` `size` `color` `density` `elevation`) mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## It is not a PlToolbar with a tag on it
+## PlHeader or PlToolbar
 
 A [`PlToolbar`](../surfaces/toolbar) is a row of controls anywhere on a screen, and it takes its height from its padding alone. A header is the page's **banner**: it has a height floor, a measure, a brand slot, and a place in a [`PlPageLayout`](./page-layout) — none of which mean anything on a row of controls beside a table.
 

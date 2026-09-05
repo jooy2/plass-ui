@@ -72,7 +72,7 @@ Three answers to one question — how is this artwork framed — and the default
 
 `bare` sets the **height** and lets the width follow, which is what a wordmark needs and what a square would destroy. A plate insets the artwork to about seventy percent of the tile rather than filling it, so a glyph has the margin every app icon has.
 
-## Not a PlAvatar
+## PlAppLogo or PlAvatar
 
 They look alike and they answer different questions.
 

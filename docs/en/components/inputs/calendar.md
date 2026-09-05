@@ -52,7 +52,7 @@ Two differences from the React build, both the ones every date component in this
 
 `density` is not offered. Padding on a grid of forty-two squares is what makes them stop being squares; `size` moves the whole ladder together instead. What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## When to use this rather than a PlDatePicker
+## PlCalendar or PlDatePicker
 
 A [`PlDatePicker`](./date-picker) is a **field** that happens to open a calendar: it belongs in a form, beside other fields, and its answer is one line of text until you open it. This is a calendar that is not standing in for a field — a booking page, an availability view, a date rail in a dashboard. The grid is the interface rather than a way of filling one in.
 

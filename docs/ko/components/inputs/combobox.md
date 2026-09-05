@@ -73,7 +73,7 @@ combobox는 값의 타입에 대해 generic이고 — `PlCombobox<String>`, `PlC
 
 공유 축(`variant` `size` `color` `density` `elevation`)이 라이브러리 전체에서 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
 
-## chevron을 단 PlTextField입니다
+## PlTextField 위에 세운 것
 
 픽셀 단위로 그렇고, [`PlSelect`](./select)의 trigger도 마찬가지입니다. 폼 안에서 셋이 구분되지 않아야 폼이 조립된 게 아니라 설계된 것으로 보입니다. 껍데기가 셋 중 어디도 아닌 `internal/styles`에 사는 이유입니다.
 

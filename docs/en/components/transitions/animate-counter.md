@@ -36,13 +36,13 @@ PlAnimateCounter(
 
 <PropsTable name="PlAnimateCounter" />
 
-## It waits to be seen
+## It starts on screen
 
 **`trigger` defaults to `visible`**, and it is the one component in the library that does not start on mount.
 
 That is deliberate rather than an oversight. An entrance played off screen has still delivered its content — the words are there when the reader arrives, which is all a fade was ever carrying. A count that ran off screen delivered a number that was **already sitting there**, which is the one thing a counter cannot afford: being watched is the whole point of it.
 
-## Why it is not a keyframe
+## Compared with a CSS keyframe
 
 CSS can animate a number. A registered custom property and a `counter()` in a pseudo-element tick one perfectly well, and that would be the neater implementation.
 

@@ -65,7 +65,7 @@ The provider's props are defaults for every question asked under it. A single ca
 
 :::
 
-## Why a hook rather than a component
+## The hook form
 
 The thing a caller has at the moment a question is warranted is a **click handler**, not a place in the tree. Without this, the same delete button needs a piece of state, a `<PlModal>` kept mounted beside it, and the work after the answer torn in half across a callback — three edits to add a confirmation to one button, repeated at every button that needs one.
 

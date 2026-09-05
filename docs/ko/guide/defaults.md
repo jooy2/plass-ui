@@ -36,11 +36,11 @@ PlassTheme.merge(
 );
 ```
 
-**평범한 생성자가 아니라 `PlassTheme.merge`에 손을 뻗으세요.** 생성자는 걸려 있던 기본값을 _대체하고_, `merge`는 위쪽의 것을 유지합니다 — `DefaultTextStyle`이 스타일을 대체하고 `DefaultTextStyle.merge`가 병합하는 것과 똑같고, 이유도 같습니다. `InheritedWidget`에는 조상을 읽을 자기 context가 없으므로, 병합은 context가 _있는_ 자리에서 일어나야 합니다. `merge`는 brightness도 유지하므로, 어두운 화면의 한 구역만 밝아지지 않고 compact하게 만들 수 있습니다.
+**평범한 생성자가 아니라 `PlassTheme.merge`를 쓰세요.** 생성자는 걸려 있던 기본값을 _대체하고_, `merge`는 위쪽의 것을 유지합니다. `DefaultTextStyle`과 `DefaultTextStyle.merge`가 갈리는 방식과 같고 이유도 같습니다. `InheritedWidget`에는 조상을 읽을 자기 context가 없어서, 병합은 context가 있는 자리에서 일어나야 합니다. `merge`는 brightness도 유지하므로, 어두운 화면의 한 구역만 밝아지지 않고 compact하게 만들 수 있습니다.
 
 :::
 
-## 무엇을 정하는가
+## 설정 항목
 
 |                |                                                                     |
 | -------------- | ------------------------------------------------------------------- |
@@ -63,7 +63,7 @@ PlassTheme.merge(
 
 :::
 
-## 무엇을 정하지 않는가, 그리고 왜
+## 일부러 정하지 않는 것
 
 **`variant`와 `elevation`은 일부러 없습니다.** 이것을 갭으로 접수하기 전에 읽어 둘 만한 대목입니다.
 
@@ -137,6 +137,6 @@ const { size, locale } = usePlassDefaults();
 
 - **`PlTable`은 provider를 읽지 않습니다.** 유일한 예외입니다. 이 컴포넌트는 일부러 React Server Component의 client graph 밖에 두었고 — 모든 column이 `render` 콜백인데, server component는 그 경계 너머로 함수를 건넬 수 없습니다 — context를 읽으면 client component가 됩니다. `size`와 `density`는 컴포넌트에 직접 주세요.
 - provider는 element를 렌더링하지 않고 아무것도 그리지 않습니다. 컴포넌트당 context read 하나, 그리고 페이지 전체에 대해 `<html>` observer 하나가 비용입니다 — 방향은 설정받는 것이 아니라 문서에서 읽습니다.
-- theme이 아닙니다. 색 · 반경 · blur · 그림자는 CSS custom property이고, 그것을 바꾸는 자리는 [Colour](../design/color#overriding-a-family)입니다 — JavaScript에 그 사본을 하나 더 두면 진실이 둘이 됩니다.
+- theme이 아닙니다. 색 · 반경 · blur · 그림자는 CSS custom property이고, 그것을 바꾸는 자리는 [Colour](../design/color#계열-덮어쓰기)입니다 — JavaScript에 그 사본을 하나 더 두면 진실이 둘이 됩니다.
 
 :::

@@ -72,13 +72,13 @@ Everything a [`PlDatePicker`](./date-picker) says about the absence of a date li
 
 The chosen row in each column is scrolled into view once, on open. That is not decoration: a column of sixty minutes that opens at `00` while the value is `45` has hidden its own answer.
 
-## The bounds are checked per column
+## The bounds
 
 This is the detail that separates a working time picker from a frustrating one. A bound is checked against the **span a row stands for**, not against one instant inside it.
 
 With a `minTime` of 09:30, the hour `9` covers 09:00:00–09:59:59, which overlaps what is allowed — so it stays available, and the minute column is where `00` through `25` grey out. Comparing the whole candidate instead hides the 9 and makes half past nine unreachable.
 
-## The value is a Date
+## The value
 
 Not a string and not a number of minutes. Everything else in this library that carries a moment is a `Date`, and a bare time has nowhere to record that it crossed a daylight-saving boundary. `referenceDate` is the day a bare time is written onto, and it is held still for as long as the picker is mounted — a popup left open across midnight must not quietly move the value onto a new day.
 
@@ -116,7 +116,7 @@ A 12-hour dial reads `12, 1, 2 … 11` rather than `0, 1, 2`, and gains an AM/PM
 
 </Demo>
 
-### The steps
+### The step intervals
 
 `hourStep`, `minuteStep` and `secondStep` decide how far apart the rows are. A booking that only takes quarter hours should say so with `minuteStep={15}` rather than by rejecting 09:07 after the fact.
 

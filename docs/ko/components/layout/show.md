@@ -44,7 +44,7 @@ PlShow(until: PlassBreakpointFloor.md, child: PlList(children: rows));
 
 `xs`는 없습니다. 모든 것이 맨 아래 칸 이상에 있으므로 `from="xs"`는 "언제나"라는 뜻이 되는데 그것은 prop을 빼면 이미 되는 일이고, `until="xs"`는 "결코"라는 뜻이 됩니다.
 
-## 왜 미디어 쿼리가 아니라 컴포넌트인가
+## 미디어 쿼리와의 차이
 
 ::: fw react
 
@@ -60,7 +60,7 @@ PlShow(until: PlassBreakpointFloor.md, child: PlList(children: rows));
 
 :::
 
-## 상자가 아닙니다
+## 레이아웃에 요소를 더하지 않음
 
 ::: fw react
 
@@ -70,7 +70,7 @@ PlShow(until: PlassBreakpointFloor.md, child: PlList(children: rows));
 
 :::
 
-## 무엇을 치르는가
+## 비용
 
 ::: fw react
 

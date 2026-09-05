@@ -101,7 +101,7 @@ Which props take one:
 | [`PlPanes`](../components/layout/panes) [`PlTabs`](../components/surfaces/tabs) [`PlScrollZone`](../components/layout/scroll-zone) [`PlTimeline`](../components/display/timeline) [`PlStepper`](../components/navigation/stepper) | `orientation` |
 | [`PlStack`](../components/layout/stack) | `direction` |
 
-## Where a responsive value is resolved
+## Resolving a responsive value
 
 ::: fw react
 
@@ -151,6 +151,6 @@ All three answer **`false` / `xs` on a server**, and that is not a bug to work a
 
 :::
 
-## What a sidebar does with them
+## PlSidebar's own breakpoint
 
 [`PlSidebar`](../components/layout/sidebar) collapses into a drawer below `collapseBelow`, and it is worth reading as the worked example of everything above: the decision is a media query in CSS for the first paint **and** `matchMedia` in JavaScript from then on, because the markup a server sends is the column and a phone must not draw one and throw it away.

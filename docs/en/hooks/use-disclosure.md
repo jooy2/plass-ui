@@ -53,13 +53,13 @@ function usePlDisclosure(initial?: boolean): {
 
 It is also available from `plass-ui/hooks` for a project that wants the hooks without the barrel.
 
-## Why not a `useState`
+## Compared with `useState`
 
 Because of what the alternative actually is. Written by hand this is a `useState` **plus three arrow functions that are new on every render**, and an inline `() => setOpen(false)` handed to a memoised trigger defeats the memo it was handed to.
 
 Every callback here is stable for the life of the component, including `onToggle` — which uses the updater form rather than `!open`, so it does not have to change when the value does.
 
-## The names are the props
+## The returned names
 
 `onOpenChange` is the one shape every openable component in this library takes, and `setOpen` fits it exactly. So the ordinary use is not four handlers but two:
 

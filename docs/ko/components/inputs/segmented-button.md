@@ -76,7 +76,7 @@ PlSegmentedButton<String>(
 
 라이브러리 전체에서 공유 축(`variant` `size` `color` `density` `elevation`)이 뜻하는 바는 [prop 규칙](../../design/prop-conventions)에 있습니다.
 
-## Segmented button인가, tabs인가, select인가
+## Segmented button, tabs, select 중 고르기
 
 - **Segmented button** — 이미 화면에 있는 것을 걸러 내는, 짧고 서로 배타적인 선택지 몇 개. 기간, 범위, 레이아웃.
 - **Tabs** — 선택이 내용 패널 전체를 바꿀 때.

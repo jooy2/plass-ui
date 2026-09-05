@@ -67,7 +67,7 @@ PlMenu(
 
 ## Examples
 
-### 행은 어디서 오는가
+### items 배열
 
 ::: fw react
 

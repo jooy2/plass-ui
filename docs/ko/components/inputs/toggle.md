@@ -66,7 +66,7 @@ PlToggleGroup(
 
 공용 축(`variant` `size` `color` `density` `elevation`)이 라이브러리 전체에서 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
 
-## 어느 컨트롤인가
+## Toggle, switch, checkbox 중 고르기
 
 - **토글**은 옆에 있는 것의 상태를 바꿉니다 — 선택한 글자의 볼드, 캔버스의 그리드, 목록의 필터. 컨트롤이고, 폼에는 들어가지 않습니다.
 - [`PlSwitch`](./switch)는 설정을 바꾸고, 그 변화 자체가 핵심입니다.
@@ -99,7 +99,7 @@ PlToggleGroup(
 
 </Demo>
 
-### elevation은 움직이지 않습니다
+### elevation
 
 켜진 토글은 들어 올려진 토글이 아닙니다. `elevation`은 두 상태에서 같고 색만 바뀝니다. "켜짐"은 키가 페이지에서 얼마나 떠 있는지가 아니라 토글 옆에 있는 것에 대한 사실이기 때문입니다.
 

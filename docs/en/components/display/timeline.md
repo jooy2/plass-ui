@@ -154,7 +154,7 @@ It belongs to the item it leaves rather than the one it arrives at, which is wha
 
 `vertical` is the default and the one that takes an arbitrary number of steps with an arbitrary amount to say about each. `horizontal` is the stepper across the top of a checkout, and it is only honest while every label is short.
 
-**It is responsive**, so a set can run one way on a phone and the other on a laptop. <Fw react="It is resolved in JavaScript rather than in CSS — an orientation decides the DOM, the ARIA and the way the arrow keys walk, and no stylesheet can do that, so a server renders the xs entry and the browser corrects it on hydration; a bare value subscribes to nothing at all." flutter="It is resolved against the window's width in build, so it is right on the first frame — and it is the window's width rather than this widget's own box, which is what makes two of these side by side agree about which rung they are on." /> See [breakpoints](../../design/breakpoints).
+**It is responsive**, so a set can run one way on a phone and the other on a laptop. <Fw react="A server renders the xs entry and the browser corrects it on hydration." flutter="It is resolved against the window's width during build, so the first frame is already right." /> See [breakpoints](../../design/breakpoints).
 
 <Demo src="timeline/orientation" :min-height="160">
 

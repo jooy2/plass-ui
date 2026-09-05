@@ -12,7 +12,7 @@ aside: false
 
 The whole screen is one file: `docs/.vitepress/demos/examples/dashboard.tsx`. It is live — search the table, filter it by channel or status, tick some rows and the bulk actions appear.
 
-## What it is made of
+## Composition
 
 | Block | Components | Worth noticing |
 | --- | --- | --- |

@@ -57,7 +57,7 @@ A hook that kept answering the second question would re-render a page of lazily 
 
 Turn it off for the answer that genuinely keeps changing — a floating bar that appears once a section has left the screen, a video that pauses when it is scrolled away from.
 
-## What it answers before it knows
+## The first answer
 
 **`false`** on a server and on the first render, which is the safe answer for both of the things this is used for: nothing is fetched that did not need to be, and nothing plays before a reader could see it.
 

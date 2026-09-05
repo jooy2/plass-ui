@@ -76,7 +76,7 @@ Everything else about them is identical, which is exactly why they are not two c
 
 </Demo>
 
-## There is no variant and no elevation
+## No variant and no elevation
 
 The three materials answer "how much does this surface assert itself against the page", and a panel that has taken an **edge of the window** has answered it. An `overlay` drawer floats and carries a shadow at the top of the ladder; an `inline` one is part of the layout and carries none. Neither is a decision worth offering.
 

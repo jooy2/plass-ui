@@ -46,7 +46,7 @@ Every other `<div>` attribute passes through to the shell.
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## The one stadium in the library
+## The stadium shape
 
 The shape is a **stadium** — a corner at exactly half the row's height — and the house radius rule otherwise forbids it. Every control is held just short of the 50% that would make it a pill, because the flat run along its top and bottom edge is what still reads as a sheet with the corners cut off it.
 

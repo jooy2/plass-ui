@@ -52,7 +52,7 @@ Every other `<div>` attribute passes through to the popup.
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## Not a tooltip, not a modal
+## Popover, tooltip or modal
 
 Three floating surfaces, three different jobs, and the difference between them is what you can _do_ with them.
 
@@ -62,7 +62,7 @@ Three floating surfaces, three different jobs, and the difference between them i
 
 A popover is the middle one: anchored to a control, and the page behind goes on working. That is what `modal` defaults to `false` says.
 
-## There is no variant and no elevation
+## No variant and no elevation
 
 The three materials answer "how much does this surface assert itself against the page", and a popup that had to be **asked for** has already answered it. And a popover genuinely floats, which is the one case the elevation ladder exists for — so it is fixed at its top rung rather than offered as a decision that could sit it flat.
 

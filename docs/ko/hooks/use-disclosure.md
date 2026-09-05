@@ -53,13 +53,13 @@ function usePlDisclosure(initial?: boolean): {
 
 barrel 없이 훅만 쓰고 싶은 프로젝트를 위해 `plass-ui/hooks`에서도 가져올 수 있습니다.
 
-## `useState`로 하지 않는 이유
+## `useState`와의 차이
 
 대안이 실제로 무엇인지 때문입니다. 손으로 쓰면 `useState`에 **매 렌더링마다 새로 만들어지는 화살표 함수 셋**이 붙고, memo된 트리거에 건넨 인라인 `() => setOpen(false)`는 그 memo를 무력화합니다.
 
 여기의 모든 콜백은 컴포넌트가 사는 동안 그대로입니다. `onToggle`도 그렇습니다. `!open`이 아니라 updater 형태를 쓰므로 값이 바뀌어도 콜백이 바뀌지 않습니다.
 
-## 이름이 곧 prop입니다
+## 돌려주는 이름
 
 `onOpenChange`는 이 라이브러리에서 열리는 모든 컴포넌트가 받는 하나의 모양이고, `setOpen`이 정확히 거기 들어맞습니다. 그래서 보통은 핸들러 넷이 아니라 둘입니다.
 

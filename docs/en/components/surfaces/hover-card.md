@@ -46,7 +46,7 @@ PlHoverCard(
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## Which floating surface
+## Hover card, tooltip or popover
 
 Three of them, and what tells them apart is **what opens them and what you can do once they are open** — not how they look. All three are the same sheet.
 
@@ -64,7 +64,7 @@ The rule that decides whether a hover card is the right component at all.
 
 That is what makes it safe to have at all, and it is also why it needs no dismiss button, no focus trap and no scroll lock. Nothing is lost by never seeing it.
 
-## The delays are the component
+## The delays
 
 `delay` is **600ms** and that is deliberately long. A card that opens the moment a pointer crosses a link opens on every link a reader passes on the way somewhere else, which turns a page of prose into a page that flinches.
 

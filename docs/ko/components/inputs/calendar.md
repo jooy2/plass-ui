@@ -52,7 +52,7 @@ React 빌드와 다른 점 둘은, 이 패키지의 모든 날짜 컴포넌트�
 
 `density`는 없습니다. 정사각형 마흔두 개짜리 grid에 padding을 더하는 것은 그것들이 정사각형이기를 그만두게 하는 일입니다. 대신 `size`가 사다리 전체를 함께 움직입니다. 공유 축이 라이브러리 전체에서 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
 
-## PlDatePicker 대신 이것을 쓸 때
+## PlCalendar와 PlDatePicker 중 고르기
 
 [`PlDatePicker`](./date-picker)는 calendar를 여는 **field**입니다. 폼 안에서 다른 field 옆에 놓이고, 열기 전까지 그 답은 텍스트 한 줄입니다. 이 컴포넌트는 field를 대신하고 있지 않은 calendar입니다 — 예약 페이지, 예약 가능 현황, 대시보드의 날짜 레일. grid가 폼을 채우는 방법이 아니라 인터페이스 그 자체입니다.
 

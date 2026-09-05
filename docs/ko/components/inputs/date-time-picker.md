@@ -56,11 +56,11 @@ picker는 **controlled**입니다. `value`와 `onChanged`를 함께 주고, `nul
 
 달력은 [`PlDatePicker`](./date-picker)의 것이고 열들은 [`PlTimePicker`](./time-picker)의 것이며, 둘 다 그대로입니다. 그 두 페이지가 단어와 헤더와 열과 날짜 라이브러리의 부재에 대해 말한 것이 여기서도 성립합니다.
 
-## 패널 둘이 아니라 사각형 하나
+## 하나의 팝업
 
 달력의 그리드는 헤더까지 세어 일곱 줄입니다. 시계의 열들은 같은 칸 일곱 개입니다. 정확히 그 이유로 둘은 같은 칸 사다리를 읽고, 그래서 팝업은 크기가 다른 두 덩어리를 붙여 놓은 것이 아니라 사각형 하나입니다 — 달력을 월 뷰나 연 뷰로 바꿔도 그대로입니다.
 
-## 여기서 경계는 더 많은 일을 합니다
+## 경계
 
 `minDate`와 `maxDate`를 **전체 정밀도로** 읽습니다. [`PlDatePicker`](./date-picker)와 갈라지는 유일한 지점입니다. 거기서 경계는 어떤 날이 존재하는가에 대한 것이고 붙은 시각은 무시됩니다. 여기서는 27일 09:30이라는 최솟값이 달력에서 27일을 그대로 고를 수 있게 두고, 시계에서 오전을 흐리게 만듭니다.
 
@@ -92,7 +92,7 @@ picker는 **controlled**입니다. `value`와 `onChanged`를 함께 주고, `nul
 
 `closeOnSelect`가 여기서 `false`인 것도 같은 이유입니다 — 순간은 답 둘이라, 푸터에 **Done** 이 있습니다.
 
-### 간격
+### step 간격
 
 `hourStep`, `minuteStep`, `secondStep`은 [`PlTimePicker`](./time-picker)의 것 그대로입니다.
 
@@ -112,7 +112,7 @@ picker는 **controlled**입니다. `value`와 `onChanged`를 함께 주고, `nul
 
 </Demo>
 
-### 단어들
+### 이름과 라벨
 
 ::: fw react
 

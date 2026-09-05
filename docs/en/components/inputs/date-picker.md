@@ -110,7 +110,7 @@ Deliberately. Parsing a date out of free text is locale-dependent in a way that 
 
 ## Examples
 
-### The header is the point
+### The header
 
 A picker that only steps a month at a time puts a birthday thirty years back a hundred and eighty clicks away. So the month name and the year are each a **button** that opens a grid of its own — twelve months, then twelve years at a time. Any month of the year on screen is two clicks; any year at all is three.
 
@@ -140,7 +140,7 @@ The trigger's default format follows along, and so does the footer's shortcut: "
 
 </Demo>
 
-### The words
+### Names and labels
 
 ::: fw react
 

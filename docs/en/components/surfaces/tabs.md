@@ -94,7 +94,7 @@ It carries no `variant`, no `size`, no `density` and no `orientation`, and could
 
 What the shared axes (`variant` `size` `color` `density` `orientation`) mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## Tabs or a segmented button?
+## Tabs or a segmented button
 
 Tabs swap whole panels of content. A [segmented button](../inputs/segmented-button) filters what is already on screen. That is also why the `solid` tile here is a pane of **clear** glass rather than the family's gradient — the gradient tile belongs to the segmented button, and a screen with both should be able to tell them apart.
 
@@ -124,7 +124,7 @@ Tabs swap whole panels of content. A [segmented button](../inputs/segmented-butt
 
 `vertical` puts the tabs down the side and the panel beside them, and moves the arrow keys onto the other axis — <Fw react="which is Base UI's doing" flutter="which the bar does itself" />, and is what makes a vertical tab bar reachable.
 
-**It is responsive**, so a set can run one way on a phone and the other on a laptop. <Fw react="It is resolved in JavaScript rather than in CSS — an orientation decides the DOM, the ARIA and the way the arrow keys walk, and no stylesheet can do that, so a server renders the xs entry and the browser corrects it on hydration; a bare value subscribes to nothing at all." flutter="It is resolved against the window's width in build, so it is right on the first frame — and it is the window's width rather than this widget's own box, which is what makes two of these side by side agree about which rung they are on." /> See [breakpoints](../../design/breakpoints).
+**It is responsive**, so a set can run one way on a phone and the other on a laptop. <Fw react="A server renders the xs entry and the browser corrects it on hydration." flutter="It is resolved against the window's width during build, so the first frame is already right." /> See [breakpoints](../../design/breakpoints).
 
 <Demo src="tabs/orientation" :min-height="200">
 
@@ -184,7 +184,7 @@ A tab is a control, so it takes the control height ladder — a `md` tab and a `
 
 A bar with more tabs than room **scrolls** rather than wrapping: a tab bar on two lines has stopped being a bar, and the indicator has nowhere sensible to sit.
 
-Which is why it has to say that it is scrolling, and a scrollbar does not. On a Mac it is an overlay that appears while the strip is moving and is invisible the rest of the time — which is every moment a reader is deciding whether there is anything more to look at; on Windows the same bar is fifteen pixels of permanent furniture under a row of labels. Both are taken away, and the end that still has tabs behind it is faded out instead. Only that end: a bar with a faded edge that goes nowhere is a bar that lies.
+Which is why the bar has to say it is scrolling, and a scrollbar does not. On a Mac it is an overlay that appears only while the strip is moving, and a reader decides whether there is more to look at the rest of the time. On Windows the same bar is fifteen pixels of permanent furniture under a row of labels. Both are taken away, and the end that still has tabs behind it is faded out instead. Only that end, so a faded edge always means there is more.
 
 The fade takes the pixels away rather than painting over them, so it is right whatever the bar is sitting on — a component cannot know whether it is on the page, on a `PlCard` or on a tinted section, and a gradient painted in the wrong colour would be worse than no signal at all. It is dropped while a tab inside is showing a focus ring, because focusing a tab scrolls it flush against the edge the fade is strongest at.
 

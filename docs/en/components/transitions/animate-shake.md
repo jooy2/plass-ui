@@ -54,13 +54,13 @@ const [attempts, setAttempts] = useState(0);
 
 It never plays on the first render. A shake that shook itself on mount would be answering an event that has not happened.
 
-## Not an entrance
+## A reaction to an event
 
 Every other effect here answers "how does this content arrive" and starts on **mount**. This one answers something the reader did, so it starts **held still** — `trigger` defaults to `manual` — and plays only when it is told to.
 
 It is also not in `PlassAnimation`, the union `mode` and `stagger` are built on, for [`PlAnimateFloat`](./animate-float)'s reason: that union is the set of ways content can arrive, and a response is not an arrival.
 
-## It lands where it started
+## The rest position
 
 Three shudders either side of home and back to nothing.
 

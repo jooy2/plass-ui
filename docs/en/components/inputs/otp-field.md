@@ -123,7 +123,7 @@ The same field shell as `PlTextField` and `PlSelect`, because a slot is a field-
 
 ### size
 
-A slot has its own ladder rather than the control one, for the reason a tick box does: a slot is not a control in a row of controls, it is a character standing on its own, and an `md` slot the height of an `md` `PlButton` would be too small to read a code out of across a desk. Every step is taller than it is wide, which is what makes a row of them read as places for one character each rather than as a row of tiny fields.
+A slot has its own ladder rather than the control one, for the reason a tick box does: it is a character standing on its own rather than a control in a row of controls, and an `md` slot the height of an `md` `PlButton` would be too small to read a code out of across a desk. Every step is taller than it is wide, which is what makes a row of them read as places for one character each.
 
 The type scale is two steps up the control ladder with it. A verification code is read off one phone and typed with the other hand; it is the one piece of text in a form that should be bigger than the label above it.
 
@@ -165,7 +165,7 @@ The type scale is two steps up the control ladder with it. A verification code i
 
 </Demo>
 
-## How it is built
+## Composition
 
 ::: fw react
 

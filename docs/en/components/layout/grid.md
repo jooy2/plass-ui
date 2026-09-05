@@ -58,7 +58,7 @@ Every native `<div>` attribute passes straight through, on both.
 
 :::
 
-Neither takes `variant`, `color`, `elevation`, `size` or `density`. A grid is not a surface — it is the arrangement of the surfaces inside it — and a cell that drew a sheet would make `span` a visual decision. There is no padding here either: the gutter round a page is a [`PlContainer`](./container)'s and the padding round content is a `PlCard`'s, and a grid with a track of its own would be a third one to keep in step. `spacing` is the only measurement it owns, and it is the space _between_ cells.
+Neither takes `variant`, `color`, `elevation`, `size` or `density`. A grid is the arrangement of the surfaces inside it, not a surface itself, and a cell that drew a sheet would make `span` a visual decision. There is no padding here either: the gutter round a page belongs to [`PlContainer`](./container) and the padding round content to `PlCard`, and a grid with a track of its own would be a third one to keep in step. `spacing` is the only measurement it owns, and it is the space _between_ cells.
 
 ## Examples
 
@@ -198,7 +198,7 @@ A grid inside a **cell**, not a cell that is also a grid. The inner grid re-decl
 
 ::: fw flutter
 
-## How it is built
+## Composition
 
 `PlGrid` builds one `Row` per run inside a `Column`, and packs the runs by counting **columns** rather than by comparing widths — every cell is a whole number of columns, so counting them cannot disagree with itself by a rounded pixel the way two `double`s can.
 
@@ -210,11 +210,11 @@ Every run is laid out **stretched** inside an `IntrinsicHeight`, and each cell i
 
 ::: fw react
 
-## How it is built
+## Composition
 
 `PlGrid` is a flex row and `PlGridItem` is a width in it, which is the shape a twelve-column grid has had since long before CSS had one of its own — and still the only shape where a cell can carry a start offset without an explicit line number, and where the row can be told to stop wrapping.
 
-The three numbers a cell cannot know on its own — the column count and the two gutters — are handed down as **inherited custom properties** rather than through a React context. That is not a shortcut: the values are responsive, and a media query can change an inherited custom property without React hearing about it, so the column count a cell lays itself out against is always the one that is actually on screen. A context would have to re-render the tree at every breakpoint to say the same thing.
+The three numbers a cell cannot know on its own, the column count and the two gutters, are handed down as **inherited custom properties** rather than through a React context. The values are responsive, and a media query can change an inherited custom property without React hearing about it, so the column count a cell lays itself out against is always the one on screen. A context would have to re-render the tree at every breakpoint to say the same thing.
 
 The width itself is `(100% + gap) × span / columns − gap`, and it lives in the stylesheet rather than in a class name. `columns` is a number the caller picks and `span` changes at four widths, so the class would have to be assembled at runtime — and a class name assembled at runtime is a class name Tailwind never sees.
 

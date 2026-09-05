@@ -53,7 +53,7 @@ Nothing measures the direction to decide; `EdgeInsetsDirectional`, `PositionedDi
 
 The same rule reaches the prop vocabulary: [`PlassAlign`](./prop-conventions) is `start | center | end` for exactly this reason, and a `PlSidebar` takes a `start` side rather than a left one.
 
-## What flips, and what does not
+## Flipped and unflipped
 
 |  |  |
 | --- | --- |
@@ -71,7 +71,7 @@ The same rule reaches the prop vocabulary: [`PlassAlign`](./prop-conventions) is
 | An icon that is not directional — a star, a bin, a spinner | Does not flip, and should not |
 | Numbers, dates and times | The platform's own. Set `locale` on the components that take one |
 
-## Where the direction is read in code
+## Reading the direction in code
 
 Almost nothing needs to. The exceptions are the places where the **thing being measured** is physical too, and pairing a logical property with a physical measurement is what would actually break the direction.
 

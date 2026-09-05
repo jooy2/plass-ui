@@ -50,11 +50,11 @@ Every other `<div>` attribute passes through to the region.
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## What it is made of
+## Composition
 
 A **scroll container with snap points**, and everything good about this component follows from that one choice.
 
-Swiping and two-finger dragging on a trackpad both work because they are the platform's own scrolling and not a gesture handler imitating it — momentum, rubber-banding and the scrollbar all come with them. The strip runs the other way under RTL without being told, because scrolling is directional and a `translate` is not. And **nothing is transformed**, so the [house rule](../../design/design-language) against moving a surface holds here for free, where a translated track would have had to argue for an exception.
+Swiping and two-finger dragging on a trackpad are the platform's own scrolling rather than a gesture handler imitating it, so momentum, rubber-banding and the scrollbar come with them. The strip runs the other way under RTL without being told, because scrolling is directional and a `translate` is not. **Nothing is transformed**, so the [house rule](../../design/design-language) against moving a surface holds here without an exception.
 
 Slides are not a sub-component either. Every child becomes one, and the wrapper is what carries the semantics a screen reader needs — none of which a caller should have to remember to put on a photograph.
 
@@ -66,7 +66,7 @@ Slides are not a sub-component either. Every child becomes one, and the wrapper 
 
 ::: fw flutter
 
-Underneath it is a [`PageView`](https://api.flutter.dev/flutter/widgets/PageView-class.html), which is Flutter's own scrolling with snap points. It brings one parameter the React build has no need of: **`aspectRatio`**. A browser's strip is as tall as whatever is in it; a `PageView` lays every page out at the viewport's size, so it has to be given a height. Leave `aspectRatio` out and the carousel takes whatever height the layout around it hands down, which is what a caller who has already sized the box wants.
+Underneath it is a [`PageView`](https://api.flutter.dev/flutter/widgets/PageView-class.html), Flutter's own scrolling with snap points. It brings one parameter the React build has no need of, **`aspectRatio`**. A browser's strip is as tall as whatever is in it, while a `PageView` lays every page out at the viewport's size and so has to be given a height. Leave `aspectRatio` out and the carousel takes the height the layout around it hands down.
 
 :::
 

@@ -66,7 +66,7 @@ The bar is generic in the destination's type and **controlled**, and its destina
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## Why it is a second component
+## Compared with PlBottomNavigation
 
 It is the other half of [`PlBottomNavigation`](./bottom-navigation), and a different object rather than a variant of one.
 
@@ -84,7 +84,7 @@ Every destination is a disc with a glyph in it and no name drawn, which is what 
 
 The current destination is a key of **tinted glass** riding in the clear sheet. Every other one has no surface until the pointer is on it.
 
-### The key travels
+### The moving key
 
 The key is **one element**, measured off whichever disc is current and animated between them the way a [`PlSegmentedButton`](../inputs/segmented-button)'s tile is. It is not a fill that appears on one disc while it disappears from another: two discs cross-fading is two objects, and a bar with a key in it has one — where that key goes is the whole of what this component has to say.
 

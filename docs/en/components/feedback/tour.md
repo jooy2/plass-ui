@@ -47,7 +47,7 @@ PlTour(
 
 :::
 
-## The one thing worth knowing first
+## Before you start
 
 **The dimming takes the pointer and the light does not.**
 
@@ -73,7 +73,7 @@ That falls out of the geometry rather than being a second mechanism that has to 
 
 The same clip buys the second thing: the dimming can **blur**. A hole drawn as a shadow or as four rectangles around the target can only paint a colour, where a clipped layer carries a backdrop filter — so the page around the light is out of focus as well as dark, which is this library's own material rather than a grey wash over it.
 
-## It is `PlHowToSteps` turned inside out
+## PlTour or PlHowToSteps
 
 [`PlHowToSteps`](../surfaces/how-to-steps) puts the instructions **in** the page and the reader follows them. `PlTour` leaves the page as it is and stands over it.
 
@@ -107,7 +107,7 @@ The widget draws nothing where it is written, so it can go anywhere under an `Ov
 
 ::: fw react
 
-**Three forms of `target`, and the first is the one to reach for.** A **ref** is checked by the compiler and survives a rename. A **selector** is a string that can stop matching the moment somebody renames a class, and the tour would go on running with the hole over an empty piece of background — it is here because it is the only form that works when the target belongs to something this page does not render. The **getter** is for the case where finding it takes more than one query.
+**`target` takes three forms, and a ref is the one to use.** A **ref** is checked by the compiler and survives a rename. A **selector** is a string that stops matching the moment somebody renames a class, and the tour keeps running with its hole over empty background; it is here because it is the only form that works when the target belongs to something this page does not render. The **getter** is for a target that takes more than one query to find.
 
 :::
 

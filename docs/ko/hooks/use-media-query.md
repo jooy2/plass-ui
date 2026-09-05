@@ -42,7 +42,7 @@ function usePlMediaQuery(query: string): boolean;
 
 barrel 없이 hook만 쓰고 싶다면 `plass-ui/hooks`에서도 가져올 수 있습니다.
 
-## 첫 답은 서버의 답입니다
+## 첫 답
 
 HTML을 만드는 동안에는 잴 창이 없으므로, 서버에서도 **그것을 hydrate하는 렌더에서도** `false`를 돌려줍니다. 진짜 답은 그다음 렌더에 옵니다.
 

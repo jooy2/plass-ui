@@ -313,7 +313,7 @@ Two more that are not API, but are visible:
 
 - **The font.** Neither package sets one — a button inherits whatever its host uses, and supplying it is the app's job on both sides. The React previews here are drawn in the documentation site's UI font; the Flutter gallery ships Inter. It is the same button in two typefaces, not two buttons.
 
-  Which matters more than it sounds, because **a label is weight 600 and not every font has one.** Flutter's engine carries a single face — Roboto Regular — and synthesises anything else by widening its strokes, and Roboto's own family goes 400 → 500 → 700 with no 600 in it. An app on a font with no real SemiBold therefore gets a label that is heavier and visibly softer than the one above. Any of Inter, Pretendard, SF or Noto Sans has the weight; Roboto does not.
+  This matters more than it sounds, because **a label is weight 600 and not every font has one.** Flutter's engine carries a single face, Roboto Regular, and synthesises anything else by widening its strokes, and Roboto's own family goes 400, 500, 700 with no 600 in it. An app on a font with no real SemiBold gets a label that is heavier and visibly softer than the one above. Inter, Pretendard, SF and Noto Sans all have the weight; Roboto does not.
 
 - **The blur.** `glass` blurs what is painted behind it, and in Flutter that means _inside the same app_. The previews here are iframes, so the gallery paints the page's backdrop itself — which is why a `glass` button in a Flutter preview has something to be in front of.
 

@@ -188,7 +188,7 @@ The pinned header's rule is an inset shadow rather than a border, which is not a
 
 `maxHeight` is a `double` in logical pixels. The scroll view is always there, so a table in a box too small for it scrolls rather than overflowing, with or without a cap.
 
-The pinned band is **not a second grid** — that is the whole trick, and the reason this used to be listed as something the Flutter build could not do. Two grids each measured from their own content cannot agree on a column width. So there is still one `Table`, with its header row in it exactly as before, and the band laid over the scroll is a _copy_ of that row: each of its cells is put in a box of the width the real header cell was actually laid out at. One grid still decides every column; the band only repeats what it decided. It is also silent — the names are already announced as column headers by the grid, and a copy that spoke would name every column twice.
+The pinned band is **not a second grid**. Two grids measured from their own content cannot agree on a column width, so there is still one `Table` with its header row in it. The band laid over the scroll is a _copy_ of that row: each cell is boxed at the width the real header cell was laid out at. The copy is silent, because the grid already announces those names as column headers.
 
 :::
 
@@ -284,7 +284,7 @@ Changes cell padding and nothing else, so two tables of the same `size` keep the
 
 ::: fw react
 
-## It renders on the server
+## Server rendering
 
 `PlTable` is the one component in the library with no `'use client'` on it, so a React Server Component renders the whole table — the sheet, the header, every row and every `render` callback in the columns.
 
@@ -303,7 +303,7 @@ Nothing changes for a caller on the client. A module with `'use client'` at the 
 - A clickable row stays a `<tr>`. `role="button"` on a row reads well in isolation and takes the row semantics off it, which orphans every cell inside from the table it belongs to.
 - Clickable rows carry `tabIndex={0}` and answer <kbd>Enter</kbd> and <kbd>Space</kbd>; <kbd>Space</kbd> is prevented from scrolling the page.
 - The focus ring on a row is drawn inset, because the sheet clips at its own rounded edge and an outline outside the first or last row would lose its top or bottom.
-- Cell padding, alignment, backgrounds and **borders** are written as inline styles, and so are the `<table>`'s own `display`, `width`, `margin` and `border-collapse`. Host stylesheets style `table`, `td` and `th` by tag name at a specificity a utility class cannot outrank: a prose stylesheet's `td { border: 1px solid }` draws a full grid of cell rules the design never asked for, its `table { display: block }` stops the grid filling the sheet, and its `table { margin: 20px 0 }` pushes the whole thing off the corner of the pane it is meant to be flush inside. This is the one component in the library that has to work around all of that.
+- Cell padding, alignment, backgrounds and **borders** are inline styles, and so are the `<table>`'s own `display`, `width`, `margin` and `border-collapse`. Host stylesheets style `table`, `td` and `th` by tag name, at a specificity no utility class can outrank: `td { border: 1px solid }` draws cell rules the design never asked for, `table { display: block }` stops the grid filling the sheet, and `table { margin: 20px 0 }` pushes it off the corner of the pane. Inline styles are what beat all three.
 
 :::
 

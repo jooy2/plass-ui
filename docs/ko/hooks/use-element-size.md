@@ -45,13 +45,13 @@ function usePlElementSize(
 | `target` | 잴 요소를 가리키는 ref.                            |
 | returns  | 그 요소의 content box, 또는 잴 것이 없으면 `null`. |
 
-## 첫 측정은 observer의 것이 아닙니다
+## 첫 측정
 
 `ResizeObserver`의 첫 콜백은 **한 프레임이 그려진 뒤에** 옵니다. 그 프레임 동안 `0 × 0`에서 레이아웃을 잡은 컴포넌트는 깜빡이고, 느린 기기에서는 눈에 띄게 깜빡입니다.
 
 그래서 크기를 **layout effect**에서도 읽습니다. 브라우저가 그리기 전에 실행되는 쪽입니다. 그다음부터는 observer가 최신으로 유지합니다.
 
-## content box를 보고합니다
+## 보고하는 상자
 
 요소 자신의 padding을 뺀, 안에 실제로 남은 공간입니다.
 

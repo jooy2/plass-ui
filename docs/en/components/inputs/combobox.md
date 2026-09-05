@@ -73,7 +73,7 @@ The combobox is generic in its value's type — `PlCombobox<String>`, `PlCombobo
 
 What the shared axes (`variant` `size` `color` `density` `elevation`) mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## It is a PlTextField wearing a chevron
+## Built on PlTextField
 
 To the pixel, and so is [`PlSelect`](./select)'s trigger. The three have to be indistinguishable in a form or the form looks assembled rather than designed, which is why the shell lives in `internal/styles` and not in any one of them.
 
@@ -81,7 +81,7 @@ What is different is what the text does. On a select the text is the value; here
 
 ## Examples
 
-### Choosing against typing
+### Choosing and typing
 
 A [`PlSelect`](./select) is for a closed set you pick from. This is for a set you _search_, and — with `allowCustom` on, which is the default — one you can add to.
 

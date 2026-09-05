@@ -53,7 +53,7 @@ Directionality(textDirection: TextDirection.rtl, child: child);
 
 같은 규칙이 prop 어휘에도 닿습니다. [`PlassAlign`](./prop-conventions)이 `start | center | end`인 이유가 정확히 이것이고, `PlSidebar`는 왼쪽이 아니라 `start` side를 받습니다.
 
-## 무엇이 뒤집히고 무엇이 뒤집히지 않는가
+## 뒤집히는 것과 그대로인 것
 
 |  |  |
 | --- | --- |

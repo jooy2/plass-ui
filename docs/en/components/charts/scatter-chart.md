@@ -61,7 +61,7 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 </Demo>
 
-A point's `z` is an **area**, not a radius. Encoded as a radius, a value twice as large would draw a mark four times the size; the square root is what keeps the ink on the page proportional to the number behind it. One scale covers the whole chart and is taken over every series including the hidden ones, so two bubbles the same size mean the same number wherever they are and switching a series off does not resize the rest.
+A point's `z` is an **area**, not a radius. Encoded as a radius, a value twice as large would draw a mark four times the size; the square root keeps the ink on the page proportional to the number behind it. One scale covers the whole chart and is taken over every series including the hidden ones, so two bubbles the same size mean the same number wherever they are, and switching a series off does not resize the rest.
 
 Bubbles are painted largest first. A small bubble inside a big one is invisible if the big one is drawn on top of it, and the usual fix — half alpha on every fill — would undo the contrast the palette was solved for.
 

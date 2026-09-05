@@ -43,7 +43,7 @@ Every other `<div>` attribute passes through, and `render` swaps the element.
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## Why it is not a PlCard
+## PlBox or PlCard
 
 Everything structural — a title, a subtitle, a footer, hairlines between sections — belongs to [`PlCard`](./card), which is a box with those sections laid out on it. What is left here is the sheet itself, and it is worth having on its own because most of what a screen groups has no heading: a well behind a form, a tile in a shelf, a panel round a chart.
 

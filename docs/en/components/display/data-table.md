@@ -55,7 +55,7 @@ PlDataTable<Invoice>(
 
 :::
 
-## Which of the two to reach for
+## PlTable or PlDataTable
 
 [`PlTable`](table) draws a grid it is given. Reach for it when the rows are already in the order they belong in — a summary, a receipt, a comparison, anything the reader is not going to interrogate. <span v-pre>It renders on a server, which this cannot.</span>
 
@@ -289,7 +289,7 @@ Two slots inside the sheet, above the grid and below it, on the same rules the c
 
 They are inside the sheet rather than floating above and below it because they belong to the table: a "Delete 3" button that is not visibly part of the grid it is going to act on is a button whose scope the reader has to guess.
 
-## What it deliberately does not do
+## Out of scope
 
 **It does not virtualize.** A hundred thousand rows in one DOM is a slow page whichever component draws it, and the honest answer is `paging="pages"`, which is also the only shape that works when the rows are being fetched. A virtualized body is a different component with a different bargain — fixed row heights, a scrollbar that lies about its length — and hiding that inside this one would make every table pay for it.
 

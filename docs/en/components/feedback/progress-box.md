@@ -47,7 +47,7 @@ Every native `<div>` attribute passes straight through. `color` is excluded beca
 
 :::
 
-## When to reach for it
+## When to use it
 
 A bar and a ring both answer _how much of it is done_. A row of plates answers _this is working_, in the library's own vocabulary — the same groove, the same corner, the same gradient — which makes it the right one for a loading state **inside** a Plass surface, where a foreign grey spinner would look borrowed.
 

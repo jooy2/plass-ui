@@ -55,7 +55,7 @@ switch는 패키지의 다른 모든 컨트롤과 마찬가지로 **controlled**
 
 라이브러리 전체에서 공유 축(`size` `color`)이 뜻하는 바는 [prop 규칙](../../design/prop-conventions)에 있습니다.
 
-## Switch인가 checkbox인가
+## Switch와 checkbox 중 고르기
 
 차이는 생김새가 아니라 **시간**에 있습니다. checkbox는 form과 함께 제출되는 값이고, switch는 움직이는 순간 적용됩니다. 아래에 Save 버튼이 있다면 그것은 checkbox였어야 합니다.
 

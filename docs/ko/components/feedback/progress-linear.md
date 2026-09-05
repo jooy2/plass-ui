@@ -49,7 +49,7 @@ React가 옵션 객체를 받는 자리에서 `formatValue`는 함수를 받습�
 
 공유 축이 라이브러리 전체에서 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
 
-## 무엇으로 만들어졌나
+## 구성
 
 홈은 `--plass-track`입니다. [`PlSlider`](../inputs/slider)의 레일과 [`PlSwitch`](../inputs/switch)의 꺼진 트랙을 파낸 그 중립 잉크와 같은 것이라, slider와 switch와 progress bar가 한 폼에 있어도 재질이 셋이 아니라 하나입니다.
 

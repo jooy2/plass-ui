@@ -69,7 +69,7 @@ const PlAnimateFade(
 
 ### trigger
 
-들어오는 방법 네 가지이고, 공유 설정이 존재하는 이유이기도 합니다. `mount`는 caller에게 아무것도 요구하지 않습니다. `visible`은 요소가 화면 안으로 스크롤될 때까지 기다립니다 — 기다리는 동안 자기 첫 프레임에 멈춰 있으므로, 다 그려져 있다가 도착하는 순간 깜빡 사라졌다 다시 시작하는 일이 없습니다. `hover`는 포인터와 **focus** 양쪽에서 시작합니다. 그러지 않으면 마우스를 쥐고 있지 않은 사람에게는 닿지 않는 효과가 됩니다. `manual`은 혼자서는 절대 돌지 않고, `play`가 `false` → `true`가 될 때마다 처음부터 다시 돕니다.
+들어오는 방법 네 가지이고, 공유 설정이 있는 이유이기도 합니다. `mount`는 caller에게 아무것도 요구하지 않습니다. `visible`은 요소가 화면 안으로 스크롤될 때까지 기다립니다. 기다리는 동안 자기 첫 프레임에 멈춰 있으므로, 다 그려져 있다가 도착하는 순간 깜빡 사라지는 일이 없습니다. `hover`는 포인터와 **focus** 양쪽에서 시작합니다. 그러지 않으면 마우스가 없는 사람에게는 닿지 않는 효과가 됩니다. `manual`은 혼자 돌지 않고, `play`가 `false`에서 `true`로 바뀔 때마다 처음부터 다시 돕니다.
 
 <Demo src="animate-fade/triggers" :min-height="280">
 
@@ -139,7 +139,7 @@ const PlAnimateFade(
 
 </Demo>
 
-설정 네 가지는 뜻을 잃고 어중간하게 동작하는 대신 **무시됩니다**. `duration`, `delay`, `repeat`은 모두 시계의 것이고, `trigger`라는 개념 전체도 그렇습니다 — 스크롤 위치가 곧 트리거입니다. 그래서 트리거를 기다리며 일시정지된 채로 붙들려 있는 일도 없습니다. `duration`을 대신하는 것은 `range`입니다. CSS가 `animation-range`를 쓰는 그대로이고, 기본값 `entry 0% cover 45%`는 요소가 화면 한가운데 도착할 때가 아니라 아직 들어오는 중에 끝납니다.
+설정 네 가지는 뜻을 잃어서, 어중간하게 동작하는 대신 **무시됩니다**. `duration`, `delay`, `repeat`은 모두 시계의 것이고 `trigger`도 마찬가지입니다. 스크롤 위치가 곧 트리거이기 때문입니다. `duration`을 대신하는 것은 `range`입니다. CSS가 `animation-range`를 쓰는 방식 그대로이고, 기본값 `entry 0% cover 45%`는 요소가 화면 한가운데 닿을 때가 아니라 아직 들어오는 중에 끝납니다.
 
 `animation-timeline`이 없는 브라우저는 시계 기반 1회 재생으로 폴백하므로 내용은 그대로 도착합니다. **degraded는 되어도 blank는 안 됩니다.** 이것이 이 기능이 JavaScript로 재는 무언가가 아니라 `@supports` 뒤의 선언 두 줄인 이유입니다.
 
@@ -173,7 +173,7 @@ const PlAnimateFade(
 
 애니메이션은 자식을 감싼 래퍼가 아니라 자식 자신에게 쓰이므로, `<li>` 줄은 `<li>` 줄로 남고 그리드의 칸은 그리드의 직계 자식으로 남습니다. 대가는 자식이 `className`과 `style`을 받아야 한다는 것입니다. 받지 않는 자식은 애니메이션되지 않습니다. 문자열 하나는 쓸 요소가 없으므로, 유일하게 `<span>`으로 감싸집니다.
 
-키프레임 하나짜리 효과 여섯 개가 모두 이 셋을 받습니다. [`PlAnimateMarquee`](./animate-marquee), [`PlAnimateHeadline`](./animate-headline), [`PlAnimateTyping`](./animate-typing), [`PlAnimateLighting`](./animate-lighting)은 받지 않고, 받을 수도 없습니다. 앞의 셋은 이미 자식이 무엇인지 읽고 있고, 마지막은 움직임이 pseudo-element에 있어서 남의 자식에 얹을 방법이 없습니다. [`PlAnimateAppear`](./animate-appear)는 같은 이름의 같은 세 prop이고, `stagger`의 기본값만 `70`입니다. 간격이 없는 집합은 집합이 아니기 때문입니다.
+키프레임 하나짜리 효과 여섯 개가 모두 이 셋을 받습니다. [`PlAnimateMarquee`](./animate-marquee), [`PlAnimateHeadline`](./animate-headline), [`PlAnimateTyping`](./animate-typing), [`PlAnimateLighting`](./animate-lighting)은 받지 않습니다. 앞의 셋은 이미 자식을 읽고 있고, 마지막은 움직임이 pseudo-element에 있기 때문입니다. [`PlAnimateAppear`](./animate-appear)는 같은 이름의 세 prop에 기본값이 `70`인 `stagger`가 더해집니다.
 
 **`PlAnimateStagger`는 의도적으로 없습니다.** 간격은 효과가 아니라 차등이고, 래퍼는 효과들이 이미 말할 수 있는 것을 두 번째 방식으로 철자하는 일이 됩니다. `Pulse`(`blink` + `alternate`)와 `Bounce`(`grow` + `alternate`)를 라이브러리에 넣지 않는 것과 같은 규칙입니다.
 

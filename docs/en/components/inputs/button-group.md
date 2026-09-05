@@ -63,7 +63,7 @@ The five style axes have **no default of their own**: an axis the group does not
 
 What the shared axes (`variant` `size` `color` `density` `elevation`) mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## It is not a segmented control
+## PlButtonGroup or PlSegmentedButton
 
 The buttons stay real [`PlButton`](./button)s and nothing about them is replaced: the group squares four corners and hands down six props. It does not manage selection, it has no value, and none of its buttons is ever _the chosen one_.
 

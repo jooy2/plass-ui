@@ -51,7 +51,7 @@ Every native `<div>` attribute passes straight through. What the shared axes mea
 
 :::
 
-## One component, not four
+## One component
 
 An empty list, a search with no results, a request that failed and a flow that finished are the **same arrangement** — a mark, a line, a sentence, a way out — which is why they are one component. What tells them apart is `color`:
 
@@ -77,7 +77,7 @@ An empty list, a search with no results, a request that failed and a flow that f
 
 </Demo>
 
-## It draws no surface
+## No surface of its own
 
 An empty state is always **inside** something — a card, a table, a panel — and a sheet inside a sheet is two sheets. What this decides is the arrangement and the space around it.
 
@@ -99,7 +99,7 @@ An empty state is always **inside** something — a card, a table, a panel — a
 
 `PlTable`'s `empty` prop takes a node, and this is the node it was waiting for.
 
-## The way out
+## The action
 
 The one thing worth getting right. A screen that says "No projects" and stops is a dead end; the same screen with a "New project" button is the best moment in the whole flow to offer one — the reader is looking straight at the space the thing would go in.
 

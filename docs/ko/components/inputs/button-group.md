@@ -63,7 +63,7 @@ PlButtonGroup(
 
 공유 축(`variant` `size` `color` `density` `elevation`)이 라이브러리 전체에서 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
 
-## segmented control이 아닙니다
+## PlButtonGroup과 PlSegmentedButton
 
 버튼은 진짜 [`PlButton`](./button)으로 남고, 그 무엇도 대체되지 않습니다. 그룹이 하는 일은 모서리 넷을 깎고 prop 여섯 개를 물려주는 것뿐입니다. 선택 상태를 관리하지 않고, value도 없으며, 어느 버튼도 _고른 것_ 이 되지 않습니다.
 

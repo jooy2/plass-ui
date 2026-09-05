@@ -54,7 +54,7 @@ PlPageLayout(
 
 공용 축이 라이브러리 전체에서 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
 
-## 무엇을 위한 것인가
+## 범위
 
 landmark입니다. `<div>`만으로 조립한 페이지는 스크린 리더가 구분 없는 영역 하나로 내놓고 검색 엔진도 구분 없는 덩어리 하나로 읽는 페이지입니다. 같은 페이지를 `<header>`, `<nav>`, `<aside>`, `<main>`, `<footer>`로 지으면 목차가 있는 페이지가 됩니다.
 
@@ -142,7 +142,7 @@ sidebar가 열이기를 그만두고 drawer가 되는 너비입니다. `null`이
 
 ::: fw react
 
-## 바를 어떻게 재는가
+## 바를 재는 방법
 
 자기 자리를 지키는 sidebar는 header 아래에서 시작해야 하는데, 그 높이는 header 말고 아무도 모릅니다. 그래서 레이아웃은 두 바를 재서 창에서 얼마를 가져가는지 자기 root에 씁니다 — `--p-layout-header`와 `--p-layout-footer`, 그리고 각각의 `-inset`.
 

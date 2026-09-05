@@ -115,7 +115,7 @@ The library writes its edge, its shadow, its focus ring and its fill as Tailwind
 
 The custom property underneath does not, because an inline `style` beats every class there is. See [Setting a token from React](./color#setting-a-token-from-react).
 
-### Where a plain `className` loses
+### The limits of a plain `className`
 
 The order of two classes in an attribute means nothing. What decides is their order in the generated stylesheet, and Tailwind's sort is by _name_ — numeric scales ascending, everything else alphabetically — which has no relationship to what a caller intended.
 
@@ -135,7 +135,7 @@ Two ways out, both reliable:
 - **A token**, per the section above. It is the only channel that reaches an arbitrary property at all.
 - **The `!` modifier** — `shadow-none!`, `text-lg!`. Nothing in the library is `!important`, so an important utility always wins. The one place it is not optional is `PlTextLink`, whose `.plass-link.plass-link` rule outranks a single class whatever the order.
 
-### It also depends on which stylesheet you imported
+### The stylesheet you imported
 
 | Import | What decides a conflict |
 | --- | --- |
@@ -148,7 +148,7 @@ Base UI's own prop, passed through where it makes sense — `<PlButton render={<
 
 :::
 
-## What a state prop must not do
+## Rules for a state prop
 
 Three states exist and each has its own axis; a fourth that overlaps one of them is a bug in the API rather than in the styling.
 

@@ -101,7 +101,7 @@ Dart에는 태그 없는 union이 없으므로 base 값이 첫 위치 인자이�
 | [`PlPanes`](../components/layout/panes) [`PlTabs`](../components/surfaces/tabs) [`PlScrollZone`](../components/layout/scroll-zone) [`PlTimeline`](../components/display/timeline) [`PlStepper`](../components/navigation/stepper) | `orientation` |
 | [`PlStack`](../components/layout/stack) | `direction` |
 
-## 반응형 값이 어디서 풀리는가
+## 반응형 값이 풀리는 자리
 
 ::: fw react
 
@@ -151,6 +151,6 @@ CSS가 내릴 수 없는 결정을 위한 훅 셋입니다 — 항목을 몇 개
 
 :::
 
-## 사이드바가 이것으로 하는 일
+## PlSidebar의 breakpoint
 
 [`PlSidebar`](../components/layout/sidebar)는 `collapseBelow` 아래에서 드로어로 접힙니다. 위의 모든 것이 실제로 쓰인 예로 읽을 만합니다. 결정은 첫 페인트를 위한 CSS 미디어 쿼리 **그리고** 그 이후를 위한 JavaScript `matchMedia` 둘 다입니다. 서버가 보내는 마크업은 열이고, 폰이 그것을 그렸다가 버리면 안 되기 때문입니다.

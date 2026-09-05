@@ -47,7 +47,7 @@ PlHowToSteps(
 
 라이브러리 전체에서 공유 축이 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
 
-## 어디인지, 아니면 무엇을 할지
+## PlHowToSteps, PlStepper, PlTimeline 중 고르기
 
 순서를 다루는 컴포넌트가 셋 있고, 차이는 그림이 아닙니다.
 

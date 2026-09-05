@@ -48,7 +48,7 @@ PlDataList(
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## One thing and its fields
+## PlDataList, PlTable or PlList
 
 Three components lay out rows of text, and they answer different questions.
 

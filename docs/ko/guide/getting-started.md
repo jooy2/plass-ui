@@ -81,7 +81,7 @@ import 'plass-ui/styles.css';
 | `@import 'tailwindcss'` | Tailwind 자체 |
 | `@import 'plass-ui/tailwind.css'` | 디자인 토큰, `.plass-glow` 레이어, 패키지를 등록하는 `@source` |
 
-이 경로에서도 `@source`를 직접 쓸 필요는 없습니다. Plass 컴포넌트가 쓰는 클래스는 Tailwind utility이므로 Tailwind가 패키지의 컴파일된 파일을 읽어야 하는데, `plass-ui/tailwind.css`가 자기 안에 `@source '.'`를 선언해 그 일을 대신합니다. `@source`는 자신이 쓰인 파일을 기준으로 경로를 풉니다. 여기서는 `node_modules/plass-ui/dist/`, 즉 그 파일들 바로 옆입니다. 명시적으로 등록된 source는 `node_modules` 안이라도 스캔됩니다. 자동 탐지는 그곳을 건너뜁니다.
+이 경로에서도 `@source`를 직접 쓸 필요는 없습니다. Plass 컴포넌트가 쓰는 클래스는 Tailwind utility여서 Tailwind가 패키지의 컴파일된 파일을 읽어야 하는데, `plass-ui/tailwind.css`가 자기 안에 `@source '.'`를 선언해 그 일을 대신합니다. `@source`는 자신이 쓰인 파일을 기준으로 경로를 풉니다. 여기서는 그 파일들 바로 옆인 `node_modules/plass-ui/dist/`입니다. 등록된 source는 `node_modules` 안이라도 스캔되고, 자동 탐지는 그곳을 건너뜁니다.
 
 이 경로에는 reset이 들어 있지 않습니다. Preflight가 이미 reset이기 때문입니다.
 
@@ -119,7 +119,7 @@ PlassTheme(
 )
 ```
 
-### 위쪽에 하나만은 필요합니다
+### 위쪽에 필요한 provider 하나
 
 네 개의 컴포넌트가 자기를 트리 밖으로 들어 올립니다 — `PlModal`, `PlOverlay`, `PlTooltip`, 그리고 `PlSelect`의 목록. 들어 올려진 표면에는 들어갈 `Overlay`가 필요합니다. `MaterialApp`에도, navigator가 있는 `WidgetsApp`에도 하나 있습니다. 둘 다 아닌 앱은 직접 두면 됩니다.
 
@@ -250,7 +250,7 @@ import 'plass-ui/styles.css';
 
 그 밖에 설정할 것은 없습니다. `transpilePackages`도, `next.config` 항목도, provider도 필요 없습니다. `dist/`는 모든 상대 경로 import에 `.js`가 붙은 컴파일된 ESM이고, 이는 bundler와 Node의 resolver, server render가 모두 똑같이 읽는 형태입니다.
 
-`PlTable`은 예외이고, 의도한 예외입니다. **directive가 없어서 Server Component가 통째로 렌더링합니다.** 이 컴포넌트는 모든 컬럼이 `render` 콜백이라, 위의 규칙을 그대로 적용하면 표가 가장 어울리는 페이지 — 자기 행을 직접 가져오는 페이지 — 에서 쓸 수 없게 됩니다. 클라이언트 쪽에서 부를 때 달라지는 것은 없습니다. 최상단에 `'use client'`가 있는 모듈이 `PlTable`을 import하면, 다른 무엇을 import할 때와 똑같이 client component가 됩니다.
+`PlTable`은 의도한 예외입니다. **directive가 없어서 Server Component가 통째로 렌더링합니다.** 이 컴포넌트는 모든 컬럼이 `render` 콜백이라, 위의 규칙을 그대로 적용하면 표가 가장 어울리는 페이지, 곧 자기 행을 직접 가져오는 페이지에서 쓸 수 없게 됩니다. 클라이언트 쪽에서 부를 때 달라지는 것은 없습니다. 최상단에 `'use client'`가 있는 모듈이 `PlTable`을 import하면 다른 무엇과 똑같이 client component가 됩니다.
 
 ```tsx
 // app/invoices/page.tsx — 여전히 Server Component
@@ -299,7 +299,7 @@ PlassTheme(brightness: Brightness.dark, child: ...)
 
 :::
 
-한 가지는 테마를 따라 **바뀌지 않고**, 그건 의도된 것입니다. 바로 키의 색입니다. [색](../design/color#키의-색은-테마를-따라-바뀌지-않습니다)을 보세요.
+한 가지는 테마를 따라 **바뀌지 않고**, 그건 의도된 것입니다. 바로 키의 색입니다. [색](../design/color#테마가-바뀌어도-같은-키-색)을 보세요.
 
 ## Next
 

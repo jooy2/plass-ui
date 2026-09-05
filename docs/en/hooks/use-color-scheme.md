@@ -79,7 +79,7 @@ It renders nothing but a `<script>`, calls no hook and reads no context, so it s
 | `defaultScheme` | `'system'`             | Must match the hook's                |
 | `nonce`         | —                      | For a strict Content Security Policy |
 
-## What it writes
+## Where the preference is stored
 
 Both the `data-theme` attribute **and** the class, on `<html>`:
 

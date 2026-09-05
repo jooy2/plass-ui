@@ -53,7 +53,7 @@ PlHeader(
 
 공용 축(`variant` `size` `color` `density` `elevation`)이 라이브러리 전체에서 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
 
-## 태그만 바꾼 PlToolbar가 아닙니다
+## PlHeader와 PlToolbar
 
 [`PlToolbar`](../surfaces/toolbar)는 화면 어디에나 놓이는 컨트롤의 행이고, 높이는 padding만으로 정해집니다. header는 페이지의 **banner**입니다. 높이 하한, measure, brand 슬롯, 그리고 [`PlPageLayout`](./page-layout) 안의 자리를 갖는데, 표 옆에 놓인 컨트롤 행에는 그중 어느 것도 뜻이 없습니다.
 

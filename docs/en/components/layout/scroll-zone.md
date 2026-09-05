@@ -52,9 +52,9 @@ Every other `<div>` attribute passes through to the root.
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## What it is made of
+## Composition
 
-The mechanism is an **ordinary scroll container**, and everything the component offers is a way of driving one. Swiping, two-finger dragging on a trackpad and the scrollbar are the platform's own and are never intercepted; what is added on top is a pair of buttons for the pointer that has neither a wheel nor a finger, a mouse drag for the strip that reads as something to pull rather than something to page, and the vertical wheel a horizontal strip would otherwise have no use for.
+The mechanism is an **ordinary scroll container**, and everything the component offers is a way of driving one. Swiping, two-finger dragging on a trackpad and the scrollbar are the platform's own and are never intercepted. What is added on top is a pair of buttons for a pointer with neither a wheel nor a finger, a mouse drag that reads as pulling the strip rather than paging it, and the vertical wheel a horizontal strip would otherwise ignore.
 
 Nothing is transformed. A translated track would have to argue for an exception to the [house rule](../../design/design-language); a scroll offset does not — and it is also what makes the strip run the other way under RTL without being told, and keeps the scrollbar honest.
 
@@ -66,7 +66,7 @@ It draws **no sheet of its own**, and there is no `elevation` to give it one. A 
 
 `orientation` decides which way the strip runs and therefore which way it scrolls. `lines` is how many rows a horizontal zone fills before it starts a new column — two lines hold twice as much in the same width, and the strip is still one scroll.
 
-**It is responsive**, so a set can run one way on a phone and the other on a laptop. <Fw react="It is resolved in JavaScript rather than in CSS — an orientation decides the DOM, the ARIA and the way the arrow keys walk, and no stylesheet can do that, so a server renders the xs entry and the browser corrects it on hydration; a bare value subscribes to nothing at all." flutter="It is resolved against the window's width in build, so it is right on the first frame — and it is the window's width rather than this widget's own box, which is what makes two of these side by side agree about which rung they are on." /> See [breakpoints](../../design/breakpoints).
+**It is responsive**, so a set can run one way on a phone and the other on a laptop. <Fw react="A server renders the xs entry and the browser corrects it on hydration." flutter="It is resolved against the window's width during build, so the first frame is already right." /> See [breakpoints](../../design/breakpoints).
 
 `spacing` is the gap between children.
 
@@ -100,7 +100,7 @@ It is a length in logical pixels. Dart has no `rem`, and every other measurement
 
 ### buttons and snap
 
-`auto` — the default — draws neither button while everything fits, because a row that does not overflow is not a scroller. Once it is one, both are drawn and the one with nowhere to go is disabled, exactly as `always` draws it: what `auto` decides is whether the strip has scroll buttons at all, not which of them exists this second. `always` draws both from the first paint, which is what a strip whose content arrives later wants. `none` draws neither and leaves the strip to the wheel, the arrow keys and dragging.
+`auto`, the default, draws neither button while everything fits. Once the row overflows, both are drawn and the one with nowhere to go is disabled, exactly as `always` draws it: `auto` decides whether the strip has scroll buttons at all, not which of them exists this second. `always` draws both from the first paint, which is what a strip whose content arrives later needs. `none` draws neither and leaves the strip to the wheel, the arrow keys and dragging.
 
 `snap` brings the nearest child to the leading edge whenever the scrolling stops, however it was scrolled.
 
@@ -124,7 +124,7 @@ It is a length in logical pixels. Dart has no `rem`, and every other measurement
 
 `inline` — the default — puts the buttons beside the strip: the scroller stops where the button starts, so an item is **cut off** at the button's edge rather than sliding beneath it, and the button is legible over the page rather than over whatever it landed on. `overlay` puts them over the ends of the strip instead, which keeps every pixel of the box for content and lets an item pass under a button.
 
-An inline button keeps its lane even while it has nowhere to go, or the strip would resize under the pointer that had just reached the end of it — and it is **drawn in that lane, disabled**, rather than held invisible. The lane is paid for either way, and a reserved empty one beside a strip does not read as restraint; it reads as odd padding on one side of the box. An `overlay` button is the other case and goes: there is no lane to keep, so removing it costs nothing.
+An inline button keeps its lane even while it has nowhere to go, or the strip would resize under the pointer that had just reached the end of it. It is **drawn in that lane, disabled**, rather than held invisible: the lane is paid for either way, and a reserved empty one beside a strip reads as odd padding on one side of the box. An `overlay` button has no lane to keep, so it is removed instead.
 
 <Demo src="scroll-zone/placement" :min-height="300">
 

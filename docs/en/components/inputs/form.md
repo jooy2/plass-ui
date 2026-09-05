@@ -62,7 +62,7 @@ What a field and a submit button read off the form around them. It is exported r
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## It is not a form library
+## Scope
 
 There is no schema here, no resolver and no field array. A project that wants those keeps the one it already has and hands the result to `errors`, which is the seam this component is built around.
 

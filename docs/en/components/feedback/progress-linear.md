@@ -49,7 +49,7 @@ There is no `variant`, no `density` and no `elevation`. An indicator is one mate
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## What it is made of
+## Composition
 
 The groove is `--plass-track`, the same neutral ink a [`PlSlider`](../inputs/slider)'s rail and a [`PlSwitch`](../inputs/switch)'s off state are cut in — so a form with a slider, a switch and a progress bar in it is made of one material rather than three.
 

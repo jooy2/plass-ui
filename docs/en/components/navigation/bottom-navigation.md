@@ -70,13 +70,13 @@ An item takes no `size`, `color` or `variant` of its own. All three belong to th
 
 ## Examples
 
-### Why it is not a tab list
+### Links and landmarks
 
 A tab list owes a keyboard reader one tab stop for the whole set and arrow keys within it, and it owes a screen reader a panel per tab. A bottom navigation does neither of those things: it switches what the _page_ is. Claiming the role without the behaviour is worse for a keyboard reader than never claiming it at all.
 
 What is claimed instead is `aria-current`, which is the honest statement — this is the destination you are on. Never `aria-pressed`, which would make it a toggle.
 
-### Where it sits
+### Placement
 
 ::: fw react
 

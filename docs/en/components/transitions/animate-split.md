@@ -43,7 +43,7 @@ A character part breaks the shaping between letters. **Arabic stops joining**, D
 
 `word` has none of those problems, is the default, and is what a headline wants anyway: a word arriving is something a reader can follow, and a letter arriving is decoration.
 
-## The gaps are not parts
+## Gaps and parts
 
 Whitespace is left as whitespace and never given an entrance of its own — animating the space between two words is nothing arriving — and it does not take a step of the stagger with it either. The second word starts one step after the first, not two.
 
@@ -53,7 +53,7 @@ Each part is `inline-block`, because a transform does not apply to a non-replace
 
 :::
 
-## How the entrance is spelled
+## Writing the entrance
 
 ::: fw react
 

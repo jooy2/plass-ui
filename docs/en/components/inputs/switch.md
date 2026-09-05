@@ -55,7 +55,7 @@ There is no `variant`, for the reason a `PlCheckbox` has none: on and off are no
 
 What the shared axes (`size` `color`) mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## Switch or checkbox?
+## Switch or checkbox
 
 The difference is not visual, it is **temporal**. A checkbox is a value that gets submitted with a form; a switch takes effect the moment it moves. If there is a Save button underneath, it should have been a checkbox.
 

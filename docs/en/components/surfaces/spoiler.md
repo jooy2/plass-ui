@@ -46,7 +46,7 @@ Every other `<div>` attribute passes through to the sheet.
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## Why a blur and not a hidden box
+## The cover
 
 The cover is a **blur**, and that is the whole design. A reader can see that there is something there, roughly how much of it there is, and — with `maxHeight` — that it has been clamped. What they cannot do is read it by accident, which is the one thing a spoiler is for.
 
@@ -54,7 +54,7 @@ Blur alone is not cover, though. It takes a paragraph apart but leaves its colou
 
 A short spoiler is as tall as its own cover, not as tall as its content: the two share one cell, so a one-line spoiler does not clip the button it is asking somebody to press.
 
-## The sheet does not change height
+## Height on reveal
 
 Covering and uncovering moves nothing on the page around it. Both of the things that could move it are held instead of removed: the cover keeps its cell, and the `reversible` hide row keeps its own. Neither is taken out of the layout on the way in and put back on the way out.
 

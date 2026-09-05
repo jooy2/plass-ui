@@ -76,7 +76,7 @@ It carries no `variant`, no `size` and no `density`, and could not. A segmented 
 
 What the shared axes (`variant` `size` `color` `density` `elevation`) mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## Segmented button, tabs or select?
+## Segmented button, tabs or select
 
 - **Segmented button** — a handful of short, mutually exclusive choices that filter what is already on screen: a period, a scope, a layout.
 - **Tabs** — the choice swaps whole panels of content.

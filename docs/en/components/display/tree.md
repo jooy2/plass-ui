@@ -112,7 +112,7 @@ The twisty **turns** over the house duration rather than jumping between its two
 
 That is what makes a lazily-loaded tree possible: give a folder an empty array, and fill it in when `onExpandedChange` says it was opened.
 
-### How a branch opens
+### Opening a branch
 
 A branch **travels** over the same 260ms an [accordion](../surfaces/accordion) or a [collapsible](../surfaces/collapsible) panel does, clipped rather than squashed while it moves — what is moving in all three cases is the page under the row somebody just pressed. Folds nest exactly: an outer branch at rest is sized to whatever it currently holds, so an inner one opening inside it is contained frame for frame with nothing to catch up to.
 

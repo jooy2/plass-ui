@@ -49,13 +49,13 @@ Every other `<div>` attribute passes through to the sheet.
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## Why it is not an accordion
+## PlCollapsible or PlAccordion
 
 A [`PlAccordion`](./accordion) is a **set**, and the set is the point: closing the last section as the next opens is what keeps the page from growing under the reader. A collapsible has nobody to coordinate with.
 
 Reach for this for a "Show more" on a form, an optional block of settings, the details under a row. Reach for an accordion the moment there are two of them and only one should be open at a time.
 
-## The panel is a window
+## How the panel opens
 
 The panel's height **is** animated, which looks like an exception to the [rule against moving things](../../design/design-language) and is not: nothing is transformed, no text is resampled, and the content does not shift relative to the panel it is in — the panel is a window opening onto it.
 

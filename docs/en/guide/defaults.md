@@ -36,11 +36,11 @@ PlassTheme.merge(
 );
 ```
 
-**Reach for `PlassTheme.merge`, not the plain constructor.** The constructor _replaces_ the defaults in scope and `merge` keeps the ones above it — exactly as `DefaultTextStyle` replaces a style and `DefaultTextStyle.merge` merges one, and for the same reason: an `InheritedWidget` has no context of its own to read an ancestor with, so merging has to happen where there _is_ one. `merge` keeps the brightness in scope too, so a section of a dark screen can be made compact without going light.
+**Use `PlassTheme.merge`, not the plain constructor.** The constructor _replaces_ the defaults in scope; `merge` keeps the ones above it. It is the same split as `DefaultTextStyle` and `DefaultTextStyle.merge`, for the same reason: an `InheritedWidget` has no context of its own to read an ancestor with, so merging has to happen where there is one. `merge` keeps the brightness in scope too, so a section of a dark screen can be made compact without going light.
 
 :::
 
-## What it sets
+## The settings
 
 |                |                                                                             |
 | -------------- | --------------------------------------------------------------------------- |
@@ -63,7 +63,7 @@ It carries one more thing that is not a default: **the reading direction**. See 
 
 :::
 
-## What it does not set, and why
+## Deliberate omissions
 
 **`variant` and `elevation` are deliberately absent**, and this is the part worth reading before filing it as a gap.
 

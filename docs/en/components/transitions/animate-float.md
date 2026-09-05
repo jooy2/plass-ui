@@ -37,7 +37,7 @@ const PlAnimateFloat(child: EmptyStateMark());
 
 What the shared animation props mean is on any of the other [transitions](./animate-fade).
 
-## Not an entrance
+## A continuous loop
 
 The rest of this group answers "how does this content arrive". This one answers "what does weightless look like", and three things follow from that.
 

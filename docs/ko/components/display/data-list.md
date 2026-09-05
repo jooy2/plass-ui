@@ -48,7 +48,7 @@ PlDataList(
 
 라이브러리 전체에서 공유 축이 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
 
-## 하나와 그 필드들
+## PlDataList, PlTable, PlList 중 고르기
 
 글줄을 늘어놓는 컴포넌트가 셋 있고, 서로 다른 질문에 답합니다.
 

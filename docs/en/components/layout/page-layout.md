@@ -54,7 +54,7 @@ The layout fills the space it is given — a header, an [`Expanded`](https://api
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## What it is for
+## Scope
 
 The landmarks. A page assembled out of `<div>`s is a page a screen reader offers as one undifferentiated region and a search engine reads as one undifferentiated blob; the same page built out of `<header>`, `<nav>`, `<aside>`, `<main>` and `<footer>` is a page with a table of contents.
 
@@ -142,7 +142,7 @@ The layout also owns whether each drawer is open, so a route change can close on
 
 ::: fw react
 
-## How a bar is measured
+## Measuring the bars
 
 A sidebar that holds its place has to start below a header whose height nobody but the header knows, so the layout measures the two bars and writes what they take out of the window onto its own root: `--p-layout-header` and `--p-layout-footer`, plus an `-inset` for each.
 

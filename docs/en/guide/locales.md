@@ -86,7 +86,7 @@ The packs are a **library of their own**, imported separately from `plass_ui.dar
 
 The list is short on purpose. A pack is worth shipping when somebody who reads the language has read it, so this is the list that has been read rather than the list a machine could produce.
 
-## Why an import and not a lookup
+## Importing a pack
 
 ::: fw react
 
@@ -180,9 +180,9 @@ It answers `PlassLabels.english` when no theme has decided.
 
 :::
 
-## A word is a meaning, not a component
+## Key names
 
-The set is one flat list, and a key is named after what it means rather than after the component that says it. `close` is the × on a modal, a drawer, a popover and a toast, and it is translated once. A key exists per component only where the word genuinely differs: a pager's `paginationNext` moves by a page, a carousel's `carouselNext` moves by a slide, and a language that distinguishes those two has somewhere to put the distinction.
+The set is one flat list, and a key is named after what it means rather than after the component that says it. `close` is the × on a modal, a drawer, a popover and a toast, translated once. A key exists per component only where the word genuinely differs: a pager's `paginationNext` moves by a page and a carousel's `carouselNext` moves by a slide, so a language that distinguishes the two has somewhere to put the distinction.
 
 ## Adding a language
 

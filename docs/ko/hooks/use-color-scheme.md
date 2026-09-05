@@ -79,7 +79,7 @@ export default function RootLayout({ children }) {
 | `defaultScheme` | `'system'`             | hook의 것과 같아야 합니다        |
 | `nonce`         | —                      | 엄격한 Content Security Policy용 |
 
-## 무엇을 쓰는가
+## 설정이 저장되는 곳
 
 `<html>`에 `data-theme` 속성 **과** 클래스 둘 다입니다.
 
@@ -127,4 +127,4 @@ label은 상태가 아니라 누르면 **무슨 일이 일어나는지**를 말�
 - 다른 탭에서 scheme을 바꾸면 이 탭도 바뀝니다. 사용자가 이 창이 아니라 자기 자신에 대해 내린 결정이기 때문입니다.
 - 던지는 저장소 — sandbox된 frame, 사이트 데이터를 막아 둔 브라우저 — 는 잡습니다. 선택이 새로 고침을 넘기지 못할 뿐이고, 그것이 올바른 실패입니다.
 - 스타일시트가 `color-scheme`도 설정하므로 브라우저 자신의 가구 — 스크롤바, 캐럿, 네이티브 `<select>` 팝업 — 도 페이지와 함께 바뀝니다. 옆에 흰 스크롤바가 있는 어두운 페이지는 테마가 입혀진 것이 아니라 고장 난 것처럼 보입니다.
-- 이것은 theme API가 아닙니다. 색 자체는 CSS custom property이고, 그것을 바꾸는 자리는 [Colour](../design/color#overriding-a-family)입니다.
+- 이것은 theme API가 아닙니다. 색 자체는 CSS custom property이고, 그것을 바꾸는 자리는 [Colour](../design/color#계열-덮어쓰기)입니다.

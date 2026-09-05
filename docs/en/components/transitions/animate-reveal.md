@@ -66,7 +66,7 @@ Three more move the effect off the box and onto the things inside it: `stagger` 
 
 :::
 
-## Which entrance this is
+## Choosing an entrance
 
 The set has five other ways of arriving, and each of them changes something about the element while it does it. This one changes **how much of the element is drawn** and nothing else.
 

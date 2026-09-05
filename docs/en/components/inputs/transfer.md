@@ -57,7 +57,7 @@ Every native `<div>` attribute passes straight through. `color` is excluded beca
 
 What the shared axes (`variant` `size` `color` `density` `elevation`) mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## When this is the right control
+## When to use it
 
 For a choice that is **long**. A [`PlCombobox`](./combobox) with forty chips in its field stops being readable, and a list of forty checkboxes gives no answer to "what did I actually pick".
 

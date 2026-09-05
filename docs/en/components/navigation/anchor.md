@@ -55,7 +55,7 @@ PlAnchor(
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## The tracking is the component
+## Tracking
 
 Anyone can draw a list of links. What is worth writing once is deciding **which one is lit**, and the rule is not the obvious one.
 
@@ -90,7 +90,7 @@ Without it a heading goes on counting as the **next** one after it has already s
 
 :::
 
-## What it takes, and why it is data
+## The items array
 
 The headings arrive as an **array**, which is the opposite of most of this library. A table of contents is generated — from a Markdown file, from a CMS, from the document's own headings — and the thing that generates it produces a flat list, in document order, with a level on each entry.
 
