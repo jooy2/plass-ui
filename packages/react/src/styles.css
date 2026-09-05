@@ -2331,6 +2331,32 @@
   grid-template-columns: repeat(var(--p-cols, 2), minmax(0, 1fr));
 }
 
+/*
+ * What holds a justified gallery's last row down.
+ *
+ * Every tile is grown in proportion to its own width, which is what makes a row
+ * come out one height once it has been stretched to the edge. The last row is
+ * the exception: it has fewer tiles and the same width to share, so they stretch
+ * further than any row above them — one leftover photograph ends up filling the
+ * whole width and standing two or three times as tall as the gallery it belongs
+ * to.
+ *
+ * An empty `::after` with an absurd `flex-grow` eats the leftover width instead,
+ * so the real tiles keep their basis and the row lands at the height it was
+ * aiming for. It has to be a pseudo-element rather than a filler item: the list
+ * is a `<ul>` with `role="list"`, and an extra `<li>` would be an extra item in
+ * it — a photograph that is not there, counted by every screen reader that
+ * announces how many there are.
+ *
+ * It costs a row of nothing when the last row happens to be full, which is why
+ * the flex-basis is zero.
+ */
+.plass-gallery-justified::after {
+  content: '';
+  flex-grow: 1000000;
+  flex-basis: 0;
+}
+
 /* ---------------------------------------------------------------------------
  * Reduced motion
  *

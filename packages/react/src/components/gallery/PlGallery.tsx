@@ -483,7 +483,7 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
           aria-label={name}
           className={cx(
             'plass-gallery m-0 list-none p-0',
-            layout === 'justified' ? 'flex flex-wrap' : '',
+            layout === 'justified' ? 'plass-gallery-justified flex flex-wrap' : '',
             layout === 'masonry' ? 'flex items-start' : '',
             layout === 'grid' ? 'plass-gallery-grid grid' : '',
             layout === 'quilted' ? 'plass-gallery-quilted grid' : '',

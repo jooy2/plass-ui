@@ -21,9 +21,13 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlButton, PlLineChart, PlScatterChart, PlStack, PlTextField } from 'plass-ui';
+import { PlButton, PlGallery, PlLineChart, PlScatterChart, PlStack, PlTextField } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
 import pkg from '../../package.json';
+
+/** A one-pixel PNG, so the gallery's tiles need no network to lay out. */
+const OK =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
 
 let sheet: HTMLStyleElement;
 
@@ -385,6 +389,51 @@ describe('plass-ui/styles.css', () => {
 
       for (const colour of rings) {
         expect(colour).not.toBe('none');
+      }
+    });
+  });
+
+  describe('a justified gallery’s last row', () => {
+    /*
+     * A layout guarantee that lives entirely in the stylesheet, so it can only
+     * be tested where the stylesheet is loaded.
+     *
+     * Every tile in a justified gallery is grown in proportion to its own
+     * width, which is what makes a row come out one height once it has been
+     * stretched to the edge. The last row has fewer tiles and the same width to
+     * share, so without something to eat the slack it stretches further than
+     * every row above it — one leftover photograph standing two or three times
+     * as tall as the gallery it belongs to.
+     */
+    const items = Array.from({ length: 7 }, (_, index) => ({
+      id: String(index),
+      src: OK,
+      alt: `Photograph ${index + 1}`,
+      ratio: 1.5
+    }));
+
+    it('does not stretch past the rows above it', async () => {
+      const screen = await render(
+        <div style={{ width: 700 }}>
+          <PlGallery items={items} layout="justified" rowHeight={180} label="Set" />
+        </div>
+      );
+
+      const list = screen.getByRole('list', { name: 'Set' });
+
+      await expect.element(list).toBeInTheDocument();
+
+      const tiles = [...list.element().querySelectorAll(':scope > li')];
+      const heights = tiles.map((tile) => tile.getBoundingClientRect().height);
+      const last = heights.at(-1)!;
+      const rest = heights.slice(0, -1);
+
+      expect(rest.length).toBeGreaterThan(0);
+
+      // Never taller than a full row: the slack goes to the filler, not to the
+      // one photograph that happened to be left over.
+      for (const height of rest) {
+        expect(last).toBeLessThanOrEqual(height + 1);
       }
     });
   });
