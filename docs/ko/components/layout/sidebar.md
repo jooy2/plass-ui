@@ -84,7 +84,7 @@ PlPageLayout(
 
 ### collapseBelow
 
-열이 drawer가 되는 창 너비입니다. 기본값은 레이아웃 자신의 `collapseBelow`이고, 레이아웃 밖에서는 `none`입니다 — 되돌릴 방법이 페이지에 없는 채로 접히는 sidebar는 독자가 잃어버린 sidebar이기 때문입니다.
+열이 drawer가 되는 창 너비입니다. 기본값은 레이아웃 자신의 `collapseBelow`이고, 레이아웃 밖에서는 `none`입니다. 되돌릴 방법이 페이지에 없는 채로 접히는 sidebar는 독자가 잃어버린 sidebar이기 때문입니다.
 
 되돌리는 것이 `PlSidebarTrigger`입니다. [`PlHeader`](./header)의 `brand` 슬롯, 로고 앞에 두세요. 30년의 햄버거가 독자에게 거기를 보라고 가르쳐 온 자리입니다. 상태가 아니라 **같은 media query**로 숨겨지므로, 페이지가 도착하고 잠시 뒤에 튀어나오는 대신 서버가 보내는 마크업에 들어 있습니다.
 
@@ -112,7 +112,7 @@ PlPageLayout(
 
 끌어서 정해진 너비는 state가 아니라 요소에 곧바로 씁니다. 그 숫자에 의존하는 것은 CSS 선언 하나뿐이고, 포인터가 움직일 때마다 `setState`를 하면 패널의 모든 행이 다시 그려집니다. 호출하는 쪽은 `onResize`로 매 단계를 그대로 듣습니다.
 
-손잡이는 가장자리 안이 아니라 가장자리를 걸치고 있습니다 — 1px 헤어라인은 1px짜리 표적이니까요. 스크롤바가 하는, 그려지는 것과 잡을 수 있는 것 사이의 같은 분리입니다.
+손잡이는 가장자리 안이 아니라 가장자리를 걸치고 있습니다. 1px 헤어라인은 1px짜리 표적이기 때문입니다. 스크롤바가 하는, 그려지는 것과 잡을 수 있는 것 사이의 같은 분리입니다.
 
 <Demo src="sidebar/resizable" :min-height="260">
 
@@ -134,7 +134,7 @@ PlPageLayout(
 
 세 재질을 **컨테이너**로 읽은 것입니다. 패널에는 색이 들어가지 않습니다. sidebar에 얹히는 것은 누군가의 내비게이션이고, 그것이 자기 색을 갖고 옵니다.
 
-`divider`는 **안쪽** 가장자리 — 콘텐츠를 마주하는 쪽 — 를 긋습니다. 바깥쪽 가장자리는 창을 향하고 있고, 그 너머에는 구분할 것이 없습니다.
+`divider`는 **안쪽** 가장자리(콘텐츠를 마주하는 쪽)를 긋습니다. 바깥쪽 가장자리는 창을 향하고 있고, 그 너머에는 구분할 것이 없습니다.
 
 <Demo src="sidebar/variants" :min-height="220">
 
@@ -167,11 +167,11 @@ PlPageLayout(
 | React | Flutter | 이유 |
 | --- | --- | --- |
 | 창 너비 기준의 `collapseBelow`, 기본값은 레이아웃의 것 | 같지만, 레이아웃의 답은 **자기 너비** 기준 | `LayoutBuilder`는 레이아웃이 받은 constraints를 보고, media query는 창만 봅니다. 여기에 값을 주면 창을 재게 되며, 그것이 곧 재정의입니다. |
-| `'none'` | `null` | "정해 둔 하한이 없다"를 Dart가 말하는 방식입니다. |
+| `'none'` | `null` | "정해 둔 하한이 없다"를 Dart가 나타내는 방식입니다. |
 | media query로 숨기는 trigger | 아예 만들지 않는 trigger | 웹에서 그 클래스는 서버가 보내는 마크업에 버튼을 남겨 두기 위한 것입니다. 여기에는 붙들 첫 페인트가 없습니다. |
 | `sticky` | — | 열은 레이아웃이 준 band만큼 높습니다. 자리를 지킬 문서 스크롤이라는 것이 없습니다. |
 | `aria-label`로 물러나는 `title` | `semanticLabel`로 물러나고 **그려지는** `title` | `PlDrawer`는 자기가 그리는 것으로 불리므로, 영역의 이름이 보이지 않는 라벨이 아니라 제목이 됩니다. |
-| `aria-valuenow`를 가진 `role="separator"` 손잡이 | 논리 픽셀 값을 가진 `Semantics(slider: true)` 손잡이 | Flutter semantics에는 separator role도 `valuenow`도 없습니다. 손잡이는 실제로 그것인 것 — 값을 올리고 내릴 수 있는 컨트롤 — 이 됩니다. |
+| `aria-valuenow`가 붙은 `role="separator"` 손잡이 | 논리 픽셀 값이 붙은 `Semantics(slider: true)` 손잡이 | Flutter semantics에는 separator role도 `valuenow`도 없습니다. 손잡이는 실제로 그것인 것(값을 올리고 내릴 수 있는 컨트롤)이 됩니다. |
 | 요소에 직접 쓰는 너비 | `ValueNotifier`에 담은 너비 | 같은 결정의 다른 철자입니다. 그 숫자에 의존하는 것은 상자 하나뿐이고, 포인터가 움직일 때마다 패널을 다시 지으면 그 안의 모든 행이 다시 지어집니다. |
 | `label` | `semanticLabel` | Flutter의 이름입니다. |
 | `className`, `style`, 네이티브 속성 | — | 전달할 class 목록도 style 속성도 없습니다. |
@@ -193,10 +193,10 @@ PlPageLayout(
 
 ::: fw flutter
 
-- 열은 `SemanticsRole.complementary`를 주장합니다. 반대쪽의 `<aside>` 태그가 지니는 것과 같은 landmark입니다.
+- 열은 `SemanticsRole.complementary`를 선언합니다. 반대쪽의 `<aside>` 태그가 지니는 것과 같은 landmark입니다.
 - `semanticLabel`이 이름이고 기본값은 `Sidebar`입니다. sidebar가 둘인 화면은 각각에 이름을 **반드시** 줘야 합니다. Flutter는 라벨 없이 중복된 landmark를 대놓고 거부합니다.
 - 접힌 상태에서는 `PlDrawer`입니다. focus가 갇히고, barrier가 닫고, focus는 열었던 것으로 돌아갑니다.
 - 크기 조절 손잡이는 너비를 값으로 갖는 `Semantics(slider: true)`이고, `onIncrease` / `onDecrease`가 화살표 키와 같은 단계에 연결되어 있습니다. 포인터 없이도 스크린 리더가 가장자리를 옮길 수 있습니다.
-- trigger는 누르면 무엇이 일어나는지 말해 주는 이름을 가진 진짜 `PlIconButton`입니다.
+- trigger는 누르면 무엇이 일어나는지 말해 주는 이름이 붙은 진짜 `PlIconButton`입니다.
 
 :::

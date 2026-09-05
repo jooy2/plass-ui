@@ -5,7 +5,7 @@ order: 4
 
 # 브레이크포인트
 
-<p class="plass-lede">이름 다섯, 너비 넷, 그리고 그것이 적힌 자리 하나. 창의 너비에 따라 달라지는 라이브러리의 모든 것이 같은 사다리를 읽습니다. 여러분의 <code>md:</code> 유틸리티까지 포함해서요. 그게 핵심입니다.</p>
+<p class="plass-lede">이름 다섯 개, 너비 네 개, 그리고 그것을 적어 둔 자리 하나입니다. 창 너비에 따라 달라지는 라이브러리의 모든 것이 같은 사다리를 읽으며, 여기에는 프로젝트가 쓰는 <code>md:</code> 유틸리티도 포함됩니다.</p>
 
 ## 사다리
 
@@ -17,7 +17,7 @@ order: 4
 | `lg` | 64rem · 1024px |                                                                     |
 | `xl` | 80rem · 1280px |                                                                     |
 
-`size`와 같은 다섯 이름이고, 의도한 것입니다. 사다리를 한 번 배운 독자가 화면이 모양을 바꾸는 지점을 부르는 두 번째 단어 묶음을 또 배워야 할 이유는 없습니다. 같은 사다리는 아닙니다 — size는 컨트롤이 얼마나 높은지이고 브레이크포인트는 창이 얼마나 넓은지입니다 — 하지만 같은 방향으로 가고 같은 문장에 함께 나옵니다.
+`size`와 같은 다섯 이름이고, 의도한 것입니다. 사다리를 한 번 배운 독자가 화면이 모양을 바꾸는 지점을 부르는 두 번째 단어 묶음을 또 배워야 할 이유는 없습니다. 같은 사다리는 아닙니다(size는 컨트롤이 얼마나 높은지이고 브레이크포인트는 창이 얼마나 넓은지입니다). 하지만 같은 방향으로 가고 같은 문장에 함께 나옵니다.
 
 ::: fw react
 
@@ -40,7 +40,7 @@ order: 4
 }
 ```
 
-라이브러리의 양쪽 절반이 모두 따라갑니다 — `PlGrid`의 cascade, `PlContainer`의 measure, `PlShow`, `usePlBreakpoint`, 그리고 `PlSidebar`의 `collapseBelow`까지.
+라이브러리의 양쪽 절반이 모두 따라갑니다: `PlGrid`의 cascade, `PlContainer`의 measure, `PlShow`, `usePlBreakpoint`, 그리고 `PlSidebar`의 `collapseBelow`까지.
 
 **이를 위한 provider prop은 없고, 있을 수도 없습니다.** 미디어 쿼리의 *조건*은 custom property를 읽을 수 없습니다. `@media (width >= var(--x))`는 유효한 CSS가 아니고 앞으로도 아닐 것입니다. 그래서 스타일시트가 결정하는 브레이크포인트는 컴포넌트가 렌더링될 때가 아니라 스타일시트가 컴파일될 때 풀립니다. 라이브러리는 자기 것을 `@variant`로 쓰고, 그것은 Tailwind의 것이고, 그것은 여러분 테마의 것입니다.
 
@@ -111,7 +111,7 @@ Dart에는 태그 없는 union이 없으므로 base 값이 첫 위치 인자이�
 
 **구조를 정하는 값은 그럴 수 없습니다.** orientation은 컴포넌트가 만드는 DOM, 주장하는 ARIA, 방향키가 가는 방향을 바꾸는데 어떤 스타일시트도 그것을 할 수 없습니다. 그런 것들은 [`usePlBreakpointValue`](../hooks/use-breakpoint)가 풀고, 그것은 JavaScript입니다. 그래서 서버는 `xs` 항목을 렌더링하고 브라우저가 hydration에서 고칩니다.
 
-라이브러리는 가능한 한 CSS 쪽으로 손을 뻗고, 여러분도 그러시면 좋겠습니다.
+라이브러리는 가능한 한 CSS 쪽에서 해결하며, 사용하는 쪽에도 같은 순서를 권합니다.
 
 :::
 
@@ -127,7 +127,7 @@ Dart에는 태그 없는 union이 없으므로 base 값이 첫 위치 인자이�
 
 ::: fw react
 
-`display: none`으로 숨기므로 양쪽 모두 문서 안에 있고 어느 쪽도 두 번 읽히지 않습니다. 둘 중 하나만 아예 존재해야 할 때 — fetch를 하거나, 비용이 크거나, 상태를 들고 있을 때 — 는 [`usePlBreakpointValue`](../hooks/use-breakpoint)로 하나만 mount하세요.
+`display: none`으로 숨기므로 양쪽 모두 문서 안에 있고 어느 쪽도 두 번 읽히지 않습니다. 둘 중 하나만 아예 존재해야 할 때(fetch를 하거나, 비용이 크거나, 상태를 들고 있을 때)는 [`usePlBreakpointValue`](../hooks/use-breakpoint)로 하나만 mount하세요.
 
 :::
 
@@ -135,13 +135,13 @@ Dart에는 태그 없는 union이 없으므로 base 값이 첫 위치 인자이�
 
 ::: fw react
 
-CSS가 내릴 수 없는 결정을 위한 훅 셋입니다 — 항목을 몇 개 fetch할지, 두 컴포넌트 중 무엇을 mount할지, 몇 글자에서 자를지.
+CSS가 내릴 수 없는 결정을 위한 훅 셋입니다: 항목을 몇 개 fetch할지, 두 컴포넌트 중 무엇을 mount할지, 몇 글자에서 자를지.
 
-- [`usePlBreakpoint()`](../hooks/use-breakpoint) — 창이 어느 칸에 있는지.
-- [`usePlBreakpointValue(value)`](../hooks/use-breakpoint) — 반응형 값을 푼 결과. 반응형 prop과 같은 모양, 같은 규칙.
-- [`usePlMediaQuery(query)`](../hooks/use-media-query) — 아무 쿼리나.
+- [`usePlBreakpoint()`](../hooks/use-breakpoint): 창이 어느 칸에 있는지.
+- [`usePlBreakpointValue(value)`](../hooks/use-breakpoint): 반응형 값을 푼 결과. 반응형 prop과 같은 모양, 같은 규칙.
+- [`usePlMediaQuery(query)`](../hooks/use-media-query): 아무 쿼리나.
 
-셋 다 서버에서 **`false` / `xs`** 로 답하고, 이는 우회해야 할 버그가 아닙니다. 서버가 보내는 마크업을 결정적으로 만드는 장치입니다. 첫 프레임에 맞아야 하는 것은 CSS에 있어야 합니다 — Tailwind 변형이든 `PlShow`든. 이 훅들은 그다음을 위한 것입니다.
+셋 다 서버에서 **`false` / `xs`** 로 답하고, 이는 우회해야 할 버그가 아닙니다. 서버가 보내는 마크업을 결정적으로 만드는 장치입니다. 첫 프레임에 맞아야 하는 것은 CSS에 있어야 합니다. Tailwind 변형이든 `PlShow`든. 이 훅들은 그다음을 위한 것입니다.
 
 :::
 

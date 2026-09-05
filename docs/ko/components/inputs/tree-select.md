@@ -66,7 +66,7 @@ PlTreeSelect(
 
 native `<div>` 속성은 field 래퍼로 그대로 전달됩니다. `color`는 위 표의 `color`와 충돌해서, `defaultValue`는 picker가 DOM 속성이 아니라 id 목록으로 쓰기 때문에, `children`은 트리가 `items`이기 때문에 제외됩니다.
 
-`className`은 label과 control, 그 아래 두 줄을 담은 스택에 붙습니다. `classNames`는 그 안의 네 부분 — `label`, `control`, `description`, `error` — 에 닿습니다.
+`className`은 label과 control, 그 아래 두 줄을 담은 스택에 붙습니다. `classNames`는 그 안의 네 부분(`label`, `control`, `description`, `error`)에 닿습니다.
 
 :::
 
@@ -74,7 +74,7 @@ native `<div>` 속성은 field 래퍼로 그대로 전달됩니다. `color`는 �
 
 `value`는 **`Set<String>`**이고 controlled입니다. uncontrolled 형태는 없으며, 이 패키지의 모든 입력이 그렇습니다. `expanded`와 `open`만 예외로, 넘기지 않으면 picker가 직접 쥡니다.
 
-node의 `label`은 여기서 **`String`**이고 React에서는 `ReactNode`입니다. `PlTransferItem`이 이미 지고 있는 차이이고 이유도 같습니다. 필터가 label을 읽고, trigger가 그것을 쓰고, 스크린 리더가 그것을 받습니다. 텍스트라야 모든 node가 만들어질 때부터 검색 가능합니다. 이쪽에 `searchLabel`이 없는 것도 같은 이유입니다 — label이 이미 그 말입니다.
+node의 `label`은 여기서 **`String`**이고 React에서는 `ReactNode`입니다. `PlTransferItem`이 이미 지고 있는 차이이고 이유도 같습니다. 필터가 label을 읽고, trigger가 그것을 쓰고, 스크린 리더가 그것을 받습니다. 텍스트라야 모든 node가 만들어질 때부터 검색 가능합니다. 이쪽에 `searchLabel`이 없는 것도 같은 이유입니다. label이 이미 그 말입니다.
 
 :::
 
@@ -84,7 +84,7 @@ node의 `label`은 여기서 **`String`**이고 React에서는 `ReactNode`입니
 
 ### searchable
 
-트리 위에 걸러 내는 field를 둡니다. 맞은 node는 **조상을 데리고** 남습니다 — 아무것도 위에 없는 "Seoul"은 어느 분류에서 나온 것인지 말해 주지 않으니까요. 그리고 필터가 남긴 가지는 전부 열립니다. 닫힌 부모 안에 접힌 match는 아무에게도 보여 주지 않은 match입니다.
+트리 위에 걸러 내는 field를 둡니다. 맞은 node는 **조상을 데리고** 남습니다. 아무것도 위에 없는 "Seoul"은 어느 분류에서 나온 것인지 말해 주지 않기 때문입니다. 그리고 필터가 남긴 가지는 전부 열립니다. 닫힌 부모 안에 접힌 match는 아무에게도 보여 주지 않은 match입니다.
 
 <Demo src="tree-select/searchable" :min-height="220">
 
@@ -118,7 +118,7 @@ field를 비우면 접힘은 다시 읽는 사람의 것이 됩니다. 직접 �
 
 ### selectableBranches
 
-기본은 꺼져 있고, 이런 트리는 대개 그런 모양입니다. 가지는 분류이고 잎이 답입니다. 고를 수 없는 가지도 여닫히기는 합니다 — 그것을 누르는 것이 아래에 있는 것에 닿는 방법이니까요.
+기본은 꺼져 있고, 이런 트리는 대개 그런 모양입니다. 가지는 분류이고 잎이 답입니다. 고를 수 없는 가지도 여닫히기는 합니다. 그것을 누르는 것이 아래에 있는 것에 닿는 방법이기 때문입니다.
 
 <Demo src="tree-select/branches" :min-height="220">
 
@@ -140,7 +140,7 @@ node 자신의 `selectable`이 어느 쪽으로든 덮어쓰므로, 진짜 카�
 
 ### multiple
 
-누를 때마다 더해지고, trigger는 쉼표로 이어서 씁니다. 팝업은 열린 채로 있습니다. 여러 답 중 첫 번째에서 닫히는 picker는 나머지마다 다시 열어야 하니까요.
+누를 때마다 더해지고, trigger는 쉼표로 이어서 씁니다. 팝업은 열린 채로 있습니다. 여러 답 중 첫 번째에서 닫히는 picker는 나머지마다 다시 열어야 하기 때문입니다.
 
 <Demo src="tree-select/multiple" :min-height="220">
 
@@ -191,7 +191,7 @@ node 자신의 `selectable`이 어느 쪽으로든 덮어쓰므로, 진짜 카�
 ## Accessibility
 
 - trigger는 다른 모든 picker와 똑같이 button이고, label과 description, error, `aria-invalid`를 함께 답니다.
-- 팝업 안은 진짜 [`PlTree`](../display/tree)입니다 — `role="tree"`와 `role="treeitem"`, `aria-level`, `aria-expanded`, `aria-selected`, 그리고 트리 전체에 **tab 정거장 하나**.
+- 팝업 안은 진짜 [`PlTree`](../display/tree)입니다: `role="tree"`와 `role="treeitem"`, `aria-level`, `aria-expanded`, `aria-selected`, 그리고 트리 전체에 **tab 정거장 하나**.
 - <kbd>↓</kbd>와 <kbd>↑</kbd>는 실제로 보이는 행을 걷고, <kbd>→</kbd>는 가지를 연 뒤 안으로 들어가고, <kbd>←</kbd>는 닫거나 부모로 나가고, <kbd>Enter</kbd>나 <kbd>Space</kbd>가 고릅니다.
 - 가지라서 고를 수 없을 뿐인 node에는 `aria-disabled`를 붙이지 않습니다. 아래 있는 것을 여는 조작 가능한 행이기 때문입니다. `disabled` node는 표시되고, 화살표 키의 정거장도 아닙니다.
 - 거르는 field는 `searchLabel`로 스스로 이름을 붙이므로, 위에 보이는 label 없이도 읽힙니다.

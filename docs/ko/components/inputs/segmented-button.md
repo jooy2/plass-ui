@@ -52,7 +52,7 @@ PlSegmentedButton<String>(
 
 ::: fw flutter
 
-묶음은 세그먼트 값의 타입에 대해 제네릭입니다 — `PlSegmentedButton<String>`, `PlSegmentedButton<Period>` — 그래서 `value`와 `onChanged`가 `dynamic`이 아니라 타입을 가지고, 패키지의 다른 모든 컨트롤과 마찬가지로 **controlled**입니다.
+묶음은 세그먼트 값의 타입에 대해 제네릭입니다(`PlSegmentedButton<String>`, `PlSegmentedButton<Period>`). 그래서 `value`와 `onChanged`가 `dynamic`이 아니라 타입을 가지고, 패키지의 다른 모든 컨트롤과 마찬가지로 **controlled**입니다.
 
 :::
 
@@ -78,17 +78,17 @@ PlSegmentedButton<String>(
 
 ## Segmented button, tabs, select 중 고르기
 
-- **Segmented button** — 이미 화면에 있는 것을 걸러 내는, 짧고 서로 배타적인 선택지 몇 개. 기간, 범위, 레이아웃.
-- **Tabs** — 선택이 내용 패널 전체를 바꿀 때.
-- **Select** — 선택지가 다섯 개를 넘거나, 하나하나가 길 때.
+- **Segmented button**: 이미 화면에 있는 것을 걸러 내는, 짧고 서로 배타적인 선택지 몇 개. 기간, 범위, 레이아웃.
+- **Tabs**: 선택이 내용 패널 전체를 바꿀 때.
+- **Select**: 선택지가 다섯 개를 넘거나, 하나하나가 길 때.
 
 ## Examples
 
 ### variant
 
-홈은 `--plass-well`을 씁니다. 라이브러리의 유일한 inset 그림자이자 `solid` field가 그려지는 것과 같은 그림자이고, 쓰이는 곳은 이 둘뿐입니다. 홈과 채워진 field는 둘 다 무언가가 _들어앉는_ 상자입니다. slider의 레일은 그런 상자가 아니라서 더 이상 이 그림자를 쓰지 않습니다 — 레일은 따라 보는 선입니다.
+홈은 `--plass-well`을 씁니다. 라이브러리의 유일한 inset 그림자이자 `solid` field가 그려지는 것과 같은 그림자이고, 쓰이는 곳은 이 둘뿐입니다. 홈과 채워진 field는 둘 다 무언가가 _들어앉는_ 상자입니다. slider의 레일은 그런 상자가 아니라서 더 이상 이 그림자를 쓰지 않습니다. 레일은 따라 보는 선입니다.
 
-`solid`는 타일에 색 계열의 그러데이션을 넣고 그 아래에 같은 계열의 틴트 그림자를 깝니다. 디자인 언어의 문장을 그대로 옮긴 것입니다 — 홈을 타고 가는 색 유리 키. `glass`와 `ghost`는 대신 맑은 유리판을 들어 올리고 라벨은 accent 색으로 둡니다.
+`solid`는 타일에 색 계열의 그러데이션을 넣고 그 아래에 같은 계열의 틴트 그림자를 깝니다. 디자인 언어의 문장을 그대로 옮긴 것입니다. 홈을 타고 가는 색 유리 키. `glass`와 `ghost`는 대신 맑은 유리판을 들어 올리고 라벨은 accent 색으로 둡니다.
 
 <Demo src="segmented-button/variants" :min-height="220">
 
@@ -188,18 +188,18 @@ PlSegmentedButton<String>(
 
 ::: fw react
 
-- 묶음은 `role="radiogroup"`이고 각 세그먼트는 진짜 radio입니다. 접근성 논거는 이것이 전부입니다 — segmented button은 **"이 중 정확히 하나"** 입니다. `aria-pressed` 토글로 만들었다면 독립된 스위치 네 개를 읽어 주고, 그중 셋은 마침 꺼져 있는 상태가 됩니다.
+- 묶음은 `role="radiogroup"`이고 각 세그먼트는 진짜 radio입니다. 접근성 논거는 이것이 전부입니다. segmented button은 **"이 중 정확히 하나"** 입니다. `aria-pressed` 토글로 만들었다면 독립된 스위치 네 개를 읽어 주고, 그중 셋은 마침 꺼져 있는 상태가 됩니다.
 - 묶음 전체가 tab stop 하나를 차지하고, <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd>로 그 안에서 움직입니다. roving tab index는 Base UI의 것입니다.
 - 묶음에 `aria-label`을 주세요. 눈에 보이는 자기 라벨이 없고, 이름 없는 그룹은 스크린리더가 "radio group"이라고만 읽습니다.
 - focus ring은 **안쪽으로** 그려집니다. 홈 안의 세그먼트에 바깥쪽 ring을 그리면 이웃 위에 덧칠됩니다.
 - 타일은 `transform`이 아니라 `left`, `top`, `width`, `height`를 애니메이션합니다. 빈 상자라서 이동하는 동안 다시 샘플링되는 글자가 없습니다. 무언가 움직이는 것이 존재 이유인 컴포넌트에서도 no-transform 규칙이 살아남는 이유입니다.
-- 아무것도 선택되지 않은 묶음의 첫 선택은 왼쪽 끝에서 날아오지 않고 **제자리에** 나타납니다 — 앉을 자리가 생기기 전까지 타일을 마운트하지 않기 때문입니다.
+- 아무것도 선택되지 않은 묶음의 첫 선택은 왼쪽 끝에서 날아오지 않고 **제자리에** 나타납니다. 앉을 자리가 생기기 전까지 타일을 마운트하지 않기 때문입니다.
 
 :::
 
 ::: fw flutter
 
-- 각 세그먼트는 서로 배타적인 묶음의 하나로, 선택 여부와 함께 알려집니다 — segmented button은 **"이 중 정확히 하나"** 입니다. 토글로 만들었다면 독립된 스위치 네 개를 읽어 주고, 그중 셋은 마침 꺼져 있는 상태가 됩니다.
+- 각 세그먼트는 서로 배타적인 묶음의 하나로, 선택 여부와 함께 알려집니다. segmented button은 **"이 중 정확히 하나"** 입니다. 토글로 만들었다면 독립된 스위치 네 개를 읽어 주고, 그중 셋은 마침 꺼져 있는 상태가 됩니다.
 - 묶음 전체가 focus stop **하나**를 차지합니다. 정확히 한 세그먼트만 tab 순서에 있고 나머지는 `ExcludeFocus`로 감싸여 있습니다. <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd>가 선택을 옮기고, 양 끝에서 순환합니다.
 - focus ring은 **안쪽으로** 그려집니다. 홈 안의 세그먼트에 바깥쪽 ring을 그리면 이웃 위에 덧칠됩니다.
 - 타일은 측정된 사각형을 애니메이션합니다. 빈 상자라서 이동하는 동안 다시 샘플링되는 글자가 없습니다.
@@ -216,7 +216,7 @@ PlSegmentedButton<String>(
 | `<PlSegment>` children | 설명으로서의 `segments` | 묶음이 roving focus와 화살표 키, 미끄러지는 타일을 소유하므로 어느 것이 선택되었고 각각이 어디 있는지 알아야 합니다. |
 | `defaultValue` / `onValueChange` | `value` / `onChanged` | Flutter 자신의 컨트롤이 controlled이고, 콜백 이름도 Flutter의 것입니다. |
 | `string \| number`인 값 | 제네릭 `T` | Dart에는 제네릭이 있어, 관례로 제한하는 대신 타입이 검사됩니다. |
-| 타일 위의 CSS 커스텀 속성 넷 | 측정된 `Rect`와 `AnimatedPositioned` | 같은 생각 — 선택된 세그먼트를 재고, 상자를 애니메이션한다 — 을 Flutter의 말로 한 것입니다. 어느 쪽도 transform하지 않습니다. |
+| 타일 위의 CSS 커스텀 속성 넷 | 측정된 `Rect`와 `AnimatedPositioned` | 같은 생각(선택된 세그먼트를 재고, 상자를 애니메이션한다)을 Flutter의 말로 한 것입니다. 어느 쪽도 transform하지 않습니다. |
 | `aria-label` | `semanticLabel` | Flutter의 이름입니다. |
 | `name`과 hidden input | — | 포함될 네이티브 form 제출이 없습니다. |
 

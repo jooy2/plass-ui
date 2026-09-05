@@ -45,11 +45,11 @@ function usePlHotKeys(hotKeys: PlassHotKeys | undefined, options?: PlHotKeysOpti
 type PlassHotKeys = Record<string, () => void>;
 ```
 
-| Option        | 기본값   |                                                   |
-| ------------- | -------- | ------------------------------------------------- |
-| `enabled`     | `true`   | chord를 바인딩할지                                |
-| `target`      | `window` | 리스너를 어디에 붙일지 — element, ref, `document` |
-| `whileTyping` | `false`  | 텍스트 필드에 focus가 있는 동안에도 답할지        |
+| Option        | 기본값   |                                                  |
+| ------------- | -------- | ------------------------------------------------ |
+| `enabled`     | `true`   | chord를 바인딩할지                               |
+| `target`      | `window` | 리스너를 어디에 붙일지, element, ref, `document` |
+| `whileTyping` | `false`  | 텍스트 필드에 focus가 있는 동안에도 답할지       |
 
 chord는 [`PlHotKeys`](../components/display/hot-keys)가 쓰는 방식 그대로 씁니다. `Mod`는 Mac에서 Command, 그 밖에서는 Control이고, `Esc` · `Return` · `Cmd` · `Option`은 각자의 키 캡과 같은 키로 접힙니다.
 
@@ -58,8 +58,8 @@ chord는 [`PlHotKeys`](../components/display/hot-keys)가 쓰는 방식 그대�
 필드의 `hotKeys` prop과 공유하는 세 가지입니다.
 
 - **modifier는 양방향으로 검사합니다.** `Enter`는 `Shift+Enter`에서 발동하지 않고, `Mod+K`는 `Mod+Shift+K`에서 발동하지 않습니다. 단축키를 바인딩하는 것과 키를 바인딩하는 것의 차이입니다.
-- **맞은 chord는 소비됩니다.** `preventDefault()` — 그래서 브라우저 자신의 `Mod+K` 검색창이 함께 열리지 않습니다. 반대편에서 읽으면, **이미** 소비된 이벤트는 건드리지 않습니다. 필드 자신의 `hotKeys` 맵이 페이지의 것을 이깁니다.
-- **글자가 아니라 chord입니다.** modifier 없는 키 하나도 허용되고 때로는 그게 맞습니다. `whileTyping`이 다루는 것이 바로 그 경우입니다.
+- **맞은 chord는 소비됩니다.** `preventDefault()`. 그래서 브라우저 자신의 `Mod+K` 검색창이 함께 열리지 않습니다. 반대편에서 읽으면, **이미** 소비된 이벤트는 건드리지 않습니다. 필드 자신의 `hotKeys` 맵이 페이지의 것을 이깁니다.
+- **글자가 아니라 chord입니다.** modifier 없는 키 하나도 허용되고 때로는 그것이 맞습니다. `whileTyping`이 다루는 것이 바로 그 경우입니다.
 
 ### whileTyping
 
@@ -71,7 +71,7 @@ chord는 [`PlHotKeys`](../components/display/hot-keys)가 쓰는 방식 그대�
 | --------------------------------- | ---------------------------------------------------------- |
 | `Mod+K`, `Ctrl+B`, `Alt+Enter`    | **답합니다.** 그 modifier들은 필드 값에 나타날 수 없습니다 |
 | `Escape`, `F2`                    | **답합니다.** 입력 중인 것에 아무 일도 하지 않습니다       |
-| `Shift+A`                         | 붙잡힙니다 — 대문자 A를 그렇게 칩니다                      |
+| `Shift+A`                         | 붙잡힙니다. 대문자 A를 그렇게 칩니다                       |
 | `/`, `Enter`, `Backspace`, 화살표 | 붙잡힙니다                                                 |
 
 그래서 보통은 아무것도 설정할 필요가 없습니다. 사용자가 있는 그 필드에 속한 chord라면 켜세요.
@@ -114,7 +114,7 @@ const panel = useRef<HTMLDivElement>(null);
 usePlHotKeys({ Escape: close }, { target: panel });
 ```
 
-> `keydown`은 focus를 품고 있는 element에만 닿습니다. 아무도 Tab으로 들어가지 않은 패널로 좁히면 아무것도 바인딩되지 않습니다 — 보통 "좁힌다"는 말이 뜻하던 바이긴 하지만, 버그처럼 보이기 전에 알아 둘 만합니다.
+> `keydown`은 focus를 품고 있는 element에만 닿습니다. 아무도 Tab으로 들어가지 않은 패널로 좁히면 아무것도 바인딩되지 않습니다. 보통 "좁힌다"는 말이 뜻하던 바이긴 하지만, 버그처럼 보이기 전에 알아 둘 만합니다.
 
 ### 화면과 함께 꺼지게 하기
 
@@ -128,4 +128,4 @@ usePlHotKeys({ Escape: close }, { enabled: open });
 
 - 단축키는 가속기이지 유일한 방법이 아닙니다. 여기 바인딩된 모든 것은 Tab으로 닿는 컨트롤로도 할 수 있어야 합니다.
 - chord를 보여 주세요. `PlHotKeys`가 그려 주고, `PlMenuItem`과 `PlCommandPalette`에 자리가 있습니다. 보이지 않는 단축키는 아무도 쓰지 않는 단축키입니다.
-- 키 하나짜리 단축키는 [WCAG 2.1 SC 2.1.4](https://www.w3.org/WAI/WCAG21/Understanding/character-key-shortcuts.html)가 명시한 위험입니다 — 음성 입력이 실수로 발동시킵니다. 기본값인 `whileTyping: false`가 최악은 막아 주고, 나머지는 아예 끌 수 있게 하는 것이며 `enabled`가 그 방법입니다.
+- 키 하나짜리 단축키는 [WCAG 2.1 SC 2.1.4](https://www.w3.org/WAI/WCAG21/Understanding/character-key-shortcuts.html)가 명시한 위험입니다. 음성 입력이 실수로 발동시킵니다. 기본값인 `whileTyping: false`가 최악은 막아 주고, 나머지는 아예 끌 수 있게 하는 것이며 `enabled`가 그 방법입니다.

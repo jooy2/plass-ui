@@ -5,7 +5,7 @@ order: 8
 
 # PlHeatmapChart
 
-<p class="plass-lede">칸마다의 크기를, 재는 대신 색으로 말합니다. 한 생각의 두 모양입니다. 두 축이 모두 category면 격자, 전체의 부분이면 treemap입니다.</p>
+<p class="plass-lede">칸마다의 크기를 길이가 아니라 색으로 나타냅니다. 한 생각의 두 모양입니다. 두 축이 모두 category면 격자, 전체의 부분이면 treemap입니다.</p>
 
 <Demo src="heatmap-chart/hero" :min-height="320" />
 
@@ -37,7 +37,7 @@ PlHeatmapChart(series: week, categories: hours);
 
 <PropsTable name="PlHeatmapChart" />
 
-series 하나가 격자의 한 행이거나 treemap의 한 묶음이고, datum 하나가 칸 또는 타일입니다. `null`은 칸을 척도의 바닥으로 칠하지 않고 표면 그대로 둡니다. "아무 일도 없었다"와 "가장 적다"는 다른 이야기니까요.
+series 하나가 격자의 한 행이거나 treemap의 한 묶음이고, datum 하나가 칸 또는 타일입니다. `null`은 칸을 척도의 바닥으로 칠하지 않고 표면 그대로 둡니다. "아무 일도 없었다"와 "가장 적다"는 다른 이야기이기 때문입니다.
 
 사다리는 행마다가 아니라 차트 전체에 하나입니다. 칸의 색은 어디에 있든 같은 숫자를 뜻해야 하고, 그것이 heatmap이 하는 약속의 전부입니다.
 
@@ -103,4 +103,4 @@ treemap에서는 이름이 먼저 오고 값은 그 아래 자리가 남을 때�
 - React에서 그림은 `role="img"`이자 tab 정거장입니다. 화살표 키로 칸을 옮겨 다니고 <kbd>Escape</kbd>로 읽던 값을 지웁니다. 닿는 칸마다 live region으로 읽힙니다.
 - React에서는 같은 숫자가 차트 아래 표에도, 두 벌의 이름과 함께 적힙니다. 행은 옆에, 열은 위에 옵니다.
 - 칸 안에 적히는 글자는 라이브러리에서 유일하게 잉크 토큰을 입지 않는 자리입니다. 둘 중 어느 쪽을 입을지는 **사다리 단마다** 정해집니다. 그 단의 밝기를 아는 자리이고, 답이 테마에 따라 뒤집히기 때문입니다.
-- 척도 legend는 양 끝을 이름으로 말하고, diverging일 때는 가운데도 말합니다.
+- 척도 legend는 양 끝에 이름을 붙이고, diverging일 때는 가운데에도 붙입니다.

@@ -46,7 +46,7 @@ PlModal(
 );
 ```
 
-modal은 자기를 트리 밖으로 들어 올리므로 위쪽에 `Overlay`가 필요합니다 — navigator가 있는 `WidgetsApp`과 `MaterialApp`이 둘 다 제공합니다. *어디에 쓰였는지*는 중요하지 않고, 그 자리에서는 아무 공간도 차지하지 않습니다.
+modal은 자기를 트리 밖으로 들어 올리므로 위쪽에 `Overlay`가 필요합니다. navigator가 있는 `WidgetsApp`과 `MaterialApp`이 둘 다 제공합니다. *어디에 쓰였는지*는 중요하지 않고, 그 자리에서는 아무 공간도 차지하지 않습니다.
 
 :::
 
@@ -64,19 +64,19 @@ modal은 자기를 트리 밖으로 들어 올리므로 위쪽에 `Overlay`가 �
 
 ::: fw flutter
 
-패키지의 다른 모든 상태 있는 것들과 마찬가지로 **controlled**입니다. ×도 바깥 누름도 스스로 modal을 닫지 않고 `onOpenChanged`를 부릅니다. `trigger`도 `PlModalClose`도 없습니다 — 열림 상태가 이미 호출하는 쪽의 손에 있으니, modal을 닫는 버튼이란 그것을 `false`로 두는 버튼입니다.
+패키지의 다른 모든 상태 있는 것들과 마찬가지로 **controlled**입니다. ×도 바깥 누름도 스스로 modal을 닫지 않고 `onOpenChanged`를 부릅니다. `trigger`도 `PlModalClose`도 없습니다. 열림 상태가 이미 호출하는 쪽의 손에 있으니, modal을 닫는 버튼이란 그것을 `false`로 두는 버튼입니다.
 
 `actions`는 위젯 하나가 아니라 `List<Widget>`이라, 버튼 두 개에 따로 Row를 씌울 필요가 없습니다.
 
 :::
 
-`variant`는 없습니다. 세 재질은 "이 표면이 주변 페이지에 대해 얼마나 자기를 주장하는가"에 대한 답인데, modal은 이미 페이지를 가져갔습니다. `elevation`도 없습니다 — 페이지에 납작하게 눕힐 수 있는 modal은 modal이기를 그만두라고 할 수 있는 modal이므로, 그림자는 사다리 꼭대기에 고정됩니다.
+`variant`는 없습니다. 세 재질은 "이 표면이 주변 페이지에 대해 얼마나 자기를 선언하는가"에 대한 답인데, modal은 이미 페이지를 가져갔습니다. `elevation`도 없습니다. 페이지에 납작하게 눕힐 수 있는 modal은 modal이기를 그만두라고 할 수 있는 modal이므로, 그림자는 사다리 꼭대기에 고정됩니다.
 
 ::: fw react
 
 ### PlModalClose
 
-`PlModalClose`는 자기가 속한 modal을 닫습니다. uncontrolled modal에는 Cancel 버튼이 호출할 `setOpen`이 없고, 대안 — 모든 modal을 controlled로 만드는 것 — 은 버튼 하나에 답하려고 modal마다 상태를 하나씩 두는 일이기 때문에 존재합니다.
+`PlModalClose`는 자기가 속한 modal을 닫습니다. uncontrolled modal에는 Cancel 버튼이 호출할 `setOpen`이 없고, 대안(모든 modal을 controlled로 만드는 것)은 버튼 하나에 답하려고 modal마다 상태를 하나씩 두는 일이기 때문에 존재합니다.
 
 ```tsx
 <PlModalClose render={<PlButton variant="ghost">Cancel</PlButton>} />
@@ -90,7 +90,7 @@ modal은 자기를 트리 밖으로 들어 올리므로 위쪽에 `Overlay`가 �
 
 ### size
 
-너비와 타입 스케일이 함께 움직입니다. 단계가 컨트롤 사다리보다 넓은 이유는 답하는 질문이 다르기 때문입니다 — 이것이 얼마나 큰가가 아니라, 안에서 한 줄이 얼마나 길어야 읽기 편한가. `width`는 내용이 너비를 정하는 modal — 넓은 표, 좁은 확인창 — 을 위한 탈출구입니다.
+너비와 타입 스케일이 함께 움직입니다. 단계가 컨트롤 사다리보다 넓은 이유는 답하는 질문이 다르기 때문입니다(이것이 얼마나 큰가가 아니라, 안에서 한 줄이 얼마나 길어야 읽기 편한가. `width`는 내용이 너비를 정하는 modal). 넓은 표, 좁은 확인창. 을 위한 탈출구입니다.
 
 <Demo src="modal/sizes" :min-height="120">
 
@@ -110,7 +110,7 @@ modal은 자기를 트리 밖으로 들어 올리므로 위쪽에 `Overlay`가 �
 
 ### dividers
 
-기본은 꺼져 있습니다. 본문이 스크롤되기 시작하는 순간 켜세요 — 헤더가 내용과 함께 흘러가지 않고 자리를 지켰다고 말해 주는 것이 그 헤어라인입니다.
+기본은 꺼져 있습니다. 본문이 스크롤되기 시작하는 순간 켜세요. 헤더가 내용과 함께 흘러가지 않고 자리를 지켰다고 말해 주는 것이 그 헤어라인입니다.
 
 <Demo src="modal/dividers" :min-height="120">
 
@@ -150,7 +150,7 @@ modal은 자기를 트리 밖으로 들어 올리므로 위쪽에 `Overlay`가 �
 
 ### dismissible
 
-끄면 <kbd>Esc</kbd>와 바깥 클릭 둘 다 modal을 닫지 않습니다. `showClose={false}`와 함께 쓰는 것은 액션이 정말로 답이 될 때뿐입니다 — 아니면 나갈 길이 아예 없어집니다.
+끄면 <kbd>Esc</kbd>와 바깥 클릭 둘 다 modal을 닫지 않습니다. `showClose={false}`와 함께 쓰는 것은 액션이 정말로 답이 될 때뿐입니다. 아니면 나갈 길이 아예 없어집니다.
 
 <Demo src="modal/dismissible" :min-height="120">
 
@@ -183,11 +183,11 @@ modal은 자기를 트리 밖으로 들어 올리므로 위쪽에 `Overlay`가 �
 
 ::: fw flutter
 
-- focus는 들어가서 머뭅니다. 시트는 자기 focus scope이고 traversal은 가장 가까운 scope에서 끊기므로 <kbd>Tab</kbd>이 아래 페이지에 내려앉을 수 없습니다. 닫히면 focus는 원래 쥐고 있던 것 — modal을 연 버튼 — 에게 돌아갑니다.
+- focus는 들어가서 머뭅니다. 시트는 자기 focus scope이고 traversal은 가장 가까운 scope에서 끊기므로 <kbd>Tab</kbd>이 아래 페이지에 내려앉을 수 없습니다. 닫히면 focus는 원래 쥐고 있던 것(modal을 연 버튼) 에게 돌아갑니다.
 - 레이어는 하나의 route로 명명되고, 그것이 스크린리더가 화면이 바뀌었음을 아는 방법입니다. `title`은 본문의 첫 줄이 아니라 제목으로 읽힙니다.
 - `dismissible`이 꺼져 있지 않으면 <kbd>Escape</kbd>로 닫힙니다. `modal: false`는 뒤 페이지를 누를 수 있게 두면서 focus만 가둡니다.
 - ×는 기본으로 켜져 있습니다. 라이브러리의 다른 스위치들과 반대인데, modal은 답할 때까지 페이지를 가져가므로 나가는 길이 기억에 의존하면 안 되기 때문입니다.
-- 스크롤되는 것은 본문뿐이고, 시트가 화면을 다 쓰면 양보하는 것도 본문뿐입니다 — 흘러가 버린 헤더는 modal의 이름을 가지고 가 버립니다.
+- 스크롤되는 것은 본문뿐이고, 시트가 화면을 다 쓰면 양보하는 것도 본문뿐입니다. 흘러가 버린 헤더는 modal의 이름을 가지고 가 버립니다.
 - 열고 닫힐 때는 opacity만 움직입니다. 크기가 변하거나 미끄러지는 modal은 자기 글자를 화면 위로 끌고 다니는 것이고, 컨트롤과 달리 이것은 글자로 가득 차 있습니다. OS에서 애니메이션을 끄면 즉시 나타납니다.
 
 :::

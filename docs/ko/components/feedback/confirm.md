@@ -51,7 +51,7 @@ if (await PlConfirmProvider.of(context).confirm(
 
 <PropsTable name="PlConfirmProvider" />
 
-provider의 prop은 그 아래에서 던지는 모든 질문의 기본값입니다. 호출 하나가 무엇이든 덮어쓸 수 있습니다 — 아래 `PlConfirmOptions`를 보세요.
+provider의 prop은 그 아래에서 던지는 모든 질문의 기본값입니다. 호출 하나가 무엇이든 덮어쓸 수 있습니다. 아래 `PlConfirmOptions`를 보세요.
 
 ### PlConfirmOptions
 
@@ -59,15 +59,15 @@ provider의 prop은 그 아래에서 던지는 모든 질문의 기본값입니�
 
 ::: fw flutter
 
-hook이 아니라 `PlConfirmProvider.of(context)`입니다 — `PlToastProvider`가 내주는 그 조회이고, 프레임워크 자신의 모양입니다. provider 밖에서는 `null`을 돌려주는 대신 **assert합니다.** React 빌드가 throw하는 그 이유입니다.
+hook이 아니라 `PlConfirmProvider.of(context)`입니다. `PlToastProvider`가 내주는 그 조회이고, 프레임워크 자신의 모양입니다. provider 밖에서는 `null`을 돌려주는 대신 **assert합니다.** React 빌드가 throw하는 그 이유입니다.
 
-`initialFocus`는 문자열이 아니라 `PlConfirmFocus`를 받습니다. 걱정할 `dismissible: false` 차이는 없습니다 — 바깥 누름과 ×가 같은 경로로 보고됩니다.
+`initialFocus`는 문자열이 아니라 `PlConfirmFocus`를 받습니다. 걱정할 `dismissible: false` 차이는 없습니다. 바깥 누름과 ×가 같은 경로로 보고됩니다.
 
 :::
 
 ## hook 형태
 
-질문이 필요해진 순간에 호출자가 쥐고 있는 것은 트리 안의 자리가 아니라 **클릭 핸들러**입니다. 이것이 없으면 같은 삭제 버튼 하나에 state 하나, 옆에 마운트해 둔 `<PlModal>` 하나, 그리고 답 다음에 할 일이 콜백을 가로질러 반토막 난 코드가 필요합니다 — 버튼 하나에 확인을 붙이는 데 편집 세 군데이고, 확인이 필요한 버튼마다 되풀이됩니다.
+질문이 필요해진 순간에 호출자가 쥐고 있는 것은 트리 안의 자리가 아니라 **클릭 핸들러**입니다. 이것이 없으면 같은 삭제 버튼 하나에 state 하나, 옆에 마운트해 둔 `<PlModal>` 하나, 그리고 답 다음에 할 일이 콜백을 가로질러 반토막 난 코드가 필요합니다. 버튼 하나에 확인을 붙이는 데 편집 세 군데이고, 확인이 필요한 버튼마다 되풀이됩니다.
 
 [`PlToastProvider`](./toast)와 같은 배치이고 같은 이유이며 같은 거래입니다. 루트 근처에 컴포넌트 하나, 나머지 전부에서는 hook.
 
@@ -97,7 +97,7 @@ hook이 아니라 `PlConfirmProvider.of(context)`입니다 — `PlToastProvider`
 
 **기본값은 Cancel이 focus를 쥐는 것**이고, 이것이 말해 둘 만한 결정입니다. confirm dialog는 누군가를 멈춰 세우려고 있는 것인데, Enter가 파괴적인 동작에 떨어지면 그 전부가 무의미해집니다.
 
-yes 쪽이 무해한 질문 — "닫기 전에 저장할까요?" — 에서는 옮기세요. 동의하기 위해 마우스를 잡게 만드는 것도 나름의 무례입니다.
+yes 쪽이 무해한 질문("닫기 전에 저장할까요?") 에서는 옮기세요. 동의하기 위해 마우스를 잡게 만드는 것도 나름의 무례입니다.
 
 <Demo src="confirm/focus" :min-height="160">
 
@@ -134,7 +134,7 @@ await confirm({
 });
 ```
 
-`dismissible`은 기본이 켜짐입니다. Escape는 보편적인 "아니오"이고, 빠져나갈 수 없는 질문은 덫이기 때문입니다. 정말로 답해야만 하는 질문에서만 끄세요 — 그리고 정말로 그럴 때만.
+`dismissible`은 기본이 켜짐입니다. Escape는 보편적인 "아니오"이고, 빠져나갈 수 없는 질문은 덫이기 때문입니다. 정말로 답해야만 하는 질문에서만 끄세요: 그리고 정말로 그럴 때만.
 
 ## Notes
 
@@ -147,4 +147,4 @@ await confirm({
 
 - 진짜 modal dialog입니다. focus는 안에 갇히고, 뒤의 페이지는 inert가 되고, 닫히면 focus가 열었던 것으로 돌아갑니다.
 - `title`은 dialog에 이름을 주는 `<h2>`이고 `description`은 accessible description입니다. 그래서 스크린 리더가 두 버튼 어느 쪽보다 먼저 질문과 그 결과를 읽습니다.
-- 두 버튼은 각자의 label로 이름 붙습니다. "예"와 "아니오"가 아니라 **무엇을 하는지** 로 — "삭제", "버리기", "저장" — 이름 붙이세요. 앞의 둘은 맥락을 잃으면 읽을 수 없는 말이고, 맥락을 잃은 채 읽는 것이 정확히 스크린 리더가 하는 일입니다.
+- 두 버튼은 각자의 label로 이름 붙습니다. "예"와 "아니오"가 아니라 **무엇을 하는지** 로("삭제", "버리기", "저장") 이름 붙이세요. 앞의 둘은 맥락을 잃으면 읽을 수 없는 말이고, 맥락을 잃은 채 읽는 것이 정확히 스크린 리더가 하는 일입니다.

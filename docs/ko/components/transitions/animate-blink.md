@@ -5,7 +5,7 @@ order: 2
 
 # PlAnimateBlink
 
-<p class="plass-lede">완전한 불투명도와 바닥값 사이를 오가며 맥동하는 내용입니다. 주기가 대칭이라 — 진하게, 옅게, 진하게 — 몇 번을 돌든 시작한 자리에서 끝납니다.</p>
+<p class="plass-lede">완전한 불투명도와 바닥값 사이를 오가며 맥동하는 내용입니다. 주기가 대칭이라(진하게, 옅게, 진하게) 몇 번을 돌든 시작한 자리에서 끝납니다.</p>
 
 <Demo src="animate-blink/hero" :min-height="160" />
 

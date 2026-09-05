@@ -5,7 +5,7 @@ order: 8
 
 # PlAnimateReveal
 
-<p class="plass-lede">움직이는 가장자리 뒤로 드러나는 내용. 아무것도 움직이지 않고 어떤 색도 바뀌지 않는 유일한 등장입니다 — 이미 그려진 픽셀은 전부 최종적으로 있게 될 그 자리에 있습니다.</p>
+<p class="plass-lede">움직이는 가장자리 뒤로 내용이 드러납니다. 아무것도 움직이지 않고 어떤 색도 바뀌지 않는 유일한 등장이라, 이미 그려진 픽셀은 전부 최종 위치에 있습니다.</p>
 
 <Demo src="animate-reveal/hero" :min-height="220" />
 
@@ -46,7 +46,7 @@ const PlAnimateReveal(
 
 ::: fw react
 
-네이티브 `<div>` 속성은 그대로 통과하고, `render`로 요소 자체를 바꿀 수 있습니다. 이 세트에서 `render`가 가장 자주 필요한 것이 이 컴포넌트입니다. reveal은 보통 이미 제 요소를 가진 제목이나 구분선을 감싸기 때문입니다.
+네이티브 `<div>` 속성은 그대로 통과하고, `render`로 요소 자체를 바꿀 수 있습니다. 이 세트에서 `render`가 가장 자주 필요한 것이 이 컴포넌트입니다. reveal은 보통 이미 제 요소가 붙은 제목이나 구분선을 감싸기 때문입니다.
 
 :::
 
@@ -56,9 +56,9 @@ const PlAnimateReveal(
 
 :::
 
-`from`은 라이브러리 전체가 그렇듯 **물리적**입니다 — `top`, `right`, `bottom`, `left`. 위에서 걷히는 제목은 어떤 쓰기 방향에서도 위에서 걷힙니다.
+`from`은 라이브러리 전체가 그렇듯 **물리적**입니다. `top`, `right`, `bottom`, `left`. 위에서 걷히는 제목은 어떤 쓰기 방향에서도 위에서 걷힙니다.
 
-공유되는 열 가지 설정 — `duration`, `delay`, `easing`, `repeat`, `alternate`, `paused`, `trigger`, `play`, `once`, `threshold` — 은 모든 `PlAnimate*` 컴포넌트에서 같습니다. `trigger`의 네 값은 [PlAnimateFade](./animate-fade) 페이지에 있습니다. `timeline="view"`와 `range`도 같은 자리에 있고, 효과를 시계가 아니라 독자의 스크롤 위치에 맡깁니다.
+공유되는 열 가지 설정(`duration`, `delay`, `easing`, `repeat`, `alternate`, `paused`, `trigger`, `play`, `once`, `threshold`)은 모든 `PlAnimate*` 컴포넌트에서 같습니다. `trigger`의 네 값은 [PlAnimateFade](./animate-fade) 페이지에 있습니다. `timeline="view"`와 `range`도 같은 자리에 있고, 효과를 시계가 아니라 독자의 스크롤 위치에 맡깁니다.
 
 ::: fw react
 
@@ -101,7 +101,7 @@ const PlAnimateReveal(
 
 ### fade
 
-**기본이 꺼짐**이고, 이는 이 prop을 제공하는 다른 모든 효과와 반대입니다. 켜는 것은 등장을 한 번에 둘 요구하는 일이고, 이 효과에 손을 뻗은 이유는 보통 그 첫 번째가 문제였기 때문입니다.
+**기본이 꺼짐**이고, 이는 이 prop을 제공하는 다른 모든 효과와 반대입니다. 켜는 것은 등장을 한 번에 둘 요구하는 일이고, 이 효과를 고른 이유는 보통 그 첫 번째가 문제였기 때문입니다.
 
 ## Accessibility
 
@@ -110,7 +110,7 @@ const PlAnimateReveal(
 - `prefers-reduced-motion`에서는 애니메이션이 통째로 걷히고 내용이 그냥 거기 있습니다. 클립도 함께 걷히므로 반쯤 그려진 채 남는 것은 없습니다.
 - 도는 동안 아무것도 리플로우되지 않고 아무것도 리샘플링되지 않습니다. fade만큼 글 덩어리에 안전하고, 크기를 바꾸는 어떤 것보다 안전합니다.
 - 잘려 있는 부분도 문서 안에 있고 그대로 읽힙니다. 이것은 등장이지 숨기는 방법이 아닙니다. 없어야 한다면 unmount하세요.
-- 같은 요소에 caller가 건 `clip-path`는 효과가 도는 동안 덮어써집니다. 둘 중 하나는 래퍼에 두세요.
+- 같은 요소에 caller가 것은 `clip-path`는 효과가 도는 동안 덮어써집니다. 둘 중 하나는 래퍼에 두세요.
 
 :::
 

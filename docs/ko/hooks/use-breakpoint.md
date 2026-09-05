@@ -5,7 +5,7 @@ order: 2
 
 # usePlBreakpoint
 
-<p class="plass-lede">창이 breakpoint 사다리의 어느 칸에 있는지, 그리고 <code>PlassResponsive</code> 맵이 거기서 어떤 값이 되는지. <code>PlGrid</code>가 쓰고 Tailwind variant가 쓰는 그 다섯 너비를, JavaScript에서 답합니다.</p>
+<p class="plass-lede">창이 breakpoint 사다리의 어느 칸에 있는지, 그리고 PlassResponsive 맵이 거기서 어떤 값이 되는지 알려 줍니다. PlGrid와 Tailwind variant가 쓰는 그 다섯 너비를 JavaScript에서 답합니다.</p>
 
 <Demo src="hooks/breakpoint" :min-height="320" />
 
@@ -22,7 +22,7 @@ const columns = usePlBreakpointValue({ xs: 1, sm: 2, lg: 4 });
 
 ::: fw flutter
 
-hook은 React 전용입니다. Flutter는 `MediaQuery`에서 너비를 읽어 비교합니다 — 구독이 빠진 같은 산수입니다.
+hook은 React 전용입니다. Flutter는 `MediaQuery`에서 너비를 읽어 비교합니다. 구독이 빠진 같은 산수입니다.
 
 ```dart
 final width = MediaQuery.sizeOf(context).width;
@@ -81,7 +81,7 @@ const perPage = usePlBreakpointValue({ xs: 10, md: 25, xl: 50 }) ?? 10;
 
 ## Notes
 
-- **`xs`가 서버의 답**이고, 브라우저가 처음 렌더링하는 답입니다. [`usePlMediaQuery`](./use-media-query)가 설명하는 그 규칙이며 이유도 같습니다. 안전한 쪽이기도 합니다 — `xs`는 좁은 레이아웃입니다.
+- **`xs`가 서버의 답**이고, 브라우저가 처음 렌더링하는 답입니다. [`usePlMediaQuery`](./use-media-query)가 설명하는 그 규칙이며 이유도 같습니다. 안전한 쪽이기도 합니다. `xs`는 좁은 레이아웃입니다.
 - `innerWidth` 한 번이 아니라 media query 네 개입니다. JavaScript에서 잰 너비는 픽셀 수와 비교해야 하는데 사다리는 `rem`으로 적혀 있습니다. 기본 글꼴을 키워 둔 사용자에게는 스타일시트와 어긋나는 칸이 나옵니다.
-- **객체는 맵으로 읽습니다.** 반응형 prop에서와 똑같습니다. 값 자체가 객체라면 감싸야 합니다 — `{ xs: { … } }`.
+- **객체는 맵으로 읽습니다.** 반응형 prop에서와 똑같습니다. 값 자체가 객체라면 감싸야 합니다: `{ xs: { … } }`.
 - `usePlBreakpointValue`는 `usePlBreakpoint`를 부르고, 그것은 media query 네 개를 부릅니다. 리스너는 페이지 전체에서 query당 하나로 공유되므로 hook 자체는 쌉니다. 다만 값은 렌더마다 다시 계산되므로, 맵이 크다면 렌더 본문 밖에 두세요.

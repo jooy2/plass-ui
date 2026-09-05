@@ -19,7 +19,7 @@ Flutter 패키지는 `package:flutter/widgets.dart`만으로 만들어졌습니�
 
 :::
 
-> **두 패키지는 같은 라이브러리를 냅니다** — 같은 127개 컴포넌트, 같은 prop 어휘, 같은 토큰. 버전은 각각 매겨지므로 npm과 pub.dev의 번호가 늘 같지는 않습니다. [모든 컴포넌트](../components/)를 보세요.
+> **두 패키지는 같은 라이브러리를 냅니다**. 같은 127개 컴포넌트, 같은 prop 어휘, 같은 토큰. 버전은 각각 매겨지므로 npm과 pub.dev의 번호가 늘 같지는 않습니다. [모든 컴포넌트](../components/)를 보세요.
 
 ## 설치
 
@@ -29,7 +29,7 @@ Flutter 패키지는 `package:flutter/widgets.dart`만으로 만들어졌습니�
 npm install plass-ui
 ```
 
-`react`와 `react-dom`은 peer dependency입니다 — **React 18 또는 19**. 프로젝트에 이미 있다면 Plass는 그 사본을 씁니다. 없다면 npm 7 이상이 함께 설치해 줍니다. 나머지는 패키지가 가지고 옵니다.
+`react`와 `react-dom`은 peer dependency입니다. **React 18 또는 19**. 프로젝트에 이미 있다면 Plass는 그 사본을 씁니다. 없다면 npm 7 이상이 함께 설치해 줍니다. 나머지는 패키지가 가지고 옵니다.
 
 :::
 
@@ -87,7 +87,7 @@ import 'plass-ui/styles.css';
 
 #### 쓰는 컴포넌트만 등록하기
 
-`plass-ui/tailwind.css`는 130개 컴포넌트를 한 번에 등록합니다. 기본값으로는 그게 맞지만, 컴포넌트를 하나만 쓰든 전부 쓰든 똑같이 내는 고정비이기도 합니다. Tailwind는 import 그래프가 아니라 **파일**을 스캔합니다. 빌드 어디에도 `import { PlButton }`과 `PlSelect.js`가 적어 둔 클래스를 이어 주는 연결이 없으므로, CSS를 줄이는 방법은 Tailwind에 파일을 덜 주는 것뿐입니다.
+`plass-ui/tailwind.css`는 130개 컴포넌트를 한 번에 등록합니다. 기본값으로는 그것이 맞지만, 컴포넌트를 하나만 쓰든 전부 쓰든 똑같이 내는 고정비이기도 합니다. Tailwind는 import 그래프가 아니라 **파일**을 스캔합니다. 빌드 어디에도 `import { PlButton }`과 `PlSelect.js`가 적어 둔 클래스를 이어 주는 연결이 없으므로, CSS를 줄이는 방법은 Tailwind에 파일을 덜 주는 것뿐입니다.
 
 패키지는 그 스캔을 조각으로도 배포합니다. `plass-ui/css/base.css`는 토큰과 모든 컴포넌트가 공유하는 클래스이고, `plass-ui/css/<component>.css`는 컴포넌트 하나를 등록하는 한 줄입니다. 이름은 `dist/components` 아래 폴더 이름과 같습니다.
 
@@ -121,7 +121,7 @@ PlassTheme(
 
 ### 위쪽에 필요한 provider 하나
 
-네 개의 컴포넌트가 자기를 트리 밖으로 들어 올립니다 — `PlModal`, `PlOverlay`, `PlTooltip`, 그리고 `PlSelect`의 목록. 들어 올려진 표면에는 들어갈 `Overlay`가 필요합니다. `MaterialApp`에도, navigator가 있는 `WidgetsApp`에도 하나 있습니다. 둘 다 아닌 앱은 직접 두면 됩니다.
+네 개의 컴포넌트가 자기를 트리 밖으로 들어 올립니다. `PlModal`, `PlOverlay`, `PlTooltip`, 그리고 `PlSelect`의 목록. 들어 올려진 표면에는 들어갈 `Overlay`가 필요합니다. `MaterialApp`에도, navigator가 있는 `WidgetsApp`에도 하나 있습니다. 둘 다 아닌 앱은 직접 두면 됩니다.
 
 ```dart
 WidgetsApp(
@@ -132,7 +132,7 @@ WidgetsApp(
 
 들어 올리는 것은 구현 세부가 아니라 요점입니다. 쓰인 자리에 그려진 시트는 자르는 첫 조상에서 잘리고, Plass 페이지에서 그것은 모든 카드입니다.
 
-`PlToast`에는 `Overlay`가 필요 없습니다 — `PlToastProvider`가 이미 스택이 덮어야 할 모든 것 위에 있습니다.
+`PlToast`에는 `Overlay`가 필요 없습니다. `PlToastProvider`가 이미 스택이 덮어야 할 모든 것 위에 있습니다.
 
 :::
 
@@ -173,7 +173,7 @@ DecoratedBox(
 
 :::
 
-구조가 있는 배경이면 무엇이든 됩니다 — 사진이든, 메시든, 직접 만든 그러데이션이든. 되지 않는 것은 아무것도 없는 배경입니다.
+구조가 있는 배경이면 무엇이든 됩니다. 사진이든, 메시든, 직접 만든 그러데이션이든. 되지 않는 것은 아무것도 없는 배경입니다.
 
 ## 사용하기
 
@@ -229,7 +229,7 @@ export default function Page() {
 }
 ```
 
-directive가 해결해 주지 않는 것이 하나 있습니다. Server Component에서 컴포넌트에 함수를 넘기는 일입니다. 이건 이 라이브러리의 제약이 아니라 모든 client component에 적용되는 React의 규칙으로, `onClick`, `onValueChange`, `render`는 전부 함수이고 함수는 server 경계를 넘지 못합니다. `'use client'`가 필요한 파일은 그 함수를 넘기는 파일 — 라이브러리 쪽이 아니라 여러분 쪽입니다.
+directive가 해결해 주지 않는 것이 하나 있습니다. Server Component에서 컴포넌트에 함수를 넘기는 일입니다. 이건 이 라이브러리의 제약이 아니라 모든 client component에 적용되는 React의 규칙으로, `onClick`, `onValueChange`, `render`는 전부 함수이고 함수는 server 경계를 넘지 못합니다. `'use client'`가 필요한 파일은 그 함수를 넘기는 파일. 라이브러리 쪽이 아니라 여러분 쪽입니다.
 
 ```tsx
 'use client';
@@ -271,7 +271,7 @@ export default async function Page() {
 }
 ```
 
-> **server component가 없는 곳에서 이 directive는 아무 일도 하지 않습니다.** Vite, Remix, React Router, Astro, 그리고 순수한 `tsc` 빌드는 모듈 최상단의 `'use client'`를 무시합니다. 쓰지 않는 프로젝트가 치르는 비용이 없기 때문에, 필요할 가능성이 있으면 붙이는 쪽을 택했습니다 — 감사를 거쳐 하나씩 골라내지 않고요.
+> **server component가 없는 곳에서 이 directive는 아무 일도 하지 않습니다.** Vite, Remix, React Router, Astro, 그리고 순수한 `tsc` 빌드는 모듈 최상단의 `'use client'`를 무시합니다. 쓰지 않는 프로젝트가 치르는 비용이 없기 때문에, 감사를 거쳐 하나씩 골라내는 대신, 필요할 가능성이 있으면 붙이는 쪽을 택했습니다.
 
 :::
 
@@ -303,9 +303,9 @@ PlassTheme(brightness: Brightness.dark, child: ...)
 
 ## Next
 
-- [모든 컴포넌트](../components/) — 공개된 전부를 한 페이지에
-- [Prop 규칙](../design/prop-conventions) — 공통 prop이 뜻하는 것
-- [디자인 언어](../design/design-language) — 표면과 색, 모션이 왜 이렇게 생겼는지
+- [모든 컴포넌트](../components/): 공개된 전부를 한 페이지에
+- [Prop 규칙](../design/prop-conventions): 공통 prop이 뜻하는 것
+- [디자인 언어](../design/design-language): 표면과 색, 모션이 왜 이렇게 생겼는지
 
 ::: fw react
 

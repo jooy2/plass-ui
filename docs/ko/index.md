@@ -25,7 +25,7 @@ hero:
 
 features:
   - title: 두 가지 재질, 하나의 언어
-    details: 눌리는 색 유리판, 그리고 무언가를 담는 흐려진 시트. 모든 컴포넌트는 둘 중 하나이고, 그게 디자인 시스템의 전부입니다.
+    details: 눌리는 색 유리판, 그리고 무언가를 담는 흐려진 시트. 모든 컴포넌트는 둘 중 하나이고, 그것이 디자인 시스템의 전부입니다.
     link: /ko/design/design-language
     linkText: 디자인 언어
   - title: 두 프레임워크, 하나의 라이브러리
@@ -59,7 +59,7 @@ features:
   </div>
   <div class="plass-why-card">
     <h3>검증된 대비</h3>
-    <p>그러데이션의 모든 지점이 자기 라벨에 대해 4.5:1을 넘깁니다. 가장 밝은 모서리까지 포함해서요 — 채움의 밝기를 정한 것이 바로 그 모서리입니다.</p>
+    <p>그러데이션의 모든 지점이 가장 밝은 모서리까지 포함해 자기 라벨에 대해 4.5:1을 넘깁니다. 채움의 밝기를 정한 것이 바로 그 모서리입니다.</p>
   </div>
   <div class="plass-why-card">
     <h3>요청하지 않은 것은 따라오지 않습니다</h3>
@@ -67,13 +67,13 @@ features:
   </div>
   <div class="plass-why-card">
     <h3>빌드 설정 없음</h3>
-    <p>React는 패키지 하나에 CSS import 한 줄 — Tailwind는 이 라이브러리를 빌드할 뿐, 여러분의 프로젝트에 설치될 필요는 없습니다. Flutter는 패키지가 전부입니다. 스타일시트도 provider도 없습니다.</p>
+    <p>React는 패키지 하나에 CSS import 한 줄. Tailwind는 이 라이브러리를 빌드할 뿐, 여러분의 프로젝트에 설치될 필요는 없습니다. Flutter는 패키지가 전부입니다. 스타일시트도 provider도 없습니다.</p>
   </div>
 </div>
 
 ## 컴포넌트 미리 보기
 
-아래는 이 페이지 안에서 실제로 돌아가고 있습니다 — Flutter 프레임은 하나가 곧 엔진 하나이기 때문에 React 빌드입니다. 입력해 보고, 저장을 눌러 보세요.
+아래는 이 페이지 안에서 실제로 돌아가고 있습니다. Flutter 프레임은 하나가 곧 엔진 하나이기 때문에 React 빌드입니다. 입력해 보고, 저장을 눌러 보세요.
 
 <Demo src="showcase/app" :flutter="false" :min-height="420" />
 

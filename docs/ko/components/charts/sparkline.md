@@ -5,7 +5,7 @@ order: 6
 
 # PlSparkline
 
-<p class="plass-lede">모양만 남기고 전부 걷어낸 차트입니다. 축도, 격자도, legend도, tooltip도 없이 문장 안에 들어가 무언가가 어느 쪽으로 가고 있는지만 말합니다.</p>
+<p class="plass-lede">모양만 남기고 전부 걷어낸 차트입니다. 축도, 격자도, legend도, tooltip도 없이 문장 안에 들어가 무언가가 어느 쪽으로 가고 있는지만 보여 줍니다.</p>
 
 <Demo src="sparkline/hero" :min-height="200" />
 
@@ -29,7 +29,7 @@ PlSparkline(data: signups, endDot: true);
 
 :::
 
-작은 차트가 아니라 다른 물건입니다. 여기에 붙일 수 있는 숫자는 이미 주변 글이 가지고 있고, 그래서 아무것도 붙이지 않습니다. [`PlStat`](../display/stat) 옆이나 표의 칸, 문장 속에 넣으세요.
+스파크라인은 차트를 줄여 놓은 것과는 다른 물건입니다. 여기에 붙일 수 있는 숫자는 이미 주변 글에 있고, 그래서 아무것도 붙이지 않습니다. [`PlStat`](../display/stat) 옆이나 표의 칸, 문장 속에 넣으세요.
 
 ## Props
 
@@ -103,7 +103,7 @@ PlSparkline(data: signups, endDot: true);
 
 ### endDot
 
-마지막 칸이 아니라 값이 있는 마지막 점에 dot을 찍습니다. 이만한 띠에 들어갈 수 있는 유일한 직접 label이고, series가 어디서 끝났는지를 말합니다. 막대에는 붙지 않습니다. 막대는 이미 끝나는 자리에서 끝나니까요.
+마지막 칸이 아니라 값이 있는 마지막 점에 dot을 찍습니다. 이만한 띠에 들어갈 수 있는 유일한 직접 label이고, series가 어디서 끝났는지를 보여 줍니다. 막대에는 붙지 않습니다. 막대는 이미 끝나는 자리에서 끝나기 때문입니다.
 
 ## Accessibility
 

@@ -49,7 +49,7 @@ const PlDivider(orientation: PlassOrientation.vertical);
 
 :::
 
-`variant`도 `elevation`도 없습니다. divider는 표면이 아닙니다 — 유리로 만들어지지 않았고, 빛을 받지 않으며, 그림자를 드리우지도 않습니다.
+`variant`도 `elevation`도 없습니다. divider는 표면이 아닙니다. 유리로 만들어지지 않았고, 빛을 받지 않으며, 그림자를 드리우지도 않습니다.
 
 라이브러리 전체에서 공유 축(`orientation` `color` `size` `textAlign`)이 뜻하는 바는 [prop 규칙](../../design/prop-conventions)에 있습니다.
 
@@ -57,11 +57,11 @@ const PlDivider(orientation: PlassOrientation.vertical);
 
 ### orientation
 
-vertical divider는 자기 높이를 가지지 않습니다 — 높이를 주는 무언가에 맞춰 늘어나며, 이것이 툴바의 두 그룹 사이에 놓인 선이 해야 할 일입니다. 놓인 행보다 짧아야 한다면 `length`를 주세요.
+vertical divider는 자기 높이를 가지지 않습니다. 높이를 주는 무언가에 맞춰 늘어나며, 이것이 툴바의 두 그룹 사이에 놓인 선이 해야 할 일입니다. 놓인 행보다 짧아야 한다면 `length`를 주세요.
 
 ::: fw flutter
 
-"높이를 주는 무언가"가 CSS보다 더 많은 일을 합니다. `Row`는 자기가 받은 높이를 자식에게 그대로 넘기므로, 그 안의 vertical divider에는 늘어날 대상이 생기려면 위에 `IntrinsicHeight`가 — 또는 `length`가 — 있어야 합니다. 아래 예제는 앞의 방법을 씁니다.
+"높이를 주는 무언가"가 CSS보다 더 많은 일을 합니다. `Row`는 자기가 받은 높이를 자식에게 그대로 넘기므로, 그 안의 vertical divider에는 늘어날 대상이 생기려면 위에 `IntrinsicHeight`가(또는 `length`가) 있어야 합니다. 아래 예제는 앞의 방법을 씁니다.
 
 :::
 
@@ -103,7 +103,7 @@ vertical divider는 자기 높이를 가지지 않습니다 — 높이를 주는
 
 ### color
 
-기본값이 없습니다. `PlTextLink`가 하는 것과 같은 선택입니다. 생략하면 중립 헤어라인이 그려집니다 — 페이지 바탕이든 유리 시트든 카드 위든, 라이브러리가 가진 모든 바탕에서 보이는 선입니다. 시트 자신의 흰 헤어라인은 반투명한 판 위의 흰 빛이라, divider가 불투명한 것 위에 놓이는 순간 사라집니다.
+기본값이 없습니다. `PlTextLink`가 하는 것과 같은 선택입니다. 생략하면 중립 헤어라인이 그려집니다. 페이지 바탕이든 유리 시트든 카드 위든, 라이브러리가 가진 모든 바탕에서 보이는 선입니다. 시트 자신의 흰 헤어라인은 반투명한 판 위의 흰 빛이라, divider가 불투명한 것 위에 놓이는 순간 사라집니다.
 
 색 계열을 주면 선에 그 틴트가 들어갑니다.
 
@@ -135,9 +135,9 @@ vertical divider는 자기 높이를 가지지 않습니다 — 높이를 주는
 
 ::: fw flutter
 
-둘 다 `double`입니다 — 패키지의 다른 모든 길이와 같은 논리 픽셀입니다. 퍼센트는 없습니다. 부모의 몇 분의 몇은 divider를 `FractionallySizedBox`로 감싸는 일이고, 그 두 번째 표기를 컴포넌트 안에 또 만드는 것은 표기를 둘로 만드는 일입니다.
+둘 다 `double`입니다. 패키지의 다른 모든 길이와 같은 논리 픽셀입니다. 퍼센트는 없습니다. 부모의 몇 분의 몇은 divider를 `FractionallySizedBox`로 감싸는 일이고, 그 두 번째 표기를 컴포넌트 안에 또 만드는 것은 표기를 둘로 만드는 일입니다.
 
-`length`는 부모가 준 tight 제약을 이깁니다. 맨 `SizedBox`라면 그러지 못합니다 — divider는 `crossAxisAlignment: stretch`인 `Column` 안에 놓이는 일이 아주 흔하고 거기서는 tight한 너비를 받아 지기 때문에, 상자를 `Align`으로 감싸 느슨한 제약이 내려가게 했습니다.
+`length`는 부모가 준 tight 제약을 이깁니다. 맨 `SizedBox`라면 그러지 못합니다. divider는 `crossAxisAlignment: stretch`인 `Column` 안에 놓이는 일이 아주 흔하고 거기서는 tight한 너비를 받아 지기 때문에, 상자를 `Align`으로 감싸 느슨한 제약이 내려가게 했습니다.
 
 :::
 
@@ -159,7 +159,7 @@ vertical divider는 자기 높이를 가지지 않습니다 — 높이를 주는
 
 ### size
 
-`size`는 라벨의 타입 스케일이고 그뿐입니다 — 라벨이 없는 divider에는 정할 크기가 없습니다.
+`size`는 라벨의 타입 스케일이고 그뿐입니다. 라벨이 없는 divider에는 정할 크기가 없습니다.
 
 <Demo src="divider/sizes" :min-height="240">
 
@@ -181,17 +181,17 @@ vertical divider는 자기 높이를 가지지 않습니다 — 높이를 주는
 
 ::: fw react
 
-- Base UI의 `Separator`를 렌더링하므로, 알맞은 `aria-orientation`을 가진 진짜 `role="separator"`입니다.
-- `separator`는 내용에서 이름을 가져오는 role이 아니라, 눈에 보이는 라벨이 그것만으로 접근 가능한 이름이 되지는 않습니다. **문자열** 라벨은 `aria-label`로 복사되고, 그보다 복잡한 것은 그대로 둡니다 — 그중 어느 부분이 이름인지는 호출하는 쪽만 압니다.
-- 순전히 장식인 divider — 이미 여백으로 나뉘어 있는 카드 안의 선 — 에는 `role="presentation"`을 주는 편이 낫고, 이 값은 그대로 전달됩니다.
+- Base UI의 `Separator`를 렌더링하므로, 알맞은 `aria-orientation`이 붙은 진짜 `role="separator"`입니다.
+- `separator`는 내용에서 이름을 가져오는 role이 아니라, 눈에 보이는 라벨이 그것만으로 접근 가능한 이름이 되지는 않습니다. **문자열** 라벨은 `aria-label`로 복사되고, 그보다 복잡한 것은 그대로 둡니다. 그중 어느 부분이 이름인지는 호출하는 쪽만 압니다.
+- 순전히 장식인 divider(이미 여백으로 나뉘어 있는 카드 안의 선) 에는 `role="presentation"`을 주는 편이 낫고, 이 값은 그대로 전달됩니다.
 - 라벨 양옆의 두 선 조각은 `aria-hidden`입니다. 라벨은 separator의 이름으로 한 번만 읽힙니다.
 
 :::
 
 ::: fw flutter
 
-- divider는 `semanticLabel`을 주지 않는 한 아무 말도 하지 않습니다. 정직한 기본값입니다 — 두 가지 사이의 선은 대개 내용이 아니라 레이아웃이 하는 말입니다.
-- 이름을 주면 그 이름을 가진 semantics 노드가 됩니다. 선이 뜻을 나르고 있을 때 넘기세요. 두 로그인 경로 사이의 "OR"은 그렇고, 카드 안의 선은 아닙니다.
+- divider는 `semanticLabel`을 주지 않는 한 아무 말도 하지 않습니다. 정직한 기본값입니다. 두 가지 사이의 선은 대개 내용이 아니라 레이아웃이 하는 말입니다.
+- 이름을 주면 그 이름이 붙은 semantics 노드가 됩니다. 선이 뜻을 나르고 있을 때 넘기세요. 두 로그인 경로 사이의 "OR"은 그렇고, 카드 안의 선은 아닙니다.
 - 선 안에 놓인 라벨은 그대로 텍스트로 그려지므로 있는 자리에서 읽힙니다. `semanticLabel`은 divider 자신을 위한 것입니다.
 
 :::
@@ -202,7 +202,7 @@ vertical divider는 자기 높이를 가지지 않습니다 — 높이를 주는
 
 | React | Flutter | 이유 |
 | --- | --- | --- |
-| `aria-orientation`을 가진 `role="separator"` | 이름이 붙은 semantics 노드, 또는 없음 | Flutter의 semantics 트리에는 separator role이 없습니다. 이름 없는 선은 장식이고, 트리에 들어가지 않는 것으로 그렇게 말합니다. |
+| `aria-orientation`이 붙은 `role="separator"` | 이름이 붙은 semantics 노드, 또는 없음 | Flutter의 semantics 트리에는 separator role이 없습니다. 이름 없는 선은 장식이고, 트리에 들어가지 않는 것으로 그렇게 알립니다. |
 | `children` | `child` | Flutter의 이름입니다. |
 | 문자열 라벨이 `aria-label`이 됨 | `semanticLabel` | `Widget`의 어느 부분이 이름인지는 여기서 알 수 없으니, 추측하는 대신 물어봅니다. |
 | CSS 길이로서의 `length`/`thickness` | `double` | 패키지의 다른 모든 곳과 같은 논리 픽셀입니다. 부모의 몇 분의 몇은 `FractionallySizedBox`입니다. |

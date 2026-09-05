@@ -5,7 +5,7 @@ order: 12
 
 # PlAnimateZoom
 
-<p class="plass-lede">끝날 자리의 한가운데에서 도착하는 내용입니다. 화면에서 끼어들어야 하는 단 하나 — 확인, 결과, 방금 나온 숫자 — 에 쓰세요.</p>
+<p class="plass-lede">끝날 자리의 한가운데에서 도착하는 내용입니다. 화면에서 끼어들어야 하는 단 하나(확인, 결과, 방금 나온 숫자)에 쓰세요.</p>
 
 <Demo src="animate-zoom/hero" :min-height="280" />
 

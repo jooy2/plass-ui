@@ -45,11 +45,11 @@ const PlSkeleton(shape: PlSkeletonShape.rect, height: 120);
 
 ::: fw flutter
 
-`width`와 `height`는 `double`입니다 — 패키지의 다른 모든 곳과 같은 논리 픽셀입니다.
+`width`와 `height`는 `double`입니다. 패키지의 다른 모든 곳과 같은 논리 픽셀입니다.
 
 :::
 
-`variant`도, `elevation`도, `density`도 없습니다. skeleton은 일부러 유리로 **만들지 않습니다**. 라이브러리의 다른 모든 시트는 페이지 위에 놓인 물체이기에 흐려진 배경 위의 반투명한 판이지만, skeleton은 그 반대 — 아직 거기 없는 것의 모양입니다. 그래서 평평한 틴트일 뿐이고, 덕분에 placeholder 서른 개가 놓인 페이지가 backdrop filter를 서른 개 요구하지도 않습니다.
+`variant`도, `elevation`도, `density`도 없습니다. skeleton은 일부러 유리로 **만들지 않습니다**. 라이브러리의 다른 모든 시트는 페이지 위에 놓인 물체이기에 흐려진 배경 위의 반투명한 판이지만, skeleton은 그 반대. 아직 거기 없는 것의 모양입니다. 그래서 평평한 틴트일 뿐이고, 덕분에 placeholder 서른 개가 놓인 페이지가 backdrop filter를 서른 개 요구하지도 않습니다.
 
 라이브러리 전체에서 공유 축(`size` `color`)이 뜻하는 바는 [prop 규칙](../../design/prop-conventions)에 있습니다.
 
@@ -57,9 +57,9 @@ const PlSkeleton(shape: PlSkeletonShape.rect, height: 120);
 
 ### shape
 
-세 가지 모양은 레이아웃이 만들어지는 세 가지 재료입니다 — 글줄, 덩어리, 원 — 그리고 각각은 진짜 컴포넌트가 쓰는 사다리로 크기가 정해집니다. `md` 줄은 `md` 글자와 같은 높이이고, `md` 원은 정확히 `md`의 `PlAvatar`입니다.
+세 가지 모양은 레이아웃이 만들어지는 세 가지 재료입니다(글줄, 덩어리, 원). 그리고 각각은 진짜 컴포넌트가 쓰는 사다리로 크기가 정해집니다. `md` 줄은 `md` 글자와 같은 높이이고, `md` 원은 정확히 `md`의 `PlAvatar`입니다.
 
-`lines`는 줄무늬 상자 하나가 아니라 막대를 쌓습니다. 그래서 사이의 틈이 진짜 틈입니다 — 글에는 행간이 있습니다. 마지막 줄은 문단의 마지막 줄처럼 짧게 그려집니다.
+`lines`는 줄무늬 상자 하나가 아니라 막대를 쌓습니다. 그래서 사이의 틈이 진짜 틈입니다. 글에는 행간이 있습니다. 마지막 줄은 문단의 마지막 줄처럼 짧게 그려집니다.
 
 <Demo src="skeleton/shapes" :min-height="320">
 
@@ -142,7 +142,7 @@ const PlSkeleton(shape: PlSkeletonShape.rect, height: 120);
 ::: fw react
 
 - 라벨이 없으면 placeholder는 `aria-hidden`이고 아무 말도 하지 않습니다. 상자 열두 개가 저마다 자기를 알리는 것은 침묵보다 나쁩니다.
-- 영역 전체를 대표하는 **하나**에만 `label`을 주면 그것이 `aria-busy`를 가진 `role="status"`가 됩니다 — 하나의 기다림에 하나의 알림.
+- 영역 전체를 대표하는 **하나**에만 `label`을 주면 그것이 `aria-busy`가 붙은 `role="status"`가 됩니다: 하나의 기다림에 하나의 알림.
 - `prefers-reduced-motion`에서는 하이라이트가 지나가기를 멈추고 대신 placeholder 전체가 색으로 맥동합니다. 아예 멈추지 않는 이유는, 가만히 있는 skeleton은 아무것도 없이 로드가 끝난 빈 상자와 구별되지 않기 때문입니다.
 
 :::
@@ -150,7 +150,7 @@ const PlSkeleton(shape: PlSkeletonShape.rect, height: 120);
 ::: fw flutter
 
 - 라벨이 없으면 placeholder는 semantics 트리에서 제외되고 아무 말도 하지 않습니다. 상자 열두 개가 저마다 자기를 알리는 것은 침묵보다 나쁩니다.
-- 영역 전체를 대표하는 **하나**에만 `label`을 주면 그 이름을 가진 live region이 됩니다 — 하나의 기다림에 하나의 알림.
+- 영역 전체를 대표하는 **하나**에만 `label`을 주면 그 이름이 붙은 live region이 됩니다: 하나의 기다림에 하나의 알림.
 - 플랫폼에서 애니메이션이 꺼져 있으면(`MediaQuery.disableAnimations`) 하이라이트가 지나가기를 멈추고 대신 placeholder 전체가 색으로 맥동합니다. 아예 멈추지 않는 이유는, 가만히 있는 skeleton은 아무것도 없이 로드가 끝난 빈 상자와 구별되지 않기 때문입니다.
 
 :::

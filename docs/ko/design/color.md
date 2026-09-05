@@ -20,7 +20,7 @@ order: 2
 | `danger`    | `#d04246` → `#d53c54` | 되돌아오지 않습니다                    |
 | `info`      | `#2379bd` → `#157aa9` | 좋지도 나쁘지도 않지만 알아 둘 만한 것 |
 
-두 값은 135° 그러데이션의 양 끝이고, 음영이 아니라 **같은 밝기에서의 hue 훑기**입니다 — 인디고에서 애저로, 초록에서 틸로, 버밀리언에서 로즈로. `warning`만 예외입니다. 앰버는 앰버로 남은 채 방향을 틀 곳이 없어서, 두 끝이 밝기로 갈리는 유일한 계열입니다.
+두 값은 135° 그러데이션의 양 끝이고, 음영이 아니라 **같은 밝기에서의 hue 훑기**입니다. 인디고에서 애저로, 초록에서 틸로, 버밀리언에서 로즈로. `warning`만 예외입니다. 앰버는 앰버로 남은 채 방향을 틀 곳이 없어서, 두 끝이 밝기로 갈리는 유일한 계열입니다.
 
 ## 손으로 고른 값과 계산된 값
 
@@ -38,7 +38,7 @@ order: 2
 | 토큰 | 계산 방식 |
 | --- | --- |
 | `--plass-{c}-fill` | `solid`에서 `solid-to`로 가는 135° 그러데이션 |
-| `--plass-{c}-tint` | `solid`을 `--plass-tint-strength`만큼 (라이트 35%, 다크 55%) — drop shadow |
+| `--plass-{c}-tint` | `solid`을 `--plass-tint-strength`만큼 (라이트 35%, 다크 55%), drop shadow |
 | `--plass-{c}-soft` / `-hover` / `-press` | `accent`를 10% / 18% / 26% |
 | `--plass-{c}-line` / `-hover` | `accent`를 30% / 48% |
 | `--plass-{c}-ring` | `solid`을 55% |
@@ -71,7 +71,7 @@ order: 2
 | `--plass-stripe`  | `rgb(20 40 90 / 0.03)` | `white / 0.035` | 한 줄 걸러 깔리는 옅은 칠 |
 | `--plass-track`   | `rgb(20 40 90 / 0.14)` | `white / 0.16`  | thumb이 지나가는 홈       |
 
-`--plass-border`도 같은 무리입니다. 컨트롤이 _자기_ 둘레에 긋는 중립 헤어라인 — tick, switch, field, tabs의 레일 — 이며 이유도 같습니다. 컨트롤은 배경 위가 아니라 흰 카드 위에 놓이는 일이 아주 흔하고, 보이지 않는 컨트롤은 찾을 수 없는 컨트롤이기 때문입니다.
+`--plass-border`도 같은 무리입니다. 컨트롤이 _자기_ 둘레에 긋는 중립 헤어라인(tick, switch, field, tabs의 레일)이며 이유도 같습니다. 컨트롤은 배경 위가 아니라 흰 카드 위에 놓이는 일이 아주 흔하고, 보이지 않는 컨트롤은 찾을 수 없는 컨트롤이기 때문입니다.
 
 ## 대비
 
@@ -90,7 +90,7 @@ order: 2
 | `danger`    | 4.62 | 4.56 |
 | `info`      | 4.62 | 4.79 |
 
-`warning`이 튀는 이유는 잉크가 어둡기 때문입니다. 나머지가 전부 붙어 있는 방향으로 여유가 있는 것이죠. `secondary`는 중립 slate라서 두 번째 끝을 hue가 아니라 밝기에서 가져옵니다. 앰버라 부를 만한 어떤 밝기에서도 흰 글자는 4.5:1에 닿지 않아서, `--plass-warning-on-solid`는 이 세트에서 유일한 짙은 갈색입니다.
+`warning`이 튀는 이유는 잉크가 어둡기 때문입니다. 나머지가 전부 붙어 있는 방향으로 여유가 있습니다. `secondary`는 중립 slate라서 두 번째 끝을 hue가 아니라 밝기에서 가져옵니다. 앰버라 부를 만한 어떤 밝기에서도 흰 글자는 4.5:1에 닿지 않아서, `--plass-warning-on-solid`는 이 세트에서 유일한 짙은 갈색입니다.
 
 각 `accent`는 자신이 읽히는 배경에 대해 4.5:1을 넘깁니다. 라이트 테마에서는 밝은 wash, 다크 테마에서는 어두운 시트입니다.
 
@@ -123,7 +123,7 @@ order: 2
 
 토큰을 꼭 스타일시트에 써야 하는 것은 아닙니다. `--plass-*`는 모두 평범한 custom property이므로 inline `style`로 지정할 수 있고, 이건 보기보다 중요합니다. inline 선언은 어떤 class보다도 강하기 때문입니다.
 
-라이브러리는 테두리와 그림자, focus ring, fill을 Tailwind의 _arbitrary property_ — `[box-shadow:var(--p-elev),var(--p-lift)]` 같은 형태 — 로 씁니다. Tailwind는 이런 클래스를 생성된 스타일시트의 가장 뒤에 정렬하므로, 그 뒤에 덧붙인 `shadow-none`은 내용과 무관하게 순서에서 집니다. 그 아래에 있는 토큰은 지지 않습니다.
+라이브러리는 테두리와 그림자, focus ring, fill을 Tailwind의 _arbitrary property_(`[box-shadow:var(--p-elev),var(--p-lift)]` 같은 형태)로 씁니다. Tailwind는 이런 클래스를 생성된 스타일시트의 가장 뒤에 정렬하므로, 그 뒤에 덧붙인 `shadow-none`은 내용과 무관하게 순서에서 집니다. 그 아래에 있는 토큰은 지지 않습니다.
 
 ```tsx
 <PlButton style={{ '--plass-radius-md': '4px' }}>Save</PlButton>
@@ -153,7 +153,7 @@ const quiet: PlassTokens = {
 <PlButton style={quiet}>Save</PlButton>;
 ```
 
-컴포넌트가 _자기 자신에게_ 쓰는 `--p-*`는 여기에 포함되지 않습니다. 그건 라이브러리 자신의 계산값 — 이 컨트롤이 어떤 계열로 정해졌는지, 이 `elevation`에서 그림자가 얼마인지 — 이고, 그것을 정하는 것은 `color`, `variant`, `elevation` prop입니다.
+컴포넌트가 _자기 자신에게_ 쓰는 `--p-*`는 여기에 포함되지 않습니다. 그건 라이브러리 자신의 계산값(이 컨트롤이 어떤 계열로 정해졌는지, 이 `elevation`에서 그림자가 얼마인지)이고, 그것을 정하는 것은 `color`, `variant`, `elevation` prop입니다.
 
 :::
 
@@ -165,6 +165,6 @@ const quiet: PlassTokens = {
 | `--plass-fg` | 본문 글자 |
 | `--plass-muted-fg` | 라벨, 설명, adornment |
 | `--plass-border` | 유리 hairline이 어울리지 않는 자리의 중립 hairline |
-| `--plass-bg-from` / `-to` | 유리를 튜닝한 기준이 된 페이지 wash — [시작하기](../guide/getting-started#컴포넌트-아래에-깔릴-페이지) 참고 |
+| `--plass-bg-from` / `-to` | 유리를 튜닝한 기준이 된 페이지 wash, [시작하기](../guide/getting-started#컴포넌트-아래에-깔릴-페이지) 참고 |
 
 `--plass-bg-from`과 `--plass-bg-to`는 라이브러리가 스스로는 절대 쓰지 않는 유일한 두 토큰입니다. 평평한 흰 페이지 위의 유리 시트는 앞에 세울 것이 없는데, 컴포넌트 라이브러리가 남의 `<body>`를 칠할 일은 아니어서, 색의 이름만 알려 주고 칠하는 일은 넘기는 것입니다.

@@ -5,7 +5,7 @@ order: 2
 
 # PlCard
 
-<p class="plass-lede">화면의 나머지를 묶어 놓는 시트입니다. 제목, 부제, 본문, 푸터 — 카드를 이루는 부분들이 이미 배치되어 있습니다.</p>
+<p class="plass-lede">화면의 나머지를 묶어 놓는 시트입니다. 제목과 부제, 본문, 푸터까지 카드를 이루는 부분들이 이미 배치되어 있습니다.</p>
 
 <Demo src="card/hero" :min-height="240" />
 
@@ -82,7 +82,7 @@ PlCard(
 
 각 영역이 하위 컴포넌트가 아니라 prop인 이유는 `PlTextField`가 `label`과 `description`을 prop으로 받는 이유와 같습니다. 배치는 고정되어 있고, 호출하는 쪽이 정하고 싶은 것은 각 자리에 무엇을 넣느냐입니다.
 
-비어 있는 자리는 아무것도 그리지 않습니다 — 본문만 있는 카드는 섹션이 셋이 아니라 하나입니다.
+비어 있는 자리는 아무것도 그리지 않습니다. 본문만 있는 카드는 섹션이 셋이 아니라 하나입니다.
 
 <Demo src="card/slots" :min-height="360">
 
@@ -122,7 +122,7 @@ PlCard(
 
 ### padded
 
-끄면 시트가 안쪽 여백을 전혀 갖지 않고, 내용이 자기 여백을 가져옵니다 — 네 모서리까지 닿는 배너 이미지, 자기 행을 직접 그리는 표.
+끄면 시트가 안쪽 여백을 전혀 갖지 않고, 내용이 자기 여백을 가져옵니다: 네 모서리까지 닿는 배너 이미지, 자기 행을 직접 그리는 표.
 
 ::: fw react
 
@@ -186,7 +186,7 @@ PlCard(
 
 ### size
 
-모서리 반경, 타입 스케일, 안쪽 여백이 함께 움직입니다. 컨트롤과 달리 카드의 `size`는 높이를 정하지 않습니다 — 카드의 높이는 담고 있는 내용이 정합니다.
+모서리 반경, 타입 스케일, 안쪽 여백이 함께 움직입니다. 컨트롤과 달리 카드의 `size`는 높이를 정하지 않습니다. 카드의 높이는 담고 있는 내용이 정합니다.
 
 <Demo src="card/sizes" :min-height="360">
 
@@ -210,7 +210,7 @@ PlCard(
 
 - role 없는 평범한 `<div>`로 렌더링됩니다. 컨테이너에는 이것이 맞습니다. 마크업이 더 말해야 한다면 `render`로 `<section>`, `<li>`, `<article>`, 링크가 되게 하세요.
 - 문자열 `title`은 heading이 아니라 스타일이 적용된 `<div>`입니다. 카드가 문서 개요에 들어가야 하면 `title={<h2>…</h2>}`를 넘기세요. 브라우저 기본 서식 대신 카드의 타이포그래피를 물려받습니다.
-- `interactive`는 시각적인 상태일 뿐입니다. role도, `tabIndex`도, 키 처리도 붙지 않습니다 — `<div>`에 `onClick`을 얹는 대신 `render`로 진짜 요소를 주세요.
+- `interactive`는 시각적인 상태일 뿐입니다. role도, `tabIndex`도, 키 처리도 붙지 않습니다. `<div>`에 `onClick`을 얹는 대신 `render`로 진짜 요소를 주세요.
 - focus ring은 `:focus-visible`에서만 그려지고 시트의 테두리를 따라갑니다. 카드가 실제로 focus를 받을 수 있게 된 뒤에만 나타납니다.
 
 :::
@@ -219,8 +219,8 @@ PlCard(
 
 - `onPressed`가 없는 카드는 role도 focus stop도 더하지 않습니다. 컨테이너에는 이것이 맞습니다.
 - `title`은 제목의 서식을 받을 뿐 heading으로 알려지지는 않습니다. 카드가 화면의 개요에 들어가야 하면 `Semantics(header: true, …)`로 감싸세요. 타이포그래피는 어느 쪽이든 카드의 것입니다.
-- `interactive`는 시각적인 상태일 뿐입니다. role도, focus stop도, 키 처리도 붙지 않습니다 — 실제로 누르는 카드라면 `onPressed`를 쓰세요.
-- focus ring은 CSS가 `:focus-visible`이라고 부르는 것 — 키보드가 카드에 닿았을 때에만 나타나고, 포인터 클릭에는 절대 나타나지 않습니다 — 그리고 시트의 테두리를 따라갑니다.
+- `interactive`는 시각적인 상태일 뿐입니다. role도, focus stop도, 키 처리도 붙지 않습니다. 실제로 누르는 카드라면 `onPressed`를 쓰세요.
+- focus ring은 CSS가 `:focus-visible`이라고 부르는 것(키보드가 카드에 닿았을 때에만 나타나고, 포인터 클릭에는 절대 나타나지 않습니다) 그리고 시트의 테두리를 따라갑니다.
 
 :::
 
@@ -230,7 +230,7 @@ PlCard(
 
 | React | Flutter | 이유 |
 | --- | --- | --- |
-| `render` | `onPressed` | Flutter에는 요소를 바꿔 끼우는 수단이 없고, `render`를 주로 찾게 되는 이유 — 카드를 진짜로 만드는 것 — 은 `onPressed`가 곧바로 합니다. 이동하는 액션은 거기서 라우터를 부릅니다. |
+| `render` | `onPressed` | Flutter에는 요소를 바꿔 끼우는 수단이 없고, `render`를 주로 찾게 되는 이유(카드를 진짜로 만드는 것)은 `onPressed`가 곧바로 합니다. 이동하는 액션은 거기서 라우터를 부릅니다. |
 | `footer`의 조각(fragment) | 위젯 하나 | 배치할 조각이 없으니, 여러 개가 든 푸터는 자기 `Row`나 `Wrap`을 가져옵니다. |
 | `title={<h2>…</h2>}` | `Semantics(header: true, …)` | Flutter의 semantics 트리에는 heading 플래그가 하나 있을 뿐 깊이가 없습니다. |
 | `children` | `child` | Flutter의 이름입니다. |

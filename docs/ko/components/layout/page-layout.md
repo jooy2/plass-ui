@@ -5,7 +5,7 @@ order: 10
 
 # PlPageLayout
 
-<p class="plass-lede">페이지를 걸어 두는 뼈대입니다. header, footer, sidebar 하나 또는 둘, 그리고 그 사이의 콘텐츠. 자기 표면은 아무것도 그리지 않고, 배치와 landmark만 보탭니다.</p>
+<p class="plass-lede">페이지를 걸어 두는 뼈대입니다. header와 footer, sidebar 하나 또는 둘, 그리고 그 사이의 콘텐츠를 배치합니다. 자기 표면은 그리지 않고 배치와 landmark만 보탭니다.</p>
 
 <Demo src="page-layout/hero" :min-height="360" />
 
@@ -48,7 +48,7 @@ PlPageLayout(
 
 ::: fw flutter
 
-레이아웃은 받은 공간을 채웁니다 — header, [`Expanded`](https://api.flutter.dev/flutter/widgets/Expanded-class.html) band, footer의 구성이라 높이가 정해진 것 아래에 두세요. 콘텐츠는 scroll view로 감싸지 않습니다. 무엇이 어느 방향으로 스크롤되는지는 `child`에 넣은 것의 몫입니다.
+레이아웃은 받은 공간을 채웁니다. header, [`Expanded`](https://api.flutter.dev/flutter/widgets/Expanded-class.html) band, footer의 구성이라 높이가 정해진 것 아래에 두세요. 콘텐츠는 scroll view로 감싸지 않습니다. 무엇이 어느 방향으로 스크롤되는지는 `child`에 넣은 것의 몫입니다.
 
 :::
 
@@ -60,7 +60,7 @@ landmark입니다. `<div>`만으로 조립한 페이지는 스크린 리더가 �
 
 그 태그들은 이 컴포넌트가 배치하는 컴포넌트들이 냅니다. 레이아웃 자신이 문서에 보태는 것은 요소 하나, 그리고 `<main>`과 거기로 건너뛰는 링크뿐입니다.
 
-gutter도 measure도 그리지 않습니다. 그건 [`PlContainer`](./container)의 일이고, 안에 하나 넣으면 됩니다 — 그래야 한 route에서는 넓은 대시보드, 다음 route에서는 좁은 글이 될 수 있습니다.
+gutter도 measure도 그리지 않습니다. 그건 [`PlContainer`](./container)의 일이고, 안에 하나 넣으면 됩니다. 그래야 한 route에서는 넓은 대시보드, 다음 route에서는 좁은 글이 될 수 있습니다.
 
 ## Examples
 
@@ -112,7 +112,7 @@ footer는 같은 질문에 따로 답합니다. 전체 높이 내비게이션 �
 
 기본으로 켜져 있고, 여기서 유일하게 스타일 결정이 아닌 항목입니다. 내비게이션에 링크가 마흔 개 있는 페이지에 도착한 키보드 사용자는 글에 닿기까지 매 페이지마다 마흔 개를 지나야 합니다. 이 링크 하나가 그걸 면하게 해 주고, focus를 받기 전까지는 보이지 않으므로 눈으로 읽는 사람에게는 아무 비용도 들지 않습니다.
 
-`mainId`는 쌍의 양쪽을 함께 바꿉니다 — `<main>`의 `id`와 링크가 가리키는 `href`.
+`mainId`는 쌍의 양쪽을 함께 바꿉니다: `<main>`의 `id`와 링크가 가리키는 `href`.
 
 <Demo src="page-layout/skip-link" :flutter="false" :min-height="220">
 
@@ -134,7 +134,7 @@ sidebar가 열이기를 그만두고 drawer가 되는 창 너비입니다. `none
 
 sidebar가 열이기를 그만두고 drawer가 되는 너비입니다. `null`이면 어떤 너비에서도 열로 남고, sidebar가 없는 레이아웃과 이 페이지의 미리 보기들이 그 값을 씁니다.
 
-비교 대상은 창이 아니라 **이 레이아웃이 받은 공간**입니다. media query가 못 하는 것이 이것입니다 — 어떤 pane 안에 든 앱 셸은 창이 아니라 그 pane이 좁을 때 접힙니다.
+비교 대상은 창이 아니라 **이 레이아웃이 받은 공간**입니다. media query가 못 하는 것이 이것입니다. 어떤 pane 안에 든 앱 셸은 창이 아니라 그 pane이 좁을 때 접힙니다.
 
 :::
 
@@ -144,7 +144,7 @@ sidebar가 열이기를 그만두고 drawer가 되는 너비입니다. `null`이
 
 ## 바를 재는 방법
 
-자기 자리를 지키는 sidebar는 header 아래에서 시작해야 하는데, 그 높이는 header 말고 아무도 모릅니다. 그래서 레이아웃은 두 바를 재서 창에서 얼마를 가져가는지 자기 root에 씁니다 — `--p-layout-header`와 `--p-layout-footer`, 그리고 각각의 `-inset`.
+자기 자리를 지키는 sidebar는 header 아래에서 시작해야 하는데, 그 높이는 header 말고 아무도 모릅니다. 그래서 레이아웃은 두 바를 재서 창에서 얼마를 가져가는지 자기 root에 씁니다: `--p-layout-header`와 `--p-layout-footer`, 그리고 각각의 `-inset`.
 
 하나가 아니라 둘인 이유는, 바가 어떻게 배치되었는지에 따라 가져가는 것이 다르기 때문입니다. `sticky` 바는 여전히 흐름 안에 있으므로 자리를 따로 비워 둘 필요가 없지만, 창 위쪽을 늘 가로막고 있으므로 열은 그 아래에서 시작해야 합니다. `fixed` 바는 흐름 밖이므로 페이지가 그 높이를 _비워 둬야_ 합니다. 둘 중 어느 쪽인지는 prop으로 전달받는 대신 요소에서 읽습니다.
 
@@ -161,7 +161,7 @@ sidebar가 열이기를 그만두고 drawer가 되는 너비입니다. `null`이
 | `scroll`, `height` | — | 레이아웃은 받은 공간을 채우고, 스크롤되는 것은 `child`에 넣은 것입니다. 영역 대신 스크롤할 문서라는 것이 없습니다. |
 | 측정된 `--p-layout-*` 속성 | — | `Column`이 이미 그 산수를 끝냈습니다. header 아래의 band는 정확히 header가 남긴 만큼이라 잴 것이 없습니다. |
 | 창 너비 기준의 `collapseBelow` | 이 레이아웃 자신의 너비 기준 | `LayoutBuilder`는 레이아웃이 받은 constraints를 봅니다. media query는 창만 봅니다. |
-| `'none'` | `null` | "정해 둔 하한이 없다"를 Dart가 말하는 방식입니다. |
+| `'none'` | `null` | "정해 둔 하한이 없다"를 Dart가 나타내는 방식입니다. |
 | `skipLink`, `skipLabel`, `mainId` | — | 건너뛰기 링크는 fragment로 가는 링크입니다. fragment가 없고, 순회 순서도 문서가 아니라 semantics 트리의 것입니다. |
 | `mainProps`, `color` | `mainSemanticLabel` | React 빌드가 `<main>`에 얹던 것 중 여기에 대응하는 것은 이름뿐입니다. 레이아웃은 아무것도 칠하지 않으므로 나를 색도 없습니다. |
 | `defaultSidebarOpen` | — | uncontrolled가 기본입니다. `sidebarOpen`을 빼면 레이아웃이 닫힌 상태로 시작해 상태를 쥡니다. |
@@ -175,16 +175,16 @@ sidebar가 열이기를 그만두고 drawer가 되는 너비입니다. `null`이
 
 - children은 진짜 `<main>` 안에 들어가고, 그것이 `main` landmark입니다. 페이지당 정확히 하나여야 하며, 그걸 보장하는 것이 레이아웃입니다.
 - 건너뛰기 링크는 문서의 맨 앞이고, 숨겨지는 대신 1px로 잘려 있어서 Tab 키가 찾을 수 있습니다. `hidden`이면 화면과 함께 접근성 트리에서도 사라져 tab할 것이 남지 않습니다.
-- `<main>`에는 `tabindex`를 주지 않습니다. 거기로 건너뛰는 것은 읽는 위치를 옮기는 일이고 그게 핵심입니다. focus 가능하게 만들면 모든 페이지에 tab stop이 하나 늘어납니다.
+- `<main>`에는 `tabindex`를 주지 않습니다. 거기로 건너뛰는 것은 읽는 위치를 옮기는 일이고 그것이 핵심입니다. focus 가능하게 만들면 모든 페이지에 tab stop이 하나 늘어납니다.
 - 이름 붙일 영역이 둘 이상인 페이지라면 `aria-label`은 `mainProps`에 넣습니다.
-- 레이아웃 자체는 어떤 role도 주장하지 않습니다. `<div>` 하나를 보탤 뿐이고, landmark는 안에 든 컴포넌트들이 그리는 태그에서 나옵니다.
+- 레이아웃 자체는 어떤 role도 선언하지 않습니다. `<div>` 하나를 보탤 뿐이고, landmark는 안에 든 컴포넌트들이 그리는 태그에서 나옵니다.
 
 :::
 
 ::: fw flutter
 
-- 콘텐츠는 `SemanticsRole.main`으로 감싸집니다. 반대쪽의 `<main>` 요소가 하는 것과 같은 주장입니다 — 여기가 chrome이 아닌 부분이라는 것.
+- 콘텐츠는 `SemanticsRole.main`으로 감싸집니다. 반대쪽의 `<main>` 요소가 하는 것과 같은 주장입니다: 여기가 chrome이 아닌 부분이라는 것.
 - 이름 붙일 영역이 둘 이상인 화면이라면 `mainSemanticLabel`이 그 영역의 이름입니다. 없으면 안에 든 것으로 불립니다.
-- 레이아웃은 그 밖에 아무것도 주장하지 않습니다. 나머지 이름은 안에 든 컴포넌트들에서 나옵니다.
+- 레이아웃은 그 밖에 아무 role도 선언하지 않습니다. 나머지 이름은 안에 든 컴포넌트들에서 나옵니다.
 
 :::

@@ -25,7 +25,7 @@ import { PlPortal } from 'plass-ui';
 
 ::: fw flutter
 
-이 컴포넌트는 React 전용이고, 빠뜨린 것이 아닙니다. 이것이 우회하는 문제는 DOM의 문제입니다. `overflow: hidden`인 조상, 안쪽에서는 빠져나올 수 없는 stacking context의 `z-index` 같은 것들인데 Flutter에는 둘 다 없습니다. 화면 위로 떠야 하는 위젯은 모든 Flutter 앱이 이미 가지고 있는 `Overlay`로 갑니다.
+이 컴포넌트는 React 전용이고, 빠뜨린 것이 아닙니다. 이것이 우회하는 문제는 DOM의 문제입니다. `overflow: hidden`인 조상, 안쪽에서는 빠져나올 수 없는 stacking context의 `z-index` 같은 것들인데 Flutter에는 둘 다 없습니다. 화면 위로 떠야 하는 위젯은 모든 Flutter 앱이 이미 있는 `Overlay`로 갑니다.
 
 ```dart
 Overlay.of(context).insert(
@@ -47,7 +47,7 @@ Overlay.of(context).insert(
 
 ### `plass-portal` 클래스
 
-라이브러리가 portal로 내보내는 모든 표면 — [modal](../feedback/modal), [drawer](../feedback/drawer), [menu](../navigation/menu), [popover](../feedback/popover), [tooltip](../feedback/tooltip), [toast](../feedback/toast) — 이 이 클래스를 달고 내려앉습니다. portal된 서브트리는 호스트가 CSS 리셋을 걸어 둔 요소 바깥으로 나가고, 호스트가 그 서브트리를 다시 찾는 방법이 이 클래스입니다. 이 클래스가 없는 호출자의 portal은 페이지에서 리셋이 닿지 않는 유일한 서브트리가 됩니다.
+라이브러리가 portal로 내보내는 모든 표면. [modal](../feedback/modal), [drawer](../feedback/drawer), [menu](../navigation/menu), [popover](../feedback/popover), [tooltip](../feedback/tooltip), [toast](../feedback/toast). 이 이 클래스를 달고 내려앉습니다. portal된 서브트리는 호스트가 CSS 리셋을 걸어 둔 요소 바깥으로 나가고, 호스트가 그 서브트리를 다시 찾는 방법이 이 클래스입니다. 이 클래스가 없는 호출자의 portal은 페이지에서 리셋이 닿지 않는 유일한 서브트리가 됩니다.
 
 스타일이 아니라 표식입니다. 라이브러리는 이 클래스에 아무것도 선언하지 않습니다.
 
@@ -101,7 +101,7 @@ Overlay.of(context).insert(
 </div>
 ```
 
-`--plass-z-portal`은 라이브러리의 모든 portal 표면이 그려지는 층이고, 토큰인 이유는 자기 헤더와 쿠키 바와 비디오 플레이어를 가진 앱이 한 줄로 그 층 전체를 옮길 수 있게 하기 위해서입니다. 숫자 대신 이것을 쓰십시오.
+`--plass-z-portal`은 라이브러리의 모든 portal 표면이 그려지는 층이고, 토큰인 이유는 자기 헤더와 쿠키 바와 비디오 플레이어가 붙은 앱이 한 줄로 그 층 전체를 옮길 수 있게 하기 위해서입니다. 숫자 대신 이것을 쓰십시오.
 
 ### `<div>`가 아닌 요소
 
@@ -120,9 +120,9 @@ Overlay.of(context).insert(
 ## Notes
 
 - wrapper는 fragment가 아니라 실제 요소입니다. 클래스를 다는 것도, 호출자가 서브트리의 위치를 잡는 것도 그 요소입니다.
-- 포커스를 가두지 않고, 페이지를 막지 않으며, <kbd>Escape</kbd>로 닫히지도 않습니다. 그 셋은 portal되는 대상의 몫이고 — [`PlModal`](../feedback/modal)이 셋 다 가지고 있습니다 — 그런 의견을 가진 portal은 이름을 잘못 지은 dialog입니다.
+- 포커스를 가두지 않고, 페이지를 막지 않으며, <kbd>Escape</kbd>로 닫히지도 않습니다. 그 셋은 portal되는 대상의 몫이고([`PlModal`](../feedback/modal)이 셋 다 있습니다) 그런 의견이 붙은 portal은 이름을 잘못 지은 dialog입니다.
 
 ## Accessibility
 
-- **portal은 픽셀과 읽는 순서를 함께 옮깁니다.** 스크린 리더는 문서를 따라 걷기 때문에, `<body>` 끝으로 간 서브트리는 트리거 바로 옆에 그려져 있어도 페이지의 끝에서 읽힙니다. 사용자가 곧바로 만나야 하는 것 — dialog, menu, 방금 무슨 일이 있었는지 알리는 메시지 — 이라면 포커스를 그 안으로 옮기거나, 트리거에 `aria-controls`와 `aria-expanded`를 주십시오.
+- **portal은 픽셀과 읽는 순서를 함께 옮깁니다.** 스크린 리더는 문서를 따라 걷기 때문에, `<body>` 끝으로 간 서브트리는 트리거 바로 옆에 그려져 있어도 페이지의 끝에서 읽힙니다. 사용자가 곧바로 만나야 하는 것(dialog, menu, 방금 무슨 일이 있었는지 알리는 메시지)이라면 포커스를 그 안으로 옮기거나, 트리거에 `aria-controls`와 `aria-expanded`를 주십시오.
 - <kbd>Tab</kbd> 키도 마찬가지입니다. 화면이 아니라 문서를 따라갑니다. 버튼 옆에 그려진 portal 패널이라도 무언가 포커스를 옮겨 주지 않으면 페이지의 나머지를 모두 지난 뒤에야 도달합니다.

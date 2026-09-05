@@ -42,7 +42,7 @@ PlTextField(
 
 네이티브 `<input>` 속성은 그대로 전달되고, `multiline`일 때는 `<textarea>` 속성이 그대로 전달됩니다. 예외는 위 공통 축과 이름이 겹치는 `color`와 `size`입니다.
 
-`className`은 label과 control, 그 아래 두 줄을 함께 담는 stack에 붙습니다. 그 안쪽 네 부분에 닿는 것이 `classNames`입니다 — `label`, `control`(글자가 들어가는 상자), `description`, `error`.
+`className`은 label과 control, 그 아래 두 줄을 함께 담는 stack에 붙습니다. 그 안쪽 네 부분에 닿는 것이 `classNames`입니다: `label`, `control`(글자가 들어가는 상자), `description`, `error`.
 
 :::
 
@@ -50,7 +50,7 @@ PlTextField(
 
 값은 `TextEditingController`에 삽니다. Flutter가 텍스트를 두는 자리가 거기입니다. 빼면 필드가 하나를 스스로 만들지만, 값이 앱에 필요한 필드라면 앱이 controller를 건네주어야 하는 필드입니다.
 
-아래에 있는 것은 `TextField`가 아니라 `EditableText`입니다. 앞의 것은 Material이고, 이 패키지는 Material도 Cupertino도 가져오지 않습니다. Material이 그 위에 얹는 것 — 데코레이션, 카운터, 리플 — 이 바로 이 컴포넌트가 **대신하는** 것입니다.
+아래에 있는 것은 `TextField`가 아니라 `EditableText`입니다. 앞의 것은 Material이고, 이 패키지는 Material도 Cupertino도 가져오지 않습니다. Material이 그 위에 얹는 것(데코레이션, 카운터, 리플)이 바로 이 컴포넌트가 **대신하는** 것입니다.
 
 :::
 
@@ -82,7 +82,7 @@ PlTextField(
 
 ### size
 
-PlButton과 같은 사다리입니다 — `xs` 24px · `sm` 32px · `md` 40px · `lg` 48px · `xl` 56px. 같은 `size`의 필드와 버튼은 한 줄에서 기준선이 맞습니다.
+PlButton과 같은 사다리입니다. `xs` 24px · `sm` 32px · `md` 40px · `lg` 48px · `xl` 56px. 같은 `size`의 필드와 버튼은 한 줄에서 기준선이 맞습니다.
 
 <Demo src="text-field/sizes" :min-height="260">
 
@@ -110,7 +110,7 @@ PlButton과 같은 사다리입니다 — `xs` 24px · `sm` 32px · `md` 40px ·
 
 ::: fw flutter
 
-셋 다 위젯이고, 셋 다 필드 자신의 semantics 노드에 포함됩니다 — 그래서 스크린 리더가 라벨과 필드와 메시지를 셋이 아니라 하나로 읽습니다.
+셋 다 위젯이고, 셋 다 필드 자신의 semantics 노드에 포함됩니다. 그래서 스크린 리더가 라벨과 필드와 메시지를 셋이 아니라 하나로 읽습니다.
 
 :::
 
@@ -150,7 +150,7 @@ floating label variant는 없습니다. floating label은 입력 중인 대상�
 
 ::: fw flutter
 
-`resize`는 없습니다. textarea의 크기 조절 손잡이는 브라우저의 것이고, Flutter에는 내놓을 대응물이 없습니다 — 크기가 달라져야 하는 필드는 주변 레이아웃이 크기를 바꿔 주는 필드입니다.
+`resize`는 없습니다. textarea의 크기 조절 손잡이는 브라우저의 것이고, Flutter에는 내놓을 대응물이 없습니다. 크기가 달라져야 하는 필드는 주변 레이아웃이 크기를 바꿔 주는 필드입니다.
 
 :::
 
@@ -172,7 +172,7 @@ floating label variant는 없습니다. floating label은 입력 중인 대상�
 
 ### startIcon과 endIcon
 
-행이 아니라 글자를 기준으로 크기가 정해집니다. 컨트롤 안이 아니라 shell에 붙으며 컨트롤의 focus에 반응합니다 — 필드가 focus되면 adornment가 muted에서 accent 색으로 바뀝니다.
+행이 아니라 글자를 기준으로 크기가 정해집니다. 컨트롤 안이 아니라 shell에 붙으며 컨트롤의 focus에 반응합니다. 필드가 focus되면 adornment가 muted에서 accent 색으로 바뀝니다.
 
 adornment는 컨트롤의 **첫 줄**을 기준으로 가운데 정렬되므로, multiline 필드가 늘어나도 자리를 지킵니다.
 
@@ -220,11 +220,11 @@ adornment는 컨트롤의 **첫 줄**을 기준으로 가운데 정렬되므로,
 
 ### hotKeys
 
-<kbd>Mod</kbd>+<kbd>Enter</kbd>로 저장하고 <kbd>Escape</kbd>로 비우는 필드는 달리 둘 곳이 없는 키보드 어포던스입니다. `hotKeys`는 chord와 그 chord가 하는 일의 map이고, **[`PlHotKeys`](../display/hot-keys)가 그리는 것과 같은 vocabulary**로 씁니다 — 필드 옆에 찍힌 키캡과 실제로 동작하는 키가 문자열 하나에서 나오므로 서로 어긋날 수가 없습니다.
+<kbd>Mod</kbd>+<kbd>Enter</kbd>로 저장하고 <kbd>Escape</kbd>로 비우는 필드는 달리 둘 곳이 없는 키보드 어포던스입니다. `hotKeys`는 chord와 그 chord가 하는 일의 map이고, **[`PlHotKeys`](../display/hot-keys)가 그리는 것과 같은 vocabulary**로 씁니다. 필드 옆에 찍힌 키캡과 실제로 동작하는 키가 문자열 하나에서 나오므로 서로 어긋날 수가 없습니다.
 
 `Mod`는 platform에 따라 정해집니다. 항목 하나가 Mac에서는 ⌘, 그 밖에서는 <kbd>Ctrl</kbd>입니다. `Esc`, `Return`, `Cmd`, `Option`도 키캡과 같은 키로 접힙니다.
 
-맞는 chord는 **소비됩니다** — handler가 실행되고 키는 더 이상 가지 않습니다. 그래서 여기 묶은 `Escape`는 필드를 감싼 dialog를 닫지 않고, `Enter`는 form을 제출하지 않습니다. 키를 묶는다는 게 그런 뜻이고, 그래서 이건 글자가 아니라 chord여야 합니다 — `{ a: … }`는 `a`를 칠 수 없는 필드입니다.
+맞는 chord는 **소비됩니다**(handler가 실행되고 키는 더 이상 가지 않습니다. 그래서 여기 묶은 `Escape`는 필드를 감싼 dialog를 닫지 않고, `Enter`는 form을 제출하지 않습니다. 키를 묶는다는 것이 그런 뜻이고, 그래서 이건 글자가 아니라 chord여야 합니다) `{ a: … }`는 `a`를 칠 수 없는 필드입니다.
 
 <Demo src="text-field/hot-keys" :min-height="280">
 
@@ -288,7 +288,7 @@ controller가 **곧** 값이고, `onChanged`는 모든 변화를 알려줍니다
 ::: fw flutter
 
 - 텍스트 필드로 알려지고, 읽기 전용이거나 사용할 수 없을 때는 그렇게 알려집니다.
-- 라벨과 필드, 설명, 메시지는 **하나의** semantics 노드입니다. 그래서 스크린 리더가 차례로가 아니라 함께 읽습니다. 보이는 라벨이 없다면 `semanticLabel`을 주세요 — placeholder는 이름이 아닙니다.
+- 라벨과 필드, 설명, 메시지는 **하나의** semantics 노드입니다. 그래서 스크린 리더가 차례로가 아니라 함께 읽습니다. 보이는 라벨이 없다면 `semanticLabel`을 주세요. placeholder는 이름이 아닙니다.
 - focus ring은 편집기가 아니라 shell에 그려져서, 안쪽에 떠 있는 사각형이 아니라 유리의 가장자리를 따라갑니다. CSS가 `:focus-visible`이라고 부르는 것에서만 나타납니다.
 - shell의 여백을 누르면 네이티브 input 안을 눌렀을 때처럼 캐럿이 필드로 들어갑니다.
 - 선택은 드래그로 하고, 그 뒤에 조절할 **손잡이는 없습니다**. 터치 플랫폼이 선택 아래에 붙이는 드래그 손잡이는 Material과 Cupertino의 것이고, 이 패키지는 둘 다 가져오지 않습니다.

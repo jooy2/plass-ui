@@ -47,7 +47,7 @@ const PlTypography('Every surface answers one question.');
 
 :::
 
-`variant`도, `elevation`도, `size`도 없습니다. `level`이 **곧** 크기입니다 — 그 옆에 `size`가 있으면 `xs`짜리 `h1`을 요청할 수 있게 되는데, 그것은 heading이 아닌 heading입니다.
+`variant`도, `elevation`도, `size`도 없습니다. `level`이 **곧** 크기입니다. 그 옆에 `size`가 있으면 `xs`짜리 `h1`을 요청할 수 있게 되는데, 그것은 heading이 아닌 heading입니다.
 
 라이브러리 전체에서 공유 축(`color` `align`)이 뜻하는 바는 [prop 규칙](../../design/prop-conventions)에 있습니다.
 
@@ -55,9 +55,9 @@ const PlTypography('Every surface answers one question.');
 
 ### level
 
-`body`는 `md`에서 `PlCard`의 본문과 같은 사다리에 놓입니다 — 22px 행간에 13px — 그래서 card 안의 문단과 홀로 선 문단이 같은 텍스트입니다. heading은 거기서 장3도쯤씩 올라가고, 커질수록 행간은 좁아집니다. 30px 줄은 13px 줄과 같은 1.7 비율을 원하지 않습니다.
+`body`는 `md`에서 `PlCard`의 본문과 같은 사다리에 놓입니다(22px 행간에 13px). 그래서 card 안의 문단과 홀로 선 문단이 같은 텍스트입니다. heading은 거기서 장3도쯤씩 올라가고, 커질수록 행간은 좁아집니다. 30px 줄은 13px 줄과 같은 1.7 비율을 원하지 않습니다.
 
-`caption`과 `overline`은 기본적으로 흐립니다. 나머지는 페이지의 잉크를 그대로 씁니다 — 미리 회색이 입혀진 채 도착한 heading은 디자이너가 되돌려야 하는 heading입니다.
+`caption`과 `overline`은 기본적으로 흐립니다. 나머지는 페이지의 잉크를 그대로 씁니다. 미리 회색이 입혀진 채 도착한 heading은 디자이너가 되돌려야 하는 heading입니다.
 
 <Demo src="typography/levels" :min-height="420">
 
@@ -79,7 +79,7 @@ const PlTypography('Every surface answers one question.');
 
 ### render
 
-`level`은 스케일과 요소를 **함께** 정하고, 그것이 보통의 경우입니다. 둘이 달라야 할 때 — 문서 개요에 들어가면 안 되는 소제목, `h3`처럼 보여야 하는 `<p>` — `render`가 그 매듭을 풉니다.
+`level`은 스케일과 요소를 **함께** 정하고, 그것이 보통의 경우입니다. 둘이 달라야 할 때(문서 개요에 들어가면 안 되는 소제목, `h3`처럼 보여야 하는 `<p>`) `render`가 그 매듭을 풉니다.
 
 <Demo src="typography/render" :min-height="200">
 
@@ -133,7 +133,7 @@ heading은 `semibold`이고, **모든 폰트에 600이 있는 것은 아닙니�
 
 ::: fw flutter
 
-줄 수와 상관없이 방식은 하나입니다. `maxLines`에 `TextOverflow.ellipsis`. `semanticsLabel`이 있는 이유도 여기에 있습니다 — 잘려 나간 글자는 렌더 트리에서 실제로 사라지므로, 전체 문장이 스크린 리더에 중요한 줄은 그것을 따로 말해 주어야 합니다.
+줄 수와 상관없이 방식은 하나입니다. `maxLines`에 `TextOverflow.ellipsis`. `semanticsLabel`이 있는 이유도 여기에 있습니다. 잘려 나간 글자는 렌더 트리에서 실제로 사라지므로, 전체 문장이 스크린 리더에 중요한 줄은 그것을 따로 알려 주어야 합니다.
 
 :::
 
@@ -198,7 +198,7 @@ heading은 `semibold`이고, **모든 폰트에 600이 있는 것은 아닙니�
 | `render` | — | Flutter에는 요소를 바꿔 끼우는 수단이 없습니다. `level`이 스케일과 heading 여부를 함께 정하고, 둘을 떼어놓을 수 없습니다. |
 | 개요 단계 6개인 `h1`~`h6` | heading 플래그 하나 | Flutter의 접근성 트리에는 `header: true`가 있을 뿐 깊이가 없습니다. 스케일은 그대로 다르고, 넘어오지 않는 것은 개요의 모양입니다. |
 | `children` | 첫 번째 위치 인자 | Flutter의 이름이자 `Text`의 모양입니다. span 형태는 `PlTypography.rich`입니다. |
-| CSS로 대문자화하는 `overline` | 문자열을 대문자화 | `text-transform`이 없으니, 다룰 수 있는 경우는 라이브러리가 글자를 직접 쥐고 있는 경우뿐입니다 — `PlTypography.rich`가 span의 대소문자를 건드리지 않는 이유입니다. |
+| CSS로 대문자화하는 `overline` | 문자열을 대문자화 | `text-transform`이 없으니, 다룰 수 있는 경우는 라이브러리가 글자를 직접 쥐고 있는 경우뿐입니다. `PlTypography.rich`가 span의 대소문자를 건드리지 않는 이유입니다. |
 | `className`, `style` | — | 전달할 클래스 목록도 style 속성도 없습니다. |
 
 :::

@@ -5,7 +5,7 @@ order: 3
 
 # PlBarChart
 
-<p class="plass-lede">비교되는 길이입니다. 막대는 <em>얼마나</em>를 말하고, 더 길어지는 것으로 그것을 말합니다. 축이 0에서 시작하고 그 점만은 설득당하지 않는 이유가 그것입니다.</p>
+<p class="plass-lede">비교되는 길이입니다. 막대는 <em>얼마나</em>를 길이로 나타냅니다. 축이 0에서 시작하고 그 점만은 설득당하지 않는 이유가 그것입니다.</p>
 
 <Demo src="bar-chart/hero" :min-height="320" />
 
@@ -35,7 +35,7 @@ PlBarChart(series: revenue, categories: regions);
 
 <PropsTable name="PlBarChart" />
 
-데이터는 모든 차트가 받는 같은 [`PlassChartSeries`](./line-chart#plasschartseries)입니다. 여기서도 `null`은 빈 곳이고, 그런 값에는 막대를 **그리지 않습니다**. 이 차트에서 가장 중요한 구분입니다. 길이 0인 막대와 없는 막대는 같은 그림이고, 그중 정직한 것은 하나뿐이니까요.
+데이터는 모든 차트가 받는 같은 [`PlassChartSeries`](./line-chart#plasschartseries)입니다. 여기서도 `null`은 빈 곳이고, 그런 값에는 막대를 **그리지 않습니다**. 이 차트에서 가장 중요한 구분입니다. 길이 0인 막대와 없는 막대는 같은 그림이고, 그중 정직한 것은 하나뿐이기 때문입니다.
 
 라이브러리 전체에서 공유 축이 뜻하는 바는 [prop 규약](../../design/prop-conventions)에 있습니다.
 
@@ -107,7 +107,7 @@ category 이름이 낱말이라면 `horizontal`이 맞습니다. 이름을 위�
 
 </Demo>
 
-**기준선은 막대 위에 다시 그립니다.** 모든 막대가 거기서 시작하고 그 선이 그렇다고 말합니다. 아래에 두면 막대마다 첫 픽셀에 반쯤 가려집니다.
+**기준선은 막대 위에 다시 그립니다.** 모든 막대가 거기서 시작하고, 그 선이 시작점을 보여 줍니다. 아래에 두면 막대마다 첫 픽셀에 반쯤 가려집니다.
 
 ### rounded
 
@@ -119,4 +119,4 @@ category 이름이 낱말이라면 `horizontal`이 맞습니다. 이름을 위�
 
 ## Accessibility
 
-[`PlLineChart`](./line-chart#accessibility)가 말하는 모든 것이 그대로 적용됩니다. 이름과 series별 요약, 진짜 컨트롤인 범례, 그리고 React 쪽의 숨은 표.
+[`PlLineChart`](./line-chart#accessibility)에 적힌 내용이 그대로 적용됩니다. 이름과 series별 요약, 진짜 컨트롤인 범례, 그리고 React 쪽의 숨은 표.

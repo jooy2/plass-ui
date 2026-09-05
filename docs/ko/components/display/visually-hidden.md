@@ -24,7 +24,7 @@ import { PlVisuallyHidden } from 'plass-ui';
 
 ::: fw flutter
 
-이것은 React 전용이고, 빠뜨린 것이 아닙니다. 이 컴포넌트가 우회하는 것은 DOM의 문제 — 텍스트가 accessibility tree에는 있으면서 화면에는 없어야 한다는 것 — 인데, Flutter의 트리는 render tree가 아닙니다. Dart 쪽 답은 `Semantics`입니다.
+이것은 React 전용이고, 빠뜨린 것이 아닙니다. 이 컴포넌트가 우회하는 것은 DOM의 문제(텍스트가 accessibility tree에는 있으면서 화면에는 없어야 한다는 것) 인데, Flutter의 트리는 render tree가 아닙니다. Dart 쪽 답은 `Semantics`입니다.
 
 ```dart
 Semantics(
@@ -41,7 +41,7 @@ Semantics(
 
 ::: fw react
 
-네이티브 `<span>` 속성은 `aria-live`와 `id`를 포함해 그대로 통과합니다. `variant`도 `size`도 `color`도 없습니다 — 그리는 것이 없으니 그것들이 정할 것도 없습니다.
+네이티브 `<span>` 속성은 `aria-live`와 `id`를 포함해 그대로 통과합니다. `variant`도 `size`도 `color`도 없습니다. 그리는 것이 없으니 그것들이 정할 것도 없습니다.
 
 :::
 
@@ -65,7 +65,7 @@ Semantics(
 
 ### focusable
 
-안쪽 어딘가가 focus를 쥐고 있는 동안 내용을 페이지로 되돌립니다. 문서에서 그런 element는 하나 — skip link — 뿐이고, 바깥에서는 만들 수 없습니다. clip이 `position: absolute`라서, 되돌린다는 것은 element를 flow에 다시 넣는다는 뜻이기 때문입니다.
+안쪽 어딘가가 focus를 쥐고 있는 동안 내용을 페이지로 되돌립니다. 문서에서 그런 element는 하나(skip link) 뿐이고, 바깥에서는 만들 수 없습니다. clip이 `position: absolute`라서, 되돌린다는 것은 element를 flow에 다시 넣는다는 뜻이기 때문입니다.
 
 `:focus`가 아니라 `:focus-within`에 답합니다. Tab이 닿는 것은 거의 언제나 상자 자신이 아니라 상자 **안의** 링크이기 때문입니다.
 
@@ -79,11 +79,11 @@ Semantics(
 
 </Demo>
 
-> 드러난 상자는 `position: static`이 되어 자기 자리를 되찾습니다. 그것을 받아 줄 수 있는 곳에 두세요 — positioned 조상, 아니면 페이지 맨 위. skip link가 원래 있어야 할 자리이기도 합니다.
+> 드러난 상자는 `position: static`이 되어 자기 자리를 되찾습니다. 그것을 받아 줄 수 있는 곳에 두세요. positioned 조상, 아니면 페이지 맨 위. skip link가 원래 있어야 할 자리이기도 합니다.
 
 ### live region
 
-그릴 것이 없는 알림입니다. 숨은 element 위의 `aria-live`는, 화면에서는 뻔한 변화 — 숫자가 올라가고, 필터가 목록을 좁히는 것 — 를 그것을 볼 수 없는 사람에게 전하는 방법입니다.
+그릴 것이 없는 알림입니다. 숨은 element 위의 `aria-live`는, 화면에서는 뻔한 변화(숫자가 올라가고, 필터가 목록을 좁히는 것)를 그것을 볼 수 없는 사람에게 전하는 방법입니다.
 
 <Demo src="visually-hidden/live" :min-height="180">
 

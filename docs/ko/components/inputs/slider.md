@@ -42,7 +42,7 @@ PlSlider(
 
 ::: fw react
 
-Base UI `Slider.Root`의 나머지 prop은 그대로 전달됩니다 — `minStepsBetweenValues`, `largeStep`, `format`, `onValueCommitted`, `name`, `disabled`.
+Base UI `Slider.Root`의 나머지 prop은 그대로 전달됩니다: `minStepsBetweenValues`, `largeStep`, `format`, `onValueCommitted`, `name`, `disabled`.
 
 :::
 
@@ -52,7 +52,7 @@ Base UI `Slider.Root`의 나머지 prop은 그대로 전달됩니다 — `minSte
 
 :::
 
-여기에는 `variant`가 없습니다. 세 재질은 "이 표면이 무엇으로 되어 있는가"에 대한 답인데, 슬라이더는 한 번에 두 표면입니다 — 홈, 그리고 그 위를 지나가는 키. 어느 쪽도 고를 여지가 없습니다.
+여기에는 `variant`가 없습니다. 세 재질은 "이 표면이 무엇으로 되어 있는가"에 대한 답인데, 슬라이더는 한 번에 두 표면입니다. 홈, 그리고 그 위를 지나가는 키. 어느 쪽도 고를 여지가 없습니다.
 
 화살표 키나 rail 누름, 바깥에서 바꾼 값처럼 끌지 않고 바뀐 값에는 thumb이 **이동합니다**. 나머지 전부와 같은 duration이고, 뒤의 run도 같은 속도로 찹니다. 손가락 아래에서는 이동하지 않습니다. 포인터를 향해 서서히 따라가는 thumb은 포인터보다 뒤처져서 느린 컨트롤로 읽히기 때문입니다. 라이브러리에서 위치에 애니메이션을 주는 곳은 여기 하나뿐이고, [transform 금지 규칙](../../design/design-language#컨트롤은-움직이지-않습니다)도 지킵니다. 움직이는 것은 컨트롤이 아니라 값입니다.
 
@@ -88,7 +88,7 @@ thumb끼리 교차하지 않습니다. 값은 양옆 이웃 사이에 붙들리�
 
 ### color
 
-채워진 구간은 색 계열의 그러데이션 — `solid` 버튼이 입는 것과 같은 135° 두 stop 스윕 — 이고, thumb은 그 위에 놓입니다. 페이지 자체의 surface 색으로 테두리를 둘러서 뒤의 구간에 녹아 사라지지 않습니다.
+채워진 구간은 색 계열의 그러데이션(`solid` 버튼이 입는 것과 같은 135° 두 stop 스윕)이고, thumb은 그 위에 놓입니다. 페이지 자체의 surface 색으로 테두리를 둘러서 뒤의 구간에 녹아 사라지지 않습니다.
 
 <Demo src="slider/colors" :min-height="280">
 
@@ -108,7 +108,7 @@ thumb끼리 교차하지 않습니다. 값은 양옆 이웃 사이에 붙들리�
 
 ### min · max · step
 
-`step`이 thumb이 멈출 수 있는 자리를 정합니다. 멈출 자리가 다섯 개인 슬라이더도 여전히 슬라이더이지 segmented control이 아닙니다 — 드래그로 고르고, 값들이 하나의 척도 위에 있기 때문입니다.
+`step`이 thumb이 멈출 수 있는 자리를 정합니다. 멈출 자리가 다섯 개인 슬라이더도 여전히 슬라이더이지 segmented control이 아닙니다. 드래그로 고르고, 값들이 하나의 척도 위에 있기 때문입니다.
 
 <Demo src="slider/steps" :min-height="260">
 
@@ -136,7 +136,7 @@ thumb끼리 교차하지 않습니다. 값은 양옆 이웃 사이에 붙들리�
 
 ::: fw flutter
 
-`showValue`가 숫자를 켜고 `formatValue`가 무엇을 말할지 정합니다 — 통화, 퍼센트, 시간. 빼면 소수점 없이 찍고 en dash로 잇습니다.
+`showValue`가 숫자를 켜고 `formatValue`가 무엇을 말할지 정합니다. 통화, 퍼센트, 시간. 빼면 소수점 없이 찍고 en dash로 잇습니다.
 
 :::
 
@@ -144,7 +144,7 @@ thumb끼리 교차하지 않습니다. 값은 양옆 이웃 사이에 붙들리�
 
 ### size
 
-홈과 thumb, 라벨이 함께 움직입니다. 모든 단계에서 thumb은 홈보다 한참 큽니다 — 실제로 잡을 수 있는 부분은 thumb뿐이고, 6px 레일에 맞춘 thumb은 터치스크린에서 아무도 잡지 못합니다.
+홈과 thumb, 라벨이 함께 움직입니다. 모든 단계에서 thumb은 홈보다 한참 큽니다. 실제로 잡을 수 있는 부분은 thumb뿐이고, 6px 레일에 맞춘 thumb은 터치스크린에서 아무도 잡지 못합니다.
 
 <Demo src="slider/sizes" :min-height="380">
 
@@ -207,21 +207,21 @@ thumb끼리 교차하지 않습니다. 값은 양옆 이웃 사이에 붙들리�
 ::: fw react
 
 - 각 thumb은 진짜 `<input type="range">`입니다. 브라우저 자체의 slider 의미론, 포커스 순서, `disabled`가 전부 그대로 따라옵니다.
-- `label`은 Base UI가 컨트롤에 엮어 줍니다. 라벨이 없는 경우 — 여러 개가 늘어선 페이더 같은 — 에는 `aria-label`을 주세요.
+- `label`은 Base UI가 컨트롤에 엮어 줍니다. 라벨이 없는 경우(여러 개가 늘어선 페이더 같은) 에는 `aria-label`을 주세요.
 - 키보드는 primitive의 것입니다. <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd>로 한 칸씩, <kbd>PageUp</kbd> / <kbd>PageDown</kbd>으로 크게, <kbd>Home</kbd>과 <kbd>End</kbd>로 양 끝까지 갑니다.
 - 포인터가 닿는 곳은 레일이 아니라 띠 전체입니다. 컨트롤 박스가 홈 두께의 몇 배라서, 띠 어디를 눌러도 thumb이 그리로 옵니다.
-- thumb은 hover와 드래그 중에 자기가 커지는 대신 후광을 두릅니다 — 손가락 아래의 것은 절대 크기가 변하지 않습니다.
+- thumb은 hover와 드래그 중에 자기가 커지는 대신 후광을 두릅니다. 손가락 아래의 것은 절대 크기가 변하지 않습니다.
 - `showValue`는 그려진 숫자일 뿐, 접근성 값의 대체물이 아닙니다. 그것은 input의 `aria-valuenow`이고 Base UI가 맞춰 줍니다.
 
 :::
 
 ::: fw flutter
 
-- 슬라이더로 알려지고, 현재 값이 그 값으로 함께 알려집니다. 보이는 `label`이 없다면 — 여러 개가 늘어선 페이더처럼 — `semanticLabel`을 주세요.
+- 슬라이더로 알려지고, 현재 값이 그 값으로 함께 알려집니다. 보이는 `label`이 없다면(여러 개가 늘어선 페이더처럼) `semanticLabel`을 주세요.
 - <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd>가 `step` 하나만큼, <kbd>PageUp</kbd> / <kbd>PageDown</kbd>이 범위의 10분의 1만큼 옮기고, <kbd>Home</kbd>과 <kbd>End</kbd>가 양 끝으로 갑니다.
-- thumb마다 자기 focus stop을 가집니다. range 슬라이더를 조작할 수 있게 하는 것이 이것입니다 — <kbd>Tab</kbd>으로 양 끝 사이를 옮깁니다.
+- thumb마다 자기 focus stop이 있습니다. range 슬라이더를 조작할 수 있게 하는 것이 이것입니다. <kbd>Tab</kbd>으로 양 끝 사이를 옮깁니다.
 - 포인터가 닿는 곳은 레일이 아니라 띠 전체입니다. 컨트롤 박스가 홈 두께의 몇 배라서, 띠 어디를 눌러도 가장 가까운 thumb이 그리로 옵니다.
-- thumb은 hover와 드래그 중에 자기가 커지는 대신 후광을 두릅니다 — 손가락 아래의 것은 절대 크기가 변하지 않습니다.
+- thumb은 hover와 드래그 중에 자기가 커지는 대신 후광을 두릅니다. 손가락 아래의 것은 절대 크기가 변하지 않습니다.
 - `showValue`는 그려진 숫자일 뿐, 알려지는 값의 대체물이 아닙니다.
 
 :::
@@ -235,7 +235,7 @@ thumb끼리 교차하지 않습니다. 값은 양옆 이웃 사이에 붙들리�
 | 숫자이거나 배열인 `value` | 언제나 목록인 `values` | 어느 쪽이든 파라미터는 하나이고, range로 만드는 것은 길이입니다. |
 | `onValueChange` / `onValueCommitted` | `onChanged` / `onChangeEnd` | "움직이는 동안"과 "놓았을 때"에 대한 Flutter의 이름입니다. |
 | boolean이거나 함수인 `showValue` | `showValue`와 `formatValue` | Dart에는 union 타입이 없으니, 숫자를 켜는 것과 무엇을 말할지 정하는 것이 두 파라미터가 됩니다. |
-| `<input type="range">` | 직접 그린 띠와 자체 키 처리 | 키보드를 물려받을 네이티브 range input이 없으므로 키를 여기서 묶습니다 — <kbd>Page</kbd>와 <kbd>Home</kbd>/<kbd>End</kbd>를 포함해 같은 조합입니다. |
+| `<input type="range">` | 직접 그린 띠와 자체 키 처리 | 키보드를 물려받을 네이티브 range input이 없으므로 키를 여기서 묶습니다. <kbd>Page</kbd>와 <kbd>Home</kbd>/<kbd>End</kbd>를 포함해 같은 조합입니다. |
 | `aria-label` | `semanticLabel` | Flutter의 이름입니다. |
 | 세로 슬라이더 높이를 위한 `className` | `length` | 클래스 목록이 없습니다. 길이는 파라미터입니다. |
 

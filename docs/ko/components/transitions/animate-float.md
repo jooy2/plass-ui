@@ -86,7 +86,7 @@ const PlAnimateFloat(child: EmptyStateMark());
 ## Notes
 
 - 아래가 아니라 위입니다. "float"은 어디서든 그 뜻이고, 아래로 가는 기본값은 낙하입니다.
-- 여기의 모든 효과가 그렇듯 `transform` 축약형이 아니라 독립 속성인 `translate`로 움직입니다. 그래서 같은 요소에 호출자가 건 transform이 살아남습니다.
+- 여기의 모든 효과가 그렇듯 `transform` 축약형이 아니라 독립 속성인 `translate`로 움직입니다. 그래서 같은 요소에 호출자가 것은 transform이 살아남습니다.
 
 ## Accessibility
 

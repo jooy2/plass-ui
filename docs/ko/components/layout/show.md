@@ -50,7 +50,7 @@ PlShow(until: PlassBreakpointFloor.md, child: PlList(children: rows));
 
 `useMediaQuery`와 삼항 연산자는 같은 것처럼 보이지만 같지 않습니다. **JavaScript에서 답한 미디어 쿼리는 서버에서, 그리고 브라우저가 그리는 첫 프레임에서 `false`입니다.** 그래서 JavaScript로 만든 게이트는 반응형 레이아웃의 틀린 쪽을 그렸다가 버립니다. 예외적인 경우가 아니라 페이지를 열 때마다 생기는 깜빡임입니다. 스타일시트는 React에게 아무것도 묻기 전에 이미 너비를 알고 있습니다.
 
-`plass-ui/styles.css`를 가져오고 자체 Tailwind가 없는 프로젝트에서는 이것이 유일한 방법이기도 합니다. 거기에는 손을 뻗을 `md:hidden`이 없습니다.
+`plass-ui/styles.css`를 가져오고 자체 Tailwind가 없는 프로젝트에서는 이것이 유일한 방법이기도 합니다. 거기에는 쓸 수 있는 `md:hidden`이 없습니다.
 
 :::
 
@@ -76,7 +76,7 @@ PlShow(until: PlassBreakpointFloor.md, child: PlList(children: rows));
 
 **양쪽 모두 문서 안에 있습니다.** 숨기는 것은 `display: none`이고, 이는 해당 서브트리를 접근성 트리와 레이아웃에서 빼내므로 두 번 읽히지도 그려지지도 않습니다. 다만 둘 다 렌더링되었고 둘 다 전송되었습니다.
 
-같은 내용의 두 가지 배치에는 맞는 거래이고, 만드는 데 비용이 크거나 fetch를 하거나 아예 mount되면 안 되는 서브트리에는 틀린 거래입니다. 그런 경우에는 [`usePlBreakpointValue`](../../hooks/use-breakpoint)가 하나만 고르고 그 하나만 mount됩니다 — 서버가 `xs` 답을 렌더링하는 비용을 치르고서요.
+같은 내용의 두 가지 배치에는 맞는 거래이고, 만드는 데 비용이 크거나 fetch를 하거나 아예 mount되면 안 되는 서브트리에는 틀린 거래입니다. 그런 경우에는 [`usePlBreakpointValue`](../../hooks/use-breakpoint)가 하나만 고르고 그 하나만 mount됩니다. 서버가 `xs` 답을 렌더링하는 비용을 치르고서요.
 
 :::
 

@@ -5,7 +5,7 @@ order: 5
 
 # PlAnimateHeadline
 
-<p class="plass-lede">한 줄이 위의 줄을 대신합니다, 타이머에 맞춰서. 모든 줄이 같은 그리드 칸에 있어서 상자는 첫 프레임부터 가장 긴 줄만큼 크고, 릴이 돌아도 크기가 변하지 않습니다.</p>
+<p class="plass-lede">한 줄이 위의 줄을 타이머에 맞춰 대신합니다. 모든 줄이 같은 그리드 칸에 있어서 상자는 첫 프레임부터 가장 긴 줄만큼 크고, 릴이 돌아도 크기가 변하지 않습니다.</p>
 
 <Demo src="animate-headline/hero" :min-height="180" />
 
@@ -48,7 +48,7 @@ const PlAnimateHeadline(
 
 ::: fw react
 
-네이티브 `<div>` 속성은 그대로 통과합니다. `render`도 `alternate`도 없습니다. 컴포넌트가 자기 그리드를 가지고 있고, 릴에는 돌아갈 다른 방향이 없습니다.
+네이티브 `<div>` 속성은 그대로 통과합니다. `render`도 `alternate`도 없습니다. 컴포넌트가 자기 그리드를 있고, 릴에는 돌아갈 다른 방향이 없습니다.
 
 :::
 

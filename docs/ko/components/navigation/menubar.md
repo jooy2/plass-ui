@@ -5,7 +5,7 @@ order: 6
 
 # PlMenubar
 
-<p class="plass-lede">애플리케이션 위쪽의 단어 띠입니다 — File, Edit, View — 각각이 메뉴를 엽니다. 스크린 리더에게 하나의 덩어리이고, 메뉴는 언제나 하나만 열립니다.</p>
+<p class="plass-lede">애플리케이션 위쪽의 단어 띠입니다(File, Edit, View). 각각이 메뉴를 엽니다. 스크린 리더에게 하나의 덩어리이고, 메뉴는 언제나 하나만 열립니다.</p>
 
 <Demo src="menubar/hero" :min-height="140" />
 
@@ -68,7 +68,7 @@ PlMenubar(
 
 ## PlMenu와 공유하는 것
 
-`PlMenubarMenu`는 [`PlMenu`](./menu)가 받는 행들을 그대로 받습니다 — `PlMenuItem`, `PlMenuSeparator`, `PlMenuGroup`, `PlMenuSubmenu`, `PlMenuCheckboxItem`, `PlMenuRadioItem`. trigger만 다른 같은 메뉴이기 때문입니다.
+`PlMenubarMenu`는 [`PlMenu`](./menu)가 받는 행들을 그대로 받습니다. `PlMenuItem`, `PlMenuSeparator`, `PlMenuGroup`, `PlMenuSubmenu`, `PlMenuCheckboxItem`, `PlMenuRadioItem`. trigger만 다른 같은 메뉴이기 때문입니다.
 
 받지 **않는** 것은 `size`, `color`, `density`입니다. 셋은 바의 것입니다. 축을 한 번 정해 띠 위의 모든 메뉴에 적용할 수 있는 유일한 자리이고, 세 번째 메뉴만 크기가 다른 바는 바가 아닙니다.
 
@@ -84,7 +84,7 @@ PlMenubar(
 
 띠는 매 단계에서 컨트롤 사다리보다 한 칸 **아래**에 앉고, `density="default"`에서도 compact 여백 트랙을 씁니다.
 
-둘 다 같은 결정입니다. 메뉴 바는 *단어*의 띠이고, 보통 이미 자기 높이를 가진 것 안에 들어갑니다 — [`PlToolbar`](../surfaces/toolbar), [`PlHeader`](../layout/header). 컨트롤 크기로 잡으면 `File Edit View`가 버튼 세 개가 되고, 바가 자기가 얹힌 것보다 높아집니다.
+둘 다 같은 결정입니다. 메뉴 바는 *단어*의 띠이고, 보통 이미 자기 높이가 붙은 것 안에 들어갑니다. [`PlToolbar`](../surfaces/toolbar), [`PlHeader`](../layout/header). 컨트롤 크기로 잡으면 `File Edit View`가 버튼 세 개가 되고, 바가 자기가 얹힌 것보다 높아집니다.
 
 <Demo src="menubar/sizes" :min-height="240">
 
@@ -104,9 +104,9 @@ PlMenubar(
 
 ### 표면 없음
 
-메뉴 바는 무언가 _위에_ 앉습니다. 이미 시트 위에 있는 띠 아래에 또 시트를 두면 시트가 둘입니다. 바가 보태는 것은 flex row 하나와 색 슬롯 넷, 그게 전부입니다.
+메뉴 바는 무언가 _위에_ 앉습니다. 이미 시트 위에 있는 띠 아래에 또 시트를 두면 시트가 둘입니다. 바가 보태는 것은 flex row 하나와 색 슬롯 넷, 그것이 전부입니다.
 
-열린 메뉴는 색으로만 표시됩니다 — 단어가 움직이지 않고 띠의 높이가 바뀌지 않습니다. 포인터 아래에서 라이브러리의 모든 컨트롤이 따르는 같은 규칙입니다.
+열린 메뉴는 색으로만 표시됩니다. 단어가 움직이지 않고 띠의 높이가 바뀌지 않습니다. 포인터 아래에서 라이브러리의 모든 컨트롤이 따르는 같은 규칙입니다.
 
 ::: fw flutter
 

@@ -5,7 +5,7 @@ order: 7
 
 # usePlElementSize
 
-<p class="plass-lede">요소가 얼마나 큰지, 바뀌는 대로 따라갑니다. <code>ResizeObserver</code>에 훅이 더해야 하는 두 가지가 붙은 것입니다. 첫 측정이 언제 일어나는지, 그리고 어느 상자를 보고하는지.</p>
+<p class="plass-lede">요소가 얼마나 큰지를 바뀌는 대로 알려 줍니다. ResizeObserver에 훅이 더해야 할 두 가지, 곧 첫 측정이 언제 일어나는지와 어느 상자를 보고하는지가 붙어 있습니다.</p>
 
 <Demo src="hooks/element-size" :min-height="220" :flutter="false" />
 
@@ -55,7 +55,7 @@ function usePlElementSize(
 
 요소 자신의 padding을 뺀, 안에 실제로 남은 공간입니다.
 
-손으로 쓴 버전은 거의 언제나 `getBoundingClientRect()`나 observer의 `borderBoxSize`를 보고하는데, 그것은 다른 숫자입니다. padding과 border를 포함합니다. 누군가 요소를 재게 만든 질문 — 안에 들어갈 것에 얼마나 자리가 있는가 — 에는 틀린 숫자입니다.
+손으로 쓴 버전은 거의 언제나 `getBoundingClientRect()`나 observer의 `borderBoxSize`를 보고하는데, 그것은 다른 숫자입니다. padding과 border를 포함합니다. 누군가 요소를 재게 만든 질문(안에 들어갈 것에 얼마나 자리가 있는가) 에는 틀린 숫자입니다.
 
 ## Examples
 

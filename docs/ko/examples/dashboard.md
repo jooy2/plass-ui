@@ -6,11 +6,11 @@ aside: false
 
 # 관리자 대시보드
 
-<p class="plass-lede">존재하지 않는 상점 Grange의 백오피스입니다. rail 하나, app bar 하나, 지표 네 개, filter 한 줄, 그리고 행마다 action이 붙은 table — 전부 한 화면에, 전부 같은 <code>size</code>로. size 사다리가 실제로 맞아떨어지는지 보여 주는 배치입니다.</p>
+<p class="plass-lede">존재하지 않는 상점 Grange의 백오피스입니다. rail 하나와 app bar 하나, 지표 네 개, filter 한 줄, 그리고 행마다 action이 붙은 table을 전부 한 화면에 같은 size로 놓았습니다. size 사다리가 실제로 맞아떨어지는지 보여 주는 배치입니다.</p>
 
 <Demo src="examples/dashboard" :flutter="false" :min-height="900" />
 
-화면 전체가 파일 하나입니다 — `docs/.vitepress/demos/examples/dashboard.tsx`. 살아 있는 화면이라 table을 검색하고, 채널이나 상태로 거르고, 행을 몇 개 선택하면 일괄 action이 나타납니다.
+화면 전체가 파일 하나입니다. `docs/.vitepress/demos/examples/dashboard.tsx`. 실제로 동작하는 화면이라 table을 검색하고, 채널이나 상태로 거르고, 행을 몇 개 선택하면 일괄 action이 나타납니다.
 
 ## 구성
 
@@ -23,7 +23,7 @@ aside: false
 | Filter | `PlTextField` `PlSelect` `PlDateRangePicker` `PlSegmentedButton` | 같은 `size="sm"`에서 field와 select와 range picker의 높이가 같아, 한 줄이 baseline을 유지합니다 |
 | Table | `PlTable` `PlCheckbox` `PlChip` `PlMenu` `PlIconButton` `PlPagination` | 전체 선택은 header cell 안의 `indeterminate` checkbox이고, 모든 행이 자기 `PlMenu`를 가집니다 |
 | 일괄 action | `PlButton` `PlModal` `PlToast` | 선택이 있을 때만 나타납니다. 파괴적인 쪽은 `PlModal`로 한 번 확인하고, 되돌릴 수 있는 toast로 결과를 알립니다 |
-| 아래 줄 | `PlCard` `PlTimeline` `PlSwitch` `PlDivider` | 무슨 일이 있었는지와 무엇이 나에게 도달하는지 — 같은 elevation의 같은 card, 두 번 |
+| 아래 줄 | `PlCard` `PlTimeline` `PlSwitch` `PlDivider` | 무슨 일이 있었는지와 무엇이 나에게 도달하는지, 같은 elevation의 같은 card, 두 번 |
 | 설정 | `PlDrawer` `PlSelect` `PlSwitch` | 화면에 있을 필요가 없는 설정은 화면 위로 미끄러져 들어오는 sheet 안에 |
 
 ## Notes
@@ -35,5 +35,5 @@ aside: false
 
 ## Next
 
-- 화면이 두 개 더 있습니다 — [랜딩 페이지](./landing)와 [가입](./signup).
+- 화면이 두 개 더 있습니다: [랜딩 페이지](./landing)와 [가입](./signup).
 - 컴포넌트별 prop과 예제는 [컴포넌트](../components/)에 있습니다.

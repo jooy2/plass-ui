@@ -70,13 +70,13 @@ PlMeter(
 
 시맨틱으로도 이어집니다. role이 `progressbar`가 아니라 `meter`입니다. 스크린 리더는 둘을 다르게 읽고, 가만히 있는 수치를 진행 중이라고 말하는 것은 끝나지 않을 무언가를 기다리라고 말하는 것입니다.
 
-그 전부는 Base UI의 `Meter`가 가집니다. role, 범위 속성, `aria-valuetext`, 서식, 채움 너비까지 — `Progress`가 progress bar에서 가지는 것과 같습니다. 여기 남는 것은 재질입니다.
+그 전부는 Base UI의 `Meter`가 가집니다. role, 범위 속성, `aria-valuetext`, 서식, 채움 너비까지. `Progress`가 progress bar에서 가지는 것과 같습니다. 여기 남는 것은 재질입니다.
 
 :::
 
 ::: fw flutter
 
-시맨틱은 두 빌드가 실제로 갈라지는 지점입니다. `SemanticsRole`에는 `meter`가 없고, `progressBar`를 주장하는 것은 이 위젯이 아니라고 말하려는 바로 그것을 알리는 일입니다. 그래서 Flutter 쪽은 role 없이 **이름과 값을 가진 노드**를 보고합니다. 실제로 두 경우 모두 플랫폼이 읽어 주는 것이 그것이고, 포기하는 것은 role 이름 자체뿐입니다.
+시맨틱은 두 빌드가 실제로 갈라지는 지점입니다. `SemanticsRole`에는 `meter`가 없고, `progressBar`를 선언하는 것은 이 위젯이 아니라고 말하려는 바로 그것을 알리는 일입니다. 그래서 Flutter 쪽은 role 없이 **이름과 값이 붙은 노드**를 보고합니다. 실제로 두 경우 모두 플랫폼이 읽어 주는 것이 그것이고, 포기하는 것은 role 이름 자체뿐입니다.
 
 :::
 

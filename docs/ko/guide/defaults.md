@@ -5,7 +5,7 @@ order: 2
 
 # 기본값 정하기
 
-<p class="plass-lede"><code>PlassProvider</code>는 그 아래 모든 것의 <code>size</code> · <code>color</code> · <code>density</code>와 날짜 어휘를 정합니다. 선택 사항이고 — 없어도 라이브러리는 완성돼 있습니다 — 이것이 없애는 것은 받아쓰기입니다.</p>
+<p class="plass-lede"><code>PlassProvider</code>는 그 아래 모든 것의 <code>size</code> · <code>color</code> · <code>density</code>와 날짜 어휘를 정합니다. 선택 사항이고(없어도 라이브러리는 완성돼 있습니다) 이것이 없애는 것은 받아쓰기입니다.</p>
 
 <Demo src="provider/defaults" :min-height="320" />
 
@@ -53,13 +53,13 @@ PlassTheme.merge(
 
 ::: fw react
 
-기본값은 아니지만 하나를 더 나릅니다. **읽는 방향**입니다. [오른쪽에서 왼쪽으로](../design/rtl)를 보세요 — `dir="rtl"` 문서는 배치를 스스로 뒤집지만, JavaScript에서 방향을 읽는 동작들에게 그것을 전해 주는 것이 이 provider입니다. 설정할 것은 없습니다. `direction`은 주변 페이지와 반대로 흐르는 subtree에만 씁니다.
+기본값은 아니지만 하나를 더 나릅니다. **읽는 방향**입니다. [오른쪽에서 왼쪽으로](../design/rtl)를 보세요. `dir="rtl"` 문서는 배치를 스스로 뒤집지만, JavaScript에서 방향을 읽는 동작들에게 그것을 전해 주는 것이 이 provider입니다. 설정할 것은 없습니다. `direction`은 주변 페이지와 반대로 흐르는 subtree에만 씁니다.
 
 :::
 
 ::: fw flutter
 
-여기서는 `locale`이 `names`와 `labels`입니다 — 프레임워크에 `Intl`이 없으므로 theme이 나르는 것은 말 자체입니다. `PlDateNames`는 달과 요일을 들고 있고, `PlassLabels`는 widget이 스스로에 대해 하는 말을 전부 들고 있습니다. 그 이야기는 [말 번역하기](locales)에 있습니다.
+여기서는 `locale`이 `names`와 `labels`입니다. 프레임워크에 `Intl`이 없으므로 theme이 나르는 것은 말 자체입니다. `PlDateNames`는 달과 요일을 들고 있고, `PlassLabels`는 widget이 스스로에 대해 하는 말을 전부 들고 있습니다. 그 이야기는 [말 번역하기](locales)에 있습니다.
 
 :::
 
@@ -71,7 +71,7 @@ PlassTheme.merge(
 
 `elevation`도 같은 이유로 컴포넌트별 의미론입니다. 컨트롤은 시트 **위에** 놓여 `1`에서 출발하고, field는 시트 **안으로** 파여 `0`에서 출발합니다. 둘에 하나의 숫자를 주는 것은 사다리가 뜻하는 바의 반대를 말하는 것입니다.
 
-정말로 모든 버튼을 `glass`로 하고 싶은 애플리케이션은 버튼에 씁니다 — `size="sm"`을 되풀이하던 호출 지점보다 버튼 쪽이 훨씬 적습니다.
+정말로 모든 버튼을 `glass`로 하고 싶은 애플리케이션은 버튼에 씁니다. `size="sm"`을 되풀이하던 호출 지점보다 버튼 쪽이 훨씬 적습니다.
 
 ## 우선순위
 
@@ -96,7 +96,7 @@ provider는 **중첩되고 병합됩니다**. compact가 아닌 애플리케이�
 
 ### locale 하나, picker 다섯
 
-`locale`은 `PlCalendar` · `PlDatePicker` · `PlDateRangePicker` · `PlTimePicker` · `PlDateTimePicker` · `PlNumberField`에 닿습니다. `labels`는 각 컴포넌트 자신의 것 **아래로** 병합되므로, 애플리케이션이 어휘를 한 번 번역해 두고도 picker 하나는 다른 말을 할 수 있습니다 — 나머지가 전부 "시작"이라고 할 때 하나만 "체크인"이라고. 그 어휘는 번역된 채로 함께 배포됩니다. [말 번역하기](locales)를 보세요.
+`locale`은 `PlCalendar` · `PlDatePicker` · `PlDateRangePicker` · `PlTimePicker` · `PlDateTimePicker` · `PlNumberField`에 닿습니다. `labels`는 각 컴포넌트 자신의 것 **아래로** 병합되므로, 애플리케이션이 어휘를 한 번 번역해 두고도 picker 하나는 다른 말을 할 수 있습니다. 나머지가 전부 "시작"이라고 할 때 하나만 "체크인"이라고. 그 어휘는 번역된 채로 함께 배포됩니다. [말 번역하기](locales)를 보세요.
 
 <Demo src="provider/locale" :min-height="200">
 
@@ -122,21 +122,21 @@ import { usePlassDefaults } from 'plass-ui';
 const { size, locale } = usePlassDefaults();
 ```
 
-주변 컴포넌트와 줄을 맞춰야 하는 자체 컴포넌트를 위한 것입니다. 모든 필드가 optional입니다 — provider가 정하기 전까지는 아무것도 정해져 있지 않습니다.
+주변 컴포넌트와 줄을 맞춰야 하는 자체 컴포넌트를 위한 것입니다. 모든 필드가 optional입니다. provider가 정하기 전까지는 아무것도 정해져 있지 않습니다.
 
 ## Notes
 
 ::: fw flutter
 
-- **모든 widget이 읽습니다.** `PlTable`도 포함입니다 — 여기에는 server component 경계가 없으므로 React 빌드의 그 예외가 존재하지 않습니다.
-- `defaults`만 준 `PlassTheme`이 위쪽 brightness를 유지하려면 `merge`가 필요합니다 — 첫 예제 아래 설명을 보세요.
+- **모든 widget이 읽습니다.** `PlTable`도 포함입니다. 여기에는 server component 경계가 없으므로 React 빌드의 그 예외가 존재하지 않습니다.
+- `defaults`만 준 `PlassTheme`이 위쪽 brightness를 유지하려면 `merge`가 필요합니다. 첫 예제 아래 설명을 보세요.
 
 :::
 
 ::: fw react
 
-- **`PlTable`은 provider를 읽지 않습니다.** 유일한 예외입니다. 이 컴포넌트는 일부러 React Server Component의 client graph 밖에 두었고 — 모든 column이 `render` 콜백인데, server component는 그 경계 너머로 함수를 건넬 수 없습니다 — context를 읽으면 client component가 됩니다. `size`와 `density`는 컴포넌트에 직접 주세요.
-- provider는 element를 렌더링하지 않고 아무것도 그리지 않습니다. 컴포넌트당 context read 하나, 그리고 페이지 전체에 대해 `<html>` observer 하나가 비용입니다 — 방향은 설정받는 것이 아니라 문서에서 읽습니다.
-- theme이 아닙니다. 색 · 반경 · blur · 그림자는 CSS custom property이고, 그것을 바꾸는 자리는 [Colour](../design/color#계열-덮어쓰기)입니다 — JavaScript에 그 사본을 하나 더 두면 진실이 둘이 됩니다.
+- **`PlTable`은 provider를 읽지 않습니다.** 유일한 예외입니다. 이 컴포넌트는 일부러 React Server Component의 client graph 밖에 두었고(모든 column이 `render` 콜백인데, server component는 그 경계 너머로 함수를 건넬 수 없습니다) context를 읽으면 client component가 됩니다. `size`와 `density`는 컴포넌트에 직접 주세요.
+- provider는 element를 렌더링하지 않고 아무것도 그리지 않습니다. 컴포넌트당 context read 하나, 그리고 페이지 전체에 대해 `<html>` observer 하나가 비용입니다. 방향은 설정받는 것이 아니라 문서에서 읽습니다.
+- theme이 아닙니다. 색 · 반경 · blur · 그림자는 CSS custom property이고, 그것을 바꾸는 자리는 [Colour](../design/color#계열-덮어쓰기)입니다. JavaScript에 그 사본을 하나 더 두면 진실이 둘이 됩니다.
 
 :::

@@ -53,13 +53,13 @@ PlButtonGroup(
 
 ::: fw flutter
 
-`children`이 하나의 `child`가 아니라 목록인 건 Flutter의 관례이기도 하지만, 그것만은 아닙니다. 그룹은 어느 멤버가 양 끝에 있는지 알아야 어느 모서리를 깎을지 정할 수 있고, 불투명한 subtree 하나만 받은 widget은 그걸 알 수 없습니다.
+`children`이 하나의 `child`가 아니라 목록인 것은 Flutter의 관례이기도 하지만, 그것만은 아닙니다. 그룹은 어느 멤버가 양 끝에 있는지 알아야 어느 모서리를 깎을지 정할 수 있고, 불투명한 subtree 하나만 받은 widget은 그걸 알 수 없습니다.
 
-축들은 **`PlButton`과 `PlIconButton`에서도 nullable입니다** — `PlassVariant?`, `PlassSize?`, `int?`. Dart에는 기본값과 실제로 넘어온 값을 구분할 방법이 없기 때문입니다. 거기서 `null`은 _이 버튼은 말하지 않았다_ 는 뜻이고, 그래야 그룹이 대신 답할 수 있습니다.
+축들은 **`PlButton`과 `PlIconButton`에서도 nullable입니다**. `PlassVariant?`, `PlassSize?`, `int?`. Dart에는 기본값과 실제로 넘어온 값을 구분할 방법이 없기 때문입니다. 거기서 `null`은 _이 버튼은 말하지 않았다_ 는 뜻이고, 그래야 그룹이 대신 답할 수 있습니다.
 
 :::
 
-다섯 개의 스타일 축에는 **자기 기본값이 없습니다.** 그룹이 지정하지 않은 축은 각 버튼이 자기 기본값으로 돌아가는 축이라, 아무 prop도 주지 않은 그룹은 모서리 말고는 아무것도 바꾸지 않습니다. 버튼이 직접 지정한 축은 그룹보다 우선합니다 — secondary 액션 줄에 danger 버튼 하나가 섞이는 건 실제로 있는 일입니다.
+다섯 개의 스타일 축에는 **자기 기본값이 없습니다.** 그룹이 지정하지 않은 축은 각 버튼이 자기 기본값으로 돌아가는 축이라, 아무 prop도 주지 않은 그룹은 모서리 말고는 아무것도 바꾸지 않습니다. 버튼이 직접 지정한 축은 그룹보다 우선합니다. secondary 액션 줄에 danger 버튼 하나가 섞이는 것은 실제로 있는 일입니다.
 
 공유 축(`variant` `size` `color` `density` `elevation`)이 라이브러리 전체에서 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
 
@@ -67,13 +67,13 @@ PlButtonGroup(
 
 버튼은 진짜 [`PlButton`](./button)으로 남고, 그 무엇도 대체되지 않습니다. 그룹이 하는 일은 모서리 넷을 깎고 prop 여섯 개를 물려주는 것뿐입니다. 선택 상태를 관리하지 않고, value도 없으며, 어느 버튼도 _고른 것_ 이 되지 않습니다.
 
-여럿 중 하나를 고르는 컨트롤 — 뷰 전환, 모드 토글 — 은 [`PlSegmentedButton`](./segmented-button)입니다. 그쪽이 roving focus와 `radiogroup` semantics까지 갖춘 진짜 그 컨트롤입니다.
+여럿 중 하나를 고르는 컨트롤(뷰 전환, 모드 토글)은 [`PlSegmentedButton`](./segmented-button)입니다. 그쪽이 roving focus와 `radiogroup` semantics까지 갖춘 진짜 그 컨트롤입니다.
 
 ## Examples
 
 ### variant
 
-이음매를 처리해야 하는 건 `glass` 하나뿐입니다. 테두리를 그리는 유일한 variant이기도 해서, glass 키 둘이 맞닿으면 hairline이 두 겹으로 겹쳐 페이지의 다른 모든 선보다 두 배로 무거워집니다. 그래서 뒤쪽을 1px 당겨 두 키가 선 하나를 나눠 쓰게 합니다.
+이음매를 처리해야 하는 것은 `glass` 하나뿐입니다. 테두리를 그리는 유일한 variant이기도 해서, glass 키 둘이 맞닿으면 hairline이 두 겹으로 겹쳐 페이지의 다른 모든 선보다 두 배로 무거워집니다. 그래서 뒤쪽을 1px 당겨 두 키가 선 하나를 나눠 쓰게 합니다.
 
 `solid`는 그렇게 하면 안 됩니다. 겹칠 테두리가 없고, 겹치면 한 키의 그러데이션이 다음 키의 시작을 덮습니다.
 
@@ -115,7 +115,7 @@ PlButtonGroup(
 
 ### orientation
 
-`vertical`은 줄을 세로로 쌓고, 옆면 대신 위아래를 각지게 깎습니다. 동등한 액션을 쌓은 메뉴에 쓰고, 기본값이 `horizontal`인 건 툴바가 그 모양이기 때문입니다.
+`vertical`은 줄을 세로로 쌓고, 옆면 대신 위아래를 각지게 깎습니다. 동등한 액션을 쌓은 메뉴에 쓰고, 기본값이 `horizontal`인 것은 툴바가 그 모양이기 때문입니다.
 
 <Demo src="button-group/orientation" :min-height="180">
 
@@ -155,8 +155,8 @@ PlButtonGroup(
 
 ## Accessibility
 
-- 그룹은 `role="group"`입니다. 줄 자체에 이름이 필요하면 `aria-label`을 주세요 — 이게 세 개 놓인 바는 이름 없는 그룹 세 개입니다.
-- `role="toolbar"`가 **아니고** roving focus도 없습니다. 그 role은 키보드 동작에 대한 약속이고, 여기서는 버튼 하나하나가 각자의 focus 정거장입니다 — 평범한 `<button>` semantics가 이미 말하고 있는 그대로입니다.
+- 그룹은 `role="group"`입니다. 줄 자체에 이름이 필요하면 `aria-label`을 주세요. 이것이 세 개 놓인 바는 이름 없는 그룹 세 개입니다.
+- `role="toolbar"`가 **아니고** roving focus도 없습니다. 그 role은 키보드 동작에 대한 약속이고, 여기서는 버튼 하나하나가 각자의 focus 정거장입니다. 평범한 `<button>` semantics가 이미 말하고 있는 그대로입니다.
 - 모서리는 logical property로 깎으므로, RTL에서는 첫 버튼이 오른쪽에 오고 깎이는 면도 따라갑니다.
 - 버튼마다 stacking context가 생겨, border box 바깥에 그려지는 focus ring이 뒤에 오는 이웃에 덮이지 않습니다.
 - 그룹의 `disabled`는 안의 모든 버튼을 끕니다. 버튼이 직접 지정한 `disabled`는 그대로 우선합니다.
