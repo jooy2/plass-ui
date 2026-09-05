@@ -1,6 +1,13 @@
 import 'package:flutter/widgets.dart';
 import 'package:plass_ui/plass_ui.dart';
 
+const BoxDecoration _wallpaper = BoxDecoration(
+  image: DecorationImage(
+    image: NetworkImage('/samples/illustrations/layered-mountains-rising-sun.webp'),
+    fit: BoxFit.cover,
+  ),
+);
+
 class MockupBezel extends StatelessWidget {
   const MockupBezel({super.key});
 
@@ -13,7 +20,7 @@ class MockupBezel extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.end,
       children: <Widget>[
         for (final PlMockupBezel bezel in PlMockupBezel.values)
-          PlMockup(device: PlMockupDevice.mobile, bezel: bezel, width: 100),
+          PlMockup(device: PlMockupDevice.mobile, bezel: bezel, width: 100, wallpaper: _wallpaper),
       ],
     );
   }

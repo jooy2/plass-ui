@@ -150,6 +150,38 @@ void main() {
       }
     });
 
+    testWidgets('draws the wallpaper behind the screen rather than over it', (
+      WidgetTester tester,
+    ) async {
+      const BoxDecoration paper = BoxDecoration(color: Color(0xFF102030));
+
+      await _pump(
+        tester,
+        const PlMockup(
+          device: PlMockupDevice.mobile,
+          wallpaper: paper,
+          child: Text('On the screen'),
+        ),
+      );
+
+      final Iterable<DecoratedBox> painted = tester.widgetList<DecoratedBox>(
+        find.byType(DecoratedBox),
+      );
+
+      // It is drawn at all, and never as a foreground: a foreground decoration
+      // covers the content and the system's own bars, which is a film over the
+      // glass rather than a picture on the screen.
+      expect(painted.where((DecoratedBox box) => box.decoration == paper), isNotEmpty);
+      expect(
+        painted.where(
+          (DecoratedBox box) =>
+              box.decoration == paper && box.position == DecorationPosition.foreground,
+        ),
+        isEmpty,
+      );
+      expect(find.text('On the screen'), findsOneWidget);
+    });
+
     testWidgets('takes a resolution of its own over the ladder', (WidgetTester tester) async {
       await _pump(
         tester,

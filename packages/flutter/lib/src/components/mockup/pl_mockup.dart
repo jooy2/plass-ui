@@ -177,10 +177,15 @@ class PlMockup extends StatelessWidget {
         // shadow rather than a black line.
         border: bare ? null : Border.all(color: shell.shade),
       ),
-      foregroundDecoration: wallpaper,
       clipBehavior: Clip.antiAlias,
       child: Stack(
         children: <Widget>[
+          // Behind everything, including the system's own bars: a wallpaper is
+          // what the screen is showing, not a film over the glass. Drawn as the
+          // bottom of the stack rather than as the container's own decoration,
+          // because that slot is already holding the screen's radius and the
+          // ring the hardware cuts around it.
+          if (wallpaper != null) Positioned.fill(child: DecoratedBox(decoration: wallpaper!)),
           Column(
             children: <Widget>[
               if (chrome.top != null) chrome.top!,
