@@ -4,11 +4,11 @@ export default function ChatBubbleMedia() {
   return (
     <div className="flex w-full max-w-lg flex-col gap-4">
       <PlChatBubble
-        name="Grace Hopper"
+        name="Theo Quinn"
         media={
           <img
-            src="/portrait-2.svg"
-            alt="A portrait"
+            src="/samples/photos/snowy-cabin-frozen-stream.webp"
+            alt="A cabin in the snow beside a frozen stream"
             className="h-32 w-full bg-(--plass-glass) object-cover"
           />
         }
@@ -21,6 +21,7 @@ export default function ChatBubbleMedia() {
         variant="solid"
         preview={{
           url: '#chat-bubble',
+          image: '/samples/illustrations/four-season-geometric-pattern.webp',
           site: 'plass.cdget.com',
           title: 'Design language',
           description:

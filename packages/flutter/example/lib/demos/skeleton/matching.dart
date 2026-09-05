@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 import 'package:plass_ui/plass_ui.dart';
-import 'package:plass_ui_example/demos/portrait.dart';
 
 class SkeletonMatching extends StatefulWidget {
   const SkeletonMatching({super.key});
@@ -32,7 +31,10 @@ class _SkeletonMatchingState extends State<SkeletonMatching> {
             spacing: 12,
             children: <Widget>[
               if (_loaded)
-                const PlAvatar(name: 'Ada Lovelace', image: PortraitImage(0))
+                const PlAvatar(
+                  name: 'Nadia Rowan',
+                  image: NetworkImage('/samples/avatars/nadia-rowan.webp'),
+                )
               else
                 const PlSkeleton(shape: PlSkeletonShape.circle),
               Expanded(
@@ -42,8 +44,8 @@ class _SkeletonMatchingState extends State<SkeletonMatching> {
                         mainAxisSize: MainAxisSize.min,
                         spacing: 4,
                         children: <Widget>[
-                          PlTypography('Ada Lovelace', weight: PlTypographyWeight.semibold),
-                          PlTypography('Wrote the first program', level: PlTypographyLevel.caption),
+                          PlTypography('Nadia Rowan', weight: PlTypographyWeight.semibold),
+                          PlTypography('Design systems', level: PlTypographyLevel.caption),
                         ],
                       )
                     : const PlSkeleton(lines: 2),

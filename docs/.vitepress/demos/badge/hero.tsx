@@ -19,7 +19,7 @@ export default function BadgeHero() {
       </PlBadge>
 
       <PlBadge dot color="success" overlap="circle" label="Online">
-        <PlAvatar name="Ada Lovelace" src="/portrait-1.svg" />
+        <PlAvatar name="Nadia Rowan" src="/samples/avatars/nadia-rowan.webp" />
       </PlBadge>
 
       <PlBadge content="Beta" variant="ghost" color="info" />

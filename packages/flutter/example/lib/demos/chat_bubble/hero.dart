@@ -1,8 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:plass_ui/plass_ui.dart';
 
-import 'package:plass_ui_example/demos/portrait.dart';
-
 class ChatBubbleHero extends StatelessWidget {
   const ChatBubbleHero({super.key});
 
@@ -15,9 +13,13 @@ class ChatBubbleHero extends StatelessWidget {
         spacing: 16,
         children: <Widget>[
           const PlChatBubble(
-            name: Text('Ada Lovelace'),
+            name: Text('Nadia Rowan'),
             time: Text('09:12'),
-            avatar: PlAvatar(size: PlassSize.sm, name: 'Ada Lovelace', image: PortraitImage(0)),
+            avatar: PlAvatar(
+              size: PlassSize.sm,
+              name: 'Nadia Rowan',
+              image: NetworkImage('/samples/avatars/nadia-rowan.webp'),
+            ),
             child: Text('The gradient turns rather than shades. Have a look at the new fills.'),
           ),
           const PlChatBubble(
@@ -29,7 +31,11 @@ class ChatBubbleHero extends StatelessWidget {
           ),
           const PlChatBubble(
             typing: true,
-            avatar: PlAvatar(size: PlassSize.sm, name: 'Ada Lovelace', image: PortraitImage(0)),
+            avatar: PlAvatar(
+              size: PlassSize.sm,
+              name: 'Nadia Rowan',
+              image: NetworkImage('/samples/avatars/nadia-rowan.webp'),
+            ),
           ),
         ],
       ),

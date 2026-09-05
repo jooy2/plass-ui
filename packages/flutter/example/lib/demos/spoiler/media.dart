@@ -6,29 +6,19 @@ class SpoilerMedia extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final PlassTokens tokens = PlassTheme.of(context);
-
-    return SizedBox(
+    return const SizedBox(
       width: 384,
       child: PlSpoiler(
         padded: false,
         reversible: true,
         label: 'Show anyway',
-        description: const Text('Sensitive image'),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: <Color>[
-                tokens.family(PlassColor.danger).soft,
-                tokens.family(PlassColor.warning).soft,
-              ],
-            ),
-          ),
-          child: const SizedBox(
-            height: 160,
-            child: Center(child: Text('A photograph somebody has not asked to see')),
+        description: Text('Sensitive image'),
+        child: SizedBox(
+          height: 160,
+          child: Image(
+            image: NetworkImage('/samples/photos/desert-rocks-milky-way.webp'),
+            fit: BoxFit.cover,
+            semanticLabel: 'The Milky Way over a desert rock formation',
           ),
         ),
       ),

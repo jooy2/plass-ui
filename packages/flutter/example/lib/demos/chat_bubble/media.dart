@@ -1,8 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:plass_ui/plass_ui.dart';
 
-import 'package:plass_ui_example/demos/portrait.dart';
-
 class ChatBubbleMedia extends StatelessWidget {
   const ChatBubbleMedia({super.key});
 
@@ -15,11 +13,15 @@ class ChatBubbleMedia extends StatelessWidget {
         spacing: 16,
         children: <Widget>[
           const PlChatBubble(
-            name: Text('Grace Hopper'),
+            name: Text('Theo Quinn'),
             media: SizedBox(
               height: 128,
               width: double.infinity,
-              child: Image(image: PortraitImage(1, pixels: 512), fit: BoxFit.cover),
+              child: Image(
+                image: NetworkImage('/samples/photos/snowy-cabin-frozen-stream.webp'),
+                fit: BoxFit.cover,
+                semanticLabel: 'A cabin in the snow beside a frozen stream',
+              ),
             ),
             child: Text('Drawn edge to edge, so the bubble’s own corners crop it.'),
           ),
@@ -28,6 +30,9 @@ class ChatBubbleMedia extends StatelessWidget {
             variant: PlassVariant.solid,
             preview: PlChatBubbleLinkPreview(
               onPressed: () {},
+              image: const NetworkImage(
+                '/samples/illustrations/four-season-geometric-pattern.webp',
+              ),
               site: const Text('plass.cdget.com'),
               title: const Text('Design language'),
               description: const Text(

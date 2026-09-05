@@ -3,10 +3,10 @@ import { PlCard } from 'plass-ui';
 export default function CardPadded() {
   return (
     <PlCard padded={false} className="w-full max-w-sm overflow-hidden">
-      <div
-        className="h-28 w-full"
-        style={{ backgroundImage: 'var(--plass-primary-fill)' }}
-        aria-hidden="true"
+      <img
+        src="/samples/photos/artisan-bread-wooden-rack.webp"
+        alt=""
+        className="h-28 w-full object-cover"
       />
       <div className="p-5">
         <p className="font-semibold text-(--plass-fg)">Full bleed</p>

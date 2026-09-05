@@ -14,8 +14,8 @@ order: 6
 ```tsx
 import { PlAvatar } from 'plass-ui';
 
-<PlAvatar name="Ada Lovelace" src="/portrait-1.svg" />;
-<PlAvatar name="Ada Lovelace" />;
+<PlAvatar name="Nadia Rowan" src="/nadia-rowan.webp" />;
+<PlAvatar name="Nadia Rowan" />;
 ```
 
 :::
@@ -25,8 +25,8 @@ import { PlAvatar } from 'plass-ui';
 ```dart
 import 'package:plass_ui/plass_ui.dart';
 
-const PlAvatar(name: 'Ada Lovelace', image: NetworkImage('/portrait-1.png'));
-const PlAvatar(name: 'Ada Lovelace');
+const PlAvatar(name: 'Nadia Rowan', image: NetworkImage('/nadia-rowan.webp'));
+const PlAvatar(name: 'Nadia Rowan');
 ```
 
 :::
@@ -43,7 +43,7 @@ const PlAvatar(name: 'Ada Lovelace');
 
 ::: fw flutter
 
-`image`는 URL이 아니라 `ImageProvider`입니다. Flutter에서 이미지가 가지는 모양이 그것이고, `NetworkImage`도 `AssetImage`도 `MemoryImage`도 캐싱 패키지가 주는 provider도, 컴포넌트가 어느 쪽인지 알 필요 없이 그대로 들어맞습니다. 이 페이지의 미리보기는 하나를 직접 그립니다 — 예제 소스를 보세요.
+`image`는 URL이 아니라 `ImageProvider`입니다. Flutter에서 이미지가 가지는 모양이 그것이고, `NetworkImage`도 `AssetImage`도 `MemoryImage`도 캐싱 패키지가 주는 provider도, 컴포넌트가 어느 쪽인지 알 필요 없이 그대로 들어맞습니다.
 
 :::
 

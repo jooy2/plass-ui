@@ -2,20 +2,21 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/plass_ui.dart';
 
 class Show {
-  const Show(this.name, this.note);
+  const Show(this.name, this.note, this.still);
 
   final String name;
   final String note;
+  final String still;
 }
 
 const List<Show> _shows = <Show>[
-  Show('Aurora', 'Documentary'),
-  Show('Deep Field', 'Science'),
-  Show('The Long Road', 'Drama'),
-  Show('Salt & Stone', 'Cooking'),
-  Show('Night Shift', 'Thriller'),
-  Show('Paper Boats', 'Family'),
-  Show('Signal', 'Mystery'),
+  Show('Aurora', 'Documentary', 'desert-rocks-milky-way'),
+  Show('Deep Field', 'Science', 'lakeside-observatory-blue-hour'),
+  Show('The Long Road', 'Drama', 'bicycle-coastal-path'),
+  Show('Salt & Stone', 'Cooking', 'artisan-bread-wooden-rack'),
+  Show('Night Shift', 'Thriller', 'rainy-city-crosswalk-reflections'),
+  Show('Paper Boats', 'Family', 'rowboat-misty-pond-sunrise'),
+  Show('Signal', 'Mystery', 'snowy-cabin-frozen-stream'),
 ];
 
 class ScrollZoneHero extends StatelessWidget {
@@ -23,8 +24,6 @@ class ScrollZoneHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final PlassTokens tokens = PlassTheme.of(context);
-
     return SizedBox(
       width: 512,
       child: Column(
@@ -44,11 +43,14 @@ class ScrollZoneHero extends StatelessWidget {
                     size: PlassSize.sm,
                     title: Text(show.name),
                     subtitle: Text(show.note),
-                    child: Container(
-                      height: 64,
-                      decoration: BoxDecoration(
-                        color: tokens.family(PlassColor.primary).soft,
-                        borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.sm]!),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.sm]!),
+                      child: SizedBox(
+                        height: 64,
+                        child: Image(
+                          image: NetworkImage('/samples/photos/${show.still}.webp'),
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   ),

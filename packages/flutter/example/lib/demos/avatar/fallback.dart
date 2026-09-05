@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 import 'package:plass_ui/plass_ui.dart';
-import 'package:plass_ui_example/demos/portrait.dart';
 
 class AvatarFallback extends StatelessWidget {
   const AvatarFallback({super.key});
@@ -14,17 +13,20 @@ class AvatarFallback extends StatelessWidget {
       children: <Widget>[
         _Case(
           label: 'picture',
-          child: PlAvatar(name: 'Ada Lovelace', image: PortraitImage(0)),
+          child: PlAvatar(
+            name: 'Nadia Rowan',
+            image: NetworkImage('/samples/avatars/nadia-rowan.webp'),
+          ),
         ),
         _Case(
           label: 'initials',
           // A provider that will never produce pixels, which is the case an
           // avatar has to survive rather than the one it hopes for.
-          child: PlAvatar(name: 'Ada Lovelace', image: NetworkImage('https://example.invalid/x')),
+          child: PlAvatar(name: 'Nadia Rowan', image: NetworkImage('https://example.invalid/x')),
         ),
         _Case(
           label: 'initials, written',
-          child: PlAvatar(name: 'Ada Lovelace', initials: 'AL!'),
+          child: PlAvatar(name: 'Nadia Rowan', initials: 'NR!'),
         ),
         _Case(
           label: 'child',

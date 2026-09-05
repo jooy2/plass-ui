@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 import 'package:plass_ui/plass_ui.dart';
-import 'package:plass_ui_example/demos/portrait.dart';
 
 class AspectRatioFit extends StatelessWidget {
   const AspectRatioFit({super.key});
@@ -24,7 +23,9 @@ class AspectRatioFit extends StatelessWidget {
                     ratio: 4 / 3,
                     fit: fit,
                     rounded: true,
-                    child: const Image(image: PortraitImage(0)),
+                    child: const Image(
+                      image: NetworkImage('/samples/photos/lighthouse-cliff-wildflowers.webp'),
+                    ),
                   ),
                   PlTypography(fit.name, level: PlTypographyLevel.caption),
                 ],

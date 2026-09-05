@@ -12,11 +12,27 @@ class StackHero extends StatelessWidget {
       ring: BorderRadius.circular(999),
       overflow: (int hidden) => PlAvatar(size: PlassSize.lg, initials: '+$hidden'),
       children: const <Widget>[
-        PlAvatar(size: PlassSize.lg, name: 'Ada Lovelace'),
-        PlAvatar(size: PlassSize.lg, name: 'Grace Hopper'),
-        PlAvatar(size: PlassSize.lg, name: 'Katherine Johnson'),
+        PlAvatar(
+          size: PlassSize.lg,
+          name: 'Nadia Rowan',
+          image: NetworkImage('/samples/avatars/nadia-rowan.webp'),
+        ),
+        PlAvatar(
+          size: PlassSize.lg,
+          name: 'Theo Quinn',
+          image: NetworkImage('/samples/avatars/theo-quinn.webp'),
+        ),
+        PlAvatar(
+          size: PlassSize.lg,
+          name: 'Victor Saye',
+          image: NetworkImage('/samples/avatars/victor-saye.webp'),
+        ),
+        PlAvatar(
+          size: PlassSize.lg,
+          name: 'Noa Marin',
+          image: NetworkImage('/samples/avatars/noa-marin.webp'),
+        ),
         PlAvatar(size: PlassSize.lg, name: '홍길동'),
-        PlAvatar(size: PlassSize.lg, name: 'Alan Turing'),
       ],
     );
   }

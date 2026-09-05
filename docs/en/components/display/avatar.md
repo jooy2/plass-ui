@@ -14,8 +14,8 @@ order: 6
 ```tsx
 import { PlAvatar } from 'plass-ui';
 
-<PlAvatar name="Ada Lovelace" src="/portrait-1.svg" />;
-<PlAvatar name="Ada Lovelace" />;
+<PlAvatar name="Nadia Rowan" src="/nadia-rowan.webp" />;
+<PlAvatar name="Nadia Rowan" />;
 ```
 
 :::
@@ -25,8 +25,8 @@ import { PlAvatar } from 'plass-ui';
 ```dart
 import 'package:plass_ui/plass_ui.dart';
 
-const PlAvatar(name: 'Ada Lovelace', image: NetworkImage('/portrait-1.png'));
-const PlAvatar(name: 'Ada Lovelace');
+const PlAvatar(name: 'Nadia Rowan', image: NetworkImage('/nadia-rowan.webp'));
+const PlAvatar(name: 'Nadia Rowan');
 ```
 
 :::
@@ -43,7 +43,7 @@ Every native `<span>` attribute passes straight through. `color` is excluded fro
 
 ::: fw flutter
 
-`image` is an `ImageProvider` rather than a URL, which is the shape every image in Flutter has: a `NetworkImage`, an `AssetImage`, a `MemoryImage` or a provider from a caching package all fit without the component having to know which. The previews on this page paint one — see the demo's own source.
+`image` is an `ImageProvider` rather than a URL, which is the shape every image in Flutter has: a `NetworkImage`, an `AssetImage`, a `MemoryImage` or a provider from a caching package all fit without the component having to know which.
 
 :::
 

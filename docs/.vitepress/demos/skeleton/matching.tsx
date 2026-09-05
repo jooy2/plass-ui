@@ -12,15 +12,15 @@ export default function SkeletonMatching() {
 
       <div className="flex items-center gap-3">
         {loaded ? (
-          <PlAvatar name="Ada Lovelace" src="/portrait-1.svg" />
+          <PlAvatar name="Nadia Rowan" src="/samples/avatars/nadia-rowan.webp" />
         ) : (
           <PlSkeleton shape="circle" />
         )}
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           {loaded ? (
             <>
-              <PlTypography weight="semibold">Ada Lovelace</PlTypography>
-              <PlTypography level="caption">Wrote the first program</PlTypography>
+              <PlTypography weight="semibold">Nadia Rowan</PlTypography>
+              <PlTypography level="caption">Design systems</PlTypography>
             </>
           ) : (
             <PlSkeleton lines={2} />

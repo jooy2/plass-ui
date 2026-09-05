@@ -42,32 +42,40 @@ class _ListHeroState extends State<ListHero> {
             ],
           ),
           Toggles(
-            initial: const <String, bool>{'ada': true},
+            initial: const <String, bool>{'nadia': true},
             builder: (BuildContext context, ToggleState state) {
               return PlList(
                 dividers: true,
                 children: <Widget>[
                   PlListItem(
-                    startIcon: const PlAvatar(size: PlassSize.xs, name: 'Ada Lovelace'),
-                    description: const Text('ada@example.com'),
+                    startIcon: const PlAvatar(
+                      size: PlassSize.xs,
+                      name: 'Nadia Rowan',
+                      image: NetworkImage('/samples/avatars/nadia-rowan.webp'),
+                    ),
+                    description: const Text('nadia@example.com'),
                     action: PlSwitch(
                       size: PlassSize.sm,
-                      value: state['ada'],
-                      onChanged: (bool next) => state.set('ada', next),
-                      semanticLabel: 'Notify Ada',
+                      value: state['nadia'],
+                      onChanged: (bool next) => state.set('nadia', next),
+                      semanticLabel: 'Notify Nadia',
                     ),
-                    child: const Text('Ada Lovelace'),
+                    child: const Text('Nadia Rowan'),
                   ),
                   PlListItem(
-                    startIcon: const PlAvatar(size: PlassSize.xs, name: 'Grace Hopper'),
-                    description: const Text('grace@example.com'),
+                    startIcon: const PlAvatar(
+                      size: PlassSize.xs,
+                      name: 'Theo Quinn',
+                      image: NetworkImage('/samples/avatars/theo-quinn.webp'),
+                    ),
+                    description: const Text('theo@example.com'),
                     action: PlSwitch(
                       size: PlassSize.sm,
-                      value: state['grace'],
-                      onChanged: (bool next) => state.set('grace', next),
-                      semanticLabel: 'Notify Grace',
+                      value: state['theo'],
+                      onChanged: (bool next) => state.set('theo', next),
+                      semanticLabel: 'Notify Theo',
                     ),
-                    child: const Text('Grace Hopper'),
+                    child: const Text('Theo Quinn'),
                   ),
                 ],
               );

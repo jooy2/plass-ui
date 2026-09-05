@@ -428,6 +428,9 @@ interface Entry {
   previewHasLinks?: boolean;
 }
 
+/** The picture on a device's screen, in the shorthand `wallpaper` takes. */
+const wallpaper = 'url(/samples/illustrations/layered-mountains-rising-sun.webp) center/cover';
+
 const entries: Entry[] = [
   {
     name: 'PlButton',
@@ -704,7 +707,13 @@ const entries: Entry[] = [
     },
     preview: (
       <div className="grid w-full grid-cols-2 gap-2">
-        <PlImage src="/portrait-1.svg" alt="A portrait" ratio="1" rounded size="sm" />
+        <PlImage
+          src="/samples/photos/alpine-lake-dawn.webp"
+          alt="A mountain lake at dawn"
+          ratio="1"
+          rounded
+          size="sm"
+        />
         <PlImage src="/does-not-exist.png" alt="Did not arrive" ratio="1" rounded size="sm" />
       </div>
     )
@@ -760,16 +769,7 @@ const entries: Entry[] = [
       ko: '제품의 마크와 그 옆의 이름입니다.'
     },
     preview: (
-      <PlAppLogo shape="plate" size="sm" name="Acme" description="Staging">
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path
-            d="M4 20 12 4l8 16"
-            stroke="currentColor"
-            strokeWidth="2.4"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </PlAppLogo>
+      <PlAppLogo size="sm" name="Acme" description="Staging" src="/samples/marks/lantern.webp" />
     )
   },
   {
@@ -782,8 +782,8 @@ const entries: Entry[] = [
     },
     preview: (
       <div className="flex items-center gap-2">
-        <PlAvatar size="sm" name="Ada Lovelace" src="/portrait-1.svg" />
-        <PlAvatar size="sm" name="Grace Hopper" />
+        <PlAvatar size="sm" name="Nadia Rowan" src="/samples/avatars/nadia-rowan.webp" />
+        <PlAvatar size="sm" name="Theo Quinn" />
         <PlAvatar size="sm" variant="solid" color="info" name="홍길동" />
       </div>
     )
@@ -1053,10 +1053,10 @@ const entries: Entry[] = [
     },
     preview: (
       <PlStack ring max={3} total={9} overflow={(hidden) => <PlAvatar initials={`+${hidden}`} />}>
-        <PlAvatar size="sm" name="Ada Lovelace" src="/portrait-1.svg" />
-        <PlAvatar size="sm" name="Grace Hopper" src="/portrait-2.svg" />
+        <PlAvatar size="sm" name="Nadia Rowan" src="/samples/avatars/nadia-rowan.webp" />
+        <PlAvatar size="sm" name="Theo Quinn" src="/samples/avatars/theo-quinn.webp" />
         <PlAvatar size="sm" name="홍길동" />
-        <PlAvatar size="sm" name="Katherine Johnson" />
+        <PlAvatar size="sm" name="Anya Sol" />
       </PlStack>
     )
   },
@@ -1118,12 +1118,12 @@ const entries: Entry[] = [
         gap="xs"
         columns={3}
         items={[
-          { src: '/gallery-1.svg', alt: 'A harbour' },
-          { src: '/gallery-2.svg', alt: 'A bridge' },
-          { src: '/gallery-3.svg', alt: 'A hillside' },
-          { src: '/gallery-4.svg', alt: 'A market' },
-          { src: '/gallery-5.svg', alt: 'Dunes' },
-          { src: '/gallery-6.svg', alt: 'A terrace' }
+          { src: '/samples/photos/alpine-lake-dawn.webp', alt: 'A mountain lake' },
+          { src: '/samples/photos/bicycle-coastal-path.webp', alt: 'A coast road' },
+          { src: '/samples/photos/lighthouse-cliff-wildflowers.webp', alt: 'A lighthouse' },
+          { src: '/samples/photos/ceramic-bowl-citrus.webp', alt: 'A bowl of citrus' },
+          { src: '/samples/photos/misty-tea-terraces-sunrise.webp', alt: 'Tea terraces' },
+          { src: '/samples/photos/greenhouse-fern-shadows.webp', alt: 'A greenhouse' }
         ]}
       />
     )
@@ -1492,8 +1492,8 @@ const entries: Entry[] = [
     },
     preview: (
       <div className="flex w-full items-end justify-center gap-4">
-        <PlMockup device="mobile" width={54} />
-        <PlMockup device="desktop" width={120} />
+        <PlMockup device="mobile" width={54} wallpaper={wallpaper} />
+        <PlMockup device="desktop" width={120} wallpaper={wallpaper} />
       </div>
     )
   },
@@ -1713,13 +1713,17 @@ const entries: Entry[] = [
     },
     preview: (
       <PlCarousel className="w-full" size="sm" label="Places" arrows={false}>
-        {['Harbour', 'Dunes', 'Pines'].map((place) => (
-          <div
-            key={place}
-            className="flex h-16 items-center justify-center bg-(--plass-primary-soft) text-xs"
-          >
-            {place}
-          </div>
+        {[
+          { alt: 'A mountain lake', src: '/samples/photos/alpine-lake-dawn.webp' },
+          { alt: 'Tea terraces', src: '/samples/photos/misty-tea-terraces-sunrise.webp' },
+          { alt: 'A forest trail', src: '/samples/photos/forest-trail-sunbeams.webp' }
+        ].map((slide) => (
+          <img
+            key={slide.src}
+            src={slide.src}
+            alt={slide.alt}
+            className="h-16 w-full object-cover"
+          />
         ))}
       </PlCarousel>
     )
@@ -1866,8 +1870,12 @@ const entries: Entry[] = [
       ko: '여덟 시스템 중 하나가 그리는 대로의 창입니다.'
     },
     preview: (
-      <PlWindowPane size="xs" os="windows11" title="Notes" height={96}>
-        <div className="p-3 text-xs text-(--plass-muted-fg)">A frame that behaves.</div>
+      <PlWindowPane size="xs" os="windows11" title="alpine-lake-dawn.webp" height={96}>
+        <img
+          src="/samples/photos/alpine-lake-dawn.webp"
+          alt="A mountain lake at dawn"
+          className="size-full object-cover"
+        />
       </PlWindowPane>
     )
   },
@@ -2651,11 +2659,13 @@ const entries: Entry[] = [
       ko: '끝없이 일정하게 흘러가는 내용입니다.'
     },
     preview: (
-      <PlAnimateMarquee className="w-full" gap="1rem" speed={40}>
-        {['Northwind', 'Contoso', 'Fabrikam'].map((name) => (
-          <PlChip key={name} variant="glass" color="secondary">
-            {name}
-          </PlChip>
+      <PlAnimateMarquee className="w-full" gap="1.5rem" speed={40}>
+        {[
+          { name: 'Lanterna', mark: '/samples/marks/lantern.webp' },
+          { name: 'Northpin', mark: '/samples/marks/compass.webp' },
+          { name: 'Kitewind', mark: '/samples/marks/kite.webp' }
+        ].map((brand) => (
+          <PlAppLogo key={brand.name} size="xs" name={brand.name} src={brand.mark} />
         ))}
       </PlAnimateMarquee>
     )

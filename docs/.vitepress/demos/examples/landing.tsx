@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   PlAccordion,
   PlAccordionItem,
+  PlAppLogo,
   PlAspectRatio,
   PlAvatar,
   PlBlockquote,
@@ -115,21 +116,21 @@ const VOICES = [
   {
     quote:
       'We replaced four scripts and a spreadsheet with one screen, and the handover to the new team took an afternoon.',
-    name: 'Ada Lovelace',
+    name: 'Nadia Rowan',
     role: 'Head of Platform, Northwind',
-    portrait: '/portrait-1.svg'
+    portrait: '/samples/avatars/nadia-rowan.webp'
   },
   {
     quote:
       'The audit log was the thing that sold it. Our reviewer stopped asking for exports in the second week.',
-    name: 'Grace Hopper',
+    name: 'Theo Quinn',
     role: 'Engineering Manager, Globex',
-    portrait: '/portrait-2.svg'
+    portrait: '/samples/avatars/theo-quinn.webp'
   },
   {
     quote:
       'It is the first tool in years that our designers and our on-call rota both open every day.',
-    name: 'Alan Turing',
+    name: 'Victor Saye',
     role: 'CTO, Initech',
     portrait: undefined
   }
@@ -172,12 +173,7 @@ export default function LandingExample() {
         size="sm"
         position="sticky"
         render={<header />}
-        start={
-          <div className="flex items-center gap-2">
-            <span className="size-6 rounded-(--plass-radius-sm) [background-image:linear-gradient(135deg,var(--plass-primary-solid),var(--plass-info-solid))]" />
-            <PlTypography level="h6">Halyard</PlTypography>
-          </div>
-        }
+        start={<PlAppLogo size="sm" name="Halyard" src="/samples/marks/kite.webp" />}
         end={
           <>
             <nav className="hidden items-center gap-4 @2xl/page:flex" aria-label="Sections">
@@ -223,12 +219,12 @@ export default function LandingExample() {
 
           <div className="flex flex-wrap items-center justify-center gap-3">
             <div className="flex -space-x-2">
-              {['/portrait-1.svg', '/portrait-2.svg', undefined].map((src, index) => (
+              {VOICES.map((voice) => (
                 <PlAvatar
-                  key={index}
+                  key={voice.name}
                   size="sm"
-                  name={VOICES[index].name}
-                  src={src}
+                  name={voice.name}
+                  src={voice.portrait}
                   className="ring-2 ring-(--plass-surface)"
                 />
               ))}

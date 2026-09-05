@@ -4,7 +4,12 @@ export default function ImageStates() {
   return (
     <div className="grid w-full max-w-lg grid-cols-2 gap-4">
       <div className="flex flex-col gap-2">
-        <PlImage src="/portrait-1.svg" alt="A portrait" ratio="1" rounded />
+        <PlImage
+          src="/samples/photos/rowboat-misty-pond-sunrise.webp"
+          alt="A rowboat moored on a misty pond"
+          ratio="1"
+          rounded
+        />
         <PlTypography level="caption">Arrived</PlTypography>
       </div>
 

@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:plass_ui/plass_ui.dart';
 import 'package:plass_ui_example/demos/glyphs.dart';
-import 'package:plass_ui_example/demos/portrait.dart';
 
 class BadgeHero extends StatelessWidget {
   const BadgeHero({super.key});
@@ -29,7 +28,10 @@ class BadgeHero extends StatelessWidget {
           color: PlassColor.success,
           overlap: PlBadgeOverlap.circle,
           label: 'Online',
-          child: PlAvatar(name: 'Ada Lovelace', image: PortraitImage(0)),
+          child: PlAvatar(
+            name: 'Nadia Rowan',
+            image: NetworkImage('/samples/avatars/nadia-rowan.webp'),
+          ),
         ),
         const PlBadge(content: Text('Beta'), variant: PlassVariant.ghost, color: PlassColor.info),
       ],

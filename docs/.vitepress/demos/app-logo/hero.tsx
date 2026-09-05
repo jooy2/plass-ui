@@ -20,9 +20,8 @@ export default function AppLogoHero() {
         <Glyph />
       </PlAppLogo>
 
-      <PlAppLogo name="Acme">
-        <Glyph />
-      </PlAppLogo>
+      {/* Finished artwork — its own colours, its own margin — so it is left bare. */}
+      <PlAppLogo name="Acme" src="/samples/marks/lantern.webp" />
     </div>
   );
 }

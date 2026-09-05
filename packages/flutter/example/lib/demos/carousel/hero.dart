@@ -2,17 +2,29 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/plass_ui.dart';
 
 class Place {
-  const Place(this.name, this.from, this.to);
+  const Place(this.name, this.image, this.label);
 
   final String name;
-  final Color from;
-  final Color to;
+  final String image;
+  final String label;
 }
 
 const List<Place> _places = <Place>[
-  Place('Harbour', Color(0xFF5B8DEF), Color(0xFF57C7D4)),
-  Place('Dunes', Color(0xFFE0A458), Color(0xFFE07A5F)),
-  Place('Pines', Color(0xFF4CAF7D), Color(0xFF3FA6A6)),
+  Place(
+    'Alpine lake',
+    '/samples/photos/alpine-lake-dawn.webp',
+    'A still mountain lake at first light',
+  ),
+  Place(
+    'Tea terraces',
+    '/samples/photos/misty-tea-terraces-sunrise.webp',
+    'Terraced tea fields under morning mist',
+  ),
+  Place(
+    'Forest trail',
+    '/samples/photos/forest-trail-sunbeams.webp',
+    'Sunbeams across a forest trail',
+  ),
 ];
 
 class CarouselHero extends StatefulWidget {
@@ -36,28 +48,38 @@ class _CarouselHeroState extends State<CarouselHero> {
         onChanged: (int next) => setState(() => _slide = next),
         children: <Widget>[
           for (final Place place in _places)
-            DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: <Color>[place.from, place.to],
+            Stack(
+              fit: StackFit.expand,
+              children: <Widget>[
+                Image(
+                  image: NetworkImage(place.image),
+                  fit: BoxFit.cover,
+                  semanticLabel: place.label,
                 ),
-              ),
-              child: Align(
-                alignment: Alignment.bottomLeft,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(
-                    place.name,
-                    style: const TextStyle(
-                      color: Color(0xFFFFFFFF),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                const DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.center,
+                      colors: <Color>[Color(0x99000000), Color(0x00000000)],
                     ),
                   ),
                 ),
-              ),
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      place.name,
+                      style: const TextStyle(
+                        color: Color(0xFFFFFFFF),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
         ],
       ),

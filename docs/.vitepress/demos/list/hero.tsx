@@ -26,18 +26,22 @@ export default function ListHero() {
 
       <PlList dividers>
         <PlListItem
-          startIcon={<PlAvatar size="xs" name="Ada Lovelace" />}
-          description="ada@example.com"
-          action={<PlSwitch size="sm" defaultChecked aria-label="Notify Ada" />}
+          startIcon={
+            <PlAvatar size="xs" name="Nadia Rowan" src="/samples/avatars/nadia-rowan.webp" />
+          }
+          description="nadia@example.com"
+          action={<PlSwitch size="sm" defaultChecked aria-label="Notify Nadia" />}
         >
-          Ada Lovelace
+          Nadia Rowan
         </PlListItem>
         <PlListItem
-          startIcon={<PlAvatar size="xs" name="Grace Hopper" />}
-          description="grace@example.com"
-          action={<PlSwitch size="sm" aria-label="Notify Grace" />}
+          startIcon={
+            <PlAvatar size="xs" name="Theo Quinn" src="/samples/avatars/theo-quinn.webp" />
+          }
+          description="theo@example.com"
+          action={<PlSwitch size="sm" aria-label="Notify Theo" />}
         >
-          Grace Hopper
+          Theo Quinn
         </PlListItem>
       </PlList>
     </div>

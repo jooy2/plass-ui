@@ -8,7 +8,11 @@ export default function AspectRatioFit() {
       {FITS.map((fit) => (
         <div key={fit} className="flex flex-col gap-2">
           <PlAspectRatio ratio="4 / 3" fit={fit} rounded>
-            <img src="/portrait-1.svg" alt="" className="bg-(--plass-glass)" />
+            <img
+              src="/samples/photos/lighthouse-cliff-wildflowers.webp"
+              alt=""
+              className="bg-(--plass-glass)"
+            />
           </PlAspectRatio>
           <PlTypography level="caption">{fit}</PlTypography>
         </div>

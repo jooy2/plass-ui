@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   PlAlert,
+  PlAppLogo,
   PlAvatar,
   PlBlockquote,
   PlButton,
@@ -116,10 +117,7 @@ export default function SignupExample() {
         {/* The form                                                          */}
         {/* ---------------------------------------------------------------- */}
         <div className="flex flex-col gap-6 p-6 @xl/page:p-8">
-          <div className="flex items-center gap-2">
-            <span className="size-6 rounded-(--plass-radius-sm) [background-image:linear-gradient(135deg,var(--plass-primary-solid),var(--plass-info-solid))]" />
-            <PlTypography level="h6">Halyard</PlTypography>
-          </div>
+          <PlAppLogo size="sm" name="Halyard" src="/samples/marks/kite.webp" />
 
           {/* Where you are. A horizontal timeline rather than a progress bar:
               the steps have names, and a bar cannot say them. */}
@@ -352,7 +350,7 @@ export default function SignupExample() {
           </PlBlockquote>
 
           <div className="mt-auto flex items-center gap-3">
-            <PlAvatar size="sm" name="Ada Lovelace" src="/portrait-1.svg" />
+            <PlAvatar size="sm" name="Lucas Adebayo" src="/samples/avatars/lucas-adebayo.webp" />
             <p className="text-xs text-(--plass-muted-fg)">
               Stuck?{' '}
               <PlTextLink href="#help" size="sm">

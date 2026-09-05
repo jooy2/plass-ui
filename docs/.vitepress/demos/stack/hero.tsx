@@ -3,11 +3,11 @@ import { PlAvatar, PlStack } from 'plass-ui';
 export default function StackHero() {
   return (
     <PlStack ring max={4} total={11} overflow={(hidden) => <PlAvatar initials={`+${hidden}`} />}>
-      <PlAvatar size="lg" name="Ada Lovelace" src="/portrait-1.svg" />
-      <PlAvatar size="lg" name="Grace Hopper" src="/portrait-2.svg" />
-      <PlAvatar size="lg" name="Katherine Johnson" />
+      <PlAvatar size="lg" name="Nadia Rowan" src="/samples/avatars/nadia-rowan.webp" />
+      <PlAvatar size="lg" name="Theo Quinn" src="/samples/avatars/theo-quinn.webp" />
+      <PlAvatar size="lg" name="Victor Saye" src="/samples/avatars/victor-saye.webp" />
+      <PlAvatar size="lg" name="Noa Marin" src="/samples/avatars/noa-marin.webp" />
       <PlAvatar size="lg" name="홍길동" />
-      <PlAvatar size="lg" name="Alan Turing" />
     </PlStack>
   );
 }

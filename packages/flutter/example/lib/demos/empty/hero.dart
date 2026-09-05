@@ -10,7 +10,13 @@ class EmptyHero extends StatelessWidget {
       width: 400,
       child: PlCard(
         child: PlEmpty(
-          icon: const Text('📭'),
+          icon: const SizedBox.square(
+            dimension: 128,
+            child: Image(
+              image: NetworkImage('/samples/illustrations/fox-reading-under-tree.webp'),
+              fit: BoxFit.contain,
+            ),
+          ),
           title: const Text('No projects yet'),
           description: const Text(
             'Start one and it will show up here, with everyone you invite to it.',

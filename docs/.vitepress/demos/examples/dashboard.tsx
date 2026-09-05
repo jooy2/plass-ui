@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
   PlAlert,
+  PlAppLogo,
   PlAvatar,
   PlBadge,
   PlBreadcrumb,
@@ -289,10 +290,7 @@ function Dashboard() {
       {/* The rail. Gone on a narrow canvas, where the app bar is the whole
           navigation a phone would get. */}
       <aside className="hidden w-56 shrink-0 flex-col gap-4 border-e p-4 [border-color:var(--plass-divider)] @4xl/app:flex">
-        <div className="flex items-center gap-2 px-1">
-          <span className="size-6 rounded-(--plass-radius-sm) [background-image:linear-gradient(135deg,var(--plass-primary-solid),var(--plass-info-solid))]" />
-          <PlTypography level="h6">Grange</PlTypography>
-        </div>
+        <PlAppLogo size="sm" name="Grange" src="/samples/marks/lantern.webp" className="px-1" />
 
         <PlList variant="ghost" size="sm" render={<nav aria-label="Sections" />}>
           {NAV.map((item) => (
@@ -349,7 +347,7 @@ function Dashboard() {
                 </PlBadge>
               </PlTooltip>
               <SettingsDrawer />
-              <PlAvatar size="sm" name="Ada Lovelace" src="/portrait-1.svg" />
+              <PlAvatar size="sm" name="Nadia Rowan" src="/samples/avatars/nadia-rowan.webp" />
             </>
           }
         />

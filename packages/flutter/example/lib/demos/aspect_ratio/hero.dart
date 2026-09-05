@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 import 'package:plass_ui/plass_ui.dart';
-import 'package:plass_ui_example/demos/portrait.dart';
 
 class AspectRatioHero extends StatelessWidget {
   const AspectRatioHero({super.key});
@@ -14,7 +13,11 @@ class AspectRatioHero extends StatelessWidget {
         rounded: true,
         size: PlassSize.lg,
         fit: PlAspectFit.cover,
-        child: Image(image: PortraitImage(1), fit: BoxFit.cover),
+        child: Image(
+          image: NetworkImage('/samples/photos/lakeside-observatory-blue-hour.webp'),
+          fit: BoxFit.cover,
+          semanticLabel: 'An observatory beside a lake at blue hour',
+        ),
       ),
     );
   }

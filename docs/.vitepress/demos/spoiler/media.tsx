@@ -9,9 +9,11 @@ export default function SpoilerMedia() {
       description="Sensitive image"
       label="Show anyway"
     >
-      <div className="grid h-40 place-items-center bg-linear-135 from-(--plass-danger-soft) to-(--plass-warning-soft) text-sm">
-        A photograph somebody has not asked to see
-      </div>
+      <img
+        src="/samples/photos/desert-rocks-milky-way.webp"
+        alt="The Milky Way over a desert rock formation"
+        className="h-40 w-full object-cover"
+      />
     </PlSpoiler>
   );
 }

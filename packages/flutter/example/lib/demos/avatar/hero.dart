@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 import 'package:plass_ui/plass_ui.dart';
-import 'package:plass_ui_example/demos/portrait.dart';
 
 class AvatarHero extends StatelessWidget {
   const AvatarHero({super.key});
@@ -12,7 +11,11 @@ class AvatarHero extends StatelessWidget {
       runSpacing: 16,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: <Widget>[
-        PlAvatar(size: PlassSize.lg, name: 'Ada Lovelace', image: PortraitImage(0)),
+        PlAvatar(
+          size: PlassSize.lg,
+          name: 'Nadia Rowan',
+          image: NetworkImage('/samples/avatars/nadia-rowan.webp'),
+        ),
         PlAvatar(size: PlassSize.lg, name: 'Jane Doe'),
         PlAvatar(
           size: PlassSize.lg,

@@ -1,4 +1,4 @@
-import { PlButton, PlHeader, PlTextLink } from 'plass-ui';
+import { PlAppLogo, PlButton, PlHeader, PlTextLink } from 'plass-ui';
 
 export default function HeaderHero() {
   return (
@@ -6,12 +6,12 @@ export default function HeaderHero() {
       className="w-full"
       position="static"
       brand={
-        <>
-          <span className="grid size-7 place-items-center rounded-(--plass-radius-sm) [background-image:var(--plass-primary-fill)] text-xs font-bold text-(--plass-primary-on-solid)">
-            A
-          </span>
-          <span className="font-semibold">Acme</span>
-        </>
+        <PlAppLogo
+          size="sm"
+          name="Acme"
+          src="/samples/marks/lantern.webp"
+          render={<a href="#" />}
+        />
       }
       actions={
         <>

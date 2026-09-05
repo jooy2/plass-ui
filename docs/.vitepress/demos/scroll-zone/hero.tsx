@@ -1,13 +1,13 @@
 import { PlCard, PlScrollZone, PlTypography } from 'plass-ui';
 
 const shows = [
-  { name: 'Aurora', note: 'Documentary' },
-  { name: 'Deep Field', note: 'Science' },
-  { name: 'The Long Road', note: 'Drama' },
-  { name: 'Salt & Stone', note: 'Cooking' },
-  { name: 'Night Shift', note: 'Thriller' },
-  { name: 'Paper Boats', note: 'Family' },
-  { name: 'Signal', note: 'Mystery' }
+  { name: 'Aurora', note: 'Documentary', still: 'desert-rocks-milky-way' },
+  { name: 'Deep Field', note: 'Science', still: 'lakeside-observatory-blue-hour' },
+  { name: 'The Long Road', note: 'Drama', still: 'bicycle-coastal-path' },
+  { name: 'Salt & Stone', note: 'Cooking', still: 'artisan-bread-wooden-rack' },
+  { name: 'Night Shift', note: 'Thriller', still: 'rainy-city-crosswalk-reflections' },
+  { name: 'Paper Boats', note: 'Family', still: 'rowboat-misty-pond-sunrise' },
+  { name: 'Signal', note: 'Mystery', still: 'snowy-cabin-frozen-stream' }
 ];
 
 export default function ScrollZoneHero() {
@@ -20,7 +20,11 @@ export default function ScrollZoneHero() {
       <PlScrollZone label="Continue watching" spacing={3}>
         {shows.map((show) => (
           <PlCard key={show.name} size="sm" className="w-40" title={show.name} subtitle={show.note}>
-            <div className="h-16 rounded-(--plass-radius-sm) bg-(--plass-primary-soft)" />
+            <img
+              src={`/samples/photos/${show.still}.webp`}
+              alt=""
+              className="h-16 w-full rounded-(--plass-radius-sm) object-cover"
+            />
           </PlCard>
         ))}
       </PlScrollZone>

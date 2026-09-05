@@ -6,33 +6,16 @@ class HeaderHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final PlassTokens tokens = PlassTheme.of(context);
-
     return SizedBox(
       width: 520,
       child: PlHeader(
         brand: <Widget>[
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: tokens.family(PlassColor.primary).fill,
-              borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.sm]!),
-            ),
-            child: SizedBox(
-              width: 28,
-              height: 28,
-              child: Center(
-                child: Text(
-                  'A',
-                  style: TextStyle(
-                    color: tokens.family(PlassColor.primary).onSolid,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-            ),
+          PlAppLogo(
+            size: PlassSize.sm,
+            name: const Text('Acme'),
+            onPressed: () {},
+            child: const Image(image: NetworkImage('/samples/marks/lantern.webp')),
           ),
-          const Text('Acme', style: TextStyle(fontWeight: FontWeight.w600)),
         ],
         actions: <Widget>[
           PlButton(

@@ -127,7 +127,7 @@ function SettingsScreen() {
 
       <div className="flex flex-wrap items-center gap-3">
         <PlBadge dot color="success" overlap="circle" label="Online">
-          <PlAvatar name="Ada Lovelace" src="/portrait-1.svg" />
+          <PlAvatar name="Nadia Rowan" src="/samples/avatars/nadia-rowan.webp" />
         </PlBadge>
         <PlTextField
           size="md"
@@ -234,27 +234,31 @@ function SettingsScreen() {
             aria-label="Twelve members"
             overflow={(hidden) => <PlAvatar size="sm" initials={`+${hidden}`} />}
           >
-            <PlAvatar size="sm" name="Ada Lovelace" src="/portrait-1.svg" />
-            <PlAvatar size="sm" name="Grace Hopper" src="/portrait-2.svg" />
+            <PlAvatar size="sm" name="Nadia Rowan" src="/samples/avatars/nadia-rowan.webp" />
+            <PlAvatar size="sm" name="Theo Quinn" src="/samples/avatars/theo-quinn.webp" />
             <PlAvatar size="sm" name="홍길동" />
-            <PlAvatar size="sm" name="Katherine Johnson" />
-            <PlAvatar size="sm" name="Alan Turing" />
+            <PlAvatar size="sm" name="Anya Sol" />
+            <PlAvatar size="sm" name="Victor Saye" />
           </PlStack>
 
           <PlList variant="ghost" size="sm" dividers>
             <PlListItem
-              startIcon={<PlAvatar size="xs" name="Ada Lovelace" src="/portrait-1.svg" />}
+              startIcon={
+                <PlAvatar size="xs" name="Nadia Rowan" src="/samples/avatars/nadia-rowan.webp" />
+              }
               description="Owner"
-              action={<PlSwitch size="sm" defaultChecked aria-label="Notify Ada" />}
+              action={<PlSwitch size="sm" defaultChecked aria-label="Notify Nadia" />}
             >
-              Ada Lovelace
+              Nadia Rowan
             </PlListItem>
             <PlListItem
-              startIcon={<PlAvatar size="xs" name="Grace Hopper" />}
+              startIcon={
+                <PlAvatar size="xs" name="Theo Quinn" src="/samples/avatars/theo-quinn.webp" />
+              }
               description="Admin"
-              action={<PlSwitch size="sm" aria-label="Notify Grace" />}
+              action={<PlSwitch size="sm" aria-label="Notify Theo" />}
             >
-              Grace Hopper
+              Theo Quinn
             </PlListItem>
             <PlListItem
               startIcon={<PlSkeleton shape="circle" size="xs" />}
@@ -366,8 +370,8 @@ function SettingsScreen() {
 
       <div className="flex flex-wrap items-start gap-4">
         <PlImage
-          src="/portrait-2.svg"
-          alt="The office, from the street"
+          src="/samples/photos/rainy-city-crosswalk-reflections.webp"
+          alt="The street outside the office, in the rain"
           ratio="4 / 3"
           rounded
           className="w-40"
@@ -479,9 +483,11 @@ function SettingsScreen() {
           <div className="flex flex-col gap-3">
             <PlChatBubble
               size="sm"
-              name="Ada Lovelace"
+              name="Nadia Rowan"
               time="09:12"
-              avatar={<PlAvatar size="xs" name="Ada Lovelace" src="/portrait-1.svg" />}
+              avatar={
+                <PlAvatar size="xs" name="Nadia Rowan" src="/samples/avatars/nadia-rowan.webp" />
+              }
             >
               I raised the seat count to twelve.
             </PlChatBubble>

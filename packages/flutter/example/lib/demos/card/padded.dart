@@ -6,8 +6,6 @@ class CardPadded extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final family = PlassTheme.of(context).family(PlassColor.primary);
-
     return SizedBox(
       width: 384,
       child: PlCard(
@@ -16,9 +14,12 @@ class CardPadded extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            SizedBox(
+            const SizedBox(
               height: 112,
-              child: DecoratedBox(decoration: BoxDecoration(gradient: family.fill)),
+              child: Image(
+                image: NetworkImage('/samples/photos/artisan-bread-wooden-rack.webp'),
+                fit: BoxFit.cover,
+              ),
             ),
             const Padding(
               padding: EdgeInsets.all(20),

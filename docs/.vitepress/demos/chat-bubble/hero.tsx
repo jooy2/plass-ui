@@ -4,9 +4,9 @@ export default function ChatBubbleHero() {
   return (
     <div className="flex w-full max-w-lg flex-col gap-4">
       <PlChatBubble
-        name="Ada Lovelace"
+        name="Nadia Rowan"
         time="09:12"
-        avatar={<PlAvatar size="sm" name="Ada Lovelace" src="/portrait-1.svg" />}
+        avatar={<PlAvatar size="sm" name="Nadia Rowan" src="/samples/avatars/nadia-rowan.webp" />}
       >
         The gradient turns rather than shades. Have a look at the new fills.
       </PlChatBubble>
@@ -17,7 +17,7 @@ export default function ChatBubbleHero() {
 
       <PlChatBubble
         typing
-        avatar={<PlAvatar size="sm" name="Ada Lovelace" src="/portrait-1.svg" />}
+        avatar={<PlAvatar size="sm" name="Nadia Rowan" src="/samples/avatars/nadia-rowan.webp" />}
       />
     </div>
   );

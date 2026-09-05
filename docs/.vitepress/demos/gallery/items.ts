@@ -3,45 +3,45 @@ import type { PlGalleryItem } from 'plass-ui';
 /** Six plates at four proportions, so a masonry has something to arrange. */
 export const photos: PlGalleryItem[] = [
   {
-    src: '/gallery-1.svg',
-    alt: 'A harbour at dusk',
-    title: 'Harbour',
-    description: 'Busan',
+    src: '/samples/photos/alpine-lake-dawn.webp',
+    alt: 'A still mountain lake at first light',
+    title: 'Alpine lake',
+    description: 'Dawn',
     ratio: 4 / 3
   },
   {
-    src: '/gallery-2.svg',
-    alt: 'A bridge over a river',
-    title: 'Bridge',
-    description: 'Porto',
+    src: '/samples/photos/bicycle-coastal-path.webp',
+    alt: 'A bicycle parked on a path above the sea',
+    title: 'Coast road',
+    description: 'Late summer',
     ratio: 3 / 2
   },
   {
-    src: '/gallery-3.svg',
-    alt: 'A terraced hillside',
-    title: 'Hillside',
-    description: 'Banaue',
+    src: '/samples/photos/lighthouse-cliff-wildflowers.webp',
+    alt: 'A lighthouse on a clifftop above wildflowers',
+    title: 'Lighthouse',
+    description: 'Wildflowers',
     ratio: 3 / 4
   },
   {
-    src: '/gallery-4.svg',
-    alt: 'A covered market',
-    title: 'Market',
-    description: 'Marrakesh',
+    src: '/samples/photos/ceramic-bowl-citrus.webp',
+    alt: 'Oranges and lemons in a ceramic bowl',
+    title: 'Citrus',
+    description: 'Still life',
     ratio: 1
   },
   {
-    src: '/gallery-5.svg',
-    alt: 'Dunes at first light',
-    title: 'Dunes',
-    description: 'Huacachina',
+    src: '/samples/photos/misty-tea-terraces-sunrise.webp',
+    alt: 'Terraced tea fields under morning mist',
+    title: 'Tea terraces',
+    description: 'Sunrise',
     ratio: 2
   },
   {
-    src: '/gallery-6.svg',
-    alt: 'A stepped terrace',
-    title: 'Terrace',
-    description: 'Lisbon',
+    src: '/samples/photos/greenhouse-fern-shadows.webp',
+    alt: 'Ferns throwing shadows across a greenhouse wall',
+    title: 'Greenhouse',
+    description: 'Ferns',
     ratio: 2 / 3
   }
 ];

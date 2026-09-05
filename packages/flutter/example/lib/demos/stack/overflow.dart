@@ -1,11 +1,13 @@
 import 'package:flutter/widgets.dart';
 import 'package:plass_ui/plass_ui.dart';
 
-const List<String> _reviewers = <String>[
-  'Ada Lovelace',
-  'Grace Hopper',
-  'Katherine Johnson',
-  'Alan Turing',
+const List<(String, String)> _reviewers = <(String, String)>[
+  ('Nadia Rowan', '/samples/avatars/nadia-rowan.webp'),
+  ('Theo Quinn', '/samples/avatars/theo-quinn.webp'),
+  ('Victor Saye', '/samples/avatars/victor-saye.webp'),
+  ('Anya Sol', '/samples/avatars/anya-sol.webp'),
+  ('Helen Voss', '/samples/avatars/helen-voss.webp'),
+  ('Noa Marin', '/samples/avatars/noa-marin.webp'),
 ];
 
 class StackOverflow extends StatelessWidget {
@@ -23,7 +25,10 @@ class StackOverflow extends StatelessWidget {
             total: 9,
             ring: BorderRadius.circular(999),
             overflow: (int hidden) => PlAvatar(initials: '+$hidden'),
-            children: <Widget>[for (final String name in _reviewers) PlAvatar(name: name)],
+            children: <Widget>[
+              for (final (String name, String src) in _reviewers)
+                PlAvatar(name: name, image: NetworkImage(src)),
+            ],
           ),
       ],
     );

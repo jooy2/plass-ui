@@ -26,10 +26,10 @@ class _WindowPaneHeroState extends State<WindowPaneHero> {
     }
 
     return PlWindowPane(
-      title: const Text('Notes'),
+      title: const Text('alpine-lake-dawn.webp'),
       draggable: true,
       width: 420,
-      height: 240,
+      height: 280,
       offset: _at,
       minimized: _minimized,
       maximized: _maximized,
@@ -37,23 +37,30 @@ class _WindowPaneHeroState extends State<WindowPaneHero> {
       onOpenChanged: (bool value) => setState(() => _open = value),
       onMinimizedChanged: (bool value) => setState(() => _minimized = value),
       onMaximizedChanged: (bool value) => setState(() => _maximized = value),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 12,
-          children: <Widget>[
-            Text(
-              'Drag the bar',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: tokens.fg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          const Expanded(
+            child: Image(
+              image: NetworkImage('/samples/photos/alpine-lake-dawn.webp'),
+              fit: BoxFit.cover,
+              semanticLabel: 'A still mountain lake at first light',
             ),
-            Text(
-              'The three buttons are real buttons with real names, and minimize rolls '
-              'the window up to its bar because a page has nowhere to send it.',
-              style: TextStyle(fontSize: 14, color: tokens.mutedFg),
+          ),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: tokens.border)),
             ),
-          ],
-        ),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text(
+                'Drag the bar. The three buttons are real buttons with real names, and '
+                'minimize rolls the window up to its bar because a page has nowhere to send it.',
+                style: TextStyle(fontSize: 12, color: tokens.mutedFg),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
