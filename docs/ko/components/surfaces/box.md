@@ -162,7 +162,7 @@ PlBox(elevation: 2, child: Text('Floating clear of the page'));
 
 box를 감싼 `Semantics(container: true, label: …)`가 그 묶음이 하나임을 말합니다. 시트 안이 아니라 바깥에 놓입니다.
 
-## React 빌드와의 차이
+## React 빌드와 다른 점
 
 | React | Flutter | 이유 |
 | --- | --- | --- |

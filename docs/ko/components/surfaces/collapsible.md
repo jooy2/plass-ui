@@ -169,7 +169,7 @@ PlCollapsible(
 
 - `keepMounted`에서 닫힌 패널은 높이 0으로 잘릴 뿐 아니라 포커스 순서와 semantics 트리에서도 빠집니다. 아무도 볼 수 없는 패널은 키보드가 탭해 들어갈 수 있는 패널이 아닙니다.
 
-## React 빌드와의 차이
+## React 빌드와 다른 점
 
 | React | Flutter | 이유 |
 | --- | --- | --- |

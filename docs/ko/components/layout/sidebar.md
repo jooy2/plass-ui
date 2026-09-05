@@ -58,7 +58,7 @@ PlPageLayout(
 
 둘 중 무엇이 보이는지는 media query이고, 첫 페인트는 CSS가, 그 뒤로는 JavaScript가 답합니다. 이 분담은 의도된 것입니다 — 서버가 보내는 마크업은 열이므로, 좁은 화면은 전체 너비 sidebar를 그렸다가 곧바로 버리게 됩니다. 브레이크포인트 아래에서 그것을 숨기는 클래스가 그걸 막고, 물어볼 창이 생긴 뒤에 drawer가 존재해야 한다고 정하는 것이 `matchMedia`입니다.
 
-## 예제
+## Examples
 
 ### side
 
@@ -178,7 +178,7 @@ PlPageLayout(
 
 :::
 
-## 접근성
+## Accessibility
 
 ::: fw react
 

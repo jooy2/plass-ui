@@ -124,7 +124,7 @@ duration이 아니라 speed입니다. 그래서 로고 넷짜리 띠와 마흔�
 
 ::: fw flutter
 
-## Differences from the React build
+## React 빌드와 다른 점
 
 | React | Flutter | 이유 |
 | --- | --- | --- |

@@ -62,7 +62,7 @@ PlCommandPalette(
 
 "그 명령 어디 있더라"의 답이 "기억 안 나"가 됐을 때 쓰세요.
 
-## 예제
+## Examples
 
 ### 그룹, 설명, 키워드
 
@@ -140,7 +140,7 @@ PlCommandPalette(
 
 :::
 
-## 접근성
+## Accessibility
 
 - 시트는 focus trap과 scrim과 <kbd>Esc</kbd>를 갖춘 dialog이고, focus는 독자가 있던 자리로 돌아갑니다. 보이는 제목이 없으므로 `label`이 접근 가능한 이름입니다.
 - 필드는 `combobox`이고 목록은 그 `listbox`이며, Base UI가 `aria-activedescendant`로 잇습니다. 화살표 키가 focus를 옮기지 않고 하이라이트만 옮기므로 필드가 모든 키 입력을 그대로 받습니다.

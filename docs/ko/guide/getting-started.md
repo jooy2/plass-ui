@@ -301,7 +301,7 @@ PlassTheme(brightness: Brightness.dark, child: ...)
 
 한 가지는 테마를 따라 **바뀌지 않고**, 그건 의도된 것입니다. 바로 키의 색입니다. [색](../design/color#키의-색은-테마를-따라-바뀌지-않습니다)을 보세요.
 
-## 다음
+## Next
 
 - [모든 컴포넌트](../components/) — 공개된 전부를 한 페이지에
 - [Prop 규칙](../design/prop-conventions) — 공통 prop이 뜻하는 것

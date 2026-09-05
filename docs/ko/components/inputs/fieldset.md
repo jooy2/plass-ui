@@ -58,7 +58,7 @@ PlFieldset(
 
 표면을 그리지 않고 `color`, `variant`, `elevation`도 받지 않습니다. 필드의 묶음은 묶음입니다. 시트가 필요하면 [`PlCard`](../surfaces/card)나 [`PlBox`](../surfaces/box) 안에 넣으세요.
 
-## 예제
+## Examples
 
 ### disabled
 
@@ -140,7 +140,7 @@ legend의 타입 스케일과 컨트롤 사이의 간격이고, 시트 사다리
 
 :::
 
-## 접근성
+## Accessibility
 
 - 진짜 `<fieldset>`이고, 그것이 `group`이며, legend가 이름을 냅니다.
 - legend는 그려진 `<legend>`가 아니라 `aria-labelledby`가 가리키는 `<div>`입니다. Base UI의 결정이고, 그 덕에 묶음이 평범한 flex 컨테이너가 됩니다 — 진짜 `<legend>`는 모든 브라우저가 fieldset의 content box 밖으로 들어 올리므로, `gap`이 그 아래에 아무 공간도 만들지 못합니다.

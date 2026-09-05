@@ -78,7 +78,7 @@ PlMenubar(
 
 </Demo>
 
-## 예제
+## Examples
 
 ### size
 
@@ -122,7 +122,7 @@ PlMenubar(
 
 :::
 
-## 접근성
+## Accessibility
 
 - 띠는 진짜 `menubar`이고 각 단어는 펼쳐졌는지를 보고하는 `menuitem`입니다.
 - 단어의 focus ring은 **안쪽**으로 그려집니다. 띠의 항목들은 서로 머리카락 하나 거리이고, 바깥에 그린 링은 이웃과 겹칩니다.

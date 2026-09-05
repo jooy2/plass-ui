@@ -47,7 +47,7 @@ PlButton(onPressed: save, child: const Text('Save'));
 
 공통 축(`variant` `size` `color` `density` `elevation`)이 라이브러리 전체에서 뜻하는 것은 [prop 규칙](../../design/prop-conventions)에 있습니다.
 
-## 예제
+## Examples
 
 ### variant
 
@@ -267,7 +267,7 @@ PlButton(onPressed: save, child: const Text('Save'));
 
 :::
 
-## 접근성
+## Accessibility
 
 ::: fw react
 

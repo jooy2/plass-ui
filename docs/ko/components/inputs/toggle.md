@@ -73,7 +73,7 @@ PlToggleGroup(
 - [`PlCheckbox`](./checkbox)는 컨트롤이 아니라 폼 안의 답입니다.
 - 하나를 고르는 **값**이라면 [`PlSegmentedButton`](./segmented-button)이나 [`PlRadioGroup`](./radio-group)입니다. `multiple` 없는 `PlToggleGroup`은 그것처럼 보이지만 아닙니다. 담고 있는 것은 답이 아니라 상태입니다.
 
-## 예제
+## Examples
 
 ### variant
 
@@ -183,7 +183,7 @@ PlToggleGroup(
 
 :::
 
-## 접근성
+## Accessibility
 
 ::: fw react
 

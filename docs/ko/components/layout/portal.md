@@ -87,7 +87,7 @@ Overlay.of(context).insert(
 
 **그 밖에는 없습니다.** React context는 portal을 건너갑니다. context가 읽히는 트리는 DOM 트리가 아니라 React 트리이기 때문입니다. portal 위의 [`PlassProvider`](../../guide/defaults)는 그 안의 모든 것에 대해 여전히 `size`, `color`, `density`, `locale`을 정합니다.
 
-## 예시
+## Examples
 
 ### 자르는 조상에서 빠져나오기
 
@@ -117,12 +117,12 @@ Overlay.of(context).insert(
 
 `disabled`는 제자리에 그립니다. **마운트 시점에 한 번** 정하십시오. React가 보기에 portal된 서브트리와 제자리 서브트리는 서로 다른 자식이므로, 이 값을 뒤집으면 안쪽이 전부 다시 마운트되면서 절반 채운 폼도, 스크롤 위치도, 재생 중이던 영상도 버려집니다. 여기만의 결함이 아니라 재조정의 성질이고, 어떤 portal 구현도 피하지 못합니다.
 
-## 참고
+## Notes
 
 - wrapper는 fragment가 아니라 실제 요소입니다. 클래스를 다는 것도, 호출자가 서브트리의 위치를 잡는 것도 그 요소입니다.
 - 포커스를 가두지 않고, 페이지를 막지 않으며, <kbd>Escape</kbd>로 닫히지도 않습니다. 그 셋은 portal되는 대상의 몫이고 — [`PlModal`](../feedback/modal)이 셋 다 가지고 있습니다 — 그런 의견을 가진 portal은 이름을 잘못 지은 dialog입니다.
 
-## 접근성
+## Accessibility
 
 - **portal은 픽셀과 읽는 순서를 함께 옮깁니다.** 스크린 리더는 문서를 따라 걷기 때문에, `<body>` 끝으로 간 서브트리는 트리거 바로 옆에 그려져 있어도 페이지의 끝에서 읽힙니다. 사용자가 곧바로 만나야 하는 것 — dialog, menu, 방금 무슨 일이 있었는지 알리는 메시지 — 이라면 포커스를 그 안으로 옮기거나, 트리거에 `aria-controls`와 `aria-expanded`를 주십시오.
 - <kbd>Tab</kbd> 키도 마찬가지입니다. 화면이 아니라 문서를 따라갑니다. 버튼 옆에 그려진 portal 패널이라도 무언가 포커스를 옮겨 주지 않으면 페이지의 나머지를 모두 지난 뒤에야 도달합니다.

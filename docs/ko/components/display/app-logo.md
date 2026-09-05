@@ -78,7 +78,7 @@ PlAppLogo(
 
 [`PlAvatar`](./avatar)는 **사람이나 사물의 사진**입니다. 언제나 원이거나 fillet이고, 사진이 오지 않으면 뒤에 이니셜이 있습니다. 그릴 것이 늘 있기 때문입니다. `PlAppLogo`는 **제품이 소유한** 아트워크입니다. 지어낼 만한 대체물이 없고, 모양은 이미 누군가 내린 결정입니다. 그래서 여기서는 모양이 prop이고 저기서는 하우스 규칙입니다.
 
-## 예시
+## Examples
 
 ### 헤더의 brand 슬롯
 
@@ -126,13 +126,13 @@ PlAppLogo(semanticLabel: 'Acme', child: Image.asset('assets/logo.png'));
 
 :::
 
-## 참고
+## Notes
 
 - `variant`와 `color`는 **판이 있을 때만** 읽습니다. 맨 마크는 제품 자신의 아트워크이고 라이브러리는 거기에 색을 입히지 않습니다.
 - 마크의 높이는 `size` 사다리입니다. `md`는 32px로, `md` [header](../layout/header)의 64px 바닥 안에 양옆 여유를 두고 앉습니다.
 - 이름은 heading이 아니라 `<span>`입니다. 로고는 제품의 이름을 말하고, 페이지의 heading은 페이지의 이름을 말합니다.
 
-## 접근성
+## Accessibility
 
 - **`name`이 있으면 마크는 장식**이 되어 접근성 트리에서 빠집니다. 옆의 워드마크가 이미 제품 이름을 말하고 있고, 그림이 그것을 또 말하면 스크린 리더가 이름을 두 번 읽습니다.
 - `name`이 없으면 마크가 말합니다. React에서는 `alt`, Flutter에서는 `semanticLabel`입니다. 빈 `alt`는 진짜 답이고 기본값입니다. 그림이 글에 없는 것을 나르지 않는다는 뜻입니다.

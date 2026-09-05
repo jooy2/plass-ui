@@ -100,7 +100,7 @@ PlDataList(
 
 :::
 
-## 예시
+## Examples
 
 ### 줄 사이에 선이 필요할 때
 
@@ -136,13 +136,13 @@ PlDataListItem(label: const Text('Status'), value: const PlChip(child: Text('Act
 
 :::
 
-## 참고
+## Notes
 
 - 줄은 [`PlTable`](./table)의 컬럼과 달리 **데이터가 아니라 children**입니다. 상세 패널은 한 번 적히고 적힌 순서대로 읽히며, 값마다 모양이 다릅니다. 데이터 배열로 만들면 `render` 함수의 배열이 됩니다.
 - 표면을 그리지 않습니다. 상세 패널은 [`PlCard`](../surfaces/card) 안에 놓이고, 시트 안의 시트는 시트 둘입니다.
 - `size`와 `density`는 목록에서 와서 모든 줄에 닿습니다. 그래서 패널은 줄마다가 아니라 한 번의 결정입니다.
 
-## 접근성
+## Accessibility
 
 - 라벨과 값은 **한 쌍**으로 읽힙니다. 이 컴포넌트가 존재하는 이유 전부이고, `<div>` 격자가 하지 못하는 일입니다.
 - `icon`은 장식이고 스크린 리더에서 감춰집니다. 옆의 라벨이 이미 어떤 필드인지 말합니다.

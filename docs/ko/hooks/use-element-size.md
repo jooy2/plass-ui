@@ -32,7 +32,7 @@ LayoutBuilder(
 
 :::
 
-## 시그니처
+## Signature
 
 ```ts
 function usePlElementSize(
@@ -57,7 +57,7 @@ function usePlElementSize(
 
 손으로 쓴 버전은 거의 언제나 `getBoundingClientRect()`나 observer의 `borderBoxSize`를 보고하는데, 그것은 다른 숫자입니다. padding과 border를 포함합니다. 누군가 요소를 재게 만든 질문 — 안에 들어갈 것에 얼마나 자리가 있는가 — 에는 틀린 숫자입니다.
 
-## 예시
+## Examples
 
 ### 담는 상자에 맞춰 크기 잡기
 
@@ -79,7 +79,7 @@ const size = usePlElementSize(panel);
 const roomy = (size?.width ?? 0) > 480;
 ```
 
-## 참고
+## Notes
 
 - 움직인 것이 없으면 같은 객체를 그대로 돌려줍니다. 그래서 페이지 다른 곳의 리사이즈가 모든 호출자를 다시 렌더링하지 않습니다.
 - `ResizeObserver`가 없는 브라우저는 측정을 **한 번** 받습니다. 아무것도 움직이기 전까지는 맞는 레이아웃이 영영 틀린 레이아웃보다 낫습니다.

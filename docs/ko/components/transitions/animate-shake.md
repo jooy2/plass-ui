@@ -66,7 +66,7 @@ const [attempts, setAttempts] = useState(0);
 
 이 묶음의 다른 어느 것보다 여기서 더 중요합니다. 호출자가 **아직 입력 중인** 내용 위에 돌리게 될 유일한 효과이기 때문입니다. 라벨에서 몇 픽셀 어긋난 채 남은 입력란은 그것이 보고하던 오류보다 나쁜 결함입니다.
 
-## 예시
+## Examples
 
 ### 잠긴 컨트롤
 
@@ -82,7 +82,7 @@ const [attempts, setAttempts] = useState(0);
 <PlAnimateShake replay={attempts} distance={10} duration={300}>
 ```
 
-## 접근성
+## Accessibility
 
 - **동작을 줄여 달라고 한 사람에게는 아무것도 보이지 않습니다.** 그래서 흔들림보다 글자가 더 중요합니다. 거절이 말하려는 것은 **글로도** 말해야 합니다. 입력란의 `error`나 live region의 메시지로요. 흔들림은 강조이지 메시지가 아닙니다.
 - 입력란을 흔드는 것은 스크린 리더에게 아무 말도 하지 않습니다. 그것을 하는 입력란 자신의 `error`와 `invalid`와 함께 쓰십시오.

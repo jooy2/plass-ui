@@ -136,7 +136,7 @@ PlDrawer(
 
 - 들어 올리기, 스크림, focus scope, <kbd>Escape</kbd>, 나갈 때 포커스를 되돌려주는 것은 전부 `PlassPortal`의 것입니다. `PlModal`과 `PlOverlay`가 서 있는 것과 같은 층이라, 오버레이 위에 열린 서랍에 이음매가 보이지 않습니다.
 
-## React 빌드와의 차이
+## React 빌드와 다른 점
 
 | React | Flutter | 이유 |
 | --- | --- | --- |

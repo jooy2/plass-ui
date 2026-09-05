@@ -75,7 +75,7 @@ PlNavigationMenu(
 
 행이 무언가를 _하면_ menu를, 행이 어딘가로 _가면_ 이것을 쓰세요.
 
-## 예제
+## Examples
 
 ### 링크인 항목, 여는 항목
 
@@ -169,7 +169,7 @@ PlNavigationMenu(
 
 :::
 
-## 접근성
+## Accessibility
 
 - 진짜 `<a>`로 채워진 진짜 `<nav>`입니다. 이 컴포넌트의 주장이 전부 그것이고, 아래의 모든 것이 거기서 따라 나옵니다.
 - 키보드는 Base UI의 것입니다. 화살표 키가 행을 따라 움직이고, <kbd>Enter</kbd>와 <kbd>Space</kbd>가 패널을 열고, <kbd>Esc</kbd>가 닫으며 focus는 trigger로 돌아가고, <kbd>Tab</kbd>이 열린 패널의 링크로 들어갑니다.

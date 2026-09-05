@@ -246,7 +246,7 @@ PlScrollZone(wheel: false, children: items);
 
 ::: fw flutter
 
-## React 빌드와의 차이
+## React 빌드와 다른 점
 
 | React | Flutter | 이유 |
 | --- | --- | --- |

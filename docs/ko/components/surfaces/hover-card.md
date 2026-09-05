@@ -88,7 +88,7 @@ PlHoverCard(
 
 링크가 **전부** 미리 보기인 페이지 — 사람 목록, 이슈 목록 — 에서만 `delay`를 줄이고, 나머지에서는 그대로 두십시오.
 
-## 예시
+## Examples
 
 ### 사람
 
@@ -115,7 +115,7 @@ PlHoverCard(
 <PlHoverCard side="right" align="start" arrow trigger={…}>…</PlHoverCard>
 ```
 
-## 참고
+## Notes
 
 - 트리거는 **감싸는 것이 아니라 그대로 렌더링됩니다.** 링크는 링크로 남아 `href`와 스타일과 tab 순서를 유지하고, 카드는 레이아웃에 상자를 더하지 않습니다.
 - 시트는 [popover](../feedback/popover)가 그리는 것과 같은 서리 낀 패널이고, `size` 단계마다 한 칸씩 넓습니다. popover는 컨트롤 옆의 세부 사항이고, 힌트 폭으로 눌린 미리 보기는 아무도 읽지 않습니다.
@@ -134,7 +134,7 @@ PlHoverCard(
 
 :::
 
-## 접근성
+## Accessibility
 
 - **hover뿐 아니라 키보드 포커스에서도 열립니다.** 링크가 이어진 문단을 tab으로 지나가는 사람도 포인터와 같은 미리 보기를 받습니다. hover만 받는 카드가 잃는 절반이고, 여기서는 공짜입니다.
 - <kbd>Escape</kbd>로 닫힙니다.

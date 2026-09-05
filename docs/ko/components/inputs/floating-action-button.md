@@ -75,7 +75,7 @@ PlFloatingActionButton(
 
 그리고 주요 액션이 이미 본문의 버튼으로 있는 화면은 그 사본을 모서리에 하나 더 두고 싶어 하지 않습니다. 떠 있는 버튼은 달리 놓일 자리가 없는 액션을 위한 것입니다. 곧 무언가를 더하게 될 목록 화면 같은 곳입니다.
 
-## 예시
+## Examples
 
 ### 아래 뒤쪽 모서리가 아닌 자리
 
@@ -93,7 +93,7 @@ PlFloatingActionButton(
 <PlFloatingActionButton floating={false} extended icon={<PlusGlyph />} label="New project" />
 ```
 
-## 참고
+## Notes
 
 - `elevation` 기본값은 사다리 꼭대기인 **3**이고, 라이브러리의 다른 모든 기본값과 달리 타협이 아닙니다. 내용 위에 얹혀 있는 것이 아니라 정말로 떠 있는 유일한 컨트롤입니다.
 - `size` 기본값은 `PlButton`보다 한 칸 위인 `lg`입니다. 떠 있는 버튼은 엄지가 겨누는 표적입니다.
@@ -111,7 +111,7 @@ PlFloatingActionButton(
 
 :::
 
-## 접근성
+## Accessibility
 
 - 이름은 언제나 `label`이고, `extended`가 그렸을 바로 그 글자입니다. 이름 없이 이 버튼을 만들 방법은 없습니다.
 - 진짜 버튼일 뿐입니다. 문서 순서대로 포커스를 받고, <kbd>Enter</kbd>와 <kbd>Space</kbd>에 답하며, `loading`과 `disabled`를 `PlButton`과 똑같이 보고합니다.

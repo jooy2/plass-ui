@@ -74,7 +74,7 @@ PlForm(
 
 표면도 그리지 않습니다. 폼은 컨트롤의 스택이고, 그것이 얹히는 시트는 필요할 때의 [`PlCard`](../surfaces/card)나 [`PlBox`](../surfaces/box)입니다.
 
-## 예제
+## Examples
 
 ### validationMode
 
@@ -143,7 +143,7 @@ PlForm(
 
 :::
 
-## 접근성
+## Accessibility
 
 - 진짜 `<form>`입니다. 텍스트 필드에서 Enter를 누르면 늘 그랬듯 제출됩니다.
 - 제출이 실패하면 focus가 처음의 invalid 필드로 옮겨 갑니다. 문제가 있다고 말해 주는 대신 문제로 데려갑니다.

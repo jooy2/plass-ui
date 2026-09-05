@@ -147,7 +147,7 @@ Escape로도 닫히고, `dismissible={false}`가 둘 다 취소합니다. 꺼져
 
 - 들어 올리기, 앵커링, 뒤집기, 바깥 누름은 전부 `PlassAnchoredPortal`의 것입니다. `PlTooltip`과 `PlSelect`의 목록이 서 있는 것과 같은 층이라, 셋 다 같은 이유로 스크롤 중에도 자기 앵커에 붙어 있습니다.
 
-## React 빌드와의 차이
+## React 빌드와 다른 점
 
 | React | Flutter | 이유 |
 | --- | --- | --- |

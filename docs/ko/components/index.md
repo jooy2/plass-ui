@@ -16,7 +16,7 @@ aside: false
 
 <Demo src="component-index/all" plain :flutter="false" :min-height="220" />
 
-## 다음
+## Next
 
 - 이 부품들로 만든 화면 셋은 예제에 있습니다 — [관리자 대시보드](../examples/dashboard), [랜딩 페이지](../examples/landing), [가입](../examples/signup).
 - 한 화면에 모아 놓은 모습은 [홈](../)에서 볼 수 있습니다.

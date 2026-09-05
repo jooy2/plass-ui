@@ -128,7 +128,7 @@ CSS `transform-origin`이면 무엇이든 됩니다. 모서리를 중심으로 �
 
 ::: fw flutter
 
-## Differences from the React build
+## React 빌드와 다른 점
 
 | React | Flutter | 이유 |
 | --- | --- | --- |

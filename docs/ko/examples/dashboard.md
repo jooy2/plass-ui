@@ -26,14 +26,14 @@ aside: false
 | 아래 줄 | `PlCard` `PlTimeline` `PlSwitch` `PlDivider` | 무슨 일이 있었는지와 무엇이 나에게 도달하는지 — 같은 elevation의 같은 card, 두 번 |
 | 설정 | `PlDrawer` `PlSelect` `PlSwitch` | 화면에 있을 필요가 없는 설정은 화면 위로 미끄러져 들어오는 sheet 안에 |
 
-## 참고
+## Notes
 
 - 상태 filter는 `PlTabs`가 아니라 `PlSegmentedButton`입니다. 아래에 있는 것은 panel이 아니라 어느 쪽이든 같은 table이고, segmented button은 넷 중 하나를 고르는 컨트롤입니다.
 - filter는 평범한 React state입니다. `PlTable`은 넘겨받은 것을 그리고, 그것이 아무것도 아니면 `empty`를 보여 줍니다.
 - 모든 행 action에는 어느 행의 것인지 말해 주는 접근 가능한 이름이 있습니다. trigger `PlIconButton`의 `label`에 주문 id가 들어가기 때문입니다.
 - 일괄 action의 `PlModal`은 `modal="trap-focus"`를 넘깁니다. 완전한 modal은 뒤 페이지를 inert로 만드는데, 앱에서는 맞고 문서 안 미리 보기에서는 틀립니다.
 
-## 다음
+## Next
 
 - 화면이 두 개 더 있습니다 — [랜딩 페이지](./landing)와 [가입](./signup).
 - 컴포넌트별 prop과 예제는 [컴포넌트](../components/)에 있습니다.

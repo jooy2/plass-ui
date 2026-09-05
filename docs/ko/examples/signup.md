@@ -24,13 +24,13 @@ aside: false
 | 완료 | `PlAlert` `PlIcon` `PlButton` | `success` alert 하나, 그리고 그것과 경쟁하는 것은 아무것도 없음 |
 | Aside | `PlCard` `PlList` `PlBlockquote` `PlAvatar` `PlTextLink` | navigation이 아니라 안심시키는 정보이므로 `<aside>`이고, 가장 먼저 사라집니다 |
 
-## 참고
+## Notes
 
 - 검증은 평범한 React state입니다. 읽는 사람이 넘어가려고 시도하기 전까지는 아무것도 틀렸다고 표시하지 않습니다. `tried`가 있는 이유가 그것입니다 — 첫 field에 아직 타이핑하는 중에 빨개지는 form은 소리를 지르는 form입니다.
 - 단계는 숫자 하나이고 각 섹션은 평범한 조건문입니다. Plass에 wizard 컴포넌트는 없고, 있을 필요도 없습니다. 단계는 state 조각이고 나머지는 레이아웃입니다.
 - "Verify" 버튼이 기다리는 것은 `PlOtpField`입니다. 여섯 자리가 채워지면 활성화되고, 붙여넣기와 칸을 넘는 backspace와 숫자 키패드는 field가 알아서 처리합니다.
 
-## 다음
+## Next
 
 - 화면이 두 개 더 있습니다 — [관리자 대시보드](./dashboard)와 [랜딩 페이지](./landing).
 - 컴포넌트별 prop과 예제는 [컴포넌트](../components/)에 있습니다.

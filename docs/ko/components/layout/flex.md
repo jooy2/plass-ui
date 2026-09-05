@@ -95,7 +95,7 @@ LayoutBuilder(
 
 반응형이 아닌 것은 의도한 것입니다. `direction`이 쓰는 슬롯에 함께 접히므로 커스텀 속성 하나가 답 전체를 나르고, breakpoint에서 축이 바뀔 때 어느 끝에서 시작하는지를 다시 말할 필요가 없습니다.
 
-## 예시
+## Examples
 
 ### 줄바꿈하는 툴바
 
@@ -133,14 +133,14 @@ LayoutBuilder(
 </p>
 ```
 
-## 참고
+## Notes
 
 - **아무것도 그리지 않습니다.** 표면도 패딩도 없고 `variant`, `color`, `size`, `density`, `elevation`도 받지 않습니다. flex 상자는 그 안에 든 표면들의 배치이고, 이 컴포넌트가 가진 유일한 치수는 자식 **사이**의 공간인 `spacing`입니다.
 - `spacing`은 8px 눈금이 아니라 Tailwind의 spacing 눈금입니다. `spacing={4}`는 `1rem`으로, `gap-4`가 뜻하는 값이자 `PlGrid`에서 gutter `4`가 뜻하는 값과 같습니다. 소수도 같은 사다리 위에 있어서 `1.5`는 `0.375rem`입니다.
 - `render`는 마크업이 실제로 원하는 요소로 `<div>`를 바꿉니다. `<ul>`, `<nav>`, `<fieldset>` 어느 것이든 레이아웃은 그대로입니다.
 - `flex-direction`은 컴포넌트 자신의 클래스에 선언되므로 `className`에 실린 `flex-col`은 집니다. 같은 뜻이면서 반응형이기까지 한 `direction`을 쓰십시오.
 
-## 접근성
+## Accessibility
 
 - **순서를 바꾸는 것은 시각적인 일입니다.** `reverse`도, 호출자가 자식에 건 `order`도 픽셀을 옮길 뿐 문서를 옮기지 않습니다. 읽는 순서가 보이는 순서와 어긋나는 것은 [의미 있는 순서](https://www.w3.org/WAI/WCAG22/Understanding/meaningful-sequence.html)에 대한 명시된 실패이므로, 읽혀야 할 순서대로 내용을 두고 레이아웃이 그것을 따르게 하십시오.
 - role이 없고 role을 붙이지도 않습니다. 배치를 스크린 리더에게 목록으로 만들어 주는 것은 `<li>` 자식과 함께 쓰는 `render={<ul />}`이고, 그냥 두면 `<div>` 안의 `<div>`로 보입니다.

@@ -62,7 +62,7 @@ landmark입니다. `<div>`만으로 조립한 페이지는 스크린 리더가 �
 
 gutter도 measure도 그리지 않습니다. 그건 [`PlContainer`](./container)의 일이고, 안에 하나 넣으면 됩니다 — 그래야 한 route에서는 넓은 대시보드, 다음 route에서는 좁은 글이 될 수 있습니다.
 
-## 예제
+## Examples
 
 ### headerSpan · footerSpan
 
@@ -169,7 +169,7 @@ sidebar가 열이기를 그만두고 drawer가 되는 너비입니다. `null`이
 
 :::
 
-## 접근성
+## Accessibility
 
 ::: fw react
 

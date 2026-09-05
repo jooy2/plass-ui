@@ -34,7 +34,7 @@ void _openDialog() => setState(() => _open = true);
 
 :::
 
-## 시그니처
+## Signature
 
 ```ts
 function usePlDisclosure(initial?: boolean): {
@@ -70,7 +70,7 @@ const drawer = usePlDisclosure();
 <PlDrawer open={drawer.open} onOpenChange={drawer.setOpen}>…</PlDrawer>
 ```
 
-## 참고
+## Notes
 
 - DOM을 쥐지 않고 아무것도 지켜보지 않으며 effect도 없습니다. 그래서 서버에서도 브라우저와 같은 값만 듭니다.
 - 한 컴포넌트에 여러 개를 두는 것이 보통입니다. 열리는 것마다 `usePlDisclosure()` 하나씩이고, 각각 `useState` 하나만큼 듭니다.

@@ -26,13 +26,13 @@ aside: false
 | 가입 영역 | `PlTextField` `PlButton` `PlTextLink` | 진짜 `<form>`에 진짜 `type="submit"`이라 field 안에서 Enter가 동작합니다 |
 | Footer | `PlDivider` `PlTextLink` | `underline="hover"` — 항상 밑줄이 그어진 링크 줄은 경고처럼 읽힙니다 |
 
-## 참고
+## Notes
 
 - 추천 요금제는 **elevation과 chip**으로 표시합니다. 채도 높은 fill이 아닙니다. 카드가 전부 색을 두르고 있으면 더 강조할 것이 남지 않습니다.
 - 섹션 배경은 `--plass-glass-press`, 라이브러리가 눌린 표면에 쓰는 그 token입니다. 이 파일을 위해 새로 만든 팔레트가 아니라 페이지 자신의 구조입니다.
 - 모든 제목은 `PlTypography`의 `level`입니다. 이 페이지의 타입 스케일은 섹션마다 고른 Tailwind 크기가 아니라 라이브러리의 것입니다.
 
-## 다음
+## Next
 
 - 화면이 두 개 더 있습니다 — [관리자 대시보드](./dashboard)와 [가입](./signup).
 - 컴포넌트별 prop과 예제는 [컴포넌트](../components/)에 있습니다.

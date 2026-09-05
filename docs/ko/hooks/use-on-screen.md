@@ -26,7 +26,7 @@ const seen = usePlOnScreen(section, { rootMargin: '200px' });
 
 :::
 
-## 시그니처
+## Signature
 
 ```ts
 function usePlOnScreen(
@@ -63,7 +63,7 @@ function usePlOnScreen(
 
 **`true`** — `IntersectionObserver`가 없는 브라우저에서. 알아낼 방법이 없고, 영영 로드되지 않는 그림이 일찍 로드되는 그림보다 나쁩니다.
 
-## 예시
+## Examples
 
 ### 한 화면 일찍 로드하는 그림
 
@@ -80,7 +80,7 @@ const near = usePlOnScreen(frame, { rootMargin: '400px' });
 const seen = usePlOnScreen(row, { root: panel });
 ```
 
-## 참고
+## Notes
 
 - 도착할 때 재생되는 **애니메이션**이라면 이것을 직접 엮지 말고 모든 `PlAnimate*`가 이미 받는 `trigger="visible"`을 쓰십시오. 효과가 붙은 같은 observer입니다.
 - 언마운트에서 연결을 끊고, `once`일 때는 답을 얻는 즉시 끊습니다.

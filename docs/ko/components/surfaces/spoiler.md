@@ -154,7 +154,7 @@ PlSpoiler(
 
 - `ExcludeSemantics`·`ExcludeFocus`·`IgnorePointer` 셋이 그 속성 하나가 하는 말을 합니다. 텍스트 선택에는 네 번째가 필요 없습니다. Flutter의 선택은 opt-in이라, 덮인 문단은 화면이 그것을 `SelectionArea`로 감쌌을 때만 선택 가능하고 — 그렇게 한 화면은 그러지 말았어야 합니다.
 
-## React 빌드와의 차이
+## React 빌드와 다른 점
 
 | React | Flutter | 이유 |
 | --- | --- | --- |

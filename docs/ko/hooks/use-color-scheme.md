@@ -51,7 +51,7 @@ function usePlColorScheme(options?: {
 
 React는 문서가 파싱된 뒤에 돕니다. effect에서 적용하는 테마는 한 번의 paint만큼 늦고, 사용자는 이미 틀린 쪽을 본 뒤입니다.
 
-[`PlColorSchemeScript`](#plcolorschemescript)가 그 답이고, `<head>`에 들어갑니다.
+`PlColorSchemeScript`가 그 답이고, `<head>`에 들어갑니다.
 
 ```tsx
 // app/layout.tsx

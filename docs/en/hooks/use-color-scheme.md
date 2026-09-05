@@ -51,7 +51,7 @@ function usePlColorScheme(options?: {
 
 React runs after the document has been parsed. A theme applied from an effect is applied one paint too late, and the reader has already seen the wrong one.
 
-[`PlColorSchemeScript`](#plcolorschemescript) is the answer, and it belongs in `<head>`:
+`PlColorSchemeScript` is the answer, and it belongs in `<head>`:
 
 ```tsx
 // app/layout.tsx

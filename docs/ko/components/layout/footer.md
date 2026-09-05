@@ -49,7 +49,7 @@ PlFooter(child: const Text('© 2026 Acme'));
 
 푸터는 그렇지 않습니다. 어떤 사이트에서는 링크 네 열이고, 다음 사이트에서는 저작권 한 줄이며, 세 번째에서는 언어 전환기와 주소입니다. 배치를 짐작한 컴포넌트는 두 사이트 중 하나가 싸우게 되는 컴포넌트라서, 이것은 **시트**만 정합니다 — 표면, gutter, measure, 문서가 끝났다고 말하는 헤어라인, 그리고 바가 손 닿는 곳에 남는지 여부.
 
-## 예제
+## Examples
 
 ::: fw react
 
@@ -149,7 +149,7 @@ PlFooter(child: const Text('© 2026 Acme'));
 
 :::
 
-## 접근성
+## Accessibility
 
 ::: fw react
 

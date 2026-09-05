@@ -56,7 +56,7 @@ PlTextField(
 
 공통 축이 라이브러리 전체에서 뜻하는 것은 [prop 규칙](../../design/prop-conventions)에 있습니다.
 
-## 예제
+## Examples
 
 ### variant
 
@@ -272,7 +272,7 @@ controller가 **곧** 값이고, `onChanged`는 모든 변화를 알려줍니다
 
 </Demo>
 
-## 접근성
+## Accessibility
 
 ::: fw react
 
