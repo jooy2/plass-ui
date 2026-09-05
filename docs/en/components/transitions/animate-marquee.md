@@ -5,7 +5,7 @@ order: 7
 
 # PlAnimateMarquee
 
-<p class="plass-lede">Content scrolling steadily past, forever. The content is laid down twice, so the moment the first copy has left, the second is standing precisely where it began — no seam, no jump, no empty frame.</p>
+<p class="plass-lede">Content scrolling steadily past, forever. The content is laid down twice, so the moment the first copy has left, the second is standing precisely where it began, no seam, no jump, no empty frame.</p>
 
 <Demo src="animate-marquee/hero" :min-height="120" />
 

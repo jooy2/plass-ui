@@ -48,9 +48,9 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 ## The cover
 
-The cover is a **blur**, and that is the whole design. A reader can see that there is something there, roughly how much of it there is, and — with `maxHeight` — that it has been clamped. What they cannot do is read it by accident, which is the one thing a spoiler is for.
+The cover is a **blur**, and that is the whole design. A reader can see that there is something there, roughly how much of it there is, and (with `maxHeight`) that it has been clamped. What they cannot do is read it by accident, which is the one thing a spoiler is for.
 
-Blur alone is not cover, though. It takes a paragraph apart but leaves its colour and its rhythm, and a photograph blurred at 10px is still recognisably a photograph of a face — so a **wash of the page's own surface** goes over the top. That settles two things at once: the content goes to a wash of its own colours, and the button gets something to stand on rather than floating over whatever happened to be underneath it.
+Blur alone is not cover, though. It takes a paragraph apart but leaves its colour and its rhythm, and a photograph blurred at 10px is still recognisably a photograph of a face, so a **wash of the page's own surface** goes over the top. That settles two things at once: the content goes to a wash of its own colours, and the button gets something to stand on rather than floating over whatever happened to be underneath it.
 
 A short spoiler is as tall as its own cover, not as tall as its content: the two share one cell, so a one-line spoiler does not clip the button it is asking somebody to press.
 
@@ -58,7 +58,7 @@ A short spoiler is as tall as its own cover, not as tall as its content: the two
 
 Covering and uncovering moves nothing on the page around it. Both of the things that could move it are held instead of removed: the cover keeps its cell, and the `reversible` hide row keeps its own. Neither is taken out of the layout on the way in and put back on the way out.
 
-The cover is the one that matters most, because it is usually the taller of the two. A cover is a line of explanation and a button, so against a single line of covered text it is what holds the sheet open — drop it when the spoiler is revealed and the sheet collapses to the line, taking everything below it up the page with it. Held in place it still measures, and nothing moves.
+The cover is the one that matters most, because it is usually the taller of the two. A cover is a line of explanation and a button, so against a single line of covered text it is what holds the sheet open. Drop it when the spoiler is revealed and the sheet collapses to the line, taking everything below it up the page with it. Held in place it still measures, and nothing moves.
 
 What is held is not reachable. Both are `inert` while they are hidden, so neither is tabbable, readable by a screen reader, nor selectable: a reader who has already uncovered the content is never offered a reveal button they cannot see.
 
@@ -68,7 +68,7 @@ What is held is not reachable. Both are `inert` while they are hidden, so neithe
 
 ### variant
 
-The three materials, read as a _container's_: the sheet is never dyed. What a spoiler holds is a photograph, a paragraph, a plot twist, and it arrives with its own colours — the family shows up on the button and in the hairline and stops there.
+The three materials, read as a _container's_: the sheet is never dyed. What a spoiler holds is a photograph, a paragraph, a plot twist, and it arrives with its own colours. The family shows up on the button and in the hairline and stops there.
 
 `ghost` draws no box at all, which is what a spoiler sitting inside running prose usually wants.
 
@@ -90,7 +90,7 @@ The three materials, read as a _container's_: the sheet is never dyed. What a sp
 
 ### maxHeight
 
-Left out, the box is exactly as tall as what it holds — the right default for a paragraph or a picture. Set it for something long enough that a page of blurred content would be a page of nothing.
+Left out, the box is exactly as tall as what it holds, the right default for a paragraph or a picture. Set it for something long enough that a page of blurred content would be a page of nothing.
 
 The clamp is **only ever on the covered state**. Revealing something and leaving it in a box with a scrollbar is answering the wrong question.
 
@@ -114,13 +114,13 @@ This makes `maxHeight` the **one exception** to the rule below: it is the only t
 
 ### reversible
 
-Off by default: once it is uncovered, it stays uncovered. Turn it on and a hide button appears under the content, which is what a page full of them wants — a reader who revealed the wrong one can put it back.
+Off by default: once it is uncovered, it stays uncovered. Turn it on and a hide button appears under the content, which is what a page full of them wants, a reader who revealed the wrong one can put it back.
 
 The row is **reserved from the start** rather than added when the spoiler opens, and held invisible under the cover until it is needed. A control that arrives with a reveal is a button's worth of height that grows the sheet on the way in and shrinks it back on the way out, which moves the page twice around the thing somebody is pressing. The empty row is never seen, because the cover is drawn over it.
 
 ### padded and media
 
-Turn the padding off for something that should reach the edges. A covered image is the case this component is most often reached for, and the blur is doing real work there: the shape and the colours are visible, the subject is not.
+Turn the padding off for something that should reach the edges. A covered image is the case this component is most often used, and the blur is doing real work there: the shape and the colours are visible, the subject is not.
 
 <Demo src="spoiler/media" :min-height="240">
 
@@ -141,7 +141,7 @@ Turn the padding off for something that should reach the edges. A covered image 
 ## Accessibility
 
 - While it is covered the content is out of the focus order and off the accessibility tree. A spoiler somebody can tab into is not a spoiler.
-- `description` is read before the button, which is what tells somebody _why_ they are being asked. Turning it off leaves a cover that says nothing — worth doing only where the surrounding page already has.
+- `description` is read before the button, which is what tells somebody _why_ they are being asked. Turning it off leaves a cover that says nothing, worth doing only where the surrounding page already has.
 
 ::: fw react
 
@@ -152,7 +152,7 @@ Turn the padding off for something that should reach the edges. A covered image 
 
 ::: fw flutter
 
-- `ExcludeSemantics`, `ExcludeFocus` and `IgnorePointer` are the three widgets that say what that one attribute says. Text selection needs no third: Flutter's is opt-in, so a covered paragraph is only selectable if the screen wrapped it in a `SelectionArea` — and one that did should not have.
+- `ExcludeSemantics`, `ExcludeFocus` and `IgnorePointer` are the three widgets that say what that one attribute says. Text selection needs no third: Flutter's is opt-in, so a covered paragraph is only selectable if the screen wrapped it in a `SelectionArea`, and one that did should not have.
 
 ## Differences from the React build
 

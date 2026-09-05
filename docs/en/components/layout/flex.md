@@ -64,16 +64,16 @@ Three components lay children out in a line, and they are not variations on each
 |  | Reach for it when |
 | --- | --- |
 | [`PlFlex`](./flex) | The children are whatever size they are. "These, side by side, with a gap." |
-| [`PlGrid`](./grid) | The children take a **share of the row** — a `span` out of twelve, with offsets and a wrap that lines up. |
-| [`PlStack`](./stack) | The children **overlap** — a run of avatars, a pile of cards. |
+| [`PlGrid`](./grid) | The children take a **share of the row**, a `span` out of twelve, with offsets and a wrap that lines up. |
+| [`PlStack`](./stack) | The children **overlap**, a run of avatars, a pile of cards. |
 
 `PlFlex` is the one with no arithmetic in it. It is a flex box with the library's own vocabulary on it, which buys three things a `className="flex gap-3"` does not: the axis can change at a breakpoint without Tailwind, `spacing` is the same scale a `PlGrid`'s gutter is, and it works in a project that imports `plass-ui/styles.css` and has no Tailwind of its own.
 
 ## direction resolves in CSS
 
-<code v-pre>direction={{ xs: 'vertical', md: 'horizontal' }}</code> is a column below 48rem and a row from it up, and the **stylesheet** decides which — one `--p-dir-*` slot per rung the caller named, cascaded by the same `@variant` blocks a `PlGrid`'s columns use.
+<code v-pre>direction={{ xs: 'vertical', md: 'horizontal' }}</code> is a column below 48rem and a row from it up, and the **stylesheet** decides which, one `--p-dir-*` slot per rung the caller named, cascaded by the same `@variant` blocks a `PlGrid`'s columns use.
 
-So the first paint a server sends is already right at every width, dragging a window costs no re-render, and no listener is installed. That is the same line [breakpoints](../../design/breakpoints) draws for every responsive prop in the library: a value that decides only **style** is resolved in CSS, and a value that decides **structure** — an orientation that changes which DOM a component builds and which way its arrow keys walk — is resolved in JavaScript and pays for it.
+So the first paint a server sends is already right at every width, dragging a window costs no re-render, and no listener is installed. That is the same line [breakpoints](../../design/breakpoints) draws for every responsive prop in the library: a value that decides only **style** is resolved in CSS, and a value that decides **structure** (an orientation that changes which DOM a component builds and which way its arrow keys walk) is resolved in JavaScript and pays for it.
 
 <Demo src="flex/direction" :min-height="260">
 
@@ -91,7 +91,7 @@ A rung that was not named inherits the one below it, so `{ xs: 'horizontal', lg:
 
 It runs the children the other way along the axis and **changes nothing else**. The DOM order is what a screen reader reads out and what the <kbd>Tab</kbd> key walks, and neither of them moves.
 
-That makes it right for an arrangement — a chat bubble that hangs off the other end, a footer whose actions sit to the trailing side — and wrong for content whose order is the information. If the second thing should be read second, put it second.
+That makes it right for an arrangement (a chat bubble that hangs off the other end, a footer whose actions sit to the trailing side), and wrong for content whose order is the information. If the second thing should be read second, put it second.
 
 It is not responsive, deliberately. It folds into the same slot `direction` writes, so one custom property carries the whole answer and a breakpoint changes the axis without having to restate which end it starts from.
 
@@ -99,7 +99,7 @@ It is not responsive, deliberately. It folds into the same slot `direction` writ
 
 ### A toolbar that wraps
 
-`wrap` is `false` by default, which is what a flex box already does. A row that wraps is a decision rather than the absence of one — the opposite default would silently reflow a toolbar somebody had sized to fit.
+`wrap` is `false` by default, which is what a flex box already does. A row that wraps is a decision rather than the absence of one. The opposite default would silently reflow a toolbar somebody had sized to fit.
 
 <Demo src="flex/toolbar" :min-height="200">
 
@@ -113,7 +113,7 @@ It is not responsive, deliberately. It folds into the same slot `direction` writ
 
 ### One gutter per axis
 
-`spacing` sets both. `rowSpacing` and `columnSpacing` each take one and fall back to it, which is what a wrapping row of chips usually wants — tight between the lines, wider along them.
+`spacing` sets both. `rowSpacing` and `columnSpacing` each take one and fall back to it, which is what a wrapping row of chips usually wants, tight between the lines, wider along them.
 
 ```tsx
 <PlFlex wrap spacing={3} rowSpacing={1.5}>
@@ -135,9 +135,9 @@ It is not responsive, deliberately. It folds into the same slot `direction` writ
 
 ## Notes
 
-- **It draws nothing.** No surface, no padding, and no `variant`, `color`, `size`, `density` or `elevation`. A flex box is the arrangement of the surfaces inside it, and `spacing` — the space _between_ children — is the only measurement it owns.
+- **It draws nothing.** No surface, no padding, and no `variant`, `color`, `size`, `density` or `elevation`. A flex box is the arrangement of the surfaces inside it, and `spacing` (the space _between_ children) is the only measurement it owns.
 - `spacing` is Tailwind's spacing scale and not an eight-pixel one: `spacing={4}` is `1rem`, exactly what `gap-4` means and what a `PlGrid`'s gutter of `4` is. Fractions are on the same ladder, so `1.5` is `0.375rem`.
-- `render` swaps the `<div>` for the element the markup actually wants — `<ul>`, `<nav>`, `<fieldset>` — without changing anything about the layout.
+- `render` swaps the `<div>` for the element the markup actually wants (`<ul>`, `<nav>`, `<fieldset>`) without changing anything about the layout.
 - `flex-direction` is declared on the component's own class, so a `className` carrying `flex-col` loses to it. Use `direction`, which is the prop that means the same thing and is responsive besides.
 
 ## Accessibility

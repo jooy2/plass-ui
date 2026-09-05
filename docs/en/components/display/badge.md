@@ -5,7 +5,7 @@ order: 7
 
 # PlBadge
 
-<p class="plass-lede">A small mark in the corner of something else — unread mail on an inbox icon, a status dot on an avatar, a count on a tab. With no children it lays out inline instead, which is what a standalone status pill is.</p>
+<p class="plass-lede">A small mark in the corner of something else, unread mail on an inbox icon, a status dot on an avatar, a count on a tab. With no children it lays out inline instead, which is what a standalone status pill is.</p>
 
 <Demo src="badge/hero" :min-height="160" />
 
@@ -65,7 +65,7 @@ A count of `0` draws nothing at all unless `showZero` is on. Zero unread message
 
 ::: fw flutter
 
-An `invisible` badge keeps its box — a `Visibility` with `maintainSize` on — so nothing around it moves when it comes back. Visibility rather than opacity: a half-faded badge is a badge you have to squint at to find out whether it is there.
+An `invisible` badge keeps its box, a `Visibility` with `maintainSize` on, so nothing around it moves when it comes back. Visibility rather than opacity: a half-faded badge is a badge you have to squint at to find out whether it is there.
 
 :::
 
@@ -87,7 +87,7 @@ An `invisible` badge keeps its box — a `Visibility` with `maintainSize` on —
 
 ### dot
 
-Omit the content and the badge is a dot — the honest shape when there is something to report but nothing to count. `dot` forces it even when there _is_ content, and the content is still announced: a quiet corner is not a silent one.
+Omit the content and the badge is a dot, the honest shape when there is something to report but nothing to count. `dot` forces it even when there _is_ content, and the content is still announced: a quiet corner is not a silent one.
 
 <Demo src="badge/dot" :min-height="140">
 
@@ -107,7 +107,7 @@ Omit the content and the badge is a dot — the honest shape when there is somet
 
 ### variant
 
-A badge is the thing being coloured, so its sheet takes the tint — as an alert's does, and unlike a card's. It is also the one component in the library allowed to be a pill: a Plass corner is a moulded fillet on a _surface_, and a badge is a mark laid on one.
+A badge is the thing being coloured, so its sheet takes the tint, as an alert's does, and unlike a card's. It is also the one component in the library allowed to be a pill: a Plass corner is a moulded fillet on a _surface_, and a badge is a mark laid on one.
 
 <Demo src="badge/variants" :min-height="120">
 
@@ -189,7 +189,7 @@ Pinned with a directional `Stack` rather than a `transform`, which is the same c
 
 ### size
 
-Its own ladder, well below the control one. A control's height is what a _row_ lines up on; a badge lines up on nothing — it hangs off the corner of something else.
+Its own ladder, well below the control one. A control's height is what a _row_ lines up on; a badge lines up on nothing, it hangs off the corner of something else.
 
 <Demo src="badge/sizes" :min-height="120">
 
@@ -213,7 +213,7 @@ Its own ladder, well below the control one. A control's height is what a _row_ l
 
 - `content={3}` beside a bell reads out as "3", which means nothing. Give it `label="3 unread notifications"` and the sentence is what is announced instead of the number.
 - A dot draws nothing but still reads whichever of `label` and `content` it was given.
-- An `invisible` badge and an empty one are hidden from the accessibility tree entirely, and hold no text at all — text left behind in a clipped box is text a find-on-page still turns up.
+- An `invisible` badge and an empty one are hidden from the accessibility tree entirely, and hold no text at all. Text left behind in a clipped box is text a find-on-page still turns up.
 - The badge adds no role and no tab stop. What is interactive is the anchor inside it, and the anchor is the caller's own element.
 - The shell around the anchor is `inline-flex` and exactly as wide as what it wraps, so a badged icon button still lines up with a bare one beside it.
 
@@ -236,7 +236,7 @@ Its own ladder, well below the control one. A control's height is what a _row_ l
 | React | Flutter | Why |
 | --- | --- | --- |
 | one `content` prop | `content` and `count` | `max` and `showZero` only mean anything for a number. Two parameters make the type the question rather than a runtime `typeof`. |
-| a negative margin | a directional `Stack` | The same decision for the same reason — neither one moves the marker with a transform. |
+| a negative margin | a directional `Stack` | The same decision for the same reason. Neither one moves the marker with a transform. |
 | `visibility: hidden` | `Visibility(maintainSize: true)` | The same thing said in Flutter's words: the box stays, so nothing moves when the badge comes back. |
 | `children` | `child` | Flutter's name. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |

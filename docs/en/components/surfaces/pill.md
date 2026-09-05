@@ -48,13 +48,13 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 ## The stadium shape
 
-The shape is a **stadium** — a corner at exactly half the row's height — and the house radius rule otherwise forbids it. Every control is held just short of the 50% that would make it a pill, because the flat run along its top and bottom edge is what still reads as a sheet with the corners cut off it.
+The shape is a **stadium**, a corner at exactly half the row's height, and the house radius rule otherwise forbids it. Every control is held just short of the 50% that would make it a pill, because the flat run along its top and bottom edge is what still reads as a sheet with the corners cut off it.
 
 This is the exception the rule is drawn against, and it works for the same reason the rule does: **this is not a sheet lying on the page.** It is an object hovering over one, and an object hovering over the page should not look as though it was cut from the same material. The floating bar makes the same argument for its own capsule.
 
 The radius is pinned to the **row**, not written as `rounded-full`, and the difference only shows once the pill grows: a corner half the height of a box that has taken a second line eats the first two words of every line. Pinning it to the row is what lets the lozenge grow into a rounded rectangle with the same corner it always had.
 
-`elevation` defaults to `2` for the same reason — a lozenge lying flat on the content it is floating over reads as a mistake.
+`elevation` defaults to `2` for the same reason. A lozenge lying flat on the content it is floating over reads as a mistake.
 
 ## Examples
 
@@ -80,17 +80,17 @@ The three materials, said the way a **control** says them: the surface takes the
 
 ### The three slots
 
-`startIcon` is a square box clipped to a circle, so an image lands in it as readily as a glyph does — it fills the box and is cropped rather than letterboxed, which is what a 20px portrait wants.
+`startIcon` is a square box clipped to a circle, so an image lands in it as readily as a glyph does. It fills the box and is cropped rather than letterboxed, which is what a 20px portrait wants.
 
 `title` and `description` are the **middle**, centred in a column of their own and padded well clear of both neighbours at roughly double the control track. The glyph and the trailing slot are the pill's furniture; what it is _about_ is the column between them.
 
-`endIcon` sits **outside** the pressable area, so it can be a control of its own — a stop button, a dismiss. A button holding another button is markup a browser rewrites on parse.
+`endIcon` sits **outside** the pressable area, so it can be a control of its own, a stop button, a dismiss. A button holding another button is markup a browser rewrites on parse.
 
 ### details
 
 The second half, revealed when `expanded`. The pill grows downward into it rather than swapping to a different shape: one object saying more.
 
-The height is **the body's own**, not a number written down somewhere — so a details area whose content changes (which is what live information does) grows with it. And nothing is transformed: the pill is a window that opens, exactly as a [`PlCollapsible`](./collapsible)'s panel is.
+The height is **the body's own**, not a number written down somewhere, so a details area whose content changes (which is what live information does) grows with it. And nothing is transformed: the pill is a window that opens, exactly as a [`PlCollapsible`](./collapsible)'s panel is.
 
 ::: fw react
 
@@ -116,7 +116,7 @@ A `ResizeObserver` is what keeps the measured height honest as the content chang
 
 ### size
 
-A collapsed pill lines up with a [`PlButton`](../inputs/button) of the same `size` beside it — the row's floor is the control ladder. It is a **minimum** rather than a height, because a pill carrying a description is two lines tall and a fixed height would clip the second.
+A collapsed pill lines up with a [`PlButton`](../inputs/button) of the same `size` beside it. The row's floor is the control ladder. It is a **minimum** rather than a height, because a pill carrying a description is two lines tall and a fixed height would clip the second.
 
 <Demo src="pill/sizes" :min-height="300">
 
@@ -138,7 +138,7 @@ A collapsed pill lines up with a [`PlButton`](../inputs/button) of the same `siz
 
 ::: fw react
 
-A pill is `inline-flex`, so it is always as wide as its content — in a block, in a flex row, anywhere. Give it a width by putting it in something that has one.
+A pill is `inline-flex`, so it is always as wide as its content, in a block, in a flex row, anywhere. Give it a width by putting it in something that has one.
 
 :::
 
@@ -159,7 +159,7 @@ Stack(
 )
 ```
 
-Neither case needs an `Expanded` or a `SizedBox` around it. A loose constraint still counts as a width, which is why a `Wrap` of pills is a column of them rather than a row — reach for a [`PlChip`](../display/chip) where that is what was wanted.
+Neither case needs an `Expanded` or a `SizedBox` around it. A loose constraint still counts as a width, which is why a `Wrap` of pills is a column of them rather than a row. Reach for a [`PlChip`](../display/chip) where that is what was wanted.
 
 :::
 
@@ -200,6 +200,6 @@ There is no `position` here, for the reason [`PlFloatingBottomNavigation`](../na
 | `children` | `child` | One slot, and Dart spells it `child`. |
 | `inert` on the collapsed panel | `ExcludeFocus` + `ExcludeSemantics` | The same two things that attribute does, said as the two widgets that do them. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
-| Always as wide as its content | Fills a bounded width | `inline-flex` shrink-wraps wherever it is put. A Flutter widget offered a width takes it, which is the framework's own convention — see [Width](#width) for the two cases and what each is for. |
+| Always as wide as its content | Fills a bounded width | `inline-flex` shrink-wraps wherever it is put. A Flutter widget offered a width takes it, which is the framework's own convention. See [Width](#width) for the two cases and what each is for. |
 
 :::

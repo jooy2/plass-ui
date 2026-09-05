@@ -5,7 +5,7 @@ order: 1
 
 # PlLineChart
 
-<p class="plass-lede">A value against time, or against anything else with an order to it. The line is the mark that says <em>change</em>: it claims the space between two points is a journey rather than two separate facts.</p>
+<p class="plass-lede">A value against time, or against anything else with an order to it. The line is the mark for <em>change</em>: it reads the space between two points as one movement rather than two separate facts.</p>
 
 <Demo src="line-chart/hero" :min-height="320" />
 
@@ -46,9 +46,9 @@ PlLineChart(
 
 :::
 
-Reach for a bar chart when the categories could be shuffled without losing anything: a line between two products claims a relationship the data does not have.
+Reach for a bar chart when the categories could be shuffled without losing anything: a line between two products draws a relationship the data does not have.
 
-Everything around the line — the axes, the grid, the crosshair, the legend, the tooltip and what a screen reader gets instead of the picture — comes from a shared frame, which is what makes two different charts on one dashboard read as one drawing rather than two.
+Everything around the line (the axes, the grid, the crosshair, the legend, the tooltip and what a screen reader gets instead of the picture) comes from a shared frame, which is what makes two different charts on one dashboard read as one drawing rather than two.
 
 ## Props
 
@@ -58,7 +58,7 @@ Everything around the line — the axes, the grid, the crosshair, the legend, th
 
 <PropsTable name="PlassChartSeries" />
 
-A datum is a bare number, a `null`, or a point that says more about itself. **A `null` is a gap and never a zero** — a sensor that was offline, a month that has not closed yet. A chart that renders missing data as zero reports an outage as a collapse.
+A datum is a bare number, a `null`, or a point that says more about itself. **A `null` is a gap and never a zero**, a sensor that was offline, a month that has not closed yet. A chart that renders missing data as zero reports an outage as a collapse.
 
 ::: fw react
 
@@ -89,7 +89,7 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 ### curve
 
-`linear` is the default and the only one that claims nothing the data did not say. `smooth` is a **monotone cubic**, not a plain spline: it is curved, but it will not dip below a value that both of its neighbours are above — a chart is allowed to be curved and it is not allowed to show a value that is not in the data. `step` is what a rate, a tier or a setting actually did between two readings, rather than a diagonal pretending it drifted.
+`linear` is the default and the only one that adds nothing to the data. `smooth` is a **monotone cubic**, not a plain spline: it is curved, but it will not dip below a value that both of its neighbours are above. A chart is allowed to be curved and it is not allowed to show a value that is not in the data. `step` is what a rate, a tier or a setting actually did between two readings, rather than a diagonal pretending it drifted.
 
 <Demo src="line-chart/curve" :min-height="380">
 
@@ -131,7 +131,7 @@ A point with a gap either side of it is drawn as a dot rather than dropped: it i
 
 ### valueLabels
 
-`last` names where each series ended up, which is the question a line chart is usually being asked — and it is the setting that lets a chart drop its value axis entirely.
+`last` names where each series ended up, which is the question a line chart is usually being asked, and it is the setting that lets a chart drop its value axis entirely.
 
 <Demo src="line-chart/labels" :min-height="300">
 
@@ -153,7 +153,7 @@ A point with a gap either side of it is drawn as a dot rather than dropped: it i
 
 ### The value axis leaves zero out
 
-A line encodes a **position**, so cropping the scale moves every point by the same amount and the shape survives. A bar encodes a **length**, which stops meaning anything the moment it starts from 98 — which is why a bar chart's axis includes zero and this one does not.
+A line encodes a **position**, so cropping the scale moves every point by the same amount and the shape survives. A bar encodes a **length**, which stops meaning anything the moment it starts from 98, which is why a bar chart's axis includes zero and this one does not.
 
 A series that lives between 98 and 99 is a flat line on a scale that begins at zero. Ask for one with the axis' own `min`.
 
@@ -163,7 +163,7 @@ A series that lives between 98 and 99 is a flat line on a scale that begins at z
 
 ### Colour
 
-The palette is **eight hues in a fixed order**, and it is the one place in the library where a colour is not a semantic role. A series is an entity — a region, a plan, a competitor — and nothing about it says success or danger.
+The palette is **eight hues in a fixed order**, and it is the one place in the library where a colour is not a semantic role. A series is an entity (a region, a plan, a competitor), and nothing about it says success or danger.
 
 Slots are handed out by a series' **index in the array it was passed**, never by its position among the ones currently visible: a reader who learned that Europe is blue has learned something a filter is not allowed to take back. A ninth series is not a ninth colour; it is an "Other" row, or a second chart.
 
@@ -171,9 +171,9 @@ The tokens are `--plass-chart-1` through `--plass-chart-8`, and a project that m
 
 ## Accessibility
 
-- The whole drawing carries a name and, as its value, **each visible series and where it ended up** — the reading a sighted reader takes from the shape, rather than a cell-by-cell recital of the table.
+- The whole drawing carries a name and, as its value, **each visible series and where it ended up**. The reading a sighted reader takes from the shape, rather than a cell-by-cell recital of the table.
 - The legend is a row of real controls: each entry says whether its series is on, and pressing one switches it.
-- A hovered legend entry dims the **others** rather than lighting its own — a chart whose hovered series changes colour is a chart whose legend lies for as long as the pointer is on it.
+- A hovered legend entry dims the **others** rather than lighting its own, a chart whose hovered series changes colour is a chart whose legend lies for as long as the pointer is on it.
 
 ::: fw react
 

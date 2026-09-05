@@ -5,7 +5,7 @@ order: 15
 
 # PlAppLogo
 
-<p class="plass-lede">A product's mark, and its name beside it. The whole component is the framing — and <code>bare</code> is the default, because artwork that was drawn with its own background must not be put on a plate.</p>
+<p class="plass-lede">A product's mark, and its name beside it. The whole component is the framing, and <code>bare</code> is the default, because artwork that was drawn with its own background must not be put on a plate.</p>
 
 <Demo src="app-logo/hero" :min-height="240" />
 
@@ -44,7 +44,7 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 ## shape is the component
 
-Three answers to one question — how is this artwork framed — and the default is the one project after project gets wrong.
+Three answers to one question, how is this artwork framed, and the default is the one project after project gets wrong.
 
 |  |  |
 | --- | --- |
@@ -76,13 +76,13 @@ Three answers to one question — how is this artwork framed — and the default
 
 They look alike and they answer different questions.
 
-[`PlAvatar`](./avatar) is a picture of a **person or a thing**: always a circle or a fillet, with initials behind it when the picture does not arrive, because there is always something to draw. `PlAppLogo` is artwork the **product owns**: it has no fallback worth inventing, and its shape is a decision somebody already made — which is why the shape is a prop here and a house rule there.
+[`PlAvatar`](./avatar) is a picture of a **person or a thing**: always a circle or a fillet, with initials behind it when the picture does not arrive, because there is always something to draw. `PlAppLogo` is artwork the **product owns**: it has no fallback worth inventing, and its shape is a decision somebody already made, which is why the shape is a prop here and a house rule there.
 
 ## Examples
 
 ### A header's brand slot
 
-The ordinary place for one, and the reason `render` is worth reaching for: a logo is nearly always the way back to the front page.
+The ordinary place for one, and the reason `render` is worth using: a logo is nearly always the way back to the front page.
 
 ```tsx
 <PlHeader
@@ -96,7 +96,7 @@ The ordinary place for one, and the reason `render` is worth reaching for: a log
 
 ### Saying which copy this is
 
-`description` is the line under the name — an environment, a tenant, a plan. It is the cheapest way to stop somebody editing production because it looked like staging.
+`description` is the line under the name, an environment, a tenant, a plan. It is the cheapest way to stop somebody editing production because it looked like staging.
 
 ```tsx
 <PlAppLogo shape="plate" name="Acme" description="Staging" color="warning">
@@ -118,7 +118,7 @@ The ordinary place for one, and the reason `render` is worth reaching for: a log
 
 ::: fw flutter
 
-The mark is a widget, so it is whatever draws the artwork — a `PlImage`, an `Image.asset`, a `CustomPaint`.
+The mark is a widget, so it is whatever draws the artwork, a `PlImage`, an `Image.asset`, a `CustomPaint`.
 
 ```dart
 PlAppLogo(semanticLabel: 'Acme', child: Image.asset('assets/logo.png'));
@@ -135,5 +135,5 @@ PlAppLogo(semanticLabel: 'Acme', child: Image.asset('assets/logo.png'));
 ## Accessibility
 
 - **With a `name`, the mark is decorative** and is taken off the accessibility tree. The wordmark beside it already says what the product is called, and a picture that says it again is a screen reader reading the name twice.
-- Without a `name`, the mark speaks: `alt` in React, `semanticLabel` in Flutter. An empty `alt` is a real answer and the default — it says the picture carries nothing the text does not.
+- Without a `name`, the mark speaks: `alt` in React, `semanticLabel` in Flutter. An empty `alt` is a real answer and the default. It says the picture carries nothing the text does not.
 - A logo that goes home should say so. `render={<a href="/" />}` makes it a real link with a real destination, rather than a click handler on a picture.

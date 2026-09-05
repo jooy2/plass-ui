@@ -41,7 +41,7 @@ Everything a [`PlButton`](./button) takes, it takes: the three materials, the el
 
 ## label is not optional
 
-A floating button is a disc with a mark in it nine times out of ten. `extended` decides whether the **words are also drawn** — never whether they exist.
+A floating button is a disc with a mark in it nine times out of ten. `extended` decides whether the **words are also drawn**, never whether they exist.
 
 That is why `label` is required and is always the accessible name. An icon-only button with no name is the single most common accessibility defect this pattern ships with, and making the prop required is the only fix that survives review.
 
@@ -73,7 +73,7 @@ The extended form is **not a pill**, for exactly that reason. It has words along
 
 Two floating buttons in one corner is two primary actions, which is none.
 
-And a screen whose main action is already a button in the content does not want a second copy of it in the corner — the floating one is for the action that has nowhere else to live, on a screen that is a list of things you are about to add to.
+And a screen whose main action is already a button in the content does not want a second copy of it in the corner. The floating one is for the action that has nowhere else to live, on a screen that is a list of things you are about to add to.
 
 ## Examples
 
@@ -101,13 +101,13 @@ And a screen whose main action is already a button in the content does not want 
 ::: fw react
 
 - It is `position: fixed` with **logical** insets, written inline: a caller's `offset` is a value rather than a class, and an inline declaration is the one form that wins over a utility deterministically.
-- It sits at `z-30`, the same level a [`PlBackTop`](../navigation/back-top) does — above the page and below anything portalled.
+- It sits at `z-30`, the same level a [`PlBackTop`](../navigation/back-top) does, above the page and below anything portalled.
 
 :::
 
 ::: fw flutter
 
-- While `floating` it is a `PositionedDirectional`, so it belongs in a `Stack` — which is what a screen's body usually already is once anything floats over it.
+- While `floating` it is a `PositionedDirectional`, so it belongs in a `Stack`, which is what a screen's body usually already is once anything floats over it.
 
 :::
 
@@ -115,4 +115,4 @@ And a screen whose main action is already a button in the content does not want 
 
 - The name is `label`, always, and it is the same words `extended` would draw. There is no way to make one of these without a name.
 - It is a real button and nothing else: it takes the focus in document order, answers <kbd>Enter</kbd> and <kbd>Space</kbd>, and reports `loading` and `disabled` exactly as a `PlButton` does.
-- **It covers content.** A button pinned to a corner sits over whatever is under it, so leave room for it at the end of a scrolling list — the last row of a list under a floating button is a row nobody can press.
+- **It covers content.** A button pinned to a corner sits over whatever is under it, so leave room for it at the end of a scrolling list. The last row of a list under a floating button is a row nobody can press.

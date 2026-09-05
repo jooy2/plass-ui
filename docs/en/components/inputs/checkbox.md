@@ -39,23 +39,23 @@ PlCheckbox(
 
 ::: fw react
 
-Every other prop on Base UI's `Checkbox.Root` passes straight through. `className` and `style` land on the field wrapper rather than on the tick, and `render` is not offered — replacing the tick would leave something that is no longer a checkbox.
+Every other prop on Base UI's `Checkbox.Root` passes straight through. `className` and `style` land on the field wrapper rather than on the tick, and `render` is not offered. Replacing the tick would leave something that is no longer a checkbox.
 
-`classNames` reaches the four parts inside that wrapper: `label`, `control` — the tick — `description` and `error`.
+`classNames` reaches the four parts inside that wrapper: `label`, `control` (the tick) `description` and `error`.
 
 :::
 
 ::: fw flutter
 
-The checkbox is **controlled**: it is handed a `value` and reports what the value should become. There is no uncontrolled form and no `defaultChecked` — Flutter's own controls work this way, and a widget that owned a copy of your state would be a widget your state could disagree with.
+The checkbox is **controlled**: it is handed a `value` and reports what the value should become. There is no uncontrolled form and no `defaultChecked`, Flutter's own controls work this way, and a widget that owned a copy of your state would be a widget your state could disagree with.
 
 `onChanged: null` disables the checkbox, as it does everywhere else in Flutter.
 
 :::
 
-There is no `variant`. On and off are not two strengths of one material, so the box swaps its whole surface rather than shifting a step along a ladder — the one place in the library a state is expressed that way.
+There is no `variant`. On and off are not two strengths of one material, so the box swaps its whole surface rather than shifting a step along a ladder. The one place in the library a state is expressed that way.
 
-The tick **draws itself on** rather than appearing whole on the frame the box fills, and draws itself back off when the box is cleared. A mark that arrives all at once is a mark that was swapped in rather than one the click put there. Nothing is scaled to do it — the stroke is dashed at its own length and the dash is what moves, so no part of the tick is ever anywhere it will not end up. See [motion](../../design/design-language#drawing-a-mark).
+The tick **draws itself on** rather than appearing whole on the frame the box fills, and draws itself back off when the box is cleared. A mark that arrives all at once is a mark that was swapped in rather than one the click put there. Nothing is scaled to do it. The stroke is dashed at its own length and the dash is what moves, so no part of the tick is ever anywhere it will not end up. See [motion](../../design/design-language#drawing-a-mark).
 
 What the shared axes (`size` `color`) mean across the library is in [prop conventions](../../design/prop-conventions).
 
@@ -83,7 +83,7 @@ Ticked, the box fills with the family's gradient and the mark on it is the famil
 
 ### size
 
-The tick has its own ladder rather than a step off the control heights: it is not a control you can put a label inside, it is an indicator next to one, so it is sized against the text beside it. It also takes a much tighter radius — `--plass-radius-md` on an 18px box is most of the way to a circle, and a checkbox that is round is a radio button.
+The tick has its own ladder rather than a step off the control heights: it is an indicator beside a label rather than a control with one inside, so it is sized against the text beside it. It also takes a much tighter radius. `--plass-radius-md` on an 18px box is most of the way to a circle, and a checkbox that is round is a radio button.
 
 <Demo src="checkbox/sizes" :min-height="220">
 
@@ -105,7 +105,7 @@ The tick has its own ladder rather than a step off the control heights: it is no
 
 The third state, for a parent box over a set of children: neither ticked nor cleared. The mark becomes a dash, and the box is announced as mixed rather than as checked.
 
-It is a display state, not a value — pressing an indeterminate box ticks it.
+It is a display state, not a value, pressing an indeterminate box ticks it.
 
 <Demo src="checkbox/indeterminate" :min-height="240">
 
@@ -125,7 +125,7 @@ It is a display state, not a value — pressing an indeterminate box ticks it.
 
 ### readOnly · disabled · error
 
-`error` also turns the checkbox invalid, which re-points the whole colour family at `danger` — the box, the ring and the message turn over together.
+`error` also turns the checkbox invalid, which re-points the whole colour family at `danger`, the box, the ring and the message turn over together.
 
 <Demo src="checkbox/states" :min-height="280">
 
@@ -152,7 +152,7 @@ It is a display state, not a value — pressing an indeterminate box ticks it.
 - The tick is centred on the label's **first** line with `1lh`, so it stays put when the label wraps to three.
 - `indeterminate` is announced as `aria-checked="mixed"`, and the dash rather than the check is what says so without colour.
 - The focus ring only appears on `:focus-visible`, so a mouse press never draws one.
-- A checkbox with no `label` needs an `aria-label` — a box with nothing beside it is a box nobody can name.
+- A checkbox with no `label` needs an `aria-label`. A box with nothing beside it is a box nobody can name.
 
 :::
 
@@ -160,10 +160,10 @@ It is a display state, not a value — pressing an indeterminate box ticks it.
 
 - The tick, its label, its description and its error are **one** semantics node, checked or not, so a screen reader reads the whole thing once rather than four times.
 - Pressing the label ticks the box: the whole row is the target, not the 18px square.
-- The tick is centred on the label's **first** line — a box the height of one line box, whatever the type scale turns out to be — so it stays put when the label wraps to three.
+- The tick is centred on the label's **first** line (a box the height of one line box, whatever the type scale turns out to be), so it stays put when the label wraps to three.
 - `indeterminate` is announced as mixed, and the dash rather than the check is what says so without colour.
-- <kbd>Enter</kbd>, <kbd>Space</kbd> and the numpad <kbd>Enter</kbd> tick it. The focus ring only appears on what CSS calls `:focus-visible` — a keyboard reaching the control, never a pointer clicking it.
-- A checkbox with no `label` needs a `semanticLabel` — a box with nothing beside it is a box nobody can name.
+- <kbd>Enter</kbd>, <kbd>Space</kbd> and the numpad <kbd>Enter</kbd> tick it. The focus ring only appears on what CSS calls `:focus-visible`, a keyboard reaching the control, never a pointer clicking it.
+- A checkbox with no `label` needs a `semanticLabel`. A box with nothing beside it is a box nobody can name.
 
 :::
 

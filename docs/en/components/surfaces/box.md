@@ -45,7 +45,7 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 ## PlBox or PlCard
 
-Everything structural — a title, a subtitle, a footer, hairlines between sections — belongs to [`PlCard`](./card), which is a box with those sections laid out on it. What is left here is the sheet itself, and it is worth having on its own because most of what a screen groups has no heading: a well behind a form, a tile in a shelf, a panel round a chart.
+Everything structural (a title, a subtitle, a footer, hairlines between sections) belongs to [`PlCard`](./card), which is a box with those sections laid out on it. What is left here is the sheet itself, and it is worth having on its own because most of what a screen groups has no heading: a well behind a form, a tile in a shelf, a panel round a chart.
 
 The moment you find yourself putting a heading and a body inside a box by hand, the component you wanted was a card.
 
@@ -53,7 +53,7 @@ The moment you find yourself putting a heading and a body inside a box by hand, 
 
 `size` means something different here from what it means on a control, and this is the one place in the library where that is true.
 
-A box is as tall as what it holds, and its children bring their own typography — a container that reset the type scale would render the same paragraph at two sizes depending on what it was wrapped in. So `size` is the size of the **sheet**: its radius and its padding, and nothing else.
+A box is as tall as what it holds, and its children bring their own typography, a container that reset the type scale would render the same paragraph at two sizes depending on what it was wrapped in. So `size` is the size of the **sheet**: its radius and its padding, and nothing else.
 
 <Demo src="box/sizes" :min-height="320">
 
@@ -75,9 +75,9 @@ A box is as tall as what it holds, and its children bring their own typography �
 
 ### variant
 
-The three materials say what they say everywhere else, read as a _container's_: the sheet is never dyed. What a box holds arrives with its own colours, and tinting the pane under them puts every one on a background it was not chosen against — so the family reaches the hairline and the focus ring and stops.
+The three materials say what they say everywhere else, read as a _container's_: the sheet is never dyed. What a box holds arrives with its own colours, and tinting the pane under them puts every one on a background it was not chosen against, so the family reaches the hairline and the focus ring and stops.
 
-`ghost` is the one to reach for inside another surface, where a second bordered rectangle is a second rectangle.
+`ghost` is the one to use inside another surface, where a second bordered rectangle is a second rectangle.
 
 <Demo src="box/variants" :min-height="280">
 
@@ -97,7 +97,7 @@ The three materials say what they say everywhere else, read as a _container's_: 
 
 ### padded
 
-On by default. Turn it off for content that should reach the edges — an image, a table, a list that draws its own rows.
+On by default. Turn it off for content that should reach the edges, an image, a table, a list that draws its own rows.
 
 ::: fw react
 
@@ -129,7 +129,7 @@ Add `overflow-hidden` so the content is cut by the sheet's own corners.
 
 ### elevation
 
-`0` and flat, which is the right default: the glass edge is what separates the box from the page. Raise it only for a surface that genuinely floats above the content around it — and remember that a `ghost` box has no sheet for a shadow to fall from.
+`0` and flat, which is the right default: the glass edge is what separates the box from the page. Raise it only for a surface that genuinely floats above the content around it, and remember that a `ghost` box has no sheet for a shadow to fall from.
 
 ::: fw react
 
@@ -150,7 +150,7 @@ PlBox(elevation: 2, child: Text('Floating clear of the page'));
 ## Accessibility
 
 - A box is a `<div>` and claims nothing. It has no role, no name and no place in the document outline, which is correct: grouping for the eye is not grouping for a screen reader.
-- When the group _is_ meaningful — a region of the page, a list item, a section with a heading — say so with the element rather than with the sheet.
+- When the group _is_ meaningful (a region of the page, a list item, a section with a heading) say so with the element rather than with the sheet.
 
 ::: fw react
 
@@ -167,7 +167,7 @@ A `Semantics(container: true, label: …)` around the box is what says the group
 | React | Flutter | Why |
 | --- | --- | --- |
 | `render` | — | There is no element to swap. What a `<section>` was saying is said by a `Semantics` around the box. |
-| `overflow-hidden` as a class | `clipped` | A clip is a widget here rather than a property, so it has to be somebody's decision — and it is off by default, because a clip also cuts anything a child draws outside itself. |
+| `overflow-hidden` as a class | `clipped` | A clip is a widget here rather than a property, so it has to be somebody's decision, and it is off by default, because a clip also cuts anything a child draws outside itself. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::

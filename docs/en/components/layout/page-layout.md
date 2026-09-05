@@ -5,7 +5,7 @@ order: 10
 
 # PlPageLayout
 
-<p class="plass-lede">The skeleton a page is hung on: a header, a footer, one sidebar or two, and the content between them. It draws no surface of its own — what it contributes is the arrangement and the landmarks.</p>
+<p class="plass-lede">The skeleton a page is hung on: a header, a footer, one sidebar or two, and the content between them. It draws no surface of its own. What it contributes is the arrangement and the landmarks.</p>
 
 <Demo src="page-layout/hero" :min-height="360" />
 
@@ -48,7 +48,7 @@ Every native `<div>` attribute passes straight through to the root. `color` is e
 
 ::: fw flutter
 
-The layout fills the space it is given — a header, an [`Expanded`](https://api.flutter.dev/flutter/widgets/Expanded-class.html) band and a footer — so put it under something with a bounded height. The content is not wrapped in a scroll view: what scrolls, and in which direction, belongs to whatever is put in `child`.
+The layout fills the space it is given (a header, an [`Expanded`](https://api.flutter.dev/flutter/widgets/Expanded-class.html) band and a footer), so put it under something with a bounded height. The content is not wrapped in a scroll view: what scrolls, and in which direction, belongs to whatever is put in `child`.
 
 :::
 
@@ -60,7 +60,7 @@ The landmarks. A page assembled out of `<div>`s is a page a screen reader offers
 
 Those tags come from the components this one arranges. What the layout itself contributes to the document is exactly one element, plus the `<main>` and the skip link that jumps to it.
 
-It draws no gutter and no measure either. That is [`PlContainer`](./container)'s job — put one inside, where a page can have a wide dashboard on one route and a narrow article on the next.
+It draws no gutter and no measure either. That is [`PlContainer`](./container)'s job. Put one inside, where a page can have a wide dashboard on one route and a narrow article on the next.
 
 ## Examples
 
@@ -96,7 +96,7 @@ The footer answers the same question separately, because a dashboard with a full
 
 `scroll="content"` takes the layout to exactly the height of the window and scrolls only the region between the bars. Reach for it when the page is a workspace rather than a document.
 
-`height` is `viewport` by default, `auto` for a layout that is not the page — a preview, a pane of a larger tool — or any CSS length. It is a floor while the page scrolls and an exact height while only the content does.
+`height` is `viewport` by default, `auto` for a layout that is not the page (a preview, a pane of a larger tool), or any CSS length. It is a floor while the page scrolls and an exact height while only the content does.
 
 <Demo src="page-layout/scroll" :flutter="false" :min-height="300">
 
@@ -112,7 +112,7 @@ The footer answers the same question separately, because a dashboard with a full
 
 On by default, and it is the one thing here that is not a style decision. A keyboard reader arriving on a page whose navigation holds forty links has to walk past all forty on every page before reaching the article; this is the one link that spares them, and it costs a sighted reader nothing because it is invisible until it is tabbed to.
 
-`mainId` renames both halves of the pair together — the `id` on the `<main>` and the `href` the link points at.
+`mainId` renames both halves of the pair together, the `id` on the `<main>` and the `href` the link points at.
 
 <Demo src="page-layout/skip-link" :flutter="false" :min-height="220">
 
@@ -146,7 +146,7 @@ The layout also owns whether each drawer is open, so a route change can close on
 
 A sidebar that holds its place has to start below a header whose height nobody but the header knows, so the layout measures the two bars and writes what they take out of the window onto its own root: `--p-layout-header` and `--p-layout-footer`, plus an `-inset` for each.
 
-They are two rather than one because a bar takes two different things away depending on how it is positioned. A `sticky` bar is still in the flow, so nothing has to be reserved for it — but it is permanently across the top of the window, so a column has to start below it. A `fixed` bar is out of the flow, so the page _does_ have to reserve its height. Which of the two a bar is is read off the element rather than plumbed through a prop.
+They are two rather than one because a bar takes two different things away depending on how it is positioned. A `sticky` bar is still in the flow, so nothing has to be reserved for it, but it is permanently across the top of the window, so a column has to start below it. A `fixed` bar is out of the flow, so the page _does_ have to reserve its height. Which of the two a bar is is read off the element rather than plumbed through a prop.
 
 A bar that never registered itself is left at zero: the measurement is a contract a slot opts into, not a `querySelector`, so a bar rendered through `render={<MyBar />}` is found as reliably as one that is not.
 

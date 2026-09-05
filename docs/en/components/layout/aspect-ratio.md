@@ -5,7 +5,7 @@ order: 1
 
 # PlAspectRatio
 
-<p class="plass-lede">A box that keeps a proportion whatever width it is given. It draws nothing — what it does is reserve the space, so a picture that arrives late does not reflow the page around it.</p>
+<p class="plass-lede">A box that keeps a proportion whatever width it is given. It draws nothing. What it does is reserve the space, so a picture that arrives late does not reflow the page around it.</p>
 
 <Demo src="aspect-ratio/hero" :min-height="240" />
 
@@ -47,17 +47,17 @@ Every native `<div>` attribute passes straight through.
 
 ::: fw flutter
 
-`ratio` is a `double` written as the division — `16 / 9` — which is how Flutter states an aspect ratio everywhere else, and it asserts rather than clamping: a ratio of zero is a mistake, not a shape.
+`ratio` is a `double` written as the division, `16 / 9`, which is how Flutter states an aspect ratio everywhere else, and it asserts rather than clamping: a ratio of zero is a mistake, not a shape.
 
 :::
 
-`size` is the only shared axis here, and it is the size of the _sheet_ — which radius step `rounded` uses. There is no `variant`, no `color` and no `elevation`: a layout component that drew a surface would make a proportion a visual decision. What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
+`size` is the only shared axis here, and it is the size of the _sheet_, which radius step `rounded` uses. There is no `variant`, no `color` and no `elevation`: a layout component that drew a surface would make a proportion a visual decision. What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
 ## Examples
 
 ### ratio
 
-CSS's own `aspect-ratio`, untranslated — a number or a ratio, both reaching the property as written. A caller who already knows `16 / 9` has nothing to look up.
+CSS's own `aspect-ratio`, untranslated, a number or a ratio, both reaching the property as written. A caller who already knows `16 / 9` has nothing to look up.
 
 <Demo src="aspect-ratio/ratios" :min-height="220">
 
@@ -79,7 +79,7 @@ CSS's own `aspect-ratio`, untranslated — a number or a ratio, both reaching th
 
 The one convenience on top of the proportion. The four words are `object-fit`'s own: `cover` fills the box and crops, `contain` letterboxes, `fill` stretches, `none` draws at the content's own size.
 
-`cover` is the one a thumbnail wants — a thumbnail that letterboxes itself is a thumbnail with two grey bands in it. `contain` is for the picture whose whole subject matters: a diagram, a logo, a scan.
+`cover` is the one a thumbnail wants, a thumbnail that letterboxes itself is a thumbnail with two grey bands in it. `contain` is for the picture whose whole subject matters: a diagram, a logo, a scan.
 
 ::: fw react
 
@@ -89,7 +89,7 @@ A single `img`, `video`, `canvas`, `svg` or `picture` that is a direct child is 
 
 ::: fw flutter
 
-**It is `null` by default here, where React defaults it to `cover`.** In a browser `object-fit` is a property only a replaced element answers, so React can default it and have it quietly not reach a `<div>` full of text. Flutter has no such distinction — a fit is a `FittedBox` around whatever the child happens to be, and one applied by default would scale a column of prose. So it is opt-in, and it applies to everything.
+**It is `null` by default here, where React defaults it to `cover`.** In a browser `object-fit` is a property only a replaced element answers, so React can default it and have it quietly not reach a `<div>` full of text. Flutter has no such distinction. A fit is a `FittedBox` around whatever the child happens to be, and one applied by default would scale a column of prose. So it is opt-in, and it applies to everything.
 
 An `Image` that already carries its own `BoxFit` needs nothing here.
 
@@ -113,7 +113,7 @@ An `Image` that already carries its own `BoxFit` needs nothing here.
 
 ### rounded
 
-Off by default. A photograph with its corners cut is a decision about the photograph, not about the box holding it — but it is such a common one that making the caller reach for <Fw react="a className" flutter="a ClipRRect" /> would be perverse, so it is a boolean and `size` picks the step.
+Off by default. A photograph with its corners cut is a decision about the photograph, not about the box holding it, but it is such a common one that making the caller reach for <Fw react="a className" flutter="a ClipRRect" /> would be perverse, so it is a boolean and `size` picks the step.
 
 The box clips whatever it holds either way. Without that, a `cover` image would spill straight out of the proportion it was just given and the component would only be reserving space rather than holding anything to it.
 
@@ -140,7 +140,7 @@ The box clips whatever it holds either way. Without that, a `cover` image would 
 
 ::: fw react
 
-- `render` is how the box becomes the element the content actually calls for — a `<figure>` around a picture with a caption, an `<a>` around a card's cover.
+- `render` is how the box becomes the element the content actually calls for, a `<figure>` around a picture with a caption, an `<a>` around a card's cover.
 
 :::
 

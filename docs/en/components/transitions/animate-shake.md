@@ -5,7 +5,7 @@ order: 14
 
 # PlAnimateShake
 
-<p class="plass-lede">A refusal. The one effect in the set that is a response rather than an entrance — so it starts held still, and <code>replay</code> is how a caller says "again".</p>
+<p class="plass-lede">A refusal. The one effect in the set that is a response rather than an entrance, so it starts held still, and <code>replay</code> is how a caller says "again".</p>
 
 <Demo src="animate-shake/hero" :min-height="240" />
 
@@ -42,7 +42,7 @@ What the shared animation props mean is on any of the other [transitions](./anim
 
 ## replay is why it exists
 
-A refusal can happen **twice**, and `play` — being a boolean — cannot say "again". Replaying with it means toggling off and on: two renders for one event, and a piece of state whose only job is to be flipped back.
+A refusal can happen **twice**, and `play` (being a boolean) cannot say "again". Replaying with it means toggling off and on: two renders for one event, and a piece of state whose only job is to be flipped back.
 
 A value that has changed is the closest React has to an event, and the count of failed attempts a form already keeps is exactly that value.
 
@@ -56,7 +56,7 @@ It never plays on the first render. A shake that shook itself on mount would be 
 
 ## A reaction to an event
 
-Every other effect here answers "how does this content arrive" and starts on **mount**. This one answers something the reader did, so it starts **held still** — `trigger` defaults to `manual` — and plays only when it is told to.
+Every other effect here answers "how does this content arrive" and starts on **mount**. This one answers something the reader did, so it starts **held still** (`trigger` defaults to `manual`), and plays only when it is told to.
 
 It is also not in `PlassAnimation`, the union `mode` and `stagger` are built on, for [`PlAnimateFloat`](./animate-float)'s reason: that union is the set of ways content can arrive, and a response is not an arrival.
 
@@ -84,6 +84,6 @@ That matters more here than anywhere else in the group, because this is the one 
 
 ## Accessibility
 
-- **A reader who asked for less motion sees none of it**, and that is exactly why the words matter more than the shake. Whatever the refusal is saying has to be said in **text** as well — an `error` on the field, a message in a live region — and the shake is emphasis, never the message.
+- **A reader who asked for less motion sees none of it**, and that is exactly why the words matter more than the shake. Whatever the refusal is saying has to be said in **text** as well (an `error` on the field, a message in a live region), and the shake is emphasis, never the message.
 - Shaking a field does not tell a screen reader anything. Pair it with the field's own `error` and `invalid`, which do.
 - It is decoration around the content, not a wrapper that changes what the content is: what is inside keeps its own role, its own focus and its own name.

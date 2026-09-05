@@ -45,11 +45,11 @@ function usePlHotKeys(hotKeys: PlassHotKeys | undefined, options?: PlHotKeysOpti
 type PlassHotKeys = Record<string, () => void>;
 ```
 
-| Option        | Default  |                                                                     |
-| ------------- | -------- | ------------------------------------------------------------------- |
-| `enabled`     | `true`   | Whether the chords are bound at all                                 |
-| `target`      | `window` | What the listener is attached to — an element, a ref, or `document` |
-| `whileTyping` | `false`  | Whether a chord is answered while the focus is in a text field      |
+| Option        | Default  |                                                                    |
+| ------------- | -------- | ------------------------------------------------------------------ |
+| `enabled`     | `true`   | Whether the chords are bound at all                                |
+| `target`      | `window` | What the listener is attached to, an element, a ref, or `document` |
+| `whileTyping` | `false`  | Whether a chord is answered while the focus is in a text field     |
 
 Chords are written the way [`PlHotKeys`](../components/display/hot-keys) writes them, so `Mod` is Command on a Mac and Control everywhere else, and `Esc`, `Return`, `Cmd` and `Option` fold onto the same keys their caps do.
 
@@ -58,7 +58,7 @@ Chords are written the way [`PlHotKeys`](../components/display/hot-keys) writes 
 Three of them, shared with the `hotKeys` prop on a field:
 
 - **A modifier is checked in both directions.** `Enter` does not fire on `Shift+Enter`, and `Mod+K` does not fire on `Mod+Shift+K`. That is the difference between binding a shortcut and binding a key.
-- **A chord that matches is consumed.** `preventDefault()`, so the browser's own `Mod+K` search bar does not also open. Read from the other end, an event that is **already** consumed is left alone — a field's own `hotKeys` map wins over a page's.
+- **A chord that matches is consumed.** `preventDefault()`, so the browser's own `Mod+K` search bar does not also open. Read from the other end, an event that is **already** consumed is left alone. A field's own `hotKeys` map wins over a page's.
 - **These are chords rather than letters.** A single unmodified key is allowed and is sometimes right, and that is what `whileTyping` is about.
 
 ### whileTyping
@@ -71,7 +71,7 @@ It is narrower than it sounds, and only two kinds of chord are ever held back:
 | --- | --- |
 | `Mod+K`, `Ctrl+B`, `Alt+Enter` | **Answered.** None of those modifiers can appear in a field's value |
 | `Escape`, `F2` | **Answered.** Neither does anything to what is being typed |
-| `Shift+A` | Held back — that is how a capital A is typed |
+| `Shift+A` | Held back, that is how a capital A is typed |
 | `/`, `Enter`, `Backspace`, an arrow | Held back |
 
 So the ordinary case needs nothing set. Turn it on for a chord that belongs to the field the reader is in.
@@ -114,7 +114,7 @@ const panel = useRef<HTMLDivElement>(null);
 usePlHotKeys({ Escape: close }, { target: panel });
 ```
 
-> A `keydown` only reaches an element that contains the focus. Scoping to a panel nobody has tabbed into binds nothing — which is usually what "scoped" was meant to mean, but is worth knowing before it looks like a bug.
+> A `keydown` only reaches an element that contains the focus. Scoping to a panel nobody has tabbed into binds nothing, which is usually what "scoped" was meant to mean, but is worth knowing before it looks like a bug.
 
 ### Turned off with the screen it belongs to
 
@@ -128,4 +128,4 @@ usePlHotKeys({ Escape: close }, { enabled: open });
 
 - A shortcut is an accelerator, never the only way to do something. Everything bound here must also be reachable by tabbing to a control.
 - Show the chord. `PlHotKeys` draws it, `PlMenuItem` and `PlCommandPalette` have a slot for it, and a shortcut nobody can see is one nobody uses.
-- Single-key shortcuts are a documented hazard in [WCAG 2.1 SC 2.1.4](https://www.w3.org/WAI/WCAG21/Understanding/character-key-shortcuts.html) — speech input triggers them by accident. The default `whileTyping: false` covers the worst of it; offering a way to turn them off entirely is the rest, and `enabled` is how.
+- Single-key shortcuts are a documented hazard in [WCAG 2.1 SC 2.1.4](https://www.w3.org/WAI/WCAG21/Understanding/character-key-shortcuts.html), speech input triggers them by accident. The default `whileTyping: false` covers the worst of it; offering a way to turn them off entirely is the rest, and `enabled` is how.

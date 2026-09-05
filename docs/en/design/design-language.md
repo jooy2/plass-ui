@@ -5,7 +5,7 @@ order: 1
 
 # Design language
 
-A Plass surface is **a key of tinted glass resting on a clear sheet**. That one sentence is the reason for every rule below. When a new component leaves you unsure, come back to it — and to the question it makes every surface answer:
+A Plass surface is **a key of tinted glass resting on a clear sheet**. That one sentence is the reason for every rule below. When a new component leaves you unsure, come back to it, and to the question it makes every surface answer:
 
 > **Is this thing pressed, or does it hold something?**
 
@@ -14,7 +14,7 @@ A thing that is pressed is tinted glass: a gradient that sweeps between two ends
 What that sentence takes, and what it leaves out:
 
 - **Taken**: a light direction, colour that bleeds into the shadow a control casts, and light that arrives with the pointer.
-- **Dropped**: relief of every kind — bevels, specular highlights, the dark line under a key, bulk — and any state expressed by making a control move.
+- **Dropped**: relief of every kind (bevels, specular highlights, the dark line under a key, bulk), and any state expressed by making a control move.
 
 > **This is where Plass stopped being a plastic library.** An earlier draft drew a filled control as a moulded key: a three-stop gradient that lightened at one corner and darkened at the other, with a specular highlight laid over the top half to finish it. Everything about it was internally consistent and all of it read as lacquer. What replaced it is below, and it is one idea: **a gradient that turns instead of one that shades.**
 
@@ -34,7 +34,7 @@ A `solid` surface is three layers, and there are deliberately only three.
 
 **The fill is a gradient, and the gradient turns rather than shades.** The two stops are the two ends of the colour family at _one lightness_: primary runs indigo to azure, danger vermilion to rose, success green to teal, info blue to cyan. Nothing gets lighter and nothing gets darker.
 
-That is the whole reason there is no highlight layer. A gradient that darkens toward one corner is a moulded object catching a lamp, and an object like that needs a specular highlight to finish the illusion — which is exactly what made a filled control read as lacquer. A gradient that turns is a pane of tinted glass, and a pane needs nothing else.
+That is the whole reason there is no highlight layer. A gradient that darkens toward one corner is a moulded object catching a lamp, and an object like that needs a specular highlight to finish the illusion, which is exactly what made a filled control read as lacquer. A gradient that turns is a pane of tinted glass, and a pane needs nothing else.
 
 **No highlight on a filled control, and no bevel under it.** An inset white line along the top edge (`inset 0 1px 0 white`) is the single fastest way to make a coloured surface look moulded; `inset 0 -1px 0 black` under it is the second. The hairline belongs to `glass`, which has a real cut edge for light to catch. A `solid` control has one shadow and no edge at all.
 
@@ -52,17 +52,17 @@ Everything that holds content is one sheet at three strengths.
 
 **The ladder is opacity, not lightness.** As a surface is engaged it holds more light, rather than turning grey.
 
-**The blur is the material.** `blur(22px) saturate(160%)` — deliberately a generous smear. Plass is not trying to let you read what is behind a sheet; it is trying to make the sheet look thick. Below about 14px the glass stops being glass and becomes a white box with an alpha on it.
+**The blur is the material.** `blur(22px) saturate(160%)`, deliberately a generous smear. Plass is not trying to let you read what is behind a sheet; it is trying to make the sheet look thick. Below about 14px the glass stops being glass and becomes a white box with an alpha on it.
 
 **Glass is never dyed.** A sheet holds other people's content, and that content arrives with its own colours: body text, links, buttons, fields. Tinting the sheet underneath puts every one of them on a background they were not chosen against. So **the family stops at the hairline, the focus ring and the caret, and the glass stays clear.**
 
 Controls are the opposite case and take the family into the fill itself, because a PlButton's surface _is_ the thing being coloured.
 
-> **One consequence.** On a `glass` PlButton, `color` is the label and the hairline. On a `glass` PlTextField, `color` is the hairline, the ring and the caret and nothing else — which is why an invalid field can turn the whole family over to `danger` without repainting its surface.
+> **One consequence.** On a `glass` PlButton, `color` is the label and the hairline. On a `glass` PlTextField, `color` is the hairline, the ring and the caret and nothing else, which is why an invalid field can turn the whole family over to `danger` without repainting its surface.
 
 ### The one inset shadow
 
-`--plass-well` is the exception that proves the pair: the only shadow in the library that points **inward**. It is what a `solid` PlTextField is drawn as — the glass at its most opaque with light falling into it — because a gradient under a caret, a text selection and a placeholder is not legible.
+`--plass-well` is the exception that proves the pair: the only shadow in the library that points **inward**. It is what a `solid` PlTextField is drawn as, the glass at its most opaque with light falling into it, because a gradient under a caret, a text selection and a placeholder is not legible.
 
 So `solid` means "the tinted pane" on anything pressed and "the deepest clear glass" on anything typed into. Same word, and one rule underneath it: `solid` is the heaviest thing that variant can be while still doing its job.
 
@@ -74,14 +74,14 @@ This section is the _why_. For what the tokens actually resolve to and how to ov
 
 The base colour is `#3558ef`. Everything else comes off its palette.
 
-| Role        | Where it comes from                                    |
-| ----------- | ------------------------------------------------------ |
-| `primary`   | The base colour                                        |
-| `secondary` | Slate that keeps the base colour's hue                 |
-| `success`   | A deep green, dark enough to carry white               |
-| `warning`   | The complementary amber — the one family with dark ink |
-| `danger`    | A muted vermilion                                      |
-| `info`      | The analogous azure                                    |
+| Role        | Where it comes from                                   |
+| ----------- | ----------------------------------------------------- |
+| `primary`   | The base colour                                       |
+| `secondary` | Slate that keeps the base colour's hue                |
+| `success`   | A deep green, dark enough to carry white              |
+| `warning`   | The complementary amber, the one family with dark ink |
+| `danger`    | A muted vermilion                                     |
+| `info`      | The analogous azure                                   |
 
 ### Three hand-picked values per family
 
@@ -92,13 +92,13 @@ The base colour is `#3558ef`. Everything else comes off its palette.
 --plass-{color}-accent      readable on a surface — per theme
 ```
 
-Everything else (`-fill`, `-tint`, `-soft`, `-line`, `-ring`) is computed with `color-mix()` in the derived block. **Adding a colour family is two edits** — one entry in the `PlassColor` union and three lines in `styles.css`, plus its `accent` in each theme.
+Everything else (`-fill`, `-tint`, `-soft`, `-line`, `-ring`) is computed with `color-mix()` in the derived block. **Adding a colour family is two edits**, one entry in the `PlassColor` union and three lines in `styles.css`, plus its `accent` in each theme.
 
 ### The key colour across themes
 
 **A pane of blue glass is the same pane in a dark room.** What changes in dark mode is the ground it rests on: the clear glass loses its white and becomes a smoked pane, the shadow goes black and deepens, and the tint bleeding into that shadow is turned up, because a coloured shadow has almost nothing to sit on over a near-black page.
 
-The one family value that _is_ per-theme is `accent` — the colour that has to be **read** off a surface rather than looked at.
+The one family value that _is_ per-theme is `accent`, the colour that has to be **read** off a surface rather than looked at.
 
 ### Both ends sit as close to the contrast floor as the arithmetic allows
 
@@ -114,7 +114,7 @@ White on amber does not reach 4.5:1 at any lightness worth calling amber. `--pla
 
 ## 3. Size and density
 
-### `size` — height and type scale
+### `size`: height and type scale
 
 |        | xs   | sm   | md       | lg   | xl   |
 | ------ | ---- | ---- | -------- | ---- | ---- |
@@ -128,9 +128,9 @@ The ladder is a flat 8px per step and it starts higher than a dense desktop tool
 
 ### The radius is a fillet
 
-It grows far more slowly than the height does — 33% of an `xs` control, 29% at `md`, 29% at `xl`. That near-constant radius is what makes two controls of different sizes read as two pieces cast in the same mould. A radius pinned to a percentage of the height gives you a small pill and a large rectangle instead.
+It grows far more slowly than the height does, 33% of an `xs` control, 29% at `md`, 29% at `xl`. That near-constant radius is what makes two controls of different sizes read as two pieces cast in the same mould. A radius pinned to a percentage of the height gives you a small pill and a large rectangle instead.
 
-### `density` — padding, and only padding
+### `density`: padding, and only padding
 
 ```
 default   10 / 12 / 16 / 24 / 28px
@@ -167,16 +167,16 @@ Only `solid` gets one. A sheet of clear glass casts a neutral shadow, because it
 
 **Do not use `transform` on a control.** Scaling a key resamples its label, and text that shimmers under the cursor undoes the restraint everything else is spending effort on. State changes are expressed in **light and depth** only.
 
-A surface that _holds_ content rather than being pressed — a Card, a row — may lift, and should. The rule is about the thing under the finger.
+A surface that _holds_ content rather than being pressed (a Card, a row) may lift, and should. The rule is about the thing under the finger.
 
-The one position that is animated is a [`PlSlider`](../components/inputs/slider)'s thumb, and it is not an exception: nothing is being shifted off its own place, because the thing being moved _is_ the value. It travels for a step nobody dragged — an arrow key, a press on the rail — and not at all under a finger, where easing towards the pointer would only read as lag.
+The one position that is animated is a [`PlSlider`](../components/inputs/slider)'s thumb, and it is not an exception: nothing is being shifted off its own place, because the thing being moved _is_ the value. It travels for a step nobody dragged (an arrow key, a press on the rail), and not at all under a finger, where easing towards the pointer would only read as lag.
 
 ### Drawing a mark
 
-The rule above leaves an obvious hole: a tick and a radio dot are not there and then they are, and neither of them may be scaled into place. So they are not put there at all — they are **drawn**.
+The rule above leaves an obvious hole: a tick and a radio dot are not there and then they are, and neither of them may be scaled into place. So they are **drawn** instead.
 
 - **A tick draws itself along its own path.** The stroke is dashed at exactly its own length and slid out of view by exactly that, so how much of the mark exists is one number between 0 and 1. In CSS that is a `stroke-dashoffset`; in Flutter it is the path measured and cut. Nothing appears anywhere it was not going to end up.
-- **A radio dot grows out of the middle of its ring.** The ring centres a fixed-size child, so a width and a height are laid out about the same point — the box grows, and no `transform` is involved. Nothing outside the ring can be moved by it.
+- **A radio dot grows out of the middle of its ring.** The ring centres a fixed-size child, so a width and a height are laid out about the same point. The box grows, and no `transform` is involved. Nothing outside the ring can be moved by it.
 
 The mark is **kept in the document while it is not there**, at zero. A mark that is thrown away the moment the value is cleared cannot travel back out, and a control that animates one way and cuts the other is a control that means two different things by the same click.
 
@@ -199,17 +199,17 @@ Three things move together and they all say the same thing: the control has gone
 
 `--plass-duration-slow` is 260ms, and exactly one thing decides which of the two a surface gets: **whether it takes the page or hangs off a control.**
 
-- **Takes the page** — a modal, a drawer, an overlay, a command palette. The sheet and its scrim both fade on the slow duration, so the two arrive as one thing. 150ms across the whole window is not a fade, it is a cut with a hint of blur on it, and a page that changes that completely that fast leaves a reader looking for what moved.
-- **Hangs off a control** — a menu, a popover, a tooltip, a select or combobox list, a date picker's sheet. These stay at 150ms, because they are the size of the control they came from and a reader is usually on their way to something inside one.
+- **Takes the page**: a modal, a drawer, an overlay, a command palette. The sheet and its scrim both fade on the slow duration, so the two arrive as one thing. 150ms across the whole window reads as a cut with a hint of blur on it rather than as a fade, and a page that changes that completely that fast leaves a reader looking for what moved.
+- **Hangs off a control**: a menu, a popover, a tooltip, a select or combobox list, a date picker's sheet. These stay at 150ms, because they are the size of the control they came from and a reader is usually on their way to something inside one.
 
-The same 260ms is also what a height travels over — an accordion, a collapsible, a pill — for the same reason: what is moving is the page under it.
+The same 260ms is also what a height travels over (an accordion, a collapsible, a pill) for the same reason: what is moving is the page under it.
 
 ### Light arrives with the pointer
 
 `.plass-glow` is two stacked layers on every interactive control.
 
-- **`::before` is the bloom** — a soft radial light centred on the pointer, fading in over 240ms when the pointer arrives and following it across the surface.
-- **`::after` is the press** — the same shape a shade brighter, at `0ms` in and ~700ms out. The flash lands on the frame of the click and is still visibly draining a beat after the finger lifts.
+- **`::before` is the bloom**: a soft radial light centred on the pointer, fading in over 240ms when the pointer arrives and following it across the surface.
+- **`::after` is the press**: the same shape a shade brighter, at `0ms` in and ~700ms out. The flash lands on the frame of the click and is still visibly draining a beat after the finger lifts.
 
 Both read `--p-mx` / `--p-my`, which the component writes **straight to the element's inline style** on `pointermove`.
 
@@ -235,7 +235,7 @@ The three states each have to speak on their own axis, and each has to be distin
 
 Only `disabled` uses the native `disabled` attribute. `loading` and `readOnly` are marked with `aria-disabled`, keep focus, and stop activation in the handler.
 
-> **Opacity is doing real work here.** The usual complaint against `opacity: 0.5` is that it reads as "blurry" whatever the state is — and it does, on an opaque page. On this one it reads as the page coming _through_ the control, which is a specific thing to say and the only state that says it. It is the one axis `disabled` uses and no other state touches.
+> **Opacity is doing real work here.** The usual complaint against `opacity: 0.5` is that it reads as "blurry" whatever the state is, and it does, on an opaque page. On this one it reads as the page coming _through_ the control, which is a specific thing to say and the only state that says it. It is the one axis `disabled` uses and no other state touches.
 
 ---
 
@@ -265,11 +265,11 @@ This is the only kind of reason to step outside Tailwind: **step outside only wh
 
 ### Derived tokens are repeated per theme root
 
-A custom property resolves its `var()`s **on the element that declares it**. `--plass-primary-tint` reads `--plass-tint-strength`, which is per-theme — declared only on `:root` it would freeze to the light theme's value inside a `.dark` subtree. That is why the derived block's selector is `:root, .dark, .light, [data-theme='dark'], [data-theme='light']`.
+A custom property resolves its `var()`s **on the element that declares it**. `--plass-primary-tint` reads `--plass-tint-strength`, which is per-theme. Declared only on `:root` it would freeze to the light theme's value inside a `.dark` subtree. That is why the derived block's selector is `:root, .dark, .light, [data-theme='dark'], [data-theme='light']`.
 
 ### A portal's stacking level
 
-Every surface that leaves the flow — a modal, a drawer, a menu, a select's list, a popover, a tooltip, a toast — is painted at `var(--plass-z-portal)`, which is `50` and is one line for a page to change. Which thing floats over which is a decision an app has already made by the time it reaches for a dialog: it has a header, or a cookie bar, or a video player, and a number chosen here is a guess at somebody else's ladder.
+Every surface that leaves the flow, a modal, a drawer, a menu, a select's list, a popover, a tooltip, a toast. Is painted at `var(--plass-z-portal)`, which is `50` and is one line for a page to change. Which thing floats over which is a decision an app has already made by the time it reaches for a dialog: it has a header, or a cookie bar, or a video player, and a number chosen here is a guess at somebody else's ladder.
 
 They all read the **same** token on purpose. Moving them apart is how a select opened inside a modal ends up behind it.
 
@@ -289,11 +289,11 @@ focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:[outline-offset:0p
 
 ### Ring placement
 
-The offset is `0`, and it is `0` on every control in the library. A ring held 2px off a control that draws an edge of its own — a field, a select, a tick, a switch — is read as three concentric rectangles round one object, and the object looks as though it has come loose from the ring. Flush, the outline sits directly against the outside of the edge, and the edge simply thickens and takes the family's colour.
+The offset is `0`, and it is `0` on every control in the library. A ring held 2px off a control that draws an edge of its own (a field, a select, a tick, a switch) is read as three concentric rectangles round one object, and the object looks as though it has come loose from the ring. Flush, the outline sits directly against the outside of the edge, and the edge simply thickens and takes the family's colour.
 
 Nothing is lost on a control with no edge either: an outline is always drawn **outside** the border box, so on a filled key it is a rim against the page rather than a band over the fill.
 
-The one exception is a control that something else clips — a tab on a rail, a segment in a groove, a row inside a rounded sheet, an accordion header in a scored pane. Those take `focus-visible:[outline-offset:-2px]`, because a ring drawn outside them is a ring with its top or its bottom sliced off.
+The one exception is a control that something else clips, a tab on a rail, a segment in a groove, a row inside a rounded sheet, an accordion header in a scored pane. Those take `focus-visible:[outline-offset:-2px]`, because a ring drawn outside them is a ring with its top or its bottom sliced off.
 
 ### The ring is an `outline`
 

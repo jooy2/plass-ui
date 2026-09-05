@@ -5,7 +5,7 @@ order: 2
 
 # PlIconButton
 
-<p class="plass-lede">A round button with a glyph in it and nothing else. Everything about it is a <code>PlButton</code> except the shape and the one prop that is required — the words the drawing does not say.</p>
+<p class="plass-lede">A round button with a glyph in it and nothing else. Everything about it is a <code>PlButton</code> except the shape and the one prop that is required. The words the drawing does not say.</p>
 
 <Demo src="icon-button/hero" :min-height="120" />
 
@@ -47,7 +47,7 @@ Every prop `PlButton` takes passes through untouched except `children`, `startIc
 
 ::: fw flutter
 
-Every parameter `PlButton` takes passes through except `child`, `startIcon`, `endIcon` and `fullWidth` — the glyph has taken the first three, and a disc that stretches is not a disc. There is no `density` either: it changes horizontal padding, and an icon-only button has none.
+Every parameter `PlButton` takes passes through except `child`, `startIcon`, `endIcon` and `fullWidth`. The glyph has taken the first three, and a disc that stretches is not a disc. There is no `density` either: it changes horizontal padding, and an icon-only button has none.
 
 :::
 
@@ -59,13 +59,13 @@ What the shared axes (`variant` `size` `color` `density` `elevation`) mean acros
 
 Required, and the one prop here that is.
 
-A button whose whole label is a drawing has no accessible name at all, and "an icon button with no <Fw react="aria-label" flutter="semantic label" code />" is the single most common accessibility defect a component library ships. Making it required is the only fix that survives review — a lint rule is something a project has to install and a default of `''` is something nobody notices.
+A button whose whole label is a drawing has no accessible name at all, and "an icon button with no <Fw react="aria-label" flutter="semantic label" code />" is the single most common accessibility defect a component library ships. Making it required is the only fix that survives review. A lint rule is something a project has to install and a default of `''` is something nobody notices.
 
 It is never drawn. What a reader sees is the glyph; what everything else reads is the sentence.
 
 ### The shape
 
-A `PlButton` with an icon and no label already goes square — same height, same width, the house fillet cut off it. This is the other shape: a disc.
+A `PlButton` with an icon and no label already goes square, same height, same width, the house fillet cut off it. This is the other shape: a disc.
 
 That disc is a deliberate exception to the radius rule, which holds every corner well short of the 50% that would make a control a pill. The rule is about _labelled_ controls: the flat run along the top and bottom edge is where a line of text sits, and a glyph has no line of text. A circle with a single mark centred in it reads as a punched token rather than a moulded key.
 
@@ -146,7 +146,7 @@ All three are `PlButton`'s, unchanged. `loading` puts a spinner where the glyph 
 ## Accessibility
 
 - `label` is the accessible name and it is required. Nothing else here can supply one.
-- The glyph is decorative — it is inside a control that is already named, so a second name from the drawing would be the name read twice.
+- The glyph is decorative. It is inside a control that is already named, so a second name from the drawing would be the name read twice.
 - Everything else is `PlButton`'s: the focus ring, the keyboard activation, `aria-busy` while loading, and dropping out of the focus order only when disabled.
 
 ::: fw react

@@ -5,7 +5,7 @@ order: 6
 
 # PlMenubar
 
-<p class="plass-lede">The strip of words at the top of an application — File, Edit, View — each of which opens a menu. It is one thing to a screen reader, and only ever one of its menus is open.</p>
+<p class="plass-lede">The strip of words at the top of an application (File, Edit, View) each of which opens a menu. It is one thing to a screen reader, and only ever one of its menus is open.</p>
 
 <Demo src="menubar/hero" :min-height="140" />
 
@@ -68,7 +68,7 @@ On a bar, crossing the strip also walks through the menus and the arrow keys mov
 
 ## Shared with PlMenu
 
-A `PlMenubarMenu` takes the rows a [`PlMenu`](./menu) takes — `PlMenuItem`, `PlMenuSeparator`, `PlMenuGroup`, `PlMenuSubmenu`, `PlMenuCheckboxItem`, `PlMenuRadioItem` — because it is the same menu with a different trigger.
+A `PlMenubarMenu` takes the rows a [`PlMenu`](./menu) takes (`PlMenuItem`, `PlMenuSeparator`, `PlMenuGroup`, `PlMenuSubmenu`, `PlMenuCheckboxItem`, `PlMenuRadioItem`), because it is the same menu with a different trigger.
 
 What it does **not** take is `size`, `color` or `density`. Those belong to the bar: they are the one place the axes can be set once and hold for every menu on the strip, and a bar whose third menu is a size out is not a bar.
 
@@ -84,7 +84,7 @@ What it does **not** take is `size`, `color` or `density`. Those belong to the b
 
 The strip sits a rung **below** the control ladder at every step, and it takes the compact padding track even at `density="default"`.
 
-Both are the same decision: a menu bar is a strip of _words_, and it is usually inside something that already has a height — a [`PlToolbar`](../surfaces/toolbar), a [`PlHeader`](../layout/header). Sized as controls, `File Edit View` would be three buttons in a row and would make the bar taller than the thing it is drawn on.
+Both are the same decision: a menu bar is a strip of _words_, and it is usually inside something that already has a height, a [`PlToolbar`](../surfaces/toolbar), a [`PlHeader`](../layout/header). Sized as controls, `File Edit View` would be three buttons in a row and would make the bar taller than the thing it is drawn on.
 
 <Demo src="menubar/sizes" :min-height="240">
 
@@ -106,7 +106,7 @@ Both are the same decision: a menu bar is a strip of _words_, and it is usually 
 
 A menu bar sits _on_ something, and a sheet under a strip that is already on a sheet is two sheets. The bar contributes a flex row and four colour slots, and nothing else.
 
-The open menu is marked in colour and nothing else — the word does not move and the strip does not change height, which is the same rule every control in the library follows under a pointer.
+The open menu is marked in colour and nothing else. The word does not move and the strip does not change height, which is the same rule every control in the library follows under a pointer.
 
 ::: fw flutter
 
@@ -131,6 +131,6 @@ The open menu is marked in colour and nothing else — the word does not move an
 ::: fw react
 
 - The arrow keys move along the bar and into an open menu; <kbd>Esc</kbd> closes it and returns focus to its word. `loopFocus` decides whether the bar wraps at its ends.
-- `modal` is on by default, so an open menu is what the pointer is talking to — the page behind it is inert until it closes.
+- `modal` is on by default, so an open menu is what the pointer is talking to. The page behind it is inert until it closes.
 
 :::

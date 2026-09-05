@@ -41,13 +41,13 @@ PlOtpField(
 
 Every native `<div>` attribute passes straight through, onto the row of slots rather than onto the field around it. `color` is excluded because it is a Plass prop here, `onChange` because the component spells it `onValueChange`, and `children` because the slots are the children.
 
-A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control` — the row of slots — `description` and `error`.
+A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control` (the row of slots) `description` and `error`.
 
 :::
 
 ::: fw flutter
 
-The value lives in a `TextEditingController`, the way it does on a `PlTextField` — so `value` and `defaultValue` have one parameter between them, and a caller who wants to clear the code sets `controller.text`.
+The value lives in a `TextEditingController`, the way it does on a `PlTextField`, so `value` and `defaultValue` have one parameter between them, and a caller who wants to clear the code sets `controller.text`.
 
 :::
 
@@ -57,7 +57,7 @@ What the shared axes (`variant` `size` `color` `density` `elevation`) mean acros
 
 ### length
 
-Clamped to 2–12. A single box is a `PlTextField`, and past twelve the row stops fitting a phone — which is the device most of these codes are typed on.
+Clamped to 2–12. A single box is a `PlTextField`, and past twelve the row stops fitting a phone, which is the device most of these codes are typed on.
 
 <Demo src="otp-field/length" :min-height="220">
 
@@ -77,7 +77,7 @@ Clamped to 2–12. A single box is a `PlTextField`, and past twelve the row stop
 
 ### charset
 
-What may be typed. Anything rejected is dropped rather than shown, and `onValueInvalid` reports it — a slot that silently swallows a keystroke is a slot the reader thinks is broken.
+What may be typed. Anything rejected is dropped rather than shown, and `onValueInvalid` reports it, a slot that silently swallows a keystroke is a slot the reader thinks is broken.
 
 `numeric` is the default because that is what a texted code is, and it is also what puts a number pad in front of a phone.
 
@@ -103,7 +103,7 @@ What may be typed. Anything rejected is dropped rather than shown, and `onValueI
 
 ### variant
 
-The same field shell as `PlTextField` and `PlSelect`, because a slot is a field-shaped box and a form holding both should not look like two form kits stacked on each other. `solid` is the **well** — the glass at its most opaque with a shadow falling into it — and not a tinted pane, for the reason it is on a text field: a caret and a selection have to stay legible on top of it.
+The same field shell as `PlTextField` and `PlSelect`, because a slot is a field-shaped box and a form holding both should not look like two form kits stacked on each other. `solid` is the **well**, the glass at its most opaque with a shadow falling into it, and not a tinted pane, for the reason it is on a text field: a caret and a selection have to stay legible on top of it.
 
 <Demo src="otp-field/variants" :min-height="280">
 
@@ -175,9 +175,9 @@ One `<input>` per slot, with Base UI keeping a single value behind them. That is
 
 ::: fw flutter
 
-**One editor behind the whole row**, drawn as slots. Flutter's text input is a single connection to the platform, and splitting it into six would be six keyboards fighting over one code — so the value lives in a `TextEditingController`, the boxes are painted from it, and pressing anywhere in the row puts the caret at the first empty slot.
+**One editor behind the whole row**, drawn as slots. Flutter's text input is a single connection to the platform, and splitting it into six would be six keyboards fighting over one code, so the value lives in a `TextEditingController`, the boxes are painted from it, and pressing anywhere in the row puts the caret at the first empty slot.
 
-The editor is laid out over the row at zero opacity rather than taken off screen: a text input has to be in the tree and measured to hold that connection, so it cannot be `Offstage`. Nothing touches it directly — one gesture owns every press — and what a reader sees is the boxes.
+The editor is laid out over the row at zero opacity rather than taken off screen: a text input has to be in the tree and measured to hold that connection, so it cannot be `Offstage`. Nothing touches it directly, one gesture owns every press, and what a reader sees is the boxes.
 
 Rejected characters go through a formatter of the component's own rather than Flutter's `FilteringTextInputFormatter`, which drops them and says nothing. A refusal that disappears silently is the single worst thing a code field does: the reader presses a key, sees nothing, and concludes the field is broken.
 
@@ -189,7 +189,7 @@ Rejected characters go through a formatter of the component's own rather than Fl
 
 - Built on Base UI's OTP Field, which owns everything that makes this harder than it looks: one hidden value behind however many inputs, paste spread across the slots from wherever the caret was, backspace stepping back a box, and a click landing on the first empty slot rather than on the one under the pointer.
 - Every slot carries `autocomplete="one-time-code"`, so a phone offers the code straight from the message.
-- The label, the description and the error are wired to the row by Base UI's `Field` — one `for`, one `aria-describedby`, and no ids for a caller to keep in step.
+- The label, the description and the error are wired to the row by Base UI's `Field`, one `for`, one `aria-describedby`, and no ids for a caller to keep in step.
 - The separator is an `aria-hidden` `<span>` rather than a `role="separator"`. It is punctuation inside one value, not a break between two things.
 - The focus ring on a slot is `:focus` rather than `:focus-visible`, which is the one place in the library that distinction is deliberately dropped: a slot is put in focus by clicking it as often as by typing into it, and the ring is the only thing saying which character the next keystroke lands on.
 
@@ -199,7 +199,7 @@ Rejected characters go through a formatter of the component's own rather than Fl
 
 - The row is one text-field semantics node carrying the code as its value. The boxes are a drawing of that value and are excluded from semantics entirely, so a screen reader reads the code rather than counting empty rectangles.
 - The editor carries `AutofillHints.oneTimeCode`, so a phone offers the code straight from the message.
-- The ring is drawn on the slot the next keystroke lands in, and it follows focus rather than focus-visible — for the reason it does in the other package.
+- The ring is drawn on the slot the next keystroke lands in, and it follows focus rather than focus-visible, for the reason it does in the other package.
 
 ## Differences from the React build
 

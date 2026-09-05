@@ -62,7 +62,7 @@ A details panel built as a two-column table is the common mistake, and it is not
 
 ::: fw react
 
-That is what the markup is for. It is a real `<dl>` with real `<dt>`s and `<dd>`s, each pair grouped in a `<div>` — which the HTML specification allows, and which is what lets a row be laid out side by side without giving up the grouping that makes it a pair.
+That is what the markup is for. It is a real `<dl>` with real `<dt>`s and `<dd>`s, each pair grouped in a `<div>`, which the HTML specification allows, and which is what lets a row be laid out side by side without giving up the grouping that makes it a pair.
 
 :::
 
@@ -74,7 +74,7 @@ The Dart half of the same claim is `MergeSemantics` around each row: the label a
 
 ## orientation
 
-`horizontal` puts the label beside the value in a column of its own, which is the shape a details panel takes. `vertical` puts it above — for a narrow column, or for values long enough that a label beside them leaves the value nowhere to go.
+`horizontal` puts the label beside the value in a column of its own, which is the shape a details panel takes. `vertical` puts it above, for a narrow column, or for values long enough that a label beside them leaves the value nowhere to go.
 
 <Demo src="data-list/orientation" :min-height="200">
 
@@ -104,7 +104,7 @@ The label column is a **fixed width** rather than the width of the longest label
 
 ### Rows that need a rule between them
 
-`divider` draws a hairline between the rows — and only between them. A line above the first or below the last would be a box drawn around a list that has no box.
+`divider` draws a hairline between the rows, and only between them. A line above the first or below the last would be a box drawn around a list that has no box.
 
 ```tsx
 <PlCard>
@@ -138,7 +138,7 @@ PlDataListItem(label: const Text('Status'), value: const PlChip(child: Text('Act
 
 ## Notes
 
-- The rows are **children rather than data**, unlike a [`PlTable`](./table)'s columns. A details panel is written out once and read in source order, and every value in it is a different shape — so a data array would be an array of `render` functions.
+- The rows are **children rather than data**, unlike a [`PlTable`](./table)'s columns. A details panel is written out once and read in source order, and every value in it is a different shape, so a data array would be an array of `render` functions.
 - It draws no surface. A details panel sits in a [`PlCard`](../surfaces/card), and a sheet inside a sheet is two sheets.
 - `size` and `density` come from the list and reach every row, so a panel is one decision rather than one per line.
 
@@ -146,4 +146,4 @@ PlDataListItem(label: const Text('Status'), value: const PlChip(child: Text('Act
 
 - The label and its value are announced as a **pair**. That is the component's whole reason to exist, and it is what a grid of `<div>`s cannot do.
 - An `icon` is decorative and is hidden from a screen reader: the label beside it already says what the field is.
-- A label is not a heading. Naming the panel is the page's job — a `<h2>` above it, or an `aria-label` on the region it sits in.
+- A label is not a heading. Naming the panel is the page's job. A `<h2>` above it, or an `aria-label` on the region it sits in.

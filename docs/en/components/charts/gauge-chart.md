@@ -31,7 +31,7 @@ PlGaugeChart(value: 68, caption: Text('of quota'));
 
 `value`, `min`, `max` and `thresholds` mean exactly what they mean on a [meter](../feedback/meter), so a page can move a reading from a bar to a dial without changing what it says. Reach for the bar in a row of fields and for this one where a dial reads at a glance from across a room and a four-pixel bar does not.
 
-**It is not a [pie chart](./pie-chart) with `shape="semi"`.** A pie is parts of a whole and every slice is a category; this is one value against a scale, and the unfilled part of the arc is not a second category — it is the rest of the dial.
+**It is not a [pie chart](./pie-chart) with `shape="semi"`.** A pie is parts of a whole and every slice is a category; this is one value against a scale, and the unfilled part of the arc is not a second category. It is the rest of the dial.
 
 ## Props
 
@@ -61,7 +61,7 @@ What the shared props mean across the library is in [prop conventions](../../des
 
 </Demo>
 
-Degrees, opened symmetrically about twelve o'clock. `180` is the half-dial a dashboard tile wants, `270` is the instrument shape, `360` is a ring.
+Degrees, opened symmetrically about twelve o'clock. `180` is the half-dial for a dashboard tile, `270` is the instrument shape, `360` is a ring.
 
 The dial is sized against the box rather than assuming a circle, because how far it reaches _below_ its centre depends on the sweep: a half-dial stops level with the centre and a 270° one drops most of a radius past it. That is what keeps a wide, short card from drawing a thin band with an empty half above it.
 
@@ -83,7 +83,7 @@ The dial is sized against the box rather than assuming a circle, because how far
 
 </Demo>
 
-The highest band at or below the value wins, and `color` is what the arc is made of below all of them. Order in the list does not matter — the bands are read, not walked — which is the same rule and the same code a `PlMeter` uses.
+The highest band at or below the value wins, and `color` is what the arc is made of below all of them. Order in the list does not matter (the bands are read, not walked), which is the same rule and the same code a `PlMeter` uses.
 
 A band is a second way of saying the number, never the only one. The reading is written in the middle whatever colour the arc has taken.
 
@@ -111,7 +111,7 @@ Ticks are off by default. A gauge on a dashboard is read as a proportion, and ma
 
 ### center and caption
 
-`center` replaces the number in the hole, and `caption` hangs a line under it. Replacing the reading is for adding to it rather than for taking it away — the number is what the dial is for.
+`center` replaces the number in the hole, and `caption` hangs a line under it. Replacing the reading is for adding to it rather than for taking it away. The number is what the dial is for.
 
 The reading is **real text, not a label painted into the drawing**, so it can be selected, found by the browser's own search and read without the chart having to describe itself. Its size is solved against the room the hole actually leaves rather than fixed, because `38` and `10,000%` are the same prop.
 
@@ -120,4 +120,4 @@ The reading is **real text, not a label painted into the drawing**, so it can be
 - With a `label` the dial is one named image saying one thing: `"Storage used: 1.36 / 2"`. That saves a reader hearing the two end labels as loose numbers.
 - Without one it stays a plain box, and the reading in the middle is read as the text it already is.
 - The value is never carried by colour alone. A threshold changes the family; the number in the middle says the same thing in words.
-- The arc sweeps to a new reading rather than jumping to it, and the sweep is a length rather than a transform — the numbers written across the dial are never resampled.
+- The arc sweeps to a new reading rather than jumping to it, and the sweep is a length rather than a transform. The numbers written across the dial are never resampled.

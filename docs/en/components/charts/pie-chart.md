@@ -5,7 +5,7 @@ order: 4
 
 # PlPieChart
 
-<p class="plass-lede">Parts of a whole, at a glance. The narrowest chart in the library and the easiest one to misuse — a pie is right for exactly one question: <em>is one of these most of it?</em></p>
+<p class="plass-lede">Parts of a whole, at a glance. The narrowest chart in the library and the easiest one to misuse. A pie is right for exactly one question: <em>is one of these most of it?</em></p>
 
 <Demo src="pie-chart/hero" :min-height="360" />
 
@@ -35,7 +35,7 @@ An angle is a poor thing to compare. Two slices within a few percent of each oth
 
 <PropsTable name="PlPieChart" />
 
-The data is one list of slices rather than a list of series, because that is what a pie is: **the slices are the entities here.** Each one takes a palette slot of its own, the legend lists them, and the colour follows the slice rather than its size — so a chart that is refiltered or resorted keeps every category the colour it had.
+The data is one list of slices rather than a list of series, because that is what a pie is: **the slices are the entities here.** Each one takes a palette slot of its own, the legend lists them, and the colour follows the slice rather than its size, so a chart that is refiltered or resorted keeps every category the colour it had.
 
 A `null` and a zero are both left undrawn. Neither has an angle, and a slice of no width is a slice a reader cannot point at.
 
@@ -105,7 +105,7 @@ The number written on a slice is its **share**, not its value: a share is what a
 
 ### startAngle
 
-Where the first slice starts, in degrees clockwise from twelve o'clock. `semi` ignores it — that shape is defined by where it opens.
+Where the first slice starts, in degrees clockwise from twelve o'clock. `semi` ignores it, that shape is defined by where it opens.
 
 ## Accessibility
 

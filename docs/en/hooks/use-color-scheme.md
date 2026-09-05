@@ -5,7 +5,7 @@ order: 5
 
 # usePlColorScheme
 
-<p class="plass-lede">The dark mode toggle, and what it takes to make one that does not flash. A page that only ever follows the platform needs none of this — the tokens already do that on their own.</p>
+<p class="plass-lede">The dark mode toggle, and what it takes to make one that does not flash. A page that only ever follows the platform needs none of this. The tokens already do that on their own.</p>
 
 <Demo src="hooks/color-scheme" :min-height="260" />
 
@@ -45,7 +45,7 @@ function usePlColorScheme(options?: {
 
 `scheme` is what the reader chose and **`system` is the absence of a choice**, not a third theme: it hands the question back to `prefers-color-scheme`, so the page follows the platform again rather than being pinned to the platform's current answer. `resolved` is what the page is actually painted in.
 
-`toggle` flips from whatever is **painted**, so the first press on a system-dark page gives light — which is what a reader pressing a toggle means. It leaves `system` behind, deliberately: they have now expressed a preference of their own.
+`toggle` flips from whatever is **painted**, so the first press on a system-dark page gives light, which is what a reader pressing a toggle means. It leaves `system` behind, deliberately: they have now expressed a preference of their own.
 
 ## Preventing the flash
 
@@ -71,7 +71,7 @@ export default function RootLayout({ children }) {
 
 > `suppressHydrationWarning` on `<html>` is the other half, and it is not a workaround. The script's whole job is to change that element before React hydrates, so React finding an attribute the server did not send is the thing working rather than failing.
 
-It renders nothing but a `<script>`, calls no hook and reads no context, so it stays a **server component** — the one place in this library where that matters most, since a client component here would arrive with the bundle and be too late by definition.
+It renders nothing but a `<script>`, calls no hook and reads no context, so it stays a **server component**, the one place in this library where that matters most, since a client component here would arrive with the bundle and be too late by definition.
 
 | Prop            | Default                |                                      |
 | --------------- | ---------------------- | ------------------------------------ |
@@ -123,8 +123,8 @@ The label says what the press **will do**, not what the state is. A button calle
 
 ## Notes
 
-- **`storageKey` and `defaultScheme` are read once**, when the first component using that key mounts, and are ignored afterwards. That is what makes two toggles on one page agree with each other — they share one store — and it means both are decisions to make where the app is set up rather than props to compute.
+- **`storageKey` and `defaultScheme` are read once**, when the first component using that key mounts, and are ignored afterwards. That is what makes two toggles on one page agree with each other, they share one store, and it means both are decisions to make where the app is set up rather than props to compute.
 - A second tab that changes the scheme changes this one too. The choice is one the reader made about themselves rather than about this window.
-- Storage that throws — a sandboxed frame, a browser with site data blocked — is caught. The choice simply does not survive a reload, which is the right failure.
-- The stylesheet also sets `color-scheme`, so the browser's own furniture — scrollbars, the caret, a native `<select>` popup — switches with the page. A dark page with a white scrollbar down the side looks broken rather than themed.
+- Storage that throws (a sandboxed frame, a browser with site data blocked) is caught. The choice simply does not survive a reload, which is the right failure.
+- The stylesheet also sets `color-scheme`, so the browser's own furniture (scrollbars, the caret, a native `<select>` popup) switches with the page. A dark page with a white scrollbar down the side looks broken rather than themed.
 - This is not a theme API. The colours themselves are CSS custom properties, and the place to change those is [Colour](../design/color#overriding-a-family).

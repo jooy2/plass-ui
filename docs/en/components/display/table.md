@@ -62,13 +62,13 @@ PlTable<Invoice>(
 
 Every native `<div>` attribute passes straight through to the sheet the grid sits on. `color` is excluded because it collides with the `color` in the table above.
 
-`PlTable` is generic in `Row` and therefore not a `forwardRef` — a component wrapped in `React.forwardRef` loses its type parameter, and the row type is the whole point of the API. `ref` is not offered rather than being offered with `Row` widened to `any`.
+`PlTable` is generic in `Row` and therefore not a `forwardRef`. A component wrapped in `React.forwardRef` loses its type parameter, and the row type is the whole point of the API. `ref` is not offered rather than being offered with `Row` widened to `any`.
 
 :::
 
 ::: fw flutter
 
-The table is generic in its row's type — `PlTable<Invoice>` — which is the whole point of the API: a column is handed the row, typed, and hands back a widget.
+The table is generic in its row's type, `PlTable<Invoice>`, which is the whole point of the API: a column is handed the row, typed, and hands back a widget.
 
 The grid is laid out by Flutter's own `Table`, which is also where the table, row, cell and column-header semantics come from. A column is measured from the content in it, exactly as a browser's automatic table layout measures one, so the same data comes out the same shape in both packages.
 
@@ -92,7 +92,7 @@ What the shared axes (`variant` `size` `color` `density` `elevation`) mean acros
 
 The sheet under the grid, on the same three materials as every other container, and never dyed.
 
-There is no band behind the column names on any of them. The header is muted, semibold text over a firmer rule, and the rows under it are scored with the neutral divider ink — the same hairline a `PlCard` and a `PlList` are scored with. A filled strip across the top of a grid is the fastest way to make data look like chrome, and it puts all of a table's weight in the one place that needs none of it.
+There is no band behind the column names on any of them. The header is muted, semibold text over a firmer rule, and the rows under it are scored with the neutral divider ink. The same hairline a `PlCard` and a `PlList` are scored with. A filled strip across the top of a grid is the fastest way to make data look like chrome, and it puts all of a table's weight in the one place that needs none of it.
 
 The exception is `stickyHeader`, where the fill is not decoration: rows pass directly under a pinned header and something has to stop the light.
 
@@ -116,7 +116,7 @@ The exception is `stickyHeader`, where the fill is not decoration: rows pass dir
 
 ::: fw react
 
-A column names the property it reads with `key`, and `render` takes over when a cell is anything but a string or a number. `width` goes on a `<col>` rather than on the first row's cells — a width set on a `<th>` is one the browser renegotiates against every other row.
+A column names the property it reads with `key`, and `render` takes over when a cell is anything but a string or a number. `width` goes on a `<col>` rather than on the first row's cells. A width set on a `<th>` is one the browser renegotiates against every other row.
 
 :::
 
@@ -124,7 +124,7 @@ A column names the property it reads with `key`, and `render` takes over when a 
 
 A column says how to get a cell out of a row, and that is all it says: `cell` is handed the row and its position and hands back a widget.
 
-Width comes in two forms, and they are different questions. `width` is a length in logical pixels, for the column that has to be exactly that wide — a fixed-width action column, a status pill. `flex` is a share of whatever is left after every column has room for its content, which is what the React build's `width: '30%'` actually means once a table has to add up to its own width.
+Width comes in two forms, and they are different questions. `width` is a length in logical pixels, for the column that has to be exactly that wide, a fixed-width action column, a status pill. `flex` is a share of whatever is left after every column has room for its content, which is what the React build's `width: '30%'` actually means once a table has to add up to its own width.
 
 :::
 
@@ -180,7 +180,7 @@ A pinned header is the one place the grid draws a fill. Rows pass directly under
 
 `maxHeight` is a number in pixels or any CSS length. The caption is drawn as a heading outside the scroller and marked `aria-hidden`, with a real `<caption>` inside the `<table>` carrying the same words for a screen reader. Two copies of one string, and the reason is the next section: naming the table by id would mean generating one, and a component that generates an id is a client component.
 
-The pinned header's rule is an inset shadow rather than a border, which is not a style preference: `border-collapse: collapse` hands a cell's borders to the _table's_ border grid, and that grid does not travel with a `position: sticky` cell — so a pinned header drawn with a border leaves its underline behind at the top of the scroll.
+The pinned header's rule is an inset shadow rather than a border, which is not a style preference: `border-collapse: collapse` hands a cell's borders to the _table's_ border grid, and that grid does not travel with a `position: sticky` cell, so a pinned header drawn with a border leaves its underline behind at the top of the scroll.
 
 :::
 
@@ -220,7 +220,7 @@ A key pressed inside a cell is left alone: a cell can hold a link or a button wi
 
 ::: fw flutter
 
-The row's focus stop lives in its **first cell**, which is the only place it can: a row here is not a widget — `Table` lays the cells out and paints the band and the ring behind them — so the one thing that can hold focus is a cell, and the ring it lights is the whole row.
+The row's focus stop lives in its **first cell**, which is the only place it can: a row here is not a widget, `Table` lays the cells out and paints the band and the ring behind them, so the one thing that can hold focus is a cell, and the ring it lights is the whole row.
 
 A key pressed on a control inside a cell belongs to that control. The row's own keys are on the row's own focus stop, and a button in a cell has a focus stop of its own.
 
@@ -286,11 +286,11 @@ Changes cell padding and nothing else, so two tables of the same `size` keep the
 
 ## Server rendering
 
-`PlTable` is the one component in the library with no `'use client'` on it, so a React Server Component renders the whole table — the sheet, the header, every row and every `render` callback in the columns.
+`PlTable` is the one component in the library with no `'use client'` on it, so a React Server Component renders the whole table, the sheet, the header, every row and every `render` callback in the columns.
 
-That is not a size optimisation, it is the component's own API. A client boundary cannot be handed a function, and every column here _is_ a function; with the directive on, a table could not be built by the page that fetches its rows, which is the page a table belongs on. Keeping it off cost one thing, and the caption above is where it was paid.
+The reason is the component's own API rather than a size optimisation. A client boundary cannot be handed a function, and every column here _is_ a function; with the directive on, a table could not be built by the page that fetches its rows, which is the page a table belongs on. Keeping it off cost one thing, and the caption above is where it was paid.
 
-Nothing changes for a caller on the client. A module with `'use client'` at the top that imports `PlTable` gets a client component, the way it does for everything else it imports — and `onRowClick`, which is a function, needs such a module either way.
+Nothing changes for a caller on the client. A module with `'use client'` at the top that imports `PlTable` gets a client component, the way it does for everything else it imports, and `onRowClick`, which is a function, needs such a module either way.
 
 :::
 
@@ -313,7 +313,7 @@ Nothing changes for a caller on the client. A module with `'use client'` at the 
 - A heading is announced as the column's header, which is what puts the name of the column in front of every number under it.
 - `caption` is drawn at the top of the sheet and read as the line above the grid. `semanticLabel` is there for the case where the table's name has to differ from what is drawn.
 - A row that answers a press keeps its row semantics: the tap action is on the cells, and nothing calls a row a button. A row announced as a button is a row whose cells have been orphaned from the table they belong to.
-- The row's focus stop is in its first cell, and the ring is painted by the row itself — inset, because the sheet clips at its rounded corner and a ring outside the first or last row would come back with its top or bottom sliced off.
+- The row's focus stop is in its first cell, and the ring is painted by the row itself. Inset, because the sheet clips at its rounded corner and a ring outside the first or last row would come back with its top or bottom sliced off.
 - Every cell is as tall as the tallest one in its row, so a row answers a press on all of itself rather than only on the line of text that happens to be longest.
 
 :::

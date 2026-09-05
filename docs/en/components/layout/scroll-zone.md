@@ -56,7 +56,7 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 The mechanism is an **ordinary scroll container**, and everything the component offers is a way of driving one. Swiping, two-finger dragging on a trackpad and the scrollbar are the platform's own and are never intercepted. What is added on top is a pair of buttons for a pointer with neither a wheel nor a finger, a mouse drag that reads as pulling the strip rather than paging it, and the vertical wheel a horizontal strip would otherwise ignore.
 
-Nothing is transformed. A translated track would have to argue for an exception to the [house rule](../../design/design-language); a scroll offset does not — and it is also what makes the strip run the other way under RTL without being told, and keeps the scrollbar honest.
+Nothing is transformed. A translated track would have to argue for an exception to the [house rule](../../design/design-language); a scroll offset does not, and it is also what makes the strip run the other way under RTL without being told, and keeps the scrollbar honest.
 
 It draws **no sheet of its own**, and there is no `elevation` to give it one. A shelf is a way of laying children out, and the children arrive with their own surfaces. `variant`, `size` and `color` reach the two buttons, which are real [`PlIconButton`](../inputs/icon-button)s.
 
@@ -64,7 +64,7 @@ It draws **no sheet of its own**, and there is no `elevation` to give it one. A 
 
 ### orientation and lines
 
-`orientation` decides which way the strip runs and therefore which way it scrolls. `lines` is how many rows a horizontal zone fills before it starts a new column — two lines hold twice as much in the same width, and the strip is still one scroll.
+`orientation` decides which way the strip runs and therefore which way it scrolls. `lines` is how many rows a horizontal zone fills before it starts a new column, two lines hold twice as much in the same width, and the strip is still one scroll.
 
 **It is responsive**, so a set can run one way on a phone and the other on a laptop. <Fw react="A server renders the xs entry and the browser corrects it on hydration." flutter="It is resolved against the window's width during build, so the first frame is already right." /> See [breakpoints](../../design/breakpoints).
 
@@ -122,7 +122,7 @@ It is a length in logical pixels. Dart has no `rem`, and every other measurement
 
 ### buttonPlacement
 
-`inline` — the default — puts the buttons beside the strip: the scroller stops where the button starts, so an item is **cut off** at the button's edge rather than sliding beneath it, and the button is legible over the page rather than over whatever it landed on. `overlay` puts them over the ends of the strip instead, which keeps every pixel of the box for content and lets an item pass under a button.
+`inline`, the default, puts the buttons beside the strip: the scroller stops where the button starts, so an item is **cut off** at the button's edge rather than sliding beneath it, and the button is legible over the page rather than over whatever it landed on. `overlay` puts them over the ends of the strip instead, which keeps every pixel of the box for content and lets an item pass under a button.
 
 An inline button keeps its lane even while it has nowhere to go, or the strip would resize under the pointer that had just reached the end of it. It is **drawn in that lane, disabled**, rather than held invisible: the lane is paid for either way, and a reserved empty one beside a strip reads as odd padding on one side of the box. An `overlay` button has no lane to keep, so it is removed instead.
 
@@ -171,11 +171,11 @@ PlScrollZone(
 
 :::
 
-An item is **measured** rather than assumed: the children of a scroll zone are whatever the caller put there, so no two of them are necessarily the same width. That measurement is also what makes `lines` work — four children stacked two by two are two columns, and one press should move one column rather than half of one.
+An item is **measured** rather than assumed: the children of a scroll zone are whatever the caller put there, so no two of them are necessarily the same width. That measurement is also what makes `lines` work, four children stacked two by two are two columns, and one press should move one column rather than half of one.
 
 ### drag
 
-A finger already scrolls the strip, because the mechanism is an ordinary scroll container and touch scrolling is the platform's own — with momentum, rubber-banding and a scrollbar that no handler reproduces. `drag` adds the same gesture for a mouse.
+A finger already scrolls the strip, because the mechanism is an ordinary scroll container and touch scrolling is the platform's own, with momentum, rubber-banding and a scrollbar that no handler reproduces. `drag` adds the same gesture for a mouse.
 
 ::: fw react
 
@@ -201,9 +201,9 @@ Flutter leaves the mouse out of `dragDevices` by default, which is the same judg
 
 ### wheel
 
-A vertical wheel over a strip that runs across the box scrolls it along. A mouse has one wheel and it points the wrong way for a horizontal strip, and what happens there is the platform's own business — which is the problem, since it makes the answer depend on which browser or which machine the reader is on. The pointer being on the strip is them saying which of the two things under it they meant to move.
+A vertical wheel over a strip that runs across the box scrolls it along. A mouse has one wheel and it points the wrong way for a horizontal strip, and what happens there is the platform's own business, which is the problem, since it makes the answer depend on which browser or which machine the reader is on. The pointer being on the strip is them saying which of the two things under it they meant to move.
 
-Only the vertical half of a gesture, and only while the strip has somewhere to go: a trackpad's two fingers and a tilt wheel already scroll it sideways and are left alone, and the moment the strip reaches an end the wheel goes back to the page — so a reader on their way down a long page is held up by one shelf rather than caught in it. A vertical zone is left alone entirely, since the wheel already runs the way it does.
+Only the vertical half of a gesture, and only while the strip has somewhere to go: a trackpad's two fingers and a tilt wheel already scroll it sideways and are left alone, and the moment the strip reaches an end the wheel goes back to the page, so a reader on their way down a long page is held up by one shelf rather than caught in it. A vertical zone is left alone entirely, since the wheel already runs the way it does.
 
 ::: fw react
 
@@ -233,7 +233,7 @@ A horizontal `Scrollable` reads the horizontal half of a scroll and a mouse whee
 
 ::: fw react
 
-- The strip is focusable and scrolls with the arrow keys, which is the browser's own key handling on a scroll container — so it is already right under RTL.
+- The strip is focusable and scrolls with the arrow keys, which is the browser's own key handling on a scroll container, so it is already right under RTL.
 - In `hold` mode the buttons answer <kbd>Enter</kbd> and <kbd>Space</kbd> the same way they answer a press, scrolling while the key is down. A scroll affordance a pointer can use and a keyboard cannot is the one thing this must never be.
 
 :::

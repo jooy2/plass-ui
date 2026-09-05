@@ -51,7 +51,7 @@ Every native `<span>` attribute passes straight through. `color` is excluded bec
 
 <PropsTable name="PlKbd" />
 
-`PlKbd` is one cap. It is exported so a caller can compose a layout this component does not draw — a numeric keypad, a row of function keys — out of the same object the shortcut strip is made of.
+`PlKbd` is one cap. It is exported so a caller can compose a layout this component does not draw (a numeric keypad, a row of function keys) out of the same object the shortcut strip is made of.
 
 What the shared axes (`variant` `size` `color` `density` `elevation`) mean across the library is in [prop conventions](../../design/prop-conventions).
 
@@ -61,7 +61,7 @@ What the shared axes (`variant` `size` `color` `density` `elevation`) mean acros
 
 `Mod` is the token the rest exist for. It is the only one whose **meaning** changes with the platform rather than just its spelling: the modifier shortcuts are built on, which is Command on a Mac and Control everywhere else. A page that writes `Ctrl+K` is wrong for every Mac reader, and one that writes `⌘K` is wrong for everybody else.
 
-`os` defaults to `auto`, which asks the platform. Name one explicitly only when the page has to — a support article about the Windows build, a table comparing the two.
+`os` defaults to `auto`, which asks the platform. Name one explicitly only when the page has to, a support article about the Windows build, a table comparing the two.
 
 ::: fw flutter
 
@@ -89,7 +89,7 @@ Aliases are accepted throughout: `Cmd`, `Command`, `Meta` and `Super` are names 
 
 ### variant
 
-`glass` is the default: a hairline box, which is what a key cap has looked like in every printed manual. All three carry a two-pixel lip under them — the one place in the library a surface gets a hard-edged shadow directly beneath it, because that is the mark that means "this is a key you press". A _picture_ of a key is allowed to look like a key; a control is not allowed to look like a picture of one.
+`glass` is the default: a hairline box, which is what a key cap has looked like in every printed manual. All three carry a two-pixel lip under them. The one place in the library a surface gets a hard-edged shadow directly beneath it, because that is the mark that means "this is a key you press". A _picture_ of a key is allowed to look like a key; a control is not allowed to look like a picture of one.
 
 <Demo src="hot-keys/variants" :min-height="100">
 
@@ -129,7 +129,7 @@ The four movement keys drawn as an inverted T. It is its own prop rather than a 
 
 ### size
 
-A cap sits one step down the control ladder — an `md` cap is 32px, not 40px. It is a token inside a line of text, not a control the line lines up against.
+A cap sits one step down the control ladder. An `md` cap is 32px, not 40px. It is a token inside a line of text, not a control the line lines up against.
 
 <Demo src="hot-keys/sizes" :min-height="100">
 
@@ -169,7 +169,7 @@ A cap sits one step down the control ladder — an `md` cap is 32px, not 40px. I
 
 ::: fw react
 
-- Each key is a real `<kbd>`. The wrapper is a `<span>` — nesting `<kbd>` inside `<kbd>` is legal and would also be defensible, but a second `kbd` box is one more thing for a host stylesheet to reach into, for no gain.
+- Each key is a real `<kbd>`. The wrapper is a `<span>`. Nesting `<kbd>` inside `<kbd>` is legal and would also be defensible, but a second `kbd` box is one more thing for a host stylesheet to reach into, for no gain.
 - `⌘` is not a word: a screen reader announces the character as "place of interest sign". Every key drawn as a glyph carries its real name beside it in a visually hidden box, so `Mod+K` on a Mac is announced as "Command K".
 - The separator is `aria-hidden`, so a shortcut is read as its keys rather than as "Ctrl plus K".
 - The platform is resolved through `useSyncExternalStore`, which is the one API that tells React the server's answer and the browser's are _meant_ to differ. A server-rendered page hydrates with `Ctrl` and re-renders to `⌘` on a Mac, rather than logging a hydration mismatch.
@@ -192,7 +192,7 @@ A cap sits one step down the control ladder — an `md` cap is 32px, not 40px. I
 
 | React | Flutter | Why |
 | --- | --- | --- |
-| a real `<kbd>` | a drawn cap | Flutter has no `kbd`. What the element bought — "these characters are keys" — is carried by the name each glyph key announces instead. |
+| a real `<kbd>` | a drawn cap | Flutter has no `kbd`. What the element bought, "these characters are keys", is carried by the name each glyph key announces instead. |
 | `useSyncExternalStore` | `defaultTargetPlatform` | There is no server render to reconcile with. The platform is known before the first frame. |
 | `os="linux"` for everything else | Android and Fuchsia too | A physical keyboard attached to either is printed the way a Linux one is. |
 | `keys` as `string \| string[]` | `Object?` | Dart has no union type; the split-on-`+` and the list form are both still there. |

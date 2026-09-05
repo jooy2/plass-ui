@@ -5,7 +5,7 @@ order: 6
 
 # usePlDisclosure
 
-<p class="plass-lede">One boolean and the four callbacks that change it. The smallest hook here and the one that saves the most typing — and the callbacks are stable, which is the reason it is a hook rather than a snippet.</p>
+<p class="plass-lede">One boolean and the four callbacks that change it. The smallest hook here and the one that saves the most typing, and the callbacks are stable, which is the reason it is a hook rather than a snippet.</p>
 
 <Demo src="hooks/disclosure" :min-height="160" :flutter="false" />
 
@@ -57,7 +57,7 @@ It is also available from `plass-ui/hooks` for a project that wants the hooks wi
 
 Because of what the alternative actually is. Written by hand this is a `useState` **plus three arrow functions that are new on every render**, and an inline `() => setOpen(false)` handed to a memoised trigger defeats the memo it was handed to.
 
-Every callback here is stable for the life of the component, including `onToggle` — which uses the updater form rather than `!open`, so it does not have to change when the value does.
+Every callback here is stable for the life of the component, including `onToggle`, which uses the updater form rather than `!open`, so it does not have to change when the value does.
 
 ## The returned names
 
@@ -73,4 +73,4 @@ const drawer = usePlDisclosure();
 ## Notes
 
 - It holds no DOM, watches nothing and has no effect in it, so it costs the same on a server as it does in a browser.
-- Several of them in one component is the ordinary case — `usePlDisclosure()` per thing that opens — and they cost a `useState` each.
+- Several of them in one component is the ordinary case, `usePlDisclosure()` per thing that opens, and they cost a `useState` each.

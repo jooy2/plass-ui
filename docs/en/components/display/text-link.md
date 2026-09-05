@@ -5,7 +5,7 @@ order: 2
 
 # PlTextLink
 
-<p class="plass-lede">A link, in a sentence or on its own. No surface, no height and no colour unless you ask — what it has is the one mark a reader already knows means "this goes somewhere".</p>
+<p class="plass-lede">A link, in a sentence or on its own. No surface, no height and no colour unless you ask. What it has is the one mark a reader already knows means "this goes somewhere".</p>
 
 <Demo src="text-link/hero" :min-height="120" />
 
@@ -39,7 +39,7 @@ PlTextLink(onPressed: openWcag, external: true, child: const Text('WCAG 2.2'));
 
 ::: fw react
 
-Every native `<a>` attribute passes straight through. `color` is excluded because it collides with the `color` in the table above. `rel` is the one thing a caller's value is **merged** with rather than replaced by — see below.
+Every native `<a>` attribute passes straight through. `color` is excluded because it collides with the `color` in the table above. `rel` is the one thing a caller's value is **merged** with rather than replaced by, see below.
 
 :::
 
@@ -103,7 +103,7 @@ Something changing out from under the reader is the one thing about a link that 
 
 ::: fw react
 
-So `newTab` does three things at once: `target="_blank"`, a `rel` that stops the new page reaching back through `window.opener`, and a mark — visible as an arrow, and read out as a line a screen reader hears after the label.
+So `newTab` does three things at once: `target="_blank"`, a `rel` that stops the new page reaching back through `window.opener`, and a mark. Visible as an arrow, and read out as a line a screen reader hears after the label.
 
 `rel` is merged, never replaced. The common reason to write one by hand is `nofollow` or `sponsored`, which is an SEO decision; as a plain override it would silently take the protection off a link that still opens a new tab.
 
@@ -111,7 +111,7 @@ So `newTab` does three things at once: `target="_blank"`, a `rel` that stops the
 
 ::: fw flutter
 
-So `external` does two: it draws the arrow leaving its box, and it gives the link a hint a screen reader reads after the label. There is no `target` and no `rel` — nothing here opens a browsing context, so there is no opener to protect against; what "leaves the app" means is the app's own business, and `onPressed` is where it happens.
+So `external` does two: it draws the arrow leaving its box, and it gives the link a hint a screen reader reads after the label. There is no `target` and no `rel`. Nothing here opens a browsing context, so there is no opener to protect against; what "leaves the app" means is the app's own business, and `onPressed` is where it happens.
 
 :::
 
@@ -119,17 +119,17 @@ So `external` does two: it draws the arrow leaving its box, and it gives the lin
 
 ::: fw react
 
-`true` draws the arrow leaving its box when `newTab` is on and the chain otherwise; `false` draws nothing; a node of your own replaces the glyph. Left out, it follows `newTab` — a link that takes over the window should say so, and a caller should have to ask for the silent version.
+`true` draws the arrow leaving its box when `newTab` is on and the chain otherwise; `false` draws nothing; a node of your own replaces the glyph. Left out, it follows `newTab`, a link that takes over the window should say so, and a caller should have to ask for the silent version.
 
 :::
 
 ::: fw flutter
 
-`showIcon` decides whether a mark is drawn and `icon` decides what it is. Left out, `showIcon` follows `external` — a link that takes the reader out of the app should say so, and a caller should have to ask for the silent version. That is the whole reason it is a `bool?` rather than a `bool`.
+`showIcon` decides whether a mark is drawn and `icon` decides what it is. Left out, `showIcon` follows `external`, a link that takes the reader out of the app should say so, and a caller should have to ask for the silent version. That is the whole reason it is a `bool?` rather than a `bool`.
 
 :::
 
-`startIcon` is the other half and the plain one: a mark **before** the label — a favicon, a file type, a lock — with no opinion at all. Nothing is drawn there unless something is put there, which is the difference from `icon` above: that one is about where the link _goes_ and turns itself on for a link that leaves.
+`startIcon` is the other half and the plain one: a mark **before** the label (a favicon, a file type, a lock) with no opinion at all. Nothing is drawn there unless something is put there, which is the difference from `icon` above: that one is about where the link _goes_ and turns itself on for a link that leaves.
 
 The glyph rides at `0.95em` rather than the `1.2em` an icon inside a control takes: this one sits in a sentence, and an icon as tall as the line spaces the words around it apart. Both marks are that size and both sit a quarter-em from the label, so a link wearing either still reads as a word in a paragraph.
 
@@ -205,7 +205,7 @@ import NextLink from 'next/link';
 - <kbd>Enter</kbd> and the numpad <kbd>Enter</kbd> follow it. <kbd>Space</kbd> deliberately does not: a link is not a button, and the space bar belongs to whatever is scrolling.
 - `external` is announced, not only drawn. The arrow says "leaves the app" to a reader who can see it; the hint says it to everyone else.
 - The underline is the primary signal, and colour is never the only one. `PlTextLinkUnderline.none` is for a link whose surroundings already say what it is.
-- The focus ring only appears on what CSS calls `:focus-visible` — a keyboard reaching the link, never a pointer clicking it — and takes a small radius, so it traces the label.
+- The focus ring only appears on what CSS calls `:focus-visible` (a keyboard reaching the link, never a pointer clicking it), and takes a small radius, so it traces the label.
 
 :::
 

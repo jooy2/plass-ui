@@ -41,7 +41,7 @@ PlSwitch(
 
 Every other prop on Base UI's `Switch.Root` passes straight through. `className` and `style` land on the field wrapper rather than on the track, and `render` is not offered.
 
-`classNames` reaches the four parts inside that wrapper: `label`, `control` — the track — `description` and `error`.
+`classNames` reaches the four parts inside that wrapper: `label`, `control` (the track) `description` and `error`.
 
 :::
 
@@ -57,17 +57,17 @@ What the shared axes (`size` `color`) mean across the library is in [prop conven
 
 ## Switch or checkbox
 
-The difference is not visual, it is **temporal**. A checkbox is a value that gets submitted with a form; a switch takes effect the moment it moves. If there is a Save button underneath, it should have been a checkbox.
+The difference is **temporal**. A checkbox is a value that gets submitted with a form; a switch takes effect the moment it moves. If there is a Save button underneath, it should have been a checkbox.
 
 ## Examples
 
 ### color
 
-On, the track is the family's gradient with that family's tinted shadow under it. Off, it is the **groove** — the same neutral ink a `PlSlider`'s rail is, so the two controls in a settings panel are visibly made of the same thing.
+On, the track is the family's gradient with that family's tinted shadow under it. Off, it is the **groove**. The same neutral ink a `PlSlider`'s rail is, so the two controls in a settings panel are visibly made of the same thing.
 
 The thumb is white in both states and in both themes: it is the light on the track, not a second coloured object, and a coloured thumb on a coloured track is two things fighting over sixteen pixels.
 
-There is no inset shadow under the off track and no hairline round it. An off state drawn as the glass at its most opaque is a white pill with a white thumb in it, which on a light page is a switch nobody can find until they have already flipped it — and where it _was_ visible, in the dark, a recessed slot under a domed thumb was the moulded rocker this design language exists not to draw.
+There is no inset shadow under the off track and no hairline round it. An off state drawn as the glass at its most opaque is a white pill with a white thumb in it, which on a light page is a switch nobody can find until they have already flipped it, and where it _was_ visible, in the dark, a recessed slot under a domed thumb was the moulded rocker this design language exists not to draw.
 
 <Demo src="switch/colors" :min-height="120">
 
@@ -150,8 +150,8 @@ The thumb is inset 2px on every side, so its diameter is the track's height minu
 - Base UI renders a `role="switch"` control with `aria-checked`, and with `name` the hidden input that makes it part of a native form submission.
 - `label`, `description` and `error` are wired to the control by Base UI's Field, so pressing the label flips the switch.
 - <kbd>Space</kbd> and <kbd>Enter</kbd> both flip it; the focus ring appears only on `:focus-visible`.
-- The thumb's position is not the only signal — the track changes material as well, so the state survives a reader who cannot tell the two ends of a 36px pill apart.
-- The thumb is the one thing in the library that moves, and it carries no text — the no-transform rule is about a control resampling its own label under the finger, which this cannot do. It travels in one house duration, the same 150ms everything else changes in.
+- The thumb's position is not the only signal. The track changes material as well, so the state survives a reader who cannot tell the two ends of a 36px pill apart.
+- The thumb is the one thing in the library that moves, and it carries no text. The no-transform rule is about a control resampling its own label under the finger, which this cannot do. It travels in one house duration, the same 150ms everything else changes in.
 - A switch with no `label` needs an `aria-label`.
 
 :::
@@ -161,7 +161,7 @@ The thumb is inset 2px on every side, so its diameter is the track's height minu
 - The track, its label and its description are **one** semantics node, announced as toggled or not.
 - Pressing the label flips the switch: the whole row is the target.
 - <kbd>Enter</kbd>, <kbd>Space</kbd> and the numpad <kbd>Enter</kbd> flip it; the focus ring only appears on what CSS calls `:focus-visible`.
-- The thumb's position is not the only signal — the track changes material as well, so the state survives a reader who cannot tell the two ends of a 36px pill apart.
+- The thumb's position is not the only signal. The track changes material as well, so the state survives a reader who cannot tell the two ends of a 36px pill apart.
 - The thumb is the one thing in the library that moves, and it carries no text. It travels in one house duration, the same 150ms everything else changes in.
 - A switch with no `label` needs a `semanticLabel`.
 

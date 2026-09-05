@@ -48,7 +48,7 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 ## Hover card, tooltip or popover
 
-Three of them, and what tells them apart is **what opens them and what you can do once they are open** — not how they look. All three are the same sheet.
+Three of them, and what tells them apart is **what opens them and what you can do once they are open**, not how they look. All three are the same sheet.
 
 |  | Opened by | Once it is open |
 | --- | --- | --- |
@@ -60,7 +60,7 @@ Three of them, and what tells them apart is **what opens them and what you can d
 
 The rule that decides whether a hover card is the right component at all.
 
-**A card that opens on hover does not open for a finger.** A link, a button or a fact that exists nowhere else on the page is a link, a button or a fact that every touch reader misses. So everything inside is a preview of something already reachable — the page the trigger goes to, a profile that has its own screen, a figure repeated in the table below.
+**A card that opens on hover does not open for a finger.** A link, a button or a fact that exists nowhere else on the page is a link, a button or a fact that every touch reader misses. So everything inside is a preview of something already reachable. The page the trigger goes to, a profile that has its own screen, a figure repeated in the table below.
 
 That is what makes it safe to have at all, and it is also why it needs no dismiss button, no focus trap and no scroll lock. Nothing is lost by never seeing it.
 
@@ -68,7 +68,7 @@ That is what makes it safe to have at all, and it is also why it needs no dismis
 
 `delay` is **600ms** and that is deliberately long. A card that opens the moment a pointer crosses a link opens on every link a reader passes on the way somewhere else, which turns a page of prose into a page that flinches.
 
-`closeDelay` is **300ms** and it cannot be zero. The gap between the trigger and the card has no pointer in it, so a card that closed the instant the pointer left the trigger could never be reached — and reaching it is the whole difference from a tooltip.
+`closeDelay` is **300ms** and it cannot be zero. The gap between the trigger and the card has no pointer in it, so a card that closed the instant the pointer left the trigger could never be reached, and reaching it is the whole difference from a tooltip.
 
 <Demo src="hover-card/delays" :min-height="220">
 
@@ -86,7 +86,7 @@ That is what makes it safe to have at all, and it is also why it needs no dismis
 
 </Demo>
 
-Shorten `delay` for a page whose links are **all** previews — a table of people, a list of issues — and leave it alone everywhere else.
+Shorten `delay` for a page whose links are **all** previews (a table of people, a list of issues), and leave it alone everywhere else.
 
 ## Examples
 
@@ -118,7 +118,7 @@ The ordinary case, and the shape the component was drawn for.
 ## Notes
 
 - The trigger is **rendered, not wrapped**: a link stays a link, keeps its `href`, its styling and its place in the tab order, and the card adds no box to the layout.
-- The sheet is the same frosted panel a [popover](../feedback/popover) draws, one rung wider at every `size` step — a popover is a detail beside a control, and a preview squeezed to the width of a hint is a preview nobody reads.
+- The sheet is the same frosted panel a [popover](../feedback/popover) draws, one rung wider at every `size` step. A popover is a detail beside a control, and a preview squeezed to the width of a hint is a preview nobody reads.
 - `arrow` is off by default, as it is on a popover: the sheet is translucent over a blurred backdrop, and a wedge sticking out past its own box cannot carry that backdrop with it.
 
 ::: fw react

@@ -5,7 +5,7 @@ order: 1
 
 # PlAccordion
 
-<p class="plass-lede">A stack of sections that fold open one at a time. Use it for reference material a reader scans before choosing what to read — settings groups, specifications, an FAQ.</p>
+<p class="plass-lede">A stack of sections that fold open one at a time. Use it for reference material a reader scans before choosing what to read, settings groups, specifications, an FAQ.</p>
 
 <Demo src="accordion/hero" :min-height="240" />
 
@@ -63,7 +63,7 @@ Every native `<div>` attribute passes straight through. `color` is excluded beca
 
 ::: fw flutter
 
-The accordion is generic in its section's type — `PlAccordion<String>`, `PlAccordion<Section>` — so `value` and `onChanged` are typed rather than `dynamic`, and it is **controlled**, like every other control in the package. `value` is a `Set<T>` even with `multiple` off, because closed is a set too: an empty one.
+The accordion is generic in its section's type (`PlAccordion<String>`, `PlAccordion<Section>`), so `value` and `onChanged` are typed rather than `dynamic`, and it is **controlled**, like every other control in the package. `value` is a `Set<T>` even with `multiple` off, because closed is a set too: an empty one.
 
 :::
 
@@ -91,7 +91,7 @@ What the shared axes (`variant` `size` `color` `density` `elevation`) mean acros
 
 ### variant
 
-The three materials, read the way a **container** reads them. `solid` is the clear glass at its most opaque, for a pane that has to sit forward of everything around it. `glass` is the canonical Plass sheet and the default. `ghost` has no sheet at all — reach for it inside a `PlCard`, where a second bordered rectangle is a second rectangle.
+The three materials, read the way a **container** reads them. `solid` is the clear glass at its most opaque, for a pane that has to sit forward of everything around it. `glass` is the canonical Plass sheet and the default. `ghost` has no sheet at all. Reach for it inside a `PlCard`, where a second bordered rectangle is a second rectangle.
 
 None of the three is dyed. What an accordion holds arrives with its own colours; the family reaches the hover tint, the open section's title and the focus ring, and stops.
 
@@ -153,7 +153,7 @@ On by default: a hairline reaching both edges is what says the folds are parts o
 
 ### title · subtitle · startIcon · action
 
-The title and the subtitle **wrap**. A fold's heading is most often a whole sentence — an FAQ is a list of questions — and ellipsing one costs the reader the end of it with no tooltip and no way to see it, while wrapping costs a header that is two lines tall in a component whose whole job is to change height. `truncate` puts each of them back on one line, for a header carrying a name from a database beside a control.
+The title and the subtitle **wrap**. A fold's heading is most often a whole sentence, an FAQ is a list of questions, and ellipsing one costs the reader the end of it with no tooltip and no way to see it, while wrapping costs a header that is two lines tall in a component whose whole job is to change height. `truncate` puts each of them back on one line, for a header carrying a name from a database beside a control.
 
 `action` is rendered **outside** the fold. A header that both folds and holds a button has two things to press, and one of them cannot be inside the other.
 
@@ -189,7 +189,7 @@ Nothing rewrites the tree here, but a control nested in a control is a press tha
 
 Moves the title, the body and the padding around both together. It is set on the accordion and inherited by every section, so a stack cannot end up with two type scales in it.
 
-The body keeps padding of its own above it as well as below. An open header is a tinted band with a bottom edge, and a body that starts at that edge puts its first line half a leading under the title — the heading and the paragraph explaining it read as one run of text broken by a colour change. What the header's padding buys is room around the title; the body buys its own.
+The body keeps padding of its own above it as well as below. An open header is a tinted band with a bottom edge, and a body that starts at that edge puts its first line half a leading under the title. The heading and the paragraph explaining it read as one run of text broken by a colour change. What the header's padding buys is room around the title; the body buys its own.
 
 <Demo src="accordion/sizes" :min-height="320">
 
@@ -211,13 +211,13 @@ The body keeps padding of its own above it as well as below. An open header is a
 
 ::: fw react
 
-Pass `value` with `onValueChange` to own the open set. Both are arrays even when `multiple` is off — a closed accordion is `[]`.
+Pass `value` with `onValueChange` to own the open set. Both are arrays even when `multiple` is off. A closed accordion is `[]`.
 
 :::
 
 ::: fw flutter
 
-There is no uncontrolled mode: `value` and `onChanged` are how the accordion is driven, always. `value` is a `Set<T>` even when `multiple` is off — a closed accordion is `<String>{}` — and leaving `onChanged` off freezes it at whatever is open, which is how a read-only summary is spelled.
+There is no uncontrolled mode: `value` and `onChanged` are how the accordion is driven, always. `value` is a `Set<T>` even when `multiple` is off, a closed accordion is `<String>{}`, and leaving `onChanged` off freezes it at whatever is open, which is how a read-only summary is spelled.
 
 :::
 
@@ -253,7 +253,7 @@ There is no uncontrolled mode: `value` and `onChanged` are how the accordion is 
 ::: fw flutter
 
 - Each header is announced as a button, expanded or collapsed. The state is carried by that flag, never by the chevron's rotation alone.
-- <kbd>Enter</kbd> and <kbd>Space</kbd> fold a section; <kbd>Tab</kbd> moves between headers and into an open panel. Every header is its own focus stop — an accordion is a stack of buttons, not a roving group.
+- <kbd>Enter</kbd> and <kbd>Space</kbd> fold a section; <kbd>Tab</kbd> moves between headers and into an open panel. Every header is its own focus stop. An accordion is a stack of buttons, not a roving group.
 - A closed panel is not in the tree at all, so nothing inside it is reachable, focusable or read out until it is open.
 - The chevron is drawn and not named, and a disabled section stops answering both the pointer and the keyboard.
 - Anything in `action` is a separate control with its own focus stop, and needs its own name.
@@ -270,7 +270,7 @@ There is no uncontrolled mode: `value` and `onChanged` are how the accordion is 
 | `<PlAccordionItem>` children | `items`, as descriptions | The accordion has to know which sections are open, which one a press closes, and where the rules go. None of that can be asked of an opaque widget. |
 | `defaultValue` / `onValueChange` | `value` / `onChanged` | Flutter's own controls are controlled, and its name for the callback. |
 | a value of `string` | a generic `T` | Dart has generics, so the section's type is checked rather than restrained by convention. |
-| `value` as an array | `value` as a `Set<T>` | The open sections are a set — unordered, no duplicates — and Dart has one. |
+| `value` as an array | `value` as a `Set<T>` | The open sections are a set (unordered, no duplicates), and Dart has one. |
 | `hiddenUntilFound` | — | There is no browser page-search to open a section for. A closed panel simply is not built. |
 | `aria-expanded`, `aria-controls`, `region` | an expanded button, and a panel that exists or does not | Flutter names the state on the node itself; there is no id to point at. |
 | `children` | `child` | Flutter's name. |

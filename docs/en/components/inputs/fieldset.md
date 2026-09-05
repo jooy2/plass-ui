@@ -5,7 +5,7 @@ order: 19
 
 # PlFieldset
 
-<p class="plass-lede">A group of controls that answer one question together, with a name on it. It draws no surface — a grouping is not a sheet, and the sheet already exists.</p>
+<p class="plass-lede">A group of controls that answer one question together, with a name on it. It draws no surface. A grouping is not a sheet, and the sheet already exists.</p>
 
 <Demo src="fieldset/hero" :min-height="300" />
 
@@ -52,7 +52,7 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 Three things, and nothing else:
 
-- **The legend**, which becomes part of the accessible name of every control inside. That is why it has to be a phrase that still reads correctly in front of each of them — "Billing address", not "Where should we send it?".
+- **The legend**, which becomes part of the accessible name of every control inside. That is why it has to be a phrase that still reads correctly in front of each of them, "Billing address", not "Where should we send it?".
 - **The gap** the controls stand at, on the sheet ladder.
 - **`disabled`**, which is the one thing only a real `<fieldset>` can do: it reaches every control inside, including one a component three levels down rendered and never heard of.
 
@@ -62,7 +62,7 @@ It draws no surface and takes no `color`, `variant` or `elevation`. A group of f
 
 ### disabled
 
-The reason to reach for a fieldset rather than a `<div>`. Turning it on takes every control inside out of the tab order and out of the form, without the fieldset knowing what any of them are.
+The reason to use a fieldset rather than a `<div>`. Turning it on takes every control inside out of the tab order and out of the form, without the fieldset knowing what any of them are.
 
 <Demo src="fieldset/disabled" :min-height="280">
 
@@ -82,7 +82,7 @@ The reason to reach for a fieldset rather than a `<div>`. Turning it on takes ev
 
 ### size
 
-The legend's type scale and the gap between the controls, on the sheet ladder — the same one a [`PlCard`](../surfaces/card) scores its sections with, because a fieldset is a section of a form rather than a control in one.
+The legend's type scale and the gap between the controls, on the sheet ladder, the same one a [`PlCard`](../surfaces/card) scores its sections with, because a fieldset is a section of a form rather than a control in one.
 
 <Demo src="fieldset/sizes" :min-height="360">
 
@@ -144,5 +144,5 @@ So is `min-width: min-content`, which every browser gives a fieldset and nothing
 
 - It is a real `<fieldset>`, which is a `group`, and the legend names it.
 - The legend is a `<div>` pointed at by `aria-labelledby` rather than a rendered `<legend>`. That is Base UI's decision, and it is what makes the group an ordinary flex container: a real `<legend>` is lifted out of its fieldset's content box by every browser, so a `gap` would put no space under it at all.
-- `disabled` on the fieldset is the native attribute, so it disables descendants the way the platform does — no context, no prop threading, and nothing to forget on a control that was added later.
+- `disabled` on the fieldset is the native attribute, so it disables descendants the way the platform does, no context, no prop threading, and nothing to forget on a control that was added later.
 - A fieldset with neither `legend` nor `description` draws no heading block at all. An empty name is worse than none: it puts a blank in front of every control's own.

@@ -5,7 +5,7 @@ order: 15
 
 # PlDateTimePicker
 
-<p class="plass-lede">A day and a time, in one popup. Not a date picker that grew a clock, and not a time picker that grew a calendar — the two panels are the same height on purpose.</p>
+<p class="plass-lede">A day and a time, in one popup. Not a date picker that grew a clock, and not a time picker that grew a calendar. The two panels are the same height on purpose.</p>
 
 <Demo src="date-time-picker/hero" :min-height="200" />
 
@@ -44,7 +44,7 @@ The panels lift themselves out of the tree, so a picker needs an `Overlay` above
 
 Every native `<div>` attribute passes straight through to the field wrapper. `color` is excluded because it collides with the `color` in the table above, `defaultValue` because the picker spells it as a value rather than a DOM attribute, and `children` because the panels are the component.
 
-A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control` — the trigger — `description` and `error`.
+A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control` (the trigger) `description` and `error`.
 
 :::
 
@@ -58,7 +58,7 @@ The calendar is [`PlDatePicker`](./date-picker)'s and the columns are [`PlTimePi
 
 ## One popup
 
-The calendar's grid is seven rows counting its header. The clock's columns are seven of the same cell. They read the same cell ladder for exactly that reason, so the popup is one rectangle rather than two of different sizes pushed together — and switching the calendar to its month or year view does not change that.
+The calendar's grid is seven rows counting its header. The clock's columns are seven of the same cell. They read the same cell ladder for exactly that reason, so the popup is one rectangle rather than two of different sizes pushed together, and switching the calendar to its month or year view does not change that.
 
 ## The bounds
 
@@ -152,11 +152,11 @@ One `names` object carries the month and weekday names, the order of the header'
 
 ## Accessibility
 
-- The calendar is [`PlDatePicker`](./date-picker)'s in full — one roving tab stop, full dates as accessible names — and the columns are [`PlTimePicker`](./time-picker)'s, including the live region that reads the time back as one sentence.
+- The calendar is [`PlDatePicker`](./date-picker)'s in full (one roving tab stop, full dates as accessible names), and the columns are [`PlTimePicker`](./time-picker)'s, including the live region that reads the time back as one sentence.
 - The trigger wears the **calendar glyph alone**, not both: a control cannot say two things at once, and the date is the part a reader scans for.
 - A day blocked by a full-precision bound and an hour blocked by the same bound both carry `aria-disabled` rather than the attribute, so neither leaves the path a keyboard walks. ::: fw react
 
-- With `name`, a hidden input carries the value as a local `YYYY-MM-DDTHH:MM` — the shape `<input type="datetime-local">` submits. Never `toISOString()`: a picker in Seoul would submit a different day.
+- With `name`, a hidden input carries the value as a local `YYYY-MM-DDTHH:MM`, the shape `<input type="datetime-local">` submits. Never `toISOString()`: a picker in Seoul would submit a different day.
 
 :::
 

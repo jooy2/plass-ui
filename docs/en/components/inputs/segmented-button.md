@@ -52,7 +52,7 @@ Every native `<div>` attribute passes straight through. `color` is excluded beca
 
 ::: fw flutter
 
-The set is generic in its segment's type — `PlSegmentedButton<String>`, `PlSegmentedButton<Period>` — so `value` and `onChanged` are typed rather than `dynamic`, and it is **controlled**, like every other control in the package.
+The set is generic in its segment's type (`PlSegmentedButton<String>`, `PlSegmentedButton<Period>`), so `value` and `onChanged` are typed rather than `dynamic`, and it is **controlled**, like every other control in the package.
 
 :::
 
@@ -78,15 +78,15 @@ What the shared axes (`variant` `size` `color` `density` `elevation`) mean acros
 
 ## Segmented button, tabs or select
 
-- **Segmented button** — a handful of short, mutually exclusive choices that filter what is already on screen: a period, a scope, a layout.
-- **Tabs** — the choice swaps whole panels of content.
-- **Select** — more than about five options, or long ones.
+- **Segmented button**: a handful of short, mutually exclusive choices that filter what is already on screen: a period, a scope, a layout.
+- **Tabs**: the choice swaps whole panels of content.
+- **Select**: more than about five options, or long ones.
 
 ## Examples
 
 ### variant
 
-The groove carries `--plass-well`, the one inset shadow in the library and the same one a `solid` field is drawn with. Those two are the whole of its use: a groove and a filled field are both a box something _sits in_. A slider's rail is not one, and no longer takes it — a rail is a line you look along.
+The groove carries `--plass-well`, the one inset shadow in the library and the same one a `solid` field is drawn with. Those two are the whole of its use: a groove and a filled field are both a box something _sits in_. A slider's rail is not one, and no longer takes it. A rail is a line you look along.
 
 `solid` puts the family's gradient in the tile with that family's tinted shadow under it, which is the design language's own sentence with nothing added: a key of tinted glass riding in a groove. `glass` and `ghost` lift a pane of clear glass instead and leave the label in the accent.
 
@@ -196,7 +196,7 @@ Both are sized against the label rather than against the row. An icon-only segme
 
 ::: fw flutter
 
-- Each segment is announced as one of a mutually exclusive set, taken or not — a segmented button **is** "exactly one of these". Built out of toggles it would announce four independent switches, three of which happen to be off.
+- Each segment is announced as one of a mutually exclusive set, taken or not. A segmented button **is** "exactly one of these". Built out of toggles it would announce four independent switches, three of which happen to be off.
 - **One** focus stop for the whole set: exactly one segment is in the tab order and the rest are wrapped in an `ExcludeFocus`. <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> move the choice, wrapping at both ends.
 - A segment's focus ring turns **inward**, because a ring drawn outside one inside a groove would be painted over its neighbours.
 - Give the set a `semanticLabel`. It has no visible label of its own.
@@ -212,7 +212,7 @@ Both are sized against the label rather than against the row. An icon-only segme
 | `<PlSegment>` children | `segments`, as descriptions | The set owns the roving focus, the arrow keys and the sliding tile, so it has to know which one is taken and where each one is. |
 | `defaultValue` / `onValueChange` | `value` / `onChanged` | Flutter's own controls are controlled, and its name for the callback. |
 | a value of `string \| number` | a generic `T` | Dart has generics, so the type is checked rather than restrained by convention. |
-| four CSS custom properties on the tile | a measured `Rect` and an `AnimatedPositioned` | The same idea — measure the chosen segment, animate the box — in Flutter's words. Nothing is transformed either way. |
+| four CSS custom properties on the tile | a measured `Rect` and an `AnimatedPositioned` | The same idea (measure the chosen segment, animate the box) in Flutter's words. Nothing is transformed either way. |
 | `aria-label` | `semanticLabel` | Flutter's name. |
 | `name`, and a hidden input | — | There is no native form submission to be part of. |
 
@@ -220,4 +220,4 @@ Both are sized against the label rather than against the row. An icon-only segme
 
 - The focus ring is drawn **inset**, because an offset ring on a segment inside a groove would be painted over its neighbours.
 - The tile animates `left`, `top`, `width` and `height` rather than a `transform`: it is an empty box, so no label is resampled while it travels. That is what lets the house no-transform rule survive a component whose entire point is that something moves.
-- The first choice of an empty set appears **in place** rather than flying in from the left edge — the tile is not mounted until there is something to sit under.
+- The first choice of an empty set appears **in place** rather than flying in from the left edge. The tile is not mounted until there is something to sit under.

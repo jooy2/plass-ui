@@ -5,7 +5,7 @@ order: 6
 
 # PlScrollArea
 
-<p class="plass-lede">A bounded box that scrolls, with the library's own scrollbar in it. The reason to reach for it over <code>overflow: auto</code> is the bar: a platform scrollbar is either an overlay that vanishes or a strip of grey furniture, and neither belongs beside a translucent sheet.</p>
+<p class="plass-lede">A bounded box that scrolls, with the library's own scrollbar in it. The reason to use it over <code>overflow: auto</code> is the bar: a platform scrollbar is either an overlay that vanishes or a strip of grey furniture, and neither belongs beside a translucent sheet.</p>
 
 <Demo src="scroll-area/hero" :min-height="260" />
 
@@ -55,18 +55,18 @@ A number is pixels and a string is any CSS length, so `height={200}` and `height
 
 ## PlScrollArea or PlScrollZone
 
-Two components, one fact — content that runs off the end of its box — and two different answers.
+Two components, one fact (content that runs off the end of its box), and two different answers.
 
 |  |  |
 | --- | --- |
 | `PlScrollArea` | Keeps the bar, and makes it the library's own. For a **panel of content**, where a reader wants to know how far through they are. |
-| [`PlScrollZone`](./scroll-zone) | Takes the bar away, fades the end that still has something behind it, and adds a pair of buttons. For a **strip** — a row of tabs, chips, filters — where a bar under one line of labels is heavier than the labels. |
+| [`PlScrollZone`](./scroll-zone) | Takes the bar away, fades the end that still has something behind it, and adds a pair of buttons. For a **strip** (a row of tabs, chips, filters) where a bar under one line of labels is heavier than the labels. |
 
 There is deliberately **no fade here**. A fade says "there is more"; the bar says that _and_ how much and where you are. Two signals for one fact, one measured and one not, is one more than the box needs.
 
 ## Axes
 
-`orientation` is `vertical` by default, `horizontal` for a row, and `both` for a grid that runs off two edges — where a lane is drawn along each and a corner fills the join.
+`orientation` is `vertical` by default, `horizontal` for a row, and `both` for a grid that runs off two edges, where a lane is drawn along each and a corner fills the join.
 
 <Demo src="scroll-area/axes" :min-height="260">
 
@@ -94,7 +94,7 @@ There is deliberately **no fade here**. A fade says "there is more"; the bar say
 
 `auto` draws the lane while the pointer is over the box or the content is moving, and nothing otherwise. That is what a reader is used to and it is the default.
 
-`always` holds it open, and it is the right choice more often than it looks: for a panel whose whole point is that there is more below, a bar that only appears on hover is a signal nobody standing back from the screen ever sees. Turning it on costs the content **no width** either way — the lane is overlaid, not laid out.
+`always` holds it open, and it is the right choice more often than it looks: for a panel whose whole point is that there is more below, a bar that only appears on hover is a signal nobody standing back from the screen ever sees. Turning it on costs the content **no width** either way. The lane is overlaid, not laid out.
 
 ## Examples
 
@@ -127,7 +127,7 @@ The ordinary case. Bound the middle and leave the two ends where they are.
 ::: fw react
 
 - The viewport is `overscroll-contain`: reaching the bottom of the panel does not start scrolling the page behind it.
-- Base UI owns the behaviour — the overlay measurement, the thumb's size and position, the drag, and making the viewport a tab stop exactly while there is something to scroll.
+- Base UI owns the behaviour. The overlay measurement, the thumb's size and position, the drag, and making the viewport a tab stop exactly while there is something to scroll.
 - `classNames` reaches the parts a `className` does not: `viewport`, `scrollbar`, `thumb`.
 
 :::
@@ -140,6 +140,6 @@ The ordinary case. Bound the middle and leave the two ends where they are.
 
 ## Accessibility
 
-- **A scrollable box is a tab stop when nothing inside it is focusable**, because somebody using a keyboard has to be able to scroll it. That is handled for you — and it is the reason `label` matters: a landing point with no name is announced as nothing at all.
+- **A scrollable box is a tab stop when nothing inside it is focusable**, because somebody using a keyboard has to be able to scroll it. That is handled for you, and it is the reason `label` matters: a landing point with no name is announced as nothing at all.
 - With a `label` the box becomes a named region. Without one it claims **no landmark**, deliberately: an unnamed region is something a screen reader lists as "region" and nothing else, which is worse than no landmark at all.
 - The scrollbar is not the only way to move: the arrow keys, <kbd>Page Down</kbd> and the wheel all work on the box itself.

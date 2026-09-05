@@ -5,7 +5,7 @@ order: 4
 
 # PlSkeleton
 
-<p class="plass-lede">The shape of something that has not loaded yet. It reserves the space the real thing will take, which is the whole job — a spinner cannot do that.</p>
+<p class="plass-lede">The shape of something that has not loaded yet. It reserves the space the real thing will take, which is the whole job. A spinner cannot do that.</p>
 
 <Demo src="skeleton/hero" :min-height="300" />
 
@@ -45,11 +45,11 @@ Every native `<div>` attribute passes straight through. `color` is excluded from
 
 ::: fw flutter
 
-`width` and `height` are `double`s — logical pixels, as everywhere else in the package.
+`width` and `height` are `double`s, logical pixels, as everywhere else in the package.
 
 :::
 
-There is no `variant`, no `elevation` and no `density`. A skeleton is deliberately **not** made of glass: every other sheet in the library is translucent over a blurred backdrop because it is a thing sitting on the page, and a skeleton is the opposite — the shape of something that is not there yet. So it is a flat tint and nothing else, which also keeps a page of thirty placeholders from asking for thirty backdrop filters.
+There is no `variant`, no `elevation` and no `density`. A skeleton is deliberately **not** made of glass: every other sheet in the library is translucent over a blurred backdrop because it is a thing sitting on the page, and a skeleton is the opposite, the shape of something that is not there yet. So it is a flat tint and nothing else, which also keeps a page of thirty placeholders from asking for thirty backdrop filters.
 
 What the shared axes (`size` `color`) mean across the library is in [prop conventions](../../design/prop-conventions).
 
@@ -57,7 +57,7 @@ What the shared axes (`size` `color`) mean across the library is in [prop conven
 
 ### shape
 
-The three shapes are the three things a layout is made of — a run of text, a block and a circle — and each is sized off the ladder the real component uses. A `md` line is as tall as `md` type, and a `md` circle is exactly a `PlAvatar` at `md`.
+The three shapes are the three things a layout is made of (a run of text, a block and a circle), and each is sized off the ladder the real component uses. A `md` line is as tall as `md` type, and a `md` circle is exactly a `PlAvatar` at `md`.
 
 `lines` draws a stack of bars rather than one striped box, so the gaps between them are real gaps: text has leading. The last one is drawn short, the way the last line of a paragraph is.
 
@@ -142,7 +142,7 @@ This is not the accessibility switch: a reduced-motion preference already replac
 ::: fw react
 
 - Unlabelled, a placeholder is `aria-hidden` and says nothing. A dozen boxes each announcing themselves is worse than silence.
-- Give the **one** skeleton that stands for the whole region a `label`, and it becomes a `role="status"` with `aria-busy` — one announcement for one wait.
+- Give the **one** skeleton that stands for the whole region a `label`, and it becomes a `role="status"` with `aria-busy`, one announcement for one wait.
 - Under `prefers-reduced-motion` the highlight stops travelling and the placeholder pulses in colour instead. It is not stopped outright, because a skeleton that holds still is indistinguishable from an empty box that finished loading with nothing in it.
 
 :::
@@ -150,7 +150,7 @@ This is not the accessibility switch: a reduced-motion preference already replac
 ::: fw flutter
 
 - Unlabelled, a placeholder is excluded from the semantics tree and says nothing. A dozen boxes each announcing themselves is worse than silence.
-- Give the **one** skeleton that stands for the whole region a `label`, and it becomes a live region with that name — one announcement for one wait.
+- Give the **one** skeleton that stands for the whole region a `label`, and it becomes a live region with that name, one announcement for one wait.
 - When the platform has animations turned off (`MediaQuery.disableAnimations`) the highlight stops travelling and the placeholder pulses in colour instead. It is not stopped outright, because a skeleton that holds still is indistinguishable from an empty box that finished loading with nothing in it.
 
 :::

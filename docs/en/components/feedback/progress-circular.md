@@ -5,7 +5,7 @@ order: 10
 
 # PlProgressCircular
 
-<p class="plass-lede">A ring that fills. The one to reach for where there is no room for a bar — inside a table row, beside a field, at the end of a line of text.</p>
+<p class="plass-lede">A ring that fills. The one to use where there is no room for a bar, inside a table row, beside a field, at the end of a line of text.</p>
 
 <Demo src="progress-circular/hero" :min-height="140" />
 
@@ -33,7 +33,7 @@ PlProgressCircular(label: const Text('Syncing'), value: 68, showValue: true);
 
 <PropsTable name="PlProgressCircular" />
 
-The table is [`PlProgressLinear`](./progress-linear)'s, and only `size` means something different: on a bar it is thickness, on a ring it is diameter. That is the claim the indicators make — one component in three shapes — and it is why they share a props table rather than three that would drift.
+The table is [`PlProgressLinear`](./progress-linear)'s, and only `size` means something different: on a bar it is thickness, on a ring it is diameter. That is the claim the indicators make, one component in three shapes, and it is why they share a props table rather than three that would drift.
 
 ::: fw react
 
@@ -57,13 +57,13 @@ An SVG stroke cannot be given a CSS gradient, so the ring builds a `<linearGradi
 
 ::: fw flutter
 
-A stroke takes a `Shader` rather than a decoration, so the sweep the rest of the package gets from `PlassCssGradient` is asked for directly — the one place in the library a shader is built by hand.
+A stroke takes a `Shader` rather than a decoration, so the sweep the rest of the package gets from `PlassCssGradient` is asked for directly. The one place in the library a shader is built by hand.
 
 :::
 
 Either way it is worth the extra work: a flat ring beside a swept bar is two materials for one idea.
 
-The track under it is `--plass-track`, the same neutral ink the bar's groove is — so a ring and a bar on one screen are cut into the same surface.
+The track under it is `--plass-track`, the same neutral ink the bar's groove is, so a ring and a bar on one screen are cut into the same surface.
 
 ## The value label
 
@@ -73,7 +73,7 @@ Not inside it. A number in the middle of a dial is the picture everyone has of t
 
 ### value
 
-`null` — the default — is the indeterminate case. The ring then draws a fixed quarter-arc and turns, which is the one place the library moves something on its own, and the exception is the same one the button's spinner already has: an indeterminate indicator that holds still is a decoration.
+`null`, the default, is the indeterminate case. The ring then draws a fixed quarter-arc and turns, which is the one place the library moves something on its own, and the exception is the same one the button's spinner already has: an indeterminate indicator that holds still is a decoration.
 
 With a value the ring holds still and the gap closes instead. Both are one dash pattern on one circle.
 
@@ -95,7 +95,7 @@ With a value the ring holds still and the gap closes instead. Both are one dash 
 
 ### size
 
-Diameter, on a ladder that sits just under the control ladder at every step — a `md` ring is 20px inside a 40px control — so a ring dropped into a button, a field or a table row never makes the row taller than it already was.
+Diameter, on a ladder that sits just under the control ladder at every step, a `md` ring is 20px inside a 40px control, so a ring dropped into a button, a field or a table row never makes the row taller than it already was.
 
 <Demo src="progress-circular/sizes" :min-height="140">
 

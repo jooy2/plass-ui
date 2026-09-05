@@ -42,15 +42,15 @@ PlTextField(
 
 Every native `<input>` attribute passes straight through, and in `multiline` mode every `<textarea>` attribute does. The exceptions are `color` and `size`, which are the shared axes above.
 
-A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control` — the box the text goes in — `description` and `error`.
+A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control` (the box the text goes in) `description` and `error`.
 
 :::
 
 ::: fw flutter
 
-The value lives in a `TextEditingController`, which is where Flutter keeps text. Left out, the field owns one — but a field whose value the app needs is a field the app should hand a controller to.
+The value lives in a `TextEditingController`, which is where Flutter keeps text. Left out, the field owns one, but a field whose value the app needs is a field the app should hand a controller to.
 
-Under it is `EditableText` rather than a `TextField`: the latter is Material, and this package imports neither Material nor Cupertino. What Material adds on top — the decoration, the counter, the ripple — is what this component is _instead of_.
+Under it is `EditableText` rather than a `TextField`: the latter is Material, and this package imports neither Material nor Cupertino. What Material adds on top (the decoration, the counter, the ripple) is what this component is _instead of_.
 
 :::
 
@@ -82,7 +82,7 @@ A `solid` field is deliberately **not** a tinted pane. A gradient under a caret,
 
 ### size
 
-The same ladder PlButton uses — `xs` 24px · `sm` 32px · `md` 40px · `lg` 48px · `xl` 56px — so a field and a button of the same `size` line up on one row.
+The same ladder PlButton uses, `xs` 24px · `sm` 32px · `md` 40px · `lg` 48px · `xl` 56px, so a field and a button of the same `size` line up on one row.
 
 <Demo src="text-field/sizes" :min-height="260">
 
@@ -110,7 +110,7 @@ All three are nodes, and all three are wired to the control by Base UI's `Field`
 
 ::: fw flutter
 
-All three are widgets, and all three are part of the field's own semantics node — so a screen reader reads the label, the field and the message as one thing rather than as three.
+All three are widgets, and all three are part of the field's own semantics node, so a screen reader reads the label, the field and the message as one thing rather than as three.
 
 :::
 
@@ -118,7 +118,7 @@ There is no floating-label variant. A floating label needs a `transform` on the 
 
 ### Validation
 
-`error` carries a message **and** turns the field invalid, which re-points the whole slot family at `danger` — the hairline, the focus ring, the caret and the message all turn over together.
+`error` carries a message **and** turns the field invalid, which re-points the whole slot family at `danger`, the hairline, the focus ring, the caret and the message all turn over together.
 
 Two escape hatches, for when a form library owns the validity: `invalid` forces the state without a message, and <Fw react="invalid={false}" flutter="invalid: false" code /> shows a message without it.
 
@@ -140,7 +140,7 @@ Two escape hatches, for when a form library owns the validity: `invalid` forces 
 
 ### multiline
 
-Every other axis is identical, and a one-row multiline field is exactly as tall as the single-line field of the same `size` — the vertical padding is derived from the height ladder, so `density` never touches it.
+Every other axis is identical, and a one-row multiline field is exactly as tall as the single-line field of the same `size`. The vertical padding is derived from the height ladder, so `density` never touches it.
 
 ::: fw react
 
@@ -150,7 +150,7 @@ Renders a `<textarea>`. `resize` decides which way the user may drag it; horizon
 
 ::: fw flutter
 
-There is no `resize`. A textarea's drag handle is the browser's, and Flutter has no equivalent to offer — a field that has to change size is one the layout around it resizes.
+There is no `resize`. A textarea's drag handle is the browser's, and Flutter has no equivalent to offer, a field that has to change size is one the layout around it resizes.
 
 :::
 
@@ -172,7 +172,7 @@ There is no `resize`. A textarea's drag handle is the browser's, and Flutter has
 
 ### startIcon and endIcon
 
-Sized against the text rather than against the row. They sit on the shell rather than inside the control, and they answer its focus — an adornment goes from muted to the accent colour when the field is focused.
+Sized against the text rather than against the row. They sit on the shell rather than inside the control, and they answer its focus. An adornment goes from muted to the accent colour when the field is focused.
 
 An adornment is centred on the control's **first line**, so it stays where it is when a multiline field grows.
 
@@ -220,11 +220,11 @@ An adornment is centred on the control's **first line**, so it stays where it is
 
 ### hotKeys
 
-A field that saves on <kbd>Mod</kbd>+<kbd>Enter</kbd> and clears on <kbd>Escape</kbd> is a form of keyboard affordance that has nowhere else to live. `hotKeys` is a map from a chord to what pressing it does, written in **the same vocabulary [`PlHotKeys`](../display/hot-keys) draws** — so the cap printed beside the field and the key that actually works come from one string, and cannot drift apart.
+A field that saves on <kbd>Mod</kbd>+<kbd>Enter</kbd> and clears on <kbd>Escape</kbd> is a form of keyboard affordance that has nowhere else to live. `hotKeys` is a map from a chord to what pressing it does, written in **the same vocabulary [`PlHotKeys`](../display/hot-keys) draws**, so the cap printed beside the field and the key that actually works come from one string, and cannot drift apart.
 
 `Mod` resolves per platform: one entry is ⌘ on a Mac and <kbd>Ctrl</kbd> everywhere else. `Esc`, `Return`, `Cmd` and `Option` fold onto the same keys their caps do.
 
-A chord that matches is **consumed** — the handler runs and the key goes no further, so `Escape` bound here does not also close the dialog around the field, and `Enter` does not also submit the form. That is what binding a key means, and it is why these are chords rather than letters: `{ a: … }` is a field that cannot type an `a`.
+A chord that matches is **consumed**. The handler runs and the key goes no further, so `Escape` bound here does not also close the dialog around the field, and `Enter` does not also submit the form. That is what binding a key means, and it is why these are chords rather than letters: `{ a: … }` is a field that cannot type an `a`.
 
 <Demo src="text-field/hot-keys" :min-height="280">
 
@@ -288,7 +288,7 @@ The controller **is** the value, and `onChanged` is told about every change. `ma
 ::: fw flutter
 
 - Announced as a text field, and as read-only or unavailable when it is.
-- The label, the field, the description and the message are **one** semantics node, so a screen reader reads them together rather than one after another. Without a visible label, give the field a `semanticLabel` — a `placeholder` is not a name.
+- The label, the field, the description and the message are **one** semantics node, so a screen reader reads them together rather than one after another. Without a visible label, give the field a `semanticLabel`. A `placeholder` is not a name.
 - The focus ring is drawn on the shell rather than on the editor, so it traces the glass edge instead of a rectangle floating inside it. It appears only on what CSS calls `:focus-visible`.
 - Pressing the shell's padding puts the caret in the field, the way pressing inside a native input does.
 - A selection is made by dragging and has **no handles** to adjust afterwards: the drag handles a touch platform puts under one belong to Material and Cupertino, and this package imports neither.

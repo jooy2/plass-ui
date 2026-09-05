@@ -5,7 +5,7 @@ order: 9
 
 # PlTimelineChart
 
-<p class="plass-lede">Work against time — a row per thing, a bar per stretch of it. The two axes are a set of rows and a calendar.</p>
+<p class="plass-lede">Work against time, a row per thing, a bar per stretch of it. The two axes are a set of rows and a calendar.</p>
 
 <Demo src="timeline-chart/hero" :min-height="280" />
 
@@ -37,9 +37,9 @@ Not to be confused with [`PlTimeline`](../display/timeline), which is a list of 
 
 <PropsTable name="PlTimelineChart" />
 
-A row is a series — one entity, one name, one colour — but its data are spans rather than values, so it takes `PlassTimelineSeries` rather than the usual series type. There is no `legend` and no `hidden`: **the rows are the category axis**, already named down the side, and a twenty-entry legend restating them is not a filter anyone wants.
+A row is a series (one entity, one name, one colour), but its data are spans rather than values, so it takes `PlassTimelineSeries` rather than the usual series type. There is no `legend` and no `hidden`: **the rows are the category axis**, already named down the side, and a twenty-entry legend restating them adds nothing.
 
-The time axis ticks where a calendar ticks. The 1-2-5 family that rounds a value axis is the wrong one for an instant — run on milliseconds it produces a tick every 200,000,000 ms, which lands at 14:53:20 on an arbitrary Tuesday.
+The time axis ticks where a calendar ticks. The 1-2-5 family that rounds a value axis is the wrong one for an instant, run on milliseconds it produces a tick every 200,000,000 ms, which lands at 14:53:20 on an arbitrary Tuesday.
 
 ## Examples
 
@@ -95,5 +95,5 @@ Both ends, unlike a [bar chart](./bar-chart), where the baseline end stays squar
 
 - The drawing carries the chart's name, and every span is handed over as text: each row, then its spans as the two instants they run between.
 - On React the picture is a `role="img"` and a tab stop, and the arrow keys walk the spans in the order the data was written.
-- On React the same data is written into a table under the chart — **a row per span** rather than the grid every other chart uses. Two rows of a Gantt have no columns in common: the third thing on one row and the third thing on another are unrelated, and filing them side by side would invent a relationship.
+- On React the same data is written into a table under the chart, **a row per span** rather than the grid every other chart uses. Two rows of a Gantt have no columns in common: the third thing on one row and the third thing on another are unrelated, and filing them side by side would invent a relationship.
 - A span that names itself is named in the readout, with its row on the second line rather than repeated on the first.

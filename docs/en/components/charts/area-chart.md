@@ -5,7 +5,7 @@ order: 2
 
 # PlAreaChart
 
-<p class="plass-lede">A line with the space under it filled — which changes what the chart is about. A line says where a value went; an area says how much of something there was, and stacked it says how that amount was made up.</p>
+<p class="plass-lede">A line with the space under it filled, which changes what the chart is about. A line says where a value went; an area says how much of something there was, and stacked it says how that amount was made up.</p>
 
 <Demo src="area-chart/hero" :min-height="320" />
 
@@ -33,13 +33,13 @@ PlAreaChart(
 
 :::
 
-That is the whole test for reaching for this instead of a [line chart](./line-chart): if the quantity does not add up to anything — a temperature, a rate, a score — the fill under it is decoration, and a chart with two of them is two washes fighting.
+That is the whole test for using this instead of a [line chart](./line-chart): if the quantity does not add up to anything (a temperature, a rate, a score) the fill under it is decoration, and a chart with two of them is two washes fighting.
 
 ## Props
 
 <PropsTable name="PlAreaChart" />
 
-The data is the same [`PlassChartSeries`](./line-chart#plasschartseries) every chart takes, and a `null` is a gap here too — more visibly so, because a fill that closes across a missing month paints a made-up number over a larger part of the chart than a bridged line does.
+The data is the same [`PlassChartSeries`](./line-chart#plasschartseries) every chart takes, and a `null` is a gap here too, more visibly so, because a fill that closes across a missing month paints a made-up number over a larger part of the chart than a bridged line does.
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
@@ -47,13 +47,13 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 ### stacked
 
-Each band rides on the total of those below it, and the top edge is the sum — which is the thing a stacked area is usually drawn to show.
+Each band rides on the total of those below it, and the top edge is the sum, which is the thing a stacked area is usually drawn to show.
 
 **A stacked band is not also given a line along its top.** The band above would then be separated from it by a coloured stroke, and a stroke between two marks is ink that is not data. What separates them is the gap below.
 
 ### Share rather than size
 
-`'full'` normalises every category to 100%, so the chart stops being about size and starts being about **share**. The value axis becomes a percentage and says so.
+`'full'` normalises every category to 100%, so the chart stops being about size and starts being about **share**. The value axis is relabelled as a percentage.
 
 <Demo src="area-chart/share" :min-height="320">
 
@@ -99,7 +99,7 @@ Left unstacked, each band starts from the baseline and they lie over each other.
 
 </Demo>
 
-Stacked bands take a flatter, opaquer tint instead, because there the fill **is** the mark — a band that faded out would have no bottom edge.
+Stacked bands take a flatter, opaquer tint instead, because there the fill **is** the mark, a band that faded out would have no bottom edge.
 
 ### The baseline is always zero
 
@@ -107,4 +107,4 @@ Unlike a line, an area's fill is its magnitude, so the baseline has to be zero o
 
 ## Accessibility
 
-Everything [`PlLineChart`](./line-chart#accessibility) says applies here: the name and the per-series summary, the legend as real controls, and — on React — the hidden table that carries every number.
+Everything [`PlLineChart`](./line-chart#accessibility) says applies here: the name and the per-series summary, the legend as real controls, and (on React) the hidden table that carries every number.

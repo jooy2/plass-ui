@@ -54,7 +54,7 @@ What the shared axes (`variant` `size` `color` `density` `elevation`) mean acros
 
 Above `collapseBelow` the sidebar is an `<aside>` in the layout that the content is laid out around. Below it, the same children are a [`PlDrawer`](../feedback/drawer) over a scrim, with a focus trap, an <kbd>Esc</kbd> and a way back to the trigger.
 
-They are one component because they are one thing — and because the children then exist **once** either way, rather than being rendered twice into the document for a screen reader to read twice.
+They are one component because they are one thing, and because the children then exist **once** either way, rather than being rendered twice into the document for a screen reader to read twice.
 
 Which of the two is showing is a media query, answered in CSS for the first paint and in JavaScript from then on. The markup a server sends is the column, so a narrow screen would otherwise draw a full-width sidebar and throw it away a moment later. The class that hides it below the breakpoint is what stops that, and `matchMedia` decides, once there is a window to ask, that the drawer should exist at all.
 
@@ -84,7 +84,7 @@ Inside a [`PlPageLayout`](./page-layout) it is already decided by which slot the
 
 ### collapseBelow
 
-The window width below which the column becomes a drawer. It defaults to the layout's own `collapseBelow`, and to `none` outside a layout — a sidebar that collapsed with nothing on the page able to bring it back would be a sidebar the reader has lost.
+The window width below which the column becomes a drawer. It defaults to the layout's own `collapseBelow`, and to `none` outside a layout, a sidebar that collapsed with nothing on the page able to bring it back would be a sidebar the reader has lost.
 
 `PlSidebarTrigger` is what brings it back. Put it in a [`PlHeader`](./header)'s `brand` slot, ahead of the logo, which is where thirty years of hamburgers have taught readers to look. It is hidden by the **same media query** rather than by a piece of state, so it is in the markup a server sends rather than popping into the header a moment after the page arrives.
 
@@ -112,7 +112,7 @@ Off by default. A sidebar that can be resized is a sidebar whose width is the re
 
 The dragged width is written straight onto the element rather than into state: nothing in the tree depends on the number except one CSS declaration, and a `setState` per pointer move would re-render every row in the panel. The caller still hears every step through `onResize`.
 
-The handle straddles the edge rather than sitting inside it — a hairline one pixel wide is a target one pixel wide — which is the same split between what is drawn and what can be grabbed that a scrollbar makes.
+The handle straddles the edge rather than sitting inside it, a hairline one pixel wide is a target one pixel wide, which is the same split between what is drawn and what can be grabbed that a scrollbar makes.
 
 <Demo src="sidebar/resizable" :min-height="260">
 
@@ -134,7 +134,7 @@ The handle straddles the edge rather than sitting inside it — a hairline one p
 
 The three materials, read the way a **container** reads them. The panel is never dyed: what is on a sidebar is somebody's navigation, and it arrives with colours of its own.
 
-`divider` rules the **inner** edge — the one facing the content. The outer edge is against the window, where there is nothing on the other side to be separated from.
+`divider` rules the **inner** edge, the one facing the content. The outer edge is against the window, where there is nothing on the other side to be separated from.
 
 <Demo src="sidebar/variants" :min-height="220">
 
@@ -156,7 +156,7 @@ The three materials, read the way a **container** reads them. The panel is never
 
 ### sticky
 
-On by default, and it costs nothing when it is not needed. With the page scrolling, the column is `sticky` and as tall as what is left of the window under the header — which is what `--p-layout-header` and `--p-layout-footer` are measured for. With only the content scrolling, the column is already as tall as the layout and this changes nothing.
+On by default, and it costs nothing when it is not needed. With the page scrolling, the column is `sticky` and as tall as what is left of the window under the header, which is what `--p-layout-header` and `--p-layout-footer` are measured for. With only the content scrolling, the column is already as tall as the layout and this changes nothing.
 
 :::
 
@@ -187,7 +187,7 @@ On by default, and it costs nothing when it is not needed. With the page scrolli
 - Collapsed, it is a dialog: focus is trapped, <kbd>Esc</kbd> closes it, the page behind it is inert, and focus returns to whatever opened it. All of that is [`PlDrawer`](../feedback/drawer)'s, which is Base UI's.
 - The trigger carries `aria-expanded`, so a screen reader is told whether the panel is open before it is pressed.
 - The resize handle is a `role="separator"` with `aria-orientation="vertical"`, a tab stop while `resizable`, and moved by <kbd>←</kbd> <kbd>→</kbd>. A key press fires `onResizeEnd` as well as `onResize`, because it is a whole gesture on its own.
-- A drag takes the page's text selection away as `-webkit-user-select` — the only name WebKit implements — rather than calling `preventDefault`, which would stop the browser focusing the handle.
+- A drag takes the page's text selection away as `-webkit-user-select`, the only name WebKit implements, rather than calling `preventDefault`, which would stop the browser focusing the handle.
 
 :::
 
@@ -196,7 +196,7 @@ On by default, and it costs nothing when it is not needed. With the page scrolli
 - The column claims `SemanticsRole.complementary`, the same landmark the `<aside>` tag carries on the other side.
 - `semanticLabel` names it and defaults to `Sidebar`. A screen with two sidebars **must** name each one: Flutter refuses a duplicated landmark with no label outright.
 - Collapsed, it is a `PlDrawer`: focus is trapped, the barrier dismisses it, and focus returns to whatever opened it.
-- The resize handle is a `Semantics(slider: true)` with the width as its value and `onIncrease` / `onDecrease` wired to the same step the arrow keys use — so a screen reader can move the edge without a pointer.
+- The resize handle is a `Semantics(slider: true)` with the width as its value and `onIncrease` / `onDecrease` wired to the same step the arrow keys use, so a screen reader can move the edge without a pointer.
 - The trigger is a real `PlIconButton` with a name that says what pressing it will do.
 
 :::

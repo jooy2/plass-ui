@@ -31,9 +31,9 @@ PlMockup(device: PlMockupDevice.mobile, child: MyScreen());
 
 :::
 
-**The screen is a real viewport at the device's own resolution** — an `md` phone is 390 by 844 — and the whole device is then scaled once to whatever room it has been given. So the content inside is laid out against a _screen_ rather than against the page: a 390-pixel column wraps where it would wrap on a phone, and the mockup can be 200 pixels wide on the page without the content knowing.
+**The screen is a real viewport at the device's own resolution**, an `md` phone is 390 by 844, and the whole device is then scaled once to whatever room it has been given. So the content inside is laid out against a _screen_ rather than against the page: a 390-pixel column wraps where it would wrap on a phone, and the mockup can be 200 pixels wide on the page without the content knowing.
 
-That scale is the one `transform` in the library. The rule it is an exception to is about controls, where a scale resamples the label under the pointer pressing it. Nothing here is pressed, and the scale never changes on an interaction — it is set once from the space available, which is the only way to draw a 1440-pixel desktop in a paragraph's width at all.
+That scale is the one `transform` in the library. The rule it is an exception to is about controls, where a scale resamples the label under the pointer pressing it. Nothing here is pressed, and the scale never changes on an interaction. It is set once from the space available, which is the only way to draw a 1440-pixel desktop in a paragraph's width at all.
 
 ## Props
 
@@ -41,7 +41,7 @@ That scale is the one `transform` in the library. The rule it is an exception to
 
 `device` is the one prop with no default: a mockup that has not said what it is a mockup of has not said anything.
 
-**`size` does not set a height or a type scale here.** It sets the resolution of the screen, which is the only thing about a device there is to scale — the second component after [`PlBox`](../surfaces/box) where the ladder means something other than a control height.
+**`size` does not set a height or a type scale here.** It sets the resolution of the screen, which is the only thing about a device there is to scale, the second component after [`PlBox`](../surfaces/box) where the ladder means something other than a control height.
 
 ## Examples
 
@@ -105,22 +105,22 @@ Fixed colours rather than theme tokens, because hardware is hardware. A graphite
 
 </Demo>
 
-`none` is not a thinner bezel — it is **no hardware at all**, leaving the screen on its own with its corners cut, which is what a mockup that only wants the viewport asks for. `thick` is an older device: narrow sides, a forehead and a chin.
+`none` is not a thinner bezel. It is **no hardware at all**, leaving the screen on its own with its corners cut, which is what a mockup that only wants the viewport asks for. `thick` is an older device: narrow sides, a forehead and a chin.
 
 ### systemUi and notch
 
 The system's bars each take their own space rather than covering the content: a caller putting a screenshot in a mockup wants all of the screenshot, and a status bar over the top of it would be a crop nobody asked for. Turning `systemUi` off gives that room back rather than uncovering anything.
 
-The cut-out is the exception, because that one really is a hole in the glass — so it is drawn whether or not the bars are. It defaults to what the device would have: a dynamic island on an iOS phone, a punch hole on an Android one, nothing anywhere else.
+The cut-out is the exception, because that one really is a hole in the glass, so it is drawn whether or not the bars are. It defaults to what the device would have: a dynamic island on an iOS phone, a punch hole on an Android one, nothing anywhere else.
 
 ### orientation
 
-Landscape turns the screen, the bezel and the cut-out together — the forehead and chin of a thick-bezelled phone become its left and right edges, and the island moves out from under the status bar.
+Landscape turns the screen, the bezel and the cut-out together. The forehead and chin of a thick-bezelled phone become its left and right edges, and the island moves out from under the status bar.
 
-A desktop ignores it. Rotating a monitor is a thing people do, but a mockup of it is a different picture — the stand does not move — and pretending otherwise would draw a landscape stand under a portrait screen.
+A desktop ignores it. Rotating a monitor is a thing people do, but a mockup of it is a different picture (the stand does not move), and pretending otherwise would draw a landscape stand under a portrait screen.
 
 ## Accessibility
 
-- The hardware is decoration and says so: the bezel, the stand, the cut-out and every system bar are hidden from assistive technology. What is announced is whatever the caller put on the screen.
-- The chrome's only text is the clock, which is a prop rather than the real time — a mockup's clock is part of the picture, and reading the real one would differ between the server that renders the page and the browser that hydrates it.
+- The hardware is decoration: the bezel, the stand, the cut-out and every system bar are hidden from assistive technology. What is announced is whatever the caller put on the screen.
+- The chrome's only text is the clock, which is a prop rather than the real time. A mockup's clock is part of the picture, and reading the real one would differ between the server that renders the page and the browser that hydrates it.
 - On React the screen is a container (`plass-screen`), so content inside can answer to the **device's** width with a container query rather than to the window's.

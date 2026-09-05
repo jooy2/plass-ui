@@ -55,7 +55,7 @@ What the shared axes (`variant` `size` `color` `density` `elevation`) mean acros
 
 ### variant
 
-Sets how a page at rest looks. The current page is always `solid`, whatever the row's resting variant is — it is the one thing here that has to be legible without being read.
+Sets how a page at rest looks. The current page is always `solid`, whatever the row's resting variant is. It is the one thing here that has to be legible without being read.
 
 The default is `ghost` rather than the `solid` a lone `PlButton` takes: nine panes of tinted glass in a row say that all nine are the primary action.
 
@@ -77,7 +77,7 @@ The default is `ghost` rather than the `solid` a lone `PlButton` takes: nine pan
 
 ### siblingCount and boundaryCount
 
-`boundaryCount` is how many pages stay pinned at each end; `siblingCount` is how many sit either side of the current page. Everything between is an ellipsis — except a gap of exactly one page, which is filled with that page instead, because `1 … 3 … 9` hides a single number behind a symbol wider than the number it replaced.
+`boundaryCount` is how many pages stay pinned at each end; `siblingCount` is how many sit either side of the current page. Everything between is an ellipsis, except a gap of exactly one page, which is filled with that page instead, because `1 … 3 … 9` hides a single number behind a symbol wider than the number it replaced.
 
 The row keeps a constant number of slots whatever page it is on: the window slides toward whichever end it is near rather than being clipped by it. Without that, stepping from page 1 to page 2 would relayout the row and move every button out from under the pointer that just pressed one.
 
@@ -99,7 +99,7 @@ The row keeps a constant number of slots whatever page it is on: the window slid
 
 ### showArrows and showEdges
 
-The steppers are icon-only buttons, so they go square and land on exactly the same footprint as a single-digit page — a row whose ends are a different width from its middle reads as two controls pushed together. At either end of the range the relevant steppers are disabled and stay in place, so the row never shifts sideways.
+The steppers are icon-only buttons, so they go square and land on exactly the same footprint as a single-digit page, a row whose ends are a different width from its middle reads as two controls pushed together. At either end of the range the relevant steppers are disabled and stay in place, so the row never shifts sideways.
 
 <Demo src="pagination/steppers" :min-height="200">
 
@@ -121,13 +121,13 @@ The steppers are icon-only buttons, so they go square and land on exactly the sa
 
 ### getPageHref
 
-Turns every number into a real `<a href>`. Without it the row is buttons, and a crawler cannot press one — a paged list of articles or products then exists for a reader and stops at page one for everything else.
+Turns every number into a real `<a href>`. Without it the row is buttons, and a crawler cannot press one. A paged list of articles or products then exists for a reader and stops at page one for everything else.
 
-With an `href` **and** an `onPageChange`, the handler wins and the navigation is cancelled: that is a client-side router keeping the page it already has. With an `href` and no handler, the link is left to do what a link does, which is also what makes the row work before JavaScript has loaded. A press carrying <kbd>⌘</kbd>, <kbd>Ctrl</kbd>, <kbd>Shift</kbd> or <kbd>Alt</kbd> is never cancelled — that is the reader asking the browser for a new tab.
+With an `href` **and** an `onPageChange`, the handler wins and the navigation is cancelled: that is a client-side router keeping the page it already has. With an `href` and no handler, the link is left to do what a link does, which is also what makes the row work before JavaScript has loaded. A press carrying <kbd>⌘</kbd>, <kbd>Ctrl</kbd>, <kbd>Shift</kbd> or <kbd>Alt</kbd> is never cancelled: that is the reader asking the browser for a new tab.
 
 The current page and a stepper at the end of the row stay `<button>`s, because `disabled` is not something an `<a>` can be.
 
-`renderLink` decides what that link is made of. A bare `<a>` is a full document load in a single-page app — the router never sees the press, so the whole page is fetched, parsed and booted again to change one number. Hand back the `Link` your router brings and the address arrives already built, so there is no second copy of `getPageHref` inside it. `rel="prev"` and `rel="next"` are merged onto whatever comes back.
+`renderLink` decides what that link is made of. A bare `<a>` is a full document load in a single-page app. The router never sees the press, so the whole page is fetched, parsed and booted again to change one number. Hand back the `Link` your router brings and the address arrives already built, so there is no second copy of `getPageHref` inside it. `rel="prev"` and `rel="next"` are merged onto whatever comes back.
 
 ```tsx
 <PlPagination
@@ -171,7 +171,7 @@ The same height ladder as `PlButton`, so a pagination and a button on the same r
 ::: fw react
 
 - Renders a `<nav>` around a `<ul>`: a named landmark a screen reader can skip, holding a list whose length says how far the pages go.
-- The current page carries `aria-current="page"`, and a visually hidden `aria-live` line says which page of how many — the list length alone does not, once an ellipsis is in it.
+- The current page carries `aria-current="page"`, and a visually hidden `aria-live` line says which page of how many. The list length alone does not, once an ellipsis is in it.
 - Every button has an accessible name (`Page 4`, `Next page`). All of them are props, so a page in another language sets its own; nothing here is ever drawn.
 - The ellipsis is an `aria-hidden` `<span>`, not a disabled button. It is punctuation, not a control that happens to be unavailable.
 
@@ -180,8 +180,8 @@ The same height ladder as `PlButton`, so a pagination and a button on the same r
 ::: fw flutter
 
 - The row is a named group, and `label` is that name.
-- Every button has a name of its own — "Page 4", "Next page". All of them are parameters, so a screen in another language sets its own; nothing here is ever drawn.
-- The digit on a page button is **excluded** from what is read, because `pageLabel` already says it — a label that merged both would announce the number twice.
+- Every button has a name of its own, "Page 4", "Next page". All of them are parameters, so a screen in another language sets its own; nothing here is ever drawn.
+- The digit on a page button is **excluded** from what is read, because `pageLabel` already says it, a label that merged both would announce the number twice.
 - The ellipsis is excluded from semantics entirely. It is punctuation, not a control that happens to be unavailable.
 - A stepper at the end of the range is disabled and stays in place, so the row never shifts sideways.
 

@@ -5,7 +5,7 @@ order: 9
 
 # PlRating
 
-<p class="plass-lede">A score out of five, as a row of stars. Underneath an interactive one is a real radio group — one tab stop, arrow keys, and a value in a form submission.</p>
+<p class="plass-lede">A score out of five, as a row of stars. Underneath an interactive one is a real radio group, one tab stop, arrow keys, and a value in a form submission.</p>
 
 <Demo src="rating/hero" :min-height="140" />
 
@@ -56,7 +56,7 @@ There is no `variant` and no `elevation`: a star is a mark on the page, not a su
 
 The smallest step that can be **chosen**, as a fraction of one star. `0.5` gives half stars, `1` whole ones.
 
-It bounds what a reader can pick and nothing else. A `value` of `4.3` is drawn as four stars and a third at every precision, because an average is not a choice — rounding it to the nearest half would be reporting a different number from the one the component was handed.
+It bounds what a reader can pick and nothing else. A `value` of `4.3` is drawn as four stars and a third at every precision, because an average is not a choice. Rounding it to the nearest half would be reporting a different number from the one the component was handed.
 
 <Demo src="rating/precision" :min-height="200">
 
@@ -80,7 +80,7 @@ A product's average, or a rating somebody else left.
 
 It is a different component in the same clothes: no inputs, no radio group, and one <Fw react="role=&quot;img&quot;" flutter="image semantics node" /> carrying the score as a sentence. A star display that kept twenty focusable radios would be twenty tab stops on a page that was only reporting a number.
 
-This is also the one `readOnly` in the library that does **not** drain the saturation. It is not a control being held still — there are no controls left — and a row of grey stars would say the score itself was unavailable.
+This is also the one `readOnly` in the library that does **not** drain the saturation. It is not a control being held still, there are no controls left, and a row of grey stars would say the score itself was unavailable.
 
 <Demo src="rating/average" :min-height="200">
 
@@ -100,7 +100,7 @@ This is also the one `readOnly` in the library that does **not** drain the satur
 
 ### The fraction
 
-The filled star is laid **over** the empty one and clipped to a percentage of the width. Nothing is transformed and no glyph is scaled, so a half star is the left half of exactly the star beside it — which is the house no-transform rule holding on a component whose whole job is a partial shape.
+The filled star is laid **over** the empty one and clipped to a percentage of the width. Nothing is transformed and no glyph is scaled, so a half star is the left half of exactly the star beside it, which is the house no-transform rule holding on a component whose whole job is a partial shape.
 
 The clip runs from the inline start, so it fills from the right under RTL without anything being told to.
 
@@ -126,7 +126,7 @@ Both, or neither. The two drawings are laid one over the other and the top one i
 
 ### size
 
-The standalone-glyph ladder — the same one `PlIcon` uses — because a star is content rather than a control. It is measured against the text it sits beside, not against the row it sits in.
+The standalone-glyph ladder, the same one `PlIcon` uses, because a star is content rather than a control. It is measured against the text it sits beside, not against the row it sits in.
 
 <Demo src="rating/sizes" :min-height="240">
 
@@ -146,7 +146,7 @@ The standalone-glyph ladder — the same one `PlIcon` uses — because a star is
 
 ### color
 
-`warning` by default — the amber a star is expected to be — rather than the `primary` everything else takes. It is the one place in the library where a component's default colour is chosen by what the object _is_ instead of by what it means.
+`warning` by default, the amber a star is expected to be, rather than the `primary` everything else takes. It is the one place in the library where a component's default colour is chosen by what the object _is_ instead of by what it means.
 
 <Demo src="rating/colors" :min-height="200">
 
@@ -188,7 +188,7 @@ Choosing the score that is already chosen clears it back to `0`, which is the on
 
 ## Accessibility
 
-- An interactive rating is a **radio group**, because a score is exactly one of these. One tab stop for the row, arrow keys within it, the chosen score marked, and a value in a form submission — none of which a row of buttons would have.
+- An interactive rating is a **radio group**, because a score is exactly one of these. One tab stop for the row, arrow keys within it, the chosen score marked, and a value in a form submission, none of which a row of buttons would have.
 - Every choice is named by the score it stands for (`3 out of 5`). `valueLabel` is where another language sets its own; nothing here is ever drawn.
 - A read-only rating drops the radios entirely and becomes one image with the score as its name.
 - The glyphs are decorative. What is announced is the sentence, not the drawing.

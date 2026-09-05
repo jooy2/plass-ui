@@ -55,13 +55,13 @@ Every native `<ul>` attribute passes straight through. `color` is excluded from 
 
 ::: fw react
 
-Every native `<li>` attribute passes straight through, onto the `<li>` rather than onto the button or link inside it. `size`, `density` and `dividers` are inherited from the `PlList` around it — a row that disagreed with its neighbours about any of them is a list with a hole in it.
+Every native `<li>` attribute passes straight through, onto the `<li>` rather than onto the button or link inside it. `size`, `density` and `dividers` are inherited from the `PlList` around it, a row that disagreed with its neighbours about any of them is a list with a hole in it.
 
 :::
 
 ::: fw flutter
 
-`size`, `density`, `color` and `dividers` are inherited from the `PlList` around it, through an `InheritedWidget` — a row that disagreed with its neighbours about any of them is a list with a hole in it. Which is also why a `PlListItem` outside a `PlList` asserts rather than picking defaults: a row is a row _of_ something.
+`size`, `density`, `color` and `dividers` are inherited from the `PlList` around it, through an `InheritedWidget`, a row that disagreed with its neighbours about any of them is a list with a hole in it. Which is also why a `PlListItem` outside a `PlList` asserts rather than picking defaults: a row is a row _of_ something.
 
 :::
 
@@ -73,7 +73,7 @@ What the shared axes (`variant` `size` `color` `density` `elevation`) mean acros
 
 ::: fw react
 
-The shell is always an `<li>`. What changes is what is inside it: a plain run of content, or — when `onClick` or `href` is given — a real `<button>` or `<a>` wrapping that content.
+The shell is always an `<li>`. What changes is what is inside it: a plain run of content, or (when `onClick` or `href` is given) a real `<button>` or `<a>` wrapping that content.
 
 `action` sits outside that pressable area on purpose. A row that both navigates and holds a toggle has two things to press, and a `<button>` inside a `<button>` is markup the browser rewrites on parse.
 
@@ -127,7 +127,7 @@ With dividers the rules have to reach both edges of the sheet, so the list gives
 
 The sheet is never dyed, exactly as on a `PlCard`. A list holds other people's content, and that content arrives with its own colours.
 
-`ghost` is the one to reach for inside a card: the card is already a sheet, and a second bordered rectangle inside it is a second rectangle.
+`ghost` is the one to use inside a card: the card is already a sheet, and a second bordered rectangle inside it is a second rectangle.
 
 <Demo src="list/variants" :min-height="380">
 
@@ -167,9 +167,9 @@ The sheet is never dyed, exactly as on a `PlCard`. A list holds other people's c
 
 ::: fw react
 
-- There is no Base UI primitive under this on purpose. A list is not a composite widget — it has no roving focus, no selection model, no keyboard contract of its own. Reaching for a menu or a listbox primitive would hand a plain list of links the semantics of a menu.
+- There is no Base UI primitive under this on purpose. A list is not a composite widget. It has no roving focus, no selection model, no keyboard contract of its own. Reaching for a menu or a listbox primitive would hand a plain list of links the semantics of a menu.
 - `role="list"` is written out because Tailwind's reset takes the bullets off every `<ul>`, and Safari takes the list semantics off with them.
-- A chosen link carries `aria-current="page"` and a chosen button `aria-current="true"`. The first says "this is the page you are on", the second "this is the chosen one of these". `aria-pressed` would be a third thing — a toggle — and a selected row is not a toggle.
+- A chosen link carries `aria-current="page"` and a chosen button `aria-current="true"`. The first says "this is the page you are on", the second "this is the chosen one of these". `aria-pressed` would be a third thing, a toggle, and a selected row is not a toggle.
 - A row with neither `onClick` nor `href` adds no role and takes no tab stop. An inert `<div>` with a click handler on it is invisible to a keyboard.
 - Give the control in `action` its own accessible name. It is a separate tab stop from the row, which is the point of it being there.
 
@@ -177,7 +177,7 @@ The sheet is never dyed, exactly as on a `PlCard`. A list holds other people's c
 
 ::: fw flutter
 
-- A list is not a composite widget — it has no roving focus, no selection model and no keyboard contract of its own — so it adds no role beyond grouping its rows, and each row speaks for itself.
+- A list is not a composite widget (it has no roving focus, no selection model and no keyboard contract of its own), so it adds no role beyond grouping its rows, and each row speaks for itself.
 - A chosen row reports that it is selected. It is not a toggle, and it does not claim to be one.
 - A row with no `onPressed` adds no role and takes no focus stop.
 - Give the widget in `action` its own name. It is a separate focus stop from the row, which is the point of it being there.

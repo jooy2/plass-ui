@@ -5,7 +5,7 @@ order: 8
 
 # PlStack
 
-<p class="plass-lede">Things piled up, overlapping — faces, cards, thumbnails, whatever you hand it. The box measures exactly what it draws, so a pile can sit in a sentence or a table cell without lying about its size.</p>
+<p class="plass-lede">Things piled up, overlapping, faces, cards, thumbnails, whatever you hand it. The box measures exactly what it draws, so a pile can sit in a sentence or a table cell at its real size.</p>
 
 <Demo src="stack/hero" :min-height="140" />
 
@@ -47,7 +47,7 @@ PlStack(
 
 ::: fw react
 
-Every native `<div>` attribute passes straight through, `aria-label` included — a row of faces is a picture of a set, and what it is a set of is usually the sentence beside it.
+Every native `<div>` attribute passes straight through, `aria-label` included. A row of faces is a picture of a set, and what it is a set of is usually the sentence beside it.
 
 :::
 
@@ -65,7 +65,7 @@ This is the decision the whole component is built on, and the one that is easy t
 
 An overlapping pile is tempting to build by translating each item back over the last. Do that and the pile is **laid out one item wide**: it paints outside its own box, and every element after it on the page is placed against a size the reader never sees. It cannot go in a paragraph, in a table cell, or in a flex row beside a label without pushing something out of place.
 
-So the overlap is real layout — a negative margin in React, and a render object of its own in Flutter, where `EdgeInsets` and `Flex.spacing` both assert they are not negative. Five 32px items at 10px of overlap measure exactly:
+So the overlap is real layout, a negative margin in React, and a render object of its own in Flutter, where `EdgeInsets` and `Flex.spacing` both assert they are not negative. Five 32px items at 10px of overlap measure exactly:
 
 | direction    | box      |
 | ------------ | -------- |
@@ -73,7 +73,7 @@ So the overlap is real layout — a negative margin in React, and a render objec
 | `vertical`   | 32 × 120 |
 | `diagonal`   | 120 × 72 |
 
-The last row is the one worth reading twice. **A flow only overlaps on the axis it flows along**, so `diagonal` flows across like `horizontal` does and takes its vertical step per item instead — one fixed offset in a row would put every item at the same height and the fan would be a row.
+The last row is the one worth reading twice. **A flow only overlaps on the axis it flows along**, so `diagonal` flows across like `horizontal` does and takes its vertical step per item instead, one fixed offset in a row would put every item at the same height and the fan would be a row.
 
 Which is also why `diagonal` is a **fan** rather than a true 45°: the horizontal advance is `item width − overlap`, and a component that takes arbitrary children does not know how wide they are. `drop` is the vertical step, stated separately, and the two are independent on purpose.
 
@@ -121,7 +121,7 @@ A **function** rather than a node, and that is the whole point: the number _is_ 
 
 ### front, scaleStep and opacityStep
 
-`front` says which end of the list is on top. `last` is what the DOM does on its own and what a row of faces wants — the newest arrival in front. `first` is what a deck of cards is: the top card is the one you read first.
+`front` says which end of the list is on top. `last` is what the DOM does on its own and what a row of faces wants, the newest arrival in front. `first` is what a deck of cards is: the top card is the one you read first.
 
 `scaleStep` and `opacityStep` compound **away from whichever end is in front**, so the front item is always at full strength and turning `front` round does not also mean turning these round. They are applied at paint time, so an item that recedes still takes the room it took before and the step stays even.
 
@@ -143,7 +143,7 @@ A **function** rather than a node, and that is the whole point: the number _is_ 
 
 ### ring
 
-Two shapes of similar tone laid over each other have no boundary between them at all and the pile reads as one smeared shape. The hairline is the page's own surface colour, so it reads as the _hole_ the near item is cut out of rather than as a line around anything — a translucent line would not help, because what is behind it is the other item.
+Two shapes of similar tone laid over each other have no boundary between them at all and the pile reads as one smeared shape. The hairline is the page's own surface colour, so it reads as the _hole_ the near item is cut out of rather than as a line around anything. A translucent line would not help, because what is behind it is the other item.
 
 ::: fw react
 
@@ -172,7 +172,7 @@ What moves:
 | `shape`, `variant`, `elevation` set once | the prop on each avatar |
 | a ring, always | `ring` |
 
-**The group context is the part that is genuinely lost**, and it could not be kept: a pile that accepts arbitrary children has no way to know one of them is an avatar. `size` and `color` are axes an application already sets once — put a `PlassProvider` (Flutter: a `PlassTheme`) around the stack. The other three were never application-wide axes, and they belong on the avatar.
+**The group context is the part that is genuinely lost**, and it could not be kept: a pile that accepts arbitrary children has no way to know one of them is an avatar. `size` and `color` are axes an application already sets once. Put a `PlassProvider` (Flutter: a `PlassTheme`) around the stack. The other three were never application-wide axes, and they belong on the avatar.
 
 What is gained is everything the group could not do: any child at all, three directions, a stacking order you can state, depth, and an overflow item you draw yourself.
 
@@ -180,9 +180,9 @@ What is gained is everything the group could not do: any child at all, three dir
 
 ::: fw react
 
-- The stack adds no role and no label. It is a `<div>` around content that already says what it is — pass an `aria-label` when a row of faces is standing in for a set that nothing beside it names.
+- The stack adds no role and no label. It is a `<div>` around content that already says what it is. Pass an `aria-label` when a row of faces is standing in for a set that nothing beside it names.
 - The items keep their own elements, their own semantics and their own focus order. Nothing is cloned and nothing is replaced.
-- The stacking order is `z-index`, so it changes what is painted on top and what a pointer lands on. It does not change the **reading** order, which stays the order you wrote — which is what you want: a screen reader should read a set in the order it was given, whichever face happens to be in front.
+- The stacking order is `z-index`, so it changes what is painted on top and what a pointer lands on. It does not change the **reading** order, which stays the order you wrote, which is what you want: a screen reader should read a set in the order it was given, whichever face happens to be in front.
 
 :::
 

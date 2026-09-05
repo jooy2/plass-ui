@@ -6,7 +6,7 @@ aside: false
 
 # All components
 
-<p class="plass-lede">Everything released so far. The preview inside each card is not a picture — it is the component, running.</p>
+<p class="plass-lede">Everything released so far. The preview inside each card is the component itself, running.</p>
 
 ::: fw flutter
 

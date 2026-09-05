@@ -5,7 +5,7 @@ order: 7
 
 # PlCollapsible
 
-<p class="plass-lede">One section that folds, standing on its own. The same fold a <code>PlAccordion</code> is a set of, with nothing else beside it — so what it needs is an <code>open</code> of its own rather than a place in somebody's list.</p>
+<p class="plass-lede">One section that folds, standing on its own. The same fold a <code>PlAccordion</code> is a set of, with nothing else beside it, so what it needs is an <code>open</code> of its own rather than a place in somebody's list.</p>
 
 <Demo src="collapsible/hero" :min-height="200" />
 
@@ -57,7 +57,7 @@ Reach for this for a "Show more" on a form, an optional block of settings, the d
 
 ## How the panel opens
 
-The panel's height **is** animated, which looks like an exception to the [rule against moving things](../../design/design-language) and is not: nothing is transformed, no text is resampled, and the content does not shift relative to the panel it is in — the panel is a window opening onto it.
+The panel's height **is** animated, which looks like an exception to the [rule against moving things](../../design/design-language) and is not: nothing is transformed, no text is resampled, and the content does not shift relative to the panel it is in. The panel is a window opening onto it.
 
 Content that appears instantly is a page that jumps, which is the failure the rule exists to prevent.
 
@@ -65,7 +65,7 @@ Content that appears instantly is a page that jumps, which is the failure the ru
 
 ### variant
 
-The three materials, read as a _container's_: the sheet is never dyed, because a fold holds other people's content. `ghost` is the one to reach for inside running prose or inside a card — a bare "Show more" line owes the page no rectangle of its own.
+The three materials, read as a _container's_: the sheet is never dyed, because a fold holds other people's content. `ghost` is the one to use inside running prose or inside a card, a bare "Show more" line owes the page no rectangle of its own.
 
 <Demo src="collapsible/variants" :min-height="360">
 
@@ -87,7 +87,7 @@ The three materials, read as a _container's_: the sheet is never dyed, because a
 
 `title`, `subtitle` and `startIcon` are the header. `action` is pinned to the end of it and sits **outside the trigger**, which is not a layout preference: a header that both folds and holds a switch has two things to press, and one of them cannot be nested inside the other.
 
-The chevron is turned rather than moved, and it is the only thing on the header that reports the state by moving — which is why the header itself only changes colour.
+The chevron is turned rather than moved, and it is the only thing on the header that reports the state by moving, which is why the header itself only changes colour.
 
 <Demo src="collapsible/slots" :min-height="220">
 
@@ -145,7 +145,7 @@ The element you pass **becomes** the trigger: it is handed the click handler, `a
 
 A closed panel is not in the document, which is what makes an unopened fold cost nothing. Two props take that back, for two different reasons:
 
-- `hiddenUntilFound` keeps it there as `hidden="until-found"`, so the browser's own page search can find the text inside a closed fold **and open it**. That is the one worth reaching for on a documentation page.
+- `hiddenUntilFound` keeps it there as `hidden="until-found"`, so the browser's own page search can find the text inside a closed fold **and open it**. That is the one worth using on a documentation page.
 - `keepMounted` keeps it there outright, for content that is expensive to build or that holds form state which should survive being folded away.
 
 `hiddenUntilFound` overrides `keepMounted`; it is the same idea with the browser's find-in-page bolted on.

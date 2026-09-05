@@ -5,7 +5,7 @@ order: 16
 
 # PlToggle
 
-<p class="plass-lede">A button that stays down, and a set of them that share one state. Off is neutral, because a toggle at rest is not an action waiting to be taken — it is a state that is currently false.</p>
+<p class="plass-lede">A button that stays down, and a set of them that share one state. Off is neutral, because a toggle at rest is not an action waiting to be taken. It is a state that is currently false.</p>
 
 <Demo src="toggle/hero" :min-height="180" />
 
@@ -68,7 +68,7 @@ What the shared axes (`variant` `size` `color` `density` `elevation`) mean acros
 
 ## Toggle, switch or checkbox
 
-- A **toggle** changes the state of the thing beside it — bold on the selected words, the grid on the canvas, the filter on the list. It is a control, and it never goes in a form.
+- A **toggle** changes the state of the thing beside it, bold on the selected words, the grid on the canvas, the filter on the list. It is a control, and it never goes in a form.
 - A [`PlSwitch`](./switch) changes a setting, and the change _is_ the point.
 - A [`PlCheckbox`](./checkbox) is an answer in a form rather than a control.
 - A [`PlSegmentedButton`](./segmented-button) or a [`PlRadioGroup`](./radio-group) is what a one-of-a-set **value** is. A `PlToggleGroup` without `multiple` looks like one and is not: what it holds is a state, not an answer.
@@ -77,11 +77,11 @@ What the shared axes (`variant` `size` `color` `density` `elevation`) mean acros
 
 ### variant
 
-What the key is made of while it is **off**. On is always the colour family asserting itself, whichever material was asked for — and the two answers it gives are the same two a `PlSegmentedButton`'s chosen segment gives: `solid` takes the gradient and the on-fill ink, `glass` and `ghost` light the sheet and leave the label in the accent.
+What the key is made of while it is **off**. On is always the colour family asserting itself, whichever material was asked for, and the two answers it gives are the same two a `PlSegmentedButton`'s chosen segment gives: `solid` takes the gradient and the on-fill ink, `glass` and `ghost` light the sheet and leave the label in the accent.
 
 Off, the ink is `--plass-muted-fg` in all three and none of them is dyed. An off toggle is a piece of clear glass; the family arrives with the press and not before it.
 
-That holds **under the pointer as well**, which is the easy half to lose. A hover is still the off state, so it climbs the neutral glass ladder — the same two rungs `solid` and `glass` were already using, and never the family's own wash, which is what `on` is painted with. A control with two states cannot draw the false one in the colour of the true one and leave the ink to carry the difference.
+That holds **under the pointer as well**, which is the easy half to lose. A hover is still the off state, so it climbs the neutral glass ladder. The same two rungs `solid` and `glass` were already using, and never the family's own wash, which is what `on` is painted with. A control with two states cannot draw the false one in the colour of the true one and leave the ink to carry the difference.
 
 <Demo src="toggle/variants" :min-height="220">
 
@@ -127,7 +127,7 @@ The control ladder, unchanged: a `md` toggle is 40px and lines up with the field
 
 ### PlToggleGroup
 
-Two things are happening and only one of them is visual. The corners facing a neighbour are squared off — that is the look. The other half is that the set owns the value: the toggles report into one array, and `variant`, `size`, `color`, `density`, `elevation` and `disabled` are set once on the group rather than on every toggle.
+Two things are happening and only one of them is visual. The corners facing a neighbour are squared off, which is the visual half. The other half is that the set owns the value: the toggles report into one array, and `variant`, `size`, `color`, `density`, `elevation` and `disabled` are set once on the group rather than on every toggle.
 
 The value is an **array in both cases**, which is the one shape that does not change type when `multiple` is turned on.
 
@@ -149,7 +149,7 @@ The value is an **array in both cases**, which is the one shape that does not ch
 
 ### An icon and no label
 
-Left out, `children` makes the toggle go square around whatever icon it was given — which is what a toolbar toggle is. It still needs an `aria-label`: a control whose whole label is a drawing has no accessible name at all.
+Left out, `children` makes the toggle go square around whatever icon it was given, which is what a toolbar toggle is. It still needs an `aria-label`: a control whose whole label is a drawing has no accessible name at all.
 
 <Demo src="toggle/icons" :min-height="140">
 
@@ -199,7 +199,7 @@ Left out, `children` makes the toggle go square around whatever icon it was give
 
 - The toggle is a `Semantics(button: true, toggled: …)`, which is the same claim `aria-pressed` makes on the other side.
 - A toggle with an icon and no label needs a `semanticLabel`. Nothing else can name it.
-- `disabled` takes the toggle out of the focus order and stops it answering the pointer at all — the light goes out with it.
+- `disabled` takes the toggle out of the focus order and stops it answering the pointer at all. The light goes out with it.
 - Each toggle in a group is its own focus stop. There is no roving focus here, which is the one thing the React build has that this does not.
 
 :::

@@ -55,11 +55,11 @@ Every native `<div>` attribute passes straight through. `color` is excluded beca
 
 `children` is a list rather than one `child`, and not only because that is Flutter's usual shape: the group has to know which member is at each end to decide which corners to square, and a widget handed one opaque subtree could not.
 
-The axes are **nullable on `PlButton` and `PlIconButton` too** — `PlassVariant?`, `PlassSize?`, `int?` — because Dart has no way to tell a default apart from a value that was passed. `null` there means _this button did not say_, which is what leaves the run free to answer.
+The axes are **nullable on `PlButton` and `PlIconButton` too** (`PlassVariant?`, `PlassSize?`, `int?`), because Dart has no way to tell a default apart from a value that was passed. `null` there means _this button did not say_, which is what leaves the run free to answer.
 
 :::
 
-The five style axes have **no default of their own**: an axis the group does not state is one each button falls back to its own default on, so a group with no props changes nothing except the corners. A button that states an axis itself still wins — a run of secondary actions with one `danger` button in it is a real thing.
+The five style axes have **no default of their own**: an axis the group does not state is one each button falls back to its own default on, so a group with no props changes nothing except the corners. A button that states an axis itself still wins. A run of secondary actions with one `danger` button in it is a real thing.
 
 What the shared axes (`variant` `size` `color` `density` `elevation`) mean across the library is in [prop conventions](../../design/prop-conventions).
 
@@ -67,13 +67,13 @@ What the shared axes (`variant` `size` `color` `density` `elevation`) mean acros
 
 The buttons stay real [`PlButton`](./button)s and nothing about them is replaced: the group squares four corners and hands down six props. It does not manage selection, it has no value, and none of its buttons is ever _the chosen one_.
 
-For one-of-a-set — a view switcher, a mode toggle — reach for [`PlSegmentedButton`](./segmented-button), which is that control and carries the roving focus and the `radiogroup` semantics that go with it.
+For one-of-a-set (a view switcher, a mode toggle) use [`PlSegmentedButton`](./segmented-button), which is that control and carries the roving focus and the `radiogroup` semantics that go with it.
 
 ## Examples
 
 ### variant
 
-`glass` is the one variant with a seam to handle. It is also the only one that draws an edge, and two glass keys meeting would otherwise show both of their hairlines — twice the weight of every other edge on the page — so the second is pulled back a pixel and the two share one line.
+`glass` is the one variant with a seam to handle. It is also the only one that draws an edge, and two glass keys meeting would otherwise show both of their hairlines, twice the weight of every other edge on the page, so the second is pulled back a pixel and the two share one line.
 
 `solid` must not do that. Its keys have no border to double up, and overlapping would put one gradient over the start of the next.
 
@@ -155,10 +155,10 @@ Stretches the group to its container and divides the width evenly between the bu
 
 ## Accessibility
 
-- The group is a `role="group"`. Give it an `aria-label` when the run needs a name of its own — a bar with three of these in it is three unnamed groups otherwise.
+- The group is a `role="group"`. Give it an `aria-label` when the run needs a name of its own. A bar with three of these in it is three unnamed groups otherwise.
 - It is **not** a `role="toolbar"` and takes no roving focus. That role is a promise about keyboard behaviour, and every button here is its own tab stop, which is what ordinary `<button>` semantics already say.
 - The corners are squared with logical properties, so under RTL the first button is on the right and the flattened side follows it.
-- Each button gets a stacking context, so a focus ring — drawn outside the border box — is never painted over by the neighbour that comes after it.
+- Each button gets a stacking context, so a focus ring (drawn outside the border box) is never painted over by the neighbour that comes after it.
 - `disabled` on the group disables every button in it; a button that sets `disabled` itself still wins.
 
 ::: fw flutter
@@ -168,7 +168,7 @@ Stretches the group to its container and divides the width evenly between the bu
 | React | Flutter | Why |
 | --- | --- | --- |
 | arbitrary `children` | `children: List<Widget>` | The group has to know which member is at each end to square the right corners. |
-| a glass key is pulled back a pixel so two hairlines overlap | the key facing a neighbour does not draw that side at all | Flutter has no negative margin — `EdgeInsets` asserts it is non-negative — and the alternative is a `Transform`, which this library does not put on a control. Both arrive at one hairline per seam. |
+| a glass key is pulled back a pixel so two hairlines overlap | the key facing a neighbour does not draw that side at all | Flutter has no negative margin, `EdgeInsets` asserts it is non-negative, and the alternative is a `Transform`, which this library does not put on a control. Both arrive at one hairline per seam. |
 | an axis is left off | the same parameters are nullable | Dart cannot tell a default apart from a value that was passed, so _not stated_ has to be a value the type can hold. |
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
 

@@ -6,25 +6,25 @@ aside: false
 
 # Landing page
 
-<p class="plass-lede">The marketing page of Halyard, a product that does not exist. A landing page asks a component library the opposite question from an app — not whether it can hold six hundred rows, but whether these parts make one page somebody wants to read.</p>
+<p class="plass-lede">The marketing page of Halyard, a product that does not exist. A landing page asks a component library the opposite question from an app, not whether it can hold six hundred rows, but whether these parts make one page somebody wants to read.</p>
 
 <Demo src="examples/landing" :flutter="false" :min-height="1000" />
 
-The whole page is one file: `docs/.vitepress/demos/examples/landing.tsx`. It is live — switch the pricing to monthly, page through the quotes, open a question in the FAQ.
+The whole page is one file: `docs/.vitepress/demos/examples/landing.tsx`. It is live, switch the pricing to monthly, page through the quotes, open a question in the FAQ.
 
 ## Composition
 
 | Block | Components | Worth noticing |
 | --- | --- | --- |
 | Nav | `PlToolbar` `PlTextLink` `PlButton` | `render={<header />}` makes it a real landmark, and `position="sticky"` keeps the call to action reachable |
-| Hero | `PlChip` `PlTypography` `PlButton` `PlAvatar` `PlRating` | The stacked avatars are a `PlStack` — a negative margin and a ring, and nothing about avatars |
+| Hero | `PlChip` `PlTypography` `PlButton` `PlAvatar` `PlRating` | The stacked avatars are a `PlStack`, a negative margin and a ring, and nothing about avatars |
 | Product views | `PlTabs` `PlTab` `PlTabPanel` `PlAspectRatio` | Three panels of the same shape, so switching between them does not move the page |
-| Features | `PlGrid` `PlGridItem` `PlCard` `PlIcon` | One responsive `span` on each item — twelve, then six, then three — is the whole rule for that row |
+| Features | `PlGrid` `PlGridItem` `PlCard` `PlIcon` | One responsive `span` on each item (twelve, then six, then three) is the whole rule for that row |
 | Voices | `PlCarousel` `PlBlockquote` | Built on scroll snap, so it swipes on a phone and reverses under RTL |
 | Pricing | `PlSegmentedButton` `PlCard` `PlChip` `PlIcon` `PlButton` | Monthly and yearly are one value out of two, and the featured plan is `elevation={3}` rather than a different colour |
 | FAQ | `PlAccordion` `PlAccordionItem` | One panel starts open, because a closed accordion looks like a list of headings |
 | Sign-up strip | `PlTextField` `PlButton` `PlTextLink` | A real `<form>` with a real `type="submit"`, so Enter works from inside the field |
-| Footer | `PlDivider` `PlTextLink` | `underline="hover"` — a row of permanently underlined links reads as a warning |
+| Footer | `PlDivider` `PlTextLink` | `underline="hover"`. A row of permanently underlined links reads as a warning |
 
 ## Notes
 

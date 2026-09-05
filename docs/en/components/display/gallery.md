@@ -5,7 +5,7 @@ order: 23
 
 # PlGallery
 
-<p class="plass-lede">A set of pictures, arranged. Four layouts — a contact sheet, a masonry, a justified library and a quilt — with captions, a pointer treatment and an optional lightbox on all four.</p>
+<p class="plass-lede">A set of pictures, arranged. Four layouts (a contact sheet, a masonry, a justified library and a quilt) with captions, a pointer treatment and an optional lightbox on all four.</p>
 
 <Demo src="gallery/hero" :min-height="420" />
 
@@ -44,11 +44,11 @@ PlGallery(
 );
 ```
 
-A viewer lifts itself out of the tree, so a gallery with `preview` on needs an `Overlay` above it — `WidgetsApp` with a navigator and `MaterialApp` both provide one.
+A viewer lifts itself out of the tree, so a gallery with `preview` on needs an `Overlay` above it, `WidgetsApp` with a navigator and `MaterialApp` both provide one.
 
 :::
 
-The four layouts are the component: everything else — the captions, the pointer treatment, the viewer — is the same in all of them, and choosing between them is one prop rather than four components.
+The four layouts are the component: everything else (the captions, the pointer treatment, the viewer) is the same in all of them, and choosing between them is one prop rather than four components.
 
 ## Props
 
@@ -72,7 +72,7 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 ### layout
 
-`grid` is a contact sheet: every tile the same shape, whatever shape the files are. `masonry` keeps each picture's own proportion and stacks the columns. `justified` keeps the proportions **and** fills every row to the edge — the arrangement a photograph library uses, and the only one where no tile is cropped and no space is left over. `quilted` is a grid whose tiles may take more than one cell.
+`grid` is a contact sheet: every tile the same shape, whatever shape the files are. `masonry` keeps each picture's own proportion and stacks the columns. `justified` keeps the proportions **and** fills every row to the edge, the arrangement a photograph library uses, and the only one where no tile is cropped and no space is left over. `quilted` is a grid whose tiles may take more than one cell.
 
 <Demo src="gallery/layouts" :min-height="460">
 
@@ -103,7 +103,7 @@ Every layout is laid out from the item's own `ratio` rather than from anything m
 
 ::: fw react
 
-A number or the way CSS writes one — `2` and `'2 / 3'` both work, because that is how a ratio is written and this library does not make a caller translate it.
+A number or the way CSS writes one, `2` and `'2 / 3'` both work, because that is how a ratio is written and this library does not make a caller translate it.
 
 :::
 
@@ -135,7 +135,7 @@ A `double`: width over height. There is no string form, because Dart has no CSS 
 
 </Demo>
 
-A tile with neither a `title` nor a `description` draws no caption at all, whatever `caption` says — a row of pictures with one caption under it and three gaps is worse than a row with none.
+A tile with neither a `title` nor a `description` draws no caption at all, whatever `caption` says. A row of pictures with one caption under it and three gaps is worse than a row with none.
 
 ### hover
 
@@ -165,7 +165,7 @@ A span wider than the grid is clamped rather than refused, which is what the cal
 
 ### preview
 
-Opens the picture full size, with the rest of the set an arrow key away. It is not a carousel: a carousel is a set somebody is being shown in order, and this is one picture with a way to the next — so there is no autoplay, no wrap, and the arrows stop at the ends rather than looping back to a photograph the reader has already seen.
+Opens the picture full size, with the rest of the set an arrow key away. It is not a carousel: a carousel is a set somebody is being shown in order, and this is one picture with a way to the next, so there is no autoplay, no wrap, and the arrows stop at the ends rather than looping back to a photograph the reader has already seen.
 
 `full` is the larger file, when the tile is a thumbnail. A set that has only one size of each picture needs nothing.
 
@@ -175,14 +175,14 @@ Opens the picture full size, with the rest of the set an arrow key away. It is n
 
 ::: fw react
 
-The viewer is behind a `React.lazy`, so a wall of thumbnails costs nothing for a lightbox nobody opened — the same bargain [`PlImage`](image) makes with the same prop.
+The viewer is behind a `React.lazy`, so a wall of thumbnails costs nothing for a lightbox nobody opened. The same bargain [`PlImage`](image) makes with the same prop.
 
 :::
 
 ## Accessibility
 
 - A real `role="list"` with a name, and one `role="listitem"` per picture. A masonry's lanes are list items holding lists of their own rather than `<div>`s between the `<ul>` and its `<li>`s, which is markup a screen reader reads as a list with nothing in it.
-- A tile is only a button when something happens when it is pressed. Its name is **the picture's own words plus where it sits** — "A harbour at dusk — 1 of 6" — so a reader tabbing a wall of thumbnails is told which one of how many they are on.
+- A tile is only a button when something happens when it is pressed. Its name is **the picture's own words plus where it sits**: "A harbour at dusk — 1 of 6", so a reader tabbing a wall of thumbnails is told which one of how many they are on.
 - `itemLabel` is how that sentence is written in another language, and it is a callback rather than a string with slots because the word order differs.
 - The viewer's arrow keys are bound on the sheet rather than on its buttons: the focus is wherever the reader last put it, and a key that only worked from one place is a key that looks broken everywhere else.
 - The viewer's counter is a live region, so an arrow key says where it landed to a reader who cannot see the picture it landed on.

@@ -56,7 +56,7 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 Three floating surfaces, three different jobs, and the difference between them is what you can _do_ with them.
 
-- A [`PlTooltip`](./tooltip) is a **note** about something else. It appears on hover, it goes away when you leave, and nothing in it can be reached — a link inside one is a link nobody can click.
+- A [`PlTooltip`](./tooltip) is a **note** about something else. It appears on hover, it goes away when you leave, and nothing in it can be reached. A link inside one is a link nobody can click.
 - A **popover** stays up until it is dismissed. It can be entered with the pointer or the keyboard, and what is inside it can be clicked and typed into.
 - A [`PlModal`](./modal) takes the page away until it is answered.
 
@@ -64,13 +64,13 @@ A popover is the middle one: anchored to a control, and the page behind goes on 
 
 ## No variant and no elevation
 
-The three materials answer "how much does this surface assert itself against the page", and a popup that had to be **asked for** has already answered it. And a popover genuinely floats, which is the one case the elevation ladder exists for — so it is fixed at its top rung rather than offered as a decision that could sit it flat.
+The three materials answer "how much does this surface assert itself against the page", and a popup that had to be **asked for** has already answered it. And a popover genuinely floats, which is the one case the elevation ladder exists for, so it is fixed at its top rung rather than offered as a decision that could sit it flat.
 
 ## Examples
 
 ### side and align
 
-Which edge of the trigger it appears on, and where it sits along that edge. It **flips** to the opposite side when there is no room, and never _slides_ along the edge it is on — which is what keeps an arrow pointing at the thing it belongs to.
+Which edge of the trigger it appears on, and where it sits along that edge. It **flips** to the opposite side when there is no room, and never _slides_ along the edge it is on, which is what keeps an arrow pointing at the thing it belongs to.
 
 <Demo src="popover/sides" :min-height="220">
 
@@ -116,7 +116,7 @@ This is the whole reason it is not a tooltip. What is inside can take focus, so 
 
 ### dismissible
 
-On by default: a press outside closes it. Turn it off only for a popup that has its own way out, **and then give it one** — a close button, an action that answers it — because there will be no other.
+On by default: a press outside closes it. Turn it off only for a popup that has its own way out, **and then give it one** (a close button, an action that answers it), because there will be no other.
 
 ::: fw react
 
@@ -145,7 +145,7 @@ Escape closes it too, and `dismissible={false}` cancels both. `PlPopoverClose` s
 
 ::: fw flutter
 
-- The lift, the anchoring, the flip and the press outside are `PlassAnchoredPortal`'s — the same layer a `PlTooltip` and a `PlSelect`'s list stand on, so the three stay stuck to their anchors through a scroll for the same reason.
+- The lift, the anchoring, the flip and the press outside are `PlassAnchoredPortal`'s, the same layer a `PlTooltip` and a `PlSelect`'s list stand on, so the three stay stuck to their anchors through a scroll for the same reason.
 
 ## Differences from the React build
 

@@ -5,7 +5,7 @@ order: 22
 
 # PlCodeBlock
 
-<p class="plass-lede">A viewer for one line of code or a thousand — with a bar over it, numbers down the side, a prompt in front of every line, and twelve palettes to read it in.</p>
+<p class="plass-lede">A viewer for one line of code or a thousand, with a bar over it, numbers down the side, a prompt in front of every line, and twelve palettes to read it in.</p>
 
 <Demo src="code-block/hero" :min-height="300" />
 
@@ -33,7 +33,7 @@ PlCodeBlock(
 
 :::
 
-Everything it draws above the code is optional and off one prop each, because the same component has to be a snippet inside a sentence — no bar, no numbers, no chrome — and the full transcript at the top of a README.
+Everything it draws above the code is optional and off one prop each, because the same component has to be a snippet inside a sentence (no bar, no numbers, no chrome), and the full transcript at the top of a README.
 
 ## Props
 
@@ -51,7 +51,7 @@ Every native `<div>` attribute passes straight through. `color` is excluded beca
 
 <PropsTable name="PlCodeToken" />
 
-`PlCodeTokenKind` is the twelve slots a theme declares: `comment`, `keyword`, `string`, `number`, `function`, `type`, `variable`, `tag`, `attribute`, `meta`, `addition` and `deletion`. A `PlCodeTheme` is those twelve plus a background and a foreground — the other five colours a block draws with are **derived** from those two, so a palette of your own is fourteen values rather than nineteen.
+`PlCodeTokenKind` is the twelve slots a theme declares: `comment`, `keyword`, `string`, `number`, `function`, `type`, `variable`, `tag`, `attribute`, `meta`, `addition` and `deletion`. A `PlCodeTheme` is those twelve plus a background and a foreground. The other five colours a block draws with are **derived** from those two, so a palette of your own is fourteen values rather than nineteen.
 
 :::
 
@@ -79,7 +79,7 @@ The palette is independent of the page's light and dark, except on `auto`. `dark
 
 </Demo>
 
-Four are the house's — `dark`, `light`, `auto` and `mono`, which has no hue in it at all and carries the structure by weight instead. The other eight are ports kept at the hex they were published in: `one-dark`, `dracula`, `monokai`, `nord`, `night-owl`, `gruvbox`, `github` and `solarized-light`. A code block is the one component whose colours a reader already has an opinion about.
+Four are the house's, `dark`, `light`, `auto` and `mono`, which has no hue in it at all and carries the structure by weight instead. The other eight are ports kept at the hex they were published in: `one-dark`, `dracula`, `monokai`, `nord`, `night-owl`, `gruvbox`, `github` and `solarized-light`. A code block is the one component whose colours a reader already has an opinion about.
 
 ::: fw react
 
@@ -118,7 +118,7 @@ PlCodeBlock(
 
 ### lineNumbers
 
-Numbers down the side, starting wherever `startLine` says. `highlightLines` marks rows — a tint with a rule down the leading edge — and it counts the way the gutter counts, so a block that starts at 551 is marked with `'553-555'`.
+Numbers down the side, starting wherever `startLine` says. `highlightLines` marks rows, a tint with a rule down the leading edge, and it counts the way the gutter counts, so a block that starts at 551 is marked with `'553-555'`.
 
 <Demo src="code-block/lines" :min-height="300">
 
@@ -164,7 +164,7 @@ Line numbers are the same: neither is a text node, and neither reaches the clipb
 
 ::: fw react
 
-highlight.js, reached through a **dynamic import** — the grammars are forty kilobytes and there are thirty-five of them, so they arrive as their own chunk, one language at a time, and only for a block that asked to be coloured. With `highlight={false}` nothing is fetched at all.
+highlight.js, reached through a **dynamic import**. The grammars are forty kilobytes and there are thirty-five of them, so they arrive as their own chunk, one language at a time, and only for a block that asked to be coloured. With `highlight={false}` nothing is fetched at all.
 
 The block draws plain on the first frame and colours itself when the grammar lands. `language` understands the common spellings and file extensions, so a value copied off a fenced code block works as-is: `ts`, `tsx`, `js`, `sh`, `yml`, `dart`, `py`, `rb`, `rs`, `md`.
 
@@ -220,13 +220,13 @@ Scrolled sideways, the gutter and the prompts stay put: the rows are as wide as 
 
 ## Accessibility
 
-- The code is a **focusable region** with a name — the `title`, then the language, then the word for code. A scrollable region has to be reachable by a keyboard that has no pointer to drag with, and a focusable region has to have a name.
+- The code is a **focusable region** with a name, the `title`, then the language, then the word for code. A scrollable region has to be reachable by a keyboard that has no pointer to drag with, and a focusable region has to have a name.
 - <kbd>Mod</kbd> + <kbd>A</kbd> inside the block selects **the block**, not the page around it. The browser's own answer is never what a reader who tabbed to a code listing was after.
 - The numbers and the prompts are outside the selection for the same reason they are outside the clipboard: there is nothing there to select.
 
 ::: fw react
 
-- The copy button changes its own label, which a screen reader reading the page rather than the button would never hear, so the block also announces it through an `aria-live` region — one word long.
+- The copy button changes its own label, which a screen reader reading the page rather than the button would never hear, so the block also announces it through an `aria-live` region, one word long.
 - The raw toggle carries `aria-pressed`.
 
 :::

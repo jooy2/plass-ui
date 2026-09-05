@@ -9,7 +9,7 @@ order: 2
 
 ## The six families
 
-`color` is a **role**, never a value. There is no `color="#3558ef"` and no `color="blue"` — a component takes one of six names, and what those names resolve to is a decision the theme owns.
+`color` is a **role**, never a value. There is no `color="#3558ef"` and no `color="blue"`. A component takes one of six names, and what those names resolve to is a decision the theme owns.
 
 | Family      | Sweep                 | What it is for                           |
 | ----------- | --------------------- | ---------------------------------------- |
@@ -20,7 +20,7 @@ order: 2
 | `danger`    | `#d04246` → `#d53c54` | It will not come back                    |
 | `info`      | `#2379bd` → `#157aa9` | Neither good nor bad, just worth knowing |
 
-The two values are the ends of a 135° gradient, and they are **a hue sweep at one lightness** rather than a shade — indigo to azure, green to teal, vermilion to rose. `warning` is the exception: amber has nowhere to turn that is still amber, so it is the one family whose ends differ in lightness instead.
+The two values are the ends of a 135° gradient, and they are **a hue sweep at one lightness** rather than a shade, indigo to azure, green to teal, vermilion to rose. `warning` is the exception: amber has nowhere to turn that is still amber, so it is the one family whose ends differ in lightness instead.
 
 ## Hand-picked and derived values
 
@@ -38,7 +38,7 @@ Everything a component actually reads is computed from those, in the derived blo
 | Token | How |
 | --- | --- |
 | `--plass-{c}-fill` | A 135° gradient from `solid` to `solid-to` |
-| `--plass-{c}-tint` | `solid` at `--plass-tint-strength` (35% light, 55% dark) — the drop shadow |
+| `--plass-{c}-tint` | `solid` at `--plass-tint-strength` (35% light, 55% dark), the drop shadow |
 | `--plass-{c}-soft` / `-hover` / `-press` | `accent` at 10% / 18% / 26% |
 | `--plass-{c}-line` / `-hover` | `accent` at 30% / 48% |
 | `--plass-{c}-ring` | `solid` at 55% |
@@ -63,7 +63,7 @@ The tint strength is turned up rather than the shadow being made bigger: a tinte
 
 ## The sheet's own lines
 
-`--plass-glass-line` is white light caught on a cut edge, and it reads because what is behind it is the page wash. Turn it **inward** and there is no wash behind it any more — there is the sheet — and a white rule across a white pane is nothing at all. Three tokens exist for the jobs that face inward, and every one of them is a neutral ink rather than more light:
+`--plass-glass-line` is white light caught on a cut edge, and it reads because what is behind it is the page wash. Turn it **inward** and there is no wash behind it any more, there is the sheet, and a white rule across a white pane is nothing at all. Three tokens exist for the jobs that face inward, and every one of them is a neutral ink rather than more light:
 
 | Token             | Light                  | Dark            | What it is                    |
 | ----------------- | ---------------------- | --------------- | ----------------------------- |
@@ -71,11 +71,11 @@ The tint strength is turned up rather than the shadow being made bigger: a tinte
 | `--plass-stripe`  | `rgb(20 40 90 / 0.03)` | `white / 0.035` | The wash on every other row   |
 | `--plass-track`   | `rgb(20 40 90 / 0.14)` | `white / 0.16`  | The groove a thumb runs along |
 
-`--plass-border` belongs with them: it is the neutral hairline a control draws round _itself_ — a tick, a switch, a field, a tabs rail — for the same reason, because a control is very often set on a white card rather than on the wash, and a control nobody can see is a control nobody can find.
+`--plass-border` belongs with them: it is the neutral hairline a control draws round _itself_ (a tick, a switch, a field, a tabs rail) for the same reason, because a control is very often set on a white card rather than on the wash, and a control nobody can see is a control nobody can find.
 
 ## Contrast
 
-Every stop of every gradient clears **4.5:1 against its own `on-solid`** — and every one of them sits within 0.15 of exactly 4.5.
+Every stop of every gradient clears **4.5:1 against its own `on-solid`**, and every one of them sits within 0.15 of exactly 4.5.
 
 Both halves of that matter. The floor is what stops a label from being unreadable; the ceiling is what stops a palette from being darker than it has to be, which is the most common way a set of buttons goes quietly wrong.
 
@@ -92,7 +92,7 @@ Measured, against the label on the fill:
 
 `warning` is the outlier because its ink is dark, so it has room to spare in the direction everything else is pinned in; `secondary` is a neutral slate and takes its second end from lightness rather than hue. White on amber does not reach 4.5:1 at any lightness worth calling amber, which is why `--plass-warning-on-solid` is the one dark brown in the set.
 
-Each `accent` clears 4.5:1 on the page it is read against — the light wash in the light theme, the dark sheet in the dark one.
+Each `accent` clears 4.5:1 on the page it is read against, the light wash in the light theme, the dark sheet in the dark one.
 
 ## Overriding a family
 
@@ -121,9 +121,9 @@ Three things to check when you do:
 
 ::: fw react
 
-A token does not have to be set in a stylesheet. Every `--plass-*` value is an ordinary custom property, so an inline `style` sets one — and that matters more than it looks, because an inline declaration beats every class there is.
+A token does not have to be set in a stylesheet. Every `--plass-*` value is an ordinary custom property, so an inline `style` sets one, and that matters more than it looks, because an inline declaration beats every class there is.
 
-The library writes its edge, its shadow, its focus ring and its fill as Tailwind _arbitrary properties_ — `[box-shadow:var(--p-elev),var(--p-lift)]` and the like — and Tailwind sorts those last in the generated stylesheet. A `shadow-none` appended after one loses on order, whatever it says. The token underneath it does not.
+The library writes its edge, its shadow, its focus ring and its fill as Tailwind _arbitrary properties_ (`[box-shadow:var(--p-elev),var(--p-lift)]` and the like), and Tailwind sorts those last in the generated stylesheet. A `shadow-none` appended after one loses on order, whatever it says. The token underneath it does not.
 
 ```tsx
 <PlButton style={{ '--plass-radius-md': '4px' }}>Save</PlButton>
@@ -138,7 +138,7 @@ And because a custom property cascades, one declaration on a wrapper is a whole 
 </div>
 ```
 
-TypeScript accepts both. React's `CSSProperties` has no index signature of its own, so importing the package widens it to take any `--plass-*` key — and only those, so a typo in any other custom property is still a typo.
+TypeScript accepts both. React's `CSSProperties` has no index signature of its own, so importing the package widens it to take any `--plass-*` key, and only those, so a typo in any other custom property is still a typo.
 
 For a set of overrides written once and used in several places, `PlassTokens` is the stricter form: a name that is not a token fails to compile.
 
@@ -153,7 +153,7 @@ const quiet: PlassTokens = {
 <PlButton style={quiet}>Save</PlButton>;
 ```
 
-The `--p-*` properties a component writes onto _itself_ are not part of this. Those are the library's own working values — which family this control resolved to, what its shadow costs at this `elevation` — and `color`, `variant` and `elevation` are the props that decide them.
+The `--p-*` properties a component writes onto _itself_ are not part of this. Those are the library's own working values (which family this control resolved to, what its shadow costs at this `elevation`), and `color`, `variant` and `elevation` are the props that decide them.
 
 :::
 
@@ -165,6 +165,6 @@ The `--p-*` properties a component writes onto _itself_ are not part of this. Th
 | `--plass-fg` | Body text |
 | `--plass-muted-fg` | Labels, descriptions, adornments |
 | `--plass-border` | A neutral hairline, where the glass hairline is wrong |
-| `--plass-bg-from` / `-to` | The page wash the glass was tuned over — see [Getting started](../guide/getting-started#the-page-under-the-components) |
+| `--plass-bg-from` / `-to` | The page wash the glass was tuned over, see [Getting started](../guide/getting-started#the-page-under-the-components) |
 
-`--plass-bg-from` and `--plass-bg-to` are the only two tokens the library never uses itself. They exist because a sheet of glass over a flat white page has nothing to be in front of, and a component library has no business painting your `<body>` — so it names the colour instead and leaves the painting to you.
+`--plass-bg-from` and `--plass-bg-to` are the only two tokens the library never uses itself. They exist because a sheet of glass over a flat white page has nothing to be in front of, and a component library has no business painting your `<body>`, so it names the colour instead and leaves the painting to you.

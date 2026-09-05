@@ -34,7 +34,7 @@ PlFilePicker(
 );
 ```
 
-**The picker does not pick.** This package has no dependencies, and reaching the file system is a plugin's job in every Flutter app that does it — so `onBrowse` is where the app's own picker runs. What the component owns is everything after that: the rules, the list, the removal, and the box itself.
+**The picker does not pick.** This package has no dependencies, and reaching the file system is a plugin's job in every Flutter app that does it, so `onBrowse` is where the app's own picker runs. What the component owns is everything after that: the rules, the list, the removal, and the box itself.
 
 :::
 
@@ -72,7 +72,7 @@ What the shared axes (`variant` `size` `color` `density` `elevation`) mean acros
 
 All three take a **dashed** edge, and it is the one place the library draws a line that is not solid. It is not decoration: a dashed rectangle is the established sign for "this area accepts a drop", and a dropzone that looks like a `PlCard` is a `PlCard` nobody tries to drop on.
 
-The edge is neutral at rest and takes the colour family only once the pointer is on it — the same arrangement a `glass` `PlButton` has.
+The edge is neutral at rest and takes the colour family only once the pointer is on it. The same arrangement a `glass` `PlButton` has.
 
 <Demo src="file-picker/variants" :min-height="200">
 
@@ -94,7 +94,7 @@ The edge is neutral at rest and takes the colour family only once the pointer is
 
 <Fw react="`accept` is set on the input **and** applied to drops. The browser enforces the attribute on its own dialog and on nothing else, so a dropzone that only sets it accepts anything the moment a file arrives by drag." flutter="`accept` is applied to whatever `onBrowse` hands back, whether or not the plugin that found it was told the same thing. A rule the component states and does not enforce is not a rule." />
 
-`maxFiles` is counted against what is already held rather than against one drop — the difference between "you may drop five files" and "you may end up with five files", and only the second is what the prop means.
+`maxFiles` is counted against what is already held rather than against one drop. The difference between "you may drop five files" and "you may end up with five files", and only the second is what the prop means.
 
 <Fw react="onReject" flutter="onRejected" code /> is where a refusal goes. Without it a rejected file disappears silently, which is the single worst thing a dropzone does.
 
@@ -177,7 +177,7 @@ Moves the box's padding and the text inside it. The padding has its own ladder r
 ::: fw react
 
 - The pressable area is a real `<button>`, so it is in the tab order and answers <kbd>Enter</kbd> and <kbd>Space</kbd>. Drag-and-drop is an addition to that, never the only way in.
-- The `<input type="file">` stays in the DOM, clipped off-screen rather than `display: none` — the latter is unfocusable in some browsers and would take the input out of native form validation.
+- The `<input type="file">` stays in the DOM, clipped off-screen rather than `display: none`. The latter is unfocusable in some browsers and would take the input out of native form validation.
 - `description` and `error` are wired to the button with `aria-describedby`; the error also sets `aria-invalid`.
 - The file list is a real `<ul>` outside the browse button, because a remove button cannot be nested inside another button.
 - Each remove button carries an accessible name that includes the file it removes, so a screen reader hears three different buttons rather than three called "Remove".

@@ -56,7 +56,7 @@ A **scroll container with snap points**, and everything good about this componen
 
 Swiping and two-finger dragging on a trackpad are the platform's own scrolling rather than a gesture handler imitating it, so momentum, rubber-banding and the scrollbar come with them. The strip runs the other way under RTL without being told, because scrolling is directional and a `translate` is not. **Nothing is transformed**, so the [house rule](../../design/design-language) against moving a surface holds here without an exception.
 
-Slides are not a sub-component either. Every child becomes one, and the wrapper is what carries the semantics a screen reader needs — none of which a caller should have to remember to put on a photograph.
+Slides are not a sub-component either. Every child becomes one, and the wrapper is what carries the semantics a screen reader needs, none of which a caller should have to remember to put on a photograph.
 
 ::: fw react
 
@@ -74,7 +74,7 @@ Underneath it is a [`PageView`](https://api.flutter.dev/flutter/widgets/PageView
 
 ### variant
 
-The frame, on the same three materials as every other container, and never dyed — a carousel holds other people's pictures. `ghost` has no frame at all, which is what to reach for when the pictures already have edges of their own.
+The frame, on the same three materials as every other container, and never dyed. A carousel holds other people's pictures. `ghost` has no frame at all, which is what to use when the pictures already have edges of their own.
 
 <Demo src="carousel/variants" :min-height="380">
 
@@ -94,7 +94,7 @@ The frame, on the same three materials as every other container, and never dyed 
 
 ### loop
 
-On by default: the arrows wrap from the last slide back to the first. Turn it off and they go inert at the ends instead, which is the honest thing for a set that has a beginning and an end — a gallery of three photographs does, a rotating banner does not.
+On by default: the arrows wrap from the last slide back to the first. Turn it off and they go inert at the ends instead, which is the honest thing for a set that has a beginning and an end. A gallery of three photographs does, a rotating banner does not.
 
 <Demo src="carousel/loop" :min-height="360">
 
@@ -122,7 +122,7 @@ On by default: the arrows wrap from the last slide back to the first. Turn it of
 
 ::: fw react
 
-- It pauses on focus **anywhere inside it**, which is the important one — a keyboard reader who has tabbed into a slide is reading it.
+- It pauses on focus **anywhere inside it**, which is the important one, a keyboard reader who has tabbed into a slide is reading it.
 - It stops while the tab is in the background.
 - The live region that announces the current slide goes **silent** while it is running, because a screen reader saying a new slide's name every five seconds is what makes a page unusable.
 
@@ -146,7 +146,7 @@ On by default: the arrows wrap from the last slide back to the first. Turn it of
 
 ### The dots
 
-The current dot is a short **bar** rather than a bigger circle. It grows along the row it is in, so the row's height never changes and the dots either side of it do not move — width and colour are the only two things that travel, which is what keeps the indicator inside the rule against scaling anything.
+The current dot is a short **bar** rather than a bigger circle. It grows along the row it is in, so the row's height never changes and the dots either side of it do not move. Width and colour are the only two things that travel, which is what keeps the indicator inside the rule against scaling anything.
 
 Every dot is a real button named after the slide it goes to, so the row is a way to navigate rather than a read-out.
 
@@ -159,8 +159,8 @@ Every dot is a real button named after the slide it goes to, so the row is a way
 
 - The whole thing is a `region` with `aria-roledescription="carousel"`, and every slide a `group` with `aria-roledescription="slide"`.
 - No off-screen slide is hidden. A slide can hold a link or a button, and an `aria-hidden` subtree that is still in the tab order is the exact shape of the bug where a keyboard reader lands somewhere their screen reader refuses to describe. The strip is scrollable, so everything in it is genuinely reachable.
-- Where the reader is is announced as a sentence in a polite live region — and never while `autoPlay` is on.
-- The strip itself is focusable and scrolls with the arrow keys, which is the browser's own key handling on a scroll container — so it is already right under RTL.
+- Where the reader is is announced as a sentence in a polite live region, and never while `autoPlay` is on.
+- The strip itself is focusable and scrolls with the arrow keys, which is the browser's own key handling on a scroll container, so it is already right under RTL.
 
 :::
 

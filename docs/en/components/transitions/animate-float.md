@@ -43,13 +43,13 @@ The rest of this group answers "how does this content arrive". This one answers 
 
 **It never finishes.** `repeat` is infinite by default, because a single drift out and back is a nudge and nobody asks for a nudge.
 
-**It is not in the effect union.** `PlassAnimation` — the set `mode`, `stagger` and the shared effect map are built on — is the set of ways content can _arrive_. A drift is not an arrival, and every component that imports that map pays for each row in it whether or not it uses the effect, so a row nothing else could want does not go in. It runs its own keyframe instead.
+**It is not in the effect union.** `PlassAnimation` (the set `mode`, `stagger` and the shared effect map are built on) is the set of ways content can _arrive_. A drift is not an arrival, and every component that imports that map pays for each row in it whether or not it uses the effect, so a row nothing else could want does not go in. It runs its own keyframe instead.
 
 **It has no `mode`.** There is no reverse of a drift: the cycle is symmetric already, and running it backwards is the same cycle.
 
 ## The cycle is symmetric
 
-Home, out, home. However many times it runs it ends where it started, so a float stopped mid-cycle does not leave the element permanently a few pixels out of place — which reads as a layout bug rather than as an effect that ended.
+Home, out, home. However many times it runs it ends where it started, so a float stopped mid-cycle does not leave the element permanently a few pixels out of place, which reads as a layout bug rather than as an effect that ended.
 
 That is the same shape a [`PlAnimateBlink`](./animate-blink) takes and for the same reason.
 
@@ -57,7 +57,7 @@ That is the same shape a [`PlAnimateBlink`](./animate-blink) takes and for the s
 
 It defaults to `ease-in-out`, and it is the one component in the library that does not take the house curve.
 
-The house curve is an **entrance's**: fast out of the gate, slow into place. A drift with it lurches at each end of the cycle instead of turning around, because there is no gate — the element is already there and is only breathing.
+The house curve is an **entrance's**: fast out of the gate, slow into place. A drift with it lurches at each end of the cycle instead of turning around, because there is no gate. The element is already there and is only breathing.
 
 ## Examples
 

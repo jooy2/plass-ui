@@ -5,7 +5,7 @@ order: 3
 
 # Translating the words
 
-<p class="plass-lede">Two dozen components say something of their own — a close button's name, a pager's landmark, the line a list shows when it is empty. Those words ship as translated packs, and one setting turns all of them over at once.</p>
+<p class="plass-lede">Two dozen components say something of their own. A close button's name, a pager's landmark, the line a list shows when it is empty. Those words ship as translated packs, and one setting turns all of them over at once.</p>
 
 <Demo src="provider/labels" :min-height="360">
 
@@ -37,7 +37,7 @@ order: 3
 
 ::: fw flutter
 
-`labels` is the seventy-seven strings the widgets say about themselves. Two more than the React set, and the page on [`PlDataTable`](../components/display/data-table) says why: `aria-sort` carries a meaning here that has to be said in words. The framework ships no `Intl`, so the dates are a second object — `PlDateNames` carries the months and the weekday abbreviations, and it is set the same way. See [Setting defaults](defaults).
+`labels` is the seventy-seven strings the widgets say about themselves. Two more than the React set, and the page on [`PlDataTable`](../components/display/data-table) says why: `aria-sort` carries a meaning here that has to be said in words. The framework ships no `Intl`, so the dates are a second object. `PlDateNames` carries the months and the weekday abbreviations, and it is set the same way. See [Setting defaults](defaults).
 
 :::
 
@@ -126,7 +126,7 @@ A pack is a starting point, not a ceiling. Every component that says a word take
 </PlassProvider>
 ```
 
-A partial set works too, with or without a pack. Anything left out stays English, and `{ ...ko, start: '체크인' }` is a pack with one word changed — which is the way to reach a word no component takes a prop for, such as the hint a `PlDateRangePicker` shows between its two dates.
+A partial set works too, with or without a pack. Anything left out stays English, and `{ ...ko, start: '체크인' }` is a pack with one word changed, which is the way to reach a word no component takes a prop for, such as the hint a `PlDateRangePicker` shows between its two dates.
 
 :::
 
@@ -136,7 +136,7 @@ A partial set works too, with or without a pack. Anything left out stays English
 PlTransfer(items: items, sourceLabel: '검토 대기', targetLabel: '이번 호')
 ```
 
-For a change that should reach a whole screen, or for a word no widget takes a parameter for — the hint a `PlDateRangePicker` shows between its two dates — `copyWith` gives the pack with that word replaced:
+For a change that should reach a whole screen, or for a word no widget takes a parameter for, the hint a `PlDateRangePicker` shows between its two dates, `copyWith` gives the pack with that word replaced:
 
 ```dart
 PlassTheme.merge(
@@ -168,7 +168,7 @@ const close = labels?.close ?? defaultLabels.close;
 
 ::: fw flutter
 
-A `PlassLabels` is a whole set — every field it does not name is English from the constructor — so a theme's labels replace the ones above rather than merging into them. `copyWith` is how a nested theme keeps what the outer one said.
+A `PlassLabels` is a whole set, every field it does not name is English from the constructor, so a theme's labels replace the ones above rather than merging into them. `copyWith` is how a nested theme keeps what the outer one said.
 
 Reading what is in scope:
 
@@ -186,7 +186,7 @@ The set is one flat list, and a key is named after what it means rather than aft
 
 ## Adding a language
 
-A pack is one file of the same shape, and the type is what keeps it honest — a missing key is a compile error rather than a word that quietly stays English.
+A pack is one file of the same shape, and the type is what keeps it honest. A missing key is a compile error rather than a word that quietly stays English.
 
 ::: fw react
 
@@ -211,7 +211,7 @@ Export it from `src/locales/index.ts` and the package test that compares every p
 const PlassLabels it = PlassLabels(close: 'Chiudi');
 ```
 
-Export it from `lib/locales.dart`. Leaving a field out compiles here, because the constructor defaults it to English — so translate the whole set, and the package test that counts a pack's words against English will say so if you did not.
+Export it from `lib/locales.dart`. Leaving a field out compiles here, because the constructor defaults it to English, so translate the whole set, and the package test that counts a pack's words against English will say so if you did not.
 
 :::
 
@@ -220,5 +220,5 @@ An application that does not want to wait can write the set itself and pass it t
 ## Notes
 
 - **Nothing here is a date.** Months, weekdays and number formats come from the platform on the React side and from `PlDateNames` on the Flutter one. A pack has no month in it.
-- **The reading direction is separate.** An Arabic or Hebrew interface turns over from the document, not from a pack — see [Right to left](../design/rtl).
+- **The reading direction is separate.** An Arabic or Hebrew interface turns over from the document, not from a pack. See [Right to left](../design/rtl).
 - **`PlTable` does not read the provider** on the React side, and it is the only component that does not. See the note in [Setting defaults](defaults).

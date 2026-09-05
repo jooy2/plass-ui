@@ -47,7 +47,7 @@ The text is the first positional argument, the way it is on Flutter's own `Text`
 
 :::
 
-There is no `variant`, no `elevation` and no `size`. `level` **is** the size — a `size` prop alongside it would let a caller ask for an `h1` at `xs`, which is a heading that is not a heading.
+There is no `variant`, no `elevation` and no `size`. `level` **is** the size. A `size` prop alongside it would let a caller ask for an `h1` at `xs`, which is a heading that is not a heading.
 
 What the shared axes (`color` `align`) mean across the library is in [prop conventions](../../design/prop-conventions).
 
@@ -55,9 +55,9 @@ What the shared axes (`color` `align`) mean across the library is in [prop conve
 
 ### level
 
-Body sits on the same ladder a `PlCard`'s body does at `md` — 13px on 22px — so a paragraph inside a card and a standalone one are the same text. The headings step up from there by roughly a major third, and the leading tightens as they grow: a 30px line does not want the same 1.7 ratio a 13px one does.
+Body sits on the same ladder a `PlCard`'s body does at `md`, 13px on 22px, so a paragraph inside a card and a standalone one are the same text. The headings step up from there by roughly a major third, and the leading tightens as they grow: a 30px line does not want the same 1.7 ratio a 13px one does.
 
-`caption` and `overline` are muted by default. Everything else takes the page's own foreground — a heading that arrived pre-greyed is a heading a designer has to undo.
+`caption` and `overline` are muted by default. Everything else takes the page's own foreground, a heading that arrived pre-greyed is a heading a designer has to undo.
 
 <Demo src="typography/levels" :min-height="420">
 
@@ -79,7 +79,7 @@ Body sits on the same ladder a `PlCard`'s body does at `md` — 13px on 22px —
 
 ### render
 
-`level` sets the scale _and_ the element, which is the common case. When they have to differ — a subheading that should not enter the document outline, a `<p>` that has to look like an `h3` — `render` breaks the tie.
+`level` sets the scale _and_ the element, which is the common case. When they have to differ (a subheading that should not enter the document outline, a `<p>` that has to look like an `h3`) `render` breaks the tie.
 
 <Demo src="typography/render" :min-height="200">
 
@@ -101,7 +101,7 @@ Resolved in JavaScript rather than stacked as a second class, so exactly one `fo
 
 ::: fw flutter
 
-A heading is `semibold`, and **not every font has one.** Flutter's engine carries a single face — Roboto Regular — and synthesises anything else by widening its strokes; Roboto's own family goes 400 → 500 → 700 with no 600 in it. An app on a font with no real SemiBold gets headings that are heavier and visibly softer than the ones here. Any of Inter, Pretendard, SF or Noto Sans has the weight.
+A heading is `semibold`, and **not every font has one.** Flutter's engine carries a single face, Roboto Regular, and synthesises anything else by widening its strokes; Roboto's own family goes 400 → 500 → 700 with no 600 in it. An app on a font with no real SemiBold gets headings that are heavier and visibly softer than the ones here. Any of Inter, Pretendard, SF or Noto Sans has the weight.
 
 :::
 
@@ -127,13 +127,13 @@ Clamps the text to this many lines with an ellipsis. Omit it and the text wraps 
 
 ::: fw react
 
-One line is `text-overflow: ellipsis`, which keeps the text on its own baseline. More than one needs the line-clamp box, which only ellipsises because WebKit says so.
+One line is `text-overflow: ellipsis`, which keeps the text on its own baseline. More than one needs the line-clamp box, which only ellipsises through WebKit's own property.
 
 :::
 
 ::: fw flutter
 
-One mechanism at every count: `maxLines` with `TextOverflow.ellipsis`. Which is also why `semanticsLabel` exists — the clipped characters are genuinely gone from the render tree here, so a line whose full text matters to a screen reader has to say it.
+One mechanism at every count: `maxLines` with `TextOverflow.ellipsis`. Which is also why `semanticsLabel` exists. The clipped characters are genuinely gone from the render tree here, so a line whose full text matters to a screen reader has to say it.
 
 :::
 
@@ -198,7 +198,7 @@ One mechanism at every count: `maxLines` with `TextOverflow.ellipsis`. Which is 
 | `render` | — | Flutter has no polymorphic element. `level` decides the scale and whether the line is announced as a heading, and the two cannot be separated. |
 | `h1`–`h6` as six outline levels | one heading flag | Flutter's accessibility tree has `header: true` and no depth to go with it. The scale still differs; what does not carry across is the outline's shape. |
 | `children` | the first positional argument | Flutter's name, and `Text`'s shape. `PlTypography.rich` is the span form. |
-| `overline` upper-cases in CSS | upper-cases the string | There is no `text-transform`, so the one case that can be handled is the one where the library owns the characters — which is why `PlTypography.rich` leaves a span's case alone. |
+| `overline` upper-cases in CSS | upper-cases the string | There is no `text-transform`, so the one case that can be handled is the one where the library owns the characters, which is why `PlTypography.rich` leaves a span's case alone. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::

@@ -5,7 +5,7 @@ order: 6
 
 # PlSparkline
 
-<p class="plass-lede">A chart with everything taken away except the shape. No axes, no grid, no legend, no tooltip — a word-sized picture that goes inside a sentence and says which way something has been going.</p>
+<p class="plass-lede">A chart with everything taken away except the shape. No axes, no grid, no legend, no tooltip, a word-sized picture that goes inside a sentence and says which way something has been going.</p>
 
 <Demo src="sparkline/hero" :min-height="200" />
 
@@ -29,7 +29,7 @@ PlSparkline(data: signups, endDot: true);
 
 :::
 
-It is not a small chart, it is a different thing. Every number it could label is one the surrounding text already has, which is why it labels none of them. Put it beside a [`PlStat`](../display/stat), in a table cell, or in a line of prose.
+A sparkline is a different thing from a chart shrunk down. Every number it could label is one the surrounding text already has, which is why it labels none of them. Put it beside a [`PlStat`](../display/stat), in a table cell, or in a line of prose.
 
 ## Props
 
@@ -99,7 +99,7 @@ The same three sentences the full charts say, at a size where nothing else is be
 
 </Demo>
 
-A target, a budget, last year's average — the one piece of context a strip this small can carry. It is pulled into the range if it sits outside the data, so the rule is always visible.
+A target, a budget, last year's average. The one piece of context a strip this small can carry. It is pulled into the range if it sits outside the data, so the rule is always visible.
 
 ### endDot
 
@@ -108,5 +108,5 @@ Puts a dot on the last point that is actually a point, not on the last slot. It 
 ## Accessibility
 
 - Without a `label` the strip is **taken off the accessibility tree entirely.** A sparkline is decoration beside text that already carries the numbers, and an unlabelled image announced as an image is noise.
-- With a `label` it becomes a named `role="img"`, and the values are written out beside it — clipped from view, never hidden from the tree. What a sparkline owes is the numbers, not a description of the shape they happen to make.
+- With a `label` it becomes a named `role="img"`, and the values are written out beside it, clipped from view, never hidden from the tree. What a sparkline has to give a screen reader is the numbers, not a description of the shape they make.
 - Colour is never the only channel here either: a sparkline sits beside the name and the number it belongs to.

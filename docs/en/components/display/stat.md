@@ -42,7 +42,7 @@ Every native `<div>` attribute passes straight through. What the shared axes mea
 
 ## improvesWhen
 
-The one thing a naive version of this gets wrong. **The colour of a movement is decided by whether it is good news, not by its sign** — churn going up is not good news, and a green arrow on it is a dashboard lying to somebody.
+The one thing a naive version of this gets wrong. **The colour of a movement is decided by whether it is good news, not by its sign**. Churn going up is not good news, and a green arrow on it is a dashboard lying to somebody.
 
 `up` is the default and is right most of the time. Set `improvesWhen="down"` on about a third of the figures a dashboard has: churn, a bounce rate, a p95 latency, a support backlog, a cost.
 
@@ -64,7 +64,7 @@ The one thing a naive version of this gets wrong. **The colour of a movement is 
 
 ## value takes a node
 
-Not a number, and deliberately. How a figure is written — the currency, the grouping, the decimals, the locale — is the page's decision, and `Intl.NumberFormat` already makes it. A component that took a number would have to guess at all four.
+Not a number, and deliberately. How a figure is written (the currency, the grouping, the decimals, the locale) is the page's decision, and `Intl.NumberFormat` already makes it. A component that took a number would have to guess at all four.
 
 ```tsx
 <PlStat
@@ -75,7 +75,7 @@ Not a number, and deliberately. How a figure is written — the currency, the gr
 
 ::: fw flutter
 
-The same, with `package:intl` doing the formatting — this package has no dependencies to do it with, which is the other half of the reason `value` is a widget.
+The same, with `package:intl` doing the formatting. This package has no dependencies to do it with, which is the other half of the reason `value` is a widget.
 
 ```dart
 PlStat(
@@ -102,7 +102,7 @@ For a figure that moved by a **count** rather than by a proportion.
 
 ### loading
 
-Draws a skeleton where the figure will be, and holds the change back with it — a movement beside a figure nobody has yet is a movement of nothing.
+Draws a skeleton where the figure will be, and holds the change back with it. A movement beside a figure nobody has yet is a movement of nothing.
 
 ```tsx
 <PlStat label="Revenue" loading={pending} value={total} change={delta} />
@@ -115,9 +115,9 @@ Draws a skeleton where the figure will be, and holds the change back with it —
 
 ## Accessibility
 
-- The arrow is `aria-hidden` and the sign is **in the text** — "+12.4%" reads correctly on its own, and a screen reader is not told about a triangle.
+- The arrow is `aria-hidden` and the sign is **in the text**. "+12.4%" reads correctly on its own, and a screen reader is not told about a triangle.
 - The colour is never the only thing carrying the direction, for the same reason: the sign and the arrow both say it.
-- It has no role and no heading. A row of figures is a set of `<div>`s to a screen reader unless the page says otherwise — put them in a list, or give the row a `<h2>`, depending on what the page is.
+- It has no role and no heading. A row of figures is a set of `<div>`s to a screen reader unless the page says otherwise. Put them in a list, or give the row a `<h2>`, depending on what the page is.
 
 ::: fw flutter
 

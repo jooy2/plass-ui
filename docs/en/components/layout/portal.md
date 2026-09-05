@@ -23,7 +23,7 @@ import { PlPortal } from 'plass-ui';
 
 ::: fw flutter
 
-This one is React-only, and it is not an omission. What it works around is a DOM problem — an ancestor with `overflow: hidden`, a `z-index` that cannot be escaped from inside a stacking context — and Flutter has neither. A widget that has to be painted above the rest of the screen goes into the `Overlay`, which every Flutter app already has:
+This one is React-only, and it is not an omission. What it works around is a DOM problem (an ancestor with `overflow: hidden`, a `z-index` that cannot be escaped from inside a stacking context), and Flutter has neither. A widget that has to be painted above the rest of the screen goes into the `Overlay`, which every Flutter app already has:
 
 ```dart
 Overlay.of(context).insert(
@@ -45,7 +45,7 @@ Reach for `createPortal` and three things are yours to remember. This component 
 
 ### The `plass-portal` class
 
-Every surface the library sends through a portal — a [modal](../feedback/modal), a [drawer](../feedback/drawer), a [menu](../navigation/menu), a [popover](../feedback/popover), a [tooltip](../feedback/tooltip), a [toast](../feedback/toast) — lands with that class on it. A portalled subtree leaves whatever element a host had scoped its CSS reset to, and the class is how that host finds it again. A caller's own portal without it is the one subtree on the page the reset misses.
+Every surface the library sends through a portal, a [modal](../feedback/modal), a [drawer](../feedback/drawer), a [menu](../navigation/menu), a [popover](../feedback/popover), a [tooltip](../feedback/tooltip), a [toast](../feedback/toast). Lands with that class on it. A portalled subtree leaves whatever element a host had scoped its CSS reset to, and the class is how that host finds it again. A caller's own portal without it is the one subtree on the page the reset misses.
 
 It is a hook and not a style: the library declares nothing for it.
 
@@ -53,11 +53,11 @@ It is a hook and not a style: the library declares nothing for it.
 
 There is no `document` on a server, so the HTML that ships never contains a portalled subtree, and neither does the render that hydrates it.
 
-That is not a limitation to work around — it is what a portal **is**. Anything that has to be in the server's HTML for a crawler, for a no-JavaScript reader, or for the first paint does not belong in one.
+That is not a limitation to work around. It is what a portal **is**. Anything that has to be in the server's HTML for a crawler, for a no-JavaScript reader, or for the first paint does not belong in one.
 
 ### `container` is resolved after mount
 
-Which is what lets it be a **ref**. The element a portal targets is usually one React has not created yet at the moment the prop is being written, so a ref is `null` and a `getElementById` finds nothing — reading the prop during render would get the wrong answer every time.
+Which is what lets it be a **ref**. The element a portal targets is usually one React has not created yet at the moment the prop is being written, so a ref is `null` and a `getElementById` finds nothing. Reading the prop during render would get the wrong answer every time.
 
 <Demo src="portal/container" :min-height="260" :flutter="false">
 
@@ -73,7 +73,7 @@ An element and a `DocumentFragment` are taken as they are, a function is called,
 
 ## Limits
 
-**The colour scheme.** The stylesheet answers to a `.dark` or a `[data-theme]` on any ancestor, and a portal to `document.body` has left every ancestor it had — so a subtree pinned to one theme goes back to the page's.
+**The colour scheme.** The stylesheet answers to a `.dark` or a `[data-theme]` on any ancestor, and a portal to `document.body` has left every ancestor it had, so a subtree pinned to one theme goes back to the page's.
 
 That is true of the library's own popups too, and the fix is the same for both: give `container` an element that is inside the theme.
 
@@ -118,9 +118,9 @@ The ordinary case, and the one worth naming: an ancestor with `overflow: hidden`
 ## Notes
 
 - The wrapper is a real element rather than a fragment, because it is what carries the class and what a caller positions the subtree with.
-- It does not trap focus, block the page, or close on <kbd>Escape</kbd>. Those belong to the thing being portalled — a [`PlModal`](../feedback/modal) has all three — and a portal that had opinions about them would be a dialog with a worse name.
+- It does not trap focus, block the page, or close on <kbd>Escape</kbd>. Those belong to the thing being portalled, a [`PlModal`](../feedback/modal) has all three, and a portal that had opinions about them would be a dialog with a worse name.
 
 ## Accessibility
 
-- **A portal moves the pixels and the reading order together.** A screen reader walks the document, so a subtree portalled to the end of `<body>` is read at the end of the page however near the trigger it is painted. For anything a reader is meant to meet next — a dialog, a menu, a message about what just happened — move the focus into it, or give the trigger an `aria-controls` and an `aria-expanded`.
+- **A portal moves the pixels and the reading order together.** A screen reader walks the document, so a subtree portalled to the end of `<body>` is read at the end of the page however near the trigger it is painted. For anything a reader is meant to meet next (a dialog, a menu, a message about what just happened) move the focus into it, or give the trigger an `aria-controls` and an `aria-expanded`.
 - The same goes for the <kbd>Tab</kbd> key: it follows the document, not the screen. A portalled panel painted beside its button is tabbed to after everything else on the page unless something moves the focus there.

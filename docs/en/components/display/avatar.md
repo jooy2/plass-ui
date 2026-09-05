@@ -47,7 +47,7 @@ Every native `<span>` attribute passes straight through. `color` is excluded fro
 
 :::
 
-There is no `density`: an avatar has no padding to tighten. It carries no status dot of its own either — an avatar with a green mark on it is a [`PlBadge`](./badge) with an avatar in it.
+There is no `density`: an avatar has no padding to tighten. It carries no status dot of its own either. An avatar with a green mark on it is a [`PlBadge`](./badge) with an avatar in it.
 
 What the shared axes (`variant` `size` `color` `elevation`) mean across the library is in [prop conventions](../../design/prop-conventions).
 
@@ -55,7 +55,7 @@ What the shared axes (`variant` `size` `color` `elevation`) mean across the libr
 
 ### The fallback
 
-Three things can be drawn and exactly one of them is at a time: the picture, if `src` is given and it loads; otherwise whatever stands in for it — `children`, or `initials`, or the initials derived from `name`; and failing all of those, a silhouette.
+Three things can be drawn and exactly one of them is at a time: the picture, if `src` is given and it loads; otherwise whatever stands in for it, `children`, or `initials`, or the initials derived from `name`; and failing all of those, a silhouette.
 
 ::: fw react
 
@@ -71,7 +71,7 @@ There is no `delay`. It exists in the React build so the initials do not flash u
 
 :::
 
-The derivation is the first character of the first word plus the first character of the last — "Jane Doe" is `JD`. A single-token name gives one character, because two characters of a Korean, Japanese or Chinese name at 40px is a smudge where one is a name.
+The derivation is the first character of the first word plus the first character of the last. "Jane Doe" is `JD`. A single-token name gives one character, because two characters of a Korean, Japanese or Chinese name at 40px is a smudge where one is a name.
 
 <Demo src="avatar/fallback" :min-height="180">
 
@@ -91,7 +91,7 @@ The derivation is the first character of the first word plus the first character
 
 ### variant
 
-An avatar **is** the thing being coloured — a portrait of one particular person — so its sheet takes the tint, as a `PlAlert`'s does and unlike a `PlCard`'s. The edge is the neutral hairline rather than the sheet's own white one: an avatar is very often laid on something opaque, where white light on a cut edge is a claim about a page wash that is not behind it.
+An avatar **is** the thing being coloured, a portrait of one particular person, so its sheet takes the tint, as a `PlAlert`'s does and unlike a `PlCard`'s. The edge is the neutral hairline rather than the sheet's own white one: an avatar is very often laid on something opaque, where white light on a cut edge is a claim about a page wash that is not behind it.
 
 `ghost` is the default rather than `solid`, which is the other way round from a `PlButton`. A directory is a page of avatars, and a page of saturated circles is a page nobody can read a name off.
 
@@ -113,7 +113,7 @@ An avatar **is** the thing being coloured — a portrait of one particular perso
 
 ### shape
 
-`circle` is the default, because that is what a portrait has been for as long as there have been portraits. `square` takes the library's own fillet instead, which is what a logo or a repository icon wants — those are drawn to the edges of a rectangle and a round crop eats them.
+`circle` is the default, because that is what a portrait has been for as long as there have been portraits. `square` takes the library's own fillet instead, which is what a logo or a repository icon wants. Those are drawn to the edges of a rectangle and a round crop eats them.
 
 <Demo src="avatar/shapes" :min-height="120">
 
@@ -171,7 +171,7 @@ The control heights, so an avatar and the button beside it in a toolbar sit on t
 
 ### A stack of them
 
-A stack of overlapping faces with a `+n` on the end is a [`PlStack`](../layout/stack) with avatars in it. It is a general pile rather than an avatar component, so it sets no axes on what it holds — put a `PlassProvider` around it for `size` and `color`, and write the rest on the avatars.
+A stack of overlapping faces with a `+n` on the end is a [`PlStack`](../layout/stack) with avatars in it. It is a general pile rather than an avatar component, so it sets no axes on what it holds. Put a `PlassProvider` around it for `size` and `color`, and write the rest on the avatars.
 
 ## Accessibility
 

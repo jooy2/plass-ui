@@ -46,7 +46,7 @@ Every native `<div>` attribute passes straight through.
 
 ::: fw flutter
 
-`maxWidth` takes a `PlassResponsive<PlContainerWidth?>`. `PlContainerWidth.rung(PlassSize.lg)` is a rung of the ladder and `PlContainerWidth.pixels(720)` is an exact width — two constructors rather than one nullable pair, because only one of them can be true at a time and Dart has no untagged union. `null` is "no limit", where React spells that `'none'`: a TypeScript union can carry an extra word, and Dart has `null` for exactly this.
+`maxWidth` takes a `PlassResponsive<PlContainerWidth?>`. `PlContainerWidth.rung(PlassSize.lg)` is a rung of the ladder and `PlContainerWidth.pixels(720)` is an exact width, two constructors rather than one nullable pair, because only one of them can be true at a time and Dart has no untagged union. `null` is "no limit", where React spells that `'none'`: a TypeScript union can carry an extra word, and Dart has `null` for exactly this.
 
 :::
 
@@ -56,7 +56,7 @@ There is no `variant`, no `color` and no `elevation`. The outermost element on a
 
 ### maxWidth
 
-The same ladder the breakpoints use — `xs` 30rem, `sm` 40rem, `md` 48rem, `lg` 64rem, `xl` 80rem — written in `rem` rather than taken from a framework's own container scale, so a container's `lg` and an `lg:` utility change at the same width. Two ladders called `lg` on one page is how a layout drifts by a few pixels for no reason anybody can find later.
+The same ladder the breakpoints use (`xs` 30rem, `sm` 40rem, `md` 48rem, `lg` 64rem, `xl` 80rem) written in `rem` rather than taken from a framework's own container scale, so a container's `lg` and an `lg:` utility change at the same width. Two ladders called `lg` on one page is how a layout drifts by a few pixels for no reason anybody can find later.
 
 <Fw react="'none'" flutter="null" code /> is the default. A container's job is the gutter; a measure is a second decision, and a page should have to ask for one.
 
@@ -64,7 +64,7 @@ The same ladder the breakpoints use — `xs` 30rem, `sm` 40rem, `md` 48rem, `lg`
 
 **It also takes any length**, and that is not a convenience: the five rungs are `rem`, and the measure a paragraph actually wants is in _characters_. `maxWidth="72ch"` is the one no ladder can spell. A number is pixels.
 
-**And it is responsive** — `maxWidth` takes `{ xs: 'none', md: 'lg' }`. It resolves in **CSS** rather than in JavaScript, which is what makes it free: the first paint a server sends is already right at every width, and a window being dragged costs no re-render. See [breakpoints](../../design/breakpoints).
+**And it is responsive**. `maxWidth` takes `{ xs: 'none', md: 'lg' }`. It resolves in **CSS** rather than in JavaScript, which is what makes it free: the first paint a server sends is already right at every width, and a window being dragged costs no re-render. See [breakpoints](../../design/breakpoints).
 
 :::
 
@@ -86,7 +86,7 @@ The same ladder the breakpoints use — `xs` 30rem, `sm` 40rem, `md` 48rem, `lg`
 
 ### padded, size and density
 
-The gutter is the **sheet** padding track, not the control one. What sits inside a container is a page, and the margin a page keeps from the edge of a window is the margin a card keeps around a paragraph — not the room a label needs beside the edge of the key it is printed on.
+The gutter is the **sheet** padding track, not the control one. What sits inside a container is a page, and the margin a page keeps from the edge of a window is the margin a card keeps around a paragraph, not the room a label needs beside the edge of the key it is printed on.
 
 `size` here is the size of the sheet: it never touches a height or a type scale, and it has nothing to do with `maxWidth`, which is how wide the content gets rather than how far it sits from the edge. Turning `padded` off gives the gutter up and keeps everything else, which is what a container nested inside one that already pads wants.
 
@@ -110,7 +110,7 @@ The gutter is measured **inside** the limit rather than outside it, so a `lg` co
 
 ### centered
 
-On by default, and inert until `maxWidth` is narrower than the page — with no measure there is nothing left over to centre in.
+On by default, and inert until `maxWidth` is narrower than the page, with no measure there is nothing left over to centre in.
 
 Turned off, the content sits against the **start** edge rather than the left one, so it moves to the right under RTL.
 
@@ -151,6 +151,6 @@ Turned off, the content sits against the **start** edge rather than the left one
 | `children` | `child` | Flutter's name. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
-The measure ladder is the same ladder, unit for unit: the React package writes it in `rem` against a 16px root, and a logical pixel is that same unit — so `sm` is `40rem` there and 640 here.
+The measure ladder is the same ladder, unit for unit: the React package writes it in `rem` against a 16px root, and a logical pixel is that same unit, so `sm` is `40rem` there and 640 here.
 
 :::

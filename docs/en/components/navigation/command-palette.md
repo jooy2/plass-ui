@@ -58,7 +58,7 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 ## Command palette or menu
 
 - It is **not a [`PlMenu`](./menu)**. A menu is a short list in one place, and every row is visible before you go looking for it.
-- It is **not a [`PlCombobox`](../inputs/combobox)** either. What comes back is not a value — it is something happening.
+- It is **not a [`PlCombobox`](../inputs/combobox)** either. What comes back is not a value. It is something happening.
 
 Reach for it when the answer to "where is that command?" has become "I do not remember".
 
@@ -66,11 +66,11 @@ Reach for it when the answer to "where is that command?" has become "I do not re
 
 ### Groups, descriptions and keywords
 
-Commands are drawn in the order they are given, and a heading appears each time `group` changes — so a group's commands have to be listed together. That is the whole layout rule, and it means the order on screen is the order in the array rather than something the component sorted behind your back.
+Commands are drawn in the order they are given, and a heading appears each time `group` changes, so a group's commands have to be listed together. That is the whole layout rule, and it means the order on screen is the order in the array rather than something the component sorted behind your back.
 
 `keywords` are matched and **never drawn**: the name somebody else's product gives the same command, an abbreviation, the word a reader would have searched for.
 
-The filter folds case and combining marks, so `cafe` finds `Café`. Each command's searchable text is folded **once per list** rather than once per comparison — a `normalize` on every command for every character typed is exactly the cost that makes a palette feel slow.
+The filter folds case and combining marks, so `cafe` finds `Café`. Each command's searchable text is folded **once per list** rather than once per comparison. A `normalize` on every command for every character typed is exactly the cost that makes a palette feel slow.
 
 <Demo src="command-palette/groups" :min-height="160">
 
@@ -98,7 +98,7 @@ The **palette's** `shortcut` is bound, on the window, and defaults to `Mod+K`. I
 
 ### size
 
-The sheet's width, the field's height and the rows' type scale. The field sits one step above the control ladder — `md` is 48px — because a palette's field is not a control in a row of controls: it is the top of a sheet, and it is the only thing on screen.
+The sheet's width, the field's height and the rows' type scale. The field sits one step above the control ladder, `md` is 48px, because a palette's field is not a control in a row of controls: it is the top of a sheet, and it is the only thing on screen.
 
 `density` moves the row height and nothing else.
 
@@ -120,7 +120,7 @@ The sheet's width, the field's height and the rows' type scale. The field sits o
 
 ### Controlled
 
-Pass `open` with `onOpenChange`. The palette still asks — the keystroke fires `onOpenChange(true)` — and does not open until the caller says so, which is what a route guard or a "not while the editor is busy" rule needs.
+Pass `open` with `onOpenChange`. The palette still asks, the keystroke fires `onOpenChange(true)`, and does not open until the caller says so, which is what a route guard or a "not while the editor is busy" rule needs.
 
 The query is dropped on the way **out** rather than on the way in, so the sheet never flashes the last search as it fades.
 
@@ -143,7 +143,7 @@ The query is dropped on the way **out** rather than on the way in, so the sheet 
 ## Accessibility
 
 - The sheet is a dialog with a focus trap, a scrim, <kbd>Esc</kbd> to close, and focus returned to wherever the reader was. It has no visible title, so `label` is its accessible name.
-- The field is a `combobox` and the list is its `listbox`, wired with `aria-activedescendant` by Base UI — so the arrow keys move a highlight without moving focus, and the field keeps every keystroke.
+- The field is a `combobox` and the list is its `listbox`, wired with `aria-activedescendant` by Base UI, so the arrow keys move a highlight without moving focus, and the field keeps every keystroke.
 - The highlight is **one** mark: the pointer and the arrow keys move the same thing, so a reader is never looking at two highlighted rows wondering which <kbd>Enter</kbd> would run.
 - A group heading is `role="presentation"`. It is a visual grouping of the same list, not a second list.
 - A `disabled` command stays in the list and cannot be run. An option that vanishes when it cannot be chosen is one the reader will keep looking for.

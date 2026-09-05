@@ -43,7 +43,7 @@ PlSelect<String>(
 );
 ```
 
-The list lifts itself out of the tree, so a select needs an `Overlay` above it — `WidgetsApp` with a navigator and `MaterialApp` both provide one.
+The list lifts itself out of the tree, so a select needs an `Overlay` above it, `WidgetsApp` with a navigator and `MaterialApp` both provide one.
 
 :::
 
@@ -55,13 +55,13 @@ The list lifts itself out of the tree, so a select needs an `Overlay` above it �
 
 Every native `<div>` attribute passes straight through to the field wrapper. `color` is excluded because it collides with the `color` in the table above, `defaultValue` because the select spells it as a value rather than a DOM attribute, and `children` because the options are `items`.
 
-A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control` — the trigger — `description` and `error`.
+A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control` (the trigger) `description` and `error`.
 
 :::
 
 ::: fw flutter
 
-The select is generic in its value's type — `PlSelect<String>`, `PlSelect<Currency>` — so `value` and `onChanged` are typed rather than restrained by convention, and it is **controlled**, like every other input in the package.
+The select is generic in its value's type (`PlSelect<String>`, `PlSelect<Currency>`), so `value` and `onChanged` are typed rather than restrained by convention, and it is **controlled**, like every other input in the package.
 
 That generic is the one place this parts company with the React build's advice. There a value is a `string` or a `number` on purpose, because it is what a form submits; here nothing is submitted, so the value can be the thing itself and the type checker can hold you to it.
 
@@ -77,7 +77,7 @@ What the shared axes (`variant` `size` `color` `density` `elevation`) mean acros
 
 ### variant
 
-The same three materials a `PlTextField` wears, on the same shell. `solid` is the **well** — the glass at its most opaque with an inset shadow falling into it — rather than a tinted pane, because a value read off a gradient is a value that has to be read off a gradient.
+The same three materials a `PlTextField` wears, on the same shell. `solid` is the **well** (the glass at its most opaque with an inset shadow falling into it) rather than a tinted pane, because a value read off a gradient is a value that has to be read off a gradient.
 
 <Demo src="select/variants" :min-height="140">
 
@@ -117,7 +117,7 @@ The same height ladder as every other control, which is the point of drawing the
 
 ### readOnly · disabled · error
 
-`error` also turns the select invalid, which re-points the whole colour family at `danger` — the edge, the ring and the message turn over together. `invalid` does the same without a message, for when an external form library owns the validity.
+`error` also turns the select invalid, which re-points the whole colour family at `danger`, the edge, the ring and the message turn over together. `invalid` does the same without a message, for when an external form library owns the validity.
 
 A `readOnly` select keeps its value and its focus but will not open. A `disabled` one leaves the tab order.
 
@@ -143,13 +143,13 @@ An option may be `disabled` on its own: it stays in the list, because an option 
 
 ::: fw react
 
-Pass `value` with `onValueChange`. The value is a `string` or a `number`, never an object — a select is a form control, and its value is what the form submits. Keep the identifier here and look the object up on the other side.
+Pass `value` with `onValueChange`. The value is a `string` or a `number`, never an object. A select is a form control, and its value is what the form submits. Keep the identifier here and look the object up on the other side.
 
 :::
 
 ::: fw flutter
 
-This is the only mode: `value` with `onChanged`. The value is a `T` — an enum, an id, the object itself — and `null` is a select with nothing chosen.
+This is the only mode: `value` with `onChanged`. The value is a `T` (an enum, an id, the object itself), and `null` is a select with nothing chosen.
 
 :::
 
@@ -220,7 +220,7 @@ Drawn at 1.2× the value beside it, so it tracks the text. There is no `endIcon`
 
 | React | Flutter | Why |
 | --- | --- | --- |
-| `items` | `options` | The word the rest of the package uses for a list of choices — a radio group's are `options` too. |
+| `items` | `options` | The word the rest of the package uses for a list of choices. A radio group's are `options` too. |
 | a value of `string \| number` | a generic `T` | Nothing is submitted here, so the value can be the thing itself and the type checker can hold you to it. |
 | `value` / `defaultValue` / `onValueChange` | `value` / `onChanged` | Flutter's own controls are controlled, and its name for the callback. |
 | typing jumps by prefix | — | Typeahead needs the text of every label, and a label here is a widget. Long lists want a field above them rather than a guess. |

@@ -46,7 +46,7 @@ PlModal(
 );
 ```
 
-A modal lifts itself out of the tree, so it needs an `Overlay` above it — `WidgetsApp` with a navigator and `MaterialApp` both provide one. Where it is _written_ does not matter, and it takes up no room there.
+A modal lifts itself out of the tree, so it needs an `Overlay` above it, `WidgetsApp` with a navigator and `MaterialApp` both provide one. Where it is _written_ does not matter, and it takes up no room there.
 
 :::
 
@@ -64,19 +64,19 @@ A `className` therefore lands on the sheet. The scrim behind it is a second elem
 
 ::: fw flutter
 
-**Controlled**, like every other stateful thing in the package: the × and a press outside both call `onOpenChanged` rather than closing the modal themselves. There is no `trigger` and no `PlModalClose` — with the open state already in the caller's hands, a button that closes the modal is a button that sets it to `false`.
+**Controlled**, like every other stateful thing in the package: the × and a press outside both call `onOpenChanged` rather than closing the modal themselves. There is no `trigger` and no `PlModalClose`, with the open state already in the caller's hands, a button that closes the modal is a button that sets it to `false`.
 
 `actions` is a `List<Widget>` rather than one widget, so a pair of buttons needs no row of its own.
 
 :::
 
-There is no `variant`: the three materials answer "how much does this surface assert itself against the page around it", and a modal has already taken the page. There is no `elevation` either — a modal that could be told to sit flat on the page would be one that could be told to stop being a modal, so its shadow is fixed at the top of the ladder.
+There is no `variant`: the three materials answer "how much does this surface assert itself against the page around it", and a modal has already taken the page. There is no `elevation` either, a modal that could be told to sit flat on the page would be one that could be told to stop being a modal, so its shadow is fixed at the top of the ladder.
 
 ::: fw react
 
 ### PlModalClose
 
-`PlModalClose` closes the modal it is inside. It exists because an uncontrolled modal has no `setOpen` for its Cancel button to call, and the alternative — making every modal controlled — is a piece of state per modal that exists only to answer a button.
+`PlModalClose` closes the modal it is inside. It exists because an uncontrolled modal has no `setOpen` for its Cancel button to call, and the alternative (making every modal controlled) is a piece of state per modal that exists only to answer a button.
 
 ```tsx
 <PlModalClose render={<PlButton variant="ghost">Cancel</PlButton>} />
@@ -90,7 +90,7 @@ What the shared axes (`size` `color` `density`) mean across the library is in [p
 
 ### size
 
-The width and the type scale move together, and their steps are further apart than the control ladder's because they answer a different question: not how big is this thing, but how long a line of text is comfortable inside it. `width` is the escape hatch for the modal whose content decides — a wide table, a narrow confirmation.
+The width and the type scale move together, and their steps are further apart than the control ladder's because they answer a different question: not how big is this thing, but how long a line of text is comfortable inside it. `width` is the escape hatch for the modal whose content decides, a wide table, a narrow confirmation.
 
 <Demo src="modal/sizes" :min-height="120">
 
@@ -150,7 +150,7 @@ Off by default. Turn it on the moment the body scrolls: the hairlines are what s
 
 ### dismissible
 
-Off, <kbd>Esc</kbd> and a click outside both stop closing the modal. Pair it with `showClose={false}` only when the actions genuinely answer it — otherwise there is no way out at all.
+Off, <kbd>Esc</kbd> and a click outside both stop closing the modal. Pair it with `showClose={false}` only when the actions genuinely answer it. Otherwise there is no way out at all.
 
 <Demo src="modal/dismissible" :min-height="120">
 
@@ -173,22 +173,22 @@ Off, <kbd>Esc</kbd> and a click outside both stop closing the modal. Pair it wit
 ::: fw react
 
 - Base UI owns everything hard about it: the focus trap, the scroll lock, restoring focus to the trigger when it closes, and marking the page behind inert.
-- `title` becomes the `<h2>` that names the dialog and `description` its accessible description — both wired by Base UI, so no `aria-labelledby` is needed.
+- `title` becomes the `<h2>` that names the dialog and `description` its accessible description. Both wired by Base UI, so no `aria-labelledby` is needed.
 - <kbd>Esc</kbd> closes it unless `dismissible` is off; `modal="trap-focus"` keeps the page behind scrollable while still holding focus inside.
 - The × is on by default, unlike most booleans in the library. A modal takes the page away until it is answered, and the visible way out should not have to be remembered.
 - The sheet caps its own height and scrolls its body rather than growing past the viewport, so a tall modal never has its top pushed off the top of the screen where nothing can reach it.
-- Opening and closing animate opacity only. A modal that scaled or slid in would drag its own text across the screen — and unlike a control, this one is full of text.
+- Opening and closing animate opacity only. A modal that scaled or slid in would drag its own text across the screen, and unlike a control, this one is full of text.
 
 :::
 
 ::: fw flutter
 
-- Focus goes in and stays in: the sheet is its own focus scope, and traversal is bounded by the nearest scope, so <kbd>Tab</kbd> cannot land on the page under it. When the modal closes, focus goes back to whatever had it — the button that opened it.
+- Focus goes in and stays in: the sheet is its own focus scope, and traversal is bounded by the nearest scope, so <kbd>Tab</kbd> cannot land on the page under it. When the modal closes, focus goes back to whatever had it, the button that opened it.
 - The layer names a route, which is how a screen reader knows the screen changed, and `title` is announced as a heading rather than read as the first line of the body.
 - <kbd>Escape</kbd> closes it unless `dismissible` is off; `modal: false` keeps the page behind clickable while still holding focus inside.
 - The × is on by default, unlike most of the switches in the library. A modal takes the page away until it is answered, and the visible way out should not have to be remembered.
-- Only the body scrolls, and it is the only section allowed to give way when the sheet runs out of screen — a header that scrolled away would take the modal's name with it.
-- Opening and closing animate opacity only. A modal that scaled or slid in would drag its own text across the screen — and unlike a control, this one is full of text. With animations turned off at the OS it appears at once.
+- Only the body scrolls, and it is the only section allowed to give way when the sheet runs out of screen, a header that scrolled away would take the modal's name with it.
+- Opening and closing animate opacity only. A modal that scaled or slid in would drag its own text across the screen, and unlike a control, this one is full of text. With animations turned off at the OS it appears at once.
 
 :::
 
@@ -202,7 +202,7 @@ Off, <kbd>Esc</kbd> and a click outside both stop closing the modal. Pair it wit
 | `trigger` | — | With the open state already in the caller's hands, the thing that opens a modal is an ordinary button that sets it to `true`. |
 | `PlModalClose` | — | It exists in React to give an _uncontrolled_ modal a way to close. There is no uncontrolled modal here. |
 | `actions`, one node | `actions`, a `List<Widget>` | Dart has no fragment, and a list is the thing a fragment was standing in for. |
-| `modal={true \| 'trap-focus'}` | `modal: bool` | The two values were "does the pointer get through" — a boolean says that in Flutter's words. |
+| `modal={true \| 'trap-focus'}` | `modal: bool` | The two values were "does the pointer get through". A boolean says that in Flutter's words. |
 | `fullScreen` | `fullScreen` | Same, except that "the viewport" is the `Overlay` the sheet is lifted into. |
 | `width: number \| string` | `width: double` | Logical pixels. There is no CSS length to accept. |
 | `title` as an `<h2>`, `aria-describedby` | a heading, and a named route | Flutter names the state on the node itself; there is no id to point at. |

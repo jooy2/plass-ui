@@ -51,7 +51,7 @@ PlToastProvider.of(context).show(
 
 <PropsTable name="PlToastProvider" />
 
-Everything about how a toast _looks_ is decided on the provider — where the stack sits, how wide it is, which material it wears, how long it lasts — so the call site stays the one thing it should be: what happened.
+Everything about how a toast _looks_ is decided on the provider (where the stack sits, how wide it is, which material it wears, how long it lasts), so the call site stays the one thing it should be: what happened.
 
 There is no `elevation`. A toast floats over the page, so its shadow is always at the top of the ladder, the same as the `PlSelect` list, the `PlModal` sheet and the `PlTooltip` plate.
 
@@ -61,7 +61,7 @@ There is no `elevation`. A toast floats over the page, so its shadow is always a
 
 <PropsTable name="usePlToast" />
 
-A hook rather than a component, because the thing a caller has at the moment a toast is warranted is a click handler, not a place in the tree — and a `<PlToast open={…} />` they would have to keep mounted, with a piece of state per message, is the shape this component exists to avoid.
+A hook rather than a component, because the thing a caller has at the moment a toast is warranted is a click handler, not a place in the tree, and a `<PlToast open={…} />` they would have to keep mounted, with a piece of state per message, is the shape this component exists to avoid.
 
 ### PlToastOptions
 
@@ -75,7 +75,7 @@ A hook rather than a component, because the thing a caller has at the moment a t
 
 <PropsTable name="PlToastController" />
 
-`PlToastProvider.of(context)` hands one back. A controller rather than a widget, because the thing a caller has at the moment a toast is warranted is a callback, not a place in the tree — and a `PlToast(open: …)` they would have to keep mounted, with a piece of state per message, is the shape this exists to avoid.
+`PlToastProvider.of(context)` hands one back. A controller rather than a widget, because the thing a caller has at the moment a toast is warranted is a callback, not a place in the tree, and a `PlToast(open: …)` they would have to keep mounted, with a piece of state per message, is the shape this exists to avoid.
 
 ### PlToast
 
@@ -113,7 +113,7 @@ One word rather than a `side` plus an `align` pair, because the two are not inde
 
 Both are provider defaults that a single toast overrides, so a page can have one house style and still make the one error look like an error.
 
-Each family draws its own shape as well as its own colour — a toast that says "this went wrong" only in red says it only to some readers.
+Each family draws its own shape as well as its own colour, a toast that says "this went wrong" only in red says it only to some readers.
 
 <Demo src="toast/variants" :min-height="120">
 
@@ -173,7 +173,7 @@ Reusing an id updates that toast in place and restarts its timer, which is what 
 
 ### <Fw react="promise" flutter="showFuture" />
 
-One toast that follows a <Fw react="promise" flutter="future" />: the loading message while it runs, then the success or the failure. The loading state is held open whatever it asked for, so a slow request cannot dismiss its own toast — and the same toast becomes the answer, so a reader who watched it start sees it finish rather than seeing a second one appear beside it.
+One toast that follows a <Fw react="promise" flutter="future" />: the loading message while it runs, then the success or the failure. The loading state is held open whatever it asked for, so a slow request cannot dismiss its own toast, and the same toast becomes the answer, so a reader who watched it start sees it finish rather than seeing a second one appear beside it.
 
 <Demo src="toast/promise" :min-height="120">
 
@@ -196,7 +196,7 @@ One toast that follows a <Fw react="promise" flutter="future" />: the loading me
 ::: fw react
 
 - Base UI owns the parts that are genuinely hard and invisible when they work: the timers and their pausing on hover and on window blur, the limit, the swipe, the F6 focus hotkey, and the live region that makes a message which appeared out of nowhere reach a screen reader at all.
-- `priority` picks the live region. `high` interrupts whatever is being read and `low` waits for a pause — an error is worth interrupting for and a save confirmation is not.
+- `priority` picks the live region. `high` interrupts whatever is being read and `low` waits for a pause. An error is worth interrupting for and a save confirmation is not.
 - The × is deliberately not in the page's tab order and is hidden from the accessibility tree. A screen reader reaches a toast with **F6** and is given the close action there, rather than finding a stray button from a message that may already be gone.
 - A toast pushed out by `limit` stays in the DOM so it can come back, and says nothing while it waits.
 - The stack is `pointer-events-none` across its full width, so the strip along the top or the bottom of the page is not a wall the rest of the app is behind. The toasts themselves take their events back.
@@ -205,7 +205,7 @@ One toast that follows a <Fw react="promise" flutter="future" />: the loading me
 
 ::: fw flutter
 
-- `priority` decides whether a toast is a live region. `high` is announced the moment it arrives and `low` waits until the reader reaches it — an error is worth interrupting for and a save confirmation is not. Flutter has one live-region flag rather than two politeness levels, so what the React build says with two `role`s this says with one switch.
+- `priority` decides whether a toast is a live region. `high` is announced the moment it arrives and `low` waits until the reader reaches it. An error is worth interrupting for and a save confirmation is not. Flutter has one live-region flag rather than two politeness levels, so what the React build says with two `role`s this says with one switch.
 - The pointer resting on the stack stops the clock, because a pointer resting on a toast is a reader reading it. It starts over when the pointer leaves, rather than resuming where it left off.
 - A toast waiting behind `limit` has no clock at all: it is not being read, so its life has not started. It gets one when it reaches the screen.
 - Nothing here is told to ignore the pointer, and nothing has to be: the strip is an `Align`, which hit-tests its child and not the room around it, so the page under the empty part of the strip is reached normally.
@@ -225,7 +225,7 @@ One toast that follows a <Fw react="promise" flutter="future" />: the loading me
 | `timeout` in milliseconds | `Duration` | Dart's own type for a length of time. `Duration.zero` still means "until it is closed". |
 | `icon: false` | `showIcon: false` | Dart has no value that is neither `null` nor a widget, so "take it away" gets its own name. |
 | `priority: 'high' \| 'low'` | a live region, or not | Flutter has one live-region flag rather than two politeness levels. |
-| a portal, and `pointer-events-none` | a layer inside the provider | The provider is already above everything it has to cover, so there is nothing to portal into — and an `Align` lets the pointer past without being told to. |
+| a portal, and `pointer-events-none` | a layer inside the provider | The provider is already above everything it has to cover, so there is nothing to portal into, and an `Align` lets the pointer past without being told to. |
 | swipe to dismiss, the F6 hotkey | — | Neither has a Flutter equivalent that is not a second gesture competing with the app's own. The × is always there. |
 | timers pause and resume on hover | the clock starts over when the pointer leaves | A toast the reader has just finished reading deserves its full life back rather than the two seconds it had left. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |

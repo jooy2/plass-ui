@@ -51,7 +51,7 @@ if (await PlConfirmProvider.of(context).confirm(
 
 <PropsTable name="PlConfirmProvider" />
 
-The provider's props are defaults for every question asked under it. A single call can override any of them — see `PlConfirmOptions` below.
+The provider's props are defaults for every question asked under it. A single call can override any of them, see `PlConfirmOptions` below.
 
 ### PlConfirmOptions
 
@@ -59,7 +59,7 @@ The provider's props are defaults for every question asked under it. A single ca
 
 ::: fw flutter
 
-`PlConfirmProvider.of(context)` rather than a hook — the same lookup `PlToastProvider` offers, and the framework's own shape for this. It **asserts** outside a provider rather than returning `null`, for the reason the React build throws.
+`PlConfirmProvider.of(context)` rather than a hook, the same lookup `PlToastProvider` offers, and the framework's own shape for this. It **asserts** outside a provider rather than returning `null`, for the reason the React build throws.
 
 `initialFocus` takes a `PlConfirmFocus` rather than a string. There is no `dismissible: false` equivalent to worry about: a press outside and the × both report through the same path.
 
@@ -67,7 +67,7 @@ The provider's props are defaults for every question asked under it. A single ca
 
 ## The hook form
 
-The thing a caller has at the moment a question is warranted is a **click handler**, not a place in the tree. Without this, the same delete button needs a piece of state, a `<PlModal>` kept mounted beside it, and the work after the answer torn in half across a callback — three edits to add a confirmation to one button, repeated at every button that needs one.
+The thing a caller has at the moment a question is warranted is a **click handler**, not a place in the tree. Without this, the same delete button needs a piece of state, a `<PlModal>` kept mounted beside it, and the work after the answer torn in half across a callback, three edits to add a confirmation to one button, repeated at every button that needs one.
 
 It is [`PlToastProvider`](./toast)'s arrangement for the same reason and with the same trade: one component near the root, and a hook everywhere else.
 
@@ -97,7 +97,7 @@ One button and no answer. It resolves when the message has been acknowledged, wh
 
 **Cancel holds the focus by default**, and that is the decision worth stating: a confirm dialog exists to make somebody stop, and an Enter key that lands on the destructive action defeats the whole thing.
 
-Move it for a question whose yes is the harmless answer — "Save before closing?" — where making somebody reach for the mouse to agree is its own kind of rude.
+Move it for a question whose yes is the harmless answer, "Save before closing?", where making somebody reach for the mouse to agree is its own kind of rude.
 
 <Demo src="confirm/focus" :min-height="160">
 
@@ -134,17 +134,17 @@ await confirm({
 });
 ```
 
-`dismissible` is on by default, because Escape is the universal "no" and a question that cannot be escaped is a trap. Turn it off for the one that genuinely has to be answered — and mean it.
+`dismissible` is on by default, because Escape is the universal "no" and a question that cannot be escaped is a trap. Turn it off for the one that genuinely has to be answered, and mean it.
 
 ## Notes
 
 - **Questions asked while one is open are queued**, in the order they were asked, and the dialog's content changes rather than the sheet closing and reopening. The alternative is a promise nobody ever resolves, which is a hung button rather than a visible bug.
 - A provider that unmounts with questions outstanding **resolves them all with `false`**. A promise that is never settled is a handler that never runs its `finally`, so a route change would otherwise leave a button spinning for the rest of the session.
-- `usePlConfirm` **throws** outside a provider rather than resolving `false`. A silent `false` is a delete button that quietly does nothing, which is worse than a missing provider that says so on the first press.
+- `usePlConfirm` **throws** outside a provider rather than resolving `false`. A silent `false` is a delete button that quietly does nothing, which is worse than a missing provider, since that fails on the first press.
 - Escape and a click outside answer **no**, never yes.
 
 ## Accessibility
 
 - It is a real modal dialog: the focus is trapped inside it, the page behind is inert, and the focus returns to whatever opened it.
 - `title` is the `<h2>` that names the dialog and `description` is its accessible description, so a screen reader reads the question and the consequence before either button.
-- The two buttons are named by their labels. Name them for what they **do** — "Delete", "Discard", "Save" — rather than "Yes" and "No", which are unreadable out of context and are exactly what a screen reader reads out of context.
+- The two buttons are named by their labels. Name them for what they **do** ("Delete", "Discard", "Save") rather than "Yes" and "No", which are unreadable out of context and are exactly what a screen reader reads out of context.

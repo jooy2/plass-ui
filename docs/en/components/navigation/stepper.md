@@ -55,7 +55,7 @@ Every native `<div>` attribute passes through to the stepper, and every `<li>` a
 
 ::: fw flutter
 
-The steps are a **list** rather than children, for the reason `PlTimeline`'s are: the stepper has to _reason_ about them — which one is complete is arithmetic on an index, and which one can be reached is arithmetic on the same index — and neither question can be asked of an opaque `Widget`. That also settles the sharp edge the React build has to warn about: there is no way to hand it a wrapper that holds three steps.
+The steps are a **list** rather than children, for the reason `PlTimeline`'s are: the stepper has to _reason_ about them (which one is complete is arithmetic on an index, and which one can be reached is arithmetic on the same index), and neither question can be asked of an opaque `Widget`. That also settles the sharp edge the React build has to warn about: there is no way to hand it a wrapper that holds three steps.
 
 `optional` takes a `Widget` rather than a `bool`, because there is no default string to fall back to: the package ships no translations, and a word it invented would be in one language.
 
@@ -63,7 +63,7 @@ The steps are a **list** rather than children, for the reason `PlTimeline`'s are
 
 ## Stepper or timeline
 
-They draw the **same rail** — the same three bullet states, the same connector — and share it in the source, because a haloed bullet must not mean two things. The difference is what each one is _for_:
+They draw the **same rail** (the same three bullet states, the same connector), and share it in the source, because a haloed bullet must not mean two things. The difference is what each one is _for_:
 
 |  |  |
 | --- | --- |
@@ -76,13 +76,13 @@ If nothing on it should be clickable, it is a timeline.
 
 ### active
 
-An **index**, not a value, exactly as a timeline's is — a stepper has no selection. Everything before it is complete, the step at it is current, everything after it is ahead.
+An **index**, not a value, exactly as a timeline's is. A stepper has no selection. Everything before it is complete, the step at it is current, everything after it is ahead.
 
 Uncontrolled with `defaultActive`, or controlled with `active` and `onActiveChange`, which is what a form wizard wants: the Next button is the caller's, and so is the validation that decides whether it moves.
 
 ### linear
 
-On by default, and it is what makes this a process rather than a row of tabs: the third step of a sign-up cannot be filled in before the second. A step **behind** the reader is always reachable — going back to correct an answer is the whole reason a stepper is not a wizard with one door.
+On by default, and it is what makes this a process rather than a row of tabs: the third step of a sign-up cannot be filled in before the second. A step **behind** the reader is always reachable. Going back to correct an answer is the whole reason a stepper is not a wizard with one door.
 
 Turn it off for a review screen, where every step has been answered and the reader is going back to check one.
 
@@ -116,7 +116,7 @@ Horizontal puts the panel under the whole rail. **Vertical puts each step's pane
 
 ### status and color
 
-`active` decides all three states, and `status` overrides one of them. That is for the step that failed validation while the reader was three steps further on — it is `current` again without the stepper moving, and `color="danger"` says why.
+`active` decides all three states, and `status` overrides one of them. That is for the step that failed validation while the reader was three steps further on. It is `current` again without the stepper moving, and `color="danger"` says why.
 
 <Demo src="stepper/status" :min-height="160">
 
@@ -136,7 +136,7 @@ Horizontal puts the panel under the whole rail. **Vertical puts each step's pane
 
 ### optional
 
-`true` draws the word "Optional". A node draws that node instead, which is how the word is translated — there is no `optionalLabel` prop, because one prop that takes both is one prop.
+`true` draws the word "Optional". A node draws that node instead, which is how the word is translated. There is no `optionalLabel` prop, because one prop that takes both is one prop.
 
 ```tsx
 <PlStep label="Profile" optional="건너뛸 수 있음" />
@@ -146,7 +146,7 @@ Horizontal puts the panel under the whole rail. **Vertical puts each step's pane
 
 ::: fw react
 
-> **The steps have to be the stepper's own children.** It numbers them by walking them, so a component of your own that returns three steps is _one_ child holding three, and every step in it would be step one. Build the list with `.map()` or an array — both are flattened — rather than with a wrapper component.
+> **The steps have to be the stepper's own children.** It numbers them by walking them, so a component of your own that returns three steps is _one_ child holding three, and every step in it would be step one. Build the list with `.map()` or an array (both are flattened) rather than with a wrapper component.
 
 - A conditional step that rendered nothing does not shift the numbering of the ones after it.
 - A step outside a stepper still renders. It is one step with nothing before or after it.
@@ -155,7 +155,7 @@ Horizontal puts the panel under the whole rail. **Vertical puts each step's pane
 
 ::: fw flutter
 
-The steps are a list, so there is no wrapper to get wrong — see the note above the props table.
+The steps are a list, so there is no wrapper to get wrong. See the note above the props table.
 
 :::
 
@@ -163,11 +163,11 @@ The steps are a list, so there is no wrapper to get wrong — see the note above
 
 - A real `<ol>` of `<li>`s, and the current step carries `aria-current="step"`.
 - It is deliberately **not** a `role="tablist"`. A tab list owes a keyboard reader one tab stop and arrow keys, and a screen reader a panel per tab; a stepper is a sequence of separate controls, and claiming the role without the behaviour is worse than never claiming it. Each reachable step is its own tab stop, which is what a stepper's steps are.
-- A step that cannot be reached is not a button at all, rather than a disabled one — there is nothing there to press yet.
+- A step that cannot be reached is not a button at all, rather than a disabled one. There is nothing there to press yet.
 - The panel is named by the step it belongs to, so a screen reader landing in it is told which step it is the panel for.
 
 ::: fw flutter
 
-The current step is marked `selected`, which is the nearest thing the framework has to `aria-current="step"`. A step that cannot be reached is not a button — it is a plain box, rather than a disabled one.
+The current step is marked `selected`, which is the nearest thing the framework has to `aria-current="step"`. A step that cannot be reached is not a button. It is a plain box, rather than a disabled one.
 
 :::

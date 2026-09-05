@@ -5,7 +5,7 @@ order: 3
 
 # PlBarChart
 
-<p class="plass-lede">Lengths, compared. A bar says <em>how much</em>, and it says it by being longer — which is the whole reason its axis starts at zero and cannot be talked out of it.</p>
+<p class="plass-lede">Lengths, compared. A bar encodes <em>how much</em> as length, which is why its axis always starts at zero.</p>
 
 <Demo src="bar-chart/hero" :min-height="320" />
 
@@ -35,7 +35,7 @@ Crop the scale and a bar twice as long stops meaning twice as much, and the read
 
 <PropsTable name="PlBarChart" />
 
-The data is the same [`PlassChartSeries`](./line-chart#plasschartseries) every chart takes. A `null` is a gap here too, and a bar is simply **not drawn** for one — which is the distinction that matters most on this chart, because a zero-length bar and a missing bar are the same picture and only one of them is honest.
+The data is the same [`PlassChartSeries`](./line-chart#plasschartseries) every chart takes. A `null` is a gap here too, and a bar is simply **not drawn** for one, which is the distinction that matters most on this chart, because a zero-length bar and a missing bar are the same picture and only one of them is honest.
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
@@ -61,7 +61,7 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 </Demo>
 
-Everything swaps with it — which band each axis reserves, which way the grid runs, which way the crosshair goes and which end of a bar is rounded.
+Everything swaps with it, which band each axis reserves, which way the grid runs, which way the crosshair goes and which end of a bar is rounded.
 
 ### stacked
 
@@ -83,7 +83,7 @@ Grouped bars answer "which series is bigger here". Stacked bars answer "what is 
 
 </Demo>
 
-`'full'` makes every bar the same length, so the chart is about **share** rather than size, exactly as it does on an [area chart](./area-chart) — and for the same reason it renormalises the data rather than the drawing.
+`'full'` makes every bar the same length, so the chart is about **share** rather than size, exactly as it does on an [area chart](./area-chart), and for the same reason it renormalises the data rather than the drawing.
 
 The gap between two stacked segments is taken off the far end of each, so the stack still totals the right length and the seam is the **sheet showing through** rather than a line drawn on it. A border around a bar is ink that is not data.
 
@@ -107,7 +107,7 @@ The two arms are accumulated separately, so a series that dips does not shorten 
 
 </Demo>
 
-**The baseline is redrawn over the bars.** Every bar starts there and the line is what says so; under them it would be half-hidden by the first pixel of each one.
+**The baseline is redrawn over the bars.** Every bar starts there, and under them the line would be half-hidden by the first pixel of each one.
 
 ### rounded
 
@@ -119,4 +119,4 @@ The corners come off the **data** end of each bar only. The baseline end stays s
 
 ## Accessibility
 
-Everything [`PlLineChart`](./line-chart#accessibility) says applies here: the name and the per-series summary, the legend as real controls, and — on React — the hidden table that carries every number.
+Everything [`PlLineChart`](./line-chart#accessibility) says applies here: the name and the per-series summary, the legend as real controls, and (on React) the hidden table that carries every number.

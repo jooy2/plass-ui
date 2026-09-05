@@ -59,7 +59,7 @@ Every native `<div>` attribute passes straight through, onto the row. `color` an
 
 ::: fw flutter
 
-The row runs the other way for the reader's own message by **reversing the direction**, not the list, so a thread in Arabic is mirrored without being told twice — and the column inside is set back the right way up, or everything in it would be mirrored along with the row.
+The row runs the other way for the reader's own message by **reversing the direction**, not the list, so a thread in Arabic is mirrored without being told twice, and the column inside is set back the right way up, or everything in it would be mirrored along with the row.
 
 :::
 
@@ -75,7 +75,7 @@ What the shared axes (`side` `variant` `size` `color` `density` `elevation`) mea
 
 `start` and `end` rather than `them`/`me` or `left`/`right`: a thread runs the way the language does, and the same two words already mean this everywhere else in the library.
 
-The corner nearest the speaker is cut short. That is the library's one piece of chat vocabulary, and it does the job a drawn tail does elsewhere — without hanging a triangle off a sheet of glass that is supposed to have been cut with a straight edge. It is a flat 4px at every size, because the radius ladder only runs 8px to 16px and a four-pixel difference is not something anyone reads as meaning something.
+The corner nearest the speaker is cut short. That is the library's one piece of chat vocabulary, and it does the job a drawn tail does elsewhere, without hanging a triangle off a sheet of glass that is supposed to have been cut with a straight edge. It is a flat 4px at every size, because the radius ladder only runs 8px to 16px and a four-pixel difference is not something anyone reads as meaning something.
 
 <Demo src="chat-bubble/sides" :min-height="180">
 
@@ -95,7 +95,7 @@ The corner nearest the speaker is cut short. That is the library's one piece of 
 
 ### variant
 
-A bubble **is** the thing being coloured — unlike a `PlCard`, which holds other people's content and so keeps its sheet undyed — so `solid` floods it and the text switches to the family's own ink. That is what makes a column of your own messages read as yours at a glance rather than one line at a time.
+A bubble **is** the thing being coloured, unlike a `PlCard`, which holds other people's content and so keeps its sheet undyed, so `solid` floods it and the text switches to the family's own ink. That is what makes a column of your own messages read as yours at a glance rather than one line at a time.
 
 It is deliberately not tied to `side`. Filling the right-hand column is a convention, not a law, and a thread that fills neither is a perfectly good thread.
 
@@ -119,7 +119,7 @@ It is deliberately not tied to `side`. Filling the right-hand column is a conven
 
 Only two of the five carry a colour: the one that arrived and the one that did not. The three in between are the ordinary course of events, and a thread where every message is marked in colour is a thread where the colour has stopped meaning anything.
 
-`failed` is not a fifth step on the ladder — it is the message that did not go, which is why it is the only one drawn in another family.
+`failed` is not a fifth step on the ladder. It is the message that did not go, which is why it is the only one drawn in another family.
 
 <Demo src="chat-bubble/status" :min-height="320">
 
@@ -145,13 +145,13 @@ What <Fw react="children" flutter="child" code /> holds is left alone, so the sa
 
 ### media and preview
 
-`media` is drawn edge to edge above the text, so the bubble's own corners crop it — which is why a bubble's padding lives on its sections rather than on the sheet.
+`media` is drawn edge to edge above the text, so the bubble's own corners crop it, which is why a bubble's padding lives on its sections rather than on the sheet.
 
 The link card's surface is mixed out of <Fw react="`currentColor`" flutter="the bubble's own ink" /> rather than out of a token, because it is the one part of a bubble that has to work on both a filled surface and a bare one: on `solid` the text is white and the card is a white wash, on `glass` the text is the page's ink and the card is a grey one. A fixed token would be invisible against one of the two.
 
 ::: fw flutter
 
-`preview` takes an `onPressed` rather than a `url`, and an `ImageProvider` rather than a `src`. Flutter has no navigation of its own, so where a link goes is the app's — the same trade a [`PlTextLink`](../display/text-link) makes.
+`preview` takes an `onPressed` rather than a `url`, and an `ImageProvider` rather than a `src`. Flutter has no navigation of its own, so where a link goes is the app's, the same trade a [`PlTextLink`](../display/text-link) makes.
 
 :::
 
@@ -175,7 +175,7 @@ The link card's surface is mixed out of <Fw react="`currentColor`" flutter="the 
 
 ::: fw react
 
-The handle stays out of the way of the message until the row is reached for. It would otherwise sit in the middle of a conversation being read — and a pointer that cannot hover has nothing to reveal it, so on touch it is simply always there.
+The handle stays out of the way of the message until the row is reached for. It would otherwise sit in the middle of a conversation being read, and a pointer that cannot hover has nothing to reveal it, so on touch it is simply always there.
 
 :::
 
@@ -223,21 +223,21 @@ The handle sits beside the message and **stays there**. The React build fades it
 
 ::: fw react
 
-- The delivery mark is the whole of what is drawn, and the word behind it is in a visually hidden box — for the readers a double tick says nothing to. `statusLabel` is what changes that word.
+- The delivery mark is the whole of what is drawn, and the word behind it is in a visually hidden box, for the readers a double tick says nothing to. `statusLabel` is what changes that word.
 - The typing dots are a `role="status"`, so a message being written is announced once rather than on every frame.
 - The link card is a real `<a>`, and `newTab` brings the `rel` that stops the new page reaching back through `window.opener`.
 - `media` should carry its own `alt`. The component does not know what the picture is of.
-- The bubble adds no role of its own. A thread is a list, and the list belongs to the page — which is what lets a virtualised one still be one.
+- The bubble adds no role of its own. A thread is a list, and the list belongs to the page, which is what lets a virtualised one still be one.
 
 :::
 
 ::: fw flutter
 
-- The delivery mark is the whole of what is drawn, and the word behind it is the mark's name — for the readers a double tick says nothing to. `statusLabel` is what changes that word.
+- The delivery mark is the whole of what is drawn, and the word behind it is the mark's name, for the readers a double tick says nothing to. `statusLabel` is what changes that word.
 - The typing dots are a live region with a name, so a message being written is announced once rather than on every frame. They light in **colour only** and never move, so a bubble being typed into does not bounce in a thread somebody is reading.
 - The link card is announced as a link and answers a press from the keyboard, with the focus ring drawn round it.
 - `media` should carry its own name. The component does not know what the picture is of.
-- The bubble adds no role of its own. A thread is a list, and the list belongs to the page — which is what lets a lazily built one still be one.
+- The bubble adds no role of its own. A thread is a list, and the list belongs to the page, which is what lets a lazily built one still be one.
 
 :::
 

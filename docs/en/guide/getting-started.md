@@ -5,7 +5,7 @@ order: 1
 
 # Getting started
 
-Plass ships for two frameworks from one design language. Pick yours in the sidebar — everything on this site follows it, including the previews.
+Plass ships for two frameworks from one design language. Pick yours in the sidebar, everything on this site follows it, including the previews.
 
 ::: fw react
 
@@ -19,7 +19,7 @@ The Flutter package is built on `package:flutter/widgets.dart` alone. It imports
 
 :::
 
-> **Both packages ship the same library** — the same 127 components, the same prop vocabulary, the same tokens. They version independently, so the npm and pub.dev numbers will not always agree; see [all components](../components/).
+> **Both packages ship the same library**, the same 127 components, the same prop vocabulary, the same tokens. They version independently, so the npm and pub.dev numbers will not always agree; see [all components](../components/).
 
 ## Install
 
@@ -29,7 +29,7 @@ The Flutter package is built on `package:flutter/widgets.dart` alone. It imports
 npm install plass-ui
 ```
 
-`react` and `react-dom` are peer dependencies — **React 18 or 19**. If your project already has one of them, that is the copy Plass uses; if it does not, npm 7 and later install them for you. Everything else the package brings with it.
+`react` and `react-dom` are peer dependencies, **React 18 or 19**. If your project already has one of them, that is the copy Plass uses; if it does not, npm 7 and later install them for you. Everything else the package brings with it.
 
 :::
 
@@ -63,13 +63,13 @@ import 'plass-ui/styles.css';
 
 ### About the reset
 
-`plass-ui/styles.css` includes the global reset the components are written against — Tailwind's Preflight cut down to what they actually need: `box-sizing`, font inheritance on form controls, list markers off. It does not touch the typography of your paragraphs, headings or links.
+`plass-ui/styles.css` includes the global reset the components are written against, Tailwind's Preflight cut down to what they actually need: `box-sizing`, font inheritance on form controls, list markers off. It does not touch the typography of your paragraphs, headings or links.
 
-Every rule in it is wrapped in `:where()`, so it has **specificity 0**. A single type selector of your own — `p { margin: 1rem }` — beats it, whatever the import order. The reset is a floor under the components, not a claim on your page.
+Every rule in it is wrapped in `:where()`, so it has **specificity 0**. A single type selector of your own, `p { margin: 1rem }`, beats it, whatever the import order. The reset is a floor under the components, not a claim on your page.
 
 ### If you already use Tailwind
 
-When Tailwind v4 is already in your project, import the token sheet instead of the compiled one. Nothing is generated twice, and a `className` you pass to a component is sorted against the component's own classes by Tailwind rather than by import order — see [styling a component from outside](../design/prop-conventions#styling-a-component-from-outside) for what that sort does and does not decide.
+When Tailwind v4 is already in your project, import the token sheet instead of the compiled one. Nothing is generated twice, and a `className` you pass to a component is sorted against the component's own classes by Tailwind rather than by import order. See [styling a component from outside](../design/prop-conventions#styling-a-component-from-outside) for what that sort does and does not decide.
 
 ```css
 @import 'tailwindcss';
@@ -87,7 +87,7 @@ This path carries no reset, because Preflight already is one.
 
 #### Registering only the components you use
 
-`plass-ui/tailwind.css` registers all 130 components at once, and that is the right default — but it is also a floor you pay whether you use one component or all of them. Tailwind scans _files_, not imports: nothing in a build connects `import { PlButton }` to the classes `PlSelect.js` spells out, so the only way to generate less CSS is to hand Tailwind fewer files.
+`plass-ui/tailwind.css` registers all 130 components at once, and that is the right default, but it is also a floor you pay whether you use one component or all of them. Tailwind scans _files_, not imports: nothing in a build connects `import { PlButton }` to the classes `PlSelect.js` spells out, so the only way to generate less CSS is to hand Tailwind fewer files.
 
 The package ships that scan in pieces. `plass-ui/css/base.css` is the tokens plus the classes every component shares; `plass-ui/css/<component>.css` is one line registering one component, named after its folder in `dist/components`.
 
@@ -98,7 +98,7 @@ The package ships that scan in pieces. `plass-ui/css/base.css` is the tokens plu
 @import 'plass-ui/css/text-field.css';
 ```
 
-For a project using a handful of components this is about 5 kB gzipped smaller than the blanket import. It is still **one** Tailwind pass, so the utilities come out in Tailwind's own order — which is why this is shipped as a narrower scan rather than as 130 pre-compiled stylesheets. Concatenating pre-compiled files would put every shared utility ahead of every component-specific one, and Tailwind's sort is what decides which of two conflicting utilities wins.
+For a project using a handful of components this is about 5 kB gzipped smaller than the blanket import. It is still **one** Tailwind pass, so the utilities come out in Tailwind's own order, which is why this is shipped as a narrower scan rather than as 130 pre-compiled stylesheets. Concatenating pre-compiled files would put every shared utility ahead of every component-specific one, and Tailwind's sort is what decides which of two conflicting utilities wins.
 
 Registering fewer components than you import is the one way to get this wrong, and it fails visibly: the component renders unstyled. When in doubt, `plass-ui/tailwind.css` is always correct.
 
@@ -108,9 +108,9 @@ Registering fewer components than you import is the one way to get this wrong, a
 
 ## No setup
 
-There is no stylesheet to wire up and no provider to install. A component resolves its tokens from the nearest `PlassTheme`, and with none in the tree it falls back to the platform's own brightness — so a button dropped into any app is already in the right theme, and follows the system switch.
+There is no stylesheet to wire up and no provider to install. A component resolves its tokens from the nearest `PlassTheme`, and with none in the tree it falls back to the platform's own brightness, so a button dropped into any app is already in the right theme, and follows the system switch.
 
-`PlassTheme` is therefore an **override** rather than a requirement: reach for it when a screen has to be one theme regardless of the platform.
+`PlassTheme` is therefore an **override** rather than a requirement: use it when a screen has to be one theme regardless of the platform.
 
 ```dart
 PlassTheme(
@@ -121,7 +121,7 @@ PlassTheme(
 
 ### The one provider you may need
 
-Four components lift themselves out of the tree — `PlModal`, `PlOverlay`, `PlTooltip` and `PlSelect`'s list — and a lifted surface needs an `Overlay` to go into. `MaterialApp` has one, and so does a `WidgetsApp` with a navigator; an app with neither can add its own:
+Four components lift themselves out of the tree. `PlModal`, `PlOverlay`, `PlTooltip` and `PlSelect`'s list, and a lifted surface needs an `Overlay` to go into. `MaterialApp` has one, and so does a `WidgetsApp` with a navigator; an app with neither can add its own:
 
 ```dart
 WidgetsApp(
@@ -132,13 +132,13 @@ WidgetsApp(
 
 Lifting is the point rather than an implementation detail: a sheet drawn where it was written would be clipped by the first ancestor that clips, and on a Plass page that is every card.
 
-`PlToast` needs no `Overlay` — its `PlToastProvider` is already above everything the stack has to cover.
+`PlToast` needs no `Overlay`. Its `PlToastProvider` is already above everything the stack has to cover.
 
 :::
 
 ## The page under the components
 
-Plass draws controls and sheets. It does not paint your background, and nothing here requires it to — but a sheet of glass over a flat white page has nothing to be in front of, and every translucent surface in the library will read as opaque.
+Plass draws controls and sheets. It does not paint your background, and nothing here requires it to, but a sheet of glass over a flat white page has nothing to be in front of, and every translucent surface in the library will read as opaque.
 
 Two tokens exist for exactly this, and using them is one rule:
 
@@ -173,7 +173,7 @@ DecoratedBox(
 
 :::
 
-Any backdrop with structure in it works — a photograph, a mesh, your own gradient. What does not work is nothing at all.
+Any backdrop with structure in it works, a photograph, a mesh, your own gradient. What does not work is nothing at all.
 
 ## Use
 
@@ -214,7 +214,7 @@ class App extends StatelessWidget {
 
 ## Next.js and server components
 
-Nearly every component ships with `'use client'` on it already, so there is nothing to add on your side. Import one straight into a Server Component — a `page.tsx` or a `layout.tsx` in Next.js's App Router — and it renders.
+Nearly every component ships with `'use client'` on it already, so there is nothing to add on your side. Import one straight into a Server Component. A `page.tsx` or a `layout.tsx` in Next.js's App Router, and it renders.
 
 ```tsx
 // app/page.tsx — a Server Component, with no directive of its own
@@ -229,7 +229,7 @@ export default function Page() {
 }
 ```
 
-What the directive cannot do is let a Server Component hand a component a function. That is React's rule for every client component rather than this library's: `onClick`, `onValueChange` and `render` are functions, and a function does not cross the server boundary. The file that passes one is the file that needs `'use client'` — yours, not ours.
+What the directive cannot do is let a Server Component hand a component a function. That is React's rule for every client component rather than this library's: `onClick`, `onValueChange` and `render` are functions, and a function does not cross the server boundary. The file that passes one is the file that needs `'use client'`, yours, not ours.
 
 ```tsx
 'use client';
@@ -303,9 +303,9 @@ One thing does **not** change with the theme, and it is deliberate: the colour o
 
 ## Next
 
-- [All components](../components/) — everything released, on one page
-- [Prop conventions](../design/prop-conventions) — what the shared props mean
-- [Design language](../design/design-language) — why the surfaces, colours and motion look like this
+- [All components](../components/): everything released, on one page
+- [Prop conventions](../design/prop-conventions): what the shared props mean
+- [Design language](../design/design-language): why the surfaces, colours and motion look like this
 
 ::: fw react
 

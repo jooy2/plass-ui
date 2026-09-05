@@ -10,7 +10,7 @@ aside: false
 
 <Demo src="examples/signup" :flutter="false" :min-height="760" />
 
-The whole flow is one file: `docs/.vitepress/demos/examples/signup.tsx`. It is live — submit the first step empty and watch the errors arrive, then type any six digits to get past the code.
+The whole flow is one file: `docs/.vitepress/demos/examples/signup.tsx`. It is live, submit the first step empty and watch the errors arrive, then type any six digits to get past the code.
 
 ## Composition
 
@@ -22,11 +22,11 @@ The whole flow is one file: `docs/.vitepress/demos/examples/signup.tsx`. It is l
 | Verify | `PlOtpField` `PlPopover` `PlButton` | `groupSize={3}` splits six boxes into two groups, and paste fills all six at once |
 | Profile | `PlTextField` `PlCombobox` `PlDatePicker` `PlFilePicker` `PlRadioGroup` `PlSwitch` | At the same `size` a field, a combobox and a date picker are the same height, so the two-column grid keeps its baselines |
 | Done | `PlAlert` `PlIcon` `PlButton` | One `success` alert, and nothing else competing with it |
-| Aside | `PlCard` `PlList` `PlBlockquote` `PlAvatar` `PlTextLink` | Reassurance, not navigation — so it is an `<aside>` and it disappears first |
+| Aside | `PlCard` `PlList` `PlBlockquote` `PlAvatar` `PlTextLink` | Reassurance, not navigation, so it is an `<aside>` and it disappears first |
 
 ## Notes
 
-- Validation is ordinary React state. Nothing is marked wrong until the reader has tried to continue, which is why `tried` exists — a form that turns red while you are still typing in the first field is a form that is shouting.
+- Validation is ordinary React state. Nothing is marked wrong until the reader has tried to continue, which is why `tried` exists, a form that turns red while you are still typing in the first field is a form that is shouting.
 - The step is a number and the sections are plain conditionals. There is no wizard component in Plass and there does not need to be: a step is a piece of state and the rest is layout.
 - `PlOtpField` is what the "Verify" button waits on. Six digits enable it; the field itself handles paste, backspace across boxes and the numeric keypad.
 

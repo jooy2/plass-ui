@@ -24,7 +24,7 @@ import { PlVisuallyHidden } from 'plass-ui';
 
 ::: fw flutter
 
-This one is React-only, and it is not an omission. What it works around is a DOM problem — text that must be in the accessibility tree and off the screen at once — and Flutter's tree is not the render tree. The Dart answer is `Semantics`:
+This one is React-only, and it is not an omission. What it works around is a DOM problem, text that must be in the accessibility tree and off the screen at once, and Flutter's tree is not the render tree. The Dart answer is `Semantics`:
 
 ```dart
 Semantics(
@@ -65,7 +65,7 @@ The most common use, and the defect it fixes: a button whose whole label is an i
 
 ### focusable
 
-Brings the content back into the page while anything inside it holds the focus. That is one element in a document — the skip link — and it cannot be done from the outside: the clip is `position: absolute`, so revealing it means putting the element back in the flow.
+Brings the content back into the page while anything inside it holds the focus. That is one element in a document, the skip link, and it cannot be done from the outside: the clip is `position: absolute`, so revealing it means putting the element back in the flow.
 
 It answers `:focus-within` rather than `:focus`, because what is tabbed to is almost always a link _inside_ the box rather than the box itself.
 
@@ -79,11 +79,11 @@ It answers `:focus-within` rather than `:focus`, because what is tabbed to is al
 
 </Demo>
 
-> A revealed box is `position: static` and takes its space back. Put it somewhere that can hold it — a positioned ancestor, or the top of the page, which is where a skip link belongs anyway.
+> A revealed box is `position: static` and takes its space back. Put it somewhere that can hold it, a positioned ancestor, or the top of the page, which is where a skip link belongs anyway.
 
 ### A live region
 
-An announcement with nothing to draw. `aria-live` on a hidden element is how a change that is obvious on screen — a count going up, a filter narrowing a list — reaches a reader who cannot see it happen.
+An announcement with nothing to draw. `aria-live` on a hidden element is how a change that is obvious on screen (a count going up, a filter narrowing a list) reaches a reader who cannot see it happen.
 
 <Demo src="visually-hidden/live" :min-height="180">
 

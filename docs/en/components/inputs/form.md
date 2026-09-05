@@ -112,7 +112,7 @@ This is where a schema's output goes, and where a form action's response goes. E
 
 ### Every field can show a message it was not given
 
-A field component renders its error box **whether or not it was given an `error`**. With one, the message is the caller's and shows unconditionally; without one, the box is left for Base UI to fill with whatever actually failed — the browser's own constraint message, or this form's `errors` entry for that field.
+A field component renders its error box **whether or not it was given an `error`**. With one, the message is the caller's and shows unconditionally; without one, the box is left for Base UI to fill with whatever actually failed, the browser's own constraint message, or this form's `errors` entry for that field.
 
 That is what makes `errors` work without threading a message through every field by hand, and it is why a field marked invalid never goes red with nothing said.
 
@@ -124,7 +124,7 @@ Called with the form's values, and only when every field is valid. The native su
 <PlForm onSubmit={(values) => save(values)}>
 ```
 
-The values come from the fields' `name`s, which is the same contract a native form has. A field with no `name` is not in the object — and is not in a native submission either.
+The values come from the fields' `name`s, which is the same contract a native form has. A field with no `name` is not in the object, and is not in a native submission either.
 
 ::: fw flutter
 
@@ -135,7 +135,7 @@ Both of them are the same fact: **there is no native form here.** On the web a f
 | React | Flutter | Why |
 | --- | --- | --- |
 | `onSubmit(values)` | `onSubmit()` | The caller owns the controllers, so it already has the values. What the form can say is _that the form is valid_. |
-| `errors` routed to fields automatically | `errors` read with `PlFormScope.errorFor(name)` | Nothing here knows a field's name, so the lookup is explicit — and it is the one piece of wiring this build asks for. |
+| `errors` routed to fields automatically | `errors` read with `PlFormScope.errorFor(name)` | Nothing here knows a field's name, so the lookup is explicit, and it is the one piece of wiring this build asks for. |
 | the submit button is `type="submit"` | `PlFormScope.maybeOf(context)?.submit()`, or a `GlobalKey<PlFormState>` | There is no native submit for a button to trigger. |
 | validity from the browser | validity from Flutter's own `FormField` | A `PlTextField` is not a `FormField`; wrap it in one, which is what the demos do. |
 | `validationMode` | the same three names, mapped to `AutovalidateMode` | The names are kept so a reader who has learned one build has learned the other. |

@@ -5,7 +5,7 @@ order: 13
 
 # PlDateRangePicker
 
-<p class="plass-lede">A span between two days. Two months side by side, and the band between the ends is drawn as the pointer moves — before the second click lands.</p>
+<p class="plass-lede">A span between two days. Two months side by side, and the band between the ends is drawn as the pointer moves, before the second click lands.</p>
 
 <Demo src="date-range-picker/hero" :min-height="200" />
 
@@ -45,17 +45,17 @@ The calendars lift themselves out of the tree, so a picker needs an `Overlay` ab
 
 Every native `<div>` attribute passes straight through to the field wrapper. `color` is excluded because it collides with the `color` in the table above, `defaultValue` because the picker spells it as a value rather than a DOM attribute, and `children` because the calendars are the component.
 
-A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control` — the trigger — `description` and `error`.
+A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control` (the trigger) `description` and `error`.
 
 :::
 
 ::: fw flutter
 
-The picker is **controlled**: `value` with `onChanged`, and `value` is never `null` — an empty range is `PlDateRange.empty`.
+The picker is **controlled**: `value` with `onChanged`, and `value` is never `null`. An empty range is `PlDateRange.empty`.
 
 :::
 
-Everything a [`PlDatePicker`](./date-picker) says about `locale`, the header, the bounds and the absence of a date library holds here unchanged — this is that component with a second end.
+Everything a [`PlDatePicker`](./date-picker) says about `locale`, the header, the bounds and the absence of a date library holds here unchanged. This is that component with a second end.
 
 ### PlDateRange
 
@@ -69,7 +69,7 @@ Everything a [`PlDatePicker`](./date-picker) says about `locale`, the header, th
 
 Not a `[Date, Date]` tuple, and not two props. A range is **one value**: it is chosen in one gesture, cleared in one gesture and validated as a whole, and the two names are what stop a caller writing the end into the start.
 
-Half a range is a real state — it is what the picker holds between the first press and the second — so the callback reports a range with only a `start` after the first press and the complete range after the second. A controlled caller is never handed a range mid-gesture that it did not ask for: the pending anchor lives inside the component, not in your form.
+Half a range is a real state, it is what the picker holds between the first press and the second, so the callback reports a range with only a `start` after the first press and the complete range after the second. A controlled caller is never handed a range mid-gesture that it did not ask for: the pending anchor lives inside the component, not in your form.
 
 ## The preview band
 
@@ -81,11 +81,11 @@ Clicking backwards is not a mistake to be rejected. It is the same range typed i
 
 ### monthCount
 
-Two months is the default because a range that crosses a month boundary is the ordinary case, not the exception — a one-month picker turns that into a two-step navigation problem.
+Two months is the default because a range that crosses a month boundary is the ordinary case, not the exception. A one-month picker turns that into a two-step navigation problem.
 
 The two panels are **one calendar in two halves**: the left one has no forward stepper, the right one has no back stepper, and either header's month and year buttons move both. Where a stepper is not drawn, a hole its size is left, so the two headings stay on one centre line.
 
-They also draw **no outside days**, and that is not a matter of taste: with both panels showing six full weeks, the 1st of August would appear twice — once as a trailing day of July and once as itself — and two cells with the same name in one popup is ambiguous to a pointer and outright broken to a screen reader.
+They also draw **no outside days**, and that is not a matter of taste: with both panels showing six full weeks, the 1st of August would appear twice (once as a trailing day of July and once as itself), and two cells with the same name in one popup is ambiguous to a pointer and outright broken to a screen reader.
 
 <Demo src="date-range-picker/months" :min-height="200">
 
@@ -145,7 +145,7 @@ The same three as a [`PlDatePicker`](./date-picker), applied to both ends. A blo
 
 ### Controlled
 
-Pass `value` with `onValueChange`. The callback is always given an object, so there is no `null` range to guard against — an emptied picker is `{ start: null, end: null }`.
+Pass `value` with `onValueChange`. The callback is always given an object, so there is no `null` range to guard against. An emptied picker is `{ start: null, end: null }`.
 
 <Demo src="date-range-picker/controlled" :min-height="200">
 
@@ -170,7 +170,7 @@ Pass `value` with `onValueChange`. The callback is always given an object, so th
 ::: fw react
 
 - Both grids are `role="grid"`.
-- Every cell's accessible name is the **full date**, and no date appears twice in the popup — which is what turning off the outside days buys.
+- Every cell's accessible name is the **full date**, and no date appears twice in the popup, which is what turning off the outside days buys.
 - The footer says which end the next click will fill. The trigger says the same thing with its two halves, but the trigger is behind the popup while the popup is up, so the footer is the only place that can say it where it will be read.
 - The arrow between the two halves of the trigger is `aria-hidden` and flips under RTL.
 - Each half of the trigger holds its own width open against every date it could show, so filling in the second end does not resize the first. Those samples are `aria-hidden` and drawn as generated content.

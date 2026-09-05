@@ -5,7 +5,7 @@ order: 9
 
 # PlShow
 
-<p class="plass-lede">Content at some widths and not others. It decides in CSS, so the first paint a server sends is already the right half — and it is not a box, so it changes nothing about the layout it sits in.</p>
+<p class="plass-lede">Content at some widths and not others. It decides in CSS, so the first paint a server sends is already the right half, and it is not a box, so it changes nothing about the layout it sits in.</p>
 
 <Demo src="show/hero" :min-height="140" />
 
@@ -42,7 +42,7 @@ PlShow(until: PlassBreakpointFloor.md, child: PlList(children: rows));
 
 `until` is **exclusive**, and it has to be: `until="md"` on one element and `from="md"` on another are then the two halves of one decision, with no width that draws both and none that draws neither.
 
-There is no `xs`. Everything is at or above the bottom rung, so `from="xs"` would mean "always" — which is what leaving the prop out already means — and `until="xs"` would mean "never".
+There is no `xs`. Everything is at or above the bottom rung, so `from="xs"` would mean "always" (which is what leaving the prop out already means), and `until="xs"` would mean "never".
 
 ## Compared with a media query
 
@@ -50,7 +50,7 @@ There is no `xs`. Everything is at or above the bottom rung, so `from="xs"` woul
 
 A `useMediaQuery` and a ternary look like the same thing and are not. **A media query answered in JavaScript is `false` on a server and on the first frame a browser renders**, so a JavaScript gate draws the wrong half of a responsive layout and then throws it away. That is a flash on every page load, not an edge case. The stylesheet knows the width before React has been asked anything.
 
-It is also the only way this works for a project that imports `plass-ui/styles.css` and has no Tailwind of its own — there is no `md:hidden` to reach for there.
+It is also the only way this works for a project that imports `plass-ui/styles.css` and has no Tailwind of its own. There is no `md:hidden` to use there.
 
 :::
 
@@ -64,7 +64,7 @@ It is also the only way this works for a project that imports `plass-ui/styles.c
 
 ::: fw react
 
-While it is showing, `PlShow` is `display: contents`. Its children take part in the layout around it exactly as they would have without it — a gate inside a flex row does not become a flex item, and one inside a grid does not become a cell.
+While it is showing, `PlShow` is `display: contents`. Its children take part in the layout around it exactly as they would have without it. A gate inside a flex row does not become a flex item, and one inside a grid does not become a cell.
 
 Which also means **a `className` carrying a margin or a width does nothing here.** There is no box for it to land on. Put your own element inside.
 
@@ -74,9 +74,9 @@ Which also means **a `className` carrying a margin or a width does nothing here.
 
 ::: fw react
 
-**Both halves are in the document.** Hiding is `display: none`, which takes the subtree off the accessibility tree and out of the layout — so nothing is read out twice and nothing is drawn — but both were rendered and both were sent.
+**Both halves are in the document.** Hiding is `display: none`, which takes the subtree off the accessibility tree and out of the layout, so nothing is read out twice and nothing is drawn, but both were rendered and both were sent.
 
-That is the right trade for two arrangements of the same content, and the wrong one for a subtree that is expensive to build, that fetches, or that must not mount at all. For those, [`usePlBreakpointValue`](../../hooks/use-breakpoint) picks one and only that one is mounted — at the cost of a server rendering the `xs` answer.
+That is the right trade for two arrangements of the same content, and the wrong one for a subtree that is expensive to build, that fetches, or that must not mount at all. For those, [`usePlBreakpointValue`](../../hooks/use-breakpoint) picks one and only that one is mounted, at the cost of a server rendering the `xs` answer.
 
 :::
 

@@ -145,7 +145,7 @@ One panel is open at a time and it **resizes between items** rather than closing
 
 At rest the items are the page's own words: no fill, no edge, no shadow. Five bordered boxes across the top of a site is a toolbar rather than a navigation, and a navigation should read as text until it is reached for.
 
-The family arrives with the pointer and with the open panel, and the sheet itself is never dyed — the panel is the same frosted glass a [`PlMenu`](./menu) and a [`PlPopover`](../feedback/popover) draw.
+The family arrives with the pointer and with the open panel, and the sheet itself is never dyed. The panel is the same frosted glass a [`PlMenu`](./menu) and a [`PlPopover`](../feedback/popover) draw.
 
 ### A link that opens elsewhere
 

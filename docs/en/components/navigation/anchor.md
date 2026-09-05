@@ -5,7 +5,7 @@ order: 9
 
 # PlAnchor
 
-<p class="plass-lede">A table of contents that follows the reader down the page. What is lit is the last heading whose top has passed the reading line — not whichever heading happens to be on screen.</p>
+<p class="plass-lede">A table of contents that follows the reader down the page. What is lit is the last heading whose top has passed the reading line, not whichever heading happens to be on screen.</p>
 
 <Demo src="anchor/hero" :min-height="340" />
 
@@ -61,7 +61,7 @@ Anyone can draw a list of links. What is worth writing once is deciding **which 
 
 > The lit row is the last heading whose top has **passed the reading line**.
 
-Not "the heading that is visible": three headings can be on screen at once, and the one a reader is inside is the highest of them that is already above them. That is why the tracking is a measurement rather than an `IntersectionObserver` — an observer answers "is it visible", and the question here is "which one did I pass last".
+Not "the heading that is visible": three headings can be on screen at once, and the one a reader is inside is the highest of them that is already above them. That is why the tracking is a measurement rather than an `IntersectionObserver`. An observer answers "is it visible", and the question here is "which one did I pass last".
 
 Two ends need saying separately, and both are the kind of thing a hand-rolled version gets wrong:
 
@@ -72,7 +72,7 @@ Two ends need saying separately, and both are the kind of thing a hand-rolled ve
 
 Where the reading line sits, measured down from the top of the viewport: the height of whatever is pinned over the page.
 
-Without it a heading goes on counting as the **next** one after it has already slid out of sight behind a sticky header — so the list sits a section behind the reader for the whole height of the bar.
+Without it a heading goes on counting as the **next** one after it has already slid out of sight behind a sticky header, so the list sits a section behind the reader for the whole height of the bar.
 
 ```tsx
 <PlAnchor offset={64} items={items} />
@@ -92,7 +92,7 @@ Without it a heading goes on counting as the **next** one after it has already s
 
 ## The items array
 
-The headings arrive as an **array**, which is the opposite of most of this library. A table of contents is generated — from a Markdown file, from a CMS, from the document's own headings — and the thing that generates it produces a flat list, in document order, with a level on each entry.
+The headings arrive as an **array**, which is the opposite of most of this library. A table of contents is generated, from a Markdown file, from a CMS, from the document's own headings, and the thing that generates it produces a flat list, in document order, with a level on each entry.
 
 **It stays flat.** A nested list would have to be built from that flat one, and real documents skip levels, so the nesting would be a guess at a shape nobody wrote. The depth is carried by the indent; the reading order is the document's own.
 
@@ -104,7 +104,7 @@ An item points at a fragment: `href: '#install'`, and the `id` it names is what 
 
 ::: fw flutter
 
-An item points at a `GlobalKey` on the heading itself, because a Flutter screen has no URL to point into — what is tracked is a render object's position, and a key is the only handle on one. Pressing a row calls `Scrollable.ensureVisible`.
+An item points at a `GlobalKey` on the heading itself, because a Flutter screen has no URL to point into. What is tracked is a render object's position, and a key is the only handle on one. Pressing a row calls `Scrollable.ensureVisible`.
 
 :::
 
@@ -139,14 +139,14 @@ The ordinary arrangement: a sticky column that does not scroll with the page.
 ::: fw react
 
 - It is a `<nav>` with a name, so it is not one more unnamed navigation landmark in a page's list of them. `navLabel` sets that name.
-- The lit row carries `aria-current="location"` — where the reader is **within** the document, which is the one thing that value exists for. Not `page`, which is for the current page in a set of them.
+- The lit row carries `aria-current="location"`, where the reader is **within** the document, which is the one thing that value exists for. Not `page`, which is for the current page in a set of them.
 - The rows are real links with real fragments, so they can be opened in a new tab, copied, and followed with JavaScript off.
 
 :::
 
 ::: fw flutter
 
-- The list is a named container, and the lit row is marked `selected` — the Dart equivalent of `aria-current="location"`.
+- The list is a named container, and the lit row is marked `selected`, the Dart equivalent of `aria-current="location"`.
 
 :::
 

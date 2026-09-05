@@ -3,7 +3,7 @@ layout: home
 
 title: Plass
 titleTemplate: The glass-and-gradient component library for React and Flutter
-description: A component library made of glass and gradients — smooth tinted surfaces, shadows in their own colour, and light that follows the pointer. One design language shipped for React and for Flutter, with dark mode, accessibility and types already in the box.
+description: A component library made of glass and gradients, smooth tinted surfaces, shadows in their own colour, and light that follows the pointer. One design language shipped for React and for Flutter, with dark mode, accessibility and types already in the box.
 
 hero:
   name: Plass
@@ -29,7 +29,7 @@ features:
     link: /design/design-language
     linkText: Design language
   - title: Two frameworks, one library
-    details: The same 127 components in React and in Flutter — same props, same tokens, same numbers. One page documents both.
+    details: The same 127 components in React and in Flutter, same props, same tokens, same numbers. One page documents both.
   - title: Dark mode built in
     details: Follows the platform, and can be forced either way on any subtree. No second theme to write, no colours to redeclare.
   - title: One shared vocabulary
@@ -43,7 +43,7 @@ features:
 <div class="plass-why">
   <div class="plass-why-card">
     <h3>A material, not a theme file</h3>
-    <p>Every surface answers one question — is this pressed, or does it hold something? The answer decides the fill, the edge, the shadow and the press.</p>
+    <p>Every surface answers one question. Is this pressed, or does it hold something? The answer decides the fill, the edge, the shadow and the press.</p>
   </div>
   <div class="plass-why-card">
     <h3>No relief, no lacquer</h3>
@@ -59,21 +59,21 @@ features:
   </div>
   <div class="plass-why-card">
     <h3>Contrast that was checked</h3>
-    <p>Every gradient stop clears 4.5:1 against its own label — including the lightest corner, which is what fixes the fill lightness.</p>
+    <p>Every gradient stop clears 4.5:1 against its own label, including the lightest corner, which is what fixes the fill lightness.</p>
   </div>
   <div class="plass-why-card">
     <h3>Nothing you did not ask for</h3>
-    <p>The npm package is ESM and tree-shakeable, so only what you import is bundled — and its second dependency, the syntax highlighter, arrives only when a code block asks for it. The pub package has none at all, and no assets or plugins either.</p>
+    <p>The npm package is ESM and tree-shakeable, so only what you import is bundled, and its second dependency, the syntax highlighter, arrives only when a code block asks for it. The pub package has none at all, and no assets or plugins either.</p>
   </div>
   <div class="plass-why-card">
     <h3>No build-side setup</h3>
-    <p>React is one package and one CSS import — Tailwind builds this library, not yours. Flutter is the package and nothing else: no stylesheet, no provider.</p>
+    <p>React is one package and one CSS import, Tailwind builds this library, not yours. Flutter is the package and nothing else: no stylesheet, no provider.</p>
   </div>
 </div>
 
 ## Component preview
 
-What follows is running inside this page — the React build, because a Flutter frame is a whole engine. Type into it, and press save.
+What follows is running inside this page. The React build, because a Flutter frame is a whole engine. Type into it, and press save.
 
 <Demo src="showcase/app" :flutter="false" :min-height="420" />
 

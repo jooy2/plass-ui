@@ -5,7 +5,7 @@ order: 2
 
 # PlFloatingBottomNavigation
 
-<p class="plass-lede">A row of round destinations floating clear of the bottom edge of the window. A capsule of clear glass with a key of tinted glass riding in it — the design language's own sentence, and nothing added to it.</p>
+<p class="plass-lede">A row of round destinations floating clear of the bottom edge of the window. A capsule of clear glass with a key of tinted glass riding in it, the design language's own sentence, and nothing added to it.</p>
 
 <Demo src="floating-bottom-navigation/hero" :min-height="220" />
 
@@ -60,7 +60,7 @@ Every native `<nav>` attribute passes through on the bar and every native `<butt
 
 ::: fw flutter
 
-The bar is generic in the destination's type and **controlled**, and its destinations are descriptions rather than widgets — the same three decisions [`PlBottomNavigation`](./bottom-navigation) makes, for the same reasons.
+The bar is generic in the destination's type and **controlled**, and its destinations are descriptions rather than widgets, the same three decisions [`PlBottomNavigation`](./bottom-navigation) makes, for the same reasons.
 
 :::
 
@@ -70,7 +70,7 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 It is the other half of [`PlBottomNavigation`](./bottom-navigation), and a different object rather than a variant of one.
 
-That bar is **attached** to the edge of the window: full width, a hairline against the content it is over, its sheet running under the home indicator, and flat, because a thing lying against an edge does not cast a shadow onto it. This one is **not part of the page at all**. Everything that follows comes from that single difference — the capsule, the gap under it, the shadow it defaults to, and the pill corners it is allowed.
+That bar is **attached** to the edge of the window: full width, a hairline against the content it is over, its sheet running under the home indicator, and flat, because a thing lying against an edge does not cast a shadow onto it. This one is **not part of the page at all**. Everything that follows comes from that single difference. The capsule, the gap under it, the shadow it defaults to, and the pill corners it is allowed.
 
 A `floating` boolean would have been the smaller API and the worse one: half the props on each bar would have meant nothing on the other, and the first `divider={true} floating` would have been a bar with a hairline along the top of a capsule that has no content behind it.
 
@@ -80,13 +80,13 @@ A `floating` boolean would have been the smaller API and the worse one: half the
 
 Every destination is a disc with a glyph in it and no name drawn, which is what keeps a row of five inside the width of a phone.
 
-`rounded-full` is one of the very few places the library allows a pill, and it is allowed for the reason a `PlSegmentedButton`'s groove is: this is not a sheet lying on the page, it is an object floating clear of one. The house fillet is about a sheet with its corners cut, and a sheet that is not on anything has no corners to cut.
+`rounded-full` is one of the very few places the library allows a pill, and it is allowed for the reason a `PlSegmentedButton`'s groove is: this is an object floating clear of the page rather than a sheet lying on it. The house fillet is about a sheet with its corners cut, and a sheet that is not on anything has no corners to cut.
 
 The current destination is a key of **tinted glass** riding in the clear sheet. Every other one has no surface until the pointer is on it.
 
 ### The moving key
 
-The key is **one element**, measured off whichever disc is current and animated between them the way a [`PlSegmentedButton`](../inputs/segmented-button)'s tile is. It is not a fill that appears on one disc while it disappears from another: two discs cross-fading is two objects, and a bar with a key in it has one — where that key goes is the whole of what this component has to say.
+The key is **one element**, measured off whichever disc is current and animated between them the way a [`PlSegmentedButton`](../inputs/segmented-button)'s tile is. It is not a fill that appears on one disc while it disappears from another: two discs cross-fading is two objects, and a bar with a key in it has one, where that key goes is the whole of what this component has to say.
 
 Nothing is transformed. The key is an empty box moved by its own `left`, `top`, `width` and `height`, so no glyph in the row is resampled while it travels, and the house rule against moving a control survives a component whose entire point is that something moves.
 
@@ -94,13 +94,13 @@ The first placement is instant, however it arrives. A key that has only just mou
 
 ### Names
 
-`children` is required in practice and **never drawn**. A disc with a glyph in it has no accessible name at all, and a row of glyphs with no names is exactly the defect `PlIconButton`'s `label` exists to make impossible — it would be just as easy to ship here.
+`children` is required in practice and **never drawn**. A disc with a glyph in it has no accessible name at all, and a row of glyphs with no names is exactly the defect `PlIconButton`'s `label` exists to make impossible. It would be just as easy to ship here.
 
 If a sighted reader also needs the words, put a `PlTooltip` around the item. What this component will not do is draw a name on some discs and not on others: a row where one item is a capsule and four are circles is a row with a layout shift in it every time the destination changes.
 
 ### variant
 
-`glass` is the default and the whole point: a clear sheet over a blurred backdrop with a hairline around it. `solid` is the same sheet at its most opaque, for a bar that sits over photography. `ghost` has no capsule at all — the discs float on their own.
+`glass` is the default and the whole point: a clear sheet over a blurred backdrop with a hairline around it. `solid` is the same sheet at its most opaque, for a bar that sits over photography. `ghost` has no capsule at all, the discs float on their own.
 
 <Demo src="floating-bottom-navigation/variants" :min-height="320">
 
@@ -140,7 +140,7 @@ The capsule is never dyed, exactly as on a `PlCard`. What carries the family is 
 
 ### size, elevation and the gap
 
-`size` is the disc's diameter, on the control ladder — so a floating bar at `md` is a row of 40px discs and lands on the same numbers as everything else.
+`size` is the disc's diameter, on the control ladder, so a floating bar at `md` is a row of 40px discs and lands on the same numbers as everything else.
 
 `elevation` is `2`, against the `0` almost everything else defaults to, and that is not an inconsistency. Every other sheet in the library rests on the page and earns its separation from the glass edge, so a shadow is opt-in. This one hovers over whatever is underneath it, and a capsule lying flat on the content it is floating over reads as a mistake.
 
@@ -164,7 +164,7 @@ The gap under the bar comes off the same `size` ladder, with `env(safe-area-inse
 
 ## Accessibility
 
-- A named `<nav>` landmark, and every disc a real link or button in document order — one tab stop each.
+- A named `<nav>` landmark, and every disc a real link or button in document order, one tab stop each.
 - The current destination carries `aria-current="page"`. Never `aria-pressed`.
 - Every disc has an accessible name, and none of them is drawn. The name lives in a 1px clipped box: invisible to a sighted reader, present to every other kind.
 

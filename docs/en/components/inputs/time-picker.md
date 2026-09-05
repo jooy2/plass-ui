@@ -44,7 +44,7 @@ The columns lift themselves out of the tree, so a picker needs an `Overlay` abov
 
 Every native `<div>` attribute passes straight through to the field wrapper. `color` is excluded because it collides with the `color` in the table above, `defaultValue` because the picker spells it as a value rather than a DOM attribute, and `children` because the columns are the component.
 
-A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control` — the trigger — `description` and `error`.
+A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control` (the trigger) `description` and `error`.
 
 :::
 
@@ -56,7 +56,7 @@ The picker is **controlled**: `value` with `onChanged`, and `null` is a picker w
 
 ::: fw react
 
-Everything a [`PlDatePicker`](./date-picker) says about `locale` and the absence of a date library holds here too — `Intl` is what decides whether the clock is on a 12-hour dial and what AM and PM are called.
+Everything a [`PlDatePicker`](./date-picker) says about `locale` and the absence of a date library holds here too. `Intl` is what decides whether the clock is on a 12-hour dial and what AM and PM are called.
 
 :::
 
@@ -68,7 +68,7 @@ Everything a [`PlDatePicker`](./date-picker) says about the absence of a date li
 
 ## Columns, not a dial
 
-"Half past nine" is two glances at two columns. "Any time at all, on the hour" is a column you never touch. A clock face is prettier, needs a `transform` to read, and answers neither question faster — and this library does not put a `transform` on a control.
+"Half past nine" is two glances at two columns. "Any time at all, on the hour" is a column you never touch. A clock face is prettier, needs a `transform` to read, and answers neither question faster, and this library does not put a `transform` on a control.
 
 The chosen row in each column is scrolled into view once, on open. That is not decoration: a column of sixty minutes that opens at `00` while the value is `45` has hidden its own answer.
 
@@ -76,11 +76,11 @@ The chosen row in each column is scrolled into view once, on open. That is not d
 
 This is the detail that separates a working time picker from a frustrating one. A bound is checked against the **span a row stands for**, not against one instant inside it.
 
-With a `minTime` of 09:30, the hour `9` covers 09:00:00–09:59:59, which overlaps what is allowed — so it stays available, and the minute column is where `00` through `25` grey out. Comparing the whole candidate instead hides the 9 and makes half past nine unreachable.
+With a `minTime` of 09:30, the hour `9` covers 09:00:00–09:59:59, which overlaps what is allowed, so it stays available, and the minute column is where `00` through `25` grey out. Comparing the whole candidate instead hides the 9 and makes half past nine unreachable.
 
 ## The value
 
-Not a string and not a number of minutes. Everything else in this library that carries a moment is a `Date`, and a bare time has nowhere to record that it crossed a daylight-saving boundary. `referenceDate` is the day a bare time is written onto, and it is held still for as long as the picker is mounted — a popup left open across midnight must not quietly move the value onto a new day.
+Not a string and not a number of minutes. Everything else in this library that carries a moment is a `Date`, and a bare time has nowhere to record that it crossed a daylight-saving boundary. `referenceDate` is the day a bare time is written onto, and it is held still for as long as the picker is mounted. A popup left open across midnight must not quietly move the value onto a new day.
 
 ## Examples
 
@@ -138,7 +138,7 @@ A 12-hour dial reads `12, 1, 2 … 11` rather than `0, 1, 2`, and gains an AM/PM
 
 ### minTime · maxTime · shouldDisableTime
 
-`minTime` and `maxTime` read the clock only — the day on them is ignored. `shouldDisableTime` is called once per row per column with the instant that row would produce and the column it is in, so a rule may be as coarse as "no afternoons" or as fine as one minute.
+`minTime` and `maxTime` read the clock only. The day on them is ignored. `shouldDisableTime` is called once per row per column with the instant that row would produce and the column it is in, so a rule may be as coarse as "no afternoons" or as fine as one minute.
 
 <Demo src="time-picker/bounds" :min-height="160">
 
@@ -160,7 +160,7 @@ A 12-hour dial reads `12, 1, 2 … 11` rather than `0, 1, 2`, and gains an AM/PM
 
 `false` here, and `true` on a [`PlDatePicker`](./date-picker). A day is one answer; a time is two, and closing after the first would make choosing 9:30 a matter of opening the popup twice.
 
-Because the popup stays up while the columns are being read, there has to be something to press that means _that is the one_ — so the footer carries a **Done**. Turning `closeOnSelect` on takes it away, since there is then nothing for it to do.
+Because the popup stays up while the columns are being read, there has to be something to press that means _that is the one_, so the footer carries a **Done**. Turning `closeOnSelect` on takes it away, since there is then nothing for it to do.
 
 ### readOnly · disabled · error
 
@@ -189,15 +189,15 @@ Because the popup stays up while the columns are being read, there has to be som
 
 - Each column is a `role="listbox"`, and each row an `option` carrying `aria-selected`; a blocked one carries `aria-disabled` rather than the attribute.
 - Three unlabelled lists of numbers say nothing to a reader who is not looking at them, so a polite live region beside the columns reads the whole time back as one sentence whenever it changes.
-- The chosen row in each column is brought into view **inside its own column**, by setting `scrollTop` rather than calling `scrollIntoView` — which walks every scrollable ancestor up to the document and, on the frame the popup opens, would scroll the page to the top to reveal a row that is about to move anyway.
+- The chosen row in each column is brought into view **inside its own column**, by setting `scrollTop` rather than calling `scrollIntoView`, which walks every scrollable ancestor up to the document and, on the frame the popup opens, would scroll the page to the top to reveal a row that is about to move anyway.
 - The trigger is held open at the width of the longest time it could show. Those samples are `aria-hidden` and drawn as generated content.
-- With `name`, a hidden input carries the value as a local `HH:MM` — the shape `<input type="time">` submits, so a server that already parses those needs no new code.
+- With `name`, a hidden input carries the value as a local `HH:MM`, the shape `<input type="time">` submits, so a server that already parses those needs no new code.
 
 :::
 
 ::: fw flutter
 
-- Each column is a semantics container named after its unit, and each row is announced with the whole of what it means — `14 Hour`, not `14`.
+- Each column is a semantics container named after its unit, and each row is announced with the whole of what it means, `14 Hour`, not `14`.
 - The trigger carries the time as its semantic **value** rather than folding it into its label.
 - The live region beside the columns reads the whole time back whenever it changes.
 

@@ -5,7 +5,7 @@ order: 8
 
 # usePlOnScreen
 
-<p class="plass-lede">Whether an element is on screen. An <code>IntersectionObserver</code> with the three things a hook has to decide — and the interesting one is that it stops watching once it has seen it.</p>
+<p class="plass-lede">Whether an element is on screen. An <code>IntersectionObserver</code> with the three things a hook has to decide, and the interesting one is that it stops watching once it has seen it.</p>
 
 <Demo src="hooks/on-screen" :min-height="260" :flutter="false" />
 
@@ -40,14 +40,14 @@ function usePlOnScreen(
 ): boolean;
 ```
 
-|              |                                                                          |
-| ------------ | ------------------------------------------------------------------------ |
-| `target`     | A ref to the element to watch.                                           |
-| `threshold`  | How much of it has to be showing to count, `0`…`1`. `0` by default.      |
-| `rootMargin` | How far outside still counts — `'200px'` starts a fetch a screen early.  |
-| `root`       | What it is measured against. The viewport when it is not given.          |
-| `once`       | Stops watching the first time it appears. **On by default** — see below. |
-| returns      | `true` once it is on screen.                                             |
+|              |                                                                         |
+| ------------ | ----------------------------------------------------------------------- |
+| `target`     | A ref to the element to watch.                                          |
+| `threshold`  | How much of it has to be showing to count, `0`…`1`. `0` by default.     |
+| `rootMargin` | How far outside still counts. `'200px'` starts a fetch a screen early.  |
+| `root`       | What it is measured against. The viewport when it is not given.         |
+| `once`       | Stops watching the first time it appears. **On by default**, see below. |
+| returns      | `true` once it is on screen.                                            |
 
 ## once is on
 
@@ -55,7 +55,7 @@ The question a caller almost always has is "**has this been seen yet**", not "is
 
 A hook that kept answering the second question would re-render a page of lazily loaded pictures every time the reader scrolled past any of them, for nothing.
 
-Turn it off for the answer that genuinely keeps changing — a floating bar that appears once a section has left the screen, a video that pauses when it is scrolled away from.
+Turn it off for the answer that genuinely keeps changing, a floating bar that appears once a section has left the screen, a video that pauses when it is scrolled away from.
 
 ## The first answer
 
@@ -82,5 +82,5 @@ const seen = usePlOnScreen(row, { root: panel });
 
 ## Notes
 
-- For an **animation** that plays when it arrives, reach for the `trigger="visible"` every `PlAnimate*` already takes rather than wiring this up by hand. It is the same observer with the effect attached.
-- It disconnects on unmount, and — with `once` — the moment it has an answer.
+- For an **animation** that plays when it arrives, use the `trigger="visible"` every `PlAnimate*` already takes rather than wiring this up by hand. It is the same observer with the effect attached.
+- It disconnects on unmount, and (with `once`) the moment it has an answer.

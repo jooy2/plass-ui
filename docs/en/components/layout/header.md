@@ -55,7 +55,7 @@ What the shared axes (`variant` `size` `color` `density` `elevation`) mean acros
 
 ## PlHeader or PlToolbar
 
-A [`PlToolbar`](../surfaces/toolbar) is a row of controls anywhere on a screen, and it takes its height from its padding alone. A header is the page's **banner**: it has a height floor, a measure, a brand slot, and a place in a [`PlPageLayout`](./page-layout) — none of which mean anything on a row of controls beside a table.
+A [`PlToolbar`](../surfaces/toolbar) is a row of controls anywhere on a screen, and it takes its height from its padding alone. A header is the page's **banner**: it has a height floor, a measure, a brand slot, and a place in a [`PlPageLayout`](./page-layout), none of which mean anything on a row of controls beside a table.
 
 Reach for the toolbar when what you have is controls. Reach for this when what you have is the top of a page.
 
@@ -65,13 +65,13 @@ Reach for the toolbar when what you have is controls. Reach for this when what y
 
 `brand`, `children` and `actions`, in that order. They are props rather than sub-components for [`PlCard`](../surfaces/card)'s reason: the arrangement is fixed, and what a caller decides is what goes in each.
 
-A slot that is empty draws nothing — a header with only a brand is one region, not three.
+A slot that is empty draws nothing. A header with only a brand is one region, not three.
 
 ### align
 
 Where the middle sits. `start` packs it against the brand and is the default; `end` packs it against the actions.
 
-`center` is the one worth explaining. Centring the middle in the space _left over_ puts it wherever the brand happens to end, so a logo one character longer moves the navigation — which is exactly what a reader notices between two pages of the same site. Both ends are given equal shares instead, so the middle lands on the bar's own midline whatever is in them. An empty end still takes its half.
+`center` is the one worth explaining. Centring the middle in the space _left over_ puts it wherever the brand happens to end, so a logo one character longer moves the navigation, which is exactly what a reader notices between two pages of the same site. Both ends are given equal shares instead, so the middle lands on the bar's own midline whatever is in them. An empty end still takes its half.
 
 <Demo src="header/align" :min-height="240">
 
@@ -95,7 +95,7 @@ Where the middle sits. `start` packs it against the brand and is the default; `e
 
 `sticky` is the default: the bar is held against the top of the window once the page has scrolled to it, and it stays in the flow, so nothing underneath has to be padded out of its way.
 
-`fixed` takes it out of the flow entirely — inside a `PlPageLayout` that is answered for you, because the layout reserves the bar's height. `static` lets it scroll away with the page.
+`fixed` takes it out of the flow entirely, inside a `PlPageLayout` that is answered for you, because the layout reserves the bar's height. `static` lets it scroll away with the page.
 
 <Demo src="header/position" :flutter="false" :min-height="300">
 
@@ -107,7 +107,7 @@ Where the middle sits. `start` packs it against the brand and is the default; `e
 
 ### variant
 
-The three materials, read the way a **container** reads them. The bar is never dyed: what is on it — a chip, a button, an avatar — arrives with colours of its own, and a tinted sheet would put every one of them on a background it was not chosen against.
+The three materials, read the way a **container** reads them. The bar is never dyed: what is on it (a chip, a button, an avatar) arrives with colours of its own, and a tinted sheet would put every one of them on a background it was not chosen against.
 
 `divider` is on by default and is what actually separates the bar from the content: a translucent sheet pinned over a scrolling page has content passing underneath it at every moment, and nothing marking its edge reads as part of that.
 
@@ -129,7 +129,7 @@ The three materials, read the way a **container** reads them. The bar is never d
 
 ### size
 
-The bar's floor is a control of the same `size` with air above and below it — `md` is 64px, which is a 40px control with 12px either side. It is a floor and not a height: a bar whose content wraps grows, and keeps its padding while it does.
+The bar's floor is a control of the same `size` with air above and below it. `md` is 64px, which is a 40px control with 12px either side. It is a floor and not a height: a bar whose content wraps grows, and keeps its padding while it does.
 
 `density` moves the gutter and nothing else, as everywhere else in the library.
 
@@ -151,9 +151,9 @@ The bar's floor is a control of the same `size` with air above and below it — 
 
 ### maxWidth
 
-Holds the row of slots to a measure and centres it while the sheet still spans the window — which is what a site header on a wide screen almost always wants.
+Holds the row of slots to a measure and centres it while the sheet still spans the window, which is what a site header on a wide screen almost always wants.
 
-**The same ladder and the same type a [`PlContainer`](./container) takes**, and one implementation behind all three — a bar whose measure did not line up with the container under it is the defect that prevents. <Fw react="It is responsive and takes any CSS length with it." flutter="It is responsive, and takes an exact width as well as a rung." />
+**The same ladder and the same type a [`PlContainer`](./container) takes**, and one implementation behind all three, a bar whose measure did not line up with the container under it is the defect that prevents. <Fw react="It is responsive and takes any CSS length with it." flutter="It is responsive, and takes an exact width as well as a rung." />
 
 It is the same `rem` ladder [`PlContainer`](./container)'s `maxWidth` uses (`xs` 30 · `sm` 40 · `md` 48 · `lg` 64 · `xl` 80), so the logo and the first paragraph of the page under it sit on one edge rather than two that nearly agree.
 

@@ -5,7 +5,7 @@ order: 12
 
 # PlAnimateZoom
 
-<p class="plass-lede">Content arriving from the middle of where it will end up. Use it for the one thing on a screen that is meant to interrupt — a confirmation, a result, a number that has just landed.</p>
+<p class="plass-lede">Content arriving from the middle of where it will end up. Use it for the one thing on a screen that is meant to interrupt, a confirmation, a result, a number that has just landed.</p>
 
 <Demo src="animate-zoom/hero" :min-height="280" />
 
@@ -51,7 +51,7 @@ Every native `<div>` attribute passes straight through, and `render` swaps the e
 
 :::
 
-There is deliberately **no `origin`**. A zoom anchored to a corner is a grow, and the library does not offer two spellings of one idea — reach for [PlAnimateGrow](./animate-grow) when the effect should come out of something next to it.
+There is deliberately **no `origin`**. A zoom anchored to a corner is a grow, and the library does not offer two spellings of one idea — use [PlAnimateGrow](./animate-grow) when the effect should come out of something next to it.
 
 The ten shared settings — `duration`, `delay`, `easing`, `repeat`, `alternate`, `paused`, `trigger`, `play`, `once`, `threshold` — are the same on every `PlAnimate*` component. The four `trigger` values are shown on the [PlAnimateFade](./animate-fade) page. `timeline="view"` and `range` are there too, and hand the effect to the reader's scroll position instead of the clock.
 

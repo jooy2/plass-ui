@@ -5,7 +5,7 @@ order: 1
 
 # PlButton
 
-<p class="plass-lede">A control that runs an action. Use it for anything the user deliberately triggers — submitting a form, saving, deleting.</p>
+<p class="plass-lede">A control that runs an action. Use it for anything the user deliberately triggers, submitting a form, saving, deleting.</p>
 
 <Demo src="button/hero" />
 
@@ -185,9 +185,9 @@ The size arrives through `IconTheme`, which an `Icon` reads on its own; a glyph 
 | `readOnly` | Keeps its colour, goes flat, drains saturation            | Kept  |
 | `disabled` | Loses the light and the shadow; the page shows through it | Lost  |
 
-All three are announced as unavailable, and only `disabled` also leaves the focus order. Flutter has no equivalent of `aria-busy`, so a screen reader cannot tell `loading` from `readOnly` — put the difference in the `semanticLabel` if it matters on your screen.
+All three are announced as unavailable, and only `disabled` also leaves the focus order. Flutter has no equivalent of `aria-busy`, so a screen reader cannot tell `loading` from `readOnly`. Put the difference in the `semanticLabel` if it matters on your screen.
 
-Leaving `onPressed` null does the same thing as `disabled: true`, which is what a Flutter developer will reach for first.
+Leaving `onPressed` null does the same thing as `disabled: true`, which is what a Flutter developer will try first.
 
 :::
 
@@ -213,7 +213,7 @@ None of the three let a tap reach the parent.
 
 Drop shadow depth. The default is `1`, not `0`: a key rests **on** the sheet. Hovering adds a level and pressing removes one, which is what puts a default button down flush against the glass under the finger.
 
-The tinted shadow a `solid` button casts in its own colour is **not** part of this ladder and does not scale with it — `elevation` says how far off the page a surface is, and a `danger` button one level higher is not a redder pane of glass.
+The tinted shadow a `solid` button casts in its own colour is **not** part of this ladder and does not scale with it. `elevation` says how far off the page a surface is, and a `danger` button one level higher is not a redder pane of glass.
 
 <Demo src="button/elevation">
 
@@ -255,7 +255,7 @@ Stretches to the width of the container.
 
 ### render
 
-Renders something other than a `<button>`. An action that navigates should be an `<a href>`: a crawler follows it, it appears in a screen reader's list of links, and the browser's own behaviour — open in a new tab, copy the address — keeps working. A router's `Link` goes in the same way.
+Renders something other than a `<button>`. An action that navigates should be an `<a href>`: a crawler follows it, it appears in a screen reader's list of links, and the browser's own behaviour (open in a new tab, copy the address) keeps working. A router's `Link` goes in the same way.
 
 The surface, the sizes and the press signature are unchanged. An `<a>` has no `disabled`, so a button that has to be unavailable stays a `<button>`.
 
@@ -285,7 +285,7 @@ The surface, the sizes and the press signature are unchanged. An `<a>` has no `d
 
 - Announced as a button, enabled or not, with its label read off its `child`.
 - Give icon-only buttons a `semanticLabel`.
-- The focus ring only appears on what CSS calls `:focus-visible` — a keyboard reaching the control, never a pointer clicking it. Flutter's name for the same distinction is `FocusableActionDetector`'s focus highlight.
+- The focus ring only appears on what CSS calls `:focus-visible`, a keyboard reaching the control, never a pointer clicking it. Flutter's name for the same distinction is `FocusableActionDetector`'s focus highlight.
 - <kbd>Enter</kbd>, <kbd>Space</kbd> and the numpad <kbd>Enter</kbd> activate the button. They are bound on the button itself, so it behaves the same with or without an app widget above it.
 - `loading` and `readOnly` keep focus: dropping out of the focus order costs keyboard users their sense of the page.
 - Both ends of every gradient meet 4.5:1 against the label on them.
@@ -311,11 +311,11 @@ Everything above is the same in both packages. These are the places where it is 
 
 Two more that are not API, but are visible:
 
-- **The font.** Neither package sets one — a button inherits whatever its host uses, and supplying it is the app's job on both sides. The React previews here are drawn in the documentation site's UI font; the Flutter gallery ships Inter. It is the same button in two typefaces, not two buttons.
+- **The font.** Neither package sets one. A button inherits whatever its host uses, and supplying it is the app's job on both sides. The React previews here are drawn in the documentation site's UI font; the Flutter gallery ships Inter. It is the same button in two typefaces, not two buttons.
 
   This matters more than it sounds, because **a label is weight 600 and not every font has one.** Flutter's engine carries a single face, Roboto Regular, and synthesises anything else by widening its strokes, and Roboto's own family goes 400, 500, 700 with no 600 in it. An app on a font with no real SemiBold gets a label that is heavier and visibly softer than the one above. Inter, Pretendard, SF and Noto Sans all have the weight; Roboto does not.
 
-- **The blur.** `glass` blurs what is painted behind it, and in Flutter that means _inside the same app_. The previews here are iframes, so the gallery paints the page's backdrop itself — which is why a `glass` button in a Flutter preview has something to be in front of.
+- **The blur.** `glass` blurs what is painted behind it, and in Flutter that means _inside the same app_. The previews here are iframes, so the gallery paints the page's backdrop itself, which is why a `glass` button in a Flutter preview has something to be in front of.
 
 Everything else is matched deliberately, including the parts where the same number would have been wrong: shadow blur is converted from the CSS radius to Flutter's sigma so the two shadows are the same size, and the `solid` gradient computes its endpoints the way `linear-gradient(135deg, …)` does rather than running corner to corner, which on a wide button is a visibly different sweep.
 

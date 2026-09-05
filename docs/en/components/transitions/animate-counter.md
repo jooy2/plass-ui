@@ -5,7 +5,7 @@ order: 15
 
 # PlAnimateCounter
 
-<p class="plass-lede">A number counting up to what it is. The one effect here that animates content rather than a box — and the one that starts when it is seen rather than when it mounts.</p>
+<p class="plass-lede">A number counting up to what it is. The one effect here that animates content rather than a box, and the one that starts when it is seen rather than when it mounts.</p>
 
 <Demo src="animate-counter/hero" :min-height="200" />
 
@@ -40,17 +40,17 @@ PlAnimateCounter(
 
 **`trigger` defaults to `visible`**, and it is the one component in the library that does not start on mount.
 
-That is deliberate rather than an oversight. An entrance played off screen has still delivered its content — the words are there when the reader arrives, which is all a fade was ever carrying. A count that ran off screen delivered a number that was **already sitting there**, which is the one thing a counter cannot afford: being watched is the whole point of it.
+That is deliberate rather than an oversight. An entrance played off screen has still delivered its content. The words are there when the reader arrives, which is all a fade was ever carrying. A count that ran off screen delivered a number that was **already sitting there**, which is the one thing a counter cannot afford: being watched is the whole point of it.
 
 ## Compared with a CSS keyframe
 
 CSS can animate a number. A registered custom property and a `counter()` in a pseudo-element tick one perfectly well, and that would be the neater implementation.
 
-It cannot **format** one. No thousands separator, no currency symbol, no folding 1,200,000 into `1.2M` — and a counter that cannot be formatted is a counter nobody can put on a dashboard. So the frame loop only decides which number is being drawn, and `Intl.NumberFormat` decides what it looks like.
+It cannot **format** one. No thousands separator, no currency symbol, no folding 1,200,000 into `1.2M`, and a counter that cannot be formatted is a counter nobody can put on a dashboard. So the frame loop only decides which number is being drawn, and `Intl.NumberFormat` decides what it looks like.
 
 ::: fw react
 
-Which is also why `easing` is a **function** here rather than a CSS string: there is no CSS animation running to hand a string to. It eases out by default, which is what a number arriving should do — quick enough to read as counting, slow enough at the end to land on the figure rather than snap to it.
+Which is also why `easing` is a **function** here rather than a CSS string: there is no CSS animation running to hand a string to. It eases out by default, which is what a number arriving should do. Quick enough to read as counting, slow enough at the end to land on the figure rather than snap to it.
 
 :::
 
@@ -88,7 +88,7 @@ Changing `value` counts again, from wherever the last one landed. A dashboard wh
 
 ## Accessibility
 
-- **A screen reader is told the answer, once.** The ticking figure is hidden from the accessibility tree and the final number sits beside it in a clipped span, because a number changing sixty times a second in that tree is either silence or sixty announcements — and neither of those is the figure.
+- **A screen reader is told the answer, once.** The ticking figure is hidden from the accessibility tree and the final number sits beside it in a clipped span, because a number changing sixty times a second in that tree is either silence or sixty announcements, and neither of those is the figure.
 - Where a reader has asked for less motion there is no count at all: the number is simply there, which is the only thing it was ever carrying.
-- Until it starts, the figure shown is the one it will count **from** — the same rule every keyframe here follows about its own first frame — so nothing claims a value it has not reached.
+- Until it starts, the figure shown is the one it will count **from**, the same rule every keyframe here follows about its own first frame, so nothing claims a value it has not reached.
 - The digits are `tabular-nums`, so the figure does not jitter as it counts.

@@ -45,13 +45,13 @@ Every native `<div>` attribute passes straight through. `color` is excluded beca
 
 :::
 
-There is no `variant`, no `density` and no `elevation`. An indicator is one material, it has nothing to pad, and it is cut **into** the surface it sits on the way a groove is — and a groove does not float.
+There is no `variant`, no `density` and no `elevation`. An indicator is one material, it has nothing to pad, and it is cut **into** the surface it sits on the way a groove is, and a groove does not float.
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
 ## Composition
 
-The groove is `--plass-track`, the same neutral ink a [`PlSlider`](../inputs/slider)'s rail and a [`PlSwitch`](../inputs/switch)'s off state are cut in — so a form with a slider, a switch and a progress bar in it is made of one material rather than three.
+The groove is `--plass-track`, the same neutral ink a [`PlSlider`](../inputs/slider)'s rail and a [`PlSwitch`](../inputs/switch)'s off state are cut in, so a form with a slider, a switch and a progress bar in it is made of one material rather than three.
 
 The segment over it is the family's gradient, which means the filled part of the run is exactly the material the button that submits the form is made of. It is also why the movement is on `width`: a gradient cannot be transitioned, and a length can.
 
@@ -61,7 +61,7 @@ Both the groove and the segment are fully rounded, and that is the one place the
 
 ### value
 
-`null` — the default — is the indeterminate case: something is happening and nobody knows how much of it is left. A bar with no value **sweeps** rather than sitting empty, because an empty bar is a claim that no progress has been made.
+`null`, the default, is the indeterminate case: something is happening and nobody knows how much of it is left. A bar with no value **sweeps** rather than sitting empty, because an empty bar is a claim that no progress has been made.
 
 A value outside `min`…`max` is clamped rather than drawn: `value` usually arrives from a division somewhere, and a bar that renders 140% wide because one request finished twice is a worse bug than a bar that sits full.
 
@@ -83,7 +83,7 @@ A value outside `min`…`max` is clamped rather than drawn: `value` usually arri
 
 ### size
 
-Thickness only. A bar is not a control you can put a label inside, and at `md` it wants to be the weight of a rule between two paragraphs rather than a quarter of a button — so these are `PlSlider`'s rail thicknesses, deliberately: a rail and a bar are the same channel, one of which you drag and one of which you watch.
+Thickness only. A bar is not a control you can put a label inside, and at `md` it wants to be the weight of a rule between two paragraphs rather than a quarter of a button, so these are `PlSlider`'s rail thicknesses, deliberately: a rail and a bar are the same channel, one of which you drag and one of which you watch.
 
 <Demo src="progress-linear/sizes" :min-height="240">
 
@@ -121,7 +121,7 @@ Thickness only. A bar is not a control you can put a label inside, and at `md` i
 
 ### showValue and format
 
-Without `format` the value is written as a percentage of `min`…`max`, which is the only formatting that holds for a range nobody described — "3%" for step 3 of 4 is worse than saying nothing.
+Without `format` the value is written as a percentage of `min`…`max`, which is the only formatting that holds for a range nobody described. "3%" for step 3 of 4 is worse than saying nothing.
 
 With it, the number goes straight to `Intl.NumberFormat`, so bytes, currencies and units all work and the value keeps whatever meaning the caller gave it.
 
@@ -156,9 +156,9 @@ With it, the number goes straight to `Intl.NumberFormat`, so bytes, currencies a
 ::: fw flutter
 
 - The bar is one merged semantics node carrying `SemanticsRole.progressBar` and its value, so the label and the bar are read together rather than as a name floating beside an unnamed indicator.
-- With no value the role is `SemanticsRole.loadingSpinner` and there is no value at all — which is what tells the platform to announce indeterminate progress rather than zero.
+- With no value the role is `SemanticsRole.loadingSpinner` and there is no value at all, which is what tells the platform to announce indeterminate progress rather than zero.
 - The drawn percentage is behind `ExcludeSemantics`: the same string is already the node's value, and it should be heard once.
-- With `MediaQuery.disableAnimations` the segment stops travelling, fills the groove and breathes instead — the same stand-in, on the same axis.
+- With `MediaQuery.disableAnimations` the segment stops travelling, fills the groove and breathes instead, the same stand-in, on the same axis.
 
 :::
 

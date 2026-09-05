@@ -55,7 +55,7 @@ So the size is read in a **layout effect** as well, which runs before the browse
 
 The room actually left inside the element once its own padding has been taken off.
 
-A hand-written version nearly always reports `getBoundingClientRect()` or the observer's `borderBoxSize` instead, and those are a different number: they include the padding and the border. For the question that made somebody measure an element — how much room is there for what goes inside it — they are the wrong one.
+A hand-written version nearly always reports `getBoundingClientRect()` or the observer's `borderBoxSize` instead, and those are a different number: they include the padding and the border. For the question that made somebody measure an element, how much room is there for what goes inside it, those are the wrong number.
 
 ## Examples
 

@@ -48,13 +48,13 @@ PlRadioGroup<String>(
 
 Every other prop on Base UI's `RadioGroup` passes straight through. `className` and `style` land on the field wrapper; `render` is not offered.
 
-`classNames` reaches the four parts inside that wrapper: `label`, `control` — the run of radios — `description` and `error`.
+`classNames` reaches the four parts inside that wrapper: `label`, `control` (the run of radios) `description` and `error`.
 
 :::
 
 ::: fw flutter
 
-The group is generic in the option's type — `PlRadioGroup<String>`, `PlRadioGroup<Plan>` — so `value` and `onChanged` are typed rather than `dynamic`, and an option that does not belong to the set will not compile.
+The group is generic in the option's type (`PlRadioGroup<String>`, `PlRadioGroup<Plan>`), so `value` and `onChanged` are typed rather than `dynamic`, and an option that does not belong to the set will not compile.
 
 It is **controlled**, like every other control in the package.
 
@@ -160,7 +160,7 @@ Every step's inner disc has the same **parity** as the ring's content box (12/6,
 
 ### readOnly · disabled · error
 
-`disabled` on the group stops every option; on one `PlRadio` it stops only that one, and the option stays in the list — an option that vanishes when it cannot be chosen is an option the reader will look for.
+`disabled` on the group stops every option; on one `PlRadio` it stops only that one, and the option stays in the list, an option that vanishes when it cannot be chosen is an option the reader will look for.
 
 `error` on the group also turns it invalid, which re-points the whole colour family at `danger`.
 
@@ -184,13 +184,13 @@ Every step's inner disc has the same **parity** as the ring's content box (12/6,
 
 ::: fw react
 
-Pass `value` with `onValueChange`. The value is whatever a `PlRadio` was given — usually a string, but Base UI compares by identity, so anything works as long as it is stable between renders.
+Pass `value` with `onValueChange`. The value is whatever a `PlRadio` was given. Usually a string, but Base UI compares by identity, so anything works as long as it is stable between renders.
 
 :::
 
 ::: fw flutter
 
-There is only the controlled form: `value` with `onChanged`. Options are compared with `==`, so a value type with a sensible equality — a `String`, an `enum`, anything `@immutable` — works without being kept identical between builds.
+There is only the controlled form: `value` with `onChanged`. Options are compared with `==`, so a value type with a sensible equality (a `String`, an `enum`, anything `@immutable`) works without being kept identical between builds.
 
 :::
 
@@ -214,8 +214,8 @@ There is only the controlled form: `value` with `onChanged`. Options are compare
 
 ::: fw react
 
-- Base UI renders a `role="radiogroup"` holding real radios, keeps `aria-checked` in step, and owns the roving tab index — the set takes one tab stop and <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> move within it. That is the whole reason a radio group is a component rather than a `<div>` full of inputs.
-- The group's `label`, `description` and `error` are wired to it by Base UI's Field, and so is each option's own label — pressing a label chooses its option.
+- Base UI renders a `role="radiogroup"` holding real radios, keeps `aria-checked` in step, and owns the roving tab index. The set takes one tab stop and <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> move within it. That is the whole reason a radio group is a component rather than a `<div>` full of inputs.
+- The group's `label`, `description` and `error` are wired to it by Base UI's Field, and so is each option's own label, pressing a label chooses its option.
 - Each dot is centred on its label's **first** line, so it stays put when a label wraps.
 - A chosen dot is a filled disc, not a colour change alone: the shape carries the state for a reader who cannot see the fill.
 - With `name`, Base UI renders the hidden input that makes the choice part of a native form submission.
@@ -241,7 +241,7 @@ There is only the controlled form: `value` with `onChanged`. Options are compare
 | --- | --- | --- |
 | `<PlRadio>` children | `options`, as descriptions | The group owns the roving focus and the arrow keys, so it has to know which option is chosen and what comes after it. A `Widget` is opaque. |
 | `defaultValue` / `onValueChange` | `value` / `onChanged` | Flutter's own controls are controlled, and its name for the callback. |
-| a value of `unknown`, compared by identity | a generic `T`, compared with `==` | Dart has generics, so the type is checked rather than hoped for — and a value with sensible equality does not have to stay identical between builds. |
+| a value of `unknown`, compared by identity | a generic `T`, compared with `==` | Dart has generics, so the type is checked rather than hoped for, and a value with sensible equality does not have to stay identical between builds. |
 | `name`, and a hidden input | — | There is no native form submission to be part of. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 

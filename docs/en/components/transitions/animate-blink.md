@@ -5,7 +5,7 @@ order: 2
 
 # PlAnimateBlink
 
-<p class="plass-lede">Content pulsing between full opacity and a floor. The cycle is symmetric — full, faint, full — so however many times it runs, it ends where it started.</p>
+<p class="plass-lede">Content pulsing between full opacity and a floor. The cycle is symmetric (full, faint, full), so however many times it runs, it ends where it started.</p>
 
 <Demo src="animate-blink/hero" :min-height="160" />
 

@@ -81,7 +81,7 @@ const perPage = usePlBreakpointValue({ xs: 10, md: 25, xl: 50 }) ?? 10;
 
 ## Notes
 
-- **`xs` is the server's answer**, and the first one a browser renders — the same rule [`usePlMediaQuery`](./use-media-query) explains, and for the same reason. It is also the safe one: `xs` is the narrow layout.
-- It is four media queries rather than one `innerWidth` read. A width measured in JavaScript has to be compared against a number of pixels, and the ladder is written in `rem` — so a reader who has enlarged their default font size would get a rung that disagrees with the stylesheet.
+- **`xs` is the server's answer**, and the first one a browser renders, the same rule [`usePlMediaQuery`](./use-media-query) explains, and for the same reason. It is also the safe one: `xs` is the narrow layout.
+- It is four media queries rather than one `innerWidth` read. A width measured in JavaScript has to be compared against a number of pixels, and the ladder is written in `rem`, so a reader who has enlarged their default font size would get a rung that disagrees with the stylesheet.
 - An **object is read as a map**, exactly as it is in a responsive prop. A value that is itself an object has to be wrapped: `{ xs: { … } }`.
-- `usePlBreakpointValue` calls `usePlBreakpoint`, which calls four media queries. Hooks are cheap here — the listener is shared per query across the whole page — but the value is recomputed on every render, so keep the map itself out of the render body if it is large.
+- `usePlBreakpointValue` calls `usePlBreakpoint`, which calls four media queries. Hooks are cheap here, the listener is shared per query across the whole page, but the value is recomputed on every render, so keep the map itself out of the render body if it is large.

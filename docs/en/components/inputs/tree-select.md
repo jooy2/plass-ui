@@ -5,7 +5,7 @@ order: 22
 
 # PlTreeSelect
 
-<p class="plass-lede">A value chosen out of a hierarchy rather than out of a list. A <code>PlTree</code> behind a field, for a category, a folder, a region or an org chart node — the shapes a flat list flattens away.</p>
+<p class="plass-lede">A value chosen out of a hierarchy rather than out of a list. A <code>PlTree</code> behind a field, for a category, a folder, a region or an org chart node, the shapes a flat list flattens away.</p>
 
 <Demo src="tree-select/hero" :min-height="220" />
 
@@ -50,7 +50,7 @@ PlTreeSelect(
 );
 ```
 
-The popup lifts itself out of the tree, so a tree select needs an `Overlay` above it — `WidgetsApp` with a navigator and `MaterialApp` both provide one.
+The popup lifts itself out of the tree, so a tree select needs an `Overlay` above it, `WidgetsApp` with a navigator and `MaterialApp` both provide one.
 
 :::
 
@@ -72,7 +72,7 @@ A `className` lands on the stack that holds the label, the control and the two l
 
 ::: fw flutter
 
-`value` is a **`Set<String>`** and it is controlled — there is no uncontrolled form, which is the package's rule for every input in it. `expanded` and `open` are the two exceptions: leave either out and the picker keeps it itself.
+`value` is a **`Set<String>`** and it is controlled. There is no uncontrolled form, which is the package's rule for every input in it. `expanded` and `open` are the two exceptions: leave either out and the picker keeps it itself.
 
 A node's `label` is a **`String`** here and a `ReactNode` in React, which is the divergence `PlTransferItem` already carries. The filter reads the label, the trigger writes it and a screen reader is handed it, so text is what keeps every node searchable by construction. That is also why there is no `searchLabel` on this side: the label is already the words.
 
@@ -84,7 +84,7 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 ### searchable
 
-A field above the tree that filters it. A match keeps **its ancestors** — a "Seoul" under nothing at all does not say which taxonomy it came out of — and every branch the filter kept is opened, since a match folded inside a shut parent is a match nobody was shown.
+A field above the tree that filters it. A match keeps **its ancestors**, a "Seoul" under nothing at all does not say which taxonomy it came out of, and every branch the filter kept is opened, since a match folded inside a shut parent is a match nobody was shown.
 
 <Demo src="tree-select/searchable" :min-height="220">
 
@@ -112,13 +112,13 @@ The fold is accent- and case-insensitive, so `jose` finds `José`.
 
 ::: fw flutter
 
-The fold is case-insensitive. It does **not** strip accents, because Dart's core has no `String.normalize` and this package has no dependencies — the React build folds accents as well.
+The fold is case-insensitive. It does **not** strip accents, because Dart's core has no `String.normalize` and this package has no dependencies. The React build folds accents as well.
 
 :::
 
 ### selectableBranches
 
-Off by default, which is the shape most of these trees have: the branches are the taxonomy and the leaves are the answers. A branch that cannot be chosen still opens and closes — pressing it is how you get at what is under it.
+Off by default, which is the shape most of these trees have: the branches are the taxonomy and the leaves are the answers. A branch that cannot be chosen still opens and closes. Pressing it is how you get at what is under it.
 
 <Demo src="tree-select/branches" :min-height="220">
 
@@ -191,7 +191,7 @@ Opening a folder is not choosing it, which is why the second pair exists at all.
 ## Accessibility
 
 - The trigger is a button, exactly as every other picker's is, and it carries the label, the description, the error and `aria-invalid`.
-- What is inside the popup is a real [`PlTree`](../display/tree) — `role="tree"` of `role="treeitem"`s, `aria-level`, `aria-expanded`, `aria-selected`, and **one tab stop** for the whole thing.
+- What is inside the popup is a real [`PlTree`](../display/tree), `role="tree"` of `role="treeitem"`s, `aria-level`, `aria-expanded`, `aria-selected`, and **one tab stop** for the whole thing.
 - <kbd>↓</kbd> and <kbd>↑</kbd> walk the rows that are visible, <kbd>→</kbd> opens a branch and steps into it, <kbd>←</kbd> closes it or steps out, and <kbd>Enter</kbd> or <kbd>Space</kbd> chooses.
 - A node that cannot be chosen is not marked `aria-disabled` when it is only a branch: it is still an operable row, because pressing it opens what is under it. A `disabled` node is marked, and is not a stop for the arrow keys.
 - The filter field names itself with `searchLabel`, so it is announced without a visible label above it.
