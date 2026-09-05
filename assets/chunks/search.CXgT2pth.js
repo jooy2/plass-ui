@@ -1,0 +1,1 @@
+const n=/[\u0300-\u036f]/g,r="\0";function o(t){return t==null||typeof t=="object"?"":String(t).normalize("NFD").replace(n,"").toLowerCase()}function e(t){return t.map(o).join(r)}export{e as a,o as s};

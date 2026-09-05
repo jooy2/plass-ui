@@ -1,0 +1,1 @@
+import{j as n}from"./jsx-runtime.BjG_zV1W.js";import{r as e}from"./index.CAJ_Adw3.js";import{P as i}from"./PlButton.DQaBBYvk.js";const f=e.forwardRef(function({icon:t,label:o,style:r,...s},a){return n.jsx(i,{ref:a,"aria-label":o,startIcon:t,style:{borderRadius:"9999px",...r},...s})});export{f as P};

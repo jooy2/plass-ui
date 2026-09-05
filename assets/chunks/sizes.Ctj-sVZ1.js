@@ -1,0 +1,1 @@
+import{j as s}from"./jsx-runtime.BjG_zV1W.js";import{P as t}from"./PlPill.COzPAU8D.js";import"./index.CAJ_Adw3.js";import"./defaults.BtV0mQSg.js";import"./styles.6uY97IBz.js";function p(){return s.jsx("div",{className:"flex flex-col items-center gap-3",children:["xs","sm","md","lg","xl"].map(l=>s.jsx(t,{size:l,color:"success",title:`size: ${l}`},l))})}export{p as default};
