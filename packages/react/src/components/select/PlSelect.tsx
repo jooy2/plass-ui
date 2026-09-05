@@ -228,6 +228,16 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
       [items]
     );
 
+    // The popup's own state, which the component would otherwise not need to
+    // hold. Base UI's `readOnly` means "nothing in the popup can be chosen" and
+    // lets it open anyway; every other picker in this library promises that a
+    // read-only control's popup **does not open**, and a select that opened
+    // beside a date picker that did not would be the form that looks assembled
+    // rather than designed. Held rather than passed as `readOnly ? false :
+    // undefined`, so a field that is unlocked while it is on screen does not
+    // switch between controlled and uncontrolled under Base UI.
+    const [open, setOpen] = React.useState(false);
+
     // Holds the trigger open at the width of the longest thing it could say, so
     // choosing a shorter option does not shrink the field out from under the
     // pointer that chose it.
@@ -277,6 +287,8 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
           disabled={disabled}
           readOnly={readOnly}
           required={required}
+          open={open && !readOnly}
+          onOpenChange={setOpen}
         >
           <BaseUISelect.Trigger
             ref={ref}

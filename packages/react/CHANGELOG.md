@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+### Fixed
+
+- **A read-only `PlSelect` opened its popup again.** Base UI 1.8 redefined `readOnly` on a select to mean "nothing in the popup can be chosen" and lets it open regardless; every other picker in this library promises that a read-only control's popup does not open at all, and a select that opened beside a date picker that did not is the form that looks assembled rather than designed. `PlSelect` now holds the popup's open state itself and keeps it shut while `readOnly` — held rather than passed conditionally, so a field unlocked while it is on screen does not switch between controlled and uncontrolled underneath Base UI.
+
 ### Added
 
 - **`PlTreeSelect`.** A value chosen out of a hierarchy rather than out of a list — a `PlTree` behind the same field every other picker wears.

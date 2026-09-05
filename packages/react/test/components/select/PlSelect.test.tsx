@@ -139,6 +139,18 @@ describe('PlSelect', () => {
 
       expect(screen.getByRole('option').query()).toBeNull();
     });
+
+    it('opens again once the read-only is lifted', async () => {
+      const screen = await render(<PlSelect items={items} readOnly defaultValue="seoul" />);
+
+      await screen.getByRole('combobox').click();
+      expect(screen.getByRole('option').query()).toBeNull();
+
+      await screen.rerender(<PlSelect items={items} defaultValue="seoul" />);
+      await screen.getByRole('combobox').click();
+
+      await expect.element(screen.getByRole('option', { name: 'Seoul' })).toBeInTheDocument();
+    });
   });
 
   describe('forms', () => {
