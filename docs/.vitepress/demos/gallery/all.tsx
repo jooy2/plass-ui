@@ -134,6 +134,7 @@ import {
   PlToolbar,
   PlTransfer,
   PlTree,
+  PlTreeSelect,
   PlTooltip,
   PlTour,
   usePlConfirm,
@@ -1078,6 +1079,34 @@ const entries: Entry[] = [
             ]
           },
           { id: 'readme', label: 'README.md' }
+        ]}
+      />
+    )
+  },
+  {
+    name: 'PlTreeSelect',
+    group: 'inputs',
+    href: 'components/inputs/tree-select',
+    blurb: {
+      en: 'A value chosen out of a hierarchy rather than out of a list.',
+      ko: '리스트가 아니라 계층에서 고르는 값입니다.'
+    },
+    preview: (
+      <PlTreeSelect
+        size="xs"
+        fullWidth
+        defaultValue={['france']}
+        defaultExpanded={['europe']}
+        items={[
+          {
+            id: 'europe',
+            label: 'Europe',
+            children: [
+              { id: 'france', label: 'France' },
+              { id: 'spain', label: 'Spain' }
+            ]
+          },
+          { id: 'antarctica', label: 'Antarctica' }
         ]}
       />
     )

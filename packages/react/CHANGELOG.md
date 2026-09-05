@@ -6,6 +6,22 @@
 
 ### Added
 
+- **`PlTreeSelect`.** A value chosen out of a hierarchy rather than out of a list — a `PlTree` behind the same field every other picker wears.
+
+  It is the two of them composed and almost nothing else. The trigger is `PickerShell`, the popup is a `PlTree` with a `PlTextField` over it, and what the component adds is the arithmetic between them: which nodes a query keeps, which branches that opens, and which of the ids coming back out of the tree are answers rather than roads.
+
+  **`selectableBranches` is off by default**, which is the shape most of these trees actually have: the branches are the taxonomy and the leaves are the answers, and a "Europe" held alongside "France" is usually a data model nobody meant. A node's own `selectable` overrides it either way, and a branch that cannot be chosen still opens and closes — pressing it is how you get at what is under it.
+
+  Which is why **turning a branch press down is not the same as clearing**. A single-value tree hands back exactly one id, so treating an unusable one as an empty answer would empty the field every time somebody opened a folder. The press is dropped and what is held stays held.
+
+  `searchable` keeps every match **and every ancestor of one**. A tree filtered to bare matches is a list, and a list of leaves is exactly what a tree was chosen over — a "Seoul" with nothing above it does not say which taxonomy it came out of. Every branch the filter kept is opened, since a match folded inside a shut parent is a match nobody was shown, and emptying the field hands the folds back to the reader untouched. The fold is `internal/search`'s, so `jose` finds `José` here exactly as it does in a `PlCommandPalette`.
+
+  `multiple` keeps every node a press adds and leaves the popup up, because a picker that shut after the first of several answers would have to be reopened for each of the rest. `format` writes the trigger however the caller likes, and `name` puts one `<input type="hidden">` on the page per held id.
+
+  No new label: `search`, `empty` and `clear` were already words this library says.
+
+  Measured with `npm run size`: **+0.9 kB on the whole library and +0.0 kB on all four other scenarios**.
+
 - **`PlTour`.** A guided walk over a page that already exists — the three things a new reader has to be shown once, pointed at where they actually are.
 
   It is `PlHowToSteps` turned inside out. That component puts the instructions _in_ the page and the reader follows them; this one leaves the page as it is and stands over it. So a step **says what it is about** rather than describing it: what a tour points at is already on screen, and a second copy inside the card is a second copy to keep in step.

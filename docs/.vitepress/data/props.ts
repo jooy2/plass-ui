@@ -12252,6 +12252,283 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlTreeSelect: [
+    {
+      name: 'items',
+      type: 'readonly PlTreeSelectNode[]',
+      required: true,
+      description: { ko: '트리 전체를 데이터로', en: 'The whole tree, as data' }
+    },
+    {
+      name: 'value',
+      type: 'readonly string[]',
+      description: {
+        ko: '고른 node의 id들. 제어하려면 onValueChange와 함께',
+        en: 'The ids of the chosen nodes. Use with onValueChange to control the picker'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'readonly string[]',
+      description: { ko: '처음부터 골라져 있을 것', en: 'What starts chosen' }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string[]) => void',
+      description: { ko: '고른 것이 바뀌었을 때', en: 'Called when the selection changes' }
+    },
+    {
+      name: 'multiple',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '한 번에 둘 이상을 쥘 수 있는지',
+        en: 'Whether more than one node may be held at once'
+      }
+    },
+    {
+      name: 'selectableBranches',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '자식이 있는 node도 고를 수 있는지. node의 selectable이 어느 쪽으로든 덮어씁니다',
+        en: "Whether a node with children may itself be chosen. A node's own selectable overrides it either way"
+      }
+    },
+    {
+      name: 'expanded',
+      type: 'readonly string[]',
+      description: {
+        ko: '열려 있는 가지의 id들. 제어하려면 onExpandedChange와 함께',
+        en: 'The ids of the branches that are open. Use with onExpandedChange to control them'
+      }
+    },
+    {
+      name: 'defaultExpanded',
+      type: 'readonly string[]',
+      description: { ko: '처음부터 열려 있을 가지들', en: 'The branches that start open' }
+    },
+    {
+      name: 'onExpandedChange',
+      type: '(expanded: string[]) => void',
+      description: { ko: '가지가 열리거나 닫혔을 때', en: 'Called when a branch opens or closes' }
+    },
+    {
+      name: 'open',
+      type: 'boolean',
+      description: {
+        ko: '팝업이 열려 있는지. onOpenChange와 함께 controlled로 씁니다',
+        en: 'Whether the popup is open. Use with onOpenChange to control it'
+      }
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '팝업이 열린 채로 시작할지', en: 'Whether the popup starts open' }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: {
+        ko: '팝업이 열리고 닫힐 때 호출됩니다',
+        en: 'Called when the popup opens or closes'
+      }
+    },
+    {
+      name: 'placeholder',
+      type: 'ReactNode',
+      description: {
+        ko: '아무것도 고르지 않았을 때 trigger에 보이는 내용',
+        en: 'Shown in the trigger while nothing is chosen'
+      }
+    },
+    {
+      name: 'clearable',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '값을 비우는 ×를 보여 줍니다',
+        en: 'Offers the × that empties the control'
+      }
+    },
+    {
+      name: 'closeOnSelect',
+      type: 'boolean',
+      default: '!multiple',
+      description: {
+        ko: 'node를 고르자마자 팝업을 닫을지',
+        en: 'Closes the popup as soon as a node is chosen'
+      }
+    },
+    {
+      name: 'searchable',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '트리 위에 걸러 내는 field를 둡니다. 맞은 node는 조상을 데리고 남습니다',
+        en: 'Offers a field above the tree that filters it. A match keeps its ancestors'
+      }
+    },
+    {
+      name: 'searchLabel',
+      type: 'string',
+      default: "'Search'",
+      description: { ko: '거르는 field에 적히는 말', en: 'The word in the filter field' }
+    },
+    {
+      name: 'emptyLabel',
+      type: 'string',
+      default: "'Nothing here'",
+      description: {
+        ko: '아무것도 걸리지 않았을 때 팝업이 하는 말',
+        en: 'What the popup says when the filter matched nothing'
+      }
+    },
+    {
+      name: 'format',
+      type: '(chosen: PlTreeSelectNode[]) => ReactNode',
+      description: {
+        ko: 'trigger가 쥔 것을 쓰는 방식. 기본은 label을 쉼표로 이은 것',
+        en: 'How the trigger writes what is held. Defaults to the labels, comma-joined'
+      }
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: {
+        ko: '폼 제출에서 field를 식별합니다. 값 하나당 hidden input 하나',
+        en: 'Identifies the field when a form is submitted. One hidden input per value'
+      }
+    },
+    ...sharedProps({
+      variant: "'glass'",
+      size: "'md'",
+      variantDescription: {
+        ko: 'trigger의 재질. PlTextField와 같은 껍데기를 씁니다',
+        en: "The material of the trigger, drawn on PlTextField's shell"
+      },
+      elevationDescription: {
+        ko: 'trigger의 그림자 깊이. 팝업은 3으로 고정입니다',
+        en: 'Drop shadow depth of the trigger. The popup has its own, fixed at 3'
+      }
+    }),
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: { ko: 'trigger 위 라벨', en: 'Label above the trigger' }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: { ko: 'trigger 아래 보조 설명', en: 'Helper text below the trigger' }
+    },
+    {
+      name: 'error',
+      type: 'ReactNode',
+      description: {
+        ko: '오류 메시지. 존재 자체가 invalid 상태를 만듭니다',
+        en: 'Error message below. Its presence also turns the control invalid'
+      }
+    },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: {
+        ko: '메시지 없이 invalid로 만듭니다',
+        en: 'Forces the invalid state without a message'
+      }
+    },
+    {
+      name: 'startIcon',
+      type: 'ReactNode',
+      description: { ko: '값 앞의 글리프', en: 'The glyph before the value' }
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '컨테이너 너비만큼 확장', en: 'Stretches to the width of the container' }
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '값은 보이지만 바꿀 수 없고, 팝업도 열리지 않습니다',
+        en: 'The value is shown but cannot be changed, and the popup does not open'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '사용 불가', en: 'Unavailable' }
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '폼 제출 전에 값이 있어야 하는지',
+        en: 'Whether a value must be chosen before the form is submitted'
+      }
+    }
+  ],
+  PlTreeSelectNode: [
+    {
+      name: 'id',
+      type: 'string',
+      required: true,
+      description: {
+        ko: '트리 전체에서 유일한 식별자',
+        en: 'What identifies it, unique across the whole tree'
+      }
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      required: true,
+      description: { ko: '행이 말하는 것', en: 'What the row says' }
+    },
+    {
+      name: 'searchLabel',
+      type: 'string',
+      description: {
+        ko: '검색이 대조하는 문자열. label이 문자열이면 그것으로, 아니면 id로 떨어집니다',
+        en: 'What a search matches against. Falls back to the label when that is a string, and to the id when it is not'
+      }
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: { ko: 'label 앞의 글리프', en: 'A glyph before the label' }
+    },
+    {
+      name: 'children',
+      type: 'readonly PlTreeSelectNode[]',
+      description: {
+        ko: '자식들. 빈 배열은 아무것도 없는 **가지**이고, undefined는 **잎**입니다',
+        en: 'Its own children. An empty array is a **branch** with nothing in it; undefined is a **leaf**'
+      }
+    },
+    {
+      name: 'selectable',
+      type: 'boolean',
+      description: {
+        ko: '이 node 자체를 고를 수 있는지. 잎은 true, 가지는 selectableBranches를 따릅니다',
+        en: 'Whether this node may itself be chosen. Defaults to true for a leaf and to selectableBranches for a branch'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      description: {
+        ko: '트리에는 있지만 고를 수 없고, 화살표 키의 정거장도 아닙니다',
+        en: 'In the tree but not selectable, and not a stop for the arrow keys'
+      }
+    }
+  ],
   PlImage: [
     { name: 'src', type: 'string', description: { ko: '사진의 주소', en: 'Where the picture is' } },
     {

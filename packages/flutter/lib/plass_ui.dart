@@ -135,6 +135,7 @@ export 'src/components/tooltip/pl_tooltip.dart';
 export 'src/components/tour/pl_tour.dart';
 export 'src/components/transfer/pl_transfer.dart';
 export 'src/components/tree/pl_tree.dart';
+export 'src/components/tree_select/pl_tree_select.dart';
 export 'src/components/typography/pl_typography.dart';
 export 'src/theme/defaults.dart';
 export 'src/theme/theme.dart';

@@ -114,6 +114,7 @@ export * from './components/toolbar/index.js';
 export * from './components/tooltip/index.js';
 export * from './components/tour/index.js';
 export * from './components/tree/index.js';
+export * from './components/tree-select/index.js';
 export * from './components/transfer/index.js';
 export * from './components/typography/index.js';
 export * from './components/visually-hidden/index.js';

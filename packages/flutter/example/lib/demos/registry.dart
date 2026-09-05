@@ -156,6 +156,10 @@ import 'package:plass_ui_example/demos/stepper/vertical.dart';
 import 'package:plass_ui_example/demos/stepper/status.dart';
 import 'package:plass_ui_example/demos/tree/hero.dart';
 import 'package:plass_ui_example/demos/tree/selection.dart';
+import 'package:plass_ui_example/demos/tree_select/branches.dart';
+import 'package:plass_ui_example/demos/tree_select/hero.dart';
+import 'package:plass_ui_example/demos/tree_select/multiple.dart';
+import 'package:plass_ui_example/demos/tree_select/searchable.dart';
 import 'package:plass_ui_example/demos/image/hero.dart';
 import 'package:plass_ui_example/demos/image/states.dart';
 import 'package:plass_ui_example/demos/image/preview.dart';
@@ -526,6 +530,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'stepper/status': _stepperStatus,
   'tree/hero': _treeHero,
   'tree/selection': _treeSelection,
+  'tree-select/branches': _treeSelectBranches,
+  'tree-select/hero': _treeSelectHero,
+  'tree-select/multiple': _treeSelectMultiple,
+  'tree-select/searchable': _treeSelectSearchable,
   'image/hero': _imageHero,
   'image/states': _imageStates,
   'image/preview': _imagePreview,
@@ -1011,6 +1019,14 @@ Widget _stepperStatus(BuildContext context) => const StepperStatus();
 Widget _treeHero(BuildContext context) => const TreeHero();
 
 Widget _treeSelection(BuildContext context) => const TreeSelection();
+
+Widget _treeSelectBranches(BuildContext context) => const TreeSelectBranches();
+
+Widget _treeSelectHero(BuildContext context) => const TreeSelectHero();
+
+Widget _treeSelectMultiple(BuildContext context) => const TreeSelectMultiple();
+
+Widget _treeSelectSearchable(BuildContext context) => const TreeSelectSearchable();
 
 Widget _imageHero(BuildContext context) => const ImageHero();
 

@@ -1539,6 +1539,120 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }),
     from('PlTreeNode', 'disabled', { type: 'bool', default: 'false' })
   ],
+  PlTreeSelect: [
+    from('PlTreeSelect', 'items', { type: 'List<PlTreeSelectNode>', required: true }),
+    from('PlTreeSelect', 'value', {
+      type: 'Set<String>',
+      default: '{}',
+      description: {
+        ko: '고른 node의 id들. controlled입니다',
+        en: 'The ids of the chosen nodes. Controlled'
+      }
+    }),
+    from('PlTreeSelect', 'onValueChange', {
+      name: 'onValueChanged',
+      type: 'ValueChanged<Set<String>>?',
+      description: {
+        ko: 'node를 고르거나 뺀 뒤 선택 집합 전체와 함께 호출됩니다',
+        en: 'Called with the whole selection after a node is chosen or dropped'
+      }
+    }),
+    from('PlTreeSelect', 'multiple', { type: 'bool', default: 'false' }),
+    from('PlTreeSelect', 'selectableBranches', { type: 'bool', default: 'false' }),
+    from('PlTreeSelect', 'expanded', {
+      type: 'Set<String>?',
+      description: {
+        ko: '열려 있는 가지의 id들. 두지 않으면 picker가 스스로 쥡니다',
+        en: 'The ids of the branches that are open. Leave it out and the picker holds its own'
+      }
+    }),
+    from('PlTreeSelect', 'onExpandedChange', {
+      name: 'onExpandedChanged',
+      type: 'ValueChanged<Set<String>>?',
+      description: {
+        ko: '가지가 열리거나 닫힌 뒤 열린 집합 전체와 함께 호출됩니다',
+        en: 'Called with the whole open set after a branch is opened or closed'
+      }
+    }),
+    from('PlTreeSelect', 'open', {
+      type: 'bool?',
+      description: {
+        ko: '팝업이 떠 있는지. 두지 않으면 picker가 스스로 쥡니다',
+        en: 'Whether the popup is up. Leave it out and the picker holds its own'
+      }
+    }),
+    from('PlTreeSelect', 'onOpenChange', {
+      name: 'onOpenChanged',
+      type: 'ValueChanged<bool>?'
+    }),
+    from('PlTreeSelect', 'placeholder', { type: 'Widget?' }),
+    from('PlTreeSelect', 'clearable', { type: 'bool', default: 'false' }),
+    from('PlTreeSelect', 'closeOnSelect', { type: 'bool?', default: '!multiple' }),
+    from('PlTreeSelect', 'searchable', { type: 'bool', default: 'false' }),
+    from('PlTreeSelect', 'searchLabel', { type: 'String?', default: "'Search'" }),
+    from('PlTreeSelect', 'emptyLabel', { type: 'String?', default: "'Nothing here'" }),
+    from('PlTreeSelect', 'format', {
+      type: 'String Function(List<PlTreeSelectNode>)?'
+    }),
+    ...sharedProps('PlTreeSelect').map((row) =>
+      row.name === 'variant'
+        ? { ...row, default: 'PlassVariant.glass' }
+        : row.name === 'elevation'
+          ? { ...row, default: '0' }
+          : row
+    ),
+    from('PlTreeSelect', 'label', { type: 'Widget?' }),
+    from('PlTreeSelect', 'description', { type: 'Widget?' }),
+    from('PlTreeSelect', 'error', { type: 'Widget?' }),
+    from('PlTreeSelect', 'invalid', { type: 'bool?' }),
+    from('PlTreeSelect', 'startIcon', { type: 'Widget?' }),
+    from('PlTreeSelect', 'fullWidth', { type: 'bool', default: 'false' }),
+    from('PlTreeSelect', 'readOnly', { type: 'bool', default: 'false' }),
+    from('PlTreeSelect', 'disabled', { type: 'bool', default: 'false' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '스크린 리더가 trigger에 주는 이름',
+        en: 'The name a screen reader gives the trigger'
+      }
+    },
+    {
+      name: 'focusNode',
+      type: 'FocusNode?',
+      description: { ko: '바깥에서 focus를 다룹니다', en: 'Drive focus from outside' }
+    },
+    {
+      name: 'autofocus',
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '트리에 들어가면서 focus를 가져갑니다',
+        en: 'Takes focus as it is inserted into the tree'
+      }
+    }
+  ],
+  PlTreeSelectNode: [
+    from('PlTreeSelectNode', 'id', { type: 'String', required: true }),
+    from('PlTreeSelectNode', 'label', {
+      type: 'String',
+      required: true,
+      description: {
+        ko: '행이 말하는 것이자, 필터가 대조하는 것이자, trigger가 쓰는 것. React와 달리 위젯이 아니라 문자열입니다',
+        en: 'What the row says, what the filter matches, and what the trigger writes. A String rather than a widget, unlike the React build'
+      }
+    }),
+    from('PlTreeSelectNode', 'icon', { type: 'Widget?' }),
+    from('PlTreeSelectNode', 'children', {
+      type: 'List<PlTreeSelectNode>?',
+      description: {
+        ko: '자식들. 빈 리스트는 아무것도 없는 **가지**이고, null은 **잎**입니다',
+        en: 'Its own children. An empty list is a **branch** with nothing in it; null is a **leaf**'
+      }
+    }),
+    from('PlTreeSelectNode', 'selectable', { type: 'bool?' }),
+    from('PlTreeSelectNode', 'disabled', { type: 'bool', default: 'false' })
+  ],
   PlImage: [
     from('PlImage', 'src', {
       name: 'image',

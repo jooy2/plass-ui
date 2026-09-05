@@ -4,6 +4,20 @@
 
 ### Added
 
+- **`PlTreeSelect`.** A value chosen out of a hierarchy rather than out of a list — a `PlTree` behind the same field every other picker wears.
+
+  It is the two of them composed and almost nothing else. What the widget adds is the arithmetic between them: which nodes a query keeps, which branches that opens, and which of the ids coming back out of the tree are answers rather than roads.
+
+  **`selectableBranches` is off by default**, which is the shape most of these trees actually have: the branches are the taxonomy and the leaves are the answers. A node's own `selectable` overrides it either way, and a branch that cannot be chosen still opens and closes — pressing it is how you get at what is under it. Turning that press down is deliberately not the same as clearing, or a single-value picker would empty itself every time somebody opened a folder.
+
+  `searchable` keeps every match **and every ancestor of one**, opens every branch it kept, and hands the folds back untouched when the field is emptied. The fold is case-only, as everywhere else in this package: Dart's core has no `String.normalize`, and the React build's accent folding is the one thing the two searches do differently.
+
+  **A node's `label` is a `String` and not a widget**, which is the divergence `PlTransferItem` already carries and it is here for the same reason: the filter reads it, the trigger writes it and a screen reader is handed it. Text is what keeps every node searchable by construction, and it is why there is no `searchLabel` on this side — the label is already the words.
+
+  `value` is a controlled `Set<String>`, as every input in this package is. `expanded` and `open` are the two that may be left out, and then the picker keeps them itself.
+
+  No new label: `search`, `empty` and `clear` were already words this package says.
+
 - **`PlTour`.** A guided walk over a screen that already exists — the three things a new reader has to be shown once, pointed at where they actually are.
 
   It is `PlHowToSteps` turned inside out: that widget puts the instructions _in_ the screen and the reader follows them, and this one leaves the screen as it is and stands over it. So a step says what it is about rather than describing it.
