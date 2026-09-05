@@ -16,6 +16,8 @@
 
 - **`PlImage` takes a `filter`.** Six named treatments — `grayscale`, `sepia`, `saturate`, `desaturate`, `contrast` and `dim` — and anything else you pass is used as a CSS `filter` chain exactly as written. It is set through a `--p-filter` slot and rides the house transition, which `filter` was already on, so a treatment swapped on hover travels at the same pace as the picture's own fade instead of snapping while the fade is still moving. The placeholder and the fallback are left alone.
 
+- **`PlImage` takes a `protect`.** Refuses the context menu, a drag out of the page, a text selection over the picture and — the one that is easy to forget — the iOS long-press callout, which on that platform *is* the context menu. It is a deterrent and not a lock, and the documentation says so: the file is still one request away. A caller's own `onContextMenu` still runs and cannot turn the refusal off, and the refusal follows the picture into `preview`. There is no Flutter equivalent, because a Flutter app paints its pictures onto a canvas and there is no per-picture menu to refuse.
+
 ### Changed
 
 - **`PlImage`'s preview overlay is now a separate chunk.** `preview` is off by default and the overlay is several times the weight of the picture component that opens it, so it is reached through `React.lazy` — as `PlGallery`'s viewer already was. Importing `PlImage` alone costs 5.5 kB gzipped where it cost 26.8 kB, and `PlGallery`, which draws its tiles with one, drops from 28.9 kB to 7.7 kB: its own lazy viewer had been undone by this import. Nothing to configure, and no API change; on a cold cache the overlay now appears a moment after the first press.

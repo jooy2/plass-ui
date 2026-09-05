@@ -107,6 +107,30 @@ The escape hatch is `colorFilter`, which takes a `ColorFilter` of your own and w
 
 :::
 
+### protect
+
+Refuses the four ways a picture is casually taken: the context menu, a drag out of the page, a text selection over it, and the long-press callout on iOS — which is the one that is easy to forget and the one that matters most, because on iOS the long press *is* the context menu.
+
+<Demo src="image/protect" :min-height="220">
+
+::: fw react
+
+<<< @/.vitepress/demos/image/protect.tsx
+
+:::
+
+</Demo>
+
+**It is a deterrent and not a lock.** The file is still one request away: it is in the network tab, it is in the cache, and a screenshot needs neither. What this stops is the casual right-click-and-save, which for most pictures is the whole of what was wanted. Anything that genuinely must not be copied does not belong on the page.
+
+A caller's own `onContextMenu` still runs, and does not turn the refusal off — asking to protect a picture and then handing it a handler would otherwise undo the protection without saying so. It follows the picture into `preview`, because a refusal that comes off the moment the picture is opened large is no refusal at all: large is the copy somebody wanted in the first place.
+
+::: fw flutter
+
+There is no `protect` here, and nothing for it to do. A Flutter app paints its pictures onto a canvas rather than into an element of their own, so there is no per-picture context menu to refuse, nothing to drag out and no selection to take. Disabling the browser's own menu on Flutter web is an application-wide decision — `BrowserContextMenu` in `package:flutter/services.dart` — rather than something one widget can ask for.
+
+:::
+
 ### preview
 
 Opens the picture over the page when it is pressed. Off by default: a picture that grows when you click it is a promise that there is more of it to see, and most pictures on a page are not making it.

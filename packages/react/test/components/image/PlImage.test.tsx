@@ -237,6 +237,65 @@ describe('PlImage', () => {
     });
   });
 
+  describe('protect', () => {
+    it('leaves the picture alone until it is asked', async () => {
+      await render(<PlImage src={OK} alt="A portrait" />);
+
+      expect(image().getAttribute('draggable')).toBeNull();
+      expect(image().className).not.toContain('select-none');
+    });
+
+    it('refuses the context menu, the drag and the selection', async () => {
+      await render(<PlImage src={OK} alt="A portrait" protect />);
+
+      const menu = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+      const drag = new Event('dragstart', { bubbles: true, cancelable: true });
+
+      image().dispatchEvent(menu);
+      image().dispatchEvent(drag);
+
+      expect(menu.defaultPrevented).toBe(true);
+      expect(drag.defaultPrevented).toBe(true);
+      expect(image().getAttribute('draggable')).toBe('false');
+      expect(image().className).toContain('select-none');
+    });
+
+    it('refuses the long-press callout too', async () => {
+      await render(<PlImage src={OK} alt="A portrait" protect />);
+
+      // On iOS the long press *is* the context menu. A picture that refuses the
+      // right-click on a desktop and offers Save on a phone has refused nothing.
+      expect(image().className).toContain('[-webkit-touch-callout:none]');
+    });
+
+    it('is not turned off by a handler of the caller’s own', async () => {
+      const onContextMenu = vi.fn();
+
+      await render(<PlImage src={OK} alt="A portrait" protect onContextMenu={onContextMenu} />);
+
+      const menu = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+
+      image().dispatchEvent(menu);
+
+      expect(menu.defaultPrevented).toBe(true);
+    });
+
+    it('follows the picture into the preview', async () => {
+      const screen = await render(<PlImage src={OK} alt="A portrait" preview protect />);
+
+      await expect.poll(() => document.querySelector('button')!.disabled).toBe(false);
+      await screen.getByRole('button').click();
+      await expect.poll(() => document.querySelectorAll('img').length).toBe(2);
+
+      // A refusal that comes off the moment the picture is opened large is no
+      // refusal — large is the copy somebody wanted in the first place.
+      const opened = [...document.querySelectorAll('img')].at(-1)!;
+
+      expect(opened.getAttribute('draggable')).toBe('false');
+      expect(opened.className).toContain('[-webkit-touch-callout:none]');
+    });
+  });
+
   describe('a picture that was already decoded', () => {
     /*
      * The case `load` cannot cover. A file that is in the cache, or one a server

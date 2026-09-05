@@ -14246,6 +14246,15 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'protect',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '컨텍스트 메뉴·드래그·선택·iOS 길게 누르기를 막습니다. 자물쇠가 아니라 억지책입니다',
+        en: 'Refuses the context menu, the drag, the selection and the iOS long-press. A deterrent, not a lock'
+      }
+    },
+    {
       name: 'preview',
       type: 'boolean',
       default: 'false',

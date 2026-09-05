@@ -66,6 +66,18 @@ export interface PlImageProps extends Omit<
    */
   fallback?: React.ReactNode;
   /**
+   * Makes the picture awkward to take: no context menu, no drag out of the
+   * page, no text selection over it, and no long-press callout on iOS.
+   *
+   * **It is a deterrent and not a lock.** The file is still one request away —
+   * it is in the network tab, it is in the cache, and a screenshot needs none of
+   * that. What this stops is the casual right-click-and-save, which for most
+   * pictures is the whole of what was wanted. Anything that genuinely must not
+   * be copied does not belong on the page.
+   * @default false
+   */
+  protect?: boolean;
+  /**
    * Opens the picture over the page when it is pressed.
    *
    * Off by default. A picture that grows when you click it is a promise that
@@ -100,6 +112,20 @@ const filterChains: Record<PlImageFilter, string> = {
   contrast: 'contrast(1.2)',
   dim: 'brightness(0.82)'
 };
+
+/**
+ * The four ways a picture is casually taken, refused.
+ *
+ * `-webkit-touch-callout` is the one that is easy to forget and the one that
+ * matters most: on iOS a long press is the whole context menu, and a picture
+ * that refuses the right-click on a desktop and offers Save on a phone has not
+ * refused anything.
+ */
+const protectHandlers = {
+  draggable: false,
+  onDragStart: (event: React.DragEvent) => event.preventDefault(),
+  onContextMenu: (event: React.MouseEvent) => event.preventDefault()
+} as const;
 
 const fitClasses: Record<PlImageFit, string> = {
   cover: 'object-cover',
@@ -142,6 +168,7 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
       ratio,
       fit = 'cover',
       filter,
+      protect = false,
       rounded = false,
       size: sizeProp,
       color: colorProp,
@@ -279,9 +306,14 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
           // never loads, so unmounting it while it loads is a picture that never
           // arrives.
           status === 'loaded' ? 'opacity-100' : 'opacity-0',
-          status === 'error' ? 'hidden' : ''
+          status === 'error' ? 'hidden' : '',
+          protect ? 'select-none [-webkit-touch-callout:none]' : ''
         )}
         {...props}
+        // After the spread on purpose: a caller who asked to protect a picture
+        // and then passed their own `onContextMenu` would otherwise have turned
+        // the protection off without saying so.
+        {...(protect ? protectHandlers : null)}
       />
     );
 
@@ -349,6 +381,7 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
             alt={alt}
             label={previewLabel}
             color={color}
+            protect={protect}
           />
         </React.Suspense>
       </>

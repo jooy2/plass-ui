@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { PlOverlay } from '../overlay/PlOverlay.js';
+import { cx } from '../../internal/styles.js';
 import type { PlassColor } from '../../types.js';
 
 export interface PlImagePreviewProps {
@@ -16,6 +17,12 @@ export interface PlImagePreviewProps {
   label: string;
   /** The family the overlay takes. */
   color: PlassColor;
+  /**
+   * Carried in from the thumbnail. A mark or a refusal that comes off the
+   * moment the picture is opened large is not a mark or a refusal — and large
+   * is the copy somebody wanted in the first place.
+   */
+  protect?: boolean;
 }
 
 /**
@@ -37,7 +44,8 @@ export function PlImagePreview({
   src,
   alt,
   label,
-  color
+  color,
+  protect = false
 }: PlImagePreviewProps) {
   return (
     <PlOverlay
@@ -48,7 +56,17 @@ export function PlImagePreview({
       color={color}
       label={label}
     >
-      <img src={src} alt={alt} className="max-h-[85vh] max-w-[90vw] object-contain" />
+      <img
+        src={src}
+        alt={alt}
+        className={cx(
+          'max-h-[85vh] max-w-[90vw] object-contain',
+          protect ? 'select-none [-webkit-touch-callout:none]' : ''
+        )}
+        draggable={protect ? false : undefined}
+        onDragStart={protect ? (event) => event.preventDefault() : undefined}
+        onContextMenu={protect ? (event) => event.preventDefault() : undefined}
+      />
     </PlOverlay>
   );
 }
