@@ -4,6 +4,23 @@ What is left of the gap between this library and the `neba` component library it
 was compared against, written so that the next session can pick it up without
 the previous one's context. Paths under `neba/` below refer to that checkout.
 
+## What has landed since
+
+**2026-09-05.** Three commits, on top of everything below.
+
+- **`PlTreeSelect`** — a `PlTree` behind the picker shell, in both packages.
+  `selectableBranches` is off by default, and turning a branch press down is
+  deliberately not the same as clearing.
+- **`PlCodeBlock`** — in both packages. The decision that was open is made:
+  **React takes `highlight.js` as a second runtime dependency**, reached only
+  through a dynamic import, thirty-five grammars one chunk each; Flutter has no
+  highlighter and takes pre-tokenised `lines` instead. `scripts/size.mjs` was
+  changed to bundle with splitting on and count only the entry chunk, because
+  inlining every grammar reported a cost no page has ever paid.
+- **`fix:` a read-only `PlSelect` opened its popup again** — Base UI 1.8
+  redefined `readOnly` on a select. Found by the suite while verifying the
+  above; unrelated to either component.
+
 ## What was asked for and is now done
 
 The requested batch was: `DataTable`, `DataList`, `Anchor`, `AppLogo`, `Meter`,
@@ -50,40 +67,32 @@ drawn inside.
 | `gauge-chart`    | 493        |
 | `heatmap-chart`  | 637        |
 
-**Decide the foundation before building any one of them.** The questions that
-have to be answered first, and answered once:
+**The foundation questions are answered.** Asked and decided on 2026-09-05:
 
-- **SVG or canvas.** Neba draws SVG. SVG keeps the marks in the accessibility
-  tree and in the DOM where a test can read them, and it is the only one of the
-  two that a Flutter build can be a genuine sibling of (`CustomPainter` paints
-  the same shapes from the same numbers). Canvas is faster past a few thousand
-  points and this library has no component that needs that yet.
-- **Whether Flutter gets them at all.** A chart is the one area where the two
-  builds could reasonably diverge: Flutter applications usually reach for
-  `fl_chart`, and this package has **no dependencies** as a rule. If the Flutter
-  half is built, it is `CustomPainter` and nothing else.
-- **Where the colour comes from.** A chart with six series needs six colours
-  that work together, and the six semantic families are named after meanings
-  (`danger` is not a series). That is a token decision, not a component one.
-- **Accessibility.** A chart that is only a picture is a chart half the readers
-  cannot use. Neba's answer is worth reading before inventing one.
+- **SVG, and both packages get them.** React draws SVG; Flutter draws the same
+  shapes from the same numbers with `CustomPainter`. SVG keeps the marks in the
+  accessibility tree and in the DOM where a test can read them, and it is the
+  only one of the two a Flutter build can be a genuine sibling of. No new
+  dependency on either side — `fl_chart` is not an option, because this package
+  has none.
+- **The pure arithmetic goes in `internal/chart.ts` and `internal/chart.dart`**
+  so the two builds cannot disagree about a tick position.
+- **Still open: where the colour comes from.** A chart with six series needs six
+  colours that work together, and the six semantic families are named after
+  meanings — `danger` is not a series. That is a token decision (a
+  `--plass-chart-1…n` ladder, presumably, with a Dart twin) and it has to be
+  made before the first chart, not after the third.
+- **Still open: accessibility.** A chart that is only a picture is a chart half
+  the readers cannot use. Neba's answer is worth reading before inventing one.
 
 ### The rest
 
-- **`PlCodeBlock`** (665) — a fenced block with a language, a copy button, line
-  numbers and highlighting. Check what it highlights _with_: a syntax
-  highlighter is a dependency, and this package ships none. Neba's approach is
-  the first thing to read.
 - **`PlGallery`** (568) — a grid of images that opens into a lightbox.
 - **`PlMockup`** (409) — a device frame (phone, browser, window) drawn round a
   screenshot or a live subtree.
 - **`PlWindowPane`** (409) — a desktop window frame with real controls, in the
   three platform arrangements. Neba keeps the chrome in
   `src/internal/window.ts`; the same split would be right here.
-- **`PlTreeSelect`** (neba `tree-select`) — a `PlTree` inside a picker, so a
-  reader chooses a node out of a hierarchy. It composes `PlTree` and
-  `internal/picker.tsx`, both of which this library already has, so it is the
-  smallest of the five.
 
 ### Not gaps
 
