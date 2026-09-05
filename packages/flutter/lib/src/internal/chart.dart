@@ -990,6 +990,29 @@ Path markPath(PlChartMarkShape shape, double cx, double cy, double r) {
  * Arcs
  * ------------------------------------------------------------------------- */
 
+/// The centre line of a band, as an open arc.
+///
+/// What [arcPath] draws as a filled shape, this draws as a line to be stroked —
+/// which is the difference between a dial that jumps to each new reading and
+/// one that sweeps to it. A wedge's outline changes with the value, and an
+/// outline is not something a length can travel along; a stroke's drawn length
+/// is one number.
+Path ringPath(double cx, double cy, double radius, double from, double to) {
+  final Rect box = Rect.fromCircle(center: Offset(cx, cy), radius: radius);
+  final double start = (from - 90) * math.pi / 180;
+  final double sweep = (to - from) * math.pi / 180;
+
+  // A whole turn is two half-arcs for the reason a whole wedge is two ovals:
+  // one arc whose ends meet draws nothing.
+  if (sweep.abs() >= 2 * math.pi) {
+    return Path()
+      ..arcTo(box, start, math.pi, true)
+      ..arcTo(box, start + math.pi, math.pi, false);
+  }
+
+  return Path()..arcTo(box, start, sweep, true);
+}
+
 /// A wedge, or a band between two radii, in degrees clockwise from twelve.
 ///
 /// Degrees and not radians, and from the top and not from three o'clock,

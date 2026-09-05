@@ -10,19 +10,17 @@ import {
   trackClasses
 } from '../../internal/progress.js';
 import { cx, metaTextClasses, stackGapClasses } from '../../internal/styles.js';
-import type { PlassColor, PlassSize } from '../../types.js';
+import { bandColor } from '../../internal/threshold.js';
+import type { PlassColor, PlassSize, PlassThreshold } from '../../types.js';
 
-/** Where a band starts, and what the bar is made of from there up. */
-export interface PlMeterThreshold {
-  /**
-   * The value the band begins at, in the meter's own units — not a percentage,
-   * unless the range happens to be one. A band whose `from` is outside
-   * `min`…`max` is simply never reached.
-   */
-  from: number;
-  /** The family the bar takes while the value is in this band. */
-  color: PlassColor;
-}
+/**
+ * Where a band starts, and what the bar is made of from there up.
+ *
+ * The library's own `PlassThreshold` under the name this component shipped it
+ * as. A gauge reads the same bands, so the shape moved to `src/types.ts` and
+ * this stayed as the name a caller already imports.
+ */
+export type PlMeterThreshold = PlassThreshold;
 
 export interface PlMeterProps extends Omit<
   React.ComponentPropsWithoutRef<'div'>,
@@ -75,33 +73,6 @@ export interface PlMeterProps extends Omit<
   size?: PlassSize;
   /** The family the bar takes where no threshold applies. @default 'primary' */
   color?: PlassColor;
-}
-
-/**
- * The family a value lands in.
- *
- * The highest band at or below the value, or `color` when the value is under
- * all of them. One pass rather than a sort, because the list is small and
- * sorting a caller's array — or a copy of it on every render — buys nothing.
- */
-function bandColor(
-  value: number,
-  color: PlassColor,
-  thresholds: readonly PlMeterThreshold[] | undefined
-): PlassColor {
-  if (!thresholds?.length) {
-    return color;
-  }
-
-  let best: PlMeterThreshold | undefined;
-
-  for (const threshold of thresholds) {
-    if (value >= threshold.from && (best === undefined || threshold.from > best.from)) {
-      best = threshold;
-    }
-  }
-
-  return best?.color ?? color;
 }
 
 /**

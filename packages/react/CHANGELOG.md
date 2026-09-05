@@ -24,6 +24,18 @@
 
 ### Added
 
+- **`PlGaugeChart`.** One number on a scale that is known in advance, drawn as a dial.
+
+  It is a `PlMeter` bent into an arc, and the two are deliberately the same idea in two shapes: `value`, `min`, `max` and `thresholds` mean exactly what they mean there, so a page can move a reading from a bar to a dial without changing what it says. It is **not** a `PlPieChart` with `shape="semi"` — a pie is parts of a whole and every slice is a category, while this is one value against a scale and the unfilled arc is the rest of the dial rather than a second category.
+
+  `sweep` is degrees opened symmetrically about twelve o'clock: `180` for a dashboard tile, `270` for the instrument shape, `360` for a ring. The dial is sized against the box rather than assuming a circle, because how far it reaches _below_ its centre depends on the sweep — which is what keeps a wide, short card from drawing a thin band with an empty half above it.
+
+  The reading is **real text rather than a label painted into the drawing**, so it can be selected and found, and its size is solved against the room the hole actually leaves rather than fixed: `38` and `10,000%` are the same prop. The arc travels to a new value as a _length_ — a stroke's drawn fraction — because an outline is not a property CSS can transition, and a dial that scaled would resample the numbers written across it.
+
+  `ticks` is off by default. A gauge on a dashboard is read as a proportion, and rim marks are for an instrument somebody takes a number off. `showRange` is dropped past 330° whatever it says, because by then the two ends have come within a label's width of each other.
+
+- **`PlassThreshold`**, in `src/types.ts`, and the band rule behind it in `internal/threshold`. `PlMeter` and `PlGaugeChart` now read the same list the same way, which is what stops a quota turning `danger` on a bar but not on the dial beside it. `PlMeterThreshold` is unchanged as a name — it is an alias of the new one, so nothing a caller imports has moved.
+
 - **`PlSparkline`.** A chart with everything taken away except the shape.
 
   No axes, no grid, no legend, no tooltip. It is not a small chart, it is a different thing: a word-sized picture that goes inside a sentence, beside a `PlStat`, or in a table cell, and says which way something has been going. Every number it could label is one the surrounding text already has, which is why it labels none of them.

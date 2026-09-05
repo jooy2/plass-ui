@@ -44,6 +44,7 @@ import {
   PlChip,
   PlCodeBlock,
   PlLineChart,
+  PlGaugeChart,
   PlPieChart,
   PlScatterChart,
   PlSparkline,
@@ -1222,6 +1223,16 @@ const entries: Entry[] = [
         ]}
       />
     )
+  },
+  {
+    name: 'PlGaugeChart',
+    group: 'charts',
+    href: 'components/charts/gauge-chart',
+    blurb: {
+      en: 'One number on a scale that is known in advance.',
+      ko: '미리 알려진 척도 위의 숫자 하나입니다.'
+    },
+    preview: <PlGaugeChart size="xs" className="w-full" height={96} value={68} showRange={false} />
   },
   {
     name: 'PlPieChart',

@@ -251,6 +251,10 @@ import 'package:plass_ui_example/demos/gallery/captions.dart';
 import 'package:plass_ui_example/demos/gallery/hero.dart';
 import 'package:plass_ui_example/demos/gallery/layouts.dart';
 import 'package:plass_ui_example/demos/gallery/quilted.dart';
+import 'package:plass_ui_example/demos/gauge_chart/hero.dart';
+import 'package:plass_ui_example/demos/gauge_chart/sweep.dart';
+import 'package:plass_ui_example/demos/gauge_chart/thresholds.dart';
+import 'package:plass_ui_example/demos/gauge_chart/ticks.dart';
 import 'package:plass_ui_example/demos/grid/alignment.dart';
 import 'package:plass_ui_example/demos/grid/hero.dart';
 import 'package:plass_ui_example/demos/grid/offset.dart';
@@ -720,6 +724,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'gallery/hero': _galleryHero,
   'gallery/layouts': _galleryLayouts,
   'gallery/quilted': _galleryQuilted,
+  'gauge-chart/hero': _gaugeChartHero,
+  'gauge-chart/sweep': _gaugeChartSweep,
+  'gauge-chart/thresholds': _gaugeChartThresholds,
+  'gauge-chart/ticks': _gaugeChartTicks,
   'grid/hero': _gridHero,
   'grid/span': _gridSpan,
   'grid/responsive': _gridResponsive,
@@ -1349,6 +1357,14 @@ Widget _panesOrientation(BuildContext context) => const PanesOrientation();
 Widget _panesConstraints(BuildContext context) => const PanesConstraints();
 Widget _panesFixed(BuildContext context) => const PanesFixed();
 Widget _panesSizes(BuildContext context) => const PanesSizes();
+
+Widget _gaugeChartHero(BuildContext context) => const GaugeChartHero();
+
+Widget _gaugeChartSweep(BuildContext context) => const GaugeChartSweep();
+
+Widget _gaugeChartThresholds(BuildContext context) => const GaugeChartThresholds();
+
+Widget _gaugeChartTicks(BuildContext context) => const GaugeChartTicks();
 
 Widget _gridHero(BuildContext context) => const GridHero();
 Widget _gridSpan(BuildContext context) => const GridSpan();

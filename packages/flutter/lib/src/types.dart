@@ -70,6 +70,34 @@ enum PlassDensity {
   compact,
 }
 
+/// Where a band starts, and what a reading is made of from there up.
+///
+/// Here rather than on a component because two of them read it the same way: a
+/// [PlMeter]'s bar and a `PlGaugeChart`'s arc are one idea in two shapes, and a
+/// page that moves a reading from the bar to the dial must not have to rewrite
+/// its bands to do it.
+@immutable
+class PlassThreshold {
+  /// Creates a band.
+  const PlassThreshold({required this.from, required this.color});
+
+  /// The value the band begins at, in the reading's own units — not a
+  /// percentage, unless the range happens to be one. A band whose [from] is
+  /// outside `min`…`max` is simply never reached.
+  final double from;
+
+  /// The family the reading takes while it is in this band.
+  final PlassColor color;
+
+  @override
+  bool operator ==(Object other) {
+    return other is PlassThreshold && other.from == from && other.color == color;
+  }
+
+  @override
+  int get hashCode => Object.hash(from, color);
+}
+
 /// Which way a component runs.
 ///
 /// [PlassOrientation.horizontal] everywhere it is offered, because a vertical

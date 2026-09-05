@@ -5,53 +5,17 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/progress.dart';
 import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/internal/threshold.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// Where a band starts, and what the bar is made of from there up.
-@immutable
-class PlMeterThreshold {
-  /// Creates a band.
-  const PlMeterThreshold({required this.from, required this.color});
-
-  /// The value the band begins at, in the meter's own units — not a percentage,
-  /// unless the range happens to be one. A band whose [from] is outside
-  /// `min`…`max` is simply never reached.
-  final double from;
-
-  /// The family the bar takes while the value is in this band.
-  final PlassColor color;
-
-  @override
-  bool operator ==(Object other) {
-    return other is PlMeterThreshold && other.from == from && other.color == color;
-  }
-
-  @override
-  int get hashCode => Object.hash(from, color);
-}
-
-/// The family a value lands in.
 ///
-/// The highest band at or below the value, or [color] when the value is under
-/// all of them. A single pass rather than a sort, because the list is small and
-/// sorting a caller's list — or a copy of it on every build — buys nothing.
-PlassColor _bandColor(double value, PlassColor color, List<PlMeterThreshold>? thresholds) {
-  if (thresholds == null || thresholds.isEmpty) {
-    return color;
-  }
-
-  PlMeterThreshold? best;
-
-  for (final PlMeterThreshold threshold in thresholds) {
-    if (value >= threshold.from && (best == null || threshold.from > best.from)) {
-      best = threshold;
-    }
-  }
-
-  return best?.color ?? color;
-}
+/// The library's own [PlassThreshold] under the name this widget shipped it as.
+/// A gauge reads the same bands, so the shape moved to `types.dart` and this
+/// stayed as the name a caller already writes.
+typedef PlMeterThreshold = PlassThreshold;
 
 /// A quantity inside a range, drawn as a bar.
 ///
@@ -152,7 +116,7 @@ class PlMeter extends StatelessWidget {
     final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
 
     final tokens = PlassTheme.of(context);
-    final family = tokens.family(_bandColor(value, color, thresholds));
+    final family = tokens.family(bandColor(value, color, thresholds));
     final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     // `null` only when the range is empty, which is a caller's mistake rather

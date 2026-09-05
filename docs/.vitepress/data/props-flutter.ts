@@ -2993,6 +2993,30 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlGaugeChart: [
+    from('PlGaugeChart', 'value', { type: 'double?', required: true }),
+    from('PlGaugeChart', 'min', { type: 'double', default: '0' }),
+    from('PlGaugeChart', 'max', { type: 'double', default: '100' }),
+    from('PlGaugeChart', 'sweep', { type: 'double', default: '180' }),
+    from('PlGaugeChart', 'thickness', { type: 'double', default: '0.22' }),
+    from('PlGaugeChart', 'thresholds', { type: 'List<PlassThreshold>?' }),
+    from('PlGaugeChart', 'ticks', {
+      type: 'int?',
+      description: {
+        ko: "테두리에 그릴 눈금 수. React의 number | false 대신 null이 '없음'입니다",
+        en: 'How many marks are drawn around the dial. null is off, where React writes false'
+      }
+    }),
+    from('PlGaugeChart', 'showRange', { type: 'bool', default: 'true' }),
+    from('PlGaugeChart', 'center', { type: 'Widget?' }),
+    from('PlGaugeChart', 'caption', { type: 'Widget?' }),
+    from('PlGaugeChart', 'height', { type: 'double?' }),
+    from('PlGaugeChart', 'format', { type: 'String Function(double)?' }),
+    from('PlGaugeChart', 'label', { name: 'semanticLabel', type: 'String?' }),
+    from('PlGaugeChart', 'empty', { type: 'Widget?' }),
+    from('PlGaugeChart', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlGaugeChart', 'size', { type: SIZE, default: 'PlassSize.md' })
+  ],
   PlGrid: [
     from('PlGrid', 'children', {
       name: 'items',

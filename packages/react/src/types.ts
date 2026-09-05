@@ -162,6 +162,25 @@ export type PlassVariant = 'solid' | 'glass' | 'ghost';
  */
 export type PlassElevation = 0 | 1 | 2 | 3;
 
+/**
+ * Where a band starts, and what a reading is made of from there up.
+ *
+ * Here rather than on a component because two of them read it the same way — a
+ * `PlMeter`'s bar and a `PlGaugeChart`'s arc are one idea in two shapes, and a
+ * page that moves a reading from the bar to the dial must not have to rewrite
+ * its bands to do it.
+ */
+export interface PlassThreshold {
+  /**
+   * The value the band begins at, in the reading's own units — not a
+   * percentage, unless the range happens to be one. A band whose `from` is
+   * outside `min`…`max` is simply never reached.
+   */
+  from: number;
+  /** The family the reading takes while it is in this band. */
+  color: PlassColor;
+}
+
 /** Style props shared by most components; spread into their own prop types. */
 export interface PlassStyleProps {
   /** @default 'solid' */

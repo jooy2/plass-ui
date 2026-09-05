@@ -5706,6 +5706,132 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlGaugeChart: [
+    {
+      name: 'value',
+      type: 'number | null',
+      required: true,
+      description: {
+        ko: '값. null은 아무것도 얹지 않은 다이얼을 그립니다',
+        en: 'The reading. null draws the dial with nothing on it'
+      }
+    },
+    {
+      name: 'min',
+      type: 'number',
+      default: '0',
+      description: { ko: '척도의 아래끝', en: 'The bottom of the scale' }
+    },
+    {
+      name: 'max',
+      type: 'number',
+      default: '100',
+      description: { ko: '척도의 위끝', en: 'And the top of it' }
+    },
+    {
+      name: 'sweep',
+      type: 'number',
+      default: '180',
+      description: {
+        ko: '다이얼이 도는 각도. 열두 시를 기준으로 좌우 대칭으로 열립니다',
+        en: 'How far round the dial goes, in degrees, opened symmetrically about twelve'
+      }
+    },
+    {
+      name: 'thickness',
+      type: 'number',
+      default: '0.22',
+      description: {
+        ko: '반지름에 대한 호의 두께 비율',
+        en: 'How thick the arc is, as a fraction of its radius'
+      }
+    },
+    {
+      name: 'thresholds',
+      type: 'readonly PlassThreshold[]',
+      description: {
+        ko: '호의 색이 바뀌는 band. PlMeter와 같은 규칙으로, 값 이하에서 가장 높은 band가 이깁니다',
+        en: "Where the arc changes colour. The meter's rule: the highest band at or below the value wins"
+      }
+    },
+    {
+      name: 'ticks',
+      type: 'number | false',
+      default: 'false',
+      description: {
+        ko: '테두리에 그릴 눈금 수. 양 끝 포함',
+        en: 'How many marks are drawn around the dial, ends included'
+      }
+    },
+    {
+      name: 'showRange',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '호의 양 끝에 min과 max를 적습니다. 330°를 넘으면 값과 무관하게 빠집니다',
+        en: 'Writes min and max at the two ends. Dropped past 330 degrees whatever it says'
+      }
+    },
+    {
+      name: 'center',
+      type: 'ReactNode',
+      description: {
+        ko: '구멍 속에 들어가는 것. 비우면 format을 거친 값입니다',
+        en: 'What goes in the middle. Left out, it is the value written through format'
+      }
+    },
+    {
+      name: 'caption',
+      type: 'ReactNode',
+      description: {
+        ko: '값 아래 한 줄. 단위나 재고 있는 대상',
+        en: 'A line under the value: the unit, or what is being measured'
+      }
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      description: { ko: '그림의 높이', en: 'How tall the drawing is' }
+    },
+    {
+      name: 'format',
+      type: 'Intl.NumberFormatOptions',
+      description: { ko: '값을 쓰는 방식', en: 'How a value is written' }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: {
+        ko: '다이얼의 이름. 없으면 평범한 상자로 남습니다',
+        en: 'What the dial is called. Without one it stays a plain box'
+      }
+    },
+    {
+      name: 'empty',
+      type: 'ReactNode',
+      description: {
+        ko: '그릴 것이 없을 때 그리는 것',
+        en: 'What is drawn when there is nothing to draw'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: 'threshold가 걸리지 않을 때 호가 입는 계열',
+        en: 'The family the arc takes where no threshold applies'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: { ko: '타입 스케일과 다이얼 높이', en: 'Type scale and dial height' }
+    }
+  ],
   PlGrid: [
     {
       name: 'columns',

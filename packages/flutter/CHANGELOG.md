@@ -4,6 +4,18 @@
 
 ### Added
 
+- **`PlGaugeChart`.** One number on a scale that is known in advance, drawn as a dial.
+
+  A `PlMeter` bent into an arc, sharing its vocabulary exactly, and not a `PlPieChart` with `PlPieShape.semi`: the unfilled part of the arc is the rest of the dial rather than a second category.
+
+  The reading is a real widget in a `Stack` over the painting rather than something painted, so it takes the caller's own `center` and `caption` and stays in the semantics tree. Its size is solved against the chord the hole leaves rather than fixed. The arc animates with a `TweenAnimationBuilder` on the swept fraction, at the same `fillDuration` a meter's bar uses, and honours `MediaQuery.disableAnimations`.
+
+  `ticks` is `int?` where React takes `number | false` — Dart has no union to put a count and a switch into one prop, so `null` is off.
+
+  `ringPath` joins `internal/chart.dart`: the centre line of a band as an open arc, which is what a stroke can travel along and a filled wedge cannot.
+
+- **`PlassThreshold`**, in `types.dart`, with the band rule in `internal/threshold.dart`. `PlMeter` and `PlGaugeChart` read the same list the same way. `PlMeterThreshold` stays as a typedef of it, so nothing a caller writes has moved.
+
 - **`PlSparkline`.** A chart with everything taken away except the shape.
 
   A word-sized strip that goes in a line of text and says which way something has been going, sized against that line rather than against the page. It scales itself to its own range, which is what makes it legible this small and what makes two of them incomparable until they are given the same `min` and `max`.
