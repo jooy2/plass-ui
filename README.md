@@ -197,7 +197,7 @@ One design language, three things built out of it. Each is entered and run on it
 ```bash
 cd packages/react
 npm install
-npm test              # Vitest, single run (headless Chromium)
+npm test              # Vitest, three shards of headless Chromium
 npm run typecheck     # tsc --noEmit over both TS projects
 npm run build         # tsc + terser + build-styles → dist/
 npm run lint          # ESLint

@@ -150,7 +150,7 @@ This package is installed and run from its own folder; there is no install at th
 
 ```bash
 npm install
-npm test              # Vitest, single run (headless Chromium)
+npm test              # Vitest, three shards of headless Chromium
 npm run typecheck     # tsc --noEmit over both TS projects
 npm run build         # tsc + terser + build-styles → dist/
 npm run lint          # ESLint

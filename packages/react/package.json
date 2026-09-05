@@ -27,7 +27,7 @@
     "size": "node scripts/size.mjs",
     "format": "prettier .",
     "format:fix": "prettier . --write",
-    "test": "vitest run",
+    "test": "node scripts/test.mjs",
     "test:watch": "vitest",
     "typecheck": "tsc --project tsconfig.prod.json --noEmit && tsc --project test/tsconfig.json"
   },

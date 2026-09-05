@@ -138,16 +138,16 @@ above and obvious the moment a stylesheet was in the room.
 
 ### Things that will waste an hour otherwise
 
-- **The React suite no longer survives one run.** At a hundred and forty-odd
-  files the browser page dies partway through, naming a different unrelated
-  file each time ("Browser connection was closed"). `pkill -f vitest` does not
-  fix it any more. **Run it in three slices** — this passes every time:
+- **The React suite does not survive one `vitest run`, and `npm test` no longer
+  asks it to.** At a hundred and forty-odd files the browser page dies partway
+  through, naming a different unrelated file each time ("Browser connection was
+  closed"); the renderer climbs from 450 MB to 1.2 GB over a run and stops
+  coping somewhere past a hundred files. `scripts/test.mjs` runs three shards in
+  three fresh browsers instead, which peak around 880 MB. Use `npm test`.
 
-  ```bash
-  npx vitest run test/components/a* test/components/b* test/components/c* test/components/d* test/components/e* test/components/f* test/components/g* test/components/h* test/components/i* test/components/l*
-  npx vitest run test/components/m* test/components/n* test/components/o* test/components/p* test/components/r* test/components/s* test/components/t* test/components/v* test/components/w*
-  npx vitest run test/hooks test/internal test/styles test/package test/theme
-  ```
+  A filter is not sharded — `npm test -- test/components/button` is one browser
+  over the files you named. `VITEST_SHARDS=1 npm test` puts the single run back,
+  which is only worth having when the runner itself is what is being debugged.
 
 - **Nothing loads Tailwind into the ordinary test run**, so a control has no
   size and Playwright cannot click it. Assert classes, not layout. Two things
