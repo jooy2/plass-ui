@@ -174,6 +174,7 @@ import 'package:plass_ui_example/demos/tree_select/searchable.dart';
 import 'package:plass_ui_example/demos/image/hero.dart';
 import 'package:plass_ui_example/demos/image/filter.dart';
 import 'package:plass_ui_example/demos/image/states.dart';
+import 'package:plass_ui_example/demos/image/watermark.dart';
 import 'package:plass_ui_example/demos/image/preview.dart';
 import 'package:plass_ui_example/demos/empty/hero.dart';
 import 'package:plass_ui_example/demos/empty/kinds.dart';
@@ -586,6 +587,7 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'image/hero': _imageHero,
   'image/filter': _imageFilter,
   'image/states': _imageStates,
+  'image/watermark': _imageWatermark,
   'image/preview': _imagePreview,
   'empty/hero': _emptyHero,
   'empty/kinds': _emptyKinds,
@@ -1168,6 +1170,7 @@ Widget _imageHero(BuildContext context) => const ImageHero();
 
 Widget _imageFilter(BuildContext context) => const ImageTreatments();
 Widget _imageStates(BuildContext context) => const ImageStates();
+Widget _imageWatermark(BuildContext context) => const ImageWatermark();
 
 Widget _imagePreview(BuildContext context) => const ImagePreview();
 

@@ -9,6 +9,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 import 'package:plass_ui/src/internal/css.dart';
+import 'package:plass_ui/src/internal/watermark.dart';
 
 import '../../support/host.dart';
 
@@ -259,6 +260,107 @@ void main() {
           find.descendant(of: find.byType(ColorFiltered), matching: find.byType(PlSkeleton)),
           findsNothing,
         );
+      });
+    });
+
+    group('watermark', () {
+      testWidgets('draws nothing until it is asked to', (WidgetTester tester) async {
+        await tester.pumpWidget(host(PlImage(image: _ok, semanticLabel: 'A portrait')));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(PlassWatermarkLayer), findsNothing);
+      });
+
+      testWidgets('puts the text in a corner', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            PlImage(
+              image: _ok,
+              semanticLabel: 'A portrait',
+              watermark: const PlImageWatermark('© Ada & Co'),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('© Ada & Co'), findsOneWidget);
+      });
+
+      testWidgets('is off the semantics tree and takes no pointer', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            PlImage(
+              image: _ok,
+              semanticLabel: 'A portrait',
+              watermark: const PlImageWatermark('© Ada & Co'),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // A watermark is a claim about the file, not something the screen is
+        // telling a reader. The label is where a picture says what it is.
+        expect(
+          find.descendant(of: find.byType(PlImage), matching: find.bySemanticsLabel('© Ada & Co')),
+          findsNothing,
+        );
+        expect(
+          find.descendant(
+            of: find.byType(PlassWatermarkLayer),
+            matching: find.byType(IgnorePointer),
+          ),
+          findsOneWidget,
+        );
+      });
+
+      testWidgets('waits for the picture before it stamps it', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            const PlImage(
+              image: _PendingImage(),
+              semanticLabel: 'A portrait',
+              watermark: PlImageWatermark('© Ada & Co'),
+            ),
+          ),
+        );
+        await tester.pump();
+
+        // A stamp over a skeleton is a claim about a file that has not arrived.
+        expect(find.byType(PlassWatermarkLayer), findsNothing);
+      });
+
+      testWidgets('paints a tiled mark rather than stacking widgets', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            PlImage(
+              image: _ok,
+              semanticLabel: 'A portrait',
+              watermark: const PlImageWatermark('PROOF', placement: PlImageWatermarkPlacement.tile),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // One painter for however many copies the box holds, not one widget per
+        // copy.
+        expect(find.text('PROOF'), findsNothing);
+        expect(
+          find.descendant(of: find.byType(PlassWatermarkLayer), matching: find.byType(CustomPaint)),
+          findsWidgets,
+        );
+      });
+
+      testWidgets('takes its own opacity when it is given one', (WidgetTester tester) async {
+        const PlImageWatermark corner = PlImageWatermark('© Ada & Co', opacity: 0.3);
+        const PlImageWatermark tiled = PlImageWatermark(
+          'PROOF',
+          placement: PlImageWatermarkPlacement.tile,
+        );
+
+        // A mark that covers everything has to be fainter than one that covers a
+        // corner, which is why the two defaults differ.
+        expect(corner.resolvedOpacity, 0.3);
+        expect(tiled.resolvedOpacity, lessThan(const PlImageWatermark('x').resolvedOpacity));
       });
     });
 

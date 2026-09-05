@@ -237,6 +237,103 @@ describe('PlImage', () => {
     });
   });
 
+  describe('watermark', () => {
+    // Scoped past the skeleton, which is `aria-hidden` as well and has every
+    // right to be — it is a placeholder, not something to read out either.
+    const mark = () =>
+      document.querySelector('span[aria-hidden="true"].pointer-events-none') as HTMLElement | null;
+
+    it('draws nothing until it is asked to', async () => {
+      await render(<PlImage src={OK} alt="A portrait" />);
+
+      expect(mark()).toBeNull();
+    });
+
+    it('takes a bare string as the text, in a corner', async () => {
+      await render(<PlImage src={OK} alt="A portrait" watermark="© Ada & Co" />);
+
+      await expect.poll(() => mark()?.textContent).toBe('© Ada & Co');
+    });
+
+    it('is off the accessibility tree and takes no pointer', async () => {
+      await render(<PlImage src={OK} alt="A portrait" watermark="© Ada & Co" />);
+
+      await expect.poll(() => mark()).not.toBeNull();
+
+      // A watermark is a claim about the file, not something the page is telling
+      // a reader. `alt` is where a picture says what it is.
+      expect(mark()).toHaveAttribute('aria-hidden', 'true');
+      expect(mark()!.className).toContain('pointer-events-none');
+    });
+
+    it('waits for the picture before it stamps it', async () => {
+      // A stamp over a skeleton is a claim about a file that has not arrived.
+      await render(<PlImage alt="A portrait" watermark="© Ada & Co" />);
+
+      expect(mark()).toBeNull();
+    });
+
+    it('tiles as one repeating background rather than a wall of elements', async () => {
+      await render(
+        <PlImage src={OK} alt="A portrait" watermark={{ text: 'PROOF', placement: 'tile' }} />
+      );
+
+      await expect.poll(() => mark()).not.toBeNull();
+
+      const layer = mark()!.firstElementChild as HTMLElement;
+
+      expect(layer.style.backgroundRepeat).toBe('repeat');
+      expect(layer.style.backgroundImage).toContain('data:image/svg+xml');
+      // Turned as one layer: turning each copy inside a straight grid leaves the
+      // grid's own lines showing through.
+      expect(layer.style.transform).toBe('rotate(-24deg)');
+    });
+
+    it('builds a tile the browser can actually decode, punctuation included', async () => {
+      await render(
+        <PlImage
+          src={OK}
+          alt="A portrait"
+          watermark={{ text: `Ada & Co <2026> "proof"`, placement: 'tile' }}
+        />
+      );
+
+      await expect.poll(() => mark()).not.toBeNull();
+
+      const layer = mark()!.firstElementChild as HTMLElement;
+      const uri = layer.style.backgroundImage.replace(/^url\(["']?/, '').replace(/["']?\)$/, '');
+
+      // An unescaped `&` is a parse error, and a parse error is an empty tile.
+      const decoded = await new Promise<boolean>((done) => {
+        const probe = new Image();
+
+        probe.onload = () => done(probe.naturalWidth > 0);
+        probe.onerror = () => done(false);
+        probe.src = uri;
+      });
+
+      expect(decoded).toBe(true);
+    });
+
+    it('follows the picture into the preview', async () => {
+      const screen = await render(
+        <PlImage src={OK} alt="A portrait" preview watermark="© Ada & Co" />
+      );
+
+      await expect.poll(() => document.querySelector('button')!.disabled).toBe(false);
+      await screen.getByRole('button').click();
+      await expect.poll(() => document.querySelectorAll('img').length).toBe(2);
+
+      // A mark that comes off when the picture is opened large has marked the
+      // copy nobody wanted.
+      await expect
+        .poll(
+          () => document.querySelectorAll('span[aria-hidden="true"].pointer-events-none').length
+        )
+        .toBe(2);
+    });
+  });
+
   describe('protect', () => {
     it('leaves the picture alone until it is asked', async () => {
       await render(<PlImage src={OK} alt="A portrait" />);

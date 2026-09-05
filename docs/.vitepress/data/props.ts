@@ -14246,6 +14246,14 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'watermark',
+      type: 'string | PlImageWatermark',
+      description: {
+        ko: '사진 위에 얹는 표식. 문자열 하나면 모서리, placement: "tile"이면 전체를 덮습니다',
+        en: 'A mark laid over the picture. A bare string sits in a corner; placement: "tile" covers the whole of it'
+      }
+    },
+    {
       name: 'protect',
       type: 'boolean',
       default: 'false',

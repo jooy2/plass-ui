@@ -107,6 +107,30 @@ The escape hatch is `colorFilter`, which takes a `ColorFilter` of your own and w
 
 :::
 
+### watermark
+
+A mark laid over the picture. A bare string sits in the bottom corner; an object says where it goes, how visible it is and at what angle. `placement: 'tile'` covers the whole picture instead, which is what a proof or a preview wants — a mark in a corner is cropped off in a second.
+
+<Demo src="image/watermark" :min-height="240">
+
+::: fw react
+
+<<< @/.vitepress/demos/image/watermark.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/watermark.dart
+
+:::
+
+</Demo>
+
+A tiled mark is **one repeating background**, not a wall of elements. A photograph wants the mark often enough that forty or fifty copies is the usual count, and forty or fifty of them would be forty or fifty things to lay out, to hide from a screen reader and to trip the caller's own CSS over. The layer is turned **as one layer** rather than each copy being turned on its own, which is what keeps the repeat seamless: turning the tiles inside a straight grid leaves the grid's lines showing through.
+
+It is drawn only once the picture has arrived — a stamp over a skeleton is a claim about a file that has not turned up — and it is `aria-hidden` and takes no pointer. A watermark is a claim about the file rather than something the page is telling a reader; `alt` is where a picture says what it is. It follows the picture into `preview`, because a mark that comes off when the picture is opened large has marked the copy nobody wanted.
+
 ### protect
 
 Refuses the four ways a picture is casually taken: the context menu, a drag out of the page, a text selection over it, and the long-press callout on iOS — which is the one that is easy to forget and the one that matters most, because on iOS the long press *is* the context menu.

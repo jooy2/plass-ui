@@ -9,9 +9,13 @@ import 'package:plass_ui/src/components/skeleton/pl_skeleton.dart';
 import 'package:plass_ui/src/internal/css.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
+import 'package:plass_ui/src/internal/watermark.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
+
+export 'package:plass_ui/src/internal/watermark.dart'
+    show PlImageWatermark, PlImageWatermarkPlacement;
 
 /// The treatments that have a name.
 ///
@@ -83,6 +87,7 @@ class PlImage extends StatefulWidget {
     this.fit = PlAspectFit.cover,
     this.filter = PlImageFilter.none,
     this.colorFilter,
+    this.watermark,
     this.rounded = false,
     this.size,
     this.color,
@@ -124,6 +129,14 @@ class PlImage extends StatefulWidget {
 
   /// Any [ColorFilter] of your own, in place of a named [filter].
   final ColorFilter? colorFilter;
+
+  /// A mark laid over the picture.
+  ///
+  /// It is drawn only once the picture has arrived, and it is off the semantics
+  /// tree and takes no pointer. A watermark is a claim about the file rather
+  /// than something the screen is telling a reader — [semanticLabel] is where a
+  /// picture says what it is.
+  final PlImageWatermark? watermark;
 
   /// Rounds the corners to the [size] step of the house ladder.
   final bool rounded;
@@ -313,6 +326,20 @@ class _PlImageState extends State<PlImage> {
       },
     );
 
+    // The mark goes on before the ratio and the clip, so it is bounded by the
+    // picture and cut by the same corners rather than sitting over them. Only
+    // once there is a picture to mark: a stamp over a skeleton is a claim about
+    // a file that has not arrived.
+    if (widget.watermark != null && _status == PlImageStatus.loaded) {
+      picture = Stack(
+        fit: StackFit.passthrough,
+        children: <Widget>[
+          picture,
+          PlassWatermarkLayer(watermark: widget.watermark!),
+        ],
+      );
+    }
+
     if (widget.ratio != null) {
       picture = AspectRatio(aspectRatio: widget.ratio!, child: picture);
     }
@@ -363,7 +390,16 @@ class _PlImageState extends State<PlImage> {
             tone: PlOverlayTone.glass,
             dismissible: true,
             label: widget.previewLabel ?? PlassTheme.labelsOf(context).preview,
-            child: Image(image: widget.image, fit: BoxFit.contain, excludeFromSemantics: true),
+            // The mark follows the picture in. One that comes off the moment it
+            // is opened large has marked the copy nobody wanted.
+            child: widget.watermark == null
+                ? Image(image: widget.image, fit: BoxFit.contain, excludeFromSemantics: true)
+                : Stack(
+                    children: <Widget>[
+                      Image(image: widget.image, fit: BoxFit.contain, excludeFromSemantics: true),
+                      PlassWatermarkLayer(watermark: widget.watermark!),
+                    ],
+                  ),
           ),
         ],
       );

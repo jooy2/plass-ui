@@ -16,6 +16,8 @@
 
 - **`PlImage` takes a `filter`.** Six named treatments — `grayscale`, `sepia`, `saturate`, `desaturate`, `contrast` and `dim` — and anything else you pass is used as a CSS `filter` chain exactly as written. It is set through a `--p-filter` slot and rides the house transition, which `filter` was already on, so a treatment swapped on hover travels at the same pace as the picture's own fade instead of snapping while the fade is still moving. The placeholder and the fallback are left alone.
 
+- **`PlImage` takes a `watermark`.** A bare string sits in the bottom corner; an object says where it goes, how visible it is and at what angle. `placement: 'tile'` covers the whole picture, which is what a proof or a preview wants — a corner mark is cropped off in a second. A tiled mark is one repeating SVG background rather than forty or fifty elements, and the layer is turned as one layer so the repeat has no seam. It is drawn only once the picture has arrived, is `aria-hidden`, takes no pointer, and follows the picture into `preview`.
+
 - **`PlImage` takes a `protect`.** Refuses the context menu, a drag out of the page, a text selection over the picture and — the one that is easy to forget — the iOS long-press callout, which on that platform *is* the context menu. It is a deterrent and not a lock, and the documentation says so: the file is still one request away. A caller's own `onContextMenu` still runs and cannot turn the refusal off, and the refusal follows the picture into `preview`. There is no Flutter equivalent, because a Flutter app paints its pictures onto a canvas and there is no per-picture menu to refuse.
 
 ### Changed

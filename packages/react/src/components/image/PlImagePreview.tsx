@@ -3,6 +3,8 @@
 import * as React from 'react';
 import { PlOverlay } from '../overlay/PlOverlay.js';
 import { cx } from '../../internal/styles.js';
+import { PlassWatermark } from '../../internal/watermark.js';
+import type { PlassWatermarkOptions } from '../../internal/watermark.js';
 import type { PlassColor } from '../../types.js';
 
 export interface PlImagePreviewProps {
@@ -23,6 +25,12 @@ export interface PlImagePreviewProps {
    * is the copy somebody wanted in the first place.
    */
   protect?: boolean;
+  /**
+   * Carried in from the thumbnail, for the same reason `protect` is: a mark that
+   * comes off the moment the picture is opened large has marked the copy nobody
+   * wanted.
+   */
+  watermark?: string | PlassWatermarkOptions;
 }
 
 /**
@@ -45,7 +53,8 @@ export function PlImagePreview({
   alt,
   label,
   color,
-  protect = false
+  protect = false,
+  watermark
 }: PlImagePreviewProps) {
   return (
     <PlOverlay
@@ -56,17 +65,21 @@ export function PlImagePreview({
       color={color}
       label={label}
     >
-      <img
-        src={src}
-        alt={alt}
-        className={cx(
-          'max-h-[85vh] max-w-[90vw] object-contain',
-          protect ? 'select-none [-webkit-touch-callout:none]' : ''
-        )}
-        draggable={protect ? false : undefined}
-        onDragStart={protect ? (event) => event.preventDefault() : undefined}
-        onContextMenu={protect ? (event) => event.preventDefault() : undefined}
-      />
+      <span className="relative block">
+        <img
+          src={src}
+          alt={alt}
+          className={cx(
+            'block max-h-[85vh] max-w-[90vw] object-contain',
+            protect ? 'select-none [-webkit-touch-callout:none]' : ''
+          )}
+          draggable={protect ? false : undefined}
+          onDragStart={protect ? (event) => event.preventDefault() : undefined}
+          onContextMenu={protect ? (event) => event.preventDefault() : undefined}
+        />
+
+        {watermark === undefined ? null : <PlassWatermark watermark={watermark} />}
+      </span>
     </PlOverlay>
   );
 }

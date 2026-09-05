@@ -4,8 +4,16 @@ import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { PlSkeleton } from '../skeleton/PlSkeleton.js';
+import { PlassWatermark } from '../../internal/watermark.js';
 import { cx, focusRingClasses, radiusClasses, transitionClasses } from '../../internal/styles.js';
 import type { PlassColor, PlassSize } from '../../types.js';
+import type { PlassWatermarkOptions, PlassWatermarkPlacement } from '../../internal/watermark.js';
+
+/** Where a watermark sits on the picture. */
+export type PlImageWatermarkPlacement = PlassWatermarkPlacement;
+
+/** A mark laid over the picture. A bare string is the text, in the usual corner. */
+export type PlImageWatermark = PlassWatermarkOptions;
 
 /** How the picture is fitted to the box. `object-fit`'s own words. */
 export type PlImageFit = 'cover' | 'contain' | 'fill' | 'none';
@@ -65,6 +73,18 @@ export interface PlImageProps extends Omit<
    * that is certainly available and certainly describes what is missing.
    */
   fallback?: React.ReactNode;
+  /**
+   * A mark laid over the picture — a bare string for one in the bottom corner,
+   * or an object to say where it goes, how visible it is, and at what angle.
+   *
+   * `placement: 'tile'` covers the whole picture instead, which is the one a
+   * proof or a preview wants: a mark in a corner is cropped off in a second.
+   *
+   * It is drawn only once the picture has arrived, and it is `aria-hidden` and
+   * takes no pointer. A watermark is a claim about the file, not something the
+   * page is telling a reader — `alt` is where a picture says what it is.
+   */
+  watermark?: string | PlImageWatermark;
   /**
    * Makes the picture awkward to take: no context menu, no drag out of the
    * page, no text selection over it, and no long-press callout on iOS.
@@ -168,6 +188,7 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
       ratio,
       fit = 'cover',
       filter,
+      watermark,
       protect = false,
       rounded = false,
       size: sizeProp,
@@ -343,6 +364,12 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
             {fallback ?? alt}
           </span>
         ) : null}
+
+        {/* Only once there is a picture to mark. A stamp over a skeleton is a
+            claim about a file that has not arrived. */}
+        {watermark !== undefined && status === 'loaded' ? (
+          <PlassWatermark watermark={watermark} />
+        ) : null}
       </>
     );
 
@@ -382,6 +409,7 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
             label={previewLabel}
             color={color}
             protect={protect}
+            watermark={watermark}
           />
         </React.Suspense>
       </>
