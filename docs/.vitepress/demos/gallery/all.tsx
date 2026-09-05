@@ -40,6 +40,7 @@ import {
   PlChatBubble,
   PlCheckbox,
   PlChip,
+  PlCodeBlock,
   PlCollapsible,
   PlConfirmProvider,
   PlColorPicker,
@@ -1080,6 +1081,25 @@ const entries: Entry[] = [
           },
           { id: 'readme', label: 'README.md' }
         ]}
+      />
+    )
+  },
+  {
+    name: 'PlCodeBlock',
+    group: 'display',
+    href: 'components/display/code-block',
+    blurb: {
+      en: 'A viewer for one line of code or a thousand.',
+      ko: '한 줄짜리 코드부터 천 줄짜리까지 보여 주는 뷰어입니다.'
+    },
+    preview: (
+      <PlCodeBlock
+        size="xs"
+        className="w-full"
+        language="ts"
+        theme="dracula"
+        copyable={false}
+        code={'const answer = 42;\nconsole.log(answer);'}
       />
     )
   },

@@ -130,6 +130,10 @@ import 'package:plass_ui_example/demos/checkbox/hero.dart';
 import 'package:plass_ui_example/demos/checkbox/indeterminate.dart';
 import 'package:plass_ui_example/demos/checkbox/sizes.dart';
 import 'package:plass_ui_example/demos/checkbox/states.dart';
+import 'package:plass_ui_example/demos/code_block/hero.dart';
+import 'package:plass_ui_example/demos/code_block/lines.dart';
+import 'package:plass_ui_example/demos/code_block/terminal.dart';
+import 'package:plass_ui_example/demos/code_block/themes.dart';
 import 'package:plass_ui_example/demos/collapsible/hero.dart';
 import 'package:plass_ui_example/demos/collapsible/slots.dart';
 import 'package:plass_ui_example/demos/collapsible/trigger.dart';
@@ -879,6 +883,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'drawer/hero': _drawerHero,
   'drawer/sides': _drawerSides,
   'drawer/inline': _drawerInline,
+  'code-block/hero': _codeBlockHero,
+  'code-block/lines': _codeBlockLines,
+  'code-block/terminal': _codeBlockTerminal,
+  'code-block/themes': _codeBlockThemes,
   'collapsible/hero': _collapsibleHero,
   'collapsible/variants': _collapsibleVariants,
   'collapsible/slots': _collapsibleSlots,
@@ -1019,6 +1027,14 @@ Widget _stepperStatus(BuildContext context) => const StepperStatus();
 Widget _treeHero(BuildContext context) => const TreeHero();
 
 Widget _treeSelection(BuildContext context) => const TreeSelection();
+
+Widget _codeBlockHero(BuildContext context) => const CodeBlockHero();
+
+Widget _codeBlockLines(BuildContext context) => const CodeBlockLines();
+
+Widget _codeBlockTerminal(BuildContext context) => const CodeBlockTerminal();
+
+Widget _codeBlockThemes(BuildContext context) => const CodeBlockThemes();
 
 Widget _treeSelectBranches(BuildContext context) => const TreeSelectBranches();
 

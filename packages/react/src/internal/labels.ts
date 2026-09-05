@@ -119,6 +119,15 @@ export interface PlassLabels {
   transferSelected: string;
   transferToSelected: string;
   transferToAvailable: string;
+  /** The code block's bar: the button, what it says once it has worked, and
+   * what it says when the clipboard refused. */
+  copy: string;
+  copied: string;
+  copyFailed: string;
+  /** The toggle that drops a block's colouring. */
+  raw: string;
+  /** What a block of code is called when it has neither a title nor a language. */
+  code: string;
 
   /* -------------------------------------------------------------------------
    * The pickers
@@ -210,6 +219,11 @@ export const defaultLabels: PlassLabels = {
   transferSelected: 'Selected',
   transferToSelected: 'Move to selected',
   transferToAvailable: 'Move to available',
+  copy: 'Copy',
+  copied: 'Copied',
+  copyFailed: 'Could not copy',
+  raw: 'Raw',
+  code: 'Code',
 
   previousMonth: 'Previous month',
   nextMonth: 'Next month',

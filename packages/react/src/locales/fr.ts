@@ -49,6 +49,11 @@ export const fr: PlassLabels = {
   transferSelected: 'Sélectionnés',
   transferToSelected: 'Déplacer vers les sélectionnés',
   transferToAvailable: 'Déplacer vers les disponibles',
+  copy: 'Copier',
+  copied: 'Copié',
+  copyFailed: 'Copie impossible',
+  raw: 'Brut',
+  code: 'Code',
 
   previousMonth: 'Mois précédent',
   nextMonth: 'Mois suivant',

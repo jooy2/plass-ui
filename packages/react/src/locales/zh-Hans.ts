@@ -49,6 +49,11 @@ export const zhHans: PlassLabels = {
   transferSelected: '已选',
   transferToSelected: '移到已选',
   transferToAvailable: '移到可选',
+  copy: '复制',
+  copied: '已复制',
+  copyFailed: '无法复制',
+  raw: '原始',
+  code: '代码',
 
   previousMonth: '上个月',
   nextMonth: '下个月',

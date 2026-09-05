@@ -49,6 +49,11 @@ export const ja: PlassLabels = {
   transferSelected: '選択済み',
   transferToSelected: '選択済みへ移動',
   transferToAvailable: '未選択へ移動',
+  copy: 'コピー',
+  copied: 'コピーしました',
+  copyFailed: 'コピーできません',
+  raw: '元のまま',
+  code: 'コード',
 
   previousMonth: '前の月',
   nextMonth: '次の月',

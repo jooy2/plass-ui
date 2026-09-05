@@ -12252,6 +12252,245 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlCodeBlock: [
+    {
+      name: 'code',
+      type: 'string',
+      required: true,
+      description: {
+        ko: '코드. 블록 끝의 공백은 잘라 냅니다',
+        en: 'The code. Trailing whitespace is trimmed off the end of the block'
+      }
+    },
+    {
+      name: 'language',
+      type: 'string',
+      description: {
+        ko: '무엇으로 쓰였는지 — ts, dart, bash, yml. 흔한 표기와 확장자를 알아듣습니다',
+        en: 'What it is written in — ts, dart, bash, yml. The common spellings and file extensions are understood'
+      }
+    },
+    {
+      name: 'theme',
+      type: "'dark' | 'light' | 'auto' | 'mono' | (string & {})",
+      default: "'dark'",
+      description: {
+        ko: '팔레트. auto를 빼면 페이지의 명암과 무관합니다. 등록되지 않은 이름도 받습니다',
+        en: "The palette. Independent of the page's light and dark, except on auto. Any other string works too"
+      }
+    },
+    {
+      name: 'highlight',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '코드에 색을 입힙니다. 끄면 문법 엔진을 아예 받아 오지 않습니다',
+        en: 'Colours the code. Off, the grammar engine is not fetched at all'
+      }
+    },
+    {
+      name: 'toolbar',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '코드 위의 바. 끄면 showLanguage·copyable·rawToggle이 무엇을 말하든 아무것도 그리지 않습니다',
+        en: 'The bar over the code, and the master switch for showLanguage, copyable and rawToggle'
+      }
+    },
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description: {
+        ko: '바 앞쪽의 이름. 보통 파일 경로입니다',
+        en: 'A name at the start of the bar — a file path, usually'
+      }
+    },
+    {
+      name: 'showLanguage',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '바에 언어 이름을 적습니다',
+        en: 'Names the language at the start of the bar'
+      }
+    },
+    {
+      name: 'copyable',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '코드를 클립보드에 올리는 버튼',
+        en: 'The button that puts the code on the clipboard'
+      }
+    },
+    {
+      name: 'rawToggle',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '색을 걷어 내고 문자 그대로 보여 주는 토글',
+        en: 'The toggle that drops the colouring and shows the characters as they are'
+      }
+    },
+    {
+      name: 'highlightLines',
+      type: 'number | string | Array<number | string>',
+      description: {
+        ko: "표시할 줄. 4, '4-9', '1,4-9,12'. gutter가 세는 방식으로 셉니다",
+        en: "Lines to mark: 4, '4-9', '1,4-9,12'. Counted the way the gutter counts"
+      }
+    },
+    {
+      name: 'lineNumbers',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '옆에 줄 번호를 붙입니다', en: 'Numbers down the side' }
+    },
+    {
+      name: 'startLine',
+      type: 'number',
+      default: '1',
+      description: { ko: '첫 줄의 번호', en: 'What the first line is numbered' }
+    },
+    {
+      name: 'prompt',
+      type: 'string',
+      description: {
+        ko: '내용이 있는 모든 줄 앞의 셸 프롬프트 — $, #, >>>. 그려지지만 복사되지는 않습니다',
+        en: 'A shell prompt in front of every line that has something on it. Drawn but never copied'
+      }
+    },
+    {
+      name: 'wrap',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '긴 줄을 옆으로 흘리는 대신 접습니다',
+        en: 'Wraps long lines instead of scrolling them sideways'
+      }
+    },
+    {
+      name: 'maxHeight',
+      type: 'number | string',
+      description: {
+        ko: '이 높이를 넘으면 안에서 스크롤합니다. 숫자는 픽셀',
+        en: 'How tall the block may get before the code scrolls inside it. A number is pixels'
+      }
+    },
+    {
+      name: 'fontFamily',
+      type: 'string',
+      description: {
+        ko: '서체. 기본은 페이지의 monospace',
+        en: "The typeface. Defaults to the page's own monospace stack"
+      }
+    },
+    {
+      name: 'fontSize',
+      type: 'number | string',
+      description: {
+        ko: 'size 사다리가 고른 크기를 덮어씁니다',
+        en: 'Overrides the size the size ladder chose'
+      }
+    },
+    {
+      name: 'lineHeight',
+      type: 'number | string',
+      description: {
+        ko: '행간. 맨 숫자는 CSS처럼 비율입니다',
+        en: 'Overrides the leading. A bare number is a ratio, as in CSS'
+      }
+    },
+    {
+      name: 'letterSpacing',
+      type: 'number | string',
+      description: { ko: '자간', en: 'Tracking' }
+    },
+    {
+      name: 'copyLabel',
+      type: 'string',
+      default: "'Copy'",
+      description: { ko: '복사 버튼의 말', en: "The copy button's label" }
+    },
+    {
+      name: 'copiedLabel',
+      type: 'string',
+      default: "'Copied'",
+      description: {
+        ko: '클립보드가 받은 뒤의 말',
+        en: 'And what it says once the code is on the clipboard'
+      }
+    },
+    {
+      name: 'copyFailedLabel',
+      type: 'string',
+      default: "'Could not copy'",
+      description: {
+        ko: '클립보드가 거절했을 때의 말',
+        en: 'And what it says when the clipboard refused'
+      }
+    },
+    {
+      name: 'rawLabel',
+      type: 'string',
+      default: "'Raw'",
+      description: { ko: 'raw 토글의 말', en: "The raw toggle's label" }
+    },
+    {
+      name: 'codeLabel',
+      type: 'string',
+      default: "'Code'",
+      description: {
+        ko: 'title도 language도 없을 때 영역의 이름',
+        en: 'What the region is called when there is neither a title nor a language'
+      }
+    },
+    {
+      name: 'onCopy',
+      type: '(code: string) => void',
+      description: {
+        ko: '클립보드가 코드를 받은 뒤 그 코드와 함께 호출됩니다',
+        en: 'Fires with the copied text once the clipboard has taken it'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '타입 스케일과 코드 주변의 여백',
+        en: 'The type scale and the air around the code'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: '의미론적 색 역할. focus ring에만 닿습니다 — 블록 자체는 일부러 색 계열을 거부합니다',
+        en: 'Semantic colour role. It reaches the focus ring and nothing else — the block itself refuses the family on purpose'
+      }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'default'",
+      shared: true,
+      description: {
+        ko: '코드 주변의 여백. 타입 스케일은 아닙니다',
+        en: 'The air around the code. Never the type scale'
+      }
+    },
+    {
+      name: 'elevation',
+      type: ELEVATION,
+      default: '0',
+      shared: true,
+      description: { ko: '그림자 깊이. 0은 평평합니다', en: 'Drop shadow depth. 0 is flat' }
+    }
+  ],
   PlTreeSelect: [
     {
       name: 'items',

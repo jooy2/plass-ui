@@ -86,9 +86,18 @@ function baseUiEntries(): string[] {
       continue;
     }
 
-    for (const [, entry] of readFileSync(resolve(componentsDir, file), 'utf8').matchAll(
-      /from '(@base-ui\/react\/[a-z-]+)'/g
-    )) {
+    const source = readFileSync(resolve(componentsDir, file), 'utf8');
+
+    for (const [, entry] of source.matchAll(/from '(@base-ui\/react\/[a-z-]+)'/g)) {
+      entries.add(entry);
+    }
+
+    // And the grammars, which are `import()` rather than `from` — the core and
+    // one module per language, all of them behind a dynamic import so that a
+    // page which highlights nothing fetches nothing. Left out, the dev server
+    // discovers each one the first time a preview shows that language and
+    // reloads the page under the reader.
+    for (const [, entry] of source.matchAll(/import\('(highlight\.js\/lib\/[a-z/]+)'\)/g)) {
       entries.add(entry);
     }
   }

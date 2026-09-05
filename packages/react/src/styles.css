@@ -1646,6 +1646,479 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * Code blocks
+ *
+ * A `PlCodeBlock` is the one surface in the library that does **not** take the
+ * page's palette. Code is read against a background that was chosen for code,
+ * and a block that turned white because the page did would throw away the only
+ * thing a reader is using to tell a keyword from a string. So the sheet carries
+ * its own slots, `theme` picks which set fills them, and `auto` is the opt-in
+ * for a block that would rather follow the page.
+ *
+ * They are custom properties on the block rather than a stylesheet per theme
+ * for `internal/animate.ts`'s reason: nothing here is generated, the component only
+ * fills slots, and a thirteenth theme is a block of declarations rather than a
+ * second copy of the token map below. That is also why `theme` accepts any
+ * string: a consumer who writes `[data-code-theme='ours']` in their own CSS has
+ * a theme, with nothing to register and nothing to import.
+ *
+ * **Five of the slots are derived and are never written per theme.** `dim`,
+ * `rule` and `hover` are a fixed mix of the ground and the ink, and `mark` and
+ * `mark-edge` are the same for the highlighted-line background. A custom
+ * property resolves its `var()`s on the element that declares it, and every
+ * theme below declares its `fg` and `bg` on that same element — so the derived
+ * five follow whichever theme won without being restated fourteen times.
+ *
+ * The two dark palettes at the top are written twice on purpose — once for
+ * `dark`, once for `auto` inside a dark page — because a media query cannot be
+ * folded into a selector list. It is the same repetition the theme roots at the
+ * top of this file make, for the same reason.
+ *
+ * Every hue in the house themes is solved against its own background rather
+ * than flipped: the light set runs dark and saturated on near-white, the dark
+ * set light and desaturated on near-black. The pairs that have to stay apart
+ * are the ones that sit next to each other in real code — a string beside a
+ * number, a type beside a function name. The eight named themes below them are
+ * ports and keep their own published values, because a Dracula that had been
+ * re-solved would not be Dracula.
+ * ------------------------------------------------------------------------- */
+
+.plass-code {
+  /* The light set, which is also what `auto` and `light` start from. */
+  --p-code-bg: oklch(98.4% 0.003 262);
+  --p-code-fg: oklch(30% 0.016 262);
+
+  --p-code-comment: oklch(58% 0.022 262);
+  --p-code-keyword: oklch(48% 0.19 322);
+  --p-code-string: oklch(46% 0.12 148);
+  --p-code-number: oklch(50% 0.14 48);
+  --p-code-function: oklch(48% 0.17 264);
+  --p-code-type: oklch(45% 0.1 214);
+  --p-code-variable: oklch(45% 0.12 28);
+  --p-code-tag: oklch(48% 0.18 22);
+  --p-code-attr: oklch(47% 0.13 82);
+  --p-code-meta: oklch(52% 0.05 262);
+  --p-code-add: oklch(45% 0.14 152);
+  --p-code-del: oklch(48% 0.18 25);
+
+  /* The derived five. Declared once here and never in a theme: they are a mix
+     of that theme's own ground and ink, which resolves on this element. */
+  --p-code-dim: color-mix(in oklab, var(--p-code-fg) 58%, var(--p-code-bg));
+  --p-code-rule: color-mix(in oklab, var(--p-code-fg) 14%, transparent);
+  --p-code-hover: color-mix(in oklab, var(--p-code-fg) 9%, transparent);
+
+  /* A marked line is neutral rather than dyed with the page's accent family:
+     the block has deliberately refused the page's palette, and a primary-blue
+     wash over Dracula would be the one colour on it nobody chose. Mixed from
+     the theme's own ink, it is legible on all twelve. */
+  --p-code-mark: color-mix(in oklab, var(--p-code-fg) 10%, transparent);
+  --p-code-mark-edge: color-mix(in oklab, var(--p-code-fg) 45%, transparent);
+}
+
+.plass-code[data-code-theme='dark'],
+:where(.dark, [data-theme='dark']) .plass-code[data-code-theme='auto'] {
+  --p-code-bg: oklch(19.5% 0.014 262);
+  --p-code-fg: oklch(90% 0.012 262);
+
+  --p-code-comment: oklch(60% 0.024 262);
+  --p-code-keyword: oklch(76% 0.13 324);
+  --p-code-string: oklch(80% 0.13 148);
+  --p-code-number: oklch(81% 0.12 62);
+  --p-code-function: oklch(78% 0.12 258);
+  --p-code-type: oklch(82% 0.1 210);
+  --p-code-variable: oklch(82% 0.09 32);
+  --p-code-tag: oklch(77% 0.13 22);
+  --p-code-attr: oklch(85% 0.11 92);
+  --p-code-meta: oklch(70% 0.05 262);
+  --p-code-add: oklch(80% 0.14 152);
+  --p-code-del: oklch(75% 0.15 25);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .plass-code[data-code-theme='auto'] {
+    --p-code-bg: oklch(19.5% 0.014 262);
+    --p-code-fg: oklch(90% 0.012 262);
+
+    --p-code-comment: oklch(60% 0.024 262);
+    --p-code-keyword: oklch(76% 0.13 324);
+    --p-code-string: oklch(80% 0.13 148);
+    --p-code-number: oklch(81% 0.12 62);
+    --p-code-function: oklch(78% 0.12 258);
+    --p-code-type: oklch(82% 0.1 210);
+    --p-code-variable: oklch(82% 0.09 32);
+    --p-code-tag: oklch(77% 0.13 22);
+    --p-code-attr: oklch(85% 0.11 92);
+    --p-code-meta: oklch(70% 0.05 262);
+    --p-code-add: oklch(80% 0.14 152);
+    --p-code-del: oklch(75% 0.15 25);
+  }
+}
+
+/*
+ * `mono` is the one theme that follows the page, and the only one with no hue
+ * in it at all: the structure is carried by weight and by how far a run is
+ * muted. It is what a block printed on paper, or read by someone who cannot
+ * separate the hues above, is left with — so it has to stay legible on its own
+ * rather than being a degraded copy of a colour theme.
+ */
+.plass-code[data-code-theme='mono'] {
+  --p-code-bg: color-mix(in oklab, var(--plass-fg) 4%, var(--plass-surface));
+  --p-code-fg: var(--plass-fg);
+
+  --p-code-comment: var(--plass-muted-fg);
+  --p-code-keyword: var(--plass-fg);
+  --p-code-string: var(--plass-muted-fg);
+  --p-code-number: var(--plass-muted-fg);
+  --p-code-function: var(--plass-fg);
+  --p-code-type: var(--plass-fg);
+  --p-code-variable: var(--plass-fg);
+  --p-code-tag: var(--plass-fg);
+  --p-code-attr: var(--plass-muted-fg);
+  --p-code-meta: var(--plass-muted-fg);
+  --p-code-add: var(--plass-fg);
+  --p-code-del: var(--plass-muted-fg);
+}
+
+.plass-code[data-code-theme='mono'] .hljs-keyword,
+.plass-code[data-code-theme='mono'] .hljs-selector-tag,
+.plass-code[data-code-theme='mono'] .hljs-title,
+.plass-code[data-code-theme='mono'] .hljs-tag,
+.plass-code[data-code-theme='mono'] .hljs-type,
+.plass-code[data-code-theme='mono'] .hljs-built_in {
+  font-weight: 600;
+}
+
+/*
+ * The eight ports.
+ *
+ * They exist because a code block is the one component whose colours a reader
+ * already has an opinion about: someone who writes in One Dark all day reads a
+ * Dracula block as a different product's documentation. The published values
+ * are kept exactly, in the hex they were published in, rather than re-solved
+ * into the oklch the rest of this file uses — a Dracula that had been corrected
+ * against Neba's own ground would be a theme nobody recognises and nobody
+ * asked for.
+ *
+ * Six dark and two light, which is the ratio of how they are used. Each is
+ * fourteen declarations, because the muted, the rule, the hover and the two
+ * marked-line slots are all derived from the two at the top of it.
+ */
+.plass-code[data-code-theme='one-dark'] {
+  --p-code-bg: #282c34;
+  --p-code-fg: #abb2bf;
+
+  --p-code-comment: #5c6370;
+  --p-code-keyword: #c678dd;
+  --p-code-string: #98c379;
+  --p-code-number: #d19a66;
+  --p-code-function: #61afef;
+  --p-code-type: #e5c07b;
+  --p-code-variable: #e06c75;
+  --p-code-tag: #e06c75;
+  --p-code-attr: #d19a66;
+  --p-code-meta: #56b6c2;
+  --p-code-add: #98c379;
+  --p-code-del: #e06c75;
+}
+
+.plass-code[data-code-theme='dracula'] {
+  --p-code-bg: #282a36;
+  --p-code-fg: #f8f8f2;
+
+  --p-code-comment: #6272a4;
+  --p-code-keyword: #ff79c6;
+  --p-code-string: #f1fa8c;
+  --p-code-number: #bd93f9;
+  --p-code-function: #50fa7b;
+  --p-code-type: #8be9fd;
+  --p-code-variable: #f8f8f2;
+  --p-code-tag: #ff79c6;
+  --p-code-attr: #50fa7b;
+  --p-code-meta: #6272a4;
+  --p-code-add: #50fa7b;
+  --p-code-del: #ff5555;
+}
+
+.plass-code[data-code-theme='monokai'] {
+  --p-code-bg: #272822;
+  --p-code-fg: #f8f8f2;
+
+  --p-code-comment: #75715e;
+  --p-code-keyword: #f92672;
+  --p-code-string: #e6db74;
+  --p-code-number: #ae81ff;
+  --p-code-function: #a6e22e;
+  --p-code-type: #66d9ef;
+  --p-code-variable: #f8f8f2;
+  --p-code-tag: #f92672;
+  --p-code-attr: #a6e22e;
+  --p-code-meta: #75715e;
+  --p-code-add: #a6e22e;
+  --p-code-del: #f92672;
+}
+
+.plass-code[data-code-theme='nord'] {
+  --p-code-bg: #2e3440;
+  --p-code-fg: #d8dee9;
+
+  --p-code-comment: #616e88;
+  --p-code-keyword: #81a1c1;
+  --p-code-string: #a3be8c;
+  --p-code-number: #b48ead;
+  --p-code-function: #88c0d0;
+  --p-code-type: #8fbcbb;
+  --p-code-variable: #d8dee9;
+  --p-code-tag: #81a1c1;
+  --p-code-attr: #8fbcbb;
+  --p-code-meta: #5e81ac;
+  --p-code-add: #a3be8c;
+  --p-code-del: #bf616a;
+}
+
+.plass-code[data-code-theme='night-owl'] {
+  --p-code-bg: #011627;
+  --p-code-fg: #d6deeb;
+
+  --p-code-comment: #637777;
+  --p-code-keyword: #c792ea;
+  --p-code-string: #ecc48d;
+  --p-code-number: #f78c6c;
+  --p-code-function: #82aaff;
+  --p-code-type: #ffcb8b;
+  --p-code-variable: #addb67;
+  --p-code-tag: #7fdbca;
+  --p-code-attr: #addb67;
+  --p-code-meta: #82aaff;
+  --p-code-add: #addb67;
+  --p-code-del: #ef5350;
+}
+
+.plass-code[data-code-theme='gruvbox'] {
+  --p-code-bg: #282828;
+  --p-code-fg: #ebdbb2;
+
+  --p-code-comment: #928374;
+  --p-code-keyword: #fb4934;
+  --p-code-string: #b8bb26;
+  --p-code-number: #d3869b;
+  --p-code-function: #b8bb26;
+  --p-code-type: #fabd2f;
+  --p-code-variable: #83a598;
+  --p-code-tag: #8ec07c;
+  --p-code-attr: #fabd2f;
+  --p-code-meta: #928374;
+  --p-code-add: #b8bb26;
+  --p-code-del: #fb4934;
+}
+
+.plass-code[data-code-theme='github'] {
+  --p-code-bg: #ffffff;
+  --p-code-fg: #24292f;
+
+  --p-code-comment: #6e7781;
+  --p-code-keyword: #cf222e;
+  --p-code-string: #0a3069;
+  --p-code-number: #0550ae;
+  --p-code-function: #8250df;
+  --p-code-type: #953800;
+  --p-code-variable: #953800;
+  --p-code-tag: #116329;
+  --p-code-attr: #0550ae;
+  --p-code-meta: #6e7781;
+  --p-code-add: #116329;
+  --p-code-del: #82071e;
+}
+
+.plass-code[data-code-theme='solarized-light'] {
+  --p-code-bg: #fdf6e3;
+  --p-code-fg: #657b83;
+
+  --p-code-comment: #93a1a1;
+  --p-code-keyword: #859900;
+  --p-code-string: #2aa198;
+  --p-code-number: #d33682;
+  --p-code-function: #268bd2;
+  --p-code-type: #b58900;
+  --p-code-variable: #268bd2;
+  --p-code-tag: #268bd2;
+  --p-code-attr: #b58900;
+  --p-code-meta: #cb4b16;
+  --p-code-add: #859900;
+  --p-code-del: #dc322f;
+}
+
+/*
+ * A line, and the two things in front of it that are not code.
+ *
+ * The number and the prompt are generated content off a `data-*` attribute, not
+ * text nodes, and that is the whole point: a `$` a reader drags across and
+ * pastes into their shell is a `$` their shell chokes on. Generated content
+ * cannot be selected, cannot be found by find-in-page and never reaches the
+ * clipboard — `user-select: none` is only *usually* true of all three. The
+ * `order` is what lets one pseudo-element sit in front of the other and both in
+ * front of the code, since `::after` would otherwise draw last.
+ *
+ * `min-height` keeps a blank line a line high. A flex row with nothing in it is
+ * zero pixels tall, and a code block that closed up its own paragraph breaks
+ * would be reflowing the reader's file.
+ */
+.plass-code-line {
+  display: flex;
+  min-height: 1.5em;
+  min-height: 1lh;
+  /*
+   * Transparent on every line, coloured on a marked one. A border rather than
+   * an inset `box-shadow` because `box-shadow` has no logical form and this one
+   * has to sit on the *start* edge in both writing directions; drawn on all of
+   * them so marking a line does not shift its text two pixels sideways.
+   */
+  border-inline-start: 2px solid transparent;
+}
+
+/*
+ * A marked line, and the reason its horizontal padding is on the line rather
+ * than on the box that scrolls it.
+ *
+ * A highlight that stopped at the padding would be a stripe floating inside the
+ * block instead of a marked row. With the padding here the line box *is* the
+ * row, so the tint reaches both edges — and because the lines sit in a
+ * `w-max min-w-full` block, every one of them reaches the same edge whether the
+ * code is narrower than the block or scrolled sideways within it.
+ */
+.plass-code-line[data-mark] {
+  background: var(--p-code-mark);
+  border-inline-start-color: var(--p-code-mark-edge);
+}
+
+.plass-code-line[data-line]::before {
+  content: attr(data-line);
+  order: 0;
+  flex: none;
+  width: var(--p-code-gutter, 2ch);
+  margin-inline-end: 1.25em;
+  text-align: end;
+  color: var(--p-code-dim);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.plass-code-line[data-prompt]::after {
+  content: attr(data-prompt);
+  order: 1;
+  flex: none;
+  margin-inline-end: 0.75em;
+  color: var(--p-code-dim);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.plass-code-line > code {
+  order: 2;
+  min-width: 0;
+  font: inherit;
+  background: none;
+  padding: 0;
+  white-space: pre;
+}
+
+.plass-code[data-code-wrap='true'] .plass-code-line > code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/*
+ * highlight.js's scopes, mapped onto the sixteen slots.
+ *
+ * Grouped by what a run *is* rather than by what highlight.js calls it, because
+ * the names are the union of a hundred and ninety grammars and half of them are
+ * one language's word for another language's idea — `selector-tag` and `tag`
+ * and `name` are all "the thing being declared". The point of the mapping is
+ * that the same idea gets the same colour whatever file it appears in.
+ */
+.plass-code .hljs-comment,
+.plass-code .hljs-quote {
+  color: var(--p-code-comment);
+  font-style: italic;
+}
+
+.plass-code .hljs-keyword,
+.plass-code .hljs-literal,
+.plass-code .hljs-selector-tag,
+.plass-code .hljs-operator,
+.plass-code .hljs-doctag,
+.plass-code .hljs-formula {
+  color: var(--p-code-keyword);
+}
+
+.plass-code .hljs-string,
+.plass-code .hljs-regexp,
+.plass-code .hljs-char,
+.plass-code .hljs-link {
+  color: var(--p-code-string);
+}
+
+.plass-code .hljs-number,
+.plass-code .hljs-symbol,
+.plass-code .hljs-bullet {
+  color: var(--p-code-number);
+}
+
+.plass-code .hljs-title,
+.plass-code .hljs-section,
+.plass-code .hljs-name,
+.plass-code .hljs-selector-id,
+.plass-code .hljs-selector-class {
+  color: var(--p-code-function);
+}
+
+.plass-code .hljs-type,
+.plass-code .hljs-built_in,
+.plass-code .hljs-class {
+  color: var(--p-code-type);
+}
+
+.plass-code .hljs-variable,
+.plass-code .hljs-template-variable,
+.plass-code .hljs-params,
+.plass-code .hljs-subst {
+  color: var(--p-code-variable);
+}
+
+.plass-code .hljs-tag,
+.plass-code .hljs-template-tag {
+  color: var(--p-code-tag);
+}
+
+.plass-code .hljs-attr,
+.plass-code .hljs-attribute,
+.plass-code .hljs-property,
+.plass-code .hljs-selector-attr,
+.plass-code .hljs-selector-pseudo {
+  color: var(--p-code-attr);
+}
+
+.plass-code .hljs-meta,
+.plass-code .hljs-punctuation {
+  color: var(--p-code-meta);
+}
+
+.plass-code .hljs-addition {
+  color: var(--p-code-add);
+}
+
+.plass-code .hljs-deletion {
+  color: var(--p-code-del);
+}
+
+.plass-code .hljs-emphasis {
+  font-style: italic;
+}
+
+.plass-code .hljs-strong {
+  font-weight: 700;
+}
+
+/* ---------------------------------------------------------------------------
  * Reduced motion
  *
  * Nothing in Plass animates on its own except a spinner, so this is about the

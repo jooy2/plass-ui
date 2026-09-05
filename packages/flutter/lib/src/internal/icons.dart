@@ -163,6 +163,15 @@ enum PlassGlyphShape {
   /// The ×, and the one drawing for every dismissal in the library.
   close,
 
+  /// The clipboard: one sheet behind another, which is what copying is.
+  ///
+  /// A code block's bar draws it, and it turns into [check] once the clipboard
+  /// has taken the code — "it worked" is one mark in this library and not two.
+  copy,
+
+  /// The angle brackets: the toggle that drops a code block's colouring.
+  code,
+
   /// The clock: something that has been started and has not finished.
   clock,
 
@@ -333,6 +342,8 @@ class _GlyphPainter extends CustomPainter {
       case PlassGlyphShape.star:
       case PlassGlyphShape.starOutline:
       case PlassGlyphShape.dot:
+      case PlassGlyphShape.copy:
+      case PlassGlyphShape.code:
         return 1.3;
     }
   }
@@ -428,6 +439,28 @@ class _GlyphPainter extends CustomPainter {
           ..lineTo(5.5, 4.25)
           ..moveTo(10.5, 1.75)
           ..lineTo(10.5, 4.25);
+      case PlassGlyphShape.copy:
+        line
+          ..addRRect(
+            RRect.fromRectAndRadius(
+              const Rect.fromLTRB(5.75, 5.75, 13.25, 13.25),
+              const Radius.circular(1.75),
+            ),
+          )
+          ..moveTo(10.25, 3.6)
+          ..cubicTo(9.95, 3.06, 9.37, 2.75, 8.75, 2.75)
+          ..lineTo(4.75, 2.75)
+          ..cubicTo(3.65, 2.75, 2.75, 3.65, 2.75, 4.75)
+          ..lineTo(2.75, 8.75)
+          ..cubicTo(2.75, 9.37, 3.03, 9.92, 3.47, 10.29);
+      case PlassGlyphShape.code:
+        line
+          ..moveTo(5.75, 4.5)
+          ..lineTo(2.5, 8)
+          ..lineTo(5.75, 11.5)
+          ..moveTo(10.25, 4.5)
+          ..lineTo(13.5, 8)
+          ..lineTo(10.25, 11.5);
       case PlassGlyphShape.link:
         line
           ..moveTo(6.5, 9.5)

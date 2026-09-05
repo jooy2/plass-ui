@@ -29,7 +29,7 @@ features:
     link: /ko/design/design-language
     linkText: 디자인 언어
   - title: 두 프레임워크, 하나의 라이브러리
-    details: React에도 Flutter에도 같은 백열네 개가 들어 있습니다. 같은 prop, 같은 토큰, 같은 숫자. 한 페이지가 둘 다 설명합니다.
+    details: React에도 Flutter에도 같은 백열다섯 개가 들어 있습니다. 같은 prop, 같은 토큰, 같은 숫자. 한 페이지가 둘 다 설명합니다.
   - title: 다크 모드 기본 제공
     details: 플랫폼을 따라가고, 원하면 어느 subtree에서든 한쪽으로 고정할 수 있습니다. 두 번째 테마를 쓸 일도, 색을 다시 선언할 일도 없습니다.
   - title: 하나의 공통 어휘
@@ -63,7 +63,7 @@ features:
   </div>
   <div class="plass-why-card">
     <h3>요청하지 않은 것은 따라오지 않습니다</h3>
-    <p>npm 패키지는 ESM으로 배포되고 tree-shaking이 되어 import한 것만 번들에 들어가며, 런타임 의존성은 하나뿐입니다. pub 패키지는 그마저도 없고, 애셋도 플러그인도 없습니다.</p>
+    <p>npm 패키지는 ESM으로 배포되고 tree-shaking이 되어 import한 것만 번들에 들어갑니다. 두 번째 의존성인 문법 하이라이터는 코드 블록이 부를 때만 도착합니다. pub 패키지는 그마저도 없고, 애셋도 플러그인도 없습니다.</p>
   </div>
   <div class="plass-why-card">
     <h3>빌드 설정 없음</h3>

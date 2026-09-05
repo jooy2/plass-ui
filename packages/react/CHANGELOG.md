@@ -10,6 +10,22 @@
 
 ### Added
 
+- **`PlCodeBlock`.** A viewer for one line of code or a thousand — a bar over it, numbers down the side, a prompt in front of every line, and twelve palettes to read it in.
+
+  Everything it draws above the code is optional and off one prop each, because the same component has to be a snippet inside a sentence — no bar, no numbers, no chrome — and the full transcript at the top of a README.
+
+  **It is the one surface in the library that is not made of glass.** Every other sheet here is translucent and takes the page's colour family; this one paints its own opaque ground and refuses the family entirely, because the palette is the subject rather than the setting. A Dracula block tinted `primary` would be a Dracula block nobody chose.
+
+  Twelve themes: four the house's — `dark`, which is the default and the one that is not a preference, since code has been read on a dark ground since terminals; `light`; `auto`, the opt-in for a block that would rather follow the page; and `mono`, which has no hue in it at all and carries the structure by weight — and eight ports kept at the hex they were published in. `theme` takes **any string**, so a `[data-code-theme='ours']` block of custom properties is a theme with nothing to register and nothing to import. Sixteen slots, five of them derived from the other two.
+
+  **The line numbers and the prompt are generated content**, and that is the whole point of drawing them that way: a `$` a reader drags across and pastes into their shell is a `$` their shell chokes on. Neither can be selected, found by find-in-page, or copied.
+
+  **`highlight.js` is the package's second runtime dependency**, and it is reached only through a dynamic import — the core plus one module per language, thirty-five of them, never the package root. A page that imports `PlCodeBlock` and never highlights anything downloads none of it, and a page that highlights TypeScript downloads the core and TypeScript and not the other thirty-four. It is a real `dependencies` entry rather than an optional peer because a specifier a bundler cannot resolve fails the _whole_ build, not just the part that would have used it. Dart is in the built-in set, which highlight.js's own "common" list leaves out and half of this project's pages are written in.
+
+  Five new labels — `copy`, `copied`, `copyFailed`, `raw` and `code` — in all seven packs.
+
+  Measured with `npm run size`: **+3.2 kB on the whole library and +0.0 kB on all four other scenarios**. The grammars are not in that number and are not meant to be: they are chunks an `import()` fetches, one language at a time, and `scripts/size.mjs` now bundles with splitting on and counts only the chunk a page loads to render.
+
 - **`PlTreeSelect`.** A value chosen out of a hierarchy rather than out of a list — a `PlTree` behind the same field every other picker wears.
 
   It is the two of them composed and almost nothing else. The trigger is `PickerShell`, the popup is a `PlTree` with a `PlTextField` over it, and what the component adds is the arithmetic between them: which nodes a query keeps, which branches that opens, and which of the ids coming back out of the tree are answers rather than roads.

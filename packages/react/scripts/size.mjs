@@ -2,7 +2,7 @@
  * What a consumer actually pays, measured the way they would pay it.
  *
  * `npm pack`'s size and bundlephobia's number both answer a different question
- * than the one that matters for a library of 114 components: what does an app
+ * than the one that matters for a library of 115 components: what does an app
  * that imports *three* of them ship? Tree shaking is the whole answer to that,
  * and tree shaking is the one thing neither of those numbers can see — a
  * package can double a consumer's bundle without its own tarball changing by a
@@ -19,6 +19,12 @@
  *   what is safe to drop — esbuild is stricter about a call it cannot prove
  *   pure — and a consumer runs one or the other. The budget tracks the worse
  *   of the two.
+ * - **Only the entry chunk counts.** The bundle is built with code splitting
+ *   on, and what is measured is the chunk the page loads to render — not the
+ *   ones a `import()` fetches later, and possibly never. `PlCodeBlock` is why
+ *   this matters: its thirty-five grammars are half a megabyte of highlight.js
+ *   reached one language at a time, and inlining all of them into one file
+ *   would report a cost no page has ever paid.
  *
  * Run `npm run size` to print the table, `npm run size -- --update` to write
  * the current numbers back into the budget after a change that is meant to move
@@ -114,13 +120,20 @@ async function bundle(imports) {
       format: 'esm',
       minify: true,
       treeShaking: true,
+      splitting: true,
+      outdir: resolve(dir, 'out'),
       write: false,
       logLevel: 'silent',
       external: EXTERNAL,
       alias: { 'plass-ui': root },
       define: { 'process.env.NODE_ENV': '"production"' }
     });
-    return gzip(result.outputFiles[0].text);
+
+    // The entry chunk, and not the ones behind an `import()`. Splitting names
+    // it after the entry point; everything else is a hashed chunk.
+    const entryChunk = result.outputFiles.find((output) => output.path.endsWith('entry.js'));
+
+    return gzip(entryChunk.text);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

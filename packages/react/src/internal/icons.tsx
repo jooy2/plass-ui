@@ -103,6 +103,50 @@ export function CheckIcon(): React.ReactElement {
 }
 
 /**
+ * The clipboard: one sheet behind another, which is what copying is.
+ *
+ * `PlCodeBlock`'s bar draws it, and it turns into the tick above once the
+ * clipboard has taken the code — the same tick a chosen option wears, because
+ * "it worked" is one mark in this library and not two.
+ */
+export function CopyIcon(): React.ReactElement {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <rect
+        x="5.75"
+        y="5.75"
+        width="7.5"
+        height="7.5"
+        rx="1.75"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+      <path
+        d="M10.25 3.6a1.85 1.85 0 0 0-1.5-.85h-4a2 2 0 0 0-2 2v4c0 .62.28 1.17.72 1.54"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+/** The angle brackets: the toggle that drops the colouring off a code block. */
+export function CodeIcon(): React.ReactElement {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="M5.75 4.5 2.5 8l3.25 3.5m4.5-7L13.5 8l-3.25 3.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/**
  * The two steppers' marks.
  *
  * A pair, and they stay one: a minus drawn at a different weight from the plus

@@ -308,6 +308,11 @@ class PlassLabels {
     this.transferSelected = 'Selected',
     this.transferToSelected = 'Move to selected',
     this.transferToAvailable = 'Move to available',
+    this.copy = 'Copy',
+    this.copied = 'Copied',
+    this.copyFailed = 'Could not copy',
+    this.raw = 'Raw',
+    this.code = 'Code',
     this.previousMonth = 'Previous month',
     this.nextMonth = 'Next month',
     this.previousYear = 'Previous year',
@@ -384,6 +389,11 @@ class PlassLabels {
     String? transferSelected,
     String? transferToSelected,
     String? transferToAvailable,
+    String? copy,
+    String? copied,
+    String? copyFailed,
+    String? raw,
+    String? code,
     String? previousMonth,
     String? nextMonth,
     String? previousYear,
@@ -452,6 +462,11 @@ class PlassLabels {
       transferSelected: transferSelected ?? this.transferSelected,
       transferToSelected: transferToSelected ?? this.transferToSelected,
       transferToAvailable: transferToAvailable ?? this.transferToAvailable,
+      copy: copy ?? this.copy,
+      copied: copied ?? this.copied,
+      copyFailed: copyFailed ?? this.copyFailed,
+      raw: raw ?? this.raw,
+      code: code ?? this.code,
       previousMonth: previousMonth ?? this.previousMonth,
       nextMonth: nextMonth ?? this.nextMonth,
       previousYear: previousYear ?? this.previousYear,
@@ -617,6 +632,22 @@ class PlassLabels {
 
   /// See [transferToSelected].
   final String transferToAvailable;
+
+  /// The code block's bar: the button, what it says once it has worked, and
+  /// what it says when the clipboard refused.
+  final String copy;
+
+  /// See [copy].
+  final String copied;
+
+  /// See [copy].
+  final String copyFailed;
+
+  /// The toggle that drops a block's colouring.
+  final String raw;
+
+  /// What a block of code is called when it has neither a title nor a language.
+  final String code;
 
   /// The calendar's steppers, in day view.
   final String previousMonth;

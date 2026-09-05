@@ -29,7 +29,7 @@ features:
     link: /design/design-language
     linkText: Design language
   - title: Two frameworks, one library
-    details: The same hundred and fourteen components in React and in Flutter — same props, same tokens, same numbers. One page documents both.
+    details: The same hundred and fifteen components in React and in Flutter — same props, same tokens, same numbers. One page documents both.
   - title: Dark mode built in
     details: Follows the platform, and can be forced either way on any subtree. No second theme to write, no colours to redeclare.
   - title: One shared vocabulary
@@ -63,7 +63,7 @@ features:
   </div>
   <div class="plass-why-card">
     <h3>Nothing you did not ask for</h3>
-    <p>The npm package is ESM and tree-shakeable with one runtime dependency, so only what you import is bundled. The pub package has none at all, and no assets or plugins either.</p>
+    <p>The npm package is ESM and tree-shakeable, so only what you import is bundled — and its second dependency, the syntax highlighter, arrives only when a code block asks for it. The pub package has none at all, and no assets or plugins either.</p>
   </div>
   <div class="plass-why-card">
     <h3>No build-side setup</h3>

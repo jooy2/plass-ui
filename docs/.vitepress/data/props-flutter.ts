@@ -1539,6 +1539,86 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }),
     from('PlTreeNode', 'disabled', { type: 'bool', default: 'false' })
   ],
+  PlCodeBlock: [
+    from('PlCodeBlock', 'code', { type: 'String', required: true }),
+    {
+      name: 'lines',
+      type: 'List<PlCodeLine>?',
+      description: {
+        ko: '이미 색이 입혀진 같은 코드, 한 줄에 하나씩. 호출자의 하이라이터가 만든 것입니다',
+        en: "The same code already coloured, one entry per line — what a caller's own highlighter produced"
+      }
+    },
+    from('PlCodeBlock', 'language', {
+      type: 'String?',
+      description: {
+        ko: '무엇으로 쓰였는지. 바에 적히고, 그 외에는 아무도 읽지 않습니다',
+        en: 'What it is written in. Drawn on the bar; nothing else reads it'
+      }
+    }),
+    from('PlCodeBlock', 'theme', { type: 'String', default: "'dark'" }),
+    {
+      name: 'customTheme',
+      type: 'PlCodeTheme?',
+      description: {
+        ko: '호출자가 가져온 팔레트. theme보다 우선합니다',
+        en: 'A palette of the caller’s own, which wins over theme when it is given'
+      }
+    },
+    from('PlCodeBlock', 'toolbar', { type: 'bool', default: 'true' }),
+    from('PlCodeBlock', 'title', { type: 'Widget?' }),
+    from('PlCodeBlock', 'showLanguage', { type: 'bool', default: 'true' }),
+    from('PlCodeBlock', 'copyable', { type: 'bool', default: 'true' }),
+    from('PlCodeBlock', 'rawToggle', { type: 'bool', default: 'false' }),
+    from('PlCodeBlock', 'highlightLines', {
+      type: 'String?',
+      description: {
+        ko: "표시할 줄: '4', '4-9', '1,4-9,12'. React의 number-or-list 대신 문자열 하나입니다",
+        en: "Lines to mark: '4', '4-9', '1,4-9,12'. One string rather than React's number-or-string-or-list"
+      }
+    }),
+    from('PlCodeBlock', 'lineNumbers', { type: 'bool', default: 'false' }),
+    from('PlCodeBlock', 'startLine', { type: 'int', default: '1' }),
+    from('PlCodeBlock', 'prompt', { type: 'String?' }),
+    from('PlCodeBlock', 'wrap', { type: 'bool', default: 'false' }),
+    from('PlCodeBlock', 'maxHeight', { type: 'double?' }),
+    from('PlCodeBlock', 'fontFamily', { type: 'String?' }),
+    from('PlCodeBlock', 'fontSize', { type: 'double?' }),
+    from('PlCodeBlock', 'lineHeight', {
+      type: 'double?',
+      description: {
+        ko: '행간. 글자 크기의 배수입니다',
+        en: 'Overrides the leading, as a multiple of the font size'
+      }
+    }),
+    from('PlCodeBlock', 'letterSpacing', { type: 'double?' }),
+    from('PlCodeBlock', 'copyLabel', { type: 'String?', default: "'Copy'" }),
+    from('PlCodeBlock', 'copiedLabel', { type: 'String?', default: "'Copied'" }),
+    from('PlCodeBlock', 'copyFailedLabel', { type: 'String?', default: "'Could not copy'" }),
+    from('PlCodeBlock', 'rawLabel', { type: 'String?', default: "'Raw'" }),
+    from('PlCodeBlock', 'codeLabel', { type: 'String?', default: "'Code'" }),
+    from('PlCodeBlock', 'onCopy', { name: 'onCopy', type: 'ValueChanged<String>?' }),
+    from('PlCodeBlock', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlCodeBlock', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlCodeBlock', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlCodeBlock', 'elevation', { type: 'int', default: '0' })
+  ],
+  PlCodeToken: [
+    {
+      name: 'text',
+      type: 'String',
+      required: true,
+      description: { ko: '글자들', en: 'The characters' }
+    },
+    {
+      name: 'kind',
+      type: 'PlCodeTokenKind?',
+      description: {
+        ko: '어느 슬롯이 색을 주는지. null이면 전경색입니다',
+        en: 'Which slot colours them, or null for the foreground'
+      }
+    }
+  ],
   PlTreeSelect: [
     from('PlTreeSelect', 'items', { type: 'List<PlTreeSelectNode>', required: true }),
     from('PlTreeSelect', 'value', {

@@ -58,6 +58,7 @@ export 'src/components/carousel/pl_carousel.dart';
 export 'src/components/chat_bubble/pl_chat_bubble.dart';
 export 'src/components/checkbox/pl_checkbox.dart';
 export 'src/components/chip/pl_chip.dart';
+export 'src/components/code_block/pl_code_block.dart';
 export 'src/components/collapsible/pl_collapsible.dart';
 export 'src/components/color_picker/pl_color_picker.dart';
 export 'src/components/combobox/pl_combobox.dart';
