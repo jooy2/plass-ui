@@ -1,5 +1,11 @@
 # Changelog
 
+## vNext (2026--)
+
+### Fixed
+
+- **`PlSpoiler` no longer changes height when it is uncovered.** The cover is a line of explanation and a button, so it is routinely taller than the text it covers — and it was taken out of the layout on reveal, which collapsed the sheet to its content and pushed the whole page below it up. Covering it again pushed everything back down. The cover now keeps its place in the stack and is held hidden with `Visibility(maintainSize: true)` and `ExcludeFocus`, exactly as the `reversible` hide row already was, so the sheet measures the same in both states and the hidden cover is off the semantics tree. A `maxHeight` clamp is still released on reveal, which is the one thing that may resize it.
+
 ## 1.3.0 (2026-09-05)
 
 ### Added

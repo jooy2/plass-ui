@@ -54,6 +54,16 @@ Blur alone is not cover, though. It takes a paragraph apart but leaves its colou
 
 A short spoiler is as tall as its own cover, not as tall as its content: the two share one cell, so a one-line spoiler does not clip the button it is asking somebody to press.
 
+## The sheet does not change height
+
+Covering and uncovering moves nothing on the page around it. Both of the things that could move it are held instead of removed: the cover keeps its cell, and the `reversible` hide row keeps its own. Neither is taken out of the layout on the way in and put back on the way out.
+
+The cover is the one that matters most, because it is usually the taller of the two. A cover is a line of explanation and a button, so against a single line of covered text it is what holds the sheet open — drop it when the spoiler is revealed and the sheet collapses to the line, taking everything below it up the page with it. Held in place it still measures, and nothing moves.
+
+What is held is not reachable. Both are `inert` while they are hidden, so neither is tabbable, readable by a screen reader, nor selectable: a reader who has already uncovered the content is never offered a reveal button they cannot see.
+
+`maxHeight` is the exception, as above.
+
 ## Examples
 
 ### variant
@@ -83,6 +93,8 @@ The three materials, read as a _container's_: the sheet is never dyed. What a sp
 Left out, the box is exactly as tall as what it holds — the right default for a paragraph or a picture. Set it for something long enough that a page of blurred content would be a page of nothing.
 
 The clamp is **only ever on the covered state**. Revealing something and leaving it in a box with a scrollbar is answering the wrong question.
+
+This makes `maxHeight` the **one exception** to the rule below: it is the only thing that changes the sheet's height between the two states, and it is meant to.
 
 <Demo src="spoiler/clamped" :min-height="260">
 

@@ -92,8 +92,14 @@ void main() {
 
         // The one widget in the package that is happy uncontrolled: what is
         // being remembered is a thing the reader did to this box.
+        //
+        // The cover keeps its space so the sheet does not change height, so what
+        // says it is gone is the semantics tree rather than the widget tree.
         expect(_blur(tester), isNull);
-        expect(find.text('Reveal'), findsNothing);
+        expect(
+          find.descendant(of: find.byType(PlSpoiler), matching: find.bySemanticsLabel('Reveal')),
+          findsNothing,
+        );
       });
 
       testWidgets('reports the change and stays where a controlled value put it', (
@@ -235,6 +241,61 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(tester.getSize(find.byType(PlSpoiler)).height, covered);
+      });
+
+      testWidgets('is the same height when the cover is the taller of the two', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(const PlSpoiler(child: Text('One short line.')), width: 360));
+
+        final double covered = tester.getSize(find.byType(PlSpoiler)).height;
+
+        await tester.tap(find.text('Reveal'));
+        await tester.pumpAndSettle();
+
+        // The case the long-content test above cannot see. A cover is a line of
+        // explanation and a button, so against one short line it is the taller
+        // of the two and it is the cover holding the sheet open — drop it on the
+        // way in and the sheet collapses to the line, taking the whole page
+        // under it up with it.
+        expect(tester.getSize(find.byType(PlSpoiler)).height, covered);
+      });
+
+      testWidgets('offers no way back in to a spoiler that is already open', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(const PlSpoiler(revealed: true, child: Text('One short line.')), width: 360),
+        );
+
+        // Reserved space rather than a live control, exactly as the Hide row is
+        // while the content is covered.
+        expect(find.text('Reveal'), findsOneWidget);
+        expect(
+          find.descendant(of: find.byType(PlSpoiler), matching: find.bySemanticsLabel('Reveal')),
+          findsNothing,
+        );
+      });
+
+      testWidgets('lets a maxHeight clamp go, which is the one thing that may resize it', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            const PlSpoiler(maxHeight: 40, child: SizedBox(height: 400, child: Text('Plot.'))),
+            width: 360,
+          ),
+        );
+
+        final double covered = tester.getSize(find.byType(PlSpoiler)).height;
+
+        await tester.tap(find.text('Reveal'));
+        await tester.pumpAndSettle();
+
+        // Keeping the clamp would leave the reader a scrollbar where they asked
+        // for the content, so this one is meant to grow.
+        expect(tester.getSize(find.byType(PlSpoiler)).height, greaterThan(covered));
+        expect(tester.getSize(find.byType(PlSpoiler)).height, greaterThan(400));
       });
 
       testWidgets('keeps the way back out unreachable while the content is covered', (

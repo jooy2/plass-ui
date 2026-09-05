@@ -89,7 +89,17 @@ describe('PlSpoiler', () => {
         <PlSpoiler defaultRevealed>He was the killer all along.</PlSpoiler>
       );
 
-      expect(screen.getByRole('button', { name: 'Reveal' }).query()).toBeNull();
+      // The cover keeps its cell so the sheet does not change height, so what
+      // says it is gone is `inert` and `invisible` rather than an empty query.
+      const button = screen.getByRole('button', { name: 'Reveal' }).element() as HTMLElement;
+      const cover = button.closest('[inert]');
+
+      expect(cover).not.toBeNull();
+      expect(cover).toHaveClass('invisible');
+
+      button.focus();
+
+      expect(document.activeElement).not.toBe(button);
     });
 
     it('offers a way back when it is reversible', async () => {
@@ -143,6 +153,89 @@ describe('PlSpoiler', () => {
 
       expect(body).not.toHaveAttribute('inert');
       expect(body).not.toHaveClass('select-none');
+    });
+  });
+
+  describe('the sheet holds its height', () => {
+    /*
+     * The whole point of the component's layout, and the thing a reader notices
+     * when it is wrong: a cover is a line of explanation and a button, so it is
+     * routinely taller than the paragraph it covers. Let it out of the tree on
+     * reveal and the page under the spoiler jumps.
+     */
+    const measure = () =>
+      document.querySelector('.spoiler-under-test')!.getBoundingClientRect().height;
+
+    it('is the same height covered and revealed', async () => {
+      const screen = await render(
+        <PlSpoiler className="spoiler-under-test">One short line.</PlSpoiler>
+      );
+
+      const covered = measure();
+
+      expect(covered).toBeGreaterThan(0);
+
+      await screen.getByRole('button', { name: 'Reveal' }).click();
+      await expect.poll(() => screen.getByText('One short line.').element()).toBeVisible();
+
+      expect(measure()).toBe(covered);
+    });
+
+    it('is the same height again when it is covered back up', async () => {
+      const screen = await render(
+        <PlSpoiler className="spoiler-under-test" reversible>
+          One short line.
+        </PlSpoiler>
+      );
+
+      const covered = measure();
+
+      await screen.getByRole('button', { name: 'Reveal' }).click();
+      await expect.poll(() => screen.getByRole('button', { name: 'Hide' }).element()).toBeVisible();
+
+      const revealed = measure();
+
+      await screen.getByRole('button', { name: 'Hide' }).click();
+      await expect
+        .poll(() => screen.getByRole('button', { name: 'Reveal' }).element())
+        .toBeVisible();
+
+      expect(revealed).toBe(covered);
+      expect(measure()).toBe(covered);
+    });
+
+    it('takes the cover it is still holding room for out of reach', async () => {
+      // The space is kept; the cover is not. `inert` is the whole of that —
+      // untabbable, off the accessibility tree and unselectable — and
+      // `visibility: hidden` is what takes it out of the hit-testing, which
+      // `opacity: 0` would not.
+      const screen = await render(<PlSpoiler revealed>One short line.</PlSpoiler>);
+
+      const button = screen.getByRole('button', { name: 'Reveal' }).element() as HTMLElement;
+      const cover = button.closest('[inert]');
+
+      expect(cover).toHaveClass('invisible');
+
+      button.focus();
+
+      expect(document.activeElement).not.toBe(button);
+    });
+
+    it('lets a maxHeight clamp go, which is the one thing that may resize it', async () => {
+      const screen = await render(
+        <PlSpoiler className="spoiler-under-test" maxHeight={40}>
+          <div style={{ height: 400 }}>A great deal of plot.</div>
+        </PlSpoiler>
+      );
+
+      const covered = measure();
+
+      await screen.getByRole('button', { name: 'Reveal' }).click();
+      await expect.poll(() => measure() > covered).toBe(true);
+
+      // Keeping the clamp would leave the reader a scrollbar where they asked
+      // for the content.
+      expect(measure()).toBeGreaterThan(400);
     });
   });
 

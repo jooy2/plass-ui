@@ -58,7 +58,9 @@ export interface PlSpoilerProps extends Omit<
   reversible?: boolean;
   /**
    * Clamps the covered box to this height — a CSS length, or a number in pixels.
-   * Revealing releases it and the content takes whatever height it needs.
+   * Revealing releases it and the content takes whatever height it needs, which
+   * makes this the one thing that changes the sheet's height between the two
+   * states.
    *
    * Left out, the box is exactly as tall as what it holds, which is the right
    * default for a paragraph or a picture. Set it for something long enough that
@@ -120,13 +122,18 @@ const scrimClasses = '[background-color:color-mix(in_oklab,var(--plass-surface)_
  * photograph, a paragraph, a plot twist, and it arrives with its own colours.
  * The family shows up on the button and in the hairline and stops there.
  *
- * **The box is the same height covered and uncovered**, which takes both of the
- * things that could move it. The cover shares a grid cell with what it covers
- * rather than being positioned over it, so a cover that is taller than a
- * one-line spoiler makes the sheet taller instead of being clipped by it; and
- * the `reversible` Hide row is drawn from the start and merely held invisible,
- * so it is not a button's worth of height that arrives on the way in and leaves
- * again on the way out.
+ * **The box is the same height covered and uncovered**, which takes every one of
+ * the things that could move it. The cover shares a grid cell with what it
+ * covers rather than being positioned over it, so a cover taller than a one-line
+ * spoiler makes the sheet taller instead of being clipped by it; and neither the
+ * cover nor the `reversible` Hide row is ever taken out of the tree — both are
+ * drawn from the start and merely held `invisible`, so their space is paid for
+ * once instead of arriving on the way in and leaving again on the way out.
+ *
+ * `maxHeight` is the one exception, and it is deliberate: a clamp is released on
+ * reveal, so a spoiler that was holding back four screens of text grows to fit
+ * them. Keeping the clamp would leave the reader a scrollbar where they asked
+ * for the content.
  */
 export const PlSpoiler = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSpoilerProps>(
   function PlSpoiler(
@@ -271,33 +278,51 @@ export const PlSpoiler = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSpoi
           ) : null}
         </div>
 
-        {open ? null : (
-          <div
-            className={cx(
-              'z-10 flex flex-col items-center justify-center gap-2 text-center [grid-area:1/1]',
-              insetX,
-              insetY,
-              scrimClasses
-            )}
-          >
-            {hasContent(notice) ? (
-              <p className={cx('m-0 text-(--plass-muted-fg)', metaTextClasses[size])}>{notice}</p>
-            ) : null}
+        {/*
+          The cover keeps its cell rather than being taken out of the tree, for
+          the same reason the Hide row keeps its own.
 
-            {action ?? (
-              <PlButton
-                size={size}
-                color={color}
-                density={density}
-                onClick={() => change(true)}
-                aria-expanded={false}
-                aria-controls={contentId}
-              >
-                {label}
-              </PlButton>
-            )}
-          </div>
-        )}
+          A cover is a line of explanation and a button, so it is routinely
+          *taller* than the one paragraph it is covering. Unmounted on the way
+          in, the row it was holding open collapses to whatever the content
+          needs and the whole page under the spoiler jumps up — then back down
+          again when it is covered a second time. Held `invisible` it still
+          measures, so the sheet is the same height in both states and nothing
+          below it moves.
+
+          `visibility: hidden` and not `opacity: 0`: the two look the same and
+          only one of them is out of the hit-testing. `inert` is the other half —
+          off the tab order, off the accessibility tree and out of the selection,
+          so a reader who has already uncovered the content is not offered a
+          Reveal button they cannot see.
+        */}
+        <div
+          className={cx(
+            'z-10 flex flex-col items-center justify-center gap-2 text-center [grid-area:1/1]',
+            insetX,
+            insetY,
+            scrimClasses,
+            open ? 'invisible' : ''
+          )}
+          inert={open}
+        >
+          {hasContent(notice) ? (
+            <p className={cx('m-0 text-(--plass-muted-fg)', metaTextClasses[size])}>{notice}</p>
+          ) : null}
+
+          {action ?? (
+            <PlButton
+              size={size}
+              color={color}
+              density={density}
+              onClick={() => change(true)}
+              aria-expanded={false}
+              aria-controls={contentId}
+            >
+              {label}
+            </PlButton>
+          )}
+        </div>
       </div>
     );
   }

@@ -6,6 +6,8 @@
 
 ### Fixed
 
+- **`PlSpoiler` no longer changes height when it is uncovered.** The cover is a line of explanation and a button, so it is routinely taller than the text it covers — and it was taken out of the layout on reveal, which collapsed the sheet to its content and pushed the whole page below it up. Covering it again pushed everything back down. The cover now keeps its place and is held hidden and `inert`, exactly as the `reversible` hide row already was, so the sheet measures the same in both states. A `maxHeight` clamp is still released on reveal, which is the one thing that may resize it.
+
 - **`PlImage` no longer hides a picture that had already arrived.** The component moved out of its loading state on the `<img>`'s `load` event alone, and an event is only heard by something already listening: a file served from the cache — or one a server rendered, so the browser began fetching it while parsing the HTML — can finish decoding before React attaches the handler. The picture then sat at `opacity: 0` behind its own placeholder for good. It now asks the element where it got to on mount and on every `src` change, so a picture that is already `complete` is shown rather than waited for.
 
 ### Changed

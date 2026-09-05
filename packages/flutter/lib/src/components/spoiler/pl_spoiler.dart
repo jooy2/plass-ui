@@ -47,13 +47,19 @@ const double _coverGap = 8;
 /// photograph, a paragraph, a plot twist, and it arrives with its own colours.
 /// The family shows up on the button and in the hairline and stops there.
 ///
-/// **The box is the same height covered and uncovered**, which takes both of the
-/// things that could move it. The cover is an unpositioned child of the same
-/// stack as the content rather than something laid over it, so a cover taller
-/// than a one-line spoiler makes the sheet taller instead of being clipped by
-/// it; and the [reversible] Hide row is built from the start and merely held
-/// invisible, so it is not a button's worth of height that arrives on the way in
-/// and leaves again on the way out.
+/// **The box is the same height covered and uncovered**, which takes every one
+/// of the things that could move it. The cover is an unpositioned child of the
+/// same stack as the content rather than something laid over it, so a cover
+/// taller than a one-line spoiler makes the sheet taller instead of being
+/// clipped by it; and neither the cover nor the [reversible] Hide row is ever
+/// taken out of the tree — both are built from the start and merely held
+/// invisible, so their space is paid for once instead of arriving on the way in
+/// and leaving again on the way out.
+///
+/// [maxHeight] is the one exception, and it is deliberate: a clamp is released
+/// on reveal, so a spoiler that was holding back four screens of text grows to
+/// fit them. Keeping the clamp would leave the reader a scrollbar where they
+/// asked for the content.
 class PlSpoiler extends StatefulWidget {
   /// Creates a spoiler.
   const PlSpoiler({
@@ -117,7 +123,9 @@ class PlSpoiler extends StatefulWidget {
   ///
   /// Revealing releases it and the content takes whatever height it needs — the
   /// clamp is only ever on the covered state, because revealing something and
-  /// leaving it in a box with a scrollbar is answering the wrong question.
+  /// leaving it in a box with a scrollbar is answering the wrong question. That
+  /// makes this the one thing that changes the sheet's height between the two
+  /// states.
   final double? maxHeight;
 
   /// How hard the content is blurred.
@@ -225,11 +233,14 @@ class _PlSpoilerState extends State<PlSpoiler> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[content, if (widget.reversible) _hideRow(insetX, insetY)],
         ),
+        // The wash is positioned, so it takes no part in sizing the stack and can
+        // come and go. The cover cannot: it is what makes the sheet tall enough
+        // for its own button, so it is built either way and merely hidden.
         if (!_open)
           Positioned.fill(
             child: ColoredBox(color: tokens.surface.withValues(alpha: tokens.surface.a * _scrim)),
           ),
-        if (!_open) _cover(tokens, insetX, insetY),
+        _cover(tokens, insetX, insetY),
       ],
     );
 
@@ -294,8 +305,18 @@ class _PlSpoilerState extends State<PlSpoiler> {
   /// questions: the wash has to fill the sheet however tall the content made it,
   /// and this has to be able to *make* the sheet taller when the content is
   /// shorter than a button.
+  ///
+  /// Which is exactly why it is built once and then hidden rather than dropped
+  /// from the stack on the way in. A cover is a line of explanation and a
+  /// button, so it is routinely taller than the paragraph it covers; taken out
+  /// of the tree it stops holding the stack open, the sheet collapses to the
+  /// content and everything under it jumps up the page — then back down again
+  /// when it is covered a second time. [Visibility] with `maintainSize` keeps
+  /// the space, and with [ExcludeFocus] takes the row off the pointer, out of
+  /// the traversal and off the semantics tree: the same trio the covered content
+  /// and the Hide row are wrapped in.
   Widget _cover(PlassTokens tokens, double insetX, double insetY) {
-    return Padding(
+    final Widget cover = Padding(
       padding: EdgeInsets.symmetric(horizontal: insetX, vertical: insetY),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -317,6 +338,20 @@ class _PlSpoilerState extends State<PlSpoiler> {
                 child: Text(widget.label ?? PlassTheme.labelsOf(context).reveal),
               ),
         ],
+      ),
+    );
+
+    if (!_open) {
+      return cover;
+    }
+
+    return ExcludeFocus(
+      child: Visibility(
+        visible: false,
+        maintainSize: true,
+        maintainAnimation: true,
+        maintainState: true,
+        child: cover,
       ),
     );
   }
