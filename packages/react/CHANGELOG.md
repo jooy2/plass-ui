@@ -24,6 +24,20 @@
 
 ### Added
 
+- **`PlTimelineChart`.** Work against time — a row per thing, a bar per stretch of it.
+
+  The two axes are a set of rows and a calendar, which makes this a `PlBarChart` turned on its side with the baseline taken away: every bar starts where its own data says rather than at zero, so what the chart is about is _when_ rather than _how much_. It is not `PlTimeline`, which is a list of steps and draws no axis at all.
+
+  A row takes `PlassTimelineSeries`, whose data are spans rather than values. There is **no legend and no `hidden`**: the rows are the category axis, already named down the side, and a twenty-entry legend restating them is not a filter anyone wants.
+
+  Overlapping spans on one row are moved onto lanes of their own, by the greedy interval packing every scheduler uses. A row with no overlaps stays in a single lane, so the common row is exactly as thick as it was. Lanes are assigned in _start_ order but stored against the span's original index, because that is the order the arrow keys walk and a layout decision must not reshuffle it.
+
+  A span is cut to the plot rather than to the data: a bar that runs past a pinned `min` stops at the edge and says there is more of it off the side, where one drawn past the edge would say the axis is wrong. A zero-width span keeps a hairline, so a milestone is still something on the row. Both ends round, unlike a bar chart — neither end of a span is a zero.
+
+  The table under it is a row per span rather than the usual grid, because two rows of a Gantt have no columns in common.
+
+- **`PlassTimelinePoint`** and **`PlassTimelineSeries`** in `src/types.ts`.
+
 - **`PlHeatmapChart`.** A magnitude per cell, coloured rather than measured.
 
   Two shapes of one idea. A `grid` is for two categorical axes and one magnitude — which hour of which day, which cohort in which week — where a bar chart of the same data would be forty bars nobody can scan. A `treemap` is for parts of a whole with more parts than a `PlPieChart` can hold, and it is the same component because the data is the same shape: a row of a heatmap and a group of a treemap are both a named series of named magnitudes.

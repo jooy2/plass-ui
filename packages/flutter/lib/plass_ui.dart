@@ -137,6 +137,7 @@ export 'src/components/text_field/pl_text_field.dart';
 export 'src/components/text_link/pl_text_link.dart';
 export 'src/components/time_picker/pl_time_picker.dart';
 export 'src/components/timeline/pl_timeline.dart';
+export 'src/components/timeline_chart/pl_timeline_chart.dart';
 export 'src/components/toast/pl_toast.dart';
 export 'src/components/toggle/pl_toggle.dart';
 export 'src/components/toggle/pl_toggle_group.dart';

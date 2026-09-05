@@ -146,6 +146,8 @@ class PlassChartMark {
     required this.index,
     required this.centre,
     required this.r,
+    this.rx,
+    this.ry,
   });
 
   /// Its series' place in the list as it was passed — where its colour is from.
@@ -159,6 +161,36 @@ class PlassChartMark {
 
   /// How big it is, which is also how far off it a press still counts.
   final double r;
+
+  /// Its half-width and half-height, when the mark is a box rather than a disc.
+  ///
+  /// A span on a Gantt is two hundred pixels of bar whose centre a pointer may
+  /// never go near, so measuring to the centre would hand the row's short bar a
+  /// press the reader is plainly not making. Given these, the pointer is tested
+  /// against the *body*.
+  final double? rx;
+
+  /// The other half of [rx].
+  final double? ry;
+
+  /// How far the press is from this mark, or `null` when it is not near it.
+  double? distanceFrom(Offset at, double slop) {
+    final double? halfWidth = rx;
+    final double? halfHeight = ry;
+
+    if (halfWidth == null || halfHeight == null) {
+      final double away = (centre - at).distance;
+
+      return away <= r + slop ? away : null;
+    }
+
+    // Outside the box in each axis, which is zero while the press is within it.
+    final double dx = math.max(0, (at.dx - centre.dx).abs() - halfWidth);
+    final double dy = math.max(0, (at.dy - centre.dy).abs() - halfHeight);
+    final double away = math.sqrt(dx * dx + dy * dy);
+
+    return away <= slop ? away : null;
+  }
 }
 
 /// Builds every mark, once the frame knows where the plot is.
@@ -366,7 +398,9 @@ class PlassCartesianChart extends StatefulWidget {
     this.markInset = 0,
     this.swatch,
     this.markReadout,
+    this.markHeading,
     this.semanticValue,
+    this.scale,
     super.key,
   });
 
@@ -452,6 +486,18 @@ class PlassCartesianChart extends StatefulWidget {
   /// grid the frame can look an answer up in.
   final String Function(PlassChartMark mark)? markReadout;
 
+  /// And what it is called, for a chart whose marks name themselves rather than
+  /// taking their series' name. A Gantt's spans do.
+  final String Function(PlassChartMark mark)? markHeading;
+
+  /// The value axis' scale, already worked out.
+  ///
+  /// For the axis that is not a count. [valueScale] rounds to 1-2-5, which is
+  /// the family a reader does arithmetic in and exactly the wrong one for an
+  /// instant — sixty, twenty-four, seven, twelve. A chart whose axis has its
+  /// own arithmetic builds the scale itself and hands it over.
+  final ValueScale? scale;
+
   /// What a screen reader is handed in place of the drawing, for a chart whose
   /// summary is not "each series and where it ended up".
   final String Function()? semanticValue;
@@ -534,13 +580,15 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
     final ChartExtent? extent = extentOf(shown, stacked: widget.stacked);
     final bool nothing = extent == null;
 
-    final ValueScale scale = valueScale(
-      extent,
-      min: widget.yAxis.min,
-      max: widget.yAxis.max,
-      tickCount: widget.yAxis.tickCount,
-      includeZero: widget.includeZero && widget.yAxis.min == null,
-    );
+    final ValueScale scale =
+        widget.scale ??
+        valueScale(
+          extent,
+          min: widget.yAxis.min,
+          max: widget.yAxis.max,
+          tickCount: widget.yAxis.tickCount,
+          includeZero: widget.includeZero && widget.yAxis.min == null,
+        );
 
     final Widget plot = LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
@@ -680,9 +728,9 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
           double best = double.infinity;
 
           for (final PlassChartMark mark in built) {
-            final double away = (mark.centre - local).distance;
+            final double? away = mark.distanceFrom(local, widget.markRadius);
 
-            if (away <= mark.r + widget.markRadius && away < best) {
+            if (away != null && away < best) {
               best = away;
               found = mark;
             }
@@ -806,7 +854,10 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
                       layout: layout,
                       mark: active,
                       pointer: _pointer!,
-                      name: widget.series[active.series].name ?? 'Series ${active.series + 1}',
+                      name:
+                          widget.markHeading?.call(active) ??
+                          widget.series[active.series].name ??
+                          'Series ${active.series + 1}',
                       readout:
                           widget.markReadout?.call(active) ??
                           _write(layout.values[active.series][active.index].value ?? 0),
@@ -1424,12 +1475,11 @@ class _MarkTooltip extends StatelessWidget {
     // a finger's width from where the reader meant, and a card that follows
     // that lands somewhere they have to look for.
     final bool toTheStart = mark.centre.dx > layout.plot.left + layout.plot.width * 0.6;
+    final double reach = mark.rx ?? mark.r;
 
     return Positioned(
-      left: toTheStart ? null : mark.centre.dx + mark.r + 10,
-      right: toTheStart
-          ? layout.plot.width + layout.plot.left - mark.centre.dx + mark.r + 10
-          : null,
+      left: toTheStart ? null : mark.centre.dx + reach + 10,
+      right: toTheStart ? layout.plot.width + layout.plot.left - mark.centre.dx + reach + 10 : null,
       top: math.max(0, mark.centre.dy - 20),
       child: PlassChartTooltipCard(
         tokens: tokens,

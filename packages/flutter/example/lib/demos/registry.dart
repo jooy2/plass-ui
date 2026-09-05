@@ -506,6 +506,9 @@ import 'package:plass_ui_example/demos/timeline/hero.dart';
 import 'package:plass_ui_example/demos/timeline/orientation.dart';
 import 'package:plass_ui_example/demos/timeline/sizes.dart';
 import 'package:plass_ui_example/demos/timeline/status.dart';
+import 'package:plass_ui_example/demos/timeline_chart/hero.dart';
+import 'package:plass_ui_example/demos/timeline_chart/lanes.dart';
+import 'package:plass_ui_example/demos/timeline_chart/window.dart';
 import 'package:plass_ui_example/demos/toast/colors.dart';
 import 'package:plass_ui_example/demos/toast/future.dart';
 import 'package:plass_ui_example/demos/toast/hero.dart';
@@ -1011,6 +1014,9 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'table/rows': _tableRows,
   'table/empty': _tableEmpty,
   'table/density': _tableDensity,
+  'timeline-chart/hero': _timelineChartHero,
+  'timeline-chart/lanes': _timelineChartLanes,
+  'timeline-chart/window': _timelineChartWindow,
   'toast/hero': _toastHero,
   'toast/positions': _toastPositions,
   'toast/variants': _toastVariants,
@@ -1697,6 +1703,12 @@ Widget _selectSizes(BuildContext context) => const SelectSizes();
 Widget _selectStates(BuildContext context) => const SelectStates();
 Widget _selectControlled(BuildContext context) => const SelectControlled();
 Widget _selectIcons(BuildContext context) => const SelectIcons();
+
+Widget _timelineChartHero(BuildContext context) => const TimelineChartHero();
+
+Widget _timelineChartLanes(BuildContext context) => const TimelineChartLanes();
+
+Widget _timelineChartWindow(BuildContext context) => const TimelineChartWindow();
 
 Widget _toastHero(BuildContext context) => const ToastHero();
 Widget _toastPositions(BuildContext context) => const ToastPositions();

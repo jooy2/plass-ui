@@ -49,6 +49,7 @@ import {
   PlPieChart,
   PlScatterChart,
   PlSparkline,
+  PlTimelineChart,
   PlGallery,
   PlCollapsible,
   PlConfirmProvider,
@@ -1167,6 +1168,27 @@ const entries: Entry[] = [
         yAxis={{ hidden: true }}
         series={[{ name: 'Revenue', data: [42, 58, 31, 47, 39] }]}
         categories={['EU', 'AS', 'AM', 'AF', 'OC']}
+      />
+    )
+  },
+  {
+    name: 'PlTimelineChart',
+    group: 'charts',
+    href: 'components/charts/timeline-chart',
+    blurb: {
+      en: 'Work against time — a row per thing, a bar per stretch of it.',
+      ko: '시간에 대고 놓은 일입니다. 대상마다 한 행, 구간마다 막대 하나.'
+    },
+    preview: (
+      <PlTimelineChart
+        size="xs"
+        className="w-full"
+        height={96}
+        xAxis={{ thickness: 44 }}
+        series={[
+          { name: 'Design', data: [{ start: new Date(2026, 0, 2), end: new Date(2026, 0, 18) }] },
+          { name: 'Build', data: [{ start: new Date(2026, 0, 14), end: new Date(2026, 1, 6) }] }
+        ]}
       />
     )
   },

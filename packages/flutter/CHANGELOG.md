@@ -4,6 +4,16 @@
 
 ### Added
 
+- **`PlTimelineChart`.** Work against time — a row per thing, a bar per stretch of it.
+
+  A bar chart on its side with the baseline taken away, and not `PlTimeline`, which is a list of steps and draws no axis. Overlapping spans on one row move onto lanes of their own by the greedy interval packing; a row with no overlaps is exactly as thick as it was.
+
+  **The time axis came with it.** `internal/chart.dart` gains `PlChartTimeUnit`, `timeScale`, `TimeScale`, `formatTimeValue` and `formatTimeTicks`, matching the React half function for function: the steps a clock and a calendar actually have, walked with `DateTime` so a month is a month and a daily axis stays on midnight across a daylight-saving change. The month names come off `PlDateNames` rather than a platform formatter, which is the same trade the date pickers make — this package takes no dependency on `package:intl`.
+
+  The frame grew three things for it: a `scale` a chart can hand over already worked out, a `markHeading` for marks that name themselves rather than taking their series' name, and `rx`/`ry` on `PlassChartMark` so a two-hundred-pixel bar is hit-tested against its **body** rather than against its centre — measuring to the centre would hand a row's short bar a press the reader is plainly not making.
+
+- **`PlassTimelinePoint`** and **`PlassTimelineSeries`** in `types.dart`.
+
 - **`PlHeatmapChart`.** A magnitude per cell, coloured rather than measured.
 
   A grid for two categorical axes, or a squarified treemap for parts of a whole. Colour encodes size and not identity, so it comes off a one-hue ramp rather than the categorical palette, and one ladder covers the whole chart.

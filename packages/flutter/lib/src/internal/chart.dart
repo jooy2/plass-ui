@@ -20,6 +20,7 @@ library;
 import 'dart:math' as math;
 import 'dart:ui' show Color, Offset, Path, PathFillType, RRect, Radius, Rect;
 
+import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/types.dart';
 
 /* ---------------------------------------------------------------------------
@@ -1241,4 +1242,337 @@ class _Area {
 
   final int index;
   final double area;
+}
+
+/* ---------------------------------------------------------------------------
+ * Time
+ * ------------------------------------------------------------------------- */
+
+/// The units a clock and a calendar are read in.
+enum PlChartTimeUnit {
+  /// Seconds.
+  second,
+
+  /// Minutes.
+  minute,
+
+  /// Hours.
+  hour,
+
+  /// Days.
+  day,
+
+  /// Weeks.
+  week,
+
+  /// Months.
+  month,
+
+  /// Quarters.
+  quarter,
+
+  /// Years.
+  year,
+}
+
+const int _second = 1000;
+const int _minute = 60 * _second;
+const int _hour = 60 * _minute;
+const int _day = 24 * _hour;
+
+/// One step a time axis may tick in.
+class _TimeStep {
+  const _TimeStep(this.unit, this.count, this.size);
+
+  final PlChartTimeUnit unit;
+  final int count;
+  final int size;
+}
+
+/// The steps a clock and a calendar actually have, smallest first.
+///
+/// [niceStep]'s 1-2-5 is the right family for a count and the wrong one for an
+/// instant: run on a millisecond number it produces a tick every 200,000,000
+/// ms, which lands at 14:53:20 on an arbitrary Tuesday. Nobody reads that. Time
+/// is not decimal below the year — sixty, sixty, twenty-four, seven, twelve —
+/// so the steps are written down rather than derived.
+///
+/// The size is only how a step is *chosen*: months and years are not a fixed
+/// number of milliseconds, so the ticks themselves are walked with a calendar.
+const List<_TimeStep> _timeSteps = <_TimeStep>[
+  _TimeStep(PlChartTimeUnit.second, 1, _second),
+  _TimeStep(PlChartTimeUnit.second, 5, 5 * _second),
+  _TimeStep(PlChartTimeUnit.second, 15, 15 * _second),
+  _TimeStep(PlChartTimeUnit.second, 30, 30 * _second),
+  _TimeStep(PlChartTimeUnit.minute, 1, _minute),
+  _TimeStep(PlChartTimeUnit.minute, 5, 5 * _minute),
+  _TimeStep(PlChartTimeUnit.minute, 15, 15 * _minute),
+  _TimeStep(PlChartTimeUnit.minute, 30, 30 * _minute),
+  _TimeStep(PlChartTimeUnit.hour, 1, _hour),
+  _TimeStep(PlChartTimeUnit.hour, 3, 3 * _hour),
+  _TimeStep(PlChartTimeUnit.hour, 6, 6 * _hour),
+  _TimeStep(PlChartTimeUnit.hour, 12, 12 * _hour),
+  _TimeStep(PlChartTimeUnit.day, 1, _day),
+  _TimeStep(PlChartTimeUnit.day, 2, 2 * _day),
+  _TimeStep(PlChartTimeUnit.week, 1, 7 * _day),
+  _TimeStep(PlChartTimeUnit.week, 2, 14 * _day),
+  _TimeStep(PlChartTimeUnit.month, 1, 30 * _day),
+  _TimeStep(PlChartTimeUnit.quarter, 1, 91 * _day),
+  _TimeStep(PlChartTimeUnit.month, 6, 182 * _day),
+  _TimeStep(PlChartTimeUnit.year, 1, 365 * _day),
+];
+
+/// The start of the unit that [time] falls in, in the reader's own timezone.
+///
+/// Local and not UTC, which is the whole reason this is calendar arithmetic
+/// rather than a modulo: a tick labelled "Mar 3" has to sit at midnight where
+/// the reader is, and an axis aligned to UTC puts it nine hours into the 2nd.
+int _floorTime(int time, PlChartTimeUnit unit) {
+  final DateTime at = DateTime.fromMillisecondsSinceEpoch(time);
+
+  switch (unit) {
+    case PlChartTimeUnit.year:
+      return DateTime(at.year).millisecondsSinceEpoch;
+    case PlChartTimeUnit.quarter:
+      return DateTime(at.year, (at.month - 1) ~/ 3 * 3 + 1).millisecondsSinceEpoch;
+    case PlChartTimeUnit.month:
+      return DateTime(at.year, at.month).millisecondsSinceEpoch;
+    case PlChartTimeUnit.week:
+      // Dart counts Monday as 1 and Sunday as 7; the week starts on Sunday
+      // here, matching the JavaScript build's `getDay`.
+      return DateTime(at.year, at.month, at.day - (at.weekday % 7)).millisecondsSinceEpoch;
+    case PlChartTimeUnit.day:
+      return DateTime(at.year, at.month, at.day).millisecondsSinceEpoch;
+    case PlChartTimeUnit.hour:
+      return DateTime(at.year, at.month, at.day, at.hour).millisecondsSinceEpoch;
+    case PlChartTimeUnit.minute:
+      return time ~/ _minute * _minute;
+    case PlChartTimeUnit.second:
+      return time ~/ _second * _second;
+  }
+}
+
+/// [count] units on from [time], again by the calendar.
+///
+/// Adding 30 days is not adding a month and adding 365 is not adding a year, so
+/// a scale that stepped in milliseconds would drift a day per leap year and
+/// three per quarter. `DateTime`'s own rollover is correct, and it is also what
+/// keeps a daily axis on midnight across a daylight-saving change.
+int _addTime(int time, PlChartTimeUnit unit, int count) {
+  final DateTime at = DateTime.fromMillisecondsSinceEpoch(time);
+
+  switch (unit) {
+    case PlChartTimeUnit.year:
+      return DateTime(
+        at.year + count,
+        at.month,
+        at.day,
+        at.hour,
+        at.minute,
+        at.second,
+      ).millisecondsSinceEpoch;
+    case PlChartTimeUnit.quarter:
+      return DateTime(at.year, at.month + 3 * count, at.day).millisecondsSinceEpoch;
+    case PlChartTimeUnit.month:
+      return DateTime(at.year, at.month + count, at.day).millisecondsSinceEpoch;
+    case PlChartTimeUnit.week:
+      return DateTime(at.year, at.month, at.day + 7 * count).millisecondsSinceEpoch;
+    case PlChartTimeUnit.day:
+      return DateTime(at.year, at.month, at.day + count).millisecondsSinceEpoch;
+    case PlChartTimeUnit.hour:
+      return DateTime(at.year, at.month, at.day, at.hour + count).millisecondsSinceEpoch;
+    case PlChartTimeUnit.minute:
+      return time + count * _minute;
+    case PlChartTimeUnit.second:
+      return time + count * _second;
+  }
+}
+
+/// The container a step of this unit should be counted from.
+///
+/// A 6-month step floored only to a month starts wherever the data starts, and
+/// an axis reading "Apr · Oct · Apr · Oct" has told the reader nothing about
+/// where in the year they are. Counted from January it reads "Jan · Jul", which
+/// is the same six months landing where a calendar already has a name for them.
+const Map<PlChartTimeUnit, PlChartTimeUnit> _timeContainer = <PlChartTimeUnit, PlChartTimeUnit>{
+  PlChartTimeUnit.second: PlChartTimeUnit.minute,
+  PlChartTimeUnit.minute: PlChartTimeUnit.hour,
+  PlChartTimeUnit.hour: PlChartTimeUnit.day,
+  PlChartTimeUnit.day: PlChartTimeUnit.month,
+  PlChartTimeUnit.week: PlChartTimeUnit.week,
+  PlChartTimeUnit.month: PlChartTimeUnit.year,
+  PlChartTimeUnit.quarter: PlChartTimeUnit.year,
+  PlChartTimeUnit.year: PlChartTimeUnit.year,
+};
+
+/// The last step boundary at or before [time] — the axis' rounded-out start.
+int _alignTime(int time, PlChartTimeUnit unit, int count) {
+  int tick = _floorTime(time, _timeContainer[unit]!);
+
+  if (unit == PlChartTimeUnit.year && count > 1) {
+    // Decades start at 1990 and not at 1993, which is the same rule one step up.
+    final int year = DateTime.fromMillisecondsSinceEpoch(tick).year;
+
+    tick = DateTime(year - (year % count + count) % count).millisecondsSinceEpoch;
+  }
+
+  for (int i = 0; i < 500; i += 1) {
+    final int next = _addTime(tick, unit, count);
+
+    if (next > time) {
+      return tick;
+    }
+
+    tick = next;
+  }
+
+  return tick;
+}
+
+/// A value scale whose numbers are instants, and the unit its ticks step in.
+class TimeScale extends ValueScale {
+  /// Creates a time scale.
+  const TimeScale(super.min, super.max, super.ticks, this.unit, this.step);
+
+  /// What a tick is a step of.
+  final PlChartTimeUnit unit;
+
+  /// How many of that unit each step covers — 1, 5, 15 minutes and so on.
+  final int step;
+}
+
+/// The scale a time axis runs on, ticking where a calendar ticks.
+///
+/// The ends round *outward* to the step for the reason [valueScale]'s do: a
+/// span that starts exactly on the left edge reads as clipped rather than as
+/// starting there. Past a year the 1-2-5 family comes back, because above the
+/// year time really is decimal — decades and centuries are the only units left.
+TimeScale timeScale(ChartExtent? extent, {double? min, double? max, int tickCount = 6}) {
+  int low = (min ?? extent?.min ?? DateTime(2000).millisecondsSinceEpoch.toDouble()).round();
+  int high = (max ?? extent?.max ?? (low + _day).toDouble()).round();
+
+  // A single instant is not a range. Open a day around it rather than dividing
+  // by zero and drawing every mark on one pixel.
+  if (high <= low) {
+    low -= _day ~/ 2;
+    high += _day ~/ 2;
+  }
+
+  final int span = high - low;
+
+  /* The step whose tick count comes *closest* to the one asked for, rather than
+     the largest that fits under it. "Largest that fits" is off by a factor of
+     two every time the next step up is the better answer: five months at six
+     ticks wants a month, and taking the biggest step under `span / 6` takes a
+     fortnight and draws eleven. */
+  _TimeStep chosen = _timeSteps.first;
+  double closest = double.infinity;
+
+  for (final _TimeStep candidate in _timeSteps) {
+    final double distance = (span / candidate.size - tickCount).abs();
+
+    if (distance < closest) {
+      closest = distance;
+      chosen = candidate;
+    }
+  }
+
+  // Above a year the calendar has no more units to offer, so the step goes back
+  // to 1-2-5 — counted in years, never in milliseconds.
+  final PlChartTimeUnit unit = chosen.unit;
+  final int count = unit == PlChartTimeUnit.year
+      ? math.max(1, niceStep(span / tickCount / (365 * _day)).round())
+      : chosen.count;
+
+  final int start = min == null ? _alignTime(low, unit, count) : min.round();
+  final ticks = <double>[];
+
+  /* Walked rather than multiplied, so a month is a month. The loop runs one
+     step past the data and keeps that step as the end, which is what rounds the
+     axis outward at the top the way `_alignTime` rounded it at the bottom. */
+  int tick = start;
+
+  for (int i = 0; i < 500; i += 1) {
+    ticks.add(tick.toDouble());
+
+    if (tick > high) {
+      break;
+    }
+
+    tick = _addTime(tick, unit, count);
+  }
+
+  final double end = max ?? ticks.last;
+
+  return TimeScale(
+    start.toDouble(),
+    end,
+    <double>[
+      for (final double one in ticks)
+        if (one >= start && one <= end) one,
+    ],
+    unit,
+    count,
+  );
+}
+
+/// One instant on a time axis, written unambiguously.
+///
+/// Off [PlDateNames]' own month names rather than off a platform formatter,
+/// which is the same trade the date pickers make: this package takes no
+/// dependency on `package:intl`, and an application that has one already can
+/// hand the names over in three lines.
+String formatTimeValue(
+  double value,
+  PlChartTimeUnit unit,
+  PlDateNames names, {
+  bool withYear = true,
+}) {
+  final DateTime at = DateTime.fromMillisecondsSinceEpoch(value.round());
+  final String hh = at.hour.toString().padLeft(2, '0');
+  final String mm = at.minute.toString().padLeft(2, '0');
+
+  switch (unit) {
+    case PlChartTimeUnit.second:
+      return '$hh:$mm:${at.second.toString().padLeft(2, '0')}';
+    case PlChartTimeUnit.minute:
+    case PlChartTimeUnit.hour:
+      return '$hh:$mm';
+    case PlChartTimeUnit.year:
+      return '${at.year}';
+    case PlChartTimeUnit.month:
+    case PlChartTimeUnit.quarter:
+      final String month = names.monthsShort[at.month - 1];
+
+      return withYear ? '$month ${at.year}' : month;
+    case PlChartTimeUnit.day:
+    case PlChartTimeUnit.week:
+      final String stamp = '${names.monthsShort[at.month - 1]} ${at.day}';
+
+      return withYear ? '$stamp, ${at.year}' : stamp;
+  }
+}
+
+/// A whole axis of ticks, written the way an axis is read.
+///
+/// The year is decided for the axis rather than for each tick, and that is the
+/// part worth explaining. Writing it only where it *changes* is what a reader
+/// wants and is not safe here: the labels are thinned again downstream, by a
+/// stride measured against the plot's real width, and the tick the year was
+/// riding on is exactly the one that gets dropped — leaving `Oct 2025 · Dec ·
+/// Feb` with nothing to say which year February is in.
+///
+/// So: an axis inside one year names it once, on the first tick, which is the
+/// one tick a stride never removes. An axis that crosses a year names it on
+/// every tick, so whichever ones survive are each unambiguous.
+List<String> formatTimeTicks(List<double> ticks, PlChartTimeUnit unit, PlDateNames names) {
+  final years = <int>{
+    for (final double tick in ticks) DateTime.fromMillisecondsSinceEpoch(tick.round()).year,
+  };
+  final bool always = years.length > 1;
+
+  return <String>[
+    for (int i = 0; i < ticks.length; i += 1)
+      formatTimeValue(ticks[i], unit, names, withYear: always || i == 0),
+  ];
 }

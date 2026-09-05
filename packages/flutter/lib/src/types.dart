@@ -696,6 +696,60 @@ enum PlassChartTooltipMode {
   none,
 }
 
+/// One stretch of time on a row of a `PlTimelineChart`.
+@immutable
+class PlassTimelinePoint {
+  /// Creates a span.
+  const PlassTimelinePoint({required this.start, required this.end, this.label, this.color});
+
+  /// When it begins.
+  final PlassChartCategory start;
+
+  /// And when it is done. A span that ends before it starts is drawn either way
+  /// round.
+  final PlassChartCategory end;
+
+  /// What the span is called, in the readout and in the reading.
+  final String? label;
+
+  /// Overrides its row's colour for this one span.
+  final PlassColor? color;
+
+  @override
+  bool operator ==(Object other) {
+    return other is PlassTimelinePoint &&
+        other.start == start &&
+        other.end == end &&
+        other.label == label &&
+        other.color == color;
+  }
+
+  @override
+  int get hashCode => Object.hash(start, end, label, color);
+}
+
+/// One row of a `PlTimelineChart`, and everything on it.
+///
+/// A row is a series — one entity, one name, one colour — but its data are
+/// spans rather than values, so it cannot be a [PlassChartSeries]. There is no
+/// `hidden` here and no legend to pair it with: the rows *are* the category
+/// axis, already named down the side, and a twenty-entry legend restating them
+/// is not a filter anyone wants.
+@immutable
+class PlassTimelineSeries {
+  /// Creates a row.
+  const PlassTimelineSeries({required this.data, this.name, this.color});
+
+  /// The spans on this row. Overlapping ones are moved onto lanes of their own.
+  final List<PlassTimelinePoint> data;
+
+  /// Its name on the axis, in the readout and in the reading.
+  final String? name;
+
+  /// Overrides the palette slot this row would otherwise take.
+  final PlassColor? color;
+}
+
 /// Which values are written onto the marks.
 enum PlassChartValueLabels {
   /// None. The default: a chart with a number on every point is a table drawn

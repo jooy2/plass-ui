@@ -10965,6 +10965,101 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlTimelineChart: [
+    {
+      name: 'series',
+      type: 'readonly PlassTimelineSeries[]',
+      required: true,
+      description: {
+        ko: '행마다 그 위의 구간들. 행 이름이 옆에 적히는 축입니다',
+        en: "One row per series, and the spans on it. A row's name is what the axis says down the side"
+      }
+    },
+    {
+      name: 'min',
+      type: 'PlassChartCategory',
+      description: {
+        ko: '시간 축의 시작. 비우면 구간에서 가져와 달력이 이름 붙인 날짜로 바깥쪽으로 반올림합니다',
+        en: 'Where the time axis starts. Taken from the spans otherwise, rounded outward to a date a calendar names'
+      }
+    },
+    {
+      name: 'max',
+      type: 'PlassChartCategory',
+      description: { ko: '시간 축의 끝', en: 'And where it ends' }
+    },
+    {
+      name: 'barSize',
+      type: 'number',
+      description: {
+        ko: '막대가 두꺼워질 수 있는 한계. 남는 자리는 여백으로 둡니다',
+        en: 'How thick a bar may get. Above the cap the leftover stays as air'
+      }
+    },
+    {
+      name: 'rounded',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '구간의 양쪽 끝을 깎습니다. 막대 차트와 달리 어느 쪽도 0이 아니니까요',
+        en: 'Cuts the corners off both ends, unlike a bar chart: neither end of a span is a zero'
+      }
+    },
+    {
+      name: 'xAxis',
+      type: 'PlassChartAxis',
+      description: { ko: '행 이름이 적히는 축', en: 'The axis the rows are named down' }
+    },
+    {
+      name: 'yAxis',
+      type: 'PlassChartAxis',
+      description: { ko: '시간 축', en: 'The time axis' }
+    },
+    {
+      name: 'tooltip',
+      type: 'PlassChartTooltip',
+      description: { ko: '툴팁', en: 'The tooltip' }
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      description: { ko: 'plot의 높이', en: 'How tall the plot is' }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      default: "'Chart'",
+      description: { ko: '그림 전체의 접근성 이름', en: 'What the whole drawing is called' }
+    },
+    {
+      name: 'empty',
+      type: 'ReactNode',
+      description: {
+        ko: '그릴 것이 없을 때 그리는 것',
+        en: 'What is drawn when there is nothing to draw'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '타입 스케일, plot 높이, 막대 두께 상한',
+        en: 'Type scale, plot height and the bar thickness cap'
+      }
+    },
+    {
+      name: 'density',
+      type: DENSITY,
+      default: "'default'",
+      shared: true,
+      description: {
+        ko: '행 한 칸에서 막대가 차지하는 비율. 높이는 아닙니다',
+        en: "How much of a row's slot the bars on it may take. Never the height"
+      }
+    }
+  ],
   PlToastProvider: [
     {
       name: 'variant',

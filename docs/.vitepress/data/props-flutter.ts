@@ -5319,6 +5319,25 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlTimelineItem', 'children', { name: 'child', type: 'Widget?' })
   ],
 
+  PlTimelineChart: [
+    from('PlTimelineChart', 'series', { type: 'List<PlassTimelineSeries>', required: true }),
+    from('PlTimelineChart', 'min', { type: 'PlassChartCategory?' }),
+    from('PlTimelineChart', 'max', { type: 'PlassChartCategory?' }),
+    from('PlTimelineChart', 'barSize', { type: 'double?' }),
+    from('PlTimelineChart', 'rounded', { type: 'bool', default: 'true' }),
+    from('PlTimelineChart', 'xAxis', { type: 'PlChartAxis', default: 'PlChartAxis()' }),
+    from('PlTimelineChart', 'yAxis', { type: 'PlChartAxis', default: 'PlChartAxis()' }),
+    from('PlTimelineChart', 'tooltip', { type: 'PlChartTooltip', default: 'PlChartTooltip()' }),
+    from('PlTimelineChart', 'height', { type: 'double?' }),
+    from('PlTimelineChart', 'label', {
+      name: 'semanticLabel',
+      type: 'String?',
+      default: "'Chart'"
+    }),
+    from('PlTimelineChart', 'empty', { type: 'Widget?' }),
+    from('PlTimelineChart', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlTimelineChart', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+  ],
   PlToastProvider: [
     from('PlToastProvider', 'children', {
       name: 'child',
