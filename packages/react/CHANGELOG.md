@@ -2,6 +2,12 @@
 
 > This package's history. The Flutter package keeps its own at [`packages/flutter/CHANGELOG.md`](https://github.com/jooy2/plass-ui/blob/main/packages/flutter/CHANGELOG.md), because the two version independently.
 
+## vNext (2026--)
+
+### Changed
+
+- The two runtime dependencies move their floor up: `@base-ui/react` to `^1.8.0` and `highlight.js` to `^11.12.0`. Neither release changes an API this package uses.
+
 ## 1.4.0 (2026-09-05)
 
 ### Added
