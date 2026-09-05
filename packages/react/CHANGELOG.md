@@ -24,6 +24,18 @@
 
 ### Added
 
+- **`PlSparkline`.** A chart with everything taken away except the shape.
+
+  No axes, no grid, no legend, no tooltip. It is not a small chart, it is a different thing: a word-sized picture that goes inside a sentence, beside a `PlStat`, or in a table cell, and says which way something has been going. Every number it could label is one the surrounding text already has, which is why it labels none of them.
+
+  `shape` is `line` for a trend, `area` for a quantity or `bar` for a count of discrete things — the same three sentences the full charts say, at a size where nothing else is being said at all.
+
+  **It scales itself to its own range, so the strip is always full.** That is what makes it readable at twenty pixels tall, and it is also the trap: two of them side by side are on two different scales, so the one that climbs more steeply may be the smaller number. `min` and `max` are how a row of them becomes small multiples instead.
+
+  `baseline` draws a rule across the strip and is pulled into the range if it sits outside the data. `endDot` marks the last point that is _a point_, not the last slot; bars do not take it, because a bar already ends where it ends. The colour is given directly rather than off the palette — one series and no legend leaves nothing to hand out.
+
+  Without a `label` the strip is taken off the accessibility tree entirely, because an unlabelled image announced as an image is noise beside text that already has the numbers. With one it is a named `role="img"` and the values are written out beside it.
+
 - **`PlScatterChart`.** Two numbers per point, and whether they move together.
 
   Both axes measure, which makes this the only chart in the library with no categories: there is no column a mark belongs to and no order the points could be shuffled out of. A point with a `z` is drawn as a bubble and one without it as a dot, so a scatter and a bubble chart are the same component reading the same data.

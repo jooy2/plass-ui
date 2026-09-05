@@ -4,6 +4,14 @@
 
 ### Added
 
+- **`PlSparkline`.** A chart with everything taken away except the shape.
+
+  A word-sized strip that goes in a line of text and says which way something has been going, sized against that line rather than against the page. It scales itself to its own range, which is what makes it legible this small and what makes two of them incomparable until they are given the same `min` and `max`.
+
+  The one thing it does not share with the React build is how the colour is named: `color` takes a `PlassColor` family and `tint` takes an exact `Color`, where React has a single prop typed `PlassColor | (string & {})`. Dart has no union to flatten, and one prop that accepted both would have to guess which was meant.
+
+  Without a `semanticLabel` the whole strip is wrapped in `ExcludeSemantics`, which is the Flutter half of what React does by putting `aria-hidden` on it.
+
 - **`PlScatterChart`.** Two numbers per point, and whether they move together.
 
   Both axes measure, so this is the only chart with no categories, and a point with a `z` is a bubble rather than a dot. A `z` is an area and not a radius: encoded as a radius, twice the value draws four times the mark.

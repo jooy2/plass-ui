@@ -123,6 +123,7 @@ export 'src/components/sidebar/pl_sidebar.dart';
 export 'src/components/sidebar/pl_sidebar_trigger.dart';
 export 'src/components/skeleton/pl_skeleton.dart';
 export 'src/components/slider/pl_slider.dart';
+export 'src/components/sparkline/pl_sparkline.dart';
 export 'src/components/spoiler/pl_spoiler.dart';
 export 'src/components/stack/pl_stack.dart';
 export 'src/components/stat/pl_stat.dart';

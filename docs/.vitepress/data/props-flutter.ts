@@ -4706,6 +4706,36 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlPopover', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
   ],
 
+  PlSparkline: [
+    from('PlSparkline', 'data', { type: 'List<PlassChartDatum>', required: true }),
+    from('PlSparkline', 'shape', {
+      type: 'PlSparklineShape',
+      default: 'PlSparklineShape.line'
+    }),
+    from('PlSparkline', 'curve', { type: 'PlChartCurve', default: 'PlChartCurve.linear' }),
+    from('PlSparkline', 'color', {
+      type: 'PlassColor?',
+      description: {
+        ko: 'mark의 색 계열. 계열이 아닌 정확한 색은 tint가 받습니다',
+        en: "The mark's colour family. An exact colour goes to tint instead"
+      }
+    }),
+    {
+      name: 'tint',
+      type: 'Color?',
+      description: {
+        ko: '계열 중 하나가 아닌 정확한 색. React의 PlassColor | (string & {})를 둘로 나눈 쪽입니다',
+        en: "An exact colour, the other half of React's PlassColor | (string & {}) — Dart has no union"
+      }
+    },
+    from('PlSparkline', 'endDot', { type: 'bool', default: 'false' }),
+    from('PlSparkline', 'baseline', { type: 'double?' }),
+    from('PlSparkline', 'min', { type: 'double?' }),
+    from('PlSparkline', 'max', { type: 'double?' }),
+    from('PlSparkline', 'width', { type: 'double?' }),
+    from('PlSparkline', 'label', { name: 'semanticLabel', type: 'String?' }),
+    from('PlSparkline', 'size', { type: SIZE, default: 'PlassSize.md' })
+  ],
   PlSpoiler: [
     {
       name: 'child',

@@ -46,6 +46,7 @@ import {
   PlLineChart,
   PlPieChart,
   PlScatterChart,
+  PlSparkline,
   PlGallery,
   PlCollapsible,
   PlConfirmProvider,
@@ -1165,6 +1166,21 @@ const entries: Entry[] = [
         series={[{ name: 'Revenue', data: [42, 58, 31, 47, 39] }]}
         categories={['EU', 'AS', 'AM', 'AF', 'OC']}
       />
+    )
+  },
+  {
+    name: 'PlSparkline',
+    group: 'charts',
+    href: 'components/charts/sparkline',
+    blurb: {
+      en: 'A chart with everything taken away except the shape.',
+      ko: '모양만 남기고 전부 걷어낸 차트입니다.'
+    },
+    preview: (
+      <div className="flex w-full flex-col gap-3">
+        <PlSparkline data={[12, 19, 15, 22, 18, 26, 24, 31]} endDot />
+        <PlSparkline data={[9, 8, 11, 7, 6, 8, 5, 6]} shape="bar" color="danger" />
+      </div>
     )
   },
   {

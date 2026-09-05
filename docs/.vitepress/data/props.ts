@@ -9866,6 +9866,101 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlSparkline: [
+    {
+      name: 'data',
+      type: 'readonly PlassChartDatum[]',
+      required: true,
+      description: {
+        ko: '값. null은 여기서도 빈 곳입니다',
+        en: 'The values. A null is a gap here too'
+      }
+    },
+    {
+      name: 'shape',
+      type: "'line' | 'area' | 'bar'",
+      default: "'line'",
+      description: {
+        ko: '어떤 mark로 그릴지. 추세는 선, 양은 면적, 낱낱의 개수는 막대',
+        en: 'Which mark. A line for a trend, an area for a quantity, bars for a count of discrete things'
+      }
+    },
+    {
+      name: 'curve',
+      type: "'linear' | 'smooth' | 'step'",
+      default: "'linear'",
+      description: {
+        ko: '점에서 점으로 가는 방식',
+        en: 'How the line gets from one point to the next'
+      }
+    },
+    {
+      name: 'color',
+      type: `${COLOR} | (string & {})`,
+      default: "'--plass-chart-1'",
+      description: {
+        ko: 'mark의 색. 다른 차트와 달리 직접 받습니다 — series가 하나뿐이라 팔레트가 나눠 줄 것이 없습니다',
+        en: "The mark's colour, taken directly: one series and no legend, so there is nothing for a palette to hand out"
+      }
+    },
+    {
+      name: 'endDot',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '값이 있는 마지막 점에 dot을 찍습니다. 이만한 띠에 들어갈 유일한 직접 label입니다',
+        en: 'Puts a dot on the last point that is a point — the one direct label a strip this small has room for'
+      }
+    },
+    {
+      name: 'baseline',
+      type: 'number',
+      description: {
+        ko: '띠를 가로지르는 선. 목표치나 예산처럼 이만한 크기가 실을 수 있는 유일한 맥락입니다',
+        en: 'A rule across the strip: a target or a budget, the one piece of context a sparkline can carry'
+      }
+    },
+    {
+      name: 'min',
+      type: 'number',
+      description: {
+        ko: '척도의 아래끝. 비우면 자기 범위로 띠를 채웁니다',
+        en: 'The bottom of the scale. Left out, the strip fills itself with its own range'
+      }
+    },
+    {
+      name: 'max',
+      type: 'number',
+      description: {
+        ko: '척도의 위끝. 한 줄에 같은 값을 주면 small multiples가 됩니다',
+        en: 'And the top of it. Give a row of strips the same pair and they become small multiples'
+      }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      default: "'100%'",
+      description: { ko: '너비', en: 'How wide' }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: {
+        ko: '띠의 이름. 없으면 접근성 트리에서 통째로 빠집니다',
+        en: 'A name for the strip. Without one it is taken off the accessibility tree entirely'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '띠의 높이. 페이지가 아니라 옆에 놓인 글줄에 맞춰 잽니다',
+        en: 'How tall the strip is, sized against the line of text it sits beside rather than the page'
+      }
+    }
+  ],
   PlSpoiler: [
     {
       name: 'revealed',

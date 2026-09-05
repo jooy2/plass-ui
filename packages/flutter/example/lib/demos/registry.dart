@@ -447,6 +447,10 @@ import 'package:plass_ui_example/demos/slider/range.dart';
 import 'package:plass_ui_example/demos/slider/sizes.dart';
 import 'package:plass_ui_example/demos/slider/states.dart';
 import 'package:plass_ui_example/demos/slider/steps.dart';
+import 'package:plass_ui_example/demos/sparkline/baseline.dart';
+import 'package:plass_ui_example/demos/sparkline/hero.dart';
+import 'package:plass_ui_example/demos/sparkline/scale.dart';
+import 'package:plass_ui_example/demos/sparkline/shape.dart';
 import 'package:plass_ui_example/demos/spoiler/clamped.dart';
 import 'package:plass_ui_example/demos/spoiler/hero.dart';
 import 'package:plass_ui_example/demos/spoiler/media.dart';
@@ -909,6 +913,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'toolbar/slots': _toolbarSlots,
   'toolbar/variants': _toolbarVariants,
   'toolbar/density': _toolbarDensity,
+  'sparkline/hero': _sparklineHero,
+  'sparkline/shape': _sparklineShape,
+  'sparkline/scale': _sparklineScale,
+  'sparkline/baseline': _sparklineBaseline,
   'spoiler/hero': _spoilerHero,
   'spoiler/variants': _spoilerVariants,
   'spoiler/clamped': _spoilerClamped,
@@ -1545,6 +1553,14 @@ Widget _toolbarHero(BuildContext context) => const ToolbarHero();
 Widget _toolbarSlots(BuildContext context) => const ToolbarSlots();
 Widget _toolbarVariants(BuildContext context) => const ToolbarVariants();
 Widget _toolbarDensity(BuildContext context) => const ToolbarDensity();
+
+Widget _sparklineHero(BuildContext context) => const SparklineHero();
+
+Widget _sparklineShape(BuildContext context) => const SparklineShape();
+
+Widget _sparklineScale(BuildContext context) => const SparklineScale();
+
+Widget _sparklineBaseline(BuildContext context) => const SparklineBaseline();
 
 Widget _spoilerHero(BuildContext context) => const SpoilerHero();
 Widget _spoilerVariants(BuildContext context) => const SpoilerVariants();
