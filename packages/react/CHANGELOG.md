@@ -6,6 +6,10 @@
 
 ### Fixed
 
+- **The chart frame's focus ring and legend hover were unstyled.** Three of the ported frame's colour slots kept the names they had in the library they came from — `--n-soft`, `--n-ring` and `--n-line` — and nothing in this package declares any of them. A `var()` that cannot be resolved takes an `outline` shorthand down with it, so **the focus ring on a chart's plot and on every legend button was simply absent**: the plot is a tab stop, and a tab stop a keyboard reader cannot see is the accessibility failure the ring exists to prevent. The legend's hover tint was gone with it, and the tooltip panel's hairline fell back to `currentColor`, which drew the border in ink. All three now read the slots a `PlBox` actually sets — `--p-soft`, `--p-ring` and the glass hairline.
+
+- **A chart ignored the `size` and `locale` a `PlassProvider` set.** `CartesianChart` took both as plain props with hard-coded fallbacks, so a provider that put the whole page on `sm` left every chart at `md`, and one that named a locale still got the reader's own number formatting on the axis. It resolves both from the defaults now. `density` deliberately does not go through it: the box resolves that one itself, and the single chart that needs it for arithmetic reads it directly.
+
 - **A read-only `PlSelect` opened its popup again.** Base UI 1.8 redefined `readOnly` on a select to mean "nothing in the popup can be chosen" and lets it open regardless; every other picker in this library promises that a read-only control's popup does not open at all, and a select that opened beside a date picker that did not is the form that looks assembled rather than designed. `PlSelect` now holds the popup's open state itself and keeps it shut while `readOnly` — held rather than passed conditionally, so a field unlocked while it is on screen does not switch between controlled and uncontrolled underneath Base UI.
 
 - **A chart's grid, axis rules and baseline were invisible.** `internal/chart-frame` draws all three with `var(--plass-chart-grid)`, `var(--plass-chart-axis)` and `var(--plass-chart-baseline)`, and none of the three was ever declared — an unresolvable `var()` on a `stroke` computes to `none`, so `PlLineChart` and `PlAreaChart` shipped with no gridlines, no axis rule and no baseline at all. The faint horizontal lines visible in the docs were the demo canvas's own background showing through the translucent sheet.
@@ -13,6 +17,20 @@
   The three are declared now, derived rather than picked so a project that re-tones its border moves the grid with it: the grid is the border at 70%, the axis is the border, and the baseline — which is where a bar starts from and where zero is, a fact about the data rather than furniture — is the muted foreground at 35%. `PlassToken` names them, which is what the package test that caught the omission checks.
 
 ### Added
+
+- **`PlPieChart`.** Parts of a whole, at a glance.
+
+  The narrowest chart in the library and the easiest one to misuse. An angle is a poor thing to compare — two slices within a few percent of each other are indistinguishable, and a reader cannot rank six of them — so the pie is right for exactly one question: _is one of these most of it?_ Anything finer, and anything past six slices, is a `PlBarChart`.
+
+  It takes **one list of slices rather than a list of series**, because that is what a pie is: the slices are the entities here, so each takes a palette slot of its own and the legend lists them. The colour follows the slice and not its size, so a chart that is refiltered or resorted keeps every category the colour it had.
+
+  A `null` and a zero are both left undrawn. Neither has an angle, and a slice of no width is a slice a reader cannot point at.
+
+  `shape` is `pie`, `donut` or `semi`. A `semi` takes the **whole** height as its radius rather than half of it, because it only draws the top half — reserving room for the bottom would leave a blank band under the chart — and its centre then sits half a radius below the middle, which is what puts the arc in the middle of the tile.
+
+  `valueLabels="all"` writes each slice's **share** and not its value: a share is what a pie is a picture of, and the value is one hover away. A label wider than the slice it belongs to is dropped rather than clipped, so it can never end up sitting over the neighbour it would then be labelling. The gap between two slices is a constant on screen rather than in the data, so it subtends a wider angle on a small pie than on a large one.
+
+  The plot is a tab stop and the arrow keys walk the slices, with the value announced in a live region as the focus moves. Everything else — the legend, the tooltip panel and the hidden table — is the same frame every other chart uses.
 
 - **`PlBarChart`.** Lengths, compared.
 

@@ -12567,6 +12567,98 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlPieChart: [
+    {
+      name: 'data',
+      type: 'readonly PlassChartDatum[]',
+      required: true,
+      description: {
+        ko: '조각. series 목록이 아니라 조각 하나하나의 목록입니다',
+        en: 'The slices. One list of them rather than a list of series'
+      }
+    },
+    {
+      name: 'categories',
+      type: 'readonly PlassChartCategory[]',
+      description: { ko: '각 조각의 이름', en: 'What each slice is called' }
+    },
+    {
+      name: 'shape',
+      type: "'pie' | 'donut' | 'semi'",
+      default: "'pie'",
+      description: {
+        ko: '채운 원, 가운데가 열린 고리, 또는 아래로 열린 반원',
+        en: 'A filled disc, a ring with the middle open, or half a ring opened along the bottom'
+      }
+    },
+    {
+      name: 'startAngle',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: '첫 조각이 시작하는 각도. 열두 시에서 시계 방향이며, semi는 무시합니다',
+        en: 'Where the first slice starts, in degrees clockwise from twelve. Ignored by semi'
+      }
+    },
+    {
+      name: 'center',
+      type: 'ReactNode',
+      description: {
+        ko: '구멍에 들어가는 것. 고리를 두른 이유인 그 숫자입니다',
+        en: 'What goes in the hole — the one figure the ring was drawn around'
+      }
+    },
+    {
+      name: 'valueLabels',
+      type: "'none' | 'all'",
+      default: "'none'",
+      description: {
+        ko: '조각마다 비중을 적습니다. 값이 아니라 비중이고, 들어가지 않는 label은 지웁니다',
+        en: "Writes each slice's share on it — the share and not the value. A label that does not fit is dropped"
+      }
+    },
+    {
+      name: 'legend',
+      type: 'PlassChartLegend',
+      description: { ko: '범례', en: 'The legend' }
+    },
+    {
+      name: 'tooltip',
+      type: 'PlassChartTooltip',
+      description: { ko: '툴팁', en: 'The tooltip' }
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      description: { ko: '그림의 높이', en: 'How tall the drawing is' }
+    },
+    {
+      name: 'format',
+      type: 'Intl.NumberFormatOptions',
+      description: { ko: '값을 쓰는 방식', en: 'How a value is written' }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      default: "'Chart'",
+      description: { ko: '그림 전체의 접근성 이름', en: 'What the whole drawing is called' }
+    },
+    {
+      name: 'empty',
+      type: 'ReactNode',
+      description: {
+        ko: '그릴 것이 없을 때 그리는 것',
+        en: 'What is drawn when there is nothing to draw'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: { ko: '타입 스케일과 그림 높이', en: 'Type scale and plot height' }
+    }
+  ],
   PlBarChart: [
     {
       name: 'series',

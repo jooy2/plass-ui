@@ -39,6 +39,8 @@ PlBarChart(series: revenue, categories: regions);
 
 라이브러리 전체에서 공유 축이 뜻하는 바는 [prop 규약](../../design/prop-conventions)에 있습니다.
 
+## Examples
+
 ### orientation
 
 category 이름이 낱말이라면 `horizontal`이 맞습니다. 이름을 위한 열이 통째로 있고, 세로 차트에는 막대 하나의 너비밖에 없습니다.

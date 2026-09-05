@@ -377,6 +377,10 @@ import 'package:plass_ui_example/demos/panes/fixed.dart';
 import 'package:plass_ui_example/demos/panes/hero.dart';
 import 'package:plass_ui_example/demos/panes/orientation.dart';
 import 'package:plass_ui_example/demos/panes/sizes.dart';
+import 'package:plass_ui_example/demos/pie_chart/center.dart';
+import 'package:plass_ui_example/demos/pie_chart/hero.dart';
+import 'package:plass_ui_example/demos/pie_chart/shape.dart';
+import 'package:plass_ui_example/demos/pie_chart/value_labels.dart';
 import 'package:plass_ui_example/demos/pill/details.dart';
 import 'package:plass_ui_example/demos/pill/hero.dart';
 import 'package:plass_ui_example/demos/pill/sizes.dart';
@@ -906,6 +910,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'popover/hero': _popoverHero,
   'popover/sides': _popoverSides,
   'popover/form': _popoverForm,
+  'pie-chart/hero': _pieChartHero,
+  'pie-chart/shape': _pieChartShape,
+  'pie-chart/center': _pieChartCenter,
+  'pie-chart/value-labels': _pieChartValueLabels,
   'pill/hero': _pillHero,
   'pill/variants': _pillVariants,
   'pill/details': _pillDetails,
@@ -1533,6 +1541,14 @@ Widget _spoilerMedia(BuildContext context) => const SpoilerMedia();
 Widget _popoverHero(BuildContext context) => const PopoverHero();
 Widget _popoverSides(BuildContext context) => const PopoverSides();
 Widget _popoverForm(BuildContext context) => const PopoverForm();
+Widget _pieChartHero(BuildContext context) => const PieChartHero();
+
+Widget _pieChartShape(BuildContext context) => const PieChartShape();
+
+Widget _pieChartCenter(BuildContext context) => const PieChartCenter();
+
+Widget _pieChartValueLabels(BuildContext context) => const PieChartValueLabels();
+
 Widget _pillHero(BuildContext context) => const PillHero();
 Widget _pillVariants(BuildContext context) => const PillVariants();
 Widget _pillDetails(BuildContext context) => const PillDetails();

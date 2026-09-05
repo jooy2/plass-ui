@@ -597,7 +597,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
 
     final Widget legend = widget.legend.hidden || widget.series.length < 2
         ? const SizedBox.shrink()
-        : _Legend(
+        : PlassChartLegendBar(
             series: widget.series,
             colors: colors,
             visible: visible,
@@ -847,8 +847,15 @@ class _FramePainter extends CustomPainter {
 }
 
 /// The row of names under the plot.
-class _Legend extends StatelessWidget {
-  const _Legend({
+/// The swatch-and-name row every chart carries, cartesian or not.
+///
+/// Shared rather than private because a pie's slices play exactly the part a
+/// line chart's series do — they are what takes a palette slot, what the reader
+/// switches off, and what a hover dims the others for. A second copy of this
+/// would be a second answer to what a switched-off entry looks like.
+class PlassChartLegendBar extends StatelessWidget {
+  /// Creates the legend.
+  const PlassChartLegendBar({
     required this.series,
     required this.colors,
     required this.visible,
@@ -858,16 +865,34 @@ class _Legend extends StatelessWidget {
     required this.align,
     required this.onToggle,
     required this.onHover,
+    super.key,
   });
 
+  /// The entries, in the order their colours were handed out.
   final List<PlassChartSeries> series;
+
+  /// One colour per entry.
   final List<Color> colors;
+
+  /// Which of them are drawn.
   final List<bool> visible;
+
+  /// The palette in scope.
   final PlassTokens tokens;
+
+  /// The type scale.
   final PlassSize size;
+
+  /// Whether pressing an entry switches it off.
   final bool interactive;
+
+  /// Where the row sits along the chart's width.
   final PlassAlign align;
+
+  /// Called with the entry that was pressed.
   final ValueChanged<int> onToggle;
+
+  /// Called with the entry the pointer is on, or `null` when it leaves.
   final ValueChanged<int?> onHover;
 
   @override
@@ -1046,30 +1071,72 @@ class _Tooltip extends StatelessWidget {
       left: toTheStart ? null : pointer.dx + 14,
       right: toTheStart ? layout.plot.width + layout.plot.left - pointer.dx + 14 : null,
       top: math.max(0, pointer.dy - 20),
-      child: IgnorePointer(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          decoration: BoxDecoration(
-            color: tokens.glassPress,
-            borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
-            border: Border.all(color: tokens.glassLine, width: hairline),
-            boxShadow: tokens.elevation(plassElevationMax),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                layout.categories[index].toString(),
-                style: TextStyle(
-                  fontSize: metaText[size]!,
-                  fontWeight: FontWeight.w600,
-                  color: tokens.fg,
-                ),
+      child: PlassChartTooltipCard(
+        tokens: tokens,
+        size: size,
+        heading: layout.categories[index].toString(),
+        children: rows,
+      ),
+    );
+  }
+}
+
+/// The panel a chart writes its readout in.
+///
+/// Chrome and nothing else: the same glass, the same hairline and the same
+/// shadow wherever a chart has something to say under the pointer. What goes
+/// inside it differs — a cartesian chart lists every series in the column, a
+/// pie names one slice — and that is the caller's business.
+///
+/// It ignores the pointer on purpose. A panel the pointer can enter is a panel
+/// that steals the hover which produced it, and then flickers.
+class PlassChartTooltipCard extends StatelessWidget {
+  /// Creates the panel.
+  const PlassChartTooltipCard({
+    required this.tokens,
+    required this.size,
+    required this.heading,
+    required this.children,
+    super.key,
+  });
+
+  /// The palette in scope.
+  final PlassTokens tokens;
+
+  /// The type scale.
+  final PlassSize size;
+
+  /// What the readout is about — a category, or a slice's name.
+  final String heading;
+
+  /// The rows under it.
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: tokens.glassPress,
+          borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
+          border: Border.all(color: tokens.glassLine, width: hairline),
+          boxShadow: tokens.elevation(plassElevationMax),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              heading,
+              style: TextStyle(
+                fontSize: metaText[size]!,
+                fontWeight: FontWeight.w600,
+                color: tokens.fg,
               ),
-              ...rows,
-            ],
-          ),
+            ),
+            ...children,
+          ],
         ),
       ),
     );

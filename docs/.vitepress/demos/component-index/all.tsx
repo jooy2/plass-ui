@@ -44,6 +44,7 @@ import {
   PlChip,
   PlCodeBlock,
   PlLineChart,
+  PlPieChart,
   PlGallery,
   PlCollapsible,
   PlConfirmProvider,
@@ -1162,6 +1163,26 @@ const entries: Entry[] = [
         yAxis={{ hidden: true }}
         series={[{ name: 'Revenue', data: [42, 58, 31, 47, 39] }]}
         categories={['EU', 'AS', 'AM', 'AF', 'OC']}
+      />
+    )
+  },
+  {
+    name: 'PlPieChart',
+    group: 'charts',
+    href: 'components/charts/pie-chart',
+    blurb: {
+      en: 'Parts of a whole, at a glance.',
+      ko: '한눈에 보는 전체의 부분입니다.'
+    },
+    preview: (
+      <PlPieChart
+        size="xs"
+        className="w-full"
+        height={96}
+        shape="donut"
+        legend={false}
+        data={[42, 27, 18, 13]}
+        categories={['Search', 'Direct', 'Social', 'Email']}
       />
     )
   },

@@ -1617,6 +1617,28 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlAreaChart', 'empty', { type: 'Widget?' }),
     from('PlAreaChart', 'size', { type: SIZE, default: 'PlassSize.md' })
   ],
+  PlPieChart: [
+    from('PlPieChart', 'data', { type: 'List<PlassChartDatum>', required: true }),
+    from('PlPieChart', 'categories', { type: 'List<PlassChartCategory>?' }),
+    from('PlPieChart', 'shape', { type: 'PlPieShape', default: 'PlPieShape.pie' }),
+    from('PlPieChart', 'startAngle', { type: 'double', default: '0' }),
+    from('PlPieChart', 'center', { type: 'Widget?' }),
+    from('PlPieChart', 'valueLabels', {
+      type: 'PlPieLabels',
+      default: 'PlPieLabels.none',
+      description: {
+        ko: '조각마다 비중을 적습니다. 파이에 뜻이 없는 last와 extremes를 뺀 두 값짜리 enum입니다',
+        en: 'Writes each share on its slice. A two-member enum: last and extremes have nothing to mean on a pie'
+      }
+    }),
+    from('PlPieChart', 'legend', { type: 'PlChartLegend', default: 'PlChartLegend()' }),
+    from('PlPieChart', 'tooltip', { type: 'PlChartTooltip', default: 'PlChartTooltip()' }),
+    from('PlPieChart', 'height', { type: 'double?' }),
+    from('PlPieChart', 'format', { type: 'String Function(double)?' }),
+    from('PlPieChart', 'label', { name: 'semanticLabel', type: 'String?', default: "'Chart'" }),
+    from('PlPieChart', 'empty', { type: 'Widget?' }),
+    from('PlPieChart', 'size', { type: SIZE, default: 'PlassSize.md' })
+  ],
   PlBarChart: [
     from('PlBarChart', 'series', { type: 'List<PlassChartSeries>', required: true }),
     from('PlBarChart', 'categories', { type: 'List<PlassChartCategory>?' }),

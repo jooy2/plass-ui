@@ -18,7 +18,7 @@
 library;
 
 import 'dart:math' as math;
-import 'dart:ui' show Color, Offset, Path, RRect, Radius, Rect;
+import 'dart:ui' show Color, Offset, Path, PathFillType, RRect, Radius, Rect;
 
 import 'package:plass_ui/src/types.dart';
 
@@ -903,4 +903,52 @@ Path markPath(PlChartMarkShape shape, double cx, double cy, double r) {
   }
 
   return path;
+}
+
+/* ---------------------------------------------------------------------------
+ * Arcs
+ * ------------------------------------------------------------------------- */
+
+/// A wedge, or a band between two radii, in degrees clockwise from twelve.
+///
+/// Degrees and not radians, and from the top and not from three o'clock,
+/// because that is the frame a caller writes a `startAngle` in — the conversion
+/// belongs in one place rather than at every call site. An [inner] of zero cuts
+/// the wedge from the centre; anything above it leaves the middle open.
+Path arcPath(double cx, double cy, double outer, double inner, double from, double to) {
+  final Path path = Path();
+  final Rect outerBox = Rect.fromCircle(center: Offset(cx, cy), radius: outer);
+
+  // A whole turn cannot be one arc: the two ends are the same point, and the
+  // rasteriser draws nothing at all. Two ovals with the even-odd rule are the
+  // ring, and one oval is the disc.
+  if ((to - from).abs() >= 360) {
+    path.addOval(outerBox);
+
+    if (inner > 0) {
+      path
+        ..addOval(Rect.fromCircle(center: Offset(cx, cy), radius: inner))
+        ..fillType = PathFillType.evenOdd;
+    }
+
+    return path;
+  }
+
+  final double start = (from - 90) * math.pi / 180;
+  final double sweep = (to - from) * math.pi / 180;
+
+  if (inner <= 0) {
+    return path
+      ..moveTo(cx, cy)
+      ..arcTo(outerBox, start, sweep, false)
+      ..close();
+  }
+
+  // The second arc runs backwards, and the line into it is the radial edge —
+  // which is why it is not forced to move: an arc that starts with a jump
+  // leaves the band open along the side.
+  return path
+    ..arcTo(outerBox, start, sweep, true)
+    ..arcTo(Rect.fromCircle(center: Offset(cx, cy), radius: inner), start + sweep, -sweep, false)
+    ..close();
 }

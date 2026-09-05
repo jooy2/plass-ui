@@ -4,6 +4,16 @@
 
 ### Added
 
+- **`PlPieChart`.** Parts of a whole, at a glance.
+
+  An angle is a poor thing to compare, so a pie answers one question — _is one of these most of it?_ — and anything finer is a `PlBarChart`. It takes one list of slices rather than a list of series, because the slices are the entities here: each takes a palette slot of its own, and its colour follows the slice rather than its size.
+
+  The first chart that is not drawn in the cartesian frame, so two pieces of that frame became shared rather than private: `PlassChartLegendBar`, because a slice plays exactly the part a series does in a legend, and `PlassChartTooltipCard`, so a readout is the same glass wherever it appears. `arcPath` joins them in `internal/chart.dart`, taking its angles in degrees clockwise from twelve — the frame a caller writes a `startAngle` in.
+
+  `valueLabels` is `PlPieLabels`, a two-member enum, rather than the four-member `PlassChartValueLabels` the cartesian charts take: `last` and `extremes` have nothing to mean on a chart whose slices are one number each.
+
+  A press leaves the readout up and a second press on the same slice takes it down, which is what the cartesian frame does with a column and for the same reason. There is no keyboard walk here, matching the rest of the Flutter build.
+
 - **`PlBarChart`.** Lengths, compared.
 
   A bar says _how much_ by being longer, which is why its axis starts at zero and cannot be talked out of it. A gap is a bar that is not drawn: a zero-length bar and a missing bar are the same picture and only one of them is honest.

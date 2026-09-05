@@ -44,6 +44,7 @@ import {
   type PlotBox,
   type ValueScale
 } from './chart.js';
+import { useDefaults } from './defaults.js';
 import { numberFormatter } from './format.js';
 import { usePlElementSize } from '../hooks/usePlElementSize.js';
 import { useLabels } from './labels.js';
@@ -368,8 +369,8 @@ function ChartLegendBar({
                   '[transition-property:background-color,color,opacity]',
                   '[transition-duration:var(--plass-duration)]',
                   '[transition-timing-function:var(--plass-ease)]',
-                  'hover:bg-(--n-soft)',
-                  'focus-visible:[outline:2px_solid_var(--n-ring)] focus-visible:outline-offset-1',
+                  'hover:bg-(--p-soft)',
+                  'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-1',
                   shown ? '' : 'text-(--plass-disabled-fg)',
                   dimmed ? 'opacity-55' : ''
                 )}
@@ -510,7 +511,7 @@ function ChartTooltipPanel({ heading, items, x, y, flip, size }: TooltipProps) {
         'rounded-(--plass-radius-sm) border p-2',
         '[background-image:var(--plass-grain),var(--plass-sheen)]',
         '[background-blend-mode:overlay,normal] [backdrop-filter:var(--plass-blur)]',
-        'bg-(--plass-panel-press) [border-color:var(--n-line)]',
+        'bg-(--plass-panel-press) [border-color:var(--plass-glass-line)]',
         '[box-shadow:var(--plass-shadow-2),var(--plass-plate-glass)]',
         metaTextClasses[size]
       )}
@@ -875,18 +876,29 @@ export function CartesianChart({
   markTooltip,
   height,
   format,
-  locale,
+  locale: localeProp,
   label,
   legend,
   tooltip,
   empty,
-  size = 'md',
+  size: sizeProp,
   variant = 'ghost',
   padded = false,
   className,
   children,
   ...box
 }: CartesianProps) {
+  /* Two of the three defaults a provider can set, resolved here rather than
+     left to `PlBox`: the size decides the type scale, the marker radii and how
+     much room the axes reserve, so the frame has to know it before it hands
+     anything to the box, and the locale is what every number and date on the
+     drawing is written in. `density` is not among them — it reaches the box
+     untouched, and the one chart that needs it for arithmetic reads it
+     itself. */
+  const defaults = useDefaults();
+  const size = sizeProp ?? defaults.size ?? 'md';
+  const locale = localeProp ?? defaults.locale;
+
   const hostRef = React.useRef<HTMLDivElement>(null);
   const width = useMeasuredWidth(hostRef);
   const words = useLabels();
@@ -1464,7 +1476,7 @@ export function CartesianChart({
         className={cx(
           'relative w-full',
           'rounded-(--plass-radius-xs)',
-          'focus-visible:[outline:2px_solid_var(--n-ring)] focus-visible:outline-offset-2'
+          'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2'
         )}
         style={{ height: plotHeight ?? height }}
       >
