@@ -149,6 +149,7 @@ export 'src/components/transfer/pl_transfer.dart';
 export 'src/components/tree/pl_tree.dart';
 export 'src/components/tree_select/pl_tree_select.dart';
 export 'src/components/typography/pl_typography.dart';
+export 'src/components/window_pane/pl_window_pane.dart';
 export 'src/theme/defaults.dart';
 export 'src/theme/theme.dart';
 export 'src/theme/tokens.dart' show PlassColorFamily, PlassTokens;

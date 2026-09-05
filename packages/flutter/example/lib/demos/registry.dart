@@ -529,6 +529,10 @@ import 'package:plass_ui_example/demos/tooltip/hero.dart';
 import 'package:plass_ui_example/demos/tooltip/provider.dart';
 import 'package:plass_ui_example/demos/tooltip/sides.dart';
 import 'package:plass_ui_example/demos/tooltip/sizes.dart';
+import 'package:plass_ui_example/demos/window_pane/accent.dart';
+import 'package:plass_ui_example/demos/window_pane/hero.dart';
+import 'package:plass_ui_example/demos/window_pane/os.dart';
+import 'package:plass_ui_example/demos/window_pane/transparency.dart';
 import 'package:plass_ui_example/demos/typography/colors.dart';
 import 'package:plass_ui_example/demos/typography/hero.dart';
 import 'package:plass_ui_example/demos/typography/levels.dart';
@@ -663,6 +667,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'button-group/sizes': _buttonGroupSizes,
   'button-group/orientation': _buttonGroupOrientation,
   'button-group/full-width': _buttonGroupFullWidth,
+  'window-pane/hero': _windowPaneHero,
+  'window-pane/os': _windowPaneOs,
+  'window-pane/accent': _windowPaneAccent,
+  'window-pane/transparency': _windowPaneTransparency,
   'typography/hero': _typographyHero,
   'typography/levels': _typographyLevels,
   'typography/weight': _typographyWeight,
@@ -1298,6 +1306,14 @@ Widget _icons(BuildContext context) => const ButtonIcons();
 Widget _states(BuildContext context) => const ButtonStates();
 Widget _elevation(BuildContext context) => const ButtonElevation();
 Widget _fullWidth(BuildContext context) => const ButtonFullWidth();
+
+Widget _windowPaneHero(BuildContext context) => const WindowPaneHero();
+
+Widget _windowPaneOs(BuildContext context) => const WindowPaneOs();
+
+Widget _windowPaneAccent(BuildContext context) => const WindowPaneAccent();
+
+Widget _windowPaneTransparency(BuildContext context) => const WindowPaneTransparency();
 
 Widget _typographyHero(BuildContext context) => const TypographyHero();
 Widget _typographyLevels(BuildContext context) => const TypographyLevels();

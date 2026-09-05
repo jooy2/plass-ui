@@ -152,7 +152,8 @@ import {
   usePlConfirm,
   usePlToast,
   PlTypography,
-  PlVisuallyHidden
+  PlVisuallyHidden,
+  PlWindowPane
 } from 'plass-ui';
 
 /**
@@ -1854,6 +1855,20 @@ const entries: Entry[] = [
         ]}
         defaultValue={['b']}
       />
+    )
+  },
+  {
+    name: 'PlWindowPane',
+    group: 'surfaces',
+    href: 'components/surfaces/window-pane',
+    blurb: {
+      en: 'A window, drawn the way one of eight systems draws it.',
+      ko: '여덟 시스템 중 하나가 그리는 대로의 창입니다.'
+    },
+    preview: (
+      <PlWindowPane size="xs" os="windows11" title="Notes" height={96}>
+        <div className="p-3 text-xs text-(--plass-muted-fg)">A frame that behaves.</div>
+      </PlWindowPane>
     )
   },
   {

@@ -14741,5 +14741,228 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'Sits alongside the component’s own classes'
       }
     }
+  ],
+  PlWindowPane: [
+    {
+      name: 'os',
+      type: "'macos' | 'macosx' | 'windows11' | 'windows10' | 'windows8' | 'windows7' | 'windowsxp' | 'linux'",
+      default: "'macos'",
+      description: {
+        ko: '누구의 창인지. button의 자리와 모양, 표시줄의 높이, 모서리를 정합니다',
+        en: 'Whose window this is a picture of. Decides where the controls sit, how they are drawn, and how tall the bar is'
+      }
+    },
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description: {
+        ko: '창의 이름. 창 자체의 이름이기도 합니다',
+        en: "The window's name, and what names the window itself"
+      }
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: { ko: '제목 옆의 글리프', en: 'A glyph beside the title' }
+    },
+    {
+      name: 'actions',
+      type: 'ReactNode',
+      description: { ko: '표시줄이 나르는 그 밖의 것', en: 'Anything else the title bar carries' }
+    },
+    {
+      name: 'controls',
+      type: "boolean | readonly ('minimize' | 'maximize' | 'close')[]",
+      default: 'true',
+      description: {
+        ko: '어떤 button이 있는지. 순서는 배열이 아니라 시스템이 정합니다',
+        en: "Which of the three buttons the bar has. The order is the system's rather than the array's"
+      }
+    },
+    {
+      name: 'accent',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: 'Windows가 제안하는 방식으로 표시줄을 계열 색으로 물들입니다',
+        en: 'Dyes the title bar with the colour family, the way Windows offers to'
+      }
+    },
+    {
+      name: 'transparency',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: '창의 chrome 너머로 뒤가 얼마나 비치는지. 내용에는 적용되지 않습니다',
+        en: 'How much of what is behind shows through the chrome. Never the content on it'
+      }
+    },
+    {
+      name: 'active',
+      type: 'boolean',
+      description: {
+        ko: '앞에 있는 창인지. 비우면 스스로 알아냅니다',
+        en: 'Whether this is the window in front. Left out, it works it out for itself'
+      }
+    },
+    {
+      name: 'position',
+      type: "'static' | 'absolute' | 'fixed'",
+      default: "'static'",
+      description: { ko: '창이 배치되는 방식', en: 'How the window is laid out' }
+    },
+    {
+      name: 'draggable',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '제목 표시줄을 끌 수 있게 합니다', en: 'Lets the title bar be dragged' }
+    },
+    {
+      name: 'resizable',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '변과 모서리를 끌 수 있게 합니다',
+        en: 'Lets the edges and corners be dragged'
+      }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      description: { ko: '창의 너비', en: "The window's width" }
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      description: {
+        ko: '창의 높이. 비우면 내용만큼입니다',
+        en: 'And its height. Left out, the window is as tall as what is in it'
+      }
+    },
+    {
+      name: 'minWidth',
+      type: 'number',
+      default: '180',
+      description: { ko: '끌어서 줄일 수 있는 한계', en: 'How small it may be dragged' }
+    },
+    {
+      name: 'minHeight',
+      type: 'number',
+      description: {
+        ko: '아래쪽으로 같은 것. 기본은 표시줄 높이',
+        en: 'The same downward. Defaults to the bar height'
+      }
+    },
+    {
+      name: 'offset',
+      type: '{ x: number; y: number }',
+      description: {
+        ko: '배치된 자리에서 얼마나 끌려 왔는지',
+        en: 'How far it has been dragged from where the layout put it'
+      }
+    },
+    {
+      name: 'defaultOffset',
+      type: '{ x: number; y: number }',
+      default: '{ x: 0, y: 0 }',
+      description: {
+        ko: '제어되지 않는 창이 시작하는 자리',
+        en: 'Where an uncontrolled window starts'
+      }
+    },
+    {
+      name: 'onOffsetChange',
+      type: '(offset: { x: number; y: number }) => void',
+      description: { ko: '끌리는 동안 부릅니다', en: 'Called while the bar is dragged' }
+    },
+    {
+      name: 'onResize',
+      type: '(size: { width: number; height: number }) => void',
+      description: {
+        ko: '변이 끌리는 동안 창의 크기를 알립니다',
+        en: "Fires with the window's size while an edge is dragged"
+      }
+    },
+    {
+      name: 'open',
+      type: 'boolean',
+      description: {
+        ko: '창이 화면에 있는지. 닫으면 아무것도 그리지 않습니다',
+        en: 'Whether the window is on screen at all. Closing it renders nothing'
+      }
+    },
+    {
+      name: 'minimized',
+      type: 'boolean',
+      description: {
+        ko: '제목 표시줄까지 말아 올렸는지. 보낼 곳이 없으니 자리에 그대로 남습니다',
+        en: 'Whether the window is rolled up to its bar. There is nowhere to send it, so it stays'
+      }
+    },
+    {
+      name: 'maximized',
+      type: 'boolean',
+      description: {
+        ko: '담고 있는 것을 가득 채우는지',
+        en: 'Whether the window fills whatever is holding it'
+      }
+    },
+    {
+      name: 'scroll',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '창보다 긴 내용이 스크롤되는지',
+        en: 'Whether content taller than the window scrolls'
+      }
+    },
+    {
+      name: 'minimizeLabel',
+      type: 'string',
+      description: { ko: 'button 이름을 덮어씁니다', en: "Overrides the buttons' own names" }
+    },
+    {
+      name: 'render',
+      type: 'ReactElement',
+      description: {
+        ko: 'div 대신 다른 요소를 렌더링합니다',
+        en: 'Renders something other than a div'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '창 안에 있는 것', en: 'What is in the window' }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: 'focus ring과 accent 표시줄이 입는 계열',
+        en: 'The colour family the focus rings and an accent title bar take'
+      }
+    },
+    {
+      name: 'elevation',
+      type: ELEVATION,
+      default: '2',
+      shared: true,
+      description: {
+        ko: '창 둘레의 그림자. 창은 정의상 놓인 페이지의 일부가 아니므로 2입니다',
+        en: 'The shadow around the window. 2, because a window is by definition not part of the page it is on'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: 'chrome의 크기. 내용에는 손대지 않습니다',
+        en: 'The scale of the chrome. It does not touch the content'
+      }
+    }
   ]
 };

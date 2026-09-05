@@ -91,6 +91,10 @@ export interface PlassLabels {
   gallery: string;
   /** What a drawing of numbers is called when the caller has not named it. */
   chart: string;
+  minimize: string;
+  maximize: string;
+  restore: string;
+  resizeWindow: string;
   /** The palette's landmark and the placeholder in its field. */
   commandPalette: string;
   commandPalettePlaceholder: string;
@@ -206,6 +210,10 @@ export const defaultLabels: PlassLabels = {
   commandPalettePlaceholder: 'Search commands',
   gallery: 'Gallery',
   chart: 'Chart',
+  minimize: 'Minimize',
+  maximize: 'Maximize',
+  restore: 'Restore',
+  resizeWindow: 'Resize window',
   overlay: 'Overlay',
   pagination: 'Pagination',
   paginationPrevious: 'Previous page',

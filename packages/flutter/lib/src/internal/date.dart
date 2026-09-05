@@ -291,6 +291,10 @@ class PlassLabels {
     this.commandPalettePlaceholder = 'Search commands',
     this.gallery = 'Gallery',
     this.chart = 'Chart',
+    this.minimize = 'Minimize',
+    this.maximize = 'Maximize',
+    this.restore = 'Restore',
+    this.resizeWindow = 'Resize window',
     this.overlay = 'Overlay',
     this.pagination = 'Pagination',
     this.paginationPrevious = 'Previous page',
@@ -374,6 +378,10 @@ class PlassLabels {
     String? commandPalettePlaceholder,
     String? gallery,
     String? chart,
+    String? minimize,
+    String? maximize,
+    String? restore,
+    String? resizeWindow,
     String? overlay,
     String? pagination,
     String? paginationPrevious,
@@ -449,6 +457,10 @@ class PlassLabels {
       commandPalettePlaceholder: commandPalettePlaceholder ?? this.commandPalettePlaceholder,
       gallery: gallery ?? this.gallery,
       chart: chart ?? this.chart,
+      minimize: minimize ?? this.minimize,
+      maximize: maximize ?? this.maximize,
+      restore: restore ?? this.restore,
+      resizeWindow: resizeWindow ?? this.resizeWindow,
       overlay: overlay ?? this.overlay,
       pagination: pagination ?? this.pagination,
       paginationPrevious: paginationPrevious ?? this.paginationPrevious,
@@ -587,6 +599,18 @@ class PlassLabels {
 
   /// What a drawing of numbers is called when the caller has not named it.
   final String chart;
+
+  /// What a window's minimize button is called.
+  final String minimize;
+
+  /// And its maximize button.
+  final String maximize;
+
+  /// What that button is called once the window is maximized.
+  final String restore;
+
+  /// What a window's resize corner is called.
+  final String resizeWindow;
 
   /// What a sheet over the whole screen is called when it has no name.
   final String overlay;

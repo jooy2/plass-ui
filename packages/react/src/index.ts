@@ -130,3 +130,4 @@ export * from './components/tree-select/index.js';
 export * from './components/transfer/index.js';
 export * from './components/typography/index.js';
 export * from './components/visually-hidden/index.js';
+export * from './components/window-pane/index.js';

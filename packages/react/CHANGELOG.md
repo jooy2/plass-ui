@@ -24,6 +24,22 @@
 
 ### Added
 
+- **`PlWindowPane`.** A window, drawn the way one of eight systems draws it, with anything at all inside it.
+
+  It is not a real window and does not pretend to be one: there is no desktop, no z-order and no dock. What it is is a _frame that behaves_ — the title bar drags, the corners resize, the three buttons are real buttons with real names — so a screenshot of an app, a demo of a feature or a piece of a landing page can be shown as the thing it will be rather than as a picture of it.
+
+  **Nothing here is transformed.** A dragged window moves on `left`/`top` and a resized one changes `width`/`height`, which keeps the text inside it at whole pixels through both gestures: a `translate()` would resample every glyph in the window for the length of the drag, which is exactly what the house rule against transforming a surface exists to prevent.
+
+  `os` covers `macos`, `macosx` (Aqua), the five Windows the title bar actually changed on, and `linux`. Which buttons a window has is the caller's decision; what order they sit in is the system's. `minimize` rolls the window up to its title bar rather than sending it anywhere, because a page has nowhere to send it — the content stays in the tree, marked inert.
+
+  `size` scales the chrome and nothing else, which makes this the third component after `PlBox` and `PlMockup` where the ladder is not a control height. Left out, `active` works itself out: a window is in front until another one on the page is pressed or takes the focus, and a click on the page _around_ them changes nothing.
+
+  Nothing drawn is a copy of any of those systems: a bar, a border and three buttons at the proportions they used, and no mark, wordmark or icon belonging to anyone else.
+
+- **`internal/drag`**, the scaffold every pointer drag needs and none of the arithmetic: three listeners, a `data-dragging`, the document's text selection taken for the length of the gesture, and a teardown an unmount can call.
+
+- **Four words in `PlassLabels`** — `minimize`, `maximize`, `restore` and `resizeWindow` — translated in all six locale bundles.
+
 - **`PlMockup`.** A device with a screen you can put anything on: a phone, a tablet, a monitor or a laptop, with the system's own bars drawn on it.
 
   **The screen is a real viewport at the device's own resolution** — an `md` phone is 390 by 844 — and the whole device is then scaled once to whatever room it has been given. So the content inside is laid out against a _screen_ rather than against the page: a 390-pixel column wraps where it would wrap on a phone, and the mockup can be 200 pixels wide without the content knowing.

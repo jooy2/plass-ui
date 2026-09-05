@@ -5884,5 +5884,66 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     },
     from('PlButton', 'children', { name: 'child', type: 'Widget?' })
+  ],
+  PlWindowPane: [
+    from('PlWindowPane', 'os', { type: 'PlWindowOs', default: 'PlWindowOs.macos' }),
+    from('PlWindowPane', 'title', { type: 'Widget?' }),
+    from('PlWindowPane', 'icon', { type: 'Widget?' }),
+    from('PlWindowPane', 'actions', { type: 'Widget?' }),
+    from('PlWindowPane', 'controls', {
+      type: 'Set<PlWindowControl>',
+      default: 'all three',
+      description: {
+        ko: '어떤 button이 있는지. React의 boolean | 배열 대신 Set입니다 — 순서는 어차피 시스템이 정하니까요',
+        en: "Which buttons the bar has. A Set where React takes boolean | array, since the order is the system's anyway"
+      }
+    }),
+    from('PlWindowPane', 'accent', { type: 'bool', default: 'false' }),
+    from('PlWindowPane', 'transparency', { type: 'double', default: '0' }),
+    from('PlWindowPane', 'active', {
+      type: 'bool',
+      default: 'true',
+      description: {
+        ko: '앞에 있는 창인지. React와 달리 스스로 알아내지 않습니다 — 귀 기울일 문서가 없습니다',
+        en: "Whether this is the window in front. A plain value, unlike React's: there is no document to listen to"
+      }
+    }),
+    from('PlWindowPane', 'draggable', { type: 'bool', default: 'false' }),
+    from('PlWindowPane', 'width', { type: 'double?' }),
+    from('PlWindowPane', 'height', { type: 'double?' }),
+    from('PlWindowPane', 'offset', { type: 'Offset', default: 'Offset.zero' }),
+    from('PlWindowPane', 'onOffsetChange', {
+      name: 'onOffsetChanged',
+      type: 'ValueChanged<Offset>?'
+    }),
+    from('PlWindowPane', 'open', { type: 'bool', default: 'true' }),
+    {
+      name: 'onOpenChanged',
+      type: 'ValueChanged<bool>?',
+      description: { ko: 'close를 누르면 부릅니다', en: 'Called when the close button is pressed' }
+    },
+    from('PlWindowPane', 'minimized', { type: 'bool', default: 'false' }),
+    {
+      name: 'onMinimizedChanged',
+      type: 'ValueChanged<bool>?',
+      description: {
+        ko: 'minimize를 누르면 부릅니다',
+        en: 'Called when the minimize button is pressed'
+      }
+    },
+    from('PlWindowPane', 'maximized', { type: 'bool', default: 'false' }),
+    {
+      name: 'onMaximizedChanged',
+      type: 'ValueChanged<bool>?',
+      description: {
+        ko: 'maximize를 누르면 부릅니다',
+        en: 'Called when the maximize button is pressed'
+      }
+    },
+    from('PlWindowPane', 'minimizeLabel', { type: 'String?' }),
+    from('PlWindowPane', 'children', { name: 'child', type: 'Widget?' }),
+    from('PlWindowPane', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlWindowPane', 'elevation', { type: 'int', default: '2' }),
+    from('PlWindowPane', 'size', { type: SIZE, default: 'PlassSize.md' })
   ]
 };

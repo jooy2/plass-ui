@@ -269,7 +269,9 @@ const deliberate: Record<string, string> = {
   'src/components/popover/PlPopover.tsx':
     "the arrow is placed against Base UI's `data-side`, as above",
   'src/components/hover-card/PlHoverCard.tsx':
-    "the arrow is placed against Base UI's `data-side`, as above"
+    "the arrow is placed against Base UI's `data-side`, as above",
+  'src/components/window-pane/PlWindowPane.tsx':
+    'the eight resize handles are physical because the cursors are: `nwse-resize` is the corner the platform draws, and the geometry under a dragged window is `left`/`top`. Everything the chrome does — which end the controls are on, which side the title starts from — stays logical'
 };
 
 describe('every component uses logical properties', () => {

@@ -4,6 +4,16 @@
 
 ### Added
 
+- **`PlWindowPane`.** A window, drawn the way one of eight systems draws it.
+
+  A frame that behaves rather than a picture of one: the bar drags, the three buttons are real buttons with real names, and `minimized` rolls the window up to its bar because a page has nowhere to send it. `internal/window.dart` holds the reference data — eight systems' worth of title bars, three buttons each, drawn five different ways — and every glyph is a `CustomPainter`.
+
+  Three differences from the React build. `controls` is a `Set` where React takes `boolean | array`, since the order is the system's anyway. `active` is a plain value rather than something the widget works out: there is no document to listen to, and a widget that reached across the tree to find the other windows would be inventing a desktop. And there is no `resizable` — the eight handles are a pointer affordance that a Flutter caller would more naturally build with their own gesture detector around the window.
+
+  `explicitChildNodes` is what makes the window a named container rather than one long label: without it the title, the buttons and every word of the content merge into the node's own name. It is the Flutter half of what `aria-labelledby` does in the React build.
+
+- **Four words in `PlassLabels`** — `minimize`, `maximize`, `restore` and `resizeWindow` — translated in all six locale bundles.
+
 - **`PlMockup`.** A device with a screen you can put anything on.
 
   The screen is a real viewport at the device's own resolution and the whole device is scaled once into the room it has, so the content is laid out against a screen rather than against the page. `internal/mockup.dart` holds the reference data — five resolutions per device, three shells, six systems' worth of chrome — and every glyph in that chrome is a `CustomPainter` rather than an asset.
