@@ -115,10 +115,17 @@ describe('PlAnimateScramble', () => {
 
   describe('the trigger', () => {
     it('waits to be seen rather than starting on mount', async () => {
+      // Pushed below the fold on purpose. Rendered where the reader can already
+      // see it, the observer reports it as seen straight away and starting is
+      // the right answer — which would leave the assertion racing the browser
+      // rather than testing anything.
       await render(
-        <PlAnimateScramble className="scramble-under-test" duration={5000}>
-          {LINE}
-        </PlAnimateScramble>
+        <>
+          <div style={{ height: '200vh' }} />
+          <PlAnimateScramble className="scramble-under-test" duration={5000}>
+            {LINE}
+          </PlAnimateScramble>
+        </>
       );
 
       expect(root().dataset.state).toBe('paused');

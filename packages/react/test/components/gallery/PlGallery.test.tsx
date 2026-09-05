@@ -161,23 +161,26 @@ describe('PlGallery', () => {
   });
 
   describe('captions', () => {
+    // Exact, every time. None of these `src` values resolves, so each tile
+    // eventually falls back to its own alt text — and a loose `Harbour` matches
+    // `A harbour` as well, which makes the query a race against the image.
     it('says nothing by default', async () => {
       const screen = await render(<PlGallery items={items} />);
 
-      expect(screen.getByText('Harbour').query()).toBeNull();
+      expect(screen.getByText('Harbour', { exact: true }).query()).toBeNull();
     });
 
     it('writes the two lines under the picture', async () => {
       const screen = await render(<PlGallery items={items} caption="below" />);
 
-      await expect.element(screen.getByText('Harbour')).toBeInTheDocument();
-      await expect.element(screen.getByText('Busan')).toBeInTheDocument();
+      await expect.element(screen.getByText('Harbour', { exact: true })).toBeInTheDocument();
+      await expect.element(screen.getByText('Busan', { exact: true })).toBeInTheDocument();
     });
 
     it('writes them across the foot of it instead', async () => {
       const screen = await render(<PlGallery items={items} caption="overlay" />);
 
-      await expect.element(screen.getByText('Harbour')).toBeInTheDocument();
+      await expect.element(screen.getByText('Harbour', { exact: true })).toBeInTheDocument();
     });
 
     it('leaves the caption out of a tile that has no words', async () => {

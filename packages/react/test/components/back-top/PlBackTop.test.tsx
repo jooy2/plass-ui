@@ -143,11 +143,18 @@ describe('PlBackTop', () => {
       await render(<Panel visibilityHeight={100} onClick={(event) => event.preventDefault()} />);
 
       await scrollTo(900, false);
+
+      // Read back rather than compared against 900: a `scrollTop` is snapped to
+      // the device's pixel grid, so Firefox on a scaled display answers 899.73
+      // to the number it was just given. What is being asserted is that the
+      // panel did not move, and that is the number it did not move from.
+      const resting = panel().scrollTop;
+
       button().click();
 
       await new Promise((resolve) => setTimeout(resolve, 30));
 
-      expect(panel().scrollTop).toBe(900);
+      expect(panel().scrollTop).toBe(resting);
     });
   });
 

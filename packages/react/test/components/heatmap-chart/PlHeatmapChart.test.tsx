@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { commands } from 'vitest/browser';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { PlHeatmapChart } from 'plass-ui';
 import { render } from 'vitest-browser-react';
 
@@ -146,6 +147,13 @@ describe('PlHeatmapChart', () => {
   });
 
   describe('the legend', () => {
+    // A cell under the resting pointer opens the tooltip, and the tooltip's own
+    // text is spans outside the table — which is exactly what `ladder` collects.
+    // The pointer outlives the file that last moved it, so park it first.
+    beforeEach(async () => {
+      await commands.parkPointer();
+    });
+
     /**
      * What the scale legend says, and only it. The same numbers are in the
      * hidden table under the chart, which is what makes a plain text query

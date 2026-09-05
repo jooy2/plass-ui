@@ -90,8 +90,15 @@ describe('PlAnimateCounter', () => {
 
   describe('the trigger', () => {
     it('waits to be seen rather than starting on mount', async () => {
+      // Pushed below the fold on purpose. Rendered where the reader can already
+      // see it, the observer reports it as seen straight away and starting is
+      // the right answer — which would leave the assertion racing the browser
+      // rather than testing anything.
       await render(
-        <PlAnimateCounter className="counter-under-test" value={4812} duration={5000} />
+        <>
+          <div style={{ height: '200vh' }} />
+          <PlAnimateCounter className="counter-under-test" value={4812} duration={5000} />
+        </>
       );
 
       // The one component in the library that does not start on mount: a count

@@ -32,6 +32,15 @@ const row = (label: string) =>
     (node) => node.textContent?.trim() === label
   )!;
 
+/**
+ * The trigger, found by markup rather than by role.
+ *
+ * `getByRole('button')` is unambiguous only while the popup is shut: Base UI's
+ * focus guards are `role="button"` as well, so a test that reads the trigger
+ * with the tree still open is asking about seven elements.
+ */
+const trigger = () => document.querySelector<HTMLElement>('button[aria-haspopup]')!;
+
 describe('PlTreeSelect', () => {
   describe('rendering', () => {
     it('renders a trigger', async () => {
@@ -193,7 +202,7 @@ describe('PlTreeSelect', () => {
       await expect.element(screen.getByRole('tree')).toBeInTheDocument();
       row('France').click();
 
-      await expect.element(screen.getByRole('button')).toHaveTextContent('France');
+      await expect.poll(() => trigger().textContent).toContain('France');
       await expect.element(screen.getByRole('tree')).toBeInTheDocument();
     });
 
@@ -327,7 +336,7 @@ describe('PlTreeSelect', () => {
       await expect.element(screen.getByRole('tree')).toBeInTheDocument();
       row('Asia').click();
 
-      await expect.element(screen.getByRole('button')).toHaveTextContent('France');
+      await expect.poll(() => trigger().textContent).toContain('France');
     });
 
     it('chooses a branch when `selectableBranches` says it may', async () => {

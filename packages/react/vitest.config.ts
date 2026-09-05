@@ -63,14 +63,32 @@ export default defineConfig({
       headless: true,
       screenshotFailures: false,
       instances: resolveBrowsers().map((browser) => ({ browser })),
-      // Playwright's media emulation, handed to the suite. The library answers
-      // `prefers-reduced-motion` and `prefers-color-scheme` in JavaScript as
-      // well as in CSS, and neither can be asserted from inside the page: they
-      // are the browser's answer, not the document's. Declared for TypeScript
-      // in `test/env.d.ts`.
+      // The two pieces of Playwright the suite is handed, both of them state the
+      // browser owns rather than the document. Declared for TypeScript in
+      // `test/env.d.ts`.
       commands: {
+        // The library answers `prefers-reduced-motion` and
+        // `prefers-color-scheme` in JavaScript as well as in CSS, and neither
+        // can be asserted from inside the page: they are the browser's answer.
         async emulateMedia({ page }, options) {
           await page.emulateMedia(options);
+        },
+        // The pointer belongs to the browser rather than to the document, so it
+        // stays wherever the last file's click left it — and a file whose
+        // subject reacts to hover then starts its first test already hovered.
+        // Firefox is where this shows: it re-runs the hover state when the
+        // layout changes, so an element rendered under a resting pointer gets a
+        // `mouseover` nobody performed.
+        async parkPointer({ page }) {
+          const viewport = page.viewportSize();
+
+          // Past the bottom-right corner rather than on it: any point inside the
+          // viewport is a point some component can be rendered under, and the
+          // whole purpose is a pointer that is over nothing at all.
+          await page.mouse.move(
+            viewport ? viewport.width + 32 : 4096,
+            viewport ? viewport.height + 32 : 4096
+          );
         }
       }
     }

@@ -1,3 +1,4 @@
+import { commands } from 'vitest/browser';
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlAnimateFade } from 'plass-ui';
@@ -368,6 +369,10 @@ describe('PlAnimateFade', () => {
     });
 
     it('starts on hover, and on focus for a reader without a mouse', async () => {
+      // The pointer is the browser's and it is still wherever the previous file
+      // left it. Rendered under a resting pointer, this starts hovered.
+      await commands.parkPointer();
+
       const screen = await render(
         <PlAnimateFade className="fade-under-test" trigger="hover">
           Arriving

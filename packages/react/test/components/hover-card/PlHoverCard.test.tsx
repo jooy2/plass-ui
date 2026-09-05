@@ -1,5 +1,5 @@
-import { userEvent } from 'vitest/browser';
-import { describe, expect, it, vi } from 'vitest';
+import { commands, userEvent } from 'vitest/browser';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlHoverCard, PlTextLink } from 'plass-ui';
 
@@ -25,6 +25,13 @@ function Subject(props: Partial<React.ComponentProps<typeof PlHoverCard>> = {}) 
 }
 
 describe('PlHoverCard', () => {
+  // The pointer outlives the file that moved it, and the trigger renders where
+  // the previous file's last click happened to land. Without this the card is
+  // already open before the first test has done anything.
+  beforeEach(async () => {
+    await commands.parkPointer();
+  });
+
   it('draws nothing until the pointer rests on the trigger', async () => {
     await render(<Subject />);
 
@@ -47,7 +54,10 @@ describe('PlHoverCard', () => {
   it('opens on keyboard focus too, which is the half a pointer cannot reach', async () => {
     const screen = await render(<Subject />);
 
-    await userEvent.keyboard('{Tab}');
+    // Focused directly rather than tabbed to: WebKit follows the platform and
+    // leaves links out of the tab order, so `{Tab}` reaches nothing there. What
+    // the card answers is the focus itself, which is what this asserts.
+    screen.getByRole('link').element().focus();
 
     await expect.poll(() => document.activeElement).toBe(screen.getByRole('link').element());
     await expect.poll(() => card()).not.toBeNull();
