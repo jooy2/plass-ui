@@ -4,18 +4,20 @@
 
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/jooy2/plass-ui/blob/main/LICENSE) [![npm latest package](https://img.shields.io/npm/v/plass-ui/latest.svg)](https://www.npmjs.com/package/plass-ui) [![npm downloads](https://img.shields.io/npm/dm/plass-ui.svg)](https://www.npmjs.com/package/plass-ui)
 
-### 📘 [**plass.cdget.com**](https://plass.cdget.com)
+### [**plass.cdget.com**](https://plass.cdget.com)
 
-Live previews and full props for every component — pick **React** in the sidebar. This README is just the quick start.
+Live previews and full props for every component. Pick **React** in the sidebar. This README is just the quick start.
 
 ---
 
-> **Plass is one design language, shipped as two libraries.** Every surface answers a single question — is this pressed, or does it hold something? A thing you press is **tinted glass**: a gradient that _turns_ through its colour family rather than darkening, a shadow thrown in that same colour, and a bloom of light that follows your pointer across it. A thing that holds something is **clear glass**: translucent, deeply blurred, edged with a white hairline, never dyed. Nothing is bevelled, nothing is embossed and nothing moves when you press it — depth is carried by light, colour and blur.
+> **Plass is one design language, shipped as two libraries.** 127 components made of tinted glass and gradients, in React and in Flutter, under the same names and the same numbers.
+>
+> Every surface answers one question: is this pressed, or does it hold something? A thing you press is a tinted pane, filled with a gradient that turns through its colour family and lit by a bloom that follows your pointer. A thing that holds something is clear glass: translucent, deeply blurred, never dyed. Nothing is bevelled or embossed, and depth is carried by light, colour and blur.
 
 This is the React half. The [Flutter package](https://pub.dev/packages/plass_ui) is the other one, and the two hold the same components under the same names, the same prop vocabulary and the same numbers. They version independently, so this package's number and the pub.dev one's will not always agree.
 
 - **Finished the moment it is installed.** The gradients, the shadows, the blur, the focus ring and the press response are already decided and already agree with each other. One CSS import and the first screen looks like something.
-- **Five props, not fifty.** `size`, `color`, `variant`, `density` and `elevation` mean the same thing on every component — an `md` control is 40px, `primary` is the same family — so the tenth one costs nothing to learn after the first.
+- **Five props, not fifty.** `size`, `color`, `variant`, `density` and `elevation` mean the same thing on every component (an `md` control is 40px, `primary` is the same family), so the tenth one costs nothing to learn after the first.
 - **Readable because it was measured.** Every gradient stop clears 4.5:1 against its own label, the lightest corner included. A colour choice here is not a contrast bug waiting for an audit.
 - **Accessible without the checklist.** Real roles, labels, focus management and keyboard support, not `div`s with click handlers.
 - **Dark mode you do not write.** Follows `prefers-color-scheme`, and can be forced either way on any subtree. No second palette, no colours redeclared.
@@ -28,7 +30,7 @@ This is the React half. The [Flutter package](https://pub.dev/packages/plass_ui)
 npm install plass-ui
 ```
 
-`react` and `react-dom` are peer dependencies — React 18 or 19. Node.js 20.19 or later.
+`react` and `react-dom` are peer dependencies, React 18 or 19. Node.js 20.19 or later.
 
 ### Setup
 
@@ -38,7 +40,7 @@ Add one line to your app's CSS entry point:
 @import 'plass-ui/styles.css';
 ```
 
-`plass-ui/styles.css` is finished CSS — the design tokens, the compiled rules for every utility class the components use, and a small reset whose every rule is specificity 0 so your own styles always win. [Tailwind CSS](https://tailwindcss.com) v4 builds this package; it does not have to be installed in yours.
+`plass-ui/styles.css` is finished CSS, the design tokens, the compiled rules for every utility class the components use, and a small reset whose every rule is specificity 0 so your own styles always win. [Tailwind CSS](https://tailwindcss.com) v4 builds this package; it does not have to be installed in yours.
 
 If your project already runs Tailwind v4, import the token sheet instead:
 
@@ -47,7 +49,7 @@ If your project already runs Tailwind v4, import the token sheet instead:
 @import 'plass-ui/tailwind.css';
 ```
 
-`plass-ui/tailwind.css` registers all 74 components with Tailwind, because Tailwind scans files rather than imports — nothing in a build connects `import { PlButton }` to the classes `PlSelect.js` spells out. A project that uses a handful of components can register the handful instead:
+`plass-ui/tailwind.css` registers all 74 components with Tailwind, because Tailwind scans files rather than imports, nothing in a build connects `import { PlButton }` to the classes `PlSelect.js` spells out. A project that uses a handful of components can register the handful instead:
 
 ```css
 @import 'tailwindcss';
@@ -56,11 +58,11 @@ If your project already runs Tailwind v4, import the token sheet instead:
 @import 'plass-ui/css/text-field.css';
 ```
 
-Still one Tailwind pass, so the utilities keep Tailwind's own order — and about 5 kB gzipped smaller for a small set of components. There is one manifest per component, named after its folder in `dist/components`.
+Still one Tailwind pass, so the utilities keep Tailwind's own order, and about 5 kB gzipped smaller for a small set of components. There is one manifest per component, named after its folder in `dist/components`.
 
 ### The page under the components
 
-Plass draws controls and sheets. It does not paint your `<body>` — but a sheet of glass over a flat white page has nothing to be in front of, and every translucent surface in the library will read as opaque. Two tokens exist for exactly this:
+Plass draws controls and sheets. It does not paint your `<body>`, but a sheet of glass over a flat white page has nothing to be in front of, and every translucent surface in the library will read as opaque. Two tokens exist for exactly this:
 
 ```css
 body {
@@ -92,7 +94,7 @@ export default function SignIn() {
 
 ### One entry point per component
 
-Every component also has an entry point of its own, for a build that cannot tree-shake a barrel — or for a server render, where the barrel loads all 74 components and their dependencies before the first one is used:
+Every component also has an entry point of its own, for a build that cannot tree-shake a barrel, or for a server render, where the barrel loads all 74 components and their dependencies before the first one is used:
 
 ```tsx
 import { PlButton } from 'plass-ui/button';
@@ -102,19 +104,19 @@ Same component, same types. The barrel is the one to reach for by default; this 
 
 ### Next.js and server components
 
-Nearly every component carries `'use client'`, so a Server Component can import one directly and there is nothing to configure — no `transpilePackages`, no `next.config` entry, no provider. What the directive cannot do is carry a function across the server boundary: a file that passes `onClick`, `onValueChange` or `render` needs its own `'use client'`, which is React's rule for every client component rather than this library's. Outside a server-component graph the directive is inert.
+Nearly every component carries `'use client'`, so a Server Component can import one directly and there is nothing to configure, no `transpilePackages`, no `next.config` entry, no provider. What the directive cannot do is carry a function across the server boundary: a file that passes `onClick`, `onValueChange` or `render` needs its own `'use client'`, which is React's rule for every client component rather than this library's. Outside a server-component graph the directive is inert.
 
 `PlTable` is the exception and has no directive, because that rule would otherwise have cost it its own API: every column is a `render` callback, and a table belongs on a page that fetches its own rows. A Server Component renders it whole; a client module that imports it gets a client component, as it does for anything else it imports.
 
 ### Dark mode
 
-Follows `prefers-color-scheme` with no configuration. To force it either way, put `.dark` / `.light` — or `[data-theme='dark']` / `[data-theme='light']` — on any ancestor, `<html>` included.
+Follows `prefers-color-scheme` with no configuration. To force it either way, put `.dark` / `.light` (or `[data-theme='dark']` / `[data-theme='light']`) on any ancestor, `<html>` included.
 
 One thing does **not** change with the theme, and it is deliberate: the colour of a key. What changes is the sheet it rests on.
 
 ## Components
 
-Every component is exported under a `Pl` prefix — `Button`, `Card` and `Table` are the most-taken identifiers in the ecosystem, and a consumer should not have to alias ours on import.
+Every component is exported under a `Pl` prefix. `Button`, `Card` and `Table` are the most-taken identifiers in the ecosystem, and a consumer should not have to alias ours on import.
 
 ### Display
 
@@ -157,7 +159,7 @@ npm run lint          # ESLint
 npm run size          # what the package costs, packed and installed
 ```
 
-The documentation site lives at the repository root, in [`docs/`](https://github.com/jooy2/plass-ui/tree/main/docs), and renders these components from `src/` through a Vite alias — so `cd docs && npm run dev` is the develop-and-eyeball loop and there is no separate demo app. [CONTRIBUTING.md](https://github.com/jooy2/plass-ui/blob/main/CONTRIBUTING.md) has the rest.
+The documentation site lives at the repository root, in [`docs/`](https://github.com/jooy2/plass-ui/tree/main/docs), and renders these components from `src/` through a Vite alias, so `cd docs && npm run dev` is the develop-and-eyeball loop and there is no separate demo app. [CONTRIBUTING.md](https://github.com/jooy2/plass-ui/blob/main/CONTRIBUTING.md) has the rest.
 
 ## License
 

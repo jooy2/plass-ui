@@ -4,23 +4,25 @@
 
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/jooy2/plass-ui/blob/main/LICENSE) [![npm latest package](https://img.shields.io/npm/v/plass-ui/latest.svg)](https://www.npmjs.com/package/plass-ui) [![npm downloads](https://img.shields.io/npm/dm/plass-ui.svg)](https://www.npmjs.com/package/plass-ui) [![pub package](https://img.shields.io/pub/v/plass_ui.svg)](https://pub.dev/packages/plass_ui)
 
-### 📘 [**plass.cdget.com**](https://plass.cdget.com)
+### [**plass.cdget.com**](https://plass.cdget.com)
 
 Live previews and full props for every component, in both frameworks. This README is the map; each package has a quick start of its own.
 
 ---
 
-> **Plass is one design language, shipped as two libraries.** Every surface answers a single question. Is this pressed, or does it hold something? A thing you press is **tinted glass**: a gradient that _turns_ through its colour family rather than darkening, a shadow thrown in that same colour, and a bloom of light that follows your pointer across it. A thing that holds something is **clear glass**: translucent, deeply blurred, edged with a white hairline, never dyed. Nothing is bevelled, nothing is embossed and nothing moves when you press it. Depth is carried by light, colour and blur. That is the whole system, and it is the same 127 components under the same names and the same numbers whether you build in **React** or in **Flutter**.
+> **Plass is one design language, shipped as two libraries.** 127 components made of tinted glass and gradients, in **React** and in **Flutter**, under the same names and the same numbers.
+>
+> Every surface answers one question: is this pressed, or does it hold something? A thing you press is a tinted pane, filled with a gradient that turns through its colour family and lit by a bloom that follows your pointer. A thing that holds something is clear glass: translucent, deeply blurred, never dyed. Nothing is bevelled or embossed, and depth is carried by light, colour and blur.
 
-## Why Plass
+## Highlights
 
-- **Finished the moment it is installed.** The gradients, the shadows, the blur, the focus ring and the press response are already decided and already agree with each other. There is no theme file to fill in before the first screen looks like something.
-- **Learn it once, use it on both.** 127 components in React and in Flutter under the same names: an `md` control is 40px on either side, `primary` is the same colour family, and one documentation page (with a framework switch in the sidebar) covers the two rather than drifting apart by the third release.
+- **Finished when you install it.** The gradients, shadows, blur, focus ring and press response are already decided and already agree with each other. There is no theme file to fill in.
+- **Learn it once, use it on both.** An `md` control is 40px in either framework, `primary` is the same colour family, and one documentation page covers the two.
 - **Five props, not fifty.** `size`, `color`, `variant`, `density` and `elevation` mean the same thing on every component, so the tenth one costs nothing to learn after the first.
-- **Readable because it was measured.** Every gradient stop clears 4.5:1 against its own label, the lightest corner included. A colour choice here is not a contrast bug waiting for an audit.
-- **Accessible without the checklist.** Roles, labels, keyboard operation and focus management live inside the components rather than being bolted on afterwards.
-- **Dark mode you do not write.** It follows the platform and can be forced either way on any subtree. No second palette, no colours redeclared.
-- **Nothing you did not ask for.** The npm package is ESM and tree-shakeable, so only what you import is bundled, and its second dependency, the syntax highlighter, is reached by `PlCodeBlock` alone and only through a dynamic import. The pub package has no dependencies at all, no assets, no plugins, no stylesheet, no provider.
+- **Readable because it was measured.** Every gradient stop clears 4.5:1 against its own label, the lightest corner included.
+- **Accessible without the checklist.** Roles, labels, keyboard operation and focus management live inside the components.
+- **Dark mode you do not write.** It follows the platform and can be forced either way on any subtree.
+- **Nothing you did not ask for.** The npm package is ESM and tree-shakeable, so only what you import is bundled. The pub package has no dependencies at all.
 
 ## Packages
 

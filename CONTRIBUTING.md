@@ -23,11 +23,11 @@ When creating an issue, keep the following in mind:
 
 The repository holds one design language and three things built out of it:
 
-| Path | What it is | How it is run |
-| --- | --- | --- |
-| `packages/react` | The npm package, `plass-ui` | `cd packages/react && npm install`, then `npm test`, `npm run lint`, `npm run build` |
-| `packages/flutter` | The pub.dev package, `plass_ui` | `cd packages/flutter && flutter pub get`, then `flutter test`, `flutter analyze` |
-| `docs` | The documentation site, shared by both | `cd docs && npm install`, then `npm run dev` |
+| Path               | What it is                             | How it is run                                                                        |
+| ------------------ | -------------------------------------- | ------------------------------------------------------------------------------------ |
+| `packages/react`   | The npm package, `plass-ui`            | `cd packages/react && npm install`, then `npm test`, `npm run lint`, `npm run build` |
+| `packages/flutter` | The pub.dev package, `plass_ui`        | `cd packages/flutter && flutter pub get`, then `flutter test`, `flutter analyze`     |
+| `docs`             | The documentation site, shared by both | `cd docs && npm install`, then `npm run dev`                                         |
 
 There is no install at the repository root, and no root `package.json`. Each of the three is entered and run on its own.
 

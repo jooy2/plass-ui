@@ -28,6 +28,18 @@
 
 - The two runtime dependencies move their floor up: `@base-ui/react` to `^1.8.0` and `highlight.js` to `^11.12.0`. Neither release changes an API this package uses.
 
+### Documentation
+
+- **The documentation was audited and rewritten for accuracy and plainness.** Three claims were wrong and are corrected: `PlImage` said there is no gallery component, the component index said every component has a Flutter half, and the component counts had gone stale (133 previews on the index, 130 components registered by `plass-ui/tailwind.css`, 127 shared between the two frameworks).
+
+- **The section headings name the section.** 135 of them were essay titles (`What it answers before it knows`, `Which floating surface`, `Why it is not a PlCard`) and are now the shape `CONTRIBUTING.md` asks for. Every anchor link moved with them, and three links that were already broken are fixed.
+
+- **The prose reads as reference rather than as an essay.** The em dashes are gone from both locales, 2,841 of them, leaving only the table cells that mean "not applicable". Around thirty of the longest paragraphs are split into sentences with the rationale taken out and the facts kept, the `is not X, it is Y` construction is gone where the negated half added nothing, and a 661-character explanation that had been copied into six pages is one clause per framework and a link.
+
+- **The Korean pages read as Korean.** 해요체 no longer drifts into 합쇼체 pages, 구어 축약 is written out, `말합니다`/`주장합니다`/`손을 뻗다` as literal renderings of say, assert and reach for are replaced by the verb the sentence actually needs, `가지고 있다` becomes `~이 있다`, and 31 ledes that were noun-phrase fragments are complete sentences.
+
+- **The home page and the READMEs read as an introduction.** The headline says what the library is, the feature cards are one or two plain sentences each, and the internals that belonged on a reference page are gone from them.
+
 ## 1.4.0 (2026-09-05)
 
 ### Added
