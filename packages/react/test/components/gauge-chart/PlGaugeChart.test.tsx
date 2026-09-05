@@ -39,7 +39,7 @@ describe('PlGaugeChart', () => {
     it('fills the arc in proportion to the reading', async () => {
       const screen = await render(<PlGaugeChart label="Quota" value={25} />);
 
-      const plot = screen.getByRole('img', { name: 'Quota' });
+      const plot = screen.getByRole('img', { name: 'Quota: 25 / 100' });
 
       await expect.element(plot).toBeInTheDocument();
       expect(drawn(plot.element())).toBeCloseTo(0.25, 3);
@@ -48,7 +48,7 @@ describe('PlGaugeChart', () => {
     it('clamps a reading outside the scale rather than overrunning the arc', async () => {
       const screen = await render(<PlGaugeChart label="Quota" value={140} />);
 
-      const plot = screen.getByRole('img', { name: 'Quota' });
+      const plot = screen.getByRole('img', { name: 'Quota: 140 / 100' });
 
       await expect.element(plot).toBeInTheDocument();
       expect(drawn(plot.element())).toBe(1);
