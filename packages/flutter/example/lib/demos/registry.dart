@@ -307,6 +307,10 @@ import 'package:plass_ui_example/demos/menubar/hero.dart';
 import 'package:plass_ui_example/demos/menubar/orientation.dart';
 import 'package:plass_ui_example/demos/menubar/rows.dart';
 import 'package:plass_ui_example/demos/menubar/sizes.dart';
+import 'package:plass_ui_example/demos/mockup/bezel.dart';
+import 'package:plass_ui_example/demos/mockup/device.dart';
+import 'package:plass_ui_example/demos/mockup/finish.dart';
+import 'package:plass_ui_example/demos/mockup/hero.dart';
 import 'package:plass_ui_example/demos/modal/controlled.dart';
 import 'package:plass_ui_example/demos/modal/dismissible.dart';
 import 'package:plass_ui_example/demos/modal/dividers.dart';
@@ -978,6 +982,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'segmented-button/colors': _segmentedButtonColors,
   'segmented-button/icons': _segmentedButtonIcons,
   'segmented-button/full-width': _segmentedButtonFullWidth,
+  'mockup/hero': _mockupHero,
+  'mockup/device': _mockupDevice,
+  'mockup/finish': _mockupFinish,
+  'mockup/bezel': _mockupBezel,
   'modal/hero': _modalHero,
   'modal/sizes': _modalSizes,
   'modal/dividers': _modalDividers,
@@ -1678,6 +1686,14 @@ Widget _numberFieldSteps(BuildContext context) => const NumberFieldSteps();
 Widget _numberFieldVariants(BuildContext context) => const NumberFieldVariants();
 Widget _numberFieldStates(BuildContext context) => const NumberFieldStates();
 Widget _numberFieldSizes(BuildContext context) => const NumberFieldSizes();
+
+Widget _mockupHero(BuildContext context) => const MockupHero();
+
+Widget _mockupDevice(BuildContext context) => const MockupDevice();
+
+Widget _mockupFinish(BuildContext context) => const MockupFinish();
+
+Widget _mockupBezel(BuildContext context) => const MockupBezel();
 
 Widget _modalHero(BuildContext context) => const ModalHero();
 Widget _modalSizes(BuildContext context) => const ModalSizes();

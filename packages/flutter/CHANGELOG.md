@@ -4,6 +4,12 @@
 
 ### Added
 
+- **`PlMockup`.** A device with a screen you can put anything on.
+
+  The screen is a real viewport at the device's own resolution and the whole device is scaled once into the room it has, so the content is laid out against a screen rather than against the page. `internal/mockup.dart` holds the reference data — five resolutions per device, three shells, six systems' worth of chrome — and every glyph in that chrome is a `CustomPainter` rather than an asset.
+
+  Two differences from the React build, both because there is no CSS to lean on. `wallpaper` takes a `Decoration` where React takes a background string, and there is no `scroll`: a Flutter caller puts a scrollable in the child, which is the framework's own answer and a better one than a flag.
+
 - **`PlTimelineChart`.** Work against time — a row per thing, a bar per stretch of it.
 
   A bar chart on its side with the baseline taken away, and not `PlTimeline`, which is a list of steps and draws no axis. Overlapping spans on one row move onto lanes of their own by the greedy interval packing; a row with no overlaps is exactly as thick as it was.

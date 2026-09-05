@@ -3552,6 +3552,37 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlMenubarMenu', 'disabled', { type: 'bool', default: 'false' })
   ],
 
+  PlMockup: [
+    from('PlMockup', 'device', { type: 'PlMockupDevice', required: true }),
+    from('PlMockup', 'os', { type: 'PlMockupOs?' }),
+    from('PlMockup', 'hardware', {
+      type: 'PlMockupHardware',
+      default: 'PlMockupHardware.monitor'
+    }),
+    from('PlMockup', 'resolution', { type: 'PlMockupResolution?' }),
+    from('PlMockup', 'orientation', {
+      type: 'PlMockupOrientation',
+      default: 'PlMockupOrientation.portrait'
+    }),
+    from('PlMockup', 'bezel', { type: 'PlMockupBezel', default: 'PlMockupBezel.standard' }),
+    from('PlMockup', 'finish', { type: 'PlMockupFinish', default: 'PlMockupFinish.graphite' }),
+    from('PlMockup', 'notch', { type: 'PlMockupNotch?' }),
+    from('PlMockup', 'systemUi', { type: 'bool', default: 'true' }),
+    from('PlMockup', 'wallpaper', {
+      type: 'Decoration?',
+      description: {
+        ko: '내용 뒤에 놓이는 것. React의 CSS background 문자열 대신 Decoration입니다',
+        en: 'What is behind the content. A Decoration, where React takes a CSS background string'
+      }
+    }),
+    from('PlMockup', 'time', { type: 'String', default: "'9:41'" }),
+    from('PlMockup', 'width', { type: 'double?' }),
+    from('PlMockup', 'height', { type: 'double?' }),
+    from('PlMockup', 'elevation', { type: 'int', default: '0' }),
+    from('PlMockup', 'children', { name: 'child', type: 'Widget?' }),
+    from('PlMockup', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlMockup', 'size', { type: SIZE, default: 'PlassSize.md' })
+  ],
   PlModal: [
     from('PlModal', 'open', { type: 'bool', required: true }),
     from('PlModal', 'onOpenChange', {

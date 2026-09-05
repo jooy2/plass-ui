@@ -380,6 +380,13 @@ void main() {
       'lib/src/components/color_picker/pl_color_picker.dart':
           'a hue rail is a colour space rather than a reading axis: 0° sits where 0° sits in every '
           'picker in every locale, and a mirrored one would be unrecognisable',
+      'lib/src/components/mockup/pl_mockup.dart':
+          'a camera is where the hardware put it: a phone turned sideways has its lens against one '
+          'physical edge whichever way the reader reads, and the React build places it the same '
+          'way, so mirroring only this one would make the two disagree',
+      'lib/src/internal/mockup.dart':
+          'the cut-out is drawn against a physical edge for the reason above; nothing else in the '
+          'device is placed by side at all',
       'lib/src/internal/chart.dart':
           "a bar's rounded end follows the direction its *value* grows in, which is a direction "
           'on the canvas the frame paints; see the entry below',

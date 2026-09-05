@@ -93,6 +93,7 @@ import {
   PlMenubar,
   PlMeter,
   PlMenubarMenu,
+  PlMockup,
   PlModal,
   PlModalClose,
   PlNavigationMenu,
@@ -1478,6 +1479,21 @@ const entries: Entry[] = [
       >
         The base rate plus whatever your plan adds to it.
       </PlPopover>
+    )
+  },
+  {
+    name: 'PlMockup',
+    group: 'display',
+    href: 'components/display/mockup',
+    blurb: {
+      en: 'A device with a screen you can put anything on.',
+      ko: '무엇이든 얹을 수 있는 화면이 달린 기기입니다.'
+    },
+    preview: (
+      <div className="flex w-full items-end justify-center gap-4">
+        <PlMockup device="mobile" width={54} />
+        <PlMockup device="desktop" width={120} />
+      </div>
     )
   },
   {

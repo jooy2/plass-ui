@@ -7256,6 +7256,171 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlMockup: [
+    {
+      name: 'device',
+      type: "'desktop' | 'tablet' | 'mobile'",
+      required: true,
+      description: {
+        ko: '무엇의 그림인지. 기본값이 없는 유일한 prop입니다',
+        en: 'Which machine this is a picture of. The one prop with no default'
+      }
+    },
+    {
+      name: 'os',
+      type: "'macos' | 'windows' | 'linux' | 'ios' | 'ipados' | 'android'",
+      description: {
+        ko: '화면에 그려지는 chrome의 시스템. 기기가 돌리지 않는 값은 기본값으로 돌아갑니다',
+        en: 'The system whose chrome is drawn. Anything the device does not run falls back to its default'
+      }
+    },
+    {
+      name: 'hardware',
+      type: "'monitor' | 'laptop'",
+      default: "'monitor'",
+      description: {
+        ko: '데스크톱 화면을 받치는 것. 태블릿과 휴대폰은 무시합니다',
+        en: 'What holds a desktop screen up. Ignored on a tablet and a phone'
+      }
+    },
+    {
+      name: 'resolution',
+      type: '{ width: number; height: number }',
+      description: {
+        ko: '화면의 논리 해상도. 다섯 단 중 어느 것도 원하는 기기가 아닐 때',
+        en: "The screen's logical resolution, when none of the five steps is the machine you mean"
+      }
+    },
+    {
+      name: 'orientation',
+      type: "'portrait' | 'landscape'",
+      default: "'portrait'",
+      description: {
+        ko: '들고 있는 방향. 화면과 테두리와 구멍이 함께 돕니다. 데스크톱은 무시합니다',
+        en: 'Which way a handheld is held. Turns the screen, the bezel and the cut-out together'
+      }
+    },
+    {
+      name: 'bezel',
+      type: "'none' | 'thin' | 'standard' | 'thick'",
+      default: "'standard'",
+      description: {
+        ko: '화면 둘레의 하드웨어 양. none은 더 얇은 테두리가 아니라 하드웨어가 없는 것입니다',
+        en: 'How much hardware there is around the screen. none is no hardware at all, not a thinner bezel'
+      }
+    },
+    {
+      name: 'finish',
+      type: "'graphite' | 'silver' | 'white'",
+      default: "'graphite'",
+      description: {
+        ko: '하드웨어의 재질. 테마 토큰이 아니라 고정된 색입니다',
+        en: 'What the hardware is made of. Fixed colours rather than theme tokens'
+      }
+    },
+    {
+      name: 'notch',
+      type: "'none' | 'notch' | 'dynamic-island' | 'punch-hole'",
+      description: {
+        ko: '카메라 구멍. chrome이 아니라 하드웨어라서 systemUi와 무관하게 그려집니다',
+        en: 'The camera cut-out. Hardware rather than chrome, so it is drawn whether or not systemUi is on'
+      }
+    },
+    {
+      name: 'systemUi',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '시스템 막대를 그립니다. 각자 자리를 차지하므로 끄면 화면을 돌려줍니다',
+        en: "Draws the system's own bars. Each takes its own space, so turning it off gives the screen back"
+      }
+    },
+    {
+      name: 'scroll',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '화면보다 긴 내용이 스크롤되는지. 끄면 잘립니다',
+        en: 'Whether content taller than the screen scrolls. Off, it is clipped'
+      }
+    },
+    {
+      name: 'wallpaper',
+      type: 'string',
+      description: {
+        ko: '내용 뒤에 놓이는 것. 어떤 CSS background 값이든',
+        en: 'What is behind the content: any CSS background value'
+      }
+    },
+    {
+      name: 'time',
+      type: 'string',
+      default: "'9:41'",
+      description: {
+        ko: '상태 표시줄의 시계. chrome이 그리는 유일한 글자입니다',
+        en: 'The clock in the status bar. The only text the chrome draws'
+      }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      default: "'100%'",
+      description: {
+        ko: '페이지에 그려지는 기기 전체의 너비',
+        en: 'The rendered width of the whole device on the page'
+      }
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      description: {
+        ko: '그려지는 높이. 혼자 주면 이쪽이 크기를 정하고 너비가 비례를 따릅니다',
+        en: 'The rendered height. Given on its own it decides the size and the width follows'
+      }
+    },
+    {
+      name: 'elevation',
+      type: ELEVATION,
+      default: '0',
+      description: {
+        ko: '페이지에서 떠 있는 높이. 상자가 아니라 실루엣으로 그려집니다',
+        en: 'How far off the page the device sits. Drawn as a silhouette rather than a box'
+      }
+    },
+    {
+      name: 'render',
+      type: 'ReactElement',
+      description: {
+        ko: 'div 대신 다른 요소를 렌더링합니다',
+        en: 'Renders something other than a div'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: { ko: '화면에 얹는 것', en: 'What is on the screen' }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: 'chrome의 accent에 닿습니다. dock의 첫 아이콘, 작업 표시줄의 첫 아이콘',
+        en: "Reaches the accent in the chrome — a dock's first icon, a taskbar's"
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '화면의 해상도. 컨트롤 높이도 타입 스케일도 아닙니다',
+        en: 'The resolution of the screen. Not a control height and not a type scale'
+      }
+    }
+  ],
   PlModal: [
     {
       name: 'size',

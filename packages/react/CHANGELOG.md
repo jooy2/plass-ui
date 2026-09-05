@@ -24,6 +24,18 @@
 
 ### Added
 
+- **`PlMockup`.** A device with a screen you can put anything on: a phone, a tablet, a monitor or a laptop, with the system's own bars drawn on it.
+
+  **The screen is a real viewport at the device's own resolution** — an `md` phone is 390 by 844 — and the whole device is then scaled once to whatever room it has been given. So the content inside is laid out against a _screen_ rather than against the page: a 390-pixel column wraps where it would wrap on a phone, and the mockup can be 200 pixels wide without the content knowing.
+
+  That scale is the one `transform` in the library. The rule it excepts is about controls, where a scale resamples the label under the pointer pressing it; nothing here is pressed, and the scale is set once from the space available rather than changing on an interaction.
+
+  `size` sets the **resolution** rather than a height or a type scale — the second component after `PlBox` where the ladder means something other than a control height. The system's bars each take their own space rather than covering the content, because a caller putting a screenshot in a mockup wants all of the screenshot; the cut-out is the exception, being a real hole in the glass, and is drawn whether or not `systemUi` is on.
+
+  `bezel="none"` is no hardware at all rather than a thinner frame, and `finish` is fixed colours rather than theme tokens: a graphite phone is graphite on a page switched to dark. Landscape turns the screen, the bezel and the cut-out together; a desktop ignores it, because its stand does not turn.
+
+  The reference data — five resolutions per device, three shells, six systems' worth of chrome — lives in `internal/mockup`, for the reason `internal/chart` does.
+
 - **`PlTimelineChart`.** Work against time — a row per thing, a bar per stretch of it.
 
   The two axes are a set of rows and a calendar, which makes this a `PlBarChart` turned on its side with the baseline taken away: every bar starts where its own data says rather than at zero, so what the chart is about is _when_ rather than _how much_. It is not `PlTimeline`, which is a list of steps and draws no axis at all.
