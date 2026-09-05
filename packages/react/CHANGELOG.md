@@ -12,6 +12,10 @@
 
 ### Changed
 
+- **`PlImage`'s preview overlay is now a separate chunk.** `preview` is off by default and the overlay is several times the weight of the picture component that opens it, so it is reached through `React.lazy` — as `PlGallery`'s viewer already was. Importing `PlImage` alone costs 5.5 kB gzipped where it cost 26.8 kB, and `PlGallery`, which draws its tiles with one, drops from 28.9 kB to 7.7 kB: its own lazy viewer had been undone by this import. Nothing to configure, and no API change; on a cold cache the overlay now appears a moment after the first press.
+
+- **The size budget covers `PlImage` and `PlGallery`**, the two components whose heaviest feature is off by default, so a static import added back to either is caught rather than reviewed past.
+
 - The two runtime dependencies move their floor up: `@base-ui/react` to `^1.8.0` and `highlight.js` to `^11.12.0`. Neither release changes an API this package uses.
 
 ## 1.4.0 (2026-09-05)

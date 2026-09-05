@@ -61,6 +61,18 @@ const EXTERNAL = ['react', 'react-dom', 'react/jsx-runtime', 'react-dom/client']
 const SCENARIOS = [
   { name: 'PlButton 하나', imports: ['PlButton'] },
   { name: 'PlTypography 하나', imports: ['PlTypography'] },
+  /*
+   * The two components whose heaviest feature is off by default, and which are
+   * therefore the two the budget is most likely to catch drifting.
+   *
+   * A lightbox is several times the weight of the thumbnail that opens it, so
+   * both reach theirs through `import()` — and a static import added back is
+   * invisible in review and quadruples both of these numbers. `PlImage` sat at
+   * 26.8 kB that way, and took `PlGallery` up to 28.9 kB with it, because a
+   * gallery draws its tiles with one.
+   */
+  { name: 'PlImage 하나', imports: ['PlImage'] },
+  { name: 'PlGallery 하나', imports: ['PlGallery'] },
   { name: '폼 5개', imports: ['PlButton', 'PlTextField', 'PlCheckbox', 'PlCard', 'PlTypography'] },
   {
     name: '오버레이 5개',

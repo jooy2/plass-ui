@@ -101,6 +101,12 @@ Opens the picture over the page when it is pressed. Off by default: a picture th
 
 It is a [`PlOverlay`](../feedback/overlay) at `tone="glass"`, so Escape and a click outside close it. The trigger is disabled until the picture has arrived — there is nothing to preview yet — and it is named after the picture rather than "Preview", because three previews on a page would otherwise be three buttons with the same name.
 
+::: fw react
+
+The overlay is a **separate chunk**, reached through `React.lazy`. It is several times the weight of the picture component that opens it, and `preview` is off by default, so a page drawing a wall of thumbnails does not download a lightbox it never shows. Turn it on and the chunk is fetched once, after the first paint. Nothing to configure either way — but it does mean the overlay appears a moment after the very first press on a cold cache.
+
+:::
+
 ### A gallery
 
 There is no gallery component and no next/previous inside the preview, deliberately: a gallery is a list with a state of its own, and it composes out of what is already here.

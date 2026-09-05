@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
-import { PlOverlay } from '../overlay/PlOverlay.js';
 import { PlSkeleton } from '../skeleton/PlSkeleton.js';
 import { cx, focusRingClasses, radiusClasses, transitionClasses } from '../../internal/styles.js';
 import type { PlassColor, PlassSize } from '../../types.js';
@@ -75,6 +74,18 @@ const fitClasses: Record<PlImageFit, string> = {
   fill: 'object-fill',
   none: 'object-none'
 };
+
+/**
+ * The overlay a `preview` opens, which is a download of its own.
+ *
+ * `preview` is off by default and a lightbox is several times the weight of the
+ * picture component that opens it, so a page drawing a wall of thumbnails should
+ * not be carrying one. Behind `React.lazy` the chunk is fetched after the first
+ * paint by the pages that ask for a preview, and never by the pages that do not.
+ */
+const PlImagePreview = /* @__PURE__ */ React.lazy(() =>
+  import('./PlImagePreview.js').then((module) => ({ default: module.PlImagePreview }))
+);
 
 /**
  * A picture, and the two states a picture spends most of its life in.
@@ -277,16 +288,16 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
           {body}
         </button>
 
-        <PlOverlay
-          open={open}
-          onOpenChange={setOpen}
-          tone="glass"
-          dismissible
-          color={color}
-          label={previewLabel}
-        >
-          <img src={src} alt={alt} className="max-h-[85vh] max-w-[90vw] object-contain" />
-        </PlOverlay>
+        <React.Suspense fallback={null}>
+          <PlImagePreview
+            open={open}
+            onOpenChange={setOpen}
+            src={src}
+            alt={alt}
+            label={previewLabel}
+            color={color}
+          />
+        </React.Suspense>
       </>
     );
   }
