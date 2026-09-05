@@ -12252,6 +12252,212 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlGallery: [
+    {
+      name: 'items',
+      type: 'readonly PlGalleryItem[]',
+      required: true,
+      description: { ko: '그릴 순서대로의 사진들', en: 'The pictures, in the order they are drawn' }
+    },
+    {
+      name: 'layout',
+      type: "'grid' | 'masonry' | 'justified' | 'quilted'",
+      default: "'grid'",
+      description: {
+        ko: '타일을 어떻게 배치할지. 네 가지 답이 아니라 네 가지 질문입니다',
+        en: 'How the tiles are arranged. Four questions rather than four looks'
+      }
+    },
+    {
+      name: 'columns',
+      type: 'PlassResponsive<number>',
+      default: '{ xs: 2, sm: 3, lg: 4 }',
+      description: {
+        ko: '가로로 몇 장인지, breakpoint마다. justified는 줄마다 스스로 정합니다',
+        en: 'How many tiles across, per breakpoint. justified decides for itself, row by row'
+      }
+    },
+    {
+      name: 'gap',
+      type: `${SIZE} | number | string`,
+      default: "'md'",
+      description: {
+        ko: '타일 사이의 간격. 사다리의 한 단, 픽셀 수, 또는 CSS 길이',
+        en: 'The space between tiles — a step of the size ladder, a number in pixels, or a CSS length'
+      }
+    },
+    {
+      name: 'ratio',
+      type: 'number | string',
+      default: '1',
+      description: {
+        ko: 'grid에서 타일의 모양이자, 자기 ratio가 없는 item이 다른 곳에서 쓰는 값',
+        en: 'The shape of a tile in grid, and what an item with no ratio of its own falls back to'
+      }
+    },
+    {
+      name: 'rowHeight',
+      type: 'number',
+      default: '220',
+      description: {
+        ko: 'justified에서 한 줄이 지향하는 높이, quilted에서 한 칸의 높이',
+        en: 'How tall a row aims to be in justified, and how tall one cell is in quilted'
+      }
+    },
+    {
+      name: 'rounded',
+      type: 'boolean',
+      default: 'true',
+      description: { ko: '타일의 모서리를 둥글립니다', en: 'Rounds the tiles' }
+    },
+    {
+      name: 'caption',
+      type: "'none' | 'below' | 'overlay' | 'hover'",
+      default: "'none'",
+      description: {
+        ko: '타일의 title과 description이 어디에 갈지. hover는 포인터와 함께 오는 overlay입니다',
+        en: "Where a tile's title and description go. hover is overlay that arrives with the pointer"
+      }
+    },
+    {
+      name: 'hover',
+      type: "'none' | 'lift' | 'dim' | 'zoom'",
+      default: "'lift'",
+      description: {
+        ko: '포인터 아래에서 타일이 하는 일. zoom은 그대로 있는 프레임 안에서 사진만 움직입니다',
+        en: 'What a tile does under the pointer. zoom moves the photograph inside a frame that stays put'
+      }
+    },
+    {
+      name: 'preview',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '타일을 누르면 사진을 원본 크기로 엽니다. viewer는 필요할 때만 받아 옵니다',
+        en: 'Opens the picture full size when a tile is chosen. The viewer is fetched on demand'
+      }
+    },
+    {
+      name: 'onItemSelect',
+      type: '(item: PlGalleryItem, index: number) => void',
+      description: {
+        ko: '타일을 골랐을 때. viewer가 있든 없든',
+        en: 'Called when a tile is chosen, whether or not there is a viewer'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      default: "'Gallery'",
+      description: { ko: '목록의 접근성 이름', en: "The list's accessible name" }
+    },
+    {
+      name: 'itemLabel',
+      type: '(index: number, total: number) => string',
+      default: '(i, n) => `${i} of ${n}`',
+      description: {
+        ko: '타일과 viewer의 카운터가 세트 안의 위치를 말하는 방식',
+        en: 'How a tile and the viewer counter say where in the set they are'
+      }
+    },
+    {
+      name: 'empty',
+      type: 'ReactNode',
+      description: {
+        ko: 'items가 비었을 때 그릴 것. 기본은 아무것도 그리지 않습니다',
+        en: 'What is drawn when items is empty. Nothing at all by default'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: { ko: '타입 스케일과 모서리 반경', en: 'Type scale and radius' }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: '의미론적 색 역할. focus ring과 placeholder에 닿습니다',
+        en: 'Semantic colour role. It reaches the focus ring and the placeholders'
+      }
+    }
+  ],
+  PlGalleryItem: [
+    {
+      name: 'src',
+      type: 'string',
+      required: true,
+      description: { ko: '사진의 주소', en: 'Where the picture is' }
+    },
+    {
+      name: 'alt',
+      type: 'string',
+      required: true,
+      description: {
+        ko: '사진이 말하는 것. PlImage가 요구하는 이유와 같습니다',
+        en: 'What the picture says. Required, for the reason PlImage requires it'
+      }
+    },
+    {
+      name: 'id',
+      type: 'string',
+      description: {
+        ko: '안정적인 식별자. 기본은 src입니다',
+        en: 'A stable identity. Defaults to src'
+      }
+    },
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description: { ko: '캡션의 첫 줄', en: 'The first line of the caption' }
+    },
+    {
+      name: 'description',
+      type: 'ReactNode',
+      description: {
+        ko: '두 번째 줄. 한 단 작고 muted입니다',
+        en: 'The second, one step down the scale and muted'
+      }
+    },
+    {
+      name: 'full',
+      type: 'string',
+      description: {
+        ko: 'viewer가 쓸 더 큰 파일. 없으면 src로 떨어집니다',
+        en: 'A larger file for the viewer. Falls back to src'
+      }
+    },
+    {
+      name: 'ratio',
+      type: 'number | string',
+      description: {
+        ko: '사진 자신의 비율. masonry와 justified가 이것으로, 아무것도 불러오기 전에 배치됩니다',
+        en: "The picture's own proportion. masonry and justified are laid out from it, before anything has loaded"
+      }
+    },
+    {
+      name: 'cols',
+      type: 'number',
+      default: '1',
+      description: {
+        ko: 'quilted에서 차지하는 열 수',
+        en: 'How many columns the tile takes in quilted'
+      }
+    },
+    {
+      name: 'rows',
+      type: 'number',
+      default: '1',
+      description: {
+        ko: 'quilted에서 차지하는 행 수',
+        en: 'How many rows the tile takes in quilted'
+      }
+    }
+  ],
   PlCodeBlock: [
     {
       name: 'code',

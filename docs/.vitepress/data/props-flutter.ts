@@ -1539,6 +1539,55 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }),
     from('PlTreeNode', 'disabled', { type: 'bool', default: 'false' })
   ],
+  PlGallery: [
+    from('PlGallery', 'items', { type: 'List<PlGalleryItem>', required: true }),
+    from('PlGallery', 'layout', { type: 'PlGalleryLayout', default: 'PlGalleryLayout.grid' }),
+    from('PlGallery', 'columns', {
+      type: 'PlassResponsive<int>',
+      default: 'PlassResponsive(2, sm: 3, lg: 4)'
+    }),
+    from('PlGallery', 'gap', { type: 'double?', default: "the size ladder's step" }),
+    from('PlGallery', 'ratio', { type: 'double', default: '1' }),
+    from('PlGallery', 'rowHeight', { type: 'double', default: '220' }),
+    from('PlGallery', 'rounded', { type: 'bool', default: 'true' }),
+    from('PlGallery', 'caption', {
+      type: 'PlGalleryCaption',
+      default: 'PlGalleryCaption.none'
+    }),
+    from('PlGallery', 'hover', { type: 'PlGalleryHover', default: 'PlGalleryHover.lift' }),
+    from('PlGallery', 'preview', { type: 'bool', default: 'false' }),
+    from('PlGallery', 'onItemSelect', {
+      name: 'onItemSelected',
+      type: 'void Function(PlGalleryItem, int)?'
+    }),
+    from('PlGallery', 'label', { name: 'semanticLabel', type: 'String?', default: "'Gallery'" }),
+    from('PlGallery', 'itemLabel', { type: 'String Function(int, int)?' }),
+    from('PlGallery', 'empty', { type: 'Widget?' }),
+    from('PlGallery', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlGallery', 'color', { type: COLOR, default: 'PlassColor.primary' })
+  ],
+  PlGalleryItem: [
+    from('PlGalleryItem', 'src', {
+      name: 'image',
+      type: 'ImageProvider<Object>',
+      required: true,
+      description: { ko: '사진', en: 'The picture' }
+    }),
+    from('PlGalleryItem', 'alt', { name: 'semanticLabel', type: 'String', required: true }),
+    from('PlGalleryItem', 'id', {
+      type: 'String?',
+      description: {
+        ko: '안정적인 식별자. 기본은 image provider 자신입니다',
+        en: 'A stable identity. Defaults to the image provider itself'
+      }
+    }),
+    from('PlGalleryItem', 'title', { type: 'String?' }),
+    from('PlGalleryItem', 'description', { type: 'String?' }),
+    from('PlGalleryItem', 'full', { type: 'ImageProvider<Object>?' }),
+    from('PlGalleryItem', 'ratio', { type: 'double?' }),
+    from('PlGalleryItem', 'cols', { type: 'int', default: '1' }),
+    from('PlGalleryItem', 'rows', { type: 'int', default: '1' })
+  ],
   PlCodeBlock: [
     from('PlCodeBlock', 'code', { type: 'String', required: true }),
     {

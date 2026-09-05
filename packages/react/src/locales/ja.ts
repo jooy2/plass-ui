@@ -30,6 +30,7 @@ export const ja: PlassLabels = {
   carouselNext: '次のスライド',
   commandPalette: 'コマンドパレット',
   commandPalettePlaceholder: 'コマンドを検索',
+  gallery: 'ギャラリー',
   overlay: 'オーバーレイ',
   pagination: 'ページ送り',
   paginationPrevious: '前のページ',

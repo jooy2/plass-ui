@@ -31,6 +31,7 @@ const PlassLabels ko = PlassLabels(
   carouselNext: '다음 슬라이드',
   commandPalette: '명령 팔레트',
   commandPalettePlaceholder: '명령 검색',
+  gallery: '갤러리',
   overlay: '오버레이',
   pagination: '페이지 이동',
   paginationPrevious: '이전 페이지',

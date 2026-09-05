@@ -87,6 +87,8 @@ export interface PlassLabels {
   carousel: string;
   carouselPrevious: string;
   carouselNext: string;
+  /** The wall of pictures' own landmark. */
+  gallery: string;
   /** The palette's landmark and the placeholder in its field. */
   commandPalette: string;
   commandPalettePlaceholder: string;
@@ -200,6 +202,7 @@ export const defaultLabels: PlassLabels = {
   carouselNext: 'Next slide',
   commandPalette: 'Command palette',
   commandPalettePlaceholder: 'Search commands',
+  gallery: 'Gallery',
   overlay: 'Overlay',
   pagination: 'Pagination',
   paginationPrevious: 'Previous page',

@@ -51,6 +51,7 @@ List<String> words(PlassLabels labels) => <String>[
   labels.carouselNext,
   labels.commandPalette,
   labels.commandPalettePlaceholder,
+  labels.gallery,
   labels.overlay,
   labels.pagination,
   labels.paginationPrevious,

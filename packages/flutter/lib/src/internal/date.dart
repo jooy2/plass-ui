@@ -289,6 +289,7 @@ class PlassLabels {
     this.carouselNext = 'Next slide',
     this.commandPalette = 'Command palette',
     this.commandPalettePlaceholder = 'Search commands',
+    this.gallery = 'Gallery',
     this.overlay = 'Overlay',
     this.pagination = 'Pagination',
     this.paginationPrevious = 'Previous page',
@@ -370,6 +371,7 @@ class PlassLabels {
     String? carouselNext,
     String? commandPalette,
     String? commandPalettePlaceholder,
+    String? gallery,
     String? overlay,
     String? pagination,
     String? paginationPrevious,
@@ -443,6 +445,7 @@ class PlassLabels {
       carouselNext: carouselNext ?? this.carouselNext,
       commandPalette: commandPalette ?? this.commandPalette,
       commandPalettePlaceholder: commandPalettePlaceholder ?? this.commandPalettePlaceholder,
+      gallery: gallery ?? this.gallery,
       overlay: overlay ?? this.overlay,
       pagination: pagination ?? this.pagination,
       paginationPrevious: paginationPrevious ?? this.paginationPrevious,
@@ -575,6 +578,9 @@ class PlassLabels {
 
   /// The placeholder in its field.
   final String commandPalettePlaceholder;
+
+  /// The wall of pictures' own landmark.
+  final String gallery;
 
   /// What a sheet over the whole screen is called when it has no name.
   final String overlay;

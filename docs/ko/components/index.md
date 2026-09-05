@@ -14,7 +14,7 @@ aside: false
 
 :::
 
-<Demo src="gallery/all" plain :flutter="false" :min-height="220" />
+<Demo src="component-index/all" plain :flutter="false" :min-height="220" />
 
 ## 다음
 

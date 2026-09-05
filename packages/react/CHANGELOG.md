@@ -10,6 +10,22 @@
 
 ### Added
 
+- **`PlGallery`.** A set of pictures, arranged — four layouts, captions, a pointer treatment and an optional lightbox, with everything but the arrangement identical across all four.
+
+  `grid` is a contact sheet: every tile the gallery's own ratio, whatever shape the file is. `masonry` keeps each picture's proportion and stacks the columns. `justified` keeps the proportions **and** fills every row to the edge — the only arrangement where nothing is cropped and no space is left over. `quilted` is a grid whose tiles span more than one cell, packed densely so a tile too wide for the space left drops to the next row that fits it and a later, narrower one fills the hole.
+
+  **Nothing is measured.** Every layout runs off the item's own `ratio`, so a wall of forty photographs is right in the frame the browser first paints and never reflows as the files arrive — the bargain `PlImage`'s `ratio` makes, one level up.
+
+  A masonry **deals across before it deals down**. CSS `columns` fills the first column top to bottom before it starts the second, so a set numbered 1 to 12 reads down the left edge and the first three pictures a reader meets are stacked on top of each other. The dealing is in `internal/gallery.ts` because the Dart build needs the same answers: a masonry with two orders is a masonry whose order means nothing.
+
+  `caption` is `below`, `overlay` or `hover`, and a tile with no words draws none whatever it says — a row with one caption and three gaps is worse than a row with none. `hover` is `lift`, `dim` or `zoom`, and `zoom` is the design language's named exception to the no-transform rule: what moves is a photograph inside a frame that stays exactly where it was, with no text on it to resample.
+
+  `preview` opens a lightbox with the rest of the set an arrow key away, behind a `React.lazy` so a wall of thumbnails costs nothing for a viewer nobody opened. It is deliberately not a `PlCarousel` — no autoplay, no wrap, and the arrows stop at the ends rather than looping back to a photograph the reader has already seen.
+
+  A tile is a button only when pressing it does something, and its name is the picture's own words plus where it sits — "A harbour — 1 of 6". `itemLabel` is how that sentence is written in another language, and it is a callback rather than a string with slots because the word order differs. One new label, `gallery`, in all seven packs.
+
+  Measured with `npm run size`: **+4.0 kB on the whole library**. The four narrower scenarios moved too, by 0.2 to 1.9 kB, and none of them contains a line of gallery code — checked against esbuild's own metafile. A second lazily-loaded module changes how the bundler splits the chunk the entry pulls in, which is also why `scripts/size.mjs` changed in this commit: it now builds with splitting on and counts the entry chunk plus every chunk statically reachable from it, rather than inlining every `import()` whether or not the module that made it survived tree-shaking.
+
 - **`PlCodeBlock`.** A viewer for one line of code or a thousand — a bar over it, numbers down the side, a prompt in front of every line, and twelve palettes to read it in.
 
   Everything it draws above the code is optional and off one prop each, because the same component has to be a snippet inside a sentence — no bar, no numbers, no chrome — and the full transcript at the top of a README.

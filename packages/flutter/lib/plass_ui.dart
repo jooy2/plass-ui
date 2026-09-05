@@ -79,6 +79,7 @@ export 'src/components/floating_action_button/pl_floating_action_button.dart';
 export 'src/components/floating_bottom_navigation/pl_floating_bottom_navigation.dart';
 export 'src/components/footer/pl_footer.dart';
 export 'src/components/form/pl_form.dart';
+export 'src/components/gallery/pl_gallery.dart';
 export 'src/components/grid/pl_grid.dart';
 export 'src/components/header/pl_header.dart';
 export 'src/components/highlight/pl_highlight.dart';

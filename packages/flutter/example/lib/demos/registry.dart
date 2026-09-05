@@ -237,6 +237,10 @@ import 'package:plass_ui_example/demos/file_picker/single.dart';
 import 'package:plass_ui_example/demos/file_picker/sizes.dart';
 import 'package:plass_ui_example/demos/file_picker/states.dart';
 import 'package:plass_ui_example/demos/file_picker/variants.dart';
+import 'package:plass_ui_example/demos/gallery/captions.dart';
+import 'package:plass_ui_example/demos/gallery/hero.dart';
+import 'package:plass_ui_example/demos/gallery/layouts.dart';
+import 'package:plass_ui_example/demos/gallery/quilted.dart';
 import 'package:plass_ui_example/demos/grid/alignment.dart';
 import 'package:plass_ui_example/demos/grid/hero.dart';
 import 'package:plass_ui_example/demos/grid/offset.dart';
@@ -684,6 +688,10 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'panes/constraints': _panesConstraints,
   'panes/fixed': _panesFixed,
   'panes/sizes': _panesSizes,
+  'gallery/captions': _galleryCaptions,
+  'gallery/hero': _galleryHero,
+  'gallery/layouts': _galleryLayouts,
+  'gallery/quilted': _galleryQuilted,
   'grid/hero': _gridHero,
   'grid/span': _gridSpan,
   'grid/responsive': _gridResponsive,
@@ -1035,6 +1043,14 @@ Widget _codeBlockLines(BuildContext context) => const CodeBlockLines();
 Widget _codeBlockTerminal(BuildContext context) => const CodeBlockTerminal();
 
 Widget _codeBlockThemes(BuildContext context) => const CodeBlockThemes();
+
+Widget _galleryCaptions(BuildContext context) => const GalleryCaptions();
+
+Widget _galleryHero(BuildContext context) => const GalleryHero();
+
+Widget _galleryLayouts(BuildContext context) => const GalleryLayouts();
+
+Widget _galleryQuilted(BuildContext context) => const GalleryQuilted();
 
 Widget _treeSelectBranches(BuildContext context) => const TreeSelectBranches();
 

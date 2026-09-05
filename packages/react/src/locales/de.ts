@@ -30,6 +30,7 @@ export const de: PlassLabels = {
   carouselNext: 'Nächstes Bild',
   commandPalette: 'Befehlspalette',
   commandPalettePlaceholder: 'Befehle durchsuchen',
+  gallery: 'Galerie',
   overlay: 'Overlay',
   pagination: 'Seitennavigation',
   paginationPrevious: 'Vorherige Seite',

@@ -41,6 +41,7 @@ import {
   PlCheckbox,
   PlChip,
   PlCodeBlock,
+  PlGallery,
   PlCollapsible,
   PlConfirmProvider,
   PlColorPicker,
@@ -1080,6 +1081,31 @@ const entries: Entry[] = [
             ]
           },
           { id: 'readme', label: 'README.md' }
+        ]}
+      />
+    )
+  },
+  {
+    name: 'PlGallery',
+    group: 'display',
+    href: 'components/display/gallery',
+    blurb: {
+      en: 'A set of pictures, arranged.',
+      ko: '배치된 사진 묶음입니다.'
+    },
+    preview: (
+      <PlGallery
+        size="xs"
+        className="w-full"
+        gap="xs"
+        columns={3}
+        items={[
+          { src: '/gallery-1.svg', alt: 'A harbour' },
+          { src: '/gallery-2.svg', alt: 'A bridge' },
+          { src: '/gallery-3.svg', alt: 'A hillside' },
+          { src: '/gallery-4.svg', alt: 'A market' },
+          { src: '/gallery-5.svg', alt: 'Dunes' },
+          { src: '/gallery-6.svg', alt: 'A terrace' }
         ]}
       />
     )

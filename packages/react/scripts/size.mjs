@@ -19,12 +19,20 @@
  *   what is safe to drop — esbuild is stricter about a call it cannot prove
  *   pure — and a consumer runs one or the other. The budget tracks the worse
  *   of the two.
- * - **Only the entry chunk counts.** The bundle is built with code splitting
- *   on, and what is measured is the chunk the page loads to render — not the
- *   ones a `import()` fetches later, and possibly never. `PlCodeBlock` is why
- *   this matters: its thirty-five grammars are half a megabyte of highlight.js
- *   reached one language at a time, and inlining all of them into one file
- *   would report a cost no page has ever paid.
+ * - **Only what the first paint loads counts.** The bundle is built with code
+ *   splitting on, and what is measured is the entry chunk plus every chunk it
+ *   reaches through a static `import` — never one that is only ever behind an
+ *   `import()`.
+ *
+ *   Both halves of that matter, and each was learned the hard way. Without
+ *   splitting, esbuild inlines every `import()` it can resolve *even out of a
+ *   module tree-shaking has already dropped* — so `PlGallery`'s lazy viewer
+ *   landed in a bundle that imports nothing but `PlButton`, and `PlCodeBlock`'s
+ *   thirty-five grammars landed in all of them, half a megabyte nobody has ever
+ *   downloaded in one go. And the entry chunk alone is not enough either: as
+ *   soon as a second dynamic import exists, esbuild moves the code the two
+ *   halves share into a chunk of its own and the entry becomes a stub — the
+ *   whole library briefly measured 0.1 kB.
  *
  * Run `npm run size` to print the table, `npm run size -- --update` to write
  * the current numbers back into the budget after a change that is meant to move
@@ -33,7 +41,7 @@
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, resolve } from 'node:path';
+import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
 import * as esbuild from 'esbuild';
@@ -122,6 +130,7 @@ async function bundle(imports) {
       treeShaking: true,
       splitting: true,
       outdir: resolve(dir, 'out'),
+      metafile: true,
       write: false,
       logLevel: 'silent',
       external: EXTERNAL,
@@ -129,11 +138,40 @@ async function bundle(imports) {
       define: { 'process.env.NODE_ENV': '"production"' }
     });
 
-    // The entry chunk, and not the ones behind an `import()`. Splitting names
-    // it after the entry point; everything else is a hashed chunk.
-    const entryChunk = result.outputFiles.find((output) => output.path.endsWith('entry.js'));
+    // Everything the first paint pulls in: the entry chunk and every chunk it
+    // reaches through a static `import`. A chunk only ever reached by an
+    // `import()` is left out — it is a fetch a page may never make, and often
+    // one only a dead branch of the barrel put there at all.
+    const outputs = result.metafile.outputs;
+    const entryChunk = Object.keys(outputs).find((path) => path.endsWith('entry.js'));
+    const eager = new Set();
+    const queue = [entryChunk];
 
-    return gzip(entryChunk.text);
+    while (queue.length > 0) {
+      const at = queue.pop();
+
+      if (at === undefined || eager.has(at)) {
+        continue;
+      }
+
+      eager.add(at);
+
+      for (const edge of outputs[at]?.imports ?? []) {
+        if (edge.kind === 'import-statement' && outputs[edge.path]) {
+          queue.push(edge.path);
+        }
+      }
+    }
+
+    // One gzip over the concatenation rather than a sum of gzips: a page fetches
+    // them over one connection, and compressing them apart would count every
+    // chunk's dictionary again.
+    const loaded = result.outputFiles
+      .filter((output) => eager.has(relative(process.cwd(), output.path)))
+      .map((output) => output.text)
+      .join('\n');
+
+    return gzip(loaded);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

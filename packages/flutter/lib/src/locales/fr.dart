@@ -31,6 +31,7 @@ const PlassLabels fr = PlassLabels(
   carouselNext: 'Diapositive suivante',
   commandPalette: 'Palette de commandes',
   commandPalettePlaceholder: 'Rechercher une commande',
+  gallery: 'Galerie',
   overlay: 'Voile',
   pagination: 'Pagination',
   paginationPrevious: 'Page précédente',

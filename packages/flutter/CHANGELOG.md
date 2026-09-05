@@ -4,6 +4,18 @@
 
 ### Added
 
+- **`PlGallery`.** A set of pictures, arranged — four layouts, captions, a pointer treatment and an optional viewer, with everything but the arrangement identical across all four.
+
+  `grid` is a contact sheet, `masonry` keeps each picture's proportion and stacks the columns, `justified` keeps the proportions **and** fills every row to the edge, and `quilted` is a grid whose tiles span more than one cell, packed densely so a tile too wide for the space left drops to the next row that fits it and a later, narrower one fills the hole.
+
+  A masonry **deals across before it deals down**, and the dealing is `internal/gallery.dart`'s — the same arithmetic the React build runs, because a masonry with two orders is a masonry whose order means nothing.
+
+  **Two of the layouts measure and the React build's do not.** CSS does a justified row with `flex-grow` and a quilt with `grid-auto-flow: dense`; there is no such thing here, so both pack themselves inside a `LayoutBuilder` — `justifyRows` and `quiltCells`, which have no React counterpart and are not an oversight. The arrangement is the same; what differs is who computed it. A justified layout's **last row is left at its natural height** rather than stretched, because one landscape photograph scaled to fill a row is one enormous picture under a wall of small ones.
+
+  `preview` opens a viewer with the rest of the set an arrow key away — bound on the sheet rather than on its buttons, since the focus is wherever the reader last put it. It is deliberately not a `PlCarousel`: no autoplay, no wrap, and the arrows stop at the ends.
+
+  A tile is a `Semantics` button only when pressing it does something, and its name is the picture's own words plus where it sits. One new label, `gallery`, in all seven packs.
+
 - **`PlCodeBlock`.** A viewer for one line of code or a thousand — a bar over it, numbers down the side, a prompt in front of every line, and twelve palettes to read it in.
 
   Everything it draws above the code is optional and off one parameter each, because the same widget has to be a snippet inside a sentence — no bar, no numbers, no chrome — and the full transcript at the top of a README.

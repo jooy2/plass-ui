@@ -31,6 +31,7 @@ const PlassLabels zhHans = PlassLabels(
   carouselNext: '下一张',
   commandPalette: '命令面板',
   commandPalettePlaceholder: '搜索命令',
+  gallery: '图库',
   overlay: '遮罩',
   pagination: '分页',
   paginationPrevious: '上一页',

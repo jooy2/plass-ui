@@ -1031,6 +1031,10 @@
   --p-cols: var(--p-cols-xs, 12);
 }
 
+.plass-gallery {
+  --p-cols: var(--p-cols-xs, 2);
+}
+
 /*
  * `PlFlex`'s axis. One slot rather than two, because `reverse` is not
  * responsive and the direction is: the component folds the two into the four
@@ -1091,6 +1095,10 @@
     --p-cols: var(--p-cols-sm, var(--p-cols-xs, 12));
   }
 
+  .plass-gallery {
+    --p-cols: var(--p-cols-sm, var(--p-cols-xs, 2));
+  }
+
   .plass-flex {
     --p-dir: var(--p-dir-sm, var(--p-dir-xs, row));
   }
@@ -1116,6 +1124,10 @@
     --p-cols: var(--p-cols-md, var(--p-cols-sm, var(--p-cols-xs, 12)));
   }
 
+  .plass-gallery {
+    --p-cols: var(--p-cols-md, var(--p-cols-sm, var(--p-cols-xs, 2)));
+  }
+
   .plass-flex {
     --p-dir: var(--p-dir-md, var(--p-dir-sm, var(--p-dir-xs, row)));
   }
@@ -1139,6 +1151,10 @@
 
   .plass-grid {
     --p-cols: var(--p-cols-lg, var(--p-cols-md, var(--p-cols-sm, var(--p-cols-xs, 12))));
+  }
+
+  .plass-gallery {
+    --p-cols: var(--p-cols-lg, var(--p-cols-md, var(--p-cols-sm, var(--p-cols-xs, 2))));
   }
 
   .plass-flex {
@@ -1178,6 +1194,13 @@
     --p-cols: var(
       --p-cols-xl,
       var(--p-cols-lg, var(--p-cols-md, var(--p-cols-sm, var(--p-cols-xs, 12))))
+    );
+  }
+
+  .plass-gallery {
+    --p-cols: var(
+      --p-cols-xl,
+      var(--p-cols-lg, var(--p-cols-md, var(--p-cols-sm, var(--p-cols-xs, 2))))
     );
   }
 
@@ -2116,6 +2139,26 @@
 
 .plass-code .hljs-strong {
   font-weight: 700;
+}
+
+/* ---------------------------------------------------------------------------
+ * The gallery
+ *
+ * `PlGallery` rides the same `--p-cols` chain `PlGrid` does, one block above,
+ * with a default of two rather than twelve: a wall of photographs is counted in
+ * tiles across and a layout grid is counted in tracks, and two is the narrowest
+ * arrangement that still reads as a set.
+ *
+ * The three lines below are what the slot is *for*. A grid and a quilt lay out
+ * in CSS Grid off `--p-cols`; a masonry deals its items into that many lanes in
+ * JavaScript, because which lane an item lands in changes the DOM and no
+ * stylesheet can do that; and a justified row is flexbox, which needs no count
+ * at all — it fills to the edge with whatever fits.
+ * ------------------------------------------------------------------------- */
+
+.plass-gallery-grid,
+.plass-gallery-quilted {
+  grid-template-columns: repeat(var(--p-cols, 2), minmax(0, 1fr));
 }
 
 /* ---------------------------------------------------------------------------
