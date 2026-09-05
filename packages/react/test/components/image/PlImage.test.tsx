@@ -2,6 +2,14 @@
  * The pictures here are `data:` URLs, so nothing in this file depends on a
  * network or on a file on disk — a one-pixel PNG that always loads, and a
  * string that is not an image and therefore always fails.
+ *
+ * Neither of them can be used to hold the component at `loading`. Both settle,
+ * and how soon is the browser's business: a failing `data:` URL fires `error`
+ * within a task, so on a loaded CI machine the fallback is already up by the
+ * time the assertion runs and on a quiet laptop it is not. The three tests that
+ * are about the loading state therefore give **no `src` at all**, which is the
+ * one picture that genuinely never settles — an `<img>` with no `src` is never
+ * fetched, so neither `load` nor `error` ever fires.
  */
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
@@ -66,21 +74,28 @@ describe('PlImage', () => {
 
   describe('while it is loading', () => {
     it('draws a placeholder', async () => {
-      await render(<PlImage src={BROKEN} alt="A portrait" placeholder={<span>Loading…</span>} />);
+      await render(<PlImage alt="A portrait" placeholder={<span>Loading…</span>} />);
 
-      // Asserted with a `src` that never loads, so the placeholder is still up
-      // when the assertion runs whichever browser this is.
       expect(document.body.textContent).toContain('Loading…');
     });
 
-    it('draws none when it is told not to', async () => {
-      await render(<PlImage src={BROKEN} alt="A portrait" placeholder={null} />);
+    it('draws the skeleton when it is given no placeholder of its own', async () => {
+      await render(<PlImage alt="A portrait" />);
 
-      expect(document.querySelector('[aria-busy="true"]')).toBeNull();
+      // The default, and the thing `placeholder={null}` turns off below. The
+      // skeleton is unlabelled scenery, so it is `aria-hidden` and has no role
+      // to ask for — its own sweep class is what says it is there.
+      expect(document.querySelector('.plass-skeleton')).not.toBeNull();
+    });
+
+    it('draws none when it is told not to', async () => {
+      await render(<PlImage alt="A portrait" placeholder={null} />);
+
+      expect(document.querySelector('.plass-skeleton')).toBeNull();
     });
 
     it('keeps the img in the document', async () => {
-      await render(<PlImage src={BROKEN} alt="A portrait" />);
+      await render(<PlImage alt="A portrait" />);
 
       // An `<img>` that is not in the document never loads, so a placeholder
       // that unmounted it would be a picture that never arrives.
