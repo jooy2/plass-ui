@@ -6,6 +6,12 @@
 
 ### Fixed
 
+- **The chart frame carried nine slot names this package does not declare.** Ported from the library the frame came from, renamed to the `--plass-` prefix, and never checked against anything: `--plass-grain`, `--plass-sheen`, `--plass-panel-press`, `--plass-plate-glass` and `--plass-disabled-fg` have no Plass equivalent under those names, and `--plass-chart-gap` was simply never written down. Nothing failed. An unresolvable `var()` computes to `none` in a `stroke` and to nothing at all in a shorthand, so what shipped was a **tooltip panel with no glass, no shadow and a `currentColor` border**, a legend whose switched-off entries were the same ink as the rest, and a line chart whose markers had no ring cut out of them.
+
+  The panel is now the sheet a `PlSelect`'s popup is, which is what it should always have been — a floating readout and a floating list are the same material. A switched-off legend entry is the muted ink with a line through it and its swatch keeps its own colour at 40%, which is what the Flutter build already drew. `--plass-chart-gap` is declared as the surface, and `PlassToken` names it.
+
+  **Two checks were added so this cannot ship again.** `test/package/tokens.test.ts` now asserts that every `--plass-*` a source file reads is declared in `styles.css` — the two checks already there compared the type against the stylesheet, so a token appearing in neither, which is exactly this case, agreed with itself. And `test/styles/standalone.test.tsx`, the one file in the suite that loads real CSS, now renders a chart and asserts that no `fill` or `stroke` on it computes to `none`. That catches the other half: a token that _is_ declared but resolves to nothing because its declaration sits under a selector no chart matches. Neither test asserts a shade.
+
 - **The chart frame's focus ring and legend hover were unstyled.** Three of the ported frame's colour slots kept the names they had in the library they came from — `--n-soft`, `--n-ring` and `--n-line` — and nothing in this package declares any of them. A `var()` that cannot be resolved takes an `outline` shorthand down with it, so **the focus ring on a chart's plot and on every legend button was simply absent**: the plot is a tab stop, and a tab stop a keyboard reader cannot see is the accessibility failure the ring exists to prevent. The legend's hover tint was gone with it, and the tooltip panel's hairline fell back to `currentColor`, which drew the border in ink. All three now read the slots a `PlBox` actually sets — `--p-soft`, `--p-ring` and the glass hairline.
 
 - **A chart ignored the `size` and `locale` a `PlassProvider` set.** `CartesianChart` took both as plain props with hard-coded fallbacks, so a provider that put the whole page on `sm` left every chart at `md`, and one that named a locale still got the reader's own number formatting on the axis. It resolves both from the defaults now. `density` deliberately does not go through it: the box resolves that one itself, and the single chart that needs it for arithmetic reads it directly.
@@ -17,6 +23,16 @@
   The three are declared now, derived rather than picked so a project that re-tones its border moves the grid with it: the grid is the border at 70%, the axis is the border, and the baseline — which is where a bar starts from and where zero is, a fact about the data rather than furniture — is the muted foreground at 35%. `PlassToken` names them, which is what the package test that caught the omission checks.
 
 ### Added
+
+- **`PlScatterChart`.** Two numbers per point, and whether they move together.
+
+  Both axes measure, which makes this the only chart in the library with no categories: there is no column a mark belongs to and no order the points could be shuffled out of. A point with a `z` is drawn as a bubble and one without it as a dot, so a scatter and a bubble chart are the same component reading the same data.
+
+  A `z` is an **area** and not a radius. Encoded as a radius, a value twice as large draws a mark four times the size; the square root keeps the ink proportional to the number. One scale covers the whole chart and is taken over every series including the hidden ones, so switching a legend entry off does not resize the rest. Bubbles paint largest first, because a small one inside a big one is otherwise invisible and the usual fix — half alpha everywhere — would undo the contrast the palette was solved for.
+
+  `shape="auto"` draws circles while colour alone can carry identity and switches to a shape per series from the fourth on. **That threshold is measured against this library's own palette, not inherited**: taking the first three slots, the closest pair under deuteranopia is ΔE 64 on the light sheet and 51 on the dark one; add the fourth and those fall to 4.9 and 2.8. A series carrying its own `color` does not count against it.
+
+  The table under the chart is a row per point rather than the usual grid — two points that are both the fifth of their series have nothing to do with each other, and a shared row would invent a relationship. Its columns take the axis labels, falling back to `x`, `y` and `z`.
 
 - **`PlPieChart`.** Parts of a whole, at a glance.
 

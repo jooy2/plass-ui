@@ -254,6 +254,87 @@ class ChartExtent {
   final double max;
 }
 
+/// A category as a number, or `null` when it is not one.
+///
+/// A `Date` is its milliseconds and a number is itself; text has no place on a
+/// number line and folds to `null` rather than to zero, which would put every
+/// named thing on top of each other at the origin.
+double? categoryNumber(PlassChartCategory? value) {
+  if (value == null) {
+    return null;
+  }
+
+  if (value.date != null) {
+    return value.date!.millisecondsSinceEpoch.toDouble();
+  }
+
+  return finiteOrNull(value.number);
+}
+
+/// Where one point sits along a category axis that runs on numbers.
+///
+/// The same three sources [categoryAt] reads, in the same order — but per
+/// *point* rather than per column, because on a scatter each series has its own
+/// x at every index and there is no column for them to share.
+double? pointX(ChartValue value, int index, List<PlassChartCategory>? categories) {
+  final PlassChartCategory own =
+      value.x ??
+      (categories != null && index < categories.length
+          ? categories[index]
+          : PlassChartCategory.number(index.toDouble()));
+
+  return categoryNumber(own);
+}
+
+/// The extent of the category values, for a chart whose x is a number.
+///
+/// Only points that have a `y` count. A point with no value is not on the plot,
+/// so letting its `x` stretch the axis would leave a margin of empty plot
+/// standing in for data that was never drawn.
+ChartExtent? categoryExtent(List<List<ChartValue>> values, List<PlassChartCategory>? categories) {
+  double min = double.infinity;
+  double max = double.negativeInfinity;
+  bool seen = false;
+
+  for (final List<ChartValue> one in values) {
+    for (int i = 0; i < one.length; i += 1) {
+      if (one[i].value == null) {
+        continue;
+      }
+
+      final double? x = pointX(one[i], i, categories);
+
+      if (x == null) {
+        continue;
+      }
+
+      seen = true;
+      min = math.min(min, x);
+      max = math.max(max, x);
+    }
+  }
+
+  return seen ? ChartExtent(min, max) : null;
+}
+
+/// The radius a bubble gets for its `z`, in pixels.
+///
+/// `z` is an **area** and not a radius, which is the single most common way a
+/// bubble chart lies: encode it as a radius and a value twice as large draws a
+/// mark four times the size. The square root is what makes the ink on the page
+/// proportional to the number behind it.
+///
+/// [min] is a floor rather than a scale — a bubble for a small-but-real value
+/// has to stay something a pointer can find, and a zero is the only thing
+/// allowed to disappear.
+double bubbleRadius(double z, double maxZ, double max, double min) {
+  if (!(maxZ > 0) || z.isNaN || z.isInfinite || z <= 0) {
+    return z == 0 ? 0 : min;
+  }
+
+  return math.max(min, math.sqrt(math.min(z, maxZ) / maxZ) * max);
+}
+
 /// The extent of the values, with the stacking rule applied.
 ///
 /// Stacked charts measure the *totals* and not the parts, and the two arms are

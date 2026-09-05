@@ -1,5 +1,6 @@
 /**
- * That `PlassToken` still names every token `styles.css` declares.
+ * That `PlassToken`, `styles.css` and the components all agree about which
+ * tokens exist.
  *
  * Like `use-client.test.ts`, this is a test of the *package* rather than of a
  * component, and it exists because nothing else notices. The type is the
@@ -9,13 +10,52 @@
  * with no token behind it is a name that compiles and paints nothing. Neither
  * breaks a build, a test or the docs.
  *
- * It reads both files as text on purpose. A union type has no runtime value to
+ * It reads the files as text on purpose. A union type has no runtime value to
  * assert against, so the alternative would be a second list in JavaScript — and
  * a third copy of a list is exactly what this is here to prevent.
+ *
+ * The third check is the one that has actually caught something. A component
+ * that reads a token nobody declared is not an error anywhere: an unresolvable
+ * `var()` in a `stroke` computes to `none` and in a `fill` to black, so the
+ * mark is simply missing or wrong and every build stays green. Two shipped that
+ * way — the chart frame's three greys, and the sheet a marker's ring is cut
+ * out of — before this was written down.
  */
 import { describe, expect, it } from 'vitest';
 import styles from '../../src/styles.css?raw';
 import types from '../../src/types.ts?raw';
+
+/**
+ * Every source file the package ships, as text.
+ *
+ * Through Vite's glob rather than `node:fs`, because these run in a real
+ * browser and there is no file system in one.
+ */
+const sources: Record<string, string> = {
+  ...import.meta.glob('../../src/**/*.ts', { query: '?raw', import: 'default', eager: true }),
+  ...import.meta.glob('../../src/**/*.tsx', { query: '?raw', import: 'default', eager: true })
+};
+
+/**
+ * Every `--plass-*` token a component actually reads.
+ *
+ * The lookahead drops the names that are only a prefix — a ladder read as
+ * `var(--plass-shadow-${elevation})` is a whole rung of real tokens and none of
+ * them is called `--plass-shadow-`. What is left is every name written out in
+ * full, which is where a typo or a token from another library ends up.
+ */
+function readTokens(files: Record<string, string>): Set<string> {
+  const found = new Set<string>();
+
+  for (const file of Object.values(files)) {
+    for (const [, token] of file.matchAll(/var\((--plass-[a-z0-9-]+)(?![a-z0-9-]|\$)/g))
+      found.add(token);
+    // Tailwind's own shorthand for the same thing: `bg-(--plass-glass)`.
+    for (const [, token] of file.matchAll(/-\((--plass-[a-z0-9-]+)\)/g)) found.add(token);
+  }
+
+  return found;
+}
 
 /** Every `--plass-*` custom property the stylesheet declares a value for. */
 function declaredTokens(css: string): Set<string> {
@@ -85,5 +125,12 @@ describe('the token channel', () => {
 
   it('names no token the stylesheet does not declare', () => {
     expect([...named].filter((token) => !declared.has(token)).sort()).toEqual([]);
+  });
+
+  it('declares every token a component reads', () => {
+    const read = readTokens(sources);
+
+    expect(read.size).toBeGreaterThan(20);
+    expect([...read].filter((token) => !declared.has(token)).sort()).toEqual([]);
   });
 });

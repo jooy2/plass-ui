@@ -21,7 +21,7 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlButton, PlStack, PlTextField } from 'plass-ui';
+import { PlButton, PlLineChart, PlScatterChart, PlStack, PlTextField } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
 import pkg from '../../package.json';
 
@@ -305,6 +305,87 @@ describe('plass-ui/styles.css', () => {
       // The half a `className` cannot do at all: one declaration on a wrapper,
       // and everything inside it answers, because a custom property cascades.
       expect(getComputedStyle(screen.getByRole('button').element()).borderRadius).toBe('3px');
+    });
+  });
+
+  /**
+   * The one place a chart's colours are asked to resolve.
+   *
+   * A chart writes its tokens straight into `fill` and `stroke` rather than
+   * through a utility class, and an unresolvable `var()` there does not error —
+   * a `stroke` computes to `none` and the mark loses its ring, its gridline or
+   * its axis without anything failing. Two rounds of that shipped.
+   *
+   * `test/package/tokens.test.ts` catches the name that was never declared.
+   * This catches the other half: a name that *is* declared but resolves to
+   * nothing, because its declaration sits under a selector no chart matches.
+   * Neither asserts a shade — only that something arrived.
+   */
+  describe('a chart’s own colours', () => {
+    const painted = (element: Element, selector: string, property: 'fill' | 'stroke') => [
+      ...new Set(
+        [...element.querySelectorAll(selector)].map((one) => getComputedStyle(one)[property])
+      )
+    ];
+
+    it('resolves the marks, their rings and the frame it draws them in', async () => {
+      const screen = await render(
+        <PlScatterChart
+          label="Spend"
+          series={[
+            {
+              name: 'A',
+              data: [
+                { x: 1, y: 2 },
+                { x: 3, y: 5 }
+              ]
+            },
+            { name: 'B', data: [{ x: 2, y: 4 }] }
+          ]}
+        />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Spend' });
+
+      await expect.element(plot).toBeInTheDocument();
+
+      const marks = plot.element();
+
+      for (const colour of painted(marks, 'svg path[fill]', 'fill')) {
+        expect(colour).not.toBe('none');
+      }
+
+      // The ring is the sheet showing through between two overlapping dots.
+      for (const colour of painted(marks, 'svg path[fill]', 'stroke')) {
+        expect(colour).not.toBe('none');
+      }
+
+      // The grid, the axis rules and the baseline.
+      const frame = painted(marks, 'svg line', 'stroke');
+
+      expect(frame.length).toBeGreaterThan(0);
+
+      for (const colour of frame) {
+        expect(colour).not.toBe('none');
+      }
+    });
+
+    it('resolves the ring around a line chart’s markers', async () => {
+      const screen = await render(
+        <PlLineChart label="Trend" series={[{ name: 'A', data: [1, 4, 2, 6] }]} />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Trend' });
+
+      await expect.element(plot).toBeInTheDocument();
+
+      const rings = painted(plot.element(), 'svg circle', 'stroke');
+
+      expect(rings.length).toBeGreaterThan(0);
+
+      for (const colour of rings) {
+        expect(colour).not.toBe('none');
+      }
     });
   });
 });

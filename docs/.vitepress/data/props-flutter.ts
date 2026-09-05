@@ -4132,6 +4132,29 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlScatterChart: [
+    from('PlScatterChart', 'series', { type: 'List<PlassChartSeries>', required: true }),
+    from('PlScatterChart', 'categories', { type: 'List<PlassChartCategory>?' }),
+    from('PlScatterChart', 'shape', {
+      type: 'PlScatterShape',
+      default: 'PlScatterShape.auto',
+      description: {
+        ko: "점을 무엇으로 그릴지. React의 MarkShape | 'varied' | 'auto' 대신 일곱 값짜리 enum입니다",
+        en: "What each mark is drawn as. A seven-member enum where React takes MarkShape | 'varied' | 'auto'"
+      }
+    }),
+    from('PlScatterChart', 'pointRadius', { type: 'double?' }),
+    from('PlScatterChart', 'maxRadius', { type: 'double?' }),
+    from('PlScatterChart', 'xAxis', { type: 'PlChartAxis', default: 'PlChartAxis()' }),
+    from('PlScatterChart', 'yAxis', { type: 'PlChartAxis', default: 'PlChartAxis()' }),
+    from('PlScatterChart', 'legend', { type: 'PlChartLegend', default: 'PlChartLegend()' }),
+    from('PlScatterChart', 'tooltip', { type: 'PlChartTooltip', default: 'PlChartTooltip()' }),
+    from('PlScatterChart', 'height', { type: 'double?' }),
+    from('PlScatterChart', 'format', { type: 'String Function(double)?' }),
+    from('PlScatterChart', 'label', { name: 'semanticLabel', type: 'String?', default: "'Chart'" }),
+    from('PlScatterChart', 'empty', { type: 'Widget?' }),
+    from('PlScatterChart', 'size', { type: SIZE, default: 'PlassSize.md' })
+  ],
   PlSelect: [
     from('PlSelect', 'items', {
       name: 'options',

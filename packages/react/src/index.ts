@@ -95,6 +95,7 @@ export * from './components/progress-circular/index.js';
 export * from './components/progress-linear/index.js';
 export * from './components/radio-group/index.js';
 export * from './components/rating/index.js';
+export * from './components/scatter-chart/index.js';
 export * from './components/scroll-area/index.js';
 export * from './components/scroll-zone/index.js';
 export * from './components/segmented-button/index.js';

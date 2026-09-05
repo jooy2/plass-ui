@@ -4,6 +4,14 @@
 
 ### Added
 
+- **`PlScatterChart`.** Two numbers per point, and whether they move together.
+
+  Both axes measure, so this is the only chart with no categories, and a point with a `z` is a bubble rather than a dot. A `z` is an area and not a radius: encoded as a radius, twice the value draws four times the mark.
+
+  **The cartesian frame grew what a non-columnar chart needs**, which is most of this change. `PlassChartAxisScale.value` turns the category axis into a second number line — its ticks become the axis' categories, so every measurement downstream stays one code path. `PlassChartMark` and a builder replace the column hit test with a nearest-mark search, `markInset` reserves room on all four sides for marks drawn from their centre, `swatch` lets a chart put its own shape in the legend, and `markReadout` and `semanticValue` let it say what a mark is worth. `chart.dart` gains `categoryNumber`, `pointX`, `categoryExtent` and `bubbleRadius`, matching the React half function for function.
+
+  `shape` is `PlScatterShape`, a seven-member enum, where React takes `MarkShape | 'varied' | 'auto'`: Dart has no union to flatten, and the two policies and the five shapes are the same choice made once.
+
 - **`PlPieChart`.** Parts of a whole, at a glance.
 
   An angle is a poor thing to compare, so a pie answers one question — _is one of these most of it?_ — and anything finer is a `PlBarChart`. It takes one list of slices rather than a list of series, because the slices are the entities here: each takes a palette slot of its own, and its colour follows the slice rather than its size.

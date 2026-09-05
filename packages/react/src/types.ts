@@ -314,6 +314,7 @@ export type PlassToken =
   | '--plass-chart-grid'
   | '--plass-chart-axis'
   | '--plass-chart-baseline'
+  | '--plass-chart-gap'
   | '--plass-shadow-ambient'
   | '--plass-bg-from'
   | '--plass-bg-to'

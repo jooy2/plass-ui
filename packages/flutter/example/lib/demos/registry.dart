@@ -197,6 +197,9 @@ import 'package:plass_ui_example/demos/app_logo/hero.dart';
 import 'package:plass_ui_example/demos/app_logo/shapes.dart';
 import 'package:plass_ui_example/demos/hover_card/hero.dart';
 import 'package:plass_ui_example/demos/hover_card/delays.dart';
+import 'package:plass_ui_example/demos/scatter_chart/bubbles.dart';
+import 'package:plass_ui_example/demos/scatter_chart/hero.dart';
+import 'package:plass_ui_example/demos/scatter_chart/shape.dart';
 import 'package:plass_ui_example/demos/scroll_area/hero.dart';
 import 'package:plass_ui_example/demos/scroll_area/axes.dart';
 import 'package:plass_ui_example/demos/meter/hero.dart';
@@ -583,6 +586,9 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'app-logo/shapes': _appLogoShapes,
   'hover-card/hero': _hoverCardHero,
   'hover-card/delays': _hoverCardDelays,
+  'scatter-chart/hero': _scatterChartHero,
+  'scatter-chart/bubbles': _scatterChartBubbles,
+  'scatter-chart/shape': _scatterChartShape,
   'scroll-area/hero': _scrollAreaHero,
   'scroll-area/axes': _scrollAreaAxes,
   'meter/hero': _meterHero,
@@ -1159,6 +1165,12 @@ Widget _appLogoShapes(BuildContext context) => const AppLogoShapes();
 Widget _hoverCardHero(BuildContext context) => const HoverCardHero();
 
 Widget _hoverCardDelays(BuildContext context) => const HoverCardDelays();
+
+Widget _scatterChartHero(BuildContext context) => const ScatterChartHero();
+
+Widget _scatterChartBubbles(BuildContext context) => const ScatterChartBubbles();
+
+Widget _scatterChartShape(BuildContext context) => const ScatterChartShape();
 
 Widget _scrollAreaHero(BuildContext context) => const ScrollAreaHero();
 

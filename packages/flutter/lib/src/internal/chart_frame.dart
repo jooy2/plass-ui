@@ -132,6 +132,48 @@ class PlotBox {
   double get right => left + width;
 }
 
+/// One mark on a plot whose marks are not arranged in columns.
+///
+/// A scatter has no shared categories, so there is no column for a pointer to
+/// be inside and nothing for a crosshair to be dropped through: the only
+/// question a reader can be asking is "which of these dots". A chart that says
+/// so hands the frame its marks and gets the nearest-mark search and the
+/// readout anchoring for free.
+class PlassChartMark {
+  /// Creates a mark.
+  const PlassChartMark({
+    required this.series,
+    required this.index,
+    required this.centre,
+    required this.r,
+  });
+
+  /// Its series' place in the list as it was passed — where its colour is from.
+  final int series;
+
+  /// Its own place within that series.
+  final int index;
+
+  /// Where it is pinned, in pixels from the chart's top-left.
+  final Offset centre;
+
+  /// How big it is, which is also how far off it a press still counts.
+  final double r;
+}
+
+/// Builds every mark, once the frame knows where the plot is.
+typedef PlassChartMarkBuilder = List<PlassChartMark> Function(PlassChartLayout layout);
+
+/// What the category axis is: a row of slots, or a second number line.
+enum PlassChartAxisScale {
+  /// One slot per category. Every chart but the scatter.
+  band,
+
+  /// Numbers, spaced by what they are. What a scatter needs and what nothing
+  /// else does.
+  value,
+}
+
 /// Everything a mark painter is told, once the frame has laid itself out.
 class PlassChartLayout {
   /// Creates a layout.
@@ -150,6 +192,9 @@ class PlassChartLayout {
     required this.activeIndex,
     required this.hovered,
     required this.tokens,
+    this.categoryScale,
+    this.marks = const <PlassChartMark>[],
+    this.activeMark,
   });
 
   /// Where the marks may be drawn.
@@ -199,6 +244,16 @@ class PlassChartLayout {
   /// The theme, for the ink a mark's own label is written in.
   final PlassTokens tokens;
 
+  /// The scale the *category* axis runs on, when it is a second number line.
+  /// `null` on every chart whose categories are slots.
+  final ValueScale? categoryScale;
+
+  /// Every mark, when the chart supplied a builder. Empty otherwise.
+  final List<PlassChartMark> marks;
+
+  /// The one the pointer is on, or `null`.
+  final PlassChartMark? activeMark;
+
   /// How many categories there are.
   int get count => categories.length;
 
@@ -216,6 +271,16 @@ class PlassChartLayout {
   /// A line's first point sits *on* the axis and a bar's first band starts at
   /// it, which is one half-step apart; [inset] is which of the two this is.
   double categoryPx(int index) {
+    final ValueScale? line = categoryScale;
+
+    if (line != null) {
+      // Defined through `categoryValuePx` rather than beside it, so a tick and
+      // a point that share a number cannot land in two places.
+      final double at = index < line.ticks.length ? line.ticks[index] : line.max;
+
+      return categoryValuePx(at) - (horizontal ? plot.top : plot.left);
+    }
+
     if (!inset) {
       return band.centre(index);
     }
@@ -228,8 +293,46 @@ class PlassChartLayout {
       ? Offset(valuePx(value), plot.top + categoryPx(index))
       : Offset(plot.left + categoryPx(index), valuePx(value));
 
+  /// Where a *number* sits along the category axis, in pixels from the chart's
+  /// edge — the same absolute reckoning [valuePx] uses, and deliberately not
+  /// [categoryPx]'s offset-along-the-axis. Only meaningful with a
+  /// [categoryScale].
+  double categoryValuePx(double value) {
+    final ValueScale? line = categoryScale;
+
+    if (line == null) {
+      return plot.left + categoryPx(0);
+    }
+
+    return horizontal
+        ? plot.top + (1 - line.fraction(value)) * plot.height
+        : plot.left + line.fraction(value) * plot.width;
+  }
+
   /// Where the baseline is along the value axis.
   double get zeroPx => valuePx(math.min(math.max(0, scale.min), scale.max));
+
+  /// A copy carrying the marks that were built from it.
+  PlassChartLayout withMarks(List<PlassChartMark> built, PlassChartMark? active) =>
+      PlassChartLayout(
+        plot: plot,
+        values: values,
+        visible: visible,
+        colors: colors,
+        scale: scale,
+        band: band,
+        categories: categories,
+        size: size,
+        inset: inset,
+        horizontal: horizontal,
+        density: density,
+        activeIndex: activeIndex,
+        hovered: hovered,
+        tokens: tokens,
+        categoryScale: categoryScale,
+        marks: built,
+        activeMark: active,
+      );
 }
 
 /// Draws the marks a particular chart is made of.
@@ -257,6 +360,13 @@ class PlassCartesianChart extends StatefulWidget {
     this.semanticLabel,
     this.empty,
     this.size,
+    this.xScale = PlassChartAxisScale.band,
+    this.marks,
+    this.markRadius = 24,
+    this.markInset = 0,
+    this.swatch,
+    this.markReadout,
+    this.semanticValue,
     super.key,
   });
 
@@ -314,6 +424,38 @@ class PlassCartesianChart extends StatefulWidget {
   /// Type scale, plot height, line weight and marker radius.
   final PlassSize? size;
 
+  /// Whether the category axis is a row of slots or a second number line.
+  final PlassChartAxisScale xScale;
+
+  /// Builds every mark on the plot, which swaps the frame's column hit-testing
+  /// for a nearest-mark search. The result comes back on the layout, so the
+  /// marks are laid out once and drawn from the same list they are tested
+  /// against.
+  final PlassChartMarkBuilder? marks;
+
+  /// How far off a mark a press still counts as on it, in pixels. Added to the
+  /// mark's own radius — a 4px dot is not a hit target.
+  final double markRadius;
+
+  /// Room on **every** side of the plot, for marks drawn from their centre.
+  ///
+  /// [headroom] is not enough for those: a bubble at the largest x hangs over
+  /// the right edge and one at the smallest hangs over the value axis' own
+  /// labels. A line's marker gets away with it because a line is inset from
+  /// both ends anyway; a scatter places a mark wherever the number says.
+  final double markInset;
+
+  /// The legend's swatch, for a chart whose marks are not all the same shape.
+  final Widget Function(int index, Color color)? swatch;
+
+  /// What the readout says about a mark, for a chart whose marks are not in a
+  /// grid the frame can look an answer up in.
+  final String Function(PlassChartMark mark)? markReadout;
+
+  /// What a screen reader is handed in place of the drawing, for a chart whose
+  /// summary is not "each series and where it ended up".
+  final String Function()? semanticValue;
+
   @override
   State<PlassCartesianChart> createState() => _PlassCartesianChartState();
 }
@@ -325,6 +467,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
   int? _activeIndex;
   int? _hovered;
   Offset? _pointer;
+  PlassChartMark? _activeMark;
 
   PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
   PlassDensity get _density =>
@@ -365,10 +508,28 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
         if (visible[i]) values[i] else <ChartValue>[],
     ];
 
-    final int count = categoryCount(widget.series);
-    final List<PlassChartCategory> categories = <PlassChartCategory>[
-      for (int i = 0; i < count; i += 1) categoryAt(i, widget.categories, values),
-    ];
+    /* A value-scaled category axis has no columns, so what goes down it is its
+       own ticks rather than the data's labels. Rounding them here rather than
+       in the painter is what lets everything downstream — the label band, the
+       tick text, `categoryPx` — stay the one code path it already was. */
+    final ValueScale? categoryScale = widget.xScale == PlassChartAxisScale.value
+        ? valueScale(
+            categoryExtent(values, widget.categories),
+            min: widget.xAxis.min,
+            max: widget.xAxis.max,
+            tickCount: widget.xAxis.tickCount,
+            includeZero: false,
+          )
+        : null;
+
+    final int count = categoryScale?.ticks.length ?? categoryCount(widget.series);
+    final List<PlassChartCategory> categories = categoryScale != null
+        ? <PlassChartCategory>[
+            for (final double tick in categoryScale.ticks) PlassChartCategory.number(tick),
+          ]
+        : <PlassChartCategory>[
+            for (int i = 0; i < count; i += 1) categoryAt(i, widget.categories, values),
+          ];
 
     final ChartExtent? extent = extentOf(shown, stacked: widget.stacked);
     final bool nothing = extent == null;
@@ -461,13 +622,13 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
             : math.max(8, categoryTexts.isEmpty ? 8 : widestCategory / 2);
         // A mark is drawn from its centre, so half of the widest one hangs over
         // the top of the plot.
-        final double topPad = markerRadii[size]! + 4 + widget.headroom;
+        final double topPad = markerRadii[size]! + 4 + widget.headroom + widget.markInset;
 
         final box = PlotBox(
-          left,
+          left + widget.markInset,
           topPad,
-          math.max(0, width - left - rightPad),
-          math.max(0, height - topPad - bottom),
+          math.max(0, width - left - rightPad - widget.markInset * 2),
+          math.max(0, height - topPad - bottom - widget.markInset),
         );
 
         // Bars divide the axis into `count` slots and sit in the middle of one;
@@ -480,7 +641,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
           barBandRatio[_density]!,
         );
 
-        final layout = PlassChartLayout(
+        final base = PlassChartLayout(
           plot: box,
           values: values,
           visible: visible,
@@ -495,12 +656,63 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
           activeIndex: _activeIndex,
           hovered: _hovered,
           tokens: tokens,
+          categoryScale: categoryScale,
         );
+
+        /* The marks are built from the layout and then handed back to it, which
+           is the only order that works: a builder that could read what is
+           active would be reading a value that does not exist yet. */
+        final List<PlassChartMark> built = widget.marks?.call(base) ?? const <PlassChartMark>[];
+        final PlassChartMark? active = _activeMark == null
+            ? null
+            : built.cast<PlassChartMark?>().firstWhere(
+                (PlassChartMark? mark) =>
+                    mark!.series == _activeMark!.series && mark.index == _activeMark!.index,
+                orElse: () => null,
+              );
+        final PlassChartLayout layout = built.isEmpty && active == null
+            ? base
+            : base.withMarks(built, active);
+
+        /// Which mark the press is nearest, or `null` when it is near none.
+        PlassChartMark? nearest(Offset local) {
+          PlassChartMark? found;
+          double best = double.infinity;
+
+          for (final PlassChartMark mark in built) {
+            final double away = (mark.centre - local).distance;
+
+            if (away <= mark.r + widget.markRadius && away < best) {
+              best = away;
+              found = mark;
+            }
+          }
+
+          return found;
+        }
 
         void onMove(Offset local) {
           if (widget.tooltip.hidden ||
               widget.tooltip.mode == PlassChartTooltipMode.none ||
               count == 0) {
+            return;
+          }
+
+          // A chart that builds its own marks is asking "which of these", not
+          // "which column", so the search is for the nearest mark and a press
+          // that lands near none of them clears the readout.
+          if (widget.marks != null) {
+            final PlassChartMark? found = nearest(local);
+
+            if (found?.series != _activeMark?.series ||
+                found?.index != _activeMark?.index ||
+                local != _pointer) {
+              setState(() {
+                _activeMark = found;
+                _pointer = found == null ? null : local;
+              });
+            }
+
             return;
           }
 
@@ -522,9 +734,10 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
         }
 
         void onLeave() {
-          if (_activeIndex != null) {
+          if (_activeIndex != null || _activeMark != null) {
             setState(() {
               _activeIndex = null;
+              _activeMark = null;
               _pointer = null;
             });
           }
@@ -532,12 +745,23 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
 
         void onTap(Offset local) {
           final int? before = _activeIndex;
+          final PlassChartMark? beforeMark = _activeMark;
 
           onMove(local);
 
-          // A second tap on the column already showing takes it down, which is
+          // A second tap on the thing already showing takes it down, which is
           // the only way to dismiss a tooltip on a screen with no pointer to
           // move away.
+          if (widget.marks != null) {
+            if (beforeMark != null &&
+                beforeMark.series == _activeMark?.series &&
+                beforeMark.index == _activeMark?.index) {
+              onLeave();
+            }
+
+            return;
+          }
+
           if (before != null && before == _activeIndex) {
             onLeave();
           }
@@ -577,7 +801,19 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
                       paintMarks: widget.paint,
                     ),
                   ),
-                  if (_activeIndex != null && _pointer != null && !widget.tooltip.hidden)
+                  if (active != null && _pointer != null && !widget.tooltip.hidden)
+                    _MarkTooltip(
+                      layout: layout,
+                      mark: active,
+                      pointer: _pointer!,
+                      name: widget.series[active.series].name ?? 'Series ${active.series + 1}',
+                      readout:
+                          widget.markReadout?.call(active) ??
+                          _write(layout.values[active.series][active.index].value ?? 0),
+                      tokens: tokens,
+                      size: size,
+                    )
+                  else if (_activeIndex != null && _pointer != null && !widget.tooltip.hidden)
                     _Tooltip(
                       layout: layout,
                       index: _activeIndex!,
@@ -610,6 +846,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
                 _off.add(index);
               }
             }),
+            swatch: widget.swatch,
             onHover: (int? index) => setState(() => _hovered = index),
           );
 
@@ -622,7 +859,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
       // The picture is a picture. What a screen reader is handed instead is the
       // series and their ends, which is the reading a sighted reader takes from
       // the shape — not a cell-by-cell recital of the whole table.
-      value: _summary(values, visible),
+      value: widget.semanticValue?.call() ?? _summary(values, visible),
       child: below
           ? Column(
               mainAxisSize: MainAxisSize.min,
@@ -865,6 +1102,7 @@ class PlassChartLegendBar extends StatelessWidget {
     required this.align,
     required this.onToggle,
     required this.onHover,
+    this.swatch,
     super.key,
   });
 
@@ -895,6 +1133,13 @@ class PlassChartLegendBar extends StatelessWidget {
   /// Called with the entry the pointer is on, or `null` when it leaves.
   final ValueChanged<int?> onHover;
 
+  /// The swatch, for a chart whose marks are not all the same shape.
+  ///
+  /// A scatter past the third series tells its series apart by shape as well as
+  /// by hue, and a legend answering with eight identical squares would be back
+  /// to colour alone — which is the thing the shapes were added to fix.
+  final Widget Function(int index, Color color)? swatch;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -915,6 +1160,7 @@ class PlassChartLegendBar extends StatelessWidget {
               on: visible[i],
               tokens: tokens,
               size: size,
+              swatch: swatch == null ? null : swatch!(i, colors[i]),
               onTap: interactive ? () => onToggle(i) : null,
               onHover: (bool over) => onHover(over ? i : null),
             ),
@@ -933,6 +1179,7 @@ class _LegendEntry extends StatelessWidget {
     required this.size,
     required this.onTap,
     required this.onHover,
+    this.swatch,
   });
 
   final String name;
@@ -942,6 +1189,7 @@ class _LegendEntry extends StatelessWidget {
   final PlassSize size;
   final VoidCallback? onTap;
   final ValueChanged<bool> onHover;
+  final Widget? swatch;
 
   @override
   Widget build(BuildContext context) {
@@ -951,13 +1199,15 @@ class _LegendEntry extends StatelessWidget {
         // The swatch keeps its colour when the series is switched off, and the
         // *name* is what dims: a grey swatch is a legend entry a reader has to
         // switch back on to find out what it was.
-        Container(
-          width: 9,
-          height: 9,
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: on ? 1 : 0.4),
-            borderRadius: BorderRadius.circular(2),
-          ),
+        Opacity(
+          opacity: on ? 1 : 0.4,
+          child:
+              swatch ??
+              Container(
+                width: 9,
+                height: 9,
+                decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2)),
+              ),
         ),
         const SizedBox(width: 6),
         Text(
@@ -1138,6 +1388,80 @@ class PlassChartTooltipCard extends StatelessWidget {
             ...children,
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// The readout for one mark, on a plot whose marks are not in columns.
+///
+/// A separate widget from [_Tooltip] rather than a mode of it, because the two
+/// answer different questions: a column's readout lists every series at that
+/// category, and a mark's names the one thing the reader is pointing at. There
+/// is nothing to list.
+class _MarkTooltip extends StatelessWidget {
+  const _MarkTooltip({
+    required this.layout,
+    required this.mark,
+    required this.pointer,
+    required this.name,
+    required this.readout,
+    required this.tokens,
+    required this.size,
+  });
+
+  final PlassChartLayout layout;
+  final PlassChartMark mark;
+  final Offset pointer;
+  final String name;
+  final String readout;
+  final PlassTokens tokens;
+  final PlassSize size;
+
+  @override
+  Widget build(BuildContext context) {
+    // Anchored to the mark rather than to the pointer: a press on a phone lands
+    // a finger's width from where the reader meant, and a card that follows
+    // that lands somewhere they have to look for.
+    final bool toTheStart = mark.centre.dx > layout.plot.left + layout.plot.width * 0.6;
+
+    return Positioned(
+      left: toTheStart ? null : mark.centre.dx + mark.r + 10,
+      right: toTheStart
+          ? layout.plot.width + layout.plot.left - mark.centre.dx + mark.r + 10
+          : null,
+      top: math.max(0, mark.centre.dy - 20),
+      child: PlassChartTooltipCard(
+        tokens: tokens,
+        size: size,
+        heading: name,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: layout.colors[mark.series],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  readout,
+                  style: TextStyle(
+                    fontSize: metaText[size]!,
+                    fontWeight: FontWeight.w600,
+                    color: tokens.fg,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

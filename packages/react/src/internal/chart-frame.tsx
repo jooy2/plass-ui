@@ -48,7 +48,14 @@ import { useDefaults } from './defaults.js';
 import { numberFormatter } from './format.js';
 import { usePlElementSize } from '../hooks/usePlElementSize.js';
 import { useLabels } from './labels.js';
-import { cx, hasContent, metaTextClasses, srOnlyClasses, transitionClasses } from './styles.js';
+import {
+  cx,
+  glassClasses,
+  hasContent,
+  metaTextClasses,
+  srOnlyClasses,
+  transitionClasses
+} from './styles.js';
 import type {
   PlassChartAxis,
   PlassChartCategory,
@@ -322,7 +329,13 @@ function ChartLegendBar({
         const dimmed = visibility.hovered !== null && visibility.hovered !== index;
         const name = one.name ?? `${index + 1}`;
 
-        const ink = shown ? colors[index] : 'var(--plass-disabled-fg)';
+        /* The swatch keeps its own colour when the series is switched off and
+           goes part-transparent instead, which is what the Flutter build does:
+           a grey swatch is a legend entry a reader has to switch back on to
+           find out what it was. */
+        const ink = shown
+          ? colors[index]
+          : `color-mix(in oklab, ${colors[index]} 40%, transparent)`;
 
         const content = (
           <>
@@ -371,7 +384,11 @@ function ChartLegendBar({
                   '[transition-timing-function:var(--plass-ease)]',
                   'hover:bg-(--p-soft)',
                   'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-1',
-                  shown ? '' : 'text-(--plass-disabled-fg)',
+                  // Switched off is the muted ink and a line through it, which
+                  // is what the Flutter build already draws. The swatch keeps its
+                  // colour: a grey swatch is a legend entry a reader has to
+                  // switch back on to find out what it was.
+                  shown ? '' : 'text-(--plass-muted-fg) line-through',
                   dimmed ? 'opacity-55' : ''
                 )}
               >
@@ -381,7 +398,7 @@ function ChartLegendBar({
               <span
                 className={cx(
                   'flex min-w-0 items-center gap-1.5 px-1 py-0.5 text-(--plass-fg)',
-                  shown ? '' : 'text-(--plass-disabled-fg)'
+                  shown ? '' : 'text-(--plass-muted-fg) line-through'
                 )}
               >
                 {content}
@@ -509,10 +526,13 @@ function ChartTooltipPanel({ heading, items, x, y, flip, size }: TooltipProps) {
       className={cx(
         'pointer-events-none absolute z-10 max-w-56 min-w-24',
         'rounded-(--plass-radius-sm) border p-2',
-        '[background-image:var(--plass-grain),var(--plass-sheen)]',
-        '[background-blend-mode:overlay,normal] [backdrop-filter:var(--plass-blur)]',
-        'bg-(--plass-panel-press) [border-color:var(--plass-glass-line)]',
-        '[box-shadow:var(--plass-shadow-2),var(--plass-plate-glass)]',
+        // The same sheet a PlSelect's popup is: the deepest clear glass, the
+        // cut-edge hairline, shadow 3 and the gloss on top. A floating readout
+        // and a floating list are the same material, and a chart that invented
+        // a third one would be the thing on the dashboard that looks borrowed.
+        glassClasses,
+        'bg-(--plass-glass-press) [border-color:var(--plass-glass-line)]',
+        '[box-shadow:var(--plass-shadow-3),var(--plass-gloss-glass)]',
         metaTextClasses[size]
       )}
       style={flip ? { right: `calc(100% - ${x}px + 10px)`, top: y } : { left: x + 10, top: y }}

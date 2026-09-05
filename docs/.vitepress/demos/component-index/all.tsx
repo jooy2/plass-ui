@@ -45,6 +45,7 @@ import {
   PlCodeBlock,
   PlLineChart,
   PlPieChart,
+  PlScatterChart,
   PlGallery,
   PlCollapsible,
   PlConfirmProvider,
@@ -1163,6 +1164,46 @@ const entries: Entry[] = [
         yAxis={{ hidden: true }}
         series={[{ name: 'Revenue', data: [42, 58, 31, 47, 39] }]}
         categories={['EU', 'AS', 'AM', 'AF', 'OC']}
+      />
+    )
+  },
+  {
+    name: 'PlScatterChart',
+    group: 'charts',
+    href: 'components/charts/scatter-chart',
+    blurb: {
+      en: 'Two numbers per point, and whether they move together.',
+      ko: '점 하나에 숫자 둘, 그리고 그 둘이 함께 움직이는지입니다.'
+    },
+    preview: (
+      <PlScatterChart
+        size="xs"
+        className="w-full"
+        height={96}
+        legend={false}
+        xAxis={{ hidden: true }}
+        yAxis={{ hidden: true }}
+        series={[
+          {
+            name: 'Owned',
+            data: [
+              { x: 12, y: 41 },
+              { x: 19, y: 55 },
+              { x: 31, y: 74 },
+              { x: 44, y: 78 },
+              { x: 52, y: 96 }
+            ]
+          },
+          {
+            name: 'Franchise',
+            data: [
+              { x: 15, y: 28 },
+              { x: 29, y: 31 },
+              { x: 47, y: 51 },
+              { x: 55, y: 62 }
+            ]
+          }
+        ]}
       />
     )
   },

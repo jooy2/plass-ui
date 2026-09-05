@@ -9191,6 +9191,107 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  PlScatterChart: [
+    {
+      name: 'series',
+      type: 'readonly PlassChartSeries[]',
+      required: true,
+      description: {
+        ko: '데이터. 점마다 숫자나 날짜인 x가 필요합니다',
+        en: 'The data. Every point needs a number or a date for its x'
+      }
+    },
+    {
+      name: 'categories',
+      type: 'readonly PlassChartCategory[]',
+      description: {
+        ko: '점이 자기 x를 지니지 않을 때 대신 놓이는 값',
+        en: 'What the points sit against, when they do not carry their own x'
+      }
+    },
+    {
+      name: 'shape',
+      type: "'auto' | 'varied' | 'circle' | 'square' | 'triangle' | 'diamond' | 'cross'",
+      default: "'auto'",
+      description: {
+        ko: '점을 무엇으로 그릴지. auto는 네 번째 series부터 모양을 나눕니다 — 색이 셋까지만 구별되기 때문입니다',
+        en: 'What each mark is drawn as. auto splits by shape from the fourth series on, because colour separates three'
+      }
+    },
+    {
+      name: 'pointRadius',
+      type: 'number',
+      description: {
+        ko: 'z가 없는 점의 반지름. 기본값은 size 사다리',
+        en: 'The radius of a mark with no z. Defaults to the size ladder'
+      }
+    },
+    {
+      name: 'maxRadius',
+      type: 'number',
+      description: {
+        ko: '가장 큰 버블의 반지름이자 plot 둘레에 비워 두는 여백. 기본값은 높이의 1/12',
+        en: "The largest bubble's radius, and the room reserved around the plot. Defaults to a twelfth of the height"
+      }
+    },
+    {
+      name: 'xAxis',
+      type: 'PlassChartAxis',
+      description: {
+        ko: '여기서는 값을 재는 x 축',
+        en: 'The x axis, which measures here rather than naming'
+      }
+    },
+    {
+      name: 'yAxis',
+      type: 'PlassChartAxis',
+      description: { ko: '값 축', en: 'The value axis' }
+    },
+    {
+      name: 'legend',
+      type: 'PlassChartLegend',
+      description: { ko: '범례', en: 'The legend' }
+    },
+    {
+      name: 'tooltip',
+      type: 'PlassChartTooltip',
+      description: { ko: '툴팁', en: 'The tooltip' }
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      description: { ko: 'plot의 높이', en: 'How tall the plot is' }
+    },
+    {
+      name: 'format',
+      type: 'Intl.NumberFormatOptions',
+      description: { ko: '값을 쓰는 방식', en: 'How a value is written' }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      default: "'Chart'",
+      description: { ko: '그림 전체의 접근성 이름', en: 'What the whole drawing is called' }
+    },
+    {
+      name: 'empty',
+      type: 'ReactNode',
+      description: {
+        ko: '그릴 것이 없을 때 그리는 것',
+        en: 'What is drawn when there is nothing to draw'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      shared: true,
+      description: {
+        ko: '타입 스케일, plot 높이, 기본 점 반지름',
+        en: 'Type scale, plot height and the default mark radius'
+      }
+    }
+  ],
   PlSelect: [
     ...sharedProps({
       variant: "'glass'",

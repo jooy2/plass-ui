@@ -706,6 +706,12 @@
   --plass-chart-grid: color-mix(in srgb, var(--plass-border) 70%, transparent);
   --plass-chart-axis: var(--plass-border);
   --plass-chart-baseline: color-mix(in srgb, var(--plass-muted-fg) 35%, transparent);
+  /* And the sheet itself, for the 2px between two marks that touch — a
+     marker's ring, the seam between two stacked bands, the halo round a
+     scatter's dot. It is the surface and not a stroke, because a coloured line
+     drawn between two marks is ink that is not data; what separates them is the
+     page showing through. */
+  --plass-chart-gap: var(--plass-surface);
 }
 
 /* ---------------------------------------------------------------------------
