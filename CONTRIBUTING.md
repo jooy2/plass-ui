@@ -1,14 +1,14 @@
-# Contributing to Project
+# Contributing to Plass UI
 
 Thank you for contributing to the project. Your contributions will help us take the project to the next level.
 
-This project adheres to the Contributor Covenant code of conduct. Your contribution implies that you have read and agree to this policy. Any behavior that undermines the quality of the project community, including this policy, will be warned or restricted by the maintainers.
+This project adheres to the [Contributor Covenant](https://www.contributor-covenant.org/version/2/1/code_of_conduct.html) code of conduct, version 2.1, reproduced in [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). Your contribution implies that you have read and agree to this policy. Any behavior that undermines the quality of the project community, including this policy, will be warned or restricted by the maintainers.
 
 ## Issues
 
 Issues can be created on the following page: https://github.com/jooy2/plass-ui/issues
 
-Alternatively, you can email the package maintainer. However, we prefer to track progress via GitHub Issues.
+Alternatively, you can reach the maintainers at https://cdget.com/contact. However, we prefer to track progress via GitHub Issues.
 
 When creating an issue, keep the following in mind:
 
@@ -17,7 +17,7 @@ When creating an issue, keep the following in mind:
 - Describe in detail what is happening and what needs to be fixed. You may need additional materials such as images or video.
 - Use appropriate keyword titles to make it easy for others to search and understand.
 - Please use English in all content.
-- You may need to describe the environment in which the issue occurs.
+- You may need to describe the environment in which the issue occurs, including which of the two packages it is, and its version.
 
 ## Where things live
 
@@ -87,3 +87,11 @@ When creating a pull request, keep the following in mind:
 - Please use English in all content.
 
 Typically, a project maintainer will review and test your code before merging it into the project. This process can take some time, and they may ask you for further edits or clarifications in the comments.
+
+## Reporting a security issue
+
+A security vulnerability does not go in an issue. [SECURITY.md](SECURITY.md) describes how to report one privately.
+
+## Contact
+
+For anything that does not belong in an issue or a pull request, reach the maintainers at https://cdget.com/contact.

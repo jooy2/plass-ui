@@ -223,7 +223,13 @@ npm run build
 
 The site renders the React components from `packages/react/src` through a Vite alias and embeds the Flutter gallery as a frame per preview, so `npm run dev` is the develop-and-eyeball loop for both; there is no separate demo app. Editing a component shows up immediately on the React side; the Flutter side needs `npm run flutter:demos` again.
 
-[CONTRIBUTING.md](CONTRIBUTING.md) is the rest, where things live, and how a change to a component is expected to arrive.
+## Contributing
+
+Anyone can contribute to the project by reporting new issues or submitting a pull request. [CONTRIBUTING.md](CONTRIBUTING.md) is the rest: where things live, and how a change to a component is expected to arrive. Participation is subject to the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+To report a security issue, please follow the process described in [SECURITY.md](SECURITY.md).
+
+For anything else, reach the maintainers at [cdget.com/contact](https://cdget.com/contact).
 
 ## License
 
