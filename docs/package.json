@@ -4,7 +4,7 @@
   "description": "The documentation site for Plass UI, shared by every framework the library ships for.",
   "private": true,
   "type": "module",
-  "author": "CDGet <jooy2.contact@gmail.com>",
+  "author": "CDGet (https://cdget.com)",
   "license": "MIT",
   "scripts": {
     "changelog": "node scripts/copy-changelog.mjs",
