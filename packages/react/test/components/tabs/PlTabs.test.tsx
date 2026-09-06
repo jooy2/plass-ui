@@ -310,4 +310,100 @@ describe('PlTabs', () => {
       expect(screen.getByRole('tablist').element()).not.toHaveAttribute('data-overflow');
     });
   });
+
+  describe('the wheel', () => {
+    /**
+     * A wheel event of the kind a mouse produces, dispatched at the bar. It is
+     * untrusted, so the browser scrolls nothing of its own accord — what moves
+     * the bar is the component.
+     */
+    function wheel(element: HTMLElement, init: WheelEventInit) {
+      const event = new WheelEvent('wheel', { bubbles: true, cancelable: true, ...init });
+
+      element.dispatchEvent(event);
+
+      return event;
+    }
+
+    it('moves the bar along on a vertical wheel', async () => {
+      const restore = clip();
+
+      try {
+        const screen = await render(<Settings />);
+        const list = screen.getByRole('tablist').element() as HTMLElement;
+
+        // A mouse has one wheel and it points down the page, which is the one
+        // direction a tab bar does not run in.
+        expect(wheel(list, { deltaY: 120 }).defaultPrevented).toBe(true);
+        await expect.poll(() => list.scrollLeft).toBe(120);
+      } finally {
+        restore();
+      }
+    });
+
+    it('keeps the wheel once the bar has reached its end', async () => {
+      const restore = clip();
+
+      try {
+        const screen = await render(<Settings />);
+        const list = screen.getByRole('tablist').element() as HTMLElement;
+
+        list.scrollLeft = list.scrollWidth - list.clientWidth;
+
+        expect(wheel(list, { deltaY: 120 }).defaultPrevented).toBe(true);
+        expect(list).toHaveClass('overscroll-x-contain');
+      } finally {
+        restore();
+      }
+    });
+
+    it('gives it back at the end when the page is left to chain', async () => {
+      const restore = clip();
+
+      try {
+        const screen = await render(<Settings overscroll="auto" />);
+        const list = screen.getByRole('tablist').element() as HTMLElement;
+
+        list.scrollLeft = list.scrollWidth - list.clientWidth;
+
+        expect(wheel(list, { deltaY: 120 }).defaultPrevented).toBe(false);
+        expect(list).not.toHaveClass('overscroll-x-contain');
+      } finally {
+        restore();
+      }
+    });
+
+    it('leaves a bar whose tabs all fit alone', async () => {
+      const screen = await render(<Settings />);
+      const list = screen.getByRole('tablist').element() as HTMLElement;
+
+      // Not a scroller, so not a place on the page the reader cannot scroll
+      // past. This is the whole of what keeps the containment honest.
+      expect(wheel(list, { deltaY: 120 }).defaultPrevented).toBe(false);
+    });
+
+    it('leaves the wheel alone when it is turned off', async () => {
+      const restore = clip();
+
+      try {
+        const screen = await render(<Settings wheel={false} />);
+        const list = screen.getByRole('tablist').element() as HTMLElement;
+
+        expect(wheel(list, { deltaY: 120 }).defaultPrevented).toBe(false);
+        expect(list.scrollLeft).toBe(0);
+      } finally {
+        restore();
+      }
+    });
+
+    it('leaves a bar that runs down the side alone', async () => {
+      const screen = await render(<Settings orientation="vertical" />);
+      const list = screen.getByRole('tablist').element() as HTMLElement;
+
+      // There the wheel already runs the way the bar does, and the browser's
+      // own scrolling does the whole job.
+      expect(wheel(list, { deltaY: 120 }).defaultPrevented).toBe(false);
+      expect(list).not.toHaveClass('overscroll-x-contain');
+    });
+  });
 });

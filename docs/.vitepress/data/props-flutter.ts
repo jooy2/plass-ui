@@ -5081,6 +5081,15 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       default: 'PlassOrientation.horizontal'
     }),
     from('PlTabs', 'fullWidth', { type: 'bool', default: 'false' }),
+    from('PlTabs', 'wheel', { type: 'bool', default: 'true' }),
+    from('PlTabs', 'overscroll', {
+      type: 'PlassOverscroll',
+      default: 'PlassOverscroll.contain',
+      description: {
+        ko: '탭이 다 떨어진 뒤의 휠을 바가 어떻게 할지. contain은 그대로 붙잡고, auto는 뒤에 있는 것에게 넘깁니다',
+        en: 'What the bar does with a wheel it has run out of tabs for. contain keeps it, auto hands it to whatever is behind the bar'
+      }
+    }),
     {
       name: 'semanticLabel',
       type: 'String?',

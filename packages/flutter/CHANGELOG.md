@@ -8,7 +8,9 @@
 
 - **`PlImage` takes a `watermark`.** `PlImageWatermark` says what the mark reads, where it goes, how visible it is and at what angle; `PlImageWatermarkPlacement.tile` covers the whole picture instead of a corner. A tiled mark is one `CustomPainter` for however many copies the box holds rather than a widget each, and the canvas is turned once with the grid laid out on the turned canvas, so the repeat has no seam. It is drawn only once the picture has arrived, is excluded from the semantics tree, takes no pointer, and follows the picture into `preview`.
 
-- **`PlScrollZone` takes an `overscroll`.** `PlassOverscroll.contain`, the default, or `PlassOverscroll.auto`. See Changed for what the default alters.
+- **`PlTabs` answers the wheel.** A bar with more tabs than room is a scroll view like any other, and a horizontal one reads the horizontal half of a scroll while a mouse only ever produces the vertical one — so the bar under the pointer sat still while whatever was behind it moved. A vertical wheel over an overflowing bar now moves it along, exactly as it does over a `PlScrollZone`, and `wheel: false` turns it off. `internal/wheel.dart` is the shared half of the two.
+
+- **`PlScrollZone` and `PlTabs` take an `overscroll`.** `PlassOverscroll.contain`, the default, or `PlassOverscroll.auto`. See Changed for what the default alters.
 
 ### Changed
 

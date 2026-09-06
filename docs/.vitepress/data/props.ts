@@ -10880,6 +10880,25 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'wheel',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '자리보다 탭이 많은 바 위에서 세로로 굴린 휠이 바를 따라 움직이게 합니다. 탭이 다 들어가는 바는 건드리지 않습니다',
+        en: 'Turns a vertical wheel over a bar with more tabs than room into travel along it. A bar whose tabs all fit is left alone'
+      }
+    },
+    {
+      name: 'overscroll',
+      type: "'auto' | 'contain'",
+      default: "'contain'",
+      shared: true,
+      description: {
+        ko: '탭이 다 떨어진 뒤의 휠을 바가 어떻게 할지. contain은 그대로 붙잡고, auto는 페이지로 넘깁니다',
+        en: 'What the bar does with a wheel it has run out of tabs for. contain keeps it, auto hands it to the page'
+      }
+    },
+    {
       name: 'children',
       type: 'ReactNode',
       description: {

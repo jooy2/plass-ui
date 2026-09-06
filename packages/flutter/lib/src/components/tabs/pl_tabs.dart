@@ -9,6 +9,7 @@ import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
+import 'package:plass_ui/src/internal/wheel.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -96,6 +97,8 @@ class PlTabs<T> extends StatefulWidget {
     this.density,
     this.orientation = const PlassResponsive<PlassOrientation>(PlassOrientation.horizontal),
     this.fullWidth = false,
+    this.wheel = true,
+    this.overscroll = PlassOverscroll.contain,
     this.semanticLabel,
     this.focusNode,
     this.autofocus = false,
@@ -134,6 +137,28 @@ class PlTabs<T> extends StatefulWidget {
 
   /// The tabs share the bar's width, each taking an equal part of it.
   final bool fullWidth;
+
+  /// Whether a wheel that points across a bar with more tabs than room moves it
+  /// along.
+  ///
+  /// A mouse has one wheel and it points down the page, which is the one
+  /// direction a horizontal bar does not run in — so a reader who can see that
+  /// there are more tabs has no way of reaching them but the arrow keys, which
+  /// also change the selection. The bar is the same scroller a `PlScrollZone`
+  /// is and answers the wheel the same way.
+  ///
+  /// Only while the bar overflows, and only across: a bar that runs down the
+  /// side already scrolls the way the wheel does.
+  final bool wheel;
+
+  /// What the bar does with a wheel it has run out of tabs for.
+  ///
+  /// [PlassOverscroll.contain], the default, keeps it, so a reader working along
+  /// a long bar is not thrown down the page by the notch that arrives after the
+  /// last tab. [PlassOverscroll.auto] gives it back to whatever is behind the
+  /// bar, holding it only for as long as the flick lasts. A bar whose tabs all
+  /// fit holds nothing back either way.
+  final PlassOverscroll overscroll;
 
   /// The name a screen reader gives the bar.
   final String? semanticLabel;
@@ -357,7 +382,7 @@ class _PlTabsState<T> extends State<PlTabs<T>> {
     // travels with the tabs — the edge belongs to the bar rather than to what
     // is in it.
     if (!_vertical) {
-      strip = _EdgeFade(child: strip);
+      strip = _EdgeFade(wheel: widget.wheel, overscroll: widget.overscroll, child: strip);
     }
 
     if (solid) {
@@ -434,7 +459,13 @@ class _PlTabsState<T> extends State<PlTabs<T>> {
 /// The mask is skipped entirely while both ends are settled, so a bar whose tabs
 /// all fit pays for no compositing layer at all.
 class _EdgeFade extends StatefulWidget {
-  const _EdgeFade({required this.child});
+  const _EdgeFade({required this.wheel, required this.overscroll, required this.child});
+
+  /// Whether a wheel that points across the bar moves it along.
+  final bool wheel;
+
+  /// What the bar does with a wheel it has run out of tabs for.
+  final PlassOverscroll overscroll;
 
   final Widget child;
 
@@ -501,10 +532,15 @@ class _EdgeFadeState extends State<_EdgeFade> {
 
         return false;
       },
-      child: SingleChildScrollView(
+      child: PlassWheelScroll(
         controller: _controller,
-        scrollDirection: Axis.horizontal,
-        child: widget.child,
+        turn: widget.wheel,
+        overscroll: widget.overscroll,
+        child: SingleChildScrollView(
+          controller: _controller,
+          scrollDirection: Axis.horizontal,
+          child: widget.child,
+        ),
       ),
     );
 

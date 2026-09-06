@@ -196,6 +196,42 @@ The state is published as `data-overflow` on the tab list. `none`, `start`, `end
 
 :::
 
+<Demo src="tabs/overflow" :min-height="200">
+
+::: fw react
+
+<<< @/.vitepress/demos/tabs/overflow.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/tabs/overflow.dart
+
+:::
+
+</Demo>
+
+A bar that scrolls answers the **wheel**. A mouse has one wheel and it points down the page, which is the one direction the bar does not run in, so a vertical wheel over an overflowing bar moves it along instead — the reader who can see there are more tabs has a way of reaching them that is neither the scrollbar the bar deliberately does not draw nor the arrow keys, which also change the selection. `wheel` turns that off, and a bar whose tabs all fit never takes the gesture at all.
+
+`overscroll` decides what happens after the last tab. `contain`, the default, keeps the wheel on the bar, so working along a long row does not end with the page moving under the reader. `auto` hands it back at the ends, holding only the gesture that was already moving the bar.
+
+::: fw react
+
+```tsx
+<PlTabs wheel={false} overscroll="auto">
+```
+
+:::
+
+::: fw flutter
+
+```dart
+PlTabs<String>(wheel: false, overscroll: PlassOverscroll.auto, tabs: tabs);
+```
+
+:::
+
 ### Controlled
 
 <Demo src="tabs/controlled" :min-height="200">

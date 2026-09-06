@@ -20,7 +20,9 @@
 
 - **`PlImage` takes a `protect`.** Refuses the context menu, a drag out of the page, a text selection over the picture and — the one that is easy to forget — the iOS long-press callout, which on that platform _is_ the context menu. It is a deterrent and not a lock, and the documentation says so: the file is still one request away. A caller's own `onContextMenu` still runs and cannot turn the refusal off, and the refusal follows the picture into `preview`. There is no Flutter equivalent, because a Flutter app paints its pictures onto a canvas and there is no per-picture menu to refuse.
 
-- **`PlScrollZone` takes an `overscroll`.** `'contain'`, the default, or `'auto'`, spelled after CSS's own `overscroll-behavior` and shared as `PlassOverscroll`. See below for what the default changes.
+- **`PlTabs` answers the wheel.** A bar with more tabs than room is a scroll container like any other, and a mouse has one wheel that points down the page — the one direction the bar does not run in — so the reader who could see there were more tabs had nothing to reach them with but the arrow keys, which also change the selection. A vertical wheel over an overflowing bar now moves it along, exactly as it does over a `PlScrollZone`. `wheel={false}` turns it off, a bar whose tabs all fit never takes the gesture, and a bar that runs down the side is left alone.
+
+- **`PlScrollZone` and `PlTabs` take an `overscroll`.** `'contain'`, the default, or `'auto'`, spelled after CSS's own `overscroll-behavior` and shared as `PlassOverscroll`. See below for what the default changes.
 
 ### Changed
 

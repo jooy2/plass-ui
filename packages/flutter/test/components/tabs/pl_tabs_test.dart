@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -132,6 +133,12 @@ void main() {
         PlTab<String>(value: 'h', label: Text('Danger zone'), panel: Text('H')),
       ];
 
+      /// And two, which the same box has room for.
+      const List<PlTab<String>> few = <PlTab<String>>[
+        PlTab<String>(value: 'a', label: Text('A'), panel: Text('A')),
+        PlTab<String>(value: 'b', label: Text('B'), panel: Text('B')),
+      ];
+
       testWidgets('scrolls rather than overflowing its box', (WidgetTester tester) async {
         // A tab bar on two lines has stopped being a bar and the indicator has
         // nowhere sensible to sit, so the strip scrolls. What it used to do was
@@ -187,6 +194,123 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.byType(SingleChildScrollView), findsNothing);
+      });
+
+      group('the wheel', () {
+        /// The bar's own scroller, which is not the only one on screen once the
+        /// bar is inside something that scrolls.
+        Finder bar() {
+          return find.descendant(
+            of: find.byType(PlTabs<String>),
+            matching: find.byType(SingleChildScrollView),
+          );
+        }
+
+        /// A mouse parked on the bar, and one turn of its wheel.
+        ///
+        /// [at] is when the turn happened, which the bar reads: a wheel that
+        /// arrives while the last one is still being acted on belongs to the
+        /// same gesture.
+        Future<void> spin(WidgetTester tester, Offset delta, {Duration at = Duration.zero}) async {
+          final pointer = TestPointer(1, PointerDeviceKind.mouse);
+
+          pointer.hover(tester.getCenter(bar()));
+          await tester.sendEventToBinding(pointer.scroll(delta, timeStamp: at));
+          await tester.pump();
+        }
+
+        /// A bar inside something that scrolls the other way, which is the only
+        /// arrangement in which chaining is observable at all.
+        Widget nested({
+          required ScrollController outer,
+          List<PlTab<String>> tabs = many,
+          PlassOverscroll overscroll = PlassOverscroll.contain,
+        }) {
+          return host(
+            SingleChildScrollView(
+              controller: outer,
+              child: Column(
+                children: <Widget>[
+                  PlTabs<String>(tabs: tabs, value: 'a', overscroll: overscroll),
+                  const SizedBox(height: 600),
+                ],
+              ),
+            ),
+            width: 240,
+            height: 200,
+          );
+        }
+
+        testWidgets('moves the bar along on a vertical wheel', (WidgetTester tester) async {
+          await tester.pumpWidget(host(const PlTabs<String>(tabs: many, value: 'a'), width: 240));
+          await tester.pumpAndSettle();
+
+          // A mouse has one wheel and it points down the page, which is the one
+          // direction the bar does not run in.
+          await spin(tester, const Offset(0, 100));
+
+          expect(tester.state<ScrollableState>(find.byType(Scrollable)).position.pixels, 100);
+        });
+
+        testWidgets('leaves the wheel alone when it is turned off', (WidgetTester tester) async {
+          await tester.pumpWidget(
+            host(const PlTabs<String>(tabs: many, value: 'a', wheel: false), width: 240),
+          );
+          await tester.pumpAndSettle();
+
+          await spin(tester, const Offset(0, 100));
+
+          expect(tester.state<ScrollableState>(find.byType(Scrollable)).position.pixels, 0);
+        });
+
+        testWidgets('keeps the wheel once the bar has reached its end', (
+          WidgetTester tester,
+        ) async {
+          final outer = ScrollController();
+          addTearDown(outer.dispose);
+
+          await tester.pumpWidget(nested(outer: outer));
+          await tester.pumpAndSettle();
+
+          await spin(tester, const Offset(0, 10000));
+          await spin(tester, const Offset(0, 100), at: const Duration(seconds: 5));
+
+          // A reader working along a long bar is not thrown down the page by the
+          // notch that arrives after the last tab.
+          expect(outer.offset, 0);
+        });
+
+        testWidgets('hands it back at the end when the page is left to chain', (
+          WidgetTester tester,
+        ) async {
+          final outer = ScrollController();
+          addTearDown(outer.dispose);
+
+          await tester.pumpWidget(nested(outer: outer, overscroll: PlassOverscroll.auto));
+          await tester.pumpAndSettle();
+
+          await spin(tester, const Offset(0, 10000));
+
+          // Five seconds later, which is the reader having stopped rather than
+          // the same flick carrying on.
+          await spin(tester, const Offset(0, 100), at: const Duration(seconds: 5));
+
+          expect(outer.offset, 100);
+        });
+
+        testWidgets('leaves a bar whose tabs all fit alone', (WidgetTester tester) async {
+          final outer = ScrollController();
+          addTearDown(outer.dispose);
+
+          await tester.pumpWidget(nested(outer: outer, tabs: few));
+          await tester.pumpAndSettle();
+
+          await spin(tester, const Offset(0, 100));
+
+          // Not a scroller, so not a place on the page the reader cannot scroll
+          // past. This is the whole of what keeps the containment honest.
+          expect(outer.offset, 100);
+        });
       });
     });
 

@@ -485,6 +485,7 @@ import 'package:plass_ui_example/demos/tabs/controlled.dart';
 import 'package:plass_ui_example/demos/tabs/full_width.dart';
 import 'package:plass_ui_example/demos/tabs/hero.dart';
 import 'package:plass_ui_example/demos/tabs/orientation.dart';
+import 'package:plass_ui_example/demos/tabs/overflow.dart';
 import 'package:plass_ui_example/demos/tabs/sizes.dart';
 import 'package:plass_ui_example/demos/tabs/variants.dart';
 import 'package:plass_ui_example/demos/text_field/controlled.dart';
@@ -1054,6 +1055,7 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'tabs/sizes': _tabsSizes,
   'tabs/orientation': _tabsOrientation,
   'tabs/full-width': _tabsFullWidth,
+  'tabs/overflow': _tabsOverflow,
   'tabs/controlled': _tabsControlled,
   'animate-fade/hero': _animateFadeHero,
   'animate-fade/mode': _animateFadeMode,
@@ -1690,6 +1692,7 @@ Widget _tabsVariants(BuildContext context) => const TabsVariants();
 Widget _tabsSizes(BuildContext context) => const TabsSizes();
 Widget _tabsOrientation(BuildContext context) => const TabsOrientation();
 Widget _tabsFullWidth(BuildContext context) => const TabsFullWidth();
+Widget _tabsOverflow(BuildContext context) => const TabsOverflow();
 Widget _tabsControlled(BuildContext context) => const TabsControlled();
 
 Widget _tableHero(BuildContext context) => const TableHero();

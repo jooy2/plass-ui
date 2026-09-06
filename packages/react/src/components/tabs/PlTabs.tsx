@@ -18,9 +18,11 @@ import {
   transitionClasses
 } from '../../internal/styles.js';
 import { useResponsiveValue } from '../../internal/responsive.js';
+import { overscrollClasses, useWheelScroll } from '../../internal/wheel.js';
 import type {
   PlassDensity,
   PlassOrientation,
+  PlassOverscroll,
   PlassResponsive,
   PlassSize,
   PlassStyleProps,
@@ -99,6 +101,31 @@ export interface PlTabsProps
   loopFocus?: boolean;
   /** The tabs share the bar's full width, each taking an equal part of it. */
   fullWidth?: boolean;
+  /**
+   * Whether a vertical wheel over a bar with more tabs than room moves it along.
+   *
+   * A mouse has one wheel and it points down the page, which is the one
+   * direction a tab bar does not run in — so a reader who can see that there are
+   * more tabs has no way of reaching them but the scrollbar that is deliberately
+   * not drawn, or the arrow keys, which also change the selection. The bar is
+   * the same scroller a `PlScrollZone` is and answers the wheel the same way.
+   *
+   * Only while the bar overflows, and only across: a bar that runs down the side
+   * scrolls with the page, and a bar whose tabs all fit is not a scroller at
+   * all.
+   * @default true
+   */
+  wheel?: boolean;
+  /**
+   * What the bar does with a wheel it has run out of tabs for.
+   *
+   * `contain`, the default, keeps it, so a reader working along a long bar is
+   * not thrown down the page by the notch that arrives after the last tab.
+   * `auto` is the browser's own chaining, held only for as long as the gesture
+   * lasts. A bar whose tabs all fit holds nothing back either way.
+   * @default 'contain'
+   */
+  overscroll?: PlassOverscroll;
   children?: React.ReactNode;
 }
 
@@ -429,6 +456,8 @@ export const PlTabs = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTabsPro
     activateOnFocus = false,
     loopFocus = true,
     fullWidth = false,
+    wheel = true,
+    overscroll = 'contain',
     className,
     style,
     children,
@@ -454,7 +483,14 @@ export const PlTabs = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTabsPro
   );
 
   const listRef = React.useRef<HTMLDivElement>(null);
-  const overflow = useListOverflow(listRef, orientation === 'horizontal');
+  const horizontal = orientation === 'horizontal';
+  const overflow = useListOverflow(listRef, horizontal);
+
+  // The bar is a scroll container like any other, and the wheel over it is the
+  // same problem `PlScrollZone` has: see `internal/wheel.ts`. The hook does
+  // nothing at all until the tabs outrun the box, so an ordinary bar of four
+  // never takes a gesture off the page.
+  useWheelScroll(listRef, { enabled: wheel && horizontal, overscroll });
 
   // Everything a caller writes between the tags is either a tab or a panel, and
   // the two go in different boxes — so they are sorted here rather than made the
@@ -496,14 +532,18 @@ export const PlTabs = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTabsPro
             'relative shrink-0',
             listClasses[variant][orientation],
             variant === 'solid' ? radiusClasses[size] : '',
-            fullWidth && orientation === 'horizontal' ? 'w-full' : '',
+            fullWidth && horizontal ? 'w-full' : '',
             // A bar with more tabs than room scrolls rather than wrapping: a tab
             // bar on two lines has stopped being a bar, and the indicator has
             // nowhere sensible to sit.
             //
             // Which is exactly why it has to *say* that it scrolls. See
             // `useListOverflow`.
-            orientation === 'horizontal' ? 'plass-fade-x overflow-x-auto overflow-y-hidden' : ''
+            horizontal ? 'plass-fade-x overflow-x-auto overflow-y-hidden' : '',
+            // Only the axis the bar runs on, and only while it overflows: the
+            // swipe that would carry a reader back a page belongs to the bar
+            // while the bar has somewhere to go, and to the browser otherwise.
+            horizontal ? overscrollClasses(overscroll, true) : ''
           ]
             .filter(Boolean)
             .join(' ')}

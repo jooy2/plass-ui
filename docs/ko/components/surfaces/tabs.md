@@ -196,6 +196,42 @@ tabs는 내용 패널 전체를 바꿉니다. [segmented button](../inputs/segme
 
 :::
 
+<Demo src="tabs/overflow" :min-height="200">
+
+::: fw react
+
+<<< @/.vitepress/demos/tabs/overflow.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/tabs/overflow.dart
+
+:::
+
+</Demo>
+
+스크롤되는 바는 **휠**에 반응합니다. 마우스에는 휠이 하나뿐이고 그 방향은 페이지 아래쪽, 바가 유일하게 달리지 않는 방향입니다. 그래서 넘치는 바 위에서 세로로 굴린 휠은 바를 따라 움직입니다. 탭이 더 있다는 것을 본 독자에게, 일부러 그리지 않는 스크롤바도 아니고 선택까지 바꿔 버리는 방향키도 아닌 길이 생깁니다. `wheel`로 끌 수 있고, 탭이 다 들어가는 바는 애초에 이 제스처를 가져가지 않습니다.
+
+마지막 탭 다음의 이야기는 `overscroll`이 정합니다. 기본값 `contain`은 휠을 바에 붙잡아 두므로, 긴 탭 줄을 훑다가 페이지가 발밑에서 움직이는 일이 없습니다. `auto`는 끝에서 휠을 돌려주되, 조금 전까지 바를 움직이던 제스처만 붙잡습니다.
+
+::: fw react
+
+```tsx
+<PlTabs wheel={false} overscroll="auto">
+```
+
+:::
+
+::: fw flutter
+
+```dart
+PlTabs<String>(wheel: false, overscroll: PlassOverscroll.auto, tabs: tabs);
+```
+
+:::
+
 ### Controlled
 
 <Demo src="tabs/controlled" :min-height="200">
