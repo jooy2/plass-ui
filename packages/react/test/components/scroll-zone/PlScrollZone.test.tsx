@@ -391,20 +391,89 @@ describe('PlScrollZone', () => {
       }
     });
 
-    it('gives the wheel back once the strip has reached its end', async () => {
+    it('keeps the wheel once the strip has reached its end', async () => {
       const restore = clip();
 
       try {
         const screen = await render(<PlScrollZone data-testid="zone">{cards}</PlScrollZone>);
         const box = scroller(screen);
 
-        // Backwards from the start, and forwards from the end: both of them
-        // belong to the page, or a shelf would be a hole a reader scrolls into.
+        // Backwards from the start, and forwards from the end. The pointer
+        // being on the shelf is the reader saying which of the two things under
+        // it they meant to move, and reaching the last card is not them saying
+        // something else.
+        expect(wheel(box, { deltaY: -120 }).defaultPrevented).toBe(true);
+
+        box.scrollLeft = box.scrollWidth - box.clientWidth;
+
+        expect(wheel(box, { deltaY: 120 }).defaultPrevented).toBe(true);
+      } finally {
+        restore();
+      }
+    });
+
+    it('gives the wheel back at the end when the page is left to chain', async () => {
+      const restore = clip();
+
+      try {
+        const screen = await render(
+          <PlScrollZone overscroll="auto" data-testid="zone">
+            {cards}
+          </PlScrollZone>
+        );
+        const box = scroller(screen);
+
         expect(wheel(box, { deltaY: -120 }).defaultPrevented).toBe(false);
 
-        box.scrollTo({ left: box.scrollWidth - box.clientWidth, behavior: 'auto' });
+        box.scrollLeft = box.scrollWidth - box.clientWidth;
 
-        await expect.poll(() => wheel(box, { deltaY: 120 }).defaultPrevented).toBe(false);
+        expect(wheel(box, { deltaY: 120 }).defaultPrevented).toBe(false);
+      } finally {
+        restore();
+      }
+    });
+
+    it('holds a gesture that was already scrolling the strip, even so', async () => {
+      const restore = clip();
+
+      try {
+        const screen = await render(
+          <PlScrollZone overscroll="auto" data-testid="zone">
+            {cards}
+          </PlScrollZone>
+        );
+        const box = scroller(screen);
+
+        // One notch that the strip acts on, and then the end. `auto` gives the
+        // wheel back, but not in the middle of the flick that was moving the
+        // shelf a moment ago — a page that jumps out from under a gesture is
+        // the thing chaining is supposed to be sparing the reader.
+        expect(wheel(box, { deltaY: 120 }).defaultPrevented).toBe(true);
+
+        box.scrollLeft = box.scrollWidth - box.clientWidth;
+
+        expect(wheel(box, { deltaY: 120 }).defaultPrevented).toBe(true);
+      } finally {
+        restore();
+      }
+    });
+
+    it('never holds the page back on a strip everything fits in', async () => {
+      const restore = clip();
+
+      try {
+        const screen = await render(
+          <PlScrollZone data-testid="zone">
+            <div style={{ width: 40 }}>One</div>
+            <div style={{ width: 40 }}>Two</div>
+          </PlScrollZone>
+        );
+        const box = scroller(screen);
+
+        // A shelf that is not a scroller is a place on the page the reader
+        // would not be able to scroll past.
+        expect(box.scrollWidth - box.clientWidth).toBeLessThan(2);
+        expect(wheel(box, { deltaY: 120 }).defaultPrevented).toBe(false);
       } finally {
         restore();
       }
@@ -436,8 +505,38 @@ describe('PlScrollZone', () => {
       );
 
       // A vertical wheel over a vertical strip is the browser's own, and it
-      // does the whole job — the overscroll, the momentum and the chaining.
+      // does the whole job — the momentum, the rubber-banding and the scrollbar.
       expect(wheel(scroller(screen), { deltaY: 120 }).defaultPrevented).toBe(false);
+    });
+
+    it('keeps its own axis to itself, and only its own', async () => {
+      const screen = await render(<PlScrollZone data-testid="zone">{cards}</PlScrollZone>);
+
+      // The other half of `overscroll`, for the axis the browser scrolls by
+      // itself. One axis, never both: a horizontal shelf that contained the
+      // vertical one would be a box a finger cannot scroll the page from.
+      expect(scroller(screen)).toHaveClass('overscroll-x-contain');
+      expect(scroller(screen)).not.toHaveClass('overscroll-y-contain');
+    });
+
+    it('contains the axis a vertical strip actually runs on', async () => {
+      const screen = await render(
+        <PlScrollZone orientation="vertical" data-testid="zone">
+          {cards}
+        </PlScrollZone>
+      );
+
+      expect(scroller(screen)).toHaveClass('overscroll-y-contain');
+    });
+
+    it('leaves the chaining to the browser when it is asked to', async () => {
+      const screen = await render(
+        <PlScrollZone overscroll="auto" data-testid="zone">
+          {cards}
+        </PlScrollZone>
+      );
+
+      expect(scroller(screen)).not.toHaveClass('overscroll-x-contain');
     });
   });
 

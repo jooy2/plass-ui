@@ -8,6 +8,12 @@
 
 - **`PlImage` takes a `watermark`.** `PlImageWatermark` says what the mark reads, where it goes, how visible it is and at what angle; `PlImageWatermarkPlacement.tile` covers the whole picture instead of a corner. A tiled mark is one `CustomPainter` for however many copies the box holds rather than a widget each, and the canvas is turned once with the grid laid out on the turned canvas, so the repeat has no seam. It is drawn only once the picture has arrived, is excluded from the semantics tree, takes no pointer, and follows the picture into `preview`.
 
+- **`PlScrollZone` takes an `overscroll`.** `PlassOverscroll.contain`, the default, or `PlassOverscroll.auto`. See Changed for what the default alters.
+
+### Changed
+
+- **A `PlScrollZone` no longer hands the wheel back at its ends.** The pointer being on the shelf is the reader saying which of the two things under it they meant to move, and reaching the last card is not them saying something else — so whatever was behind the strip used to start moving at a pixel nobody chose, in the middle of a flick. The new `overscroll` default is `PlassOverscroll.contain`, and `PlassOverscroll.auto` is the old behaviour. Even `auto` now keeps a gesture that was scrolling the strip a moment ago, and gives the signal up only once the reader has paused. A strip everything fits in is not a scroller and holds nothing back either way.
+
 ### Fixed
 
 - **`PlSpoiler` no longer changes height when it is uncovered.** The cover is a line of explanation and a button, so it is routinely taller than the text it covers — and it was taken out of the layout on reveal, which collapsed the sheet to its content and pushed the whole page below it up. Covering it again pushed everything back down. The cover now keeps its place in the stack and is held hidden with `Visibility(maintainSize: true)` and `ExcludeFocus`, exactly as the `reversible` hide row already was, so the sheet measures the same in both states and the hidden cover is off the semantics tree. A `maxHeight` clamp is still released on reveal, which is the one thing that may resize it.

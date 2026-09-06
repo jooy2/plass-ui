@@ -203,7 +203,7 @@ Flutter leaves the mouse out of `dragDevices` by default, which is the same judg
 
 A vertical wheel over a strip that runs across the box scrolls it along. A mouse has one wheel and it points the wrong way for a horizontal strip, and what happens there is the platform's own business, which is the problem, since it makes the answer depend on which browser or which machine the reader is on. The pointer being on the strip is them saying which of the two things under it they meant to move.
 
-Only the vertical half of a gesture, and only while the strip has somewhere to go: a trackpad's two fingers and a tilt wheel already scroll it sideways and are left alone, and the moment the strip reaches an end the wheel goes back to the page, so a reader on their way down a long page is held up by one shelf rather than caught in it. A vertical zone is left alone entirely, since the wheel already runs the way it does.
+Only the vertical half of a gesture: a trackpad's two fingers and a tilt wheel already scroll the strip sideways and are left alone. A vertical zone is left alone entirely, since the wheel already runs the way it does. What happens once the strip has run out of room is `overscroll`.
 
 ::: fw react
 
@@ -222,6 +222,34 @@ PlScrollZone(wheel: false, children: items);
 ```
 
 A horizontal `Scrollable` reads the horizontal half of a scroll and a mouse wheel only ever produces the vertical one, so without this a shelf under the pointer does not move at all.
+
+:::
+
+### overscroll
+
+A shelf that has reached its last card is still the thing under the pointer, and `contain`, the default, keeps the gesture there. The page does not start moving because one more notch of the wheel arrived after the strip ran out, which is a jump the reader did not ask for and usually cannot see coming.
+
+`auto` gives the wheel back to the page at the ends, the way a nested scroller does when it is left alone. Even then the strip keeps a gesture that was scrolling it a moment ago: the page takes over once the reader has paused, not in the middle of a flick.
+
+Two things keep the containment from becoming a trap. A strip everything fits in is not a scroller and holds nothing back either way, and only the axis the strip runs on is contained, so a finger sliding down a horizontal shelf still scrolls the page.
+
+::: fw react
+
+```tsx
+<PlScrollZone overscroll="auto">{items}</PlScrollZone>
+```
+
+The other axis is `overscroll-behavior` on the scroller itself, which is what stops a two-finger swipe past the end of the shelf from going back a page.
+
+:::
+
+::: fw flutter
+
+```dart
+PlScrollZone(overscroll: PlassOverscroll.auto, children: items);
+```
+
+A strip that runs out claims the scroll anyway rather than passing it to whatever is behind it, which is the same decision `contain` makes in the browser.
 
 :::
 

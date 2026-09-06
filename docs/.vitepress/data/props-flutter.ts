@@ -4927,8 +4927,16 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'bool',
       default: 'true',
       description: {
-        ko: '가로 zone 위에서 세로로 굴린 휠이 띠를 따라 스크롤하게 합니다. 끝에 닿으면 휠은 뒤에 있는 것에게 돌아갑니다',
-        en: 'Turns a vertical wheel over a horizontal zone into scrolling along the strip. At either end it goes back to whatever is behind it'
+        ko: '가로 zone 위에서 세로로 굴린 휠이 띠를 따라 스크롤하게 합니다',
+        en: 'Turns a vertical wheel over a horizontal zone into scrolling along the strip'
+      }
+    }),
+    from('PlScrollZone', 'overscroll', {
+      type: 'PlassOverscroll',
+      default: 'PlassOverscroll.contain',
+      description: {
+        ko: '갈 곳이 없어진 제스처를 띠가 어떻게 할지. contain은 그대로 붙잡고, auto는 뒤에 있는 것에게 넘깁니다',
+        en: 'What the strip does with a gesture it has run out of room for. contain keeps it, auto hands it to whatever is behind the strip'
       }
     }),
     from('PlScrollZone', 'scrollbar', { type: 'bool', default: 'false' }),

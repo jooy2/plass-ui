@@ -8,7 +8,14 @@ import { spacingValue } from '../../internal/grid.js';
 import { ChevronIcon } from '../../internal/icons.js';
 import { cx } from '../../internal/styles.js';
 import { useResponsiveValue } from '../../internal/responsive.js';
-import type { PlassOrientation, PlassResponsive, PlassSize, PlassStyleProps } from '../../types.js';
+import { overscrollClasses, useWheelScroll } from '../../internal/wheel.js';
+import type {
+  PlassOrientation,
+  PlassOverscroll,
+  PlassResponsive,
+  PlassSize,
+  PlassStyleProps
+} from '../../types.js';
 
 /**
  * When the scroll buttons are drawn.
@@ -118,14 +125,27 @@ export interface PlScrollZoneProps
    * reader happens to be in. The pointer being on the strip is them saying
    * which of the two things under it they meant to move.
    *
-   * Only the vertical half of a gesture, and only while the strip has somewhere
-   * to go. A trackpad's two fingers, a tilt wheel and Shift held down already
-   * scroll it sideways and are left alone; and the moment it reaches an end the
-   * wheel goes back to the page, so a reader on their way down a long page is
-   * held up by one shelf rather than caught in it.
+   * Only the vertical half of a gesture: a trackpad's two fingers, a tilt wheel
+   * and Shift held down already scroll the strip sideways and are left alone.
+   * What happens once the strip has nowhere left to go is `overscroll`.
    * @default true
    */
   wheel?: boolean;
+  /**
+   * What the strip does with a gesture it has run out of room for.
+   *
+   * `contain`, the default, keeps it: the pointer being on the shelf is the
+   * reader saying which of the two things under it they meant to move, and a
+   * page that starts moving the instant the last card arrives is that answer
+   * being overruled halfway through a flick. `auto` is the browser's own
+   * chaining, held only for as long as the gesture lasts.
+   *
+   * A strip everything fits in is never a scroller and holds nothing back
+   * either way, and only the axis the strip runs on is contained — a shelf that
+   * kept the other one would be a box a finger cannot scroll the page from.
+   * @default 'contain'
+   */
+  overscroll?: PlassOverscroll;
   /** Shows the native scrollbar. @default false */
   scrollbar?: boolean;
   /** What the scrollable region is called — "Categories", "Recent files". */
@@ -172,12 +192,6 @@ const DRAG_THRESHOLD = 4;
 
 /** Under this, a press in `hold` mode was a tap and moves one item instead. */
 const TAP_MS = 140;
-
-/**
- * What one line is worth in pixels, for the browsers that report a wheel in
- * lines rather than in pixels.
- */
-const WHEEL_LINE = 16;
 
 /** A reader who has asked for less motion gets the cut rather than the travel. */
 function scrollBehavior(): ScrollBehavior {
@@ -226,6 +240,7 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
       snap = false,
       drag = true,
       wheel = true,
+      overscroll = 'contain',
       scrollbar = false,
       variant = 'glass',
       size: sizeProp,
@@ -353,56 +368,12 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
 
     /*
      * The wheel, and the one place the component takes an event off the
-     * browser. What a vertical wheel does over a strip that runs across the box
-     * is not the same in every browser, and leaving it alone buys a shelf that
-     * answers the wheel on one machine and sits still on the next.
-     *
-     * A native listener rather than `onWheel`, because React attaches its own
-     * wheel listener to the root passively, and `preventDefault` inside a
-     * passive listener does nothing but log.
+     * browser. What it does and what it refuses to do is `internal/wheel.ts`;
+     * a vertical strip is left out of it entirely, because there the wheel
+     * already runs the way the strip does and the browser's own scrolling is
+     * better than anything a handler reproduces.
      */
-    React.useEffect(() => {
-      const element = scrollerRef.current;
-
-      if (!element || !wheel || !horizontal) {
-        return;
-      }
-
-      const onWheel = (event: WheelEvent) => {
-        // A gesture that already has a horizontal half is one the browser
-        // scrolls the strip with by itself: a trackpad, a tilt wheel, or Shift
-        // held down.
-        if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) {
-          return;
-        }
-
-        const distance =
-          event.deltaMode === event.DOM_DELTA_LINE
-            ? event.deltaY * WHEEL_LINE
-            : event.deltaMode === event.DOM_DELTA_PAGE
-              ? event.deltaY * element.clientWidth
-              : event.deltaY;
-
-        // `abs`, for the reason `measure` gives: a right-to-left container
-        // counts its scroll backwards from zero.
-        const along = Math.abs(element.scrollLeft);
-        const room =
-          distance > 0 ? element.scrollWidth - element.clientWidth - along > 1 : along > 1;
-
-        // Nothing left this way, so the page has it back. A shelf that swallowed
-        // the wheel at both ends would be a hole a reader scrolls into.
-        if (!room) {
-          return;
-        }
-
-        event.preventDefault();
-        scrollByPixels(distance * forwardSign(), false);
-      };
-
-      element.addEventListener('wheel', onWheel, { passive: false });
-
-      return () => element.removeEventListener('wheel', onWheel);
-    }, [forwardSign, horizontal, scrollByPixels, wheel]);
+    useWheelScroll(scrollerRef, { enabled: wheel && horizontal, overscroll });
 
     /**
      * Where each child starts, measured from the leading edge of the viewport
@@ -751,6 +722,10 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
             // all, and a horizontal strip would come out flat.
             'min-h-0 min-w-0 grow',
             horizontal ? 'overflow-x-auto overflow-y-hidden' : 'overflow-y-auto overflow-x-hidden',
+            // The other half of `overscroll`, for the axis the browser scrolls
+            // by itself: a two-finger swipe along the shelf, and the swipe past
+            // the end of it that would otherwise go back a page.
+            overscrollClasses(overscroll, horizontal),
             snap ? (horizontal ? 'snap-x snap-mandatory' : 'snap-y snap-mandatory') : '',
             scrollbar ? '' : '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
             drag && (reach.back || reach.forward)

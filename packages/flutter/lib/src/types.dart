@@ -110,6 +110,25 @@ enum PlassOrientation {
   vertical,
 }
 
+/// What a scroller does with a gesture it has run out of room for.
+///
+/// The name and the two values are CSS's `overscroll-behavior`, because the
+/// React package's half of this is that property and one idea should not have
+/// two spellings across the two packages.
+enum PlassOverscroll {
+  /// Hands the rest of the gesture to whatever is behind the scroller, which is
+  /// what a nested scroll view does left alone. Even here the strip keeps a
+  /// gesture that was scrolling it a moment ago: what is behind it takes over
+  /// once the reader has paused, not in the middle of a flick.
+  auto,
+
+  /// Keeps it. The pointer being inside the strip is the reader saying which of
+  /// the two things under it they meant to move, and reaching the end is not
+  /// them saying something else. A strip everything fits in is not a scroller
+  /// and holds nothing back either way.
+  contain,
+}
+
 /// Which edge of an anchor something is placed against.
 ///
 /// Physical rather than logical — `start`/`end` would be wrong here, because a

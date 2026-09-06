@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/components/icon_button/pl_icon_button.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/internal/wheel.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -180,6 +181,7 @@ class PlScrollZone extends StatefulWidget {
     this.snap = false,
     this.drag = true,
     this.wheel = true,
+    this.overscroll = PlassOverscroll.contain,
     this.scrollbar = false,
     this.controller,
     this.variant = PlassVariant.glass,
@@ -247,11 +249,23 @@ class PlScrollZone extends StatefulWidget {
   /// way; the pointer being on the strip is the reader saying which of the two
   /// things under it they meant to move.
   ///
-  /// Only the vertical half of a gesture, and only while the strip has
-  /// somewhere to go. A trackpad's two fingers and a tilt wheel already scroll
-  /// it sideways and are left to the framework, and the moment it reaches an
-  /// end the wheel goes back to whatever is behind it.
+  /// Only the vertical half of a gesture: a trackpad's two fingers and a tilt
+  /// wheel already scroll the strip sideways and are left to the framework.
+  /// What happens once the strip has nowhere left to go is [overscroll].
   final bool wheel;
+
+  /// What the strip does with a gesture it has run out of room for.
+  ///
+  /// [PlassOverscroll.contain], the default, keeps it: the pointer being on the
+  /// shelf is the reader saying which of the two things under it they meant to
+  /// move, and a page that starts moving the instant the last card arrives is
+  /// that answer being overruled halfway through a flick.
+  /// [PlassOverscroll.auto] gives the gesture back to whatever is behind the
+  /// strip, holding it only for as long as the flick lasts.
+  ///
+  /// A strip everything fits in is never a scroller and holds nothing back
+  /// either way.
+  final PlassOverscroll overscroll;
 
   /// Draws a scrollbar over the strip.
   final bool scrollbar;
@@ -500,42 +514,6 @@ class _PlScrollZoneState extends State<PlScrollZone> with SingleTickerProviderSt
     _hold = null;
   }
 
-  /// The wheel, and the one place the widget takes an event off the framework.
-  ///
-  /// Registered through the [PointerSignalResolver] rather than acted on where
-  /// it arrives: a scroll view that has claimed the same event — a trackpad's
-  /// two fingers, a tilt wheel, anything with a horizontal half — is deeper in
-  /// the hit test than this listener and registers first, which is what keeps
-  /// the two of them from both moving the strip.
-  void _onPointerSignal(PointerSignalEvent event) {
-    if (event is! PointerScrollEvent || !_scroll.hasClients) {
-      return;
-    }
-
-    final Offset delta = event.scrollDelta;
-
-    if (delta.dy == 0 || delta.dy.abs() <= delta.dx.abs()) {
-      return;
-    }
-
-    final position = _scroll.position;
-    final double target = (position.pixels + delta.dy).clamp(
-      position.minScrollExtent,
-      position.maxScrollExtent,
-    );
-
-    // Nothing left this way, so whatever is behind the strip has it back. A
-    // shelf that swallowed the wheel at both ends would be a hole a reader
-    // scrolls into.
-    if (target == position.pixels) {
-      return;
-    }
-
-    GestureBinding.instance.pointerSignalResolver.register(event, (PointerSignalEvent _) {
-      _scroll.jumpTo(target);
-    });
-  }
-
   /// Snaps to the nearest group when the scrolling stops, however it stopped.
   bool _onScrollEnd(ScrollEndNotification notification) {
     if (!widget.snap || !_scroll.hasClients) {
@@ -704,9 +682,16 @@ class _PlScrollZoneState extends State<PlScrollZone> with SingleTickerProviderSt
       ),
     );
 
-    if (widget.wheel && _horizontal) {
-      strip = Listener(onPointerSignal: _onPointerSignal, child: strip);
-    }
+    // The wheel, and the one place the widget takes a signal off the framework.
+    // What it does and what it refuses to do is `internal/wheel.dart`; turning
+    // one is a horizontal strip's problem alone, because a vertical one already
+    // runs the way the wheel does.
+    strip = PlassWheelScroll(
+      controller: _scroll,
+      turn: widget.wheel && _horizontal,
+      overscroll: widget.overscroll,
+      child: strip,
+    );
 
     if (widget.label != null) {
       strip = Semantics(container: true, label: widget.label, child: strip);

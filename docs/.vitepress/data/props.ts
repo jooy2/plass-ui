@@ -9541,8 +9541,18 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'boolean',
       default: 'true',
       description: {
-        ko: '가로 zone 위에서 세로로 굴린 휠이 띠를 따라 스크롤하게 합니다. 끝에 닿으면 휠은 페이지로 돌아갑니다',
-        en: 'Turns a vertical wheel over a horizontal zone into scrolling along the strip. At either end it goes back to the page'
+        ko: '가로 zone 위에서 세로로 굴린 휠이 띠를 따라 스크롤하게 합니다',
+        en: 'Turns a vertical wheel over a horizontal zone into scrolling along the strip'
+      }
+    },
+    {
+      name: 'overscroll',
+      type: "'auto' | 'contain'",
+      default: "'contain'",
+      shared: true,
+      description: {
+        ko: '갈 곳이 없어진 제스처를 띠가 어떻게 할지. contain은 그대로 붙잡고, auto는 페이지로 넘깁니다. 내용이 다 들어가는 띠는 어느 쪽이든 아무것도 붙잡지 않습니다',
+        en: 'What the strip does with a gesture it has run out of room for. contain keeps it, auto hands it to the page. A strip everything fits in holds nothing back either way'
       }
     },
     {

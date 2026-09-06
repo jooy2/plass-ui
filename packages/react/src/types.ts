@@ -124,6 +124,22 @@ export type PlassAlignSelf = 'auto' | 'start' | 'center' | 'end' | 'stretch' | '
 export type PlassPosition = 'static' | 'sticky' | 'fixed';
 
 /**
+ * What a scroller does with a gesture it has run out of room for, spelled the
+ * way CSS spells it.
+ *
+ * - `contain` — keeps it. The pointer being inside the strip is the reader
+ *   saying which of the two things under it they meant to move, and that answer
+ *   does not change the moment the strip reaches its end. A shelf that fits its
+ *   box is not a scroller and never holds anything back, so what this contains
+ *   is only a gesture that was moving *something*.
+ * - `auto` — hands it back to the page, which is what a nested scroller does
+ *   left alone. Even here the strip keeps the wheel while the gesture that was
+ *   scrolling it is still running: a page that jumps out from under a flick is
+ *   the thing chaining was supposed to be sparing the reader.
+ */
+export type PlassOverscroll = 'auto' | 'contain';
+
+/**
  * Which corner of a box something is pinned to. `PlBadge` reads this.
  *
  * Deliberately one word built out of the two the library already has —

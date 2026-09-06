@@ -20,7 +20,11 @@
 
 - **`PlImage` takes a `protect`.** Refuses the context menu, a drag out of the page, a text selection over the picture and — the one that is easy to forget — the iOS long-press callout, which on that platform _is_ the context menu. It is a deterrent and not a lock, and the documentation says so: the file is still one request away. A caller's own `onContextMenu` still runs and cannot turn the refusal off, and the refusal follows the picture into `preview`. There is no Flutter equivalent, because a Flutter app paints its pictures onto a canvas and there is no per-picture menu to refuse.
 
+- **`PlScrollZone` takes an `overscroll`.** `'contain'`, the default, or `'auto'`, spelled after CSS's own `overscroll-behavior` and shared as `PlassOverscroll`. See below for what the default changes.
+
 ### Changed
+
+- **A `PlScrollZone` no longer hands the wheel back to the page at its ends.** The pointer being on the shelf is the reader saying which of the two things under it they meant to move, and reaching the last card is not them saying something else — so the page used to start moving at a pixel nobody chose, in the middle of a flick. The new `overscroll` default is `'contain'`, and `overscroll="auto"` is the old behaviour. Even `auto` now keeps a gesture that was scrolling the strip a moment ago and hands the page the wheel only once the reader has paused. Two things keep this from being a trap: a strip everything fits in is not a scroller and holds nothing back either way, and only the axis the strip runs on is contained, so a finger sliding down a horizontal shelf still scrolls the page.
 
 - **`PlImage`'s preview overlay is now a separate chunk.** `preview` is off by default and the overlay is several times the weight of the picture component that opens it, so it is reached through `React.lazy` — as `PlGallery`'s viewer already was. That takes 21 kB gzipped off the first paint of any page importing `PlImage` — it measured 26.8 kB and the overlay was 25.4 kB of it — and the same 21 kB off `PlGallery`, which draws its tiles with a `PlImage` and whose own lazy viewer had been undone by this one import. Nothing to configure, and no API change; on a cold cache the overlay now appears a moment after the first press.
 

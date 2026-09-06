@@ -320,12 +320,50 @@ void main() {
 
     group('the wheel', () {
       /// A mouse parked on the strip, and one turn of its wheel.
-      Future<void> spin(WidgetTester tester, Offset delta, {Finder? on}) async {
+      ///
+      /// [at] is when the turn happened, which the strip reads: a wheel that
+      /// arrives while the last one is still being acted on belongs to the same
+      /// gesture, and the default leaves every turn in the same instant.
+      Future<void> spin(
+        WidgetTester tester,
+        Offset delta, {
+        Finder? on,
+        Duration at = Duration.zero,
+      }) async {
         final pointer = TestPointer(1, PointerDeviceKind.mouse);
 
         pointer.hover(tester.getCenter(on ?? find.byType(SingleChildScrollView)));
-        await tester.sendEventToBinding(pointer.scroll(delta));
+        await tester.sendEventToBinding(pointer.scroll(delta, timeStamp: at));
         await tester.pump();
+      }
+
+      /// A strip inside something that scrolls the other way, which is the only
+      /// arrangement in which chaining is observable at all.
+      Widget nested({
+        required ScrollController inner,
+        required ScrollController outer,
+        PlassOverscroll overscroll = PlassOverscroll.contain,
+        int cards = 6,
+      }) {
+        return host(
+          SingleChildScrollView(
+            controller: outer,
+            child: Column(
+              children: <Widget>[
+                PlScrollZone(
+                  controller: inner,
+                  spacing: 8,
+                  buttons: PlScrollZoneButtons.none,
+                  overscroll: overscroll,
+                  children: _cards(count: cards),
+                ),
+                const SizedBox(height: 600),
+              ],
+            ),
+          ),
+          width: 300,
+          height: 200,
+        );
       }
 
       testWidgets('scrolls the strip along on a vertical wheel', (WidgetTester tester) async {
@@ -355,7 +393,37 @@ void main() {
         expect(controller.offset, 0);
       });
 
-      testWidgets('hands the wheel back once the strip has reached its end', (
+      testWidgets('keeps the wheel once the strip has reached its end', (
+        WidgetTester tester,
+      ) async {
+        final inner = ScrollController();
+        final outer = ScrollController();
+        addTearDown(inner.dispose);
+        addTearDown(outer.dispose);
+
+        await tester.pumpWidget(nested(inner: inner, outer: outer));
+        await tester.pumpAndSettle();
+
+        await spin(tester, const Offset(0, 10000), on: find.byType(PlScrollZone));
+
+        expect(inner.offset, inner.position.maxScrollExtent);
+        expect(outer.offset, 0);
+
+        await spin(
+          tester,
+          const Offset(0, 100),
+          on: find.byType(PlScrollZone),
+          at: const Duration(seconds: 5),
+        );
+
+        // The pointer being on the shelf is the reader saying which of the two
+        // things under it they meant to move, and reaching the last card is not
+        // them saying something else.
+        expect(outer.offset, 0);
+        expect(inner.offset, inner.position.maxScrollExtent);
+      });
+
+      testWidgets('hands it back at the end when the page is left to chain', (
         WidgetTester tester,
       ) async {
         final inner = ScrollController();
@@ -364,24 +432,7 @@ void main() {
         addTearDown(outer.dispose);
 
         await tester.pumpWidget(
-          host(
-            SingleChildScrollView(
-              controller: outer,
-              child: Column(
-                children: <Widget>[
-                  PlScrollZone(
-                    controller: inner,
-                    spacing: 8,
-                    buttons: PlScrollZoneButtons.none,
-                    children: _cards(),
-                  ),
-                  const SizedBox(height: 600),
-                ],
-              ),
-            ),
-            width: 300,
-            height: 200,
-          ),
+          nested(inner: inner, outer: outer, overscroll: PlassOverscroll.auto),
         );
         await tester.pumpAndSettle();
 
@@ -390,13 +441,56 @@ void main() {
         expect(inner.offset, inner.position.maxScrollExtent);
         expect(outer.offset, 0);
 
-        await spin(tester, const Offset(0, 100), on: find.byType(PlScrollZone));
+        // Five seconds later, which is the reader having stopped and looked at
+        // what arrived rather than the same flick carrying on.
+        await spin(
+          tester,
+          const Offset(0, 100),
+          on: find.byType(PlScrollZone),
+          at: const Duration(seconds: 5),
+        );
 
-        // The strip has nothing left, so what is behind it takes the wheel. A
-        // shelf that swallowed it at both ends would be a hole a reader scrolls
-        // into.
         expect(outer.offset, 100);
         expect(inner.offset, inner.position.maxScrollExtent);
+      });
+
+      testWidgets('holds a gesture that was already scrolling the strip, even so', (
+        WidgetTester tester,
+      ) async {
+        final inner = ScrollController();
+        final outer = ScrollController();
+        addTearDown(inner.dispose);
+        addTearDown(outer.dispose);
+
+        await tester.pumpWidget(
+          nested(inner: inner, outer: outer, overscroll: PlassOverscroll.auto),
+        );
+        await tester.pumpAndSettle();
+
+        await spin(tester, const Offset(0, 10000), on: find.byType(PlScrollZone));
+        await spin(tester, const Offset(0, 100), on: find.byType(PlScrollZone));
+
+        // The same flick, one notch later. A page that jumps out from under a
+        // gesture is the thing chaining is supposed to be sparing the reader.
+        expect(outer.offset, 0);
+      });
+
+      testWidgets('never holds the page back on a strip everything fits in', (
+        WidgetTester tester,
+      ) async {
+        final inner = ScrollController();
+        final outer = ScrollController();
+        addTearDown(inner.dispose);
+        addTearDown(outer.dispose);
+
+        await tester.pumpWidget(nested(inner: inner, outer: outer, cards: 2));
+        await tester.pumpAndSettle();
+
+        await spin(tester, const Offset(0, 100), on: find.byType(PlScrollZone));
+
+        // Not a scroller, so not a place on the page the reader cannot scroll
+        // past. This is the whole of what keeps the containment honest.
+        expect(outer.offset, 100);
       });
     });
 
