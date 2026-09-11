@@ -8,6 +8,8 @@
 
 Live previews and full props for every component, in both frameworks. This README is the map; each package has a quick start of its own.
 
+![Plass UI components arranged around the Plass mark: a search field, a settings card, radio buttons and checkboxes, buttons and chips, a segmented button and pagination, a success alert, a slider, a progress bar and a meter, an avatar stack, a badge and a rating](.github/showcase.png)
+
 ---
 
 > **Plass is one design language, shipped as two libraries.** 127 components made of tinted glass and gradients, in **React** and in **Flutter**, under the same names and the same numbers.
