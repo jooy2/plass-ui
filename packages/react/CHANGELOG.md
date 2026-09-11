@@ -6,6 +6,8 @@
 
 ### Fixed
 
+- **`PlChip` keeps the tails of its letters.** The label is truncated, and truncation clips at the line box, which the chip's one-em leading made shorter than the glyphs inside it — so every g, j, p, q and y lost its descender, at every size. The label's line box is now the font's own height. The chip is the same height and the words sit where they did.
+
 - **`PlSpoiler` no longer changes height when it is uncovered.** The cover is a line of explanation and a button, so it is routinely taller than the text it covers — and it was taken out of the layout on reveal, which collapsed the sheet to its content and pushed the whole page below it up. Covering it again pushed everything back down. The cover now keeps its place and is held hidden and `inert`, exactly as the `reversible` hide row already was, so the sheet measures the same in both states. A `maxHeight` clamp is still released on reveal, which is the one thing that may resize it.
 
 - **A justified `PlGallery` no longer blows up its last row.** Every tile is grown in proportion to its own width, and the last row has fewer of them sharing the same width — so one leftover photograph stretched to fill it and stood two or three times as tall as the gallery above it. The list now carries a `::after` that eats the slack, which keeps the last row at the height it was aiming for. It is a pseudo-element rather than a filler item on purpose: an extra `<li>` would be an extra entry in a `role="list"`, counted by every screen reader that announces how many there are. The Flutter build already left its last row unstretched.

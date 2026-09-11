@@ -21,7 +21,15 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlButton, PlGallery, PlLineChart, PlScatterChart, PlStack, PlTextField } from 'plass-ui';
+import {
+  PlButton,
+  PlChip,
+  PlGallery,
+  PlLineChart,
+  PlScatterChart,
+  PlStack,
+  PlTextField
+} from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
 import pkg from '../../package.json';
 
@@ -128,6 +136,23 @@ describe('plass-ui/styles.css', () => {
       const radius = getComputedStyle(screen.getByRole('button').element()).borderRadius;
 
       expect(parseFloat(radius)).toBeGreaterThan(0);
+    });
+
+    it('leave a truncated label room for its descenders', async () => {
+      // A chip sets its row at `leading-none` and its label at `truncate`, which
+      // is `overflow: hidden`. A one-em line box is shorter than the glyphs in
+      // it, so the clip took the tail off every g, j, p, q and y. What is
+      // measured is the text's own content area against the box that clips it.
+      const screen = await render(<PlChip>Typography</PlChip>);
+      const label = screen.getByText('Typography').element() as HTMLElement;
+      const glyphs = document.createRange();
+
+      glyphs.selectNodeContents(label);
+
+      expect(getComputedStyle(label).overflow).toBe('hidden');
+      expect(label.clientHeight).toBeGreaterThanOrEqual(
+        Math.floor(glyphs.getBoundingClientRect().height)
+      );
     });
   });
 
