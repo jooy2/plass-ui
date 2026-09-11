@@ -4,8 +4,6 @@
 
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/jooy2/plass-ui/blob/main/LICENSE) [![npm latest package](https://img.shields.io/npm/v/plass-ui/latest.svg)](https://www.npmjs.com/package/plass-ui) [![npm downloads](https://img.shields.io/npm/dm/plass-ui.svg)](https://www.npmjs.com/package/plass-ui) [![pub package](https://img.shields.io/pub/v/plass_ui.svg)](https://pub.dev/packages/plass_ui)
 
-### [**plass.cdget.com**](https://plass.cdget.com)
-
 Live previews and full props for every component, in both frameworks. This README is the map; each package has a quick start of its own.
 
 ![Plass UI components arranged around the Plass mark: a search field, a settings card, radio buttons and checkboxes, buttons and chips, a segmented button and pagination, a success alert, a slider, a progress bar and a meter, an avatar stack, a badge and a rating](.github/showcase.png)
