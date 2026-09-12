@@ -23,7 +23,7 @@
  *
  * **The last two names are the small half of the package.** `@source '.'` is
  * generous on purpose: it is one line and it cannot be got wrong. What it costs
- * is that a project running Tailwind generates the utilities for all 114
+ * is that a project running Tailwind generates the utilities for all 130
  * components whether it imports one of them or all of them, because Tailwind
  * scans *files* and not the import graph — there is nothing in a build that
  * connects `import { PlButton }` to the classes `PlSelect.js` spells out.
@@ -40,7 +40,7 @@
  *
  * That is still **one** Tailwind pass over a narrower set of files, so the
  * utilities come out in Tailwind's own order — which is the reason this is
- * shipped as a scan and not as 45 pre-compiled stylesheets. Concatenating
+ * shipped as a scan and not as 130 pre-compiled stylesheets. Concatenating
  * pre-compiled files would put every shared utility ahead of every
  * component-specific one, and Tailwind's sort is what decides which of two
  * conflicting utilities wins. A stylesheet that is 5 kB smaller and sometimes
