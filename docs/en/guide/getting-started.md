@@ -313,6 +313,8 @@ One thing does **not** change with the theme, and it is deliberate: the colour o
 
 The tokens use `color-mix()` and `backdrop-filter`. That means Chrome, Safari and Firefox from 2023 onwards. Where `backdrop-filter` is missing only the blur drops out; the fill, the hairline, the tinted shadow and the pointer glow still work, and a sheet reads as a flat translucent panel rather than as glass.
 
+[Browser support](../browser-support) lists the exact versions and what an older browser loses.
+
 :::
 
 ::: fw flutter
@@ -322,5 +324,7 @@ The tokens use `color-mix()` and `backdrop-filter`. That means Chrome, Safari an
 Every platform Flutter targets, with no per-platform code: the components are drawn rather than delegated, so there is nothing that only exists on one of them.
 
 `glass` uses `BackdropFilter`, which is the most expensive thing in the library on any platform. A screen with dozens of glass surfaces on it is worth measuring; a screen with a handful is not.
+
+[Browser support](../browser-support) lists the browsers a Flutter web build runs in.
 
 :::

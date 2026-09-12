@@ -182,11 +182,11 @@ const commonSidebarConfig: VitePressSidebarOptions = {
 /**
  * The sidebar groups the folder tree cannot name.
  *
- * `design/` and `examples/` have no `index.md` and the changelog is a loose
- * page, so none of them can take its heading from a page the way every other
- * group does. Left to the generator, `design/` would be capitalised to "Design"
- * over Korean pages and the changelog would sit at the root with no heading over
- * it at all.
+ * `design/` and `examples/` have no `index.md`, and browser support and the
+ * changelog are loose pages, so none of them can take its heading from a page
+ * the way every other group does. Left to the generator, `design/` would be
+ * capitalised to "Design" over Korean pages and the loose pages would sit at the
+ * root with no heading over them at all.
  *
  * `examples/` has no index on purpose: `/examples/` is not a page, it is the
  * three screens under it, and an index that said so in one line would be a page
@@ -748,6 +748,7 @@ function arrangeSidebar<T extends GeneratedSidebarItem>(items: T[], lang: string
   const components = items.find(startsWith('components/'));
   const hooks = items.find(startsWith('hooks/'));
   const design = items.find(startsWith('design/'));
+  const browserSupport = items.find(startsWith('browser-support'));
   const changelog = items.find(startsWith('changelog'));
 
   if (components) {
@@ -783,10 +784,16 @@ function arrangeSidebar<T extends GeneratedSidebarItem>(items: T[], lang: string
   }
 
   // A loose page has no group of its own, so it is given one — the place
-  // anything that is neither a guide nor a component ends up.
-  const more = changelog ? ({ text: labels.more, items: [changelog] } as unknown as T) : undefined;
+  // anything that is neither a guide nor a component ends up. The changelog
+  // stays last, where a reader looks for it.
+  const loosePages = [browserSupport, changelog].filter(Boolean) as T[];
+  const more = loosePages.length
+    ? ({ text: labels.more, items: loosePages } as unknown as T)
+    : undefined;
 
-  const moved = new Set([guide, examples, components, hooks, design, changelog].filter(Boolean));
+  const moved = new Set(
+    [guide, examples, components, hooks, design, browserSupport, changelog].filter(Boolean)
+  );
 
   return [
     ...([guide, examples, components, hooks, design, more].filter(Boolean) as T[]),

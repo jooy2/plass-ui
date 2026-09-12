@@ -313,6 +313,8 @@ PlassTheme(brightness: Brightness.dark, child: ...)
 
 토큰이 `color-mix()`와 `backdrop-filter`를 씁니다. 2023년 이후의 Chrome, Safari, Firefox를 뜻합니다. `backdrop-filter`가 없는 곳에서는 blur만 빠지고 채움과 hairline, tint된 그림자, 포인터 glow는 그대로 동작합니다. 시트가 유리 대신 평평한 반투명 패널로 보일 뿐입니다.
 
+정확한 버전과 오래된 브라우저에서 빠지는 것은 [브라우저 지원](../browser-support)에 있습니다.
+
 :::
 
 ::: fw flutter
@@ -322,5 +324,7 @@ PlassTheme(brightness: Brightness.dark, child: ...)
 Flutter가 지원하는 모든 플랫폼입니다. 플랫폼별 코드는 없습니다. 컴포넌트는 위임하지 않고 직접 그리므로, 한쪽에만 있는 것도 없습니다.
 
 `glass`는 `BackdropFilter`를 쓰는데, 어느 플랫폼에서든 이 라이브러리에서 가장 비싼 연산입니다. 유리 표면이 수십 개 올라간 화면이라면 측정해 볼 값어치가 있고, 몇 개 정도라면 그렇지 않습니다.
+
+Flutter 웹 빌드가 돌아가는 브라우저는 [브라우저 지원](../browser-support)에 있습니다.
 
 :::
