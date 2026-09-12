@@ -2,13 +2,14 @@
  * Runs `vitepress build` with a heap big enough to finish it.
  *
  * VitePress builds the client bundle, the SSR bundle and every page in one
- * process, and this site is a component library's worth of them: 234 pages
- * across two locales, ~490 React demos behind an `import.meta.glob`, and two
- * framework halves of nearly every page. It peaks at 5.7 GB, against Node's
- * default old-space ceiling of about 4 GB — a ceiling Node picks from a table
- * rather than from the machine, so a laptop with 64 GB in it hits the same wall
- * a 4 GB one does. The build dies with `Reached heap limit` partway through the
- * bundles, which reads as a code error in the site and is not one.
+ * process, and this site is a component library's worth of them: 306 pages
+ * across two locales, ~580 React demos behind an `import.meta.glob`, and two
+ * framework halves of nearly every page. It peaks at about 8.8 GB, against
+ * Node's default old-space ceiling of about 4 GB — a ceiling Node picks from a
+ * table rather than from the machine, so a laptop with 64 GB in it hits the
+ * same wall a 4 GB one does. The build dies with `JavaScript heap out of
+ * memory` partway through the bundles, which reads as a code error in the site
+ * and is not one.
  *
  * The ceiling has to be set on the process **before** it starts, which is why
  * this is a launcher rather than a line inside the build. Spawning Node
@@ -27,8 +28,12 @@ import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
 
-/** Measured peak is 5.7 GB. The rest is room for the site to keep growing. */
-const HEAP_MB = 8192;
+/**
+ * Measured peak is about 8.8 GB of resident memory. The previous 8192 had no
+ * room left: the site built at 8.4 GB and one more page tipped it over. The
+ * rest is room for the site to keep growing.
+ */
+const HEAP_MB = 12288;
 
 /**
  * VitePress's own executable, found through its manifest.
