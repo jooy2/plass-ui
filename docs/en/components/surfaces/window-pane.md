@@ -115,9 +115,11 @@ It applies to the title bar, the body's own fill and the border, **never to the 
 
 The title bar drags and the eight edges and corners resize. Both are off by default: a window in a page is usually a picture of one, and a frame that moved when a reader brushed it would be a surprise.
 
+A resize stops at `minWidth` and `minHeight`, and `onResize` reports the size it stopped at. Dragging a left or a top edge moves the window as well as resizing it, so `onOffsetChange` fires during those too.
+
 ## Accessibility
 
 - The window is a named group, taking its name from the title. On React that is `role="group"` with `aria-labelledby`; on Flutter it is a semantics container with `explicitChildNodes`, which is what stops the title, the buttons and every word of the content merging into one long name.
 - The three buttons are real buttons and say what they do. `maximize` becomes **Restore** once the window is filling its container, which is what every system calls it.
-- On React one of the eight resize handles is reachable without a pointer, and it is the corner that changes both axes at once. Eight tab stops around every window would cost a keyboard reader more than the seven extra directions are worth; the arrow keys move that corner.
+- One of the eight resize handles is reachable without a pointer, and it is the corner that changes both axes at once. Eight tab stops around every window would cost a keyboard reader more than the seven extra directions are worth; the arrow keys move that corner. The other seven are hidden from the accessibility tree rather than left in it unnamed.
 - A minimized window's content is put **out of reach rather than taken away**. It is still in the tree, marked inert, so nothing under a rolled-up bar can be tabbed into.

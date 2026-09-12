@@ -4,9 +4,12 @@ library;
 import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/date.dart';
+import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/window.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
@@ -55,10 +58,14 @@ class PlWindowPane extends StatefulWidget {
     this.active = true,
     this.elevation = 2,
     this.draggable = false,
+    this.resizable = false,
     this.width,
     this.height,
+    this.minWidth = 180,
+    this.minHeight,
     this.offset = Offset.zero,
     this.onOffsetChanged,
+    this.onResize,
     this.open = true,
     this.onOpenChanged,
     this.minimized = false,
@@ -69,6 +76,7 @@ class PlWindowPane extends StatefulWidget {
     this.maximizeLabel,
     this.restoreLabel,
     this.closeLabel,
+    this.resizeLabel,
     this.child,
     super.key,
   });
@@ -122,17 +130,33 @@ class PlWindowPane extends StatefulWidget {
   /// Lets the title bar be dragged.
   final bool draggable;
 
+  /// Lets the eight edges and corners be dragged.
+  final bool resizable;
+
   /// The window's width.
   final double? width;
 
   /// And its height. Left out, the window is as tall as what is in it.
   final double? height;
 
+  /// How narrow it may be dragged, in logical pixels.
+  final double minWidth;
+
+  /// The same downward. Defaults to the title bar's own height, which is what
+  /// is left of a window once the body has been dragged out of it.
+  final double? minHeight;
+
   /// How far it has been dragged from where the layout put it.
+  ///
+  /// A drag on the left or the top edge moves the window as well as resizing
+  /// it, so this reports during a resize too.
   final Offset offset;
 
-  /// Called while the title bar is dragged.
+  /// Called while the title bar is dragged, and while a leading edge is.
   final ValueChanged<Offset>? onOffsetChanged;
+
+  /// Called with the window's size while an edge is dragged.
+  final ValueChanged<Size>? onResize;
 
   /// Whether the window is on screen at all. Closing it renders nothing.
   final bool open;
@@ -165,6 +189,9 @@ class PlWindowPane extends StatefulWidget {
   /// And the close button's.
   final String? closeLabel;
 
+  /// What the one reachable resize handle is called.
+  final String? resizeLabel;
+
   /// What is in the window.
   final Widget? child;
 
@@ -174,6 +201,27 @@ class PlWindowPane extends StatefulWidget {
 
 class _PlWindowPaneState extends State<PlWindowPane> {
   Offset _dragged = Offset.zero;
+
+  /// The size a drag has left the window at, over whatever it was told to be.
+  Size? _sized;
+
+  /// What the window measured at the moment the current gesture started.
+  ///
+  /// A window with no `width` is as wide as what is in it, and there is no
+  /// number in that to add a delta to — so the gesture asks the render box how
+  /// big the window actually came out and works from there.
+  Size? _gripped;
+
+  /// Where `_dragged` stood then, and how far the pointer has come since.
+  ///
+  /// The travel is accumulated rather than applied a delta at a time, so an
+  /// edge dragged past its floor and back picks the window up where it was left
+  /// instead of somewhere the pointer has already been.
+  Offset _grippedAt = Offset.zero;
+  Offset _travel = Offset.zero;
+
+  /// The window itself, so a gesture can measure it.
+  final GlobalKey _paneKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -209,8 +257,11 @@ class _PlWindowPaneState extends State<PlWindowPane> {
     );
 
     final Widget pane = Container(
-      width: widget.width,
-      height: widget.height,
+      key: _paneKey,
+      width: _sized?.width ?? widget.width,
+      // A rolled-up window is as tall as its title bar, whatever a drag left it
+      // at — the height belongs to the body, and the body has gone.
+      height: widget.minimized ? widget.height : (_sized?.height ?? widget.height),
       decoration: BoxDecoration(
         color: paint.band,
         border: Border.all(color: paint.line, width: metrics.frame),
@@ -238,6 +289,36 @@ class _PlWindowPaneState extends State<PlWindowPane> {
       ),
     );
 
+    // No edge to pull on while the window fills what is holding it, and nothing
+    // under the bar to make taller while it is rolled up.
+    Widget framed = pane;
+
+    if (widget.resizable && !widget.maximized && !widget.minimized) {
+      final Color ring = tokens.family(family).ring;
+      final String name = widget.resizeLabel ?? labels.resizeWindow;
+
+      framed = Stack(
+        children: <Widget>[
+          pane,
+          for (final _WindowEdge edge in _WindowEdge.values)
+            edge.place(
+              _ResizeHandle(
+                edge: edge,
+                onStart: _gripWindow,
+                onUpdate: (Offset delta) => _resize(edge, delta, metrics.bar),
+                // One of the eight is reachable without a pointer, and it is the
+                // corner that changes both axes at once: eight stops around
+                // every window would cost a keyboard reader more than the seven
+                // extra directions are worth.
+                ring: edge == _WindowEdge.se ? ring : null,
+                label: edge == _WindowEdge.se ? name : null,
+                onNudge: edge == _WindowEdge.se ? (Offset step) => _nudge(step, metrics.bar) : null,
+              ),
+            ),
+        ],
+      );
+    }
+
     // `explicitChildNodes` is what makes the window a *named container* rather
     // than one long label: without it the title, the buttons and every word of
     // the content merge into the node's own name, and a window called `Notes`
@@ -247,8 +328,91 @@ class _PlWindowPaneState extends State<PlWindowPane> {
       container: true,
       explicitChildNodes: true,
       label: _titleText(),
-      child: Transform.translate(offset: at, child: pane),
+      child: Transform.translate(offset: at, child: framed),
     );
+  }
+
+  /// Everything a resize needs to know, measured at the moment it starts.
+  ///
+  /// A window that cannot be measured gives up the grip rather than keeping the
+  /// last one: the moves that follow accumulate against whatever the grip says,
+  /// and a stale one would resize the window from a size it no longer has.
+  void _gripWindow() {
+    final RenderObject? box = _paneKey.currentContext?.findRenderObject();
+    if (box is! RenderBox || !box.hasSize) {
+      _gripped = null;
+      return;
+    }
+
+    _gripped = box.size;
+    _grippedAt = _dragged;
+    _travel = Offset.zero;
+  }
+
+  void _resize(_WindowEdge edge, Offset delta, double bar) {
+    final Size? from = _gripped;
+    if (from == null) {
+      return;
+    }
+
+    _travel += delta;
+
+    final double floorWidth = math.max(0, widget.minWidth);
+    final double floorHeight = math.max(bar, widget.minHeight ?? bar);
+
+    double width = from.width;
+    double height = from.height;
+    Offset moved = _grippedAt;
+
+    if (edge.east) {
+      width = math.max(floorWidth, from.width + _travel.dx);
+    }
+    if (edge.south) {
+      height = math.max(floorHeight, from.height + _travel.dy);
+    }
+
+    // Dragging a leading edge moves the window as it resizes it, and the
+    // *clamped* width is what decides how far: at the minimum the edge stops and
+    // the window has to stop with it, or a window held at its floor would go on
+    // sliding out from under the pointer.
+    if (edge.west) {
+      width = math.max(floorWidth, from.width - _travel.dx);
+      moved = Offset(_grippedAt.dx + (from.width - width), moved.dy);
+    }
+    if (edge.north) {
+      height = math.max(floorHeight, from.height - _travel.dy);
+      moved = Offset(moved.dx, _grippedAt.dy + (from.height - height));
+    }
+
+    _resizeTo(Size(width, height));
+
+    if (edge.west || edge.north) {
+      setState(() => _dragged = moved);
+      widget.onOffsetChanged?.call(widget.offset + _dragged);
+    }
+  }
+
+  /// One arrow key on the reachable corner.
+  ///
+  /// It reads the window rather than a grip, because a key press is a whole
+  /// gesture on its own: there is no press to have measured anything at.
+  void _nudge(Offset step, double bar) {
+    final RenderObject? box = _paneKey.currentContext?.findRenderObject();
+    if (box is! RenderBox || !box.hasSize) {
+      return;
+    }
+
+    _resizeTo(
+      Size(
+        math.max(math.max(0, widget.minWidth), box.size.width + step.dx),
+        math.max(math.max(bar, widget.minHeight ?? bar), box.size.height + step.dy),
+      ),
+    );
+  }
+
+  void _resizeTo(Size size) {
+    setState(() => _sized = size);
+    widget.onResize?.call(size);
   }
 
   /// The window's own name, for the semantics node.
@@ -584,6 +748,242 @@ class _WindowButtonState extends State<_WindowButton> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// How far one arrow key press moves the corner. The same step `PlPanes` uses.
+const double _keyboardStep = 16;
+
+/// How thick an edge handle is, how large a corner one is, and how far along an
+/// edge the corners leave for it.
+///
+/// A one-pixel line is a one-pixel target, which is not a target, so what can be
+/// grabbed is a strip several pixels across just inside the frame.
+const double _handleThickness = 6;
+const double _handleCorner = 12;
+
+/// Which edge or corner of a window a handle sits on.
+///
+/// Physical rather than logical, and deliberately: the resize cursor is the one
+/// the platform draws, the geometry underneath is left and top, and a window is
+/// an object on a surface rather than a run of text. Everything the *chrome*
+/// does — which end the controls are on, which side the title starts from —
+/// stays logical and mirrors under RTL.
+enum _WindowEdge {
+  n(north: true),
+  s(south: true),
+  w(west: true),
+  e(east: true),
+  nw(north: true, west: true),
+  ne(north: true, east: true),
+  sw(south: true, west: true),
+  se(south: true, east: true);
+
+  const _WindowEdge({this.north = false, this.south = false, this.west = false, this.east = false});
+
+  final bool north;
+  final bool south;
+  final bool west;
+  final bool east;
+
+  /// What the pointer turns into over the handle.
+  MouseCursor get cursor {
+    if (!north && !south) {
+      return SystemMouseCursors.resizeLeftRight;
+    }
+    if (!west && !east) {
+      return SystemMouseCursors.resizeUpDown;
+    }
+
+    return north == west
+        ? SystemMouseCursors.resizeUpLeftDownRight
+        : SystemMouseCursors.resizeUpRightDownLeft;
+  }
+
+  /// Where it sits on the window.
+  Positioned place(Widget child) {
+    switch (this) {
+      case _WindowEdge.n:
+        return Positioned(
+          left: _handleCorner,
+          right: _handleCorner,
+          top: 0,
+          height: _handleThickness,
+          child: child,
+        );
+      case _WindowEdge.s:
+        return Positioned(
+          left: _handleCorner,
+          right: _handleCorner,
+          bottom: 0,
+          height: _handleThickness,
+          child: child,
+        );
+      case _WindowEdge.w:
+        return Positioned(
+          top: _handleCorner,
+          bottom: _handleCorner,
+          left: 0,
+          width: _handleThickness,
+          child: child,
+        );
+      case _WindowEdge.e:
+        return Positioned(
+          top: _handleCorner,
+          bottom: _handleCorner,
+          right: 0,
+          width: _handleThickness,
+          child: child,
+        );
+      case _WindowEdge.nw:
+        return Positioned(
+          top: 0,
+          left: 0,
+          width: _handleCorner,
+          height: _handleCorner,
+          child: child,
+        );
+      case _WindowEdge.ne:
+        return Positioned(
+          top: 0,
+          right: 0,
+          width: _handleCorner,
+          height: _handleCorner,
+          child: child,
+        );
+      case _WindowEdge.sw:
+        return Positioned(
+          bottom: 0,
+          left: 0,
+          width: _handleCorner,
+          height: _handleCorner,
+          child: child,
+        );
+      case _WindowEdge.se:
+        return Positioned(
+          bottom: 0,
+          right: 0,
+          width: _handleCorner,
+          height: _handleCorner,
+          child: child,
+        );
+    }
+  }
+}
+
+/// One arrow key press on the reachable corner.
+class _NudgeWindowIntent extends Intent {
+  const _NudgeWindowIntent(this.step);
+
+  final Offset step;
+}
+
+/// One of the eight places a window can be taken hold of.
+///
+/// It draws nothing. A resize handle is a target rather than a mark: the frame
+/// is already the line the pointer is aiming at, and a second one just inside it
+/// would be a border the window does not have.
+class _ResizeHandle extends StatefulWidget {
+  const _ResizeHandle({
+    required this.edge,
+    required this.onStart,
+    required this.onUpdate,
+    this.ring,
+    this.label,
+    this.onNudge,
+  });
+
+  /// Which edge or corner this is, which decides both the cursor and the sums.
+  final _WindowEdge edge;
+
+  /// A gesture is starting, and the window measures itself.
+  final VoidCallback onStart;
+
+  /// How far the pointer moved since the last update.
+  final ValueChanged<Offset> onUpdate;
+
+  /// The focus ring's colour, on the one handle that can take the focus.
+  final Color? ring;
+
+  /// And what that handle is called.
+  final String? label;
+
+  /// And what an arrow key on it does. Its absence is what makes the other
+  /// seven handles pointer-only.
+  final ValueChanged<Offset>? onNudge;
+
+  @override
+  State<_ResizeHandle> createState() => _ResizeHandleState();
+}
+
+class _ResizeHandleState extends State<_ResizeHandle> {
+  bool _focusVisible = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final ValueChanged<Offset>? onNudge = widget.onNudge;
+
+    Widget target = const SizedBox.expand();
+
+    if (_focusVisible && widget.ring != null) {
+      target = CustomPaint(
+        foregroundPainter: PlassFocusRingPainter(
+          color: widget.ring!,
+          borderRadius: BorderRadius.zero,
+          offset: -focusRingWidth,
+        ),
+        child: target,
+      );
+    }
+
+    Widget handle = MouseRegion(
+      cursor: widget.edge.cursor,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        excludeFromSemantics: true,
+        onPanStart: (DragStartDetails details) => widget.onStart(),
+        onPanUpdate: (DragUpdateDetails details) => widget.onUpdate(details.delta),
+        child: target,
+      ),
+    );
+
+    if (onNudge == null) {
+      return ExcludeSemantics(child: handle);
+    }
+
+    handle = FocusableActionDetector(
+      includeFocusSemantics: false,
+      onShowFocusHighlight: (bool value) {
+        if (_focusVisible != value) {
+          setState(() => _focusVisible = value);
+        }
+      },
+      shortcuts: const <ShortcutActivator, Intent>{
+        SingleActivator(LogicalKeyboardKey.arrowRight): _NudgeWindowIntent(
+          Offset(_keyboardStep, 0),
+        ),
+        SingleActivator(LogicalKeyboardKey.arrowLeft): _NudgeWindowIntent(
+          Offset(-_keyboardStep, 0),
+        ),
+        SingleActivator(LogicalKeyboardKey.arrowDown): _NudgeWindowIntent(Offset(0, _keyboardStep)),
+        SingleActivator(LogicalKeyboardKey.arrowUp): _NudgeWindowIntent(Offset(0, -_keyboardStep)),
+      },
+      actions: <Type, Action<Intent>>{
+        _NudgeWindowIntent: CallbackAction<_NudgeWindowIntent>(
+          onInvoke: (_NudgeWindowIntent intent) {
+            onNudge(intent.step);
+            return null;
+          },
+        ),
+      },
+      child: handle,
+    );
+
+    return Semantics(
+      button: true,
+      label: widget.label,
+      child: ExcludeSemantics(child: handle),
     );
   }
 }

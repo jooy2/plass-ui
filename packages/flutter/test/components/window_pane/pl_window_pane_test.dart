@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -11,6 +12,36 @@ Future<void> _pump(WidgetTester tester, Widget child) async {
 
   await tester.pumpWidget(host(child, width: 420));
   await tester.pumpAndSettle();
+}
+
+/// A window that is free to be whatever size it is told to be.
+///
+/// The shared [_pump] hands its child a *tight* width, which is what the layout
+/// tests want and exactly what a resize test cannot have: a window whose width
+/// the parent has already decided cannot be dragged any wider.
+Future<void> _pumpFree(WidgetTester tester, Widget child) async {
+  tester.view.physicalSize = const Size(900, 900);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+
+  await tester.pumpWidget(host(child));
+  await tester.pumpAndSettle();
+}
+
+/// The middle of the handle on one side of the window.
+Offset _edge(WidgetTester tester, AxisDirection side) {
+  final Rect rect = tester.getRect(find.byType(PlWindowPane));
+
+  switch (side) {
+    case AxisDirection.left:
+      return Offset(rect.left + 3, rect.center.dy);
+    case AxisDirection.right:
+      return Offset(rect.right - 3, rect.center.dy);
+    case AxisDirection.up:
+      return Offset(rect.center.dx, rect.top + 3);
+    case AxisDirection.down:
+      return Offset(rect.center.dx, rect.bottom - 3);
+  }
 }
 
 void main() {
@@ -201,6 +232,168 @@ void main() {
           expect(height, greaterThan(small));
         }
       }
+    });
+
+    testWidgets('offers no handle until it is resizable', (WidgetTester tester) async {
+      await _pumpFree(tester, const PlWindowPane(title: Text('Notes'), width: 300, height: 200));
+
+      expect(find.bySemanticsLabel('Resize window'), findsNothing);
+
+      await _pumpFree(
+        tester,
+        const PlWindowPane(title: Text('Notes'), width: 300, height: 200, resizable: true),
+      );
+
+      // One of the eight, and one only: the corner that changes both axes.
+      expect(find.bySemanticsLabel('Resize window'), findsOneWidget);
+    });
+
+    testWidgets('widens from its trailing edge', (WidgetTester tester) async {
+      Size? sized;
+
+      await _pumpFree(
+        tester,
+        PlWindowPane(
+          title: const Text('Notes'),
+          width: 300,
+          height: 200,
+          resizable: true,
+          onResize: (Size value) => sized = value,
+        ),
+      );
+
+      await tester.dragFrom(_edge(tester, AxisDirection.right), const Offset(60, 0));
+      await tester.pumpAndSettle();
+
+      expect(sized!.width, closeTo(360, 0.5));
+      expect(sized!.height, closeTo(200, 0.5));
+      expect(tester.getSize(find.byType(PlWindowPane)).width, closeTo(360, 0.5));
+    });
+
+    testWidgets('moves as it widens from its leading edge', (WidgetTester tester) async {
+      Size? sized;
+      Offset? moved;
+
+      await _pumpFree(
+        tester,
+        PlWindowPane(
+          title: const Text('Notes'),
+          width: 300,
+          height: 200,
+          resizable: true,
+          onResize: (Size value) => sized = value,
+          onOffsetChanged: (Offset value) => moved = value,
+        ),
+      );
+
+      await tester.dragFrom(_edge(tester, AxisDirection.left), const Offset(-40, 0));
+      await tester.pumpAndSettle();
+
+      expect(sized!.width, closeTo(340, 0.5));
+      // The edge went left, so the window has to have gone left with it. A
+      // window that grew from its left edge without moving would have grown out
+      // of its right one.
+      expect(moved!.dx, closeTo(-40, 0.5));
+    });
+
+    testWidgets('stops at the floor it was given', (WidgetTester tester) async {
+      Size? sized;
+
+      await _pumpFree(
+        tester,
+        PlWindowPane(
+          title: const Text('Notes'),
+          width: 300,
+          height: 200,
+          resizable: true,
+          minWidth: 200,
+          onResize: (Size value) => sized = value,
+        ),
+      );
+
+      await tester.dragFrom(_edge(tester, AxisDirection.right), const Offset(-400, 0));
+      await tester.pumpAndSettle();
+
+      expect(sized!.width, 200);
+    });
+
+    testWidgets('keeps the window under the pointer at the floor', (WidgetTester tester) async {
+      Offset? moved;
+
+      await _pumpFree(
+        tester,
+        PlWindowPane(
+          title: const Text('Notes'),
+          width: 300,
+          height: 200,
+          resizable: true,
+          minWidth: 200,
+          onOffsetChanged: (Offset value) => moved = value,
+        ),
+      );
+
+      // Dragged a hundred pixels past the floor. The window is a hundred
+      // narrower and no more, so it has moved a hundred and not four hundred.
+      await tester.dragFrom(_edge(tester, AxisDirection.left), const Offset(400, 0));
+      await tester.pumpAndSettle();
+
+      expect(moved!.dx, closeTo(100, 0.5));
+    });
+
+    testWidgets('takes an arrow key on the reachable corner', (WidgetTester tester) async {
+      Size? sized;
+
+      await _pumpFree(
+        tester,
+        PlWindowPane(
+          title: const Text('Notes'),
+          width: 300,
+          height: 200,
+          resizable: true,
+          onResize: (Size value) => sized = value,
+        ),
+      );
+
+      Focus.of(
+        tester.element(
+          find
+              .descendant(
+                of: find.byType(FocusableActionDetector),
+                matching: find.byType(MouseRegion),
+              )
+              .last,
+        ),
+      ).requestFocus();
+      await tester.pump();
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pumpAndSettle();
+
+      expect(sized!.width, closeTo(316, 0.5));
+    });
+
+    testWidgets('puts its handles away while it is maximized', (WidgetTester tester) async {
+      await _pumpFree(
+        tester,
+        const PlWindowPane(
+          title: Text('Notes'),
+          width: 300,
+          height: 200,
+          resizable: true,
+          maximized: true,
+        ),
+      );
+
+      expect(find.bySemanticsLabel('Resize window'), findsNothing);
+    });
+
+    testWidgets('and while it is rolled up', (WidgetTester tester) async {
+      await _pumpFree(
+        tester,
+        const PlWindowPane(title: Text('Notes'), width: 300, resizable: true, minimized: true),
+      );
+
+      expect(find.bySemanticsLabel('Resize window'), findsNothing);
     });
   });
 }

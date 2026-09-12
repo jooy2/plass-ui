@@ -387,6 +387,11 @@ void main() {
       'lib/src/internal/mockup.dart':
           'the cut-out is drawn against a physical edge for the reason above; nothing else in the '
           'device is placed by side at all',
+      'lib/src/components/window_pane/pl_window_pane.dart':
+          'a resize handle sits on the physical edge it drags: the cursor over it is the one the '
+          'platform draws, what it changes is a width and a height, and the React build places '
+          'the same eight the same way. The chrome is untouched by this — which end the controls '
+          'sit on and which side the title starts from are logical and still mirror',
       'lib/src/internal/chart.dart':
           "a bar's rounded end follows the direction its *value* grows in, which is a direction "
           'on the canvas the frame paints; see the entry below',

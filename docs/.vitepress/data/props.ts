@@ -14977,6 +14977,15 @@ export const propTables: Record<string, PropRow[]> = {
       description: { ko: 'button 이름을 덮어씁니다', en: "Overrides the buttons' own names" }
     },
     {
+      name: 'resizeLabel',
+      type: 'string',
+      default: "'Resize window'",
+      description: {
+        ko: '키보드로 잡을 수 있는 모서리가 불리는 이름',
+        en: 'What the one reachable resize handle is announced as'
+      }
+    },
+    {
       name: 'render',
       type: 'ReactElement',
       description: {

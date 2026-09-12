@@ -5926,13 +5926,24 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlWindowPane', 'draggable', { type: 'bool', default: 'false' }),
+    from('PlWindowPane', 'resizable', { type: 'bool', default: 'false' }),
     from('PlWindowPane', 'width', { type: 'double?' }),
     from('PlWindowPane', 'height', { type: 'double?' }),
-    from('PlWindowPane', 'offset', { type: 'Offset', default: 'Offset.zero' }),
+    from('PlWindowPane', 'minWidth', { type: 'double', default: '180' }),
+    from('PlWindowPane', 'minHeight', { type: 'double?' }),
+    from('PlWindowPane', 'offset', {
+      type: 'Offset',
+      default: 'Offset.zero',
+      description: {
+        ko: '배치된 자리에서 얼마나 끌려 왔는지. 앞쪽 변을 끌면 크기와 함께 자리도 바뀝니다',
+        en: 'How far it has been dragged from where the layout put it. A leading edge moves the window as well as resizing it'
+      }
+    }),
     from('PlWindowPane', 'onOffsetChange', {
       name: 'onOffsetChanged',
       type: 'ValueChanged<Offset>?'
     }),
+    from('PlWindowPane', 'onResize', { type: 'ValueChanged<Size>?' }),
     from('PlWindowPane', 'open', { type: 'bool', default: 'true' }),
     {
       name: 'onOpenChanged',
@@ -5958,6 +5969,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     },
     from('PlWindowPane', 'minimizeLabel', { type: 'String?' }),
+    from('PlWindowPane', 'resizeLabel', { type: 'String?' }),
     from('PlWindowPane', 'children', { name: 'child', type: 'Widget?' }),
     from('PlWindowPane', 'color', { type: COLOR, default: 'PlassColor.primary' }),
     from('PlWindowPane', 'elevation', { type: 'int', default: '2' }),
