@@ -4,18 +4,22 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// The one size decision in this package that cannot be undone by a compiler.
 ///
-/// Dart's tree shaker is whole-program and it is good: a gallery that uses all
-/// 96 components compiles to about 158 kB gzipped more than an empty Flutter
-/// app, and an app that uses one light component pays single-digit kilobytes.
-/// Almost nothing in a widget library can move that number.
+/// Dart's tree shaker is whole-program and it is good. Measured against an
+/// empty `WidgetsApp`, one `PlDivider` costs 3.6 kB gzipped, one `PlButton`
+/// 84 kB, and a gallery that constructs all 127 components 352 kB. An app pays
+/// for what it reaches and for nothing else, and almost nothing a widget
+/// library does can move that.
 ///
-/// Importing `package:flutter/material.dart` can, and by more than every
-/// component in this package put together. Material is not a set of widgets a
-/// tree shaker can pick through — a `MaterialApp` reaches `Theme`, which reaches
-/// the whole `ThemeData` graph, its typography, its ink machinery and its icon
-/// set. Measured against the same empty app, a Flutter app whose only widget is
-/// a Material button is about 127 kB gzipped larger; the same button built out
-/// of `widgets.dart` is a fraction of that.
+/// Importing `package:flutter/material.dart` can. Material is not a set of
+/// widgets a tree shaker can pick through — a `MaterialApp` reaches `Theme`,
+/// which reaches the whole `ThemeData` graph, its typography, its ink machinery
+/// and its icon set. An app whose only widget is a Material button is 161 kB
+/// larger than the same empty one: getting on for half of what every component
+/// in this package costs put together, for one widget.
+///
+/// `dart run tool/size.dart` prints the table those came from; it was Flutter
+/// 3.44. Run it again rather than trusting them, because they move with the
+/// Flutter version.
 ///
 /// So a single `import 'package:flutter/material.dart'` anywhere under `lib/`
 /// would hand that cost to every consumer, including the ones who chose this
