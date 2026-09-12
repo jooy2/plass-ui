@@ -26,18 +26,34 @@ library;
 import 'dart:io';
 
 /// `name` is what gets printed; `body` is the widget expression under `home:`.
-/// A null `body` means the scenario writes its own `main`, for the Material
-/// counterfactual which must not import this package.
+/// A null `body` means the scenario brings its own entry point instead, which
+/// two of them do: the Material counterfactual, which must not import this
+/// package at all, and the whole-library gallery, which is far too large to be
+/// an expression. Both are looked up in [standalone].
 const Map<String, String?> scenarios = <String, String?>{
   'empty (기준)': '',
   'PlDivider 1개': 'PlDivider()',
   'PlTypography 1개': "PlTypography('Hi')",
   'PlCard 1개': "PlCard(child: Text('Hi'))",
   'PlButton 1개': "PlButton(child: Text('Save'))",
+  '전체 컴포넌트': null,
   'Material 1개 (비교군)': null,
 };
 
-String entryPoint(String? body) {
+/// Where a scenario's own entry point is read from, when it has one.
+///
+/// The gallery is a file rather than a string because the analyser has to see
+/// it: it names every component in the package, and a constructor that gains a
+/// required parameter should break `flutter analyze` rather than this tool,
+/// three minutes into a run.
+const Map<String, String> standalone = <String, String>{'전체 컴포넌트': 'tool/gallery.dart'};
+
+String entryPoint(String name, String? body) {
+  final String? own = standalone[name];
+  if (own != null) {
+    return File(own).readAsStringSync();
+  }
+
   if (body == null) {
     return '''
 import 'package:flutter/material.dart';
@@ -91,7 +107,7 @@ Future<void> main() async {
   var index = 0;
   for (final MapEntry<String, String?> entry in scenarios.entries) {
     final String file = 'lib/main_${index++}.dart';
-    File('$app/$file').writeAsStringSync(entryPoint(entry.value));
+    File('$app/$file').writeAsStringSync(entryPoint(entry.key, entry.value));
     stdout.writeln('빌드: ${entry.key}');
     await run('flutter', <String>['build', 'web', '--release', '-t', file], cwd: app);
     final List<int> bytes = File('$app/build/web/main.dart.js').readAsBytesSync();
