@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { beginPointerDrag } from '../../internal/drag.js';
 import { cx, transitionClasses } from '../../internal/styles.js';
 import { useResponsiveValue } from '../../internal/responsive.js';
 import type { PlassColor, PlassOrientation, PlassResponsive, PlassSize } from '../../types.js';
@@ -309,7 +310,7 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
     }
 
     /**
-     * How to take a drag in flight apart, held for as long as one is running.
+     * The drag in flight, held so that an unmount can take it apart.
      *
      * A drag is torn down by the `pointerup` that ends it, and that event never
      * arrives if the split goes away first — a route change, a closed accordion, a
@@ -325,27 +326,6 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
       const held = grip(index);
       if (!held) return;
 
-      const handle = event.currentTarget;
-      handle.setPointerCapture(event.pointerId);
-      handle.dataset.dragging = 'true';
-
-      /*
-       * A drag across a page selects the text it passes over, and the obvious cure
-       * — `preventDefault` on the press — also stops the browser focusing the
-       * handle, which leaves the component focusing it by hand and every mouse
-       * press wearing a keyboard focus ring. Taking the selection off the document
-       * for the length of the drag fixes the selection without touching the focus.
-       *
-       * The property is written prefixed and through `setProperty`, because WebKit
-       * implements only `-webkit-user-select`: it has no `userSelect` on a style
-       * declaration, so `style.userSelect = 'none'` hangs a plain JS property off
-       * the object, changes nothing, and Safari selects text through the whole
-       * drag. Chromium and Firefox both read the prefixed name as the standard
-       * one. This is what Tailwind's own `select-none` emits, for the same reason.
-       */
-      const selection = document.body.style.getPropertyValue('-webkit-user-select');
-      document.body.style.setProperty('-webkit-user-select', 'none');
-
       const origin = horizontal ? event.clientX : event.clientY;
       // Positive is always "toward the end", so a drag under RTL moves the
       // boundary the way the pointer went rather than the way the axis is numbered.
@@ -353,37 +333,24 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
 
       let latest = held.current;
 
-      const move = (moveEvent: PointerEvent) => {
-        const position = horizontal ? moveEvent.clientX : moveEvent.clientY;
-        latest = held.resize((position - origin) * towardsEnd);
-      };
+      const stop = beginPointerDrag({
+        target: event.currentTarget,
+        pointerId: event.pointerId,
+        onMove: (moveEvent) => {
+          const position = horizontal ? moveEvent.clientX : moveEvent.clientY;
+          latest = held.resize((position - origin) * towardsEnd);
+        },
+        // Only the pointer being released settles the split. An unmount runs the
+        // teardown below instead, which gives back the listeners and the selection
+        // and says nothing: a component that disappeared did not finish resizing,
+        // and telling a caller it did would set state on the way out of the tree.
+        onEnd: () => {
+          teardownRef.current = null;
+          onResizeEnd?.(latest.map((fraction) => fraction * 100));
+        }
+      });
 
-      // Everything the drag took from outside itself, given back. Split from `end`
-      // because unmounting has to run this half and must not run the other: a
-      // component that disappeared did not finish resizing, and telling a caller it
-      // did would set state on the way out of the tree.
-      const release = () => {
-        teardownRef.current = null;
-        handle.removeEventListener('pointermove', move);
-        handle.removeEventListener('pointerup', end);
-        handle.removeEventListener('pointercancel', end);
-        delete handle.dataset.dragging;
-
-        // Removed rather than set back to '', so a page that never wrote the
-        // property inline is left with the declaration it actually had.
-        if (selection) document.body.style.setProperty('-webkit-user-select', selection);
-        else document.body.style.removeProperty('-webkit-user-select');
-      };
-
-      const end = () => {
-        release();
-        onResizeEnd?.(latest.map((fraction) => fraction * 100));
-      };
-
-      teardownRef.current = release;
-      handle.addEventListener('pointermove', move);
-      handle.addEventListener('pointerup', end);
-      handle.addEventListener('pointercancel', end);
+      teardownRef.current = stop;
     }
 
     function nudge(index: number, pixels: number) {
