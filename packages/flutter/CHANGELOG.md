@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **A chart legend beside the plot is a list.** With `PlChartLegend(side: PlassSide.left)` or `right`, the legend of `PlLineChart`, `PlBarChart`, `PlAreaChart`, `PlScatterChart` and `PlPieChart` was a row with no width to wrap at, so four or five series stood in one line, squeezed the plot to nothing and overflowed. It is now a column of entries, as in the React build, no wider than two fifths of the chart, and a name longer than that wraps.
+
 - **A chart's tooltip stays inside the chart.** The card was placed by the point it described and nothing else, and a chart clips what it draws, so near the bottom of a short chart or either end of a narrow one the value was cut off. The card of `PlLineChart`, `PlBarChart`, `PlAreaChart`, `PlScatterChart`, `PlTimelineChart` and `PlHeatmapChart` is now measured, moved to the other side of the point when its side has no room, and held inside the chart.
 
 - **A chart writes a date category as a day.** A `PlassChartCategory.date` reached the axis, the tooltip, the pie's legend and the heatmap's columns and summary through `toString`, so a tooltip was headed `2026-03-01T00:00:00.000`. They now write the short month and the day, `Mar 1`, in the names of the theme's `PlDateNames`, as the React build does.

@@ -128,6 +128,58 @@ void main() {
         expect(find.text('Cost'), findsOneWidget);
       });
 
+      for (final PlassSide side in <PlassSide>[PlassSide.left, PlassSide.right]) {
+        testWidgets('stacks the entries beside the plot on the ${side.name}', (
+          WidgetTester tester,
+        ) async {
+          final List<String> names = <String>[
+            'Organic search',
+            'Paid search',
+            'Newsletter',
+            'Partner referrals',
+            'Direct',
+          ];
+
+          await _pump(
+            tester,
+            PlLineChart(
+              series: <PlassChartSeries>[
+                for (final String name in names)
+                  PlassChartSeries(name: name, data: series.first.data),
+              ],
+              categories: months,
+              legend: PlChartLegend(side: side),
+            ),
+            width: 360,
+          );
+
+          expect(tester.takeException(), isNull);
+
+          final Rect chart = tester.getRect(find.byType(PlLineChart));
+          final Rect plot = tester.getRect(
+            find.byWidgetPredicate(
+              (Widget widget) =>
+                  widget is CustomPaint && widget.painter != null && widget.size.height > 40,
+            ),
+          );
+
+          for (int i = 1; i < names.length; i += 1) {
+            expect(
+              tester.getTopLeft(find.text(names[i])).dy,
+              greaterThan(tester.getTopLeft(find.text(names[i - 1])).dy),
+            );
+          }
+
+          expect(plot.width, greaterThan(chart.width / 2));
+          expect(
+            side == PlassSide.left
+                ? tester.getTopLeft(find.text(names.first)).dx < plot.left
+                : tester.getTopLeft(find.text(names.first)).dx > plot.right,
+            isTrue,
+          );
+        });
+      }
+
       testWidgets('draws none for a single series', (WidgetTester tester) async {
         await _pump(tester, PlLineChart(series: <PlassChartSeries>[series.first]));
 

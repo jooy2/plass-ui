@@ -930,8 +930,8 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
       },
     );
 
-    final Widget legend = widget.legend.hidden || widget.series.length < 2
-        ? const SizedBox.shrink()
+    final Widget? legend = widget.legend.hidden || widget.series.length < 2
+        ? null
         : PlassChartLegendBar(
             series: widget.series,
             colors: colors,
@@ -940,6 +940,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
             size: size,
             interactive: widget.legend.interactive,
             align: widget.legend.align,
+            vertical: _beside(widget.legend.side),
             onToggle: (int index) => setState(() {
               if (!_off.remove(index)) {
                 _off.add(index);
@@ -949,9 +950,6 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
             onHover: (int? index) => setState(() => _hovered = index),
           );
 
-    final bool below =
-        widget.legend.side == PlassSide.bottom || widget.legend.side == PlassSide.top;
-
     return Semantics(
       container: true,
       label: widget.semanticLabel ?? labels.chart,
@@ -959,24 +957,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
       // series and their ends, which is the reading a sighted reader takes from
       // the shape — not a cell-by-cell recital of the whole table.
       value: _summaryFor(values, visible),
-      child: below
-          ? Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                if (widget.legend.side == PlassSide.top) legend,
-                plot,
-                if (widget.legend.side == PlassSide.bottom) legend,
-              ],
-            )
-          : Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                if (widget.legend.side == PlassSide.left) legend,
-                Expanded(child: plot),
-                if (widget.legend.side == PlassSide.right) legend,
-              ],
-            ),
+      child: PlassChartWithLegend(side: widget.legend.side, plot: plot, legend: legend),
     );
   }
 
@@ -1213,6 +1194,7 @@ class PlassChartLegendBar extends StatelessWidget {
     required this.onToggle,
     required this.onHover,
     this.swatch,
+    this.vertical = false,
     super.key,
   });
 
@@ -1250,8 +1232,34 @@ class PlassChartLegendBar extends StatelessWidget {
   /// to colour alone — which is the thing the shapes were added to fix.
   final Widget Function(int index, Color color)? swatch;
 
+  /// Whether the entries are one under another, for a legend beside the plot.
+  final bool vertical;
+
   @override
   Widget build(BuildContext context) {
+    final List<Widget> entries = <Widget>[
+      for (int i = 0; i < series.length; i += 1)
+        _LegendEntry(
+          name: series[i].name ?? '${i + 1}',
+          color: colors[i],
+          on: visible[i],
+          tokens: tokens,
+          size: size,
+          swatch: swatch == null ? null : swatch!(i, colors[i]),
+          onTap: interactive ? () => onToggle(i) : null,
+          onHover: (bool over) => onHover(over ? i : null),
+        ),
+    ];
+
+    if (vertical) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 6,
+        children: entries,
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.only(top: 10),
       child: Wrap(
@@ -1262,19 +1270,7 @@ class PlassChartLegendBar extends StatelessWidget {
           PlassAlign.center => WrapAlignment.center,
           PlassAlign.end => WrapAlignment.end,
         },
-        children: <Widget>[
-          for (int i = 0; i < series.length; i += 1)
-            _LegendEntry(
-              name: series[i].name ?? '${i + 1}',
-              color: colors[i],
-              on: visible[i],
-              tokens: tokens,
-              size: size,
-              swatch: swatch == null ? null : swatch!(i, colors[i]),
-              onTap: interactive ? () => onToggle(i) : null,
-              onHover: (bool over) => onHover(over ? i : null),
-            ),
-        ],
+        children: entries,
       ),
     );
   }
@@ -1320,12 +1316,16 @@ class _LegendEntry extends StatelessWidget {
               ),
         ),
         const SizedBox(width: 6),
-        Text(
-          name,
-          style: TextStyle(
-            fontSize: metaText[size]!,
-            color: on ? tokens.fg : tokens.mutedFg,
-            decoration: on ? null : TextDecoration.lineThrough,
+        // Wraps rather than overflows when the legend has less room than the
+        // name, which a legend beside the plot often does.
+        Flexible(
+          child: Text(
+            name,
+            style: TextStyle(
+              fontSize: metaText[size]!,
+              color: on ? tokens.fg : tokens.mutedFg,
+              decoration: on ? null : TextDecoration.lineThrough,
+            ),
           ),
         ),
       ],
@@ -1450,6 +1450,73 @@ class _Tooltip extends StatelessWidget {
       gap: 14,
       before: pointer.dx > layout.plot.left + layout.plot.width * 0.6,
       child: PlassChartTooltipCard(tokens: tokens, size: size, heading: heading, children: rows),
+    );
+  }
+}
+
+bool _beside(PlassSide side) => side == PlassSide.left || side == PlassSide.right;
+
+/// A chart with its legend on one of its four sides.
+///
+/// Above or below the plot, the legend is a row that wraps. Beside it, the
+/// legend is a column no wider than two fifths of the chart: a row there has no
+/// width to wrap at, so four or five series would stand in one line and push the
+/// plot down to nothing.
+class PlassChartWithLegend extends StatelessWidget {
+  /// Puts [legend] on [side] of [plot].
+  const PlassChartWithLegend({
+    required this.side,
+    required this.plot,
+    required this.legend,
+    super.key,
+  });
+
+  /// Which side the legend is on.
+  final PlassSide side;
+
+  /// The drawing.
+  final Widget plot;
+
+  /// The legend, or `null` for a chart that shows none.
+  final Widget? legend;
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget? legend = this.legend;
+
+    if (legend == null) {
+      return plot;
+    }
+
+    if (!_beside(side)) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          if (side == PlassSide.top) legend,
+          plot,
+          if (side == PlassSide.bottom) legend,
+        ],
+      );
+    }
+
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        final Widget column = ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: constraints.maxWidth * 0.4),
+          child: legend,
+        );
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 12,
+          children: <Widget>[
+            if (side == PlassSide.left) column,
+            Expanded(child: plot),
+            if (side == PlassSide.right) column,
+          ],
+        );
+      },
     );
   }
 }

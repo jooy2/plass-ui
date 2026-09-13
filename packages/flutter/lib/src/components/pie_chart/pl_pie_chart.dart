@@ -340,8 +340,8 @@ class _PlPieChartState extends State<PlPieChart> {
       },
     );
 
-    final Widget legend = widget.legend.hidden || slices.length < 2
-        ? const SizedBox.shrink()
+    final Widget? legend = widget.legend.hidden || slices.length < 2
+        ? null
         : PlassChartLegendBar(
             series: slices,
             colors: colors,
@@ -350,6 +350,7 @@ class _PlPieChartState extends State<PlPieChart> {
             size: size,
             interactive: widget.legend.interactive,
             align: widget.legend.align,
+            vertical: widget.legend.side == PlassSide.left || widget.legend.side == PlassSide.right,
             onToggle: (int index) => setState(() {
               if (!_off.remove(index)) {
                 _off.add(index);
@@ -362,9 +363,6 @@ class _PlPieChartState extends State<PlPieChart> {
             onHover: (int? index) => setState(() => _hovered = index),
           );
 
-    final bool below =
-        widget.legend.side == PlassSide.bottom || widget.legend.side == PlassSide.top;
-
     return Semantics(
       container: true,
       label: widget.semanticLabel ?? labels.chart,
@@ -372,24 +370,7 @@ class _PlPieChartState extends State<PlPieChart> {
       // every slice and its share, which is the reading a sighted reader takes
       // from the angles.
       value: _summary(slices, values, visible, total),
-      child: below
-          ? Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                if (widget.legend.side == PlassSide.top) legend,
-                plot,
-                if (widget.legend.side == PlassSide.bottom) legend,
-              ],
-            )
-          : Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                if (widget.legend.side == PlassSide.left) legend,
-                Expanded(child: plot),
-                if (widget.legend.side == PlassSide.right) legend,
-              ],
-            ),
+      child: PlassChartWithLegend(side: widget.legend.side, plot: plot, legend: legend),
     );
   }
 
