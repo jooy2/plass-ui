@@ -784,6 +784,7 @@ class _Viewer extends StatelessWidget {
                                 // previous file under a new caption.
                                 key: ValueKey<String>(current.id ?? '${current.image}'),
                                 image: current.full ?? current.image,
+                                semanticLabel: current.semanticLabel,
                                 fit: BoxFit.contain,
                               ),
                             ),

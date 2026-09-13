@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **The picture open in the `PlGallery` viewer has a name.** The large picture was drawn with no `semanticLabel`, so a screen reader announced an unnamed image. It now carries the item's `semanticLabel`, as its tile does.
+
 - **A `PlDataTable` sort keeps rows that compare the same in the order they came in.** Dart's `List.sort` does not keep ties in order past a few dozen items, so sorting a long table by a column of statuses shuffled the rows inside each status, and the order differed from the React table's. Ties now keep their arrival order.
 
 - **A `PlDataTable` whose parent holds the sort stays unsorted when the parent clears it.** A `sort` of `null` was read as the table keeping its own sort, and the table still had the one from the first press, so the third press on a heading, or a parent resetting the sort, brought an ascending sort back. The table now follows the parent's last answer.

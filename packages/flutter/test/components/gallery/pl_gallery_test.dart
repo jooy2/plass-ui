@@ -409,6 +409,28 @@ void main() {
         expect(find.text('2 of 4'), findsOneWidget);
       });
 
+      testWidgets('names the open picture the way its tile is named', (WidgetTester tester) async {
+        // Read off the picture rather than the semantics tree: a picture that
+        // has not decoded is laid out at no size, and a node with no size is
+        // left out of the tree until it has one.
+        Iterable<String?> named() => tester
+            .widgetList<Image>(
+              find.descendant(of: find.byType(PlOverlay), matching: find.byType(Image)),
+            )
+            .where((Image one) => !one.excludeFromSemantics)
+            .map((Image one) => one.semanticLabel);
+
+        await _pump(tester, PlGallery(items: items, preview: true));
+
+        await tester.tap(find.bySemanticsLabel('A bridge — 2 of 4'));
+        await _settle(tester);
+        expect(named(), <String>['A bridge']);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await _settle(tester);
+        expect(named(), <String>['A hillside']);
+      });
+
       testWidgets('prefers the larger file when there is one', (WidgetTester tester) async {
         final MemoryImage big = _picture(9);
 
