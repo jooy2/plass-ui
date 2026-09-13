@@ -1,0 +1,1 @@
+function u(r,e){return`${r??""}\0${e?JSON.stringify(e):""}`}const a=new Map;function f(r,e){const n=u(r,e);let t=a.get(n);return t||(t=new Intl.DateTimeFormat(r,e),a.set(n,t)),t}const m=new Map;function o(r,e){const n=u(r,e);let t=m.get(n);return t||(t=new Intl.NumberFormat(r,e),m.set(n,t)),t}export{f as d,o as n};

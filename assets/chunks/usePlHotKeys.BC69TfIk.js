@@ -1,0 +1,3 @@
+import{r as s}from"./index.CAJ_Adw3.js";import{m as v,a as w,e as k,i as E}from"./keys.SSeZRLyr.js";function T(e){return e===void 0?typeof window>"u"?null:window:e===null?null:"current"in e?e.current:e}function H(e,p={}){const{enabled:u=!0,target:f,whileTyping:c=!1}=p,d=s.useRef(e);s.useEffect(()=>{d.current=e});const r=Object.keys(e??{}).join(`
+`);s.useEffect(()=>{const o=T(f);if(!u||!o||r==="")return;const y=r.split(`
+`),l=m=>{var t,a;const n=m;if(!n.defaultPrevented){for(const i of y)if(v(n,i)){if(!c&&!w(i)&&k(n.key)&&E(n.target))return;n.preventDefault(),(a=(t=d.current)==null?void 0:t[i])==null||a.call(t);return}}};return o.addEventListener("keydown",l),()=>o.removeEventListener("keydown",l)},[r,f,u,c])}export{H as u};

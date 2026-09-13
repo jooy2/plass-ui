@@ -1,0 +1,1 @@
+import{j as f}from"./jsx-runtime.BjG_zV1W.js";import{r as i}from"./index.CAJ_Adw3.js";import{y as p}from"./styles.6uY97IBz.js";const l=i.forwardRef(function({from:o,until:r,className:s,children:t,...a},m){return f.jsx("div",{ref:m,className:p("plass-show",s),"data-from":o,"data-until":r,...a,children:t})});export{l as P};
