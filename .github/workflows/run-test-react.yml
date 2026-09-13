@@ -29,13 +29,18 @@ jobs:
           node-version: '26'
           cache: npm
           cache-dependency-path: packages/react/package-lock.json
-      - run: npm ci
+      # Without scripts: `prepare` runs the build, and the build formats the
+      # checkout before it compiles, which would leave the formatting check below
+      # nothing to find.
+      - run: npm ci --ignore-scripts
       - name: Lint
         run: npm run lint
       - name: Check formatting
         run: npx prettier . --check
       - name: Typecheck
         run: npm run typecheck
+      - name: Build
+        run: npm run build
       # Bundles `dist/` for real against fixed scenarios and fails if a change
       # made a consumer's bundle bigger. Also the only step that loads the
       # package through Node's own resolver, which is what a server render does.
@@ -62,7 +67,9 @@ jobs:
           node-version: ${{ matrix.node_version }}
           cache: npm
           cache-dependency-path: packages/react/package-lock.json
-      - run: npm ci
+      # The suite imports `src/` rather than `dist/`, so the build `prepare`
+      # would run is not needed here.
+      - run: npm ci --ignore-scripts
       - name: Install Playwright browser (${{ matrix.browser }})
         run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Test module script
