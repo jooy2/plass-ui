@@ -18,6 +18,7 @@ library;
 
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
@@ -529,8 +530,27 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
 
   int? _activeIndex;
   int? _hovered;
-  Offset? _pointer;
   PlassChartMark? _activeMark;
+
+  /// Where the pointer is, apart from the state that decides what is drawn.
+  ///
+  /// A move inside the same column, or near the same mark, changes nothing but
+  /// where the tooltip stands, so it is a notifier the tooltip listens to rather
+  /// than a rebuild of the whole frame for every pixel.
+  final ValueNotifier<Offset?> _pointer = ValueNotifier<Offset?>(null);
+
+  /// The summary, and what it was written for. It reads every value, so it is
+  /// written again only for a new widget — new data, a new format — or a
+  /// series switched on or off, not for each column the pointer crosses.
+  String? _said;
+  PlassCartesianChart? _saidFor;
+  List<bool>? _saidVisible;
+
+  @override
+  void dispose() {
+    _pointer.dispose();
+    super.dispose();
+  }
 
   PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
   PlassDensity get _density =>
@@ -767,14 +787,11 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
           if (widget.marks != null) {
             final PlassChartMark? found = nearest(local);
 
-            if (found?.series != _activeMark?.series ||
-                found?.index != _activeMark?.index ||
-                local != _pointer) {
-              setState(() {
-                _activeMark = found;
-                _pointer = found == null ? null : local;
-              });
+            if (found?.series != _activeMark?.series || found?.index != _activeMark?.index) {
+              setState(() => _activeMark = found);
             }
+
+            _pointer.value = found == null ? null : local;
 
             return;
           }
@@ -788,12 +805,11 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
               : (along / band.step).floor();
           final int clamped = index.clamp(0, count - 1);
 
-          if (clamped != _activeIndex || local != _pointer) {
-            setState(() {
-              _activeIndex = clamped;
-              _pointer = local;
-            });
+          if (clamped != _activeIndex) {
+            setState(() => _activeIndex = clamped);
           }
+
+          _pointer.value = local;
         }
 
         void onLeave() {
@@ -801,9 +817,10 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
             setState(() {
               _activeIndex = null;
               _activeMark = null;
-              _pointer = null;
             });
           }
+
+          _pointer.value = null;
         }
 
         void onTap(Offset local) {
@@ -864,30 +881,41 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
                       paintMarks: widget.paint,
                     ),
                   ),
-                  if (active != null && _pointer != null && !widget.tooltip.hidden)
-                    _MarkTooltip(
-                      layout: layout,
-                      mark: active,
-                      pointer: _pointer!,
-                      name:
-                          widget.markHeading?.call(active) ??
-                          widget.series[active.series].name ??
-                          '${active.series + 1}',
-                      readout:
-                          widget.markReadout?.call(active) ??
-                          _write(layout.values[active.series][active.index].value ?? 0),
-                      tokens: tokens,
-                      size: size,
-                    )
-                  else if (_activeIndex != null && _pointer != null && !widget.tooltip.hidden)
-                    _Tooltip(
-                      layout: layout,
-                      index: _activeIndex!,
-                      pointer: _pointer!,
-                      series: widget.series,
-                      tokens: tokens,
-                      size: size,
-                      write: _write,
+                  if (!widget.tooltip.hidden && (active != null || _activeIndex != null))
+                    ValueListenableBuilder<Offset?>(
+                      valueListenable: _pointer,
+                      builder: (BuildContext context, Offset? pointer, Widget? _) {
+                        if (pointer == null) {
+                          return const SizedBox.shrink();
+                        }
+
+                        if (active != null) {
+                          return _MarkTooltip(
+                            layout: layout,
+                            mark: active,
+                            pointer: pointer,
+                            name:
+                                widget.markHeading?.call(active) ??
+                                widget.series[active.series].name ??
+                                '${active.series + 1}',
+                            readout:
+                                widget.markReadout?.call(active) ??
+                                _write(layout.values[active.series][active.index].value ?? 0),
+                            tokens: tokens,
+                            size: size,
+                          );
+                        }
+
+                        return _Tooltip(
+                          layout: layout,
+                          index: _activeIndex!,
+                          pointer: pointer,
+                          series: widget.series,
+                          tokens: tokens,
+                          size: size,
+                          write: _write,
+                        );
+                      },
                     ),
                 ],
               ),
@@ -925,7 +953,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
       // The picture is a picture. What a screen reader is handed instead is the
       // series and their ends, which is the reading a sighted reader takes from
       // the shape — not a cell-by-cell recital of the whole table.
-      value: widget.semanticValue?.call() ?? _summary(values, visible),
+      value: _summaryFor(values, visible),
       child: below
           ? Column(
               mainAxisSize: MainAxisSize.min,
@@ -945,6 +973,17 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
               ],
             ),
     );
+  }
+
+  /// The summary, written again only when what it reads has changed.
+  String _summaryFor(List<List<ChartValue>> values, List<bool> visible) {
+    if (_said == null || !identical(_saidFor, widget) || !listEquals(_saidVisible, visible)) {
+      _said = widget.semanticValue?.call() ?? _summary(values, visible);
+      _saidFor = widget;
+      _saidVisible = visible;
+    }
+
+    return _said!;
   }
 
   /// What each visible series is called and where it ended up.

@@ -1,8 +1,11 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+
+import 'package:plass_ui/src/internal/chart_frame.dart';
 
 import '../../support/host.dart';
 
@@ -245,6 +248,41 @@ void main() {
 
         // The card names the category and every visible series at it.
         expect(find.textContaining(RegExp('Jan|Feb|Mar|Apr')), findsWidgets);
+      });
+
+      testWidgets('moves with the pointer without drawing the chart again inside a column', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, PlLineChart(series: series, categories: months));
+
+        final Finder frame = find.byWidgetPredicate(
+          (Widget widget) =>
+              widget is CustomPaint && widget.painter != null && widget.size.height > 40,
+        );
+        CustomPainter? painter() => tester.widget<CustomPaint>(frame.first).painter;
+        final Rect plot = tester.getRect(frame.first);
+        final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+        addTearDown(mouse.removePointer);
+        await mouse.addPointer(location: plot.topLeft + const Offset(2, 40));
+        await mouse.moveTo(plot.topLeft + const Offset(4, 40));
+        await tester.pump();
+
+        final CustomPainter? first = painter();
+        final Rect card = tester.getRect(find.byType(PlassChartTooltipCard));
+
+        // Still the first column: the card follows, and the chart is not rebuilt.
+        await mouse.moveTo(plot.topLeft + const Offset(8, 60));
+        await tester.pump();
+
+        expect(painter(), same(first));
+        expect(tester.getRect(find.byType(PlassChartTooltipCard)), isNot(card));
+
+        // Another column is a new drawing.
+        await mouse.moveTo(plot.topRight + const Offset(-4, 60));
+        await tester.pump();
+
+        expect(painter(), isNot(same(first)));
       });
 
       testWidgets('shows none when it is hidden', (WidgetTester tester) async {
