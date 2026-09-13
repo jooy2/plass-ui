@@ -1,6 +1,9 @@
 /// A twelve-column row and the cells in it.
 library;
 
+import 'dart:math' as math;
+
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/grid.dart';
@@ -159,7 +162,7 @@ class PlGrid extends StatelessWidget {
             return;
           }
 
-          runs.add(_run(run, gap: gapX));
+          runs.add(_run(context, run, gap: gapX));
           run = <_Cell>[];
           used = 0;
         }
@@ -228,10 +231,10 @@ class PlGrid extends StatelessWidget {
   ///
   /// A row aligned on a baseline is the one shape that cannot also honour a
   /// per-cell alignment: CSS resolves a baseline per item, and a Flutter row is
-  /// aligned on one baseline or on none. Every other row is laid out
-  /// **stretched**, and each cell is then positioned inside the height it was
-  /// given — which is what makes `alignSelf` expressible at all.
-  Widget _run(List<_Cell> cells, {required double gap}) {
+  /// aligned on one baseline or on none. Every other row is a [_Run], which
+  /// sizes itself to its tallest cell and then stretches or places each cell in
+  /// that height — which is what makes `alignSelf` expressible at all.
+  Widget _run(BuildContext context, List<_Cell> cells, {required double gap}) {
     // A row that does not wrap is inside a scroller, where the width is
     // unbounded — so it has to be as wide as its cells rather than as wide as
     // it is allowed to be, and there is no leftover space for `justify` to
@@ -245,7 +248,7 @@ class PlGrid extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.baseline,
         textBaseline: TextBaseline.alphabetic,
         spacing: gap,
-        children: <Widget>[for (final _Cell cell in cells) cell.build(PlassAlignSelf.auto)],
+        children: <Widget>[for (final _Cell cell in cells) cell.build()],
       );
     }
 
@@ -256,14 +259,18 @@ class PlGrid extends StatelessWidget {
       PlassAlignItems.stretch || PlassAlignItems.baseline => PlassAlignSelf.stretch,
     };
 
-    return IntrinsicHeight(
-      child: Row(
-        mainAxisSize: mainAxisSize,
-        mainAxisAlignment: _mainAxis(justify),
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: gap,
-        children: <Widget>[for (final _Cell cell in cells) cell.build(fallback)],
-      ),
+    return _Run(
+      gap: gap,
+      justify: justify,
+      fill: mainAxisSize == MainAxisSize.max,
+      textDirection: Directionality.of(context),
+      children: <Widget>[
+        for (final _Cell cell in cells)
+          _RunSlot(
+            align: cell.alignSelf == PlassAlignSelf.auto ? fallback : cell.alignSelf,
+            child: cell.build(),
+          ),
+      ],
     );
   }
 
@@ -303,31 +310,11 @@ class _Cell {
   final double offset;
   final PlassAlignSelf alignSelf;
 
-  Widget build(PlassAlignSelf fallback) {
-    final PlassAlignSelf resolved = alignSelf == PlassAlignSelf.auto ? fallback : alignSelf;
-
-    Widget held = item.child;
-
-    if (resolved != PlassAlignSelf.stretch && resolved != PlassAlignSelf.auto) {
-      // A column taking the full height it was handed, holding one child at
-      // one end of it. `stretch` across the other axis keeps the child the full
-      // width of the cell, which is what a grid cell is for.
-      held = Column(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: switch (resolved) {
-          PlassAlignSelf.center => MainAxisAlignment.center,
-          PlassAlignSelf.end => MainAxisAlignment.end,
-          _ => MainAxisAlignment.start,
-        },
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[held],
-      );
-    }
-
+  Widget build() {
     // `width` is already one gutter short, so the gap between two cells is the
     // gutter and no more — and a row of spans that add up to the column count
     // is exactly the width of the row.
-    Widget cell = SizedBox(width: width < 0 ? 0 : width, child: held);
+    Widget cell = SizedBox(width: width < 0 ? 0 : width, child: item.child);
 
     if (offset > 0) {
       cell = Padding(
@@ -337,5 +324,213 @@ class _Cell {
     }
 
     return cell;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * The run
+ * ------------------------------------------------------------------------- */
+
+/// How one cell sits across its run.
+class _RunParentData extends ContainerBoxParentData<RenderBox> {
+  PlassAlignSelf align = PlassAlignSelf.stretch;
+}
+
+/// Tells the run how the cell under it is aligned.
+class _RunSlot extends ParentDataWidget<_RunParentData> {
+  const _RunSlot({required this.align, required super.child});
+
+  final PlassAlignSelf align;
+
+  @override
+  void applyParentData(RenderObject renderObject) {
+    final _RunParentData data = renderObject.parentData! as _RunParentData;
+
+    if (data.align != align) {
+      data.align = align;
+      renderObject.parent?.markNeedsLayout();
+    }
+  }
+
+  @override
+  Type get debugTypicalAncestorWidgetClass => _Run;
+}
+
+/// One run of cells, as tall as its tallest cell.
+///
+/// This is what an `IntrinsicHeight` round a stretched `Row` used to do, done
+/// without asking any cell for an intrinsic height. A `LayoutBuilder` cannot
+/// answer that question, and a nested `PlGrid`, a chart, a table and a slider
+/// all hold one, so a row with any of them in it threw. Here every cell is laid
+/// out for real at its own height first, and a stretched cell is then laid out
+/// again at the height of the run.
+///
+/// What that asks of a cell is the one thing the old row did not: a cell is
+/// first laid out with no height to fill, so a `Spacer` or an `Expanded` in a
+/// `Column` directly inside one has nothing to take. `MainAxisAlignment
+/// .spaceBetween` pins a footer to the bottom of a stretched cell without
+/// needing that height up front.
+class _Run extends MultiChildRenderObjectWidget {
+  const _Run({
+    required this.gap,
+    required this.justify,
+    required this.fill,
+    required this.textDirection,
+    required super.children,
+  });
+
+  final double gap;
+  final PlassJustify justify;
+
+  /// Whether the run is as wide as it may be, rather than as wide as its cells.
+  final bool fill;
+  final TextDirection textDirection;
+
+  @override
+  _RenderRun createRenderObject(BuildContext context) {
+    return _RenderRun(gap: gap, justify: justify, fill: fill, textDirection: textDirection);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderRun renderObject) {
+    renderObject
+      ..gap = gap
+      ..justify = justify
+      ..fill = fill
+      ..textDirection = textDirection;
+  }
+}
+
+class _RenderRun extends RenderBox
+    with
+        ContainerRenderObjectMixin<RenderBox, _RunParentData>,
+        RenderBoxContainerDefaultsMixin<RenderBox, _RunParentData> {
+  _RenderRun({
+    required double gap,
+    required PlassJustify justify,
+    required bool fill,
+    required TextDirection textDirection,
+  }) : _gap = gap,
+       _justify = justify,
+       _fill = fill,
+       _textDirection = textDirection;
+
+  double _gap;
+  double get gap => _gap;
+  set gap(double value) {
+    if (_gap == value) return;
+    _gap = value;
+    markNeedsLayout();
+  }
+
+  PlassJustify _justify;
+  PlassJustify get justify => _justify;
+  set justify(PlassJustify value) {
+    if (_justify == value) return;
+    _justify = value;
+    markNeedsLayout();
+  }
+
+  bool _fill;
+  bool get fill => _fill;
+  set fill(bool value) {
+    if (_fill == value) return;
+    _fill = value;
+    markNeedsLayout();
+  }
+
+  TextDirection _textDirection;
+  TextDirection get textDirection => _textDirection;
+  set textDirection(TextDirection value) {
+    if (_textDirection == value) return;
+    _textDirection = value;
+    markNeedsLayout();
+  }
+
+  @override
+  void setupParentData(RenderBox child) {
+    if (child.parentData is! _RunParentData) {
+      child.parentData = _RunParentData();
+    }
+  }
+
+  @override
+  void performLayout() {
+    double height = 0;
+    double content = 0;
+    int count = 0;
+
+    // Each cell at its own height. A cell carries its own width, and a `Row`
+    // hands its children no width limit either, so neither does this.
+    for (RenderBox? child = firstChild; child != null; child = childAfter(child)) {
+      child.layout(const BoxConstraints(), parentUsesSize: true);
+      height = math.max(height, child.size.height);
+      content += child.size.width;
+      count += 1;
+    }
+
+    height = constraints.constrainHeight(height);
+    content += gap * math.max(0, count - 1);
+
+    final double width = fill && constraints.hasBoundedWidth ? constraints.maxWidth : content;
+
+    size = constraints.constrain(Size(width, height));
+
+    final double leftover = math.max(0, size.width - content);
+    final (double lead, double between) = switch (justify) {
+      PlassJustify.start || PlassJustify.stretch => (0, gap),
+      PlassJustify.center => (leftover / 2, gap),
+      PlassJustify.end => (leftover, gap),
+      PlassJustify.spaceBetween => count > 1 ? (0, gap + leftover / (count - 1)) : (0, gap),
+      PlassJustify.spaceAround => (leftover / count / 2, gap + leftover / count),
+      PlassJustify.spaceEvenly => (leftover / (count + 1), gap + leftover / (count + 1)),
+    };
+
+    double cursor = lead;
+
+    for (RenderBox? child = firstChild; child != null; child = childAfter(child)) {
+      final _RunParentData data = child.parentData! as _RunParentData;
+      final bool stretch =
+          data.align == PlassAlignSelf.stretch || data.align == PlassAlignSelf.auto;
+
+      // Only a cell that is not already the height of the run is laid out
+      // again, so a row of equal cells costs one pass.
+      if (stretch && child.size.height != size.height) {
+        child.layout(
+          BoxConstraints.tightFor(width: child.size.width, height: size.height),
+          parentUsesSize: true,
+        );
+      }
+
+      final double dy = switch (data.align) {
+        PlassAlignSelf.center => (size.height - child.size.height) / 2,
+        PlassAlignSelf.end => size.height - child.size.height,
+        _ => 0,
+      };
+
+      // Mirrored here rather than in `paint`, because a hit test and a
+      // semantics rectangle read the offsets too.
+      final double dx = textDirection == TextDirection.rtl
+          ? size.width - cursor - child.size.width
+          : cursor;
+
+      data.offset = Offset(dx, dy);
+      cursor += child.size.width + between;
+    }
+  }
+
+  @override
+  double? computeDistanceToActualBaseline(TextBaseline baseline) {
+    return defaultComputeDistanceToFirstActualBaseline(baseline);
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    return defaultHitTestChildren(result, position: position);
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    defaultPaint(context, offset);
   }
 }

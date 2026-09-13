@@ -4,6 +4,8 @@
 
 ### Breaking changes
 
+- **A `Spacer` or an `Expanded` in a `Column` directly inside a `PlGrid` cell throws.** A row now lays each cell out at its own height before stretching it, so on that first pass the `Column` has no height for the flexible child to fill. It used to work because the row asked every cell for an intrinsic height, which is also what made a cell holding a `LayoutBuilder` throw. To pin a footer to the bottom of a stretched cell, give the `Column` `MainAxisAlignment.spaceBetween` instead.
+
 - **Picking a day in `PlDateTimePicker` keeps the moment inside `minDate` and `maxDate`.** The day that holds a bound stays selectable, and picking it used to keep the clock as it was, or put midnight on it, without checking the bound again. With `minDate: DateTime.now()`, picking today reported today at 00:00. The clock is now moved into the bounds, up to the next whole minute (or second, with `showSeconds`) at or after `minDate` and down to the last one at or before `maxDate`. A clock that is already inside the bounds is kept as before.
 
 ### Added
@@ -41,6 +43,8 @@
 - **A `PlScrollZone` no longer hands the wheel back at its ends.** The pointer being on the shelf is the reader saying which of the two things under it they meant to move, and reaching the last card is not them saying something else — so whatever was behind the strip used to start moving at a pixel nobody chose, in the middle of a flick. The new `overscroll` default is `PlassOverscroll.contain`, and `PlassOverscroll.auto` is the old behaviour. Even `auto` now keeps a gesture that was scrolling the strip a moment ago, and gives the signal up only once the reader has paused. A strip everything fits in is not a scroller and holds nothing back either way.
 
 ### Fixed
+
+- **A `PlGrid` cell can hold anything that measures itself with a `LayoutBuilder`.** Every row was wrapped in an `IntrinsicHeight`, which asks each cell for an intrinsic height that a `LayoutBuilder` cannot give, so a `PlGrid` inside a cell threw, and so did a chart, a `PlTable`, a `PlSlider`, a `PlBadge` or any other widget holding one. In a release build the row came out the wrong height instead. A row now lays each cell out at its own height and then stretches the cells to the tallest. See Breaking changes for the one pattern this stops.
 
 - **A dragged `PlSidebar` keeps its width when the page rebuilds.** With its size coming from the theme, every rebuild of the widget above it read as a size change and put the width back to the default, so an `onResize` that called `setState` stopped the drag from moving at all.
 

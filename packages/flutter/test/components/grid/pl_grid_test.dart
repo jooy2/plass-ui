@@ -359,6 +359,138 @@ void main() {
       });
     });
 
+    group('the row', () {
+      testWidgets('stretches a cell whose content measures itself with a LayoutBuilder', (
+        WidgetTester tester,
+      ) async {
+        // A nested grid holds a `LayoutBuilder`, which cannot answer an intrinsic
+        // height — and a row that asked for one threw.
+        await tester.pumpWidget(
+          host(
+            PlGrid(
+              spacing: const PlassResponsive<double>(0),
+              items: <PlGridItem>[
+                PlGridItem(
+                  span: const PlassResponsive<int>(6),
+                  child: PlGrid(
+                    spacing: const PlassResponsive<double>(0),
+                    items: <PlGridItem>[cell('inner', height: 80)],
+                  ),
+                ),
+                PlGridItem(
+                  span: const PlassResponsive<int>(6),
+                  child: LayoutBuilder(
+                    builder: (BuildContext context, BoxConstraints constraints) =>
+                        SizedBox(key: const ValueKey<String>('measured'), height: 30),
+                  ),
+                ),
+              ],
+            ),
+            width: 480,
+          ),
+        );
+
+        expect(tester.takeException(), isNull);
+        expect(box(tester, 'inner').height, 80);
+        expect(box(tester, 'measured').height, 80);
+        expect(box(tester, 'measured').width, 240);
+      });
+
+      testWidgets('pins a footer with spaceBetween in a stretched cell', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            PlGrid(
+              spacing: const PlassResponsive<double>(0),
+              items: <PlGridItem>[
+                cell('tall', span: const PlassResponsive<int>(6), height: 100),
+                PlGridItem(
+                  span: const PlassResponsive<int>(6),
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      SizedBox(height: 20),
+                      SizedBox(key: ValueKey<String>('footer'), height: 20),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            width: 480,
+          ),
+        );
+
+        expect(box(tester, 'footer').bottom, box(tester, 'tall').bottom);
+      });
+
+      testWidgets('distributes the space its cells leave', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            PlGrid(
+              justify: PlassJustify.spaceBetween,
+              spacing: const PlassResponsive<double>(0),
+              items: <PlGridItem>[
+                cell('a', span: const PlassResponsive<int>(3)),
+                cell('b', span: const PlassResponsive<int>(3)),
+              ],
+            ),
+            width: 480,
+          ),
+        );
+
+        final Rect grid = tester.getRect(find.byType(PlGrid));
+
+        expect(box(tester, 'a').left, grid.left);
+        expect(box(tester, 'b').right, grid.right);
+      });
+
+      testWidgets('starts from the right under RTL', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            PlGrid(
+              spacing: const PlassResponsive<double>(0),
+              items: <PlGridItem>[
+                cell('a', span: const PlassResponsive<int>(3)),
+                cell(
+                  'b',
+                  span: const PlassResponsive<int>(3),
+                  offset: const PlassResponsive<int>(3),
+                ),
+              ],
+            ),
+            width: 480,
+            textDirection: TextDirection.rtl,
+          ),
+        );
+
+        final Rect grid = tester.getRect(find.byType(PlGrid));
+
+        expect(box(tester, 'a').right, grid.right);
+        expect(box(tester, 'b').right, grid.right - 120 - 120);
+      });
+
+      testWidgets('re-lays a cell out when its alignment changes', (WidgetTester tester) async {
+        Widget grid(PlassAlignSelf align) => host(
+          PlGrid(
+            spacing: const PlassResponsive<double>(0),
+            items: <PlGridItem>[
+              cell('a', span: const PlassResponsive<int>(6), height: 60),
+              cell('b', span: const PlassResponsive<int>(6), alignSelf: align),
+            ],
+          ),
+          width: 480,
+        );
+
+        await tester.pumpWidget(grid(PlassAlignSelf.stretch));
+        expect(box(tester, 'b').height, 60);
+
+        await tester.pumpWidget(grid(PlassAlignSelf.end));
+        expect(box(tester, 'b').height, 20);
+        expect(box(tester, 'b').bottom, box(tester, 'a').bottom);
+      });
+    });
+
     group('responsive values', () {
       testWidgets('resolves against the width of the window', (WidgetTester tester) async {
         await tester.pumpWidget(

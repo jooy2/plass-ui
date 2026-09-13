@@ -200,11 +200,13 @@ A grid inside a **cell**, not a cell that is also a grid. The inner grid re-decl
 
 ## Composition
 
-`PlGrid` builds one `Row` per run inside a `Column`, and packs the runs by counting **columns** rather than by comparing widths. Every cell is a whole number of columns, so counting them cannot disagree with itself by a rounded pixel the way two `double`s can.
+`PlGrid` builds one run per row inside a `Column`, and packs the runs by counting **columns** rather than by comparing widths. Every cell is a whole number of columns, so counting them cannot disagree with itself by a rounded pixel the way two `double`s can.
 
 A cell's width is a share of the row, so the row has to be measured before a cell can be built: that is the `LayoutBuilder`. The arithmetic is the React package's, written out (`(width + gap) / columns × span − gap`), and adding one gutter before dividing is what lets every cell give one back, so a row of spans that add up to the column count is exactly the width of the row.
 
-Every run is laid out **stretched** inside an `IntrinsicHeight`, and each cell is then positioned inside the height it was given. That is what makes `alignSelf` expressible at all: Flutter has no per-child cross-axis alignment, so a cell that is not stretched is a full-height `Column` holding one child at one end of it.
+A run is as tall as its tallest cell. Every cell is laid out at its own height first, then a stretched cell is laid out again at the height of the run, and any other cell is placed at the start, the centre or the end of it. No cell is asked for an intrinsic height, so a cell may hold anything that measures itself with a `LayoutBuilder`: another `PlGrid`, a chart, a table or a slider.
+
+The first pass has no height for a cell to fill, so a `Spacer` or an `Expanded` in a `Column` directly inside a cell has nothing to take. To pin a footer to the bottom of a stretched cell, give that `Column` `MainAxisAlignment.spaceBetween` instead.
 
 :::
 
