@@ -12,7 +12,7 @@
  */
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlButton, PlConfirmProvider, usePlConfirm } from 'plass-ui';
+import { PlButton, PlConfirmProvider, PlassProvider, usePlConfirm } from 'plass-ui';
 
 /** A button that asks, and writes the answer where a test can read it. */
 function Asker({
@@ -94,6 +94,23 @@ describe('PlConfirmProvider', () => {
       await screen.getByRole('button', { name: 'Delete' }).click();
 
       await expect.element(screen.getByRole('button', { name: '삭제' })).toBeInTheDocument();
+      await expect.element(screen.getByRole('button', { name: '취소' })).toBeInTheDocument();
+    });
+  });
+
+  describe('the words', () => {
+    it('takes cancel and confirm from the label pack', async () => {
+      const screen = await render(
+        <PlassProvider labels={{ cancel: '취소', confirm: '확인' }}>
+          <PlConfirmProvider>
+            <Asker answer={() => {}} />
+          </PlConfirmProvider>
+        </PlassProvider>
+      );
+
+      await screen.getByRole('button', { name: 'Delete' }).click();
+
+      await expect.element(screen.getByRole('button', { name: '확인' })).toBeInTheDocument();
       await expect.element(screen.getByRole('button', { name: '취소' })).toBeInTheDocument();
     });
   });

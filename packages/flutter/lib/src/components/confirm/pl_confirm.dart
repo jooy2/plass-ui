@@ -118,8 +118,8 @@ class PlConfirmProvider extends StatefulWidget {
   /// Creates a provider.
   const PlConfirmProvider({
     required this.child,
-    this.confirmLabel = const Text('Confirm'),
-    this.cancelLabel = const Text('Cancel'),
+    this.confirmLabel,
+    this.cancelLabel,
     this.acknowledgeLabel = const Text('OK'),
     this.width,
     this.size,
@@ -130,11 +130,13 @@ class PlConfirmProvider extends StatefulWidget {
   /// The application.
   final Widget child;
 
-  /// The default word on the button that answers yes.
-  final Widget confirmLabel;
+  /// The default word on the button that answers yes. Falls back to the label
+  /// pack's `confirm`.
+  final Widget? confirmLabel;
 
-  /// The default word on the button that answers no.
-  final Widget cancelLabel;
+  /// The default word on the button that answers no. Falls back to the label
+  /// pack's `cancel`.
+  final Widget? cancelLabel;
 
   /// The default word on an `alert`'s single button.
   final Widget acknowledgeLabel;
@@ -298,7 +300,10 @@ class _PlConfirmProviderState extends State<PlConfirmProvider> implements PlConf
                   size: size,
                   autofocus: !focusConfirm,
                   onPressed: () => _settle(false),
-                  child: options?.cancelLabel ?? widget.cancelLabel,
+                  child:
+                      options?.cancelLabel ??
+                      widget.cancelLabel ??
+                      Text(PlassTheme.labelsOf(context).cancel),
                 ),
               PlButton(
                 color: color,
@@ -307,7 +312,9 @@ class _PlConfirmProviderState extends State<PlConfirmProvider> implements PlConf
                 onPressed: () => _settle(true),
                 child:
                     options?.confirmLabel ??
-                    (isAlert ? widget.acknowledgeLabel : widget.confirmLabel),
+                    (isAlert
+                        ? widget.acknowledgeLabel
+                        : widget.confirmLabel ?? Text(PlassTheme.labelsOf(context).confirm)),
               ),
             ],
             child: options?.child,

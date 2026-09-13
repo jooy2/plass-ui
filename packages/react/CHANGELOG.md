@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **`PlConfirmProvider` and `PlTimelineChart` say the label pack's words.** The confirm dialog's Cancel and Confirm, and the start and end headings of a timeline's table, were written in English whatever `PlassProvider` said, while `PlPopconfirm` beside them already read the pack. Both now read `cancel`, `confirm`, `start` and `end`, and a component's own prop still wins.
+
 - **The pickers, `PlCalendar` and `PlFilePicker` take part in a `PlForm`.** Base UI's form sees only the controls registered with a field, and these carried plain hidden inputs, so a `<PlDatePicker name="departure" required />` inside a `PlForm` was missing from the values `onSubmit` received, did not stop an empty submit, and never showed the form's `errors` entry for its name. They now register like any other field: an empty `required` one stops the submit and takes the focus, an `errors` entry is shown on it, and its value is in `onSubmit`. A `PlDateRangePicker`, a `multiple` `PlTreeSelect` and a `PlFilePicker` report arrays.
 
 - **A `required` or `disabled` picker is respected by a plain `<form>`.** The hidden input under `PlDatePicker`, `PlDateRangePicker`, `PlDateTimePicker`, `PlTimePicker`, `PlColorPicker` and `PlTreeSelect` carried neither attribute, so an empty `required` picker was submitted and a `disabled` one still sent its value. An empty `required` picker now stops the submit, and a `disabled` picker, `PlCalendar` or inline `PlColorPicker` sends nothing. An empty single-choice `PlTreeSelect` now submits an empty entry under its name, as the other pickers do.

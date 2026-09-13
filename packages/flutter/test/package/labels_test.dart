@@ -171,6 +171,63 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('reaches the words a popconfirm and a palette fall back to', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(900, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        host(
+          PlassTheme.merge(
+            defaults: const PlassDefaults(labels: ko),
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                PlPopconfirm(open: true, trigger: Text('Row'), title: Text('?')),
+                PlCommandPalette(items: <PlCommandItem>[], open: true),
+              ],
+            ),
+          ),
+          overlay: true,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text(ko.commandPalettePlaceholder), findsOneWidget);
+      expect(find.text(ko.cancel), findsOneWidget);
+      expect(find.text(ko.confirm), findsOneWidget);
+    });
+
+    testWidgets('reaches the words a confirm dialog falls back to', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(900, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        host(
+          PlassTheme.merge(
+            defaults: const PlassDefaults(labels: ko),
+            child: PlConfirmProvider(
+              child: Builder(
+                builder: (BuildContext context) => PlButton(
+                  onPressed: () => PlConfirmProvider.of(context).confirm(const PlConfirmOptions()),
+                  child: const Text('Ask'),
+                ),
+              ),
+            ),
+          ),
+          overlay: true,
+        ),
+      );
+      await tester.tap(find.text('Ask'));
+      await tester.pumpAndSettle();
+
+      expect(find.text(ko.cancel), findsOneWidget);
+      expect(find.text(ko.confirm), findsOneWidget);
+    });
+
     testWidgets("still loses to the widget's own parameter", (WidgetTester tester) async {
       final SemanticsHandle handle = tester.ensureSemantics();
 

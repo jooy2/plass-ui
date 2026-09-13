@@ -49,8 +49,8 @@ class PlPopconfirm extends StatefulWidget {
     this.onOpenChanged,
     this.title,
     this.description,
-    this.confirmLabel = const Text('Confirm'),
-    this.cancelLabel = const Text('Cancel'),
+    this.confirmLabel,
+    this.cancelLabel,
     this.onConfirm,
     this.onCancel,
     this.color,
@@ -76,11 +76,13 @@ class PlPopconfirm extends StatefulWidget {
   /// A line under it. Say what happens.
   final Widget? description;
 
-  /// The word on the button that answers yes.
-  final Widget confirmLabel;
+  /// The word on the button that answers yes. Falls back to the label pack's
+  /// `confirm`.
+  final Widget? confirmLabel;
 
-  /// The word on the button that answers no.
-  final Widget cancelLabel;
+  /// The word on the button that answers no. Falls back to the label pack's
+  /// `cancel`.
+  final Widget? cancelLabel;
 
   /// What confirming does.
   ///
@@ -194,7 +196,7 @@ class _PlPopconfirmState extends State<PlPopconfirm> {
                 widget.onCancel?.call();
                 widget.onOpenChanged?.call(false);
               },
-              child: widget.cancelLabel,
+              child: widget.cancelLabel ?? Text(PlassTheme.labelsOf(context).cancel),
             ),
             PlButton(
               color: _color,
@@ -207,7 +209,7 @@ class _PlPopconfirmState extends State<PlPopconfirm> {
               // reader has already said what they want once.
               autofocus: true,
               onPressed: _confirm,
-              child: widget.confirmLabel,
+              child: widget.confirmLabel ?? Text(PlassTheme.labelsOf(context).confirm),
             ),
           ],
         ),

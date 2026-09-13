@@ -26,6 +26,7 @@ import {
 import { srOnlyClasses } from '../../internal/styles.js';
 import type { PlassChartCategory, PlassTimelinePoint, PlassTimelineSeries } from '../../types.js';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 
 export interface PlTimelineChartProps extends Omit<
   CartesianChartProps,
@@ -408,6 +409,7 @@ interface TableProps {
  * of the row it belongs to.
  */
 function TimelineTable({ id, names, series, spans, unit, label, corner, locale }: TableProps) {
+  const words = useLabels();
   const titled = series.some((row) => row.data.some((span) => span.label !== undefined));
 
   return (
@@ -417,8 +419,8 @@ function TimelineTable({ id, names, series, spans, unit, label, corner, locale }
         <tr>
           <th scope="col">{corner ?? ''}</th>
           {titled ? <th scope="col">label</th> : null}
-          <th scope="col">start</th>
-          <th scope="col">end</th>
+          <th scope="col">{words.start}</th>
+          <th scope="col">{words.end}</th>
         </tr>
       </thead>
       <tbody>

@@ -1365,7 +1365,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }),
     from('PlCommandPalette', 'width', { type: 'double?' }),
     from('PlCommandPalette', 'maxHeight', { type: 'double', default: '320' }),
-    from('PlCommandPalette', 'placeholder', { type: 'String', default: "'Search commands'" }),
+    from('PlCommandPalette', 'placeholder', { type: 'String?', default: "'Search commands'" }),
     from('PlCommandPalette', 'emptyMessage', {
       type: 'String',
       default: "'No commands found'"
@@ -2130,10 +2130,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       description: { ko: '애플리케이션', en: 'The application' }
     },
     from('PlConfirmProvider', 'confirmLabel', {
-      type: 'Widget',
+      type: 'Widget?',
       default: "Text('Confirm')"
     }),
-    from('PlConfirmProvider', 'cancelLabel', { type: 'Widget', default: "Text('Cancel')" }),
+    from('PlConfirmProvider', 'cancelLabel', { type: 'Widget?', default: "Text('Cancel')" }),
     from('PlConfirmProvider', 'acknowledgeLabel', { type: 'Widget', default: "Text('OK')" }),
     from('PlConfirmProvider', 'width', { type: 'double?' }),
     from('PlConfirmProvider', 'size', { type: SIZE, default: 'PlassSize.md' }),
@@ -2171,8 +2171,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }),
     from('PlPopconfirm', 'title', { type: 'Widget?' }),
     from('PlPopconfirm', 'description', { type: 'Widget?' }),
-    from('PlPopconfirm', 'confirmLabel', { type: 'Widget', default: "Text('Confirm')" }),
-    from('PlPopconfirm', 'cancelLabel', { type: 'Widget', default: "Text('Cancel')" }),
+    from('PlPopconfirm', 'confirmLabel', { type: 'Widget?', default: "Text('Confirm')" }),
+    from('PlPopconfirm', 'cancelLabel', { type: 'Widget?', default: "Text('Cancel')" }),
     from('PlPopconfirm', 'onConfirm', { type: 'FutureOr<void> Function()?' }),
     from('PlPopconfirm', 'onCancel', { type: 'VoidCallback?' }),
     from('PlPopconfirm', 'color', { type: COLOR, default: 'PlassColor.danger' }),

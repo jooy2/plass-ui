@@ -134,7 +134,7 @@ class PlCommandPalette extends StatefulWidget {
     this.shortcut = 'Mod+K',
     this.width,
     this.maxHeight = 320,
-    this.placeholder = 'Search commands',
+    this.placeholder,
     this.emptyMessage = 'No commands found',
     this.label,
     this.size,
@@ -172,8 +172,9 @@ class PlCommandPalette extends StatefulWidget {
   /// How tall the list may get before it scrolls.
   final double maxHeight;
 
-  /// The placeholder in the field.
-  final String placeholder;
+  /// The placeholder in the field. Falls back to the label pack's
+  /// `commandPalettePlaceholder`.
+  final String? placeholder;
 
   /// The line where the rows would be, when nothing matched.
   final String emptyMessage;
@@ -413,7 +414,7 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
       child: Align(
         alignment: AlignmentDirectional.centerStart,
         child: Text(
-          widget.placeholder,
+          widget.placeholder ?? PlassTheme.labelsOf(context).commandPalettePlaceholder,
           style: TextStyle(color: tokens.mutedFg, fontSize: text.size, height: text.height),
         ),
       ),

@@ -48,6 +48,8 @@
 
 ### Fixed
 
+- **`PlConfirmProvider`, `PlPopconfirm` and `PlCommandPalette` say the label pack's words.** Their Cancel and Confirm buttons and the palette's placeholder were written in English whatever the theme's labels said. `confirmLabel`, `cancelLabel` and `placeholder` are now nullable and fall back to the pack's `confirm`, `cancel` and `commandPalettePlaceholder`.
+
 - **The row the arrow keys move to stays in view in `PlSelect`, `PlCombobox` and `PlCommandPalette`.** Each list had a scroll controller that nothing used, so on a list taller than its popup the highlight went out of sight, and in a command palette Enter ran a command nobody could see. The list now scrolls just far enough to show the row, and only the list: the page behind the popup stays put.
 
 - **`PlModal`, `PlDrawer` and `PlToastProvider` keep clear of the system's bars and a soft keyboard.** On a phone, a modal's actions sat under the keyboard, a full-screen modal's and a side drawer's header and × sat under the status bar, a top toast sat in the notch and a bottom one on the home indicator. A modal and a toast stack now stand off the bars and the keyboard, and a full-screen modal and a drawer run under the bars with their content kept out from under them.

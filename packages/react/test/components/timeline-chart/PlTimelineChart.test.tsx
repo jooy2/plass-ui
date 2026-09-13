@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PlTimelineChart } from 'plass-ui';
+import { PlTimelineChart, PlassProvider } from 'plass-ui';
 import { render } from 'vitest-browser-react';
 
 const at = (day: number) => new Date(2026, 0, day);
@@ -187,6 +187,17 @@ describe('PlTimelineChart', () => {
 
       await expect.element(table).toBeInTheDocument();
       expect(table.element().querySelectorAll('tbody tr').length).toBe(3);
+    });
+
+    it('heads the start and end columns with the label pack s words', async () => {
+      const screen = await render(
+        <PlassProvider labels={{ start: '시작', end: '종료' }}>
+          <PlTimelineChart label="Plan" series={PLAN} />
+        </PlassProvider>
+      );
+
+      await expect.element(screen.getByRole('columnheader', { name: '시작' })).toBeInTheDocument();
+      await expect.element(screen.getByRole('columnheader', { name: '종료' })).toBeInTheDocument();
     });
 
     it('adds a label column only when a span carries one', async () => {

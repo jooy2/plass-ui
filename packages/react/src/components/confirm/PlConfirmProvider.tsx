@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { PlButton } from '../button/PlButton.js';
 import { PlModal } from '../modal/PlModal.js';
+import { useLabels } from '../../internal/labels.js';
 import type { PlassColor, PlassSize } from '../../types.js';
 
 /** What one question looks like. Every field is optional but `title`. */
@@ -110,6 +111,7 @@ export function PlConfirmProvider({
   width,
   children
 }: PlConfirmProviderProps) {
+  const labels = useLabels();
   const [open, setOpen] = React.useState(false);
   const [current, setCurrent] = React.useState<Request | null>(null);
 
@@ -216,7 +218,7 @@ export function PlConfirmProvider({
                 autoFocus={!focusConfirm}
                 onClick={() => settle(false)}
               >
-                {options?.cancelLabel ?? cancelLabel ?? 'Cancel'}
+                {options?.cancelLabel ?? cancelLabel ?? labels.cancel}
               </PlButton>
             )}
 
@@ -227,7 +229,7 @@ export function PlConfirmProvider({
               onClick={() => settle(true)}
             >
               {options?.confirmLabel ??
-                (isAlert ? (acknowledgeLabel ?? 'OK') : (confirmLabel ?? 'Confirm'))}
+                (isAlert ? (acknowledgeLabel ?? 'OK') : (confirmLabel ?? labels.confirm))}
             </PlButton>
           </>
         }
