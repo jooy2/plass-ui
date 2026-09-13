@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **A `PlDataTable` whose parent holds the sort stays unsorted when the parent clears it.** A `sort` of `null` was read as the table keeping its own sort, and the table still had the one from the first press, so the third press on a heading, or a parent resetting the sort, brought an ascending sort back. The table now follows the parent's last answer.
+
 - **A `PlDataTable` that keeps its own page calls `onPageChanged`.** The table moved to the new page before comparing it with the page it was on, so the two were always the same and the callback never ran unless `page` was passed as well.
 
 - **A `PlDataTable` sorted descending keeps its blank cells last.** The built-in order put a blank value after every other value, and the direction was then applied to that answer as well, so turning a column round put the blanks first, against what the page says. The direction now turns only the values that are there. A column's own `compare` is still turned round as a whole.

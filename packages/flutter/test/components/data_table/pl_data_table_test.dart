@@ -296,6 +296,47 @@ void main() {
         expect(customers(tester), <String>['Initech', 'Globex', 'Acme']);
       });
 
+      testWidgets('puts the rows back when a parent that holds the sort clears it', (
+        WidgetTester tester,
+      ) async {
+        PlDataTableSort? sort;
+        late StateSetter setSort;
+
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                setSort = setState;
+
+                return table(
+                  sort: sort,
+                  onSortChanged: (PlDataTableSort? next) => setState(() => sort = next),
+                );
+              },
+            ),
+            width: 640,
+          ),
+        );
+
+        // Ascending, descending, and then off, fed back through the parent.
+        for (var press = 0; press < 3; press += 1) {
+          await tester.tap(find.text('Customer').first);
+          await tester.pumpAndSettle();
+        }
+
+        expect(sort, isNull);
+        expect(customers(tester), <String>['Initech', 'Acme', 'Globex']);
+
+        await tester.tap(find.text('Customer').first);
+        await tester.pumpAndSettle();
+        expect(customers(tester), <String>['Acme', 'Globex', 'Initech']);
+
+        // Cleared by the parent itself, with no press.
+        setSort(() => sort = null);
+        await tester.pumpAndSettle();
+        expect(customers(tester), <String>['Initech', 'Acme', 'Globex']);
+      });
+
       testWidgets('leaves the rows alone when the sort is being done elsewhere', (
         WidgetTester tester,
       ) async {

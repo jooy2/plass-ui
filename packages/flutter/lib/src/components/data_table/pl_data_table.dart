@@ -387,6 +387,12 @@ class _PlDataTableState<T> extends State<PlDataTable<T>> {
     if (widget.search != null && widget.search != _search.text) {
       _search.text = widget.search!;
     }
+
+    // A parent that clears its sort without a press means no sort, rather than
+    // the last one this table kept.
+    if (oldWidget.sort != null && widget.sort == null) {
+      _sort = null;
+    }
   }
 
   @override
@@ -484,9 +490,11 @@ class _PlDataTableState<T> extends State<PlDataTable<T>> {
   void _goSort(String key) {
     final next = nextSort(_currentSort, key);
 
-    if (widget.sort == null) {
-      setState(() => _sort = next);
-    }
+    // Kept whether or not a parent holds the sort. A `sort` of `null` is how a
+    // parent says there is no sort, and it is also how a table is told it keeps
+    // its own; a table that had not kept the parent's last answer would bring
+    // back an older one of its own the moment the parent cleared it.
+    setState(() => _sort = next);
 
     // Back to the first page: a reader who re-sorted is looking at a different
     // set of rows, and page nine of it is not where they were.
