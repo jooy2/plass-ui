@@ -139,6 +139,23 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('marks the page it is on, and no other', (WidgetTester tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(host(const PlPagination(count: 9, page: 3), width: 640));
+
+        // A reader moving along the row hears which page is the current one, as
+        // `aria-current` says on the web, rather than a row of the same buttons.
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('Page 3')),
+          isSemantics(isButton: true, isSelected: true),
+        );
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('Page 4')),
+          isSemantics(isButton: true, isSelected: false),
+        );
+        handle.dispose();
+      });
+
       testWidgets('leaves the ellipsis out of what is read', (WidgetTester tester) async {
         final handle = tester.ensureSemantics();
         await tester.pumpWidget(host(const PlPagination(count: 20, page: 10), width: 640));

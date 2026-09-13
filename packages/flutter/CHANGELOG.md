@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **`PlPagination` marks the page it is on.** The current page was drawn filled and read as "Page 4" like every other page, so a screen reader had no way to say which one was current, although the documentation said the name was enough. Its button is now marked selected.
+
 - **A held `PlNumberField` stepper settles once, when it is let go, and stops at the end of the range.** Every repeat of a held stepper called `onCommitted`, every 60 milliseconds, and the repeats went on after the value had reached `min` or `max`, so a caller that saved on `onCommitted` sent one request after another. A repeat now calls `onChanged` alone, the repeats stop at the end of the range, and letting go calls `onCommitted` once with the value it reached, without adding a step of its own.
 
 - **A `PlNumberField` shows the value its parent holds after the parent turns one down.** A settled or stepped number was written into the box before the parent answered, so a parent that did not take it, as in `value: 5, onChanged: (_) {}`, left 40 in the box while the value stayed 5. Once the parent has rebuilt, a box that disagrees with `value` now goes back to it.

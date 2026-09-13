@@ -285,12 +285,17 @@ class PlPagination extends StatelessWidget {
                 onPressed: () => go(number),
                 // The digit is drawn and not read: `semanticLabel` already says
                 // "Page 3", and a label that merged both would announce the
-                // number twice.
-                child: ExcludeSemantics(
-                  child: Text(
-                    '$number',
-                    style: const TextStyle(
-                      fontFeatures: <FontFeature>[FontFeature.tabularFigures()],
+                // number twice. The current page is marked selected, which is
+                // merged into the button and is what a screen reader says in
+                // place of the web's `aria-current`.
+                child: Semantics(
+                  selected: number == current ? true : null,
+                  child: ExcludeSemantics(
+                    child: Text(
+                      '$number',
+                      style: const TextStyle(
+                        fontFeatures: <FontFeature>[FontFeature.tabularFigures()],
+                      ),
                     ),
                   ),
                 ),

@@ -181,6 +181,7 @@ The same height ladder as `PlButton`, so a pagination and a button on the same r
 
 - The row is a named group, and `label` is that name.
 - Every button has a name of its own, "Page 4", "Next page". All of them are parameters, so a screen in another language sets its own; nothing here is ever drawn.
+- The current page's button is marked **selected**, so a reader moving along the row hears which page is the current one.
 - The digit on a page button is **excluded** from what is read, because `pageLabel` already says it, a label that merged both would announce the number twice.
 - The ellipsis is excluded from semantics entirely. It is punctuation, not a control that happens to be unavailable.
 - A stepper at the end of the range is disabled and stays in place, so the row never shifts sideways.
@@ -197,7 +198,7 @@ The same height ladder as `PlButton`, so a pagination and a button on the same r
 | `defaultPage` / `onPageChange` | `page` / `onPageChanged` | Flutter's own controls are controlled, and its name for the callback. |
 | `statusLabel`, as a live region | — | The current page is announced by its own button's name when focus reaches it, and a live region that fired on every page change would talk over the list it just replaced. |
 | `<nav>` around a `<ul>` | a named semantics group | There is no landmark to skip to, and no list semantics for a reset to take away. |
-| `aria-current="page"` | the filled variant, and the button's name | Flutter's semantics tree has no `current`. |
+| `aria-current="page"` | the filled variant, and `selected` on the button | Flutter's semantics tree has no `current`, and `selected` is what a screen reader says in its place. |
 
 :::
 

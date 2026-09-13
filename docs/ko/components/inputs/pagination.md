@@ -183,6 +183,7 @@ PlPagination(
 
 - 줄은 이름이 붙은 묶음이고, `label`이 그 이름입니다.
 - 모든 버튼에 자기 이름이 있습니다. "Page 4", "Next page". 전부 파라미터라 다른 언어의 화면은 자기 문구를 넣으면 되고, 여기 있는 문자열은 화면에 그려지지 않습니다.
+- 현재 페이지 버튼은 **selected**로 표시됩니다. 그래서 줄을 따라 움직이는 사람은 어느 페이지가 지금 페이지인지 듣습니다.
 - 페이지 버튼에 그려진 숫자는 읽히는 것에서 **제외**됩니다. `pageLabel`이 이미 그 숫자를 말하고 있고, 둘을 합친 라벨은 숫자를 두 번 읽게 됩니다.
 - ellipsis는 semantics에서 통째로 제외됩니다. 쓸 수 없는 컨트롤이 아니라 문장 부호입니다.
 - 페이지가 두 개 미만이면 아무것도 그리지 않습니다. disabled된 `1` 하나만 있는 줄은 할 일이 없다고 광고하는 컨트롤입니다.
@@ -200,6 +201,6 @@ PlPagination(
 | `defaultPage` / `onPageChange` | `page` / `onPageChanged` | Flutter 자신의 컨트롤이 controlled이고, 콜백 이름도 Flutter의 것입니다. |
 | live region인 `statusLabel` | — | 현재 페이지는 focus가 닿을 때 그 버튼의 이름으로 알려지고, 페이지가 바뀔 때마다 울리는 live region은 방금 갈아 끼운 목록 위에 말을 겹쳐 놓게 됩니다. |
 | `<ul>`을 감싼 `<nav>` | 이름이 붙은 semantics 묶음 | 건너뛸 landmark도, 리셋이 앗아 갈 목록 의미도 없습니다. |
-| `aria-current="page"` | 채워진 variant와 버튼의 이름 | Flutter의 semantics 트리에는 `current`가 없습니다. |
+| `aria-current="page"` | 채워진 variant와 버튼의 `selected` | Flutter의 semantics 트리에는 `current`가 없고, 스크린 리더는 그 자리에 `selected`를 말합니다. |
 
 :::
