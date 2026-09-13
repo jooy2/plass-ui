@@ -157,6 +157,124 @@ void main() {
       });
     });
 
+    group('fit', () {
+      testWidgets('covers the box by default', (WidgetTester tester) async {
+        await _pump(tester, PlImage(image: _ok, semanticLabel: 'A portrait'));
+
+        expect(tester.widget<Image>(find.byType(Image)).fit, BoxFit.cover);
+      });
+
+      testWidgets('scales a picture down without ever enlarging it', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          PlImage(image: _ok, semanticLabel: 'A portrait', fit: PlAspectFit.scaleDown),
+        );
+
+        expect(tester.widget<Image>(find.byType(Image)).fit, BoxFit.scaleDown);
+      });
+    });
+
+    group('width and height', () {
+      Future<void> pumpIn(WidgetTester tester, Widget child) async {
+        // A width to be given and a height left open, the way a column of
+        // content lays a picture out.
+        await tester.pumpWidget(host(child, width: 200));
+        await tester.pumpAndSettle();
+      }
+
+      testWidgets('sizes the box to a lone height, across the width it is given', (
+        WidgetTester tester,
+      ) async {
+        await pumpIn(tester, PlImage(image: _ok, semanticLabel: 'A portrait', height: 120));
+
+        expect(tester.getSize(find.byType(ClipRRect)), const Size(200, 120));
+      });
+
+      testWidgets('takes the width from a ratio beside a lone height', (WidgetTester tester) async {
+        await pumpIn(
+          tester,
+          PlImage(image: _ok, semanticLabel: 'A portrait', height: 60, ratio: 3 / 2),
+        );
+
+        expect(tester.getSize(find.byType(ClipRRect)), const Size(90, 60));
+      });
+
+      testWidgets('sizes the box to a lone width, never wider than the space it has', (
+        WidgetTester tester,
+      ) async {
+        await pumpIn(tester, PlImage(image: _ok, semanticLabel: 'A portrait', width: 80, ratio: 1));
+
+        expect(tester.getSize(find.byType(ClipRRect)), const Size(80, 80));
+
+        await pumpIn(
+          tester,
+          PlImage(image: _ok, semanticLabel: 'A portrait', width: 800, ratio: 1),
+        );
+
+        expect(tester.getSize(find.byType(ClipRRect)), const Size(200, 200));
+      });
+
+      testWidgets('sits a narrowed box at the start of its space', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            PlImage(image: _ok, semanticLabel: 'A portrait', width: 80, ratio: 1),
+            width: 200,
+            textDirection: TextDirection.rtl,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // The start of a right-to-left line is its right-hand edge.
+        expect(
+          tester.getTopRight(find.byType(ClipRRect)),
+          tester.getTopRight(find.byType(PlImage)),
+        );
+        expect(tester.getSize(find.byType(ClipRRect)), const Size(80, 80));
+      });
+
+      testWidgets('keeps the proportion of the two together', (WidgetTester tester) async {
+        await pumpIn(
+          tester,
+          PlImage(image: _ok, semanticLabel: 'A portrait', width: 1200, height: 800),
+        );
+
+        expect(tester.getSize(find.byType(ClipRRect)), const Size(200, 400 / 3));
+      });
+
+      testWidgets('turns the proportion of the two for a picture on its side', (
+        WidgetTester tester,
+      ) async {
+        await pumpIn(
+          tester,
+          PlImage(image: _ok, semanticLabel: 'A portrait', width: 1200, height: 800, rotate: 90),
+        );
+
+        expect(tester.getSize(find.byType(ClipRRect)), const Size(200, 300));
+      });
+
+      testWidgets('narrows a preview’s press target and focus ring to the box', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            PlImage(image: _ok, semanticLabel: 'A portrait', width: 80, ratio: 1, preview: true),
+            width: 200,
+            overlay: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          tester.getSize(
+            find.byWidgetPredicate(
+              (Widget widget) => widget is Semantics && widget.properties.label == 'A portrait',
+            ),
+          ),
+          const Size(80, 80),
+        );
+      });
+    });
+
     group('while it is loading', () {
       testWidgets('draws a placeholder of its own when it has one', (WidgetTester tester) async {
         await _pump(

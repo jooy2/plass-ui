@@ -12,8 +12,9 @@ import type { PlassSize } from '../../types.js';
  * These are `object-fit`'s own values rather than a nicer set of words, for the
  * reason the library keeps `aspect-ratio`'s own syntax below: inventing
  * `fill-the-box` would only make a reader look up which CSS it maps to.
+ * `scale-down` is `contain` that never enlarges a file smaller than the box.
  */
-export type PlAspectFit = 'cover' | 'contain' | 'fill' | 'none';
+export type PlAspectFit = 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
 
 export interface PlAspectRatioProps extends React.ComponentPropsWithoutRef<'div'> {
   /**
@@ -79,7 +80,9 @@ const fitClasses: Record<PlAspectFit, string> = {
   cover: '[&>img]:object-cover [&>video]:object-cover [&>picture>img]:object-cover',
   contain: '[&>img]:object-contain [&>video]:object-contain [&>picture>img]:object-contain',
   fill: '[&>img]:object-fill [&>video]:object-fill [&>picture>img]:object-fill',
-  none: '[&>img]:object-none [&>video]:object-none [&>picture>img]:object-none'
+  none: '[&>img]:object-none [&>video]:object-none [&>picture>img]:object-none',
+  'scale-down':
+    '[&>img]:object-scale-down [&>video]:object-scale-down [&>picture>img]:object-scale-down'
 };
 
 /**

@@ -176,6 +176,7 @@ import 'package:plass_ui_example/demos/image/filter.dart';
 import 'package:plass_ui_example/demos/image/states.dart';
 import 'package:plass_ui_example/demos/image/watermark.dart';
 import 'package:plass_ui_example/demos/image/preview.dart';
+import 'package:plass_ui_example/demos/image/fit.dart';
 import 'package:plass_ui_example/demos/image/flip.dart';
 import 'package:plass_ui_example/demos/image/rotate.dart';
 import 'package:plass_ui_example/demos/empty/hero.dart';
@@ -592,6 +593,7 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'image/states': _imageStates,
   'image/watermark': _imageWatermark,
   'image/preview': _imagePreview,
+  'image/fit': _imageFit,
   'image/flip': _imageFlip,
   'image/rotate': _imageRotate,
   'empty/hero': _emptyHero,
@@ -1179,6 +1181,8 @@ Widget _imageStates(BuildContext context) => const ImageStates();
 Widget _imageWatermark(BuildContext context) => const ImageWatermark();
 
 Widget _imagePreview(BuildContext context) => const ImagePreview();
+
+Widget _imageFit(BuildContext context) => const ImageFit();
 
 Widget _imageFlip(BuildContext context) => const ImageFlip();
 

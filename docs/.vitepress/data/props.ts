@@ -1930,7 +1930,7 @@ export const propTables: Record<string, PropRow[]> = {
     },
     {
       name: 'fit',
-      type: "'cover' | 'contain' | 'fill' | 'none'",
+      type: "'cover' | 'contain' | 'fill' | 'none' | 'scale-down'",
       default: "'cover'",
       description: {
         ko: '안에 든 미디어 하나를 어떻게 맞출지. 직계 자식인 img · video · canvas · svg · iframe에만 닿습니다',
@@ -14218,10 +14218,29 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'width',
+      type: 'number | string',
+      description: {
+        ko: 'height와 함께면 파일의 픽셀 너비로 비율을 잡아 두고, 혼자면 상자의 너비입니다. 컨테이너보다 넓어지지 않습니다',
+        en: "The file's pixel width, reserving its proportion beside height, or alone, the width of the box, never wider than its container"
+      }
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      description: {
+        ko: 'width와 함께면 파일의 픽셀 높이, 혼자면 상자의 높이입니다. ratio도 있으면 너비는 ratio에서 나옵니다',
+        en: "The file's pixel height beside width, or alone, the height of the box. With a ratio as well, the width comes from the ratio"
+      }
+    },
+    {
       name: 'fit',
-      type: "'cover' | 'contain' | 'fill' | 'none'",
+      type: "'cover' | 'contain' | 'fill' | 'none' | 'scale-down'",
       default: "'cover'",
-      description: { ko: '사진을 상자에 어떻게 맞출지', en: 'How the picture is fitted to the box' }
+      description: {
+        ko: '사진이 상자를 채우는 방식. scale-down은 작은 파일을 키우지 않는 contain입니다',
+        en: 'How the picture fills its box. scale-down is contain that never enlarges a small file'
+      }
     },
     {
       name: 'rotate',

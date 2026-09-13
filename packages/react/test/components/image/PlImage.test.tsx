@@ -75,6 +75,125 @@ describe('PlImage', () => {
     });
   });
 
+  describe('fit', () => {
+    it('covers the box by default', async () => {
+      await render(<PlImage src={OK} alt="A portrait" />);
+
+      expect(image()).toHaveClass('object-cover');
+    });
+
+    it('scales a picture down without ever enlarging it', async () => {
+      await render(<PlImage src={OK} alt="A portrait" fit="scale-down" />);
+
+      expect(image()).toHaveClass('object-scale-down');
+    });
+  });
+
+  describe('a lone width or height', () => {
+    it('sizes the box to a lone height, across the width it is given', async () => {
+      await render(<PlImage src={OK} alt="A portrait" height={200} className="img-under-test" />);
+
+      const style = box('img-under-test').style;
+
+      expect(style.height).toBe('200px');
+      expect(style.width).toBe('');
+      expect(style.aspectRatio).toBe('');
+    });
+
+    it('sizes the box to a lone width, never wider than its container', async () => {
+      await render(<PlImage src={OK} alt="A portrait" width={320} className="img-under-test" />);
+
+      const style = box('img-under-test').style;
+
+      expect([style.width, style.maxWidth, style.height]).toEqual(['320px', '100%', '']);
+    });
+
+    it('reads a string of digits as pixels and a length as written', async () => {
+      const screen = await render(
+        <PlImage src={OK} alt="A portrait" height="180" className="img-under-test" />
+      );
+
+      expect(box('img-under-test').style.height).toBe('180px');
+
+      await screen.rerender(
+        <PlImage src={OK} alt="A portrait" height="12rem" className="img-under-test" />
+      );
+
+      expect(box('img-under-test').style.height).toBe('12rem');
+    });
+
+    it('takes the width from a ratio beside a lone height', async () => {
+      await render(
+        <PlImage src={OK} alt="A portrait" height={160} ratio="3 / 2" className="img-under-test" />
+      );
+
+      const style = box('img-under-test').style;
+
+      expect([style.height, style.width, style.maxWidth, style.aspectRatio]).toEqual([
+        '160px',
+        'auto',
+        '100%',
+        '3 / 2'
+      ]);
+    });
+
+    it('leaves the box alone when both are given', async () => {
+      await render(
+        <PlImage src={OK} alt="A portrait" width={1200} height={800} className="img-under-test" />
+      );
+
+      // Together they describe the file, which the `<img>` already reserves.
+      const style = box('img-under-test').style;
+
+      expect([style.width, style.height]).toEqual(['', '']);
+      expect([image().getAttribute('width'), image().getAttribute('height')]).toEqual([
+        '1200',
+        '800'
+      ]);
+    });
+
+    it('still hands a lone one to the img', async () => {
+      await render(<PlImage src={OK} alt="A portrait" height={200} />);
+
+      expect(image().getAttribute('height')).toBe('200');
+    });
+
+    it('narrows a preview’s button to the box rather than stretching it past', async () => {
+      const screen = await render(<PlImage src={OK} alt="A portrait" width={240} preview />);
+
+      // The button is the box, so the focus ring is drawn round the picture.
+      expect(document.querySelector('button')!.style.width).toBe('240px');
+
+      await screen.rerender(<PlImage src={OK} alt="A portrait" height={120} ratio="1" preview />);
+
+      expect(document.querySelector('button')!.style.width).toBe('auto');
+    });
+
+    it('keeps a turned file’s shape off a box a lone height has fixed', async () => {
+      const tall = `data:image/svg+xml,${encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="80"></svg>'
+      )}`;
+      const onStatusChange = vi.fn();
+
+      await render(
+        <PlImage
+          src={tall}
+          alt="A portrait"
+          height={200}
+          rotate={90}
+          onStatusChange={onStatusChange}
+          className="img-under-test"
+        />
+      );
+
+      await expect.poll(() => onStatusChange.mock.calls).toEqual([['loaded']]);
+
+      // Written as well, the file's shape would work the width out again.
+      expect(box('img-under-test').style.aspectRatio).toBe('');
+      expect(box('img-under-test').style.height).toBe('200px');
+    });
+  });
+
   describe('while it is loading', () => {
     it('draws a placeholder', async () => {
       await render(<PlImage alt="A portrait" placeholder={<span>Loading…</span>} />);

@@ -1949,6 +1949,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlImage', 'ratio', { type: 'double?' }),
+    from('PlImage', 'width', { type: 'double?' }),
+    from('PlImage', 'height', { type: 'double?' }),
     from('PlImage', 'fit', { type: 'PlAspectFit', default: 'PlAspectFit.cover' }),
     from('PlImage', 'rotate', { type: 'int', default: '0' }),
     from('PlImage', 'flip', { type: 'PlImageFlip', default: 'PlImageFlip.none' }),

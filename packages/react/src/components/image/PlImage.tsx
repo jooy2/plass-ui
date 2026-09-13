@@ -17,8 +17,12 @@ export type PlImageWatermarkPlacement = PlassWatermarkPlacement;
 /** A mark laid over the picture. A bare string is the text, in the usual corner. */
 export type PlImageWatermark = PlassWatermarkOptions;
 
-/** How the picture is fitted to the box. `object-fit`'s own words. */
-export type PlImageFit = 'cover' | 'contain' | 'fill' | 'none';
+/**
+ * How the picture is fitted to the box. `object-fit`'s own words, and the same
+ * five `PlAspectRatio` takes: `scale-down` is `contain` that never enlarges a
+ * file smaller than the box.
+ */
+export type PlImageFit = 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
 
 /**
  * How far the picture is turned, clockwise, in degrees.
@@ -60,7 +64,28 @@ export interface PlImageProps extends Omit<
    * down the screen.
    */
   ratio?: number | string;
-  /** @default 'cover' */
+  /**
+   * The file's own pixel dimensions, as an `<img>` takes them, or, given one at
+   * a time, the size of the box.
+   *
+   * Together they describe the file, and the box keeps their proportion before
+   * the file arrives, which is what they have always done on an `<img>`.
+   *
+   * One on its own is not a proportion, so it is read as the length it looks
+   * like. `height={200}` is a box 200 pixels tall across the width it is given,
+   * and `width={320}` is one 320 wide, never wider than its container, and as
+   * tall as the picture makes it. A number or a string of digits is pixels, and
+   * any other string is a CSS length. With a `ratio` as well, a lone `height`
+   * takes its width from the ratio. `fit` decides what the picture does inside.
+   *
+   * They reach the `<img>` either way.
+   */
+  width?: number | string;
+  height?: number | string;
+  /**
+   * How the picture fills its box.
+   * @default 'cover'
+   */
   fit?: PlImageFit;
   /**
    * Turns the picture clockwise, a quarter at a time.
@@ -189,6 +214,19 @@ function pixelSize(width?: number | string, height?: number | string): PixelSize
     : null;
 }
 
+/**
+ * A lone `width` or `height` as the length it sizes the box to.
+ *
+ * A number is pixels, and so is a string of digits, which is how the attribute
+ * is written in markup. Anything else is already a CSS length and is used as
+ * written.
+ */
+function boxLength(value: number | string): string {
+  return typeof value === 'number' || /^\d+(\.\d+)?$/.test(value.trim())
+    ? `${Number(value)}px`
+    : value;
+}
+
 /** What a settled `<img>` says it is, or `null` for a file that did not arrive. */
 function naturalSize(node: HTMLImageElement | null): PixelSize | null {
   return node !== null && node.naturalWidth > 0
@@ -233,7 +271,8 @@ const fitClasses: Record<PlImageFit, string> = {
   cover: 'object-cover',
   contain: 'object-contain',
   fill: 'object-fill',
-  none: 'object-none'
+  none: 'object-none',
+  'scale-down': 'object-scale-down'
 };
 
 /**
@@ -498,11 +537,34 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
      * the picture on the frame it arrived.
      */
     const file = pixelSize(width, height) ?? picture.natural;
+
+    /*
+     * One dimension on its own is not a proportion, so it sizes the box on its
+     * own axis. A lone height leaves the width to the container, unless a
+     * `ratio` can say what it is; a lone width is capped at the container's,
+     * the way a reset caps an `<img>`.
+     */
+    const loneWidth = height === undefined && width !== undefined ? boxLength(width) : undefined;
+    const loneHeight = width === undefined && height !== undefined ? boxLength(height) : undefined;
+
+    // A height that fixes the box leaves nothing for a turned file's shape to
+    // decide; written anyway, it would work the width out again from it.
     const turned =
-      ratio === undefined && sideways && file !== null ? `${file.height} / ${file.width}` : ratio;
+      ratio === undefined && sideways && file !== null && loneHeight === undefined
+        ? `${file.height} / ${file.width}`
+        : ratio;
 
     const boxClasses = cx('relative block overflow-hidden', radius, className);
     const boxStyle: React.CSSProperties = {
+      ...(loneWidth === undefined ? null : { width: loneWidth, maxWidth: '100%' }),
+      ...(loneHeight === undefined
+        ? null
+        : {
+            height: loneHeight,
+            // `auto` so the width is worked out from the ratio, which on a
+            // preview's button also outranks its `w-full`.
+            ...(ratio === undefined ? null : { width: 'auto', maxWidth: '100%' })
+          }),
       aspectRatio: turned,
       // What the turned picture's container units read. Only while it is on its
       // side: size containment changes how the box is measured, and nothing

@@ -100,6 +100,8 @@ class PlImage extends StatefulWidget {
     required this.image,
     this.semanticLabel,
     this.ratio,
+    this.width,
+    this.height,
     this.fit = PlAspectFit.cover,
     this.rotate = 0,
     this.flip = PlImageFlip.none,
@@ -135,6 +137,28 @@ class PlImage extends StatefulWidget {
   /// This is what the widget is really for. Without it the layout has nothing to
   /// reserve, and every picture that arrives late pushes what is under it down.
   final double? ratio;
+
+  /// The picture's own pixel width, or, given without [height], the width of
+  /// the box.
+  ///
+  /// Given together, the two describe the file, and the box keeps their
+  /// proportion before the picture arrives, the way [ratio] does. They are the
+  /// same numbers the React build's `<img>` takes, and they mean the same thing
+  /// there.
+  ///
+  /// Given alone, one is not a proportion, so it is read as the length it looks
+  /// like: `width: 320` is a box 320 wide, never wider than the space it is
+  /// given, and as tall as the picture or the [ratio] makes it. It sits at the
+  /// start of that space.
+  final double? width;
+
+  /// The picture's own pixel height, or, given without [width], the height of
+  /// the box.
+  ///
+  /// `height: 200` alone is a box 200 tall, as wide as the space it is given,
+  /// which therefore has to have a width. With a [ratio] as well, the width is
+  /// worked out from the ratio instead, and the box sits at the start.
+  final double? height;
 
   /// How the picture is fitted to the box.
   final PlAspectFit fit;
@@ -415,9 +439,40 @@ class _PlImageState extends State<PlImage> {
       );
     }
 
-    if (widget.ratio != null) {
-      picture = AspectRatio(aspectRatio: widget.ratio!, child: picture);
+    final double? width = widget.width;
+    final double? height = widget.height;
+    final bool sideways = isSideways(quartersOf(widget.rotate));
+
+    // Two dimensions are the file, and keep its proportion — turned, for a
+    // picture on its side. A `ratio` is the layout's shape and outranks them.
+    double? ratio = widget.ratio;
+
+    if (ratio == null && width != null && height != null && width > 0 && height > 0) {
+      ratio = sideways ? height / width : width / height;
     }
+
+    if (ratio != null) {
+      picture = AspectRatio(aspectRatio: ratio, child: picture);
+    }
+
+    // One dimension alone sizes the box on its own axis. A lone height takes
+    // the width it is given, unless a ratio can say what the width is.
+    final bool loneWidth = width != null && height == null;
+    final bool loneHeight = height != null && width == null;
+
+    if (loneWidth) {
+      picture = SizedBox(width: width, child: picture);
+    } else if (loneHeight) {
+      picture = SizedBox(
+        height: height,
+        width: ratio == null ? double.infinity : height * ratio,
+        child: picture,
+      );
+    }
+
+    // Whether the box is narrower than the space it was given, and so has to
+    // sit at the start of it rather than be stretched across.
+    final bool narrowed = loneWidth || (loneHeight && ratio != null);
 
     picture = ClipRRect(borderRadius: radius, child: picture);
 
@@ -481,6 +536,17 @@ class _PlImageState extends State<PlImage> {
                   ),
           ),
         ],
+      );
+    }
+
+    // Outside the preview's press target and its focus ring, so a narrowed box
+    // is what both of them are drawn round rather than the space around it.
+    if (narrowed) {
+      result = Align(
+        alignment: AlignmentDirectional.topStart,
+        widthFactor: 1,
+        heightFactor: 1,
+        child: result,
       );
     }
 

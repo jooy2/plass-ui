@@ -79,6 +79,45 @@ An `<img>` is one tag and it works, so it is worth saying what this is for rathe
 
 `placeholder` replaces the skeleton. `null` draws nothing and leaves the reserved box empty. `fallback` replaces the alt text, which is the default because it is the one thing that is certainly available and certainly describes what is missing.
 
+### fit
+
+How the picture fills its box: `cover` fills it and crops, `contain` fits the whole picture inside, `fill` stretches it, `none` draws it at its own size, and `scale-down` is `contain` that never enlarges a file smaller than the box.
+
+<Demo src="image/fit" :min-height="220">
+
+::: fw react
+
+<<< @/.vitepress/demos/image/fit.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/fit.dart
+
+:::
+
+</Demo>
+
+`width` and `height` given together describe the file, and the box keeps their proportion before it arrives. One given alone sizes the box on that axis instead, and `fit` decides what the picture does with the space:
+
+- A lone `height` is a box that tall, as wide as its container. With a `ratio` as well, the width comes from the ratio.
+- A lone `width` is a box that wide, never wider than its container, and as tall as the picture or the `ratio` makes it.
+
+A box narrower than its container sits at its start, and `preview`'s focus ring is drawn around the box rather than the space beside it.
+
+::: fw react
+
+A number, or a string of digits as in `height="200"`, is pixels. Any other string is a CSS length and is used as written, so `height="12rem"` works. Both still reach the `<img>` as attributes.
+
+:::
+
+::: fw flutter
+
+Both are `double`s in logical pixels. A lone `height` with no `ratio` takes the full width it is given, so it needs a width to take: inside a `Row`, wrap it in `Expanded`.
+
+:::
+
 ### rotate
 
 Turns the picture clockwise by `90`, `180` or `270` degrees. Any other number goes to the nearest quarter, so `-90` is `270`.

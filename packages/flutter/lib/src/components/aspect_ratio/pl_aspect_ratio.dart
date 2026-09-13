@@ -9,8 +9,8 @@ import 'package:plass_ui/src/types.dart';
 
 /// How the content inside is fitted to the box.
 ///
-/// The same four words CSS's `object-fit` uses, because the React build is
-/// those four values and a nicer set of names would only make a reader map one
+/// The same five words CSS's `object-fit` uses, because the React build is
+/// those five values and a nicer set of names would only make a reader map one
 /// onto the other. They land on Flutter's own [BoxFit] one for one.
 enum PlAspectFit {
   /// Fills the box and crops whatever does not fit. The right default for a
@@ -27,6 +27,10 @@ enum PlAspectFit {
 
   /// Drawn at its own size, centred, and cropped by the box.
   none,
+
+  /// [contain] for something larger than the box, and its own size for
+  /// something smaller: it is never enlarged.
+  scaleDown,
 }
 
 /// A box that keeps a proportion whatever width it is given.
@@ -125,6 +129,8 @@ class PlAspectRatio extends StatelessWidget {
         return BoxFit.fill;
       case PlAspectFit.none:
         return BoxFit.none;
+      case PlAspectFit.scaleDown:
+        return BoxFit.scaleDown;
     }
   }
 }

@@ -71,6 +71,15 @@ describe('PlAspectRatio', () => {
 
       expect(document.querySelector('.box-under-test')).toHaveClass('[&>img]:object-contain');
     });
+
+    it('scales down, never enlarging what it holds', async () => {
+      await render(<PlAspectRatio className="box-under-test" fit="scale-down" />);
+
+      expect(document.querySelector('.box-under-test')).toHaveClass(
+        '[&>img]:object-scale-down',
+        '[&>video]:object-scale-down'
+      );
+    });
   });
 
   describe('rounded', () => {

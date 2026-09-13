@@ -89,6 +89,7 @@ void main() {
           PlAspectFit.contain: BoxFit.contain,
           PlAspectFit.fill: BoxFit.fill,
           PlAspectFit.none: BoxFit.none,
+          PlAspectFit.scaleDown: BoxFit.scaleDown,
         };
 
         for (final MapEntry<PlAspectFit, BoxFit> entry in expected.entries) {

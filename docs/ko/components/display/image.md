@@ -79,6 +79,45 @@ PlImage(
 
 `placeholder`가 skeleton을 대체합니다. `null`은 아무것도 그리지 않고 잡아 둔 상자를 비워 둡니다. `fallback`이 alt 텍스트를 대체하고, alt가 기본인 이유는 그것이 확실히 존재하고 확실히 없는 것을 설명하는 유일한 것이기 때문입니다.
 
+### fit
+
+사진이 상자를 채우는 방식입니다. `cover`는 상자를 채우고 넘치는 부분을 잘라 내고, `contain`은 사진 전체를 상자 안에 넣고, `fill`은 늘이고, `none`은 제 크기 그대로 그리고, `scale-down`은 상자보다 작은 파일을 키우지 않는 `contain`입니다.
+
+<Demo src="image/fit" :min-height="220">
+
+::: fw react
+
+<<< @/.vitepress/demos/image/fit.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/fit.dart
+
+:::
+
+</Demo>
+
+`width`와 `height`를 함께 주면 파일을 설명하고, 상자는 파일이 도착하기 전부터 그 비율을 지킵니다. 하나만 주면 그 축의 상자 크기가 되고, 남는 공간에서 사진이 어떻게 할지는 `fit`이 정합니다.
+
+- `height`만 주면 그 높이에 컨테이너 너비만큼 넓은 상자입니다. `ratio`도 주면 너비는 ratio에서 나옵니다.
+- `width`만 주면 그 너비의 상자이고, 컨테이너보다 넓어지지는 않습니다. 높이는 사진이나 `ratio`가 정합니다.
+
+컨테이너보다 좁은 상자는 시작 쪽에 붙고, `preview`의 focus ring도 옆의 빈 공간이 아니라 상자 둘레에 그려집니다.
+
+::: fw react
+
+숫자, 그리고 `height="200"`처럼 숫자로만 된 문자열은 픽셀입니다. 그 밖의 문자열은 CSS 길이로 그대로 쓰므로 `height="12rem"`도 됩니다. 어느 쪽이든 속성으로 `<img>`에도 전달됩니다.
+
+:::
+
+::: fw flutter
+
+둘 다 논리 픽셀 단위의 `double`입니다. `ratio` 없이 `height`만 주면 받은 너비를 전부 쓰므로 받을 너비가 있어야 합니다. `Row` 안이라면 `Expanded`로 감싸세요.
+
+:::
+
 ### rotate
 
 사진을 시계 방향으로 `90`, `180`, `270`도 돌립니다. 그 밖의 숫자는 가장 가까운 4분의 1 바퀴로 맞추므로 `-90`은 `270`입니다.

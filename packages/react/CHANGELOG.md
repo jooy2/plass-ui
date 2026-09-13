@@ -4,6 +4,10 @@
 
 ## vNext (2026--)
 
+### Breaking changes
+
+- **A lone `width` or `height` on `PlImage` now sizes its box.** Passed alone, either one used to reach the `<img>` as an attribute and change nothing on the page. Now `height={200}` draws a box 200 pixels tall, and `width={320}` one 320 pixels wide. If you passed one of them only as a hint about the file, pass both dimensions of the file, or remove the one.
+
 ### Fixed
 
 - **A `PlImage` with `preview` reserves its box again.** The preview's trigger is a `<button>`, and a button sizes itself to its content even when it is displayed as a block. The content is a picture sized off the box, so before the file arrived the box had no width and its `ratio` reserved nothing, and a file smaller than the container shrank the box to the file. The trigger now takes the full width, as a picture without `preview` always did.
@@ -17,6 +21,10 @@
 - **`PlImage` no longer hides a picture that had already arrived.** The component moved out of its loading state on the `<img>`'s `load` event alone, and an event is only heard by something already listening: a file served from the cache — or one a server rendered, so the browser began fetching it while parsing the HTML — can finish decoding before React attaches the handler. The picture then sat at `opacity: 0` behind its own placeholder for good. It now asks the element where it got to on mount and on every `src` change, so a picture that is already `complete` is shown rather than waited for.
 
 ### Added
+
+- **`PlImage` and `PlAspectRatio` take `fit="scale-down"`.** It is `contain` that never enlarges a file smaller than the box.
+
+- **A lone `width` or `height` sizes a `PlImage`'s box.** A lone `height` is a box that tall across its container, and takes its width from a `ratio` when there is one. A lone `width` is a box that wide, never wider than its container. A number or a string of digits is pixels, and any other string is a CSS length. Both dimensions together keep describing the file. See Breaking changes for what this changes in existing code.
 
 - **`PlImage` takes a `rotate`.** `0`, `90`, `180` or `270` degrees clockwise, and any other number goes to the nearest quarter. A picture on its side is laid out on its side: `width` and `height` still describe the file, so `width={1200} height={800} rotate={90}` reserves a box two wide by three tall, a `ratio` is kept as the shape of the layout, and without either the box takes the turned shape once the file has loaded. The turn is the CSS `rotate` property rather than `transform`, so a `transform` of the caller's own still applies on top, and `preview` opens the picture turned the same way.
 

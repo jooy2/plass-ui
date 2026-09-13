@@ -77,7 +77,7 @@ CSS's own `aspect-ratio`, untranslated, a number or a ratio, both reaching the p
 
 ### fit
 
-The one convenience on top of the proportion. The four words are `object-fit`'s own: `cover` fills the box and crops, `contain` letterboxes, `fill` stretches, `none` draws at the content's own size.
+The one convenience on top of the proportion. The five words are `object-fit`'s own: `cover` fills the box and crops, `contain` letterboxes, `fill` stretches, `none` draws at the content's own size, and `scale-down` is `contain` that never enlarges content smaller than the box.
 
 `cover` is the one a thumbnail wants, a thumbnail that letterboxes itself is a thumbnail with two grey bands in it. `contain` is for the picture whose whole subject matters: a diagram, a logo, a scan.
 
