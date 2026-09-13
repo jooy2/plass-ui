@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **Enter in a `PlCombobox` takes the lit row and keeps the field focused.** The editor gave the focus up on Enter, which closed the list, so a `multiple` combobox took one pick and made the reader click back into the field for the next. And after Escape had closed the list, Enter still took the row that had been lit, which was no longer on screen. Enter now leaves the focus in the field, and takes nothing while the list is closed.
+
 - **A `PlColorPicker` swatch can be reached and chosen from the keyboard.** A swatch only answered a tap, so Tab went past every one of them and a keyboard reader could pick a colour only with the square and the rails. Each swatch is now a focus stop that draws the focus ring and is chosen with Enter or Space, as a button is.
 
 - **An `inline` `PlColorPicker` is grouped under its `label`.** The square and the rails are named "Saturation and brightness", "Hue" and "Opacity" whatever field they belong to, and the label, the description and the error were separate nodes beside them, so two inline pickers on one screen were two sets of the same sliders and an error was never tied to them. The picker is now one node named by its label, description and error with the square and the rails inside it, and an error marks them invalid.

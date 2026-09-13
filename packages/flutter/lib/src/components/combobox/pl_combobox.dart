@@ -487,7 +487,10 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
 
   void _close() {
     if (_open) {
-      setState(() => _open = false);
+      setState(() {
+        _open = false;
+        _highlighted = -1;
+      });
     }
   }
 
@@ -684,7 +687,17 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       maxLines: 1,
       minLines: 1,
       onChanged: _onQueryChanged,
-      onSubmitted: (String _) => _take(_highlighted),
+      // Enter takes the lit row and nothing else. Left to itself the editor also
+      // gives the focus up, which closed the list and, with `multiple`, ended
+      // the set of picks at the first one.
+      onEditingComplete: () {},
+      // Only while the list is open: with it closed, the row that was lit is not
+      // on screen, and Enter must not commit something the reader cannot see.
+      onSubmitted: (String _) {
+        if (_open) {
+          _take(_highlighted);
+        }
+      },
       style: TextStyle(
         color: tokens.fg,
         fontSize: scale.size,

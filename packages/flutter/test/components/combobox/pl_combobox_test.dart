@@ -495,6 +495,72 @@ void main() {
       });
     });
 
+    group('Enter', () {
+      /// Types [query] and presses Enter on the keyboard.
+      ///
+      /// The keyboard is asked for again before the key. The editor is built
+      /// again when the field takes the focus and when the list opens, and the
+      /// rebuilt editor has no text input connection for the key to arrive on.
+      Future<void> submit(WidgetTester tester, String query) async {
+        await tester.enterText(find.byType(EditableText), query);
+        await tester.pumpAndSettle();
+        await tester.showKeyboard(find.byType(EditableText));
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+      }
+
+      testWidgets('takes the lit row and leaves the field focused, so more can be taken', (
+        WidgetTester tester,
+      ) async {
+        List<String> taken = <String>[];
+
+        await tester.pumpWidget(
+          _host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) => PlCombobox<String>.multiple(
+                options: _cities,
+                values: taken,
+                onChanged: (List<String> next) => setState(() => taken = next),
+              ),
+            ),
+          ),
+        );
+
+        await submit(tester, 'lis');
+
+        expect(taken, <String>['lisbon']);
+        expect(tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus, isTrue);
+
+        await submit(tester, 'seo');
+
+        expect(taken, <String>['lisbon', 'seoul']);
+      });
+
+      testWidgets('takes nothing once the list has been closed', (WidgetTester tester) async {
+        final List<String?> taken = <String?>[];
+
+        await tester.pumpWidget(
+          _host(PlCombobox<String>(options: _cities, value: null, onChanged: taken.add)),
+        );
+
+        await tester.enterText(find.byType(EditableText), 'se');
+        await tester.pumpAndSettle();
+        expect(find.text('Seoul'), findsOneWidget);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
+        expect(find.text('Seoul'), findsNothing);
+
+        // The row that was lit is no longer on screen, and a press of Enter must
+        // not commit something the reader can no longer see.
+        await tester.showKeyboard(find.byType(EditableText));
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+
+        expect(taken, isEmpty);
+      });
+    });
+
     group('clearing', () {
       testWidgets('offers a × only when asked', (WidgetTester tester) async {
         await tester.pumpWidget(
