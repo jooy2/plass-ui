@@ -2,7 +2,7 @@
 
 The findings of a full audit of both packages, the documentation site and the repository, taken at `148a20e4` on 2026-09-13, and how far fixing them has got. The work goes in batches of twenty. When every item below is ticked, delete this file in a commit of its own.
 
-**79 of 345 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
+**99 of 345 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ## Working through a batch
 
@@ -42,14 +42,13 @@ cd docs && npm run typecheck && npm run lint && npx prettier --check . && npm ru
 
 ## Batches so far
 
-| Batch | Commits | Items |
-| --- | --- | --- |
-| 1 | `148a20e4..16d59107` | The High items: 1, 2, 4, 6, 18, 40, 43, 44, 68, 87, 121, 126, 144, 145, 154, 156, 188, 196, 202, 237 |
-| 2 | `16d59107..c37ec085` | 3, 5, 7, 8, 9, 10 (part), 11, 13, 14, 15, 16, 17 (part), 22, 24, 142, 143, 152, 197, 268 |
-| 3 | `c37ec085..4885268c` | The rest of 10 and 17, 25, 26, 27, 28, 37, 38, 41, 42, 45, 46, 47, 48, 50, 51, 53, 54, 60, 64, 66, 69 |
-| 4 | `4885268c..c99f09c1` | 72, 75, 76, 85, 86, 88, 90, 91, 92, 94, 95, 98, 101, 103, 113, 114, 116, 122, 123, 127 |
-
-Item 82 is Medium and was missed in batch 4 by mistake. It is the first item of the next batch.
+| Batch | Commits              | Items                                                                                                 |
+| ----- | -------------------- | ----------------------------------------------------------------------------------------------------- |
+| 1     | `148a20e4..16d59107` | The High items: 1, 2, 4, 6, 18, 40, 43, 44, 68, 87, 121, 126, 144, 145, 154, 156, 188, 196, 202, 237  |
+| 2     | `16d59107..c37ec085` | 3, 5, 7, 8, 9, 10 (part), 11, 13, 14, 15, 16, 17 (part), 22, 24, 142, 143, 152, 197, 268              |
+| 3     | `c37ec085..4885268c` | The rest of 10 and 17, 25, 26, 27, 28, 37, 38, 41, 42, 45, 46, 47, 48, 50, 51, 53, 54, 60, 64, 66, 69 |
+| 4     | `4885268c..c99f09c1` | 72, 75, 76, 85, 86, 88, 90, 91, 92, 94, 95, 98, 101, 103, 113, 114, 116, 122, 123, 127                |
+| 5     | `29684cc1..8e75337c` | 82, 129, 132, 135, 146, 147, 149, 155, 157, 158, 159, 163, 166, 167, 174, 175, 176, 177, 182, 183     |
 
 ## Waiting for an answer
 
@@ -59,9 +58,33 @@ Asked at the end of batch 4.
 1. **`PlAnimateTyping`'s caret, found while fixing item 85.** The caret is a `Text` inside a `WidgetSpan`, and the paragraph already scales a widget span by the reader's text size, so at 200% the caret character is drawn at twice the size of the text. The fix is `textScaler: TextScaler.noScaling` on the caret's `Text` in `_Caret`, in `packages/flutter/lib/src/components/animate_typing/pl_animate_typing.dart`. Fix it?
 1. **The heading row in the card page's Flutter differences table.** `docs/en/components/surfaces/card.md:235` and its Korean twin say Flutter's semantics tree has no heading depth, but `Semantics.headingLevel` exists, and item 114 uses it. Fix only the documentation, or also give `PlCard`'s title a level?
 
+Asked at the end of batch 5. The flagged items are the ones batches 1 to 5 passed over; each item's own entry below has the details and the proposal.
+
+1. **Item 12, values inside translatable strings.** Add function-valued keys such as `(n, total) => string` to both packages and all seven packs, with top-level tear-offs so the Dart packs stay `const`? Item 178 waits on the same shape.
+1. **Item 19, the reset in `plass-ui/styles.css`.** Move the list and heading resets into the components that need them, which changes how host pages render, or keep the reset and document it?
+1. **Item 20, derived tokens on a non-root element.** Add a hook class such as `.plass-theme` to the derived block, or document that a base token changes the derived ones only on the root?
+1. **Item 21, Flutter tokens.** Make `PlassTokens.copyWith` and a way to replace a colour family public, or document that a Flutter app cannot change them?
+1. **Item 32, `BackdropFilter.grouped`.** Should the library set the group boundaries, or leave them to the app?
+1. **Item 39, the documentation deploy workflow.** A security finding; the details are in the local note. Go ahead with the proposal there?
+1. **Item 52, the chart's `aria-describedby`.** Point it at a short summary and keep the data table as a sibling. Which summary text, and how should the table be linked?
+1. **Item 59, reaching every value in a Flutter line, bar or area chart.** A focus node with arrow keys, or a semantics node per column? `CLAUDE.md` currently says Flutter carries only the summary.
+1. **Item 63, `PlassChartSeries.dashed` in Flutter.** Implement it, and add it to React, or remove the field and its table row?
+1. **Item 84, a `RegExp` in `PlHighlight`'s `query` list.** Match it as a pattern, or restrict the list to strings and fix the docs?
+1. **Item 89, `PlDataTable` row keys and callback `index`.** Base both on the row's position in `rows`, which is a breaking change?
+1. **Item 93, `PlGallery` masonry order.** Rebuild the layout as one flat list placed with CSS grid, so focus and reading follow the original order?
+1. **Item 107, `PlMockup` hidden until hydration.** Compute the scale on the server when `width` and `height` are numbers, and what should show before the measurement otherwise?
+1. **Item 109, `PlTree` rebuilding every row on a focus move.** Build a closed branch's children only while it is open or closing, which changes how the closing animation gets its rows?
+1. **Item 128, a Flutter toast with `low` priority.** Make every toast a live region and express the priority with `Assertiveness`? The docs and a test currently say `low` is not a live region on purpose.
+1. **Item 168, the floating action button and the safe area.** Should the component add the safe area to its offset, or should the caller?
+1. **Item 178, a name for each `PlOtpField` cell.** A name such as "Character 2 of 6" needs a translated string with values in it, so it waits on item 12. Take it with item 12?
+1. **Found in passing: Flutter fields lose their text input connection when they take the focus.** `PlTextField`, `PlCombobox` and `PlNumberField` wrap their shell in a `CustomPaint` only while focused. That changes the widget type above the `EditableText`, which is then built again, and the new editor has no text input connection. A widget test shows the connection closing on the frame after the focus arrives; the browser tool could not confirm it on the published site. The proposal is to keep the `CustomPaint` in the tree and change only its painter, with a test that types into each field after it takes the focus. Fix it as a High item in the next batch?
+1. **Found in passing: the Flutter calendar header names.** The month and year buttons pass `semanticLabel: labels.chooseMonth` and `chooseYear`, which are merged ahead of the drawn text, so they read "Choose a month, July". This is item 146 on the Flutter side. Put the drawn text first and the purpose in a hint?
+1. **Found in passing: the `PlFilePicker` button name runs two words together.** Chromium joins the title and the hint with no space, so the name ends "…click to browsePDF only". Describe the button with the hint through `aria-describedby`, or keep it in the name with a separator?
+1. **Found in passing: the Korean pagination page.** The Flutter Accessibility block in `docs/ko/components/inputs/pagination.md` has a bullet about fewer than two pages that the English block does not. Move it to match the English page?
+
 ## Passed over and not yet asked
 
-Flagged Medium items that the first four batches passed over without asking. Raise them in the next report: 12, 19, 20, 21, 32, 39, 52, 59, 63, 84, 89, 93, 107, 109.
+None. Every flagged item passed over so far is asked above.
 
 ## Items
 
@@ -266,10 +289,7 @@ Flagged Medium items that the first four batches passed over without asking. Rai
   - Location: `pl_code_block.dart:1151`
   - Problem: There is no `toggled`, and nothing is announced after a copy. React uses `aria-pressed` and `aria-live`.
   - Proposal: Add `toggled: raw` and a live region announcement.
-- [ ] **82.** The code-block page's Accessibility section promises behaviour for both packages that Flutter does not have (Docs · Docs · Medium)
-  - Location: `docs/en/components/display/code-block.md:223-225` (same in ko)
-  - Problem: The focusable region, Mod+A selecting only the block, and the name taken from title and then language all sit outside `::: fw`. None of the three applies to Flutter.
-  - Proposal: Move the three items into `::: fw react` and describe the Flutter behaviour separately.
+- [x] **82.** The code-block page's Accessibility section promises behaviour for both packages that Flutter does not have (Docs · Docs · Medium)
 - [ ] **83.** The `copyFailedLabel` JSDoc gives the wrong default (Docs · React · Low)
   - Location: `PlCodeBlock.tsx:178`
   - Problem: The JSDoc says `'Copy failed'`, but the actual default is `'Could not copy'`.
@@ -404,10 +424,7 @@ Flagged Medium items that the first four batches passed over without asking. Rai
   - Problem: `liveRegion` is turned on only for `high`, so a default toast such as "Saved" disappears without being announced. React reads `low` as polite as well.
   - Proposal: Make every toast a live region, and express the priority with `Assertiveness`.
   - Flag: Decision needed — the documentation and the tests currently fix the present behaviour as intended.
-- [ ] **129.** The Flutter toast timer does not pause on keyboard focus, on touch, or when the app goes to the background (Accessibility · Flutter · Medium)
-  - Location: `pl_toast.dart:493`
-  - Problem: Only hover pauses the timer, so a toast disappears even while focus is on its action (WCAG 2.2.1). In React, Base UI pauses it on focus, blur and touch.
-  - Proposal: Connect `Focus(onFocusChange)`, `Listener` and `AppLifecycleState` to the same pause path.
+- [x] **129.** The Flutter toast timer does not pause on keyboard focus, on touch, or when the app goes to the background (Accessibility · Flutter · Medium)
 - [ ] **130.** A React toast dismissed with a swipe jumps back to its original place before it disappears (Bug · React · Low)
   - Location: `packages/react/src/components/toast/PlToast.tsx:289`
   - Problem: When the finger is lifted, Base UI clears the inline `transform` and leaves the position to the swipe variables, but this component handles only the opacity.
@@ -417,10 +434,7 @@ Flagged Medium items that the first four batches passed over without asking. Rai
   - Location: `docs/en/components/feedback/toast.md:200`(same in ko)
   - Problem: Base UI `Toast.Root` has `tabIndex=0` and `Close` is an ordinary button, so Tab reaches it.
   - Proposal: Correct it to say that both Tab and F6 reach it.
-- [ ] **132.** `initialFocus` is not applied again for the next question in the `PlConfirmProvider` queue (Accessibility · Both · Medium)
-  - Location: `packages/react/src/components/confirm/PlConfirmProvider.tsx:133`, `confirm/pl_confirm.dart:239`
-  - Problem: The sheet stays open and reuses its buttons. If Confirm is pressed on the first question, focus stays on Confirm for a second, destructive question, so a single press of Enter approves both one after another.
-  - Proposal: Give the actions a key for each request, or move focus directly to the `initialFocus` target.
+- [x] **132.** `initialFocus` is not applied again for the next question in the `PlConfirmProvider` queue (Accessibility · Both · Medium)
 - [ ] **133.** The Flutter confirm dialog empties its content and resets its buttons to the defaults while it closes (Bug · Flutter · Low)
   - Location: `pl_confirm.dart:248`
   - Problem: The comment says the request is kept until the fade ends, but the code sets it to `null` at once. The title disappears for 260ms, and an alert gains a Cancel button.
@@ -430,10 +444,7 @@ Flagged Medium items that the first four batches passed over without asking. Rai
   - Problem: Flutter also has `dismissible`. The Flutter confirm dialog has no ×, but the React confirm dialog draws one because of the `PlModal` default.
   - Proposal: Delete the sentence, and decide whether React should also match with `showClose={false}`.
   - Flag: Decision needed
-- [ ] **135.** While a Flutter `dismissible` popover is open, the screen behind it cannot be pressed or scrolled (Bug · Flutter · Medium)
-  - Location: `packages/flutter/lib/src/internal/anchored.dart:275`
-  - Problem: A full-screen `GestureDetector(opaque)` takes the press first. The first tap only closes the popover and does not reach the button underneath, and drag scrolling is blocked too. This contradicts the docs, which say "the screen behind keeps working", and the `PlSelect` list uses the same helper.
-  - Proposal: Detect only pointer-down events outside the popover with `Listener(behavior: translucent, onPointerDown:)`.
+- [x] **135.** While a Flutter `dismissible` popover is open, the screen behind it cannot be pressed or scrolled (Bug · Flutter · Medium)
 - [ ] **136.** When `disabled` turns on while a Flutter tooltip is open, every tooltip in the same group then opens with no delay (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/tooltip/pl_tooltip.dart:229`
   - Problem: `didUpdateWidget` turns off only `_open` and does not call `_release()`, so the provider's open count is left behind.
@@ -465,22 +476,13 @@ Flagged Medium items that the first four batches passed over without asking. Rai
 - [x] **143.** The pickers' hidden input has no `required` and no `disabled` (Bug · React · Medium)
 - [x] **144.** A picker trigger with a label does not read out the selected value (Accessibility · React · High)
 - [x] **145.** The time column (`TimeGrid`) cannot be used with the keyboard (Accessibility · Both · High)
-- [ ] **146.** The names of the month and year buttons in the calendar header override the text on screen (Accessibility · React · Medium)
-  - Location: `internal/calendar.tsx:424`, `:441`
-  - Problem: `aria-label="Choose a month"` replaces "July", so the user does not hear which month it is, and "July" cannot be pressed with voice input (WCAG 2.5.3). The grid has no name either.
-  - Proposal: Make each name start with the visible text, and connect the grid to the header with `aria-labelledby`.
-- [ ] **147.** Keyboard focus on a Flutter calendar cell does not appear in the semantics tree (Accessibility · Flutter · Medium)
-  - Location: `packages/flutter/lib/src/internal/calendar.dart:314`
-  - Problem: `excludeSemantics: true` also removes the flags of the inner `Focus`, so the screen reader cursor does not follow when the arrow keys move between cells.
-  - Proposal: Put `focusable`/`focused` directly on the cell's `Semantics`, or move `Focus` outside it.
+- [x] **146.** The names of the month and year buttons in the calendar header override the text on screen (Accessibility · React · Medium)
+- [x] **147.** Keyboard focus on a Flutter calendar cell does not appear in the semantics tree (Accessibility · Flutter · Medium)
 - [ ] **148.** The × on a Flutter picker trigger does not take focus (Accessibility · Flutter · Low)
   - Location: `packages/flutter/lib/src/internal/picker.dart:267`
   - Problem: It is only a `GestureDetector`, so the value cannot be cleared with the keyboard. `PlColorPicker` has no Clear in its footer, so it has no way to be emptied with the keyboard at all.
   - Proposal: Replace it with a focusable interactive widget.
-- [ ] **149.** The calendar keyboard model and the date arithmetic have no tests (Test · Both · Medium)
-  - Location: `packages/react/test/components/calendar/`, `packages/flutter/test/components/calendar/`, `test/internal/` in both packages
-  - Problem: No test checks movement with the arrow keys, PageUp/PageDown and Home/End, where focus lands on opening, `addMonths` on 31 January, the start of the week, pages of negative years, or the local date in `toISODate`. These are the parts where both packages must give the same answers.
-  - Proposal: Keep the same table of inputs in `date.test.ts` and `date_test.dart`, and add grid keyboard movement to the component tests.
+- [x] **149.** The calendar keyboard model and the date arithmetic have no tests (Test · Both · Medium)
 - [ ] **150.** The range picker comments say the opposite of what the code does (Optimisation · Both · Low)
   - Location: `date-range-picker/PlDateRangePicker.tsx:170`, `date_range_picker/pl_date_range_picker.dart:267`
   - Problem: The comments say "a range with only one end is never passed", but the first click passes `{ start: day, end: null }`, and the tests expect that too.
@@ -495,23 +497,11 @@ Flagged Medium items that the first four batches passed over without asking. Rai
   - Problem: The container does not open, so `:::` shows as text, and the hidden input item is visible to Flutter readers too.
   - Proposal: Move `::: fw react` onto a line of its own, and fix the sentence about the time column together with item 145.
 - [x] **154.** The files `PlFilePicker` submits with a form differ from the list on screen (Bug · React · High)
-- [ ] **155.** The field `label` of `PlFilePicker` is not included in the name of the drop zone button (Accessibility · Both · Medium)
-  - Location: `PlFilePicker.tsx:426`, `:478`, `file_picker/pl_file_picker.dart:511`
-  - Problem: When a "Resume" picker and a "Cover letter" picker are on the same screen, they are read out exactly the same.
-  - Proposal: In React, join the label and the title with `aria-labelledby`. In Flutter, put the label in `Semantics`.
+- [x] **155.** The field `label` of `PlFilePicker` is not included in the name of the drop zone button (Accessibility · Both · Medium)
 - [x] **156.** The value input of Flutter `PlColorPicker` loses focus after every character (Bug · Flutter · High)
-- [ ] **157.** The hue and opacity rails ignore ↑/↓ and Home/End (Accessibility · Both · Medium)
-  - Location: `PlColorPicker.tsx:307`, `pl_color_picker.dart:594`, `:631`
-  - Problem: The rails have the `slider` role, but as horizontal rails they drop the vertical keys. The docs say they use the same keys as the other sliders.
-  - Proposal: Accept ↑ to increase, ↓ to decrease, and Home/End for the minimum and the maximum.
-- [ ] **158.** The `label` and `error` of an `inline` colour picker are not connected to the panel (Accessibility · Both · Medium)
-  - Location: `PlColorPicker.tsx:714`, `pl_color_picker.dart:334`
-  - Problem: The slider's name is only "Hue", so two inline pickers cannot be told apart, and `error` has no `aria-invalid`/`aria-describedby`.
-  - Proposal: Group the panel with `role="group"` and `aria-labelledby`, and connect the error with `aria-describedby`.
-- [ ] **159.** Flutter colour swatches do not receive keyboard focus (Accessibility · Flutter · Medium)
-  - Location: `pl_color_picker.dart:948`
-  - Problem: A swatch is only `Semantics` and a `GestureDetector`. In React it is a button.
-  - Proposal: Wrap it in a focusable interactive widget.
+- [x] **157.** The hue and opacity rails ignore ↑/↓ and Home/End (Accessibility · Both · Medium)
+- [x] **158.** The `label` and `error` of an `inline` colour picker are not connected to the panel (Accessibility · Both · Medium)
+- [x] **159.** Flutter colour swatches do not receive keyboard focus (Accessibility · Flutter · Medium)
 - [ ] **160.** A swatch that fails to parse remains as a button that does nothing when pressed (Bug · Both · Low)
   - Location: `PlColorPicker.tsx:498`, `:515`, `pl_color_picker.dart:943`
   - Problem: `swatches={['red']}` draws an active red button in React, but its clicks are ignored. In Flutter it becomes a transparent circle. React puts the raw string into the inline `backgroundColor`.
@@ -524,10 +514,7 @@ Flagged Medium items that the first four batches passed over without asking. Rai
   - Location: `pl_color_picker.dart:832`
   - Problem: At `xs` and `xl`, the centre of the thumb is 2px off the value.
   - Proposal: Pass the actual thumb size.
-- [ ] **163.** Choosing an option with Enter in Flutter `PlCombobox` makes the input lose focus (Bug · Flutter · Medium)
-  - Location: `packages/flutter/lib/src/components/combobox/pl_combobox.dart:462`, `:659`
-  - Problem: There is no `onEditingComplete`, so Enter first calls `unfocus()` and the list closes, and with `multiple` the user cannot go on choosing. After the list is closed with Escape, pressing Enter commits the previously highlighted row, which is no longer visible.
-  - Proposal: Block the default unfocus with `onEditingComplete: () {}`, skip the commit when the list is closed, and reset the highlight when it closes.
+- [x] **163.** Choosing an option with Enter in Flutter `PlCombobox` makes the input lose focus (Bug · Flutter · Medium)
 - [ ] **164.** Flutter `PlCalendar` does not become disabled when there is no `onChanged` (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/calendar/pl_calendar.dart:206`, `:226`
   - Problem: The docs say the calendar is inert when `onChanged` is null, but its cells are read as active buttons and take focus and taps.
@@ -536,14 +523,8 @@ Flagged Medium items that the first four batches passed over without asking. Rai
   - Location: `docs/en/components/inputs/calendar.md:163`(same in ko), `internal/calendar.dart:845`, `:978`
   - Problem: `role="grid"` and moving by year with Shift+PageUp/PageDown are listed with no fw split, but Flutter does not handle them.
   - Proposal: Add the key handling to Flutter, and wrap the React-only items in `::: fw react`.
-- [ ] **166.** In Flutter `PlForm` `onSubmit` mode, errors remain after a failed submit even when the values are corrected (Bug · Flutter · Medium)
-  - Location: `packages/flutter/lib/src/components/form/pl_form.dart:145`
-  - Problem: The mode is `AutovalidateMode.disabled`, so the error text stays until the next submit. The docs say that from then on each field is validated again.
-  - Proposal: Switch to `onUserInteraction` after the first `submit()`.
-- [ ] **167.** Flutter `PlFloatingActionButton` reads its name twice when `extended` (Accessibility · Flutter · Medium)
-  - Location: `packages/flutter/lib/src/components/floating_action_button/pl_floating_action_button.dart:126`
-  - Problem: `semanticLabel` and `Text(label)` are merged into "New project\nNew project".
-  - Proposal: Do not pass `semanticLabel` when `extended`.
+- [x] **166.** In Flutter `PlForm` `onSubmit` mode, errors remain after a failed submit even when the values are corrected (Bug · Flutter · Medium)
+- [x] **167.** Flutter `PlFloatingActionButton` reads its name twice when `extended` (Accessibility · Flutter · Medium)
 - [ ] **168.** The floating action button position ignores the device safe area (Accessibility · Both · Medium)
   - Location: `floating-action-button/PlFloatingActionButton.tsx:133`, `pl_floating_action_button.dart:148`
   - Problem: The offset is fixed at `1.5rem`/`24`, so on an edge-to-edge screen the button overlaps the navigation bar or the home indicator.
@@ -570,22 +551,10 @@ Flagged Medium items that the first four batches passed over without asking. Rai
   - Location: `docs/ko/components/inputs/toggle.md:108`
   - Problem: The structure of the two locales does not match.
   - Proposal: Change it to `###` to match.
-- [ ] **174.** With `allowWheelScrub` in Flutter `PlNumberField`, the wheel moves both the value and the page (Bug · Flutter · Medium)
-  - Location: `packages/flutter/lib/src/components/number_field/pl_number_field.dart:777-790`
-  - Problem: It does not register with `pointerSignalResolver`, so the ancestor `Scrollable` scrolls too, and a horizontal wheel with `dy == 0` is also handled as `+1`.
-  - Proposal: Claim the event through the resolver, and ignore `dy == 0`.
-- [ ] **175.** Flutter `PlNumberField` has two overlapping text field semantics nodes (Accessibility · Flutter · Medium)
-  - Location: `pl_number_field.dart:820-829`
-  - Problem: Because the outer node has `textField: true` and `explicitChildNodes: true`, the editor creates a node of its own, so the field is met twice. `label` does not become the field's name either.
-  - Proposal: Remove `explicitChildNodes`.
-- [ ] **176.** In Flutter `PlNumberField`, the visible number and the value drift apart when the parent rejects a value (Bug · Flutter · Medium)
-  - Location: `pl_number_field.dart:318-320`, `:401-410`
-  - Problem: With `value: 5, onChanged: (_) {}`, typing 40 and leaving the field leaves 40 in the box while the value stays 5.
-  - Proposal: After committing on blur, set the text back to `widget.value`.
-- [ ] **177.** Holding a Flutter `PlNumberField` stepper calls `onCommitted` every 60ms, even after the limit is reached (Bug · Flutter · Medium)
-  - Location: `pl_number_field.dart:412`, `:475-477`
-  - Problem: A caller that sends a save request on commit sends one request after another. The docs and React commit on release.
-  - Proposal: Call only `onChanged` while repeating, call `onCommitted` once on release, and stop the timer at the limit.
+- [x] **174.** With `allowWheelScrub` in Flutter `PlNumberField`, the wheel moves both the value and the page (Bug · Flutter · Medium)
+- [x] **175.** Flutter `PlNumberField` has two overlapping text field semantics nodes (Accessibility · Flutter · Medium)
+- [x] **176.** In Flutter `PlNumberField`, the visible number and the value drift apart when the parent rejects a value (Bug · Flutter · Medium)
+- [x] **177.** Holding a Flutter `PlNumberField` stepper calls `onCommitted` every 60ms, even after the limit is reached (Bug · Flutter · Medium)
 - [ ] **178.** Every cell of React `PlOtpField` is read with the same name (Accessibility · React · Medium)
   - Location: `packages/react/src/components/otp-field/PlOtpField.tsx:332`
   - Problem: Every cell has the same `aria-labelledby`, so "Verification code" is read six times and the user cannot tell which cell they are on.
@@ -601,14 +570,8 @@ Flagged Medium items that the first four batches passed over without asking. Rai
   - Problem: When `getPageHref` is set, the pressed page changes from an `<a>` to a `<button>` and is mounted again. On the last page, Next becomes `disabled` and focus falls to `body`.
   - Proposal: Keep the same element type for the current page too, and use `focusableWhenDisabled` or `aria-disabled` on the steppers.
   - Flag: Decision needed — it is tied to the documented decision that "the current page is a `<button>`".
-- [ ] **182.** Flutter `PlPagination` does not mark the current page for screen readers (Accessibility · Flutter · Medium)
-  - Location: `pl_pagination.dart:274-297`, `docs/en/components/inputs/pagination.md:198`
-  - Problem: The current page is also read only as "Page 4" and has no state. This also differs from what the docs describe.
-  - Proposal: Give it `Semantics(selected: true)` and fix the docs.
-- [ ] **183.** React `PlRadioGroup` `disabled` is not reflected in how the options look (Bug · React · Medium)
-  - Location: `packages/react/src/components/radio-group/PlRadioGroup.tsx:30-34`, `:186`, `:203`
-  - Problem: The context has no `disabled`, so options that are in fact disabled are not dimmed, and they still show hover and `cursor-pointer`.
-  - Proposal: Add `disabled` to the context and choose the classes with `disabled || group.disabled`.
+- [x] **182.** Flutter `PlPagination` does not mark the current page for screen readers (Accessibility · Flutter · Medium)
+- [x] **183.** React `PlRadioGroup` `disabled` is not reflected in how the options look (Bug · React · Medium)
 - [ ] **184.** Flutter `PlRating` drops to 0 when End is pressed at the top score (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/rating/pl_rating.dart:175`, `:272`, `:283`
   - Problem: With the default `clearable: true`, End is handled as "picking the same score again".
