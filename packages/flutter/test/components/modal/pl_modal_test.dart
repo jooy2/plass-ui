@@ -214,6 +214,51 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('keeps a full-screen sheet s header out from under the status bar', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            const MediaQuery(
+              data: MediaQueryData(padding: EdgeInsets.only(top: 100, bottom: 30)),
+              child: PlModal(
+                open: true,
+                fullScreen: true,
+                title: Text('Title'),
+                // Taller than the screen, so the sheet runs from the top edge.
+                child: SizedBox(height: 2000),
+              ),
+            ),
+            overlay: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(tester.getTopLeft(find.text('Title')).dy, greaterThanOrEqualTo(100));
+      });
+
+      testWidgets('ends above a soft keyboard', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            const MediaQuery(
+              data: MediaQueryData(viewInsets: EdgeInsets.only(bottom: 250)),
+              child: PlModal(
+                open: true,
+                title: Text('Title'),
+                actions: <Widget>[Text('Save')],
+                child: SizedBox(height: 400),
+              ),
+            ),
+            overlay: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final double screen = tester.view.physicalSize.height / tester.view.devicePixelRatio;
+
+        expect(tester.getBottomLeft(find.text('Save')).dy, lessThanOrEqualTo(screen - 250));
+      });
+
       testWidgets('takes the page behind it off the semantics tree while it is open', (
         WidgetTester tester,
       ) async {

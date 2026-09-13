@@ -46,6 +46,8 @@
 
 ### Fixed
 
+- **`PlModal`, `PlDrawer` and `PlToastProvider` keep clear of the system's bars and a soft keyboard.** On a phone, a modal's actions sat under the keyboard, a full-screen modal's and a side drawer's header and × sat under the status bar, a top toast sat in the notch and a bottom one on the home indicator. A modal and a toast stack now stand off the bars and the keyboard, and a full-screen modal and a drawer run under the bars with their content kept out from under them.
+
 - **Escape closes a floating layer.** `PlPopover`, `PlPopconfirm`, the pickers' popups, `PlTooltip` and `PlHoverCard` ignored it, and inside a `PlModal` it closed the modal instead of the popover opened in it, without `PlPopconfirm`'s `onCancel`. Escape now closes the nearest open layer first, and cancels a popconfirm. `PlTooltip` and `PlHoverCard` also keep the focus and the pointer apart, so a pointer brushing past no longer closes what the keyboard opened, and a tooltip stays up while the pointer moves from its trigger onto the plate.
 
 - **The left and right arrow keys follow the writing direction in `PlTabs`, `PlRadioGroup` and `PlSegmentedButton`, and only those two turn round in `PlRating`.** Under RTL the three sets moved to the next choice on the right arrow, which is the one to the left of the chosen one on screen. `PlRating` turned every arrow round, so the up arrow lowered the score. The left and right arrows now move towards the choice they point at, and up and down mean the same in both directions, as they do in the React build.

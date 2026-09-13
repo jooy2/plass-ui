@@ -91,6 +91,28 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('keeps its header out from under the status bar', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            const MediaQuery(
+              data: MediaQueryData(padding: EdgeInsets.only(top: 100)),
+              child: PlDrawer(
+                open: true,
+                title: Text('Narrow the results'),
+                // Taller than the screen, so the panel runs from the top edge.
+                child: SizedBox(height: 2000),
+              ),
+            ),
+            overlay: true,
+            width: 480,
+            height: 640,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(tester.getTopLeft(find.text('Narrow the results')).dy, greaterThanOrEqualTo(100));
+      });
+
       testWidgets('is not there at all while it is closed', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(const _Harness(startOpen: false), overlay: true, width: 480, height: 640),

@@ -246,18 +246,30 @@ class PlDrawer extends StatelessWidget {
       barrierColor: tokens.scrim,
       barrierBlur: _scrimBlur,
       onDismiss: dismissible ? close : null,
-      child: Align(
-        alignment: switch (side) {
-          PlassSide.left => Alignment.centerLeft,
-          PlassSide.right => Alignment.centerRight,
-          PlassSide.top => Alignment.topCenter,
-          PlassSide.bottom => Alignment.bottomCenter,
-        },
-        child: GestureDetector(
-          // A press on the panel is not a press outside it.
-          behavior: HitTestBehavior.opaque,
-          onTap: () {},
-          child: _panel(context, tokens, close, floating: true),
+      // A soft keyboard takes the bottom of the screen away, so the panel ends
+      // above it: a bottom drawer rises with it, and a side drawer's actions
+      // stay where they can be reached.
+      child: Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+        child: MediaQuery.removeViewInsets(
+          context: context,
+          removeBottom: true,
+          child: Align(
+            alignment: switch (side) {
+              PlassSide.left => Alignment.centerLeft,
+              PlassSide.right => Alignment.centerRight,
+              PlassSide.top => Alignment.topCenter,
+              PlassSide.bottom => Alignment.bottomCenter,
+            },
+            child: GestureDetector(
+              // A press on the panel is not a press outside it.
+              behavior: HitTestBehavior.opaque,
+              onTap: () {},
+              child: Builder(
+                builder: (BuildContext inner) => _panel(inner, tokens, close, floating: true),
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -415,6 +427,18 @@ class PlDrawer extends StatelessWidget {
         ),
       ),
     );
+
+    if (floating) {
+      // The panel runs under the system's bars on the three sides it touches the
+      // screen, and keeps what is in it out from under them.
+      panel = SafeArea(
+        left: side != PlassSide.right,
+        top: side != PlassSide.bottom,
+        right: side != PlassSide.left,
+        bottom: side != PlassSide.top,
+        child: panel,
+      );
+    }
 
     panel = PlassSurfaceBox(surface: surface, borderRadius: corners, child: panel);
 

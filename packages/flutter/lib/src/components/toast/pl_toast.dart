@@ -497,8 +497,14 @@ class _PlToastProviderState extends State<PlToastProvider>
             // `Align` hit-tests its child and not the room around it, so the
             // page under the empty part of the strip is reached normally.
             Positioned.fill(
+              // Clear of the system's bars, the notch and a soft keyboard, so a
+              // top stack is not under the status bar and a bottom one is not
+              // under the home indicator.
               child: Padding(
-                padding: const EdgeInsets.all(_stackInset),
+                padding:
+                    const EdgeInsets.all(_stackInset) +
+                    MediaQuery.paddingOf(context) +
+                    EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
                 child: Align(
                   alignment: _alignment,
                   child: MouseRegion(

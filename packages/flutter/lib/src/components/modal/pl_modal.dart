@@ -202,6 +202,15 @@ class PlModal extends StatelessWidget {
 
     void close() => onOpenChanged?.call(false);
 
+    // Clear of the system's bars, the notch and a soft keyboard. `paddingOf` is
+    // what the bars take, already less what the keyboard covers, so the keyboard
+    // is added back at the bottom. A full-screen sheet runs under the bars and
+    // keeps its content out from under them instead, below.
+    final EdgeInsets keyboard = EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom);
+    final EdgeInsets clear = fullScreen
+        ? keyboard
+        : const EdgeInsets.all(_screenInset) + MediaQuery.paddingOf(context) + keyboard;
+
     return PlassPortal(
       open: open,
       modal: modal,
@@ -210,17 +219,34 @@ class PlModal extends StatelessWidget {
       barrierBlur: _scrimBlur,
       onDismiss: dismissible ? close : null,
       child: Padding(
-        padding: EdgeInsets.all(fullScreen ? 0 : _screenInset),
-        child: Align(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: fullScreen ? double.infinity : width ?? _maxWidth[size]!,
-            ),
-            child: GestureDetector(
-              // A press on the sheet is not a press outside it.
-              behavior: HitTestBehavior.opaque,
-              onTap: () {},
-              child: _sheet(context, tokens, close),
+        padding: clear,
+        child: MediaQuery.removeViewInsets(
+          context: context,
+          removeBottom: true,
+          child: Align(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: fullScreen ? double.infinity : width ?? _maxWidth[size]!,
+              ),
+              child: GestureDetector(
+                // A press on the sheet is not a press outside it.
+                behavior: HitTestBehavior.opaque,
+                onTap: () {},
+                child: fullScreen
+                    ? _sheet(context, tokens, close)
+                    // The sheet is already clear of the bars, so what is inside
+                    // it is not told about them a second time.
+                    : MediaQuery.removePadding(
+                        context: context,
+                        removeLeft: true,
+                        removeTop: true,
+                        removeRight: true,
+                        removeBottom: true,
+                        child: Builder(
+                          builder: (BuildContext inner) => _sheet(inner, tokens, close),
+                        ),
+                      ),
+              ),
             ),
           ),
         ),
@@ -358,7 +384,7 @@ class PlModal extends StatelessWidget {
     sheet = PlassSurfaceBox(
       surface: surface,
       borderRadius: BorderRadius.circular(fullScreen ? 0 : PlassTokens.radius[size]!),
-      child: sheet,
+      child: fullScreen ? SafeArea(child: sheet) : sheet,
     );
 
     return fullScreen || fullWidth

@@ -52,6 +52,34 @@ void main() {
         expect(find.text('Saved'), findsOneWidget);
       });
 
+      testWidgets('keeps a top stack out from under the status bar', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            MediaQuery(
+              data: const MediaQueryData(padding: EdgeInsets.only(top: 40)),
+              child: PlToastProvider(
+                position: PlToastPosition.topEnd,
+                child: Builder(
+                  builder: (BuildContext context) => GestureDetector(
+                    onTap: () =>
+                        PlToastProvider.of(context).show(const PlToast(title: Text('Saved'))),
+                    child: const SizedBox(width: 200, height: 60, child: Text('Raise')),
+                  ),
+                ),
+              ),
+            ),
+            width: 600,
+            height: 500,
+          ),
+        );
+        await _raise(tester);
+
+        final double top = tester.getTopLeft(find.byType(PlToastProvider)).dy;
+
+        // The inset, then the status bar, then the plate's own padding.
+        expect(tester.getTopLeft(find.text('Saved')).dy - top, greaterThanOrEqualTo(16 + 40));
+      });
+
       testWidgets('takes itself away when its time is up', (WidgetTester tester) async {
         await tester.pumpWidget(
           _app(
