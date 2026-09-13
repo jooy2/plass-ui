@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- **A labelled picker's trigger reads the value as well as the label.** `PlDatePicker`, `PlDateRangePicker`, `PlDateTimePicker`, `PlTimePicker`, `PlColorPicker` and `PlTreeSelect` named their trigger with the label alone, so a screen reader heard "Departure, button" and had to open the popup to find out which day was chosen. The trigger is now named by the label and then by the value it shows.
+
 - **`PlTour`'s card follows the tour.** The card was given its target as a getter, which Base UI asks only when the popup opens, so from the second step on the cut-out moved and the card stayed beside the first target. A step with no target left the card invisible. The card now moves to each step's target, and a step with no target centres it on the viewport, as the documentation says.
 
 - **`PlScatterChart` and `PlTimelineChart` no longer redraw on every pixel the pointer moves.** Both stored the pointer's offset for a tooltip mode that only a chart of columns reads, so each move re-laid the whole chart out and re-rendered every mark. They now re-render only when the nearest mark changes.

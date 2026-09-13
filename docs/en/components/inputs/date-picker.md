@@ -263,6 +263,7 @@ Pass `value` with `onValueChange`. The value is a `Date` at local midnight, or a
 - The grid is a `role="grid"` of `gridcell`s.
 - <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> move by a day and a week, <kbd>Home</kbd> and <kbd>End</kbd> go to the ends of the week, and <kbd>PageUp</kbd> / <kbd>PageDown</kbd> move by a month, a year with <kbd>Shift</kbd>. Running off an edge steps the calendar rather than stopping.
 - A blocked day carries `aria-disabled` rather than the `disabled` attribute, so it stays in the arrow-key path and is still announced, as unavailable.
+- The trigger is named by the label and then by what it holds, `Departure 27 Jul 2026`, as a native select is read.
 
 :::
 

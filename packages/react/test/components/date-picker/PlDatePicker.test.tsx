@@ -17,6 +17,18 @@ describe('PlDatePicker', () => {
       await expect.element(screen.getByRole('button', { name: 'Departure' })).toBeInTheDocument();
     });
 
+    it('reads the chosen date after the label', async () => {
+      const screen = await render(
+        <PlDatePicker label="Departure" locale="en-GB" defaultValue={JULY_27} />
+      );
+
+      await expect
+        .element(
+          screen.getByRole('button', { name: `Departure ${mediumDate(JULY_27)}`, exact: true })
+        )
+        .toBeInTheDocument();
+    });
+
     it('shows the placeholder while nothing is chosen', async () => {
       const screen = await render(<PlDatePicker placeholder="Pick a day" />);
 

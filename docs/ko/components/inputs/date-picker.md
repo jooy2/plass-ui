@@ -263,6 +263,7 @@ trigger의 기본 format도 따라가고, 푸터의 지름길도 마찬가지입
 - 그리드는 `gridcell`들로 이루어진 `role="grid"`입니다.
 - <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd>는 하루와 한 주씩, <kbd>Home</kbd>과 <kbd>End</kbd>는 그 주의 양 끝으로, <kbd>PageUp</kbd> / <kbd>PageDown</kbd>은 한 달씩(<kbd>Shift</kbd>와 함께면 한 해씩) 움직입니다. 가장자리를 벗어나면 멈추는 대신 달력이 넘어갑니다.
 - 막힌 날은 `disabled` 속성이 아니라 `aria-disabled`를 답니다. 그래서 화살표 경로에 남고, 사용할 수 없다고 읽힙니다.
+- trigger의 이름은 label과 그 뒤의 값입니다(`Departure 27 Jul 2026`). 네이티브 select와 같은 방식으로 읽힙니다.
 
 :::
 

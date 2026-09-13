@@ -218,6 +218,7 @@ export function PickerShell({
   const generatedId = React.useId();
   const triggerId = id ?? `${generatedId}-trigger`;
   const labelId = `${generatedId}-label`;
+  const valueId = `${generatedId}-value`;
   const descriptionId = `${generatedId}-description`;
   const errorId = `${generatedId}-error`;
 
@@ -281,7 +282,9 @@ export function PickerShell({
             id={triggerId}
             ref={triggerRef}
             disabled={disabled}
-            aria-labelledby={label ? labelId : undefined}
+            // The label and then the value, as a native select is read: the name
+            // alone would leave the chosen date or colour to be found by opening it.
+            aria-labelledby={label ? `${labelId} ${valueId}` : undefined}
             aria-describedby={describedBy}
             aria-required={required || undefined}
             aria-invalid={isInvalid || undefined}
@@ -300,6 +303,7 @@ export function PickerShell({
             {/* The value and, under it, every value it could be. */}
             <span className="flex min-w-0 flex-1 flex-col">
               <span
+                id={valueId}
                 className={cx(
                   'w-full truncate',
                   empty ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)'
