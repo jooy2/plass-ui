@@ -217,7 +217,8 @@ The light going out, as everywhere else: the shape and the position stay, the sa
 
 ::: fw flutter
 
-- Announced as a slider, with the current value as its value. Without a visible `label`, a fader in a bank of them, give it a `semanticLabel`.
+- Announced as a slider, with the current value as its value, written in as many decimals as `step` has. Without a visible `label`, a fader in a bank of them, give it a `semanticLabel`.
+- A screen reader's adjust gesture, the swipe up and down in VoiceOver and TalkBack, moves the slider by one `step`. Each end of a range is a slider of its own.
 - <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> move a thumb by one `step`, <kbd>PageUp</kbd> / <kbd>PageDown</kbd> by a tenth of the range, and <kbd>Home</kbd> and <kbd>End</kbd> jump to the ends.
 - Each thumb is its own focus stop, which is what makes a range slider operable: <kbd>Tab</kbd> moves between the two ends.
 - The whole strip is a pointer target, not just the rail: the control box is several times the groove's thickness, so a press anywhere along it moves the nearest thumb.

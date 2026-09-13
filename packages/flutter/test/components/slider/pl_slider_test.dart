@@ -1,3 +1,4 @@
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -250,6 +251,95 @@ void main() {
         );
 
         handle.dispose();
+      });
+
+      testWidgets('is moved a step by the adjust actions of a screen reader', (
+        WidgetTester tester,
+      ) async {
+        List<double> values = <double>[42];
+
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) => PlSlider(
+                values: values,
+                semanticLabel: 'Volume',
+                onChanged: (List<double> next) => setState(() => values = next),
+              ),
+            ),
+            width: 300,
+          ),
+        );
+
+        expect(
+          semanticsOf(tester, find.byType(PlSlider)),
+          isSemantics(
+            isSlider: true,
+            value: '42',
+            increasedValue: '43',
+            decreasedValue: '41',
+            hasIncreaseAction: true,
+            hasDecreaseAction: true,
+          ),
+        );
+
+        tester.semantics.increase(find.semantics.byLabel('Volume'));
+        await tester.pump();
+        expect(values, <double>[43]);
+
+        tester.semantics.decrease(find.semantics.byLabel('Volume'));
+        await tester.pump();
+        tester.semantics.decrease(find.semantics.byLabel('Volume'));
+        await tester.pump();
+        expect(values, <double>[41]);
+      });
+
+      testWidgets('reads a value in the decimals its step has', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            PlSlider(
+              values: const <double>[0.4],
+              min: 0,
+              max: 1,
+              step: 0.1,
+              semanticLabel: 'Opacity',
+              onChanged: (List<double> _) {},
+            ),
+            width: 300,
+          ),
+        );
+
+        expect(
+          semanticsOf(tester, find.byType(PlSlider)),
+          isSemantics(value: '0.4', increasedValue: '0.5', decreasedValue: '0.3'),
+        );
+      });
+
+      testWidgets('gives each end of a range its own slider to move', (WidgetTester tester) async {
+        List<double> values = <double>[20, 80];
+
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) => PlSlider(
+                values: values,
+                semanticLabel: 'Price',
+                onChanged: (List<double> next) => setState(() => values = next),
+              ),
+            ),
+            width: 300,
+          ),
+        );
+
+        final Iterable<SemanticsNode> ends = find.semantics
+            .byAction(SemanticsAction.increase)
+            .evaluate();
+
+        expect(ends.map((SemanticsNode node) => node.value), <String>['20', '80']);
+
+        tester.semantics.increase(find.semantics.byValue('80'));
+        await tester.pump();
+        expect(values, <double>[20, 81]);
       });
     });
   });

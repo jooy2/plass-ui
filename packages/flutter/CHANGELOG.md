@@ -36,6 +36,8 @@
 
 ### Fixed
 
+- **A `PlSlider` can be adjusted with a screen reader.** It was announced as a slider but had no increase or decrease action, so the swipe VoiceOver and TalkBack adjust a slider with did nothing, and a range slider's two ends were one node that neither could be moved from. Each end now answers the adjust actions by one `step`, and a value is read in the decimals its `step` has rather than rounded to a whole number.
+
 - **Typing into a `PlColorPicker`'s value field keeps the focus.** The field was given a new focus node on every rebuild, and every keystroke that changed the colour rebuilt it, so the field lost focus and the keyboard closed after one character. The node that was thrown away was never disposed either.
 
 - **The time columns of `PlTimePicker` and `PlDateTimePicker` work from the keyboard.** No row could take focus, so the only way to set a time without a pointer was the Now button. Each column is now one tab stop on its chosen row, and the arrow keys, Home and End choose a row and move the focus with it, stepping over a blocked row.

@@ -276,6 +276,48 @@ class _PlSliderState extends State<PlSlider> {
     return _rtl ? 1 - fraction : fraction;
   }
 
+  /// Where one step from the current value takes thumb [index], held inside
+  /// its neighbours the way a drag or an arrow key is.
+  double _stepped(int index, int direction) {
+    return _valueAt(_fraction(widget.values[index] + direction * widget.step), index);
+  }
+
+  /// A value as a screen reader hears it, with as many decimals as the step
+  /// has: a slider from 0 to 1 in tenths is not read as 0 and 1.
+  String _spoken(double value) {
+    final String step = widget.step.toString();
+    final int dot = step.indexOf('.');
+    final int decimals = dot < 0 || step.contains('e')
+        ? 0
+        : step.substring(dot + 1).replaceFirst(RegExp(r'0+$'), '').length;
+
+    return value.toStringAsFixed(decimals);
+  }
+
+  /// What one thumb says to a screen reader, and the two actions it answers:
+  /// the swipe up and down that VoiceOver and TalkBack adjust a slider with.
+  ///
+  /// Without the actions the node claimed to be a slider and nothing could move
+  /// it but a pointer or a hardware key.
+  Widget _adjustable({required int index, required Widget child}) {
+    final double value = widget.values[index];
+    final double up = _stepped(index, 1);
+    final double down = _stepped(index, -1);
+
+    return Semantics(
+      container: true,
+      slider: true,
+      enabled: !_disabled,
+      label: widget.semanticLabel,
+      value: _spoken(value),
+      increasedValue: up == value ? null : _spoken(up),
+      decreasedValue: down == value ? null : _spoken(down),
+      onIncrease: _disabled || up == value ? null : () => _report(index, up, ended: true),
+      onDecrease: _disabled || down == value ? null : () => _report(index, down, ended: true),
+      child: child,
+    );
+  }
+
   KeyEventResult _onKey(int index, KeyEvent event) {
     if (_disabled || (event is! KeyDownEvent && event is! KeyRepeatEvent)) {
       return KeyEventResult.ignored;
@@ -392,32 +434,35 @@ class _PlSliderState extends State<PlSlider> {
                   curve: PlassTokens.ease,
                   start: _vertical ? null : _fraction(widget.values[index]) * travel,
                   bottom: _vertical ? _fraction(widget.values[index]) * travel : null,
-                  child: _Thumb(
-                    size: thumb,
-                    family: family,
-                    tokens: tokens,
-                    elevation: widget.elevation,
-                    disabled: _disabled,
-                    hovered: _hovered == index,
-                    dragging: _active == index,
-                    reduceMotion: reduceMotion,
-                    focusNode: index == 0 ? widget.focusNode : null,
-                    autofocus: index == 0 && widget.autofocus,
-                    onKey: (KeyEvent event) => _onKey(index, event),
-                    onHover: (bool over) => setState(() => _hovered = over ? index : null),
-                    onDrag: _disabled
-                        ? null
-                        : (Offset global, bool ended) {
-                            final render = context.findRenderObject()! as RenderBox;
-                            final local = render.globalToLocal(global);
+                  child: _rangeThumb(
+                    index,
+                    _Thumb(
+                      size: thumb,
+                      family: family,
+                      tokens: tokens,
+                      elevation: widget.elevation,
+                      disabled: _disabled,
+                      hovered: _hovered == index,
+                      dragging: _active == index,
+                      reduceMotion: reduceMotion,
+                      focusNode: index == 0 ? widget.focusNode : null,
+                      autofocus: index == 0 && widget.autofocus,
+                      onKey: (KeyEvent event) => _onKey(index, event),
+                      onHover: (bool over) => setState(() => _hovered = over ? index : null),
+                      onDrag: _disabled
+                          ? null
+                          : (Offset global, bool ended) {
+                              final render = context.findRenderObject()! as RenderBox;
+                              final local = render.globalToLocal(global);
 
-                            setState(() => _active = ended ? null : index);
-                            _report(
-                              index,
-                              _valueAt(_fractionOf(local, render.size), index),
-                              ended: ended,
-                            );
-                          },
+                              setState(() => _active = ended ? null : index);
+                              _report(
+                                index,
+                                _valueAt(_fractionOf(local, render.size), index),
+                                ended: ended,
+                              );
+                            },
+                    ),
                   ),
                 ),
             ],
@@ -463,27 +508,40 @@ class _PlSliderState extends State<PlSlider> {
           )
         : null;
 
+    final Widget body = Column(
+      crossAxisAlignment: _vertical ? CrossAxisAlignment.center : CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      spacing: _vertical ? 8 : 6,
+      children: <Widget>[
+        ?header,
+        strip,
+        if (widget.description != null)
+          DefaultTextStyle.merge(
+            style: TextStyle(color: tokens.mutedFg, fontSize: meta),
+            child: widget.description!,
+          ),
+      ],
+    );
+
+    // One thumb is the slider. Two are a group of sliders, one node each, so
+    // either end of a range can be moved on its own.
+    if (widget.values.length == 1) {
+      return _adjustable(index: 0, child: body);
+    }
+
     return Semantics(
       container: true,
-      slider: true,
+      explicitChildNodes: true,
       enabled: !_disabled,
       label: widget.semanticLabel,
-      value: widget.values.map((double one) => one.round().toString()).join(' – '),
-      child: Column(
-        crossAxisAlignment: _vertical ? CrossAxisAlignment.center : CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        spacing: _vertical ? 8 : 6,
-        children: <Widget>[
-          ?header,
-          strip,
-          if (widget.description != null)
-            DefaultTextStyle.merge(
-              style: TextStyle(color: tokens.mutedFg, fontSize: meta),
-              child: widget.description!,
-            ),
-        ],
-      ),
+      child: body,
     );
+  }
+
+  /// A thumb of a range, as its own slider node. A lone thumb is described by
+  /// the node around the whole slider instead.
+  Widget _rangeThumb(int index, Widget thumb) {
+    return widget.values.length == 1 ? thumb : _adjustable(index: index, child: thumb);
   }
 }
 
