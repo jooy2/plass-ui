@@ -123,7 +123,8 @@ class PlFloatingActionButton extends StatelessWidget {
             loading: loading,
             disabled: disabled,
             startIcon: icon,
-            semanticLabel: label,
+            // The words on the key are its name already. A `semanticLabel` as
+            // well would be merged with them and read twice.
             child: Text(label),
           )
         : PlIconButton(

@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **An `extended` `PlFloatingActionButton` says its label once.** The words drawn on the key were given to it as a semantic label as well, and the two were merged, so a screen reader announced "New project, New project". The drawn words are now the whole name.
+
 - **A `PlForm` checks every change after a submit, as `onSubmit` says.** The default `validationMode` never validated after the first submit either, so a field that failed kept its message while the reader corrected it, until they pressed submit again. From the first submit on, each change to a field is checked, and a corrected field loses its message at once.
 
 - **Enter in a `PlCombobox` takes the lit row and keeps the field focused.** The editor gave the focus up on Enter, which closed the list, so a `multiple` combobox took one pick and made the reader click back into the field for the next. And after Escape had closed the list, Enter still took the row that had been lit, which was no longer on screen. Enter now leaves the focus in the field, and takes nothing while the list is closed.

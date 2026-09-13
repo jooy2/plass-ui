@@ -46,13 +46,25 @@ void main() {
         handle.dispose();
       });
 
-      testWidgets('draws the same words when it is extended', (WidgetTester tester) async {
+      testWidgets('draws the same words when it is extended, and says them once', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
         await _pump(
           tester,
           const PlFloatingActionButton(extended: true, icon: _Glyph(), label: 'New project'),
         );
 
         expect(find.text('New project'), findsOneWidget);
+        // The words on the key are its name. A label on top of them would be
+        // read as "New project, New project".
+        expect(
+          tester.getSemantics(find.text('New project')),
+          isSemantics(isButton: true, label: 'New project'),
+        );
+
+        handle.dispose();
       });
     });
 
