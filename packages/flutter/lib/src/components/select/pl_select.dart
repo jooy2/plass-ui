@@ -483,7 +483,7 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
       side: PlassSide.bottom,
       align: PlassAlign.start,
       offset: _standoff,
-      matchAnchorWidth: true,
+      anchorWidth: PlassAnchorWidth.atLeast,
       onDismiss: _close,
       popup: _list(tokens, family, scale),
       child: trigger,

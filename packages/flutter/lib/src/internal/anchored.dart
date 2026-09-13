@@ -7,6 +7,20 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
+/// How a popup's width follows its anchor's.
+enum PlassAnchorWidth {
+  /// The popup's own width, whatever the anchor's is.
+  free,
+
+  /// At least the anchor's, and wider when the popup's content is: a menu that
+  /// can say a longer word than the field it drops out of.
+  atLeast,
+
+  /// Exactly the anchor's: a list of suggestions for what is being typed, which
+  /// is as wide as the place it is typed into.
+  exact,
+}
+
 /// A popup lifted out of the tree and hung off an anchor.
 ///
 /// What a `PlTooltip` and a `PlSelect`'s list have in common: the lift into the
@@ -38,7 +52,7 @@ class PlassAnchoredPortal extends StatefulWidget {
     this.offset = 6,
     this.onDismiss,
     this.onEscape,
-    this.matchAnchorWidth = false,
+    this.anchorWidth = PlassAnchorWidth.free,
     this.onSideResolved,
     super.key,
   });
@@ -74,11 +88,11 @@ class PlassAnchoredPortal extends StatefulWidget {
   /// popup.
   final VoidCallback? onEscape;
 
-  /// Gives the popup the anchor's width as its minimum.
+  /// How the popup's width follows the anchor's.
   ///
   /// For a list that belongs to a field: a menu narrower than the box it drops
   /// out of reads as a different control.
-  final bool matchAnchorWidth;
+  final PlassAnchorWidth anchorWidth;
 
   /// Told which side the popup actually ended up on, once it is known.
   ///
@@ -272,7 +286,11 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
     Widget popup = FadeTransition(
       opacity: _fade,
       child: ConstrainedBox(
-        constraints: BoxConstraints(minWidth: widget.matchAnchorWidth ? _anchorWidth ?? 0 : 0),
+        constraints: switch (widget.anchorWidth) {
+          PlassAnchorWidth.free => const BoxConstraints(),
+          PlassAnchorWidth.atLeast => BoxConstraints(minWidth: _anchorWidth ?? 0),
+          PlassAnchorWidth.exact => BoxConstraints.tightFor(width: _anchorWidth),
+        },
         child: KeyedSubtree(key: _popupKey, child: widget.popup),
       ),
     );

@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **`PlCombobox`'s list is as wide as its field.** It took the whole width of the screen, so beside a field that did not start at the left edge it ran off the right one. It now drops exactly as wide as the field, as the React build's does.
+
 - **A chart's grid is the faintest line on the plot in the dark theme too.** The dark tokens drew the grid, the axis and the baseline in the muted ink at 50%, 70% and 50%, far stronger than the React build's white at 8.4% and 12% and the muted ink at 35%, so the grid competed with the data. They now follow the stylesheet's derivation, and a package test reads `styles.css` to keep the two in step.
 
 - **`PlConfirmProvider`, `PlPopconfirm` and `PlCommandPalette` say the label pack's words.** Their Cancel and Confirm buttons and the palette's placeholder were written in English whatever the theme's labels said. `confirmLabel`, `cancelLabel` and `placeholder` are now nullable and fall back to the pack's `confirm`, `cancel` and `commandPalettePlaceholder`.

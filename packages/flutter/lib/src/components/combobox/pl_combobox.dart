@@ -611,7 +611,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       side: PlassSide.bottom,
       align: PlassAlign.start,
       offset: _standoff,
-      matchAnchorWidth: true,
+      anchorWidth: PlassAnchorWidth.exact,
       onDismiss: _close,
       popup: _list(tokens, family, scale),
       child: _shell(tokens, family, scale, radius),

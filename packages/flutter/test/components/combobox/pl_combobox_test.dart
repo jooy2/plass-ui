@@ -3,6 +3,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
+import 'package:plass_ui/src/internal/anchored.dart';
+import 'package:plass_ui/src/internal/surface.dart';
+
 import '../../support/host.dart';
 
 const List<PlComboboxOption<String>> _cities = <PlComboboxOption<String>>[
@@ -130,6 +133,35 @@ void main() {
 
         expect(find.text('Lisbon'), findsOneWidget);
       });
+
+      for (final (String length, int count) in <(String, int)>[('short', 3), ('long', 500)]) {
+        testWidgets('drops a $length list exactly as wide as the field', (
+          WidgetTester tester,
+        ) async {
+          await tester.pumpWidget(
+            _host(
+              PlCombobox<int>(
+                options: <PlComboboxOption<int>>[
+                  for (int i = 0; i < count; i += 1)
+                    PlComboboxOption<int>(value: i, label: 'Option $i'),
+                ],
+                value: null,
+                onChanged: (int? _) {},
+              ),
+            ),
+          );
+          await tester.tap(_adornment('Open'));
+          await tester.pumpAndSettle();
+
+          final Rect field = tester.getRect(find.byType(PlassAnchoredPortal));
+          final Rect list = tester.getRect(
+            find.ancestor(of: find.text('Option 0'), matching: find.byType(PlassSurfaceBox)).first,
+          );
+
+          expect(list.width, field.width);
+          expect(list.left, field.left);
+        });
+      }
 
       testWidgets('shows the placeholder while nothing is typed', (WidgetTester tester) async {
         await tester.pumpWidget(
