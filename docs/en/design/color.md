@@ -41,7 +41,7 @@ Everything a component actually reads is computed from those, in the derived blo
 | `--plass-{c}-tint` | `solid` at `--plass-tint-strength` (35% light, 55% dark), the drop shadow |
 | `--plass-{c}-soft` / `-hover` / `-press` | `accent` at 10% / 18% / 26% |
 | `--plass-{c}-line` / `-hover` | `accent` at 30% / 48% |
-| `--plass-{c}-ring` | `solid` at 55% |
+| `--plass-{c}-ring` | `accent`, opaque, so it clears 3:1 against the surface in both themes |
 
 So **adding a colour family is two edits**: one entry in the `PlassColor` union, and three lines plus a per-theme `accent` in `styles.css`.
 

@@ -32,6 +32,8 @@
 
 ### Changed
 
+- **Focus rings are drawn in the family's `accent`, opaque.** `PlassColorFamily.ring` was `solid` at 55% opacity, which came to about 2.2:1 against a white surface, and 1.4:1 for `warning`, under the 3:1 a focus indicator needs. It now returns `accent`, which clears 3:1 against the surface and the page in both themes. Every focused control looks different: darker in the light theme and lighter in the dark one.
+
 - **A `PlScrollZone` no longer hands the wheel back at its ends.** The pointer being on the shelf is the reader saying which of the two things under it they meant to move, and reaching the last card is not them saying something else — so whatever was behind the strip used to start moving at a pixel nobody chose, in the middle of a flick. The new `overscroll` default is `PlassOverscroll.contain`, and `PlassOverscroll.auto` is the old behaviour. Even `auto` now keeps a gesture that was scrolling the strip a moment ago, and gives the signal up only once the reader has paused. A strip everything fits in is not a scroller and holds nothing back either way.
 
 ### Fixed

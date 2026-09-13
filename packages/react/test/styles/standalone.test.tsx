@@ -58,6 +58,34 @@ function token(element: Element, name: string): string {
   return getComputedStyle(element).getPropertyValue(name).trim();
 }
 
+/**
+ * A computed colour as 0–1 sRGB channels, composited over `ground` when it is
+ * translucent. Reads both forms Chromium serialises to: `rgb()`/`rgba()` in
+ * 0–255, and `color(srgb …)` in 0–1, which is what a `color-mix()` resolves to.
+ */
+function rgb(value: string, ground = [1, 1, 1]): number[] {
+  const numbers = (value.match(/[\d.]+/g) ?? []).map(Number);
+  const [r, g, b, a = 1] = value.startsWith('color(')
+    ? numbers
+    : [...numbers.slice(0, 3).map((channel) => channel / 255), ...numbers.slice(3)];
+
+  return [r, g, b].map((channel, index) => channel * a + ground[index] * (1 - a));
+}
+
+/** The WCAG contrast ratio between two opaque 0–1 sRGB colours. */
+function contrast(one: number[], two: number[]): number {
+  const luminance = (colour: number[]) => {
+    const [r, g, b] = colour.map((channel) =>
+      channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4
+    );
+
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const [light, dark] = [luminance(one), luminance(two)].sort((x, y) => y - x);
+
+  return (light + 0.05) / (dark + 0.05);
+}
+
 describe('plass-ui/styles.css', () => {
   describe('the file is self-contained', () => {
     it('carries the compiled utilities, not just the tokens', () => {
@@ -237,6 +265,48 @@ describe('plass-ui/styles.css', () => {
       } finally {
         document.documentElement.removeAttribute('data-theme');
       }
+    });
+
+    it('draw a focus ring that clears 3:1 against the surface round it, in both themes', () => {
+      // WCAG 1.4.11 asks 3:1 of a focus indicator against what is next to it.
+      // The ring is drawn outside the control, so what is next to it is the
+      // sheet or the page. A floor rather than a shade: the colours may move,
+      // but not below it.
+      // A bare element, not a control: a control transitions its `color`, and
+      // would report where the transition started.
+      const probe = document.createElement('span');
+      const families = ['primary', 'secondary', 'success', 'warning', 'danger', 'info'];
+      const failures: string[] = [];
+
+      const paint = (value: string, ground?: number[]) => {
+        probe.style.color = value;
+        return rgb(getComputedStyle(probe).color, ground);
+      };
+
+      document.body.append(probe);
+
+      try {
+        for (const theme of ['light', 'dark']) {
+          document.documentElement.setAttribute('data-theme', theme);
+
+          for (const ground of ['--plass-surface', '--plass-bg-from', '--plass-bg-to']) {
+            const back = paint(`var(${ground})`);
+
+            for (const family of families) {
+              const ratio = contrast(paint(`var(--plass-${family}-ring)`, back), back);
+
+              if (ratio < 3) {
+                failures.push(`${theme} ${family} on ${ground}: ${ratio.toFixed(2)}`);
+              }
+            }
+          }
+        }
+      } finally {
+        probe.remove();
+        document.documentElement.removeAttribute('data-theme');
+      }
+
+      expect(failures).toEqual([]);
     });
   });
 

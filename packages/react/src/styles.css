@@ -608,7 +608,11 @@
   --plass-primary-soft-press: color-mix(in srgb, var(--plass-primary-accent) 26%, transparent);
   --plass-primary-line: color-mix(in srgb, var(--plass-primary-accent) 30%, transparent);
   --plass-primary-line-hover: color-mix(in srgb, var(--plass-primary-accent) 48%, transparent);
-  --plass-primary-ring: color-mix(in srgb, var(--plass-primary-solid) 55%, transparent);
+  /* The focus ring is the accent at full strength, because it is read against
+     the page rather than looked at: the ring has to clear 3:1 against the
+     sheet round a control in both themes, and only the per-theme accent does.
+     `solid` is one colour for both, and amber on white cannot reach it. */
+  --plass-primary-ring: var(--plass-primary-accent);
 
   --plass-secondary-fill: linear-gradient(
     135deg,
@@ -625,7 +629,7 @@
   --plass-secondary-soft-press: color-mix(in srgb, var(--plass-secondary-accent) 26%, transparent);
   --plass-secondary-line: color-mix(in srgb, var(--plass-secondary-accent) 30%, transparent);
   --plass-secondary-line-hover: color-mix(in srgb, var(--plass-secondary-accent) 48%, transparent);
-  --plass-secondary-ring: color-mix(in srgb, var(--plass-secondary-solid) 55%, transparent);
+  --plass-secondary-ring: var(--plass-secondary-accent);
 
   --plass-success-fill: linear-gradient(
     135deg,
@@ -642,7 +646,7 @@
   --plass-success-soft-press: color-mix(in srgb, var(--plass-success-accent) 26%, transparent);
   --plass-success-line: color-mix(in srgb, var(--plass-success-accent) 30%, transparent);
   --plass-success-line-hover: color-mix(in srgb, var(--plass-success-accent) 48%, transparent);
-  --plass-success-ring: color-mix(in srgb, var(--plass-success-solid) 55%, transparent);
+  --plass-success-ring: var(--plass-success-accent);
 
   --plass-warning-fill: linear-gradient(
     135deg,
@@ -659,7 +663,7 @@
   --plass-warning-soft-press: color-mix(in srgb, var(--plass-warning-accent) 28%, transparent);
   --plass-warning-line: color-mix(in srgb, var(--plass-warning-accent) 34%, transparent);
   --plass-warning-line-hover: color-mix(in srgb, var(--plass-warning-accent) 52%, transparent);
-  --plass-warning-ring: color-mix(in srgb, var(--plass-warning-solid) 55%, transparent);
+  --plass-warning-ring: var(--plass-warning-accent);
 
   --plass-danger-fill: linear-gradient(
     135deg,
@@ -676,7 +680,7 @@
   --plass-danger-soft-press: color-mix(in srgb, var(--plass-danger-accent) 26%, transparent);
   --plass-danger-line: color-mix(in srgb, var(--plass-danger-accent) 30%, transparent);
   --plass-danger-line-hover: color-mix(in srgb, var(--plass-danger-accent) 48%, transparent);
-  --plass-danger-ring: color-mix(in srgb, var(--plass-danger-solid) 55%, transparent);
+  --plass-danger-ring: var(--plass-danger-accent);
 
   --plass-info-fill: linear-gradient(
     135deg,
@@ -693,7 +697,7 @@
   --plass-info-soft-press: color-mix(in srgb, var(--plass-info-accent) 26%, transparent);
   --plass-info-line: color-mix(in srgb, var(--plass-info-accent) 30%, transparent);
   --plass-info-line-hover: color-mix(in srgb, var(--plass-info-accent) 48%, transparent);
-  --plass-info-ring: color-mix(in srgb, var(--plass-info-solid) 55%, transparent);
+  --plass-info-ring: var(--plass-info-accent);
   /* The three greys a chart draws its frame with, derived so a project that
      re-tones its border moves the grid with it.
 

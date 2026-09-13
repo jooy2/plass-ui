@@ -41,7 +41,7 @@ order: 2
 | `--plass-{c}-tint` | `solid`을 `--plass-tint-strength`만큼 (라이트 35%, 다크 55%), drop shadow |
 | `--plass-{c}-soft` / `-hover` / `-press` | `accent`를 10% / 18% / 26% |
 | `--plass-{c}-line` / `-hover` | `accent`를 30% / 48% |
-| `--plass-{c}-ring` | `solid`을 55% |
+| `--plass-{c}-ring` | 불투명한 `accent`. 두 테마 모두 표면과 3:1 이상의 대비를 냅니다 |
 
 그래서 **색 계열 추가는 두 번의 편집입니다**. `PlassColor` union에 항목 하나, 그리고 `styles.css`에 세 줄과 테마별 `accent`.
 

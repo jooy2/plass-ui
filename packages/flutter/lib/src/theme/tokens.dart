@@ -175,9 +175,13 @@ class PlassColorFamily {
   /// The same hairline, engaged.
   Color get lineHover => colorMix(accent, softSteps[4]);
 
-  /// The focus ring. Off [solid] rather than off [accent], so it is the same
-  /// ring in both themes.
-  Color get ring => colorMix(solid, 55);
+  /// The focus ring: [accent] at full strength.
+  ///
+  /// A ring is read against the surface round a control rather than looked at,
+  /// so it has to clear 3:1 against that surface in both themes. Only the
+  /// per-theme [accent] does; [solid] is one colour for both, and amber on white
+  /// cannot reach it.
+  Color get ring => accent;
 }
 
 /// Every token a Plass component reads, resolved for one [Brightness].
