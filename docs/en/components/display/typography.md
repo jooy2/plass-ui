@@ -183,7 +183,7 @@ One mechanism at every count: `maxLines` with `TextOverflow.ellipsis`. Which is 
 
 ::: fw flutter
 
-- A `level` of `h1`–`h6` is announced as a heading. Choose the level for what the section _is_ rather than for how big it should look.
+- A `level` of `h1`–`h6` is announced as a heading at that level, so a screen reader can tell a section from the one inside it. Choose the level for what the section _is_ rather than for how big it should look.
 - `lines` really does drop the characters it clips, so pass `semanticsLabel` when the whole string matters to a screen reader.
 - `gutter` is off by default. A component that injects margins is one a layout has to fight, and spacing is the page's decision.
 
@@ -196,7 +196,6 @@ One mechanism at every count: `maxLines` with `TextOverflow.ellipsis`. Which is 
 | React | Flutter | Why |
 | --- | --- | --- |
 | `render` | — | Flutter has no polymorphic element. `level` decides the scale and whether the line is announced as a heading, and the two cannot be separated. |
-| `h1`–`h6` as six outline levels | one heading flag | Flutter's accessibility tree has `header: true` and no depth to go with it. The scale still differs; what does not carry across is the outline's shape. |
 | `children` | the first positional argument | Flutter's name, and `Text`'s shape. `PlTypography.rich` is the span form. |
 | `overline` upper-cases in CSS | upper-cases the string | There is no `text-transform`, so the one case that can be handled is the one where the library owns the characters, which is why `PlTypography.rich` leaves a span's case alone. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |

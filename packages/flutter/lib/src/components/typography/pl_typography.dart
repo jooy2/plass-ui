@@ -141,14 +141,15 @@ const Set<PlTypographyLevel> _muted = <PlTypographyLevel>{
   PlTypographyLevel.overline,
 };
 
-/// The headings, which are the levels that enter the document outline.
-const Set<PlTypographyLevel> _headings = <PlTypographyLevel>{
-  PlTypographyLevel.h1,
-  PlTypographyLevel.h2,
-  PlTypographyLevel.h3,
-  PlTypographyLevel.h4,
-  PlTypographyLevel.h5,
-  PlTypographyLevel.h6,
+/// The headings, which are the levels that enter the document outline, and the
+/// depth each one has in it.
+const Map<PlTypographyLevel, int> _headingLevels = <PlTypographyLevel, int>{
+  PlTypographyLevel.h1: 1,
+  PlTypographyLevel.h2: 2,
+  PlTypographyLevel.h3: 3,
+  PlTypographyLevel.h4: 4,
+  PlTypographyLevel.h5: 5,
+  PlTypographyLevel.h6: 6,
 };
 
 /// Text at one of the library's sizes.
@@ -279,12 +280,13 @@ class PlTypography extends StatelessWidget {
             semanticsLabel: semanticsLabel,
           );
 
-    if (_headings.contains(level)) {
+    final int? headingLevel = _headingLevels[level];
+
+    if (headingLevel != null) {
       // What `<h1>`–`<h6>` buy on the web: a screen reader can list the
-      // headings on a screen and jump between them. Flutter's accessibility
-      // tree has one flag for it rather than six levels, so the level itself
-      // does not carry across — which is why the page says so.
-      text = Semantics(header: true, child: text);
+      // headings on a screen, jump between them, and tell a section from the
+      // one inside it by its level.
+      text = Semantics(header: true, headingLevel: headingLevel, child: text);
     }
 
     if (gutter) {

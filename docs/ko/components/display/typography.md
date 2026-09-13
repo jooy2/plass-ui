@@ -183,7 +183,7 @@ heading은 `semibold`이고, **모든 폰트에 600이 있는 것은 아닙니�
 
 ::: fw flutter
 
-- `level`이 `h1`~`h6`면 heading으로 알려집니다. 얼마나 커 보여야 하는지가 아니라 그 구획이 **무엇인지**로 level을 고르세요.
+- `level`이 `h1`~`h6`면 그 단계의 heading으로 알려지므로, 스크린 리더가 구획과 그 안의 하위 구획을 구분할 수 있습니다. 얼마나 커 보여야 하는지가 아니라 그 구획이 **무엇인지**로 level을 고르세요.
 - `lines`는 잘라낸 글자를 실제로 버립니다. 문장 전체가 스크린리더에 중요하다면 `semanticsLabel`을 넘기세요.
 - `gutter`는 기본적으로 꺼져 있습니다. margin을 주입하는 컴포넌트는 레이아웃이 싸워야 하는 컴포넌트이고, 간격은 페이지의 결정입니다.
 
@@ -196,7 +196,6 @@ heading은 `semibold`이고, **모든 폰트에 600이 있는 것은 아닙니�
 | React | Flutter | 이유 |
 | --- | --- | --- |
 | `render` | — | Flutter에는 요소를 바꿔 끼우는 수단이 없습니다. `level`이 스케일과 heading 여부를 함께 정하고, 둘을 떼어놓을 수 없습니다. |
-| 개요 단계 6개인 `h1`~`h6` | heading 플래그 하나 | Flutter의 접근성 트리에는 `header: true`가 있을 뿐 깊이가 없습니다. 스케일은 그대로 다르고, 넘어오지 않는 것은 개요의 모양입니다. |
 | `children` | 첫 번째 위치 인자 | Flutter의 이름이자 `Text`의 모양입니다. span 형태는 `PlTypography.rich`입니다. |
 | CSS로 대문자화하는 `overline` | 문자열을 대문자화 | `text-transform`이 없으니, 다룰 수 있는 경우는 라이브러리가 글자를 직접 쥐고 있는 경우뿐입니다. `PlTypography.rich`가 span의 대소문자를 건드리지 않는 이유입니다. |
 | `className`, `style` | — | 전달할 클래스 목록도 style 속성도 없습니다. |

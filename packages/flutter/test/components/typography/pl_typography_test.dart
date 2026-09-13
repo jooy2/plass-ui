@@ -87,6 +87,40 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('gives every heading its own level, the way the six elements do', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        const levels = <PlTypographyLevel>[
+          PlTypographyLevel.h1,
+          PlTypographyLevel.h2,
+          PlTypographyLevel.h3,
+          PlTypographyLevel.h4,
+          PlTypographyLevel.h5,
+          PlTypographyLevel.h6,
+        ];
+
+        await tester.pumpWidget(
+          host(
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                for (final level in levels) PlTypography(level.name, level: level),
+              ],
+            ),
+          ),
+        );
+
+        for (var index = 0; index < levels.length; index += 1) {
+          expect(
+            tester.getSemantics(find.text(levels[index].name)).getSemanticsData().headingLevel,
+            index + 1,
+          );
+        }
+
+        handle.dispose();
+      });
+
       testWidgets('does not announce body copy as a heading', (WidgetTester tester) async {
         final handle = tester.ensureSemantics();
         await tester.pumpWidget(host(const PlTypography('Body')));

@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **A `PlTypography` heading carries its level.** `h1` to `h6` were each marked as a heading with no level, so on the web every one was announced as the same kind of heading and a screen reader could not tell a section from the one inside it. Each now carries its level, `1` for `h1` through `6` for `h6`.
+
 - **Each `PlChip` delete affordance is named after its chip.** Every one was named "Remove", so moving along a row of tags read the same word for each one and never said which tag it would remove. When `child` is a `Text`, the name is now the label pack's word followed by the chip's text, such as "Remove design". A chip holding any other widget keeps the word alone, and a `deleteLabel` is still the whole name.
 
 - **The picture open in the `PlGallery` viewer has a name.** The large picture was drawn with no `semanticLabel`, so a screen reader announced an unnamed image. It now carries the item's `semanticLabel`, as its tile does.
