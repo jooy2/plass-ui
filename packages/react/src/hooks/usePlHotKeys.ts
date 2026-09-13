@@ -1,7 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import { editsText, hasHardModifier, isTypingTarget, matchesHotKey } from '../internal/keys.js';
+import {
+  editsText,
+  hasHardModifier,
+  isComposingKey,
+  isTypingTarget,
+  matchesHotKey
+} from '../internal/keys.js';
 import type { PlassHotKeys } from '../types.js';
 
 /** Anything a listener can be attached to, plus the ref a React caller holds. */
@@ -78,7 +84,7 @@ function resolve(target: PlHotKeysTarget | undefined): EventTarget | null {
  * this way since it existed, with a private copy of the matcher — and an
  * application's own shortcuts are the reason it is public.
  *
- * Three rules it shares with the `hotKeys` prop:
+ * Five rules it shares with the `hotKeys` prop:
  *
  * - **A modifier is checked in both directions.** `Enter` does not fire on
  *   `Shift+Enter`, and `Mod+K` does not fire on `Mod+Shift+K`.
@@ -89,6 +95,10 @@ function resolve(target: PlHotKeysTarget | undefined): EventTarget | null {
  * - **These are chords rather than letters.** A single unmodified key is
  *   allowed and is sometimes right (`?` for help), but it is the case
  *   `whileTyping` is about.
+ * - **A chord names the key, not the character it types.** `Alt+K` answers
+ *   the `˚` Option+K types on a Mac, and `?` needs no `Shift+`.
+ * - **A key an input method is composing is left alone**, so the Enter that
+ *   commits a syllable fires nothing.
  *
  * The handlers are read fresh on every keystroke, so an inline object literal
  * costs nothing and a handler closing over current state is never stale. What
@@ -137,7 +147,7 @@ export function usePlHotKeys(
       // Something closer to the reader has already answered this key. The same
       // rule the `hotKeys` prop follows, read from the other end: a field's own
       // binding wins over a page's.
-      if (key.defaultPrevented) {
+      if (key.defaultPrevented || isComposingKey(key)) {
         return;
       }
 

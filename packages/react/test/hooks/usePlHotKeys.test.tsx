@@ -48,6 +48,60 @@ describe('usePlHotKeys', () => {
       expect(run).not.toHaveBeenCalled();
     });
 
+    it('answers a letter that Option turned into a symbol', async () => {
+      const run = vi.fn();
+
+      await render(<Bound hotKeys={{ 'Alt+K': run }} />);
+
+      // What a Mac sends for Option+K: the key is the character it typed.
+      press(document.body, '˚', { altKey: true, code: 'KeyK' });
+
+      expect(run).toHaveBeenCalledTimes(1);
+    });
+
+    it('answers a digit that Shift turned into a symbol', async () => {
+      const run = vi.fn();
+
+      await render(<Bound hotKeys={{ 'Mod+Shift+1': run }} />);
+
+      press(document.body, '!', { metaKey: true, shiftKey: true, code: 'Digit1' });
+      press(document.body, '!', { ctrlKey: true, shiftKey: true, code: 'Digit1' });
+
+      expect(run).toHaveBeenCalledTimes(1);
+    });
+
+    it('answers a symbol that takes Shift to type', async () => {
+      const run = vi.fn();
+
+      await render(<Bound hotKeys={{ '?': run }} />);
+
+      press(document.body, '?', { shiftKey: true, code: 'Slash' });
+
+      expect(run).toHaveBeenCalledTimes(1);
+    });
+
+    it('reads the printed letter on a layout that moves it', async () => {
+      const run = vi.fn();
+
+      await render(<Bound hotKeys={{ 'Mod+Q': run }} />);
+
+      // AZERTY: the key where a Q sits on QWERTY prints an A.
+      press(document.body, 'a', { metaKey: true, code: 'KeyQ' });
+      press(document.body, 'a', { ctrlKey: true, code: 'KeyQ' });
+
+      expect(run).not.toHaveBeenCalled();
+    });
+
+    it('leaves a key an input method is still composing', async () => {
+      const run = vi.fn();
+
+      await render(<Bound hotKeys={{ Escape: run }} />);
+
+      press(document.body, 'Escape', { isComposing: true });
+
+      expect(run).not.toHaveBeenCalled();
+    });
+
     it('answers each chord in the map', async () => {
       const save = vi.fn();
       const cancel = vi.fn();

@@ -12,6 +12,10 @@
 
 ### Fixed
 
+- **A shortcut answers the key it names, not only the character that key typed.** `usePlHotKeys` and a field's `hotKeys` compared `event.key` alone, so `Alt+K` never fired on a Mac, where Option+K types `˚`, `Mod+Shift+1` never fired because Shift turns the 1 into `!`, and `?` failed the Shift check it needs to be typed at all, while `PlHotKeys` drew those caps as if they worked. A letter or a digit is now also matched by its physical key when a modifier turned it into something else, and a symbol that takes Shift ignores Shift. On a layout that moves the letters, the printed letter still wins.
+
+- **Shortcuts leave a key an input method is composing alone.** The Enter that commits a Korean syllable ran an `Enter` binding and, being consumed, broke the syllable, and the Escape that cancels a Japanese conversion closed a panel. Both hooks now skip a key while `isComposing` is set or the browser reports key code 229.
+
 - **A nested `PlassProvider` changes only the words its `labels` name.** Its `labels` replaced the whole set from the provider around it, so a provider that renamed one button inside a Korean application put every other word back into English. The two sets are now merged per word, as the locales guide describes.
 
 - **`PlConfirmProvider` and `PlTimelineChart` say the label pack's words.** The confirm dialog's Cancel and Confirm, and the start and end headings of a timeline's table, were written in English whatever `PlassProvider` said, while `PlPopconfirm` beside them already read the pack. Both now read `cancel`, `confirm`, `start` and `end`, and a component's own prop still wins.

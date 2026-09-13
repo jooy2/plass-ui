@@ -104,10 +104,27 @@ const domKeys: Record<string, string> = {
  */
 export interface PlassKeyState {
   key: string;
+  /** The physical key, for when `key` is what a modifier turned it into. */
+  code?: string;
   metaKey: boolean;
   ctrlKey: boolean;
   shiftKey: boolean;
   altKey: boolean;
+}
+
+/**
+ * Whether the key belongs to text an input method is still composing.
+ *
+ * The Enter that commits a Korean syllable and the Escape that cancels a
+ * Japanese conversion are the input method's keys, not the page's: answering
+ * one fires a binding the reader did not press, and consuming it breaks the
+ * word they were typing. `229` is what a browser reports for such a key where
+ * `isComposing` is not set.
+ */
+export function isComposingKey(
+  event: { keyCode?: number; isComposing?: boolean } & { nativeEvent?: { isComposing?: boolean } }
+): boolean {
+  return Boolean(event.nativeEvent?.isComposing ?? event.isComposing) || event.keyCode === 229;
 }
 
 /**
@@ -210,11 +227,17 @@ export function matchesHotKey(event: PlassKeyState, chord: string): boolean {
   const key = domKeys[last] ?? last;
   const mod = detectOS() === 'mac' ? event.metaKey : event.ctrlKey;
 
+  // A symbol is typed with Shift on most layouts (`?`, `+`, `!`), so for one
+  // that the chord did not pair with Shift, Shift is how the key was reached
+  // rather than a modifier the reader added.
+  const symbol = key.length === 1 && !/[a-z0-9]/.test(key);
+  const shift = symbol && !wanted.has('shift') ? false : event.shiftKey;
+
   if (wanted.has('mod') !== mod) {
     return false;
   }
 
-  if (wanted.has('shift') !== event.shiftKey || wanted.has('alt') !== event.altKey) {
+  if (wanted.has('shift') !== shift || wanted.has('alt') !== event.altKey) {
     return false;
   }
 
@@ -226,7 +249,21 @@ export function matchesHotKey(event: PlassKeyState, chord: string): boolean {
     }
   }
 
-  return event.key.toLowerCase() === key;
+  const typed = event.key.toLowerCase();
+
+  if (typed === key) {
+    return true;
+  }
+
+  // What Option or Shift turned a letter or a digit into: `Alt+K` on a Mac
+  // types `˚` and `Mod+Shift+1` types `!`. The physical key is read only then,
+  // and only when what was typed is not itself a letter or a digit, so on a
+  // layout that moves the letters the printed one still wins.
+  if (/^[a-z0-9]$/.test(key) && !/^[a-z0-9]$/.test(typed) && event.code) {
+    return event.code === (/[a-z]/.test(key) ? `Key${key.toUpperCase()}` : `Digit${key}`);
+  }
+
+  return false;
 }
 
 /**
@@ -252,7 +289,7 @@ export function hotKeyHandler<E extends Element>(
   return (event) => {
     onKeyDown?.(event);
 
-    if (!hotKeys || event.defaultPrevented) {
+    if (!hotKeys || event.defaultPrevented || isComposingKey(event)) {
       return;
     }
 

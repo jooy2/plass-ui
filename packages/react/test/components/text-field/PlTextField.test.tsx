@@ -460,6 +460,17 @@ describe('PlTextField', () => {
       expect(save).toHaveBeenCalledTimes(1);
     });
 
+    it('leaves the Enter that commits a composed syllable to the input method', async () => {
+      const save = vi.fn();
+      const screen = await render(<PlTextField label="Note" hotKeys={{ Enter: save }} />);
+      const field = screen.getByRole('textbox').element();
+
+      press(field, 'Enter', { isComposing: true });
+      press(field, 'Enter', { keyCode: 229 });
+
+      expect(save).not.toHaveBeenCalled();
+    });
+
     it('reads the same spellings a key cap is written with', async () => {
       const cancel = vi.fn();
       const screen = await render(<PlTextField label="Note" hotKeys={{ Esc: cancel }} />);

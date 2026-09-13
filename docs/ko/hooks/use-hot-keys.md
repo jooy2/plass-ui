@@ -55,11 +55,13 @@ chord는 [`PlHotKeys`](../components/display/hot-keys)가 쓰는 방식 그대�
 
 ## 규칙
 
-필드의 `hotKeys` prop과 공유하는 세 가지입니다.
+필드의 `hotKeys` prop과 공유하는 다섯 가지입니다.
 
 - **modifier는 양방향으로 검사합니다.** `Enter`는 `Shift+Enter`에서 발동하지 않고, `Mod+K`는 `Mod+Shift+K`에서 발동하지 않습니다. 단축키를 바인딩하는 것과 키를 바인딩하는 것의 차이입니다.
 - **맞은 chord는 소비됩니다.** `preventDefault()`. 그래서 브라우저 자신의 `Mod+K` 검색창이 함께 열리지 않습니다. 반대편에서 읽으면, **이미** 소비된 이벤트는 건드리지 않습니다. 필드 자신의 `hotKeys` 맵이 페이지의 것을 이깁니다.
 - **글자가 아니라 chord입니다.** modifier 없는 키 하나도 허용되고 때로는 그것이 맞습니다. `whileTyping`이 다루는 것이 바로 그 경우입니다.
+- **chord는 키가 입력하는 문자가 아니라 키의 이름입니다.** Mac에서 Option+K가 `˚`를 입력해도 `Alt+K`가 응답하고, Shift가 1을 `!`로 바꿔도 `Mod+Shift+1`이 응답합니다. `?`처럼 Shift를 눌러야 나오는 기호는 앞에 `Shift+`를 쓰지 않아도 됩니다.
+- **입력기가 조합 중인 키는 건드리지 않습니다.** 한글 음절을 확정하는 Enter와 일본어 변환을 취소하는 Escape는 입력기의 키이므로 어느 바인딩도 발동하지 않습니다.
 
 ### whileTyping
 

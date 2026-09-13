@@ -55,11 +55,13 @@ Chords are written the way [`PlHotKeys`](../components/display/hot-keys) writes 
 
 ## The rules
 
-Three of them, shared with the `hotKeys` prop on a field:
+Five of them, shared with the `hotKeys` prop on a field:
 
 - **A modifier is checked in both directions.** `Enter` does not fire on `Shift+Enter`, and `Mod+K` does not fire on `Mod+Shift+K`. That is the difference between binding a shortcut and binding a key.
 - **A chord that matches is consumed.** `preventDefault()`, so the browser's own `Mod+K` search bar does not also open. Read from the other end, an event that is **already** consumed is left alone. A field's own `hotKeys` map wins over a page's.
 - **These are chords rather than letters.** A single unmodified key is allowed and is sometimes right, and that is what `whileTyping` is about.
+- **A chord names the key, not the character it types.** `Alt+K` answers on a Mac, where Option+K types `˚`, and `Mod+Shift+1` answers the `!` that Shift makes of the 1. A symbol that takes Shift to reach, such as `?`, does not need `Shift+` written in front of it.
+- **A key an input method is composing is left alone.** The Enter that commits a Korean syllable and the Escape that cancels a Japanese conversion belong to the input method, so neither fires a binding.
 
 ### whileTyping
 
