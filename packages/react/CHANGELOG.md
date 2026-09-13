@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- **`PlScatterChart` and `PlTimelineChart` no longer redraw on every pixel the pointer moves.** Both stored the pointer's offset for a tooltip mode that only a chart of columns reads, so each move re-laid the whole chart out and re-rendered every mark. They now re-render only when the nearest mark changes.
+
 - **`plass-ui/css/<component>.css` also scans the components a component renders.** Each manifest named only the component's own folder, but Tailwind scans files, so a project that registered `icon-button.css` alone got none of the utilities spelled in `PlButton`, and the date pickers and charts lost the ones in `PlButton` and `PlBox`. A manifest now lists every component folder its modules reach, directly or through the library's internals.
 
 - **Hidden content is inert under React 18 as well.** A covered `PlSpoiler`, a collapsed `PlPill`'s details, a closing or minimized `PlWindowPane` and a `disabled` `PlCalendar` set `inert`, which React 18 does not know and dropped with a warning. The content stayed in the tab order and on the accessibility tree, and a disabled calendar still took a pick. The attribute is now written in the form each supported React version keeps.

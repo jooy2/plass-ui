@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { describe, expect, it } from 'vitest';
 import { PlScatterChart } from 'plass-ui';
 import { render } from 'vitest-browser-react';
@@ -72,6 +73,44 @@ describe('PlScatterChart', () => {
       // the range the data is actually in.
       expect(ticks).toContain('30');
       expect(ticks).not.toContain('Q1');
+    });
+  });
+
+  describe('the pointer', () => {
+    it('renders again only when the nearest mark changes', async () => {
+      let commits = 0;
+
+      const screen = await render(
+        <React.Profiler id="chart" onRender={() => (commits += 1)}>
+          <PlScatterChart label="Spend" series={SPEND} />
+        </React.Profiler>
+      );
+
+      const host = screen.getByRole('img', { name: 'Spend' }).element() as HTMLElement;
+      const box = host.getBoundingClientRect();
+      const move = (x: number, y: number) =>
+        host.dispatchEvent(
+          new PointerEvent('pointermove', {
+            bubbles: true,
+            clientX: box.left + x,
+            clientY: box.top + y
+          })
+        );
+
+      // The top-left corner of the plot is far from every point, so no mark is
+      // near the pointer at any of these pixels.
+      move(2, 2);
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+
+      const settled = commits;
+
+      for (let pixel = 3; pixel < 13; pixel += 1) {
+        move(pixel, pixel);
+      }
+
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+
+      expect(commits).toBe(settled);
     });
   });
 
