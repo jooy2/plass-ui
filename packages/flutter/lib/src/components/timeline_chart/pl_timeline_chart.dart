@@ -131,6 +131,9 @@ class PlTimelineChart extends StatelessWidget {
     );
 
     final List<String> tickTexts = formatTimeTicks(scale.ticks, scale.unit, names);
+    // An axis of hours over two days has to say which day each span is on, and
+    // the tooltip and the summary have to say it the same way.
+    final bool withDate = timeNeedsDate(scale.ticks, scale.unit);
     final ticksByValue = <double, String>{
       for (int i = 0; i < scale.ticks.length; i += 1) scale.ticks[i]: tickTexts[i],
     };
@@ -255,20 +258,26 @@ class PlTimelineChart extends StatelessWidget {
           return '';
         }
 
-        return '${formatTimeValue(one.from, scale.unit, names)} – '
-            '${formatTimeValue(one.to, scale.unit, names)}';
+        return '${formatTimeValue(one.from, scale.unit, names, withDate: withDate)} – '
+            '${formatTimeValue(one.to, scale.unit, names, withDate: withDate)}';
       },
       // The span names itself when it can, and the row is then the second line
       // rather than a repeat of the first.
       markHeading: (PlassChartMark mark) => spanAt(mark)?.span.label ?? rowNames[mark.series],
-      semanticValue: () => _summary(rows, rowNames, scale.unit, names),
+      semanticValue: () => _summary(rows, rowNames, scale.unit, names, withDate),
       paint: (Canvas canvas, PlassChartLayout layout) =>
           _paint(canvas, layout, rows, colors, tokens),
     );
   }
 
   /// Every span, row by row, as the two instants it runs between.
-  String _summary(List<_Row> rows, List<String> rowNames, PlChartTimeUnit unit, PlDateNames names) {
+  String _summary(
+    List<_Row> rows,
+    List<String> rowNames,
+    PlChartTimeUnit unit,
+    PlDateNames names,
+    bool withDate,
+  ) {
     final parts = <String>[];
 
     for (int i = 0; i < rows.length; i += 1) {
@@ -280,7 +289,8 @@ class PlTimelineChart extends StatelessWidget {
         }
 
         final String when =
-            '${formatTimeValue(one.from, unit, names)} – ${formatTimeValue(one.to, unit, names)}';
+            '${formatTimeValue(one.from, unit, names, withDate: withDate)} – '
+            '${formatTimeValue(one.to, unit, names, withDate: withDate)}';
 
         spans.add(one.span.label == null ? when : '${one.span.label} $when');
       }

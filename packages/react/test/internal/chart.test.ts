@@ -22,10 +22,14 @@ import {
   chartPalette,
   extentOf,
   fitCategoryLabels,
+  formatTimeTicks,
+  formatTimeValue,
   linePath,
   ringPath,
   seriesColor,
   tickStride,
+  timeNeedsDate,
+  timeScale,
   toValue,
   toValues,
   truncate,
@@ -249,6 +253,50 @@ describe('bandScale', () => {
 
   it('narrows the marks against the slot by the ratio', () => {
     expect(bandScale(4, 400, 0.5).band).toBeLessThan(bandScale(4, 400, 1).band);
+  });
+});
+
+describe('the date on an axis of hours', () => {
+  const hours = (from: Date, to: Date) => timeScale({ min: from.getTime(), max: to.getTime() });
+
+  it('is left off an axis inside one day', () => {
+    const scale = hours(new Date(2026, 0, 5, 9), new Date(2026, 0, 5, 17));
+
+    expect(scale.unit).toBe('hour');
+    expect(timeNeedsDate(scale.ticks, scale.unit)).toBe(false);
+    expect(formatTimeTicks(scale.ticks, scale.unit, 'en-US').slice(1)).not.toContainEqual(
+      expect.stringMatching(/Jan/)
+    );
+  });
+
+  it('is left off an axis that ends at the midnight after its day', () => {
+    expect(
+      timeNeedsDate([new Date(2026, 0, 5, 0).getTime(), new Date(2026, 0, 6, 0).getTime()], 'hour')
+    ).toBe(false);
+  });
+
+  it('is written on every tick of an axis that crosses midnight', () => {
+    const scale = hours(new Date(2026, 0, 5, 9), new Date(2026, 0, 6, 17));
+
+    expect(scale.unit).toBe('hour');
+    expect(timeNeedsDate(scale.ticks, scale.unit)).toBe(true);
+
+    for (const text of formatTimeTicks(scale.ticks, scale.unit, 'en-US')) {
+      expect(text).toMatch(/Jan [56].*\d{2}:00/);
+    }
+  });
+
+  it('is written in front of one time when asked for', () => {
+    const at = new Date(2026, 0, 6, 9).getTime();
+
+    expect(formatTimeValue(at, 'hour', 'en-US')).toBe('09:00');
+    expect(formatTimeValue(at, 'hour', 'en-US', true)).toMatch(/^Jan 6, 2026.*09:00$/);
+  });
+
+  it('never applies to a unit that already names the day', () => {
+    expect(
+      timeNeedsDate([new Date(2026, 0, 1).getTime(), new Date(2026, 1, 1).getTime()], 'day')
+    ).toBe(false);
   });
 });
 

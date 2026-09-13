@@ -1549,28 +1549,57 @@ TimeScale timeScale(ChartExtent? extent, {double? min, double? max, int tickCoun
   );
 }
 
+/// Whether an axis stepping in hours, minutes or seconds runs over more than
+/// one calendar day, and so has to write the date beside each time.
+///
+/// `09:00 – 17:00` on an axis two days long could be either day. An axis that
+/// ends exactly at midnight has not started the next day, so its last tick does
+/// not count on its own.
+bool timeNeedsDate(List<double> ticks, PlChartTimeUnit unit) {
+  if (unit != PlChartTimeUnit.second &&
+      unit != PlChartTimeUnit.minute &&
+      unit != PlChartTimeUnit.hour) {
+    return false;
+  }
+
+  if (ticks.length < 2) {
+    return false;
+  }
+
+  return _floorTime(ticks.first.round(), PlChartTimeUnit.day) !=
+      _floorTime(ticks.last.round() - 1, PlChartTimeUnit.day);
+}
+
 /// One instant on a time axis, written unambiguously.
 ///
 /// Off [PlDateNames]' own month names rather than off a platform formatter,
 /// which is the same trade the date pickers make: this package takes no
 /// dependency on `package:intl`, and an application that has one already can
 /// hand the names over in three lines.
+///
+/// [withDate] puts the date in front of a time, for an axis [timeNeedsDate].
 String formatTimeValue(
   double value,
   PlChartTimeUnit unit,
   PlDateNames names, {
   bool withYear = true,
+  bool withDate = false,
 }) {
   final DateTime at = DateTime.fromMillisecondsSinceEpoch(value.round());
   final String hh = at.hour.toString().padLeft(2, '0');
   final String mm = at.minute.toString().padLeft(2, '0');
+  final String date = !withDate
+      ? ''
+      : withYear
+      ? '${names.monthsShort[at.month - 1]} ${at.day}, ${at.year}, '
+      : '${names.monthsShort[at.month - 1]} ${at.day}, ';
 
   switch (unit) {
     case PlChartTimeUnit.second:
-      return '$hh:$mm:${at.second.toString().padLeft(2, '0')}';
+      return '$date$hh:$mm:${at.second.toString().padLeft(2, '0')}';
     case PlChartTimeUnit.minute:
     case PlChartTimeUnit.hour:
-      return '$hh:$mm';
+      return '$date$hh:$mm';
     case PlChartTimeUnit.year:
       return '${at.year}';
     case PlChartTimeUnit.month:
@@ -1598,14 +1627,19 @@ String formatTimeValue(
 /// So: an axis inside one year names it once, on the first tick, which is the
 /// one tick a stride never removes. An axis that crosses a year names it on
 /// every tick, so whichever ones survive are each unambiguous.
+///
+/// The date on an axis of hours follows the second rule for the same reason:
+/// an axis that crosses midnight writes it on every tick, since the midnight
+/// tick is as likely to be dropped as the one a year was riding on.
 List<String> formatTimeTicks(List<double> ticks, PlChartTimeUnit unit, PlDateNames names) {
   final years = <int>{
     for (final double tick in ticks) DateTime.fromMillisecondsSinceEpoch(tick.round()).year,
   };
   final bool always = years.length > 1;
+  final bool withDate = timeNeedsDate(ticks, unit);
 
   return <String>[
     for (int i = 0; i < ticks.length; i += 1)
-      formatTimeValue(ticks[i], unit, names, withYear: always || i == 0),
+      formatTimeValue(ticks[i], unit, names, withYear: always || i == 0, withDate: withDate),
   ];
 }

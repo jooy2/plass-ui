@@ -206,6 +206,48 @@ void main() {
     });
   });
 
+  group('the date on an axis of hours', () {
+    double at(int day, int hour) => DateTime(2026, 1, day, hour).millisecondsSinceEpoch.toDouble();
+
+    test('is left off an axis inside one day', () {
+      final TimeScale scale = timeScale(ChartExtent(at(5, 9), at(5, 17)));
+
+      expect(scale.unit, PlChartTimeUnit.hour);
+      expect(timeNeedsDate(scale.ticks, scale.unit), isFalse);
+      expect(
+        formatTimeTicks(scale.ticks, scale.unit, PlDateNames.english).skip(1),
+        everyElement(isNot(contains('Jan'))),
+      );
+    });
+
+    test('is left off an axis that ends at the midnight after its day', () {
+      expect(timeNeedsDate(<double>[at(5, 0), at(6, 0)], PlChartTimeUnit.hour), isFalse);
+    });
+
+    test('is written on every tick of an axis that crosses midnight', () {
+      final TimeScale scale = timeScale(ChartExtent(at(5, 9), at(6, 17)));
+
+      expect(scale.unit, PlChartTimeUnit.hour);
+      expect(timeNeedsDate(scale.ticks, scale.unit), isTrue);
+      expect(
+        formatTimeTicks(scale.ticks, scale.unit, PlDateNames.english),
+        everyElement(matches(RegExp(r'^Jan [56], .*\d{2}:00$'))),
+      );
+    });
+
+    test('is written in front of one time when asked for', () {
+      expect(formatTimeValue(at(6, 9), PlChartTimeUnit.hour, PlDateNames.english), '09:00');
+      expect(
+        formatTimeValue(at(6, 9), PlChartTimeUnit.hour, PlDateNames.english, withDate: true),
+        'Jan 6, 2026, 09:00',
+      );
+    });
+
+    test('never applies to a unit that already names the day', () {
+      expect(timeNeedsDate(<double>[at(1, 0), at(31, 0)], PlChartTimeUnit.day), isFalse);
+    });
+  });
+
   group('bandScale', () {
     test('centres a mark in its slot', () {
       final band = BandScale(4, 400, 0.5);

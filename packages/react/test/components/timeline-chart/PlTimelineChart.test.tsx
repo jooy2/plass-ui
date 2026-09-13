@@ -112,6 +112,55 @@ describe('PlTimelineChart', () => {
       expect(texts.every((one) => /\d/.test(one) && !/\d{6}/.test(one))).toBe(true);
     });
 
+    it('writes the date with each time when the hours run over more than one day', async () => {
+      const shift = (day: number) => ({
+        start: new Date(2026, 0, day, 9),
+        end: new Date(2026, 0, day, 17)
+      });
+      const screen = await render(
+        <PlTimelineChart
+          label="Shifts"
+          locale="en-US"
+          series={[{ name: 'Desk', data: [shift(5), shift(6)] }]}
+        />
+      );
+      const table = screen.getByRole('table', { name: 'Shifts' });
+
+      await expect.element(table).toBeInTheDocument();
+
+      const cells = [...table.element().querySelectorAll('tbody td')].map(
+        (one) => one.textContent ?? ''
+      );
+
+      expect(cells).toEqual([
+        expect.stringMatching(/Jan 5.*09:00/),
+        expect.stringMatching(/Jan 5.*17:00/),
+        expect.stringMatching(/Jan 6.*09:00/),
+        expect.stringMatching(/Jan 6.*17:00/)
+      ]);
+
+      const ticks = [
+        ...screen.getByRole('img', { name: 'Shifts' }).element().querySelectorAll('text')
+      ]
+        .map((one) => one.textContent ?? '')
+        .filter((one) => one !== 'Desk');
+
+      expect(ticks.length).toBeGreaterThan(1);
+      expect(ticks.every((one) => /Jan \d+/.test(one))).toBe(true);
+
+      await screen.rerender(
+        <PlTimelineChart
+          label="Shifts"
+          locale="en-US"
+          series={[{ name: 'Desk', data: [shift(5)] }]}
+        />
+      );
+
+      await expect
+        .poll(() => [...table.element().querySelectorAll('tbody td')].map((one) => one.textContent))
+        .toEqual(['09:00', '17:00']);
+    });
+
     it('takes its own ends over the data', async () => {
       const screen = await render(
         <PlTimelineChart label="Plan" series={PLAN} min={at(1)} max={at(60)} />

@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **A `PlTimelineChart` whose hours run over more than one day writes the date with each time.** An axis stepping in hours, minutes or seconds wrote only the time, so on a range of two days `09:00` could be either day, and the tooltip and the table wrote `09:00 – 17:00` with no day either. When the axis crosses midnight, every tick, the tooltip and the table now write the date in front of the time. A range inside one day is unchanged.
+
 - **A treemap's hidden table names each tile under its own group.** `PlHeatmapChart` with `shape="treemap"` wrote its data table as a grid, with the first group's tile names as the column headings, so a screen reader heard the second group's tiles under the first group's names: "Tooling, Servers, 400". The table is now a group of rows per series, headed by the group's name, with a row per tile giving its own name and value.
 
 - **A `PlScatterChart` whose `x` values are dates ticks its x axis like a calendar.** The axis ran on the dates' milliseconds with the same 1-2-5 steps a count gets, so it was labelled `1.7T`. It now takes the steps and the labels of a time axis, as `PlTimelineChart` does, and `xAxis.tickFormat` is handed each tick as a `Date` rather than as a number.

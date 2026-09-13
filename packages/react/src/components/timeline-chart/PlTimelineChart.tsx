@@ -19,6 +19,7 @@ import {
   markGap,
   resolveColor,
   seriesColor,
+  timeNeedsDate,
   timeScale,
   toNumber,
   type TimeScale
@@ -132,6 +133,10 @@ export function PlTimelineChart({
     [scale, locale]
   );
 
+  // An axis of hours over two days has to say which day each span is on, and
+  // the tooltip and the table have to say it the same way.
+  const withDate = timeNeedsDate(scale.ticks, scale.unit);
+
   const colors = React.useMemo(() => series.map((row, index) => seriesColor(row, index)), [series]);
 
   /* One synthetic series, with an entry per row.
@@ -211,10 +216,11 @@ export function PlTimelineChart({
           // A duration, which is the one number a span has. It is what a
           // caller's own `tooltip.render` gets handed.
           value: one.to - one.from,
-          formatted: `${formatTimeValue(one.from, scale.unit, locale)} – ${formatTimeValue(
+          formatted: `${formatTimeValue(one.from, scale.unit, locale, withDate)} – ${formatTimeValue(
             one.to,
             scale.unit,
-            locale
+            locale,
+            withDate
           )}`
         }
       ];
@@ -223,7 +229,7 @@ export function PlTimelineChart({
       // rather than a repeat of the first.
       return { heading: one.span.label ?? names[mark.series], items };
     },
-    [spans, names, colors, scale.unit, locale]
+    [spans, names, colors, scale.unit, locale, withDate]
   );
 
   return (
@@ -253,6 +259,7 @@ export function PlTimelineChart({
           series={series}
           spans={spans}
           unit={scale.unit}
+          withDate={withDate}
           label={props.label}
           corner={xAxis?.label}
           locale={locale}
@@ -395,6 +402,7 @@ interface TableProps {
   series: readonly PlassTimelineSeries[];
   spans: readonly (readonly Placed[])[];
   unit: TimeScale['unit'];
+  withDate: boolean;
   label?: string;
   corner?: React.ReactNode;
   locale?: string;
@@ -408,7 +416,17 @@ interface TableProps {
  * be inventing a relationship. Each span gets a line of its own, under the name
  * of the row it belongs to.
  */
-function TimelineTable({ id, names, series, spans, unit, label, corner, locale }: TableProps) {
+function TimelineTable({
+  id,
+  names,
+  series,
+  spans,
+  unit,
+  withDate,
+  label,
+  corner,
+  locale
+}: TableProps) {
   const words = useLabels();
   const titled = series.some((row) => row.data.some((span) => span.label !== undefined));
 
@@ -429,8 +447,8 @@ function TimelineTable({ id, names, series, spans, unit, label, corner, locale }
             <tr key={`${index}-${at}`}>
               <th scope="row">{names[index]}</th>
               {titled ? <td>{series[index].data[at]?.label ?? ''}</td> : null}
-              <td>{one ? formatTimeValue(one.from, unit, locale) : ''}</td>
-              <td>{one ? formatTimeValue(one.to, unit, locale) : ''}</td>
+              <td>{one ? formatTimeValue(one.from, unit, locale, withDate) : ''}</td>
+              <td>{one ? formatTimeValue(one.to, unit, locale, withDate) : ''}</td>
             </tr>
           ))
         )}

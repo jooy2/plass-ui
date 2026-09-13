@@ -911,13 +911,24 @@ export function timeScale(
  * already knows every month name in every language, and a table of them in this
  * repository would be a worse copy that goes stale.
  */
-function timeParts(unit: TimeUnit, withYear: boolean): Intl.DateTimeFormatOptions {
-  if (unit === 'second') {
-    return { hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' };
-  }
+function timeParts(
+  unit: TimeUnit,
+  withYear: boolean,
+  withDate = false
+): Intl.DateTimeFormatOptions {
+  if (unit === 'second' || unit === 'minute' || unit === 'hour') {
+    const clock: Intl.DateTimeFormatOptions =
+      unit === 'second'
+        ? { hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }
+        : { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' };
 
-  if (unit === 'minute' || unit === 'hour') {
-    return { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' };
+    if (!withDate) {
+      return clock;
+    }
+
+    const date: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', ...clock };
+
+    return withYear ? { ...date, year: 'numeric' } : date;
   }
 
   if (unit === 'year') {
@@ -932,9 +943,37 @@ function timeParts(unit: TimeUnit, withYear: boolean): Intl.DateTimeFormatOption
   return withYear ? { ...parts, year: 'numeric' } : parts;
 }
 
-/** One instant on a time axis, written unambiguously — for a tooltip or a table. */
-export function formatTimeValue(value: number, unit: TimeUnit, locale?: string): string {
-  return dateFormatter(locale, timeParts(unit, true)).format(new Date(value));
+/**
+ * Whether an axis stepping in hours, minutes or seconds runs over more than one
+ * calendar day, and so has to write the date beside each time.
+ *
+ * `09:00 – 17:00` on an axis two days long could be either day. An axis that
+ * ends exactly at midnight has not started the next day, so its last tick does
+ * not count on its own.
+ */
+export function timeNeedsDate(ticks: readonly number[], unit: TimeUnit): boolean {
+  if (unit !== 'second' && unit !== 'minute' && unit !== 'hour') {
+    return false;
+  }
+
+  if (ticks.length < 2) {
+    return false;
+  }
+
+  return floorTime(ticks[0], 'day') !== floorTime(ticks[ticks.length - 1] - 1, 'day');
+}
+
+/**
+ * One instant on a time axis, written unambiguously — for a tooltip or a table.
+ * `withDate` puts the date in front of a time, for an axis `timeNeedsDate`.
+ */
+export function formatTimeValue(
+  value: number,
+  unit: TimeUnit,
+  locale?: string,
+  withDate = false
+): string {
+  return dateFormatter(locale, timeParts(unit, true, withDate)).format(new Date(value));
 }
 
 /**
@@ -951,6 +990,10 @@ export function formatTimeValue(value: number, unit: TimeUnit, locale?: string):
  * one tick a stride never removes. An axis that crosses a year names it on
  * every tick, so whichever ones survive are each unambiguous. Wider labels mean
  * a heavier stride, and a heavier stride is the better failure.
+ *
+ * The date on an axis of hours follows the second rule for the same reason: an
+ * axis that crosses midnight writes it on every tick, since the midnight tick
+ * is as likely to be dropped as the one a year was riding on.
  */
 export function formatTimeTicks(
   ticks: readonly number[],
@@ -959,9 +1002,10 @@ export function formatTimeTicks(
 ): string[] {
   const years = new Set(ticks.map((tick) => new Date(tick).getFullYear()));
   const always = years.size > 1;
+  const withDate = timeNeedsDate(ticks, unit);
 
   return ticks.map((tick, index) =>
-    dateFormatter(locale, timeParts(unit, always || index === 0)).format(new Date(tick))
+    dateFormatter(locale, timeParts(unit, always || index === 0, withDate)).format(new Date(tick))
   );
 }
 

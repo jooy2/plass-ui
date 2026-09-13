@@ -49,6 +49,42 @@ void main() {
       expect(node.value, contains('Build: Implementation Jan 8'));
     });
 
+    testWidgets('reads out the day with each time when the hours run over more than one day', (
+      WidgetTester tester,
+    ) async {
+      PlassTimelinePoint shift(int day) => PlassTimelinePoint(
+        start: PlassChartCategory.date(DateTime(2026, 1, day, 9)),
+        end: PlassChartCategory.date(DateTime(2026, 1, day, 17)),
+      );
+
+      await _pump(
+        tester,
+        PlTimelineChart(
+          series: <PlassTimelineSeries>[
+            PlassTimelineSeries(name: 'Desk', data: <PlassTimelinePoint>[shift(5), shift(6)]),
+          ],
+          semanticLabel: 'Shifts',
+        ),
+      );
+
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('Shifts')).value,
+        'Desk: Jan 5, 2026, 09:00 – Jan 5, 2026, 17:00; Jan 6, 2026, 09:00 – Jan 6, 2026, 17:00',
+      );
+
+      await _pump(
+        tester,
+        PlTimelineChart(
+          series: <PlassTimelineSeries>[
+            PlassTimelineSeries(name: 'Desk', data: <PlassTimelinePoint>[shift(5)]),
+          ],
+          semanticLabel: 'Shifts',
+        ),
+      );
+
+      expect(tester.getSemantics(find.bySemanticsLabel('Shifts')).value, 'Desk: 09:00 – 17:00');
+    });
+
     testWidgets('draws a span the caller wrote backwards either way round', (
       WidgetTester tester,
     ) async {
