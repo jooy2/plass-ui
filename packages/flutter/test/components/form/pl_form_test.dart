@@ -223,6 +223,56 @@ void main() {
         expect(find.text('email is required'), findsNothing);
       });
 
+      testWidgets('checks every change after a submit', (WidgetTester tester) async {
+        final GlobalKey<PlFormState> key = GlobalKey<PlFormState>();
+
+        await tester.pumpWidget(
+          host(
+            PlForm(
+              key: key,
+              children: <Widget>[
+                FormField<String>(
+                  initialValue: '',
+                  validator: (String? value) =>
+                      value == null || value.isEmpty ? 'email is required' : null,
+                  builder: (FormFieldState<String> state) => Column(
+                    children: <Widget>[
+                      GestureDetector(
+                        onTap: () => state.didChange(state.value!.isEmpty ? 'a@b.c' : ''),
+                        child: const Text('Type'),
+                      ),
+                      if (state.errorText != null) Text(state.errorText!),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            width: 400,
+            height: 300,
+          ),
+        );
+
+        // Nothing is said while the reader is still on their first go.
+        await tester.tap(find.text('Type'));
+        await tester.tap(find.text('Type'));
+        await tester.pump();
+        expect(find.text('email is required'), findsNothing);
+
+        key.currentState!.submit();
+        await tester.pump();
+        expect(find.text('email is required'), findsOneWidget);
+
+        // Corrected, and the message goes without another submit.
+        await tester.tap(find.text('Type'));
+        await tester.pump();
+        expect(find.text('email is required'), findsNothing);
+
+        // And comes back the moment the field is wrong again.
+        await tester.tap(find.text('Type'));
+        await tester.pump();
+        expect(find.text('email is required'), findsOneWidget);
+      });
+
       testWidgets('checks as the reader goes when it is told to', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(

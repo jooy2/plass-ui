@@ -128,9 +128,16 @@ class PlFormState extends State<PlForm> {
 
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
+  /// Whether a submit has been tried, after which `onSubmit` checks every change.
+  bool _submitted = false;
+
   /// Validates every [FormField] in the form and, if they all pass, calls
   /// [PlForm.onSubmit]. Returns whether it did.
   bool submit() {
+    if (!_submitted) {
+      setState(() => _submitted = true);
+    }
+
     final bool valid = _form.currentState?.validate() ?? true;
 
     if (valid) {
@@ -142,8 +149,10 @@ class PlFormState extends State<PlForm> {
 
   AutovalidateMode get _mode {
     switch (widget.validationMode) {
+      // Nothing until the first submit, and every change after it, so a message
+      // the submit put up goes away as soon as the field is put right.
       case PlFormValidationMode.onSubmit:
-        return AutovalidateMode.disabled;
+        return _submitted ? AutovalidateMode.onUserInteraction : AutovalidateMode.disabled;
       case PlFormValidationMode.onBlur:
         return AutovalidateMode.onUnfocus;
       case PlFormValidationMode.onChange:
