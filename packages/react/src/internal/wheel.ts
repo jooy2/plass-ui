@@ -69,8 +69,14 @@ export function useWheelScroll(
       return;
     }
 
-    /** When the strip last moved on a wheel, which is what the latch reads. */
-    let moved = 0;
+    /**
+     * When the strip last moved on a wheel, which is what the latch reads.
+     *
+     * Never, to begin with. A `0` would be a move at the moment the page
+     * started, so for the first quarter-second of a page's life a strip that
+     * had never moved would hold the wheel anyway.
+     */
+    let moved = Number.NEGATIVE_INFINITY;
 
     const onWheel = (event: WheelEvent) => {
       // A gesture that already has a horizontal half is one the browser scrolls

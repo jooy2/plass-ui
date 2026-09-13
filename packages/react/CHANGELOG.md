@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- **A `PlScrollZone` or `PlTabs` with `overscroll="auto"` gives the wheel back from the first moment.** The latch that keeps a gesture on a strip it was just scrolling counted from the page's own start rather than from a real move, so for the first quarter-second after a page loaded, a strip at its end held the wheel it should have handed on. The Flutter build already counted from nothing.
+
 - **A `PlImage` with `preview` reserves its box again.** The preview's trigger is a `<button>`, and a button sizes itself to its content even when it is displayed as a block. The content is a picture sized off the box, so before the file arrived the box had no width and its `ratio` reserved nothing, and a file smaller than the container shrank the box to the file. The trigger now takes the full width, as a picture without `preview` always did.
 
 - **`PlChip` keeps the tails of its letters.** The label is truncated, and truncation clips at the line box, which the chip's one-em leading made shorter than the glyphs inside it — so every g, j, p, q and y lost its descender, at every size. The label's line box is now the font's own height. The chip is the same height and the words sit where they did.
