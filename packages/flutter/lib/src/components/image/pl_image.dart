@@ -115,12 +115,24 @@ class PlImagePlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Widget picture = Image(image: image, fit: BoxFit.cover, excludeFromSemantics: true);
+    final Widget picture = Image(
+      image: image,
+      fit: BoxFit.cover,
+      excludeFromSemantics: true,
+      errorBuilder: _drawNothing,
+    );
 
     return ClipRect(
       child: blur > 0 ? ImageFiltered(imageFilter: _blurOf(blur), child: picture) : picture,
     );
   }
+}
+
+/// What a stand-in or a letterbox copy draws when its own file does not load:
+/// nothing, and no error reported for it. Neither is the picture, and the
+/// picture reports its own failure.
+Widget _drawNothing(BuildContext context, Object error, StackTrace? stack) {
+  return const SizedBox.shrink();
 }
 
 /// A Gaussian blur of the same radius on both axes.
@@ -420,6 +432,7 @@ class _PlImageState extends State<PlImage> {
                 fit: BoxFit.cover,
                 alignment: _alignment,
                 excludeFromSemantics: true,
+                errorBuilder: _drawNothing,
               ),
             ),
           ),
@@ -450,6 +463,7 @@ class _PlImageState extends State<PlImage> {
           fit: PlAspectRatio.boxFit(widget.fit),
           alignment: _alignment,
           excludeFromSemantics: true,
+          errorBuilder: _drawNothing,
         ),
       ),
     );

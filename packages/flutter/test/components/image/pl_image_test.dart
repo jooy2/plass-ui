@@ -706,6 +706,33 @@ void main() {
         expect(standIn(), findsNothing);
       });
 
+      testWidgets('draws nothing and reports nothing when its own file does not load', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlImage(
+            image: const _PendingImage(),
+            ratio: 1,
+            semanticLabel: 'A portrait',
+            placeholder: PlImagePlaceholder(image: _broken),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // The picture is what reports a failure, and it has not failed.
+        expect(tester.takeException(), isNull);
+        expect(
+          find.descendant(
+            of: find.byWidgetPredicate(
+              (Widget widget) => widget is Image && widget.image == _broken,
+            ),
+            matching: find.byType(RawImage),
+          ),
+          findsNothing,
+        );
+      });
+
       testWidgets('draws its picture covering its space when it is built on its own', (
         WidgetTester tester,
       ) async {
