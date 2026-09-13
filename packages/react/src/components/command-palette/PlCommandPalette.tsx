@@ -14,6 +14,7 @@ import { searchHaystack, searchText } from '../../internal/search.js';
 import {
   controlTextLeadingClasses,
   cx,
+  forcedHighlightedClasses,
   glassClasses,
   hasContent,
   metaTextClasses,
@@ -175,6 +176,7 @@ const rowClasses = /* @__PURE__ */ [
   // and the arrow keys move the same mark, so a reader never has to work out
   // which of two highlighted rows Enter would run.
   'data-[highlighted]:bg-(--p-soft) data-[highlighted]:text-(--p-accent)',
+  forcedHighlightedClasses,
   'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
   'data-[disabled]:saturate-[0.35]'
 ].join(' ');

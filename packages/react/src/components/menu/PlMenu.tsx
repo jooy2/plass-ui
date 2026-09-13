@@ -9,6 +9,7 @@ import { CheckIcon, ChevronIcon, DotIcon } from '../../internal/icons.js';
 import {
   controlTextLeadingClasses,
   cx,
+  forcedHighlightedClasses,
   gapClasses,
   glassClasses,
   hasContent,
@@ -278,6 +279,7 @@ function rowClasses(
     transitionClasses,
     iconClasses,
     'data-[highlighted]:bg-(--p-soft-hover)',
+    forcedHighlightedClasses,
     'data-[popup-open]:bg-(--p-soft)',
     'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
     // Base UI moves focus onto the highlighted row itself, so a ring here would

@@ -17,6 +17,7 @@ import {
   fieldReadOnlyClasses,
   fieldRestClasses,
   focusWithinRingClasses,
+  forcedHighlightedClasses,
   gapClasses,
   glassClasses,
   hasContent,
@@ -248,6 +249,7 @@ const itemClasses = /* @__PURE__ */ [
   // `data-highlighted` rather than `:hover`: it is also what the arrow keys
   // move, so the mouse and the keyboard light the same row.
   'data-[highlighted]:bg-(--p-soft-hover) data-[highlighted]:text-(--p-accent)',
+  forcedHighlightedClasses,
   'data-[selected]:font-semibold data-[selected]:text-(--p-accent)',
   'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
   '[outline:none]'

@@ -21,7 +21,7 @@
  */
 import type { ReactElement } from 'react';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { commands, page, server } from 'vitest/browser';
+import { commands, page, server, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import {
   PlBadge,
@@ -29,12 +29,16 @@ import {
   PlCalendar,
   PlCheckbox,
   PlChip,
+  PlCombobox,
+  PlCommandPalette,
   PlFlex,
   PlGallery,
   PlGrid,
   PlGridItem,
   PlHighlight,
   PlLineChart,
+  PlMenu,
+  PlMenuItem,
   PlMeter,
   PlProgressLinear,
   PlRadio,
@@ -42,6 +46,7 @@ import {
   PlScatterChart,
   PlSegment,
   PlSegmentedButton,
+  PlSelect,
   PlSlider,
   PlStack,
   PlStep,
@@ -627,6 +632,57 @@ describe('plass-ui/styles.css', () => {
         await expect
           .poll(() => filledWith(screen.container, system('Highlight')).length)
           .toBeGreaterThan(0);
+      })
+    );
+
+    const rows = [
+      { value: 'cut', label: 'Cut' },
+      { value: 'copy', label: 'Copy' }
+    ];
+    // A select opens only from its trigger, so it is the one that is pressed
+    // open first.
+    const lists: [string, ReactElement, 'option' | 'menuitem'][] = [
+      ['PlSelect', <PlSelect label="Edit" items={rows} />, 'option'],
+      ['PlCombobox', <PlCombobox label="Edit" items={rows} defaultOpen />, 'option'],
+      [
+        'PlCommandPalette',
+        <PlCommandPalette items={rows} shortcut={false} defaultOpen />,
+        'option'
+      ],
+      [
+        'PlMenu',
+        <PlMenu open>
+          <PlMenuItem>Cut</PlMenuItem>
+          <PlMenuItem shortcut="Ctrl+C" description="To the clipboard">
+            Copy
+          </PlMenuItem>
+        </PlMenu>,
+        'menuitem'
+      ]
+    ];
+
+    forced.each(lists)('marks the row a %s has reached with the highlight', (name, list, role) =>
+      inForcedColours(async () => {
+        const highlight = system('Highlight');
+        const screen = await render(list);
+
+        if (name === 'PlSelect') {
+          await screen.getByRole('combobox').click();
+        }
+
+        const copy = screen.getByRole(role, { name: /^Copy/ });
+
+        await userEvent.hover(copy);
+        await expect.element(copy).toHaveAttribute('data-highlighted');
+        await expect.poll(() => getComputedStyle(copy.element()).backgroundColor).toBe(highlight);
+        // Every word in the row, including the muted ones under and beside it.
+        for (const element of everything(copy.element())) {
+          expect(getComputedStyle(element).color).toBe(system('HighlightText'));
+        }
+
+        expect(
+          getComputedStyle(screen.getByRole(role, { name: 'Cut' }).element()).backgroundColor
+        ).not.toBe(highlight);
       })
     );
 

@@ -614,6 +614,22 @@ export const forcedCheckedClasses = /* @__PURE__ */ [
  */
 export const forcedCheckedTextClasses = 'forced-colors:data-[checked]:[color:HighlightText]';
 
+/**
+ * The row of a list or a menu that the pointer and the arrow keys have reached,
+ * in forced-colours mode. Its tint is the only thing that marks it, and the rows
+ * draw no focus ring because the tint is the focus indicator, so without this a
+ * keyboard reader in a contrast theme cannot see which row Enter would choose.
+ *
+ * The colour is written on everything inside the row as well: a description or
+ * a shortcut that sets a muted colour of its own is otherwise put back to the
+ * page's text colour, which is unreadable on the highlight.
+ */
+export const forcedHighlightedClasses = /* @__PURE__ */ [
+  'forced-colors:data-[highlighted]:[background-color:Highlight]',
+  'forced-colors:data-[highlighted]:[color:HighlightText]',
+  'forced-colors:data-[highlighted]:**:[color:HighlightText]'
+].join(' ');
+
 /** A checked control that is disabled, in the system's colour for unavailable. */
 export const forcedDisabledCheckedClasses = /* @__PURE__ */ [
   'forced-colors:border forced-colors:[border-color:GrayText]',
