@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **An open `PlTour` takes the keyboard focus, so Escape closes it.** Escape was bound on the card, but the focus stayed on whatever had opened the tour, so the key never reached it. The card now takes the focus when the tour opens and hands it back when the tour closes, unless the reader has moved it elsewhere in the meantime. A tour whose parent closed it by setting `open` to `false` also no longer throws: the layer was taken down in the middle of the build that closed it.
+
 - **Moving the pointer or the focus along a `PlTable` or a `PlDataTable` no longer lays the grid out again.** The band under the hovered row and the ring round the focused one were row decorations, and changing one built the whole grid again, which measures every column from every cell. Crossing from one cell to the next inside a row did it too, so a few hundred `hoverable` rows dropped frames under a moving mouse. The bands are now painted behind the grid, and a move repaints them without building a cell.
 
 - **A `PlTypography` heading carries its level.** `h1` to `h6` were each marked as a heading with no level, so on the web every one was announced as the same kind of heading and a screen reader could not tell a section from the one inside it. Each now carries its level, `1` for `h1` through `6` for `h6`.

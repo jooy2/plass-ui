@@ -231,6 +231,54 @@ void main() {
         expect(asked, isFalse);
       });
 
+      testWidgets('takes the focus when it opens, closes on Escape, and hands the focus back', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode opener = FocusNode(debugLabel: 'opener');
+        addTearDown(opener.dispose);
+        var open = false;
+        late StateSetter setOpen;
+
+        await pump(
+          tester,
+          StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              setOpen = setState;
+
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Focus(focusNode: opener, child: const Text('Start the tour')),
+                  Expanded(
+                    child: Page(
+                      open: open,
+                      onOpenChanged: (bool next) => setState(() => open = next),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+
+        opener.requestFocus();
+        await tester.pump();
+        expect(opener.hasFocus, isTrue);
+
+        setOpen(() => open = true);
+        await tester.pumpAndSettle();
+
+        expect(find.text('Narrow the list'), findsOneWidget);
+        expect(opener.hasFocus, isFalse);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
+
+        expect(open, isFalse);
+        expect(find.text('Narrow the list'), findsNothing);
+        expect(opener.hasFocus, isTrue);
+      });
+
       testWidgets('draws no × and ignores Escape when it cannot be dismissed', (
         WidgetTester tester,
       ) async {

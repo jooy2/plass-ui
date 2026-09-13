@@ -239,6 +239,13 @@ class PlTour extends StatefulWidget {
 class _PlTourState extends State<PlTour> with WidgetsBindingObserver {
   final OverlayPortalController _portal = OverlayPortalController();
 
+  /// The card, which takes the focus when the tour opens so that Escape and the
+  /// arrow keys reach it. Not a stop of its own: Tab goes on to its buttons.
+  final FocusNode _cardFocus = FocusNode(debugLabel: 'PlTour', skipTraversal: true);
+
+  /// Where the focus was when the tour opened, to be handed back when it closes.
+  FocusNode? _returnTo;
+
   int _step = 0;
 
   /// Where the light is, tagged with the step it was measured for.
@@ -272,7 +279,9 @@ class _PlTourState extends State<PlTour> with WidgetsBindingObserver {
     }
 
     if (widget.open != oldWidget.open) {
-      widget.open ? _open() : _portal.hide();
+      // Closed after the frame, like it is opened: a layer cannot be taken down
+      // in the middle of the build that asked for it.
+      widget.open ? _open() : _afterFrame(_hide);
     }
 
     if (widget.open && widget.step != oldWidget.step) {
@@ -284,6 +293,7 @@ class _PlTourState extends State<PlTour> with WidgetsBindingObserver {
   void dispose() {
     widget.controller?.removeListener(_measure);
     WidgetsBinding.instance.removeObserver(this);
+    _cardFocus.dispose();
     super.dispose();
   }
 
@@ -306,9 +316,36 @@ class _PlTourState extends State<PlTour> with WidgetsBindingObserver {
         return;
       }
 
+      _returnTo ??= FocusManager.instance.primaryFocus;
       _portal.show();
       _reveal();
+
+      // A frame later, once the card is in the tree. Left where it was, the
+      // focus is on whatever opened the tour, and Escape is bound on the card.
+      _afterFrame(() {
+        if (mounted && widget.open && _portal.isShowing) {
+          _cardFocus.requestFocus();
+        }
+      });
     });
+  }
+
+  /// Takes the layer down, and hands the focus back to where it was before the
+  /// tour took it — unless the reader has since moved it somewhere of their own.
+  void _hide() {
+    if (!mounted) {
+      return;
+    }
+
+    final FocusNode? back = _returnTo;
+
+    _returnTo = null;
+
+    if (_cardFocus.hasFocus && back != null && back.context != null) {
+      back.requestFocus();
+    }
+
+    _portal.hide();
   }
 
   int get _index {
@@ -370,7 +407,7 @@ class _PlTourState extends State<PlTour> with WidgetsBindingObserver {
     // take the layer down, so a Skip on a tour whose owner ignores the callback
     // is not a tour that cannot be left.
     if (!next) {
-      _portal.hide();
+      _hide();
     }
   }
 
@@ -464,7 +501,7 @@ class _PlTourState extends State<PlTour> with WidgetsBindingObserver {
             },
           ),
         },
-        child: layer,
+        child: Focus(focusNode: _cardFocus, child: layer),
       ),
     );
 
