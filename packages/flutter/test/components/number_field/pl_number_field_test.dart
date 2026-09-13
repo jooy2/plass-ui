@@ -306,6 +306,31 @@ void main() {
         expect(find.text('12'), findsOneWidget);
       });
 
+      testWidgets('shows what the parent holds when the parent turns a value down', (
+        WidgetTester tester,
+      ) async {
+        final List<double?> offered = <double?>[];
+
+        await tester.pumpWidget(host(PlNumberField(value: 5, onChanged: offered.add), width: 320));
+
+        await tester.enterText(find.byType(EditableText), '40');
+        await tester.pump();
+        tester.binding.focusManager.primaryFocus!.unfocus();
+        await tester.pumpAndSettle();
+
+        // Offered, and not taken: the box says what the field holds rather than
+        // the number that was turned down.
+        expect(offered, contains(40));
+        expect(find.text('5'), findsOneWidget);
+        expect(find.text('40'), findsNothing);
+
+        await tester.tap(_plus());
+        await tester.pumpAndSettle();
+
+        expect(offered.last, 6);
+        expect(find.text('5'), findsOneWidget);
+      });
+
       testWidgets('onCommitted fires once the field settles, not per keystroke', (
         WidgetTester tester,
       ) async {

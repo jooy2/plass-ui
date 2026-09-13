@@ -410,6 +410,26 @@ class _PlNumberFieldState extends State<PlNumberField> {
     }
 
     widget.onCommitted?.call(next);
+
+    // The value is the parent's to take or turn down. Once it has rebuilt with
+    // its answer, a box still showing a number the parent did not take goes
+    // back to the one it holds, or the two would say different things until
+    // something else changed.
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      if (!mounted) {
+        return;
+      }
+
+      final String held = _write(widget.value);
+
+      if (_controller.text != held) {
+        _controller.value = TextEditingValue(
+          text: held,
+          selection: TextSelection.collapsed(offset: held.length),
+        );
+      }
+    });
+    WidgetsBinding.instance.ensureVisualUpdate();
   }
 
   void _step(int direction, {_StepAmount amount = _StepAmount.normal}) {
