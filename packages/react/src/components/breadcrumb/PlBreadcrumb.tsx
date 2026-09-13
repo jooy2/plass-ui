@@ -327,6 +327,38 @@ export const PlBreadcrumb = /* @__PURE__ */ React.forwardRef<HTMLElement, PlBrea
     const density = densityProp ?? defaults.density ?? 'default';
 
     const [unfolded, setUnfolded] = React.useState(false);
+    const list = React.useRef<HTMLOListElement>(null);
+    // Set by the fold's own press, so a trail that is unfolded some other way
+    // does not take the focus from wherever the reader is.
+    const revealing = React.useRef(false);
+
+    /*
+     * The fold is the element that had the focus, and unfolding takes it out of
+     * the document, which leaves the focus nowhere. It goes to the first step
+     * that came back that can take it, which is where a reader who opened the
+     * fold meant to go next.
+     */
+    React.useEffect(() => {
+      if (!unfolded || !revealing.current) {
+        return;
+      }
+
+      revealing.current = false;
+
+      const steps = Array.from(list.current?.children ?? []).filter(
+        (item) => item.getAttribute('aria-hidden') !== 'true'
+      );
+
+      for (const step of steps.slice(Math.max(0, itemsBeforeCollapse))) {
+        const target = step.querySelector<HTMLElement>('a[href], button:not(:disabled)');
+
+        if (target) {
+          target.focus();
+
+          return;
+        }
+      }
+    }, [unfolded, itemsBeforeCollapse]);
 
     const steps = React.Children.toArray(children).filter(
       React.isValidElement
@@ -397,6 +429,7 @@ export const PlBreadcrumb = /* @__PURE__ */ React.forwardRef<HTMLElement, PlBrea
         ) : null}
 
         <ol
+          ref={list}
           // `role="list"` said out loud: Tailwind's reset takes the bullets off
           // every `<ol>`, and Safari takes the list semantics off with them.
           role="list"
@@ -429,7 +462,10 @@ export const PlBreadcrumb = /* @__PURE__ */ React.forwardRef<HTMLElement, PlBrea
                       type="button"
                       className={foldClassNames}
                       aria-label={expandLabel}
-                      onClick={() => setUnfolded(true)}
+                      onClick={() => {
+                        revealing.current = true;
+                        setUnfolded(true);
+                      }}
                     >
                       <EllipsisIcon />
                     </button>

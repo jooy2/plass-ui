@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlBreadcrumb, PlBreadcrumbItem } from 'plass-ui';
 
@@ -168,6 +169,17 @@ describe('PlBreadcrumb', () => {
       await screen.getByRole('button', { name: 'Show the hidden steps' }).click();
 
       await expect.element(screen.getByText('Bravo')).toBeInTheDocument();
+    });
+
+    it('hands the focus to the first step that came back', async () => {
+      const screen = await render(<PlBreadcrumb maxItems={3}>{trail}</PlBreadcrumb>);
+      const fold = screen.getByRole('button', { name: 'Show the hidden steps' });
+
+      fold.element().focus();
+      await expect.element(fold).toHaveFocus();
+      await userEvent.keyboard('{Enter}');
+
+      await expect.element(screen.getByRole('link', { name: 'Alpha' })).toHaveFocus();
     });
 
     it('leaves the fold inert when `expandable` is off', async () => {

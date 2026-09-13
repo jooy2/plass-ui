@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **Opening a folded `PlBreadcrumb` keeps the keyboard focus in the trail.** The `…` button is removed when the hidden steps come back, so pressing it with the keyboard dropped the focus to the page and the next Tab started from the top. The focus now moves to the first step that came back and can take it.
+
 - **A `PlCodeBlock` with a long run of spaces in its code no longer stalls a server render.** The trailing whitespace was cut with a regular expression that retries from every space in a run followed by more text, so 40,000 characters of a pasted log took almost three seconds in Node. It is now cut in one pass.
 
 - **A `PlCodeBlock` handed new `code` or a new `language` stops drawing the last code.** The colours were kept without the code they were made from, so switching a block from a TypeScript file to a Python one drew the TypeScript lines under the new title until the Python grammar had loaded, while the copy button already copied the Python. The new code is now drawn plain until its own colours are ready.
