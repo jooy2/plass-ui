@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **An area is filled between its two edges.** `PlAreaChart` and a `PlSparkline` with `shape: PlSparklineShape.area` built the top and the floor of each band as two separate outlines, and two open outlines fill only the slivers between each edge and a straight line across its ends, so most of the band was left empty. The floor also went back in straight lines under a `smooth` or `step` curve, which left a gap or a double-painted strip between stacked bands. A band is now one outline, its floor drawn with the same curve as its top, as in the React build.
+
 - **A chart stacked to `full` tells a reader the caller's numbers.** The tooltip and the summary of `PlBarChart` and `PlAreaChart` wrote the share each part was drawn at through the caller's `format`, so a currency format read `New $20` for a part worth 4,000. They now read a point's `label`, as the React build does, and a chart stacked to full sets that label to the caller's number in the caller's `format`.
 
 - **A flat series under an axis pinned at one end gets the same ticks as in the React build.** The axis already started at the pinned `min`, but its step was chosen from a band opened on both sides of the data, so a row of zeros with `min: 0` was ticked every 0.5 where the React build ticks it every 0.2. Only the free end opens now, in both builds.

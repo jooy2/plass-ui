@@ -849,9 +849,14 @@ Path areaPath(List<Offset?> top, List<Offset?> under, PlChartCurve curve) {
     final List<Offset?> above = <Offset?>[for (final int i in run) top[i]];
     final List<Offset?> below = <Offset?>[for (final int i in run.reversed) under[i]];
 
+    // One contour: the top, then the floor walked back with the same curve, so
+    // a smoothed or stepped band and the band under it agree about where the
+    // edge is between two points. `extendWithPath` joins the floor on with a
+    // line where `addPath` would start a second contour, and two open contours
+    // fill only the slivers between each edge and its own chord.
     path
       ..addPath(linePath(above, curve), Offset.zero)
-      ..addPath(_reverseEdge(below, curve), Offset.zero)
+      ..extendWithPath(linePath(below, curve), Offset.zero)
       ..close();
 
     run = <int>[];
@@ -866,32 +871,6 @@ Path areaPath(List<Offset?> top, List<Offset?> under, PlChartCurve curve) {
   }
 
   flush();
-
-  return path;
-}
-
-/// The floor of a band, walked back the way it came.
-///
-/// A line rather than the curve the top took: the two meet at the ends either
-/// way, and a stacked band's floor is the band below it — which has already
-/// been drawn with its own curve, so curving it again here would put a second,
-/// slightly different edge over the first.
-Path _reverseEdge(List<Offset?> points, PlChartCurve curve) {
-  final path = Path();
-  bool started = false;
-
-  for (final Offset? point in points) {
-    if (point == null) {
-      continue;
-    }
-
-    if (!started) {
-      path.moveTo(point.dx, point.dy);
-      started = true;
-    } else {
-      path.lineTo(point.dx, point.dy);
-    }
-  }
 
   return path;
 }

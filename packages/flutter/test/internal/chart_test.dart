@@ -293,6 +293,42 @@ void main() {
     });
   });
 
+  group('areaPath', () {
+    // Two bands stacked on one floor, one over the other, sampled half a step
+    // either side of the middle point so a straight floor and a curved or
+    // stepped one would disagree there.
+    const List<Offset?> top = <Offset?>[Offset(0, 10), Offset(100, 30), Offset(200, 10)];
+    const List<Offset?> floor = <Offset?>[Offset(0, 50), Offset(100, 70), Offset(200, 50)];
+    const List<Offset?> ground = <Offset?>[Offset(0, 90), Offset(100, 90), Offset(200, 90)];
+
+    for (final PlChartCurve curve in PlChartCurve.values) {
+      test('fills the whole band between its two edges, ${curve.name}', () {
+        final Path band = areaPath(top, floor, curve);
+
+        expect(band.contains(const Offset(100, 50)), isTrue);
+        expect(band.contains(const Offset(20, 30)), isTrue);
+        expect(band.contains(const Offset(100, 5)), isFalse);
+        expect(band.contains(const Offset(100, 80)), isFalse);
+      });
+
+      test('meets the band under it with no gap and no overlap, ${curve.name}', () {
+        final Path upper = areaPath(top, floor, curve);
+        final Path lower = areaPath(floor, ground, curve);
+        final Path edge = linePath(floor, curve);
+
+        // Just above and just below the shared edge, at every tenth of the way.
+        for (int x = 5; x < 200; x += 20) {
+          final double y = _yAt(edge, x.toDouble());
+
+          expect(upper.contains(Offset(x.toDouble(), y - 1)), isTrue, reason: 'above at $x');
+          expect(lower.contains(Offset(x.toDouble(), y - 1)), isFalse, reason: 'above at $x');
+          expect(lower.contains(Offset(x.toDouble(), y + 1)), isTrue, reason: 'below at $x');
+          expect(upper.contains(Offset(x.toDouble(), y + 1)), isFalse, reason: 'below at $x');
+        }
+      });
+    }
+  });
+
   group('linePath', () {
     /// The drawn length of a path, which is what says whether two points were
     /// actually joined. A gap leaves two zero-length strokes — a round cap
@@ -357,4 +393,19 @@ void main() {
       expect(bounds.center.dy, closeTo(20, 0.001));
     });
   });
+}
+
+/// Where a line drawn left to right crosses the vertical at [x].
+double _yAt(Path line, double x) {
+  for (final PathMetric metric in line.computeMetrics()) {
+    for (double d = 0; d <= metric.length; d += 0.25) {
+      final Offset? at = metric.getTangentForOffset(d)?.position;
+
+      if (at != null && (at.dx - x).abs() < 0.2) {
+        return at.dy;
+      }
+    }
+  }
+
+  throw StateError('the line does not reach $x');
 }
