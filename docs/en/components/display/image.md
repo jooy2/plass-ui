@@ -152,6 +152,44 @@ An `Alignment`, which is Flutter's own spelling of the same idea: `Alignment.top
 
 :::
 
+### letterbox
+
+What fills the part of the box that `contain`, `none` and `scale-down` leave empty. `blur` draws the picture itself behind it, covering the box and blurred, the way a video player fills the sides of a portrait clip.
+
+<Demo src="image/letterbox" :min-height="200">
+
+::: fw react
+
+<<< @/.vitepress/demos/image/letterbox.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/letterbox.dart
+
+:::
+
+</Demo>
+
+The blurred copy is turned, mirrored, placed and treated the way the picture is, and fades in with it. It is hidden from assistive technology and takes no pointer, so a right-click on the empty part of the box does not offer to save a picture. It is drawn only under a `fit` that can leave space, because under `cover` and `fill` there is nothing for it to show through.
+
+::: fw react
+
+Any other string is a CSS `background`: a colour, a token such as `var(--plass-primary-soft)`, or a gradient. It is painted on the box.
+
+The copy is a second `<img>` with the picture's own `src`, `srcSet`, `sizes`, `loading`, `decoding`, `crossOrigin` and `referrerPolicy`, so the browser chooses the same file and fetches it once.
+
+:::
+
+::: fw flutter
+
+`PlImageLetterbox(decoration)` paints any `Decoration` behind the picture: a colour, a gradient. A `Decoration` rather than a colour because that is what covers both here, where React takes a CSS `background` string.
+
+The copy is a second `Image` of the same `ImageProvider`, so it is answered from the same cache entry rather than loaded again.
+
+:::
+
 ### rotate
 
 Turns the picture clockwise by `90`, `180` or `270` degrees. Any other number goes to the nearest quarter, so `-90` is `270`.

@@ -5,7 +5,13 @@ import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { PlSkeleton } from '../skeleton/PlSkeleton.js';
 import { PlassWatermark } from '../../internal/watermark.js';
-import { isSideways, objectPosition, poseStyle, quartersOf } from '../../internal/image.js';
+import {
+  isSideways,
+  layerStyle,
+  objectPosition,
+  poseStyle,
+  quartersOf
+} from '../../internal/image.js';
 import type { PlassImageFlip } from '../../internal/image.js';
 import { cx, focusRingClasses, radiusClasses, transitionClasses } from '../../internal/styles.js';
 import type { PlassColor, PlassSide, PlassSize } from '../../types.js';
@@ -56,6 +62,15 @@ export type PlImagePosition =
   | 'bottom left'
   | 'bottom right'
   | `${number}% ${number}%`;
+
+/**
+ * What fills the part of the box a picture leaves empty.
+ *
+ * `blur` is the picture itself, covering the box and blurred behind it, the way
+ * a video player fills the sides of a portrait clip. Any other string is a CSS
+ * `background`.
+ */
+export type PlImageLetterbox = 'none' | 'blur';
 
 /** The treatments that have a name. Anything else is written as CSS. */
 export type PlImageFilter =
@@ -115,6 +130,18 @@ export interface PlImageProps extends Omit<
    * @default 'center'
    */
   position?: PlImagePosition | (string & {});
+  /**
+   * What fills the box where `contain`, `none` or `scale-down` leave it empty:
+   * `blur` for the picture itself, blurred and covering the box behind it, or
+   * any CSS `background` — a colour, a token, a gradient.
+   *
+   * The blurred copy loads from exactly what the picture loads from, so it is
+   * the same request rather than a second one, and it is drawn only under a
+   * `fit` that can leave space. It is hidden from the accessibility tree and
+   * takes no pointer.
+   * @default 'none'
+   */
+  letterbox?: PlImageLetterbox | (string & {});
   /**
    * Turns the picture clockwise, a quarter at a time.
    *
@@ -263,6 +290,13 @@ function naturalSize(node: HTMLImageElement | null): PixelSize | null {
 }
 
 /**
+ * How far a blurred letterbox is blurred, in pixels. The copy is grown past the
+ * box by two of these on every side, which is about where a blur has finished
+ * fading its edge out.
+ */
+const LETTERBOX_BLUR = 24;
+
+/**
  * What each named treatment is, as the CSS it stands for.
  *
  * Six names rather than a dial per effect. A picture is either being held back
@@ -337,6 +371,7 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
       ratio,
       fit = 'cover',
       position,
+      letterbox = 'none',
       rotate = 0,
       flip = 'none',
       filter,
@@ -486,6 +521,44 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
             ...pose
           };
 
+    /*
+     * The blurred letterbox, only where it can show: `cover` and `fill` leave no
+     * space around the picture. It is drawn from exactly what the picture is
+     * drawn from — the same candidate out of a `srcSet`, the same CORS mode —
+     * so the browser answers both with one request.
+     */
+    const blurred = letterbox === 'blur' && fit !== 'cover' && fit !== 'fill';
+    const painted = letterbox === 'none' || letterbox === 'blur' ? undefined : letterbox;
+    const tint = filterChain === undefined || filterChain === 'none' ? '' : `${filterChain} `;
+
+    const backdrop =
+      blurred && status !== 'error' ? (
+        <img
+          src={src}
+          srcSet={props.srcSet}
+          sizes={props.sizes}
+          loading={loading}
+          decoding={props.decoding}
+          crossOrigin={props.crossOrigin}
+          referrerPolicy={props.referrerPolicy}
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+          // No pointer, so a right-click on the empty part of the box is a
+          // right-click on the box and offers nothing to save.
+          className={cx(
+            'pointer-events-none block object-cover select-none',
+            transitionClasses,
+            status === 'loaded' ? 'opacity-100' : 'opacity-0'
+          )}
+          style={{
+            ...layerStyle(quarters, flip, LETTERBOX_BLUR * 2),
+            objectPosition: placed,
+            filter: `${tint}blur(${LETTERBOX_BLUR}px)`
+          }}
+        />
+      ) : null;
+
     const img = (
       <img
         ref={setImgRef}
@@ -505,6 +578,9 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
           // of snapping while the fade is still moving.
           filterChain === undefined ? '' : '[filter:var(--p-filter,none)]',
           transitionClasses,
+          // Positioned, so it paints over the copy under it: an absolutely
+          // positioned sibling paints above a static one whatever the order.
+          blurred ? 'relative' : '',
           // Hidden rather than unmounted: an `<img>` that is not in the document
           // never loads, so unmounting it while it loads is a picture that never
           // arrives.
@@ -522,6 +598,7 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
 
     const body = (
       <>
+        {backdrop}
         {img}
 
         {status === 'loading' ? (
@@ -597,6 +674,7 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
             ...(ratio === undefined ? null : { width: 'auto', maxWidth: '100%' })
           }),
       aspectRatio: turned,
+      background: painted,
       // What the turned picture's container units read. Only while it is on its
       // side: size containment changes how the box is measured, and nothing
       // else needs it.

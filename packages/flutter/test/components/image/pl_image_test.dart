@@ -253,6 +253,130 @@ void main() {
       });
     });
 
+    group('letterbox', () {
+      Finder copy() {
+        return find.descendant(of: find.byType(ImageFiltered), matching: find.byType(Image));
+      }
+
+      testWidgets('fills nothing until it is asked to', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          PlImage(image: _ok, ratio: 1, semanticLabel: 'A portrait', fit: PlAspectFit.contain),
+        );
+
+        expect(find.byType(ImageFiltered), findsNothing);
+        expect(find.byType(Image), findsOneWidget);
+      });
+
+      testWidgets('paints a decoration behind the picture', (WidgetTester tester) async {
+        const BoxDecoration decoration = BoxDecoration(color: Color(0xFF101418));
+
+        await _pump(
+          tester,
+          PlImage(
+            image: _ok,
+            ratio: 1,
+            semanticLabel: 'A portrait',
+            fit: PlAspectFit.contain,
+            letterbox: const PlImageLetterbox(decoration),
+          ),
+        );
+
+        final Finder painted = find.byWidgetPredicate(
+          (Widget widget) => widget is DecoratedBox && widget.decoration == decoration,
+        );
+
+        expect(painted, findsOneWidget);
+        expect(find.descendant(of: painted, matching: find.byType(Image)), findsOneWidget);
+        expect(find.byType(ImageFiltered), findsNothing);
+      });
+
+      testWidgets('draws one blurred copy of the picture for blur', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          PlImage(
+            image: _ok,
+            ratio: 1,
+            semanticLabel: 'A portrait',
+            fit: PlAspectFit.contain,
+            letterbox: PlImageLetterbox.blur,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(copy(), findsOneWidget);
+        expect(
+          tester.widget<ImageFiltered>(find.byType(ImageFiltered)).imageFilter,
+          ui.ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+        );
+
+        final Image drawn = tester.widget<Image>(copy());
+
+        // The same picture, answered from the same cache entry, covering the box.
+        expect(drawn.image, same(_ok));
+        expect(drawn.fit, BoxFit.cover);
+        expect(drawn.excludeFromSemantics, isTrue);
+        expect(
+          find.ancestor(of: find.byType(ImageFiltered), matching: find.byType(IgnorePointer)),
+          findsWidgets,
+        );
+        // Grown past the 200 by 200 box by two radii on every side.
+        expect(tester.getSize(find.byType(ImageFiltered)), const Size(296, 296));
+      });
+
+      testWidgets('turns, mirrors and places the copy the way the picture is', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlImage(
+            image: _ok,
+            ratio: 1,
+            semanticLabel: 'A portrait',
+            fit: PlAspectFit.none,
+            letterbox: PlImageLetterbox.blur,
+            rotate: 90,
+            flip: PlImageFlip.vertical,
+            position: Alignment.topCenter,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // The copy is drawn inside the picture's own frame, so the picture is
+        // the outer of the two.
+        final Image shown = tester.widget<Image>(find.byType(Image).first);
+
+        expect(shown.alignment, isNot(Alignment.center));
+        expect(tester.widget<Image>(copy()).alignment, shown.alignment);
+        expect(
+          find.descendant(of: find.byType(ImageFiltered), matching: find.byType(RotatedBox)),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(of: find.byType(ImageFiltered), matching: find.byType(Transform)),
+          findsWidgets,
+        );
+      });
+
+      testWidgets('draws no copy under a fit that leaves no space', (WidgetTester tester) async {
+        for (final PlAspectFit fit in <PlAspectFit>[PlAspectFit.cover, PlAspectFit.fill]) {
+          await _pump(
+            tester,
+            PlImage(
+              image: _ok,
+              ratio: 1,
+              semanticLabel: 'A portrait',
+              fit: fit,
+              letterbox: PlImageLetterbox.blur,
+            ),
+          );
+          await tester.pumpAndSettle();
+
+          expect(find.byType(ImageFiltered), findsNothing);
+        }
+      });
+    });
+
     group('width and height', () {
       Future<void> pumpIn(WidgetTester tester, Widget child) async {
         // A width to be given and a height left open, the way a column of

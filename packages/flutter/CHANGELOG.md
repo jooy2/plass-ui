@@ -10,6 +10,8 @@
 
 - **`PlImage` takes a `position`.** An `Alignment`, which decides which part of the picture a `cover` crop keeps and where the other fits leave their empty space. It is read on the picture as it is shown, so `Alignment.topCenter` keeps the top of what the reader sees through `rotate` and `flip`, with the same arithmetic as the React build. It is typed `Alignment` rather than `AlignmentGeometry`, so it stays on the same side of the photograph under a right-to-left direction.
 
+- **`PlImage` takes a `letterbox`.** It fills the part of the box that `contain`, `none` and `scaleDown` leave empty. `PlImageLetterbox.blur` draws the picture itself behind it, covering the box and blurred, turned, mirrored, placed and treated like the picture, from the same `ImageProvider` and so from the same cache entry. It is off the semantics tree and takes no pointer. `PlImageLetterbox(decoration)` paints any `Decoration` behind the picture instead.
+
 - **`PlImage` takes a `rotate`.** `0`, `90`, `180` or `270` degrees clockwise, and any other number goes to the nearest quarter, rounded the same way as in the React build. The picture is turned with a `RotatedBox`, so a picture on its side is laid out on its side: a `ratio` is kept as the shape of the layout, and without one the widget takes the turned shape of the picture. The placeholder, the fallback and the watermark stay upright, and `preview` opens the picture turned the same way.
 
 - **`PlImage` takes a `flip`.** `PlImageFlip.horizontal`, `vertical` or `both`, along the axes the picture is shown on, so a horizontal mirror swaps left and right on the screen whether or not `rotate` has turned it. `preview` opens the picture mirrored the same way.

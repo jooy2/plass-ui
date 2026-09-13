@@ -14252,6 +14252,15 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'letterbox',
+      type: "'none' | 'blur' | string",
+      default: "'none'",
+      description: {
+        ko: 'fit이 남긴 빈 공간을 채울 것. blur는 흐리게 깐 사진 자신이고, 그 밖의 문자열은 CSS background입니다',
+        en: 'What fills the space fit leaves empty: blur for the picture itself, blurred behind it, or any CSS background'
+      }
+    },
+    {
       name: 'rotate',
       type: '0 | 90 | 180 | 270',
       default: '0',

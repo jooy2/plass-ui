@@ -1953,6 +1953,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlImage', 'height', { type: 'double?' }),
     from('PlImage', 'fit', { type: 'PlAspectFit', default: 'PlAspectFit.cover' }),
     from('PlImage', 'position', { type: 'Alignment', default: 'Alignment.center' }),
+    from('PlImage', 'letterbox', {
+      type: 'PlImageLetterbox?',
+      default: 'null',
+      description: {
+        ko: 'fit이 남긴 빈 공간을 채울 것. PlImageLetterbox.blur는 흐리게 깐 사진 자신이고, PlImageLetterbox(decoration)은 Decoration을 칠합니다',
+        en: 'What fills the space fit leaves empty: PlImageLetterbox.blur for the picture itself, blurred behind it, or PlImageLetterbox(decoration) to paint a Decoration'
+      }
+    }),
     from('PlImage', 'rotate', { type: 'int', default: '0' }),
     from('PlImage', 'flip', { type: 'PlImageFlip', default: 'PlImageFlip.none' }),
     from('PlImage', 'rounded', { type: 'bool', default: 'false' }),

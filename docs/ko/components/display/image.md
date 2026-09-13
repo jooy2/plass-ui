@@ -152,6 +152,44 @@ PlImage(
 
 :::
 
+### letterbox
+
+`contain`, `none`, `scale-down`이 상자에 남긴 빈 부분을 무엇으로 채울지 정합니다. `blur`는 사진 자신을 상자 가득 흐리게 깔아 뒤를 채웁니다. 동영상 플레이어가 세로 영상의 양옆을 채우는 방식입니다.
+
+<Demo src="image/letterbox" :min-height="200">
+
+::: fw react
+
+<<< @/.vitepress/demos/image/letterbox.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/letterbox.dart
+
+:::
+
+</Demo>
+
+흐린 사본은 사진과 같은 방향으로 돌리고 뒤집고 같은 자리에 두며 같은 처리를 걸고, 사진과 함께 서서히 나타납니다. 보조 기술에서는 숨겨지고 포인터도 받지 않으므로, 상자의 빈 부분을 오른쪽 클릭해도 이미지 저장 메뉴가 뜨지 않습니다. 빈 공간이 생길 수 있는 `fit`에서만 그립니다. `cover`와 `fill`에서는 비쳐 보일 틈이 없기 때문입니다.
+
+::: fw react
+
+그 밖의 문자열은 CSS `background`입니다. 색, `var(--plass-primary-soft)` 같은 token, gradient를 쓸 수 있고 상자에 칠합니다.
+
+사본은 사진과 같은 `src`, `srcSet`, `sizes`, `loading`, `decoding`, `crossOrigin`, `referrerPolicy`를 받은 두 번째 `<img>`입니다. 그래서 브라우저가 같은 파일을 골라 한 번만 가져옵니다.
+
+:::
+
+::: fw flutter
+
+`PlImageLetterbox(decoration)`은 사진 뒤에 어떤 `Decoration`이든 칠합니다. 색도 gradient도 됩니다. React는 CSS `background` 문자열을 받지만, 여기서 둘을 함께 담는 것은 `Decoration`이기 때문입니다.
+
+사본은 같은 `ImageProvider`로 만든 두 번째 `Image`입니다. 그래서 다시 불러오지 않고 같은 캐시 항목에서 받습니다.
+
+:::
+
 ### rotate
 
 사진을 시계 방향으로 `90`, `180`, `270`도 돌립니다. 그 밖의 숫자는 가장 가까운 4분의 1 바퀴로 맞추므로 `-90`은 `270`입니다.

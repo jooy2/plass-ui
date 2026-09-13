@@ -95,6 +95,37 @@ export function poseStyle(
 }
 
 /**
+ * The geometry of a copy of the picture drawn underneath it: the same turn and
+ * mirror, over the same box grown by `bleed` on every side.
+ *
+ * A blur fades to transparent over about two of its radii at the element's
+ * edge, so a blurred copy drawn at the box's own size would show the page
+ * through a soft frame. Grown past the box, it has the fringe clipped off by the
+ * box's `overflow: hidden` instead.
+ */
+export function layerStyle(
+  quarters: PlassQuarters,
+  flip: PlassImageFlip,
+  bleed: number
+): React.CSSProperties {
+  const grown = (length: string) => (bleed === 0 ? length : `calc(${length} + ${bleed * 2}px)`);
+
+  if (isSideways(quarters)) {
+    return { ...poseStyle(quarters, flip), width: grown('100cqh'), height: grown('100cqw') };
+  }
+
+  return {
+    ...poseStyle(quarters, flip),
+    position: 'absolute',
+    top: `${-bleed}px`,
+    left: `${-bleed}px`,
+    width: grown('100%'),
+    height: grown('100%'),
+    maxWidth: 'none'
+  };
+}
+
+/**
  * A position as the fractions of the free space across and down, or `null` for
  * anything past the keywords and percentages `PlImagePosition` offers.
  *

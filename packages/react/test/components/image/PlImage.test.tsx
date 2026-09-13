@@ -138,6 +138,129 @@ describe('PlImage', () => {
     });
   });
 
+  describe('letterbox', () => {
+    const picture = () => document.querySelector('img:not([aria-hidden])') as HTMLImageElement;
+    const copies = () => document.querySelectorAll<HTMLImageElement>('img[aria-hidden="true"]');
+
+    it('fills nothing until it is asked to', async () => {
+      await render(<PlImage src={OK} alt="A portrait" fit="contain" className="img-under-test" />);
+
+      expect(box('img-under-test').style.background).toBe('');
+      expect(copies()).toHaveLength(0);
+    });
+
+    it('paints a colour behind the picture', async () => {
+      await render(
+        <PlImage
+          src={OK}
+          alt="A portrait"
+          fit="contain"
+          letterbox="rgb(16, 20, 24)"
+          className="img-under-test"
+        />
+      );
+
+      expect(box('img-under-test').style.background).toContain('rgb(16, 20, 24)');
+      expect(copies()).toHaveLength(0);
+    });
+
+    it('draws one hidden copy of the picture for blur', async () => {
+      await render(<PlImage src={OK} alt="A portrait" fit="contain" letterbox="blur" />);
+
+      expect(copies()).toHaveLength(1);
+
+      const copy = copies()[0];
+
+      // Nothing to read out, nothing to drag, and nothing a right-click lands on.
+      expect(copy.getAttribute('alt')).toBe('');
+      expect(copy.getAttribute('draggable')).toBe('false');
+      expect(copy).toHaveClass('pointer-events-none', 'select-none', 'object-cover');
+      expect(copy.style.filter).toBe('blur(24px)');
+      // Grown past the box by two radii, so the soft edge of the blur is clipped.
+      expect([copy.style.top, copy.style.left, copy.style.width]).toEqual([
+        '-48px',
+        '-48px',
+        'calc(100% + 96px)'
+      ]);
+      // Before the picture, and the picture positioned so it paints over it.
+      expect(copy.nextElementSibling).toBe(picture());
+      expect(picture()).toHaveClass('relative');
+    });
+
+    it('loads the copy from exactly what the picture loads from', async () => {
+      await render(
+        <PlImage
+          src={OK}
+          srcSet={`${OK} 1x`}
+          sizes="50vw"
+          alt="A portrait"
+          fit="scale-down"
+          letterbox="blur"
+          loading="eager"
+          decoding="async"
+          crossOrigin="anonymous"
+          referrerPolicy="no-referrer"
+        />
+      );
+
+      const copy = copies()[0];
+
+      for (const name of [
+        'src',
+        'srcset',
+        'sizes',
+        'loading',
+        'decoding',
+        'crossorigin',
+        'referrerpolicy'
+      ]) {
+        expect(copy.getAttribute(name)).toBe(picture().getAttribute(name));
+      }
+    });
+
+    it('turns, mirrors, places and tints the copy the way the picture is', async () => {
+      await render(
+        <PlImage
+          src={OK}
+          alt="A portrait"
+          fit="none"
+          letterbox="blur"
+          rotate={90}
+          flip="horizontal"
+          position="top"
+          filter="grayscale"
+        />
+      );
+
+      const copy = copies()[0];
+
+      expect(copy.style.rotate).toBe(picture().style.rotate);
+      expect(copy.style.scale).toBe(picture().style.scale);
+      expect(copy.style.objectPosition).toBe(picture().style.objectPosition);
+      expect(copy.style.filter).toBe('grayscale(1) blur(24px)');
+      expect([copy.style.width, copy.style.height]).toEqual([
+        'calc(100cqh + 96px)',
+        'calc(100cqw + 96px)'
+      ]);
+    });
+
+    it('draws no copy under a fit that leaves no space', async () => {
+      const screen = await render(<PlImage src={OK} alt="A portrait" letterbox="blur" />);
+
+      expect(copies()).toHaveLength(0);
+
+      await screen.rerender(<PlImage src={OK} alt="A portrait" fit="fill" letterbox="blur" />);
+
+      expect(copies()).toHaveLength(0);
+    });
+
+    it('fades the copy in with the picture', async () => {
+      await render(<PlImage alt="A portrait" fit="contain" letterbox="blur" />);
+
+      expect(copies()[0]).toHaveClass('opacity-0');
+    });
+  });
+
   describe('a lone width or height', () => {
     it('sizes the box to a lone height, across the width it is given', async () => {
       await render(<PlImage src={OK} alt="A portrait" height={200} className="img-under-test" />);

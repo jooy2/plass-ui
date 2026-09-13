@@ -1,6 +1,8 @@
 /// A picture, and the two states a picture spends most of its life in.
 library;
 
+import 'dart:ui' as ui;
+
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/aspect_ratio/pl_aspect_ratio.dart';
@@ -61,6 +63,31 @@ enum PlImageFlip {
   both,
 }
 
+/// What fills the part of the box a picture leaves empty.
+///
+/// Drawn only where [PlImage.fit] can leave space — [PlAspectFit.contain],
+/// [PlAspectFit.none] and [PlAspectFit.scaleDown]. Under the other two there is
+/// nothing for it to show through.
+@immutable
+class PlImageLetterbox {
+  /// Paints [decoration] behind the picture: a colour, a gradient, an image of
+  /// your own.
+  const PlImageLetterbox(Decoration this.decoration);
+
+  const PlImageLetterbox._blur() : decoration = null;
+
+  /// The picture itself, covering the box and blurred behind it, the way a video
+  /// player fills the sides of a portrait clip.
+  ///
+  /// The copy is the same [ImageProvider], so it is answered from the same
+  /// cache entry rather than loaded a second time. It is off the semantics tree
+  /// and takes no pointer.
+  static const PlImageLetterbox blur = PlImageLetterbox._blur();
+
+  /// What is painted behind the picture, or `null` for [blur].
+  final Decoration? decoration;
+}
+
 /// Where the picture has got to.
 enum PlImageStatus {
   /// On its way.
@@ -104,6 +131,7 @@ class PlImage extends StatefulWidget {
     this.height,
     this.fit = PlAspectFit.cover,
     this.position = Alignment.center,
+    this.letterbox,
     this.rotate = 0,
     this.flip = PlImageFlip.none,
     this.filter = PlImageFilter.none,
@@ -178,6 +206,11 @@ class PlImage extends StatefulWidget {
   /// rather than the top of the file.
   final Alignment position;
 
+  /// What fills the box where [fit] leaves it empty: [PlImageLetterbox.blur] for
+  /// the picture itself, blurred behind it, or a [Decoration] of your own.
+  /// `null` leaves the space as it is.
+  final PlImageLetterbox? letterbox;
+
   /// Turns the picture clockwise, a quarter at a time: `0`, `90`, `180` or
   /// `270`.
   ///
@@ -249,6 +282,10 @@ class PlImage extends StatefulWidget {
   @override
   State<PlImage> createState() => _PlImageState();
 }
+
+/// How far a blurred letterbox is blurred, as a standard deviation in logical
+/// pixels — the same number the React build writes into `blur()`.
+const double _letterboxBlur = 24;
 
 class _PlImageState extends State<PlImage> {
   PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
@@ -330,6 +367,44 @@ class _PlImageState extends State<PlImage> {
     }
 
     return posed;
+  }
+
+  /// The blurred copy of the picture a [PlImageLetterbox.blur] draws behind it,
+  /// or `null` where there is none to draw.
+  ///
+  /// Grown past the box by two radii on every side and clipped back to it,
+  /// because a blur fades to nothing over about that distance at its edge and
+  /// the box would otherwise show a soft frame of whatever is behind it.
+  Widget? _backdrop() {
+    final PlAspectFit fit = widget.fit;
+
+    if (widget.letterbox != PlImageLetterbox.blur ||
+        fit == PlAspectFit.cover ||
+        fit == PlAspectFit.fill) {
+      return null;
+    }
+
+    return PositionedDirectional(
+      start: -_letterboxBlur * 2,
+      end: -_letterboxBlur * 2,
+      top: -_letterboxBlur * 2,
+      bottom: -_letterboxBlur * 2,
+      child: IgnorePointer(
+        child: ImageFiltered(
+          imageFilter: ui.ImageFilter.blur(sigmaX: _letterboxBlur, sigmaY: _letterboxBlur),
+          child: _treat(
+            _pose(
+              Image(
+                image: widget.image,
+                fit: BoxFit.cover,
+                alignment: _alignment,
+                excludeFromSemantics: true,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   /// The picture with its treatment on it, or the picture as it is.
@@ -416,7 +491,14 @@ class _PlImageState extends State<PlImage> {
         // whole `Image` would put it over the placeholder and the fallback too,
         // and a greyed-out skeleton is not what `filter: grayscale` was asked
         // for.
-        final Widget treated = _treat(_pose(child));
+        final Widget? backdrop = _backdrop();
+        final Widget posed = _treat(_pose(child));
+        // The copy fades in with the picture rather than ahead of it, so the two
+        // go under one fade. The stack clips the copy's grown edge back to the
+        // box.
+        final Widget treated = backdrop == null
+            ? posed
+            : Stack(fit: StackFit.passthrough, children: <Widget>[backdrop, posed]);
 
         if (sync) {
           _settle(PlImageStatus.loaded);
@@ -455,6 +537,12 @@ class _PlImageState extends State<PlImage> {
         return fallback;
       },
     );
+
+    final Decoration? painted = widget.letterbox?.decoration;
+
+    if (painted != null) {
+      picture = DecoratedBox(decoration: painted, child: picture);
+    }
 
     // The mark goes on before the ratio and the clip, so it is bounded by the
     // picture and cut by the same corners rather than sitting over them. Only
