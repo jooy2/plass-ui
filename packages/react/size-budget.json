@@ -1,12 +1,12 @@
 {
   "note": "gzip bytes of a real esbuild bundle of dist/, React external and @base-ui/react bundled. Regenerate with `npm run size -- --update`.",
   "scenarios": {
-    "PlButton 하나": 6379,
+    "PlButton 하나": 6488,
     "PlTypography 하나": 3069,
-    "PlImage 하나": 8165,
-    "PlGallery 하나": 10517,
-    "폼 5개": 20321,
-    "오버레이 5개": 89409,
-    "전체": 289123
+    "PlImage 하나": 8348,
+    "PlGallery 하나": 10699,
+    "폼 5개": 20604,
+    "오버레이 5개": 89757,
+    "전체": 290941
   }
 }
