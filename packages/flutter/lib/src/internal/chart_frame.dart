@@ -637,10 +637,12 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
         if (nothing) {
           return SizedBox(
             height: height,
+            // The caller's widget as it is — a `Text.rich`, an icon over a
+            // line — in the same muted type the default is written in.
             child: Center(
-              child: Text(
-                widget.empty is Text ? (widget.empty! as Text).data! : labels.empty,
+              child: DefaultTextStyle.merge(
                 style: TextStyle(fontSize: metaText[size]!, color: tokens.mutedFg),
+                child: widget.empty ?? Text(labels.empty),
               ),
             ),
           );

@@ -229,12 +229,10 @@ class _PlPieChartState extends State<PlPieChart> {
             width: width,
             height: height,
             child: Center(
-              child:
-                  widget.empty ??
-                  Text(
-                    labels.empty,
-                    style: TextStyle(fontSize: metaText[size]!, color: tokens.mutedFg),
-                  ),
+              child: DefaultTextStyle.merge(
+                style: TextStyle(fontSize: metaText[size]!, color: tokens.mutedFg),
+                child: widget.empty ?? Text(labels.empty),
+              ),
             ),
           );
         }

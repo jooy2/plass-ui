@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **`empty` on a line, bar, area, scatter or timeline chart is drawn as given.** Those charts read the words out of a plain `Text` and ignored any other widget, so a `Text.rich` threw a null check error and an icon over a line was replaced by the default words. The widget is now drawn as it is, in the same muted type, as `PlPieChart` and `PlHeatmapChart` already drew theirs, and those two now give a plain `Text` that type as well.
+
 - **A chart legend beside the plot is a list.** With `PlChartLegend(side: PlassSide.left)` or `right`, the legend of `PlLineChart`, `PlBarChart`, `PlAreaChart`, `PlScatterChart` and `PlPieChart` was a row with no width to wrap at, so four or five series stood in one line, squeezed the plot to nothing and overflowed. It is now a column of entries, as in the React build, no wider than two fifths of the chart, and a name longer than that wraps.
 
 - **A chart's tooltip stays inside the chart.** The card was placed by the point it described and nothing else, and a chart clips what it draws, so near the bottom of a short chart or either end of a narrow one the value was cut off. The card of `PlLineChart`, `PlBarChart`, `PlAreaChart`, `PlScatterChart`, `PlTimelineChart` and `PlHeatmapChart` is now measured, moved to the other side of the point when its side has no room, and held inside the chart.

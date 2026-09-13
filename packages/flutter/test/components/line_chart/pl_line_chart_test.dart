@@ -113,6 +113,43 @@ void main() {
         expect(find.text('Nothing here'), findsOneWidget);
       });
 
+      testWidgets('draws the empty widget it was given, whatever it is', (
+        WidgetTester tester,
+      ) async {
+        const List<PlassChartSeries> gaps = <PlassChartSeries>[
+          PlassChartSeries(data: <PlassChartDatum>[PlassChartDatum.gap()]),
+        ];
+
+        await _pump(
+          tester,
+          const PlLineChart(
+            series: gaps,
+            empty: Text.rich(
+              TextSpan(
+                text: 'No visits ',
+                children: <InlineSpan>[TextSpan(text: 'yet')],
+              ),
+            ),
+          ),
+        );
+
+        expect(tester.takeException(), isNull);
+        expect(find.text('No visits yet', findRichText: true), findsOneWidget);
+
+        await _pump(
+          tester,
+          const PlLineChart(
+            series: gaps,
+            empty: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[Text('Nothing to plot')],
+            ),
+          ),
+        );
+
+        expect(find.text('Nothing to plot'), findsOneWidget);
+      });
+
       testWidgets('draws nothing at all for an empty set of series', (WidgetTester tester) async {
         await _pump(tester, const PlLineChart(series: <PlassChartSeries>[]));
 
