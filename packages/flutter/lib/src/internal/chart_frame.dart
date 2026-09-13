@@ -1443,17 +1443,89 @@ class _Tooltip extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    // Placed on whichever side of the pointer has room, so the card never
-    // covers the marks it is describing.
-    final bool toTheStart = pointer.dx > layout.plot.left + layout.plot.width * 0.6;
-
-    return Positioned(
-      left: toTheStart ? null : pointer.dx + 14,
-      right: toTheStart ? layout.plot.width + layout.plot.left - pointer.dx + 14 : null,
-      top: math.max(0, pointer.dy - 20),
+    // Beside the pointer rather than under it, so the card never covers the
+    // marks it is describing, and before it once the pointer is far along.
+    return PlassChartTooltipPlacement(
+      at: pointer,
+      gap: 14,
+      before: pointer.dx > layout.plot.left + layout.plot.width * 0.6,
       child: PlassChartTooltipCard(tokens: tokens, size: size, heading: heading, children: rows),
     );
   }
+}
+
+/// Puts a tooltip card beside the point it describes, and keeps all of it
+/// inside the chart.
+///
+/// A chart clips what it draws to its own box, so a card placed by the point
+/// alone was cut off by the bottom of a short chart and by either end of a
+/// narrow one, which is where a reader is most likely to be pointing. The card
+/// is measured, set [gap] after the point (or before it, when [before]), moved
+/// to the other side when that side has no room, and then held inside the box.
+///
+/// Must be a child of the chart's `Stack`: it fills it.
+class PlassChartTooltipPlacement extends StatelessWidget {
+  /// Places [child] beside [at].
+  const PlassChartTooltipPlacement({
+    required this.at,
+    required this.gap,
+    required this.child,
+    this.before = false,
+    super.key,
+  });
+
+  /// The point the card describes, in the chart's coordinates.
+  final Offset at;
+
+  /// How far along the axis the card stands off the point.
+  final double gap;
+
+  /// Whether the card is asked for before the point rather than after it.
+  final bool before;
+
+  /// The card.
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: CustomSingleChildLayout(
+        delegate: _TooltipPlacementDelegate(at: at, gap: gap, before: before),
+        child: child,
+      ),
+    );
+  }
+}
+
+class _TooltipPlacementDelegate extends SingleChildLayoutDelegate {
+  const _TooltipPlacementDelegate({required this.at, required this.gap, required this.before});
+
+  final Offset at;
+  final double gap;
+  final bool before;
+
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) => constraints.loosen();
+
+  @override
+  Offset getPositionForChild(Size size, Size childSize) {
+    final double after = at.dx + gap;
+    final double ahead = at.dx - gap - childSize.width;
+    final bool fitsAfter = after + childSize.width <= size.width;
+    final bool fitsAhead = ahead >= 0;
+    final double x = before
+        ? (fitsAhead || !fitsAfter ? ahead : after)
+        : (fitsAfter || !fitsAhead ? after : ahead);
+
+    return Offset(
+      clampDouble(x, 0, math.max(0, size.width - childSize.width)),
+      clampDouble(at.dy - 20, 0, math.max(0, size.height - childSize.height)),
+    );
+  }
+
+  @override
+  bool shouldRelayout(_TooltipPlacementDelegate old) =>
+      old.at != at || old.gap != gap || old.before != before;
 }
 
 /// The panel a chart writes its readout in.
@@ -1548,13 +1620,10 @@ class _MarkTooltip extends StatelessWidget {
     // Anchored to the mark rather than to the pointer: a press on a phone lands
     // a finger's width from where the reader meant, and a card that follows
     // that lands somewhere they have to look for.
-    final bool toTheStart = mark.centre.dx > layout.plot.left + layout.plot.width * 0.6;
-    final double reach = mark.rx ?? mark.r;
-
-    return Positioned(
-      left: toTheStart ? null : mark.centre.dx + reach + 10,
-      right: toTheStart ? layout.plot.width + layout.plot.left - mark.centre.dx + reach + 10 : null,
-      top: math.max(0, mark.centre.dy - 20),
+    return PlassChartTooltipPlacement(
+      at: mark.centre,
+      gap: (mark.rx ?? mark.r) + 10,
+      before: mark.centre.dx > layout.plot.left + layout.plot.width * 0.6,
       child: PlassChartTooltipCard(
         tokens: tokens,
         size: size,

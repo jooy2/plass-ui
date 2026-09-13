@@ -349,12 +349,9 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> {
                     ),
                   ),
                   if (shown != null && !widget.tooltip.hidden)
-                    Positioned(
-                      left: math.min(
-                        math.max(0, shown.rect.center.dx + 12),
-                        math.max(0, width - 160),
-                      ),
-                      top: math.max(0, shown.rect.top - 8),
+                    PlassChartTooltipPlacement(
+                      at: Offset(shown.rect.center.dx, shown.rect.top + 12),
+                      gap: 12,
                       child: PlassChartTooltipCard(
                         tokens: tokens,
                         size: size,

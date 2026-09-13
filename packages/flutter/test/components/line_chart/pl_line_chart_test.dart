@@ -305,6 +305,42 @@ void main() {
         expect(find.textContaining('2026-03'), findsNothing);
       });
 
+      testWidgets('keeps the whole card inside a short chart, at either end', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlLineChart(series: series, categories: months, height: 90),
+          width: 300,
+        );
+
+        final Rect box = tester.getRect(
+          find.byWidgetPredicate(
+            (Widget widget) =>
+                widget is CustomPaint && widget.painter != null && widget.size.height > 40,
+          ),
+        );
+
+        for (final Offset at in <Offset>[
+          box.bottomLeft + const Offset(2, -2),
+          box.bottomRight - const Offset(2, 2),
+        ]) {
+          await tester.tapAt(at);
+          await tester.pump();
+
+          final Rect card = tester.getRect(find.byType(PlassChartTooltipCard));
+
+          expect(card.left, greaterThanOrEqualTo(box.left));
+          expect(card.right, lessThanOrEqualTo(box.right));
+          expect(card.top, greaterThanOrEqualTo(box.top));
+          expect(card.bottom, lessThanOrEqualTo(box.bottom));
+
+          // A second press on the same column takes the card down again.
+          await tester.tapAt(at);
+          await tester.pump();
+        }
+      });
+
       testWidgets('shows none when it is hidden', (WidgetTester tester) async {
         await _pump(
           tester,
