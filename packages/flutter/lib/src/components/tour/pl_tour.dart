@@ -501,7 +501,9 @@ class _PlTourState extends State<PlTour> with WidgetsBindingObserver {
             },
           ),
         },
-        child: Focus(focusNode: _cardFocus, child: layer),
+        // No semantics of its own: a node here would sit over the whole layer
+        // and fold the card's heading and its count into one label.
+        child: Focus(focusNode: _cardFocus, includeSemantics: false, child: layer),
       ),
     );
 
@@ -575,12 +577,29 @@ class _PlTourState extends State<PlTour> with WidgetsBindingObserver {
                                 fontWeight: FontWeight.w600,
                                 leadingDistribution: TextLeadingDistribution.even,
                               ),
-                              child: Semantics(header: true, child: step.title!),
+                              // A node of its own, or the heading takes the
+                              // content and the count into its name. And said
+                              // when it changes: the focus stays on Next while
+                              // the step moves on, so without that a screen
+                              // reader is left on the button with nothing to
+                              // say the card now says something else.
+                              child: Semantics(
+                                container: true,
+                                header: true,
+                                liveRegion: true,
+                                child: step.title!,
+                              ),
                             ),
                           if (step.content != null)
                             DefaultTextStyle.merge(
                               style: TextStyle(color: tokens.mutedFg, fontSize: metaText[size]!),
-                              child: step.content!,
+                              // Its own node as well, and the words that are
+                              // said on a step with no title.
+                              child: Semantics(
+                                container: true,
+                                liveRegion: step.title == null,
+                                child: step.content!,
+                              ),
                             ),
                         ],
                       ),

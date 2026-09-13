@@ -252,6 +252,26 @@ describe('PlTour', () => {
       expect(document.getElementById(describedBy!)!.textContent).toBe('Type here to filter.');
     });
 
+    it('says the next step when the focus stays on Next', async () => {
+      const screen = await render(<Page defaultOpen />);
+      const first = screen.getByText('Narrow the list');
+
+      await expect.element(first).toBeInTheDocument();
+
+      const region = first.element().closest('[aria-live]');
+
+      expect(region).not.toBeNull();
+      expect(region).toHaveAttribute('aria-live', 'polite');
+      // The close button is not part of what is said.
+      expect(region!.querySelector('button')).toBeNull();
+
+      await screen.getByRole('button', { name: 'Next' }).click();
+      await expect.element(screen.getByText('Take it with you')).toBeInTheDocument();
+
+      // The same region, changed, rather than a new one.
+      expect(screen.getByText('Take it with you').element().closest('[aria-live]')).toBe(region);
+    });
+
     it('takes its words from the labels in scope', async () => {
       const screen = await render(
         <PlassProvider labels={{ skip: '건너뛰기', next: '다음' }}>

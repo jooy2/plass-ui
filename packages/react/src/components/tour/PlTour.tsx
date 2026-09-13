@@ -480,7 +480,16 @@ export function PlTour({
           >
             {hasHeader ? (
               <div className="flex items-start gap-3">
-                <div className={cx('flex min-w-0 flex-1 flex-col', sheetHeaderGapClasses[size])}>
+                {/* Said when it changes. The focus stays on Next while the step
+                    moves on, so without this a screen reader is left on the
+                    button with nothing to say the card now says something else.
+                    The same element across steps, which is what makes a change
+                    a change rather than a new region nobody was listening to. */}
+                <div
+                  aria-live="polite"
+                  aria-atomic="true"
+                  className={cx('flex min-w-0 flex-1 flex-col', sheetHeaderGapClasses[size])}
+                >
                   {hasContent(current?.title) ? (
                     <BaseUIPopover.Title
                       className={cx(

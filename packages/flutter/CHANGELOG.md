@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **`PlTour` says the next step when the focus stays on Next, and its heading names only itself.** Pressing Next changed the card around the button without a word to a screen reader. The step's `title` is now a live region, or its `content` on a step with no title. The heading also took the content and the counter into its name, so the first step was announced as one heading reading "Narrow the list, Type here to filter, 1 / 3"; the title and the content are now nodes of their own.
+
 - **An open `PlTour` takes the keyboard focus, so Escape closes it.** Escape was bound on the card, but the focus stayed on whatever had opened the tour, so the key never reached it. The card now takes the focus when the tour opens and hands it back when the tour closes, unless the reader has moved it elsewhere in the meantime. A tour whose parent closed it by setting `open` to `false` also no longer throws: the layer was taken down in the middle of the build that closed it.
 
 - **Moving the pointer or the focus along a `PlTable` or a `PlDataTable` no longer lays the grid out again.** The band under the hovered row and the ring round the focused one were row decorations, and changing one built the whole grid again, which measures every column from every cell. Crossing from one cell to the next inside a row did it too, so a few hundred `hoverable` rows dropped frames under a moving mouse. The bands are now painted behind the grid, and a move repaints them without building a cell.

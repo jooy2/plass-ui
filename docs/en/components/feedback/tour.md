@@ -178,6 +178,7 @@ The light is measured when the step changes and when the window changes size. Fo
 ::: fw react
 
 - The card is a dialog, named by the step's `title` and described by its `content`.
+- The `title` and the `content` are a polite live region, so moving to the next step says what the card now says while the focus stays on Next.
 - The dimming is `aria-hidden`: it is a drawing, and everything it says is already in the card.
 - <kbd>Escape</kbd> ends the tour unless `dismissible` is `false`. A press **outside** the card does not, and neither does the focus leaving it. Using the page is exactly what a tour is for, so the only ways out are Escape, the ×, Skip and Done.
 - The counter is two numbers rather than a sentence. "3 of 7" is a string that has to be translated and a word order that differs by language; the count itself does not.
@@ -188,7 +189,9 @@ The light is measured when the step changes and when the window changes size. Fo
 ::: fw flutter
 
 - The card is announced as its own thing and the screen under it is still there to be reached. It deliberately does not take the route: a tour that did would be a modal, and the reader could not get to the control the tour is telling them about.
+- The card takes the focus when the tour opens, which is what lets <kbd>Escape</kbd> reach it, and hands the focus back when the tour closes.
 - <kbd>Escape</kbd> ends the tour unless `dismissible` is `false`.
+- The step's `title` is a live region, or its `content` on a step with no title, so moving to the next step says what the card now says while the focus stays on Next.
 - The counter is two numbers, for the reason the React build gives.
 - The card's buttons wrap to a second line rather than running off the edge, because a translation whose words are longer than English's is three buttons wider than the card.
 

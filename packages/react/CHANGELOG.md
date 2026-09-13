@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **`PlTour` says the next step when the focus stays on Next.** Pressing Next left the focus on the button and changed the card around it, so a screen reader said nothing about the new step. The title and the content are now a polite live region that stays in place from step to step.
+
 - **`PlTypography` clamps to the number of `lines` it is given, and cuts a `caption` or an `overline` short.** `lines` above 6 clamped to 6, because there was a class for each count up to six and nothing after. And `lines={1}` on a `caption` or an `overline` did nothing, since those levels are `<span>`s and an ellipsis needs a box. Any count now clamps to that many lines, and a one-line clamp is drawn as a block.
 
 - **`PlImage` reports a new `src` that was already in the cache.** The status last reported was kept across a change of `src`, so a second picture that had already arrived settled as `loaded` without calling `onStatusChange`, and a caller that showed a spinner until it heard `loaded` kept showing it. A new `src` now starts over and reports its own arrival.

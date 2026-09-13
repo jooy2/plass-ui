@@ -342,6 +342,52 @@ void main() {
     });
 
     group('the card', () {
+      testWidgets('says the next step when the focus stays on Next', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await pump(
+          tester,
+          Page(
+            steps: (GlobalKey filter, GlobalKey export) => <PlTourStep>[
+              PlTourStep(
+                target: filter,
+                title: const Text('Narrow the list'),
+                content: const Text('Type here to filter.'),
+              ),
+              PlTourStep(target: export, title: const Text('Take it with you')),
+              const PlTourStep(content: Text('That is everything')),
+            ],
+          ),
+        );
+
+        // The heading names itself and nothing else, with the content beside it
+        // rather than inside it.
+        expect(
+          tester.getSemantics(find.text('Narrow the list')),
+          matchesSemantics(label: 'Narrow the list', isHeader: true, isLiveRegion: true),
+        );
+        expect(
+          tester.getSemantics(find.text('Type here to filter.')),
+          matchesSemantics(label: 'Type here to filter.'),
+        );
+
+        await tester.tap(find.text('Next'));
+        await tester.pumpAndSettle();
+        expect(
+          tester.getSemantics(find.text('Take it with you')),
+          matchesSemantics(label: 'Take it with you', isHeader: true, isLiveRegion: true),
+        );
+
+        await tester.tap(find.text('Next'));
+        await tester.pumpAndSettle();
+        expect(
+          tester.getSemantics(find.text('That is everything')),
+          matchesSemantics(label: 'That is everything', isLiveRegion: true),
+        );
+
+        handle.dispose();
+      });
+
       testWidgets('sits under the target it is pointing at', (WidgetTester tester) async {
         await pump(tester, const Page());
 
