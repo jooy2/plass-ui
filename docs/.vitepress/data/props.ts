@@ -3314,8 +3314,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'string',
       default: "'Remove'",
       description: {
-        ko: '삭제 버튼의 접근 가능한 이름. 화면에는 그려지지 않습니다',
-        en: 'Accessible name of the delete button. Never drawn'
+        ko: '삭제 버튼의 접근 가능한 이름. 화면에는 그려지지 않습니다. 넘기지 않으면 라벨 팩의 `remove` 뒤에 chip의 글자를 붙여 chip마다 이름이 달라지고, 넘기면 그 값이 이름 전체가 됩니다',
+        en: 'Accessible name of the delete button. Never drawn. Left out, it is the label pack’s `remove` followed by the chip’s text, so each chip’s button has a name of its own; given, it is the whole name'
       }
     },
     {

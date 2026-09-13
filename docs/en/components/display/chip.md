@@ -197,7 +197,7 @@ A chip sits one step down the control ladder from everything else: a `md` chip i
 
 - A chip with `onClick` is a real `<button>` carrying `aria-pressed`, so a filter that is on says so. A chip without one adds no role and takes no tab stop. An inert `<span>` with a click handler on it is the single most common way a component library loses its keyboard users.
 - The label and the delete button are two separate tab stops, and neither is nested inside the other.
-- The delete button has an accessible name already; `deleteLabel` is what changes it.
+- The delete button is named "Remove" followed by the chip's text, such as "Remove design", so a row of tags does not read as the same word for each one. The word comes from the label pack, and `deleteLabel` replaces the whole name.
 - `disabled` stops the label from being a button at all rather than leaving a focusable one that does nothing, and marks the shell `aria-disabled` so the state is still announced.
 
 :::
@@ -206,7 +206,7 @@ A chip sits one step down the control ladder from everything else: a `md` chip i
 
 - A chip with `onPressed` is announced as a button and reports whether it is selected, so a filter that is on says so. A chip without one adds no role and takes no focus stop.
 - The label and the delete affordance are two separate focus stops, and neither is inside the other.
-- The delete affordance has a name already, "Remove"; `deleteLabel` is what changes it.
+- The delete affordance is named "Remove" followed by the chip's text, such as "Remove design", when `child` is a `Text`. A chip holding any other widget is named "Remove" alone, so give it a `deleteLabel` that says which chip it removes. The word comes from the label pack, and `deleteLabel` replaces the whole name.
 - <kbd>Enter</kbd>, <kbd>Space</kbd> and the numpad <kbd>Enter</kbd> activate a pressable chip. They are bound on the chip itself, so it behaves the same with or without an app widget above it.
 - `disabled` takes the chip out of the focus order and stops it firing, and the delete affordance with it.
 

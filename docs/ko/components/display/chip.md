@@ -197,7 +197,7 @@ chip은 나머지 모든 것보다 컨트롤 사다리에서 한 칸 아래에 �
 
 - `onClick`이 있는 chip은 `aria-pressed`가 붙은 진짜 `<button>`이라, 켜진 필터가 켜졌음을 알립니다. 없는 chip은 role도 tab stop도 더하지 않습니다. click 핸들러만 달린 죽은 `<span>`은 컴포넌트 라이브러리가 키보드 사용자를 잃는 가장 흔한 경로입니다.
 - 라벨과 삭제 버튼은 서로 다른 두 개의 tab stop이고, 어느 쪽도 다른 쪽 안에 들어 있지 않습니다.
-- 삭제 버튼에는 이미 접근 가능한 이름이 있습니다. `deleteLabel`은 그것을 바꾸는 prop입니다.
+- 삭제 버튼의 이름은 "Remove" 뒤에 chip의 글자를 붙인 "Remove design" 같은 형태라, 태그가 늘어선 줄에서 버튼마다 같은 단어만 반복되지 않습니다. 단어는 라벨 팩에서 오고, `deleteLabel`은 이름 전체를 바꿉니다.
 - `disabled`는 라벨을 아예 버튼이 아니게 만듭니다. focus는 되는데 아무 일도 안 하는 버튼을 남기는 대신입니다. 그리고 껍데기에 `aria-disabled`를 붙여 상태는 여전히 읽히게 합니다.
 
 :::
@@ -206,7 +206,7 @@ chip은 나머지 모든 것보다 컨트롤 사다리에서 한 칸 아래에 �
 
 - `onPressed`가 있는 chip은 버튼으로 알려지고 선택 여부를 보고하므로, 켜진 필터가 켜졌음을 알립니다. 없는 chip은 role도 focus stop도 더하지 않습니다.
 - 라벨과 삭제 표시는 서로 다른 두 개의 focus stop이고, 어느 쪽도 다른 쪽 안에 들어 있지 않습니다.
-- 삭제 표시에는 이미 이름이 있습니다. "Remove". `deleteLabel`은 그것을 바꿉니다.
+- `child`가 `Text`이면 삭제 표시의 이름은 "Remove" 뒤에 chip의 글자를 붙인 "Remove design" 같은 형태입니다. 다른 위젯을 담은 chip은 "Remove"만 읽히므로, 어느 chip을 지우는지 말하는 `deleteLabel`을 넘기세요. 단어는 라벨 팩에서 오고, `deleteLabel`은 이름 전체를 바꿉니다.
 - <kbd>Enter</kbd>, <kbd>Space</kbd>, 넘패드 <kbd>Enter</kbd>가 누를 수 있는 chip을 실행합니다. chip 자신에 묶여 있으므로 위에 app 위젯이 있든 없든 똑같이 동작합니다.
 - `disabled`는 chip을 focus 순서에서 빼고 실행되지 않게 하며, 삭제 표시도 함께 잠급니다.
 

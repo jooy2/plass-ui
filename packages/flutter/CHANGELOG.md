@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **Each `PlChip` delete affordance is named after its chip.** Every one was named "Remove", so moving along a row of tags read the same word for each one and never said which tag it would remove. When `child` is a `Text`, the name is now the label pack's word followed by the chip's text, such as "Remove design". A chip holding any other widget keeps the word alone, and a `deleteLabel` is still the whole name.
+
 - **The picture open in the `PlGallery` viewer has a name.** The large picture was drawn with no `semanticLabel`, so a screen reader announced an unnamed image. It now carries the item's `semanticLabel`, as its tile does.
 
 - **A `PlDataTable` sort keeps rows that compare the same in the order they came in.** Dart's `List.sort` does not keep ties in order past a few dozen items, so sorting a long table by a column of statuses shuffled the rows inside each status, and the order differed from the React table's. Ties now keep their arrival order.

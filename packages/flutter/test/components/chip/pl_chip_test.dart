@@ -137,7 +137,7 @@ void main() {
         final handle = tester.ensureSemantics();
         await tester.pumpWidget(host(const PlChip(child: Text('Tag'))));
 
-        expect(find.bySemanticsLabel('Remove'), findsNothing);
+        expect(find.bySemanticsLabel(RegExp('^Remove')), findsNothing);
         handle.dispose();
       });
 
@@ -158,9 +158,57 @@ void main() {
 
         // The × is its own focus stop and its own hit target, which is the
         // whole reason it is not inside the chip's own gesture recogniser.
-        await tester.tap(find.bySemanticsLabel('Remove'));
+        await tester.tap(find.bySemanticsLabel('Remove Tag'));
         expect(removed, 1);
         expect(pressed, 0);
+        handle.dispose();
+      });
+
+      testWidgets('names each affordance after its own chip', (WidgetTester tester) async {
+        final handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                PlChip(onDeleted: () {}, child: const Text('Design')),
+                PlChip(onDeleted: () {}, child: const Text('Research')),
+              ],
+            ),
+          ),
+        );
+
+        expect(find.bySemanticsLabel('Remove Design'), findsOneWidget);
+        expect(find.bySemanticsLabel('Remove Research'), findsOneWidget);
+        handle.dispose();
+      });
+
+      testWidgets('takes the label pack s word, or a whole name of its own', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(
+            PlassTheme.merge(
+              defaults: const PlassDefaults(labels: PlassLabels(remove: '삭제')),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  PlChip(onDeleted: () {}, child: const Text('Design')),
+                  PlChip(onDeleted: () {}, deleteLabel: '지우기', child: const Text('Research')),
+                  PlChip(onDeleted: () {}, child: const Icon(IconData(0xe000))),
+                ],
+              ),
+            ),
+          ),
+        );
+
+        expect(find.bySemanticsLabel('삭제 Design'), findsOneWidget);
+        expect(find.bySemanticsLabel('지우기'), findsOneWidget);
+        // A chip that is not words is named by the word alone.
+        expect(find.bySemanticsLabel('삭제'), findsOneWidget);
         handle.dispose();
       });
     });

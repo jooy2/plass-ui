@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlChip } from 'plass-ui';
+import { PlChip, PlassProvider } from 'plass-ui';
 
 describe('PlChip', () => {
   describe('rendering', () => {
@@ -100,9 +100,37 @@ describe('PlChip', () => {
       const onDelete = vi.fn();
       const screen = await render(<PlChip onDelete={onDelete}>Design</PlChip>);
 
-      await screen.getByRole('button', { name: 'Remove' }).click();
+      await screen.getByRole('button', { name: 'Remove Design', exact: true }).click();
 
       expect(onDelete).toHaveBeenCalledTimes(1);
+    });
+
+    it('names each delete button after its own chip', async () => {
+      const screen = await render(
+        <>
+          <PlChip onDelete={() => {}}>Design</PlChip>
+          <PlChip onDelete={() => {}}>Research</PlChip>
+        </>
+      );
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Remove Design', exact: true }))
+        .toBeInTheDocument();
+      await expect
+        .element(screen.getByRole('button', { name: 'Remove Research', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it('puts the label pack s word in front of the chip s text', async () => {
+      const screen = await render(
+        <PlassProvider labels={{ remove: '삭제' }}>
+          <PlChip onDelete={() => {}}>Design</PlChip>
+        </PlassProvider>
+      );
+
+      await expect
+        .element(screen.getByRole('button', { name: '삭제 Design', exact: true }))
+        .toBeInTheDocument();
     });
 
     it('takes a different name for that button', async () => {
@@ -112,7 +140,10 @@ describe('PlChip', () => {
         </PlChip>
       );
 
-      await expect.element(screen.getByRole('button', { name: '지우기' })).toBeInTheDocument();
+      // Given, it is the whole name, with nothing added to it.
+      await expect
+        .element(screen.getByRole('button', { name: '지우기', exact: true }))
+        .toBeInTheDocument();
     });
 
     it('keeps the label and the delete button as two separate tab stops', async () => {
@@ -122,8 +153,12 @@ describe('PlChip', () => {
         </PlChip>
       );
 
-      await expect.element(screen.getByRole('button', { name: 'Design' })).toBeInTheDocument();
-      await expect.element(screen.getByRole('button', { name: 'Remove' })).toBeInTheDocument();
+      await expect
+        .element(screen.getByRole('button', { name: 'Design', exact: true }))
+        .toBeInTheDocument();
+      await expect
+        .element(screen.getByRole('button', { name: 'Remove Design', exact: true }))
+        .toBeInTheDocument();
     });
 
     it('disables the delete button along with the chip', async () => {
@@ -133,7 +168,7 @@ describe('PlChip', () => {
         </PlChip>
       );
 
-      expect(screen.getByRole('button', { name: 'Remove' }).element()).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Remove Design' }).element()).toBeDisabled();
     });
   });
 });

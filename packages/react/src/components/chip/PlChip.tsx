@@ -45,8 +45,11 @@ export interface PlChipProps
    */
   onDelete?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   /**
-   * Accessible name of the delete button. Never drawn.
-   * @default 'Remove'
+   * Accessible name of the delete button. Never drawn. Left out, the button is
+   * named by the label pack's word followed by the chip's own text, so a row of
+   * tags does not read as the same "Remove" over and over. Given, it is the
+   * whole name.
+   * @default 'Remove', followed by the chip's text
    */
   deleteLabel?: string;
   /**
@@ -205,6 +208,8 @@ export const PlChip = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlChipPr
     const density = densityProp ?? defaults.density ?? 'default';
 
     const interactive = Boolean(onClick) && !disabled;
+    const deleteId = React.useId();
+    const textId = React.useId();
     const step = chipScale[size];
     const padX = paddingXClasses[density][step];
 
@@ -238,7 +243,9 @@ export const PlChip = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlChipPr
             `normal` sizes it to the font's own ascent and descent, and it grows
             evenly above and below, so the words sit exactly where they did. */}
         {hasContent(children) ? (
-          <span className="min-w-0 truncate leading-[normal]">{children}</span>
+          <span id={textId} className="min-w-0 truncate leading-[normal]">
+            {children}
+          </span>
         ) : null}
         {endIcon}
         {hasContent(count) ? (
@@ -283,7 +290,15 @@ export const PlChip = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlChipPr
         {onDelete ? (
           <button
             type="button"
+            id={deleteId}
             aria-label={deleteLabel}
+            // The button's own word, then the chip's text, which is how a row
+            // of tags stops reading as the same "Remove" for every one of them.
+            aria-labelledby={
+              deleteLabelProp === undefined && hasContent(children)
+                ? `${deleteId} ${textId}`
+                : undefined
+            }
             disabled={disabled}
             className={chipRemoveClasses}
             onClick={onDelete}

@@ -1181,7 +1181,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlChip', 'count', { type: 'Widget?' }),
     from('PlChip', 'onClick', { name: 'onPressed', type: 'VoidCallback?' }),
     from('PlChip', 'onDelete', { name: 'onDeleted', type: 'VoidCallback?' }),
-    from('PlChip', 'deleteLabel', { type: 'String', default: "'Remove'" }),
+    from('PlChip', 'deleteLabel', {
+      type: 'String',
+      default: "'Remove'",
+      description: {
+        ko: '삭제 표시의 이름. 화면에는 그려지지 않습니다. 넘기지 않으면 라벨 팩의 `remove` 뒤에 chip의 글자를 붙이는데, `child`가 `Text`일 때만 붙일 수 있습니다. 다른 위젯을 담은 chip에는 어느 chip을 지우는지 말하는 이름을 넘기세요. 넘기면 그 값이 이름 전체가 됩니다',
+        en: 'The name of the delete affordance. Never drawn. Left out, it is the label pack’s `remove` followed by the chip’s text, which can be read only when `child` is a `Text`; a chip holding another widget should be given a name that says which chip it removes. Given, it is the whole name'
+      }
+    }),
     from('PlChip', 'selected', { type: 'bool', default: 'false' }),
     from('PlChip', 'disabled', { type: 'bool', default: 'false' }),
     from('PlChip', 'children', { name: 'child', type: 'Widget?' })

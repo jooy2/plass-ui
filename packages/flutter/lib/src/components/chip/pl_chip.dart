@@ -89,7 +89,26 @@ class PlChip extends StatelessWidget {
   final VoidCallback? onDeleted;
 
   /// The name a screen reader gives the delete affordance. Never drawn.
+  ///
+  /// Left out, it is the label pack's `remove` followed by the chip's text when
+  /// [child] is a [Text], so a row of tags does not read as the same "Remove"
+  /// over and over. A chip whose child is some other widget is named by the
+  /// word alone, and is the one to give a [deleteLabel] that says which chip it
+  /// removes. Given, it is the whole name.
   final String? deleteLabel;
+
+  /// The words of [child] when it is a [Text], for the delete affordance's name.
+  String? get _childText {
+    final Widget? own = child;
+
+    if (own is! Text) {
+      return null;
+    }
+
+    final String? text = own.data ?? own.textSpan?.toPlainText();
+
+    return text == null || text.trim().isEmpty ? null : text;
+  }
 
   /// What the surface is made of. See [PlassVariant].
   final PlassVariant variant;
@@ -299,7 +318,9 @@ class PlChip extends StatelessWidget {
           Padding(
             padding: EdgeInsetsDirectional.only(end: padX / 2),
             child: PlassDismissButton(
-              label: deleteLabel ?? PlassTheme.labelsOf(context).remove,
+              label:
+                  deleteLabel ??
+                  <String>[PlassTheme.labelsOf(context).remove, ?_childText].join(' '),
               onPressed: disabled ? null : onDeleted,
               size: fontSize * dismissScale,
               color: surface.ink,
