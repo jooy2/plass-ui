@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **A toast keeps its clock stopped while it is being used.** Only a mouse resting on the stack paused the timeout, so a toast could leave while the keyboard focus was on its action, while a finger was held on it, or while the app was in the background, and a reader who came back to the app had missed it. The focus anywhere in the stack, a pointer pressed on it, and the app leaving the foreground now stop the clock as hovering does, and it starts over once all of them have let go.
+
 - **The loading toast of `showFuture` stays up for as long as the future takes.** Its timer was stopped once when it was shown, but the timers are started again whenever another toast arrives or the pointer leaves the stack, so a request slower than the timeout lost its loading toast, and the success or failure toast that was meant to replace it never appeared. The loading toast now has no timeout at all.
 
 - **`PlTour` says the next step when the focus stays on Next, and its heading names only itself.** Pressing Next changed the card around the button without a word to a screen reader. The step's `title` is now a live region, or its `content` on a step with no title. The heading also took the content and the counter into its name, so the first step was announced as one heading reading "Narrow the list, Type here to filter, 1 / 3"; the title and the content are now nodes of their own.

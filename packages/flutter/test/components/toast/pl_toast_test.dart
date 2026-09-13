@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -34,6 +36,14 @@ Widget _app({
     width: 600,
     height: 500,
   );
+}
+
+/// Puts the keyboard focus on the control that draws [text].
+///
+/// Directly rather than with a `Tab` key: the test host is deliberately not a
+/// `WidgetsApp`, so nothing has installed the traversal shortcuts.
+void _focus(WidgetTester tester, String text) {
+  Focus.of(tester.element(find.text(text))).requestFocus();
 }
 
 Future<void> _raise(WidgetTester tester) async {
@@ -305,6 +315,125 @@ void main() {
 
         expect(find.text('Working…'), findsNothing);
         expect(find.text('Done'), findsOneWidget);
+      });
+    });
+
+    group('holding the clock', () {
+      testWidgets('the keyboard focus on a toast stops it, and moving away starts it again', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          _app(
+            timeout: const Duration(seconds: 2),
+            messages: const <PlToast>[PlToast(title: Text('Deleted'), actionLabel: Text('Undo'))],
+          ),
+        );
+        await _raise(tester);
+
+        _focus(tester, 'Undo');
+        await tester.pump();
+
+        await tester.pump(const Duration(seconds: 3));
+        await tester.pumpAndSettle();
+        expect(find.text('Deleted'), findsOneWidget);
+
+        FocusManager.instance.primaryFocus!.unfocus();
+        await tester.pump();
+        await tester.pump(const Duration(seconds: 3));
+        await tester.pumpAndSettle();
+        expect(find.text('Deleted'), findsNothing);
+      });
+
+      testWidgets('a finger resting on a toast stops it, and lifting it starts it again', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          _app(
+            timeout: const Duration(seconds: 2),
+            messages: const <PlToast>[PlToast(title: Text('Saved'))],
+          ),
+        );
+        await _raise(tester);
+
+        final TestGesture finger = await tester.startGesture(
+          tester.getCenter(find.text('Saved')),
+          kind: PointerDeviceKind.touch,
+        );
+        await tester.pump(const Duration(seconds: 3));
+        await tester.pumpAndSettle();
+        expect(find.text('Saved'), findsOneWidget);
+
+        await finger.up();
+        await tester.pump(const Duration(seconds: 3));
+        await tester.pumpAndSettle();
+        expect(find.text('Saved'), findsNothing);
+      });
+
+      testWidgets('an app in the background stops it, and coming back starts it again', (
+        WidgetTester tester,
+      ) async {
+        var closed = 0;
+        await tester.pumpWidget(
+          _app(
+            timeout: const Duration(seconds: 2),
+            messages: <PlToast>[PlToast(title: const Text('Saved'), onClose: () => closed += 1)],
+          ),
+        );
+        await _raise(tester);
+
+        tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+        tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+        tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+        // A backgrounded app draws no frames, so the toast is still in the tree
+        // either way. Whether its clock ran out is what `onClose` says.
+        await tester.pump(const Duration(seconds: 3));
+        expect(closed, 0);
+
+        tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+        tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+        tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+        await tester.pump(const Duration(seconds: 3));
+        await tester.pumpAndSettle();
+        expect(closed, 1);
+        expect(find.text('Saved'), findsNothing);
+      });
+
+      testWidgets('what held the last toast does not hold the next one', (
+        WidgetTester tester,
+      ) async {
+        late PlToastController toasts;
+        await tester.pumpWidget(
+          host(
+            PlToastProvider(
+              timeout: const Duration(seconds: 2),
+              child: Builder(
+                builder: (BuildContext context) {
+                  toasts = PlToastProvider.of(context);
+
+                  return const SizedBox(width: 200, height: 60);
+                },
+              ),
+            ),
+            width: 600,
+            height: 500,
+          ),
+        );
+
+        toasts.show(const PlToast(title: Text('First'), actionLabel: Text('Undo')));
+        await tester.pumpAndSettle();
+
+        // The focus on the action, and the action pressed from the keyboard.
+        _focus(tester, 'Undo');
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+        expect(find.text('First'), findsNothing);
+
+        toasts.show(const PlToast(title: Text('Second')));
+        await tester.pumpAndSettle();
+        await tester.pump(const Duration(seconds: 3));
+        await tester.pumpAndSettle();
+        expect(find.text('Second'), findsNothing);
       });
     });
 

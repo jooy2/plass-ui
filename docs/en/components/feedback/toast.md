@@ -206,7 +206,7 @@ One toast that follows a <Fw react="promise" flutter="future" />: the loading me
 ::: fw flutter
 
 - `priority` decides whether a toast is a live region. `high` is announced the moment it arrives and `low` waits until the reader reaches it. An error is worth interrupting for and a save confirmation is not. Flutter has one live-region flag rather than two politeness levels, so what the React build says with two `role`s this says with one switch.
-- The pointer resting on the stack stops the clock, because a pointer resting on a toast is a reader reading it. It starts over when the pointer leaves, rather than resuming where it left off.
+- The pointer resting on the stack stops the clock, because a pointer resting on a toast is a reader reading it. So do a finger held on a toast, the keyboard focus on its action or its ×, and the app going to the background or losing the window's focus. The clock starts over once all of them have let go, rather than resuming where it left off.
 - A toast waiting behind `limit` has no clock at all: it is not being read, so its life has not started. It gets one when it reaches the screen.
 - Nothing here is told to ignore the pointer, and nothing has to be: the strip is an `Align`, which hit-tests its child and not the room around it, so the page under the empty part of the strip is reached normally.
 - The × and the action are ordinary focus stops on the toast itself.
@@ -227,7 +227,7 @@ One toast that follows a <Fw react="promise" flutter="future" />: the loading me
 | `priority: 'high' \| 'low'` | a live region, or not | Flutter has one live-region flag rather than two politeness levels. |
 | a portal, and `pointer-events-none` | a layer inside the provider | The provider is already above everything it has to cover, so there is nothing to portal into, and an `Align` lets the pointer past without being told to. |
 | swipe to dismiss, the F6 hotkey | — | Neither has a Flutter equivalent that is not a second gesture competing with the app's own. The × is always there. |
-| timers pause and resume on hover | the clock starts over when the pointer leaves | A toast the reader has just finished reading deserves its full life back rather than the two seconds it had left. |
+| timers pause and resume on hover | the clock starts over when the pointer, the finger, the focus or the app comes back | A toast the reader has just finished reading deserves its full life back rather than the two seconds it had left. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::

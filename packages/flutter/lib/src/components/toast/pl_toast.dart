@@ -306,8 +306,40 @@ class _PlToastProviderState extends State<PlToastProvider>
   /// Whether the pointer is resting on the stack, which is a reader reading it.
   bool _hovered = false;
 
+  /// Whether the keyboard focus is on something inside the stack, such as a
+  /// toast's action, which is a reader about to use it.
+  bool _focused = false;
+
+  /// The fingers, pens and buttons pressed on the stack. A finger resting on a
+  /// toast is the touch screen's hover.
+  final Set<int> _pressed = <int>{};
+
+  /// Whether the app is anywhere but in front of the reader: in the background,
+  /// behind a system sheet, or in a browser tab or window that lost the focus.
+  bool _away = false;
+
+  late final AppLifecycleListener _lifecycle;
+
+  /// Whether anything says the stack is being read, or cannot be.
+  bool get _held => _hovered || _focused || _pressed.isNotEmpty || _away;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final AppLifecycleState? state = WidgetsBinding.instance.lifecycleState;
+    _away = state != null && state != AppLifecycleState.resumed;
+    _lifecycle = AppLifecycleListener(
+      onStateChange: (AppLifecycleState state) {
+        _hold(away: state != AppLifecycleState.resumed);
+      },
+    );
+  }
+
   @override
   void dispose() {
+    _lifecycle.dispose();
+
     for (final entry in _entries) {
       entry
         ..cancel()
@@ -407,14 +439,16 @@ class _PlToastProviderState extends State<PlToastProvider>
   /// ones that are not.
   ///
   /// A toast waiting behind the limit is not being read, so its life has not
-  /// started; a toast under the pointer *is* being read, so its life is paused.
+  /// started; a toast under the pointer, a finger or the keyboard focus *is*
+  /// being read, so its life is paused, and so is every toast of an app the
+  /// reader has left.
   void _rewind() {
     for (var index = 0; index < _entries.length; index += 1) {
       final entry = _entries[index];
       final timeout = entry.toast.timeout ?? widget.timeout;
       final visible = index < widget.limit;
 
-      if (entry.closing || !visible || _hovered || timeout == Duration.zero) {
+      if (entry.closing || !visible || _held || timeout == Duration.zero) {
         entry.cancel();
 
         continue;
@@ -442,17 +476,52 @@ class _PlToastProviderState extends State<PlToastProvider>
 
       setState(() => _entries.remove(entry));
       entry.fade.dispose();
+
+      // The last toast takes the stack out of the tree, and neither a mouse
+      // region nor a focus node reports leaving on its way out. What held the
+      // clocks goes with it, or the next toast would arrive already paused.
+      if (_entries.isEmpty) {
+        _hovered = false;
+        _focused = false;
+        _pressed.clear();
+      }
+
       _rewind();
     });
   }
 
-  void _hover({required bool over}) {
-    if (_hovered == over) {
-      return;
-    }
+  /// Records one of the things that stop the clocks, and hands the clocks back
+  /// when the last of them has gone.
+  void _hold({bool? over, bool? focused, bool? away}) {
+    final bool held = _held;
 
-    _hovered = over;
-    _rewind();
+    _hovered = over ?? _hovered;
+    _focused = focused ?? _focused;
+    _away = away ?? _away;
+
+    if (held != _held) {
+      _rewind();
+    }
+  }
+
+  void _press(PointerEvent event) {
+    final bool held = _held;
+
+    _pressed.add(event.pointer);
+
+    if (held != _held) {
+      _rewind();
+    }
+  }
+
+  void _release(PointerEvent event) {
+    final bool held = _held;
+
+    _pressed.remove(event.pointer);
+
+    if (held != _held) {
+      _rewind();
+    }
   }
 
   bool get _atTop =>
@@ -511,38 +580,50 @@ class _PlToastProviderState extends State<PlToastProvider>
                   alignment: _alignment,
                   child: MouseRegion(
                     opaque: false,
-                    onEnter: (_) => _hover(over: true),
-                    onExit: (_) => _hover(over: false),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: _across,
-                      spacing: _stackGap,
-                      children: <Widget>[
-                        // Newest nearest the edge the stack is pinned to, so a
-                        // message that has just arrived is never the one that
-                        // moved.
-                        // Newest nearest the edge the stack is pinned to, so a
-                        // message that has just arrived is never the one that
-                        // moved. The list is oldest-first, so a top stack reads
-                        // it backwards and a bottom one does not.
-                        for (final entry in _atTop ? visible.reversed : visible)
-                          ConstrainedBox(
-                            constraints: BoxConstraints(maxWidth: widget.width),
-                            child: FadeTransition(
-                              opacity: entry.fade,
-                              child: _Toast(
-                                key: ValueKey<String>(entry.toast.id!),
-                                toast: entry.toast,
-                                variant: entry.toast.variant ?? widget.variant,
-                                color: entry.toast.color ?? _color,
-                                size: _size,
-                                density: _density,
-                                closeLabel: widget.closeLabel ?? PlassTheme.labelsOf(context).close,
-                                onClose: () => _dismiss(entry),
+                    onEnter: (_) => _hold(over: true),
+                    onExit: (_) => _hold(over: false),
+                    child: Listener(
+                      onPointerDown: _press,
+                      onPointerUp: _release,
+                      onPointerCancel: _release,
+                      child: Focus(
+                        canRequestFocus: false,
+                        skipTraversal: true,
+                        includeSemantics: false,
+                        onFocusChange: (bool focused) => _hold(focused: focused),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: _across,
+                          spacing: _stackGap,
+                          children: <Widget>[
+                            // Newest nearest the edge the stack is pinned to, so a
+                            // message that has just arrived is never the one that
+                            // moved.
+                            // Newest nearest the edge the stack is pinned to, so a
+                            // message that has just arrived is never the one that
+                            // moved. The list is oldest-first, so a top stack reads
+                            // it backwards and a bottom one does not.
+                            for (final entry in _atTop ? visible.reversed : visible)
+                              ConstrainedBox(
+                                constraints: BoxConstraints(maxWidth: widget.width),
+                                child: FadeTransition(
+                                  opacity: entry.fade,
+                                  child: _Toast(
+                                    key: ValueKey<String>(entry.toast.id!),
+                                    toast: entry.toast,
+                                    variant: entry.toast.variant ?? widget.variant,
+                                    color: entry.toast.color ?? _color,
+                                    size: _size,
+                                    density: _density,
+                                    closeLabel:
+                                        widget.closeLabel ?? PlassTheme.labelsOf(context).close,
+                                    onClose: () => _dismiss(entry),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                      ],
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
