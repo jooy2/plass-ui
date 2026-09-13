@@ -31,13 +31,13 @@ import 'dart:io';
 /// package at all, and the whole-library gallery, which is far too large to be
 /// an expression. Both are looked up in [standalone].
 const Map<String, String?> scenarios = <String, String?>{
-  'empty (기준)': '',
-  'PlDivider 1개': 'PlDivider()',
-  'PlTypography 1개': "PlTypography('Hi')",
-  'PlCard 1개': "PlCard(child: Text('Hi'))",
-  'PlButton 1개': "PlButton(child: Text('Save'))",
-  '전체 컴포넌트': null,
-  'Material 1개 (비교군)': null,
+  'Empty app (baseline)': '',
+  'One PlDivider': 'PlDivider()',
+  'One PlTypography': "PlTypography('Hi')",
+  'One PlCard': "PlCard(child: Text('Hi'))",
+  'One PlButton': "PlButton(child: Text('Save'))",
+  'Every component': null,
+  'One Material button': null,
 };
 
 /// Where a scenario's own entry point is read from, when it has one.
@@ -46,7 +46,7 @@ const Map<String, String?> scenarios = <String, String?>{
 /// it: it names every component in the package, and a constructor that gains a
 /// required parameter should break `flutter analyze` rather than this tool,
 /// three minutes into a run.
-const Map<String, String> standalone = <String, String>{'전체 컴포넌트': 'tool/gallery.dart'};
+const Map<String, String> standalone = <String, String>{'Every component': 'tool/gallery.dart'};
 
 String entryPoint(String name, String? body) {
   final String? own = standalone[name];
@@ -85,7 +85,7 @@ Future<void> main() async {
   final Directory work = Directory.systemTemp.createTempSync('plass-size-');
   final String package = Directory.current.absolute.path;
 
-  stdout.writeln('앱 하네스 생성 중… ${work.path}');
+  stdout.writeln('Creating the app harness in ${work.path}');
   await run('flutter', <String>[
     'create',
     '--platforms=web',
@@ -108,14 +108,16 @@ Future<void> main() async {
   for (final MapEntry<String, String?> entry in scenarios.entries) {
     final String file = 'lib/main_${index++}.dart';
     File('$app/$file').writeAsStringSync(entryPoint(entry.key, entry.value));
-    stdout.writeln('빌드: ${entry.key}');
+    stdout.writeln('Building: ${entry.key}');
     await run('flutter', <String>['build', 'web', '--release', '-t', file], cwd: app);
     final List<int> bytes = File('$app/build/web/main.dart.js').readAsBytesSync();
     sizes[entry.key] = gzip.encode(bytes).length;
   }
 
   final int floor = sizes.values.first;
-  stdout.writeln('\n${'시나리오'.padRight(24)}${'main.dart.js gz'.padLeft(18)}${'기준 대비'.padLeft(14)}');
+  stdout.writeln(
+    '\n${'Scenario'.padRight(24)}${'main.dart.js gz'.padLeft(18)}${'Over baseline'.padLeft(14)}',
+  );
   stdout.writeln('-' * 56);
   for (final MapEntry<String, int> entry in sizes.entries) {
     final double kb = entry.value / 1024;
@@ -138,7 +140,9 @@ Future<void> run(String executable, List<String> arguments, {required String cwd
     runInShell: true,
   );
   if (result.exitCode != 0) {
-    stderr.writeln('$executable ${arguments.join(' ')} 실패:\n${result.stdout}\n${result.stderr}');
+    stderr.writeln(
+      '$executable ${arguments.join(' ')} failed:\n${result.stdout}\n${result.stderr}',
+    );
     exit(1);
   }
 }

@@ -59,8 +59,8 @@ const EXTERNAL = ['react', 'react-dom', 'react/jsx-runtime', 'react-dom/client']
  * and the only number that cannot be improved by tree shaking.
  */
 const SCENARIOS = [
-  { name: 'PlButton 하나', imports: ['PlButton'] },
-  { name: 'PlTypography 하나', imports: ['PlTypography'] },
+  { name: 'One PlButton', imports: ['PlButton'] },
+  { name: 'One PlTypography', imports: ['PlTypography'] },
   /*
    * The two components whose heaviest feature is off by default, and which are
    * therefore the two the budget is most likely to catch drifting.
@@ -71,14 +71,17 @@ const SCENARIOS = [
    * 26.8 kB that way, and took `PlGallery` up to 28.9 kB with it, because a
    * gallery draws its tiles with one.
    */
-  { name: 'PlImage 하나', imports: ['PlImage'] },
-  { name: 'PlGallery 하나', imports: ['PlGallery'] },
-  { name: '폼 5개', imports: ['PlButton', 'PlTextField', 'PlCheckbox', 'PlCard', 'PlTypography'] },
+  { name: 'One PlImage', imports: ['PlImage'] },
+  { name: 'One PlGallery', imports: ['PlGallery'] },
   {
-    name: '오버레이 5개',
+    name: 'Five form controls',
+    imports: ['PlButton', 'PlTextField', 'PlCheckbox', 'PlCard', 'PlTypography']
+  },
+  {
+    name: 'Five overlays',
     imports: ['PlModal', 'PlTooltip', 'PlMenu', 'PlToastProvider', 'PlSelect']
   },
-  { name: '전체', imports: null }
+  { name: 'Everything', imports: null }
 ];
 
 const gzip = (text) => gzipSync(Buffer.from(text), { level: 9 }).length;
@@ -197,11 +200,11 @@ const componentDirs = readdirSync(resolve(root, 'dist/components'), { withFileTy
 
 const resolution = checkNodeResolution(componentDirs);
 if (!resolution.ok) {
-  console.error('✗ Node가 dist를 로드하지 못했습니다 (SSR에서 그대로 실패합니다):\n');
+  console.error('✗ Node could not load dist/, so a server render would fail the same way:\n');
   console.error(resolution.message);
   process.exitCode = 1;
 } else {
-  console.log(`✓ Node ESM 해석 ${resolution.count}개 진입점 통과\n`);
+  console.log(`✓ Node's ESM resolver loaded all ${resolution.count} entry points\n`);
 }
 
 const budget = JSON.parse(readFileSync(budgetPath, 'utf8'));
@@ -209,7 +212,7 @@ const measured = {};
 let regressed = false;
 
 console.log(
-  '시나리오'.padEnd(22) + 'gzip'.padStart(10) + '예산'.padStart(12) + '차이'.padStart(12)
+  'Scenario'.padEnd(22) + 'gzip'.padStart(10) + 'Budget'.padStart(12) + 'Change'.padStart(12)
 );
 console.log('-'.repeat(56));
 for (const scenario of SCENARIOS) {
@@ -234,8 +237,10 @@ for (const scenario of SCENARIOS) {
 
 if (update) {
   writeFileSync(budgetPath, `${JSON.stringify({ ...budget, scenarios: measured }, null, 2)}\n`);
-  console.log('\nsize-budget.json 갱신됨');
+  console.log('\nUpdated size-budget.json');
 } else if (regressed) {
-  console.error('\n✗ 예산 초과. 의도한 변경이라면 `npm run size -- --update`');
+  console.error(
+    '\n✗ Over budget. If the change was meant to move the numbers, run `npm run size -- --update`.'
+  );
   process.exitCode = 1;
 }
