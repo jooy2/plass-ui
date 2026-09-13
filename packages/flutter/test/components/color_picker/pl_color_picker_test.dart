@@ -206,6 +206,36 @@ void main() {
       expect(seen.single, 'rgb(34, 197, 94)');
     });
 
+    testWidgets('keeps the value field focused while a colour is typed into it', (
+      WidgetTester tester,
+    ) async {
+      String value = '#ff0000';
+
+      await tester.pumpWidget(
+        host(
+          StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) => PlColorPicker(
+              inline: true,
+              value: value,
+              onValueChanged: (String next) => setState(() => value = next),
+            ),
+          ),
+          width: 400,
+          height: 500,
+          overlay: true,
+        ),
+      );
+
+      await tester.showKeyboard(find.byType(EditableText));
+      tester.testTextInput.enterText('#00f');
+      await tester.pump();
+      tester.testTextInput.enterText('#00ff00');
+      await tester.pump();
+
+      expect(value, '#00ff00');
+      expect(tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus, isTrue);
+    });
+
     testWidgets('draws none at all when it is told to', (WidgetTester tester) async {
       final SemanticsHandle handle = tester.ensureSemantics();
 

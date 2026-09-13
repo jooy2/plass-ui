@@ -36,6 +36,8 @@
 
 ### Fixed
 
+- **Typing into a `PlColorPicker`'s value field keeps the focus.** The field was given a new focus node on every rebuild, and every keystroke that changed the colour rebuilt it, so the field lost focus and the keyboard closed after one character. The node that was thrown away was never disposed either.
+
 - **The time columns of `PlTimePicker` and `PlDateTimePicker` work from the keyboard.** No row could take focus, so the only way to set a time without a pointer was the Now button. Each column is now one tab stop on its chosen row, and the arrow keys, Home and End choose a row and move the focus with it, stepping over a blocked row.
 
 - **A `PlToast` that is fading out stays closed.** Raising another toast, or moving the pointer off the stack, during the fade gave the closing toast a new clock, so five seconds later its `onClose` was called a second time and its disposed fade threw. A closing toast is now off the clock and cannot be dismissed twice.

@@ -248,6 +248,11 @@ class _PlColorPickerState extends State<PlColorPicker> {
   late PlassColorValue _model =
       parseColor(widget.value ?? '#1a58d1') ?? const PlassColorValue(_fallback, 1);
   late final TextEditingController _text = TextEditingController(text: widget.value ?? '#1a58d1');
+
+  /// The value field's focus, held here so that a rebuild keeps it. A node made
+  /// inside the panel's build was a new node on every keystroke, and the field
+  /// lost focus and the keyboard with each one.
+  final FocusNode _textFocus = FocusNode();
   bool _open = false;
 
   String get _written => formatColor(_model.hsv, widget.alpha ? _model.alpha : 1, widget.format);
@@ -289,6 +294,7 @@ class _PlColorPickerState extends State<PlColorPicker> {
   @override
   void dispose() {
     _text.dispose();
+    _textFocus.dispose();
     super.dispose();
   }
 
@@ -312,6 +318,7 @@ class _PlColorPickerState extends State<PlColorPicker> {
       model: _model,
       onChanged: _commit,
       controller: _text,
+      focusNode: _textFocus,
       onTyped: (String next) {
         final PlassColorValue? parsed = parseColor(next);
 
@@ -482,6 +489,7 @@ class _ColorPanel extends StatelessWidget {
     required this.model,
     required this.onChanged,
     required this.controller,
+    required this.focusNode,
     required this.onTyped,
     required this.withAlpha,
     required this.swatches,
@@ -495,6 +503,7 @@ class _ColorPanel extends StatelessWidget {
   final PlassColorValue model;
   final void Function(PlassColorValue next, {String? typed}) onChanged;
   final TextEditingController controller;
+  final FocusNode focusNode;
   final ValueChanged<String> onTyped;
   final bool withAlpha;
   final List<String> swatches;
@@ -668,7 +677,7 @@ class _ColorPanel extends StatelessWidget {
                         textField: true,
                         child: EditableText(
                           controller: controller,
-                          focusNode: FocusNode(),
+                          focusNode: focusNode,
                           readOnly: inert,
                           onChanged: onTyped,
                           style: TextStyle(
