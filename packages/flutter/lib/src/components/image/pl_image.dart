@@ -46,6 +46,21 @@ enum PlImageFilter {
   dim,
 }
 
+/// Which way the picture is mirrored, along the axes it is shown on.
+enum PlImageFlip {
+  /// Left as it is.
+  none,
+
+  /// Left and right swapped on the screen.
+  horizontal,
+
+  /// Top and bottom swapped on the screen.
+  vertical,
+
+  /// Both, which is the same picture turned upside down.
+  both,
+}
+
 /// Where the picture has got to.
 enum PlImageStatus {
   /// On its way.
@@ -87,6 +102,7 @@ class PlImage extends StatefulWidget {
     this.ratio,
     this.fit = PlAspectFit.cover,
     this.rotate = 0,
+    this.flip = PlImageFlip.none,
     this.filter = PlImageFilter.none,
     this.colorFilter,
     this.watermark,
@@ -135,6 +151,13 @@ class PlImage extends StatefulWidget {
   /// and is kept, and [fit] decides how the turned picture fills it. The
   /// placeholder, the fallback and the watermark stay upright.
   final int rotate;
+
+  /// Mirrors the picture, along the axes it is shown on.
+  ///
+  /// [PlImageFlip.horizontal] swaps left and right on the screen and
+  /// [PlImageFlip.vertical] swaps top and bottom, whichever way [rotate] has
+  /// turned the picture.
+  final PlImageFlip flip;
 
   /// A treatment laid over the picture.
   ///
@@ -223,21 +246,36 @@ class _PlImageState extends State<PlImage> {
     });
   }
 
-  /// The picture turned the way [PlImage.rotate] says.
+  /// The picture turned and mirrored the way [PlImage.rotate] and
+  /// [PlImage.flip] say.
   ///
-  /// A [RotatedBox] rather than a [Transform], because it turns the layout as
-  /// well as the paint: the picture is laid out at the box's height by its
-  /// width, fitted there, and turned into place, so a picture on its side fills
-  /// its box rather than overhanging it on one axis and falling short on the
-  /// other.
+  /// The turn is a [RotatedBox] rather than a [Transform], because it turns the
+  /// layout as well as the paint: the picture is laid out at the box's height by
+  /// its width, fitted there, and turned into place, so a picture on its side
+  /// fills its box rather than overhanging it on one axis and falling short on
+  /// the other.
+  ///
+  /// The mirror goes outside the turn, so it acts on the axes of the screen and
+  /// needs no swapping on a quarter turn. The React build writes its mirror in
+  /// the element's own axes and swaps them there instead.
   Widget _pose(Widget child) {
     final int quarters = quartersOf(widget.rotate);
+    final PlImageFlip flip = widget.flip;
+    Widget posed = child;
 
-    if (quarters == 0) {
-      return child;
+    if (quarters != 0) {
+      posed = RotatedBox(quarterTurns: quarters, child: posed);
     }
 
-    return RotatedBox(quarterTurns: quarters, child: child);
+    if (flip != PlImageFlip.none) {
+      posed = Transform.flip(
+        flipX: flip == PlImageFlip.horizontal || flip == PlImageFlip.both,
+        flipY: flip == PlImageFlip.vertical || flip == PlImageFlip.both,
+        child: posed,
+      );
+    }
+
+    return posed;
   }
 
   /// The picture with its treatment on it, or the picture as it is.
@@ -429,8 +467,8 @@ class _PlImageState extends State<PlImage> {
             label: widget.previewLabel ?? PlassTheme.labelsOf(context).preview,
             // The mark follows the picture in. One that comes off the moment it
             // is opened large has marked the copy nobody wanted.
-            // Turned the way the thumbnail was, so the picture opens the way it
-            // was shown.
+            // Turned and mirrored the way the thumbnail was, so the picture opens
+            // the way it was shown.
             child: widget.watermark == null
                 ? _pose(Image(image: widget.image, fit: BoxFit.contain, excludeFromSemantics: true))
                 : Stack(

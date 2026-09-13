@@ -333,6 +333,72 @@ describe('PlImage', () => {
     });
   });
 
+  describe('flip', () => {
+    /**
+     * The mirror as two numbers across and down. A browser writes a uniform
+     * `scale: -1 -1` back as `-1`, so one number is both.
+     */
+    const mirror = () => {
+      const [x, y = x] = image().style.scale.split(' ');
+
+      return x === undefined || x === '' ? null : [x, y];
+    };
+
+    it('mirrors nothing until it is asked to', async () => {
+      await render(<PlImage src={OK} alt="A portrait" />);
+
+      expect(mirror()).toBeNull();
+    });
+
+    it('mirrors along the axis it names', async () => {
+      const screen = await render(<PlImage src={OK} alt="A portrait" flip="horizontal" />);
+
+      expect(mirror()).toEqual(['-1', '1']);
+
+      await screen.rerender(<PlImage src={OK} alt="A portrait" flip="vertical" />);
+
+      expect(mirror()).toEqual(['1', '-1']);
+
+      await screen.rerender(<PlImage src={OK} alt="A portrait" flip="both" />);
+
+      expect(mirror()).toEqual(['-1', '-1']);
+      expect(image().style.transform).toBe('');
+    });
+
+    it('swaps the axes on a quarter turn, so the mirror lands on the screen’s', async () => {
+      const screen = await render(
+        <PlImage src={OK} alt="A portrait" flip="horizontal" rotate={90} />
+      );
+
+      // `scale` acts on the element before `rotate` turns it, so left and right
+      // on the screen are the element's top and bottom.
+      expect(mirror()).toEqual(['1', '-1']);
+
+      await screen.rerender(<PlImage src={OK} alt="A portrait" flip="vertical" rotate={270} />);
+
+      expect(mirror()).toEqual(['-1', '1']);
+
+      await screen.rerender(<PlImage src={OK} alt="A portrait" flip="horizontal" rotate={180} />);
+
+      expect(mirror()).toEqual(['-1', '1']);
+    });
+
+    it('opens the preview mirrored', async () => {
+      const screen = await render(
+        <PlImage src={OK} alt="A portrait" flip="vertical" rotate={90} preview />
+      );
+
+      await expect.poll(() => document.querySelector('button')!.disabled).toBe(false);
+      await screen.getByRole('button').click();
+      await expect.poll(() => document.querySelectorAll('img').length).toBe(2);
+
+      const opened = [...document.querySelectorAll('img')].at(-1)!;
+
+      expect(opened.style.scale).toBe('-1 1');
+      expect(opened.style.rotate).toBe('90deg');
+    });
+  });
+
   describe('filter', () => {
     it('draws nothing of its own until it is asked to', async () => {
       await render(<PlImage src={OK} alt="A portrait" />);

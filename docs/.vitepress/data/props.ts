@@ -14233,6 +14233,15 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'flip',
+      type: "'none' | 'horizontal' | 'vertical' | 'both'",
+      default: "'none'",
+      description: {
+        ko: '사진을 뒤집습니다. 기준은 화면에 보이는 축이라, 돌린 사진에서도 horizontal은 좌우를 바꿉니다',
+        en: 'Mirrors the picture along the axes it is shown on, so horizontal swaps left and right even on a turned picture'
+      }
+    },
+    {
       name: 'filter',
       type: "'none' | 'grayscale' | 'sepia' | 'saturate' | 'desaturate' | 'contrast' | 'dim' | string",
       default: "'none'",

@@ -5,7 +5,7 @@ import { PlOverlay } from '../overlay/PlOverlay.js';
 import { cx } from '../../internal/styles.js';
 import { isSideways, poseStyle } from '../../internal/image.js';
 import { PlassWatermark } from '../../internal/watermark.js';
-import type { PlassQuarters } from '../../internal/image.js';
+import type { PlassImageFlip, PlassQuarters } from '../../internal/image.js';
 import type { PlassWatermarkOptions } from '../../internal/watermark.js';
 import type { PlassColor } from '../../types.js';
 
@@ -38,6 +38,8 @@ export interface PlImagePreviewProps {
    * the way it was shown.
    */
   quarters?: PlassQuarters;
+  /** The thumbnail's mirror, carried in for the same reason as its turn. */
+  flip?: PlassImageFlip;
   /**
    * The file's own pixel size, where the thumbnail knows it. A picture on its
    * side is opened in a box of the turned shape, and this is that shape.
@@ -104,6 +106,7 @@ export function PlImagePreview({
   protect = false,
   watermark,
   quarters = 0,
+  flip = 'none',
   file = null
 }: PlImagePreviewProps) {
   const sideways = isSideways(quarters);
@@ -126,9 +129,9 @@ export function PlImagePreview({
             sideways ? '' : 'max-h-[85vh] max-w-[90vw]',
             protect ? 'select-none [-webkit-touch-callout:none]' : ''
           )}
-          // The same declarations the thumbnail was turned with, so the turned
+          // The same declarations the thumbnail was drawn with, so a turned
           // picture is laid out at the box's height by its width and fitted.
-          style={poseStyle(quarters) ?? undefined}
+          style={poseStyle(quarters, flip) ?? undefined}
           draggable={protect ? false : undefined}
           onDragStart={protect ? (event) => event.preventDefault() : undefined}
           onContextMenu={protect ? (event) => event.preventDefault() : undefined}

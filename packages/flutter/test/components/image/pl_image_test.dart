@@ -401,6 +401,103 @@ void main() {
       });
     });
 
+    group('flip', () {
+      /// The mirror the picture is drawn with, as the signs of the matrix's two
+      /// scales, or `null` for none.
+      (double, double)? mirrored(WidgetTester tester, {Finder? within}) {
+        final Finder flips = find.descendant(
+          of: within ?? find.byType(PlImage),
+          matching: find.byWidgetPredicate(
+            (Widget widget) =>
+                widget is Transform &&
+                (widget.transform.entry(0, 0) < 0 || widget.transform.entry(1, 1) < 0),
+          ),
+        );
+
+        if (flips.evaluate().isEmpty) {
+          return null;
+        }
+
+        final Matrix4 matrix = tester.widget<Transform>(flips.first).transform;
+
+        return (matrix.entry(0, 0), matrix.entry(1, 1));
+      }
+
+      testWidgets('mirrors nothing until it is asked to', (WidgetTester tester) async {
+        await _pump(tester, PlImage(image: _ok, semanticLabel: 'A portrait'));
+        await tester.pumpAndSettle();
+
+        expect(mirrored(tester), isNull);
+      });
+
+      testWidgets('mirrors along the axis it names', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          PlImage(image: _ok, semanticLabel: 'A portrait', flip: PlImageFlip.horizontal),
+        );
+        await tester.pumpAndSettle();
+
+        expect(mirrored(tester), (-1.0, 1.0));
+
+        await _pump(
+          tester,
+          PlImage(image: _ok, semanticLabel: 'A portrait', flip: PlImageFlip.vertical),
+        );
+        await tester.pumpAndSettle();
+
+        expect(mirrored(tester), (1.0, -1.0));
+
+        await _pump(
+          tester,
+          PlImage(image: _ok, semanticLabel: 'A portrait', flip: PlImageFlip.both),
+        );
+        await tester.pumpAndSettle();
+
+        expect(mirrored(tester), (-1.0, -1.0));
+      });
+
+      testWidgets('mirrors the screen’s axes over a turn', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          PlImage(
+            image: _ok,
+            semanticLabel: 'A portrait',
+            flip: PlImageFlip.horizontal,
+            rotate: 90,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Outside the turn, so left and right on the screen are what swap: the
+        // mirror holds the turn rather than the other way round.
+        expect(mirrored(tester), (-1.0, 1.0));
+        expect(
+          find.descendant(of: find.byType(Transform), matching: find.byType(RotatedBox)),
+          findsOneWidget,
+        );
+      });
+
+      testWidgets('opens the preview mirrored', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          PlImage(
+            image: _ok,
+            ratio: 1,
+            semanticLabel: 'A portrait',
+            preview: true,
+            flip: PlImageFlip.vertical,
+          ),
+          overlay: true,
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byType(PlImage));
+        await tester.pumpAndSettle();
+
+        expect(mirrored(tester, within: find.byType(PlOverlay)), (1.0, -1.0));
+      });
+    });
+
     group('filter', () {
       /// The filter the picture is actually drawn through, or `null`.
       ColorFilter? applied(WidgetTester tester) {

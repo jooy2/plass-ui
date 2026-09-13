@@ -6,6 +6,7 @@ import { useLabels } from '../../internal/labels.js';
 import { PlSkeleton } from '../skeleton/PlSkeleton.js';
 import { PlassWatermark } from '../../internal/watermark.js';
 import { isSideways, poseStyle, quartersOf } from '../../internal/image.js';
+import type { PlassImageFlip } from '../../internal/image.js';
 import { cx, focusRingClasses, radiusClasses, transitionClasses } from '../../internal/styles.js';
 import type { PlassColor, PlassSize } from '../../types.js';
 import type { PlassWatermarkOptions, PlassWatermarkPlacement } from '../../internal/watermark.js';
@@ -28,6 +29,12 @@ export type PlImageFit = 'cover' | 'contain' | 'fill' | 'none';
  * editor's job rather than a component's.
  */
 export type PlImageRotation = 0 | 90 | 180 | 270;
+
+/**
+ * Which way the picture is mirrored, along the axes it is shown on: `horizontal`
+ * swaps left and right on the screen whether or not the picture is turned.
+ */
+export type PlImageFlip = PlassImageFlip;
 
 /** The treatments that have a name. Anything else is written as CSS. */
 export type PlImageFilter =
@@ -69,6 +76,15 @@ export interface PlImageProps extends Omit<
    * @default 0
    */
   rotate?: PlImageRotation;
+  /**
+   * Mirrors the picture, along the axes it is shown on.
+   *
+   * `horizontal` swaps left and right on the screen and `vertical` swaps top
+   * and bottom, whichever way `rotate` has turned the picture. Drawn with CSS's
+   * own `scale` property, so `transform` stays free.
+   * @default 'none'
+   */
+  flip?: PlImageFlip;
   /**
    * A treatment laid over the picture: one of the named ones, or any CSS
    * `filter` chain of your own — `'blur(2px) hue-rotate(20deg)'` is as valid a
@@ -254,6 +270,7 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
       ratio,
       fit = 'cover',
       rotate = 0,
+      flip = 'none',
       filter,
       watermark,
       protect = false,
@@ -386,7 +403,7 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
 
     const quarters = quartersOf(rotate);
     const sideways = isSideways(quarters);
-    const pose = poseStyle(quarters);
+    const pose = poseStyle(quarters, flip);
 
     const pictureStyle: React.CSSProperties | undefined =
       filterChain === undefined && pose === null
@@ -533,6 +550,7 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
             protect={protect}
             watermark={watermark}
             quarters={quarters}
+            flip={flip}
             file={file}
           />
         </React.Suspense>

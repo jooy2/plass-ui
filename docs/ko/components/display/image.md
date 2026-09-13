@@ -115,6 +115,34 @@ PlImage(
 
 :::
 
+### flip
+
+사진을 뒤집습니다. `horizontal`은 좌우를, `vertical`은 위아래를 바꾸고, `both`는 둘 다 바꿉니다. 기준은 화면에 보이는 축입니다. 그래서 `flip="horizontal"`은 `rotate`로 돌렸든 아니든 화면에서 좌우를 바꿉니다.
+
+<Demo src="image/flip" :min-height="200">
+
+::: fw react
+
+<<< @/.vitepress/demos/image/flip.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/flip.dart
+
+:::
+
+</Demo>
+
+뒤집어도 상자는 그대로이고, `preview`도 같은 방향으로 뒤집힌 사진을 엽니다.
+
+::: fw react
+
+뒤집기는 CSS `scale` 속성으로 그립니다. 그래서 `rotate`와 마찬가지로 `transform`을 비워 둡니다.
+
+:::
+
 ### filter
 
 사진에 얹는 처리입니다. 여섯 가지에 이름이 있고(`grayscale`, `sepia`, `saturate`, `desaturate`, `contrast`, `dim`) 그 밖에 넘기는 것은 CSS `filter` 체인이라 쓴 그대로 적용됩니다.

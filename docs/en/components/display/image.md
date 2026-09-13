@@ -115,6 +115,34 @@ The picture is turned with a `RotatedBox`, which turns its layout as well as its
 
 :::
 
+### flip
+
+Mirrors the picture: `horizontal` swaps left and right, `vertical` swaps top and bottom, and `both` does the two. The axes are the ones the picture is shown on, so `flip="horizontal"` swaps left and right on the screen whether or not `rotate` has turned the picture.
+
+<Demo src="image/flip" :min-height="200">
+
+::: fw react
+
+<<< @/.vitepress/demos/image/flip.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/flip.dart
+
+:::
+
+</Demo>
+
+A mirrored picture keeps its box, and `preview` opens it mirrored the same way.
+
+::: fw react
+
+The mirror is drawn with the CSS `scale` property, so it leaves `transform` free just as `rotate` does.
+
+:::
+
 ### filter
 
 A treatment laid over the picture. Six of them have names (`grayscale`, `sepia`, `saturate`, `desaturate`, `contrast` and `dim`), and anything else you pass is a CSS `filter` chain, used exactly as written.
