@@ -60,6 +60,7 @@ Some features are missing from browsers inside the full-support range. Each one 
 | Feature | Chrome | Firefox | Safari | Used for | Without it |
 | --- | --- | --- | --- | --- | --- |
 | `animation-timeline` | 115 | Not yet | 26 | `timeline="view"` on the transition effects, which follows the scroll position | The effect runs on its `duration`, as it does without `timeline` |
+| `fetchpriority` | 101 | 132 | 17.2 | `priority` on [`PlImage`](./components/display/image), which asks for the picture a page is judged by ahead of the others | The picture is still fetched eagerly, at the browser's default priority |
 | `hidden="until-found"` | 102 | 139 | 26.2 | `hiddenUntilFound` on [`PlAccordion`](./components/surfaces/accordion) and [`PlCollapsible`](./components/surfaces/collapsible), which lets find-in-page open a closed panel | Text inside a closed panel is not found |
 | `Intl.Locale` week data | 99 | 153 | 15.4 | Calendars start the week on the day the locale starts it | The week starts on Sunday unless `weekStartsOn` is set on the component or on [`PlassProvider`](./guide/defaults) |
 

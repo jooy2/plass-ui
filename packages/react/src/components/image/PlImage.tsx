@@ -256,6 +256,17 @@ export interface PlImageProps extends Omit<
   preview?: boolean;
   /** The accessible name of the preview overlay. @default 'Preview' */
   previewLabel?: string;
+  /**
+   * Marks the picture a page is judged by — usually the largest thing above the
+   * fold, which is what Largest Contentful Paint measures — so it is fetched
+   * early rather than lazily: `loading="eager"` and a high fetch priority.
+   *
+   * Everything else about when a picture loads belongs to the `<img>` and
+   * passes straight through: `loading`, `decoding`, `fetchPriority`. An
+   * attribute written out wins over what this implies.
+   * @default false
+   */
+  priority?: boolean;
   /** Called when the picture has loaded, and when it has failed. */
   onStatusChange?: (status: PlImageStatus) => void;
 }
@@ -323,6 +334,16 @@ function naturalSize(node: HTMLImageElement | null): PixelSize | null {
  * fading its edge out.
  */
 const LETTERBOX_BLUR = 24;
+
+/**
+ * The spelling React accepts for the `fetchpriority` attribute.
+ *
+ * React 19 knows it as `fetchPriority` and warns about the lower-case form.
+ * React 18 does not know it at all, and warns about the camel-case form while
+ * writing the attribute anyway. The attribute is the same either way, so this
+ * only decides which of the two supported versions stays quiet.
+ */
+const FETCH_PRIORITY = Number.parseInt(React.version, 10) >= 19 ? 'fetchPriority' : 'fetchpriority';
 
 /** How far a picture stand-in with `blur: true` is blurred, in pixels. */
 const PLACEHOLDER_BLUR = 20;
@@ -467,7 +488,8 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
       onStatusChange,
       className,
       style,
-      loading = 'lazy',
+      loading: loadingProp,
+      priority = false,
       width,
       height,
       ...props
@@ -486,6 +508,15 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
     });
     const status = picture.status;
     const [open, setOpen] = React.useState(false);
+
+    // Lazy unless the picture is the one the page is judged by, and whatever
+    // the caller wrote out if they wrote anything.
+    const loading = loadingProp ?? (priority ? 'eager' : 'lazy');
+    const fetchPriority = props.fetchPriority ?? (priority ? 'high' : undefined);
+    // Under whichever name this React knows it by, and only when there is one.
+    const fetchAttribute = (
+      fetchPriority === undefined ? null : { [FETCH_PRIORITY]: fetchPriority }
+    ) as React.ImgHTMLAttributes<HTMLImageElement> | null;
 
     const standIn = isPicturePlaceholder(placeholder) ? placeholder : null;
     const standInUrl = useStandInUrl(standIn?.src);
@@ -624,6 +655,7 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
           decoding={props.decoding}
           crossOrigin={props.crossOrigin}
           referrerPolicy={props.referrerPolicy}
+          {...fetchAttribute}
           alt=""
           aria-hidden="true"
           draggable={false}
@@ -705,6 +737,8 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
           status === 'error' ? 'hidden' : '',
           protect ? 'select-none [-webkit-touch-callout:none]' : ''
         )}
+        // Before the caller's own attributes, so one they wrote out still wins.
+        {...fetchAttribute}
         {...props}
         // After the spread on purpose: a caller who asked to protect a picture
         // and then passed their own `onContextMenu` would otherwise have turned

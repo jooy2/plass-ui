@@ -394,6 +394,30 @@ The overlay is a **separate chunk**, reached through `React.lazy`. It is several
 
 :::
 
+### priority
+
+When the picture is fetched. `loading="lazy"` is the default, which leaves a picture below the fold until the reader scrolls near it. `priority` marks the picture a page is judged by, usually the largest one above the fold, which is what Largest Contentful Paint measures.
+
+::: fw react
+
+```tsx
+<PlImage src="/hero.jpg" alt="The 2026 team" ratio="16 / 9" priority />
+```
+
+`priority` sets `loading="eager"` and `fetchPriority="high"`. Anything you write out yourself wins, so `priority loading="lazy"` is still lazy. The native attributes pass through on their own as well: `loading`, `decoding="async"` to decode off the main thread, and `fetchPriority`. A blurred `letterbox` copy is given the same `loading` and fetch priority, so it stays the same request.
+
+A lazy picture still needs its reserved box. It is not fetched until it is near the viewport, so a box without a `ratio` or both dimensions has no height until then and moves the page when the picture lands.
+
+Browsers without `fetchpriority` ignore it and fetch the picture eagerly at their default priority. [Browser support](../../browser-support) lists the versions.
+
+:::
+
+::: fw flutter
+
+There is no `priority` here. An `Image` starts resolving its provider as soon as it is built, so there is no lazy loading to turn off and no fetch priority to raise. To have a picture ready before its screen is shown, call `precacheImage` with its provider first.
+
+:::
+
 ### A gallery
 
 For a set of pictures, use [`PlGallery`](./gallery): it arranges them, captions them, and opens each one in a lightbox. Compose the grid yourself when you need a layout or a selection state of your own. The `preview` here shows one picture and has no next or previous control.
@@ -423,7 +447,7 @@ const [at, setAt] = useState<number | null>(null);
 - `alt` is **required**, and `""` is a real answer rather than a missing one: it marks the picture decorative and takes it off the accessibility tree, which is right for a texture or a background and wrong for anything a reader would miss.
 - The fallback drawn on failure is the `alt` text, so a sighted reader and a screen reader are told the same thing when the picture does not arrive.
 - The `<img>` stays in the document while it loads. An `<img>` that is not in the document never loads, so a placeholder that unmounted it would be a picture that never arrives.
-- `loading="lazy"` by default. Set `loading="eager"` on the one picture that is above the fold. A lazily-loaded hero is a hero that arrives late.
+- `loading="lazy"` by default. Set `priority` on the one picture that is above the fold. A lazily-loaded hero is a hero that arrives late.
 
 ::: fw flutter
 

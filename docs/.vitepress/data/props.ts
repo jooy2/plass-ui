@@ -14365,6 +14365,15 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'priority',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '페이지를 평가하는 기준이 되는 사진을 먼저 가져옵니다. loading="eager"와 높은 fetch priority이고, 직접 쓴 속성이 이깁니다',
+        en: 'Fetches the picture a page is judged by early: loading="eager" and a high fetch priority. An attribute written out wins'
+      }
+    },
+    {
       name: 'onStatusChange',
       type: "(status: 'loading' | 'loaded' | 'error') => void",
       description: {

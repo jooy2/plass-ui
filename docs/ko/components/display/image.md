@@ -394,6 +394,30 @@ PlImage(
 
 :::
 
+### priority
+
+사진을 언제 가져올지 정합니다. 기본값은 `loading="lazy"`라서 화면 아래쪽 사진은 읽는 사람이 근처까지 스크롤할 때까지 가져오지 않습니다. `priority`는 페이지를 평가하는 기준이 되는 사진, 보통 화면 위쪽에서 가장 큰 사진에 붙입니다. Largest Contentful Paint가 재는 것이 바로 그 사진입니다.
+
+::: fw react
+
+```tsx
+<PlImage src="/hero.jpg" alt="The 2026 team" ratio="16 / 9" priority />
+```
+
+`priority`는 `loading="eager"`와 `fetchPriority="high"`를 설정합니다. 직접 쓴 속성이 이기므로 `priority loading="lazy"`는 여전히 lazy입니다. 네이티브 속성도 따로 그대로 전달됩니다. `loading`, 메인 스레드 밖에서 디코딩하는 `decoding="async"`, 그리고 `fetchPriority`입니다. 흐린 `letterbox` 사본도 같은 `loading`과 fetch priority를 받으므로 같은 요청으로 남습니다.
+
+lazy로 불러오는 사진에도 잡아 둔 상자가 필요합니다. viewport 근처에 오기 전까지 가져오지 않으므로, `ratio`나 두 치수가 없는 상자는 그때까지 높이가 없다가 사진이 도착하면 페이지를 밀어냅니다.
+
+`fetchpriority`가 없는 브라우저는 이 속성을 무시하고 기본 우선순위로 바로 가져옵니다. 버전은 [브라우저 지원](../../browser-support)에 있습니다.
+
+:::
+
+::: fw flutter
+
+여기에는 `priority`가 없습니다. `Image`는 빌드되자마자 provider를 풀기 시작하므로, 끌 lazy 로딩도 올릴 fetch priority도 없습니다. 화면을 보이기 전에 사진을 준비해 두려면 그 provider로 먼저 `precacheImage`를 부르세요.
+
+:::
+
 ### 갤러리
 
 사진 묶음에는 [`PlGallery`](./gallery)를 씁니다. 배치와 캡션, 라이트박스로 여는 동작까지 이 컴포넌트가 담당합니다. 배치나 선택 state를 직접 다뤄야 할 때만 아래처럼 조합하세요. 여기의 `preview`는 사진 한 장을 보여줄 뿐이고, 이전/다음 조작은 없습니다.
@@ -423,7 +447,7 @@ const [at, setAt] = useState<number | null>(null);
 - `alt`는 **필수**이고, `""`는 빠뜨린 것이 아니라 진짜 답입니다. 사진을 장식으로 표시해 accessibility tree에서 빼는데, 텍스처나 배경에는 맞고 사용자가 아쉬워할 무엇에는 틀립니다.
 - 실패했을 때 그리는 fallback이 `alt` 텍스트입니다. 그래서 보는 사람과 스크린 리더가 사진이 오지 않았을 때 같은 것을 듣습니다.
 - `<img>`는 로드되는 동안 문서에 남아 있습니다. 문서에 없는 `<img>`는 절대 로드되지 않으므로, 그것을 unmount하는 placeholder는 영영 도착하지 않는 사진입니다.
-- 기본은 `loading="lazy"`입니다. 화면 위쪽의 사진 하나에는 `loading="eager"`를 주세요. 지연 로드되는 히어로는 늦게 도착하는 히어로입니다.
+- 기본은 `loading="lazy"`입니다. 화면 위쪽의 사진 하나에는 `priority`를 주세요. 지연 로드되는 히어로는 늦게 도착하는 히어로입니다.
 
 ::: fw flutter
 

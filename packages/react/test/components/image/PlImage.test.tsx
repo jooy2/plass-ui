@@ -53,6 +53,57 @@ describe('PlImage', () => {
     });
   });
 
+  describe('priority', () => {
+    it('asks for nothing early by default', async () => {
+      await render(<PlImage src={OK} alt="A portrait" />);
+
+      // HTML attribute names are case-insensitive, so this is the attribute
+      // whichever spelling React wrote it under.
+      expect(image().getAttribute('fetchpriority')).toBeNull();
+    });
+
+    it('fetches the picture a page is judged by early', async () => {
+      await render(<PlImage src={OK} alt="A portrait" priority />);
+
+      expect(image().getAttribute('loading')).toBe('eager');
+      expect(image().getAttribute('fetchpriority')).toBe('high');
+    });
+
+    it('lets an attribute written out win', async () => {
+      await render(
+        <PlImage src={OK} alt="A portrait" priority loading="lazy" fetchPriority="low" />
+      );
+
+      expect(image().getAttribute('loading')).toBe('lazy');
+      expect(image().getAttribute('fetchpriority')).toBe('low');
+    });
+
+    it('passes the native loading attributes through on their own', async () => {
+      await render(<PlImage src={OK} alt="A portrait" decoding="async" fetchPriority="low" />);
+
+      expect(image().getAttribute('decoding')).toBe('async');
+      expect(image().getAttribute('fetchpriority')).toBe('low');
+    });
+
+    it('asks for a blurred letterbox the same way, so it is the same request', async () => {
+      await render(<PlImage src={OK} alt="A portrait" fit="contain" letterbox="blur" priority />);
+
+      const copy = document.querySelector('img[aria-hidden="true"]')!;
+
+      expect(copy.getAttribute('loading')).toBe('eager');
+      expect(copy.getAttribute('fetchpriority')).toBe('high');
+    });
+
+    it('writes the attribute under the name this React knows, without a warning', async () => {
+      const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      await render(<PlImage src={OK} alt="A portrait" priority />);
+
+      expect(error).not.toHaveBeenCalled();
+      error.mockRestore();
+    });
+  });
+
   describe('the space it reserves', () => {
     it('holds the proportion it was given', async () => {
       await render(<PlImage src={OK} alt="A portrait" ratio="16 / 9" className="img-under-test" />);
