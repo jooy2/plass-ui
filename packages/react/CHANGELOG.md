@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **A treemap's hidden table names each tile under its own group.** `PlHeatmapChart` with `shape="treemap"` wrote its data table as a grid, with the first group's tile names as the column headings, so a screen reader heard the second group's tiles under the first group's names: "Tooling, Servers, 400". The table is now a group of rows per series, headed by the group's name, with a row per tile giving its own name and value.
+
 - **A `PlScatterChart` whose `x` values are dates ticks its x axis like a calendar.** The axis ran on the dates' milliseconds with the same 1-2-5 steps a count gets, so it was labelled `1.7T`. It now takes the steps and the labels of a time axis, as `PlTimelineChart` does, and `xAxis.tickFormat` is handed each tick as a `Date` rather than as a number.
 
 - **A chart stacked to `full` writes the caller's numbers in the caller's `format`.** `PlBarChart` and `PlAreaChart` keep the number each point was given for the tooltip and the table, and wrote it with `String()`, so a revenue chart with a currency `format` showed `4000` where every other chart showed `$4,000`. The numbers are now written the way the chart writes every other value.

@@ -84,6 +84,42 @@ describe('PlHeatmapChart', () => {
 
       expect(texts).not.toContain('Mon');
     });
+
+    it('reads a treemap out a tile at a time, under its own group', async () => {
+      const screen = await render(
+        <PlHeatmapChart
+          label="Spend"
+          shape="treemap"
+          series={[
+            {
+              name: 'Compute',
+              data: [
+                { x: 'Servers', y: 1200 },
+                { x: 'Functions', y: 300 }
+              ]
+            },
+            { name: 'Tooling', data: [{ x: 'CI', y: 400 }] }
+          ]}
+        />
+      );
+
+      const table = screen.getByRole('table', { name: 'Spend' });
+
+      await expect.element(table).toBeInTheDocument();
+
+      const rows = [...table.element().querySelectorAll('tr')].map((row) =>
+        [...row.children].map((cell) => cell.textContent)
+      );
+
+      expect(rows).toEqual([
+        ['Compute'],
+        ['Servers', '1,200'],
+        ['Functions', '300'],
+        ['Tooling'],
+        ['CI', '400']
+      ]);
+      await expect.element(screen.getByRole('rowheader', { name: 'CI' })).toBeInTheDocument();
+    });
   });
 
   describe('the scale', () => {

@@ -297,14 +297,12 @@ export function PlHeatmapChart({
   }, [shape, values, series.length, columns, plot.left, plot.width, plot.height]);
 
   /** What a tile calls itself: its own column name, not its group's. */
-  const cellName = React.useCallback(
-    (one: Cell) =>
-      formatCategory(
-        one.cell.x ?? categories?.[one.index] ?? labels[one.index] ?? one.index,
-        locale
-      ),
+  const nameOf = React.useCallback(
+    (value: ChartValue, index: number) =>
+      formatCategory(value.x ?? categories?.[index] ?? labels[index] ?? index, locale),
     [categories, labels, locale]
   );
+  const cellName = React.useCallback((one: Cell) => nameOf(one.cell, one.index), [nameOf]);
 
   const hovered =
     active === null
@@ -350,7 +348,32 @@ export function PlHeatmapChart({
         ) : null
       }
       table={
-        nothing ? null : (
+        nothing ? null : shape === 'treemap' ? (
+          /* A treemap has no columns, so its table has none either: a group of
+             rows per series, headed by the group, and a row per tile naming it
+             and giving its value. Laid out as a grid, a tile would be read under
+             the first group's name for that position. */
+          <table id={tableId} className={srOnlyClasses}>
+            {label ? <caption>{label}</caption> : null}
+            {values.map((row, at) => (
+              <tbody key={at}>
+                <tr>
+                  <th scope="rowgroup" colSpan={2}>
+                    {names[at]}
+                  </th>
+                </tr>
+                {row.map((cell, index) =>
+                  cell.value === null ? null : (
+                    <tr key={index}>
+                      <th scope="row">{nameOf(cell, index)}</th>
+                      <td>{cell.label !== undefined ? cell.label : formatValue(cell.value)}</td>
+                    </tr>
+                  )
+                )}
+              </tbody>
+            ))}
+          </table>
+        ) : (
           <table id={tableId} className={srOnlyClasses}>
             {label ? <caption>{label}</caption> : null}
             <thead>
