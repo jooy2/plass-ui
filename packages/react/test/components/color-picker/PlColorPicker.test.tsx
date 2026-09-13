@@ -30,7 +30,7 @@ describe('PlColorPicker', () => {
       const hidden = screen
         .getByTestId('picker')
         .element()
-        .querySelector<HTMLInputElement>('input[type="hidden"][name="brand"]');
+        .querySelector<HTMLInputElement>('input[name="brand"]');
 
       expect(hidden?.value).toBe('rgb(255, 0, 0)');
     });

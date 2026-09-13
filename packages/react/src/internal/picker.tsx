@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Field } from '@base-ui/react/field';
 import { Popover } from '@base-ui/react/popover';
+import { FormControl, leaveFormControl } from './form.js';
 import { CloseIcon } from './icons.js';
 import { WidthSizer } from './sizer.js';
 import {
@@ -169,8 +170,13 @@ interface InternalShellProps extends PlassPickerShellProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   labels: PlassPickerLabels;
-  /** `<input type="hidden">` rows, so the control submits with a form. */
-  hiddenValues?: Array<{ name: string; value: string }>;
+  /** The name the value submits under. */
+  name?: string;
+  /**
+   * The value as a form submits it: one string, or one row per entry. An empty
+   * string, a list with an empty entry and an empty list are no value.
+   */
+  formValue: string | readonly string[];
   children: React.ReactNode;
   triggerRef?: React.Ref<HTMLButtonElement>;
 }
@@ -210,7 +216,8 @@ export function PickerShell({
   open,
   onOpenChange,
   labels,
-  hiddenValues,
+  name,
+  formValue,
   children,
   triggerRef,
   ...props
@@ -226,10 +233,7 @@ export function PickerShell({
   const isInvalid = invalid ?? hasError;
   const family: PlassColor = isInvalid ? 'danger' : color;
   const inert = disabled || readOnly;
-
-  const describedBy =
-    [description ? descriptionId : null, hasError ? errorId : null].filter(Boolean).join(' ') ||
-    undefined;
+  const controlRef = React.useRef<HTMLInputElement>(null);
 
   return (
     <Field.Root
@@ -278,42 +282,66 @@ export function PickerShell({
             classNames?.control
           )}
         >
-          <Popover.Trigger
-            id={triggerId}
-            ref={triggerRef}
-            disabled={disabled}
-            // The label and then the value, as a native select is read: the name
-            // alone would leave the chosen date or colour to be found by opening it.
-            aria-labelledby={label ? `${labelId} ${valueId}` : undefined}
-            aria-describedby={describedBy}
-            aria-required={required || undefined}
-            aria-invalid={isInvalid || undefined}
-            className={cx(
-              'flex min-w-0 flex-1 items-center bg-transparent text-start [font:inherit] text-inherit',
-              gapClasses[size],
-              '[outline:none]',
-              inert ? 'cursor-default' : 'cursor-pointer'
-            )}
-          >
-            {startIcon ? (
-              <span className="flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)">
-                {startIcon}
-              </span>
-            ) : null}
-            {/* The value and, under it, every value it could be. */}
-            <span className="flex min-w-0 flex-1 flex-col">
-              <span
-                id={valueId}
-                className={cx(
-                  'w-full truncate',
-                  empty ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)'
-                )}
-              >
-                {display}
-              </span>
-              <WidthSizer samples={samples ?? []} />
-            </span>
-          </Popover.Trigger>
+          {/* What made the field invalid is not only the caller's `error`: an
+              empty `required` value and a `PlForm`'s `errors` do too, and the
+              trigger has to say so as an input would. */}
+          <Field.Validity>
+            {({ validity }) => {
+              const failed = validity.valid === false;
+              // Base UI's own message, the second `Field.Error` below, shows for
+              // a failure the caller did not force with `invalid`.
+              const message = hasError || (failed && !disabled && invalid !== true);
+              const describedBy =
+                [description ? descriptionId : null, message ? errorId : null]
+                  .filter(Boolean)
+                  .join(' ') || undefined;
+
+              return (
+                <Popover.Trigger
+                  id={triggerId}
+                  ref={triggerRef}
+                  disabled={disabled}
+                  // The label and then the value, as a native select is read: the name
+                  // alone would leave the chosen date or colour to be found by opening it.
+                  aria-labelledby={label ? `${labelId} ${valueId}` : undefined}
+                  aria-describedby={describedBy}
+                  aria-required={required || undefined}
+                  aria-invalid={isInvalid || failed || undefined}
+                  onBlur={() => {
+                    // Focus that moves into the open popup has not left the control.
+                    if (!open) {
+                      leaveFormControl(controlRef.current);
+                    }
+                  }}
+                  className={cx(
+                    'flex min-w-0 flex-1 items-center bg-transparent text-start [font:inherit] text-inherit',
+                    gapClasses[size],
+                    '[outline:none]',
+                    inert ? 'cursor-default' : 'cursor-pointer'
+                  )}
+                >
+                  {startIcon ? (
+                    <span className="flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)">
+                      {startIcon}
+                    </span>
+                  ) : null}
+                  {/* The value and, under it, every value it could be. */}
+                  <span className="flex min-w-0 flex-1 flex-col">
+                    <span
+                      id={valueId}
+                      className={cx(
+                        'w-full truncate',
+                        empty ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)'
+                      )}
+                    >
+                      {display}
+                    </span>
+                    <WidthSizer samples={samples ?? []} />
+                  </span>
+                </Popover.Trigger>
+              );
+            }}
+          </Field.Validity>
 
           {clearable && !empty && !inert ? (
             <button
@@ -366,6 +394,9 @@ export function PickerShell({
         </Field.Description>
       ) : null}
 
+      {/* Two branches, as in `PlTextField`: the caller's message when there is
+          one, and otherwise Base UI's — the browser's constraint message or a
+          `PlForm`'s entry for this `name`. */}
       {hasError ? (
         <Field.Error
           id={errorId}
@@ -374,11 +405,22 @@ export function PickerShell({
         >
           {error}
         </Field.Error>
-      ) : null}
+      ) : (
+        <Field.Error
+          id={errorId}
+          className={cx(metaTextClasses[size], 'text-(--p-accent)', classNames?.error)}
+        />
+      )}
 
-      {hiddenValues?.map((entry, index) => (
-        <input key={index} type="hidden" name={entry.name} value={entry.value} />
-      ))}
+      <FormControl
+        ref={controlRef}
+        name={name}
+        value={formValue}
+        // A read-only input is not validated either.
+        required={required && !readOnly}
+        disabled={disabled}
+        standIn={() => controlRef.current?.ownerDocument.getElementById(triggerId)}
+      />
     </Field.Root>
   );
 }

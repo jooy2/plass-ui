@@ -342,7 +342,8 @@ export const PlTreeSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, 
         open={open}
         onOpenChange={setOpen}
         labels={labels}
-        hiddenValues={name ? held.map((id) => ({ name, value: id })) : undefined}
+        name={name}
+        formValue={multiple ? held : (held[0] ?? '')}
       >
         <div className="flex max-h-80 w-64 flex-col gap-1.5 overflow-hidden">
           {searchable ? (

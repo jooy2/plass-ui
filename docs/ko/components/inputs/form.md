@@ -126,6 +126,12 @@ PlForm(
 
 값은 필드의 `name`에서 나옵니다. 네이티브 폼과 같은 계약입니다. `name`이 없는 필드는 이 객체에 없고, 네이티브 제출에도 없습니다.
 
+::: fw react
+
+피커와 `PlCalendar`, `PlFilePicker`도 다른 필드처럼 참여합니다. `required`인데 비어 있으면 제출이 막히고, `errors` 항목도 그 컴포넌트에 표시됩니다. 문자열 하나가 아닌 값은 컴포넌트가 가진 모양 그대로 옵니다. `PlDateRangePicker`는 두 끝을, `multiple` `PlTreeSelect`는 고른 항목을 문자열 배열로 보고하고, `PlFilePicker`는 `File` 객체의 배열을 보고합니다.
+
+:::
+
 ::: fw flutter
 
 ## React 빌드와 다른 점

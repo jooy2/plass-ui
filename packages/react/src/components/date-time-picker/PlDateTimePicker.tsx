@@ -267,11 +267,8 @@ export const PlDateTimePicker = /* @__PURE__ */ React.forwardRef<
       open={open}
       onOpenChange={setOpen}
       labels={labels}
-      hiddenValues={
-        name
-          ? [{ name, value: isValidDate(value) ? toISODateTime(value, showSeconds) : '' }]
-          : undefined
-      }
+      name={name}
+      formValue={isValidDate(value) ? toISODateTime(value, showSeconds) : ''}
     >
       <div className="flex flex-col gap-1.5">
         <div className={cx('flex items-stretch', gapClasses[size])}>

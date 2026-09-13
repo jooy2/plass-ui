@@ -301,11 +301,8 @@ export const PlDatePicker = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, 
         open={open}
         onOpenChange={setOpen}
         labels={labels}
-        hiddenValues={
-          name
-            ? [{ name, value: isValidDate(value) ? spellings[precision](value) : '' }]
-            : undefined
-        }
+        name={name}
+        formValue={isValidDate(value) ? spellings[precision](value) : ''}
       >
         <div className={cx('flex flex-col', hasFooter && 'gap-1.5')}>
           <Calendar

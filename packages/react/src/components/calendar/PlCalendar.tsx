@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { Calendar, usePickerLabels, type PlassPickerLabels } from '../../internal/calendar.js';
 import { popupPaddingClasses } from '../../internal/picker.js';
+import { useFormReport } from '../../internal/form.js';
 import { inertProps } from '../../internal/inert.js';
 import {
   isValidDate,
@@ -219,6 +220,11 @@ export const PlCalendar = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCal
       setMonth(startOfMonth(next));
     };
 
+    const submitted = isValidDate(value) ? spellings[precision](value) : '';
+
+    // A calendar has no field for Base UI's `Form` to collect it from.
+    useFormReport(name, () => submitted, !disabled);
+
     return (
       <div
         ref={ref}
@@ -257,13 +263,7 @@ export const PlCalendar = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCal
           labels={labels}
         />
 
-        {name ? (
-          <input
-            type="hidden"
-            name={name}
-            value={isValidDate(value) ? spellings[precision](value) : ''}
-          />
-        ) : null}
+        {name ? <input type="hidden" name={name} value={submitted} disabled={disabled} /> : null}
       </div>
     );
   }

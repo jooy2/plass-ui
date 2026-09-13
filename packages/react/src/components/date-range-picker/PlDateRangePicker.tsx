@@ -340,14 +340,8 @@ export const PlDateRangePicker = /* @__PURE__ */ React.forwardRef<
       open={open}
       onOpenChange={setOpen}
       labels={labels}
-      hiddenValues={
-        name
-          ? [
-              { name, value: start ? toISODate(start) : '' },
-              { name, value: end ? toISODate(end) : '' }
-            ]
-          : undefined
-      }
+      name={name}
+      formValue={[start ? toISODate(start) : '', end ? toISODate(end) : '']}
     >
       <div className="flex flex-col gap-1.5">
         <div className={cx('flex items-stretch', gapClasses[size])}>

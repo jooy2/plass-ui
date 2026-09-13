@@ -253,11 +253,8 @@ export const PlTimePicker = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, 
         open={open}
         onOpenChange={setOpen}
         labels={labels}
-        hiddenValues={
-          name
-            ? [{ name, value: isValidDate(value) ? toISOTime(value, showSeconds) : '' }]
-            : undefined
-        }
+        name={name}
+        formValue={isValidDate(value) ? toISOTime(value, showSeconds) : ''}
       >
         <div className={cx('flex flex-col', hasFooter && 'gap-1.5')}>
           <TimeGrid

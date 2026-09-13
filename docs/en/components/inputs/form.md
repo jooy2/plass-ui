@@ -126,6 +126,12 @@ Called with the form's values, and only when every field is valid. The native su
 
 The values come from the fields' `name`s, which is the same contract a native form has. A field with no `name` is not in the object, and is not in a native submission either.
 
+::: fw react
+
+The pickers, `PlCalendar` and `PlFilePicker` take part like any other field: a `required` one blocks the submit while it is empty, and an `errors` entry is shown on it. A value that is not one string arrives in the shape the component holds it. A `PlDateRangePicker` reports its two ends and a `multiple` `PlTreeSelect` its choices as arrays of strings, and a `PlFilePicker` reports an array of its `File` objects.
+
+:::
+
 ::: fw flutter
 
 ## Differences from the React build

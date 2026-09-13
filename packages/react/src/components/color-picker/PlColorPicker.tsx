@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { defaultPickerLabels } from '../../internal/calendar.js';
 import { PickerShell } from '../../internal/picker.js';
+import { useFormReport } from '../../internal/form.js';
 import { CheckIcon } from '../../internal/icons.js';
 import {
   checkerBackground,
@@ -699,7 +700,12 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
       />
     );
 
-    const hidden = name ? <input type="hidden" name={name} value={empty ? '' : written} /> : null;
+    // Inline, there is no field for Base UI's `Form` to collect the colour from.
+    useFormReport(name, () => (empty ? '' : written), inline && !disabled);
+
+    const hidden = name ? (
+      <input type="hidden" name={name} value={empty ? '' : written} disabled={disabled} />
+    ) : null;
 
     if (inline) {
       const family: PlassColor = (invalid ?? Boolean(error)) ? 'danger' : color;
@@ -795,7 +801,8 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
             onOpenChange?.(next);
           }}
           labels={{ ...defaultPickerLabels, clear: labels.clear }}
-          hiddenValues={name ? [{ name, value: empty ? '' : written }] : undefined}
+          name={name}
+          formValue={empty ? '' : written}
         >
           <div className={controlTextClasses[size]}>{panel}</div>
         </PickerShell>

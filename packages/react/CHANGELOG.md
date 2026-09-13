@@ -10,6 +10,10 @@
 
 ### Fixed
 
+- **The pickers, `PlCalendar` and `PlFilePicker` take part in a `PlForm`.** Base UI's form sees only the controls registered with a field, and these carried plain hidden inputs, so a `<PlDatePicker name="departure" required />` inside a `PlForm` was missing from the values `onSubmit` received, did not stop an empty submit, and never showed the form's `errors` entry for its name. They now register like any other field: an empty `required` one stops the submit and takes the focus, an `errors` entry is shown on it, and its value is in `onSubmit`. A `PlDateRangePicker`, a `multiple` `PlTreeSelect` and a `PlFilePicker` report arrays.
+
+- **A `required` or `disabled` picker is respected by a plain `<form>`.** The hidden input under `PlDatePicker`, `PlDateRangePicker`, `PlDateTimePicker`, `PlTimePicker`, `PlColorPicker` and `PlTreeSelect` carried neither attribute, so an empty `required` picker was submitted and a `disabled` one still sent its value. An empty `required` picker now stops the submit, and a `disabled` picker, `PlCalendar` or inline `PlColorPicker` sends nothing. An empty single-choice `PlTreeSelect` now submits an empty entry under its name, as the other pickers do.
+
 - **`PlCarousel` no longer scrolls the page when it changes slide.** It brought the slide into view with `scrollIntoView`, which moves every scrollable ancestor as well as the strip, so a carousel partly off screen pulled the page to itself on every slide, and on every tick while `autoPlay` ran. Only the strip scrolls now.
 
 - **A responsive `PlFlex`, `PlGrid` or `PlGridItem` nested in another keeps its own values.** The per-breakpoint values are custom properties, and custom properties inherit, so a child took every breakpoint its parent named and it did not: a vertical `PlFlex` inside one that turns horizontal at `md` turned with it, and a `PlGridItem` with no `span` inside a cell of eight was eight columns wide. The slots are now registered as not inheriting. Browsers without `@property` support, Firefox before 128, keep the old behaviour.

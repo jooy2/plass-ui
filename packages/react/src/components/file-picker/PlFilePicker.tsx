@@ -1,7 +1,9 @@
 'use client';
 
 import * as React from 'react';
+import { Field } from '@base-ui/react/field';
 import { useDefaults } from '../../internal/defaults.js';
+import { FormControl, leaveFormControl, useFormReport } from '../../internal/form.js';
 import { CloseIcon } from '../../internal/icons.js';
 import {
   controlTextLeadingClasses,
@@ -296,6 +298,8 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
     const density = densityProp ?? defaults.density ?? 'default';
 
     const inputRef = React.useRef<HTMLInputElement>(null);
+    const buttonRef = React.useRef<HTMLButtonElement>(null);
+    const controlRef = React.useRef<HTMLInputElement>(null);
     React.useImperativeHandle(ref, () => inputRef.current as HTMLInputElement);
 
     const [uncontrolled, setUncontrolled] = React.useState<File[]>(() => [...(defaultValue ?? [])]);
@@ -317,6 +321,7 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
     const family: PlassColor = isInvalid ? 'danger' : color;
     const inert = disabled || readOnly;
     const descriptionId = React.useId();
+    const errorId = `${descriptionId}-error`;
 
     /*
      * The list is what a form submits. The input's own `files` only ever held
@@ -344,6 +349,9 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
     React.useEffect(() => {
       writeInput(files);
     }, [files, writeInput]);
+
+    // The files themselves, which the string a `Field` holds cannot carry.
+    useFormReport(name, () => [...files], !disabled);
 
     const commit = React.useCallback(
       (next: File[]) => {
@@ -435,7 +443,10 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
       .join(' ');
 
     return (
-      <div
+      <Field.Root
+        name={name}
+        disabled={disabled}
+        invalid={isInvalid}
         className={[
           'flex-col align-top',
           stackGapClasses[size],
@@ -500,39 +511,62 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
             add(Array.from(event.dataTransfer.files));
           }}
         >
-          <button
-            type="button"
-            id={id}
-            disabled={disabled}
-            aria-describedby={hasContent(description) || hasError ? descriptionId : undefined}
-            aria-invalid={isInvalid || undefined}
-            className={zoneClassNames}
-            onClick={browse}
-          >
-            {icon === undefined ? (
-              <span className="flex items-center text-(--p-accent) [&_svg]:size-[1.8em]">
-                <UploadIcon />
-              </span>
-            ) : hasContent(icon) ? (
-              <span className="flex items-center text-(--p-accent) [&_svg]:size-[1.8em]">
-                {icon}
-              </span>
-            ) : null}
+          <Field.Validity>
+            {({ validity }) => {
+              const failed = validity.valid === false;
+              // Base UI's own message shows for a failure the caller did not
+              // force with `invalid`.
+              const message = !hasError && failed && !disabled && invalid !== true;
+              const describedBy =
+                [
+                  hasContent(description) || hasError ? descriptionId : null,
+                  message ? errorId : null
+                ]
+                  .filter(Boolean)
+                  .join(' ') || undefined;
 
-            <span className={`font-semibold ${sheetTitleClasses[size]}`}>
-              {title ?? 'Drop files here, or click to browse'}
-            </span>
+              return (
+                <button
+                  ref={buttonRef}
+                  type="button"
+                  id={id}
+                  disabled={disabled}
+                  aria-describedby={describedBy}
+                  aria-invalid={isInvalid || failed || undefined}
+                  className={zoneClassNames}
+                  onClick={browse}
+                  onBlur={() => leaveFormControl(controlRef.current)}
+                >
+                  {icon === undefined ? (
+                    <span className="flex items-center text-(--p-accent) [&_svg]:size-[1.8em]">
+                      <UploadIcon />
+                    </span>
+                  ) : hasContent(icon) ? (
+                    <span className="flex items-center text-(--p-accent) [&_svg]:size-[1.8em]">
+                      {icon}
+                    </span>
+                  ) : null}
 
-            {hasContent(hint) ? (
-              <span className={`text-(--plass-muted-fg) ${metaTextClasses[size]}`}>{hint}</span>
-            ) : null}
-          </button>
+                  <span className={`font-semibold ${sheetTitleClasses[size]}`}>
+                    {title ?? 'Drop files here, or click to browse'}
+                  </span>
+
+                  {hasContent(hint) ? (
+                    <span className={`text-(--plass-muted-fg) ${metaTextClasses[size]}`}>
+                      {hint}
+                    </span>
+                  ) : null}
+                </button>
+              );
+            }}
+          </Field.Validity>
 
           {/*
             The real control, kept off-screen rather than hidden: `display: none`
             and `visibility: hidden` both make an input unfocusable in some
-            browsers, and this one still has to be reachable to a form and to a
-            `required` validation message.
+            browsers, and this one still has to be reachable to a form. Whether
+            it is `required` is the `FormControl`'s to say, below, so a form
+            reports it once and a `PlForm` sees it at all.
           */}
           <input
             ref={inputRef}
@@ -540,7 +574,6 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
             name={name}
             accept={accept}
             multiple={multiple}
-            required={required && files.length === 0}
             disabled={inert}
             tabIndex={-1}
             aria-hidden="true"
@@ -608,8 +641,20 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
           <span id={descriptionId} className={`${metaTextClasses[size]} text-(--p-accent)`}>
             {error}
           </span>
-        ) : null}
-      </div>
+        ) : (
+          <Field.Error id={errorId} className={`${metaTextClasses[size]} text-(--p-accent)`} />
+        )}
+
+        {/* No `name`: the file input submits the files, and the field's own
+            `name` above is what a `PlForm`'s `errors` are matched against. */}
+        <FormControl
+          ref={controlRef}
+          value={files.map((file) => file.name)}
+          required={required && !readOnly}
+          disabled={disabled}
+          standIn={() => buttonRef.current}
+        />
+      </Field.Root>
     );
   }
 );

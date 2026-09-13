@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { Form as BaseUIForm } from '@base-ui/react/form';
+import { FormReportContext, type FormReport } from '../../internal/form.js';
 import { cx, sheetSectionGapClasses } from '../../internal/styles.js';
 import type { PlassSize } from '../../types.js';
 
@@ -71,17 +72,35 @@ export const PlForm = /* @__PURE__ */ React.forwardRef<HTMLFormElement, PlFormPr
     { validationMode = 'onSubmit', errors, onSubmit, size = 'md', className, children, ...props },
     ref
   ) {
+    // The values Base UI cannot collect: a range's two ends, several choices, a
+    // list of files, and an inline calendar with no field to register with.
+    const [report] = React.useState<FormReport>(() => new Map());
+
     return (
-      <BaseUIForm
-        ref={ref}
-        validationMode={validationMode}
-        errors={errors}
-        onFormSubmit={(values) => onSubmit?.(values)}
-        className={cx('flex flex-col', sheetSectionGapClasses[size], className)}
-        {...props}
-      >
-        {children}
-      </BaseUIForm>
+      <FormReportContext.Provider value={report}>
+        <BaseUIForm
+          ref={ref}
+          validationMode={validationMode}
+          errors={errors}
+          onFormSubmit={(values) => {
+            if (!onSubmit) {
+              return;
+            }
+
+            const reported: Record<string, unknown> = { ...values };
+
+            for (const [name, read] of report) {
+              reported[name] = read();
+            }
+
+            onSubmit(reported);
+          }}
+          className={cx('flex flex-col', sheetSectionGapClasses[size], className)}
+          {...props}
+        >
+          {children}
+        </BaseUIForm>
+      </FormReportContext.Provider>
     );
   }
 );
