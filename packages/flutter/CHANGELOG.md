@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **Moving the pointer or the focus along a `PlTable` or a `PlDataTable` no longer lays the grid out again.** The band under the hovered row and the ring round the focused one were row decorations, and changing one built the whole grid again, which measures every column from every cell. Crossing from one cell to the next inside a row did it too, so a few hundred `hoverable` rows dropped frames under a moving mouse. The bands are now painted behind the grid, and a move repaints them without building a cell.
+
 - **A `PlTypography` heading carries its level.** `h1` to `h6` were each marked as a heading with no level, so on the web every one was announced as the same kind of heading and a screen reader could not tell a section from the one inside it. Each now carries its level, `1` for `h1` through `6` for `h6`.
 
 - **Each `PlChip` delete affordance is named after its chip.** Every one was named "Remove", so moving along a row of tags read the same word for each one and never said which tag it would remove. When `child` is a `Text`, the name is now the label pack's word followed by the chip's text, such as "Remove design". A chip holding any other widget keeps the word alone, and a `deleteLabel` is still the whole name.

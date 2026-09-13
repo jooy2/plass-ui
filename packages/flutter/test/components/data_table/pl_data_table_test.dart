@@ -580,14 +580,16 @@ void main() {
           ),
         );
 
-        final Iterable<TableRow> rows = tester
-            .widget<Table>(find.byType(Table))
-            .children
-            // The header row has no tint of its own.
-            .skip(1);
-        final List<Color?> fills = rows
-            .map((TableRow row) => (row.decoration as BoxDecoration?)?.color)
-            .toList();
+        // The rows are painted behind the grid, by the painter around it.
+        final dynamic bands = tester
+            .widget<CustomPaint>(
+              find.ancestor(of: find.byType(Table), matching: find.byType(CustomPaint)).first,
+            )
+            .painter;
+        final List<Color?> fills = <Color?>[
+          for (var index = 0; index < 3; index += 1)
+            (bands.decorationOf(index) as BoxDecoration).color,
+        ];
 
         // The second row is Acme, which is the one that was chosen.
         expect(fills[0], isNull);

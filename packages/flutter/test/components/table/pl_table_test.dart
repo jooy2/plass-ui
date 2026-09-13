@@ -65,9 +65,20 @@ final List<_Build> _many = <_Build>[
   for (var index = 0; index < 24; index += 1) _Build('#${400 + index}', 'topic/$index'),
 ];
 
-/// The decoration [TableRow] number [index] paints — the header is row `0`.
+/// The decoration row number [index] paints — the header is row `0`.
+///
+/// The header's is its [TableRow]'s. The rows of data are painted behind the
+/// grid, by the painter of the [CustomPaint] around it.
 BoxDecoration _rowDecoration(WidgetTester tester, int index) {
-  return tester.widget<Table>(find.byType(Table)).children[index].decoration! as BoxDecoration;
+  if (index == 0) {
+    return tester.widget<Table>(find.byType(Table)).children[0].decoration! as BoxDecoration;
+  }
+
+  final CustomPaint bands = tester.widget<CustomPaint>(
+    find.ancestor(of: find.byType(Table), matching: find.byType(CustomPaint)).first,
+  );
+
+  return (bands.painter! as dynamic).decorationOf(index - 1) as BoxDecoration;
 }
 
 void main() {
@@ -216,6 +227,68 @@ void main() {
           PlassTokens.light().family(PlassColor.primary).soft,
         );
         expect(_rowDecoration(tester, 2).color, isNull);
+      });
+
+      testWidgets('moving between rows neither builds the cells again nor lays the grid out', (
+        WidgetTester tester,
+      ) async {
+        var built = 0;
+
+        await tester.pumpWidget(
+          host(
+            PlTable<_Build>(
+              rows: _rows,
+              hoverable: true,
+              columns: <PlTableColumn<_Build>>[
+                PlTableColumn<_Build>(
+                  header: const Text('Build'),
+                  cell: (_Build row, int index) {
+                    built += 1;
+
+                    return Text(row.id);
+                  },
+                ),
+              ],
+            ),
+            width: 420,
+          ),
+        );
+
+        final pointer = await tester.createGesture(kind: PointerDeviceKind.mouse);
+        addTearDown(pointer.removePointer);
+        await pointer.addPointer(location: Offset.zero);
+        await pointer.moveTo(tester.getCenter(find.text('#412')));
+        await tester.pump();
+
+        final int before = built;
+        // A [Table] built again is a grid laid out again, every column measured
+        // from every cell, so the same widget has to still be there.
+        final Table grid = tester.widget<Table>(find.byType(Table));
+
+        await pointer.moveTo(tester.getCenter(find.text('#411')));
+        await tester.pump();
+
+        expect(built, before);
+        expect(identical(tester.widget<Table>(find.byType(Table)), grid), isTrue);
+
+        // And the band is drawn, as one rectangle the size of the row the grid
+        // laid out.
+        final RenderTable laid = tester.renderObject<RenderTable>(find.byType(Table));
+
+        expect(
+          tester.renderObject(
+            find.ancestor(of: find.byType(Table), matching: find.byType(CustomPaint)).first,
+          ),
+          paints..rect(
+            rect: laid.getRowBox(2),
+            color: PlassTokens.light().family(PlassColor.primary).soft,
+          ),
+        );
+        expect(_rowDecoration(tester, 1).color, isNull);
+        expect(
+          _rowDecoration(tester, 2).color,
+          PlassTokens.light().family(PlassColor.primary).soft,
+        );
       });
 
       testWidgets('keyboard focus rings the whole row', (WidgetTester tester) async {

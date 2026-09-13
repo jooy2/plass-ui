@@ -14,13 +14,12 @@
 library;
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/semantics.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// The room the "nothing here" line keeps above and below itself.
@@ -145,12 +144,18 @@ class PlassGrid extends StatefulWidget {
 class _PlassGridState extends State<PlassGrid> {
   /// Which row the pointer is over, and which one the keyboard is on.
   ///
-  /// Two fields rather than one interaction state, because a table's row is not
-  /// a widget: [TableRow] paints the band and the ring, and the cells inside it
-  /// are what the pointer and the focus actually reach. The row state has to
-  /// live above both.
-  int? _hovered;
-  int? _focused;
+  /// Two values rather than one interaction state, because a table's row is not
+  /// a widget: the cells inside it are what the pointer and the focus actually
+  /// reach, so the row state has to live above them. And held in notifiers
+  /// rather than in this state, because a [Table] that is built again lays every
+  /// row out again, measuring each column from all of its cells. The bands are
+  /// painted behind the grid by [_RowBands], which listens and repaints; the
+  /// grid is left alone.
+  final ValueNotifier<int?> _hovered = ValueNotifier<int?>(null);
+  final ValueNotifier<int?> _focused = ValueNotifier<int?>(null);
+
+  /// The grid, so the bands can be told where its rows were laid out.
+  final GlobalKey _gridKey = GlobalKey();
 
   /// One key per column, on the real header's cells, so the pinned band can be
   /// given the widths the grid actually laid out.
@@ -169,6 +174,13 @@ class _PlassGridState extends State<PlassGrid> {
   void initState() {
     super.initState();
     _syncKeys();
+  }
+
+  @override
+  void dispose() {
+    _hovered.dispose();
+    _focused.dispose();
+    super.dispose();
   }
 
   @override
@@ -226,29 +238,17 @@ class _PlassGridState extends State<PlassGrid> {
 
   void _hover(int index, {required bool over}) {
     if (over) {
-      if (_hovered != index) {
-        setState(() => _hovered = index);
-      }
-
-      return;
-    }
-
-    if (_hovered == index) {
-      setState(() => _hovered = null);
+      _hovered.value = index;
+    } else if (_hovered.value == index) {
+      _hovered.value = null;
     }
   }
 
   void _focus(int index, {required bool visible}) {
     if (visible) {
-      if (_focused != index) {
-        setState(() => _focused = index);
-      }
-
-      return;
-    }
-
-    if (_focused == index) {
-      setState(() => _focused = null);
+      _focused.value = index;
+    } else if (_focused.value == index) {
+      _focused.value = null;
     }
   }
 
@@ -301,7 +301,7 @@ class _PlassGridState extends State<PlassGrid> {
 
     // One focus stop per row, and it lives in the row's first cell — the only
     // place it can, since the row itself is not a widget. What it lights is the
-    // whole row, because the ring is painted by the row's decoration.
+    // whole row, because the ring is painted round the row behind the grid.
     if (_interactive && first) {
       cell = FocusableActionDetector(
         shortcuts: PlassInteractive.defaultShortcuts,
@@ -372,6 +372,7 @@ class _PlassGridState extends State<PlassGrid> {
     }
 
     final grid = Table(
+      key: _gridKey,
       columnWidths: <int, TableColumnWidth>{
         for (var index = 0; index < widget.columns.length; index += 1)
           index: switch (widget.columns[index].width) {
@@ -399,7 +400,6 @@ class _PlassGridState extends State<PlassGrid> {
         for (var index = 0; index < widget.rowCount; index += 1)
           TableRow(
             key: widget.rowKey?.call(index),
-            decoration: _rowDecoration(family, index: index, rule: rowRule, ring: family.ring),
             children: <Widget>[
               for (var column = 0; column < widget.columns.length; column += 1)
                 _cell(
@@ -420,7 +420,23 @@ class _PlassGridState extends State<PlassGrid> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Semantics(label: widget.semanticLabel, child: grid),
+          Semantics(
+            label: widget.semanticLabel,
+            child: CustomPaint(
+              painter: _RowBands(
+                grid: _gridKey,
+                rowCount: widget.rowCount,
+                hovered: _hovered,
+                focused: _focused,
+                lit: widget.hoverable || _interactive,
+                tint: widget.rowTint,
+                hover: family.soft,
+                ring: family.ring,
+                rule: rowRule,
+              ),
+              child: grid,
+            ),
+          ),
           if (widget.rowCount == 0)
             Padding(
               padding: EdgeInsets.symmetric(horizontal: padX, vertical: plassTableEmptyPaddingY),
@@ -491,25 +507,61 @@ class _PlassGridState extends State<PlassGrid> {
       child: scrolling,
     );
   }
+}
 
-  /// The band behind a row, and the rule above it.
+/// The band behind each row, the rule above it, and the ring round the focused
+/// one, painted behind the grid.
+///
+/// Behind the [Table] rather than as each [TableRow]'s decoration, because a
+/// row's decoration can only change by building the table again, and a table
+/// built again lays out every row again. This listens to the pointer and the
+/// focus and repaints, with each row's box read off the grid as it was laid
+/// out. One rectangle a row rather than a piece a cell, too, since pieces that
+/// meet at a fractional pixel can leave a seam.
+class _RowBands extends CustomPainter {
+  _RowBands({
+    required this.grid,
+    required this.rowCount,
+    required this.hovered,
+    required this.focused,
+    required this.lit,
+    required this.tint,
+    required this.hover,
+    required this.ring,
+    required this.rule,
+  }) : super(repaint: Listenable.merge(<Listenable>[hovered, focused]));
+
+  final GlobalKey grid;
+  final int rowCount;
+  final ValueListenable<int?> hovered;
+  final ValueListenable<int?> focused;
+
+  /// Whether the pointer lights a row at all.
+  final bool lit;
+
+  /// What colour a row rests at.
+  final Color? Function(int index)? tint;
+
+  /// What colour the pointer lights a row in.
+  final Color hover;
+
+  final Color ring;
+
+  /// The rule above every row but the first.
+  final BorderSide rule;
+
+  /// What the row at [index] paints behind itself.
   ///
-  /// A focused row trades both for the ring, which is drawn as the row's own
-  /// border rather than as an outline around it: the sheet clips at its rounded
-  /// corner, and a ring outside the first or last row would come back with its
-  /// top or bottom sliced off.
-  Decoration _rowDecoration(
-    PlassColorFamily family, {
-    required int index,
-    required BorderSide rule,
-    required Color ring,
-  }) {
-    final lit = widget.hoverable || _interactive;
+  /// A focused row trades the rule for the ring, which is drawn as the row's
+  /// own edge rather than as an outline around it: the sheet clips at its
+  /// rounded corner, and a ring outside the first or last row would come back
+  /// with its top or bottom sliced off.
+  BoxDecoration decorationOf(int index) {
     // The pointer wins over whatever the caller said the row rests at: a reader
     // pointing at a row is asking about that row, not about the set it is in.
-    final fill = lit && _hovered == index ? family.soft : widget.rowTint?.call(index);
+    final Color? fill = lit && hovered.value == index ? hover : tint?.call(index);
 
-    if (_focused == index) {
+    if (focused.value == index) {
       return BoxDecoration(
         color: fill,
         border: Border.all(color: ring, width: focusRingWidth),
@@ -521,6 +573,42 @@ class _PlassGridState extends State<PlassGrid> {
       // Every row but the first, which already has the header's rule above it.
       border: index == 0 ? null : Border(top: rule),
     );
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final RenderObject? table = grid.currentContext?.findRenderObject();
+
+    if (table is! RenderTable || !table.hasSize || table.rows != rowCount + 1) {
+      return;
+    }
+
+    for (var index = 0; index < rowCount; index += 1) {
+      // The header is the grid's row `0`.
+      final Rect box = table.getRowBox(index + 1);
+      final BoxDecoration decoration = decorationOf(index);
+
+      if (decoration.color == null && decoration.border == null) {
+        continue;
+      }
+
+      final BoxPainter painter = decoration.createBoxPainter();
+
+      painter.paint(canvas, box.topLeft, ImageConfiguration(size: box.size));
+      painter.dispose();
+    }
+  }
+
+  @override
+  bool shouldRepaint(_RowBands old) {
+    return old.rowCount != rowCount ||
+        old.lit != lit ||
+        old.tint != tint ||
+        old.hover != hover ||
+        old.ring != ring ||
+        old.rule != rule ||
+        old.hovered != hovered ||
+        old.focused != focused;
   }
 }
 
