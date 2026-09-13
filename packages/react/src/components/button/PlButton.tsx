@@ -5,6 +5,7 @@ import { useDefaults } from '../../internal/defaults.js';
 import { Button as BaseUIButton } from '@base-ui/react/button';
 import { useRender } from '@base-ui/react/use-render';
 import { ButtonGroupContext } from '../../internal/button-group.js';
+import { followPointer } from '../../internal/glow.js';
 import { Spinner } from '../../internal/icons.js';
 import {
   controlHeightClasses,
@@ -268,19 +269,8 @@ export const PlButton = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlBu
           onClick?.(event as React.MouseEvent<HTMLButtonElement>);
         },
         onPointerMove: (event: React.PointerEvent<HTMLElement>) => {
-          // Feeds the two light layers in `styles.css`. Written straight to the
-          // element rather than held in state: this fires at pointer rate, and a
-          // `setState` here would re-render the tree on every mouse move. Reading
-          // `offsetX/offsetY` costs nothing — no `getBoundingClientRect`, so no
-          // forced layout. Icons carry `pointer-events: none`, so the offsets are
-          // always relative to the button itself.
-          //
-          // It runs while a finger is down too, which is what makes the light
-          // follow a drag on a touch screen — there is no hover there, and the
-          // `:active` layer is the one doing the work.
-          const element = event.currentTarget;
-          element.style.setProperty('--p-mx', `${event.nativeEvent.offsetX}px`);
-          element.style.setProperty('--p-my', `${event.nativeEvent.offsetY}px`);
+          // Feeds the two light layers in `styles.css`.
+          followPointer(event);
           onPointerMove?.(event as React.PointerEvent<HTMLButtonElement>);
         },
         ...props,

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { followPointer } from '../../internal/glow.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { inertProps } from '../../internal/inert.js';
 import {
@@ -193,7 +194,10 @@ const descriptionClasses = '[color:color-mix(in_oklab,currentColor_72%,transpare
 
 /** Where a pinned pill hangs, and how far in from the edge. */
 const positionClasses: Record<PlassPosition, Record<'top' | 'bottom', string>> = {
-  static: { top: '', bottom: '' },
+  // `relative` rather than nothing: the interaction light is two absolutely
+  // placed layers, and a shell that is not their containing block spreads them
+  // across whatever positioned box is above it. Sticky and fixed are already one.
+  static: { top: 'relative', bottom: 'relative' },
   sticky: { top: 'sticky top-3 z-20', bottom: 'sticky bottom-3 z-20' },
   fixed: {
     // Centred by stretching the box across the viewport and letting `mx-auto`
@@ -241,6 +245,7 @@ export const PlPill = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPillPro
     style,
     children,
     onClick,
+    onPointerMove,
     ...props
   },
   ref
@@ -321,6 +326,12 @@ export const PlPill = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPillPro
         className
       )}
       style={{ ...controlSlots(color, elevation, variant), ...style }}
+      onPointerMove={(event) => {
+        if (interactive) {
+          followPointer(event);
+        }
+        onPointerMove?.(event);
+      }}
       {...props}
     >
       <div

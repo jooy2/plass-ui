@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { followPointer } from '../../internal/glow.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { Toggle as BaseUIToggle } from '@base-ui/react/toggle';
 import { ButtonGroupContext } from '../../internal/button-group.js';
@@ -258,12 +259,8 @@ export const PlToggle = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlTo
         }
         style={{ ...controlSlots(color, elevation, variant), ...style }}
         onPointerMove={(event) => {
-          // Feeds the two light layers in `styles.css`, exactly as `PlButton`
-          // does — written straight to the element because this fires at
-          // pointer rate.
-          const element = event.currentTarget;
-          element.style.setProperty('--p-mx', `${event.nativeEvent.offsetX}px`);
-          element.style.setProperty('--p-my', `${event.nativeEvent.offsetY}px`);
+          // Feeds the two light layers in `styles.css`, as `PlButton` does.
+          followPointer(event);
           onPointerMove?.(event);
         }}
         {...props}

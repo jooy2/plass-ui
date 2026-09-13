@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **A pressable `PlPill`'s light stays on the pill and follows the pointer.** A pill in the flow was not positioned, so the two layers of its interaction light spread across the nearest positioned box around it, a card or the whole viewport, and the light sat in the middle because nothing told it where the pointer was. The pill now contains the light and moves it with the pointer, through the same handler `PlButton` and `PlToggle` use.
+
 - **Solid buttons, solid fields and switches keep their shape in forced-colours mode.** Windows' contrast themes drop background images and box shadows, so a `solid` button was left as its label with no edge, a `solid` field as a caret with no box, and a switch that was on looked the same as one that was off. In that mode they now draw a border in a system colour, `GrayText` when disabled, and a switch that is on fills its track with `Highlight`. Nothing changes outside forced-colours mode.
 
 - **A shortcut answers the key it names, not only the character that key typed.** `usePlHotKeys` and a field's `hotKeys` compared `event.key` alone, so `Alt+K` never fired on a Mac, where Option+K types `˚`, `Mod+Shift+1` never fired because Shift turns the 1 into `!`, and `?` failed the Shift check it needs to be typed at all, while `PlHotKeys` drew those caps as if they worked. A letter or a digit is now also matched by its physical key when a modifier turned it into something else, and a symbol that takes Shift ignores Shift. On a layout that moves the letters, the printed letter still wins.

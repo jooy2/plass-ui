@@ -73,6 +73,29 @@ describe('PlPill', () => {
       expect(onClick).toHaveBeenCalled();
     });
 
+    it('contains its light and moves it to where the pointer is on the pill', async () => {
+      const screen = await render(
+        <PlPill className="pill-under-test" title="Recording" onClick={() => {}} />
+      );
+      const shell = document.querySelector<HTMLElement>('.pill-under-test')!;
+
+      // The light's two layers are placed against the nearest positioned box,
+      // which has to be the pill itself.
+      expect(shell).toHaveClass('relative');
+      expect(shell.style.getPropertyValue('--p-mx')).toBe('');
+
+      await screen.getByRole('button', { name: 'Recording' }).hover();
+
+      // Measured against the pill rather than the button inside it.
+      const x = parseFloat(shell.style.getPropertyValue('--p-mx'));
+      const inner = screen
+        .getByRole('button', { name: 'Recording' })
+        .element()
+        .getBoundingClientRect();
+
+      expect(x).toBeCloseTo(inner.left + inner.width / 2 - shell.getBoundingClientRect().left, 0);
+    });
+
     it('keeps the trailing slot outside the button', async () => {
       const screen = await render(
         <PlPill
