@@ -645,6 +645,29 @@ String truncateLabel(String text, double maxWidth, double fontSize) {
   return cut.isEmpty ? '…' : '$cut…';
 }
 
+/// The category labels as the axis writes them.
+///
+/// A long name is cut to its slot rather than labels being dropped until the
+/// rest fit. Once a slot is narrower than about four characters a cut stops
+/// helping, and the axis thins its labels out by stride instead. The ticks of a
+/// value-scaled axis are numbers already rounded to be short, so [ticks] leaves
+/// them whole. The React build answers with `fitCategoryLabels`.
+List<String> fitCategoryLabels(
+  List<String> texts, {
+  required bool horizontal,
+  required double slot,
+  required double fontSize,
+  required bool ticks,
+}) {
+  if (ticks || (!horizontal && slot - 6 < fontSize * 2.4)) {
+    return texts;
+  }
+
+  return <String>[
+    for (final String text in texts) truncateLabel(text, horizontal ? 150 : slot - 6, fontSize),
+  ];
+}
+
 /* ---------------------------------------------------------------------------
  * Geometry
  * ------------------------------------------------------------------------- */

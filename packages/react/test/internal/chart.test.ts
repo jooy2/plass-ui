@@ -21,6 +21,7 @@ import {
   categoryCount,
   chartPalette,
   extentOf,
+  fitCategoryLabels,
   linePath,
   ringPath,
   seriesColor,
@@ -249,6 +250,40 @@ describe('tickStride', () => {
     // A stride of zero is an infinite loop in whichever caller walks it.
     expect(tickStride(0, 0, 0)).toBe(1);
     expect(tickStride(100, -10, 0)).toBe(1);
+  });
+});
+
+describe('fitCategoryLabels', () => {
+  const months = ['January', 'February', 'March'];
+
+  it('cuts a long name to its slot', () => {
+    expect(
+      fitCategoryLabels(months, { horizontal: false, slot: 40, fontSize: 10, ticks: false })
+    ).toEqual(months.map((month) => truncate(month, 34, 10)));
+  });
+
+  it('leaves the names whole once a slot is too narrow for a cut to help', () => {
+    // 24 pixels is under 2.4 ems at 10px, so the stride thins the axis instead.
+    expect(
+      fitCategoryLabels(months, { horizontal: false, slot: 20, fontSize: 10, ticks: false })
+    ).toEqual(months);
+  });
+
+  it('cuts a horizontal chart’s names to a column rather than a slot', () => {
+    expect(
+      fitCategoryLabels(['A category name long enough to need cutting at all'], {
+        horizontal: true,
+        slot: 1,
+        fontSize: 10,
+        ticks: false
+      })[0]
+    ).toMatch(/…$/);
+  });
+
+  it('never cuts the ticks of a value-scaled axis', () => {
+    expect(
+      fitCategoryLabels(['1,000,000'], { horizontal: false, slot: 30, fontSize: 10, ticks: true })
+    ).toEqual(['1,000,000']);
   });
 });
 

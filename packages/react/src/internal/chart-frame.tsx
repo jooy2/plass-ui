@@ -28,6 +28,7 @@ import {
   chartFontSizes,
   compactNumber,
   extentOf,
+  fitCategoryLabels,
   fitsLast,
   formatCategory,
   markerRadii,
@@ -37,7 +38,6 @@ import {
   textWidth,
   tickStride,
   toValues,
-  truncate,
   valueScale,
   type BandScale,
   type ChartValue,
@@ -1035,17 +1035,13 @@ export function CartesianChart({
     : widestTick + 10 + (valueAxis?.label ? axisLabelBand : 0);
   const slot = (width - (horizontal ? 0 : valueBand) - 16) / Math.max(1, count);
 
-  /* Cut a long name to its slot rather than dropping labels until the rest fit —
-     five categories called "Onboarding flow" would otherwise leave one label on
-     the axis. Below about four characters that stops helping, and the stride in
-     `ChartAxes` takes over instead. A tick is a number that was already rounded
-     to be short, so it is never cut: half of `12.4K` is not a smaller number,
-     it is a wrong one. */
-  const categoryTexts = categoryScale
-    ? rawCategoryTexts
-    : horizontal || slot - 6 >= fontSize * 2.4
-      ? rawCategoryTexts.map((text) => truncate(text, horizontal ? 150 : slot - 6, fontSize))
-      : rawCategoryTexts;
+  /* Cut to the slot, or left whole for the stride in `ChartAxes` to thin out. */
+  const categoryTexts = fitCategoryLabels(rawCategoryTexts, {
+    horizontal,
+    slot,
+    fontSize,
+    ticks: categoryScale !== null
+  });
 
   const widestCategory = categoryTexts.reduce(
     (most, text) => Math.max(most, textWidth(text, fontSize)),

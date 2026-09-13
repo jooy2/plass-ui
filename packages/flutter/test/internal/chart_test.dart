@@ -219,6 +219,51 @@ void main() {
       expect(truncateLabel('Jan', 100, 10), 'Jan');
     });
 
+    test('cuts a long category name to its slot', () {
+      const List<String> months = <String>['January', 'February', 'March'];
+
+      expect(
+        fitCategoryLabels(months, horizontal: false, slot: 40, fontSize: 10, ticks: false),
+        <String>[for (final String month in months) truncateLabel(month, 34, 10)],
+      );
+    });
+
+    test('leaves the names whole once a slot is too narrow for a cut to help', () {
+      // 24 pixels is under 2.4 ems at 10px, so the stride thins the axis instead.
+      const List<String> months = <String>['January', 'February', 'March'];
+
+      expect(
+        fitCategoryLabels(months, horizontal: false, slot: 20, fontSize: 10, ticks: false),
+        months,
+      );
+    });
+
+    test('cuts a horizontal chart’s names to a column rather than a slot', () {
+      expect(
+        fitCategoryLabels(
+          <String>['A category name long enough to need cutting at all'],
+          horizontal: true,
+          slot: 1,
+          fontSize: 10,
+          ticks: false,
+        ).single,
+        endsWith('…'),
+      );
+    });
+
+    test('never cuts the ticks of a value-scaled axis', () {
+      expect(
+        fitCategoryLabels(
+          <String>['1,000,000'],
+          horizontal: false,
+          slot: 30,
+          fontSize: 10,
+          ticks: true,
+        ),
+        <String>['1,000,000'],
+      );
+    });
+
     test('keeps the first label and every nth after it', () {
       final int stride = tickStride(30, 300, 40);
 

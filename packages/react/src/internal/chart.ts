@@ -1009,6 +1009,30 @@ export function truncate(text: string, maxWidth: number, fontSize: number): stri
   return cut.length > 0 ? `${cut.trimEnd()}…` : '…';
 }
 
+/**
+ * The category labels as the axis writes them.
+ *
+ * A long name is cut to its slot rather than labels being dropped until the
+ * rest fit: five categories called "Onboarding flow" would otherwise leave one
+ * label on the axis. Once a slot is narrower than about four characters a cut
+ * stops helping, and the axis thins its labels out by stride instead. The
+ * ticks of a value-scaled axis are numbers already rounded to be short, so they
+ * are never cut: half of `12.4K` is not a smaller number, it is a wrong one.
+ * The Dart build answers with `fitCategoryLabels`.
+ */
+export function fitCategoryLabels(
+  texts: string[],
+  options: { horizontal: boolean; slot: number; fontSize: number; ticks: boolean }
+): string[] {
+  const { horizontal, slot, fontSize, ticks } = options;
+
+  if (ticks || (!horizontal && slot - 6 < fontSize * 2.4)) {
+    return texts;
+  }
+
+  return texts.map((text) => truncate(text, horizontal ? 150 : slot - 6, fontSize));
+}
+
 /* ---------------------------------------------------------------------------
  * Geometry
  * ------------------------------------------------------------------------- */

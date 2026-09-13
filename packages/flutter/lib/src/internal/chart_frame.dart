@@ -627,17 +627,16 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
             : widestTick + 10 + (widget.yAxis.label != null ? axisLabelBand : 0);
 
         // A horizontal chart gives each category label a row of its own on the
-        // starting edge; a vertical one gives it the width of one slot.
+        // starting edge; a vertical one gives it the width of one slot, and a
+        // slot too narrow to cut a name to is left for the stride to thin out.
         final double slot = (width - valueBand - 16) / math.max(1, count);
-        final List<String> categoryTexts = categories
-            .map(
-              (PlassChartCategory category) => truncateLabel(
-                category.toString(),
-                widget.horizontal ? 150 : math.max(0, slot - 6),
-                fontSize,
-              ),
-            )
-            .toList();
+        final List<String> categoryTexts = fitCategoryLabels(
+          <String>[for (final PlassChartCategory category in categories) category.toString()],
+          horizontal: widget.horizontal,
+          slot: slot,
+          fontSize: fontSize,
+          ticks: categoryScale != null,
+        );
         final double widestCategory = categoryTexts.fold<double>(
           0,
           (double most, String text) => math.max(most, textWidth(text, fontSize)),
