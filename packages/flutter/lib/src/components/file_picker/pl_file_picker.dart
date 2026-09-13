@@ -465,7 +465,7 @@ class _PlFilePickerState extends State<PlFilePicker> {
                     fontWeight: FontWeight.w600,
                   ),
                   textAlign: TextAlign.center,
-                  child: widget.title ?? const Text('Choose files'),
+                  child: widget.title ?? Text(PlassTheme.labelsOf(context).filePickerTitle),
                 ),
                 if (widget.hint != null)
                   DefaultTextStyle.merge(

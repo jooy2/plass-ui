@@ -5,6 +5,7 @@ import { Field } from '@base-ui/react/field';
 import { useDefaults } from '../../internal/defaults.js';
 import { FormControl, leaveFormControl, useFormReport } from '../../internal/form.js';
 import { CloseIcon } from '../../internal/icons.js';
+import { useLabels } from '../../internal/labels.js';
 import {
   controlTextLeadingClasses,
   disabledClasses,
@@ -293,6 +294,7 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
     ref
   ) {
     const defaults = useDefaults();
+    const labels = useLabels();
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';
@@ -548,7 +550,7 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
                   ) : null}
 
                   <span className={`font-semibold ${sheetTitleClasses[size]}`}>
-                    {title ?? 'Drop files here, or click to browse'}
+                    {title ?? labels.filePickerTitle}
                   </span>
 
                   {hasContent(hint) ? (

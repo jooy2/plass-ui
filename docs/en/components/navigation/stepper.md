@@ -57,7 +57,7 @@ Every native `<div>` attribute passes through to the stepper, and every `<li>` a
 
 The steps are a **list** rather than children, for the reason `PlTimeline`'s are: the stepper has to _reason_ about them (which one is complete is arithmetic on an index, and which one can be reached is arithmetic on the same index), and neither question can be asked of an opaque `Widget`. That also settles the sharp edge the React build has to warn about: there is no way to hand it a wrapper that holds three steps.
 
-`optional` takes a `Widget` rather than a `bool`, because there is no default string to fall back to: the package ships no translations, and a word it invented would be in one language.
+`optional` takes a `Widget` rather than a `bool`, so a step can say more than one word. The label pack's word is `Text(PlassTheme.labelsOf(context).optional)`.
 
 :::
 

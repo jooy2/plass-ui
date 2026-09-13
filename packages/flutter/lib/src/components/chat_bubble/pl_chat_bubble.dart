@@ -382,7 +382,7 @@ class PlChatBubble extends StatelessWidget {
             ?actions,
           ],
         ),
-        if (status != null) _mark(tokens, family, meta),
+        if (status != null) _mark(context, tokens, family, meta),
       ],
     );
 
@@ -419,7 +419,7 @@ class PlChatBubble extends StatelessWidget {
   /// did not. The three in between are the ordinary course of events, and a
   /// thread where every message is marked in colour is a thread where the colour
   /// has stopped meaning anything.
-  Widget _mark(PlassTokens tokens, PlassColorFamily family, double meta) {
+  Widget _mark(BuildContext context, PlassTokens tokens, PlassColorFamily family, double meta) {
     final shape = switch (status!) {
       PlChatBubbleStatus.sending => PlassGlyphShape.clock,
       PlChatBubbleStatus.sent => PlassGlyphShape.check,
@@ -433,12 +433,13 @@ class PlChatBubble extends StatelessWidget {
       PlChatBubbleStatus.read => family.accent,
       PlChatBubbleStatus.failed => tokens.family(PlassColor.danger).accent,
     };
+    final labels = PlassTheme.labelsOf(context);
     final spoken = switch (status!) {
-      PlChatBubbleStatus.sending => 'Sending',
-      PlChatBubbleStatus.sent => 'Sent',
-      PlChatBubbleStatus.delivered => 'Delivered',
-      PlChatBubbleStatus.read => 'Read',
-      PlChatBubbleStatus.failed => 'Not delivered',
+      PlChatBubbleStatus.sending => labels.messageSending,
+      PlChatBubbleStatus.sent => labels.messageSent,
+      PlChatBubbleStatus.delivered => labels.messageDelivered,
+      PlChatBubbleStatus.read => labels.messageRead,
+      PlChatBubbleStatus.failed => labels.messageFailed,
     };
 
     // The mark is the whole of what is drawn; the word behind it is for the

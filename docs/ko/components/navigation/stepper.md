@@ -57,7 +57,7 @@ PlStepper(
 
 step은 children이 아니라 **리스트**입니다. `PlTimeline`의 것이 그런 이유와 같습니다(stepper가 그것들에 대해 *추론*해야 하고(어느 것이 complete인지는 인덱스 산수이고, 어느 것에 닿을 수 있는지도 같은 인덱스 산수입니다), 두 질문 모두 불투명한 `Widget`에게는 물을 수 없습니다. React 빌드가 경고해야 하는 날카로운 모서리도 그것으로 사라집니다). step 셋을 품은 wrapper를 건넬 방법이 아예 없습니다.
 
-`optional`은 `bool`이 아니라 `Widget`을 받습니다. 물러설 기본 문자열이 없기 때문입니다. 패키지는 번역을 싣지 않고, 지어낸 단어는 어느 한 언어의 것입니다.
+`optional`은 `bool`이 아니라 `Widget`을 받으므로, 한 단어보다 긴 말도 쓸 수 있습니다. 라벨 팩의 단어는 `Text(PlassTheme.labelsOf(context).optional)`입니다.
 
 :::
 

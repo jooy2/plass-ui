@@ -229,7 +229,9 @@ export function PlConfirmProvider({
               onClick={() => settle(true)}
             >
               {options?.confirmLabel ??
-                (isAlert ? (acknowledgeLabel ?? 'OK') : (confirmLabel ?? labels.confirm))}
+                (isAlert
+                  ? (acknowledgeLabel ?? labels.acknowledge)
+                  : (confirmLabel ?? labels.confirm))}
             </PlButton>
           </>
         }

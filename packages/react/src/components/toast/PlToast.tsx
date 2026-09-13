@@ -346,6 +346,7 @@ function ToastViewport(
     Pick<PlToastProviderProps, 'variant' | 'density'> & { color: PlassColor; closeLabel: string }
 ) {
   const { toasts } = BaseUIToast.useToastManager<PlToastData>();
+  const labels = useLabels();
   const { position, width, ...rest } = props;
   const swipeDirection: ('up' | 'down' | 'left' | 'right')[] = [
     position.startsWith('top') ? 'up' : 'down',
@@ -358,6 +359,7 @@ function ToastViewport(
       {/* `plass-portal` is a hook, not a style: a portalled surface leaves the
           subtree a host may have scoped its CSS reset to. */}
       <BaseUIToast.Viewport
+        aria-label={labels.notifications}
         className={[
           // Full width and `pointer-events-none`, so the strip across the top or
           // the bottom of the page is not a wall the rest of the app is behind.

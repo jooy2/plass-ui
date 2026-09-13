@@ -80,7 +80,8 @@ class PlSidebarTrigger extends StatelessWidget {
   /// The glyph. A hamburger, drawn here, unless something else is given.
   final Widget? icon;
 
-  /// What it does, in words. `'Open sidebar'` or `'Close sidebar'`.
+  /// What it does, in words. Falls back to the label pack's `sidebarOpen` or
+  /// `sidebarClose`.
   final String? label;
 
   /// What the key is made of. `ghost` by default: it sits on a bar that is
@@ -115,7 +116,11 @@ class PlSidebarTrigger extends StatelessWidget {
       variant: variant,
       size: size,
       color: color,
-      label: label ?? (open ? 'Close sidebar' : 'Open sidebar'),
+      label:
+          label ??
+          (open
+              ? PlassTheme.labelsOf(context).sidebarClose
+              : PlassTheme.labelsOf(context).sidebarOpen),
       icon: icon ?? const _MenuGlyph(),
     );
   }

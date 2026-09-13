@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
-import { useLabels } from '../../internal/labels.js';
+import { useLabels, type PlassLabels } from '../../internal/labels.js';
 import { CheckIcon, ClockIcon, LinkIcon, severityIcon } from '../../internal/icons.js';
 import {
   controlSlots,
@@ -246,18 +246,21 @@ const statusIcons: Record<PlChatBubbleStatus, React.ReactNode> = {
   failed: /* @__PURE__ */ severityIcon('danger')
 };
 
-/**
- * What each mark is read out as. English, like every other default string in the
- * library — a page already knows its own language, and `statusLabel` is where it
- * says so.
- */
-const statusLabels: Record<PlChatBubbleStatus, string> = {
-  sending: 'Sending',
-  sent: 'Sent',
-  delivered: 'Delivered',
-  read: 'Read',
-  failed: 'Not delivered'
-};
+/** What each mark is read out as, from the label pack. `statusLabel` still wins. */
+function statusWord(status: PlChatBubbleStatus, labels: PlassLabels): string {
+  switch (status) {
+    case 'sending':
+      return labels.messageSending;
+    case 'sent':
+      return labels.messageSent;
+    case 'delivered':
+      return labels.messageDelivered;
+    case 'read':
+      return labels.messageRead;
+    case 'failed':
+      return labels.messageFailed;
+  }
+}
 
 /**
  * Only two of the five carry a colour: the one that arrived and the one that did
@@ -442,7 +445,7 @@ export const PlChatBubble = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlC
               {statusIcons[status]}
               {/* The mark is the whole of what is drawn; the word behind it is
                   for the readers the mark says nothing to. */}
-              <span className={srOnlyClasses}>{statusLabel ?? statusLabels[status]}</span>
+              <span className={srOnlyClasses}>{statusLabel ?? statusWord(status, labels)}</span>
             </div>
           ) : null}
         </div>

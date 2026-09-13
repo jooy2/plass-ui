@@ -120,7 +120,7 @@ class PlConfirmProvider extends StatefulWidget {
     required this.child,
     this.confirmLabel,
     this.cancelLabel,
-    this.acknowledgeLabel = const Text('OK'),
+    this.acknowledgeLabel,
     this.width,
     this.size,
     this.color,
@@ -138,8 +138,9 @@ class PlConfirmProvider extends StatefulWidget {
   /// pack's `cancel`.
   final Widget? cancelLabel;
 
-  /// The default word on an `alert`'s single button.
-  final Widget acknowledgeLabel;
+  /// The default word on an `alert`'s single button. Falls back to the label
+  /// pack's `acknowledge`.
+  final Widget? acknowledgeLabel;
 
   /// How wide a sheet may get, unless a question says otherwise.
   final double? width;
@@ -313,7 +314,7 @@ class _PlConfirmProviderState extends State<PlConfirmProvider> implements PlConf
                 child:
                     options?.confirmLabel ??
                     (isAlert
-                        ? widget.acknowledgeLabel
+                        ? widget.acknowledgeLabel ?? Text(PlassTheme.labelsOf(context).acknowledge)
                         : widget.confirmLabel ?? Text(PlassTheme.labelsOf(context).confirm)),
               ),
             ],

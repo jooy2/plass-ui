@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { PlIconButton, type PlIconButtonProps } from '../icon-button/PlIconButton.js';
+import { useLabels } from '../../internal/labels.js';
 import { collapsedOnlyClasses, PlPageLayoutContext } from '../../internal/page-layout.js';
 import type { PlPageLayoutCollapse, PlassSidebarSide } from '../../internal/page-layout.js';
 import { cx } from '../../internal/styles.js';
@@ -72,6 +73,7 @@ export const PlSidebarTrigger = /* @__PURE__ */ React.forwardRef<
   ref
 ) {
   const layout = React.useContext(PlPageLayoutContext);
+  const labels = useLabels();
 
   if (!layout.present) {
     return null;
@@ -85,7 +87,7 @@ export const PlSidebarTrigger = /* @__PURE__ */ React.forwardRef<
       ref={ref}
       variant={variant}
       icon={icon ?? <MenuIcon />}
-      label={label ?? (open ? 'Close sidebar' : 'Open sidebar')}
+      label={label ?? (open ? labels.sidebarClose : labels.sidebarOpen)}
       aria-expanded={open}
       className={cx(collapsedOnlyClasses[collapseBelow], className)}
       onClick={(event) => {

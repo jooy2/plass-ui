@@ -68,7 +68,7 @@ class PlSpoiler extends StatefulWidget {
     this.onRevealedChanged,
     this.label,
     this.hideLabel,
-    this.description = const Text('This may contain spoilers'),
+    this.description = const _Warning(),
     this.action,
     this.reversible = false,
     this.maxHeight,
@@ -108,6 +108,8 @@ class PlSpoiler extends StatefulWidget {
 
   /// The line above the button, saying why the content is covered. `null` is a
   /// cover with nothing written on it.
+  ///
+  /// Left out, it is the label pack's `spoilerWarning`.
   final Widget? description;
 
   /// Replaces the default reveal button entirely.
@@ -355,4 +357,13 @@ class _PlSpoilerState extends State<PlSpoiler> {
       ),
     );
   }
+}
+
+/// The default line on the cover: the label pack's `spoilerWarning`, read where
+/// the cover is drawn, so a translated theme reaches it.
+class _Warning extends StatelessWidget {
+  const _Warning();
+
+  @override
+  Widget build(BuildContext context) => Text(PlassTheme.labelsOf(context).spoilerWarning);
 }

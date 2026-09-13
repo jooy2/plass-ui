@@ -28,6 +28,7 @@ List<String> words(PlassLabels labels) => <String>[
   labels.close,
   labels.cancel,
   labels.confirm,
+  labels.acknowledge,
   labels.search,
   labels.selectAll,
   labels.selectRow,
@@ -44,6 +45,7 @@ List<String> words(PlassLabels labels) => <String>[
   labels.decrease,
   labels.preview,
   labels.empty,
+  labels.optional,
   labels.breadcrumb,
   labels.breadcrumbExpand,
   labels.carousel,
@@ -65,12 +67,20 @@ List<String> words(PlassLabels labels) => <String>[
   labels.paginationLast,
   labels.rating,
   labels.sidebar,
+  labels.sidebarOpen,
   labels.sidebarClose,
   labels.sidebarResize,
   labels.skipToContent,
   labels.backToTop,
   labels.onThisPage,
   labels.typing,
+  labels.messageSending,
+  labels.messageSent,
+  labels.messageDelivered,
+  labels.messageRead,
+  labels.messageFailed,
+  labels.spoilerWarning,
+  labels.filePickerTitle,
   labels.newTab,
   labels.transferAvailable,
   labels.transferSelected,
@@ -134,9 +144,9 @@ void main() {
         }
 
         // A handful of strings genuinely survive translation — `AM/PM`,
-        // `Overlay`, `Minute` — so the check is that a pack is a translation,
-        // not that every single word differs.
-        expect(same, lessThan(6));
+        // `Overlay`, `Minute`, `OK`, German's `Optional` — so the check is that a
+        // pack is a translation, not that every single word differs.
+        expect(same, lessThan(8));
       });
     }
   });
@@ -226,6 +236,54 @@ void main() {
 
       expect(find.text(ko.cancel), findsOneWidget);
       expect(find.text(ko.confirm), findsOneWidget);
+    });
+
+    testWidgets('reaches the words that used to be written into a widget', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+      tester.view.physicalSize = const Size(900, 1200);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        host(
+          PlassTheme.merge(
+            defaults: const PlassDefaults(labels: ko),
+            child: PlConfirmProvider(
+              child: Builder(
+                builder: (BuildContext context) => Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    const PlSpoiler(child: Text('Ending')),
+                    const PlFilePicker(value: <PlFile>[]),
+                    const PlChatBubble(status: PlChatBubbleStatus.failed, child: Text('Hi')),
+                    PlButton(
+                      onPressed: () =>
+                          PlConfirmProvider.of(context).alert(const PlConfirmOptions()),
+                      child: const Text('Tell'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          overlay: true,
+          width: 600,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text(ko.spoilerWarning), findsOneWidget);
+      expect(find.text(ko.filePickerTitle), findsOneWidget);
+      expect(find.bySemanticsLabel(ko.messageFailed), findsOneWidget);
+
+      await tester.tap(find.text('Tell'));
+      await tester.pumpAndSettle();
+
+      expect(find.text(ko.acknowledge), findsOneWidget);
+
+      handle.dispose();
     });
 
     testWidgets("still loses to the widget's own parameter", (WidgetTester tester) async {

@@ -1447,8 +1447,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       name: 'optional',
       type: 'Widget?',
       description: {
-        ko: '건너뛸 수 있음을 표시하고, 그 말로 말합니다. 기본 문자열이 없습니다 — 패키지는 번역을 싣지 않고, 지어낸 단어는 어느 한 언어의 것이기 때문입니다',
-        en: 'Marks the step skippable, and says so in these words. There is no default string, because the package ships no translations and a word it invented would be in one language'
+        ko: '건너뛸 수 있음을 표시하고, 그 말로 말합니다. 라벨 팩의 단어는 Text(PlassTheme.labelsOf(context).optional)입니다',
+        en: "Marks the step skippable, and says so in these words. The label pack's word is Text(PlassTheme.labelsOf(context).optional)"
       }
     },
     from('PlStep', 'disabled', { type: 'bool', default: 'false' }),
@@ -2134,7 +2134,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       default: "Text('Confirm')"
     }),
     from('PlConfirmProvider', 'cancelLabel', { type: 'Widget?', default: "Text('Cancel')" }),
-    from('PlConfirmProvider', 'acknowledgeLabel', { type: 'Widget', default: "Text('OK')" }),
+    from('PlConfirmProvider', 'acknowledgeLabel', { type: 'Widget?', default: "Text('OK')" }),
     from('PlConfirmProvider', 'width', { type: 'double?' }),
     from('PlConfirmProvider', 'size', { type: SIZE, default: 'PlassSize.md' }),
     from('PlConfirmProvider', 'color', { type: COLOR, default: 'PlassColor.primary' })

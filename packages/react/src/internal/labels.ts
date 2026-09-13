@@ -44,6 +44,8 @@ export interface PlassLabels {
   cancel: string;
   /** The other one. */
   confirm: string;
+  /** The one button on a message that only needs to have been read. */
+  acknowledge: string;
   /** Empties a field, a picker, a search. */
   clear: string;
   /** Finishes with a picker, or with a tour. */
@@ -75,6 +77,8 @@ export interface PlassLabels {
   preview: string;
   /** What a list says when it has nothing in it. */
   empty: string;
+  /** Marks a step, or anything else, that may be left out. */
+  optional: string;
 
   /* -------------------------------------------------------------------------
    * The words one component says
@@ -100,6 +104,8 @@ export interface PlassLabels {
   commandPalettePlaceholder: string;
   /** What a sheet over the whole page is called when it has no name. */
   overlay: string;
+  /** The region the toasts are announced in. */
+  notifications: string;
   /** The pager's landmark and its four steppers, which move by a page. */
   pagination: string;
   paginationPrevious: string;
@@ -108,8 +114,10 @@ export interface PlassLabels {
   paginationLast: string;
   /** The stars' group. */
   rating: string;
-  /** The panel's landmark, the button that shuts it, and the handle that sizes it. */
+  /** The panel's landmark, the buttons that open and shut it, and the handle
+   * that sizes it. */
   sidebar: string;
+  sidebarOpen: string;
   sidebarClose: string;
   sidebarResize: string;
   /** The first link on a page, which jumps past the furniture. */
@@ -120,6 +128,16 @@ export interface PlassLabels {
   onThisPage: string;
   /** What a chat bubble says while somebody is still writing. */
   typing: string;
+  /** What a chat bubble's mark says about the message it is on. */
+  messageSending: string;
+  messageSent: string;
+  messageDelivered: string;
+  messageRead: string;
+  messageFailed: string;
+  /** What covers a spoiler until it is revealed. */
+  spoilerWarning: string;
+  /** What a file picker's drop zone says when the caller has not said. */
+  filePickerTitle: string;
   /** Read out after a link that leaves the page, and never drawn. */
   newTab: string;
   /** The two columns of a transfer, and the buttons between them. */
@@ -183,6 +201,7 @@ export const defaultLabels: PlassLabels = {
   close: 'Close',
   cancel: 'Cancel',
   confirm: 'Confirm',
+  acknowledge: 'OK',
   clear: 'Clear',
   done: 'Done',
   skip: 'Skip',
@@ -200,6 +219,7 @@ export const defaultLabels: PlassLabels = {
   decrease: 'Decrease',
   preview: 'Preview',
   empty: 'Nothing here',
+  optional: 'Optional',
 
   breadcrumb: 'Breadcrumb',
   breadcrumbExpand: 'Show the hidden steps',
@@ -215,6 +235,7 @@ export const defaultLabels: PlassLabels = {
   restore: 'Restore',
   resizeWindow: 'Resize window',
   overlay: 'Overlay',
+  notifications: 'Notifications',
   pagination: 'Pagination',
   paginationPrevious: 'Previous page',
   paginationNext: 'Next page',
@@ -222,12 +243,20 @@ export const defaultLabels: PlassLabels = {
   paginationLast: 'Last page',
   rating: 'Rating',
   sidebar: 'Sidebar',
+  sidebarOpen: 'Open sidebar',
   sidebarClose: 'Close sidebar',
   sidebarResize: 'Resize sidebar',
   skipToContent: 'Skip to content',
   backToTop: 'Back to top',
   onThisPage: 'On this page',
   typing: 'Typing…',
+  messageSending: 'Sending',
+  messageSent: 'Sent',
+  messageDelivered: 'Delivered',
+  messageRead: 'Read',
+  messageFailed: 'Not delivered',
+  spoilerWarning: 'This may contain spoilers',
+  filePickerTitle: 'Drop files here, or click to browse',
   newTab: '(opens in a new tab)',
   transferAvailable: 'Available',
   transferSelected: 'Selected',

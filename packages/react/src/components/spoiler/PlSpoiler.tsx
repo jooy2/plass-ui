@@ -144,7 +144,7 @@ export const PlSpoiler = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSpoi
       onRevealedChange,
       label: labelProp,
       hideLabel: hideLabelProp,
-      description = 'This may contain spoilers',
+      description: descriptionProp,
       action,
       reversible = false,
       maxHeight,
@@ -166,6 +166,7 @@ export const PlSpoiler = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSpoi
     const labels = useLabels();
     const label = labelProp ?? labels.reveal;
     const hideLabel = hideLabelProp ?? labels.hide;
+    const description = descriptionProp === undefined ? labels.spoilerWarning : descriptionProp;
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';

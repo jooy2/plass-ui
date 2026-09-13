@@ -266,6 +266,7 @@ class PlassLabels {
     this.close = 'Close',
     this.cancel = 'Cancel',
     this.confirm = 'Confirm',
+    this.acknowledge = 'OK',
     this.search = 'Search',
     this.selectAll = 'Select all',
     this.selectRow = 'Select row',
@@ -282,6 +283,7 @@ class PlassLabels {
     this.decrease = 'Decrease',
     this.preview = 'Preview',
     this.empty = 'Nothing here',
+    this.optional = 'Optional',
     this.breadcrumb = 'Breadcrumb',
     this.breadcrumbExpand = 'Show the hidden steps',
     this.carousel = 'Carousel',
@@ -303,12 +305,20 @@ class PlassLabels {
     this.paginationLast = 'Last page',
     this.rating = 'Rating',
     this.sidebar = 'Sidebar',
+    this.sidebarOpen = 'Open sidebar',
     this.sidebarClose = 'Close sidebar',
     this.sidebarResize = 'Resize sidebar',
     this.skipToContent = 'Skip to content',
     this.backToTop = 'Back to top',
     this.onThisPage = 'On this page',
     this.typing = 'Typing…',
+    this.messageSending = 'Sending',
+    this.messageSent = 'Sent',
+    this.messageDelivered = 'Delivered',
+    this.messageRead = 'Read',
+    this.messageFailed = 'Not delivered',
+    this.spoilerWarning = 'This may contain spoilers',
+    this.filePickerTitle = 'Choose files',
     this.newTab = '(opens elsewhere)',
     this.transferAvailable = 'Available',
     this.transferSelected = 'Selected',
@@ -353,6 +363,7 @@ class PlassLabels {
     String? close,
     String? cancel,
     String? confirm,
+    String? acknowledge,
     String? search,
     String? selectAll,
     String? selectRow,
@@ -369,6 +380,7 @@ class PlassLabels {
     String? decrease,
     String? preview,
     String? empty,
+    String? optional,
     String? breadcrumb,
     String? breadcrumbExpand,
     String? carousel,
@@ -390,12 +402,20 @@ class PlassLabels {
     String? paginationLast,
     String? rating,
     String? sidebar,
+    String? sidebarOpen,
     String? sidebarClose,
     String? sidebarResize,
     String? skipToContent,
     String? backToTop,
     String? onThisPage,
     String? typing,
+    String? messageSending,
+    String? messageSent,
+    String? messageDelivered,
+    String? messageRead,
+    String? messageFailed,
+    String? spoilerWarning,
+    String? filePickerTitle,
     String? newTab,
     String? transferAvailable,
     String? transferSelected,
@@ -432,6 +452,7 @@ class PlassLabels {
       close: close ?? this.close,
       cancel: cancel ?? this.cancel,
       confirm: confirm ?? this.confirm,
+      acknowledge: acknowledge ?? this.acknowledge,
       search: search ?? this.search,
       selectAll: selectAll ?? this.selectAll,
       selectRow: selectRow ?? this.selectRow,
@@ -448,6 +469,7 @@ class PlassLabels {
       decrease: decrease ?? this.decrease,
       preview: preview ?? this.preview,
       empty: empty ?? this.empty,
+      optional: optional ?? this.optional,
       breadcrumb: breadcrumb ?? this.breadcrumb,
       breadcrumbExpand: breadcrumbExpand ?? this.breadcrumbExpand,
       carousel: carousel ?? this.carousel,
@@ -469,12 +491,20 @@ class PlassLabels {
       paginationLast: paginationLast ?? this.paginationLast,
       rating: rating ?? this.rating,
       sidebar: sidebar ?? this.sidebar,
+      sidebarOpen: sidebarOpen ?? this.sidebarOpen,
       sidebarClose: sidebarClose ?? this.sidebarClose,
       sidebarResize: sidebarResize ?? this.sidebarResize,
       skipToContent: skipToContent ?? this.skipToContent,
       backToTop: backToTop ?? this.backToTop,
       onThisPage: onThisPage ?? this.onThisPage,
       typing: typing ?? this.typing,
+      messageSending: messageSending ?? this.messageSending,
+      messageSent: messageSent ?? this.messageSent,
+      messageDelivered: messageDelivered ?? this.messageDelivered,
+      messageRead: messageRead ?? this.messageRead,
+      messageFailed: messageFailed ?? this.messageFailed,
+      spoilerWarning: spoilerWarning ?? this.spoilerWarning,
+      filePickerTitle: filePickerTitle ?? this.filePickerTitle,
       newTab: newTab ?? this.newTab,
       transferAvailable: transferAvailable ?? this.transferAvailable,
       transferSelected: transferSelected ?? this.transferSelected,
@@ -517,6 +547,9 @@ class PlassLabels {
 
   /// The other one.
   final String confirm;
+
+  /// The one button on a message that only needs to have been read.
+  final String acknowledge;
 
   /// Names a search field the caller did not name.
   final String search;
@@ -572,6 +605,9 @@ class PlassLabels {
 
   /// What a list says when it has nothing in it.
   final String empty;
+
+  /// Marks a step, or anything else, that may be left out.
+  final String optional;
 
   /// The trail's own name.
   final String breadcrumb;
@@ -636,6 +672,9 @@ class PlassLabels {
   /// The panel's own name.
   final String sidebar;
 
+  /// The button that opens it.
+  final String sidebarOpen;
+
   /// The button that shuts it.
   final String sidebarClose;
 
@@ -653,6 +692,27 @@ class PlassLabels {
 
   /// What a chat bubble says while somebody is still writing.
   final String typing;
+
+  /// What a chat bubble's mark says while the message is on its way.
+  final String messageSending;
+
+  /// The same, once it has left.
+  final String messageSent;
+
+  /// The same, once it has arrived.
+  final String messageDelivered;
+
+  /// The same, once it has been read.
+  final String messageRead;
+
+  /// The same, when it did not arrive.
+  final String messageFailed;
+
+  /// What covers a spoiler until it is revealed.
+  final String spoilerWarning;
+
+  /// What a file picker's box says when the caller has not said.
+  final String filePickerTitle;
 
   /// Read out after a link that leaves the screen, and never drawn.
   final String newTab;

@@ -25,6 +25,7 @@ import {
   surfaceSlots,
   transitionClasses
 } from '../../internal/styles.js';
+import { useLabels } from '../../internal/labels.js';
 import { useResponsiveValue } from '../../internal/responsive.js';
 import type {
   PlassColor,
@@ -282,6 +283,7 @@ export const PlStep = /* @__PURE__ */ React.forwardRef<HTMLLIElement, PlStepProp
 ) {
   const stepper = React.useContext(StepperContext);
   const { index, last } = React.useContext(StepContext);
+  const labels = useLabels();
 
   // A bare step outside a stepper still renders — it is one step with nothing
   // before or after it. The defaults are the stepper's own.
@@ -334,7 +336,7 @@ export const PlStep = /* @__PURE__ */ React.forwardRef<HTMLLIElement, PlStepProp
 
       {optional ? (
         <span className={cx('text-(--plass-muted-fg) italic', metaTextClasses[size])}>
-          {optional === true ? 'Optional' : optional}
+          {optional === true ? labels.optional : optional}
         </span>
       ) : null}
     </span>

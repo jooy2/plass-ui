@@ -53,9 +53,10 @@ class PlStep {
   /// validation while the reader was three steps further on.
   final PlStepStatus? status;
 
-  /// Marks the step as skippable, and says so in these words. Pass
-  /// `Text('Optional')` — there is no default string, because the package ships
-  /// no translations and a word it invented would be in one language.
+  /// Marks the step as skippable, and says so in these words.
+  ///
+  /// A widget rather than a switch, so a step can say more than one word. The
+  /// label pack's word is `Text(PlassTheme.labelsOf(context).optional)`.
   final Widget? optional;
 
   /// Cannot be reached, whatever [PlStepper.linear] says.

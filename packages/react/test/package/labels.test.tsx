@@ -9,7 +9,18 @@
  */
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlAlert, PlPagination, PlassProvider, defaultLabels } from 'plass-ui';
+import {
+  PlAlert,
+  PlChatBubble,
+  PlFilePicker,
+  PlPagination,
+  PlSpoiler,
+  PlStep,
+  PlStepper,
+  PlToastProvider,
+  PlassProvider,
+  defaultLabels
+} from 'plass-ui';
 import * as locales from '../../src/locales/index.js';
 
 const packs = Object.entries(locales);
@@ -35,9 +46,9 @@ describe('the label set', () => {
     );
 
     // A handful of strings genuinely survive translation — `AM/PM`, `Overlay`,
-    // `Minute` — so the check is that a pack is a translation rather than a
-    // copy, not that every single word differs.
-    expect(untranslated.length).toBeLessThan(6);
+    // `Minute`, `OK`, German's `Optional` — so the check is that a pack is a
+    // translation rather than a copy, not that every single word differs.
+    expect(untranslated.length).toBeLessThan(8);
   });
 });
 
@@ -69,6 +80,39 @@ describe('a translated provider', () => {
 
     expect(names).toContain('이전 페이지');
     expect(names).toContain('다음 페이지');
+  });
+
+  it('reaches the words that used to be written into a component', async () => {
+    const screen = await render(
+      <PlassProvider labels={locales.ko}>
+        <PlSpoiler>Ending</PlSpoiler>
+        <PlFilePicker />
+        <PlChatBubble status="failed">Hi</PlChatBubble>
+        <PlStepper active={0}>
+          <PlStep label="Profile" optional />
+        </PlStepper>
+      </PlassProvider>
+    );
+
+    await expect.element(screen.getByText(locales.ko.spoilerWarning)).toBeInTheDocument();
+    await expect.element(screen.getByText(locales.ko.filePickerTitle)).toBeInTheDocument();
+    await expect.element(screen.getByText(locales.ko.messageFailed)).toBeInTheDocument();
+    await expect.element(screen.getByText(locales.ko.optional)).toBeInTheDocument();
+  });
+
+  it('names the region the toasts are announced in', async () => {
+    const screen = await render(
+      <PlassProvider labels={locales.ko}>
+        <PlToastProvider>
+          <span>App</span>
+        </PlToastProvider>
+      </PlassProvider>
+    );
+
+    await expect.element(screen.getByText('App')).toBeInTheDocument();
+    await expect
+      .poll(() => document.querySelector(`[aria-label="${locales.ko.notifications}"]`))
+      .not.toBeNull();
   });
 
   it('leaves a word the pack did not answer in English', async () => {

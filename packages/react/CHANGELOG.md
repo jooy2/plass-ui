@@ -50,6 +50,8 @@
 
 ### Added
 
+- **Eleven words join the label packs**, for the strings that were written into a component in English with no way to translate them but a prop: `acknowledge` (the OK on `PlConfirmProvider`'s alert), `optional` (`PlStep`), `notifications` (the region `PlToastProvider` announces toasts in), `sidebarOpen` (`PlSidebarTrigger`), `spoilerWarning` (`PlSpoiler`), `filePickerTitle` (`PlFilePicker`), and the five words a `PlChatBubble`'s mark says, `messageSending`, `messageSent`, `messageDelivered`, `messageRead` and `messageFailed`. All seven packs translate them. A pack of your own built against `PlassLabels` needs the new keys.
+
 - **`PlImage` and `PlAspectRatio` take `fit="scale-down"`.** It is `contain` that never enlarges a file smaller than the box.
 
 - **A lone `width` or `height` sizes a `PlImage`'s box.** A lone `height` is a box that tall across its container, and takes its width from a `ratio` when there is one. A lone `width` is a box that wide, never wider than its container. A number or a string of digits is pixels, and any other string is a CSS length. Both dimensions together keep describing the file. See Breaking changes for what this changes in existing code.

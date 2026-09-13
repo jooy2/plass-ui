@@ -10,6 +10,8 @@
 
 ### Added
 
+- **Ten words join the label packs**, for the strings that were written into a widget in English with no way to translate them but a parameter: `acknowledge` (the OK on `PlConfirmProvider`'s alert), `optional` (for `PlStep.optional`, which takes a widget), `sidebarOpen` (`PlSidebarTrigger`), `spoilerWarning` (`PlSpoiler`), `filePickerTitle` (`PlFilePicker`), and the five words a `PlChatBubble`'s mark says, `messageSending`, `messageSent`, `messageDelivered`, `messageRead` and `messageFailed`. All seven packs translate them. `PlConfirmProvider.acknowledgeLabel` is now nullable and falls back to the pack.
+
 - **`label` on `PlModal` and `PlDrawer`**, the name a screen reader announces the layer with when it opens. `title` is a widget and has no text to hand over, so both layers used to open with no name at all. It is the same parameter `PlOverlay` and `PlCommandPalette` already have.
 
 - **`PlAspectFit.scaleDown`**, for `PlAspectRatio` and `PlImage`. It is `contain` that never enlarges something smaller than the box.
