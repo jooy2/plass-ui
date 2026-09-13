@@ -324,6 +324,8 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
     const inert = disabled || readOnly;
     const descriptionId = React.useId();
     const errorId = `${descriptionId}-error`;
+    const labelId = `${descriptionId}-label`;
+    const zoneId = id ?? `${descriptionId}-zone`;
 
     /*
      * The list is what a form submits. The input's own `files` only ever held
@@ -462,6 +464,7 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
       >
         {hasContent(label) ? (
           <span
+            id={labelId}
             className={[
               metaTextClasses[size],
               'font-semibold',
@@ -531,7 +534,11 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
                 <button
                   ref={buttonRef}
                   type="button"
-                  id={id}
+                  id={zoneId}
+                  // The field's label, then the button's own words. Two pickers
+                  // on one screen, a résumé and a cover letter, are otherwise
+                  // read out as the same "Drop files here".
+                  aria-labelledby={hasContent(label) ? `${labelId} ${zoneId}` : undefined}
                   disabled={disabled}
                   aria-describedby={describedBy}
                   aria-invalid={isInvalid || failed || undefined}

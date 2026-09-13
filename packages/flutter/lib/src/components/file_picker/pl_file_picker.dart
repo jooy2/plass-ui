@@ -508,14 +508,7 @@ class _PlFilePickerState extends State<PlFilePicker> {
           );
         }
 
-        return Semantics(
-          container: true,
-          button: true,
-          enabled: !widget.disabled,
-          readOnly: widget.readOnly,
-          onTap: _usable ? _browse : null,
-          child: box,
-        );
+        return box;
       },
     );
 
@@ -523,12 +516,12 @@ class _PlFilePickerState extends State<PlFilePicker> {
       zone = SizedBox(width: double.infinity, child: zone);
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      spacing: stackGap[size]!,
-      children: <Widget>[
-        if (widget.label != null)
+    if (widget.label != null) {
+      zone = Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        spacing: stackGap[size]!,
+        children: <Widget>[
           DefaultTextStyle.merge(
             style: TextStyle(
               color: widget.disabled ? tokens.mutedFg : tokens.fg,
@@ -537,6 +530,29 @@ class _PlFilePickerState extends State<PlFilePicker> {
             ),
             child: widget.label!,
           ),
+          zone,
+        ],
+      );
+    }
+
+    // One node over the label and the box, so the button is named by the field
+    // first and by its own words after: a résumé picker and a cover letter
+    // picker on one screen are otherwise both read as the same line. The list,
+    // the description and the error stay outside it.
+    zone = Semantics(
+      container: true,
+      button: true,
+      enabled: !widget.disabled,
+      readOnly: widget.readOnly,
+      onTap: _usable ? _browse : null,
+      child: zone,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      spacing: stackGap[size]!,
+      children: <Widget>[
         zone,
         if (widget.showList && widget.value.isNotEmpty)
           Column(

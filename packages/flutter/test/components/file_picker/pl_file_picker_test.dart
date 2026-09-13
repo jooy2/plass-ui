@@ -266,6 +266,33 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('the box is named by the field label, then by its own words', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                PlFilePicker(value: <PlFile>[], label: Text('Resume')),
+                PlFilePicker(value: <PlFile>[], label: Text('Cover letter')),
+              ],
+            ),
+            width: 420,
+          ),
+        );
+
+        // Two pickers on one screen would otherwise be read out the same.
+        final resume = tester.getSemantics(find.text('Resume'));
+        final letter = tester.getSemantics(find.text('Cover letter'));
+
+        expect(resume, isSemantics(isButton: true, label: 'Resume\nChoose files'));
+        expect(letter, isSemantics(isButton: true, label: 'Cover letter\nChoose files'));
+
+        handle.dispose();
+      });
+
       testWidgets('an error re-points the family at danger', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(const PlFilePicker(value: <PlFile>[], error: Text('Pick a file.')), width: 420),

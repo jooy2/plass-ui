@@ -177,6 +177,7 @@ Moves the box's padding and the text inside it. The padding has its own ladder r
 ::: fw react
 
 - The pressable area is a real `<button>`, so it is in the tab order and answers <kbd>Enter</kbd> and <kbd>Space</kbd>. Drag-and-drop is an addition to that, never the only way in.
+- The button is named by `label` first and by its own `title` and `hint` after, so two pickers on one screen are not read out the same.
 - The `<input type="file">` stays in the DOM, clipped off-screen rather than `display: none`. The latter is unfocusable in some browsers and would take the input out of native form validation.
 - The input holds the list as it is shown, so a form with `name` submits the dropped files and not the removed or rejected ones.
 - `description` and `error` are wired to the button with `aria-describedby`; the error also sets `aria-invalid`.
@@ -189,6 +190,7 @@ Moves the box's padding and the text inside it. The padding has its own ladder r
 ::: fw flutter
 
 - The box is announced as a button, so it is in the focus order and answers <kbd>Enter</kbd> and <kbd>Space</kbd>. Whatever drop handling an app adds is an addition to that, never the only way in.
+- The button is named by `label` first and by its own `title` and `hint` after, so two pickers on one screen are not read out the same.
 - The file list is outside the box, because a remove button inside a button is a press that fires twice.
 - Each remove button carries a name that includes the file it removes, so a screen reader hears three different buttons rather than three called "Remove".
 - The box does not move while a file is over it. Colour and edge change; nothing grows or lifts, because a target that moves while you are aiming at it is a target you miss.

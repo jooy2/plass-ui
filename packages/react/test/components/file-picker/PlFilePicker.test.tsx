@@ -53,6 +53,28 @@ describe('PlFilePicker', () => {
       await expect.element(screen.getByText('Invoices only.')).toBeInTheDocument();
     });
 
+    it('names the browse button after its label, then its own words', async () => {
+      const screen = await render(
+        <>
+          <PlFilePicker label="Resume" />
+          <PlFilePicker label="Cover letter" hint="PDF only" />
+        </>
+      );
+
+      // Two pickers on one screen would otherwise be read out the same.
+      await expect
+        .element(
+          screen.getByRole('button', {
+            name: 'Resume Drop files here, or click to browse',
+            exact: true
+          })
+        )
+        .toBeInTheDocument();
+      await expect
+        .element(screen.getByRole('button', { name: /^Cover letter Drop files here.*PDF only$/ }))
+        .toBeInTheDocument();
+    });
+
     it('marks the zone invalid when there is an error', async () => {
       const screen = await render(<PlFilePicker error="Pick a file." />);
 

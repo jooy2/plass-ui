@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **A `PlFilePicker` button says which field it belongs to.** Its name was only the words inside the box, so a résumé picker and a cover letter picker on one screen were both read out as the same line. The name now starts with `label` and goes on with the box's own words.
+
 - **The month and year buttons of a calendar say the month and the year.** Their `aria-label` was "Choose a month" and "Choose a year", which replaced the words on the buttons, so a screen reader never said which month was on screen and a voice command saying "July" found nothing. The buttons in `PlCalendar` and every picker are now named by what they show and described by what they do, and the grid under them, which had no name, is named by the header: `July 2026`.
 
 - **The next question in a `PlConfirmProvider` queue places the focus again.** The sheet stays open between two queued questions and reused its buttons, so `autoFocus` did not run for the second one and the focus stayed on the button that had just been pressed. After a first question answered with its confirm button, a second, destructive question opened with the focus on its confirm button too, and pressing Enter twice approved both. Each question now gets new buttons, and its own `initialFocus` decides where the focus lands.

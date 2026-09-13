@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **A `PlFilePicker` button says which field it belongs to.** Its name was only the words inside the box, so a résumé picker and a cover letter picker on one screen were both read out as the same line. The name now starts with `label` and goes on with the box's own words.
+
 - **A screen reader follows the keyboard focus across a calendar.** A day, month or year cell left its focus out of the semantics tree, so moving with the arrow keys in `PlCalendar` and every picker moved the ring while a screen reader's cursor stayed on the cell it was on, and nothing was announced. The focused cell is now marked focused, and a screen reader can move the input focus to a cell as well.
 
 - **The screen behind an open popup keeps working.** A `PlPopover`, a `PlMenu`, a `PlSelect` or `PlCombobox` list, a picker, and a `PlNavigationMenu` panel closed on a press outside by covering the whole screen with a layer that took the press. The first press on a button behind the popup only closed the popup, and a drag on a list behind it did not scroll. A press outside now closes the popup and still reaches what it landed on, so a `PlMenubar` word pressed while another menu is open opens its own menu. A press on the popup's own trigger still only closes it.
