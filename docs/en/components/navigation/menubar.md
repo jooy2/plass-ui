@@ -115,8 +115,8 @@ The open menu is marked in colour and nothing else. The word does not move and t
 | React | Flutter | Why |
 | --- | --- | --- |
 | composed `PlMenubarMenu` children | `menus: List<PlMenubarMenu>` as data | A menu on a bar is a word and a list of rows, and a list is what the strip can count. |
-| crossing the strip walks through the menus | pressing elsewhere puts the open one away | An open menu's dismiss layer is between the pointer and the strip, so the words never hear it arrive. Only one is ever open either way. |
-| `modal`, `loopFocus` | — | There is no page to make inert and no arrow-key ring to wrap: an open menu already owns the pointer. |
+| crossing the strip walks through the menus | pressing another word opens that one and puts the open one away | The words answer a press and not the pointer arriving. Only one is ever open either way. |
+| `modal`, `loopFocus` | — | There is no page to make inert and no arrow-key ring to wrap. |
 | `aria-expanded` on the word | `SemanticsRole.menuItem` with `expanded` | The same state under the framework's own name. Once a menu is open it is the accessibility tree, so the strip says which one in colour as well. |
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
 

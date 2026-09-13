@@ -1,6 +1,7 @@
 /// A surface that floats beside something rather than over everything.
 library;
 
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -78,6 +79,11 @@ class PlassAnchoredPortal extends StatefulWidget {
   /// Called when a press lands outside the popup. `null` leaves outside presses
   /// alone, which is what a tooltip wants: it is closed by the pointer leaving,
   /// not by anything being pressed.
+  ///
+  /// The press still reaches whatever it landed on, so the screen behind the
+  /// popup goes on being pressed and scrolled. The exception is the anchor: a
+  /// press on it closes the popup and goes no further, or a trigger that opens
+  /// its popup would open it again on the same press.
   final VoidCallback? onDismiss;
 
   /// Called when Escape is pressed while the popup is open and the focus is on
@@ -273,7 +279,10 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
           child: OverlayPortal(
             controller: _portal,
             overlayChildBuilder: _buildPopup,
-            child: KeyedSubtree(key: _anchorKey, child: widget.child),
+            child: _PressShield(
+              shielding: widget.open && widget.onDismiss != null,
+              child: KeyedSubtree(key: _anchorKey, child: widget.child),
+            ),
           ),
         ),
       ),
@@ -291,7 +300,14 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
           PlassAnchorWidth.atLeast => BoxConstraints(minWidth: _anchorWidth ?? 0),
           PlassAnchorWidth.exact => BoxConstraints.tightFor(width: _anchorWidth),
         },
-        child: KeyedSubtree(key: _popupKey, child: widget.popup),
+        // A press anywhere on the popup is the popup's, including one on a gap
+        // between its parts, which would otherwise fall through to the page.
+        child: Listener(
+          behavior: widget.onDismiss != null
+              ? HitTestBehavior.opaque
+              : HitTestBehavior.deferToChild,
+          child: KeyedSubtree(key: _popupKey, child: widget.popup),
+        ),
       ),
     );
 
@@ -315,12 +331,18 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
       child: Stack(
         alignment: AlignmentDirectional.topStart,
         children: <Widget>[
+          // Told about a press outside without taking it. A translucent listener
+          // over an empty box reports the press and then answers that it hit
+          // nothing, so the press goes on to the page under the overlay.
           if (widget.onDismiss != null)
             Positioned.fill(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: widget.onDismiss,
-                child: const SizedBox.expand(),
+              child: Listener(
+                behavior: HitTestBehavior.translucent,
+                onPointerDown: (PointerDownEvent event) {
+                  if (widget.open) {
+                    widget.onDismiss!();
+                  }
+                },
               ),
             ),
           popup,
@@ -350,5 +372,37 @@ class _EscapeAction extends Action<DismissIntent> {
     _callback?.call();
 
     return null;
+  }
+}
+
+/// Keeps presses off the anchor while its popup is open.
+///
+/// The press has already been reported as outside the popup by then, and it
+/// closes it. A trigger that also took it would open the popup again. This is
+/// [AbsorbPointer] without the semantics: an absorbing pointer blocks the
+/// actions of everything under it too, and a screen reader has to be able to
+/// reach the trigger while its popup is up.
+class _PressShield extends SingleChildRenderObjectWidget {
+  const _PressShield({required this.shielding, required super.child});
+
+  final bool shielding;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderPressShield(shielding);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderPressShield renderObject) {
+    renderObject.shielding = shielding;
+  }
+}
+
+class _RenderPressShield extends RenderProxyBox {
+  _RenderPressShield(this.shielding);
+
+  bool shielding;
+
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    return shielding ? size.contains(position) : super.hitTest(result, position: position);
   }
 }

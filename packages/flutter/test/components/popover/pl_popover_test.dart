@@ -162,6 +162,78 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('lets a press outside reach what it lands on, and closes', (
+        WidgetTester tester,
+      ) async {
+        var pressed = 0;
+        await tester.pumpWidget(
+          host(
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                const _Harness(startOpen: true),
+                const SizedBox(height: 160),
+                PlButton(onPressed: () => pressed += 1, child: const Text('Elsewhere')),
+              ],
+            ),
+            overlay: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.text('Elsewhere'));
+        await tester.pumpAndSettle();
+
+        expect(pressed, 1);
+        expect(tester.state<_HarnessState>(find.byType(_Harness)).open, isFalse);
+      });
+
+      testWidgets('lets a drag outside scroll what is behind it', (WidgetTester tester) async {
+        final ScrollController scroll = ScrollController();
+        addTearDown(scroll.dispose);
+        await tester.pumpWidget(
+          host(
+            ListView(
+              controller: scroll,
+              children: <Widget>[
+                const Align(alignment: Alignment.topCenter, child: _Harness(startOpen: true)),
+                for (var index = 0; index < 40; index += 1)
+                  SizedBox(height: 40, child: Text('Row $index')),
+              ],
+            ),
+            width: 400,
+            height: 500,
+            overlay: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.drag(find.text('Row 9'), const Offset(0, -200));
+        await tester.pumpAndSettle();
+
+        expect(scroll.offset, greaterThan(0));
+      });
+
+      testWidgets('keeps a press inside the popup to itself', (WidgetTester tester) async {
+        final state = await _pump(tester, const _Harness(startOpen: true));
+
+        await tester.tap(find.text('The base rate plus whatever your plan adds to it.'));
+        await tester.pumpAndSettle();
+
+        expect(state.open, isTrue);
+      });
+
+      testWidgets('closes on a press on its trigger, which the trigger does not also take', (
+        WidgetTester tester,
+      ) async {
+        final state = await _pump(tester, const _Harness(startOpen: true));
+
+        await tester.tap(find.text('Explain'));
+        await tester.pumpAndSettle();
+
+        expect(state.open, isFalse);
+      });
+
       testWidgets('leaves the screen working behind it', (WidgetTester tester) async {
         await _pump(tester, const _Harness(startOpen: true));
 

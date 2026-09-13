@@ -188,13 +188,13 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('New'), findsOneWidget);
 
-        // Pressing elsewhere on the bar puts the open one away. It does not open
-        // the one that was pressed — see the differences table on the page.
-        await tester.tap(find.text('Edit'), warnIfMissed: false);
+        // Pressing another word on the bar puts the open one away and opens the
+        // one that was pressed.
+        await tester.tap(find.text('Edit'));
         await tester.pumpAndSettle();
 
         expect(find.text('New'), findsNothing);
-        expect(find.text('Copy'), findsNothing);
+        expect(find.text('Copy'), findsOneWidget);
       });
 
       testWidgets('opens nothing while it is disabled', (WidgetTester tester) async {
