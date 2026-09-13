@@ -174,6 +174,85 @@ void main() {
       });
     });
 
+    group('position', () {
+      Alignment placed(WidgetTester tester) {
+        return tester.widget<Image>(find.byType(Image)).alignment as Alignment;
+      }
+
+      testWidgets('sits in the middle by default', (WidgetTester tester) async {
+        await _pump(tester, PlImage(image: _ok, semanticLabel: 'A portrait', rotate: 90));
+
+        expect(placed(tester), Alignment.center);
+      });
+
+      testWidgets('keeps the side it names on an upright picture', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          PlImage(image: _ok, semanticLabel: 'A portrait', position: Alignment.topCenter),
+        );
+
+        expect(placed(tester), Alignment.topCenter);
+      });
+
+      testWidgets('keeps the top of what is shown through a half turn', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlImage(
+            image: _ok,
+            semanticLabel: 'A portrait',
+            position: Alignment.topCenter,
+            rotate: 180,
+          ),
+        );
+
+        expect(placed(tester), Alignment.bottomCenter);
+      });
+
+      testWidgets('keeps the top of what is shown through a quarter turn', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlImage(
+            image: _ok,
+            semanticLabel: 'A portrait',
+            position: Alignment.topCenter,
+            rotate: 90,
+          ),
+        );
+
+        // The picture's left edge is what lies along the top of the screen.
+        expect(placed(tester), Alignment.centerLeft);
+      });
+
+      testWidgets('keeps the side it names through a mirror', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          PlImage(
+            image: _ok,
+            semanticLabel: 'A portrait',
+            position: Alignment.centerLeft,
+            flip: PlImageFlip.horizontal,
+          ),
+        );
+
+        expect(placed(tester), Alignment.centerRight);
+      });
+
+      testWidgets('stays physical under a right-to-left direction', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            PlImage(image: _ok, semanticLabel: 'A portrait', position: const Alignment(-0.4, 0)),
+            textDirection: TextDirection.rtl,
+          ),
+        );
+
+        expect(placed(tester), const Alignment(-0.4, 0));
+      });
+    });
+
     group('width and height', () {
       Future<void> pumpIn(WidgetTester tester, Widget child) async {
         // A width to be given and a height left open, the way a column of

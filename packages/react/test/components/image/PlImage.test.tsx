@@ -89,6 +89,55 @@ describe('PlImage', () => {
     });
   });
 
+  describe('position', () => {
+    const placed = () => image().style.objectPosition;
+
+    it('writes nothing until it is asked to', async () => {
+      await render(<PlImage src={OK} alt="A portrait" rotate={90} flip="both" />);
+
+      expect(placed()).toBe('');
+    });
+
+    it('writes a side, a corner and a pair as percentages', async () => {
+      const screen = await render(<PlImage src={OK} alt="A portrait" position="top" />);
+
+      expect(placed()).toBe('50% 0%');
+
+      await screen.rerender(<PlImage src={OK} alt="A portrait" position="bottom right" />);
+
+      expect(placed()).toBe('100% 100%');
+
+      await screen.rerender(<PlImage src={OK} alt="A portrait" position="30% 20%" />);
+
+      expect(placed()).toBe('30% 20%');
+    });
+
+    it('keeps the top of what is shown through a half turn', async () => {
+      await render(<PlImage src={OK} alt="A portrait" position="top" rotate={180} />);
+
+      expect(placed()).toBe('50% 100%');
+    });
+
+    it('keeps the top of what is shown through a quarter turn', async () => {
+      await render(<PlImage src={OK} alt="A portrait" position="top" rotate={90} />);
+
+      // The element's left edge is what lies along the top of the screen.
+      expect(placed()).toBe('0% 50%');
+    });
+
+    it('keeps the side it names through a mirror', async () => {
+      await render(<PlImage src={OK} alt="A portrait" position="left" flip="horizontal" />);
+
+      expect(placed()).toBe('100% 50%');
+    });
+
+    it('passes a value it cannot read straight through', async () => {
+      await render(<PlImage src={OK} alt="A portrait" position="10px 20px" rotate={90} />);
+
+      expect(placed()).toBe('10px 20px');
+    });
+  });
+
   describe('a lone width or height', () => {
     it('sizes the box to a lone height, across the width it is given', async () => {
       await render(<PlImage src={OK} alt="A portrait" height={200} className="img-under-test" />);

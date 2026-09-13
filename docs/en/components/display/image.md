@@ -118,6 +118,40 @@ Both are `double`s in logical pixels. A lone `height` with no `ratio` takes the 
 
 :::
 
+### position
+
+Where the picture sits in its box: which part of it a `cover` crop keeps, and where `contain`, `none` and `scale-down` leave their empty space.
+
+<Demo src="image/position" :min-height="200">
+
+::: fw react
+
+<<< @/.vitepress/demos/image/position.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/position.dart
+
+:::
+
+</Demo>
+
+The position is read on the picture as it is shown, so it holds through `rotate` and `flip`: the top keeps the top of what the reader sees, not the top of the file. It is physical rather than logical, because the subject of a photograph does not move to the other side on a right-to-left page.
+
+::: fw react
+
+`center`, a side (`top`, `right`, `bottom`, `left`), a corner written the CSS way (`'top left'`), or two percentages across and down (`'30% 20%'`). Any other value `object-position` accepts, such as a length, is passed through as written, and is not converted for `rotate` or `flip`.
+
+:::
+
+::: fw flutter
+
+An `Alignment`, which is Flutter's own spelling of the same idea: `Alignment.topCenter` is `top`, and `Alignment(-0.4, -0.6)` is `'30% 20%'`. It is typed `Alignment` rather than `AlignmentGeometry` so that a directional one cannot be passed by mistake.
+
+:::
+
 ### rotate
 
 Turns the picture clockwise by `90`, `180` or `270` degrees. Any other number goes to the nearest quarter, so `-90` is `270`.

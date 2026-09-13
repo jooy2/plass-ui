@@ -103,6 +103,7 @@ class PlImage extends StatefulWidget {
     this.width,
     this.height,
     this.fit = PlAspectFit.cover,
+    this.position = Alignment.center,
     this.rotate = 0,
     this.flip = PlImageFlip.none,
     this.filter = PlImageFilter.none,
@@ -162,6 +163,20 @@ class PlImage extends StatefulWidget {
 
   /// How the picture is fitted to the box.
   final PlAspectFit fit;
+
+  /// Where the picture sits in its box: which part of it a
+  /// [PlAspectFit.cover] crop keeps, and where [PlAspectFit.contain],
+  /// [PlAspectFit.none] and [PlAspectFit.scaleDown] leave their empty space.
+  ///
+  /// An [Alignment] rather than an [AlignmentGeometry], on purpose. The subject
+  /// of a photograph is on the same side of it in every language, so a crop
+  /// that keeps it must not move to the other side under a right-to-left
+  /// [Directionality].
+  ///
+  /// Read on the picture as it is shown, so it holds through [rotate] and
+  /// [flip]: the top of the alignment keeps the top of what the reader sees
+  /// rather than the top of the file.
+  final Alignment position;
 
   /// Turns the picture clockwise, a quarter at a time: `0`, `90`, `180` or
   /// `270`.
@@ -270,6 +285,21 @@ class _PlImageState extends State<PlImage> {
     });
   }
 
+  /// [PlImage.position], as the alignment of the picture before it is turned
+  /// and mirrored.
+  Alignment get _alignment {
+    final PlImageFlip flip = widget.flip;
+    final Alignment shown = widget.position;
+    final (double across, double down) = elementFractions(
+      ((shown.x + 1) / 2, (shown.y + 1) / 2),
+      quartersOf(widget.rotate),
+      mirrorAcross: flip == PlImageFlip.horizontal || flip == PlImageFlip.both,
+      mirrorDown: flip == PlImageFlip.vertical || flip == PlImageFlip.both,
+    );
+
+    return Alignment(across * 2 - 1, down * 2 - 1);
+  }
+
   /// The picture turned and mirrored the way [PlImage.rotate] and
   /// [PlImage.flip] say.
   ///
@@ -367,6 +397,7 @@ class _PlImageState extends State<PlImage> {
     Widget picture = Image(
       image: widget.image,
       fit: PlAspectRatio.boxFit(widget.fit),
+      alignment: _alignment,
       // Only ever named once, by the `Semantics` below.
       excludeFromSemantics: true,
       // The picture fades up over the placeholder rather than replacing it

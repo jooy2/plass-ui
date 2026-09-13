@@ -14243,6 +14243,15 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'position',
+      type: "'center' | 'top' | 'right' | 'bottom' | 'left' | 'top left' | 'top right' | 'bottom left' | 'bottom right' | `${number}% ${number}%`",
+      default: "'center'",
+      description: {
+        ko: '상자 안에서 사진이 놓이는 자리. cover가 남길 부분이자 빈 공간의 위치이고, 화면에 보이는 사진을 기준으로 읽습니다',
+        en: 'Where the picture sits in its box: what a cover crop keeps and where empty space goes, read on the picture as it is shown'
+      }
+    },
+    {
       name: 'rotate',
       type: '0 | 90 | 180 | 270',
       default: '0',

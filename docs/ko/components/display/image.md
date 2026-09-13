@@ -118,6 +118,40 @@ PlImage(
 
 :::
 
+### position
+
+사진이 상자 안에서 놓이는 자리입니다. `cover`로 잘라 낼 때 어느 부분을 남길지, `contain`, `none`, `scale-down`이 빈 공간을 어디에 둘지를 정합니다.
+
+<Demo src="image/position" :min-height="200">
+
+::: fw react
+
+<<< @/.vitepress/demos/image/position.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/position.dart
+
+:::
+
+</Demo>
+
+자리는 화면에 보이는 사진을 기준으로 읽으므로 `rotate`와 `flip`을 거쳐도 유지됩니다. 위쪽을 고르면 파일의 위쪽이 아니라 보는 사람에게 보이는 위쪽이 남습니다. 논리 방향이 아니라 물리 방향입니다. 오른쪽에서 왼쪽으로 읽는 페이지라고 사진 속 피사체가 반대편으로 옮겨 가지는 않기 때문입니다.
+
+::: fw react
+
+`center`, 한 변(`top`, `right`, `bottom`, `left`), CSS 방식으로 쓴 모서리(`'top left'`), 또는 가로와 세로 백분율 두 개(`'30% 20%'`)를 받습니다. 길이처럼 `object-position`이 받는 그 밖의 값은 쓴 그대로 전달하고, `rotate`나 `flip`에 맞춰 바꾸지 않습니다.
+
+:::
+
+::: fw flutter
+
+같은 생각을 Flutter식으로 쓴 `Alignment`를 받습니다. `Alignment.topCenter`가 `top`이고, `Alignment(-0.4, -0.6)`이 `'30% 20%'`입니다. 방향에 따라 바뀌는 값을 실수로 넘기지 않도록 `AlignmentGeometry`가 아니라 `Alignment`로 받습니다.
+
+:::
+
 ### rotate
 
 사진을 시계 방향으로 `90`, `180`, `270`도 돌립니다. 그 밖의 숫자는 가장 가까운 4분의 1 바퀴로 맞추므로 `-90`은 `270`입니다.

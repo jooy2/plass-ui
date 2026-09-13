@@ -5,10 +5,10 @@ import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { PlSkeleton } from '../skeleton/PlSkeleton.js';
 import { PlassWatermark } from '../../internal/watermark.js';
-import { isSideways, poseStyle, quartersOf } from '../../internal/image.js';
+import { isSideways, objectPosition, poseStyle, quartersOf } from '../../internal/image.js';
 import type { PlassImageFlip } from '../../internal/image.js';
 import { cx, focusRingClasses, radiusClasses, transitionClasses } from '../../internal/styles.js';
-import type { PlassColor, PlassSize } from '../../types.js';
+import type { PlassColor, PlassSide, PlassSize } from '../../types.js';
 import type { PlassWatermarkOptions, PlassWatermarkPlacement } from '../../internal/watermark.js';
 
 /** Where a watermark sits on the picture. */
@@ -39,6 +39,23 @@ export type PlImageRotation = 0 | 90 | 180 | 270;
  * swaps left and right on the screen whether or not the picture is turned.
  */
 export type PlImageFlip = PlassImageFlip;
+
+/**
+ * Where the picture sits in its box, spelled the way `object-position` spells
+ * it: the centre, a side, a corner, or two percentages across and down.
+ *
+ * Physical rather than logical, on purpose. The subject of a photograph is on
+ * the same side of it in every language, so a crop that keeps it must not move
+ * to the other side on a right-to-left page.
+ */
+export type PlImagePosition =
+  | 'center'
+  | PlassSide
+  | 'top left'
+  | 'top right'
+  | 'bottom left'
+  | 'bottom right'
+  | `${number}% ${number}%`;
 
 /** The treatments that have a name. Anything else is written as CSS. */
 export type PlImageFilter =
@@ -87,6 +104,17 @@ export interface PlImageProps extends Omit<
    * @default 'cover'
    */
   fit?: PlImageFit;
+  /**
+   * Where the picture sits in its box: which part of it a `cover` crop keeps,
+   * and where `contain`, `none` and `scale-down` leave their empty space.
+   *
+   * Read on the picture as it is shown, so it holds through `rotate` and
+   * `flip`: `position="top"` keeps the top of what the reader sees rather than
+   * the top of the file. Anything else `object-position` accepts is passed
+   * through as written, without that conversion.
+   * @default 'center'
+   */
+  position?: PlImagePosition | (string & {});
   /**
    * Turns the picture clockwise, a quarter at a time.
    *
@@ -308,6 +336,7 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
       src,
       ratio,
       fit = 'cover',
+      position,
       rotate = 0,
       flip = 'none',
       filter,
@@ -443,15 +472,17 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
     const quarters = quartersOf(rotate);
     const sideways = isSideways(quarters);
     const pose = poseStyle(quarters, flip);
+    const placed = position === undefined ? undefined : objectPosition(position, quarters, flip);
 
     const pictureStyle: React.CSSProperties | undefined =
-      filterChain === undefined && pose === null
+      filterChain === undefined && pose === null && placed === undefined
         ? undefined
         : {
             // A slot rather than `filter` itself, so a caller's own rule — a
             // gallery tile dimming what is under the pointer — can still reach
             // it.
             ...(filterChain === undefined ? null : { '--p-filter': filterChain }),
+            objectPosition: placed,
             ...pose
           };
 

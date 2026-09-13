@@ -37,4 +37,26 @@ void main() {
       expect(<int>[0, 1, 2, 3].map(isSideways), <bool>[false, true, false, true]);
     });
   });
+
+  group('elementFractions', () {
+    test('leaves an upright, unmirrored picture as it is', () {
+      expect(elementFractions((0.3, 0.2), 0, mirrorAcross: false, mirrorDown: false), (0.3, 0.2));
+    });
+
+    test('undoes a mirror on the axis it mirrors', () {
+      expect(elementFractions((0.25, 0.1), 0, mirrorAcross: true, mirrorDown: false), (0.75, 0.1));
+      expect(elementFractions((0.25, 0.1), 0, mirrorAcross: false, mirrorDown: true), (0.25, 0.9));
+    });
+
+    test('undoes a turn a quarter at a time', () {
+      // The same answers `internal/image.ts` gives.
+      expect(elementFractions((0.5, 0), 1, mirrorAcross: false, mirrorDown: false), (0.0, 0.5));
+      expect(elementFractions((0.5, 0), 2, mirrorAcross: false, mirrorDown: false), (0.5, 1.0));
+      expect(elementFractions((0.5, 0), 3, mirrorAcross: false, mirrorDown: false), (1.0, 0.5));
+    });
+
+    test('undoes the mirror before the turn', () {
+      expect(elementFractions((0, 0), 1, mirrorAcross: true, mirrorDown: false), (0.0, 0.0));
+    });
+  });
 }

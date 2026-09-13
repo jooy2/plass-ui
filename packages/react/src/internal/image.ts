@@ -1,12 +1,13 @@
 /**
- * The arithmetic a `PlImage` turns and mirrors its picture with, and the
- * declarations that draw the two.
+ * The arithmetic a `PlImage` turns, mirrors and places its picture with, and the
+ * declarations that draw the turn and the mirror.
  *
  * The arithmetic is here rather than in the component for the reason
  * `internal/gallery.ts` is: **the Dart build needs the same answers.** A turn
  * that rounded a stray `45` to a different quarter on the two sides would be one
- * picture lying two different ways. The declarations are here because the
- * preview draws the same turn and mirror from a chunk of its own.
+ * picture lying two different ways, and a crop that kept a different part of it
+ * would be two pictures. The declarations are here because the preview draws
+ * the same turn and mirror from a chunk of its own.
  */
 import type * as React from 'react';
 
@@ -91,4 +92,89 @@ export function poseStyle(
         }
       : null)
   };
+}
+
+/**
+ * A position as the fractions of the free space across and down, or `null` for
+ * anything past the keywords and percentages `PlImagePosition` offers.
+ *
+ * The part of CSS's grammar a caller writes. A keyword says its own axis, a
+ * percentage is across when it comes first and down when it comes second, and
+ * `center` says nothing, which leaves the axis at the middle. A length has no
+ * fraction to turn, so it is `null`.
+ */
+export function positionFractions(position: string): [number, number] | null {
+  const fractions: [number, number] = [0.5, 0.5];
+  const words = position.trim().toLowerCase().split(/\s+/);
+
+  for (let index = 0; index < words.length; index += 1) {
+    // Even sides are across and odd ones down; the first two are the near edge.
+    const side = ['left', 'top', 'right', 'bottom'].indexOf(words[index]);
+
+    if (side >= 0) {
+      fractions[side % 2] = side > 1 ? 1 : 0;
+    } else if (/^-?\d*\.?\d+%$/.test(words[index])) {
+      fractions[index === 0 ? 0 : 1] = parseFloat(words[index]) / 100;
+    } else if (words[index] !== 'center') {
+      return null;
+    }
+  }
+
+  return fractions;
+}
+
+/**
+ * A place on the picture as it is shown, as the same place on the element that
+ * is actually turned and mirrored.
+ *
+ * `object-position` works in the element's own frame, before it is transformed,
+ * so `top` on a picture turned upside down would keep what ends up at the
+ * bottom. The mirror is undone first, because it acts on the axes of the screen
+ * after the turn. Then the turn, a quarter at a time: one quarter clockwise lays
+ * the element's left edge along the top of the screen, so what is across on the
+ * screen was down the element.
+ */
+export function elementFractions(
+  [shownAcross, shownDown]: readonly [number, number],
+  quarters: PlassQuarters,
+  mirrorAcross: boolean,
+  mirrorDown: boolean
+): [number, number] {
+  let across = mirrorAcross ? 1 - shownAcross : shownAcross;
+  let down = mirrorDown ? 1 - shownDown : shownDown;
+
+  for (let turn = 0; turn < quarters; turn += 1) {
+    [across, down] = [down, 1 - across];
+  }
+
+  return [across, down];
+}
+
+/**
+ * The `object-position` that keeps `position` where the reader sees it.
+ *
+ * Always written as two percentages rounded to two decimals, which every engine
+ * serialises the same way. A string the parser cannot read is handed through as
+ * it was written.
+ */
+export function objectPosition(
+  position: string,
+  quarters: PlassQuarters,
+  flip: PlassImageFlip
+): string {
+  const shown = positionFractions(position);
+
+  if (shown === null) {
+    return position;
+  }
+
+  const [across, down] = elementFractions(
+    shown,
+    quarters,
+    flip === 'horizontal' || flip === 'both',
+    flip === 'vertical' || flip === 'both'
+  );
+  const percent = (fraction: number) => `${Math.round(fraction * 10000) / 100}%`;
+
+  return `${percent(across)} ${percent(down)}`;
 }
