@@ -10,6 +10,23 @@ export interface PlColorSchemeScriptProps {
 }
 
 /**
+ * `value` as a JavaScript string literal that is safe inside a `<script>`.
+ *
+ * `JSON.stringify` leaves `<` alone, so a storage key built from something the
+ * page does not control — a tenant's slug, a path segment — could carry a
+ * `</script>` that closes the element and puts whatever follows into the
+ * document as markup. The three characters HTML reads and the two line
+ * separators older engines reject in a string literal are written as escapes,
+ * which JavaScript reads back as the same characters.
+ */
+function scriptString(value: string): string {
+  return JSON.stringify(value).replace(
+    /[<>&\u2028\u2029]/g,
+    (character) => `\\u${character.charCodeAt(0).toString(16).padStart(4, '0')}`
+  );
+}
+
+/**
  * The same three lines `applyColorScheme` runs, as text.
  *
  * It cannot import anything: this runs as an inline script in `<head>`, before
@@ -21,7 +38,7 @@ export interface PlColorSchemeScriptProps {
 function inlineScript(storageKey: string, defaultScheme: PlColorScheme): string {
   return (
     `(function(){try{` +
-    `var k=${JSON.stringify(storageKey)},d=${JSON.stringify(defaultScheme)};` +
+    `var k=${scriptString(storageKey)},d=${scriptString(defaultScheme)};` +
     `var s=localStorage.getItem(k);` +
     `if(s!=="light"&&s!=="dark"&&s!=="system"){s=d}` +
     `var e=document.documentElement;` +
@@ -69,8 +86,8 @@ export function PlColorSchemeScript({
   return (
     <script
       nonce={nonce}
-      // The content is assembled here from two JSON-encoded strings and nothing
-      // else — there is no caller-supplied HTML anywhere in it.
+      // The content is assembled here from two string literals, escaped for a
+      // `<script>`, and nothing else — no caller-supplied HTML reaches it.
       dangerouslySetInnerHTML={{ __html: inlineScript(storageKey, defaultScheme) }}
     />
   );

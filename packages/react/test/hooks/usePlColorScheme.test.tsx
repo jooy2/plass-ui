@@ -11,6 +11,7 @@
 import { commands } from 'vitest/browser';
 import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { PlColorSchemeScript, usePlColorScheme, type PlColorScheme } from 'plass-ui';
 
 const DEFAULT_KEY = 'plass-color-scheme';
@@ -258,6 +259,25 @@ describe('PlColorSchemeScript', () => {
     await render(<Probe />);
 
     expect(read('scheme')).toBe('system');
+  });
+
+  it('keeps a storage key that holds markup inside the script', async () => {
+    const key = `${KEY}</script><img src=x onerror="window.__plassEscaped=1">\u2028&`;
+    const html = renderToStaticMarkup(<PlColorSchemeScript storageKey={key} />);
+
+    // One script element, closed once, with nothing after it.
+    expect(html.match(/<\/script>/gi)).toHaveLength(1);
+    expect(html.endsWith('</script>')).toBe(true);
+
+    localStorage.setItem(key, 'dark');
+
+    const screen = await render(<PlColorSchemeScript storageKey={key} />);
+
+    // And the key it reads is still exactly the one it was given.
+    window.eval(screen.container.querySelector('script')!.textContent!);
+
+    expect(root().dataset.theme).toBe('dark');
+    localStorage.removeItem(key);
   });
 
   it('takes its own storage key and default', async () => {
