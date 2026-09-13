@@ -70,6 +70,27 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('names the layer when it is given a label', (WidgetTester tester) async {
+        final handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(
+            const PlDrawer(open: true, label: 'Filters', title: Text('Narrow the results')),
+            overlay: true,
+            width: 480,
+            height: 640,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          semanticsNodeLabelled(tester, 'Filters'),
+          isSemantics(label: 'Filters', scopesRoute: true, namesRoute: true),
+        );
+
+        handle.dispose();
+      });
+
       testWidgets('is not there at all while it is closed', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(const _Harness(startOpen: false), overlay: true, width: 480, height: 640),

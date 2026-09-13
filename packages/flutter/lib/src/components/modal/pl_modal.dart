@@ -97,6 +97,7 @@ class PlModal extends StatelessWidget {
     this.dividers = false,
     this.showClose = true,
     this.closeLabel,
+    this.label,
     this.width,
     this.fullWidth = true,
     this.fullScreen = false,
@@ -150,6 +151,13 @@ class PlModal extends StatelessWidget {
   /// The name a screen reader gives the ×. Never drawn.
   final String? closeLabel;
 
+  /// The name a screen reader gives the modal when it opens. Never drawn.
+  ///
+  /// [title] is a widget, and a widget has no text to hand over, so the layer
+  /// is announced with no name unless this gives it one. Usually the same words
+  /// as the title.
+  final String? label;
+
   /// A hard cap on the sheet's width, overriding the one [size] implies.
   ///
   /// For the modal whose content decides its width — a wide table, a narrow
@@ -197,6 +205,7 @@ class PlModal extends StatelessWidget {
     return PlassPortal(
       open: open,
       modal: modal,
+      label: label,
       barrierColor: tokens.scrim,
       barrierBlur: _scrimBlur,
       onDismiss: dismissible ? close : null,

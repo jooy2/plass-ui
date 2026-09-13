@@ -195,6 +195,25 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('names the layer when it is given a label', (WidgetTester tester) async {
+        final handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(
+            const PlModal(open: true, label: 'Delete project', title: Text('Delete this project?')),
+            overlay: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          semanticsNodeLabelled(tester, 'Delete project'),
+          isSemantics(label: 'Delete project', scopesRoute: true, namesRoute: true),
+        );
+
+        handle.dispose();
+      });
+
       testWidgets('takes the page behind it off the semantics tree while it is open', (
         WidgetTester tester,
       ) async {

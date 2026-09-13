@@ -121,12 +121,13 @@ The body is the only part that scrolls either way.
 ## Accessibility
 
 - An `overlay` drawer holds the focus while it is up, puts it back where it came from on the way out, and takes the screen behind it away.
-- `title` names it and `description` describes it. Both wired to the panel rather than sitting near it, and the title is announced as a heading.
+- `description` describes it and `title` is announced as a heading, both wired to the panel rather than sitting near it.
 - An `inline` drawer is **not** a dialog and claims none of that. It is a panel in the layout, and its heading is an ordinary one.
 - `dismissible={false}` refuses both Escape and a press on the scrim. Give a drawer that refuses them actions that answer it, because there will be no other way out.
 
 ::: fw react
 
+- `title` names the drawer.
 - Base UI owns the focus trap, the scroll lock, the `aria-labelledby` / `aria-describedby` wiring and the inert page behind. `modal="trap-focus"` keeps the page scrollable and clickable while still holding focus inside.
 - `PlDrawerClose` exists so an uncontrolled drawer's Cancel button has something to call. `render` makes it a real Plass button: `<PlDrawerClose render={<PlButton variant="ghost">Cancel</PlButton>} />`.
 
@@ -134,6 +135,7 @@ The body is the only part that scrolls either way.
 
 ::: fw flutter
 
+- `label` is the name an `overlay` drawer is announced with. `title` is a widget and has no text to hand over, so a drawer with no `label` opens with no name; give it the same words as the title.
 - The lift, the scrim, the focus scope, <kbd>Escape</kbd> and focus going back where it came from are `PlassPortal`'s. The same layer a `PlModal` and a `PlOverlay` are built on, so a drawer opened over an overlay shows no seam.
 
 ## Differences from the React build

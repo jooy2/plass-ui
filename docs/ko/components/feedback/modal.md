@@ -184,7 +184,8 @@ modal은 자기를 트리 밖으로 들어 올리므로 위쪽에 `Overlay`가 �
 ::: fw flutter
 
 - focus는 들어가서 머뭅니다. 시트는 자기 focus scope이고 traversal은 가장 가까운 scope에서 끊기므로 <kbd>Tab</kbd>이 아래 페이지에 내려앉을 수 없습니다. 닫히면 focus는 원래 쥐고 있던 것(modal을 연 버튼) 에게 돌아갑니다.
-- 레이어는 하나의 route로 명명되고, 그것이 스크린리더가 화면이 바뀌었음을 아는 방법입니다. `title`은 본문의 첫 줄이 아니라 제목으로 읽힙니다.
+- 레이어는 그 자체로 하나의 route이고, 그것이 스크린리더가 화면이 바뀌었음을 아는 방법입니다. `title`은 본문의 첫 줄이 아니라 제목으로 읽힙니다.
+- `label`은 route를 안내할 때 쓰는 이름입니다. `title`은 위젯이라 넘겨줄 글자가 없으므로, `label`이 없는 modal은 이름 없이 열립니다. 제목과 같은 말을 주세요.
 - `dismissible`이 꺼져 있지 않으면 <kbd>Escape</kbd>로 닫힙니다. `modal: false`는 뒤 페이지를 누를 수 있게 두면서 focus만 가둡니다.
 - ×는 기본으로 켜져 있습니다. 라이브러리의 다른 스위치들과 반대인데, modal은 답할 때까지 페이지를 가져가므로 나가는 길이 기억에 의존하면 안 되기 때문입니다.
 - 스크롤되는 것은 본문뿐이고, 시트가 화면을 다 쓰면 양보하는 것도 본문뿐입니다. 흘러가 버린 헤더는 modal의 이름을 가지고 가 버립니다.
@@ -205,7 +206,7 @@ modal은 자기를 트리 밖으로 들어 올리므로 위쪽에 `Overlay`가 �
 | `modal={true \| 'trap-focus'}` | `modal: bool` | 두 값이 뜻하던 것은 "포인터가 통과하는가"였습니다. Flutter의 말로는 boolean입니다. |
 | `fullScreen` | `fullScreen` | 같습니다. 다만 "뷰포트"란 시트가 들어 올려진 `Overlay`입니다. |
 | `width: number \| string` | `width: double` | 논리 픽셀입니다. 받아들일 CSS 길이가 없습니다. |
-| `<h2>`인 `title`, `aria-describedby` | 제목과, 이름 붙은 route | Flutter는 상태를 노드 자체에 적습니다. 가리킬 id가 없습니다. |
+| `<h2>`인 `title`, `aria-describedby` | 제목과, route의 이름인 `label` | Flutter는 상태를 노드 자체에 적습니다. 가리킬 id가 없고, 위젯에는 이름이 될 글자가 없습니다. |
 | 스크롤 잠금, inert 페이지 | barrier | 잠글 document가 없고, 불투명한 barrier 뒤의 페이지에는 포인터가 닿지 않습니다. |
 | `children` | `child` | Flutter의 이름입니다. |
 | `className`, `style`, 네이티브 속성 | — | 전달할 클래스 목록도 style 속성도 없습니다. |

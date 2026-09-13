@@ -184,7 +184,8 @@ Off, <kbd>Esc</kbd> and a click outside both stop closing the modal. Pair it wit
 ::: fw flutter
 
 - Focus goes in and stays in: the sheet is its own focus scope, and traversal is bounded by the nearest scope, so <kbd>Tab</kbd> cannot land on the page under it. When the modal closes, focus goes back to whatever had it, the button that opened it.
-- The layer names a route, which is how a screen reader knows the screen changed, and `title` is announced as a heading rather than read as the first line of the body.
+- The layer is a route of its own, which is how a screen reader knows the screen changed, and `title` is announced as a heading rather than read as the first line of the body.
+- `label` is the name the route is announced with. `title` is a widget and has no text to hand over, so a modal with no `label` opens with no name; give it the same words as the title.
 - <kbd>Escape</kbd> closes it unless `dismissible` is off; `modal: false` keeps the page behind clickable while still holding focus inside.
 - The × is on by default, unlike most of the switches in the library. A modal takes the page away until it is answered, and the visible way out should not have to be remembered.
 - Only the body scrolls, and it is the only section allowed to give way when the sheet runs out of screen, a header that scrolled away would take the modal's name with it.
@@ -205,7 +206,7 @@ Off, <kbd>Esc</kbd> and a click outside both stop closing the modal. Pair it wit
 | `modal={true \| 'trap-focus'}` | `modal: bool` | The two values were "does the pointer get through". A boolean says that in Flutter's words. |
 | `fullScreen` | `fullScreen` | Same, except that "the viewport" is the `Overlay` the sheet is lifted into. |
 | `width: number \| string` | `width: double` | Logical pixels. There is no CSS length to accept. |
-| `title` as an `<h2>`, `aria-describedby` | a heading, and a named route | Flutter names the state on the node itself; there is no id to point at. |
+| `title` as an `<h2>`, `aria-describedby` | a heading, and `label` for the route's name | Flutter names the state on the node itself; there is no id to point at, and a widget has no text to be the name. |
 | the scroll lock, the inert page | the barrier | There is no document to lock, and a page behind an opaque barrier is not reachable by pointer. |
 | `children` | `child` | Flutter's name. |
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |

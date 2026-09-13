@@ -10,6 +10,8 @@
 
 ### Added
 
+- **`label` on `PlModal` and `PlDrawer`**, the name a screen reader announces the layer with when it opens. `title` is a widget and has no text to hand over, so both layers used to open with no name at all. It is the same parameter `PlOverlay` and `PlCommandPalette` already have.
+
 - **`PlAspectFit.scaleDown`**, for `PlAspectRatio` and `PlImage`. It is `contain` that never enlarges something smaller than the box.
 
 - **`PlImage` takes a `width` and a `height`.** Together they are the file's own pixel size, and the box keeps their proportion before the picture arrives, turned for a picture on its side, as the React build's `<img>` does. One alone sizes the box on that axis: a lone `height` is a box that tall across the width it is given, taking its width from a `ratio` when there is one, and a lone `width` is a box that wide, never wider than the space it has. A narrowed box sits at the start of its space, and `preview`'s press target and focus ring stay on the box.

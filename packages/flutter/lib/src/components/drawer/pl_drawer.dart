@@ -111,6 +111,7 @@ class PlDrawer extends StatelessWidget {
     this.dividers = false,
     this.showClose,
     this.closeLabel,
+    this.label,
     this.extent,
     this.rounded = true,
     this.modal = true,
@@ -174,6 +175,15 @@ class PlDrawer extends StatelessWidget {
   /// The name a screen reader gives the ×. Never drawn.
   final String? closeLabel;
 
+  /// The name a screen reader gives the drawer when it opens over the screen.
+  /// Never drawn.
+  ///
+  /// [title] is a widget, and a widget has no text to hand over, so the layer
+  /// is announced with no name unless this gives it one. An
+  /// [PlDrawerMode.inline] drawer is part of the page rather than a layer, and
+  /// does not use it.
+  final String? label;
+
   /// How far the panel reaches in from its edge: a **width** for
   /// [PlassSide.left] and [PlassSide.right], a **height** for [PlassSide.top]
   /// and [PlassSide.bottom], in logical pixels.
@@ -232,6 +242,7 @@ class PlDrawer extends StatelessWidget {
     return PlassPortal(
       open: open,
       modal: modal,
+      label: label,
       barrierColor: tokens.scrim,
       barrierBlur: _scrimBlur,
       onDismiss: dismissible ? close : null,

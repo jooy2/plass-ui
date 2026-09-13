@@ -3655,6 +3655,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlModal', 'dividers', { type: 'bool', default: 'true' }),
     from('PlModal', 'showClose', { type: 'bool', default: 'true' }),
     from('PlModal', 'closeLabel', { type: 'String', default: "'Close'" }),
+    {
+      name: 'label',
+      type: 'String?',
+      description: {
+        ko: '스크린리더가 modal이 열릴 때 안내하는 이름. 그려지지 않습니다. title은 위젯이라 이름이 될 수 없으므로 보통 제목과 같은 말을 줍니다',
+        en: 'The name a screen reader announces the modal with when it opens. Never drawn. title is a widget and cannot be the name, so this is usually the same words'
+      }
+    },
     from('PlModal', 'width', {
       type: 'double?',
       description: {
@@ -4739,6 +4747,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlDrawer', 'dividers', { type: 'bool', default: 'false' }),
     from('PlDrawer', 'showClose', { type: 'bool?' }),
     from('PlDrawer', 'closeLabel', { type: 'String', default: "'Close'" }),
+    {
+      name: 'label',
+      type: 'String?',
+      description: {
+        ko: '스크린리더가 overlay 서랍이 열릴 때 안내하는 이름. 그려지지 않습니다. title은 위젯이라 이름이 될 수 없으므로 보통 제목과 같은 말을 줍니다',
+        en: 'The name a screen reader announces an overlay drawer with when it opens. Never drawn. title is a widget and cannot be the name, so this is usually the same words'
+      }
+    },
     from('PlDrawer', 'extent', {
       type: 'double?',
       description: {

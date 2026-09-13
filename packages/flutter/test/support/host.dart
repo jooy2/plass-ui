@@ -116,6 +116,28 @@ Widget afterFocusStop(FocusNode before, Widget child) {
   );
 }
 
+/// The first node on the semantics tree carrying [label], walked the same way
+/// [semanticsLabels] walks it, so it reaches a layer lifted into an overlay.
+SemanticsNode? semanticsNodeLabelled(WidgetTester tester, String label) {
+  SemanticsNode? found;
+
+  bool visit(SemanticsNode node) {
+    if (node.label == label) {
+      found = node;
+
+      return false;
+    }
+
+    node.visitChildren(visit);
+
+    return found == null;
+  }
+
+  tester.binding.renderViews.first.debugSemantics?.visitChildren(visit);
+
+  return found;
+}
+
 /// Every label on the semantics tree, in tree order.
 ///
 /// `find.semantics` does not reach a layer lifted through an `OverlayPortal`,

@@ -121,12 +121,13 @@ PlDrawer(
 ## Accessibility
 
 - `overlay` 서랍은 떠 있는 동안 포커스를 붙잡고, 나갈 때 원래 자리로 돌려주며, 뒤의 화면을 가져갑니다.
-- `title`이 이름을 붙이고 `description`이 설명합니다. 둘 다 그냥 근처에 놓이는 것이 아니라 판에 연결되고, 제목은 heading으로 안내됩니다.
+- `description`이 설명하고 `title`은 heading으로 안내됩니다. 둘 다 그냥 근처에 놓이는 것이 아니라 판에 연결됩니다.
 - `inline` 서랍은 dialog가 **아니고** 그 어느 것도 선언하지 않습니다. 레이아웃 속의 판이고, 제목도 평범한 제목입니다.
 - `dismissible={false}`는 Escape도 스크림 누름도 거절합니다. 그 둘을 거절하는 서랍에는 그것에 답할 액션을 주세요. 다른 출구가 없습니다.
 
 ::: fw react
 
+- `title`이 서랍의 이름이 됩니다.
 - 포커스 트랩, 스크롤 잠금, `aria-labelledby` / `aria-describedby` 연결, 뒤 페이지의 inert 처리는 전부 Base UI의 것입니다. `modal="trap-focus"`는 포커스는 안에 붙잡아 두면서 페이지는 스크롤하고 클릭할 수 있게 남겨 둡니다.
 - `PlDrawerClose`는 uncontrolled 서랍의 Cancel 버튼이 부를 것이 있도록 존재합니다. `render`가 그것을 진짜 Plass 버튼으로 만듭니다: `<PlDrawerClose render={<PlButton variant="ghost">Cancel</PlButton>} />`.
 
@@ -134,6 +135,7 @@ PlDrawer(
 
 ::: fw flutter
 
+- `label`은 `overlay` 서랍을 안내할 때 쓰는 이름입니다. `title`은 위젯이라 넘겨줄 글자가 없으므로, `label`이 없는 서랍은 이름 없이 열립니다. 제목과 같은 말을 주세요.
 - 들어 올리기, 스크림, focus scope, <kbd>Escape</kbd>, 나갈 때 포커스를 되돌려주는 것은 전부 `PlassPortal`의 것입니다. `PlModal`과 `PlOverlay`가 서 있는 것과 같은 층이라, 오버레이 위에 열린 서랍에 이음매가 보이지 않습니다.
 
 ## React 빌드와 다른 점
