@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlCalendar } from 'plass-ui';
-import { fullDate } from '../../support/dates';
+import { fullDate, headerButtons } from '../../support/dates';
+import { press } from '../../support/keys';
 
 /** Fixed days to work against, so nothing here depends on when it is run. */
 const JULY_27 = new Date(2026, 6, 27);
@@ -136,6 +137,90 @@ describe('PlCalendar', () => {
 
       // Controlled: the header asked, and nothing answered.
       await expect.element(screen.getByRole('gridcell', { name: fullDate(JULY_15) })).toBeVisible();
+    });
+  });
+
+  describe('the keyboard', () => {
+    /** The one cell a Tab lands on. */
+    const tabStop = () => document.querySelector<HTMLElement>('[role="gridcell"][tabindex="0"]');
+
+    /** Waits for the focus to reach the cell for `date`. */
+    const focusReaches = (date: Date) =>
+      vi.waitFor(() =>
+        expect(document.activeElement?.getAttribute('aria-label')).toBe(fullDate(date))
+      );
+
+    it('puts the tab stop on the chosen day', async () => {
+      await render(<PlCalendar locale="en-GB" defaultValue={JULY_27} />);
+
+      await vi.waitFor(() => expect(tabStop()?.getAttribute('aria-label')).toBe(fullDate(JULY_27)));
+    });
+
+    it('puts it on today when nothing is chosen and today is on screen', async () => {
+      const now = new Date();
+
+      await render(<PlCalendar locale="en-GB" defaultMonth={now} />);
+
+      await vi.waitFor(() =>
+        expect(tabStop()?.getAttribute('aria-label')).toBe(
+          fullDate(new Date(now.getFullYear(), now.getMonth(), now.getDate()))
+        )
+      );
+    });
+
+    it('puts it on the 1st otherwise', async () => {
+      await render(<PlCalendar locale="en-GB" defaultMonth={new Date(1999, 2, 17)} />);
+
+      await vi.waitFor(() =>
+        expect(tabStop()?.getAttribute('aria-label')).toBe(fullDate(new Date(1999, 2, 1)))
+      );
+    });
+
+    it('moves by a day, a week, to the ends of the week, and by a month and a year', async () => {
+      await render(<PlCalendar locale="en-GB" weekStartsOn={1} defaultValue={JULY_15} />);
+
+      await vi.waitFor(() => expect(tabStop()).not.toBeNull());
+      tabStop()!.focus();
+
+      // Wednesday 15 July 2026, in a week that starts on Monday.
+      const steps: [key: string, modifiers: KeyboardEventInit, lands: Date][] = [
+        ['ArrowRight', {}, new Date(2026, 6, 16)],
+        ['ArrowDown', {}, new Date(2026, 6, 23)],
+        ['ArrowLeft', {}, new Date(2026, 6, 22)],
+        ['ArrowUp', {}, new Date(2026, 6, 15)],
+        ['Home', {}, new Date(2026, 6, 13)],
+        ['End', {}, new Date(2026, 6, 19)],
+        ['PageDown', {}, new Date(2026, 7, 19)],
+        ['PageUp', {}, new Date(2026, 6, 19)],
+        ['PageDown', { shiftKey: true }, new Date(2027, 6, 19)],
+        ['PageUp', { shiftKey: true }, new Date(2026, 6, 19)]
+      ];
+
+      for (const [key, modifiers, lands] of steps) {
+        press(document.activeElement!, key, modifiers);
+        await focusReaches(lands);
+      }
+    });
+
+    it('steps the month when an arrow runs off its edge', async () => {
+      await render(<PlCalendar locale="en-GB" defaultValue={new Date(2026, 6, 31)} />);
+
+      await vi.waitFor(() => expect(tabStop()).not.toBeNull());
+      tabStop()!.focus();
+      press(document.activeElement!, 'ArrowRight');
+
+      await focusReaches(new Date(2026, 7, 1));
+      expect(headerButtons()[0].textContent).toBe('August');
+    });
+
+    it('lands on the last day of a shorter month', async () => {
+      await render(<PlCalendar locale="en-GB" defaultValue={new Date(2026, 0, 31)} />);
+
+      await vi.waitFor(() => expect(tabStop()).not.toBeNull());
+      tabStop()!.focus();
+      press(document.activeElement!, 'PageDown');
+
+      await focusReaches(new Date(2026, 1, 28));
     });
   });
 

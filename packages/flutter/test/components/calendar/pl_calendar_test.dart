@@ -233,6 +233,120 @@ void main() {
       });
     });
 
+    group('the keyboard', () {
+      /// The label the day cell for [date] carries, the way the grid writes it.
+      String labelOf(DateTime date) {
+        const PlDateNames names = PlDateNames();
+
+        return '${names.weekdays[date.weekday % 7]}, ${names.months[date.month - 1]} '
+            '${date.day}, ${date.year}';
+      }
+
+      /// Whether the cell for [date] is the one holding the focus.
+      bool focused(WidgetTester tester, DateTime date) {
+        return Focus.of(tester.element(find.bySemanticsLabel(labelOf(date)))).hasFocus;
+      }
+
+      testWidgets('puts the tab stop on the chosen day', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          PlCalendar(value: july27, autofocus: true, onChanged: (DateTime? _) {}),
+        );
+
+        expect(focused(tester, july27), isTrue);
+      });
+
+      testWidgets('puts it on today when nothing is chosen and today is on screen', (
+        WidgetTester tester,
+      ) async {
+        final DateTime now = DateTime.now();
+
+        await _pump(
+          tester,
+          PlCalendar(value: null, defaultMonth: now, autofocus: true, onChanged: (DateTime? _) {}),
+        );
+
+        expect(focused(tester, DateTime(now.year, now.month, now.day)), isTrue);
+      });
+
+      testWidgets('puts it on the 1st otherwise', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          PlCalendar(
+            value: null,
+            defaultMonth: DateTime(1999, 3, 17),
+            autofocus: true,
+            onChanged: (DateTime? _) {},
+          ),
+        );
+
+        expect(focused(tester, DateTime(1999, 3, 1)), isTrue);
+      });
+
+      testWidgets('moves by a day, a week, and to the ends of the week, and by a month', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlCalendar(
+            value: july15,
+            weekStartsOn: PlassWeekday.monday,
+            autofocus: true,
+            onChanged: (DateTime? _) {},
+          ),
+        );
+
+        // Wednesday, July 15, 2026, in a week that starts on Monday.
+        const List<(LogicalKeyboardKey, (int, int, int))> steps =
+            <(LogicalKeyboardKey, (int, int, int))>[
+              (LogicalKeyboardKey.arrowRight, (2026, 7, 16)),
+              (LogicalKeyboardKey.arrowDown, (2026, 7, 23)),
+              (LogicalKeyboardKey.arrowLeft, (2026, 7, 22)),
+              (LogicalKeyboardKey.arrowUp, (2026, 7, 15)),
+              (LogicalKeyboardKey.home, (2026, 7, 13)),
+              (LogicalKeyboardKey.end, (2026, 7, 19)),
+              (LogicalKeyboardKey.pageDown, (2026, 8, 19)),
+              (LogicalKeyboardKey.pageUp, (2026, 7, 19)),
+            ];
+
+        for (final (LogicalKeyboardKey key, (int, int, int) lands) in steps) {
+          await tester.sendKeyEvent(key);
+          await tester.pumpAndSettle();
+
+          expect(
+            focused(tester, DateTime(lands.$1, lands.$2, lands.$3)),
+            isTrue,
+            reason: '${key.keyLabel} should land on $lands',
+          );
+        }
+      });
+
+      testWidgets('steps the month when an arrow runs off its edge', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          PlCalendar(value: DateTime(2026, 7, 31), autofocus: true, onChanged: (DateTime? _) {}),
+        );
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pumpAndSettle();
+
+        expect(focused(tester, DateTime(2026, 8, 1)), isTrue);
+        expect(find.text('August'), findsOneWidget);
+      });
+
+      testWidgets('lands on the last day of a shorter month', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          PlCalendar(value: DateTime(2026, 1, 31), autofocus: true, onChanged: (DateTime? _) {}),
+        );
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.pageDown);
+        await tester.pumpAndSettle();
+
+        expect(focused(tester, DateTime(2026, 2, 28)), isTrue);
+      });
+    });
+
     group('disabled', () {
       testWidgets('takes the whole grid out of reach', (WidgetTester tester) async {
         DateTime? chosen;
