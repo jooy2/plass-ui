@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -174,6 +175,82 @@ void main() {
         await _open(tester);
 
         expect(_cell(tester, '09 Hour').selected, isFalse);
+      });
+    });
+
+    group('the keyboard', () {
+      testWidgets('gives each column one tab stop, on the chosen row', (WidgetTester tester) async {
+        await _pump(tester, PlTimePicker(value: nineThirty, onChanged: (DateTime? _) {}));
+        await _open(tester);
+
+        expect(_cell(tester, '09 Hour').focused, isTrue);
+        expect(_cell(tester, '08 Hour').focused, isFalse);
+        expect(_cell(tester, '30 Minute').focused, isTrue);
+      });
+
+      testWidgets('moves the choice down and up a column, and the focus with it', (
+        WidgetTester tester,
+      ) async {
+        DateTime value = nineThirty;
+
+        await _pump(
+          tester,
+          StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) => PlTimePicker(
+              value: value,
+              onChanged: (DateTime? next) => setState(() => value = next!),
+            ),
+          ),
+        );
+        await _open(tester);
+
+        _cell(tester, '09 Hour').focusNode!.requestFocus();
+        await tester.pump();
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+        expect(value.hour, 10);
+        expect(_cell(tester, '10 Hour').focusNode!.hasFocus, isTrue);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+        await tester.pumpAndSettle();
+        expect(value, DateTime(2026, 7, 27, 8, 30));
+        expect(_cell(tester, '08 Hour').focusNode!.hasFocus, isTrue);
+      });
+
+      testWidgets('jumps to the ends and steps over a blocked row', (WidgetTester tester) async {
+        DateTime value = nineThirty;
+
+        await _pump(
+          tester,
+          StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) => PlTimePicker(
+              value: value,
+              onChanged: (DateTime? next) => setState(() => value = next!),
+              shouldDisableTime: (DateTime at, PlassTimeUnit unit) =>
+                  unit == PlassTimeUnit.hour && <int>[0, 10, 23].contains(at.hour),
+            ),
+          ),
+        );
+        await _open(tester);
+
+        _cell(tester, '09 Hour').focusNode!.requestFocus();
+        await tester.pump();
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+        expect(value.hour, 11);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.end);
+        await tester.pumpAndSettle();
+        expect(value.hour, 22);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.home);
+        await tester.pumpAndSettle();
+        expect(value.hour, 1);
+        expect(_cell(tester, '01 Hour').focusNode!.hasFocus, isTrue);
       });
     });
 

@@ -1223,56 +1223,115 @@ export function TimeGrid({
     rows: number[],
     isChosen: (raw: number) => boolean,
     render: (raw: number) => string
-  ) => (
-    <div
-      key={unit}
-      role="listbox"
-      aria-label={name}
-      className={cx(
-        'flex flex-col gap-0.5 overflow-y-auto overscroll-contain',
-        // The same height as the calendar beside it, so a PlDateTimePicker's
-        // popup is one rectangle rather than two of different heights.
-        'h-[calc(var(--p-cell)*7)] w-[calc(var(--p-cell)*1.75)]',
-        'scroll-py-0.5 [scrollbar-width:thin]'
-      )}
-    >
-      {rows.map((raw) => {
-        const at = candidate(unit, raw);
-        const chosen = value !== null && isChosen(raw);
-        const disabled = shouldDisableTime?.(at, unit) ?? false;
+  ) => {
+    const blocked = rows.map((raw) => shouldDisableTime?.(candidate(unit, raw), unit) ?? false);
+    const chosenAt = value === null ? -1 : rows.findIndex(isChosen);
+    // One tab stop per column: the chosen row, or the first that can be chosen.
+    // Every other row is reached with the arrow keys, so Tab crosses the clock
+    // in as many stops as it has columns rather than one per row.
+    const stop = chosenAt >= 0 ? chosenAt : Math.max(0, blocked.indexOf(false));
 
-        return (
-          <button
-            key={raw}
-            type="button"
-            role="option"
-            aria-selected={chosen}
-            aria-disabled={disabled || undefined}
-            data-chosen={chosen ? 'true' : undefined}
-            className={cx(
-              cellBaseClasses,
-              cellRadiusClasses[size],
-              controlHeightClasses[size],
-              controlTextClasses[size],
-              'w-full shrink-0',
-              disabled
-                ? 'cursor-not-allowed text-(--plass-muted-fg) opacity-50'
-                : chosen
-                  ? 'cursor-pointer font-semibold text-(--p-on-solid) [background-image:var(--p-fill)] hover:brightness-105 active:brightness-95'
-                  : 'cursor-pointer text-(--plass-fg) hover:bg-(--p-soft) active:bg-(--p-soft-hover)'
-            )}
-            onClick={() => {
-              if (!disabled) {
-                onChange(at);
-              }
-            }}
-          >
-            {render(raw)}
-          </button>
-        );
-      })}
-    </div>
-  );
+    /** The nearest row that can be chosen from `from`, moving by `step`. */
+    const nearest = (from: number, step: number) => {
+      for (let at = from; at >= 0 && at < rows.length; at += step) {
+        if (!blocked[at]) {
+          return at;
+        }
+      }
+
+      return -1;
+    };
+
+    const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+      const options = [...event.currentTarget.querySelectorAll<HTMLElement>('[role="option"]')];
+      const from = options.indexOf(event.target as HTMLElement);
+
+      if (from < 0) {
+        return;
+      }
+
+      const target =
+        event.key === 'ArrowDown'
+          ? nearest(from + 1, 1)
+          : event.key === 'ArrowUp'
+            ? nearest(from - 1, -1)
+            : event.key === 'Home'
+              ? nearest(0, 1)
+              : event.key === 'End'
+                ? nearest(rows.length - 1, -1)
+                : null;
+
+      if (target === null) {
+        return;
+      }
+
+      // Kept from scrolling the page whether or not there is a row to go to.
+      event.preventDefault();
+
+      if (target < 0 || target === from) {
+        return;
+      }
+
+      // Choosing follows the focus, as a set of radio buttons does: the column
+      // holds one value, and a reader arrowing down it is choosing.
+      onChange(candidate(unit, rows[target]));
+      options[target].focus({ preventScroll: true });
+      revealInColumn(options[target]);
+    };
+
+    return (
+      <div
+        key={unit}
+        role="listbox"
+        aria-label={name}
+        onKeyDown={onKeyDown}
+        className={cx(
+          'flex flex-col gap-0.5 overflow-y-auto overscroll-contain',
+          // The same height as the calendar beside it, so a PlDateTimePicker's
+          // popup is one rectangle rather than two of different heights.
+          'h-[calc(var(--p-cell)*7)] w-[calc(var(--p-cell)*1.75)]',
+          'scroll-py-0.5 [scrollbar-width:thin]'
+        )}
+      >
+        {rows.map((raw, index) => {
+          const at = candidate(unit, raw);
+          const chosen = value !== null && isChosen(raw);
+          const disabled = blocked[index];
+
+          return (
+            <button
+              key={raw}
+              type="button"
+              role="option"
+              tabIndex={index === stop ? 0 : -1}
+              aria-selected={chosen}
+              aria-disabled={disabled || undefined}
+              data-chosen={chosen ? 'true' : undefined}
+              className={cx(
+                cellBaseClasses,
+                cellRadiusClasses[size],
+                controlHeightClasses[size],
+                controlTextClasses[size],
+                'w-full shrink-0',
+                disabled
+                  ? 'cursor-not-allowed text-(--plass-muted-fg) opacity-50'
+                  : chosen
+                    ? 'cursor-pointer font-semibold text-(--p-on-solid) [background-image:var(--p-fill)] hover:brightness-105 active:brightness-95'
+                    : 'cursor-pointer text-(--plass-fg) hover:bg-(--p-soft) active:bg-(--p-soft-hover)'
+              )}
+              onClick={() => {
+                if (!disabled) {
+                  onChange(at);
+                }
+              }}
+            >
+              {render(raw)}
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <div

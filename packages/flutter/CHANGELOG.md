@@ -36,6 +36,8 @@
 
 ### Fixed
 
+- **The time columns of `PlTimePicker` and `PlDateTimePicker` work from the keyboard.** No row could take focus, so the only way to set a time without a pointer was the Now button. Each column is now one tab stop on its chosen row, and the arrow keys, Home and End choose a row and move the focus with it, stepping over a blocked row.
+
 - **A `PlToast` that is fading out stays closed.** Raising another toast, or moving the pointer off the stack, during the fade gave the closing toast a new clock, so five seconds later its `onClose` was called a second time and its disposed fade threw. A closing toast is now off the clock and cannot be dismissed twice.
 
 - **A sortable `PlDataTable` heading can be reached and pressed from the keyboard.** It answered a pointer only, so Tab passed it by and there was no way to sort without a mouse or a touch screen. It is now a focus stop with a focus ring that Enter and Space press, as the React build's heading button is.

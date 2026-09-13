@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- **The time columns of `PlTimePicker` and `PlDateTimePicker` work from the keyboard.** Every row was its own tab stop and the arrow keys did nothing, so reaching Done took more than a hundred presses of Tab on a clock with seconds. Each column is now one tab stop, and <kbd>↑</kbd>, <kbd>↓</kbd>, <kbd>Home</kbd> and <kbd>End</kbd> choose a row and move the focus with it, stepping over a blocked row.
+
 - **A labelled picker's trigger reads the value as well as the label.** `PlDatePicker`, `PlDateRangePicker`, `PlDateTimePicker`, `PlTimePicker`, `PlColorPicker` and `PlTreeSelect` named their trigger with the label alone, so a screen reader heard "Departure, button" and had to open the popup to find out which day was chosen. The trigger is now named by the label and then by the value it shows.
 
 - **`PlTour`'s card follows the tour.** The card was given its target as a getter, which Base UI asks only when the popup opens, so from the second step on the cut-out moved and the card stayed beside the first target. A step with no target left the card invisible. The card now moves to each step's target, and a step with no target centres it on the viewport, as the documentation says.

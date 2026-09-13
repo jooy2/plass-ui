@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlTimePicker } from 'plass-ui';
 
@@ -201,6 +202,77 @@ describe('PlTimePicker', () => {
       await vi.waitFor(() => expect(onValueChange).toHaveBeenCalled());
 
       expect((onValueChange.mock.calls[0][0] as Date).getHours()).toBe(21);
+    });
+  });
+
+  describe('the keyboard', () => {
+    /** The rows of one column. */
+    function rowsOf(column: Element): HTMLElement[] {
+      return [...column.querySelectorAll<HTMLElement>('[role="option"]')];
+    }
+
+    it('gives each column one tab stop, on the chosen row', async () => {
+      const screen = await render(
+        <PlTimePicker locale="en-GB" defaultValue={NINE_THIRTY} defaultOpen />
+      );
+
+      const hours = rowsOf(screen.getByRole('listbox', { name: 'Hour' }).element());
+
+      expect(hours.filter((row) => row.tabIndex === 0)).toEqual([hours[9]]);
+    });
+
+    it('moves the choice down and up a column, and the focus with it', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlTimePicker
+          locale="en-GB"
+          defaultValue={NINE_THIRTY}
+          defaultOpen
+          onValueChange={onValueChange}
+        />
+      );
+
+      const hours = rowsOf(screen.getByRole('listbox', { name: 'Hour' }).element());
+
+      hours[9].focus();
+      await expect.element(hours[9]).toHaveFocus();
+
+      await userEvent.keyboard('{ArrowDown}');
+      await expect.element(hours[10]).toHaveFocus();
+      expect((onValueChange.mock.lastCall![0] as Date).getHours()).toBe(10);
+
+      await userEvent.keyboard('{ArrowUp}{ArrowUp}');
+      await expect.element(hours[8]).toHaveFocus();
+      expect((onValueChange.mock.lastCall![0] as Date).getHours()).toBe(8);
+      expect((onValueChange.mock.lastCall![0] as Date).getMinutes()).toBe(30);
+    });
+
+    it('jumps to the ends and steps over a blocked row', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlTimePicker
+          locale="en-GB"
+          defaultValue={NINE_THIRTY}
+          defaultOpen
+          onValueChange={onValueChange}
+          shouldDisableTime={(value, unit) =>
+            unit === 'hour' && [0, 10, 23].includes(value.getHours())
+          }
+        />
+      );
+
+      const hours = rowsOf(screen.getByRole('listbox', { name: 'Hour' }).element());
+
+      hours[9].focus();
+      await userEvent.keyboard('{ArrowDown}');
+      await expect.element(hours[11]).toHaveFocus();
+
+      await userEvent.keyboard('{End}');
+      await expect.element(hours[22]).toHaveFocus();
+
+      await userEvent.keyboard('{Home}');
+      await expect.element(hours[1]).toHaveFocus();
+      expect((onValueChange.mock.lastCall![0] as Date).getHours()).toBe(1);
     });
   });
 

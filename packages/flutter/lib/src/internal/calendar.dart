@@ -15,6 +15,8 @@
 /// None of it is exported from `plass_ui.dart`.
 library;
 
+import 'dart:math' as math;
+
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -1092,6 +1094,35 @@ class _PlassTimeGridState extends State<PlassTimeGrid> {
     for (final PlassTimeUnit unit in PlassTimeUnit.values) unit: ScrollController(),
   };
 
+  /// One node per row of each column, so the arrow keys can take focus to the
+  /// row they choose.
+  final Map<PlassTimeUnit, List<FocusNode>> _nodes = <PlassTimeUnit, List<FocusNode>>{};
+
+  /// The nodes for a column of [count] rows, grown or shrunk to fit.
+  ///
+  /// A node a shorter column no longer needs is disposed after the frame, once
+  /// the row that held it has gone.
+  List<FocusNode> _nodesFor(PlassTimeUnit unit, int count) {
+    final List<FocusNode> nodes = _nodes.putIfAbsent(unit, () => <FocusNode>[]);
+
+    while (nodes.length < count) {
+      nodes.add(FocusNode());
+    }
+
+    if (nodes.length > count) {
+      final List<FocusNode> spare = nodes.sublist(count);
+
+      nodes.removeRange(count, nodes.length);
+      WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+        for (final FocusNode node in spare) {
+          node.dispose();
+        }
+      });
+    }
+
+    return nodes;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -1106,10 +1137,38 @@ class _PlassTimeGridState extends State<PlassTimeGrid> {
       controller.dispose();
     }
 
+    for (final List<FocusNode> nodes in _nodes.values) {
+      for (final FocusNode node in nodes) {
+        node.dispose();
+      }
+    }
+
     super.dispose();
   }
 
   DateTime get _base => widget.value ?? widget.referenceDate;
+
+  /// Scrolls one column, and only that column, until row [index] is in view.
+  void _revealRow(PlassTimeUnit unit, int index) {
+    final ScrollController controller = _scrollers[unit]!;
+
+    if (!controller.hasClients) {
+      return;
+    }
+
+    final double rowHeight = controlHeight[widget.size]! + _rowGap;
+    final double viewport = controller.position.viewportDimension;
+    final double top = index * rowHeight;
+    final double bottom = top + controlHeight[widget.size]!;
+
+    if (top < controller.offset) {
+      controller.jumpTo(top);
+    } else if (bottom > controller.offset + viewport) {
+      controller.jumpTo(
+        (bottom - viewport).clamp(0.0, controller.position.maxScrollExtent).toDouble(),
+      );
+    }
+  }
 
   /// Brings the chosen row of each column into view *inside its own column*.
   ///
@@ -1261,6 +1320,54 @@ class _PlassTimeGridState extends State<PlassTimeGrid> {
     String Function(int raw) render,
   ) {
     final side = cellSize[widget.size]!;
+    final List<bool> blocked = <bool>[
+      for (final int raw in rows)
+        widget.shouldDisableTime?.call(_candidate(unit, raw), unit) ?? false,
+    ];
+    final int chosenAt = widget.value == null ? -1 : rows.indexWhere(isChosen);
+    // One tab stop per column: the chosen row, or the first that can be chosen.
+    // Every other row is reached with the arrow keys, so Tab crosses the clock in
+    // as many stops as it has columns rather than one per row.
+    final int stop = chosenAt >= 0 ? chosenAt : math.max(0, blocked.indexOf(false));
+    final List<FocusNode> nodes = _nodesFor(unit, rows.length);
+
+    /// The nearest row that can be chosen from [from], moving by [step].
+    int nearest(int from, int step) {
+      for (int at = from; at >= 0 && at < rows.length; at += step) {
+        if (!blocked[at]) {
+          return at;
+        }
+      }
+
+      return -1;
+    }
+
+    KeyEventResult onKey(int from, KeyEvent event) {
+      final LogicalKeyboardKey key = event.logicalKey;
+      final int? target = key == LogicalKeyboardKey.arrowDown
+          ? nearest(from + 1, 1)
+          : key == LogicalKeyboardKey.arrowUp
+          ? nearest(from - 1, -1)
+          : key == LogicalKeyboardKey.home
+          ? nearest(0, 1)
+          : key == LogicalKeyboardKey.end
+          ? nearest(rows.length - 1, -1)
+          : null;
+
+      if (target == null) {
+        return KeyEventResult.ignored;
+      }
+
+      if (target >= 0 && target != from) {
+        // Choosing follows the focus, as a set of radio buttons does: the column
+        // holds one value, and a reader arrowing down it is choosing.
+        widget.onChanged(_candidate(unit, rows[target]));
+        nodes[target].requestFocus();
+        _revealRow(unit, target);
+      }
+
+      return KeyEventResult.handled;
+    }
 
     return Semantics(
       container: true,
@@ -1276,12 +1383,12 @@ class _PlassTimeGridState extends State<PlassTimeGrid> {
             mainAxisSize: MainAxisSize.min,
             spacing: _rowGap,
             children: <Widget>[
-              for (final int raw in rows)
+              for (int index = 0; index < rows.length; index += 1)
                 Builder(
                   builder: (BuildContext context) {
+                    final int raw = rows[index];
                     final at = _candidate(unit, raw);
                     final chosen = widget.value != null && isChosen(raw);
-                    final disabled = widget.shouldDisableTime?.call(at, unit) ?? false;
 
                     return PlassCalendarCell(
                       label: '${render(raw)} $name',
@@ -1289,10 +1396,10 @@ class _PlassTimeGridState extends State<PlassTimeGrid> {
                       color: widget.color,
                       width: side * clockColumnFactor,
                       selected: chosen,
-                      disabled: disabled,
-                      // The clock is not a grid: `Tab` walks past the whole of
-                      // it, and a column is scrolled rather than arrowed.
-                      focused: false,
+                      disabled: blocked[index],
+                      focused: index == stop,
+                      focusNode: nodes[index],
+                      onKey: (KeyEvent event) => onKey(index, event),
                       onPressed: () => widget.onChanged(at),
                       child: Text(render(raw)),
                     );
