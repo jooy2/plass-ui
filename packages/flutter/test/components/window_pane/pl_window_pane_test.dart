@@ -190,6 +190,69 @@ void main() {
       expect(moved!.dx, greaterThan(0));
     });
 
+    testWidgets('moves by the pointer and no further when the offset is fed back', (
+      WidgetTester tester,
+    ) async {
+      Offset at = Offset.zero;
+
+      await _pumpFree(
+        tester,
+        StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) => PlWindowPane(
+            title: const Text('Notes'),
+            draggable: true,
+            width: 300,
+            offset: at,
+            onOffsetChanged: (Offset value) => setState(() => at = value),
+          ),
+        ),
+      );
+
+      final Offset before = tester.getTopLeft(find.text('Notes'));
+      final TestGesture gesture = await tester.startGesture(tester.getCenter(find.text('Notes')));
+
+      // Past the slop first, then in steps with a rebuild between each, which is
+      // where a travel that was counted again on every rebuild would show.
+      await gesture.moveBy(const Offset(30, 0));
+      await tester.pump();
+
+      final Offset started = tester.getTopLeft(find.text('Notes'));
+
+      for (int i = 0; i < 4; i += 1) {
+        await gesture.moveBy(const Offset(10, 5));
+        await tester.pump();
+      }
+
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      expect(tester.getTopLeft(find.text('Notes')) - started, const Offset(40, 20));
+      expect(tester.getTopLeft(find.text('Notes')) - before, at);
+    });
+
+    testWidgets('moves on its own when nothing is told the offset', (WidgetTester tester) async {
+      await _pumpFree(
+        tester,
+        const PlWindowPane(title: Text('Notes'), draggable: true, width: 300),
+      );
+
+      final Offset before = tester.getTopLeft(find.text('Notes'));
+      final TestGesture gesture = await tester.startGesture(tester.getCenter(find.text('Notes')));
+
+      await gesture.moveBy(const Offset(30, 0));
+      await tester.pump();
+
+      final Offset started = tester.getTopLeft(find.text('Notes'));
+
+      await gesture.moveBy(const Offset(40, 20));
+      await tester.pump();
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      expect(started.dx, greaterThan(before.dx));
+      expect(tester.getTopLeft(find.text('Notes')) - started, const Offset(40, 20));
+    });
+
     testWidgets('stays where it is when it is not', (WidgetTester tester) async {
       Offset? moved;
 
@@ -294,6 +357,41 @@ void main() {
       // window that grew from its left edge without moving would have grown out
       // of its right one.
       expect(moved!.dx, closeTo(-40, 0.5));
+    });
+
+    testWidgets('moves with a leading edge by the pointer and no further when fed back', (
+      WidgetTester tester,
+    ) async {
+      Offset at = Offset.zero;
+
+      await _pumpFree(
+        tester,
+        StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) => PlWindowPane(
+            title: const Text('Notes'),
+            width: 300,
+            height: 200,
+            resizable: true,
+            offset: at,
+            onOffsetChanged: (Offset value) => setState(() => at = value),
+          ),
+        ),
+      );
+
+      final TestGesture gesture = await tester.startGesture(_edge(tester, AxisDirection.left));
+
+      for (int i = 0; i < 5; i += 1) {
+        await gesture.moveBy(const Offset(-10, 0));
+        await tester.pump();
+      }
+
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      // However much of the travel the slop took, the window went left by what
+      // it reported, once.
+      expect(at.dx, lessThan(0));
+      expect(at.dx, greaterThanOrEqualTo(-50));
     });
 
     testWidgets('stops at the floor it was given', (WidgetTester tester) async {

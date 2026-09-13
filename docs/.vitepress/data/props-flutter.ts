@@ -6006,7 +6006,11 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }),
     from('PlWindowPane', 'onOffsetChange', {
       name: 'onOffsetChanged',
-      type: 'ValueChanged<Offset>?'
+      type: 'ValueChanged<Offset>?',
+      description: {
+        ko: '끌리는 동안 창이 있어야 할 offset과 함께 부릅니다. 이것을 주면 창은 controlled라서 offset에 그려지고, 끌기는 창을 옮기는 대신 알리기만 합니다',
+        en: 'Called while the bar or a leading edge is dragged, with the offset the window should be at. Given this, the window is controlled: it is drawn at offset, and a drag reports rather than moves it'
+      }
     }),
     from('PlWindowPane', 'onResize', { type: 'ValueChanged<Size>?' }),
     from('PlWindowPane', 'open', { type: 'bool', default: 'true' }),

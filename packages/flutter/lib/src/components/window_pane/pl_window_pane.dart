@@ -152,7 +152,12 @@ class PlWindowPane extends StatefulWidget {
   /// it, so this reports during a resize too.
   final Offset offset;
 
-  /// Called while the title bar is dragged, and while a leading edge is.
+  /// Called while the title bar is dragged, and while a leading edge is, with
+  /// the offset the window should be at.
+  ///
+  /// Given this, the window is **controlled**: it is drawn at [offset], and a
+  /// drag reports where it should go rather than moving it. Without it, a drag
+  /// moves the window on its own from [offset].
   final ValueChanged<Offset>? onOffsetChanged;
 
   /// Called with the window's size while an edge is dragged.
@@ -200,6 +205,7 @@ class PlWindowPane extends StatefulWidget {
 }
 
 class _PlWindowPaneState extends State<PlWindowPane> {
+  /// How far an uncontrolled window has been dragged from its `offset`.
   Offset _dragged = Offset.zero;
 
   /// The size a drag has left the window at, over whatever it was told to be.
@@ -212,13 +218,30 @@ class _PlWindowPaneState extends State<PlWindowPane> {
   /// big the window actually came out and works from there.
   Size? _gripped;
 
-  /// Where `_dragged` stood then, and how far the pointer has come since.
+  /// Where the window stood when the gesture started, and how far the pointer
+  /// has come since.
   ///
   /// The travel is accumulated rather than applied a delta at a time, so an
   /// edge dragged past its floor and back picks the window up where it was left
-  /// instead of somewhere the pointer has already been.
+  /// instead of somewhere the pointer has already been. And the start is where
+  /// the window was drawn rather than a delta of its own, so a caller feeding
+  /// the reported offset back does not have the same travel added twice.
   Offset _grippedAt = Offset.zero;
   Offset _travel = Offset.zero;
+
+  /// Where the window is drawn, from where the layout put it.
+  Offset get _at => widget.onOffsetChanged == null ? widget.offset + _dragged : widget.offset;
+
+  /// Moves an uncontrolled window, or asks for a controlled one to be moved.
+  void _moveTo(Offset at) {
+    final ValueChanged<Offset>? report = widget.onOffsetChanged;
+
+    if (report == null) {
+      setState(() => _dragged = at - widget.offset);
+    } else {
+      report(at);
+    }
+  }
 
   /// The window itself, so a gesture can measure it.
   final GlobalKey _paneKey = GlobalKey();
@@ -239,7 +262,7 @@ class _PlWindowPaneState extends State<PlWindowPane> {
     final _WindowColors paint = _colors(chrome, tokens, family);
 
     final List<PlWindowControl> order = orderControls(widget.os, widget.controls);
-    final Offset at = widget.offset + _dragged;
+    final Offset at = _at;
 
     final Widget bar = _bar(
       chrome: chrome,
@@ -345,7 +368,7 @@ class _PlWindowPaneState extends State<PlWindowPane> {
     }
 
     _gripped = box.size;
-    _grippedAt = _dragged;
+    _grippedAt = _at;
     _travel = Offset.zero;
   }
 
@@ -387,8 +410,7 @@ class _PlWindowPaneState extends State<PlWindowPane> {
     _resizeTo(Size(width, height));
 
     if (edge.west || edge.north) {
-      setState(() => _dragged = moved);
-      widget.onOffsetChanged?.call(widget.offset + _dragged);
+      _moveTo(moved);
     }
   }
 
@@ -512,9 +534,13 @@ class _PlWindowPaneState extends State<PlWindowPane> {
       cursor: SystemMouseCursors.move,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
+        onPanStart: (DragStartDetails details) {
+          _grippedAt = _at;
+          _travel = Offset.zero;
+        },
         onPanUpdate: (DragUpdateDetails details) {
-          setState(() => _dragged += details.delta);
-          widget.onOffsetChanged?.call(widget.offset + _dragged);
+          _travel += details.delta;
+          _moveTo(_grippedAt + _travel);
         },
         child: bar,
       ),
