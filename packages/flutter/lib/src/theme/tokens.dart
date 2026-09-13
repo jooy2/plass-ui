@@ -389,9 +389,13 @@ class PlassTokens {
       Color(0xFF141B30),
       Color(0xFFE7EAF3),
     ],
-    chartGrid: const Color(0x8099A2BA),
-    chartAxis: const Color(0xB399A2BA),
-    chartBaseline: const Color(0x8099A2BA),
+    // The same three derivations as the light theme and the stylesheet: the
+    // border at 70% for the grid, the border itself for the axis, and the muted
+    // ink at 35% for the baseline. The border is white at 12% here, so the grid
+    // stays the faintest thing on the plot.
+    chartGrid: const Color(0x15FFFFFF),
+    chartAxis: const Color(0x1FFFFFFF),
+    chartBaseline: const Color(0x5999A2BA),
     families: _familiesFor(accents: _darkAccents, tintStrength: 55),
   );
 
