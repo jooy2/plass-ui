@@ -310,14 +310,19 @@ class _PlImageState extends State<PlImage> {
           child: treated,
         );
 
-        if (frame != null) {
-          return fading;
-        }
-
         // `StackFit.passthrough` so the placeholder is measured by whatever the
         // picture would have been measured by, and the undecoded image under it
         // takes no room of its own.
-        return Stack(fit: StackFit.passthrough, children: <Widget>[placeholder, fading]);
+        //
+        // The same `Stack` once the first frame is in, with the placeholder
+        // gone from in front of the picture. Returning the `AnimatedOpacity` on
+        // its own there would move it to a different parent, and a widget that
+        // changes parent is built again from scratch — at 1, with nothing to
+        // travel from.
+        return Stack(
+          fit: StackFit.passthrough,
+          children: <Widget>[if (frame == null) placeholder, fading],
+        );
       },
       errorBuilder: (BuildContext context, Object error, StackTrace? stack) {
         _settle(PlImageStatus.error);

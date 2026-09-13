@@ -1,7 +1,9 @@
 // The pictures here are built from bytes in the test file, so nothing depends
 // on a network or on a file on disk — a one-pixel PNG that always decodes, and
 // a buffer that is not an image and therefore always fails.
+import 'dart:async';
 import 'dart:convert';
+import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 
@@ -40,6 +42,35 @@ class _PendingImage extends ImageProvider<_PendingImage> {
 }
 
 class _PendingCompleter extends ImageStreamCompleter {}
+
+/// A picture that arrives when the test says so.
+///
+/// The frame the picture arrives on is a later frame than the one it was asked
+/// for on, which is the case a fade exists for and the one neither a
+/// `MemoryImage` nor [_PendingImage] can reach.
+class _LaterImage extends ImageProvider<_LaterImage> {
+  _LaterImage(Completer<ImageInfo> arrival)
+    : _completer = OneFrameImageStreamCompleter(arrival.future);
+
+  final OneFrameImageStreamCompleter _completer;
+
+  @override
+  Future<_LaterImage> obtainKey(ImageConfiguration configuration) {
+    return SynchronousFuture<_LaterImage>(this);
+  }
+
+  @override
+  ImageStreamCompleter loadImage(_LaterImage key, ImageDecoderCallback decode) => _completer;
+}
+
+/// The one-pixel PNG, decoded, for a [_LaterImage] to deliver.
+Future<ui.Image> _decoded(WidgetTester tester) async {
+  return (await tester.runAsync(() async {
+    final ui.Codec codec = await ui.instantiateImageCodec(_onePixelPng);
+
+    return (await codec.getNextFrame()).image;
+  }))!;
+}
 
 Future<void> _pump(WidgetTester tester, Widget child, {bool overlay = false}) async {
   // `overlay` for the preview tests: a `PlOverlay` lifts itself out of the tree
@@ -137,6 +168,38 @@ void main() {
         // Built rather than absent, and at zero: a widget created at 1 has
         // nothing to travel from, so the picture would arrive on one frame.
         expect(tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity)).opacity, 0);
+      });
+
+      testWidgets('fades the picture in once it arrives', (WidgetTester tester) async {
+        final Completer<ImageInfo> arrival = Completer<ImageInfo>();
+
+        await _pump(
+          tester,
+          PlImage(image: _LaterImage(arrival), ratio: 1, semanticLabel: 'A portrait'),
+        );
+
+        final State<StatefulWidget> waiting = tester.state(find.byType(AnimatedOpacity));
+
+        arrival.complete(ImageInfo(image: await _decoded(tester)));
+        await tester.pump();
+        await tester.pump(PlassTokens.duration ~/ 3);
+
+        // The same fade that was waiting at zero, on its way to one. Built again
+        // instead, it would start at one and the picture would cut in.
+        expect(tester.state(find.byType(AnimatedOpacity)), same(waiting));
+        expect(
+          tester
+              .widget<FadeTransition>(
+                find.descendant(
+                  of: find.byType(AnimatedOpacity),
+                  matching: find.byType(FadeTransition),
+                ),
+              )
+              .opacity
+              .value,
+          allOf(greaterThan(0), lessThan(1)),
+        );
+        expect(find.byType(PlSkeleton), findsNothing);
       });
     });
 
