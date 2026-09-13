@@ -176,6 +176,7 @@ import 'package:plass_ui_example/demos/image/filter.dart';
 import 'package:plass_ui_example/demos/image/states.dart';
 import 'package:plass_ui_example/demos/image/watermark.dart';
 import 'package:plass_ui_example/demos/image/preview.dart';
+import 'package:plass_ui_example/demos/image/placeholder.dart';
 import 'package:plass_ui_example/demos/image/letterbox.dart';
 import 'package:plass_ui_example/demos/image/position.dart';
 import 'package:plass_ui_example/demos/image/fit.dart';
@@ -595,6 +596,7 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'image/states': _imageStates,
   'image/watermark': _imageWatermark,
   'image/preview': _imagePreview,
+  'image/placeholder': _imagePlaceholder,
   'image/letterbox': _imageLetterbox,
   'image/position': _imagePosition,
   'image/fit': _imageFit,
@@ -1185,6 +1187,8 @@ Widget _imageStates(BuildContext context) => const ImageStates();
 Widget _imageWatermark(BuildContext context) => const ImageWatermark();
 
 Widget _imagePreview(BuildContext context) => const ImagePreview();
+
+Widget _imagePlaceholder(BuildContext context) => const ImagePlaceholder();
 
 Widget _imageLetterbox(BuildContext context) => const ImageLetterbox();
 

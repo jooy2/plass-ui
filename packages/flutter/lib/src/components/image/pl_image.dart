@@ -88,6 +88,44 @@ class PlImageLetterbox {
   final Decoration? decoration;
 }
 
+/// A picture to stand in while the file arrives, in place of the skeleton.
+///
+/// Given to [PlImage.placeholder], it is drawn the way the picture will be, with
+/// the same [PlImage.fit], [PlImage.position], [PlImage.rotate], [PlImage.flip]
+/// and treatment. That is what it is for: a small copy of the same file, a few
+/// hundred bytes in a [MemoryImage] or an asset, so the reader sees the
+/// picture's colours and shape before its detail. It stays under the picture
+/// until the picture has finished fading in over it.
+///
+/// Like the skeleton it fills the box, so it needs a box to fill: a
+/// [PlImage.ratio], or both [PlImage.width] and [PlImage.height].
+///
+/// Built anywhere else, it draws its picture covering the space it is given.
+class PlImagePlaceholder extends StatelessWidget {
+  /// Creates a stand-in.
+  const PlImagePlaceholder({required this.image, this.blur = 0, super.key});
+
+  /// The stand-in.
+  final ImageProvider<Object> image;
+
+  /// How far the stand-in is blurred, in logical pixels. A copy stretched up
+  /// from a few pixels is blocky without it; `20` is what the React build's
+  /// `blur: true` means.
+  final double blur;
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget picture = Image(image: image, fit: BoxFit.cover, excludeFromSemantics: true);
+
+    return ClipRect(
+      child: blur > 0 ? ImageFiltered(imageFilter: _blurOf(blur), child: picture) : picture,
+    );
+  }
+}
+
+/// A Gaussian blur of the same radius on both axes.
+ui.ImageFilter _blurOf(double sigma) => ui.ImageFilter.blur(sigmaX: sigma, sigmaY: sigma);
+
 /// Where the picture has got to.
 enum PlImageStatus {
   /// On its way.
@@ -258,6 +296,10 @@ class PlImage extends StatefulWidget {
   final PlassColor? color;
 
   /// What is drawn while the picture is loading. A [PlSkeleton] by default.
+  ///
+  /// A [PlImagePlaceholder] is drawn as a picture instead: under the picture,
+  /// turned and placed the way the picture is, and kept until the picture has
+  /// faded in over it.
   final Widget? placeholder;
 
   /// What is drawn when the picture does not arrive.
@@ -391,7 +433,7 @@ class _PlImageState extends State<PlImage> {
       bottom: -_letterboxBlur * 2,
       child: IgnorePointer(
         child: ImageFiltered(
-          imageFilter: ui.ImageFilter.blur(sigmaX: _letterboxBlur, sigmaY: _letterboxBlur),
+          imageFilter: _blurOf(_letterboxBlur),
           child: _treat(
             _pose(
               Image(
@@ -402,6 +444,53 @@ class _PlImageState extends State<PlImage> {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  /// The picture stand-in a [PlImagePlaceholder] draws under the picture, or
+  /// `null` where the placeholder is something else.
+  ///
+  /// Opaque while the picture is on its way, and taken away in one step once
+  /// the picture has finished fading in over it. A cross-fade of the two would
+  /// leave both half there with the page showing through. Grown and clipped
+  /// back the way the blurred letterbox is, when it is blurred.
+  Widget? _standIn({required bool arrived, required Duration fade}) {
+    final Widget? placeholder = widget.placeholder;
+
+    if (placeholder is! PlImagePlaceholder) {
+      return null;
+    }
+
+    final double bleed = placeholder.blur * 2;
+    Widget layer = _treat(
+      _pose(
+        Image(
+          image: placeholder.image,
+          fit: PlAspectRatio.boxFit(widget.fit),
+          alignment: _alignment,
+          excludeFromSemantics: true,
+        ),
+      ),
+    );
+
+    if (placeholder.blur > 0) {
+      layer = ImageFiltered(imageFilter: _blurOf(placeholder.blur), child: layer);
+    }
+
+    return PositionedDirectional(
+      start: -bleed,
+      end: -bleed,
+      top: -bleed,
+      bottom: -bleed,
+      child: IgnorePointer(
+        child: AnimatedOpacity(
+          opacity: arrived ? 0 : 1,
+          duration: fade,
+          // Held at one for the whole of the fade, and dropped at its end.
+          curve: const Threshold(1),
+          child: layer,
         ),
       ),
     );
@@ -510,12 +599,14 @@ class _PlImageState extends State<PlImage> {
           _settle(PlImageStatus.loaded);
         }
 
+        final Duration fade = reduceMotion ? Duration.zero : PlassTokens.duration;
         final Widget fading = AnimatedOpacity(
           opacity: frame == null ? 0 : 1,
-          duration: reduceMotion ? Duration.zero : PlassTokens.duration,
+          duration: fade,
           curve: PlassTokens.ease,
           child: treated,
         );
+        final Widget? standIn = _standIn(arrived: frame != null, fade: fade);
 
         // `StackFit.passthrough` so the placeholder is measured by whatever the
         // picture would have been measured by, and the undecoded image under it
@@ -526,9 +617,12 @@ class _PlImageState extends State<PlImage> {
         // its own there would move it to a different parent, and a widget that
         // changes parent is built again from scratch — at 1, with nothing to
         // travel from.
+        //
+        // A picture stand-in is the exception: it goes under the picture and
+        // stays there through the fade.
         return Stack(
           fit: StackFit.passthrough,
-          children: <Widget>[if (frame == null) placeholder, fading],
+          children: <Widget>[?standIn, if (frame == null && standIn == null) placeholder, fading],
         );
       },
       errorBuilder: (BuildContext context, Object error, StackTrace? stack) {

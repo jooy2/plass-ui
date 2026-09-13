@@ -80,6 +80,31 @@ Future<ui.Image> _blank(WidgetTester tester, int width, int height) async {
   }))!;
 }
 
+/// Delivers the one-pixel PNG to a [_LaterImage], and pumps until a frame has
+/// been built with the picture in it.
+///
+/// The stream tells its listeners a task after the future completes, so the
+/// frame the picture is first built on is one or two pumps later depending on
+/// what else the run has queued. A fade measured from before that frame is
+/// measured from a moment it had not started at.
+Future<void> _arrive(WidgetTester tester, Completer<ImageInfo> arrival) async {
+  arrival.complete(ImageInfo(image: await _decoded(tester)));
+
+  final Finder fade = find.byWidgetPredicate(
+    (Widget widget) => widget is AnimatedOpacity && widget.curve is! Threshold,
+  );
+
+  for (int tries = 0; tries < 10; tries += 1) {
+    await tester.pump();
+
+    if (tester.widget<AnimatedOpacity>(fade).opacity == 1) {
+      return;
+    }
+  }
+
+  fail('the picture never arrived');
+}
+
 /// The one-pixel PNG, decoded, for a [_LaterImage] to deliver.
 Future<ui.Image> _decoded(WidgetTester tester) async {
   return (await tester.runAsync(() async {
@@ -518,8 +543,7 @@ void main() {
 
         final State<StatefulWidget> waiting = tester.state(find.byType(AnimatedOpacity));
 
-        arrival.complete(ImageInfo(image: await _decoded(tester)));
-        await tester.pump();
+        await _arrive(tester, arrival);
         await tester.pump(PlassTokens.duration ~/ 3);
 
         // The same fade that was waiting at zero, on its way to one. Built again
@@ -538,6 +562,159 @@ void main() {
           allOf(greaterThan(0), lessThan(1)),
         );
         expect(find.byType(PlSkeleton), findsNothing);
+      });
+    });
+
+    group('a picture placeholder', () {
+      final MemoryImage tiny = MemoryImage(_onePixelPng);
+
+      Finder standIn() {
+        return find.byWidgetPredicate((Widget widget) => widget is Image && widget.image == tiny);
+      }
+
+      testWidgets('stands in for the picture instead of the skeleton', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          PlImage(
+            image: const _PendingImage(),
+            ratio: 1,
+            semanticLabel: 'A portrait',
+            placeholder: PlImagePlaceholder(image: tiny),
+          ),
+        );
+
+        expect(standIn(), findsOneWidget);
+        expect(find.byType(PlSkeleton), findsNothing);
+        expect(tester.widget<Image>(standIn()).excludeFromSemantics, isTrue);
+        expect(find.ancestor(of: standIn(), matching: find.byType(IgnorePointer)), findsWidgets);
+        // Filling the box, under a picture that is still at nothing.
+        expect(tester.getSize(standIn()), const Size(200, 200));
+      });
+
+      testWidgets('is not taken for a placeholder of the caller’s own', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          const PlImage(
+            image: _PendingImage(),
+            semanticLabel: 'A portrait',
+            placeholder: Text('Loading…'),
+          ),
+        );
+
+        expect(find.text('Loading…'), findsOneWidget);
+        expect(find.byType(ImageFiltered), findsNothing);
+      });
+
+      testWidgets('blurs by the radius it was given, and grows by two of them', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlImage(
+            image: const _PendingImage(),
+            ratio: 1,
+            semanticLabel: 'A portrait',
+            placeholder: PlImagePlaceholder(image: tiny, blur: 20),
+          ),
+        );
+
+        expect(
+          tester.widget<ImageFiltered>(find.byType(ImageFiltered)).imageFilter,
+          ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        );
+        expect(tester.getSize(standIn()), const Size(280, 280));
+      });
+
+      testWidgets('is fitted, placed, turned and mirrored the way the picture is', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlImage(
+            image: const _PendingImage(),
+            ratio: 1,
+            semanticLabel: 'A portrait',
+            fit: PlAspectFit.contain,
+            position: Alignment.topCenter,
+            rotate: 270,
+            flip: PlImageFlip.horizontal,
+            placeholder: PlImagePlaceholder(image: tiny),
+          ),
+        );
+
+        final Image drawn = tester.widget<Image>(standIn());
+        final Image shown = tester.widget<Image>(find.byType(Image).first);
+
+        expect(drawn.fit, BoxFit.contain);
+        expect(drawn.alignment, shown.alignment);
+        expect(find.ancestor(of: standIn(), matching: find.byType(RotatedBox)), findsOneWidget);
+        expect(find.ancestor(of: standIn(), matching: find.byType(Transform)), findsWidgets);
+      });
+
+      testWidgets('stays until the picture has faded in over it, then goes in one step', (
+        WidgetTester tester,
+      ) async {
+        final Completer<ImageInfo> arrival = Completer<ImageInfo>();
+
+        await _pump(
+          tester,
+          PlImage(
+            image: _LaterImage(arrival),
+            ratio: 1,
+            semanticLabel: 'A portrait',
+            placeholder: PlImagePlaceholder(image: tiny),
+          ),
+        );
+
+        double opacity() {
+          return tester
+              .widget<FadeTransition>(
+                find.ancestor(of: standIn(), matching: find.byType(FadeTransition)).first,
+              )
+              .opacity
+              .value;
+        }
+
+        expect(opacity(), 1);
+
+        await _arrive(tester, arrival);
+        await tester.pump(PlassTokens.duration - const Duration(milliseconds: 10));
+
+        // Still whole while the picture is on its way up over it.
+        expect(opacity(), 1);
+
+        await tester.pump(const Duration(milliseconds: 20));
+
+        expect(opacity(), 0);
+      });
+
+      testWidgets('is taken away when the picture does not arrive', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          PlImage(
+            image: _broken,
+            ratio: 1,
+            semanticLabel: 'A portrait',
+            placeholder: PlImagePlaceholder(image: tiny),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('A portrait'), findsOneWidget);
+        expect(standIn(), findsNothing);
+      });
+
+      testWidgets('draws its picture covering its space when it is built on its own', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(PlImagePlaceholder(image: tiny, blur: 8), width: 120, height: 80),
+        );
+
+        expect(tester.widget<Image>(standIn()).fit, BoxFit.cover);
+        expect(find.byType(ImageFiltered), findsOneWidget);
       });
     });
 

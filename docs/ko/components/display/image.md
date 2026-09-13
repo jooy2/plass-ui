@@ -79,6 +79,42 @@ PlImage(
 
 `placeholder`가 skeleton을 대체합니다. `null`은 아무것도 그리지 않고 잡아 둔 상자를 비워 둡니다. `fallback`이 alt 텍스트를 대체하고, alt가 기본인 이유는 그것이 확실히 존재하고 확실히 없는 것을 설명하는 유일한 것이기 때문입니다.
 
+### placeholder
+
+파일이 도착하는 동안 같은 사진의 작은 사본을 대신 세워 둘 수 있습니다. 그러면 세부보다 색과 모양을 먼저 보여 줄 수 있습니다. 사본은 사진 아래에 같은 `fit`, `position`, `rotate`, `flip`, `filter`로 그려지고, 사진이 그 위로 다 나타날 때까지 남아 있습니다.
+
+<Demo src="image/placeholder" :min-height="320">
+
+::: fw react
+
+<<< @/.vitepress/demos/image/placeholder.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/placeholder.dart
+
+:::
+
+</Demo>
+
+사진이 다 나타나면 사본은 서서히 사라지지 않고 한 번에 없어집니다. 둘을 겹쳐 전환하면 중간에 페이지가 비쳐 보이기 때문입니다. 사진을 불러오지 못하면 바로 없어지고, 사본이 있는 동안에는 skeleton을 그리지 않습니다. skeleton처럼 상자를 채우므로 채울 상자가 있어야 합니다. `ratio`나, `width`와 `height` 둘 다를 주세요.
+
+::: fw react
+
+`{ src }`를 넘기고, `src`에는 URL, data URI, `Blob`을 쓸 수 있습니다. `Blob`은 보이는 동안 object URL을 만들어 쓰고, 더 이상 보이지 않으면 그 URL을 해제합니다. `blur: true`는 20픽셀, 숫자는 그만큼 흐리게 합니다. 몇 픽셀짜리를 키운 사본은 흐리게 하지 않으면 각져 보입니다.
+
+:::
+
+::: fw flutter
+
+어떤 `ImageProvider`든 담은 `PlImagePlaceholder`를 넘깁니다. 수백 바이트짜리 `MemoryImage`, 에셋, 작은 네트워크 파일 모두 됩니다. `blur`는 논리 픽셀 단위의 반경이고, `20`이 React의 `blur: true`와 같습니다. 위젯이므로 매개변수 타입을 `Widget?`으로 둘 수 있고, 다른 곳에서 쓰면 받은 공간을 사진으로 덮어 그립니다.
+
+:::
+
+데모의 사본은 사진을 가로 24, 세로 16픽셀로 줄인 것으로, WebP로 186바이트입니다.
+
 ### fit
 
 사진이 상자를 채우는 방식입니다. `cover`는 상자를 채우고 넘치는 부분을 잘라 내고, `contain`은 사진 전체를 상자 안에 넣고, `fill`은 늘이고, `none`은 제 크기 그대로 그리고, `scale-down`은 상자보다 작은 파일을 키우지 않는 `contain`입니다.
@@ -274,7 +310,7 @@ PlImage(
 
 </Demo>
 
-사진 자체의 fade와 같은 transition을 타므로, hover에서 filter를 바꿔도 fade가 아직 움직이는 중에 툭 튀지 않고 함께 이동합니다. placeholder와 fallback에는 걸리지 않습니다. 회색이 된 skeleton은 `grayscale`이 요청한 것이 아닙니다.
+사진 자체의 fade와 같은 transition을 타므로, hover에서 filter를 바꿔도 fade가 아직 움직이는 중에 툭 튀지 않고 함께 이동합니다. skeleton과 fallback에는 걸리지 않습니다. 회색이 된 skeleton은 `grayscale`이 요청한 것이 아니기 때문입니다. 사진을 대신하는 사본에는 사진과 똑같이 걸립니다.
 
 ::: fw flutter
 

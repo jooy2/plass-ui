@@ -3,6 +3,7 @@ export type {
   PlImageFit,
   PlImageFlip,
   PlImageLetterbox,
+  PlImagePlaceholder,
   PlImagePosition,
   PlImageProps,
   PlImageRotation,

@@ -397,6 +397,124 @@ describe('PlImage', () => {
     });
   });
 
+  describe('a picture placeholder', () => {
+    const TINY = `data:image/svg+xml,${encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="3" height="2"></svg>'
+    )}`;
+    const standIn = () =>
+      document.querySelector('img[aria-hidden="true"]') as HTMLImageElement | null;
+    const picture = () => document.querySelector('img:not([aria-hidden])') as HTMLImageElement;
+
+    it('stands in for the picture instead of the skeleton', async () => {
+      await render(<PlImage alt="A portrait" ratio="3 / 2" placeholder={{ src: TINY }} />);
+
+      expect(standIn()!.getAttribute('src')).toBe(TINY);
+      expect(standIn()!.getAttribute('alt')).toBe('');
+      expect(standIn()!.getAttribute('draggable')).toBe('false');
+      expect(standIn()).toHaveClass('pointer-events-none', 'object-cover');
+      expect(document.querySelector('.plass-skeleton')).toBeNull();
+      // Under the picture, which is positioned so it paints over it.
+      expect(standIn()!.nextElementSibling).toBe(picture());
+      expect(picture()).toHaveClass('relative');
+    });
+
+    it('is not taken for a node of the caller’s own', async () => {
+      await render(<PlImage alt="A portrait" placeholder={<span>Loading…</span>} />);
+
+      expect(standIn()).toBeNull();
+      expect(document.body.textContent).toContain('Loading…');
+    });
+
+    it('blurs by 20 pixels for true, by a number for a number, and grows by two of them', async () => {
+      const screen = await render(
+        <PlImage alt="A portrait" ratio="1" placeholder={{ src: TINY, blur: true }} />
+      );
+
+      expect(standIn()!.style.filter).toBe('blur(20px)');
+      expect([standIn()!.style.top, standIn()!.style.width]).toEqual([
+        '-40px',
+        'calc(100% + 80px)'
+      ]);
+
+      await screen.rerender(
+        <PlImage alt="A portrait" ratio="1" placeholder={{ src: TINY, blur: 6 }} />
+      );
+
+      expect(standIn()!.style.filter).toBe('blur(6px)');
+
+      await screen.rerender(<PlImage alt="A portrait" ratio="1" placeholder={{ src: TINY }} />);
+
+      expect(standIn()!.style.filter).toBe('');
+      expect(standIn()!.style.width).toBe('100%');
+    });
+
+    it('is fitted, placed, turned and mirrored the way the picture is', async () => {
+      await render(
+        <PlImage
+          alt="A portrait"
+          ratio="1"
+          fit="contain"
+          position="top"
+          rotate={270}
+          flip="vertical"
+          placeholder={{ src: TINY }}
+        />
+      );
+
+      expect(standIn()).toHaveClass('object-contain');
+      expect(standIn()!.style.objectPosition).toBe(picture().style.objectPosition);
+      expect(standIn()!.style.rotate).toBe(picture().style.rotate);
+      expect(standIn()!.style.scale).toBe(picture().style.scale);
+      expect(standIn()!.style.width).toBe('100cqh');
+    });
+
+    it('shows a Blob through an object URL it releases on unmount', async () => {
+      const revoke = vi.spyOn(URL, 'revokeObjectURL');
+      const blob = new Blob(['<svg xmlns="http://www.w3.org/2000/svg" width="3" height="2"/>'], {
+        type: 'image/svg+xml'
+      });
+
+      const screen = await render(
+        <PlImage alt="A portrait" ratio="3 / 2" placeholder={{ src: blob }} />
+      );
+
+      await expect.poll(() => standIn()?.getAttribute('src') ?? '').toMatch(/^blob:/);
+
+      const url = standIn()!.getAttribute('src')!;
+
+      await screen.unmount();
+
+      expect(revoke).toHaveBeenCalledWith(url);
+      revoke.mockRestore();
+    });
+
+    it('stays until the picture has faded in over it, then goes in one step', async () => {
+      await render(<PlImage src={OK} alt="A portrait" ratio="1" placeholder={{ src: TINY }} />);
+
+      await expect.poll(() => picture().className).toContain('opacity-100');
+
+      // Opaque for as long as the fade takes, then gone without a cross-fade.
+      expect(standIn()!.style.opacity).toBe('0');
+      expect(standIn()!.style.transition).toBe('opacity 0ms linear var(--plass-duration)');
+    });
+
+    it('is opaque while the picture is on its way', async () => {
+      await render(<PlImage alt="A portrait" ratio="1" placeholder={{ src: TINY }} />);
+
+      expect(standIn()!.style.opacity).toBe('');
+    });
+
+    it('is taken away when the picture does not arrive', async () => {
+      const screen = await render(
+        <PlImage src={BROKEN} alt="A portrait" ratio="1" placeholder={{ src: TINY }} />
+      );
+
+      await expect.element(screen.getByText('A portrait')).toBeInTheDocument();
+
+      expect(standIn()).toBeNull();
+    });
+  });
+
   describe('when it does not arrive', () => {
     it('draws the alt text rather than a broken glyph', async () => {
       const screen = await render(<PlImage src={BROKEN} alt="A portrait" />);

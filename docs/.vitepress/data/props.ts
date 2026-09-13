@@ -14315,10 +14315,10 @@ export const propTables: Record<string, PropRow[]> = {
     },
     {
       name: 'placeholder',
-      type: 'ReactNode',
+      type: 'ReactNode | { src: string | Blob; blur?: boolean | number }',
       description: {
-        ko: '로딩 중에 그릴 것. 기본은 PlSkeleton이고 null은 아무것도 그리지 않습니다',
-        en: 'What is drawn while loading. A PlSkeleton by default; null draws nothing'
+        ko: '로딩 중에 그릴 것. 기본은 PlSkeleton이고 null은 아무것도 그리지 않습니다. { src }는 사진 아래에 깔리는 작은 사본입니다',
+        en: 'What is drawn while loading. A PlSkeleton by default; null draws nothing; { src } is a small copy of the picture drawn under it'
       }
     },
     {

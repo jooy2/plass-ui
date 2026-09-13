@@ -72,6 +72,28 @@ export type PlImagePosition =
  */
 export type PlImageLetterbox = 'none' | 'blur';
 
+/**
+ * A picture to stand in while the file arrives, in place of the skeleton.
+ *
+ * It is drawn the way the picture will be, with the same `fit`, `position`,
+ * `rotate`, `flip` and `filter`, which is what it is for: a small copy of the
+ * same file, a few hundred bytes as a data URI or already in memory as a
+ * `Blob`, so the reader sees the picture's colours and shape before its detail.
+ */
+export interface PlImagePlaceholder {
+  /**
+   * The stand-in: a URL, a data URI or a `Blob`. A `Blob` is given an object URL
+   * for as long as it is shown, and the URL is released when it is not.
+   */
+  src: string | Blob;
+  /**
+   * Blurs the stand-in, by this many pixels or by 20 for `true`. A copy
+   * stretched up from a few pixels is blocky without it.
+   * @default false
+   */
+  blur?: boolean | number;
+}
+
 /** The treatments that have a name. Anything else is written as CSS. */
 export type PlImageFilter =
   'none' | 'grayscale' | 'sepia' | 'saturate' | 'desaturate' | 'contrast' | 'dim';
@@ -182,10 +204,16 @@ export interface PlImageProps extends Omit<
   /** The family the skeleton and the focus ring take. @default 'primary' */
   color?: PlassColor;
   /**
-   * What is drawn while the picture is loading. A `PlSkeleton` by default;
-   * `null` draws nothing and leaves the reserved box empty.
+   * What is drawn while the picture is loading. A `PlSkeleton` by default, a
+   * node of your own, `{ src }` for a picture to stand in, or `null` for nothing
+   * at all.
+   *
+   * A picture stand-in is a small copy of the same file, as a URL or a `Blob`.
+   * It is drawn under the picture and stays until the picture has finished
+   * fading in over it. Like the skeleton it fills the box, so it needs a box to
+   * fill: a `ratio`, or both `width` and `height`.
    */
-  placeholder?: React.ReactNode;
+  placeholder?: React.ReactNode | PlImagePlaceholder;
   /**
    * What is drawn when the picture does not arrive — a wrong URL, a dead host,
    * a file that is not an image.
@@ -295,6 +323,58 @@ function naturalSize(node: HTMLImageElement | null): PixelSize | null {
  * fading its edge out.
  */
 const LETTERBOX_BLUR = 24;
+
+/** How far a picture stand-in with `blur: true` is blurred, in pixels. */
+const PLACEHOLDER_BLUR = 20;
+
+/** Whether a placeholder is a picture to draw rather than a node to render. */
+function isPicturePlaceholder(
+  placeholder: React.ReactNode | PlImagePlaceholder
+): placeholder is PlImagePlaceholder {
+  return (
+    typeof placeholder === 'object' &&
+    placeholder !== null &&
+    !React.isValidElement(placeholder) &&
+    'src' in placeholder
+  );
+}
+
+/**
+ * A URL for a stand-in, whichever of the two forms it was given in.
+ *
+ * A `Blob` becomes an object URL in an effect rather than during the render. An
+ * object URL is held by the document until it is revoked, and a render React
+ * throws away would leave one behind with nothing to release it. The price is a
+ * stand-in that appears a frame after its box, which is still sooner than any
+ * file it stands in for.
+ */
+function useStandInUrl(source: string | Blob | undefined): string | undefined {
+  // Kept with the Blob it was made from, so the next Blob is never handed the
+  // last one's URL in the render before the effect has caught up.
+  const [made, setMade] = React.useState<{ blob: Blob; url: string } | null>(null);
+
+  React.useEffect(() => {
+    if (typeof Blob === 'undefined' || !(source instanceof Blob)) {
+      return undefined;
+    }
+
+    const url = URL.createObjectURL(source);
+
+    // The object URL is the external system here: it is allocated in the one
+    // place that can release it, and the state only carries it to the render.
+    // It runs once per Blob rather than cascading.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMade({ blob: source, url });
+
+    return () => URL.revokeObjectURL(url);
+  }, [source]);
+
+  if (typeof source === 'string') {
+    return source;
+  }
+
+  return made !== null && made.blob === source ? made.url : undefined;
+}
 
 /**
  * What each named treatment is, as the CSS it stands for.
@@ -406,6 +486,9 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
     });
     const status = picture.status;
     const [open, setOpen] = React.useState(false);
+
+    const standIn = isPicturePlaceholder(placeholder) ? placeholder : null;
+    const standInUrl = useStandInUrl(standIn?.src);
 
     const imgRef = React.useRef<HTMLImageElement | null>(null);
     const setImgRef = React.useCallback(
@@ -559,6 +642,40 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
         />
       ) : null;
 
+    const standInBlur =
+      standIn === null || !standIn.blur
+        ? 0
+        : standIn.blur === true
+          ? PLACEHOLDER_BLUR
+          : standIn.blur;
+
+    /*
+     * The picture stand-in, under the picture rather than over it. The picture
+     * fades in on top of it, and it is taken away in one step once that fade has
+     * run, so the two are never both half there with the page showing through.
+     * Written inline, so a gallery's own transition on its pictures cannot turn
+     * the step back into a cross-fade. Gone entirely on a failure, which the
+     * fallback reports instead.
+     */
+    const standInLayer =
+      standIn === null || standInUrl === undefined || status === 'error' ? null : (
+        <img
+          src={standInUrl}
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+          className={cx('pointer-events-none block select-none', fitClasses[fit])}
+          style={{
+            ...layerStyle(quarters, flip, standInBlur * 2),
+            objectPosition: placed,
+            filter: tint === '' && standInBlur === 0 ? undefined : `${tint}blur(${standInBlur}px)`,
+            ...(status === 'loaded'
+              ? { opacity: 0, transition: 'opacity 0ms linear var(--plass-duration)' }
+              : null)
+          }}
+        />
+      );
+
     const img = (
       <img
         ref={setImgRef}
@@ -580,7 +697,7 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
           transitionClasses,
           // Positioned, so it paints over the copy under it: an absolutely
           // positioned sibling paints above a static one whatever the order.
-          blurred ? 'relative' : '',
+          blurred || standInLayer !== null ? 'relative' : '',
           // Hidden rather than unmounted: an `<img>` that is not in the document
           // never loads, so unmounting it while it loads is a picture that never
           // arrives.
@@ -599,9 +716,10 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
     const body = (
       <>
         {backdrop}
+        {standInLayer}
         {img}
 
-        {status === 'loading' ? (
+        {status === 'loading' && standIn === null ? (
           <span className="absolute inset-0">
             {placeholder === undefined ? (
               <PlSkeleton
@@ -613,7 +731,7 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
                 className={radius}
               />
             ) : (
-              placeholder
+              (placeholder as React.ReactNode)
             )}
           </span>
         ) : null}

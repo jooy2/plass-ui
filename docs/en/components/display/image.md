@@ -79,6 +79,42 @@ An `<img>` is one tag and it works, so it is worth saying what this is for rathe
 
 `placeholder` replaces the skeleton. `null` draws nothing and leaves the reserved box empty. `fallback` replaces the alt text, which is the default because it is the one thing that is certainly available and certainly describes what is missing.
 
+### placeholder
+
+A small copy of the same picture can stand in while the file arrives, so the reader sees its colours and shape before its detail. It is drawn under the picture with the same `fit`, `position`, `rotate`, `flip` and `filter`, and stays until the picture has finished fading in over it.
+
+<Demo src="image/placeholder" :min-height="320">
+
+::: fw react
+
+<<< @/.vitepress/demos/image/placeholder.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/placeholder.dart
+
+:::
+
+</Demo>
+
+Once the picture has faded in, the stand-in is removed in one step rather than faded out, because a cross-fade of the two would let the page show through halfway. It is removed at once if the picture fails, and the skeleton is not drawn while it stands in. Like the skeleton it fills the box, so it needs a box to fill: a `ratio`, or both `width` and `height`.
+
+::: fw react
+
+Pass `{ src }`, where `src` is a URL, a data URI or a `Blob`. A `Blob` is given an object URL while it is shown, and the URL is revoked when it no longer is. `blur: true` blurs the stand-in by 20 pixels and a number by that many; a copy stretched up from a few pixels looks blocky without it.
+
+:::
+
+::: fw flutter
+
+Pass a `PlImagePlaceholder` with any `ImageProvider`: a `MemoryImage` of a few hundred bytes, an asset, or a small network file. `blur` is a radius in logical pixels, and `20` matches React's `blur: true`. It is a widget, so the parameter can keep its `Widget?` type, and built anywhere else it draws its picture covering its space.
+
+:::
+
+The demo's stand-in is a 24 by 16 pixel copy of the photograph, 186 bytes as WebP.
+
 ### fit
 
 How the picture fills its box: `cover` fills it and crops, `contain` fits the whole picture inside, `fill` stretches it, `none` draws it at its own size, and `scale-down` is `contain` that never enlarges a file smaller than the box.
@@ -274,7 +310,7 @@ A treatment laid over the picture. Six of them have names (`grayscale`, `sepia`,
 
 </Demo>
 
-It rides the same transition as the picture's own fade, so a filter swapped on hover travels rather than snapping while the fade is still moving. Nothing is applied to the placeholder or to the fallback. A greyed-out skeleton is not what `grayscale` was asked for.
+It rides the same transition as the picture's own fade, so a filter swapped on hover travels rather than snapping while the fade is still moving. Nothing is applied to the skeleton or to the fallback, because a greyed-out skeleton is not what `grayscale` was asked for. A picture stand-in is treated the way the picture is.
 
 ::: fw flutter
 

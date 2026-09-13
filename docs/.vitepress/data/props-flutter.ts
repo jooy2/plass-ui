@@ -1966,7 +1966,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlImage', 'rounded', { type: 'bool', default: 'false' }),
     from('PlImage', 'size', { type: SIZE, default: 'PlassSize.md' }),
     from('PlImage', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlImage', 'placeholder', { type: 'Widget?' }),
+    from('PlImage', 'placeholder', {
+      type: 'Widget?',
+      default: 'PlSkeleton',
+      description: {
+        ko: '로딩 중에 그릴 것. 기본은 PlSkeleton입니다. PlImagePlaceholder는 사진 아래에 깔리는 작은 사본입니다',
+        en: 'What is drawn while loading. A PlSkeleton by default; a PlImagePlaceholder is a small copy of the picture drawn under it'
+      }
+    }),
     from('PlImage', 'fallback', { type: 'Widget?' }),
     from('PlImage', 'preview', { type: 'bool', default: 'false' }),
     from('PlImage', 'previewLabel', { type: 'String', default: "'Preview'" }),

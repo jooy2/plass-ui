@@ -85,5 +85,12 @@ WebP once, with sips, ffmpeg and cwebp:
     sips -z 128 128 <source>.png --out mark.png
     cwebp -q 88 -alpha_q 100 mark.png -o marks/<name>.webp
 
+A photograph whose name ends in `-tiny` is a 24-pixel copy of the photograph of
+the same name, made from that WebP rather than from the original, for the demo
+that shows a small stand-in while the full file arrives:
+
+    ffmpeg -i photos/<name>.webp -vf 'scale=24:16:flags=area' tiny.png
+    cwebp -q 70 tiny.png -o photos/<name>-tiny.webp
+
 Add a picture the same way rather than copying an original in: a 3 MB plate
 behind a 40 KB preview is the whole page's load time.
