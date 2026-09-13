@@ -447,18 +447,30 @@ class _PlDataTableState<T> extends State<PlDataTable<T>> {
         final direction = sort.direction == PlassSortDirection.asc ? 1 : -1;
 
         // A copy, because sorting the caller's list in place would reorder the
-        // rows they still hold a reference to.
-        rows = List<T>.of(rows)
-          ..sort((T a, T b) {
+        // rows they still hold a reference to. Positions rather than rows are
+        // sorted, and two rows that compare the same keep the order they came
+        // in: `List.sort` does not promise that past a few dozen rows, and a
+        // column of statuses sorted twice would come out shuffled.
+        final source = rows;
+        final order = List<int>.generate(source.length, (int index) => index)
+          ..sort((int i, int j) {
             // A caller's comparator is asked first and the direction applied to
             // what it said, so their ordering reverses the way the built-in one
             // does rather than needing to know which way round it is asked. The
             // built-in one takes the direction itself, to keep blanks last both
             // ways.
-            return column.compare != null
-                ? column.compare!(a, b) * direction
-                : compareValues(_valueOf(column, a), _valueOf(column, b), direction);
+            final answer = column.compare != null
+                ? column.compare!(source[i], source[j]) * direction
+                : compareValues(
+                    _valueOf(column, source[i]),
+                    _valueOf(column, source[j]),
+                    direction,
+                  );
+
+            return answer != 0 ? answer : i - j;
           });
+
+        rows = <T>[for (final int index in order) source[index]];
       }
     }
 

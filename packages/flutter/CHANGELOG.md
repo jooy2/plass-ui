@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **A `PlDataTable` sort keeps rows that compare the same in the order they came in.** Dart's `List.sort` does not keep ties in order past a few dozen items, so sorting a long table by a column of statuses shuffled the rows inside each status, and the order differed from the React table's. Ties now keep their arrival order.
+
 - **A `PlDataTable` whose parent holds the sort stays unsorted when the parent clears it.** A `sort` of `null` was read as the table keeping its own sort, and the table still had the one from the first press, so the third press on a heading, or a parent resetting the sort, brought an ascending sort back. The table now follows the parent's last answer.
 
 - **A `PlDataTable` that keeps its own page calls `onPageChanged`.** The table moved to the new page before comparing it with the page it was on, so the two were always the same and the callback never ran unless `page` was passed as well.

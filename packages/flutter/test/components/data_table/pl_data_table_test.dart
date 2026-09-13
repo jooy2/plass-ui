@@ -199,6 +199,33 @@ void main() {
         expect(invoices(), <String>['INV-03', 'INV-02', 'INV-01', 'INV-04']);
       });
 
+      testWidgets('keeps rows that compare the same in the order they came in', (
+        WidgetTester tester,
+      ) async {
+        // Past a few dozen rows, where `List.sort` stops keeping ties in order.
+        const statuses = <String>['Paid', 'Open', 'Void'];
+        final data = <Invoice>[
+          for (var index = 0; index < 60; index += 1)
+            Invoice('INV-${index.toString().padLeft(2, '0')}', statuses[index % 3], index),
+        ];
+
+        await tester.pumpWidget(host(table(data: data), width: 640));
+        await tester.tap(find.text('Customer').first);
+        await tester.pumpAndSettle();
+
+        final List<String> ids = tester
+            .widgetList<Text>(find.byType(Text))
+            .map((Text one) => one.data ?? '')
+            .where((String one) => one.startsWith('INV-'))
+            .toList();
+
+        expect(ids, <String>[
+          for (final status in <String>['Open', 'Paid', 'Void'])
+            for (final one in data)
+              if (one.customer == status) one.id,
+        ]);
+      });
+
       testWidgets('sorts numbers as numbers rather than as the text the cell drew', (
         WidgetTester tester,
       ) async {
