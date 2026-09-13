@@ -118,6 +118,39 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
         expect(chosen, 'settings');
       });
+
+      testWidgets('keep focus on the tab the value follows them to', (WidgetTester tester) async {
+        String value = 'overview';
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) => afterFocusStop(
+                before,
+                PlTabs<String>(
+                  tabs: panes,
+                  value: value,
+                  onChanged: (String next) => setState(() => value = next),
+                ),
+              ),
+            ),
+            width: 480,
+          ),
+        );
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pumpAndSettle();
+
+        expect(value, 'settings');
+        expect(before.hasFocus, isFalse);
+      });
     });
 
     group('a bar with more tabs than room', () {

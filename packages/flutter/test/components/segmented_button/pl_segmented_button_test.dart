@@ -148,6 +148,41 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
         expect(chosen, 'calendar');
       });
+
+      testWidgets('keep focus on the segment the value follows them to', (
+        WidgetTester tester,
+      ) async {
+        String value = 'list';
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) => afterFocusStop(
+                before,
+                PlSegmentedButton<String>(
+                  segments: views,
+                  value: value,
+                  onChanged: (String next) => setState(() => value = next),
+                ),
+              ),
+            ),
+            width: 480,
+          ),
+        );
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pumpAndSettle();
+
+        expect(value, 'calendar');
+        expect(before.hasFocus, isFalse);
+      });
     });
 
     group('accessibility', () {

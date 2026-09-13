@@ -196,6 +196,41 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
         expect(chosen, 'c');
       });
+
+      testWidgets('keep focus on the option the value follows them to', (
+        WidgetTester tester,
+      ) async {
+        String value = 'starter';
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) => afterFocusStop(
+                before,
+                PlRadioGroup<String>(
+                  options: plans,
+                  value: value,
+                  onChanged: (String next) => setState(() => value = next),
+                ),
+              ),
+            ),
+            width: 320,
+          ),
+        );
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+
+        expect(value, 'enterprise');
+        expect(before.hasFocus, isFalse);
+      });
     });
 
     group('error', () {

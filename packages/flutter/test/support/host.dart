@@ -91,3 +91,27 @@ SemanticsNode semanticsOf(WidgetTester tester, Finder finder) {
 TextStyle styleOf(WidgetTester tester, String data) {
   return tester.renderObject<RenderParagraph>(find.text(data)).text.style!;
 }
+
+/// Puts [child] after a focus stop of its own and gives the tree the Tab key a
+/// `WidgetsApp` would, so a test reaches [child] the way a keyboard reader does.
+///
+/// `autofocus` hides a whole kind of bug: a node that loses focus hands it back
+/// to its scope, and an `autofocus` in the rebuilt tree takes it again at once.
+/// Arriving by Tab from [before] is the case where losing it shows.
+Widget afterFocusStop(FocusNode before, Widget child) {
+  return Shortcuts(
+    shortcuts: WidgetsApp.defaultShortcuts,
+    child: Actions(
+      actions: WidgetsApp.defaultActions,
+      child: FocusScope(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Focus(focusNode: before, child: const SizedBox.square(dimension: 1)),
+            child,
+          ],
+        ),
+      ),
+    ),
+  );
+}

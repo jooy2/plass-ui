@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
+import 'package:plass_ui/src/internal/roving.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -152,7 +153,8 @@ class PlSegmentedButton<T> extends StatefulWidget {
   State<PlSegmentedButton<T>> createState() => _PlSegmentedButtonState<T>();
 }
 
-class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>> {
+class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>>
+    with PlassRovingStop<PlSegmentedButton<T>> {
   PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
   PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
   PlassDensity get _density =>
@@ -168,6 +170,9 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>> {
   final GlobalKey _trough = GlobalKey();
 
   Rect? _tile;
+
+  @override
+  FocusNode? get callerStop => widget.focusNode;
 
   bool get _disabled => widget.disabled || widget.onChanged == null;
 
@@ -197,6 +202,7 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>> {
   @override
   void didUpdateWidget(PlSegmentedButton<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
+    keepStop(oldWidget.focusNode);
     _syncKeys();
     WidgetsBinding.instance.addPostFrameCallback((Duration _) => _measure());
   }
@@ -325,7 +331,7 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>> {
               ? () => widget.onChanged!(widget.segments[index].value)
               : null,
           focusable: index == _focused,
-          focusNode: index == _focused ? widget.focusNode : null,
+          focusNode: index == _focused ? stop : null,
           autofocus: index == _focused && widget.autofocus,
         ),
     ];

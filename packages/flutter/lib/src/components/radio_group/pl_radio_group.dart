@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
+import 'package:plass_ui/src/internal/roving.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -139,9 +140,18 @@ class PlRadioGroup<T> extends StatefulWidget {
   State<PlRadioGroup<T>> createState() => _PlRadioGroupState<T>();
 }
 
-class _PlRadioGroupState<T> extends State<PlRadioGroup<T>> {
+class _PlRadioGroupState<T> extends State<PlRadioGroup<T>> with PlassRovingStop<PlRadioGroup<T>> {
   PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
   PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+
+  @override
+  FocusNode? get callerStop => widget.focusNode;
+
+  @override
+  void didUpdateWidget(PlRadioGroup<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    keepStop(oldWidget.focusNode);
+  }
 
   bool get _disabled => widget.disabled || widget.onChanged == null;
 
@@ -235,7 +245,7 @@ class _PlRadioGroupState<T> extends State<PlRadioGroup<T>> {
           // Exactly one option is a focus stop, and the arrows move it. Every
           // other one is reachable by pointer and invisible to the tab key.
           focusable: index == _focused,
-          focusNode: index == _focused ? widget.focusNode : null,
+          focusNode: index == _focused ? stop : null,
           autofocus: index == _focused && widget.autofocus,
         ),
     ];

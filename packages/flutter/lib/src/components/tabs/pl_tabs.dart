@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
+import 'package:plass_ui/src/internal/roving.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/internal/wheel.dart';
@@ -173,7 +174,7 @@ class PlTabs<T> extends StatefulWidget {
   State<PlTabs<T>> createState() => _PlTabsState<T>();
 }
 
-class _PlTabsState<T> extends State<PlTabs<T>> {
+class _PlTabsState<T> extends State<PlTabs<T>> with PlassRovingStop<PlTabs<T>> {
   PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
   PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
   PlassDensity get _density =>
@@ -183,6 +184,9 @@ class _PlTabsState<T> extends State<PlTabs<T>> {
   final GlobalKey _bar = GlobalKey();
 
   Rect? _indicator;
+
+  @override
+  FocusNode? get callerStop => widget.focusNode;
 
   bool get _vertical => resolveResponsive(context, widget.orientation) == PlassOrientation.vertical;
 
@@ -210,6 +214,7 @@ class _PlTabsState<T> extends State<PlTabs<T>> {
   @override
   void didUpdateWidget(PlTabs<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
+    keepStop(oldWidget.focusNode);
     _syncKeys();
     WidgetsBinding.instance.addPostFrameCallback((Duration _) => _measure());
   }
@@ -313,7 +318,7 @@ class _PlTabsState<T> extends State<PlTabs<T>> {
               ? () => widget.onChanged!(widget.tabs[index].value)
               : null,
           focusable: index == _focused,
-          focusNode: index == _focused ? widget.focusNode : null,
+          focusNode: index == _focused ? stop : null,
           autofocus: index == _focused && widget.autofocus,
         ),
     ];
