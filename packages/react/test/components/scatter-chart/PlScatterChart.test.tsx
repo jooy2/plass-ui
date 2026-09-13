@@ -74,6 +74,63 @@ describe('PlScatterChart', () => {
       expect(ticks).toContain('30');
       expect(ticks).not.toContain('Q1');
     });
+
+    it('ticks an axis of dates like a calendar, and hands tickFormat a date', async () => {
+      const day = (date: number) => new Date(2026, 2, date);
+      const seen: unknown[] = [];
+      const screen = await render(
+        <PlScatterChart
+          label="Deploys"
+          locale="en-US"
+          xAxis={{
+            tickFormat: (value) => {
+              seen.push(value);
+
+              return String(value instanceof Date ? value.getDate() : value);
+            }
+          }}
+          series={[
+            {
+              name: 'Web',
+              data: [
+                { x: day(1), y: 3 },
+                { x: day(9), y: 5 },
+                { x: day(20), y: 4 }
+              ]
+            }
+          ]}
+        />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Deploys' });
+
+      await expect.element(plot).toBeInTheDocument();
+      await expect.poll(() => seen.length).toBeGreaterThan(0);
+      expect(seen.every((value) => value instanceof Date)).toBe(true);
+
+      await screen.rerender(
+        <PlScatterChart
+          label="Deploys"
+          locale="en-US"
+          series={[
+            {
+              name: 'Web',
+              data: [
+                { x: day(1), y: 3 },
+                { x: day(9), y: 5 },
+                { x: day(20), y: 4 }
+              ]
+            }
+          ]}
+        />
+      );
+
+      const texts = () =>
+        [...plot.element().querySelectorAll('text')].map((one) => one.textContent ?? '');
+
+      await expect.poll(() => texts().some((text) => text.includes('Mar'))).toBe(true);
+      expect(texts().some((text) => /\d{6,}|T$/.test(text))).toBe(false);
+    });
   });
 
   describe('the pointer', () => {

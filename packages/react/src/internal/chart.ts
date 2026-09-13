@@ -322,6 +322,22 @@ export function pointX(
 }
 
 /**
+ * Whether the positions along a chart's x axis are moments.
+ *
+ * Such an axis runs on milliseconds, and ticking milliseconds by 1-2-5 puts a
+ * `1.7T` under every mark. A dated axis ticks where a calendar does instead.
+ */
+export function categoriesAreDates(
+  values: readonly ChartValue[][],
+  categories: readonly PlassChartCategory[] | undefined
+): boolean {
+  return (
+    (categories?.some((one) => one instanceof Date) ?? false) ||
+    values.some((one) => one.some((value) => value.x instanceof Date))
+  );
+}
+
+/**
  * The extent of the category values, for a chart whose x is a number.
  *
  * Only points that have a `y` count. A point with no value is not on the plot,

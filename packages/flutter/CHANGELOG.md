@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **A `PlScatterChart` whose `x` values are dates ticks its x axis like a calendar, and `xAxis.format` writes its ticks.** The axis ran on the dates' milliseconds with the steps a count gets and wrote each tick as a thirteen-digit number, and `xAxis.format` was not applied to it at all. It now takes the steps and the labels of a time axis, as `PlTimelineChart` does, and `xAxis.format` writes the ticks of any value-scaled x axis.
+
 - **An area is filled between its two edges.** `PlAreaChart` and a `PlSparkline` with `shape: PlSparklineShape.area` built the top and the floor of each band as two separate outlines, and two open outlines fill only the slivers between each edge and a straight line across its ends, so most of the band was left empty. The floor also went back in straight lines under a `smooth` or `step` curve, which left a gap or a double-painted strip between stacked bands. A band is now one outline, its floor drawn with the same curve as its top, as in the React build.
 
 - **A chart stacked to `full` tells a reader the caller's numbers.** The tooltip and the summary of `PlBarChart` and `PlAreaChart` wrote the share each part was drawn at through the caller's `format`, so a currency format read `New $20` for a part worth 4,000. They now read a point's `label`, as the React build does, and a chart stacked to full sets that label to the caller's number in the caller's `format`.

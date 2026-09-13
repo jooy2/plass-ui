@@ -85,6 +85,43 @@ void main() {
       expect(node.value, 'Q1: 10, 22; 20, 31');
     });
 
+    testWidgets('ticks an axis of dates like a calendar, or through xAxis.format', (
+      WidgetTester tester,
+    ) async {
+      PlassChartDatum on(int date, double y) => PlassChartDatum.point(
+        PlassChartPoint(x: PlassChartCategory.date(DateTime(2026, 3, date)), y: y),
+      );
+      final List<PlassChartSeries> deploys = <PlassChartSeries>[
+        PlassChartSeries(name: 'Web', data: <PlassChartDatum>[on(1, 3), on(9, 5), on(20, 4)]),
+      ];
+      List<String> ticks() =>
+          ((tester
+                          .widgetList<CustomPaint>(find.byType(CustomPaint))
+                          .firstWhere((CustomPaint paint) => paint.size.height > 40)
+                          .painter!
+                      as dynamic)
+                  .categoryTexts
+              as List<String>);
+
+      await _pump(tester, PlScatterChart(series: deploys));
+
+      expect(ticks().any((String text) => text.contains('Mar')), isTrue);
+      expect(ticks().any((String text) => RegExp(r'\d{6,}').hasMatch(text)), isFalse);
+
+      await _pump(
+        tester,
+        PlScatterChart(
+          series: deploys,
+          xAxis: PlChartAxis(
+            format: (double value) =>
+                'day ${DateTime.fromMillisecondsSinceEpoch(value.round()).day}',
+          ),
+        ),
+      );
+
+      expect(ticks().every((String text) => text.startsWith('day ')), isTrue);
+    });
+
     testWidgets('names every series in the legend', (WidgetTester tester) async {
       await _pump(tester, PlScatterChart(series: spend));
 

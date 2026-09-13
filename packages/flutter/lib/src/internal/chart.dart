@@ -284,6 +284,18 @@ double? categoryNumber(PlassChartCategory? value) {
   return finiteOrNull(value.number);
 }
 
+/// Whether the positions along a chart's x axis are moments.
+///
+/// Such an axis runs on milliseconds, and ticking milliseconds by 1-2-5 puts a
+/// `1.7T` under every mark. A dated axis ticks where a calendar does instead.
+bool categoriesAreDates(List<List<ChartValue>> values, List<PlassChartCategory>? categories) {
+  if (categories != null && categories.any((PlassChartCategory one) => one.date != null)) {
+    return true;
+  }
+
+  return values.any((List<ChartValue> one) => one.any((ChartValue value) => value.x?.date != null));
+}
+
 /// Where one point sits along a category axis that runs on numbers.
 ///
 /// The same three sources [categoryAt] reads, in the same order — but per

@@ -596,15 +596,24 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
        own ticks rather than the data's labels. Rounding them here rather than
        in the painter is what lets everything downstream — the label band, the
        tick text, `categoryPx` — stay the one code path it already was. */
-    final ValueScale? categoryScale = widget.xScale == PlassChartAxisScale.value
-        ? valueScale(
+    final bool dated =
+        widget.xScale == PlassChartAxisScale.value && categoriesAreDates(values, widget.categories);
+    final ValueScale? categoryScale = widget.xScale != PlassChartAxisScale.value
+        ? null
+        : dated
+        ? timeScale(
+            categoryExtent(values, widget.categories),
+            min: widget.xAxis.min,
+            max: widget.xAxis.max,
+            tickCount: widget.xAxis.tickCount,
+          )
+        : valueScale(
             categoryExtent(values, widget.categories),
             min: widget.xAxis.min,
             max: widget.xAxis.max,
             tickCount: widget.xAxis.tickCount,
             includeZero: false,
-          )
-        : null;
+          );
 
     final int count = categoryScale?.ticks.length ?? categoryCount(widget.series);
     final List<PlassChartCategory> categories = categoryScale != null
@@ -668,10 +677,23 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
         // starting edge; a vertical one gives it the width of one slot, and a
         // slot too narrow to cut a name to is left for the stride to thin out.
         final double slot = (width - valueBand - 16) / math.max(1, count);
+        // A value-scaled axis writes its own ticks: through `xAxis.format` when
+        // there is one, as the calendar does when they are moments, and as the
+        // numbers they are otherwise.
         final List<String> categoryTexts = fitCategoryLabels(
-          <String>[
-            for (final PlassChartCategory category in categories) categoryText(category, names),
-          ],
+          categoryScale == null
+              ? <String>[
+                  for (final PlassChartCategory category in categories)
+                    categoryText(category, names),
+                ]
+              : widget.xAxis.format != null
+              ? <String>[for (final double tick in categoryScale.ticks) widget.xAxis.format!(tick)]
+              : categoryScale is TimeScale
+              ? formatTimeTicks(categoryScale.ticks, categoryScale.unit, names)
+              : <String>[
+                  for (final PlassChartCategory category in categories)
+                    categoryText(category, names),
+                ],
           horizontal: widget.horizontal,
           slot: slot,
           fontSize: fontSize,

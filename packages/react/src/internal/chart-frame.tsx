@@ -24,6 +24,7 @@ import {
   bandScale,
   categoryAt,
   categoryCount,
+  categoriesAreDates,
   categoryExtent,
   chartFontSizes,
   compactNumber,
@@ -31,6 +32,7 @@ import {
   fitCategoryLabels,
   fitsLast,
   formatCategory,
+  formatTimeTicks,
   markerRadii,
   plotHeights,
   seriesColor,
@@ -38,11 +40,13 @@ import {
   textWidth,
   tickStride,
   toValues,
+  timeScale,
   valueScale,
   writeChartValue,
   type BandScale,
   type ChartValue,
   type PlotBox,
+  type TimeScale,
   type ValueScale
 } from './chart.js';
 import { useDefaults } from './defaults.js';
@@ -996,14 +1000,25 @@ export function CartesianChart({
      runs from 100 to 140 dragged down to zero is a plot with all of its data in
      one corner. */
   const spread = xScale === 'value' ? categoryExtent(shownValues, categories) : null;
-  const categoryScale =
-    xScale === 'value'
-      ? valueScale(spread, {
-          min: categoryAxis?.min,
-          max: categoryAxis?.max,
-          tickCount: categoryAxis?.tickCount,
-          includeZero: false
-        })
+  const dated = xScale === 'value' && categoriesAreDates(values, categories);
+  const categoryScale: ValueScale | null =
+    xScale !== 'value'
+      ? null
+      : dated
+        ? timeScale(spread, {
+            min: categoryAxis?.min,
+            max: categoryAxis?.max,
+            tickCount: categoryAxis?.tickCount
+          })
+        : valueScale(spread, {
+            min: categoryAxis?.min,
+            max: categoryAxis?.max,
+            tickCount: categoryAxis?.tickCount,
+            includeZero: false
+          });
+  const timeTicks =
+    categoryScale && 'unit' in categoryScale
+      ? formatTimeTicks(categoryScale.ticks, (categoryScale as TimeScale).unit, locale)
       : null;
 
   const tickTexts = scale.ticks.map((tick, index) =>
@@ -1032,7 +1047,9 @@ export function CartesianChart({
 
   const rawCategoryTexts = categoryScale
     ? categoryScale.ticks.map((tick, index) =>
-        categoryTickFormat ? String(categoryTickFormat(tick, index)) : compactNumber(tick, locale)
+        categoryTickFormat
+          ? String(categoryTickFormat(dated ? new Date(tick) : tick, index))
+          : (timeTicks?.[index] ?? compactNumber(tick, locale))
       )
     : labelTexts;
 
