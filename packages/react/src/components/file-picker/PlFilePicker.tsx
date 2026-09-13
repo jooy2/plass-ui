@@ -318,6 +318,33 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
     const inert = disabled || readOnly;
     const descriptionId = React.useId();
 
+    /*
+     * The list is what a form submits. The input's own `files` only ever held
+     * the last pick from the dialog: a dropped file was missing from it, a
+     * removed or rejected one was still sent, and a second pick replaced the
+     * first. So the list is written back into the input whenever it changes.
+     * Setting `files` fires no `change`, so this does not feed itself.
+     */
+    const writeInput = React.useCallback((list: File[]) => {
+      const input = inputRef.current;
+
+      if (!input || typeof DataTransfer === 'undefined') {
+        return;
+      }
+
+      const transfer = new DataTransfer();
+
+      for (const file of list) {
+        transfer.items.add(file);
+      }
+
+      input.files = transfer.files;
+    }, []);
+
+    React.useEffect(() => {
+      writeInput(files);
+    }, [files, writeInput]);
+
     const commit = React.useCallback(
       (next: File[]) => {
         if (!value) {
@@ -378,13 +405,11 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
       if (inert) {
         return;
       }
-      // Cleared first, so choosing the same file twice in a row still fires
-      // `change` — the input holds its value otherwise and the second pick is
-      // silently dropped.
-      if (inputRef.current) {
-        inputRef.current.value = '';
-        inputRef.current.click();
-      }
+      // Not cleared first: the input holds the list, and emptying it would
+      // leave a form with nothing to submit if the dialog were then cancelled.
+      // A file taken off the list is taken out of the input too, so picking it
+      // again still fires `change`.
+      inputRef.current?.click();
     };
 
     const zoneClassNames = [
@@ -520,7 +545,13 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
             tabIndex={-1}
             aria-hidden="true"
             className="absolute size-px overflow-hidden opacity-0 [clip-path:inset(50%)]"
-            onChange={(event) => add(Array.from(event.target.files ?? []))}
+            onChange={(event) => {
+              add(Array.from(event.target.files ?? []));
+              // The dialog's pick is in the input now. What was kept comes back
+              // with the list; what was turned away has to leave it here, because
+              // a batch with nothing kept changes no list and runs no effect.
+              writeInput(files);
+            }}
           />
         </div>
 

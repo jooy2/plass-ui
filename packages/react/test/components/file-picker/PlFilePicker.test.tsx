@@ -129,6 +129,45 @@ describe('PlFilePicker', () => {
       expect(screen.getByText('notes.txt').query()).toBeNull();
     });
 
+    it('submits the list with a form, not the last pick from the dialog', async () => {
+      const screen = await render(
+        <form className="form-under-test">
+          <PlFilePicker className="picker-under-test" name="attachments" multiple maxSize={2000} />
+        </form>
+      );
+
+      const input = document.querySelector<HTMLInputElement>(
+        '.picker-under-test input[type="file"]'
+      )!;
+      const submitted = () =>
+        new FormData(document.querySelector<HTMLFormElement>('.form-under-test')!)
+          .getAll('attachments')
+          .map((entry) => (entry as File).name);
+
+      // A pick from the dialog, which is the one thing the input held before.
+      const picked = new DataTransfer();
+      picked.items.add(file('picked.txt'));
+      input.files = picked.files;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      await expect.element(screen.getByText('picked.txt')).toBeInTheDocument();
+
+      // A drop, which the input never saw.
+      drop('.picker-under-test', [file('dropped.txt')]);
+      await expect.element(screen.getByText('dropped.txt')).toBeInTheDocument();
+      await expect.poll(submitted).toEqual(['picked.txt', 'dropped.txt']);
+
+      // A removal, which the input kept.
+      await screen.getByRole('button', { name: 'Remove picked.txt' }).click();
+      await expect.poll(submitted).toEqual(['dropped.txt']);
+
+      // A pick turned away for its size, which the input took anyway.
+      const tooBig = new DataTransfer();
+      tooBig.items.add(file('huge.txt', 'text/plain', 5000));
+      input.files = tooBig.files;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      await expect.poll(submitted).toEqual(['dropped.txt']);
+    });
+
     it('hides the list when `showList` is off', async () => {
       const screen = await render(<PlFilePicker className="picker-under-test" showList={false} />);
 

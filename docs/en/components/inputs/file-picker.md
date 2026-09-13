@@ -178,6 +178,7 @@ Moves the box's padding and the text inside it. The padding has its own ladder r
 
 - The pressable area is a real `<button>`, so it is in the tab order and answers <kbd>Enter</kbd> and <kbd>Space</kbd>. Drag-and-drop is an addition to that, never the only way in.
 - The `<input type="file">` stays in the DOM, clipped off-screen rather than `display: none`. The latter is unfocusable in some browsers and would take the input out of native form validation.
+- The input holds the list as it is shown, so a form with `name` submits the dropped files and not the removed or rejected ones.
 - `description` and `error` are wired to the button with `aria-describedby`; the error also sets `aria-invalid`.
 - The file list is a real `<ul>` outside the browse button, because a remove button cannot be nested inside another button.
 - Each remove button carries an accessible name that includes the file it removes, so a screen reader hears three different buttons rather than three called "Remove".
