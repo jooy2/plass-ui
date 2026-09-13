@@ -650,7 +650,9 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
         className={cx(
           'relative flex shrink-0 items-center select-none',
           iconClasses,
-          draggable && !maximized ? 'cursor-grab active:cursor-grabbing' : ''
+          // `touch-none` while it moves the window: a finger's drag is the
+          // window's, not a pan the browser takes and ends with `pointercancel`.
+          draggable && !maximized ? 'cursor-grab touch-none active:cursor-grabbing' : ''
         )}
         style={{
           height: metrics.bar,

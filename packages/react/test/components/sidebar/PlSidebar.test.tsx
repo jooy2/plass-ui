@@ -163,6 +163,8 @@ describe('PlSidebar', () => {
       expect(handle).toHaveAttribute('aria-orientation', 'vertical');
       expect(handle).toHaveAttribute('aria-label', 'Resize sidebar');
       expect(handle).toHaveAttribute('tabindex', '0');
+      // A finger's drag is the handle's, not a pan the browser takes over.
+      expect(handle).toHaveClass('touch-none');
     });
 
     it('moves the edge on an arrow key and reports the width', async () => {

@@ -62,6 +62,23 @@ describe('PlWindowPane', () => {
     });
   });
 
+  describe('dragging', () => {
+    it("keeps a finger's drag on the bar only while the bar moves the window", async () => {
+      const screen = await render(
+        <PlWindowPane title="Notes" draggable>
+          Body
+        </PlWindowPane>
+      );
+      const bar = () => screen.getByText('Notes').element().closest('.select-none');
+
+      expect(bar()).toHaveClass('touch-none');
+
+      await screen.getByRole('button', { name: 'Maximize' }).click();
+
+      await expect.poll(() => bar()?.classList.contains('touch-none')).toBe(false);
+    });
+  });
+
   describe('the buttons', () => {
     it('closes the window, which renders nothing', async () => {
       const screen = await render(<PlWindowPane title="Notes">Body</PlWindowPane>);

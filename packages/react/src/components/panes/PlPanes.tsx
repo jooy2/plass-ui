@@ -371,6 +371,9 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
       resizable
         ? cx(
             horizontal ? 'cursor-col-resize' : 'cursor-row-resize',
+            // A finger's drag is the handle's, not a pan the browser takes
+            // after a few pixels and ends with `pointercancel`.
+            'touch-none',
             'hover:bg-(--p-soft) data-[dragging]:bg-(--p-soft)'
           )
         : ''

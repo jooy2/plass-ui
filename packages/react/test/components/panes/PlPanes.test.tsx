@@ -144,6 +144,8 @@ describe('PlPanes', () => {
       );
 
       expect(handles()[0]).toHaveAttribute('tabindex', '0');
+      // A finger's drag is the handle's, not a pan the browser takes over.
+      expect(handles()[0]).toHaveClass('touch-none');
     });
 
     it('leaves the tab order when the split is a layout rather than a control', async () => {

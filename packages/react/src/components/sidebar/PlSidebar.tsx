@@ -473,7 +473,9 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
               // one pixel wide is a target one pixel wide, which is not a
               // target. The same split between what is drawn and what can be
               // grabbed that a scrollbar makes, and that `PlPanes` makes.
-              'absolute inset-y-0 z-1 w-2 cursor-col-resize',
+              // `touch-none`: a finger's drag is the handle's, not a pan the
+              // browser takes after a few pixels and ends with `pointercancel`.
+              'absolute inset-y-0 z-1 w-2 cursor-col-resize touch-none',
               side === 'start' ? 'end-0 -me-1' : 'start-0 -ms-1',
               'bg-transparent hover:bg-(--p-soft) data-[dragging]:bg-(--p-soft)',
               transitionClasses,
