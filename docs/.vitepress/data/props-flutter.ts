@@ -1969,6 +1969,22 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }),
     from('PlImage', 'rotate', { type: 'int', default: '0' }),
     from('PlImage', 'flip', { type: 'PlImageFlip', default: 'PlImageFlip.none' }),
+    from('PlImage', 'filter', {
+      type: 'PlImageFilter',
+      default: 'PlImageFilter.none',
+      description: {
+        ko: '사진에 얹는 처리. 이름 붙은 여섯 가지 중 하나이고, 직접 만든 처리는 colorFilter로 줍니다',
+        en: 'A treatment laid over the picture: one of the six names. A treatment of your own goes in colorFilter'
+      }
+    }),
+    {
+      name: 'colorFilter',
+      type: 'ColorFilter?',
+      description: {
+        ko: '이름 붙은 filter 대신 쓰는 직접 만든 ColorFilter. 둘 다 주면 이쪽이 이깁니다. React의 CSS filter 체인에 해당합니다',
+        en: "Any ColorFilter of your own, in place of a named filter, and it wins where both are given. The counterpart of React's CSS filter chain"
+      }
+    },
     from('PlImage', 'rounded', { type: 'bool', default: 'false' }),
     from('PlImage', 'size', { type: SIZE, default: 'PlassSize.md' }),
     from('PlImage', 'color', { type: COLOR, default: 'PlassColor.primary' }),
@@ -1981,6 +1997,13 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlImage', 'fallback', { type: 'Widget?' }),
+    from('PlImage', 'watermark', {
+      type: 'PlImageWatermark?',
+      description: {
+        ko: '사진 위에 얹는 표식. PlImageWatermark에 문구와 위치를 적고, placement: PlImageWatermarkPlacement.tile이면 전체를 덮습니다',
+        en: 'A mark laid over the picture. PlImageWatermark says what it reads and where; placement: PlImageWatermarkPlacement.tile covers the whole of it'
+      }
+    }),
     from('PlImage', 'preview', { type: 'bool', default: 'false' }),
     from('PlImage', 'previewLabel', { type: 'String', default: "'Preview'" }),
     from('PlImage', 'onStatusChange', {
