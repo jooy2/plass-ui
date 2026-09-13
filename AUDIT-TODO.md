@@ -50,13 +50,11 @@ cd docs && npm run typecheck && npm run lint && npx prettier --check . && npm ru
 | 4     | `4885268c..c99f09c1` | 72, 75, 76, 85, 86, 88, 90, 91, 92, 94, 95, 98, 101, 103, 113, 114, 116, 122, 123, 127                |
 | 5     | `29684cc1..8e75337c` | 82, 129, 132, 135, 146, 147, 149, 155, 157, 158, 159, 163, 166, 167, 174, 175, 176, 177, 182, 183     |
 
+The answers to batch 4's questions went in as `363c243b..2a8fb470`: the decode half of item 100, the `PlAnimateTyping` caret, and a `headingLevel` for `PlCard` with the card page corrected.
+
+**First in batch 6, approved and not counted towards its twenty: Flutter fields lose their text input connection when they take the focus.** `PlTextField`, `PlCombobox` and `PlNumberField` wrap their shell in a `CustomPaint` only while focused (`if (_focused) { shell = CustomPaint(...) }`). That changes the widget type above the `EditableText`, which is then built again, and the new editor has no text input connection: in a widget test, `tester.testTextInput.hasAnyClients` goes false on the frame after the focus arrives. `PlCombobox` with `multiple` changes the tree above the editor again when its first chip appears. Keep the `CustomPaint` in the tree and change only its painter, keep the editor's position in the tree stable, and add a test per field that types after the field takes the focus, without calling `showKeyboard` again. Then remove the `showKeyboard` workaround from the `Enter` tests in `test/components/combobox/pl_combobox_test.dart`.
+
 ## Waiting for an answer
-
-Asked at the end of batch 4.
-
-1. **Item 100, how Flutter decodes pictures.** `PlAvatar` is simple, but a gallery tile draws through `PlImage`, so fixing the gallery means `PlImage` decoding at the size it draws too. Wrapping a provider the caller already wrapped in `ResizeImage` a second time fails a debug assertion. The proposal is an internal decode wrapper for `PlAvatar`, `PlImage` and the gallery viewer that leaves a `ResizeImage` alone, with the gallery building every tile at once handled as a separate item. Go ahead?
-1. **`PlAnimateTyping`'s caret, found while fixing item 85.** The caret is a `Text` inside a `WidgetSpan`, and the paragraph already scales a widget span by the reader's text size, so at 200% the caret character is drawn at twice the size of the text. The fix is `textScaler: TextScaler.noScaling` on the caret's `Text` in `_Caret`, in `packages/flutter/lib/src/components/animate_typing/pl_animate_typing.dart`. Fix it?
-1. **The heading row in the card page's Flutter differences table.** `docs/en/components/surfaces/card.md:235` and its Korean twin say Flutter's semantics tree has no heading depth, but `Semantics.headingLevel` exists, and item 114 uses it. Fix only the documentation, or also give `PlCard`'s title a level?
 
 Asked at the end of batch 5. The flagged items are the ones batches 1 to 5 passed over; each item's own entry below has the details and the proposal.
 
@@ -77,7 +75,6 @@ Asked at the end of batch 5. The flagged items are the ones batches 1 to 5 passe
 1. **Item 128, a Flutter toast with `low` priority.** Make every toast a live region and express the priority with `Assertiveness`? The docs and a test currently say `low` is not a live region on purpose.
 1. **Item 168, the floating action button and the safe area.** Should the component add the safe area to its offset, or should the caller?
 1. **Item 178, a name for each `PlOtpField` cell.** A name such as "Character 2 of 6" needs a translated string with values in it, so it waits on item 12. Take it with item 12?
-1. **Found in passing: Flutter fields lose their text input connection when they take the focus.** `PlTextField`, `PlCombobox` and `PlNumberField` wrap their shell in a `CustomPaint` only while focused. That changes the widget type above the `EditableText`, which is then built again, and the new editor has no text input connection. A widget test shows the connection closing on the frame after the focus arrives; the browser tool could not confirm it on the published site. The proposal is to keep the `CustomPaint` in the tree and change only its painter, with a test that types into each field after it takes the focus. Fix it as a High item in the next batch?
 1. **Found in passing: the Flutter calendar header names.** The month and year buttons pass `semanticLabel: labels.chooseMonth` and `chooseYear`, which are merged ahead of the drawn text, so they read "Choose a month, July". This is item 146 on the Flutter side. Put the drawn text first and the purpose in a hint?
 1. **Found in passing: the `PlFilePicker` button name runs two words together.** Chromium joins the title and the hint with no space, so the name ends "…click to browsePDF only". Describe the button with the hint through `aria-describedby`, or keep it in the name with a separator?
 1. **Found in passing: the Korean pagination page.** The Flutter Accessibility block in `docs/ko/components/inputs/pagination.md` has a bullet about fewer than two pages that the English block does not. Move it to match the English page?
@@ -332,9 +329,10 @@ None. Every flagged item passed over so far is asked above.
   - Problem: It sits 2px from the label button or the trigger, so it does not qualify for the spacing exception either. On touch screens it is easy to mix up opening and clearing.
   - Proposal: Keep the visible size, and widen only the hit area to 24px with a pseudo-element or transparent padding.
 - [ ] **100.** Flutter `PlAvatar` and `PlGallery` decode images at full resolution (Performance · Flutter · Medium)
-  - Location: `avatar/pl_avatar.dart:256`, `gallery/pl_gallery.dart:786` and `_tile`
-  - Problem: A 1024px photo in a 40px avatar decodes about 4MB per image. A gallery of 60 12-megapixel photos decodes about 48MB per image, and the gallery builds every tile at once.
-  - Proposal: Decode at the box size × `devicePixelRatio` with `ResizeImage.resizeIfNeeded`.
+  - Location: `gallery/pl_gallery.dart` (`LayoutBuilder` board and `_tile`)
+  - Done in `eaabbe83`: `PlAvatar`, `PlImage` and the gallery viewer decode at the size they are drawn, through `internal/decode.dart`.
+  - Problem left: the gallery builds every tile at once, so a gallery of 60 pictures asks for 60 decodes before any of them is on screen.
+  - Proposal: Build only the tiles near the view, and take the item when that is done.
 - [x] **101.** The `rel` merge for new-tab links is skipped on some code paths (Security · React · Medium)
 - [ ] **102.** The `PlTextLink` `icon` row in the Flutter props table inherits React's true/false description (Docs · Docs · Low)
   - Location: `docs/.vitepress/data/props-flutter.ts:5297`
