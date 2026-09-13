@@ -35,7 +35,7 @@ PlBarChart(series: revenue, categories: regions);
 
 <PropsTable name="PlBarChart" />
 
-데이터는 모든 차트가 받는 같은 [`PlassChartSeries`](./line-chart#plasschartseries)입니다. 여기서도 `null`은 빈 곳이고, 그런 값에는 막대를 **그리지 않습니다**. 이 차트에서 가장 중요한 구분입니다. 길이 0인 막대와 없는 막대는 같은 그림이고, 그중 정직한 것은 하나뿐이기 때문입니다.
+데이터는 모든 차트가 받는 같은 [`PlassChartSeries`](./line-chart#plasschartseries)이고, `xAxis`, `yAxis`, `legend`, `tooltip`이 받는 옵션은 [line chart 페이지](./line-chart#props)에 함께 있습니다. 여기서도 `null`은 빈 곳이고, 그런 값에는 막대를 **그리지 않습니다**. 이 차트에서 가장 중요한 구분입니다. 길이 0인 막대와 없는 막대는 같은 그림이고, 그중 정직한 것은 하나뿐이기 때문입니다.
 
 라이브러리 전체에서 공유 축이 뜻하는 바는 [prop 규약](../../design/prop-conventions)에 있습니다.
 

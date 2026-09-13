@@ -1715,6 +1715,60 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlLineChart', 'empty', { type: 'Widget?' }),
     from('PlLineChart', 'size', { type: SIZE, default: 'PlassSize.md' })
   ],
+  PlassChartAxis: [
+    from('PlassChartAxis', 'hidden', { type: 'bool', default: 'false' }),
+    from('PlassChartAxis', 'label', { type: 'String?' }),
+    from('PlassChartAxis', 'grid', {
+      type: 'bool',
+      default: 'true',
+      description: {
+        ko: '이 축의 tick마다 plot을 가로지르는 격자선. 값 축에서만 읽습니다',
+        en: 'The gridlines this axis casts across the plot at its ticks. Read on the value axis only'
+      }
+    }),
+    from('PlassChartAxis', 'min', { type: 'double?' }),
+    from('PlassChartAxis', 'max', { type: 'double?' }),
+    from('PlassChartAxis', 'tickCount', { type: 'int', default: '5' }),
+    from('PlassChartAxis', 'tickFormat', {
+      name: 'format',
+      type: 'String Function(double value)?',
+      description: { ko: 'tick을 쓰는 방식', en: 'How a tick is written' }
+    }),
+    from('PlassChartAxis', 'thickness', { type: 'double?' })
+  ],
+  PlassChartLegend: [
+    {
+      name: 'hidden',
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '범례를 그리지 않습니다. React의 `legend={false}`입니다',
+        en: "Draws no legend. React's `legend={false}`"
+      }
+    },
+    from('PlassChartLegend', 'side', { type: 'PlassSide', default: 'PlassSide.bottom' }),
+    from('PlassChartLegend', 'align', { type: 'PlassAlign', default: 'PlassAlign.center' }),
+    from('PlassChartLegend', 'interactive', { type: 'bool', default: 'true' })
+  ],
+  PlassChartTooltip: [
+    from('PlassChartTooltip', 'mode', {
+      type: 'PlassChartTooltipMode',
+      default: 'PlassChartTooltipMode.column',
+      description: {
+        ko: '`column`은 포인터 아래 category의 모든 series, `item`은 가리킨 mark 하나, `none`은 툴팁 없음입니다. React의 `index`가 `column`인 것은 Dart enum에 이미 `index`가 있기 때문입니다',
+        en: "`column` is every series at the category under the pointer, `item` the one mark being pointed at, and `none` no tooltip. React's `index` is `column` because every Dart enum already has an `index`"
+      }
+    }),
+    {
+      name: 'hidden',
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '툴팁을 그리지 않습니다. React의 `tooltip={false}`입니다',
+        en: "Draws no tooltip. React's `tooltip={false}`"
+      }
+    }
+  ],
   PlassChartSeries: [
     from('PlassChartSeries', 'data', { type: 'List<PlassChartDatum>', required: true }),
     from('PlassChartSeries', 'name', { type: 'String?' }),

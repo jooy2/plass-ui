@@ -83,6 +83,20 @@ A closed union rather than React's `number | null | object`, which is what Dart 
 
 :::
 
+### <Fw react="PlassChartAxis" flutter="PlChartAxis" />
+
+`xAxis` is the category axis and `yAxis` the value axis on every chart, in either orientation: a bar chart turned on its side keeps its options on the same prop.
+
+<PropsTable name="PlassChartAxis" />
+
+### <Fw react="PlassChartLegend" flutter="PlChartLegend" />
+
+<PropsTable name="PlassChartLegend" />
+
+### <Fw react="PlassChartTooltip" flutter="PlChartTooltip" />
+
+<PropsTable name="PlassChartTooltip" />
+
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
 ## Examples

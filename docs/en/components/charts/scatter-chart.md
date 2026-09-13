@@ -35,7 +35,7 @@ There is no column a mark belongs to and no order the points could be shuffled o
 
 <PropsTable name="PlScatterChart" />
 
-Each point's `x` must be a number or a date. Text has no place on a number line, and a chart of named things against one measure is a [bar chart](./bar-chart).
+Each point's `x` must be a number or a date. Text has no place on a number line, and a chart of named things against one measure is a [bar chart](./bar-chart). `xAxis`, `yAxis`, `legend` and `tooltip` take the options listed on the [line chart page](./line-chart#props).
 
 Neither axis is forced to zero. What a position encodes is a place, so cropping a scale slides every mark by the same amount and the shape of the cloud survives, which is not true of a bar, whose length _is_ its value.
 

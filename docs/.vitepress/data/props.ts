@@ -13744,6 +13744,134 @@ export const propTables: Record<string, PropRow[]> = {
       }
     }
   ],
+  PlassChartAxis: [
+    {
+      name: 'hidden',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '축을 그리지 않고 그 자리를 plot에 돌려줍니다. 선, tick, 라벨이 모두 빠집니다',
+        en: 'Leaves the axis undrawn, its rule, ticks and labels, and gives its room back to the plot'
+      }
+    },
+    {
+      name: 'label',
+      type: 'ReactNode',
+      description: {
+        ko: '축이 무엇을 재는지, 축 옆에 쓰는 이름',
+        en: 'A name for what the axis measures, set beside it'
+      }
+    },
+    {
+      name: 'grid',
+      type: 'boolean',
+      description: {
+        ko: '이 축의 tick마다 plot을 가로지르는 격자선. `yAxis`는 기본으로 켜지고, `xAxis`는 x가 값을 잴 때만 켜집니다',
+        en: 'The gridlines this axis casts across the plot at its ticks. On by default for `yAxis`, and for `xAxis` only when the x axis measures'
+      }
+    },
+    {
+      name: 'min',
+      type: 'number',
+      description: {
+        ko: '눈금이 시작하는 값. 주면 0을 넣는 규칙이 꺼집니다. 0이 정말 기준선이 아닐 때만 주십시오',
+        en: 'Where the scale starts. Giving it turns off the rule that keeps zero in range; set it only when zero is genuinely not the baseline'
+      }
+    },
+    {
+      name: 'max',
+      type: 'number',
+      description: { ko: '눈금이 끝나는 값', en: 'Where the scale ends' }
+    },
+    {
+      name: 'tickCount',
+      type: 'number',
+      default: '5',
+      description: {
+        ko: '대략 몇 개의 tick을 둘지. 눈금은 깔끔한 수로 반올림되므로 정확히 이 수가 되지는 않습니다',
+        en: 'Roughly how many ticks. The scale still rounds to clean numbers, so what comes out is near this rather than on it'
+      }
+    },
+    {
+      name: 'tickFormat',
+      type: '(value: PlassChartCategory, index: number) => ReactNode',
+      description: {
+        ko: 'tick을 쓰는 방식. 차트의 `format`보다 우선합니다',
+        en: "How a tick is written, overriding the chart's own `format`"
+      }
+    },
+    {
+      name: 'thickness',
+      type: 'number',
+      description: {
+        ko: '축이 tick과 라벨을 위해 남기는 폭(px). 주지 않으면 tick에서 잽니다. 긴 category 이름이나 대시보드에서 plot을 나란히 맞출 때 씁니다',
+        en: 'How much room the axis keeps for its ticks and its label, in pixels. Measured from the ticks otherwise; set it for a long category name, or to line up the plots of two stacked charts'
+      }
+    }
+  ],
+  PlassChartLegend: [
+    {
+      name: 'side',
+      type: "'top' | 'bottom' | 'left' | 'right'",
+      default: "'bottom'",
+      description: {
+        ko: 'plot의 어느 가장자리에 둘지. 좌우에 두면 항목을 세로로 쌓습니다',
+        en: 'Which edge of the plot. Beside it, the entries stack in a column'
+      }
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'center'",
+      description: { ko: '그 가장자리의 어디에 둘지', en: 'Where along that edge' }
+    },
+    {
+      name: 'interactive',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '항목을 누르면 그 series를 끄고 켜며, 올려 두면 나머지를 흐리게 합니다',
+        en: 'Pressing an entry hides and shows its series, and hovering one dims the rest'
+      }
+    },
+    {
+      name: 'showValue',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '각 series의 현재 값을 이름 옆에 씁니다',
+        en: "Draws each series' current value beside its name"
+      }
+    }
+  ],
+  PlassChartTooltip: [
+    {
+      name: 'mode',
+      type: "'index' | 'item' | 'none'",
+      default: "'index'",
+      description: {
+        ko: '`index`는 포인터 아래 category의 모든 series, `item`은 가리킨 mark 하나, `none`은 툴팁 없음입니다. mark를 그리는 차트는 기본이 `item`입니다',
+        en: '`index` is every series at the category under the pointer, `item` the one mark being pointed at, and `none` no tooltip. A chart of marks defaults to `item`'
+      }
+    },
+    {
+      name: 'crosshair',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '활성 category에 plot을 가로지르는 선. `index` 모드에서만, mark 차트가 아닐 때만 그립니다',
+        en: 'The line dropped through the plot at the active category. Drawn in `index` mode only, and never on a chart of marks'
+      }
+    },
+    {
+      name: 'render',
+      type: '(context: PlassChartTooltipContext) => ReactNode',
+      description: {
+        ko: '툴팁 패널을 직접 그립니다. category, 그 자리의 index, 보이는 series의 값을 받습니다',
+        en: 'Draws the panel yourself. It is handed the category, its index and the visible series with a value there'
+      }
+    }
+  ],
   PlCodeBlock: [
     {
       name: 'code',

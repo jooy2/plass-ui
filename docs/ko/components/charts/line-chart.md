@@ -83,6 +83,20 @@ React의 `number | null | object` 대신 닫힌 union입니다. union 타입이 
 
 :::
 
+### <Fw react="PlassChartAxis" flutter="PlChartAxis" />
+
+모든 차트에서 `xAxis`는 category 축, `yAxis`는 값 축이며 방향과 관계없습니다. 막대 차트를 옆으로 눕혀도 옵션은 같은 prop에 그대로 둡니다.
+
+<PropsTable name="PlassChartAxis" />
+
+### <Fw react="PlassChartLegend" flutter="PlChartLegend" />
+
+<PropsTable name="PlassChartLegend" />
+
+### <Fw react="PlassChartTooltip" flutter="PlChartTooltip" />
+
+<PropsTable name="PlassChartTooltip" />
+
 라이브러리 전체에서 공유 축이 뜻하는 바는 [prop 규약](../../design/prop-conventions)에 있습니다.
 
 ## Examples
