@@ -342,6 +342,25 @@ interface HeaderProps {
   showNextButton: boolean;
   onStep: (direction: -1 | 1) => void;
   onViewChange: (view: CalendarView) => void;
+  /** The prefix of the ids the grid is labelled by. See `headingIds`. */
+  id: string;
+}
+
+/**
+ * The ids of what the header shows in `view`, in the order it shows them, which
+ * is what the grid under it is labelled by: `July 2026` over the days, `2026`
+ * over the months, the page range over the years.
+ */
+function headingIds(id: string, view: CalendarView, locale: string | undefined): string {
+  if (view === 'year') {
+    return `${id}-range`;
+  }
+
+  if (view === 'month') {
+    return `${id}-year`;
+  }
+
+  return isMonthBeforeYear(locale) ? `${id}-month ${id}-year` : `${id}-year ${id}-month`;
 }
 
 /**
@@ -373,7 +392,8 @@ function Header({
   showPreviousButton,
   showNextButton,
   onStep,
-  onViewChange
+  onViewChange,
+  id
 }: HeaderProps) {
   const monthName = monthLabels(locale, 'long')[month.getMonth()];
   const yearName = String(month.getFullYear());
@@ -424,14 +444,18 @@ function Header({
     </span>
   );
 
+  // Named by the month and the year they show, and described by what they do.
+  // A name of "Choose a month" would hide which month is on screen, and a voice
+  // command saying the word on the button would not find it.
   const monthButton = (
     <PlButton
       key="month"
+      id={`${id}-month`}
       variant="ghost"
       size={size}
       color={color}
       density="compact"
-      aria-label={labels.chooseMonth}
+      aria-describedby={`${id}-month-hint`}
       aria-expanded={view === 'month'}
       onClick={() => onViewChange(view === 'month' ? precision : 'month')}
       endIcon={disclosure(view === 'month')}
@@ -443,12 +467,13 @@ function Header({
   const yearButton = (
     <PlButton
       key="year"
+      id={`${id}-year`}
       variant="ghost"
       size={size}
       color={color}
       density="compact"
       className="tabular-nums"
-      aria-label={labels.chooseYear}
+      aria-describedby={`${id}-year-hint`}
       aria-expanded={view === 'year'}
       onClick={() => onViewChange(view === 'year' ? precision : 'year')}
       endIcon={disclosure(view === 'year')}
@@ -468,6 +493,7 @@ function Header({
           // A range, not a control: there is nothing above a page of years to
           // open. It keeps the row's height so switching views never moves it.
           <span
+            id={`${id}-range`}
             className={cx(
               'flex items-center font-semibold tabular-nums text-(--plass-fg)',
               controlHeightClasses[size],
@@ -492,6 +518,13 @@ function Header({
       </div>
 
       {stepper(1, showNextButton)}
+
+      <span id={`${id}-month-hint`} hidden>
+        {labels.chooseMonth}
+      </span>
+      <span id={`${id}-year-hint`} hidden>
+        {labels.chooseYear}
+      </span>
     </div>
   );
 }
@@ -588,6 +621,7 @@ export function Calendar({
   labels,
   className
 }: CalendarProps) {
+  const id = React.useId();
   const [openedView, setView] = React.useState<CalendarView>(precision);
   // Clamped rather than stored raw, so a `precision` that tightens after the
   // calendar is already up cannot leave a day grid on screen in a month picker.
@@ -693,12 +727,14 @@ export function Calendar({
         showNextButton={showNextButton}
         onStep={step}
         onViewChange={changeView}
+        id={id}
       />
 
       {/* Seven rows of cells, whichever view is drawn into it. */}
       <div className="h-[calc(var(--p-cell)*7)] w-[calc(var(--p-cell)*7)]">
         {view === 'day' ? (
           <DayGrid
+            labelledBy={headingIds(id, view, locale)}
             size={size}
             locale={locale}
             weekStartsOn={weekStartsOn}
@@ -718,6 +754,7 @@ export function Calendar({
           />
         ) : view === 'month' ? (
           <MonthGrid
+            labelledBy={headingIds(id, view, locale)}
             size={size}
             locale={locale}
             month={month}
@@ -742,6 +779,7 @@ export function Calendar({
           />
         ) : (
           <YearGrid
+            labelledBy={headingIds(id, view, locale)}
             size={size}
             month={month}
             chosen={chosen}
@@ -783,6 +821,8 @@ function orderedRange(a: Date | null, b: Date | null): [Date, Date] | null {
 }
 
 interface DayGridProps {
+  /** The ids of the header text that names the grid. */
+  labelledBy: string;
   size: PlassSize;
   locale: string | undefined;
   weekStartsOn: PlassWeekday;
@@ -799,6 +839,7 @@ interface DayGridProps {
 }
 
 function DayGrid({
+  labelledBy,
   size,
   locale,
   weekStartsOn,
@@ -844,7 +885,7 @@ function DayGrid({
   };
 
   return (
-    <div role="grid" className="flex h-full flex-col">
+    <div role="grid" aria-labelledby={labelledBy} className="flex h-full flex-col">
       <div role="row" className="grid grid-cols-7">
         {short.map((label, index) => (
           <span
@@ -923,6 +964,8 @@ function DayGrid({
 }
 
 interface MonthGridProps {
+  /** The ids of the header text that names the grid. */
+  labelledBy: string;
   size: PlassSize;
   locale: string | undefined;
   month: Date;
@@ -941,6 +984,7 @@ interface MonthGridProps {
  * button follows, which is one fewer thing for the reader to keep track of.
  */
 function MonthGrid({
+  labelledBy,
   size,
   locale,
   month,
@@ -978,7 +1022,7 @@ function MonthGrid({
     // The rows are spread over the height the day view occupies rather than
     // stretched to fill it: the popup keeps its size across a view change, and a
     // month cell stays a cell rather than becoming a panel.
-    <div role="grid" className="flex h-full flex-col justify-evenly">
+    <div role="grid" aria-labelledby={labelledBy} className="flex h-full flex-col justify-evenly">
       {[0, 1, 2, 3].map((row) => (
         <div role="row" key={row} className="grid grid-cols-3 gap-1">
           {[0, 1, 2].map((column) => {
@@ -1013,6 +1057,8 @@ function MonthGrid({
 }
 
 interface YearGridProps {
+  /** The ids of the header text that names the grid. */
+  labelledBy: string;
   size: PlassSize;
   month: Date;
   chosen: Date[];
@@ -1023,7 +1069,16 @@ interface YearGridProps {
 }
 
 /** Twelve years, four across, and the same trick with the cursor. */
-function YearGrid({ size, month, chosen, minDate, maxDate, onMoveCursor, onPick }: YearGridProps) {
+function YearGrid({
+  labelledBy,
+  size,
+  month,
+  chosen,
+  minDate,
+  maxDate,
+  onMoveCursor,
+  onPick
+}: YearGridProps) {
   const pageStart = yearPageStart(month.getFullYear());
   const now = new Date().getFullYear();
 
@@ -1047,7 +1102,7 @@ function YearGrid({ size, month, chosen, minDate, maxDate, onMoveCursor, onPick 
   };
 
   return (
-    <div role="grid" className="flex h-full flex-col justify-evenly">
+    <div role="grid" aria-labelledby={labelledBy} className="flex h-full flex-col justify-evenly">
       {[0, 1, 2].map((row) => (
         <div role="row" key={row} className="grid grid-cols-4 gap-1">
           {[0, 1, 2, 3].map((column) => {

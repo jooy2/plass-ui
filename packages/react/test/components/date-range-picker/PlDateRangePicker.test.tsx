@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlDateRangePicker, type PlDateRange } from 'plass-ui';
-import { fullDate, mediumDate } from '../../support/dates';
+import { fullDate, headerButtons, mediumDate } from '../../support/dates';
 
 const JULY = { start: new Date(2026, 6, 10), end: new Date(2026, 6, 20) };
 const JULY_15 = new Date(2026, 6, 15);
@@ -54,28 +54,22 @@ describe('PlDateRangePicker', () => {
 
   describe('the two panels', () => {
     it('shows two months, a month apart', async () => {
-      const screen = await render(
-        <PlDateRangePicker locale="en-GB" defaultValue={JULY} defaultOpen />
-      );
+      await render(<PlDateRangePicker locale="en-GB" defaultValue={JULY} defaultOpen />);
 
-      await vi.waitFor(() =>
-        expect(screen.getByRole('button', { name: 'Choose a month' }).elements()).toHaveLength(2)
-      );
+      await vi.waitFor(() => expect(headerButtons()).toHaveLength(2));
 
-      const [left, right] = screen.getByRole('button', { name: 'Choose a month' }).elements();
+      const [left, right] = headerButtons();
 
       expect(left.textContent).toContain('July');
       expect(right.textContent).toContain('August');
     });
 
     it('shows one when asked', async () => {
-      const screen = await render(
+      await render(
         <PlDateRangePicker locale="en-GB" defaultValue={JULY} defaultOpen monthCount={1} />
       );
 
-      await vi.waitFor(() =>
-        expect(screen.getByRole('button', { name: 'Choose a month' }).elements()).toHaveLength(1)
-      );
+      await vi.waitFor(() => expect(headerButtons()).toHaveLength(1));
     });
 
     it('gives the pair one back stepper and one forward stepper', async () => {
@@ -97,7 +91,7 @@ describe('PlDateRangePicker', () => {
       await screen.getByRole('button', { name: 'Next month' }).click();
 
       await vi.waitFor(() => {
-        const [left, right] = screen.getByRole('button', { name: 'Choose a month' }).elements();
+        const [left, right] = headerButtons();
 
         expect(left.textContent).toContain('August');
         expect(right.textContent).toContain('September');

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlDatePicker } from 'plass-ui';
-import { fullDate, mediumDate, monthAndYear } from '../../support/dates';
+import { fullDate, headerButtons, mediumDate, monthAndYear } from '../../support/dates';
 
 /** A fixed day to work against, so nothing here depends on when it is run. */
 const JULY_27 = new Date(2026, 6, 27);
@@ -87,16 +87,45 @@ describe('PlDatePicker', () => {
 
   describe('the calendar', () => {
     it('opens on the chosen month', async () => {
+      await render(<PlDatePicker locale="en-GB" defaultValue={JULY_27} defaultOpen />);
+
+      await vi.waitFor(() => expect(headerButtons()).toHaveLength(1));
+
+      expect(headerButtons()[0].textContent).toBe('July');
+      expect(headerButtons('Choose a year')[0].textContent).toBe('2026');
+    });
+
+    it('names the header buttons with the month and the year they show', async () => {
+      const screen = await render(
+        <PlDatePicker locale="en-GB" defaultValue={JULY_27} defaultOpen />
+      );
+
+      // The words on screen are the name, so a reader hears which month it is
+      // and a voice command can say "July". What the button does is described.
+      await expect
+        .element(screen.getByRole('button', { name: 'July', exact: true }))
+        .toHaveAttribute('aria-expanded', 'false');
+      await expect
+        .element(screen.getByRole('button', { name: '2026', exact: true }))
+        .toHaveAttribute('aria-expanded', 'false');
+      expect(headerButtons()).toHaveLength(1);
+      expect(headerButtons('Choose a year')).toHaveLength(1);
+    });
+
+    it('names the grid after the header', async () => {
       const screen = await render(
         <PlDatePicker locale="en-GB" defaultValue={JULY_27} defaultOpen />
       );
 
       await expect
-        .element(screen.getByRole('button', { name: 'Choose a month' }))
-        .toHaveTextContent('July');
+        .element(screen.getByRole('grid', { name: 'July 2026', exact: true }))
+        .toBeInTheDocument();
+
+      await screen.getByRole('button', { name: '2026', exact: true }).click();
+
       await expect
-        .element(screen.getByRole('button', { name: 'Choose a year' }))
-        .toHaveTextContent('2026');
+        .element(screen.getByRole('grid', { name: /^\d{4}\D\d{4}$/ }))
+        .toBeInTheDocument();
     });
 
     it('always draws six weeks, so stepping a month never resizes it', async () => {
@@ -158,9 +187,7 @@ describe('PlDatePicker', () => {
 
       await screen.getByRole('button', { name: 'Next month' }).click();
 
-      await expect
-        .element(screen.getByRole('button', { name: 'Choose a month' }))
-        .toHaveTextContent('August');
+      await vi.waitFor(() => expect(headerButtons()[0]?.textContent).toBe('August'));
     });
 
     it('opens the month grid and the year grid from the header', async () => {
@@ -168,7 +195,7 @@ describe('PlDatePicker', () => {
         <PlDatePicker locale="en-GB" defaultValue={JULY_27} defaultOpen />
       );
 
-      await screen.getByRole('button', { name: 'Choose a year' }).click();
+      await screen.getByRole('button', { name: '2026', exact: true }).click();
 
       // Twelve years at a time, so any year at all is three clicks away.
       await expect.element(screen.getByRole('gridcell', { name: '2020' })).toBeInTheDocument();
@@ -182,9 +209,11 @@ describe('PlDatePicker', () => {
     });
 
     it('writes the header in the order the locale does', async () => {
-      const screen = await render(<PlDatePicker locale="ko" defaultValue={JULY_27} defaultOpen />);
-      const header = screen.getByRole('button', { name: 'Choose a year' }).element();
-      const monthButton = screen.getByRole('button', { name: 'Choose a month' }).element();
+      await render(<PlDatePicker locale="ko" defaultValue={JULY_27} defaultOpen />);
+      await vi.waitFor(() => expect(headerButtons()).toHaveLength(1));
+
+      const header = headerButtons('Choose a year')[0];
+      const monthButton = headerButtons()[0];
 
       // `2026년 7월`: the year comes first in Korean.
       expect(
@@ -273,7 +302,7 @@ describe('PlDatePicker', () => {
 
       // The day grid is unreachable, and so is the button that would open it.
       expect(screen.getByRole('gridcell', { name: fullDate(JULY_27) }).query()).toBeNull();
-      expect(screen.getByRole('button', { name: 'Choose a month' }).query()).toBeNull();
+      expect(headerButtons()).toHaveLength(0);
     });
 
     it('commits the 1st of the month it was handed', async () => {
@@ -304,7 +333,7 @@ describe('PlDatePicker', () => {
         <PlDatePicker locale="en-GB" precision="month" defaultValue={JULY_27} defaultOpen />
       );
 
-      await screen.getByRole('button', { name: 'Choose a year' }).click();
+      await screen.getByRole('button', { name: '2026', exact: true }).click();
       await screen.getByRole('gridcell', { name: '2020' }).click();
 
       await expect

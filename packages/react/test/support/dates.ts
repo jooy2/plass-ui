@@ -23,3 +23,21 @@ export function mediumDate(date: Date, locale = 'en-GB'): string {
 export function monthAndYear(date: Date, locale = 'en-GB'): string {
   return new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long' }).format(date);
 }
+
+/**
+ * The calendar header buttons described by `hint`, in document order.
+ *
+ * A header button is named by the month or the year it shows, and says what it
+ * does in its description, so a test that wants "the month button" whatever
+ * month is on screen goes by the description. The locator API has no way to ask
+ * for one.
+ */
+export function headerButtons(hint = 'Choose a month'): HTMLButtonElement[] {
+  return Array.from(
+    document.querySelectorAll<HTMLButtonElement>('button[aria-describedby]')
+  ).filter((button) =>
+    (button.getAttribute('aria-describedby') ?? '')
+      .split(' ')
+      .some((id) => document.getElementById(id)?.textContent === hint)
+  );
+}
