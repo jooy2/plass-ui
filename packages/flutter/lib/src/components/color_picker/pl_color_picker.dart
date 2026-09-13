@@ -120,6 +120,13 @@ class _NudgeIntent extends Intent {
   final int dy;
 }
 
+/// Home or End on a rail.
+class _JumpIntent extends Intent {
+  const _JumpIntent({required this.end});
+
+  final bool end;
+}
+
 /// A colour, chosen by eye.
 ///
 /// ```dart
@@ -600,12 +607,14 @@ class _ColorPanel extends StatelessWidget {
                 onChanged(PlassColorValue(model.hsv.copyWith(h: x * 360), model.alpha)),
             // The wheel is a circle, so a step past either end wraps rather
             // than stopping.
-            onNudge: (int dx, int _) => onChanged(
+            onNudge: (int dx, int dy) => onChanged(
               PlassColorValue(
-                model.hsv.copyWith(h: (model.hsv.h + dx * 2 + 360) % 360),
+                model.hsv.copyWith(h: (model.hsv.h + (dx + dy) * 2 + 360) % 360),
                 model.alpha,
               ),
             ),
+            onJump: (bool end) =>
+                onChanged(PlassColorValue(model.hsv.copyWith(h: end ? 360 : 0), model.alpha)),
             layers: const <Widget>[
               Positioned.fill(
                 child: DecoratedBox(
@@ -637,8 +646,10 @@ class _ColorPanel extends StatelessWidget {
               border: tokens.border,
               onFraction: (double x, double _) =>
                   onChanged(PlassColorValue(model.hsv, x.clamp(0, 1))),
-              onNudge: (int dx, int _) =>
-                  onChanged(PlassColorValue(model.hsv, (model.alpha + dx / 100).clamp(0, 1))),
+              onNudge: (int dx, int dy) => onChanged(
+                PlassColorValue(model.hsv, (model.alpha + (dx + dy) / 100).clamp(0, 1)),
+              ),
+              onJump: (bool end) => onChanged(PlassColorValue(model.hsv, end ? 1 : 0)),
               layers: <Widget>[
                 Positioned.fill(
                   child: _Checker(color: tokens.border, child: const SizedBox.expand()),
@@ -785,6 +796,7 @@ class _Track extends StatefulWidget {
     required this.increasedValue,
     required this.decreasedValue,
     this.valueText,
+    this.onJump,
   });
 
   final String label;
@@ -798,6 +810,10 @@ class _Track extends StatefulWidget {
   final Color border;
   final void Function(double x, double y) onFraction;
   final void Function(int dx, int dy) onNudge;
+
+  /// Home and End, for a rail: `true` for the end. A square has two axes and no
+  /// one end to go to, so it leaves this out and the keys alone.
+  final ValueChanged<bool>? onJump;
   final List<Widget> layers;
   final Widget thumb;
   final double thumbX;
@@ -814,6 +830,17 @@ class _Track extends StatefulWidget {
   @override
   State<_Track> createState() => _TrackState();
 }
+
+const Map<ShortcutActivator, Intent> _nudges = <ShortcutActivator, Intent>{
+  SingleActivator(LogicalKeyboardKey.arrowRight): _NudgeIntent(1, 0),
+  SingleActivator(LogicalKeyboardKey.arrowLeft): _NudgeIntent(-1, 0),
+  SingleActivator(LogicalKeyboardKey.arrowUp): _NudgeIntent(0, 1),
+  SingleActivator(LogicalKeyboardKey.arrowDown): _NudgeIntent(0, -1),
+  SingleActivator(LogicalKeyboardKey.arrowRight, shift: true): _NudgeIntent(10, 0),
+  SingleActivator(LogicalKeyboardKey.arrowLeft, shift: true): _NudgeIntent(-10, 0),
+  SingleActivator(LogicalKeyboardKey.arrowUp, shift: true): _NudgeIntent(0, 10),
+  SingleActivator(LogicalKeyboardKey.arrowDown, shift: true): _NudgeIntent(0, -10),
+};
 
 class _TrackState extends State<_Track> {
   final GlobalKey _box = GlobalKey();
@@ -882,20 +909,25 @@ class _TrackState extends State<_Track> {
       onShowFocusHighlight: (bool value) {
         if (_focusVisible != value) setState(() => _focusVisible = value);
       },
-      shortcuts: const <ShortcutActivator, Intent>{
-        SingleActivator(LogicalKeyboardKey.arrowRight): _NudgeIntent(1, 0),
-        SingleActivator(LogicalKeyboardKey.arrowLeft): _NudgeIntent(-1, 0),
-        SingleActivator(LogicalKeyboardKey.arrowUp): _NudgeIntent(0, 1),
-        SingleActivator(LogicalKeyboardKey.arrowDown): _NudgeIntent(0, -1),
-        SingleActivator(LogicalKeyboardKey.arrowRight, shift: true): _NudgeIntent(10, 0),
-        SingleActivator(LogicalKeyboardKey.arrowLeft, shift: true): _NudgeIntent(-10, 0),
-        SingleActivator(LogicalKeyboardKey.arrowUp, shift: true): _NudgeIntent(0, 10),
-        SingleActivator(LogicalKeyboardKey.arrowDown, shift: true): _NudgeIntent(0, -10),
+      // A rail lies across, and still answers the keys every slider does: up is
+      // more and down is less, which is what its `onNudge` adds together.
+      shortcuts: <ShortcutActivator, Intent>{
+        ..._nudges,
+        if (widget.onJump != null) ...const <ShortcutActivator, Intent>{
+          SingleActivator(LogicalKeyboardKey.home): _JumpIntent(end: false),
+          SingleActivator(LogicalKeyboardKey.end): _JumpIntent(end: true),
+        },
       },
       actions: <Type, Action<Intent>>{
         _NudgeIntent: CallbackAction<_NudgeIntent>(
           onInvoke: (_NudgeIntent intent) {
             widget.onNudge(intent.dx, intent.dy);
+            return null;
+          },
+        ),
+        _JumpIntent: CallbackAction<_JumpIntent>(
+          onInvoke: (_JumpIntent intent) {
+            widget.onJump?.call(intent.end);
             return null;
           },
         ),

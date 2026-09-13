@@ -188,6 +188,7 @@ What it reads: hex in all four lengths, and `rgb()`/`rgba()`/`hsl()`/`hsla()` in
 ## Accessibility
 
 - The square and each rail are real `slider`s with `aria-valuenow`, moved by the arrow keys, one step, or ten with <kbd>Shift</kbd>, which is the same pair every slider in the library uses.
+- A rail lies across and still answers the keys any slider does: <kbd>→</kbd> and <kbd>↑</kbd> are more, <kbd>←</kbd> and <kbd>↓</kbd> are less, and <kbd>Home</kbd> and <kbd>End</kbd> go to its two ends.
 - The square reports both of its channels: `aria-valuenow` is the saturation and `aria-valuetext` is `"saturation%, brightness%"`, because one number cannot describe a point on a plane.
 - The hue rail **wraps** rather than stopping: a step back from red is 358°, not 0°. The wheel is a circle and the rail is a picture of one.
 - A key the picker does not answer to is left alone, so <kbd>Tab</kbd> moves on rather than being swallowed by a gradient.

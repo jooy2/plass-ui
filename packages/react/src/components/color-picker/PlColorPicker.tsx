@@ -293,7 +293,13 @@ function ColorPanel({
     }
   });
 
-  const railProps = (label: string, now: number, max: number, onStep: (delta: number) => void) => ({
+  const railProps = (
+    label: string,
+    now: number,
+    max: number,
+    onStep: (delta: number) => void,
+    onJump: (to: 0 | 1) => void
+  ) => ({
     role: 'slider' as const,
     tabIndex: inert ? -1 : 0,
     'aria-label': label,
@@ -302,15 +308,28 @@ function ColorPanel({
     'aria-valuenow': Math.round(now),
     'aria-orientation': 'horizontal' as const,
     'aria-disabled': inert || undefined,
+    // The keys every slider answers, though the rail lies across: right and up
+    // are more, left and down are less, and Home and End are the two ends.
     onKeyDown: (event: React.KeyboardEvent) => {
+      if (inert) {
+        return;
+      }
+
+      if (event.key === 'Home' || event.key === 'End') {
+        event.preventDefault();
+        onJump(event.key === 'Home' ? 0 : 1);
+
+        return;
+      }
+
       const step = arrowStep(event);
 
-      if (inert || !step || step.x === 0) {
+      if (!step) {
         return;
       }
 
       event.preventDefault();
-      onStep(step.x);
+      onStep(step.x + step.y);
     }
   });
 
@@ -381,8 +400,13 @@ function ColorPanel({
         {...track((event) =>
           onChange({ hsv: { ...hsv, h: fractionsOf(event).x * 360 }, alpha: alphaValue })
         )}
-        {...railProps(labels.hue, hsv.h, 360, (delta) =>
-          onChange({ hsv: { ...hsv, h: (hsv.h + delta * 2 + 360) % 360 }, alpha: alphaValue })
+        {...railProps(
+          labels.hue,
+          hsv.h,
+          360,
+          (delta) =>
+            onChange({ hsv: { ...hsv, h: (hsv.h + delta * 2 + 360) % 360 }, alpha: alphaValue }),
+          (to) => onChange({ hsv: { ...hsv, h: to * 360 }, alpha: alphaValue })
         )}
         className={cx(
           wellClasses,
@@ -410,8 +434,12 @@ function ColorPanel({
       {withAlpha ? (
         <div
           {...track((event) => onChange({ hsv, alpha: fractionsOf(event).x }))}
-          {...railProps(labels.alpha, alphaValue * 100, 100, (delta) =>
-            onChange({ hsv, alpha: clamp(alphaValue + delta / 100, 0, 1) })
+          {...railProps(
+            labels.alpha,
+            alphaValue * 100,
+            100,
+            (delta) => onChange({ hsv, alpha: clamp(alphaValue + delta / 100, 0, 1) }),
+            (to) => onChange({ hsv, alpha: to })
           )}
           className={cx(
             wellClasses,

@@ -131,6 +131,34 @@ describe('PlColorPicker', () => {
       expect(onValueChange).toHaveBeenLastCalledWith('#ff0008');
     });
 
+    it('moves the rails with the vertical keys and Home and End too', async () => {
+      const screen = await render(<PlColorPicker inline alpha defaultValue="#ff0000" />);
+      const hue = screen.getByRole('slider', { name: 'Hue' });
+      const opacity = screen.getByRole('slider', { name: 'Opacity' });
+      const key = (slider: typeof hue, name: string) =>
+        slider.element().dispatchEvent(new KeyboardEvent('keydown', { key: name, bubbles: true }));
+
+      // The same keys every other slider answers: up is more, down is less, and
+      // Home and End are the two ends.
+      key(hue, 'ArrowUp');
+      await expect.element(hue).toHaveAttribute('aria-valuenow', '2');
+      key(hue, 'ArrowDown');
+      await expect.element(hue).toHaveAttribute('aria-valuenow', '0');
+      key(hue, 'End');
+      await expect.element(hue).toHaveAttribute('aria-valuenow', '360');
+      key(hue, 'Home');
+      await expect.element(hue).toHaveAttribute('aria-valuenow', '0');
+
+      key(opacity, 'ArrowDown');
+      await expect.element(opacity).toHaveAttribute('aria-valuenow', '99');
+      key(opacity, 'Home');
+      await expect.element(opacity).toHaveAttribute('aria-valuenow', '0');
+      key(opacity, 'ArrowUp');
+      await expect.element(opacity).toHaveAttribute('aria-valuenow', '1');
+      key(opacity, 'End');
+      await expect.element(opacity).toHaveAttribute('aria-valuenow', '100');
+    });
+
     it('leaves a key it does not answer to alone', async () => {
       const onValueChange = vi.fn();
 

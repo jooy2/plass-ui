@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **The hue and opacity rails of `PlColorPicker` answer ↑, ↓, Home and End.** A rail took only ← and →, so a keyboard reader who pressed the other keys every slider answers to changed nothing. ↑ and ↓ now move a rail as → and ← do, and Home and End take it to its two ends.
+
 - **A `PlFilePicker` button says which field it belongs to.** Its name was only the words inside the box, so a résumé picker and a cover letter picker on one screen were both read out as the same line. The name now starts with `label` and goes on with the box's own words.
 
 - **A screen reader follows the keyboard focus across a calendar.** A day, month or year cell left its focus out of the semantics tree, so moving with the arrow keys in `PlCalendar` and every picker moved the ring while a screen reader's cursor stayed on the cell it was on, and nothing was announced. The focused cell is now marked focused, and a screen reader can move the input focus to a cell as well.

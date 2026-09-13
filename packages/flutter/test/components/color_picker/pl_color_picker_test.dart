@@ -1,4 +1,5 @@
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -155,6 +156,65 @@ void main() {
 
       // Red is 0°, and a step back is 358° rather than 0°.
       expect(seen.single, '#ff0008');
+
+      handle.dispose();
+    });
+
+    testWidgets('moves the rails with the vertical keys and Home and End too', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+      String value = '#ff0000';
+
+      await tester.pumpWidget(
+        host(
+          StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) => PlColorPicker(
+              inline: true,
+              alpha: true,
+              value: value,
+              onValueChanged: (String next) => setState(() => value = next),
+            ),
+          ),
+          width: 400,
+          height: 560,
+          overlay: true,
+        ),
+      );
+
+      String now(String rail) =>
+          tester.getSemantics(find.bySemanticsLabel(rail)).getSemanticsData().value;
+
+      Future<void> press(String rail, LogicalKeyboardKey key) async {
+        Focus.of(
+          tester.element(
+            find.descendant(of: find.bySemanticsLabel(rail), matching: find.byType(Stack)).first,
+          ),
+        ).requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(key);
+        await tester.pump();
+      }
+
+      // The same keys every other slider answers: up is more, down is less, and
+      // Home and End are the two ends.
+      await press('Hue', LogicalKeyboardKey.arrowUp);
+      expect(now('Hue'), '2');
+      await press('Hue', LogicalKeyboardKey.arrowDown);
+      expect(now('Hue'), '0');
+      await press('Hue', LogicalKeyboardKey.end);
+      expect(now('Hue'), '360');
+      await press('Hue', LogicalKeyboardKey.home);
+      expect(now('Hue'), '0');
+
+      await press('Opacity', LogicalKeyboardKey.arrowDown);
+      expect(now('Opacity'), '99');
+      await press('Opacity', LogicalKeyboardKey.home);
+      expect(now('Opacity'), '0');
+      await press('Opacity', LogicalKeyboardKey.arrowUp);
+      expect(now('Opacity'), '1');
+      await press('Opacity', LogicalKeyboardKey.end);
+      expect(now('Opacity'), '100');
 
       handle.dispose();
     });
