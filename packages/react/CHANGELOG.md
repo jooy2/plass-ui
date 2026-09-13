@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- **Hidden content is inert under React 18 as well.** A covered `PlSpoiler`, a collapsed `PlPill`'s details, a closing or minimized `PlWindowPane` and a `disabled` `PlCalendar` set `inert`, which React 18 does not know and dropped with a warning. The content stayed in the tab order and on the accessibility tree, and a disabled calendar still took a pick. The attribute is now written in the form each supported React version keeps.
+
 - **A `PlScrollZone` or `PlTabs` with `overscroll="auto"` gives the wheel back from the first moment.** The latch that keeps a gesture on a strip it was just scrolling counted from the page's own start rather than from a real move, so for the first quarter-second after a page loaded, a strip at its end held the wheel it should have handed on. The Flutter build already counted from nothing.
 
 - **A `PlImage` with `preview` reserves its box again.** The preview's trigger is a `<button>`, and a button sizes itself to its content even when it is displayed as a block. The content is a picture sized off the box, so before the file arrived the box had no width and its `ratio` reserved nothing, and a file smaller than the container shrank the box to the file. The trigger now takes the full width, as a picture without `preview` always did.

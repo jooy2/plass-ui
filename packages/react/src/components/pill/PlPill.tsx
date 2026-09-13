@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { inertProps } from '../../internal/inert.js';
 import {
   controlSlots,
   controlTextClasses,
@@ -383,7 +384,7 @@ export const PlPill = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPillPro
           // inside, and `aria-hidden` alone would leave a keyboard reader
           // tabbing into something their screen reader has been told does not
           // exist.
-          inert={!expanded}
+          {...inertProps(!expanded)}
         >
           <div
             ref={detailsRef}

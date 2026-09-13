@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { Calendar, usePickerLabels, type PlassPickerLabels } from '../../internal/calendar.js';
 import { popupPaddingClasses } from '../../internal/picker.js';
+import { inertProps } from '../../internal/inert.js';
 import {
   isValidDate,
   localeWeekStart,
@@ -225,7 +226,7 @@ export const PlCalendar = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCal
         // whole subtree out of the tab order and off the pointer in one
         // attribute, which is what "this control is unavailable" means for a
         // composite widget.
-        inert={disabled || undefined}
+        {...inertProps(disabled)}
         className={cx(
           'inline-flex flex-col',
           sheetRestClasses[variant],

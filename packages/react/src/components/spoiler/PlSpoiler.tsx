@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
+import { inertProps } from '../../internal/inert.js';
 import { PlButton } from '../button/PlButton.js';
 import {
   cx,
@@ -241,7 +242,7 @@ export const PlSpoiler = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSpoi
             // selection in one attribute — and `aria-hidden` alone would leave
             // a keyboard reader tabbing into a link their screen reader has
             // been told is not there.
-            inert={!open}
+            {...inertProps(!open)}
           >
             {children}
           </div>
@@ -261,7 +262,7 @@ export const PlSpoiler = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSpoi
                 'pt-0',
                 open ? '' : 'invisible'
               )}
-              inert={!open}
+              {...inertProps(!open)}
             >
               <PlButton
                 variant="ghost"
@@ -304,7 +305,7 @@ export const PlSpoiler = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSpoi
             scrimClasses,
             open ? 'invisible' : ''
           )}
-          inert={open}
+          {...inertProps(open)}
         >
           {hasContent(notice) ? (
             <p className={cx('m-0 text-(--plass-muted-fg)', metaTextClasses[size])}>{notice}</p>

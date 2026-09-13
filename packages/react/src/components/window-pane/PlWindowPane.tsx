@@ -15,6 +15,7 @@ import {
 import type { PlWindowControl, PlWindowOffset, PlWindowOs } from '../../internal/window.js';
 import type { PlassColor, PlassElevation, PlassSize } from '../../types.js';
 import { useDefaults } from '../../internal/defaults.js';
+import { inertProps } from '../../internal/inert.js';
 
 export type { PlWindowControl, PlWindowOffset, PlWindowOs } from '../../internal/window.js';
 
@@ -774,7 +775,7 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
         'data-gesture': gesturing ? '' : undefined,
         // Nothing in a window on its way out can be pressed or reached, and the
         // page underneath it is available again from the frame the close lands on.
-        inert: !open || undefined,
+        ...inertProps(!open),
         style: {
           opacity: open ? undefined : 0,
           ...windowSlots({ os, color, accent, transparency, active, elevation }),
@@ -825,7 +826,7 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
                 // the frame run into each other.
                 boxShadow: metrics.band.side > 0 ? 'inset 0 0 0 1px rgb(0 0 0 / 0.12)' : undefined
               }}
-              inert={minimized}
+              {...inertProps(minimized)}
             >
               {children}
             </div>
