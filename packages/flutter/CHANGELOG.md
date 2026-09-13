@@ -36,6 +36,8 @@
 
 ### Fixed
 
+- **A sortable `PlDataTable` heading can be reached and pressed from the keyboard.** It answered a pointer only, so Tab passed it by and there was no way to sort without a mouse or a touch screen. It is now a focus stop with a focus ring that Enter and Space press, as the React build's heading button is.
+
 - **A `PlHeatmapChart` treemap names each tile after its own point.** A tile's name was read from the column at its index, which on a treemap is the name of the tile in that place in the first group, so every other group's tiles, their tooltips and the screen reader summary borrowed the first group's names.
 
 - **A series that starts `hidden` can be switched back on from the legend.** The chart kept reading `hidden` as well as the legend's own switches, so pressing the entry changed nothing. `hidden` now only sets where a series starts, as it does in the React build.

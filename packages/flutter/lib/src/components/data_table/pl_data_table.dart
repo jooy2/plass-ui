@@ -11,7 +11,9 @@ import 'package:plass_ui/src/components/skeleton/pl_skeleton.dart';
 import 'package:plass_ui/src/components/text_field/pl_text_field.dart';
 import 'package:plass_ui/src/internal/data_table.dart';
 import 'package:plass_ui/src/internal/date.dart';
+import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/search.dart';
 import 'package:plass_ui/src/internal/surface.dart';
@@ -650,6 +652,7 @@ class _PlDataTableState<T> extends State<PlDataTable<T>> {
                   direction: _currentSort?.key == column.key ? _currentSort!.direction : null,
                   onPressed: () => _goSort(column.key),
                   labels: labels,
+                  ring: tokens.family(color).ring,
                   child: column.header ?? const SizedBox.shrink(),
                 )
               : column.header,
@@ -790,15 +793,33 @@ class _SortableHeader extends StatelessWidget {
     required this.direction,
     required this.onPressed,
     required this.labels,
+    required this.ring,
   });
 
   final Widget child;
   final PlassSortDirection? direction;
   final VoidCallback onPressed;
   final PlassLabels labels;
+  final Color ring;
 
   @override
   Widget build(BuildContext context) {
+    final Widget heading = Row(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 4,
+      children: <Widget>[
+        Flexible(child: child),
+        Opacity(
+          opacity: direction == null ? 0.3 : 1,
+          child: PlassGlyph(
+            PlassGlyphShape.chevron,
+            size: 12,
+            quarterTurns: direction == PlassSortDirection.asc ? 2 : 0,
+          ),
+        ),
+      ],
+    );
+
     return Semantics(
       button: true,
       // Said out loud, where the React build sets `aria-sort` and every screen
@@ -809,27 +830,23 @@ class _SortableHeader extends StatelessWidget {
         PlassSortDirection.asc => labels.sortedAscending,
         PlassSortDirection.desc => labels.sortedDescending,
       },
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
+      onTap: onPressed,
+      // A focus stop with Enter and Space, as the React build's `<button>` is.
+      child: PlassInteractive(
         onTap: onPressed,
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            spacing: 4,
-            children: <Widget>[
-              Flexible(child: child),
-              Opacity(
-                opacity: direction == null ? 0.3 : 1,
-                child: PlassGlyph(
-                  PlassGlyphShape.chevron,
-                  size: 12,
-                  quarterTurns: direction == PlassSortDirection.asc ? 2 : 0,
-                ),
-              ),
-            ],
-          ),
-        ),
+        builder: (BuildContext context, PlassInteraction state) {
+          if (!state.focusVisible) {
+            return heading;
+          }
+
+          return CustomPaint(
+            foregroundPainter: PlassFocusRingPainter(
+              color: ring,
+              borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.xs]!),
+            ),
+            child: heading,
+          );
+        },
       ),
     );
   }

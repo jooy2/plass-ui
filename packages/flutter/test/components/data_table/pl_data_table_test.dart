@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -139,6 +140,22 @@ void main() {
         await tester.pumpWidget(host(table(), width: 640));
 
         await tester.tap(find.text('Customer').first);
+        await tester.pumpAndSettle();
+
+        expect(customers(tester), <String>['Acme', 'Globex', 'Initech']);
+      });
+
+      testWidgets('sorts from the keyboard, on a heading Tab reaches', (WidgetTester tester) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+
+        await tester.pumpWidget(host(afterFocusStop(before, table()), width: 640));
+        before.requestFocus();
+        await tester.pump();
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
         await tester.pumpAndSettle();
 
         expect(customers(tester), <String>['Acme', 'Globex', 'Initech']);
