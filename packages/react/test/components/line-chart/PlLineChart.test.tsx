@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlLineChart } from 'plass-ui';
+import { press } from '../../support/keys';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr'];
 
@@ -275,6 +276,36 @@ describe('PlLineChart', () => {
 
       await expect.element(status).toBeInTheDocument();
       expect(plot.element().contains(status.element())).toBe(false);
+    });
+  });
+
+  describe('moving the active column', () => {
+    it('writes the category labels once rather than on every move', async () => {
+      const categories = Array.from({ length: 60 }, (_, index) => `Day ${index + 1}`);
+      const tickFormat = vi.fn((category: unknown) => String(category));
+      const screen = await render(
+        <PlLineChart
+          label="Visits"
+          categories={categories}
+          xAxis={{ tickFormat }}
+          series={[{ name: 'Web', data: categories.map((_, index) => index) }]}
+        />
+      );
+      const plot = screen.getByRole('img', { name: 'Visits' });
+
+      await expect.element(plot).toBeInTheDocument();
+      await expect.poll(() => tickFormat.mock.calls.length).toBeGreaterThan(0);
+
+      const written = tickFormat.mock.calls.length;
+
+      for (let day = 1; day <= 5; day += 1) {
+        press(plot.element(), 'ArrowRight');
+        await expect
+          .poll(() => screen.getByRole('status').element().textContent)
+          .toMatch(new RegExp(`^Day ${day}\\b`));
+      }
+
+      expect(tickFormat.mock.calls.length).toBe(written);
     });
   });
 

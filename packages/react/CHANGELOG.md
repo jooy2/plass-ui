@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **A chart of many categories does less work when its active column moves.** Every move of the pointer or the arrow keys to another column re-rendered `PlLineChart`, `PlBarChart` and `PlAreaChart` whole: every category label was written and measured again, the hidden data table compared a row for each category, and a group was created for each column even where it drew nothing. The labels are now written once per change to the data or to the room they have, the table is skipped when its data has not changed, and a column with nothing to draw adds nothing.
+
 - **A finger can drag a `PlPanes` handle, a `PlSidebar` edge and a `PlWindowPane` title bar.** None of the three set `touch-action`, so on a touch screen the browser took the drag for a pan after a few pixels and ended it with `pointercancel`. They now take `touch-action: none` while they can be dragged, as `PlSlider` and the window's resize handles already did.
 
 - **`usePlElementSize` and `usePlOnScreen` follow an element attached after the first render.** Both started watching in an effect keyed on the ref object, which never changes, so an element rendered later, as in `loading ? <Spinner /> : <div ref={box} />`, was never measured and never seen, and one swapped for another kept the old one watched. Both now read the ref after every render and start over on a different element, and `usePlOnScreen` does the same for `root`. `usePlElementSize` goes back to `null` when its element is removed.

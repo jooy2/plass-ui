@@ -624,8 +624,12 @@ interface DataTableProps {
  * It is clipped rather than `display: none`, for the reason `srOnlyClasses`
  * gives: the second one takes it off the accessibility tree along with the
  * screen, which would leave the chart exactly as mute as before.
+ *
+ * Memoised, because it is a row for every category and none of it changes when
+ * the pointer or a key moves the active column, which re-renders the chart
+ * around it every time.
  */
-function ChartDataTable({
+const ChartDataTable = /* @__PURE__ */ React.memo(function ChartDataTable({
   id,
   caption,
   corner,
@@ -673,7 +677,7 @@ function ChartDataTable({
       </tbody>
     </table>
   );
-}
+});
 
 /* ---------------------------------------------------------------------------
  * The surface every chart sits on
@@ -1011,17 +1015,27 @@ export function CartesianChart({
      belongs to the value axis and is not borrowed for these — a currency
      applied to an axis of years prints `$2,019` — so the fallback is the plain
      compaction and `xAxis.tickFormat` is how a caller says more. */
+  const categoryTickFormat = categoryAxis?.tickFormat;
+
+  /* A label for every category, which is the part that grows with the data.
+     Written and measured once per change to the data or the room it has, not
+     on every render: moving the active column re-renders the chart and changes
+     none of it. */
+  const labelTexts = React.useMemo(
+    () =>
+      labels.map((category, index) =>
+        categoryTickFormat
+          ? String(categoryTickFormat(category, index))
+          : formatCategory(category, locale)
+      ),
+    [labels, categoryTickFormat, locale]
+  );
+
   const rawCategoryTexts = categoryScale
     ? categoryScale.ticks.map((tick, index) =>
-        categoryAxis?.tickFormat
-          ? String(categoryAxis.tickFormat(tick, index))
-          : compactNumber(tick, locale)
+        categoryTickFormat ? String(categoryTickFormat(tick, index)) : compactNumber(tick, locale)
       )
-    : labels.map((category, index) =>
-        categoryAxis?.tickFormat
-          ? String(categoryAxis.tickFormat(category, index))
-          : formatCategory(category, locale)
-      );
+    : labelTexts;
 
   const widestTick = tickTexts.reduce((most, text) => Math.max(most, textWidth(text, fontSize)), 0);
   const axisLabelBand = fontSize + 6;
@@ -1036,16 +1050,15 @@ export function CartesianChart({
   const slot = (width - (horizontal ? 0 : valueBand) - 16) / Math.max(1, count);
 
   /* Cut to the slot, or left whole for the stride in `ChartAxes` to thin out. */
-  const categoryTexts = fitCategoryLabels(rawCategoryTexts, {
-    horizontal,
-    slot,
-    fontSize,
-    ticks: categoryScale !== null
-  });
+  const ticked = categoryScale !== null;
+  const categoryTexts = React.useMemo(
+    () => fitCategoryLabels(rawCategoryTexts, { horizontal, slot, fontSize, ticks: ticked }),
+    [rawCategoryTexts, horizontal, slot, fontSize, ticked]
+  );
 
-  const widestCategory = categoryTexts.reduce(
-    (most, text) => Math.max(most, textWidth(text, fontSize)),
-    0
+  const widestCategory = React.useMemo(
+    () => categoryTexts.reduce((most, text) => Math.max(most, textWidth(text, fontSize)), 0),
+    [categoryTexts, fontSize]
   );
 
   /* The two bands the axes take out of the box. `hidden` gives the room back to
@@ -1821,21 +1834,25 @@ function ChartAxes({
             // it is still a rule the eye can measure against.
             const labelled = showsTick(index, categoryTexts.length, stride, lastCategory);
 
+            // A column with neither a rule nor a name draws nothing, and gets no
+            // empty group to say so.
+            if (!labelled && (horizontal || !categoryGrid)) {
+              return null;
+            }
+
             return horizontal ? (
-              labelled ? (
-                <text
-                  key={index}
-                  x={plot.left - 8}
-                  y={along}
-                  textAnchor="end"
-                  dominantBaseline="central"
-                  fontSize={fontSize}
-                  fill="var(--plass-muted-fg)"
-                  className={categoryScale ? 'tabular-nums' : undefined}
-                >
-                  {text}
-                </text>
-              ) : null
+              <text
+                key={index}
+                x={plot.left - 8}
+                y={along}
+                textAnchor="end"
+                dominantBaseline="central"
+                fontSize={fontSize}
+                fill="var(--plass-muted-fg)"
+                className={categoryScale ? 'tabular-nums' : undefined}
+              >
+                {text}
+              </text>
             ) : (
               <g key={index}>
                 {categoryGrid ? (
