@@ -12,7 +12,8 @@ class GalleryFit extends StatelessWidget {
     return PlGallery(
       items: <PlGalleryItem>[
         photos[0],
-        // The second picture was stored on its side, so it is turned back up.
+        // The second picture is turned onto its side, and still fitted to a square
+        // tile.
         PlGalleryItem(
           id: stored.id,
           image: stored.image,

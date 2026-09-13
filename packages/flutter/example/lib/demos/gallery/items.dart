@@ -1,7 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:plass_ui/plass_ui.dart';
 
-/// Six plates at four proportions, so a masonry has something to arrange.
+/// Six plates at the three proportions their files have, so a masonry has
+/// something to arrange and every tile is the shape of its picture.
 final List<PlGalleryItem> photos = <PlGalleryItem>[
   PlGalleryItem(
     id: 'alpine-lake',
@@ -9,7 +10,7 @@ final List<PlGalleryItem> photos = <PlGalleryItem>[
     semanticLabel: 'A still mountain lake at first light',
     title: 'Alpine lake',
     description: 'Dawn',
-    ratio: 4 / 3,
+    ratio: 3 / 2,
   ),
   PlGalleryItem(
     id: 'coast-road',
@@ -25,7 +26,7 @@ final List<PlGalleryItem> photos = <PlGalleryItem>[
     semanticLabel: 'A lighthouse on a clifftop above wildflowers',
     title: 'Lighthouse',
     description: 'Wildflowers',
-    ratio: 3 / 4,
+    ratio: 2 / 3,
   ),
   PlGalleryItem(
     id: 'citrus',
@@ -41,7 +42,7 @@ final List<PlGalleryItem> photos = <PlGalleryItem>[
     semanticLabel: 'Terraced tea fields under morning mist',
     title: 'Tea terraces',
     description: 'Sunrise',
-    ratio: 2,
+    ratio: 3 / 2,
   ),
   PlGalleryItem(
     id: 'greenhouse',

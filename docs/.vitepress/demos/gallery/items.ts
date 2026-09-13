@@ -1,13 +1,16 @@
 import type { PlGalleryItem } from 'plass-ui';
 
-/** Six plates at four proportions, so a masonry has something to arrange. */
+/**
+ * Six plates at the three proportions their files have, so a masonry has
+ * something to arrange and every tile is the shape of its picture.
+ */
 export const photos: PlGalleryItem[] = [
   {
     src: '/samples/photos/alpine-lake-dawn.webp',
     alt: 'A still mountain lake at first light',
     title: 'Alpine lake',
     description: 'Dawn',
-    ratio: 4 / 3
+    ratio: 3 / 2
   },
   {
     src: '/samples/photos/bicycle-coastal-path.webp',
@@ -21,7 +24,7 @@ export const photos: PlGalleryItem[] = [
     alt: 'A lighthouse on a clifftop above wildflowers',
     title: 'Lighthouse',
     description: 'Wildflowers',
-    ratio: 3 / 4
+    ratio: 2 / 3
   },
   {
     src: '/samples/photos/ceramic-bowl-citrus.webp',
@@ -35,7 +38,7 @@ export const photos: PlGalleryItem[] = [
     alt: 'Terraced tea fields under morning mist',
     title: 'Tea terraces',
     description: 'Sunrise',
-    ratio: 2
+    ratio: 3 / 2
   },
   {
     src: '/samples/photos/greenhouse-fern-shadows.webp',
