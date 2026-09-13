@@ -183,6 +183,16 @@ const closeButtonClasses = /* @__PURE__ */ [
 ].join(' ');
 
 /** Whatever the step is pointing at, in whichever of the three forms it came. */
+/** A point in the middle of the viewport, for a step with no target. */
+const viewportCentre = {
+  getBoundingClientRect: () =>
+    DOMRect.fromRect({ x: window.innerWidth / 2, y: window.innerHeight / 2, width: 0, height: 0 })
+};
+
+/** Pulls a card hung below a point up by half its height, onto the point. */
+const centreOnAnchor = ({ positioner }: { positioner: { height: number } }) =>
+  -positioner.height / 2;
+
 function resolve(target: PlTourTarget | undefined): Element | null {
   if (target === undefined) {
     return null;
@@ -290,6 +300,24 @@ export function PlTour({
 
   const target = current?.target;
   const padding = current?.padding ?? 6;
+
+  /**
+   * What the card hangs off, found again for every step.
+   *
+   * State handed to the positioner as a value, not a getter: Base UI keeps a
+   * getter it was given as one stable callback and asks it again only when the
+   * popup mounts, so the card stayed beside the first step's target for the
+   * whole tour. A layout effect rather than a plain one, so the new target is in
+   * place before the step's first paint rather than a frame after it.
+   */
+  const [anchor, setAnchor] = React.useState<Element | null>(null);
+
+  React.useLayoutEffect(() => {
+    // The target is found in the page after it has rendered, which is the only
+    // time a selector or a ref has anything to find.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setAnchor(running ? resolve(target) : null);
+  }, [running, target, index]);
 
   /**
    * Where the target is, re-read on anything that could move it.
@@ -429,13 +457,13 @@ export function PlTour({
 
         <BaseUIPopover.Positioner
           className="plass-portal z-(--plass-z-portal) [outline:none]"
-          side={current?.side ?? 'bottom'}
-          align={current?.align ?? 'center'}
-          sideOffset={10}
+          side={anchor ? (current?.side ?? 'bottom') : 'bottom'}
+          align={anchor ? (current?.align ?? 'center') : 'center'}
+          // A step with nothing to point at hangs off the middle of the
+          // viewport and is pulled up by half its own height, which centres it.
+          sideOffset={anchor ? 10 : centreOnAnchor}
           collisionPadding={12}
-          // A getter rather than an element: the target is found on whatever
-          // the page looks like right now, and it is a different one every step.
-          anchor={() => resolve(current?.target)}
+          anchor={anchor ?? viewportCentre}
         >
           <BaseUIPopover.Popup
             className={cx(

@@ -270,6 +270,61 @@ describe('PlTour', () => {
     });
   });
 
+  describe('placement', () => {
+    /** The card's box, from the element Base UI positions. */
+    function card(): DOMRect {
+      return document.querySelector('.plass-portal[data-side]')!.getBoundingClientRect();
+    }
+
+    const centreX = (rect: DOMRect) => rect.left + rect.width / 2;
+
+    it('moves the card to each step’s own target', async () => {
+      const screen = await render(
+        <div>
+          <button type="button" id="near" style={{ position: 'fixed', left: 80, top: 100 }}>
+            Near
+          </button>
+          <button type="button" id="far" style={{ position: 'fixed', left: 250, top: 400 }}>
+            Far
+          </button>
+          <PlTour
+            defaultOpen
+            scrollIntoView={false}
+            mask={false}
+            steps={[
+              { target: '#near', title: 'First' },
+              { target: '#far', title: 'Second' }
+            ]}
+          />
+        </div>
+      );
+
+      const near = document.querySelector('#near')!.getBoundingClientRect();
+      const far = document.querySelector('#far')!.getBoundingClientRect();
+
+      await expect.element(screen.getByText('First')).toBeInTheDocument();
+      await expect.poll(() => Math.abs(centreX(card()) - centreX(near))).toBeLessThan(2);
+
+      await screen.getByRole('button', { name: 'Next' }).click();
+      await expect.element(screen.getByText('Second')).toBeInTheDocument();
+
+      await expect.poll(() => Math.abs(centreX(card()) - centreX(far))).toBeLessThan(2);
+      await expect.poll(() => card().top).toBeGreaterThan(far.bottom);
+    });
+
+    it('centres the card on the viewport for a step with no target', async () => {
+      const screen = await render(
+        <PlTour defaultOpen scrollIntoView={false} steps={[{ title: 'Welcome aboard' }]} />
+      );
+
+      await expect.element(screen.getByText('Welcome aboard')).toBeInTheDocument();
+      await expect.poll(() => Math.abs(centreX(card()) - window.innerWidth / 2)).toBeLessThan(2);
+      await expect
+        .poll(() => Math.abs(card().top + card().height / 2 - window.innerHeight / 2))
+        .toBeLessThan(2);
+    });
+  });
+
   describe('the target', () => {
     it('finds one by selector', async () => {
       const screen = await render(<Page defaultOpen defaultStep={1} />);

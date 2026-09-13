@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- **`PlTour`'s card follows the tour.** The card was given its target as a getter, which Base UI asks only when the popup opens, so from the second step on the cut-out moved and the card stayed beside the first target. A step with no target left the card invisible. The card now moves to each step's target, and a step with no target centres it on the viewport, as the documentation says.
+
 - **`PlScatterChart` and `PlTimelineChart` no longer redraw on every pixel the pointer moves.** Both stored the pointer's offset for a tooltip mode that only a chart of columns reads, so each move re-laid the whole chart out and re-rendered every mark. They now re-render only when the nearest mark changes.
 
 - **`plass-ui/css/<component>.css` also scans the components a component renders.** Each manifest named only the component's own folder, but Tailwind scans files, so a project that registered `icon-button.css` alone got none of the utilities spelled in `PlButton`, and the date pickers and charts lost the ones in `PlButton` and `PlBox`. A manifest now lists every component folder its modules reach, directly or through the library's internals.
