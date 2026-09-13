@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **An axis pinned at one end stays there when every value is the same.** A flat series opens a band around itself so there is something to divide by, and the band was opened on both sides even past an end the caller had pinned, so `yAxis={{ min: 0 }}` over a row of zeros drew an axis from −1. Only the free end moves now: that chart runs from 0 to 1.
+
 - **A chart of many categories does less work when its active column moves.** Every move of the pointer or the arrow keys to another column re-rendered `PlLineChart`, `PlBarChart` and `PlAreaChart` whole: every category label was written and measured again, the hidden data table compared a row for each category, and a group was created for each column even where it drew nothing. The labels are now written once per change to the data or to the room they have, the table is skipped when its data has not changed, and a column with nothing to draw adds nothing.
 
 - **A finger can drag a `PlPanes` handle, a `PlSidebar` edge and a `PlWindowPane` title bar.** None of the three set `touch-action`, so on a touch screen the browser took the drag for a pan after a few pixels and ended it with `pointercancel`. They now take `touch-action: none` while they can be dragged, as `PlSlider` and the window's resize handles already did.

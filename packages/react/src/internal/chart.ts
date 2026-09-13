@@ -540,11 +540,20 @@ export function valueScale(
 
   // A flat series — every value the same — has no extent to divide by. Open a
   // band around it rather than dividing by zero and drawing a line off the top.
+  // Only the ends the caller left free move: `min: 0` over a row of zeros is an
+  // axis that starts at zero, not one that opens below it.
   if (high === low) {
     const pad = Math.abs(high) > 0 ? Math.abs(high) * 0.5 : 1;
+    const lowFree = options.min === undefined;
+    const highFree = options.max === undefined;
 
-    low -= pad;
-    high += pad;
+    if (lowFree || !highFree) {
+      low -= pad;
+    }
+
+    if (highFree || !lowFree) {
+      high += pad;
+    }
   }
 
   // Both ends pinned means the *step* is what has to give; otherwise it is the

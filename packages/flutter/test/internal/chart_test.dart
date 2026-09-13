@@ -166,6 +166,21 @@ void main() {
       expect(scale.max, greaterThan(7));
     });
 
+    test('opens a flat series only on the side the caller left free', () {
+      final ValueScale above = valueScale(const ChartExtent(0, 0), min: 0);
+
+      expect(above.min, 0);
+      expect(above.max, greaterThan(0));
+      // The same ticks the React build gives: the step is read off the band
+      // that was opened, not off one opened on both sides and then cut.
+      expect(above.ticks, <double>[0, 0.2, 0.4, 0.6, 0.8, 1]);
+
+      final ValueScale below = valueScale(const ChartExtent(40, 40), max: 40, includeZero: false);
+
+      expect(below.max, 40);
+      expect(below.min, lessThan(40));
+    });
+
     test('lands on both ends when the caller pinned them', () {
       final ValueScale scale = valueScale(null, min: 99.5, max: 100);
 

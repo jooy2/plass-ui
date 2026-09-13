@@ -524,11 +524,18 @@ ValueScale valueScale(
 
   // A flat series — every value the same — has no extent to divide by. Open a
   // band around it rather than dividing by zero and drawing a line off the top.
+  // Only the ends the caller left free move: `min: 0` over a row of zeros is an
+  // axis that starts at zero, not one that opens below it.
   if (high == low) {
     final double pad = high.abs() > 0 ? high.abs() * 0.5 : 1;
 
-    low -= pad;
-    high += pad;
+    if (min == null || max != null) {
+      low -= pad;
+    }
+
+    if (max == null || min != null) {
+      high += pad;
+    }
   }
 
   // Both ends pinned means the *step* is what has to give; otherwise it is the

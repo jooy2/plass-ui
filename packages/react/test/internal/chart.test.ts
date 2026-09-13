@@ -58,6 +58,21 @@ describe('valueScale', () => {
     expect(Number.isFinite(scale.fraction(0))).toBe(true);
   });
 
+  it('opens a flat series only on the side the caller left free', () => {
+    const above = valueScale({ min: 0, max: 0 }, { min: 0 });
+
+    expect(above.min).toBe(0);
+    expect(above.max).toBeGreaterThan(0);
+    // The same ticks the Dart build gives: the step is read off the band that
+    // was opened, not off one opened on both sides and then cut.
+    expect(above.ticks).toEqual([0, 0.2, 0.4, 0.6, 0.8, 1]);
+
+    const below = valueScale({ min: 40, max: 40 }, { max: 40, includeZero: false });
+
+    expect(below.max).toBe(40);
+    expect(below.min).toBeLessThan(40);
+  });
+
   it('answers a scale with no data at all', () => {
     const scale = valueScale(null);
 

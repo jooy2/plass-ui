@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **A flat series under an axis pinned at one end gets the same ticks as in the React build.** The axis already started at the pinned `min`, but its step was chosen from a band opened on both sides of the data, so a row of zeros with `min: 0` was ticked every 0.5 where the React build ticks it every 0.2. Only the free end opens now, in both builds.
+
 - **`empty` on a line, bar, area, scatter or timeline chart is drawn as given.** Those charts read the words out of a plain `Text` and ignored any other widget, so a `Text.rich` threw a null check error and an icon over a line was replaced by the default words. The widget is now drawn as it is, in the same muted type, as `PlPieChart` and `PlHeatmapChart` already drew theirs, and those two now give a plain `Text` that type as well.
 
 - **A chart legend beside the plot is a list.** With `PlChartLegend(side: PlassSide.left)` or `right`, the legend of `PlLineChart`, `PlBarChart`, `PlAreaChart`, `PlScatterChart` and `PlPieChart` was a row with no width to wrap at, so four or five series stood in one line, squeezed the plot to nothing and overflowed. It is now a column of entries, as in the React build, no wider than two fifths of the chart, and a name longer than that wraps.
