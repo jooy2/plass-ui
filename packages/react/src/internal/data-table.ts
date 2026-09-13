@@ -21,7 +21,8 @@ export interface PlassSort {
 }
 
 /**
- * Puts two cell values in order.
+ * Puts two cell values in order, in the direction given: `1` for ascending and
+ * `-1` for descending.
  *
  * Numbers and dates compare as themselves, strings compare the way the reader's
  * language orders them, and everything else falls back to its text. Two rules
@@ -30,15 +31,15 @@ export interface PlassSort {
  * **Nothing sorts last, in both directions.** A column of amounts with three
  * blanks in it is a column whose blanks are not the smallest amounts, and a
  * reader who reversed the sort to find the largest should not be handed the
- * empty ones instead. So the answer for a missing value is decided here, before
- * the direction is applied, and the caller flips only the rest.
+ * empty ones instead. So the answer for a missing value is decided here, and the
+ * direction turns only the rest round.
  *
  * **Strings compare with `localeCompare`.** `'a' < 'B'` is false by code point,
  * which puts every capitalised word above every lower-case one and sorts `Ösi`
  * after `Zoe`. A list of names a reader cannot scan is a list that was sorted
  * for the machine.
  */
-export function compareValues(a: unknown, b: unknown): number {
+export function compareValues(a: unknown, b: unknown, direction: 1 | -1 = 1): number {
   const aMissing = a === null || a === undefined || a === '';
   const bMissing = b === null || b === undefined || b === '';
 
@@ -46,6 +47,11 @@ export function compareValues(a: unknown, b: unknown): number {
     return aMissing && bMissing ? 0 : aMissing ? 1 : -1;
   }
 
+  return compareKnown(a, b) * direction;
+}
+
+/** Two values that are both there, ascending. */
+function compareKnown(a: unknown, b: unknown): number {
   if (typeof a === 'number' && typeof b === 'number') {
     return a - b;
   }

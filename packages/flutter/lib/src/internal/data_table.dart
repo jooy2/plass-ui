@@ -46,7 +46,8 @@ class PlassSort {
   String toString() => 'PlassSort($key, ${direction.name})';
 }
 
-/// Puts two cell values in order.
+/// Puts two cell values in order, in the [direction] given: `1` for ascending
+/// and `-1` for descending.
 ///
 /// Numbers, dates and booleans compare as themselves and everything else
 /// compares as its text. Two rules carry the weight:
@@ -54,8 +55,8 @@ class PlassSort {
 /// **Nothing sorts last, in both directions.** A column of amounts with three
 /// blanks in it is a column whose blanks are not the smallest amounts, and a
 /// reader who reversed the sort to find the largest should not be handed the
-/// empty ones instead. So the answer for a missing value is decided here,
-/// before the direction is applied, and the caller flips only the rest.
+/// empty ones instead. So the answer for a missing value is decided here, and
+/// the direction turns only the rest round.
 ///
 /// **Text compares case-insensitively.** `'a'.compareTo('B')` is positive by
 /// code point, which puts every capitalised word above every lower-case one; a
@@ -64,7 +65,7 @@ class PlassSort {
 /// gives: Dart's core has no `String.normalize`, and this package has no
 /// dependencies. The React build sorts them with `localeCompare` and the pages
 /// say so.
-int compareValues(Object? a, Object? b) {
+int compareValues(Object? a, Object? b, [int direction = 1]) {
   final aMissing = a == null || a == '';
   final bMissing = b == null || b == '';
 
@@ -76,6 +77,11 @@ int compareValues(Object? a, Object? b) {
         : -1;
   }
 
+  return _compareKnown(a, b) * direction;
+}
+
+/// Two values that are both there, ascending.
+int _compareKnown(Object a, Object b) {
   if (a is num && b is num) {
     return a.compareTo(b);
   }

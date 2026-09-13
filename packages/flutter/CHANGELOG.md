@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **A `PlDataTable` sorted descending keeps its blank cells last.** The built-in order put a blank value after every other value, and the direction was then applied to that answer as well, so turning a column round put the blanks first, against what the page says. The direction now turns only the values that are there. A column's own `compare` is still turned round as a whole.
+
 - **A `PlHighlight` mark grows with the reader's text size once.** A mark is a widget inside the paragraph, and the paragraph already scales such a widget by the text size, but the mark's own text applied the scale again. At 200% the marked words were drawn at twice the size of the words around them and broke the line. The mark's text now leaves the scaling to the paragraph.
 
 - **A `PlCodeBlock` with a long run of spaces in its code no longer stalls.** The trailing whitespace was cut with a regular expression that retries from every space in a run followed by more text, on every build and every copy, so 20,000 spaces in a pasted log took about five seconds each time. It is now cut in one pass.

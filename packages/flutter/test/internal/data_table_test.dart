@@ -35,6 +35,12 @@ void main() {
     test('leaves two missing values equal', () {
       expect(compareValues(null, ''), 0);
     });
+
+    test('turns the values round when descending, and still puts nothing last', () {
+      expect(compareValues(2, 10, -1), greaterThan(0));
+      expect(compareValues(null, 5, -1), greaterThan(0));
+      expect(compareValues(5, '', -1), lessThan(0));
+    });
   });
 
   group('nextSort', () {

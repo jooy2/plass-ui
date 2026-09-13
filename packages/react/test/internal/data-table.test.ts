@@ -31,6 +31,12 @@ describe('compareValues', () => {
   it('leaves two missing values equal', () => {
     expect(compareValues(null, undefined)).toBe(0);
   });
+
+  it('turns the values round when descending, and still puts nothing last', () => {
+    expect(compareValues(2, 10, -1)).toBeGreaterThan(0);
+    expect(compareValues(null, 5, -1)).toBeGreaterThan(0);
+    expect(compareValues(5, '', -1)).toBeLessThan(0);
+  });
 });
 
 describe('nextSort', () => {

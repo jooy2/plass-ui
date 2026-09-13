@@ -177,6 +177,28 @@ void main() {
         expect(customers(tester), <String>['Initech', 'Acme', 'Globex']);
       });
 
+      testWidgets('keeps a blank cell last when the column is turned round', (
+        WidgetTester tester,
+      ) async {
+        List<String> invoices() => tester
+            .widgetList<Text>(find.byType(Text))
+            .map((Text one) => one.data ?? '')
+            .where((String one) => one.startsWith('INV-'))
+            .toList();
+
+        await tester.pumpWidget(
+          host(table(data: const <Invoice>[Invoice('INV-04', '', 10), ...rows]), width: 640),
+        );
+
+        await tester.tap(find.text('Customer').first);
+        await tester.pumpAndSettle();
+        expect(invoices(), <String>['INV-01', 'INV-02', 'INV-03', 'INV-04']);
+
+        await tester.tap(find.text('Customer').first);
+        await tester.pumpAndSettle();
+        expect(invoices(), <String>['INV-03', 'INV-02', 'INV-01', 'INV-04']);
+      });
+
       testWidgets('sorts numbers as numbers rather than as the text the cell drew', (
         WidgetTester tester,
       ) async {

@@ -96,6 +96,23 @@ describe('PlDataTable', () => {
       expect(customers()).toEqual(['Initech', 'Acme', 'Globex']);
     });
 
+    it('keeps a blank cell last when the column is turned round', async () => {
+      const screen = await render(
+        <PlDataTable
+          columns={columns}
+          rows={[{ id: 'INV-04', customer: '', total: 10 }, ...rows]}
+          getRowKey={key}
+        />
+      );
+      const heading = screen.getByRole('button', { name: /Customer/ });
+
+      await heading.click();
+      expect(customers()).toEqual(['Acme', 'Globex', 'Initech', '']);
+
+      await heading.click();
+      expect(customers()).toEqual(['Initech', 'Globex', 'Acme', '']);
+    });
+
     it('sorts numbers as numbers rather than as the text `render` drew', async () => {
       const screen = await render(<PlDataTable columns={columns} rows={rows} getRowKey={key} />);
 

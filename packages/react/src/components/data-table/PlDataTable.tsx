@@ -414,16 +414,15 @@ export function PlDataTable<Row>({
     // A copy, because sorting the caller's array in place would reorder the
     // rows they still hold a reference to. `toSorted` is not reached for: this
     // package supports one browser generation further back than it.
-    return [...found].sort((a, b) => {
-      // The comparator is asked first and the direction applied to whatever it
-      // said, so a caller's own ordering reverses the way the built-in one does
-      // rather than needing to know which way round it is being asked.
-      const answer = column.compare
-        ? column.compare(a, b)
-        : compareValues(valueOf(column, a), valueOf(column, b));
-
-      return answer * direction;
-    });
+    return [...found].sort((a, b) =>
+      // A caller's comparator is asked first and the direction applied to
+      // whatever it said, so their ordering reverses the way the built-in one
+      // does rather than needing to know which way round it is being asked. The
+      // built-in one takes the direction itself, to keep blanks last both ways.
+      column.compare
+        ? column.compare(a, b) * direction
+        : compareValues(valueOf(column, a), valueOf(column, b), direction)
+    );
   }, [found, columns, sort, doesSort, valueOf]);
 
   const total = doesPage ? ordered.length : (rowCount ?? ordered.length);

@@ -444,14 +444,14 @@ class _PlDataTableState<T> extends State<PlDataTable<T>> {
         // rows they still hold a reference to.
         rows = List<T>.of(rows)
           ..sort((T a, T b) {
-            // The comparator is asked first and the direction applied to what
-            // it said, so a caller's own ordering reverses the way the built-in
-            // one does rather than needing to know which way round it is asked.
-            final answer = column.compare != null
-                ? column.compare!(a, b)
-                : compareValues(_valueOf(column, a), _valueOf(column, b));
-
-            return answer * direction;
+            // A caller's comparator is asked first and the direction applied to
+            // what it said, so their ordering reverses the way the built-in one
+            // does rather than needing to know which way round it is asked. The
+            // built-in one takes the direction itself, to keep blanks last both
+            // ways.
+            return column.compare != null
+                ? column.compare!(a, b) * direction
+                : compareValues(_valueOf(column, a), _valueOf(column, b), direction);
           });
       }
     }
