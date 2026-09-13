@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **The loading toast of `showFuture` stays up for as long as the future takes.** Its timer was stopped once when it was shown, but the timers are started again whenever another toast arrives or the pointer leaves the stack, so a request slower than the timeout lost its loading toast, and the success or failure toast that was meant to replace it never appeared. The loading toast now has no timeout at all.
+
 - **`PlTour` says the next step when the focus stays on Next, and its heading names only itself.** Pressing Next changed the card around the button without a word to a screen reader. The step's `title` is now a live region, or its `content` on a step with no title. The heading also took the content and the counter into its name, so the first step was announced as one heading reading "Narrow the list, Type here to filter, 1 / 3"; the title and the content are now nodes of their own.
 
 - **An open `PlTour` takes the keyboard focus, so Escape closes it.** Escape was bound on the card, but the focus stayed on whatever had opened the tour, so the key never reached it. The card now takes the focus when the tour opens and hands it back when the tour closes, unless the reader has moved it elsewhere in the meantime. A tour whose parent closed it by setting `open` to `false` also no longer throws: the layer was taken down in the middle of the build that closed it.

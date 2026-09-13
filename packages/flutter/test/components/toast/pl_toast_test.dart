@@ -308,6 +308,58 @@ void main() {
       });
     });
 
+    group('a slow future', () {
+      testWidgets('keeps its loading toast up past the timeout, and answers in its place', (
+        WidgetTester tester,
+      ) async {
+        late PlToastController toasts;
+        await tester.pumpWidget(
+          host(
+            PlToastProvider(
+              child: Builder(
+                builder: (BuildContext context) {
+                  toasts = PlToastProvider.of(context);
+
+                  return const SizedBox(width: 200, height: 60);
+                },
+              ),
+            ),
+            width: 600,
+            height: 500,
+          ),
+        );
+
+        final work = Completer<String>();
+        unawaited(
+          toasts.showFuture<String>(
+            work.future,
+            loading: const PlToast(title: Text('Working…')),
+            success: (String value) => PlToast(title: Text(value)),
+            failure: (Object error) => const PlToast(title: Text('Failed')),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Another toast arriving starts the clocks again.
+        toasts.show(const PlToast(title: Text('Something else')));
+        await tester.pump();
+        await tester.pump(const Duration(seconds: 6));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Something else'), findsNothing);
+        expect(find.text('Working…'), findsOneWidget);
+
+        work.complete('Done');
+        await tester.pumpAndSettle();
+
+        expect(find.text('Working…'), findsNothing);
+        expect(find.text('Done'), findsOneWidget);
+
+        await tester.pump(const Duration(seconds: 6));
+        await tester.pumpAndSettle();
+      });
+    });
+
     group('accessibility', () {
       testWidgets('interrupts only for what is worth interrupting for', (
         WidgetTester tester,

@@ -137,12 +137,12 @@ class PlToast {
   final bool showIcon;
 
   /// The same message with [id] filled in, which is what the stack stores.
-  PlToast _named(String name) {
+  PlToast _named(String name, {Duration? timeout}) {
     return PlToast(
       id: name,
       title: title,
       description: description,
-      timeout: timeout,
+      timeout: timeout ?? this.timeout,
       priority: priority,
       actionLabel: actionLabel,
       onAction: onAction,
@@ -367,11 +367,13 @@ class _PlToastProviderState extends State<PlToastProvider>
     required PlToast Function(Object error) failure,
   }) async {
     // The loading toast is held open whatever it asked for: a request slower
-    // than the timeout would otherwise dismiss the message saying it is running.
-    final id = show(loading._named(loading.id ?? 'plass-toast-${_sequence++}'));
-    final entry = _find(id);
-
-    entry?.cancel();
+    // than the timeout would otherwise dismiss the message saying it is running,
+    // and the answer would have nothing left to replace. Stored with no timeout
+    // rather than with its clock stopped once, because the clocks are started
+    // again whenever another toast arrives or the pointer leaves the stack.
+    final id = show(
+      loading._named(loading.id ?? 'plass-toast-${_sequence++}', timeout: Duration.zero),
+    );
 
     try {
       final value = await future;
