@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **`usePlColorScheme` no longer throws in a sandboxed frame.** The check for storage, `typeof localStorage`, sat outside the `try` that caught storage errors, and in a frame sandboxed without `allow-same-origin` that check is what throws, so the component using the hook took its whole tree down on first render. The check is now caught with the rest, and the choice simply does not survive a reload there, as the hook's page describes.
+
 - **`PlColorSchemeScript` keeps its `storageKey` inside the script.** The key was written into the inline script with `JSON.stringify`, which leaves `<` as it is, so a key built from a value the page does not control, such as a tenant's slug, could close the `<script>` with `</script>` and put markup after it into a server-rendered page. `<`, `>`, `&`, U+2028 and U+2029 are now written as escapes, and the script reads the same key as before.
 
 - **A pressable `PlPill`'s light stays on the pill and follows the pointer.** A pill in the flow was not positioned, so the two layers of its interaction light spread across the nearest positioned box around it, a card or the whole viewport, and the light sat in the middle because nothing told it where the pointer was. The pill now contains the light and moves it with the pointer, through the same handler `PlButton` and `PlToggle` use.

@@ -62,11 +62,13 @@ export function applyColorScheme(scheme: PlColorScheme): void {
 
 /** Whatever was stored, if it is one of the three. */
 export function readStoredScheme(key: string): PlColorScheme | null {
-  if (typeof localStorage === 'undefined') {
-    return null;
-  }
-
   try {
+    // Inside the `try`, `typeof` and all: in a sandboxed frame it is reading the
+    // name `localStorage` that throws, not calling anything on it.
+    if (typeof localStorage === 'undefined') {
+      return null;
+    }
+
     const stored = localStorage.getItem(key);
 
     return stored === 'light' || stored === 'dark' || stored === 'system' ? stored : null;

@@ -161,6 +161,34 @@ describe('usePlColorScheme', () => {
       expect(read('scheme')).toBe('system');
     });
 
+    it('keeps working where even naming the storage throws', async () => {
+      // A frame sandboxed without `allow-same-origin` throws a `SecurityError`
+      // on the first read of `window.localStorage`, `typeof` included.
+      const own = Object.getOwnPropertyDescriptor(window, 'localStorage');
+
+      Object.defineProperty(window, 'localStorage', {
+        configurable: true,
+        get() {
+          throw new DOMException('The document is sandboxed.', 'SecurityError');
+        }
+      });
+
+      try {
+        const screen = await render(<Probe />);
+
+        await screen.getByRole('button', { name: 'dark', exact: true }).click();
+
+        await expect.poll(() => read('scheme')).toBe('dark');
+        expect(root().dataset.theme).toBe('dark');
+      } finally {
+        if (own) {
+          Object.defineProperty(window, 'localStorage', own);
+        } else {
+          delete (window as { localStorage?: Storage }).localStorage;
+        }
+      }
+    });
+
     it('scopes the choice to its own storage key', async () => {
       localStorage.setItem(`${KEY}-other-app`, 'dark');
 
