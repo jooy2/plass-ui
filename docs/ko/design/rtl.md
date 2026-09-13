@@ -62,6 +62,7 @@ Directionality(textDirection: TextDirection.rtl, child: child);
 | 읽는 방향을 가리키는 chevron, breadcrumb, pagination 스테퍼, 서브메뉴, `PlTree`의 접힌 삼각형 | **뒤집힙니다.** 글리프 하나를 돌립니다 |
 | `PlSwitch`의 thumb | **뒤집힙니다.** off는 inline start이고, RTL에서 그것은 오른쪽 끝입니다. 어느 플랫폼의 스위치든 그렇게 동작합니다 |
 | `PlPanes` 핸들, `PlSidebar` 드래그, `PlCarousel`과 `PlScrollZone` 스트립 | **뒤집힙니다.** 화살표 키까지 포함해서 |
+| `PlTabs` 줄, `PlRadioGroup`, `PlSegmentedButton`, `PlRating`의 좌우 화살표 키 | **뒤집힙니다.** RTL에서는 왼쪽에 있는 것이 다음 선택지입니다. 위아래 키는 뜻이 그대로입니다 |
 | `PlSlider`의 run | **뒤집힙니다.** 최솟값이 inline start에 있으므로 그림과 누른 자리의 해석, 좌우 화살표 키가 한꺼번에 돌아갑니다 |
 | `PlChatBubble`의 꼬리 모서리, `PlButtonGroup`의 각진 가장자리, 날짜 range의 시작과 끝 | **뒤집힙니다.** 읽는 사람의 start를 향합니다 |
 | `PlAnimateMarquee` | **뒤집힙니다.** 스트립은 읽는 방향의 start를 향해 흐르므로 단어가 읽는 순서대로 도착합니다 |

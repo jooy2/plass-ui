@@ -46,6 +46,8 @@
 
 ### Fixed
 
+- **The left and right arrow keys follow the writing direction in `PlTabs`, `PlRadioGroup` and `PlSegmentedButton`, and only those two turn round in `PlRating`.** Under RTL the three sets moved to the next choice on the right arrow, which is the one to the left of the chosen one on screen. `PlRating` turned every arrow round, so the up arrow lowered the score. The left and right arrows now move towards the choice they point at, and up and down mean the same in both directions, as they do in the React build.
+
 - **A `PlWindowPane` whose offset is fed back moves with the pointer.** The window added the distance it had been dragged to `offset`, and reported the same sum, so a caller passing `onOffsetChanged`'s value back into `offset`, as the documentation's own demo does, moved it twice as far as the pointer went. Given `onOffsetChanged`, the window is now drawn at `offset` alone and a drag, of the bar or of a leading edge, reports where it should go. Without it, the window moves itself as before. A caller that only listened to `onOffsetChanged` has to pass the value back for the window to move.
 
 - **A `PlGrid` cell can hold anything that measures itself with a `LayoutBuilder`.** Every row was wrapped in an `IntrinsicHeight`, which asks each cell for an intrinsic height that a `LayoutBuilder` cannot give, so a `PlGrid` inside a cell threw, and so did a chart, a `PlTable`, a `PlSlider`, a `PlBadge` or any other widget holding one. In a release build the row came out the wrong height instead. A row now lays each cell out at its own height and then stretches the cells to the tallest. See Breaking changes for the one pattern this stops.

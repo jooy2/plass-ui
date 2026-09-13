@@ -264,9 +264,9 @@ class _PlRatingState extends State<PlRating> {
         // `WidgetsApp` or with no app widget above it at all. The arrows are
         // what a radio group gives the React build for free.
         shortcuts: const <ShortcutActivator, Intent>{
-          SingleActivator(LogicalKeyboardKey.arrowRight): _NudgeIntent(1),
+          SingleActivator(LogicalKeyboardKey.arrowRight): _NudgeIntent(1, across: true),
           SingleActivator(LogicalKeyboardKey.arrowUp): _NudgeIntent(1),
-          SingleActivator(LogicalKeyboardKey.arrowLeft): _NudgeIntent(-1),
+          SingleActivator(LogicalKeyboardKey.arrowLeft): _NudgeIntent(-1, across: true),
           SingleActivator(LogicalKeyboardKey.arrowDown): _NudgeIntent(-1),
           SingleActivator(LogicalKeyboardKey.home): _SetIntent(0),
           SingleActivator(LogicalKeyboardKey.end): _SetIntent(double.infinity),
@@ -274,9 +274,10 @@ class _PlRatingState extends State<PlRating> {
         actions: <Type, Action<Intent>>{
           _NudgeIntent: CallbackAction<_NudgeIntent>(
             onInvoke: (_NudgeIntent intent) {
-              // The arrows follow the writing direction, because the row does.
+              // The left and right arrows follow the writing direction, because
+              // the row does. Up is more and down is less in every direction.
               final bool rtl = Directionality.of(context) == TextDirection.rtl;
-              _nudge(rtl ? -intent.steps : intent.steps);
+              _nudge(rtl && intent.across ? -intent.steps : intent.steps);
               return null;
             },
           ),
@@ -397,9 +398,12 @@ class _FractionClipper extends CustomClipper<Rect> {
 
 /// Moves the score by whole steps. See `PlRating`'s shortcuts.
 class _NudgeIntent extends Intent {
-  const _NudgeIntent(this.steps);
+  const _NudgeIntent(this.steps, {this.across = false});
 
   final int steps;
+
+  /// Whether the key runs along the row, and so turns round under RTL.
+  final bool across;
 }
 
 /// Sets the score outright — the two ends of the row.

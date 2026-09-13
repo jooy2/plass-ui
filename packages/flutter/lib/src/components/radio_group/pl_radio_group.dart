@@ -203,15 +203,26 @@ class _PlRadioGroupState<T> extends State<PlRadioGroup<T>> with PlassRovingStop<
       return KeyEventResult.ignored;
     }
 
+    // The horizontal arrows follow the writing direction, because a row of
+    // options does: under RTL the next one is to the left. Up and down do not
+    // turn round.
+    final step = Directionality.of(context) == TextDirection.rtl ? -1 : 1;
+
     switch (event.logicalKey) {
       case LogicalKeyboardKey.arrowDown:
-      case LogicalKeyboardKey.arrowRight:
         _move(1);
 
         return KeyEventResult.handled;
       case LogicalKeyboardKey.arrowUp:
-      case LogicalKeyboardKey.arrowLeft:
         _move(-1);
+
+        return KeyEventResult.handled;
+      case LogicalKeyboardKey.arrowRight:
+        _move(step);
+
+        return KeyEventResult.handled;
+      case LogicalKeyboardKey.arrowLeft:
+        _move(-step);
 
         return KeyEventResult.handled;
       default:

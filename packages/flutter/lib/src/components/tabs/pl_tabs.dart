@@ -276,8 +276,15 @@ class _PlTabsState<T> extends State<PlTabs<T>> with PlassRovingStop<PlTabs<T>> {
       return KeyEventResult.ignored;
     }
 
-    final forward = _vertical ? LogicalKeyboardKey.arrowDown : LogicalKeyboardKey.arrowRight;
-    final back = _vertical ? LogicalKeyboardKey.arrowUp : LogicalKeyboardKey.arrowLeft;
+    // A row runs the way the text does, so under RTL the next tab is the one to
+    // the left. A column runs down in every direction.
+    final rtl = !_vertical && Directionality.of(context) == TextDirection.rtl;
+    final forward = _vertical
+        ? LogicalKeyboardKey.arrowDown
+        : (rtl ? LogicalKeyboardKey.arrowLeft : LogicalKeyboardKey.arrowRight);
+    final back = _vertical
+        ? LogicalKeyboardKey.arrowUp
+        : (rtl ? LogicalKeyboardKey.arrowRight : LogicalKeyboardKey.arrowLeft);
 
     if (event.logicalKey == forward) {
       _move(1);

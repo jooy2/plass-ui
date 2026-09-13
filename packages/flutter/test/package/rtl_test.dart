@@ -260,6 +260,109 @@ void main() {
       expect(await shift(TextDirection.rtl), greaterThan(0), reason: 'RTL: the strip slides right');
     });
 
+    testWidgets('a row of choices takes the arrow that points at the next one', (
+      WidgetTester tester,
+    ) async {
+      /// The value after one press of the right arrow, from the first of three.
+      Future<String> right(
+        TextDirection direction,
+        Widget Function(String, ValueChanged<String>) row,
+      ) async {
+        String value = 'b';
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              key: ValueKey<TextDirection>(direction),
+              builder: (BuildContext context, StateSetter setState) =>
+                  afterFocusStop(before, row(value, (String next) => setState(() => value = next))),
+            ),
+            width: 480,
+            textDirection: direction,
+          ),
+        );
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pumpAndSettle();
+
+        return value;
+      }
+
+      final Map<String, Widget Function(String, ValueChanged<String>)> rows =
+          <String, Widget Function(String, ValueChanged<String>)>{
+            'PlTabs': (String value, ValueChanged<String> onChanged) => PlTabs<String>(
+              tabs: const <PlTab<String>>[
+                PlTab<String>(value: 'a', label: Text('A'), panel: SizedBox()),
+                PlTab<String>(value: 'b', label: Text('B'), panel: SizedBox()),
+                PlTab<String>(value: 'c', label: Text('C'), panel: SizedBox()),
+              ],
+              value: value,
+              onChanged: onChanged,
+            ),
+            'PlRadioGroup': (String value, ValueChanged<String> onChanged) => PlRadioGroup<String>(
+              options: const <PlRadioOption<String>>[
+                PlRadioOption<String>(value: 'a', label: Text('A')),
+                PlRadioOption<String>(value: 'b', label: Text('B')),
+                PlRadioOption<String>(value: 'c', label: Text('C')),
+              ],
+              value: value,
+              onChanged: onChanged,
+            ),
+            'PlSegmentedButton': (String value, ValueChanged<String> onChanged) =>
+                PlSegmentedButton<String>(
+                  segments: const <PlSegment<String>>[
+                    PlSegment<String>(value: 'a', label: Text('A')),
+                    PlSegment<String>(value: 'b', label: Text('B')),
+                    PlSegment<String>(value: 'c', label: Text('C')),
+                  ],
+                  value: value,
+                  onChanged: onChanged,
+                ),
+          };
+
+      for (final MapEntry<String, Widget Function(String, ValueChanged<String>)> row
+          in rows.entries) {
+        expect(await right(TextDirection.ltr, row.value), 'c', reason: '${row.key} in LTR');
+        expect(await right(TextDirection.rtl, row.value), 'a', reason: '${row.key} in RTL');
+      }
+    });
+
+    testWidgets('PlRating turns only the arrows that run along the row', (
+      WidgetTester tester,
+    ) async {
+      Future<double> press(LogicalKeyboardKey key) async {
+        double value = 2;
+
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              key: ValueKey<LogicalKeyboardKey>(key),
+              builder: (BuildContext context, StateSetter setState) => PlRating(
+                value: value,
+                autofocus: true,
+                onChanged: (double next) => setState(() => value = next),
+              ),
+            ),
+            textDirection: TextDirection.rtl,
+          ),
+        );
+        await tester.pump();
+        await tester.sendKeyEvent(key);
+        await tester.pump();
+
+        return value;
+      }
+
+      expect(await press(LogicalKeyboardKey.arrowRight), 1);
+      expect(await press(LogicalKeyboardKey.arrowUp), 3);
+      expect(await press(LogicalKeyboardKey.arrowDown), 1);
+    });
+
     testWidgets('every kind of surface lays out in both directions', (WidgetTester tester) async {
       // Nothing subtle: a widget that refuses a direction outright throws
       // during layout, and one loop here is cheaper than finding out from a
