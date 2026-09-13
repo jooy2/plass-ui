@@ -187,7 +187,7 @@ export const PlNavigationMenuLink = /* @__PURE__ */ React.forwardRef<
   HTMLAnchorElement,
   PlNavigationMenuLinkProps
 >(function PlNavigationMenuLink(
-  { href, title, description, startIcon, className, children, ...props },
+  { href, title, description, startIcon, className, children, target, rel, ...props },
   ref
 ) {
   const { size, density } = React.useContext(NavigationMenuContext);
@@ -196,6 +196,8 @@ export const PlNavigationMenuLink = /* @__PURE__ */ React.forwardRef<
     <BaseUINavigationMenu.Link
       ref={ref}
       href={href}
+      target={target}
+      rel={safeRel(target, rel)}
       className={cx(
         linkClasses,
         radiusClasses[size],

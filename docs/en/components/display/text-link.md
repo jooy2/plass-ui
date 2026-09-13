@@ -105,7 +105,7 @@ Something changing out from under the reader is the one thing about a link that 
 
 So `newTab` does three things at once: `target="_blank"`, a `rel` that stops the new page reaching back through `window.opener`, and a mark. Visible as an arrow, and read out as a line a screen reader hears after the label.
 
-`rel` is merged, never replaced. The common reason to write one by hand is `nofollow` or `sponsored`, which is an SEO decision; as a plain override it would silently take the protection off a link that still opens a new tab.
+`rel` is merged, never replaced. The common reason to write one by hand is `nofollow` or `sponsored`, which is an SEO decision; as a plain override it would silently take the protection off a link that still opens a new tab. A `target` of your own gets the same `rel`, and `target="_blank"` the same line for a screen reader; the arrow still follows `newTab` and `icon`.
 
 :::
 

@@ -6865,11 +6865,11 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
-      name: 'href · target',
+      name: 'href · target · rel',
       type: 'string',
       description: {
-        ko: '행을 진짜 <a>로 렌더링합니다. 링크들의 메뉴는 링크여야 합니다',
-        en: 'Renders the row as a real <a>. A menu of links has to be links'
+        ko: '행을 진짜 <a>로 렌더링합니다. 링크들의 메뉴는 링크여야 합니다. 이 탭이 아닌 곳으로 열리면 rel에 noopener noreferrer가 합쳐집니다',
+        en: 'Renders the row as a real <a>. A menu of links has to be links. Anything other than this tab also gets noopener noreferrer merged into its rel'
       }
     },
     {

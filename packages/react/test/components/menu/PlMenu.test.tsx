@@ -103,6 +103,26 @@ describe('PlMenu', () => {
       expect(element).toHaveAttribute('href', '/docs');
     });
 
+    it('merges the two tokens a new tab needs into a link row s rel', async () => {
+      const screen = await render(
+        <PlMenu open>
+          <PlMenuItem href="https://example.com" target="_blank" rel="nofollow">
+            Documentation
+          </PlMenuItem>
+          <PlMenuItem href="/pricing">Pricing</PlMenuItem>
+        </PlMenu>
+      );
+
+      const outside = screen.getByRole('menuitem', { name: 'Documentation' }).element();
+
+      expect(outside.getAttribute('rel')?.split(' ')).toEqual(
+        expect.arrayContaining(['nofollow', 'noopener', 'noreferrer'])
+      );
+      expect(screen.getByRole('menuitem', { name: 'Pricing' }).element()).not.toHaveAttribute(
+        'rel'
+      );
+    });
+
     it('does not fire while it is unavailable', async () => {
       const pick = vi.fn();
       const screen = await render(

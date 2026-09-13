@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { Menu as BaseUIMenu } from '@base-ui/react/menu';
 import { ContextMenu as BaseUIContextMenu } from '@base-ui/react/context-menu';
+import { safeRel } from '../../internal/link.js';
 import { MenuContext } from '../../internal/menu.js';
 import { CheckIcon, ChevronIcon, DotIcon } from '../../internal/icons.js';
 import {
@@ -96,8 +97,14 @@ export interface PlMenuItemProps {
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   /** Renders the row as a real `<a>`. A menu of links has to be links. */
   href?: string;
-  /** Where the link opens — `_blank` and the rest. Ignored without `href`. */
+  /**
+   * Where the link opens — `_blank` and the rest. Ignored without `href`.
+   * Anything other than this tab also gets `noopener noreferrer` merged into
+   * its `rel`.
+   */
   target?: string;
+  /** The link's `rel`. Ignored without `href`. */
+  rel?: string;
   /** Content before the label — an icon, a swatch, a check. */
   startIcon?: React.ReactNode;
   /** Content after the label, before any `shortcut`. */
@@ -151,7 +158,7 @@ export interface PlMenuGroupProps {
 
 export interface PlMenuCheckboxItemProps extends Omit<
   PlMenuItemProps,
-  'href' | 'target' | 'startIcon' | 'onClick'
+  'href' | 'target' | 'rel' | 'startIcon' | 'onClick'
 > {
   checked?: boolean;
   defaultChecked?: boolean;
@@ -177,7 +184,7 @@ export interface PlMenuRadioGroupProps {
 
 export interface PlMenuRadioItemProps extends Omit<
   PlMenuItemProps,
-  'href' | 'target' | 'startIcon' | 'onClick'
+  'href' | 'target' | 'rel' | 'startIcon' | 'onClick'
 > {
   /** What this row sets the group to. */
   value: string | number;
@@ -343,6 +350,7 @@ export function PlMenuItem({
   onClick,
   href,
   target,
+  rel,
   startIcon,
   endIcon,
   shortcut,
@@ -383,6 +391,7 @@ export function PlMenuItem({
       <BaseUIMenu.LinkItem
         href={href}
         target={target}
+        rel={safeRel(target, rel)}
         label={label}
         closeOnClick={closeOnClick}
         onClick={onClick}

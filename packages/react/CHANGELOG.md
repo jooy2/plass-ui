@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **Every link that opens a new tab takes `noopener noreferrer`.** `PlTextLink` added them only for `newTab`, so a caller's own `target="_blank"` got neither them nor the "(opens in a new tab)" line a screen reader hears. `PlNavigationMenuLink` passed its `target` through with the `rel` untouched, and `PlMenuItem` took no `rel` at all. All three now merge the two tokens into the `rel` of any link whose `target` is not this tab, `PlTextLink` announces a `target="_blank"` link as it does a `newTab` one, and `PlMenuItem` takes a `rel`.
+
 - **Each `PlChip` delete button is named after its chip.** Every delete button was named "Remove", so tabbing along a row of tags read the same word for each one and never said which tag it would remove. The name is now the label pack's word followed by the chip's text, such as "Remove design". A `deleteLabel` is still the whole name.
 
 - **The `PlGallery` viewer keeps the focus when an arrow reaches the end of the set.** Pressing Next onto the last picture, or Previous onto the first, disabled the button that had the focus, which dropped the focus to the page, and the arrow keys stopped moving between pictures. The focus now crosses to the other arrow.

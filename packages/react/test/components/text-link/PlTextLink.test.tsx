@@ -108,6 +108,20 @@ describe('PlTextLink', () => {
       expect(rel).toEqual(expect.arrayContaining(['nofollow', 'noopener', 'noreferrer']));
     });
 
+    it('protects and announces a link the caller sent to a new tab with `target`', async () => {
+      const screen = await render(
+        <PlTextLink href="https://example.com" target="_blank" rel="nofollow">
+          Docs
+        </PlTextLink>
+      );
+      const link = screen.getByRole('link', { name: 'Docs (opens in a new tab)' });
+
+      await expect.element(link).toHaveAttribute('target', '_blank');
+      expect(link.element().getAttribute('rel')?.split(' ')).toEqual(
+        expect.arrayContaining(['nofollow', 'noopener', 'noreferrer'])
+      );
+    });
+
     it('sets no `rel` at all on a same-tab link', async () => {
       const screen = await render(<PlTextLink href="/pricing">Pricing</PlTextLink>);
 

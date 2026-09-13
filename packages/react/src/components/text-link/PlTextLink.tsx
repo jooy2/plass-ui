@@ -240,15 +240,19 @@ export const PlTextLink = /* @__PURE__ */ React.forwardRef<HTMLAnchorElement, Pl
      * `rel` is merged rather than replaced — see `internal/link.ts` for why
      * that is a security decision rather than a convenience.
      */
-    const { rel: askedFor, ...rest } = props;
-    const rel = safeRel(newTab ? '_blank' : undefined, askedFor);
+    const { rel: askedFor, target: targetProp, ...rest } = props;
+    // A caller's own `target="_blank"` opens a new tab as surely as `newTab`
+    // does, so it takes the same protection and the same words.
+    const target = targetProp ?? (newTab ? '_blank' : undefined);
+    const opensNewTab = newTab || target === '_blank';
+    const rel = safeRel(target, askedFor);
 
     return useRender({
       render: render ?? <a />,
       ref,
       props: {
         ...(rendersItsOwnHref ? null : { href }),
-        target: newTab ? '_blank' : undefined,
+        target,
         className: classNames,
         style: { ...slots, ...style },
         children: (
@@ -260,7 +264,7 @@ export const PlTextLink = /* @__PURE__ */ React.forwardRef<HTMLAnchorElement, Pl
                 only to a reader who can see it. The space is a real text node,
                 so the accessible name comes out as two words rather than as the
                 label with a bracket stuck to the end of it. */}
-            {newTab ? (
+            {opensNewTab ? (
               <>
                 {' '}
                 <span className={srOnlyClasses}>{newTabLabel}</span>

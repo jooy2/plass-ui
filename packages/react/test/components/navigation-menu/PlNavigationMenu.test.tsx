@@ -101,6 +101,30 @@ describe('PlNavigationMenu', () => {
       expect(onValueChange).toHaveBeenCalledWith('product');
     });
 
+    it('merges the two tokens a new tab needs into a panel link s rel', async () => {
+      const screen = await render(
+        <PlNavigationMenu>
+          <PlNavigationMenuItem label="Product">
+            <PlNavigationMenuLink
+              href="https://example.com"
+              title="Docs"
+              target="_blank"
+              rel="nofollow"
+            />
+          </PlNavigationMenuItem>
+        </PlNavigationMenu>
+      );
+
+      await screen.getByRole('button', { name: /Product/ }).click();
+
+      const link = screen.getByRole('link', { name: /Docs/ });
+
+      await expect.element(link).toHaveAttribute('target', '_blank');
+      expect(link.element().getAttribute('rel')?.split(' ')).toEqual(
+        expect.arrayContaining(['nofollow', 'noopener', 'noreferrer'])
+      );
+    });
+
     it('puts real anchors in the panel, with their descriptions', async () => {
       const screen = await render(
         <PlNavigationMenu>
