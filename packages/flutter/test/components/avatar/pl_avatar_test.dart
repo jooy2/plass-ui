@@ -1,11 +1,43 @@
+import 'dart:convert';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/decode.dart';
 
 import '../../support/host.dart';
 
 void main() {
   group('PlAvatar', () {
+    group('a picture', () {
+      testWidgets('is decoded at the size of the disc, not of its file', (
+        WidgetTester tester,
+      ) async {
+        final MemoryImage photograph = MemoryImage(
+          base64Decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+          ),
+        );
+
+        await tester.pumpWidget(
+          host(
+            MediaQuery(
+              data: const MediaQueryData(devicePixelRatio: 3),
+              child: PlAvatar(image: photograph, name: 'Ada Lovelace', size: PlassSize.md),
+            ),
+          ),
+        );
+
+        // A 40-pixel disc at three device pixels to one, rounded up to a whole
+        // step: a few hundred kilobytes where a large photograph would hold
+        // megabytes.
+        expect(
+          tester.widget<Image>(find.byType(Image)).image,
+          PlassSizedImage(photograph, width: 128, height: 128, cover: true),
+        );
+      });
+    });
+
     group('initials', () {
       test('takes the first character of the first word and of the last', () {
         expect(PlAvatar.initialsOf('Jane Doe'), 'JD');

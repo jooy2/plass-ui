@@ -8,6 +8,7 @@ import 'package:plass_ui/src/components/aspect_ratio/pl_aspect_ratio.dart';
 import 'package:plass_ui/src/components/icon_button/pl_icon_button.dart';
 import 'package:plass_ui/src/components/image/pl_image.dart';
 import 'package:plass_ui/src/components/overlay/pl_overlay.dart';
+import 'package:plass_ui/src/internal/decode.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/gallery.dart';
 import 'package:plass_ui/src/internal/icons.dart';
@@ -17,6 +18,10 @@ import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
+
+/// How much of the screen the viewer's picture may take, across and down.
+const double _viewerWidth = 0.9;
+const double _viewerHeight = 0.8;
 
 /// How the tiles are arranged.
 ///
@@ -712,6 +717,22 @@ class _Viewer extends StatelessWidget {
   }
 
   /// [child] turned and mirrored the way [item] asks, as its tile is.
+  /// The picture [item] opens as, decoded to fit the viewer's caps.
+  ImageProvider<Object> _sized(BuildContext context, PlGalleryItem item) {
+    final Size screen = MediaQuery.sizeOf(context);
+    final double width = screen.width * _viewerWidth;
+    final double height = screen.height * _viewerHeight;
+    final bool sideways = isSideways(quartersOf(item.rotate));
+
+    return sizedForDecode(
+      item.full ?? item.image,
+      width: sideways ? height : width,
+      height: sideways ? width : height,
+      devicePixelRatio: MediaQuery.maybeDevicePixelRatioOf(context) ?? 1,
+      cover: false,
+    );
+  }
+
   Widget _pose(PlGalleryItem item, Widget child) {
     return posed(
       child,
@@ -769,8 +790,8 @@ class _Viewer extends StatelessWidget {
                         children: <Widget>[
                           ConstrainedBox(
                             constraints: BoxConstraints(
-                              maxHeight: MediaQuery.sizeOf(context).height * 0.8,
-                              maxWidth: MediaQuery.sizeOf(context).width * 0.9,
+                              maxHeight: MediaQuery.sizeOf(context).height * _viewerHeight,
+                              maxWidth: MediaQuery.sizeOf(context).width * _viewerWidth,
                             ),
                             // Turned and mirrored the way its tile is, so the
                             // picture opens the way it was shown. A `RotatedBox`
@@ -783,7 +804,10 @@ class _Viewer extends StatelessWidget {
                                 // one starts its own load rather than showing the
                                 // previous file under a new caption.
                                 key: ValueKey<String>(current.id ?? '${current.image}'),
-                                image: current.full ?? current.image,
+                                // Decoded to fit the caps it is shown under,
+                                // turned with the picture. A `full` file is the
+                                // one most worth it: it is the largest there is.
+                                image: _sized(context, current),
                                 semanticLabel: current.semanticLabel,
                                 fit: BoxFit.contain,
                               ),

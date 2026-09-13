@@ -42,6 +42,8 @@
 
 ### Changed
 
+- **`PlAvatar`, `PlImage` and the `PlGallery` viewer decode a picture at the size it is drawn.** They decoded every file at its own size, so a 1024-pixel photograph in a 40-pixel avatar held four megabytes, and every tile of a gallery of twelve-megapixel photographs held about fifty. A plain `ImageProvider` is now decoded no larger than its box needs at the screen's pixel ratio: a cropped picture reaches both sides of the box and one shown whole fits inside it, rounded up to a step of 128 device pixels so a box that grows by a pixel is not decoded again. `PlImage` measures its box on the first frame and asks for the picture on the next, and decodes again only when the box grows. A `ResizeImage` you pass is used as it is, and `fit: PlAspectFit.none` still decodes the whole file. One consequence: `precacheImage` with a plain provider warms a different cache entry from the one these widgets draw, so precache a `ResizeImage` and pass the same one.
+
 - **`PlCombobox` and `PlCommandPalette` say the label pack's `empty` when nothing matched.** Their `emptyMessage` defaults, "No matches" and "No commands found", were written in English, so a translated application still said them in English. Both parameters are now nullable and fall back to `empty`, as `PlTreeSelect` and `PlTransfer` do, which makes the English default "Nothing here" for both. Pass `emptyMessage` to keep the old words.
 
 - **A chart series with no `name` is called by its number.** The legend, the tooltip and the summary of `PlLineChart`, `PlBarChart`, `PlAreaChart` and `PlScatterChart` called it "Series 2", a word no pack translates, while `PlHeatmapChart`, `PlTimelineChart` and the React build say "2". They now say the number as well.

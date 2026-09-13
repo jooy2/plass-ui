@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/decode.dart';
 
 import '../../support/host.dart';
 
@@ -450,6 +451,46 @@ void main() {
         final Iterable<Image> shown = tester.widgetList<Image>(find.byType(Image));
 
         expect(shown.any((Image image) => identical(image.image, big)), isTrue);
+      });
+
+      testWidgets('decodes the open picture to fit the viewer, turned with it', (
+        WidgetTester tester,
+      ) async {
+        final MemoryImage big = _picture(9);
+
+        await _pump(
+          tester,
+          MediaQuery(
+            data: const MediaQueryData(size: Size(600, 900), devicePixelRatio: 2),
+            child: PlGallery(
+              items: <PlGalleryItem>[
+                PlGalleryItem(
+                  id: 'a',
+                  image: _picture(1),
+                  full: big,
+                  rotate: 90,
+                  semanticLabel: 'A harbour',
+                ),
+              ],
+              preview: true,
+            ),
+          ),
+        );
+
+        await tester.tap(find.bySemanticsLabel('A harbour — 1 of 1'));
+        await _settle(tester);
+
+        final Image open = tester
+            .widgetList<Image>(
+              find.descendant(of: find.byType(PlOverlay), matching: find.byType(Image)),
+            )
+            .firstWhere((Image image) => !image.excludeFromSemantics);
+
+        // The viewer takes 540 by 720 of a 600 by 900 screen. The file lies on
+        // its side, so its own width is measured down the screen, and the whole
+        // of it fits inside: 720 and 540 at two device pixels to one, rounded up
+        // to whole steps.
+        expect(open.image, PlassSizedImage(big, width: 1536, height: 1152, cover: false));
       });
 
       testWidgets('walks the set with the arrow keys', (WidgetTester tester) async {

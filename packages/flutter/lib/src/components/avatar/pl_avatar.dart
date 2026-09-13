@@ -4,6 +4,7 @@ library;
 
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/decode.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -254,7 +255,16 @@ class _PlAvatarState extends State<PlAvatar> {
 
     if (widget.image != null && !_failed) {
       content = Image(
-        image: widget.image!,
+        // Decoded at the size of the disc rather than the size of the file, which
+        // is the difference between a few hundred kilobytes and several
+        // megabytes for every avatar in a list.
+        image: sizedForDecode(
+          widget.image!,
+          width: box,
+          height: box,
+          devicePixelRatio: MediaQuery.maybeDevicePixelRatioOf(context) ?? 1,
+          cover: true,
+        ),
         fit: BoxFit.cover,
         width: box,
         height: box,

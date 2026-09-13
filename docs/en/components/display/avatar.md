@@ -69,6 +69,8 @@ Which one is showing is decided by the `Image` itself: its `frameBuilder` shows 
 
 There is no `delay`. It exists in the React build so the initials do not flash up in front of a cached image; here a picture already in the image cache is decoded synchronously and the fallback is never built at all.
 
+The picture is decoded at the size of the avatar rather than the size of its file. A `ResizeImage` you pass is used as it is.
+
 :::
 
 The derivation is the first character of the first word plus the first character of the last. "Jane Doe" is `JD`. A single-token name gives one character, because two characters of a Korean, Japanese or Chinese name at 40px is a smudge where one is a name.

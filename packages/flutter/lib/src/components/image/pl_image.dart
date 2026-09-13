@@ -3,12 +3,14 @@ library;
 
 import 'dart:ui' as ui;
 
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/aspect_ratio/pl_aspect_ratio.dart';
 import 'package:plass_ui/src/components/overlay/pl_overlay.dart';
 import 'package:plass_ui/src/components/skeleton/pl_skeleton.dart';
 import 'package:plass_ui/src/internal/css.dart';
+import 'package:plass_ui/src/internal/decode.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/image.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
@@ -348,15 +350,96 @@ class _PlImageState extends State<PlImage> {
   PlImageStatus _status = PlImageStatus.loading;
   bool _open = false;
 
+  /// Whether the box the picture is drawn in has been measured yet. Until it
+  /// has, the picture is not asked for, so it is decoded once and at the right
+  /// size rather than once at the size of its file first.
+  bool _measured = false;
+
+  /// The constraints the box was last measured under.
+  BoxConstraints? _constraints;
+
+  /// The widest and the tallest the box has been since the picture changed, or
+  /// `null` on an axis with no bound. The picture is decoded for these, and a
+  /// box that shrinks keeps the larger decode rather than decoding again.
+  double? _boxWidth;
+  double? _boxHeight;
+
   @override
   void didUpdateWidget(PlImage oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     // A new picture starts again. Without this a second one would inherit the
-    // first one's `loaded` and never draw its own failure.
+    // first one's `loaded` and never draw its own failure. It is decoded for the
+    // box as it is now rather than for the largest the last picture saw.
     if (oldWidget.image != widget.image) {
       _status = PlImageStatus.loading;
+      _boxWidth = _bound(_constraints?.maxWidth);
+      _boxHeight = _bound(_constraints?.maxHeight);
     }
+  }
+
+  static double? _bound(double? length) => length == null || !length.isFinite ? null : length;
+
+  /// Takes a measurement of the box, and asks for the picture again only when
+  /// it has grown into a larger decode.
+  void _onMeasured(BoxConstraints constraints) {
+    if (!mounted) {
+      return;
+    }
+
+    _constraints = constraints;
+
+    final double? width = _bound(constraints.maxWidth);
+    final double? height = _bound(constraints.maxHeight);
+
+    double? larger(double? next, double? held) {
+      if (next == null || held == null) {
+        return _measured ? held : next;
+      }
+
+      return next > held ? next : held;
+    }
+
+    final double? grownWidth = larger(width, _boxWidth);
+    final double? grownHeight = larger(height, _boxHeight);
+
+    if (_measured &&
+        _decoded(context, grownWidth, grownHeight) == _decoded(context, _boxWidth, _boxHeight)) {
+      _boxWidth = grownWidth;
+      _boxHeight = grownHeight;
+
+      return;
+    }
+
+    setState(() {
+      _measured = true;
+      _boxWidth = grownWidth;
+      _boxHeight = grownHeight;
+    });
+  }
+
+  /// The picture as it is decoded for a box of [width] by [height].
+  ///
+  /// A picture shown whole is decoded to fit inside the box, and a cropped or
+  /// stretched one to reach both of its sides. One drawn at its own size is left
+  /// as it is. The box is turned with the picture, because the decode is in the
+  /// file's own axes.
+  ImageProvider<Object> _decoded(BuildContext context, double? width, double? height) {
+    final PlAspectFit fit = widget.fit;
+
+    if (fit == PlAspectFit.none) {
+      return widget.image;
+    }
+
+    final bool sideways = isSideways(quartersOf(widget.rotate));
+
+    return sizedForDecode(
+      widget.image,
+      width: sideways ? height : width,
+      height: sideways ? width : height,
+      devicePixelRatio: MediaQuery.maybeDevicePixelRatioOf(context) ?? 1,
+      cover: fit == PlAspectFit.cover || fit == PlAspectFit.fill,
+    );
   }
 
   void _settle(PlImageStatus next) {
@@ -391,6 +474,25 @@ class _PlImageState extends State<PlImage> {
     return Alignment(across * 2 - 1, down * 2 - 1);
   }
 
+  /// The picture [PlImage.preview] opens, decoded to fit the screen it is
+  /// shown whole on.
+  Widget _previewPicture(BuildContext context) {
+    final Size screen = MediaQuery.sizeOf(context);
+    final bool sideways = isSideways(quartersOf(widget.rotate));
+
+    return Image(
+      image: sizedForDecode(
+        widget.image,
+        width: sideways ? screen.height : screen.width,
+        height: sideways ? screen.width : screen.height,
+        devicePixelRatio: MediaQuery.maybeDevicePixelRatioOf(context) ?? 1,
+        cover: false,
+      ),
+      fit: BoxFit.contain,
+      excludeFromSemantics: true,
+    );
+  }
+
   /// The picture turned and mirrored the way [PlImage.rotate] and
   /// [PlImage.flip] say.
   Widget _pose(Widget child) {
@@ -408,7 +510,7 @@ class _PlImageState extends State<PlImage> {
   /// Grown past the box by two radii on every side and clipped back to it,
   /// because a blur fades to nothing over about that distance at its edge and
   /// the box would otherwise show a soft frame of whatever is behind it.
-  Widget? _backdrop() {
+  Widget? _backdrop(ImageProvider<Object> decoded) {
     final PlAspectFit fit = widget.fit;
 
     if (widget.letterbox != PlImageLetterbox.blur ||
@@ -428,7 +530,9 @@ class _PlImageState extends State<PlImage> {
           child: _treat(
             _pose(
               Image(
-                image: widget.image,
+                // The picture's own decode, so the copy is one more draw of the
+                // same cache entry rather than a second decode at another size.
+                image: decoded,
                 fit: BoxFit.cover,
                 alignment: _alignment,
                 excludeFromSemantics: true,
@@ -551,78 +655,96 @@ class _PlImageState extends State<PlImage> {
           ),
         );
 
-    Widget picture = Image(
-      image: widget.image,
-      fit: PlAspectRatio.boxFit(widget.fit),
-      alignment: _alignment,
-      // Only ever named once, by the `Semantics` below.
-      excludeFromSemantics: true,
-      // The picture fades up over the placeholder rather than replacing it
-      // between two frames. A photograph that cuts in has decoded, which is
-      // true and is not what the reader is being told — what a hard cut reads
-      // as is the layout changing its mind, and it reads that way hardest on
-      // the slow connection the placeholder exists for.
+    final ImageProvider<Object> decoded = _decoded(context, _boxWidth, _boxHeight);
+
+    // The picture fades up over the placeholder rather than replacing it
+    // between two frames. A photograph that cuts in has decoded, which is
+    // true and is not what the reader is being told — what a hard cut reads
+    // as is the layout changing its mind, and it reads that way hardest on
+    // the slow connection the placeholder exists for.
+    //
+    // Both branches build the same `AnimatedOpacity`, which is what makes it
+    // animate at all: a widget created at 1 has nothing to travel from. A
+    // picture that was already decoded is handed back whole and unwrapped —
+    // `sync` is the frame where there was never anything to wait for, and an
+    // entrance there would be an entrance for a picture that never arrived.
+    Widget frameOf(BuildContext context, Widget child, int? frame, bool sync) {
+      // The treatment goes on the picture and on nothing else. Wrapping the
+      // whole `Image` would put it over the placeholder and the fallback too,
+      // and a greyed-out skeleton is not what `filter: grayscale` was asked
+      // for.
+      final Widget? backdrop = _backdrop(decoded);
+      final Widget posed = _treat(_pose(child));
+      // The copy fades in with the picture rather than ahead of it, so the two
+      // go under one fade. The stack clips the copy's grown edge back to the
+      // box.
+      final Widget treated = backdrop == null
+          ? posed
+          : Stack(fit: StackFit.passthrough, children: <Widget>[backdrop, posed]);
+
+      if (sync) {
+        _settle(PlImageStatus.loaded);
+
+        return treated;
+      }
+
+      if (frame != null) {
+        _settle(PlImageStatus.loaded);
+      }
+
+      // A picture decoded again for a box that grew has already arrived, and
+      // goes on being drawn while the larger decode is on its way.
+      final bool arrived = frame != null || _status == PlImageStatus.loaded;
+      final Duration fade = reduceMotion ? Duration.zero : PlassTokens.duration;
+      final Widget fading = AnimatedOpacity(
+        opacity: arrived ? 1 : 0,
+        duration: fade,
+        curve: PlassTokens.ease,
+        child: treated,
+      );
+      final Widget? standIn = _standIn(arrived: arrived, fade: fade);
+
+      // `StackFit.passthrough` so the placeholder is measured by whatever the
+      // picture would have been measured by, and the undecoded image under it
+      // takes no room of its own.
       //
-      // Both branches build the same `AnimatedOpacity`, which is what makes it
-      // animate at all: a widget created at 1 has nothing to travel from. A
-      // picture that was already decoded is handed back whole and unwrapped —
-      // `sync` is the frame where there was never anything to wait for, and an
-      // entrance there would be an entrance for a picture that never arrived.
-      frameBuilder: (BuildContext context, Widget child, int? frame, bool sync) {
-        // The treatment goes on the picture and on nothing else. Wrapping the
-        // whole `Image` would put it over the placeholder and the fallback too,
-        // and a greyed-out skeleton is not what `filter: grayscale` was asked
-        // for.
-        final Widget? backdrop = _backdrop();
-        final Widget posed = _treat(_pose(child));
-        // The copy fades in with the picture rather than ahead of it, so the two
-        // go under one fade. The stack clips the copy's grown edge back to the
-        // box.
-        final Widget treated = backdrop == null
-            ? posed
-            : Stack(fit: StackFit.passthrough, children: <Widget>[backdrop, posed]);
+      // The same `Stack` once the first frame is in, with the placeholder
+      // gone from in front of the picture. Returning the `AnimatedOpacity` on
+      // its own there would move it to a different parent, and a widget that
+      // changes parent is built again from scratch — at 1, with nothing to
+      // travel from.
+      //
+      // A picture stand-in is the exception: it goes under the picture and
+      // stays there through the fade.
+      return Stack(
+        fit: StackFit.passthrough,
+        children: <Widget>[?standIn, if (!arrived && standIn == null) placeholder, fading],
+      );
+    }
 
-        if (sync) {
-          _settle(PlImageStatus.loaded);
+    Widget picture = _MeasuredBox(
+      onMeasured: _onMeasured,
+      // Until the box has been measured the picture is not asked for, and what
+      // is drawn instead is what a picture on its way lays out as, unseen for
+      // the one frame it takes.
+      child: _measured
+          ? Image(
+              image: decoded,
+              fit: PlAspectRatio.boxFit(widget.fit),
+              alignment: _alignment,
+              // Only ever named once, by the `Semantics` below.
+              excludeFromSemantics: true,
+              // Kept on screen through a decode for a box that grew, and cleared
+              // for a new picture, which starts from its placeholder.
+              gaplessPlayback: _status == PlImageStatus.loaded,
+              frameBuilder: frameOf,
+              errorBuilder: (BuildContext context, Object error, StackTrace? stack) {
+                _settle(PlImageStatus.error);
 
-          return treated;
-        }
-
-        if (frame != null) {
-          _settle(PlImageStatus.loaded);
-        }
-
-        final Duration fade = reduceMotion ? Duration.zero : PlassTokens.duration;
-        final Widget fading = AnimatedOpacity(
-          opacity: frame == null ? 0 : 1,
-          duration: fade,
-          curve: PlassTokens.ease,
-          child: treated,
-        );
-        final Widget? standIn = _standIn(arrived: frame != null, fade: fade);
-
-        // `StackFit.passthrough` so the placeholder is measured by whatever the
-        // picture would have been measured by, and the undecoded image under it
-        // takes no room of its own.
-        //
-        // The same `Stack` once the first frame is in, with the placeholder
-        // gone from in front of the picture. Returning the `AnimatedOpacity` on
-        // its own there would move it to a different parent, and a widget that
-        // changes parent is built again from scratch — at 1, with nothing to
-        // travel from.
-        //
-        // A picture stand-in is the exception: it goes under the picture and
-        // stays there through the fade.
-        return Stack(
-          fit: StackFit.passthrough,
-          children: <Widget>[?standIn, if (frame == null && standIn == null) placeholder, fading],
-        );
-      },
-      errorBuilder: (BuildContext context, Object error, StackTrace? stack) {
-        _settle(PlImageStatus.error);
-
-        return fallback;
-      },
+                return fallback;
+              },
+            )
+          : Opacity(opacity: 0, child: frameOf(context, const RawImage(), null, false)),
     );
 
     final Decoration? painted = widget.letterbox?.decoration;
@@ -736,12 +858,10 @@ class _PlImageState extends State<PlImage> {
             // Turned and mirrored the way the thumbnail was, so the picture opens
             // the way it was shown.
             child: widget.watermark == null
-                ? _pose(Image(image: widget.image, fit: BoxFit.contain, excludeFromSemantics: true))
+                ? _pose(_previewPicture(context))
                 : Stack(
                     children: <Widget>[
-                      _pose(
-                        Image(image: widget.image, fit: BoxFit.contain, excludeFromSemantics: true),
-                      ),
+                      _pose(_previewPicture(context)),
                       PlassWatermarkLayer(watermark: widget.watermark!),
                     ],
                   ),
@@ -762,5 +882,49 @@ class _PlImageState extends State<PlImage> {
     }
 
     return result;
+  }
+}
+
+/// Reports the constraints its child is laid out under, after the frame.
+///
+/// What a `LayoutBuilder` would be for, without what a `LayoutBuilder` costs:
+/// it builds nothing during layout, so it answers the intrinsic sizes a table
+/// cell or an `IntrinsicHeight` asks for by asking its child, where a
+/// `LayoutBuilder` has no child yet to ask.
+class _MeasuredBox extends SingleChildRenderObjectWidget {
+  const _MeasuredBox({required this.onMeasured, required super.child});
+
+  final ValueChanged<BoxConstraints> onMeasured;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderMeasuredBox(onMeasured);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderMeasuredBox renderObject) {
+    renderObject.onMeasured = onMeasured;
+  }
+}
+
+class _RenderMeasuredBox extends RenderProxyBox {
+  _RenderMeasuredBox(this.onMeasured);
+
+  ValueChanged<BoxConstraints> onMeasured;
+
+  BoxConstraints? _reported;
+
+  @override
+  void performLayout() {
+    super.performLayout();
+
+    if (constraints == _reported) {
+      return;
+    }
+
+    final BoxConstraints measured = constraints;
+
+    _reported = measured;
+    // After the frame, because the answer can rebuild the widget that is being
+    // laid out.
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) => onMeasured(measured));
   }
 }

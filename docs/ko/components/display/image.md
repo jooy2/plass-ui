@@ -57,6 +57,12 @@ PlImage(
 3. **둘이 하나의 상태 기계입니다.** 그래서 이미 로드된 사진 뒤에 placeholder가 남아 있지 않고, `src`가 바뀌면 지난번의 성공을 물려받는 대신 다시 시작합니다.
 4. **사진은 placeholder 위로 서서히 나타납니다.** 두 프레임 사이에 갈아 끼우지 않습니다. 뚝 끊고 나타나는 사진은 레이아웃이 마음을 바꾼 것처럼 읽히고, placeholder가 존재하는 이유인 느린 연결에서 가장 그렇게 읽힙니다. 이미 디코딩된 사진은 통째로 그립니다. 기다릴 일이 없었던 것에 등장 효과를 붙이는 것은 아무것도 아닌 것에 붙이는 셈입니다.
 
+::: fw flutter
+
+**사진은 상자 크기로 디코드됩니다.** 브라우저가 `<img>`를 그려지는 픽셀만큼만 들고 있는 것과 같습니다. 첫 프레임에서 상자를 재고 다음 프레임에 사진을 요청하며, 화면의 픽셀 비율에서 상자에 필요한 크기보다 크게 디코드하지 않습니다. 상자가 커질 때만 다시 디코드합니다. 잘라서 보이는 사진은 상자의 두 변에 닿게, 통째로 보이는 사진은 상자 안에 들어가게 디코드합니다. 넘겨준 `ResizeImage`는 그대로 쓰고, `fit: PlAspectFit.none`인 사진은 파일 전체를 디코드합니다.
+
+:::
+
 ## Examples
 
 ### 두 상태
@@ -222,7 +228,7 @@ PlImage(
 
 `PlImageLetterbox(decoration)`은 사진 뒤에 어떤 `Decoration`이든 칠합니다. 색도 gradient도 됩니다. React는 CSS `background` 문자열을 받지만, 여기서 둘을 함께 담는 것은 `Decoration`이기 때문입니다.
 
-사본은 같은 `ImageProvider`로 만든 두 번째 `Image`입니다. 그래서 다시 불러오지 않고 같은 캐시 항목에서 받습니다.
+사본은 사진 자신의 디코드로 만든 두 번째 `Image`입니다. 그래서 다시 디코드하지 않고 같은 캐시 항목에서 받습니다.
 
 :::
 
@@ -414,7 +420,7 @@ lazy로 불러오는 사진에도 잡아 둔 상자가 필요합니다. viewport
 
 ::: fw flutter
 
-여기에는 `priority`가 없습니다. `Image`는 빌드되자마자 provider를 풀기 시작하므로, 끌 lazy 로딩도 올릴 fetch priority도 없습니다. 화면을 보이기 전에 사진을 준비해 두려면 그 provider로 먼저 `precacheImage`를 부르세요.
+여기에는 `priority`가 없습니다. `Image`는 빌드되자마자 provider를 풀기 시작하므로, 끌 lazy 로딩도 올릴 fetch priority도 없습니다. 화면을 보이기 전에 사진을 준비해 두려면, 그려질 크기의 `ResizeImage`를 사진으로 넘기고 같은 `ResizeImage`로 먼저 `precacheImage`를 부르세요. 일반 provider는 상자 크기로 디코드되므로, `precacheImage`가 파일 전체를 디코드해 둔 캐시 항목과 다릅니다.
 
 :::
 

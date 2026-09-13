@@ -11,6 +11,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 import 'package:plass_ui/src/internal/css.dart';
+import 'package:plass_ui/src/internal/decode.dart';
 import 'package:plass_ui/src/internal/watermark.dart';
 
 import '../../support/host.dart';
@@ -112,6 +113,30 @@ Future<ui.Image> _decoded(WidgetTester tester) async {
 
     return (await codec.getNextFrame()).image;
   }))!;
+}
+
+/// Pumps until every picture on screen has decoded.
+///
+/// A picture is asked for a frame after it is first built, once its box has
+/// been measured, and decoded for that box. The decode is real work, which the
+/// test's clock does not wait for on its own, so the real one is given a moment
+/// between frames until nothing is left drawing a placeholder.
+Future<void> _decode(WidgetTester tester) async {
+  for (int tries = 0; tries < 50; tries += 1) {
+    await tester.pump();
+
+    final bool waiting = tester
+        .widgetList<RawImage>(find.byType(RawImage))
+        .any((RawImage raw) => raw.image == null);
+
+    if (!waiting && find.byType(RawImage).evaluate().isNotEmpty) {
+      break;
+    }
+
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 10)));
+  }
+
+  await tester.pumpAndSettle();
 }
 
 Future<void> _pump(WidgetTester tester, Widget child, {bool overlay = false}) async {
@@ -273,6 +298,8 @@ void main() {
             textDirection: TextDirection.rtl,
           ),
         );
+        // The picture is built once its box has been measured, a frame later.
+        await tester.pump();
 
         expect(placed(tester), const Alignment(-0.4, 0));
       });
@@ -336,9 +363,12 @@ void main() {
         );
 
         final Image drawn = tester.widget<Image>(copy());
+        final Image picture = tester.widget<Image>(
+          find.byWidgetPredicate((Widget widget) => widget is Image && widget != drawn).first,
+        );
 
         // The same picture, answered from the same cache entry, covering the box.
-        expect(drawn.image, same(_ok));
+        expect(drawn.image, same(picture.image));
         expect(drawn.fit, BoxFit.cover);
         expect(drawn.excludeFromSemantics, isTrue);
         expect(
@@ -407,7 +437,7 @@ void main() {
         // A width to be given and a height left open, the way a column of
         // content lays a picture out.
         await tester.pumpWidget(host(child, width: 200));
-        await tester.pumpAndSettle();
+        await _decode(tester);
       }
 
       testWidgets('sizes the box to a lone height, across the width it is given', (
@@ -500,6 +530,151 @@ void main() {
           ),
           const Size(80, 80),
         );
+      });
+    });
+
+    group('decoding', () {
+      /// A PNG of the given size, encoded the way a file off a disk is.
+      Future<MemoryImage> file(WidgetTester tester, int width, int height) async {
+        return MemoryImage(
+          (await tester.runAsync(() async {
+            final ui.PictureRecorder recorder = ui.PictureRecorder();
+
+            Canvas(recorder).drawRect(
+              Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()),
+              Paint()..color = const Color(0xFF808080),
+            );
+
+            final ui.Image image = await recorder.endRecording().toImage(width, height);
+            final ByteData? bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+
+            image.dispose();
+
+            return bytes!.buffer.asUint8List();
+          }))!,
+        );
+      }
+
+      ImageProvider<Object> asked(WidgetTester tester) {
+        return tester
+            .widgetList<Image>(find.byType(Image))
+            .firstWhere((Image image) => image.frameBuilder != null)
+            .image;
+      }
+
+      testWidgets('decodes a large file at the size of its box, not of the file', (
+        WidgetTester tester,
+      ) async {
+        final MemoryImage photograph = await file(tester, 2400, 1600);
+
+        await tester.pumpWidget(
+          host(
+            PlImage(image: photograph, ratio: 1, semanticLabel: 'A harbour'),
+            width: 200,
+            height: 200,
+          ),
+        );
+        await _decode(tester);
+
+        final ui.Image drawn = tester.widget<RawImage>(find.byType(RawImage)).image!;
+
+        // A 200-pixel square at a device pixel ratio of 1, rounded up to a
+        // whole step of 128 device pixels, and cropped: the short side reaches
+        // 256 and the long one keeps the file's proportion.
+        expect((drawn.width, drawn.height), (384, 256));
+      });
+
+      testWidgets('decodes a picture shown whole to fit inside its box', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, PlImage(image: _ok, ratio: 1, fit: PlAspectFit.contain));
+
+        expect(asked(tester), PlassSizedImage(_ok, width: 256, height: 256, cover: false));
+      });
+
+      testWidgets('turns the box for a picture on its side', (WidgetTester tester) async {
+        await tester.pumpWidget(host(PlImage(image: _ok, ratio: 4, rotate: 90), width: 800));
+        await tester.pump();
+
+        // A box 800 wide and 200 tall, and a file whose width lies down the
+        // screen once it is turned.
+        expect(asked(tester), PlassSizedImage(_ok, width: 256, height: 896, cover: true));
+      });
+
+      testWidgets('leaves a picture drawn at its own size alone', (WidgetTester tester) async {
+        await _pump(tester, PlImage(image: _ok, ratio: 1, fit: PlAspectFit.none));
+
+        expect(asked(tester), same(_ok));
+      });
+
+      testWidgets('leaves a ResizeImage the caller made alone', (WidgetTester tester) async {
+        final ResizeImage own = ResizeImage(_ok, width: 32);
+
+        await _pump(tester, PlImage(image: own, ratio: 1));
+
+        expect(asked(tester), same(own));
+      });
+
+      testWidgets('decodes again for a box that grows, and keeps that decode when it shrinks', (
+        WidgetTester tester,
+      ) async {
+        double width = 100;
+        late StateSetter resize;
+
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                resize = setState;
+
+                return Align(
+                  alignment: Alignment.topLeft,
+                  child: SizedBox(
+                    width: width,
+                    child: PlImage(image: _ok, ratio: 1),
+                  ),
+                );
+              },
+            ),
+            width: 800,
+          ),
+        );
+        await tester.pump();
+        expect(asked(tester), PlassSizedImage(_ok, width: 128, height: 128, cover: true));
+
+        resize(() => width = 400);
+        await tester.pump();
+        await tester.pump();
+        expect(asked(tester), PlassSizedImage(_ok, width: 512, height: 512, cover: true));
+
+        resize(() => width = 100);
+        await tester.pump();
+        await tester.pump();
+        expect(asked(tester), PlassSizedImage(_ok, width: 512, height: 512, cover: true));
+      });
+
+      testWidgets('answers the size an IntrinsicHeight asks for', (WidgetTester tester) async {
+        // A picture in a table cell or beside a column of text is measured
+        // before it is laid out. A box built during layout could not say how
+        // tall it would be.
+        await tester.pumpWidget(
+          host(
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  SizedBox(width: 120, child: PlImage(image: _ok, ratio: 1)),
+                  const Expanded(child: Text('A caption')),
+                ],
+              ),
+            ),
+            width: 400,
+          ),
+        );
+        await tester.pump();
+
+        expect(tester.takeException(), isNull);
+        expect(tester.getSize(find.byType(PlImage)), const Size(120, 120));
       });
     });
 
@@ -1038,7 +1213,7 @@ void main() {
 
       testWidgets('draws nothing of its own until it is asked to', (WidgetTester tester) async {
         await tester.pumpWidget(host(PlImage(image: _ok, semanticLabel: 'A portrait')));
-        await tester.pumpAndSettle();
+        await _decode(tester);
 
         expect(applied(tester), isNull);
       });

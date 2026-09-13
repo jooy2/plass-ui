@@ -209,6 +209,12 @@ The viewer is behind a `React.lazy`, so a wall of thumbnails costs nothing for a
 
 :::
 
+::: fw flutter
+
+Each tile decodes its picture at the size of the tile, as [`PlImage`](image) does. The viewer decodes the open picture, `full` when there is one, to fit the part of the screen it is shown in.
+
+:::
+
 ## Accessibility
 
 - A real `role="list"` with a name, and one `role="listitem"` per picture. A masonry's lanes are list items holding lists of their own rather than `<div>`s between the `<ul>` and its `<li>`s, which is markup a screen reader reads as a list with nothing in it.

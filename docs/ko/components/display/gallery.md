@@ -209,6 +209,12 @@ viewer는 `React.lazy` 뒤에 있으므로, 아무도 열지 않은 라이트박
 
 :::
 
+::: fw flutter
+
+타일은 [`PlImage`](image)처럼 사진을 타일 크기로 디코드합니다. viewer는 열린 사진을, `full`이 있으면 그것을, 화면에서 보이는 영역 안에 들어가는 크기로 디코드합니다.
+
+:::
+
 ## Accessibility
 
 - 이름이 붙은 진짜 `role="list"`이고, 사진 하나당 `role="listitem"` 하나입니다. 메이슨리의 lane은 `<ul>`과 `<li>` 사이의 `<div>`가 아니라 자기 목록을 담은 list item입니다. 그 사이의 `<div>`는 스크린 리더가 아무것도 없는 목록으로 읽는 마크업입니다.

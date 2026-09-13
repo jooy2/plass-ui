@@ -57,6 +57,12 @@ An `<img>` is one tag and it works, so it is worth saying what this is for rathe
 3. **The two are one state machine**, so the placeholder is not still sitting behind a picture that has already loaded, and a changed `src` starts again rather than inheriting the last one's success.
 4. **The picture fades up over the placeholder** rather than replacing it between two frames. A photograph that cuts in reads as the layout changing its mind, and it reads that way hardest on the slow connection the placeholder exists for. A picture that was already decoded is drawn whole, because an entrance for something that never had to be waited for is an entrance for nothing.
 
+::: fw flutter
+
+**The picture is decoded at the size of its box**, as a browser keeps an `<img>` at the pixels it is drawn at. The box is measured on the first frame and the picture is asked for on the next, decoded no larger than the box needs at the screen's pixel ratio, and decoded again only when the box grows. A cropped picture reaches both sides of the box and one shown whole fits inside it. A `ResizeImage` you pass is used as it is, and a picture with `fit: PlAspectFit.none` is decoded whole.
+
+:::
+
 ## Examples
 
 ### The two states
@@ -222,7 +228,7 @@ The copy is a second `<img>` with the picture's own `src`, `srcSet`, `sizes`, `l
 
 `PlImageLetterbox(decoration)` paints any `Decoration` behind the picture: a colour, a gradient. A `Decoration` rather than a colour because that is what covers both here, where React takes a CSS `background` string.
 
-The copy is a second `Image` of the same `ImageProvider`, so it is answered from the same cache entry rather than loaded again.
+The copy is a second `Image` of the picture's own decode, so it is answered from the same cache entry rather than decoded again.
 
 :::
 
@@ -414,7 +420,7 @@ Browsers without `fetchpriority` ignore it and fetch the picture eagerly at thei
 
 ::: fw flutter
 
-There is no `priority` here. An `Image` starts resolving its provider as soon as it is built, so there is no lazy loading to turn off and no fetch priority to raise. To have a picture ready before its screen is shown, call `precacheImage` with its provider first.
+There is no `priority` here. An `Image` starts resolving its provider as soon as it is built, so there is no lazy loading to turn off and no fetch priority to raise. To have a picture ready before its screen is shown, give it a `ResizeImage` of the size it is drawn at, and call `precacheImage` with that same `ResizeImage` first. A plain provider is decoded at the size of its box, which is a different cache entry from the whole file `precacheImage` decodes.
 
 :::
 
