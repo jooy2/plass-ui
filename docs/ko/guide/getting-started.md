@@ -89,7 +89,7 @@ import 'plass-ui/styles.css';
 
 `plass-ui/tailwind.css`는 130개 컴포넌트를 한 번에 등록합니다. 기본값으로는 그것이 맞지만, 컴포넌트를 하나만 쓰든 전부 쓰든 똑같이 내는 고정비이기도 합니다. Tailwind는 import 그래프가 아니라 **파일**을 스캔합니다. 빌드 어디에도 `import { PlButton }`과 `PlSelect.js`가 적어 둔 클래스를 이어 주는 연결이 없으므로, CSS를 줄이는 방법은 Tailwind에 파일을 덜 주는 것뿐입니다.
 
-패키지는 그 스캔을 조각으로도 배포합니다. `plass-ui/css/base.css`는 토큰과 모든 컴포넌트가 공유하는 클래스이고, `plass-ui/css/<component>.css`는 컴포넌트 하나를 등록하는 한 줄입니다. 이름은 `dist/components` 아래 폴더 이름과 같습니다.
+패키지는 그 스캔을 조각으로도 배포합니다. `plass-ui/css/base.css`는 토큰과 모든 컴포넌트가 공유하는 클래스이고, `plass-ui/css/<component>.css`는 컴포넌트 하나와 그 컴포넌트가 안에서 그리는 컴포넌트를 함께 등록합니다. 이름은 `dist/components` 아래 폴더 이름과 같습니다.
 
 ```css
 @import 'tailwindcss';

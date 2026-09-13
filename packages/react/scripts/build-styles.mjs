@@ -29,8 +29,8 @@
  * connects `import { PlButton }` to the classes `PlSelect.js` spells out.
  *
  * So the scan is also published in pieces. `dist/tokens.css` is the token sheet
- * with no `@source` at all, and `dist/css/<component>.css` is a file whose
- * whole content is the `@source` line for one component. A project that wants
+ * with no `@source` at all, and `dist/css/<component>.css` holds the `@source`
+ * lines for one component and for every component it renders. A project that wants
  * to pay for what it uses writes the pieces instead of the whole:
  *
  *   @import 'tailwindcss';
@@ -47,10 +47,11 @@
  * wrong is not a smaller stylesheet.
  */
 import { copyFileSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import postcss from 'postcss';
 import tailwindcss from '@tailwindcss/postcss';
+import { componentSources } from './component-sources.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = resolve(root, 'dist');
@@ -108,12 +109,29 @@ writeFileSync(
   ].join('\n')
 );
 
+/* A component that renders another one carries that one's utilities too, so
+   its manifest names every component folder its modules reach, through
+   `internal/` as well as directly. The graph is read off the built files, which
+   are what a consumer's Tailwind actually scans. */
+const builtModules = Object.fromEntries(
+  ['components', 'internal'].flatMap((folder) =>
+    readdirSync(resolve(dist, folder), { recursive: true })
+      .filter((name) => name.endsWith('.js'))
+      .map((name) => {
+        const path = resolve(dist, folder, name);
+
+        return [relative(dist, path).split('\\').join('/'), readFileSync(path, 'utf8')];
+      })
+  )
+);
+const sources = componentSources(builtModules);
+
 for (const component of components) {
   writeFileSync(
     resolve(cssDir, `${component}.css`),
     [
       `/* Scan manifest for <${component}>. Needs \`plass-ui/css/base.css\` first. */`,
-      `@source '../components/${component}';`,
+      ...(sources[component] ?? [component]).map((folder) => `@source '../components/${folder}';`),
       ''
     ].join('\n')
   );

@@ -89,7 +89,7 @@ This path carries no reset, because Preflight already is one.
 
 `plass-ui/tailwind.css` registers all 130 components at once, and that is the right default, but it is also a floor you pay whether you use one component or all of them. Tailwind scans _files_, not imports: nothing in a build connects `import { PlButton }` to the classes `PlSelect.js` spells out, so the only way to generate less CSS is to hand Tailwind fewer files.
 
-The package ships that scan in pieces. `plass-ui/css/base.css` is the tokens plus the classes every component shares; `plass-ui/css/<component>.css` is one line registering one component, named after its folder in `dist/components`.
+The package ships that scan in pieces. `plass-ui/css/base.css` is the tokens plus the classes every component shares; `plass-ui/css/<component>.css` registers one component, named after its folder in `dist/components`, together with the components it renders.
 
 ```css
 @import 'tailwindcss';
