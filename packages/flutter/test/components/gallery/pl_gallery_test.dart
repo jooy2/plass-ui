@@ -234,6 +234,165 @@ void main() {
       });
     });
 
+    group('turned and fitted pictures', () {
+      final List<PlGalleryItem> turned = <PlGalleryItem>[
+        PlGalleryItem(
+          id: 'a',
+          image: _picture(1),
+          semanticLabel: 'A harbour',
+          ratio: 2,
+          rotate: 90,
+        ),
+        PlGalleryItem(id: 'b', image: _picture(2), semanticLabel: 'A bridge', ratio: 1.5),
+      ];
+
+      PlImage imageOf(WidgetTester tester, String label) {
+        return tester
+            .widgetList<PlImage>(find.byType(PlImage))
+            .firstWhere((PlImage image) => image.semanticLabel == label);
+      }
+
+      testWidgets('lays a turned picture out on its side in a masonry', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlGallery(
+            items: turned,
+            layout: PlGalleryLayout.masonry,
+            columns: const PlassResponsive<int>(1),
+          ),
+          width: 200,
+        );
+
+        expect(imageOf(tester, 'A harbour').ratio, closeTo(0.5, 0.0001));
+        expect(imageOf(tester, 'A bridge').ratio, 1.5);
+        // One wide by two tall across the 200 the lane has.
+        expect(tester.getSize(find.byWidget(imageOf(tester, 'A harbour'))), const Size(200, 400));
+      });
+
+      testWidgets('deals a masonry by the height a turned picture really has', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlGallery(
+            items: <PlGalleryItem>[
+              PlGalleryItem(id: 'a', image: _picture(1), semanticLabel: 'A', ratio: 2, rotate: 90),
+              PlGalleryItem(id: 'b', image: _picture(2), semanticLabel: 'B', ratio: 2),
+              PlGalleryItem(id: 'c', image: _picture(3), semanticLabel: 'C', ratio: 2),
+            ],
+            layout: PlGalleryLayout.masonry,
+            columns: const PlassResponsive<int>(2),
+          ),
+        );
+
+        // On its side the first picture is four times as tall as the second, so
+        // the third goes under the second rather than under the first.
+        final double left = tester.getTopLeft(find.bySemanticsLabel('B')).dx;
+
+        expect(tester.getTopLeft(find.bySemanticsLabel('C')).dx, left);
+      });
+
+      testWidgets('keeps the gallery’s shape for a turned grid tile', (WidgetTester tester) async {
+        await _pump(tester, PlGallery(items: turned, ratio: 1.5));
+
+        expect(imageOf(tester, 'A harbour').ratio, 1.5);
+      });
+
+      testWidgets('hands each item’s own turn, mirror, position and stand-in to its picture', (
+        WidgetTester tester,
+      ) async {
+        final PlImagePlaceholder standIn = PlImagePlaceholder(image: _picture(7), blur: 20);
+
+        await _pump(
+          tester,
+          PlGallery(
+            items: <PlGalleryItem>[
+              PlGalleryItem(
+                id: 'a',
+                image: _picture(1),
+                semanticLabel: 'A harbour',
+                rotate: 180,
+                flip: PlImageFlip.horizontal,
+                position: Alignment.topCenter,
+                placeholder: standIn,
+              ),
+            ],
+          ),
+        );
+
+        final PlImage image = imageOf(tester, 'A harbour');
+
+        expect(image.rotate, 180);
+        expect(image.flip, PlImageFlip.horizontal);
+        expect(image.position, Alignment.topCenter);
+        expect(image.placeholder, same(standIn));
+      });
+
+      testWidgets('hands the gallery’s fit and letterbox to every picture', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlGallery(items: turned, fit: PlAspectFit.contain, letterbox: PlImageLetterbox.blur),
+        );
+
+        for (final PlImage image in tester.widgetList<PlImage>(find.byType(PlImage))) {
+          expect(image.fit, PlAspectFit.contain);
+          expect(image.letterbox, PlImageLetterbox.blur);
+        }
+      });
+
+      testWidgets('covers by default', (WidgetTester tester) async {
+        await _pump(tester, PlGallery(items: turned));
+
+        expect(imageOf(tester, 'A bridge').fit, PlAspectFit.cover);
+        expect(imageOf(tester, 'A bridge').letterbox, isNull);
+      });
+
+      testWidgets('opens a turned, mirrored picture the way its tile shows it', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlGallery(
+            items: <PlGalleryItem>[
+              PlGalleryItem(
+                id: 'a',
+                image: _picture(1),
+                semanticLabel: 'A harbour',
+                ratio: 2,
+                rotate: 90,
+                flip: PlImageFlip.vertical,
+              ),
+            ],
+            preview: true,
+          ),
+        );
+
+        final Finder viewer = find.byType(PlOverlay);
+
+        expect(find.descendant(of: viewer, matching: find.byType(RotatedBox)), findsNothing);
+
+        await tester.tap(find.bySemanticsLabel('A harbour — 1 of 1'));
+        await _settle(tester);
+
+        final Finder turnedBox = find.descendant(of: viewer, matching: find.byType(RotatedBox));
+
+        expect(tester.widget<RotatedBox>(turnedBox).quarterTurns, 1);
+        expect(
+          find.ancestor(
+            of: turnedBox,
+            matching: find.byWidgetPredicate(
+              (Widget widget) => widget is Transform && widget.transform.entry(1, 1) < 0,
+            ),
+          ),
+          findsOneWidget,
+        );
+      });
+    });
+
     group('the viewer', () {
       testWidgets('is not up until a tile is pressed', (WidgetTester tester) async {
         await _pump(tester, PlGallery(items: items, preview: true));

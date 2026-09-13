@@ -115,6 +115,36 @@ native `<ul>` 속성은 그대로 전달됩니다. `children`은 사진이 `item
 
 :::
 
+### fit
+
+모든 사진이 타일을 채우는 방식이고, 사진이 공간을 남긴 타일을 무엇으로 채울지는 `letterbox`가 정합니다. [`PlImage`](./image)와 같은 값을 받고, 모든 타일에 적용됩니다.
+
+<Demo src="gallery/fit" :min-height="420">
+
+::: fw react
+
+<<< @/.vitepress/demos/gallery/fit.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/gallery/fit.dart
+
+:::
+
+</Demo>
+
+item마다 `rotate`, `flip`, `position`, 사진 `placeholder`를 따로 줄 수 있고, `PlImage`에 줄 때처럼 그 사진에 전달됩니다. item의 `ratio`는 저장된 파일의 비율 그대로이고, 옆으로 누운 사진은 누운 모양으로 배치됩니다. `masonry`와 `justified`는 돌아간 비율을 쓰고, viewer도 돌아간 사진을 엽니다. `grid` 타일은 갤러리의 `ratio`를 지킵니다. 그것이 레이아웃의 모양이기 때문이고, 돌아간 사진이 그 타일을 어떻게 채울지는 `fit`이 정합니다.
+
+`hover`의 `zoom`은 뒤집거나 돌린 사진에서도 그대로 동작합니다. 확대와 회전을 따로 그리기 때문입니다.
+
+::: fw react
+
+`loading`은 `PlImage`처럼 기본이 `lazy`입니다. 페이지 맨 위에 있는 갤러리라면 `eager`로 두세요.
+
+:::
+
 ### caption
 
 `below`는 두 줄을 사진 아래에 두고, `overlay`는 옅은 사진에서도 글자가 살아남을 만큼 어두운 wash 위에 사진 밑단을 가로질러 씁니다. `hover`는 포인터와 함께 오는 `overlay`입니다.

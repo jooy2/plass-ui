@@ -381,34 +381,13 @@ class _PlImageState extends State<PlImage> {
 
   /// The picture turned and mirrored the way [PlImage.rotate] and
   /// [PlImage.flip] say.
-  ///
-  /// The turn is a [RotatedBox] rather than a [Transform], because it turns the
-  /// layout as well as the paint: the picture is laid out at the box's height by
-  /// its width, fitted there, and turned into place, so a picture on its side
-  /// fills its box rather than overhanging it on one axis and falling short on
-  /// the other.
-  ///
-  /// The mirror goes outside the turn, so it acts on the axes of the screen and
-  /// needs no swapping on a quarter turn. The React build writes its mirror in
-  /// the element's own axes and swaps them there instead.
   Widget _pose(Widget child) {
-    final int quarters = quartersOf(widget.rotate);
-    final PlImageFlip flip = widget.flip;
-    Widget posed = child;
-
-    if (quarters != 0) {
-      posed = RotatedBox(quarterTurns: quarters, child: posed);
-    }
-
-    if (flip != PlImageFlip.none) {
-      posed = Transform.flip(
-        flipX: flip == PlImageFlip.horizontal || flip == PlImageFlip.both,
-        flipY: flip == PlImageFlip.vertical || flip == PlImageFlip.both,
-        child: posed,
-      );
-    }
-
-    return posed;
+    return posed(
+      child,
+      quartersOf(widget.rotate),
+      mirrorAcross: widget.flip == PlImageFlip.horizontal || widget.flip == PlImageFlip.both,
+      mirrorDown: widget.flip == PlImageFlip.vertical || widget.flip == PlImageFlip.both,
+    );
   }
 
   /// The blurred copy of the picture a [PlImageLetterbox.blur] draws behind it,

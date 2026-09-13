@@ -11,6 +11,7 @@ import 'package:plass_ui/src/components/overlay/pl_overlay.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/gallery.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/image.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -81,6 +82,10 @@ class PlGalleryItem {
     this.description,
     this.full,
     this.ratio,
+    this.rotate = 0,
+    this.flip = PlImageFlip.none,
+    this.position = Alignment.center,
+    this.placeholder,
     this.cols = 1,
     this.rows = 1,
   });
@@ -111,6 +116,24 @@ class PlGalleryItem {
   /// whole reason it is data rather than a measurement. A set without it falls
   /// back to the gallery's own `ratio`.
   final double? ratio;
+
+  /// Turns the picture clockwise, a quarter at a time, as [PlImage.rotate] does.
+  ///
+  /// [ratio] stays the file's own proportion. A picture on its side is laid out
+  /// on its side in [PlGalleryLayout.masonry] and [PlGalleryLayout.justified],
+  /// and in the viewer; a [PlGalleryLayout.grid] tile keeps the gallery's shape,
+  /// because that is the shape of the layout.
+  final int rotate;
+
+  /// Mirrors the picture, as [PlImage.flip] does.
+  final PlImageFlip flip;
+
+  /// Where the picture sits in its tile, as [PlImage.position].
+  final Alignment position;
+
+  /// A small copy of the picture to stand in while the file arrives, as
+  /// [PlImage.placeholder] takes one.
+  final PlImagePlaceholder? placeholder;
 
   /// How many columns the tile takes in [PlGalleryLayout.quilted].
   final int cols;
@@ -165,6 +188,8 @@ class PlGallery extends StatefulWidget {
     this.ratio = 1,
     this.rowHeight = 220,
     this.rounded = true,
+    this.fit = PlAspectFit.cover,
+    this.letterbox,
     this.caption = PlGalleryCaption.none,
     this.hover = PlGalleryHover.lift,
     this.preview = false,
@@ -200,6 +225,12 @@ class PlGallery extends StatefulWidget {
 
   /// Rounds the tiles.
   final bool rounded;
+
+  /// How every picture fills its tile, as [PlImage.fit].
+  final PlAspectFit fit;
+
+  /// What fills a tile where [fit] leaves it empty, as [PlImage.letterbox].
+  final PlImageLetterbox? letterbox;
 
   /// Where a tile's [PlGalleryItem.title] and [PlGalleryItem.description] go.
   final PlGalleryCaption caption;
@@ -245,10 +276,12 @@ class _PlGalleryState extends State<PlGallery> {
 
   String _where(int index, int total) => widget.itemLabel?.call(index, total) ?? '$index of $total';
 
+  /// The proportion an item is shown at: its own, or the gallery's where it
+  /// has none, turned for a picture on its side.
   double _ratioOf(PlGalleryItem item) {
     final double? own = item.ratio;
 
-    return own != null && own > 0 ? own : widget.ratio;
+    return shownRatio(own != null && own > 0 ? own : widget.ratio, item.rotate);
   }
 
   void _choose(int index) {
@@ -497,7 +530,12 @@ class _PlGalleryState extends State<PlGallery> {
         image: item.image,
         semanticLabel: item.semanticLabel,
         ratio: ratio,
-        fit: PlAspectFit.cover,
+        fit: widget.fit,
+        letterbox: widget.letterbox,
+        rotate: item.rotate,
+        flip: item.flip,
+        position: item.position,
+        placeholder: item.placeholder,
         rounded: false,
         size: size,
         color: _color,
@@ -673,6 +711,16 @@ class _Viewer extends StatelessWidget {
     }
   }
 
+  /// [child] turned and mirrored the way [item] asks, as its tile is.
+  Widget _pose(PlGalleryItem item, Widget child) {
+    return posed(
+      child,
+      quartersOf(item.rotate),
+      mirrorAcross: item.flip == PlImageFlip.horizontal || item.flip == PlImageFlip.both,
+      mirrorDown: item.flip == PlImageFlip.vertical || item.flip == PlImageFlip.both,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final int? at = index;
@@ -724,13 +772,20 @@ class _Viewer extends StatelessWidget {
                               maxHeight: MediaQuery.sizeOf(context).height * 0.8,
                               maxWidth: MediaQuery.sizeOf(context).width * 0.9,
                             ),
-                            child: Image(
-                              // Keyed on the picture, so moving to the next one
-                              // starts its own load rather than showing the
-                              // previous file under a new caption.
-                              key: ValueKey<String>(current.id ?? '${current.image}'),
-                              image: current.full ?? current.image,
-                              fit: BoxFit.contain,
+                            // Turned and mirrored the way its tile is, so the
+                            // picture opens the way it was shown. A `RotatedBox`
+                            // hands the picture the two caps the other way round,
+                            // so a turned one fits under them once it is turned.
+                            child: _pose(
+                              current,
+                              Image(
+                                // Keyed on the picture, so moving to the next
+                                // one starts its own load rather than showing the
+                                // previous file under a new caption.
+                                key: ValueKey<String>(current.id ?? '${current.image}'),
+                                image: current.full ?? current.image,
+                                fit: BoxFit.contain,
+                              ),
                             ),
                           ),
                           if (items.length > 1)

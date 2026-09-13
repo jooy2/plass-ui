@@ -16,6 +16,23 @@
 /// It is not exported from `plass_ui.dart`.
 library;
 
+import 'package:plass_ui/src/internal/image.dart';
+
+/// Whether an item's picture is turned onto its side.
+///
+/// The gallery and its viewer both ask, so they ask here: a tile laid out on its
+/// side that opened upright, or the other way round, would be one picture shown
+/// two ways. The same answer as `isTurned` in `internal/gallery.ts`.
+bool isTurned(int rotate) => isSideways(quartersOf(rotate));
+
+/// The proportion an item is shown at: its file's own, or the inverse for a
+/// picture on its side.
+///
+/// An item's `ratio` stays the stored file's proportion, which is what a caller
+/// has to hand, so every piece of layout arithmetic that runs before anything
+/// loads reads it through this.
+double shownRatio(double ratio, int rotate) => isTurned(rotate) ? 1 / ratio : ratio;
+
 /// The items dealt into columns, shortest column first.
 ///
 /// Not a naive chunking, which fills the first column top to bottom before it

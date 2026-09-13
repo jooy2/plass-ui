@@ -121,4 +121,22 @@ void main() {
       expect(cells.first.columnSpan, 3);
     });
   });
+
+  group('isTurned', () {
+    test('is true only for a picture on its side', () {
+      expect(<int>[0, 90, 180, 270, -90].map(isTurned), <bool>[false, true, false, true, true]);
+    });
+  });
+
+  group('shownRatio', () {
+    test('turns the proportion of a picture on its side', () {
+      expect(shownRatio(1.5, 90), closeTo(2 / 3, 0.0001));
+      expect(shownRatio(1.5, 270), closeTo(2 / 3, 0.0001));
+    });
+
+    test('leaves every other picture at its own proportion', () {
+      expect(shownRatio(1.5, 0), 1.5);
+      expect(shownRatio(1.5, 180), 1.5);
+    });
+  });
 }

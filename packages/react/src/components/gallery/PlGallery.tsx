@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
-import { dealColumns, ratioOf } from '../../internal/gallery.js';
+import { dealColumns, isTurned, ratioOf, shownRatio } from '../../internal/gallery.js';
 import { responsiveSlots, withBaseline } from '../../internal/responsive.js';
 import { usePlBreakpointValue } from '../../hooks/usePlBreakpoint.js';
 import {
@@ -17,6 +17,14 @@ import {
   transitionClasses
 } from '../../internal/styles.js';
 import { PlImage } from '../image/PlImage.js';
+import type {
+  PlImageFit,
+  PlImageFlip,
+  PlImageLetterbox,
+  PlImagePlaceholder,
+  PlImagePosition,
+  PlImageRotation
+} from '../image/PlImage.js';
 import type { PlassColor, PlassResponsive, PlassSize } from '../../types.js';
 
 /**
@@ -65,6 +73,25 @@ export interface PlGalleryItem {
    * `ratio`, and comes out as a grid of squares in a masonry's clothing.
    */
   ratio?: number | string;
+  /**
+   * Turns the picture clockwise, a quarter at a time, as `PlImage`'s `rotate`
+   * does.
+   *
+   * `ratio` stays the file's own proportion. A picture on its side is laid out
+   * on its side in `masonry` and `justified`, and in the viewer; a `grid` tile
+   * keeps the gallery's shape, because that is the shape of the layout.
+   * @default 0
+   */
+  rotate?: PlImageRotation;
+  /** Mirrors the picture, as `PlImage`'s `flip` does. @default 'none' */
+  flip?: PlImageFlip;
+  /** Where the picture sits in its tile, as `PlImage`'s `position`. @default 'center' */
+  position?: PlImagePosition | (string & {});
+  /**
+   * A small copy of the picture to stand in while the file arrives, as
+   * `PlImage`'s `placeholder` takes one.
+   */
+  placeholder?: PlImagePlaceholder;
   /** How many columns the tile takes in `quilted`. @default 1 */
   cols?: number;
   /** How many rows the tile takes in `quilted`. @default 1 */
@@ -120,6 +147,23 @@ export interface PlGalleryProps extends Omit<
   rowHeight?: number;
   /** Rounds the tiles. @default true */
   rounded?: boolean;
+  /**
+   * How every picture fills its tile, as `PlImage`'s `fit`.
+   * @default 'cover'
+   */
+  fit?: PlImageFit;
+  /**
+   * What fills a tile where `fit` leaves it empty, as `PlImage`'s `letterbox`:
+   * `blur`, or a CSS `background`.
+   * @default 'none'
+   */
+  letterbox?: PlImageLetterbox | (string & {});
+  /**
+   * When the pictures are fetched. `eager` for a gallery at the top of the
+   * page, where lazy tiles would arrive late.
+   * @default 'lazy'
+   */
+  loading?: 'lazy' | 'eager';
   /**
    * Where a tile's `title` and `description` go. `below` puts them under the
    * picture, `overlay` writes them across the foot of it, and `hover` is
@@ -209,11 +253,17 @@ const frameHoverClasses: Record<PlGalleryHover, string> = {
   zoom: ''
 };
 
+/*
+ * `zoom` is a `transform` rather than the `scale` property, because `scale` is
+ * what a picture's own `flip` is drawn with and an inline mirror would beat a
+ * class. The two compose instead: the individual properties are applied first,
+ * and `transform` on top of them.
+ */
 const pictureHoverClasses: Record<PlGalleryHover, string> = {
   none: '',
   lift: '',
   dim: 'group-hover/tile:[&_img]:[filter:brightness(0.82)] group-focus-visible/tile:[&_img]:[filter:brightness(0.82)]',
-  zoom: 'group-hover/tile:[&_img]:scale-106 group-focus-visible/tile:[&_img]:scale-106'
+  zoom: 'group-hover/tile:[&_img]:[transform:scale(1.06)] group-focus-visible/tile:[&_img]:[transform:scale(1.06)]'
 };
 
 /** The wash a caption is written on, so the words survive a pale photograph. */
@@ -244,6 +294,9 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
       ratio = 1,
       rowHeight = 220,
       rounded = true,
+      fit = 'cover',
+      letterbox,
+      loading = 'lazy',
       caption = 'none',
       hover = 'lift',
       preview = false,
@@ -303,9 +356,25 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
           // A contact sheet is a contact sheet: in `grid` every tile takes the
           // gallery's own `ratio` whatever shape the file is, which is the whole
           // difference between it and a masonry. `quilted` takes neither,
-          // because the cell it spans has already decided.
-          ratio={layout === 'grid' ? ratio : layout === 'quilted' ? 'auto' : (item.ratio ?? ratio)}
-          fit="cover"
+          // because the cell it spans has already decided. Everywhere else a
+          // picture on its side is given its turned shape, and every other
+          // ratio is handed on exactly as it was written.
+          ratio={
+            layout === 'grid'
+              ? ratio
+              : layout === 'quilted'
+                ? 'auto'
+                : isTurned(item.rotate)
+                  ? shownRatio(ratioOf(item.ratio, fallbackRatio), item.rotate)
+                  : (item.ratio ?? ratio)
+          }
+          fit={fit}
+          letterbox={letterbox}
+          loading={loading}
+          rotate={item.rotate}
+          flip={item.flip}
+          position={item.position}
+          placeholder={item.placeholder}
           rounded={false}
           size={size}
           color={color}
@@ -371,7 +440,7 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
             '[transition:box-shadow_var(--plass-duration)_var(--plass-ease)]',
             frameHoverClasses[hover],
             pictureHoverClasses[hover],
-            '[&_img]:[transition:opacity_var(--plass-duration)_var(--plass-ease),filter_var(--plass-duration)_var(--plass-ease),scale_var(--plass-duration)_var(--plass-ease)]'
+            '[&_img]:[transition:opacity_var(--plass-duration)_var(--plass-ease),filter_var(--plass-duration)_var(--plass-ease),transform_var(--plass-duration)_var(--plass-ease)]'
           )}
         >
           {picture}
@@ -427,7 +496,11 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
     let children: React.ReactNode;
 
     if (layout === 'masonry') {
-      const ratios = items.map((item) => ratioOf(item.ratio, fallbackRatio));
+      // Dealt by the shape each picture is shown at, so a picture on its side
+      // takes the height it will really have in its lane.
+      const ratios = items.map((item) =>
+        shownRatio(ratioOf(item.ratio, fallbackRatio), item.rotate)
+      );
 
       children = dealColumns(ratios, laneCount).map((lane, index) => (
         <li
@@ -445,7 +518,7 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
       ));
     } else if (layout === 'justified') {
       children = items.map((item, index) => {
-        const each = ratioOf(item.ratio, fallbackRatio);
+        const each = shownRatio(ratioOf(item.ratio, fallbackRatio), item.rotate);
 
         return tile(item, index, {
           // Grown in proportion to the picture's own width, from a basis in the

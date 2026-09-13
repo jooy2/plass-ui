@@ -230,6 +230,169 @@ describe('PlGallery', () => {
     });
   });
 
+  describe('turned and fitted pictures', () => {
+    const OK =
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+    const turned: PlGalleryItem[] = [
+      { src: '/a.jpg', alt: 'A harbour', ratio: 2, rotate: 90 },
+      { src: '/b.jpg', alt: 'A bridge', ratio: '3 / 2' },
+      { src: '/c.jpg', alt: 'A hillside', ratio: 1 }
+    ];
+
+    /** A picture's own `<img>`, rather than a copy drawn under it. */
+    const picture = (alt: string) => document.querySelector<HTMLImageElement>(`img[alt="${alt}"]`)!;
+
+    it('lays a turned picture out on its side in a masonry', async () => {
+      await render(<PlGallery items={turned} layout="masonry" columns={1} />);
+
+      const [first, second, third] = shapes();
+
+      // Two wide by one tall, on its side: one wide by two tall.
+      expect(Number.parseFloat(first)).toBeCloseTo(0.5);
+      // Every other ratio reaches the picture as it was written.
+      expect([second, third]).toEqual(['3 / 2', '1 / 1']);
+    });
+
+    it('deals a masonry by the height a turned picture really has', async () => {
+      await render(
+        <PlGallery
+          items={[
+            { src: '/a.jpg', alt: 'A harbour', ratio: 2, rotate: 90 },
+            { src: '/b.jpg', alt: 'A bridge', ratio: 2 },
+            { src: '/c.jpg', alt: 'A hillside', ratio: 2 }
+          ]}
+          layout="masonry"
+          columns={2}
+        />
+      );
+
+      // On its side the first picture is four times as tall as the second, so
+      // the third goes under the second rather than under the first.
+      const lanes = Array.from(document.querySelectorAll('.plass-gallery > li'));
+
+      expect(lanes.map((lane) => lane.querySelectorAll('img').length)).toEqual([1, 2]);
+    });
+
+    it('grows a turned justified tile by the width it is shown at', async () => {
+      await render(<PlGallery items={turned} layout="justified" rowHeight={200} />);
+
+      expect(Number.parseFloat(tiles()[0].style.flexGrow)).toBeCloseTo(0.5);
+      expect(tiles()[0].style.flexBasis).toBe('100px');
+      expect(tiles()[1].style.flexGrow).toBe('1.5');
+    });
+
+    it('keeps the gallery’s shape for a turned grid tile', async () => {
+      await render(<PlGallery items={turned} ratio={1.5} />);
+
+      expect(shapes()).toEqual(['1.5 / 1', '1.5 / 1', '1.5 / 1']);
+    });
+
+    it('hands each item’s own turn, mirror, position and stand-in to its picture', async () => {
+      await render(
+        <PlGallery
+          items={[
+            {
+              src: OK,
+              alt: 'A harbour',
+              ratio: 1,
+              rotate: 180,
+              flip: 'horizontal',
+              position: 'top',
+              placeholder: { src: OK, blur: true }
+            }
+          ]}
+        />
+      );
+
+      const shown = picture('A harbour');
+
+      expect(shown.style.rotate).toBe('180deg');
+      expect(shown.style.scale).toBe('-1 1');
+      expect(shown.style.objectPosition).toBe('50% 100%');
+      expect(shown.parentElement!.querySelector('img[aria-hidden="true"]')).not.toBeNull();
+    });
+
+    it('hands the gallery’s fit, letterbox and loading to every picture', async () => {
+      await render(
+        <PlGallery items={turned} fit="contain" letterbox="rgb(16, 20, 24)" loading="eager" />
+      );
+
+      for (const alt of ['A harbour', 'A bridge', 'A hillside']) {
+        expect(picture(alt)).toHaveClass('object-contain');
+        expect(picture(alt).getAttribute('loading')).toBe('eager');
+        expect(picture(alt).parentElement!.style.background).toContain('rgb(16, 20, 24)');
+      }
+    });
+
+    it('covers and loads lazily by default', async () => {
+      await render(<PlGallery items={turned} />);
+
+      expect(picture('A bridge')).toHaveClass('object-cover');
+      expect(picture('A bridge').getAttribute('loading')).toBe('lazy');
+    });
+
+    it('zooms with a transform, so a mirrored picture still zooms', async () => {
+      await render(<PlGallery items={turned} hover="zoom" />);
+
+      // The frame the picture is clipped to, which is what carries the hover.
+      const classes = tiles()[1].querySelector('span')!.className;
+
+      expect(classes).toContain('[&_img]:[transform:scale(1.06)]');
+      expect(classes).not.toContain('scale-106');
+    });
+
+    it('opens a turned picture turned, in a frame of the turned shape', async () => {
+      const screen = await render(<PlGallery items={turned} preview />);
+
+      await screen.getByRole('button', { name: /A harbour/ }).click();
+      await expect.element(screen.getByRole('dialog')).toBeInTheDocument();
+
+      const opened = document.querySelector<HTMLImageElement>('[role="dialog"] img')!;
+      const frame = opened.parentElement!;
+
+      expect(opened.style.rotate).toBe('90deg');
+      expect(opened.style.width).toBe('100cqh');
+      expect(frame.style.containerType).toBe('size');
+      expect(Number.parseFloat(frame.style.aspectRatio)).toBeCloseTo(0.5);
+      // `calc(80vh * 0.5)`, which the browser writes back worked out.
+      expect(frame.style.width).toBe('min(90vw, 40vh)');
+    });
+
+    it('opens a mirrored picture mirrored, and an upright one as it was', async () => {
+      const screen = await render(
+        <PlGallery
+          items={[
+            { src: '/a.jpg', alt: 'A harbour', flip: 'vertical' },
+            { src: '/b.jpg', alt: 'A bridge' }
+          ]}
+          preview
+        />
+      );
+
+      await screen.getByRole('button', { name: /A harbour/ }).click();
+      await expect.element(screen.getByRole('dialog')).toBeInTheDocument();
+
+      expect(document.querySelector<HTMLImageElement>('[role="dialog"] img')!.style.scale).toBe(
+        '1 -1'
+      );
+
+      document
+        .querySelector('[role="dialog"]')!
+        .dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true })
+        );
+
+      await expect
+        .poll(() => document.querySelector<HTMLImageElement>('[role="dialog"] img')?.alt)
+        .toBe('A bridge');
+      expect(document.querySelector<HTMLImageElement>('[role="dialog"] img')!.style.scale).toBe('');
+      expect(
+        document.querySelector<HTMLImageElement>('[role="dialog"] img')!.parentElement!.style
+          .containerType
+      ).toBe('');
+    });
+  });
+
   describe('the viewer', () => {
     it('is not there until a tile is pressed', async () => {
       const screen = await render(<PlGallery items={items} preview />);

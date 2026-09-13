@@ -256,6 +256,7 @@ import 'package:plass_ui_example/demos/file_picker/sizes.dart';
 import 'package:plass_ui_example/demos/file_picker/states.dart';
 import 'package:plass_ui_example/demos/file_picker/variants.dart';
 import 'package:plass_ui_example/demos/gallery/captions.dart';
+import 'package:plass_ui_example/demos/gallery/fit.dart';
 import 'package:plass_ui_example/demos/gallery/hero.dart';
 import 'package:plass_ui_example/demos/gallery/layouts.dart';
 import 'package:plass_ui_example/demos/gallery/quilted.dart';
@@ -756,6 +757,7 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'panes/fixed': _panesFixed,
   'panes/sizes': _panesSizes,
   'gallery/captions': _galleryCaptions,
+  'gallery/fit': _galleryFit,
   'gallery/hero': _galleryHero,
   'gallery/layouts': _galleryLayouts,
   'gallery/quilted': _galleryQuilted,
@@ -1143,6 +1145,8 @@ Widget _codeBlockTerminal(BuildContext context) => const CodeBlockTerminal();
 Widget _codeBlockThemes(BuildContext context) => const CodeBlockThemes();
 
 Widget _galleryCaptions(BuildContext context) => const GalleryCaptions();
+
+Widget _galleryFit(BuildContext context) => const GalleryFit();
 
 Widget _galleryHero(BuildContext context) => const GalleryHero();
 

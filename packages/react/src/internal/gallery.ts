@@ -12,6 +12,7 @@
  * `PlImage`'s own `ratio` makes, one level up, and the reason a gallery of
  * forty photographs does not reflow forty times.
  */
+import { isSideways, quartersOf } from './image.js';
 
 /**
  * A tile's proportion as the number the layouts do arithmetic on.
@@ -32,6 +33,29 @@ export function ratioOf(value: number | string | undefined, fallback: number): n
   const parsed = height === undefined ? Number(width) : Number(width) / Number(height);
 
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+/**
+ * Whether an item's picture is turned onto its side.
+ *
+ * The gallery and its viewer both ask, so they ask here: a tile laid out on its
+ * side that opened upright, or the other way round, would be one picture shown
+ * two ways.
+ */
+export function isTurned(rotate: number | undefined): boolean {
+  return rotate !== undefined && isSideways(quartersOf(rotate));
+}
+
+/**
+ * The proportion an item is shown at: its file's own, or the inverse for a
+ * picture on its side.
+ *
+ * An item's `ratio` stays the stored file's proportion, which is what a caller
+ * has to hand, so every piece of layout arithmetic that runs before anything
+ * loads reads it through this.
+ */
+export function shownRatio(ratio: number, rotate: number | undefined): number {
+  return isTurned(rotate) ? 1 / ratio : ratio;
 }
 
 /**

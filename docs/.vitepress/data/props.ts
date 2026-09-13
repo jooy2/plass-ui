@@ -13031,6 +13031,33 @@ export const propTables: Record<string, PropRow[]> = {
       description: { ko: '타일의 모서리를 둥글립니다', en: 'Rounds the tiles' }
     },
     {
+      name: 'fit',
+      type: "'cover' | 'contain' | 'fill' | 'none' | 'scale-down'",
+      default: "'cover'",
+      description: {
+        ko: '모든 사진이 타일을 채우는 방식. PlImage의 fit과 같습니다',
+        en: "How every picture fills its tile, as PlImage's fit"
+      }
+    },
+    {
+      name: 'letterbox',
+      type: "'none' | 'blur' | string",
+      default: "'none'",
+      description: {
+        ko: 'fit이 남긴 타일의 빈 공간을 채울 것. PlImage의 letterbox와 같습니다',
+        en: "What fills a tile where fit leaves space, as PlImage's letterbox"
+      }
+    },
+    {
+      name: 'loading',
+      type: "'lazy' | 'eager'",
+      default: "'lazy'",
+      description: {
+        ko: '사진을 언제 가져올지. 페이지 맨 위의 갤러리라면 eager입니다',
+        en: 'When the pictures are fetched. eager for a gallery at the top of the page'
+      }
+    },
+    {
       name: 'caption',
       type: "'none' | 'below' | 'overlay' | 'hover'",
       default: "'none'",
@@ -13157,6 +13184,41 @@ export const propTables: Record<string, PropRow[]> = {
       description: {
         ko: '사진 자신의 비율. masonry와 justified가 이것으로, 아무것도 불러오기 전에 배치됩니다',
         en: "The picture's own proportion. masonry and justified are laid out from it, before anything has loaded"
+      }
+    },
+    {
+      name: 'rotate',
+      type: '0 | 90 | 180 | 270',
+      default: '0',
+      description: {
+        ko: '사진을 4분의 1 바퀴씩 돌립니다. ratio는 파일의 비율 그대로이고, masonry · justified · viewer는 누운 모양으로 배치합니다',
+        en: 'Turns the picture a quarter at a time. ratio stays the file’s; masonry, justified and the viewer lay it out on its side'
+      }
+    },
+    {
+      name: 'flip',
+      type: "'none' | 'horizontal' | 'vertical' | 'both'",
+      default: "'none'",
+      description: {
+        ko: '사진을 화면에 보이는 축으로 뒤집습니다',
+        en: 'Mirrors the picture along the axes it is shown on'
+      }
+    },
+    {
+      name: 'position',
+      type: 'PlImagePosition',
+      default: "'center'",
+      description: {
+        ko: '타일 안에서 사진이 놓이는 자리. PlImage의 position과 같습니다',
+        en: "Where the picture sits in its tile, as PlImage's position"
+      }
+    },
+    {
+      name: 'placeholder',
+      type: '{ src: string | Blob; blur?: boolean | number }',
+      description: {
+        ko: '파일이 도착하는 동안 사진 아래에 깔리는 작은 사본',
+        en: 'A small copy of the picture drawn under it while the file arrives'
       }
     },
     {

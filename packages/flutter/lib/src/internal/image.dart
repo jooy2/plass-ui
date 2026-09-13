@@ -8,10 +8,13 @@
 ///
 /// `positionFractions` and `objectPosition` have no counterpart here, and are
 /// not an oversight: they read and write the CSS spelling of a position, and a
-/// position here is an [Alignment] already.
+/// position here is an [Alignment] already. [posed] is the counterpart of
+/// `poseStyle`, drawing the same turn and mirror with widgets.
 ///
 /// It is not exported from `plass_ui.dart`.
 library;
+
+import 'package:flutter/widgets.dart';
 
 /// A turn in degrees as a count of clockwise quarters, whatever number arrived.
 ///
@@ -59,4 +62,29 @@ bool isSideways(int quarters) => quarters.isOdd;
   }
 
   return (across, down);
+}
+
+/// [child] turned by [quarters] and mirrored along the axes it is shown on.
+///
+/// The turn is a [RotatedBox] rather than a [Transform], because it turns the
+/// layout as well as the paint: the picture is laid out at its box's height by
+/// its width, fitted there, and turned into place, so a picture on its side
+/// fills its box rather than overhanging it on one axis and falling short on
+/// the other.
+///
+/// The mirror goes outside the turn, so it acts on the axes of the screen and
+/// needs no swapping on a quarter turn. The React build writes its mirror in
+/// the element's own axes and swaps them there instead.
+Widget posed(Widget child, int quarters, {required bool mirrorAcross, required bool mirrorDown}) {
+  Widget result = child;
+
+  if (quarters != 0) {
+    result = RotatedBox(quarterTurns: quarters, child: result);
+  }
+
+  if (mirrorAcross || mirrorDown) {
+    result = Transform.flip(flipX: mirrorAcross, flipY: mirrorDown, child: result);
+  }
+
+  return result;
 }

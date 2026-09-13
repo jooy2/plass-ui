@@ -2,7 +2,9 @@
 
 import * as React from 'react';
 import { useLabels } from '../../internal/labels.js';
+import { isTurned, ratioOf, shownRatio } from '../../internal/gallery.js';
 import { ChevronIcon } from '../../internal/icons.js';
+import { poseStyle, quartersOf } from '../../internal/image.js';
 import { cx, metaTextClasses } from '../../internal/styles.js';
 import { PlIconButton } from '../icon-button/PlIconButton.js';
 import { PlOverlay } from '../overlay/PlOverlay.js';
@@ -20,6 +22,30 @@ export interface PlGalleryViewerProps {
   label: string;
   /** Resolved by the gallery, so the viewer resolves nothing a second time. */
   itemLabel: (index: number, total: number) => string;
+}
+
+/**
+ * The frame a picture on its side is opened in.
+ *
+ * A turned picture is laid out at its frame's height by its width and turned
+ * into place, out of the flow, so it holds nothing open: without a frame of its
+ * own the centred viewer would shrink it to nothing. The frame is the turned
+ * shape where the item's ratio says what that is, capped at the width and the
+ * height an upright picture is allowed, and a square under the same caps where
+ * it does not, which `contain` fills whatever arrives.
+ */
+function turnedFrame(item: PlGalleryItem): React.CSSProperties {
+  if (item.ratio === undefined) {
+    return { aspectRatio: '1', width: 'min(90vw, 80vh)', containerType: 'size' };
+  }
+
+  const shown = shownRatio(ratioOf(item.ratio, 1), item.rotate);
+
+  return {
+    aspectRatio: String(shown),
+    width: `min(90vw, calc(80vh * ${shown}))`,
+    containerType: 'size'
+  };
 }
 
 /**
@@ -97,14 +123,27 @@ export function PlGalleryViewer({
       <div className="flex max-w-[90vw] flex-col gap-3">
         <div className="relative flex items-center justify-center">
           {current ? (
-            <img
+            <span
               // Keyed on the picture, so moving to the next one starts its own
               // load rather than showing the previous file under a new caption.
               key={current.id ?? current.src}
-              src={current.full ?? current.src}
-              alt={current.alt}
-              className="max-h-[80vh] max-w-[90vw] object-contain"
-            />
+              className="relative block"
+              style={isTurned(current.rotate) ? turnedFrame(current) : undefined}
+            >
+              <img
+                src={current.full ?? current.src}
+                alt={current.alt}
+                className={cx(
+                  'block object-contain',
+                  isTurned(current.rotate) ? '' : 'max-h-[80vh] max-w-[90vw]'
+                )}
+                // Turned and mirrored the way its tile is, so the picture opens
+                // the way it was shown.
+                style={
+                  poseStyle(quartersOf(current.rotate ?? 0), current.flip ?? 'none') ?? undefined
+                }
+              />
+            </span>
           ) : null}
 
           {items.length > 1 ? (

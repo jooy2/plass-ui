@@ -115,6 +115,36 @@ A `double`: width over height. There is no string form, because Dart has no CSS 
 
 :::
 
+### fit
+
+How every picture fills its tile, and `letterbox` for what fills a tile where the picture leaves space. They take the same values as on [`PlImage`](./image), and reach every tile.
+
+<Demo src="gallery/fit" :min-height="420">
+
+::: fw react
+
+<<< @/.vitepress/demos/gallery/fit.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/gallery/fit.dart
+
+:::
+
+</Demo>
+
+An item takes `rotate`, `flip`, `position` and a picture `placeholder` of its own, which reach its picture as they would a `PlImage`. Its `ratio` stays the stored file's proportion, and a picture on its side is laid out on its side: `masonry` and `justified` use the turned proportion, and the viewer opens the picture turned. A `grid` tile keeps the gallery's `ratio`, because that is the shape of the layout, and `fit` decides how the turned picture fills it.
+
+`zoom` on `hover` still works on a mirrored or turned picture, because the zoom and the turn are drawn separately.
+
+::: fw react
+
+`loading` is `lazy` by default, as on `PlImage`. Set it to `eager` for a gallery at the top of the page.
+
+:::
+
 ### caption
 
 `below` puts the two lines under the picture, `overlay` writes them across the foot of it on a wash dark enough to survive a pale photograph, and `hover` is `overlay` that arrives with the pointer.

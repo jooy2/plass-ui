@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { dealColumns, ratioOf } from '../../src/internal/gallery';
+import { dealColumns, isTurned, ratioOf, shownRatio } from '../../src/internal/gallery';
 
 describe('ratioOf', () => {
   it('takes a number', () => {
@@ -45,5 +45,30 @@ describe('dealColumns', () => {
 
   it('handles an empty set', () => {
     expect(dealColumns([], 2)).toEqual([[], []]);
+  });
+});
+
+describe('isTurned', () => {
+  it('is true only for a picture on its side', () => {
+    expect([undefined, 0, 90, 180, 270, -90].map(isTurned)).toEqual([
+      false,
+      false,
+      true,
+      false,
+      true,
+      true
+    ]);
+  });
+});
+
+describe('shownRatio', () => {
+  it('turns the proportion of a picture on its side', () => {
+    expect(shownRatio(1.5, 90)).toBeCloseTo(2 / 3);
+    expect(shownRatio(1.5, 270)).toBeCloseTo(2 / 3);
+  });
+
+  it('leaves every other picture at its own proportion', () => {
+    expect(shownRatio(1.5, undefined)).toBe(1.5);
+    expect(shownRatio(1.5, 180)).toBe(1.5);
   });
 });

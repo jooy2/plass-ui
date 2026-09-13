@@ -1550,6 +1550,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlGallery', 'ratio', { type: 'double', default: '1' }),
     from('PlGallery', 'rowHeight', { type: 'double', default: '220' }),
     from('PlGallery', 'rounded', { type: 'bool', default: 'true' }),
+    from('PlGallery', 'fit', { type: 'PlAspectFit', default: 'PlAspectFit.cover' }),
+    from('PlGallery', 'letterbox', { type: 'PlImageLetterbox?', default: 'null' }),
     from('PlGallery', 'caption', {
       type: 'PlGalleryCaption',
       default: 'PlGalleryCaption.none'
@@ -1585,6 +1587,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlGalleryItem', 'description', { type: 'String?' }),
     from('PlGalleryItem', 'full', { type: 'ImageProvider<Object>?' }),
     from('PlGalleryItem', 'ratio', { type: 'double?' }),
+    from('PlGalleryItem', 'rotate', { type: 'int', default: '0' }),
+    from('PlGalleryItem', 'flip', { type: 'PlImageFlip', default: 'PlImageFlip.none' }),
+    from('PlGalleryItem', 'position', { type: 'Alignment', default: 'Alignment.center' }),
+    from('PlGalleryItem', 'placeholder', { type: 'PlImagePlaceholder?' }),
     from('PlGalleryItem', 'cols', { type: 'int', default: '1' }),
     from('PlGalleryItem', 'rows', { type: 'int', default: '1' })
   ],
