@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **A `PlCodeBlock` with a long run of spaces in its code no longer stalls a server render.** The trailing whitespace was cut with a regular expression that retries from every space in a run followed by more text, so 40,000 characters of a pasted log took almost three seconds in Node. It is now cut in one pass.
+
 - **A `PlCodeBlock` handed new `code` or a new `language` stops drawing the last code.** The colours were kept without the code they were made from, so switching a block from a TypeScript file to a Python one drew the TypeScript lines under the new title until the Python grammar had loaded, while the copy button already copied the Python. The new code is now drawn plain until its own colours are ready.
 
 - **A `PlTimelineChart` whose hours run over more than one day writes the date with each time.** An axis stepping in hours, minutes or seconds wrote only the time, so on a range of two days `09:00` could be either day, and the tooltip and the table wrote `09:00 – 17:00` with no day either. When the axis crosses midnight, every tick, the tooltip and the table now write the date in front of the time. A range inside one day is unchanged.

@@ -419,8 +419,13 @@ export const PlCodeBlock = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCo
      * split on `\n`, so each line keeps a carriage return the reader cannot
      * see, the highlighter treats as part of the last token, and the clipboard
      * hands straight to a shell.
+     *
+     * `trimEnd` and not `/\s+$/`. The pattern retries from every space in a run
+     * that is followed by something else, so a pasted log with a long run of
+     * spaces in the middle took seconds in Node, which is where a server render
+     * runs.
      */
-    const source = React.useMemo(() => code.replace(/\r\n?/g, '\n').replace(/\s+$/, ''), [code]);
+    const source = React.useMemo(() => code.replace(/\r\n?/g, '\n').trimEnd(), [code]);
 
     const name = canonicalLanguage(language);
 

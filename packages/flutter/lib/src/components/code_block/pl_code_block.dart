@@ -737,8 +737,11 @@ class _PlCodeBlockState extends State<PlCodeBlock> {
   /// trailing blank lines gone, and nothing else touched. Indentation is
   /// meaningful in half of the languages here, so nothing is trimmed off the
   /// front.
-  String get _source =>
-      widget.code.replaceAll('\r\n', '\n').replaceAll('\r', '\n').replaceAll(RegExp(r'\s+$'), '');
+  ///
+  /// `trimRight` and not `\s+$`. The pattern retries from every space in a run
+  /// that is followed by something else, so a pasted log with a long run of
+  /// spaces in the middle took seconds to build, and again to copy.
+  String get _source => widget.code.replaceAll('\r\n', '\n').replaceAll('\r', '\n').trimRight();
 
   Future<void> _copy() async {
     bool done = true;

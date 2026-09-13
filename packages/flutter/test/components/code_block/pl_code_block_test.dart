@@ -42,6 +42,20 @@ void main() {
         expect(_lines(tester), <String>['a', 'b']);
       });
 
+      testWidgets('trims trailing spaces without stalling on a long run of them in the middle', (
+        WidgetTester tester,
+      ) async {
+        // Twenty thousand spaces before the last word took about five seconds
+        // through the regular expression this replaced.
+        final String spaces = ' ' * 20000;
+        final Stopwatch clock = Stopwatch()..start();
+
+        await _pump(tester, PlCodeBlock(code: 'a${spaces}b$spaces', toolbar: false));
+
+        expect(_lines(tester), <String>['a${spaces}b']);
+        expect(clock.elapsed, lessThan(const Duration(seconds: 1)));
+      });
+
       testWidgets('normalises a file written on Windows', (WidgetTester tester) async {
         await _pump(tester, const PlCodeBlock(code: 'a\r\nb', toolbar: false));
 
