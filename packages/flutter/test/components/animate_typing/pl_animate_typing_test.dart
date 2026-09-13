@@ -89,6 +89,29 @@ void main() {
         expect(find.text('▌'), findsOneWidget);
       });
 
+      testWidgets('grows with the reader\'s text size once, like the words beside it', (
+        WidgetTester tester,
+      ) async {
+        Future<double> heightAt(double scale) async {
+          await tester.pumpWidget(
+            host(
+              MediaQuery.withClampedTextScaling(
+                minScaleFactor: scale,
+                maxScaleFactor: scale,
+                child: const PlAnimateTyping('Hi', trigger: PlassAnimateTrigger.manual),
+              ),
+              width: 400,
+            ),
+          );
+
+          return tester.getRect(find.text('|')).height;
+        }
+
+        final double normal = await heightAt(1);
+
+        expect(await heightAt(2), moreOrLessEquals(normal * 2, epsilon: 0.5));
+      });
+
       testWidgets('can be turned off', (WidgetTester tester) async {
         await tester.pumpWidget(host(const PlAnimateTyping('Hi', caret: false), width: 400));
 

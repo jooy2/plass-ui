@@ -398,13 +398,18 @@ class _CaretState extends State<_Caret> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    // The paragraph the caret sits in already scales the widgets inside it by
+    // the reader's text size, so a scale here as well would draw the caret at
+    // that size twice over.
+    final Widget caret = Text(widget.char, textScaler: TextScaler.noScaling);
+
     if (widget.still) {
-      return Text(widget.char);
+      return caret;
     }
 
     return AnimatedBuilder(
       animation: _blink,
-      child: Text(widget.char),
+      child: caret,
       builder: (BuildContext context, Widget? child) {
         return Opacity(opacity: _blink.value < 0.5 ? 1 : 0, child: child);
       },

@@ -56,6 +56,8 @@
 
 ### Fixed
 
+- **The `PlAnimateTyping` caret grows with the reader's text size once.** The caret sits in the paragraph as a widget, and the paragraph already scales a widget by the text size, but the caret's own text applied the scale again. At 200% the caret was drawn at twice the size of the words beside it. The caret's text now leaves the scaling to the paragraph.
+
 - **`PlPagination` marks the page it is on.** The current page was drawn filled and read as "Page 4" like every other page, so a screen reader had no way to say which one was current, although the documentation said the name was enough. Its button is now marked selected.
 
 - **A held `PlNumberField` stepper settles once, when it is let go, and stops at the end of the range.** Every repeat of a held stepper called `onCommitted`, every 60 milliseconds, and the repeats went on after the value had reached `min` or `max`, so a caller that saved on `onCommitted` sent one request after another. A repeat now calls `onChanged` alone, the repeats stop at the end of the range, and letting go calls `onCommitted` once with the value it reached, without adding a step of its own.
