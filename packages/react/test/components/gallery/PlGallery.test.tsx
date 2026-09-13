@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlGallery, type PlGalleryItem } from 'plass-ui';
 
@@ -456,6 +457,30 @@ describe('PlGallery', () => {
 
       await expect.element(screen.getByRole('button', { name: 'Previous' })).toBeDisabled();
       await expect.element(screen.getByRole('button', { name: 'Next' })).toBeEnabled();
+    });
+
+    it('hands the focus to the other arrow when one reaches an end', async () => {
+      const screen = await render(<PlGallery items={items} preview />);
+
+      await screen.getByRole('button', { name: /A hillside/ }).click();
+
+      const next = screen.getByRole('button', { name: 'Next' });
+      const previous = screen.getByRole('button', { name: 'Previous' });
+
+      next.element().focus();
+      await expect.element(next).toHaveFocus();
+      await userEvent.keyboard('{Enter}');
+
+      await expect.element(screen.getByText('4 of 4')).toBeInTheDocument();
+      await expect.element(previous).toHaveFocus();
+
+      // Still inside the overlay, so the arrow keys still walk the set.
+      await userEvent.keyboard('{ArrowLeft}');
+      await expect.element(screen.getByText('3 of 4')).toBeInTheDocument();
+
+      await userEvent.keyboard('{Enter}{Enter}');
+      await expect.element(screen.getByText('1 of 4')).toBeInTheDocument();
+      await expect.element(next).toHaveFocus();
     });
 
     it('says where in the set it is', async () => {

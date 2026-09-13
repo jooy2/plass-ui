@@ -78,11 +78,36 @@ export function PlGalleryViewer({
   const atStart = index === null || index <= 0;
   const atEnd = index === null || index >= items.length - 1;
 
+  const previousButton = React.useRef<HTMLButtonElement>(null);
+  const nextButton = React.useRef<HTMLButtonElement>(null);
+  const handOver = React.useRef<HTMLButtonElement | null>(null);
+
   const go = (to: number) => {
-    if (to >= 0 && to < items.length) {
-      onIndexChange(to);
+    if (to < 0 || to >= items.length) {
+      return;
     }
+
+    /*
+     * The arrow that reaches an end is disabled by the move, and a disabled
+     * button drops the focus to the page, where the arrow keys no longer reach
+     * the overlay. So the focus crosses to the other arrow, once the move has
+     * enabled it.
+     */
+    const focused = document.activeElement;
+
+    if (to === items.length - 1 && focused === nextButton.current) {
+      handOver.current = previousButton.current;
+    } else if (to === 0 && focused === previousButton.current) {
+      handOver.current = nextButton.current;
+    }
+
+    onIndexChange(to);
   };
+
+  React.useLayoutEffect(() => {
+    handOver.current?.focus();
+    handOver.current = null;
+  }, [index]);
 
   /*
    * The arrows are bound on the overlay rather than on the buttons, because the
@@ -153,6 +178,7 @@ export function PlGalleryViewer({
                 elevation={1}
                 size={size}
                 color={color}
+                ref={previousButton}
                 label={labels.previous}
                 disabled={atStart}
                 className="pointer-events-auto"
@@ -171,6 +197,7 @@ export function PlGalleryViewer({
                 elevation={1}
                 size={size}
                 color={color}
+                ref={nextButton}
                 label={labels.next}
                 disabled={atEnd}
                 className="pointer-events-auto"

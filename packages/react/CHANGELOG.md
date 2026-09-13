@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **The `PlGallery` viewer keeps the focus when an arrow reaches the end of the set.** Pressing Next onto the last picture, or Previous onto the first, disabled the button that had the focus, which dropped the focus to the page, and the arrow keys stopped moving between pictures. The focus now crosses to the other arrow.
+
 - **A `PlDataTable` sorted descending keeps its blank cells last.** The built-in order put a blank value after every other value, and the direction was then applied to that answer as well, so turning a column round put the blanks first, against what the page says. The direction now turns only the values that are there. A column's own `compare` is still turned round as a whole.
 
 - **Opening a folded `PlBreadcrumb` keeps the keyboard focus in the trail.** The `…` button is removed when the hidden steps come back, so pressing it with the keyboard dropped the focus to the page and the next Tab started from the top. The focus now moves to the first step that came back and can take it.
