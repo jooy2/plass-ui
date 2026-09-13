@@ -623,6 +623,7 @@ class _TreeRow extends StatelessWidget {
       enabled: !node.disabled,
       expanded: isBranch ? expanded : null,
       selected: selectable ? selected : null,
+      onTap: onPressed,
       child: PlassInteractive(
         onTap: onPressed,
         enabled: !node.disabled,

@@ -402,8 +402,11 @@ class _Step extends StatelessWidget {
     inner = Semantics(
       container: true,
       button: reachable,
-      enabled: reachable,
+      // Only a disabled step is announced as one. A step ahead of the reader is
+      // not pressable yet, which is what leaving `button` off already says.
+      enabled: reachable ? true : (step.disabled ? false : null),
       selected: status == PlassStepStatus.current,
+      onTap: reachable ? onPressed : null,
       child: inner,
     );
 

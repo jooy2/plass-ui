@@ -292,7 +292,7 @@ class _Row extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PlassInteractive(
+    final Widget row = PlassInteractive(
       onTap: onPressed,
       cursor: SystemMouseCursors.click,
       builder: (BuildContext context, PlassInteraction state) {
@@ -333,5 +333,10 @@ class _Row extends StatelessWidget {
         );
       },
     );
+
+    // A row goes to its heading, which is a link in the React build. The press
+    // target keeps itself off the semantics tree, so the action is declared on
+    // the node that names the row.
+    return Semantics(container: true, link: true, onTap: onPressed, child: row);
   }
 }

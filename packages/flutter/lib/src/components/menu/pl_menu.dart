@@ -782,6 +782,8 @@ class _PlMenuState extends State<PlMenu> {
     final bool opened = !deepest && _path.length > level && _path[level] == index;
     final PlassTextScale scale = controlTextLeading[_size]!;
 
+    final VoidCallback? onTap = available ? () => _press(entry, index) : null;
+
     final Widget row = MouseRegion(
       cursor: available ? SystemMouseCursors.click : SystemMouseCursors.basic,
       // The pointer moves the same highlight the arrow keys do, so the mouse and
@@ -791,7 +793,7 @@ class _PlMenuState extends State<PlMenu> {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         excludeFromSemantics: true,
-        onTap: available ? () => _press(entry, index) : null,
+        onTap: onTap,
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: lit || opened ? family.softHover : null,
@@ -829,14 +831,14 @@ class _PlMenuState extends State<PlMenu> {
         // submenu that built its own submenu unconditionally would recurse to
         // the bottom of the stack.
         popup: opened ? _popup(tokens, level: level + 1) : const SizedBox.shrink(),
-        child: _semantics(entry, available, row),
+        child: _semantics(entry, available, row, onTap: onTap),
       );
     }
 
-    return _semantics(entry, available, row);
+    return _semantics(entry, available, row, onTap: onTap);
   }
 
-  Widget _semantics(PlMenuEntry entry, bool available, Widget row) {
+  Widget _semantics(PlMenuEntry entry, bool available, Widget row, {required VoidCallback? onTap}) {
     return Semantics(
       button: entry is! PlMenuCheckboxItem && entry is! PlMenuRadioItem,
       checked: entry is PlMenuCheckboxItem ? entry.checked : null,
@@ -844,6 +846,9 @@ class _PlMenuState extends State<PlMenu> {
       selected: entry is PlMenuRadioItem ? entry.selected : null,
       enabled: available,
       label: _labelOf(entry),
+      // The row's own gesture keeps out of semantics, so the action a screen
+      // reader fires is declared on this node.
+      onTap: onTap,
       child: ExcludeSemantics(child: row),
     );
   }

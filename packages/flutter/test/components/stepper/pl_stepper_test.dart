@@ -109,6 +109,30 @@ void main() {
         expect(pressed, equals(0));
       });
 
+      testWidgets('takes a press from a screen reader', (WidgetTester tester) async {
+        int? pressed;
+
+        await _pump(
+          tester,
+          PlStepper(steps: steps, active: 2, onActiveChanged: (int next) => pressed = next),
+        );
+        tester.semantics.tap(find.semantics.byLabel(RegExp('Account')));
+        await tester.pumpAndSettle();
+
+        expect(pressed, equals(0));
+      });
+
+      testWidgets('does not call a step ahead disabled', (WidgetTester tester) async {
+        await _pump(tester, PlStepper(steps: steps, active: 0, onActiveChanged: (int _) {}));
+
+        // Not pressable yet, which leaving `button` off says. Only `disabled`
+        // makes a step one a screen reader announces as unavailable.
+        expect(
+          tester.getSemantics(find.text('Profile')),
+          isSemantics(isButton: false, hasEnabledState: false, hasTapAction: false),
+        );
+      });
+
       testWidgets('ticks a step the reader is past', (WidgetTester tester) async {
         await _pump(tester, PlStepper(steps: steps, active: 2, onActiveChanged: (int _) {}));
 

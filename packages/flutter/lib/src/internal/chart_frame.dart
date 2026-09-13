@@ -22,6 +22,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/chart.dart';
+import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
@@ -1276,16 +1278,34 @@ class _LegendEntry extends StatelessWidget {
       return row;
     }
 
+    // A switch the reader reaches by Tab as well as by pointer, and fires from
+    // a screen reader: `PlassInteractive` keeps its gesture off the semantics
+    // tree, so the action is declared on the node that names the entry.
     return Semantics(
       button: true,
       checked: on,
       label: name,
+      onTap: onTap,
       excludeSemantics: true,
       child: MouseRegion(
-        cursor: SystemMouseCursors.click,
         onEnter: (PointerEnterEvent _) => onHover(true),
         onExit: (PointerExitEvent _) => onHover(false),
-        child: GestureDetector(onTap: onTap, child: row),
+        child: PlassInteractive(
+          onTap: onTap,
+          builder: (BuildContext context, PlassInteraction state) {
+            if (!state.focusVisible) {
+              return row;
+            }
+
+            return CustomPaint(
+              foregroundPainter: PlassFocusRingPainter(
+                color: tokens.family(PlassColor.primary).ring,
+                borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.xs]!),
+              ),
+              child: row,
+            );
+          },
+        ),
       ),
     );
   }

@@ -256,6 +256,26 @@ void main() {
         expect(pressed, <String>['Two']);
         expect(_state(tester).scroll.offset, greaterThan(0));
       });
+
+      testWidgets('is a link a screen reader can follow', (WidgetTester tester) async {
+        final List<String> pressed = <String>[];
+
+        await _pump(
+          tester,
+          _Page(onSelect: (PlAnchorItem item) => pressed.add((item.label as Text).data!)),
+        );
+
+        tester.semantics.tap(find.semantics.byLabel('Three'));
+        await tester.pumpAndSettle();
+
+        expect(pressed, <String>['Three']);
+        expect(
+          tester.getSemantics(
+            find.descendant(of: find.byType(PlAnchor), matching: find.text('Three')),
+          ),
+          isSemantics(isLink: true, hasTapAction: true),
+        );
+      });
     });
   });
 }

@@ -484,6 +484,11 @@ class _PlOtpFieldState extends State<PlOtpField> {
       // The code itself, unmasked or not, is what a screen reader should read
       // back — the boxes are a drawing of it.
       value: text,
+      // The editor is painted at zero opacity, which takes it off the semantics
+      // tree, and the press over the row excludes itself. So focus and the
+      // action that gives it are declared here.
+      focused: _focused,
+      onTap: widget.disabled ? null : _focusAtEnd,
       child: IntrinsicWidth(child: stack),
     );
   }

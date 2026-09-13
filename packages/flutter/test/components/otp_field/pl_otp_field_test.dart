@@ -267,6 +267,19 @@ void main() {
         expect(tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus, isTrue);
       });
 
+      testWidgets('takes focus from a screen reader too', (WidgetTester tester) async {
+        await tester.pumpWidget(host(const PlOtpField(length: 3, semanticLabel: 'Code')));
+
+        tester.semantics.tap(find.semantics.byLabel('Code'));
+        await tester.pump();
+
+        expect(tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus, isTrue);
+        expect(
+          tester.getSemantics(find.byType(PlOtpField)),
+          isSemantics(isTextField: true, isFocused: true),
+        );
+      });
+
       testWidgets('puts the caret at the first empty slot on a press', (WidgetTester tester) async {
         final TextEditingController controller = TextEditingController(text: '12');
         addTearDown(controller.dispose);

@@ -349,7 +349,7 @@ class _Trigger extends StatelessWidget {
     final double fontSize = controlText[size]!;
     final BorderRadius radius = BorderRadius.circular(PlassTokens.radius[size]!);
 
-    return MouseRegion(
+    final Widget trigger = MouseRegion(
       onEnter: (PointerEnterEvent event) => onHover(),
       child: PlassInteractive(
         enabled: !item.disabled,
@@ -429,6 +429,19 @@ class _Trigger extends StatelessWidget {
           return trigger;
         },
       ),
+    );
+
+    // The press target keeps itself off the semantics tree, so what the word is
+    // and what pressing it does are declared here: a button that opens a panel,
+    // or a link that goes somewhere.
+    return Semantics(
+      container: true,
+      button: item.opensPanel,
+      link: !item.opensPanel,
+      expanded: item.opensPanel ? open : null,
+      enabled: !item.disabled,
+      onTap: item.disabled ? null : onPressed,
+      child: trigger,
     );
   }
 }
@@ -538,13 +551,15 @@ class _Link extends StatelessWidget {
     final PlassTextScale title = controlTextLeading[size]!;
     final BorderRadius radius = BorderRadius.circular(PlassTokens.radius[size]!);
 
+    final VoidCallback? choose = link.onPressed == null
+        ? null
+        : () {
+            onChosen();
+            link.onPressed!();
+          };
+
     return PlassInteractive(
-      onTap: link.onPressed == null
-          ? null
-          : () {
-              onChosen();
-              link.onPressed!();
-            },
+      onTap: choose,
       interactive: link.onPressed != null,
       builder: (BuildContext context, PlassInteraction state) {
         Widget row = Padding(
@@ -602,7 +617,7 @@ class _Link extends StatelessWidget {
           );
         }
 
-        return Semantics(link: true, button: false, child: row);
+        return Semantics(link: true, button: false, onTap: choose, child: row);
       },
     );
   }

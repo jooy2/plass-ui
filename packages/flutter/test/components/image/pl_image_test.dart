@@ -1221,6 +1221,20 @@ void main() {
         expect(find.byType(Image), findsNWidgets(2));
       });
 
+      testWidgets('opens from a screen reader too', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          PlImage(image: _ok, ratio: 1, semanticLabel: 'A portrait', preview: true),
+          overlay: true,
+        );
+        await tester.pumpAndSettle();
+
+        tester.semantics.tap(find.semantics.byLabel('A portrait'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(Image), findsNWidgets(2));
+      });
+
       testWidgets('cannot be opened before it has', (WidgetTester tester) async {
         await _pump(
           tester,

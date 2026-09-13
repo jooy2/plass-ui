@@ -712,6 +712,11 @@ class _PlImageState extends State<PlImage> {
       label: widget.semanticLabel,
       image: true,
       button: widget.preview,
+      // The press target excludes itself from semantics, so the action a
+      // screen reader, Switch Access or Voice Access fires is declared here.
+      onTap: widget.preview && _status == PlImageStatus.loaded
+          ? () => setState(() => _open = true)
+          : null,
       container: widget.semanticLabel != null,
       child: picture,
     );

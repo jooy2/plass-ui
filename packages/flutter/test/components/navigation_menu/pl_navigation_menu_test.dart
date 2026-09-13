@@ -162,6 +162,34 @@ void main() {
         expect(find.text('Analytics'), findsNothing);
       });
 
+      testWidgets('opens a panel and follows a link from a screen reader', (
+        WidgetTester tester,
+      ) async {
+        int chosen = 0;
+
+        await tester.pumpWidget(
+          host(
+            PlNavigationMenu(items: menu(onAnalytics: () => chosen += 1)),
+            width: 600,
+            height: 400,
+            overlay: true,
+          ),
+        );
+
+        expect(
+          tester.getSemantics(find.text('Product')),
+          isSemantics(isButton: true, isExpanded: false, hasTapAction: true),
+        );
+
+        tester.semantics.tap(find.semantics.byLabel('Product'));
+        await tester.pumpAndSettle();
+        expect(find.text('Analytics'), findsOneWidget);
+
+        tester.semantics.tap(find.semantics.byLabel(RegExp('^Analytics')));
+        await tester.pumpAndSettle();
+        expect(chosen, 1);
+      });
+
       testWidgets('reports the panel closing as well as opening', (WidgetTester tester) async {
         final List<String?> seen = <String?>[];
 

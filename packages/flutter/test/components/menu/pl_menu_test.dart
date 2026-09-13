@@ -101,6 +101,22 @@ void main() {
         expect(find.text('Cut'), findsNothing);
       });
 
+      testWidgets('fires from a screen reader too', (WidgetTester tester) async {
+        int pressed = 0;
+
+        await tester.pumpWidget(
+          host(
+            menu(<PlMenuEntry>[PlMenuItem(label: 'Cut', onPressed: () => pressed++)]),
+            overlay: true,
+          ),
+        );
+        await openMenu(tester);
+        tester.semantics.tap(find.semantics.byLabel('Cut'));
+        await tester.pumpAndSettle();
+
+        expect(pressed, 1);
+      });
+
       testWidgets('does not fire while it is unavailable', (WidgetTester tester) async {
         int pressed = 0;
 

@@ -1,4 +1,5 @@
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -140,6 +141,24 @@ void main() {
         node = tester.getSemantics(find.bySemanticsLabel('Chart'));
         expect(node.value, isNot(contains('Cost')));
         expect(node.value, contains('Revenue'));
+      });
+
+      testWidgets('switches a series off from a screen reader or the keyboard', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, PlLineChart(series: series, categories: months));
+
+        tester.semantics.tap(find.semantics.byLabel('Cost'));
+        await tester.pumpAndSettle();
+        expect(tester.getSemantics(find.bySemanticsLabel('Chart')).value, isNot(contains('Cost')));
+
+        // The entry is a focus stop, and Enter switches it back on.
+        final FocusNode node = Focus.of(tester.element(find.text('Cost')));
+        node.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+        expect(tester.getSemantics(find.bySemanticsLabel('Chart')).value, contains('Cost'));
       });
 
       testWidgets('leaves a series alone when the legend is not interactive', (

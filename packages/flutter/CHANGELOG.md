@@ -36,6 +36,8 @@
 
 ### Fixed
 
+- **Pressable rows answer a screen reader.** A `PlTree` row, a `PlMenu` row, a `PlNavigationMenu` word and panel link, a reachable `PlStepper` step, a `PlAnchor` row, a `PlImage` with `preview`, a `PlOtpField` and an interactive chart legend entry had no tap action on their semantics node, so TalkBack, Switch Access, Voice Access and a screen reader on the web could not activate them. The legend entries also take keyboard focus and a focus ring now, a navigation word says whether its panel is open, and a step ahead of the reader is no longer announced as disabled.
+
 - **The arrow keys keep focus in `PlTabs`, `PlRadioGroup` and `PlSegmentedButton`.** When the value followed the arrow, the item that lost the stop gave focus back to whatever was focused before the group, so a reader who had tabbed in changed the value once and was thrown out. Focus now moves to the newly chosen item.
 
 - **A `PlImage` fades in again.** The picture was meant to fade up once its first frame arrived, but that frame also took the placeholder away, and the fade was rebuilt under a different parent in the same build. A rebuilt fade starts at full opacity, so every picture that had to be waited for cut in. The fade now stays where it was and runs.

@@ -132,6 +132,14 @@ void main() {
         expect(find.text('index.ts'), findsOneWidget);
       });
 
+      testWidgets('opens a branch from a screen reader too', (WidgetTester tester) async {
+        await _pump(tester, const _Host());
+        tester.semantics.tap(find.semantics.byLabel('src'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('index.ts'), findsOneWidget);
+      });
+
       testWidgets('closes it again', (WidgetTester tester) async {
         await _pump(tester, const _Host(expanded: <String>{'src'}));
         await tester.tap(find.text('src'));
