@@ -170,7 +170,10 @@ class PlBarChart extends StatelessWidget {
                     x: values[s][i].x,
                     y: (totals[i] ?? 0) == 0 ? 0 : values[s][i].value! / totals[i]! * 100,
                     color: values[s][i].color,
-                    label: values[s][i].label ?? _write(values[s][i].value!),
+                    label:
+                        values[s][i].label ??
+                        format?.call(values[s][i].value!) ??
+                        _write(values[s][i].value!),
                   ),
                 ),
           ],

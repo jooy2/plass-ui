@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **A chart stacked to `full` tells a reader the caller's numbers.** The tooltip and the summary of `PlBarChart` and `PlAreaChart` wrote the share each part was drawn at through the caller's `format`, so a currency format read `New $20` for a part worth 4,000. They now read a point's `label`, as the React build does, and a chart stacked to full sets that label to the caller's number in the caller's `format`.
+
 - **A flat series under an axis pinned at one end gets the same ticks as in the React build.** The axis already started at the pinned `min`, but its step was chosen from a band opened on both sides of the data, so a row of zeros with `min: 0` was ticked every 0.5 where the React build ticks it every 0.2. Only the free end opens now, in both builds.
 
 - **`empty` on a line, bar, area, scatter or timeline chart is drawn as given.** Those charts read the words out of a plain `Text` and ignored any other widget, so a `Text.rich` threw a null check error and an icon over a line was replaced by the default words. The widget is now drawn as it is, in the same muted type, as `PlPieChart` and `PlHeatmapChart` already drew theirs, and those two now give a plain `Text` that type as well.

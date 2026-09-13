@@ -76,6 +76,33 @@ void main() {
       expect(node.value, contains('This year'));
     });
 
+    testWidgets('writes the caller number in its format when it is full, in the tooltip too', (
+      WidgetTester tester,
+    ) async {
+      await _pump(
+        tester,
+        PlBarChart(
+          series: const <PlassChartSeries>[
+            PlassChartSeries(name: 'New', data: <PlassChartDatum>[PlassChartDatum(4000)]),
+            PlassChartSeries(name: 'Renewed', data: <PlassChartDatum>[PlassChartDatum(16000)]),
+          ],
+          stacking: PlBarStacking.full,
+          format: (double value) => '\$${value.toInt()}',
+        ),
+      );
+
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('Chart')).value,
+        r'New $4000, Renewed $16000',
+      );
+
+      await tester.tapAt(tester.getCenter(find.byType(PlBarChart)));
+      await tester.pump();
+
+      expect(find.text(r'$4000'), findsOneWidget);
+      expect(find.text(r'$16000'), findsOneWidget);
+    });
+
     testWidgets('leaves a gap undrawn rather than drawing a zero', (WidgetTester tester) async {
       await _pump(
         tester,

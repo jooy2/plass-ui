@@ -990,7 +990,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
       );
       final String name = widget.series[i].name ?? '${i + 1}';
 
-      parts.add(last == null ? name : '$name ${_write(last.value!)}');
+      parts.add(last == null ? name : '$name ${last.label ?? _write(last.value!)}');
     }
 
     return parts.join(', ');
@@ -1401,7 +1401,8 @@ class _Tooltip extends StatelessWidget {
         continue;
       }
 
-      final double? value = layout.values[i][index].value;
+      final ChartValue entry = layout.values[i][index];
+      final double? value = entry.value;
 
       if (value == null) {
         continue;
@@ -1427,8 +1428,11 @@ class _Tooltip extends StatelessWidget {
                 style: TextStyle(fontSize: metaText[size]!, color: tokens.mutedFg),
               ),
               const SizedBox(width: 10),
+              // A point's own label wins, as it does in the React build's
+              // tooltip and table. On a chart stacked to full that label is the
+              // caller's number, and the value drawn is only its share.
               Text(
-                write(value),
+                entry.label ?? write(value),
                 style: TextStyle(
                   fontSize: metaText[size]!,
                   fontWeight: FontWeight.w600,

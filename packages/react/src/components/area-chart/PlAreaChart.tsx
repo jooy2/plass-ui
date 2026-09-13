@@ -3,7 +3,8 @@
 import * as React from 'react';
 import { CartesianChart, type CartesianChartProps } from '../../internal/chart-frame.js';
 import { LineSeries, type ChartMarkers } from '../../internal/chart-line.js';
-import { toValues } from '../../internal/chart.js';
+import { stackToFull, writeChartValue } from '../../internal/chart.js';
+import { useDefaults } from '../../internal/defaults.js';
 import type { PlassChartCurve, PlassChartSeries, PlassChartValueLabels } from '../../types.js';
 
 export interface PlAreaChartProps extends CartesianChartProps {
@@ -65,8 +66,11 @@ export function PlAreaChart({
   series,
   yAxis,
   format,
+  locale,
   ...props
 }: PlAreaChartProps) {
+  const defaults = useDefaults();
+  const resolvedLocale = locale ?? defaults.locale;
   const id = React.useId().replace(/:/g, '');
   const full = stacked === 'full';
 
@@ -74,47 +78,20 @@ export function PlAreaChart({
      is renormalised to add up to a hundred. Doing it here rather than in the
      renderer is what lets the axis, the tooltip and the table all agree that
      the number is a share — they read the series they were given. */
-  const shown = React.useMemo<readonly PlassChartSeries[]>(() => {
-    if (!full) {
-      return series;
-    }
-
-    const values = toValues(series);
-    const totals: number[] = [];
-
-    for (const one of values) {
-      one.forEach((value, index) => {
-        totals[index] = (totals[index] ?? 0) + Math.abs(value.value ?? 0);
-      });
-    }
-
-    return series.map((one, index) => ({
-      ...one,
-      data: values[index].map((value, category) => {
-        if (value.value === null) {
-          return null;
-        }
-
-        const total = totals[category];
-
-        return {
-          x: value.x,
-          y: total === 0 ? 0 : (value.value / total) * 100,
-          color: value.color,
-          // The tooltip and the table keep the number the caller passed, which
-          // is the one they actually have. A stacked-to-full chart that can
-          // only tell you percentages has thrown the data away.
-          label: value.label ?? String(value.value)
-        };
-      })
-    }));
-  }, [series, full]);
+  const shown = React.useMemo<readonly PlassChartSeries[]>(
+    () =>
+      full
+        ? stackToFull(series, (value) => writeChartValue(value, format, resolvedLocale))
+        : series,
+    [series, full, format, resolvedLocale]
+  );
 
   return (
     <CartesianChart
       {...props}
       series={shown}
       format={format}
+      locale={locale}
       yAxis={full ? { min: 0, max: 100, tickFormat: (value) => `${value}%`, ...yAxis } : yAxis}
       stacked={stacked !== false}
       inset

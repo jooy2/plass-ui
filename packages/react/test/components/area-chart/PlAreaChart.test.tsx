@@ -144,5 +144,28 @@ describe('PlAreaChart', () => {
 
       expect(cells).toEqual(['40', '160']);
     });
+
+    it('writes those numbers in the caller’s format when stacking to full', async () => {
+      const screen = await render(
+        <PlAreaChart
+          label="Mix"
+          stacked="full"
+          format={{ style: 'currency', currency: 'USD', maximumFractionDigits: 0 }}
+          locale="en-US"
+          categories={['Jan']}
+          series={[
+            { name: 'New', data: [4000] },
+            { name: 'Renewed', data: [16000] }
+          ]}
+        />
+      );
+
+      const table = screen.getByRole('table', { name: 'Mix' });
+
+      await expect.element(table).toBeInTheDocument();
+      expect(
+        [...table.element().querySelectorAll('tbody td')].map((cell) => cell.textContent?.trim())
+      ).toEqual(['$4,000', '$16,000']);
+    });
   });
 });

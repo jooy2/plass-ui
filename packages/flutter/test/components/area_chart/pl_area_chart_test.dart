@@ -70,6 +70,27 @@ void main() {
       expect(node.value, contains('Search'));
     });
 
+    testWidgets('writes the caller number in its format when it is full', (
+      WidgetTester tester,
+    ) async {
+      await _pump(
+        tester,
+        PlAreaChart(
+          series: const <PlassChartSeries>[
+            PlassChartSeries(name: 'New', data: <PlassChartDatum>[PlassChartDatum(4000)]),
+            PlassChartSeries(name: 'Renewed', data: <PlassChartDatum>[PlassChartDatum(16000)]),
+          ],
+          stacking: PlAreaStacking.full,
+          format: (double value) => '\$${value.toInt()}',
+        ),
+      );
+
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('Chart')).value,
+        r'New $4000, Renewed $16000',
+      );
+    });
+
     testWidgets('keeps a gap a gap', (WidgetTester tester) async {
       await _pump(
         tester,

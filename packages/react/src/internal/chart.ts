@@ -244,6 +244,48 @@ export function toValues(series: readonly PlassChartSeries[]): ChartValue[][] {
 }
 
 /**
+ * Every category of a stacked chart renormalised to a hundred.
+ *
+ * A change to the data rather than to the drawing, which is what lets the axis,
+ * the tooltip and the table agree that the number drawn is a share. The number
+ * the caller passed survives as each point's `label`, written by `write` the way
+ * the chart writes every other value — a chart stacked to `full` that can only
+ * tell a reader percentages has thrown away what it was given, and one that
+ * writes a revenue as `4830` beside a `$` axis has thrown away how it was given.
+ */
+export function stackToFull(
+  series: readonly PlassChartSeries[],
+  write: (value: number) => string
+): PlassChartSeries[] {
+  const values = toValues(series);
+  const totals: number[] = [];
+
+  for (const one of values) {
+    one.forEach((value, index) => {
+      totals[index] = (totals[index] ?? 0) + Math.abs(value.value ?? 0);
+    });
+  }
+
+  return series.map((one, index) => ({
+    ...one,
+    data: values[index].map((value, category) => {
+      if (value.value === null) {
+        return null;
+      }
+
+      const total = totals[category];
+
+      return {
+        x: value.x,
+        y: total === 0 ? 0 : (value.value / total) * 100,
+        color: value.color,
+        label: value.label ?? write(value.value)
+      };
+    })
+  }));
+}
+
+/**
  * A category as a number, for a category axis that is really a value axis.
  *
  * A `Date` is its epoch milliseconds, which is what makes a scatter of
@@ -1680,4 +1722,13 @@ export function compactNumber(value: number, locale?: string): string {
   }
 
   return numberFormatter(locale, plainParts).format(value);
+}
+
+/** A value as a chart writes it: in the caller's `format`, or compactly without one. */
+export function writeChartValue(
+  value: number,
+  format: Intl.NumberFormatOptions | undefined,
+  locale: string | undefined
+): string {
+  return format ? numberFormatter(locale, format).format(value) : compactNumber(value, locale);
 }

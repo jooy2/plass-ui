@@ -169,7 +169,10 @@ class PlAreaChart extends StatelessWidget {
                     // passed, which is the one they actually have. A
                     // stacked-to-full chart that can only tell you percentages
                     // has thrown the data away.
-                    label: values[s][i].label ?? _write(values[s][i].value!),
+                    label:
+                        values[s][i].label ??
+                        format?.call(values[s][i].value!) ??
+                        _write(values[s][i].value!),
                   ),
                 ),
           ],

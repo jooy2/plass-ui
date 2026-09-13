@@ -39,13 +39,13 @@ import {
   tickStride,
   toValues,
   valueScale,
+  writeChartValue,
   type BandScale,
   type ChartValue,
   type PlotBox,
   type ValueScale
 } from './chart.js';
 import { useDefaults } from './defaults.js';
-import { numberFormatter } from './format.js';
 import { usePlElementSize } from '../hooks/usePlElementSize.js';
 import { useLabels } from './labels.js';
 import {
@@ -941,8 +941,7 @@ export function CartesianChart({
      single time. The cache in `internal/format.ts` is keyed on what the options
      say instead, so it hits. */
   const formatValue = React.useCallback(
-    (value: number) =>
-      format ? numberFormatter(locale, format).format(value) : compactNumber(value, locale),
+    (value: number) => writeChartValue(value, format, locale),
     [format, locale]
   );
 

@@ -14,7 +14,8 @@ import {
   barRadius,
   chartFontSizes,
   markGap,
-  toValues,
+  stackToFull,
+  writeChartValue,
   type ChartValue
 } from '../../internal/chart.js';
 import type {
@@ -93,6 +94,8 @@ export function PlBarChart({
   valueLabels = 'none',
   series,
   yAxis,
+  format,
+  locale,
   size: sizeProp,
   density: densityProp,
   ...props
@@ -100,6 +103,7 @@ export function PlBarChart({
   const defaults = useDefaults();
   const size = sizeProp ?? defaults.size ?? 'md';
   const density = densityProp ?? defaults.density ?? 'default';
+  const resolvedLocale = locale ?? defaults.locale;
 
   const horizontal = orientation === 'horizontal';
   const full = stacked === 'full';
@@ -108,43 +112,20 @@ export function PlBarChart({
      the tooltip and the table all agree about what the number is. The original
      value survives as the point's label — a chart that can only tell you
      percentages has thrown away what it was given. */
-  const shown = React.useMemo<readonly PlassChartSeries[]>(() => {
-    if (!full) {
-      return series;
-    }
-
-    const values = toValues(series);
-    const totals: number[] = [];
-
-    for (const one of values) {
-      one.forEach((value, index) => {
-        totals[index] = (totals[index] ?? 0) + Math.abs(value.value ?? 0);
-      });
-    }
-
-    return series.map((one, index) => ({
-      ...one,
-      data: values[index].map((value, category) => {
-        if (value.value === null) {
-          return null;
-        }
-
-        const total = totals[category];
-
-        return {
-          x: value.x,
-          y: total === 0 ? 0 : (value.value / total) * 100,
-          color: value.color,
-          label: value.label ?? String(value.value)
-        };
-      })
-    }));
-  }, [series, full]);
+  const shown = React.useMemo<readonly PlassChartSeries[]>(
+    () =>
+      full
+        ? stackToFull(series, (value) => writeChartValue(value, format, resolvedLocale))
+        : series,
+    [series, full, format, resolvedLocale]
+  );
 
   return (
     <CartesianChart
       {...props}
       series={shown}
+      format={format}
+      locale={locale}
       size={size}
       density={density}
       horizontal={horizontal}
