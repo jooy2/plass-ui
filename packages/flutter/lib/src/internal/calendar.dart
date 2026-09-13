@@ -307,45 +307,50 @@ class _PlassCalendarCellState extends State<PlassCalendarCell> {
       );
     }
 
-    return Semantics(
-      button: true,
-      selected: widget.selected,
-      enabled: !widget.disabled,
-      label: widget.label,
-      onTap: widget.disabled ? null : widget.onPressed,
-      excludeSemantics: true,
-      child: Focus(
-        focusNode: widget.focusNode,
-        // Blocked days keep their focus stop, so a reader arrowing across a
-        // month does not fall into a hole at every one of them.
-        canRequestFocus: true,
-        // One roving tab stop per grid: the focused cell is reachable and every
-        // other one is skipped, which is what stops Tab walking forty-two cells.
-        skipTraversal: !widget.focused,
-        onFocusChange: (bool has) {
-          if (mounted) {
-            setState(
-              () => _focusVisible =
-                  has && FocusManager.instance.highlightMode == FocusHighlightMode.traditional,
-            );
-          }
-        },
-        onKeyEvent: (FocusNode node, KeyEvent event) {
-          if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
-            return KeyEventResult.ignored;
-          }
+    // The focus goes around the cell's semantics rather than inside them. The
+    // cell excludes what is under it, so its label is not read twice, and a
+    // `Focus` under that exclusion would take its focusable and focused flags
+    // with it: the arrow keys would move the ring while a screen reader's cursor
+    // stayed where it was.
+    return Focus(
+      focusNode: widget.focusNode,
+      // Blocked days keep their focus stop, so a reader arrowing across a
+      // month does not fall into a hole at every one of them.
+      canRequestFocus: true,
+      // One roving tab stop per grid: the focused cell is reachable and every
+      // other one is skipped, which is what stops Tab walking forty-two cells.
+      skipTraversal: !widget.focused,
+      onFocusChange: (bool has) {
+        if (mounted) {
+          setState(
+            () => _focusVisible =
+                has && FocusManager.instance.highlightMode == FocusHighlightMode.traditional,
+          );
+        }
+      },
+      onKeyEvent: (FocusNode node, KeyEvent event) {
+        if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+          return KeyEventResult.ignored;
+        }
 
-          if (event.logicalKey == LogicalKeyboardKey.enter ||
-              event.logicalKey == LogicalKeyboardKey.space) {
-            if (!widget.disabled) {
-              widget.onPressed();
-            }
-
-            return KeyEventResult.handled;
+        if (event.logicalKey == LogicalKeyboardKey.enter ||
+            event.logicalKey == LogicalKeyboardKey.space) {
+          if (!widget.disabled) {
+            widget.onPressed();
           }
 
-          return widget.onKey?.call(event) ?? KeyEventResult.ignored;
-        },
+          return KeyEventResult.handled;
+        }
+
+        return widget.onKey?.call(event) ?? KeyEventResult.ignored;
+      },
+      child: Semantics(
+        button: true,
+        selected: widget.selected,
+        enabled: !widget.disabled,
+        label: widget.label,
+        onTap: widget.disabled ? null : widget.onPressed,
+        excludeSemantics: true,
         child: MouseRegion(
           cursor: widget.disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
           onEnter: (_) {

@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **A screen reader follows the keyboard focus across a calendar.** A day, month or year cell left its focus out of the semantics tree, so moving with the arrow keys in `PlCalendar` and every picker moved the ring while a screen reader's cursor stayed on the cell it was on, and nothing was announced. The focused cell is now marked focused, and a screen reader can move the input focus to a cell as well.
+
 - **The screen behind an open popup keeps working.** A `PlPopover`, a `PlMenu`, a `PlSelect` or `PlCombobox` list, a picker, and a `PlNavigationMenu` panel closed on a press outside by covering the whole screen with a layer that took the press. The first press on a button behind the popup only closed the popup, and a drag on a list behind it did not scroll. A press outside now closes the popup and still reaches what it landed on, so a `PlMenubar` word pressed while another menu is open opens its own menu. A press on the popup's own trigger still only closes it.
 
 - **The next question in a `PlConfirmProvider` queue places the focus again.** The sheet stays open between two queued questions and reused its buttons, so `autofocus` did not run for the second one and the focus stayed on the button that had just been pressed. After a first question answered with its confirm button, a second, destructive question opened with the focus on its confirm button too, and pressing Enter twice approved both. Each question now gets new buttons, and its own `initialFocus` decides where the focus lands.

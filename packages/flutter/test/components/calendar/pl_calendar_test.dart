@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -195,6 +196,40 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(chosen, equals(DateTime(2026, 7, 18)));
+      });
+    });
+
+    group('the keyboard focus', () {
+      testWidgets('is on the semantics tree, and follows the arrow keys there', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+        await _pump(tester, PlCalendar(value: july27, onChanged: (DateTime? _) {}));
+
+        Focus.of(tester.element(find.text('27'))).requestFocus();
+        await tester.pumpAndSettle();
+
+        // A screen reader's cursor follows the node that says it is focused, so
+        // a cell the keyboard reached has to say so, or the arrow keys move a
+        // ring nobody listening can find.
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('Monday, July 27, 2026')),
+          isSemantics(isFocusable: true, isFocused: true, isButton: true, isSelected: true),
+        );
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pumpAndSettle();
+
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('Tuesday, July 28, 2026')),
+          isSemantics(isFocusable: true, isFocused: true, isButton: true),
+        );
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('Monday, July 27, 2026')),
+          isSemantics(isFocusable: true, isFocused: false, isButton: true, isSelected: true),
+        );
+
+        handle.dispose();
       });
     });
 
