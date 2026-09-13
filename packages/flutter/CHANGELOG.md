@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **An `inline` `PlColorPicker` is grouped under its `label`.** The square and the rails are named "Saturation and brightness", "Hue" and "Opacity" whatever field they belong to, and the label, the description and the error were separate nodes beside them, so two inline pickers on one screen were two sets of the same sliders and an error was never tied to them. The picker is now one node named by its label, description and error with the square and the rails inside it, and an error marks them invalid.
+
 - **The hue and opacity rails of `PlColorPicker` answer ↑, ↓, Home and End.** A rail took only ← and →, so a keyboard reader who pressed the other keys every slider answers to changed nothing. ↑ and ↓ now move a rail as → and ← do, and Home and End take it to its two ends.
 
 - **A `PlFilePicker` button says which field it belongs to.** Its name was only the words inside the box, so a résumé picker and a cover letter picker on one screen were both read out as the same line. The name now starts with `label` and goes on with the box's own words.

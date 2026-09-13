@@ -195,3 +195,15 @@ What it reads: hex in all four lengths, and `rgb()`/`rgba()`/`hsl()`/`hsla()` in
 - Every swatch is a real `<button>` named by its own colour, with `aria-pressed` on the chosen one.
 - `labels` renames any of the parts that have no text on them. They are all named by default, in English.
 - A drag takes pointer capture on the element, so a pointer that leaves the panel mid-drag keeps changing the colour rather than dropping it.
+
+::: fw react
+
+- An `inline` picker is a `role="group"` named by `label` and described by `description` and `error`, so two of them on one page are not two sets of sliders called "Hue". An `error` also marks the square and the rails `aria-invalid`.
+
+:::
+
+::: fw flutter
+
+- An `inline` picker is one semantics node over its `label`, `description` and `error`, with the square and the rails inside it, so two of them on one screen are not two sets of sliders called "Hue". An `error` also marks the square and the rails invalid.
+
+:::

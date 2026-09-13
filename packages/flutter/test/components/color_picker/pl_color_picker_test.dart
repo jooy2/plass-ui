@@ -92,6 +92,56 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('groups an inline panel under its label, its description and its error', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+
+      await tester.pumpWidget(
+        host(
+          const SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                PlColorPicker(
+                  inline: true,
+                  value: '#ff0000',
+                  label: Text('Accent'),
+                  description: Text('Links and focus rings.'),
+                  error: Text('Too light to read.'),
+                ),
+                PlColorPicker(inline: true, value: '#ffffff', label: Text('Background')),
+              ],
+            ),
+          ),
+          width: 400,
+          height: 1200,
+          overlay: true,
+        ),
+      );
+
+      /// The nearest node above [node] that carries a name of its own.
+      String groupOf(SemanticsNode node) {
+        SemanticsNode? parent = node.parent;
+
+        while (parent != null && parent.label.isEmpty) {
+          parent = parent.parent;
+        }
+
+        return parent?.label ?? '';
+      }
+
+      // Two inline pickers are otherwise two sets of sliders called "Hue".
+      final SemanticsNode accent = tester.getSemantics(find.bySemanticsLabel('Hue').at(0));
+      final SemanticsNode background = tester.getSemantics(find.bySemanticsLabel('Hue').at(1));
+
+      expect(groupOf(accent), 'Accent\nLinks and focus rings.\nToo light to read.');
+      expect(groupOf(background), 'Background');
+      expect(accent.getSemanticsData().validationResult, SemanticsValidationResult.invalid);
+      expect(background.getSemanticsData().validationResult, SemanticsValidationResult.none);
+
+      handle.dispose();
+    });
+
     testWidgets('names the parts that have no text on them', (WidgetTester tester) async {
       final SemanticsHandle handle = tester.ensureSemantics();
 

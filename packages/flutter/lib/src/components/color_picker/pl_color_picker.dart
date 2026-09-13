@@ -1,6 +1,7 @@
 /// A colour, chosen by eye.
 library;
 
+import 'package:flutter/semantics.dart' show SemanticsValidationResult;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -342,38 +343,46 @@ class _PlColorPickerState extends State<PlColorPicker> {
       size: _size,
       color: _color,
       inert: _inert,
+      invalid: widget.inline && invalid,
       labels: widget.labels,
     );
 
     if (widget.inline) {
       final PlassColor family = invalid ? PlassColor.danger : _color;
 
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: stackGap[_size]!,
-        children: <Widget>[
-          if (widget.label != null)
-            DefaultTextStyle.merge(
-              style: TextStyle(
-                color: widget.disabled ? tokens.mutedFg : tokens.fg,
-                fontSize: metaText[_size]!,
-                fontWeight: FontWeight.w600,
+      // One node over the field, so the label, the description and the error
+      // name the group the square and the rails sit in: they are called "Hue"
+      // and "Opacity" whatever field they are for, and two inline pickers were
+      // otherwise two sets of the same sliders.
+      return Semantics(
+        container: true,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: stackGap[_size]!,
+          children: <Widget>[
+            if (widget.label != null)
+              DefaultTextStyle.merge(
+                style: TextStyle(
+                  color: widget.disabled ? tokens.mutedFg : tokens.fg,
+                  fontSize: metaText[_size]!,
+                  fontWeight: FontWeight.w600,
+                ),
+                child: widget.label!,
               ),
-              child: widget.label!,
-            ),
-          panel,
-          if (widget.description != null)
-            DefaultTextStyle.merge(
-              style: TextStyle(color: tokens.mutedFg, fontSize: metaText[_size]!),
-              child: widget.description!,
-            ),
-          if (widget.error != null)
-            DefaultTextStyle.merge(
-              style: TextStyle(color: tokens.family(family).accent, fontSize: metaText[_size]!),
-              child: widget.error!,
-            ),
-        ],
+            panel,
+            if (widget.description != null)
+              DefaultTextStyle.merge(
+                style: TextStyle(color: tokens.mutedFg, fontSize: metaText[_size]!),
+                child: widget.description!,
+              ),
+            if (widget.error != null)
+              DefaultTextStyle.merge(
+                style: TextStyle(color: tokens.family(family).accent, fontSize: metaText[_size]!),
+                child: widget.error!,
+              ),
+          ],
+        ),
       );
     }
 
@@ -504,6 +513,7 @@ class _ColorPanel extends StatelessWidget {
     required this.size,
     required this.color,
     required this.inert,
+    required this.invalid,
     required this.labels,
   });
 
@@ -518,6 +528,10 @@ class _ColorPanel extends StatelessWidget {
   final PlassSize size;
   final PlassColor color;
   final bool inert;
+
+  /// Marks the square and the rails invalid. Only an inline panel says so: in a
+  /// popup the trigger does.
+  final bool invalid;
   final PlColorPickerLabels labels;
 
   @override
@@ -544,6 +558,7 @@ class _ColorPanel extends StatelessWidget {
             value: model.hsv.s.round(),
             max: 100,
             inert: inert,
+            invalid: invalid,
             ring: family.ring,
             height: _areaHeight[size]!,
             borderRadius: BorderRadius.circular(radius),
@@ -599,6 +614,7 @@ class _ColorPanel extends StatelessWidget {
             value: model.hsv.h.round(),
             max: 360,
             inert: inert,
+            invalid: invalid,
             ring: family.ring,
             height: _railHeight[size]!,
             borderRadius: BorderRadius.circular(_railHeight[size]!),
@@ -640,6 +656,7 @@ class _ColorPanel extends StatelessWidget {
               value: (model.alpha * 100).round(),
               max: 100,
               inert: inert,
+              invalid: invalid,
               ring: family.ring,
               height: _railHeight[size]!,
               borderRadius: BorderRadius.circular(_railHeight[size]!),
@@ -783,6 +800,7 @@ class _Track extends StatefulWidget {
     required this.value,
     required this.max,
     required this.inert,
+    required this.invalid,
     required this.ring,
     required this.height,
     required this.borderRadius,
@@ -804,6 +822,7 @@ class _Track extends StatefulWidget {
   final int value;
   final int max;
   final bool inert;
+  final bool invalid;
   final Color ring;
   final double height;
   final BorderRadius borderRadius;
@@ -948,6 +967,9 @@ class _TrackState extends State<_Track> {
     return Semantics(
       slider: true,
       enabled: !widget.inert,
+      validationResult: widget.invalid
+          ? SemanticsValidationResult.invalid
+          : SemanticsValidationResult.none,
       label: widget.label,
       value: widget.valueText ?? '${widget.value}',
       increasedValue: widget.increasedValue,

@@ -220,6 +220,8 @@ interface PanelProps {
   editable: boolean;
   size: PlassSize;
   inert: boolean;
+  /** Marks the square and the rails invalid. Only an inline panel says so: in a popup the trigger does. */
+  invalid: boolean;
   labels: PlColorPickerLabels;
 }
 
@@ -267,6 +269,7 @@ function ColorPanel({
   editable,
   size,
   inert,
+  invalid,
   labels
 }: PanelProps) {
   const thumb = thumbSizes[size];
@@ -308,6 +311,7 @@ function ColorPanel({
     'aria-valuenow': Math.round(now),
     'aria-orientation': 'horizontal' as const,
     'aria-disabled': inert || undefined,
+    'aria-invalid': invalid || undefined,
     // The keys every slider answers, though the rail lies across: right and up
     // are more, left and down are less, and Home and End are the two ends.
     onKeyDown: (event: React.KeyboardEvent) => {
@@ -349,6 +353,7 @@ function ColorPanel({
         aria-valuenow={Math.round(hsv.s)}
         aria-valuetext={`${Math.round(hsv.s)}%, ${Math.round(hsv.v)}%`}
         aria-disabled={inert || undefined}
+        aria-invalid={invalid || undefined}
         onKeyDown={(event) => {
           const step = arrowStep(event);
 
@@ -703,6 +708,8 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
     };
 
     const inert = disabled || readOnly;
+    const isInvalid = invalid ?? Boolean(error);
+    const fieldId = React.useId();
 
     const panel = (
       <ColorPanel
@@ -724,6 +731,7 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
         editable={editable}
         size={size}
         inert={inert}
+        invalid={inline && isInvalid}
         labels={labels}
       />
     );
@@ -736,17 +744,28 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
     ) : null;
 
     if (inline) {
-      const family: PlassColor = (invalid ?? Boolean(error)) ? 'danger' : color;
+      const family: PlassColor = isInvalid ? 'danger' : color;
+      const describedBy =
+        [description ? `${fieldId}-description` : null, error ? `${fieldId}-error` : null]
+          .filter(Boolean)
+          .join(' ') || undefined;
 
+      // A group named by the label and described by what is under it: the
+      // square and the rails are called "Hue" and "Opacity" whatever field they
+      // are for, so two inline pickers were two sets of the same sliders.
       return (
         <div
           ref={ref}
+          role="group"
+          aria-labelledby={label ? `${fieldId}-label` : undefined}
+          aria-describedby={describedBy}
           className={cx('flex flex-col', stackGapClasses[size], className)}
           style={{ ...surfaceSlots(family, elevation), ...style }}
           {...props}
         >
           {label ? (
             <span
+              id={`${fieldId}-label`}
               className={cx(
                 metaTextClasses[size],
                 'font-semibold',
@@ -760,13 +779,21 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
           {panel}
 
           {description ? (
-            <span className={cx(metaTextClasses[size], 'text-(--plass-muted-fg)')}>
+            <span
+              id={`${fieldId}-description`}
+              className={cx(metaTextClasses[size], 'text-(--plass-muted-fg)')}
+            >
               {description}
             </span>
           ) : null}
 
           {error ? (
-            <span className={cx(metaTextClasses[size], 'text-(--p-accent)')}>{error}</span>
+            <span
+              id={`${fieldId}-error`}
+              className={cx(metaTextClasses[size], 'text-(--p-accent)')}
+            >
+              {error}
+            </span>
           ) : null}
 
           {hidden}

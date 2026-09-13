@@ -195,3 +195,15 @@ PlColorPicker(
 - 모든 스와치는 자기 색으로 이름 붙은 진짜 `<button>`이고, 선택된 것에 `aria-pressed`가 붙습니다.
 - `labels`는 글자가 없는 부분들의 이름을 하나씩 바꿉니다. 기본적으로 전부 영어로 이름이 붙어 있습니다.
 - 드래그는 요소에서 pointer capture를 가져가므로, 드래그 중 포인터가 패널을 벗어나도 색이 계속 바뀝니다.
+
+::: fw react
+
+- `inline` picker는 `label`로 이름이 붙고 `description`과 `error`로 설명되는 `role="group"`입니다. 그래서 한 페이지의 picker 두 개가 "Hue"라는 같은 슬라이더 두 벌이 되지 않습니다. `error`는 사각형과 레일에 `aria-invalid`도 붙입니다.
+
+:::
+
+::: fw flutter
+
+- `inline` picker는 `label`, `description`, `error`를 묶는 semantics 노드 하나이고, 사각형과 레일은 그 안에 있습니다. 그래서 한 화면의 picker 두 개가 "Hue"라는 같은 슬라이더 두 벌이 되지 않습니다. `error`는 사각형과 레일을 invalid로도 표시합니다.
+
+:::

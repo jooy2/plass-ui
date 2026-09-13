@@ -46,6 +46,37 @@ describe('PlColorPicker', () => {
       expect(screen.getByRole('button', { name: /Pick a colour/ }).query()).toBeNull();
     });
 
+    it('groups an inline panel under its label, described by the description and the error', async () => {
+      const screen = await render(
+        <>
+          <PlColorPicker
+            inline
+            label="Accent"
+            description="Links and focus rings."
+            error="Too light to read."
+            defaultValue="#ff0000"
+          />
+          <PlColorPicker inline label="Background" defaultValue="#ffffff" />
+        </>
+      );
+
+      // Two inline pickers are otherwise two sets of sliders called "Hue".
+      const accent = screen.getByRole('group', { name: 'Accent', exact: true });
+
+      await expect.element(accent).toBeInTheDocument();
+      await expect
+        .element(accent)
+        .toHaveAccessibleDescription('Links and focus rings. Too light to read.');
+      await expect
+        .element(screen.getByRole('group', { name: 'Background', exact: true }))
+        .toBeInTheDocument();
+
+      const hues = screen.getByRole('slider', { name: 'Hue' }).elements();
+
+      expect(hues[0]).toHaveAttribute('aria-invalid', 'true');
+      expect(hues[1]).not.toHaveAttribute('aria-invalid');
+    });
+
     it('names the parts that have no text on them', async () => {
       const screen = await render(<PlColorPicker inline alpha defaultValue="#ff0000" />);
 
