@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **The next question in a `PlConfirmProvider` queue places the focus again.** The sheet stays open between two queued questions and reused its buttons, so `autoFocus` did not run for the second one and the focus stayed on the button that had just been pressed. After a first question answered with its confirm button, a second, destructive question opened with the focus on its confirm button too, and pressing Enter twice approved both. Each question now gets new buttons, and its own `initialFocus` decides where the focus lands.
+
 - **`PlTour` says the next step when the focus stays on Next.** Pressing Next left the focus on the button and changed the card around it, so a screen reader said nothing about the new step. The title and the content are now a polite live region that stays in place from step to step.
 
 - **`PlTypography` clamps to the number of `lines` it is given, and cuts a `caption` or an `overline` short.** `lines` above 6 clamped to 6, because there was a class for each count up to six and nothing after. And `lines={1}` on a `caption` or an `overline` did nothing, since those levels are `<span>`s and an ellipsis needs a box. Any count now clamps to that many lines, and a one-line clamp is drawn as a block.

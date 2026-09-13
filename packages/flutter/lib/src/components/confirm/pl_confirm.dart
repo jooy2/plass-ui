@@ -196,6 +196,10 @@ class _PlConfirmProviderState extends State<PlConfirmProvider> implements PlConf
   _Request? _live;
   bool _open = false;
 
+  /// How many questions have reached the sheet, which is what the buttons are
+  /// keyed by. See [build].
+  int _turn = 0;
+
   @override
   void dispose() {
     // Everything an unmounting provider is still holding. A future that is never
@@ -225,6 +229,7 @@ class _PlConfirmProviderState extends State<PlConfirmProvider> implements PlConf
     setState(() {
       _live = request;
       _open = true;
+      _turn += 1;
     });
 
     return request.completer.future;
@@ -243,7 +248,10 @@ class _PlConfirmProviderState extends State<PlConfirmProvider> implements PlConf
       // The dialog stays open and its content changes. Closing and reopening in
       // one frame would play neither transition, and would take the focus out of
       // a dialog the reader is about to be asked something else in.
-      setState(() => _live = _queue.removeAt(0));
+      setState(() {
+        _live = _queue.removeAt(0);
+        _turn += 1;
+      });
 
       return;
     }
@@ -293,9 +301,15 @@ class _PlConfirmProviderState extends State<PlConfirmProvider> implements PlConf
             width: options?.width ?? widget.width,
             title: options?.title,
             description: options?.description,
+            // Keyed by the question. The sheet stays open between two queued
+            // questions, so without a key the next one would reuse these
+            // buttons, `autofocus` would not run again, and the focus would stay
+            // on the button just pressed: an Enter pressed twice would confirm a
+            // second, destructive question from the first one's harmless yes.
             actions: <Widget>[
               if (!isAlert)
                 PlButton(
+                  key: ValueKey<String>('cancel-$_turn'),
                   variant: PlassVariant.ghost,
                   color: PlassColor.secondary,
                   size: size,
@@ -307,6 +321,7 @@ class _PlConfirmProviderState extends State<PlConfirmProvider> implements PlConf
                       Text(PlassTheme.labelsOf(context).cancel),
                 ),
               PlButton(
+                key: ValueKey<String>('confirm-$_turn'),
                 color: color,
                 size: size,
                 autofocus: focusConfirm,

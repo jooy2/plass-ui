@@ -53,6 +53,8 @@ export interface PlConfirmOptions {
 type Kind = 'confirm' | 'alert';
 
 interface Request {
+  /** Which question this is, so the buttons of the next one are new buttons. */
+  id: number;
   kind: Kind;
   options: PlConfirmOptions;
   resolve: (value: boolean) => void;
@@ -120,6 +122,7 @@ export function PlConfirmProvider({
   // nothing here is drawn from them except through `current`.
   const live = React.useRef<Request | null>(null);
   const queue = React.useRef<Request[]>([]);
+  const asked = React.useRef(0);
 
   const settle = React.useCallback((value: boolean) => {
     const request = live.current;
@@ -150,7 +153,9 @@ export function PlConfirmProvider({
 
   const ask = React.useCallback((kind: Kind, options: PlConfirmOptions) => {
     return new Promise<boolean>((resolve) => {
-      const request: Request = { kind, options, resolve };
+      asked.current += 1;
+
+      const request: Request = { id: asked.current, kind, options, resolve };
 
       if (live.current) {
         queue.current.push(request);
@@ -209,7 +214,12 @@ export function PlConfirmProvider({
         title={options?.title}
         description={options?.description}
         actions={
-          <>
+          // Keyed by the question. The sheet stays open between two queued
+          // questions, so without a key the next one would reuse these buttons,
+          // `autoFocus` would not run again, and the focus would stay on the
+          // button just pressed: an Enter pressed twice would confirm a second,
+          // destructive question from the first one's harmless yes.
+          <React.Fragment key={current?.id}>
             {isAlert ? null : (
               <PlButton
                 variant="ghost"
@@ -233,7 +243,7 @@ export function PlConfirmProvider({
                   ? (acknowledgeLabel ?? labels.acknowledge)
                   : (confirmLabel ?? labels.confirm))}
             </PlButton>
-          </>
+          </React.Fragment>
         }
       >
         {options?.children}

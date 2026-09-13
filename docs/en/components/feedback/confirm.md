@@ -138,7 +138,7 @@ await confirm({
 
 ## Notes
 
-- **Questions asked while one is open are queued**, in the order they were asked, and the dialog's content changes rather than the sheet closing and reopening. The alternative is a promise nobody ever resolves, which is a hung button rather than a visible bug.
+- **Questions asked while one is open are queued**, in the order they were asked, and the dialog's content changes rather than the sheet closing and reopening. Each question places the focus by its own `initialFocus`, so the focus does not stay on the button that answered the one before. The alternative is a promise nobody ever resolves, which is a hung button rather than a visible bug.
 - A provider that unmounts with questions outstanding **resolves them all with `false`**. A promise that is never settled is a handler that never runs its `finally`, so a route change would otherwise leave a button spinning for the rest of the session.
 - `usePlConfirm` **throws** outside a provider rather than resolving `false`. A silent `false` is a delete button that quietly does nothing, which is worse than a missing provider, since that fails on the first press.
 - Escape and a click outside answer **no**, never yes.

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -181,6 +182,58 @@ void main() {
         await _press(tester, 'Confirm');
 
         expect(answers, equals(<bool>[true, true]));
+      });
+    });
+
+    group('the focus', () {
+      testWidgets('lands again for the next question in the queue', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          PlConfirmProvider(
+            child: Builder(
+              builder: (BuildContext context) {
+                return PlButton(
+                  onPressed: () {
+                    final PlConfirmController confirm = PlConfirmProvider.of(context);
+
+                    unawaited(
+                      confirm.confirm(
+                        const PlConfirmOptions(
+                          title: Text('Save first?'),
+                          confirmLabel: Text('Save'),
+                          initialFocus: PlConfirmFocus.confirm,
+                        ),
+                      ),
+                    );
+                    unawaited(
+                      confirm.confirm(
+                        const PlConfirmOptions(
+                          title: Text('Delete it?'),
+                          confirmLabel: Text('Delete'),
+                          cancelLabel: Text('Keep it'),
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text('Ask twice'),
+                );
+              },
+            ),
+          ),
+        );
+        await _press(tester, 'Ask twice');
+
+        expect(Focus.of(tester.element(find.text('Save'))).hasFocus, isTrue);
+
+        // Answered from the keyboard, where the focus is. The dialog stays open
+        // for the second question, and an Enter pressed twice must not approve
+        // a delete the reader never saw the focus reach.
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+
+        expect(find.text('Delete it?'), findsOneWidget);
+        expect(Focus.of(tester.element(find.text('Keep it'))).hasFocus, isTrue);
+        expect(Focus.of(tester.element(find.text('Delete'))).hasFocus, isFalse);
       });
     });
 

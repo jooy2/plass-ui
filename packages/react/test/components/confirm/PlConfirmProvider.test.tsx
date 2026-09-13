@@ -283,6 +283,40 @@ describe('PlConfirmProvider', () => {
 
       await expect.poll(() => document.activeElement?.textContent).toBe('Save');
     });
+
+    it('lands again for the next question in the queue', async () => {
+      function Two() {
+        const { confirm } = usePlConfirm();
+
+        return (
+          <PlButton
+            onClick={() => {
+              void confirm({ title: 'Save first?', confirmLabel: 'Save', initialFocus: 'confirm' });
+              void confirm({ title: 'Delete it?', confirmLabel: 'Delete', cancelLabel: 'Keep it' });
+            }}
+          >
+            Ask twice
+          </PlButton>
+        );
+      }
+
+      const screen = await render(
+        <PlConfirmProvider>
+          <Two />
+        </PlConfirmProvider>
+      );
+
+      await screen.getByRole('button', { name: 'Ask twice' }).click();
+      await expect.poll(() => document.activeElement?.textContent).toBe('Save');
+
+      // Answered from the keyboard, where the focus is. The dialog stays open
+      // for the second question, and an Enter pressed twice must not approve a
+      // delete the reader never saw the focus reach.
+      (document.activeElement as HTMLButtonElement).click();
+
+      await expect.element(screen.getByText('Delete it?')).toBeInTheDocument();
+      await expect.poll(() => document.activeElement?.textContent).toBe('Keep it');
+    });
   });
 
   describe('outside a provider', () => {
