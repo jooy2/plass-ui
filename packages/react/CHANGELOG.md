@@ -6,6 +6,8 @@
 
 ### Breaking changes
 
+- **Picking a day in `PlDateTimePicker` keeps the moment inside `minDate` and `maxDate`.** The day that holds a bound stays selectable, and picking it used to keep the clock as it was, or put midnight on it, without checking the bound again. With `minDate={new Date()}`, picking today committed today at 00:00. The clock is now moved into the bounds, up to the next whole minute (or second, with `showSeconds`) at or after `minDate` and down to the last one at or before `maxDate`. A clock that is already inside the bounds is kept as before.
+
 - **A lone `width` or `height` on `PlImage` now sizes its box.** Passed alone, either one used to reach the `<img>` as an attribute and change nothing on the page. Now `height={200}` draws a box 200 pixels tall, and `width={320}` one 320 pixels wide. If you passed one of them only as a hint about the file, pass both dimensions of the file, or remove the one.
 
 ### Fixed

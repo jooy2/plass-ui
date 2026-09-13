@@ -64,6 +64,8 @@ The calendar's grid is seven rows counting its header. The clock's columns are s
 
 `minDate` and `maxDate` are read at **full precision**, which is the one place this parts company with [`PlDatePicker`](./date-picker). There, a bound is about which days exist and the time of day on it is ignored. Here, a minimum of 09:30 on the 27th leaves the 27th selectable in the calendar and greys out the morning in the clock.
 
+Picking that day keeps the clock that was already set, and moves it into the bounds when it falls outside them. With 08:00 set, or nothing set yet, picking the 27th gives 09:30. A bound between two whole minutes is rounded inward, so 09:30:15 gives 09:31, or the next whole second when `showSeconds` is on.
+
 That is the behaviour a "not before now" rule actually needs, and a day-granular check cannot give it: it would either block the whole of today or allow this morning.
 
 <Demo src="date-time-picker/precision" :min-height="200">

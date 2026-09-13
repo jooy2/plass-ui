@@ -191,6 +191,66 @@ void main() {
         expect(_cell(tester, '09 Hour').disabled, isFalse);
       });
 
+      testWidgets('moves the kept clock up to a minimum that falls inside the chosen day', (
+        WidgetTester tester,
+      ) async {
+        DateTime? chosen;
+
+        await _pump(
+          tester,
+          PlDateTimePicker(
+            value: DateTime(2026, 7, 28, 8),
+            minDate: DateTime(2026, 7, 27, 9, 30, 15),
+            onChanged: (DateTime? next) => chosen = next,
+          ),
+        );
+        await _open(tester);
+        await _tap(tester, 'Monday, July 27, 2026');
+
+        // Up to the next whole minute: 09:30 on its own would be before the bound.
+        expect(chosen, equals(DateTime(2026, 7, 27, 9, 31)));
+      });
+
+      testWidgets('moves midnight up to the minimum when no clock has been set', (
+        WidgetTester tester,
+      ) async {
+        DateTime? chosen;
+
+        await _pump(
+          tester,
+          PlDateTimePicker(
+            value: null,
+            defaultMonth: moment,
+            minDate: DateTime(2026, 7, 27, 9, 30),
+            onChanged: (DateTime? next) => chosen = next,
+          ),
+        );
+        await _open(tester);
+        await _tap(tester, 'Monday, July 27, 2026');
+
+        expect(chosen, equals(DateTime(2026, 7, 27, 9, 30)));
+      });
+
+      testWidgets('moves the kept clock down to a maximum that falls inside the chosen day', (
+        WidgetTester tester,
+      ) async {
+        DateTime? chosen;
+
+        await _pump(
+          tester,
+          PlDateTimePicker(
+            value: DateTime(2026, 7, 15, 23),
+            showSeconds: true,
+            maxDate: DateTime(2026, 7, 27, 17, 45, 30, 500),
+            onChanged: (DateTime? next) => chosen = next,
+          ),
+        );
+        await _open(tester);
+        await _tap(tester, 'Monday, July 27, 2026');
+
+        expect(chosen, equals(DateTime(2026, 7, 27, 17, 45, 30)));
+      });
+
       testWidgets('blocks the day before the bound entirely', (WidgetTester tester) async {
         await _pump(
           tester,

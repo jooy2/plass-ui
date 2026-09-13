@@ -2,6 +2,10 @@
 
 ## vNext (2026--)
 
+### Breaking changes
+
+- **Picking a day in `PlDateTimePicker` keeps the moment inside `minDate` and `maxDate`.** The day that holds a bound stays selectable, and picking it used to keep the clock as it was, or put midnight on it, without checking the bound again. With `minDate: DateTime.now()`, picking today reported today at 00:00. The clock is now moved into the bounds, up to the next whole minute (or second, with `showSeconds`) at or after `minDate` and down to the last one at or before `maxDate`. A clock that is already inside the bounds is kept as before.
+
 ### Added
 
 - **`PlAspectFit.scaleDown`**, for `PlAspectRatio` and `PlImage`. It is `contain` that never enlarges something smaller than the box.

@@ -204,6 +204,62 @@ describe('PlDateTimePicker', () => {
         .toHaveAttribute('aria-disabled', 'true');
     });
 
+    it('moves the kept clock up to a minimum that falls inside the chosen day', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlDateTimePicker
+          locale="en-GB"
+          defaultValue={new Date(2026, 6, 28, 8, 0)}
+          defaultOpen
+          minDate={new Date(2026, 6, 27, 9, 30, 15)}
+          onValueChange={onValueChange}
+        />
+      );
+
+      await screen.getByRole('gridcell', { name: fullDate(MOMENT) }).click();
+
+      await vi.waitFor(() => expect(onValueChange).toHaveBeenCalled());
+      // Up to the next whole minute: 09:30 on its own would be before the bound.
+      expect(onValueChange.mock.calls[0][0]).toEqual(new Date(2026, 6, 27, 9, 31));
+    });
+
+    it('moves midnight up to the minimum when no clock has been set', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlDateTimePicker
+          locale="en-GB"
+          defaultMonth={MOMENT}
+          defaultOpen
+          minDate={new Date(2026, 6, 27, 9, 30)}
+          onValueChange={onValueChange}
+        />
+      );
+
+      await screen.getByRole('gridcell', { name: fullDate(MOMENT) }).click();
+
+      await vi.waitFor(() => expect(onValueChange).toHaveBeenCalled());
+      expect(onValueChange.mock.calls[0][0]).toEqual(new Date(2026, 6, 27, 9, 30));
+    });
+
+    it('moves the kept clock down to a maximum that falls inside the chosen day', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlDateTimePicker
+          locale="en-GB"
+          defaultValue={new Date(2026, 6, 15, 23, 0)}
+          defaultOpen
+          showSeconds
+          maxDate={new Date(2026, 6, 27, 17, 45, 30, 500)}
+          onValueChange={onValueChange}
+        />
+      );
+
+      await screen.getByRole('gridcell', { name: fullDate(MOMENT) }).click();
+
+      await vi.waitFor(() => expect(onValueChange).toHaveBeenCalled());
+      expect(onValueChange.mock.calls[0][0]).toEqual(new Date(2026, 6, 27, 17, 45, 30));
+    });
+
     it('blocks the rows a rule says are unavailable', async () => {
       const screen = await render(
         <PlDateTimePicker

@@ -17,6 +17,7 @@ import {
   type PlassPickerShellProps
 } from '../../internal/picker.js';
 import {
+  clampMoment,
   displaySamples,
   formatDate,
   isDayOutside,
@@ -223,7 +224,16 @@ export const PlDateTimePicker = /* @__PURE__ */ React.forwardRef<
     // The day changes, the clock does not. A picker that reset the time to
     // midnight every time the date was corrected would make choosing a moment an
     // ordered task, and nobody reads a popup in the order it was written.
-    const next = isValidDate(value) ? mergeDateAndTime(date, value) : startOfDay(date);
+    //
+    // A bound can fall inside the day, so the day that holds `minDate` is
+    // selectable while its midnight is not. The kept clock is moved into the
+    // bounds rather than committed outside them.
+    const next = clampMoment(
+      isValidDate(value) ? mergeDateAndTime(date, value) : startOfDay(date),
+      minDate,
+      maxDate,
+      showSeconds
+    );
 
     commit(next);
     setMonth(startOfMonth(next));

@@ -944,6 +944,33 @@ DateTime withTime(DateTime date, {int? hours, int? minutes, int? seconds}) {
   );
 }
 
+/// Holds a moment inside `[min, max]`, on a whole second when [seconds] is set
+/// and a whole minute when it is not — the smallest step the clock can show.
+///
+/// The bounds are read at full precision, so a moment is rounded into the span
+/// rather than onto a bound it would then sit outside of: up from a minimum and
+/// down from a maximum. Two bounds inside one step leave no whole step between
+/// them, and the bound itself is returned.
+DateTime clampMoment(DateTime date, DateTime? min, DateTime? max, {required bool seconds}) {
+  final step = seconds ? const Duration(seconds: 1) : const Duration(minutes: 1);
+  DateTime floor(DateTime moment) => withTime(moment, seconds: seconds ? moment.second : 0);
+
+  if (min != null && date.isBefore(min)) {
+    final down = floor(min);
+    final up = down.isBefore(min) ? down.add(step) : down;
+
+    return max != null && up.isAfter(max) ? min : up;
+  }
+
+  if (max != null && date.isAfter(max)) {
+    final down = floor(max);
+
+    return min != null && down.isBefore(min) ? max : down;
+  }
+
+  return date;
+}
+
 /// [date]'s calendar day wearing [time]'s clock.
 DateTime mergeDateAndTime(DateTime date, DateTime time) {
   return DateTime(date.year, date.month, date.day, time.hour, time.minute, time.second);

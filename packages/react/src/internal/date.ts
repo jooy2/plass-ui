@@ -277,6 +277,40 @@ export function withTime(
   return next;
 }
 
+/**
+ * Holds a moment inside `[min, max]`, on a whole second when `seconds` is set
+ * and a whole minute when it is not — the smallest step the clock can show.
+ *
+ * The bounds are read at full precision, so a moment is rounded into the span
+ * rather than onto a bound it would then sit outside of: up from a minimum and
+ * down from a maximum. Two bounds inside one step leave no whole step between
+ * them, and the bound itself is returned.
+ */
+export function clampMoment(
+  date: Date,
+  min: Date | null | undefined,
+  max: Date | null | undefined,
+  seconds: boolean
+): Date {
+  const step = seconds ? 1000 : 60_000;
+  const floor = (moment: Date) => withTime(moment, { seconds: seconds ? moment.getSeconds() : 0 });
+
+  if (isValidDate(min) && date.getTime() < min.getTime()) {
+    const down = floor(min);
+    const up = down.getTime() < min.getTime() ? new Date(down.getTime() + step) : down;
+
+    return isValidDate(max) && up.getTime() > max.getTime() ? new Date(min.getTime()) : up;
+  }
+
+  if (isValidDate(max) && date.getTime() > max.getTime()) {
+    const down = floor(max);
+
+    return isValidDate(min) && down.getTime() < min.getTime() ? new Date(max.getTime()) : down;
+  }
+
+  return date;
+}
+
 /** `date`'s calendar day wearing `time`'s clock. */
 export function mergeDateAndTime(date: Date, time: Date): Date {
   return withTime(startOfDay(date), {

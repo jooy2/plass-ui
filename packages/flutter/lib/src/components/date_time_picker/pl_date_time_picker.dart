@@ -281,7 +281,16 @@ class _PlDateTimePickerState extends State<PlDateTimePicker> {
     // The day changes, the clock does not. A picker that reset the time to
     // midnight every time the date was corrected would make choosing a moment an
     // ordered task, and nobody reads a popup in the order it was written.
-    final next = widget.value != null ? mergeDateAndTime(date, widget.value!) : startOfDay(date);
+    //
+    // A bound can fall inside the day, so the day that holds `minDate` is
+    // selectable while its midnight is not. The kept clock is moved into the
+    // bounds rather than committed outside them.
+    final next = clampMoment(
+      widget.value != null ? mergeDateAndTime(date, widget.value!) : startOfDay(date),
+      widget.minDate,
+      widget.maxDate,
+      seconds: widget.showSeconds,
+    );
 
     widget.onChanged?.call(next);
     setState(() => _month = startOfMonth(next));
