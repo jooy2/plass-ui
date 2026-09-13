@@ -1,4 +1,5 @@
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -79,6 +80,56 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Mathematician'), findsOneWidget);
+    });
+
+    testWidgets('keeps what the keyboard opened when the pointer brushes past', (
+      WidgetTester tester,
+    ) async {
+      final FocusNode node = FocusNode();
+      addTearDown(node.dispose);
+
+      await _pump(
+        tester,
+        PlHoverCard(
+          delay: Duration.zero,
+          closeDelay: Duration.zero,
+          title: const Text('Ada Lovelace'),
+          description: const Text('Mathematician'),
+          trigger: Focus(focusNode: node, child: const Text('Ada')),
+        ),
+      );
+      node.requestFocus();
+      await tester.pumpAndSettle();
+      expect(find.text('Mathematician'), findsOneWidget);
+
+      final TestGesture pointer = await _hover(tester, find.text('Ada'));
+      await pointer.moveTo(const Offset(1, 1));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Mathematician'), findsOneWidget);
+    });
+
+    testWidgets('closes on Escape', (WidgetTester tester) async {
+      final FocusNode node = FocusNode();
+      addTearDown(node.dispose);
+
+      await _pump(
+        tester,
+        PlHoverCard(
+          delay: Duration.zero,
+          title: const Text('Ada Lovelace'),
+          description: const Text('Mathematician'),
+          trigger: Focus(focusNode: node, child: const Text('Ada')),
+        ),
+      );
+      node.requestFocus();
+      await tester.pumpAndSettle();
+      expect(find.text('Mathematician'), findsOneWidget);
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Mathematician'), findsNothing);
     });
 
     testWidgets('takes an open state from outside', (WidgetTester tester) async {

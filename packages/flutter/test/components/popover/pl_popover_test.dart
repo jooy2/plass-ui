@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -82,6 +83,35 @@ void main() {
 
         expect(find.text('Effective rate'), findsOneWidget);
         expect(find.text('The base rate plus whatever your plan adds to it.'), findsOneWidget);
+      });
+
+      testWidgets('closes on Escape', (WidgetTester tester) async {
+        final state = await _pump(tester, const _Harness(startOpen: true));
+
+        Focus.of(tester.element(find.text('Explain'))).requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
+
+        expect(state.open, isFalse);
+      });
+
+      testWidgets('takes Escape before a modal it was opened in', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            const PlModal(open: true, title: Text('Settings'), child: _Harness(startOpen: true)),
+            overlay: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        Focus.of(tester.element(find.text('Explain'))).requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
+
+        expect(tester.state<_HarnessState>(find.byType(_Harness)).open, isFalse);
+        expect(find.text('Settings'), findsOneWidget);
       });
 
       testWidgets('reports a press on the ×', (WidgetTester tester) async {

@@ -1,6 +1,7 @@
 /// A surface that floats beside something rather than over everything.
 library;
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/theme/tokens.dart';
@@ -36,6 +37,7 @@ class PlassAnchoredPortal extends StatefulWidget {
     this.align = PlassAlign.center,
     this.offset = 6,
     this.onDismiss,
+    this.onEscape,
     this.matchAnchorWidth = false,
     this.onSideResolved,
     super.key,
@@ -63,6 +65,14 @@ class PlassAnchoredPortal extends StatefulWidget {
   /// alone, which is what a tooltip wants: it is closed by the pointer leaving,
   /// not by anything being pressed.
   final VoidCallback? onDismiss;
+
+  /// Called when Escape is pressed while the popup is open and the focus is on
+  /// the anchor or inside the popup. Falls back to [onDismiss].
+  ///
+  /// Separate because a tooltip closes on Escape without taking outside presses:
+  /// it is not a barrier. With neither, Escape is left to whatever is around the
+  /// popup.
+  final VoidCallback? onEscape;
 
   /// Gives the popup the anchor's width as its minimum.
   ///
@@ -97,6 +107,10 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
 
   /// How wide the anchor is, for a popup that has to match it.
   double? _anchorWidth;
+
+  /// Answers Escape before anything around the popup does, so a popover opened
+  /// in a modal closes itself and leaves the modal up.
+  late final _EscapeAction _escape = _EscapeAction(this);
 
   @override
   void initState() {
@@ -231,12 +245,23 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
 
     _fade.duration = reduceMotion ? Duration.zero : PlassTokens.duration;
 
-    return CompositedTransformTarget(
-      link: _link,
-      child: OverlayPortal(
-        controller: _portal,
-        overlayChildBuilder: _buildPopup,
-        child: KeyedSubtree(key: _anchorKey, child: widget.child),
+    // Around the portal rather than inside the popup: the popup's element sits
+    // under the portal's, so one binding reaches a focus on the anchor and a
+    // focus inside the popup alike.
+    return Shortcuts(
+      shortcuts: const <ShortcutActivator, Intent>{
+        SingleActivator(LogicalKeyboardKey.escape): DismissIntent(),
+      },
+      child: Actions(
+        actions: <Type, Action<Intent>>{DismissIntent: _escape},
+        child: CompositedTransformTarget(
+          link: _link,
+          child: OverlayPortal(
+            controller: _portal,
+            overlayChildBuilder: _buildPopup,
+            child: KeyedSubtree(key: _anchorKey, child: widget.child),
+          ),
+        ),
       ),
     );
   }
@@ -284,5 +309,28 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
         ],
       ),
     );
+  }
+}
+
+/// Escape, for as long as the popup is open and something is listening.
+///
+/// Disabled rather than absent while it is closed, so the key goes on to a
+/// modal or a page that binds it too, and the tree under the anchor is not
+/// rebuilt every time the popup opens.
+class _EscapeAction extends Action<DismissIntent> {
+  _EscapeAction(this._state);
+
+  final _PlassAnchoredPortalState _state;
+
+  VoidCallback? get _callback => _state.widget.onEscape ?? _state.widget.onDismiss;
+
+  @override
+  bool isEnabled(DismissIntent intent) => _state.widget.open && _callback != null;
+
+  @override
+  Object? invoke(DismissIntent intent) {
+    _callback?.call();
+
+    return null;
   }
 }

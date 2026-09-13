@@ -1,4 +1,5 @@
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -67,6 +68,79 @@ void main() {
         await pointer.moveTo(const Offset(4, 4));
         await tester.pumpAndSettle();
         expect(find.text('Copy'), findsNothing);
+      });
+
+      testWidgets('stays up while the pointer crosses onto the plate', (WidgetTester tester) async {
+        await tester.pumpWidget(_tooltip(delay: Duration.zero));
+        final pointer = await _rest(tester);
+        await tester.pumpAndSettle();
+
+        // Through the gap above the trigger, a frame at a time, and onto the text.
+        await pointer.moveTo(tester.getTopLeft(find.text('Trigger')) + const Offset(10, -3));
+        await tester.pump();
+        await pointer.moveTo(tester.getCenter(find.text('Copy')));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Copy'), findsOneWidget);
+      });
+
+      testWidgets('closes on Escape', (WidgetTester tester) async {
+        final FocusNode node = FocusNode();
+        addTearDown(node.dispose);
+
+        await tester.pumpWidget(
+          host(
+            Center(
+              child: PlTooltip(
+                content: const Text('Copy'),
+                delay: Duration.zero,
+                child: Focus(focusNode: node, child: const Text('Trigger')),
+              ),
+            ),
+            overlay: true,
+          ),
+        );
+        node.requestFocus();
+        await tester.pumpAndSettle();
+        expect(find.text('Copy'), findsOneWidget);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
+
+        expect(find.text('Copy'), findsNothing);
+      });
+
+      testWidgets('keeps what the keyboard opened when the pointer brushes past', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode node = FocusNode();
+        addTearDown(node.dispose);
+
+        await tester.pumpWidget(
+          host(
+            Center(
+              child: PlTooltip(
+                content: const Text('Copy'),
+                delay: Duration.zero,
+                child: Focus(
+                  focusNode: node,
+                  child: const SizedBox(width: 80, height: 32, child: Text('Trigger')),
+                ),
+              ),
+            ),
+            overlay: true,
+          ),
+        );
+        node.requestFocus();
+        await tester.pumpAndSettle();
+        expect(find.text('Copy'), findsOneWidget);
+
+        final pointer = await _rest(tester);
+        await tester.pumpAndSettle();
+        await pointer.moveTo(const Offset(4, 4));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Copy'), findsOneWidget);
       });
 
       testWidgets('reports both ways round', (WidgetTester tester) async {

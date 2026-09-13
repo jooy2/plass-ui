@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -146,6 +147,16 @@ void main() {
 
         expect(find.text('July'), findsOneWidget);
         expect(find.text('2026'), findsOneWidget);
+      });
+
+      testWidgets('closes on Escape', (WidgetTester tester) async {
+        await _pump(tester, PlDatePicker(value: july27, onChanged: (DateTime? _) {}));
+        await _open(tester);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
+
+        expect(find.text('July'), findsNothing);
       });
 
       testWidgets('always draws six weeks, so stepping never resizes it', (

@@ -167,6 +167,10 @@ class _PlHoverCardState extends State<PlHoverCard> {
   bool _onTrigger = false;
   bool _onCard = false;
 
+  /// Kept apart from the pointer, so a pointer brushing past a trigger the
+  /// keyboard is on does not close the card the keyboard opened.
+  bool _focused = false;
+
   @override
   void initState() {
     super.initState();
@@ -226,7 +230,7 @@ class _PlHoverCardState extends State<PlHoverCard> {
     _timer = Timer(wait, () {
       // Read again on the way out: the pointer may have crossed the gap into
       // the card while the timer was running.
-      if (!next && (_onTrigger || _onCard)) {
+      if (!next && (_onTrigger || _onCard || _focused)) {
         return;
       }
 
@@ -234,11 +238,12 @@ class _PlHoverCardState extends State<PlHoverCard> {
     });
   }
 
-  void _pointer({bool? trigger, bool? card}) {
+  void _pointer({bool? trigger, bool? card, bool? focused}) {
     _onTrigger = trigger ?? _onTrigger;
     _onCard = card ?? _onCard;
+    _focused = focused ?? _focused;
 
-    _schedule(_onTrigger || _onCard);
+    _schedule(_onTrigger || _onCard || _focused);
   }
 
   @override
@@ -340,7 +345,7 @@ class _PlHoverCardState extends State<PlHoverCard> {
     trigger = Focus(
       canRequestFocus: false,
       skipTraversal: true,
-      onFocusChange: (bool has) => _pointer(trigger: has),
+      onFocusChange: (bool has) => _pointer(focused: has),
       child: trigger,
     );
 
@@ -349,6 +354,10 @@ class _PlHoverCardState extends State<PlHoverCard> {
       side: widget.side,
       align: widget.align,
       offset: widget.offset,
+      onEscape: () {
+        _timer?.cancel();
+        _set(false);
+      },
       onSideResolved: (PlassSide side) {
         if (mounted && side != _side) {
           setState(() => _side = side);

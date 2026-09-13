@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -90,6 +91,21 @@ void main() {
         await _pump(tester, _Host(onCancel: () => cancelled = true));
         await _press(tester, 'Delete');
         await _press(tester, 'Keep it');
+
+        expect(cancelled, isTrue);
+        expect(find.text('Delete this row?'), findsNothing);
+      });
+    });
+
+    group('the keyboard', () {
+      testWidgets('cancels on Escape', (WidgetTester tester) async {
+        var cancelled = false;
+
+        await _pump(tester, _Host(onCancel: () => cancelled = true));
+        await _press(tester, 'Delete');
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
 
         expect(cancelled, isTrue);
         expect(find.text('Delete this row?'), findsNothing);

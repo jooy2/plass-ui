@@ -46,6 +46,8 @@
 
 ### Fixed
 
+- **Escape closes a floating layer.** `PlPopover`, `PlPopconfirm`, the pickers' popups, `PlTooltip` and `PlHoverCard` ignored it, and inside a `PlModal` it closed the modal instead of the popover opened in it, without `PlPopconfirm`'s `onCancel`. Escape now closes the nearest open layer first, and cancels a popconfirm. `PlTooltip` and `PlHoverCard` also keep the focus and the pointer apart, so a pointer brushing past no longer closes what the keyboard opened, and a tooltip stays up while the pointer moves from its trigger onto the plate.
+
 - **The left and right arrow keys follow the writing direction in `PlTabs`, `PlRadioGroup` and `PlSegmentedButton`, and only those two turn round in `PlRating`.** Under RTL the three sets moved to the next choice on the right arrow, which is the one to the left of the chosen one on screen. `PlRating` turned every arrow round, so the up arrow lowered the score. The left and right arrows now move towards the choice they point at, and up and down mean the same in both directions, as they do in the React build.
 
 - **A `PlWindowPane` whose offset is fed back moves with the pointer.** The window added the distance it had been dragged to `offset`, and reported the same sum, so a caller passing `onOffsetChanged`'s value back into `offset`, as the documentation's own demo does, moved it twice as far as the pointer went. Given `onOffsetChanged`, the window is now drawn at `offset` alone and a drag, of the bar or of a leading edge, reports where it should go. Without it, the window moves itself as before. A caller that only listened to `onOffsetChanged` has to pass the value back for the window to move.

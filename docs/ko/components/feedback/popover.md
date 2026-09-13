@@ -126,7 +126,7 @@ Escape로도 닫히고, `dismissible={false}`가 둘 다 취소합니다. 꺼져
 
 ::: fw flutter
 
-꺼져 있어도 `showClose`와 그 안의 액션은 동작하는데, 그것이 거절을 덫으로 만들지 않는 장치입니다.
+<kbd>Escape</kbd>로도 닫히고, `dismissible: false`가 둘 다 거절합니다. `PlModal` 안에서 열었다면 Escape를 먼저 받아 모달은 그대로 둡니다. 꺼져 있어도 `showClose`와 그 안의 액션은 동작하는데, 그것이 거절을 덫으로 만들지 않는 장치입니다.
 
 :::
 

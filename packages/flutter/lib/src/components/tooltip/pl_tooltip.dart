@@ -213,6 +213,16 @@ class _PlTooltipState extends State<PlTooltip> {
   PlassSide _side = PlassSide.top;
   Timer? _timer;
 
+  /// What is holding the tooltip up. Kept apart, because each of them lets go
+  /// on its own: a pointer that brushes past a trigger the keyboard is on must
+  /// not close what the keyboard opened, and a pointer that moves from the
+  /// trigger onto the plate has not left.
+  bool _hovered = false;
+  bool _focused = false;
+  bool _onPlate = false;
+
+  bool get _held => _hovered || _focused || _onPlate;
+
   /// Held rather than looked up on demand, because a tooltip has to hand its
   /// place in the group back on the way out and an inherited widget cannot be
   /// read from `dispose`.
@@ -324,6 +334,43 @@ class _PlTooltipState extends State<PlTooltip> {
     _timer = Timer(wait, () => _set(next));
   }
 
+  /// Opens or closes after something that holds the tooltip up changed.
+  ///
+  /// A close waits one microtask when it would otherwise be immediate: the
+  /// pointer leaving the trigger and arriving on the plate are two events
+  /// delivered together, and the second one must be heard before deciding.
+  void _track({bool? hovered, bool? focused, bool? onPlate}) {
+    _hovered = hovered ?? _hovered;
+    _focused = focused ?? _focused;
+    _onPlate = onPlate ?? _onPlate;
+
+    if (_held) {
+      if (_open) {
+        // Staying up: a close that was on its way is called off.
+        _timer?.cancel();
+        _timer = null;
+      } else if (_timer == null) {
+        _schedule(true);
+      }
+
+      return;
+    }
+
+    if (widget.closeDelay == Duration.zero) {
+      _timer?.cancel();
+      _timer = null;
+      scheduleMicrotask(() {
+        if (mounted && !_held) {
+          _schedule(false);
+        }
+      });
+
+      return;
+    }
+
+    _schedule(false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
@@ -368,8 +415,8 @@ class _PlTooltipState extends State<PlTooltip> {
     // gesture because resting is not pressing. A long press is the touch screen's
     // way in, and focus is the keyboard's.
     Widget trigger = MouseRegion(
-      onEnter: (_) => _schedule(true),
-      onExit: (_) => _schedule(false),
+      onEnter: (_) => _track(hovered: true),
+      onExit: (_) => _track(hovered: false),
       child: GestureDetector(
         behavior: HitTestBehavior.deferToChild,
         onLongPress: () => _schedule(true),
@@ -381,7 +428,7 @@ class _PlTooltipState extends State<PlTooltip> {
     trigger = Focus(
       canRequestFocus: false,
       skipTraversal: true,
-      onFocusChange: (bool has) => _schedule(has),
+      onFocusChange: (bool has) => _track(focused: has),
       child: trigger,
     );
 
@@ -394,7 +441,9 @@ class _PlTooltipState extends State<PlTooltip> {
         open: _open && !widget.disabled,
         side: widget.side,
         align: widget.align,
-        offset: widget.offset,
+        // The standoff is the plate's own margin instead, below.
+        offset: 0,
+        onEscape: () => _set(false),
         onSideResolved: (PlassSide side) {
           if (mounted && side != _side) {
             setState(() => _side = side);
@@ -403,7 +452,27 @@ class _PlTooltipState extends State<PlTooltip> {
         // Excluded from semantics: what the plate says is already on the trigger
         // as its tooltip, and a floating node saying it a second time is a
         // screen reader reading the same phrase twice.
-        popup: ExcludeSemantics(child: popup),
+        //
+        // The pointer can move from the trigger onto the plate and stay there
+        // without closing it, so text too long to take in at a glance can be
+        // read. The standoff is laid out as a clear margin on the side facing the
+        // trigger rather than as the portal's offset, which leaves no gap between
+        // the two for the pointer to leave through on the way across.
+        popup: ExcludeSemantics(
+          child: MouseRegion(
+            onEnter: (_) => _track(onPlate: true),
+            onExit: (_) => _track(onPlate: false),
+            child: Padding(
+              padding: switch (_side) {
+                PlassSide.top => EdgeInsets.only(bottom: widget.offset),
+                PlassSide.bottom => EdgeInsets.only(top: widget.offset),
+                PlassSide.left => EdgeInsets.only(right: widget.offset),
+                PlassSide.right => EdgeInsets.only(left: widget.offset),
+              },
+              child: popup,
+            ),
+          ),
+        ),
         child: trigger,
       ),
     );

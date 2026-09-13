@@ -126,7 +126,7 @@ Escape closes it too, and `dismissible={false}` cancels both. `PlPopoverClose` s
 
 ::: fw flutter
 
-`showClose` and the actions inside it still work while it is off, which is what keeps a refusal from being a trap.
+<kbd>Escape</kbd> closes it too, and `dismissible: false` refuses both. Opened inside a `PlModal`, it takes Escape first and leaves the modal up. `showClose` and the actions inside it still work while it is off, which is what keeps a refusal from being a trap.
 
 :::
 
