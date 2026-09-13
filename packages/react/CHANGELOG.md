@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **`PlPieChart` and `PlGaugeChart` no longer call themselves empty on a server.** Both decided they had nothing to show from the radius they could draw, which comes from the measured width, and on a server or before the first measurement that width is zero. The server-rendered page said "Nothing here" until hydration, and the pie left its data table out, so a crawler saw neither the numbers nor the chart. The empty state now comes from the data alone, and the drawing waits for a width.
+
 - **An axis pinned at one end stays there when every value is the same.** A flat series opens a band around itself so there is something to divide by, and the band was opened on both sides even past an end the caller had pinned, so `yAxis={{ min: 0 }}` over a row of zeros drew an axis from −1. Only the free end moves now: that chart runs from 0 to 1.
 
 - **A chart of many categories does less work when its active column moves.** Every move of the pointer or the arrow keys to another column re-rendered `PlLineChart`, `PlBarChart` and `PlAreaChart` whole: every category label was written and measured again, the hidden data table compared a row for each category, and a group was created for each column even where it drew nothing. The labels are now written once per change to the data or to the room they have, the table is skipped when its data has not changed, and a column with nothing to draw adds nothing.

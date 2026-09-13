@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { renderToString } from 'react-dom/server';
 import { render } from 'vitest-browser-react';
 import { PlPieChart } from 'plass-ui';
 
@@ -37,6 +38,16 @@ describe('PlPieChart', () => {
       const screen = await render(<PlPieChart label="Traffic" data={[0, 0]} />);
 
       await expect.element(screen.getByText('Nothing here')).toBeInTheDocument();
+    });
+
+    it('renders its table on a server, where it has no width yet', () => {
+      const html = renderToString(
+        <PlPieChart label="Traffic" categories={SOURCES} data={[40, 25, 20, 15]} />
+      );
+
+      expect(html).not.toContain('Nothing here');
+      expect(html).toContain('<table');
+      expect(html).toContain('Referral');
     });
 
     it('names every slice in the table, not just the series', async () => {

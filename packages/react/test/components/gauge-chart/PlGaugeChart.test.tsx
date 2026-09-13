@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { renderToString } from 'react-dom/server';
 import { PlGaugeChart } from 'plass-ui';
 import { render } from 'vitest-browser-react';
 
@@ -17,6 +18,13 @@ describe('PlGaugeChart', () => {
       await expect
         .element(screen.getByRole('img', { name: 'Quota: 68 / 100' }))
         .toBeInTheDocument();
+    });
+
+    it('does not call itself empty on a server, where it has no width yet', () => {
+      const html = renderToString(<PlGaugeChart label="Quota" value={68} />);
+
+      expect(html).not.toContain('Nothing here');
+      expect(html).toContain('Quota: 68 / 100');
     });
 
     it('writes the reading in the middle as real text', async () => {

@@ -263,7 +263,10 @@ export function PlGaugeChart({
   const drawn = topPad + outer * (1 + belowFactor) + bottomPad;
   const centreY = topPad + outer + Math.max(0, (plotHeight - drawn) / 2);
 
-  const nothing = outer <= 0 || range === 0;
+  // Decided by the scale alone. The box has no width on a server and before the
+  // first measurement, and a gauge that said "nothing here" until then would
+  // say it to a crawler and to every reader before hydration.
+  const nothing = range === 0;
 
   /*
    * The reading sits in the middle of the hole the arc leaves, which is not the
@@ -355,7 +358,7 @@ export function PlGaugeChart({
           >
             {empty ?? words.empty}
           </div>
-        ) : width > 0 ? (
+        ) : width > 0 && outer > 0 ? (
           <>
             <svg
               width={width}

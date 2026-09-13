@@ -184,7 +184,10 @@ export function PlPieChart({
   const centreY = semi ? Math.min(plotHeight, plotHeight / 2 + outer / 2) : plotHeight / 2;
   const inner = outer * holes[shape];
 
-  const nothing = total <= 0 || outer <= 0;
+  // Decided by the data alone. The box has no width on a server and before the
+  // first measurement, and a pie that said "nothing here" until then would say
+  // it to a crawler, and would leave the table out of the page it rendered.
+  const nothing = total <= 0;
 
   // The 2px between two slices, as the angle that subtends it at the rim. Wider
   // for a small pie than for a large one, which is the point: the gap is a
@@ -317,7 +320,7 @@ export function PlPieChart({
           >
             {empty ?? words.empty}
           </div>
-        ) : width > 0 ? (
+        ) : width > 0 && outer > 0 ? (
           <svg
             width={width}
             height={plotHeight}
