@@ -10,6 +10,7 @@ import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/keys.dart';
+import 'package:plass_ui/src/internal/list_reveal.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -329,6 +330,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
 
   final ScrollController _scroll = ScrollController();
+  final PlassRowReveal _reveal = PlassRowReveal();
   late final TextEditingController _text = TextEditingController(text: _labelOfValue());
   FocusNode? _owned;
   bool _open = false;
@@ -337,6 +339,15 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
 
   /// Which row the keyboard is on. `-1` is none.
   int _highlighted = -1;
+
+  /// The rows, and the query they were worked out for.
+  ///
+  /// Kept between the combobox's own rebuilds: every arrow key, every row the
+  /// pointer lights and every step of finding the next row would otherwise
+  /// filter the whole list again. A rebuild from the parent throws it away,
+  /// because that is where the options and the value can change.
+  List<_Row<T>>? _rowsCache;
+  String? _rowsQuery;
 
   @override
   void initState() {
@@ -347,6 +358,8 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   @override
   void didUpdateWidget(PlCombobox<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    _rowsCache = null;
 
     if (widget.focusNode != oldWidget.focusNode) {
       oldWidget.focusNode?.removeListener(_onFocusChanged);
@@ -422,6 +435,18 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
 
   /// The rows the list is currently showing.
   List<_Row<T>> get _rows {
+    final String text = _text.text;
+
+    if (_rowsCache != null && _rowsQuery == text) {
+      return _rowsCache!;
+    }
+
+    _rowsQuery = text;
+
+    return _rowsCache = _filterRows();
+  }
+
+  List<_Row<T>> _filterRows() {
     final query = _text.text.trim();
     final folded = query.toLowerCase();
 
@@ -457,6 +482,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       _open = true;
       _highlighted = _next(-1, 1);
     });
+    _reveal.reveal(_scroll, _highlighted, _rows.length);
   }
 
   void _close() {
@@ -497,6 +523,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
 
     if (next >= 0 && next != _highlighted) {
       setState(() => _highlighted = next);
+      _reveal.reveal(_scroll, next, _rows.length);
     }
   }
 
@@ -511,6 +538,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       // match there is.
       _highlighted = _next(-1, 1);
     });
+    _reveal.reveal(_scroll, _highlighted, _rows.length);
   }
 
   void _take(int index) {
@@ -918,6 +946,23 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
                     child: Text(widget.emptyMessage),
                   ),
                 )
+              // A list that cannot fit is built as it scrolls, so thousands of
+              // options build the few on screen rather than all of them on
+              // every key. Every row is one line, so a list taller than the
+              // popup allows fills that height anyway; a shorter one keeps its
+              // own, which a lazy list cannot measure.
+              : rows.length * (scale.size * scale.height + _rowPaddingY * 2) + _popupInset * 2 >
+                    _maxPopupHeight
+              ? SizedBox(
+                  height: _maxPopupHeight,
+                  child: ListView.builder(
+                    controller: _scroll,
+                    padding: const EdgeInsets.all(_popupInset),
+                    itemCount: rows.length,
+                    itemBuilder: (BuildContext context, int index) =>
+                        _row(tokens, family, scale, rows[index], index),
+                  ),
+                )
               : SingleChildScrollView(
                   controller: _scroll,
                   padding: const EdgeInsets.all(_popupInset),
@@ -953,7 +998,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
 
     // The pointer and the arrow keys light the same row, which is the whole
     // reason the highlight is a number here rather than a hover state per row.
-    return MouseRegion(
+    final Widget shown = MouseRegion(
       cursor: disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
       onEnter: (_) {
         if (!disabled && _highlighted != index) {
@@ -1024,6 +1069,8 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
         ),
       ),
     );
+
+    return lit ? _reveal.mark(index: index, child: shown) : shown;
   }
 }
 

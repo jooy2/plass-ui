@@ -217,6 +217,39 @@ void main() {
       });
     });
 
+    group('a long list', () {
+      final List<PlCommandItem> many = <PlCommandItem>[
+        for (int i = 0; i < 500; i += 1) PlCommandItem(value: 'c$i', label: 'Command $i'),
+      ];
+
+      testWidgets('builds only the rows near the view', (WidgetTester tester) async {
+        await tester.pumpWidget(host(_Host(items: many), width: 700, height: 500, overlay: true));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Command 0'), findsOneWidget);
+        expect(find.text('Command 499'), findsNothing);
+      });
+
+      testWidgets('keeps the highlighted row in view as the arrow keys move it', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(_Host(items: many), width: 700, height: 500, overlay: true));
+        await tester.pumpAndSettle();
+
+        for (int i = 0; i < 30; i += 1) {
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pump();
+        }
+        await tester.pumpAndSettle();
+
+        final Rect list = tester.getRect(find.byType(ListView));
+        final Rect row = tester.getRect(find.text('Command 30'));
+
+        expect(row.top, greaterThanOrEqualTo(list.top));
+        expect(row.bottom, lessThanOrEqualTo(list.bottom));
+      });
+    });
+
     group('the shortcut', () {
       testWidgets('opens on the keystroke it was given', (WidgetTester tester) async {
         debugDefaultTargetPlatformOverride = TargetPlatform.windows;

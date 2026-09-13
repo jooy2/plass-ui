@@ -36,6 +36,58 @@ Widget _host(Widget child) => host(SizedBox(width: 320, child: child), overlay: 
 
 void main() {
   group('PlCombobox', () {
+    group('a long list', () {
+      final List<PlComboboxOption<int>> many = <PlComboboxOption<int>>[
+        for (int i = 0; i < 500; i += 1) PlComboboxOption<int>(value: i, label: 'Option $i'),
+      ];
+
+      Future<void> open(WidgetTester tester) async {
+        await tester.pumpWidget(
+          _host(PlCombobox<int>(options: many, value: null, onChanged: (int? _) {})),
+        );
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+      }
+
+      testWidgets('builds only the rows near the view', (WidgetTester tester) async {
+        await open(tester);
+
+        expect(find.text('Option 0'), findsOneWidget);
+        expect(find.text('Option 499'), findsNothing);
+      });
+
+      testWidgets('keeps the highlighted row in view, even round the end', (
+        WidgetTester tester,
+      ) async {
+        await open(tester);
+
+        for (int i = 0; i < 20; i += 1) {
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pump();
+        }
+        await tester.pumpAndSettle();
+
+        Rect list = tester.getRect(find.byType(ListView));
+        Rect row = tester.getRect(find.text('Option 20'));
+
+        expect(row.top, greaterThanOrEqualTo(list.top));
+        expect(row.bottom, lessThanOrEqualTo(list.bottom));
+
+        // Back past the first row, to the last one, which was never built.
+        for (int i = 0; i < 21; i += 1) {
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+          await tester.pump();
+        }
+        await tester.pumpAndSettle();
+
+        list = tester.getRect(find.byType(ListView));
+        row = tester.getRect(find.text('Option 499'));
+
+        expect(row.top, greaterThanOrEqualTo(list.top));
+        expect(row.bottom, lessThanOrEqualTo(list.bottom));
+      });
+    });
+
     group('rendering', () {
       testWidgets('renders a field with its label, description and error', (
         WidgetTester tester,

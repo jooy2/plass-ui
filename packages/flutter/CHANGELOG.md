@@ -40,11 +40,15 @@
 
 ### Changed
 
+- **A long `PlCombobox` or `PlCommandPalette` list builds only the rows near its view.** Both built every row on opening and on every key, and the palette searched every command's text again on each rebuild, including the one a pointer moving over the rows causes. A list taller than its popup is now built as it scrolls, and the palette keeps its search until the query changes or its parent rebuilds. A shorter list is laid out as before.
+
 - **Focus rings are drawn in the family's `accent`, opaque.** `PlassColorFamily.ring` was `solid` at 55% opacity, which came to about 2.2:1 against a white surface, and 1.4:1 for `warning`, under the 3:1 a focus indicator needs. It now returns `accent`, which clears 3:1 against the surface and the page in both themes. Every focused control looks different: darker in the light theme and lighter in the dark one.
 
 - **A `PlScrollZone` no longer hands the wheel back at its ends.** The pointer being on the shelf is the reader saying which of the two things under it they meant to move, and reaching the last card is not them saying something else — so whatever was behind the strip used to start moving at a pixel nobody chose, in the middle of a flick. The new `overscroll` default is `PlassOverscroll.contain`, and `PlassOverscroll.auto` is the old behaviour. Even `auto` now keeps a gesture that was scrolling the strip a moment ago, and gives the signal up only once the reader has paused. A strip everything fits in is not a scroller and holds nothing back either way.
 
 ### Fixed
+
+- **The row the arrow keys move to stays in view in `PlSelect`, `PlCombobox` and `PlCommandPalette`.** Each list had a scroll controller that nothing used, so on a list taller than its popup the highlight went out of sight, and in a command palette Enter ran a command nobody could see. The list now scrolls just far enough to show the row, and only the list: the page behind the popup stays put.
 
 - **`PlModal`, `PlDrawer` and `PlToastProvider` keep clear of the system's bars and a soft keyboard.** On a phone, a modal's actions sat under the keyboard, a full-screen modal's and a side drawer's header and × sat under the status bar, a top toast sat in the notch and a bottom one on the home indicator. A modal and a toast stack now stand off the bars and the keyboard, and a full-screen modal and a drawer run under the bars with their content kept out from under them.
 

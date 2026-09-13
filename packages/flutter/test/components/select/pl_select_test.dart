@@ -193,6 +193,40 @@ void main() {
         expect(state.value, 'tw-01');
       });
 
+      testWidgets('keeps the highlighted row in view as the arrow keys move it', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            PlSelect<int>(
+              options: <PlSelectOption<int>>[
+                for (int i = 0; i < 40; i += 1)
+                  PlSelectOption<int>(value: i, label: Text('Row $i')),
+              ],
+              value: null,
+              onChanged: (int? _) {},
+            ),
+            width: 320,
+            overlay: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(_trigger());
+        await tester.pumpAndSettle();
+
+        for (int i = 0; i < 25; i += 1) {
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pump();
+        }
+        await tester.pumpAndSettle();
+
+        final Rect list = tester.getRect(find.byType(SingleChildScrollView).last);
+        final Rect row = tester.getRect(_row('Row 25'));
+
+        expect(row.top, greaterThanOrEqualTo(list.top));
+        expect(row.bottom, lessThanOrEqualTo(list.bottom));
+      });
+
       testWidgets('Escape closes without choosing', (WidgetTester tester) async {
         final state = await _pump(tester, const _Harness());
 

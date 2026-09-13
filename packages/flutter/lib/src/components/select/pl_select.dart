@@ -10,6 +10,7 @@ import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/keys.dart';
+import 'package:plass_ui/src/internal/list_reveal.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -210,6 +211,7 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
       widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
 
   final ScrollController _scroll = ScrollController();
+  final PlassRowReveal _reveal = PlassRowReveal();
   FocusNode? _owned;
   bool _open = false;
 
@@ -246,6 +248,7 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
       // Opens on the chosen row, or on the first one that can be taken.
       _highlighted = _chosen >= 0 ? _chosen : _next(-1, 1);
     });
+    _reveal.reveal(_scroll, _highlighted, widget.options.length);
   }
 
   void _close() {
@@ -281,6 +284,7 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
 
     if (next >= 0 && next != _highlighted) {
       setState(() => _highlighted = next);
+      _reveal.reveal(_scroll, next, widget.options.length);
     }
   }
 
@@ -293,6 +297,7 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
 
     if (next >= 0) {
       setState(() => _highlighted = next);
+      _reveal.reveal(_scroll, next, widget.options.length);
     }
   }
 
@@ -623,7 +628,7 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
 
     // The pointer and the arrow keys light the same row, which is the whole
     // reason the highlight is a number here rather than a hover state per row.
-    return MouseRegion(
+    final Widget row = MouseRegion(
       cursor: option.disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
       onEnter: (_) {
         if (!option.disabled && _highlighted != index) {
@@ -692,5 +697,7 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
         ),
       ),
     );
+
+    return lit ? _reveal.mark(index: index, child: row) : row;
   }
 }

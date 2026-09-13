@@ -8,6 +8,7 @@ import 'package:plass_ui/src/components/hot_keys/pl_hot_keys.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 // The same vocabulary [PlHotKeys] draws, read rather than written.
 import 'package:plass_ui/src/internal/keys.dart';
+import 'package:plass_ui/src/internal/list_reveal.dart';
 import 'package:plass_ui/src/internal/portal.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/search.dart';
@@ -203,7 +204,20 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
   final TextEditingController _query = TextEditingController();
   final FocusNode _field = FocusNode(debugLabel: 'PlCommandPalette');
   final ScrollController _scroll = ScrollController();
+  final PlassRowReveal _reveal = PlassRowReveal();
   int _highlighted = 0;
+
+  /// What each item is searched by, worked out once rather than on every build
+  /// and every key.
+  List<PlCommandItem>? _searchedItems;
+  List<String> _haystacks = const <String>[];
+
+  /// The last filter, kept until the query changes or the parent rebuilds. A
+  /// pointer moving over the rows rebuilds the sheet, and that is no reason to
+  /// search again.
+  List<PlCommandItem>? _filteredItems;
+  String? _filteredNeedle;
+  List<PlCommandItem> _filteredRows = const <PlCommandItem>[];
 
   @override
   void initState() {
@@ -214,6 +228,11 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
   @override
   void didUpdateWidget(PlCommandPalette oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    // A parent that rebuilt may have changed its items in place, so the search
+    // is only trusted between rebuilds of the palette's own.
+    _searchedItems = null;
+    _filteredItems = null;
 
     if (widget.open && !oldWidget.open) {
       _highlighted = 0;
@@ -294,15 +313,30 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
 
   List<PlCommandItem> get _filtered {
     final String needle = searchText(_query.text);
+    final List<PlCommandItem> items = widget.items;
 
-    if (needle.isEmpty) return widget.items;
+    if (needle.isEmpty) return items;
 
-    return widget.items
-        .where(
-          (PlCommandItem item) =>
-              searchHaystack(<String?>[item.label, item.group, ...item.keywords]).contains(needle),
-        )
-        .toList(growable: false);
+    if (identical(items, _filteredItems) && needle == _filteredNeedle) {
+      return _filteredRows;
+    }
+
+    if (!identical(items, _searchedItems)) {
+      _searchedItems = items;
+      _haystacks = <String>[
+        for (final PlCommandItem item in items)
+          searchHaystack(<String?>[item.label, item.group, ...item.keywords]),
+      ];
+    }
+
+    _filteredItems = items;
+    _filteredNeedle = needle;
+    _filteredRows = <PlCommandItem>[
+      for (int index = 0; index < items.length; index += 1)
+        if (_haystacks[index].contains(needle)) items[index],
+    ];
+
+    return _filteredRows;
   }
 
   void _run(PlCommandItem item) {
@@ -317,8 +351,9 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
     if (rows.isEmpty) return;
 
     setState(() {
-      _highlighted = (_highlighted + by).clamp(0, rows.length - 1);
+      _highlighted = (_highlighted.clamp(0, rows.length - 1) + by).clamp(0, rows.length - 1);
     });
+    _reveal.reveal(_scroll, _highlighted, rows.length);
   }
 
   @override
@@ -360,7 +395,10 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
           child: EditableText(
             controller: _query,
             focusNode: _field,
-            onChanged: (String _) => setState(() => _highlighted = 0),
+            onChanged: (String _) {
+              setState(() => _highlighted = 0);
+              _reveal.reveal(_scroll, 0, _filtered.length);
+            },
             style: TextStyle(color: tokens.fg, fontSize: text.size, height: text.height),
             cursorColor: tokens.family(_color).accent,
             backgroundCursorColor: tokens.mutedFg,
@@ -424,55 +462,101 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
               ),
             )
           else
-            ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: widget.maxHeight),
-              child: SingleChildScrollView(
-                controller: _scroll,
-                child: Padding(
-                  padding: const EdgeInsets.all(4),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      for (int index = 0; index < rows.length; index += 1) ...<Widget>[
-                        if (rows[index].group != null &&
-                            (index == 0 || rows[index - 1].group != rows[index].group))
-                          Padding(
-                            padding: EdgeInsetsDirectional.only(
-                              start: inset,
-                              end: inset,
-                              top: 8,
-                              bottom: 4,
-                            ),
-                            child: Text(
-                              rows[index].group!,
-                              style: TextStyle(
-                                color: tokens.mutedFg,
-                                fontSize: metaText[size]!,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        _Row(
-                          item: rows[index],
-                          highlighted: index == highlighted,
-                          size: size,
-                          color: _color,
-                          density: _density,
-                          onHover: () => setState(() => _highlighted = index),
-                          onRun: () => _run(rows[index]),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            _list(tokens, rows, highlighted),
         ],
       ),
     );
   }
+
+  Widget _list(PlassTokens tokens, List<PlCommandItem> rows, int highlighted) {
+    final PlassSize size = _size;
+    final double inset = _insetX[size]!;
+    final PlassTextScale text = controlTextLeading[size]!;
+    final double padY = _rowPadY[_density == PlassDensity.compact ? PlassSize.xs : size]!;
+
+    final List<_Entry> entries = <_Entry>[
+      for (int index = 0; index < rows.length; index += 1) ...<_Entry>[
+        if (rows[index].group != null && (index == 0 || rows[index - 1].group != rows[index].group))
+          (heading: rows[index].group, row: index),
+        (heading: null, row: index),
+      ],
+    ];
+
+    Widget entry(int at) {
+      final _Entry one = entries[at];
+      final String? heading = one.heading;
+
+      if (heading != null) {
+        return Padding(
+          padding: EdgeInsetsDirectional.only(start: inset, end: inset, top: 8, bottom: 4),
+          child: Text(
+            heading,
+            style: TextStyle(
+              color: tokens.mutedFg,
+              fontSize: metaText[size]!,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        );
+      }
+
+      final int index = one.row;
+      final Widget row = _Row(
+        item: rows[index],
+        highlighted: index == highlighted,
+        size: size,
+        color: _color,
+        density: _density,
+        onHover: () {
+          if (_highlighted != index) {
+            setState(() => _highlighted = index);
+          }
+        },
+        onRun: () => _run(rows[index]),
+      );
+
+      return index == highlighted ? _reveal.mark(index: index, child: row) : row;
+    }
+
+    // A list that cannot fit is built as it scrolls, so a palette of thousands
+    // of commands builds the few on screen rather than all of them on every
+    // key. The shortest a row can be decides it: past the height the sheet
+    // allows, the list fills that height anyway. A shorter list keeps its own
+    // height, which a lazy list cannot measure.
+    final double shortest = text.size * text.height + padY * 2;
+
+    if (rows.length * shortest > widget.maxHeight) {
+      return SizedBox(
+        height: widget.maxHeight,
+        child: ListView.builder(
+          controller: _scroll,
+          padding: const EdgeInsets.all(4),
+          itemCount: entries.length,
+          itemBuilder: (BuildContext context, int at) => entry(at),
+        ),
+      );
+    }
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: widget.maxHeight),
+      child: SingleChildScrollView(
+        controller: _scroll,
+        child: Padding(
+          padding: const EdgeInsets.all(4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[for (int at = 0; at < entries.length; at += 1) entry(at)],
+          ),
+        ),
+      ),
+    );
+  }
 }
+
+/// One entry of the list: a group's heading, or the row at [row] in the
+/// filtered commands.
+typedef _Entry = ({String? heading, int row});
 
 /// One command.
 class _Row extends StatelessWidget {
