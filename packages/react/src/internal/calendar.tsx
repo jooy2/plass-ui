@@ -33,6 +33,7 @@ import {
   controlHeightClasses,
   controlTextClasses,
   cx,
+  forcedFillClasses,
   gapClasses,
   metaTextClasses,
   srOnlyClasses,
@@ -259,9 +260,11 @@ function Cell({
   const stateClasses = disabled
     ? 'cursor-not-allowed text-(--plass-muted-fg) opacity-50'
     : selected
-      ? 'cursor-pointer font-semibold text-(--p-on-solid) [background-image:var(--p-fill)] hover:brightness-105 active:brightness-95'
+      ? `cursor-pointer font-semibold text-(--p-on-solid) [background-image:var(--p-fill)] hover:brightness-105 active:brightness-95 ${forcedFillClasses}`
       : inRange
-        ? 'cursor-pointer bg-(--p-soft) text-(--plass-fg) hover:bg-(--p-soft-hover) active:bg-(--p-soft-press)'
+        ? // The band's tint is repainted in the page's colour in forced-colours
+          // mode, so there the run is drawn as an edge along its top and bottom.
+          'cursor-pointer bg-(--p-soft) text-(--plass-fg) hover:bg-(--p-soft-hover) active:bg-(--p-soft-press) forced-colors:border-y forced-colors:[border-color:Highlight]'
         : current
           ? 'cursor-pointer font-semibold text-(--p-accent) hover:bg-(--p-soft) active:bg-(--p-soft-hover)'
           : muted
@@ -308,7 +311,14 @@ function Cell({
       {current ? (
         <span
           aria-hidden="true"
-          className="absolute bottom-[0.18em] size-[0.22em] rounded-full bg-current"
+          className={cx(
+            'absolute bottom-[0.18em] size-[0.22em] rounded-full bg-current',
+            // `currentColor` is not a system colour, so forced-colours mode
+            // would paint the dot the colour of the page under it.
+            selected
+              ? 'forced-colors:[background-color:HighlightText]'
+              : 'forced-colors:[background-color:CanvasText]'
+          )}
         />
       ) : null}
     </button>
@@ -1316,7 +1326,7 @@ export function TimeGrid({
                 disabled
                   ? 'cursor-not-allowed text-(--plass-muted-fg) opacity-50'
                   : chosen
-                    ? 'cursor-pointer font-semibold text-(--p-on-solid) [background-image:var(--p-fill)] hover:brightness-105 active:brightness-95'
+                    ? `cursor-pointer font-semibold text-(--p-on-solid) [background-image:var(--p-fill)] hover:brightness-105 active:brightness-95 ${forcedFillClasses}`
                     : 'cursor-pointer text-(--plass-fg) hover:bg-(--p-soft) active:bg-(--p-soft-hover)'
               )}
               onClick={() => {

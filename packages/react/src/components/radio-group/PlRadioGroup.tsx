@@ -9,6 +9,8 @@ import {
   controlSlots,
   cx,
   focusRingClasses,
+  forcedCheckedClasses,
+  forcedDisabledCheckedClasses,
   glassClasses,
   hasContent,
   metaTextClasses,
@@ -113,7 +115,8 @@ const restDotClasses = /* @__PURE__ */ [
   'cursor-pointer bg-(--plass-glass) [border-color:var(--plass-border)]',
   'hover:bg-(--plass-glass-hover) hover:[border-color:var(--p-line)]',
   'data-[checked]:[background-image:var(--p-fill)] data-[checked]:text-(--p-on-solid)',
-  'data-[checked]:[border-color:transparent] data-[checked]:hover:brightness-105'
+  'data-[checked]:[border-color:transparent] data-[checked]:hover:brightness-105',
+  forcedCheckedClasses
 ].join(' ');
 
 const readOnlyDotClasses = /* @__PURE__ */ [
@@ -121,7 +124,8 @@ const readOnlyDotClasses = /* @__PURE__ */ [
   'cursor-default bg-(--plass-glass) [border-color:var(--plass-border)]',
   'saturate-[0.55]',
   'data-[checked]:[background-image:var(--p-fill)] data-[checked]:text-(--p-on-solid)',
-  'data-[checked]:[border-color:transparent]'
+  'data-[checked]:[border-color:transparent]',
+  forcedCheckedClasses
 ].join(' ');
 
 const disabledDotClasses = /* @__PURE__ */ [
@@ -129,7 +133,8 @@ const disabledDotClasses = /* @__PURE__ */ [
   'cursor-not-allowed bg-(--plass-glass) [border-color:var(--plass-border)]',
   'opacity-50 saturate-[0.35]',
   'data-[checked]:[background-image:var(--p-fill)] data-[checked]:text-(--p-on-solid)',
-  'data-[checked]:[border-color:transparent]'
+  'data-[checked]:[border-color:transparent]',
+  forcedDisabledCheckedClasses
 ].join(' ');
 
 /**

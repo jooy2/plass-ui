@@ -8,6 +8,8 @@ import {
   controlSlots,
   cx,
   focusRingClasses,
+  forcedCheckedClasses,
+  forcedDisabledCheckedClasses,
   glassClasses,
   hasContent,
   metaTextClasses,
@@ -84,6 +86,16 @@ const tickBaseClasses = /* @__PURE__ */ [
  * than on the page wash — and a tick nobody can see is a control nobody can
  * find. A neutral hairline reads on both.
  */
+/**
+ * A box that is half-set, in forced-colours mode: filled the way a ticked one
+ * is, since the dash inside it is what tells the two apart.
+ */
+const forcedIndeterminateClasses = /* @__PURE__ */ [
+  'forced-colors:data-[indeterminate]:[background-color:Highlight]',
+  'forced-colors:data-[indeterminate]:[border-color:Highlight]',
+  'forced-colors:data-[indeterminate]:[color:HighlightText]'
+].join(' ');
+
 const restClasses = /* @__PURE__ */ [
   glassClasses,
   'cursor-pointer bg-(--plass-glass) [border-color:var(--plass-border)]',
@@ -93,7 +105,9 @@ const restClasses = /* @__PURE__ */ [
   'data-[checked]:[background-image:var(--p-fill)] data-[checked]:text-(--p-on-solid)',
   'data-[checked]:[border-color:transparent] data-[checked]:hover:brightness-105',
   'data-[indeterminate]:[background-image:var(--p-fill)] data-[indeterminate]:text-(--p-on-solid)',
-  'data-[indeterminate]:[border-color:transparent]'
+  'data-[indeterminate]:[border-color:transparent]',
+  forcedCheckedClasses,
+  forcedIndeterminateClasses
 ].join(' ');
 
 const readOnlyClasses = /* @__PURE__ */ [
@@ -101,7 +115,9 @@ const readOnlyClasses = /* @__PURE__ */ [
   'cursor-default bg-(--plass-glass) [border-color:var(--plass-border)]',
   'saturate-[0.55]',
   'data-[checked]:[background-image:var(--p-fill)] data-[checked]:text-(--p-on-solid)',
-  'data-[checked]:[border-color:transparent]'
+  'data-[checked]:[border-color:transparent]',
+  forcedCheckedClasses,
+  forcedIndeterminateClasses
 ].join(' ');
 
 /** Disabled is the light going out, exactly as it is on a PlButton. */
@@ -111,7 +127,10 @@ const disabledTickClasses = /* @__PURE__ */ [
   'opacity-50 saturate-[0.35]',
   'data-[checked]:[background-image:var(--p-fill)] data-[checked]:text-(--p-on-solid)',
   'data-[checked]:[border-color:transparent]',
-  'data-[indeterminate]:[background-image:var(--p-fill)] data-[indeterminate]:text-(--p-on-solid)'
+  'data-[indeterminate]:[background-image:var(--p-fill)] data-[indeterminate]:text-(--p-on-solid)',
+  forcedDisabledCheckedClasses,
+  'forced-colors:data-[indeterminate]:[background-color:GrayText]',
+  'forced-colors:data-[indeterminate]:[color:Canvas]'
 ].join(' ');
 
 /**

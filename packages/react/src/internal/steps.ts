@@ -15,6 +15,7 @@
  */
 
 import type { PlassColor, PlassSize } from '../types.js';
+import { forcedFillClasses } from './styles.js';
 
 /**
  * How far along one step is.
@@ -74,9 +75,11 @@ export const bulletGapClasses: Record<PlassSize, string> = {
  * and white light on a translucent pane disappears on a light card.
  */
 export const bulletStatusClasses: Record<PlassStepStatus, string> = {
-  complete: '[background-image:var(--p-fill)] text-(--p-on-solid)',
-  current:
-    '[background-image:var(--p-fill)] text-(--p-on-solid) [box-shadow:0_0_0_0.25rem_var(--p-soft)]',
+  // In forced-colours mode the gradient and the halo both go, so the two filled
+  // bullets are filled with the system's highlight and the current one keeps a
+  // ring outside it.
+  complete: `[background-image:var(--p-fill)] text-(--p-on-solid) ${forcedFillClasses}`,
+  current: `[background-image:var(--p-fill)] text-(--p-on-solid) [box-shadow:0_0_0_0.25rem_var(--p-soft)] ${forcedFillClasses} forced-colors:[outline:2px_solid_Highlight] forced-colors:[outline-offset:2px]`,
   upcoming:
     'border-2 bg-(--plass-surface) text-(--plass-muted-fg) [border-color:var(--plass-border)]'
 };

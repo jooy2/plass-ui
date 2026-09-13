@@ -9,6 +9,7 @@ import {
   controlTextClasses,
   cx,
   focusRingClasses,
+  forcedEdgeClasses,
   gapClasses,
   glassClasses,
   hasContent,
@@ -104,8 +105,7 @@ export interface PlPillProps
  * coloured rather than a sheet holding somebody else's content.
  */
 const restClasses: Record<PlassVariant, string> = {
-  solid:
-    'text-(--p-on-solid) [background-image:var(--p-fill)] [box-shadow:var(--p-elev),var(--p-lift)]',
+  solid: `text-(--p-on-solid) [background-image:var(--p-fill)] [box-shadow:var(--p-elev),var(--p-lift)] ${forcedEdgeClasses}`,
   glass: /* @__PURE__ */ [
     glassClasses,
     'border text-(--p-accent) bg-(--plass-glass)',

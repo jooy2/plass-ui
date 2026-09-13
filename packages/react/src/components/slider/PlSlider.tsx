@@ -3,7 +3,13 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { Slider as BaseUISlider } from '@base-ui/react/slider';
-import { controlSlots, focusRingClasses, metaTextClasses } from '../../internal/styles.js';
+import {
+  controlSlots,
+  focusRingClasses,
+  forcedFieldEdgeClasses,
+  forcedFillClasses,
+  metaTextClasses
+} from '../../internal/styles.js';
 import type { PlassColor, PlassElevation, PlassOrientation, PlassSize } from '../../types.js';
 
 type BaseSliderProps = Omit<
@@ -115,7 +121,7 @@ const trackBoxWidthClasses: Record<PlassSize, string> = {
  * Both are pills rather than taking the radius ladder: this is a channel
  * something travels along, not a sheet.
  */
-const railClasses = 'rounded-full bg-(--plass-track)';
+const railClasses = `rounded-full bg-(--plass-track) ${forcedFieldEdgeClasses}`;
 
 /**
  * The travel: what the thumb and the run both move over, and the one place in
@@ -142,6 +148,8 @@ const travelClasses = /* @__PURE__ */ [
 
 const indicatorClasses = /* @__PURE__ */ [
   'rounded-full [background-image:var(--p-fill)]',
+  forcedFillClasses,
+  'forced-colors:data-[disabled]:[background-color:GrayText]',
   '[transition-property:width,height,inset-inline-start,bottom,filter,opacity]',
   travelClasses
 ].join(' ');
@@ -159,6 +167,11 @@ const indicatorClasses = /* @__PURE__ */ [
 const thumbClasses = /* @__PURE__ */ [
   'rounded-full border-2 [background-image:var(--p-fill)]',
   '[border-color:var(--plass-surface)]',
+  // In forced-colours mode the gradient goes, and a thumb in the page's colour
+  // would be a hole in the run. It is drawn in the text colour, cut out of the
+  // highlight by a ring in the page's.
+  'forced-colors:[background-color:CanvasText] forced-colors:[border-color:Canvas]',
+  'forced-colors:data-[disabled]:[background-color:GrayText]',
   '[box-shadow:var(--p-elev),var(--p-lift)]',
   'cursor-grab select-none active:cursor-grabbing',
   // Its own property list rather than the house one: the only thing on a thumb

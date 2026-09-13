@@ -9,6 +9,9 @@ import {
   controlSlots,
   controlTextClasses,
   focusRingInsetClasses,
+  forcedCheckedTextClasses,
+  forcedFieldEdgeClasses,
+  forcedFillClasses,
   gapClasses,
   glassClasses,
   hasContent,
@@ -112,7 +115,7 @@ export interface PlSegmentProps extends Omit<
  * a value.
  */
 const troughClasses: Record<PlassVariant, string> = {
-  solid: `${glassClasses} bg-(--plass-glass-press) p-1 [box-shadow:var(--p-elev),var(--plass-well)]`,
+  solid: `${glassClasses} bg-(--plass-glass-press) p-1 [box-shadow:var(--p-elev),var(--plass-well)] ${forcedFieldEdgeClasses}`,
   glass: `${glassClasses} border bg-(--plass-glass) p-1 [border-color:var(--plass-glass-line)] [box-shadow:var(--p-elev),var(--plass-well)]`,
   ghost: ''
 };
@@ -180,6 +183,7 @@ export const PlSegment = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSegment
           iconClasses,
           'text-(--plass-muted-fg) hover:text-(--plass-fg)',
           checkedTextClasses[variant],
+          forcedCheckedTextClasses,
           // Inset rather than offset — an offset ring on a segment inside a groove
           // is drawn on top of its neighbours.
           focusRingInsetClasses,
@@ -390,6 +394,9 @@ export const PlSegmentedButton = /* @__PURE__ */ React.forwardRef<
               'pointer-events-none absolute rounded-full',
               'top-(--p-seg-y) left-(--p-seg-x) h-(--p-seg-h) w-(--p-seg-w)',
               tileClasses[variant],
+              // The tile is the only thing that says which segment is chosen,
+              // and forced-colours mode would otherwise paint it out.
+              forcedFillClasses,
               '[transition-property:left,top,width,height]',
               '[transition-timing-function:var(--plass-ease)]',
               // Nothing until the first measurement has landed; the house

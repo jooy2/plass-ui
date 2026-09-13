@@ -12,6 +12,8 @@ import {
   controlTextClasses,
   disabledClasses,
   focusRingClasses,
+  forcedEdgeClasses,
+  forcedFillClasses,
   gapClasses,
   glassClasses,
   hasContent,
@@ -107,7 +109,8 @@ const offClasses: Record<PlassVariant, string> = {
   solid: /* @__PURE__ */ [
     glassClasses,
     'text-(--plass-muted-fg) bg-(--plass-glass-hover)',
-    '[box-shadow:var(--p-elev),var(--plass-gloss-glass)]'
+    '[box-shadow:var(--p-elev),var(--plass-gloss-glass)]',
+    forcedEdgeClasses
   ].join(' '),
   glass: /* @__PURE__ */ [
     glassClasses,
@@ -159,15 +162,17 @@ const offHoverClasses: Record<PlassVariant, string> = {
 const onClasses: Record<PlassVariant, string> = {
   solid: /* @__PURE__ */ [
     'text-(--p-on-solid) [background-image:var(--p-fill)]',
-    '[box-shadow:var(--p-elev),var(--p-lift)]'
+    '[box-shadow:var(--p-elev),var(--p-lift)]',
+    forcedFillClasses
   ].join(' '),
   glass: /* @__PURE__ */ [
     glassClasses,
     'border text-(--p-accent) bg-(--p-soft)',
     '[border-color:var(--p-line-hover)]',
-    '[box-shadow:var(--p-elev),var(--plass-gloss-glass)]'
+    '[box-shadow:var(--p-elev),var(--plass-gloss-glass)]',
+    forcedFillClasses
   ].join(' '),
-  ghost: 'text-(--p-accent) bg-(--p-soft)'
+  ghost: `text-(--p-accent) bg-(--p-soft) ${forcedFillClasses}`
 };
 
 const onHoverClasses: Record<PlassVariant, string> = {

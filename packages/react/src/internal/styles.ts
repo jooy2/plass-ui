@@ -577,9 +577,49 @@ export function surfaceSlots(color: PlassColor, elevation: PlassElevation): Reac
  */
 export const forcedEdgeClasses = 'forced-colors:border forced-colors:[border-color:ButtonText]';
 
-/** The same for a field, in the colour the system draws a field's text. */
+/**
+ * The same for a surface that is not a button — a field, a progress bar's
+ * track, a slider's rail, a badge, a message — in the colour the system draws
+ * text on the page.
+ */
 export const forcedFieldEdgeClasses =
   'forced-colors:border forced-colors:[border-color:CanvasText]';
+
+/**
+ * A state that is shown by a fill, in forced-colours mode.
+ *
+ * The system drops the gradient and repaints the background in the page's own
+ * colour, so a ticked box, a chosen segment, a pressed toggle and the filled
+ * part of a progress bar would look exactly like the empty ones. A system colour
+ * written by the page is kept in that mode, so these paint the state in the pair
+ * the system uses for a selection, `Highlight` behind `HighlightText`.
+ *
+ * Never `forced-color-adjust: none` for this. It would keep the colours, and it
+ * would also keep the gradient over them and the tinted shadow under them.
+ */
+export const forcedFillClasses =
+  'forced-colors:[background-color:Highlight] forced-colors:[border-color:Highlight] forced-colors:[color:HighlightText]';
+
+/** The same, on a control Base UI marks `data-checked`. */
+export const forcedCheckedClasses = /* @__PURE__ */ [
+  'forced-colors:data-[checked]:[background-color:Highlight]',
+  'forced-colors:data-[checked]:[border-color:Highlight]',
+  'forced-colors:data-[checked]:[color:HighlightText]'
+].join(' ');
+
+/**
+ * The label over a highlight that is a separate element — the tile under a
+ * chosen segment — which has to be written in the colour drawn on a highlight,
+ * or it is the page's text on the system's selection colour.
+ */
+export const forcedCheckedTextClasses = 'forced-colors:data-[checked]:[color:HighlightText]';
+
+/** A checked control that is disabled, in the system's colour for unavailable. */
+export const forcedDisabledCheckedClasses = /* @__PURE__ */ [
+  'forced-colors:border forced-colors:[border-color:GrayText]',
+  'forced-colors:data-[checked]:[background-color:GrayText]',
+  'forced-colors:data-[checked]:[color:Canvas]'
+].join(' ');
 
 /**
  * Disabled is **the light going out.** The key keeps its shape, its colour and

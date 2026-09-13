@@ -18,6 +18,7 @@
 
 import type * as React from 'react';
 import type { PlassColor, PlassSize } from '../types.js';
+import { forcedFieldEdgeClasses, forcedFillClasses } from './styles.js';
 
 /**
  * The props all three take.
@@ -182,7 +183,14 @@ export const plateGapClasses: Record<PlassSize, string> = {
  * also why the movement is on `width` and never on the paint: a gradient cannot
  * be transitioned, and a length can.
  */
-export const trackClasses = 'bg-(--plass-track)';
+export const trackClasses = `bg-(--plass-track) ${forcedFieldEdgeClasses}`;
+
+/**
+ * The filled part of a track. Forced-colours mode drops the gradient and
+ * repaints the groove in the page's colour, so there the track gets an edge and
+ * the fill the system's highlight.
+ */
+export const fillClasses = `[background-image:var(--p-fill)] ${forcedFillClasses}`;
 
 /** The bar's own duration, one step slower than a control's, so a fill reads as travel. */
 export const fillTransitionClasses =

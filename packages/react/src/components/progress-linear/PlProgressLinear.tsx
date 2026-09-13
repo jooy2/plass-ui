@@ -5,6 +5,7 @@ import { useDefaults } from '../../internal/defaults.js';
 import { Progress } from '@base-ui/react/progress';
 import {
   barThicknessClasses,
+  fillClasses,
   fillTransitionClasses,
   progressAriaText,
   progressFraction,
@@ -111,7 +112,8 @@ export const PlProgressLinear = /* @__PURE__ */ React.forwardRef<
       >
         <Progress.Indicator
           className={cx(
-            'rounded-full [background-image:var(--p-fill)]',
+            'rounded-full',
+            fillClasses,
             // `plass-progress-sweep` supplies the position, the width and the
             // animation; with a value Base UI supplies the width instead and
             // this transition is what makes it travel rather than jump. Both

@@ -11,6 +11,7 @@ import {
   controlTextClasses,
   disabledClasses,
   focusRingClasses,
+  forcedEdgeClasses,
   gapClasses,
   glassClasses,
   hasContent,
@@ -93,7 +94,7 @@ const chipScale: Record<PlassSize, PlassSize> = {
  * because everything is.
  */
 const restClasses: Record<PlassVariant, string> = {
-  solid: 'text-(--p-on-solid) [background-image:var(--p-fill)] [box-shadow:var(--p-elev)]',
+  solid: `text-(--p-on-solid) [background-image:var(--p-fill)] [box-shadow:var(--p-elev)] ${forcedEdgeClasses}`,
   glass: /* @__PURE__ */ [
     glassClasses,
     'border text-(--p-accent) bg-(--plass-glass)',

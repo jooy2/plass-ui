@@ -8,6 +8,7 @@ import { CloseIcon, severityIcon } from '../../internal/icons.js';
 import {
   controlSlots,
   focusRingClasses,
+  forcedFieldEdgeClasses,
   glassClasses,
   hasContent,
   iconClasses,
@@ -152,7 +153,8 @@ const viewportClasses: Record<PlToastPosition, string> = {
 const rootClasses: Record<PlassVariant, string> = {
   solid: /* @__PURE__ */ [
     'text-(--p-on-solid) [background-image:var(--p-fill)]',
-    '[box-shadow:var(--plass-shadow-3),var(--p-lift)]'
+    '[box-shadow:var(--plass-shadow-3),var(--p-lift)]',
+    forcedFieldEdgeClasses
   ].join(' '),
   glass: /* @__PURE__ */ [
     glassClasses,

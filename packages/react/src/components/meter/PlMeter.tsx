@@ -5,6 +5,7 @@ import { Meter } from '@base-ui/react/meter';
 import { useDefaults } from '../../internal/defaults.js';
 import {
   barThicknessClasses,
+  fillClasses,
   fillTransitionClasses,
   progressSlots,
   trackClasses
@@ -156,9 +157,7 @@ export const PlMeter = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlMeterP
             barThicknessClasses[size]
           )}
         >
-          <Meter.Indicator
-            className={cx('rounded-full [background-image:var(--p-fill)]', fillTransitionClasses)}
-          />
+          <Meter.Indicator className={cx('rounded-full', fillClasses, fillTransitionClasses)} />
         </Meter.Track>
       </Meter.Root>
     );

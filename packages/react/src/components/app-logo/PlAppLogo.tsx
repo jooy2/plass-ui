@@ -6,6 +6,7 @@ import { useDefaults } from '../../internal/defaults.js';
 import {
   controlSlots,
   cx,
+  forcedFieldEdgeClasses,
   glassClasses,
   hasContent,
   metaTextClasses,
@@ -107,7 +108,7 @@ const gapClasses: Record<PlassSize, string> = {
 
 /** What a plate is made of, per variant. The same three materials as everywhere. */
 const plateVariantClasses: Record<PlassVariant, string> = {
-  solid: '[background-image:var(--p-fill)] text-(--p-on-solid) [box-shadow:var(--p-lift)]',
+  solid: `[background-image:var(--p-fill)] text-(--p-on-solid) [box-shadow:var(--p-lift)] ${forcedFieldEdgeClasses}`,
   glass: `${glassClasses} bg-(--plass-glass) text-(--p-accent) border [border-color:var(--plass-glass-line)]`,
   ghost: 'bg-(--p-soft) text-(--p-accent)'
 };

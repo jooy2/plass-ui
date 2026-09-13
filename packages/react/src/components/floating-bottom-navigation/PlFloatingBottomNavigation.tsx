@@ -208,6 +208,9 @@ const keyClasses = /* @__PURE__ */ [
   'top-(--p-disc-y) left-(--p-disc-x) h-(--p-disc-h) w-(--p-disc-w)',
   '[background-image:var(--p-fill)]',
   '[box-shadow:var(--plass-shadow-1),var(--p-lift)]',
+  // A ring rather than a fill in forced-colours mode: the glyph over it is
+  // painted in the page's text colour, which a highlight would swallow.
+  'forced-colors:border-2 forced-colors:[border-color:Highlight]',
   'data-[quiet]:opacity-50 data-[quiet]:saturate-[0.35]',
   '[transition-property:left,top,width,height,opacity,filter]',
   '[transition-timing-function:var(--plass-ease)]',

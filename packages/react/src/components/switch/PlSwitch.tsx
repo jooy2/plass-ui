@@ -97,6 +97,19 @@ const trackBaseClasses = /* @__PURE__ */ [
 ].join(' ');
 
 /**
+ * A switch in forced-colours mode, where the track's tone and the fill are both
+ * dropped and on and off would look the same. The track gets an edge, and the
+ * one that is on is filled with the system's highlight, with the thumb in the
+ * colour drawn on a highlight. The edge puts the thumb a pixel off centre in
+ * that mode, for the reason given below; a switch that can be read is worth
+ * that pixel.
+ */
+const forcedTrackClasses = /* @__PURE__ */ [
+  'forced-colors:border forced-colors:[border-color:CanvasText]',
+  'forced-colors:data-[checked]:[background-color:Highlight]'
+].join(' ');
+
+/**
  * Off, the track is the **groove** — `--plass-track`, the one neutral ink in the
  * library whose job is to be seen from across a room. On, it is the family's
  * gradient.
@@ -121,17 +134,6 @@ const trackBaseClasses = /* @__PURE__ */ [
  * them the two disagreed, and every switch in the library sat 2px from its
  * track on the left and 4px from it on the right.
  */
-/**
- * A switch in forced-colours mode, where the track's tone and the fill are both
- * dropped and on and off would look the same. The track gets an edge, and the
- * one that is on is filled with the system's highlight, with the thumb in the
- * colour drawn on a highlight.
- */
-const forcedTrackClasses = /* @__PURE__ */ [
-  'forced-colors:border forced-colors:[border-color:CanvasText]',
-  'forced-colors:data-[checked]:[forced-color-adjust:none] forced-colors:data-[checked]:[background-color:Highlight]'
-].join(' ');
-
 const restTrackClasses = /* @__PURE__ */ [
   forcedTrackClasses,
   'cursor-pointer bg-(--plass-track)',
@@ -170,9 +172,9 @@ const thumbClasses = /* @__PURE__ */ [
   // the same way every platform's own switch behaves.
   'absolute inset-y-0.5 start-0.5 aspect-square rounded-full bg-white',
   '[box-shadow:0_1px_2px_rgb(20_40_90/0.25)]',
-  // Kept its own colour in forced-colours mode, or the system paints it the
+  // Given a system colour in forced-colours mode, or the system paints it the
   // page's and the thumb disappears into the track.
-  'forced-colors:[forced-color-adjust:none] forced-colors:[background-color:CanvasText] forced-colors:data-[checked]:[background-color:HighlightText]',
+  'forced-colors:[background-color:CanvasText] forced-colors:data-[checked]:[background-color:HighlightText]',
   '[transition:inset-inline-start_var(--plass-duration)_var(--plass-ease)]'
 ].join(' ');
 

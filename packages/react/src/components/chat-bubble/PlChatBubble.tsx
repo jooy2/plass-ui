@@ -7,6 +7,7 @@ import { CheckIcon, ClockIcon, LinkIcon, severityIcon } from '../../internal/ico
 import {
   controlSlots,
   focusRingClasses,
+  forcedFieldEdgeClasses,
   glassClasses,
   hasContent,
   metaTextClasses,
@@ -197,7 +198,8 @@ const tailClasses: Record<PlChatBubbleSide, string> = {
 const variantClasses: Record<PlassVariant, string> = {
   solid: /* @__PURE__ */ [
     'text-(--p-on-solid) [background-image:var(--p-fill)]',
-    '[box-shadow:var(--p-elev),var(--p-lift)]'
+    '[box-shadow:var(--p-elev),var(--p-lift)]',
+    forcedFieldEdgeClasses
   ].join(' '),
   glass: /* @__PURE__ */ [
     glassClasses,

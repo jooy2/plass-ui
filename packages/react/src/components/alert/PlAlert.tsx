@@ -7,6 +7,7 @@ import { CloseIcon, severityIcon } from '../../internal/icons.js';
 import {
   controlSlots,
   focusRingClasses,
+  forcedFieldEdgeClasses,
   glassClasses,
   hasContent,
   iconClasses,
@@ -67,7 +68,8 @@ export interface PlAlertProps
 const restClasses: Record<PlassVariant, string> = {
   solid: /* @__PURE__ */ [
     'text-(--p-on-solid) [background-image:var(--p-fill)]',
-    '[box-shadow:var(--p-elev),var(--p-lift)]'
+    '[box-shadow:var(--p-elev),var(--p-lift)]',
+    forcedFieldEdgeClasses
   ].join(' '),
   glass: /* @__PURE__ */ [
     glassClasses,

@@ -7,6 +7,7 @@ import {
   controlHeightClasses,
   controlSlots,
   controlTextClasses,
+  forcedFieldEdgeClasses,
   glassClasses,
   paddingXClasses,
   radiusClasses,
@@ -275,7 +276,8 @@ const keyScale: Record<PlassSize, PlassSize> = {
 const variantClasses: Record<PlassVariant, string> = {
   solid: /* @__PURE__ */ [
     'text-(--p-on-solid) [background-image:var(--p-fill)]',
-    '[box-shadow:var(--p-elev),0_2px_0_0_var(--p-tint)]'
+    '[box-shadow:var(--p-elev),0_2px_0_0_var(--p-tint)]',
+    forcedFieldEdgeClasses
   ].join(' '),
   glass: /* @__PURE__ */ [
     glassClasses,

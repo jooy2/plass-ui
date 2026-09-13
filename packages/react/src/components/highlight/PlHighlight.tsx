@@ -75,17 +75,24 @@ export interface PlHighlightProps extends Omit<React.ComponentPropsWithoutRef<'s
 }
 
 /**
+ * A match in forced-colours mode, in the system's own colours for marked text.
+ * The tint, the gradient and the accent ink are all repainted there, and a
+ * `ghost` match would be the same as the words around it.
+ */
+const forcedMarkClasses = 'forced-colors:[background-color:Mark] forced-colors:[color:MarkText]';
+
+/**
  * There is no `size` here on purpose, and it is the one prop a reader will look
  * for. A mark sits inside running text and has to be the size of the text it is
  * inside; a `size` prop would only offer ways to be wrong.
  */
 const variantClasses: Record<PlassVariant, string> = {
-  solid: '[background-image:var(--p-fill)] text-(--p-on-solid)',
-  glass: 'border bg-(--p-soft) text-(--p-accent) [border-color:var(--p-line)]',
+  solid: `[background-image:var(--p-fill)] text-(--p-on-solid) ${forcedMarkClasses}`,
+  glass: `border bg-(--p-soft) text-(--p-accent) [border-color:var(--p-line)] ${forcedMarkClasses}`,
   // Both properties are still set. A `<mark>` arrives from the browser's own
   // stylesheet with a yellow background and black ink, and "no surface" has to
   // be said out loud or it turns into the UA's surface.
-  ghost: 'bg-transparent text-(--p-accent)'
+  ghost: `bg-transparent text-(--p-accent) ${forcedMarkClasses}`
 };
 
 const weightClasses: Record<PlTypographyWeight, string> = {

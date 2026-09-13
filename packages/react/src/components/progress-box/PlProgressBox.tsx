@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { Progress } from '@base-ui/react/progress';
 import {
+  fillClasses,
   fillTransitionClasses,
   plateGapClasses,
   plateRadiusClasses,
@@ -126,7 +127,8 @@ export const PlProgressBox = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
               <span
                 aria-hidden="true"
                 className={cx(
-                  'absolute inset-y-0 start-0 [background-image:var(--p-fill)]',
+                  'absolute inset-y-0 start-0',
+                  fillClasses,
                   indeterminate ? 'plass-plate-wave w-full' : fillTransitionClasses
                 )}
                 style={

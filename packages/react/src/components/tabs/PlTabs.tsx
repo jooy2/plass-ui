@@ -8,6 +8,8 @@ import {
   controlTextClasses,
   focusRingClasses,
   focusRingInsetClasses,
+  forcedFieldEdgeClasses,
+  forcedFillClasses,
   gapClasses,
   glassClasses,
   hasContent,
@@ -171,8 +173,8 @@ export interface PlTabPanelProps extends React.ComponentPropsWithoutRef<'div'> {
  */
 const listClasses: Record<PlassVariant, Record<PlassOrientation, string>> = {
   solid: {
-    horizontal: `${glassClasses} inline-flex bg-(--plass-glass) p-1 [box-shadow:var(--plass-well)]`,
-    vertical: `${glassClasses} inline-flex flex-col bg-(--plass-glass) p-1 [box-shadow:var(--plass-well)]`
+    horizontal: `${glassClasses} inline-flex bg-(--plass-glass) p-1 [box-shadow:var(--plass-well)] ${forcedFieldEdgeClasses}`,
+    vertical: `${glassClasses} inline-flex flex-col bg-(--plass-glass) p-1 [box-shadow:var(--plass-well)] ${forcedFieldEdgeClasses}`
   },
   glass: {
     horizontal: 'flex border-b [border-color:var(--plass-border)]',
@@ -236,6 +238,12 @@ const tabStateClasses =
   'text-(--plass-muted-fg) hover:text-(--plass-fg) data-[active]:text-(--p-accent)';
 
 /**
+ * The active tab over a `solid` pane in forced-colours mode, where the pane is
+ * the system's highlight and the label has to be the colour drawn on one.
+ */
+const forcedActiveTabClasses = 'forced-colors:data-[active]:[color:HighlightText]';
+
+/**
  * One tab, and one place a tab differs from a PlButton: `solid` puts the tile
  * *behind* the tab rather than on it, so the tab needs a stacking context of its
  * own or the indicator would cover the label it is meant to be under.
@@ -263,6 +271,7 @@ export const PlTab = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlTabPr
         transitionClasses,
         iconClasses,
         tabStateClasses,
+        variant === 'solid' ? forcedActiveTabClasses : '',
         // The ring is inset rather than offset: an offset ring on a tab inside a
         // `solid` groove is drawn on top of its neighbours.
         focusRingInsetClasses,
@@ -558,6 +567,9 @@ export const PlTabs = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTabsPro
               'pointer-events-none',
               indicatorClasses[variant][orientation],
               indicatorSurfaceClasses[variant],
+              // The pane or the bar is all that says which tab is active, and
+              // forced-colours mode would otherwise paint it out.
+              forcedFillClasses,
               variant === 'solid' ? radiusClasses[size] : 'rounded-full',
               // The same easing everything else uses, on the four properties the
               // measurement actually writes.

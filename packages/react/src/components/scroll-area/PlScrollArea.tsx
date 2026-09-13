@@ -97,6 +97,13 @@ const laneClasses: Record<PlassSize, string> = {
 const LANE_INSET = 'p-[0.125rem]';
 
 /**
+ * The thumb, in the groove's ink — and in the text colour in forced-colours
+ * mode, which would otherwise repaint it the colour of the page behind it.
+ */
+const thumbClasses =
+  'flex-1 rounded-full bg-(--plass-track) forced-colors:[background-color:CanvasText]';
+
+/**
  * A bounded box that scrolls, with the library's own scrollbar in it.
  *
  * The reason to reach for it over `overflow: auto` is the **bar**. A platform
@@ -191,17 +198,13 @@ export const PlScrollArea = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
 
         {vertical ? (
           <ScrollArea.Scrollbar orientation="vertical" className={lane}>
-            <ScrollArea.Thumb
-              className={cx('flex-1 rounded-full bg-(--plass-track)', classNames?.thumb)}
-            />
+            <ScrollArea.Thumb className={cx(thumbClasses, classNames?.thumb)} />
           </ScrollArea.Scrollbar>
         ) : null}
 
         {horizontal ? (
           <ScrollArea.Scrollbar orientation="horizontal" className={lane}>
-            <ScrollArea.Thumb
-              className={cx('flex-1 rounded-full bg-(--plass-track)', classNames?.thumb)}
-            />
+            <ScrollArea.Thumb className={cx(thumbClasses, classNames?.thumb)} />
           </ScrollArea.Scrollbar>
         ) : null}
 

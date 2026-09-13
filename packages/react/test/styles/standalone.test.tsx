@@ -19,21 +19,38 @@
  * is asserted is only that each layer arrived and that they compose — a
  * `border-radius` that is *not zero*, a background that is *not transparent*.
  */
+import type { ReactElement } from 'react';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { page } from 'vitest/browser';
+import { commands, page, server } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import {
+  PlBadge,
   PlButton,
+  PlCalendar,
+  PlCheckbox,
   PlChip,
   PlFlex,
   PlGallery,
   PlGrid,
   PlGridItem,
+  PlHighlight,
   PlLineChart,
+  PlMeter,
+  PlProgressLinear,
+  PlRadio,
+  PlRadioGroup,
   PlScatterChart,
+  PlSegment,
+  PlSegmentedButton,
+  PlSlider,
   PlStack,
+  PlStep,
+  PlStepper,
   PlSwitch,
-  PlTextField
+  PlTab,
+  PlTabs,
+  PlTextField,
+  PlToggle
 } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
 import pkg from '../../package.json';
@@ -85,49 +102,6 @@ function contrast(one: number[], two: number[]): number {
   const [light, dark] = [luminance(one), luminance(two)].sort((x, y) => y - x);
 
   return (light + 0.05) / (dark + 0.05);
-}
-
-/**
- * The declarations the stylesheet gives `element` in forced-colours mode.
- *
- * No browser in the matrix can be put in that mode from a test, so what is read
- * is the rules that would apply in it: every style rule the element matches,
- * inside `@media (forced-colors: active)`, whether the media query wraps the
- * rule or is nested in it.
- */
-function forcedColorDeclarations(element: Element): string {
-  const found: string[] = [];
-
-  const matches = (selector: string) => {
-    try {
-      return element.matches(selector);
-    } catch {
-      return false;
-    }
-  };
-
-  const walk = (rules: CSSRuleList, forced: boolean, parent: string | null) => {
-    for (const rule of Array.from(rules)) {
-      if (rule instanceof CSSMediaRule) {
-        walk(rule.cssRules, forced || rule.conditionText.includes('forced-colors'), parent);
-      } else if (rule instanceof CSSStyleRule) {
-        const selector = parent ? rule.selectorText.replace(/&/g, parent) : rule.selectorText;
-
-        if (forced && matches(selector)) {
-          found.push(rule.style.cssText);
-        }
-
-        walk(rule.cssRules, forced, selector);
-      } else if (forced && parent && 'style' in rule && matches(parent)) {
-        // A declaration block nested straight inside the media query.
-        found.push((rule as CSSStyleRule).style.cssText);
-      }
-    }
-  };
-
-  walk(sheet.sheet!.cssRules, false, null);
-
-  return found.join(' ').toLowerCase();
 }
 
 describe('plass-ui/styles.css', () => {
@@ -518,35 +492,188 @@ describe('plass-ui/styles.css', () => {
    * Neither asserts a shade — only that something arrived.
    */
   describe('forced-colours mode', () => {
-    it('gives a solid button and a solid field an edge the system draws', async () => {
-      const screen = await render(
-        <>
-          <PlButton variant="solid">Save</PlButton>
-          <PlTextField variant="solid" label="Email" />
-        </>
+    // Rendered in the mode rather than read off the stylesheet: what matters is
+    // what the system leaves on screen, and a rule it overrides reads the same
+    // as one it keeps. Chromium is the engine that can be put in the mode here;
+    // the rules are plain CSS and apply wherever the mode exists.
+    const forced = it.runIf(server.browser === 'chromium');
+
+    /** Runs `check` with the page in forced-colours mode, and puts it back. */
+    const inForcedColours = async (check: () => Promise<void>) => {
+      // Before anything renders, so no transition is caught halfway.
+      await commands.emulateMedia({ forcedColors: 'active' });
+
+      try {
+        await check();
+      } finally {
+        await commands.emulateMedia({ forcedColors: 'none' });
+      }
+    };
+
+    /** What a system colour computes to on this page, in the mode as it is now. */
+    const system = (name: string) => {
+      const probe = document.createElement('span');
+
+      probe.style.backgroundColor = name;
+      document.body.append(probe);
+
+      try {
+        return getComputedStyle(probe).backgroundColor;
+      } finally {
+        probe.remove();
+      }
+    };
+
+    const everything = (root: Element) => [root, ...Array.from(root.querySelectorAll('*'))];
+
+    /** Every element under `root` whose background is `colour`. */
+    const filledWith = (root: Element, colour: string) =>
+      everything(root).filter((element) => getComputedStyle(element).backgroundColor === colour);
+
+    /** Every element under `root` that still carries a gradient. */
+    const gradients = (root: Element) =>
+      everything(root).filter((element) =>
+        getComputedStyle(element).backgroundImage.includes('gradient')
       );
 
-      const button = forcedColorDeclarations(screen.getByRole('button').element());
-      const shell = forcedColorDeclarations(
-        screen.getByRole('textbox').element().parentElement as HTMLElement
-      );
+    const cases: [string, ReactElement, ReactElement | null][] = [
+      [
+        'PlCheckbox',
+        <PlCheckbox label="Remember" defaultChecked />,
+        <PlCheckbox label="Remember" />
+      ],
+      [
+        'PlRadioGroup',
+        <PlRadioGroup label="Plan" defaultValue="team">
+          <PlRadio value="team" label="Team" />
+        </PlRadioGroup>,
+        <PlRadioGroup label="Plan">
+          <PlRadio value="team" label="Team" />
+        </PlRadioGroup>
+      ],
+      ['PlSwitch', <PlSwitch label="Wi-Fi" defaultChecked />, <PlSwitch label="Wi-Fi" />],
+      [
+        'PlToggle',
+        <PlToggle aria-label="Bold" defaultPressed>
+          B
+        </PlToggle>,
+        <PlToggle aria-label="Bold">B</PlToggle>
+      ],
+      [
+        'PlSegmentedButton',
+        <PlSegmentedButton aria-label="Period" defaultValue="week">
+          <PlSegment value="day">Day</PlSegment>
+          <PlSegment value="week">Week</PlSegment>
+        </PlSegmentedButton>,
+        <PlSegmentedButton aria-label="Period">
+          <PlSegment value="day">Day</PlSegment>
+          <PlSegment value="week">Week</PlSegment>
+        </PlSegmentedButton>
+      ],
+      [
+        // A bar's fill is drawn at no width rather than left out, so an empty
+        // one has nothing to compare against.
+        'PlSlider',
+        <PlSlider label="Volume" defaultValue={60} />,
+        null
+      ],
+      ['PlProgressLinear', <PlProgressLinear label="Upload" value={40} />, null],
+      ['PlMeter', <PlMeter label="Storage" value={40} />, null],
+      [
+        'PlStepper',
+        <PlStepper active={1}>
+          <PlStep label="Account" />
+          <PlStep label="Verify" />
+        </PlStepper>,
+        <PlStepper active={-1}>
+          <PlStep label="Account" />
+          <PlStep label="Verify" />
+        </PlStepper>
+      ],
+      [
+        'PlCalendar',
+        <PlCalendar locale="en-GB" defaultValue={new Date(2026, 6, 27)} />,
+        <PlCalendar locale="en-GB" defaultMonth={new Date(2026, 6, 1)} />
+      ]
+    ];
 
-      expect(button).toContain('border-width');
-      expect(button).toContain('border-color: buttontext');
-      expect(shell).toContain('border-color: canvastext');
-    });
+    forced.each(cases)('fills a chosen %s with the highlight, and nothing else', (_name, on, off) =>
+      inForcedColours(async () => {
+        const highlight = system('Highlight');
+        const chosen = await render(on);
 
-    it('tells a switch that is on from one that is off', async () => {
-      const screen = await render(<PlSwitch label="Wi-Fi" defaultChecked />);
-      const track = screen.getByRole('switch').element();
+        await expect.poll(() => filledWith(chosen.container, highlight).length).toBeGreaterThan(0);
+        expect(gradients(chosen.container)).toEqual([]);
 
-      await expect.element(screen.getByRole('switch')).toBeChecked();
+        if (off) {
+          await chosen.unmount();
 
-      const declarations = forcedColorDeclarations(track);
+          const empty = await render(off);
 
-      expect(declarations).toContain('background-color: highlight');
-      expect(declarations).toContain('forced-color-adjust: none');
-    });
+          expect(filledWith(empty.container, highlight)).toEqual([]);
+        }
+      })
+    );
+
+    forced('marks the active tab with the highlight', () =>
+      inForcedColours(async () => {
+        const screen = await render(
+          <PlTabs defaultValue="one">
+            <PlTab value="one">One</PlTab>
+            <PlTab value="two">Two</PlTab>
+          </PlTabs>
+        );
+
+        await expect
+          .poll(() => filledWith(screen.container, system('Highlight')).length)
+          .toBeGreaterThan(0);
+      })
+    );
+
+    forced('marks a match in the system colours for marked text', () =>
+      inForcedColours(async () => {
+        const screen = await render(
+          <PlHighlight query="glass" variant="ghost">
+            Clear glass
+          </PlHighlight>
+        );
+
+        expect(getComputedStyle(screen.getByText('glass').element()).backgroundColor).toBe(
+          system('Mark')
+        );
+      })
+    );
+
+    forced('gives a surface that is only a fill an edge', () =>
+      inForcedColours(async () => {
+        const screen = await render(
+          <>
+            <PlButton variant="solid">Save</PlButton>
+            <PlTextField variant="solid" label="Email" />
+            <PlChip variant="solid">Tag</PlChip>
+            <PlBadge variant="solid" content="New" />
+          </>
+        );
+        /** Whether `element`, or a box it sits in, draws an edge. */
+        const edged = (element: Element | null): boolean => {
+          if (!element || element === screen.container.parentElement) {
+            return false;
+          }
+
+          const style = getComputedStyle(element);
+
+          return (
+            (style.borderTopStyle === 'solid' && style.borderTopWidth !== '0px') ||
+            edged(element.parentElement)
+          );
+        };
+
+        expect(edged(screen.getByRole('button', { name: 'Save' }).element())).toBe(true);
+        expect(edged(screen.getByRole('textbox').element())).toBe(true);
+        expect(edged(screen.getByText('Tag').element())).toBe(true);
+        expect(edged(screen.getByText('New').element())).toBe(true);
+      })
+    );
   });
 
   describe('a chart’s own colours', () => {
