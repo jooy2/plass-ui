@@ -220,12 +220,11 @@ Scrolled sideways, the gutter and the prompts stay put: the rows are as wide as 
 
 ## Accessibility
 
+::: fw react
+
 - The code is a **focusable region** with a name, the `title`, then the language, then the word for code. A scrollable region has to be reachable by a keyboard that has no pointer to drag with, and a focusable region has to have a name.
 - <kbd>Mod</kbd> + <kbd>A</kbd> inside the block selects **the block**, not the page around it. The browser's own answer is never what a reader who tabbed to a code listing was after.
 - The numbers and the prompts are outside the selection for the same reason they are outside the clipboard: there is nothing there to select.
-
-::: fw react
-
 - The copy button changes its own label, which a screen reader reading the page rather than the button would never hear, so the block also announces it through an `aria-live` region, one word long.
 - The raw toggle carries `aria-pressed`.
 
@@ -233,6 +232,7 @@ Scrolled sideways, the gutter and the prompts stay put: the rows are as wide as 
 
 ::: fw flutter
 
+- The code is a semantics node of its own, named `codeLabel` when one is given, then the language, then the label pack's word for code. It is not a focus stop and has no select-all of its own, and `title` does not name it.
 - Each bar button is a `Semantics` node with `button: true` and a name of its own, and it **excludes** what is inside it: the copy button draws its own word as well as carrying it, and a reader told "Copy, Copy" has been told once too often.
 
 :::

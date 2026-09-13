@@ -148,6 +148,8 @@
 
 ### Documentation
 
+- **The code block page no longer promises Flutter a focusable code region.** Its Accessibility section said, for both packages, that the code is a focus stop named after `title`, that Mod+A selects only the block, and that the line numbers stay out of the selection. All three are React behaviour. The Flutter half now says what the widget does: the code is a semantics node named after `codeLabel`, the language or the word for code, with no focus stop and no select-all of its own.
+
 - **The line chart page lists the fields of `PlChartAxis`, `PlChartLegend` and `PlChartTooltip`**, which the props tables named without describing. The bar, area and scatter chart pages link to them.
 
 - **The documentation was audited and rewritten for accuracy and plainness**, in both locales and for both packages: three wrong claims corrected, 135 essay-style headings renamed after what the section covers, the em dashes taken out of the prose, and the Korean pages rewritten so they read as Korean rather than as a translation. This package's `README.md` carries the shortened introduction with them.
