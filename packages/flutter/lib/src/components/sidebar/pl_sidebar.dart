@@ -219,6 +219,13 @@ class _PlSidebarState extends State<PlSidebar> {
   bool _ownOpen = false;
   bool _sized = false;
 
+  /// The size the width was last taken from, resolved through the theme.
+  ///
+  /// Compared rather than `widget.size`, which is `null` whenever the size comes
+  /// from the theme: set against the resolved size, that read as a change on
+  /// every rebuild and threw away the width the reader had dragged.
+  PlassSize? _sizeWas;
+
   double get _initialWidth => widget.width ?? _widths[_size]!;
 
   @override
@@ -232,6 +239,7 @@ class _PlSidebarState extends State<PlSidebar> {
     // element. That is an error rather than a warning.
     if (!_sized) {
       _sized = true;
+      _sizeWas = _size;
       _width.value = _clamp(_initialWidth);
     }
   }
@@ -240,7 +248,10 @@ class _PlSidebarState extends State<PlSidebar> {
   void didUpdateWidget(PlSidebar oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (widget.width != oldWidget.width || _size != oldWidget.size) {
+    final PlassSize size = _size;
+
+    if (widget.width != oldWidget.width || size != _sizeWas) {
+      _sizeWas = size;
       _width.value = _clamp(_initialWidth);
     }
   }

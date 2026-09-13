@@ -232,6 +232,41 @@ void main() {
         expect(tester.getSize(find.byType(PlSidebar)).width, closeTo(260, 2));
       });
 
+      testWidgets('keeps a dragged width when the page around it rebuilds', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) => column(
+                PlSidebar(
+                  resizable: true,
+                  // A caller that rebuilds on every step, which is the ordinary
+                  // way to show the width somewhere else.
+                  onResize: (double _) => setState(() {}),
+                  child: const Text('Links'),
+                ),
+              ),
+            ),
+            width: 600,
+            height: 400,
+          ),
+        );
+
+        final double before = tester.getSize(find.byType(PlSidebar)).width;
+        final Rect box = tester.getRect(find.byType(PlSidebar));
+        final TestGesture gesture = await tester.startGesture(
+          Offset(box.right - 1, box.center.dy),
+          kind: PointerDeviceKind.mouse,
+        );
+        await gesture.moveBy(const Offset(40, 0));
+        await tester.pump();
+        await gesture.up();
+        await tester.pump();
+
+        expect(tester.getSize(find.byType(PlSidebar)).width, closeTo(before + 40, 2));
+      });
+
       testWidgets('clamps what a drag may set', (WidgetTester tester) async {
         final List<double> settled = <double>[];
 

@@ -36,6 +36,8 @@
 
 ### Fixed
 
+- **A dragged `PlSidebar` keeps its width when the page rebuilds.** With its size coming from the theme, every rebuild of the widget above it read as a size change and put the width back to the default, so an `onResize` that called `setState` stopped the drag from moving at all.
+
 - **A `PlSlider` can be adjusted with a screen reader.** It was announced as a slider but had no increase or decrease action, so the swipe VoiceOver and TalkBack adjust a slider with did nothing, and a range slider's two ends were one node that neither could be moved from. Each end now answers the adjust actions by one `step`, and a value is read in the decimals its `step` has rather than rounded to a whole number.
 
 - **Typing into a `PlColorPicker`'s value field keeps the focus.** The field was given a new focus node on every rebuild, and every keystroke that changed the colour rebuilt it, so the field lost focus and the keyboard closed after one character. The node that was thrown away was never disposed either.
