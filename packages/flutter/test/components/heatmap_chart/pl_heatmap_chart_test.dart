@@ -49,6 +49,25 @@ void main() {
       expect(node.value, contains('Wed: 09 1'));
     });
 
+    testWidgets('writes a date column as a day rather than a timestamp', (
+      WidgetTester tester,
+    ) async {
+      await _pump(
+        tester,
+        PlHeatmapChart(
+          series: week,
+          categories: <PlassChartCategory>[
+            for (int day = 1; day <= 4; day += 1) PlassChartCategory.date(DateTime(2026, 3, day)),
+          ],
+        ),
+      );
+
+      final SemanticsNode node = tester.getSemantics(find.bySemanticsLabel('Chart'));
+
+      expect(node.value, contains('Mon: Mar 1 2, Mar 2 9'));
+      expect(node.value, isNot(contains('2026-03')));
+    });
+
     testWidgets('names a treemap tile after its own point rather than the first group', (
       WidgetTester tester,
     ) async {

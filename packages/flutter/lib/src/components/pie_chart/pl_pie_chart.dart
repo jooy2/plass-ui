@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/chart.dart';
 import 'package:plass_ui/src/internal/chart_frame.dart';
+import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
@@ -172,6 +173,7 @@ class _PlPieChartState extends State<PlPieChart> {
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
     final labels = PlassTheme.labelsOf(context);
+    final PlDateNames names = PlassTheme.defaultsOf(context).names ?? PlDateNames.english;
     final PlassSize size = _size;
     final double fontSize = chartFontSizes[size]!;
     final double height = widget.height ?? plotHeights[size]!;
@@ -187,7 +189,7 @@ class _PlPieChartState extends State<PlPieChart> {
     final List<PlassChartSeries> slices = <PlassChartSeries>[
       for (int i = 0; i < values.length; i += 1)
         PlassChartSeries(
-          name: categoryAt(i, widget.categories, <List<ChartValue>>[values]).toString(),
+          name: categoryText(categoryAt(i, widget.categories, <List<ChartValue>>[values]), names),
           color: values[i].color,
           data: <PlassChartDatum>[widget.data[i]],
         ),

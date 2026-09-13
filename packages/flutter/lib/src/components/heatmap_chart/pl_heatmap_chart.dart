@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/chart.dart';
 import 'package:plass_ui/src/internal/chart_frame.dart';
+import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
@@ -156,6 +157,7 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> {
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
     final labels = PlassTheme.labelsOf(context);
+    final PlDateNames names = PlassTheme.defaultsOf(context).names ?? PlDateNames.english;
     final PlassSize size = widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
     final double fontSize = chartFontSizes[size]!;
     final double plotHeight = widget.height ?? plotHeights[size]!;
@@ -168,8 +170,9 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> {
       columns = math.max(columns, row.length);
     }
 
-    final List<PlassChartCategory> columnNames = <PlassChartCategory>[
-      for (int i = 0; i < columns; i += 1) categoryAt(i, widget.categories, values),
+    final List<String> columnNames = <String>[
+      for (int i = 0; i < columns; i += 1)
+        categoryText(categoryAt(i, widget.categories, values), names),
     ];
     final List<String> rowNames = <String>[
       for (int i = 0; i < widget.series.length; i += 1) widget.series[i].name ?? '${i + 1}',
@@ -325,6 +328,7 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> {
                       grid: grid,
                       rowTexts: rowTexts,
                       columnNames: columnNames,
+                      names: names,
                       inset: left,
                       plotWidth: plotWidth,
                       plotHeight: innerHeight,
@@ -357,7 +361,7 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> {
                         // Both coordinates, which is what a cell *is*. The row
                         // underneath then has only the number left to carry.
                         heading:
-                            '${rowNames[_active!.row]} · ${_cellName(shown.value, _active!.index, columnNames)}',
+                            '${rowNames[_active!.row]} · ${_cellName(shown.value, _active!.index, columnNames, names)}',
                         children: <Widget>[
                           Padding(
                             padding: const EdgeInsets.only(top: 2),
@@ -408,7 +412,7 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> {
       container: true,
       label: widget.semanticLabel ?? labels.chart,
       // Every cell, because a heatmap has no line to describe the shape of.
-      value: _summary(values, rowNames, columnNames),
+      value: _summary(values, rowNames, columnNames, names),
       child: below
           ? Column(
               mainAxisSize: MainAxisSize.min,
@@ -505,7 +509,8 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> {
   String _summary(
     List<List<ChartValue>> values,
     List<String> rowNames,
-    List<PlassChartCategory> columnNames,
+    List<String> columnNames,
+    PlDateNames names,
   ) {
     final rows = <String>[];
 
@@ -519,7 +524,7 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> {
           continue;
         }
 
-        final String name = _cellName(values[row][i], i, columnNames);
+        final String name = _cellName(values[row][i], i, columnNames, names);
 
         cells.add('$name ${_write(value)}');
       }
@@ -540,9 +545,14 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> {
 /// series by series, so the column at a tile's index is the name of the tile in
 /// that place in the *first* group, and every other group would borrow it. The
 /// React build reads `cell.x` first for the same reason.
-String _cellName(ChartValue value, int index, List<PlassChartCategory> columnNames) {
-  return value.x?.toString() ??
-      (index < columnNames.length ? columnNames[index].toString() : '$index');
+String _cellName(ChartValue value, int index, List<String> columnNames, PlDateNames names) {
+  final PlassChartCategory? own = value.x;
+
+  if (own != null) {
+    return categoryText(own, names);
+  }
+
+  return index < columnNames.length ? columnNames[index] : '$index';
 }
 
 /// How far the further arm of a diverging scale reaches from its middle.
@@ -565,6 +575,7 @@ class _HeatmapPainter extends CustomPainter {
     required this.grid,
     required this.rowTexts,
     required this.columnNames,
+    required this.names,
     required this.inset,
     required this.plotWidth,
     required this.plotHeight,
@@ -587,7 +598,8 @@ class _HeatmapPainter extends CustomPainter {
   final List<_Cell> cells;
   final bool grid;
   final List<String> rowTexts;
-  final List<PlassChartCategory> columnNames;
+  final List<String> columnNames;
+  final PlDateNames names;
 
   /// How far in from the chart's own edge the cells start, in canvas
   /// coordinates. Named for the offset rather than for a side, because the
@@ -670,7 +682,7 @@ class _HeatmapPainter extends CustomPainter {
          written anywhere else, so the name comes first and the value only if
          there is still room under it. */
       final String value = write(cell.value.value ?? 0);
-      final String name = _cellName(cell.value, cell.index, columnNames);
+      final String name = _cellName(cell.value, cell.index, columnNames, names);
       final List<String> lines = grid
           ? (labelled ? <String>[value] : const <String>[])
           : (labelled ? <String>[name, value] : <String>[name]);
@@ -722,7 +734,7 @@ class _HeatmapPainter extends CustomPainter {
     final double slot = plotWidth / math.max(1, columns);
 
     for (int i = 0; i < columnNames.length; i += 1) {
-      final String text = columnNames[i].toString();
+      final String text = columnNames[i];
       // Every nth, chosen so the labels clear each other — the same answer the
       // cartesian axis gives, and never a rotated one.
       final int stride = math.max(1, ((textWidth(text, fontSize) + 8) / math.max(1, slot)).ceil());

@@ -243,6 +243,18 @@ PlassChartCategory categoryAt(
   return PlassChartCategory.number(index.toDouble());
 }
 
+/// A category as it is written on an axis, in a tooltip, in a legend and in a
+/// summary.
+///
+/// A moment is its short month and its day, `Mar 1`, as the React build writes
+/// one. [PlassChartCategory.toString] is the ISO timestamp, which is a value for
+/// a program rather than a label for a reader.
+String categoryText(PlassChartCategory category, PlDateNames names) {
+  final DateTime? date = category.date;
+
+  return date == null ? category.toString() : '${names.monthsShort[date.month - 1]} ${date.day}';
+}
+
 /// The two ends of a range, or `null` when there is nothing in it.
 class ChartExtent {
   /// Creates an extent.

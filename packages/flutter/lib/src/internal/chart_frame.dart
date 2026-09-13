@@ -23,6 +23,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/chart.dart';
+import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
@@ -572,6 +573,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
     final labels = PlassTheme.labelsOf(context);
+    final PlDateNames names = PlassTheme.defaultsOf(context).names ?? PlDateNames.english;
     final PlassSize size = _size;
     final double fontSize = chartFontSizes[size]!;
     final double height = widget.height ?? plotHeights[size]!;
@@ -665,7 +667,9 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
         // slot too narrow to cut a name to is left for the stride to thin out.
         final double slot = (width - valueBand - 16) / math.max(1, count);
         final List<String> categoryTexts = fitCategoryLabels(
-          <String>[for (final PlassChartCategory category in categories) category.toString()],
+          <String>[
+            for (final PlassChartCategory category in categories) categoryText(category, names),
+          ],
           horizontal: widget.horizontal,
           slot: slot,
           fontSize: fontSize,
@@ -909,6 +913,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
                         return _Tooltip(
                           layout: layout,
                           index: _activeIndex!,
+                          heading: categoryText(layout.categories[_activeIndex!], names),
                           pointer: pointer,
                           series: widget.series,
                           tokens: tokens,
@@ -1368,6 +1373,7 @@ class _Tooltip extends StatelessWidget {
   const _Tooltip({
     required this.layout,
     required this.index,
+    required this.heading,
     required this.pointer,
     required this.series,
     required this.tokens,
@@ -1377,6 +1383,7 @@ class _Tooltip extends StatelessWidget {
 
   final PlassChartLayout layout;
   final int index;
+  final String heading;
   final Offset pointer;
   final List<PlassChartSeries> series;
   final PlassTokens tokens;
@@ -1444,12 +1451,7 @@ class _Tooltip extends StatelessWidget {
       left: toTheStart ? null : pointer.dx + 14,
       right: toTheStart ? layout.plot.width + layout.plot.left - pointer.dx + 14 : null,
       top: math.max(0, pointer.dy - 20),
-      child: PlassChartTooltipCard(
-        tokens: tokens,
-        size: size,
-        heading: layout.categories[index].toString(),
-        children: rows,
-      ),
+      child: PlassChartTooltipCard(tokens: tokens, size: size, heading: heading, children: rows),
     );
   }
 }

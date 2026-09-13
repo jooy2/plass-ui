@@ -46,6 +46,22 @@ void main() {
       }
     });
 
+    testWidgets('names a slice that is a date by its day', (WidgetTester tester) async {
+      await _pump(
+        tester,
+        PlPieChart(
+          data: traffic,
+          categories: <PlassChartCategory>[
+            for (int i = 0; i < traffic.length; i += 1)
+              PlassChartCategory.date(DateTime(2026, 3, i + 1)),
+          ],
+        ),
+      );
+
+      expect(find.text('Mar 1'), findsOneWidget);
+      expect(find.textContaining('2026-03'), findsNothing);
+    });
+
     testWidgets('reads out every slice and its share', (WidgetTester tester) async {
       await _pump(tester, const PlPieChart(data: traffic, categories: sources));
 

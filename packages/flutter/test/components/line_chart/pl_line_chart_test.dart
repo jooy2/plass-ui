@@ -285,6 +285,26 @@ void main() {
         expect(painter(), isNot(same(first)));
       });
 
+      testWidgets('heads a date column with its day rather than a timestamp', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlLineChart(
+            series: series,
+            categories: <PlassChartCategory>[
+              for (int day = 1; day <= 4; day += 1) PlassChartCategory.date(DateTime(2026, 3, day)),
+            ],
+          ),
+        );
+
+        await tester.tapAt(tester.getTopLeft(find.byType(PlLineChart)) + const Offset(2, 60));
+        await tester.pump();
+
+        expect(find.text('Mar 1'), findsOneWidget);
+        expect(find.textContaining('2026-03'), findsNothing);
+      });
+
       testWidgets('shows none when it is hidden', (WidgetTester tester) async {
         await _pump(
           tester,

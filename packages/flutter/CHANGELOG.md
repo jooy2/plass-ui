@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **A chart writes a date category as a day.** A `PlassChartCategory.date` reached the axis, the tooltip, the pie's legend and the heatmap's columns and summary through `toString`, so a tooltip was headed `2026-03-01T00:00:00.000`. They now write the short month and the day, `Mar 1`, in the names of the theme's `PlDateNames`, as the React build does.
+
 - **A chart no longer rebuilds for every pixel the pointer moves.** `PlLineChart`, `PlBarChart`, `PlAreaChart`, `PlScatterChart` and `PlTimelineChart` stored the pointer in their state, so each move rebuilt and repainted the whole chart and wrote its summary out again, even inside one column or with no mark nearby. The pointer now only moves the tooltip, the chart is rebuilt when the active column or mark changes, and the summary is written again only when the data or a series' visibility does.
 
 - **`PlCombobox`'s list is as wide as its field.** It took the whole width of the screen, so beside a field that did not start at the left edge it ran off the right one. It now drops exactly as wide as the field, as the React build's does.
