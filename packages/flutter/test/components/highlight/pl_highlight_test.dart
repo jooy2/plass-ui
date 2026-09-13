@@ -156,6 +156,31 @@ void main() {
       });
     });
 
+    group('text size', () {
+      testWidgets('grows a mark with the reader\'s text size once, like the words around it', (
+        WidgetTester tester,
+      ) async {
+        Future<double> heightAt(double scale) async {
+          await tester.pumpWidget(
+            host(
+              MediaQuery.withClampedTextScaling(
+                minScaleFactor: scale,
+                maxScaleFactor: scale,
+                child: const PlHighlight('the quick fox', query: 'quick'),
+              ),
+              width: 400,
+            ),
+          );
+
+          return tester.getRect(find.text('quick')).height;
+        }
+
+        final double normal = await heightAt(1);
+
+        expect(await heightAt(2), moreOrLessEquals(normal * 2, epsilon: 0.5));
+      });
+    });
+
     group('accessibility', () {
       testWidgets('reads as the whole string it started as', (WidgetTester tester) async {
         final handle = tester.ensureSemantics();

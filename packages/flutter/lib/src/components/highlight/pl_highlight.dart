@@ -272,6 +272,10 @@ class PlHighlight extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: _markPadding),
           child: Text(
             matched,
+            // The paragraph already scales the widgets inside it by the
+            // reader's text size, so a scale here as well would draw the mark
+            // at that size twice over.
+            textScaler: TextScaler.noScaling,
             style: base.copyWith(
               color: ink,
               fontWeight: weight != null ? _weights[weight!] : null,

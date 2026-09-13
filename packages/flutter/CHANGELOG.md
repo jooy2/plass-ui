@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **A `PlHighlight` mark grows with the reader's text size once.** A mark is a widget inside the paragraph, and the paragraph already scales such a widget by the text size, but the mark's own text applied the scale again. At 200% the marked words were drawn at twice the size of the words around them and broke the line. The mark's text now leaves the scaling to the paragraph.
+
 - **A `PlCodeBlock` with a long run of spaces in its code no longer stalls.** The trailing whitespace was cut with a regular expression that retries from every space in a run followed by more text, on every build and every copy, so 20,000 spaces in a pasted log took about five seconds each time. It is now cut in one pass.
 
 - **A `PlTimelineChart` whose hours run over more than one day writes the date with each time.** An axis stepping in hours, minutes or seconds wrote only the time, so on a range of two days `09:00` could be either day, and the tooltip and the summary a screen reader reads wrote `09:00 – 17:00` with no day either. When the axis crosses midnight, every tick, the tooltip and the summary now write the date in front of the time. A range inside one day is unchanged.
