@@ -568,6 +568,20 @@ export function surfaceSlots(color: PlassColor, elevation: PlassElevation): Reac
  * ------------------------------------------------------------------------- */
 
 /**
+ * The edge a surface that is only a fill gets back in forced-colours mode.
+ *
+ * Windows' contrast themes drop every background image and box shadow, so a
+ * `solid` button — a gradient with no border — is left as a label floating on
+ * the page, and a `solid` field as a caret with no box around it. A border in a
+ * system colour gives both their shape back. Nothing changes outside that mode.
+ */
+export const forcedEdgeClasses = 'forced-colors:border forced-colors:[border-color:ButtonText]';
+
+/** The same for a field, in the colour the system draws a field's text. */
+export const forcedFieldEdgeClasses =
+  'forced-colors:border forced-colors:[border-color:CanvasText]';
+
+/**
  * Disabled is **the light going out.** The key keeps its shape, its colour and
  * its place in the layout, and stops catching any light: no gloss, no tinted
  * lift, no shadow, most of the saturation gone and half the opacity with it.
@@ -582,7 +596,8 @@ export function surfaceSlots(color: PlassColor, elevation: PlassElevation): Reac
 export const disabledClasses: Record<PlassVariant, string> = {
   solid: /* @__PURE__ */ [
     'cursor-not-allowed text-(--p-on-solid) [background-image:var(--p-fill)]',
-    'opacity-50 saturate-[0.35] shadow-none'
+    'opacity-50 saturate-[0.35] shadow-none',
+    'forced-colors:border forced-colors:[border-color:GrayText]'
   ].join(' '),
   glass: /* @__PURE__ */ [
     glassClasses,
@@ -668,6 +683,7 @@ export const fieldRestClasses: Record<PlassVariant, string> = {
     glassClasses,
     'text-(--plass-fg) bg-(--plass-glass-press)',
     '[box-shadow:var(--p-elev),var(--plass-well)]',
+    forcedFieldEdgeClasses,
     'hover:bg-(--plass-glass-hover)',
     'focus-within:bg-(--plass-glass-press)'
   ].join(' '),
@@ -693,6 +709,7 @@ export const fieldReadOnlyClasses: Record<PlassVariant, string> = {
   solid: /* @__PURE__ */ [
     glassClasses,
     'text-(--plass-fg) bg-(--plass-glass-press)',
+    forcedFieldEdgeClasses,
     `[box-shadow:var(--plass-well)] ${readOnlyFilterClasses}`
   ].join(' '),
   glass: /* @__PURE__ */ [

@@ -121,7 +121,19 @@ const trackBaseClasses = /* @__PURE__ */ [
  * them the two disagreed, and every switch in the library sat 2px from its
  * track on the left and 4px from it on the right.
  */
+/**
+ * A switch in forced-colours mode, where the track's tone and the fill are both
+ * dropped and on and off would look the same. The track gets an edge, and the
+ * one that is on is filled with the system's highlight, with the thumb in the
+ * colour drawn on a highlight.
+ */
+const forcedTrackClasses = /* @__PURE__ */ [
+  'forced-colors:border forced-colors:[border-color:CanvasText]',
+  'forced-colors:data-[checked]:[forced-color-adjust:none] forced-colors:data-[checked]:[background-color:Highlight]'
+].join(' ');
+
 const restTrackClasses = /* @__PURE__ */ [
+  forcedTrackClasses,
   'cursor-pointer bg-(--plass-track)',
   'hover:brightness-[0.97] dark:hover:brightness-110',
   'data-[checked]:[background-image:var(--p-fill)]',
@@ -129,12 +141,14 @@ const restTrackClasses = /* @__PURE__ */ [
 ].join(' ');
 
 const readOnlyTrackClasses = /* @__PURE__ */ [
+  forcedTrackClasses,
   'cursor-default bg-(--plass-track) saturate-[0.55]',
   'data-[checked]:[background-image:var(--p-fill)]',
   'data-[checked]:shadow-none'
 ].join(' ');
 
 const disabledTrackClasses = /* @__PURE__ */ [
+  'forced-colors:border forced-colors:[border-color:GrayText]',
   'cursor-not-allowed bg-(--plass-track)',
   'opacity-50 saturate-[0.35] shadow-none',
   'data-[checked]:[background-image:var(--p-fill)]'
@@ -156,6 +170,9 @@ const thumbClasses = /* @__PURE__ */ [
   // the same way every platform's own switch behaves.
   'absolute inset-y-0.5 start-0.5 aspect-square rounded-full bg-white',
   '[box-shadow:0_1px_2px_rgb(20_40_90/0.25)]',
+  // Kept its own colour in forced-colours mode, or the system paints it the
+  // page's and the thumb disappears into the track.
+  'forced-colors:[forced-color-adjust:none] forced-colors:[background-color:CanvasText] forced-colors:data-[checked]:[background-color:HighlightText]',
   '[transition:inset-inline-start_var(--plass-duration)_var(--plass-ease)]'
 ].join(' ');
 

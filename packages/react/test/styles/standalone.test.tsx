@@ -32,6 +32,7 @@ import {
   PlLineChart,
   PlScatterChart,
   PlStack,
+  PlSwitch,
   PlTextField
 } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
@@ -84,6 +85,49 @@ function contrast(one: number[], two: number[]): number {
   const [light, dark] = [luminance(one), luminance(two)].sort((x, y) => y - x);
 
   return (light + 0.05) / (dark + 0.05);
+}
+
+/**
+ * The declarations the stylesheet gives `element` in forced-colours mode.
+ *
+ * No browser in the matrix can be put in that mode from a test, so what is read
+ * is the rules that would apply in it: every style rule the element matches,
+ * inside `@media (forced-colors: active)`, whether the media query wraps the
+ * rule or is nested in it.
+ */
+function forcedColorDeclarations(element: Element): string {
+  const found: string[] = [];
+
+  const matches = (selector: string) => {
+    try {
+      return element.matches(selector);
+    } catch {
+      return false;
+    }
+  };
+
+  const walk = (rules: CSSRuleList, forced: boolean, parent: string | null) => {
+    for (const rule of Array.from(rules)) {
+      if (rule instanceof CSSMediaRule) {
+        walk(rule.cssRules, forced || rule.conditionText.includes('forced-colors'), parent);
+      } else if (rule instanceof CSSStyleRule) {
+        const selector = parent ? rule.selectorText.replace(/&/g, parent) : rule.selectorText;
+
+        if (forced && matches(selector)) {
+          found.push(rule.style.cssText);
+        }
+
+        walk(rule.cssRules, forced, selector);
+      } else if (forced && parent && 'style' in rule && matches(parent)) {
+        // A declaration block nested straight inside the media query.
+        found.push((rule as CSSStyleRule).style.cssText);
+      }
+    }
+  };
+
+  walk(sheet.sheet!.cssRules, false, null);
+
+  return found.join(' ').toLowerCase();
 }
 
 describe('plass-ui/styles.css', () => {
@@ -473,6 +517,38 @@ describe('plass-ui/styles.css', () => {
    * nothing, because its declaration sits under a selector no chart matches.
    * Neither asserts a shade — only that something arrived.
    */
+  describe('forced-colours mode', () => {
+    it('gives a solid button and a solid field an edge the system draws', async () => {
+      const screen = await render(
+        <>
+          <PlButton variant="solid">Save</PlButton>
+          <PlTextField variant="solid" label="Email" />
+        </>
+      );
+
+      const button = forcedColorDeclarations(screen.getByRole('button').element());
+      const shell = forcedColorDeclarations(
+        screen.getByRole('textbox').element().parentElement as HTMLElement
+      );
+
+      expect(button).toContain('border-width');
+      expect(button).toContain('border-color: buttontext');
+      expect(shell).toContain('border-color: canvastext');
+    });
+
+    it('tells a switch that is on from one that is off', async () => {
+      const screen = await render(<PlSwitch label="Wi-Fi" defaultChecked />);
+      const track = screen.getByRole('switch').element();
+
+      await expect.element(screen.getByRole('switch')).toBeChecked();
+
+      const declarations = forcedColorDeclarations(track);
+
+      expect(declarations).toContain('background-color: highlight');
+      expect(declarations).toContain('forced-color-adjust: none');
+    });
+  });
+
   describe('a chart’s own colours', () => {
     const painted = (element: Element, selector: string, property: 'fill' | 'stroke') => [
       ...new Set(

@@ -13,6 +13,7 @@ import {
   controlTextClasses,
   disabledClasses,
   focusRingClasses,
+  forcedEdgeClasses,
   gapClasses,
   glassClasses,
   hasContent,
@@ -113,7 +114,8 @@ const baseClasses = /* @__PURE__ */ [
 const restClasses: Record<PlassVariant, string> = {
   solid: /* @__PURE__ */ [
     'text-(--p-on-solid) [background-image:var(--p-fill)]',
-    '[box-shadow:var(--p-elev),var(--p-lift)]'
+    '[box-shadow:var(--p-elev),var(--p-lift)]',
+    forcedEdgeClasses
   ].join(' '),
   glass: /* @__PURE__ */ [
     glassClasses,
