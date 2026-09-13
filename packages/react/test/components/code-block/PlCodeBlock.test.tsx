@@ -336,6 +336,25 @@ describe('PlCodeBlock', () => {
       expect(lines()).toEqual(['const answer = 42;', 'console.log(answer);']);
     });
 
+    it('never draws the last code under new code while the new grammar loads', async () => {
+      const screen = await render(<PlCodeBlock code={code} language="ts" title="a.ts" />);
+
+      await expect.poll(() => document.querySelector('.hljs-keyword')?.textContent).toBe('const');
+
+      // Every frame the block goes through on its way to the new colours.
+      const frames: string[] = [];
+      const observer = new MutationObserver(() => frames.push(screen.container.textContent ?? ''));
+
+      observer.observe(screen.container, { subtree: true, childList: true, characterData: true });
+      await screen.rerender(<PlCodeBlock code="def f(): pass" language="python" title="b.py" />);
+      await expect.poll(() => document.querySelector('.hljs-keyword')?.textContent).toBe('def');
+      observer.disconnect();
+
+      expect(frames.filter((frame) => frame.includes('b.py') && frame.includes('answer'))).toEqual(
+        []
+      );
+    });
+
     it('keeps a token that spans two lines coloured on both', async () => {
       await render(<PlCodeBlock code={'/* one\n   two */\nconst a = 1;'} language="ts" />);
 

@@ -426,7 +426,14 @@ export const PlCodeBlock = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCo
 
     const [raw, setRaw] = React.useState(false);
     const [copied, setCopied] = React.useState<boolean | null>(null);
-    const [coloured, setColoured] = React.useState<PlCodeLine[] | null>(null);
+    // Kept with the code and the language it was made from, so a block handed
+    // new code draws that code plain while its grammar loads rather than the
+    // last code's colours under the new title.
+    const [coloured, setColoured] = React.useState<{
+      source: string;
+      name: string;
+      lines: PlCodeLine[];
+    } | null>(null);
 
     const wanted = highlight && !raw && name !== null;
 
@@ -450,7 +457,7 @@ export const PlCodeBlock = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCo
       highlightCode(source, name).then(
         (lines) => {
           if (!cancelled) {
-            setColoured(lines);
+            setColoured(lines ? { source, name, lines } : null);
           }
         },
         () => {
@@ -466,8 +473,11 @@ export const PlCodeBlock = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCo
     }, [source, name, wanted]);
 
     const lines = React.useMemo(
-      () => (wanted && coloured ? coloured : plainLines(source)),
-      [wanted, coloured, source]
+      () =>
+        wanted && coloured && coloured.source === source && coloured.name === name
+          ? coloured.lines
+          : plainLines(source),
+      [wanted, coloured, source, name]
     );
 
     /** Wide enough for the last number, so the gutter does not step as it scrolls. */

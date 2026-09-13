@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **A `PlCodeBlock` handed new `code` or a new `language` stops drawing the last code.** The colours were kept without the code they were made from, so switching a block from a TypeScript file to a Python one drew the TypeScript lines under the new title until the Python grammar had loaded, while the copy button already copied the Python. The new code is now drawn plain until its own colours are ready.
+
 - **A `PlTimelineChart` whose hours run over more than one day writes the date with each time.** An axis stepping in hours, minutes or seconds wrote only the time, so on a range of two days `09:00` could be either day, and the tooltip and the table wrote `09:00 – 17:00` with no day either. When the axis crosses midnight, every tick, the tooltip and the table now write the date in front of the time. A range inside one day is unchanged.
 
 - **A treemap's hidden table names each tile under its own group.** `PlHeatmapChart` with `shape="treemap"` wrote its data table as a grid, with the first group's tile names as the column headings, so a screen reader heard the second group's tiles under the first group's names: "Tooling, Servers, 400". The table is now a group of rows per series, headed by the group's name, with a row per tile giving its own name and value.
