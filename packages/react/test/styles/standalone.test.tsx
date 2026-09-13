@@ -20,11 +20,15 @@
  * `border-radius` that is *not zero*, a background that is *not transparent*.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import {
   PlButton,
   PlChip,
+  PlFlex,
   PlGallery,
+  PlGrid,
+  PlGridItem,
   PlLineChart,
   PlScatterChart,
   PlStack,
@@ -306,6 +310,55 @@ describe('plass-ui/styles.css', () => {
       ]) {
         expect(token(document.documentElement, `--plass-breakpoint-${rung}`)).toBe(width);
       }
+    });
+  });
+
+  describe('a responsive layout inside another', () => {
+    let viewport: [number, number];
+
+    beforeAll(async () => {
+      viewport = [window.innerWidth, window.innerHeight];
+      // Wide enough for `md`, the rung the outer layouts below name and the
+      // inner ones do not.
+      await page.viewport(900, 700);
+    });
+
+    afterAll(async () => {
+      await page.viewport(...viewport);
+    });
+
+    it('keeps its own direction rather than the rungs its parent named', async () => {
+      const screen = await render(
+        <PlFlex data-testid="outer" direction={{ xs: 'vertical', md: 'horizontal' }}>
+          <PlFlex data-testid="inner" direction="vertical">
+            <span>One</span>
+            <span>Two</span>
+          </PlFlex>
+        </PlFlex>
+      );
+
+      const outer = screen.getByTestId('outer').element();
+      const inner = screen.getByTestId('inner').element();
+
+      await expect.poll(() => getComputedStyle(outer).flexDirection).toBe('row');
+      expect(getComputedStyle(inner).flexDirection).toBe('column');
+    });
+
+    it('spans the whole of its own grid rather than its parent cell’s span', async () => {
+      const screen = await render(
+        <PlGrid>
+          <PlGridItem span={{ xs: 12, md: 8 }}>
+            <PlGrid data-testid="inner-grid">
+              <PlGridItem data-testid="inner-item">Whole row</PlGridItem>
+            </PlGrid>
+          </PlGridItem>
+        </PlGrid>
+      );
+
+      const grid = screen.getByTestId('inner-grid').element() as HTMLElement;
+      const item = screen.getByTestId('inner-item').element() as HTMLElement;
+
+      await expect.poll(() => Math.abs(item.offsetWidth - grid.clientWidth)).toBeLessThan(1);
     });
   });
 

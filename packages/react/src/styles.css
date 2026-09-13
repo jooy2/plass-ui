@@ -1191,6 +1191,190 @@
  * drift.
  * ------------------------------------------------------------------------- */
 
+/*
+ * The per-breakpoint slots do not inherit. Each one is written inline on the
+ * element that reads it, and a custom property is inherited by default, so a
+ * `PlFlex` nested in another took every rung its parent named and it did not:
+ * a vertical flex inside `{ xs: 'vertical', md: 'horizontal' }` turned
+ * horizontal at `md`, and a `PlGridItem` with no `span` inside a cell of eight
+ * was eight columns wide. The slots they resolve into (`--p-cols`, `--p-gap-x`)
+ * still inherit, which is how a grid item reads its grid.
+ */
+@property --p-gap-x-xs {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-gap-x-sm {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-gap-x-md {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-gap-x-lg {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-gap-x-xl {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-gap-y-xs {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-gap-y-sm {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-gap-y-md {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-gap-y-lg {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-gap-y-xl {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-cols-xs {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-cols-sm {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-cols-md {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-cols-lg {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-cols-xl {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-dir-xs {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-dir-sm {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-dir-md {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-dir-lg {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-dir-xl {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-span-xs {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-span-sm {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-span-md {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-span-lg {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-span-xl {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-offset-xs {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-offset-sm {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-offset-md {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-offset-lg {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-offset-xl {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-maxw-xs {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-maxw-sm {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-maxw-md {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-maxw-lg {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-maxw-xl {
+  syntax: '*';
+  inherits: false;
+}
+
 .plass-grid,
 .plass-flex {
   --p-gap-x: var(--p-gap-x-xs, 0px);
