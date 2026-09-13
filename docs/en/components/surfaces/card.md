@@ -218,7 +218,7 @@ Moves the radius, the type scale and the inner padding together. Unlike a contro
 ::: fw flutter
 
 - A card with no `onPressed` adds no role and takes no focus stop, which is correct for a container.
-- `title` is styled as the title and is not announced as a heading. Wrap it in a `Semantics(header: true, …)` when the card belongs in the screen's outline; the typography is the card's either way.
+- `title` is styled as the title and is not announced as a heading. Give it a `headingLevel` when the card belongs in the screen's outline, `2` for a card under the screen's main heading; the typography is the card's either way. A pressable card is a button, and its title is the button's name rather than a heading inside it, so the level is not applied to one.
 - `interactive` is a visual state. It adds no role, no focus stop and no key handling. Use `onPressed` when the card is genuinely something you press.
 - The focus ring only appears on what CSS calls `:focus-visible` (a keyboard reaching the card, never a pointer clicking it), and traces the sheet's own edge.
 
@@ -232,7 +232,7 @@ Moves the radius, the type scale and the inner padding together. Unlike a contro
 | --- | --- | --- |
 | `render` | `onPressed` | Flutter has no polymorphic element, and the thing `render` was mostly used for, making the card real, is what `onPressed` does directly. An action that navigates calls your router from it. |
 | a fragment in `footer` | one widget | There is no fragment to lay out, so a footer with several things in it brings its own `Row` or `Wrap`. |
-| `title={<h2>…</h2>}` | `Semantics(header: true, …)` | Flutter's semantics tree has one heading flag and no depth to go with it. |
+| `title={<h2>…</h2>}` | `headingLevel: 2` | `title` is a widget rather than an element, so its depth in the outline is a parameter beside it. |
 | `children` | `child` | Flutter's name. |
 | `overflow-hidden` beside `padded={false}` | — | The sheet already clips to its own radius. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |

@@ -10,6 +10,8 @@
 
 ### Added
 
+- **`PlCard` takes a `headingLevel`.** The title's depth in the screen's outline, `1` to `6`, which is what `title={<h2>…</h2>}` gives a card in the React build. Left out, the title is not a heading, as before. A pressable card is a button whose title is its name, so the level is not applied to one.
+
 - **Ten words join the label packs**, for the strings that were written into a widget in English with no way to translate them but a parameter: `acknowledge` (the OK on `PlConfirmProvider`'s alert), `optional` (for `PlStep.optional`, which takes a widget), `sidebarOpen` (`PlSidebarTrigger`), `spoilerWarning` (`PlSpoiler`), `filePickerTitle` (`PlFilePicker`), and the five words a `PlChatBubble`'s mark says, `messageSending`, `messageSent`, `messageDelivered`, `messageRead` and `messageFailed`. All seven packs translate them. `PlConfirmProvider.acknowledgeLabel` is now nullable and falls back to the pack.
 
 - **`label` on `PlModal` and `PlDrawer`**, the name a screen reader announces the layer with when it opens. `title` is a widget and has no text to hand over, so both layers used to open with no name at all. It is the same parameter `PlOverlay` and `PlCommandPalette` already have.
@@ -183,6 +185,8 @@
 - **`PlSpoiler` no longer changes height when it is uncovered.** The cover is a line of explanation and a button, so it is routinely taller than the text it covers — and it was taken out of the layout on reveal, which collapsed the sheet to its content and pushed the whole page below it up. Covering it again pushed everything back down. The cover now keeps its place in the stack and is held hidden with `Visibility(maintainSize: true)` and `ExcludeFocus`, exactly as the `reversible` hide row already was, so the sheet measures the same in both states and the hidden cover is off the semantics tree. A `maxHeight` clamp is still released on reveal, which is the one thing that may resize it.
 
 ### Documentation
+
+- **The card page no longer says Flutter has no heading depth.** Its differences table said Flutter's semantics tree has a heading flag and no depth, but `Semantics.headingLevel` exists, and `PlTypography` already uses it. The table and the Accessibility section now point to `PlCard.headingLevel`.
 
 - **The code block page no longer promises Flutter a focusable code region.** Its Accessibility section said, for both packages, that the code is a focus stop named after `title`, that Mod+A selects only the block, and that the line numbers stay out of the selection. All three are React behaviour. The Flutter half now says what the widget does: the code is a semantics node named after `codeLabel`, the language or the word for code, with no focus stop and no select-all of its own.
 

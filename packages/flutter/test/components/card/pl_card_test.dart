@@ -1,3 +1,4 @@
+import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -62,6 +63,50 @@ void main() {
         );
 
         expect(styleOf(tester, 'Visa').color, PlassTokens.light().mutedFg);
+      });
+    });
+
+    group('the title in the outline', () {
+      testWidgets('is not a heading until it is given a level', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(host(const PlCard(title: Text('Billing')), width: 360));
+
+        expect(tester.getSemantics(find.text('Billing')), isSemantics(isHeader: false));
+
+        handle.dispose();
+      });
+
+      testWidgets('is a heading of the level it is given', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(const PlCard(title: Text('Billing'), headingLevel: 2), width: 360),
+        );
+
+        final SemanticsData title = tester.getSemantics(find.text('Billing')).getSemanticsData();
+
+        expect(tester.getSemantics(find.text('Billing')), isSemantics(isHeader: true));
+        expect(title.headingLevel, 2);
+
+        handle.dispose();
+      });
+
+      testWidgets('stays the name of a pressable card rather than a heading inside it', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(PlCard(title: const Text('Billing'), headingLevel: 2, onPressed: () {}), width: 360),
+        );
+
+        expect(
+          tester.getSemantics(find.text('Billing')),
+          isSemantics(isButton: true, isHeader: false, label: 'Billing'),
+        );
+
+        handle.dispose();
       });
     });
 

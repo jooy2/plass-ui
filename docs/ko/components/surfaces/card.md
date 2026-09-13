@@ -218,7 +218,7 @@ PlCard(
 ::: fw flutter
 
 - `onPressed`가 없는 카드는 role도 focus stop도 더하지 않습니다. 컨테이너에는 이것이 맞습니다.
-- `title`은 제목의 서식을 받을 뿐 heading으로 알려지지는 않습니다. 카드가 화면의 개요에 들어가야 하면 `Semantics(header: true, …)`로 감싸세요. 타이포그래피는 어느 쪽이든 카드의 것입니다.
+- `title`은 제목의 서식을 받을 뿐 heading으로 알려지지는 않습니다. 카드가 화면의 개요에 들어가야 하면 `headingLevel`을 주세요. 화면의 주 제목 아래 카드라면 `2`입니다. 타이포그래피는 어느 쪽이든 카드의 것입니다. 누를 수 있는 카드는 버튼이고 그 제목은 버튼 안의 heading이 아니라 버튼의 이름이므로, 이런 카드에는 수준을 적용하지 않습니다.
 - `interactive`는 시각적인 상태일 뿐입니다. role도, focus stop도, 키 처리도 붙지 않습니다. 실제로 누르는 카드라면 `onPressed`를 쓰세요.
 - focus ring은 CSS가 `:focus-visible`이라고 부르는 것(키보드가 카드에 닿았을 때에만 나타나고, 포인터 클릭에는 절대 나타나지 않습니다) 그리고 시트의 테두리를 따라갑니다.
 
@@ -232,7 +232,7 @@ PlCard(
 | --- | --- | --- |
 | `render` | `onPressed` | Flutter에는 요소를 바꿔 끼우는 수단이 없고, `render`를 주로 찾게 되는 이유(카드를 진짜로 만드는 것)은 `onPressed`가 곧바로 합니다. 이동하는 액션은 거기서 라우터를 부릅니다. |
 | `footer`의 조각(fragment) | 위젯 하나 | 배치할 조각이 없으니, 여러 개가 든 푸터는 자기 `Row`나 `Wrap`을 가져옵니다. |
-| `title={<h2>…</h2>}` | `Semantics(header: true, …)` | Flutter의 semantics 트리에는 heading 플래그가 하나 있을 뿐 깊이가 없습니다. |
+| `title={<h2>…</h2>}` | `headingLevel: 2` | `title`이 요소가 아니라 위젯이라, 개요에서의 깊이를 옆의 파라미터로 받습니다. |
 | `children` | `child` | Flutter의 이름입니다. |
 | `padded={false}` 옆의 `overflow-hidden` | — | 시트가 이미 자기 반경으로 잘라냅니다. |
 | `className`, `style` | — | 전달할 클래스 목록도 style 속성도 없습니다. |

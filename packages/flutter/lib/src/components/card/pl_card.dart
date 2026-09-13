@@ -45,6 +45,7 @@ class PlCard extends StatelessWidget {
   const PlCard({
     this.child,
     this.title,
+    this.headingLevel,
     this.subtitle,
     this.headerAction,
     this.footer,
@@ -64,6 +65,10 @@ class PlCard extends StatelessWidget {
   }) : assert(
          elevation >= plassElevationMin && elevation <= plassElevationMax,
          'elevation must be between $plassElevationMin and $plassElevationMax',
+       ),
+       assert(
+         headingLevel == null || (headingLevel >= 1 && headingLevel <= 6),
+         'headingLevel must be between 1 and 6',
        );
 
   /// The card's body.
@@ -71,10 +76,20 @@ class PlCard extends StatelessWidget {
 
   /// The card's heading.
   ///
-  /// Styled as the title. Wrap it in a `Semantics(header: true, …)` when the
-  /// card belongs in the screen's outline — the typography is the card's either
-  /// way.
+  /// Styled as the title, and a heading only when [headingLevel] says how deep
+  /// in the screen's outline it is.
   final Widget? title;
+
+  /// The title's depth in the screen's outline, `1` to `6`.
+  ///
+  /// Left out, the title is styled as the title and is not a heading. Set it
+  /// when the card belongs in the outline: `2` for a card under the screen's
+  /// main heading, as `title={<h2>…</h2>}` is in the React build. The typography
+  /// is the card's either way.
+  ///
+  /// A pressable card is a button, and its title is the button's name rather
+  /// than a heading inside it, so the level is not applied to one.
+  final int? headingLevel;
 
   /// A second line under the title, one step down the type scale and muted.
   final Widget? subtitle;
@@ -269,7 +284,12 @@ class PlCard extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                           leadingDistribution: TextLeadingDistribution.even,
                         ),
-                        child: title!,
+                        // What an `<h2>` buys on the web: a screen reader can
+                        // list the headings on a screen, jump between them, and
+                        // tell a section from the one inside it by its level.
+                        child: headingLevel == null || onPressed != null
+                            ? title!
+                            : Semantics(header: true, headingLevel: headingLevel, child: title!),
                       ),
                     if (subtitle != null)
                       DefaultTextStyle.merge(

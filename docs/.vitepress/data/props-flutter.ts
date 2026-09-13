@@ -1044,6 +1044,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlCard', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
     from('PlCard', 'elevation', { type: 'int', default: '1' }),
     from('PlCard', 'title', { type: 'Widget?' }),
+    {
+      name: 'headingLevel',
+      type: 'int?',
+      description: {
+        ko: '제목이 화면 개요에서 가지는 깊이, 1부터 6까지. 없으면 제목은 heading이 아닙니다. 누를 수 있는 카드에는 적용하지 않습니다',
+        en: "The title's depth in the screen's outline, 1 to 6. Left out, the title is not a heading. Not applied to a pressable card"
+      }
+    },
     from('PlCard', 'subtitle', { type: 'Widget?' }),
     from('PlCard', 'headerAction', { type: 'Widget?' }),
     from('PlCard', 'footer', {
