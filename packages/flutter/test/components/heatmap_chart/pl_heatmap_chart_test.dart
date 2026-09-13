@@ -49,6 +49,32 @@ void main() {
       expect(node.value, contains('Wed: 09 1'));
     });
 
+    testWidgets('names a treemap tile after its own point rather than the first group', (
+      WidgetTester tester,
+    ) async {
+      PlassChartDatum at(String name, double value) =>
+          PlassChartDatum.point(PlassChartPoint(x: PlassChartCategory.text(name), y: value));
+
+      await _pump(
+        tester,
+        PlHeatmapChart(
+          shape: PlHeatmapShape.treemap,
+          series: <PlassChartSeries>[
+            PlassChartSeries(
+              name: 'Infrastructure',
+              data: <PlassChartDatum>[at('Compute', 4), at('Storage', 2)],
+            ),
+            PlassChartSeries(name: 'Tooling', data: <PlassChartDatum>[at('CI', 3)]),
+          ],
+        ),
+      );
+
+      final SemanticsNode node = tester.getSemantics(find.bySemanticsLabel('Chart'));
+
+      expect(node.value, contains('Tooling: CI 3'));
+      expect(node.value, isNot(contains('Tooling: Compute')));
+    });
+
     testWidgets('leaves a gap out of the reading', (WidgetTester tester) async {
       await _pump(
         tester,

@@ -36,6 +36,8 @@
 
 ### Fixed
 
+- **A `PlHeatmapChart` treemap names each tile after its own point.** A tile's name was read from the column at its index, which on a treemap is the name of the tile in that place in the first group, so every other group's tiles, their tooltips and the screen reader summary borrowed the first group's names.
+
 - **A series that starts `hidden` can be switched back on from the legend.** The chart kept reading `hidden` as well as the legend's own switches, so pressing the entry changed nothing. `hidden` now only sets where a series starts, as it does in the React build.
 
 - **A narrow cartesian chart writes its category names whole again.** Every name was cut to its slot, so on a phone twelve months read `J…`, `F…` and thirty days read `…`, and the value ticks of a `PlScatterChart` were cut too. As in the React build, a name is now cut only when the slot has room for about four characters, a narrower axis thins its labels out instead, and a tick is never cut.

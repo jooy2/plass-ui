@@ -356,7 +356,8 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> {
                         size: size,
                         // Both coordinates, which is what a cell *is*. The row
                         // underneath then has only the number left to carry.
-                        heading: '${rowNames[_active!.row]} · ${columnNames[_active!.index]}',
+                        heading:
+                            '${rowNames[_active!.row]} · ${_cellName(shown.value, _active!.index, columnNames)}',
                         children: <Widget>[
                           Padding(
                             padding: const EdgeInsets.only(top: 2),
@@ -518,7 +519,7 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> {
           continue;
         }
 
-        final String name = i < columnNames.length ? columnNames[i].toString() : '$i';
+        final String name = _cellName(values[row][i], i, columnNames);
 
         cells.add('$name ${_write(value)}');
       }
@@ -530,6 +531,18 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> {
 
     return rows.join('. ');
   }
+}
+
+/// What a cell is called: its own `x` when the point carries one, and the
+/// column's name otherwise.
+///
+/// The point comes first because a treemap has no columns. Its tiles are named
+/// series by series, so the column at a tile's index is the name of the tile in
+/// that place in the *first* group, and every other group would borrow it. The
+/// React build reads `cell.x` first for the same reason.
+String _cellName(ChartValue value, int index, List<PlassChartCategory> columnNames) {
+  return value.x?.toString() ??
+      (index < columnNames.length ? columnNames[index].toString() : '$index');
 }
 
 /// How far the further arm of a diverging scale reaches from its middle.
@@ -657,9 +670,7 @@ class _HeatmapPainter extends CustomPainter {
          written anywhere else, so the name comes first and the value only if
          there is still room under it. */
       final String value = write(cell.value.value ?? 0);
-      final String name = cell.index < columnNames.length
-          ? columnNames[cell.index].toString()
-          : '${cell.index}';
+      final String name = _cellName(cell.value, cell.index, columnNames);
       final List<String> lines = grid
           ? (labelled ? <String>[value] : const <String>[])
           : (labelled ? <String>[name, value] : <String>[name]);
