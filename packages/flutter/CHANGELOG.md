@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **A `PlNumberField` with `allowWheelScrub` keeps the wheel to itself.** A wheel turned over the focused field stepped the value and scrolled the page under it too, which carried the field away from the pointer, and a sideways wheel stepped the value up. The field now claims an up or down turn so nothing behind it scrolls, and leaves a sideways one alone.
+
 - **An `extended` `PlFloatingActionButton` says its label once.** The words drawn on the key were given to it as a semantic label as well, and the two were merged, so a screen reader announced "New project, New project". The drawn words are now the whole name.
 
 - **A `PlForm` checks every change after a submit, as `onSubmit` says.** The default `validationMode` never validated after the first submit either, so a field that failed kept its message while the reader corrected it, until they pressed submit again. From the first submit on, each change to a field is checked, and a corrected field loses its message at once.

@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,6 +21,7 @@ class _Harness extends StatefulWidget {
     this.disabled = false,
     this.format,
     this.onCommitted,
+    this.allowWheelScrub = false,
   });
 
   final double? value;
@@ -32,6 +34,7 @@ class _Harness extends StatefulWidget {
   final bool disabled;
   final String Function(double value)? format;
   final ValueChanged<double?>? onCommitted;
+  final bool allowWheelScrub;
 
   @override
   State<_Harness> createState() => _HarnessState();
@@ -55,6 +58,7 @@ class _HarnessState extends State<_Harness> {
       disabled: widget.disabled,
       format: widget.format,
       onCommitted: widget.onCommitted,
+      allowWheelScrub: widget.allowWheelScrub,
       onChanged: (double? next) => setState(() => _value = next),
     );
   }
@@ -174,6 +178,50 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.home);
         await tester.pump();
         expect(state.value, 0);
+      });
+
+      testWidgets('the wheel steps a focused field and leaves the page where it is', (
+        WidgetTester tester,
+      ) async {
+        final ScrollController page = ScrollController();
+        addTearDown(page.dispose);
+
+        await tester.pumpWidget(
+          host(
+            ListView(
+              controller: page,
+              children: const <Widget>[
+                SizedBox(height: 100),
+                _Harness(value: 5, allowWheelScrub: true),
+                SizedBox(height: 2000),
+              ],
+            ),
+            width: 320,
+            height: 400,
+          ),
+        );
+        final _HarnessState state = tester.state<_HarnessState>(find.byType(_Harness));
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pump();
+
+        final TestPointer mouse = TestPointer(1, PointerDeviceKind.mouse);
+        final Offset over = tester.getCenter(find.byType(EditableText));
+
+        await tester.sendEventToBinding(mouse.hover(over));
+        await tester.sendEventToBinding(mouse.scroll(const Offset(0, 40)));
+        await tester.pump();
+
+        expect(state.value, 4);
+        // The wheel was spoken for by the field. A page that scrolled as well
+        // would move the field out from under the pointer turning it.
+        expect(page.offset, 0);
+
+        // A sideways wheel says nothing about more or less.
+        await tester.sendEventToBinding(mouse.scroll(const Offset(40, 0)));
+        await tester.pump();
+
+        expect(state.value, 4);
       });
 
       testWidgets('snaps to a multiple of the step when asked', (WidgetTester tester) async {

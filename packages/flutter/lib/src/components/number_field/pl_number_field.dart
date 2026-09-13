@@ -783,7 +783,19 @@ class _PlNumberFieldState extends State<PlNumberField> {
             return;
           }
 
-          _step(event.scrollDelta.dy > 0 ? -1 : 1);
+          // Only a wheel turned up or down means more or less. A sideways one
+          // is left to whatever scrolls sideways.
+          final double dy = event.scrollDelta.dy;
+
+          if (dy == 0) {
+            return;
+          }
+
+          // Claimed through the resolver, so the page under the field does not
+          // scroll on the same turn and carry the field away from the pointer.
+          GestureBinding.instance.pointerSignalResolver.register(event, (PointerSignalEvent _) {
+            _step(dy > 0 ? -1 : 1);
+          });
         },
         child: shell,
       );
