@@ -196,6 +196,19 @@ describe('PlassProvider', () => {
       await expect.element(screen.getByRole('button', { name: '다음 달' })).toBeInTheDocument();
     });
 
+    it('a nested provider changes the words it names and keeps the rest', async () => {
+      const screen = await render(
+        <PlassProvider labels={{ nextMonth: '다음 달', previousMonth: '이전 달' }}>
+          <PlassProvider labels={{ nextMonth: '한 달 뒤' }}>
+            <PlCalendar locale="ko-KR" defaultMonth={new Date(2026, 6, 1)} />
+          </PlassProvider>
+        </PlassProvider>
+      );
+
+      await expect.element(screen.getByRole('button', { name: '한 달 뒤' })).toBeInTheDocument();
+      await expect.element(screen.getByRole('button', { name: '이전 달' })).toBeInTheDocument();
+    });
+
     it("a component's own labels win over the provider's", async () => {
       const screen = await render(
         <PlassProvider labels={{ nextMonth: '다음 달' }}>

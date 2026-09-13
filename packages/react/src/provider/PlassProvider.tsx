@@ -66,7 +66,9 @@ export function PlassProvider({
       density: density ?? outer.density,
       locale: locale ?? outer.locale,
       weekStartsOn: weekStartsOn ?? outer.weekStartsOn,
-      labels: labels ?? outer.labels,
+      // Per word as well: a nested provider that renames one button inside a
+      // Korean application keeps the other words Korean.
+      labels: labels && outer.labels ? { ...outer.labels, ...labels } : (labels ?? outer.labels),
       direction: direction ?? outer.direction
     }),
     [size, color, density, locale, weekStartsOn, labels, direction, outer]

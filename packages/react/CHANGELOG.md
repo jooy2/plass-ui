@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **A nested `PlassProvider` changes only the words its `labels` name.** Its `labels` replaced the whole set from the provider around it, so a provider that renamed one button inside a Korean application put every other word back into English. The two sets are now merged per word, as the locales guide describes.
+
 - **`PlConfirmProvider` and `PlTimelineChart` say the label pack's words.** The confirm dialog's Cancel and Confirm, and the start and end headings of a timeline's table, were written in English whatever `PlassProvider` said, while `PlPopconfirm` beside them already read the pack. Both now read `cancel`, `confirm`, `start` and `end`, and a component's own prop still wins.
 
 - **The pickers, `PlCalendar` and `PlFilePicker` take part in a `PlForm`.** Base UI's form sees only the controls registered with a field, and these carried plain hidden inputs, so a `<PlDatePicker name="departure" required />` inside a `PlForm` was missing from the values `onSubmit` received, did not stop an empty submit, and never showed the form's `errors` entry for its name. They now register like any other field: an empty `required` one stops the submit and takes the focus, an `errors` entry is shown on it, and its value is in `onSubmit`. A `PlDateRangePicker`, a `multiple` `PlTreeSelect` and a `PlFilePicker` report arrays.
