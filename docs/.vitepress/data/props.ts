@@ -3732,7 +3732,7 @@ export const propTables: Record<string, PropRow[]> = {
     {
       name: 'emptyMessage',
       type: 'ReactNode',
-      default: "'No matches'",
+      default: "'Nothing here'",
       description: {
         ko: '일치하는 것도 없고 추가할 수도 없을 때 팝업이 하는 말',
         en: 'Shown in the popup when nothing matched and no value may be added'
@@ -3988,7 +3988,7 @@ export const propTables: Record<string, PropRow[]> = {
     {
       name: 'emptyMessage',
       type: 'ReactNode',
-      default: "'No commands found'",
+      default: "'Nothing here'",
       description: {
         ko: '아무것도 맞지 않았을 때 행이 있었을 자리에 오는 줄',
         en: 'The line where the rows would be, when nothing matched'

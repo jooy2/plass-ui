@@ -80,6 +80,21 @@ void main() {
         expect(node.value, contains('Cost'));
       });
 
+      testWidgets('calls a series with no name by its number', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          PlLineChart(
+            series: <PlassChartSeries>[
+              for (final PlassChartSeries one in series) PlassChartSeries(data: one.data),
+            ],
+            categories: months,
+          ),
+        );
+
+        expect(tester.getSemantics(find.bySemanticsLabel('Chart')).value, '1 22, 2 13');
+        expect(find.text('2'), findsOneWidget);
+      });
+
       testWidgets('says nothing is there when every value is a gap', (WidgetTester tester) async {
         await _pump(
           tester,

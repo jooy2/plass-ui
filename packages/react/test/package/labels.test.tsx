@@ -12,6 +12,8 @@ import { render } from 'vitest-browser-react';
 import {
   PlAlert,
   PlChatBubble,
+  PlCombobox,
+  PlCommandPalette,
   PlFilePicker,
   PlPagination,
   PlSpoiler,
@@ -98,6 +100,20 @@ describe('a translated provider', () => {
     await expect.element(screen.getByText(locales.ko.filePickerTitle)).toBeInTheDocument();
     await expect.element(screen.getByText(locales.ko.messageFailed)).toBeInTheDocument();
     await expect.element(screen.getByText(locales.ko.optional)).toBeInTheDocument();
+  });
+
+  it.each([
+    [
+      'PlCombobox',
+      <PlCombobox key="c" items={[{ value: 'seoul', label: 'Seoul' }]} allowCustom={false} />
+    ],
+    ['PlCommandPalette', <PlCommandPalette key="p" items={[]} shortcut={false} defaultOpen />]
+  ])('reaches what %s says when nothing matched', async (_name, list) => {
+    const screen = await render(<PlassProvider labels={locales.ko}>{list}</PlassProvider>);
+
+    await screen.getByRole('combobox').fill('nowhere');
+
+    await expect.element(screen.getByText(locales.ko.empty)).toBeInTheDocument();
   });
 
   it('names the region the toasts are announced in', async () => {

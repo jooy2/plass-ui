@@ -83,7 +83,11 @@ export interface PlCommandPaletteProps extends Pick<PlassStyleProps, 'size' | 'c
   maxHeight?: number | string;
   /** The placeholder in the field. @default 'Search commands' */
   placeholder?: string;
-  /** The line where the rows would be, when nothing matched. @default 'No commands found' */
+  /**
+   * The line where the rows would be, when nothing matched. Falls back to the
+   * label pack's `empty`.
+   * @default 'Nothing here'
+   */
   emptyMessage?: React.ReactNode;
   /** The accessible name of the dialog, which has no visible title. @default 'Command palette' */
   label?: string;
@@ -212,7 +216,7 @@ export function PlCommandPalette({
   width,
   maxHeight = 320,
   placeholder: placeholderProp,
-  emptyMessage = 'No commands found',
+  emptyMessage: emptyMessageProp,
   label: labelProp,
   size: sizeProp,
   color: colorProp,
@@ -225,6 +229,7 @@ export function PlCommandPalette({
   const labels = useLabels();
   const label = labelProp ?? labels.commandPalette;
   const placeholder = placeholderProp ?? labels.commandPalettePlaceholder;
+  const emptyMessage = emptyMessageProp ?? labels.empty;
   const size = sizeProp ?? defaults.size ?? 'md';
   const color = colorProp ?? defaults.color ?? 'primary';
   const density = densityProp ?? defaults.density ?? 'default';

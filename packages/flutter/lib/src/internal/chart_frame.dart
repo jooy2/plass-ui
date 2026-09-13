@@ -872,7 +872,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
                       name:
                           widget.markHeading?.call(active) ??
                           widget.series[active.series].name ??
-                          'Series ${active.series + 1}',
+                          '${active.series + 1}',
                       readout:
                           widget.markReadout?.call(active) ??
                           _write(layout.values[active.series][active.index].value ?? 0),
@@ -961,7 +961,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
         (ChartValue? entry) => entry?.value != null,
         orElse: () => null,
       );
-      final String name = widget.series[i].name ?? 'Series ${i + 1}';
+      final String name = widget.series[i].name ?? '${i + 1}';
 
       parts.add(last == null ? name : '$name ${_write(last.value!)}');
     }
@@ -1221,7 +1221,7 @@ class PlassChartLegendBar extends StatelessWidget {
         children: <Widget>[
           for (int i = 0; i < series.length; i += 1)
             _LegendEntry(
-              name: series[i].name ?? 'Series ${i + 1}',
+              name: series[i].name ?? '${i + 1}',
               color: colors[i],
               on: visible[i],
               tokens: tokens,
@@ -1375,7 +1375,7 @@ class _Tooltip extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Text(
-                series[i].name ?? 'Series ${i + 1}',
+                series[i].name ?? '${i + 1}',
                 style: TextStyle(fontSize: metaText[size]!, color: tokens.mutedFg),
               ),
               const SizedBox(width: 10),

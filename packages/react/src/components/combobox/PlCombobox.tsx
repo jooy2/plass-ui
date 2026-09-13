@@ -121,8 +121,9 @@ export interface PlComboboxProps<Multiple extends boolean | undefined = false>
    */
   clearable?: boolean;
   /**
-   * Shown in the popup when nothing matched and no value may be added.
-   * @default 'No matches'
+   * Shown in the popup when nothing matched and no value may be added. Falls
+   * back to the label pack's `empty`.
+   * @default 'Nothing here'
    */
   emptyMessage?: React.ReactNode;
   /** The most rows the list will show at once. `-1` is all of them. @default -1 */
@@ -304,7 +305,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
   allowCustom = true,
   customLabel,
   clearable = false,
-  emptyMessage = 'No matches',
+  emptyMessage: emptyMessageProp,
   limit,
   placeholder,
   label,
@@ -335,6 +336,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
   const labels = useLabels();
   const openLabel = openLabelProp ?? labels.open;
   const clearLabel = clearLabelProp ?? labels.clear;
+  const emptyMessage = emptyMessageProp ?? labels.empty;
   const size = sizeProp ?? defaults.size ?? 'md';
   const color = colorProp ?? defaults.color ?? 'primary';
   const density = densityProp ?? defaults.density ?? 'default';

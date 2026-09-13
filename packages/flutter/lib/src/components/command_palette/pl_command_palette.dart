@@ -135,7 +135,7 @@ class PlCommandPalette extends StatefulWidget {
     this.width,
     this.maxHeight = 320,
     this.placeholder,
-    this.emptyMessage = 'No commands found',
+    this.emptyMessage,
     this.label,
     this.size,
     this.color,
@@ -176,8 +176,9 @@ class PlCommandPalette extends StatefulWidget {
   /// `commandPalettePlaceholder`.
   final String? placeholder;
 
-  /// The line where the rows would be, when nothing matched.
-  final String emptyMessage;
+  /// The line where the rows would be, when nothing matched. Falls back to the
+  /// label pack's `empty`.
+  final String? emptyMessage;
 
   /// The name a screen reader gives the sheet, which has no visible title.
   final String? label;
@@ -457,7 +458,7 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: inset, vertical: 24),
               child: Text(
-                widget.emptyMessage,
+                widget.emptyMessage ?? PlassTheme.labelsOf(context).empty,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: tokens.mutedFg, fontSize: metaText[size]!),
               ),

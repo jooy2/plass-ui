@@ -297,7 +297,7 @@ class PlScatterChart extends StatelessWidget {
         continue;
       }
 
-      final name = series[i].name ?? 'Series ${i + 1}';
+      final name = series[i].name ?? '${i + 1}';
       final points = <String>[];
 
       for (int at = 0; at < values[i].length; at += 1) {

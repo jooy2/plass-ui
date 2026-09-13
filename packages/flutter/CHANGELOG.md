@@ -42,6 +42,10 @@
 
 ### Changed
 
+- **`PlCombobox` and `PlCommandPalette` say the label pack's `empty` when nothing matched.** Their `emptyMessage` defaults, "No matches" and "No commands found", were written in English, so a translated application still said them in English. Both parameters are now nullable and fall back to `empty`, as `PlTreeSelect` and `PlTransfer` do, which makes the English default "Nothing here" for both. Pass `emptyMessage` to keep the old words.
+
+- **A chart series with no `name` is called by its number.** The legend, the tooltip and the summary of `PlLineChart`, `PlBarChart`, `PlAreaChart` and `PlScatterChart` called it "Series 2", a word no pack translates, while `PlHeatmapChart`, `PlTimelineChart` and the React build say "2". They now say the number as well.
+
 - **A long `PlCombobox` or `PlCommandPalette` list builds only the rows near its view.** Both built every row on opening and on every key, and the palette searched every command's text again on each rebuild, including the one a pointer moving over the rows causes. A list taller than its popup is now built as it scrolls, and the palette keeps its search until the query changes or its parent rebuilds. A shorter list is laid out as before.
 
 - **Focus rings are drawn in the family's `accent`, opaque.** `PlassColorFamily.ring` was `solid` at 55% opacity, which came to about 2.2:1 against a white surface, and 1.4:1 for `warning`, under the 3:1 a focus indicator needs. It now returns `accent`, which clears 3:1 against the surface and the page in both themes. Every focused control looks different: darker in the light theme and lighter in the dark one.

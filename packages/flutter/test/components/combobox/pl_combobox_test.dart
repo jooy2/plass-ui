@@ -260,7 +260,7 @@ void main() {
         await tester.enterText(find.byType(EditableText), 'nowhere');
         await tester.pumpAndSettle();
 
-        expect(find.text('No matches'), findsOneWidget);
+        expect(find.text('Nothing here'), findsOneWidget);
       });
 
       testWidgets('shows only as many rows as it was allowed', (WidgetTester tester) async {

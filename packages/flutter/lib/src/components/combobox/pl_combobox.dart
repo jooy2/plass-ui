@@ -106,7 +106,7 @@ class PlCombobox<T> extends StatefulWidget {
     this.customLabel,
     this.onQueryChanged,
     this.placeholder,
-    this.emptyMessage = 'No matches',
+    this.emptyMessage,
     this.limit,
     this.clearable = false,
     this.clearLabel,
@@ -147,7 +147,7 @@ class PlCombobox<T> extends StatefulWidget {
     this.customLabel,
     this.onQueryChanged,
     this.placeholder,
-    this.emptyMessage = 'No matches',
+    this.emptyMessage,
     this.limit,
     this.clearable = false,
     this.clearLabel,
@@ -219,8 +219,8 @@ class PlCombobox<T> extends StatefulWidget {
   final String? placeholder;
 
   /// Shown where the list would be when nothing matched and nothing may be
-  /// added.
-  final String emptyMessage;
+  /// added. Falls back to the label pack's `empty`.
+  final String? emptyMessage;
 
   /// The most rows the list will show at once. `null` is all of them.
   final int? limit;
@@ -943,7 +943,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
                       fontSize: scale.size,
                       height: scale.height,
                     ),
-                    child: Text(widget.emptyMessage),
+                    child: Text(widget.emptyMessage ?? PlassTheme.labelsOf(context).empty),
                   ),
                 )
               // A list that cannot fit is built as it scrolls, so thousands of

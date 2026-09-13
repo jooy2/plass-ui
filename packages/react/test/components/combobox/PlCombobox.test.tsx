@@ -143,7 +143,7 @@ describe('PlCombobox', () => {
 
       await screen.getByRole('combobox').fill('nowhere');
 
-      await expect.element(screen.getByText('No matches')).toBeInTheDocument();
+      await expect.element(screen.getByText('Nothing here')).toBeInTheDocument();
     });
 
     it('says so in the caller’s own words', async () => {

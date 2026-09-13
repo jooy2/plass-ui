@@ -206,6 +206,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text(ko.commandPalettePlaceholder), findsOneWidget);
+      expect(find.text(ko.empty), findsOneWidget);
       expect(find.text(ko.cancel), findsOneWidget);
       expect(find.text(ko.confirm), findsOneWidget);
     });

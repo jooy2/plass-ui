@@ -1287,7 +1287,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'ValueChanged<String>?'
     }),
     from('PlCombobox', 'placeholder', { type: 'String?' }),
-    from('PlCombobox', 'emptyMessage', { type: 'String', default: "'No matches'" }),
+    from('PlCombobox', 'emptyMessage', { type: 'String?', default: "'Nothing here'" }),
     from('PlCombobox', 'limit', { type: 'int?', default: 'null' }),
     from('PlCombobox', 'clearable', { type: 'bool', default: 'false' }),
     from('PlCombobox', 'clearLabel', { type: 'String', default: "'Clear'" }),
@@ -1366,10 +1366,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlCommandPalette', 'width', { type: 'double?' }),
     from('PlCommandPalette', 'maxHeight', { type: 'double', default: '320' }),
     from('PlCommandPalette', 'placeholder', { type: 'String?', default: "'Search commands'" }),
-    from('PlCommandPalette', 'emptyMessage', {
-      type: 'String',
-      default: "'No commands found'"
-    }),
+    from('PlCommandPalette', 'emptyMessage', { type: 'String?', default: "'Nothing here'" }),
     from('PlCommandPalette', 'label', { type: 'String', default: "'Command palette'" }),
     from('PlCommandPalette', 'size', { type: SIZE, default: 'PlassSize.md' }),
     from('PlCommandPalette', 'color', { type: COLOR, default: 'PlassColor.primary' }),

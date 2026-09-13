@@ -138,7 +138,7 @@ void main() {
         await tester.enterText(find.byType(EditableText), 'zzzzz');
         await tester.pumpAndSettle();
 
-        expect(find.text('No commands found'), findsOneWidget);
+        expect(find.text('Nothing here'), findsOneWidget);
       });
     });
 
