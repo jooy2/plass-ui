@@ -221,7 +221,23 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
         return;
       }
 
-      slideRefs.current[index]?.scrollIntoView({ block: 'nearest', inline: 'start' });
+      // The track is scrolled and nothing else. `scrollIntoView` moves every
+      // scrollable ancestor up to the window, so a carousel partly off screen
+      // dragged the page to itself on every slide — once per `interval` while
+      // it played. Measured against the track rather than read off `offsetLeft`,
+      // which counts from whichever ancestor is positioned, and in physical
+      // pixels, which is also what `scrollLeft` counts in under RTL.
+      const track = trackRef.current;
+      const slide = slideRefs.current[index];
+
+      if (track && slide) {
+        track.scrollTo({
+          left:
+            track.scrollLeft +
+            slide.getBoundingClientRect().left -
+            track.getBoundingClientRect().left
+        });
+      }
 
       settling.current = true;
 

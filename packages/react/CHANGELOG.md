@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- **`PlCarousel` no longer scrolls the page when it changes slide.** It brought the slide into view with `scrollIntoView`, which moves every scrollable ancestor as well as the strip, so a carousel partly off screen pulled the page to itself on every slide, and on every tick while `autoPlay` ran. Only the strip scrolls now.
+
 - **A responsive `PlFlex`, `PlGrid` or `PlGridItem` nested in another keeps its own values.** The per-breakpoint values are custom properties, and custom properties inherit, so a child took every breakpoint its parent named and it did not: a vertical `PlFlex` inside one that turns horizontal at `md` turned with it, and a `PlGridItem` with no `span` inside a cell of eight was eight columns wide. The slots are now registered as not inheriting. Browsers without `@property` support, Firefox before 128, keep the old behaviour.
 
 - **A `PlFilePicker` in a form submits the files it lists.** The file input held only the last pick from the dialog, so a dropped file was never sent, a file removed from the list or turned away by `accept` or `maxSize` still was, and in `multiple` a second pick replaced the first. The input now holds the list as it is shown.

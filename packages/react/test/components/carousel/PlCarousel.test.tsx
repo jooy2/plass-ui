@@ -116,6 +116,29 @@ describe('PlCarousel', () => {
         .toHaveAttribute('aria-current', 'true');
     });
 
+    it('moves the strip without scrolling the page to it', async () => {
+      const screen = await render(
+        <PlCarousel label="Tall">
+          <div style={{ height: 1500 }}>One</div>
+          <div style={{ height: 1500 }}>Two</div>
+        </PlCarousel>
+      );
+
+      window.scrollTo(0, 0);
+      // A DOM click rather than the runner's, which would scroll the button
+      // into view itself before pressing it.
+      (screen.getByRole('button', { name: 'Next slide' }).element() as HTMLElement).click();
+      await expect
+        .element(screen.getByRole('button', { name: 'Slide 2 of 2' }))
+        .toHaveAttribute('aria-current', 'true');
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Nothing loads the stylesheet here, so the slides stack down the page
+      // and the second one starts below the fold: the case where a scroll that
+      // walked the ancestors would have moved the window.
+      expect(window.scrollY).toBe(0);
+    });
+
     it('jumps straight to a slide from its dot', async () => {
       const onValueChange = vi.fn();
       const screen = await render(<PlCarousel onValueChange={onValueChange}>{slides}</PlCarousel>);
