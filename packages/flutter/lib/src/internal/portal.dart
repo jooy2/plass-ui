@@ -225,7 +225,7 @@ class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStat
     // `Shortcuts` outside the scope and `Actions` between them: a shortcut is
     // answered by an ancestor of whatever holds focus, and the action it looks
     // up has to be one too.
-    return Semantics(
+    final Widget scoped = Semantics(
       container: true,
       explicitChildNodes: true,
       scopesRoute: true,
@@ -251,5 +251,12 @@ class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStat
         ),
       ),
     );
+
+    // The screen reader's half of the barrier. The backdrop stops the pointer
+    // and the scope stops Tab, but a semantics action goes through neither, so
+    // without this a reader could still find and press the page under an open
+    // modal. Wrapped round the whole layer rather than round the backdrop: inside
+    // the layer's own container it would only hide what the layer painted first.
+    return BlockSemantics(blocking: widget.modal && widget.open, child: scoped);
   }
 }

@@ -195,6 +195,40 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('takes the page behind it off the semantics tree while it is open', (
+        WidgetTester tester,
+      ) async {
+        Widget tree(bool open) {
+          return host(
+            Column(
+              children: <Widget>[
+                Semantics(
+                  button: true,
+                  label: 'Behind',
+                  onTap: () {},
+                  child: const SizedBox(width: 10, height: 10),
+                ),
+                PlModal(open: open, title: const Text('Title'), child: const Text('Body')),
+              ],
+            ),
+            overlay: true,
+          );
+        }
+
+        await tester.pumpWidget(tree(false));
+        await tester.pumpAndSettle();
+        expect(semanticsLabels(tester), contains('Behind'));
+
+        await tester.pumpWidget(tree(true));
+        await tester.pumpAndSettle();
+        expect(semanticsLabels(tester), isNot(contains('Behind')));
+        expect(semanticsLabels(tester), contains('Body'));
+
+        await tester.pumpWidget(tree(false));
+        await tester.pumpAndSettle();
+        expect(semanticsLabels(tester), contains('Behind'));
+      });
+
       testWidgets('focus goes into the sheet and comes back out again', (
         WidgetTester tester,
       ) async {

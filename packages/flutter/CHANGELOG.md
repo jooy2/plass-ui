@@ -36,6 +36,8 @@
 
 ### Fixed
 
+- **An open `PlModal`, `PlDrawer`, `PlOverlay` or `PlConfirmProvider` sheet takes the page behind it off the semantics tree.** The backdrop stopped the pointer and the focus scope stopped Tab, but a screen reader could still move onto the page underneath and press its buttons. The page comes back as the layer starts to close.
+
 - **Pressable rows answer a screen reader.** A `PlTree` row, a `PlMenu` row, a `PlNavigationMenu` word and panel link, a reachable `PlStepper` step, a `PlAnchor` row, a `PlImage` with `preview`, a `PlOtpField` and an interactive chart legend entry had no tap action on their semantics node, so TalkBack, Switch Access, Voice Access and a screen reader on the web could not activate them. The legend entries also take keyboard focus and a focus ring now, a navigation word says whether its panel is open, and a step ahead of the reader is no longer announced as disabled.
 
 - **The arrow keys keep focus in `PlTabs`, `PlRadioGroup` and `PlSegmentedButton`.** When the value followed the arrow, the item that lost the stop gave focus back to whatever was focused before the group, so a reader who had tabbed in changed the value once and was thrown out. Focus now moves to the newly chosen item.

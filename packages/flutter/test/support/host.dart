@@ -115,3 +115,26 @@ Widget afterFocusStop(FocusNode before, Widget child) {
     ),
   );
 }
+
+/// Every label on the semantics tree, in tree order.
+///
+/// `find.semantics` does not reach a layer lifted through an `OverlayPortal`,
+/// so a test about what a layer puts on the tree, or takes off it, walks the
+/// tree itself.
+List<String> semanticsLabels(WidgetTester tester) {
+  final List<String> labels = <String>[];
+
+  bool visit(SemanticsNode node) {
+    if (node.label.isNotEmpty) {
+      labels.add(node.label);
+    }
+
+    node.visitChildren(visit);
+
+    return true;
+  }
+
+  tester.binding.renderViews.first.debugSemantics?.visitChildren(visit);
+
+  return labels;
+}
