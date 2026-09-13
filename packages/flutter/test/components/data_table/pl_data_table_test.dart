@@ -553,6 +553,35 @@ void main() {
         expect(find.text('Customer 0'), findsNothing);
       });
 
+      testWidgets('reports the page it moved to when nobody controls it', (
+        WidgetTester tester,
+      ) async {
+        final reported = <int>[];
+
+        await tester.pumpWidget(
+          host(
+            PlDataTable<Invoice>(
+              columns: columnsOf(),
+              rows: many(),
+              rowKey: (Invoice row, int _) => row.id,
+              paging: PlDataTablePaging.pages,
+              onPageChanged: reported.add,
+            ),
+            width: 640,
+            height: 900,
+          ),
+        );
+
+        await tester.tap(find.text('2'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('2'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Customer 10'), findsOneWidget);
+        // Once, because the second press asked for the page it was already on.
+        expect(reported, <int>[2]);
+      });
+
       testWidgets('goes back to the first page when the rows underneath change', (
         WidgetTester tester,
       ) async {

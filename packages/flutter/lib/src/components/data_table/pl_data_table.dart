@@ -504,11 +504,15 @@ class _PlDataTableState<T> extends State<PlDataTable<T>> {
   }
 
   void _goPage(int next) {
+    // Read before the state moves, or an uncontrolled table compares the page
+    // with itself and never reports it.
+    final int current = widget.page ?? _page;
+
     if (widget.page == null && next != _page) {
       setState(() => _page = next);
     }
 
-    if (next != (widget.page ?? _page)) {
+    if (next != current) {
       widget.onPageChanged?.call(next);
     }
   }
