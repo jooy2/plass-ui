@@ -292,6 +292,60 @@ void main() {
       expect(seen.single, '#22c55e');
     });
 
+    testWidgets('reaches a swatch with Tab and chooses it with Enter', (WidgetTester tester) async {
+      final List<String> seen = <String>[];
+      final FocusNode before = FocusNode();
+      addTearDown(before.dispose);
+
+      await tester.pumpWidget(
+        host(
+          afterFocusStop(
+            before,
+            PlColorPicker(
+              inline: true,
+              value: '#ff0000',
+              swatches: const <String>['#22c55e', '#3b82f6'],
+              onValueChanged: seen.add,
+            ),
+          ),
+          width: 400,
+          height: 500,
+          overlay: true,
+        ),
+      );
+
+      /// Whether the keyboard focus is on the swatch for [colour].
+      bool onSwatch(String colour) {
+        String? named;
+
+        FocusManager.instance.primaryFocus?.context?.visitAncestorElements((Element element) {
+          final Widget widget = element.widget;
+
+          named = widget is Semantics ? widget.properties.label : null;
+
+          return named == null;
+        });
+
+        return named == colour;
+      }
+
+      before.requestFocus();
+      await tester.pump();
+
+      // The square, the hue rail, the value field and the first swatch come first.
+      for (var step = 0; step < 12 && !onSwatch('#3b82f6'); step += 1) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+      }
+
+      expect(onSwatch('#3b82f6'), isTrue);
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+
+      expect(seen.single, '#3b82f6');
+    });
+
     testWidgets('writes the format it was asked for', (WidgetTester tester) async {
       final List<String> seen = <String>[];
 

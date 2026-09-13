@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/color.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/picker.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -1008,34 +1009,53 @@ class _Swatch extends StatelessWidget {
         ? const Color(0x00000000)
         : hsvToColor(parsed.hsv, parsed.alpha);
 
+    // A focus stop and a key to press, as the React build's `<button>` is: a
+    // swatch only a pointer could reach left the keyboard with the rails alone.
     return Semantics(
       button: true,
       selected: chosen,
       enabled: !inert,
       label: swatch,
       onTap: inert ? null : onPressed,
-      child: GestureDetector(
-        onTap: inert ? null : onPressed,
-        child: Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            color: fill,
-            shape: BoxShape.circle,
-            border: Border.all(color: border, width: hairline),
-          ),
-          // Black or white, decided by what can actually be read on the swatch
-          // — a fixed white tick vanishes on yellow.
-          child: chosen && parsed != null
-              ? Center(
-                  child: PlassGlyph(
-                    PlassGlyphShape.check,
-                    size: size * 0.6,
-                    color: readableInk(parsed.hsv),
-                  ),
-                )
-              : null,
-        ),
+      child: PlassInteractive(
+        onTap: onPressed,
+        enabled: !inert,
+        interactive: !inert,
+        cursor: inert ? SystemMouseCursors.basic : SystemMouseCursors.click,
+        builder: (BuildContext context, PlassInteraction state) {
+          Widget dot = Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              color: fill,
+              shape: BoxShape.circle,
+              border: Border.all(color: border, width: hairline),
+            ),
+            // Black or white, decided by what can actually be read on the swatch
+            // — a fixed white tick vanishes on yellow.
+            child: chosen && parsed != null
+                ? Center(
+                    child: PlassGlyph(
+                      PlassGlyphShape.check,
+                      size: size * 0.6,
+                      color: readableInk(parsed.hsv),
+                    ),
+                  )
+                : null,
+          );
+
+          if (state.focusVisible) {
+            dot = CustomPaint(
+              foregroundPainter: PlassFocusRingPainter(
+                color: ring,
+                borderRadius: BorderRadius.circular(size / 2),
+              ),
+              child: dot,
+            );
+          }
+
+          return dot;
+        },
       ),
     );
   }
