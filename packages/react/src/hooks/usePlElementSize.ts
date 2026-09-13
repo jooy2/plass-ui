@@ -43,7 +43,10 @@ function contentBoxOf(element: HTMLElement): PlElementSize {
  *
  * `null` until there is an element to measure, which is the honest answer on a
  * server and on the first render: guessing `0` there would let a caller divide
- * by it.
+ * by it. The ref is read again after every render, so an element that is
+ * attached later — `loading ? <Spinner /> : <div ref={box}>` — or swapped for
+ * another is measured from the moment it is there, and the answer goes back to
+ * `null` while there is none.
  *
  * @example
  * const box = React.useRef<HTMLDivElement>(null);
@@ -55,11 +58,26 @@ export function usePlElementSize(
   target: React.RefObject<HTMLElement | null>
 ): PlElementSize | null {
   const [size, setSize] = React.useState<PlElementSize | null>(null);
+  const [element, setElement] = React.useState<HTMLElement | null>(null);
+
+  // The ref object never changes, so an effect keyed on it runs once and never
+  // sees an element attached after the first render, or a different one put in
+  // its place. `current` is read after every render instead, and only a
+  // different element is state. No dependencies, on purpose: the comparison is
+  // what keeps it from rendering again.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  React.useLayoutEffect(() => {
+    if (target.current !== element) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setElement(target.current);
+    }
+  });
 
   React.useLayoutEffect(() => {
-    const element = target.current;
-
     if (!element) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSize(null);
+
       return undefined;
     }
 
@@ -84,7 +102,7 @@ export function usePlElementSize(
     observer.observe(element);
 
     return () => observer.disconnect();
-  }, [target]);
+  }, [element]);
 
   return size;
 }

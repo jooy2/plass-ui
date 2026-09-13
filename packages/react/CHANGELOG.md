@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **`usePlElementSize` and `usePlOnScreen` follow an element attached after the first render.** Both started watching in an effect keyed on the ref object, which never changes, so an element rendered later, as in `loading ? <Spinner /> : <div ref={box} />`, was never measured and never seen, and one swapped for another kept the old one watched. Both now read the ref after every render and start over on a different element, and `usePlOnScreen` does the same for `root`. `usePlElementSize` goes back to `null` when its element is removed.
+
 - **`usePlColorScheme` no longer throws in a sandboxed frame.** The check for storage, `typeof localStorage`, sat outside the `try` that caught storage errors, and in a frame sandboxed without `allow-same-origin` that check is what throws, so the component using the hook took its whole tree down on first render. The check is now caught with the rest, and the choice simply does not survive a reload there, as the hook's page describes.
 
 - **`PlColorSchemeScript` keeps its `storageKey` inside the script.** The key was written into the inline script with `JSON.stringify`, which leaves `<` as it is, so a key built from a value the page does not control, such as a tenant's slug, could close the `<script>` with `</script>` and put markup after it into a server-rendered page. `<`, `>`, `&`, U+2028 and U+2029 are now written as escapes, and the script reads the same key as before.

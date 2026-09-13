@@ -84,3 +84,4 @@ const roomy = (size?.width ?? 0) > 480;
 - The same object is handed back when nothing moved, so a resize somewhere else on the page does not re-render every caller.
 - A browser with no `ResizeObserver` gets **one** measurement rather than none: a layout that is right until something moves beats a layout that is never right.
 - `null` on a server and on the first render, which is the honest answer where there is no element yet.
+- The ref is read again after every render, so an element attached later, as in `loading ? <Spinner /> : <div ref={box} />`, is measured once it is there, and the answer goes back to `null` when it is removed.

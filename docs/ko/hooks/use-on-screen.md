@@ -84,3 +84,4 @@ const seen = usePlOnScreen(row, { root: panel });
 
 - 도착할 때 재생되는 **애니메이션**이라면 이것을 직접 엮지 말고 모든 `PlAnimate*`가 이미 받는 `trigger="visible"`을 쓰십시오. 효과가 붙은 같은 observer입니다.
 - 언마운트에서 연결을 끊고, `once`일 때는 답을 얻는 즉시 끊습니다.
+- 두 ref 모두 렌더링할 때마다 다시 읽습니다. 첫 렌더링 뒤에 붙는 요소나 `root`도 붙은 뒤부터 지켜봅니다.

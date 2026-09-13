@@ -23,6 +23,19 @@ function Subject({ options, gap = 600 }: { options?: PlOnScreenOptions; gap?: nu
   );
 }
 
+/** The same page, with the watched element not there until `ready`. */
+function Late({ ready }: { ready: boolean }) {
+  const target = useRef<HTMLDivElement>(null);
+  const seen = usePlOnScreen(target);
+
+  return (
+    <div>
+      <span data-testid="seen">{String(seen)}</span>
+      {ready ? <div ref={target}>target</div> : null}
+    </div>
+  );
+}
+
 function seen(): string {
   return document.querySelector('[data-testid="seen"]')!.textContent ?? '';
 }
@@ -38,6 +51,16 @@ describe('usePlOnScreen', () => {
     await render(<Subject />);
 
     await expect.poll(() => seen()).toBe('false');
+  });
+
+  it('watches an element that is attached after the first render', async () => {
+    const screen = await render(<Late ready={false} />);
+
+    await expect.poll(() => seen()).toBe('false');
+
+    await screen.rerender(<Late ready />);
+
+    await expect.poll(() => seen()).toBe('true');
   });
 
   it('turns true when it arrives', async () => {

@@ -84,3 +84,4 @@ const seen = usePlOnScreen(row, { root: panel });
 
 - For an **animation** that plays when it arrives, use the `trigger="visible"` every `PlAnimate*` already takes rather than wiring this up by hand. It is the same observer with the effect attached.
 - It disconnects on unmount, and (with `once`) the moment it has an answer.
+- Both refs are read again after every render, so an element or a `root` attached after the first render is watched once it is there.

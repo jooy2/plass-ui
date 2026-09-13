@@ -47,6 +47,10 @@ export interface PlOnScreenOptions {
  * A browser with no observer is told **yes** rather than no. There is no way to
  * find out, and a picture that never loads is worse than one that loads early.
  *
+ * The refs are read again after every render, so an element or a `root` that is
+ * attached after the first one, or swapped for another, is watched from the
+ * moment it is there.
+ *
  * @example
  * const section = React.useRef<HTMLDivElement>(null);
  * const seen = usePlOnScreen(section, { rootMargin: '200px' });
@@ -56,10 +60,27 @@ export function usePlOnScreen(
   { threshold = 0, rootMargin, root, once = true }: PlOnScreenOptions = {}
 ): boolean {
   const [onScreen, setOnScreen] = React.useState(false);
+  const [element, setElement] = React.useState<Element | null>(null);
+  const [rootElement, setRootElement] = React.useState<Element | null>(null);
+
+  // The ref objects never change, so an effect keyed on them runs once and never
+  // sees an element attached after the first render. `current` is read after
+  // every render instead, and only a different element is state. No
+  // dependencies, on purpose: the comparison is what keeps it from rendering
+  // again.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  React.useEffect(() => {
+    if (target.current !== element) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setElement(target.current);
+    }
+
+    if ((root?.current ?? null) !== rootElement) {
+      setRootElement(root?.current ?? null);
+    }
+  });
 
   React.useEffect(() => {
-    const element = target.current;
-
     if (!element) {
       return undefined;
     }
@@ -85,13 +106,13 @@ export function usePlOnScreen(
           setOnScreen(false);
         }
       },
-      { threshold, rootMargin, root: root?.current ?? null }
+      { threshold, rootMargin, root: rootElement }
     );
 
     observer.observe(element);
 
     return () => observer.disconnect();
-  }, [target, threshold, rootMargin, root, once]);
+  }, [element, rootElement, threshold, rootMargin, once]);
 
   return onScreen;
 }

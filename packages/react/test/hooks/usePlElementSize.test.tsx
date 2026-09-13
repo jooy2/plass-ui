@@ -22,6 +22,18 @@ function Unmounted() {
   return <span data-testid="size">{size ? 'measured' : 'null'}</span>;
 }
 
+function Late({ ready }: { ready: boolean }) {
+  const box = useRef<HTMLDivElement>(null);
+  const size = usePlElementSize(box);
+
+  return (
+    <div>
+      {ready ? <div ref={box} style={{ width: '120px', height: '30px' }} /> : <span>Loading</span>}
+      <span data-testid="size">{size ? `${size.width}x${size.height}` : 'null'}</span>
+    </div>
+  );
+}
+
 /** The last one rendered: the resize test draws a second subject beside the first. */
 function reported(): string {
   const all = document.querySelectorAll('[data-testid="size"]');
@@ -54,6 +66,20 @@ describe('usePlElementSize', () => {
     await render(<Subject width={300} height={120} />);
 
     await expect.poll(() => reported()).toBe('300x120');
+  });
+
+  it('measures an element that is attached after the first render', async () => {
+    const screen = await render(<Late ready={false} />);
+
+    expect(reported()).toBe('null');
+
+    await screen.rerender(<Late ready />);
+
+    await expect.poll(() => reported()).toBe('120x30');
+
+    await screen.rerender(<Late ready={false} />);
+
+    await expect.poll(() => reported()).toBe('null');
   });
 
   it('says nothing rather than zero when there is nothing to measure', async () => {
