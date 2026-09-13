@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **The options of a disabled `PlRadioGroup` look disabled.** A group's `disabled` stopped its options answering, but each option chose its look from its own `disabled` alone, so the options of a disabled group were drawn at full strength with a pointer cursor and a hover. They now dim, take the not-allowed cursor and lose the hover, as an option disabled on its own does.
+
 - **An `inline` `PlColorPicker` is grouped under its `label`.** The square and the rails are named "Saturation and brightness", "Hue" and "Opacity" whatever field they belong to, and the label, the description and the error were not connected to them, so two inline pickers on one page were two sets of the same sliders and an error was never announced. The panel is now a `role="group"` named by `label` and described by `description` and `error`, and an error marks the square and the rails `aria-invalid`.
 
 - **The hue and opacity rails of `PlColorPicker` answer ↑, ↓, Home and End.** A rail took only ← and →, so a keyboard reader who pressed the other keys every slider answers to changed nothing. ↑ and ↓ now move a rail as → and ← do, and Home and End take it to its two ends.

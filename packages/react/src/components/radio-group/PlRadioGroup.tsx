@@ -33,12 +33,14 @@ interface RadioGroupContextValue {
   size: PlassSize;
   color: PlassColor;
   readOnly: boolean;
+  disabled: boolean;
 }
 
 const RadioGroupContext = /* @__PURE__ */ React.createContext<RadioGroupContextValue>({
   size: 'md',
   color: 'primary',
-  readOnly: false
+  readOnly: false,
+  disabled: false
 });
 
 export interface PlRadioGroupProps extends Omit<
@@ -171,6 +173,10 @@ export const PlRadio = /* @__PURE__ */ React.forwardRef<HTMLElement, PlRadioProp
 ) {
   const group = React.useContext(RadioGroupContext);
   const readOnly = props.readOnly ?? group.readOnly;
+  // Base UI already stops a disabled group's options answering. This is the
+  // look, which the option draws from its own flag and has to take from the
+  // group's as well.
+  const inert = disabled || group.disabled;
 
   return (
     <Field.Root
@@ -188,7 +194,7 @@ export const PlRadio = /* @__PURE__ */ React.forwardRef<HTMLElement, PlRadioProp
             className={[
               dotBaseClasses,
               tickSizeClasses[group.size],
-              disabled ? disabledDotClasses : readOnly ? readOnlyDotClasses : restDotClasses
+              inert ? disabledDotClasses : readOnly ? readOnlyDotClasses : restDotClasses
             ].join(' ')}
             disabled={disabled}
             {...props}
@@ -204,9 +210,7 @@ export const PlRadio = /* @__PURE__ */ React.forwardRef<HTMLElement, PlRadioProp
           <span className="flex min-w-0 flex-col gap-0.5">
             {label ? (
               <Field.Label
-                className={
-                  disabled ? 'text-(--plass-muted-fg)' : 'cursor-pointer text-(--plass-fg)'
-                }
+                className={inert ? 'text-(--plass-muted-fg)' : 'cursor-pointer text-(--plass-fg)'}
               >
                 {label}
               </Field.Label>
@@ -263,8 +267,8 @@ export const PlRadioGroup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlR
     const family: PlassColor = isInvalid ? 'danger' : color;
 
     const context = React.useMemo(
-      () => ({ size, color: family, readOnly }),
-      [size, family, readOnly]
+      () => ({ size, color: family, readOnly, disabled }),
+      [size, family, readOnly, disabled]
     );
 
     return (

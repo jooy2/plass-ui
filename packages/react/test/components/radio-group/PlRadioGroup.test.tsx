@@ -131,6 +131,20 @@ describe('PlRadioGroup', () => {
       }
     });
 
+    it('draws every option as disabled when the group is disabled', async () => {
+      const screen = await render(<Plans disabled />);
+
+      // Disabled in behaviour and in look alike: an option that cannot be
+      // chosen must not dim nothing, and show a pointer and a hover it ignores.
+      for (const radio of screen.getByRole('radio').elements()) {
+        expect(radio).toHaveClass('opacity-50', 'cursor-not-allowed');
+        expect(radio).not.toHaveClass('cursor-pointer');
+      }
+
+      expect(screen.getByText('Starter').element()).toHaveClass('text-(--plass-muted-fg)');
+      expect(screen.getByText('Starter').element()).not.toHaveClass('cursor-pointer');
+    });
+
     it('disables one option without touching the rest', async () => {
       const screen = await render(
         <PlRadioGroup label="Plan">
