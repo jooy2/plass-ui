@@ -497,15 +497,8 @@ void main() {
           'sit on and which side the title starts from are logical and still mirror',
       'lib/src/internal/chart.dart':
           "a bar's rounded end follows the direction its *value* grows in, which is a direction "
-          'on the canvas the frame paints; see the entry below',
-      'lib/src/components/heatmap_chart/pl_heatmap_chart.dart':
-          'a heatmap is painted in canvas coordinates like every other chart, and its readout is '
-          'placed against where the pointer physically is; the grid runs left to right in both '
-          'builds, so mirroring only this one would make the two disagree',
-      'lib/src/internal/chart_frame.dart':
-          'a plot is painted in canvas coordinates and its tooltip is placed against where the '
-          'pointer physically is; the axis itself runs left to right in every locale, which is '
-          'what every chart a reader has ever seen does with time',
+          'on the canvas the frame paints, and that canvas runs left to right in every locale, '
+          'which is what every chart a reader has ever seen does with time',
     };
 
     test('lib/src is not empty (the scan below would pass vacuously)', () {
