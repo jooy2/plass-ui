@@ -114,6 +114,34 @@ describe('PlScatterChart', () => {
     });
   });
 
+  describe('the keyboard', () => {
+    it('walks the marks one at a time, and Home and End go to either end', async () => {
+      const screen = await render(<PlScatterChart label="Spend" series={SPEND} />);
+      const plot = screen.getByRole('img', { name: 'Spend' });
+      const status = () => screen.getByRole('status').element().textContent;
+
+      await expect.element(plot).toBeInTheDocument();
+
+      // Series by series, each point's own x and then its series and y.
+      for (const [key, reading] of [
+        ['ArrowRight', '10, Q1: 22'],
+        ['ArrowRight', '20, Q1: 31'],
+        ['ArrowRight', '30, Q1: 28'],
+        ['ArrowRight', '12, Q2: 40'],
+        ['ArrowRight', '26, Q2: 35'],
+        ['ArrowRight', '26, Q2: 35'],
+        ['Home', '10, Q1: 22'],
+        ['End', '26, Q2: 35'],
+        ['ArrowLeft', '12, Q2: 40']
+      ] as const) {
+        plot
+          .element()
+          .dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+        await expect.poll(status).toBe(reading);
+      }
+    });
+  });
+
   describe('the table', () => {
     it('writes a row per point rather than a grid', async () => {
       const screen = await render(<PlScatterChart label="Spend" series={SPEND} />);

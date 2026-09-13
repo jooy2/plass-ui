@@ -320,16 +320,96 @@ describe('PlLineChart', () => {
       );
 
       const plot = screen.getByRole('img', { name: 'Sessions' });
+      const status = () => screen.getByRole('status').element().textContent;
 
       await expect.element(plot).toBeInTheDocument();
-      plot.element().focus();
-      await vi.waitFor(() => expect(document.activeElement).toBe(plot.element()));
+      expect(status()).toBe('');
 
-      await screen.getByRole('img', { name: 'Sessions' }).click({ position: { x: 4, y: 4 } });
+      press(plot.element(), 'ArrowRight');
 
-      const status = screen.getByRole('status');
+      await expect.poll(status).toBe('Jan, Web: 10');
+      expect(document.querySelector('[data-plass-tooltip]')).not.toBeNull();
+    });
 
-      await expect.element(status).toBeInTheDocument();
+    it('walks the columns with the arrow keys, Home and End, and stops at the ends', async () => {
+      const screen = await render(
+        <PlLineChart
+          label="Sessions"
+          categories={MONTHS}
+          series={[{ name: 'Web', data: [10, 20, 30, 40] }]}
+        />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Sessions' });
+      const status = () => screen.getByRole('status').element().textContent;
+
+      await expect.element(plot).toBeInTheDocument();
+
+      for (const [key, reading] of [
+        ['ArrowRight', 'Jan, Web: 10'],
+        ['ArrowRight', 'Feb, Web: 20'],
+        ['End', 'Apr, Web: 40'],
+        ['ArrowRight', 'Apr, Web: 40'],
+        ['ArrowLeft', 'Mar, Web: 30'],
+        ['Home', 'Jan, Web: 10'],
+        ['ArrowLeft', 'Jan, Web: 10']
+      ] as const) {
+        press(plot.element(), key);
+        await expect.poll(status).toBe(reading);
+      }
+    });
+
+    it('starts from the last column when the first key goes back', async () => {
+      const screen = await render(
+        <PlLineChart
+          label="Sessions"
+          categories={MONTHS}
+          series={[{ name: 'Web', data: [10, 20, 30, 40] }]}
+        />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Sessions' });
+
+      await expect.element(plot).toBeInTheDocument();
+      press(plot.element(), 'ArrowLeft');
+
+      await expect
+        .poll(() => screen.getByRole('status').element().textContent)
+        .toBe('Apr, Web: 40');
+    });
+
+    it('closes on Escape and consumes only the keys it answers', async () => {
+      const screen = await render(
+        <PlLineChart
+          label="Sessions"
+          categories={MONTHS}
+          series={[{ name: 'Web', data: [10, 20, 30, 40] }]}
+        />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Sessions' });
+      const status = () => screen.getByRole('status').element().textContent;
+
+      await expect.element(plot).toBeInTheDocument();
+      press(plot.element(), 'ArrowRight');
+      await expect.poll(status).toBe('Jan, Web: 10');
+
+      const escape = new KeyboardEvent('keydown', {
+        key: 'Escape',
+        bubbles: true,
+        cancelable: true
+      });
+
+      plot.element().dispatchEvent(escape);
+
+      await expect.poll(status).toBe('');
+      expect(escape.defaultPrevented).toBe(true);
+      expect(document.querySelector('[data-plass-tooltip]')).toBeNull();
+
+      const other = new KeyboardEvent('keydown', { key: 'a', bubbles: true, cancelable: true });
+
+      plot.element().dispatchEvent(other);
+      expect(other.defaultPrevented).toBe(false);
     });
 
     it('narrows to the nearest series with mode="item"', async () => {
