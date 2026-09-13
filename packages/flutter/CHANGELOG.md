@@ -36,6 +36,8 @@
 
 ### Fixed
 
+- **A `PlToast` that is fading out stays closed.** Raising another toast, or moving the pointer off the stack, during the fade gave the closing toast a new clock, so five seconds later its `onClose` was called a second time and its disposed fade threw. A closing toast is now off the clock and cannot be dismissed twice.
+
 - **A sortable `PlDataTable` heading can be reached and pressed from the keyboard.** It answered a pointer only, so Tab passed it by and there was no way to sort without a mouse or a touch screen. It is now a focus stop with a focus ring that Enter and Space press, as the React build's heading button is.
 
 - **A `PlHeatmapChart` treemap names each tile after its own point.** A tile's name was read from the column at its index, which on a treemap is the name of the tile in that place in the first group, so every other group's tiles, their tooltips and the screen reader summary borrowed the first group's names.

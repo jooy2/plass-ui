@@ -283,6 +283,9 @@ class _Entry {
   final AnimationController fade;
   Timer? timer;
 
+  /// Fading out: off the clock, and not to be dismissed a second time.
+  bool closing = false;
+
   void cancel() {
     timer?.cancel();
     timer = null;
@@ -409,7 +412,7 @@ class _PlToastProviderState extends State<PlToastProvider>
       final timeout = entry.toast.timeout ?? widget.timeout;
       final visible = index < widget.limit;
 
-      if (!visible || _hovered || timeout == Duration.zero) {
+      if (entry.closing || !visible || _hovered || timeout == Duration.zero) {
         entry.cancel();
 
         continue;
@@ -420,7 +423,15 @@ class _PlToastProviderState extends State<PlToastProvider>
   }
 
   void _dismiss(_Entry entry) {
-    entry.cancel();
+    // A toast already on its way out is left to go. A second dismissal would
+    // report the close again and reverse a fade that may already be disposed.
+    if (entry.closing) {
+      return;
+    }
+
+    entry
+      ..closing = true
+      ..cancel();
     entry.toast.onClose?.call();
     entry.fade.reverse().whenComplete(() {
       if (!mounted) {

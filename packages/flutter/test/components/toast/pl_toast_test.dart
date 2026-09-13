@@ -146,6 +146,46 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('a toast closed as another arrives is closed once, and nothing throws later', (
+        WidgetTester tester,
+      ) async {
+        late PlToastController controller;
+        var closed = 0;
+
+        await tester.pumpWidget(
+          host(
+            PlToastProvider(
+              child: Builder(
+                builder: (BuildContext context) {
+                  controller = PlToastProvider.of(context);
+
+                  return const SizedBox.shrink();
+                },
+              ),
+            ),
+            width: 600,
+            height: 500,
+          ),
+        );
+
+        controller.show(PlToast(id: 'a', title: const Text('First'), onClose: () => closed += 1));
+        controller.show(const PlToast(id: 'b', title: Text('Second')));
+        await tester.pumpAndSettle();
+
+        // Closed, and a new toast raised while the first is still fading out,
+        // which is what hands every toast on the stack its clock again.
+        controller.close('a');
+        await tester.pump(const Duration(milliseconds: 50));
+        controller.show(const PlToast(id: 'c', title: Text('Third')));
+        await tester.pumpAndSettle();
+
+        await tester.pump(const Duration(seconds: 6));
+        await tester.pumpAndSettle();
+
+        expect(tester.takeException(), isNull);
+        expect(closed, 1);
+      });
+
       testWidgets('the action fires and takes the toast with it', (WidgetTester tester) async {
         var undone = 0;
         await tester.pumpWidget(
