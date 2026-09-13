@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **`PlTypography` clamps to the number of `lines` it is given, and cuts a `caption` or an `overline` short.** `lines` above 6 clamped to 6, because there was a class for each count up to six and nothing after. And `lines={1}` on a `caption` or an `overline` did nothing, since those levels are `<span>`s and an ellipsis needs a box. Any count now clamps to that many lines, and a one-line clamp is drawn as a block.
+
 - **`PlImage` reports a new `src` that was already in the cache.** The status last reported was kept across a change of `src`, so a second picture that had already arrived settled as `loaded` without calling `onStatusChange`, and a caller that showed a spinner until it heard `loaded` kept showing it. A new `src` now starts over and reports its own arrival.
 
 - **Every link that opens a new tab takes `noopener noreferrer`.** `PlTextLink` added them only for `newTab`, so a caller's own `target="_blank"` got neither them nor the "(opens in a new tab)" line a screen reader hears. `PlNavigationMenuLink` passed its `target` through with the `rel` untouched, and `PlMenuItem` took no `rel` at all. All three now merge the two tokens into the `rel` of any link whose `target` is not this tab, `PlTextLink` announces a `target="_blank"` link as it does a `newTab` one, and `PlMenuItem` takes a `rel`.

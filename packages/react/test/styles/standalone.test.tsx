@@ -55,7 +55,8 @@ import {
   PlTab,
   PlTabs,
   PlTextField,
-  PlToggle
+  PlToggle,
+  PlTypography
 } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
 import pkg from '../../package.json';
@@ -208,6 +209,23 @@ describe('plass-ui/styles.css', () => {
       expect(label.clientHeight).toBeGreaterThanOrEqual(
         Math.floor(glyphs.getBoundingClientRect().height)
       );
+    });
+
+    it('clamp text to the number of lines it was given, and cut a quiet level short', async () => {
+      const screen = await render(
+        <>
+          <PlTypography lines={8}>Eight lines</PlTypography>
+          <PlTypography level="caption" lines={1}>
+            One line
+          </PlTypography>
+        </>
+      );
+      const eight = getComputedStyle(screen.getByText('Eight lines').element());
+      const one = getComputedStyle(screen.getByText('One line').element());
+
+      expect(eight.webkitLineClamp).toBe('8');
+      expect(one.display).toBe('block');
+      expect(one.textOverflow).toBe('ellipsis');
     });
   });
 

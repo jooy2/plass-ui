@@ -152,15 +152,15 @@ const alignClasses: Record<PlTypographyAlign, string> = {
  * Clamping is two different mechanisms. One line is `text-overflow: ellipsis`,
  * which keeps the text on its own baseline; more than one needs the line-clamp
  * box, which only ellipsises because WebKit says so.
+ *
+ * The count goes through `--p-lines` rather than a class per number, so eight
+ * lines is eight rather than the last class anybody wrote out. And one line is
+ * a block as well, because `caption` and `overline` are `<span>`s, and an
+ * ellipsis needs a box to cut the line at.
  */
-const clampClasses: Record<number, string> = {
-  1: 'truncate',
-  2: 'line-clamp-2',
-  3: 'line-clamp-3',
-  4: 'line-clamp-4',
-  5: 'line-clamp-5',
-  6: 'line-clamp-6'
-};
+function clampClasses(lines: number): string {
+  return lines === 1 ? 'block truncate' : 'line-clamp-(--p-lines)';
+}
 
 /**
  * Text at one of the library's sizes.
@@ -195,11 +195,12 @@ export const PlTypography = /* @__PURE__ */ React.forwardRef<HTMLElement, PlTypo
     },
     ref
   ) {
+    const clamp = lines && lines >= 1 ? Math.floor(lines) : undefined;
     const classNames = [
       levelClasses[level],
       weightClasses[weight ?? levelWeights[level]],
       align ? alignClasses[align] : '',
-      lines ? (clampClasses[lines] ?? 'line-clamp-6') : '',
+      clamp ? clampClasses(clamp) : '',
       gutter ? gutterClasses[level] : '',
       color
         ? 'text-(--p-accent)'
@@ -216,8 +217,12 @@ export const PlTypography = /* @__PURE__ */ React.forwardRef<HTMLElement, PlTypo
       ref,
       props: {
         className: classNames,
-        style: (color
-          ? { '--p-accent': `var(--plass-${color}-accent)`, ...style }
+        style: (color || (clamp && clamp > 1)
+          ? {
+              ...(color ? { '--p-accent': `var(--plass-${color}-accent)` } : null),
+              ...(clamp && clamp > 1 ? { '--p-lines': clamp } : null),
+              ...style
+            }
           : style) as React.CSSProperties,
         children,
         ...props

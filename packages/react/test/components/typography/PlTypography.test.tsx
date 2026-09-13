@@ -75,7 +75,23 @@ describe('PlTypography', () => {
 
       await screen.rerender(<PlTypography lines={3}>Long</PlTypography>);
 
-      expect(screen.getByText('Long').element()).toHaveClass('line-clamp-3');
+      expect(screen.getByText('Long').element()).toHaveClass('line-clamp-(--p-lines)');
+      expect(screen.getByText('Long').element().style.getPropertyValue('--p-lines')).toBe('3');
+
+      // Past the six a class per number would have stopped at.
+      await screen.rerender(<PlTypography lines={8}>Long</PlTypography>);
+
+      expect(screen.getByText('Long').element().style.getPropertyValue('--p-lines')).toBe('8');
+    });
+
+    it('gives a one-line caption a box to cut the line at', async () => {
+      const screen = await render(
+        <PlTypography level="caption" lines={1}>
+          Long
+        </PlTypography>
+      );
+
+      expect(screen.getByText('Long').element()).toHaveClass('block', 'truncate');
     });
 
     it('adds no margin unless asked', async () => {
