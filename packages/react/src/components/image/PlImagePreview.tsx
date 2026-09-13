@@ -3,7 +3,9 @@
 import * as React from 'react';
 import { PlOverlay } from '../overlay/PlOverlay.js';
 import { cx } from '../../internal/styles.js';
+import { isSideways, poseStyle } from '../../internal/image.js';
 import { PlassWatermark } from '../../internal/watermark.js';
+import type { PlassQuarters } from '../../internal/image.js';
 import type { PlassWatermarkOptions } from '../../internal/watermark.js';
 import type { PlassColor } from '../../types.js';
 
@@ -31,6 +33,52 @@ export interface PlImagePreviewProps {
    * wanted.
    */
   watermark?: string | PlassWatermarkOptions;
+  /**
+   * How many quarters the thumbnail is turned, carried in so the picture opens
+   * the way it was shown.
+   */
+  quarters?: PlassQuarters;
+  /**
+   * The file's own pixel size, where the thumbnail knows it. A picture on its
+   * side is opened in a box of the turned shape, and this is that shape.
+   */
+  file?: { width: number; height: number } | null;
+}
+
+/**
+ * The height a preview is capped at, and the width.
+ *
+ * Named once, because a picture on its side cannot be capped by its own
+ * `max-height`: it is turned, so its height on the screen is its width in the
+ * layout. The turned box is capped by the same two numbers instead.
+ */
+const HEIGHT_CAP = '85vh';
+const WIDTH_CAP = '90vw';
+
+/**
+ * The box a picture on its side is opened in.
+ *
+ * An `<img>` sized by its own content cannot be turned in place: it keeps the
+ * file's footprint, so a portrait turned onto its side would spill out sideways
+ * and leave a gap above and below. The box is the turned shape instead, no wider
+ * than the screen allows, than the file holds, or than the height cap turns
+ * into. A file nothing has measured yet gets a square, which `contain` fills
+ * correctly whatever arrives.
+ */
+function turnedBox(file: { width: number; height: number } | null): React.CSSProperties {
+  if (file === null) {
+    return {
+      aspectRatio: '1',
+      width: `min(${WIDTH_CAP}, ${HEIGHT_CAP})`,
+      containerType: 'size'
+    };
+  }
+
+  return {
+    aspectRatio: `${file.height} / ${file.width}`,
+    width: `min(${WIDTH_CAP}, ${file.height}px, calc(${HEIGHT_CAP} * ${file.height / file.width}))`,
+    containerType: 'size'
+  };
 }
 
 /**
@@ -54,8 +102,12 @@ export function PlImagePreview({
   label,
   color,
   protect = false,
-  watermark
+  watermark,
+  quarters = 0,
+  file = null
 }: PlImagePreviewProps) {
+  const sideways = isSideways(quarters);
+
   return (
     <PlOverlay
       open={open}
@@ -65,14 +117,18 @@ export function PlImagePreview({
       color={color}
       label={label}
     >
-      <span className="relative block">
+      <span className="relative block" style={sideways ? turnedBox(file) : undefined}>
         <img
           src={src}
           alt={alt}
           className={cx(
-            'block max-h-[85vh] max-w-[90vw] object-contain',
+            'block object-contain',
+            sideways ? '' : 'max-h-[85vh] max-w-[90vw]',
             protect ? 'select-none [-webkit-touch-callout:none]' : ''
           )}
+          // The same declarations the thumbnail was turned with, so the turned
+          // picture is laid out at the box's height by its width and fitted.
+          style={poseStyle(quarters) ?? undefined}
           draggable={protect ? false : undefined}
           onDragStart={protect ? (event) => event.preventDefault() : undefined}
           onContextMenu={protect ? (event) => event.preventDefault() : undefined}

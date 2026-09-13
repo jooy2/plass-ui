@@ -14224,6 +14224,15 @@ export const propTables: Record<string, PropRow[]> = {
       description: { ko: '사진을 상자에 어떻게 맞출지', en: 'How the picture is fitted to the box' }
     },
     {
+      name: 'rotate',
+      type: '0 | 90 | 180 | 270',
+      default: '0',
+      description: {
+        ko: '사진을 시계 방향으로 4분의 1 바퀴씩 돌립니다. 옆으로 누우면 상자도 누운 모양을 따르고, ratio가 있으면 ratio를 지킵니다',
+        en: 'Turns the picture clockwise, a quarter at a time. A picture on its side takes a box of the turned shape, unless a ratio says otherwise'
+      }
+    },
+    {
       name: 'filter',
       type: "'none' | 'grayscale' | 'sepia' | 'saturate' | 'desaturate' | 'contrast' | 'dim' | string",
       default: "'none'",

@@ -8,6 +8,7 @@ import 'package:plass_ui/src/components/overlay/pl_overlay.dart';
 import 'package:plass_ui/src/components/skeleton/pl_skeleton.dart';
 import 'package:plass_ui/src/internal/css.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/image.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/watermark.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -85,6 +86,7 @@ class PlImage extends StatefulWidget {
     this.semanticLabel,
     this.ratio,
     this.fit = PlAspectFit.cover,
+    this.rotate = 0,
     this.filter = PlImageFilter.none,
     this.colorFilter,
     this.watermark,
@@ -120,6 +122,19 @@ class PlImage extends StatefulWidget {
 
   /// How the picture is fitted to the box.
   final PlAspectFit fit;
+
+  /// Turns the picture clockwise, a quarter at a time: `0`, `90`, `180` or
+  /// `270`.
+  ///
+  /// Quarter turns and nothing between them. A picture turned by any other angle
+  /// no longer covers its own box, so any other number is taken to the nearest
+  /// quarter, and `-90` is the `270` it means.
+  ///
+  /// A picture on its side is laid out on its side. Without a [ratio] the widget
+  /// takes the turned shape of the picture; with one, the ratio is the layout's
+  /// and is kept, and [fit] decides how the turned picture fills it. The
+  /// placeholder, the fallback and the watermark stay upright.
+  final int rotate;
 
   /// A treatment laid over the picture.
   ///
@@ -208,6 +223,23 @@ class _PlImageState extends State<PlImage> {
     });
   }
 
+  /// The picture turned the way [PlImage.rotate] says.
+  ///
+  /// A [RotatedBox] rather than a [Transform], because it turns the layout as
+  /// well as the paint: the picture is laid out at the box's height by its
+  /// width, fitted there, and turned into place, so a picture on its side fills
+  /// its box rather than overhanging it on one axis and falling short on the
+  /// other.
+  Widget _pose(Widget child) {
+    final int quarters = quartersOf(widget.rotate);
+
+    if (quarters == 0) {
+      return child;
+    }
+
+    return RotatedBox(quarterTurns: quarters, child: child);
+  }
+
   /// The picture with its treatment on it, or the picture as it is.
   ///
   /// [PlImage.colorFilter] wins where both are given: the named ones are the
@@ -291,7 +323,7 @@ class _PlImageState extends State<PlImage> {
         // whole `Image` would put it over the placeholder and the fallback too,
         // and a greyed-out skeleton is not what `filter: grayscale` was asked
         // for.
-        final Widget treated = _treat(child);
+        final Widget treated = _treat(_pose(child));
 
         if (sync) {
           _settle(PlImageStatus.loaded);
@@ -397,11 +429,15 @@ class _PlImageState extends State<PlImage> {
             label: widget.previewLabel ?? PlassTheme.labelsOf(context).preview,
             // The mark follows the picture in. One that comes off the moment it
             // is opened large has marked the copy nobody wanted.
+            // Turned the way the thumbnail was, so the picture opens the way it
+            // was shown.
             child: widget.watermark == null
-                ? Image(image: widget.image, fit: BoxFit.contain, excludeFromSemantics: true)
+                ? _pose(Image(image: widget.image, fit: BoxFit.contain, excludeFromSemantics: true))
                 : Stack(
                     children: <Widget>[
-                      Image(image: widget.image, fit: BoxFit.contain, excludeFromSemantics: true),
+                      _pose(
+                        Image(image: widget.image, fit: BoxFit.contain, excludeFromSemantics: true),
+                      ),
                       PlassWatermarkLayer(watermark: widget.watermark!),
                     ],
                   ),

@@ -63,6 +63,23 @@ class _LaterImage extends ImageProvider<_LaterImage> {
   ImageStreamCompleter loadImage(_LaterImage key, ImageDecoderCallback decode) => _completer;
 }
 
+/// A blank picture of the given size, for a [_LaterImage] to deliver.
+///
+/// A picture with a width and a height of its own is what shows a turn, and a
+/// one-pixel square cannot.
+Future<ui.Image> _blank(WidgetTester tester, int width, int height) async {
+  return (await tester.runAsync(() {
+    final ui.PictureRecorder recorder = ui.PictureRecorder();
+
+    Canvas(recorder).drawRect(
+      Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()),
+      Paint()..color = const Color(0xFF808080),
+    );
+
+    return recorder.endRecording().toImage(width, height);
+  }))!;
+}
+
 /// The one-pixel PNG, decoded, for a [_LaterImage] to deliver.
 Future<ui.Image> _decoded(WidgetTester tester) async {
   return (await tester.runAsync(() async {
@@ -251,6 +268,136 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(status, equals(PlImageStatus.loaded));
+      });
+    });
+
+    group('rotate', () {
+      /// The turn the picture is drawn with, or `null` for none.
+      int? turned(WidgetTester tester) {
+        final Finder boxes = find.descendant(
+          of: find.byType(PlImage),
+          matching: find.byType(RotatedBox),
+        );
+
+        return boxes.evaluate().isEmpty
+            ? null
+            : tester.widget<RotatedBox>(boxes.first).quarterTurns;
+      }
+
+      /// A [PlImage] of a 120 by 80 picture, arrived.
+      Future<void> pumpArrived(
+        WidgetTester tester,
+        PlImage Function(ImageProvider<Object>) build,
+      ) async {
+        final Completer<ImageInfo> arrival = Completer<ImageInfo>();
+
+        await tester.pumpWidget(host(build(_LaterImage(arrival)), width: 120));
+        arrival.complete(ImageInfo(image: await _blank(tester, 120, 80)));
+        await tester.pumpAndSettle();
+      }
+
+      testWidgets('turns nothing until it is asked to', (WidgetTester tester) async {
+        await _pump(tester, PlImage(image: _ok, semanticLabel: 'A portrait'));
+        await tester.pumpAndSettle();
+
+        expect(turned(tester), isNull);
+      });
+
+      testWidgets('turns a quarter at a time', (WidgetTester tester) async {
+        await _pump(tester, PlImage(image: _ok, semanticLabel: 'A portrait', rotate: 270));
+        await tester.pumpAndSettle();
+
+        expect(turned(tester), 3);
+      });
+
+      testWidgets('takes any other number to the nearest quarter', (WidgetTester tester) async {
+        await _pump(tester, PlImage(image: _ok, semanticLabel: 'A portrait', rotate: -90));
+        await tester.pumpAndSettle();
+
+        expect(turned(tester), 3);
+
+        await _pump(tester, PlImage(image: _ok, semanticLabel: 'A portrait', rotate: 450));
+        await tester.pumpAndSettle();
+
+        expect(turned(tester), 1);
+      });
+
+      testWidgets('takes the turned shape of the picture without a ratio', (
+        WidgetTester tester,
+      ) async {
+        await pumpArrived(
+          tester,
+          (ImageProvider<Object> image) =>
+              PlImage(image: image, semanticLabel: 'A portrait', rotate: 90),
+        );
+
+        // A 120 by 80 picture on its side, 120 wide: two wide by three tall.
+        expect(tester.getSize(find.byType(PlImage)), const Size(120, 180));
+      });
+
+      testWidgets('keeps the shape of an upright picture on a half turn', (
+        WidgetTester tester,
+      ) async {
+        await pumpArrived(
+          tester,
+          (ImageProvider<Object> image) =>
+              PlImage(image: image, semanticLabel: 'A portrait', rotate: 180),
+        );
+
+        expect(tester.getSize(find.byType(PlImage)), const Size(120, 80));
+      });
+
+      testWidgets('keeps a ratio of the caller’s own and fits the turned picture to it', (
+        WidgetTester tester,
+      ) async {
+        await pumpArrived(
+          tester,
+          (ImageProvider<Object> image) => PlImage(
+            image: image,
+            semanticLabel: 'A portrait',
+            ratio: 1,
+            fit: PlAspectFit.contain,
+            rotate: 90,
+          ),
+        );
+
+        // The ratio is the layout's shape. The picture is laid out on its side
+        // inside it, so the raw image fills the box it was turned into.
+        expect(tester.getSize(find.byType(PlImage)), const Size(120, 120));
+        expect(tester.getSize(find.byType(RawImage)), const Size(120, 120));
+      });
+
+      testWidgets('leaves the placeholder upright', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          const PlImage(image: _PendingImage(), semanticLabel: 'A portrait', ratio: 1, rotate: 90),
+        );
+
+        expect(
+          find.descendant(of: find.byType(RotatedBox), matching: find.byType(PlSkeleton)),
+          findsNothing,
+        );
+      });
+
+      testWidgets('opens the preview turned', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          PlImage(image: _ok, ratio: 1, semanticLabel: 'A portrait', preview: true, rotate: 90),
+          overlay: true,
+        );
+        await tester.pumpAndSettle();
+
+        final Finder opened = find.descendant(
+          of: find.byType(PlOverlay),
+          matching: find.byType(RotatedBox),
+        );
+
+        expect(opened, findsNothing);
+
+        await tester.tap(find.byType(PlImage));
+        await tester.pumpAndSettle();
+
+        expect(opened, findsOneWidget);
       });
     });
 

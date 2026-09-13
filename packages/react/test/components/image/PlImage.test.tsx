@@ -16,7 +16,7 @@ import * as React from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
 import { render } from 'vitest-browser-react';
-import { PlImage } from 'plass-ui';
+import { PlImage, type PlImageRotation } from 'plass-ui';
 
 const OK =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
@@ -202,6 +202,134 @@ describe('PlImage', () => {
       await screen.getByRole('button').click();
 
       await expect.poll(() => document.querySelectorAll('img').length).toBe(2);
+    });
+  });
+
+  describe('rotate', () => {
+    /** A file with a width and a height and no network behind it. */
+    const sized = (width: number, height: number) =>
+      `data:image/svg+xml,${encodeURIComponent(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"></svg>`
+      )}`;
+
+    it('writes nothing new until it is asked to', async () => {
+      await render(<PlImage src={OK} alt="A portrait" className="img-under-test" />);
+
+      expect(image().getAttribute('style')).toBeNull();
+      expect(box('img-under-test').style.containerType).toBe('');
+    });
+
+    it('turns with the rotate property and leaves transform alone', async () => {
+      await render(<PlImage src={OK} alt="A portrait" rotate={180} className="img-under-test" />);
+
+      // A `transform` written inline would silently beat a hover effect or a
+      // class of the caller's own.
+      expect(image().style.rotate).toBe('180deg');
+      expect(image().style.transform).toBe('');
+    });
+
+    it('keeps a half turn in the flow', async () => {
+      await render(<PlImage src={OK} alt="A portrait" rotate={180} className="img-under-test" />);
+
+      // Upside down is the same footprint, so nothing has to be laid out again.
+      expect(image().style.position).toBe('');
+      expect(box('img-under-test').style.containerType).toBe('');
+    });
+
+    it('takes any other number to the nearest quarter', async () => {
+      const screen = await render(
+        <PlImage src={OK} alt="A portrait" rotate={-90 as PlImageRotation} />
+      );
+
+      expect(image().style.rotate).toBe('270deg');
+
+      await screen.rerender(<PlImage src={OK} alt="A portrait" rotate={450 as PlImageRotation} />);
+
+      expect(image().style.rotate).toBe('90deg');
+
+      await screen.rerender(<PlImage src={OK} alt="A portrait" rotate={NaN as PlImageRotation} />);
+
+      expect(image().style.rotate).toBe('');
+    });
+
+    it('lays a quarter turn out at the box turned on its side', async () => {
+      await render(<PlImage src={OK} alt="A portrait" rotate={90} className="img-under-test" />);
+
+      const style = image().style;
+
+      // The box's height by its width, centred and turned into place, which is
+      // what lets `object-fit` fit the turned picture to the box.
+      expect([style.width, style.height]).toEqual(['100cqh', '100cqw']);
+      expect([style.position, style.top, style.left, style.translate]).toEqual([
+        'absolute',
+        '50%',
+        '50%',
+        '-50% -50%'
+      ]);
+      // A reset caps an `<img>` at its parent's width, which on a tall box is
+      // shorter than the turned picture.
+      expect(style.maxWidth).toBe('none');
+      expect(box('img-under-test').style.containerType).toBe('size');
+    });
+
+    it('reserves the turned shape of the dimensions it was given', async () => {
+      await render(
+        <PlImage
+          src={OK}
+          alt="A portrait"
+          width={1200}
+          height={800}
+          rotate={90}
+          className="img-under-test"
+        />
+      );
+
+      expect(box('img-under-test').style.aspectRatio).toBe('800 / 1200');
+    });
+
+    it('keeps a ratio of the caller’s own', async () => {
+      await render(
+        <PlImage
+          src={OK}
+          alt="A portrait"
+          width={1200}
+          height={800}
+          ratio="16 / 9"
+          rotate={270}
+          className="img-under-test"
+        />
+      );
+
+      // The ratio is the layout's shape, and `fit` decides how the turned
+      // picture fills it.
+      expect(box('img-under-test').style.aspectRatio).toBe('16 / 9');
+    });
+
+    it('takes the turned shape from the file when nothing was declared', async () => {
+      await render(
+        <PlImage src={sized(120, 80)} alt="A portrait" rotate={90} className="img-under-test" />
+      );
+
+      await expect.poll(() => box('img-under-test').style.aspectRatio).toBe('80 / 120');
+    });
+
+    it('opens the preview turned, in a box of the turned shape', async () => {
+      const screen = await render(
+        <PlImage src={sized(120, 80)} alt="A portrait" rotate={90} preview />
+      );
+
+      await expect.poll(() => document.querySelector('button')!.disabled).toBe(false);
+      await screen.getByRole('button').click();
+      await expect.poll(() => document.querySelectorAll('img').length).toBe(2);
+
+      const opened = [...document.querySelectorAll('img')].at(-1)!;
+      const frame = opened.parentElement!;
+
+      expect(opened.style.rotate).toBe('90deg');
+      expect(opened.style.width).toBe('100cqh');
+      expect(frame.style.aspectRatio).toBe('80 / 120');
+      expect(frame.style.containerType).toBe('size');
+      expect(frame.style.width).toContain('80px');
     });
   });
 

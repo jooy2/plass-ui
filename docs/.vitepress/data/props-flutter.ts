@@ -1950,6 +1950,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }),
     from('PlImage', 'ratio', { type: 'double?' }),
     from('PlImage', 'fit', { type: 'PlAspectFit', default: 'PlAspectFit.cover' }),
+    from('PlImage', 'rotate', { type: 'int', default: '0' }),
     from('PlImage', 'rounded', { type: 'bool', default: 'false' }),
     from('PlImage', 'size', { type: SIZE, default: 'PlassSize.md' }),
     from('PlImage', 'color', { type: COLOR, default: 'PlassColor.primary' }),

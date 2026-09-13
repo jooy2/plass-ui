@@ -79,6 +79,42 @@ An `<img>` is one tag and it works, so it is worth saying what this is for rathe
 
 `placeholder` replaces the skeleton. `null` draws nothing and leaves the reserved box empty. `fallback` replaces the alt text, which is the default because it is the one thing that is certainly available and certainly describes what is missing.
 
+### rotate
+
+Turns the picture clockwise by `90`, `180` or `270` degrees. Any other number goes to the nearest quarter, so `-90` is `270`.
+
+<Demo src="image/rotate" :min-height="240">
+
+::: fw react
+
+<<< @/.vitepress/demos/image/rotate.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/rotate.dart
+
+:::
+
+</Demo>
+
+A picture on its side is laid out on its side. A `ratio` is the shape of the layout, so it is kept, and `fit` decides how the turned picture fills it. Without a `ratio`, the box takes the turned shape of the picture. The placeholder, the fallback and the watermark stay upright, and `preview` opens the picture turned the same way.
+
+::: fw react
+
+`width` and `height` still describe the file, so `width={1200} height={800} rotate={90}` reserves a box two wide by three tall before the file arrives. With neither, the box takes the turned shape once the file has loaded, and is empty until then.
+
+The turn is drawn with the CSS `rotate` property rather than `transform`, so a `transform` of your own, a hover effect for example, still applies on top of it.
+
+:::
+
+::: fw flutter
+
+The picture is turned with a `RotatedBox`, which turns its layout as well as its paint. Without a `ratio`, the box takes the turned shape once the picture has loaded. There are no file dimensions to reserve it from beforehand, because an `ImageProvider` does not carry them the way an `<img>`'s `width` and `height` do.
+
+:::
+
 ### filter
 
 A treatment laid over the picture. Six of them have names (`grayscale`, `sepia`, `saturate`, `desaturate`, `contrast` and `dim`), and anything else you pass is a CSS `filter` chain, used exactly as written.

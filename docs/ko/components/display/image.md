@@ -79,6 +79,42 @@ PlImage(
 
 `placeholder`가 skeleton을 대체합니다. `null`은 아무것도 그리지 않고 잡아 둔 상자를 비워 둡니다. `fallback`이 alt 텍스트를 대체하고, alt가 기본인 이유는 그것이 확실히 존재하고 확실히 없는 것을 설명하는 유일한 것이기 때문입니다.
 
+### rotate
+
+사진을 시계 방향으로 `90`, `180`, `270`도 돌립니다. 그 밖의 숫자는 가장 가까운 4분의 1 바퀴로 맞추므로 `-90`은 `270`입니다.
+
+<Demo src="image/rotate" :min-height="240">
+
+::: fw react
+
+<<< @/.vitepress/demos/image/rotate.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/rotate.dart
+
+:::
+
+</Demo>
+
+옆으로 누운 사진은 누운 모양으로 배치됩니다. `ratio`는 레이아웃의 모양이라 그대로 두고, 돌아간 사진이 그 상자를 어떻게 채울지는 `fit`이 정합니다. `ratio`가 없으면 상자가 돌아간 사진의 모양을 따릅니다. placeholder, fallback, watermark는 바로 선 채로 남고, `preview`도 같은 방향으로 돌아간 사진을 엽니다.
+
+::: fw react
+
+`width`와 `height`는 여전히 파일을 설명합니다. 그래서 `width={1200} height={800} rotate={90}`은 파일이 도착하기 전부터 가로 2, 세로 3인 상자를 잡아 둡니다. 둘 다 없으면 파일이 로드된 뒤에 상자가 돌아간 모양을 따르고, 그때까지는 비어 있습니다.
+
+회전은 `transform`이 아니라 CSS `rotate` 속성으로 그립니다. 그래서 hover 효과처럼 직접 건 `transform`도 그 위에 그대로 적용됩니다.
+
+:::
+
+::: fw flutter
+
+사진은 `RotatedBox`로 돌리고, 이 위젯은 그리기뿐 아니라 레이아웃도 함께 돌립니다. `ratio`가 없으면 사진이 로드된 뒤에 상자가 돌아간 모양을 따릅니다. 미리 잡아 둘 파일 크기가 없기 때문입니다. `ImageProvider`에는 `<img>`의 `width`와 `height` 같은 크기 정보가 없습니다.
+
+:::
+
 ### filter
 
 사진에 얹는 처리입니다. 여섯 가지에 이름이 있고(`grayscale`, `sepia`, `saturate`, `desaturate`, `contrast`, `dim`) 그 밖에 넘기는 것은 CSS `filter` 체인이라 쓴 그대로 적용됩니다.

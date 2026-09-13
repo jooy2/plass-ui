@@ -5,6 +5,7 @@ import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { PlSkeleton } from '../skeleton/PlSkeleton.js';
 import { PlassWatermark } from '../../internal/watermark.js';
+import { isSideways, poseStyle, quartersOf } from '../../internal/image.js';
 import { cx, focusRingClasses, radiusClasses, transitionClasses } from '../../internal/styles.js';
 import type { PlassColor, PlassSize } from '../../types.js';
 import type { PlassWatermarkOptions, PlassWatermarkPlacement } from '../../internal/watermark.js';
@@ -17,6 +18,16 @@ export type PlImageWatermark = PlassWatermarkOptions;
 
 /** How the picture is fitted to the box. `object-fit`'s own words. */
 export type PlImageFit = 'cover' | 'contain' | 'fill' | 'none';
+
+/**
+ * How far the picture is turned, clockwise, in degrees.
+ *
+ * Quarter turns and nothing between them. A picture turned by any other angle
+ * no longer covers its own box, and filling the corners that leaves means
+ * enlarging it by an amount a caller would then want to tune, which is a photo
+ * editor's job rather than a component's.
+ */
+export type PlImageRotation = 0 | 90 | 180 | 270;
 
 /** The treatments that have a name. Anything else is written as CSS. */
 export type PlImageFilter =
@@ -44,6 +55,20 @@ export interface PlImageProps extends Omit<
   ratio?: number | string;
   /** @default 'cover' */
   fit?: PlImageFit;
+  /**
+   * Turns the picture clockwise, a quarter at a time.
+   *
+   * A picture on its side is laid out on its side. `width` and `height` still
+   * describe the file, so `width={1200} height={800} rotate={90}` reserves a box
+   * two wide by three tall, and a picture with neither takes the turned shape
+   * once the file has said what it is. A `ratio` is the layout's and is kept,
+   * with `fit` deciding how the turned picture fills it.
+   *
+   * Drawn with CSS's own `rotate` property rather than a `transform`, which
+   * stays free for a hover effect or a class of your own.
+   * @default 0
+   */
+  rotate?: PlImageRotation;
   /**
    * A treatment laid over the picture: one of the named ones, or any CSS
    * `filter` chain of your own — `'blur(2px) hue-rotate(20deg)'` is as valid a
@@ -113,6 +138,47 @@ export interface PlImageProps extends Omit<
 
 /** Where the picture has got to. */
 export type PlImageStatus = 'loading' | 'loaded' | 'error';
+
+/** The file's own pixel dimensions, once something has said what they are. */
+interface PixelSize {
+  width: number;
+  height: number;
+}
+
+/**
+ * Where the picture has got to, and what it turned out to be.
+ *
+ * One value rather than two, so a picture arriving is still one render: the
+ * size is only ever learned at the moment the status changes.
+ */
+interface PictureState {
+  status: PlImageStatus;
+  natural: PixelSize | null;
+}
+
+/**
+ * The file two `<img>` dimensions describe, or `null` where they do not.
+ *
+ * They arrive as `number | string` because that is what the attribute takes, so
+ * `'1200'` counts and `'50%'` does not. A percentage is a length and says
+ * nothing about the file, and one dimension without the other says nothing
+ * about its shape.
+ */
+function pixelSize(width?: number | string, height?: number | string): PixelSize | null {
+  const w = Number(width);
+  const h = Number(height);
+
+  return width !== undefined && height !== undefined && w > 0 && h > 0
+    ? { width: w, height: h }
+    : null;
+}
+
+/** What a settled `<img>` says it is, or `null` for a file that did not arrive. */
+function naturalSize(node: HTMLImageElement | null): PixelSize | null {
+  return node !== null && node.naturalWidth > 0
+    ? { width: node.naturalWidth, height: node.naturalHeight }
+    : null;
+}
 
 /**
  * What each named treatment is, as the CSS it stands for.
@@ -187,6 +253,7 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
       src,
       ratio,
       fit = 'cover',
+      rotate = 0,
       filter,
       watermark,
       protect = false,
@@ -201,6 +268,8 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
       className,
       style,
       loading = 'lazy',
+      width,
+      height,
       ...props
     },
     ref
@@ -211,7 +280,11 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
 
-    const [status, setStatus] = React.useState<PlImageStatus>('loading');
+    const [picture, setPicture] = React.useState<PictureState>({
+      status: 'loading',
+      natural: null
+    });
+    const status = picture.status;
     const [open, setOpen] = React.useState(false);
 
     const imgRef = React.useRef<HTMLImageElement | null>(null);
@@ -237,14 +310,23 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
      */
     const reported = React.useRef<PlImageStatus>('loading');
 
-    const settle = (next: PlImageStatus) => {
-      if (reported.current === next) {
-        return;
-      }
+    const settle = (next: PlImageStatus, node: HTMLImageElement | null) => {
+      const natural = next === 'loaded' ? naturalSize(node) : null;
 
-      reported.current = next;
-      setStatus(next);
-      onStatusChange?.(next);
+      // The size is compared as well as the status: a new `src` that was
+      // already decoded settles as `loaded` again, and it is a different file.
+      setPicture((current) =>
+        current.status === next &&
+        current.natural?.width === natural?.width &&
+        current.natural?.height === natural?.height
+          ? current
+          : { status: next, natural }
+      );
+
+      if (reported.current !== next) {
+        reported.current = next;
+        onStatusChange?.(next);
+      }
     };
 
     /*
@@ -276,7 +358,7 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
       }
 
       if (node.getAttribute('src') && node.complete) {
-        settle(node.naturalWidth > 0 ? 'loaded' : 'error');
+        settle(node.naturalWidth > 0 ? 'loaded' : 'error', node);
 
         return;
       }
@@ -284,7 +366,9 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
       // A new `src` starts again. Without this a second picture would inherit
       // the first one's `loaded` and be shown before it had arrived.
       reported.current = 'loading';
-      setStatus('loading');
+      setPicture((current) =>
+        current.status === 'loading' ? current : { status: 'loading', natural: null }
+      );
       // `settle` closes over `onStatusChange`, which a caller is free to write
       // inline; depending on it would restart every picture on every render.
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -300,21 +384,32 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
     const filterChain =
       filter === undefined ? undefined : (filterChains[filter as PlImageFilter] ?? filter);
 
-    const picture = (
+    const quarters = quartersOf(rotate);
+    const sideways = isSideways(quarters);
+    const pose = poseStyle(quarters);
+
+    const pictureStyle: React.CSSProperties | undefined =
+      filterChain === undefined && pose === null
+        ? undefined
+        : {
+            // A slot rather than `filter` itself, so a caller's own rule — a
+            // gallery tile dimming what is under the pointer — can still reach
+            // it.
+            ...(filterChain === undefined ? null : { '--p-filter': filterChain }),
+            ...pose
+          };
+
+    const img = (
       <img
         ref={setImgRef}
         src={src}
         alt={alt}
         loading={loading}
-        onLoad={() => settle('loaded')}
-        onError={() => settle('error')}
-        // A slot rather than `filter` itself, so a caller's own rule — a
-        // gallery tile dimming what is under the pointer — can still reach it.
-        style={
-          filterChain === undefined
-            ? undefined
-            : ({ '--p-filter': filterChain } as React.CSSProperties)
-        }
+        width={width}
+        height={height}
+        onLoad={(event) => settle('loaded', event.currentTarget)}
+        onError={() => settle('error', null)}
+        style={pictureStyle}
         className={cx(
           'block size-full',
           fitClasses[fit],
@@ -340,7 +435,7 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
 
     const body = (
       <>
-        {picture}
+        {img}
 
         {status === 'loading' ? (
           <span className="absolute inset-0">
@@ -373,8 +468,31 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
       </>
     );
 
+    /*
+     * The proportion the box holds.
+     *
+     * A `ratio` is the layout's shape and is kept whichever way the picture
+     * lies. Without one, an upright picture holds the box open itself — its two
+     * dimensions reserve it before it arrives, the way an `<img>`'s always
+     * have. A picture on its side is out of the flow and holds nothing open, so
+     * the box takes the turned shape instead: from the two dimensions if the
+     * caller gave them, and from the file once it has arrived if not. Written
+     * onto this box rather than by swapping it for another, which would remount
+     * the picture on the frame it arrived.
+     */
+    const file = pixelSize(width, height) ?? picture.natural;
+    const turned =
+      ratio === undefined && sideways && file !== null ? `${file.height} / ${file.width}` : ratio;
+
     const boxClasses = cx('relative block overflow-hidden', radius, className);
-    const boxStyle: React.CSSProperties = { aspectRatio: ratio, ...style };
+    const boxStyle: React.CSSProperties = {
+      aspectRatio: turned,
+      // What the turned picture's container units read. Only while it is on its
+      // side: size containment changes how the box is measured, and nothing
+      // else needs it.
+      containerType: sideways ? 'size' : undefined,
+      ...style
+    };
 
     if (!preview) {
       return (
@@ -414,6 +532,8 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
             color={color}
             protect={protect}
             watermark={watermark}
+            quarters={quarters}
+            file={file}
           />
         </React.Suspense>
       </>
