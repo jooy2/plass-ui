@@ -289,6 +289,10 @@ class _PlNumberFieldState extends State<PlNumberField> {
   late final TextEditingController _controller;
   FocusNode? _owned;
   Timer? _repeat;
+
+  /// Whether the stepper being held has repeated, which makes its release the
+  /// moment the value settles rather than one more step.
+  bool _repeated = false;
   bool _hovered = false;
   bool _focused = false;
 
@@ -394,7 +398,9 @@ class _PlNumberFieldState extends State<PlNumberField> {
     return double.parse(next.toStringAsFixed(10));
   }
 
-  void _commit(double? raw) {
+  /// Settles [raw] into the box and reports it. [settled] is `false` for a
+  /// repeat of a held stepper, which changes the value without settling it.
+  void _commit(double? raw, {bool settled = true}) {
     final next = raw == null ? null : _settle(raw);
     final text = _write(next);
 
@@ -409,7 +415,9 @@ class _PlNumberFieldState extends State<PlNumberField> {
       widget.onChanged?.call(next);
     }
 
-    widget.onCommitted?.call(next);
+    if (settled) {
+      widget.onCommitted?.call(next);
+    }
 
     // The value is the parent's to take or turn down. Once it has rebuilt with
     // its answer, a box still showing a number the parent did not take goes
@@ -432,7 +440,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
     WidgetsBinding.instance.ensureVisualUpdate();
   }
 
-  void _step(int direction, {_StepAmount amount = _StepAmount.normal}) {
+  void _step(int direction, {_StepAmount amount = _StepAmount.normal, bool settled = true}) {
     if (!_editable) {
       return;
     }
@@ -448,7 +456,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
     // put something in it.
     final from = _read(_controller.text) ?? widget.min ?? 0;
 
-    _commit(from + by * direction);
+    _commit(from + by * direction, settled: settled);
   }
 
   void _edge(bool toEnd) {
@@ -492,14 +500,52 @@ class _PlNumberFieldState extends State<PlNumberField> {
     final amount = _heldAmount;
 
     _repeat?.cancel();
+    _repeated = false;
     _repeat = Timer(_repeatDelay, () {
-      _repeat = Timer.periodic(_repeatInterval, (Timer _) => _step(direction, amount: amount));
+      _repeat = Timer.periodic(_repeatInterval, (Timer timer) {
+        _repeated = true;
+        _step(direction, amount: amount, settled: false);
+
+        // Nothing more to add once the range has run out.
+        final double? now = _read(_controller.text);
+
+        if (now != null &&
+            (direction > 0
+                ? widget.max != null && now >= widget.max!
+                : widget.min != null && now <= widget.min!)) {
+          timer.cancel();
+        }
+      });
     });
   }
 
+  /// Ends a hold. A hold that repeated settles here, once, and its release is
+  /// not a step of its own.
   void _release() {
     _repeat?.cancel();
     _repeat = null;
+
+    if (_repeated) {
+      widget.onCommitted?.call(_read(_controller.text));
+
+      // Kept for the press that ends the hold, which arrives in the same
+      // pointer event, and dropped after it. A hold that ended where the
+      // stepper can no longer be pressed has no press to swallow, and the next
+      // one, from the keyboard, is a step.
+      scheduleMicrotask(() => _repeated = false);
+    }
+  }
+
+  /// The press of a stepper, which is a step unless it ended a hold that
+  /// already repeated.
+  void _tapStepper(int direction) {
+    if (_repeated) {
+      _repeated = false;
+
+      return;
+    }
+
+    _step(direction, amount: _heldAmount);
   }
 
   bool _atEdge(int direction) {
@@ -670,7 +716,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
       final box = scale.size * _stepperScale;
 
       return PlassInteractive(
-        onTap: inert ? null : () => _step(direction, amount: _heldAmount),
+        onTap: inert ? null : () => _tapStepper(direction),
         enabled: !inert,
         interactive: !inert,
         cursor: inert ? SystemMouseCursors.basic : SystemMouseCursors.click,

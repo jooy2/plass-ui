@@ -254,6 +254,59 @@ void main() {
         expect(state.value, greaterThan(2));
       });
 
+      testWidgets('a held stepper stops at the end of the range, and settles once on release', (
+        WidgetTester tester,
+      ) async {
+        double? value = 0;
+        int changes = 0;
+        final List<double?> settled = <double?>[];
+
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) => PlNumberField(
+                value: value,
+                max: 3,
+                onChanged: (double? next) => setState(() {
+                  changes += 1;
+                  value = next;
+                }),
+                onCommitted: settled.add,
+              ),
+            ),
+            width: 320,
+          ),
+        );
+
+        final press = await tester.startGesture(tester.getCenter(_plus()));
+        await tester.pump(const Duration(milliseconds: 1200));
+
+        // Each repeat is a change, and none of them is the value settling: a
+        // caller that saves on `onCommitted` would otherwise send a request for
+        // every one.
+        expect(value, 3);
+        expect(settled, isEmpty);
+
+        final int atTheEnd = changes;
+        await tester.pump(const Duration(milliseconds: 600));
+        expect(changes, atTheEnd);
+
+        await press.up();
+        await tester.pumpAndSettle();
+
+        expect(settled, <double?>[3]);
+        expect(value, 3);
+
+        // The next press, from the keyboard on the other stepper, is a step.
+        Focus.of(tester.element(_minus())).requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+
+        expect(value, 2);
+        expect(settled, <double?>[3, 2]);
+      });
+
       testWidgets('a disabled field does not step', (WidgetTester tester) async {
         final state = await _pump(tester, const _Harness(disabled: true));
 
