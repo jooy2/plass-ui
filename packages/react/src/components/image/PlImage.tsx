@@ -394,7 +394,11 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
           aria-label={alt ? `${alt} — ${previewLabel.toLowerCase()}` : previewLabel}
           onClick={() => setOpen(true)}
           disabled={status !== 'loaded'}
-          className={cx(boxClasses, 'cursor-zoom-in p-0', focusRingClasses)}
+          // `w-full` because a block `<button>` still sizes itself to its
+          // content, and the content is a picture sized off the box: before
+          // the file arrives that is nothing, and after it is the file's own
+          // width. A `ratio` could then reserve no space at all.
+          className={cx(boxClasses, 'w-full cursor-zoom-in p-0', focusRingClasses)}
           style={boxStyle}
         >
           {body}

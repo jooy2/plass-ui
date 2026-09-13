@@ -6,6 +6,8 @@
 
 ### Fixed
 
+- **A `PlImage` with `preview` reserves its box again.** The preview's trigger is a `<button>`, and a button sizes itself to its content even when it is displayed as a block. The content is a picture sized off the box, so before the file arrived the box had no width and its `ratio` reserved nothing, and a file smaller than the container shrank the box to the file. The trigger now takes the full width, as a picture without `preview` always did.
+
 - **`PlChip` keeps the tails of its letters.** The label is truncated, and truncation clips at the line box, which the chip's one-em leading made shorter than the glyphs inside it — so every g, j, p, q and y lost its descender, at every size. The label's line box is now the font's own height. The chip is the same height and the words sit where they did.
 
 - **`PlSpoiler` no longer changes height when it is uncovered.** The cover is a line of explanation and a button, so it is routinely taller than the text it covers — and it was taken out of the layout on reveal, which collapsed the sheet to its content and pushed the whole page below it up. Covering it again pushed everything back down. The cover now keeps its place and is held hidden and `inert`, exactly as the `reversible` hide row already was, so the sheet measures the same in both states. A `maxHeight` clamp is still released on reveal, which is the one thing that may resize it.

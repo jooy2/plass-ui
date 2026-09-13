@@ -180,6 +180,14 @@ describe('PlImage', () => {
       );
     });
 
+    it('takes the width it is given rather than the width of its content', async () => {
+      await render(<PlImage alt="A portrait" ratio="1" preview />);
+
+      // A block `<button>` still shrinks to its content, and before the file
+      // arrives that content has no width, so the ratio would reserve nothing.
+      expect(document.querySelector('button')).toHaveClass('w-full');
+    });
+
     it('cannot be opened before the picture has arrived', async () => {
       await render(<PlImage src={BROKEN} alt="A portrait" preview />);
 
