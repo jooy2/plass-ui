@@ -621,6 +621,41 @@ describe('PlImage', () => {
       // `loaded` and never draw its own failure.
       await expect.poll(() => onStatusChange.mock.calls).toEqual([['loaded'], ['error']]);
     });
+
+    it('reports the arrival of a new src that was already in the cache', async () => {
+      const other = `data:image/svg+xml,${encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4"></svg>'
+      )}`;
+      const warm = new Image();
+
+      warm.src = other;
+      await warm.decode();
+
+      const onStatusChange = vi.fn();
+      const screen = await render(
+        <PlImage src={OK} alt="A portrait" onStatusChange={onStatusChange} />
+      );
+
+      await expect.poll(() => onStatusChange.mock.calls).toEqual([['loaded']]);
+
+      await screen.rerender(<PlImage src={other} alt="Another" onStatusChange={onStatusChange} />);
+
+      await expect.poll(() => onStatusChange.mock.calls).toEqual([['loaded'], ['loaded']]);
+    });
+
+    it('reports one arrival once, with its effects run twice over', async () => {
+      const onStatusChange = vi.fn();
+
+      await render(
+        <React.StrictMode>
+          <PlImage src={OK} alt="A portrait" onStatusChange={onStatusChange} />
+        </React.StrictMode>
+      );
+
+      await expect.poll(() => onStatusChange.mock.calls.length).toBe(1);
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(onStatusChange.mock.calls).toEqual([['loaded']]);
+    });
   });
 
   describe('preview', () => {

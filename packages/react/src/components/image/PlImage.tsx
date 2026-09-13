@@ -543,6 +543,8 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
      * should not hear about that.
      */
     const reported = React.useRef<PlImageStatus>('loading');
+    /** The `src` that `reported` is about. */
+    const reportedFor = React.useRef(src);
 
     const settle = (next: PlImageStatus, node: HTMLImageElement | null) => {
       const natural = next === 'loaded' ? naturalSize(node) : null;
@@ -591,15 +593,24 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
         return;
       }
 
+      // A new `src` starts again, whether or not it has already arrived. Left
+      // at the last picture's `loaded`, a second picture that was in the cache
+      // would settle without a word, and a caller waiting to hear it arrive
+      // would wait for good. Compared with the `src` rather than reset on every
+      // run, so an effect run twice for one picture still reports it once.
+      if (reportedFor.current !== src) {
+        reportedFor.current = src;
+        reported.current = 'loading';
+      }
+
       if (node.getAttribute('src') && node.complete) {
         settle(node.naturalWidth > 0 ? 'loaded' : 'error', node);
 
         return;
       }
 
-      // A new `src` starts again. Without this a second picture would inherit
-      // the first one's `loaded` and be shown before it had arrived.
-      reported.current = 'loading';
+      // Without this a second picture would inherit the first one's `loaded`
+      // and be shown before it had arrived.
       setPicture((current) =>
         current.status === 'loading' ? current : { status: 'loading', natural: null }
       );
