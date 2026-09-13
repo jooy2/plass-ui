@@ -161,6 +161,26 @@ void main() {
         expect(tester.getSemantics(find.bySemanticsLabel('Chart')).value, contains('Cost'));
       });
 
+      testWidgets('switches a series that started hidden back on', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          PlLineChart(
+            series: <PlassChartSeries>[
+              series.first,
+              PlassChartSeries(name: 'Cost', data: series.last.data, hidden: true),
+            ],
+            categories: months,
+          ),
+        );
+
+        expect(tester.getSemantics(find.bySemanticsLabel('Chart')).value, isNot(contains('Cost')));
+
+        await tester.tap(find.bySemanticsLabel('Cost'));
+        await tester.pumpAndSettle();
+
+        expect(tester.getSemantics(find.bySemanticsLabel('Chart')).value, contains('Cost'));
+      });
+
       testWidgets('leaves a series alone when the legend is not interactive', (
         WidgetTester tester,
       ) async {

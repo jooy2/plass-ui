@@ -509,8 +509,23 @@ class PlassCartesianChart extends StatefulWidget {
 }
 
 class _PlassCartesianChartState extends State<PlassCartesianChart> {
-  /// Which series the reader has switched off in the legend.
+  /// Which series are switched off: the ones that started `hidden`, then
+  /// whatever the reader toggled in the legend.
+  ///
+  /// `hidden` is read once, as the React build reads it, so a series that starts
+  /// switched off is one the legend can switch back on.
   final Set<int> _off = <int>{};
+
+  @override
+  void initState() {
+    super.initState();
+
+    for (int i = 0; i < widget.series.length; i += 1) {
+      if (widget.series[i].hidden) {
+        _off.add(i);
+      }
+    }
+  }
 
   int? _activeIndex;
   int? _hovered;
@@ -543,8 +558,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
 
     final List<List<ChartValue>> values = toValues(widget.series);
     final List<bool> visible = <bool>[
-      for (int i = 0; i < widget.series.length; i += 1)
-        !_off.contains(i) && !widget.series[i].hidden,
+      for (int i = 0; i < widget.series.length; i += 1) !_off.contains(i),
     ];
     final List<Color> colors = <Color>[
       for (int i = 0; i < widget.series.length; i += 1)
