@@ -829,9 +829,11 @@ class _PlNumberFieldState extends State<PlNumberField> {
       ],
     );
 
+    // Descendants are left to merge into this node, so the label's text becomes
+    // the field's name. The editor and the two steppers keep nodes of their own
+    // because what they say conflicts with it.
     return Semantics(
       container: true,
-      explicitChildNodes: true,
       textField: true,
       readOnly: widget.readOnly,
       enabled: !widget.disabled,

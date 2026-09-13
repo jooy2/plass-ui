@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **A `PlNumberField` is named by its `label`.** The field's node kept every descendant as a separate node, so a screen reader met a nameless text field, then the label as a line of text, then a second text field for the editor, with each stepper wrapped in an extra node. The label, the description and the error now name the field, as they do on `PlTextField`, and the steppers sit directly under it.
+
 - **A `PlNumberField` with `allowWheelScrub` keeps the wheel to itself.** A wheel turned over the focused field stepped the value and scrolled the page under it too, which carried the field away from the pointer, and a sideways wheel stepped the value up. The field now claims an up or down turn so nothing behind it scrolls, and leaves a sideways one alone.
 
 - **An `extended` `PlFloatingActionButton` says its label once.** The words drawn on the key were given to it as a semantic label as well, and the two were merged, so a screen reader announced "New project, New project". The drawn words are now the whole name.

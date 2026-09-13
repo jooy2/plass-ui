@@ -1,4 +1,5 @@
 import 'package:flutter/gestures.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -332,6 +333,34 @@ void main() {
           semanticsOf(tester, find.byType(PlNumberField)),
           isSemantics(isTextField: true, value: '5'),
         );
+
+        handle.dispose();
+      });
+
+      testWidgets('is named by its label, and holds the editor and the steppers', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            PlNumberField(value: 5, label: const Text('Guests'), onChanged: (double? _) {}),
+            width: 320,
+          ),
+        );
+
+        final SemanticsNode field = semanticsOf(tester, find.byType(PlNumberField));
+
+        // One text field node named by the label, rather than a nameless one
+        // with the label as a separate line beside the editor.
+        expect(field, isSemantics(isTextField: true, label: 'Guests', value: '5'));
+
+        final List<String> inside = <String>[];
+        field.visitChildren((SemanticsNode child) {
+          inside.add(child.label);
+          return true;
+        });
+
+        expect(inside, <String>['', 'Decrease', 'Increase']);
 
         handle.dispose();
       });
