@@ -62,6 +62,49 @@ void main() {
         expect(tile.first.width, greaterThan(0));
       });
 
+      testWidgets('is measured again when the set changes size without a rebuild', (
+        WidgetTester tester,
+      ) async {
+        var width = 480.0;
+        late StateSetter resize;
+
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                resize = setState;
+
+                // The set is const, so the resize reaches it through layout
+                // alone and never through `didUpdateWidget`.
+                return Align(
+                  alignment: AlignmentDirectional.topStart,
+                  child: SizedBox(
+                    width: width,
+                    child: const PlSegmentedButton<String>(
+                      segments: views,
+                      value: 'board',
+                      fullWidth: true,
+                    ),
+                  ),
+                );
+              },
+            ),
+            width: 700,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        resize(() => width = 560);
+        await tester.pumpAndSettle();
+
+        final tile = tester.widget<AnimatedPositioned>(find.byType(AnimatedPositioned));
+        final set = tester.getSize(find.byType(PlSegmentedButton<String>)).width;
+
+        // Three equal segments inside the groove's inset on either side.
+        expect(set, 560);
+        expect(tile.width, closeTo((set - 8) / 3, 0.5));
+      });
+
       testWidgets('draws no tile when nothing is chosen', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(const PlSegmentedButton<String>(segments: views, value: null), width: 480),

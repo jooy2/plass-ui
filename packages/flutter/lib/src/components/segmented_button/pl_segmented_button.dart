@@ -375,6 +375,17 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>>
       ],
     );
 
+    // A set that changes size without being built again, when the window, the
+    // device's orientation or the text size changes, measures the tile again.
+    row = NotificationListener<SizeChangedLayoutNotification>(
+      onNotification: (SizeChangedLayoutNotification notification) {
+        WidgetsBinding.instance.addPostFrameCallback((Duration _) => _measure());
+
+        return true;
+      },
+      child: SizeChangedLayoutNotifier(child: row),
+    );
+
     row = Padding(padding: EdgeInsets.all(inset), child: row);
 
     Widget set = PlassSurfaceBox(
