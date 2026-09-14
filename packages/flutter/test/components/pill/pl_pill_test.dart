@@ -172,6 +172,57 @@ void main() {
         expect(tester.getSize(find.byType(PlPill)).height, 32);
       });
 
+      testWidgets('tells a screen reader whether the button has them open', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        Widget pill({required bool expanded}) => host(
+          PlPill(
+            expanded: expanded,
+            title: const Text('Two updates'),
+            details: const Text('Billing moved.'),
+            onPressed: () {},
+          ),
+          width: 320,
+        );
+
+        await tester.pumpWidget(pill(expanded: false));
+        await tester.pumpAndSettle();
+
+        expect(
+          tester.getSemantics(find.text('Two updates')),
+          isSemantics(isButton: true, hasExpandedState: true, isExpanded: false),
+        );
+
+        await tester.pumpWidget(pill(expanded: true));
+        await tester.pumpAndSettle();
+
+        expect(
+          tester.getSemantics(find.text('Two updates')),
+          isSemantics(isButton: true, hasExpandedState: true, isExpanded: true),
+        );
+
+        handle.dispose();
+      });
+
+      testWidgets('claims no expanded state when there is nothing to expand', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(PlPill(title: const Text('Recording'), onPressed: () {}), width: 320),
+        );
+
+        expect(
+          tester.getSemantics(find.text('Recording')),
+          isSemantics(isButton: true, hasExpandedState: false),
+        );
+
+        handle.dispose();
+      });
+
       testWidgets('opens to whatever the body measures', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(

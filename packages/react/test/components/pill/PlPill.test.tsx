@@ -132,6 +132,45 @@ describe('PlPill', () => {
       expect((panel as HTMLElement).style.height).toBe('0px');
     });
 
+    it('tells a screen reader whether the button has it open, and which panel it is', async () => {
+      const screen = await render(
+        <PlPill
+          title="Two updates"
+          onClick={() => {}}
+          details={<span data-testid="details">Take three</span>}
+        />
+      );
+
+      const button = screen.getByRole('button', { name: 'Two updates' }).element();
+      const panel = screen.getByTestId('details').element().parentElement?.parentElement;
+
+      // `...props` lands on the shell, so a caller cannot put either attribute
+      // on the button themselves.
+      expect(button).toHaveAttribute('aria-expanded', 'false');
+      expect(panel?.id).toBeTruthy();
+      expect(button).toHaveAttribute('aria-controls', panel?.id);
+
+      await screen.rerender(
+        <PlPill
+          expanded
+          title="Two updates"
+          onClick={() => {}}
+          details={<span data-testid="details">Take three</span>}
+        />
+      );
+
+      expect(button).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it('claims no expanded state when there is nothing to expand', async () => {
+      const screen = await render(<PlPill title="Recording" onClick={() => {}} />);
+
+      const button = screen.getByRole('button', { name: 'Recording' }).element();
+
+      expect(button).not.toHaveAttribute('aria-expanded');
+      expect(button).not.toHaveAttribute('aria-controls');
+    });
+
     it('opens to a measured height rather than a hardcoded one', async () => {
       const screen = await render(
         <PlPill

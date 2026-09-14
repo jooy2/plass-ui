@@ -60,6 +60,8 @@
 
 ### Fixed
 
+- **The `PlPill` button says whether its `details` are open.** With `details` and an `onPressed`, the button reported no expanded state to a screen reader. It now reports whether the panel is expanded, and a pill without `details` reports no expanded state at all.
+
 - **A `PlCard` with `interactive` and no `onPressed` lifts under the pointer.** Only a pressable card tracked the hover, so `interactive` on its own drew the card at rest whatever the pointer did, although the documentation said it gave the same lift as `onPressed`. It now follows a mouse over the card, raising the sheet and adding a level of elevation, and still adds no focus stop, role or key handling.
 
 - **A `PlCard` no longer builds its content again when the pointer moves on or off it.** The lift was a `Transform.translate` put around the sheet only while it was raised, and the focus ring a `CustomPaint` put around it only while it showed, so the tree above the content changed shape as the hover started and ended: an entry animation or a picture fading in inside the card played again on every hover, and the shadow's easing was cut off. Both are now always in the tree, and only the offset and the painter change.

@@ -256,6 +256,7 @@ export const PlPill = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPillPro
   const density = densityProp ?? defaults.density ?? 'default';
 
   const detailsRef = React.useRef<HTMLDivElement>(null);
+  const detailsId = React.useId();
   const [detailsHeight, setDetailsHeight] = React.useState(0);
 
   React.useEffect(() => {
@@ -274,6 +275,7 @@ export const PlPill = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPillPro
   }, [details]);
 
   const interactive = Boolean(onClick);
+  const hasDetails = hasContent(details);
   const padX = paddingXClasses[density][size];
 
   const row = (
@@ -369,6 +371,12 @@ export const PlPill = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPillPro
               padX,
               focusRingClasses
             )}
+            // With `details` there is a panel this button is almost always
+            // the thing that opens, so it says whether that panel is open and
+            // which one it is. `...props` lands on the shell, so a caller has
+            // no other way to put either on the button.
+            aria-expanded={hasDetails ? expanded : undefined}
+            aria-controls={hasDetails ? detailsId : undefined}
             onClick={onClick}
           >
             {row}
@@ -382,8 +390,9 @@ export const PlPill = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPillPro
         ) : null}
       </div>
 
-      {hasContent(details) ? (
+      {hasDetails ? (
         <div
+          id={detailsId}
           className={cx(
             'overflow-hidden',
             '[transition:height_var(--plass-duration-slow)_var(--plass-ease)]',

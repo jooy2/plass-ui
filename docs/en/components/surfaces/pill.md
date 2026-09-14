@@ -185,7 +185,7 @@ There is no `position` here, for the reason [`PlFloatingBottomNavigation`](../na
 
 ## Accessibility
 
-- A pill with nothing to press is not a control and claims nothing. Giving it a handler makes the middle a real button, reachable from a keyboard and announced as what it is.
+- A pill with nothing to press is not a control and claims nothing. Giving it a handler makes the middle a real button, reachable from a keyboard and announced as what it is. With `details`, that button also says whether the panel is open.
 - `endIcon` is outside that button, so a control put there is its own focus stop.
 - A collapsed `details` panel is taken out of the focus order **and** off the accessibility tree. A zero-height box is still perfectly focusable inside, and hiding it from a screen reader alone would leave a keyboard reader tabbing into something they have been told does not exist.
 

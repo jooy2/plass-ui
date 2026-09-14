@@ -288,7 +288,17 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
           // trailing slot is not inside what answers a press — the same shape a
           // chip uses, and for the same reason: a control inside another
           // control's gesture takes one tap twice.
-          row = Semantics(button: true, enabled: true, onTap: widget.onPressed, child: row);
+          //
+          // With `details` the button is almost always what opens them, so it
+          // says whether they are open. Left out otherwise: a pill with nothing
+          // to reveal has no expanded state to report.
+          row = Semantics(
+            button: true,
+            enabled: true,
+            expanded: widget.details != null ? widget.expanded : null,
+            onTap: widget.onPressed,
+            child: row,
+          );
         }
 
         Widget pill = DefaultTextStyle.merge(
