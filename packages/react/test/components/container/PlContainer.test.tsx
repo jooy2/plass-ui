@@ -42,6 +42,17 @@ describe('PlContainer', () => {
       expect(element.style.getPropertyValue('--p-maxw-sm')).toBe('');
     });
 
+    it('keeps the measure when it is given a style of its own', async () => {
+      await render(
+        <PlContainer className="page-under-test" maxWidth="md" style={{ paddingBlock: 24 }} />
+      );
+
+      const element = document.querySelector('.page-under-test') as HTMLElement;
+
+      expect(element.style.getPropertyValue('--p-maxw-xs')).not.toBe('');
+      expect(element.style.paddingBlock).toBe('24px');
+    });
+
     it('takes the step it was named', async () => {
       await render(<PlContainer className="page-under-test" maxWidth="lg" />);
 

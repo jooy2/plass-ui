@@ -96,6 +96,7 @@ export const PlContainer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCo
       centered = true,
       render,
       className,
+      style,
       children,
       ...props
     },
@@ -123,7 +124,9 @@ export const PlContainer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCo
       ref,
       props: {
         className: classNames,
-        style: measure.style,
+        // The caller's style is laid over the measure rather than in place of
+        // it, so `paddingBlock` does not take the width limit away.
+        style: style || measure.style ? { ...measure.style, ...style } : undefined,
         children,
         ...props
       }

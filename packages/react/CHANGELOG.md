@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **`PlContainer` keeps its `maxWidth` when it is given a `style`.** The caller's `style` replaced the one that carries the measure, so `<PlContainer maxWidth="md" style={{ paddingBlock: 24 }}>` had no width limit at all. The two are now merged, with the caller's declarations laid over the measure.
+
 - **A `PlHeader` or `PlFooter` inside the page no longer takes over the `PlPageLayout` bar.** Every `PlHeader` and `PlFooter` under a layout registered itself as the layout's bar, and the last one won, so an article's own header inside `<main>` was measured instead of the site's and the sticky sidebars started below the wrong height. When that header went away, the layout measured nothing and the offset fell to 0. Only the bars in the `header` and `footer` slots are measured now.
 
 - **The `PlSidebar` resize handle says the width it holds.** The handle is a focusable separator, and one of those is a value between two bounds, but it had no `aria-valuenow`, `aria-valuemin` or `aria-valuemax`, so moving it with the arrow keys told a screen reader nothing. It now carries the width in pixels between `minWidth` and `maxWidth`, and a drag or a key press updates it as the edge moves.
