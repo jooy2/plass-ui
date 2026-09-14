@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **An unfinished mouse drag on a `PlScrollZone` ends when the button comes up outside the strip.** Until a press had moved far enough to become a drag, nothing was captured, so a button let go outside the strip left the drag listening: the strip then followed the pointer on hover alone, text could not be selected and the next click was swallowed. The drag now ends on the first move with no button held.
+
 - **`PlCommandPalette` opens with an empty field however it was closed.** The search text was cleared only when Base UI closed the sheet, on Escape or a press outside, so running a command or setting a controlled `open` to `false` left the last search in the field for the next time it opened. It is now cleared whenever the palette goes from open to closed.
 
 - **A `PlScrollZone` strip is a tab stop only while it overflows.** The scroller always took `tabIndex={0}`, so a strip that fits, or one whose chips are already focusable, added a stop with nothing to scroll, and without a `label` that stop had no name. It is now focusable only while there is somewhere to scroll, as `PlScrollArea` already was.

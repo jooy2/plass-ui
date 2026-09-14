@@ -112,6 +112,25 @@ describe('PlScrollZone', () => {
       await expect.poll(() => scroller(screen).getAttribute('tabindex')).toBe('0');
     });
 
+    it('ends a press let go outside the strip before it became a drag', async () => {
+      const screen = await render(<PlScrollZone data-testid="zone">{cards}</PlScrollZone>);
+      const element = scroller(screen);
+      const pointer = (type: string, init: PointerEventInit) =>
+        element.dispatchEvent(
+          new PointerEvent(type, { bubbles: true, pointerType: 'mouse', pointerId: 1, ...init })
+        );
+
+      pointer('pointerdown', { button: 0, buttons: 1, clientX: 200, clientY: 10 });
+
+      // The button came up outside the strip, so its `pointerup` went elsewhere.
+      // The pointer then crosses the strip with nothing held, far enough that a
+      // drag still listening would take it.
+      pointer('pointermove', { buttons: 0, clientX: 201, clientY: 10 });
+      pointer('pointermove', { buttons: 0, clientX: 60, clientY: 10 });
+
+      expect(element).not.toHaveAttribute('data-dragging');
+    });
+
     it('is no tab stop while everything fits', async () => {
       const screen = await render(
         <PlScrollZone data-testid="zone">

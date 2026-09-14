@@ -535,6 +535,16 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
       const selection = document.body.style.getPropertyValue('-webkit-user-select');
 
       const move = (moveEvent: PointerEvent) => {
+        // Before the threshold nothing is captured, so a button let go outside
+        // the strip sends its `pointerup` elsewhere. The next move over the
+        // strip with no button held is where that shows, and the drag ends
+        // there rather than following the hover.
+        if (moveEvent.buttons === 0) {
+          end();
+
+          return;
+        }
+
         const dx = moveEvent.clientX - fromX;
         const dy = moveEvent.clientY - fromY;
 
