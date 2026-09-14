@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **`PlAnimateSplit` with `PlAnimateSplitBy.character` wraps a line between words.** Every character was a child of one `Wrap`, so a narrow line broke partway through a word. The characters of each word are now laid out in a `Wrap` of their own, so the line wraps between words and a word wider than the whole line still wraps. Chinese, Japanese, Thai and the other scripts written without spaces still wrap between their characters.
+
 - **`PlassAnimateTrigger.visible` waits until the widget is on screen, not only inside the nearest scrollable.** It watched the nearest `Scrollable` alone, so a `PlAnimateCounter` in a row that scrolls sideways near the bottom of a long page counted as visible along the row and started on the first frame, while it was still below the screen. It now watches every scrollable above the widget and starts once enough of it is inside all of their viewports and on the screen, which is what the React build's `IntersectionObserver` measures. A widget moved under other scrollables follows the new ones.
 
 - **`PlAnimateHeadline` keeps turning inside a parent that rebuilds often.** Every rebuild of the parent restarted the timer, so inside a parent that rebuilt every second the 2600ms interval was reset before it ever fired and the line never changed. The timer now restarts only when the line, the count, `index`, `loop`, `interval`, `delay` or the running state changes.

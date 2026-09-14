@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **`PlAnimateSplit` with `by="character"` wraps a line between words.** Every character was its own inline-block, and a line may break before and after each one, so in a narrow box a word wrapped partway through, such as "Internationali / zation". The characters of each word now sit together in one inline-block, which moves to the next line whole and wraps inside only when the word is wider than the line. Chinese, Japanese, Thai and the other scripts written without spaces still wrap between their characters.
+
 - **`PlAnimateHeadline` keeps turning inside a parent that renders often.** The timer was restarted whenever the function that turns the reel changed, and that function changed with an inline `onIndexChange`, so inside a parent that rendered every second the 2600ms interval was reset before it ever fired and the line never changed. The timer now restarts only when the line, the count, `loop`, `interval`, `delay` or the running state changes.
 
 - **`PlAnimateSplit` parts move with `effect="slide"`, and `effect="zoom"` is no longer the same as `grow`.** The parts were given no start position or scale, so they ran on the keyframe fallbacks: a slide only faded in place, and a zoom started from 0.8, the `grow` scale. Each part now starts where the component of the same name starts by default, so a slide rises from its own height below and a zoom grows from 0.4.

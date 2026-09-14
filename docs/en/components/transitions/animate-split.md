@@ -47,9 +47,11 @@ A character part breaks the shaping between letters. **Arabic stops joining**, D
 
 Whitespace is left as whitespace and never given an entrance of its own, animating the space between two words is nothing arriving, and it does not take a step of the stagger with it either. The second word starts one step after the first, not two.
 
+Cut by character, the characters of a word are kept together, so the line wraps between words rather than partway through one. A word wider than the whole line wraps inside itself instead of running out of its box, and a script written without spaces between its words, such as Chinese, Japanese or Thai, still wraps between its characters.
+
 ::: fw react
 
-Each part is `inline-block`, because a transform does not apply to a non-replaced inline element: without it a slide would fade and never move.
+Each part is `inline-block`, because a transform does not apply to a non-replaced inline element: without it a slide would fade and never move. A line may wrap before and after every inline-block, so the characters of one word sit together in one more inline-block. That box is as wide as the word, or as the line when the word is wider, so the word moves to the next line whole and wraps inside only when it has to.
 
 :::
 

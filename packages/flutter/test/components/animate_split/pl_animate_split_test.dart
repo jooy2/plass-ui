@@ -11,6 +11,16 @@ List<String> _parts(WidgetTester tester) {
   return tester.widgetList<Text>(find.byType(Text)).map((Text text) => text.data!).toList();
 }
 
+/// Where each part was laid out, in the same order.
+List<Rect> _rects(WidgetTester tester) {
+  final Finder parts = find.byType(Text);
+
+  return <Rect>[
+    for (int index = 0; index < parts.evaluate().length; index += 1)
+      tester.getRect(parts.at(index)),
+  ];
+}
+
 Future<void> _pump(WidgetTester tester, Widget child) async {
   await tester.pumpWidget(host(child, width: 320, height: 160));
   await tester.pump();
@@ -37,6 +47,89 @@ void main() {
         await _pump(tester, const PlAnimateSplit(text: _line));
 
         expect(_parts(tester).join(), _line);
+      });
+
+      testWidgets('wraps a line cut by character between words, not partway through one', (
+        WidgetTester tester,
+      ) async {
+        // Sixteen glyphs wide, in the test font that draws every glyph as a
+        // square of its size. The line is nineteen and its second word fifteen,
+        // so the gap is the one place it can wrap.
+        await tester.pumpWidget(
+          host(
+            const PlAnimateSplit(
+              text: 'Say internationally',
+              by: PlAnimateSplitBy.character,
+              style: TextStyle(fontSize: 10),
+            ),
+            width: 160,
+            height: 160,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final Finder parts = find.byType(Text);
+        final List<double> tops = <double>[
+          for (int index = 0; index < parts.evaluate().length; index += 1)
+            tester.getTopLeft(parts.at(index)).dy,
+        ];
+
+        expect(tops[3], greaterThan(tops[0]));
+        expect(tops.skip(3).toSet(), hasLength(1));
+      });
+
+      testWidgets('wraps a word wider than the whole line inside itself rather than overflowing', (
+        WidgetTester tester,
+      ) async {
+        // Ten glyphs wide, and the word is fifteen.
+        await tester.pumpWidget(
+          host(
+            const PlAnimateSplit(
+              text: 'internationally',
+              by: PlAnimateSplitBy.character,
+              style: TextStyle(fontSize: 10),
+            ),
+            width: 100,
+            height: 160,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final Rect box = tester.getRect(find.byType(PlAnimateSplit));
+
+        for (final Rect part in _rects(tester)) {
+          expect(part.right, lessThanOrEqualTo(box.right));
+        }
+      });
+
+      testWidgets('wraps a line in a script without spaces between its characters', (
+        WidgetTester tester,
+      ) async {
+        // Twelve glyphs wide. A Japanese sentence has no gaps to wrap in: it
+        // starts on the line of the word before it and wraps between its
+        // characters, rather than dropping below that word as one block.
+        await tester.pumpWidget(
+          host(
+            const PlAnimateSplit(
+              text: 'Hi 日本語の文章はとても長いです',
+              by: PlAnimateSplitBy.character,
+              style: TextStyle(fontSize: 10),
+            ),
+            width: 120,
+            height: 160,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final Rect box = tester.getRect(find.byType(PlAnimateSplit));
+        final List<Rect> parts = _rects(tester);
+
+        expect(parts[2].top, lessThan(parts[0].bottom));
+        expect(parts.last.top, greaterThanOrEqualTo(parts[0].bottom));
+
+        for (final Rect part in parts) {
+          expect(part.right, lessThanOrEqualTo(box.right));
+        }
       });
     });
 

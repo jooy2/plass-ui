@@ -61,15 +61,54 @@ export interface PlAnimateSplitProps
   render?: useRender.RenderProp;
 }
 
-/** The parts, with the gaps left between them as gaps. */
-function partsOf(text: string, by: PlAnimateSplitBy): string[] {
-  if (by === 'character') {
-    return Array.from(text);
-  }
+/**
+ * A character of a script written without spaces between its words, such as
+ * Chinese, Japanese or Thai. Running text in one of these may wrap between any
+ * two characters, and so may a split line.
+ */
+const unspacedScript =
+  /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Bopomofo}\p{Script=Thai}\p{Script=Lao}\p{Script=Khmer}\p{Script=Myanmar}]/u;
+
+/**
+ * The line as the pieces it may wrap between, with the gaps left between them
+ * as gaps, and each piece as the parts it arrives in.
+ *
+ * Cut by word, a piece is one word. Cut by character, it is a run of a word's
+ * characters that stays on one line together: a character of a script written
+ * without spaces starts a piece of its own, so such a line still wraps between
+ * its characters, and anything else stays with the character before it, which
+ * keeps a Latin or Hangul word whole and a full stop beside the ideograph it
+ * closes.
+ */
+function piecesOf(text: string, by: PlAnimateSplitBy): string[][] {
+  const pieces: string[][] = [];
 
   // The separators are kept, so a run of spaces or a newline survives being cut
   // up and the line reflows exactly as it did before.
-  return text.split(/(\s+)/).filter((part) => part !== '');
+  for (const word of text.split(/(\s+)/)) {
+    if (word === '') {
+      continue;
+    }
+
+    if (by === 'word' || word.trim() === '') {
+      pieces.push([word]);
+
+      continue;
+    }
+
+    let piece: string[] = [];
+
+    for (const character of Array.from(word)) {
+      if (piece.length === 0 || unspacedScript.test(character)) {
+        piece = [character];
+        pieces.push(piece);
+      } else {
+        piece.push(character);
+      }
+    }
+  }
+
+  return pieces;
 }
 
 /**
@@ -150,7 +189,7 @@ export const PlAnimateSplit = /* @__PURE__ */ React.forwardRef<
   },
   ref
 ) {
-  const parts = React.useMemo(() => partsOf(children, by), [children, by]);
+  const pieces = React.useMemo(() => piecesOf(children, by), [children, by]);
 
   // `useAnimationRun` directly rather than `useAnimateElement`, which is the
   // arrangement `internal/animate.ts` describes for the components that have to
@@ -177,10 +216,38 @@ export const PlAnimateSplit = /* @__PURE__ */ React.forwardRef<
     timeline,
     range
   };
-  const count = parts.filter((part) => part.trim() !== '').length;
+  const count = pieces.reduce(
+    (total, piece) => (piece[0].trim() === '' ? total : total + piece.length),
+    0
+  );
   const partClass = `${animBaseClass} ${animationClasses[effect]}`;
 
+  // The step counts across the whole line rather than within a word, so the
+  // first character of a word follows the last character of the word before.
   let step = -1;
+
+  const renderPart = (part: string, key: number) => {
+    step += 1;
+
+    return (
+      // `inline-block`, because a transform does not apply to a non-replaced
+      // inline element — the part would fade and never move.
+      <span
+        key={key}
+        className={`${partClass} inline-block whitespace-pre`}
+        style={
+          {
+            ...animationSlots(
+              staggerSlots(slots, { index: step, count, stagger, durationStep, reverse })
+            ),
+            '--p-anim-state': run.state
+          } as React.CSSProperties
+        }
+      >
+        {part}
+      </span>
+    );
+  };
 
   return useRender({
     render: render ?? <span />,
@@ -196,40 +263,28 @@ export const PlAnimateSplit = /* @__PURE__ */ React.forwardRef<
           {/* The line, once, rather than one announcement per part. */}
           <span className={srOnlyClasses}>{children}</span>
           <span aria-hidden="true">
-            {parts.map((part, index) => {
+            {pieces.map((piece, index) => {
               // A separator is a gap and is left as one: giving whitespace an
               // entrance would animate the space between two words, which is
               // nothing arriving — and it must not take a step of the stagger
               // with it either.
-              if (part.trim() === '') {
-                return <React.Fragment key={index}>{part}</React.Fragment>;
+              if (piece[0].trim() === '') {
+                return <React.Fragment key={index}>{piece[0]}</React.Fragment>;
               }
 
-              step += 1;
+              if (piece.length === 1) {
+                return renderPart(piece[0], index);
+              }
 
+              // Several characters that stay on one line together sit in one
+              // more inline-block. A line may wrap before and after every
+              // inline-block, so left loose they would wrap partway through a
+              // word. The box is as wide as the word, or as the line when the
+              // word is wider, so the word moves down whole and wraps inside
+              // itself only when it could not fit on any line.
               return (
-                // `inline-block`, because a transform does not apply to a
-                // non-replaced inline element — the part would fade and never
-                // move.
-                <span
-                  key={index}
-                  className={`${partClass} inline-block whitespace-pre`}
-                  style={
-                    {
-                      ...animationSlots(
-                        staggerSlots(slots, {
-                          index: step,
-                          count,
-                          stagger,
-                          durationStep,
-                          reverse
-                        })
-                      ),
-                      '--p-anim-state': run.state
-                    } as React.CSSProperties
-                  }
-                >
-                  {part}
+                <span key={index} className="inline-block">
+                  {piece.map((part, place) => renderPart(part, place))}
                 </span>
               );
             })}

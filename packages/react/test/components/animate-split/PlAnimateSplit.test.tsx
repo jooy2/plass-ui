@@ -35,9 +35,9 @@ function root(): HTMLElement {
   return document.querySelector<HTMLElement>('.split-under-test')!;
 }
 
-/** The animated parts, which are the spans inside the hidden half. */
+/** The animated parts, which are the spans in the hidden half carrying the effect. */
 function parts(): HTMLElement[] {
-  return Array.from(root().querySelectorAll<HTMLElement>('[aria-hidden="true"] > span'));
+  return Array.from(root().querySelectorAll<HTMLElement>('[aria-hidden="true"] .plass-anim'));
 }
 
 /** What a screen reader is told, which is the line and not the parts. */
@@ -160,6 +160,23 @@ describe('PlAnimateSplit', () => {
         '0ms'
       ]);
     });
+
+    it('counts the steps across the whole line when cut by character', async () => {
+      await render(
+        <PlAnimateSplit className="split-under-test" by="character" stagger={10}>
+          Hi yo
+        </PlAnimateSplit>
+      );
+
+      // The characters of each word are held together, and that must not start
+      // the count again at every word.
+      expect(parts().map((part) => part.style.getPropertyValue('--p-anim-delay'))).toEqual([
+        '0ms',
+        '10ms',
+        '20ms',
+        '30ms'
+      ]);
+    });
   });
 
   describe('laid out', () => {
@@ -193,6 +210,63 @@ describe('PlAnimateSplit', () => {
       const part = parts()[0].getBoundingClientRect();
 
       expect(part.top - line.top).toBeGreaterThan(part.height / 2);
+    });
+
+    it('wraps a line cut by character between words, not partway through one', async () => {
+      // Sixteen characters wide in a monospace face. The line is nineteen and
+      // its second word fifteen, so the gap is the one place it can wrap.
+      await render(
+        <div style={{ font: '16px monospace', width: '16ch' }}>
+          <PlAnimateSplit className="split-under-test" by="character">
+            Say internationally
+          </PlAnimateSplit>
+        </div>
+      );
+
+      const tops = parts().map((part) => part.getBoundingClientRect().top);
+
+      expect(tops[3]).toBeGreaterThan(tops[0]);
+      expect(new Set(tops.slice(3)).size).toBe(1);
+    });
+
+    it('wraps a word wider than the whole line inside itself rather than overflowing', async () => {
+      // Ten characters wide, and the word is fifteen.
+      await render(
+        <div className="box-under-test" style={{ font: '16px monospace', width: '10ch' }}>
+          <PlAnimateSplit className="split-under-test" by="character">
+            internationally
+          </PlAnimateSplit>
+        </div>
+      );
+
+      const box = document.querySelector<HTMLElement>('.box-under-test')!.getBoundingClientRect();
+
+      for (const part of parts()) {
+        expect(part.getBoundingClientRect().right).toBeLessThanOrEqual(box.right + 0.5);
+      }
+    });
+
+    it('wraps a line in a script without spaces between its characters', async () => {
+      // A Japanese sentence has no gaps to wrap in. It starts on the line of the
+      // word before it and wraps between its characters, rather than dropping
+      // below that word as one block or running out of the box.
+      await render(
+        <div className="box-under-test" style={{ font: '16px monospace', width: '120px' }}>
+          <PlAnimateSplit className="split-under-test" by="character">
+            Hi 日本語の文章はとても長いです
+          </PlAnimateSplit>
+        </div>
+      );
+
+      const box = document.querySelector<HTMLElement>('.box-under-test')!.getBoundingClientRect();
+      const rects = parts().map((part) => part.getBoundingClientRect());
+
+      expect(rects[2].top).toBeLessThan(rects[0].bottom);
+      expect(rects[rects.length - 1].top).toBeGreaterThanOrEqual(rects[0].bottom);
+
+      for (const rect of rects) {
+        expect(rect.right).toBeLessThanOrEqual(box.right + 0.5);
+      }
     });
   });
 

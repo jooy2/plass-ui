@@ -121,7 +121,20 @@ class PlAnimateSplit extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> parts = splitParts(text, byCharacter: by == PlAnimateSplitBy.character);
+    final bool byCharacter = by == PlAnimateSplitBy.character;
+
+    // Cut into words first and, by character, each word into the runs of its
+    // characters that stay on one line together.
+    final List<List<String>> pieces = <List<String>>[
+      for (final String word in splitParts(text, byCharacter: false))
+        if (byCharacter) ..._piecesOf(word) else <String>[word],
+    ];
+    final int count = pieces.fold(0, (int total, List<String> piece) => total + piece.length);
+    final WrapAlignment alignment = switch (textAlign) {
+      TextAlign.center => WrapAlignment.center,
+      TextAlign.right || TextAlign.end => WrapAlignment.end,
+      _ => WrapAlignment.start,
+    };
 
     return Semantics(
       // The line, once, rather than one announcement per part.
@@ -139,43 +152,93 @@ class PlAnimateSplit extends StatelessWidget {
             threshold: threshold,
           ),
           builder: (BuildContext context, bool running, int runs, Widget? _) {
-            return Wrap(
-              alignment: switch (textAlign) {
-                TextAlign.center => WrapAlignment.center,
-                TextAlign.right || TextAlign.end => WrapAlignment.end,
-                _ => WrapAlignment.start,
-              },
-              children: <Widget>[
-                for (int index = 0; index < parts.length; index += 1)
-                  PlassAnimateRun(
-                    settings: PlassAnimateSettings(
-                      duration: duration,
-                      delay: delay + stagger * (reverse ? parts.length - 1 - index : index),
-                      curve: curve,
-                      paused: paused,
-                      // The line has already decided; each part is only told.
-                      trigger: PlassAnimateTrigger.manual,
-                      play: running,
-                    ),
-                    child: Text(parts[index], style: style),
-                    builder: (BuildContext context, double t, Widget? inner) {
-                      final Offset offset = switch (from) {
-                        PlassSide.top => Offset(0, -distance * (1 - t)),
-                        PlassSide.bottom => Offset(0, distance * (1 - t)),
-                        PlassSide.left => Offset(-distance * (1 - t), 0),
-                        PlassSide.right => Offset(distance * (1 - t), 0),
-                      };
+            final List<Widget> children = <Widget>[];
 
-                      final Widget moved = Transform.translate(offset: offset, child: inner);
+            // The step counts across the whole line rather than within a word,
+            // so the first character of a word follows the last character of the
+            // word before.
+            int step = 0;
 
-                      return fade ? Opacity(opacity: t.clamp(0, 1), child: moved) : moved;
-                    },
-                  ),
-              ],
-            );
+            for (final List<String> piece in pieces) {
+              final List<Widget> parts = <Widget>[];
+
+              for (final String part in piece) {
+                parts.add(_part(part, step: step, count: count, running: running));
+                step += 1;
+              }
+
+              // Several characters that stay on one line together are a run of
+              // their own, so the line wraps around them rather than between
+              // them. A `Wrap` rather than a `Row`: a word wider than the whole
+              // line still wraps, as the `Text` of a whole word does, instead of
+              // overflowing.
+              children.add(
+                parts.length == 1 ? parts.single : Wrap(alignment: alignment, children: parts),
+              );
+            }
+
+            return Wrap(alignment: alignment, children: children);
           },
         ),
       ),
     );
   }
+
+  /// One part, arriving [step] places into a line of [count].
+  Widget _part(String part, {required int step, required int count, required bool running}) {
+    return PlassAnimateRun(
+      settings: PlassAnimateSettings(
+        duration: duration,
+        delay: delay + stagger * (reverse ? count - 1 - step : step),
+        curve: curve,
+        paused: paused,
+        // The line has already decided; each part is only told.
+        trigger: PlassAnimateTrigger.manual,
+        play: running,
+      ),
+      child: Text(part, style: style),
+      builder: (BuildContext context, double t, Widget? inner) {
+        final Offset offset = switch (from) {
+          PlassSide.top => Offset(0, -distance * (1 - t)),
+          PlassSide.bottom => Offset(0, distance * (1 - t)),
+          PlassSide.left => Offset(-distance * (1 - t), 0),
+          PlassSide.right => Offset(distance * (1 - t), 0),
+        };
+
+        final Widget moved = Transform.translate(offset: offset, child: inner);
+
+        return fade ? Opacity(opacity: t.clamp(0, 1), child: moved) : moved;
+      },
+    );
+  }
+}
+
+/// A character of a script written without spaces between its words, such as
+/// Chinese, Japanese or Thai. Running text in one of these may wrap between any
+/// two characters, and so may a split line.
+final RegExp _unspacedScript = RegExp(
+  r'[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Bopomofo}'
+  r'\p{Script=Thai}\p{Script=Lao}\p{Script=Khmer}\p{Script=Myanmar}]',
+  unicode: true,
+);
+
+/// A word cut by character, as the runs of its characters that stay on one line
+/// together.
+///
+/// A character of a script written without spaces starts a run of its own, so
+/// such a line still wraps between its characters. Anything else stays with the
+/// character before it, which keeps a Latin or Hangul word whole and a full stop
+/// beside the ideograph it closes.
+List<List<String>> _piecesOf(String word) {
+  final List<List<String>> pieces = <List<String>>[];
+
+  for (final String character in splitParts(word, byCharacter: true)) {
+    if (pieces.isEmpty || _unspacedScript.hasMatch(character)) {
+      pieces.add(<String>[character]);
+    } else {
+      pieces.last.add(character);
+    }
+  }
+
+  return pieces;
 }
