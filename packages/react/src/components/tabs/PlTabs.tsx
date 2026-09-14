@@ -507,13 +507,26 @@ export const PlTabs = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTabsPro
   const tabs: React.ReactNode[] = [];
   const panels: React.ReactNode[] = [];
 
-  React.Children.forEach(children, (child) => {
-    if (React.isValidElement(child) && child.type === PlTabPanel) {
-      panels.push(child);
-    } else if (child !== null && child !== undefined && child !== false) {
-      tabs.push(child);
-    }
-  });
+  //
+  // Fragments are opened on the way, so `items.map((item) => <><PlTab /><PlTabPanel /></>)`
+  // sorts the same as writing the two out. A panel inside a component of the
+  // caller's own cannot be told apart from a tab, and lands in the tab list.
+  const sort = (nodes: React.ReactNode) => {
+    React.Children.forEach(nodes, (child) => {
+      if (
+        React.isValidElement<{ children?: React.ReactNode }>(child) &&
+        child.type === React.Fragment
+      ) {
+        sort(child.props.children);
+      } else if (React.isValidElement(child) && child.type === PlTabPanel) {
+        panels.push(child);
+      } else if (child !== null && child !== undefined && child !== false) {
+        tabs.push(child);
+      }
+    });
+  };
+
+  sort(children);
 
   return (
     <TabsContext.Provider value={context}>

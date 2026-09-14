@@ -14,6 +14,8 @@
 
 ### Fixed
 
+- **A `PlTabPanel` inside a Fragment is sorted out of the tab bar.** Children were sorted by looking only at the top level, so `items.map((item) => <><PlTab /><PlTabPanel /></>)` put every panel inside the `role="tablist"` strip, clipped under the tabs. Fragments are now opened on the way. A panel wrapped in a component of the caller's own still cannot be told apart from a tab, which the tabs page now says.
+
 - **`PlHowToSteps` stays a list for Safari and VoiceOver.** The `<ol>` has its markers removed, which makes WebKit drop its list semantics, and the number discs are hidden from screen readers, so the order of the steps was not announced there. The list now carries `role="list"`, as `PlStepper` already did.
 
 - **A `PlNavigationMenuItem` link can mark the page the reader is on.** There was no `active` and no way to pass `aria-current` through, so a top-level link could not say it was the current page. `active` now marks a link item `aria-current="page"` and draws its word in the accent.

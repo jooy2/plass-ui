@@ -80,6 +80,8 @@ PlTabs<String>(
 
 <PropsTable name="PlTabPanel" />
 
+패널은 탭과 함께 Fragment 안에 둘 수 있습니다. 목록을 `<><PlTab /><PlTabPanel /></>`로 매핑해도 둘을 따로 적은 것과 똑같이 나뉩니다. 직접 만든 컴포넌트로 감싸면 탭과 구별할 수 없어 탭 바에 들어가므로, `PlTabPanel`은 바로 아래 자식이나 Fragment 안에 두세요.
+
 `variant`, `size`, `density`, `orientation`은 감싸고 있는 `PlTabs`에서 내려받습니다. 이웃과 그중 무엇이든 달라질 수 있는 탭은 구멍 난 탭 바입니다.
 
 :::

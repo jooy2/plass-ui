@@ -1,6 +1,7 @@
 import { page } from 'vitest/browser';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { Fragment } from 'react';
 import { PlTab, PlTabPanel, PlTabs } from 'plass-ui';
 
 function Settings(props: React.ComponentProps<typeof PlTabs>) {
@@ -79,6 +80,32 @@ describe('PlTabs', () => {
       // Three tabs and the indicator; the panels went in the other box.
       expect(list.querySelectorAll('[role="tab"]')).toHaveLength(3);
       expect(list.textContent).not.toContain('Your name');
+    });
+
+    it('opens Fragments on the way, so a tab and its panel can be mapped together', async () => {
+      const items = [
+        { value: 'account', label: 'Account', body: 'Your name and your avatar.' },
+        { value: 'billing', label: 'Billing', body: 'Cards and invoices.' }
+      ];
+
+      await render(
+        <PlTabs defaultValue="account" className="tabs-under-test">
+          {items.map((item) => (
+            <Fragment key={item.value}>
+              <PlTab value={item.value}>{item.label}</PlTab>
+              <PlTabPanel value={item.value}>{item.body}</PlTabPanel>
+            </Fragment>
+          ))}
+        </PlTabs>
+      );
+
+      const list = document.querySelector('.tabs-under-test [role="tablist"]') as HTMLElement;
+
+      expect(list.querySelectorAll('[role="tab"]')).toHaveLength(2);
+      expect(list.textContent).not.toContain('Your name');
+      expect(document.querySelector('.tabs-under-test [role="tabpanel"]')).toHaveTextContent(
+        'Your name and your avatar.'
+      );
     });
 
     it('renders the start and end slots', async () => {

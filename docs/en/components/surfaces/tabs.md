@@ -80,6 +80,8 @@ The bar is generic in its tab's type (`PlTabs<String>`, `PlTabs<Section>`), so `
 
 <PropsTable name="PlTabPanel" />
 
+A panel can sit in a Fragment next to its tab, so a list mapped to `<><PlTab /><PlTabPanel /></>` sorts the same as the two written out. Inside a component of your own it cannot be told apart from a tab and ends up in the tab bar, so keep each `PlTabPanel` a direct child or inside a Fragment.
+
 `variant`, `size`, `density` and `orientation` are read from the `PlTabs` around them. A tab that could disagree with its neighbours about any of those is a tab bar with a hole in it.
 
 :::
