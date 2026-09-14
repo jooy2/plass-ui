@@ -188,6 +188,9 @@ The same height ladder as `PlButton`, so a pagination and a button on the same r
 
 :::
 
+- Fewer than two pages renders nothing at all. A row with a lone disabled `1` in it is a control advertising that it has nothing to do.
+- The steppers turn one chevron glyph rather than shipping four drawings, and they flip under RTL.
+
 ::: fw flutter
 
 ## Differences from the React build
@@ -201,6 +204,3 @@ The same height ladder as `PlButton`, so a pagination and a button on the same r
 | `aria-current="page"` | the filled variant, and `selected` on the button | Flutter's semantics tree has no `current`, and `selected` is what a screen reader says in its place. |
 
 :::
-
-- Fewer than two pages renders nothing at all. A row with a lone disabled `1` in it is a control advertising that it has nothing to do.
-- The steppers turn one chevron glyph rather than shipping four drawings, and they flip under RTL.
