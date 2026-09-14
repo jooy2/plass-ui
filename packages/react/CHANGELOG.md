@@ -14,6 +14,8 @@
 
 ### Fixed
 
+- **Restarting a `PlAnimate*` no longer replays another one nested inside it.** A restart rewound every animated element under its root, so an error message in a `PlAnimateFade` inside <code v-pre>&lt;PlAnimateShake replay={attempts}&gt;</code> faded in again on every shake. A restart now rewinds only the root and the parts that animation drew itself: its staggered children, the parts of a `PlAnimateSplit` and the tracks of a `PlAnimateMarquee`.
+
 - **A caller's `onPointerEnter` and `onFocus` reach every `PlAnimate*` with `trigger="hover"`, and no longer stop the effect from starting.** Twelve of the components (Appear, Blink, Fade, Float, Grow, Lighting, Reveal, Rotate, Shake, Slide, Split and Zoom) laid their hover handlers over the caller's, so `onPointerEnter={prefetch}` was never called. The other five (Counter, Headline, Marquee, Scramble and Typing) did the opposite, so a caller's `onFocus` replaced the handler that starts the effect on focus, and a keyboard reader never saw it play. The two sets of handlers are now merged, and both run.
 
 - **A `fullWidth` `PlDatePicker`, `PlTimePicker`, `PlDateTimePicker`, `PlColorPicker` or `PlTreeSelect` no longer renders its width samples.** The picker trigger held itself open at the widest value it could show by rendering every sample, hidden, even when `fullWidth` made its width its container's. A `fullWidth` trigger now renders only what it shows, as `PlSelect` and `PlDateRangePicker` do. A trigger without `fullWidth` keeps its samples.

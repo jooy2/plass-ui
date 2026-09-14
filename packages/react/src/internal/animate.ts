@@ -330,10 +330,21 @@ export function useAnimationRun({
     // The element itself for the effects that animate their own root, and its
     // descendants for the ones that animate their children instead: a staggered
     // PlAnimateAppear has nothing to rewind on its own box.
-    const targets: HTMLElement[] = [
-      element,
-      ...element.querySelectorAll<HTMLElement>('.plass-anim, .plass-marquee-track')
-    ];
+    //
+    // Only the descendants that are *this* animation's, though. Another
+    // PlAnimate* nested inside is an animation with a trigger of its own, and
+    // rewinding it too would fade an error message in again on every shake of
+    // the form around it. Every root names itself with `data-plass-animation`,
+    // so whose a part is is already written in the DOM: it is this element's
+    // when the nearest named root at or above it is this element. A nested root
+    // is its own nearest, and everything inside it answers to that one.
+    const targets: HTMLElement[] = [element];
+
+    for (const part of element.querySelectorAll<HTMLElement>('.plass-anim, .plass-marquee-track')) {
+      if (part.closest('[data-plass-animation]') === element) {
+        targets.push(part);
+      }
+    }
 
     for (const target of targets) {
       target.style.animationName = 'none';

@@ -206,3 +206,102 @@ describe('the hover trigger beside a caller’s own handlers', () => {
     });
   });
 });
+
+/**
+ * Counts the rewinds an element goes through.
+ *
+ * A rewind clears `animation-name` inline and puts it back, and that shows as a
+ * change to the `style` attribute whose old value mentions `animation-name`.
+ * Watching for it is how a test without the stylesheet can tell a rewound
+ * element from one that was left alone.
+ */
+function watchRewinds(element: HTMLElement): () => number {
+  let rewinds = 0;
+
+  const count = (records: MutationRecord[]) => {
+    for (const record of records) {
+      if (record.oldValue?.includes('animation-name')) {
+        rewinds += 1;
+      }
+    }
+  };
+
+  const observer = new MutationObserver(count);
+
+  observer.observe(element, {
+    attributes: true,
+    attributeFilter: ['style'],
+    attributeOldValue: true
+  });
+
+  return () => {
+    count(observer.takeRecords());
+
+    return rewinds;
+  };
+}
+
+describe('restarting an animation', () => {
+  it('leaves another `PlAnimate*` nested inside it alone', async () => {
+    function Subject() {
+      const [attempts, setAttempts] = React.useState(0);
+
+      return (
+        <div>
+          <button type="button" onClick={() => setAttempts((count) => count + 1)}>
+            Submit
+          </button>
+          <PlAnimateShake className="shake-under-test" replay={attempts}>
+            <PlAnimateFade className="fade-under-test">Wrong password</PlAnimateFade>
+          </PlAnimateShake>
+        </div>
+      );
+    }
+
+    await render(<Subject />);
+
+    const shake = document.querySelector<HTMLElement>('.shake-under-test')!;
+    const fade = document.querySelector<HTMLElement>('.fade-under-test')!;
+    const shakeRewinds = watchRewinds(shake);
+    const fadeRewinds = watchRewinds(fade);
+
+    document.querySelector('button')!.click();
+
+    await expect.poll(() => shake.getAttribute('data-state')).toBe('running');
+
+    // The shake is what was asked to play again. The message inside it has
+    // already arrived, and fading it in on every refusal would be a second
+    // entrance nobody asked for.
+    expect(shakeRewinds()).toBeGreaterThan(0);
+    expect(fadeRewinds()).toBe(0);
+  });
+
+  it('still rewinds the children it wrote a stagger onto', async () => {
+    function Subject() {
+      const [playing, setPlaying] = React.useState(false);
+
+      return (
+        <div>
+          <button type="button" onClick={() => setPlaying(true)}>
+            Play
+          </button>
+          <PlAnimateFade className="fade-under-test" trigger="manual" play={playing} stagger={50}>
+            <span className="first-child">One</span>
+            <span>Two</span>
+          </PlAnimateFade>
+        </div>
+      );
+    }
+
+    await render(<Subject />);
+
+    const fade = document.querySelector<HTMLElement>('.fade-under-test')!;
+    const childRewinds = watchRewinds(document.querySelector<HTMLElement>('.first-child')!);
+
+    document.querySelector('button')!.click();
+
+    await expect.poll(() => fade.getAttribute('data-state')).toBe('running');
+
+    expect(childRewinds()).toBeGreaterThan(0);
+  });
+});
