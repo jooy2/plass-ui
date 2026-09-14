@@ -185,6 +185,34 @@ describe('PlCommandPalette', () => {
       expect(onOpenChange).toHaveBeenLastCalledWith(false);
     });
 
+    it('opens again with an empty field, whatever closed it', async () => {
+      const screen = await render(
+        <PlCommandPalette items={items} shortcut={false} open onOpenChange={() => undefined} />
+      );
+
+      await screen.getByRole('combobox').fill('copy');
+      await expect.poll(() => screen.getByRole('option').elements().length).toBe(1);
+
+      // Closed by the parent, which Base UI does not report as a close of its
+      // own, and opened again.
+      await screen.rerender(
+        <PlCommandPalette
+          items={items}
+          shortcut={false}
+          open={false}
+          onOpenChange={() => undefined}
+        />
+      );
+      await expect.poll(() => screen.getByRole('dialog').query()).toBeNull();
+
+      await screen.rerender(
+        <PlCommandPalette items={items} shortcut={false} open onOpenChange={() => undefined} />
+      );
+
+      await expect.element(screen.getByRole('combobox')).toHaveValue('');
+      await expect.poll(() => screen.getByRole('option').elements().length).toBe(items.length);
+    });
+
     it('runs nothing for a disabled command', async () => {
       const own = vi.fn();
 

@@ -241,6 +241,20 @@ export function PlCommandPalette({
 
   const showing = open ?? uncontrolled;
 
+  // The query is dropped on the way out rather than on the way in, so the sheet
+  // never flashes the last search as it opens. Read off `showing` rather than
+  // off Base UI's `onOpenChange`, which reports Escape and a press outside but
+  // not a command that closed the sheet or a parent that set `open` to false.
+  const wasShowing = React.useRef(showing);
+
+  React.useEffect(() => {
+    if (wasShowing.current && !showing) {
+      setQuery('');
+    }
+
+    wasShowing.current = showing;
+  }, [showing]);
+
   const setOpen = React.useCallback(
     (next: boolean) => {
       if (open === undefined) setUncontrolled(next);
@@ -280,15 +294,7 @@ export function PlCommandPalette({
   const listHeight = toLength(maxHeight);
 
   return (
-    <BaseUIDialog.Root
-      open={showing}
-      onOpenChange={(next) => {
-        // The query is dropped on the way out rather than on the way in, so the
-        // sheet never flashes the last search as it fades.
-        if (!next) setQuery('');
-        setOpen(next);
-      }}
-    >
+    <BaseUIDialog.Root open={showing} onOpenChange={setOpen}>
       <BaseUIDialog.Portal>
         <BaseUIDialog.Backdrop
           className={cx('plass-portal', backdropClasses, classNames?.backdrop)}
