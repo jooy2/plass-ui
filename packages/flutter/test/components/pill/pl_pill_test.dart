@@ -148,6 +148,57 @@ void main() {
         expect(stopped, 1);
         expect(pressed, 0);
       });
+
+      testWidgets('does not answer a press on a trailing slot that is not a control', (
+        WidgetTester tester,
+      ) async {
+        var pressed = 0;
+
+        await tester.pumpWidget(
+          host(
+            PlPill(
+              title: const Text('Recording'),
+              onPressed: () => pressed += 1,
+              endIcon: const Text('00:41'),
+            ),
+            width: 320,
+          ),
+        );
+
+        await tester.tap(find.text('00:41'));
+        await tester.pumpAndSettle();
+
+        expect(pressed, 0);
+      });
+
+      testWidgets('does not answer a press on the open details', (WidgetTester tester) async {
+        var pressed = 0;
+
+        await tester.pumpWidget(
+          host(
+            PlPill(
+              expanded: true,
+              title: const Text('Two updates'),
+              details: const Text('Billing moved.'),
+              onPressed: () => pressed += 1,
+            ),
+            width: 320,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // A pill whose press opens its details would fold them away the moment
+        // someone touched what they were reading.
+        await tester.tap(find.text('Billing moved.'));
+        await tester.pumpAndSettle();
+
+        expect(pressed, 0);
+
+        await tester.tap(find.text('Two updates'));
+        await tester.pumpAndSettle();
+
+        expect(pressed, 1);
+      });
     });
 
     group('details', () {

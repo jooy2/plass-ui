@@ -92,6 +92,8 @@ PlPill(
 
 높이는 어딘가에 적어 둔 숫자가 아니라 **본문 자신의 것**입니다. 그래서 내용이 바뀌는 details 영역(살아 있는 정보가 하는 일이 그것입니다)도 함께 자랍니다. 그리고 아무것도 변형되지 않습니다. [`PlCollapsible`](./collapsible)의 패널이 그렇듯, 알약은 열리는 창입니다.
 
+패널 안을 누르는 것은 알약을 누르는 것이 아닙니다. <Fw react="onClick" flutter="onPressed" code />를 부르는 것은 그 위의 행뿐이라, details를 읽다가 건드려도 접히지 않습니다.
+
 ::: fw react
 
 내용이 바뀌어도 잰 높이가 정직하게 유지되도록 `ResizeObserver`가 지켜봅니다.

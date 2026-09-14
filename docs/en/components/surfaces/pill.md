@@ -92,6 +92,8 @@ The second half, revealed when `expanded`. The pill grows downward into it rathe
 
 The height is **the body's own**, not a number written down somewhere, so a details area whose content changes (which is what live information does) grows with it. And nothing is transformed: the pill is a window that opens, exactly as a [`PlCollapsible`](./collapsible)'s panel is.
 
+A press inside the panel is not a press on the pill. Only the row above it calls <Fw react="onClick" flutter="onPressed" code />, so touching the details while reading them does not fold them away.
+
 ::: fw react
 
 A `ResizeObserver` is what keeps the measured height honest as the content changes.

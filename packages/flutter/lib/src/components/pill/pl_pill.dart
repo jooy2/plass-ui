@@ -273,7 +273,7 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
                 ),
               if (widget.title != null || widget.description != null || widget.child != null)
                 Flexible(child: _middle(tokens, surface.ink)),
-              if (widget.endIcon != null) widget.endIcon!,
+              if (widget.endIcon != null) _outsidePress(widget.endIcon!, interactive: interactive),
             ],
           ),
         );
@@ -331,19 +331,22 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
                 if (widget.details != null)
                   PlassFold(
                     factor: _reveal,
-                    child: ExcludeFocus(
-                      excluding: !widget.expanded,
-                      child: ExcludeSemantics(
+                    child: _outsidePress(
+                      interactive: interactive,
+                      ExcludeFocus(
                         excluding: !widget.expanded,
-                        child: Padding(
-                          padding: EdgeInsetsDirectional.only(start: padX, end: padX, bottom: 8),
-                          child: DefaultTextStyle.merge(
-                            style: TextStyle(
-                              fontSize: sheetBody[_size]!.size,
-                              height: sheetBody[_size]!.height,
-                              fontWeight: FontWeight.w400,
+                        child: ExcludeSemantics(
+                          excluding: !widget.expanded,
+                          child: Padding(
+                            padding: EdgeInsetsDirectional.only(start: padX, end: padX, bottom: 8),
+                            child: DefaultTextStyle.merge(
+                              style: TextStyle(
+                                fontSize: sheetBody[_size]!.size,
+                                height: sheetBody[_size]!.height,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              child: widget.details!,
                             ),
-                            child: widget.details!,
                           ),
                         ),
                       ),
@@ -387,6 +390,35 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
 
         return pill;
       },
+    );
+  }
+
+  /// Keeps a press on [child] from pressing the pill.
+  ///
+  /// The row is what answers a press, as the React build's `<button>` is, but
+  /// the gesture detector is around the whole pill, because the light and the
+  /// hover belong to the whole lozenge, as they do on the React build's shell.
+  /// Without this, a press on the open [details] reached [PlPill.onPressed],
+  /// and a pill whose press opens its details folded them away the moment
+  /// someone touched what they were reading.
+  ///
+  /// A detector of its own under [child] enters the same tap and, being deeper,
+  /// wins it, so the pill's recogniser never fires. A control inside [child] is
+  /// deeper still and wins over both. The cursor goes back to the arrow, because
+  /// nothing here is pressed.
+  Widget _outsidePress(Widget child, {required bool interactive}) {
+    if (!interactive) {
+      return child;
+    }
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.basic,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        excludeFromSemantics: true,
+        onTap: () {},
+        child: child,
+      ),
     );
   }
 
