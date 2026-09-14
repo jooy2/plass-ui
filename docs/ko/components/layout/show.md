@@ -78,6 +78,8 @@ PlShow(until: PlassBreakpointFloor.md, child: PlList(children: rows));
 
 같은 내용의 두 가지 배치에는 맞는 거래이고, 만드는 데 비용이 크거나 fetch를 하거나 아예 mount되면 안 되는 서브트리에는 틀린 거래입니다. 그런 경우에는 [`usePlBreakpointValue`](../../hooks/use-breakpoint)가 하나만 고르고 그 하나만 mount됩니다. 서버가 `xs` 답을 렌더링하는 비용을 치르고서요.
 
+**portal로 빠져나가는 레이어는 예외입니다.** `PlModal`, `PlDrawer`, popover는 `<body>` 끝에 렌더링되어 `display: none`이 숨기는 상자 밖에 있으므로, 닫힌 쪽 안에서 열린 레이어도 그대로 보입니다. 양쪽이 같은 `open`을 읽는 레이어를 하나씩 들고 있으면 창이 두 개 열립니다. 레이어는 `PlShow` 바깥에 두거나, `usePlBreakpointValue`로 둘 중 하나를 고르세요.
+
 :::
 
 ::: fw flutter

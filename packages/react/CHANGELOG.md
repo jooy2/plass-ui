@@ -170,6 +170,8 @@
 
 ### Documentation
 
+- **The `PlShow` page says that a layer which portals out is not hidden with its half.** It said both halves are hidden with `display: none`, but a `PlModal`, `PlDrawer` or popover inside the closed half renders at the end of `<body>` and still shows, and two halves reading the same `open` open two windows. The page and the JSDoc now say so and point to `usePlBreakpointValue` for layers.
+
 - **The line chart page lists the fields of `PlassChartAxis`, `PlassChartLegend` and `PlassChartTooltip`.** The props tables named the three types and nothing more, so `min`, `tickCount`, `tickFormat`, `showValue`, `crosshair` and `mode` could only be found in the type declarations. The bar, area and scatter chart pages link to them.
 
 - **The documentation was audited and rewritten for accuracy and plainness.** Three claims were wrong and are corrected: `PlImage` said there is no gallery component, the component index said every component has a Flutter half, and the component counts had gone stale (133 previews on the index, 130 components registered by `plass-ui/tailwind.css`, 127 shared between the two frameworks).

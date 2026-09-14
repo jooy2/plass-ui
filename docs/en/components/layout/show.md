@@ -78,6 +78,8 @@ Which also means **a `className` carrying a margin or a width does nothing here.
 
 That is the right trade for two arrangements of the same content, and the wrong one for a subtree that is expensive to build, that fetches, or that must not mount at all. For those, [`usePlBreakpointValue`](../../hooks/use-breakpoint) picks one and only that one is mounted, at the cost of a server rendering the `xs` answer.
 
+**A layer that portals out is the exception.** A `PlModal`, a `PlDrawer` or a popover renders at the end of `<body>`, outside the box `display: none` hides, so an open one inside the closed half still shows. If both halves hold one and read the same `open`, two windows open. Keep layers outside `PlShow`, or pick between them with `usePlBreakpointValue`.
+
 :::
 
 ::: fw flutter

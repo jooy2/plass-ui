@@ -56,6 +56,12 @@ export interface PlShowProps extends React.ComponentPropsWithoutRef<'div'> {
  * `usePlBreakpointValue` picks one and only that one is mounted, at the cost of
  * a server rendering the `xs` answer.
  *
+ * **A layer that portals out is not hidden with its half.** A `PlModal`, a
+ * `PlDrawer` or a popover renders at the end of `<body>`, outside the box that
+ * `display: none` hides, so an open one in the closed half shows. Two halves
+ * that read the same `open` open two windows. Keep layers outside `PlShow`, or
+ * choose between them with `usePlBreakpointValue`.
+ *
  * There is no `PlHide`, deliberately. `until` is the inverse of `from` and the
  * two together are a band, so a second component would be a second way to spell
  * the same three cases.
