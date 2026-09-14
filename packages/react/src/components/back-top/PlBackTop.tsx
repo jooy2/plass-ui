@@ -4,6 +4,7 @@ import * as React from 'react';
 import { PlIconButton } from '../icon-button/PlIconButton.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
+import { focusablesIn } from '../../internal/focusable.js';
 import { usePrefersReducedMotion } from '../../internal/media.js';
 import { cx, transitionClasses } from '../../internal/styles.js';
 import type { PlassColor, PlassElevation, PlassSize, PlassVariant } from '../../types.js';
@@ -163,12 +164,8 @@ export const PlBackTop = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlB
 
       if (node && document.activeElement === button) {
         const root = node === window ? document.body : (node as HTMLElement);
-        const first = Array.from(
-          root.querySelectorAll<HTMLElement>(
-            'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-          )
-        ).find(
-          (candidate) => candidate !== button && !candidate.closest('[inert], [aria-hidden="true"]')
+        const first = focusablesIn(root).find(
+          (candidate) => candidate !== button && !candidate.closest('[aria-hidden="true"]')
         );
 
         if (first) {
