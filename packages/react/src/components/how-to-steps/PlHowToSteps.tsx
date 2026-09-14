@@ -172,6 +172,10 @@ export const PlHowToSteps = /* @__PURE__ */ React.forwardRef<HTMLOListElement, P
           render: render ?? <ol />,
           ref,
           props: {
+            // Said out loud: Safari and VoiceOver drop the list semantics of an
+            // `<ol>` whose markers are taken away, and the number discs are
+            // hidden from them, so without the role the order goes unannounced.
+            role: 'list',
             className: cx(
               'm-0 flex list-none flex-col p-0',
               stepGapClasses[density][size],

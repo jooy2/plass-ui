@@ -36,6 +36,14 @@ describe('PlHowToSteps', () => {
       expect(steps().length).toBe(3);
     });
 
+    it('says it is a list, which Safari forgets for a list without markers', async () => {
+      await render(<Guide />);
+
+      // Chromium keeps the role of an unmarked `<ol>`, so the role is read off the
+      // attribute that WebKit needs rather than off the accessibility tree.
+      expect(guide()).toHaveAttribute('role', 'list');
+    });
+
     it('numbers the steps as it walks them', async () => {
       await render(<Guide />);
 

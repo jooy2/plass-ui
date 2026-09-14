@@ -14,6 +14,8 @@
 
 ### Fixed
 
+- **`PlHowToSteps` stays a list for Safari and VoiceOver.** The `<ol>` has its markers removed, which makes WebKit drop its list semantics, and the number discs are hidden from screen readers, so the order of the steps was not announced there. The list now carries `role="list"`, as `PlStepper` already did.
+
 - **A `PlNavigationMenuItem` link can mark the page the reader is on.** There was no `active` and no way to pass `aria-current` through, so a top-level link could not say it was the current page. `active` now marks a link item `aria-current="page"` and draws its word in the accent.
 
 - **A `PlMenuSubmenu` opens towards the end of the line under RTL, and its chevron turns with it.** The submenu opened against the physical right edge whatever the direction, while under RTL the arrow key that opens it is the left one, and the chevron kept pointing right. Left out, `side` is now the inline end, the left under RTL, and the chevron follows. A `side` given explicitly is still a physical edge.
