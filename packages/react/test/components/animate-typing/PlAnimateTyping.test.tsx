@@ -60,13 +60,19 @@ describe('PlAnimateTyping', () => {
   });
 
   it('flattens an element among the children to its text', async () => {
-    const screen = await render(
-      <PlAnimateTyping className="typing-under-test" speed={400}>
-        {['Hello ', 'again']}
+    await render(
+      <PlAnimateTyping className="typing-under-test" speed={400} caret={false}>
+        Ship <strong>faster</strong>
       </PlAnimateTyping>
     );
 
-    await expect.element(screen.getByText('Hello again')).toBeInTheDocument();
+    const root = document.querySelector('.typing-under-test');
+
+    // The words inside the `<strong>` are typed and read out, and the bold is
+    // not kept: there is no honest way to reveal half of an element.
+    expect(root?.firstElementChild).toHaveTextContent('Ship faster');
+    await expect.poll(() => visible(root)).toBe('Ship faster');
+    expect(root?.querySelector('strong')).toBe(null);
   });
 
   describe('caret', () => {

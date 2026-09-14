@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **`PlAnimateTyping` types the text inside elements among its children.** `Ship <strong>faster</strong>` was typed and read out as `Ship `, because the text of any element was dropped, while the docs said an element contributes its text. That text is now typed and read, and the markup is still left out, so the line is `Ship faster` without the bold.
+
 - **`PlAnimateCounter` and `PlAnimateScramble` go on from where they were held when `paused` is released.** Resuming took the start time again, so a count held at 400 dropped back to `from` and a half-settled line scrambled again from its first character. A count also started over whenever a parent rendered it with an inline `easing`, which is a new function each time. Both now work the start time back from how far they had got and read `easing` from the latest render without restarting, as the Flutter build does. A hover, a new `play` or a new `value` still starts from the beginning.
 
 - **`PlAnimateSplit` with `by="character"` wraps a line between words.** Every character was its own inline-block, and a line may break before and after each one, so in a narrow box a word wrapped partway through, such as "Internationali / zation". The characters of each word now sit together in one inline-block, which moves to the next line whole and wraps inside only when the word is wider than the line. Chinese, Japanese, Thai and the other scripts written without spaces still wrap between their characters.
