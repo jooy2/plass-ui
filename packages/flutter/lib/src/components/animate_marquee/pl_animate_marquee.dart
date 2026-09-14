@@ -36,9 +36,11 @@ const Duration _unmeasured = Duration(seconds: 12);
 /// pointer cannot be pressed reliably, and a link inside a marquee that never
 /// stops is a link nobody can follow.
 ///
-/// Only the first copy is read out. The rest are behind [ExcludeSemantics], or
-/// a screen reader would announce everything on the strip as many times as it
-/// was laid down.
+/// Only the first copy is read out or reached with Tab. The rest are behind
+/// [ExcludeSemantics], or a screen reader would announce everything on the
+/// strip as many times as it was laid down, and behind [ExcludeFocus], because
+/// leaving the semantics does not leave the focus order: a strip of ten links
+/// would otherwise be thirty Tab stops.
 class PlAnimateMarquee extends StatefulWidget {
   /// Creates a marquee.
   const PlAnimateMarquee({
@@ -243,7 +245,7 @@ class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
           if (index == 0)
             KeyedSubtree(key: _track, child: _copy(axis))
           else
-            ExcludeSemantics(child: _copy(axis)),
+            ExcludeSemantics(child: ExcludeFocus(child: _copy(axis))),
       ],
     );
   }

@@ -62,6 +62,27 @@ describe('PlAnimateMarquee', () => {
       expect(tracks[1]).toHaveAttribute('aria-hidden', 'true');
       expect(tracks[2]).toHaveAttribute('aria-hidden', 'true');
     });
+
+    it('reaches the links in the first copy only', async () => {
+      await render(
+        <PlAnimateMarquee className="marquee-under-test" copies={3}>
+          <a href="#acme">Acme</a>
+        </PlAnimateMarquee>
+      );
+
+      const links = document.querySelectorAll<HTMLAnchorElement>('.marquee-under-test a');
+
+      // `aria-hidden` takes a copy off the accessibility tree and leaves its
+      // links on the tab order, where each one would be focused with no name.
+      links[0].focus();
+      expect(document.activeElement).toBe(links[0]);
+
+      links[1].focus();
+      expect(document.activeElement).not.toBe(links[1]);
+
+      links[2].focus();
+      expect(document.activeElement).not.toBe(links[2]);
+    });
   });
 
   describe('orientation', () => {

@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -55,6 +56,49 @@ void main() {
         find.descendant(of: find.byType(PlAnimateMarquee), matching: find.byType(ExcludeSemantics)),
         findsNWidgets(2),
       );
+    });
+
+    testWidgets('reaches the focusable children of the first copy only', (
+      WidgetTester tester,
+    ) async {
+      final FocusNode before = FocusNode();
+      addTearDown(before.dispose);
+
+      await tester.pumpWidget(
+        host(
+          afterFocusStop(
+            before,
+            const PlAnimateMarquee(
+              copies: 3,
+              children: <Widget>[
+                Focus(child: SizedBox(width: 60, height: 20)),
+                Focus(child: SizedBox(width: 60, height: 20)),
+              ],
+            ),
+          ),
+          width: 200,
+        ),
+      );
+
+      before.requestFocus();
+      await tester.pump();
+
+      // Round the scope with Tab until the focus is back where it started. The
+      // strip never settles, so each press is followed by one frame.
+      int stops = 0;
+
+      for (int press = 0; press < 12; press += 1) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+
+        if (before.hasFocus) {
+          break;
+        }
+
+        stops += 1;
+      }
+
+      expect(stops, 2);
     });
 
     testWidgets('lays the strip out unbounded and clips it', (WidgetTester tester) async {

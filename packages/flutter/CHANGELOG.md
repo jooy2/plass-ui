@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **Tab passes over the copies of a `PlAnimateMarquee` after the first.** The copies were behind `ExcludeSemantics`, which takes them out of the semantics tree but not out of the focus order, so a strip of ten focusable chips was thirty Tab stops. The copies after the first are now behind `ExcludeFocus` as well, and only the first copy's children take the focus.
+
 - **`PlRating` writes a fractional score the way the pack's language writes a number.** The packs interpolated the raw `num`, so a half star read `2.5 von 5` in German, French and Spanish, and an average such as `7 / 3` read out seventeen digits. Each pack now writes the score with its language's decimal separator and at most three decimals, `2,5 von 5`, without an `intl` dependency, and a whole score reads `3` even when it arrives as `3.0`.
 
 - **A `PlChip` delete affordance is named in the word order of the label pack.** The name was the pack's `remove` followed by the chip's `Text`, English's order in every language, so a Korean screen read `삭제 Design`. It now comes from the pack's `removeItem`, `Design 삭제` in Korean. A chip whose child is not a `Text` is still named by `remove` alone, and `deleteLabel` still replaces the whole name.

@@ -124,7 +124,7 @@ Vertical needs a height on the box — there is nothing else to clip against. `r
 ::: fw react
 
 - Under `prefers-reduced-motion` the strip stops dead and the content sits where it is. Everything on it is still in the document and still reachable — it is a row of things, not a slideshow.
-- **Only the first copy is read out.** The rest carry `aria-hidden`, or a screen reader would announce everything on the strip as many times as it was laid down.
+- **Only the first copy is read out or reached with Tab.** The rest carry `aria-hidden`, or a screen reader would announce everything on the strip as many times as it was laid down, and `inert`, because `aria-hidden` does not stop the focus: a strip of ten links would otherwise be thirty Tab stops.
 - `pauseOnHover` is on by default and it is not decoration: content moving past a pointer cannot be clicked reliably, and a link inside a marquee that never stops is a link nobody can follow. It does **not** pause on focus, so keyboard-reachable content on a strip is a reason to reach for a static list instead.
 - **Give the reader a way to stop it.** The strip runs forever by default, and one that moves for more than five seconds beside other content needs a control on the page that stops it: a button wired to `paused`, as in the [example above](#paused). [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html) asks for one. `pauseOnHover` is not that control, because it needs a pointer, and `prefers-reduced-motion` is no substitute either, because it is a system setting the reader has to find and turn on first.
 - Nothing that has to be read belongs here. A reader gets one pass at whatever speed you chose, and there is no way back.
@@ -134,7 +134,7 @@ Vertical needs a height on the box — there is nothing else to clip against. `r
 ::: fw flutter
 
 - When the platform has animations turned off (`MediaQuery.disableAnimations`) the strip stands where it started. Everything on it is still in the tree and still reachable — it is a row of things, not a slideshow.
-- **Only the first copy is read out.** The rest are behind `ExcludeSemantics`, or a screen reader would announce everything on the strip as many times as it was laid down.
+- **Only the first copy is read out or reached with Tab.** The rest are behind `ExcludeSemantics`, or a screen reader would announce everything on the strip as many times as it was laid down, and behind `ExcludeFocus`, because leaving the semantics does not leave the focus order.
 - `pauseOnHover` is on by default and it is not decoration: content moving past a pointer cannot be pressed reliably. It does **not** pause on focus, so focusable content on a strip is a reason to reach for a static list instead.
 - **Give the reader a way to stop it.** The strip runs forever by default, and one that moves for more than five seconds beside other content needs a control on the screen that stops it: a button wired to `paused`, as in the [example above](#paused). [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html) asks for one. `pauseOnHover` is not that control, because it needs a pointer, and `MediaQuery.disableAnimations` is no substitute either, because it reflects a system setting the reader has to find and turn on first.
 - Nothing that has to be read belongs here. A reader gets one pass at whatever speed you chose, and there is no way back.
@@ -147,7 +147,7 @@ Vertical needs a height on the box — there is nothing else to clip against. `r
 
 | React | Flutter | Why |
 | --- | --- | --- |
-| `aria-hidden` on the copies after the first | `ExcludeSemantics` | The framework's own name for the same exclusion. |
+| `aria-hidden` and `inert` on the copies after the first | `ExcludeSemantics` and `ExcludeFocus` | The framework's own names for the same two exclusions. |
 | `overflow: hidden` on the box | `UnconstrainedBox` with `clipBehavior: Clip.hardEdge` | The strip is longer than its box by design, so it has to be laid out against an unbounded main axis. A clip alone would clip the paint and leave the flex asserting that it overflowed. |
 | a `translate` of `-100% - gap`, so nothing is measured | the strip is measured and moved by that many pixels | A percentage translate resolves against the element's own box in CSS; here the measurement decides both the distance and the duration, and it is taken again whenever the strip changes size. |
 | `gap` as a CSS length | `double` | Logical pixels. |

@@ -9,6 +9,7 @@ import {
   directionValue,
   useAnimationRun
 } from '../../internal/animate.js';
+import { inertProps } from '../../internal/inert.js';
 import { cx } from '../../internal/styles.js';
 import type { PlassAnimateProps, PlassOrientation } from '../../types.js';
 
@@ -72,9 +73,11 @@ export interface PlAnimateMarqueeProps
  * pointer cannot be clicked reliably, and a link inside a marquee that never
  * stops is a link nobody can follow.
  *
- * Only the first copy is read out. The rest carry `aria-hidden`, or a screen
- * reader would announce everything on the strip as many times as it was laid
- * down.
+ * Only the first copy is read out or reached with Tab. The rest carry
+ * `aria-hidden`, or a screen reader would announce everything on the strip as
+ * many times as it was laid down, and `inert`, because `aria-hidden` does not
+ * stop the focus: a strip of ten links would otherwise be thirty Tab stops,
+ * twenty of them with no name.
  */
 export const PlAnimateMarquee = /* @__PURE__ */ React.forwardRef<
   HTMLDivElement,
@@ -166,6 +169,7 @@ export const PlAnimateMarquee = /* @__PURE__ */ React.forwardRef<
       ref={index === 0 ? trackRef : undefined}
       className="plass-marquee-track"
       aria-hidden={index === 0 ? undefined : 'true'}
+      {...inertProps(index !== 0)}
     >
       {children}
     </div>
