@@ -107,18 +107,6 @@ class PlAlert extends StatelessWidget {
   /// The name a screen reader gives that button. Never drawn.
   final String? closeLabel;
 
-  /// Whether this severity is worth interrupting a screen reader for.
-  ///
-  /// "This failed" is, and "saved" is not — so the severity decides. Flutter has
-  /// one live region rather than two politeness levels, so what the React build
-  /// says with `role="alert"` against `role="status"` becomes whether the alert
-  /// is a live region at all.
-  /// Takes the **resolved** family rather than reading the field: an alert whose
-  /// colour comes from the theme rather than from its own parameter is still a
-  /// warning, and a getter reading the nullable field would have said otherwise.
-  static bool _interrupts(PlassColor color) =>
-      color == PlassColor.warning || color == PlassColor.danger;
-
   @override
   Widget build(BuildContext context) {
     final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
@@ -207,9 +195,15 @@ class PlAlert extends StatelessWidget {
       ],
     );
 
+    // Every alert is a live region, whatever its severity. An alert that appears
+    // after the screen has loaded is news the reader was not looking at, and a
+    // "Saved" that is not a live region arrives unheard. Flutter's live region
+    // has one politeness level, and it is polite, so what the React build says
+    // with `role="alert"` against `role="status"` has no second level to go to
+    // here: a `danger` alert is read at the next pause, as a `success` one is.
     return Semantics(
       container: true,
-      liveRegion: _interrupts(color),
+      liveRegion: true,
       child: PlassSurfaceBox(
         surface: surface,
         borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),

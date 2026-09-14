@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **Every `PlAlert` is announced when it appears, whatever its severity.** Only a `warning` or `danger` alert was a live region, so an `info` or `success` alert such as "Saved" that appeared after the screen loaded was never read out. Every alert is now a live region. One already on the screen when it loads is read where it stands, as with any live region. Flutter's live region has one politeness level, and it is polite, so a `danger` alert is read when the reader pauses rather than interrupting.
+
 - **Each `PlCarousel` dot is a 24px press target.** A dot answered a press only on the 4 to 8 pixels it drew, which falls short of WCAG 2.5.8 and made jumping to a slide on a phone hard. Each dot is now a 24px target with the dot drawn in its middle, and the targets sit side by side, so the dots are spaced further apart.
 
 - **`PlCarousel` `autoPlay` keeps advancing inside a parent that rebuilds often.** Every rebuild of the widget restarted its timer, so inside a parent that rebuilt every second a five-second interval never completed and the carousel stood still. The timer now restarts only when `autoPlay`, `interval`, `value`, the number of slides or whether there is an `onChanged` changes.

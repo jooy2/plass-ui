@@ -121,24 +121,27 @@ void main() {
     });
 
     group('accessibility', () {
-      testWidgets('interrupts for a severity worth interrupting for', (WidgetTester tester) async {
+      testWidgets('announces every alert, whatever its severity', (WidgetTester tester) async {
         final handle = tester.ensureSemantics();
-        await tester.pumpWidget(
-          host(const PlAlert(color: PlassColor.danger, child: Text('Failed')), width: 400),
-        );
+
+        // An `info` or `success` alert is news too: a "Saved" that is not a
+        // live region appears in silence.
+        for (final PlassColor color in PlassColor.values) {
+          await tester.pumpWidget(
+            host(PlAlert(color: color, child: const Text('Note')), width: 400),
+          );
+
+          expect(
+            semanticsOf(tester, find.byType(PlAlert)),
+            isSemantics(isLiveRegion: true),
+            reason: '$color',
+          );
+        }
+
+        // With no severity named the alert is informational, and still announced.
+        await tester.pumpWidget(host(const PlAlert(child: Text('Note')), width: 400));
 
         expect(semanticsOf(tester, find.byType(PlAlert)), isSemantics(isLiveRegion: true));
-
-        handle.dispose();
-      });
-
-      testWidgets('waits for a pause when it is only news', (WidgetTester tester) async {
-        final handle = tester.ensureSemantics();
-        await tester.pumpWidget(
-          host(const PlAlert(color: PlassColor.success, child: Text('Saved')), width: 400),
-        );
-
-        expect(semanticsOf(tester, find.byType(PlAlert)), isSemantics(isLiveRegion: false));
 
         handle.dispose();
       });

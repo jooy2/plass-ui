@@ -175,8 +175,8 @@ Passing `onClose` is what makes the dismiss button appear. The component does no
 
 ::: fw flutter
 
-- The severity decides whether the alert interrupts. `warning` and `danger` are live regions and are announced as they appear; the rest are read when the reader reaches them. "This failed" is worth interrupting for and "saved" is not.
-- Flutter has one live region rather than two politeness levels, so what the React build says with `role="alert"` against `role="status"` becomes whether the alert is a live region at all.
+- Every alert is a live region, whatever its severity, so a screen reader announces an alert that appears without the reader moving to it. An alert that is already there when the screen loads is read where it stands, like the text around it.
+- Flutter's live region has one politeness level, and it is polite, so a `warning` or `danger` alert cannot interrupt the way it does in the React build: every severity is read when the reader pauses.
 - The glyph is excluded from semantics; the severity is carried by the shape and the colour together, never by the colour alone.
 - The glyph is centred on the message's **first** line (a box the height of one line box, whatever the type scale turns out to be), so a three-line alert still has its glyph at the top.
 - `action` and the dismiss button are real focus stops. Give the action a name; the dismiss button has one already.
@@ -189,7 +189,7 @@ Passing `onClose` is what makes the dismiss button appear. The component does no
 
 | React | Flutter | Why |
 | --- | --- | --- |
-| `role="alert"` / `role="status"` | a live region, or not one | Flutter has one live-region flag and no politeness levels. The severity still decides; what it decides between is narrower. |
+| `role="alert"` / `role="status"` | both a polite live region | Flutter's live region has one politeness level, and the `alert` and `status` roles that would carry the second are refused on a live region. |
 | a `role` you pass wins | — | There is no role to override. A caller who needs different semantics wraps the alert in their own `Semantics`. |
 | `icon={false}` | `showIcon: false` | Dart has no value that is neither `null` nor a widget, so "take it away" gets its own name. |
 | `children` | `child` | Flutter's name. |

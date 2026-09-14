@@ -175,8 +175,8 @@ alert는 색을 입는 **대상 자체**입니다. 남의 내용을 담는 컨�
 
 ::: fw flutter
 
-- 끊을지 말지는 심각도가 정합니다. `warning`과 `danger`는 live region이라 나타나는 순간 알려지고, 나머지는 읽는 사람이 거기 닿았을 때 읽힙니다. "실패했다"는 끊을 만하고 "저장됐다"는 그렇지 않습니다.
-- Flutter에는 정중함 단계가 둘이 아니라 live region 하나뿐이라, React 빌드가 `role="alert"`와 `role="status"`로 말하는 것이 여기서는 live region인가 아닌가가 됩니다.
+- 심각도와 상관없이 모든 alert가 live region입니다. 그래서 읽는 사람이 거기로 옮겨 가지 않아도 나타난 alert를 스크린 리더가 읽어 줍니다. 화면이 열릴 때 이미 있던 alert는 주변 글처럼 그 자리에서 읽힙니다.
+- Flutter의 live region에는 정중함 단계가 polite 하나뿐이라, `warning`과 `danger`도 React 빌드처럼 읽던 것을 끊지는 못합니다. 모든 심각도가 읽는 사람이 잠시 멈출 때 읽힙니다.
 - 글리프는 semantics에서 제외됩니다. 심각도는 모양과 색이 함께 나르며 색만으로 전달되지 않습니다.
 - 글리프는 메시지의 **첫 줄**에 맞춰 놓입니다(타입 스케일이 무엇이든 그 줄 상자 높이의 상자 안에). 그래서 세 줄짜리 alert도 글리프는 위쪽에 있습니다.
 - `action`과 닫기 버튼은 각자 focus stop을 가집니다. action에는 이름을 주세요. 닫기 버튼은 이미 있습니다.
@@ -189,7 +189,7 @@ alert는 색을 입는 **대상 자체**입니다. 남의 내용을 담는 컨�
 
 | React | Flutter | 이유 |
 | --- | --- | --- |
-| `role="alert"` / `role="status"` | live region이거나 아니거나 | Flutter에는 live region 플래그 하나가 있을 뿐 정중함 단계가 없습니다. 정하는 것은 여전히 심각도이고, 정할 수 있는 폭이 좁습니다. |
+| `role="alert"` / `role="status"` | 둘 다 polite live region | Flutter의 live region에는 정중함 단계가 하나뿐이고, 두 번째 단계를 나타낼 `alert`와 `status` role은 live region에 함께 달 수 없습니다. |
 | 직접 넘긴 `role`이 이김 | — | 덮어쓸 role이 없습니다. 다른 semantics가 필요한 호출자는 alert를 자기 `Semantics`로 감쌉니다. |
 | `icon={false}` | `showIcon: false` | Dart에는 `null`도 위젯도 아닌 값이 없으니, "치워라"가 자기 이름을 갖습니다. |
 | `children` | `child` | Flutter의 이름입니다. |
