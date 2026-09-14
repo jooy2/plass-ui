@@ -849,8 +849,9 @@ class PlassLabels {
 
   /// What one star is called, and a read-only row with a score.
   ///
-  /// A whole score arrives as an `int`, so interpolating it never reads out a
-  /// trailing `.0`.
+  /// The score can be a fraction, so a pack writes it the way its language
+  /// writes a number: `2.5` in English, `2,5` in German. A whole score arrives
+  /// as an `int`.
   final String Function(num value, int count) ratingValue;
 
   /// And a read-only row with none.
@@ -881,9 +882,27 @@ class PlassLabels {
   final String Function(int count, String list) transferMoved;
 }
 
+/// The zeros a decimal ends in, with its separator when nothing is left after it.
+final RegExp _trailingZeros = RegExp(r'\.?0+$');
+
+/// A number written the way a language writes one: `2.5`, or `2,5` with
+/// [separator] `,`.
+///
+/// The package has no `intl` to ask, and a rating's score is the one fraction a
+/// pack is handed, so this is all the formatting the packs need. It keeps at
+/// most three decimals, as `Intl` does for the React package, drops the zeros
+/// after them, and writes a whole number with no separator, so `3.0` is `3`.
+String plassDecimal(num value, String separator) {
+  if (value.isFinite && value == value.roundToDouble()) {
+    return value.round().toString();
+  }
+
+  return value.toStringAsFixed(3).replaceFirst(_trailingZeros, '').replaceFirst('.', separator);
+}
+
 String _englishPaginationPage(int page) => 'Page $page';
 
-String _englishRatingValue(num value, int count) => '$value out of $count';
+String _englishRatingValue(num value, int count) => '${plassDecimal(value, '.')} out of $count';
 
 String _englishCarouselSlide(int index, int count) => 'Slide $index of $count';
 

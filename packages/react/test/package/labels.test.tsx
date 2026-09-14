@@ -63,6 +63,22 @@ describe('the label set', () => {
     // translation rather than a copy, not that every single word differs.
     expect(untranslated.length).toBeLessThan(8);
   });
+
+  it.each([
+    ['en', '2.5 out of 5'],
+    ['de', '2,5 von 5'],
+    ['es', '2,5 de 5'],
+    ['fr', '2,5 sur 5'],
+    ['ja', '5点中2.5点'],
+    ['ko', '5점 만점에 2.5점'],
+    ['zhHans', '2.5分，满分5分']
+  ] as const)('%s writes a score the way its language writes a number', (name, sentence) => {
+    const pack = locales[name];
+
+    expect(pack.ratingValue(2.5, 5)).toBe(sentence);
+    // A whole score is written with no separator at all.
+    expect(pack.ratingValue(3, 5)).not.toMatch(/[.,]/);
+  });
 });
 
 describe('a translated provider', () => {
@@ -127,6 +143,19 @@ describe('a translated provider', () => {
     expect(
       document.querySelector('.carousel-under-test')?.getAttribute('aria-roledescription')
     ).toBe(locales.ko.carousel);
+  });
+
+  it('reads a fraction of a star the way the language of the pack writes it', async () => {
+    const screen = await render(
+      <PlassProvider labels={locales.de}>
+        <PlRating count={3} precision={0.5} />
+      </PlassProvider>
+    );
+
+    // The packs used to write the raw number, so German read "2.5 von 3".
+    await expect
+      .element(screen.getByRole('radio', { name: '2,5 von 3', exact: true }))
+      .toBeInTheDocument();
   });
 
   it('reaches the row that offers what was typed', async () => {

@@ -94,7 +94,7 @@ export const ko: PlassLabels = {
 
   paginationPage: (page) => `${page}페이지`,
   paginationStatus: (page, count) => `${count}페이지 중 ${page}페이지`,
-  ratingValue: (value, count) => `${count}점 만점에 ${value}점`,
+  ratingValue: (value, count) => `${count}점 만점에 ${value.toLocaleString('ko')}점`,
   ratingNone: '별점 없음',
   carouselSlide: (index, count) => `${count}개 중 ${index}번째 슬라이드`,
   galleryItem: (index, total) => `${total}장 중 ${index}번째`,

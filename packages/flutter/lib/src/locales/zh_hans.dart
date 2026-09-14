@@ -105,7 +105,7 @@ const PlassLabels zhHans = PlassLabels(
 
 String _paginationPage(int page) => '第$page页';
 
-String _ratingValue(num value, int count) => '$value分，满分$count分';
+String _ratingValue(num value, int count) => '${plassDecimal(value, '.')}分，满分$count分';
 
 String _carouselSlide(int index, int count) => '第$index张，共$count张';
 

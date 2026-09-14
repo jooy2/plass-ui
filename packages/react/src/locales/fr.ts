@@ -94,7 +94,7 @@ export const fr: PlassLabels = {
 
   paginationPage: (page) => `Page ${page}`,
   paginationStatus: (page, count) => `Page ${page} sur ${count}`,
-  ratingValue: (value, count) => `${value} sur ${count}`,
+  ratingValue: (value, count) => `${value.toLocaleString('fr')} sur ${count}`,
   ratingNone: 'Aucune note',
   carouselSlide: (index, count) => `Diapositive ${index} sur ${count}`,
   galleryItem: (index, total) => `${index} sur ${total}`,

@@ -206,7 +206,9 @@ export interface PlassLabels {
   paginationPage: (page: number) => string;
   /** What the pager's live region says once the page has changed. */
   paginationStatus: (page: number, count: number) => string;
-  /** What one star is called, and a read-only row with a score. */
+  /** What one star is called, and a read-only row with a score. The score can
+   * be a fraction, so a pack writes it the way its language writes a number:
+   * `2.5` in English, `2,5` in German. */
   ratingValue: (value: number, count: number) => string;
   /** And a read-only row with none. */
   ratingNone: string;
@@ -325,7 +327,7 @@ export const defaultLabels: PlassLabels = {
 
   paginationPage: (page) => `Page ${page}`,
   paginationStatus: (page, count) => `Page ${page} of ${count}`,
-  ratingValue: (value, count) => `${value} out of ${count}`,
+  ratingValue: (value, count) => `${value.toLocaleString('en')} out of ${count}`,
   ratingNone: 'No rating',
   carouselSlide: (index, count) => `Slide ${index} of ${count}`,
   galleryItem: (index, total) => `${index} of ${total}`,

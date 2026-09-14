@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **`PlRating` writes a fractional score the way the pack's language writes a number.** The packs put the raw number into the sentence, so a half star read `2.5 von 5` in German, French and Spanish, which write a decimal with a comma. Each pack now formats the score with `Intl` in its own language, `2,5 von 5`, and a whole score still reads `3`. A `ratingValue` you write yourself still receives the plain number.
+
 - **An empty `PlTransfer` heading falls back to the label pack.** A `sourceLabel` or `targetLabel` of `''` drew the English `Available` or `Selected` whatever pack the page used. It now draws the pack's `transferAvailable` or `transferSelected`, as a heading left out already did.
 
 - **A `PlChip` delete button is named in the word order of the label pack.** The name was the pack's `remove` followed by the chip's text, English's order in every language, so a Korean page read `삭제 Design`. It now comes from the pack's `removeItem`, `Design 삭제` in Korean, and `deleteLabel` still replaces the whole name. Words that a component of their own draws cannot be read from `children`, and still follow `remove`.

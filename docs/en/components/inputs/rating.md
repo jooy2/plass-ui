@@ -189,7 +189,7 @@ Choosing the score that is already chosen clears it back to `0`, which is the on
 ## Accessibility
 
 - An interactive rating is a **radio group**, because a score is exactly one of these. One tab stop for the row, arrow keys within it, the chosen score marked, and a value in a form submission, none of which a row of buttons would have.
-- Every choice is named by the score it stands for (`3 out of 5`). The sentence comes from the label pack's `ratingValue`, and `valueLabel` still wins for one rating. Nothing here is ever drawn.
+- Every choice is named by the score it stands for (`3 out of 5`). The sentence comes from the label pack's `ratingValue`, which writes a fraction of a star the way its language writes a number, `2,5 von 5` in German, and `valueLabel` still wins for one rating. Nothing here is ever drawn.
 - A read-only rating drops the radios entirely and becomes one image with the score as its name.
 - The glyphs are decorative. What is announced is the sentence, not the drawing.
 

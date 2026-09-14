@@ -186,7 +186,7 @@ final PlassLabels labels = PlassTheme.labelsOf(context);
 
 ## 값이 들어가는 문장
 
-두 패키지 모두에서 일곱 항목에 숫자나 이름이 들어갑니다. 페이지 버튼의 `paginationPage`, 별 하나의 `ratingValue`, 슬라이드의 `carouselSlide`, 갤러리 타일의 위치인 `galleryItem`, 지우기 버튼의 `removeItem`, 입력한 값을 새 값으로 내미는 행의 `addCustom`, 행을 옮긴 뒤 transfer가 하는 말인 `transferMoved`입니다. React에는 `paginationStatus`와 `otpSlot`이 더 있고, Flutter에는 `howToStep`이 더 있습니다. 이 항목들은 문자열이 아니라 함수입니다. 언어가 바뀌면 어순도 바뀝니다. "Page 3 of 12"는 한국어로 `12페이지 중 3페이지`, 중국어로 `第3页，共12页`이고, 컴포넌트가 틀에 값을 끼워 넣었다면 영어 어순이 그대로 남았을 것입니다.
+두 패키지 모두에서 일곱 항목에 숫자나 이름이 들어갑니다. 페이지 버튼의 `paginationPage`, 별 하나의 `ratingValue`, 슬라이드의 `carouselSlide`, 갤러리 타일의 위치인 `galleryItem`, 지우기 버튼의 `removeItem`, 입력한 값을 새 값으로 내미는 행의 `addCustom`, 행을 옮긴 뒤 transfer가 하는 말인 `transferMoved`입니다. React에는 `paginationStatus`와 `otpSlot`이 더 있고, Flutter에는 `howToStep`이 더 있습니다. 이 항목들은 문자열이 아니라 함수입니다. 언어가 바뀌면 어순도 바뀝니다. "Page 3 of 12"는 한국어로 `12페이지 중 3페이지`, 중국어로 `第3页，共12页`이고, 컴포넌트가 틀에 값을 끼워 넣었다면 영어 어순이 그대로 남았을 것입니다. 문장 안의 숫자도 그 언어가 쓰는 방식을 따릅니다. 반 별은 영어로 `2.5 out of 5`, 독일어로 `2,5 von 5`입니다. 직접 쓰는 함수는 가공하지 않은 숫자를 받으므로, 숫자 형식은 그 함수가 맞춰야 합니다.
 
 ::: fw react
 

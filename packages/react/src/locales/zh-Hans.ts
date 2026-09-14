@@ -94,7 +94,7 @@ export const zhHans: PlassLabels = {
 
   paginationPage: (page) => `第${page}页`,
   paginationStatus: (page, count) => `第${page}页，共${count}页`,
-  ratingValue: (value, count) => `${value}分，满分${count}分`,
+  ratingValue: (value, count) => `${value.toLocaleString('zh-Hans')}分，满分${count}分`,
   ratingNone: '未评分',
   carouselSlide: (index, count) => `第${index}张，共${count}张`,
   galleryItem: (index, total) => `第${index}张，共${total}张`,

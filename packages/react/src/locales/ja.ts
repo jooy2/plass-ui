@@ -94,7 +94,7 @@ export const ja: PlassLabels = {
 
   paginationPage: (page) => `${page}ページ`,
   paginationStatus: (page, count) => `${count}ページ中${page}ページ`,
-  ratingValue: (value, count) => `${count}点中${value}点`,
+  ratingValue: (value, count) => `${count}点中${value.toLocaleString('ja')}点`,
   ratingNone: '評価なし',
   carouselSlide: (index, count) => `${count}枚中${index}枚目のスライド`,
   galleryItem: (index, total) => `${total}枚中${index}枚目`,

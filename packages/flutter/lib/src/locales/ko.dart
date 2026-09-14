@@ -105,7 +105,7 @@ const PlassLabels ko = PlassLabels(
 
 String _paginationPage(int page) => '$page페이지';
 
-String _ratingValue(num value, int count) => '$count점 만점에 $value점';
+String _ratingValue(num value, int count) => '$count점 만점에 ${plassDecimal(value, '.')}점';
 
 String _carouselSlide(int index, int count) => '$count개 중 $index번째 슬라이드';
 

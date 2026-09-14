@@ -172,6 +172,28 @@ void main() {
     });
   });
 
+  group('a score', () {
+    test('is written the way the language of the pack writes a number', () {
+      expect(en.ratingValue(2.5, 5), '2.5 out of 5');
+      expect(de.ratingValue(2.5, 5), '2,5 von 5');
+      expect(es.ratingValue(2.5, 5), '2,5 de 5');
+      expect(fr.ratingValue(2.5, 5), '2,5 sur 5');
+      expect(ja.ratingValue(2.5, 5), '5点中2.5点');
+      expect(ko.ratingValue(2.5, 5), '5점 만점에 2.5점');
+      expect(zhHans.ratingValue(2.5, 5), '2.5分，满分5分');
+    });
+
+    test('keeps a whole score whole, even when it is a double', () {
+      expect(de.ratingValue(3, 5), '3 von 5');
+      expect(de.ratingValue(3.0, 5), '3 von 5');
+      expect(en.ratingValue(3.0, 5), '3 out of 5');
+    });
+
+    test('keeps no more than three decimals', () {
+      expect(de.ratingValue(7 / 3, 5), '2,333 von 5');
+    });
+  });
+
   group('a translated theme', () {
     testWidgets('reaches a widget that says a word of its own', (WidgetTester tester) async {
       final SemanticsHandle handle = tester.ensureSemantics();
@@ -344,6 +366,28 @@ void main() {
       expect(find.bySemanticsLabel(RegExp(ko.howToStep(2, 2))), findsOneWidget);
       expect(find.bySemanticsLabel(ko.removeItem('notes.txt')), findsOneWidget);
       expect(find.bySemanticsLabel(ko.carouselSlide(1, 2)), findsWidgets);
+
+      handle.dispose();
+    });
+
+    testWidgets('reads a fraction of a star the way the language of the pack writes it', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+
+      await tester.pumpWidget(
+        host(
+          PlassTheme.merge(
+            defaults: const PlassDefaults(labels: de),
+            child: const PlRating(value: 2.5, readOnly: true),
+          ),
+          width: 320,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // The packs used to write the raw number, so German read "2.5 von 5".
+      expect(find.bySemanticsLabel('2,5 von 5'), findsOneWidget);
 
       handle.dispose();
     });

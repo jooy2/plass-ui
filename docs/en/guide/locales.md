@@ -186,7 +186,7 @@ The set is one flat list, and a key is named after what it means rather than aft
 
 ## Sentences with a value in them
 
-Seven entries in both sets hold a number or a name: a page button's `paginationPage`, a star's `ratingValue`, a slide's `carouselSlide`, where a gallery tile sits, `galleryItem`, a remove button's `removeItem`, the row that offers a typed value as a new one, `addCustom`, and what a transfer says once rows have moved, `transferMoved`. React has two more, `paginationStatus` and `otpSlot`, and Flutter has one, `howToStep`. They are functions rather than strings, because the order of a sentence moves between languages. "Page 3 of 12" is `12페이지 중 3페이지` in Korean and `第3页，共12页` in Chinese, and a template the component filled in would have kept the English order.
+Seven entries in both sets hold a number or a name: a page button's `paginationPage`, a star's `ratingValue`, a slide's `carouselSlide`, where a gallery tile sits, `galleryItem`, a remove button's `removeItem`, the row that offers a typed value as a new one, `addCustom`, and what a transfer says once rows have moved, `transferMoved`. React has two more, `paginationStatus` and `otpSlot`, and Flutter has one, `howToStep`. They are functions rather than strings, because the order of a sentence moves between languages. "Page 3 of 12" is `12페이지 중 3페이지` in Korean and `第3页，共12页` in Chinese, and a template the component filled in would have kept the English order. The number in a sentence is written the way the language writes it as well: a half star is `2.5 out of 5` in English and `2,5 von 5` in German. A function you write yourself receives the plain number and formats it itself.
 
 ::: fw react
 

@@ -105,7 +105,7 @@ const PlassLabels fr = PlassLabels(
 
 String _paginationPage(int page) => 'Page $page';
 
-String _ratingValue(num value, int count) => '$value sur $count';
+String _ratingValue(num value, int count) => '${plassDecimal(value, ',')} sur $count';
 
 String _carouselSlide(int index, int count) => 'Diapositive $index sur $count';
 
