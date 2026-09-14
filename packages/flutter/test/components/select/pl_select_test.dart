@@ -84,6 +84,24 @@ void main() {
         expect(find.text('Tokyo'), findsNWidgets(2));
       });
 
+      testWidgets('lays out no samples when it fills its container', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            PlSelect<String>(
+              options: _cities,
+              value: 'jp-13',
+              fullWidth: true,
+              onChanged: (String? _) {},
+            ),
+            width: 320,
+            overlay: true,
+          ),
+        );
+
+        // Once for real, and no sample: the container sets the width.
+        expect(find.text('Tokyo'), findsOneWidget);
+      });
+
       testWidgets('holds its width at the longest thing it could say', (WidgetTester tester) async {
         await _pump(tester, const _Harness(value: 'kr-11'));
         final wide = tester.getSize(find.byType(PlSelect<String>)).width;

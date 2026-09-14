@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **A `fullWidth` `PlSelect` no longer renders every option label in its trigger.** The trigger held itself open at the width of its longest label by rendering all of them, hidden, even when `fullWidth` made its width the container's. A list of 250 countries with a flag in each label requested 250 images before the list was ever opened. A `fullWidth` trigger now renders only what it shows. A trigger without `fullWidth` still renders every label, because that is what keeps it from changing width with its value.
+
 - **The options of a disabled `PlRadioGroup` look disabled.** A group's `disabled` stopped its options answering, but each option chose its look from its own `disabled` alone, so the options of a disabled group were drawn at full strength with a pointer cursor and a hover. They now dim, take the not-allowed cursor and lose the hover, as an option disabled on its own does.
 
 - **An `inline` `PlColorPicker` is grouped under its `label`.** The square and the rails are named "Saturation and brightness", "Hue" and "Opacity" whatever field they belong to, and the label, the description and the error were not connected to them, so two inline pickers on one page were two sets of the same sliders and an error was never announced. The panel is now a `role="group"` named by `label` and described by `description` and `error`, and an error marks the square and the rails `aria-invalid`.

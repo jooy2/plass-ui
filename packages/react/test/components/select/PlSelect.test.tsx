@@ -29,6 +29,18 @@ describe('PlSelect', () => {
       await expect.element(screen.getByRole('combobox')).toHaveTextContent('Seoul');
     });
 
+    it('renders the width samples only when it is sized by its labels', async () => {
+      const narrow = await render(<PlSelect items={items} placeholder="Pick a city" />);
+
+      // Three options and the placeholder hold an inline trigger open.
+      expect(narrow.container.querySelectorAll('[data-sample]')).toHaveLength(4);
+
+      const wide = await render(<PlSelect items={items} placeholder="Pick a city" fullWidth />);
+
+      // A full-width trigger is as wide as its container, whatever it says.
+      expect(wide.container.querySelectorAll('[data-sample]')).toHaveLength(0);
+    });
+
     it('renders the label, the description and the error', async () => {
       const screen = await render(
         <PlSelect items={items} label="City" description="Where the team sits." error="Pick one." />

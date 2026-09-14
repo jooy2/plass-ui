@@ -58,6 +58,8 @@
 
 ### Fixed
 
+- **A `fullWidth` `PlSelect` no longer builds every option label in its trigger.** The trigger held itself open at the width of its longest label by laying out all of them, unpainted, even when `fullWidth` made its width the container's, so a label with a picture in it loaded that picture for every option. A `fullWidth` trigger now builds only what it shows. A trigger without `fullWidth` still lays out every label, because that is what keeps it from changing width with its value.
+
 - **A `PlSelect` or picker trigger is named by the field's `label`.** Without a `semanticLabel`, the trigger had no name of its own: a `PlSelect` took the chosen option's words as its name as well as its value, so it read "Seoul, Seoul" with "City" nowhere, and `PlDatePicker`, `PlDateRangePicker`, `PlDateTimePicker`, `PlTimePicker`, `PlTreeSelect` and `PlColorPicker` read only the value. When `label` is a `Text`, its words now name the trigger, the label is not read a second time on its own, and what is chosen stays the value. A label built from other widgets still needs `semanticLabel`.
 
 - **The `PlSegmentedButton` tile follows the set when it changes size.** The tile was measured onto the chosen segment only when the set was built, so a window resize, a turned device or a new text size left it on the segment's old rectangle. The set now measures it again whenever its size changes.

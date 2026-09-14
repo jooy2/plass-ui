@@ -534,10 +534,15 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
   /// longest thing it could ever say: a field that shrank when a shorter option
   /// was taken would move out from under the pointer that took it.
   Widget _value(PlassTokens tokens, PlassTextScale scale, {required int chosen}) {
-    final samples = <Widget>[
-      for (final option in widget.options) _label(option),
-      if (widget.placeholder != null) widget.placeholder!,
-    ];
+    // A `fullWidth` trigger takes its width from its container, so it lays out
+    // no samples: every label built there, and every picture in one, would be
+    // work for nothing.
+    final samples = widget.fullWidth
+        ? const <Widget>[]
+        : <Widget>[
+            for (final option in widget.options) _label(option),
+            if (widget.placeholder != null) widget.placeholder!,
+          ];
 
     return DefaultTextStyle.merge(
       style: TextStyle(

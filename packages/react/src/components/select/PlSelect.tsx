@@ -251,13 +251,18 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
 
     // Holds the trigger open at the width of the longest thing it could say, so
     // choosing a shorter option does not shrink the field out from under the
-    // pointer that chose it.
+    // pointer that chose it. A `fullWidth` trigger takes its width from its
+    // container, so it renders no samples: every label drawn there, and every
+    // picture in one, would be work for nothing.
     const sizerSamples = React.useMemo(
-      () => [
-        ...items.map((item) => item.label ?? String(item.value)),
-        ...(hasContent(placeholder) ? [placeholder] : [])
-      ],
-      [items, placeholder]
+      () =>
+        fullWidth
+          ? []
+          : [
+              ...items.map((item) => item.label ?? String(item.value)),
+              ...(hasContent(placeholder) ? [placeholder] : [])
+            ],
+      [fullWidth, items, placeholder]
     );
 
     return (
