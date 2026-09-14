@@ -19,12 +19,15 @@ const cards = Array.from({ length: 6 }, (_, index) => (
   </div>
 ));
 
-/** The scrolling box: the focusable one, wherever the buttons have put it. */
+/**
+ * The scrolling box, wherever the buttons have put it: the one child that grows.
+ * Not the focusable one, because it is a tab stop only once it overflows.
+ */
 function scroller(screen: Awaited<ReturnType<typeof render>>) {
   return screen
     .getByTestId('zone')
     .element()
-    .querySelector<HTMLElement>(':scope > [tabindex="0"]') as HTMLElement;
+    .querySelector<HTMLElement>(':scope > .grow') as HTMLElement;
 }
 
 /** And the grid inside it. */
@@ -40,7 +43,7 @@ function track(screen: Awaited<ReturnType<typeof render>>) {
 function clip() {
   const style = document.createElement('style');
 
-  style.textContent = '[data-testid="zone"] > [tabindex="0"] { overflow-x: auto; width: 400px; }';
+  style.textContent = '[data-testid="zone"] > .grow { overflow-x: auto; width: 400px; }';
   document.head.append(style);
 
   return () => style.remove();
@@ -103,10 +106,21 @@ describe('PlScrollZone', () => {
       await expect.element(screen.getByRole('group', { name: 'Categories' })).toBeInTheDocument();
     });
 
-    it('leaves the strip reachable from the keyboard', async () => {
+    it('leaves the strip reachable from the keyboard while it overflows', async () => {
       const screen = await render(<PlScrollZone data-testid="zone">{cards}</PlScrollZone>);
 
-      expect(scroller(screen)).toHaveAttribute('tabindex', '0');
+      await expect.poll(() => scroller(screen).getAttribute('tabindex')).toBe('0');
+    });
+
+    it('is no tab stop while everything fits', async () => {
+      const screen = await render(
+        <PlScrollZone data-testid="zone">
+          <div>Alone</div>
+        </PlScrollZone>
+      );
+
+      await expect.element(screen.getByText('Alone')).toBeInTheDocument();
+      expect(scroller(screen)).not.toHaveAttribute('tabindex');
     });
 
     it('draws no sheet of its own', async () => {

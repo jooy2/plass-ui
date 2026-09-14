@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **A `PlScrollZone` strip is a tab stop only while it overflows.** The scroller always took `tabIndex={0}`, so a strip that fits, or one whose chips are already focusable, added a stop with nothing to scroll, and without a `label` that stop had no name. It is now focusable only while there is somewhere to scroll, as `PlScrollArea` already was.
+
 - **`PlPanes` handles can be named, and say which pane they resize.** A split with two handles read as "separator, 50" twice, with no way to tell them apart, while the Flutter build already took a `label`. `PlPanes` takes a `label` for its handles, and each handle points at the pane before it with `aria-controls`, using the pane's own `id` when it has one.
 
 - **`PlContainer` keeps its `maxWidth` when it is given a `style`.** The caller's `style` replaced the one that carries the measure, so `<PlContainer maxWidth="md" style={{ paddingBlock: 24 }}>` had no width limit at all. The two are now merged, with the caller's declarations laid over the measure.

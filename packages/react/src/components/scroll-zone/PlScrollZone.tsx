@@ -708,12 +708,13 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
 
         <div
           ref={scrollerRef}
-          // Focusable, so the strip can be scrolled with the arrow keys by
-          // whoever is not using a pointer. That is the browser's own key
-          // handling on a scroll container, which means it is already right
-          // under RTL — a handler of ours mapping ArrowRight to "forward" would
-          // not have been.
-          tabIndex={0}
+          // Focusable while it overflows, so the strip can be scrolled with the
+          // arrow keys by whoever is not using a pointer. That is the browser's
+          // own key handling on a scroll container, which means it is already
+          // right under RTL — a handler of ours mapping ArrowRight to "forward"
+          // would not have been. A strip that fits has nothing to scroll, and a
+          // stop on it would be one more press on the way past.
+          tabIndex={reach.back || reach.forward ? 0 : undefined}
           role={label ? 'group' : undefined}
           aria-label={label}
           className={cx(
