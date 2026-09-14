@@ -2,7 +2,7 @@
 
 The findings of a full audit of both packages, the documentation site and the repository, taken at `148a20e4` on 2026-09-13, and how far fixing them has got. The work goes in batches of twenty. When every item below is ticked, delete this file in a commit of its own.
 
-**99 of 345 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
+**118 of 345 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ## Working through a batch
 
@@ -42,21 +42,22 @@ cd docs && npm run typecheck && npm run lint && npx prettier --check . && npm ru
 
 ## Batches so far
 
-| Batch | Commits              | Items                                                                                                 |
-| ----- | -------------------- | ----------------------------------------------------------------------------------------------------- |
-| 1     | `148a20e4..16d59107` | The High items: 1, 2, 4, 6, 18, 40, 43, 44, 68, 87, 121, 126, 144, 145, 154, 156, 188, 196, 202, 237  |
-| 2     | `16d59107..c37ec085` | 3, 5, 7, 8, 9, 10 (part), 11, 13, 14, 15, 16, 17 (part), 22, 24, 142, 143, 152, 197, 268              |
-| 3     | `c37ec085..4885268c` | The rest of 10 and 17, 25, 26, 27, 28, 37, 38, 41, 42, 45, 46, 47, 48, 50, 51, 53, 54, 60, 64, 66, 69 |
-| 4     | `4885268c..c99f09c1` | 72, 75, 76, 85, 86, 88, 90, 91, 92, 94, 95, 98, 101, 103, 113, 114, 116, 122, 123, 127                |
-| 5     | `29684cc1..8e75337c` | 82, 129, 132, 135, 146, 147, 149, 155, 157, 158, 159, 163, 166, 167, 174, 175, 176, 177, 182, 183     |
+| Batch | Commits              | Items                                                                                                     |
+| ----- | -------------------- | --------------------------------------------------------------------------------------------------------- |
+| 1     | `148a20e4..16d59107` | The High items: 1, 2, 4, 6, 18, 40, 43, 44, 68, 87, 121, 126, 144, 145, 154, 156, 188, 196, 202, 237      |
+| 2     | `16d59107..c37ec085` | 3, 5, 7, 8, 9, 10 (part), 11, 13, 14, 15, 16, 17 (part), 22, 24, 142, 143, 152, 197, 268                  |
+| 3     | `c37ec085..4885268c` | The rest of 10 and 17, 25, 26, 27, 28, 37, 38, 41, 42, 45, 46, 47, 48, 50, 51, 53, 54, 60, 64, 66, 69     |
+| 4     | `4885268c..c99f09c1` | 72, 75, 76, 85, 86, 88, 90, 91, 92, 94, 95, 98, 101, 103, 113, 114, 116, 122, 123, 127                    |
+| 5     | `29684cc1..8e75337c` | 82, 129, 132, 135, 146, 147, 149, 155, 157, 158, 159, 163, 166, 167, 174, 175, 176, 177, 182, 183         |
+| 6     | `012573fb..b869de54` | 185, 186, 187 (part), 189, 190, 191, 193, 198, 200, 203, 205, 206, 207, 209, 211, 214, 215, 220, 221, 222 |
 
 The answers to batch 4's questions went in as `363c243b..2a8fb470`: the decode half of item 100, the `PlAnimateTyping` caret, and a `headingLevel` for `PlCard` with the card page corrected.
 
-**First in batch 6, approved and not counted towards its twenty: Flutter fields lose their text input connection when they take the focus.** `PlTextField`, `PlCombobox` and `PlNumberField` wrap their shell in a `CustomPaint` only while focused (`if (_focused) { shell = CustomPaint(...) }`). That changes the widget type above the `EditableText`, which is then built again, and the new editor has no text input connection: in a widget test, `tester.testTextInput.hasAnyClients` goes false on the frame after the focus arrives. `PlCombobox` with `multiple` changes the tree above the editor again when its first chip appears. Keep the `CustomPaint` in the tree and change only its painter, keep the editor's position in the tree stable, and add a test per field that types after the field takes the focus, without calling `showKeyboard` again. Then remove the `showKeyboard` workaround from the `Enter` tests in `test/components/combobox/pl_combobox_test.dart`.
+The approved Flutter text input fix went in first in batch 6, as `86acd2ef`, and the React changelog entry for item 211 was corrected for the site build afterwards.
 
 ## Waiting for an answer
 
-Asked at the end of batch 5. The flagged items are the ones batches 1 to 5 passed over; each item's own entry below has the details and the proposal.
+Asked at the end of batches 5 and 6. The flagged items are the ones batches 1 to 6 passed over; each item's own entry below has the details and the proposal.
 
 1. **Item 12, values inside translatable strings.** Add function-valued keys such as `(n, total) => string` to both packages and all seven packs, with top-level tear-offs so the Dart packs stay `const`? Item 178 waits on the same shape.
 1. **Item 19, the reset in `plass-ui/styles.css`.** Move the list and heading resets into the components that need them, which changes how host pages render, or keep the reset and document it?
@@ -78,6 +79,20 @@ Asked at the end of batch 5. The flagged items are the ones batches 1 to 5 passe
 1. **Found in passing: the Flutter calendar header names.** The month and year buttons pass `semanticLabel: labels.chooseMonth` and `chooseYear`, which are merged ahead of the drawn text, so they read "Choose a month, July". This is item 146 on the Flutter side. Put the drawn text first and the purpose in a hint?
 1. **Found in passing: the `PlFilePicker` button name runs two words together.** Chromium joins the title and the hint with no space, so the name ends "…click to browsePDF only". Describe the button with the hint through `aria-describedby`, or keep it in the name with a separator?
 1. **Found in passing: the Korean pagination page.** The Flutter Accessibility block in `docs/ko/components/inputs/pagination.md` has a bullet about fewer than two pages that the English block does not. Move it to match the English page?
+1. **Item 100, the rest of the gallery decodes.** Building only the tiles near the view changes how the board is laid out, and item 93 changes the same layout in React. Decide the layout together with item 93?
+1. **Item 180, a finding in Flutter `PlOtpField`.** A security finding, and the local memory note `audit-security-items` is not on this machine, so the details are missing. Where are they?
+1. **Item 181, `PlPagination` focus on a page change.** Keep the current page the same element type as the others, which reverses the documented decision that it is a `<button>`, and use `focusableWhenDisabled` on the steppers?
+1. **Item 187, the rest of the width sample.** Leave labels that are not strings out of a trigger without `fullWidth`, which lets it change width with its value, or sample only a number of them, and which number?
+1. **Item 192, `PlTransfer` after a move.** Moving the focus to the target list can be done now, but announcing how many items moved is a translated string with a count in it, which waits on item 12. Take the focus half now and the announcement with item 12?
+1. **Item 195, a `PlTransfer` list of thousands.** Virtualising the React rows needs a windowing implementation or a dependency. Write one in `internal`, add a dependency, or only memoise the rows?
+1. **Item 201, a nested `PlPageLayout`.** Render a `div` and turn the skip link off inside another layout, or correct the sentence that says there is exactly one per page?
+1. **Item 213, `PlAnchor` in a scroll container.** Add a `target` prop, as `PlBackTop` has, which adds to the API?
+1. **Item 216, Flutter `PlBackTop` without a `controller` on desktop.** Document the limitation and point to `controller`, or add a debug assert?
+1. **Found in passing: `CLAUDE.md`.** The batch rules follow it, but it is not in the working tree; it is listed in `.gitignore` and missing. Batch 6 followed `CONTRIBUTING.md` and the code around each change. Where does it live?
+1. **Found in passing: `PlDateRangePicker` width samples.** It renders a `WidthSizer` the same way `PlSelect` did before item 187, including with `fullWidth`. Make the same change there?
+1. **Found in passing: the Flutter `PlSlider` run.** The filled run is drawn along the whole rail while a thumb is placed along the rail less its own size, so the run's end sits under the thumb's centre only in the middle. Line the two up?
+1. **Found in passing: `PlChip` reads its child's words with a private `_childText`.** It is the same as the new `plassTextOf` in `internal/text.dart`. Use the shared one?
+1. **Found in passing: `formatValue` and the Flutter `PlSlider` value a screen reader hears.** Item 190 no longer reproduces, because the value is read in the step's decimals, but `formatValue` takes the whole list and so still does not reach a single thumb. Leave it, or add a per-thumb formatter?
 
 ## Passed over and not yet asked
 
@@ -574,39 +589,23 @@ None. Every flagged item passed over so far is asked above.
   - Location: `packages/flutter/lib/src/components/rating/pl_rating.dart:175`, `:272`, `:283`
   - Problem: With the default `clearable: true`, End is handled as "picking the same score again".
   - Proposal: Ignore Home/End when the value is already the same.
-- [ ] **185.** Flutter `PlSegmentedButton` does not measure the tile position again when its size changes (Bug · Flutter · Medium)
-  - Location: `segmented_button/pl_segmented_button.dart:190-233`
-  - Problem: When the window is resized, the device is rotated or the text size changes, the tile stays on the old rectangle. React handles this with `ResizeObserver`.
-  - Proposal: Wrap it in `SizeChangedLayoutNotifier` and measure again on each notification.
-- [ ] **186.** Flutter `PlSelect` trigger name leaves out the field `label` and reads the selected value twice (Accessibility · Flutter · Medium)
-  - Location: `select/pl_select.dart:420-430`, `:492-501`, `internal/picker.dart:311-321`, `:350-358`
-  - Problem: When it is used without `semanticLabel`, "City" is not read, and both the label and the value become "Seoul". The `PlTimePicker` and `PlTreeSelect` triggers also leave out the label.
-  - Proposal: Merge the field `label` into the trigger name and leave out the displayed text.
+- [x] **185.** Flutter `PlSegmentedButton` does not measure the tile position again when its size changes (Bug · Flutter · Medium)
+- [x] **186.** Flutter `PlSelect` trigger name leaves out the field `label` and reads the selected value twice (Accessibility · Flutter · Medium)
 - [ ] **187.** `PlSelect` trigger always renders every option label to work out its width (Performance · Both · Medium)
-  - Location: `select/PlSelect.tsx:253-259`, `:350`, `internal/sizer.tsx:36-53`, `pl_select.dart:523-549`
-  - Problem: For a list of 250 countries with a flag `<img>` on each, every trigger requests 250 images even when the popup is never opened. It draws them the same way with `fullWidth` too.
-  - Proposal: Skip the sample when `fullWidth` is set, and leave labels that are not strings out of the sample or limit how many are sampled.
+  - Location: `select/PlSelect.tsx` (`sizerSamples`), `internal/sizer.tsx`, `pl_select.dart` (`_value`)
+  - Done in `998d019d`: a `fullWidth` trigger renders no samples in either package.
+  - Problem left: a trigger without `fullWidth` still renders every label, so a list of 250 countries with a flag in each still requests 250 images.
+  - Proposal: Leave labels that are not strings out of the sample, or limit how many are sampled.
+  - Flag: Decision needed — leaving them out lets such a trigger change width with its value, and a limit needs a number.
 - [x] **188.** Flutter `PlSlider` cannot be adjusted with a screen reader (Accessibility · Flutter · High)
-- [ ] **189.** Tapping a Flutter `PlSlider` thumb moves the value by the thumb's radius (Bug · Flutter · Medium)
-  - Location: `pl_slider.dart:274`, `:333`, `:346`, `:393`
-  - Problem: The thumb is placed at `fraction * (run - thumb)`, but the pressed position is converted with `dx / run`. Tapping the centre of a thumb at 0 therefore gives 5.
-  - Proposal: Subtract `thumb / 2` from the pressed position and divide by `travel`.
-- [ ] **190.** Flutter `PlSlider` rounds the value it reads out to an integer and ignores `formatValue` (Accessibility · Flutter · Medium)
-  - Location: `pl_slider.dart:471`
-  - Problem: A 0–1 slider with `step: 0.1` reads 0.4 as "0". It reads the rounded number even when it draws "40%".
-  - Proposal: Use the `formatValue` result, or a string with as many decimal places as `step`.
-- [ ] **191.** React `PlSlider` has no way to give each thumb its own name and `aria-valuetext` (Accessibility · React · Medium)
-  - Location: `packages/react/src/components/slider/PlSlider.tsx:265-277`
-  - Problem: The two thumbs of a range slider have the same name, and the Base UI default text "start range" appears even on a Korean screen. `description` is not connected either.
-  - Proposal: Accept `getAriaLabel` and `getAriaValueText` as props and pass them on, and link the description with `aria-describedby`.
+- [x] **189.** Tapping a Flutter `PlSlider` thumb moves the value by the thumb's radius (Bug · Flutter · Medium)
+- [x] **190.** Flutter `PlSlider` rounds the value it reads out to an integer and ignores `formatValue` (Accessibility · Flutter · Medium) — no longer reproduces
+- [x] **191.** React `PlSlider` has no way to give each thumb its own name and `aria-valuetext` (Accessibility · React · Medium)
 - [ ] **192.** Pressing a `PlTransfer` move button loses focus and does not announce the result (Accessibility · Both · Medium)
   - Location: `transfer/PlTransfer.tsx:377-401`, `transfer/pl_transfer.dart:289-310`
   - Problem: After the move, the button that was just pressed becomes disabled, so focus is lost. The number of items moved is not announced.
   - Proposal: Move focus to the target list and announce the result at polite priority.
-- [ ] **193.** `PlTransfer` arrows point the wrong way in RTL (Bug · Both · Medium)
-  - Location: `PlTransfer.tsx:384`, `:393-400`, `pl_transfer.dart:297`, `:309`
-  - Problem: In RTL the target list is on the left, but the arrow physically points right. The comment saying "it is logical, so it is already correct" is also wrong.
-  - Proposal: Rotate the glyph in RTL as the `rtl.md` rules say, and fix the comment.
+- [x] **193.** `PlTransfer` arrows point the wrong way in RTL (Bug · Both · Medium)
 - [ ] **194.** The "Select all" checkboxes of the two `PlTransfer` lists have the same name (Accessibility · Both · Low)
   - Location: `PlTransfer.tsx:141`, `pl_transfer.dart:358`
   - Problem: By ear, there is no way to tell which list a checkbox belongs to.
@@ -620,60 +619,36 @@ None. Every flagged item passed over so far is asked above.
 
 - [x] **196.** A responsive slot set by a parent is inherited by nested children (Bug · React · High)
 - [x] **197.** Flutter `PlGrid` throws when a cell contains a widget that uses `LayoutBuilder` (Bug · Flutter · High)
-- [ ] **198.** Flutter `PlScrollArea` and `PlScrollZone` cannot be scrolled with the keyboard (Accessibility · Flutter · Medium)
-  - Location: `scroll_area/pl_scroll_area.dart:182`, `:201`, `scroll_zone/pl_scroll_zone.dart:34`, `:647`
-  - Problem: The scroll view does not take `Focus`. A terms-of-service body with nothing focusable in it, or a `buttons: none` shelf, cannot be reached with Tab or the arrow keys. The docs (`scroll-area.md:143-145`, a paragraph for both packages) and the comments say it works.
-  - Proposal: Attach `Focus` and scroll intents while the view can scroll, or move that part of the docs into `::: fw react`.
+- [x] **198.** Flutter `PlScrollArea` and `PlScrollZone` cannot be scrolled with the keyboard (Accessibility · Flutter · Medium)
 - [ ] **199.** The pointer drag path has no tests (Test · React · Low)
   - Location: `internal/drag.ts`, `test/components/scroll-zone/`, `panes/`, `sidebar/`
   - Problem: A regression in restoring the selection when unmounting during a drag, in `pointercancel`, or in `PlScrollZone` suppressing the click after a drag would go unnoticed.
   - Proposal: Verify the teardown and the click suppression with pointer events.
-- [ ] **200.** `PlHeader` and `PlFooter` inside the body take over the `PlPageLayout` slot registration (Bug · React · Medium)
-  - Location: `header/PlHeader.tsx:266`, `footer/PlFooter.tsx:164`, `page-layout/PlPageLayout.tsx:304`
-  - Problem: Every `PlHeader` under the context registers, and the last one wins. If an article `PlHeader` is placed inside `<main>`, that header is measured and the sticky sidebar offset is wrong. When the article header unmounts, `null` is registered and the offset stays at 0.
-  - Proposal: Allow registration only from the layout's slot positions, and override `register` with a no-op inside `<main>`.
+- [x] **200.** `PlHeader` and `PlFooter` inside the body take over the `PlPageLayout` slot registration (Bug · React · Medium)
 - [ ] **201.** Nesting `PlPageLayout` duplicates `<main>`, `id="main"` and the skip link (Accessibility · React · Medium)
   - Location: `PlPageLayout.tsx:401`, `docs/en/components/layout/page-layout.md:176`
   - Problem: `height="auto"` is meant for a layout that is not the page, but used that way it creates a `<main>` inside a `<main>` and a second "Skip to content". The docs say the layout guarantees exactly one per page, and the docs demo also duplicates the id inside VitePress's `<main>`.
   - Proposal: When there is an outer layout, render a `div` and turn off the skip link, or fix the sentence in the docs.
   - Flag: Decision needed
 - [x] **202.** Flutter `PlSidebar` resets the dragged width to the default on every parent rebuild (Bug · Flutter · High)
-- [ ] **203.** The focusable separator in React `PlSidebar` has no `aria-valuenow` (Accessibility · React · Medium)
-  - Location: `sidebar/PlSidebar.tsx:466-470`
-  - Problem: Changing the width with the arrow keys does not report the value. Flutter announces it with slider semantics.
-  - Proposal: Expose the current width and `minWidth`/`maxWidth` as value attributes.
+- [x] **203.** The focusable separator in React `PlSidebar` has no `aria-valuenow` (Accessibility · React · Medium)
 - [ ] **204.** React `PlSidebar` drawer direction ignores `PlassProvider direction` (Bug · React · Low)
   - Location: `packages/react/src/internal/page-layout.ts:193-201`
   - Problem: It reads only the document's `direction`, so a collapsed start sidebar in an RTL subtree of an LTR document opens from the opposite side. Flutter follows the surrounding `Directionality`.
   - Proposal: Use the value from Base UI `useDirection()`.
-- [ ] **205.** React `PlPanes` handles have no way to take an accessible name (Accessibility · React · Medium)
-  - Location: `panes/PlPanes.tsx:407-414`
-  - Problem: With two splits, every handle is read only as "separator, 50". Flutter has a `label` prop.
-  - Proposal: Add a `label` prop and point to the preceding pane with `aria-controls`.
-- [ ] **206.** In React `PlScrollZone`, an unfinished mouse drag makes the strip move on hover alone (Bug · React · Medium)
-  - Location: `scroll-zone/PlScrollZone.tsx:515-599`
-  - Problem: Before the threshold there is no capture, and the listeners are only on the scroller. If the button is held and released outside, the listeners stay behind. After that, the strip follows the hover, text selection is blocked, and the next click is swallowed.
-  - Proposal: End the drag when `buttons === 0`, or listen for `pointerup` and `pointercancel` on `window`.
-- [ ] **207.** React `PlScrollZone` scroller is always a tab stop, even with nothing to scroll (Accessibility · React · Medium)
-  - Location: `PlScrollZone.tsx:716`
-  - Problem: A strip that does not overflow, or that already holds focusable chips, gets a useless stop, and without `label` focus lands on an element with no name. `PlScrollArea` is a stop only when it overflows.
-  - Proposal: Set `tabIndex={0}` only when it overflows.
+- [x] **205.** React `PlPanes` handles have no way to take an accessible name (Accessibility · React · Medium)
+- [x] **206.** In React `PlScrollZone`, an unfinished mouse drag makes the strip move on hover alone (Bug · React · Medium)
+- [x] **207.** React `PlScrollZone` scroller is always a tab stop, even with nothing to scroll (Accessibility · React · Medium)
 - [ ] **208.** React `PlScrollArea` scrolls horizontally with `orientation="vertical"` (Bug · React · Low)
   - Location: `scroll-area/PlScrollArea.tsx:176-190`
   - Problem: The Base UI viewport has `overflow: scroll` on both axes, so a `<pre>` or a long URL scrolls sideways with no scrollbar. Flutter scrolls vertically only.
   - Proposal: For a single axis, set `overflow-*-hidden` on the other axis.
-- [ ] **209.** `PlShow` docs say that descendants which portal out are hidden too (Docs · React · Medium)
-  - Location: `show/PlShow.tsx:50-57`, `docs/en/components/layout/show.md:77`
-  - Problem: Both halves are mounted, so a modal, drawer or popover in the closed half is portalled to body and shows. If both halves use the same `open` state, two windows open.
-  - Proposal: Note the exception in the docs and the JSDoc, and point to `usePlBreakpointValue` when overlays are inside.
+- [x] **209.** `PlShow` docs say that descendants which portal out are hidden too (Docs · React · Medium)
 - [ ] **210.** `PlShow` is always a `<div>`, which causes a hydration error in inline contexts (Bug · React · Low)
   - Location: `PlShow.tsx:67-76`
   - Problem: With SSR inside a `<p>`, the parser closes the `<p>` and causes a mismatch. There is no `render` prop to switch it to a `span`.
   - Proposal: Add a `render` prop based on `useRender`.
-- [ ] **211.** Passing `style` to `PlContainer` loses `maxWidth` (Bug · React · Medium)
-  - Location: `packages/react/src/components/container/PlContainer.tsx:126-128`
-  - Problem: The `style` in `...props` overwrites `measure.style`, so `<PlContainer maxWidth="md" style={{ paddingBlock: 24 }}>` becomes a box with no width limit.
-  - Proposal: Take `style` out, merge it as `{ ...measure.style, ...style }`, and add a test.
+- [x] **211.** Passing `style` to `PlContainer` loses `maxWidth` (Bug · React · Medium)
 - [ ] **212.** The size-tracking test for `usePlElementSize` does not verify tracking (Test · React · Low)
   - Location: `packages/react/test/hooks/usePlElementSize.test.tsx:49-57`
   - Problem: The second `render` mounts a new root, so the test passes even if ResizeObserver updates break.
@@ -686,14 +661,8 @@ None. Every flagged item passed over so far is asked above.
   - Problem: In an app shell where `<main>` scrolls on its own, no row becomes active, and the hero demo reimplements the tracking itself. The demo's `href="#install"` points to an id that is not on the page.
   - Proposal: Accept a `target` as `PlBackTop` does and judge by that element's scroll, and have the demo use that prop.
   - Flag: Decision needed — it adds to the API.
-- [ ] **214.** Pressing a Flutter `PlAnchor` row ignores `offset` and the setting that turns animations off (Bug · Flutter · Medium)
-  - Location: `packages/flutter/lib/src/components/anchor/pl_anchor.dart:210-223`
-  - Problem: `ensureVisible(alignment: 0)` puts the heading at the very top, where a fixed header covers it. It also moves with a 260ms animation under `disableAnimations`.
-  - Proposal: Call `animateTo` with the position minus `offset`, and use `jumpTo` when animations are turned off.
-- [ ] **215.** Focus stays on a hidden button after React `PlBackTop` is pressed (Accessibility · React · Medium)
-  - Location: `back-top/PlBackTop.tsx:147-155`, `:170-171`
-  - Problem: As the page scrolls up, the button becomes `aria-hidden` and `tabIndex=-1` while it still holds focus. The next Tab goes to the end of the page and scrolls back down (WCAG 2.4.3).
-  - Proposal: When scrolling starts, move focus to the start of the document or to the first focusable element of the target.
+- [x] **214.** Pressing a Flutter `PlAnchor` row ignores `offset` and the setting that turns animations off (Bug · Flutter · Medium)
+- [x] **215.** Focus stays on a hidden button after React `PlBackTop` is pressed (Accessibility · React · Medium)
 - [ ] **216.** Flutter `PlBackTop` never shows its button on desktop or desktop web when `controller` is left out (Bug · Flutter · Medium)
   - Location: `back_top/pl_back_top.dart:109`, `docs/en/components/navigation/back-top.md:47`
   - Problem: `PrimaryScrollController` is inherited automatically only on mobile platforms, so `hasClients` is always false. This default path has no test either.
@@ -711,18 +680,9 @@ None. Every flagged item passed over so far is asked above.
   - Location: `bottom_navigation/pl_bottom_navigation.dart:268`, `:282-294`
   - Problem: Every item becomes `unavailable`, so even the selected item is drawn without its background. The dartdoc says it "stops where it is".
   - Proposal: Keep the wash and the accent on the selected item, and apply only the dimming.
-- [ ] **220.** React `PlFloatingBottomNavigation` leaves the key under the previous disc when `value` matches no item (Bug · React · Medium)
-  - Location: `floating-bottom-navigation/PlFloatingBottomNavigation.tsx:315-319`, `:430`
-  - Problem: The measurement returns when it finds no disc, so the gradient key stays under the previous destination, which has no `aria-current`. Flutter removes the key.
-  - Proposal: Hide the key when no disc matches, and add a test.
-- [ ] **221.** React `PlCommandPalette` keeps the search text when it is closed by running a command or by the parent (Bug · React · Medium)
-  - Location: `packages/react/src/components/command-palette/PlCommandPalette.tsx:264-283`
-  - Problem: `setQuery('')` runs only in Base UI `onOpenChange` (Esc, outside click), not on the `setOpen(false)` in `run()` or on a change to controlled `open`. Opening it again shows the previous search text. The docs and Flutter clear it on close.
-  - Proposal: Clear it at the moment open changes from true to false.
-- [ ] **222.** The keyboard run path of React `PlCommandPalette` has no tests (Test · React · Medium)
-  - Location: `packages/react/test/components/command-palette/PlCommandPalette.test.tsx`
-  - Problem: Every run test uses `click()`. Neither the ArrowDown and Enter path nor whether the input is empty after reopening is checked.
-  - Proposal: Add both cases.
+- [x] **220.** React `PlFloatingBottomNavigation` leaves the key under the previous disc when `value` matches no item (Bug · React · Medium)
+- [x] **221.** React `PlCommandPalette` keeps the search text when it is closed by running a command or by the parent (Bug · React · Medium)
+- [x] **222.** The keyboard run path of React `PlCommandPalette` has no tests (Test · React · Medium)
 - [ ] **223.** React `PlCommandPalette` renders every filtered result without virtualisation (Performance · React · Low)
   - Location: `PlCommandPalette.tsx:336-393`
   - Problem: At around 2,000 commands, the first open and typing a short search become slow.
