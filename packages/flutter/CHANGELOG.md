@@ -60,6 +60,8 @@
 
 ### Fixed
 
+- **The calendar header's month and year buttons are named by the words they show.** Each button's `semanticLabel` was merged ahead of its text, so a screen reader heard "Choose a month, July" and the month on screen came second. The drawn month or year is now the name, and "Choose a month" or "Choose a year" follows as a hint, which is what the React build already does.
+
 - **Every `PlToast` is announced, including one with the default `low` priority.** Only a `high` toast was a live region, so a default toast such as "Saved" appeared and left without a screen reader saying anything. Every toast is now a live region. Flutter's live region has one politeness level, and it is polite, so a `high` toast is read when the reader pauses rather than interrupting; the `alert` and `status` roles that would carry the difference cannot be set on a live region.
 
 - **A `PlNavigationMenuItem` destination can mark the screen the reader is on.** Items had no `selected`, so the row could not say which destination was current. `selected` now marks a destination selected for a screen reader and draws its word in the accent.

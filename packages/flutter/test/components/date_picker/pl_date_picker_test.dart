@@ -372,7 +372,12 @@ void main() {
         // merely hidden — there is no way down to it.
         expect(find.byType(PlassCalendarCell), findsNWidgets(12));
         expect(find.bySemanticsLabel('Monday, July 27, 2026'), findsNothing);
-        expect(find.bySemanticsLabel('Choose a month'), findsNothing);
+        expect(
+          find.byWidgetPredicate(
+            (Widget widget) => widget is Semantics && widget.properties.hint == 'Choose a month',
+          ),
+          findsNothing,
+        );
       });
 
       testWidgets('commits the 1st of the month it was handed', (WidgetTester tester) async {
@@ -609,6 +614,28 @@ void main() {
         await _open(tester);
 
         expect(find.bySemanticsLabel('Monday, July 27, 2026'), findsOneWidget);
+      });
+
+      testWidgets('names the month and year buttons by what they show, and hints what they do', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        await _pump(tester, PlDatePicker(value: july27, onChanged: (DateTime? _) {}));
+        await _open(tester);
+
+        // The words on the button are its name, so a reader hears `July` first
+        // and a voice command saying `July` finds it. The purpose follows.
+        expect(
+          tester.getSemantics(find.text('July')),
+          isSemantics(label: 'July', hint: 'Choose a month', isButton: true),
+        );
+        expect(
+          tester.getSemantics(find.text('2026')),
+          isSemantics(label: '2026', hint: 'Choose a year', isButton: true),
+        );
+
+        handle.dispose();
       });
 
       testWidgets('says whether the calendar is open', (WidgetTester tester) async {

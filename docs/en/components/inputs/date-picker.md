@@ -270,6 +270,7 @@ Pass `value` with `onValueChange`. The value is a `Date` at local midnight, or a
 
 ::: fw flutter
 
+- The month and year buttons are named by the words they show and carry what they do as a hint, so a screen reader hears `July` before "Choose a month".
 - A blocked day keeps its focus node and is announced as unavailable, for the same reason: a reader arrowing across a month must not fall into a hole at every one of them.
 - The trigger is a button that carries the chosen day as its **value** rather than folding it into its label, which is what a `PlSelect` already does: the label names the field and the value says what is in it.
 - The width samples are behind `ExcludeSemantics`, so nothing extra is read out.

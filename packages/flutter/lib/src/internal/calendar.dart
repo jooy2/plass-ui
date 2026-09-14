@@ -667,18 +667,24 @@ class _PlassCalendarState extends State<PlassCalendar> {
       );
     }
 
+    // Named by the month and the year they show, and described by what they do.
+    // A `semanticLabel` is merged ahead of the drawn words, so "Choose a month"
+    // would be read before which month is on screen. The purpose goes in a hint
+    // on the words instead, which the button's own merge folds into the button.
     final monthButton = PlButton(
       key: const ValueKey<String>('month'),
       variant: PlassVariant.ghost,
       size: chrome,
       color: widget.color,
       density: PlassDensity.compact,
-      semanticLabel: labels.chooseMonth,
       onPressed: () => _changeView(
         _view == PlassCalendarView.month ? widget.precision : PlassCalendarView.month,
       ),
       endIcon: disclosure(_view == PlassCalendarView.month),
-      child: Text(widget.names.months[widget.month.month - 1]),
+      child: Semantics(
+        hint: labels.chooseMonth,
+        child: Text(widget.names.months[widget.month.month - 1]),
+      ),
     );
 
     final yearButton = PlButton(
@@ -687,11 +693,10 @@ class _PlassCalendarState extends State<PlassCalendar> {
       size: chrome,
       color: widget.color,
       density: PlassDensity.compact,
-      semanticLabel: labels.chooseYear,
       onPressed: () =>
           _changeView(_view == PlassCalendarView.year ? widget.precision : PlassCalendarView.year),
       endIcon: disclosure(_view == PlassCalendarView.year),
-      child: Text('${widget.month.year}'),
+      child: Semantics(hint: labels.chooseYear, child: Text('${widget.month.year}')),
     );
 
     final page = yearPageStart(widget.month.year);
