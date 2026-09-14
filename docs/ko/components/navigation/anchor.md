@@ -70,7 +70,7 @@ PlAnchor(
 
 ## offset
 
-읽는 선이 뷰포트 위에서 얼마나 내려와 있는지입니다. 페이지 위에 고정된 것의 높이입니다.
+읽는 선이 스크롤되는 영역 위에서 얼마나 내려와 있는지입니다. 페이지 위에 고정된 것의 높이입니다.
 
 이것이 없으면 제목이 sticky 헤더 뒤로 사라진 뒤에도 계속 **다음** 제목으로 세어집니다. 그래서 목록이 막대 높이만큼 사용자보다 한 섹션 뒤에 머뭅니다.
 
@@ -87,6 +87,33 @@ PlAnchor(
   scroll-margin-top: 64px;
 }
 ```
+
+:::
+
+## 따라가는 스크롤
+
+목록은 스크롤 하나를 따라갑니다. 그 스크롤이 페이지 자신의 것이 아니면 어느 것인지 알려 줘야 합니다.
+
+::: fw react
+
+`<main>`이 따로 스크롤되는 앱 셸에서는 창이 움직이지 않으므로, 창을 따라가는 목록은 아무리 내려가도 어느 줄에도 불을 켜지 못합니다. `target`의 기본값은 창입니다. 스크롤되는 요소나 그 ref를 주면 읽는 선과 `offset`을 그 요소의 위에서부터 잽니다. 받는 값은 [`PlBackTop`](./back-top)의 `target`과 같습니다.
+
+```tsx
+const main = useRef<HTMLElement>(null);
+
+<PlFlex spacing={8} alignItems="start">
+  <PlAnchor className="w-56" items={items} target={main} />
+  <main ref={main} className="h-dvh overflow-y-auto">
+    …
+  </main>
+</PlFlex>;
+```
+
+:::
+
+::: fw flutter
+
+`controller`는 제목들이 들어 있는 스크롤 뷰의 `ScrollController`입니다. 없어도 목록은 그려지고 줄을 누르면 화면도 움직이지만, 잴 대상이 없어서 아무 줄에도 불이 켜지지 않습니다.
 
 :::
 

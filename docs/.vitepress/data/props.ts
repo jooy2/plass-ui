@@ -1846,8 +1846,17 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'number',
       default: '0',
       description: {
-        ko: '읽는 선이 창 위에서 얼마나 내려와 있는지(px). 페이지 위에 고정된 것의 높이입니다',
-        en: 'How far below the top of the window the reading line sits, in pixels — the height of whatever is pinned over the page'
+        ko: '읽는 선이 스크롤되는 영역 위에서 얼마나 내려와 있는지(px). 페이지 위에 고정된 것의 높이입니다',
+        en: 'How far below the top of the scrolled area the reading line sits, in pixels — the height of whatever is pinned over the page'
+      }
+    },
+    {
+      name: 'target',
+      type: 'Window | HTMLElement | RefObject<HTMLElement | null> | (() => Window | HTMLElement | null)',
+      default: 'window',
+      description: {
+        ko: '제목들을 스크롤하는 것. `<main>`이 따로 스크롤되는 앱 셸에는 그 요소나 ref를 주세요',
+        en: 'What scrolls the headings. The element or a ref for an app shell whose <main> scrolls on its own'
       }
     },
     {

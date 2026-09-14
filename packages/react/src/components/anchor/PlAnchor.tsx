@@ -11,6 +11,7 @@ import {
   transitionClasses
 } from '../../internal/styles.js';
 import type { PlassColor, PlassSize } from '../../types.js';
+import type { PlBackTopTarget } from '../back-top/PlBackTop.js';
 
 /** One heading in the list. */
 export interface PlAnchorItem {
@@ -40,7 +41,7 @@ export interface PlAnchorProps extends Omit<React.ComponentPropsWithoutRef<'nav'
    */
   active?: string;
   /**
-   * How far below the top of the window the reading line sits, in pixels.
+   * How far below the top of `target` the reading line sits, in pixels.
    *
    * The height of whatever is pinned over the page. Without it a heading goes
    * on counting as the *next* one after it has already slid out of sight behind
@@ -49,6 +50,14 @@ export interface PlAnchorProps extends Omit<React.ComponentPropsWithoutRef<'nav'
    * @default 0
    */
   offset?: number;
+  /**
+   * What scrolls the headings. The window by default; a ref or an element for
+   * an app shell whose `<main>` scrolls on its own.
+   *
+   * The window of such a shell never moves, so a list following it would light
+   * nothing however far the reader went.
+   */
+  target?: PlBackTopTarget;
   /** Called with the item that was clicked, before the browser moves. */
   onSelect?: (item: PlAnchorItem, event: React.MouseEvent<HTMLAnchorElement>) => void;
   /** A heading for the list itself. Drawn above it. */
@@ -64,8 +73,25 @@ export interface PlAnchorProps extends Omit<React.ComponentPropsWithoutRef<'nav'
 /** How far one level of depth indents a row. */
 const INDENT = '0.75rem';
 
+/** What `target` names, or the window when it names nothing. */
+function resolve(target: PlBackTopTarget | undefined): Window | HTMLElement | null {
+  if (target === undefined) {
+    return typeof window === 'undefined' ? null : window;
+  }
+
+  if (typeof target === 'function') {
+    return target();
+  }
+
+  if ('current' in target) {
+    return target.current;
+  }
+
+  return target;
+}
+
 /**
- * Which heading is being read, given where the page is scrolled to.
+ * Which heading is being read, given where `scroller` is scrolled to.
  *
  * **The last one whose top has passed the line**, and not simply the one that
  * is on screen: three headings can be visible at once, and the one a reader is
@@ -80,32 +106,43 @@ const INDENT = '0.75rem';
  * reaches the line, and a list that could not light its own last row is a list
  * that goes dead exactly where a reader is looking for it.
  */
-function readingAt(items: readonly PlAnchorItem[], offset: number): string | undefined {
+function readingAt(
+  items: readonly PlAnchorItem[],
+  offset: number,
+  scroller: Window | HTMLElement
+): string | undefined {
   if (items.length === 0) {
     return undefined;
   }
 
-  const page = document.documentElement.scrollHeight;
+  const inWindow = scroller instanceof Window;
+  const page = inWindow ? document.documentElement.scrollHeight : scroller.scrollHeight;
+  const view = inWindow ? window.innerHeight : scroller.clientHeight;
+  const scrolled = inWindow ? window.scrollY : scroller.scrollTop;
   // Only on a page there is something to scroll: a document that fits on the
   // screen is *always* at its own bottom, and lighting the last row there would
   // be saying a reader had reached the end before they had read anything.
-  const scrollable = page > window.innerHeight + 1;
-  const bottom = scrollable && window.innerHeight + window.scrollY >= page - 2;
+  const scrollable = page > view + 1;
+  const bottom = scrollable && view + scrolled >= page - 2;
 
   if (bottom) {
     return items[items.length - 1].href;
   }
 
+  // The line is measured from the top of what is scrolled: the viewport for the
+  // window, and the inside of its border for an element. A heading in a panel
+  // that sits halfway down the screen passes the panel's top, not the window's.
+  const top = inWindow ? 0 : scroller.getBoundingClientRect().top + scroller.clientTop;
   let current: string | undefined;
 
   for (const item of items) {
-    const target = document.getElementById(item.href.replace(/^#/, ''));
+    const heading = document.getElementById(item.href.replace(/^#/, ''));
 
-    if (!target) {
+    if (!heading) {
       continue;
     }
 
-    if (target.getBoundingClientRect().top - offset <= 1) {
+    if (heading.getBoundingClientRect().top - top - offset <= 1) {
       current = item.href;
     }
   }
@@ -134,6 +171,10 @@ function readingAt(items: readonly PlAnchorItem[], offset: number): string | und
  * is the height of whatever is pinned over the page — without it a heading goes
  * on counting as the next one after it has slid out of sight behind the bar,
  * and the list stays a section behind.
+ *
+ * `target` is what is scrolled, the window unless it says otherwise. An app
+ * shell whose `<main>` scrolls on its own never moves the window, and the line
+ * is measured from the top of that element instead.
  */
 export const PlAnchor = /* @__PURE__ */ React.forwardRef<HTMLElement, PlAnchorProps>(
   function PlAnchor(
@@ -141,6 +182,7 @@ export const PlAnchor = /* @__PURE__ */ React.forwardRef<HTMLElement, PlAnchorPr
       items,
       active,
       offset = 0,
+      target,
       onSelect,
       label,
       navLabel: navLabelProp,
@@ -166,11 +208,17 @@ export const PlAnchor = /* @__PURE__ */ React.forwardRef<HTMLElement, PlAnchorPr
         return;
       }
 
+      const scroller = resolve(target);
+
+      if (!scroller) {
+        return;
+      }
+
       let frame = 0;
 
       const measure = () => {
         frame = 0;
-        setTracked(readingAt(items, offset));
+        setTracked(readingAt(items, offset, scroller));
       };
 
       // One measurement per frame at most. Scroll fires far more often than the
@@ -180,15 +228,19 @@ export const PlAnchor = /* @__PURE__ */ React.forwardRef<HTMLElement, PlAnchorPr
       };
 
       measure();
-      window.addEventListener('scroll', onScroll, { passive: true });
+      // The scroll is heard on what scrolls. A resize is heard on the window
+      // either way: it moves the headings in a panel as well as on the page.
+      scroller.addEventListener('scroll', onScroll, { passive: true });
       window.addEventListener('resize', onScroll, { passive: true });
 
       return () => {
         if (frame) cancelAnimationFrame(frame);
-        window.removeEventListener('scroll', onScroll);
+        scroller.removeEventListener('scroll', onScroll);
         window.removeEventListener('resize', onScroll);
       };
-    }, [controlled, items, offset]);
+      // `target` is a ref or an element and is stable; a function form is
+      // called once per change, which is the caller's to control.
+    }, [controlled, items, offset, target]);
 
     const current = controlled ? active : tracked;
 

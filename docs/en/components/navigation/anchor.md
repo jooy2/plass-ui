@@ -70,7 +70,7 @@ Two ends need saying separately, and both are the kind of thing a hand-rolled ve
 
 ## offset
 
-Where the reading line sits, measured down from the top of the viewport: the height of whatever is pinned over the page.
+Where the reading line sits, measured down from the top of what is scrolled: the height of whatever is pinned over the page.
 
 Without it a heading goes on counting as the **next** one after it has already slid out of sight behind a sticky header, so the list sits a section behind the reader for the whole height of the bar.
 
@@ -87,6 +87,33 @@ Without it a heading goes on counting as the **next** one after it has already s
   scroll-margin-top: 64px;
 }
 ```
+
+:::
+
+## What it follows
+
+The list follows one scroll, and it has to be told which one when that is not the page's own.
+
+::: fw react
+
+In an app shell whose `<main>` scrolls on its own the window never moves, so a list following the window would light nothing however far the reader went. `target` is the window by default. Pass the element that scrolls, or a ref to it, and the reading line and `offset` are measured from that element's top. It takes the same values as the `target` of [`PlBackTop`](./back-top).
+
+```tsx
+const main = useRef<HTMLElement>(null);
+
+<PlFlex spacing={8} alignItems="start">
+  <PlAnchor className="w-56" items={items} target={main} />
+  <main ref={main} className="h-dvh overflow-y-auto">
+    …
+  </main>
+</PlFlex>;
+```
+
+:::
+
+::: fw flutter
+
+`controller` is the `ScrollController` of the scroll view the headings are in. Without one the list still draws and a press still moves the screen, but nothing is lit, because there is nothing to measure against.
 
 :::
 

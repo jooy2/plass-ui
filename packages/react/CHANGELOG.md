@@ -152,6 +152,8 @@
 
 ### Added
 
+- **`PlAnchor` takes a `target`, for headings that scroll inside an element rather than the window.** In an app shell whose `<main>` scrolls on its own the window never moves, so no row was ever lit. `target` takes an element, a ref or a function returning one, as the `target` of `PlBackTop` does, and the reading line, `offset` and the last-row rule are measured against that element. Left out, the list follows the window as before.
+
 - **Eleven words join the label packs**, for the strings that were written into a component in English with no way to translate them but a prop: `acknowledge` (the OK on `PlConfirmProvider`'s alert), `optional` (`PlStep`), `notifications` (the region `PlToastProvider` announces toasts in), `sidebarOpen` (`PlSidebarTrigger`), `spoilerWarning` (`PlSpoiler`), `filePickerTitle` (`PlFilePicker`), and the five words a `PlChatBubble`'s mark says, `messageSending`, `messageSent`, `messageDelivered`, `messageRead` and `messageFailed`. All seven packs translate them. A pack of your own built against `PlassLabels` needs the new keys.
 
 - **`PlImage` and `PlAspectRatio` take `fit="scale-down"`.** It is `contain` that never enlarges a file smaller than the box.

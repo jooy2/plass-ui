@@ -10,8 +10,11 @@
  * asks about the window's position rather than a heading's, and asserting it
  * means scrolling the runner's own document — which leaves the browser session
  * unstable for the files that run after this one. The Dart suite scrolls a
- * `ScrollController` inside its own test surface and covers it there.
+ * `ScrollController` inside its own test surface and covers it there. A panel
+ * given as `target` is scrolled for real, bottom included, because scrolling
+ * an element of its own leaves the runner's document alone.
  */
+import * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlAnchor, type PlAnchorItem } from 'plass-ui';
@@ -56,6 +59,48 @@ function Page({
       <div style={{ height: '1200px' }} />
     </div>
   );
+}
+
+const panelItems: PlAnchorItem[] = [
+  { href: '#panel-one', label: 'One' },
+  { href: '#panel-two', label: 'Two' },
+  { href: '#panel-three', label: 'Three' }
+];
+
+/**
+ * An app shell's `<main>`: a box that scrolls on its own, halfway down the
+ * screen, with the headings inside it. The window never moves. The last section
+ * is short, so the box's bottom comes before its heading reaches the line.
+ */
+function Panel({ offset = 0 }: { offset?: number }) {
+  const panel = React.useRef<HTMLDivElement>(null);
+
+  return (
+    <div>
+      <PlAnchor className="anchor-under-test" items={panelItems} target={panel} offset={offset} />
+      <div style={{ height: '200px' }} />
+      <div ref={panel} className="panel-under-test" style={{ height: '300px', overflowY: 'auto' }}>
+        <div style={{ height: '400px' }} />
+        <h2 id="panel-one" style={{ margin: 0 }}>
+          One
+        </h2>
+        <div style={{ height: '1200px' }} />
+        <h2 id="panel-two" style={{ margin: 0 }}>
+          Two
+        </h2>
+        <div style={{ height: '1200px' }} />
+        <h2 id="panel-three" style={{ margin: 0 }}>
+          Three
+        </h2>
+        <div style={{ height: '100px' }} />
+      </div>
+    </div>
+  );
+}
+
+/** Scrolls the panel under test to `top`. */
+function scrollPanel(top: number) {
+  document.querySelector<HTMLElement>('.panel-under-test')!.scrollTop = top;
 }
 
 /** The list under test. */
@@ -161,6 +206,43 @@ describe('PlAnchor', () => {
       // lighting the last row there would say the reader had reached the end
       // before they had read anything.
       await expect.poll(() => lit()).toBeUndefined();
+    });
+  });
+
+  describe('a panel as the target', () => {
+    it('lights a heading once it has passed the top of the panel', async () => {
+      await render(<Panel />);
+
+      scrollPanel(600);
+
+      await expect.poll(() => lit()).toBe('One');
+    });
+
+    it('moves on at the next one as the panel scrolls', async () => {
+      await render(<Panel />);
+
+      scrollPanel(1700);
+
+      await expect.poll(() => lit()).toBe('Two');
+    });
+
+    it('measures the offset from the top of the panel, not of the window', async () => {
+      // The heading is 100px under the panel's top, and the panel is well
+      // over 150px down the screen: only the panel's line has passed it.
+      await render(<Panel offset={150} />);
+
+      scrollPanel(300);
+
+      await expect.poll(() => lit()).toBe('One');
+    });
+
+    it('lights the last row once the panel is at its bottom', async () => {
+      await render(<Panel />);
+
+      // The short last section never reaches the line.
+      scrollPanel(100_000);
+
+      await expect.poll(() => lit()).toBe('Three');
     });
   });
 
