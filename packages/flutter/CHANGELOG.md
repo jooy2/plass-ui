@@ -58,6 +58,8 @@
 
 ### Fixed
 
+- **Pressing a `PlSlider` thumb keeps its value.** A thumb is placed along the rail less its own size, but a press was read along the whole rail, so pressing the centre of a thumb at 0 moved it to about 3, and one at 100 to about 97. A press is now read along the same travel the thumb is placed on, in either writing direction and vertically.
+
 - **`PlTextField`, `PlNumberField` and `PlCombobox` take typing as soon as they take the focus.** The focus ring was added around the field when the focus arrived, which built the editor inside it again, and the new editor had no connection to the keyboard: the first keys typed after the field was pressed or tabbed to could be lost, and a `PlCombobox.multiple` lost the connection again when its first chip appeared. The field now keeps the same editor through both.
 
 - **The `PlAnimateTyping` caret grows with the reader's text size once.** The caret sits in the paragraph as a widget, and the paragraph already scales a widget by the text size, but the caret's own text applied the scale again. At 200% the caret was drawn at twice the size of the words beside it. The caret's text now leaves the scaling to the paragraph.

@@ -264,16 +264,24 @@ class _PlSliderState extends State<PlSlider> {
     return best;
   }
 
-  double _fractionOf(Offset local, Size box) {
+  /// Where a press at [local] sits along the run, as 0..1.
+  ///
+  /// A thumb of size [thumb] is placed along the box less its own size, so its
+  /// centre never comes nearer an end than half a thumb. The press is read along
+  /// that same travel, which makes a press on a thumb's centre its own value.
+  double _fractionOf(Offset local, Size box, double thumb) {
     // A vertical slider runs bottom to top, which is what "up is more" means
     // everywhere outside a scroll bar.
-    if (_vertical) {
-      return 1 - local.dy / box.height;
+    final along = _vertical ? box.height - local.dy : local.dx;
+    final travel = (_vertical ? box.height : box.width) - thumb;
+
+    if (travel <= 0) {
+      return 0;
     }
 
-    final fraction = local.dx / box.width;
+    final fraction = (along - thumb / 2) / travel;
 
-    return _rtl ? 1 - fraction : fraction;
+    return !_vertical && _rtl ? 1 - fraction : fraction;
   }
 
   /// Where one step from the current value takes thumb [index], held inside
@@ -385,7 +393,7 @@ class _PlSliderState extends State<PlSlider> {
           onTapDown: _disabled
               ? null
               : (TapDownDetails details) {
-                  final fraction = _fractionOf(details.localPosition, constraints.biggest);
+                  final fraction = _fractionOf(details.localPosition, constraints.biggest, thumb);
                   final index = _nearest(fraction);
 
                   _report(index, _valueAt(fraction, index), ended: true);
@@ -458,7 +466,7 @@ class _PlSliderState extends State<PlSlider> {
                               setState(() => _active = ended ? null : index);
                               _report(
                                 index,
-                                _valueAt(_fractionOf(local, render.size), index),
+                                _valueAt(_fractionOf(local, render.size, thumb), index),
                                 ended: ended,
                               );
                             },

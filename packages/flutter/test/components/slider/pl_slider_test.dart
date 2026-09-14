@@ -84,6 +84,36 @@ void main() {
         expect(reported!.first, closeTo(50, 2));
       });
 
+      testWidgets('keeps the value when a thumb is pressed on its centre', (
+        WidgetTester tester,
+      ) async {
+        for (final TextDirection direction in TextDirection.values) {
+          for (final double value in <double>[0, 100]) {
+            List<double>? reported;
+            await tester.pumpWidget(
+              host(
+                Directionality(
+                  textDirection: direction,
+                  child: PlSlider(
+                    values: <double>[value],
+                    onChanged: (List<double> next) => reported = next,
+                  ),
+                ),
+                width: 300,
+              ),
+            );
+            await tester.pumpAndSettle();
+
+            final thumb = find.byWidgetPredicate(
+              (Widget widget) => widget is MouseRegion && widget.cursor == SystemMouseCursors.grab,
+            );
+            await tester.tapAt(tester.getCenter(thumb));
+
+            expect(reported, <double>[value], reason: '$direction at $value');
+          }
+        }
+      });
+
       testWidgets('does not move while disabled', (WidgetTester tester) async {
         List<double>? reported;
         await tester.pumpWidget(
