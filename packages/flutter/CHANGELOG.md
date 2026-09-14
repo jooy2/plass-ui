@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **The `PlWindowPane` minimize, maximize and close buttons can be reached and pressed from the keyboard.** They answered only a pointer and took no focus, so Tab went past them and a keyboard could not close, roll up or maximize a window. Each button is now a stop in the tab order, Enter and Space press it, and a keyboard that reaches it draws the focus ring inside the button. A traffic light shows its mark while it has the focus, as it does under the pointer. A screen reader can now press each button too, which before was named but carried no tap action.
+
 - **Every `PlAlert` is announced when it appears, whatever its severity.** Only a `warning` or `danger` alert was a live region, so an `info` or `success` alert such as "Saved" that appeared after the screen loaded was never read out. Every alert is now a live region. One already on the screen when it loads is read where it stands, as with any live region. Flutter's live region has one politeness level, and it is polite, so a `danger` alert is read when the reader pauses rather than interrupting.
 
 - **Each `PlCarousel` dot is a 24px press target.** A dot answered a press only on the 4 to 8 pixels it drew, which falls short of WCAG 2.5.8 and made jumping to a slide on a phone hard. Each dot is now a 24px target with the dot drawn in its middle, and the targets sit side by side, so the dots are spaced further apart.

@@ -3,6 +3,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
+import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/interaction.dart';
+import 'package:plass_ui/src/internal/window.dart';
+
 import '../../support/host.dart';
 
 Future<void> _pump(WidgetTester tester, Widget child) async {
@@ -42,6 +46,26 @@ Offset _edge(WidgetTester tester, AxisDirection side) {
     case AxisDirection.down:
       return Offset(rect.center.dx, rect.bottom - 3);
   }
+}
+
+/// Whether the focus is on the caption button called [name].
+///
+/// Asked of the pressable around the button rather than of the named node
+/// itself, which sits above the button's own focus node rather than under it.
+bool _focusIsOn(String name) {
+  final BuildContext? focused = FocusManager.instance.primaryFocus?.context;
+
+  return focused != null &&
+      find
+          .descendant(
+            of: find.ancestor(
+              of: find.bySemanticsLabel(name),
+              matching: find.byType(PlassInteractive),
+            ),
+            matching: find.byElementPredicate((Element element) => element == focused),
+          )
+          .evaluate()
+          .isNotEmpty;
 }
 
 void main() {
@@ -492,6 +516,118 @@ void main() {
       );
 
       expect(find.bySemanticsLabel('Resize window'), findsNothing);
+    });
+
+    group('caption buttons from the keyboard', () {
+      const List<String> names = <String>['Minimize', 'Maximize', 'Close'];
+
+      /// Puts [window] after a focus stop of its own and gives that stop the focus.
+      Future<void> pumpAfterStop(WidgetTester tester, Widget window) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+
+        await _pump(tester, afterFocusStop(before, window));
+
+        before.requestFocus();
+        await tester.pump();
+      }
+
+      /// Tabs forward until the focus is on the button called [name]. Four
+      /// presses go once round the stop before the window and its three buttons.
+      Future<void> tabTo(WidgetTester tester, String name) async {
+        for (int i = 0; i < 4 && !_focusIsOn(name); i += 1) {
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pump();
+        }
+
+        expect(_focusIsOn(name), isTrue, reason: 'Tab reached $name');
+      }
+
+      testWidgets('reaches every button with Tab', (WidgetTester tester) async {
+        await pumpAfterStop(tester, const PlWindowPane(title: Text('Notes')));
+
+        final Set<String> reached = <String>{};
+
+        for (int i = 0; i < names.length; i += 1) {
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pump();
+
+          for (final String name in names) {
+            if (_focusIsOn(name)) {
+              reached.add(name);
+            }
+          }
+        }
+
+        expect(reached, names.toSet());
+      });
+
+      testWidgets('presses the focused button with Enter and with Space', (
+        WidgetTester tester,
+      ) async {
+        for (final LogicalKeyboardKey key in <LogicalKeyboardKey>[
+          LogicalKeyboardKey.enter,
+          LogicalKeyboardKey.space,
+        ]) {
+          final Map<String, int> presses = <String, int>{for (final String name in names) name: 0};
+
+          await pumpAfterStop(
+            tester,
+            PlWindowPane(
+              title: const Text('Notes'),
+              onMinimizedChanged: (bool value) => presses.update('Minimize', (int n) => n + 1),
+              onMaximizedChanged: (bool value) => presses.update('Maximize', (int n) => n + 1),
+              onOpenChanged: (bool value) => presses.update('Close', (int n) => n + 1),
+            ),
+          );
+
+          for (final String name in names) {
+            await tabTo(tester, name);
+            await tester.sendKeyEvent(key);
+            await tester.pump();
+
+            expect(presses[name], 1, reason: '$name by ${key.keyLabel}');
+          }
+
+          // Each key pressed one button once, and never the others.
+          expect(presses.values, everyElement(1), reason: key.keyLabel);
+        }
+      });
+
+      testWidgets('keeps each button one node, named and pressable', (WidgetTester tester) async {
+        await _pump(tester, const PlWindowPane(title: Text('Notes'), maximized: true));
+
+        for (final String name in <String>['Minimize', 'Restore', 'Close']) {
+          expect(find.bySemanticsLabel(name), findsOneWidget);
+          expect(
+            tester.getSemantics(find.bySemanticsLabel(name)),
+            isSemantics(label: name, isButton: true, hasTapAction: true),
+          );
+        }
+      });
+
+      testWidgets('rings the button the keyboard is on and shows a traffic light its mark', (
+        WidgetTester tester,
+      ) async {
+        await pumpAfterStop(tester, const PlWindowPane(title: Text('Notes')));
+
+        final Finder rings = find.byWidgetPredicate(
+          (Widget widget) =>
+              widget is CustomPaint && widget.foregroundPainter is PlassFocusRingPainter,
+        );
+        final Finder marks = find.byWidgetPredicate(
+          (Widget widget) => widget is CustomPaint && widget.painter is PlWindowGlyphPainter,
+        );
+
+        // Traffic lights at rest are three dots with no mark on them.
+        expect(rings, findsNothing);
+        expect(marks, findsNothing);
+
+        await tabTo(tester, 'Close');
+
+        expect(rings, findsOneWidget);
+        expect(marks, findsOneWidget);
+      });
     });
   });
 }

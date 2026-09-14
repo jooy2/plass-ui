@@ -3,12 +3,12 @@ library;
 
 import 'dart:math' as math;
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/window.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -638,6 +638,7 @@ class _PlWindowPaneState extends State<PlWindowPane> {
       // with it — a close button that disappears at the moment it is aimed at.
       hover: onDark ? const Color(0x2EFFFFFF) : tokens.fg.withValues(alpha: 0.09),
       accent: palette.accent,
+      ring: palette.ring,
     );
   }
 }
@@ -652,6 +653,7 @@ class _WindowColors {
     required this.line,
     required this.hover,
     required this.accent,
+    required this.ring,
   });
 
   final Color bar;
@@ -661,10 +663,18 @@ class _WindowColors {
   final Color line;
   final Color hover;
   final Color accent;
+
+  /// The focus ring on a caption button.
+  final Color ring;
 }
 
 /// One caption button.
-class _WindowButton extends StatefulWidget {
+///
+/// A [PlassInteractive] like every other pressable in the library, so it is a
+/// stop in the tab order, <kbd>Enter</kbd> and <kbd>Space</kbd> press it, and a
+/// keyboard that reaches it draws the focus ring. The React build gets all
+/// three from a `<button>`.
+class _WindowButton extends StatelessWidget {
   const _WindowButton({
     required this.control,
     required this.chrome,
@@ -684,96 +694,105 @@ class _WindowButton extends StatefulWidget {
   final VoidCallback onPressed;
 
   @override
-  State<_WindowButton> createState() => _WindowButtonState();
-}
-
-class _WindowButtonState extends State<_WindowButton> {
-  bool _over = false;
-
-  @override
   Widget build(BuildContext context) {
-    final PlWindowChrome chrome = widget.chrome;
-    final PlWindowMetrics metrics = widget.metrics;
-    final bool closing = widget.control == PlWindowControl.close;
-    final double width = closing ? metrics.closeWidth : metrics.control.width;
+    return PlassInteractive(
+      onTap: onPressed,
+      builder: (BuildContext context, PlassInteraction state) {
+        final bool over = state.hovered;
+        final bool closing = control == PlWindowControl.close;
+        final double width = closing ? metrics.closeWidth : metrics.control.width;
 
-    final Color? danger = closing
-        ? closeHover[chrome.shape == PlWindowControlShape.dot
-              ? PlWindowOs.macos
-              : PlWindowOs.windows11]
-        : null;
+        final Color? danger = closing
+            ? closeHover[chrome.shape == PlWindowControlShape.dot
+                  ? PlWindowOs.macos
+                  : PlWindowOs.windows11]
+            : null;
 
-    Color fill = const Color(0x00000000);
-    Color ink = widget.colors.barFg;
-    BorderRadius radius = BorderRadius.zero;
-    Border? edge;
+        Color fill = const Color(0x00000000);
+        Color ink = colors.barFg;
+        BorderRadius radius = BorderRadius.zero;
+        Border? edge;
 
-    switch (chrome.shape) {
-      case PlWindowControlShape.dot:
-      case PlWindowControlShape.glossDot:
-        fill = trafficColors[widget.control]!;
-        // A window behind the front one has grey lights, which is the whole of
-        // how macOS says which window is which.
-        ink = const Color(0x99000000);
-        radius = BorderRadius.circular(width);
-      case PlWindowControlShape.plate:
-        fill = plateColors[widget.control]!;
-        ink = const Color(0xFFFFFFFF);
-        radius = BorderRadius.circular(3);
-      case PlWindowControlShape.aero:
-        fill = _over
-            ? (closing ? const Color(0xFFE04343) : const Color(0x66FFFFFF))
-            : const Color(0x33FFFFFF);
-        ink = closing && _over ? const Color(0xFFFFFFFF) : widget.colors.barFg;
-        radius = const BorderRadius.vertical(bottom: Radius.circular(4));
-        edge = Border.all(color: const Color(0x40FFFFFF));
-      case PlWindowControlShape.circle:
-        fill = _over ? widget.colors.hover : widget.colors.hover.withValues(alpha: 0.5);
-        radius = BorderRadius.circular(width);
-      case PlWindowControlShape.square:
-        if (_over) {
-          fill = closing ? (danger ?? widget.colors.hover) : widget.colors.hover;
-          ink = closing ? const Color(0xFFFFFFFF) : widget.colors.barFg;
+        switch (chrome.shape) {
+          case PlWindowControlShape.dot:
+          case PlWindowControlShape.glossDot:
+            fill = trafficColors[control]!;
+            // A window behind the front one has grey lights, which is the whole of
+            // how macOS says which window is which.
+            ink = const Color(0x99000000);
+            radius = BorderRadius.circular(width);
+          case PlWindowControlShape.plate:
+            fill = plateColors[control]!;
+            ink = const Color(0xFFFFFFFF);
+            radius = BorderRadius.circular(3);
+          case PlWindowControlShape.aero:
+            fill = over
+                ? (closing ? const Color(0xFFE04343) : const Color(0x66FFFFFF))
+                : const Color(0x33FFFFFF);
+            ink = closing && over ? const Color(0xFFFFFFFF) : colors.barFg;
+            radius = const BorderRadius.vertical(bottom: Radius.circular(4));
+            edge = Border.all(color: const Color(0x40FFFFFF));
+          case PlWindowControlShape.circle:
+            fill = over ? colors.hover : colors.hover.withValues(alpha: 0.5);
+            radius = BorderRadius.circular(width);
+          case PlWindowControlShape.square:
+            if (over) {
+              fill = closing ? (danger ?? colors.hover) : colors.hover;
+              ink = closing ? const Color(0xFFFFFFFF) : colors.barFg;
+            }
         }
-    }
 
-    // A traffic light shows its mark only under the pointer, which is what
-    // makes three coloured dots read as three dots rather than as three icons.
-    final bool showGlyph = switch (chrome.shape) {
-      PlWindowControlShape.dot || PlWindowControlShape.glossDot => _over,
-      _ => true,
-    };
+        // A traffic light shows its mark only under the pointer, which is what
+        // makes three coloured dots read as three dots rather than as three
+        // icons. A keyboard that reaches one shows its mark too, or a ring around
+        // a blank dot would not say which of the three it is.
+        final bool showGlyph = switch (chrome.shape) {
+          PlWindowControlShape.dot || PlWindowControlShape.glossDot => over || state.focusVisible,
+          _ => true,
+        };
 
-    return Semantics(
-      button: true,
-      label: widget.label,
-      excludeSemantics: true,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        onEnter: (PointerEnterEvent _) => setState(() => _over = true),
-        onExit: (PointerExitEvent _) => setState(() => _over = false),
-        child: GestureDetector(
-          onTap: widget.onPressed,
-          behavior: HitTestBehavior.opaque,
-          child: Container(
-            width: width,
-            height: metrics.control.height,
-            decoration: BoxDecoration(color: fill, borderRadius: radius, border: edge),
-            alignment: Alignment.center,
-            child: showGlyph
-                ? CustomPaint(
-                    size: Size.square(metrics.glyph),
-                    painter: PlWindowGlyphPainter(
-                      control: widget.control,
-                      maximized: widget.maximized,
-                      chrome: chrome,
-                      ink: ink,
-                    ),
-                  )
-                : null,
-          ),
-        ),
-      ),
+        Widget face = Container(
+          width: width,
+          height: metrics.control.height,
+          decoration: BoxDecoration(color: fill, borderRadius: radius, border: edge),
+          alignment: Alignment.center,
+          child: showGlyph
+              ? CustomPaint(
+                  size: Size.square(metrics.glyph),
+                  painter: PlWindowGlyphPainter(
+                    control: control,
+                    maximized: maximized,
+                    chrome: chrome,
+                    ink: ink,
+                  ),
+                )
+              : null,
+        );
+
+        if (state.focusVisible) {
+          face = CustomPaint(
+            foregroundPainter: PlassFocusRingPainter(
+              color: colors.ring,
+              borderRadius: radius,
+              // Inside the button, as `outline-offset: -2px` puts it in the React
+              // build: the window clips its corners, and a Windows close button
+              // sits in one.
+              offset: -focusRingWidth,
+            ),
+            child: face,
+          );
+        }
+
+        return Semantics(
+          button: true,
+          label: label,
+          // The gesture underneath is kept off the tree, so the node carries the
+          // press itself, as every other caller of `PlassInteractive` does.
+          onTap: onPressed,
+          excludeSemantics: true,
+          child: face,
+        );
+      },
     );
   }
 }
