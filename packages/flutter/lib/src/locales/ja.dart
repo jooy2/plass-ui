@@ -99,6 +99,7 @@ const PlassLabels ja = PlassLabels(
   removeItem: _removeItem,
   addCustom: _addCustom,
   howToStep: _howToStep,
+  transferMoved: _transferMoved,
 );
 
 String _paginationPage(int page) => '$pageページ';
@@ -112,3 +113,7 @@ String _removeItem(String name) => '$nameを削除';
 String _addCustom(String query) => '「$query」を追加';
 
 String _howToStep(int step, int total) => '全$totalステップ中$step番目';
+
+String _transferMoved(int count, String list) {
+  return '$count件を「$list」に移動しました';
+}

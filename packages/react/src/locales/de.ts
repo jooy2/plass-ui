@@ -99,5 +99,7 @@ export const de: PlassLabels = {
   carouselSlide: (index, count) => `Bild ${index} von ${count}`,
   removeItem: (name) => `${name} entfernen`,
   addCustom: (query) => `„${query}“ hinzufügen`,
-  otpSlot: (index, count) => `Zeichen ${index} von ${count}`
+  otpSlot: (index, count) => `Zeichen ${index} von ${count}`,
+  transferMoved: (count, list) =>
+    `${count} ${count === 1 ? 'Eintrag' : 'Einträge'} nach „${list}“ verschoben`
 };

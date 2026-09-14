@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **Pressing a `PlTransfer` arrow keeps the focus and says what moved.** The pressed arrow was disabled by the move, so the focus left the widget and nothing said how many rows had gone across. The focus now goes to the first row that arrived, or to the target list when a controlled owner refused the rows, and the count is announced at polite priority from the new `transferMoved` label field. The new `movedLabel` parameter changes the sentence for one pair.
+
 - **Accessibility sentences with a value in them are read in the language of the label pack.** `PlPagination`'s page names, `PlRating`'s scores, `PlCarousel`'s slide names, the remove and add rows of `PlFilePicker` and `PlCombobox`, and `PlHowToSteps`' step positions were English templates inside each widget. They now come from new `PlassLabels` fields (`paginationPage`, `ratingValue`, `ratingNone`, `carouselSlide`, `removeItem`, `addCustom`, `howToStep`), translated in all seven packs in each language's own word order, and the packs stay `const`. A widget's own parameter still wins.
 
 - **A `PlSpoiler` no longer rebuilds what it covers from scratch when it is revealed.** The child was wrapped in blur, clip and exclusion widgets only while it was covered, so revealing changed the shape of the tree and Flutter discarded the child's `State`, losing a scroll position, a playing video or typed text. The wrappers are now built in both states and only switched, and the child keeps its `State` across a reveal and back.

@@ -357,6 +357,7 @@ class PlassLabels {
     this.removeItem = _englishRemoveItem,
     this.addCustom = _englishAddCustom,
     this.howToStep = _englishHowToStep,
+    this.transferMoved = _englishTransferMoved,
   });
 
   /// English, and the default.
@@ -461,6 +462,7 @@ class PlassLabels {
     String Function(String name)? removeItem,
     String Function(String query)? addCustom,
     String Function(int step, int total)? howToStep,
+    String Function(int count, String list)? transferMoved,
   }) {
     return PlassLabels(
       close: close ?? this.close,
@@ -557,6 +559,7 @@ class PlassLabels {
       removeItem: removeItem ?? this.removeItem,
       addCustom: addCustom ?? this.addCustom,
       howToStep: howToStep ?? this.howToStep,
+      transferMoved: transferMoved ?? this.transferMoved,
     );
   }
 
@@ -865,6 +868,10 @@ class PlassLabels {
   /// [sortedAscending] has none: a real `<ol>` says "item two of five" in the
   /// reader's own language, and Flutter has no ordered list to inherit it from.
   final String Function(int step, int total) howToStep;
+
+  /// What a transfer announces once rows have moved, given how many and the
+  /// name of the list they went to.
+  final String Function(int count, String list) transferMoved;
 }
 
 String _englishPaginationPage(int page) => 'Page $page';
@@ -878,6 +885,10 @@ String _englishRemoveItem(String name) => 'Remove $name';
 String _englishAddCustom(String query) => 'Add “$query”';
 
 String _englishHowToStep(int step, int total) => 'Step $step of $total';
+
+String _englishTransferMoved(int count, String list) {
+  return '$count ${count == 1 ? 'item' : 'items'} moved to $list';
+}
 
 /// Another name for [PlassLabels], kept because the pickers were the first
 /// widgets that needed any of it.

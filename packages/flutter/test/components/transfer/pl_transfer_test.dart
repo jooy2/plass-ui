@@ -1,3 +1,4 @@
+import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -96,6 +97,78 @@ void main() {
         expect(seen.single, <String>['email']);
         // The row arrived; it is not still waiting to be sent.
         expect(find.text('0/1'), findsOneWidget);
+      });
+
+      testWidgets('hands the focus to the first row that arrived and says how many moved', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(const PlTransfer(items: items, height: 160), width: 700, height: 400),
+        );
+
+        await tester.tap(find.text('Email'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Role'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.bySemanticsLabel('Move to selected'));
+        await tester.pumpAndSettle();
+
+        // The arrow is disabled by the move, and would have let the focus go.
+        expect(Focus.of(tester.element(find.text('Email'))).hasPrimaryFocus, isTrue);
+
+        final List<CapturedAccessibilityAnnouncement> said = tester.takeAnnouncements();
+
+        expect(said.single.message, '2 items moved to Selected');
+        expect(said.single.assertiveness, Assertiveness.polite);
+      });
+
+      testWidgets('keeps the focus in the list the rows were sent to when they are refused', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            PlTransfer(
+              items: items,
+              value: const <String>[],
+              onValueChanged: (List<String> next) {},
+              height: 160,
+            ),
+            width: 700,
+            height: 400,
+          ),
+        );
+
+        await tester.tap(find.text('Name'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.bySemanticsLabel('Move to selected'));
+        await tester.pumpAndSettle();
+
+        // The list on the trailing side is still empty, and it holds the focus.
+        expect(Focus.of(tester.element(find.text('Nothing here'))).hasPrimaryFocus, isTrue);
+        // Nothing moved, so nothing is said.
+        expect(tester.takeAnnouncements(), isEmpty);
+      });
+
+      testWidgets('says the count in the words it was given', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            PlTransfer(
+              items: items,
+              targetLabel: 'In the report',
+              movedLabel: (int count, String list) => '$list: +$count',
+              height: 160,
+            ),
+            width: 700,
+            height: 400,
+          ),
+        );
+
+        await tester.tap(find.text('Name'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.bySemanticsLabel('Move to selected'));
+        await tester.pumpAndSettle();
+
+        expect(tester.takeAnnouncements().single.message, 'In the report: +1');
       });
 
       testWidgets('keeps the order of items on both sides', (WidgetTester tester) async {

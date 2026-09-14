@@ -31,13 +31,13 @@ order: 3
 
 `locale` is the BCP 47 tag `Intl` formats against. It decides that a date reads `2026. 9. 4.` rather than `9/4/2026`, what July is called, and where the thousands separator goes. The platform owns all of it, so the library does not ship a month name.
 
-`labels` is the ninety-five entries `Intl` has no opinion about. "Close" is not a date and not a number; nothing in the platform knows it.
+`labels` is the ninety-six entries `Intl` has no opinion about. "Close" is not a date and not a number; nothing in the platform knows it.
 
 :::
 
 ::: fw flutter
 
-`labels` is the ninety-four entries the widgets say about themselves. Three are not in the React set. `sortedAscending` and `sortedDescending` are here because `aria-sort` carries a meaning that has to be said in words on this side, and the page on [`PlDataTable`](../components/display/data-table) has the detail. `howToStep` is here because a real `<ol>` tells a screen reader which step it is on, and Flutter has no ordered list to inherit that from. Four of the React set are not here. `notifications` names the region a browser announces toasts in, and a Flutter screen has no such region. `paginationStatus` is what a pager's live region says, and the Flutter pager has no live region. `slide` is a slide's `aria-roledescription`, which Flutter's semantics have no field for. `otpSlot` names one slot of a code field, and the Flutter field is a single semantics node with no slots in it. The framework ships no `Intl`, so the dates are a second object. `PlDateNames` carries the months and the weekday abbreviations, and it is set the same way. See [Setting defaults](defaults).
+`labels` is the ninety-five entries the widgets say about themselves. Three are not in the React set. `sortedAscending` and `sortedDescending` are here because `aria-sort` carries a meaning that has to be said in words on this side, and the page on [`PlDataTable`](../components/display/data-table) has the detail. `howToStep` is here because a real `<ol>` tells a screen reader which step it is on, and Flutter has no ordered list to inherit that from. Four of the React set are not here. `notifications` names the region a browser announces toasts in, and a Flutter screen has no such region. `paginationStatus` is what a pager's live region says, and the Flutter pager has no live region. `slide` is a slide's `aria-roledescription`, which Flutter's semantics have no field for. `otpSlot` names one slot of a code field, and the Flutter field is a single semantics node with no slots in it. The framework ships no `Intl`, so the dates are a second object. `PlDateNames` carries the months and the weekday abbreviations, and it is set the same way. See [Setting defaults](defaults).
 
 :::
 
@@ -153,7 +153,7 @@ PlassTheme.merge(
 
 ::: fw react
 
-The merge is per key, so a provider that sets four words leaves the other ninety-one English, and a provider nested inside another one replaces what it names and inherits the rest.
+The merge is per key, so a provider that sets four words leaves the other ninety-two English, and a provider nested inside another one replaces what it names and inherits the rest.
 
 Reading what is in scope, for a component of your own that has to line up with the ones around it:
 
@@ -186,7 +186,7 @@ The set is one flat list, and a key is named after what it means rather than aft
 
 ## Sentences with a value in them
 
-Six entries hold a number or a name: a page button's `paginationPage`, a star's `ratingValue`, a slide's `carouselSlide`, a remove button's `removeItem`, the row that offers a typed value as a new one, `addCustom`, and one more per package, `paginationStatus` in React and `howToStep` in Flutter. They are functions rather than strings, because the order of a sentence moves between languages. "Page 3 of 12" is `12페이지 중 3페이지` in Korean and `第3页，共12页` in Chinese, and a template the component filled in would have kept the English order.
+Seven entries hold a number or a name: a page button's `paginationPage`, a star's `ratingValue`, a slide's `carouselSlide`, a remove button's `removeItem`, the row that offers a typed value as a new one, `addCustom`, what a transfer says once rows have moved, `transferMoved`, and one more per package, `paginationStatus` in React and `howToStep` in Flutter. They are functions rather than strings, because the order of a sentence moves between languages. "Page 3 of 12" is `12페이지 중 3페이지` in Korean and `第3页，共12页` in Chinese, and a template the component filled in would have kept the English order.
 
 ::: fw react
 

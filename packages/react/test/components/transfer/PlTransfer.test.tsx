@@ -71,6 +71,64 @@ describe('PlTransfer', () => {
       ).toBe('false');
     });
 
+    it('hands the focus to the first row that arrived and says how many moved', async () => {
+      const screen = await render(<PlTransfer items={items} />);
+
+      press(screen.getByRole('checkbox', { name: 'Email' }).element());
+      press(screen.getByRole('checkbox', { name: 'Role' }).element());
+
+      const send = screen.getByRole('button', { name: 'Move to selected' }).element();
+
+      await expect.poll(() => send.hasAttribute('disabled')).toBe(false);
+      (send as HTMLElement).focus();
+      press(send);
+
+      // The arrow is disabled by the move, and would have dropped the focus to
+      // the page.
+      await expect
+        .poll(
+          () => document.activeElement === screen.getByRole('checkbox', { name: 'Email' }).element()
+        )
+        .toBe(true);
+      await expect
+        .poll(() => screen.container.querySelector('[aria-live="polite"]')?.textContent)
+        .toBe('2 items moved to Selected');
+    });
+
+    it('keeps the focus in the list the rows were sent to when they are refused', async () => {
+      const screen = await render(<PlTransfer items={items} value={[]} onValueChange={() => {}} />);
+
+      press(screen.getByRole('checkbox', { name: 'Name' }).element());
+      press(screen.getByRole('button', { name: 'Move to selected' }).element());
+
+      await expect.poll(() => document.activeElement?.getAttribute('role')).toBe('group');
+
+      const heading = document.getElementById(
+        document.activeElement?.getAttribute('aria-labelledby') ?? ''
+      );
+
+      expect(heading?.textContent).toBe('Selected');
+      // Nothing moved, so nothing is said.
+      expect(screen.container.querySelector('[aria-live="polite"]')?.textContent).toBe('');
+    });
+
+    it('says the count in the words it was given', async () => {
+      const screen = await render(
+        <PlTransfer
+          items={items}
+          targetLabel="In the report"
+          movedLabel={(count, list) => `${list}: +${count}`}
+        />
+      );
+
+      press(screen.getByRole('checkbox', { name: 'Name' }).element());
+      press(screen.getByRole('button', { name: 'Move to selected' }).element());
+
+      await expect
+        .poll(() => screen.container.querySelector('[aria-live="polite"]')?.textContent)
+        .toBe('In the report: +1');
+    });
+
     it('keeps the order of items on both sides', async () => {
       const onValueChange = vi.fn();
 

@@ -5928,6 +5928,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlTransfer', 'selectAllLabel', { type: 'String', default: "'Select all'" }),
     from('PlTransfer', 'toTargetLabel', { type: 'String', default: "'Move to selected'" }),
     from('PlTransfer', 'toSourceLabel', { type: 'String', default: "'Move to available'" }),
+    from('PlTransfer', 'movedLabel', { type: 'String Function(int count, String list)?' }),
     from('PlTransfer', 'height', { type: 'double', default: '220' }),
     from('PlTransfer', 'disabled', { type: 'bool', default: 'false' })
   ],

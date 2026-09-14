@@ -121,6 +121,7 @@ List<String> words(PlassLabels labels) => <String>[
   labels.removeItem('notes.txt'),
   labels.addCustom('Seoul'),
   labels.howToStep(2, 5),
+  labels.transferMoved(3, 'Selected'),
 ];
 
 void main() {

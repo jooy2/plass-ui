@@ -99,5 +99,6 @@ export const zhHans: PlassLabels = {
   carouselSlide: (index, count) => `第${index}张，共${count}张`,
   removeItem: (name) => `移除${name}`,
   addCustom: (query) => `添加“${query}”`,
-  otpSlot: (index, count) => `第${index}位，共${count}位`
+  otpSlot: (index, count) => `第${index}位，共${count}位`,
+  transferMoved: (count, list) => `已将${count}项移到“${list}”`
 };

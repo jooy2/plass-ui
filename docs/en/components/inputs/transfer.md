@@ -157,6 +157,7 @@ Pass `value` with `onValueChange`. The value is the list of `value`s on the trai
 | the fold strips case **and** combining marks | case only | Dart's core has no `String.normalize`, and this package has no dependencies. Pulling one in so a search box folds accents would put it in every consumer's binary for the sake of one comparison. |
 | `height` as a number or a CSS length | `height` as a `double` | There is no second unit to name. |
 | `onValueChange` | `onValueChanged` | Flutter's name. |
+| a polite live region for the count | `SemanticsService.sendAnnouncement` | Flutter has no live region with a politeness of its own, so the count is sent as an announcement. |
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
 
 :::
@@ -168,3 +169,5 @@ Pass `value` with `onValueChange`. The value is the list of `value`s on the trai
 - The two arrows are [`PlIconButton`](./icon-button)s with real names, and they are disabled until a press would actually move something. The state a reader can see, made available to one who cannot.
 - Each list has its own count (`ticked/total`) beside its heading, which is the answer to "how much did I just select" without counting rows.
 - The lists scroll on their own and hold their scroll position, so moving a row does not throw a reader back to the top.
+- A move hands the focus to the first row that arrived, in the list it went to. The arrow that was pressed is disabled by that move, and would otherwise have let the focus fall out of the component. When a controlled pair's owner refuses the rows, the focus goes to that list itself, which is a group named by its heading.
+- How many rows moved is announced once, at polite priority, in the words of the label pack's `transferMoved`. `movedLabel` changes them for one pair. Nothing is announced when nothing arrived.

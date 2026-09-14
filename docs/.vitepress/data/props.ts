@@ -12218,6 +12218,15 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'movedLabel',
+      type: '(count: number, list: string) => string',
+      default: '`{count} items moved to {list}`',
+      description: {
+        ko: '행을 옮긴 뒤 안내하는 문장. 옮긴 개수와 도착한 목록의 이름을 받습니다. 주지 않으면 라벨 묶음의 `transferMoved`입니다',
+        en: "What is announced once rows have moved, given how many and the name of the list they went to. Left out, it is the label pack's `transferMoved`"
+      }
+    },
+    {
       name: 'height',
       type: 'number | string',
       default: '220',

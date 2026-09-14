@@ -218,6 +218,8 @@ export interface PlassLabels {
   addCustom: (query: string) => string;
   /** One slot of a code field, named by its place in the row. */
   otpSlot: (index: number, count: number) => string;
+  /** What a transfer says once rows have moved, given how many and the list. */
+  transferMoved: (count: number, list: string) => string;
 }
 
 /**
@@ -325,7 +327,8 @@ export const defaultLabels: PlassLabels = {
   carouselSlide: (index, count) => `Slide ${index} of ${count}`,
   removeItem: (name) => `Remove ${name}`,
   addCustom: (query) => `Add “${query}”`,
-  otpSlot: (index, count) => `Character ${index} of ${count}`
+  otpSlot: (index, count) => `Character ${index} of ${count}`,
+  transferMoved: (count, list) => `${count} ${count === 1 ? 'item' : 'items'} moved to ${list}`
 };
 
 /**

@@ -99,5 +99,6 @@ export const ko: PlassLabels = {
   carouselSlide: (index, count) => `${count}개 중 ${index}번째 슬라이드`,
   removeItem: (name) => `${name} 삭제`,
   addCustom: (query) => `“${query}” 추가`,
-  otpSlot: (index, count) => `${count}자리 중 ${index}번째`
+  otpSlot: (index, count) => `${count}자리 중 ${index}번째`,
+  transferMoved: (count, list) => `‘${list}’ 목록으로 ${count}개를 옮겼습니다`
 };

@@ -1,11 +1,15 @@
 /// Two lists and the arrows between them.
 library;
 
+import 'dart:async';
+
+import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/checkbox/pl_checkbox.dart';
 import 'package:plass_ui/src/components/icon_button/pl_icon_button.dart';
 import 'package:plass_ui/src/components/text_field/pl_text_field.dart';
+import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/search.dart';
@@ -89,6 +93,7 @@ class PlTransfer extends StatefulWidget {
     this.selectAllLabel,
     this.toTargetLabel,
     this.toSourceLabel,
+    this.movedLabel,
     this.height = 220,
     this.disabled = false,
     this.variant = PlassVariant.glass,
@@ -134,6 +139,11 @@ class PlTransfer extends StatefulWidget {
   /// What the returning arrow is announced as.
   final String? toSourceLabel;
 
+  /// What is announced once rows have moved, given how many and the name of
+  /// the list they went to. Left out, it is the theme's
+  /// [PlassLabels.transferMoved].
+  final String Function(int count, String list)? movedLabel;
+
   /// How tall each list is.
   final double height;
 
@@ -169,12 +179,27 @@ class _PlTransferState extends State<PlTransfer> {
   final TextEditingController _sourceSearch = TextEditingController();
   final TextEditingController _targetSearch = TextEditingController();
 
+  /// One node per row, so the first row a move sends across can take the focus
+  /// the pressed arrow is about to lose.
+  final Map<String, FocusNode> _rowFocus = <String, FocusNode>{};
+
+  /// And one per list, for a move whose rows did not arrive.
+  final FocusNode _sourceListFocus = FocusNode(skipTraversal: true);
+  final FocusNode _targetListFocus = FocusNode(skipTraversal: true);
+
   List<String> get _value => widget.value ?? _ownValue;
+
+  FocusNode _focusFor(String value) => _rowFocus.putIfAbsent(value, FocusNode.new);
 
   @override
   void dispose() {
     _sourceSearch.dispose();
     _targetSearch.dispose();
+    for (final FocusNode node in _rowFocus.values) {
+      node.dispose();
+    }
+    _sourceListFocus.dispose();
+    _targetListFocus.dispose();
     super.dispose();
   }
 
@@ -233,6 +258,49 @@ class _PlTransferState extends State<PlTransfer> {
 
     setState(() => _ticked.removeAll(ids));
     _commit(next);
+
+    final PlassLabels words = PlassTheme.labelsOf(context);
+    final String list = toTarget
+        ? widget.targetLabel ?? words.transferSelected
+        : widget.sourceLabel ?? words.transferAvailable;
+    final String Function(int count, String list) say = widget.movedLabel ?? words.transferMoved;
+
+    // The pressed arrow is disabled by the rebuild this move causes, since
+    // nothing on its side is ticked any more, and a disabled control lets the
+    // focus go. So once the frame is laid out the first row that arrived takes
+    // it, and the count is said out loud. A controlled pair whose owner refused
+    // the rows sends the focus to the list they were sent to and says nothing,
+    // because nothing moved.
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      if (!mounted) return;
+
+      final Set<String> now = _value.toSet();
+      final List<String> arrived = moved
+          .map((PlTransferItem item) => item.value)
+          .where((String value) => now.contains(value) == toTarget)
+          .toList(growable: false);
+
+      if (arrived.isEmpty) {
+        (toTarget ? _targetListFocus : _sourceListFocus).requestFocus();
+        return;
+      }
+
+      final FocusNode? row = _rowFocus[arrived.first];
+
+      if (row != null && row.context != null) {
+        row.requestFocus();
+      } else {
+        (toTarget ? _targetListFocus : _sourceListFocus).requestFocus();
+      }
+
+      unawaited(
+        SemanticsService.sendAnnouncement(
+          View.of(context),
+          say(arrived.length, list),
+          Directionality.of(context),
+        ),
+      );
+    });
   }
 
   /// One side's rows, narrowed by what was typed at that side's box.
@@ -280,6 +348,7 @@ class _PlTransferState extends State<PlTransfer> {
             title: widget.sourceLabel ?? PlassTheme.labelsOf(context).transferAvailable,
             rows: sourceRows,
             controller: _sourceSearch,
+            listFocus: _sourceListFocus,
             onTickAll: (bool on) => _tickAll(sourceRows, on),
           ),
         ),
@@ -318,6 +387,7 @@ class _PlTransferState extends State<PlTransfer> {
             title: widget.targetLabel ?? PlassTheme.labelsOf(context).transferSelected,
             rows: targetRows,
             controller: _targetSearch,
+            listFocus: _targetListFocus,
             onTickAll: (bool on) => _tickAll(targetRows, on),
           ),
         ),
@@ -330,6 +400,7 @@ class _PlTransferState extends State<PlTransfer> {
     required String title,
     required List<PlTransferItem> rows,
     required TextEditingController controller,
+    required FocusNode listFocus,
     required ValueChanged<bool> onTickAll,
   }) {
     final PlassTokens tokens = PlassTheme.of(context);
@@ -400,6 +471,7 @@ class _PlTransferState extends State<PlTransfer> {
                           size: size,
                           color: _color,
                           value: _ticked.contains(row.value),
+                          focusNode: _focusFor(row.value),
                           disabled: widget.disabled || row.disabled,
                           label: Text(row.label),
                           onChanged: (bool next) => _tick(row.value, next),
@@ -449,7 +521,13 @@ class _PlTransferState extends State<PlTransfer> {
                 onChanged: (String _) => setState(() {}),
               ),
             ),
-          list,
+          // Named by its heading, and able to hold the focus without being a
+          // stop in the traversal: it is where the focus lands after a move
+          // whose rows did not arrive.
+          Focus(
+            focusNode: listFocus,
+            child: Semantics(container: true, label: title, child: list),
+          ),
         ],
       ),
     );

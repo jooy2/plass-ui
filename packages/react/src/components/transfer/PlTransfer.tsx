@@ -15,6 +15,7 @@ import {
   metaTextClasses,
   paddingXClasses,
   radiusClasses,
+  srOnlyClasses,
   surfaceSlots,
   toLength
 } from '../../internal/styles.js';
@@ -56,6 +57,12 @@ export interface PlTransferProps
   /** What the two arrows are announced as. */
   toTargetLabel?: string;
   toSourceLabel?: string;
+  /**
+   * What is announced once rows have moved, given how many and the name of the
+   * list they went to.
+   * @default `{count} items moved to {list}`, from the label pack
+   */
+  movedLabel?: (count: number, list: string) => string;
   /** How tall each list is. A number of pixels or any CSS length. @default 220 */
   height?: number | string;
   /** Nothing can be ticked or moved. */
@@ -97,6 +104,12 @@ interface PanelProps {
   searchLabel: string;
   selectAllLabel: string;
   style: Required<Pick<PlassStyleProps, 'variant' | 'size' | 'color' | 'density'>>;
+  /** The heading's id, which names the list. */
+  titleId: string;
+  /** The list, for the focus a move whose rows were refused lands on. */
+  listRef: React.Ref<HTMLDivElement>;
+  /** Each row's checkbox, for the focus a move hands to the first row that arrived. */
+  rowRef: (value: string, element: HTMLElement | null) => void;
 }
 
 function Panel({
@@ -113,7 +126,10 @@ function Panel({
   emptyLabel,
   searchLabel,
   selectAllLabel,
-  style
+  style,
+  titleId,
+  listRef,
+  rowRef
 }: PanelProps) {
   const { variant, size, color, density } = style;
   const movable = rows.filter((row) => !row.disabled);
@@ -141,7 +157,10 @@ function Panel({
           aria-label={selectAllLabel}
           onCheckedChange={(next) => onTickAll(next === true)}
         />
-        <span className={cx('min-w-0 flex-1 truncate font-medium', metaTextClasses[size])}>
+        <span
+          id={titleId}
+          className={cx('min-w-0 flex-1 truncate font-medium', metaTextClasses[size])}
+        >
           {title}
         </span>
         <span
@@ -169,7 +188,16 @@ function Panel({
       ) : null}
 
       <div
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
+        ref={listRef}
+        // A group named by its heading, and focusable from script only: it is
+        // where the focus lands after a move whose rows did not arrive.
+        role="group"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        className={cx(
+          'min-h-0 flex-1 overflow-y-auto overscroll-contain',
+          'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:[outline-offset:-2px]'
+        )}
         style={height === undefined ? undefined : { height }}
       >
         <div className={cx('flex flex-col', insetX, panelPadY[size])}>
@@ -181,6 +209,7 @@ function Panel({
             rows.map((row) => (
               <PlCheckbox
                 key={row.value}
+                ref={(element) => rowRef(row.value, element)}
                 size={size}
                 color={color}
                 className={rowPadY[size]}
@@ -245,6 +274,7 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
       selectAllLabel: selectAllLabelProp,
       toTargetLabel: toTargetLabelProp,
       toSourceLabel: toSourceLabelProp,
+      movedLabel: movedLabelProp,
       height = 220,
       disabled = false,
       variant = 'glass',
@@ -265,6 +295,7 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
     const selectAllLabel = selectAllLabelProp ?? labels.selectAll;
     const toTargetLabel = toTargetLabelProp ?? labels.transferToSelected;
     const toSourceLabel = toSourceLabelProp ?? labels.transferToAvailable;
+    const movedLabel = movedLabelProp ?? labels.transferMoved;
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';
@@ -275,6 +306,20 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
     const [ticked, setTicked] = React.useState<ReadonlySet<string>>(() => new Set());
     const [sourceSearch, setSourceSearch] = React.useState('');
     const [targetSearch, setTargetSearch] = React.useState('');
+
+    const baseId = React.useId();
+    const rowRefs = React.useRef(new Map<string, HTMLElement>());
+    const sourceListRef = React.useRef<HTMLDivElement>(null);
+    const targetListRef = React.useRef<HTMLDivElement>(null);
+    const pendingMove = React.useRef<{ ids: string[]; toTarget: boolean } | null>(null);
+    const [announcement, setAnnouncement] = React.useState<{ key: number; text: string } | null>(
+      null
+    );
+
+    const rowRef = (item: string, element: HTMLElement | null) => {
+      if (element) rowRefs.current.set(item, element);
+      else rowRefs.current.delete(item);
+    };
 
     const chosen = React.useMemo(() => new Set(selected), [selected]);
     const source = React.useMemo(
@@ -333,9 +378,54 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
             .map((item) => item.value)
         : selected.filter((item) => !ids.has(item));
 
+      pendingMove.current = { ids: moved.map((item) => item.value), toTarget };
       setTicked((current) => new Set([...current].filter((item) => !ids.has(item))));
       commit(next);
     };
+
+    /*
+     * After a move, the focus goes where the rows went. The pressed arrow is
+     * disabled by the same render, since nothing on its side is ticked any
+     * more, and a disabled button drops the focus to `body`: a keyboard reader
+     * is thrown to the top of the page with no word about what happened. So the
+     * first row that arrived takes it, and the live region says how many did.
+     * A controlled pair whose owner refused the rows sends the focus to the
+     * list they were sent to and says nothing, because nothing moved.
+     */
+    React.useLayoutEffect(() => {
+      const pending = pendingMove.current;
+
+      if (!pending) return;
+
+      pendingMove.current = null;
+
+      const arrived = pending.ids.filter((item) => chosen.has(item) === pending.toTarget);
+      const list = pending.toTarget ? targetListRef.current : sourceListRef.current;
+
+      if (arrived.length === 0) {
+        list?.focus();
+        return;
+      }
+
+      (rowRefs.current.get(arrived[0]) ?? list)?.focus();
+
+      // The heading when it is words, and the pack's name for the list when it
+      // is a node, which has no words to read out.
+      const heading = pending.toTarget ? targetLabel : sourceLabel;
+      const name =
+        typeof heading === 'string' && heading !== ''
+          ? heading
+          : pending.toTarget
+            ? labels.transferSelected
+            : labels.transferAvailable;
+
+      setAnnouncement((current) => ({
+        key: (current?.key ?? 0) + 1,
+        text: movedLabel(arrived.length, name)
+      }));
+      // `ticked` is what changes on every move, including one whose rows the
+      // owner refused, so the effect runs after each press either way.
+    }, [chosen, ticked, labels, movedLabel, sourceLabel, targetLabel]);
 
     const sourceRows = narrow(source, sourceSearch);
     const targetRows = narrow(target, targetSearch);
@@ -358,6 +448,9 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
       >
         <Panel
           title={hasContent(sourceLabel) ? sourceLabel : 'Available'}
+          titleId={`${baseId}-source`}
+          listRef={sourceListRef}
+          rowRef={rowRef}
           rows={sourceRows}
           ticked={ticked}
           onTick={tick}
@@ -409,6 +502,9 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
 
         <Panel
           title={hasContent(targetLabel) ? targetLabel : 'Selected'}
+          titleId={`${baseId}-target`}
+          listRef={targetListRef}
+          rowRef={rowRef}
           rows={targetRows}
           ticked={ticked}
           onTick={tick}
@@ -423,6 +519,13 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
           selectAllLabel={selectAllLabel}
           style={panelStyle}
         />
+
+        {/* How many rows the last press moved, said once. The words are a new
+            node for every move, so a second move of the same size is announced
+            again rather than read as text that did not change. */}
+        <div className={srOnlyClasses} aria-live="polite">
+          {announcement ? <span key={announcement.key}>{announcement.text}</span> : null}
+        </div>
       </div>
     );
   }

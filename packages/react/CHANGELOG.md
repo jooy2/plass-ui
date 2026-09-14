@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **Pressing a `PlTransfer` arrow keeps the focus and says what moved.** The pressed arrow was disabled by the move, so the focus fell to the page and nothing said how many rows had gone across. The focus now goes to the first row that arrived, or to the target list when a controlled owner refused the rows, and a polite live region announces the count from the new `transferMoved` label key. The new `movedLabel` prop changes the sentence for one pair.
+
 - **`PlOtpField` names every slot by its place in the row.** Every slot was named by the field label alone, so a screen reader read "Verification code" six times and never said which box the caret was in. Each slot is now named by the label and then its position, "Verification code Character 2 of 6", from the new `otpSlot` label key, and the new `slotLabel` prop changes the wording for one field.
 
 - **Accessibility sentences with a value in them are read in the language of the label pack.** `PlPagination`'s page names and live line, `PlRating`'s scores, `PlCarousel`'s slide names and role descriptions, and the remove and add rows of `PlFilePicker` and `PlCombobox` were English templates inside each component, so a Korean page read `Page 5` inside a landmark called `페이지 이동`. They now come from new `PlassLabels` function keys (`paginationPage`, `paginationStatus`, `ratingValue`, `carouselSlide`, `removeItem`, `addCustom`) and the strings `ratingNone` and `slide`, translated in all seven packs in each language's own word order. A component's own prop still wins.
