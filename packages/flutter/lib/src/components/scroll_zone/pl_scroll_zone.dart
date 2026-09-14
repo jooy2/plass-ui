@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/icon_button/pl_icon_button.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/keyboard_scroll.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/wheel.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -690,6 +691,15 @@ class _PlScrollZoneState extends State<PlScrollZone> with SingleTickerProviderSt
       controller: _scroll,
       turn: widget.wheel && _horizontal,
       overscroll: widget.overscroll,
+      child: strip,
+    );
+
+    // A strip with no buttons, or with nothing focusable in it, is still one
+    // the keyboard can scroll.
+    strip = PlassKeyboardScroll(
+      vertical: _horizontal ? null : _scroll,
+      horizontal: _horizontal ? _scroll : null,
+      borderRadius: BorderRadius.circular(PlassTokens.radius[_size]!),
       child: strip,
     );
 

@@ -1,4 +1,5 @@
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -125,6 +126,56 @@ void main() {
           _bars(tester).single.thumbColor,
           PlassTheme.of(tester.element(find.byType(PlScrollArea))).track,
         );
+      });
+    });
+
+    group('the keyboard', () {
+      testWidgets('takes the focus and scrolls while there is somewhere to go', (
+        WidgetTester tester,
+      ) async {
+        final before = FocusNode();
+        addTearDown(before.dispose);
+        await _pump(tester, afterFocusStop(before, PlScrollArea(height: 200, child: _long())));
+
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+
+        expect(before.hasFocus, isFalse);
+
+        final controller = _views(tester).single.controller!;
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+        expect(controller.offset, 40);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.end);
+        await tester.pumpAndSettle();
+        expect(controller.offset, controller.position.maxScrollExtent);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.home);
+        await tester.pumpAndSettle();
+        expect(controller.offset, 0);
+      });
+
+      testWidgets('is no tab stop while everything fits', (WidgetTester tester) async {
+        final before = FocusNode();
+        addTearDown(before.dispose);
+        await _pump(
+          tester,
+          afterFocusStop(
+            before,
+            const PlScrollArea(height: 200, child: SizedBox(height: 50, child: Text('Short'))),
+          ),
+        );
+
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+
+        expect(tester.binding.focusManager.primaryFocus?.debugLabel, isNot('PlassKeyboardScroll'));
       });
     });
 

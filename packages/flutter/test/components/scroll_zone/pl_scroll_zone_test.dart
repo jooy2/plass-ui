@@ -1,4 +1,5 @@
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -124,6 +125,56 @@ void main() {
           decorationsOf(tester, find.byType(PlScrollZone)),
           everyElement(predicate<BoxDecoration>((BoxDecoration d) => d.color == null)),
         );
+      });
+    });
+
+    group('the keyboard', () {
+      testWidgets('scrolls a strip with no buttons along the writing direction', (
+        WidgetTester tester,
+      ) async {
+        for (final TextDirection direction in TextDirection.values) {
+          final before = FocusNode();
+          addTearDown(before.dispose);
+
+          await tester.pumpWidget(
+            host(
+              Directionality(
+                textDirection: direction,
+                child: afterFocusStop(
+                  before,
+                  PlScrollZone(buttons: PlScrollZoneButtons.none, spacing: 8, children: _cards()),
+                ),
+              ),
+              width: 300,
+              height: 200,
+            ),
+          );
+          await tester.pumpAndSettle();
+
+          before.requestFocus();
+          await tester.pump();
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pumpAndSettle();
+
+          expect(before.hasFocus, isFalse, reason: '$direction');
+
+          final controller = tester
+              .widget<SingleChildScrollView>(find.byType(SingleChildScrollView))
+              .controller!;
+
+          // The arrow that points towards the end of the row moves it on.
+          await tester.sendKeyEvent(
+            direction == TextDirection.rtl
+                ? LogicalKeyboardKey.arrowLeft
+                : LogicalKeyboardKey.arrowRight,
+          );
+          await tester.pumpAndSettle();
+
+          expect(controller.offset, 40, reason: '$direction');
+
+          // Away from the widget, so the next direction starts from a new one.
+          await tester.pumpWidget(const SizedBox.shrink());
+        }
       });
     });
 

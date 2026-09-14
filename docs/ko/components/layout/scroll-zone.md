@@ -268,6 +268,7 @@ PlScrollZone(overscroll: PlassOverscroll.auto, children: items);
 
 ::: fw flutter
 
+- 스크롤할 곳이 남아 있는 동안 띠 자체가 tab 대상이 되므로, `buttons: none`이거나 안에 포커스 가능한 것이 없는 띠도 키보드로 움직일 수 있습니다. 띠 방향의 방향키는 읽는 방향을 따라 한 줄씩, <kbd>Page Up</kbd>과 <kbd>Page Down</kbd>은 한 화면씩, <kbd>Home</kbd>과 <kbd>End</kbd>는 양 끝까지 옮깁니다. 포커스 링은 띠 둘레에 그려집니다.
 - `hold` 모드에서 키 누름은 한 항목을 움직이고 그다음은 플랫폼 자신의 키 반복이 이어받습니다. 누르고 있는 포인터가 받는 프레임 루프와는 다릅니다. 어느 쪽이든 버튼에 키보드로 닿을 수 있고, 중요한 것은 그것입니다.
 
 :::

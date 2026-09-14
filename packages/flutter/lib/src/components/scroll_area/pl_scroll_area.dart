@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/keyboard_scroll.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -202,9 +203,14 @@ class _PlScrollAreaState extends State<PlScrollArea> {
       );
     }
 
-    final Widget box = ClipRRect(
-      borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
-      child: content,
+    final radius = BorderRadius.circular(PlassTokens.radius[size]!);
+
+    // Outside the clip, so the focus ring is not cut off along with the content.
+    final Widget box = PlassKeyboardScroll(
+      vertical: _hasVertical ? _vertical : null,
+      horizontal: _hasHorizontal ? _horizontal : null,
+      borderRadius: radius,
+      child: ClipRRect(borderRadius: radius, child: content),
     );
 
     return MouseRegion(

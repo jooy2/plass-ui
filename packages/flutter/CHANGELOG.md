@@ -58,6 +58,8 @@
 
 ### Fixed
 
+- **`PlScrollArea` and `PlScrollZone` can be scrolled from the keyboard.** Neither took the focus, so a box of text with nothing focusable in it, or a strip with `buttons: none`, could not be reached with Tab or moved with a key, although the documentation said it could. While there is somewhere to scroll, each is now a tab stop that draws the focus ring, and the arrow keys move it by a line, following the writing direction along a row, Page Up and Page Down by a screen, and Home and End to its ends. A box whose content fits adds nothing to the tab order.
+
 - **The `PlTransfer` arrows point at their own lists under RTL.** The selected list is at the end of the row, which is the left under a right-to-left `Directionality`, but the arrow to it was always drawn pointing right and the arrow back pointing left. Both now turn over with the direction.
 
 - **A `fullWidth` `PlSelect` no longer builds every option label in its trigger.** The trigger held itself open at the width of its longest label by laying out all of them, unpainted, even when `fullWidth` made its width the container's, so a label with a picture in it loaded that picture for every option. A `fullWidth` trigger now builds only what it shows. A trigger without `fullWidth` still lays out every label, because that is what keeps it from changing width with its value.
