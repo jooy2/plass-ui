@@ -1,6 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { renderToString } from 'react-dom/server';
 import { PlAnimateTyping } from 'plass-ui';
+import standaloneCss from '../../../src/standalone.css?inline';
 
 /** The visible half — the one that is `aria-hidden` and actually animates. */
 function visible(root: Element | null): string {
@@ -8,6 +10,104 @@ function visible(root: Element | null): string {
 }
 
 describe('PlAnimateTyping', () => {
+  describe('the room it takes', () => {
+    const LINE = 'Deploying to production';
+
+    let sheet: HTMLStyleElement;
+
+    // The claims here are about layout, so this group loads the stylesheet,
+    // which the rest of the file has no use for.
+    beforeAll(() => {
+      sheet = document.createElement('style');
+      sheet.textContent = standaloneCss;
+      document.head.append(sheet);
+    });
+
+    afterAll(() => {
+      sheet.remove();
+    });
+
+    function root(): HTMLElement {
+      return document.querySelector<HTMLElement>('.typing-under-test')!;
+    }
+
+    function caretBox(): DOMRect {
+      return root().querySelector('.plass-caret')!.getBoundingClientRect();
+    }
+
+    /** The line in a box too narrow for it, so it takes two lines. */
+    function narrow(play: boolean) {
+      return (
+        <div style={{ width: '8rem' }}>
+          <PlAnimateTyping
+            className="typing-under-test"
+            text={LINE}
+            speed={200}
+            trigger="manual"
+            play={play}
+          />
+        </div>
+      );
+    }
+
+    it('holds the box of the whole string before the first character arrives', async () => {
+      const screen = await render(narrow(false));
+      const before = root().getBoundingClientRect().height;
+      const heights: number[] = [];
+
+      await screen.rerender(narrow(true));
+
+      for (let sample = 0; sample < 30; sample += 1) {
+        heights.push(root().getBoundingClientRect().height);
+        await new Promise((resolve) => setTimeout(resolve, 5));
+      }
+
+      await expect.poll(() => visible(root()).startsWith(LINE)).toBe(true);
+      heights.push(root().getBoundingClientRect().height);
+
+      // The finished line wraps, so the box it holds is more than one line.
+      expect(root().querySelector('[aria-hidden="true"]')!.getClientRects().length).toBeGreaterThan(
+        1
+      );
+      expect([...new Set(heights)]).toEqual([before]);
+    });
+
+    it('keeps the caret where the typing is', async () => {
+      const screen = await render(narrow(false));
+      const box = root().getBoundingClientRect();
+
+      // Nothing typed yet: the start of the first line, ahead of the rest.
+      expect(caretBox().left).toBeCloseTo(box.left, 0);
+      expect(caretBox().top).toBeCloseTo(box.top, 0);
+
+      await screen.rerender(narrow(true));
+      await expect.poll(() => visible(root()).startsWith(LINE)).toBe(true);
+
+      // Finished: after the last word, on the second line.
+      expect(caretBox().left).toBeGreaterThan(box.left);
+      expect(caretBox().top).toBeGreaterThan(box.top);
+    });
+
+    it('copies only what has been drawn', async () => {
+      await render(narrow(false));
+
+      const selection = window.getSelection()!;
+
+      selection.selectAllChildren(root().querySelector('[aria-hidden="true"]')!);
+
+      // Nothing has been typed, so the caret is all there is to copy.
+      expect(selection.toString()).toBe('|');
+
+      selection.removeAllRanges();
+    });
+
+    it('holds the same box in the server’s HTML', () => {
+      const html = renderToString(<PlAnimateTyping text={LINE} />);
+
+      expect(html).toContain(`data-sample="${LINE}"`);
+    });
+  });
+
   it('names the effect it is running', async () => {
     await render(<PlAnimateTyping className="typing-under-test" text="Hello" speed={200} />);
 

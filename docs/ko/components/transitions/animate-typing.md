@@ -5,7 +5,7 @@ order: 11
 
 # PlAnimateTyping
 
-<p class="plass-lede">글자가 하나씩 나타납니다. 문자열 전체는 첫 프레임부터 문서에 있어서, 보지 못하는 사람에게는 아무 비용도 들지 않고 보는 사람에게는 아무것도 reflow시키지 않습니다.</p>
+<p class="plass-lede">글자가 하나씩 나타납니다. 문자열 전체가 첫 프레임부터 문서에 있고 자리도 차지하므로, 보지 못하는 사람에게는 아무 비용도 들지 않고 보는 사람에게는 주변의 어떤 것도 밀어내지 않습니다.</p>
 
 <Demo src="animate-typing/hero" :min-height="160" />
 
@@ -105,7 +105,7 @@ const PlAnimateTyping(
 - `prefers-reduced-motion`에서는 텍스트가 그냥 거기 있습니다. "아무 일도 일어나지 않음"이 아닙니다. 컴포넌트가 담고 있던 것을 그대로 전달하는 유일한 결과입니다.
 - **멈출 방법을 주세요.** 타자기가 다른 내용 옆에서 5초 넘게 움직인다면 페이지에 그것을 멈추는 컨트롤이 있어야 하고, `repeat="infinite"`로 되풀이하면 언제나 그렇습니다. [PlAnimateMarquee 예제](./animate-marquee#paused)처럼 `paused`에 연결한 버튼이면 됩니다. [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html)가 이것을 요구합니다. `prefers-reduced-motion`은 이 컨트롤을 대신하지 못합니다. 읽는 사람이 직접 찾아서 켜야 하는 시스템 설정이기 때문입니다.
 - 나아가는 단위는 code point가 아니라 **grapheme**입니다. `👩‍👩‍👧`는 읽는 사람에게 한 글자이고 JavaScript에게 code point 일곱 개이며, code point 단위로 나아가는 타자기는 그것을 아무 뜻도 없는 조각들로 조립하는 데 네 프레임을 씁니다.
-- 상자는 도착한 글자들로부터 레이아웃되지 않으므로 주변 텍스트가 매 프레임 reflow하지 않습니다. 다만 컨테이너가 허용하는 만큼 넓어지므로, 줄바꿈이 중요하다면 한 줄짜리 효과에는 `white-space: nowrap`이나 너비를 주세요.
+- 아직 오지 않은 글자는 caret 뒤에 레이아웃만 되고 그려지지 않습니다. 그래서 상자는 서버 HTML에서도 첫 프레임부터 문자열 전체의 크기를 차지하고, 글자가 도착하는 동안 주변의 어떤 것도 움직이지 않습니다. 이 글자는 텍스트가 아니라 생성된 콘텐츠라서 줄과 함께 선택되거나 복사되지 않습니다. 다만 상자는 컨테이너가 허용하는 만큼 넓어지므로, 줄바꿈이 중요하다면 한 줄짜리 효과에는 `white-space: nowrap`이나 너비를 주세요.
 
 :::
 
@@ -127,7 +127,7 @@ const PlAnimateTyping(
 | --- | --- | --- |
 | `text` 또는 children을 문자열로 펼침 | 위치 인자 `String` 하나 | 펼칠 것이 없습니다. 타자기의 입력은 텍스트이므로 텍스트를 받습니다. |
 | 스크린리더용 잘린 사본 + `aria-hidden`인 보이는 사본 | `ExcludeSemantics` 위의 `Semantics(label:)` | 같은 두 가지 일을 노드 하나 덜 써서 합니다. |
-| 도착한 글자로 상자를 레이아웃하지 않음 | 전체 문자열을 부분 문자열 아래에 보이지 않게 그림 | Flutter의 `Text`는 담고 있는 것으로 레이아웃되므로, 전체 문자열을 담은 무언가가 자리를 잡아 주어야 합니다. |
+| 아직 오지 않은 글자를 caret 뒤에 그리지 않고 레이아웃함 | 전체 문자열을 부분 문자열 아래에 보이지 않게 그림 | 둘 다 문자열 전체의 상자를 잡습니다. Flutter의 `Text`는 담고 있는 것으로 레이아웃되므로 하나를 더 겹쳐 두고, HTML에서는 줄의 나머지가 친 부분 뒤에 보이지 않게 이어집니다. |
 | `Intl.Segmenter` | `String.characters` | 둘 다 grapheme의 끝을 압니다. 이쪽은 프레임워크와 함께 옵니다. |
 | `duration`, `delay`가 밀리초 | `Duration` | 프레임워크에 이미 타입이 있습니다. |
 | `easing`이 CSS 문자열 | `curve`, `Curve` | 같은 것에 대한 Dart 자신의 이름입니다. |

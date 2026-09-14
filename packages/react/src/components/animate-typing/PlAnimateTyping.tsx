@@ -97,8 +97,9 @@ function graphemesOf(text: string, locale?: string): string[] {
  * for a screen reader, which reads it once and is not made to sit through the
  * performance — and what animates is a visible copy that is `aria-hidden`. So
  * the effect costs a reader who cannot see it nothing, and costs a reader who
- * can nothing either: the box is not laid out from the characters that have
- * arrived, so the text around it does not reflow on every frame.
+ * can nothing either: the characters still to come are laid out after the
+ * caret without being drawn, so the box holds the whole string from the first
+ * frame and nothing around it moves as the text arrives.
  *
  * `repeat`, `hold` and `erase` are what make it a loop: type, hold, delete,
  * type again. Without `erase` a repeat clears in one frame, which is right for
@@ -309,9 +310,25 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
       {...mergeProps(props, run.handlers)}
     >
       <span className={srOnlyClasses}>{source}</span>
-      <span aria-hidden="true" className="whitespace-pre-wrap">
+      {/* `relative` so the caret, which is taken out of the flow, still scrolls
+          and clips with the text inside a scrolling panel. */}
+      <span aria-hidden="true" className="relative whitespace-pre-wrap">
         {graphemes.slice(0, shown).join('')}
-        {caret ? <span className="plass-caret">{caretChar}</span> : null}
+        {/* Where the typing is, and taking no room there. An inline caret would
+            carry its width along the line and add a place to break inside a
+            word, so the box would change as it moved. */}
+        {caret ? <span className="plass-caret absolute">{caretChar}</span> : null}
+        {/* The characters still to come, and then the caret's room, laid out
+            and not drawn, so every frame is laid out as the finished line and
+            the server's HTML holds the box as well. The characters are
+            generated content rather than text, for the reason `WidthSizer`
+            gives: nothing selects them, copies them or finds them by text. */}
+        <span
+          data-sample={graphemes.slice(shown).join('')}
+          className="invisible before:content-[attr(data-sample)]"
+        >
+          {caret ? <span className="inline-block">{caretChar}</span> : null}
+        </span>
       </span>
     </div>
   );

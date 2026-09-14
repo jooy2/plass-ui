@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **`PlAnimateTyping` holds the box of the whole string from the first frame, so nothing around it moves as it types.** The drawn copy held only the characters that had arrived, so a phrase that wrapped pushed the content below it down when its second line began, and the server HTML held an empty box. The characters still to come are now laid out after the caret without being drawn, as generated content that is not selected or copied, and the caret takes no room of its own while it moves. Every frame is laid out as the finished line, in the server HTML too.
+
 - **`PlAnimateTyping` types the text inside elements among its children.** `Ship <strong>faster</strong>` was typed and read out as `Ship `, because the text of any element was dropped, while the docs said an element contributes its text. That text is now typed and read, and the markup is still left out, so the line is `Ship faster` without the bold.
 
 - **`PlAnimateCounter` and `PlAnimateScramble` go on from where they were held when `paused` is released.** Resuming took the start time again, so a count held at 400 dropped back to `from` and a half-settled line scrambled again from its first character. A count also started over whenever a parent rendered it with an inline `easing`, which is a new function each time. Both now work the start time back from how far they had got and read `easing` from the latest render without restarting, as the Flutter build does. A hover, a new `play` or a new `value` still starts from the beginning.

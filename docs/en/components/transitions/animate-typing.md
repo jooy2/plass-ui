@@ -5,7 +5,7 @@ order: 11
 
 # PlAnimateTyping
 
-<p class="plass-lede">Text appearing one character at a time. The whole string is in the document from the first frame, so the effect costs a reader who cannot see it nothing and reflows nothing for a reader who can.</p>
+<p class="plass-lede">Text appearing one character at a time. The whole string is in the document and holds its space from the first frame, so the effect costs a reader who cannot see it nothing and moves nothing around it for a reader who can.</p>
 
 <Demo src="animate-typing/hero" :min-height="160" />
 
@@ -105,7 +105,7 @@ Characters per second. Around 24 reads as somebody typing; below 10 is a machine
 - Under `prefers-reduced-motion` the text is simply there. Not "nothing happens" — that is the only outcome that still delivers what the component was carrying.
 - **Give the reader a way to stop it.** A typewriter that runs for more than five seconds beside other content, as a `repeat="infinite"` loop does, needs a control on the page that stops it: a button wired to `paused`, as in the [PlAnimateMarquee example](./animate-marquee#paused). [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html) asks for one. `prefers-reduced-motion` is no substitute, because it is a system setting the reader has to find and turn on first.
 - The advance is by **grapheme**, not by code point. `👩‍👩‍👧` is one character to a reader and seven code points to JavaScript, and a typewriter that advanced by code points would spend four frames assembling it out of parts that mean nothing on their own.
-- The box is not laid out from the characters that have arrived, so the text around it does not reflow on every frame. It will, however, be as wide as its container allows — give a one-line effect a `white-space: nowrap` or a width if the wrap matters.
+- The characters still to come are laid out after the caret and not drawn, so the box holds the whole string from the first frame, in the server's HTML too, and nothing around it moves as the text arrives. They are generated content rather than text, so they are not selected or copied with the line. The box will, however, be as wide as its container allows — give a one-line effect a `white-space: nowrap` or a width if the wrap matters.
 
 :::
 
@@ -127,7 +127,7 @@ Characters per second. Around 24 reads as somebody typing; below 10 is a machine
 | --- | --- | --- |
 | `text` or children, flattened to a string | one positional `String` | There is nothing to flatten: a typewriter's input is text, so it takes text. |
 | a clipped copy for a screen reader plus an `aria-hidden` visible one | `Semantics(label:)` over an `ExcludeSemantics` | Same two jobs, one node fewer. |
-| the box is not laid out from the arrived characters | the full string is drawn invisibly under the partial one | Flutter lays a `Text` out from what it holds, so the space has to be reserved by something that holds the whole string. |
+| the characters still to come are laid out after the caret, not drawn | the full string is drawn invisibly under the partial one | Both hold the box of the whole string. Flutter lays a `Text` out from what it holds, so it stacks a second one; in HTML the rest of the line can follow the typed part unseen. |
 | `Intl.Segmenter` | `String.characters` | Both know where a grapheme ends; this one ships with the framework. |
 | `duration`, `delay` in milliseconds | `Duration` | The framework already has the type. |
 | `easing` as a CSS string | `curve`, a `Curve` | Dart's own name for the same thing. |
