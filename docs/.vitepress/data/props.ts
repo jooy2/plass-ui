@@ -15245,6 +15245,23 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '제어되지 않는 창이 열린 채로 시작하는지',
+        en: 'Whether an uncontrolled window starts open'
+      }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: {
+        ko: 'close button을 누르면 부릅니다',
+        en: 'Called when the close button is pressed'
+      }
+    },
+    {
       name: 'minimized',
       type: 'boolean',
       description: {
@@ -15253,11 +15270,45 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'defaultMinimized',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '제어되지 않는 창이 말아 올린 채로 시작하는지',
+        en: 'Whether an uncontrolled window starts rolled up'
+      }
+    },
+    {
+      name: 'onMinimizedChange',
+      type: '(minimized: boolean) => void',
+      description: {
+        ko: 'minimize button을 누르면 부릅니다',
+        en: 'Called when the minimize button is pressed'
+      }
+    },
+    {
       name: 'maximized',
       type: 'boolean',
       description: {
         ko: '담고 있는 것을 가득 채우는지',
         en: 'Whether the window fills whatever is holding it'
+      }
+    },
+    {
+      name: 'defaultMaximized',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '제어되지 않는 창이 가득 찬 채로 시작하는지',
+        en: 'Whether an uncontrolled window starts maximized'
+      }
+    },
+    {
+      name: 'onMaximizedChange',
+      type: '(maximized: boolean) => void',
+      description: {
+        ko: 'maximize button을 누르거나 제목 표시줄을 두 번 누르면 부릅니다',
+        en: 'Called when the maximize button is pressed or the title bar is double-clicked'
       }
     },
     {
@@ -15273,6 +15324,33 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'minimizeLabel',
       type: 'string',
       description: { ko: 'button 이름을 덮어씁니다', en: "Overrides the buttons' own names" }
+    },
+    {
+      name: 'maximizeLabel',
+      type: 'string',
+      default: "'Maximize'",
+      description: {
+        ko: 'maximize button의 이름을 덮어씁니다',
+        en: "Overrides the maximize button's name"
+      }
+    },
+    {
+      name: 'restoreLabel',
+      type: 'string',
+      default: "'Restore'",
+      description: {
+        ko: '창이 가득 찬 뒤 maximize button이 불리는 이름을 덮어씁니다',
+        en: 'Overrides what the maximize button is called once the window is maximized'
+      }
+    },
+    {
+      name: 'closeLabel',
+      type: 'string',
+      default: "'Close'",
+      description: {
+        ko: 'close button의 이름을 덮어씁니다',
+        en: "Overrides the close button's name"
+      }
     },
     {
       name: 'resizeLabel',
