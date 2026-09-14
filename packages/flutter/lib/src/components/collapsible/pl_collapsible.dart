@@ -288,12 +288,18 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
           )
         : const SizedBox(width: double.infinity);
 
-    if (widget.keepMounted && !widget.open) {
-      // Clipped to nothing *and* out of the way: a panel nobody can see is not
-      // one a keyboard should be able to tab into, and not one a screen reader
-      // should be reading out.
-      panel = ExcludeSemantics(child: ExcludeFocus(child: panel));
-    }
+    // Clipped to nothing *and* out of the way: a panel nobody can see is not one
+    // a keyboard should be able to tab into, and not one a screen reader should
+    // be reading out.
+    //
+    // Always wrapped and switched with `excluding`, never wrapped only while
+    // closed: a wrapper that comes and goes changes the shape of the tree above
+    // the content, and Flutter rebuilds a changed shape from scratch, which is
+    // the `State` a kept-mounted panel is there to keep.
+    panel = ExcludeSemantics(
+      excluding: !widget.open,
+      child: ExcludeFocus(excluding: !widget.open, child: panel),
+    );
 
     panel = PlassFold(factor: _foldFactor, child: panel);
 

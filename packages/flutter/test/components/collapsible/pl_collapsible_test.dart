@@ -12,6 +12,7 @@ class _Harness extends StatefulWidget {
     this.indicator = true,
     this.action,
     this.triggerBuilder,
+    this.child = const Text('Everything else.'),
   });
 
   final bool disabled;
@@ -19,6 +20,7 @@ class _Harness extends StatefulWidget {
   final bool indicator;
   final Widget? action;
   final Widget Function(BuildContext context, bool open, VoidCallback toggle)? triggerBuilder;
+  final Widget child;
 
   @override
   State<_Harness> createState() => _HarnessState();
@@ -41,7 +43,7 @@ class _HarnessState extends State<_Harness> {
       triggerBuilder: widget.triggerBuilder,
       title: const Text('Advanced'),
       subtitle: const Text('Nine settings'),
-      child: const Text('Everything else.'),
+      child: widget.child,
     );
   }
 }
@@ -192,9 +194,42 @@ void main() {
         expect(find.text('Everything else.'), findsOneWidget);
         expect(tester.getSize(find.text('Everything else.')).height, greaterThan(0));
         expect(
-          find.ancestor(of: find.text('Everything else.'), matching: find.byType(ExcludeFocus)),
-          findsOneWidget,
+          tester
+              .widget<ExcludeFocus>(
+                find.ancestor(
+                  of: find.text('Everything else.'),
+                  matching: find.byType(ExcludeFocus),
+                ),
+              )
+              .excluding,
+          isTrue,
         );
+      });
+
+      testWidgets('keeps what was typed into a kept panel through a close', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            const _Harness(keepMounted: true, child: PlTextField(label: Text('Name'))),
+            width: 360,
+          ),
+        );
+
+        await tester.tap(find.text('Advanced'));
+        await tester.pumpAndSettle();
+        await tester.enterText(find.byType(EditableText), 'ada');
+        await tester.pump();
+
+        await tester.tap(find.text('Advanced'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Advanced'));
+        await tester.pumpAndSettle();
+
+        // The field owns its controller, so the words live in its `State`. A
+        // wrapper put around the panel only while it was closed rebuilt that
+        // `State` from scratch on the way in and again on the way out.
+        expect(find.text('ada'), findsOneWidget);
       });
 
       testWidgets('drops the chevron when it is asked to', (WidgetTester tester) async {

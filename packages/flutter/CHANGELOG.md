@@ -60,6 +60,8 @@
 
 ### Fixed
 
+- **A `PlCollapsible` with `keepMounted` keeps what its panel holds through a close.** The panel was wrapped to take it out of the focus order and off the semantics tree only while it was closed, so the wrapper came and went with the fold and the content under it was built again each time: a field in a kept panel lost what was typed into it on every close, which is what `keepMounted` is there to prevent. The wrapper is now always there and only switched on and off.
+
 - **The calendar header's month and year buttons are named by the words they show.** Each button's `semanticLabel` was merged ahead of its text, so a screen reader heard "Choose a month, July" and the month on screen came second. The drawn month or year is now the name, and "Choose a month" or "Choose a year" follows as a hint, which is what the React build already does.
 
 - **Every `PlToast` is announced, including one with the default `low` priority.** Only a `high` toast was a live region, so a default toast such as "Saved" appeared and left without a screen reader saying anything. Every toast is now a live region. Flutter's live region has one politeness level, and it is polite, so a `high` toast is read when the reader pauses rather than interrupting; the `alert` and `status` roles that would carry the difference cannot be set on a live region.
