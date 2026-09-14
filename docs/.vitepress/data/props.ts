@@ -8161,6 +8161,15 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'Puts the caret in the first slot on mount'
       }
     },
+    {
+      name: 'slotLabel',
+      type: '(index: number, count: number) => string',
+      default: '`Character {n} of {length}`',
+      description: {
+        ko: '필드 라벨 뒤에 붙는 칸 하나의 이름. 줄 안의 위치와 길이를 받습니다. 주지 않으면 라벨 묶음의 `otpSlot`입니다',
+        en: "What each slot is called after the field's label, given its place in the row and the length. Left out, it is the label pack's `otpSlot`"
+      }
+    },
     hotKeysProp,
     fieldClassNames
   ],

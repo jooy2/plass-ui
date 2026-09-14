@@ -98,5 +98,6 @@ export const ja: PlassLabels = {
   ratingNone: '評価なし',
   carouselSlide: (index, count) => `${count}枚中${index}枚目のスライド`,
   removeItem: (name) => `${name}を削除`,
-  addCustom: (query) => `「${query}」を追加`
+  addCustom: (query) => `「${query}」を追加`,
+  otpSlot: (index, count) => `${count}桁中${index}桁目`
 };

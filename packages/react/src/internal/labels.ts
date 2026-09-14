@@ -216,6 +216,8 @@ export interface PlassLabels {
   removeItem: (name: string) => string;
   /** The row that offers what was typed as a value of its own. */
   addCustom: (query: string) => string;
+  /** One slot of a code field, named by its place in the row. */
+  otpSlot: (index: number, count: number) => string;
 }
 
 /**
@@ -322,7 +324,8 @@ export const defaultLabels: PlassLabels = {
   ratingNone: 'No rating',
   carouselSlide: (index, count) => `Slide ${index} of ${count}`,
   removeItem: (name) => `Remove ${name}`,
-  addCustom: (query) => `Add “${query}”`
+  addCustom: (query) => `Add “${query}”`,
+  otpSlot: (index, count) => `Character ${index} of ${count}`
 };
 
 /**

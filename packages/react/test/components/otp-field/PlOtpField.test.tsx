@@ -134,6 +134,41 @@ describe('PlOtpField', () => {
       await expect.element(screen.getByText('Verification code')).toBeInTheDocument();
     });
 
+    it('names every slot by the label and then by its place in the row', async () => {
+      const screen = await render(<PlOtpField label="Verification code" length={4} />);
+
+      // Base UI names every slot by the label alone, which reads one name four
+      // times over and never says which box the caret is in.
+      await expect
+        .element(
+          screen.getByRole('textbox', { name: 'Verification code Character 1 of 4', exact: true })
+        )
+        .toBeInTheDocument();
+      await expect
+        .element(
+          screen.getByRole('textbox', { name: 'Verification code Character 4 of 4', exact: true })
+        )
+        .toBeInTheDocument();
+    });
+
+    it('still says where a slot is when the field has no label', async () => {
+      const screen = await render(<PlOtpField length={4} />);
+
+      await expect
+        .element(screen.getByRole('textbox', { name: 'Character 2 of 4', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it('says the place in the words it was given', async () => {
+      const screen = await render(
+        <PlOtpField label="PIN" length={3} slotLabel={(index, count) => `${index}/${count}`} />
+      );
+
+      await expect
+        .element(screen.getByRole('textbox', { name: 'PIN 3/3', exact: true }))
+        .toBeInTheDocument();
+    });
+
     it('shows a description under it', async () => {
       const screen = await render(<PlOtpField description="We texted it to you." />);
 

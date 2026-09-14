@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **`PlOtpField` names every slot by its place in the row.** Every slot was named by the field label alone, so a screen reader read "Verification code" six times and never said which box the caret was in. Each slot is now named by the label and then its position, "Verification code Character 2 of 6", from the new `otpSlot` label key, and the new `slotLabel` prop changes the wording for one field.
+
 - **Accessibility sentences with a value in them are read in the language of the label pack.** `PlPagination`'s page names and live line, `PlRating`'s scores, `PlCarousel`'s slide names and role descriptions, and the remove and add rows of `PlFilePicker` and `PlCombobox` were English templates inside each component, so a Korean page read `Page 5` inside a landmark called `페이지 이동`. They now come from new `PlassLabels` function keys (`paginationPage`, `paginationStatus`, `ratingValue`, `carouselSlide`, `removeItem`, `addCustom`) and the strings `ratingNone` and `slide`, translated in all seven packs in each language's own word order. A component's own prop still wins.
 
 - **Moving the focus in `PlTree` redraws only the rows it moves between.** Every step of the focus rendered every row the tree had loaded again, and the rows inside closed branches were built on every render and thrown away, so holding an arrow key down in a tree of 10,000 nodes stuttered. Rows are now memoised: a step redraws the row the focus left, the row it reached and the branches they sit in, and a closed branch builds its rows only while it is open or closing.

@@ -190,6 +190,7 @@ Rejected characters go through a formatter of the component's own rather than Fl
 - Built on Base UI's OTP Field, which owns everything that makes this harder than it looks: one hidden value behind however many inputs, paste spread across the slots from wherever the caret was, backspace stepping back a box, and a click landing on the first empty slot rather than on the one under the pointer.
 - Every slot carries `autocomplete="one-time-code"`, so a phone offers the code straight from the message.
 - The label, the description and the error are wired to the row by Base UI's `Field`, one `for`, one `aria-describedby`, and no ids for a caller to keep in step.
+- Every slot is named by the label and then by its place in the row, "Verification code Character 2 of 6". Base UI names each slot by the label alone, which reads one name six times and never says which box the caret is in. The position comes from the label pack's `otpSlot`, and `slotLabel` changes it for one field.
 - The separator is an `aria-hidden` `<span>` rather than a `role="separator"`. It is punctuation inside one value, not a break between two things.
 - The focus ring on a slot is `:focus` rather than `:focus-visible`, which is the one place in the library that distinction is deliberately dropped: a slot is put in focus by clicking it as often as by typing into it, and the ring is the only thing saying which character the next keystroke lands on.
 

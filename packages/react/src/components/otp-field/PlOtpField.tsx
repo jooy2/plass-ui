@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 import { Field } from '@base-ui/react/field';
 import { OTPField } from '@base-ui/react/otp-field';
 import { hotKeyHandler } from '../../internal/keys.js';
@@ -112,6 +113,12 @@ export interface PlOtpFieldProps
   readOnly?: boolean;
   /** Puts the caret in the first slot on mount. @default false */
   autoFocus?: boolean;
+  /**
+   * What each slot is called after the field's label, given its place in the
+   * row and the length. Never drawn.
+   * @default `Character {n} of {length}`, from the label pack
+   */
+  slotLabel?: (index: number, count: number) => string;
 }
 
 /**
@@ -221,6 +228,7 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
       disabled = false,
       readOnly = false,
       autoFocus = false,
+      slotLabel: slotLabelProp,
       className,
       hotKeys,
       classNames,
@@ -230,6 +238,9 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
     ref
   ) {
     const defaults = useDefaults();
+    const labels = useLabels();
+    const slotLabel = slotLabelProp ?? labels.otpSlot;
+    const nameId = React.useId();
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';
@@ -284,7 +295,7 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
               classNames?.label
             )}
           >
-            {label}
+            <span id={`${nameId}-label`}>{label}</span>
           </Field.Label>
         ) : null}
 
@@ -329,10 +340,28 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
                   {separator}
                 </span>
               ) : null}
-              <OTPField.Input className={slotClassNames} autoFocus={autoFocus && index === 0} />
+              <OTPField.Input
+                className={slotClassNames}
+                autoFocus={autoFocus && index === 0}
+                // The field's label and then the slot's place in the row. Base
+                // UI names every slot by the label alone, so six of them read
+                // "Verification code" six times and never say which box the
+                // caret is in.
+                aria-labelledby={
+                  hasContent(label) ? `${nameId}-label ${nameId}-${index}` : `${nameId}-${index}`
+                }
+              />
             </React.Fragment>
           ))}
         </OTPField.Root>
+
+        {/* The words each slot's name ends with. `hidden`, so they are read as
+            part of that name and never as text of their own. */}
+        {Array.from({ length: slots }, (_, index) => (
+          <span key={index} id={`${nameId}-${index}`} hidden>
+            {slotLabel(index + 1, slots)}
+          </span>
+        ))}
 
         {hasContent(description) ? (
           <Field.Description

@@ -98,5 +98,6 @@ export const fr: PlassLabels = {
   ratingNone: 'Aucune note',
   carouselSlide: (index, count) => `Diapositive ${index} sur ${count}`,
   removeItem: (name) => `Retirer ${name}`,
-  addCustom: (query) => `Ajouter « ${query} »`
+  addCustom: (query) => `Ajouter « ${query} »`,
+  otpSlot: (index, count) => `Caractère ${index} sur ${count}`
 };
