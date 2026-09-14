@@ -35,6 +35,18 @@ describe('PlDatePicker', () => {
       await expect.element(screen.getByText('Pick a day')).toBeInTheDocument();
     });
 
+    it('renders the width samples only when it is sized by its dates', async () => {
+      const narrow = await render(<PlDatePicker placeholder="Pick a day" />);
+
+      // The trigger holds itself open at the widest date it could show.
+      expect(narrow.container.querySelectorAll('[data-sample]').length).toBeGreaterThan(0);
+
+      const wide = await render(<PlDatePicker placeholder="Pick a day" fullWidth />);
+
+      // A full-width trigger is as wide as its container, whatever it says.
+      expect(wide.container.querySelectorAll('[data-sample]')).toHaveLength(0);
+    });
+
     it('writes the chosen date the way the locale does', async () => {
       const screen = await render(<PlDatePicker locale="en-GB" defaultValue={JULY_27} />);
 

@@ -336,7 +336,10 @@ export function PickerShell({
                     >
                       {display}
                     </span>
-                    <WidthSizer samples={samples ?? []} />
+                    {/* A `fullWidth` trigger takes its width from its container, so
+                      it renders no samples: every value written there would be
+                      work for nothing. */}
+                    {fullWidth ? null : <WidthSizer samples={samples ?? []} />}
                   </span>
                 </Popover.Trigger>
               );

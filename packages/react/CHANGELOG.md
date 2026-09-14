@@ -14,6 +14,8 @@
 
 ### Fixed
 
+- **A `fullWidth` `PlDatePicker`, `PlTimePicker`, `PlDateTimePicker`, `PlColorPicker` or `PlTreeSelect` no longer renders its width samples.** The picker trigger held itself open at the widest value it could show by rendering every sample, hidden, even when `fullWidth` made its width its container's. A `fullWidth` trigger now renders only what it shows, as `PlSelect` and `PlDateRangePicker` do. A trigger without `fullWidth` keeps its samples.
+
 - **A `fullWidth` `PlDateRangePicker` no longer renders every date sample in its trigger.** Each half held itself open at the widest date it could show by rendering the samples, hidden, even when `fullWidth` made the trigger's width its container's. A `fullWidth` trigger now renders only what it shows. A trigger without `fullWidth` keeps its samples, which stop it changing width as the range is filled in.
 
 - **The `PlPill` button says whether its `details` are open.** With `details` and an `onClick`, the middle button had no `aria-expanded` and pointed at no panel, and since the other props land on the shell, a caller could not add either. The button now takes `aria-expanded` from `expanded` and points at the panel with `aria-controls`. A pill without `details` claims neither.
