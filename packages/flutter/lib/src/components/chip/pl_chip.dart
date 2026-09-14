@@ -8,6 +8,7 @@ import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
+import 'package:plass_ui/src/internal/text.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -96,19 +97,6 @@ class PlChip extends StatelessWidget {
   /// word alone, and is the one to give a [deleteLabel] that says which chip it
   /// removes. Given, it is the whole name.
   final String? deleteLabel;
-
-  /// The words of [child] when it is a [Text], for the delete affordance's name.
-  String? get _childText {
-    final Widget? own = child;
-
-    if (own is! Text) {
-      return null;
-    }
-
-    final String? text = own.data ?? own.textSpan?.toPlainText();
-
-    return text == null || text.trim().isEmpty ? null : text;
-  }
 
   /// What the surface is made of. See [PlassVariant].
   final PlassVariant variant;
@@ -320,7 +308,7 @@ class PlChip extends StatelessWidget {
             child: PlassDismissButton(
               label:
                   deleteLabel ??
-                  <String>[PlassTheme.labelsOf(context).remove, ?_childText].join(' '),
+                  <String>[PlassTheme.labelsOf(context).remove, ?plassTextOf(child)].join(' '),
               onPressed: disabled ? null : onDeleted,
               size: fontSize * dismissScale,
               color: surface.ink,
