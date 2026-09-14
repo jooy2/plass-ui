@@ -60,6 +60,8 @@
 
 ### Fixed
 
+- **Pressing Reveal or Hide on a `PlSpoiler` from the keyboard no longer sends the focus out of the spoiler.** The pressed button was put under `ExcludeFocus` by the rebuild that acted on the press, so its scope handed the focus back to whatever held it before, or to nothing. Revealing now moves the focus to the uncovered content, and hiding moves it back to the Reveal button. The focus is left alone when it was elsewhere on the screen.
+
 - **The `PlSlider` run ends under the centre of its thumb.** The run was measured along the whole rail while a thumb travels along the rail less its own size, so the run's end sat under the thumb's centre only at the middle value: below the middle it stopped short of the centre, and above it it ran past. A range's run now starts and ends under the centres of its two thumbs, and a single value's run still starts at the start of the rail.
 
 - **A `fullWidth` picker no longer lays out its width samples.** `PlDatePicker`, `PlDateRangePicker`, `PlDateTimePicker`, `PlTimePicker` and `PlColorPicker` built every sample under the value, invisible, even when `fullWidth` made the field's width its container's. A `fullWidth` field now builds only what it shows, as `PlSelect` already does. A field without `fullWidth` keeps them.

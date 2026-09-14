@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -138,6 +139,84 @@ void main() {
         );
 
         expect(find.text('Hide'), findsOneWidget);
+      });
+
+      group('from the keyboard', () {
+        /// Whether the node holding the focus is [finder] or one of its ancestors.
+        bool focusIsAround(Finder finder) {
+          final BuildContext? focused = FocusManager.instance.primaryFocus?.context;
+
+          return focused != null &&
+              find
+                  .ancestor(
+                    of: finder,
+                    matching: find.byElementPredicate((Element element) => element == focused),
+                  )
+                  .evaluate()
+                  .isNotEmpty;
+        }
+
+        Future<FocusNode> pumpAfterStop(WidgetTester tester) async {
+          final FocusNode before = FocusNode();
+          addTearDown(before.dispose);
+
+          await tester.pumpWidget(
+            host(
+              afterFocusStop(
+                before,
+                const PlSpoiler(reversible: true, child: Text('He was the killer all along.')),
+              ),
+              width: 360,
+            ),
+          );
+
+          before.requestFocus();
+          await tester.pump();
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pump();
+
+          return before;
+        }
+
+        testWidgets('hands the focus to the content it uncovered', (WidgetTester tester) async {
+          final FocusNode before = await pumpAfterStop(tester);
+
+          expect(focusIsAround(find.text('Reveal')), isTrue);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+          await tester.pumpAndSettle();
+
+          // The pressed button is excluded from the focus by the build that
+          // acts on the press, and its scope would hand the focus back to
+          // whatever held it before — here the stop above the spoiler, so the
+          // next Tab would walk the reader back in from the outside.
+          expect(before.hasFocus, isFalse);
+          expect(focusIsAround(find.text('He was the killer all along.')), isTrue);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pump();
+
+          expect(focusIsAround(find.text('Hide')), isTrue);
+        });
+
+        testWidgets('hands the focus back to Reveal when it is covered again', (
+          WidgetTester tester,
+        ) async {
+          final FocusNode before = await pumpAfterStop(tester);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+          await tester.pumpAndSettle();
+          FocusManager.instance.primaryFocus!.nextFocus();
+          await tester.pump();
+
+          expect(focusIsAround(find.text('Hide')), isTrue);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+          await tester.pumpAndSettle();
+
+          expect(before.hasFocus, isFalse);
+          expect(focusIsAround(find.text('Reveal')), isTrue);
+        });
       });
 
       testWidgets('takes a control of its own in place of the button', (WidgetTester tester) async {

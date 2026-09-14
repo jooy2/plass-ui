@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { inertProps } from '../../internal/inert.js';
+import { focusablesIn } from '../../internal/focusable.js';
 import { PlButton } from '../button/PlButton.js';
 import {
   cx,
@@ -172,6 +173,9 @@ export const PlSpoiler = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSpoi
     const density = densityProp ?? defaults.density ?? 'default';
 
     const contentId = React.useId();
+    const contentRef = React.useRef<HTMLDivElement>(null);
+    const coverRef = React.useRef<HTMLDivElement>(null);
+    const hideRowRef = React.useRef<HTMLDivElement>(null);
 
     const [uncontrolled, setUncontrolled] = React.useState(defaultRevealed);
     const open = revealed ?? uncontrolled;
@@ -183,6 +187,40 @@ export const PlSpoiler = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSpoi
 
       onRevealedChange?.(next);
     };
+
+    /*
+     * The control that was pressed goes `inert` in the same commit that acts on
+     * the press, and a browser cannot keep the focus on something inert: it
+     * drops it to the top of the document, and the next Tab starts the page over.
+     * So the focus is handed on first, to where the reader was taken — into the
+     * content they asked to see, or back to the button that will uncover it
+     * again.
+     *
+     * A layout effect, because it has to run after `inert` is written and before
+     * the browser gets round to throwing the focus away. And only when the focus
+     * was on the side that has just gone: a spoiler revealed from somewhere
+     * else on the page leaves the focus where that was.
+     */
+    const wasOpen = React.useRef(open);
+
+    React.useLayoutEffect(() => {
+      if (wasOpen.current === open) {
+        return;
+      }
+
+      wasOpen.current = open;
+
+      const active = document.activeElement;
+      const gone = open ? [coverRef.current] : [hideRowRef.current, contentRef.current];
+
+      if (!active || !gone.some((node) => node?.contains(active))) {
+        return;
+      }
+
+      const next = open ? contentRef.current : focusablesIn(coverRef.current!)[0];
+
+      next?.focus({ preventScroll: true });
+    }, [open]);
 
     const insetX = sheetPaddingXClasses[density][size];
     const insetY = sheetPaddingYClasses[density][size];
@@ -222,9 +260,15 @@ export const PlSpoiler = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSpoi
         */}
         <div className="flex min-w-0 flex-col [grid-area:1/1]">
           <div
+            ref={contentRef}
             id={contentId}
+            // Reachable by script and never by Tab: it is where the focus is put
+            // on reveal, so a screen reader starts on what was uncovered, and a
+            // Tab from it goes on to the first link inside. A ring round a whole
+            // paragraph would mark a box nobody can operate.
+            tabIndex={-1}
             className={cx(
-              'min-w-0',
+              'min-w-0 outline-none',
               padded ? `${insetX} ${insetY}` : '',
               '[transition:filter_var(--plass-duration-slow)_var(--plass-ease)]',
               'motion-reduce:[transition-duration:0ms]',
@@ -250,6 +294,7 @@ export const PlSpoiler = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSpoi
 
           {reversible ? (
             <div
+              ref={hideRowRef}
               className={cx(
                 'flex justify-end',
                 insetX,
@@ -299,6 +344,7 @@ export const PlSpoiler = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSpoi
           Reveal button they cannot see.
         */}
         <div
+          ref={coverRef}
           className={cx(
             'z-10 flex flex-col items-center justify-center gap-2 text-center [grid-area:1/1]',
             insetX,

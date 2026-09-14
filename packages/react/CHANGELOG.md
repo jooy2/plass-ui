@@ -14,6 +14,8 @@
 
 ### Fixed
 
+- **Pressing Reveal or Hide on a `PlSpoiler`, or close on a `PlWindowPane`, from the keyboard no longer drops the focus to the top of the page.** The pressed button went `inert` while it still held the focus, so the browser moved the focus to the document body and the next Tab started the page over. Revealing now moves the focus to the uncovered content, and hiding moves it back to the Reveal button (or the first control of a custom `action`). Closing a window hands the focus back to the element it came in from, or, when that is gone, to the next focusable element after the window or the last one before it. The focus is left alone when it was elsewhere on the page.
+
 - **`PlAnimateCounter`, `PlAnimateScramble` and `PlAnimateTyping` play again on every hover.** With `trigger="hover"` they ran on the first hover only, because a later hover changed nothing their loops watched, while every keyframe effect restarted each time. Each hover now starts the count, the scramble or the typing over, as the Flutter build does.
 
 - **Restarting a `PlAnimate*` no longer replays another one nested inside it.** A restart rewound every animated element under its root, so an error message in a `PlAnimateFade` inside <code v-pre>&lt;PlAnimateShake replay={attempts}&gt;</code> faded in again on every shake. A restart now rewinds only the root and the parts that animation drew itself: its staggered children, the parts of a `PlAnimateSplit` and the tracks of a `PlAnimateMarquee`.

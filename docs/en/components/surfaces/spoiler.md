@@ -141,6 +141,7 @@ Turn the padding off for something that should reach the edges. A covered image 
 ## Accessibility
 
 - While it is covered the content is out of the focus order and off the accessibility tree. A spoiler somebody can tab into is not a spoiler.
+- The button that was pressed does not keep the focus it can no longer hold. Revealing moves the focus to the content, so the next Tab reaches the first thing inside it; hiding moves it back to the reveal button. When the focus was somewhere else on the page, it stays there.
 - `description` is read before the button, which is what tells somebody _why_ they are being asked. Turning it off leaves a cover that says nothing, worth doing only where the surrounding page already has.
 
 ::: fw react

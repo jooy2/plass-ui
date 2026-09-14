@@ -171,12 +171,85 @@ class _PlSpoilerState extends State<PlSpoiler> {
 
   bool get _open => widget.revealed ?? _uncontrolled;
 
+  /// Where the focus is put on reveal: the content itself, so a keyboard reader
+  /// lands on what they asked to see and the next Tab goes on to the first thing
+  /// inside it. Out of the traversal, because Tab should never stop on a
+  /// paragraph.
+  final FocusNode _contentFocus = FocusNode(debugLabel: 'PlSpoiler content', skipTraversal: true);
+
+  /// The cover and the Hide row, as nodes that cannot take the focus themselves
+  /// and only answer whether something inside them has it.
+  final FocusNode _coverFocus = FocusNode(
+    debugLabel: 'PlSpoiler cover',
+    canRequestFocus: false,
+    skipTraversal: true,
+  );
+  final FocusNode _hideFocus = FocusNode(
+    debugLabel: 'PlSpoiler hide',
+    canRequestFocus: false,
+    skipTraversal: true,
+  );
+
+  @override
+  void didUpdateWidget(PlSpoiler oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // A controlled spoiler flips here rather than in [_change], and so does one
+    // driven by a caller's own `action`.
+    if ((oldWidget.revealed ?? _uncontrolled) != _open) {
+      _handOffFocus(opening: _open);
+    }
+  }
+
+  @override
+  void dispose() {
+    _contentFocus.dispose();
+    _coverFocus.dispose();
+    _hideFocus.dispose();
+    super.dispose();
+  }
+
   void _change(bool next) {
     if (widget.revealed == null) {
+      _handOffFocus(opening: next);
       setState(() => _uncontrolled = next);
     }
 
     widget.onRevealedChanged?.call(next);
+  }
+
+  /// Moves the focus off the side that is about to be taken out of reach.
+  ///
+  /// The button that was pressed is put under an [ExcludeFocus] by the very
+  /// build that acts on the press, and a node that stops being focusable hands
+  /// the focus back to its scope — to whatever held it before, or to nothing —
+  /// so the next Tab starts somewhere the reader never was. It goes where the
+  /// reader was taken instead: into the content on the way in, and back to the
+  /// control that uncovers it on the way out.
+  ///
+  /// After the frame, because neither of those can take the focus until that
+  /// build has let go of them. And only when the focus was on the side that is
+  /// going: a spoiler flipped from elsewhere on the screen leaves it alone.
+  void _handOffFocus({required bool opening}) {
+    final bool held = opening
+        ? _coverFocus.hasFocus
+        : _hideFocus.hasFocus || _contentFocus.hasFocus;
+
+    if (!held) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      if (!mounted) {
+        return;
+      }
+
+      if (opening) {
+        _contentFocus.requestFocus();
+      } else {
+        _coverFocus.traversalDescendants.firstOrNull?.requestFocus();
+      }
+    });
   }
 
   @override
@@ -194,6 +267,8 @@ class _PlSpoilerState extends State<PlSpoiler> {
         child: content,
       );
     }
+
+    content = Focus(focusNode: _contentFocus, includeSemantics: false, child: content);
 
     if (!_open) {
       if (widget.maxHeight != null) {
@@ -233,7 +308,15 @@ class _PlSpoilerState extends State<PlSpoiler> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
-          children: <Widget>[content, if (widget.reversible) _hideRow(insetX, insetY)],
+          children: <Widget>[
+            content,
+            if (widget.reversible)
+              Focus(
+                focusNode: _hideFocus,
+                includeSemantics: false,
+                child: _hideRow(insetX, insetY),
+              ),
+          ],
         ),
         // The wash is positioned, so it takes no part in sizing the stack and can
         // come and go. The cover cannot: it is what makes the sheet tall enough
@@ -242,7 +325,11 @@ class _PlSpoilerState extends State<PlSpoiler> {
           Positioned.fill(
             child: ColoredBox(color: tokens.surface.withValues(alpha: tokens.surface.a * _scrim)),
           ),
-        _cover(tokens, insetX, insetY),
+        Focus(
+          focusNode: _coverFocus,
+          includeSemantics: false,
+          child: _cover(tokens, insetX, insetY),
+        ),
       ],
     );
 

@@ -16,6 +16,7 @@ import type { PlWindowControl, PlWindowOffset, PlWindowOs } from '../../internal
 import type { PlassColor, PlassElevation, PlassSize } from '../../types.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { inertProps } from '../../internal/inert.js';
+import { focusablesIn } from '../../internal/focusable.js';
 
 export type { PlWindowControl, PlWindowOffset, PlWindowOs } from '../../internal/window.js';
 
@@ -398,6 +399,83 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
       },
       [ref]
     );
+
+    /**
+     * Where the focus was before it came into the window.
+     *
+     * A window is not opened by anything the component can see — `open` is a
+     * prop, and what flips it is the caller's — so "the control that opened it"
+     * is not a thing it can ask for. Where the focus came in from is the closest
+     * it can know, and for the usual page it is the same element: the button
+     * that put the window there, or the thing a Tab left to get into it.
+     */
+    const originRef = React.useRef<HTMLElement | null>(null);
+    const mounted = open || leaving;
+
+    React.useEffect(() => {
+      const root = rootRef.current;
+      if (!mounted || !root) {
+        return;
+      }
+
+      const arrive = (event: FocusEvent) => {
+        const from = event.relatedTarget;
+
+        if (from instanceof Node && root.contains(from)) {
+          return;
+        }
+
+        originRef.current = from instanceof HTMLElement ? from : null;
+      };
+
+      root.addEventListener('focusin', arrive);
+
+      return () => root.removeEventListener('focusin', arrive);
+    }, [mounted]);
+
+    /*
+     * A closed window is `inert` for the length of its fade, which takes the
+     * focus off whatever was pressed to close it, and a browser that cannot keep
+     * a focus drops it to the top of the document. It is handed on before that:
+     * back to where it came in from when that is still on the page and still
+     * reachable, and otherwise to the next thing after the window — or the last
+     * one before it — so a keyboard reader carries on from where the window was
+     * rather than from the top.
+     *
+     * A layout effect, so it runs after `inert` is written and before the browser
+     * throws the focus away. And only when the focus was in the window: closing
+     * one from elsewhere on the page leaves the focus where that was.
+     */
+    React.useLayoutEffect(() => {
+      const root = rootRef.current;
+      const active = document.activeElement;
+
+      if (open || !root || !(active instanceof HTMLElement) || !root.contains(active)) {
+        return;
+      }
+
+      const origin = originRef.current;
+
+      if (origin?.isConnected && !root.contains(origin) && !origin.closest('[inert]')) {
+        origin.focus({ preventScroll: true });
+
+        if (document.activeElement === origin) {
+          return;
+        }
+      }
+
+      const around = focusablesIn(document).filter((element) => !root.contains(element));
+      const after = around.find(
+        (element) => root.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING
+      );
+      const next = after ?? around.at(-1);
+
+      if (next) {
+        next.focus({ preventScroll: true });
+      } else {
+        active.blur();
+      }
+    }, [open]);
 
     React.useEffect(() => {
       if (activeProp !== undefined) {

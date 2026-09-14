@@ -88,6 +88,45 @@ describe('PlWindowPane', () => {
       await expect.poll(() => screen.getByText('Body').query()).toBeNull();
     });
 
+    it('hands the focus back to where it came from when the window closes', async () => {
+      const screen = await render(
+        <>
+          <button type="button">Open notes</button>
+          <PlWindowPane title="Notes">Body</PlWindowPane>
+        </>
+      );
+
+      const opener = screen.getByRole('button', { name: 'Open notes' }).element() as HTMLElement;
+      const close = screen.getByRole('button', { name: 'Close' }).element() as HTMLElement;
+
+      // Focus arrives in the window from the button before it, as a Tab would
+      // bring it, and is pressed from there. A window on its way out is `inert`,
+      // and without somewhere to go the focus falls to the top of the document.
+      opener.focus();
+      close.focus();
+      close.click();
+
+      await expect.poll(() => document.activeElement).toBe(opener);
+    });
+
+    it('finds the next thing on the page when where it came from is gone', async () => {
+      const screen = await render(
+        <>
+          <PlWindowPane title="Notes">Body</PlWindowPane>
+          <button type="button">After</button>
+        </>
+      );
+
+      const close = screen.getByRole('button', { name: 'Close' }).element() as HTMLElement;
+      const after = screen.getByRole('button', { name: 'After' }).element() as HTMLElement;
+
+      // Focused straight onto the button, so there is no element it came from.
+      close.focus();
+      close.click();
+
+      await expect.poll(() => document.activeElement).toBe(after);
+    });
+
     it('rolls the window up to its bar rather than sending it anywhere', async () => {
       const screen = await render(
         <PlWindowPane title="Notes">

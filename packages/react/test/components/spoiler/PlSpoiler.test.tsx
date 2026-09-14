@@ -114,6 +114,58 @@ describe('PlSpoiler', () => {
       await expect.element(screen.getByRole('button', { name: 'Reveal' })).toBeInTheDocument();
     });
 
+    it('hands the focus to the content it uncovered, not to the page', async () => {
+      const screen = await render(
+        <PlSpoiler reversible>
+          <PlTextLink href="/twist">The twist</PlTextLink>
+        </PlSpoiler>
+      );
+
+      const reveal = screen.getByRole('button', { name: 'Reveal' }).element() as HTMLElement;
+      const body = screen.getByText('The twist').element().parentElement as HTMLElement;
+
+      // Pressed from the keyboard, the button goes `inert` while it holds the
+      // focus, and a browser sends a focus it cannot keep to the top of the
+      // document. The next Tab would start the page over.
+      reveal.focus();
+      reveal.click();
+
+      await expect.poll(() => document.activeElement).toBe(body);
+    });
+
+    it('hands the focus back to the Reveal button when it is covered again', async () => {
+      const screen = await render(
+        <PlSpoiler reversible defaultRevealed>
+          He was the killer all along.
+        </PlSpoiler>
+      );
+
+      const hide = screen.getByRole('button', { name: 'Hide' }).element() as HTMLElement;
+      const reveal = screen.getByRole('button', { name: 'Reveal' }).element() as HTMLElement;
+
+      hide.focus();
+      hide.click();
+
+      await expect.poll(() => document.activeElement).toBe(reveal);
+    });
+
+    it('leaves the focus alone when it was somewhere else', async () => {
+      const screen = await render(
+        <>
+          <button type="button">Elsewhere</button>
+          <PlSpoiler reversible>He was the killer all along.</PlSpoiler>
+        </>
+      );
+
+      const elsewhere = screen.getByRole('button', { name: 'Elsewhere' }).element() as HTMLElement;
+
+      elsewhere.focus();
+      (screen.getByRole('button', { name: 'Reveal' }).element() as HTMLElement).click();
+
+      await expect.element(screen.getByRole('button', { name: 'Hide' })).toBeVisible();
+      expect(document.activeElement).toBe(elsewhere);
+    });
+
     it('takes a control of its own in place of the button', async () => {
       const screen = await render(
         <PlSpoiler action={<PlButton variant="ghost">Show me</PlButton>}>
