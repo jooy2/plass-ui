@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlCommandPalette, type PlCommandItem } from 'plass-ui';
 
@@ -183,6 +184,39 @@ describe('PlCommandPalette', () => {
       (screen.getByRole('option', { name: 'Copy' }).element() as HTMLElement).click();
 
       expect(onOpenChange).toHaveBeenLastCalledWith(false);
+    });
+
+    it('runs the command the arrow keys lit, on Enter, and closes', async () => {
+      const onSelect = vi.fn();
+
+      const screen = await render(
+        <PlCommandPalette
+          shortcut={false}
+          defaultOpen
+          onSelect={onSelect}
+          items={[
+            { value: 'copy', label: 'Copy' },
+            { value: 'paste', label: 'Paste' }
+          ]}
+        />
+      );
+
+      // Focused through the DOM: nothing loads Tailwind into the test run, so the
+      // field has no box for Playwright to click. The keys are real ones.
+      (screen.getByRole('combobox').element() as HTMLElement).focus();
+      await userEvent.keyboard('{ArrowDown}');
+
+      // Whichever row the key lit is the one Enter has to run.
+      await expect
+        .poll(() => document.querySelector('[role="option"][data-highlighted]'))
+        .not.toBeNull();
+      const lit = document.querySelector('[role="option"][data-highlighted]')?.textContent;
+
+      await userEvent.keyboard('{Enter}');
+
+      expect(onSelect).toHaveBeenCalledTimes(1);
+      expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ label: lit }));
+      await expect.poll(() => screen.getByRole('dialog').query()).toBeNull();
     });
 
     it('opens again with an empty field, whatever closed it', async () => {
