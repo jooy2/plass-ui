@@ -335,13 +335,21 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
       return built;
     }
 
-    return FocusableActionDetector(
+    return MouseRegion(
+      onEnter: (_) => _onPointer(true),
+      onExit: (_) => _onPointer(false),
       // Focus counts, or an effect on something keyboard-reachable would never
-      // run for a reader who is not holding a mouse.
-      onShowHoverHighlight: _onPointer,
-      onShowFocusHighlight: _onPointer,
-      descendantsAreFocusable: true,
-      child: built,
+      // run for a reader who is not holding a mouse. It is the focus of what is
+      // inside that counts, as a focus event bubbling up does in the React
+      // build: this node takes none itself, so a hover effect on a picture is
+      // not a stop in the tab order with nothing for a screen reader to say.
+      child: Focus(
+        canRequestFocus: false,
+        skipTraversal: true,
+        includeSemantics: false,
+        onFocusChange: _onPointer,
+        child: built,
+      ),
     );
   }
 

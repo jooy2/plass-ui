@@ -202,7 +202,7 @@ const PlAnimateFade(
 - 플랫폼에서 애니메이션이 꺼져 있으면(`MediaQuery.disableAnimations`) 효과가 통째로 없어지고 내용은 그냥 거기 있습니다. 로딩 인디케이터와 정반대이고, 그 차이는 각자가 무슨 말을 하고 있는지에서 옵니다. 멈춘 spinner는 무언가 진행 중인지에 대해 거짓말을 하지만, 재생되지 않은 등장은 담고 있던 것을 이미 다 전달했습니다.
 - widget은 자기 semantics를 붙이지 않습니다. 이미 자기가 무엇인지 알리는 내용을 감싼 `Opacity`일 뿐입니다.
 - 여기 있는 어떤 것도 내용을 숨기는 방법이 아닙니다. `PlassAnimateMode.exit`인 widget도 트리에 그대로 있고 semantics에도 그대로 있습니다. 없어져야 한다면 빼세요.
-- `PlassAnimateTrigger.hover`는 focus에서도 시작하므로, 키보드로 닿을 수 있는 것 위의 효과는 마우스를 쥐고 있지 않은 사람에게도 돕니다.
+- `PlassAnimateTrigger.hover`는 안에 있는 것이 focus를 받을 때도 시작하므로, 키보드로 닿을 수 있는 것 위의 효과는 마우스를 쥐고 있지 않은 사람에게도 돕니다. widget 자체는 focus를 받지 않으므로, 그림에 건 hover 효과가 tab 순서에 멈출 곳을 더하지 않고 semantics 트리에 노드를 더하지도 않습니다.
 
 :::
 
