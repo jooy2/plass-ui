@@ -22,7 +22,7 @@ const seen = usePlOnScreen(section, { rootMargin: '200px' });
 
 ::: fw flutter
 
-Hooks are React-only, and the Flutter half of this lives inside the widgets that need it: every `PlAnimate*` takes `trigger: PlassAnimateTrigger.visible` and does its own watching against the nearest `Scrollable`.
+Hooks are React-only, and the Flutter half of this lives inside the widgets that need it: every `PlAnimate*` takes `trigger: PlassAnimateTrigger.visible` and does its own watching against every `Scrollable` above it and the screen.
 
 :::
 

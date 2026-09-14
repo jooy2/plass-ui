@@ -216,7 +216,7 @@ const PlAnimateFade(
 | `easing`이 CSS 문자열 | `curve`, `Curve` | 같은 것에 대한 Dart 자신의 이름입니다. |
 | `repeat: number \| 'infinite'` | `int?`, `null`이 멈추지 않음 | 적을 `'infinite'`가 없고, `-1`은 caller가 찾아봐야 하는 sentinel입니다. `PlProgressLinear`가 null `value`로 하는 것과 같은 거래입니다. |
 | `mode="in" \| "out"` | `PlassAnimateMode.enter` / `.exit` | `in`은 Dart의 예약어라 enum 값이 될 수 없습니다. |
-| `trigger="visible"`이 `IntersectionObserver` | 가장 가까운 `Scrollable`을 봅니다 | 여기에는 observer가 없습니다. 위에 scrollable이 없으면 볼 것이 없으므로 그냥 돕니다. 브라우저에 observer가 없을 때 React 빌드가 하는 것과 같습니다. |
+| `trigger="visible"`이 `IntersectionObserver` | 위에 있는 모든 `Scrollable`을 봅니다 | 여기에는 observer가 없으므로, 그 모든 viewport 안과 화면 안에 들어와야 보이는 것으로 칩니다. 위에 scrollable이 없으면 볼 것이 없으므로 그냥 돕니다. 브라우저에 observer가 없을 때 React 빌드가 하는 것과 같습니다. |
 | `prefers-reduced-motion` | `MediaQuery.disableAnimations` | 플랫폼 자신의 신호입니다. |
 | `render` | — | Flutter에는 다형적 요소가 없습니다. |
 | `stagger`, `durationStep`, `reverse` | — | React 빌드는 효과를 자식들 자신에게 써 넣으므로 호출자의 레이아웃은 그대로입니다. Flutter에는 집합을 배치할 스타일시트가 없어서, 차등을 준 효과는 행이나 열까지 자기가 가져야 합니다. 그것이 바로 [`PlAnimateAppear`](./animate-appear)이고, 그것을 여섯 개 더 만드는 일이 됩니다. |

@@ -216,7 +216,7 @@ A staggered set is [`PlAnimateAppear`](./animate-appear). The React build can wr
 | `easing` as a CSS string | `curve`, a `Curve` | Dart's own name for the same thing. |
 | `repeat: number \| 'infinite'` | `int?`, `null` never stops | There is no `'infinite'` to write, and `-1` would be a sentinel a caller has to look up. The same trade `PlProgressLinear` makes with a null `value`. |
 | `mode="in" \| "out"` | `PlassAnimateMode.enter` / `.exit` | `in` is a reserved word in Dart and cannot be an enum value. |
-| `trigger="visible"` via `IntersectionObserver` | watches the nearest `Scrollable` | There is no observer here. With no scrollable above it there is nothing to watch, so it runs. Exactly as the React build does when the browser has none. |
+| `trigger="visible"` via `IntersectionObserver` | watches every `Scrollable` above it | There is no observer here, so it counts as visible only once it is inside the viewport of every one of them and on the screen. With no scrollable above it there is nothing to watch, so it runs. Exactly as the React build does when the browser has none. |
 | `prefers-reduced-motion` | `MediaQuery.disableAnimations` | The platform's own signal. |
 | `render` | — | Flutter has no polymorphic element. |
 | `stagger`, `durationStep`, `reverse` | — | The React build writes the effect onto the children themselves, so the caller's own layout is untouched. Flutter has no stylesheet to lay a set out with, so a staggered effect would have to own the row or the column as well, which is what [`PlAnimateAppear`](./animate-appear) is, and six more of it would be six more of it. |

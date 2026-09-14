@@ -135,7 +135,7 @@ It counts **children**, not leaves: eight children are eight steps, and one chil
 | `duration`, `delay` in milliseconds | `Duration` | The framework already has the type. |
 | `easing` as a CSS string | `curve`, a `Curve` | Dart's own name for the same thing. |
 | `repeat: number \| 'infinite'` | `int?`, `null` never stops | There is no `'infinite'` to write, and `-1` would be a sentinel a caller has to look up. |
-| `trigger="visible"` via `IntersectionObserver` | watches the nearest `Scrollable` | There is no observer here; with no scrollable above it there is nothing to watch, so it runs. |
+| `trigger="visible"` via `IntersectionObserver` | watches every `Scrollable` above it | There is no observer here, so it counts as visible only once it is inside the viewport of every one of them and on the screen. With no scrollable above it there is nothing to watch, so it runs. |
 | `prefers-reduced-motion` | `MediaQuery.disableAnimations` | The platform's own signal. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 

@@ -32,10 +32,12 @@
 /// `'infinite'` to write, and `-1` would be a sentinel a caller has to look up.
 /// This is the same trade `PlProgressLinear` already makes with a null `value`.
 ///
-/// **`trigger: visible` watches the nearest scrollable** rather than an
-/// `IntersectionObserver`. If there is no scrollable above the widget there is
-/// nothing to watch — so it runs, exactly as the React build does when the
-/// browser has no observer: showing the content beats hiding it forever.
+/// **`trigger: visible` watches every scrollable above the widget** rather than
+/// an `IntersectionObserver`, and counts it as visible only inside all of their
+/// viewports and the screen, which is what the observer measures against. If
+/// there is no scrollable above the widget there is nothing to watch — so it
+/// runs, exactly as the React build does when the browser has no observer:
+/// showing the content beats hiding it forever.
 ///
 /// None of this is exported from `plass_ui.dart`.
 library;
@@ -162,7 +164,9 @@ class PlassAnimateGate extends StatefulWidget {
 /// restart can ask for one.
 class PlassAnimateGateState extends State<PlassAnimateGate> {
   bool _started = false;
-  ScrollPosition? _watching;
+
+  /// The position of every scrollable above it, while `visible` is waiting.
+  final List<ScrollPosition> _watching = <ScrollPosition>[];
 
   /// How many times it has been let go. Anything rebuilding on a restart —
   /// a typewriter, a reel — reads this rather than trying to diff `started`.
@@ -219,6 +223,18 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // The scrollables above can change while it waits: the widget is moved
+    // under others, or the nearest one takes a new position. Every listener is
+    // taken off, and the ones above it now are put on.
+    if (_watching.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _watchScroll());
+    }
+  }
+
+  @override
   void dispose() {
     _unwatchScroll();
     super.dispose();
@@ -255,11 +271,14 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
    * ---------------------------------------------------------------------- */
 
   void _watchScroll() {
-    if (!mounted) {
+    // Called after a frame, by which time the trigger may have changed.
+    if (!mounted || widget.settings.trigger != PlassAnimateTrigger.visible) {
       return;
     }
 
-    final ScrollableState? scrollable = Scrollable.maybeOf(context);
+    _unwatchScroll();
+
+    ScrollableState? scrollable = Scrollable.maybeOf(context);
 
     if (scrollable == null) {
       // Nothing to watch means no way to know: show it rather than hide it
@@ -270,13 +289,27 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
       return;
     }
 
-    _watching = scrollable.position..addListener(_checkVisible);
+    // Every scrollable above it, not only the nearest. A counter in a row that
+    // scrolls sideways is in view along the row long before the page brings the
+    // row up, and the React build's observer measures against the whole window.
+    //
+    // The ones further up are found without `Scrollable.maybeOf`, which would
+    // make each of them depend on the one above it, and a scrollable builds a
+    // new position whenever a dependency changes.
+    while (scrollable != null) {
+      _watching.add(scrollable.position..addListener(_checkVisible));
+      scrollable = scrollable.context.findAncestorStateOfType<ScrollableState>();
+    }
+
     _checkVisible();
   }
 
   void _unwatchScroll() {
-    _watching?.removeListener(_checkVisible);
-    _watching = null;
+    for (final ScrollPosition position in _watching) {
+      position.removeListener(_checkVisible);
+    }
+
+    _watching.clear();
   }
 
   void _checkVisible() {
@@ -290,7 +323,7 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
       return;
     }
 
-    final RenderAbstractViewport? viewport = RenderAbstractViewport.maybeOf(object);
+    RenderAbstractViewport? viewport = RenderAbstractViewport.maybeOf(object);
 
     if (viewport == null) {
       _set(true);
@@ -298,12 +331,23 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
       return;
     }
 
+    // Measured in the coordinates of the root, so the widget can be cut down by
+    // the screen and then by each viewport it sits in, one after another.
     final Rect own = MatrixUtils.transformRect(
-      object.getTransformTo(viewport),
+      object.getTransformTo(null),
       Offset.zero & object.size,
     );
-    final Rect overlap = own.intersect(viewport.paintBounds);
-    final double area = object.size.width * object.size.height;
+    final RenderObject? root = object.owner?.rootNode;
+    Rect overlap = root is RenderView ? own.intersect(Offset.zero & root.size) : own;
+
+    while (viewport != null) {
+      overlap = overlap.intersect(
+        MatrixUtils.transformRect(viewport.getTransformTo(null), viewport.paintBounds),
+      );
+      viewport = RenderAbstractViewport.maybeOf(viewport.parent);
+    }
+
+    final double area = own.width * own.height;
     final double shown = area <= 0
         ? 0
         : (overlap.width.clamp(0, double.infinity) * overlap.height.clamp(0, double.infinity)) /

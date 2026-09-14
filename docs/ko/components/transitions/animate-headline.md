@@ -137,7 +137,7 @@ const PlAnimateHeadline(
 | `duration`, `delay`가 밀리초 | `Duration` | 프레임워크에 이미 타입이 있습니다. |
 | `easing`이 CSS 문자열 | `curve`, `Curve` | 같은 것에 대한 Dart 자신의 이름입니다. |
 | `repeat: number \| 'infinite'` | `int?`, `null`이 멈추지 않음 | 적을 `'infinite'`가 없고, `-1`은 caller가 찾아봐야 하는 sentinel입니다. |
-| `trigger="visible"`이 `IntersectionObserver` | 가장 가까운 `Scrollable`을 봅니다 | 여기에는 observer가 없습니다. 위에 scrollable이 없으면 볼 것이 없으므로 그냥 돕니다. |
+| `trigger="visible"`이 `IntersectionObserver` | 위에 있는 모든 `Scrollable`을 봅니다 | 여기에는 observer가 없으므로, 그 모든 viewport 안과 화면 안에 들어와야 보이는 것으로 칩니다. 위에 scrollable이 없으면 볼 것이 없으므로 그냥 돕니다. |
 | `prefers-reduced-motion` | `MediaQuery.disableAnimations` | 플랫폼 자신의 신호입니다. |
 | `className`, `style` | — | 통과시킬 class 목록도 style 속성도 없습니다. |
 

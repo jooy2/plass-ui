@@ -22,7 +22,7 @@ const seen = usePlOnScreen(section, { rootMargin: '200px' });
 
 ::: fw flutter
 
-훅은 React 전용이고, 이것의 Flutter 쪽은 필요한 위젯 안에 들어 있습니다. 모든 `PlAnimate*`가 `trigger: PlassAnimateTrigger.visible`을 받고 가장 가까운 `Scrollable`을 상대로 스스로 지켜봅니다.
+훅은 React 전용이고, 이것의 Flutter 쪽은 필요한 위젯 안에 들어 있습니다. 모든 `PlAnimate*`가 `trigger: PlassAnimateTrigger.visible`을 받고 위에 있는 모든 `Scrollable`과 화면을 상대로 스스로 지켜봅니다.
 
 :::
 

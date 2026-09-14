@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **`PlassAnimateTrigger.visible` waits until the widget is on screen, not only inside the nearest scrollable.** It watched the nearest `Scrollable` alone, so a `PlAnimateCounter` in a row that scrolls sideways near the bottom of a long page counted as visible along the row and started on the first frame, while it was still below the screen. It now watches every scrollable above the widget and starts once enough of it is inside all of their viewports and on the screen, which is what the React build's `IntersectionObserver` measures. A widget moved under other scrollables follows the new ones.
+
 - **`PlAnimateHeadline` keeps turning inside a parent that rebuilds often.** Every rebuild of the parent restarted the timer, so inside a parent that rebuilt every second the 2600ms interval was reset before it ever fired and the line never changed. The timer now restarts only when the line, the count, `index`, `loop`, `interval`, `delay` or the running state changes.
 
 - **A hover effect on content that takes no focus adds no stop to the tab order.** `PlassAnimateTrigger.hover` wrapped the child in a `FocusableActionDetector`, which takes the focus by default, so Tab stopped on every `PlAnimate*` with a hover trigger, and a screen reader found a focusable node with no name, such as one around a picture. Its callbacks also only fired while focus highlights were in keyboard mode, so on a touch device focus moved in by a tap did not start the effect. The effect now starts from a `MouseRegion` and from the focus landing on something inside it, as in the React build, and the widget takes no focus and adds nothing to the semantics tree.

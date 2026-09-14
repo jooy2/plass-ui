@@ -504,9 +504,10 @@ typedef PlassElevation = int;
 ///
 /// - [mount] — as soon as it is on screen. The default, and the only one that
 ///   needs nothing from the caller.
-/// - [visible] — when it is scrolled into view inside the nearest scrollable.
-///   Once, unless `once` is off. With no scrollable above it there is nothing to
-///   watch, so it runs immediately rather than waiting forever.
+/// - [visible] — when it is scrolled into view inside every scrollable above
+///   it, and on the screen. Once, unless `once` is off. With no scrollable
+///   above it there is nothing to watch, so it runs immediately rather than
+///   waiting forever.
 /// - [hover] — while the pointer is on it, starting again on each entry. Focus
 ///   counts, or the effect would be unreachable without a mouse.
 /// - [manual] — never on its own. `play` is what runs it.

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/animate.dart';
 
 import '../support/host.dart';
 
@@ -14,6 +15,57 @@ double opacityOf(WidgetTester tester) {
         find.descendant(of: find.byType(PlAnimateFade), matching: find.byType(Opacity)),
       )
       .opacity;
+}
+
+/// Whether the gate under the fade has let it go.
+bool startedOf(WidgetTester tester) {
+  return tester.state<PlassAnimateGateState>(find.byType(PlassAnimateGate)).started;
+}
+
+/// A page that scrolls down, 400 tall, with a row that scrolls sideways at its
+/// far end and a fade [along] pixels into that row.
+///
+/// The row is 1000 pixels down, so the page has to scroll 700 to bring all of
+/// it up. The row shows 300 pixels of itself.
+Widget pageWithRow({
+  required ScrollController page,
+  ScrollController? row,
+  double along = 0,
+  bool once = true,
+}) {
+  final Widget fade = PlAnimateFade(
+    trigger: PlassAnimateTrigger.visible,
+    once: once,
+    duration: const Duration(milliseconds: 200),
+    child: const SizedBox.square(dimension: 100),
+  );
+
+  return host(
+    SingleChildScrollView(
+      controller: page,
+      child: Column(
+        children: <Widget>[
+          const SizedBox(height: 1000),
+          SizedBox(
+            height: 100,
+            child: SingleChildScrollView(
+              controller: row,
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: <Widget>[
+                  SizedBox(width: along),
+                  fade,
+                  const SizedBox(width: 600),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+    width: 300,
+    height: 400,
+  );
 }
 
 void main() {
@@ -120,6 +172,123 @@ void main() {
       expect(opacityOf(tester), 0);
 
       await mouse.moveTo(tester.getCenter(find.byType(PlAnimateFade)));
+      await tester.pumpAndSettle();
+
+      expect(opacityOf(tester), 1);
+    });
+  });
+
+  group('the visible trigger', () {
+    testWidgets('waits for the page to bring up a row that already shows it', (
+      WidgetTester tester,
+    ) async {
+      final ScrollController page = ScrollController();
+
+      addTearDown(page.dispose);
+
+      await tester.pumpWidget(pageWithRow(page: page));
+      await tester.pump();
+
+      // In view along the row, and still 600 pixels below the bottom of the
+      // page. A counter here would already be counting where nobody can see it.
+      //
+      // Asked of the gate rather than read off the opacity: a run let go at the
+      // end of this frame has not drawn anything yet.
+      expect(startedOf(tester), isFalse);
+
+      page.jumpTo(700);
+      await tester.pumpAndSettle();
+
+      expect(opacityOf(tester), 1);
+    });
+
+    testWidgets('waits for the row as well, once the page has brought it up', (
+      WidgetTester tester,
+    ) async {
+      final ScrollController page = ScrollController();
+      final ScrollController row = ScrollController();
+
+      addTearDown(page.dispose);
+      addTearDown(row.dispose);
+
+      await tester.pumpWidget(pageWithRow(page: page, row: row, along: 400));
+
+      page.jumpTo(700);
+      await tester.pump();
+
+      expect(startedOf(tester), isFalse);
+
+      row.jumpTo(300);
+      await tester.pumpAndSettle();
+
+      expect(opacityOf(tester), 1);
+    });
+
+    testWidgets('lets go again when the page takes it out of view, with once off', (
+      WidgetTester tester,
+    ) async {
+      final ScrollController page = ScrollController();
+
+      addTearDown(page.dispose);
+
+      await tester.pumpWidget(pageWithRow(page: page, once: false));
+
+      page.jumpTo(700);
+      await tester.pump();
+
+      expect(startedOf(tester), isTrue);
+
+      page.jumpTo(0);
+      await tester.pump();
+
+      expect(startedOf(tester), isFalse);
+    });
+
+    testWidgets('follows the scrollables above it when it is moved under others', (
+      WidgetTester tester,
+    ) async {
+      final GlobalKey key = GlobalKey();
+      final ScrollController first = ScrollController();
+      final ScrollController second = ScrollController();
+
+      addTearDown(first.dispose);
+      addTearDown(second.dispose);
+
+      Widget pages({required bool moved}) {
+        final Widget fade = PlAnimateFade(
+          key: key,
+          trigger: PlassAnimateTrigger.visible,
+          duration: const Duration(milliseconds: 200),
+          child: const SizedBox.square(dimension: 100),
+        );
+        const Widget gap = SizedBox.square(dimension: 100);
+
+        Widget page(ScrollController controller, Widget end) {
+          return SizedBox(
+            width: 150,
+            height: 400,
+            child: SingleChildScrollView(
+              controller: controller,
+              child: Column(children: <Widget>[const SizedBox(height: 1000), end]),
+            ),
+          );
+        }
+
+        return host(
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[page(first, moved ? gap : fade), page(second, moved ? fade : gap)],
+          ),
+        );
+      }
+
+      await tester.pumpWidget(pages(moved: false));
+      await tester.pumpWidget(pages(moved: true));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(opacityOf(tester), 0);
+
+      second.jumpTo(700);
       await tester.pumpAndSettle();
 
       expect(opacityOf(tester), 1);
