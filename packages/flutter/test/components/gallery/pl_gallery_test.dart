@@ -48,6 +48,9 @@ Future<void> _pump(WidgetTester tester, Widget child, {double width = 600}) asyn
   await _settle(tester);
 }
 
+/// A pack's way of saying where a picture sits, for a theme to hand the gallery.
+String _whereInKorean(int index, int total) => '$total장 중 $index번째';
+
 /// The pictures the gallery drew, by the words on them.
 List<String> _pictures(WidgetTester tester) {
   return tester
@@ -232,6 +235,25 @@ void main() {
         );
 
         expect(find.bySemanticsLabel('A harbour — 1번째 / 전체 4'), findsOneWidget);
+      });
+
+      testWidgets('says where a tile is in the words of the label pack', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlassTheme.merge(
+            defaults: const PlassDefaults(labels: PlassLabels(galleryItem: _whereInKorean)),
+            child: PlGallery(items: items, preview: true),
+          ),
+        );
+
+        // The tile's name and the viewer's counter used to be an English
+        // template inside the widget, whatever pack the screen was reading.
+        await tester.tap(find.bySemanticsLabel('A bridge — 4장 중 2번째'));
+        await _settle(tester);
+
+        expect(find.text('4장 중 2번째'), findsOneWidget);
       });
     });
 

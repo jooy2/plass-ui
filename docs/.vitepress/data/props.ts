@@ -13176,10 +13176,10 @@ export const propTables: Record<string, PropRow[]> = {
     {
       name: 'itemLabel',
       type: '(index: number, total: number) => string',
-      default: '(i, n) => `${i} of ${n}`',
+      default: '`{index} of {total}`',
       description: {
-        ko: '타일과 viewer의 카운터가 세트 안의 위치를 말하는 방식',
-        en: 'How a tile and the viewer counter say where in the set they are'
+        ko: '타일과 viewer의 카운터가 세트 안의 위치를 말하는 방식. 주지 않으면 라벨 묶음의 `galleryItem`입니다',
+        en: "How a tile and the viewer counter say where in the set they are. Left out, it is the label pack's `galleryItem`"
       }
     },
     {

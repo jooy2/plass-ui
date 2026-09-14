@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **`PlGallery` says where a picture sits in the language of the label pack.** A tile's name and the viewer's counter were built from an English template inside the component, so a Korean page read `A harbour — 2 of 4` inside a list named `갤러리`. They now come from the new `galleryItem` label key, translated in all seven packs in each language's own word order, and `itemLabel` still wins.
+
 - **Pressing a `PlPagination` page or stepper keeps the focus on it.** With `getPageHref`, the page that became current turned from a link into a button, a new element, and the focus fell to the top of the page; on the last page, Next became `disabled` and dropped the focus the same way, with or without `getPageHref`. The current page now stays a link marked `aria-current`, and a stepper at the end of the row stays in the tab order, announced as unavailable: an `<a>` with no address and `aria-disabled` in a link row, a button with `aria-disabled` otherwise. A `disabled` row still takes every control out of the tab order.
 
 - **Each `PlCarousel` dot is a 24px press target.** A dot was a button the size of the dot it drew, 4 to 8 pixels across, which falls short of WCAG 2.5.8 and made jumping to a slide on a phone hard, above all with `arrows={false}`. The button is now 24px on each side with the dot drawn in its middle, and the targets sit side by side, so the dots are spaced further apart.

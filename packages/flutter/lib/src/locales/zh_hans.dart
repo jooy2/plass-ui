@@ -96,6 +96,7 @@ const PlassLabels zhHans = PlassLabels(
   ratingValue: _ratingValue,
   ratingNone: '未评分',
   carouselSlide: _carouselSlide,
+  galleryItem: _galleryItem,
   removeItem: _removeItem,
   addCustom: _addCustom,
   howToStep: _howToStep,
@@ -107,6 +108,8 @@ String _paginationPage(int page) => '第$page页';
 String _ratingValue(num value, int count) => '$value分，满分$count分';
 
 String _carouselSlide(int index, int count) => '第$index张，共$count张';
+
+String _galleryItem(int index, int total) => '第$index张，共$total张';
 
 String _removeItem(String name) => '移除$name';
 

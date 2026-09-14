@@ -196,7 +196,7 @@ export interface PlGalleryProps extends Omit<
   label?: string;
   /**
    * How a tile and the viewer's counter say where in the set they are.
-   * @default (index, total) => `${index} of ${total}`
+   * @default `{index} of {total}`, from the label pack
    */
   itemLabel?: (index: number, total: number) => string;
   /** What is drawn when `items` is empty. Nothing at all by default. */
@@ -319,7 +319,7 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
 
     const labels = useLabels();
     const name = label ?? labels.gallery;
-    const where = itemLabel ?? ((index: number, total: number) => `${index} of ${total}`);
+    const where = itemLabel ?? labels.galleryItem;
 
     const [openAt, setOpenAt] = React.useState<number | null>(null);
 

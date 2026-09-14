@@ -212,6 +212,9 @@ export interface PlassLabels {
   ratingNone: string;
   /** One slide's name, which is also its dot's. */
   carouselSlide: (index: number, count: number) => string;
+  /** Where a picture sits in a gallery: said after a tile's own words, and
+   * drawn as the viewer's counter. */
+  galleryItem: (index: number, total: number) => string;
   /** A remove button named after what it takes away: a file, a chip. */
   removeItem: (name: string) => string;
   /** The row that offers what was typed as a value of its own. */
@@ -325,6 +328,7 @@ export const defaultLabels: PlassLabels = {
   ratingValue: (value, count) => `${value} out of ${count}`,
   ratingNone: 'No rating',
   carouselSlide: (index, count) => `Slide ${index} of ${count}`,
+  galleryItem: (index, total) => `${index} of ${total}`,
   removeItem: (name) => `Remove ${name}`,
   addCustom: (query) => `Add “${query}”`,
   otpSlot: (index, count) => `Character ${index} of ${count}`,

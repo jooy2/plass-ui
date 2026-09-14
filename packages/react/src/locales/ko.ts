@@ -97,6 +97,7 @@ export const ko: PlassLabels = {
   ratingValue: (value, count) => `${count}점 만점에 ${value}점`,
   ratingNone: '별점 없음',
   carouselSlide: (index, count) => `${count}개 중 ${index}번째 슬라이드`,
+  galleryItem: (index, total) => `${total}장 중 ${index}번째`,
   removeItem: (name) => `${name} 삭제`,
   addCustom: (query) => `“${query}” 추가`,
   otpSlot: (index, count) => `${count}자리 중 ${index}번째`,

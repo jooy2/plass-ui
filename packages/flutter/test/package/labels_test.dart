@@ -118,6 +118,7 @@ List<String> words(PlassLabels labels) => <String>[
   labels.ratingValue(3, 5),
   labels.ratingNone,
   labels.carouselSlide(1, 3),
+  labels.galleryItem(2, 4),
   labels.removeItem('notes.txt'),
   labels.addCustom('Seoul'),
   labels.howToStep(2, 5),

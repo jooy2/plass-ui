@@ -97,6 +97,7 @@ export const zhHans: PlassLabels = {
   ratingValue: (value, count) => `${value}分，满分${count}分`,
   ratingNone: '未评分',
   carouselSlide: (index, count) => `第${index}张，共${count}张`,
+  galleryItem: (index, total) => `第${index}张，共${total}张`,
   removeItem: (name) => `移除${name}`,
   addCustom: (query) => `添加“${query}”`,
   otpSlot: (index, count) => `第${index}位，共${count}位`,

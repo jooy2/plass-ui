@@ -258,6 +258,9 @@ class PlGallery extends StatefulWidget {
   final String? semanticLabel;
 
   /// How a tile and the viewer's counter say where in the set they are.
+  ///
+  /// Left out, it is the theme's [PlassLabels.galleryItem], `2 of 4` in
+  /// English.
   final String Function(int index, int total)? itemLabel;
 
   /// What is drawn when [items] is empty. Nothing at all by default.
@@ -279,7 +282,9 @@ class _PlGalleryState extends State<PlGallery> {
   PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
   PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
 
-  String _where(int index, int total) => widget.itemLabel?.call(index, total) ?? '$index of $total';
+  String _where(int index, int total) =>
+      widget.itemLabel?.call(index, total) ??
+      PlassTheme.labelsOf(context).galleryItem(index, total);
 
   /// The proportion an item is shown at: its own, or the gallery's where it
   /// has none, turned for a picture on its side.

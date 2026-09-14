@@ -31,13 +31,13 @@ order: 3
 
 `locale`은 `Intl`이 형식을 맞추는 BCP 47 태그입니다. 날짜가 `9/4/2026`이 아니라 `2026. 9. 4.`로 읽히는지, 7월을 뭐라고 부르는지, 천 단위 구분이 어디에 들어가는지를 정합니다. 전부 플랫폼의 몫이라 라이브러리는 달 이름을 하나도 싣지 않습니다.
 
-`labels`는 `Intl`이 아무 의견도 갖지 않는 아흔여섯 개의 항목입니다. "닫기"는 날짜도 숫자도 아니고, 플랫폼의 어느 부분도 그 말을 모릅니다.
+`labels`는 `Intl`이 아무 의견도 갖지 않는 아흔일곱 개의 항목입니다. "닫기"는 날짜도 숫자도 아니고, 플랫폼의 어느 부분도 그 말을 모릅니다.
 
 :::
 
 ::: fw flutter
 
-`labels`는 위젯이 스스로에 대해 말하는 아흔다섯 개의 항목입니다. 그중 셋은 React 쪽에 없습니다. `sortedAscending`과 `sortedDescending`은 `aria-sort`가 나르는 뜻을 여기서는 말로 해야 해서 있고, 자세한 이유는 [`PlDataTable`](../components/display/data-table) 페이지에 있습니다. `howToStep`은 진짜 `<ol>`이면 스크린 리더가 몇 번째 단계인지 알려 주는데 Flutter에는 물려받을 순서 목록이 없어서 있습니다. 반대로 React 쪽의 넷은 여기에 없습니다. `notifications`는 브라우저가 토스트를 안내하는 영역의 이름인데, Flutter 화면에는 그런 영역이 없습니다. `paginationStatus`는 페이저의 live region이 하는 말인데, Flutter 페이저에는 live region이 없습니다. `slide`는 슬라이드의 `aria-roledescription`이고, Flutter의 semantics에는 이것을 담을 자리가 없습니다. `otpSlot`은 코드 입력 칸 하나의 이름인데, Flutter 필드는 칸이 따로 없는 시맨틱 노드 하나입니다. 프레임워크에 `Intl`이 없으니 날짜는 별도 객체입니다. `PlDateNames`가 달 이름과 요일 약자를 들고 있고, 지정하는 방법은 같습니다. [기본값 정하기](defaults)를 보세요.
+`labels`는 위젯이 스스로에 대해 말하는 아흔여섯 개의 항목입니다. 그중 셋은 React 쪽에 없습니다. `sortedAscending`과 `sortedDescending`은 `aria-sort`가 나르는 뜻을 여기서는 말로 해야 해서 있고, 자세한 이유는 [`PlDataTable`](../components/display/data-table) 페이지에 있습니다. `howToStep`은 진짜 `<ol>`이면 스크린 리더가 몇 번째 단계인지 알려 주는데 Flutter에는 물려받을 순서 목록이 없어서 있습니다. 반대로 React 쪽의 넷은 여기에 없습니다. `notifications`는 브라우저가 토스트를 안내하는 영역의 이름인데, Flutter 화면에는 그런 영역이 없습니다. `paginationStatus`는 페이저의 live region이 하는 말인데, Flutter 페이저에는 live region이 없습니다. `slide`는 슬라이드의 `aria-roledescription`이고, Flutter의 semantics에는 이것을 담을 자리가 없습니다. `otpSlot`은 코드 입력 칸 하나의 이름인데, Flutter 필드는 칸이 따로 없는 시맨틱 노드 하나입니다. 프레임워크에 `Intl`이 없으니 날짜는 별도 객체입니다. `PlDateNames`가 달 이름과 요일 약자를 들고 있고, 지정하는 방법은 같습니다. [기본값 정하기](defaults)를 보세요.
 
 :::
 
@@ -186,7 +186,7 @@ final PlassLabels labels = PlassTheme.labelsOf(context);
 
 ## 값이 들어가는 문장
 
-일곱 항목에는 숫자나 이름이 들어갑니다. 페이지 버튼의 `paginationPage`, 별 하나의 `ratingValue`, 슬라이드의 `carouselSlide`, 지우기 버튼의 `removeItem`, 입력한 값을 새 값으로 내미는 행의 `addCustom`, 행을 옮긴 뒤 transfer가 하는 말인 `transferMoved`가 그렇고, 패키지마다 하나씩 더 있습니다. React에는 `paginationStatus`, Flutter에는 `howToStep`입니다. 이 항목들은 문자열이 아니라 함수입니다. 언어가 바뀌면 어순도 바뀝니다. "Page 3 of 12"는 한국어로 `12페이지 중 3페이지`, 중국어로 `第3页，共12页`이고, 컴포넌트가 틀에 값을 끼워 넣었다면 영어 어순이 그대로 남았을 것입니다.
+두 패키지 모두에서 일곱 항목에 숫자나 이름이 들어갑니다. 페이지 버튼의 `paginationPage`, 별 하나의 `ratingValue`, 슬라이드의 `carouselSlide`, 갤러리 타일의 위치인 `galleryItem`, 지우기 버튼의 `removeItem`, 입력한 값을 새 값으로 내미는 행의 `addCustom`, 행을 옮긴 뒤 transfer가 하는 말인 `transferMoved`입니다. React에는 `paginationStatus`와 `otpSlot`이 더 있고, Flutter에는 `howToStep`이 더 있습니다. 이 항목들은 문자열이 아니라 함수입니다. 언어가 바뀌면 어순도 바뀝니다. "Page 3 of 12"는 한국어로 `12페이지 중 3페이지`, 중국어로 `第3页，共12页`이고, 컴포넌트가 틀에 값을 끼워 넣었다면 영어 어순이 그대로 남았을 것입니다.
 
 ::: fw react
 

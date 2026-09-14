@@ -354,6 +354,7 @@ class PlassLabels {
     this.ratingValue = _englishRatingValue,
     this.ratingNone = 'No rating',
     this.carouselSlide = _englishCarouselSlide,
+    this.galleryItem = _englishGalleryItem,
     this.removeItem = _englishRemoveItem,
     this.addCustom = _englishAddCustom,
     this.howToStep = _englishHowToStep,
@@ -459,6 +460,7 @@ class PlassLabels {
     String Function(num value, int count)? ratingValue,
     String? ratingNone,
     String Function(int index, int count)? carouselSlide,
+    String Function(int index, int total)? galleryItem,
     String Function(String name)? removeItem,
     String Function(String query)? addCustom,
     String Function(int step, int total)? howToStep,
@@ -556,6 +558,7 @@ class PlassLabels {
       ratingValue: ratingValue ?? this.ratingValue,
       ratingNone: ratingNone ?? this.ratingNone,
       carouselSlide: carouselSlide ?? this.carouselSlide,
+      galleryItem: galleryItem ?? this.galleryItem,
       removeItem: removeItem ?? this.removeItem,
       addCustom: addCustom ?? this.addCustom,
       howToStep: howToStep ?? this.howToStep,
@@ -856,6 +859,10 @@ class PlassLabels {
   /// One slide's name, which is also its dot's.
   final String Function(int index, int count) carouselSlide;
 
+  /// Where a picture sits in a gallery: said after a tile's own words, and
+  /// drawn as the viewer's counter.
+  final String Function(int index, int total) galleryItem;
+
   /// A remove button named after what it takes away: a file, a chip.
   final String Function(String name) removeItem;
 
@@ -879,6 +886,8 @@ String _englishPaginationPage(int page) => 'Page $page';
 String _englishRatingValue(num value, int count) => '$value out of $count';
 
 String _englishCarouselSlide(int index, int count) => 'Slide $index of $count';
+
+String _englishGalleryItem(int index, int total) => '$index of $total';
 
 String _englishRemoveItem(String name) => 'Remove $name';
 

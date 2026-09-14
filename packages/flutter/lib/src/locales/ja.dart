@@ -96,6 +96,7 @@ const PlassLabels ja = PlassLabels(
   ratingValue: _ratingValue,
   ratingNone: '評価なし',
   carouselSlide: _carouselSlide,
+  galleryItem: _galleryItem,
   removeItem: _removeItem,
   addCustom: _addCustom,
   howToStep: _howToStep,
@@ -107,6 +108,8 @@ String _paginationPage(int page) => '$pageページ';
 String _ratingValue(num value, int count) => '$count点中$value点';
 
 String _carouselSlide(int index, int count) => '$count枚中$index枚目のスライド';
+
+String _galleryItem(int index, int total) => '$total枚中$index枚目';
 
 String _removeItem(String name) => '$nameを削除';
 

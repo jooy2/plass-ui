@@ -97,6 +97,7 @@ export const fr: PlassLabels = {
   ratingValue: (value, count) => `${value} sur ${count}`,
   ratingNone: 'Aucune note',
   carouselSlide: (index, count) => `Diapositive ${index} sur ${count}`,
+  galleryItem: (index, total) => `${index} sur ${total}`,
   removeItem: (name) => `Retirer ${name}`,
   addCustom: (query) => `Ajouter « ${query} »`,
   otpSlot: (index, count) => `Caractère ${index} sur ${count}`,

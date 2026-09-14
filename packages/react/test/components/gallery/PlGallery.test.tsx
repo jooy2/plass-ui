@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
-import { PlGallery, type PlGalleryItem } from 'plass-ui';
+import { PlGallery, PlassProvider, type PlGalleryItem } from 'plass-ui';
 
 const items: PlGalleryItem[] = [
   { src: '/a.jpg', alt: 'A harbour', title: 'Harbour', description: 'Busan' },
@@ -258,6 +258,20 @@ describe('PlGallery', () => {
       await expect
         .element(screen.getByRole('button', { name: 'A harbour — 1번째 / 전체 4' }))
         .toBeInTheDocument();
+    });
+
+    it('says where a tile is in the words of the label pack', async () => {
+      const screen = await render(
+        <PlassProvider labels={{ galleryItem: (index, total) => `${total}장 중 ${index}번째` }}>
+          <PlGallery items={items} preview />
+        </PlassProvider>
+      );
+
+      // The tile's name and the viewer's counter used to be an English
+      // template inside the component, whatever pack the page was reading.
+      await screen.getByRole('button', { name: 'A hillside — 4장 중 3번째' }).click();
+
+      await expect.element(screen.getByText('4장 중 3번째')).toBeInTheDocument();
     });
   });
 

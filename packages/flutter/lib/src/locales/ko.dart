@@ -96,6 +96,7 @@ const PlassLabels ko = PlassLabels(
   ratingValue: _ratingValue,
   ratingNone: '별점 없음',
   carouselSlide: _carouselSlide,
+  galleryItem: _galleryItem,
   removeItem: _removeItem,
   addCustom: _addCustom,
   howToStep: _howToStep,
@@ -107,6 +108,8 @@ String _paginationPage(int page) => '$page페이지';
 String _ratingValue(num value, int count) => '$count점 만점에 $value점';
 
 String _carouselSlide(int index, int count) => '$count개 중 $index번째 슬라이드';
+
+String _galleryItem(int index, int total) => '$total장 중 $index번째';
 
 String _removeItem(String name) => '$name 삭제';
 
