@@ -66,6 +66,38 @@ void main() {
         expect(painted.any((BoxDecoration one) => one.color == PlassTokens.light().track), isTrue);
         expect(painted.any((BoxDecoration one) => one.gradient != null), isTrue);
       });
+
+      testWidgets('starts a single value\'s run at the rail and ends it under the thumb', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(PlSlider(values: const <double>[20], onChanged: (List<double> _) {}), width: 300),
+        );
+
+        final run = _runOf(tester);
+
+        expect(run.left, moreOrLessEquals(_railOf(tester).left));
+        expect(run.right, moreOrLessEquals(_thumbCentres(tester).single));
+      });
+
+      testWidgets('runs a range from the centre of one thumb to the centre of the other', (
+        WidgetTester tester,
+      ) async {
+        // Off the middle on both sides, where a run measured along the whole
+        // rail would miss each thumb by a fraction of its size.
+        await tester.pumpWidget(
+          host(
+            PlSlider(values: const <double>[20, 80], onChanged: (List<double> _) {}),
+            width: 300,
+          ),
+        );
+
+        final run = _runOf(tester);
+        final centres = _thumbCentres(tester);
+
+        expect(run.left, moreOrLessEquals(centres.first));
+        expect(run.right, moreOrLessEquals(centres.last));
+      });
     });
 
     group('dragging', () {
@@ -373,4 +405,42 @@ void main() {
       });
     });
   });
+}
+
+/// The filled run: the rectangle on the family gradient. A thumb is on the same
+/// gradient, but it is a circle.
+Rect _runOf(WidgetTester tester) {
+  return tester.getRect(
+    find.byWidgetPredicate(
+      (Widget widget) =>
+          widget is DecoratedBox &&
+          widget.decoration is BoxDecoration &&
+          (widget.decoration as BoxDecoration).shape == BoxShape.rectangle &&
+          (widget.decoration as BoxDecoration).gradient != null,
+    ),
+  );
+}
+
+/// The groove the run is drawn over.
+Rect _railOf(WidgetTester tester) {
+  return tester.getRect(
+    find.byWidgetPredicate(
+      (Widget widget) =>
+          widget is DecoratedBox &&
+          widget.decoration is BoxDecoration &&
+          (widget.decoration as BoxDecoration).color == PlassTokens.light().track,
+    ),
+  );
+}
+
+/// Where each thumb's centre sits along the rail, in order.
+List<double> _thumbCentres(WidgetTester tester) {
+  final thumbs = find.byWidgetPredicate(
+    (Widget widget) => widget is MouseRegion && widget.cursor == SystemMouseCursors.grab,
+  );
+
+  return <double>[
+    for (var index = 0; index < thumbs.evaluate().length; index += 1)
+      tester.getCenter(thumbs.at(index)).dx,
+  ]..sort();
 }

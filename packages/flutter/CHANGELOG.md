@@ -60,6 +60,8 @@
 
 ### Fixed
 
+- **The `PlSlider` run ends under the centre of its thumb.** The run was measured along the whole rail while a thumb travels along the rail less its own size, so the run's end sat under the thumb's centre only at the middle value: below the middle it stopped short of the centre, and above it it ran past. A range's run now starts and ends under the centres of its two thumbs, and a single value's run still starts at the start of the rail.
+
 - **A `fullWidth` picker no longer lays out its width samples.** `PlDatePicker`, `PlDateRangePicker`, `PlDateTimePicker`, `PlTimePicker` and `PlColorPicker` built every sample under the value, invisible, even when `fullWidth` made the field's width its container's. A `fullWidth` field now builds only what it shows, as `PlSelect` already does. A field without `fullWidth` keeps them.
 
 - **A press on an open `PlPill`'s `details` or on its `endIcon` no longer calls `onPressed`.** The whole pill answered a press, so a pill whose press opens its details folded them away as soon as someone touched the text inside, and a trailing slot that was not a control pressed the pill as well. Only the row answers a press now, as the React build's button does. Hover and the light still cover the whole pill.

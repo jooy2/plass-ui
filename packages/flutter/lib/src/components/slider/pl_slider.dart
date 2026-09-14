@@ -382,10 +382,16 @@ class _PlSliderState extends State<PlSlider> {
         final run = _vertical ? constraints.maxHeight : constraints.maxWidth;
         final travel = math.max(0.0, run - thumb);
 
-        // A range's run starts at the first thumb; a single value's starts at
-        // the bottom of the range.
-        final from = widget.values.length > 1 ? _fraction(widget.values.first) : 0.0;
-        final to = _fraction(widget.values.last);
+        // The run ends under the centre of the last thumb, and a range's starts
+        // under the centre of the first; a single value's starts at the rail's
+        // own start. A thumb is placed along the travel, not along the rail, so
+        // its centre sits half a thumb in from the rail's ends: a run measured
+        // along the whole rail would stop short of the thumb on one side of the
+        // middle and run past it on the other.
+        double centre(double value) => math.min(run, thumb / 2 + _fraction(value) * travel);
+
+        final from = widget.values.length > 1 ? centre(widget.values.first) : 0.0;
+        final to = run - centre(widget.values.last);
 
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
@@ -421,10 +427,10 @@ class _PlSliderState extends State<PlSlider> {
                       AnimatedPositionedDirectional(
                         duration: _travel(reduceMotion, _active != null),
                         curve: PlassTokens.ease,
-                        start: _vertical ? 0 : from * run,
-                        end: _vertical ? 0 : (1 - to) * run,
-                        top: _vertical ? (1 - to) * run : 0,
-                        bottom: _vertical ? from * run : 0,
+                        start: _vertical ? 0 : from,
+                        end: _vertical ? 0 : to,
+                        top: _vertical ? to : 0,
+                        bottom: _vertical ? from : 0,
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             gradient: family.fill,
