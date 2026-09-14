@@ -57,7 +57,7 @@ Each part is `inline-block`, because a transform does not apply to a non-replace
 
 ::: fw react
 
-`effect` picks one of the seven keyframes, and `stagger`, `durationStep` and `reverse` mean exactly what they mean on a [`PlAnimateFade`](./animate-fade) around a list of `<li>`s. This component is the **splitting** and nothing more.
+`effect` picks one of the seven entrances, and each part starts where the component of that name starts when it is given nothing: a `slide` part rises from its own height below its place, a `zoom` part grows from 0.4 of its size and a `grow` part from 0.8. `stagger`, `durationStep` and `reverse` mean exactly what they mean on a [`PlAnimateFade`](./animate-fade) around a list of `<li>`s. This component is the **splitting** and nothing more.
 
 :::
 

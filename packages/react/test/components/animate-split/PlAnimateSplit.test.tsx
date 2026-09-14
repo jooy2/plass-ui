@@ -1,8 +1,35 @@
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlAnimateSplit } from 'plass-ui';
+import {
+  PlAnimateBlink,
+  PlAnimateFade,
+  PlAnimateGrow,
+  PlAnimateReveal,
+  PlAnimateRotate,
+  PlAnimateSlide,
+  PlAnimateSplit,
+  PlAnimateZoom
+} from 'plass-ui';
+import standaloneCss from '../../../src/standalone.css?inline';
 
 const LINE = 'Ship it on Friday';
+
+/** The slots an entrance starts from, which are where the effects differ. */
+const START_SLOTS = [
+  '--p-anim-opacity',
+  '--p-anim-scale',
+  '--p-anim-x',
+  '--p-anim-y',
+  '--p-anim-angle',
+  '--p-anim-angle-to',
+  '--p-anim-clip'
+];
+
+function startOf(element: HTMLElement): Record<string, string> {
+  return Object.fromEntries(
+    START_SLOTS.map((slot) => [slot, element.style.getPropertyValue(slot)])
+  );
+}
 
 function root(): HTMLElement {
   return document.querySelector<HTMLElement>('.split-under-test')!;
@@ -73,6 +100,37 @@ describe('PlAnimateSplit', () => {
       expect(parts()[0].classList.contains('plass-anim-slide')).toBe(true);
     });
 
+    it('starts each entrance where the component of that name starts', async () => {
+      // The keyframe fallbacks are not those defaults: a slide would fall back
+      // to no travel at all, and a zoom to a grow's scale.
+      const components = {
+        fade: PlAnimateFade,
+        grow: PlAnimateGrow,
+        slide: PlAnimateSlide,
+        zoom: PlAnimateZoom,
+        rotate: PlAnimateRotate,
+        blink: PlAnimateBlink,
+        reveal: PlAnimateReveal
+      } as const;
+
+      const screen = await render(<span />);
+
+      for (const [effect, Component] of Object.entries(components)) {
+        await screen.rerender(
+          <>
+            <PlAnimateSplit className="split-under-test" effect={effect as keyof typeof components}>
+              {LINE}
+            </PlAnimateSplit>
+            <Component className="effect-under-test">{LINE}</Component>
+          </>
+        );
+
+        const component = document.querySelector<HTMLElement>('.effect-under-test')!;
+
+        expect(startOf(parts()[0]), effect).toEqual(startOf(component));
+      }
+    });
+
     it('tells it off across the parts', async () => {
       await render(
         <PlAnimateSplit className="split-under-test" stagger={50} delay={100}>
@@ -101,6 +159,40 @@ describe('PlAnimateSplit', () => {
         '50ms',
         '0ms'
       ]);
+    });
+  });
+
+  describe('laid out', () => {
+    // The stylesheet is loaded here and nowhere else in this file. Whether a
+    // part moves is a question about laid-out pixels, and with no CSS a part is
+    // an inline span with no keyframe: it would sit still whatever its slots
+    // said.
+    let sheet: HTMLStyleElement;
+
+    beforeAll(() => {
+      sheet = document.createElement('style');
+      sheet.textContent = standaloneCss;
+      document.head.append(sheet);
+    });
+
+    afterAll(() => {
+      sheet.remove();
+    });
+
+    it('moves a sliding part rather than only fading it', async () => {
+      await render(
+        <PlAnimateSplit className="split-under-test" effect="slide" paused>
+          {LINE}
+        </PlAnimateSplit>
+      );
+
+      // Held, a part sits on its first frame, which is a line below its place.
+      const line = root()
+        .querySelector<HTMLElement>('[aria-hidden="true"]')!
+        .getBoundingClientRect();
+      const part = parts()[0].getBoundingClientRect();
+
+      expect(part.top - line.top).toBeGreaterThan(part.height / 2);
     });
   });
 

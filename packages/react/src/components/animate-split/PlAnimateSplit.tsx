@@ -8,8 +8,11 @@ import {
   animationClasses,
   animationSlots,
   isInfinite,
+  revealClip,
+  slideOffsets,
   staggerSlots,
-  useAnimationRun
+  useAnimationRun,
+  type AnimationSlotOptions
 } from '../../internal/animate.js';
 import { cx, srOnlyClasses } from '../../internal/styles.js';
 import type {
@@ -43,7 +46,9 @@ export interface PlAnimateSplitProps
    */
   by?: PlAnimateSplitBy;
   /**
-   * Which of the entrances each part plays.
+   * Which of the entrances each part plays. A part starts where the component
+   * of that name starts when it is given nothing, so a `slide` part rises from
+   * its own height below and a `zoom` part grows from 0.4.
    * @default 'fade'
    */
   effect?: PlassAnimation;
@@ -65,6 +70,32 @@ function partsOf(text: string, by: PlAnimateSplitBy): string[] {
   // The separators are kept, so a run of spaces or a newline survives being cut
   // up and the line reflows exactly as it did before.
   return text.split(/(\s+)/).filter((part) => part !== '');
+}
+
+/**
+ * Where a part starts, which is where the component of the same name starts
+ * when it is given nothing.
+ *
+ * Written out rather than left to the keyframes, whose fallbacks are not all
+ * those defaults: the slide keyframe falls back to no travel at all, and the
+ * scale keyframe serves both Grow and Zoom, so its fallback can only be one of
+ * them. `100%` of a part is its own height, so a sliding word rises by a line.
+ */
+function effectStart(effect: PlassAnimation): Partial<AnimationSlotOptions> {
+  switch (effect) {
+    case 'slide':
+      return { opacity: 0, ...slideOffsets('bottom', '100%') };
+    case 'grow':
+      return { opacity: 0, scale: 0.8 };
+    case 'zoom':
+      return { opacity: 0, scale: 0.4 };
+    case 'rotate':
+      return { opacity: 0, angle: '-180deg', angleTo: '0deg' };
+    case 'reveal':
+      return { opacity: 1, clip: revealClip('left') };
+    default:
+      return { opacity: 0 };
+  }
 }
 
 /**
@@ -135,7 +166,17 @@ export const PlAnimateSplit = /* @__PURE__ */ React.forwardRef<
     infinite: isInfinite(repeat)
   });
 
-  const slots = { duration, delay, easing, repeat, alternate, mode, timeline, range };
+  const slots: AnimationSlotOptions = {
+    ...effectStart(effect),
+    duration,
+    delay,
+    easing,
+    repeat,
+    alternate,
+    mode,
+    timeline,
+    range
+  };
   const count = parts.filter((part) => part.trim() !== '').length;
   const partClass = `${animBaseClass} ${animationClasses[effect]}`;
 

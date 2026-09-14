@@ -1634,8 +1634,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: "'fade' | 'grow' | 'slide' | 'zoom' | 'rotate' | 'blink' | 'reveal'",
       default: "'fade'",
       description: {
-        ko: '각 조각이 재생하는 등장',
-        en: 'Which of the entrances each part plays'
+        ko: '각 조각이 재생하는 등장. 같은 이름의 컴포넌트가 기본값으로 출발하는 자리에서 출발합니다 — slide는 자기 높이만큼 아래에서, zoom은 크기의 0.4에서',
+        en: 'Which of the entrances each part plays. A part starts where the component of that name starts by default: a slide from its own height below, a zoom from 0.4 of its size'
       }
     },
     ...animateProps({ duration: '400', stagger: true, timeline: true }),

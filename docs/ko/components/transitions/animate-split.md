@@ -57,7 +57,7 @@ const PlAnimateSplit(text: 'One design language, two libraries');
 
 ::: fw react
 
-`effect`가 일곱 keyframe 중 하나를 고르고, `stagger`와 `durationStep`과 `reverse`는 `<li>` 목록을 감싼 [`PlAnimateFade`](./animate-fade)에서와 정확히 같은 뜻입니다. 이 컴포넌트는 **자르는 일**이고 그 이상이 아닙니다.
+`effect`가 일곱 등장 중 하나를 고르고, 각 조각은 같은 이름의 컴포넌트에 아무것도 주지 않았을 때와 같은 자리에서 출발합니다. `slide` 조각은 자기 높이만큼 아래에서 올라오고, `zoom` 조각은 크기의 0.4에서, `grow` 조각은 0.8에서 커집니다. `stagger`와 `durationStep`과 `reverse`는 `<li>` 목록을 감싼 [`PlAnimateFade`](./animate-fade)에서와 정확히 같은 뜻입니다. 이 컴포넌트는 **자르는 일**이고 그 이상이 아닙니다.
 
 :::
 

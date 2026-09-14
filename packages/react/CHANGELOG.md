@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **`PlAnimateSplit` parts move with `effect="slide"`, and `effect="zoom"` is no longer the same as `grow`.** The parts were given no start position or scale, so they ran on the keyframe fallbacks: a slide only faded in place, and a zoom started from 0.8, the `grow` scale. Each part now starts where the component of the same name starts by default, so a slide rises from its own height below and a zoom grows from 0.4.
+
 - **Under `prefers-reduced-motion`, the `PlAnimateMarquee` items past the edge of the box can be reached.** The strip stopped, but the box still clipped it, so with ten headlines in a 400px box only the first one or two could ever be seen. The box now draws only the first copy and scrolls along it, and it is a tab stop while there is anything to scroll, so the arrow keys move it. A vertical marquee scrolls down its own axis. Where the platform draws a permanent scrollbar, the box is taller by the bar's thickness.
 
 - **Tab passes over the copies of a `PlAnimateMarquee` after the first.** The copies carried `aria-hidden`, which takes them off the accessibility tree but not off the tab order, so a strip of ten links was thirty Tab stops, twenty of them on a link with no name. The copies after the first are now `inert` as well, and only the first copy's links take the focus.
