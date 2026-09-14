@@ -43,6 +43,17 @@ void main() {
         expect(_parts(tester), <String>['S', 'h', 'i', 'p']);
       });
 
+      testWidgets('keeps an emoji in one part when cut by character', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          const PlAnimateSplit(text: 'Ship it \u{1F680}', by: PlAnimateSplitBy.character),
+        );
+
+        // Two UTF-16 code units, and one character to a reader. Halved, each
+        // piece would stay a broken glyph after the entrance had finished.
+        expect(_parts(tester).last, '\u{1F680}');
+      });
+
       testWidgets('puts the whole line back together', (WidgetTester tester) async {
         await _pump(tester, const PlAnimateSplit(text: _line));
 

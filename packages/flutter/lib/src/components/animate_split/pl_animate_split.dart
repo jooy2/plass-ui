@@ -29,9 +29,9 @@ enum PlAnimateSplitBy {
 ///
 /// **`PlAnimateSplitBy.character` is not safe in every script**, and that is the
 /// one thing to know before reaching for it. Cutting between letters breaks the
-/// shaping between them, so Arabic stops joining, Devanagari conjuncts come
-/// apart, and an emoji built out of several code points is cut into its pieces.
-/// [PlAnimateSplitBy.word] has none of those problems, is the default, and is
+/// shaping between them, so Arabic stops joining. A character is a grapheme, what
+/// a reader counts as one, so an emoji, a flag or a Devanagari conjunct stays in
+/// one part. [PlAnimateSplitBy.word] keeps the shaping, is the default, and is
 /// what a headline wants anyway.
 ///
 /// **A screen reader is told the line, once.** The parts are excluded from the

@@ -10,14 +10,23 @@
 /// every frame is drawn out of exactly the characters the finished line is made
 /// of.
 ///
+/// **A character is a grapheme**, what a reader counts as one: an emoji, a flag,
+/// a letter with its accent. Cut by UTF-16 code unit instead, an emoji is halved
+/// into two pieces that each draw as a broken glyph.
+///
 /// Not exported from `plass_ui.dart`.
 library;
+
+// `String.characters` arrives through `widgets.dart`, which re-exports the
+// `characters` package the Flutter SDK ships, so it needs no entry in
+// `pubspec.yaml`.
+import 'package:flutter/widgets.dart' show StringCharacters;
 
 /// Everything in the text that is worth scrambling: no whitespace, no repeats.
 String poolOf(String text) {
   final seen = <String>{};
 
-  for (final String character in text.split('')) {
+  for (final String character in text.characters) {
     if (character.trim().isNotEmpty) {
       seen.add(character);
     }
@@ -38,8 +47,8 @@ String poolOf(String text) {
 /// of noise still look like a sentence, and a space that flickered into a letter
 /// would change the word count on every frame.
 String scrambleAt(String text, String pool, double progress, int seed) {
-  final characters = text.split('');
-  final glyphs = pool.split('');
+  final characters = text.characters.toList();
+  final glyphs = pool.characters.toList();
 
   if (glyphs.isEmpty) {
     return text;
@@ -86,7 +95,7 @@ List<String> splitParts(String text, {required bool byCharacter}) {
     afterSpace = false;
   }
 
-  for (final String character in text.split('')) {
+  for (final String character in text.characters) {
     if (character.trim().isEmpty) {
       buffer.write(character);
       afterSpace = true;
