@@ -31,8 +31,6 @@ const PlAnimateZoom(
 );
 ```
 
-```
-
 :::
 
 ## Props
@@ -123,7 +121,6 @@ What the effect is for. One thing on the screen, once, at the moment it becomes 
 
 :::
 
-
 ::: fw flutter
 
 ## Differences from the React build
@@ -143,4 +140,3 @@ What the effect is for. One thing on the screen, once, at the moment it becomes 
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::
-```

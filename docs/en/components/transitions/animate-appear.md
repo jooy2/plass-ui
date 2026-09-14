@@ -36,8 +36,6 @@ PlAnimateAppear(
 );
 ```
 
-```
-
 :::
 
 ## Props
@@ -54,7 +52,7 @@ Every native `<div>` attribute passes straight through, and `render` swaps the c
 
 ::: fw flutter
 
-It **lays its children out**, which the React build does not have to: there is no stylesheet here to put a `display: flex` on the container, so `orientation` and `spacing` are what a `className` would have done. Anything more elaborate than a row or a column belongs *inside* one child — which also makes that whole arrangement one step of the stagger. `distance` is a `double` in logical pixels.
+It **lays its children out**, which the React build does not have to: there is no stylesheet here to put a `display: flex` on the container, so `orientation` and `spacing` are what a `className` would have done. Anything more elaborate than a row or a column belongs _inside_ one child — which also makes that whole arrangement one step of the stagger. `distance` is a `double` in logical pixels.
 
 :::
 
@@ -124,7 +122,6 @@ It counts **children**, not leaves: eight children are eight steps, and one chil
 
 :::
 
-
 ::: fw flutter
 
 ## Differences from the React build
@@ -143,4 +140,3 @@ It counts **children**, not leaves: eight children are eight steps, and one chil
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::
-```

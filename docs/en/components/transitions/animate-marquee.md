@@ -35,8 +35,6 @@ PlAnimateMarquee(
 );
 ```
 
-```
-
 :::
 
 ## Props
@@ -121,7 +119,6 @@ Vertical needs a height on the box — there is nothing else to clip against. `r
 
 :::
 
-
 ::: fw flutter
 
 ## Differences from the React build
@@ -141,4 +138,3 @@ Vertical needs a height on the box — there is nothing else to clip against. `r
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::
-```

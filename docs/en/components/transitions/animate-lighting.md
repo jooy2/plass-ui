@@ -34,8 +34,6 @@ const PlAnimateLighting(
 );
 ```
 
-```
-
 :::
 
 ## Props
@@ -120,7 +118,6 @@ How much of the outline is lit at once, how soft the light is, and how far past 
 
 :::
 
-
 ::: fw flutter
 
 ## Differences from the React build
@@ -140,4 +137,3 @@ How much of the outline is lit at once, how soft the light is, and how far past 
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::
-```

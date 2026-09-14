@@ -37,8 +37,6 @@ const PlAnimateRotate(
 );
 ```
 
-```
-
 :::
 
 ## Props
@@ -119,12 +117,11 @@ Any CSS `transform-origin`. Turning about a corner is a hinge rather than a whee
 
 ::: fw flutter
 
-- When the platform has animations turned off (`MediaQuery.disableAnimations`) the effect is dropped entirely and the content is simply there. That is right for an arrival and worth thinking about for a spin: if the turning is what says *something is happening*, use [PlProgressCircular](../feedback/progress-circular) instead, which slows rather than stopping.
+- When the platform has animations turned off (`MediaQuery.disableAnimations`) the effect is dropped entirely and the content is simply there. That is right for an arrival and worth thinking about for a spin: if the turning is what says _something is happening_, use [PlProgressCircular](../feedback/progress-circular) instead, which slows rather than stopping.
 - **Not for text.** A rotated word is resampled along its whole length.
 - Something that turns forever in the corner of a screen somebody is reading is the one kind of motion the rest of this package refuses. Give it a reason.
 
 :::
-
 
 ::: fw flutter
 
@@ -146,4 +143,3 @@ Any CSS `transform-origin`. Turning about a corner is a hinge rather than a whee
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::
-```

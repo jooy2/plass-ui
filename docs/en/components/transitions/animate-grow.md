@@ -32,8 +32,6 @@ const PlAnimateGrow(
 );
 ```
 
-```
-
 :::
 
 ## Props
@@ -142,7 +140,6 @@ The common use, and the one the defaults were chosen for: `origin="top"`, a shor
 
 :::
 
-
 ::: fw flutter
 
 ## Differences from the React build
@@ -163,4 +160,3 @@ The common use, and the one the defaults were chosen for: `origin="top"`, a shor
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::
-```

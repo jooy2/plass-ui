@@ -32,8 +32,6 @@ const PlAnimateBlink(
 );
 ```
 
-```
-
 :::
 
 ## Props
@@ -122,7 +120,6 @@ A count is the way to draw attention to something once, rather than forever. The
 
 :::
 
-
 ::: fw flutter
 
 ## Differences from the React build
@@ -141,4 +138,3 @@ A count is the way to draw attention to something once, rather than forever. The
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::
-```

@@ -38,8 +38,6 @@ const PlAnimateHeadline(
 );
 ```
 
-```
-
 :::
 
 ## Props
@@ -124,7 +122,6 @@ How far a line travels as it comes up or leaves. `'100%'` is one line's own heig
 
 :::
 
-
 ::: fw flutter
 
 ## Differences from the React build
@@ -143,4 +140,3 @@ How far a line travels as it comes up or leaves. `'100%'` is one line's own heig
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::
-```

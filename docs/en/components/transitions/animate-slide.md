@@ -36,8 +36,6 @@ const ClipRect(
 );
 ```
 
-```
-
 :::
 
 ## Props
@@ -128,7 +126,6 @@ A number is pixels, a string is any CSS length. `'100%'` is the element's own wi
 
 :::
 
-
 ::: fw flutter
 
 ## Differences from the React build
@@ -149,4 +146,3 @@ A number is pixels, a string is any CSS length. `'100%'` is the element's own wi
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::
-```

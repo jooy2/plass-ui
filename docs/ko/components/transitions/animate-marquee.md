@@ -35,8 +35,6 @@ PlAnimateMarquee(
 );
 ```
 
-```
-
 :::
 
 ## Props
@@ -121,7 +119,6 @@ duration이 아니라 speed입니다. 그래서 로고 넷짜리 띠와 마흔�
 
 :::
 
-
 ::: fw flutter
 
 ## React 빌드와 다른 점
@@ -141,4 +138,3 @@ duration이 아니라 speed입니다. 그래서 로고 넷짜리 띠와 마흔�
 | `className`, `style` | — | 통과시킬 class 목록도 style 속성도 없습니다. |
 
 :::
-```

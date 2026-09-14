@@ -36,8 +36,6 @@ PlAnimateAppear(
 );
 ```
 
-```
-
 :::
 
 ## Props
@@ -124,7 +122,6 @@ PlAnimateAppear(
 
 :::
 
-
 ::: fw flutter
 
 ## React 빌드와 다른 점
@@ -143,4 +140,3 @@ PlAnimateAppear(
 | `className`, `style` | — | 통과시킬 class 목록도 style 속성도 없습니다. |
 
 :::
-```

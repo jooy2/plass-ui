@@ -33,8 +33,6 @@ const PlAnimateTyping(
 );
 ```
 
-```
-
 :::
 
 ## Props
@@ -119,7 +117,6 @@ Characters per second. Around 24 reads as somebody typing; below 10 is a machine
 
 :::
 
-
 ::: fw flutter
 
 ## Differences from the React build
@@ -138,4 +135,3 @@ Characters per second. Around 24 reads as somebody typing; below 10 is a machine
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::
-```
