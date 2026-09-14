@@ -184,6 +184,7 @@ The split draws no sheet, so `color` reaches three things and stops: the handle'
 
 ::: fw react
 
+- `label` names every handle, and each handle points at the pane before it with `aria-controls`, using the pane's own `id` when it has one. Without a `label`, a split with two handles reads as two separators and two numbers.
 - The handle is focused by the browser on a press, not by the component. Focusing it by hand would put a keyboard focus ring on every handle somebody merely dragged.
 - A drag takes the page's text selection away for its own length instead of calling `preventDefault` on the press, which is what would have stopped the focus above. The property is written as `-webkit-user-select` through `setProperty`, because WebKit implements only the prefixed name and `style.userSelect = 'none'` silently does nothing there.
 - A drag in flight is torn down if the split unmounts. The `pointerup` that would have ended it never arrives after a route change, and what is left behind is a page whose text can no longer be selected, on top of two listeners on a detached node.

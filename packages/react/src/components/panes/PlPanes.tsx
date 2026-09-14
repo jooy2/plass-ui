@@ -23,9 +23,14 @@ export type PlPaneSize = number | string;
 interface PlassPaneContextValue {
   /** The `flex-basis` this pane has been given, or `null` before measurement. */
   basis: string | null;
+  /** The `id` the handle before it points at with `aria-controls`. */
+  id: string | undefined;
 }
 
-const PaneContext = /* @__PURE__ */ React.createContext<PlassPaneContextValue>({ basis: null });
+const PaneContext = /* @__PURE__ */ React.createContext<PlassPaneContextValue>({
+  basis: null,
+  id: undefined
+});
 
 export interface PlPanesProps extends Omit<React.ComponentPropsWithoutRef<'div'>, 'color'> {
   /**
@@ -48,6 +53,11 @@ export interface PlPanesProps extends Omit<React.ComponentPropsWithoutRef<'div'>
   onResize?: (sizes: number[]) => void;
   /** Fires once, with the same shape, when the handle is let go. */
   onResizeEnd?: (sizes: number[]) => void;
+  /**
+   * What a screen reader calls a handle, before the share it is at. Without one,
+   * every handle of a split is read only as "separator" and a number.
+   */
+  label?: string;
   /** The panes. Anything that is not a `PlPane` is still laid out, but has no size. */
   children?: React.ReactNode;
 }
@@ -176,6 +186,7 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
       size: sizeProp,
       onResize,
       onResizeEnd,
+      label,
       className,
       style,
       children,
@@ -198,6 +209,11 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
       React.isValidElement
     ) as React.ReactElement<PlPaneProps>[];
     const count = items.length;
+
+    // Each pane's `id`, its own when it has one, so a handle can say which pane
+    // it resizes: the one before it.
+    const baseId = React.useId();
+    const paneId = (index: number) => items[index]?.props.id ?? `${baseId}-pane-${index}`;
 
     const rootRef = React.useRef<HTMLDivElement | null>(null);
     const setRootRef = React.useCallback(
@@ -409,6 +425,8 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
             {index > 0 ? (
               <div
                 role="separator"
+                aria-label={label}
+                aria-controls={paneId(index - 1)}
                 aria-orientation={horizontal ? 'vertical' : 'horizontal'}
                 aria-valuenow={fractions ? Math.round(fractions[index - 1] * 100) : undefined}
                 aria-valuemin={0}
@@ -465,7 +483,8 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
               value={{
                 basis: fractions
                   ? `calc((100% - ${gutter}px) * ${fractions[index].toFixed(6)})`
-                  : null
+                  : null,
+                id: paneId(index)
               }}
             >
               {item}
@@ -496,11 +515,12 @@ export const PlPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanePro
   { defaultSize, minSize, maxSize, className, style, children, ...props },
   ref
 ) {
-  const { basis } = React.useContext(PaneContext);
+  const { basis, id } = React.useContext(PaneContext);
 
   return (
     <div
       ref={ref}
+      id={id}
       className={cx('relative min-h-0 min-w-0 overflow-auto', className)}
       // `1 1 0%` before the split has measured itself, so a pane renders at an
       // even share on the first paint instead of at nothing and then jumping.

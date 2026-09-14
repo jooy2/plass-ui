@@ -135,6 +135,29 @@ describe('PlPanes', () => {
       expect(handle).toHaveAttribute('aria-valuemax', '100');
     });
 
+    it('takes a name, and points at the pane before it', async () => {
+      await render(
+        <div style={{ width: '600px', height: '200px' }}>
+          <PlPanes label="Resize">
+            <PlPane>One</PlPane>
+            <PlPane id="editor">Two</PlPane>
+            <PlPane>Three</PlPane>
+          </PlPanes>
+        </div>
+      );
+
+      const [first, second] = handles();
+
+      expect(first).toHaveAccessibleName('Resize');
+      expect(second).toHaveAccessibleName('Resize');
+      // A generated id for a pane with none of its own, and the caller's for one
+      // that has it.
+      expect(document.getElementById(first.getAttribute('aria-controls') ?? '')).toHaveTextContent(
+        'One'
+      );
+      expect(second).toHaveAttribute('aria-controls', 'editor');
+    });
+
     it('is a tab stop while it can be dragged', async () => {
       await render(
         <Split>

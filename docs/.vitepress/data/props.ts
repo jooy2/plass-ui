@@ -8617,6 +8617,14 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'label',
+      type: 'string',
+      description: {
+        ko: '스크린 리더가 손잡이를 부르는 이름. 몫보다 먼저 읽힙니다',
+        en: 'What a screen reader calls a handle, before the share it is at'
+      }
+    },
+    {
       name: 'children',
       type: 'ReactNode',
       description: {
