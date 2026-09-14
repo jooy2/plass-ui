@@ -1,7 +1,33 @@
 import { commands } from 'vitest/browser';
 import { afterEach, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { useState } from 'react';
 import { PlAnimateCounter } from 'plass-ui';
+
+/**
+ * Runs the next animation frame the page asks for as soon as the work that
+ * asked for it is done, ahead of anything React has scheduled for later, and
+ * hands back a function that puts the real frame clock back.
+ *
+ * A browser is free to paint between the render that takes a new prop and the
+ * render that starts the run the prop causes. In a test it rarely does, so this
+ * puts that frame there every time.
+ */
+function frameBeforeTheNextRender(): () => void {
+  const frame = window.requestAnimationFrame;
+  const restore = () => {
+    window.requestAnimationFrame = frame;
+  };
+
+  window.requestAnimationFrame = (callback) => {
+    restore();
+    queueMicrotask(() => callback(performance.now()));
+
+    return 0;
+  };
+
+  return restore;
+}
 
 function root(): HTMLElement {
   return document.querySelector<HTMLElement>('.counter-under-test')!;
@@ -17,11 +43,103 @@ function announced(): string {
   return (root().firstElementChild as HTMLElement).textContent ?? '';
 }
 
+/** The drawn figure as a number, without the separators the locale put in. */
+function figure(): number {
+  return Number(drawn().replace(/,/g, ''));
+}
+
+function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** The lowest figure drawn over the next tenth of a second. */
+async function lowestSoon(): Promise<number> {
+  const seen: number[] = [];
+
+  for (let sample = 0; sample < 10; sample += 1) {
+    await wait(10);
+    seen.push(figure());
+  }
+
+  return Math.min(...seen);
+}
+
 afterEach(async () => {
   await commands.emulateMedia({ reducedMotion: 'no-preference' });
 });
 
 describe('PlAnimateCounter', () => {
+  describe('pausing', () => {
+    const linear = (t: number) => t;
+
+    function counter(paused: boolean) {
+      return (
+        <PlAnimateCounter
+          className="counter-under-test"
+          trigger="mount"
+          value={1000}
+          duration={1000}
+          easing={linear}
+          paused={paused}
+        />
+      );
+    }
+
+    it('holds the count where it is, and goes on from there when it is let go', async () => {
+      const screen = await render(counter(false));
+
+      await wait(300);
+      await screen.rerender(counter(true));
+
+      const held = figure();
+
+      expect(held).toBeGreaterThan(0);
+      expect(held).toBeLessThan(1000);
+
+      await wait(150);
+
+      expect(figure()).toBe(held);
+
+      await screen.rerender(counter(false));
+
+      // A loop that took its start time again would drop back to `from` here.
+      expect(await lowestSoon()).toBeGreaterThanOrEqual(held);
+      await expect.poll(() => figure()).toBe(1000);
+    });
+
+    it('keeps counting when a parent renders it with a new `easing` function', async () => {
+      const screen = await render(
+        <PlAnimateCounter
+          className="counter-under-test"
+          trigger="mount"
+          value={1000}
+          duration={1000}
+          easing={(t) => t}
+        />
+      );
+
+      await wait(300);
+
+      const before = figure();
+
+      expect(before).toBeGreaterThan(0);
+
+      // The same props, and an `easing` that is a new function, as an inline
+      // arrow is on every render of the parent.
+      await screen.rerender(
+        <PlAnimateCounter
+          className="counter-under-test"
+          trigger="mount"
+          value={1000}
+          duration={1000}
+          easing={(t) => t}
+        />
+      );
+
+      expect(await lowestSoon()).toBeGreaterThanOrEqual(before);
+    });
+  });
+
   it('lands on the number it was given', async () => {
     await render(
       <PlAnimateCounter className="counter-under-test" trigger="mount" value={4812} duration={50} />
@@ -142,6 +260,54 @@ describe('PlAnimateCounter', () => {
             document.querySelector<HTMLElement>('.second [aria-hidden="true"]')?.textContent ?? ''
         )
         .toBe('20');
+    });
+
+    it('counts a new `value` from `from`, even when a frame lands before its run starts', async () => {
+      function Host() {
+        const [value, setValue] = useState(100);
+
+        return (
+          <>
+            <button type="button" onClick={() => setValue(200)}>
+              More
+            </button>
+            <PlAnimateCounter
+              className="counter-under-test"
+              trigger="mount"
+              value={value}
+              duration={50}
+            />
+          </>
+        );
+      }
+
+      await render(<Host />);
+      await expect.poll(() => figure()).toBe(100);
+
+      const seen: number[] = [];
+      const observer = new MutationObserver(() => seen.push(figure()));
+
+      observer.observe(root().querySelector('[aria-hidden="true"]')!, {
+        characterData: true,
+        childList: true,
+        subtree: true
+      });
+
+      const restore = frameBeforeTheNextRender();
+
+      try {
+        // A native click rather than a rerender, which would finish every render
+        // it causes before any frame could run.
+        document.querySelector('button')!.click();
+        await expect.poll(() => seen.length).toBeGreaterThan(0);
+      } finally {
+        restore();
+        observer.disconnect();
+      }
+
+      // The count that finished at 100 lends the new one nothing. Given its
+      // progress, that frame would draw 200 before the new run dropped to 0.
+      expect(seen[0]).toBeLessThan(100);
     });
   });
 

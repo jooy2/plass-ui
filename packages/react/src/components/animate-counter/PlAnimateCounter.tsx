@@ -140,6 +140,36 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
 
   const [shown, setShown] = React.useState(() => (still ? value : from));
 
+  /**
+   * How far the count has got, from `0` to `1`, outside React's state.
+   *
+   * Pausing tears the frame loop down and resuming builds a new one, and the
+   * new one works its start time back from this. Without it, a count held at
+   * 40% would drop back to `from` the moment it was let go.
+   */
+  const progress = React.useRef(0);
+
+  /**
+   * The `easing` of the latest render, read by the loop rather than listed in
+   * its dependencies. An inline `easing={(t) => t}` is a new function every
+   * time the parent renders, and restarting the loop for each one would stall
+   * the count inside a parent that renders often.
+   */
+  const ease = React.useRef(easing);
+
+  React.useEffect(() => {
+    ease.current = easing;
+  });
+
+  // A new count starts from `from` instead of going on from where the last one
+  // got: a second hover, a new `play`, a new `value` or a new `from`. The two
+  // props are listed beside `run.runs` because a new `value` starts its run only
+  // on the render after it arrives, and a frame drawn in between would put the
+  // new figure at the old count's progress.
+  React.useEffect(() => {
+    progress.current = 0;
+  }, [run.runs, value, from]);
+
   React.useEffect(() => {
     // A reader who asked for less movement gets the figure and nothing else,
     // which is the only thing the count was carrying.
@@ -153,6 +183,7 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
     // here: a counter waiting to be scrolled to shows the number it is about to
     // count from, not the one it is about to reach.
     if (!run.started) {
+      progress.current = 0;
       setShown(from);
 
       return undefined;
@@ -162,13 +193,16 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
       return undefined;
     }
 
+    const span = Math.max(1, duration);
     let frame = 0;
-    let start = 0;
+    let start: number | undefined;
 
     const step = (now: number) => {
-      start ||= now;
+      // A count that was held goes on from where it stopped. Only one that has
+      // not begun waits out `delay` from the start.
+      start ??= now - (progress.current > 0 ? delay + progress.current * span : 0);
 
-      const t = Math.min(1, (now - start - delay) / Math.max(1, duration));
+      const t = Math.min(1, (now - start - delay) / span);
 
       if (t < 0) {
         frame = requestAnimationFrame(step);
@@ -176,7 +210,8 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
         return;
       }
 
-      setShown(from + (value - from) * easing(t));
+      progress.current = t;
+      setShown(from + (value - from) * ease.current(t));
 
       if (t < 1) {
         frame = requestAnimationFrame(step);
@@ -188,7 +223,7 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
     return () => cancelAnimationFrame(frame);
     // `run.runs` is listed although nothing above reads it. A second hover starts
     // a new run without changing `started`, and a new run is a new count.
-  }, [run.started, run.runs, still, paused, value, from, duration, delay, easing]);
+  }, [run.started, run.runs, still, paused, value, from, duration, delay]);
 
   const answer = formatter.format(value);
 

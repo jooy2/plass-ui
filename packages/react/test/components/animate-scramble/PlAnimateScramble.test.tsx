@@ -1,7 +1,33 @@
 import { commands } from 'vitest/browser';
 import { afterEach, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { useState } from 'react';
 import { PlAnimateScramble } from 'plass-ui';
+
+/**
+ * Runs the next animation frame the page asks for as soon as the work that
+ * asked for it is done, ahead of anything React has scheduled for later, and
+ * hands back a function that puts the real frame clock back.
+ *
+ * A browser is free to paint between the render that takes a new prop and the
+ * render that starts the run the prop causes. In a test it rarely does, so this
+ * puts that frame there every time.
+ */
+function frameBeforeTheNextRender(): () => void {
+  const frame = window.requestAnimationFrame;
+  const restore = () => {
+    window.requestAnimationFrame = frame;
+  };
+
+  window.requestAnimationFrame = (callback) => {
+    restore();
+    queueMicrotask(() => callback(performance.now()));
+
+    return 0;
+  };
+
+  return restore;
+}
 
 const LINE = 'Ship it on Friday';
 
@@ -19,11 +45,79 @@ function announced(): string {
   return (root().firstElementChild as HTMLElement).textContent ?? '';
 }
 
+/**
+ * How many characters at the start of the line match the line. Only right with
+ * a pool that holds none of the line's own letters, such as `01`.
+ */
+function settled(): number {
+  const now = Array.from(drawn());
+  const line = Array.from(LINE);
+  let count = 0;
+
+  while (count < line.length && now[count] === line[count]) {
+    count += 1;
+  }
+
+  return count;
+}
+
+function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 afterEach(async () => {
   await commands.emulateMedia({ reducedMotion: 'no-preference' });
 });
 
 describe('PlAnimateScramble', () => {
+  describe('pausing', () => {
+    function line(paused: boolean) {
+      return (
+        <PlAnimateScramble
+          className="scramble-under-test"
+          trigger="mount"
+          duration={1000}
+          tick={10}
+          characters="01"
+          paused={paused}
+        >
+          {LINE}
+        </PlAnimateScramble>
+      );
+    }
+
+    it('holds the line where it is, and goes on settling from there when it is let go', async () => {
+      const screen = await render(line(false));
+
+      await wait(400);
+      await screen.rerender(line(true));
+
+      const held = drawn();
+      const reached = settled();
+
+      expect(reached).toBeGreaterThan(0);
+      expect(reached).toBeLessThan(LINE.length);
+
+      await wait(150);
+
+      expect(drawn()).toBe(held);
+
+      await screen.rerender(line(false));
+
+      const seen: number[] = [];
+
+      for (let sample = 0; sample < 10; sample += 1) {
+        await wait(10);
+        seen.push(settled());
+      }
+
+      // A loop that took its start time again would scramble the whole line
+      // again here.
+      expect(Math.min(...seen)).toBeGreaterThanOrEqual(reached);
+      await expect.poll(() => drawn()).toBe(LINE);
+    });
+  });
+
   it('settles on the line it was given', async () => {
     await render(
       <PlAnimateScramble className="scramble-under-test" trigger="mount" duration={40}>
@@ -152,6 +246,62 @@ describe('PlAnimateScramble', () => {
             document.querySelector<HTMLElement>('.second [aria-hidden="true"]')?.textContent ?? ''
         )
         .toBe('Ship it on Monday');
+    });
+
+    it('settles a new line from the start, even when a frame lands before its run starts', async () => {
+      function Host() {
+        const [line, setLine] = useState(LINE);
+
+        return (
+          <>
+            <button type="button" onClick={() => setLine('Ship it on Monday')}>
+              Next
+            </button>
+            <PlAnimateScramble
+              className="scramble-under-test"
+              trigger="mount"
+              duration={300}
+              tick={10}
+              characters="01"
+            >
+              {line}
+            </PlAnimateScramble>
+          </>
+        );
+      }
+
+      await render(<Host />);
+
+      // Noise first and then the line. The line alone could be the one drawn
+      // before the first frame, by a run that has not got anywhere yet.
+      await expect.poll(() => drawn()).not.toBe(LINE);
+      await expect.poll(() => drawn()).toBe(LINE);
+
+      const seen: string[] = [];
+      const observer = new MutationObserver(() => seen.push(drawn()));
+
+      observer.observe(root().querySelector('[aria-hidden="true"]')!, {
+        characterData: true,
+        childList: true,
+        subtree: true
+      });
+
+      const restore = frameBeforeTheNextRender();
+
+      try {
+        // A native click rather than a rerender, which would finish every render
+        // it causes before any frame could run.
+        document.querySelector('button')!.click();
+        await expect.poll(() => seen.length).toBeGreaterThan(0);
+      } finally {
+        restore();
+        observer.disconnect();
+      }
+
+      // The line that had settled lends the new one nothing, so the first frame
+      // of the new line has not settled its first character. Given the old
+      // progress, that frame would draw the new line settled but for its end.
+      expect(Array.from(seen[0])[0]).not.toBe('S');
     });
   });
 
