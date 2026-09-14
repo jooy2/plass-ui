@@ -10246,7 +10246,26 @@ export const propTables: Record<string, PropRow[]> = {
     {
       name: 'description',
       type: 'ReactNode',
-      description: { ko: '트랙 아래 보조 설명', en: 'Helper text below the track' }
+      description: {
+        ko: '트랙 아래 보조 설명. 각 thumb의 설명으로도 연결됩니다',
+        en: 'Helper text below the track. Each thumb is described by it'
+      }
+    },
+    {
+      name: 'getAriaLabel',
+      type: '(index: number) => string',
+      description: {
+        ko: 'index번 thumb의 이름. range의 두 끝에 "최소 가격", "최대 가격"처럼 따로 이름을 줄 때 씁니다. 생략하면 모든 thumb이 label로 불립니다',
+        en: 'The name of the thumb at index, for a range whose ends need names of their own, such as "Minimum price". Left out, every thumb is named by label'
+      }
+    },
+    {
+      name: 'getAriaValueText',
+      type: '(formattedValue: string, value: number, index: number) => string',
+      description: {
+        ko: 'index번 thumb의 값을 스크린 리더가 읽는 말. 생략하면 locale에 맞춘 숫자입니다',
+        en: 'What a screen reader says for the value of the thumb at index. Left out, it is the number formatted for the locale'
+      }
     },
     {
       name: 'showValue',

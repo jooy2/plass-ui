@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **Each `PlSlider` thumb can have its own name and spoken value, and is described by `description`.** The two thumbs of a range were both named by `label`, their values were read in Base UI's own English wording such as "start range" whatever the page's language, and `description` was drawn under the track without being connected to either. `getAriaLabel` and `getAriaValueText` are passed to every thumb, and `description` now describes each one.
+
 - **The `PlTransfer` arrows point at their own lists under RTL.** The selected list is at the inline end, which is the left under a right-to-left direction, but the arrow to it was always drawn pointing right and the arrow back pointing left. Both now turn over with the direction.
 
 - **A `fullWidth` `PlSelect` no longer renders every option label in its trigger.** The trigger held itself open at the width of its longest label by rendering all of them, hidden, even when `fullWidth` made its width the container's. A list of 250 countries with a flag in each label requested 250 images before the list was ever opened. A `fullWidth` trigger now renders only what it shows. A trigger without `fullWidth` still renders every label, because that is what keeps it from changing width with its value.

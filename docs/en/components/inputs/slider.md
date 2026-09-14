@@ -208,6 +208,7 @@ The light going out, as everywhere else: the shape and the position stay, the sa
 
 - Each thumb is a real `<input type="range">`, so the browser's own slider semantics, the tab order and `disabled` all come for free.
 - `label` is wired to the control by Base UI. Without one, a fader in a bank of them, give the slider an `aria-label`.
+- The two ends of a range share `label` unless `getAriaLabel` names each one, "Minimum price" and "Maximum price". `getAriaValueText` decides what is read for each value, which replaces Base UI's own English wording such as "start range". `description` describes every thumb.
 - The keyboard is the primitive's: <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> step, <kbd>PageUp</kbd> / <kbd>PageDown</kbd> take the large step, <kbd>Home</kbd> and <kbd>End</kbd> jump to the ends.
 - The whole strip is a pointer target, not just the rail: the control box is several times the groove's thickness, so a press anywhere along it moves the thumb.
 - The thumb grows a halo on hover and while dragging rather than growing itself. Nothing under the finger is ever scaled.

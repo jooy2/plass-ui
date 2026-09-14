@@ -36,8 +36,20 @@ export interface PlSliderProps extends BaseSliderProps {
   orientation?: PlassOrientation;
   /** The label above the track. */
   label?: React.ReactNode;
-  /** Helper text below the track. */
+  /** Helper text below the track. Each thumb is described by it. */
   description?: React.ReactNode;
+  /**
+   * The name of the thumb at `index`, for a range whose two ends need names of
+   * their own, such as "Minimum price" and "Maximum price". Left out, every
+   * thumb is named by `label`.
+   */
+  getAriaLabel?: (index: number) => string;
+  /**
+   * What a screen reader says for the value of the thumb at `index`, given the
+   * value formatted for the locale and the raw number. Left out, it is the
+   * formatted number.
+   */
+  getAriaValueText?: (formattedValue: string, value: number, index: number) => string;
   /**
    * Shows the current value beside the label. Pass a function to format it —
    * the raw numbers and Base UI's already-localised strings are both handed in.
@@ -206,6 +218,8 @@ export const PlSlider = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSlide
       orientation = 'horizontal',
       label,
       description,
+      getAriaLabel,
+      getAriaValueText,
       showValue = false,
       disabled = false,
       className,
@@ -214,6 +228,7 @@ export const PlSlider = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSlide
     },
     ref
   ) {
+    const descriptionId = React.useId();
     const defaults = useDefaults();
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
@@ -279,6 +294,11 @@ export const PlSlider = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSlide
               <BaseUISlider.Thumb
                 key={index}
                 index={index}
+                // Each goes onto the thumb's own `<input type="range">`, which is
+                // the element a screen reader lands on.
+                getAriaLabel={getAriaLabel}
+                getAriaValueText={getAriaValueText}
+                aria-describedby={description ? descriptionId : undefined}
                 className={`${thumbClasses} ${thumbSizeClasses[size]}`}
               />
             ))}
@@ -286,7 +306,9 @@ export const PlSlider = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSlide
         </BaseUISlider.Control>
 
         {description ? (
-          <div className={`${metaTextClasses[size]} text-(--plass-muted-fg)`}>{description}</div>
+          <div id={descriptionId} className={`${metaTextClasses[size]} text-(--plass-muted-fg)`}>
+            {description}
+          </div>
         ) : null}
       </BaseUISlider.Root>
     );

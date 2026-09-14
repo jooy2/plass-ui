@@ -25,6 +25,26 @@ describe('PlSlider', () => {
       await expect.element(screen.getByText('Applies to alerts only.')).toBeInTheDocument();
     });
 
+    it('names, reads out and describes each thumb of a range on its own', async () => {
+      const screen = await render(
+        <PlSlider
+          label="Price"
+          description="In euros, before tax."
+          defaultValue={[20, 80]}
+          getAriaLabel={(index) => (index === 0 ? 'Minimum price' : 'Maximum price')}
+          getAriaValueText={(formatted) => `${formatted} euros`}
+        />
+      );
+
+      const low = screen.getByRole('slider', { name: 'Minimum price' }).element();
+      const high = screen.getByRole('slider', { name: 'Maximum price' }).element();
+
+      expect(low).toHaveAttribute('aria-valuetext', '20 euros');
+      expect(high).toHaveAttribute('aria-valuetext', '80 euros');
+      expect(low).toHaveAccessibleDescription('In euros, before tax.');
+      expect(high).toHaveAccessibleDescription('In euros, before tax.');
+    });
+
     it('shows the value beside the label when asked', async () => {
       const screen = await render(<PlSlider label="Volume" defaultValue={40} showValue />);
 
