@@ -1355,8 +1355,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'number',
       default: '2',
       description: {
-        ko: '내용을 몇 벌 이어 붙일지. 컨테이너만큼 넓은 내용이라면 둘로 충분하고, 자기 뒤에 구멍을 남길 만큼 짧을 때 올리세요',
-        en: 'How many copies of the content are laid end to end. Two is enough for anything at least as wide as its container; raise it when the content is short enough to leave a hole behind itself'
+        ko: '내용을 몇 벌 이어 붙일지. 컨테이너만큼 넓은 내용이라면 둘로 충분하고, 자기 뒤에 구멍을 남길 만큼 짧을 때 올리세요. 모션 줄이기에서는 첫 벌만 그립니다',
+        en: 'How many copies of the content are laid end to end. Two is enough for anything at least as wide as its container; raise it when the content is short enough to leave a hole behind itself. Only the first is drawn under reduced motion'
       }
     },
     {

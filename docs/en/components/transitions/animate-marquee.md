@@ -123,7 +123,7 @@ Vertical needs a height on the box — there is nothing else to clip against. `r
 
 ::: fw react
 
-- Under `prefers-reduced-motion` the strip stops dead and the content sits where it is. Everything on it is still in the document and still reachable — it is a row of things, not a slideshow.
+- Under `prefers-reduced-motion` the strip stops, only the first copy is drawn, and the box scrolls along the strip instead of clipping it, so the strip stays one line rather than wrapping down the page. What is past the edge is reached by scrolling, by Tab when the items take the focus, or with the arrow keys on the box, which is a tab stop while there is anything to scroll. Pass `role="group"` and an `aria-label` to give that stop a name.
 - **Only the first copy is read out or reached with Tab.** The rest carry `aria-hidden`, or a screen reader would announce everything on the strip as many times as it was laid down, and `inert`, because `aria-hidden` does not stop the focus: a strip of ten links would otherwise be thirty Tab stops.
 - `pauseOnHover` is on by default and it is not decoration: content moving past a pointer cannot be clicked reliably, and a link inside a marquee that never stops is a link nobody can follow. It does **not** pause on focus, so keyboard-reachable content on a strip is a reason to reach for a static list instead.
 - **Give the reader a way to stop it.** The strip runs forever by default, and one that moves for more than five seconds beside other content needs a control on the page that stops it: a button wired to `paused`, as in the [example above](#paused). [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html) asks for one. `pauseOnHover` is not that control, because it needs a pointer, and `prefers-reduced-motion` is no substitute either, because it is a system setting the reader has to find and turn on first.
@@ -133,7 +133,7 @@ Vertical needs a height on the box — there is nothing else to clip against. `r
 
 ::: fw flutter
 
-- When the platform has animations turned off (`MediaQuery.disableAnimations`) the strip stands where it started. Everything on it is still in the tree and still reachable — it is a row of things, not a slideshow.
+- When the platform has animations turned off (`MediaQuery.disableAnimations`) the strip stands where it started, only the first copy is laid down, and the box scrolls along the strip instead of clipping it, so the strip keeps its height and the layout does not move. What is past the edge is reached by scrolling, by Tab when the items take the focus, or with the arrow keys on the box, which is a tab stop while there is anything to scroll.
 - **Only the first copy is read out or reached with Tab.** The rest are behind `ExcludeSemantics`, or a screen reader would announce everything on the strip as many times as it was laid down, and behind `ExcludeFocus`, because leaving the semantics does not leave the focus order.
 - `pauseOnHover` is on by default and it is not decoration: content moving past a pointer cannot be pressed reliably. It does **not** pause on focus, so focusable content on a strip is a reason to reach for a static list instead.
 - **Give the reader a way to stop it.** The strip runs forever by default, and one that moves for more than five seconds beside other content needs a control on the screen that stops it: a button wired to `paused`, as in the [example above](#paused). [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html) asks for one. `pauseOnHover` is not that control, because it needs a pointer, and `MediaQuery.disableAnimations` is no substitute either, because it reflects a system setting the reader has to find and turn on first.
@@ -152,6 +152,7 @@ Vertical needs a height on the box — there is nothing else to clip against. `r
 | a `translate` of `-100% - gap`, so nothing is measured | the strip is measured and moved by that many pixels | A percentage translate resolves against the element's own box in CSS; here the measurement decides both the distance and the duration, and it is taken again whenever the strip changes size. |
 | `gap` as a CSS length | `double` | Logical pixels. |
 | a reduced-motion `animation: none` | `t` held at `0` | The same outcome said two ways: a marquee's finished state is the content standing where it started, which is the opposite of what an entrance's is. |
+| under reduced motion, `overflow: auto` on the box and `display: none` on the copies after the first | one copy in a `SingleChildScrollView` | The stylesheet answers the preference on the first frame, before any script has run; a widget builds the one tree it needs. |
 | `duration`, `delay` in milliseconds | `Duration` | The framework already has the type. |
 | `easing` as a CSS string | `curve`, a `Curve` | Dart's own name for the same thing. |
 | `repeat: number \| 'infinite'` | `int?`, `null` never stops | There is no `'infinite'` to write, and `-1` would be a sentinel a caller has to look up. |

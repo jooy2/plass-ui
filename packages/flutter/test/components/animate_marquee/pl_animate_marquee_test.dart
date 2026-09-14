@@ -176,6 +176,76 @@ void main() {
       expect(before - shiftOf(tester).dx, closeTo(30, 3));
     });
 
+    testWidgets('scrolls along one copy where the platform has asked for less movement', (
+      WidgetTester tester,
+    ) async {
+      final FocusNode before = FocusNode();
+      addTearDown(before.dispose);
+
+      await tester.pumpWidget(
+        host(
+          afterFocusStop(
+            before,
+            PlAnimateMarquee(
+              gap: 0,
+              children: List<Widget>.generate(10, (_) => const SizedBox(width: 60, height: 20)),
+            ),
+          ),
+          width: 200,
+          disableAnimations: true,
+        ),
+      );
+      await tester.pump();
+
+      expect(
+        find.descendant(of: find.byType(PlAnimateMarquee), matching: find.byType(ExcludeSemantics)),
+        findsNothing,
+      );
+
+      // Six hundred pixels of strip in a box two hundred wide, reached from the
+      // keyboard: Tab onto the box, then End.
+      before.requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.end);
+      await tester.pump();
+
+      final ScrollPosition position = tester
+          .state<ScrollableState>(
+            find.descendant(of: find.byType(PlAnimateMarquee), matching: find.byType(Scrollable)),
+          )
+          .position;
+
+      expect(position.maxScrollExtent, 400);
+      expect(position.pixels, 400);
+    });
+
+    testWidgets('scrolls down a vertical strip where the platform has asked for less movement', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        host(
+          PlAnimateMarquee(
+            orientation: PlassOrientation.vertical,
+            gap: 0,
+            children: List<Widget>.generate(10, (_) => const SizedBox(width: 60, height: 20)),
+          ),
+          width: 200,
+          height: 40,
+          disableAnimations: true,
+        ),
+      );
+      await tester.pump();
+
+      final ScrollableState scrollable = tester.state<ScrollableState>(
+        find.descendant(of: find.byType(PlAnimateMarquee), matching: find.byType(Scrollable)),
+      );
+
+      expect(scrollable.axisDirection, AxisDirection.down);
+      expect(scrollable.position.maxScrollExtent, 160);
+    });
+
     testWidgets('stands where it started where the platform has asked for less movement', (
       WidgetTester tester,
     ) async {

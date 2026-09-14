@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **Under `prefers-reduced-motion`, the `PlAnimateMarquee` items past the edge of the box can be reached.** The strip stopped, but the box still clipped it, so with ten headlines in a 400px box only the first one or two could ever be seen. The box now draws only the first copy and scrolls along it, and it is a tab stop while there is anything to scroll, so the arrow keys move it. A vertical marquee scrolls down its own axis. Where the platform draws a permanent scrollbar, the box is taller by the bar's thickness.
+
 - **Tab passes over the copies of a `PlAnimateMarquee` after the first.** The copies carried `aria-hidden`, which takes them off the accessibility tree but not off the tab order, so a strip of ten links was thirty Tab stops, twenty of them on a link with no name. The copies after the first are now `inert` as well, and only the first copy's links take the focus.
 
 - **`PlRating` writes a fractional score the way the pack's language writes a number.** The packs put the raw number into the sentence, so a half star read `2.5 von 5` in German, French and Spanish, which write a decimal with a comma. Each pack now formats the score with `Intl` in its own language, `2,5 von 5`, and a whole score still reads `3`. A `ratingValue` you write yourself still receives the plain number.

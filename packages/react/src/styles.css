@@ -1910,6 +1910,12 @@
   flex-direction: column;
 }
 
+/* Inset, so a box inside something that clips does not lose its ring. */
+.plass-marquee:focus-visible {
+  outline: 2px solid var(--plass-primary-ring);
+  outline-offset: -2px;
+}
+
 .plass-marquee-track {
   display: flex;
   flex: 0 0 auto;
@@ -2615,6 +2621,27 @@
   .plass-headline-item,
   .plass-caret {
     animation: none;
+  }
+
+  /*
+   * A marquee that stops would leave everything past the edge of its box out
+   * of sight for good. One copy is drawn, and the box scrolls along it instead
+   * of clipping it, so the strip stays one line rather than wrapping down the
+   * page; a platform that draws a permanent scrollbar adds only the bar. The
+   * component makes the box a tab stop while it scrolls.
+   */
+  .plass-marquee {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .plass-marquee-vertical {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .plass-marquee-track + .plass-marquee-track {
+    display: none;
   }
 
   /* The arc stops travelling and becomes an even glow. The same trade the

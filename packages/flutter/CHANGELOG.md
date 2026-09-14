@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **When animations are turned off, the `PlAnimateMarquee` items past the edge of the box can be reached.** The strip stood still, but the box still clipped it, so with ten headlines in a 400-pixel box only the first one or two could ever be seen. Only the first copy is now laid down, in a box that scrolls along it and is a tab stop while there is anything to scroll, so the arrow keys, Page Up, Page Down, Home and End move it. A vertical marquee scrolls down its own axis.
+
 - **Tab passes over the copies of a `PlAnimateMarquee` after the first.** The copies were behind `ExcludeSemantics`, which takes them out of the semantics tree but not out of the focus order, so a strip of ten focusable chips was thirty Tab stops. The copies after the first are now behind `ExcludeFocus` as well, and only the first copy's children take the focus.
 
 - **`PlRating` writes a fractional score the way the pack's language writes a number.** The packs interpolated the raw `num`, so a half star read `2.5 von 5` in German, French and Spanish, and an average such as `7 / 3` read out seventeen digits. Each pack now writes the score with its language's decimal separator and at most three decimals, `2,5 von 5`, without an `intl` dependency, and a whole score reads `3` even when it arrives as `3.0`.

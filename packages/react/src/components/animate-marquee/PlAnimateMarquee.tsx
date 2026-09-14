@@ -10,6 +10,7 @@ import {
   useAnimationRun
 } from '../../internal/animate.js';
 import { inertProps } from '../../internal/inert.js';
+import { usePrefersReducedMotion } from '../../internal/media.js';
 import { cx } from '../../internal/styles.js';
 import type { PlassAnimateProps, PlassOrientation } from '../../types.js';
 
@@ -41,7 +42,8 @@ export interface PlAnimateMarqueeProps
   /**
    * How many copies of the content are laid end to end. Two is enough for
    * anything at least as wide as its container; raise it when the content is
-   * short enough to leave a hole behind itself.
+   * short enough to leave a hole behind itself. Only the first is drawn under
+   * `prefers-reduced-motion`.
    * @default 2
    */
   copies?: number;
@@ -72,6 +74,12 @@ export interface PlAnimateMarqueeProps
  * `pauseOnHover` is on by default and is not decoration: content moving past a
  * pointer cannot be clicked reliably, and a link inside a marquee that never
  * stops is a link nobody can follow.
+ *
+ * Under `prefers-reduced-motion` the strip stops, and what was past the edge of
+ * the box would be out of sight for good. So the stylesheet draws only the
+ * first copy and lets the box scroll along it instead of clipping it, and the
+ * box is a tab stop while there is anything to scroll, for a reader with no
+ * pointer to scroll it with.
  *
  * Only the first copy is read out or reached with Tab. The rest carry
  * `aria-hidden`, or a screen reader would announce everything on the strip as
@@ -119,14 +127,22 @@ export const PlAnimateMarquee = /* @__PURE__ */ React.forwardRef<
   const boxRef = React.useRef<HTMLDivElement | null>(null);
   const trackRef = React.useRef<HTMLDivElement | null>(null);
   const [travel, setTravel] = React.useState(0);
+  const [overflows, setOverflows] = React.useState(false);
 
   const vertical = orientation === 'vertical';
+  const still = usePrefersReducedMotion();
 
   /**
    * How far one copy has to go, in pixels: its own length plus the gap after
    * it. The gap is read back off the computed style rather than parsed out of
    * the prop, because `'2rem'` is only a number once a font size has been
    * resolved — and the one on the page is the one that matters.
+   *
+   * Whether the box has anything to scroll is read in the same pass. It only
+   * decides something under reduced motion, where the stylesheet has put the
+   * copies after the first away, so the preference is a dependency: turning it
+   * on changes what the box holds without changing the size of either element
+   * being observed.
    */
   React.useEffect(() => {
     const box = boxRef.current;
@@ -142,6 +158,9 @@ export const PlAnimateMarquee = /* @__PURE__ */ React.forwardRef<
       const size = vertical ? track.offsetHeight : track.offsetWidth;
 
       setTravel(size + gapPx);
+      setOverflows(
+        vertical ? box.scrollHeight > box.clientHeight : box.scrollWidth > box.clientWidth
+      );
     };
 
     measure();
@@ -156,7 +175,7 @@ export const PlAnimateMarquee = /* @__PURE__ */ React.forwardRef<
     observer.observe(box);
 
     return () => observer.disconnect();
-  }, [vertical, children]);
+  }, [vertical, children, still]);
 
   // An explicit duration wins; otherwise the measurement decides, and until the
   // first measurement lands there is a sane number rather than `0ms`, which
@@ -206,6 +225,9 @@ export const PlAnimateMarquee = /* @__PURE__ */ React.forwardRef<
       data-plass-animation="marquee"
       data-state={run.state}
       data-pause-on-hover={pauseOnHover ? '' : undefined}
+      // A tab stop only where the box scrolls, which is only under reduced
+      // motion: a moving strip has nothing a reader could scroll to.
+      tabIndex={still && overflows ? 0 : undefined}
       {...mergeProps(props, run.handlers)}
     >
       {Array.from({ length: Math.max(1, copies) }, (_, index) => track(index))}

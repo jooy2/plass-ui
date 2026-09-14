@@ -4,6 +4,7 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/animate.dart';
+import 'package:plass_ui/src/internal/keyboard_scroll.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// How long one pass takes before the strip has been measured.
@@ -35,6 +36,11 @@ const Duration _unmeasured = Duration(seconds: 12);
 /// [pauseOnHover] is on by default and is not decoration: content moving past a
 /// pointer cannot be pressed reliably, and a link inside a marquee that never
 /// stops is a link nobody can follow.
+///
+/// When the platform has animations turned off, the strip stands still, and
+/// what was past the edge of the box would be out of sight for good. So only
+/// the first copy is laid down, the box scrolls along it instead of clipping
+/// it, and the box is a tab stop while there is anything to scroll.
 ///
 /// Only the first copy is read out or reached with Tab. The rest are behind
 /// [ExcludeSemantics], or a screen reader would announce everything on the
@@ -83,7 +89,8 @@ class PlAnimateMarquee extends StatefulWidget {
   /// How many copies of the content are laid end to end.
   ///
   /// Two is enough for anything at least as long as its box; raise it when the
-  /// content is short enough to leave a hole behind itself.
+  /// content is short enough to leave a hole behind itself. Only the first is
+  /// laid down when the platform has animations turned off.
   final int copies;
 
   /// Stops while the pointer is on it, so something scrolling past can actually
@@ -128,6 +135,7 @@ class PlAnimateMarquee extends StatefulWidget {
 
 class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
   final GlobalKey _track = GlobalKey();
+  final ScrollController _scroll = ScrollController();
 
   /// How far one copy has to go: its own length plus the gap after it.
   double _travel = 0;
@@ -141,6 +149,12 @@ class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _measure());
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
   }
 
   @override
@@ -192,7 +206,7 @@ class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
         once: widget.once,
         threshold: widget.threshold,
       ),
-      child: _copies(),
+      child: _copies(still: still),
       builder: (BuildContext context, double t, Widget? inner) {
         // A marquee's reduced-motion answer is the *opposite* of an entrance's:
         // what an entrance has delivered is its finished frame, and what a
@@ -211,15 +225,31 @@ class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
       },
     );
 
-    // The strip is longer than its box by design, so it has to be laid out
-    // against an unbounded main axis and clipped — a `ClipRect` alone would
-    // clip the paint and leave a `RenderFlex` asserting that it overflowed.
-    strip = UnconstrainedBox(
-      constrainedAxis: _vertical ? Axis.horizontal : Axis.vertical,
-      alignment: _vertical ? Alignment.topCenter : AlignmentDirectional.centerStart,
-      clipBehavior: Clip.hardEdge,
-      child: strip,
-    );
+    if (still) {
+      // A strip that stands still is scrolled rather than clipped, so what is
+      // past the edge of the box can still be reached, by the keyboard as well.
+      // The box keeps the height the clipped strip had.
+      strip = PlassKeyboardScroll(
+        vertical: _vertical ? _scroll : null,
+        horizontal: _vertical ? null : _scroll,
+        borderRadius: BorderRadius.zero,
+        child: SingleChildScrollView(
+          controller: _scroll,
+          scrollDirection: _vertical ? Axis.vertical : Axis.horizontal,
+          child: strip,
+        ),
+      );
+    } else {
+      // The strip is longer than its box by design, so it has to be laid out
+      // against an unbounded main axis and clipped — a `ClipRect` alone would
+      // clip the paint and leave a `RenderFlex` asserting that it overflowed.
+      strip = UnconstrainedBox(
+        constrainedAxis: _vertical ? Axis.horizontal : Axis.vertical,
+        alignment: _vertical ? Alignment.topCenter : AlignmentDirectional.centerStart,
+        clipBehavior: Clip.hardEdge,
+        child: strip,
+      );
+    }
 
     if (widget.pauseOnHover) {
       strip = MouseRegion(
@@ -232,16 +262,18 @@ class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
     return strip;
   }
 
-  /// The copies, laid end to end with a gap between them.
-  Widget _copies() {
+  /// The copies, laid end to end with a gap between them. One when [still],
+  /// because a strip that does not move has no seam to close.
+  Widget _copies({required bool still}) {
     final Axis axis = _vertical ? Axis.vertical : Axis.horizontal;
+    final int count = still || widget.copies < 1 ? 1 : widget.copies;
 
     return Flex(
       direction: axis,
       mainAxisSize: MainAxisSize.min,
       spacing: widget.gap,
       children: <Widget>[
-        for (int index = 0; index < (widget.copies < 1 ? 1 : widget.copies); index += 1)
+        for (int index = 0; index < count; index += 1)
           if (index == 0)
             KeyedSubtree(key: _track, child: _copy(axis))
           else
