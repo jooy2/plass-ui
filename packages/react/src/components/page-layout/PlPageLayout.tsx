@@ -314,6 +314,12 @@ export const PlPageLayout = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlP
       [register, collapseBelow, open, setOpen, scroll]
     );
 
+    // What the page inside `<main>` sees: the same layout, with no slot to take.
+    const mainContext = React.useMemo(
+      () => ({ ...context, register: (): void => undefined }),
+      [context]
+    );
+
     const fills = scroll === 'content';
 
     // A named height is a class, because both of those are exactly two class
@@ -407,7 +413,13 @@ export const PlPageLayout = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlP
                   mainProps?.className
                 )}
               >
-                {children}
+                {/* The page's own `PlHeader`s and `PlFooter`s, an article's or a
+                  card's, are not the layout's bars, so nothing in here may take
+                  a slot over. Everything else the context carries still reaches
+                  it, such as the sidebar a `PlSidebarTrigger` opens. */}
+                <PlPageLayoutContext.Provider value={mainContext}>
+                  {children}
+                </PlPageLayoutContext.Provider>
               </main>
 
               {footerSpan === 'content' ? footerSlot : null}

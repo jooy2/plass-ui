@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlPageLayout } from 'plass-ui';
+import { PlHeader, PlPageLayout } from 'plass-ui';
 
 describe('PlPageLayout', () => {
   describe('the landmarks', () => {
@@ -185,6 +185,37 @@ describe('PlPageLayout', () => {
 
       expect(element.style.getPropertyValue('--p-layout-header')).toBe('0px');
       expect(element.style.getPropertyValue('--p-layout-footer-inset')).toBe('0px');
+    });
+
+    it('measures the bar in its slot, not a header inside the page', async () => {
+      // `position` inline, because nothing loads Tailwind into the test run and
+      // the measurement reads the computed position.
+      const screen = await render(
+        <PlPageLayout
+          data-testid="layout"
+          header={<PlHeader style={{ position: 'sticky', height: 64 }}>Site</PlHeader>}
+        >
+          <article>
+            <PlHeader style={{ position: 'sticky', height: 120 }}>Article</PlHeader>
+          </article>
+        </PlPageLayout>
+      );
+
+      const element = screen.getByTestId('layout').element() as HTMLElement;
+
+      await expect.poll(() => element.style.getPropertyValue('--p-layout-header')).toBe('64px');
+
+      // The article's header going away leaves the site's measured.
+      await screen.rerender(
+        <PlPageLayout
+          data-testid="layout"
+          header={<PlHeader style={{ position: 'sticky', height: 64 }}>Site</PlHeader>}
+        >
+          <article>Body</article>
+        </PlPageLayout>
+      );
+
+      await expect.poll(() => element.style.getPropertyValue('--p-layout-header')).toBe('64px');
     });
 
     it('leaves a bar that never registered itself at zero', async () => {
