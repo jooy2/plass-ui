@@ -10,7 +10,8 @@ import {
   PlMenuRadioGroup,
   PlMenuRadioItem,
   PlMenuSeparator,
-  PlMenuSubmenu
+  PlMenuSubmenu,
+  PlassProvider
 } from 'plass-ui';
 
 const trigger = <PlButton>Open</PlButton>;
@@ -274,6 +275,36 @@ describe('PlMenu', () => {
       await opener.click();
 
       await expect.element(screen.getByRole('menuitem', { name: 'By email' })).toBeInTheDocument();
+    });
+  });
+
+  describe('right to left', () => {
+    it('opens a submenu towards the end of the line, and turns its chevron there', async () => {
+      const screen = await render(
+        <PlassProvider direction="rtl">
+          <PlMenu open>
+            <PlMenuSubmenu label="Share">
+              <PlMenuItem>By email</PlMenuItem>
+            </PlMenuSubmenu>
+          </PlMenu>
+        </PlassProvider>
+      );
+
+      const opener = screen.getByRole('menuitem', { name: 'Share' });
+
+      // The chevron is turned by a class, since nothing loads Tailwind here.
+      expect(opener.element().querySelector('span:last-child')).toHaveClass('rtl:rotate-90');
+
+      (opener.element() as HTMLElement).click();
+
+      const nested = screen.getByRole('menuitem', { name: 'By email' });
+      await expect.element(nested).toBeInTheDocument();
+
+      // Base UI reports the side it resolved to; under RTL the end of the line is
+      // never the physical right.
+      const side = nested.element().closest('[data-side]')?.getAttribute('data-side');
+
+      expect(['left', 'inline-end']).toContain(side);
     });
   });
 

@@ -58,6 +58,8 @@
 
 ### Fixed
 
+- **A `PlMenuSubmenu` opens towards the end of the line under RTL, and its chevron turns with it.** The submenu always opened to the right of its row, while under a right-to-left `Directionality` the arrow key that opens it is the left one, and the chevron kept pointing right. It now opens to the left under RTL, as `PlNavigationMenu` already did, and the chevron points that way.
+
 - **Pressing a `PlAnchor` row stops `offset` above the heading, and jumps when animations are turned off.** The press scrolled the heading to the very top of the view, under a fixed header that `offset` was there to clear, and always moved over the slow duration, even with the platform's animations turned off. It now stops at the same line the tracking reads, and jumps there when `MediaQuery.disableAnimations` is set.
 
 - **`PlScrollArea` and `PlScrollZone` can be scrolled from the keyboard.** Neither took the focus, so a box of text with nothing focusable in it, or a strip with `buttons: none`, could not be reached with Tab or moved with a key, although the documentation said it could. While there is somewhere to scroll, each is now a tab stop that draws the focus ring, and the arrow keys move it by a line, following the writing direction along a row, Page Up and Page Down by a screen, and Home and End to its ends. A box whose content fits adds nothing to the tab order.

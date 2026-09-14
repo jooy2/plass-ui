@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **A `PlMenuSubmenu` opens towards the end of the line under RTL, and its chevron turns with it.** The submenu opened against the physical right edge whatever the direction, while under RTL the arrow key that opens it is the left one, and the chevron kept pointing right. Left out, `side` is now the inline end, the left under RTL, and the chevron follows. A `side` given explicitly is still a physical edge.
+
 - **An unavailable `PlMenuItem` with an `href` no longer navigates.** The link row took no `disabled`, so `<PlMenuItem href="/admin" disabled>` was drawn as available and followed its link when pressed. A disabled row with an `href` is now the plain row it has become: dimmed, announced as unavailable, and going nowhere.
 
 - **The `PlFloatingBottomNavigation` key disappears when `value` names no destination.** The key stayed under the last destination, which no longer carried `aria-current`, so the bar drew a destination as current that nothing said was. It is now hidden, and appears in place when a destination is current again, as in the Flutter build.

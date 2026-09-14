@@ -138,7 +138,10 @@ export interface PlMenuSubmenuProps {
   label?: React.ReactNode;
   startIcon?: React.ReactNode;
   disabled?: boolean;
-  /** Which edge of the parent row it opens against. @default 'right' */
+  /**
+   * Which edge of the parent row it opens against. Left out, the end of the line:
+   * the right, or the left under RTL.
+   */
   side?: PlassSide;
   /** Distance from the parent menu, in pixels. @default 4 */
   sideOffset?: number;
@@ -584,7 +587,7 @@ export function PlMenuSubmenu({
   label,
   startIcon,
   disabled = false,
-  side = 'right',
+  side,
   sideOffset = 4,
   children,
   className,
@@ -603,7 +606,7 @@ export function PlMenuSubmenu({
           The chevron is drawn pointing down and turned — the one allowance the
           no-transform rule makes, because a glyph has no text in it to resample.
         */}
-        <span className={cx(slotClasses, 'text-(--plass-muted-fg) -rotate-90')}>
+        <span className={cx(slotClasses, 'text-(--plass-muted-fg) -rotate-90 rtl:rotate-90')}>
           <ChevronIcon />
         </span>
       </BaseUIMenu.SubmenuTrigger>
@@ -611,7 +614,9 @@ export function PlMenuSubmenu({
       <BaseUIMenu.Portal>
         <BaseUIMenu.Positioner
           className="plass-portal z-(--plass-z-portal) [outline:none]"
-          side={side}
+          // The inline end unless told otherwise: the left under RTL, which is
+          // where the arrow key that opens it points.
+          side={side ?? 'inline-end'}
           sideOffset={sideOffset}
           align="start"
         >

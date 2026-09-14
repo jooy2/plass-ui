@@ -3,6 +3,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
+import 'package:plass_ui/src/internal/icons.dart';
+
 import '../../support/host.dart';
 
 /// A menu with a plain trigger, which is how every caller uses one.
@@ -317,6 +319,52 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(pressed, <String>['Paste']);
+      });
+
+      testWidgets('opens a submenu towards the end of the line, and turns its chevron there', (
+        WidgetTester tester,
+      ) async {
+        for (final TextDirection direction in TextDirection.values) {
+          await tester.pumpWidget(
+            host(
+              Directionality(
+                textDirection: direction,
+                child: menu(<PlMenuEntry>[
+                  PlMenuSubmenu(
+                    label: 'Share',
+                    items: <PlMenuEntry>[PlMenuItem(label: 'By email', onPressed: () {})],
+                  ),
+                ]),
+              ),
+              overlay: true,
+            ),
+          );
+          await openMenu(tester);
+
+          await tester.tap(find.text('Share'));
+          await tester.pumpAndSettle();
+
+          final Rect row = tester.getRect(find.text('Share'));
+          final Rect nested = tester.getRect(find.text('By email'));
+          final int turns = tester
+              .widget<PlassGlyph>(
+                find.byWidgetPredicate(
+                  (Widget widget) =>
+                      widget is PlassGlyph && widget.shape == PlassGlyphShape.chevron,
+                ),
+              )
+              .quarterTurns;
+
+          if (direction == TextDirection.rtl) {
+            expect(nested.right, lessThan(row.left), reason: '$direction');
+            expect(turns, 1);
+          } else {
+            expect(nested.left, greaterThan(row.right), reason: '$direction');
+            expect(turns, -1);
+          }
+
+          await tester.pumpWidget(const SizedBox.shrink());
+        }
       });
 
       testWidgets('opens and closes a submenu with the arrow keys', (WidgetTester tester) async {

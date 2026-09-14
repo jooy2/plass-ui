@@ -823,7 +823,9 @@ class _PlMenuState extends State<PlMenu> {
     if (entry is PlMenuSubmenu) {
       return PlassAnchoredPortal(
         open: opened,
-        side: PlassSide.right,
+        // Towards the end of the line, which is the left under RTL, where the
+        // arrow key that opens it points too.
+        side: Directionality.of(context) == TextDirection.rtl ? PlassSide.left : PlassSide.right,
         align: PlassAlign.start,
         offset: _submenuStandoff,
         // Built only while it is open, and that is not an optimisation: a
@@ -912,7 +914,14 @@ class _PlMenuState extends State<PlMenu> {
             ),
           ),
         if (entry is PlMenuSubmenu)
-          slot(PlassGlyph(PlassGlyphShape.chevron, size: glyph, quarterTurns: -1), tokens.mutedFg),
+          slot(
+            PlassGlyph(
+              PlassGlyphShape.chevron,
+              size: glyph,
+              quarterTurns: Directionality.of(context) == TextDirection.rtl ? 1 : -1,
+            ),
+            tokens.mutedFg,
+          ),
       ],
     );
   }
