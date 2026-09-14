@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { mergeProps } from '@base-ui/react/merge-props';
 import { useRender } from '@base-ui/react/use-render';
 import { isInfinite, useAnimateElement } from '../../internal/animate.js';
 import { cx } from '../../internal/styles.js';
@@ -95,10 +96,9 @@ export const PlAnimateBlink = /* @__PURE__ */ React.forwardRef<HTMLDivElement, P
       render,
       ref: [ref, animate.ref],
       props: {
-        ...props,
+        ...mergeProps(props, animate.props),
         className: cx(animate.className, className),
         style: { ...animate.style, ...style },
-        ...animate.props,
         children: animate.children
       }
     });

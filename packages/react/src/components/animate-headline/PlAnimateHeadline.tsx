@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { mergeProps } from '@base-ui/react/merge-props';
 import { isInfinite, lengthValue, useAnimationRun } from '../../internal/animate.js';
 import { usePrefersReducedMotion } from '../../internal/media.js';
 import { cx } from '../../internal/styles.js';
@@ -200,8 +201,7 @@ export const PlAnimateHeadline = /* @__PURE__ */ React.forwardRef<
       }
       data-plass-animation="headline"
       data-state={run.state}
-      {...run.handlers}
-      {...props}
+      {...mergeProps(props, run.handlers)}
     >
       {items.map((child, position) => {
         const state =

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { mergeProps } from '@base-ui/react/merge-props';
 import { useDefaults } from '../../internal/defaults.js';
 import { useRender } from '@base-ui/react/use-render';
 import { isInfinite, useAnimateElement } from '../../internal/animate.js';
@@ -128,7 +129,7 @@ export const PlAnimateLighting = /* @__PURE__ */ React.forwardRef<
     render,
     ref: [ref, animate.ref],
     props: {
-      ...props,
+      ...mergeProps(props, animate.props),
       className: cx('plass-anim-lighting', radiusClasses[size], className),
       style: {
         ...animate.style,
@@ -139,7 +140,6 @@ export const PlAnimateLighting = /* @__PURE__ */ React.forwardRef<
         '--p-anim-glow-blur': `${blur}px`,
         ...style
       } as React.CSSProperties,
-      ...animate.props,
       'data-plass-animation': 'lighting',
       children
     }

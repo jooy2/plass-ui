@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { mergeProps } from '@base-ui/react/merge-props';
 import { useRender } from '@base-ui/react/use-render';
 import { useAnimationRun } from '../../internal/animate.js';
 import { useDefaults } from '../../internal/defaults.js';
@@ -194,7 +195,6 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
     ref: [ref, run.ref],
     props: {
       className: cx('tabular-nums', className),
-      ...run.handlers,
       'data-plass-animation': 'counter',
       'data-state': run.state,
       children: (
@@ -204,7 +204,7 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
           <span aria-hidden="true">{formatter.format(shown)}</span>
         </>
       ),
-      ...props
+      ...mergeProps(props, run.handlers)
     }
   });
 });

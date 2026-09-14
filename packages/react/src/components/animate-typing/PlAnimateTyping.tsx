@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { mergeProps } from '@base-ui/react/merge-props';
 import { isInfinite, useAnimationRun } from '../../internal/animate.js';
 import { usePrefersReducedMotion } from '../../internal/media.js';
 import { srOnlyClasses } from '../../internal/styles.js';
@@ -284,8 +285,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
       style={style}
       data-plass-animation="typing"
       data-state={run.state}
-      {...run.handlers}
-      {...props}
+      {...mergeProps(props, run.handlers)}
     >
       <span className={srOnlyClasses}>{source}</span>
       <span aria-hidden="true" className="whitespace-pre-wrap">

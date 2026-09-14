@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { mergeProps } from '@base-ui/react/merge-props';
 import { useRender } from '@base-ui/react/use-render';
 import { useAnimationRun } from '../../internal/animate.js';
 import { usePrefersReducedMotion } from '../../internal/media.js';
@@ -172,7 +173,6 @@ export const PlAnimateScramble = /* @__PURE__ */ React.forwardRef<
     ref: [ref, run.ref],
     props: {
       className: cx(className),
-      ...run.handlers,
       'data-plass-animation': 'scramble',
       'data-state': run.state,
       children: (
@@ -182,7 +182,7 @@ export const PlAnimateScramble = /* @__PURE__ */ React.forwardRef<
           <span aria-hidden="true">{shown}</span>
         </>
       ),
-      ...props
+      ...mergeProps(props, run.handlers)
     }
   });
 });

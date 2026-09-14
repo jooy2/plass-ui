@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { mergeProps } from '@base-ui/react/merge-props';
 import { useRender } from '@base-ui/react/use-render';
 import { isInfinite, useAnimateElement } from '../../internal/animate.js';
 import { cx } from '../../internal/styles.js';
@@ -119,12 +120,11 @@ export const PlAnimateGrow = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
       render,
       ref: [ref, animate.ref],
       props: {
-        ...props,
+        ...mergeProps(props, animate.props),
         className: cx(animate.className, className),
         // `transform-origin` governs the standalone `scale` property too, which
         // is what lets the effect stay off the `transform` shorthand entirely.
         style: { ...animate.style, ...style },
-        ...animate.props,
         children: animate.children
       }
     });

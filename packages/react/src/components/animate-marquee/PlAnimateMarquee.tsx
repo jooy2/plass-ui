@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { mergeProps } from '@base-ui/react/merge-props';
 import {
   isInfinite,
   lengthValue,
@@ -201,8 +202,7 @@ export const PlAnimateMarquee = /* @__PURE__ */ React.forwardRef<
       data-plass-animation="marquee"
       data-state={run.state}
       data-pause-on-hover={pauseOnHover ? '' : undefined}
-      {...run.handlers}
-      {...props}
+      {...mergeProps(props, run.handlers)}
     >
       {Array.from({ length: Math.max(1, copies) }, (_, index) => track(index))}
     </div>

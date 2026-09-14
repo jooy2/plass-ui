@@ -271,7 +271,14 @@ export interface AnimationRun {
   state: 'running' | 'paused';
   /** Whether the animation has been let go at all. */
   started: boolean;
-  /** Spread onto the element when `trigger` is `hover`; empty otherwise. */
+  /**
+   * The hover trigger's handlers when `trigger` is `hover`; empty otherwise.
+   *
+   * Merged with the caller's props through `mergeProps` rather than spread
+   * beside them. Both sides want `onPointerEnter` and `onFocus`, and a spread
+   * keeps only one: either a caller's prefetch never runs, or a caller's
+   * `onFocus` quietly takes the keyboard's way in away from the effect.
+   */
   handlers: React.HTMLAttributes<HTMLElement>;
 }
 
@@ -528,7 +535,11 @@ export interface AnimateElement {
   ref: React.RefCallback<HTMLElement>;
   className: string;
   style: React.CSSProperties;
-  /** The hover handlers and the two data attributes, ready to be spread. */
+  /**
+   * The hover handlers and the two data attributes, to be merged with the
+   * caller's props through `mergeProps` for the reason `AnimationRun.handlers`
+   * gives.
+   */
   props: React.HTMLAttributes<HTMLElement> & Record<string, unknown>;
   /** The children, with the effect written onto them if it was staggered. */
   children: React.ReactNode;

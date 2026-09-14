@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { mergeProps } from '@base-ui/react/merge-props';
 import { useRender } from '@base-ui/react/use-render';
 import {
   animBaseClass,
@@ -144,10 +145,9 @@ export const PlAnimateSplit = /* @__PURE__ */ React.forwardRef<
     render: render ?? <span />,
     ref: [ref, run.ref],
     props: {
-      ...props,
+      ...mergeProps(props, run.handlers),
       className: cx(className),
       style,
-      ...run.handlers,
       'data-plass-animation': effect,
       'data-state': run.state,
       children: (

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { mergeProps } from '@base-ui/react/merge-props';
 import { useRender } from '@base-ui/react/use-render';
 import {
   animBaseClass,
@@ -136,12 +137,11 @@ export const PlAnimateAppear = /* @__PURE__ */ React.forwardRef<
     render,
     ref: [ref, run.ref],
     props: {
-      ...props,
+      ...mergeProps(props, run.handlers),
       className,
       // Only the play state lives on the root. Every other slot is per child,
       // because the delay is what the whole effect is made of.
       style: { '--p-anim-state': run.state, ...style } as React.CSSProperties,
-      ...run.handlers,
       'data-plass-animation': 'appear',
       'data-state': run.state,
       children: animated
