@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlTransfer, type PlTransferItem } from 'plass-ui';
+import { PlTransfer, PlassProvider, type PlTransferItem } from 'plass-ui';
 
 const items: PlTransferItem[] = [
   { value: 'name', label: 'Name' },
@@ -46,6 +46,19 @@ describe('PlTransfer', () => {
 
       await expect.element(screen.getByText('Columns')).toBeVisible();
       await expect.element(screen.getByText('In the report')).toBeVisible();
+    });
+
+    it('falls back to the label pack for a heading left empty', async () => {
+      const screen = await render(
+        <PlassProvider labels={{ transferAvailable: '사용 가능', transferSelected: '선택됨' }}>
+          <PlTransfer items={items} sourceLabel="" targetLabel="" />
+        </PlassProvider>
+      );
+
+      // An empty heading used to be the English word, whatever pack the page
+      // was reading.
+      await expect.element(screen.getByText('사용 가능')).toBeVisible();
+      await expect.element(screen.getByText('선택됨')).toBeVisible();
     });
 
     it('says so when a list is empty', async () => {

@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **An empty `PlTransfer` heading falls back to the label pack.** A `sourceLabel` or `targetLabel` of `''` drew the English `Available` or `Selected` whatever pack the page used. It now draws the pack's `transferAvailable` or `transferSelected`, as a heading left out already did.
+
 - **A `PlChip` delete button is named in the word order of the label pack.** The name was the pack's `remove` followed by the chip's text, English's order in every language, so a Korean page read `삭제 Design`. It now comes from the pack's `removeItem`, `Design 삭제` in Korean, and `deleteLabel` still replaces the whole name. Words that a component of their own draws cannot be read from `children`, and still follow `remove`.
 
 - **`PlGallery` says where a picture sits in the language of the label pack.** A tile's name and the viewer's counter were built from an English template inside the component, so a Korean page read `A harbour — 2 of 4` inside a list named `갤러리`. They now come from the new `galleryItem` label key, translated in all seven packs in each language's own word order, and `itemLabel` still wins.

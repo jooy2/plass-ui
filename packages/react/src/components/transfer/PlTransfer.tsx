@@ -447,7 +447,7 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
         {...props}
       >
         <Panel
-          title={hasContent(sourceLabel) ? sourceLabel : 'Available'}
+          title={hasContent(sourceLabel) ? sourceLabel : labels.transferAvailable}
           titleId={`${baseId}-source`}
           listRef={sourceListRef}
           rowRef={rowRef}
@@ -501,7 +501,7 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
         </div>
 
         <Panel
-          title={hasContent(targetLabel) ? targetLabel : 'Selected'}
+          title={hasContent(targetLabel) ? targetLabel : labels.transferSelected}
           titleId={`${baseId}-target`}
           listRef={targetListRef}
           rowRef={rowRef}
