@@ -133,31 +133,31 @@ A **†** marks the few that are React-only. They are not omissions. Each one an
 
 ### Display
 
-`PlAvatar` · `PlBadge` · `PlBlockquote` · `PlBreadcrumb` · `PlChip` · `PlCodeBlock` · `PlDivider` · `PlGallery` · `PlHighlight` · `PlHotKeys` · `PlIcon` · `PlImage` · `PlList` · `PlMockup` · `PlTable` · `PlStat` · `PlTextLink` · `PlTimeline` · `PlTree` · `PlTypography` · `PlVisuallyHidden`†
+`PlAppLogo` · `PlAvatar` · `PlBadge` · `PlBlockquote` · `PlBreadcrumb` · `PlChip` · `PlCodeBlock` · `PlDataList` · `PlDataTable` · `PlDivider` · `PlGallery` · `PlHighlight` · `PlHotKeys` · `PlIcon` · `PlImage` · `PlList` · `PlMockup` · `PlStat` · `PlTable` · `PlTextLink` · `PlTimeline` · `PlTree` · `PlTypography` · `PlVisuallyHidden`†
 
 ### Feedback
 
-`PlAlert` · `PlConfirmProvider` · `PlDrawer` · `PlEmpty` · `PlModal` · `PlOverlay` · `PlPopconfirm` · `PlPopover` · `PlProgressBox` · `PlProgressCircular` · `PlProgressLinear` · `PlSkeleton` · `PlToast` · `PlTooltip`
+`PlAlert` · `PlConfirmProvider` · `PlDrawer` · `PlEmpty` · `PlMeter` · `PlModal` · `PlOverlay` · `PlPopconfirm` · `PlPopover` · `PlProgressBox` · `PlProgressCircular` · `PlProgressLinear` · `PlSkeleton` · `PlToast` · `PlTooltip` · `PlTour`
 
 ### Inputs
 
-`PlButton` · `PlButtonGroup` · `PlCalendar` · `PlCheckbox` · `PlColorPicker` · `PlCombobox` · `PlDatePicker` · `PlDateRangePicker` · `PlDateTimePicker` · `PlFieldset` · `PlFilePicker` · `PlForm` · `PlIconButton` · `PlNumberField` · `PlOtpField` · `PlPagination` · `PlRadioGroup` · `PlRating` · `PlSegmentedButton` · `PlSelect` · `PlSlider` · `PlSwitch` · `PlTextField` · `PlTimePicker` · `PlToggle` · `PlToggleGroup` · `PlTransfer` · `PlTreeSelect`
+`PlButton` · `PlButtonGroup` · `PlCalendar` · `PlCheckbox` · `PlColorPicker` · `PlCombobox` · `PlDatePicker` · `PlDateRangePicker` · `PlDateTimePicker` · `PlFieldset` · `PlFilePicker` · `PlFloatingActionButton` · `PlForm` · `PlIconButton` · `PlNumberField` · `PlOtpField` · `PlPagination` · `PlRadioGroup` · `PlRating` · `PlSegmentedButton` · `PlSelect` · `PlSlider` · `PlSwitch` · `PlTextField` · `PlTimePicker` · `PlToggle` · `PlToggleGroup` · `PlTransfer` · `PlTreeSelect`
 
 ### Layout
 
-`PlAspectRatio` · `PlContainer` · `PlFooter` · `PlGrid` · `PlHeader` · `PlPageLayout` · `PlPanes` · `PlScrollZone` · `PlShow` · `PlSidebar` · `PlStack`
+`PlAspectRatio` · `PlContainer` · `PlFlex`† · `PlFooter` · `PlGrid` · `PlHeader` · `PlPageLayout` · `PlPanes` · `PlPortal`† · `PlScrollArea` · `PlScrollZone` · `PlShow` · `PlSidebar` · `PlStack`
 
 ### Navigation
 
-`PlBackTop` · `PlBottomNavigation` · `PlCommandPalette` · `PlContextMenu` · `PlFloatingBottomNavigation` · `PlMenu` · `PlMenubar` · `PlNavigationMenu` · `PlStepper`
+`PlAnchor` · `PlBackTop` · `PlBottomNavigation` · `PlCommandPalette` · `PlContextMenu`† · `PlFloatingBottomNavigation` · `PlMenu` · `PlMenubar` · `PlNavigationMenu` · `PlStepper`
 
 ### Surfaces
 
-`PlAccordion` · `PlBox` · `PlCard` · `PlCarousel` · `PlChatBubble` · `PlCollapsible` · `PlPill` · `PlSpoiler` · `PlTabs` · `PlToolbar` · `PlWindowPane`
+`PlAccordion` · `PlBox` · `PlCard` · `PlCarousel` · `PlChatBubble` · `PlCollapsible` · `PlHoverCard` · `PlHowToSteps` · `PlPill` · `PlSpoiler` · `PlTabs` · `PlToolbar` · `PlWindowPane`
 
 ### Transitions
 
-`PlAnimateAppear` · `PlAnimateBlink` · `PlAnimateFade` · `PlAnimateGrow` · `PlAnimateHeadline` · `PlAnimateLighting` · `PlAnimateMarquee` · `PlAnimateReveal` · `PlAnimateRotate` · `PlAnimateSlide` · `PlAnimateTyping` · `PlAnimateZoom`
+`PlAnimateAppear` · `PlAnimateBlink` · `PlAnimateCounter` · `PlAnimateFade` · `PlAnimateFloat` · `PlAnimateGrow` · `PlAnimateHeadline` · `PlAnimateLighting` · `PlAnimateMarquee` · `PlAnimateReveal` · `PlAnimateRotate` · `PlAnimateScramble` · `PlAnimateShake` · `PlAnimateSlide` · `PlAnimateSplit` · `PlAnimateTyping` · `PlAnimateZoom`
 
 ## Setting defaults
 
