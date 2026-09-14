@@ -60,6 +60,8 @@
 
 ### Fixed
 
+- **A `PlSpoiler` no longer rebuilds what it covers from scratch when it is revealed.** The child was wrapped in blur, clip and exclusion widgets only while it was covered, so revealing changed the shape of the tree and Flutter discarded the child's `State`, losing a scroll position, a playing video or typed text. The wrappers are now built in both states and only switched, and the child keeps its `State` across a reveal and back.
+
 - **Pressing Reveal or Hide on a `PlSpoiler` from the keyboard no longer sends the focus out of the spoiler.** The pressed button was put under `ExcludeFocus` by the rebuild that acted on the press, so its scope handed the focus back to whatever held it before, or to nothing. Revealing now moves the focus to the uncovered content, and hiding moves it back to the Reveal button. The focus is left alone when it was elsewhere on the screen.
 
 - **The `PlSlider` run ends under the centre of its thumb.** The run was measured along the whole rail while a thumb travels along the rail less its own size, so the run's end sat under the thumb's centre only at the middle value: below the middle it stopped short of the centre, and above it it ran past. A range's run now starts and ends under the centres of its two thumbs, and a single value's run still starts at the start of the rail.

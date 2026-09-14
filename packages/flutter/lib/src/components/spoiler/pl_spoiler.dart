@@ -270,33 +270,44 @@ class _PlSpoilerState extends State<PlSpoiler> {
 
     content = Focus(focusNode: _contentFocus, includeSemantics: false, child: content);
 
-    if (!_open) {
-      if (widget.maxHeight != null) {
-        content = ClipRect(
-          child: Align(
-            alignment: Alignment.topCenter,
-            heightFactor: 1,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: widget.maxHeight!),
-              child: content,
-            ),
+    // Every wrapper below is built in both states and only switched, so the
+    // child sits at the same depth covered and uncovered. Wrapped only while it
+    // was covered, the child was one level deeper before a reveal than after it,
+    // and Flutter took that for a different child: whatever it held in its
+    // `State` — a playing video, a scroll position, a half-typed answer — was
+    // thrown away on reveal and built again from nothing.
+    content = ClipRect(
+      clipBehavior: !_open && widget.maxHeight != null ? Clip.hardEdge : Clip.none,
+      child: Align(
+        alignment: Alignment.topCenter,
+        heightFactor: 1,
+        child: ConstrainedBox(
+          // The clamp is only ever on the covered state.
+          constraints: BoxConstraints(
+            maxHeight: _open ? double.infinity : (widget.maxHeight ?? double.infinity),
           ),
-        );
-      }
+          child: content,
+        ),
+      ),
+    );
 
-      content = ImageFiltered(
-        imageFilter: ui.ImageFilter.blur(sigmaX: widget.blur, sigmaY: widget.blur),
-        child: content,
-      );
+    content = ImageFiltered(
+      enabled: !_open,
+      imageFilter: ui.ImageFilter.blur(sigmaX: widget.blur, sigmaY: widget.blur),
+      child: content,
+    );
 
-      // Out of the focus order, off the semantics tree and out of reach of the
-      // pointer — the three things `inert` does in the other package, said as
-      // the three widgets that do them here. A spoiler somebody can tab into is
-      // not a spoiler.
-      content = ExcludeSemantics(
-        child: ExcludeFocus(child: IgnorePointer(child: content)),
-      );
-    }
+    // Out of the focus order, off the semantics tree and out of reach of the
+    // pointer — the three things `inert` does in the other package, said as the
+    // three widgets that do them. A spoiler somebody can tab into is not a
+    // spoiler.
+    content = ExcludeSemantics(
+      excluding: !_open,
+      child: ExcludeFocus(
+        excluding: !_open,
+        child: IgnorePointer(ignoring: !_open, child: content),
+      ),
+    );
 
     // The wash fills whatever the stack ends up being, and the cover's own text
     // and button are an *unpositioned* child so they count toward that size.
@@ -318,13 +329,17 @@ class _PlSpoilerState extends State<PlSpoiler> {
               ),
           ],
         ),
-        // The wash is positioned, so it takes no part in sizing the stack and can
-        // come and go. The cover cannot: it is what makes the sheet tall enough
-        // for its own button, so it is built either way and merely hidden.
-        if (!_open)
-          Positioned.fill(
+        // The wash is positioned, so it takes no part in sizing the stack; the
+        // cover is what makes the sheet tall enough for its own button. Both are
+        // built either way and merely hidden — a wash that came and went would
+        // move the cover to a different slot in this list, and the cover would be
+        // built again from nothing.
+        Positioned.fill(
+          child: Visibility(
+            visible: !_open,
             child: ColoredBox(color: tokens.surface.withValues(alpha: tokens.surface.a * _scrim)),
           ),
+        ),
         Focus(
           focusNode: _coverFocus,
           includeSemantics: false,
@@ -373,13 +388,10 @@ class _PlSpoilerState extends State<PlSpoiler> {
       ),
     );
 
-    if (_open) {
-      return row;
-    }
-
     return ExcludeFocus(
+      excluding: !_open,
       child: Visibility(
-        visible: false,
+        visible: _open,
         maintainSize: true,
         maintainAnimation: true,
         maintainState: true,
@@ -430,13 +442,10 @@ class _PlSpoilerState extends State<PlSpoiler> {
       ),
     );
 
-    if (!_open) {
-      return cover;
-    }
-
     return ExcludeFocus(
+      excluding: _open,
       child: Visibility(
-        visible: false,
+        visible: !_open,
         maintainSize: true,
         maintainAnimation: true,
         maintainState: true,

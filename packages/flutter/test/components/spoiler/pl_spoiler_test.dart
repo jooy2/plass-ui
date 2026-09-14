@@ -8,16 +8,29 @@ import 'package:plass_ui/plass_ui.dart';
 import '../../support/host.dart';
 
 /// The blur the cover is drawn with, or `null` while it is uncovered.
+///
+/// The filter is built in both states and switched off on reveal, so what says
+/// the content is uncovered is `enabled` rather than a missing widget.
 ui.ImageFilter? _blur(WidgetTester tester) {
   final Finder filtered = find.descendant(
     of: find.byType(PlSpoiler),
     matching: find.byType(ImageFiltered),
   );
 
-  return filtered.evaluate().isEmpty
-      ? null
-      : tester.widget<ImageFiltered>(filtered.first).imageFilter;
+  if (filtered.evaluate().isEmpty) {
+    return null;
+  }
+
+  final ImageFiltered filter = tester.widget<ImageFiltered>(filtered.first);
+
+  return filter.enabled ? filter.imageFilter : null;
 }
+
+/// An [ExcludeFocus] that is actually excluding, as opposed to one held in the
+/// tree with `excluding: false` so the tree keeps its shape.
+final Finder _excludingFocus = find.byWidgetPredicate(
+  (Widget widget) => widget is ExcludeFocus && widget.excluding,
+);
 
 void main() {
   group('PlSpoiler', () {
@@ -84,6 +97,8 @@ void main() {
 
     group('revealing', () {
       testWidgets('uncovers on the button, on its own', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
         await tester.pumpWidget(
           host(const PlSpoiler(child: Text('He was the killer all along.')), width: 360),
         );
@@ -97,10 +112,13 @@ void main() {
         // The cover keeps its space so the sheet does not change height, so what
         // says it is gone is the semantics tree rather than the widget tree.
         expect(_blur(tester), isNull);
-        expect(
-          find.descendant(of: find.byType(PlSpoiler), matching: find.bySemanticsLabel('Reveal')),
-          findsNothing,
-        );
+        // Read off the live tree rather than with `find.bySemanticsLabel`, which
+        // matches the node a render object last had. The cover is kept in the
+        // tree across a reveal, so its button still holds a node that has left
+        // the tree, and the finder would find it.
+        expect(semanticsLabels(tester), isNot(contains('Reveal')));
+
+        handle.dispose();
       });
 
       testWidgets('reports the change and stays where a controlled value put it', (
@@ -139,6 +157,34 @@ void main() {
         );
 
         expect(find.text('Hide'), findsOneWidget);
+      });
+
+      testWidgets('keeps the state of what it covers across a reveal and back', (
+        WidgetTester tester,
+      ) async {
+        var created = 0;
+
+        await tester.pumpWidget(
+          host(
+            PlSpoiler(reversible: true, child: _Remembers(onCreated: () => created += 1)),
+            width: 360,
+          ),
+        );
+
+        expect(created, 1);
+
+        await tester.tap(find.text('Reveal'));
+        await tester.pumpAndSettle();
+
+        // The wrappers that cover the child are switched rather than added and
+        // removed, so the child sits at the same depth in both states and keeps
+        // its State. It used to be built again from nothing on reveal.
+        expect(created, 1);
+
+        await tester.tap(find.text('Hide'));
+        await tester.pumpAndSettle();
+
+        expect(created, 1);
       });
 
       group('from the keyboard', () {
@@ -249,10 +295,7 @@ void main() {
         // reader reads out is not one either.
         expect(find.bySemanticsLabel('He was the killer all along.'), findsNothing);
         expect(
-          find.ancestor(
-            of: find.text('He was the killer all along.'),
-            matching: find.byType(ExcludeFocus),
-          ),
+          find.ancestor(of: find.text('He was the killer all along.'), matching: _excludingFocus),
           findsOneWidget,
         );
 
@@ -271,10 +314,7 @@ void main() {
 
         expect(find.bySemanticsLabel('He was the killer all along.'), findsOneWidget);
         expect(
-          find.ancestor(
-            of: find.text('He was the killer all along.'),
-            matching: find.byType(ExcludeFocus),
-          ),
+          find.ancestor(of: find.text('He was the killer all along.'), matching: _excludingFocus),
           findsNothing,
         );
 
@@ -415,4 +455,25 @@ void main() {
       });
     });
   });
+}
+
+/// A child that counts how many times its [State] is created.
+class _Remembers extends StatefulWidget {
+  const _Remembers({required this.onCreated});
+
+  final VoidCallback onCreated;
+
+  @override
+  State<_Remembers> createState() => _RemembersState();
+}
+
+class _RemembersState extends State<_Remembers> {
+  @override
+  void initState() {
+    super.initState();
+    widget.onCreated();
+  }
+
+  @override
+  Widget build(BuildContext context) => const Text('He was the killer all along.');
 }
