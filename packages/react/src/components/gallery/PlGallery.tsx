@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
-import { dealColumns, isTurned, ratioOf, shownRatio } from '../../internal/gallery.js';
+import { isTurned, masonryRows, ratioOf, shownRatio } from '../../internal/gallery.js';
 import { responsiveSlots, withBaseline } from '../../internal/responsive.js';
 import { usePlBreakpointValue } from '../../hooks/usePlBreakpoint.js';
 import {
@@ -344,7 +344,15 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
       }
     };
 
-    const tile = (item: PlGalleryItem, index: number, tileStyle: React.CSSProperties) => {
+    // `rows` is how many row tracks a masonry tile spans. The tile and its
+    // button are subgrids of those tracks, so the picture fills the shares and
+    // a caption below it takes the caption track at the end.
+    const tile = (
+      item: PlGalleryItem,
+      index: number,
+      tileStyle: React.CSSProperties,
+      rows?: number
+    ) => {
       const words = hasContent(item.title) || hasContent(item.description);
       const shown = caption !== 'none' && words;
       const over = caption === 'overlay' || caption === 'hover';
@@ -384,6 +392,7 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
 
       const legend = !shown ? null : (
         <div
+          style={rows === undefined || over ? undefined : { gridRow: String(rows) }}
           className={cx(
             'min-w-0',
             over
@@ -433,6 +442,14 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
       // allowed to move inside.
       const framed = (
         <span
+          // Written as a span rather than as `1 / -2`, which a browser without
+          // subgrid would read against no rows at all and draw the caption
+          // over the picture.
+          style={
+            rows === undefined
+              ? undefined
+              : { gridRow: `1 / span ${caption === 'below' ? rows - 1 : rows}` }
+          }
           className={cx(
             'relative block overflow-hidden',
             radius,
@@ -463,7 +480,7 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
           key={item.id ?? item.src}
           className={cx(
             'group/tile relative m-0 min-w-0 list-none',
-            layout === 'justified' ? 'flex flex-col' : '',
+            layout === 'justified' ? 'flex flex-col' : rows === undefined ? '' : 'grid',
             classNames?.item
           )}
           style={tileStyle}
@@ -475,13 +492,19 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
               // wall of thumbnails is told which one of how many they are on.
               aria-label={`${item.alt} — ${where(index + 1, items.length)}`}
               className={cx(
-                'block w-full bg-transparent p-0 text-start',
+                rows === undefined ? 'block' : 'grid',
+                'w-full bg-transparent p-0 text-start',
                 preview ? 'cursor-zoom-in' : 'cursor-pointer',
                 focusRingClasses,
                 transitionClasses,
                 radius,
                 layout === 'justified' ? 'flex-1' : ''
               )}
+              style={
+                rows === undefined
+                  ? undefined
+                  : { gridRow: `1 / span ${rows}`, gridTemplateRows: 'subgrid' }
+              }
               onClick={() => choose(index)}
             >
               {body}
@@ -494,6 +517,7 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
     };
 
     let children: React.ReactNode;
+    let masonryTracks: string | undefined;
 
     if (layout === 'masonry') {
       // Dealt by the shape each picture is shown at, so a picture on its side
@@ -501,21 +525,38 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
       const ratios = items.map((item) =>
         shownRatio(ratioOf(item.ratio, fallbackRatio), item.rotate)
       );
+      const { tracks, tiles } = masonryRows(ratios, laneCount, caption === 'below');
 
-      children = dealColumns(ratios, laneCount).map((lane, index) => (
-        <li
-          key={index}
-          // A lane is a list item holding a list, rather than a `<div>` between
-          // the `<ul>` and its `<li>`s, which is markup a screen reader reads as
-          // a list with nothing in it.
-          className="m-0 flex min-w-0 flex-1 list-none flex-col"
-          style={{ gap: space }}
-        >
-          <ul className="m-0 flex list-none flex-col p-0" style={{ gap: space }}>
-            {lane.map((at) => tile(items[at], at, {}))}
-          </ul>
-        </li>
-      ));
+      masonryTracks = tracks
+        .map((track) =>
+          track === 'caption'
+            ? 'auto'
+            : track === 'gap'
+              ? space
+              : // In hundredths, because a tile whose shares add up to less
+                // than `1fr` is sized as if they were `1fr`.
+                `${Number((track * 100).toFixed(2))}fr`
+        )
+        .join(' ');
+
+      // One list in the order the items were given, with the lanes drawn by the
+      // grid. The Tab order and a screen reader follow the set rather than the
+      // lanes, and a tile that changes lane when the count does is the same
+      // element, with its picture's state intact.
+      children = items.map((item, index) => {
+        const { column, start, end } = tiles[index];
+
+        return tile(
+          item,
+          index,
+          {
+            gridColumn: String(column),
+            gridRow: `${start} / ${end}`,
+            gridTemplateRows: 'subgrid'
+          },
+          end - start
+        );
+      });
     } else if (layout === 'justified') {
       children = items.map((item, index) => {
         const each = shownRatio(ratioOf(item.ratio, fallbackRatio), item.rotate);
@@ -557,15 +598,25 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
           className={cx(
             'plass-gallery m-0 list-none p-0',
             layout === 'justified' ? 'plass-gallery-justified flex flex-wrap' : '',
-            layout === 'masonry' ? 'flex items-start' : '',
+            layout === 'masonry' ? 'grid' : '',
             layout === 'grid' ? 'plass-gallery-grid grid' : '',
             layout === 'quilted' ? 'plass-gallery-quilted grid' : '',
             className
           )}
           style={{
-            gap: space,
+            // A masonry's gap between rows is a track of its own, so it lands
+            // only where one tile follows another.
+            gap: layout === 'masonry' ? `0 ${space}` : space,
             ...surfaceSlots(color, 0),
             ...responsiveSlots('cols', lanes, (value) => String(Math.max(1, Math.round(value)))),
+            ...(layout === 'masonry'
+              ? {
+                  // The count the tiles were dealt into, rather than the
+                  // cascade's, so the two cannot disagree for a frame.
+                  gridTemplateColumns: `repeat(${laneCount}, minmax(0, 1fr))`,
+                  gridTemplateRows: masonryTracks
+                }
+              : null),
             ...(layout === 'quilted'
               ? { gridAutoRows: `${rowHeight}px`, gridAutoFlow: 'dense' }
               : null),

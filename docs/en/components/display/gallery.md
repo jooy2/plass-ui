@@ -92,6 +92,12 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 A masonry deals **across before it deals down**. CSS `columns` fills the first column top to bottom before it starts the second, so a set numbered 1 to 12 reads down the left edge and the first three pictures a reader meets are stacked on top of each other. Dealt this way the first row is items 1, 2 and 3, which is the order they were given in.
 
+::: fw react
+
+The tiles stay in one list, in the order they were given, and CSS Grid draws each one into its lane. The Tab order and a screen reader follow that order, and a tile that moves to another lane when the column count changes keeps its picture as it was. A picture that runs past the end of a tile in another lane is drawn taller by one gap at each such edge, and by that tile's caption with `caption="below"`. `fit` decides how the picture fills the extra height.
+
+:::
+
 ### ratio
 
 Every layout is laid out from the item's own `ratio` rather than from anything measured, which is why a wall of forty photographs is right in the first frame and does not reflow as the files arrive. A set without one falls back to the gallery's `ratio` and comes out as a grid of squares in a masonry's clothing.
@@ -217,7 +223,7 @@ Each tile decodes its picture at the size of the tile, as [`PlImage`](image) doe
 
 ## Accessibility
 
-- A real `role="list"` with a name, and one `role="listitem"` per picture. A masonry's lanes are list items holding lists of their own rather than `<div>`s between the `<ul>` and its `<li>`s, which is markup a screen reader reads as a list with nothing in it.
+- A real `role="list"` with a name, and one `role="listitem"` per picture.
 - A tile is only a button when something happens when it is pressed. Its name is **the picture's own words plus where it sits**: "A harbour at dusk — 1 of 6", so a reader tabbing a wall of thumbnails is told which one of how many they are on.
 - `itemLabel` is how that sentence is written in another language, and it is a callback rather than a string with slots because the word order differs.
 - The viewer's arrow keys are bound on the sheet rather than on its buttons: the focus is wherever the reader last put it, and a key that only worked from one place is a key that looks broken everywhere else.

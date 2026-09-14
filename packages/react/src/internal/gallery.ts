@@ -90,3 +90,110 @@ export function dealColumns(ratios: readonly number[], columns: number): number[
 
   return lanes;
 }
+
+/**
+ * One row track of a masonry: a share of the column width, the height of the
+ * captions that end there, or the gap.
+ */
+export type PlassMasonryTrack = number | 'caption' | 'gap';
+
+/** Where one tile sits in a masonry's grid, as `grid-column` and `grid-row` count. */
+export interface PlassMasonryTile {
+  /** The lane, from 1. */
+  column: number;
+  /** The row line the tile starts on. */
+  start: number;
+  /** The row line it ends on. */
+  end: number;
+}
+
+/**
+ * The same deal as `dealColumns`, written as the rows of one CSS grid rather
+ * than as a list per lane.
+ *
+ * A list per lane put the document in lane order: Tab went 1, 4, 7 through
+ * twelve pictures in three lanes, and a tile that changed lane when the count
+ * did was a new element, with its picture's state thrown away. Placed in one
+ * grid, every tile stays where it was given and only its placement changes.
+ * The web build needs this and the Dart build does not, because a Flutter
+ * layout is not a document.
+ *
+ * Every edge where a tile ends, in any lane, is a row line. The track up to it
+ * is a share, sized in `fr` by its distance from the edge before, in column
+ * widths. In a grid whose height is its content every `fr` then comes out one
+ * column width long, so a tile spanning its shares is exactly as tall as its
+ * picture. After the share come the captions that end on that edge, in a track
+ * of their own so their height is not spread over the pictures, and then the
+ * gap, when a tile starts there.
+ *
+ * What a stylesheet cannot know is where an edge in one lane falls among the
+ * edges of another once the gaps and captions are added, because that depends
+ * on the width. A tile that runs past the end of a tile in another lane spans
+ * that tile's caption and gap tracks as well, and is that much taller than its
+ * picture.
+ */
+export function masonryRows(
+  ratios: readonly number[],
+  columns: number,
+  captions: boolean
+): { tracks: PlassMasonryTrack[]; tiles: PlassMasonryTile[] } {
+  const lanes = dealColumns(ratios, columns);
+  const laneOf: number[] = [];
+  const bottoms: number[] = [];
+  // The tile above each one in its lane, or -1 for the first.
+  const above: number[] = [];
+
+  lanes.forEach((lane, index) => {
+    let height = 0;
+
+    lane.forEach((at, position) => {
+      height += 1 / ratios[at];
+      laneOf[at] = index;
+      bottoms[at] = height;
+      above[at] = position === 0 ? -1 : lane[position - 1];
+    });
+  });
+
+  // Edges closer than a thousandth of a column width are one edge, so the same
+  // ratios summed in two lanes end on one line whatever the floating point
+  // made of them.
+  const edges: number[] = [];
+  const edgeOf: number[] = [];
+
+  for (const at of ratios.map((_, index) => index).sort((a, b) => bottoms[a] - bottoms[b])) {
+    if (edges.length === 0 || bottoms[at] - edges[edges.length - 1] > 1e-3) {
+      edges.push(bottoms[at]);
+    }
+
+    edgeOf[at] = edges.length - 1;
+  }
+
+  const followed = new Set(above.filter((at) => at !== -1).map((at) => edgeOf[at]));
+  const tracks: PlassMasonryTrack[] = [];
+  const endLines: number[] = [];
+  const startLines: number[] = [];
+
+  edges.forEach((edge, index) => {
+    tracks.push(edge - (index === 0 ? 0 : edges[index - 1]));
+
+    if (captions) {
+      tracks.push('caption');
+    }
+
+    endLines[index] = tracks.length + 1;
+
+    if (followed.has(index)) {
+      tracks.push('gap');
+    }
+
+    startLines[index] = tracks.length + 1;
+  });
+
+  const tiles = ratios.map((_, at) => ({
+    column: laneOf[at] + 1,
+    start: above[at] === -1 ? 1 : startLines[edgeOf[above[at]]],
+    end: endLines[edgeOf[at]]
+  }));
+
+  return { tracks, tiles };
+}

@@ -63,6 +63,7 @@ Firefox 113~127에서는 아래 기능 없이 컴포넌트가 동작합니다.
 | `fetchpriority` | 101 | 132 | 17.2 | [`PlImage`](./components/display/image)의 `priority`. 페이지를 평가하는 기준이 되는 사진을 다른 사진보다 먼저 요청합니다 | 사진은 여전히 바로 가져오지만, 브라우저의 기본 우선순위로 가져옵니다 |
 | `hidden="until-found"` | 102 | 139 | 26.2 | [`PlAccordion`](./components/surfaces/accordion)과 [`PlCollapsible`](./components/surfaces/collapsible)의 `hiddenUntilFound`. 페이지 내 검색이 닫힌 패널을 엽니다 | 닫힌 패널 안의 글은 검색되지 않습니다 |
 | `Intl.Locale` 주 정보 | 99 | 153 | 15.4 | 달력이 locale의 한 주 시작 요일로 시작합니다 | 컴포넌트나 [`PlassProvider`](./guide/defaults)에 `weekStartsOn`을 주지 않으면 일요일로 시작합니다 |
+| `subgrid` | 117 | 71 | 16 | `caption="below"`인 masonry [`PlGallery`](./components/display/gallery). 캡션에 따로 행을 줍니다 | 캡션까지 넣어 행의 크기를 정하므로 사진이 `ratio`보다 길게 그려지고, 늘어난 높이를 어떻게 채울지는 `fit`이 정합니다 |
 
 Firefox 148 이전과 Safari는 찾은 글이 든 패널을 열지만, 그 글 위치로 제대로 스크롤하지 못합니다.
 

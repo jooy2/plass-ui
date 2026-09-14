@@ -106,15 +106,45 @@ describe('PlGallery', () => {
       expect(shapes()).toEqual(['1 / 1', '1.5 / 1', '0.75 / 1', '1 / 1']);
     });
 
-    it('deals a masonry into lanes rather than into tiles', async () => {
+    it('places a masonry in lanes without taking a tile out of the list', async () => {
       await render(<PlGallery items={items} layout="masonry" columns={2} />);
 
-      // Two lanes, each an `<li>` holding a `<ul>` of its own tiles.
-      const lanes = Array.from(document.querySelectorAll('.plass-gallery > li'));
+      // One list, in the order the pictures were given, with the lane each
+      // one is dealt into written as its column.
+      const direct = Array.from(document.querySelectorAll<HTMLElement>('.plass-gallery > li'));
 
-      expect(lanes).toHaveLength(2);
-      expect(lanes.every((lane) => lane.querySelector('ul') !== null)).toBe(true);
-      expect(pictures()).toHaveLength(4);
+      expect(direct).toHaveLength(4);
+      expect(pictures()).toEqual(['A harbour', 'A bridge', 'A hillside', 'A market']);
+      expect(direct.map((tile) => tile.style.gridColumn)).toEqual(['1', '2', '2', '1']);
+    });
+
+    it('walks a masonry in the order it was given rather than lane by lane', async () => {
+      await render(
+        <PlGallery items={items} layout="masonry" columns={2} onItemSelect={() => {}} />
+      );
+
+      const names = Array.from(document.querySelectorAll('.plass-gallery button')).map((button) =>
+        button.getAttribute('aria-label')
+      );
+
+      expect(names).toEqual([
+        'A harbour — 1 of 4',
+        'A bridge — 2 of 4',
+        'A hillside — 3 of 4',
+        'A market — 4 of 4'
+      ]);
+    });
+
+    it('keeps every masonry tile when the lane count changes', async () => {
+      const screen = await render(<PlGallery items={items} layout="masonry" columns={2} />);
+
+      const before = Array.from(document.querySelectorAll('.plass-gallery img'));
+
+      // With a third lane the hillside and the market both move lane.
+      await screen.rerender(<PlGallery items={items} layout="masonry" columns={3} />);
+
+      expect(before.every((node) => node.isConnected)).toBe(true);
+      expect(tiles().map((tile) => tile.style.gridColumn)).toEqual(['1', '2', '3', '2']);
     });
 
     it('grows a justified tile in proportion to its own picture', async () => {
@@ -269,9 +299,7 @@ describe('PlGallery', () => {
 
       // On its side the first picture is four times as tall as the second, so
       // the third goes under the second rather than under the first.
-      const lanes = Array.from(document.querySelectorAll('.plass-gallery > li'));
-
-      expect(lanes.map((lane) => lane.querySelectorAll('img').length)).toEqual([1, 2]);
+      expect(tiles().map((tile) => tile.style.gridColumn)).toEqual(['1', '2', '2']);
     });
 
     it('grows a turned justified tile by the width it is shown at', async () => {

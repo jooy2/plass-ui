@@ -63,6 +63,7 @@ Some features are missing from browsers inside the full-support range. Each one 
 | `fetchpriority` | 101 | 132 | 17.2 | `priority` on [`PlImage`](./components/display/image), which asks for the picture a page is judged by ahead of the others | The picture is still fetched eagerly, at the browser's default priority |
 | `hidden="until-found"` | 102 | 139 | 26.2 | `hiddenUntilFound` on [`PlAccordion`](./components/surfaces/accordion) and [`PlCollapsible`](./components/surfaces/collapsible), which lets find-in-page open a closed panel | Text inside a closed panel is not found |
 | `Intl.Locale` week data | 99 | 153 | 15.4 | Calendars start the week on the day the locale starts it | The week starts on Sunday unless `weekStartsOn` is set on the component or on [`PlassProvider`](./guide/defaults) |
+| `subgrid` | 117 | 71 | 16 | A masonry [`PlGallery`](./components/display/gallery) with `caption="below"`, which gives the captions rows of their own | The rows are sized with the captions in them, so the pictures are drawn taller than their `ratio` and `fit` decides how they fill it |
 
 Firefox before 148 and Safari open the panel that holds the match, but do not scroll to the matched text correctly.
 
