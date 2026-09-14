@@ -151,7 +151,32 @@ export const PlBackTop = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlB
         return;
       }
 
-      resolve(target)?.scrollTo({ top: 0, behavior: still ? 'auto' : 'smooth' });
+      const node = resolve(target);
+
+      node?.scrollTo({ top: 0, behavior: still ? 'auto' : 'smooth' });
+
+      // The button hides itself on the way up while it still holds the focus,
+      // and the next Tab from a hidden button goes to the end of the page and
+      // scrolls it back down. The focus goes where the reader was taken: the
+      // first thing that takes it at the top of what was scrolled.
+      const button = event.currentTarget;
+
+      if (node && document.activeElement === button) {
+        const root = node === window ? document.body : (node as HTMLElement);
+        const first = Array.from(
+          root.querySelectorAll<HTMLElement>(
+            'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          )
+        ).find(
+          (candidate) => candidate !== button && !candidate.closest('[inert], [aria-hidden="true"]')
+        );
+
+        if (first) {
+          first.focus({ preventScroll: true });
+        } else {
+          button.blur();
+        }
+      }
     };
 
     return (

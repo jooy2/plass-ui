@@ -128,6 +128,31 @@ describe('PlBackTop', () => {
       await expect.poll(() => panel().scrollTop).toBe(0);
     });
 
+    it('hands the focus to the top of the panel rather than keeping it on a hidden button', async () => {
+      function Linked() {
+        const ref = React.useRef<HTMLDivElement>(null);
+
+        return (
+          <>
+            <div ref={ref} data-testid="panel" style={{ height: '200px', overflowY: 'auto' }}>
+              <a href="#start">First link</a>
+              <div style={{ height: '3000px' }} />
+            </div>
+            <PlBackTop target={ref} visibilityHeight={100} />
+          </>
+        );
+      }
+
+      await render(<Linked />);
+
+      await scrollTo(900, false);
+      button().focus();
+      button().click();
+
+      expect(document.activeElement).toHaveTextContent('First link');
+      await scrollTo(0, true);
+    });
+
     it('runs a caller’s own click first', async () => {
       const onClick = vi.fn();
 

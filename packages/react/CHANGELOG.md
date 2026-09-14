@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **Pressing `PlBackTop` moves the focus to the top of what it scrolled.** The button hides itself as the page scrolls up, and it kept the focus while hidden, so the next Tab went to the end of the page and scrolled it back down. When the button holds the focus, a press now hands it to the first focusable element at the top of the target, or lets go of it when there is none.
+
 - **An unfinished mouse drag on a `PlScrollZone` ends when the button comes up outside the strip.** Until a press had moved far enough to become a drag, nothing was captured, so a button let go outside the strip left the drag listening: the strip then followed the pointer on hover alone, text could not be selected and the next click was swallowed. The drag now ends on the first move with no button held.
 
 - **`PlCommandPalette` opens with an empty field however it was closed.** The search text was cleared only when Base UI closed the sheet, on Escape or a press outside, so running a command or setting a controlled `open` to `false` left the last search in the field for the next time it opened. It is now cleared whenever the palette goes from open to closed.
