@@ -201,5 +201,19 @@ void main() {
 
       expect(visibleOf(tester), 'Hello');
     });
+
+    testWidgets('leaves the tree with its caret where the platform has asked for less movement', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        host(const PlAnimateTyping('Hello'), width: 400, disableAnimations: true),
+      );
+
+      // Unmounted with the default caret, which does not blink here. Letting it
+      // go must not be the first thing that builds its blink.
+      await tester.pumpWidget(host(const SizedBox(), width: 400, disableAnimations: true));
+
+      expect(tester.takeException(), isNull);
+    });
   });
 }

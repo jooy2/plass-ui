@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **Removing a `PlAnimateTyping` with a caret under reduced motion no longer throws.** With `MediaQuery.disableAnimations` on, the caret never built its blink controller, so `dispose` built it for the first time and asked for a ticker on an element that was leaving the tree. That threw in debug builds every time the widget went away with the default `caret: true`. The controller is now built with the caret, and it is not started while the caret stays still.
+
 - **`PlAnimateSplit` and `PlAnimateScramble` keep an emoji whole.** Both cut their text into UTF-16 code units, so `'Ship it 🚀'` cut by character left the rocket as two broken glyphs after the entrance ended, and a scramble drew halves of it as noise. Text is now cut by grapheme, so an emoji, a flag, a letter with its accent and a Devanagari conjunct each stay one character.
 
 - **`PlAnimateSplit` with `PlAnimateSplitBy.character` wraps a line between words.** Every character was a child of one `Wrap`, so a narrow line broke partway through a word. The characters of each word are now laid out in a `Wrap` of their own, so the line wraps between words and a word wider than the whole line still wraps. Chinese, Japanese, Thai and the other scripts written without spaces still wrap between their characters.

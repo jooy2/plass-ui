@@ -387,13 +387,40 @@ class _Caret extends StatefulWidget {
 }
 
 class _CaretState extends State<_Caret> with SingleTickerProviderStateMixin {
-  late final AnimationController _blink = AnimationController(vsync: this, duration: _caretPeriod)
-    ..repeat();
+  /// Built in [initState] rather than on first read. Under reduced motion the
+  /// build never reads it, which left [dispose] to build it, and a ticker
+  /// cannot be made for an element that is already leaving the tree.
+  late final AnimationController _blink;
+
+  @override
+  void didUpdateWidget(_Caret oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.still != widget.still) {
+      _syncBlink();
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _blink = AnimationController(vsync: this, duration: _caretPeriod);
+    _syncBlink();
+  }
 
   @override
   void dispose() {
     _blink.dispose();
     super.dispose();
+  }
+
+  /// Blinks only while the caret is drawn blinking. A still caret ticks nothing.
+  void _syncBlink() {
+    if (widget.still) {
+      _blink.stop();
+    } else if (!_blink.isAnimating) {
+      _blink.repeat();
+    }
   }
 
   @override
