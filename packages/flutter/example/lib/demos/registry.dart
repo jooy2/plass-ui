@@ -31,6 +31,7 @@ import 'package:plass_ui_example/demos/animate_lighting/colors.dart';
 import 'package:plass_ui_example/demos/animate_marquee/hero.dart';
 import 'package:plass_ui_example/demos/animate_marquee/speed.dart';
 import 'package:plass_ui_example/demos/animate_marquee/orientation.dart';
+import 'package:plass_ui_example/demos/animate_marquee/paused.dart';
 import 'package:plass_ui_example/demos/animate_headline/hero.dart';
 import 'package:plass_ui_example/demos/animate_headline/controlled.dart';
 import 'package:plass_ui_example/demos/animate_headline/rise.dart';
@@ -1102,6 +1103,7 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'animate-marquee/hero': _animateMarqueeHero,
   'animate-marquee/speed': _animateMarqueeSpeed,
   'animate-marquee/orientation': _animateMarqueeOrientation,
+  'animate-marquee/paused': _animateMarqueePaused,
   'animate-headline/hero': _animateHeadlineHero,
   'animate-headline/controlled': _animateHeadlineControlled,
   'animate-headline/rise': _animateHeadlineRise,
@@ -1831,6 +1833,7 @@ Widget _animateLightingColors(BuildContext context) => const AnimateLightingColo
 Widget _animateMarqueeHero(BuildContext context) => const AnimateMarqueeHero();
 Widget _animateMarqueeSpeed(BuildContext context) => const AnimateMarqueeSpeed();
 Widget _animateMarqueeOrientation(BuildContext context) => const AnimateMarqueeOrientation();
+Widget _animateMarqueePaused(BuildContext context) => const AnimateMarqueePaused();
 Widget _animateHeadlineHero(BuildContext context) => const AnimateHeadlineHero();
 Widget _animateHeadlineControlled(BuildContext context) => const AnimateHeadlineControlled();
 Widget _animateHeadlineRise(BuildContext context) => const AnimateHeadlineRise();

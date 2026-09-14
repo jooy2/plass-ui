@@ -99,6 +99,26 @@ duration이 아니라 speed입니다. 그래서 로고 넷짜리 띠와 마흔�
 
 </Demo>
 
+### paused
+
+`paused`는 띠를 지금 자리에 붙잡아 두고, `false`로 되돌리면 그 자리에서 다시 흐릅니다. [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html)는 저절로 시작해 5초 넘게 이어지고 다른 내용과 함께 보이는 움직임에 이런 컨트롤을 요구합니다. 버튼은 띠보다 앞에 두어서, 키보드로는 움직이는 내용보다 버튼에 먼저 닿습니다.
+
+<Demo src="animate-marquee/paused" :min-height="160">
+
+::: fw react
+
+<<< @/.vitepress/demos/animate-marquee/paused.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_marquee/paused.dart
+
+:::
+
+</Demo>
+
 ## Accessibility
 
 ::: fw react
@@ -106,6 +126,7 @@ duration이 아니라 speed입니다. 그래서 로고 넷짜리 띠와 마흔�
 - `prefers-reduced-motion`에서는 띠가 그대로 멈추고 내용은 있던 자리에 남습니다. 위에 있는 것은 전부 문서에 그대로 있고 그대로 닿을 수 있습니다. 슬라이드쇼가 아니라 그냥 한 줄이기 때문입니다.
 - **첫 번째 사본만 읽힙니다.** 나머지는 `aria-hidden`을 답니다. 아니면 스크린리더가 띠 위의 모든 것을 깔린 횟수만큼 읽습니다.
 - `pauseOnHover`는 기본으로 켜져 있고 장식이 아닙니다. 포인터 앞을 지나가는 내용은 안정적으로 클릭할 수 없고, 멈추지 않는 marquee 안의 링크는 아무도 따라갈 수 없는 링크입니다. focus에서는 멈추지 **않으므로**, 키보드로 닿아야 하는 내용이 띠 위에 있다면 정적인 목록을 쓰는 편이 낫습니다.
+- **멈출 방법을 주세요.** 기본값대로라면 띠는 끝없이 흐릅니다. 다른 내용 옆에서 5초 넘게 흐른다면 페이지에 그것을 멈추는 컨트롤이 있어야 하고, [위의 예제](#paused)처럼 `paused`에 연결한 버튼이면 됩니다. [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html)가 이것을 요구합니다. `pauseOnHover`는 포인터가 있어야 동작하므로 이 컨트롤이 되지 못합니다. `prefers-reduced-motion`도 대신하지 못하는데, 읽는 사람이 직접 찾아서 켜야 하는 시스템 설정이기 때문입니다.
 - 반드시 읽혀야 하는 것은 여기에 두지 마세요. 읽는 사람은 당신이 고른 속도로 한 번 지나가는 것을 볼 뿐이고, 되돌릴 방법이 없습니다.
 
 :::
@@ -115,6 +136,7 @@ duration이 아니라 speed입니다. 그래서 로고 넷짜리 띠와 마흔�
 - 플랫폼에서 애니메이션이 꺼져 있으면(`MediaQuery.disableAnimations`) 띠는 시작한 자리에 서 있습니다. 위에 있는 것은 전부 트리에 그대로 있고 그대로 닿을 수 있습니다. 슬라이드쇼가 아니라 그냥 한 줄이기 때문입니다.
 - **첫 번째 사본만 읽힙니다.** 나머지는 `ExcludeSemantics` 뒤에 있습니다. 아니면 스크린리더가 띠 위의 모든 것을 깔린 횟수만큼 읽습니다.
 - `pauseOnHover`는 기본으로 켜져 있고 장식이 아닙니다. 포인터 앞을 지나가는 내용은 안정적으로 누를 수 없습니다. focus에서는 멈추지 **않으므로**, focus를 받아야 하는 내용이 띠 위에 있다면 정적인 목록을 쓰는 편이 낫습니다.
+- **멈출 방법을 주세요.** 기본값대로라면 띠는 끝없이 흐릅니다. 다른 내용 옆에서 5초 넘게 흐른다면 화면에 그것을 멈추는 컨트롤이 있어야 하고, [위의 예제](#paused)처럼 `paused`에 연결한 버튼이면 됩니다. [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html)가 이것을 요구합니다. `pauseOnHover`는 포인터가 있어야 동작하므로 이 컨트롤이 되지 못합니다. `MediaQuery.disableAnimations`도 대신하지 못하는데, 읽는 사람이 직접 찾아서 켜야 하는 시스템 설정에서 오는 값이기 때문입니다.
 - 반드시 읽혀야 하는 것은 여기에 두지 마세요. 읽는 사람은 당신이 고른 속도로 한 번 지나가는 것을 볼 뿐이고, 되돌릴 방법이 없습니다.
 
 :::

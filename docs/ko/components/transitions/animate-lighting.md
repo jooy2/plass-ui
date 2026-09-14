@@ -107,6 +107,7 @@ const PlAnimateLighting(
 - `prefers-reduced-motion`에서는 호가 도는 것을 멈추고 고른 빛이 됩니다. 장식은 남고 움직임은 사라집니다.
 - 빛은 스크린리더에게 아무 말도 하지 않고, 그럴 필요도 없습니다. 그것이 표시하고 있는 것 — 처리 중인 행, 추천되는 요금제 — 은 내용에도 적혀 있어야 합니다.
 - 화면에 하나만. 세 개가 빛나는 페이지에는 지금 눈길을 끄는 하나가 없습니다.
+- **멈출 방법을 주세요.** 기본값대로라면 빛은 끝없이 돕니다. 다른 내용 옆에서 5초 넘게 돈다면 페이지에 그것을 멈추는 컨트롤이 있어야 하고, [PlAnimateMarquee 예제](./animate-marquee#paused)처럼 `paused`에 연결한 버튼이면 됩니다. [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html)가 이것을 요구합니다. `prefers-reduced-motion`은 이 컨트롤을 대신하지 못합니다. 읽는 사람이 직접 찾아서 켜야 하는 시스템 설정이기 때문입니다.
 
 :::
 
@@ -115,6 +116,7 @@ const PlAnimateLighting(
 - 플랫폼에서 애니메이션이 꺼져 있으면(`MediaQuery.disableAnimations`) 호가 도는 것을 멈추고 고른 빛이 됩니다. 장식은 남고 움직임은 사라집니다.
 - 빛은 스크린리더에게 아무 말도 하지 않고, 그럴 필요도 없습니다. 그것이 표시하고 있는 것은 내용에도 적혀 있어야 합니다.
 - 화면에 하나만. 세 개가 빛나는 화면에는 지금 눈길을 끄는 하나가 없습니다.
+- **멈출 방법을 주세요.** 기본값대로라면 빛은 끝없이 돕니다. 다른 내용 옆에서 5초 넘게 돈다면 화면에 그것을 멈추는 컨트롤이 있어야 하고, [PlAnimateMarquee 예제](./animate-marquee#paused)처럼 `paused`에 연결한 버튼이면 됩니다. [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html)가 이것을 요구합니다. `MediaQuery.disableAnimations`는 이 컨트롤을 대신하지 못합니다. 읽는 사람이 직접 찾아서 켜야 하는 시스템 설정에서 오는 값이기 때문입니다.
 
 :::
 

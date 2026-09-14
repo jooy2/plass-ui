@@ -108,6 +108,7 @@ const PlAnimateBlink(
 
 - `prefers-reduced-motion`에서는 애니메이션이 통째로 없어지고 내용은 완전한 불투명도로 남습니다. **그러므로 `min`이 메시지를 나르는 유일한 수단이어서는 안 됩니다.** 급한 일이라면 말로도 쓰세요.
 - 누군가 읽고 있는 페이지의 구석에서 끝없이 움직이는 것은 이 라이브러리의 나머지가 거부하는 유일한 종류의 움직임입니다. `'infinite'`보다는 횟수를, 둘보다는 색을 먼저 쓰세요.
+- **멈출 방법을 주세요.** 기본값대로라면 끝없이 깜빡입니다. 다른 내용 옆에서 5초 넘게 깜빡인다면 페이지에 그것을 멈추는 컨트롤이 있어야 하고, [PlAnimateMarquee 예제](./animate-marquee#paused)처럼 `paused`에 연결한 버튼이면 됩니다. [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html)가 이것을 요구합니다. `prefers-reduced-motion`은 이 컨트롤을 대신하지 못합니다. 읽는 사람이 직접 찾아서 켜야 하는 시스템 설정이기 때문입니다.
 - 초당 세 번 깜빡이는 것과는 확실히 거리를 두세요. 기본값이 느린 맥동이고, 그대로 두어야 합니다.
 
 :::
@@ -116,6 +117,7 @@ const PlAnimateBlink(
 
 - 플랫폼에서 애니메이션이 꺼져 있으면(`MediaQuery.disableAnimations`) 효과가 없어지고 내용은 완전한 불투명도로 남습니다. **그러므로 `min`이 메시지를 나르는 유일한 수단이어서는 안 됩니다.** 급한 일이라면 말로도 쓰세요.
 - 누군가 읽고 있는 화면 구석에서 끝없이 움직이는 것은 이 패키지의 나머지가 거부하는 유일한 종류의 움직임입니다. `null` repeat보다는 횟수를, 둘보다는 색을 먼저 쓰세요.
+- **멈출 방법을 주세요.** 기본값대로라면 끝없이 깜빡입니다. 다른 내용 옆에서 5초 넘게 깜빡인다면 화면에 그것을 멈추는 컨트롤이 있어야 하고, [PlAnimateMarquee 예제](./animate-marquee#paused)처럼 `paused`에 연결한 버튼이면 됩니다. [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html)가 이것을 요구합니다. `MediaQuery.disableAnimations`는 이 컨트롤을 대신하지 못합니다. 읽는 사람이 직접 찾아서 켜야 하는 시스템 설정에서 오는 값이기 때문입니다.
 - 초당 세 번 깜빡이는 것과는 확실히 거리를 두세요. 기본값이 느린 맥동이고, 그대로 두어야 합니다.
 
 :::

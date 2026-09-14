@@ -107,6 +107,7 @@ How much of the outline is lit at once, how soft the light is, and how far past 
 - Under `prefers-reduced-motion` the arc stops travelling and becomes an even glow. The decoration survives; the motion does not.
 - The light says nothing to a screen reader, and it should not have to. Whatever it is marking — the row that is processing, the plan being recommended — needs to be stated in the content as well.
 - One per screen. A page with three things glowing has no one thing that is live.
+- **Give the reader a way to stop it.** The light travels forever by default, and one that runs for more than five seconds beside other content needs a control on the page that stops it: a button wired to `paused`, as in the [PlAnimateMarquee example](./animate-marquee#paused). [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html) asks for one. `prefers-reduced-motion` is no substitute, because it is a system setting the reader has to find and turn on first.
 
 :::
 
@@ -115,6 +116,7 @@ How much of the outline is lit at once, how soft the light is, and how far past 
 - When the platform has animations turned off (`MediaQuery.disableAnimations`) the arc stops travelling and becomes an even glow. The decoration survives; the motion does not.
 - The light says nothing to a screen reader, and it should not have to. Whatever it is marking needs to be stated in the content as well.
 - One per screen. A screen with three things glowing has no one thing that is live.
+- **Give the reader a way to stop it.** The light travels forever by default, and one that runs for more than five seconds beside other content needs a control on the screen that stops it: a button wired to `paused`, as in the [PlAnimateMarquee example](./animate-marquee#paused). [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html) asks for one. `MediaQuery.disableAnimations` is no substitute, because it reflects a system setting the reader has to find and turn on first.
 
 :::
 

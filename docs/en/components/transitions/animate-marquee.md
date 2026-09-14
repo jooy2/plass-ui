@@ -99,6 +99,26 @@ Vertical needs a height on the box — there is nothing else to clip against. `r
 
 </Demo>
 
+### paused
+
+`paused` holds the strip where it is, and setting it back to `false` carries on from there. [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html) asks for a control like this on any movement that starts on its own, lasts more than five seconds and sits beside other content. The button comes before the strip, so a keyboard reaches it before anything that moves.
+
+<Demo src="animate-marquee/paused" :min-height="160">
+
+::: fw react
+
+<<< @/.vitepress/demos/animate-marquee/paused.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_marquee/paused.dart
+
+:::
+
+</Demo>
+
 ## Accessibility
 
 ::: fw react
@@ -106,6 +126,7 @@ Vertical needs a height on the box — there is nothing else to clip against. `r
 - Under `prefers-reduced-motion` the strip stops dead and the content sits where it is. Everything on it is still in the document and still reachable — it is a row of things, not a slideshow.
 - **Only the first copy is read out.** The rest carry `aria-hidden`, or a screen reader would announce everything on the strip as many times as it was laid down.
 - `pauseOnHover` is on by default and it is not decoration: content moving past a pointer cannot be clicked reliably, and a link inside a marquee that never stops is a link nobody can follow. It does **not** pause on focus, so keyboard-reachable content on a strip is a reason to reach for a static list instead.
+- **Give the reader a way to stop it.** The strip runs forever by default, and one that moves for more than five seconds beside other content needs a control on the page that stops it: a button wired to `paused`, as in the [example above](#paused). [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html) asks for one. `pauseOnHover` is not that control, because it needs a pointer, and `prefers-reduced-motion` is no substitute either, because it is a system setting the reader has to find and turn on first.
 - Nothing that has to be read belongs here. A reader gets one pass at whatever speed you chose, and there is no way back.
 
 :::
@@ -115,6 +136,7 @@ Vertical needs a height on the box — there is nothing else to clip against. `r
 - When the platform has animations turned off (`MediaQuery.disableAnimations`) the strip stands where it started. Everything on it is still in the tree and still reachable — it is a row of things, not a slideshow.
 - **Only the first copy is read out.** The rest are behind `ExcludeSemantics`, or a screen reader would announce everything on the strip as many times as it was laid down.
 - `pauseOnHover` is on by default and it is not decoration: content moving past a pointer cannot be pressed reliably. It does **not** pause on focus, so focusable content on a strip is a reason to reach for a static list instead.
+- **Give the reader a way to stop it.** The strip runs forever by default, and one that moves for more than five seconds beside other content needs a control on the screen that stops it: a button wired to `paused`, as in the [example above](#paused). [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html) asks for one. `pauseOnHover` is not that control, because it needs a pointer, and `MediaQuery.disableAnimations` is no substitute either, because it reflects a system setting the reader has to find and turn on first.
 - Nothing that has to be read belongs here. A reader gets one pass at whatever speed you chose, and there is no way back.
 
 :::

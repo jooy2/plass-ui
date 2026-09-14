@@ -108,6 +108,7 @@ A count is the way to draw attention to something once, rather than forever. The
 
 - Under `prefers-reduced-motion` the animation is dropped entirely and the content sits at full opacity. **So `min` must never be the only thing carrying the message** — if it is urgent, say so in words as well.
 - Something that never stops moving in the corner of a page somebody is reading is the one kind of motion the rest of this library refuses. Prefer a count over `'infinite'`, and prefer a colour over either.
+- **Give the reader a way to stop it.** A blink runs forever by default, and one that runs for more than five seconds beside other content needs a control on the page that stops it: a button wired to `paused`, as in the [PlAnimateMarquee example](./animate-marquee#paused). [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html) asks for one. `prefers-reduced-motion` is no substitute, because it is a system setting the reader has to find and turn on first.
 - Keep it well away from three flashes a second. This is a slow pulse by default and it should stay one.
 
 :::
@@ -116,6 +117,7 @@ A count is the way to draw attention to something once, rather than forever. The
 
 - When the platform has animations turned off (`MediaQuery.disableAnimations`) the effect is dropped and the content sits at full opacity. **So `min` must never be the only thing carrying the message** — if it is urgent, say so in words as well.
 - Something that never stops moving in the corner of a screen somebody is reading is the one kind of motion the rest of this package refuses. Prefer a count over a `null` repeat, and prefer a colour over either.
+- **Give the reader a way to stop it.** A blink runs forever by default, and one that runs for more than five seconds beside other content needs a control on the screen that stops it: a button wired to `paused`, as in the [PlAnimateMarquee example](./animate-marquee#paused). [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html) asks for one. `MediaQuery.disableAnimations` is no substitute, because it reflects a system setting the reader has to find and turn on first.
 - Keep it well away from three flashes a second. This is a slow pulse by default and it should stay one.
 
 :::

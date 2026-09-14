@@ -103,6 +103,7 @@ const PlAnimateTyping(
 
 - 문자열 전체는 잘려 있는 상자 안에 있고 스크린리더는 그것을 **한 번** 읽습니다. 애니메이션되는 눈에 보이는 사본은 `aria-hidden`입니다. 아무도 공연을 끝까지 앉아 있을 필요가 없습니다.
 - `prefers-reduced-motion`에서는 텍스트가 그냥 거기 있습니다. "아무 일도 일어나지 않음"이 아닙니다. 컴포넌트가 담고 있던 것을 그대로 전달하는 유일한 결과입니다.
+- **멈출 방법을 주세요.** 타자기가 다른 내용 옆에서 5초 넘게 움직인다면 페이지에 그것을 멈추는 컨트롤이 있어야 하고, `repeat="infinite"`로 되풀이하면 언제나 그렇습니다. [PlAnimateMarquee 예제](./animate-marquee#paused)처럼 `paused`에 연결한 버튼이면 됩니다. [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html)가 이것을 요구합니다. `prefers-reduced-motion`은 이 컨트롤을 대신하지 못합니다. 읽는 사람이 직접 찾아서 켜야 하는 시스템 설정이기 때문입니다.
 - 나아가는 단위는 code point가 아니라 **grapheme**입니다. `👩‍👩‍👧`는 읽는 사람에게 한 글자이고 JavaScript에게 code point 일곱 개이며, code point 단위로 나아가는 타자기는 그것을 아무 뜻도 없는 조각들로 조립하는 데 네 프레임을 씁니다.
 - 상자는 도착한 글자들로부터 레이아웃되지 않으므로 주변 텍스트가 매 프레임 reflow하지 않습니다. 다만 컨테이너가 허용하는 만큼 넓어지므로, 줄바꿈이 중요하다면 한 줄짜리 효과에는 `white-space: nowrap`이나 너비를 주세요.
 
@@ -112,6 +113,7 @@ const PlAnimateTyping(
 
 - 문자열 전체가 widget의 접근성 label이고 그려지는 사본은 `ExcludeSemantics` 뒤에 있습니다. 그래서 스크린리더는 텍스트를 **한 번** 받고, 공연을 끝까지 앉아 있을 필요가 없습니다.
 - 플랫폼에서 애니메이션이 꺼져 있으면(`MediaQuery.disableAnimations`) 텍스트가 그냥 거기 있습니다. "아무 일도 일어나지 않음"이 아닙니다. widget이 담고 있던 것을 그대로 전달하는 유일한 결과입니다.
+- **멈출 방법을 주세요.** 타자기가 다른 내용 옆에서 5초 넘게 움직인다면 화면에 그것을 멈추는 컨트롤이 있어야 하고, `repeat: null`로 되풀이하면 언제나 그렇습니다. [PlAnimateMarquee 예제](./animate-marquee#paused)처럼 `paused`에 연결한 버튼이면 됩니다. [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html)가 이것을 요구합니다. `MediaQuery.disableAnimations`는 이 컨트롤을 대신하지 못합니다. 읽는 사람이 직접 찾아서 켜야 하는 시스템 설정에서 오는 값이기 때문입니다.
 - 나아가는 단위는 code point가 아니라 **grapheme**입니다. `👩‍👩‍👧`는 읽는 사람에게 한 글자이고 Dart에게 code point 일곱 개입니다.
 - 문자열 전체가 차지할 상자는 첫 프레임부터 잡혀 있어서, 글자가 도착하는 동안 주변의 어떤 것도 다시 레이아웃되지 않습니다.
 

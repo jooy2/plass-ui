@@ -112,6 +112,7 @@ Any CSS `transform-origin`. Turning about a corner is a hinge rather than a whee
 - Under `prefers-reduced-motion` the animation is dropped entirely and the content is simply there. That is right for an arrival and worth thinking about for a spin: if the turning is what says _something is happening_, use [PlProgressCircular](../feedback/progress-circular) instead, which slows rather than stopping.
 - **Not for text.** A rotated word is resampled along its whole length. Rotation is the one movement the design language allows on a glyph without argument — a chevron is turned rather than redrawn all over the library — and that is the shape of thing it is for.
 - Something that turns forever in the corner of a page somebody is reading is the one kind of motion the rest of this library refuses. Give it a reason.
+- **Give the reader a way to stop it.** A spin with `repeat="infinite"` that runs for more than five seconds beside other content needs a control on the page that stops it: a button wired to `paused`, as in the [PlAnimateMarquee example](./animate-marquee#paused). [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html) asks for one. `prefers-reduced-motion` is no substitute, because it is a system setting the reader has to find and turn on first.
 
 :::
 
@@ -120,6 +121,7 @@ Any CSS `transform-origin`. Turning about a corner is a hinge rather than a whee
 - When the platform has animations turned off (`MediaQuery.disableAnimations`) the effect is dropped entirely and the content is simply there. That is right for an arrival and worth thinking about for a spin: if the turning is what says _something is happening_, use [PlProgressCircular](../feedback/progress-circular) instead, which slows rather than stopping.
 - **Not for text.** A rotated word is resampled along its whole length.
 - Something that turns forever in the corner of a screen somebody is reading is the one kind of motion the rest of this package refuses. Give it a reason.
+- **Give the reader a way to stop it.** A spin with `repeat: null` that runs for more than five seconds beside other content needs a control on the screen that stops it: a button wired to `paused`, as in the [PlAnimateMarquee example](./animate-marquee#paused). [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html) asks for one. `MediaQuery.disableAnimations` is no substitute, because it reflects a system setting the reader has to find and turn on first.
 
 :::
 

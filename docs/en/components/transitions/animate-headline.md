@@ -110,6 +110,7 @@ How far a line travels as it comes up or leaves. `'100%'` is one line's own heig
 - **Not for content a reader has to see.** There is no guarantee anyone is looking during the two seconds a line is up, and a screen reader is given whichever line happens to be showing rather than the set. Use it for phrases where any one of them would have done.
 - Every line is in the document from the first frame; the ones not showing keep their space with `visibility` rather than being taken out of the layout. That is what keeps the box from resizing, and it also means nothing is announced twice.
 - Consider `loop={false}` for anything with a natural end. A reel that never stops is motion in the corner of a page somebody is reading.
+- **Give the reader a way to stop it.** The reel turns forever by default, and one that turns for more than five seconds beside other content needs a control on the page that stops it: a button wired to `paused`, as in the [PlAnimateMarquee example](./animate-marquee#paused). [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html) asks for one. `prefers-reduced-motion` is no substitute, because it is a system setting the reader has to find and turn on first.
 
 :::
 
@@ -119,6 +120,7 @@ How far a line travels as it comes up or leaves. `'100%'` is one line's own heig
 - **Not for content a reader has to see.** There is no guarantee anyone is looking during the two seconds a line is up, and a screen reader is given whichever line happens to be showing rather than the set.
 - Every line is in the tree from the first frame; the ones not showing are drawn at zero opacity rather than taken out of the layout. That is what keeps the box from resizing.
 - Consider `loop: false` for anything with a natural end. A reel that never stops is motion in the corner of a screen somebody is reading.
+- **Give the reader a way to stop it.** The reel turns forever by default, and one that turns for more than five seconds beside other content needs a control on the screen that stops it: a button wired to `paused`, as in the [PlAnimateMarquee example](./animate-marquee#paused). [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html) asks for one. `MediaQuery.disableAnimations` is no substitute, because it reflects a system setting the reader has to find and turn on first.
 
 :::
 

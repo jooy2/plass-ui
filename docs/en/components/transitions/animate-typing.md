@@ -103,6 +103,7 @@ Characters per second. Around 24 reads as somebody typing; below 10 is a machine
 
 - The whole string sits in a clipped box that a screen reader reads **once**, and the visible copy that animates is `aria-hidden`. Nobody is made to sit through the performance.
 - Under `prefers-reduced-motion` the text is simply there. Not "nothing happens" — that is the only outcome that still delivers what the component was carrying.
+- **Give the reader a way to stop it.** A typewriter that runs for more than five seconds beside other content, as a `repeat="infinite"` loop does, needs a control on the page that stops it: a button wired to `paused`, as in the [PlAnimateMarquee example](./animate-marquee#paused). [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html) asks for one. `prefers-reduced-motion` is no substitute, because it is a system setting the reader has to find and turn on first.
 - The advance is by **grapheme**, not by code point. `👩‍👩‍👧` is one character to a reader and seven code points to JavaScript, and a typewriter that advanced by code points would spend four frames assembling it out of parts that mean nothing on their own.
 - The box is not laid out from the characters that have arrived, so the text around it does not reflow on every frame. It will, however, be as wide as its container allows — give a one-line effect a `white-space: nowrap` or a width if the wrap matters.
 
@@ -112,6 +113,7 @@ Characters per second. Around 24 reads as somebody typing; below 10 is a machine
 
 - The whole string is the widget's accessible label and the drawn copy is behind `ExcludeSemantics`, so a screen reader is given the text **once** and is not made to sit through the performance.
 - When the platform has animations turned off (`MediaQuery.disableAnimations`) the text is simply there. Not "nothing happens" — that is the only outcome that still delivers what the widget was carrying.
+- **Give the reader a way to stop it.** A typewriter that runs for more than five seconds beside other content, as a loop with `repeat: null` does, needs a control on the screen that stops it: a button wired to `paused`, as in the [PlAnimateMarquee example](./animate-marquee#paused). [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html) asks for one. `MediaQuery.disableAnimations` is no substitute, because it reflects a system setting the reader has to find and turn on first.
 - The advance is by **grapheme**, not by code point. `👩‍👩‍👧` is one character to a reader and seven code points to Dart.
 - The box the whole string will need is held from the first frame, so nothing around it is laid out again as the characters arrive.
 
