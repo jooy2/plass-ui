@@ -186,7 +186,9 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
     frame = requestAnimationFrame(step);
 
     return () => cancelAnimationFrame(frame);
-  }, [run.started, still, paused, value, from, duration, delay, easing]);
+    // `run.runs` is listed although nothing above reads it. A second hover starts
+    // a new run without changing `started`, and a new run is a new count.
+  }, [run.started, run.runs, still, paused, value, from, duration, delay, easing]);
 
   const answer = formatter.format(value);
 

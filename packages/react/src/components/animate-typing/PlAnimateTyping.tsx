@@ -166,10 +166,12 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
   const typeDelay = duration && total > 0 ? duration / total : 1000 / Math.max(speed, 1);
   const deleteDelay = 1000 / Math.max(eraseSpeed ?? speed * 2, 1);
 
-  // A new string starts a new performance rather than continuing the last.
+  // A new string starts a new performance rather than continuing the last, and
+  // so does a new run: a second hover types the line again from its first
+  // character, not from the end it already reached.
   React.useEffect(() => {
     progress.current = 0;
-  }, [total]);
+  }, [total, run.runs]);
 
   React.useEffect(() => {
     if (reduced || total === 0) {
@@ -268,7 +270,21 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [run.started, paused, reduced, total, typeDelay, deleteDelay, delay, hold, erase, repeat]);
+    // `run.runs` is listed although nothing above reads it. A second hover starts
+    // a new run without changing `started`, and a new run types the line again.
+  }, [
+    run.started,
+    run.runs,
+    paused,
+    reduced,
+    total,
+    typeDelay,
+    deleteDelay,
+    delay,
+    hold,
+    erase,
+    repeat
+  ]);
 
   return (
     <div

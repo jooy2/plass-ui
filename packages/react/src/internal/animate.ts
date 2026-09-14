@@ -272,6 +272,17 @@ export interface AnimationRun {
   /** Whether the animation has been let go at all. */
   started: boolean;
   /**
+   * How many times it has been started, counting every hover, every `play` and
+   * every change of `nonce`.
+   *
+   * `started` stays `true` from the first start on, so a second hover changes
+   * nothing an effect could depend on. A keyframe does not need to know, because
+   * it is rewound in the DOM whenever this changes. Counter, Scramble and Typing
+   * run their own loops in JavaScript, and they replay by listing this among
+   * their effects' dependencies.
+   */
+  runs: number;
+  /**
    * The hover trigger's handlers when `trigger` is `hover`; empty otherwise.
    *
    * Merged with the caller's props through `mergeProps` rather than spread
@@ -446,6 +457,7 @@ export function useAnimationRun({
     }, []),
     state: started && !paused ? 'running' : 'paused',
     started,
+    runs: run,
     handlers
   };
 }

@@ -305,3 +305,58 @@ describe('restarting an animation', () => {
     expect(childRewinds()).toBeGreaterThan(0);
   });
 });
+
+/**
+ * The three that run their own loop in JavaScript, with what each one reads
+ * once it has finished.
+ */
+const loops: [string, React.ReactElement, string][] = [
+  [
+    'PlAnimateCounter',
+    <PlAnimateCounter className="animate-under-test" trigger="hover" value={100} duration={300} />,
+    '100'
+  ],
+  [
+    'PlAnimateScramble',
+    <PlAnimateScramble className="animate-under-test" trigger="hover" duration={300} tick={10}>
+      Ship it on Friday
+    </PlAnimateScramble>,
+    'Ship it on Friday'
+  ],
+  [
+    'PlAnimateTyping',
+    <PlAnimateTyping className="animate-under-test" trigger="hover" text="Hello" duration={100} />,
+    'Hello'
+  ]
+];
+
+/** What a sighted reader sees right now, which is what the loop draws. */
+function drawn(): string {
+  return root().querySelector<HTMLElement>('[aria-hidden="true"]')!.textContent ?? '';
+}
+
+function enter() {
+  root().dispatchEvent(new PointerEvent('pointerover', { bubbles: true }));
+}
+
+function leave() {
+  root().dispatchEvent(new PointerEvent('pointerout', { bubbles: true }));
+}
+
+describe('a second hover', () => {
+  it.each(loops)('plays %s again', async (_, element, finished) => {
+    await render(element);
+
+    enter();
+
+    await expect.poll(() => drawn().startsWith(finished)).toBe(true);
+
+    leave();
+    enter();
+
+    // Started over rather than left where the first hover finished, which is
+    // what every keyframe effect already does and what Flutter does for these.
+    await expect.poll(() => drawn().startsWith(finished)).toBe(false);
+    await expect.poll(() => drawn().startsWith(finished)).toBe(true);
+  });
+});

@@ -166,7 +166,9 @@ export const PlAnimateScramble = /* @__PURE__ */ React.forwardRef<
     frame = requestAnimationFrame(step);
 
     return () => cancelAnimationFrame(frame);
-  }, [run.started, still, paused, children, pool, duration, delay, tick]);
+    // `run.runs` is listed although nothing above reads it. A second hover starts
+    // a new run without changing `started`, and a new run scrambles the line again.
+  }, [run.started, run.runs, still, paused, children, pool, duration, delay, tick]);
 
   return useRender({
     render: render ?? <span />,

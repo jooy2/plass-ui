@@ -14,6 +14,8 @@
 
 ### Fixed
 
+- **`PlAnimateCounter`, `PlAnimateScramble` and `PlAnimateTyping` play again on every hover.** With `trigger="hover"` they ran on the first hover only, because a later hover changed nothing their loops watched, while every keyframe effect restarted each time. Each hover now starts the count, the scramble or the typing over, as the Flutter build does.
+
 - **Restarting a `PlAnimate*` no longer replays another one nested inside it.** A restart rewound every animated element under its root, so an error message in a `PlAnimateFade` inside <code v-pre>&lt;PlAnimateShake replay={attempts}&gt;</code> faded in again on every shake. A restart now rewinds only the root and the parts that animation drew itself: its staggered children, the parts of a `PlAnimateSplit` and the tracks of a `PlAnimateMarquee`.
 
 - **A caller's `onPointerEnter` and `onFocus` reach every `PlAnimate*` with `trigger="hover"`, and no longer stop the effect from starting.** Twelve of the components (Appear, Blink, Fade, Float, Grow, Lighting, Reveal, Rotate, Shake, Slide, Split and Zoom) laid their hover handlers over the caller's, so `onPointerEnter={prefetch}` was never called. The other five (Counter, Headline, Marquee, Scramble and Typing) did the opposite, so a caller's `onFocus` replaced the handler that starts the effect on focus, and a keyboard reader never saw it play. The two sets of handlers are now merged, and both run.
