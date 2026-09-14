@@ -59,7 +59,7 @@ The same rule reaches the prop vocabulary: [`PlassAlign`](./prop-conventions) is
 | --- | --- |
 | Padding, margins, borders, radii, insets | **Flip.** They are logical properties |
 | Text alignment, list markers, table columns | **Flip.** The browser's own |
-| A chevron that points along the reading direction, a breadcrumb's, a pagination stepper's, a submenu's, a `PlTree`'s closed twisty | **Flip.** One glyph, turned |
+| A chevron that points along the reading direction, a breadcrumb's, a pagination stepper's, a submenu's, a `PlTree`'s closed twisty, a `PlTransfer` arrow | **Flip.** One glyph, turned |
 | A `PlSwitch`'s thumb | **Flips.** Off is the inline start, which is the right-hand end under RTL, as every platform's own switch behaves |
 | A `PlPanes` handle, a `PlSidebar` drag, a `PlCarousel` or `PlScrollZone` strip | **Flip**, including the arrow keys |
 | The left and right arrow keys in a `PlTabs` row, a `PlRadioGroup`, a `PlSegmentedButton` and a `PlRating` | **Flip.** The next choice is the one to the left under RTL. Up and down keep their meaning |

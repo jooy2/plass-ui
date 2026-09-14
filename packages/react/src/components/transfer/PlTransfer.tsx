@@ -381,7 +381,13 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
             label={toTargetLabel}
             disabled={disabled || !canSend}
             onClick={() => move(sourceRows, true)}
-            icon={<ArrowRightIcon />}
+            // The glyph is drawn pointing right, and the selected list is at the
+            // inline end, which is the left under RTL, so it turns there.
+            icon={
+              <span className="flex rtl:rotate-180">
+                <ArrowRightIcon />
+              </span>
+            }
           />
           <PlIconButton
             size={size}
@@ -391,10 +397,10 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
             disabled={disabled || !canReturn}
             onClick={() => move(targetRows, false)}
             // The same glyph turned, which is the one allowance the no-transform
-            // rule makes — and it is logical, so under RTL the arrows already
-            // point the way the lists are laid out.
+            // rule makes. A rotation is physical, so it is turned back under RTL,
+            // where the available list is on the right.
             icon={
-              <span className="flex rotate-180">
+              <span className="flex rotate-180 rtl:rotate-0">
                 <ArrowRightIcon />
               </span>
             }

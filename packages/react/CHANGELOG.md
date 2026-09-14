@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **The `PlTransfer` arrows point at their own lists under RTL.** The selected list is at the inline end, which is the left under a right-to-left direction, but the arrow to it was always drawn pointing right and the arrow back pointing left. Both now turn over with the direction.
+
 - **A `fullWidth` `PlSelect` no longer renders every option label in its trigger.** The trigger held itself open at the width of its longest label by rendering all of them, hidden, even when `fullWidth` made its width the container's. A list of 250 countries with a flag in each label requested 250 images before the list was ever opened. A `fullWidth` trigger now renders only what it shows. A trigger without `fullWidth` still renders every label, because that is what keeps it from changing width with its value.
 
 - **The options of a disabled `PlRadioGroup` look disabled.** A group's `disabled` stopped its options answering, but each option chose its look from its own `disabled` alone, so the options of a disabled group were drawn at full strength with a pointer cursor and a hover. They now dim, take the not-allowed cursor and lose the hover, as an option disabled on its own does.

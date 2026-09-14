@@ -258,6 +258,7 @@ class _PlTransferState extends State<PlTransfer> {
 
     final List<PlTransferItem> sourceRows = _narrow(source, _sourceSearch.text);
     final List<PlTransferItem> targetRows = _narrow(target, _targetSearch.text);
+    final bool rtl = Directionality.of(context) == TextDirection.rtl;
 
     final bool canSend = sourceRows.any(
       (PlTransferItem item) => !item.disabled && _ticked.contains(item.value),
@@ -294,7 +295,9 @@ class _PlTransferState extends State<PlTransfer> {
               onPressed: widget.disabled || !canSend
                   ? null
                   : () => _move(sourceRows, toTarget: true),
-              icon: const PlassGlyph(PlassGlyphShape.arrowRight),
+              // The glyph points right, and the selected list is at the end of
+              // the row, which is the left under RTL, so both arrows turn there.
+              icon: PlassGlyph(PlassGlyphShape.arrowRight, quarterTurns: rtl ? 2 : 0),
             ),
             PlIconButton(
               size: _size,
@@ -306,7 +309,7 @@ class _PlTransferState extends State<PlTransfer> {
                   : () => _move(targetRows, toTarget: false),
               // The same glyph turned, which is the one allowance the
               // no-transform rule makes: a wedge has no text in it to resample.
-              icon: const PlassGlyph(PlassGlyphShape.arrowRight, quarterTurns: 2),
+              icon: PlassGlyph(PlassGlyphShape.arrowRight, quarterTurns: rtl ? 0 : 2),
             ),
           ],
         ),

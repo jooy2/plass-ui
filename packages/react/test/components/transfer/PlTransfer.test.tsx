@@ -110,6 +110,22 @@ describe('PlTransfer', () => {
       await expect.poll(() => send.element().hasAttribute('disabled')).toBe(false);
     });
 
+    it('turns both arrows towards their own lists under RTL', async () => {
+      const screen = await render(<PlTransfer items={items} />);
+
+      // Nothing loads Tailwind here, so the turn is read off the classes: the
+      // arrow to the selected list turns only under RTL, the one back only
+      // outside it.
+      const glyph = (name: string) =>
+        screen.getByRole('button', { name }).element().querySelector('svg')?.parentElement
+          ?.className;
+
+      expect(glyph('Move to selected')).toContain('rtl:rotate-180');
+      expect(glyph('Move to selected')).not.toMatch(/(^|\s)rotate-180/);
+      expect(glyph('Move to available')).toMatch(/(^|\s)rotate-180(\s|$)/);
+      expect(glyph('Move to available')).toContain('rtl:rotate-0');
+    });
+
     it('never moves a disabled row', async () => {
       const screen = await render(<PlTransfer items={items} />);
 

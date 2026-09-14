@@ -2,6 +2,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
+import 'package:plass_ui/src/internal/icons.dart';
+
 import '../../support/host.dart';
 
 const List<PlTransferItem> items = <PlTransferItem>[
@@ -162,6 +164,36 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(seen, isEmpty);
+      });
+
+      testWidgets('turns both arrows towards their own lists under RTL', (
+        WidgetTester tester,
+      ) async {
+        for (final TextDirection direction in TextDirection.values) {
+          await tester.pumpWidget(
+            host(
+              Directionality(
+                textDirection: direction,
+                child: const PlTransfer(items: items, height: 160),
+              ),
+              width: 700,
+              height: 400,
+            ),
+          );
+
+          // The arrow to the selected list, then the one back.
+          final List<int> turns = tester
+              .widgetList<PlassGlyph>(find.byType(PlassGlyph))
+              .where((PlassGlyph glyph) => glyph.shape == PlassGlyphShape.arrowRight)
+              .map((PlassGlyph glyph) => glyph.quarterTurns)
+              .toList();
+
+          expect(
+            turns,
+            direction == TextDirection.rtl ? <int>[2, 0] : <int>[0, 2],
+            reason: '$direction',
+          );
+        }
       });
 
       testWidgets('never moves a disabled row', (WidgetTester tester) async {
