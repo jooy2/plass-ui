@@ -2653,6 +2653,15 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'focusableWhenDisabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: 'disabled인 버튼을 탭 순서에서 빼지 않고, 사용할 수 없다고 알립니다. 행 끝에 닿은 이동 버튼처럼 포커스가 있는 채로 사용할 수 없게 되는 컨트롤에 씁니다',
+        en: 'Keeps a disabled button in the tab order, announced as unavailable. For a control that can become unavailable under the focus, such as a stepper reaching the end of a row'
+      }
+    },
+    {
       name: 'disabled',
       type: 'boolean',
       default: 'false',

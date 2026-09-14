@@ -114,19 +114,50 @@ describe('PlPagination', () => {
       await expect.element(screen.getByRole('button', { name: 'Last page' })).toBeInTheDocument();
     });
 
-    it('disables the backward steppers on the first page', async () => {
+    it('marks the backward steppers unavailable on the first page', async () => {
       const screen = await render(<PlPagination count={9} defaultPage={1} showEdges />);
 
-      expect(screen.getByRole('button', { name: 'Previous page' }).element()).toBeDisabled();
-      expect(screen.getByRole('button', { name: 'First page' }).element()).toBeDisabled();
-      expect(screen.getByRole('button', { name: 'Next page' }).element()).toBeEnabled();
+      // Unavailable, and still a tab stop: `aria-disabled` rather than `disabled`.
+      expect(screen.getByRole('button', { name: 'Previous page' }).element()).toHaveAttribute(
+        'aria-disabled',
+        'true'
+      );
+      expect(screen.getByRole('button', { name: 'First page' }).element()).toHaveAttribute(
+        'aria-disabled',
+        'true'
+      );
+      expect(screen.getByRole('button', { name: 'Next page' }).element()).not.toHaveAttribute(
+        'aria-disabled'
+      );
     });
 
-    it('disables the forward steppers on the last page', async () => {
+    it('marks the forward steppers unavailable on the last page', async () => {
       const screen = await render(<PlPagination count={9} defaultPage={9} showEdges />);
 
-      expect(screen.getByRole('button', { name: 'Next page' }).element()).toBeDisabled();
-      expect(screen.getByRole('button', { name: 'Last page' }).element()).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Next page' }).element()).toHaveAttribute(
+        'aria-disabled',
+        'true'
+      );
+      expect(screen.getByRole('button', { name: 'Last page' }).element()).toHaveAttribute(
+        'aria-disabled',
+        'true'
+      );
+    });
+
+    it('keeps the focus on a stepper that reaches the end of the row', async () => {
+      const onPageChange = vi.fn();
+      const screen = await render(
+        <PlPagination count={9} defaultPage={8} onPageChange={onPageChange} />
+      );
+
+      const next = screen.getByRole('button', { name: 'Next page' }).element() as HTMLElement;
+
+      next.focus();
+      next.click();
+
+      await expect.poll(() => next.getAttribute('aria-disabled')).toBe('true');
+      expect(onPageChange).toHaveBeenCalledWith(9);
+      expect(document.activeElement).toBe(next);
     });
   });
 
@@ -253,13 +284,44 @@ describe('PlPagination', () => {
       );
     });
 
-    it('leaves the current page a button, since a link cannot be disabled', async () => {
+    it('keeps the current page a link, marked as the current one', async () => {
       const screen = await render(
         <PlPagination count={5} defaultPage={2} getPageHref={(page) => `/posts?page=${page}`} />
       );
 
-      expect(screen.getByRole('link', { name: 'Page 2' }).query()).toBeNull();
-      expect(screen.getByRole('button', { name: 'Page 2' }).element().tagName).toBe('BUTTON');
+      const current = screen.getByRole('link', { name: 'Page 2' }).element();
+
+      expect(current).toHaveAttribute('aria-current', 'page');
+      expect(current).toHaveAttribute('href', '/posts?page=2');
+    });
+
+    it('keeps the focus on the link that was pressed, and on a stepper at the end', async () => {
+      const screen = await render(
+        <PlPagination
+          count={9}
+          defaultPage={7}
+          onPageChange={() => undefined}
+          getPageHref={(page) => `/posts?page=${page}`}
+        />
+      );
+
+      const page = screen.getByRole('link', { name: 'Page 8' }).element() as HTMLElement;
+
+      page.focus();
+      clickAndReadCancellation(page);
+
+      // The pressed page became the current one and is still the same element.
+      await expect.poll(() => page.getAttribute('aria-current')).toBe('page');
+      expect(document.activeElement).toBe(page);
+
+      const next = screen.getByRole('link', { name: 'Next page' }).element() as HTMLElement;
+
+      next.focus();
+      clickAndReadCancellation(next);
+
+      await expect.poll(() => next.getAttribute('aria-disabled')).toBe('true');
+      expect(next).not.toHaveAttribute('href');
+      expect(document.activeElement).toBe(next);
     });
 
     it('marks the two arrows with `rel`', async () => {

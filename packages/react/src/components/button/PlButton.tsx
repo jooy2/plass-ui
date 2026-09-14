@@ -47,6 +47,14 @@ export interface PlButtonProps
   loading?: boolean;
   /** Inert but not dimmed — the action exists, it just is not available here. */
   readOnly?: boolean;
+  /**
+   * Keeps a `disabled` button in the tab order, announced as unavailable rather
+   * than taken out of it. For a control that can become unavailable while the
+   * reader's focus is on it, such as a stepper that reaches the end of a row,
+   * where a real `disabled` would drop the focus to the top of the page.
+   * @default false
+   */
+  focusableWhenDisabled?: boolean;
   /** Stretches to the width of the container. */
   fullWidth?: boolean;
   /**
@@ -184,6 +192,7 @@ export const PlButton = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlBu
       readOnly = false,
       fullWidth = false,
       disabled: disabledProp,
+      focusableWhenDisabled = false,
       render,
       className,
       style,
@@ -251,12 +260,16 @@ export const PlButton = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlBu
      * and `disabled` is the one thing that cannot travel to an `<a>` anyway.
      */
     return useRender({
-      render: render ?? <BaseUIButton disabled={disabled} />,
+      render: render ?? (
+        <BaseUIButton disabled={disabled} focusableWhenDisabled={focusableWhenDisabled} />
+      ),
       ref,
       props: {
         className: classNames,
         style: { ...controlSlots(color, elevation, variant), ...style },
-        'aria-disabled': inert || undefined,
+        // Also for a disabled button kept focusable, which Base UI marks the
+        // same way; left `undefined` here, this would take its mark off again.
+        'aria-disabled': inert || (disabled && focusableWhenDisabled) || undefined,
         'aria-busy': loading || undefined,
         'data-loading': loading || undefined,
         'data-readonly': readOnly || undefined,

@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **Pressing a `PlPagination` page or stepper keeps the focus on it.** With `getPageHref`, the page that became current turned from a link into a button, a new element, and the focus fell to the top of the page; on the last page, Next became `disabled` and dropped the focus the same way, with or without `getPageHref`. The current page now stays a link marked `aria-current`, and a stepper at the end of the row stays in the tab order, announced as unavailable: an `<a>` with no address and `aria-disabled` in a link row, a button with `aria-disabled` otherwise. A `disabled` row still takes every control out of the tab order.
+
 - **Each `PlCarousel` dot is a 24px press target.** A dot was a button the size of the dot it drew, 4 to 8 pixels across, which falls short of WCAG 2.5.8 and made jumping to a slide on a phone hard, above all with `arrows={false}`. The button is now 24px on each side with the dot drawn in its middle, and the targets sit side by side, so the dots are spaced further apart.
 
 - **`PlCarousel` `autoPlay` keeps advancing inside a parent that renders often.** The interval was restarted whenever the function the component moves with changed, and that function changed with an inline `onValueChange`, so inside a parent that rendered every second a five-second interval was reset before it ever fired and the carousel stood still. The interval now restarts only when the slide, the count, the pause or the interval itself changes.
@@ -179,6 +181,8 @@
 - **`PlImage` no longer hides a picture that had already arrived.** The component moved out of its loading state on the `<img>`'s `load` event alone, and an event is only heard by something already listening: a file served from the cache — or one a server rendered, so the browser began fetching it while parsing the HTML — can finish decoding before React attaches the handler. The picture then sat at `opacity: 0` behind its own placeholder for good. It now asks the element where it got to on mount and on every `src` change, so a picture that is already `complete` is shown rather than waited for.
 
 ### Added
+
+- **`PlButton` takes `focusableWhenDisabled`.** A `disabled` button leaves the tab order, which drops the focus when a control becomes unavailable under it. With `focusableWhenDisabled` it stays a tab stop and is announced as unavailable, the way a stepper at the end of a `PlPagination` row now is.
 
 - **`PlAnchor` takes a `target`, for headings that scroll inside an element rather than the window.** In an app shell whose `<main>` scrolls on its own the window never moves, so no row was ever lit. `target` takes an element, a ref or a function returning one, as the `target` of `PlBackTop` does, and the reading line, `offset` and the last-row rule are measured against that element. Left out, the list follows the window as before.
 

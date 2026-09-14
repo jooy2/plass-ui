@@ -52,9 +52,10 @@ export interface PlPaginationProps
    * press is going before making it.
    *
    * `onPageChange` still fires and the press is still cancelled first, so a
-   * client-side router keeps the page it already has. A link with nowhere to go
-   * — the current page, a stepper at the end of the row — stays a `<button>`,
-   * because `disabled` is not something an `<a>` can be.
+   * client-side router keeps the page it already has. The current page stays a
+   * link, marked `aria-current`, and a stepper at the end of the row stays an
+   * `<a>` with no address, marked `aria-disabled`: a pressed control that turned
+   * into a different element would take the reader's focus with it.
    */
   getPageHref?: (page: number) => string;
   /**
@@ -283,19 +284,29 @@ export const PlPagination = /* @__PURE__ */ React.forwardRef<HTMLElement, PlPagi
     const atEnd = current >= count;
 
     /*
-     * A link only where there is somewhere to go. The page being read and a
-     * stepper at the end of the row are both `disabled`, and `disabled` is not
-     * something an `<a>` can be — a link that only looks unavailable is one a
-     * keyboard still lands on and a crawler still follows.
+     * A link for every page, the one being read included, so pressing a page
+     * never swaps the element under the reader's focus for another. A stepper
+     * at the end of the row has nowhere to go: it stays an `<a>`, with no
+     * address for a crawler to follow, marked unavailable and still focusable,
+     * for the same reason. A `disabled` row is buttons, because nothing in it
+     * is somewhere to go.
      *
      * `rel` rides beside `render` rather than being written into the element,
      * so it lands on whatever the caller's `renderLink` returned as well as on
      * the plain `<a>`. `PlButton` spreads what it is given onto the rendered
      * element, which is the same path `href` takes.
      */
-    const linkProps = (to: number, inert: boolean, rel?: 'prev' | 'next') => {
-      if (!getPageHref || inert) {
+    const linkProps = (to: number, unavailable: boolean, rel?: 'prev' | 'next') => {
+      if (!getPageHref || disabled) {
         return null;
+      }
+
+      if (unavailable) {
+        return {
+          render: <a role="link" />,
+          'aria-disabled': true,
+          tabIndex: 0
+        } as const;
       }
 
       const href = getPageHref(to);
@@ -348,10 +359,14 @@ export const PlPagination = /* @__PURE__ */ React.forwardRef<HTMLElement, PlPagi
           density={density}
           elevation={elevation}
           disabled={disabled || inert}
+          // A stepper reaches the end of the row under the reader's focus, when
+          // the press that took it there lands. It stays in the tab order,
+          // announced as unavailable, rather than dropping the focus.
+          focusableWhenDisabled={!disabled}
           aria-label={accessibleName}
           startIcon={<span className={`flex items-center ${rotation}`}>{glyph}</span>}
           onClick={(event) => press(event, to)}
-          {...linkProps(to, disabled || inert, rel)}
+          {...linkProps(to, inert, rel)}
         />
       </li>
     );
@@ -415,9 +430,9 @@ export const PlPagination = /* @__PURE__ */ React.forwardRef<HTMLElement, PlPagi
                   aria-current={slot === current ? 'page' : undefined}
                   className="tabular-nums"
                   onClick={(event) => press(event, slot)}
-                  // The page being read is not somewhere to go, so it keeps its
-                  // `aria-current` and stops being a link.
-                  {...linkProps(slot, disabled || slot === current)}
+                  // The page being read stays a link, marked `aria-current`, so
+                  // the press that made it current keeps the focus on it.
+                  {...linkProps(slot, false)}
                 >
                   {slot}
                 </PlButton>

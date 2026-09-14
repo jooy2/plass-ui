@@ -125,7 +125,7 @@ Turns every number into a real `<a href>`. Without it the row is buttons, and a 
 
 With an `href` **and** an `onPageChange`, the handler wins and the navigation is cancelled: that is a client-side router keeping the page it already has. With an `href` and no handler, the link is left to do what a link does, which is also what makes the row work before JavaScript has loaded. A press carrying <kbd>⌘</kbd>, <kbd>Ctrl</kbd>, <kbd>Shift</kbd> or <kbd>Alt</kbd> is never cancelled: that is the reader asking the browser for a new tab.
 
-The current page and a stepper at the end of the row stay `<button>`s, because `disabled` is not something an `<a>` can be.
+The current page stays a link, marked `aria-current`, and a stepper at the end of the row stays an `<a>` with no address, marked `aria-disabled`. A pressed control that turned into a different element would take the reader's focus with it, and without an address there is nothing for a crawler to follow. Without `getPageHref`, a stepper at the end is a button that keeps its place in the tab order, announced as unavailable.
 
 `renderLink` decides what that link is made of. A bare `<a>` is a full document load in a single-page app. The router never sees the press, so the whole page is fetched, parsed and booted again to change one number. Hand back the `Link` your router brings and the address arrives already built, so there is no second copy of `getPageHref` inside it. `rel="prev"` and `rel="next"` are merged onto whatever comes back.
 
