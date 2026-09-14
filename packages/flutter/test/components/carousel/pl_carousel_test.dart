@@ -203,6 +203,46 @@ void main() {
         await tester.pumpWidget(host(const SizedBox.shrink(), width: 360));
       });
 
+      testWidgets('keeps advancing inside a parent that rebuilds more often than the interval', (
+        WidgetTester tester,
+      ) async {
+        int value = 0;
+        late StateSetter rebuild;
+
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                rebuild = setState;
+
+                // A new `onChanged` on every rebuild, as an inline closure is.
+                return PlCarousel(
+                  value: value,
+                  onChanged: (int next) => setState(() => value = next),
+                  autoPlay: true,
+                  interval: const Duration(milliseconds: 200),
+                  aspectRatio: 2,
+                  label: 'Gallery',
+                  children: _slides,
+                );
+              },
+            ),
+            width: 360,
+          ),
+        );
+
+        // Rebuilt every 50ms for twice the interval, with no quiet stretch in
+        // which a timer restarted on every rebuild could still fire.
+        for (var step = 0; step < 10; step += 1) {
+          rebuild(() {});
+          await tester.pump(const Duration(milliseconds: 50));
+        }
+
+        expect(value, greaterThan(0));
+
+        await tester.pumpWidget(host(const SizedBox.shrink(), width: 360));
+      });
+
       testWidgets('does not start at all for a reader who asked for stillness', (
         WidgetTester tester,
       ) async {

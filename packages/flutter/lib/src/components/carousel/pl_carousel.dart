@@ -202,7 +202,16 @@ class _PlCarouselState extends State<PlCarousel> {
       );
     }
 
-    _restart();
+    // Only when something the timer depends on changed. A parent that rebuilds
+    // every second would otherwise restart a five-second interval before it
+    // ever fired, and the carousel would never advance.
+    if (widget.autoPlay != oldWidget.autoPlay ||
+        widget.interval != oldWidget.interval ||
+        widget.value != oldWidget.value ||
+        widget.children.length != oldWidget.children.length ||
+        (widget.onChanged == null) != (oldWidget.onChanged == null)) {
+      _restart();
+    }
   }
 
   @override

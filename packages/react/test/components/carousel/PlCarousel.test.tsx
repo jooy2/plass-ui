@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlCarousel } from 'plass-ui';
@@ -98,6 +99,36 @@ describe('PlCarousel', () => {
       );
 
       expect(screen.getByRole('button', { name: 'Next slide' }).query()).toBeNull();
+    });
+  });
+
+  describe('autoPlay', () => {
+    it('keeps advancing inside a parent that renders more often than the interval', async () => {
+      function Ticking() {
+        const [, setTick] = React.useState(0);
+        const [shown, setShown] = React.useState(0);
+
+        React.useEffect(() => {
+          const timer = window.setInterval(() => setTick((tick) => tick + 1), 50);
+
+          return () => window.clearInterval(timer);
+        }, []);
+
+        // An inline handler, a new function on every one of those renders.
+        return (
+          <PlCarousel autoPlay interval={200} onValueChange={(next) => setShown(next)}>
+            <p>Alpha {shown}</p>
+            <p>Bravo</p>
+            <p>Charlie</p>
+          </PlCarousel>
+        );
+      }
+
+      const screen = await render(<Ticking />);
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Slide 2 of 3' }), { timeout: 2000 })
+        .toHaveAttribute('aria-current', 'true');
     });
   });
 

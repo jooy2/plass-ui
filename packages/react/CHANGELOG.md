@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **`PlCarousel` `autoPlay` keeps advancing inside a parent that renders often.** The interval was restarted whenever the function the component moves with changed, and that function changed with an inline `onValueChange`, so inside a parent that rendered every second a five-second interval was reset before it ever fired and the carousel stood still. The interval now restarts only when the slide, the count, the pause or the interval itself changes.
+
 - **Pressing a `PlTransfer` arrow keeps the focus and says what moved.** The pressed arrow was disabled by the move, so the focus fell to the page and nothing said how many rows had gone across. The focus now goes to the first row that arrived, or to the target list when a controlled owner refused the rows, and a polite live region announces the count from the new `transferMoved` label key. The new `movedLabel` prop changes the sentence for one pair.
 
 - **`PlOtpField` names every slot by its place in the row.** Every slot was named by the field label alone, so a screen reader read "Verification code" six times and never said which box the caret was in. Each slot is now named by the label and then its position, "Verification code Character 2 of 6", from the new `otpSlot` label key, and the new `slotLabel` prop changes the wording for one field.

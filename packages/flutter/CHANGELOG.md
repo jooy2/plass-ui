@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **`PlCarousel` `autoPlay` keeps advancing inside a parent that rebuilds often.** Every rebuild of the widget restarted its timer, so inside a parent that rebuilt every second a five-second interval never completed and the carousel stood still. The timer now restarts only when `autoPlay`, `interval`, `value`, the number of slides or whether there is an `onChanged` changes.
+
 - **Pressing a `PlTransfer` arrow keeps the focus and says what moved.** The pressed arrow was disabled by the move, so the focus left the widget and nothing said how many rows had gone across. The focus now goes to the first row that arrived, or to the target list when a controlled owner refused the rows, and the count is announced at polite priority from the new `transferMoved` label field. The new `movedLabel` parameter changes the sentence for one pair.
 
 - **Accessibility sentences with a value in them are read in the language of the label pack.** `PlPagination`'s page names, `PlRating`'s scores, `PlCarousel`'s slide names, the remove and add rows of `PlFilePicker` and `PlCombobox`, and `PlHowToSteps`' step positions were English templates inside each widget. They now come from new `PlassLabels` fields (`paginationPage`, `ratingValue`, `ratingNone`, `carouselSlide`, `removeItem`, `addCustom`, `howToStep`), translated in all seven packs in each language's own word order, and the packs stay `const`. A widget's own parameter still wins.

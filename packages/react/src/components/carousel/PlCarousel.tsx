@@ -271,6 +271,16 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
       }
     };
 
+    // The interval reads `go` through a ref. `go` is a new function whenever an
+    // inline `onValueChange` is, so with it among the effect's dependencies a
+    // parent that renders every second restarted a five-second interval before
+    // it ever fired, and the carousel never advanced.
+    const goRef = React.useRef(go);
+
+    React.useEffect(() => {
+      goRef.current = go;
+    });
+
     React.useEffect(() => {
       if (!autoPlay || paused || count < 2) {
         return;
@@ -286,11 +296,11 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
           return;
         }
 
-        go(index + 1);
+        goRef.current(index + 1);
       }, interval);
 
       return () => window.clearInterval(timer);
-    }, [autoPlay, paused, count, interval, index, go]);
+    }, [autoPlay, paused, count, interval, index]);
 
     const atStart = index <= 0;
     const atEnd = index >= count - 1;
