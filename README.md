@@ -186,9 +186,12 @@ React-only, and the machinery the library already ran on rather than anything ne
 | `usePlBreakpointValue` | What a `PlassResponsive` map resolves to at that rung                    |
 | `usePlReducedMotion`   | Whether the reader has asked their platform for less movement            |
 | `usePlHotKeys`         | Binds keyboard chords, spelled the way `PlHotKeys` draws them            |
-| `usePlassDefaults`     | What the nearest `PlassProvider` decided                                 |
 | `usePlColorScheme`     | The dark mode toggle, the choice, where it is kept, and what it writes   |
-| `usePlToast`           | Raises a toast from a click handler, under a `PlToastProvider`           |
+| `usePlDisclosure`      | One boolean and the four callbacks that change it, all of them stable    |
+| `usePlElementSize`     | The size of an element's content box, kept up to date as it changes      |
+| `usePlOnScreen`        | Whether an element has been seen, or is on screen now with `once: false` |
+
+`usePlassDefaults` and `usePlToast` live with the part they belong to rather than in `plass-ui/hooks`. `usePlassDefaults` returns what the nearest `PlassProvider` decided, and is imported from the barrel or from `plass-ui/provider`. `usePlToast` raises a toast from a click handler under a `PlToastProvider`, and is imported from the barrel or from `plass-ui/toast`.
 
 Flutter answers the same questions with framework calls (`MediaQuery`, `PlassTheme`) rather than with anything this package would add. Each hook's page names the Dart equivalent.
 
