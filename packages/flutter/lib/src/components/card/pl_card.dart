@@ -1,6 +1,7 @@
 /// The sheet everything else on a screen is grouped onto.
 library;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
@@ -167,7 +168,17 @@ class PlCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (onPressed == null) {
-      return _sheet(context, const PlassInteraction());
+      if (!interactive) {
+        return _sheet(context, const PlassInteraction());
+      }
+
+      // Hover alone. A card that only lifts is not something to press or to
+      // tab to, so it is told whether a mouse is over it and is given none of
+      // the focus and gesture machinery a pressable one is wrapped in.
+      return _Hover(
+        builder: (BuildContext context, bool hovered) =>
+            _sheet(context, PlassInteraction(hovered: hovered)),
+      );
     }
 
     return PlassInteractive(
@@ -355,6 +366,29 @@ class PlCard extends StatelessWidget {
           children: rows,
         ),
       ),
+    );
+  }
+}
+
+/// Whether a mouse is over [builder]'s surface, and nothing else.
+class _Hover extends StatefulWidget {
+  const _Hover({required this.builder});
+
+  final Widget Function(BuildContext context, bool hovered) builder;
+
+  @override
+  State<_Hover> createState() => _HoverState();
+}
+
+class _HoverState extends State<_Hover> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (PointerEnterEvent event) => setState(() => _hovered = true),
+      onExit: (PointerExitEvent event) => setState(() => _hovered = false),
+      child: widget.builder(context, _hovered),
     );
   }
 }

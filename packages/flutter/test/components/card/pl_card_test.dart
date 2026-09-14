@@ -257,6 +257,52 @@ void main() {
 
         expect(tester.state(find.byType(_Probe)), same(resting));
       });
+
+      testWidgets('lifts a card that is only interactive', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(const PlCard(interactive: true, child: Text('Body')), width: 360),
+        );
+
+        final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+        await mouse.addPointer(location: const Offset(1, 1));
+        addTearDown(mouse.removePointer);
+
+        await mouse.moveTo(tester.getCenter(find.byType(PlCard)));
+        await tester.pumpAndSettle();
+
+        // The same lift a pressable card gives, with nothing to press: a level
+        // of shadow and the sheet raised by two pixels.
+        expect(
+          decorationWhere(
+            tester,
+            find.byType(PlCard),
+            (BoxDecoration decoration) => decoration.boxShadow != null,
+          ).boxShadow,
+          PlassTokens.light().elevation(2),
+        );
+        expect(
+          tester
+              .widget<Transform>(
+                find.descendant(of: find.byType(PlCard), matching: find.byType(Transform)).first,
+              )
+              .transform
+              .getTranslation()
+              .y,
+          -2,
+        );
+
+        await mouse.moveTo(const Offset(1, 1));
+        await tester.pumpAndSettle();
+
+        expect(
+          decorationWhere(
+            tester,
+            find.byType(PlCard),
+            (BoxDecoration decoration) => decoration.boxShadow != null,
+          ).boxShadow,
+          PlassTokens.light().elevation(1),
+        );
+      });
     });
   });
 }
