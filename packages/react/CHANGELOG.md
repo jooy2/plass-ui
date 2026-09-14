@@ -14,6 +14,8 @@
 
 ### Fixed
 
+- **A `fullWidth` `PlDateRangePicker` no longer renders every date sample in its trigger.** Each half held itself open at the widest date it could show by rendering the samples, hidden, even when `fullWidth` made the trigger's width its container's. A `fullWidth` trigger now renders only what it shows. A trigger without `fullWidth` keeps its samples, which stop it changing width as the range is filled in.
+
 - **The `PlPill` button says whether its `details` are open.** With `details` and an `onClick`, the middle button had no `aria-expanded` and pointed at no panel, and since the other props land on the shell, a caller could not add either. The button now takes `aria-expanded` from `expanded` and points at the panel with `aria-controls`. A pill without `details` claims neither.
 
 - **A `PlTabPanel` inside a Fragment is sorted out of the tab bar.** Children were sorted by looking only at the top level, so `items.map((item) => <><PlTab /><PlTabPanel /></>)` put every panel inside the `role="tablist"` strip, clipped under the tabs. Fragments are now opened on the way. A panel wrapped in a component of the caller's own still cannot be told apart from a tab, which the tabs page now says.

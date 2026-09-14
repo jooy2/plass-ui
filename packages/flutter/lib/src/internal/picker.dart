@@ -386,6 +386,11 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
   /// measured and never read, and the display itself is already on the node
   /// above as its value.
   Widget _value(PlassTokens tokens, PlassTextScale scale) {
+    // A `fullWidth` shell takes its width from its container, so it lays out no
+    // samples: every one built there, and every picture in one, would be work
+    // for nothing.
+    final samples = widget.fullWidth ? const <Widget>[] : widget.samples;
+
     return ExcludeSemantics(
       child: DefaultTextStyle.merge(
         style: TextStyle(
@@ -400,7 +405,7 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
         child: Stack(
           alignment: AlignmentDirectional.centerStart,
           children: <Widget>[
-            for (final Widget sample in widget.samples)
+            for (final Widget sample in samples)
               Visibility(
                 visible: false,
                 maintainSize: true,

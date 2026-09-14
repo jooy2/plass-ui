@@ -60,6 +60,8 @@
 
 ### Fixed
 
+- **A `fullWidth` picker no longer lays out its width samples.** `PlDatePicker`, `PlDateRangePicker`, `PlDateTimePicker`, `PlTimePicker` and `PlColorPicker` built every sample under the value, invisible, even when `fullWidth` made the field's width its container's. A `fullWidth` field now builds only what it shows, as `PlSelect` already does. A field without `fullWidth` keeps them.
+
 - **A press on an open `PlPill`'s `details` or on its `endIcon` no longer calls `onPressed`.** The whole pill answered a press, so a pill whose press opens its details folded them away as soon as someone touched the text inside, and a trailing slot that was not a control pressed the pill as well. Only the row answers a press now, as the React build's button does. Hover and the light still cover the whole pill.
 
 - **The `PlPill` button says whether its `details` are open.** With `details` and an `onPressed`, the button reported no expanded state to a screen reader. It now reports whether the panel is expanded, and a pill without `details` reports no expanded state at all.

@@ -97,6 +97,26 @@ void main() {
         expect(find.text('Check in'), findsNWidgets(2));
         expect(find.text('Check out'), findsNWidgets(2));
       });
+
+      testWidgets('lays out no samples when it fills its container', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            PlDateRangePicker(
+              value: PlDateRange.empty,
+              fullWidth: true,
+              startPlaceholder: const Text('Check in'),
+              endPlaceholder: const Text('Check out'),
+              onChanged: (PlDateRange _) {},
+            ),
+            width: 480,
+            overlay: true,
+          ),
+        );
+
+        // Once for real, and no sample: the container sets the width.
+        expect(find.text('Check in'), findsOneWidget);
+        expect(find.text('Check out'), findsOneWidget);
+      });
     });
 
     group('the two panels', () {

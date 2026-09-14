@@ -266,8 +266,14 @@ export const PlDateRangePicker = /* @__PURE__ */ React.forwardRef<
   const twoUp = monthCount === 2;
 
   // Every date either half could show, so neither end of the trigger changes
-  // width as the range is filled in.
-  const dateSamples = React.useMemo(() => displaySamples(locale, format), [locale, format]);
+  // width as the range is filled in. A `fullWidth` trigger takes its width from
+  // its container, so it renders no samples: every date written there would be
+  // work for nothing.
+  const fullWidth = shell.fullWidth ?? false;
+  const dateSamples = React.useMemo(
+    () => (fullWidth ? [] : displaySamples(locale, format)),
+    [fullWidth, locale, format]
+  );
 
   // Which end the next click will fill. The trigger says the same thing with its
   // two halves, but the trigger is behind the popup while the popup is up, so
@@ -320,7 +326,9 @@ export const PlDateRangePicker = /* @__PURE__ */ React.forwardRef<
         <span className="flex min-w-0 items-center gap-1.5">
           <span className="flex min-w-0 flex-col">
             <span className="truncate">{write(start, startPlaceholder)}</span>
-            <WidthSizer samples={withPlaceholder(dateSamples, startPlaceholder)} />
+            {fullWidth ? null : (
+              <WidthSizer samples={withPlaceholder(dateSamples, startPlaceholder)} />
+            )}
           </span>
           <span
             aria-hidden="true"
@@ -330,7 +338,9 @@ export const PlDateRangePicker = /* @__PURE__ */ React.forwardRef<
           </span>
           <span className="flex min-w-0 flex-col">
             <span className="truncate">{write(end, endPlaceholder)}</span>
-            <WidthSizer samples={withPlaceholder(dateSamples, endPlaceholder)} />
+            {fullWidth ? null : (
+              <WidthSizer samples={withPlaceholder(dateSamples, endPlaceholder)} />
+            )}
           </span>
         </span>
       }

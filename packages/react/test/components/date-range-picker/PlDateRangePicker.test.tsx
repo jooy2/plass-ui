@@ -33,6 +33,22 @@ describe('PlDateRangePicker', () => {
       await expect.element(screen.getByText('Check out')).toBeInTheDocument();
     });
 
+    it('renders the width samples only when it is sized by its dates', async () => {
+      const narrow = await render(
+        <PlDateRangePicker startPlaceholder="Check in" endPlaceholder="Check out" />
+      );
+
+      // Each half holds itself open at the widest date and its own placeholder.
+      expect(narrow.container.querySelectorAll('[data-sample]').length).toBeGreaterThan(0);
+
+      const wide = await render(
+        <PlDateRangePicker startPlaceholder="Check in" endPlaceholder="Check out" fullWidth />
+      );
+
+      // A full-width trigger is as wide as its container, whatever it says.
+      expect(wide.container.querySelectorAll('[data-sample]')).toHaveLength(0);
+    });
+
     it('reflects a changed value on re-render', async () => {
       const screen = await render(
         <PlDateRangePicker locale="en-GB" value={JULY} onValueChange={() => {}} />
