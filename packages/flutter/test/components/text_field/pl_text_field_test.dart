@@ -116,6 +116,26 @@ void main() {
         expect(typed, 'ada');
       });
 
+      testWidgets('keeps its text input connection when it takes the focus', (
+        WidgetTester tester,
+      ) async {
+        var typed = '';
+        await tester.pumpWidget(
+          host(PlTextField(fullWidth: true, onChanged: (String next) => typed = next), width: 300),
+        );
+
+        await tester.tap(find.byType(PlTextField));
+        await tester.pumpAndSettle();
+
+        // Typed straight into the connection the focus opened. `enterText` would
+        // ask for the keyboard again and hide a connection that was lost.
+        expect(tester.testTextInput.hasAnyClients, isTrue);
+        tester.testTextInput.enterText('ada');
+        await tester.pump();
+
+        expect(typed, 'ada');
+      });
+
       testWidgets('does not take text while disabled', (WidgetTester tester) async {
         final controller = TextEditingController();
         addTearDown(controller.dispose);

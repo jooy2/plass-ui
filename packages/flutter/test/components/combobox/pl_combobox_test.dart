@@ -496,15 +496,20 @@ void main() {
     });
 
     group('Enter', () {
+      /// Gives the field the focus the way a reader does, by pressing it.
+      Future<void> focus(WidgetTester tester) async {
+        await tester.tap(find.byType(EditableText));
+        await tester.pumpAndSettle();
+      }
+
       /// Types [query] and presses Enter on the keyboard.
       ///
-      /// The keyboard is asked for again before the key. The editor is built
-      /// again when the field takes the focus and when the list opens, and the
-      /// rebuilt editor has no text input connection for the key to arrive on.
+      /// Both go through the connection the focus opened, never asking for the
+      /// keyboard again, so a field that loses its connection fails here.
       Future<void> submit(WidgetTester tester, String query) async {
-        await tester.enterText(find.byType(EditableText), query);
+        expect(tester.testTextInput.hasAnyClients, isTrue);
+        tester.testTextInput.enterText(query);
         await tester.pumpAndSettle();
-        await tester.showKeyboard(find.byType(EditableText));
         await tester.testTextInput.receiveAction(TextInputAction.done);
         await tester.pumpAndSettle();
       }
@@ -526,6 +531,7 @@ void main() {
           ),
         );
 
+        await focus(tester);
         await submit(tester, 'lis');
 
         expect(taken, <String>['lisbon']);
@@ -543,7 +549,8 @@ void main() {
           _host(PlCombobox<String>(options: _cities, value: null, onChanged: taken.add)),
         );
 
-        await tester.enterText(find.byType(EditableText), 'se');
+        await focus(tester);
+        tester.testTextInput.enterText('se');
         await tester.pumpAndSettle();
         expect(find.text('Seoul'), findsOneWidget);
 
@@ -553,7 +560,7 @@ void main() {
 
         // The row that was lit is no longer on screen, and a press of Enter must
         // not commit something the reader can no longer see.
-        await tester.showKeyboard(find.byType(EditableText));
+        expect(tester.testTextInput.hasAnyClients, isTrue);
         await tester.testTextInput.receiveAction(TextInputAction.done);
         await tester.pumpAndSettle();
 

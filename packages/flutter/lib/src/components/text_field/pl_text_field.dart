@@ -391,14 +391,17 @@ class _PlTextFieldState extends State<PlTextField> {
       lit: false,
     );
 
-    if (_focused) {
-      // The ring belongs to the shell rather than to the editor inside it, so it
-      // traces the glass edge rather than a rectangle floating inside it.
-      shell = CustomPaint(
-        foregroundPainter: PlassFocusRingPainter(color: family.ring, borderRadius: radius),
-        child: shell,
-      );
-    }
+    // The ring belongs to the shell rather than to the editor inside it, so it
+    // traces the glass edge rather than a rectangle floating inside it. The
+    // `CustomPaint` stays in the tree with no painter while the field is not
+    // focused: adding it on focus would build the editor again, and the new one
+    // has no text input connection.
+    shell = CustomPaint(
+      foregroundPainter: _focused
+          ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
+          : null,
+      child: shell,
+    );
 
     shell = MouseRegion(
       cursor: widget.disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.text,

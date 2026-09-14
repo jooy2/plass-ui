@@ -821,12 +821,14 @@ class _PlNumberFieldState extends State<PlNumberField> {
       lit: false,
     );
 
-    if (_focused) {
-      shell = CustomPaint(
-        foregroundPainter: PlassFocusRingPainter(color: family.ring, borderRadius: radius),
-        child: shell,
-      );
-    }
+    // Kept in the tree with no painter while unfocused, so the focus arriving
+    // does not build the editor again without its text input connection.
+    shell = CustomPaint(
+      foregroundPainter: _focused
+          ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
+          : null,
+      child: shell,
+    );
 
     shell = MouseRegion(
       cursor: widget.disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.text,

@@ -317,6 +317,23 @@ void main() {
     });
 
     group('text', () {
+      testWidgets('keeps its text input connection when it takes the focus', (
+        WidgetTester tester,
+      ) async {
+        final state = await _pump(tester, const _Harness(value: 5));
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pumpAndSettle();
+
+        // Typed straight into the connection the focus opened. `enterText` would
+        // ask for the keyboard again and hide a connection that was lost.
+        expect(tester.testTextInput.hasAnyClients, isTrue);
+        tester.testTextInput.enterText('40');
+        await tester.pump();
+
+        expect(state.value, 40);
+      });
+
       testWidgets('reads what was typed and settles it on the way out', (
         WidgetTester tester,
       ) async {

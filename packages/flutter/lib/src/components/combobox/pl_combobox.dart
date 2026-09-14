@@ -820,10 +820,13 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
               ),
             ),
           Expanded(
-            child: chips.isEmpty
+            // A `multiple` field keeps the wrap even with no chips in it, so the
+            // first chip lands beside the editor rather than above a new one:
+            // an editor built again has no text input connection.
+            child: !widget.multiple
                 ? editor
                 : Padding(
-                    padding: EdgeInsets.symmetric(vertical: _chipInset[size]!),
+                    padding: EdgeInsets.symmetric(vertical: chips.isEmpty ? 0 : _chipInset[size]!),
                     child: Wrap(
                       spacing: _chipGap,
                       runSpacing: _chipGap,
@@ -831,8 +834,14 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
                       children: <Widget>[
                         ...chips,
                         Padding(
-                          padding: const EdgeInsetsDirectional.only(start: _afterChips),
-                          child: SizedBox(width: _queryWidth, child: editor),
+                          key: const ValueKey<String>('query'),
+                          padding: EdgeInsetsDirectional.only(
+                            start: chips.isEmpty ? 0 : _afterChips,
+                          ),
+                          child: SizedBox(
+                            width: chips.isEmpty ? double.infinity : _queryWidth,
+                            child: editor,
+                          ),
                         ),
                       ],
                     ),
@@ -866,12 +875,14 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       lit: false,
     );
 
-    if (_focused) {
-      shell = CustomPaint(
-        foregroundPainter: PlassFocusRingPainter(color: family.ring, borderRadius: radius),
-        child: shell,
-      );
-    }
+    // Kept in the tree with no painter while unfocused, so the focus arriving
+    // does not build the editor again without its text input connection.
+    shell = CustomPaint(
+      foregroundPainter: _focused
+          ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
+          : null,
+      child: shell,
+    );
 
     shell = MouseRegion(
       cursor: widget.disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.text,
