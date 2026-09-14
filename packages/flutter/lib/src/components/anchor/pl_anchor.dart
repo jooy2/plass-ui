@@ -1,6 +1,7 @@
 /// A table of contents that follows the reader down the page.
 library;
 
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/interaction.dart';
@@ -211,15 +212,34 @@ class _PlAnchorState extends State<PlAnchor> {
     widget.onSelect?.call(item);
 
     final BuildContext? target = item.target.currentContext;
+    final RenderObject? heading = target?.findRenderObject();
+    final ScrollableState? scrollable = target == null ? null : Scrollable.maybeOf(target);
 
-    if (target != null) {
-      Scrollable.ensureVisible(
-        target,
-        duration: PlassTokens.durationSlow,
-        curve: PlassTokens.ease,
-        alignment: 0,
-      );
+    if (heading == null || scrollable == null) {
+      return;
     }
+
+    final RenderAbstractViewport? viewport = RenderAbstractViewport.maybeOf(heading);
+
+    if (viewport == null) {
+      return;
+    }
+
+    // The heading's top, less `offset`: the same line the tracking reads, so a
+    // fixed header over the page does not cover the heading it was pressed for.
+    final ScrollPosition position = scrollable.position;
+    final double to = (viewport.getOffsetToReveal(heading, 0).offset - widget.offset).clamp(
+      position.minScrollExtent,
+      position.maxScrollExtent,
+    );
+
+    if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) {
+      position.jumpTo(to);
+
+      return;
+    }
+
+    position.animateTo(to, duration: PlassTokens.durationSlow, curve: PlassTokens.ease);
   }
 
   @override

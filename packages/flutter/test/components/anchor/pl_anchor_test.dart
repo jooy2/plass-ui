@@ -257,6 +257,25 @@ void main() {
         expect(_state(tester).scroll.offset, greaterThan(0));
       });
 
+      testWidgets('stops `offset` above the heading, and jumps when animations are off', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          const MediaQuery(
+            data: MediaQueryData(disableAnimations: true),
+            child: _Page(offset: 100),
+          ),
+        );
+
+        await tester.tap(find.descendant(of: find.byType(PlAnchor), matching: find.text('Two')));
+        await tester.pump();
+
+        // "Two" starts 1030 pixels down the page: 400 of space, the first
+        // heading's 30 and 600 more. One frame, and it is already there.
+        expect(_state(tester).scroll.offset, 1030 - 100);
+      });
+
       testWidgets('is a link a screen reader can follow', (WidgetTester tester) async {
         final List<String> pressed = <String>[];
 

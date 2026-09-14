@@ -58,6 +58,8 @@
 
 ### Fixed
 
+- **Pressing a `PlAnchor` row stops `offset` above the heading, and jumps when animations are turned off.** The press scrolled the heading to the very top of the view, under a fixed header that `offset` was there to clear, and always moved over the slow duration, even with the platform's animations turned off. It now stops at the same line the tracking reads, and jumps there when `MediaQuery.disableAnimations` is set.
+
 - **`PlScrollArea` and `PlScrollZone` can be scrolled from the keyboard.** Neither took the focus, so a box of text with nothing focusable in it, or a strip with `buttons: none`, could not be reached with Tab or moved with a key, although the documentation said it could. While there is somewhere to scroll, each is now a tab stop that draws the focus ring, and the arrow keys move it by a line, following the writing direction along a row, Page Up and Page Down by a screen, and Home and End to its ends. A box whose content fits adds nothing to the tab order.
 
 - **The `PlTransfer` arrows point at their own lists under RTL.** The selected list is at the end of the row, which is the left under a right-to-left `Directionality`, but the arrow to it was always drawn pointing right and the arrow back pointing left. Both now turn over with the direction.
