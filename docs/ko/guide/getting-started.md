@@ -121,18 +121,23 @@ PlassTheme(
 
 ### 위쪽에 필요한 provider 하나
 
-네 개의 컴포넌트가 자기를 트리 밖으로 들어 올립니다. `PlModal`, `PlOverlay`, `PlTooltip`, 그리고 `PlSelect`의 목록. 들어 올려진 표면에는 들어갈 `Overlay`가 필요합니다. `MaterialApp`에도, navigator가 있는 `WidgetsApp`에도 하나 있습니다. 둘 다 아닌 앱은 직접 두면 됩니다.
+레이어를 트리 밖으로 들어 올리는 컴포넌트에는 모두 그 레이어가 들어갈 `Overlay`가 위쪽에 필요합니다. modal 레이어, 팝업과 hover card, 메뉴, select와 피커의 목록과 패널, 툴팁, 투어, 그리고 `PlConfirmProvider`가 질문을 띄우는 대화상자가 그렇습니다. 그런 레이어를 여는 컴포넌트도 마찬가지여서, drawer로 접힌 `PlSidebar`와 `preview`를 켠 `PlImage`, `PlGallery`에도 필요합니다.
+
+페이지 위의 컴포넌트는 navigator의 `Overlay`를 씁니다. `MaterialApp`에도, navigator가 있는 `WidgetsApp`에도 하나 있으니 더 할 일이 없습니다. 예외는 `builder`가 돌려주는 위젯입니다. 이 위젯은 navigator보다 위에 놓이므로, 거기 둔 provider에는 따로 넣어 주기 전까지 `Overlay`가 없습니다.
 
 ```dart
 WidgetsApp(
   // …
-  builder: (BuildContext context, Widget? child) => Overlay.wrap(child: child!),
+  builder: (BuildContext context, Widget? child) =>
+      Overlay.wrap(child: PlConfirmProvider(child: child!)),
 )
 ```
 
+`MaterialApp.builder`도 같은 함수를 받습니다. provider는 앱을 감싸지 말고 앱 안에 두세요. `MaterialApp`이나 `WidgetsApp` 바깥에는 아직 `Directionality`가 없어서 provider가 assertion에 걸립니다. navigator가 없는 앱은 `child`를 넘겨받지 못하니 자기 내용을 직접 감쌉니다. `builder: (BuildContext context, _) => Overlay.wrap(child: const Home())`처럼 씁니다.
+
 들어 올리는 것은 구현 세부가 아니라 요점입니다. 쓰인 자리에 그려진 시트는 자르는 첫 조상에서 잘리고, Plass 페이지에서 그것은 모든 카드입니다.
 
-`PlToast`에는 `Overlay`가 필요 없습니다. `PlToastProvider`가 이미 스택이 덮어야 할 모든 것 위에 있습니다.
+`PlToast`에는 `Overlay`가 필요 없습니다. `PlToastProvider`는 감싼 것 위에 스택을 레이어로 그리므로, `PlToastProvider(child: child!)`로 `builder`에 바로 둡니다.
 
 :::
 

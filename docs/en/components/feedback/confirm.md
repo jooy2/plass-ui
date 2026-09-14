@@ -34,8 +34,12 @@ if (await confirm({ title: 'Delete this project?', color: 'danger' })) {
 ```dart
 import 'package:plass_ui/plass_ui.dart';
 
-// once, near the root
-PlConfirmProvider(child: MyApp());
+// once, inside the app, under an Overlay of its own
+WidgetsApp(
+  // …
+  builder: (BuildContext context, Widget? child) =>
+      Overlay.wrap(child: PlConfirmProvider(child: child!)),
+);
 
 // anywhere under it
 if (await PlConfirmProvider.of(context).confirm(
@@ -44,6 +48,8 @@ if (await PlConfirmProvider.of(context).confirm(
   await remove(project);
 }
 ```
+
+The provider goes inside the app rather than around it, because around the app there is no `Directionality` yet. In `builder` it sits above the navigator and the navigator's `Overlay`, so it needs one of its own, or `confirm` fails with "No Overlay widget found". [Getting started](../../guide/getting-started#the-one-provider-you-may-need) has the rest.
 
 :::
 

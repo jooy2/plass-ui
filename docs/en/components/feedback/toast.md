@@ -31,7 +31,10 @@ toast.add({ color: 'success', title: 'Saved', description: 'Your changes are liv
 ```dart
 import 'package:plass_ui/plass_ui.dart';
 
-PlToastProvider(child: const App());
+WidgetsApp(
+  // …
+  builder: (BuildContext context, Widget? child) => PlToastProvider(child: child!),
+);
 
 // anywhere under it
 PlToastProvider.of(context).show(
@@ -42,6 +45,8 @@ PlToastProvider.of(context).show(
   ),
 );
 ```
+
+The provider goes inside the app rather than around it, because around the app there is no `Directionality` yet. It needs no `Overlay`, so `builder` is a good place for it.
 
 :::
 

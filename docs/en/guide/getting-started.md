@@ -121,18 +121,23 @@ PlassTheme(
 
 ### The one provider you may need
 
-Four components lift themselves out of the tree. `PlModal`, `PlOverlay`, `PlTooltip` and `PlSelect`'s list, and a lifted surface needs an `Overlay` to go into. `MaterialApp` has one, and so does a `WidgetsApp` with a navigator; an app with neither can add its own:
+Everything that lifts a layer out of the tree needs an `Overlay` above it to go into: the modal layers, the popups and hover cards, the menus, the lists and panels of the selects and pickers, the tooltips, the tour, and the dialog `PlConfirmProvider` asks its questions in. So does a component that opens one of them, such as `PlSidebar` once it collapses into a drawer, or `PlImage` and `PlGallery` with `preview` on.
+
+A component on a page uses the navigator's `Overlay`, which `MaterialApp` and a `WidgetsApp` with a navigator both have, so it needs nothing more. What `builder` returns is the exception. It sits above the navigator, so a provider placed there has no `Overlay` until it is given one of its own:
 
 ```dart
 WidgetsApp(
   // …
-  builder: (BuildContext context, Widget? child) => Overlay.wrap(child: child!),
+  builder: (BuildContext context, Widget? child) =>
+      Overlay.wrap(child: PlConfirmProvider(child: child!)),
 )
 ```
 
+`MaterialApp.builder` takes the same function. The provider goes inside the app rather than around it, because above `MaterialApp` or `WidgetsApp` there is no `Directionality` yet and the provider fails an assertion. An app with no navigator is handed no `child`, so it wraps its own content: `builder: (BuildContext context, _) => Overlay.wrap(child: const Home())`.
+
 Lifting is the point rather than an implementation detail: a sheet drawn where it was written would be clipped by the first ancestor that clips, and on a Plass page that is every card.
 
-`PlToast` needs no `Overlay`. Its `PlToastProvider` is already above everything the stack has to cover.
+`PlToast` needs no `Overlay`. `PlToastProvider` draws its stack as a layer over what it wraps, so it goes straight into `builder` as `PlToastProvider(child: child!)`.
 
 :::
 
