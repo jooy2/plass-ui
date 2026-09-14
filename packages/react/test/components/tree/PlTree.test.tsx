@@ -340,6 +340,83 @@ describe('PlTree', () => {
     });
   });
 
+  describe('drawing', () => {
+    /**
+     * Rows that count how often their label is read. A row reads its label
+     * once each time it is drawn, so the count is how many rows were drawn.
+     */
+    function counted(prefix: string, length: number, reads: Record<string, number>): PlTreeNode[] {
+      return Array.from({ length }, (_, index) => ({
+        id: `${prefix}-${index}`,
+        get label() {
+          reads[prefix] = (reads[prefix] ?? 0) + 1;
+
+          return `${prefix} ${index}`;
+        }
+      }));
+    }
+
+    it('builds nothing inside a shut branch', async () => {
+      const reads: Record<string, number> = {};
+
+      await render(
+        <PlTree items={[{ id: 'shut', label: 'shut', children: counted('shut', 200, reads) }]} />
+      );
+
+      expect(reads.shut ?? 0).toBe(0);
+    });
+
+    it('draws only the rows the focus moves between', async () => {
+      const reads: Record<string, number> = {};
+
+      await render(
+        <PlTree
+          items={[
+            { id: 'open', label: 'open', children: counted('open', 200, reads) },
+            { id: 'shut', label: 'shut', children: counted('shut', 200, reads) }
+          ]}
+          defaultExpanded={['open']}
+        />
+      );
+
+      row('open 0').focus();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      reads.open = 0;
+      reads.shut = 0;
+
+      await press('ArrowDown');
+
+      expect(document.activeElement?.textContent?.trim()).toBe('open 1');
+      // The row it left and the row it reached, and none of the other 198.
+      expect(reads.open).toBeLessThanOrEqual(4);
+      expect(reads.shut).toBe(0);
+    });
+
+    it('keeps the rows of a closing branch until the fold has shut', async () => {
+      // A fold that takes long enough to catch halfway, standing in for the
+      // classes the tests do not compile.
+      const sheet = document.createElement('style');
+
+      sheet.textContent =
+        '[role="group"] { overflow: hidden; height: 80px; transition: height 1s; } [role="group"][data-ending-style] { height: 0; }';
+      document.head.append(sheet);
+
+      try {
+        const screen = await render(<PlTree items={items} defaultExpanded={['src']} />);
+
+        await screen.getByRole('treeitem', { name: 'src' }).click();
+
+        expect(document.querySelector('[role="group"] [role="treeitem"]')).not.toBeNull();
+        await expect
+          .poll(() => document.querySelector('[role="group"]'), { timeout: 3000 })
+          .toBeNull();
+      } finally {
+        sheet.remove();
+      }
+    });
+  });
+
   describe('an empty branch', () => {
     it('is a branch rather than a leaf', async () => {
       await render(<PlTree items={[{ id: 'empty', label: 'empty', children: [] }]} />);

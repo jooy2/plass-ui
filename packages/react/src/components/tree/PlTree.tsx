@@ -25,13 +25,12 @@ import type { PlassColor, PlassDensity, PlassSize } from '../../types.js';
  * same slow duration, because what is moving in all three cases is the page
  * under the thing being pressed.
  *
- * The branch is built whether or not it is open, which is what pays for the
- * animation: rows that are dropped from the document on the frame the twisty
- * turns have nothing to travel. Base UI is what decides whether they are
- * *mounted*, and it takes them off the accessibility tree and out of the tab
- * order the moment the fold is shut. **A tree big enough for that to cost
- * anything should load its branches instead**, which is what `children:
- * undefined` on an unopened branch is for.
+ * Base UI decides when the rows exist. It renders the panel's contents while
+ * the branch is open and while it is closing, which is what pays for the
+ * animation: rows dropped from the document on the frame the twisty turns have
+ * nothing to travel. Once the fold is shut it renders nothing, which takes the
+ * rows off the accessibility tree and out of the tab order, and since the rows
+ * are a component inside the panel, a shut branch does not build them either.
  */
 const groupClasses = /* @__PURE__ */ [
   'h-(--collapsible-panel-height) overflow-hidden',
@@ -122,6 +121,213 @@ function visibleRows(
   return into;
 }
 
+/** Every node's parent, `null` at the top. */
+function parentsOf(
+  items: readonly PlTreeNode[],
+  parent: string | null = null,
+  into = new Map<string, string | null>()
+): Map<string, string | null> {
+  for (const node of items) {
+    into.set(node.id, parent);
+
+    if (node.children) {
+      parentsOf(node.children, node.id, into);
+    }
+  }
+
+  return into;
+}
+
+/** What a row does when it is pressed or given a key. */
+interface TreeActions {
+  press: (node: PlTreeNode) => void;
+  keyDown: (event: React.KeyboardEvent, node: PlTreeNode, level: number) => void;
+}
+
+/**
+ * What every row reads that is the same for all of them.
+ *
+ * `actions` is a ref rather than two functions, because the functions close
+ * over the visible rows and the open branches and are new on every render. As
+ * props they would draw every row again each time the focus moved, which is
+ * the cost a memoised row is there to avoid. A row calls them from an event,
+ * never while it is drawn. `focus` is the state setter itself, which never
+ * changes.
+ */
+interface TreeShared {
+  size: PlassSize;
+  density: PlassDensity;
+  selection: PlTreeSelection;
+  idPrefix: string;
+  parents: ReadonlyMap<string, string | null>;
+  focus: (id: string) => void;
+  actions: React.RefObject<TreeActions | null>;
+}
+
+const TreeContext = /* @__PURE__ */ React.createContext<TreeShared | null>(null);
+
+interface TreeRowsProps {
+  items: readonly PlTreeNode[];
+  level: number;
+  /** The branch the rows are in, or `null` at the top. */
+  parent: string | null;
+  /** The tree's tab stop, when it is one of these rows or under one of them. */
+  tabStop: string | null;
+  expanded: ReadonlySet<string>;
+  selected: ReadonlySet<string>;
+}
+
+/** One level of rows. */
+function TreeRows({ items, level, parent, tabStop, expanded, selected }: TreeRowsProps) {
+  const { parents } = React.useContext(TreeContext)!;
+
+  // The one row the tab stop is at or under, found by walking up from the stop
+  // rather than down every row. Every other row is handed no stop at all, so a
+  // row the focus did not pass through is not drawn again.
+  let path: string | null = null;
+
+  for (let at = tabStop; at !== null && parents.has(at); at = parents.get(at)!) {
+    if (parents.get(at) === parent) {
+      path = at;
+      break;
+    }
+  }
+
+  return (
+    <>
+      {items.map((node) => {
+        const hasRows = node.children !== undefined && node.children.length > 0;
+
+        return (
+          <TreeRow
+            key={node.id}
+            node={node}
+            level={level}
+            isOpen={expanded.has(node.id)}
+            isSelected={selected.has(node.id)}
+            tabStop={node.id === path ? tabStop : null}
+            // Only a branch with rows in it is handed the two sets, so opening
+            // a branch or selecting a row does not draw every leaf again.
+            expanded={hasRows ? expanded : undefined}
+            selected={hasRows ? selected : undefined}
+          />
+        );
+      })}
+    </>
+  );
+}
+
+interface TreeRowProps {
+  node: PlTreeNode;
+  level: number;
+  isOpen: boolean;
+  isSelected: boolean;
+  /** The tree's tab stop, when it is this row or a row under it. */
+  tabStop: string | null;
+  /** What the rows under a branch read. Passed only to a branch with rows. */
+  expanded?: ReadonlySet<string>;
+  selected?: ReadonlySet<string>;
+}
+
+/**
+ * One row, and the branch under it.
+ *
+ * Memoised, and handed only what it draws, so moving the focus one step draws
+ * the row it left, the row it reached and the branches they are in, rather
+ * than every row the tree has loaded.
+ */
+const TreeRow = /* @__PURE__ */ React.memo(function TreeRow({
+  node,
+  level,
+  isOpen,
+  isSelected,
+  tabStop,
+  expanded,
+  selected
+}: TreeRowProps) {
+  const { size, density, selection, idPrefix, focus, actions } = React.useContext(TreeContext)!;
+  const isBranch = node.children !== undefined;
+
+  return (
+    <>
+      <div
+        id={`${idPrefix}-${node.id}`}
+        role="treeitem"
+        aria-level={level}
+        aria-expanded={isBranch ? isOpen : undefined}
+        aria-selected={selection === 'none' ? undefined : isSelected}
+        aria-disabled={node.disabled || undefined}
+        tabIndex={node.disabled ? undefined : tabStop === node.id ? 0 : -1}
+        onFocus={() => focus(node.id)}
+        onKeyDown={(event) => {
+          if (node.disabled) return;
+          actions.current?.keyDown(event, node, level);
+        }}
+        onClick={() => {
+          if (node.disabled) return;
+          actions.current?.press(node);
+        }}
+        className={cx(
+          'flex cursor-pointer items-center select-none',
+          gapClasses[size],
+          rowPaddingClasses[density][size],
+          controlTextLeadingClasses[size],
+          radiusClasses[size],
+          focusRingClasses,
+          transitionClasses,
+          iconClasses,
+          node.disabled
+            ? 'cursor-not-allowed opacity-50'
+            : isSelected
+              ? 'bg-(--p-soft) text-(--p-accent) font-medium'
+              : 'text-(--plass-fg) hover:bg-(--p-soft)'
+        )}
+        style={{ paddingInlineStart: `${(level - 1) * indentValues[size] + 6}px` }}
+      >
+        {/* Turned, not swapped — and the turn has to name itself, because the
+            house transition carries colour and depth and deliberately carries
+            no `rotate`. It used to carry the house transition alone, which on
+            a span whose only colour is a constant was a transition of nothing
+            at all: the twisty jumped between its two angles, and it is the
+            only thing on a row that says whether the branch is open. Written
+            as an accordion's and a select's chevrons write it. */}
+        <span
+          aria-hidden="true"
+          className={cx(
+            'flex shrink-0 items-center text-(--plass-muted-fg)',
+            '[transition:rotate_var(--plass-duration)_var(--plass-ease)]',
+            // A leaf keeps the twisty's space rather than losing it, so every
+            // label at one level starts on the same edge.
+            isBranch ? '' : 'invisible',
+            isOpen ? 'rotate-0' : '-rotate-90 rtl:rotate-90'
+          )}
+        >
+          <ChevronIcon />
+        </span>
+
+        {node.icon ? <span className="flex shrink-0 items-center">{node.icon}</span> : null}
+
+        <span className="truncate">{node.label}</span>
+      </div>
+
+      {expanded && selected ? (
+        <BaseUICollapsible.Root open={isOpen}>
+          <BaseUICollapsible.Panel role="group" className={groupClasses}>
+            <TreeRows
+              items={node.children!}
+              level={level + 1}
+              parent={node.id}
+              tabStop={tabStop}
+              expanded={expanded}
+              selected={selected}
+            />
+          </BaseUICollapsible.Panel>
+        </BaseUICollapsible.Root>
+      ) : null}
+    </>
+  );
+});
+
 /**
  * A hierarchy, opened one branch at a time.
  *
@@ -176,11 +382,12 @@ export const PlTree = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTreePro
   const selected = React.useMemo(() => new Set(selectedList), [selectedList]);
 
   const rows = React.useMemo(() => visibleRows(items, expanded), [items, expanded]);
+  const parents = React.useMemo(() => parentsOf(items), [items]);
 
   // The one row the whole tree hands `Tab` to. It follows the focus rather than
   // leading it, so tabbing back into a tree returns to where you left it.
   const [tabStop, setTabStop] = React.useState<string | null>(null);
-  const reachable = rows.filter((row) => !row.node.disabled);
+  const reachable = React.useMemo(() => rows.filter((row) => !row.node.disabled), [rows]);
   const current =
     tabStop && reachable.some((row) => row.node.id === tabStop)
       ? tabStop
@@ -222,12 +429,17 @@ export const PlTree = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTreePro
     onSelectedChange?.(next);
   };
 
+  const press = (node: PlTreeNode) => {
+    if (node.children !== undefined) toggle(node.id);
+    select(node);
+    onItemClick?.(node);
+  };
+
   const idPrefix = React.useId();
-  const rowId = (id: string) => `${idPrefix}-${id}`;
 
   const focusRow = (id: string) => {
     setTabStop(id);
-    document.getElementById(rowId(id))?.focus();
+    document.getElementById(`${idPrefix}-${id}`)?.focus();
   };
 
   const onKeyDown = (event: React.KeyboardEvent, node: PlTreeNode, level: number) => {
@@ -279,94 +491,25 @@ export const PlTree = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTreePro
       case 'Enter':
       case ' ':
         event.preventDefault();
-        if (isBranch) toggle(node.id);
-        select(node);
-        onItemClick?.(node);
+        press(node);
         break;
       default:
         break;
     }
   };
 
-  const renderRow = ({ node, level }: { node: PlTreeNode; level: number }) => {
-    const isBranch = node.children !== undefined;
-    const isOpen = expanded.has(node.id);
-    const isSelected = selected.has(node.id);
+  const actions = React.useRef<TreeActions | null>(null);
 
-    return (
-      <React.Fragment key={node.id}>
-        <div
-          id={rowId(node.id)}
-          role="treeitem"
-          aria-level={level}
-          aria-expanded={isBranch ? isOpen : undefined}
-          aria-selected={selection === 'none' ? undefined : isSelected}
-          aria-disabled={node.disabled || undefined}
-          tabIndex={node.disabled ? undefined : current === node.id ? 0 : -1}
-          onFocus={() => setTabStop(node.id)}
-          onKeyDown={(event) => {
-            if (node.disabled) return;
-            onKeyDown(event, node, level);
-          }}
-          onClick={() => {
-            if (node.disabled) return;
-            if (isBranch) toggle(node.id);
-            select(node);
-            onItemClick?.(node);
-          }}
-          className={cx(
-            'flex cursor-pointer items-center select-none',
-            gapClasses[size],
-            rowPaddingClasses[density][size],
-            controlTextLeadingClasses[size],
-            radiusClasses[size],
-            focusRingClasses,
-            transitionClasses,
-            iconClasses,
-            node.disabled
-              ? 'cursor-not-allowed opacity-50'
-              : isSelected
-                ? 'bg-(--p-soft) text-(--p-accent) font-medium'
-                : 'text-(--plass-fg) hover:bg-(--p-soft)'
-          )}
-          style={{ paddingInlineStart: `${(level - 1) * indentValues[size] + 6}px` }}
-        >
-          {/* Turned, not swapped — and the turn has to name itself, because the
-              house transition carries colour and depth and deliberately carries
-              no `rotate`. It used to carry the house transition alone, which on
-              a span whose only colour is a constant was a transition of nothing
-              at all: the twisty jumped between its two angles, and it is the
-              only thing on a row that says whether the branch is open. Written
-              as an accordion's and a select's chevrons write it. */}
-          <span
-            aria-hidden="true"
-            className={cx(
-              'flex shrink-0 items-center text-(--plass-muted-fg)',
-              '[transition:rotate_var(--plass-duration)_var(--plass-ease)]',
-              // A leaf keeps the twisty's space rather than losing it, so every
-              // label at one level starts on the same edge.
-              isBranch ? '' : 'invisible',
-              isOpen ? 'rotate-0' : '-rotate-90 rtl:rotate-90'
-            )}
-          >
-            <ChevronIcon />
-          </span>
+  // After every commit, so a row's event always reaches the functions of the
+  // render that drew it.
+  React.useLayoutEffect(() => {
+    actions.current = { press, keyDown: onKeyDown };
+  });
 
-          {node.icon ? <span className="flex shrink-0 items-center">{node.icon}</span> : null}
-
-          <span className="truncate">{node.label}</span>
-        </div>
-
-        {isBranch && node.children!.length > 0 ? (
-          <BaseUICollapsible.Root open={isOpen}>
-            <BaseUICollapsible.Panel role="group" className={groupClasses}>
-              {node.children!.map((child) => renderRow({ node: child, level: level + 1 }))}
-            </BaseUICollapsible.Panel>
-          </BaseUICollapsible.Root>
-        ) : null}
-      </React.Fragment>
-    );
-  };
+  const shared = React.useMemo<TreeShared>(
+    () => ({ size, density, selection, idPrefix, parents, focus: setTabStop, actions }),
+    [size, density, selection, idPrefix, parents]
+  );
 
   return (
     <div
@@ -377,7 +520,16 @@ export const PlTree = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTreePro
       style={{ ...surfaceSlots(color, 0), ...style }}
       {...props}
     >
-      {items.map((node) => renderRow({ node, level: 1 }))}
+      <TreeContext.Provider value={shared}>
+        <TreeRows
+          items={items}
+          level={1}
+          parent={null}
+          tabStop={current}
+          expanded={expanded}
+          selected={selected}
+        />
+      </TreeContext.Provider>
     </div>
   );
 });

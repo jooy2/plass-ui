@@ -118,15 +118,11 @@ A branch **travels** over the same 260ms an [accordion](../surfaces/accordion) o
 
 Nothing inside a shut branch is reachable. The rows leave the accessibility tree and the tab order the moment the fold has finished shutting, so the arrow keys walk what is visible and nothing else.
 
+A shut branch is **not built at all**. Its rows are made while the branch is open, and while it is closing so the fold has rows to travel. A tree of four hundred closed folders costs its four hundred folder rows and nothing under them. A tree too big to send at all can still give a folder an empty array and fill it in when it is opened, as above.
+
 ::: fw react
 
-The rows of a shut branch are **built and not mounted**. A row dropped from the document on the frame the twisty turns has nothing to travel. React discards the elements it built, so the cost is building them rather than rendering them, and it is a cost worth knowing about for a tree with hundreds of closed folders in it. `children: undefined` until a branch is opened is the answer there, and it is the same answer as for a tree too big to send at all.
-
-:::
-
-::: fw flutter
-
-A shut branch is **not built at all**: the rows come from a callback the fold only calls when there is something to show them for. That differs from the React build, where the elements are built and thrown away, and it is the one place a tree of four hundred closed folders costs less here.
+Moving the focus draws again only the row it left, the row it reached and the branches they sit in, rather than the whole tree.
 
 :::
 
