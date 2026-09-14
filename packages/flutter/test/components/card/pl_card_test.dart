@@ -1,9 +1,24 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
 import '../../support/host.dart';
+
+/// Content with a `State` of its own, standing in for an entry animation or a
+/// picture fading in: rebuilt from scratch, it is a different object.
+class _Probe extends StatefulWidget {
+  const _Probe();
+
+  @override
+  State<_Probe> createState() => _ProbeState();
+}
+
+class _ProbeState extends State<_Probe> {
+  @override
+  Widget build(BuildContext context) => const Text('Body');
+}
 
 void main() {
   group('PlCard', () {
@@ -209,6 +224,38 @@ void main() {
 
         await tester.tap(find.byType(PlCard));
         expect(pressed, 1);
+      });
+    });
+
+    group('hovering', () {
+      testWidgets('keeps what the card holds through a hover in and out', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(PlCard(onPressed: () {}, child: const _Probe()), width: 360));
+
+        final State<_Probe> resting = tester.state(find.byType(_Probe));
+        final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+        await mouse.addPointer(location: const Offset(1, 1));
+        addTearDown(mouse.removePointer);
+
+        await mouse.moveTo(tester.getCenter(find.byType(PlCard)));
+        await tester.pumpAndSettle();
+
+        // Lifted, so the hover really did land.
+        expect(
+          decorationWhere(
+            tester,
+            find.byType(PlCard),
+            (BoxDecoration decoration) => decoration.boxShadow != null,
+          ).boxShadow,
+          PlassTokens.light().elevation(2),
+        );
+        expect(tester.state(find.byType(_Probe)), same(resting));
+
+        await mouse.moveTo(const Offset(1, 1));
+        await tester.pumpAndSettle();
+
+        expect(tester.state(find.byType(_Probe)), same(resting));
       });
     });
   });

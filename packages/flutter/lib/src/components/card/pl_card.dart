@@ -236,20 +236,25 @@ class PlCard extends StatelessWidget {
         duration: reduceMotion ? Duration.zero : PlassTokens.duration,
         curve: PlassTokens.ease,
         child: card,
+        // Translated by nothing at rest rather than left unwrapped: a wrapper
+        // that comes and goes with the hover changes the shape of the tree
+        // above the content, and Flutter rebuilds a changed shape from scratch
+        // — an entry animation inside replays, and the shadow's own easing is
+        // cut off halfway.
         builder: (BuildContext context, double dy, Widget? child) {
-          return dy == 0 ? child! : Transform.translate(offset: Offset(0, dy), child: child);
+          return Transform.translate(offset: Offset(0, dy), child: child);
         },
       );
     }
 
-    if (state.focusVisible) {
-      card = CustomPaint(
-        foregroundPainter: PlassFocusRingPainter(color: family.ring, borderRadius: radius),
-        child: card,
-      );
-    }
-
-    return card;
+    // The same reason: the ring is switched off by leaving out its painter, not
+    // by leaving out the widget that paints it.
+    return CustomPaint(
+      foregroundPainter: state.focusVisible
+          ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
+          : null,
+      child: card,
+    );
   }
 
   Widget _body(BuildContext context, PlassTokens tokens) {
