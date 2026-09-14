@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **Each `PlCarousel` dot is a 24px press target.** A dot answered a press only on the 4 to 8 pixels it drew, which falls short of WCAG 2.5.8 and made jumping to a slide on a phone hard. Each dot is now a 24px target with the dot drawn in its middle, and the targets sit side by side, so the dots are spaced further apart.
+
 - **`PlCarousel` `autoPlay` keeps advancing inside a parent that rebuilds often.** Every rebuild of the widget restarted its timer, so inside a parent that rebuilt every second a five-second interval never completed and the carousel stood still. The timer now restarts only when `autoPlay`, `interval`, `value`, the number of slides or whether there is an `onChanged` changes.
 
 - **Pressing a `PlTransfer` arrow keeps the focus and says what moved.** The pressed arrow was disabled by the move, so the focus left the widget and nothing said how many rows had gone across. The focus now goes to the first row that arrived, or to the target list when a controlled owner refused the rows, and the count is announced at polite priority from the new `transferMoved` label field. The new `movedLabel` parameter changes the sentence for one pair.

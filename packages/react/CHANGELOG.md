@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **Each `PlCarousel` dot is a 24px press target.** A dot was a button the size of the dot it drew, 4 to 8 pixels across, which falls short of WCAG 2.5.8 and made jumping to a slide on a phone hard, above all with `arrows={false}`. The button is now 24px on each side with the dot drawn in its middle, and the targets sit side by side, so the dots are spaced further apart.
+
 - **`PlCarousel` `autoPlay` keeps advancing inside a parent that renders often.** The interval was restarted whenever the function the component moves with changed, and that function changed with an inline `onValueChange`, so inside a parent that rendered every second a five-second interval was reset before it ever fired and the carousel stood still. The interval now restarts only when the slide, the count, the pause or the interval itself changes.
 
 - **Pressing a `PlTransfer` arrow keeps the focus and says what moved.** The pressed arrow was disabled by the move, so the focus fell to the page and nothing said how many rows had gone across. The focus now goes to the first row that arrived, or to the target list when a controlled owner refused the rows, and a polite live region announces the count from the new `transferMoved` label key. The new `movedLabel` prop changes the sentence for one pair.

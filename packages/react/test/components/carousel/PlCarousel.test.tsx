@@ -80,6 +80,18 @@ describe('PlCarousel', () => {
         .toBeInTheDocument();
     });
 
+    it('gives each dot a 24px press target around the dot it draws', async () => {
+      const screen = await render(<PlCarousel>{slides}</PlCarousel>);
+
+      const dot = screen.getByRole('button', { name: 'Slide 2 of 3' }).element();
+
+      // Nothing loads Tailwind here, so the target is read off its classes, and
+      // the drawn dot is the element inside it.
+      expect(dot).toHaveClass('h-6', 'min-w-6');
+      expect(dot.firstElementChild).toHaveClass('h-1.5', 'w-1.5', 'rounded-full');
+      expect(dot.firstElementChild).toHaveAttribute('aria-hidden', 'true');
+    });
+
     it('drops them when it is asked to', async () => {
       const screen = await render(
         <PlCarousel arrows={false} indicators={false}>

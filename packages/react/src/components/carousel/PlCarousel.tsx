@@ -89,12 +89,12 @@ const arrowInsetClasses: Record<PlassSize, string> = {
  * it do not move. Width and colour are the only two things that travel, which
  * is what keeps this inside the house rule against scaling anything.
  */
-const dotClasses: Record<PlassSize, { rest: string; current: string; gap: string }> = {
-  xs: { rest: 'h-1 w-1', current: 'h-1 w-3', gap: 'gap-1' },
-  sm: { rest: 'h-1 w-1', current: 'h-1 w-3.5', gap: 'gap-1' },
-  md: { rest: 'h-1.5 w-1.5', current: 'h-1.5 w-4', gap: 'gap-1.5' },
-  lg: { rest: 'h-1.5 w-1.5', current: 'h-1.5 w-5', gap: 'gap-2' },
-  xl: { rest: 'h-2 w-2', current: 'h-2 w-6', gap: 'gap-2' }
+const dotClasses: Record<PlassSize, { rest: string; current: string }> = {
+  xs: { rest: 'h-1 w-1', current: 'h-1 w-3' },
+  sm: { rest: 'h-1 w-1', current: 'h-1 w-3.5' },
+  md: { rest: 'h-1.5 w-1.5', current: 'h-1.5 w-4' },
+  lg: { rest: 'h-1.5 w-1.5', current: 'h-1.5 w-5' },
+  xl: { rest: 'h-2 w-2', current: 'h-2 w-6' }
 };
 
 /** How long a smooth scroll of our own is given to arrive. */
@@ -419,30 +419,41 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
         </div>
 
         {indicators && count > 1 ? (
-          <div
-            className={cx('flex shrink-0 items-center justify-center pt-2', dotClasses[size].gap)}
-          >
+          // No gap and no padding: each dot is a 24px press target with the dot
+          // drawn in its middle, so the targets sit edge to edge without
+          // overlapping and the dot lands about where the padding put it.
+          <div className="flex shrink-0 items-center justify-center">
             {slides.map((_, dotIndex) => (
               <button
                 key={dotIndex}
                 type="button"
                 aria-label={nameSlide(dotIndex + 1, count)}
                 aria-current={dotIndex === index ? 'true' : undefined}
+                // The press target is 24px on each side, what WCAG 2.5.8 asks
+                // for, around a dot a few pixels across. The dot is the only
+                // thing drawn.
                 className={cx(
-                  'cursor-pointer rounded-full',
-                  // Width and colour, never a transform: the current dot grows
-                  // along the row instead of scaling, so nothing beside it
-                  // moves.
-                  '[transition-property:width,background-color]',
-                  '[transition-duration:var(--plass-duration)]',
-                  '[transition-timing-function:var(--plass-ease)]',
-                  'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2',
-                  dotIndex === index
-                    ? `${dotClasses[size].current} bg-(--p-accent)`
-                    : `${dotClasses[size].rest} bg-(--plass-border) hover:bg-(--p-accent)`
+                  'group flex h-6 min-w-6 cursor-pointer items-center justify-center rounded-full',
+                  'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-0'
                 )}
                 onClick={() => go(dotIndex)}
-              />
+              >
+                <span
+                  aria-hidden="true"
+                  className={cx(
+                    'rounded-full',
+                    // Width and colour, never a transform: the current dot grows
+                    // along the row instead of scaling, so nothing beside it
+                    // moves.
+                    '[transition-property:width,background-color]',
+                    '[transition-duration:var(--plass-duration)]',
+                    '[transition-timing-function:var(--plass-ease)]',
+                    dotIndex === index
+                      ? `${dotClasses[size].current} bg-(--p-accent)`
+                      : `${dotClasses[size].rest} bg-(--plass-border) group-hover:bg-(--p-accent)`
+                  )}
+                />
+              </button>
             ))}
           </div>
         ) : null}

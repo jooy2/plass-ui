@@ -28,17 +28,19 @@ const Map<PlassSize, double> _arrowInset = <PlassSize, double>{
 /// of it do not move. Width and colour are the only two things that travel,
 /// which is what keeps the indicator inside the house rule against scaling
 /// anything.
-const Map<PlassSize, ({double rest, double current, double height, double gap})> _dot =
-    <PlassSize, ({double rest, double current, double height, double gap})>{
-      PlassSize.xs: (rest: 4, current: 12, height: 4, gap: 4),
-      PlassSize.sm: (rest: 4, current: 14, height: 4, gap: 4),
-      PlassSize.md: (rest: 6, current: 16, height: 6, gap: 6),
-      PlassSize.lg: (rest: 6, current: 20, height: 6, gap: 8),
-      PlassSize.xl: (rest: 8, current: 24, height: 8, gap: 8),
+const Map<PlassSize, ({double rest, double current, double height})> _dot =
+    <PlassSize, ({double rest, double current, double height})>{
+      PlassSize.xs: (rest: 4, current: 12, height: 4),
+      PlassSize.sm: (rest: 4, current: 14, height: 4),
+      PlassSize.md: (rest: 6, current: 16, height: 6),
+      PlassSize.lg: (rest: 6, current: 20, height: 6),
+      PlassSize.xl: (rest: 8, current: 24, height: 8),
     };
 
-/// The room the row of dots keeps above itself.
-const double _dotRowGap = 8;
+/// A dot's press target, on each side: what WCAG 2.5.8 asks for. The targets
+/// sit edge to edge with no gap, so none of them overlaps another, and the dot
+/// is drawn in the middle of its own.
+const double _dotTarget = 24;
 
 /// A strip of slides, one of which is in view.
 ///
@@ -335,26 +337,25 @@ class _PlCarouselState extends State<PlCarousel> {
         children: <Widget>[
           if (widget.aspectRatio == null) Expanded(child: frame) else frame,
           if (widget.indicators && _count > 1)
-            Padding(
-              padding: const EdgeInsets.only(top: _dotRowGap),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                spacing: dot.gap,
-                children: <Widget>[
-                  for (var index = 0; index < _count; index += 1)
-                    _Dot(
-                      current: index == _index,
-                      label: _name(index + 1),
-                      rest: dot.rest,
-                      grown: dot.current,
-                      height: dot.height,
-                      accent: family.accent,
-                      quiet: tokens.border,
-                      duration: _travel,
-                      onPressed: widget.onChanged == null ? null : () => _go(index),
-                    ),
-                ],
-              ),
+            // No gap and no padding: each dot is a press target of its own with
+            // the dot drawn in its middle, so the targets sit edge to edge and
+            // the dot lands about where the padding used to put it.
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                for (var index = 0; index < _count; index += 1)
+                  _Dot(
+                    current: index == _index,
+                    label: _name(index + 1),
+                    rest: dot.rest,
+                    grown: dot.current,
+                    height: dot.height,
+                    accent: family.accent,
+                    quiet: tokens.border,
+                    duration: _travel,
+                    onPressed: widget.onChanged == null ? null : () => _go(index),
+                  ),
+              ],
             ),
         ],
       ),
@@ -427,15 +428,22 @@ class _Dot extends StatelessWidget {
           child: MouseRegion(
             cursor: onPressed == null ? MouseCursor.defer : SystemMouseCursors.click,
             // The row's height never changes and the dots either side of the
-            // current one do not move: only the width and the colour travel.
-            child: AnimatedContainer(
-              duration: duration,
-              curve: PlassTokens.ease,
-              width: current ? grown : rest,
-              height: height,
-              decoration: BoxDecoration(
-                color: current ? accent : quiet,
-                borderRadius: BorderRadius.circular(height / 2),
+            // current one do not move: only the width and the colour travel,
+            // inside a target that is the same size for every dot.
+            child: SizedBox(
+              width: grown > _dotTarget ? grown : _dotTarget,
+              height: _dotTarget,
+              child: Center(
+                child: AnimatedContainer(
+                  duration: duration,
+                  curve: PlassTokens.ease,
+                  width: current ? grown : rest,
+                  height: height,
+                  decoration: BoxDecoration(
+                    color: current ? accent : quiet,
+                    borderRadius: BorderRadius.circular(height / 2),
+                  ),
+                ),
               ),
             ),
           ),

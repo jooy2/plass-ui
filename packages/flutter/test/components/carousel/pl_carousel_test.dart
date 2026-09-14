@@ -269,6 +269,42 @@ void main() {
     });
 
     group('the dots', () {
+      testWidgets('gives each dot a 24px press target around the dot it draws', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(const _Harness(), width: 360));
+        await tester.pumpAndSettle();
+
+        for (final String name in <String>['Slide 1 of 3', 'Slide 2 of 3', 'Slide 3 of 3']) {
+          final Size target = tester.getSize(
+            find.byWidgetPredicate(
+              (Widget widget) =>
+                  widget is Semantics &&
+                  widget.properties.button == true &&
+                  widget.properties.label == name,
+            ),
+          );
+
+          expect(target.width, greaterThanOrEqualTo(24), reason: name);
+          expect(target.height, greaterThanOrEqualTo(24), reason: name);
+        }
+
+        // And a press on the edge of a target, well away from the dot, still
+        // takes the reader there.
+        final Rect third = tester.getRect(
+          find.byWidgetPredicate(
+            (Widget widget) =>
+                widget is Semantics &&
+                widget.properties.button == true &&
+                widget.properties.label == 'Slide 3 of 3',
+          ),
+        );
+        await tester.tapAt(third.topCenter + const Offset(0, 2));
+        await tester.pumpAndSettle();
+
+        expect(tester.state<_HarnessState>(find.byType(_Harness)).value, 2);
+      });
+
       testWidgets('grows the current one along the row rather than scaling it', (
         WidgetTester tester,
       ) async {

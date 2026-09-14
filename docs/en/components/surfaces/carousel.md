@@ -148,7 +148,7 @@ On by default: the arrows wrap from the last slide back to the first. Turn it of
 
 The current dot is a short **bar** rather than a bigger circle. It grows along the row it is in, so the row's height never changes and the dots either side of it do not move. Width and colour are the only two things that travel, which is what keeps the indicator inside the rule against scaling anything.
 
-Every dot is a real button named after the slide it goes to, so the row is a way to navigate rather than a read-out.
+Every dot is a real button named after the slide it goes to, so the row is a way to navigate rather than a read-out. The button is a 24px press target with the dot drawn in its middle, and the targets sit side by side, so a dot a few pixels across is still easy to hit on a phone.
 
 ## Accessibility
 
