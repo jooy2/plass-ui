@@ -178,6 +178,38 @@ describe('PlFloatingBottomNavigation', () => {
       expect(change).toHaveBeenCalledWith('search');
     });
 
+    it('hides the key when the value names no destination', async () => {
+      const bar = (value: string) => (
+        <PlFloatingBottomNavigation value={value}>
+          <PlFloatingBottomNavigationItem value="home" icon={glyph}>
+            Home
+          </PlFloatingBottomNavigationItem>
+          <PlFloatingBottomNavigationItem value="search" icon={glyph}>
+            Search
+          </PlFloatingBottomNavigationItem>
+        </PlFloatingBottomNavigation>
+      );
+
+      const screen = await render(bar('home'));
+      const key = () =>
+        document.querySelector<HTMLElement>(
+          'span[aria-hidden="true"].pointer-events-none.absolute'
+        );
+
+      expect(key()?.hidden).toBe(false);
+
+      await screen.rerender(bar('profile'));
+
+      expect(screen.getByRole('button', { name: 'Home' }).element()).not.toHaveAttribute(
+        'aria-current'
+      );
+      expect(key()?.hidden).toBe(true);
+
+      await screen.rerender(bar('search'));
+
+      expect(key()?.hidden).toBe(false);
+    });
+
     it('moves on its own when nobody is holding the value', async () => {
       const screen = await render(
         <PlFloatingBottomNavigation defaultValue="home">

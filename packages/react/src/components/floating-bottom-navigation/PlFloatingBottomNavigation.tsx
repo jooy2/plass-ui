@@ -317,9 +317,18 @@ export const PlFloatingBottomNavigation = /* @__PURE__ */ React.forwardRef<
 
     const current = capsule.querySelector<HTMLElement>('[data-disc][data-current]');
 
+    // A value that names no destination has no disc for the key to sit under,
+    // and a key left under the last one would mark a destination nothing says
+    // is current. It is hidden, and it appears in place when one is current
+    // again rather than flying in from where it was.
     if (!current) {
+      disc.hidden = true;
+      disc.removeAttribute('data-ready');
+
       return;
     }
+
+    disc.hidden = false;
 
     // A key that has only just mounted has nowhere to travel *from*, so its
     // first placement is instant however it was asked for — that is what makes
