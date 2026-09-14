@@ -132,7 +132,7 @@ The library writes its edge, its shadow, its focus ring and its fill as Tailwind
 And because a custom property cascades, one declaration on a wrapper is a whole section:
 
 ```tsx
-<div style={{ '--plass-radius-md': '4px', '--plass-blur': '10px' }}>
+<div style={{ '--plass-radius-md': '4px', '--plass-blur': 'blur(10px) saturate(160%)' }}>
   <PlCard>…</PlCard>
   <PlButton>Save</PlButton>
 </div>

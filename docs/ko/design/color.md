@@ -132,7 +132,7 @@ order: 2
 그리고 custom property는 cascade되므로, 감싸는 요소에 한 줄이면 그 안 전체가 바뀝니다.
 
 ```tsx
-<div style={{ '--plass-radius-md': '4px', '--plass-blur': '10px' }}>
+<div style={{ '--plass-radius-md': '4px', '--plass-blur': 'blur(10px) saturate(160%)' }}>
   <PlCard>…</PlCard>
   <PlButton>Save</PlButton>
 </div>
