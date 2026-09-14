@@ -22,7 +22,7 @@ This is the React half. The [Flutter package](https://pub.dev/packages/plass_ui)
 - **Accessible without the checklist.** Real roles, labels, focus management and keyboard support, not `div`s with click handlers.
 - **Dark mode you do not write.** Follows `prefers-color-scheme`, and can be forced either way on any subtree. No second palette, no colours redeclared.
 - **Types in the box.** TypeScript declarations ship with the package, so your editor knows the prop names and the values they take before you do.
-- **Nothing you did not ask for.** ESM only, tree-shakeable, a single runtime dependency, and an entry point per component for a build that cannot shake a barrel.
+- **Nothing you did not ask for.** ESM only, tree-shakeable, two runtime dependencies (`@base-ui/react` and `highlight.js`), and an entry point per component for a build that cannot shake a barrel.
 
 ## Install
 
@@ -49,7 +49,7 @@ If your project already runs Tailwind v4, import the token sheet instead:
 @import 'plass-ui/tailwind.css';
 ```
 
-`plass-ui/tailwind.css` registers all 74 components with Tailwind, because Tailwind scans files rather than imports, nothing in a build connects `import { PlButton }` to the classes `PlSelect.js` spells out. A project that uses a handful of components can register the handful instead:
+`plass-ui/tailwind.css` registers all 130 components with Tailwind, because Tailwind scans files rather than imports, nothing in a build connects `import { PlButton }` to the classes `PlSelect.js` spells out. A project that uses a handful of components can register the handful instead:
 
 ```css
 @import 'tailwindcss';
@@ -94,7 +94,7 @@ export default function SignIn() {
 
 ### One entry point per component
 
-Every component also has an entry point of its own, for a build that cannot tree-shake a barrel, or for a server render, where the barrel loads all 74 components and their dependencies before the first one is used:
+Every component also has an entry point of its own, for a build that cannot tree-shake a barrel, or for a server render, where the barrel loads all 130 components and their dependencies before the first one is used:
 
 ```tsx
 import { PlButton } from 'plass-ui/button';
