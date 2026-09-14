@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/dismiss.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
@@ -91,10 +92,11 @@ class PlChip extends StatelessWidget {
 
   /// The name a screen reader gives the delete affordance. Never drawn.
   ///
-  /// Left out, it is the label pack's `remove` followed by the chip's text when
-  /// [child] is a [Text], so a row of tags does not read as the same "Remove"
-  /// over and over. A chip whose child is some other widget is named by the
-  /// word alone, and is the one to give a [deleteLabel] that says which chip it
+  /// Left out, it is the label pack's [PlassLabels.removeItem] handed the chip's
+  /// text when [child] is a [Text], so a row of tags does not read as the same
+  /// "Remove" over and over, and each language puts the name where it goes. A
+  /// chip whose child is some other widget is named by [PlassLabels.remove]
+  /// alone, and is the one to give a [deleteLabel] that says which chip it
   /// removes. Given, it is the whole name.
   final String? deleteLabel;
 
@@ -297,6 +299,9 @@ class PlChip extends StatelessWidget {
     );
 
     if (onDeleted != null) {
+      final PlassLabels labels = PlassTheme.labelsOf(context);
+      final String? text = plassTextOf(child);
+
       body = Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
@@ -306,9 +311,7 @@ class PlChip extends StatelessWidget {
           Padding(
             padding: EdgeInsetsDirectional.only(end: padX / 2),
             child: PlassDismissButton(
-              label:
-                  deleteLabel ??
-                  <String>[PlassTheme.labelsOf(context).remove, ?plassTextOf(child)].join(' '),
+              label: deleteLabel ?? (text == null ? labels.remove : labels.removeItem(text)),
               onPressed: disabled ? null : onDeleted,
               size: fontSize * dismissScale,
               color: surface.ink,

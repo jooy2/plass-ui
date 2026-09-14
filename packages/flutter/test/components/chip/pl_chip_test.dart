@@ -4,6 +4,9 @@ import 'package:plass_ui/plass_ui.dart';
 
 import '../../support/host.dart';
 
+/// A pack's remove button name, which puts the verb after the name.
+String _removeInKorean(String name) => '$name 삭제';
+
 void main() {
   group('PlChip', () {
     group('rendering', () {
@@ -184,7 +187,7 @@ void main() {
         handle.dispose();
       });
 
-      testWidgets('takes the label pack s word, or a whole name of its own', (
+      testWidgets('takes the label pack s sentence, or a whole name of its own', (
         WidgetTester tester,
       ) async {
         final handle = tester.ensureSemantics();
@@ -192,7 +195,9 @@ void main() {
         await tester.pumpWidget(
           host(
             PlassTheme.merge(
-              defaults: const PlassDefaults(labels: PlassLabels(remove: '삭제')),
+              defaults: const PlassDefaults(
+                labels: PlassLabels(remove: '삭제', removeItem: _removeInKorean),
+              ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
@@ -205,7 +210,9 @@ void main() {
           ),
         );
 
-        expect(find.bySemanticsLabel('삭제 Design'), findsOneWidget);
+        // The pack's word in front of the text was English's order in every
+        // language, so a Korean screen read "삭제 Design".
+        expect(find.bySemanticsLabel('Design 삭제'), findsOneWidget);
         expect(find.bySemanticsLabel('지우기'), findsOneWidget);
         // A chip that is not words is named by the word alone.
         expect(find.bySemanticsLabel('삭제'), findsOneWidget);

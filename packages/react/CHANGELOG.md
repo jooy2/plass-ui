@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A `PlChip` delete button is named in the word order of the label pack.** The name was the pack's `remove` followed by the chip's text, English's order in every language, so a Korean page read `삭제 Design`. It now comes from the pack's `removeItem`, `Design 삭제` in Korean, and `deleteLabel` still replaces the whole name. Words that a component of their own draws cannot be read from `children`, and still follow `remove`.
+
 - **`PlGallery` says where a picture sits in the language of the label pack.** A tile's name and the viewer's counter were built from an English template inside the component, so a Korean page read `A harbour — 2 of 4` inside a list named `갤러리`. They now come from the new `galleryItem` label key, translated in all seven packs in each language's own word order, and `itemLabel` still wins.
 
 - **Pressing a `PlPagination` page or stepper keeps the focus on it.** With `getPageHref`, the page that became current turned from a link into a button, a new element, and the focus fell to the top of the page; on the last page, Next became `disabled` and dropped the focus the same way, with or without `getPageHref`. The current page now stays a link marked `aria-current`, and a stepper at the end of the row stays in the tab order, announced as unavailable: an `<a>` with no address and `aria-disabled` in a link row, a button with `aria-disabled` otherwise. A `disabled` row still takes every control out of the tab order.

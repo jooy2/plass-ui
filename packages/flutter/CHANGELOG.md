@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **A `PlChip` delete affordance is named in the word order of the label pack.** The name was the pack's `remove` followed by the chip's `Text`, English's order in every language, so a Korean screen read `삭제 Design`. It now comes from the pack's `removeItem`, `Design 삭제` in Korean. A chip whose child is not a `Text` is still named by `remove` alone, and `deleteLabel` still replaces the whole name.
+
 - **`PlGallery` says where a picture sits in the language of the label pack.** A tile's name and the viewer's counter were built from an English template inside the widget, so a Korean screen read `A harbour — 2 of 4`. They now come from the new `PlassLabels.galleryItem` field, translated in all seven packs in each language's own word order, and `itemLabel` still wins.
 
 - **The `PlWindowPane` minimize, maximize and close buttons can be reached and pressed from the keyboard.** They answered only a pointer and took no focus, so Tab went past them and a keyboard could not close, roll up or maximize a window. Each button is now a stop in the tab order, Enter and Space press it, and a keyboard that reaches it draws the focus ring inside the button. A traffic light shows its mark while it has the focus, as it does under the pointer. A screen reader can now press each button too, which before was named but carried no tap action.

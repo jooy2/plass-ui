@@ -2,6 +2,11 @@ import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlChip, PlassProvider } from 'plass-ui';
 
+/** Words a component draws for itself, which no walk of the tree can read. */
+function Word() {
+  return <>Design</>;
+}
+
 describe('PlChip', () => {
   describe('rendering', () => {
     it('renders its label', async () => {
@@ -121,13 +126,37 @@ describe('PlChip', () => {
         .toBeInTheDocument();
     });
 
-    it('puts the label pack s word in front of the chip s text', async () => {
+    it('names the button in the word order of the label pack', async () => {
       const screen = await render(
-        <PlassProvider labels={{ remove: '삭제' }}>
+        <PlassProvider labels={{ removeItem: (name) => `${name} 삭제` }}>
           <PlChip onDelete={() => {}}>Design</PlChip>
+          <PlChip onDelete={() => {}}>
+            <strong>Research</strong>
+          </PlChip>
         </PlassProvider>
       );
 
+      // The pack's word in front of the text was English's order in every
+      // language, so a Korean page read "삭제 Design".
+      await expect
+        .element(screen.getByRole('button', { name: 'Design 삭제', exact: true }))
+        .toBeInTheDocument();
+      await expect
+        .element(screen.getByRole('button', { name: 'Research 삭제', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it('still names a chip whose words a component of its own draws', async () => {
+      const screen = await render(
+        <PlassProvider labels={{ remove: '삭제' }}>
+          <PlChip onDelete={() => {}}>
+            <Word />
+          </PlChip>
+        </PlassProvider>
+      );
+
+      // Those words are not in the tree to hand to the pack, so they follow
+      // the pack's word as they are rendered.
       await expect
         .element(screen.getByRole('button', { name: '삭제 Design', exact: true }))
         .toBeInTheDocument();

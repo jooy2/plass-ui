@@ -45,11 +45,12 @@ export interface PlChipProps
    */
   onDelete?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   /**
-   * Accessible name of the delete button. Never drawn. Left out, the button is
-   * named by the label pack's word followed by the chip's own text, so a row of
-   * tags does not read as the same "Remove" over and over. Given, it is the
-   * whole name.
-   * @default 'Remove', followed by the chip's text
+   * Accessible name of the delete button. Never drawn. Left out, it is the label
+   * pack's `removeItem` handed the chip's own text, so a row of tags does not
+   * read as the same "Remove" over and over, and each language puts the name
+   * where it goes. Words a component of their own draws cannot be read that
+   * way, and follow the pack's `remove` instead. Given, it is the whole name.
+   * @default `Remove {text}`, from the label pack
    */
   deleteLabel?: string;
   /**
@@ -165,6 +166,30 @@ const labelButtonClasses = /* @__PURE__ */ [
 ].join(' ');
 
 /**
+ * The words in a chip, with everything that is not a word left out.
+ *
+ * The delete button hands them to the label pack, which puts a name where its
+ * own language puts it, so they have to be a string. Strings, numbers and the
+ * children of an element are read. What a component draws for itself is only
+ * decided when it renders, and is not.
+ */
+function textOf(node: React.ReactNode): string {
+  if (typeof node === 'string' || typeof node === 'number') {
+    return String(node);
+  }
+
+  if (Array.isArray(node)) {
+    return node.map(textOf).join('');
+  }
+
+  if (React.isValidElement(node)) {
+    return textOf((node.props as { children?: React.ReactNode }).children);
+  }
+
+  return '';
+}
+
+/**
  * A compact token: a tag, a filter, a status, an entity plucked out of a list.
  *
  * The shell is always a `<span>`. What changes is what is inside it: a plain run
@@ -202,7 +227,8 @@ export const PlChip = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlChipPr
   ) {
     const defaults = useDefaults();
     const labels = useLabels();
-    const deleteLabel = deleteLabelProp ?? labels.remove;
+    const text = textOf(children).trim();
+    const deleteLabel = deleteLabelProp ?? (text ? labels.removeItem(text) : labels.remove);
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';
@@ -292,10 +318,12 @@ export const PlChip = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlChipPr
             type="button"
             id={deleteId}
             aria-label={deleteLabel}
-            // The button's own word, then the chip's text, which is how a row
-            // of tags stops reading as the same "Remove" for every one of them.
+            // Words a component of their own draws are not in the tree to be
+            // read, so they follow the pack's word as they are rendered. The
+            // button keeps the chip's name even where the language's order
+            // cannot be kept.
             aria-labelledby={
-              deleteLabelProp === undefined && hasContent(children)
+              deleteLabelProp === undefined && !text && hasContent(children)
                 ? `${deleteId} ${textId}`
                 : undefined
             }
