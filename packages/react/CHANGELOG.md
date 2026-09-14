@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **The `PlSidebar` resize handle says the width it holds.** The handle is a focusable separator, and one of those is a value between two bounds, but it had no `aria-valuenow`, `aria-valuemin` or `aria-valuemax`, so moving it with the arrow keys told a screen reader nothing. It now carries the width in pixels between `minWidth` and `maxWidth`, and a drag or a key press updates it as the edge moves.
+
 - **Each `PlSlider` thumb can have its own name and spoken value, and is described by `description`.** The two thumbs of a range were both named by `label`, their values were read in Base UI's own English wording such as "start range" whatever the page's language, and `description` was drawn under the track without being connected to either. `getAriaLabel` and `getAriaValueText` are passed to every thumb, and `description` now describes each one.
 
 - **The `PlTransfer` arrows point at their own lists under RTL.** The selected list is at the inline end, which is the left under a right-to-left direction, but the arrow to it was always drawn pointing right and the arrow back pointing left. Both now turn over with the direction.

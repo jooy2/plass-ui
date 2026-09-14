@@ -312,16 +312,27 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
     const teardownRef = React.useRef<(() => void) | null>(null);
     React.useEffect(() => () => teardownRef.current?.(), []);
 
+    const handleRef = React.useRef<HTMLDivElement | null>(null);
+
+    const minPixels = toPixels(minWidth, 160);
+    const maxPixels = toPixels(maxWidth, 480);
+    // What the separator reports before anything has moved it, held inside the
+    // bounds it reports with it.
+    const initialPixels = Math.min(
+      maxPixels,
+      Math.max(minPixels, Math.round(toPixels(width, minPixels)))
+    );
+
     const applyWidth = (pixels: number) => {
       const node = rootRef.current;
       if (!node) return pixels;
 
-      const sized = Math.min(
-        toPixels(maxWidth, 480),
-        Math.max(toPixels(minWidth, 160), Math.round(pixels))
-      );
+      const sized = Math.min(maxPixels, Math.max(minPixels, Math.round(pixels)));
 
       node.style.setProperty('--p-sidebar-w', `${sized}px`);
+      // Written with the width rather than kept in state, for the same reason
+      // the width is: a render per pointer move would redraw every row.
+      handleRef.current?.setAttribute('aria-valuenow', String(sized));
 
       return sized;
     };
@@ -464,9 +475,15 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
 
         {resizable ? (
           <div
+            ref={handleRef}
             role="separator"
             aria-orientation="vertical"
             aria-label={resizeLabel}
+            // A focusable separator is a value, the width, between two bounds.
+            // A drag and a key press write the new width here as they apply it.
+            aria-valuenow={initialPixels}
+            aria-valuemin={minPixels}
+            aria-valuemax={maxPixels}
             tabIndex={0}
             className={cx(
               // Straddling the edge rather than sitting inside it: a hairline

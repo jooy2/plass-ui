@@ -195,6 +195,35 @@ describe('PlSidebar', () => {
       expect(onResizeEnd).toHaveBeenCalled();
     });
 
+    it('says its width and its bounds as a value, and keeps the value in step', async () => {
+      const onResizeEnd = vi.fn();
+
+      const screen = await render(
+        <PlSidebar
+          collapseBelow="none"
+          resizable
+          width={200}
+          minWidth={180}
+          maxWidth={400}
+          onResizeEnd={onResizeEnd}
+        >
+          Links
+        </PlSidebar>
+      );
+
+      const handle = screen.getByRole('separator').element();
+
+      expect(handle).toHaveAttribute('aria-valuenow', '200');
+      expect(handle).toHaveAttribute('aria-valuemin', '180');
+      expect(handle).toHaveAttribute('aria-valuemax', '400');
+
+      handle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+
+      // The value a screen reader hears is the width the edge moved to.
+      expect(handle).toHaveAttribute('aria-valuenow', String(onResizeEnd.mock.lastCall?.[0]));
+      expect(onResizeEnd.mock.lastCall?.[0]).not.toBe(200);
+    });
+
     it('clamps what a drag or a key press may set', async () => {
       const onResizeEnd = vi.fn();
 
