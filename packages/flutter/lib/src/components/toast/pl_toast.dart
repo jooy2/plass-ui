@@ -59,12 +59,16 @@ enum PlToastPosition {
   bottomEnd,
 }
 
-/// How loudly a toast is announced.
+/// How loudly a toast asks to be announced.
+///
+/// Every toast is announced whichever this is. The two differ in the React build,
+/// where they are a polite and an assertive live region; Flutter's live region
+/// has one politeness, so here both are read when the reader pauses.
 enum PlToastPriority {
   /// Waits for a pause. A save confirmation is not worth interrupting for.
   low,
 
-  /// Interrupts. An error is.
+  /// Interrupts where the platform can. An error is worth it.
   high,
 }
 
@@ -112,7 +116,7 @@ class PlToast {
   /// it is read said nothing. Left out, the provider's own timeout is used.
   final Duration? timeout;
 
-  /// How loudly it is announced.
+  /// How loudly it asks to be announced. It is announced either way.
   final PlToastPriority priority;
 
   /// The label of the action button. Passing it is what makes the button appear.
@@ -706,9 +710,15 @@ class _Toast extends StatelessWidget {
       child: Center(child: slot),
     );
 
+    // Every toast is a live region, whatever its priority. A toast appears
+    // somewhere the reader is not, so without one a "Saved" arrives and leaves
+    // unheard. Flutter's live region has no second, assertive level to give a
+    // `high` toast — the framework's own documentation calls it polite, and the
+    // web engine announces it politely — and the `alert` and `status` roles that
+    // would carry the difference are refused on a node that is a live region.
     return Semantics(
       container: true,
-      liveRegion: toast.priority == PlToastPriority.high,
+      liveRegion: true,
       child: PlassSurfaceBox(
         surface: surface,
         borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),

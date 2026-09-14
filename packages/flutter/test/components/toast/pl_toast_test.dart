@@ -490,9 +490,7 @@ void main() {
     });
 
     group('accessibility', () {
-      testWidgets('interrupts only for what is worth interrupting for', (
-        WidgetTester tester,
-      ) async {
+      testWidgets('announces every toast, whatever its priority', (WidgetTester tester) async {
         final handle = tester.ensureSemantics();
         await tester.pumpWidget(
           _app(
@@ -506,7 +504,9 @@ void main() {
 
         await _raise(tester);
 
-        expect(tester.getSemantics(find.text('Quiet')), isSemantics(isLiveRegion: false));
+        // A default toast is the one a screen reader most needs told about: a
+        // "Saved" that is not a live region appears and leaves in silence.
+        expect(tester.getSemantics(find.text('Quiet')), isSemantics(isLiveRegion: true));
         expect(tester.getSemantics(find.text('Loud')), isSemantics(isLiveRegion: true));
 
         handle.dispose();

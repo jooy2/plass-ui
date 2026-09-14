@@ -60,6 +60,8 @@
 
 ### Fixed
 
+- **Every `PlToast` is announced, including one with the default `low` priority.** Only a `high` toast was a live region, so a default toast such as "Saved" appeared and left without a screen reader saying anything. Every toast is now a live region. Flutter's live region has one politeness level, and it is polite, so a `high` toast is read when the reader pauses rather than interrupting; the `alert` and `status` roles that would carry the difference cannot be set on a live region.
+
 - **A `PlNavigationMenuItem` destination can mark the screen the reader is on.** Items had no `selected`, so the row could not say which destination was current. `selected` now marks a destination selected for a screen reader and draws its word in the accent.
 
 - **A `PlMenuSubmenu` opens towards the end of the line under RTL, and its chevron turns with it.** The submenu always opened to the right of its row, while under a right-to-left `Directionality` the arrow key that opens it is the left one, and the chevron kept pointing right. It now opens to the left under RTL, as `PlNavigationMenu` already did, and the chevron points that way.

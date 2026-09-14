@@ -205,7 +205,7 @@ One toast that follows a <Fw react="promise" flutter="future" />: the loading me
 
 ::: fw flutter
 
-- `priority` decides whether a toast is a live region. `high` is announced the moment it arrives and `low` waits until the reader reaches it. An error is worth interrupting for and a save confirmation is not. Flutter has one live-region flag rather than two politeness levels, so what the React build says with two `role`s this says with one switch.
+- Every toast is a live region, so a screen reader announces it without the reader moving there, whatever its `priority`. Flutter's live region has one politeness level, and it is polite, so `high` cannot interrupt the way it does in the React build: both priorities are read when the reader pauses.
 - The pointer resting on the stack stops the clock, because a pointer resting on a toast is a reader reading it. So do a finger held on a toast, the keyboard focus on its action or its ×, and the app going to the background or losing the window's focus. The clock starts over once all of them have let go, rather than resuming where it left off.
 - A toast waiting behind `limit` has no clock at all: it is not being read, so its life has not started. It gets one when it reaches the screen.
 - Nothing here is told to ignore the pointer, and nothing has to be: the strip is an `Align`, which hit-tests its child and not the room around it, so the page under the empty part of the strip is reached normally.
@@ -224,7 +224,7 @@ One toast that follows a <Fw react="promise" flutter="future" />: the loading me
 | `PlToastOptions` | `PlToast` | The message is the thing named after the component, because it is the thing a caller writes. |
 | `timeout` in milliseconds | `Duration` | Dart's own type for a length of time. `Duration.zero` still means "until it is closed". |
 | `icon: false` | `showIcon: false` | Dart has no value that is neither `null` nor a widget, so "take it away" gets its own name. |
-| `priority: 'high' \| 'low'` | a live region, or not | Flutter has one live-region flag rather than two politeness levels. |
+| `priority: 'high' \| 'low'` | both a polite live region | Flutter's live region has one politeness level, and the `alert` and `status` roles that would carry the second are refused on a live region. |
 | a portal, and `pointer-events-none` | a layer inside the provider | The provider is already above everything it has to cover, so there is nothing to portal into, and an `Align` lets the pointer past without being told to. |
 | swipe to dismiss, the F6 hotkey | — | Neither has a Flutter equivalent that is not a second gesture competing with the app's own. The × is always there. |
 | timers pause and resume on hover | the clock starts over when the pointer, the finger, the focus or the app comes back | A toast the reader has just finished reading deserves its full life back rather than the two seconds it had left. |

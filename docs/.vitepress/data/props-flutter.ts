@@ -5575,8 +5575,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'PlToastPriority',
       default: 'PlToastPriority.low',
       description: {
-        ko: 'high는 도착하는 순간 알려지고 low는 읽는 사람이 닿을 때까지 기다립니다',
-        en: 'high is announced the moment it arrives; low waits until the reader reaches it'
+        ko: '둘 다 live region으로 읽힙니다. Flutter의 live region은 polite 하나뿐이라 high도 읽던 것을 끊지 않습니다',
+        en: 'both are announced as a live region; Flutter has only a polite one, so high does not interrupt either'
       }
     }),
     from('PlToastOptions', 'color', { type: 'PlassColor?' }),
