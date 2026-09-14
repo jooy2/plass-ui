@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- **An unavailable `PlMenuItem` with an `href` no longer navigates.** The link row took no `disabled`, so `<PlMenuItem href="/admin" disabled>` was drawn as available and followed its link when pressed. A disabled row with an `href` is now the plain row it has become: dimmed, announced as unavailable, and going nowhere.
+
 - **The `PlFloatingBottomNavigation` key disappears when `value` names no destination.** The key stayed under the last destination, which no longer carried `aria-current`, so the bar drew a destination as current that nothing said was. It is now hidden, and appears in place when a destination is current again, as in the Flutter build.
 
 - **Pressing `PlBackTop` moves the focus to the top of what it scrolled.** The button hides itself as the page scrolls up, and it kept the focus while hidden, so the next Tab went to the end of the page and scrolled it back down. When the button holds the focus, a press now hands it to the first focusable element at the top of the target, or lets go of it when there is none.

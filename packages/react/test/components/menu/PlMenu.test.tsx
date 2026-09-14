@@ -138,6 +138,26 @@ describe('PlMenu', () => {
       expect(pick).not.toHaveBeenCalled();
     });
 
+    it('does not navigate or fire while an unavailable row has somewhere to go', async () => {
+      const pick = vi.fn();
+      const screen = await render(
+        <PlMenu open>
+          <PlMenuItem href="/admin" disabled onClick={pick}>
+            Admin
+          </PlMenuItem>
+        </PlMenu>
+      );
+
+      const row = screen.getByRole('menuitem', { name: 'Admin' }).element();
+
+      expect(row).not.toHaveAttribute('href');
+      expect(row).toHaveAttribute('aria-disabled', 'true');
+
+      (row as HTMLElement).click();
+
+      expect(pick).not.toHaveBeenCalled();
+    });
+
     it('carries a shortcut and a description', async () => {
       const screen = await render(
         <PlMenu open>

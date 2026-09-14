@@ -386,7 +386,10 @@ export function PlMenuItem({
   const slots = color ? surfaceSlots(color, 0) : undefined;
   const rowStyle = slots || style ? { ...slots, ...style } : undefined;
 
-  if (href !== undefined) {
+  // An unavailable link has nowhere to go, and Base UI's link row takes no
+  // `disabled`: a disabled row with an `href` is drawn and announced as the
+  // plain row it has become, rather than as a link that still navigates.
+  if (href !== undefined && !disabled) {
     return (
       <BaseUIMenu.LinkItem
         href={href}
