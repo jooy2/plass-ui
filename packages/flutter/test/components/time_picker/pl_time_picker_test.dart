@@ -89,6 +89,22 @@ void main() {
       });
     });
 
+    group('accessibility', () {
+      testWidgets('names the trigger by its label and says the time as its value', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await _pump(
+          tester,
+          PlTimePicker(label: const Text('Start'), value: nineThirty, onChanged: (DateTime? _) {}),
+        );
+
+        expect(find.semantics.byLabel('Start').evaluate().single.value, '09:30');
+
+        handle.dispose();
+      });
+    });
+
     group('the columns', () {
       testWidgets('draws hours and minutes, and no seconds', (WidgetTester tester) async {
         await _pump(tester, PlTimePicker(value: nineThirty, onChanged: (DateTime? _) {}));

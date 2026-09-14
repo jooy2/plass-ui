@@ -254,6 +254,20 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('is named by its label, and says what is chosen once', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await _pump(tester, const _Harness(value: 'kr-11'));
+
+        // One node carries the label as its name and the choice as its value,
+        // rather than a label read on its own and a trigger named by its value.
+        expect(find.semantics.byLabel('City').evaluate().single.value, 'Seoul');
+        expect(find.semantics.byLabel('Seoul').evaluate(), isEmpty);
+
+        handle.dispose();
+      });
+
       testWidgets('and says so when the list is open', (WidgetTester tester) async {
         final handle = tester.ensureSemantics();
         await _pump(tester, const _Harness(value: 'kr-11'));

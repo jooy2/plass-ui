@@ -28,6 +28,7 @@ import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
+import 'package:plass_ui/src/internal/text.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -314,7 +315,8 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
           expanded: widget.open,
           readOnly: widget.readOnly,
           enabled: !widget.disabled,
-          label: widget.semanticLabel,
+          // The field's label names the trigger, and what is chosen is the value.
+          label: widget.semanticLabel ?? plassTextOf(widget.label),
           value: widget.semanticValue,
           onTap: _usable ? () => widget.onOpenChanged(!widget.open) : null,
           child: shell,
@@ -348,13 +350,18 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
       spacing: stackGap[size]!,
       children: <Widget>[
         if (widget.label != null)
-          DefaultTextStyle.merge(
-            style: TextStyle(
-              color: widget.disabled ? tokens.mutedFg : tokens.fg,
-              fontSize: meta,
-              fontWeight: FontWeight.w600,
+          // Left out of the tree when its words already name the trigger, so the
+          // label is not read once on its own and again as the trigger.
+          ExcludeSemantics(
+            excluding: widget.semanticLabel == null && plassTextOf(widget.label) != null,
+            child: DefaultTextStyle.merge(
+              style: TextStyle(
+                color: widget.disabled ? tokens.mutedFg : tokens.fg,
+                fontSize: meta,
+                fontWeight: FontWeight.w600,
+              ),
+              child: widget.label!,
             ),
-            child: widget.label!,
           ),
         field,
         if (widget.description != null)

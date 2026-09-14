@@ -13,6 +13,7 @@ import 'package:plass_ui/src/internal/keys.dart';
 import 'package:plass_ui/src/internal/list_reveal.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
+import 'package:plass_ui/src/internal/text.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -428,7 +429,9 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
           expanded: _open,
           readOnly: widget.readOnly,
           enabled: !widget.disabled,
-          label: widget.semanticLabel,
+          // The field's label names the trigger, as the React build's label
+          // does through Base UI's Field. What is chosen is the value.
+          label: widget.semanticLabel ?? plassTextOf(widget.label),
           value: chosen >= 0 ? _spoken(widget.options[chosen]) : null,
           onTap: _usable ? _openList : null,
           child: shell,
@@ -495,13 +498,18 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
       spacing: stackGap[size]!,
       children: <Widget>[
         if (widget.label != null)
-          DefaultTextStyle.merge(
-            style: TextStyle(
-              color: widget.disabled ? tokens.mutedFg : tokens.fg,
-              fontSize: meta,
-              fontWeight: FontWeight.w600,
+          // Left out of the tree when its words already name the trigger, so the
+          // label is not read once on its own and again as the trigger.
+          ExcludeSemantics(
+            excluding: widget.semanticLabel == null && plassTextOf(widget.label) != null,
+            child: DefaultTextStyle.merge(
+              style: TextStyle(
+                color: widget.disabled ? tokens.mutedFg : tokens.fg,
+                fontSize: meta,
+                fontWeight: FontWeight.w600,
+              ),
+              child: widget.label!,
             ),
-            child: widget.label!,
           ),
         field,
         if (widget.description != null)
@@ -552,8 +560,10 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
               maintainState: true,
               child: sample,
             ),
+          // The chosen label is the trigger's value already, and read again as
+          // its name it would be said twice.
           if (chosen >= 0)
-            _label(widget.options[chosen])
+            ExcludeSemantics(child: _label(widget.options[chosen]))
           else
             widget.placeholder ?? const SizedBox.shrink(),
         ],

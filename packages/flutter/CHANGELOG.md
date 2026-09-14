@@ -58,6 +58,8 @@
 
 ### Fixed
 
+- **A `PlSelect` or picker trigger is named by the field's `label`.** Without a `semanticLabel`, the trigger had no name of its own: a `PlSelect` took the chosen option's words as its name as well as its value, so it read "Seoul, Seoul" with "City" nowhere, and `PlDatePicker`, `PlDateRangePicker`, `PlDateTimePicker`, `PlTimePicker`, `PlTreeSelect` and `PlColorPicker` read only the value. When `label` is a `Text`, its words now name the trigger, the label is not read a second time on its own, and what is chosen stays the value. A label built from other widgets still needs `semanticLabel`.
+
 - **The `PlSegmentedButton` tile follows the set when it changes size.** The tile was measured onto the chosen segment only when the set was built, so a window resize, a turned device or a new text size left it on the segment's old rectangle. The set now measures it again whenever its size changes.
 
 - **Pressing a `PlSlider` thumb keeps its value.** A thumb is placed along the rail less its own size, but a press was read along the whole rail, so pressing the centre of a thumb at 0 moved it to about 3, and one at 100 to about 97. A press is now read along the same travel the thumb is placed on, in either writing direction and vertically.

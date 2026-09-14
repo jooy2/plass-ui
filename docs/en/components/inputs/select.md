@@ -205,7 +205,7 @@ Drawn at 1.2× the value beside it, so it tracks the text. There is no `endIcon`
 
 ::: fw flutter
 
-- The trigger is announced as a button that says what is chosen and whether the list is open. Each row is announced as one of a mutually exclusive set, taken or not.
+- The trigger is announced as a button named by the field's `label`, with what is chosen as its value and whether the list is open. A `label` that is a `Text` names it on its own, and is not read a second time beside it; a label built from other widgets needs `semanticLabel`. Each row is announced as one of a mutually exclusive set, taken or not.
 - **The keys stay on the trigger**, and so does focus: <kbd>↑</kbd> <kbd>↓</kbd> move the highlight, <kbd>Home</kbd> and <kbd>End</kbd> go to the ends, <kbd>Enter</kbd> takes the highlighted row and <kbd>Escape</kbd> closes without taking one. The list is the trigger's list, not a second place to be.
 - The highlight is one number rather than a hover state per row, which is what makes the pointer and the arrow keys light the same row.
 - A row that cannot be taken stays in the list and is announced as unavailable. An option that vanishes when it cannot be picked is an option the reader will look for.

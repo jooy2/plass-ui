@@ -4413,8 +4413,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       name: 'semanticLabel',
       type: 'String?',
       description: {
-        ko: 'select를 스크린 리더가 부를 이름',
-        en: 'The name a screen reader gives the select'
+        ko: 'select를 스크린 리더가 부를 이름. 생략하면 Text인 label의 글자가 쓰입니다',
+        en: 'The name a screen reader gives the select. Left out, the words of a Text label are used'
       }
     },
     {
