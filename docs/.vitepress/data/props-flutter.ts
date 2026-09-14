@@ -2341,8 +2341,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       name: 'rowKey',
       type: 'Object Function(T row, int index)?',
       description: {
-        ko: '행마다의 안정적인 key. 다른 무엇보다 먼저 정할 값입니다 — 없으면 위치로 식별되고, 정렬이 행을 옮기면 위치는 뒤에 남습니다',
-        en: 'A stable key per row, and the one thing worth setting before anything else. Left out, a row is identified by its position, which stays behind when a sort moves the row'
+        ko: '행마다의 안정적인 key. 다른 무엇보다 먼저 정할 값입니다 — 없으면 rows 안의 위치로 식별되고, 그 위치는 정렬과 검색과 페이지는 견디지만 rows가 바뀌면 다른 행을 가리킵니다. index는 화면의 자리가 아니라 rows 안의 위치입니다',
+        en: "A stable key per row, and the one thing worth setting before anything else. Left out, a row is identified by its position in rows, which holds through a sort, a search and a page and names a different row once rows changes. index is that position in rows, not the row's place on the screen"
       }
     }),
     from('PlDataTable', 'caption', {
@@ -2470,8 +2470,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'Widget Function(T row, int index)',
       required: true,
       description: {
-        ko: '행에서 셀을 만듭니다. Dart에는 임의의 타입에 대한 row[key]가 없으니 필수입니다',
-        en: 'Builds the cell for a row. Required, because Dart has no row[key] on an arbitrary type'
+        ko: '행에서 셀을 만듭니다. Dart에는 임의의 타입에 대한 row[key]가 없으니 필수입니다. index는 화면의 자리가 아니라 rows 안의 위치입니다',
+        en: "Builds the cell for a row. Required, because Dart has no row[key] on an arbitrary type. index is the row's position in rows, not its place on the screen"
       }
     },
     from('PlDataTableColumn', 'header', { type: 'Widget?' }),

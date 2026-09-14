@@ -105,7 +105,8 @@ class PlDataTableColumn<T> {
   /// else in the other would be two APIs.
   final String key;
 
-  /// Builds the cell for a row.
+  /// Builds the cell for a row. `index` is the row's position in
+  /// [PlDataTable.rows], not its place on the screen.
   final Widget Function(T row, int index) cell;
 
   /// The heading.
@@ -230,10 +231,13 @@ class PlDataTable<T> extends StatefulWidget {
   /// A stable key per row, and the one thing worth setting before anything
   /// else.
   ///
-  /// Left out, a row is identified by its position — which is wrong for every
-  /// table this widget is for: sorting moves a row and its position stays
-  /// behind, so a selection made before the sort belongs to different rows
-  /// after it.
+  /// Left out, a row is identified by its position in [rows], which survives a
+  /// sort, a search and a page, and does not survive [rows] changing: a row
+  /// added at the top moves every other row's key, so a selection made before
+  /// it belongs to different rows after it.
+  ///
+  /// `index` here, and in every other callback, is that position in [rows],
+  /// not the row's place on the screen.
   final Object Function(T row, int index)? rowKey;
 
   /// Drawn above the grid, inside the sheet.
@@ -257,6 +261,7 @@ class PlDataTable<T> extends StatefulWidget {
   final double? maxHeight;
 
   /// Makes rows activatable, and turns on the hover treatment with them.
+  /// `index` is the row's position in [rows].
   final void Function(T row, int index)? onRowPressed;
 
   /// The sorted column and its direction. Pass it to control the sort.
@@ -296,6 +301,7 @@ class PlDataTable<T> extends StatefulWidget {
   final void Function(List<Object> selected, List<T> rows)? onSelectedChanged;
 
   /// Keeps a row out of the selection — a total line, a row already spent.
+  /// `index` is the row's position in [rows].
   final bool Function(T row, int index)? isRowSelectable;
 
   /// How the rows are handed out.
@@ -362,6 +368,9 @@ class PlDataTable<T> extends StatefulWidget {
   State<PlDataTable<T>> createState() => _PlDataTableState<T>();
 }
 
+/// A row, and where it is in [PlDataTable.rows].
+typedef _Indexed<T> = ({int index, T row});
+
 class _PlDataTableState<T> extends State<PlDataTable<T>> {
   late TextEditingController _search;
   PlassSort? _sort;
@@ -419,8 +428,18 @@ class _PlDataTableState<T> extends State<PlDataTable<T>> {
   Object? _valueOf(PlDataTableColumn<T> column, T row) => column.value?.call(row);
 
   /// The rows the reader can see: narrowed, ordered, and cut to a page.
-  List<T> get _shown {
-    var rows = widget.rows;
+  ///
+  /// Every row carries its position in [PlDataTable.rows] through all three,
+  /// and that position is the `index` every callback is handed and the key a
+  /// row gets without `rowKey`. A position on screen names a different row
+  /// after every sort, search and page, so a tick made on page two would light
+  /// the row in the same place on page one, and `onSelectedChanged` would hand
+  /// back the row at that place in `rows`.
+  List<_Indexed<T>> get _shown {
+    var rows = <_Indexed<T>>[
+      for (var index = 0; index < widget.rows.length; index += 1)
+        (index: index, row: widget.rows[index]),
+    ];
 
     if (_doesSearch && _search.text.isNotEmpty) {
       // The query is folded once here rather than once per row per column.
@@ -429,8 +448,8 @@ class _PlDataTableState<T> extends State<PlDataTable<T>> {
 
       rows = rows
           .where(
-            (T row) => searchHaystack(<String?>[
-              for (final column in wanted) _valueOf(column, row)?.toString(),
+            (_Indexed<T> one) => searchHaystack(<String?>[
+              for (final column in wanted) _valueOf(column, one.row)?.toString(),
             ]).contains(needle),
           )
           .toList();
@@ -446,31 +465,24 @@ class _PlDataTableState<T> extends State<PlDataTable<T>> {
       if (column != null) {
         final direction = sort.direction == PlassSortDirection.asc ? 1 : -1;
 
-        // A copy, because sorting the caller's list in place would reorder the
-        // rows they still hold a reference to. Positions rather than rows are
-        // sorted, and two rows that compare the same keep the order they came
-        // in: `List.sort` does not promise that past a few dozen rows, and a
-        // column of statuses sorted twice would come out shuffled.
-        final source = rows;
-        final order = List<int>.generate(source.length, (int index) => index)
-          ..sort((int i, int j) {
-            // A caller's comparator is asked first and the direction applied to
-            // what it said, so their ordering reverses the way the built-in one
-            // does rather than needing to know which way round it is asked. The
-            // built-in one takes the direction itself, to keep blanks last both
-            // ways.
-            final answer = column.compare != null
-                ? column.compare!(source[i], source[j]) * direction
-                : compareValues(
-                    _valueOf(column, source[i]),
-                    _valueOf(column, source[j]),
-                    direction,
-                  );
+        // In place, because the list was built for this call and the caller's
+        // own list is not it. Two rows that compare the same keep the order
+        // they came in: `List.sort` does not promise that past a few dozen
+        // rows, and a column of statuses sorted twice would come out shuffled.
+        // The search keeps the rows' order, so the position each one carries is
+        // also the order it came in.
+        rows.sort((_Indexed<T> a, _Indexed<T> b) {
+          // A caller's comparator is asked first and the direction applied to
+          // what it said, so their ordering reverses the way the built-in one
+          // does rather than needing to know which way round it is asked. The
+          // built-in one takes the direction itself, to keep blanks last both
+          // ways.
+          final answer = column.compare != null
+              ? column.compare!(a.row, b.row) * direction
+              : compareValues(_valueOf(column, a.row), _valueOf(column, b.row), direction);
 
-            return answer != 0 ? answer : i - j;
-          });
-
-        rows = <T>[for (final int index in order) source[index]];
+          return answer != 0 ? answer : a.index - b.index;
+        });
       }
     }
 
@@ -491,7 +503,7 @@ class _PlDataTableState<T> extends State<PlDataTable<T>> {
 
   /// Every row the reader could reach, before the page was cut out of it. Set
   /// by [_shown], which is the only thing that knows it.
-  List<T> _ordered = <T>[];
+  List<_Indexed<T>> _ordered = <_Indexed<T>>[];
 
   int _total(int ordered) => _doesPage ? ordered : (widget.rowCount ?? ordered);
 
@@ -568,12 +580,12 @@ class _PlDataTableState<T> extends State<PlDataTable<T>> {
     final ordered = _ordered;
     final selected = _currentSelected;
 
-    final shownKeys = <Object>[
-      for (var index = 0; index < shown.length; index += 1) _keyOf(shown[index], index),
-    ];
+    // The grid counts rows by where they are drawn; everything a caller is told
+    // uses where the row is in `rows`, which `shown` carries.
+    final shownKeys = <Object>[for (final one in shown) _keyOf(one.row, one.index)];
     final selectableHere = <Object>[
-      for (var index = 0; index < shown.length; index += 1)
-        if (_selectable(shown[index], index)) shownKeys[index],
+      for (var place = 0; place < shown.length; place += 1)
+        if (_selectable(shown[place].row, shown[place].index)) shownKeys[place],
     ];
     final tickedHere = shownKeys.where(selected.contains).toList();
     final allTicked = selectableHere.isNotEmpty && tickedHere.length == selectableHere.length;
@@ -661,7 +673,9 @@ class _PlDataTableState<T> extends State<PlDataTable<T>> {
               size: size,
               color: color,
               value: selected.contains(rowKey),
-              onChanged: _selectable(shown[index], index) ? (bool _) => toggleRow(rowKey) : null,
+              onChanged: _selectable(shown[index].row, shown[index].index)
+                  ? (bool _) => toggleRow(rowKey)
+                  : null,
               semanticLabel: widget.selectRowLabel ?? labels.selectRow,
             );
           },
@@ -682,7 +696,7 @@ class _PlDataTableState<T> extends State<PlDataTable<T>> {
               : column.header,
           cell: (int index) => widget.loading
               ? PlSkeleton(size: size, color: color)
-              : column.cell(shown[index], index),
+              : column.cell(shown[index].row, shown[index].index),
         ),
     ];
 
@@ -704,7 +718,7 @@ class _PlDataTableState<T> extends State<PlDataTable<T>> {
       hoverable: widget.hoverable,
       onRowPressed: widget.onRowPressed == null || widget.loading
           ? null
-          : (int index) => widget.onRowPressed!(shown[index], index),
+          : (int index) => widget.onRowPressed!(shown[index].row, shown[index].index),
       stickyHeader: widget.stickyHeader,
       maxHeight: widget.maxHeight,
       semanticLabel: widget.semanticLabel,

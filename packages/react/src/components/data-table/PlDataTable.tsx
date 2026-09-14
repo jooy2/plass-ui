@@ -105,7 +105,11 @@ export interface PlDataTableColumn<Row> {
    * @default 'start'
    */
   align?: PlTableAlign;
-  /** Renders the cell. Without it the cell is `row[key]` rendered as-is. */
+  /**
+   * Renders the cell. Without it the cell is `row[key]` rendered as-is.
+   *
+   * `index` is the row's position in `rows`, not its place on the screen.
+   */
   render?: (row: Row, index: number) => React.ReactNode;
   /**
    * What this column *is*, for the sort and the search.
@@ -146,9 +150,13 @@ export interface PlDataTableProps<Row>
   /**
    * A stable key per row, and the one prop worth setting before any other.
    *
-   * It defaults to the row's index, which is wrong for every table this
-   * component is for: sorting moves a row and its index stays behind, so a
-   * selection made before the sort belongs to different rows after it.
+   * It defaults to the row's position in `rows`, which survives a sort, a
+   * search and a page, and does not survive `rows` changing: a row added at the
+   * top moves every other row's key, so a selection made before it belongs to
+   * different rows after it.
+   *
+   * `index` here, and in every other callback, is that position in `rows`, not
+   * the row's place on the screen.
    */
   getRowKey?: (row: Row, index: number) => React.Key;
   /** Shown above the grid, and read out as the table's accessible name. */
@@ -163,7 +171,10 @@ export interface PlDataTableProps<Row>
   stickyHeader?: boolean;
   /** A hard cap on the grid's height. A number is pixels; a string is a CSS length. */
   maxHeight?: number | string;
-  /** Makes rows activatable. Also turns on the hover treatment. */
+  /**
+   * Makes rows activatable. Also turns on the hover treatment. `index` is the
+   * row's position in `rows`.
+   */
   onRowClick?: (row: Row, index: number) => void;
 
   /** The sorted column and its direction. Pass it to control the sort. */
@@ -192,7 +203,10 @@ export interface PlDataTableProps<Row>
   defaultSelected?: readonly React.Key[];
   /** Called with the keys of every ticked row. */
   onSelectedChange?: (selected: React.Key[], rows: Row[]) => void;
-  /** Keeps a row out of the selection — a total line, a row already spent. */
+  /**
+   * Keeps a row out of the selection — a total line, a row already spent.
+   * `index` is the row's position in `rows`.
+   */
   isRowSelectable?: (row: Row, index: number) => boolean;
 
   /** How the rows are handed out. @default 'scroll' */
@@ -381,6 +395,14 @@ export function PlDataTable<Row>({
     []
   );
 
+  // Every row carries its position in `rows` through the search, the sort and
+  // the page, and that position is the `index` every callback is handed and the
+  // key a row gets without `getRowKey`. A position on screen names a different
+  // row after every sort, search and page, so a tick made on page two would
+  // light the row in the same place on page one, and `onSelectedChange` would
+  // hand back the row at that place in `rows`.
+  const indexed = React.useMemo(() => rows.map((row, index) => ({ row, index })), [rows]);
+
   // The query is folded once here rather than once per row per column, which is
   // the difference between a `normalize` call and several thousand of them on
   // every keystroke. See `internal/search.ts`.
@@ -388,15 +410,15 @@ export function PlDataTable<Row>({
 
   const found = React.useMemo(() => {
     if (!doesSearch || needle === '') {
-      return rows;
+      return indexed;
     }
 
     const wanted = columns.filter((column) => !column.unsearchable);
 
-    return rows.filter((row) =>
+    return indexed.filter(({ row }) =>
       searchHaystack(wanted.map((column) => valueOf(column, row))).includes(needle)
     );
-  }, [rows, columns, needle, doesSearch, valueOf]);
+  }, [indexed, columns, needle, doesSearch, valueOf]);
 
   const ordered = React.useMemo(() => {
     if (!doesSort || sort === null) {
@@ -420,8 +442,8 @@ export function PlDataTable<Row>({
       // does rather than needing to know which way round it is being asked. The
       // built-in one takes the direction itself, to keep blanks last both ways.
       column.compare
-        ? column.compare(a, b) * direction
-        : compareValues(valueOf(column, a), valueOf(column, b), direction)
+        ? column.compare(a.row, b.row) * direction
+        : compareValues(valueOf(column, a.row), valueOf(column, b.row), direction)
     );
   }, [found, columns, sort, doesSort, valueOf]);
 
@@ -439,7 +461,10 @@ export function PlDataTable<Row>({
     return ordered.slice(start, end);
   }, [ordered, paging, doesPage, page, pageSize]);
 
-  const shownKeys = React.useMemo(() => shown.map(key), [shown, key]);
+  const shownKeys = React.useMemo(
+    () => shown.map(({ row, index }) => key(row, index)),
+    [shown, key]
+  );
 
   /** The last row a tick was pressed on, so shift can measure a range from it. */
   const anchor = React.useRef<React.Key | null>(null);
@@ -495,7 +520,9 @@ export function PlDataTable<Row>({
   };
 
   const tickedHere = shownKeys.filter((one) => selected.includes(one));
-  const selectableHere = shown.filter(selectable).map(key);
+  const selectableHere = shown
+    .filter(({ row, index }) => selectable(row, index))
+    .map(({ row, index }) => key(row, index));
   const allTicked = selectableHere.length > 0 && tickedHere.length === selectableHere.length;
 
   const toggleAll = () => {
@@ -752,7 +779,10 @@ export function PlDataTable<Row>({
                 </td>
               </tr>
             ) : (
-              shown.map((row, index) => {
+              // `place` is where the row is drawn, for the stripe and the rule
+              // above it. `index` is where it is in `rows`, for everything a
+              // caller is told.
+              shown.map(({ row, index }, place) => {
                 const rowKey = key(row, index);
                 const ticked = selected.includes(rowKey);
                 const canTick = selectable(row, index);
@@ -766,7 +796,7 @@ export function PlDataTable<Row>({
                     aria-selected={ticks ? ticked : undefined}
                     className={cx(
                       rowClasses,
-                      striped && index % 2 === 1 && '[--p-row:var(--plass-stripe)]',
+                      striped && place % 2 === 1 && '[--p-row:var(--plass-stripe)]',
                       ticked && '[--p-row:var(--p-soft)]',
                       lit && 'hover:[--p-row:var(--p-soft)]',
                       clickable && clickableRowClasses
@@ -794,7 +824,7 @@ export function PlDataTable<Row>({
                     }
                   >
                     {ticks ? (
-                      <td style={bodyCellStyle(index)}>
+                      <td style={bodyCellStyle(place)}>
                         <PlCheckbox
                           size={size}
                           color={color}
@@ -821,7 +851,7 @@ export function PlDataTable<Row>({
                     {columns.map((column) => (
                       <td
                         key={column.key}
-                        style={{ ...bodyCellStyle(index), textAlign: column.align ?? 'start' }}
+                        style={{ ...bodyCellStyle(place), textAlign: column.align ?? 'start' }}
                       >
                         {column.render
                           ? column.render(row, index)

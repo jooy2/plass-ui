@@ -569,6 +569,136 @@ void main() {
         expect(keys, isNot(contains('INV-02')));
       });
 
+      testWidgets('keys a row by its place in `rows` without `rowKey`, after a sort', (
+        WidgetTester tester,
+      ) async {
+        List<Object>? keys;
+        List<Invoice>? picked;
+
+        await tester.pumpWidget(
+          host(
+            PlDataTable<Invoice>(
+              columns: columnsOf(),
+              rows: rows,
+              selection: PlDataTableSelection.multiple,
+              onSelectedChanged: (List<Object> next, List<Invoice> chosen) {
+                keys = next;
+                picked = chosen;
+              },
+            ),
+            width: 640,
+          ),
+        );
+
+        await tester.tap(find.text('Customer').first);
+        await tester.pumpAndSettle();
+        // Acme, drawn first and second in `rows`.
+        await tester.tap(find.byType(PlCheckbox).at(1));
+        await tester.pumpAndSettle();
+
+        expect(keys, <Object>[1]);
+        expect(picked!.single.customer, 'Acme');
+        expect(tester.widget<PlCheckbox>(find.byType(PlCheckbox).at(1)).value, isTrue);
+        expect(tester.widget<PlCheckbox>(find.byType(PlCheckbox).at(2)).value, isFalse);
+        expect(tester.widget<PlCheckbox>(find.byType(PlCheckbox).at(3)).value, isFalse);
+      });
+
+      testWidgets('keys a row by its place in `rows` without `rowKey`, on page two', (
+        WidgetTester tester,
+      ) async {
+        final data = <Invoice>[
+          for (var index = 0; index < 15; index += 1)
+            Invoice('INV-$index', 'Customer $index', index),
+        ];
+        List<Object>? keys;
+        List<Invoice>? picked;
+
+        await tester.pumpWidget(
+          host(
+            PlDataTable<Invoice>(
+              columns: columnsOf(),
+              rows: data,
+              selection: PlDataTableSelection.multiple,
+              paging: PlDataTablePaging.pages,
+              onSelectedChanged: (List<Object> next, List<Invoice> chosen) {
+                keys = next;
+                picked = chosen;
+              },
+            ),
+            width: 640,
+            height: 900,
+          ),
+        );
+
+        await tester.tap(find.text('2'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byType(PlCheckbox).at(1));
+        await tester.pumpAndSettle();
+
+        expect(keys, <Object>[10]);
+        expect(picked!.single.id, 'INV-10');
+
+        // The first row of page one sits in the same place and is not the one
+        // that was ticked.
+        await tester.tap(find.text('1'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Customer 0'), findsOneWidget);
+        expect(tester.widget<PlCheckbox>(find.byType(PlCheckbox).at(1)).value, isFalse);
+      });
+
+      testWidgets('hands every callback the row’s place in `rows` rather than on the screen', (
+        WidgetTester tester,
+      ) async {
+        final asked = <(String, int)>[];
+        (Invoice, int)? pressed;
+
+        await tester.pumpWidget(
+          host(
+            PlDataTable<Invoice>(
+              columns: <PlDataTableColumn<Invoice>>[
+                PlDataTableColumn<Invoice>(
+                  key: 'customer',
+                  header: const Text('Customer'),
+                  sortable: true,
+                  value: (Invoice row) => row.customer,
+                  cell: (Invoice row, int index) => Text('${row.customer} $index'),
+                ),
+              ],
+              rows: rows,
+              rowKey: (Invoice row, int _) => row.id,
+              selection: PlDataTableSelection.multiple,
+              isRowSelectable: (Invoice row, int index) {
+                asked.add((row.customer, index));
+
+                return true;
+              },
+              onRowPressed: (Invoice row, int index) => pressed = (row, index),
+            ),
+            width: 640,
+          ),
+        );
+
+        await tester.tap(find.text('Customer').first);
+        await tester.pumpAndSettle();
+        asked.clear();
+        // A rebuild, so the sorted rows are asked about again.
+        await tester.tap(find.byType(PlCheckbox).at(1));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Acme 1'));
+        await tester.pumpAndSettle();
+
+        // Acme, Globex, Initech: second, third and first in `rows`.
+        expect(customers(tester), <String>['Acme 1', 'Globex 2', 'Initech 0']);
+        expect(pressed?.$1.customer, 'Acme');
+        expect(pressed?.$2, 1);
+        expect(asked, isNotEmpty);
+        expect(
+          asked,
+          everyElement(isIn(<(String, int)>[('Initech', 0), ('Acme', 1), ('Globex', 2)])),
+        );
+      });
+
       testWidgets('tints the rows that are chosen', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(

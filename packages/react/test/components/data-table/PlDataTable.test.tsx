@@ -406,6 +406,99 @@ describe('PlDataTable', () => {
       ]);
     });
 
+    it('keys a row by its place in `rows` without `getRowKey`, after a sort', async () => {
+      const onSelectedChange = vi.fn();
+      const screen = await render(
+        <PlDataTable
+          columns={columns}
+          rows={rows}
+          selection="multiple"
+          onSelectedChange={onSelectedChange}
+        />
+      );
+
+      await screen.getByRole('button', { name: /Customer/ }).click();
+      // Acme, drawn first and second in `rows`.
+      await screen.getByRole('checkbox', { name: 'Select row' }).first().click();
+
+      expect(onSelectedChange).toHaveBeenCalledWith([1], [rows[1]]);
+
+      const chosen = screen.getByRole('row', { selected: true }).elements();
+
+      expect(chosen).toHaveLength(1);
+      expect(chosen[0].textContent).toContain('Acme');
+    });
+
+    it('keys a row by its place in `rows` without `getRowKey`, on page two', async () => {
+      const many = Array.from({ length: 15 }, (_, index) => ({
+        id: `INV-${index}`,
+        customer: `Customer ${index}`,
+        total: index
+      }));
+      const onSelectedChange = vi.fn();
+      const screen = await render(
+        <PlDataTable
+          columns={columns}
+          rows={many}
+          selection="multiple"
+          paging="pages"
+          pageSize={10}
+          onSelectedChange={onSelectedChange}
+        />
+      );
+
+      await screen.getByRole('button', { name: 'Page 2' }).click();
+      await screen.getByRole('checkbox', { name: 'Select row' }).first().click();
+
+      expect(onSelectedChange).toHaveBeenCalledWith([10], [many[10]]);
+
+      // The first row of page one sits in the same place and is not the one
+      // that was ticked.
+      await screen.getByRole('button', { name: 'Page 1' }).click();
+
+      expect(screen.getByRole('row', { selected: true }).elements()).toHaveLength(0);
+    });
+
+    it('hands every callback the row’s place in `rows` rather than on the screen', async () => {
+      const onRowClick = vi.fn();
+      const isRowSelectable = vi.fn(() => true);
+      const drawn: number[] = [];
+      const screen = await render(
+        <PlDataTable
+          columns={[
+            {
+              key: 'customer',
+              header: 'Customer',
+              sortable: true,
+              render: (row, index) => {
+                drawn.push(index);
+
+                return row.customer;
+              }
+            }
+          ]}
+          rows={rows}
+          getRowKey={key}
+          selection="multiple"
+          isRowSelectable={isRowSelectable}
+          onRowClick={onRowClick}
+        />
+      );
+
+      await screen.getByRole('button', { name: /Customer/ }).click();
+      drawn.length = 0;
+      isRowSelectable.mockClear();
+
+      // A re-render, so the sorted rows are drawn again from the start.
+      await screen.getByRole('checkbox', { name: 'Select row' }).first().click();
+      (document.querySelector('tbody tr') as HTMLElement).click();
+
+      expect(onRowClick).toHaveBeenCalledWith(rows[1], 1);
+      expect(isRowSelectable).toHaveBeenCalledWith(rows[1], 1);
+      // Acme, Globex, Initech: second, third and first in `rows`.
+      expect(drawn.slice(0, 3)).toEqual([1, 2, 0]);
+    });
+
     it('does not activate the row when the tick is what was pressed', async () => {
       const onRowClick = vi.fn();
       const screen = await render(

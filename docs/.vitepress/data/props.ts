@@ -4273,8 +4273,8 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'getRowKey',
       type: '(row: Row, index: number) => Key',
       description: {
-        ko: '행마다의 안정적인 key. 다른 무엇보다 먼저 정할 값입니다 — 기본값인 index는 정렬이 행을 옮기면 뒤에 남습니다',
-        en: 'A stable key per row, and the one prop worth setting before any other: the index it defaults to stays behind when a sort moves the row'
+        ko: '행마다의 안정적인 key. 다른 무엇보다 먼저 정할 값입니다 — 기본값은 rows 안의 위치라서 정렬과 검색과 페이지는 견디지만, rows가 바뀌면 다른 행을 가리킵니다. index는 화면의 자리가 아니라 rows 안의 위치입니다',
+        en: "A stable key per row, and the one prop worth setting before any other: it defaults to the row's position in rows, which holds through a sort, a search and a page and names a different row once rows changes. index is that position in rows, not the row's place on the screen"
       }
     },
     {
@@ -4330,8 +4330,8 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'onRowClick',
       type: '(row: Row, index: number) => void',
       description: {
-        ko: '행을 활성화할 수 있게 만듭니다. hover 처리도 함께 켜집니다',
-        en: 'Makes rows activatable. Also turns on the hover treatment'
+        ko: '행을 활성화할 수 있게 만듭니다. hover 처리도 함께 켜집니다. index는 rows 안의 위치입니다',
+        en: "Makes rows activatable. Also turns on the hover treatment. index is the row's position in rows"
       }
     },
     {
@@ -4437,8 +4437,8 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'isRowSelectable',
       type: '(row: Row, index: number) => boolean',
       description: {
-        ko: '선택에서 제외할 행을 정합니다 — 합계 줄, 이미 처리된 행',
-        en: 'Keeps a row out of the selection — a total line, a row already spent'
+        ko: '선택에서 제외할 행을 정합니다 — 합계 줄, 이미 처리된 행. index는 rows 안의 위치입니다',
+        en: "Keeps a row out of the selection — a total line, a row already spent. index is the row's position in rows"
       }
     },
     {
@@ -4561,8 +4561,8 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'render',
       type: '(row: Row, index: number) => ReactNode',
       description: {
-        ko: '셀을 직접 그립니다. 없으면 row[key]를 그대로 렌더링합니다',
-        en: 'Renders the cell. Without it the cell is row[key] rendered as-is'
+        ko: '셀을 직접 그립니다. 없으면 row[key]를 그대로 렌더링합니다. index는 화면의 자리가 아니라 rows 안의 위치입니다',
+        en: "Renders the cell. Without it the cell is row[key] rendered as-is. index is the row's position in rows, not its place on the screen"
       }
     },
     {
