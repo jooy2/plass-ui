@@ -221,10 +221,10 @@ cd docs
 npm install
 npm run flutter:demos # Compiles the gallery into public/flutter (needs the Flutter SDK)
 npm run dev           # VitePress — the develop-and-eyeball loop
-npm run build
+npm run build         # Reuses public/flutter when a build is already there
 ```
 
-The site renders the React components from `packages/react/src` through a Vite alias and embeds the Flutter gallery as a frame per preview, so `npm run dev` is the develop-and-eyeball loop for both; there is no separate demo app. Editing a component shows up immediately on the React side; the Flutter side needs `npm run flutter:demos` again.
+The site renders the React components from `packages/react/src` through a Vite alias and embeds the Flutter gallery as a frame per preview, so `npm run dev` is the develop-and-eyeball loop for both; there is no separate demo app. Editing a component shows up immediately on the React side. The Flutter side has to be rebuilt with `npm run flutter:demos -- --force`: without `--force` the script skips the build whenever `public/flutter` already holds one, and `npm run build` reuses that build the same way.
 
 ## Contributing
 

@@ -33,7 +33,7 @@ There is no install at the repository root, and no root `package.json`. Each of 
 
 A few notes that are easy to trip over:
 
-- The Flutter previews on the documentation site are the real package compiled for the web. `cd docs && npm run flutter:demos` builds them into `docs/public/flutter`, which is git-ignored; without it the previews say so rather than rendering something misleading.
+- The Flutter previews on the documentation site are the real package compiled for the web. `cd docs && npm run flutter:demos` builds them into `docs/public/flutter`, which is git-ignored; without it the previews say so rather than rendering something misleading. The script skips the build when one is already there, and `npm run build` reuses it, so after a change to the package or to a demo run `npm run flutter:demos -- --force`.
 - The Dart in the documentation is quoted straight out of `packages/flutter/example/lib/demos/`, so a snippet in the docs is code the analyser has checked. Change the demo, not the Markdown.
 - A change to a component usually means a change to its page in **both** `docs/en` and `docs/ko`, and to the props table in `docs/.vitepress/data/`.
 - A component that exists in both packages should say the same things on one page, with `::: fw react` / `::: fw flutter` around only the parts that genuinely differ, and anything that differs should say why.
