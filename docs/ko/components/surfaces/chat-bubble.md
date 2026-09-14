@@ -9,6 +9,8 @@ order: 4
 
 <Demo src="chat-bubble/hero" :min-height="320" />
 
+::: fw react
+
 ```tsx
 import { PlChatBubble } from 'plass-ui';
 
@@ -21,11 +23,45 @@ import { PlChatBubble } from 'plass-ui';
 </PlChatBubble>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:plass_ui/plass_ui.dart';
+
+const PlChatBubble(
+  name: Text('Ada Lovelace'),
+  time: Text('09:12'),
+  avatar: PlAvatar(name: 'Ada Lovelace'),
+  child: Text('Have a look at the new fills.'),
+);
+
+const PlChatBubble(
+  side: PlChatBubbleSide.end,
+  variant: PlassVariant.solid,
+  status: PlChatBubbleStatus.read,
+  child: Text('Already did.'),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="PlChatBubble" />
 
+::: fw react
+
 네이티브 `<div>` 속성은 행에 그대로 전달됩니다. `color`와 `title`은 둘 다 여기서는 Plass의 prop이라 전달 대상에서 제외됩니다.
+
+:::
+
+::: fw flutter
+
+읽는 사람 자신의 메시지는 목록이 아니라 **방향을 뒤집어서** 행을 반대로 놓습니다. 그래서 아랍어 대화는 따로 말하지 않아도 좌우가 바뀝니다. 안쪽 열은 다시 원래 방향으로 돌려 두는데, 그러지 않으면 그 안의 모든 것이 행과 함께 뒤집히기 때문입니다.
+
+:::
 
 ### PlChatBubbleLinkPreview
 
@@ -111,7 +147,13 @@ import { PlChatBubble } from 'plass-ui';
 
 `media`는 글 위에 가장자리까지 그려지고, 버블 자신의 모서리가 그것을 잘라 냅니다. 버블의 여백이 시트가 아니라 각 구획에 놓여 있는 이유입니다.
 
-링크 카드의 표면은 토큰이 아니라 `currentColor`에서 섞여 나옵니다. 버블에서 채워진 표면과 맨 표면 양쪽에서 모두 동작해야 하는 유일한 부분이기 때문입니다.
+링크 카드의 표면은 토큰이 아니라 <Fw react="`currentColor`" flutter="버블 자신의 잉크" />에서 섞여 나옵니다. 버블에서 채워진 표면과 맨 표면 양쪽에서 모두 동작해야 하는 유일한 부분이기 때문입니다. `solid`에서는 글자가 흰색이라 카드도 옅은 흰빛이 되고, `glass`에서는 글자가 페이지의 잉크라 카드도 옅은 회색이 됩니다. 고정된 토큰이었다면 둘 중 한쪽에서는 보이지 않았을 것입니다.
+
+::: fw flutter
+
+`preview`는 `url` 대신 `onPressed`를, `src` 대신 `ImageProvider`를 받습니다. Flutter에는 자기 내비게이션이 없어서 링크가 어디로 가는지는 앱이 정합니다. [`PlTextLink`](../display/text-link)도 같은 이유로 같은 선택을 했습니다.
+
+:::
 
 <Demo src="chat-bubble/media" :min-height="420">
 
@@ -131,7 +173,17 @@ import { PlChatBubble } from 'plass-ui';
 
 ### actions
 
-손잡이는 행에 손이 닿기 전까지 메시지의 길에서 비켜서 있습니다. 그러지 않으면 읽고 있는 대화 한가운데에 놓이게 됩니다. 그리고 hover할 수 없는 포인터에는 그것을 드러낼 방법이 없으므로, 터치에서는 그냥 언제나 거기 있습니다.
+::: fw react
+
+손잡이는 행에 손이 닿기 전까지 메시지의 길에서 비켜서 있습니다. 그러지 않으면 읽고 있는 대화 한가운데에 놓이게 됩니다. hover할 수 없는 포인터에는 그것을 드러낼 방법이 없으므로, 터치에서는 그냥 언제나 거기 있습니다.
+
+:::
+
+::: fw flutter
+
+손잡이는 메시지 옆에 놓이고 **늘 거기 있습니다**. React 빌드는 hover에서 서서히 드러내고 hover가 없는 곳에서는 조건 없이 보여 줍니다. 여기에는 포인터가 반드시 있는 화면이라는 것이 없으니, 언제나 닿을 수 있는 쪽이 정직한 답입니다.
+
+:::
 
 <Demo src="chat-bubble/actions" :min-height="140">
 
