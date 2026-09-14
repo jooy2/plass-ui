@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { resolveScrollTarget } from '../../internal/scroll-target.js';
 import { useLabels } from '../../internal/labels.js';
 import {
   controlTextLeadingClasses,
@@ -72,23 +73,6 @@ export interface PlAnchorProps extends Omit<React.ComponentPropsWithoutRef<'nav'
 
 /** How far one level of depth indents a row. */
 const INDENT = '0.75rem';
-
-/** What `target` names, or the window when it names nothing. */
-function resolve(target: PlBackTopTarget | undefined): Window | HTMLElement | null {
-  if (target === undefined) {
-    return typeof window === 'undefined' ? null : window;
-  }
-
-  if (typeof target === 'function') {
-    return target();
-  }
-
-  if ('current' in target) {
-    return target.current;
-  }
-
-  return target;
-}
 
 /**
  * Which heading is being read, given where `scroller` is scrolled to.
@@ -208,7 +192,7 @@ export const PlAnchor = /* @__PURE__ */ React.forwardRef<HTMLElement, PlAnchorPr
         return;
       }
 
-      const scroller = resolve(target);
+      const scroller = resolveScrollTarget(target);
 
       if (!scroller) {
         return;

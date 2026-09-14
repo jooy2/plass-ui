@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { PlIconButton } from '../icon-button/PlIconButton.js';
 import { useDefaults } from '../../internal/defaults.js';
+import { resolveScrollTarget, type PlassScrollTarget } from '../../internal/scroll-target.js';
 import { useLabels } from '../../internal/labels.js';
 import { focusablesIn } from '../../internal/focusable.js';
 import { usePrefersReducedMotion } from '../../internal/media.js';
@@ -10,8 +11,7 @@ import { cx, transitionClasses } from '../../internal/styles.js';
 import type { PlassColor, PlassElevation, PlassSize, PlassVariant } from '../../types.js';
 
 /** What is scrolled, and what is watched. */
-export type PlBackTopTarget =
-  Window | HTMLElement | React.RefObject<HTMLElement | null> | (() => Window | HTMLElement | null);
+export type PlBackTopTarget = PlassScrollTarget;
 
 export interface PlBackTopProps extends Omit<React.ComponentPropsWithoutRef<'button'>, 'color'> {
   /**
@@ -64,22 +64,6 @@ function ChevronUp() {
   );
 }
 
-function resolve(target: PlBackTopTarget | undefined): Window | HTMLElement | null {
-  if (target === undefined) {
-    return typeof window === 'undefined' ? null : window;
-  }
-
-  if (typeof target === 'function') {
-    return target();
-  }
-
-  if ('current' in target) {
-    return target.current;
-  }
-
-  return target;
-}
-
 function scrollTopOf(node: Window | HTMLElement): number {
   return node instanceof Window ? node.scrollY : node.scrollTop;
 }
@@ -126,7 +110,7 @@ export const PlBackTop = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlB
     const [shown, setShown] = React.useState(false);
 
     React.useEffect(() => {
-      const node = resolve(target);
+      const node = resolveScrollTarget(target);
 
       if (!node) {
         return undefined;
@@ -152,7 +136,7 @@ export const PlBackTop = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlB
         return;
       }
 
-      const node = resolve(target);
+      const node = resolveScrollTarget(target);
 
       node?.scrollTo({ top: 0, behavior: still ? 'auto' : 'smooth' });
 
