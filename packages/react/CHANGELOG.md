@@ -24,7 +24,7 @@
 
 - **`PlPanes` handles can be named, and say which pane they resize.** A split with two handles read as "separator, 50" twice, with no way to tell them apart, while the Flutter build already took a `label`. `PlPanes` takes a `label` for its handles, and each handle points at the pane before it with `aria-controls`, using the pane's own `id` when it has one.
 
-- **`PlContainer` keeps its `maxWidth` when it is given a `style`.** The caller's `style` replaced the one that carries the measure, so `<PlContainer maxWidth="md" style={{ paddingBlock: 24 }}>` had no width limit at all. The two are now merged, with the caller's declarations laid over the measure.
+- **`PlContainer` keeps its `maxWidth` when it is given a `style`.** The caller's `style` replaced the one that carries the measure, so a `maxWidth="md"` container given <code v-pre>style={{ paddingBlock: 24 }}</code> had no width limit at all. The two are now merged, with the caller's declarations laid over the measure.
 
 - **A `PlHeader` or `PlFooter` inside the page no longer takes over the `PlPageLayout` bar.** Every `PlHeader` and `PlFooter` under a layout registered itself as the layout's bar, and the last one won, so an article's own header inside `<main>` was measured instead of the site's and the sticky sidebars started below the wrong height. When that header went away, the layout measured nothing and the offset fell to 0. Only the bars in the `header` and `footer` slots are measured now.
 
