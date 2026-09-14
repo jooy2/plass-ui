@@ -15354,7 +15354,11 @@ export const propTables: Record<string, PropRow[]> = {
     {
       name: 'minimizeLabel',
       type: 'string',
-      description: { ko: 'button 이름을 덮어씁니다', en: "Overrides the buttons' own names" }
+      default: "'Minimize'",
+      description: {
+        ko: 'minimize button의 이름을 덮어씁니다',
+        en: "Overrides the minimize button's name"
+      }
     },
     {
       name: 'maximizeLabel',
