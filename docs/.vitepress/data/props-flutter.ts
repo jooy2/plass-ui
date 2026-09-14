@@ -3819,6 +3819,15 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }),
     from('PlNavigationMenuItem', 'startIcon', { type: 'Widget?' }),
     from('PlNavigationMenuItem', 'disabled', { type: 'bool', default: 'false' }),
+    {
+      name: 'selected',
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '독자가 지금 있는 화면. 목적지 항목을 스크린 리더에 선택됨으로 알리고 강조색으로 그립니다. 패널을 여는 항목에서는 무시됩니다',
+        en: 'The screen the reader is on. A destination is marked selected for a screen reader and drawn in the accent. Ignored on an item that opens a panel'
+      }
+    },
     from('PlNavigationMenuItem', 'columns', { type: 'int', default: '1' }),
     from('PlNavigationMenuItem', 'children', {
       name: 'links',

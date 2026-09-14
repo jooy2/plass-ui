@@ -7714,6 +7714,15 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'active',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '독자가 지금 있는 페이지. 링크 항목에 aria-current="page"를 달고 강조색으로 그립니다. 패널을 여는 항목에서는 무시됩니다',
+        en: 'The page the reader is on. A link item is marked aria-current="page" and drawn in the accent. Ignored on an item that opens a panel'
+      }
+    },
+    {
       name: 'columns',
       type: 'number',
       default: '1',

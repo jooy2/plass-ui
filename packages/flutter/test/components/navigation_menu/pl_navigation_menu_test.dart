@@ -107,6 +107,42 @@ void main() {
         expect(find.text('Analytics'), findsNothing);
       });
 
+      testWidgets('marks the destination the reader is on, in the accent', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(
+            PlNavigationMenu(
+              items: <PlNavigationMenuItem>[
+                PlNavigationMenuItem(label: 'Pricing', selected: true, onPressed: () {}),
+                PlNavigationMenuItem(label: 'Blog', onPressed: () {}),
+              ],
+            ),
+            width: 600,
+            height: 400,
+            overlay: true,
+          ),
+        );
+
+        expect(
+          tester.getSemantics(find.text('Pricing')),
+          isSemantics(isLink: true, isSelected: true),
+        );
+        expect(
+          tester.getSemantics(find.text('Blog')),
+          isSemantics(isLink: true, isSelected: false),
+        );
+        expect(
+          styleOf(tester, 'Pricing').color,
+          PlassTokens.light().family(PlassColor.primary).accent,
+        );
+        expect(styleOf(tester, 'Blog').color, PlassTokens.light().fg);
+
+        handle.dispose();
+      });
+
       testWidgets('an item with links opens a panel instead', (WidgetTester tester) async {
         final List<String?> seen = <String?>[];
 

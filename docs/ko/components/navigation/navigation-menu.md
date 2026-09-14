@@ -174,6 +174,7 @@ PlNavigationMenu(
 - 진짜 `<a>`로 채워진 진짜 `<nav>`입니다. 이 컴포넌트의 주장이 전부 그것이고, 아래의 모든 것이 거기서 따라 나옵니다.
 - 키보드는 Base UI의 것입니다. 화살표 키가 행을 따라 움직이고, <kbd>Enter</kbd>와 <kbd>Space</kbd>가 패널을 열고, <kbd>Esc</kbd>가 닫으며 focus는 trigger로 돌아가고, <kbd>Tab</kbd>이 열린 패널의 링크로 들어갑니다.
 - trigger는 `aria-expanded`를 보고하므로, 누르면 무엇이 일어날지 미리 알려집니다.
+- `active`는 독자가 지금 있는 목적지를 표시합니다. React에서는 `aria-current="page"`로, Flutter에서는 선택된 노드로 알리며 Flutter의 매개변수 이름은 `selected`입니다. 단어는 열린 패널의 단어와 같은 강조색을 띱니다.
 - `disabled` 항목은 단어를 행에 남기고 아무것도 열지 않습니다. 색을 바꾸는 대신 흐려지는데, 라이브러리 전체에서 `disabled`가 그렇게 보입니다.
 - 팝업은 `<body>` 끝으로 portal되고 positioner가 `.plass-portal`을 지닙니다. CSS reset을 범위 지정한 호스트가 같은 reset을 거는 자리가 그것입니다.
 - 패널이 미끄러지는 대신 셰브런이 돕니다. 여기서 포인터 아래에서 움직이는 것은 없습니다.

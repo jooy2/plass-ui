@@ -174,6 +174,7 @@ Merged rather than replaced: the common reason to write a `rel` by hand is `nofo
 - It is a real `<nav>` full of real `<a>`s. That is the component's whole argument, and everything below follows from it.
 - Base UI owns the keyboard: the arrow keys move along the row, <kbd>Enter</kbd> and <kbd>Space</kbd> open a panel, <kbd>Esc</kbd> closes it and focus returns to the trigger, and <kbd>Tab</kbd> moves into an open panel's links.
 - A trigger reports `aria-expanded`, so a reader is told what pressing it will do.
+- `active` marks the destination the reader is on, as `aria-current="page"` in React and as a selected node in Flutter, where the parameter is `selected`. The word takes the accent, the same one an open panel's word takes.
 - A `disabled` item keeps its word in the row and opens nothing. It is dimmed rather than recoloured, which is what `disabled` looks like everywhere in the library.
 - The popup is portalled to the end of `<body>` and its positioner carries `.plass-portal`, which is where a host that scopes a CSS reset hangs the same reset.
 - The chevron turns rather than the panel sliding. Nothing here moves under the pointer.

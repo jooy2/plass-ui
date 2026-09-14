@@ -26,6 +26,23 @@ describe('PlNavigationMenu', () => {
         .toHaveAttribute('href', '/pricing');
     });
 
+    it('marks the link to the page the reader is on, and no other', async () => {
+      const screen = await render(
+        <PlNavigationMenu>
+          <PlNavigationMenuItem label="Pricing" href="/pricing" active />
+          <PlNavigationMenuItem label="Blog" href="/blog" />
+        </PlNavigationMenu>
+      );
+
+      const current = screen.getByRole('link', { name: 'Pricing' }).element();
+
+      expect(current).toHaveAttribute('aria-current', 'page');
+      expect(current).toHaveClass('aria-[current=page]:text-(--p-accent)');
+      expect(screen.getByRole('link', { name: 'Blog' }).element()).not.toHaveAttribute(
+        'aria-current'
+      );
+    });
+
     it('renders an item with children as something that expands', async () => {
       const screen = await render(
         <PlNavigationMenu>

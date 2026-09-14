@@ -94,6 +94,12 @@ export interface PlNavigationMenuItemProps {
   value?: string;
   /** Unavailable. The word stays in the row and opens nothing. */
   disabled?: boolean;
+  /**
+   * The page the reader is on. A link item is marked `aria-current="page"` and
+   * drawn in the accent, so the row says where the reader is as well as where
+   * they can go. Ignored on an item that opens a panel.
+   */
+  active?: boolean;
   /** How many columns the panel lays its links out in. @default 1 */
   columns?: number;
   /** The panel's contents — usually `PlNavigationMenuLink`s. */
@@ -136,6 +142,8 @@ const triggerClasses = /* @__PURE__ */ [
   focusRingClasses,
   'hover:bg-(--p-soft)',
   'data-[popup-open]:bg-(--p-soft-hover) data-[popup-open]:text-(--p-accent)',
+  // The page the reader is on, in the same accent an open panel's word takes.
+  'aria-[current=page]:text-(--p-accent)',
   // The light going out, which is what `disabled` is everywhere in the library.
   'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
   'data-[disabled]:saturate-[0.35] data-[disabled]:hover:bg-transparent'
@@ -239,6 +247,7 @@ export function PlNavigationMenuItem({
   startIcon,
   value,
   disabled = false,
+  active = false,
   columns = 1,
   children,
   className,
@@ -264,6 +273,7 @@ export function PlNavigationMenuItem({
           href={href}
           target={target}
           rel={safeRel(target, rel)}
+          aria-current={active ? 'page' : undefined}
           className={chrome}
           style={style}
         >

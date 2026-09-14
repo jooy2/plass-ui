@@ -61,6 +61,7 @@ class PlNavigationMenuItem {
     this.onPressed,
     this.startIcon,
     this.disabled = false,
+    this.selected = false,
     this.columns = 1,
     this.links = const <PlNavigationMenuLink>[],
   });
@@ -79,6 +80,11 @@ class PlNavigationMenuItem {
 
   /// Unavailable. The word stays in the row and opens nothing.
   final bool disabled;
+
+  /// The screen the reader is on. A destination is marked selected for a screen
+  /// reader and drawn in the accent, so the row says where the reader is as well
+  /// as where they can go. Ignored on an item that opens a panel.
+  final bool selected;
 
   /// How many columns the panel lays its links out in.
   final int columns;
@@ -357,7 +363,10 @@ class _Trigger extends StatelessWidget {
         onTap: onPressed,
         builder: (BuildContext context, PlassInteraction state) {
           final bool hovered = !item.disabled && state.hovered;
-          final Color ink = open ? family.accent : tokens.fg;
+          // The accent for an open panel's word, and for the screen the reader
+          // is already on.
+          final bool current = !item.opensPanel && item.selected;
+          final Color ink = open || current ? family.accent : tokens.fg;
 
           Widget content = Padding(
             padding: EdgeInsets.symmetric(horizontal: paddingX[density]![size]!),
@@ -439,6 +448,7 @@ class _Trigger extends StatelessWidget {
       button: item.opensPanel,
       link: !item.opensPanel,
       expanded: item.opensPanel ? open : null,
+      selected: item.opensPanel ? null : item.selected,
       enabled: !item.disabled,
       onTap: item.disabled ? null : onPressed,
       child: trigger,
