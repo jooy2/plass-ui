@@ -122,7 +122,7 @@ class PlHowToSteps extends StatelessWidget {
   /// A callback rather than a pair of words, for `PlProgressLinear.formatValue`'s
   /// reason: there is no `Intl` in the framework, and a package that pulled
   /// `package:intl` in would be making a dependency decision on its consumer's
-  /// behalf.
+  /// behalf. Left out, it is the theme's [PlassLabels.howToStep].
   final String Function(int step, int total)? semanticStepLabel;
 
   /// The type scale of the titles and the bodies.
@@ -158,7 +158,7 @@ class PlHowToSteps extends StatelessWidget {
             status: steps[index].status ?? stepStatusAt(index, active),
             numbered: numbered,
             connector: connector,
-            semanticStepLabel: semanticStepLabel ?? _defaultStepLabel,
+            semanticStepLabel: semanticStepLabel ?? PlassTheme.labelsOf(context).howToStep,
             bullet: bullet,
             gap: gap,
             size: size,
@@ -168,8 +168,6 @@ class PlHowToSteps extends StatelessWidget {
       ],
     );
   }
-
-  static String _defaultStepLabel(int step, int total) => 'Step $step of $total';
 }
 
 /// One row of the guide.

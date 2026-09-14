@@ -92,4 +92,23 @@ const PlassLabels fr = PlassLabels(
   meridiem: 'AM/PM',
   start: 'Début',
   end: 'Fin',
+  paginationPage: _paginationPage,
+  ratingValue: _ratingValue,
+  ratingNone: 'Aucune note',
+  carouselSlide: _carouselSlide,
+  removeItem: _removeItem,
+  addCustom: _addCustom,
+  howToStep: _howToStep,
 );
+
+String _paginationPage(int page) => 'Page $page';
+
+String _ratingValue(num value, int count) => '$value sur $count';
+
+String _carouselSlide(int index, int count) => 'Diapositive $index sur $count';
+
+String _removeItem(String name) => 'Retirer $name';
+
+String _addCustom(String query) => 'Ajouter « $query »';
+
+String _howToStep(int step, int total) => 'Étape $step sur $total';

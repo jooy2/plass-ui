@@ -83,19 +83,21 @@ export interface PlPaginationProps
   /**
    * The accessible names, none of which is ever drawn.
    *
-   * They are props rather than being read from a message catalogue for the same
-   * reason `PlTable` takes its `empty` line as one: a library that shipped
-   * translations would have to be told which language a page is in, and the page
-   * already knows.
+   * Left out, each one is read from the label pack a `PlassProvider` set, so a
+   * translated application passes none of them. Given, a prop wins over the
+   * pack for this one pager.
    */
   label?: string;
-  /** Accessible name of a page button. @default `Page {n}` */
+  /** Accessible name of a page button. @default `Page {n}`, from the label pack */
   pageLabel?: (page: number) => string;
   previousLabel?: string;
   nextLabel?: string;
   firstLabel?: string;
   lastLabel?: string;
-  /** The live-region sentence a screen reader hears when the page changes. */
+  /**
+   * The live-region sentence a screen reader hears when the page changes.
+   * @default `Page {n} of {total}`, from the label pack
+   */
   statusLabel?: (page: number, count: number) => string;
 }
 
@@ -229,12 +231,12 @@ export const PlPagination = /* @__PURE__ */ React.forwardRef<HTMLElement, PlPagi
       getPageHref,
       renderLink,
       label: labelProp,
-      pageLabel = (value) => `Page ${value}`,
+      pageLabel: pageLabelProp,
       previousLabel: previousLabelProp,
       nextLabel: nextLabelProp,
       firstLabel: firstLabelProp,
       lastLabel: lastLabelProp,
-      statusLabel = (value, total) => `Page ${value} of ${total}`,
+      statusLabel: statusLabelProp,
       className,
       children,
       ...props
@@ -248,6 +250,8 @@ export const PlPagination = /* @__PURE__ */ React.forwardRef<HTMLElement, PlPagi
     const nextLabel = nextLabelProp ?? labels.paginationNext;
     const firstLabel = firstLabelProp ?? labels.paginationFirst;
     const lastLabel = lastLabelProp ?? labels.paginationLast;
+    const pageLabel = pageLabelProp ?? labels.paginationPage;
+    const statusLabel = statusLabelProp ?? labels.paginationStatus;
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'compact';

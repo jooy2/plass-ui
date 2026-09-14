@@ -92,4 +92,23 @@ const PlassLabels zhHans = PlassLabels(
   meridiem: '上午/下午',
   start: '开始',
   end: '结束',
+  paginationPage: _paginationPage,
+  ratingValue: _ratingValue,
+  ratingNone: '未评分',
+  carouselSlide: _carouselSlide,
+  removeItem: _removeItem,
+  addCustom: _addCustom,
+  howToStep: _howToStep,
 );
+
+String _paginationPage(int page) => '第$page页';
+
+String _ratingValue(num value, int count) => '$value分，满分$count分';
+
+String _carouselSlide(int index, int count) => '第$index张，共$count张';
+
+String _removeItem(String name) => '移除$name';
+
+String _addCustom(String query) => '添加“$query”';
+
+String _howToStep(int step, int total) => '第$step步，共$total步';

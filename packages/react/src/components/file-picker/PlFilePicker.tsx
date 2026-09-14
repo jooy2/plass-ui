@@ -96,7 +96,10 @@ export interface PlFilePickerProps
    * @default true
    */
   showList?: boolean;
-  /** Accessible name of a file's remove button. Receives the file's name. */
+  /**
+   * Accessible name of a file's remove button. Receives the file's name.
+   * @default `Remove {name}`, from the label pack
+   */
   removeLabel?: (name: string) => string;
   /** Stretches to the width of the container. @default true */
   fullWidth?: boolean;
@@ -280,7 +283,7 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
       hint,
       icon,
       showList = true,
-      removeLabel = (name) => `Remove ${name}`,
+      removeLabel: removeLabelProp,
       fullWidth = true,
       disabled = false,
       readOnly = false,
@@ -295,6 +298,7 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
   ) {
     const defaults = useDefaults();
     const labels = useLabels();
+    const removeLabel = removeLabelProp ?? labels.removeItem;
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';

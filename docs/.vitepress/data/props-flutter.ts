@@ -1295,7 +1295,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     {
       name: 'customLabel',
       type: 'Widget Function(String query)?',
-      description: { ko: '그 행이 뭐라고 말할지', en: 'What that row says' }
+      description: {
+        ko: '그 행이 뭐라고 말할지. 주지 않으면 라벨 묶음의 `addCustom`입니다',
+        en: "What that row says. Left out, it is the label pack's `addCustom`"
+      }
     },
     from('PlCombobox', 'onInputValueChange', {
       name: 'onQueryChanged',
@@ -1307,7 +1310,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlCombobox', 'clearable', { type: 'bool', default: 'false' }),
     from('PlCombobox', 'clearLabel', { type: 'String', default: "'Clear'" }),
     from('PlCombobox', 'openLabel', { type: 'String', default: "'Open'" }),
-    from('PlCombobox', 'removeLabel', { type: 'String Function(String label)' }),
+    from('PlCombobox', 'removeLabel', { type: 'String Function(String label)?' }),
     from('PlCombobox', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
     from('PlCombobox', 'size', { type: SIZE, default: 'PlassSize.md' }),
     from('PlCombobox', 'color', { type: COLOR, default: 'PlassColor.primary' }),
@@ -2937,7 +2940,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     },
     from('PlFilePicker', 'showList', { type: 'bool', default: 'true' }),
     from('PlFilePicker', 'removeLabel', {
-      type: 'String Function(String name)',
+      type: 'String Function(String name)?',
       default: "'Remove {name}'"
     }),
     from('PlFilePicker', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
@@ -3467,8 +3470,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'String Function(int step, int total)?',
       default: "'Step 2 of 5'",
       description: {
-        ko: '스크린 리더가 각 단계 앞에 듣는 말. React는 진짜 <ol>에서 공짜로 얻지만 Flutter에는 물려받을 순서 목록이 없습니다',
-        en: 'What a screen reader hears before each step. React gets it free from a real <ol>; Flutter has no ordered list to inherit it from'
+        ko: '스크린 리더가 각 단계 앞에 듣는 말. React는 진짜 <ol>에서 공짜로 얻지만 Flutter에는 물려받을 순서 목록이 없습니다. 주지 않으면 라벨 묶음의 `howToStep`입니다',
+        en: "What a screen reader hears before each step. React gets it free from a real <ol>; Flutter has no ordered list to inherit it from. Left out, it is the label pack's `howToStep`"
       }
     },
     from('PlHowToSteps', 'size', { type: SIZE, default: 'PlassSize.md' }),
@@ -4102,8 +4105,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlPagination', 'disabled', { type: 'bool', default: 'false' }),
     from('PlPagination', 'label', { type: 'String', default: "'Pagination'" }),
     from('PlPagination', 'pageLabel', {
-      type: 'String Function(int)',
-      default: "(page) => 'Page $page'"
+      type: 'String Function(int)?',
+      default: "'Page $page'"
     }),
     {
       name: 'previousLabel · nextLabel · firstLabel · lastLabel',
@@ -4299,10 +4302,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlRating', 'size', { type: SIZE, default: 'PlassSize.md' }),
     from('PlRating', 'color', { type: COLOR, default: 'PlassColor.warning' }),
     from('PlRating', 'label', { type: 'String', default: "'Rating'" }),
-    from('PlRating', 'valueLabel', {
-      type: 'PlRatingValueLabel',
-      default: 'PlRating.defaultValueLabel'
-    }),
+    from('PlRating', 'valueLabel', { type: 'PlRatingValueLabel?' }),
     {
       name: 'focusNode · autofocus',
       type: 'FocusNode? · bool',

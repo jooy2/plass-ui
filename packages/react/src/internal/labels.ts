@@ -91,6 +91,9 @@ export interface PlassLabels {
   carousel: string;
   carouselPrevious: string;
   carouselNext: string;
+  /** What a slide is, said after its name: one slide's `aria-roledescription`.
+   * The reel's own is `carousel`. */
+  slide: string;
   /** The wall of pictures' own landmark. */
   gallery: string;
   /** What a drawing of numbers is called when the caller has not named it. */
@@ -188,6 +191,31 @@ export interface PlassLabels {
   /** Which end of a range the calendar is currently asking for. */
   start: string;
   end: string;
+
+  /* -------------------------------------------------------------------------
+   * The words with a value in them
+   *
+   * Functions rather than strings, because a sentence with a number in it is
+   * not a word with the number stuck on. "Page 3 of 12" is `12페이지 중
+   * 3페이지` in Korean and `第3页，共12页` in Chinese: the order moves, and a
+   * template the component filled in would have fixed it in English's. Each
+   * one is handed its values and answers the whole sentence.
+   * ---------------------------------------------------------------------- */
+
+  /** A page button's name. */
+  paginationPage: (page: number) => string;
+  /** What the pager's live region says once the page has changed. */
+  paginationStatus: (page: number, count: number) => string;
+  /** What one star is called, and a read-only row with a score. */
+  ratingValue: (value: number, count: number) => string;
+  /** And a read-only row with none. */
+  ratingNone: string;
+  /** One slide's name, which is also its dot's. */
+  carouselSlide: (index: number, count: number) => string;
+  /** A remove button named after what it takes away: a file, a chip. */
+  removeItem: (name: string) => string;
+  /** The row that offers what was typed as a value of its own. */
+  addCustom: (query: string) => string;
 }
 
 /**
@@ -226,6 +254,7 @@ export const defaultLabels: PlassLabels = {
   carousel: 'Carousel',
   carouselPrevious: 'Previous slide',
   carouselNext: 'Next slide',
+  slide: 'slide',
   commandPalette: 'Command palette',
   commandPalettePlaceholder: 'Search commands',
   gallery: 'Gallery',
@@ -285,7 +314,15 @@ export const defaultLabels: PlassLabels = {
   second: 'Second',
   meridiem: 'AM/PM',
   start: 'Start',
-  end: 'End'
+  end: 'End',
+
+  paginationPage: (page) => `Page ${page}`,
+  paginationStatus: (page, count) => `Page ${page} of ${count}`,
+  ratingValue: (value, count) => `${value} out of ${count}`,
+  ratingNone: 'No rating',
+  carouselSlide: (index, count) => `Slide ${index} of ${count}`,
+  removeItem: (name) => `Remove ${name}`,
+  addCustom: (query) => `Add “${query}”`
 };
 
 /**

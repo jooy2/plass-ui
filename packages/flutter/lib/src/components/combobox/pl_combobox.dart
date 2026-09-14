@@ -111,7 +111,7 @@ class PlCombobox<T> extends StatefulWidget {
     this.clearable = false,
     this.clearLabel,
     this.openLabel,
-    this.removeLabel = _defaultRemoveLabel,
+    this.removeLabel,
     this.hotKeys,
     this.variant = PlassVariant.glass,
     this.size,
@@ -152,7 +152,7 @@ class PlCombobox<T> extends StatefulWidget {
     this.clearable = false,
     this.clearLabel,
     this.openLabel,
-    this.removeLabel = _defaultRemoveLabel,
+    this.removeLabel,
     this.hotKeys,
     this.variant = PlassVariant.glass,
     this.size,
@@ -241,7 +241,8 @@ class PlCombobox<T> extends StatefulWidget {
   ///
   /// Named after its chip — `Remove Seoul`, not `Remove` — because a screen
   /// reader reading a row of six identical buttons has told the reader nothing.
-  final String Function(String label) removeLabel;
+  /// Left out, it is the theme's [PlassLabels.removeItem].
+  final String Function(String label)? removeLabel;
 
   /// Chords this field answers to, in the vocabulary [PlHotKeys] draws.
   ///
@@ -301,8 +302,6 @@ class PlCombobox<T> extends StatefulWidget {
 
   /// Takes focus as it is inserted into the tree.
   final bool autofocus;
-
-  static String _defaultRemoveLabel(String label) => 'Remove $label';
 
   @override
   State<PlCombobox<T>> createState() => _PlComboboxState<T>();
@@ -753,7 +752,9 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
                 color: family == tokens.family(PlassColor.danger) ? PlassColor.danger : _color,
                 density: PlassDensity.compact,
                 disabled: widget.disabled,
-                deleteLabel: widget.removeLabel(_labelOf(value)),
+                deleteLabel: (widget.removeLabel ?? PlassTheme.labelsOf(context).removeItem)(
+                  _labelOf(value),
+                ),
                 onDeleted: widget.readOnly || widget.disabled || !_usable
                     ? null
                     : () => _remove(value),
@@ -1069,7 +1070,8 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
                       softWrap: false,
                       overflow: TextOverflow.ellipsis,
                       child: row.isCreate
-                          ? (widget.customLabel?.call(row.query!) ?? Text('Add “${row.query}”'))
+                          ? (widget.customLabel?.call(row.query!) ??
+                                Text(PlassTheme.labelsOf(context).addCustom(row.query!)))
                           : Text(row.label),
                     ),
                     if (chosen || row.isCreate)

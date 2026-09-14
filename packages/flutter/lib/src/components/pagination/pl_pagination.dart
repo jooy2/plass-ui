@@ -118,7 +118,7 @@ class PlPagination extends StatelessWidget {
     this.showArrows = true,
     this.disabled = false,
     this.label,
-    this.pageLabel = _defaultPageLabel,
+    this.pageLabel,
     this.previousLabel,
     this.nextLabel,
     this.firstLabel,
@@ -175,14 +175,13 @@ class PlPagination extends StatelessWidget {
 
   /// The name the row is announced by. Never drawn.
   ///
-  /// The names are parameters rather than being read from a message catalogue
-  /// for the same reason a table takes its empty line as one: a library that
-  /// shipped translations would have to be told which language a screen is in,
-  /// and the screen already knows.
+  /// Left out, this and every name below are read from the theme's
+  /// [PlassLabels], so a translated application passes none of them. Given, a
+  /// parameter wins over the pack for this one row.
   final String? label;
 
   /// The name of a page button. Never drawn.
-  final String Function(int page) pageLabel;
+  final String Function(int page)? pageLabel;
 
   /// The name of the previous stepper.
   final String? previousLabel;
@@ -195,8 +194,6 @@ class PlPagination extends StatelessWidget {
 
   /// The jump-to-last one's.
   final String? lastLabel;
-
-  static String _defaultPageLabel(int page) => 'Page $page';
 
   @override
   Widget build(BuildContext context) {
@@ -281,7 +278,7 @@ class PlPagination extends StatelessWidget {
                 density: density,
                 elevation: elevation,
                 disabled: disabled,
-                semanticLabel: pageLabel(number),
+                semanticLabel: (pageLabel ?? words.paginationPage)(number),
                 onPressed: () => go(number),
                 // The digit is drawn and not read: `semanticLabel` already says
                 // "Page 3", and a label that merged both would announce the

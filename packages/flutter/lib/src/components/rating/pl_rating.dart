@@ -4,6 +4,7 @@ library;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/scales.dart';
@@ -50,7 +51,7 @@ class PlRating extends StatefulWidget {
     this.size,
     this.color,
     this.label,
-    this.valueLabel = defaultValueLabel,
+    this.valueLabel,
     this.focusNode,
     this.autofocus = false,
     super.key,
@@ -113,7 +114,10 @@ class PlRating extends StatefulWidget {
   final String? label;
 
   /// What one choice, and the whole control once it is read only, is called.
-  final PlRatingValueLabel valueLabel;
+  ///
+  /// Left out, it is the theme's [PlassLabels.ratingValue], and
+  /// [PlassLabels.ratingNone] at zero.
+  final PlRatingValueLabel? valueLabel;
 
   /// Drive focus from outside. Left out, the row owns one of its own.
   final FocusNode? focusNode;
@@ -121,19 +125,27 @@ class PlRating extends StatefulWidget {
   /// Takes focus as it is inserted into the tree.
   final bool autofocus;
 
-  /// `3 out of 5`, and `No rating` at zero.
+  /// `3 out of 5`, and `No rating` at zero: the English the widget says with no
+  /// theme.
+  ///
+  /// The widget itself reads the theme's [PlassLabels], so a translated
+  /// application hears its own language. This stays for a caller who wants the
+  /// English sentence by name.
   static String defaultValueLabel(double value, int count) {
+    return _valueName(PlassLabels.english, value, count);
+  }
+
+  static String _valueName(PlassLabels words, double value, int count) {
     if (value <= 0) {
-      return 'No rating';
+      return words.ratingNone;
     }
 
     // A score is a small number with at most a couple of decimals, and a
-    // trailing `.0` on every whole star would be read out on every one of them.
-    final String score = value == value.roundToDouble()
-        ? value.toStringAsFixed(0)
-        : value.toString();
+    // trailing `.0` on every whole star would be read out on every one of them,
+    // so a whole one is handed over as an `int`.
+    final num score = value == value.roundToDouble() ? value.round() : value;
 
-    return '$score out of $count';
+    return words.ratingValue(score, count);
   }
 
   @override
@@ -153,6 +165,12 @@ class _PlRatingState extends State<PlRating> {
   bool get _interactive => !widget.readOnly && !widget.disabled && widget.onChanged != null;
 
   int get _stars => widget.count < 1 ? 1 : widget.count;
+
+  /// What a score is called: the caller's words, or else the theme's.
+  String _valueName(double value) {
+    return widget.valueLabel?.call(value, _stars) ??
+        PlRating._valueName(PlassTheme.labelsOf(context), value, _stars);
+  }
 
   double get _step => widget.precision > 0 && widget.precision <= 1 ? widget.precision : 1;
 
@@ -240,7 +258,7 @@ class _PlRatingState extends State<PlRating> {
     if (widget.readOnly) {
       return Semantics(
         image: true,
-        label: widget.valueLabel(widget.value.clamp(0, _stars.toDouble()), _stars),
+        label: _valueName(widget.value.clamp(0, _stars.toDouble())),
         child: ExcludeSemantics(child: row),
       );
     }
@@ -361,7 +379,7 @@ class _PlRatingState extends State<PlRating> {
           inMutuallyExclusiveGroup: true,
           checked: widget.value == score,
           enabled: _interactive,
-          label: widget.valueLabel(score, _stars),
+          label: _valueName(score),
           onTap: _interactive ? () => _choose(score) : null,
           child: const SizedBox.expand(),
         ),

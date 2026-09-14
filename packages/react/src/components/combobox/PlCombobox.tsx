@@ -112,7 +112,7 @@ export interface PlComboboxProps<Multiple extends boolean | undefined = false>
   allowCustom?: boolean;
   /**
    * What that row says. Receives the trimmed query.
-   * @default (query) => `Add “${query}”`
+   * @default `Add “{query}”`, from the label pack
    */
   customLabel?: (query: string) => React.ReactNode;
   /**
@@ -169,7 +169,7 @@ export interface PlComboboxProps<Multiple extends boolean | undefined = false>
   clearLabel?: string;
   /**
    * Accessible name of a chip's remove button. Receives the chip's label.
-   * @default (label) => `Remove ${label}`
+   * @default `Remove {label}`, from the label pack
    */
   removeLabel?: (label: string) => string;
   /** A ref to the text input the user types into. */
@@ -325,7 +325,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
   onOpenChange,
   openLabel: openLabelProp,
   clearLabel: clearLabelProp,
-  removeLabel = (chip: string) => `Remove ${chip}`,
+  removeLabel: removeLabelProp,
   inputRef,
   id,
   className,
@@ -339,6 +339,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
   const openLabel = openLabelProp ?? labels.open;
   const clearLabel = clearLabelProp ?? labels.clear;
   const emptyMessage = emptyMessageProp ?? labels.empty;
+  const removeLabel = removeLabelProp ?? labels.removeItem;
   const size = sizeProp ?? defaults.size ?? 'md';
   const color = colorProp ?? defaults.color ?? 'primary';
   const density = densityProp ?? defaults.density ?? 'default';
@@ -631,7 +632,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
                           <PlusIcon />
                         </span>
                         <span className="truncate">
-                          {customLabel ? customLabel(entry.label) : `Add “${entry.label}”`}
+                          {customLabel ? customLabel(entry.label) : labels.addCustom(entry.label)}
                         </span>
                       </React.Fragment>
                     ) : (

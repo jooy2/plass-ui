@@ -2969,9 +2969,10 @@ export const propTables: Record<string, PropRow[]> = {
     {
       name: 'slideLabel',
       type: '(index: number, count: number) => string',
+      default: '`Slide {index} of {count}`',
       description: {
-        ko: '슬라이드 하나와 그 점의 이름을 짓습니다',
-        en: 'Names one slide, and the dot that goes to it'
+        ko: '슬라이드 하나와 그 점의 이름을 짓습니다. 주지 않으면 라벨 묶음의 `carouselSlide`입니다',
+        en: "Names one slide, and the dot that goes to it. Left out, it is the label pack's `carouselSlide`"
       }
     }
   ],
@@ -3727,7 +3728,10 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'customLabel',
       type: '(query: string) => ReactNode',
       default: 'Add “{query}”',
-      description: { ko: '그 행이 뭐라고 말할지', en: 'What that row says' }
+      description: {
+        ko: '그 행이 뭐라고 말할지. 주지 않으면 라벨 묶음의 `addCustom`입니다',
+        en: "What that row says. Left out, it is the label pack's `addCustom`"
+      }
     },
     {
       name: 'clearable',
@@ -3880,8 +3884,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: '(label: string) => string',
       default: 'Remove {label}',
       description: {
-        ko: 'chip의 × 버튼 접근성 이름. chip의 라벨을 받습니다',
-        en: "Accessible name of a chip's remove button. Receives the chip's label"
+        ko: 'chip의 × 버튼 접근성 이름. chip의 라벨을 받습니다. 주지 않으면 라벨 묶음의 `removeItem`입니다',
+        en: "Accessible name of a chip's remove button. Receives the chip's label. Left out, it is the label pack's `removeItem`"
       }
     },
     {
@@ -5247,8 +5251,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: '(name: string) => string',
       default: '`Remove {name}`',
       description: {
-        ko: '파일 지우기 버튼의 접근 가능한 이름',
-        en: "Accessible name of a file's remove button"
+        ko: '파일 지우기 버튼의 접근 가능한 이름. 주지 않으면 라벨 묶음의 `removeItem`입니다',
+        en: "Accessible name of a file's remove button. Left out, it is the label pack's `removeItem`"
       }
     },
     {
@@ -8554,8 +8558,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: '(page: number) => string',
       default: '`Page {n}`',
       description: {
-        ko: '페이지 버튼의 접근 가능한 이름',
-        en: 'Accessible name of a page button'
+        ko: '페이지 버튼의 접근 가능한 이름. 주지 않으면 라벨 묶음의 `paginationPage`입니다',
+        en: "Accessible name of a page button. Left out, it is the label pack's `paginationPage`"
       }
     },
     {
@@ -8571,8 +8575,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: '(page: number, count: number) => string',
       default: '`Page {n} of {total}`',
       description: {
-        ko: '페이지가 바뀔 때 스크린리더가 듣는 live region 문장',
-        en: 'The live-region sentence a screen reader hears when the page changes'
+        ko: '페이지가 바뀔 때 스크린리더가 듣는 live region 문장. 주지 않으면 라벨 묶음의 `paginationStatus`입니다',
+        en: "The live-region sentence a screen reader hears when the page changes. Left out, it is the label pack's `paginationStatus`"
       }
     }
   ],
@@ -9281,8 +9285,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: '(value: number, count: number) => string',
       default: '`{value} out of {count}`',
       description: {
-        ko: '한 선택지의, 그리고 읽기 전용일 때 컨트롤 전체의 접근 가능한 이름',
-        en: 'What one choice, and the whole control once it is read only, is called'
+        ko: '한 선택지의, 그리고 읽기 전용일 때 컨트롤 전체의 접근 가능한 이름. 주지 않으면 라벨 묶음의 `ratingValue`이고, 0점이면 `ratingNone`입니다',
+        en: "What one choice, and the whole control once it is read only, is called. Left out, it is the label pack's `ratingValue`, and `ratingNone` at zero"
       }
     }
   ],

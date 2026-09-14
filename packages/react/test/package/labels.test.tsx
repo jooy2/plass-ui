@@ -11,11 +11,13 @@ import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import {
   PlAlert,
+  PlCarousel,
   PlChatBubble,
   PlCombobox,
   PlCommandPalette,
   PlFilePicker,
   PlPagination,
+  PlRating,
   PlSpoiler,
   PlStep,
   PlStepper,
@@ -26,6 +28,15 @@ import {
 import * as locales from '../../src/locales/index.js';
 
 const packs = Object.entries(locales);
+
+/**
+ * What an entry says. A sentence with a value in it is a function, and two
+ * functions that say the same thing are still two functions, so it is read with
+ * one set of values before it is compared.
+ */
+function said(entry: unknown): unknown {
+  return typeof entry === 'function' ? (entry as (...values: unknown[]) => string)(3, 12) : entry;
+}
 
 describe('the label set', () => {
   it('ships more than one language', () => {
@@ -44,7 +55,7 @@ describe('the label set', () => {
     }
 
     const untranslated = Object.entries(pack).filter(
-      ([key, value]) => value === defaultLabels[key as keyof typeof defaultLabels]
+      ([key, value]) => said(value) === said(defaultLabels[key as keyof typeof defaultLabels])
     );
 
     // A handful of strings genuinely survive translation — `AM/PM`, `Overlay`,
@@ -82,6 +93,64 @@ describe('a translated provider', () => {
 
     expect(names).toContain('이전 페이지');
     expect(names).toContain('다음 페이지');
+  });
+
+  it('reaches the sentences with a value in them', async () => {
+    await render(
+      <PlassProvider labels={locales.ko}>
+        <PlPagination className="pager-under-test" count={10} page={5} />
+        <PlRating className="rating-under-test" value={3} readOnly />
+        <PlCarousel className="carousel-under-test">
+          <div>One</div>
+          <div>Two</div>
+        </PlCarousel>
+      </PlassProvider>
+    );
+
+    // Every one of these used to be an English template inside the component,
+    // so a Korean page read `Page 5` inside a landmark called `페이지 이동`.
+    expect(
+      document.querySelector(`.pager-under-test [aria-label="${locales.ko.paginationPage(5)}"]`)
+    ).not.toBeNull();
+    expect(document.querySelector('.pager-under-test [aria-live]')?.textContent).toBe(
+      locales.ko.paginationStatus(5, 10)
+    );
+    expect(document.querySelector('.rating-under-test')?.getAttribute('aria-label')).toBe(
+      locales.ko.ratingValue(3, 5)
+    );
+
+    const slide = document.querySelector(
+      `.carousel-under-test [aria-roledescription="${locales.ko.slide}"]`
+    );
+
+    expect(slide?.getAttribute('aria-label')).toBe(locales.ko.carouselSlide(1, 2));
+    expect(
+      document.querySelector('.carousel-under-test')?.getAttribute('aria-roledescription')
+    ).toBe(locales.ko.carousel);
+  });
+
+  it('reaches the row that offers what was typed', async () => {
+    const screen = await render(
+      <PlassProvider labels={locales.ko}>
+        <PlCombobox items={[{ value: 'seoul', label: 'Seoul' }]} />
+      </PlassProvider>
+    );
+
+    await screen.getByRole('combobox').fill('Busan');
+
+    await expect.element(screen.getByText(locales.ko.addCustom('Busan'))).toBeInTheDocument();
+  });
+
+  it('names a file by the pack', async () => {
+    await render(
+      <PlassProvider labels={locales.ko}>
+        <PlFilePicker className="picker-under-test" defaultValue={[new File(['x'], 'notes.txt')]} />
+      </PlassProvider>
+    );
+
+    expect(
+      document.querySelector(`[aria-label="${locales.ko.removeItem('notes.txt')}"]`)
+    ).not.toBeNull();
   });
 
   it('reaches the words that used to be written into a component', async () => {

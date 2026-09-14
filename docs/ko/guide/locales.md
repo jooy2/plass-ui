@@ -31,13 +31,13 @@ order: 3
 
 `locale`은 `Intl`이 형식을 맞추는 BCP 47 태그입니다. 날짜가 `9/4/2026`이 아니라 `2026. 9. 4.`로 읽히는지, 7월을 뭐라고 부르는지, 천 단위 구분이 어디에 들어가는지를 정합니다. 전부 플랫폼의 몫이라 라이브러리는 달 이름을 하나도 싣지 않습니다.
 
-`labels`는 `Intl`이 아무 의견도 갖지 않는 여든여섯 개의 문자열입니다. "닫기"는 날짜도 숫자도 아니고, 플랫폼의 어느 부분도 그 말을 모릅니다.
+`labels`는 `Intl`이 아무 의견도 갖지 않는 아흔네 개의 항목입니다. "닫기"는 날짜도 숫자도 아니고, 플랫폼의 어느 부분도 그 말을 모릅니다.
 
 :::
 
 ::: fw flutter
 
-`labels`는 위젯이 스스로에 대해 말하는 여든일곱 개의 문자열입니다. 그중 둘은 React 쪽에 없고, 이유는 [`PlDataTable`](../components/display/data-table) 페이지에 있습니다. `aria-sort`가 나르는 뜻을 여기서는 말로 해야 합니다. 반대로 React 쪽의 `notifications`는 여기에 없습니다. 브라우저가 토스트를 안내하는 영역의 이름인데, Flutter 화면에는 그런 영역이 없습니다. 프레임워크에 `Intl`이 없으니 날짜는 별도 객체입니다. `PlDateNames`가 달 이름과 요일 약자를 들고 있고, 지정하는 방법은 같습니다. [기본값 정하기](defaults)를 보세요.
+`labels`는 위젯이 스스로에 대해 말하는 아흔네 개의 항목입니다. 그중 셋은 React 쪽에 없습니다. `sortedAscending`과 `sortedDescending`은 `aria-sort`가 나르는 뜻을 여기서는 말로 해야 해서 있고, 자세한 이유는 [`PlDataTable`](../components/display/data-table) 페이지에 있습니다. `howToStep`은 진짜 `<ol>`이면 스크린 리더가 몇 번째 단계인지 알려 주는데 Flutter에는 물려받을 순서 목록이 없어서 있습니다. 반대로 React 쪽의 셋은 여기에 없습니다. `notifications`는 브라우저가 토스트를 안내하는 영역의 이름인데, Flutter 화면에는 그런 영역이 없습니다. `paginationStatus`는 페이저의 live region이 하는 말인데, Flutter 페이저에는 live region이 없습니다. `slide`는 슬라이드의 `aria-roledescription`이고, Flutter의 semantics에는 이것을 담을 자리가 없습니다. 프레임워크에 `Intl`이 없으니 날짜는 별도 객체입니다. `PlDateNames`가 달 이름과 요일 약자를 들고 있고, 지정하는 방법은 같습니다. [기본값 정하기](defaults)를 보세요.
 
 :::
 
@@ -153,7 +153,7 @@ PlassTheme.merge(
 
 ::: fw react
 
-병합은 키 단위입니다. 네 단어만 정한 프로바이더는 나머지 여든두 개를 영어로 두고, 다른 프로바이더 안에 들어간 프로바이더는 자기가 이름 붙인 것만 바꾸고 나머지는 물려받습니다.
+병합은 키 단위입니다. 네 단어만 정한 프로바이더는 나머지 아흔 개를 영어로 두고, 다른 프로바이더 안에 들어간 프로바이더는 자기가 이름 붙인 것만 바꾸고 나머지는 물려받습니다.
 
 주변 컴포넌트와 줄을 맞춰야 하는 자기 컴포넌트를 위해, 걸려 있는 값을 읽는 방법입니다.
 
@@ -183,6 +183,39 @@ final PlassLabels labels = PlassTheme.labelsOf(context);
 ## 키 이름
 
 한 벌은 평평한 목록 하나이고, 키 이름은 그 말을 하는 컴포넌트가 아니라 그 말의 뜻을 따릅니다. `close`는 모달과 드로어, 팝오버, 토스트의 ×이고 한 번만 번역됩니다. 컴포넌트마다 키를 두는 것은 말이 정말로 다를 때뿐입니다. 페이저의 `paginationNext`는 한 페이지를, 캐러셀의 `carouselNext`는 한 장을 움직이므로, 그 둘을 구별하는 언어에는 구별을 놓을 자리가 있습니다.
+
+## 값이 들어가는 문장
+
+여섯 항목에는 숫자나 이름이 들어갑니다. 페이지 버튼의 `paginationPage`, 별 하나의 `ratingValue`, 슬라이드의 `carouselSlide`, 지우기 버튼의 `removeItem`, 입력한 값을 새 값으로 내미는 행의 `addCustom`이 그렇고, 패키지마다 하나씩 더 있습니다. React에는 `paginationStatus`, Flutter에는 `howToStep`입니다. 이 항목들은 문자열이 아니라 함수입니다. 언어가 바뀌면 어순도 바뀝니다. "Page 3 of 12"는 한국어로 `12페이지 중 3페이지`, 중국어로 `第3页，共12页`이고, 컴포넌트가 틀에 값을 끼워 넣었다면 영어 어순이 그대로 남았을 것입니다.
+
+::: fw react
+
+```tsx
+<PlassProvider labels={{ ...ko, paginationPage: (page) => `${page}쪽` }}>
+  <App />
+</PlassProvider>
+```
+
+묶음에 함수가 들어 있으므로 Server Component는 묶음을 넘길 수 없습니다. React는 함수를 서버 경계 너머로 보내지 않습니다. 묶음을 받는 `PlassProvider`는 맨 위에 `'use client'`가 있는 파일에서 렌더링하세요. 애플리케이션 전체를 감싸는 프로바이더라면 대개 이미 그런 파일에 있습니다.
+
+:::
+
+::: fw flutter
+
+```dart
+String _page(int page) => '$page쪽';
+
+PlassTheme.merge(
+  defaults: PlassDefaults(labels: ko.copyWith(paginationPage: _page)),
+  child: child,
+);
+```
+
+클로저가 아니라 최상위 함수를 넘기면 묶음이 `const`로 남습니다. 최상위 함수의 tear-off는 상수라서 `const PlassLabels(paginationPage: _page)`가 컴파일됩니다.
+
+:::
+
+같은 문장을 정하는 컴포넌트 자신의 프로퍼티, 곧 `pageLabel`·`valueLabel`·`slideLabel`·`removeLabel`은 여전히 묶음보다 우선합니다.
 
 ## 언어 추가하기
 

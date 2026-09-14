@@ -172,7 +172,7 @@ The same height ladder as `PlButton`, so a pagination and a button on the same r
 
 - Renders a `<nav>` around a `<ul>`: a named landmark a screen reader can skip, holding a list whose length says how far the pages go.
 - The current page carries `aria-current="page"`, and a visually hidden `aria-live` line says which page of how many. The list length alone does not, once an ellipsis is in it.
-- Every button has an accessible name (`Page 4`, `Next page`). All of them are props, so a page in another language sets its own; nothing here is ever drawn.
+- Every button has an accessible name (`Page 4`, `Next page`). Those names and the live line come from the label pack a `PlassProvider` set, and a prop still wins for one pager. Nothing here is ever drawn.
 - The ellipsis is an `aria-hidden` `<span>`, not a disabled button. It is punctuation, not a control that happens to be unavailable.
 
 :::
@@ -180,7 +180,7 @@ The same height ladder as `PlButton`, so a pagination and a button on the same r
 ::: fw flutter
 
 - The row is a named group, and `label` is that name.
-- Every button has a name of its own, "Page 4", "Next page". All of them are parameters, so a screen in another language sets its own; nothing here is ever drawn.
+- Every button has a name of its own, "Page 4", "Next page". The names come from the theme's label pack, and a parameter still wins for one row. Nothing here is ever drawn.
 - The current page's button is marked **selected**, so a reader moving along the row hears which page is the current one.
 - The digit on a page button is **excluded** from what is read, because `pageLabel` already says it, a label that merged both would announce the number twice.
 - The ellipsis is excluded from semantics entirely. It is punctuation, not a control that happens to be unavailable.

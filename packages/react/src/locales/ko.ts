@@ -30,6 +30,7 @@ export const ko: PlassLabels = {
   carousel: '캐러셀',
   carouselPrevious: '이전 슬라이드',
   carouselNext: '다음 슬라이드',
+  slide: '슬라이드',
   commandPalette: '명령 팔레트',
   commandPalettePlaceholder: '명령 검색',
   gallery: '갤러리',
@@ -89,5 +90,13 @@ export const ko: PlassLabels = {
   second: '초',
   meridiem: '오전/오후',
   start: '시작',
-  end: '종료'
+  end: '종료',
+
+  paginationPage: (page) => `${page}페이지`,
+  paginationStatus: (page, count) => `${count}페이지 중 ${page}페이지`,
+  ratingValue: (value, count) => `${count}점 만점에 ${value}점`,
+  ratingNone: '별점 없음',
+  carouselSlide: (index, count) => `${count}개 중 ${index}번째 슬라이드`,
+  removeItem: (name) => `${name} 삭제`,
+  addCustom: (query) => `“${query}” 추가`
 };

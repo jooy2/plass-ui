@@ -161,7 +161,8 @@ class PlCarousel extends StatefulWidget {
 
   /// Names one slide, and the dot that goes to it.
   ///
-  /// Defaults to `Slide 1 of 3`.
+  /// Left out, it is the theme's [PlassLabels.carouselSlide], `Slide 1 of 3` in
+  /// English.
   final String Function(int index, int count)? slideLabel;
 
   @override
@@ -183,7 +184,9 @@ class _PlCarouselState extends State<PlCarousel> {
 
   int get _index => _count == 0 ? 0 : widget.value.clamp(0, _count - 1);
 
-  String _name(int index) => widget.slideLabel?.call(index, _count) ?? 'Slide $index of $_count';
+  String _name(int index) =>
+      widget.slideLabel?.call(index, _count) ??
+      PlassTheme.labelsOf(context).carouselSlide(index, _count);
 
   @override
   void didUpdateWidget(PlCarousel oldWidget) {

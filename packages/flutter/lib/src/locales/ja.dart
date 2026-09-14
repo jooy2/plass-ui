@@ -92,4 +92,23 @@ const PlassLabels ja = PlassLabels(
   meridiem: '午前/午後',
   start: '開始',
   end: '終了',
+  paginationPage: _paginationPage,
+  ratingValue: _ratingValue,
+  ratingNone: '評価なし',
+  carouselSlide: _carouselSlide,
+  removeItem: _removeItem,
+  addCustom: _addCustom,
+  howToStep: _howToStep,
 );
+
+String _paginationPage(int page) => '$pageページ';
+
+String _ratingValue(num value, int count) => '$count点中$value点';
+
+String _carouselSlide(int index, int count) => '$count枚中$index枚目のスライド';
+
+String _removeItem(String name) => '$nameを削除';
+
+String _addCustom(String query) => '「$query」を追加';
+
+String _howToStep(int step, int total) => '全$totalステップ中$step番目';

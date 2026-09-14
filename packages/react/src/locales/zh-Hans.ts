@@ -30,6 +30,7 @@ export const zhHans: PlassLabels = {
   carousel: '轮播',
   carouselPrevious: '上一张',
   carouselNext: '下一张',
+  slide: '幻灯片',
   commandPalette: '命令面板',
   commandPalettePlaceholder: '搜索命令',
   gallery: '图库',
@@ -89,5 +90,13 @@ export const zhHans: PlassLabels = {
   second: '秒',
   meridiem: '上午/下午',
   start: '开始',
-  end: '结束'
+  end: '结束',
+
+  paginationPage: (page) => `第${page}页`,
+  paginationStatus: (page, count) => `第${page}页，共${count}页`,
+  ratingValue: (value, count) => `${value}分，满分${count}分`,
+  ratingNone: '未评分',
+  carouselSlide: (index, count) => `第${index}张，共${count}张`,
+  removeItem: (name) => `移除${name}`,
+  addCustom: (query) => `添加“${query}”`
 };

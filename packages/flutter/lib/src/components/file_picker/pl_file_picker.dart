@@ -203,7 +203,7 @@ class PlFilePicker extends StatefulWidget {
     this.icon,
     this.showIcon = true,
     this.showList = true,
-    this.removeLabel = _defaultRemoveLabel,
+    this.removeLabel,
     this.variant = PlassVariant.glass,
     this.size,
     this.color,
@@ -287,7 +287,9 @@ class PlFilePicker extends StatefulWidget {
   final bool showList;
 
   /// The name a screen reader gives a file's remove button.
-  final String Function(String name) removeLabel;
+  ///
+  /// Left out, it is the theme's [PlassLabels.removeItem].
+  final String Function(String name)? removeLabel;
 
   /// What the box is made of. Never dyed: what is dropped on it is other
   /// people's content.
@@ -317,8 +319,6 @@ class PlFilePicker extends StatefulWidget {
 
   /// Unavailable.
   final bool disabled;
-
-  static String _defaultRemoveLabel(String name) => 'Remove $name';
 
   @override
   State<PlFilePicker> createState() => _PlFilePickerState();
@@ -620,7 +620,7 @@ class _PlFilePickerState extends State<PlFilePicker> {
             ),
             if (!_inert && widget.onFilesChanged != null)
               PlassDismissButton(
-                label: widget.removeLabel(file.name),
+                label: (widget.removeLabel ?? PlassTheme.labelsOf(context).removeItem)(file.name),
                 onPressed: () => _remove(index),
                 size: scale.size * _removeScale,
                 color: tokens.mutedFg,

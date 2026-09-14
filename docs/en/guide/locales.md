@@ -31,13 +31,13 @@ order: 3
 
 `locale` is the BCP 47 tag `Intl` formats against. It decides that a date reads `2026. 9. 4.` rather than `9/4/2026`, what July is called, and where the thousands separator goes. The platform owns all of it, so the library does not ship a month name.
 
-`labels` is the eighty-six strings `Intl` has no opinion about. "Close" is not a date and not a number; nothing in the platform knows it.
+`labels` is the ninety-four entries `Intl` has no opinion about. "Close" is not a date and not a number; nothing in the platform knows it.
 
 :::
 
 ::: fw flutter
 
-`labels` is the eighty-seven strings the widgets say about themselves. Two are not in the React set, and the page on [`PlDataTable`](../components/display/data-table) says why: `aria-sort` carries a meaning here that has to be said in words. One of the React set is not here: `notifications` names the region a browser announces toasts in, and a Flutter screen has no such region. The framework ships no `Intl`, so the dates are a second object. `PlDateNames` carries the months and the weekday abbreviations, and it is set the same way. See [Setting defaults](defaults).
+`labels` is the ninety-four entries the widgets say about themselves. Three are not in the React set. `sortedAscending` and `sortedDescending` are here because `aria-sort` carries a meaning that has to be said in words on this side, and the page on [`PlDataTable`](../components/display/data-table) has the detail. `howToStep` is here because a real `<ol>` tells a screen reader which step it is on, and Flutter has no ordered list to inherit that from. Three of the React set are not here. `notifications` names the region a browser announces toasts in, and a Flutter screen has no such region. `paginationStatus` is what a pager's live region says, and the Flutter pager has no live region. `slide` is a slide's `aria-roledescription`, which Flutter's semantics have no field for. The framework ships no `Intl`, so the dates are a second object. `PlDateNames` carries the months and the weekday abbreviations, and it is set the same way. See [Setting defaults](defaults).
 
 :::
 
@@ -153,7 +153,7 @@ PlassTheme.merge(
 
 ::: fw react
 
-The merge is per key, so a provider that sets four words leaves the other eighty-two English, and a provider nested inside another one replaces what it names and inherits the rest.
+The merge is per key, so a provider that sets four words leaves the other ninety English, and a provider nested inside another one replaces what it names and inherits the rest.
 
 Reading what is in scope, for a component of your own that has to line up with the ones around it:
 
@@ -183,6 +183,39 @@ It answers `PlassLabels.english` when no theme has decided.
 ## Key names
 
 The set is one flat list, and a key is named after what it means rather than after the component that says it. `close` is the × on a modal, a drawer, a popover and a toast, translated once. A key exists per component only where the word genuinely differs: a pager's `paginationNext` moves by a page and a carousel's `carouselNext` moves by a slide, so a language that distinguishes the two has somewhere to put the distinction.
+
+## Sentences with a value in them
+
+Six entries hold a number or a name: a page button's `paginationPage`, a star's `ratingValue`, a slide's `carouselSlide`, a remove button's `removeItem`, the row that offers a typed value as a new one, `addCustom`, and one more per package, `paginationStatus` in React and `howToStep` in Flutter. They are functions rather than strings, because the order of a sentence moves between languages. "Page 3 of 12" is `12페이지 중 3페이지` in Korean and `第3页，共12页` in Chinese, and a template the component filled in would have kept the English order.
+
+::: fw react
+
+```tsx
+<PlassProvider labels={{ ...ko, paginationPage: (page) => `${page}쪽` }}>
+  <App />
+</PlassProvider>
+```
+
+A pack holds functions, so a Server Component cannot pass one: React does not send a function across that boundary. Render the `PlassProvider` that takes a pack from a file with `'use client'` at the top, which is where a provider around a whole application usually is already.
+
+:::
+
+::: fw flutter
+
+```dart
+String _page(int page) => '$page쪽';
+
+PlassTheme.merge(
+  defaults: PlassDefaults(labels: ko.copyWith(paginationPage: _page)),
+  child: child,
+);
+```
+
+Pass a top-level function rather than a closure and a pack stays `const`. A top-level function's tear-off is a constant, so `const PlassLabels(paginationPage: _page)` compiles.
+
+:::
+
+A component's own prop for the same sentence, such as `pageLabel`, `valueLabel`, `slideLabel` or `removeLabel`, still wins over the pack.
 
 ## Adding a language
 

@@ -4,6 +4,8 @@
 
 ### Breaking changes
 
+- **`PlPagination.pageLabel`, `PlRating.valueLabel`, `PlFilePicker.removeLabel` and `PlCombobox.removeLabel` are nullable.** Left out, each one now reads the theme's label pack, so code that reads one of these fields and calls it needs a null check. `PlRating.defaultValueLabel` still returns the English sentence.
+
 - **Without `rowKey`, a `PlDataTable` row is keyed by its position in `rows`, and every callback's `index` is that position.** The default key and the `index` handed to `rowKey`, `cell`, `onRowPressed` and `isRowSelectable` used to be the row's place in what was drawn, while `onSelectedChanged` looked the rows up by their place in `rows`. Ticking the first row on page two also showed the first row on page one as ticked and handed back `rows[0]`, and a sort or a search did the same. Both now count from the top of `rows`, so a row keeps its key and its `index` wherever a sort, a search or a page puts it. Code that used `index` as a place on the screen, such as numbering the rows as drawn, has to count them itself. A selection kept by default keys now names different rows, and `rowKey` is still the way to key rows that survive `rows` changing.
 
 - **A `Spacer` or an `Expanded` in a `Column` directly inside a `PlGrid` cell throws.** A row now lays each cell out at its own height before stretching it, so on that first pass the `Column` has no height for the flexible child to fill. It used to work because the row asked every cell for an intrinsic height, which is also what made a cell holding a `LayoutBuilder` throw. To pin a footer to the bottom of a stretched cell, give the `Column` `MainAxisAlignment.spaceBetween` instead.
@@ -59,6 +61,8 @@
 - **A `PlScrollZone` no longer hands the wheel back at its ends.** The pointer being on the shelf is the reader saying which of the two things under it they meant to move, and reaching the last card is not them saying something else — so whatever was behind the strip used to start moving at a pixel nobody chose, in the middle of a flick. The new `overscroll` default is `PlassOverscroll.contain`, and `PlassOverscroll.auto` is the old behaviour. Even `auto` now keeps a gesture that was scrolling the strip a moment ago, and gives the signal up only once the reader has paused. A strip everything fits in is not a scroller and holds nothing back either way.
 
 ### Fixed
+
+- **Accessibility sentences with a value in them are read in the language of the label pack.** `PlPagination`'s page names, `PlRating`'s scores, `PlCarousel`'s slide names, the remove and add rows of `PlFilePicker` and `PlCombobox`, and `PlHowToSteps`' step positions were English templates inside each widget. They now come from new `PlassLabels` fields (`paginationPage`, `ratingValue`, `ratingNone`, `carouselSlide`, `removeItem`, `addCustom`, `howToStep`), translated in all seven packs in each language's own word order, and the packs stay `const`. A widget's own parameter still wins.
 
 - **A `PlSpoiler` no longer rebuilds what it covers from scratch when it is revealed.** The child was wrapped in blur, clip and exclusion widgets only while it was covered, so revealing changed the shape of the tree and Flutter discarded the child's `State`, losing a scroll position, a playing video or typed text. The wrappers are now built in both states and only switched, and the child keeps its `State` across a reveal and back.
 

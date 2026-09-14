@@ -30,6 +30,7 @@ export const ja: PlassLabels = {
   carousel: 'カルーセル',
   carouselPrevious: '前のスライド',
   carouselNext: '次のスライド',
+  slide: 'スライド',
   commandPalette: 'コマンドパレット',
   commandPalettePlaceholder: 'コマンドを検索',
   gallery: 'ギャラリー',
@@ -89,5 +90,13 @@ export const ja: PlassLabels = {
   second: '秒',
   meridiem: '午前/午後',
   start: '開始',
-  end: '終了'
+  end: '終了',
+
+  paginationPage: (page) => `${page}ページ`,
+  paginationStatus: (page, count) => `${count}ページ中${page}ページ`,
+  ratingValue: (value, count) => `${count}点中${value}点`,
+  ratingNone: '評価なし',
+  carouselSlide: (index, count) => `${count}枚中${index}枚目のスライド`,
+  removeItem: (name) => `${name}を削除`,
+  addCustom: (query) => `「${query}」を追加`
 };

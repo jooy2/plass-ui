@@ -79,7 +79,7 @@ export interface PlRatingProps extends Omit<
   label?: string;
   /**
    * What one star, and the whole control once it is read only, is called.
-   * @default `{value} out of {count}`
+   * @default `{value} out of {count}`, and `No rating` at zero, from the label pack
    */
   valueLabel?: (value: number, count: number) => string;
 }
@@ -89,11 +89,6 @@ export interface PlRatingProps extends Omit<
  * the clipped one would not line up with the outline underneath it.
  */
 const starClasses = 'flex items-center justify-center';
-
-/** The default accessible name of a score. */
-function defaultValueLabel(value: number, count: number): string {
-  return value <= 0 ? 'No rating' : `${value} out of ${count}`;
-}
 
 /**
  * A score out of five, as a row of stars.
@@ -136,7 +131,7 @@ export const PlRating = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlRatin
       size: sizeProp,
       color: colorProp,
       label: labelProp,
-      valueLabel = defaultValueLabel,
+      valueLabel: valueLabelProp,
       className,
       style,
       onPointerLeave,
@@ -147,6 +142,13 @@ export const PlRating = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlRatin
     const defaults = useDefaults();
     const labels = useLabels();
     const label = labelProp ?? labels.rating;
+    // The pack answers a score and the lack of one as two entries, so a
+    // translator writes two sentences rather than a branch. A caller's own
+    // `valueLabel` is still handed the zero, as it always was.
+    const valueLabel =
+      valueLabelProp ??
+      ((amount: number, total: number) =>
+        amount <= 0 ? labels.ratingNone : labels.ratingValue(amount, total));
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'warning';
 

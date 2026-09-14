@@ -112,6 +112,15 @@ List<String> words(PlassLabels labels) => <String>[
   labels.meridiem,
   labels.start,
   labels.end,
+  // The sentences with a value in them, read with one set of values each so
+  // they can be compared like the words above.
+  labels.paginationPage(3),
+  labels.ratingValue(3, 5),
+  labels.ratingNone,
+  labels.carouselSlide(1, 3),
+  labels.removeItem('notes.txt'),
+  labels.addCustom('Seoul'),
+  labels.howToStep(2, 5),
 ];
 
 void main() {
@@ -283,6 +292,56 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text(ko.acknowledge), findsOneWidget);
+
+      handle.dispose();
+    });
+
+    testWidgets('reaches the sentences with a value in them', (WidgetTester tester) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+      tester.view.physicalSize = const Size(900, 1400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        host(
+          PlassTheme.merge(
+            defaults: const PlassDefaults(labels: ko),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                const PlPagination(count: 10, page: 5),
+                const PlRating(value: 3, readOnly: true),
+                const PlHowToSteps(
+                  steps: <PlHowToStep>[
+                    PlHowToStep(title: Text('Unpack')),
+                    PlHowToStep(title: Text('Plug in')),
+                  ],
+                ),
+                // A remove button is only drawn on a list somebody can change.
+                PlFilePicker(
+                  value: const <PlFile>[PlFile(name: 'notes.txt', size: 12)],
+                  onFilesChanged: (List<PlFile> files) {},
+                ),
+                const PlCarousel(
+                  value: 0,
+                  aspectRatio: 4,
+                  children: <Widget>[Text('A'), Text('B')],
+                ),
+              ],
+            ),
+          ),
+          width: 600,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Every one of these used to be an English template inside the widget, so
+      // a Korean screen read `Page 5` inside a landmark called `페이지 이동`.
+      expect(find.bySemanticsLabel(ko.paginationPage(5)), findsOneWidget);
+      expect(find.bySemanticsLabel(ko.ratingValue(3, 5)), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp(ko.howToStep(2, 2))), findsOneWidget);
+      expect(find.bySemanticsLabel(ko.removeItem('notes.txt')), findsOneWidget);
+      expect(find.bySemanticsLabel(ko.carouselSlide(1, 2)), findsWidgets);
 
       handle.dispose();
     });

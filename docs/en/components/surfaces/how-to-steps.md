@@ -127,6 +127,6 @@ Nothing is renumbered by hand, because nothing was numbered by hand. A step neve
 
 ::: fw flutter
 
-- **The position is written into each step's semantics**, which is the one place this parts company with the React build: there a real `<ol>` gives it for nothing, and Flutter has no ordered list to inherit it from. `semanticStepLabel` is what says the words, and it is a callback rather than a pair of strings because there is no `Intl` in the framework.
+- **The position is written into each step's semantics**, which is the one place this parts company with the React build: there a real `<ol>` gives it for nothing, and Flutter has no ordered list to inherit it from. The words come from the label pack's `howToStep`, and `semanticStepLabel` still wins for one guide. Both are functions rather than a pair of strings, because there is no `Intl` in the framework and the order of the sentence changes between languages.
 
 :::

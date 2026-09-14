@@ -153,11 +153,11 @@ Every dot is a real button named after the slide it goes to, so the row is a way
 ## Accessibility
 
 - The carousel names itself, and every slide has a name of its own.
-- The arrows and the dots are real buttons with real names. `label`, `previousLabel`, `nextLabel` and `slideLabel` decide what those names are.
+- The arrows and the dots are real buttons with real names. `label`, `previousLabel`, `nextLabel` and `slideLabel` decide what those names are, and each one left out comes from the label pack.
 
 ::: fw react
 
-- The whole thing is a `region` with `aria-roledescription="carousel"`, and every slide a `group` with `aria-roledescription="slide"`.
+- The whole thing is a `region` whose `aria-roledescription` is the pack's `carousel`, and every slide a `group` whose `aria-roledescription` is the pack's `slide`, so a translated page does not read the English word after every slide's name.
 - No off-screen slide is hidden. A slide can hold a link or a button, and an `aria-hidden` subtree that is still in the tab order is the exact shape of the bug where a keyboard reader lands somewhere their screen reader refuses to describe. The strip is scrollable, so everything in it is genuinely reachable.
 - Where the reader is is announced as a sentence in a polite live region, and never while `autoPlay` is on.
 - The strip itself is focusable and scrolls with the arrow keys, which is the browser's own key handling on a scroll container, so it is already right under RTL.

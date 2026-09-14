@@ -6,6 +6,8 @@
 
 ### Breaking changes
 
+- **A label pack now holds functions, so a Server Component cannot pass one to `PlassProvider`.** React does not send a function across the server boundary. Render the `PlassProvider` that takes a pack from a file with `'use client'` at the top.
+
 - **Without `getRowKey`, a `PlDataTable` row is keyed by its position in `rows`, and every callback's `index` is that position.** The default key and the `index` handed to `getRowKey`, `render`, `onRowClick` and `isRowSelectable` used to be the row's place in what was drawn, while `onSelectedChange` looked the rows up by their place in `rows`. Ticking the first row on page two also showed the first row on page one as ticked and handed back `rows[0]`, and a sort or a search did the same. Both now count from the top of `rows`, so a row keeps its key and its `index` wherever a sort, a search or a page puts it. Code that used `index` as a place on the screen, such as numbering the rows as drawn, has to count them itself. A selection kept by default keys now names different rows, and `getRowKey` is still the way to key rows that survive `rows` changing.
 
 - **Picking a day in `PlDateTimePicker` keeps the moment inside `minDate` and `maxDate`.** The day that holds a bound stays selectable, and picking it used to keep the clock as it was, or put midnight on it, without checking the bound again. With `minDate={new Date()}`, picking today committed today at 00:00. The clock is now moved into the bounds, up to the next whole minute (or second, with `showSeconds`) at or after `minDate` and down to the last one at or before `maxDate`. A clock that is already inside the bounds is kept as before.
@@ -13,6 +15,8 @@
 - **A lone `width` or `height` on `PlImage` now sizes its box.** Passed alone, either one used to reach the `<img>` as an attribute and change nothing on the page. Now `height={200}` draws a box 200 pixels tall, and `width={320}` one 320 pixels wide. If you passed one of them only as a hint about the file, pass both dimensions of the file, or remove the one.
 
 ### Fixed
+
+- **Accessibility sentences with a value in them are read in the language of the label pack.** `PlPagination`'s page names and live line, `PlRating`'s scores, `PlCarousel`'s slide names and role descriptions, and the remove and add rows of `PlFilePicker` and `PlCombobox` were English templates inside each component, so a Korean page read `Page 5` inside a landmark called `페이지 이동`. They now come from new `PlassLabels` function keys (`paginationPage`, `paginationStatus`, `ratingValue`, `carouselSlide`, `removeItem`, `addCustom`) and the strings `ratingNone` and `slide`, translated in all seven packs in each language's own word order. A component's own prop still wins.
 
 - **Moving the focus in `PlTree` redraws only the rows it moves between.** Every step of the focus rendered every row the tree had loaded again, and the rows inside closed branches were built on every render and thrown away, so holding an arrow key down in a tree of 10,000 nodes stuttered. Rows are now memoised: a step redraws the row the focus left, the row it reached and the branches they sit in, and a closed branch builds its rows only while it is open or closing.
 

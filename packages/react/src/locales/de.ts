@@ -30,6 +30,7 @@ export const de: PlassLabels = {
   carousel: 'Karussell',
   carouselPrevious: 'Vorheriges Bild',
   carouselNext: 'Nächstes Bild',
+  slide: 'Bild',
   commandPalette: 'Befehlspalette',
   commandPalettePlaceholder: 'Befehle durchsuchen',
   gallery: 'Galerie',
@@ -89,5 +90,13 @@ export const de: PlassLabels = {
   second: 'Sekunde',
   meridiem: 'AM/PM',
   start: 'Beginn',
-  end: 'Ende'
+  end: 'Ende',
+
+  paginationPage: (page) => `Seite ${page}`,
+  paginationStatus: (page, count) => `Seite ${page} von ${count}`,
+  ratingValue: (value, count) => `${value} von ${count}`,
+  ratingNone: 'Keine Bewertung',
+  carouselSlide: (index, count) => `Bild ${index} von ${count}`,
+  removeItem: (name) => `${name} entfernen`,
+  addCustom: (query) => `„${query}“ hinzufügen`
 };

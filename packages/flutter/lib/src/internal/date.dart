@@ -350,6 +350,13 @@ class PlassLabels {
     this.meridiem = 'AM/PM',
     this.start = 'Start',
     this.end = 'End',
+    this.paginationPage = _englishPaginationPage,
+    this.ratingValue = _englishRatingValue,
+    this.ratingNone = 'No rating',
+    this.carouselSlide = _englishCarouselSlide,
+    this.removeItem = _englishRemoveItem,
+    this.addCustom = _englishAddCustom,
+    this.howToStep = _englishHowToStep,
   });
 
   /// English, and the default.
@@ -447,6 +454,13 @@ class PlassLabels {
     String? meridiem,
     String? start,
     String? end,
+    String Function(int page)? paginationPage,
+    String Function(num value, int count)? ratingValue,
+    String? ratingNone,
+    String Function(int index, int count)? carouselSlide,
+    String Function(String name)? removeItem,
+    String Function(String query)? addCustom,
+    String Function(int step, int total)? howToStep,
   }) {
     return PlassLabels(
       close: close ?? this.close,
@@ -536,6 +550,13 @@ class PlassLabels {
       meridiem: meridiem ?? this.meridiem,
       start: start ?? this.start,
       end: end ?? this.end,
+      paginationPage: paginationPage ?? this.paginationPage,
+      ratingValue: ratingValue ?? this.ratingValue,
+      ratingNone: ratingNone ?? this.ratingNone,
+      carouselSlide: carouselSlide ?? this.carouselSlide,
+      removeItem: removeItem ?? this.removeItem,
+      addCustom: addCustom ?? this.addCustom,
+      howToStep: howToStep ?? this.howToStep,
     );
   }
 
@@ -807,7 +828,56 @@ class PlassLabels {
 
   /// See [start].
   final String end;
+
+  // The words with a value in them.
+  //
+  // Functions rather than strings, because a sentence with a number in it is
+  // not a word with the number stuck on. "Page 3 of 12" is `12페이지 중
+  // 3페이지` in Korean and `第3页，共12页` in Chinese: the order moves, and a
+  // template the widget filled in would have fixed it in English's. Each one is
+  // handed its values and answers the whole sentence. A pack stays `const` by
+  // passing top-level functions, whose tear-offs are constants.
+
+  /// A page button's name.
+  final String Function(int page) paginationPage;
+
+  /// What one star is called, and a read-only row with a score.
+  ///
+  /// A whole score arrives as an `int`, so interpolating it never reads out a
+  /// trailing `.0`.
+  final String Function(num value, int count) ratingValue;
+
+  /// And a read-only row with none.
+  final String ratingNone;
+
+  /// One slide's name, which is also its dot's.
+  final String Function(int index, int count) carouselSlide;
+
+  /// A remove button named after what it takes away: a file, a chip.
+  final String Function(String name) removeItem;
+
+  /// The row that offers what was typed as a value of its own.
+  final String Function(String query) addCustom;
+
+  /// What a screen reader hears before a how-to step.
+  ///
+  /// It has no counterpart in the React package, for the reason
+  /// [sortedAscending] has none: a real `<ol>` says "item two of five" in the
+  /// reader's own language, and Flutter has no ordered list to inherit it from.
+  final String Function(int step, int total) howToStep;
 }
+
+String _englishPaginationPage(int page) => 'Page $page';
+
+String _englishRatingValue(num value, int count) => '$value out of $count';
+
+String _englishCarouselSlide(int index, int count) => 'Slide $index of $count';
+
+String _englishRemoveItem(String name) => 'Remove $name';
+
+String _englishAddCustom(String query) => 'Add “$query”';
+
+String _englishHowToStep(int step, int total) => 'Step $step of $total';
 
 /// Another name for [PlassLabels], kept because the pickers were the first
 /// widgets that needed any of it.

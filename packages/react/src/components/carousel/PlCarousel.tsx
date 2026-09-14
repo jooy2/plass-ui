@@ -65,7 +65,7 @@ export interface PlCarouselProps
   nextLabel?: string;
   /**
    * How one slide is named to a screen reader, and how its dot is labelled.
-   * @default (index, count) => `Slide ${index} of ${count}`
+   * @default `Slide {index} of {count}`, from the label pack
    */
   slideLabel?: (index: number, count: number) => string;
   /** The slides. Every top-level child becomes one. */
@@ -158,8 +158,7 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';
 
-    const nameSlide =
-      slideLabel ?? ((index: number, total: number) => `Slide ${index} of ${total}`);
+    const nameSlide = slideLabel ?? labels.carouselSlide;
 
     // `toArray` is what drops the `null`s and `false`s a conditional slide
     // leaves behind, and what gives every remaining child a stable key.
@@ -300,7 +299,7 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
       <div
         ref={ref}
         role="region"
-        aria-roledescription="carousel"
+        aria-roledescription={labels.carousel}
         aria-label={label}
         className={cx('flex flex-col', className)}
         style={{ ...surfaceSlots(color, elevation), ...style }}
@@ -347,7 +346,7 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
                   slideRefs.current[slideIndex] = element;
                 }}
                 role="group"
-                aria-roledescription="slide"
+                aria-roledescription={labels.slide}
                 aria-label={nameSlide(slideIndex + 1, count)}
                 // Deliberately *not* `aria-hidden` when off-screen. A slide can
                 // hold a link or a button, and an `aria-hidden` subtree that is

@@ -92,4 +92,23 @@ const PlassLabels ko = PlassLabels(
   meridiem: '오전/오후',
   start: '시작',
   end: '종료',
+  paginationPage: _paginationPage,
+  ratingValue: _ratingValue,
+  ratingNone: '별점 없음',
+  carouselSlide: _carouselSlide,
+  removeItem: _removeItem,
+  addCustom: _addCustom,
+  howToStep: _howToStep,
 );
+
+String _paginationPage(int page) => '$page페이지';
+
+String _ratingValue(num value, int count) => '$count점 만점에 $value점';
+
+String _carouselSlide(int index, int count) => '$count개 중 $index번째 슬라이드';
+
+String _removeItem(String name) => '$name 삭제';
+
+String _addCustom(String query) => '“$query” 추가';
+
+String _howToStep(int step, int total) => '$total단계 중 $step단계';

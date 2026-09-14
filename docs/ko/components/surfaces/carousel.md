@@ -153,11 +153,11 @@ PlCarousel(
 ## Accessibility
 
 - 캐러셀은 스스로 이름을 밝히고, 슬라이드 하나하나도 자기 이름을 가집니다.
-- 화살표와 점은 진짜 이름이 붙은 진짜 버튼입니다. `label`·`previousLabel`·`nextLabel`·`slideLabel`이 그 이름을 정합니다.
+- 화살표와 점은 진짜 이름이 붙은 진짜 버튼입니다. `label`·`previousLabel`·`nextLabel`·`slideLabel`이 그 이름을 정하고, 주지 않은 것은 라벨 묶음에서 가져옵니다.
 
 ::: fw react
 
-- 전체는 `aria-roledescription="carousel"`인 `region`이고, 슬라이드 하나하나는 `aria-roledescription="slide"`인 `group`입니다.
+- 전체는 `aria-roledescription`이 묶음의 `carousel`인 `region`이고, 슬라이드 하나하나는 `aria-roledescription`이 묶음의 `slide`인 `group`입니다. 그래서 번역된 페이지가 슬라이드 이름마다 영어 단어를 덧붙여 읽지 않습니다.
 - 화면 밖 슬라이드를 숨기지 않습니다. 슬라이드는 링크나 버튼을 담을 수 있고, 탭 순서에는 남아 있는데 `aria-hidden`인 서브트리는 스크린 리더가 설명하기를 거부하는 자리에 키보드 독자가 도착하는 바로 그 버그의 모양입니다. 띠는 스크롤되므로 그 안의 모든 것에 진짜로 닿을 수 있습니다.
 - 독자가 어디 있는지는 polite live region에서 문장으로 안내됩니다. 그리고 `autoPlay`가 켜져 있는 동안에는 절대 말하지 않습니다.
 - 띠 자체가 포커스를 받고 방향키로 스크롤됩니다. 스크롤 컨테이너에 대한 브라우저 자신의 키 처리라서 RTL에서도 이미 올바릅니다.
