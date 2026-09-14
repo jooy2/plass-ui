@@ -140,6 +140,43 @@ void main() {
 
         expect(opacitiesOf(tester), <double>[1, 0, 0]);
       });
+
+      testWidgets('keeps turning inside a parent that rebuilds more often than the interval', (
+        WidgetTester tester,
+      ) async {
+        final List<int> seen = <int>[];
+        late StateSetter rebuild;
+
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                rebuild = setState;
+
+                // A new `onIndexChange` on every rebuild, as an inline closure is.
+                return PlAnimateHeadline(
+                  interval: const Duration(milliseconds: 200),
+                  duration: const Duration(milliseconds: 50),
+                  onIndexChange: (int index) => seen.add(index),
+                  children: _lines,
+                );
+              },
+            ),
+            width: 200,
+          ),
+        );
+
+        // Rebuilt every 50ms for twice the interval, with no quiet stretch in
+        // which a timer restarted on every rebuild could still fire.
+        for (int step = 0; step < 10; step += 1) {
+          rebuild(() {});
+          await tester.pump(const Duration(milliseconds: 50));
+        }
+
+        expect(seen, isNotEmpty);
+
+        await tester.pumpWidget(host(const SizedBox.shrink(), width: 200));
+      });
     });
 
     testWidgets('travels one line height unless a rise says otherwise', (

@@ -227,7 +227,19 @@ class _ReelState extends State<_Reel> with SingleTickerProviderStateMixin {
       _showFrom(before);
     }
 
-    _schedule();
+    // Only when something the timer depends on changed. The headline hands a
+    // new reel down every time its parent builds, so a parent that rebuilds
+    // every second restarted the 2600ms timer before it ever fired, and the
+    // line never changed.
+    if (widget.running != oldWidget.running ||
+        widget.interval != oldWidget.interval ||
+        widget.delay != oldWidget.delay ||
+        widget.index != oldWidget.index ||
+        widget.loop != oldWidget.loop ||
+        widget.children.length != oldWidget.children.length ||
+        before != _active) {
+      _schedule();
+    }
   }
 
   @override

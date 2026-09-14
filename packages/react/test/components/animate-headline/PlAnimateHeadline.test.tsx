@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
+import * as React from 'react';
 import { PlAnimateHeadline } from 'plass-ui';
 
 describe('PlAnimateHeadline', () => {
@@ -186,6 +187,33 @@ describe('PlAnimateHeadline', () => {
       const lines = document.querySelectorAll('.headline-under-test > *');
 
       expect(lines[0]).toHaveAttribute('data-state', 'active');
+    });
+
+    it('keeps turning inside a parent that renders more often than the interval', async () => {
+      function Ticking() {
+        const [, setTick] = React.useState(0);
+        const [, setShown] = React.useState(0);
+
+        React.useEffect(() => {
+          const timer = window.setInterval(() => setTick((tick) => tick + 1), 50);
+
+          return () => window.clearInterval(timer);
+        }, []);
+
+        // An inline handler, a new function on every one of those renders.
+        return (
+          <PlAnimateHeadline interval={200} duration={10} onIndexChange={(next) => setShown(next)}>
+            <span>faster</span>
+            <span>simpler</span>
+          </PlAnimateHeadline>
+        );
+      }
+
+      const screen = await render(<Ticking />);
+
+      await expect
+        .element(screen.getByText('simpler'), { timeout: 2000 })
+        .toHaveAttribute('data-state', 'active');
     });
   });
 

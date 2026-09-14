@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **`PlAnimateHeadline` keeps turning inside a parent that rebuilds often.** Every rebuild of the parent restarted the timer, so inside a parent that rebuilt every second the 2600ms interval was reset before it ever fired and the line never changed. The timer now restarts only when the line, the count, `index`, `loop`, `interval`, `delay` or the running state changes.
+
 - **A hover effect on content that takes no focus adds no stop to the tab order.** `PlassAnimateTrigger.hover` wrapped the child in a `FocusableActionDetector`, which takes the focus by default, so Tab stopped on every `PlAnimate*` with a hover trigger, and a screen reader found a focusable node with no name, such as one around a picture. Its callbacks also only fired while focus highlights were in keyboard mode, so on a touch device focus moved in by a tap did not start the effect. The effect now starts from a `MouseRegion` and from the focus landing on something inside it, as in the React build, and the widget takes no focus and adds nothing to the semantics tree.
 
 - **When animations are turned off, the `PlAnimateMarquee` items past the edge of the box can be reached.** The strip stood still, but the box still clipped it, so with ten headlines in a 400-pixel box only the first one or two could ever be seen. Only the first copy is now laid down, in a box that scrolls along it and is a tab stop while there is anything to scroll, so the arrow keys, Page Up, Page Down, Home and End move it. A vertical marquee scrolls down its own axis.

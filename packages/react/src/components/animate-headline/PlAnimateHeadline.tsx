@@ -149,6 +149,16 @@ export const PlAnimateHeadline = /* @__PURE__ */ React.forwardRef<
     onIndexChange?.(next);
   }, [active, count, loop, index, onIndexChange]);
 
+  // The timer reads `advance` through a ref. `advance` is a new function
+  // whenever an inline `onIndexChange` is, so with it among the effect's
+  // dependencies a parent that renders every second restarted the timer before
+  // it ever fired, and the line never changed.
+  const advanceRef = React.useRef(advance);
+
+  React.useEffect(() => {
+    advanceRef.current = advance;
+  });
+
   /**
    * The reel only turns on its own when it was not handed an `index`. A
    * controlled Headline is somebody else's timer, and a second one running
@@ -170,13 +180,13 @@ export const PlAnimateHeadline = /* @__PURE__ */ React.forwardRef<
     const timer = setTimeout(
       () => {
         turned.current = true;
-        advance();
+        advanceRef.current();
       },
       interval + (turned.current ? 0 : delay)
     );
 
     return () => clearTimeout(timer);
-  }, [index, count, run.state, interval, delay, advance, loop, active]);
+  }, [index, count, run.state, interval, delay, loop, active]);
 
   return (
     <div
