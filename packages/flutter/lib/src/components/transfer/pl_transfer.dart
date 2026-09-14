@@ -192,6 +192,40 @@ class _PlTransferState extends State<PlTransfer> {
   FocusNode _focusFor(String value) => _rowFocus.putIfAbsent(value, FocusNode.new);
 
   @override
+  void didUpdateWidget(PlTransfer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final Set<String> present = widget.items.map((PlTransferItem item) => item.value).toSet();
+
+    if (_rowFocus.keys.any((String value) => !present.contains(value))) {
+      WidgetsBinding.instance.addPostFrameCallback((Duration _) => _releaseRowFocus());
+    }
+  }
+
+  /// Lets go of the nodes of rows whose values have left [PlTransfer.items].
+  ///
+  /// Not in [didUpdateWidget] itself: the rows that hold those nodes are still
+  /// in the tree until this frame is built, and a node disposed under a mounted
+  /// row, or under the focus, breaks the row. Once the frame is done they are
+  /// gone, and a value that came back in the meantime keeps its node.
+  void _releaseRowFocus() {
+    if (!mounted) {
+      return;
+    }
+
+    final Set<String> present = widget.items.map((PlTransferItem item) => item.value).toSet();
+
+    _rowFocus.removeWhere((String value, FocusNode node) {
+      if (present.contains(value)) {
+        return false;
+      }
+
+      node.dispose();
+      return true;
+    });
+  }
+
+  @override
   void dispose() {
     _sourceSearch.dispose();
     _targetSearch.dispose();

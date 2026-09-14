@@ -386,6 +386,54 @@ void main() {
       });
     });
 
+    group('items that change', () {
+      testWidgets('lets go of the focus node of a row whose item is gone', (
+        WidgetTester tester,
+      ) async {
+        Widget transfer(List<PlTransferItem> shown) {
+          return host(PlTransfer(items: shown, height: 160), width: 700, height: 400);
+        }
+
+        FocusNode nodeOf(String label) {
+          return tester.widget<PlCheckbox>(find.widgetWithText(PlCheckbox, label)).focusNode!;
+        }
+
+        await tester.pumpWidget(transfer(items));
+
+        final FocusNode role = nodeOf('Role');
+        final FocusNode email = nodeOf('Email');
+
+        role.requestFocus();
+        await tester.pumpAndSettle();
+        expect(role.hasPrimaryFocus, isTrue);
+
+        // The row goes while it holds the focus, which is where a node disposed
+        // before its row left the tree would break the frame.
+        await tester.pumpWidget(
+          transfer(items.where((PlTransferItem item) => item.value != 'role').toList()),
+        );
+        await tester.pumpAndSettle();
+
+        expect(tester.takeException(), isNull);
+        expect(() => ChangeNotifier.debugAssertNotDisposed(role), throwsFlutterError);
+        // A row that is still there keeps the node it had.
+        expect(nodeOf('Email'), same(email));
+        expect(ChangeNotifier.debugAssertNotDisposed(email), isTrue);
+
+        // An item that comes back is given a node of its own, and takes the focus.
+        await tester.pumpWidget(transfer(items));
+        await tester.pumpAndSettle();
+
+        final FocusNode again = nodeOf('Role');
+
+        again.requestFocus();
+        await tester.pumpAndSettle();
+
+        expect(again, isNot(same(role)));
+        expect(again.hasPrimaryFocus, isTrue);
+      });
+    });
+
     group('the shell', () {
       testWidgets('is never dyed, whatever colour it is given', (WidgetTester tester) async {
         await tester.pumpWidget(
