@@ -823,8 +823,8 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'action',
       type: 'ReactNode',
       description: {
-        ko: '헤더 끝, chevron 앞에 고정되는 컨트롤. trigger 바깥에 놓이므로 버튼을 넣어도 됩니다',
-        en: 'A control pinned to the end of the header, before the chevron. It sits outside the trigger, so a button is safe there'
+        ko: '헤더 끝, chevron 뒤에 고정되는 컨트롤. trigger 바깥에 놓이므로 버튼을 넣어도 됩니다',
+        en: 'A control pinned to the end of the header, after the chevron. It sits outside the trigger, so a button is safe there'
       }
     },
     {

@@ -294,8 +294,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlAccordionItem', 'action', {
       type: 'Widget?',
       description: {
-        ko: '헤더 끝, chevron 앞에 고정되는 컨트롤. 접히는 부분 바깥이라 버튼을 넣어도 됩니다',
-        en: 'A control pinned to the end of the header, before the chevron. It sits outside the fold, so a button is safe there'
+        ko: '헤더 끝, chevron 뒤에 고정되는 컨트롤. 접히는 부분 바깥이라 버튼을 넣어도 됩니다',
+        en: 'A control pinned to the end of the header, after the chevron. It sits outside the fold, so a button is safe there'
       }
     }),
     from('PlAccordionItem', 'truncate', { type: 'bool', default: 'false' }),

@@ -110,7 +110,7 @@ export interface PlAccordionItemProps extends Omit<
   /** Content before the title — an icon, a status dot, a count. */
   startIcon?: React.ReactNode;
   /**
-   * A control pinned to the end of the header, before the chevron.
+   * A control pinned to the end of the header, after the chevron.
    *
    * Deliberately outside the trigger: a header that both folds and holds a
    * switch has two things to press, and one of them cannot be nested inside the

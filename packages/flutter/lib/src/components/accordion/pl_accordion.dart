@@ -108,7 +108,7 @@ class PlAccordionItem<T> {
   /// Content before the title.
   final Widget? startIcon;
 
-  /// A control pinned to the end of the header, before the chevron.
+  /// A control pinned to the end of the header, after the chevron.
   ///
   /// Deliberately outside the part that folds: a header that both folds and
   /// holds a switch has two things to press, and one of them cannot be inside
