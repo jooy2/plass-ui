@@ -97,10 +97,20 @@ abstract class PlConfirmController {
 /// branch after the answer torn in half across a callback.
 ///
 /// It is [PlToastProvider]'s arrangement for the same reason and with the same
-/// trade: one widget near the root, and a lookup everywhere else.
+/// trade: one widget high in the tree, and a lookup everywhere else.
+///
+/// It goes **inside** the application rather than around it, because above a
+/// `WidgetsApp` or a `MaterialApp` there is no `Directionality` yet. `builder`
+/// is the place, and what `builder` returns sits above the navigator and the
+/// navigator's [Overlay] — so the dialog needs one of its own, or `confirm`
+/// fails with "No Overlay widget found".
 ///
 /// ```dart
-/// PlConfirmProvider(child: MyApp())
+/// WidgetsApp(
+///   // …
+///   builder: (BuildContext context, Widget? child) =>
+///       Overlay.wrap(child: PlConfirmProvider(child: child!)),
+/// )
 /// ```
 ///
 /// ```dart

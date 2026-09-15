@@ -188,7 +188,10 @@ abstract class PlToastController {
 /// message.
 ///
 /// ```dart
-/// PlToastProvider(child: MyApp())
+/// WidgetsApp(
+///   // …
+///   builder: (BuildContext context, Widget? child) => PlToastProvider(child: child!),
+/// )
 /// ```
 ///
 /// ```dart
@@ -197,13 +200,15 @@ abstract class PlToastController {
 /// );
 /// ```
 ///
-/// Wrap the application once. Everything about how a toast *looks* is decided
-/// here — where the stack sits, how wide it is, which material it wears, how
-/// long it lasts — so the call site stays the one thing it should be: what
-/// happened.
+/// One of these, once, and it goes **inside** the application rather than
+/// around it, because above a `WidgetsApp` or a `MaterialApp` there is no
+/// `Directionality` yet. Everything about how a toast *looks* is decided here —
+/// where the stack sits, how wide it is, which material it wears, how long it
+/// lasts — so the call site stays the one thing it should be: what happened.
 ///
 /// The stack is a layer over whatever the provider wraps, so it needs no
-/// [Overlay]: the provider is already above everything it has to cover.
+/// [Overlay] of its own: the provider is already above everything it has to
+/// cover, and `builder` is therefore all it asks for.
 class PlToastProvider extends StatefulWidget {
   /// Creates a provider.
   const PlToastProvider({
