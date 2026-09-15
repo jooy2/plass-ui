@@ -116,6 +116,74 @@ export const popupPaddingClasses: Record<PlassSize, string> = {
 };
 
 /* ---------------------------------------------------------------------------
+ * The arrow
+ * ------------------------------------------------------------------------- */
+
+/**
+ * Where a side puts the wedge, and which way it is turned.
+ *
+ * Base UI positions it and reports which side the popup ended up on. It is
+ * drawn pointing down once and turned to match — a rotation of a glyph, which
+ * is the one allowance the no-transform rule makes. The `-1px` is what tucks
+ * the wedge's base under the plate's own border so the two hairlines meet.
+ */
+const arrowSideClasses = /* @__PURE__ */ [
+  'data-[side=top]:bottom-[-1px]',
+  'data-[side=bottom]:top-[-1px] data-[side=bottom]:rotate-180',
+  'data-[side=left]:right-[-1px] data-[side=left]:-rotate-90',
+  'data-[side=right]:left-[-1px] data-[side=right]:rotate-90'
+].join(' ');
+
+export interface PopupArrowProps {
+  /**
+   * The `Arrow` part of whichever Base UI popup this is — `Popover.Arrow`,
+   * `PreviewCard.Arrow`, `Tooltip.Arrow`. Each of the three roots has its own,
+   * and only the primitive knows where to put it.
+   */
+  as: React.ElementType<{ className?: string; children?: React.ReactNode }>;
+  /** How wide the wedge is, in pixels. Its height is half of that. */
+  size: number;
+}
+
+/**
+ * The wedge that points a floating sheet at what opened it.
+ *
+ * One drawing for all three, and it is the *stroked* one: a triangle filled
+ * with the sheet's own `--plass-glass-press`, with the hairline drawn along its
+ * two slanted sides only.
+ *
+ * Both of those are the glass rules rather than a preference. The fill is the
+ * same one declaration the plate carries, so the wedge stays on the plate's
+ * rung of the opacity ladder — a wedge stacked out of a line triangle and a
+ * fill triangle composites two translucent whites and comes out lighter than
+ * the sheet it grew from, which in the dark theme is 0.25 against the plate's
+ * 0.15. And `--plass-glass-line` is a cut edge rather than a colour to fill
+ * with, so it is stroked: on the two sides that are a cut edge, and not across
+ * the base, which is not one — the plate is on the other side of it.
+ *
+ * `non-scaling-stroke` is what keeps that hairline one pixel at every `size`.
+ * The path is written in a 10×5 viewBox and the box is drawn at whatever the
+ * component's ladder says, so a stroke that scaled would be thinner than the
+ * plate's border on a small sheet and thicker on a large one.
+ */
+export function PopupArrow({ as: Arrow, size }: PopupArrowProps) {
+  return (
+    <Arrow className={arrowSideClasses}>
+      <svg width={size} height={size / 2} viewBox="0 0 10 5" aria-hidden="true" className="block">
+        <path d="M0 0h10L5 5z" fill="var(--plass-glass-press)" />
+        <path
+          d="M0 0 5 5 10 0"
+          fill="none"
+          stroke="var(--plass-glass-line)"
+          strokeWidth="1"
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+    </Arrow>
+  );
+}
+
+/* ---------------------------------------------------------------------------
  * The shell
  * ------------------------------------------------------------------------- */
 

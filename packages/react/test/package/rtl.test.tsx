@@ -264,12 +264,8 @@ const deliberate: Record<string, string> = {
     'the disc is placed from `offsetLeft`, as above',
   'src/components/drawer/PlDrawer.tsx':
     "a drawer's `side` is physical — `PlassSide` is — so the corners it rounds are too",
-  'src/components/tooltip/PlTooltip.tsx':
-    "the arrow is placed against Base UI's own physical `data-side`",
-  'src/components/popover/PlPopover.tsx':
-    "the arrow is placed against Base UI's `data-side`, as above",
-  'src/components/hover-card/PlHoverCard.tsx':
-    "the arrow is placed against Base UI's `data-side`, as above",
+  'src/internal/picker.tsx':
+    "the one popup arrow `PlTooltip`, `PlPopover` and `PlHoverCard` draw is placed against Base UI's own physical `data-side`",
   'src/components/window-pane/PlWindowPane.tsx':
     'the eight resize handles are physical because the cursors are: `nwse-resize` is the corner the platform draws, and the geometry under a dragged window is `left`/`top`. Everything the chrome does — which end the controls are on, which side the title starts from — stays logical'
 };

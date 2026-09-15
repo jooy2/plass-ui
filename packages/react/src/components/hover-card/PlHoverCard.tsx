@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
 import { useDefaults } from '../../internal/defaults.js';
+import { PopupArrow } from '../../internal/picker.js';
 import {
   cx,
   glassClasses,
@@ -221,40 +222,7 @@ export function PlHoverCard({
             }}
             {...props}
           >
-            {arrow ? (
-              <PreviewCard.Arrow
-                // Base UI positions the wedge and reports which side it ended up
-                // on. It is drawn pointing down once and turned to match — a
-                // rotation of a glyph, which is the one allowance the
-                // no-transform rule makes.
-                className={cx(
-                  'data-[side=top]:bottom-[-1px]',
-                  'data-[side=bottom]:top-[-1px] data-[side=bottom]:rotate-180',
-                  'data-[side=left]:right-[-1px] data-[side=left]:-rotate-90',
-                  'data-[side=right]:left-[-1px] data-[side=right]:rotate-90'
-                )}
-              >
-                <svg
-                  width={arrowSize}
-                  height={arrowSize / 2}
-                  viewBox="0 0 10 5"
-                  aria-hidden="true"
-                  className="block"
-                >
-                  <path d="M0 0h10L5 5z" fill="var(--plass-glass-press)" />
-                  {/* Only the two slanted sides, so the wedge continues the
-                      sheet's hairline instead of drawing a line across the edge
-                      it is growing out of. */}
-                  <path
-                    d="M0 0 5 5 10 0"
-                    fill="none"
-                    stroke="var(--plass-glass-line)"
-                    strokeWidth="1"
-                    vectorEffect="non-scaling-stroke"
-                  />
-                </svg>
-              </PreviewCard.Arrow>
-            ) : null}
+            {arrow ? <PopupArrow as={PreviewCard.Arrow} size={arrowSize} /> : null}
 
             {hasHeader ? (
               <div className={cx('flex min-w-0 flex-col', sheetHeaderGapClasses[size])}>

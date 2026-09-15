@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { Tooltip as BaseUITooltip } from '@base-ui/react/tooltip';
+import { PopupArrow } from '../../internal/picker.js';
 import {
   glassClasses,
   metaTextClasses,
@@ -231,40 +232,7 @@ export function PlTooltip({
             style={{ ...surfaceSlots(color, 3), ...style }}
             {...props}
           >
-            {arrow ? (
-              <BaseUITooltip.Arrow
-                // Base UI positions the arrow and reports which side it ended up
-                // on. The wedge is drawn pointing down and turned to match — a
-                // rotation of a glyph, which is the same allowance the chevron
-                // takes. Nothing with text in it moves.
-                className={[
-                  'data-[side=top]:bottom-[-1px]',
-                  'data-[side=bottom]:top-[-1px] data-[side=bottom]:rotate-180',
-                  'data-[side=left]:right-[-1px] data-[side=left]:-rotate-90',
-                  'data-[side=right]:left-[-1px] data-[side=right]:rotate-90'
-                ].join(' ')}
-              >
-                {/* The wedge is drawn twice: the hairline first, then the fill
-                    over it a pixel down. A single filled triangle would leave
-                    the plate's own edge running straight across the base of the
-                    arrow, which is a sheet with a notch rather than a sheet with
-                    a point. */}
-                <svg
-                  width={arrowSize}
-                  height={arrowSize / 2}
-                  viewBox="0 0 10 5"
-                  aria-hidden="true"
-                  className="block"
-                >
-                  <path d="M0 0h10L5 5z" fill="var(--plass-glass-line)" />
-                  <path
-                    d="M0 0h10L5 5z"
-                    fill="var(--plass-glass-press)"
-                    transform="translate(0 -1)"
-                  />
-                </svg>
-              </BaseUITooltip.Arrow>
-            ) : null}
+            {arrow ? <PopupArrow as={BaseUITooltip.Arrow} size={arrowSize} /> : null}
             {content}
           </BaseUITooltip.Popup>
         </BaseUITooltip.Positioner>
