@@ -2093,7 +2093,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlImage', 'preview', { type: 'bool', default: 'false' }),
-    from('PlImage', 'previewLabel', { type: 'String?', default: "'Preview'" }),
+    from('PlImage', 'previewLabel', {
+      type: 'String?',
+      default: "'Preview'",
+      description: {
+        ko: '미리 보기 오버레이의 이름. 사진 버튼의 이름에도 쓰여, semanticLabel 뒤에 소문자로 붙어 "A portrait — preview"가 되고 semanticLabel이 없으면 이 값만으로 이름이 됩니다',
+        en: 'The name of the preview overlay. It also names the picture\'s press target: after semanticLabel and in lower case, "A portrait — preview", or on its own when there is no semanticLabel'
+      }
+    }),
     from('PlImage', 'onStatusChange', {
       name: 'onStatusChanged',
       type: 'ValueChanged<PlImageStatus>?'

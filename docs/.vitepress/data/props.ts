@@ -14673,8 +14673,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'string',
       default: "'Preview'",
       description: {
-        ko: '미리 보기 오버레이의 accessible name',
-        en: 'The accessible name of the preview overlay'
+        ko: '미리 보기 오버레이의 accessible name. 오버레이를 여는 버튼의 이름에도 쓰여, alt 뒤에 소문자로 붙어 "A portrait — preview"가 되고 alt가 비어 있으면 이 값만으로 이름이 됩니다',
+        en: 'The accessible name of the preview overlay. It also names the button that opens it: after alt and in lower case, "A portrait — preview", or on its own when alt is empty'
       }
     },
     {

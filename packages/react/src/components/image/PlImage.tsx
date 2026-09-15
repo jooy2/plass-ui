@@ -254,7 +254,12 @@ export interface PlImageProps extends Omit<
    * @default false
    */
   preview?: boolean;
-  /** The accessible name of the preview overlay. @default 'Preview' */
+  /**
+   * The accessible name of the preview overlay. It also names the button that
+   * opens it: after `alt` and in lower case, "A portrait — preview", or on its
+   * own when `alt` is empty.
+   * @default 'Preview'
+   */
   previewLabel?: string;
   /**
    * Marks the picture a page is judged by — usually the largest thing above the
