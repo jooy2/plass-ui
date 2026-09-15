@@ -156,8 +156,11 @@ picker는 **controlled**입니다. `value`와 `onChanged`를 함께 주고, `nul
 
 - 달력은 [`PlDatePicker`](./date-picker)의 것 전부입니다(roving tab stop 하나, 접근성 이름은 날짜 전체). 그리고 열들은 [`PlTimePicker`](./time-picker)의 것이며, 시각을 한 문장으로 읽어 주는 live region까지 포함합니다.
 - trigger는 둘이 아니라 **달력 글리프 하나만** 답니다. 컨트롤은 한 번에 두 가지를 말할 수 없고, 독자가 훑는 부분은 날짜입니다.
-- 전체 정밀도 경계에 막힌 날과 같은 경계에 막힌 시각 둘 다 속성이 아니라 `aria-disabled`를 답니다. 어느 쪽도 키보드가 걷는 경로에서 빠지지 않습니다. ::: fw react
+- 전체 정밀도 경계에 막힌 날과 시계의 행은 제자리에 남아 사용할 수 없다고 읽힙니다. 화살표 키는 막힌 날에는 그대로 멈추고, 막힌 행은 건너뛰어 고를 수 있는 다음 행으로 갑니다.
 
+::: fw react
+
+- 막힌 날과 막힌 행 둘 다 `disabled` 속성이 아니라 `aria-disabled`를 답니다.
 - `name`이 있으면 hidden input이 값을 로컬 `YYYY-MM-DDTHH:MM`으로 담습니다. `<input type="datetime-local">`이 제출하는 모양입니다. `toISOString()`은 절대 아닙니다. 서울의 picker라면 다른 날을 제출하게 됩니다.
 
 :::

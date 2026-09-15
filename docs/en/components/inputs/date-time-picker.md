@@ -156,8 +156,11 @@ One `names` object carries the month and weekday names, the order of the header'
 
 - The calendar is [`PlDatePicker`](./date-picker)'s in full (one roving tab stop, full dates as accessible names), and the columns are [`PlTimePicker`](./time-picker)'s, including the live region that reads the time back as one sentence.
 - The trigger wears the **calendar glyph alone**, not both: a control cannot say two things at once, and the date is the part a reader scans for.
-- A day blocked by a full-precision bound and an hour blocked by the same bound both carry `aria-disabled` rather than the attribute, so neither leaves the path a keyboard walks. ::: fw react
+- A day or a row of the clock blocked by a full-precision bound stays where it is and is announced as unavailable. The arrow keys still land on a blocked day, and pass over a blocked row to the next one that can be chosen.
 
+::: fw react
+
+- A blocked day and a blocked row both carry `aria-disabled` rather than the `disabled` attribute.
 - With `name`, a hidden input carries the value as a local `YYYY-MM-DDTHH:MM`, the shape `<input type="datetime-local">` submits. Never `toISOString()`: a picker in Seoul would submit a different day.
 
 :::
