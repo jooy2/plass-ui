@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **An `inline` `PlColorPicker` inside a disabled `<fieldset>` is disabled.** Its square and rails are not form controls, so the fieldset did not reach them: they stayed tab stops and still took keys and the pointer. They now behave as with `disabled`, the label is muted, and the picker no longer reports its value to a `PlForm`. A `PlFieldset` with `disabled` does the same, and turning the fieldset back on brings the picker back.
+
 - **A `PlColorPicker` swatch the picker cannot read is left out.** A swatch such as `'red'` was drawn as a button that did nothing when pressed, since named colours are not read, and every swatch was painted from its string, so a bare `'ff0000'`, which the picker reads as red, was an empty circle. Such a swatch is now not drawn, and the rest are painted with the colour a press chooses.
 
 - **The two select-all ticks of a `PlTransfer` have different names.** Both were read as "Select all", so a screen reader could not tell which list a tick belonged to. Each is now named by `selectAllLabel` and then by its list's heading, "Select all Available", read from the heading itself, so a heading given as an element is read as well.

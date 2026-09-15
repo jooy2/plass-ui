@@ -355,6 +355,33 @@ describe('PlColorPicker', () => {
         .toHaveAttribute('aria-disabled', 'true');
     });
 
+    it('takes nothing inside a disabled fieldset, until the fieldset is enabled', async () => {
+      const onValueChange = vi.fn();
+
+      const screen = await render(
+        <fieldset data-testid="fieldset" disabled>
+          <PlColorPicker inline defaultValue="#ff0000" onValueChange={onValueChange} />
+        </fieldset>
+      );
+
+      const hue = screen.getByRole('slider', { name: 'Hue' });
+
+      await expect.element(hue).toHaveAttribute('aria-disabled', 'true');
+      await expect.element(hue).toHaveAttribute('tabindex', '-1');
+
+      hue
+        .element()
+        .dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+
+      expect(onValueChange).not.toHaveBeenCalled();
+
+      // Turned off outside React, as a script or another library would.
+      (screen.getByTestId('fieldset').element() as HTMLFieldSetElement).disabled = false;
+
+      await expect.element(hue).not.toHaveAttribute('aria-disabled');
+      await expect.element(hue).toHaveAttribute('tabindex', '0');
+    });
+
     it('turns the family over to danger on an error', async () => {
       const screen = await render(
         <PlColorPicker data-testid="picker" inline error="Pick something" defaultValue="#ff0000" />

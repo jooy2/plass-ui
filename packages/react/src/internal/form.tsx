@@ -53,6 +53,58 @@ export function useFormReport(name: string | undefined, read: () => unknown, ena
   }, [report, name, enabled]);
 }
 
+/** Every `<fieldset>` around `element`, nearest first. */
+function fieldsetsAround(element: Element): HTMLFieldSetElement[] {
+  const fieldsets: HTMLFieldSetElement[] = [];
+
+  for (
+    let fieldset = element.parentElement?.closest('fieldset');
+    fieldset;
+    fieldset = fieldset.parentElement?.closest('fieldset')
+  ) {
+    fieldsets.push(fieldset);
+  }
+
+  return fieldsets;
+}
+
+/**
+ * Whether `element` is inside a disabled `<fieldset>`, re-rendering when a
+ * fieldset around it turns `disabled` on or off.
+ *
+ * The browser disables a native control inside one by itself. A control drawn
+ * as elements with a `tabIndex` is not a form control, so the fieldset never
+ * reaches it and it has to ask. The answer is the platform's: a disabled
+ * fieldset reaches everything inside it except what is in its first `<legend>`.
+ */
+export function useFieldsetDisabled(element: Element | null): boolean {
+  const subscribe = React.useCallback(
+    (onChange: () => void) => {
+      if (!element) {
+        return () => {};
+      }
+
+      const observer = new MutationObserver(onChange);
+
+      fieldsetsAround(element).forEach((fieldset) =>
+        observer.observe(fieldset, { attributes: true, attributeFilter: ['disabled'] })
+      );
+
+      return () => observer.disconnect();
+    },
+    [element]
+  );
+
+  const snapshot = () =>
+    element !== null &&
+    fieldsetsAround(element).some(
+      (fieldset) =>
+        fieldset.disabled && !fieldset.querySelector(':scope > legend')?.contains(element)
+    );
+
+  return React.useSyncExternalStore(subscribe, snapshot, () => false);
+}
+
 /**
  * Tells a `FormControl` the reader has left the control it stands behind, so a
  * form that validates on blur checks it then. The input never has the focus

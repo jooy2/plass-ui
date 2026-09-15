@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { defaultPickerLabels } from '../../internal/calendar.js';
 import { PickerShell } from '../../internal/picker.js';
-import { useFormReport } from '../../internal/form.js';
+import { useFieldsetDisabled, useFormReport } from '../../internal/form.js';
 import { CheckIcon } from '../../internal/icons.js';
 import {
   checkerBackground,
@@ -710,7 +710,21 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
       onValueChange?.(output);
     };
 
-    const inert = disabled || readOnly;
+    // The square and the rails are not form controls, so a disabled
+    // `<fieldset>` around the picker does not reach them unless it is asked.
+    const [root, setRoot] = React.useState<HTMLDivElement | null>(null);
+    const setRootRef = React.useCallback(
+      (node: HTMLDivElement | null) => {
+        setRoot(node);
+        if (typeof ref === 'function') ref(node);
+        else if (ref) ref.current = node;
+      },
+      [ref]
+    );
+    const fieldsetDisabled = useFieldsetDisabled(root);
+    const isDisabled = disabled || fieldsetDisabled;
+
+    const inert = isDisabled || readOnly;
     const isInvalid = invalid ?? Boolean(error);
     const fieldId = React.useId();
 
@@ -740,10 +754,10 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
     );
 
     // Inline, there is no field for Base UI's `Form` to collect the colour from.
-    useFormReport(name, () => (empty ? '' : written), inline && !disabled);
+    useFormReport(name, () => (empty ? '' : written), inline && !isDisabled);
 
     const hidden = name ? (
-      <input type="hidden" name={name} value={empty ? '' : written} disabled={disabled} />
+      <input type="hidden" name={name} value={empty ? '' : written} disabled={isDisabled} />
     ) : null;
 
     if (inline) {
@@ -758,7 +772,7 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
       // are for, so two inline pickers were two sets of the same sliders.
       return (
         <div
-          ref={ref}
+          ref={setRootRef}
           role="group"
           aria-labelledby={label ? `${fieldId}-label` : undefined}
           aria-describedby={describedBy}
@@ -772,7 +786,7 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
               className={cx(
                 metaTextClasses[size],
                 'font-semibold',
-                disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)'
+                isDisabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)'
               )}
             >
               {label}
