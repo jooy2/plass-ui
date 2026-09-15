@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **Adding a step at the start of a `PlTimeline` keeps the steps already there.** Each step was keyed by its position, so a new first event in an activity feed remounted every step after it and threw away their state. A step is now keyed by its own `key`.
+
 - **`PlStat` writes `change` to one decimal at most.** The number was printed as it came, so `change={0.1 + 0.2}` read `+0.30000000000000004%`. It is now rounded to one decimal, half away from zero, as the Flutter build writes it. A change that rounds to 0 is drawn as `0%` in the muted colour with no arrow.
 
 - **Pressing the × on an uncontrolled `inline` `PlDrawer` closes it.** An inline drawer read only `open` and `defaultOpen`, so without `open` the × called `onOpenChange` and the panel stayed. It now keeps its own open state, and a controlled `open` still decides.

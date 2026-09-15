@@ -144,6 +144,22 @@ describe('PlTimeline', () => {
       await expect.element(screen.getByText('Alone')).toBeInTheDocument();
     });
 
+    it('keeps the steps it had mounted when one is added at the start', async () => {
+      const screen = await render(<PlTimeline className="timeline-under-test">{steps}</PlTimeline>);
+      const before = [...document.querySelectorAll('.timeline-under-test li')];
+
+      await screen.rerender(
+        <PlTimeline className="timeline-under-test">
+          {[<PlTimelineItem key="new" title="Placed" />, ...steps]}
+        </PlTimeline>
+      );
+
+      const after = [...document.querySelectorAll('.timeline-under-test li')];
+
+      expect(after).toHaveLength(5);
+      expect(before.every((item, index) => item === after[index + 1])).toBe(true);
+    });
+
     it('counts only the steps that are actually on the page', async () => {
       await render(
         <PlTimeline className="timeline-under-test" active={1}>

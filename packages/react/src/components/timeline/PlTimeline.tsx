@@ -360,8 +360,14 @@ export const PlTimeline = /* @__PURE__ */ React.forwardRef<HTMLOListElement, PlT
         role: 'list',
         className: cx('flex', orientation === 'horizontal' ? 'flex-row' : 'flex-col', className),
         style: { ...surfaceSlots(color, 0), ...style },
+        // Keyed by the step's own key, which `toArray` has given every element
+        // (by position where the caller gave none), so a step added at the
+        // start of a feed does not remount every step after it.
         children: items.map((item, index) => (
-          <TimelineItemContext.Provider key={index} value={{ index, last: index === count - 1 }}>
+          <TimelineItemContext.Provider
+            key={React.isValidElement(item) ? (item.key ?? index) : index}
+            value={{ index, last: index === count - 1 }}
+          >
             {item}
           </TimelineItemContext.Provider>
         )),
