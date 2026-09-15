@@ -695,7 +695,7 @@ export interface PlassChartSeries {
 }
 
 /**
- * One span on a [PlTimelineChart] — a stretch of time with two ends.
+ * One span on a `PlTimelineChart` — a stretch of time with two ends.
  *
  * Its own type rather than a `z2` or an `x2` bolted onto `PlassChartPoint`,
  * because a second position on the axis is a field the other six charts would
@@ -707,36 +707,6 @@ export interface PlassChartSeries {
  * axis, and naming one of them `x` only reads correctly to someone who already
  * knows which one it is.
  */
-export interface PlassTimelinePoint {
-  /** When it begins. A `Date`, or a number of milliseconds. */
-  start: PlassChartCategory;
-  /** And when it is done. A span that ends before it starts is drawn either way round. */
-  end: PlassChartCategory;
-  /** What the span is called, in the tooltip and the table. */
-  label?: React.ReactNode;
-  /** Overrides its row's colour for this one span. */
-  color?: PlassColor | (string & {});
-}
-
-/**
- * One row of a PlTimelineChart, and everything on it.
- *
- * A row is a series — one entity, one name, one colour — but its data are
- * spans rather than values, so it cannot be a `PlassChartSeries`. There is no
- * `hidden` here and no legend to pair it with: a Gantt's rows *are* its
- * category axis, already named down the side, and a twenty-entry legend
- * restating them is not a filter anyone wants.
- */
-export interface PlassTimelineSeries {
-  /** Its name on the axis, in the tooltip and in the table. */
-  name?: string;
-  /** The spans on this row. Overlapping ones are drawn over each other. */
-  data: readonly PlassTimelinePoint[];
-  /** Overrides the palette slot this row would otherwise take. */
-  color?: PlassColor | (string & {});
-}
-
-/** One stretch of time on a row of a `PlTimelineChart`. */
 export interface PlassTimelinePoint {
   /** When it begins. A `Date`, or a number of milliseconds. */
   start: PlassChartCategory;
