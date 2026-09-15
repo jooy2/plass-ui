@@ -350,6 +350,11 @@ function visibleShare(rect: DOMRect, clip: DOMRectReadOnly): number {
   return (Math.max(0, width) * Math.max(0, height)) / area;
 }
 
+/** Whether the focus is arriving from, or leaving for, something inside. */
+function holds(element: HTMLElement | null, related: EventTarget | null): boolean {
+  return element !== null && related instanceof Node && element.contains(related);
+}
+
 export interface AnimationRun {
   /** Goes on the animated element. */
   ref: React.RefCallback<HTMLElement>;
@@ -579,15 +584,25 @@ export function useAnimationRun({
       ? {
           onPointerEnter: start,
           // Focus counts, or an effect on something keyboard-reachable would
-          // never run for a reader who is not holding a mouse.
-          onFocus: start,
+          // never run for a reader who is not holding a mouse. What counts is
+          // the focus *arriving*, though: focus events bubble, so tabbing from
+          // one link inside the wrapper to the next is another one of these,
+          // and starting the effect again there would replay it under the
+          // reader's hands. A move with its other end already inside is a move
+          // within one visit, which is the sentence Flutter's `Focus` says by
+          // reporting a subtree entered and left and nothing in between.
+          onFocus: (event) => {
+            if (!holds(node.current, event.relatedTarget)) {
+              start();
+            }
+          },
           onPointerLeave: () => {
             if (infinite) {
               setStarted(false);
             }
           },
-          onBlur: () => {
-            if (infinite) {
+          onBlur: (event) => {
+            if (infinite && !holds(node.current, event.relatedTarget)) {
               setStarted(false);
             }
           }

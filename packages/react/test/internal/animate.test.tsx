@@ -304,6 +304,52 @@ describe('restarting an animation', () => {
 
     expect(childRewinds()).toBeGreaterThan(0);
   });
+
+  it('leaves a hover effect alone while the focus moves about inside it', async () => {
+    await render(
+      <div>
+        <button type="button" className="away-from-it">
+          Away
+        </button>
+        <PlAnimateFade className="fade-under-test" trigger="hover">
+          <button type="button" className="first-inside">
+            One
+          </button>
+          <button type="button" className="second-inside">
+            Two
+          </button>
+        </PlAnimateFade>
+      </div>
+    );
+
+    const fade = document.querySelector<HTMLElement>('.fade-under-test')!;
+    const away = document.querySelector<HTMLButtonElement>('.away-from-it')!;
+    const first = document.querySelector<HTMLButtonElement>('.first-inside')!;
+    const second = document.querySelector<HTMLButtonElement>('.second-inside')!;
+
+    first.focus();
+
+    await expect.poll(() => fade.getAttribute('data-state')).toBe('running');
+
+    const rewinds = watchRewinds(fade);
+
+    second.focus();
+
+    await expect.poll(() => document.activeElement).toBe(second);
+
+    // Focus events bubble, so tabbing from the first button to the second is a
+    // second one on the wrapper. It is the same visit, though, and playing the
+    // entrance again halfway through reading it is the reader's own keystroke
+    // undoing what they came for.
+    expect(rewinds()).toBe(0);
+
+    away.focus();
+    first.focus();
+
+    // Leaving and coming back is a visit of its own, and that one does start it
+    // over.
+    await expect.poll(() => rewinds()).toBe(1);
+  });
 });
 
 /**
