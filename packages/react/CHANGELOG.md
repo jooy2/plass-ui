@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A `PlSkeleton` with a `label` says it to a screen reader.** The label was only the name of its `role="status"`, and a screen reader reads out the text inside a live region, not its name. The status was also `aria-busy`, which tells a screen reader to wait until the region is no longer busy, and a skeleton is removed instead. The label is now visually hidden text inside the status, and the status is no longer `aria-busy`. Put `aria-busy` on the region being loaded if it needs one.
+
 - **Adding a step at the start of a `PlTimeline` keeps the steps already there.** Each step was keyed by its position, so a new first event in an activity feed remounted every step after it and threw away their state. A step is now keyed by its own `key`.
 
 - **`PlStat` writes `change` to one decimal at most.** The number was printed as it came, so `change={0.1 + 0.2}` read `+0.30000000000000004%`. It is now rounded to one decimal, half away from zero, as the Flutter build writes it. A change that rounds to 0 is drawn as `0%` in the muted colour with no arrow.

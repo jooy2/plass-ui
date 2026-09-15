@@ -142,7 +142,7 @@ const PlSkeleton(shape: PlSkeletonShape.rect, height: 120);
 ::: fw react
 
 - 라벨이 없으면 placeholder는 `aria-hidden`이고 아무 말도 하지 않습니다. 상자 열두 개가 저마다 자기를 알리는 것은 침묵보다 나쁩니다.
-- 영역 전체를 대표하는 **하나**에만 `label`을 주면 그것이 `aria-busy`가 붙은 `role="status"`가 됩니다: 하나의 기다림에 하나의 알림.
+- 영역 전체를 대표하는 **하나**에만 `label`을 주면 그 label을 화면에 보이지 않는 텍스트로 담은 `role="status"`가 됩니다: 하나의 기다림에 하나의 알림. `aria-busy`는 붙지 않으니, 필요하면 불러오는 영역에 붙이세요.
 - `prefers-reduced-motion`에서는 하이라이트가 지나가기를 멈추고 대신 placeholder 전체가 색으로 맥동합니다. 아예 멈추지 않는 이유는, 가만히 있는 skeleton은 아무것도 없이 로드가 끝난 빈 상자와 구별되지 않기 때문입니다.
 
 :::
@@ -161,7 +161,7 @@ const PlSkeleton(shape: PlSkeletonShape.rect, height: 120);
 
 | React | Flutter | 이유 |
 | --- | --- | --- |
-| `role="status"` + `aria-busy` | 이름이 붙은 live region | Flutter에는 `liveRegion`이 있고 `busy`는 없습니다. 기다림을 나르는 것은 이름입니다. |
+| label을 숨긴 텍스트로 담은 `role="status"` | label이 이름인 live region | Flutter의 live region은 이름을 알리고, 웹의 live region은 안에 담긴 텍스트를 알립니다. |
 | `prefers-reduced-motion` | `MediaQuery.disableAnimations` | 플랫폼 자신의 신호입니다. |
 | CSS 길이로서의 `width`/`height` | `double` | 논리 픽셀입니다. 부모의 몇 분의 몇은 placeholder를 감싸는 `FractionallySizedBox`입니다. |
 | `render` | — | Flutter에는 요소를 바꿔 끼우는 수단이 없습니다. |

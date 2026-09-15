@@ -3,7 +3,12 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useRender } from '@base-ui/react/use-render';
-import { controlHeightClasses, controlSquareClasses, surfaceSlots } from '../../internal/styles.js';
+import {
+  controlHeightClasses,
+  controlSquareClasses,
+  srOnlyClasses,
+  surfaceSlots
+} from '../../internal/styles.js';
 import type { PlassColor, PlassSize } from '../../types.js';
 
 /**
@@ -192,10 +197,12 @@ export const PlSkeleton = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSke
           : `w-full ${barRadiusClasses[size]} ${lineHeightClasses[size]}`;
 
     // Unlabelled it is scenery and says nothing; labelled it is the one element
-    // that reports the wait for the region around it.
-    const announce = label
-      ? ({ role: 'status', 'aria-busy': true, 'aria-label': label } as const)
-      : ({ 'aria-hidden': true } as const);
+    // that reports the wait for the region around it. The label is text inside
+    // the status, because a live region reads out what it holds rather than its
+    // name, and the status is not marked busy, because a busy live region keeps
+    // quiet until it is not, and a placeholder is removed instead.
+    const announce = label ? ({ role: 'status' } as const) : ({ 'aria-hidden': true } as const);
+    const spoken = label ? <span className={srOnlyClasses}>{label}</span> : null;
 
     // A run of lines is a stack of bars rather than one box, so the gaps between
     // them are real gaps: text has leading, and a striped gradient would not
@@ -220,23 +227,30 @@ export const PlSkeleton = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSke
           ...style
         },
         ...announce,
-        ...(stacked
+        ...(stacked || spoken
           ? {
-              children: Array.from({ length: lines }, (_, index) => (
-                <div
-                  key={index}
-                  className={[
-                    fillClasses,
-                    sweep,
-                    barRadiusClasses[size],
-                    lineHeightClasses[size],
-                    // The last line of a paragraph does not reach the margin.
-                    index === lines - 1 ? 'w-3/5' : 'w-full'
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                />
-              ))
+              children: (
+                <>
+                  {stacked
+                    ? Array.from({ length: lines }, (_, index) => (
+                        <div
+                          key={index}
+                          className={[
+                            fillClasses,
+                            sweep,
+                            barRadiusClasses[size],
+                            lineHeightClasses[size],
+                            // The last line of a paragraph does not reach the margin.
+                            index === lines - 1 ? 'w-3/5' : 'w-full'
+                          ]
+                            .filter(Boolean)
+                            .join(' ')}
+                        />
+                      ))
+                    : null}
+                  {spoken}
+                </>
+              )
             }
           : null),
         ...props

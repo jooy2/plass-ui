@@ -82,13 +82,24 @@ describe('PlSkeleton', () => {
       expect(screen.getByRole('status').query()).toBeNull();
     });
 
-    it('becomes a live status with one', async () => {
+    it('becomes a live status that holds the label as text', async () => {
       const screen = await render(<PlSkeleton label="Loading invoices" />);
 
-      const status = screen.getByRole('status', { name: 'Loading invoices' });
+      const status = screen.getByRole('status');
 
-      await expect.element(status).toBeInTheDocument();
-      expect(status.element()).toHaveAttribute('aria-busy', 'true');
+      await expect.element(status).toHaveTextContent('Loading invoices');
+      // A busy live region holds what it says until it is no longer busy, which
+      // a placeholder that is removed never is.
+      expect(status.element()).not.toHaveAttribute('aria-busy');
+    });
+
+    it('keeps the label with the bars of a stack', async () => {
+      const screen = await render(
+        <PlSkeleton className="skeleton-under-test" lines={3} label="Loading invoices" />
+      );
+
+      await expect.element(screen.getByRole('status')).toHaveTextContent('Loading invoices');
+      expect(document.querySelectorAll('.skeleton-under-test > div')).toHaveLength(3);
     });
   });
 

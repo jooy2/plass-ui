@@ -142,7 +142,7 @@ This is not the accessibility switch: a reduced-motion preference already replac
 ::: fw react
 
 - Unlabelled, a placeholder is `aria-hidden` and says nothing. A dozen boxes each announcing themselves is worse than silence.
-- Give the **one** skeleton that stands for the whole region a `label`, and it becomes a `role="status"` with `aria-busy`, one announcement for one wait.
+- Give the **one** skeleton that stands for the whole region a `label`, and it becomes a `role="status"` holding that label as visually hidden text, one announcement for one wait. It is not marked `aria-busy`; put that on the region being loaded.
 - Under `prefers-reduced-motion` the highlight stops travelling and the placeholder pulses in colour instead. It is not stopped outright, because a skeleton that holds still is indistinguishable from an empty box that finished loading with nothing in it.
 
 :::
@@ -161,7 +161,7 @@ This is not the accessibility switch: a reduced-motion preference already replac
 
 | React | Flutter | Why |
 | --- | --- | --- |
-| `role="status"` + `aria-busy` | a named live region | Flutter has `liveRegion` and no `busy`. The name is what carries the wait. |
+| `role="status"` holding the label as hidden text | a live region named by the label | A Flutter live region announces its name, and a web one announces the text inside it. |
 | `prefers-reduced-motion` | `MediaQuery.disableAnimations` | The platform's own signal. |
 | `width`/`height` as a CSS length | `double` | Logical pixels. A fraction of the parent is a `FractionallySizedBox` around the placeholder. |
 | `render` | — | Flutter has no polymorphic element. |
