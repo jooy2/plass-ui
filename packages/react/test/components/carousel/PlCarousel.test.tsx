@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { commands } from 'vitest/browser';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlCarousel } from 'plass-ui';
 
@@ -122,6 +122,14 @@ describe('PlCarousel', () => {
     const current = (screen: Awaited<ReturnType<typeof render>>) =>
       screen.container.querySelector('button[aria-current="true"]')?.getAttribute('aria-label');
 
+    // Every test here is about the timer, and a pointer over the carousel stops
+    // it. The runner leaves the pointer wherever the last file pressed
+    // something, and a carousel rendered under it is handed a `pointerenter`
+    // that nobody performed, so it starts out paused and never moves.
+    beforeEach(async () => {
+      await commands.parkPointer();
+    });
+
     it('advances on its own', async () => {
       const screen = await render(
         <PlCarousel autoPlay interval={200}>
@@ -231,11 +239,11 @@ describe('PlCarousel', () => {
         .element(screen.getByRole('button', { name: 'Slide 2 of 3' }), { timeout: 2000 })
         .toHaveAttribute('aria-current', 'true');
     });
-    // Last in the group: the runner's pointer stays on the page after the test,
-    // and a carousel that fills the page under it would start out paused.
+
     it('holds still while the pointer is over it', async () => {
+      const onValueChange = vi.fn();
       const screen = await render(
-        <PlCarousel autoPlay interval={200}>
+        <PlCarousel autoPlay interval={200} onValueChange={onValueChange}>
           {slides}
         </PlCarousel>
       );
@@ -243,9 +251,17 @@ describe('PlCarousel', () => {
       await screen.getByRole('region').hover();
 
       try {
+        // The timer starts with the render, and the hover arrives whenever the
+        // runner delivers it, which on a slow machine is after the first turn.
+        // What is held is the slide the pointer found, and no turn is asked for
+        // after it: three turns of three slides would also end where they began.
+        const held = current(screen);
+
+        onValueChange.mockClear();
         await aWhile();
 
-        expect(current(screen)).toBe('Slide 1 of 3');
+        expect(onValueChange).not.toHaveBeenCalled();
+        expect(current(screen)).toBe(held);
       } finally {
         // The runner's pointer stays where it was left, and a carousel drawn
         // under it in a later test would start out paused.
