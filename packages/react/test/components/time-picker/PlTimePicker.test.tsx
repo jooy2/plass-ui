@@ -6,6 +6,19 @@ import { PlTimePicker } from 'plass-ui';
 /** Half past nine on a fixed day, so nothing here depends on when it is run. */
 const NINE_THIRTY = new Date(2026, 6, 27, 9, 30);
 
+/**
+ * How the browser running the test writes `date` in `locale`, with the format
+ * the trigger uses when it is given none.
+ *
+ * Browsers ship their own locale data, and they do not agree about a one-digit
+ * hour: Chromium writes half past nine in `en-GB` as `9:30`, Firefox as
+ * `09:30`. The trigger is right to follow the browser it is in, so the
+ * expectation is asked of that browser rather than spelled as one of them.
+ */
+function writtenIn(locale: string, date: Date): string {
+  return new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }).format(date);
+}
+
 describe('PlTimePicker', () => {
   describe('rendering', () => {
     it('renders a trigger', async () => {
@@ -17,7 +30,9 @@ describe('PlTimePicker', () => {
     it('writes the chosen time the way the locale does', async () => {
       const screen = await render(<PlTimePicker locale="en-GB" defaultValue={NINE_THIRTY} />);
 
-      await expect.element(screen.getByRole('button')).toHaveTextContent('9:30');
+      await expect
+        .element(screen.getByRole('button'))
+        .toHaveTextContent(writtenIn('en-GB', NINE_THIRTY));
     });
 
     it('puts a 12-hour locale on a 12-hour dial', async () => {
@@ -37,7 +52,9 @@ describe('PlTimePicker', () => {
         <PlTimePicker locale="en-GB" value={NINE_THIRTY} onValueChange={() => {}} />
       );
 
-      await expect.element(screen.getByRole('button')).toHaveTextContent('9:30');
+      await expect
+        .element(screen.getByRole('button'))
+        .toHaveTextContent(writtenIn('en-GB', NINE_THIRTY));
 
       await screen.rerender(
         <PlTimePicker
