@@ -131,10 +131,9 @@ class PlPopover extends StatefulWidget {
 
   /// Draws the little wedge pointing at the trigger.
   ///
-  /// Off by default, unlike on a [PlTooltip]. A tooltip is a filled plate and
-  /// its wedge is the same solid colour; this surface is translucent over a
-  /// blurred backdrop, and a wedge sticking out past the popup's own box cannot
-  /// carry that backdrop with it.
+  /// Off by default. This surface is translucent over a blurred backdrop, and a
+  /// wedge sticking out past the popup's own box cannot carry that backdrop with
+  /// it, so the wedge is the one part of the sheet the blur does not reach.
   final bool arrow;
 
   /// Whether a press outside closes the popup.
