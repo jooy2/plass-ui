@@ -364,7 +364,11 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
           return;
         }
 
-        const behavior = smooth ? scrollBehavior() : 'auto';
+        // A step of a hold is one frame's travel and already the motion.
+        // `instant` rather than `auto`, which under a `scroll-behavior: smooth`
+        // on the strip would start a slide the next frame cuts short, and the
+        // strip would fall behind the button or stall.
+        const behavior = smooth ? scrollBehavior() : 'instant';
 
         element.scrollBy(horizontal ? { left: distance, behavior } : { top: distance, behavior });
       },

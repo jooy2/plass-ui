@@ -3,6 +3,7 @@ import { render } from 'vitest-browser-react';
 import { PlScrollZone } from 'plass-ui';
 import { emulateMedia } from '../../support/media';
 import { moveMouseOntoPage } from '../../support/pointer';
+import { frameClock } from '../../support/timing';
 
 /*
  * No component test loads CSS, and a scroller with no `overflow` cannot be
@@ -39,13 +40,14 @@ function track(screen: Awaited<ReturnType<typeof render>>) {
 
 /**
  * The two declarations a scroll offset depends on, since no component test
- * loads CSS and a box that does not clip cannot be scrolled at all. Returns the
- * undo, which every test that calls this owes a `finally`.
+ * loads CSS and a box that does not clip cannot be scrolled at all, and any
+ * `declarations` a test adds to them. Returns the undo, which every test that
+ * calls this owes a `finally`.
  */
-function clip() {
+function clip(declarations = '') {
   const style = document.createElement('style');
 
-  style.textContent = '[data-testid="zone"] > .grow { overflow-x: auto; width: 400px; }';
+  style.textContent = `[data-testid="zone"] > .grow { overflow-x: auto; width: 400px; ${declarations} }`;
   document.head.append(style);
 
   return () => style.remove();
@@ -505,6 +507,26 @@ describe('PlScrollZone', () => {
       }
     });
 
+    it('keeps up with the wheel on a strip that scrolls smoothly', async () => {
+      const restore = clip('scroll-behavior: smooth;');
+
+      try {
+        const screen = await render(<PlScrollZone data-testid="zone">{cards}</PlScrollZone>);
+        const box = scroller(screen);
+
+        for (let notch = 1; notch <= 5; notch += 1) {
+          wheel(box, { deltaY: 40 });
+          // A frame between two notches, which is where a slide started by the
+          // last one would run.
+          await new Promise((resolve) => requestAnimationFrame(resolve));
+
+          expect(Math.round(box.scrollLeft)).toBe(notch * 40);
+        }
+      } finally {
+        restore();
+      }
+    });
+
     it('counts a wheel that arrives in lines rather than in pixels', async () => {
       const restore = clip();
 
@@ -774,6 +796,53 @@ describe('PlScrollZone', () => {
       await screen.getByRole('button', { name: 'Next' }).click();
 
       await expect.poll(() => scrollBy.mock.calls.length).toBeGreaterThan(0);
+    });
+
+    it('keeps up with a held button on a strip that scrolls smoothly', async () => {
+      const restore = clip('scroll-behavior: smooth;');
+      // The page's own frames, kept before the test takes the clock, so the
+      // browser gets a turn at the strip between two frames of the hold. That
+      // turn is where a slide started by the last frame would run.
+      const request = window.requestAnimationFrame.bind(window);
+      const painted = () => new Promise<void>((resolve) => request(() => resolve()));
+      let frames: ReturnType<typeof frameClock> | undefined;
+
+      try {
+        const screen = await render(
+          <PlScrollZone mode="hold" data-testid="zone">
+            {cards}
+          </PlScrollZone>
+        );
+        const box = scroller(screen);
+        const next = screen.getByRole('button', { name: 'Next' }).element();
+
+        frames = frameClock();
+        next.dispatchEvent(
+          new PointerEvent('pointerdown', {
+            bubbles: true,
+            pointerType: 'mouse',
+            button: 0,
+            buttons: 1
+          })
+        );
+
+        // Drawn at 0, which is before the press, so what this frame asks for is
+        // backwards from the start of the strip and goes nowhere. It only starts
+        // the hold's clock.
+        await frames.draw(0);
+
+        for (let step = 1; step <= 5; step += 1) {
+          // 100ms a frame, which is 90px at the default `speed`.
+          await frames.draw(step * 100);
+          await painted();
+
+          expect(Math.round(box.scrollLeft)).toBe(step * 90);
+        }
+      } finally {
+        window.dispatchEvent(new PointerEvent('pointerup', { pointerType: 'mouse' }));
+        frames?.restore();
+        restore();
+      }
     });
   });
 });

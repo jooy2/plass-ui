@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A held `PlScrollZone` button, and the wheel over a `PlScrollZone` or `PlTabs` strip, keep up on a strip whose CSS sets `scroll-behavior: smooth`.** Each frame of a hold and each wheel step scrolled with `behavior: 'auto'`, which follows `scroll-behavior`, so every step started a slide that the next one cut short. The strip fell behind the button and the wheel, to under half the distance in Chromium, and all but stopped in Firefox. Those steps now scroll with `'instant'`. The buttons in `item` and `page` mode still slide.
+
 - **A `PlPill` does less work when its `details` re-renders.** A pill with `details` written inline disconnected its size observer, made a new one and measured its panel again on every render, so a pill showing a live counter did all three every second. It now keeps one observer for as long as it has `details`.
 
 - **A `PlChatBubble` link preview fetches its picture only when the card comes near the screen.** Every preview picture was requested as soon as its bubble rendered, so a long thread with many link cards downloaded the pictures of cards scrolled far out of view. The picture now loads lazily and decodes off the main thread.

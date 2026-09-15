@@ -123,7 +123,10 @@ export function useWheelScroll(
 
       moved = event.timeStamp;
       event.preventDefault();
-      element.scrollBy({ left: distance * sign, behavior: 'auto' });
+      // `instant` rather than `auto`. A wheel sends many small steps, and under
+      // a `scroll-behavior: smooth` on the strip each one would start a slide
+      // the next cuts short, so the strip would fall behind the wheel.
+      element.scrollBy({ left: distance * sign, behavior: 'instant' });
     };
 
     element.addEventListener('wheel', onWheel, { passive: false });
