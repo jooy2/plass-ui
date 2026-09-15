@@ -1,0 +1,1 @@
+function r(t){const e=t.currentTarget;let o=t.nativeEvent.offsetX,l=t.nativeEvent.offsetY;if(t.target!==e){const n=e.getBoundingClientRect();o=t.clientX-n.left,l=t.clientY-n.top}e.style.setProperty("--p-mx",`${o}px`),e.style.setProperty("--p-my",`${l}px`)}export{r as f};

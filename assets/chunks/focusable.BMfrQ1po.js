@@ -1,0 +1,1 @@
+const n='a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';function o(t){return Array.from(t.querySelectorAll(n)).filter(e=>!e.closest("[inert]"))}export{o as f};

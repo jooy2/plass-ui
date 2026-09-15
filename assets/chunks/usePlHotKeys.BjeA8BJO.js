@@ -1,0 +1,3 @@
+import{r as i}from"./index.CAJ_Adw3.js";import{i as v,m as w,a as k,e as E,b as T}from"./keys.DbD7_79Y.js";function b(e){return e===void 0?typeof window>"u"?null:window:e===null?null:"current"in e?e.current:e}function H(e,p={}){const{enabled:u=!0,target:f,whileTyping:c=!1}=p,d=i.useRef(e);i.useEffect(()=>{d.current=e});const r=Object.keys(e??{}).join(`
+`);i.useEffect(()=>{const o=b(f);if(!u||!o||r==="")return;const y=r.split(`
+`),a=m=>{var t,l;const n=m;if(!(n.defaultPrevented||v(n))){for(const s of y)if(w(n,s)){if(!c&&!k(s)&&E(n.key)&&T(n.target))return;n.preventDefault(),(l=(t=d.current)==null?void 0:t[s])==null||l.call(t);return}}};return o.addEventListener("keydown",a),()=>o.removeEventListener("keydown",a)},[r,f,u,c])}export{H as u};

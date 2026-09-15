@@ -1,0 +1,1 @@
+import{j as e}from"./jsx-runtime.BjG_zV1W.js";import{P as o}from"./PlTable.BZaPD-4B.js";import"./styles.DIftfl58.js";import"./table.CN2wo-59.js";const r=[{key:"id",header:"Invoice"},{key:"customer",header:"Customer"}];function n(){return e.jsx(o,{columns:r,rows:[],empty:"No invoices in this period."})}export{n as default};

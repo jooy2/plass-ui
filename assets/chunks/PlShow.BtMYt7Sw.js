@@ -1,0 +1,1 @@
+import{r as p}from"./index.CAJ_Adw3.js";import{A as f}from"./styles.DIftfl58.js";import{u as n}from"./useRender.Bftjcxr5.js";const d=p.forwardRef(function({from:r,until:o,render:a,className:s,children:t,...e},m){return n({render:a,ref:m,props:{className:f("plass-show",s),"data-from":r,"data-until":o,children:t,...e}})});export{d as P};
