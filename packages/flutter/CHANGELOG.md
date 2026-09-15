@@ -64,6 +64,8 @@
 
 ### Fixed
 
+- **A `readOnly` `PlSwitch` is no longer announced as disabled.** It keeps its place in the focus order, but its semantics said it was not enabled. It is now enabled and read only, and still has no tap action, as the React build's `aria-readonly` says.
+
 - **A `PlColorPicker` thumb sits on its value at every `size`.** Each thumb was placed as if it were the `md` size, so at `xs`, `sm`, `lg` and `xl` its centre was up to 2 pixels beside the colour it showed, on the square and on the rails.
 
 - **A `PlColorPicker` swatch the picker cannot read is left out.** A swatch such as `'red'` was drawn as a clear circle that did nothing when pressed, since named colours are not read. It is now not drawn, and a list with nothing readable in it draws no swatches.

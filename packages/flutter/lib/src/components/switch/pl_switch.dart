@@ -300,7 +300,11 @@ class PlSwitch extends StatelessWidget {
       child: Semantics(
         container: true,
         toggled: value,
-        enabled: _interactive,
+        // Read-only is not disabled: the switch keeps its place in the focus
+        // order, so it says it is available and cannot be changed, as
+        // `aria-readonly` does, and only the tap action goes.
+        enabled: !_disabled,
+        readOnly: readOnly,
         label: semanticLabel,
         onTap: _interactive ? () => onChanged!(!value) : null,
         child: field,

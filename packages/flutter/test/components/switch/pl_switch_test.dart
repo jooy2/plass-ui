@@ -142,6 +142,40 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('is read-only rather than disabled while read-only', (WidgetTester tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(PlSwitch(value: false, readOnly: true, onChanged: (bool _) {}), width: 200),
+        );
+
+        // It keeps the focus, so a screen reader has to hear a switch that cannot
+        // be changed rather than one that is unavailable.
+        expect(
+          semanticsOf(tester, find.byType(PlSwitch)),
+          isSemantics(
+            hasEnabledState: true,
+            isEnabled: true,
+            isReadOnly: true,
+            hasTapAction: false,
+          ),
+        );
+
+        await tester.pumpWidget(
+          host(
+            PlSwitch(value: false, readOnly: true, disabled: true, onChanged: (bool _) {}),
+            width: 200,
+          ),
+        );
+
+        // Disabled still wins.
+        expect(
+          semanticsOf(tester, find.byType(PlSwitch)),
+          isSemantics(hasEnabledState: true, isEnabled: false, hasTapAction: false),
+        );
+
+        handle.dispose();
+      });
+
       testWidgets('takes a name for a switch with no visible label', (WidgetTester tester) async {
         final handle = tester.ensureSemantics();
         await tester.pumpWidget(
