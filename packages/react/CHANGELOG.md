@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **An `interactive` `PlCard` no longer glides up under reduced motion.** The lift under the pointer and its shadow still eased over `--plass-duration` for a reader who had asked for less motion. Both now change at once, as in the Flutter build.
+
 - **A picker trigger measured with a `format` that writes the weekday leaves room for Friday.** The dates it measures to hold its width fell on every weekday but Friday, so the trigger could be a little narrower than a Friday needed. A Friday is now among them.
 
 - **A held `PlScrollZone` button, and the wheel over a `PlScrollZone` or `PlTabs` strip, keep up on a strip whose CSS sets `scroll-behavior: smooth`.** Each frame of a hold and each wheel step scrolled with `behavior: 'auto'`, which follows `scroll-behavior`, so every step started a slide that the next one cut short. The strip fell behind the button and the wheel, to under half the distance in Chromium, and all but stopped in Firefox. Those steps now scroll with `'instant'`. The buttons in `item` and `page` mode still slide.

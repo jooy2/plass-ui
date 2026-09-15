@@ -95,11 +95,15 @@ export interface PlCardProps
  * two `transition-property` declarations of equal specificity resolve by their
  * order in the generated stylesheet, which is not something a component should
  * depend on.
+ *
+ * Under reduced motion the lift and its shadow change at once instead of
+ * gliding, as the Flutter card does.
  */
 const cardTransitionClasses = /* @__PURE__ */ [
   '[transition-property:background-color,border-color,box-shadow,color,transform]',
   '[transition-duration:var(--plass-duration)]',
-  '[transition-timing-function:var(--plass-ease)]'
+  '[transition-timing-function:var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]'
 ].join(' ');
 
 /**
