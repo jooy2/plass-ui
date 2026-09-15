@@ -3619,7 +3619,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlMenuItem', 'description', { type: 'String?' }),
     from('PlMenuItem', 'color', { type: COLOR + '?' }),
     from('PlMenuItem', 'closeOnClick', { name: 'closeOnPress', type: 'bool', default: 'true' }),
-    from('PlMenuItem', 'disabled', { type: 'bool', default: 'false' })
+    from('PlMenuItem', 'disabled', {
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '쓸 수 없습니다. 목록에는 남고, 화살표 키와 타이프어헤드는 건너뜁니다',
+        en: 'Unavailable. Still listed, and passed over by the arrow keys and typeahead'
+      }
+    })
   ],
 
   PlMenuCheckboxItem: [

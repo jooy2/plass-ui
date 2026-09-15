@@ -236,7 +236,7 @@ It takes the rows as `content` and the area as `children`, which is `PlTooltip`'
 - The pointer moves the same highlight the arrow keys do, so the mouse and the keyboard light one row rather than two, and moving onto a row of an outer menu is what closes the submenu open beside it.
 - A row is a button node with its name and its action on it; a ticked row is marked **checked** and a chosen one **selected in a mutually exclusive group**. Everything drawn inside is excluded, so a glyph never becomes a second thing to read.
 - The arrow that opens a submenu follows the writing direction, so it runs the other way under RTL.
-- A disabled row stays listed and stays findable by typeahead. A row that vanishes when it is unavailable is a menu that changes length.
+- A disabled row stays listed, and the arrow keys and typeahead pass over it. A row that vanishes when it is unavailable is a menu that changes length.
 
 ## Differences from the React build
 

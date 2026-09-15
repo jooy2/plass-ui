@@ -419,6 +419,31 @@ void main() {
 
         expect(pressed, <String>['Paste']);
       });
+
+      testWidgets('passes over an unavailable row when jumping by what was typed', (
+        WidgetTester tester,
+      ) async {
+        final List<String> pressed = <String>[];
+
+        await tester.pumpWidget(
+          host(
+            menu(<PlMenuEntry>[
+              PlMenuItem(label: 'Cut', onPressed: () => pressed.add('Cut')),
+              PlMenuItem(label: 'Paste', disabled: true, onPressed: () => pressed.add('Paste')),
+              PlMenuItem(label: 'Print', onPressed: () => pressed.add('Print')),
+            ]),
+            overlay: true,
+          ),
+        );
+        await openMenu(tester);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.keyP);
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+
+        expect(pressed, <String>['Print']);
+      });
     });
 
     group('accessibility', () {

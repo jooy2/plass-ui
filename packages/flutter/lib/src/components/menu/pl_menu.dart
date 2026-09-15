@@ -94,7 +94,7 @@ final class PlMenuItem extends PlMenuEntry {
   /// Whether picking the row closes the menu.
   final bool closeOnPress;
 
-  /// Unavailable. Still listed, and still found by typeahead.
+  /// Unavailable. Still listed, and passed over by the arrow keys and typeahead.
   final bool disabled;
 }
 
