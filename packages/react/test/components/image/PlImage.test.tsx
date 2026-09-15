@@ -970,7 +970,7 @@ describe('PlImage', () => {
       expect(mark()).toBeNull();
     });
 
-    it('tiles as one repeating background rather than a wall of elements', async () => {
+    it('tiles as one repeating mask rather than a wall of elements', async () => {
       await render(
         <PlImage src={OK} alt="A portrait" watermark={{ text: 'PROOF', placement: 'tile' }} />
       );
@@ -979,8 +979,8 @@ describe('PlImage', () => {
 
       const layer = mark()!.firstElementChild as HTMLElement;
 
-      expect(layer.style.backgroundRepeat).toBe('repeat');
-      expect(layer.style.backgroundImage).toContain('data:image/svg+xml');
+      expect(layer.style.maskRepeat).toBe('repeat');
+      expect(layer.style.maskImage).toContain('data:image/svg+xml');
       // Turned as one layer: turning each copy inside a straight grid leaves the
       // grid's own lines showing through.
       expect(layer.style.transform).toBe('rotate(-24deg)');
@@ -998,7 +998,7 @@ describe('PlImage', () => {
       await expect.poll(() => mark()).not.toBeNull();
 
       const layer = mark()!.firstElementChild as HTMLElement;
-      const uri = layer.style.backgroundImage.replace(/^url\(["']?/, '').replace(/["']?\)$/, '');
+      const uri = layer.style.maskImage.replace(/^url\(["']?/, '').replace(/["']?\)$/, '');
 
       // An unescaped `&` is a parse error, and a parse error is an empty tile.
       const decoded = await new Promise<boolean>((done) => {

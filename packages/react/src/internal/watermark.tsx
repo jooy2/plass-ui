@@ -16,7 +16,10 @@ export interface PlassWatermarkOptions {
   opacity?: number;
   /** The turn a tiled mark is set at, in degrees. @default -24 */
   angle?: number;
-  /** The ink. White is what reads on a photograph. @default 'white' */
+  /**
+   * The ink, as any CSS colour, a token or `currentColor` included. White is what
+   * reads on a photograph. @default 'white'
+   */
   color?: string;
   /** The type size, in pixels. @default 13 in a corner, 15 tiled */
   fontSize?: number;
@@ -53,23 +56,28 @@ function escapeXml(text: string): string {
 /**
  * One tile of a repeating mark, as an SVG data URI.
  *
- * A background image rather than a wall of elements. A photograph wants the
+ * A repeating image rather than a wall of elements. A photograph wants the
  * mark often enough that a tiled layer is forty or fifty copies of it, and forty
  * or fifty `<span>`s is forty or fifty things for the browser to lay out, for a
  * screen reader to be told to ignore, and for the caller's own CSS to trip over.
  * One declaration repeats itself for free.
  *
+ * The tile is a mask and carries no colour. An image cannot read the page's
+ * custom properties or its `color`, so a token or `currentColor` written into
+ * it would come out black; the layer's own `background-color` is the ink
+ * instead, and the tile only says where it shows.
+ *
  * The tile is sized off the text rather than fixed, so a long mark spaces itself
  * out instead of overlapping the next copy along.
  */
-function tileUri(text: string, color: string, fontSize: number): string {
+function tileUri(text: string, fontSize: number): string {
   // Roughly the width of the string at this size. It only has to be generous —
   // the tile is a spacing decision, not a layout one.
   const width = Math.max(120, Math.round(text.length * fontSize * 0.68) + 48);
   const height = Math.round(fontSize * 4.6);
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
-    `<text x="0" y="${Math.round(height / 2)}" fill="${color}" ` +
+    `<text x="0" y="${Math.round(height / 2)}" fill="white" ` +
     `font-family="system-ui, sans-serif" font-size="${fontSize}" font-weight="600">` +
     `${escapeXml(text)}</text></svg>`;
 
@@ -116,6 +124,8 @@ export function PlassWatermark({ watermark }: { watermark: string | PlassWaterma
   }
 
   if (placement === 'tile') {
+    const tile = tileUri(text, fontSize);
+
     return (
       <span
         aria-hidden="true"
@@ -137,8 +147,13 @@ export function PlassWatermark({ watermark }: { watermark: string | PlassWaterma
             translate: '-50% -50%',
             opacity,
             transform: `rotate(${angle}deg)`,
-            backgroundImage: tileUri(text, color, fontSize),
-            backgroundRepeat: 'repeat'
+            backgroundColor: color,
+            // Prefixed as well for the Chromium releases before 120, which
+            // read only the `-webkit-` spelling.
+            WebkitMaskImage: tile,
+            maskImage: tile,
+            WebkitMaskRepeat: 'repeat',
+            maskRepeat: 'repeat'
           }}
         />
       </span>

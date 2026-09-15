@@ -69,4 +69,54 @@ describe('a tiled watermark', () => {
       expect(document.elementsFromPoint(x, y)).toContain(layer);
     }
   });
+
+  // What a colour resolves to, read off an element that uses it the plain way.
+  function resolved(color: string): string {
+    const probe = document.createElement('span');
+
+    probe.style.color = color;
+    document.body.append(probe);
+
+    const value = getComputedStyle(probe).color;
+
+    probe.remove();
+
+    return value;
+  }
+
+  it('draws in a token colour', async () => {
+    await render(
+      <PlImage
+        src={OK}
+        alt="A portrait"
+        watermark={{ text: 'PROOF', placement: 'tile', color: 'var(--plass-primary-accent)' }}
+      />
+    );
+
+    await expect.poll(() => mark()).not.toBeNull();
+
+    const layer = mark()!.firstElementChild as HTMLElement;
+
+    // An image cannot read the page's custom properties, so a token written
+    // into the tile itself would come out black.
+    expect(getComputedStyle(layer).backgroundColor).toBe(resolved('var(--plass-primary-accent)'));
+  });
+
+  it('draws in currentColor as the colour around it', async () => {
+    await render(
+      <div style={{ color: 'var(--plass-danger-accent)' }}>
+        <PlImage
+          src={OK}
+          alt="A portrait"
+          watermark={{ text: 'PROOF', placement: 'tile', color: 'currentColor' }}
+        />
+      </div>
+    );
+
+    await expect.poll(() => mark()).not.toBeNull();
+
+    const layer = mark()!.firstElementChild as HTMLElement;
+
+    expect(getComputedStyle(layer).backgroundColor).toBe(resolved('var(--plass-danger-accent)'));
+  });
 });

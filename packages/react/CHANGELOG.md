@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A tiled `PlImage` watermark draws in a token colour or `currentColor`.** The colour was written into the SVG image the tile repeats, and an image cannot read the page's custom properties or its `color`, so `var(--plass-…)` and `currentColor` came out black. The tile is now a mask over the layer's own background colour, so any CSS colour works, as it already did for a mark in a corner.
+
 - **A tiled `PlImage` watermark covers every corner of a wide or tall picture.** The turned layer was a fixed share larger than each side, so from about 16:9 two opposite corners were left as empty triangles. It is now sized from the diagonal of the picture, which no turn can uncover.
 
 - **A pressable `PlGallery` tile is described by the caption it draws.** The button's name is the picture's `alt` and its place in the set, and that name kept the `title` and `description` drawn inside the button from being read. The lines a tile draws now describe it through `aria-describedby`, a `hover` caption included before the pointer has shown it. The name is unchanged.
