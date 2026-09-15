@@ -186,19 +186,22 @@ class PlMockup extends StatelessWidget {
           // because that slot is already holding the screen's radius and the
           // ring the hardware cuts around it.
           if (wallpaper != null) Positioned.fill(child: DecoratedBox(decoration: wallpaper!)),
+          // The bars are left out of the semantics tree, as the rest of the
+          // hardware is: the clock in them is part of the picture, and what a
+          // screen reader is told about is what the caller put on the screen.
           Column(
             children: <Widget>[
-              if (chrome.top != null) chrome.top!,
+              if (chrome.top != null) ExcludeSemantics(child: chrome.top!),
               Expanded(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
-                    if (chrome.start != null) chrome.start!,
+                    if (chrome.start != null) ExcludeSemantics(child: chrome.start!),
                     Expanded(child: ClipRect(child: child ?? const SizedBox.expand())),
                   ],
                 ),
               ),
-              if (chrome.bottom != null) chrome.bottom!,
+              if (chrome.bottom != null) ExcludeSemantics(child: chrome.bottom!),
             ],
           ),
           // Above the bars, because it is a hole in the glass they are printed
@@ -206,13 +209,15 @@ class PlMockup extends StatelessWidget {
           // is a camera behind a pane of frosted plastic.
           if (mockupCutout(notch: cutout, screen: metrics.screen, landscape: landscape) != null)
             Positioned.fill(
-              child: Align(
-                alignment: landscape ? Alignment.centerLeft : Alignment.topCenter,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: <Widget>[
-                    mockupCutout(notch: cutout, screen: metrics.screen, landscape: landscape)!,
-                  ],
+              child: ExcludeSemantics(
+                child: Align(
+                  alignment: landscape ? Alignment.centerLeft : Alignment.topCenter,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: <Widget>[
+                      mockupCutout(notch: cutout, screen: metrics.screen, landscape: landscape)!,
+                    ],
+                  ),
                 ),
               ),
             ),

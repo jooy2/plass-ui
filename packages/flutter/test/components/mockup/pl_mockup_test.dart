@@ -93,6 +93,39 @@ void main() {
       expect(find.text('11:11'), findsOneWidget);
     });
 
+    testWidgets('keeps the clock of every system from a screen reader', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+
+      for (final (PlMockupDevice device, PlMockupOs os) in <(PlMockupDevice, PlMockupOs)>[
+        (PlMockupDevice.mobile, PlMockupOs.ios),
+        (PlMockupDevice.mobile, PlMockupOs.android),
+        (PlMockupDevice.tablet, PlMockupOs.ipados),
+        (PlMockupDevice.desktop, PlMockupOs.macos),
+        (PlMockupDevice.desktop, PlMockupOs.windows),
+        (PlMockupDevice.desktop, PlMockupOs.linux),
+      ]) {
+        await _pump(
+          tester,
+          PlMockup(
+            device: device,
+            os: os,
+            time: '11:11',
+            child: const Center(child: Text('Hello from the phone')),
+          ),
+        );
+
+        // Drawn, and part of the picture: what a screen reader is told about is
+        // what the caller put on the screen.
+        expect(find.text('11:11'), findsOneWidget);
+        expect(find.bySemanticsLabel('11:11'), findsNothing, reason: '$os');
+        expect(find.bySemanticsLabel('Hello from the phone'), findsOneWidget);
+      }
+
+      handle.dispose();
+    });
+
     testWidgets('draws no bars at all when systemUi is off', (WidgetTester tester) async {
       await _pump(
         tester,
