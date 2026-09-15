@@ -417,6 +417,36 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('leaves out a swatch it cannot read', (WidgetTester tester) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+
+      await tester.pumpWidget(
+        host(
+          const PlColorPicker(inline: true, value: '#ff0000', swatches: <String>['red', '#22c55e']),
+          width: 400,
+          height: 500,
+          overlay: true,
+        ),
+      );
+
+      expect(find.bySemanticsLabel('red'), findsNothing);
+      expect(find.bySemanticsLabel('#22c55e'), findsOneWidget);
+
+      await tester.pumpWidget(
+        host(
+          const PlColorPicker(inline: true, value: '#ff0000', swatches: <String>['red']),
+          width: 400,
+          height: 500,
+          overlay: true,
+        ),
+      );
+
+      // With nothing it can read, there is no group left to name.
+      expect(find.bySemanticsLabel('Swatches'), findsNothing);
+
+      handle.dispose();
+    });
+
     testWidgets('takes nothing while it is read-only', (WidgetTester tester) async {
       final SemanticsHandle handle = tester.ensureSemantics();
       final List<String> seen = <String>[];

@@ -277,6 +277,17 @@ function ColorPanel({
   const pure = cssColor({ h: hsv.h, s: 100, v: 100 });
   const solid = cssColor(hsv);
 
+  // A swatch this cannot read is left out rather than drawn as a button that
+  // does nothing, and the rest are painted from what was read rather than from
+  // the string, so the colour on the button is the colour a press chooses.
+  const readable = swatches
+    ? swatches.flatMap((swatch) => {
+        const parsed = parseColor(swatch);
+
+        return parsed ? [{ swatch, parsed }] : [];
+      })
+    : [];
+
   /** Pointer capture on the element itself, so a drag off the panel keeps working. */
   const track = (handler: (event: React.PointerEvent<HTMLElement>) => void) => ({
     onPointerDown: (event: React.PointerEvent<HTMLElement>) => {
@@ -513,12 +524,10 @@ function ColorPanel({
         </div>
       ) : null}
 
-      {swatches && swatches.length > 0 ? (
+      {readable.length > 0 ? (
         <div role="group" aria-label={labels.swatches} className="grid grid-cols-8 gap-1">
-          {swatches.map((swatch) => {
-            const parsed = parseColor(swatch);
+          {readable.map(({ swatch, parsed }) => {
             const chosen =
-              parsed !== null &&
               formatColor(parsed.hsv, parsed.alpha, 'hex') === formatColor(hsv, alphaValue, 'hex');
 
             return (
@@ -528,13 +537,7 @@ function ColorPanel({
                 disabled={inert}
                 aria-label={swatch}
                 aria-pressed={chosen}
-                onClick={() => {
-                  if (!parsed) {
-                    return;
-                  }
-
-                  onChange(parsed);
-                }}
+                onClick={() => onChange(parsed)}
                 className={cx(
                   'flex aspect-square items-center justify-center rounded-full border',
                   '[border-color:var(--plass-border)]',
@@ -546,11 +549,11 @@ function ColorPanel({
                     : 'cursor-pointer hover:[box-shadow:var(--plass-shadow-1)]',
                   '[&_svg]:size-3'
                 )}
-                style={{ backgroundColor: swatch }}
+                style={{ backgroundColor: cssColor(parsed.hsv, parsed.alpha) }}
               >
                 {/* Black or white, decided by what can actually be read on the
                     swatch — a fixed white tick vanishes on yellow. */}
-                {chosen && parsed ? (
+                {chosen ? (
                   <span style={{ color: readableInk(parsed.hsv) }}>
                     <CheckIcon />
                   </span>

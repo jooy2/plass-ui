@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A `PlColorPicker` swatch the picker cannot read is left out.** A swatch such as `'red'` was drawn as a button that did nothing when pressed, since named colours are not read, and every swatch was painted from its string, so a bare `'ff0000'`, which the picker reads as red, was an empty circle. Such a swatch is now not drawn, and the rest are painted with the colour a press chooses.
+
 - **The two select-all ticks of a `PlTransfer` have different names.** Both were read as "Select all", so a screen reader could not tell which list a tick belonged to. Each is now named by `selectAllLabel` and then by its list's heading, "Select all Available", read from the heading itself, so a heading given as an element is read as well.
 
 - **A `vertical` `PlScrollArea` no longer scrolls sideways.** The viewport scrolled both ways, so a `<pre>` or a long URL wider than the box could be scrolled horizontally with no scrollbar to show it. An area now scrolls only along the axes `orientation` names, as in the Flutter build, and content wider than a `vertical` area is cut off at the edge. Let such content wrap, or use `orientation="both"`.

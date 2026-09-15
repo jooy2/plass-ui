@@ -543,6 +543,12 @@ class _ColorPanel extends StatelessWidget {
     final double radius = PlassTokens.radius[size]!;
     final Color pure = hsvToColor(PlassHsv(model.hsv.h, 100, 100));
     final Color solid = hsvToColor(model.hsv);
+    // A swatch this cannot read is left out rather than drawn as a clear circle
+    // that does nothing when pressed.
+    final List<(String, PlassColorValue)> readable = <(String, PlassColorValue)>[
+      for (final String swatch in swatches)
+        if (parseColor(swatch) case final PlassColorValue parsed) (swatch, parsed),
+    ];
 
     return SizedBox(
       width: _panelWidth[size]!,
@@ -724,7 +730,7 @@ class _ColorPanel extends StatelessWidget {
                 ),
               ],
             ),
-          if (swatches.isNotEmpty)
+          if (readable.isNotEmpty)
             Semantics(
               container: true,
               label: labels.swatches,
@@ -733,19 +739,16 @@ class _ColorPanel extends StatelessWidget {
                 spacing: 4,
                 runSpacing: 4,
                 children: <Widget>[
-                  for (final String swatch in swatches)
+                  for (final (String swatch, PlassColorValue parsed) in readable)
                     _Swatch(
                       swatch: swatch,
+                      parsed: parsed,
                       size: (_panelWidth[size]! - 4 * 7) / 8,
-                      chosen: _isChosen(swatch),
+                      chosen: _isChosen(parsed),
                       inert: inert,
                       border: tokens.border,
                       ring: family.ring,
-                      onPressed: () {
-                        final PlassColorValue? parsed = parseColor(swatch);
-
-                        if (parsed != null) onChanged(parsed);
-                      },
+                      onPressed: () => onChanged(parsed),
                     ),
                 ],
               ),
@@ -755,11 +758,7 @@ class _ColorPanel extends StatelessWidget {
     );
   }
 
-  bool _isChosen(String swatch) {
-    final PlassColorValue? parsed = parseColor(swatch);
-
-    if (parsed == null) return false;
-
+  bool _isChosen(PlassColorValue parsed) {
     return formatColor(parsed.hsv, parsed.alpha, PlColorFormat.hex) ==
         formatColor(model.hsv, model.alpha, PlColorFormat.hex);
   }
@@ -986,6 +985,7 @@ class _TrackState extends State<_Track> {
 class _Swatch extends StatelessWidget {
   const _Swatch({
     required this.swatch,
+    required this.parsed,
     required this.size,
     required this.chosen,
     required this.inert,
@@ -994,7 +994,11 @@ class _Swatch extends StatelessWidget {
     required this.onPressed,
   });
 
+  /// The colour as the caller wrote it, which is what the swatch is named.
   final String swatch;
+
+  /// The same colour as it was read, which is what the swatch is painted with.
+  final PlassColorValue parsed;
   final double size;
   final bool chosen;
   final bool inert;
@@ -1004,10 +1008,7 @@ class _Swatch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final PlassColorValue? parsed = parseColor(swatch);
-    final Color fill = parsed == null
-        ? const Color(0x00000000)
-        : hsvToColor(parsed.hsv, parsed.alpha);
+    final Color fill = hsvToColor(parsed.hsv, parsed.alpha);
 
     // A focus stop and a key to press, as the React build's `<button>` is: a
     // swatch only a pointer could reach left the keyboard with the rails alone.
@@ -1033,7 +1034,7 @@ class _Swatch extends StatelessWidget {
             ),
             // Black or white, decided by what can actually be read on the swatch
             // — a fixed white tick vanishes on yellow.
-            child: chosen && parsed != null
+            child: chosen
                 ? Center(
                     child: PlassGlyph(
                       PlassGlyphShape.check,

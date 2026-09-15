@@ -301,6 +301,20 @@ describe('PlColorPicker', () => {
       expect(screen.getByRole('group', { name: 'Swatches' }).query()).toBeNull();
     });
 
+    it('leaves out a swatch it cannot read, and paints the rest from what it read', async () => {
+      const screen = await render(
+        <PlColorPicker inline defaultValue="#123456" swatches={['red', 'ff0000']} />
+      );
+
+      const swatch = screen.getByRole('button', { name: 'ff0000' });
+
+      // A bare hex is a colour to the picker and not to CSS, so the button is
+      // only red when it is painted from the parsed value.
+      await expect.element(swatch).toBeVisible();
+      expect(swatch.element().style.backgroundColor).toBe('rgb(255, 0, 0)');
+      expect(screen.getByRole('button', { name: 'red' }).query()).toBeNull();
+    });
+
     it('changes the colour and the opacity together', async () => {
       const onValueChange = vi.fn();
 

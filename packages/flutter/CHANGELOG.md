@@ -64,6 +64,8 @@
 
 ### Fixed
 
+- **A `PlColorPicker` swatch the picker cannot read is left out.** A swatch such as `'red'` was drawn as a clear circle that did nothing when pressed, since named colours are not read. It is now not drawn, and a list with nothing readable in it draws no swatches.
+
 - **A disabled `PlTextField`, `PlNumberField` or `PlOtpField` leaves the focus order.** Tab stopped on it and drew a focus ring, although nothing could be typed into it. It is now passed by Tab, as a disabled `PlButton` is and as in the React build. A read-only field still takes the focus.
 
 - **A `readOnly` `PlCheckbox` is no longer announced as disabled.** It keeps its place in the focus order, but its semantics said it was not enabled. It is now enabled and read only, and still has no tap action, as the React build's `aria-readonly` says.
