@@ -250,6 +250,14 @@ class _PlProgressLinearState extends State<PlProgressLinear> with SingleTickerPr
   }
 }
 
+/// How far past ±1 the segment's alignment runs, so that it clears the groove
+/// at both ends of a cycle.
+///
+/// A segment `w` wide in a groove of `1` has `1 - w` of room, and an alignment
+/// of `x` puts its start at `(x + 1) / 2 * (1 - w)`. That start is `-w` at
+/// `-(1 + w) / (1 - w)` and `1` at the same number positive.
+const double _sweepReach = (1 + sweepWidth) / (1 - sweepWidth);
+
 /// The travelling segment.
 ///
 /// It moves on an alignment rather than on a transform, which is the same trade
@@ -288,10 +296,11 @@ class _Sweep extends StatelessWidget {
           final eased = PlassTokens.ease.transform(animation.value);
 
           return FractionallySizedBox(
-            // -1 is off the leading edge and 1 is off the trailing one, which is
-            // what an `Alignment`'s x runs between — so the segment enters and
-            // leaves rather than appearing at the edges.
-            alignment: AlignmentDirectional(-1 + eased * 2, 0),
+            // An alignment's -1 and 1 only put the segment flush against the
+            // two ends. Past them by this much, it starts wholly before the
+            // groove and finishes wholly after it, which is the stylesheet's
+            // `-45%` to `100%`, so it enters and leaves rather than jumping back.
+            alignment: AlignmentDirectional(-_sweepReach + eased * 2 * _sweepReach, 0),
             widthFactor: sweepWidth,
             heightFactor: 1,
             child: child,

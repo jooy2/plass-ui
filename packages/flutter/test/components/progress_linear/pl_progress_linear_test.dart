@@ -124,6 +124,28 @@ void main() {
         await tester.pumpWidget(host(const SizedBox.shrink()));
       });
 
+      testWidgets('enters from before the groove and leaves past its end', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(const PlProgressLinear(), width: 320));
+
+        double start() =>
+            tester.getTopLeft(_fill()).dx - tester.getTopLeft(find.byType(ClipRRect)).dx;
+
+        // The first frame of a cycle: wholly before the start, its end on it.
+        expect(start(), closeTo(-320 * 0.45, 0.5));
+
+        await tester.pump(const Duration(milliseconds: 575));
+        final halfway = PlassTokens.ease.transform(0.5);
+        expect(start(), closeTo(-320 * 0.45 + halfway * 320 * 1.45, 0.5));
+
+        // The last frame before the cycle starts again: wholly past the end.
+        await tester.pump(const Duration(milliseconds: 574));
+        expect(start(), closeTo(320, 0.5));
+
+        await tester.pumpWidget(host(const SizedBox.shrink()));
+      });
+
       testWidgets('covers only part of the groove while it travels', (WidgetTester tester) async {
         await tester.pumpWidget(host(const PlProgressLinear(), width: 320));
         await tester.pump(const Duration(milliseconds: 100));
