@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **Pressing the × on an uncontrolled `inline` `PlDrawer` closes it.** An inline drawer read only `open` and `defaultOpen`, so without `open` the × called `onOpenChange` and the panel stayed. It now keeps its own open state, and a controlled `open` still decides.
+
 - **`PlTour` cuts its light round an SVG target.** Only an HTML element was measured, so a step pointed at a chart bar or any other SVG element dimmed the whole page, the target included, and the target could not be pressed. Any element is measured now.
 
 - **`PlTour` moves to its target at once when the reader has asked for less motion.** It always scrolled each target into view smoothly, so under `prefers-reduced-motion` the page still slid past on every step. It now jumps there, as `PlBackTop` and `PlScrollZone` already do.

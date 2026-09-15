@@ -330,6 +330,10 @@ export function PlDrawer({
   const along = side === 'left' || side === 'right';
   const showCloseButton = showClose ?? overlay;
 
+  // Base UI keeps an overlay drawer's open state. An inline one is not a Base UI
+  // dialog, so it keeps its own for the × to close when no `open` is passed.
+  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen ?? true);
+
   const insetX = sheetPaddingXClasses[density][size];
   const insetY = sheetPaddingYClasses[density][size];
   // With dividers the lines have to reach both edges, so the sheet gives up its
@@ -391,7 +395,13 @@ export function PlDrawer({
                 type="button"
                 aria-label={closeLabel}
                 className={closeButtonClasses}
-                onClick={() => onOpenChange?.(false)}
+                onClick={() => {
+                  if (open === undefined) {
+                    setUncontrolledOpen(false);
+                  }
+
+                  onOpenChange?.(false);
+                }}
               >
                 <CloseIcon />
               </button>
@@ -439,7 +449,7 @@ export function PlDrawer({
     // An inline drawer is in the flow, so "closed" is "not in the layout".
     // There is nothing to animate on the way out: the page around it is what
     // moves, and moving the page is not this component's to do.
-    if (!(open ?? defaultOpen ?? true)) {
+    if (!(open ?? uncontrolledOpen)) {
       return null;
     }
 

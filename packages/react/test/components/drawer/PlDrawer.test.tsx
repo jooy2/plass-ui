@@ -152,6 +152,39 @@ describe('PlDrawer', () => {
       await expect.element(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
     });
 
+    it('closes on the × it was asked for when nothing controls it', async () => {
+      const onOpenChange = vi.fn();
+      const screen = await render(
+        <PlDrawer mode="inline" showClose onOpenChange={onOpenChange} title="Sections">
+          The sidebar that is simply there.
+        </PlDrawer>
+      );
+
+      await screen.getByRole('button', { name: 'Close' }).click();
+
+      expect(onOpenChange).toHaveBeenCalledWith(false);
+      await expect
+        .poll(() => screen.getByText('The sidebar that is simply there.').query())
+        .toBeNull();
+    });
+
+    it('reports the × and stays where a controlled open put it', async () => {
+      const onOpenChange = vi.fn();
+      const screen = await render(
+        <PlDrawer mode="inline" open showClose onOpenChange={onOpenChange} title="Sections">
+          The sidebar that is simply there.
+        </PlDrawer>
+      );
+
+      await screen.getByRole('button', { name: 'Close' }).click();
+
+      expect(onOpenChange).toHaveBeenCalledWith(false);
+      // The parent said open and never said otherwise.
+      await expect
+        .element(screen.getByText('The sidebar that is simply there.'))
+        .toBeInTheDocument();
+    });
+
     it('renders no trigger, because there is nothing to open', async () => {
       const screen = await render(
         <PlDrawer mode="inline" trigger={<PlButton>Open</PlButton>} title="Sections">
