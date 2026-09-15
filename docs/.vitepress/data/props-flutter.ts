@@ -1194,7 +1194,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlChip', 'onClick', { name: 'onPressed', type: 'VoidCallback?' }),
     from('PlChip', 'onDelete', { name: 'onDeleted', type: 'VoidCallback?' }),
     from('PlChip', 'deleteLabel', {
-      type: 'String',
+      type: 'String?',
       default: '`Remove {text}`',
       description: {
         ko: '삭제 표시의 이름. 화면에는 그려지지 않습니다. 넘기지 않으면 라벨 묶음의 `removeItem`에 chip의 글자를 넘기는데, 글자는 `child`가 `Text`일 때만 읽을 수 있습니다. 다른 위젯을 담은 chip은 `remove`만 읽히므로 어느 chip을 지우는지 말하는 이름을 넘기세요. 넘기면 그 값이 이름 전체가 됩니다',
