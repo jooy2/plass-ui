@@ -9,7 +9,11 @@ function Subject({ width, height }: { width: number; height: number }) {
 
   return (
     <div>
-      <div ref={box} style={{ width: `${width}px`, height: `${height}px`, padding: '10px' }} />
+      <div
+        ref={box}
+        data-testid="box"
+        style={{ width: `${width}px`, height: `${height}px`, padding: '10px' }}
+      />
       <span data-testid="size">{size ? `${size.width}x${size.height}` : 'null'}</span>
     </div>
   );
@@ -34,11 +38,9 @@ function Late({ ready }: { ready: boolean }) {
   );
 }
 
-/** The last one rendered: the resize test draws a second subject beside the first. */
+/** What the subject says the hook last reported. */
 function reported(): string {
-  const all = document.querySelectorAll('[data-testid="size"]');
-
-  return all[all.length - 1].textContent ?? '';
+  return document.querySelector('[data-testid="size"]')?.textContent ?? '';
 }
 
 describe('usePlElementSize', () => {
@@ -63,7 +65,13 @@ describe('usePlElementSize', () => {
 
     await expect.poll(() => reported()).toBe('200x80');
 
-    await render(<Subject width={300} height={120} />);
+    const box = document.querySelector<HTMLElement>('[data-testid="box"]')!;
+
+    // Written straight onto the element, so nothing renders again and the
+    // measurement taken on mount is not taken a second time: only the observer
+    // can carry the new size back to the same output.
+    box.style.width = '300px';
+    box.style.height = '120px';
 
     await expect.poll(() => reported()).toBe('300x120');
   });
