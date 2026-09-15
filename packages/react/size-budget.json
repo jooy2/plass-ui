@@ -3,10 +3,10 @@
   "scenarios": {
     "One PlButton": 6502,
     "One PlTypography": 3108,
-    "One PlImage": 8510,
-    "One PlGallery": 11304,
+    "One PlImage": 8722,
+    "One PlGallery": 11588,
     "Five form controls": 20783,
-    "Five overlays": 89989,
-    "Everything": 295124
+    "Five overlays": 90131,
+    "Everything": 296421
   }
 }
