@@ -270,7 +270,10 @@ class _PlRadioGroupState<T> extends State<PlRadioGroup<T>> with PlassRovingStop<
       onKeyEvent: _onKey,
       child: Semantics(
         container: true,
-        enabled: _interactive,
+        // Read-only is not disabled: the set keeps its focus stop, so it says it
+        // is available and cannot be changed, as `aria-readonly` does.
+        enabled: !_disabled,
+        readOnly: widget.readOnly,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -418,7 +421,10 @@ class _Radio<T> extends StatelessWidget {
         container: true,
         inMutuallyExclusiveGroup: true,
         checked: selected,
-        enabled: interactive,
+        // Read-only is not disabled here either, for the reason the set gives,
+        // and only the tap action goes.
+        enabled: !disabled,
+        readOnly: readOnly,
         onTap: onPressed,
         // The roving tab index, in one widget: every option answers the
         // pointer, and exactly one of them is in the tab order.

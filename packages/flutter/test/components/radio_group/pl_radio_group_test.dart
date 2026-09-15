@@ -268,6 +268,52 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('the set and its options are read-only rather than disabled while read-only', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            PlRadioGroup<String>(
+              options: plans,
+              value: 'team',
+              readOnly: true,
+              onChanged: (String _) {},
+            ),
+            width: 320,
+          ),
+        );
+
+        // The set keeps its focus stop, so a screen reader has to hear options
+        // that cannot be changed rather than options that are unavailable.
+        final set = tester.getSemantics(
+          find
+              .descendant(
+                of: find.byType(PlRadioGroup<String>),
+                matching: find.byWidgetPredicate(
+                  (Widget widget) => widget is Semantics && widget.container,
+                ),
+              )
+              .first,
+        );
+
+        expect(set, isSemantics(hasEnabledState: true, isEnabled: true, isReadOnly: true));
+
+        for (final label in <String>['Starter', 'Team']) {
+          expect(
+            tester.getSemantics(find.text(label)),
+            isSemantics(
+              hasEnabledState: true,
+              isEnabled: true,
+              isReadOnly: true,
+              hasTapAction: false,
+            ),
+          );
+        }
+
+        handle.dispose();
+      });
+
       testWidgets('the set takes one focus stop rather than one per option', (
         WidgetTester tester,
       ) async {
