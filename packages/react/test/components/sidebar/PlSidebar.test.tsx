@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlHeader, PlPageLayout, PlSidebar, PlSidebarTrigger } from 'plass-ui';
+import { moveMouseOntoPage } from '../../support/pointer';
 
 // The browser the suite runs in is 414px wide, so a breakpoint of `md` always
 // collapses and `none` never does. Both paths are therefore reachable without
@@ -275,9 +276,10 @@ describe('PlSidebar', () => {
       );
 
       const handle = screen.getByRole('separator').element();
+      const pointerId = await moveMouseOntoPage();
       const pointer = (type: string, init: PointerEventInit) =>
         handle.dispatchEvent(
-          new PointerEvent(type, { bubbles: true, pointerType: 'mouse', pointerId: 1, ...init })
+          new PointerEvent(type, { bubbles: true, pointerType: 'mouse', pointerId, ...init })
         );
 
       document.body.style.setProperty('-webkit-user-select', 'text');
