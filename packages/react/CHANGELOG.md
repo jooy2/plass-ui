@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **`PlImage` in Firefox no longer reports `loaded` for a picture that has not arrived after its `src` changes.** When the previous picture was already in the browser cache, Firefox still fired that picture's `load` after the `src` had changed, and `onStatusChange` took it for the new one. A caller heard `loaded` before the new picture arrived, or after its `error`, and a picture that failed showed no fallback. That late `load` is now ignored.
+
 - **→ on an open `PlTree` branch with nothing to step into keeps the focus where it is.** A branch with `children: []`, or whose children are all `disabled`, handed the focus to the next row, which is a sibling. The focus now moves only into a child, as the ARIA tree pattern says.
 
 - **`PlProgressLinear`, `PlProgressCircular` and `PlProgressBox` write their value in the provider's `locale`.** Unlike `PlMeter`, they did not pass on the `locale` of the nearest `PlassProvider`, so a `format` followed the browser's language and the percentage shown without one was always written `75%`. Both now follow the provider, so `locale="de-DE"` writes `75 %` on screen and in `aria-valuetext`. Without a provider, the percentage follows the browser's language, as a `format` already did.

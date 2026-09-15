@@ -622,6 +622,27 @@ describe('PlImage', () => {
       await expect.poll(() => onStatusChange.mock.calls).toEqual([['loaded'], ['error']]);
     });
 
+    it('does not take the last picture’s late load for the next one', async () => {
+      const warm = new Image();
+
+      warm.src = OK;
+      await warm.decode();
+
+      const onStatusChange = vi.fn();
+      const screen = await render(
+        <PlImage src={OK} alt="A portrait" onStatusChange={onStatusChange} />
+      );
+
+      await expect.poll(() => onStatusChange.mock.calls).toEqual([['loaded']]);
+
+      await screen.rerender(<PlImage src={BROKEN} alt="Another" onStatusChange={onStatusChange} />);
+
+      // The first picture was already decoded, so it was reported before its
+      // own `load` fired. Firefox still fires that `load` after the `src` has
+      // changed, and it is not news about the second picture.
+      await expect.poll(() => onStatusChange.mock.calls).toEqual([['loaded'], ['error']]);
+    });
+
     it('reports the arrival of a new src that was already in the cache', async () => {
       const other = `data:image/svg+xml,${encodeURIComponent(
         '<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4"></svg>'

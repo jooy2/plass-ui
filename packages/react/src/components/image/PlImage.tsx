@@ -545,6 +545,17 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
     const reported = React.useRef<PlImageStatus>('loading');
     /** The `src` that `reported` is about. */
     const reportedFor = React.useRef(src);
+    /*
+     * The `load` still owed to a picture the effect below found already decoded:
+     * the `src` it was for, and the file the element held.
+     *
+     * Firefox does not take that event back when the `src` changes before it
+     * fires. It then arrives after the next picture has started, while the
+     * element still holds the last file, and taken as news about the new `src`
+     * it would report a picture that has not arrived, or undo a failure that
+     * has already been reported.
+     */
+    const owedLoad = React.useRef<{ src: typeof src; file: string } | null>(null);
 
     const settle = (next: PlImageStatus, node: HTMLImageElement | null) => {
       const natural = next === 'loaded' ? naturalSize(node) : null;
@@ -604,6 +615,10 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
       }
 
       if (node.getAttribute('src') && node.complete) {
+        if (node.naturalWidth > 0) {
+          owedLoad.current = { src, file: node.currentSrc };
+        }
+
         settle(node.naturalWidth > 0 ? 'loaded' : 'error', node);
 
         return;
@@ -719,6 +734,21 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
         />
       );
 
+    const onPictureLoad = (event: React.SyntheticEvent<HTMLImageElement>) => {
+      const node = event.currentTarget;
+      const owed = owedLoad.current;
+
+      owedLoad.current = null;
+
+      // The last picture's own `load`, late: the `src` has moved on and the
+      // element still holds the file that picture was.
+      if (owed !== null && owed.src !== src && owed.file === node.currentSrc) {
+        return;
+      }
+
+      settle('loaded', node);
+    };
+
     const img = (
       <img
         ref={setImgRef}
@@ -727,7 +757,7 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
         loading={loading}
         width={width}
         height={height}
-        onLoad={(event) => settle('loaded', event.currentTarget)}
+        onLoad={onPictureLoad}
         onError={() => settle('error', null)}
         style={pictureStyle}
         className={cx(
