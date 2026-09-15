@@ -51,7 +51,7 @@ const PlAnimateRotate(
 
 ::: fw flutter
 
-`from`과 `to`는 radian이 아니라 **도(degree)**입니다. 프레임워크는 radian으로 세고 디자인 언어는 도로 셉니다 — 패키지의 모든 그러데이션이 135°죠 — 그래서 변환은 호출하는 자리마다가 아니라 widget 안에서 한 번 일어납니다. `origin`은 `Alignment`입니다.
+`from`과 `to`는 radian이 아니라 **도(degree)**입니다. 프레임워크는 radian으로 세고 디자인 언어는 도로 셉니다(패키지의 모든 그러데이션이 135°입니다). 그래서 변환은 호출하는 자리마다가 아니라 widget 안에서 한 번 일어납니다. `origin`은 `Alignment`입니다.
 
 :::
 
@@ -109,7 +109,7 @@ CSS `transform-origin`이면 무엇이든 됩니다. 모서리를 중심으로 �
 
 ::: fw react
 
-- `prefers-reduced-motion`에서는 애니메이션이 통째로 없어지고 내용은 그냥 거기 있습니다. 도착에는 맞는 처리이고, 회전에는 한 번 생각해 볼 문제입니다. 도는 것 자체가 *무언가 진행 중*이라는 뜻이라면 [PlProgressCircular](../feedback/progress-circular)를 쓰세요. 그쪽은 멈추는 대신 느려집니다.
+- `prefers-reduced-motion`에서는 애니메이션이 통째로 없어지고 내용은 그냥 거기 있습니다. 도착에는 맞는 처리이고, 회전에는 한 번 생각해 볼 문제입니다. 도는 것 자체가 '무언가 진행 중'이라는 뜻이라면 [PlProgressCircular](../feedback/progress-circular)를 쓰세요. 그쪽은 멈추는 대신 느려집니다.
 - **글자에는 쓰지 마세요.** 회전한 단어는 길이 전체에 걸쳐 다시 샘플링됩니다. 회전은 디자인 언어가 글리프 위에서 이견 없이 허용하는 유일한 움직임이고 — 라이브러리 전체에서 chevron은 다시 그려지는 대신 돌아갑니다 — 그것이 이 효과가 겨냥하는 종류의 것입니다.
 - 누군가 읽고 있는 페이지의 구석에서 끝없이 도는 것은 이 라이브러리의 나머지가 거부하는 유일한 종류의 움직임입니다. 이유를 주세요.
 - **멈출 방법을 주세요.** `repeat="infinite"`로 도는 회전이 다른 내용 옆에서 5초 넘게 이어진다면 페이지에 그것을 멈추는 컨트롤이 있어야 하고, [PlAnimateMarquee 예제](./animate-marquee#paused)처럼 `paused`에 연결한 버튼이면 됩니다. [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html)가 이것을 요구합니다. `prefers-reduced-motion`은 이 컨트롤을 대신하지 못합니다. 읽는 사람이 직접 찾아서 켜야 하는 시스템 설정이기 때문입니다.
@@ -118,7 +118,7 @@ CSS `transform-origin`이면 무엇이든 됩니다. 모서리를 중심으로 �
 
 ::: fw flutter
 
-- 플랫폼에서 애니메이션이 꺼져 있으면(`MediaQuery.disableAnimations`) 효과가 통째로 없어지고 내용은 그냥 거기 있습니다. 도착에는 맞는 처리이고, 회전에는 한 번 생각해 볼 문제입니다. 도는 것 자체가 *무언가 진행 중*이라는 뜻이라면 [PlProgressCircular](../feedback/progress-circular)를 쓰세요. 그쪽은 멈추는 대신 느려집니다.
+- 플랫폼에서 애니메이션이 꺼져 있으면(`MediaQuery.disableAnimations`) 효과가 통째로 없어지고 내용은 그냥 거기 있습니다. 도착에는 맞는 처리이고, 회전에는 한 번 생각해 볼 문제입니다. 도는 것 자체가 '무언가 진행 중'이라는 뜻이라면 [PlProgressCircular](../feedback/progress-circular)를 쓰세요. 그쪽은 멈추는 대신 느려집니다.
 - **글자에는 쓰지 마세요.** 회전한 단어는 길이 전체에 걸쳐 다시 샘플링됩니다.
 - 누군가 읽고 있는 화면 구석에서 끝없이 도는 것은 이 패키지의 나머지가 거부하는 유일한 종류의 움직임입니다. 이유를 주세요.
 - **멈출 방법을 주세요.** `repeat: null`로 도는 회전이 다른 내용 옆에서 5초 넘게 이어진다면 화면에 그것을 멈추는 컨트롤이 있어야 하고, [PlAnimateMarquee 예제](./animate-marquee#paused)처럼 `paused`에 연결한 버튼이면 됩니다. [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html)가 이것을 요구합니다. `MediaQuery.disableAnimations`는 이 컨트롤을 대신하지 못합니다. 읽는 사람이 직접 찾아서 켜야 하는 시스템 설정에서 오는 값이기 때문입니다.
@@ -137,7 +137,7 @@ CSS `transform-origin`이면 무엇이든 됩니다. 모서리를 중심으로 �
 | `render` | — | Flutter에는 다형적 요소가 없습니다. |
 | `duration`, `delay`가 밀리초 | `Duration` | 프레임워크에 이미 타입이 있습니다. |
 | `easing`이 CSS 문자열 | `curve`, `Curve` | 같은 것에 대한 Dart 자신의 이름입니다. |
-| `repeat: number \| 'infinite'` | `int?`, `null`이 멈추지 않음 | 적을 `'infinite'`가 없고, `-1`은 caller가 찾아봐야 하는 sentinel입니다. |
+| `repeat: number \| 'infinite'` | `int?`, `null`이 멈추지 않음 | 적을 `'infinite'`가 없고, `-1`은 호출자가 찾아봐야 하는 sentinel입니다. |
 | `trigger="visible"`이 `IntersectionObserver` | 위에 있는 모든 `Scrollable`을 봅니다 | 여기에는 observer가 없으므로, 그 모든 viewport 안과 화면 안에 들어와야 보이는 것으로 칩니다. 위에 scrollable이 없으면 볼 것이 없으므로 그냥 돕니다. |
 | `prefers-reduced-motion` | `MediaQuery.disableAnimations` | 플랫폼 자신의 신호입니다. |
 | `stagger`, `durationStep`, `reverse` | — | React 빌드는 효과를 자식들 자신에게 써 넣으므로 호출자의 레이아웃은 그대로입니다. Flutter에는 집합을 배치할 스타일시트가 없어서, 차등을 준 효과는 행이나 열까지 자기가 가져야 합니다. 그것이 바로 [`PlAnimateAppear`](./animate-appear)이고, 그것을 여섯 개 더 만드는 일이 됩니다. |
