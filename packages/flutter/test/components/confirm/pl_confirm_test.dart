@@ -136,6 +136,70 @@ void main() {
 
         expect(find.text('Delete this project?'), findsNothing);
       });
+
+      testWidgets('keeps its question and its buttons while it fades out', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlConfirmProvider(
+            child: _Asker(
+              answer: (Object? _) {},
+              options: const PlConfirmOptions(
+                title: Text('Delete this project?'),
+                confirmLabel: Text('Delete it'),
+                cancelLabel: Text('Keep it'),
+              ),
+            ),
+          ),
+        );
+        await _press(tester, 'Delete');
+
+        await tester.tap(find.text('Delete it'));
+        await tester.pump();
+        // Part of the way through the fade, which is where the sheet used to
+        // lose its title and fall back to the default buttons.
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(find.text('Delete this project?'), findsOneWidget);
+        expect(find.text('Delete it'), findsOneWidget);
+        expect(find.text('Keep it'), findsOneWidget);
+
+        await tester.pumpAndSettle();
+
+        expect(find.text('Delete this project?'), findsNothing);
+      });
+
+      testWidgets('keeps an alert to its one button while it fades out', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlConfirmProvider(
+            child: Builder(
+              builder: (BuildContext context) {
+                return PlButton(
+                  onPressed: () => PlConfirmProvider.of(
+                    context,
+                  ).alert(const PlConfirmOptions(title: Text('Your session expired.'))),
+                  child: const Text('Tell me'),
+                );
+              },
+            ),
+          ),
+        );
+        await _press(tester, 'Tell me');
+
+        await tester.tap(find.text('OK'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(find.text('Your session expired.'), findsOneWidget);
+        expect(find.text('OK'), findsOneWidget);
+        expect(find.text('Cancel'), findsNothing);
+
+        await tester.pumpAndSettle();
+      });
     });
 
     group('a question asked while one is open', () {

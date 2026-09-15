@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **The `PlConfirmProvider` dialog keeps what it said while it fades out.** Answering cleared the question at once, so for the 260ms of the fade the title and the body were gone and the buttons fell back to the defaults, which gave an alert a Cancel button. The sheet now fades out as it was.
+
 - **`PlTour` moves to its target at once when the reader has asked for less motion.** It always scrolled each target into view over 260ms, so with `disableAnimations` on the screen still slid past on every step. It now jumps there and measures the light once the jump is laid out, as `PlBackTop` already jumps.
 
 - **The lowest bar of a `PlSparkline` bar strip above zero draws inside its box.** A value at the foot of the scale is drawn as a bar one pixel tall, and when every value is above zero the foot is the bottom edge, so that pixel sat just below the box. It now grows up from the bottom edge, and strips with values below zero draw as before.

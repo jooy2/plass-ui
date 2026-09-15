@@ -203,7 +203,14 @@ class _PlConfirmProviderState extends State<PlConfirmProvider> implements PlConf
 
   final List<_Request> _queue = <_Request>[];
 
+  /// The question waiting for its answer, and `null` once it has one.
   _Request? _live;
+
+  /// The question the sheet draws. The same as [_live] while it is open, and
+  /// kept once it has been answered, so the sheet fades out with the words and
+  /// the buttons it was asked with instead of an empty one with the defaults.
+  _Request? _shown;
+
   bool _open = false;
 
   /// How many questions have reached the sheet, which is what the buttons are
@@ -238,6 +245,7 @@ class _PlConfirmProviderState extends State<PlConfirmProvider> implements PlConf
 
     setState(() {
       _live = request;
+      _shown = request;
       _open = true;
       _turn += 1;
     });
@@ -260,14 +268,15 @@ class _PlConfirmProviderState extends State<PlConfirmProvider> implements PlConf
       // a dialog the reader is about to be asked something else in.
       setState(() {
         _live = _queue.removeAt(0);
+        _shown = _live;
         _turn += 1;
       });
 
       return;
     }
 
-    // `_live` is kept until the sheet has finished animating out, so there is
-    // something to draw while it does.
+    // Only the answer and the open state change. `_shown` stays, so there is
+    // something to draw while the sheet animates out.
     setState(() {
       _live = null;
       _open = false;
@@ -282,8 +291,8 @@ class _PlConfirmProviderState extends State<PlConfirmProvider> implements PlConf
 
   @override
   Widget build(BuildContext context) {
-    final options = _live?.options;
-    final isAlert = _live?.alert ?? false;
+    final options = _shown?.options;
+    final isAlert = _shown?.alert ?? false;
     final focusConfirm =
         isAlert || (options?.initialFocus ?? PlConfirmFocus.cancel) == PlConfirmFocus.confirm;
     final size = options?.size ?? _size;
