@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **A `PlCodeBlock` `highlightLines` range stops at the last line, and a number too long for an `int` no longer throws.** A range was walked from end to end whatever the block held, so `'1-100000000'` built a hundred million line numbers, and `'2-99999999999999999999'` made `int.parse` throw while the block was building. Only the lines the block has are walked now, and a number too long for an `int` counts as past the last line, as in the React build. `parseLineSpec` takes the bounds as the optional `first` and `last`.
+
 - **A `PlSparkline` with `shape: PlSparklineShape.bar` whose values are all below zero draws inside its box.** The bars grew from zero, which for such a strip lies above its top, so they covered the content above it. They now hang from the top of the strip, and strips with positive or mixed values draw as before.
 
 - **A `PlTimelineChart` span that lies wholly outside a fixed `min` and `max` can no longer be reached.** It was not drawn but stayed a mark, so pointing beside the plot showed its tooltip outside it. It is now left out of the marks and the summary a screen reader hears, and a span that crosses an edge answers only on the part that is drawn. The tooltip still gives that span's real start and end.

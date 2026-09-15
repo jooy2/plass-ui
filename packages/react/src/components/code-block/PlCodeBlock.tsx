@@ -254,8 +254,14 @@ const COPIED_FOR = 2000;
  * asked of it is "is this line in it", once per line. Anything unparseable is
  * dropped rather than thrown: a marked line is an annotation, and a typo in one
  * should cost the annotation, not the code.
+ *
+ * Exported for its test; the barrel leaves it out.
  */
-function markedLines(spec: number | string | Array<number | string> | undefined): Set<number> {
+export function markedLines(
+  spec: number | string | Array<number | string> | undefined,
+  first: number,
+  last: number
+): Set<number> {
   const marked = new Set<number>();
 
   if (spec === undefined) {
@@ -282,8 +288,12 @@ function markedLines(spec: number | string | Array<number | string> | undefined)
       const to = range[2] === undefined ? from : Number(range[2]);
 
       // Written the wrong way round is still a range, and the reader who typed
-      // `9-4` meant the same four lines.
-      for (let line = Math.min(from, to); line <= Math.max(from, to); line += 1) {
+      // `9-4` meant the same four lines. Only the part of it the block has is
+      // walked, so `1-100000000` over twelve lines is twelve steps.
+      const low = Math.max(Math.min(from, to), first);
+      const high = Math.min(Math.max(from, to), last);
+
+      for (let line = low; line <= high; line += 1) {
         marked.add(line);
       }
     }
@@ -504,7 +514,10 @@ export const PlCodeBlock = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCo
       }
     };
 
-    const marked = React.useMemo(() => markedLines(highlightLines), [highlightLines]);
+    const marked = React.useMemo(
+      () => markedLines(highlightLines, startLine, startLine + lines.length - 1),
+      [highlightLines, startLine, lines.length]
+    );
 
     /**
      * Select-all inside the block, rather than select-all of the page.

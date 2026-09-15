@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlCodeBlock } from 'plass-ui';
+import { markedLines } from '../../../src/components/code-block/PlCodeBlock';
 
 const code = `const answer = 42;\nconsole.log(answer);`;
 
@@ -263,6 +264,27 @@ describe('PlCodeBlock', () => {
       );
 
       expect(marks()).toEqual([false, true, false]);
+    });
+
+    it('marks a range that runs past the last line up to that line', async () => {
+      await render(<PlCodeBlock code={'a\nb\nc'} highlight={false} highlightLines="2-1000" />);
+
+      expect(marks()).toEqual([false, true, true]);
+    });
+
+    // The parser on its own, because a block handed a range this long before
+    // the fix never finished drawing, and a test of that would never finish.
+    it('walks only the lines the block has', () => {
+      expect(markedLines('2-100000000', 1, 3)).toEqual(new Set([2, 3]));
+      expect(markedLines('1-100000000', 99999999, 100000001)).toEqual(
+        new Set([99999999, 100000000])
+      );
+    });
+
+    it('reads a number too large to be a line as past the last one', () => {
+      expect(markedLines(['99999999999999999999', '2-99999999999999999999'], 1, 3)).toEqual(
+        new Set([2, 3])
+      );
     });
 
     it('counts the way the gutter counts', async () => {

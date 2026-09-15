@@ -496,13 +496,21 @@ const Duration _copiedFor = Duration(seconds: 2);
 /// The rule down a marked line's leading edge.
 const double _markEdge = 2;
 
+/// The largest line number [parseLineSpec] reads: `2^53 - 1`, the largest
+/// integer an `int` holds exactly on every platform, the web included.
+const int _lastLine = 9007199254740991;
+
 /// `'4'`, `'4-9'` or `'1,4-9,12'`, as the set of numbers it names.
 ///
 /// A set rather than a sorted list of ranges because the only question ever
 /// asked of it is "is this line in it", once per line. Anything unparseable is
 /// dropped rather than thrown: a marked line is an annotation, and a typo in one
 /// should cost the annotation, not the code.
-Set<int> parseLineSpec(String? spec) {
+///
+/// Only the numbers from [first] to [last] are kept, and a range is cut to them
+/// before it is walked, so `'1-100000000'` over a block of twelve lines is
+/// twelve steps. A number too long for an `int` is past the end of any block.
+Set<int> parseLineSpec(String? spec, {int first = 0, int last = _lastLine}) {
   final marked = <int>{};
 
   if (spec == null) {
@@ -518,12 +526,15 @@ Set<int> parseLineSpec(String? spec) {
       continue;
     }
 
-    final int from = int.parse(range.group(1)!);
-    final int to = range.group(2) == null ? from : int.parse(range.group(2)!);
+    final int from = int.tryParse(range.group(1)!) ?? _lastLine;
+    final int to = range.group(2) == null ? from : int.tryParse(range.group(2)!) ?? _lastLine;
 
     // Written the wrong way round is still a range, and the reader who typed
     // `9-4` meant the same four lines.
-    for (int line = from < to ? from : to; line <= (from > to ? from : to); line += 1) {
+    final int low = from < to ? from : to;
+    final int high = from > to ? from : to;
+
+    for (int line = low < first ? first : low; line <= (high > last ? last : high); line += 1) {
       marked.add(line);
     }
   }
@@ -799,7 +810,11 @@ class _PlCodeBlockState extends State<PlCodeBlock> {
     final bool coloured = widget.lines != null && !_raw;
     final List<PlCodeLine> lines = coloured ? widget.lines! : plainCodeLines(_source);
 
-    final Set<int> marked = parseLineSpec(widget.highlightLines);
+    final Set<int> marked = parseLineSpec(
+      widget.highlightLines,
+      first: widget.startLine,
+      last: widget.startLine + lines.length - 1,
+    );
     final double padX = _linePadX[_density]![size]!;
     final double padY = _bodyPadY[_density]![size]!;
 

@@ -428,6 +428,41 @@ void main() {
         expect(parseLineSpec(null), isEmpty);
       });
 
+      test('walks only the lines the block has', () {
+        expect(parseLineSpec('2-100000000', first: 1, last: 3), <int>{2, 3});
+        expect(parseLineSpec('1-100000000', first: 99999999, last: 100000001), <int>{
+          99999999,
+          100000000,
+        });
+      });
+
+      test('reads a number too long for an int as past the last line', () {
+        expect(parseLineSpec('99999999999999999999', first: 1, last: 3), isEmpty);
+        expect(parseLineSpec('2-99999999999999999999', first: 1, last: 3), <int>{2, 3});
+      });
+
+      testWidgets('builds with a number too long for an int', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          const PlCodeBlock(
+            code: 'a\nb\nc',
+            toolbar: false,
+            highlightLines: '2-99999999999999999999',
+          ),
+        );
+
+        expect(tester.takeException(), isNull);
+
+        final List<Color?> grounds = tester
+            .widgetList<Container>(
+              find.descendant(of: find.byType(PlCodeBlock), matching: find.byType(Container)),
+            )
+            .map((Container node) => (node.decoration as BoxDecoration?)?.color)
+            .toList();
+
+        expect(grounds.where((Color? color) => color != null).length, 2);
+      });
+
       testWidgets('tints the line it was told to', (WidgetTester tester) async {
         await _pump(
           tester,
