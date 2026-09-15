@@ -326,6 +326,11 @@ class _PlTextFieldState extends State<PlTextField> {
       cursorOpacityAnimates: true,
     );
 
+    // A disabled field leaves the focus order, as a disabled button does, so Tab
+    // passes it and no ring is drawn on it. The `ExcludeFocus` is in the tree
+    // either way, so turning `disabled` off does not build the editor again.
+    control = ExcludeFocus(excluding: widget.disabled, child: control);
+
     // The placeholder is drawn under the text rather than by the editor, which
     // has no notion of one.
     if (widget.placeholder != null) {

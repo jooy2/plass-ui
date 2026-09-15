@@ -481,6 +481,34 @@ void main() {
 
         handle.dispose();
       });
+
+      testWidgets('is passed by Tab while disabled, and reached by it otherwise', (
+        WidgetTester tester,
+      ) async {
+        final before = FocusNode();
+        addTearDown(before.dispose);
+
+        Future<bool> tabbedIn({required bool disabled}) async {
+          await tester.pumpWidget(
+            host(
+              afterFocusStop(
+                before,
+                PlNumberField(value: 5, disabled: disabled, onChanged: (double? _) {}),
+              ),
+              width: 320,
+            ),
+          );
+          before.requestFocus();
+          await tester.pump();
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pump();
+
+          return tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus;
+        }
+
+        expect(await tabbedIn(disabled: false), isTrue);
+        expect(await tabbedIn(disabled: true), isFalse);
+      });
     });
     group('hotKeys', () {
       testWidgets('answers a chord pressed in the editor', (WidgetTester tester) async {

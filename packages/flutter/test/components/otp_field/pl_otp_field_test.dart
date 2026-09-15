@@ -258,6 +258,28 @@ void main() {
         expect(tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus, isFalse);
       });
 
+      testWidgets('is passed by Tab while disabled, and reached by it otherwise', (
+        WidgetTester tester,
+      ) async {
+        final before = FocusNode();
+        addTearDown(before.dispose);
+
+        Future<bool> tabbedIn({required bool disabled}) async {
+          await tester.pumpWidget(
+            host(afterFocusStop(before, PlOtpField(length: 3, disabled: disabled))),
+          );
+          before.requestFocus();
+          await tester.pump();
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pump();
+
+          return tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus;
+        }
+
+        expect(await tabbedIn(disabled: false), isTrue);
+        expect(await tabbedIn(disabled: true), isFalse);
+      });
+
       testWidgets('takes focus on a press otherwise', (WidgetTester tester) async {
         await tester.pumpWidget(host(const PlOtpField(length: 3)));
 

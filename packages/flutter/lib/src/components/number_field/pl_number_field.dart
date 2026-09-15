@@ -630,6 +630,11 @@ class _PlNumberFieldState extends State<PlNumberField> {
       cursorOpacityAnimates: true,
     );
 
+    // A disabled field leaves the focus order, as a disabled button does, so Tab
+    // passes it and no ring is drawn on it. The `ExcludeFocus` is in the tree
+    // either way, so turning `disabled` off does not build the editor again.
+    editor = ExcludeFocus(excluding: widget.disabled, child: editor);
+
     if (widget.placeholder != null) {
       editor = Stack(
         children: <Widget>[

@@ -423,7 +423,13 @@ class _PlOtpFieldState extends State<PlOtpField> {
       children: <Widget>[
         Row(mainAxisSize: MainAxisSize.min, spacing: _slotGap[_density]![_size]!, children: row),
         Positioned.fill(
-          child: plassHotKeyScope(hotKeys: widget.hotKeys, child: editor),
+          // A disabled field leaves the focus order, as a disabled button does,
+          // so Tab passes it and no slot draws a ring. The `ExcludeFocus` is in
+          // the tree either way, so turning `disabled` off keeps the editor.
+          child: plassHotKeyScope(
+            hotKeys: widget.hotKeys,
+            child: ExcludeFocus(excluding: widget.disabled, child: editor),
+          ),
         ),
       ],
     );

@@ -64,6 +64,8 @@
 
 ### Fixed
 
+- **A disabled `PlTextField`, `PlNumberField` or `PlOtpField` leaves the focus order.** Tab stopped on it and drew a focus ring, although nothing could be typed into it. It is now passed by Tab, as a disabled `PlButton` is and as in the React build. A read-only field still takes the focus.
+
 - **A `readOnly` `PlCheckbox` is no longer announced as disabled.** It keeps its place in the focus order, but its semantics said it was not enabled. It is now enabled and read only, and still has no tap action, as the React build's `aria-readonly` says.
 
 - **A `PlCalendar` with no `onChanged` is disabled.** Its dartdoc said a calendar nothing listens to is inert, but only `disabled` took it out of reach, so its days and its month buttons still took a Tab and a press. It is now greyed out and out of the focus order, as `disabled` makes it and as every other control without a callback is.
