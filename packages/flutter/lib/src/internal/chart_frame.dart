@@ -940,6 +940,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
                           heading: categoryText(layout.categories[_activeIndex!], names),
                           pointer: pointer,
                           series: widget.series,
+                          mode: widget.tooltip.mode,
                           tokens: tokens,
                           size: size,
                           write: _write,
@@ -1400,6 +1401,7 @@ class _Tooltip extends StatelessWidget {
     required this.heading,
     required this.pointer,
     required this.series,
+    required this.mode,
     required this.tokens,
     required this.size,
     required this.write,
@@ -1410,25 +1412,52 @@ class _Tooltip extends StatelessWidget {
   final String heading;
   final Offset pointer;
   final List<PlassChartSeries> series;
+  final PlassChartTooltipMode mode;
   final PlassTokens tokens;
   final PlassSize size;
   final String Function(double) write;
 
   @override
   Widget build(BuildContext context) {
-    final rows = <Widget>[];
+    // Which series the card speaks for. `column` is every one of them that has
+    // a value at this category; `item` is the single one whose mark the pointer
+    // is nearest, measured along the *value* axis, because where the pointer is
+    // across the plot has already settled the category.
+    final spoken = <int>[];
 
     for (int i = 0; i < series.length; i += 1) {
       if (!layout.visible[i] || index >= layout.values[i].length) {
         continue;
       }
 
-      final ChartValue entry = layout.values[i][index];
-      final double? value = entry.value;
-
-      if (value == null) {
-        continue;
+      if (layout.values[i][index].value != null) {
+        spoken.add(i);
       }
+    }
+
+    if (mode == PlassChartTooltipMode.item && spoken.length > 1) {
+      final double along = layout.horizontal ? pointer.dx : pointer.dy;
+
+      double away(int i) => (layout.valuePx(layout.values[i][index].value!) - along).abs();
+
+      int nearest = spoken.first;
+
+      for (final int i in spoken) {
+        if (away(i) < away(nearest)) {
+          nearest = i;
+        }
+      }
+
+      spoken
+        ..clear()
+        ..add(nearest);
+    }
+
+    final rows = <Widget>[];
+
+    for (final int i in spoken) {
+      final ChartValue entry = layout.values[i][index];
+      final double value = entry.value!;
 
       rows.add(
         Padding(

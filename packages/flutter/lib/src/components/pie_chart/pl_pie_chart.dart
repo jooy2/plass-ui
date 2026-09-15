@@ -239,10 +239,15 @@ class _PlPieChartState extends State<PlPieChart> {
 
         final List<_Arc> arcs = _arcs(values, visible, total, semi, outer);
 
+        // A slice is the whole of what a pointer can be over, so `item` and
+        // `column` summon the same card here and only `none` says no.
+        final bool quiet =
+            widget.tooltip.hidden || widget.tooltip.mode == PlassChartTooltipMode.none;
+
         void press(Offset local) {
           final int? found = _hit(local, arcs, centreX, centreY, outer, inner);
 
-          if (widget.tooltip.hidden) {
+          if (quiet) {
             return;
           }
 
@@ -250,7 +255,7 @@ class _PlPieChartState extends State<PlPieChart> {
         }
 
         void move(Offset local) {
-          if (widget.tooltip.hidden) {
+          if (quiet) {
             return;
           }
 
@@ -309,7 +314,7 @@ class _PlPieChartState extends State<PlPieChart> {
                       height: semi ? inner : inner * 2,
                       child: IgnorePointer(child: Center(child: widget.center)),
                     ),
-                  if (_active != null && !widget.tooltip.hidden)
+                  if (_active != null && !quiet)
                     PositionedDirectional(
                       start: 0,
                       end: 0,

@@ -430,6 +430,62 @@ void main() {
         }
       });
 
+      testWidgets('narrows to the series nearest the pointer in item mode', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlLineChart(
+            series: series,
+            categories: months,
+            tooltip: const PlChartTooltip(mode: PlassChartTooltipMode.item),
+          ),
+        );
+
+        final Rect plot = tester.getRect(
+          find.byWidgetPredicate(
+            (Widget widget) =>
+                widget is CustomPaint && widget.painter != null && widget.size.height > 40,
+          ),
+        );
+
+        final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+        addTearDown(mouse.removePointer);
+
+        // January is Revenue 12 over Cost 8, so the top of that column is the
+        // Revenue point and the bottom is the Cost one.
+        await mouse.addPointer(location: plot.topLeft + const Offset(2, 4));
+        await mouse.moveTo(plot.topLeft + const Offset(4, 4));
+        await tester.pump();
+
+        expect(find.text('12'), findsOneWidget);
+        expect(find.text('8'), findsNothing);
+
+        await mouse.moveTo(plot.bottomLeft + const Offset(2, -4));
+        await tester.pump();
+
+        expect(find.text('8'), findsOneWidget);
+        expect(find.text('12'), findsNothing);
+      });
+
+      testWidgets('keeps the whole column in the default mode', (WidgetTester tester) async {
+        await _pump(tester, PlLineChart(series: series, categories: months));
+
+        final Rect plot = tester.getRect(
+          find.byWidgetPredicate(
+            (Widget widget) =>
+                widget is CustomPaint && widget.painter != null && widget.size.height > 40,
+          ),
+        );
+
+        await tester.tapAt(plot.topLeft + const Offset(2, 4));
+        await tester.pump();
+
+        expect(find.text('12'), findsOneWidget);
+        expect(find.text('8'), findsOneWidget);
+      });
+
       testWidgets('shows none when it is hidden', (WidgetTester tester) async {
         await _pump(
           tester,

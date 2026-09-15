@@ -177,6 +177,23 @@ void main() {
       expect(find.text('40 · 40%'), findsNothing);
     });
 
+    testWidgets('shows no readout at all when the mode is none', (WidgetTester tester) async {
+      await _pump(
+        tester,
+        const PlPieChart(
+          data: traffic,
+          categories: sources,
+          height: 240,
+          tooltip: PlChartTooltip(mode: PlassChartTooltipMode.none),
+        ),
+      );
+
+      await tester.tapAt(tester.getCenter(find.byType(CustomPaint).first) + const Offset(30, -50));
+      await tester.pumpAndSettle();
+
+      expect(find.text('40 · 40%'), findsNothing);
+    });
+
     testWidgets('says nothing when the press lands off the disc', (WidgetTester tester) async {
       await _pump(tester, const PlPieChart(data: traffic, categories: sources, height: 240));
 
