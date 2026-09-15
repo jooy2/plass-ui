@@ -127,7 +127,7 @@ const formatValueProp: PropRow = {
 const pickerWordProps: PropRow[] = [
   {
     name: 'names',
-    type: 'PlDateNames',
+    type: 'PlDateNames?',
     default: 'PlDateNames.english',
     description: {
       ko: '달력이 그리는 월과 요일 이름, 그리고 헤더가 그것들을 쓰는 순서. **React의 locale 문자열에 해당합니다** — 프레임워크에 Intl이 없으므로 단어를 객체로 받습니다',
@@ -748,7 +748,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     },
     from('PlAlert', 'action', { type: 'Widget?' }),
     from('PlAlert', 'onClose', { type: 'VoidCallback?' }),
-    from('PlAlert', 'closeLabel', { type: 'String', default: "'Dismiss'" }),
+    from('PlAlert', 'closeLabel', { type: 'String?', default: "'Dismiss'" }),
     from('PlAlert', 'children', { name: 'child', type: 'Widget?' })
   ],
 
@@ -793,7 +793,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlAnchor', 'label', { type: 'Widget?' }),
     from('PlAnchor', 'navLabel', {
       name: 'semanticLabel',
-      type: 'String',
+      type: 'String?',
       default: "'On this page'"
     }),
     from('PlAnchor', 'size', { type: SIZE, default: 'PlassSize.sm' }),
@@ -972,9 +972,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlBreadcrumb', 'itemsBeforeCollapse', { type: 'int', default: '1' }),
     from('PlBreadcrumb', 'itemsAfterCollapse', { type: 'int', default: '1' }),
     from('PlBreadcrumb', 'expandable', { type: 'bool', default: 'true' }),
-    from('PlBreadcrumb', 'label', { type: 'String', default: "'Breadcrumb'" }),
+    from('PlBreadcrumb', 'label', { type: 'String?', default: "'Breadcrumb'" }),
     from('PlBreadcrumb', 'expandLabel', {
-      type: 'String',
+      type: 'String?',
       default: "'Show the hidden steps'"
     })
   ],
@@ -1106,7 +1106,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'Draws the three dots instead of the message. What child holds is left alone, so the same bubble can go back to it when the message arrives'
       }
     }),
-    from('PlChatBubble', 'typingLabel', { type: 'String', default: "'Typing…'" }),
+    from('PlChatBubble', 'typingLabel', { type: 'String?', default: "'Typing…'" }),
     from('PlChatBubble', 'media', { type: 'Widget?' }),
     from('PlChatBubble', 'preview', { type: 'PlChatBubbleLinkPreview?' }),
     from('PlChatBubble', 'actions', {
@@ -1308,8 +1308,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlCombobox', 'emptyMessage', { type: 'String?', default: "'Nothing here'" }),
     from('PlCombobox', 'limit', { type: 'int?', default: 'null' }),
     from('PlCombobox', 'clearable', { type: 'bool', default: 'false' }),
-    from('PlCombobox', 'clearLabel', { type: 'String', default: "'Clear'" }),
-    from('PlCombobox', 'openLabel', { type: 'String', default: "'Open'" }),
+    from('PlCombobox', 'clearLabel', { type: 'String?', default: "'Clear'" }),
+    from('PlCombobox', 'openLabel', { type: 'String?', default: "'Open'" }),
     from('PlCombobox', 'removeLabel', { type: 'String Function(String label)?' }),
     from('PlCombobox', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
     from('PlCombobox', 'size', { type: SIZE, default: 'PlassSize.md' }),
@@ -1385,7 +1385,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlCommandPalette', 'maxHeight', { type: 'double', default: '320' }),
     from('PlCommandPalette', 'placeholder', { type: 'String?', default: "'Search commands'" }),
     from('PlCommandPalette', 'emptyMessage', { type: 'String?', default: "'Nothing here'" }),
-    from('PlCommandPalette', 'label', { type: 'String', default: "'Command palette'" }),
+    from('PlCommandPalette', 'label', { type: 'String?', default: "'Command palette'" }),
     from('PlCommandPalette', 'size', { type: SIZE, default: 'PlassSize.md' }),
     from('PlCommandPalette', 'color', { type: COLOR, default: 'PlassColor.primary' }),
     from('PlCommandPalette', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
@@ -2074,7 +2074,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlImage', 'preview', { type: 'bool', default: 'false' }),
-    from('PlImage', 'previewLabel', { type: 'String', default: "'Preview'" }),
+    from('PlImage', 'previewLabel', { type: 'String?', default: "'Preview'" }),
     from('PlImage', 'onStatusChange', {
       name: 'onStatusChanged',
       type: 'ValueChanged<PlImageStatus>?'
@@ -2176,7 +2176,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlBackTop', 'visibilityHeight', { type: 'double', default: '400' }),
-    from('PlBackTop', 'label', { type: 'String', default: "'Back to top'" }),
+    from('PlBackTop', 'label', { type: 'String?', default: "'Back to top'" }),
     from('PlBackTop', 'icon', { type: 'Widget?' }),
     {
       name: 'onPressed',
@@ -2284,7 +2284,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlCalendar', 'weekStartsOn', { type: 'PlassWeekday?' }),
     {
       name: 'names',
-      type: 'PlDateNames',
+      type: 'PlDateNames?',
       default: 'PlDateNames.english',
       description: {
         ko: 'calendar가 그리는 말들 — 월, 요일. React의 locale 문자열에 해당합니다',
@@ -2293,7 +2293,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     },
     {
       name: 'labels',
-      type: 'PlPickerLabels',
+      type: 'PlPickerLabels?',
       default: 'PlPickerLabels.english',
       description: {
         ko: 'calendar가 자기 자신에 대해 말하는 것 — 스테퍼, 제목',
@@ -2551,7 +2551,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }),
     {
       name: 'names',
-      type: 'PlDateNames',
+      type: 'PlDateNames?',
       default: 'PlDateNames.english',
       description: {
         ko: '달력이 그리는 월과 요일 이름, 그리고 헤더가 그것들을 쓰는 순서. **React의 locale 문자열에 해당합니다** — 프레임워크에 Intl이 없으므로 단어를 객체로 받습니다',
@@ -2560,7 +2560,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     },
     {
       name: 'labels',
-      type: 'PlPickerLabels',
+      type: 'PlPickerLabels?',
       default: 'PlPickerLabels.english',
       description: {
         ko: 'picker가 스스로 말하는 문자열들. 전부 영어 기본값이 있습니다',
@@ -2719,7 +2719,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlDateRangePicker', 'weekStartsOn', { type: 'PlassWeekday?' }),
     pickerWordProps[0],
     from('PlDateRangePicker', 'labels', {
-      type: 'PlPickerLabels',
+      type: 'PlPickerLabels?',
       default: 'PlPickerLabels.english'
     }),
     pickerWordProps[1],
@@ -2801,7 +2801,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     ...timeColumnProps('PlDateTimePicker'),
     pickerWordProps[0],
     from('PlDateTimePicker', 'labels', {
-      type: 'PlPickerLabels',
+      type: 'PlPickerLabels?',
       default: 'PlPickerLabels.english'
     }),
     pickerWordProps[1],
@@ -3723,7 +3723,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlModal', 'children', { name: 'child', type: 'Widget?' }),
     from('PlModal', 'dividers', { type: 'bool', default: 'true' }),
     from('PlModal', 'showClose', { type: 'bool', default: 'true' }),
-    from('PlModal', 'closeLabel', { type: 'String', default: "'Close'" }),
+    from('PlModal', 'closeLabel', { type: 'String?', default: "'Close'" }),
     {
       name: 'label',
       type: 'String?',
@@ -3893,8 +3893,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'PlNumberFieldSteppers',
       default: 'PlNumberFieldSteppers.end'
     }),
-    from('PlNumberField', 'incrementLabel', { type: 'String', default: "'Increase'" }),
-    from('PlNumberField', 'decrementLabel', { type: 'String', default: "'Decrease'" }),
+    from('PlNumberField', 'incrementLabel', { type: 'String?', default: "'Increase'" }),
+    from('PlNumberField', 'decrementLabel', { type: 'String?', default: "'Decrease'" }),
     from('PlNumberField', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
     from('PlNumberField', 'size', { type: SIZE, default: 'PlassSize.md' }),
     from('PlNumberField', 'color', { type: COLOR, default: 'PlassColor.primary' }),
@@ -4029,7 +4029,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }),
     from('PlOverlay', 'align', { type: 'PlassAlign', default: 'PlassAlign.center' }),
     from('PlOverlay', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlOverlay', 'label', { type: 'String', default: "'Overlay'" })
+    from('PlOverlay', 'label', { type: 'String?', default: "'Overlay'" })
   ],
 
   PlPageLayout: [
@@ -4103,14 +4103,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlPagination', 'showEdges', { type: 'bool', default: 'false' }),
     from('PlPagination', 'showArrows', { type: 'bool', default: 'true' }),
     from('PlPagination', 'disabled', { type: 'bool', default: 'false' }),
-    from('PlPagination', 'label', { type: 'String', default: "'Pagination'" }),
+    from('PlPagination', 'label', { type: 'String?', default: "'Pagination'" }),
     from('PlPagination', 'pageLabel', {
       type: 'String Function(int)?',
       default: "'Page $page'"
     }),
     {
       name: 'previousLabel · nextLabel · firstLabel · lastLabel',
-      type: 'String',
+      type: 'String?',
       description: {
         ko: '이동 버튼들의 이름. 그려지지 않습니다',
         en: 'The names of the steppers. Never drawn'
@@ -4301,7 +4301,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlRating', 'disabled', { type: 'bool', default: 'false' }),
     from('PlRating', 'size', { type: SIZE, default: 'PlassSize.md' }),
     from('PlRating', 'color', { type: COLOR, default: 'PlassColor.warning' }),
-    from('PlRating', 'label', { type: 'String', default: "'Rating'" }),
+    from('PlRating', 'label', { type: 'String?', default: "'Rating'" }),
     from('PlRating', 'valueLabel', { type: 'PlRatingValueLabel?' }),
     {
       name: 'focusNode · autofocus',
@@ -4518,11 +4518,11 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlSidebar', 'padded', { type: 'bool', default: 'true' }),
     from('PlSidebar', 'label', {
       name: 'semanticLabel',
-      type: 'String',
+      type: 'String?',
       default: "'Sidebar'"
     }),
-    from('PlSidebar', 'closeLabel', { type: 'String', default: "'Close sidebar'" }),
-    from('PlSidebar', 'resizeLabel', { type: 'String', default: "'Resize sidebar'" }),
+    from('PlSidebar', 'closeLabel', { type: 'String?', default: "'Close sidebar'" }),
+    from('PlSidebar', 'resizeLabel', { type: 'String?', default: "'Resize sidebar'" }),
     from('PlSidebar', 'children', { name: 'child', type: 'Widget?' })
   ],
 
@@ -4749,9 +4749,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlCarousel', 'color', { type: COLOR, default: 'PlassColor.primary' }),
     from('PlCarousel', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
     from('PlCarousel', 'elevation', { type: 'int', default: '0' }),
-    from('PlCarousel', 'label', { type: 'String', default: "'Carousel'" }),
-    from('PlCarousel', 'previousLabel', { type: 'String', default: "'Previous slide'" }),
-    from('PlCarousel', 'nextLabel', { type: 'String', default: "'Next slide'" }),
+    from('PlCarousel', 'label', { type: 'String?', default: "'Carousel'" }),
+    from('PlCarousel', 'previousLabel', { type: 'String?', default: "'Previous slide'" }),
+    from('PlCarousel', 'nextLabel', { type: 'String?', default: "'Next slide'" }),
     from('PlCarousel', 'slideLabel', { type: 'String Function(int index, int count)?' })
   ],
 
@@ -4821,7 +4821,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlDrawer', 'actions', { type: 'List<Widget>?' }),
     from('PlDrawer', 'dividers', { type: 'bool', default: 'false' }),
     from('PlDrawer', 'showClose', { type: 'bool?' }),
-    from('PlDrawer', 'closeLabel', { type: 'String', default: "'Close'" }),
+    from('PlDrawer', 'closeLabel', { type: 'String?', default: "'Close'" }),
     {
       name: 'label',
       type: 'String?',
@@ -4924,7 +4924,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlPopover', 'showClose', { type: 'bool', default: 'false' }),
-    from('PlPopover', 'closeLabel', { type: 'String', default: "'Close'" }),
+    from('PlPopover', 'closeLabel', { type: 'String?', default: "'Close'" }),
     from('PlPopover', 'width', { type: 'double?' }),
     from('PlPopover', 'size', { type: SIZE, default: 'PlassSize.md' }),
     from('PlPopover', 'color', { type: COLOR, default: 'PlassColor.primary' }),
@@ -4979,14 +4979,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'ValueChanged<bool>?'
     }),
     from('PlSpoiler', 'label', {
-      type: 'String',
+      type: 'String?',
       default: "'Reveal'",
       description: {
         ko: '드러내기 버튼의 문구이자 그 접근 가능한 이름',
         en: "The reveal button's words, and its accessible name"
       }
     }),
-    from('PlSpoiler', 'hideLabel', { type: 'String', default: "'Hide'" }),
+    from('PlSpoiler', 'hideLabel', { type: 'String?', default: "'Hide'" }),
     from('PlSpoiler', 'description', {
       type: 'Widget?',
       default: "Text('This may contain spoilers')",
@@ -5092,8 +5092,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlScrollZone', 'size', { type: SIZE, default: 'PlassSize.md' }),
     from('PlScrollZone', 'color', { type: COLOR, default: 'PlassColor.primary' }),
     from('PlScrollZone', 'label', { type: 'String?' }),
-    from('PlScrollZone', 'previousLabel', { type: 'String', default: "'Previous'" }),
-    from('PlScrollZone', 'nextLabel', { type: 'String', default: "'Next'" })
+    from('PlScrollZone', 'previousLabel', { type: 'String?', default: "'Previous'" }),
+    from('PlScrollZone', 'nextLabel', { type: 'String?', default: "'Next'" })
   ],
 
   PlTable: [
@@ -5403,7 +5403,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     },
     from('PlTextLink', 'newTabLabel', {
       name: 'externalLabel',
-      type: 'String',
+      type: 'String?',
       default: "'(opens elsewhere)'"
     })
   ],
@@ -5441,7 +5441,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     ...timeColumnProps('PlTimePicker'),
     {
       name: 'names',
-      type: 'PlDateNames',
+      type: 'PlDateNames?',
       default: 'PlDateNames.english',
       description: {
         ko: 'AM과 PM이 나오는 곳',
@@ -5449,7 +5449,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     },
     from('PlTimePicker', 'labels', {
-      type: 'PlPickerLabels',
+      type: 'PlPickerLabels?',
       default: 'PlPickerLabels.english'
     }),
     {
@@ -5559,7 +5559,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'How wide a toast is allowed to get, in logical pixels'
       }
     }),
-    from('PlToastProvider', 'closeLabel', { type: 'String', default: "'Close'" }),
+    from('PlToastProvider', 'closeLabel', { type: 'String?', default: "'Close'" }),
     from('PlToastProvider', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
     from('PlToastProvider', 'size', { type: SIZE, default: 'PlassSize.md' }),
     from('PlToastProvider', 'color', { type: COLOR, default: 'PlassColor.primary' }),
@@ -5926,14 +5926,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       name: 'onValueChanged',
       type: 'ValueChanged<List<String>>?'
     }),
-    from('PlTransfer', 'sourceLabel', { type: 'String', default: "'Available'" }),
-    from('PlTransfer', 'targetLabel', { type: 'String', default: "'Selected'" }),
+    from('PlTransfer', 'sourceLabel', { type: 'String?', default: "'Available'" }),
+    from('PlTransfer', 'targetLabel', { type: 'String?', default: "'Selected'" }),
     from('PlTransfer', 'searchable', { type: 'bool', default: 'false' }),
-    from('PlTransfer', 'searchLabel', { type: 'String', default: "'Search'" }),
-    from('PlTransfer', 'emptyLabel', { type: 'String', default: "'Nothing here'" }),
-    from('PlTransfer', 'selectAllLabel', { type: 'String', default: "'Select all'" }),
-    from('PlTransfer', 'toTargetLabel', { type: 'String', default: "'Move to selected'" }),
-    from('PlTransfer', 'toSourceLabel', { type: 'String', default: "'Move to available'" }),
+    from('PlTransfer', 'searchLabel', { type: 'String?', default: "'Search'" }),
+    from('PlTransfer', 'emptyLabel', { type: 'String?', default: "'Nothing here'" }),
+    from('PlTransfer', 'selectAllLabel', { type: 'String?', default: "'Select all'" }),
+    from('PlTransfer', 'toTargetLabel', { type: 'String?', default: "'Move to selected'" }),
+    from('PlTransfer', 'toSourceLabel', { type: 'String?', default: "'Move to available'" }),
     from('PlTransfer', 'movedLabel', { type: 'String Function(int count, String list)?' }),
     from('PlTransfer', 'height', { type: 'double', default: '220' }),
     from('PlTransfer', 'disabled', { type: 'bool', default: 'false' })
