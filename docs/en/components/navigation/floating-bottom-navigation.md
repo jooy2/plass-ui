@@ -174,19 +174,24 @@ A browser gives a page that inset only when its viewport meta tag has `viewport-
 
 ## Accessibility
 
-- A named `<nav>` landmark, and every disc a real link or button in document order, one tab stop each.
-- The current destination carries `aria-current="page"`. Never `aria-pressed`.
-- Every disc has an accessible name, and none of them is drawn. The name lives in a 1px clipped box: invisible to a sighted reader, present to every other kind.
+- The bar is <Fw react="a &lt;nav&gt; landmark" flutter="a semantics container" />, and it has no name until `label` gives it one. Pass one, such as "Main".
+- Every disc is its own focus stop, in order.
+- Every disc is named by the item's <Fw react="children" flutter="label" code />, and the name is never drawn.
+- The focus ring on a disc is offset rather than flush, which is the exception the rest of the library does not make: a flush ring on a circle is the circle's own edge thickening, which reads as a border rather than as focus.
 
 ::: fw react
 
+- A disc is a real link when it has an `href`, and a button when it does not.
+- The current destination carries `aria-current="page"`. Never `aria-pressed`.
+- The name lives in a 1px clipped box: invisible to a sighted reader, present to every other kind. A disc with no `children` has no name at all.
 - The strip the capsule is centred in spans the window and takes **no pointer events**; only the capsule takes them back. A transparent band across the bottom of a page that swallowed presses would be a band nobody could scroll through.
 
 :::
 
-- The focus ring on a disc is offset rather than flush, which is the exception the rest of the library does not make: a flush ring on a circle is the circle's own edge thickening, which reads as a border rather than as focus.
-
 ::: fw flutter
+
+- The current destination is marked **selected**, which is Flutter's nearest word for `aria-current` and the one that does not claim the disc is a toggle.
+- Each disc is a button node with the name and the tap action on it. The glyph inside is excluded, so it is never a second thing to read.
 
 ## Differences from the React build
 
