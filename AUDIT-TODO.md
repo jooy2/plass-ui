@@ -2,7 +2,7 @@
 
 The findings of a full audit of both packages, the documentation site and the repository, taken at `148a20e4` on 2026-09-13, and how far fixing them has got. The work goes in batches of twenty. When every item below is ticked, delete this file in a commit of its own.
 
-**188 of 345 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
+**208 of 345 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ## Working through a batch
 
@@ -26,7 +26,7 @@ Standing decisions that apply to every batch:
 
 - React 18 stays in the peer range, but only React 19 is tested. Do not add a React 18 job or test run.
 - A question whose entry names one recommended option is approved: do it at the start of the next batch without asking. Only a question with no recommendation waits for the Prompter.
-- Items 39, 180 and 258 are security findings. The repository is public, so their details are kept out of this file, in the local memory note `audit-security-items`. If that note is not available, ask the Prompter for the details rather than working from the title.
+- Items 39 and 180 are security findings. The repository is public, so their details are kept out of this file, in the local memory note `audit-security-items`. If that note is not available, ask the Prompter for the details rather than working from the title.
 
 ### Verifying a batch
 
@@ -53,6 +53,7 @@ cd docs && npm run typecheck && npm run lint && npx prettier --check . && npm ru
 | 7     | `daf5a084..58280a60` | Answers first: 12, 89, 93, 109, 128, 178, 181, 192, 213. Then 225, 226, 230, 236, 239, 240, 241, 244, 252, 254, 255, 259, 262, 263, 264, 266, 269, 273, 274, 275                                                                                                                                                                                                       |
 | 8     | `f6ca7d29..c6e581df` | Answers first: `<Fw>` backticks, Flutter `PlAlert`, Flutter `PlWindowPane` buttons, `PlGallery` and `PlChip` labels, React `PlTransfer` headings, `PlRating` decimals, small cleanups. Then 276, 277, 278, 279, 280, 281, 287, 288, 290, 291, 292, 293, 294, 295, 304, 305, 306 (part), 307, 317, 321                                                                  |
 | 9     | `3b2d1bfa..57604faa` | Answers first: item 298, the hover focus, the Counter and Scramble delay, grapheme cutting, `PlAnimateSplit` wrapping, `PlWindowPane` focus, the shared `textOf`, the Flutter cleanups and dartdoc, and six documentation answers. Then 23, 29, 30, 31, 33, 34, 35, 36, 49, 55, 56, 57, 258, 306, 311, 324, 331, 335, 338, 339, with 302 closed by the grapheme answer |
+| 10    | `02344e1b..4b6cd081` | No answers first: the Prompter passed over every question. Then 61, 62, 65, 67, 70, 71, 73, 74, 77, 78, 79, 80, 81, 83, 96, 97, 99, 102, 104, 105, and a fix to batch 9's label test on Windows                                                                                                                                                                        |
 
 The answers to batch 4's questions went in as `363c243b..2a8fb470`: the decode half of item 100, the `PlAnimateTyping` caret, and a `headingLevel` for `PlCard` with the card page corrected.
 
@@ -62,9 +63,11 @@ Batch 8 took the recommended answers to the batch 7 questions first. Its items w
 
 Batch 9 took the recommended answers to the batch 7 and 8 questions first, item 298 among them, and item 302 closed with the grapheme answer. Its work ran in eight worktrees at once and was brought onto `main` one commit at a time, with the changelog entries added there. Items 306 and 311 are edits to `CLAUDE.md`, which is gitignored, so they have no commit. A worktree does not hold `CLAUDE.md`; a worker in one reads it from the main checkout.
 
+Batch 10 took no answers first, because the Prompter asked to pass over every question for this batch, so the recommended answers to the batch 7 to 9 questions still wait for the next batch. Its twenty items are all Low and ran in eight worktrees at once, brought onto `main` one commit at a time with the changelog entries added there. Item 58 was passed over as a breaking change and is asked below. Checking CI after the batch showed the Flutter jobs on Windows failing since batch 9: the label test from item 35 searched `date.dart` for `'\n}\n'`, which a Windows checkout ends in CRLF. That was batch 9's own change, so `4b6cd081` fixes it; the React test jobs have failed for longer, and that is asked below.
+
 ## Waiting for an answer
 
-Asked at the end of batches 7, 8 and 9. Each question says what the problem is and what each option changes. None of these has a single recommended option, except where one is marked; a marked one is approved under the standing decision above and is done first in the next batch.
+Asked at the end of batches 7, 8, 9 and 10. Each question says what the problem is and what each option changes. None of these has a single recommended option, except where one is marked; a marked one is approved under the standing decision above and is done first in the next batch.
 
 1. **Item 19, the reset in `plass-ui/styles.css`.** Loading the stylesheet removes the host page's own list bullets, heading sizes, `<hr>` and native input borders, so an existing app without Tailwind looks broken.
    - A. Move the resets into the components that need them: host pages are left alone, and pages that relied on the reset change how they look (breaking).
@@ -201,12 +204,59 @@ Asked at the end of batches 7, 8 and 9. Each question says what the problem is a
 1. **Found in passing: `safeHref` for the other links.** Item 258 checks the scheme of a `PlChatBubble` preview URL. Eight components take an `href` from the page author (`PlAnchor`, `PlBreadcrumb`, `PlBottomNavigation`, `PlFloatingBottomNavigation`, `PlList`, `PlMenu`, `PlNavigationMenu`, `PlPagination`).
    - A. Check the scheme there too: nothing a page passes becomes a script link, and a page that builds `javascript:` links on purpose loses them.
    - B. (recommended) Keep it: those addresses come from the author, not from content that arrives as data.
-1. **Found in passing: two tests that fail under load.** In full runs while another heavy job ran, the `PlCarousel` test "moves the strip without scrolling the page while it plays" ran out of time once, and the hover tests in `test/internal/animate.test.tsx` once counted a real `pointerover` beside the dispatched one. Each passes alone and in its shard.
+1. **Found in passing: tests that fail now and then.** In full runs while another heavy job ran, the `PlCarousel` test "moves the strip without scrolling the page while it plays" ran out of time once, and the hover tests in `test/internal/animate.test.tsx` counted a real `pointerover` beside the dispatched one. In batch 10 the hover tests failed the same way with nothing else running. Each passes alone and in its shard.
    - A. (recommended) Park the pointer before the hover tests with `commands.parkPointer()`, as `vitest.config.ts` advises for hover subjects, and give the carousel test more time.
    - B. Keep them.
 1. **Found in passing: the label count in `CLAUDE.md`.** It says eighty-six keys in React and eighty-seven in Dart; the packs now hold 97 and 96.
    - A. (recommended) Correct it in the working tree together with items 312 to 315.
    - B. Keep it.
+1. **Item 58, a React `tickFormat` that returns an element.** The type lets `tickFormat` return a `ReactNode`, but the axis writes the result through `String()`, so an element prints `[object Object]`.
+   - A. Narrow the return type to `string | number`: the type says what works, and code that returns an element stops compiling (breaking).
+   - B. Draw an element the formatter returns: an axis can hold markup, and SVG text takes only text and `<tspan>`, so the hidden table and the readout need a text form of it as well.
+1. **Found in passing: the `PlGalleryCaption.none` comment.** It says the words are still read out with `none`; with `none` no caption is built and nothing is read, in both packages, and the gallery page now says so.
+   - A. (recommended) Correct the comment: the comment, the code, React and the page agree.
+   - B. Read the words with `none` too: Flutter sets the `hint` whatever the caption, and React needs hidden text in the button or the draft `aria-description`.
+1. **Found in passing: `className` and `style` in the React `PlGallery` props table.** The table has neither row, although the page says a `className` lands on the list; other tables take both from `stylingProps`.
+   - A. (recommended) Add both rows from `stylingProps`: documentation only.
+   - B. Keep it.
+1. **Found in passing: the line chart's Accessibility section.** It does not mention React's tab stop, arrow keys or spoken readout, which the scatter, pie, heatmap and timeline pages describe.
+   - A. (recommended) Add a `::: fw react` bullet as those pages have, in both locales.
+   - B. Keep it.
+1. **Found in passing: how the docs word a code block's name.** The Flutter `codeLabel` row, derived from React, says it applies "when there is neither a title nor a language", but a Flutter title never names the code; the React Accessibility bullet leaves `codeLabel` out of the order; and after item 78 the React row is loose for an element title with `toolbar={false}`.
+   - A. (recommended) Give Flutter its own `codeLabel` description, and correct the React row and bullet, in both locales.
+   - B. Keep them.
+1. **Found in passing: an aliased language on Flutter `PlCodeBlock`.** React names and shows the canonical language (`ts` becomes `typescript`); Flutter has no alias table and uses the spelling as passed, so the name still differs for any alias.
+   - A. Copy React's alias table into Flutter: the same names in both packages, and one more table to keep in step.
+   - B. Keep it: Flutter shows what the caller wrote.
+1. **Found in passing: the `PlCombobox` clear button and chevron are under 24px.** Item 99 widened the × on chips and picker triggers; these two sit side by side, 21.6px apart at `sm` and 17.2px at `xs`, so two 24px squares overlap.
+   - A. Widen both and let the chevron win where they overlap: neither reaches 24px at `xs`.
+   - B. Add space between them: both reach 24px, and the field looks different.
+   - C. Widen only the clear button: it takes about 1.4px of the chevron at `xs`.
+1. **Found in passing: the dismiss × on other surfaces.** The × on alerts, toasts, modals, drawers, popovers, tours and the file picker (`PlassDismissButton` in Flutter) was not measured; drawn at about 16px, it is probably under 24px as well.
+   - A. (recommended) Measure it in both packages and widen the ones under 24px as item 99 did, as a new item.
+   - B. Keep it.
+1. **Item 73's choice: which spans a timeline's table and summary list.** Item 73 left a span wholly outside a fixed `min` and `max` out of the React table and the Flutter summary, so they match the picture and the keys.
+   - A. (recommended) Keep it: a chart pinned to one quarter reads out that quarter.
+   - B. List every span as data: the table and the arrow keys disagree, and the whole data set is read out.
+1. **Found in passing: a timeline span whose start or end is not a time.** React gives it an empty row in the table, and the Flutter summary leaves it out.
+   - A. (recommended) Leave it out of the React table too: the two packages agree and no empty row is read.
+   - B. Keep it.
+1. **Found in passing: a 1px bar under a positive `PlSparkline`.** In a bar strip of positive values with no `min`, the lowest value is drawn as a 1px bar just below the box.
+   - A. (recommended) Keep that bar inside the box.
+   - B. Keep it.
+1. **Found in passing: `parseLineSpec` with no bounds.** Item 77 bounded the range the widget walks, but `parseLineSpec` is public in Flutter and its new `last` defaults to 2^53 − 1, so a direct caller passing no bounds can still walk a huge range.
+   - A. (recommended) Keep it: nothing breaks, and the widget is fixed.
+   - B. Make `last` required: closed for every caller (breaking).
+1. **Found after the batch: the React test jobs in CI have failed on every push since 2026-09-05** (`a675602f`), in all nine jobs. A shard that fails stops the run, so each job names only the first failing shard's tests:
+   - Chromium: the `PlCarousel` `autoPlay` tests "moves the strip without scrolling the page while it plays" and "holds still while the pointer is over it", and `PlAnimateCounter` "pausing" on macOS.
+   - Firefox: the `PlSidebar` resize handle drag, and two `PlTimePicker` rendering tests. Locally, `PlImage` "starts again when the src changes" also fails in Firefox when its whole file runs, with batch 9's sources as well.
+   - WebKit: `PlScatterChart` "renders again only when the nearest mark changes" on Ubuntu, and the `PlPill` press light on macOS.
+   - Windows, Chromium and WebKit: 133 of 280 cases in `test/package/use-client.test.ts`, which reads a file's first line with `split('\n')` from a checkout whose lines end in CRLF.
+   - A. (recommended) Add each as a new item from 346 on and work them first in the next batch, starting with the line endings, until every job is green.
+   - B. Keep them.
+1. **Found after the batch: line endings in a Windows checkout.** The repository has no `.gitattributes`, so Git on Windows checks files out with CRLF, while Prettier writes LF and tests that read a source file look for LF.
+   - A. (recommended) Add a `.gitattributes` with `* text=auto eol=lf`: every checkout has LF, and the tests that read sources need nothing of their own.
+   - B. Normalise the line endings in each test that reads a source file, as `4b6cd081` does: no repository setting, and the next such test can miss it.
 
 ## Passed over and not yet asked
 
@@ -308,11 +358,11 @@ None. Every flagged item passed over so far is asked above.
   - Proposal: Add a focus node and arrow key navigation, or give each column its own semantics node.
   - Flag: Decision needed — `CLAUDE.md` specifies that Flutter carries only the summary.
 - [x] **60.** The site has no descriptions of the fields of `PlassChartAxis`, `PlassChartLegend` and `PlassChartTooltip` (Docs · Docs · Medium)
-- [ ] **61.** The chart Accessibility sections describe the per-series summary, which only Flutter has, as if both packages had it (Docs · Docs · Low)
+- [x] **61.** The chart Accessibility sections describe the per-series summary, which only Flutter has, as if both packages had it (Docs · Docs · Low)
   - Location: `docs/en/components/charts/line-chart.md:174`, `bar-chart.md:122`, `area-chart.md:110` (same in ko)
   - Problem: React has only the `aria-label` and the table.
   - Proposal: Move that sentence into `::: fw flutter`.
-- [ ] **62.** `PlassTimelinePoint` and `PlassTimelineSeries` are declared twice, and their comments contradict each other (Optimisation · React · Low)
+- [x] **62.** `PlassTimelinePoint` and `PlassTimelineSeries` are declared twice, and their comments contradict each other (Optimisation · React · Low)
   - Location: `packages/react/src/types.ts:710`, `:740`
   - Problem: One comment says overlapping spans are drawn over each other. The other says they are moved into lanes. The second one matches the actual behaviour.
   - Proposal: Delete the first declaration.
@@ -322,31 +372,31 @@ None. Every flagged item passed over so far is asked above.
   - Proposal: Implement it and add it to React too, or remove the field and its table row.
   - Flag: Decision needed — removing it changes the public API.
 - [x] **64.** Flutter `smooth` and `step` stacked areas have a straight lower edge, so the bands pull apart or overlap (Bug · Flutter · Medium)
-- [ ] **65.** With `valueLabels="last"`, no label appears when the last value is a gap, and `extremes` is O(n²) (Bug · Both · Low)
+- [x] **65.** With `valueLabels="last"`, no label appears when the last value is a gap, and `extremes` is O(n²) (Bug · Both · Low)
   - Location: `bar-chart/PlBarChart.tsx:302`, `:363`, `bar_chart/pl_bar_chart.dart:383`, `:384`
   - Problem: The code compares against `one.length - 1`, so the 20 in `[10, 20, null]` gets no label. A calculation that rescans the whole series for every bar runs again on every hover render. The line chart (`chart-line.tsx:306`, `:314`) already solves both problems.
   - Proposal: Share the line chart's `labelledPoints` and its extreme-value calculation.
 - [x] **66.** When a scatter chart's `x` is a `Date`, the x-axis shows millisecond numbers (Bug · Both · Medium)
-- [ ] **67.** The Flutter scatter summary leaves out `z` and reads series that were switched off in the legend (Bug · Flutter · Low)
+- [x] **67.** The Flutter scatter summary leaves out `z` and reads series that were switched off in the legend (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/scatter_chart/pl_scatter_chart.dart:292`
   - Problem: The docs (`scatter-chart.md:98`) say `z` is added in parentheses. The summary also decides visibility from the initial value.
   - Proposal: Add `z` as `_readout` does, and use the frame's `visible`.
 - [x] **68.** Flutter treemap tiles, tooltips and summary carry the first group's name (Bug · Flutter · High)
 - [x] **69.** The React treemap's hidden table puts other groups' values under the first group's column name (Accessibility · React · Medium)
-- [ ] **70.** In a React heatmap grid, ↑/↓ do not move between rows (Accessibility · React · Low)
+- [x] **70.** In a React heatmap grid, ↑/↓ do not move between rows (Accessibility · React · Low)
   - Location: `heatmap-chart/PlHeatmapChart.tsx:412`
   - Problem: `ArrowDown` does the same as `ArrowRight`, so in a 7×24 grid it takes 24 presses to reach the cell directly below.
   - Proposal: In a grid, make ↑/↓ move to the neighbouring row in the same column.
-- [ ] **71.** The heatmap column-name stride is set separately for each label, so labels overlap their neighbours (Bug · Both · Low)
+- [x] **71.** The heatmap column-name stride is set separately for each label, so labels overlap their neighbours (Bug · Both · Low)
   - Location: `PlHeatmapChart.tsx:546`, `pl_heatmap_chart.dart:717`
   - Problem: Each label computes the stride from its own width, so the labels around a long label overlap.
   - Proposal: Compute `tickStride` once, from the widest label.
 - [x] **72.** When a timeline range is slightly longer than a day, the axis, tooltip and table show no date (Bug · Both · Medium)
-- [ ] **73.** In a timeline, spans outside a fixed `min`/`max` can be selected with hover and the keyboard (Bug · Both · Low)
+- [x] **73.** In a timeline, spans outside a fixed `min`/`max` can be selected with hover and the keyboard (Bug · Both · Low)
   - Location: `PlTimelineChart.tsx:170`, `pl_timeline_chart.dart:187`
   - Problem: Drawing skips these spans, but they stay in the mark list. Navigation lands on spans that cannot be seen, and the tooltip appears outside the plot.
   - Proposal: Drop spans that do not overlap the plot, and clip the x of spans that cross its edge.
-- [ ] **74.** A `PlSparkline` `bar` with all-negative values is drawn above the strip, outside it (Bug · Both · Low)
+- [x] **74.** A `PlSparkline` `bar` with all-negative values is drawn above the strip, outside it (Bug · Both · Low)
   - Location: `sparkline/PlSparkline.tsx:213`, `sparkline/pl_sparkline.dart:256`
   - Problem: The baseline is `y(Math.max(low, 0))`, so the y of 0 falls outside the box and the bars cover the content next to it.
   - Proposal: Clamp the baseline into the range with `Math.min(Math.max(low, 0), high)`.
@@ -355,28 +405,28 @@ None. Every flagged item passed over so far is asked above.
 
 - [x] **75.** When `PlCodeBlock`'s `code` or `language` changes, the old code stays visible until the new highlighting finishes (Bug · React · Medium)
 - [x] **76.** `PlCodeBlock`'s trailing-whitespace regular expression `\s+$` takes quadratic time on long runs of whitespace (Security · Both · Medium)
-- [ ] **77.** `highlightLines` ranges have no upper bound, so a single typo freezes the tab (Bug · Both · Low)
+- [x] **77.** `highlightLines` ranges have no upper bound, so a single typo freezes the tab (Bug · Both · Low)
   - Location: `PlCodeBlock.tsx:286`, `pl_code_block.dart:518`
   - Problem: `'1-100000000'` builds a `Set` of 100 million entries. In Flutter, `int.parse` throws on a very large number and the build fails.
   - Proposal: Limit the loop to the actual line range, and use `int.tryParse` in Dart.
-- [ ] **78.** When `PlCodeBlock`'s `title` is not a string, the focusable region has no name (Accessibility · React · Low)
+- [x] **78.** When `PlCodeBlock`'s `title` is not a string, the focusable region has no name (Accessibility · React · Low)
   - Location: `PlCodeBlock.tsx:555`, `:636`
   - Problem: A title given as an element cannot produce an `aria-label`.
   - Proposal: Give the title `<span>` an id and link it with `aria-labelledby`.
-- [ ] **79.** A name registered with `registerLanguage` is ignored when it matches a built-in alias (Bug · React · Low)
+- [x] **79.** A name registered with `registerLanguage` is ignored when it matches a built-in alias (Bug · React · Low)
   - Location: `packages/react/src/internal/highlight.ts:202`
   - Problem: Aliases are checked first, so `language="vue"` is still highlighted as `xml` after `registerLanguage('vue', vue)`. The JSDoc says a registration replaces the built-in.
   - Proposal: Check registered keys before aliases.
-- [ ] **80.** The Flutter `PlCodeBlock` region name uses `codeLabel` before the language (Bug · Flutter · Low)
+- [x] **80.** The Flutter `PlCodeBlock` region name uses `codeLabel` before the language (Bug · Flutter · Low)
   - Location: `pl_code_block.dart:842`
   - Problem: With `language: 'dart', codeLabel: 'Code'`, the name is `dart` in React and `Code` in Flutter.
   - Proposal: Use the order `languageName ?? codeLabel ?? labels.code`, and document that the Flutter name cannot come from `title`, as it can on React.
-- [ ] **81.** Flutter `PlCodeBlock` does not pass the raw toggle state or the copy result to screen readers (Accessibility · Flutter · Low)
+- [x] **81.** Flutter `PlCodeBlock` does not pass the raw toggle state or the copy result to screen readers (Accessibility · Flutter · Low)
   - Location: `pl_code_block.dart:1151`
   - Problem: There is no `toggled`, and nothing is announced after a copy. React uses `aria-pressed` and `aria-live`.
   - Proposal: Add `toggled: raw` and a live region announcement.
 - [x] **82.** The code-block page's Accessibility section promises behaviour for both packages that Flutter does not have (Docs · Docs · Medium)
-- [ ] **83.** The `copyFailedLabel` JSDoc gives the wrong default (Docs · React · Low)
+- [x] **83.** The `copyFailedLabel` JSDoc gives the wrong default (Docs · React · Low)
   - Location: `PlCodeBlock.tsx:178`
   - Problem: The JSDoc says `'Copy failed'`, but the actual default is `'Could not copy'`.
   - Proposal: Fix the JSDoc.
@@ -396,16 +446,16 @@ None. Every flagged item passed over so far is asked above.
 - [x] **93.** React `PlGallery` masonry follows columns for focus and reading order, and tiles remount when the column count changes (Accessibility · React · Medium)
 - [x] **94.** When an arrow button of `PlGalleryViewer` is disabled at either end, focus and the arrow keys stop working (Accessibility · React · Medium)
 - [x] **95.** The large image in the Flutter `PlGallery` viewer has no name (Accessibility · Flutter · Medium)
-- [ ] **96.** On a pressable gallery tile, `title` and `description` do not reach screen readers (Accessibility · Both · Low)
+- [x] **96.** On a pressable gallery tile, `title` and `description` do not reach screen readers (Accessibility · Both · Low)
   - Location: `PlGallery.tsx:472-476`, `pl_gallery.dart:600-601`
   - Problem: The button name is fixed as `alt — n of m`, and the caption is hidden.
   - Proposal: Link the caption with `aria-describedby` in React and with `hint` in Flutter.
-- [ ] **97.** The React props table for `PlGallery` has no `classNames` row (Docs · Docs · Low)
+- [x] **97.** The React props table for `PlGallery` has no `classNames` row (Docs · Docs · Low)
   - Location: `docs/.vitepress/data/props.ts:12975`
   - Problem: It is a public prop and the page text describes it, but the table does not list it.
   - Proposal: Add the row, following the shared `classNames` row definition.
 - [x] **98.** Every `PlChip` remove button has the same name, "Remove" (Accessibility · Both · Medium)
-- [ ] **99.** The × inside chips, comboboxes and picker triggers is about 15px, below WCAG 2.5.8 (24px) (Accessibility · Both · Low)
+- [x] **99.** The × inside chips, comboboxes and picker triggers is about 15px, below WCAG 2.5.8 (24px) (Accessibility · Both · Low)
   - Location: `packages/react/src/internal/styles.ts:448-455`, `internal/picker.tsx:315`, `chip/pl_chip.dart:301-306`
   - Problem: It sits 2px from the label button or the trigger, so it does not qualify for the spacing exception either. On touch screens it is easy to mix up opening and clearing.
   - Proposal: Keep the visible size, and widen only the hit area to 24px with a pseudo-element or transparent padding.
@@ -415,16 +465,16 @@ None. Every flagged item passed over so far is asked above.
   - Problem left: the gallery builds every tile at once, so a gallery of 60 pictures asks for 60 decodes before any of them is on screen.
   - Proposal: Build only the tiles near the view, and take the item when that is done.
 - [x] **101.** The `rel` merge for new-tab links is skipped on some code paths (Security · React · Medium)
-- [ ] **102.** The `PlTextLink` `icon` row in the Flutter props table inherits React's true/false description (Docs · Docs · Low)
+- [x] **102.** The `PlTextLink` `icon` row in the Flutter props table inherits React's true/false description (Docs · Docs · Low)
   - Location: `docs/.vitepress/data/props-flutter.ts:5297`
   - Problem: In Flutter, `icon` is a Widget, and `showIcon` decides whether it is drawn.
   - Proposal: Replace it with a Flutter-only description.
 - [x] **103.** Changing `PlImage`'s `src` to a new image that is already cached does not call `onStatusChange` (Bug · React · Medium)
-- [ ] **104.** A `placement: 'tile'` watermark does not cover the corners of wide or tall photos (Bug · Both · Low)
+- [x] **104.** A `placement: 'tile'` watermark does not cover the corners of wide or tall photos (Bug · Both · Low)
   - Location: `packages/react/src/internal/watermark.tsx:117-121`, `packages/flutter/lib/src/internal/watermark.dart:204-205`
   - Problem: The rotated layer has a fixed size, such as 150% of the box, so empty triangles appear in the diagonal corners from 16:9 (React) and 2:1 (Flutter) onwards. This contradicts the comment.
   - Proposal: Size the layer from the diagonal of the box.
-- [ ] **105.** A tile watermark `color` given as a token or `currentColor` is drawn black (Bug · React · Low)
+- [x] **105.** A tile watermark `color` given as a token or `currentColor` is drawn black (Bug · React · Low)
   - Location: `internal/watermark.tsx:72`
   - Problem: `var()` does not resolve inside an SVG data URI. The value is also not escaped, so a `"` in it breaks the tile.
   - Proposal: Draw the tile with `mask-image` and `background-color` together, or document that only literal colours are accepted and escape the value.
