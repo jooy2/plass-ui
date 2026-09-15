@@ -174,6 +174,19 @@ describe('PlChatBubble', () => {
       await expect.element(screen.getByText('Elsewhere')).toBeInTheDocument();
     });
 
+    it('fetches the picture only once the card nears the screen', async () => {
+      const screen = await render(
+        <PlChatBubble preview={{ url: '/notes/today', title: 'Today', image: '/logo.svg' }}>
+          Look
+        </PlChatBubble>
+      );
+
+      const picture = screen.getByRole('link').element().querySelector('img');
+
+      expect(picture).toHaveAttribute('loading', 'lazy');
+      expect(picture).toHaveAttribute('decoding', 'async');
+    });
+
     it('follows a relative address, which is the app naming a page of its own', async () => {
       const screen = await render(
         <PlChatBubble preview={{ url: '/notes/today', title: 'Today' }}>Look</PlChatBubble>

@@ -506,7 +506,15 @@ function LinkPreview({ preview }: { preview: PlChatBubbleLinkPreview }) {
     <>
       {image ? (
         // Decorative: everything the picture is saying is written underneath it.
-        <img src={image} alt="" className="block h-28 w-full object-cover" />
+        // Lazy, because a long thread holds many cards and most of them are
+        // scrolled out of view.
+        <img
+          src={image}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          className="block h-28 w-full object-cover"
+        />
       ) : null}
       <div className="flex flex-col gap-0.5 p-2">
         {hasContent(site) ? (

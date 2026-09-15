@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A `PlChatBubble` link preview fetches its picture only when the card comes near the screen.** Every preview picture was requested as soon as its bubble rendered, so a long thread with many link cards downloaded the pictures of cards scrolled far out of view. The picture now loads lazily and decodes off the main thread.
+
 - **An `inline` `PlColorPicker` inside a disabled `<fieldset>` is disabled.** Its square and rails are not form controls, so the fieldset did not reach them: they stayed tab stops and still took keys and the pointer. They now behave as with `disabled`, the label is muted, and the picker no longer reports its value to a `PlForm`. A `PlFieldset` with `disabled` does the same, and turning the fieldset back on brings the picker back.
 
 - **A `PlColorPicker` swatch the picker cannot read is left out.** A swatch such as `'red'` was drawn as a button that did nothing when pressed, since named colours are not read, and every swatch was painted from its string, so a bare `'ff0000'`, which the picker reads as red, was an empty circle. Such a swatch is now not drawn, and the rest are painted with the colour a press chooses.
