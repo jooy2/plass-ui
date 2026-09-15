@@ -141,13 +141,15 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
   const [shown, setShown] = React.useState(() => (still ? value : from));
 
   /**
-   * How far the count has got, from `0` to `1`, outside React's state.
+   * How far into the run the count has got, in milliseconds and counting the
+   * `delay`, outside React's state.
    *
    * Pausing tears the frame loop down and resuming builds a new one, and the
    * new one works its start time back from this. Without it, a count held at
-   * 40% would drop back to `from` the moment it was let go.
+   * 40% would drop back to `from` the moment it was let go, and one held while
+   * it was still waiting would wait out the whole `delay` a second time.
    */
-  const progress = React.useRef(0);
+  const elapsed = React.useRef(0);
 
   /**
    * The `easing` of the latest render, read by the loop rather than listed in
@@ -167,7 +169,7 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
   // on the render after it arrives, and a frame drawn in between would put the
   // new figure at the old count's progress.
   React.useEffect(() => {
-    progress.current = 0;
+    elapsed.current = 0;
   }, [run.runs, value, from]);
 
   React.useEffect(() => {
@@ -183,7 +185,7 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
     // here: a counter waiting to be scrolled to shows the number it is about to
     // count from, not the one it is about to reach.
     if (!run.started) {
-      progress.current = 0;
+      elapsed.current = 0;
       setShown(from);
 
       return undefined;
@@ -198,11 +200,13 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
     let start: number | undefined;
 
     const step = (now: number) => {
-      // A count that was held goes on from where it stopped. Only one that has
-      // not begun waits out `delay` from the start.
-      start ??= now - (progress.current > 0 ? delay + progress.current * span : 0);
+      // A count that was held goes on from where it stopped, whether it was
+      // counting or still waiting: what is left of `delay` is what is left of
+      // it, not the whole wait again.
+      start ??= now - elapsed.current;
+      elapsed.current = now - start;
 
-      const t = Math.min(1, (now - start - delay) / span);
+      const t = Math.min(1, (elapsed.current - delay) / span);
 
       if (t < 0) {
         frame = requestAnimationFrame(step);
@@ -210,7 +214,6 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
         return;
       }
 
-      progress.current = t;
       setShown(from + (value - from) * ease.current(t));
 
       if (t < 1) {

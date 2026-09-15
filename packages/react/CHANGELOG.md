@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **`PlAnimateCounter` and `PlAnimateScramble` hold their `delay` as well when `paused`.** A count held while it was still waiting started the whole `delay` again when it was let go, so a counter paused 100ms into a one-second wait took another full second to begin. What is left of the wait is now what is waited out.
+
 - **A `trigger="hover"` effect plays once for a visit from the keyboard.** Focus events bubble, so tabbing between two links inside the wrapper started the effect again at each one and an entrance replayed itself under the reader's hands. A focus arriving from, or leaving for, something the wrapper already holds is now ignored, so the effect runs for as long as the focus is inside it, as the Flutter build does. The pointer is unchanged, and a focus arriving from outside still starts it.
 
 - **A `trigger="visible"` effect starts on where the element will land rather than on where its first frame is holding it.** The observer watched the element after its start state had already moved it, so a `PlAnimateSlide` inside the `overflow: hidden` mask its own page recommends, and a turned `PlAnimateRotate` in a box of its own size, reported as off the screen for ever and never played. How much of the element is on screen is now measured on its resting box, with a second observer on the parent saying when the view has moved, so `threshold` is a share of the element wherever it sits, which is what it already means in the Flutter build. A slide with nothing clipping it starts a little earlier than before.

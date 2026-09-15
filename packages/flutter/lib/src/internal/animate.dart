@@ -45,6 +45,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/theme/tokens.dart';
@@ -462,6 +463,21 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// which in an app would start an animation on a disposed controller.
   Timer? _waiting;
 
+  /// What is left of the wait for the run that is on.
+  ///
+  /// A pause during the wait takes off the part of it that has already gone by,
+  /// so letting go waits out the rest — rather than the whole delay a second
+  /// time, or none of it.
+  Duration _delayLeft = Duration.zero;
+
+  /// The frame [_waiting] was started on, which is what the part already gone
+  /// by is measured against.
+  ///
+  /// The frame clock rather than a [Stopwatch], which reads the wall clock: a
+  /// widget test moves time forward on a clock of its own, and a stopwatch
+  /// would measure nothing while it did.
+  Duration _waitingFrom = Duration.zero;
+
   @override
   void initState() {
     super.initState();
@@ -521,7 +537,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// Starts, holds or rewinds, from whatever the gate is currently saying.
   void _drive(bool running, int runs) {
     if (!running) {
-      _waiting?.cancel();
+      _holdDelay();
 
       if (_controller.isAnimating) {
         _controller.stop();
@@ -531,6 +547,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
       // was merely paused stays exactly where it is.
       if (_startedRuns != runs) {
         _controller.value = 0;
+        _delayLeft = Duration.zero;
       }
 
       return;
@@ -538,7 +555,10 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
 
     if (_startedRuns == runs) {
       if (!_controller.isAnimating && !_controller.isCompleted) {
-        _controller.forward();
+        // A pause during the wait held the wait too, so what is let go is
+        // whatever was left of it. Nothing was left of it once the pass had
+        // begun, and this then starts the pass again from where it stopped.
+        _startAfter(_delayLeft);
       }
 
       return;
@@ -547,19 +567,46 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     _startedRuns = runs;
     _pass = 1;
     _controller.value = 0;
-    _waiting?.cancel();
+    _startAfter(widget.settings.delay);
+  }
 
-    if (widget.settings.delay == Duration.zero) {
+  /// Starts the pass after [wait], or on this frame when there is none left.
+  void _startAfter(Duration wait) {
+    final int runs = _startedRuns;
+
+    _waiting?.cancel();
+    _waiting = null;
+    _delayLeft = wait > Duration.zero ? wait : Duration.zero;
+
+    if (_delayLeft == Duration.zero) {
       _controller.forward();
 
       return;
     }
 
-    _waiting = Timer(widget.settings.delay, () {
+    _waitingFrom = SchedulerBinding.instance.currentSystemFrameTimeStamp;
+    _waiting = Timer(_delayLeft, () {
+      _waiting = null;
+      _delayLeft = Duration.zero;
+
       if (mounted && _startedRuns == runs) {
         _controller.forward();
       }
     });
+  }
+
+  /// Holds a wait that is still running, keeping what is left of it.
+  void _holdDelay() {
+    if (_waiting == null) {
+      return;
+    }
+
+    _waiting!.cancel();
+    _waiting = null;
+
+    final Duration gone = SchedulerBinding.instance.currentSystemFrameTimeStamp - _waitingFrom;
+
+    _delayLeft = _delayLeft > gone ? _delayLeft - gone : Duration.zero;
   }
 
   @override

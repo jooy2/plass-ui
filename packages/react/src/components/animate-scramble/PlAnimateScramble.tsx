@@ -122,11 +122,12 @@ export const PlAnimateScramble = /* @__PURE__ */ React.forwardRef<
   const [shown, setShown] = React.useState(() => children);
 
   /**
-   * How far the line has settled, from `0` to `1`, outside React's state, so a
-   * line that was paused goes on settling from where it was held. The reason is
-   * the one `PlAnimateCounter` gives for its own copy.
+   * How far into the run the line has got, in milliseconds and counting the
+   * `delay`, outside React's state, so a line that was paused goes on from
+   * where it was held. The reason is the one `PlAnimateCounter` gives for its
+   * own copy.
    */
-  const progress = React.useRef(0);
+  const elapsed = React.useRef(0);
 
   // A new run settles the line from the start again, whether it came from a
   // second hover, a new `play` or a new line. `children` is listed beside
@@ -134,7 +135,7 @@ export const PlAnimateScramble = /* @__PURE__ */ React.forwardRef<
   // arrives, and a frame drawn in between would settle the new line as far as
   // the old one had got.
   React.useEffect(() => {
-    progress.current = 0;
+    elapsed.current = 0;
   }, [run.runs, children]);
 
   React.useEffect(() => {
@@ -147,7 +148,7 @@ export const PlAnimateScramble = /* @__PURE__ */ React.forwardRef<
     // Not started is the first frame: a line waiting to be scrolled to is
     // already noise, not already settled.
     if (!run.started) {
-      progress.current = 0;
+      elapsed.current = 0;
       setShown(scrambleAt(children, pool, 0, 0));
 
       return undefined;
@@ -164,15 +165,15 @@ export const PlAnimateScramble = /* @__PURE__ */ React.forwardRef<
     let painted = -1;
 
     const step = (now: number) => {
-      // A line that was held goes on from where it stopped. Only one that has
-      // not begun waits out `delay` from the start.
-      started ??= now - (progress.current > 0 ? delay + progress.current * span : 0);
+      // A line that was held goes on from where it stopped, whether it was
+      // settling or still waiting: what is left of `delay` is what is left of
+      // it, not the whole wait again.
+      started ??= now - elapsed.current;
+      elapsed.current = now - started;
 
-      const elapsed = now - started - delay;
-      const t = Math.min(1, elapsed / span);
-      const slot = Math.floor(Math.max(0, elapsed) / Math.max(1, tick));
-
-      progress.current = Math.max(0, t);
+      const since = elapsed.current - delay;
+      const t = Math.min(1, since / span);
+      const slot = Math.floor(Math.max(0, since) / Math.max(1, tick));
 
       if (slot !== painted) {
         painted = slot;

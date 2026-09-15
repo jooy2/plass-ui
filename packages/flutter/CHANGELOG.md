@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **A paused `PlAnimate*` holds what is left of its `delay`.** Pausing called the wait before the first pass off, and letting go started the pass at once, so an effect held 100ms into a one-second `delay` skipped the other 900ms. What is left of the wait is now what is waited out, as the React build does.
+
 - **A `PlTransfer` row that leaves `items` and comes back is no longer still ticked.** The ticks were kept for the life of the widget. Every read of them narrows to the rows first, so an abandoned tick drew nothing and counted for nothing — until its value came back, when the row came back ticked and its arrow came back pressable. The ticks of values that have left `items` are now dropped as they go.
 
 - **Removing a `PlAnimateTyping` with a caret under reduced motion no longer throws.** With `MediaQuery.disableAnimations` on, the caret never built its blink controller, so `dispose` built it for the first time and asked for a ticker on an element that was leaving the tree. That threw in debug builds every time the widget went away with the default `caret: true`. The controller is now built with the caret, and it is not started while the caret stays still.

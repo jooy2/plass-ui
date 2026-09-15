@@ -116,6 +116,45 @@ describe('PlAnimateScramble', () => {
       expect(Math.min(...seen)).toBeGreaterThanOrEqual(reached);
       await expect.poll(() => drawn()).toBe(LINE);
     });
+
+    it('waits out only what was left of `delay` when it is let go', async () => {
+      function waiting(paused: boolean) {
+        return (
+          <PlAnimateScramble
+            className="scramble-under-test"
+            trigger="mount"
+            delay={600}
+            duration={100}
+            tick={10}
+            characters="01"
+            paused={paused}
+          >
+            {LINE}
+          </PlAnimateScramble>
+        );
+      }
+
+      const screen = await render(waiting(false));
+
+      await wait(300);
+
+      // Half of the wait has gone by, so what is held is the wait itself.
+      expect(settled()).toBe(0);
+
+      await screen.rerender(waiting(true));
+      await wait(300);
+
+      expect(settled()).toBe(0);
+
+      const letGo = performance.now();
+
+      await screen.rerender(waiting(false));
+      await expect.poll(() => drawn(), { timeout: 3000 }).toBe(LINE);
+
+      // Around 300ms of the wait was left, and 100ms of settling after it. A
+      // loop that waited out the whole `delay` again would still be noise here.
+      expect(performance.now() - letGo).toBeLessThan(600);
+    });
   });
 
   it('settles on the line it was given', async () => {

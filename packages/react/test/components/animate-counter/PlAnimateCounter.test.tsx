@@ -107,6 +107,44 @@ describe('PlAnimateCounter', () => {
       await expect.poll(() => figure()).toBe(1000);
     });
 
+    it('waits out only what was left of `delay` when it is let go', async () => {
+      function waiting(paused: boolean) {
+        return (
+          <PlAnimateCounter
+            className="counter-under-test"
+            trigger="mount"
+            value={1000}
+            delay={600}
+            duration={100}
+            easing={linear}
+            paused={paused}
+          />
+        );
+      }
+
+      const screen = await render(waiting(false));
+
+      await wait(300);
+
+      // Half of the wait has gone by, so what is held is the wait itself.
+      expect(figure()).toBe(0);
+
+      await screen.rerender(waiting(true));
+      await wait(300);
+
+      expect(figure()).toBe(0);
+
+      const letGo = performance.now();
+
+      await screen.rerender(waiting(false));
+      await expect.poll(() => figure(), { timeout: 3000 }).toBe(1000);
+
+      // Around 300ms of the wait was left, and 100ms of counting after it. A
+      // loop that waited out the whole `delay` again would still be sitting on
+      // `from` at this point.
+      expect(performance.now() - letGo).toBeLessThan(600);
+    });
+
     it('keeps counting when a parent renders it with a new `easing` function', async () => {
       const screen = await render(
         <PlAnimateCounter

@@ -70,6 +70,49 @@ void main() {
       expect(_drawn(tester), '£48120');
     });
 
+    testWidgets('waits out only what is left of its delay when it is let go', (
+      WidgetTester tester,
+    ) async {
+      Widget waiting({required bool paused}) {
+        return PlAnimateCounter(
+          value: 100,
+          trigger: PlassAnimateTrigger.manual,
+          play: true,
+          delay: const Duration(milliseconds: 400),
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.linear,
+          paused: paused,
+        );
+      }
+
+      await _pump(tester, waiting(paused: false));
+      await tester.pump(const Duration(milliseconds: 200));
+
+      // Half of the wait has gone by, so what is held is the wait itself.
+      expect(_drawn(tester), '0');
+
+      await _pump(tester, waiting(paused: true));
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(_drawn(tester), '0');
+
+      await _pump(tester, waiting(paused: false));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // 200ms of the wait was left, so the count is only now beginning. Letting
+      // go of the rest of the wait instead would have it halfway up by here.
+      expect(_drawn(tester), '0');
+
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(_drawn(tester), '50');
+
+      await tester.pumpAndSettle();
+
+      expect(_drawn(tester), '100');
+    });
+
     testWidgets('is simply the number where the platform asked for less motion', (
       WidgetTester tester,
     ) async {
