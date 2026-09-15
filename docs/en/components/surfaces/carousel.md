@@ -118,13 +118,19 @@ On by default: the arrows wrap from the last slide back to the first. Turn it of
 
 - It pauses while the pointer is over it.
 - It does not start at all for a reader who has asked for reduced motion.
-- It needs somewhere to report the move to: a carousel nothing is listening to has nothing to advance, so it does not try.
 
 ::: fw react
 
 - It pauses on focus **anywhere inside it**, which is the important one, a keyboard reader who has tabbed into a slide is reading it.
 - It stops while the tab is in the background.
 - The live region that announces the current slide goes **silent** while it is running, because a screen reader saying a new slide's name every five seconds is what makes a page unusable.
+- An uncontrolled carousel advances with or without `onValueChange`. A controlled one moves only when the new index comes back as `value`.
+
+:::
+
+::: fw flutter
+
+- It needs `onChanged`. The widget is controlled, so a carousel nothing is listening to has nothing to advance, and it does not try.
 
 :::
 
