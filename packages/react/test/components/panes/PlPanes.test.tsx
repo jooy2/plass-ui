@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlPane, PlPanes } from 'plass-ui';
+import { moveMouseOntoPage } from '../../support/pointer';
 
 /**
  * The `flex` shorthand each pane ended up with.
@@ -198,6 +199,49 @@ describe('PlPanes', () => {
       // What is drawn is a hairline; what can be grabbed is the track around
       // it. The width itself is the stylesheet's, and this file runs with none.
       expect(handles()[0]).toHaveClass('basis-2');
+    });
+
+    it('gives the selection back and reports nothing when the split goes away in the middle of a drag', async () => {
+      const settled = vi.fn();
+      const screen = await render(
+        <div style={{ width: '400px', height: '200px' }}>
+          <PlPanes className="split-under-test" onResizeEnd={settled}>
+            <PlPane>One</PlPane>
+            <PlPane>Two</PlPane>
+          </PlPanes>
+        </div>
+      );
+
+      const handle = handles()[0];
+      const pointerId = await moveMouseOntoPage();
+      const selection = () => document.body.style.getPropertyValue('-webkit-user-select');
+
+      document.body.style.setProperty('-webkit-user-select', 'text');
+
+      try {
+        handle.dispatchEvent(
+          new PointerEvent('pointerdown', {
+            bubbles: true,
+            pointerType: 'mouse',
+            pointerId,
+            button: 0,
+            buttons: 1,
+            clientX: 200,
+            clientY: 100
+          })
+        );
+
+        expect(handle).toHaveAttribute('data-dragging', 'true');
+        expect(selection()).toBe('none');
+
+        // No `pointerup` is coming: the split is gone before the button is.
+        await screen.unmount();
+
+        expect(selection()).toBe('text');
+        expect(settled).not.toHaveBeenCalled();
+      } finally {
+        document.body.style.removeProperty('-webkit-user-select');
+      }
     });
   });
 

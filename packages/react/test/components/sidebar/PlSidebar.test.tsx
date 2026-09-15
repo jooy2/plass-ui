@@ -338,6 +338,46 @@ describe('PlSidebar', () => {
       expect(handle).not.toHaveAttribute('data-dragging');
       expect(onResize).not.toHaveBeenCalled();
     });
+
+    it('gives the selection back and reports nothing when it goes away in the middle of a drag', async () => {
+      const onResizeEnd = vi.fn();
+
+      const screen = await render(
+        <PlSidebar collapseBelow="none" resizable width={200} onResizeEnd={onResizeEnd}>
+          Links
+        </PlSidebar>
+      );
+
+      const handle = screen.getByRole('separator').element();
+      const pointerId = await moveMouseOntoPage();
+      const selection = () => document.body.style.getPropertyValue('-webkit-user-select');
+
+      document.body.style.setProperty('-webkit-user-select', 'text');
+
+      try {
+        handle.dispatchEvent(
+          new PointerEvent('pointerdown', {
+            bubbles: true,
+            pointerType: 'mouse',
+            pointerId,
+            button: 0,
+            buttons: 1,
+            clientX: 200,
+            clientY: 10
+          })
+        );
+
+        expect(selection()).toBe('none');
+
+        // No `pointerup` is coming: the sidebar is gone before the button is.
+        await screen.unmount();
+
+        expect(selection()).toBe('text');
+        expect(onResizeEnd).not.toHaveBeenCalled();
+      } finally {
+        document.body.style.removeProperty('-webkit-user-select');
+      }
+    });
   });
 
   describe('as a drawer', () => {

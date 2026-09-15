@@ -170,6 +170,100 @@ describe('PlScrollZone', () => {
       }
     });
 
+    it('swallows the click that follows a drag, and only that one', async () => {
+      const onClick = vi.fn();
+      const screen = await render(
+        <PlScrollZone data-testid="zone">
+          <button type="button" style={{ width: 300 }} onClick={onClick}>
+            Open
+          </button>
+          {cards}
+        </PlScrollZone>
+      );
+      const element = scroller(screen);
+      const card = screen.getByRole('button', { name: 'Open' }).element() as HTMLElement;
+      const pointerId = await moveMouseOntoPage();
+      const pointer = (type: string, init: PointerEventInit) =>
+        element.dispatchEvent(
+          new PointerEvent(type, { bubbles: true, pointerType: 'mouse', pointerId, ...init })
+        );
+
+      // A press that never passed the threshold is a click on the card.
+      pointer('pointerdown', { button: 0, buttons: 1, clientX: 200, clientY: 10 });
+      pointer('pointermove', { buttons: 1, clientX: 198, clientY: 10 });
+      pointer('pointerup', { buttons: 0, clientX: 198, clientY: 10 });
+      card.click();
+
+      expect(onClick).toHaveBeenCalledOnce();
+
+      // One that did is a drag, and the click a browser sends after its release
+      // lands on whatever card the strip stopped under.
+      pointer('pointerdown', { button: 0, buttons: 1, clientX: 200, clientY: 10 });
+      pointer('pointermove', { buttons: 1, clientX: 160, clientY: 10 });
+      pointer('pointerup', { buttons: 0, clientX: 160, clientY: 10 });
+      card.click();
+
+      expect(onClick).toHaveBeenCalledOnce();
+
+      card.click();
+
+      expect(onClick).toHaveBeenCalledTimes(2);
+    });
+
+    it('lets go and gives the selection back when the drag is cancelled', async () => {
+      const screen = await render(<PlScrollZone data-testid="zone">{cards}</PlScrollZone>);
+      const element = scroller(screen);
+      const pointerId = await moveMouseOntoPage();
+      const pointer = (type: string, init: PointerEventInit) =>
+        element.dispatchEvent(
+          new PointerEvent(type, { bubbles: true, pointerType: 'mouse', pointerId, ...init })
+        );
+      const selection = () => document.body.style.getPropertyValue('-webkit-user-select');
+
+      document.body.style.setProperty('-webkit-user-select', 'text');
+
+      try {
+        pointer('pointerdown', { button: 0, buttons: 1, clientX: 200, clientY: 10 });
+        pointer('pointermove', { buttons: 1, clientX: 160, clientY: 10 });
+
+        expect(element).toHaveAttribute('data-dragging', 'true');
+
+        pointer('pointercancel', { buttons: 0, clientX: 160, clientY: 10 });
+
+        expect(element).not.toHaveAttribute('data-dragging');
+        expect(selection()).toBe('text');
+      } finally {
+        document.body.style.removeProperty('-webkit-user-select');
+      }
+    });
+
+    it('gives the selection back when it goes away in the middle of a drag', async () => {
+      const screen = await render(<PlScrollZone data-testid="zone">{cards}</PlScrollZone>);
+      const element = scroller(screen);
+      const pointerId = await moveMouseOntoPage();
+      const pointer = (type: string, init: PointerEventInit) =>
+        element.dispatchEvent(
+          new PointerEvent(type, { bubbles: true, pointerType: 'mouse', pointerId, ...init })
+        );
+      const selection = () => document.body.style.getPropertyValue('-webkit-user-select');
+
+      document.body.style.setProperty('-webkit-user-select', 'text');
+
+      try {
+        pointer('pointerdown', { button: 0, buttons: 1, clientX: 200, clientY: 10 });
+        pointer('pointermove', { buttons: 1, clientX: 160, clientY: 10 });
+
+        expect(selection()).toBe('none');
+
+        // No `pointerup` is coming: the strip is gone before the button is.
+        await screen.unmount();
+
+        expect(selection()).toBe('text');
+      } finally {
+        document.body.style.removeProperty('-webkit-user-select');
+      }
+    });
+
     it('is no tab stop while everything fits', async () => {
       const screen = await render(
         <PlScrollZone data-testid="zone">
