@@ -266,9 +266,11 @@ class _PlDateRangePickerState extends State<PlDateRangePicker> {
 
   /// The first of the two presses.
   ///
-  /// Held here rather than in `value` so a caller is never handed a range with
-  /// only one end that it did not ask for — half a selection is this widget's
-  /// business, not the screen's.
+  /// The first press already reports a range with only a `start`, so this is
+  /// not what keeps half a range from the caller: it is what tells the second
+  /// press from the first. A `value` with only a `start`, whether the caller's
+  /// own or one left when the popup closed mid-gesture, starts a new selection
+  /// rather than finishing that one.
   DateTime? _anchor;
 
   /// The day under the pointer while the range is half chosen.

@@ -167,9 +167,11 @@ export const PlDateRangePicker = /* @__PURE__ */ React.forwardRef<
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen ?? false);
   const open = openProp ?? uncontrolledOpen;
 
-  // The first of the two clicks. Held here rather than in `value` so a
-  // controlled caller is never handed a range with only one end — half a
-  // selection is this component's business, not the form's.
+  // The first of the two clicks. The first click already reports a range with
+  // only a `start`, so this is not what keeps half a range from the caller: it
+  // is what tells the second click from the first. A `value` with only a
+  // `start`, whether the caller's own or one left when the popup closed
+  // mid-gesture, starts a new selection rather than finishing that one.
   const [anchor, setAnchor] = React.useState<Date | null>(null);
   const [preview, setPreview] = React.useState<Date | null>(null);
 
