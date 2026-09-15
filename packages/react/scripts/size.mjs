@@ -15,10 +15,13 @@
  * - **React is external, `@base-ui/react` is not.** React is in every app
  *   already; Base UI arrives because of us and has to be counted as ours.
  * - **gzip, not raw.** Every server on the path compresses.
- * - **esbuild and Rollup are both wrong on their own.** They disagree about
- *   what is safe to drop — esbuild is stricter about a call it cannot prove
- *   pure — and a consumer runs one or the other. The budget tracks the worse
- *   of the two.
+ * - **esbuild measures it, and the number is a tripwire rather than a promise.**
+ *   Bundlers disagree about what is safe to drop — esbuild is stricter about a
+ *   call it cannot prove pure — so a consumer on Rollup ships a number near
+ *   this one rather than this one. What the budget is for is the difference
+ *   between two runs of the same measurer, which is the part a review can act
+ *   on; a second bundler would buy a sharper absolute number at the price of
+ *   more devDependencies and a second build of every scenario.
  * - **Only what the first paint loads counts.** The bundle is built with code
  *   splitting on, and what is measured is the entry chunk plus every chunk it
  *   reaches through a static `import` — never one that is only ever behind an
@@ -45,6 +48,7 @@ import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
 import * as esbuild from 'esbuild';
+import { entryPoints } from './entry-points.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const budgetPath = resolve(root, 'size-budget.json');
@@ -94,8 +98,9 @@ async function allExports() {
 }
 
 /**
- * Node's own resolver, in a child process, on every entry point the package
- * claims to have.
+ * Node's own resolver, in a child process, on every JavaScript entry point the
+ * package claims to have — read off `exports` by `entry-points.mjs`, so a
+ * subpath added there is checked without this script being told about it.
  *
  * This is here because it is the failure a bundler hides: `tsc` copies an
  * extensionless `./types` straight through, every bundler resolves it, and Node
@@ -103,13 +108,8 @@ async function allExports() {
  * for SSR while every test in the suite passes.
  */
 function checkNodeResolution(componentDirs) {
-  const specifiers = [
-    'plass-ui',
-    'plass-ui/types',
-    'plass-ui/hooks',
-    'plass-ui/provider',
-    ...componentDirs.map((d) => `plass-ui/${d}`)
-  ];
+  const pkg = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8'));
+  const specifiers = entryPoints(pkg.exports, componentDirs);
   const dir = mkdtempSync(resolve(tmpdir(), 'plass-resolve-'));
   try {
     writeFileSync(
