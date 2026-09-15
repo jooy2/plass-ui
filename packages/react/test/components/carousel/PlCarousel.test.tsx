@@ -144,30 +144,44 @@ describe('PlCarousel', () => {
     });
 
     it('holds still while the focus is inside it', async () => {
+      const onValueChange = vi.fn();
       const screen = await render(
-        <PlCarousel autoPlay interval={200}>
+        <PlCarousel autoPlay interval={200} onValueChange={onValueChange}>
           {slides}
         </PlCarousel>
       );
 
       screen.getByRole('region').element().querySelector<HTMLElement>('[tabindex="0"]')?.focus();
+
+      // The turns are counted rather than the slide read at the end: three turns
+      // of three slides also end where they began. A slow machine can take the
+      // first turn before the focus arrives, so what is held is the slide the
+      // focus found.
+      const held = current(screen);
+
+      onValueChange.mockClear();
       await aWhile();
 
-      expect(current(screen)).toBe('Slide 1 of 3');
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(current(screen)).toBe(held);
     });
 
     it('does not start for a reader who asked for reduced motion', async () => {
       await emulateMedia({ reducedMotion: 'reduce' });
 
       try {
+        const onValueChange = vi.fn();
         const screen = await render(
-          <PlCarousel autoPlay interval={200}>
+          <PlCarousel autoPlay interval={200} onValueChange={onValueChange}>
             {slides}
           </PlCarousel>
         );
 
         await aWhile();
 
+        // Not one turn from the render on, which a slide read at the end could
+        // not tell from three.
+        expect(onValueChange).not.toHaveBeenCalled();
         expect(current(screen)).toBe('Slide 1 of 3');
       } finally {
         await emulateMedia({ reducedMotion: 'no-preference' });
@@ -178,14 +192,16 @@ describe('PlCarousel', () => {
       Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
 
       try {
+        const onValueChange = vi.fn();
         const screen = await render(
-          <PlCarousel autoPlay interval={200}>
+          <PlCarousel autoPlay interval={200} onValueChange={onValueChange}>
             {slides}
           </PlCarousel>
         );
 
         await aWhile();
 
+        expect(onValueChange).not.toHaveBeenCalled();
         expect(current(screen)).toBe('Slide 1 of 3');
       } finally {
         // The document's own getter, on its prototype, answers again.
