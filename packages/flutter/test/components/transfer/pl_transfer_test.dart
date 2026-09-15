@@ -432,6 +432,31 @@ void main() {
         expect(again, isNot(same(role)));
         expect(again.hasPrimaryFocus, isTrue);
       });
+
+      testWidgets('drops the tick of a row whose item is gone', (WidgetTester tester) async {
+        Widget transfer(List<PlTransferItem> shown) {
+          return host(PlTransfer(items: shown, height: 160), width: 700, height: 400);
+        }
+
+        await tester.pumpWidget(transfer(items));
+
+        await tester.tap(find.text('Role'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('1/4'), findsOneWidget);
+
+        await tester.pumpWidget(
+          transfer(items.where((PlTransferItem item) => item.value != 'role').toList()),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.pumpWidget(transfer(items));
+        await tester.pumpAndSettle();
+
+        // The row is back, and it is not still waiting to be moved.
+        expect(find.text('0/4'), findsOneWidget);
+        expect(tester.widget<PlCheckbox>(find.widgetWithText(PlCheckbox, 'Role')).value, isFalse);
+      });
     });
 
     group('the shell', () {

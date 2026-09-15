@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **A `PlTransfer` row that leaves `items` and comes back is no longer still ticked.** The ticks were kept for the life of the widget. Every read of them narrows to the rows first, so an abandoned tick drew nothing and counted for nothing — until its value came back, when the row came back ticked and its arrow came back pressable. The ticks of values that have left `items` are now dropped as they go.
+
 - **Removing a `PlAnimateTyping` with a caret under reduced motion no longer throws.** With `MediaQuery.disableAnimations` on, the caret never built its blink controller, so `dispose` built it for the first time and asked for a ticker on an element that was leaving the tree. That threw in debug builds every time the widget went away with the default `caret: true`. The controller is now built with the caret, and it is not started while the caret stays still.
 
 - **`PlAnimateSplit` and `PlAnimateScramble` keep an emoji whole.** Both cut their text into UTF-16 code units, so `'Ship it 🚀'` cut by character left the rocket as two broken glyphs after the entrance ended, and a scramble drew halves of it as noise. Text is now cut by grapheme, so an emoji, a flag, a letter with its accent and a Devanagari conjunct each stay one character.

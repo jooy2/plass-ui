@@ -197,6 +197,13 @@ class _PlTransferState extends State<PlTransfer> {
 
     final Set<String> present = widget.items.map((PlTransferItem item) => item.value).toSet();
 
+    // A tick says "this row moves on the next press", and a row that has left
+    // the lists is not going to move. Nothing reads a tick without narrowing to
+    // the rows first, so an abandoned one draws nothing and counts for nothing
+    // — until the value comes back, and comes back ticked. The frame this is
+    // called from is about to be built, so there is nothing to notify.
+    _ticked.removeWhere((String value) => !present.contains(value));
+
     if (_rowFocus.keys.any((String value) => !present.contains(value))) {
       WidgetsBinding.instance.addPostFrameCallback((Duration _) => _releaseRowFocus());
     }
