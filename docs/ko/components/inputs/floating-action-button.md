@@ -37,7 +37,19 @@ PlFloatingActionButton(
 
 <PropsTable name="PlFloatingActionButton" />
 
-[`PlButton`](./button)이 받는 것은 전부 받습니다. 세 가지 재질, elevation 사다리, 포인터 빛, `loading`, `readOnly`, `disabled`. 공유 축이 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
+::: fw react
+
+[`PlButton`](./button)이 받는 것은 전부 받습니다. 세 가지 재질, elevation 사다리, 포인터 빛, `loading`, `readOnly`, `disabled`.
+
+:::
+
+::: fw flutter
+
+[`PlButton`](./button)이 받는 것 중 일부를 받습니다. 세 가지 재질, elevation 사다리, 포인터 빛, `color`, `loading`, `disabled`입니다. `readOnly`, `density`, `onLongPress`, `focusNode`, `autofocus`는 없습니다.
+
+:::
+
+공유 축이 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
 
 ## label은 선택이 아닙니다
 
@@ -81,17 +93,53 @@ PlFloatingActionButton(
 
 `corner`는 넷 중 하나이고 left/right가 아니라 `start`/`end`로 적습니다. 그래서 RTL에서 다른 모든 것과 함께 반대편으로 건너갑니다. `offset`은 맞닿은 두 모서리에서 얼마나 떨어져 서는지입니다.
 
+::: fw react
+
 ```tsx
 <PlFloatingActionButton corner="bottom-start" offset={16} icon={<PlusGlyph />} label="Add" />
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+PlFloatingActionButton(
+  corner: PlassCorner.bottomStart,
+  offset: 16,
+  icon: const PlusGlyph(),
+  label: 'Add',
+  onPressed: add,
+);
+```
+
+:::
+
 ### 흐름 안에 놓기
 
-`floating={false}`는 모양과 그림자를 남기고 위치 지정만 뺍니다. 카드 끝이나 툴바에 같은 버튼을 놓을 때 씁니다.
+<Fw react="floating={false}" flutter="floating: false" code />는 모양과 그림자를 남기고 위치 지정만 뺍니다. 카드 끝이나 툴바에 같은 버튼을 놓을 때 씁니다.
+
+::: fw react
 
 ```tsx
 <PlFloatingActionButton floating={false} extended icon={<PlusGlyph />} label="New project" />
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+PlFloatingActionButton(
+  floating: false,
+  extended: true,
+  icon: const PlusGlyph(),
+  label: 'New project',
+  onPressed: create,
+);
+```
+
+:::
 
 ## Notes
 

@@ -336,6 +336,8 @@
 
 ### Documentation
 
+- **The floating action button page lists what the Flutter widget takes.** It said the widget takes everything a `PlButton` does, including `readOnly`, but `PlFloatingActionButton` has no `readOnly`, `density`, `onLongPress`, `focusNode` or `autofocus`, and the Flutter props table left out the `color`, `loading` and `disabled` it does have. The page, the table and the dartdoc now match the widget, and the `corner` and `floating` examples have Dart.
+
 - **The calendar page no longer promises Flutter a grid role or a year step on Shift.** Its Accessibility section said, for both packages, that the calendar is a `role="grid"` and that Shift with PageUp or PageDown moves by a year. Both are React behaviour. The Flutter half now says what the widget does: each cell is a button, and a blocked day keeps its focus node and is announced as unavailable.
 
 - **The card page no longer says Flutter has no heading depth.** Its differences table said Flutter's semantics tree has a heading flag and no depth, but `Semantics.headingLevel` exists, and `PlTypography` already uses it. The table and the Accessibility section now point to `PlCard.headingLevel`.

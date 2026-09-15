@@ -37,7 +37,19 @@ PlFloatingActionButton(
 
 <PropsTable name="PlFloatingActionButton" />
 
-Everything a [`PlButton`](./button) takes, it takes: the three materials, the elevation ladder, the pointer light, `loading`, `readOnly` and `disabled`. What the shared axes mean is in [prop conventions](../../design/prop-conventions).
+::: fw react
+
+Everything a [`PlButton`](./button) takes, it takes: the three materials, the elevation ladder, the pointer light, `loading`, `readOnly` and `disabled`.
+
+:::
+
+::: fw flutter
+
+It takes part of what a [`PlButton`](./button) takes: the three materials, the elevation ladder, the pointer light, `color`, `loading` and `disabled`. There is no `readOnly`, `density`, `onLongPress`, `focusNode` or `autofocus`.
+
+:::
+
+What the shared axes mean is in [prop conventions](../../design/prop-conventions).
 
 ## label is not optional
 
@@ -81,17 +93,53 @@ And a screen whose main action is already a button in the content does not want 
 
 `corner` is one of the four, spelled `start`/`end` rather than left/right so the button crosses the screen under RTL with everything else. `offset` is how far it stands off the two edges it is against.
 
+::: fw react
+
 ```tsx
 <PlFloatingActionButton corner="bottom-start" offset={16} icon={<PlusGlyph />} label="Add" />
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+PlFloatingActionButton(
+  corner: PlassCorner.bottomStart,
+  offset: 16,
+  icon: const PlusGlyph(),
+  label: 'Add',
+  onPressed: add,
+);
+```
+
+:::
+
 ### In the flow instead
 
-`floating={false}` keeps the shape and the shadow and drops the positioning, for the same button at the end of a card or in a toolbar.
+<Fw react="floating={false}" flutter="floating: false" code /> keeps the shape and the shadow and drops the positioning, for the same button at the end of a card or in a toolbar.
+
+::: fw react
 
 ```tsx
 <PlFloatingActionButton floating={false} extended icon={<PlusGlyph />} label="New project" />
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+PlFloatingActionButton(
+  floating: false,
+  extended: true,
+  icon: const PlusGlyph(),
+  label: 'New project',
+  onPressed: create,
+);
+```
+
+:::
 
 ## Notes
 

@@ -23,8 +23,8 @@ const double _defaultOffset = 24;
 ///
 /// It is a [PlButton] in a corner, and everything that makes it one is the
 /// button's: the three materials, the elevation ladder, the pointer light,
-/// `loading`, `readOnly` and `disabled`. What this adds is the **pinning**, the
-/// shape, and one rule.
+/// `loading` and `disabled`. What this adds is the **pinning**, the shape, and
+/// one rule.
 ///
 /// **[label] is required and is always the accessible name.** A floating button
 /// is a disc with a mark in it nine times out of ten, and [extended] decides
