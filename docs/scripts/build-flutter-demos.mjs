@@ -33,7 +33,10 @@ const marker = resolve(outDir, 'version.json');
 const flutter = process.platform === 'win32' ? 'flutter.bat' : 'flutter';
 
 if (!force && existsSync(marker)) {
-  console.log('[plass-ui docs] Flutter previews already built — pass --force to rebuild.');
+  console.log(
+    '[plass-ui docs] Flutter previews already built — ' +
+      'run `npm run flutter:demos -- --force` to rebuild.'
+  );
 } else {
   /*
    * `--base-href` has to match where the output is served from, which is
