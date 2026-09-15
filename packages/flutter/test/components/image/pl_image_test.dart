@@ -550,7 +550,8 @@ void main() {
         expect(
           tester.getSize(
             find.byWidgetPredicate(
-              (Widget widget) => widget is Semantics && widget.properties.label == 'A portrait',
+              (Widget widget) =>
+                  widget is Semantics && widget.properties.label == 'A portrait — preview',
             ),
           ),
           const Size(80, 80),
@@ -1441,7 +1442,7 @@ void main() {
         );
         await _decode(tester);
 
-        tester.semantics.tap(find.semantics.byLabel('A portrait'));
+        tester.semantics.tap(find.semantics.byLabel('A portrait — preview'));
         await tester.pumpAndSettle();
 
         expect(find.byType(Image), findsNWidgets(2));
@@ -1521,6 +1522,41 @@ void main() {
         await _decode(tester);
 
         expect(find.bySemanticsLabel('Enlarge'), findsOneWidget);
+
+        handle.dispose();
+      });
+
+      testWidgets('is named by its label and then the word for a preview', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        Widget preview({String? previewLabel}) {
+          return PlassTheme.merge(
+            defaults: const PlassDefaults(labels: PlassLabels(preview: 'Vorschau')),
+            child: PlImage(
+              image: _ok,
+              ratio: 1,
+              semanticLabel: 'A portrait',
+              preview: true,
+              previewLabel: previewLabel,
+            ),
+          );
+        }
+
+        await _pump(tester, preview(), overlay: true);
+        await _decode(tester);
+
+        // As the React button is named, so the name says what a press does.
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('A portrait — vorschau')),
+          isSemantics(label: 'A portrait — vorschau', isButton: true, hasTapAction: true),
+        );
+
+        await _pump(tester, preview(previewLabel: 'Enlarge'), overlay: true);
+        await _decode(tester);
+
+        expect(find.bySemanticsLabel('A portrait — enlarge'), findsOneWidget);
 
         handle.dispose();
       });

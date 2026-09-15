@@ -329,9 +329,10 @@ class PlImage extends StatefulWidget {
   /// it.
   final bool preview;
 
-  /// The name of the preview overlay, and of the picture's press target when
-  /// there is no [semanticLabel]. Left out, it is the label pack's word for a
-  /// preview.
+  /// The name of the preview overlay. It also names the picture's press target:
+  /// after the [semanticLabel] and in lower case, "A portrait — preview", or on
+  /// its own when there is no [semanticLabel]. Left out, it is the label pack's
+  /// word for a preview.
   final String? previewLabel;
 
   /// Called when the picture has loaded, and when it has failed.
@@ -844,10 +845,14 @@ class _PlImageState extends State<PlImage> {
     // whatever holds the picture, so a button with one in it would be announced
     // as an image. A preview stays, because it is something to press, and with
     // no label of its own it is named by the word for a preview rather than
-    // being a button with no name.
-    final String? name =
-        widget.semanticLabel ??
-        (widget.preview ? widget.previewLabel ?? PlassTheme.labelsOf(context).preview : null);
+    // being a button with no name. With a label it is named by the picture and
+    // then that word, "A portrait — preview", as the React button is.
+    final String previewLabel = widget.previewLabel ?? PlassTheme.labelsOf(context).preview;
+    final String? name = !widget.preview
+        ? widget.semanticLabel
+        : widget.semanticLabel == null
+        ? previewLabel
+        : '${widget.semanticLabel} — ${previewLabel.toLowerCase()}';
 
     Widget result = name == null
         ? ExcludeSemantics(child: picture)
@@ -873,7 +878,7 @@ class _PlImageState extends State<PlImage> {
             onOpenChanged: (bool next) => setState(() => _open = next),
             tone: PlOverlayTone.glass,
             dismissible: true,
-            label: widget.previewLabel ?? PlassTheme.labelsOf(context).preview,
+            label: previewLabel,
             // The mark follows the picture in. One that comes off the moment it
             // is opened large has marked the copy nobody wanted.
             // Turned and mirrored the way the thumbnail was, so the picture opens
