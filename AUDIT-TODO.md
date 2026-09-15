@@ -2,7 +2,7 @@
 
 The findings of a full audit of both packages, the documentation site and the repository, taken at `148a20e4` on 2026-09-13, and how far fixing them has got. The work goes in batches of twenty. When every item below is ticked, delete this file in a commit of its own.
 
-**166 of 345 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
+**188 of 345 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ## Working through a batch
 
@@ -13,7 +13,7 @@ When the Prompter asks to continue the audit, run a batch as written here, witho
 1. **Confirm before fixing.** Check the finding against the code first, because the audit can be wrong or already out of date. An item that no longer reproduces is ticked with `— no longer reproduces` and gets no commit.
 1. **One item, one commit.** For each item:
    - Fix every package the item names, following `CLAUDE.md` and the code around the change.
-   - Add a test that fails without the fix, and prove it: revert the source (for example `git stash push <paths>`), run the test, and restore. When a test cannot show the difference, say so in the report.
+   - Add a test that fails without the fix, and prove it: commit first, then check the sources out of the parent commit with `git checkout HEAD~1 -- <paths>`, run the test, and check them back with `git checkout HEAD -- <paths>`. Never `git stash`; every worktree of a repository shares one stash, and a batch worked in several worktrees at once loses another agent's entry that way. When a test cannot show the difference, say so in the report.
    - Add a user-facing entry under `## vNext` in `packages/react/CHANGELOG.md`, `packages/flutter/CHANGELOG.md` or both, at the top of `Fixed`, `Changed` or `Breaking changes`. A change no user can notice gets no entry. The site copies the React changelog, so write `{{` there inside `<code v-pre>`.
    - Update the documentation pages, `docs/en` and `docs/ko` together, and the props tables when documented behaviour changes.
    - Commit with the tags in `CONTRIBUTING.md`: `[javascript]` or `[dart]` for one package and no prefix for both. No `Co-Authored-By` trailer.
@@ -42,16 +42,17 @@ cd docs && npm run typecheck && npm run lint && npx prettier --check . && npm ru
 
 ## Batches so far
 
-| Batch | Commits              | Items                                                                                                                                                                                                                                                                                                 |
-| ----- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1     | `148a20e4..16d59107` | The High items: 1, 2, 4, 6, 18, 40, 43, 44, 68, 87, 121, 126, 144, 145, 154, 156, 188, 196, 202, 237                                                                                                                                                                                                  |
-| 2     | `16d59107..c37ec085` | 3, 5, 7, 8, 9, 10 (part), 11, 13, 14, 15, 16, 17 (part), 22, 24, 142, 143, 152, 197, 268                                                                                                                                                                                                              |
-| 3     | `c37ec085..4885268c` | The rest of 10 and 17, 25, 26, 27, 28, 37, 38, 41, 42, 45, 46, 47, 48, 50, 51, 53, 54, 60, 64, 66, 69                                                                                                                                                                                                 |
-| 4     | `4885268c..c99f09c1` | 72, 75, 76, 85, 86, 88, 90, 91, 92, 94, 95, 98, 101, 103, 113, 114, 116, 122, 123, 127                                                                                                                                                                                                                |
-| 5     | `29684cc1..8e75337c` | 82, 129, 132, 135, 146, 147, 149, 155, 157, 158, 159, 163, 166, 167, 174, 175, 176, 177, 182, 183                                                                                                                                                                                                     |
-| 6     | `012573fb..b869de54` | 185, 186, 187 (part), 189, 190, 191, 193, 198, 200, 203, 205, 206, 207, 209, 211, 214, 215, 220, 221, 222                                                                                                                                                                                             |
-| 7     | `daf5a084..58280a60` | Answers first: 12, 89, 93, 109, 128, 178, 181, 192, 213. Then 225, 226, 230, 236, 239, 240, 241, 244, 252, 254, 255, 259, 262, 263, 264, 266, 269, 273, 274, 275                                                                                                                                      |
-| 8     | `f6ca7d29..c6e581df` | Answers first: `<Fw>` backticks, Flutter `PlAlert`, Flutter `PlWindowPane` buttons, `PlGallery` and `PlChip` labels, React `PlTransfer` headings, `PlRating` decimals, small cleanups. Then 276, 277, 278, 279, 280, 281, 287, 288, 290, 291, 292, 293, 294, 295, 304, 305, 306 (part), 307, 317, 321 |
+| Batch | Commits              | Items                                                                                                                                                                                                                                                                                                                                                                  |
+| ----- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | `148a20e4..16d59107` | The High items: 1, 2, 4, 6, 18, 40, 43, 44, 68, 87, 121, 126, 144, 145, 154, 156, 188, 196, 202, 237                                                                                                                                                                                                                                                                   |
+| 2     | `16d59107..c37ec085` | 3, 5, 7, 8, 9, 10 (part), 11, 13, 14, 15, 16, 17 (part), 22, 24, 142, 143, 152, 197, 268                                                                                                                                                                                                                                                                               |
+| 3     | `c37ec085..4885268c` | The rest of 10 and 17, 25, 26, 27, 28, 37, 38, 41, 42, 45, 46, 47, 48, 50, 51, 53, 54, 60, 64, 66, 69                                                                                                                                                                                                                                                                  |
+| 4     | `4885268c..c99f09c1` | 72, 75, 76, 85, 86, 88, 90, 91, 92, 94, 95, 98, 101, 103, 113, 114, 116, 122, 123, 127                                                                                                                                                                                                                                                                                 |
+| 5     | `29684cc1..8e75337c` | 82, 129, 132, 135, 146, 147, 149, 155, 157, 158, 159, 163, 166, 167, 174, 175, 176, 177, 182, 183                                                                                                                                                                                                                                                                      |
+| 6     | `012573fb..b869de54` | 185, 186, 187 (part), 189, 190, 191, 193, 198, 200, 203, 205, 206, 207, 209, 211, 214, 215, 220, 221, 222                                                                                                                                                                                                                                                              |
+| 7     | `daf5a084..58280a60` | Answers first: 12, 89, 93, 109, 128, 178, 181, 192, 213. Then 225, 226, 230, 236, 239, 240, 241, 244, 252, 254, 255, 259, 262, 263, 264, 266, 269, 273, 274, 275                                                                                                                                                                                                       |
+| 8     | `f6ca7d29..c6e581df` | Answers first: `<Fw>` backticks, Flutter `PlAlert`, Flutter `PlWindowPane` buttons, `PlGallery` and `PlChip` labels, React `PlTransfer` headings, `PlRating` decimals, small cleanups. Then 276, 277, 278, 279, 280, 281, 287, 288, 290, 291, 292, 293, 294, 295, 304, 305, 306 (part), 307, 317, 321                                                                  |
+| 9     | `3b2d1bfa..57604faa` | Answers first: item 298, the hover focus, the Counter and Scramble delay, grapheme cutting, `PlAnimateSplit` wrapping, `PlWindowPane` focus, the shared `textOf`, the Flutter cleanups and dartdoc, and six documentation answers. Then 23, 29, 30, 31, 33, 34, 35, 36, 49, 55, 56, 57, 258, 306, 311, 324, 331, 335, 338, 339, with 302 closed by the grapheme answer |
 
 The answers to batch 4's questions went in as `363c243b..2a8fb470`: the decode half of item 100, the `PlAnimateTyping` caret, and a `headingLevel` for `PlCard` with the card page corrected.
 
@@ -59,9 +60,11 @@ Batch 7 took the recommended answers to the batch 5 and 6 questions first, toget
 
 Batch 8 took the recommended answers to the batch 7 questions first. Its items were worked in eight worktrees at once and brought onto `main` one commit at a time, with their changelog entries added there. Item 298 needed a decision once the work started, so item 321 took its place.
 
+Batch 9 took the recommended answers to the batch 7 and 8 questions first, item 298 among them, and item 302 closed with the grapheme answer. Its work ran in eight worktrees at once and was brought onto `main` one commit at a time, with the changelog entries added there. Items 306 and 311 are edits to `CLAUDE.md`, which is gitignored, so they have no commit. A worktree does not hold `CLAUDE.md`; a worker in one reads it from the main checkout.
+
 ## Waiting for an answer
 
-Asked at the end of batches 7 and 8. Each question says what the problem is and what each option changes. None of these has a single recommended option, except where one is marked; a marked one is approved under the standing decision above and is done first in the next batch.
+Asked at the end of batches 7, 8 and 9. Each question says what the problem is and what each option changes. None of these has a single recommended option, except where one is marked; a marked one is approved under the standing decision above and is done first in the next batch.
 
 1. **Item 19, the reset in `plass-ui/styles.css`.** Loading the stylesheet removes the host page's own list bullets, heading sizes, `<hr>` and native input borders, so an existing app without Tailwind looks broken.
    - A. Move the resets into the components that need them: host pages are left alone, and pages that relied on the reset change how they look (breaking).
@@ -75,8 +78,8 @@ Asked at the end of batches 7 and 8. Each question says what the problem is and 
 1. **Item 32, `BackdropFilter.grouped`.** Every glass surface in a Flutter list reads the backdrop on its own, which is slow with dozens of cards.
    - A. The library groups surfaces itself: faster with no work for the app, and the library has to guess the boundaries of overlapping glass, which can show as a blur seam when it guesses wrong.
    - B. Leave grouping to the app and document it: no code change, and apps that need the speed wrap their own lists.
-1. **Items 39 and 180, the security findings.** Their details are in the local memory note `audit-security-items`, which is not on this machine.
-   - Needed: where the note is, or permission to investigate both again, keeping the result in a local note only.
+1. **Items 39 and 180, the security findings.** The local memory note `audit-security-items` is on this machine again, and each finding still needs a decision. The questions were asked in the batch 9 report, and the details stay in the note.
+   - Needed: the decision for each.
 1. **Item 52, a React chart's description.** Every focus reads the whole data table as the description, hundreds of values, and the arrow-key hint comes last; the table is also in the reading order, so it is heard twice.
    - A. Describe the chart with a short summary, such as the series, the range and the extremes, and keep the table as a sibling: a short announcement on focus, the values one step away, and the summary needs new label pack strings.
    - B. Keep it: every value on every focus.
@@ -143,8 +146,6 @@ Asked at the end of batches 7 and 8. Each question says what the problem is and 
 1. **Flutter `PlSlider` and `formatValue` for a screen reader.** `formatValue` takes the whole list, so it cannot word the value of one thumb; a screen reader hears the number in the step's decimals.
    - A. A per-thumb formatter: values such as "40%" can be read, and one more parameter.
    - B. Keep it.
-1. **`CLAUDE.md`.** The batch rules, items 311 to 315 and the rest of item 306 refer to it, but it is not in the working tree; it is listed in `.gitignore`.
-   - Needed: where it is, or whether to skip items 311 to 315 and the `CLAUDE.md` part of 306.
 1. **Found in passing: the Flutter gallery's masonry order.** The Flutter board lays out one `Column` per lane, so focus and reading probably follow lanes, as React did before item 93. Not confirmed on a device.
    - A. Check it on a device and, if so, lay the tiles out in one order as React now does: the same reading order in both packages.
    - B. Keep it.
@@ -154,10 +155,6 @@ Asked at the end of batches 7 and 8. Each question says what the problem is and 
 1. **Found in passing: a remount when `onPressed` or `interactive` changes.** A Flutter `PlCard` whose `onPressed` turns on or off, and a `PlPill` that stops being pressable, change the shape of the tree above their content, which is built again.
    - A. Keep the same widgets in the tree in both states: content keeps its state.
    - B. Keep it, since the parameter rarely changes at runtime.
-1. **Item 298, a `trigger="visible"` effect inside a box that clips.** The observer watches the element after its start state has already moved it, so a `PlAnimateSlide` inside an `overflow: hidden` mask, the pattern the docs recommend, and a turned `PlAnimateRotate` in a box of its own size never start. Fade, Reveal, Zoom, Grow, Split and Appear start as they should.
-   - A. Watch the parent instead: the mask pattern works, and the threshold becomes a share of the parent, so a slide right inside a long section starts late, or never when the section is five screens tall.
-   - B. Watch both and start on whichever reports first: nothing starts later than now, and a small effect at the bottom of a card can start while it is still off the screen.
-   - C. (recommended) Keep watching the element, and have an observer on the parent measure how much of the element's resting box, without its start transform, is in view: the threshold keeps meaning a share of the element, as in Flutter, and both cases start on time. An unclipped slide starts a little earlier than now, and each element gets one more observer and one layout read per callback.
 1. **Item 308, the component list in `packages/react/README.md`.** The list on the npm page names 75 of the 130 React components and has no Charts group, and nothing tells a contributor to keep it in step with the root list.
    - A. Copy the root `README.md` list into it: the npm page lists every component, and there are two lists to keep in step.
    - B. Replace the list with a link to the component index on the site: nothing to keep in step, and a reader on npm follows the link to see what is there.
@@ -167,54 +164,49 @@ Asked at the end of batches 7 and 8. Each question says what the problem is and 
 1. **Found in passing: the mouse wheel on a still `PlAnimateMarquee`.** Under reduced motion a horizontal strip scrolls with Shift and the wheel, a trackpad or the keyboard, but not with the wheel alone.
    - A. Turn a vertical wheel into horizontal scrolling on the box, as `PlScrollZone`'s `wheel` does: a mouse reaches everything, and the wheel no longer scrolls the page while the pointer is on the strip.
    - B. Keep it: the page scrolls as usual under the strip.
-1. **Found in passing: `PlAnimateCounter` and `PlAnimateScramble` paused during their `delay`.** Released, React waits out the whole delay again and Flutter skips what was left of it.
-   - A. (recommended) Wait out only what was left of the delay in both packages: a pause holds the effect exactly where it was.
-   - B. Make React skip the rest, as Flutter does: one package changes, and a delay can be cut short by a pause.
-1. **Found in passing: React `PlAnimateSplit` and `PlAnimateScramble` cut by code point.** A flag, a family emoji or a decomposed Korean syllable comes apart, while Flutter now cuts by grapheme and React `PlAnimateTyping` already uses `Intl.Segmenter`.
-   - A. (recommended) Cut by grapheme with the segmenter `PlAnimateTyping` uses: the same parts in both packages, and a few hundred bytes more for the components that import it.
-   - B. Keep code points and keep the docs note that says so.
-1. **Found in passing: React `PlAnimateSplit` `by="word"` and a line with no spaces.** A Chinese or Japanese line has no spaces to cut at, so it is one part that does not wrap and runs out of its box; Flutter's part is a `Text`, which wraps. Item 291 fixed the same case for `by="character"`.
-   - A. Give each character of a script written without spaces its own part in `by="word"` too: the line flows on after other words and wraps between characters, and such a line enters one character at a time even when cut by word.
-   - B. (recommended) Let a word part wrap inside its own box, as Flutter's `Text` does: the same in both packages, and a line with no spaces still enters as one part, starting on a new line when it does not fit.
-1. **Found in passing: a hover effect restarting as the focus moves inside it (React).** The React hover trigger restarts on every focus move between the children of the wrapper, and Flutter reacts only when the focus enters or leaves.
-   - A. (recommended) Ignore a focus move whose `relatedTarget` is already inside: the effect plays once per visit from the keyboard, as in Flutter.
-   - B. Keep it.
-1. **Found in passing: React `PlWindowPane` traffic lights on keyboard focus.** A dot shows its mark under the pointer only, so a keyboard ring sits around a blank dot; Flutter now shows the mark on focus.
-   - A. (recommended) Show the mark on `focus-visible` as well: the same in both packages.
-   - B. Keep it.
 1. **Found in passing: the Flutter `PlWindowPane` dot button width.** Flutter sizes a dot button by `metrics.control.width` and React by `metrics.control.height`. Whether that shows on screen is not confirmed.
    - A. Compare the two on the docs page and align Flutter with React if they differ.
    - B. Keep it.
-1. **Found in passing: broken Korean sentences.** `docs/ko/components/transitions/animate-rotate.md` (both fw blocks, "진행 중*이라는 뜻이고 있다면"), `animate-float.md` (Notes, "호출자가 것은 transform") and `docs/ko/components/layout/flex.md:145` ("호출자가 자식에 것은 `order`") are missing words.
-   - A. (recommended) Fix the three sentences against their English originals.
+1. **Item 36, a Rollup measurement in `npm run size`.** The comment promised the worse of esbuild and Rollup, and only esbuild ever ran. Batch 9 made the comment say so and added `plass-ui/locales` to the resolution check.
+   - A. (recommended) Keep esbuild alone: no new devDependencies and one number per scenario, and a Rollup consumer ships a number near the budget rather than on it.
+   - B. Add Rollup: three new devDependencies, about twice the script's time in CI, and a budget reshaped to hold two numbers per scenario.
+1. **Found in passing: 46 more Flutter props rows typed as non-nullable.** `PlAlert.closeLabel`, `PlCarousel.label`, the picker `names` and `labels` and 43 others are nullable in the widget and written without `?` in `props-flutter.ts`, the mistake batch 9 fixed on `PlChip.deleteLabel`.
+   - A. (recommended) Write all 46 with `?`: one spelling across the table, documentation only.
    - B. Keep them.
-1. **Found in passing: `PlAnimateFloat` examples in TSX only.** "A mark over an empty state" and "Sideways, and further" have no fw block, so a Flutter reader sees React code.
-   - A. (recommended) Put them in `::: fw react` and add Dart demos for both.
-   - B. Put them in `::: fw react` only: nothing wrong is shown, and Flutter has no example there.
-1. **Found in passing: bold inside `<Fw>`.** `docs/{en,ko}/components/inputs/file-picker.md:95` puts `**and**` and `**적용**` inside an `<Fw>` attribute, where Markdown is not read, so the asterisks show.
-   - A. (recommended) Rewrite the two phrases without bold.
-   - B. Teach `Fw.vue` to draw `**` as `<strong>`: the sentences stay as written, and the component parses one more form.
-1. **Found in passing: the provider placement in the Flutter dartdoc.** `pl_confirm.dart` and `pl_toast.dart` still show `PlConfirmProvider(child: MyApp())` and `PlToastProvider(child: MyApp())`, which fail, as the getting-started page now explains, and pub.dev shows them.
-   - A. (recommended) Show the `builder` placement the docs now use.
-   - B. Keep them.
-1. **Found in passing: `usePlConfirm` in the README.** It is exported from `plass-ui` and `plass-ui/confirm`, outside `plass-ui/hooks`, and the README names `usePlassDefaults` and `usePlToast` but not it.
-   - A. (recommended) Add it to the same sentence.
+1. **Found in passing: React `PlTransfer` keeps ticked values that left `items`.** A value that leaves `items` and comes back returns ticked, with its arrow pressable, which batch 9 fixed in Flutter.
+   - A. (recommended) Drop the ticks of values that left `items` in React too: the two packages behave the same.
    - B. Keep it.
-1. **Found in passing: "127 components in React and in Flutter".** `docs/{en,ko}/guide/getting-started.md:22` and both READMEs say so, while React has 130 and Flutter 127.
-   - A. (recommended) Say 127 in both and three more in React: every count on the site agrees.
+1. **Found in passing: the React label pack test allows eight matches with English.** `test/package/labels.test.tsx` passes while a new key is left in English in a pack, the hole item 35 closed on the Flutter side.
+   - A. (recommended) Name the keys each pack may share with English and compare exactly, as the Flutter test now does.
    - B. Keep it.
-1. **Found in passing: the Flutter preview build hint.** `build-flutter-demos.mjs` prints "pass --force to rebuild", which through npm needs `npm run flutter:demos -- --force`.
-   - A. (recommended) Print the npm form.
+1. **Found in passing: the props tables in the local search index.** Item 339 writes the tables into the page as it renders, so VitePress now indexes them: about 414 KB of text for `en` and 266 KB for `ko`, downloaded when a reader opens the search box, and every prop name becomes findable.
+   - A. (recommended) Keep them in the index.
+   - B. Strip `<PropsTable>` from what search renders: the index is as small as before, and a prop name is not found by search.
+1. **Found in passing: chart arithmetic that still differs between `chart.ts` and `chart.dart`.** Beyond item 56: the Flutter cross marker is two overlapping rects, so its ring strokes a hatch through the middle; `timeScale` with a `min` keeps the time of day in React and zeroes it in Flutter; a zero time span stacks every mark on the origin in Flutter and flings them off the plot in React; the default number format is `48.3K` in React and `48300` in Flutter; the Flutter scatter ring is twice as thick; a treemap with equal values can colour its tiles differently; pre-1970 sub-minute axes start a minute apart; and `stackToFull` and a dead `categoryToNumber` are duplicated on the Dart side.
+   - A. (recommended) Add each as a new item from 346 on, with its severity, and work them in later batches.
+   - B. Fix only the four a reader can see (the cross, the time of day, the number format, the scatter ring) in the next batch, and drop the rest.
+   - C. Keep them.
+1. **Found in passing: counts and wrapping in the summaries.** `docs/public/llms.txt` says React has "a few" components more where it has three, the two package READMEs still say "the two hold the same components" four lines under the corrected count, and the `PlAnimateSplit` entry in `llms.txt` says nothing about how a line wraps.
+   - A. (recommended) Say three, qualify the README sentence, and add one sentence on wrapping.
+   - B. Keep them.
+1. **Found in passing: Korean `animate-rotate.md`.** The differences table writes `caller` where the page says 호출자, one sentence ends on `~죠` against the page's 합쇼체, and the page writes italics with `*` where the writing rules ask for `_`.
+   - A. (recommended) Correct the three.
+   - B. Keep them.
+1. **Found in passing: the `PlPopover` `arrow` comment.** It says a tooltip's wedge is a solid colour, which was never true and after item 30 is the same drawing as the popover's, so it no longer explains why `arrow` is off by default there.
+   - A. (recommended) Rewrite the comment to give the reason for the default without the comparison.
    - B. Keep it.
-1. **Found in passing: small cleanups in the label work.** `PlBreadcrumb` and `PlChip` carry the same private `textOf`, the Flutter props table types `PlChip.deleteLabel` as `String` rather than `String?`, and Flutter `PlTransfer` keeps ticked values that left `items` (nothing visible today, since the count comes from the rows).
-   - A. (recommended) Move `textOf` to `internal/`, correct the type, and drop ticked values that left `items`.
+1. **Found in passing: `PlCodeBlock theme="auto"` inside a nested light element.** On a page whose root is `.dark`, an `auto` block inside an element that forces light still draws dark, because only a dark ancestor is named.
+   - A. Name a light ancestor too, so the nearest forced theme wins: nested theming works for code blocks, which item 20 has not decided for the tokens.
+   - B. Keep `auto` following the root, and decide it together with item 20.
+1. **Found in passing: `safeHref` for the other links.** Item 258 checks the scheme of a `PlChatBubble` preview URL. Eight components take an `href` from the page author (`PlAnchor`, `PlBreadcrumb`, `PlBottomNavigation`, `PlFloatingBottomNavigation`, `PlList`, `PlMenu`, `PlNavigationMenu`, `PlPagination`).
+   - A. Check the scheme there too: nothing a page passes becomes a script link, and a page that builds `javascript:` links on purpose loses them.
+   - B. (recommended) Keep it: those addresses come from the author, not from content that arrives as data.
+1. **Found in passing: two tests that fail under load.** In full runs while another heavy job ran, the `PlCarousel` test "moves the strip without scrolling the page while it plays" ran out of time once, and the hover tests in `test/internal/animate.test.tsx` once counted a real `pointerover` beside the dispatched one. Each passes alone and in its shard.
+   - A. (recommended) Park the pointer before the hover tests with `commands.parkPointer()`, as `vitest.config.ts` advises for hover subjects, and give the carousel test more time.
    - B. Keep them.
-1. **The proof step uses `git stash`, which every worktree shares.** Batch 8 worked in eight worktrees at once, and one agent's `git stash drop stash@{0}` removed another agent's entry; it was restored from its SHA and nothing was lost.
-   - A. (recommended) Change step 4 of the batch rules to prove a test by committing first and checking the sources out of the parent commit, `git checkout HEAD~1 -- <paths>`, then back: no shared state between worktrees.
-   - B. Keep the stash, and use it only when a batch runs in one worktree.
-1. **The worktrees of batches 7 and 8.** `.claude/worktrees/` holds seventeen worktrees and their branches; every commit in them is on `main` under a new SHA.
-   - A. (recommended) Remove them with `git worktree remove` and delete their branches: nothing that is not on `main` is lost.
-   - B. Keep them.
+1. **Found in passing: the label count in `CLAUDE.md`.** It says eighty-six keys in React and eighty-seven in Dart; the packs now hold 97 and 96.
+   - A. (recommended) Correct it in the working tree together with items 312 to 315.
+   - B. Keep it.
 
 ## Passed over and not yet asked
 
@@ -258,48 +250,24 @@ None. Every flagged item passed over so far is asked above.
   - Proposal: Make `copyWith` and a way to replace a family public, or state the Flutter limitation in the docs.
   - Flag: Decision needed — it has to be decided which tokens to open up as public API.
 - [x] **22.** In the Flutter dark theme, the chart grid, axis and baseline colours differ from the CSS (Bug · Flutter · Medium)
-- [ ] **23.** `PlCodeBlock theme="auto"` is painted dark on a page that forces light with `.light` (Bug · React · Low)
-  - Location: `packages/react/src/styles.css:1931`
-  - Problem: The token block checks `:not(.light)`, but the code block rule checks only `[data-theme='light']`.
-  - Proposal: Add `:not(.light)` to the selector.
+- [x] **23.** `PlCodeBlock theme="auto"` is painted dark on a page that forces light with `.light` (Bug · React · Low)
 - [x] **24.** The interaction light on a clickable `PlPill` spreads to the size of the nearest positioned ancestor (Bug · React · Medium)
 - [x] **25.** `PlColorSchemeScript` does not escape `</script>` in its inline script (Security · React · Medium)
 - [x] **26.** `usePlColorScheme` throws during render where storage access is blocked (Bug · React · Medium)
 - [x] **27.** `usePlElementSize` and `usePlOnScreen` never observe an element that is attached later (Bug · React · Medium)
 - [x] **28.** Resize and drag handles have no `touch-action: none` (Accessibility · React · Medium)
-- [ ] **29.** `PlSidebar` reimplements the drag handling in `internal/drag.ts` (Optimisation · React · Low)
-  - Location: `sidebar/PlSidebar.tsx:329-378`, `scroll-zone/PlScrollZone.tsx:535`
-  - Problem: Its capture, three listeners, `data-dragging`, and taking and restoring the selection match `beginPointerDrag` line for line. `PlScrollZone` also implements taking the selection on its own.
-  - Proposal: Make `PlSidebar` use `beginPointerDrag`, and export `takeSelection` so that `PlScrollZone` uses it too.
-- [ ] **30.** The popup arrow is duplicated in three components, and the copies already draw it differently (Optimisation · React · Low)
-  - Location: `popover/PlPopover.tsx:286`, `hover-card/PlHoverCard.tsx:230`, `tooltip/PlTooltip.tsx:240`
-  - Problem: The tooltip stacks two triangles, while the other two stroke only the slanted edges, so their hairlines differ.
-  - Proposal: Put a shared `PopupArrow` in `internal/picker.tsx`.
-- [ ] **31.** The statement "one listener per query" is wrong (Docs · Both · Low)
-  - Location: `packages/react/src/internal/media.ts:18`, `docs/en/hooks/use-media-query.md:77`, `docs/en/hooks/use-breakpoint.md:87`(same in ko)
-  - Problem: Only the `MediaQueryList` is shared. A `change` listener is added for each subscription.
-  - Proposal: Change it to "one `MediaQueryList` is shared per query".
+- [x] **29.** `PlSidebar` reimplements the drag handling in `internal/drag.ts` (Optimisation · React · Low)
+- [x] **30.** The popup arrow is duplicated in three components, and the copies already draw it differently (Optimisation · React · Low)
+- [x] **31.** The statement "one listener per query" is wrong (Docs · Both · Low)
 - [ ] **32.** Each Flutter glass surface's `BackdropFilter` reads the backdrop separately (Performance · Flutter · Medium)
   - Location: `packages/flutter/lib/src/internal/surface.dart:175`
   - Problem: With dozens of glass surfaces, as in a list of cards, the σ22 blur reads the backdrop once per surface. `BackdropFilter.grouped` is available in the minimum version, 3.41, but it is not used.
   - Proposal: Group surfaces that do not overlap, and give overlapping glass, such as a field inside a card, a new group.
   - Flag: Decision needed — it has to be decided whether the library or the app sets the group boundaries.
-- [ ] **33.** `PlassLabels` and `PlDateNames` have no `==`, so the theme causes needless full rebuilds (Performance · Flutter · Low)
-  - Location: `packages/flutter/lib/src/theme/defaults.dart:87`
-  - Problem: When `labels: ko.copyWith(...)`, which the docs recommend, is written inside build, `updateShouldNotify` returns true on every parent rebuild.
-  - Proposal: Add field-based `==` and `hashCode` to both classes.
-- [ ] **34.** Every paint of an inset shadow runs `Path.combine` (Optimisation · Flutter · Low)
-  - Location: `packages/flutter/lib/src/internal/inset_shadow.dart:92`
-  - Problem: Every glass sheet and field runs a path boolean operation each time it repaints. During a hover transition this repeats on every frame.
-  - Proposal: Replace it with `canvas.drawDRRect(outer, hole, paint)`.
-- [ ] **35.** The Flutter label pack test does not catch a single missing translation (Test · Flutter · Low)
-  - Location: `packages/flutter/test/package/labels_test.dart:118`, `:139`
-  - Problem: The length of `words()` is fixed, so the length comparison always passes. The allowance of "fewer than 6 values equal to English" also passes when a new key is left untranslated in `de` or `fr`, which already have 4.
-  - Proposal: List, for each pack, the keys that may equal English, and compare exactly.
-- [ ] **36.** `size.mjs` does not check as much as its comments say (Test · React · Low)
-  - Location: `packages/react/scripts/size.mjs:20`, `:104`
-  - Problem: The comment says it catches the worse of esbuild and Rollup, but it runs only esbuild. The Node resolution check also leaves out `plass-ui/locales`.
-  - Proposal: Add `locales`, and either add a Rollup measurement or correct the comment.
+- [x] **33.** `PlassLabels` and `PlDateNames` have no `==`, so the theme causes needless full rebuilds (Performance · Flutter · Low)
+- [x] **34.** Every paint of an inset shadow runs `Path.combine` (Optimisation · Flutter · Low)
+- [x] **35.** The Flutter label pack test does not catch a single missing translation (Test · Flutter · Low)
+- [x] **36.** `size.mjs` does not check as much as its comments say (Test · React · Low)
 - [x] **37.** The React format check in CI always passes (Bug · CI · Medium)
 - [x] **38.** The documentation site is not verified on PRs (Test · CI · Medium)
 - [ ] **39.** A finding in the documentation deploy workflow (Security · CI · Medium)
@@ -316,10 +284,7 @@ None. Every flagged item passed over so far is asked above.
 - [x] **46.** Flutter tooltips are clipped at the chart edges (Bug · Flutter · Medium)
 - [x] **47.** A Flutter legend with `side: left/right` lays out in one horizontal row and overflows (Bug · Flutter · Medium)
 - [x] **48.** A Flutter cartesian chart throws when `empty` is given `Text.rich`, and ignores any other widget (Bug · Flutter · Medium)
-- [ ] **49.** Flutter tooltip `mode: item` is ignored, and pie also ignores `none` (Bug · Flutter · Low)
-  - Location: `internal/chart_frame.dart:743`, `pie_chart/pl_pie_chart.dart:245`
-  - Problem: `item` behaves the same as `column`, and pie shows a tooltip even with `mode: none`.
-  - Proposal: For `item`, keep only the nearest series, and add a `none` check to pie.
+- [x] **49.** Flutter tooltip `mode: item` is ignored, and pie also ignores `none` (Bug · Flutter · Low)
 - [x] **50.** On an axis with one end fixed, the axis opens past the fixed value when every value equals it (Bug · React · Medium)
 - [x] **51.** The SSR output of pie and gauge shows the empty-state text instead of the data (Bug · React · Medium)
 - [ ] **52.** `aria-describedby` uses the whole data table as the description, so every value is read on each focus (Accessibility · React · Medium)
@@ -329,18 +294,9 @@ None. Every flagged item passed over so far is asked above.
   - Flag: Decision needed — the form of the summary text and the way the table is linked have to be decided.
 - [x] **53.** The tooltip, table and summary of a 100% stacked chart ignore `format` or treat the share as the value (Bug · Both · Medium)
 - [x] **54.** Arrow key navigation in cartesian charts is effectively untested (Test · React · Medium)
-- [ ] **55.** Hovering the legend entry of a hidden series dims every drawn mark (Bug · Both · Low)
-  - Location: `PlBarChart.tsx:230`, `PlScatterChart.tsx:255`, `PlPieChart.tsx:330`, `pl_scatter_chart.dart:334`, `pl_pie_chart.dart:553`
-  - Problem: These check only `hovered !== index`. `chart-line.tsx:151` and the Flutter bars guard against this with `visible[hovered]`.
-  - Proposal: Put the same condition into one helper.
-- [ ] **56.** Chart arithmetic that both languages should share gives different values (Bug · Both · Low)
-  - Location: `internal/chart.ts:129`, `internal/chart.dart:106`, `:953`
-  - Problem: `barBandRatio` is `0.62/0.82` in React and `0.68/0.84` in Dart. Dart's `markPath` does not keep the area equal across shapes, so in a bubble chart the same value looks a different size for each shape.
-  - Proposal: Bring Dart in line with the React values and the `shapeScale` factor.
-- [ ] **57.** In RTL, a legend with `side: left/right` is drawn on the opposite side (Bug · Both · Low)
-  - Location: `internal/chart-frame.tsx:267`, `internal/chart_frame.dart:924`
-  - Problem: `rtl.md:68` defines `PlassSide` as a physical direction, but both platforms place the legend by flex or `Row` order, which follows the writing direction.
-  - Proposal: Fix this layout alone to LTR.
+- [x] **55.** Hovering the legend entry of a hidden series dims every drawn mark (Bug · Both · Low)
+- [x] **56.** Chart arithmetic that both languages should share gives different values (Bug · Both · Low)
+- [x] **57.** In RTL, a legend with `side: left/right` is drawn on the opposite side (Bug · Both · Low)
 - [ ] **58.** `tickFormat` prints `[object Object]` when it returns a ReactNode (Bug · React · Low)
   - Location: `packages/react/src/types.ts:849`, `internal/chart-frame.tsx:1007`
   - Problem: The type allows ReactNode, but the result is passed through `String()`.
@@ -887,8 +843,7 @@ None. Every flagged item passed over so far is asked above.
   - Location: `PlCard.tsx:113`
   - Problem: `hover:-translate-y-0.5` has no `motion-reduce` handling. Flutter handles it.
   - Proposal: Use a `motion-reduce:` variant to set the transition to 0.
-- [ ] **258.** A finding in React `PlChatBubble` (Security · React · Medium)
-  - Security finding. The details are kept out of this public file, in the local memory note `audit-security-items`.
+- [x] **258.** A finding in React `PlChatBubble` (Security · React · Medium)
 - [x] **259.** The ko chat-bubble page was not updated after the Flutter port (Docs · Docs · Medium)
 - [ ] **260.** React `PlChatBubble` loads every preview image immediately (Performance · React · Low)
   - Location: `PlChatBubble.tsx:490`
@@ -979,11 +934,7 @@ None. Every flagged item passed over so far is asked above.
   - Problem: Only `loop` decides whether the animation repeats.
   - Proposal: Remove `repeat` with `Omit` and drop it from the table.
   - Flag: Breaking change — it removes a public prop.
-- [ ] **298.** `PlAnimateSlide` with `trigger="visible"` does not start inside an `overflow: hidden` box (Bug · React · Medium)
-  - Location: `internal/animate.ts:356-371`, `animate-slide/PlAnimateSlide.tsx:84`, `:94`
-  - Problem: While it waits, `translate: 0 100%` is already applied, so `IntersectionObserver` sees a box clipped by an ancestor's overflow and keeps reporting false. The documentation recommends this box. Flutter works correctly.
-  - Proposal: Observe the parent or an untransformed sentinel instead of the element.
-  - Flag: Decision needed — watching something other than the element changes when every `visible` effect starts; see the question under Waiting for an answer.
+- [x] **298.** `PlAnimateSlide` with `trigger="visible"` does not start inside an `overflow: hidden` box (Bug · React · Medium) — the parent observer measures the resting box, option C
 - [ ] **299.** `PlAnimateLighting` ignores `easing` (Bug · React · Low)
   - Location: `packages/react/src/styles.css:1681`
   - Problem: `linear` is fixed on `::before`. Flutter follows `curve`.
@@ -996,10 +947,7 @@ None. Every flagged item passed over so far is asked above.
   - Location: `PlAnimateCounter.tsx:135-138`, `docs/.vitepress/demos/animate-counter/hero.tsx:14`
   - Problem: While it renders at 60fps, the object reference changes every time, which breaks the memo. The hero demo also uses it this way.
   - Proposal: Memoise on a key built by serialising the options, or pin the first value in a ref.
-- [ ] **302.** `PlAnimateScramble` mixes halves of surrogate pairs into its noise, so broken glyphs flicker (Bug · React · Low)
-  - Location: `packages/react/src/internal/scramble.ts:60`
-  - Problem: The pool is collected by code point but indexed by code unit.
-  - Proposal: Index into the array that `Array.from(pool)` returns.
+- [x] **302.** `PlAnimateScramble` mixes halves of surrogate pairs into its noise, so broken glyphs flicker (Bug · React · Low) — closed by the grapheme cut item 298's batch brought to `PlAnimateSplit` and `PlAnimateScramble`
 - [ ] **303.** `PlAnimateFloat`'s string `distance` does not work with `calc()`, `var()` or negative values (Bug · React · Low)
   - Location: `animate-float/PlAnimateFloat.tsx:92-94`
   - Problem: The sign is put in front of the value, which produces `-calc(...)` and `--8px`.
@@ -1009,11 +957,7 @@ None. Every flagged item passed over so far is asked above.
 
 - [x] **304.** The root `README.md` component list is missing 17 components (Docs · Docs · Medium)
 - [x] **305.** The `README.md` Hooks table does not match the hooks that are actually exported (Docs · Docs · Medium)
-- [ ] **306.** Following the instruction to "run `npm run flutter:demos` again" does not rebuild the Flutter previews (Docs · Docs · Medium)
-  - Location: `CLAUDE.md:72`, `:395`
-  - Done in `612bdafb`: `README.md` and `CONTRIBUTING.md` say `npm run flutter:demos -- --force`, and that `npm run build` reuses a build that is already there.
-  - Problem left: `CLAUDE.md` gives the same instruction, and it is not in the working tree.
-  - Proposal: Change it there, once the question about `CLAUDE.md` is answered.
+- [x] **306.** Following the instruction to "run `npm run flutter:demos` again" does not rebuild the Flutter previews (Docs · Docs · Medium) — the `CLAUDE.md` half is done in the working tree, which is gitignored
 - [x] **307.** `packages/react/README.md` gives the wrong component count and the wrong runtime dependency count (Docs · Docs · Medium)
 - [ ] **308.** The `packages/react/README.md` component list has only 75 components and no Charts group (Docs · Docs · Medium)
   - Location: `packages/react/README.md:117-147`
@@ -1028,10 +972,7 @@ None. Every flagged item passed over so far is asked above.
   - Location: `CONTRIBUTING.md:54-79`, `CLAUDE.md:469`
   - Problem: `CLAUDE.md` says CONTRIBUTING is the rule and requires both rules, but CONTRIBUTING itself does not contain them.
   - Proposal: Add both rules to the commit section of CONTRIBUTING.
-- [ ] **311.** The list in `CLAUDE.md` of places that state the component count is incomplete (Docs · Docs · Medium)
-  - Location: `CLAUDE.md:140`
-  - Problem: "eight files, twelve times" covers only the shared count, 127. The React count, 130, also appears in `docs/{en,ko}/guide/getting-started.md:90`, `:101`, `docs/{en,ko}/components/index.md:13` and `packages/react/README.md`.
-  - Proposal: Add the places where 130 appears, and the React README list, to step 13.
+- [x] **311.** The list in `CLAUDE.md` of places that state the component count is incomplete (Docs · Docs · Medium) — `CLAUDE.md` is gitignored, so the change is local
 - [ ] **312.** `CLAUDE.md` gives the number of `internal/` modules as 40, but it is 41 (Docs · Docs · Low)
   - Location: `CLAUDE.md:60`
   - Problem: `image.ts` was added, which makes 41.
@@ -1074,10 +1015,7 @@ None. Every flagged item passed over so far is asked above.
   - Location: `docs/{en,ko}/design/design-language.md:95`, `docs/{en,ko}/design/color.md:46`
   - Problem: The derived tokens are written out for each family in `styles.css` (`:596-611`), `accent` goes into two dark blocks, and the Flutter tokens also have to change.
   - Proposal: Remove the sentence, or list the places to change.
-- [ ] **324.** "The library ships no translations" in `rtl.md` contradicts the translation guide (Docs · Docs · Medium)
-  - Location: `docs/{en,ko}/design/rtl.md:134`
-  - Problem: It still describes the state before the label packs for seven languages existed.
-  - Proposal: Keep only the point that direction is read separately from the label pack, and link to the locales page.
+- [x] **324.** "The library ships no translations" in `rtl.md` contradicts the translation guide (Docs · Docs · Medium)
 - [ ] **325.** React-only content appears in Flutter mode as empty sections or "No Flutter version" frames (Docs · Docs · Low)
   - Location: `docs/{en,ko}/design/prop-conventions.md:84-149`, `docs/{en,ko}/examples/dashboard.md`, `landing.md`, `signup.md`, `docs/en/components/layout/flex.md:10`, `:78`, `:104`, `show.md:89`, `docs/en/hooks/use-breakpoint.md:10`, `use-media-query.md:10` (same in ko)
   - Problem: Some sections have only their heading outside fw, some React-only demos lack `:flutter="false"`, and the example pages do not explain what is shown. The flex page says "it is React-only and not missing", then shows three frames that say it is missing.
@@ -1102,10 +1040,7 @@ None. Every flagged item passed over so far is asked above.
   - Location: `docs/ko/design/color.md:14`, `:23`, `:30`, `:35`, `docs/ko/design/design-language.md:84`, `:89`
   - Problem: It is a table header translated literally from "sweep", and the same colour is written both as "애저" and as "azure".
   - Proposal: Replace it with a phrase such as "그러데이션 양 끝" (both ends of the gradient), and use one spelling.
-- [ ] **331.** The group structure of `llms.txt` is wrong (Docs · Site · Medium)
-  - Location: `docs/public/llms.txt:21`, `:48`, `:71-87`, `:94`, `:111`
-  - Problem: There is no `### Charts` heading, so the 9 charts sit under Display. `PlWindowPane` (surfaces) is under Display, and `PlMockup` (display) is under Feedback. A blank line after that splits `PlModal` and the entries that follow into a separate list.
-  - Proposal: Add `### Charts`, move the three sets of entries to their own groups, and delete the blank line.
+- [x] **331.** The group structure of `llms.txt` is wrong (Docs · Site · Medium)
 - [ ] **332.** `llms.txt` has no links to Breakpoints or the changelog, and the description on line 21 does not match the actual layout (Docs · Site · Low)
   - Location: `docs/public/llms.txt:21`, `:25-34`
   - Problem: Of the design pages, only `design/breakpoints` is missing. The description says the React-only components are gathered at the end, but they are inside each group.
@@ -1120,10 +1055,7 @@ None. Every flagged item passed over so far is asked above.
   - Problem: The page rules in `CLAUDE.md` set the order as Props → Examples → Accessibility and say that design rationale does not belong on the page. animate-split has only prose sections and one hero demo instead of `## Examples`.
   - Proposal: Keep only the necessary facts under Props, and move the rationale to the design documents or delete it. For animate-split, move the `by`, `effect` and `stagger` examples into Examples, each with a demo.
   - Flag: Decision needed — decide whether to move the rationale or delete it.
-- [ ] **335.** The changelog page's description is an unrelated paragraph from the middle of the body (SEO · Site · Medium)
-  - Location: `docs/scripts/copy-changelog.mjs:33-35`, `docs/.vitepress/config.ts:338-350`
-  - Problem: The generated frontmatter has no `description`, so the description and `og:description` of `docs-dist/changelog.html` are the text of the `PlWindowPane` entry ("It is not a real window…").
-  - Proposal: Have `copy-changelog.mjs` write a `description` for each locale.
+- [x] **335.** The changelog page's description is an unrelated paragraph from the middle of the body (SEO · Site · Medium)
 - [ ] **336.** The site changelog covers only React, and `/ko/changelog` carries the English original marked as `ko-KR` (SEO · Site · Low)
   - Location: `docs/scripts/copy-changelog.mjs:27`
   - Problem: The site covers both frameworks but publishes only the React changelog, and the same English text is indexed under two languages.
@@ -1134,14 +1066,8 @@ None. Every flagged item passed over so far is asked above.
   - Problem: It writes only `User-agent: *` and `Allow: /`. The shared SEO rules say to block `GPTBot`, `ClaudeBot` and `Google-Extended` by default.
   - Proposal: Add blocks for those crawlers.
   - Flag: Decision needed — the maintainer decides whether the open source documentation may be used for training.
-- [ ] **338.** Changing the preview theme reloads the Flutter iframe (Performance · Site · Medium)
-  - Location: `docs/.vitepress/theme/components/Demo.vue:268-272`, `:457`
-  - Problem: `frameSrc` is a computed that reads `theme.value`, so every change to the site's dark mode or to the preview theme changes the URL and boots the engine again. This is the behaviour the comment at `:296-297` was meant to avoid.
-  - Proposal: Put only the initial theme in the URL, and send later changes with `postMessage`.
-- [ ] **339.** Every page loads the props data for all 130 components (Performance · Site · Medium)
-  - Location: `docs/.vitepress/theme/components/PropsTable.vue:6-7`, `docs/.vitepress/theme/index.js:5`
-  - Problem: `props.ts` (524KB) and `props-flutter.ts` are imported statically and the component is registered globally, so the theme chunk is 719KB (about 211KB gzipped) and is modulepreloaded on every page, including the home page.
-  - Proposal: Split the data per component, and have `PropsTable` dynamically import only the piece that matches `name`.
+- [x] **338.** Changing the preview theme reloads the Flutter iframe (Performance · Site · Medium)
+- [x] **339.** Every page loads the props data for all 130 components (Performance · Site · Medium)
 - [ ] **340.** Pages with no preview still download ReactDOM (Performance · Site · Low)
   - Location: `docs/.vitepress/theme/components/Demo.vue:21-32`
   - Problem: `reactRuntime()` at the top level of the module requests `react-dom/client` (57KB gzipped) as soon as the theme loads. This contradicts the comment.
@@ -1151,7 +1077,7 @@ None. Every flagged item passed over so far is asked above.
   - Problem: It reads as a switch for the site locale, but it actually chooses between React and Flutter.
   - Proposal: Rename it to "Framework"/"프레임워크".
 - [ ] **342.** The required marker in the props table carries its meaning only in the `title` attribute (Accessibility · Site · Low)
-  - Location: `docs/.vitepress/theme/components/PropsTable.vue:61-63`
+  - Location: `propsRow` in `docs/.vitepress/config.ts` (`PropsTable.vue` was removed in batch 9)
   - Problem: Screen readers read `<span title="Required">*</span>` as "star" or skip it, and it is not visible to touch users.
   - Proposal: Give the `*` `aria-hidden`, and add a visually hidden "Required"/"필수".
 - [ ] **343.** All Flutter iframes on a page use the same `title` (Accessibility · Site · Low)
