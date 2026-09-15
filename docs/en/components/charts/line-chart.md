@@ -185,7 +185,7 @@ The tokens are `--plass-chart-1` through `--plass-chart-8`, and a project that m
 
 ## Accessibility
 
-- The whole drawing carries a name and, as its value, **each visible series and where it ended up**. The reading a sighted reader takes from the shape, rather than a cell-by-cell recital of the table.
+- The whole drawing carries a name.
 - The legend is a row of real controls: each entry says whether its series is on, and pressing one switches it.
 - A hovered legend entry dims the **others** rather than lighting its own, a chart whose hovered series changes colour is a chart whose legend lies for as long as the pointer is on it.
 
@@ -197,6 +197,7 @@ The tokens are `--plass-chart-1` through `--plass-chart-8`, and a project that m
 
 ::: fw flutter
 
+- As its value, the drawing carries **each visible series and where it ended up**. That is the reading a sighted reader takes from the shape, rather than a cell-by-cell recital of the data.
 - A tap **leaves** the tooltip up and a second tap on the same column takes it down. Clearing it on the release would be a tooltip a reader with no pointer never gets to read: on a touch screen the press and the release are a tenth of a second apart. A drag scrubs along the axis.
 
 :::

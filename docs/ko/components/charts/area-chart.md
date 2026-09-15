@@ -107,4 +107,14 @@ PlAreaChart(
 
 ## Accessibility
 
-[`PlLineChart`](./line-chart#accessibility)에 적힌 내용이 그대로 적용됩니다. 이름과 series별 요약, 진짜 컨트롤인 범례, 그리고 React 쪽의 숨은 표.
+::: fw react
+
+이름과 진짜 컨트롤인 범례, 모든 숫자를 담은 숨은 표까지 [`PlLineChart`](./line-chart#accessibility)에 적힌 내용이 그대로 적용됩니다.
+
+:::
+
+::: fw flutter
+
+이름과 series별 요약, 진짜 컨트롤인 범례까지 [`PlLineChart`](./line-chart#accessibility)에 적힌 내용이 그대로 적용됩니다.
+
+:::

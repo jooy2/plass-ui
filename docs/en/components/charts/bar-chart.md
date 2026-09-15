@@ -119,4 +119,14 @@ The corners come off the **data** end of each bar only. The baseline end stays s
 
 ## Accessibility
 
-Everything [`PlLineChart`](./line-chart#accessibility) says applies here: the name and the per-series summary, the legend as real controls, and (on React) the hidden table that carries every number.
+::: fw react
+
+Everything [`PlLineChart`](./line-chart#accessibility) says applies here: the name, the legend as real controls and the hidden table that carries every number.
+
+:::
+
+::: fw flutter
+
+Everything [`PlLineChart`](./line-chart#accessibility) says applies here: the name, the per-series summary and the legend as real controls.
+
+:::
