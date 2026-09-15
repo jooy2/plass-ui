@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels, type PlassLabels } from '../../internal/labels.js';
 import { CheckIcon, ClockIcon, LinkIcon, severityIcon } from '../../internal/icons.js';
+import { safeHref } from '../../internal/link.js';
 import {
   controlSlots,
   focusRingClasses,
@@ -46,7 +47,10 @@ export type PlChatBubbleStatus = 'sending' | 'sent' | 'delivered' | 'read' | 'fa
 
 /** What a link inside a message unfurls to. */
 export interface PlChatBubbleLinkPreview {
-  /** Where the card goes. */
+  /**
+   * Where the card goes. An `http`, `https`, `mailto` or relative address; given
+   * anything else the card is still drawn, with nothing to click.
+   */
   url: string;
   /** The page's title. */
   title?: React.ReactNode;
@@ -290,7 +294,12 @@ const statusToneClasses: Record<PlChatBubbleStatus, string> = {
 const previewSurfaceClasses = /* @__PURE__ */ [
   'block overflow-hidden rounded-(--plass-radius-sm) border no-underline',
   '[border-color:color-mix(in_oklab,currentColor_18%,transparent)]',
-  '[background-color:color-mix(in_oklab,currentColor_7%,transparent)]',
+  '[background-color:color-mix(in_oklab,currentColor_7%,transparent)]'
+].join(' ');
+
+/** The same card once it is something to click: it answers the pointer and takes focus. */
+const previewLinkClasses = /* @__PURE__ */ [
+  previewSurfaceClasses,
   'hover:[background-color:color-mix(in_oklab,currentColor_12%,transparent)]',
   '[transition-property:background-color] [transition-duration:var(--plass-duration)]',
   '[transition-timing-function:var(--plass-ease)]',
@@ -479,17 +488,22 @@ function TypingDots({ label }: { label: string }) {
   );
 }
 
-/** The unfurled link: an image, who published it, a title and two lines of summary. */
+/**
+ * The unfurled link: an image, who published it, a title and two lines of
+ * summary.
+ *
+ * The card is drawn as a link only when `url` is an address the bubble will
+ * follow — `http`, `https`, `mailto` or a relative one. A message is usually
+ * written by somebody other than the person reading it, and the address in it
+ * arrives as data rather than as something the page's author wrote, so anything
+ * else is drawn as the same card with nothing to click.
+ */
 function LinkPreview({ preview }: { preview: PlChatBubbleLinkPreview }) {
   const { url, title, description, image, site, newTab = false } = preview;
+  const href = safeHref(url);
 
-  return (
-    <a
-      href={url}
-      target={newTab ? '_blank' : undefined}
-      rel={newTab ? 'noopener noreferrer' : undefined}
-      className={previewSurfaceClasses}
-    >
+  const card = (
+    <>
       {image ? (
         // Decorative: everything the picture is saying is written underneath it.
         <img src={image} alt="" className="block h-28 w-full object-cover" />
@@ -506,6 +520,21 @@ function LinkPreview({ preview }: { preview: PlChatBubbleLinkPreview }) {
           <span className="line-clamp-2 text-[0.9em] opacity-80">{description}</span>
         ) : null}
       </div>
+    </>
+  );
+
+  if (href === undefined) {
+    return <div className={previewSurfaceClasses}>{card}</div>;
+  }
+
+  return (
+    <a
+      href={href}
+      target={newTab ? '_blank' : undefined}
+      rel={newTab ? 'noopener noreferrer' : undefined}
+      className={previewLinkClasses}
+    >
+      {card}
     </a>
   );
 }

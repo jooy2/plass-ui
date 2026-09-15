@@ -3129,7 +3129,10 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'url',
       type: 'string',
       required: true,
-      description: { ko: '카드가 가리키는 곳', en: 'Where the card goes' }
+      description: {
+        ko: '카드가 가리키는 곳. http, https, mailto이거나 상대 주소일 때만 링크가 되고, 그 밖에는 누를 것 없는 카드로 그려집니다',
+        en: 'Where the card goes. A link only when it is http, https, mailto or relative; anything else is drawn as a card with nothing to click'
+      }
     },
     {
       name: 'title',

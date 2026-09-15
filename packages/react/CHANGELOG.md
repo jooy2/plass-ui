@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A `PlChatBubble` link card is a link only when `preview.url` is an address the bubble will follow.** The URL was written straight into the `href`, and a message's link preview is usually built from a URL somebody else wrote. `http`, `https`, `mailto` and relative addresses are unchanged; given anything else the same card is drawn with nothing to click, so the title, the site and the picture are still read and nothing announces a destination that is not one.
+
 - **A chart legend asked for on the left or the right stays on that side under RTL.** `PlassSide` is a physical direction, but the legend was placed by the order of a flex row, which follows the writing direction, so `side: 'left'` put the legend on the right of an Arabic or Hebrew page. The row is now laid out physically, and the words inside the legend still read in the page's own direction.
 
 - **Pointing at the legend entry of a series that is switched off no longer fades the whole chart.** The bar, scatter and pie marks checked only whether the hovered entry was some other series, so hovering a hidden one dimmed every series that was actually drawn, to highlight one that was not there. All of them now ask the one condition the line chart already used.

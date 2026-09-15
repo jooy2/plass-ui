@@ -149,6 +149,12 @@ What <Fw react="children" flutter="child" code /> holds is left alone, so the sa
 
 The link card's surface is mixed out of <Fw react="`currentColor`" flutter="the bubble's own ink" /> rather than out of a token, because it is the one part of a bubble that has to work on both a filled surface and a bare one: on `solid` the text is white and the card is a white wash, on `glass` the text is the page's ink and the card is a grey one. A fixed token would be invisible against one of the two.
 
+::: fw react
+
+`preview.url` becomes the card's `href` when it is an `http`, `https`, `mailto` or relative address. A message is usually written by somebody other than the person reading it, so an address of any other scheme is drawn as the same card with nothing to click.
+
+:::
+
 ::: fw flutter
 
 `preview` takes an `onPressed` rather than a `url`, and an `ImageProvider` rather than a `src`. Flutter has no navigation of its own, so where a link goes is the app's, the same trade a [`PlTextLink`](../display/text-link) makes.
@@ -225,7 +231,7 @@ The handle sits beside the message and **stays there**. The React build fades it
 
 - The delivery mark is the whole of what is drawn, and the word behind it is in a visually hidden box, for the readers a double tick says nothing to. `statusLabel` is what changes that word.
 - The typing dots are a `role="status"`, so a message being written is announced once rather than on every frame.
-- The link card is a real `<a>`, and `newTab` brings the `rel` that stops the new page reaching back through `window.opener`.
+- The link card is a real `<a>` whenever `preview.url` is an address the bubble will follow, and `newTab` brings the `rel` that stops the new page reaching back through `window.opener`. Given any other address the card is drawn without a link, so nothing announces a destination that is not one.
 - `media` should carry its own `alt`. The component does not know what the picture is of.
 - The bubble adds no role of its own. A thread is a list, and the list belongs to the page, which is what lets a virtualised one still be one.
 

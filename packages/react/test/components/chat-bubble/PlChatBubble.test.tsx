@@ -159,6 +159,28 @@ describe('PlChatBubble', () => {
       expect(link).toHaveAttribute('target', '_blank');
       expect(link).toHaveAttribute('rel', 'noopener noreferrer');
     });
+
+    it('draws the card without a link when the address is not one it follows', async () => {
+      const screen = await render(
+        <PlChatBubble
+          preview={{ url: 'javascript:alert(1)', title: 'Elsewhere', site: 'example.com' }}
+        >
+          Look
+        </PlChatBubble>
+      );
+
+      expect(screen.getByRole('link').query()).toBeNull();
+      expect(document.querySelector('a[href]')).toBeNull();
+      await expect.element(screen.getByText('Elsewhere')).toBeInTheDocument();
+    });
+
+    it('follows a relative address, which is the app naming a page of its own', async () => {
+      const screen = await render(
+        <PlChatBubble preview={{ url: '/notes/today', title: 'Today' }}>Look</PlChatBubble>
+      );
+
+      expect(screen.getByRole('link').element()).toHaveAttribute('href', '/notes/today');
+    });
   });
 
   describe('the slots', () => {
