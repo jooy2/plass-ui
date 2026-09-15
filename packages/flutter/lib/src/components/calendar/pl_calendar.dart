@@ -221,6 +221,7 @@ class _PlCalendarState extends State<PlCalendar> {
       shouldDisableDate: widget.shouldDisableDate,
       showOutsideDays: widget.showOutsideDays,
       autofocus: widget.autofocus && !inert,
+      disabled: inert,
     );
 
     if (inert) {

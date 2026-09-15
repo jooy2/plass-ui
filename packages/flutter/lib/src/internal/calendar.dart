@@ -112,6 +112,7 @@ class PlassCalendarCell extends StatefulWidget {
     this.current = false,
     this.muted = false,
     this.disabled = false,
+    this.inert = false,
     this.focused = false,
     this.focusNode,
     this.onHover,
@@ -154,6 +155,10 @@ class PlassCalendarCell extends StatefulWidget {
 
   /// Blocked. Still in the grid and still in the arrow-key path.
   final bool disabled;
+
+  /// Out of use with the whole calendar. Announced as disabled, with no tap
+  /// action, but drawn as it is, because the calendar is dimmed as one.
+  final bool inert;
 
   /// The grid's single tab stop.
   final bool focused;
@@ -347,9 +352,9 @@ class _PlassCalendarCellState extends State<PlassCalendarCell> {
       child: Semantics(
         button: true,
         selected: widget.selected,
-        enabled: !widget.disabled,
+        enabled: !widget.disabled && !widget.inert,
         label: widget.label,
-        onTap: widget.disabled ? null : widget.onPressed,
+        onTap: widget.disabled || widget.inert ? null : widget.onPressed,
         excludeSemantics: true,
         child: MouseRegion(
           cursor: widget.disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
@@ -414,6 +419,7 @@ class PlassCalendar extends StatefulWidget {
     this.showPreviousButton = true,
     this.showNextButton = true,
     this.autofocus = false,
+    this.disabled = false,
     super.key,
   });
 
@@ -489,6 +495,14 @@ class PlassCalendar extends StatefulWidget {
 
   /// Takes the focus on mount — the popup has just opened.
   final bool autofocus;
+
+  /// The whole calendar is out of use.
+  ///
+  /// Only what a screen reader hears changes here: every cell and every header
+  /// button is announced as disabled, with no action. Dimming the calendar and
+  /// taking it out of reach of the pointer and the focus is left to the caller,
+  /// which does it once for all of it, so nothing here dims itself a second time.
+  final bool disabled;
 
   @override
   State<PlassCalendar> createState() => _PlassCalendarState();
@@ -633,23 +647,46 @@ class _PlassCalendarState extends State<PlassCalendar> {
       PlassCalendarView.year => <String>[labels.previousYears, labels.nextYears],
     };
 
+    // While the calendar is disabled, a header button is announced as a disabled
+    // button by the name and the hint it has, with no action. A disabled
+    // `PlButton` would say so too, but it would also dim itself inside a
+    // calendar that is already dimmed as one.
+    Widget announced({required String label, required Widget child, String? hint}) {
+      if (!widget.disabled) {
+        return child;
+      }
+
+      return Semantics(
+        container: true,
+        button: true,
+        enabled: false,
+        label: label,
+        hint: hint,
+        excludeSemantics: true,
+        child: child,
+      );
+    }
+
     Widget stepper(int direction, bool shown) {
       if (!shown) {
         // A hole the size of the button that is not there.
         return SizedBox(width: controlHeight[chrome]!, height: controlHeight[chrome]!);
       }
 
-      return PlButton(
-        variant: PlassVariant.ghost,
-        size: chrome,
-        color: widget.color,
-        density: PlassDensity.compact,
-        semanticLabel: stepLabels[direction == -1 ? 0 : 1],
-        onPressed: () => _step(direction),
-        startIcon: PlassGlyph(
-          PlassGlyphShape.chevron,
-          quarterTurns: direction == -1 ? 1 : 3,
-          size: controlText[chrome]! * iconScale,
+      return announced(
+        label: stepLabels[direction == -1 ? 0 : 1],
+        child: PlButton(
+          variant: PlassVariant.ghost,
+          size: chrome,
+          color: widget.color,
+          density: PlassDensity.compact,
+          semanticLabel: stepLabels[direction == -1 ? 0 : 1],
+          onPressed: () => _step(direction),
+          startIcon: PlassGlyph(
+            PlassGlyphShape.chevron,
+            quarterTurns: direction == -1 ? 1 : 3,
+            size: controlText[chrome]! * iconScale,
+          ),
         ),
       );
     }
@@ -671,32 +708,41 @@ class _PlassCalendarState extends State<PlassCalendar> {
     // A `semanticLabel` is merged ahead of the drawn words, so "Choose a month"
     // would be read before which month is on screen. The purpose goes in a hint
     // on the words instead, which the button's own merge folds into the button.
-    final monthButton = PlButton(
-      key: const ValueKey<String>('month'),
-      variant: PlassVariant.ghost,
-      size: chrome,
-      color: widget.color,
-      density: PlassDensity.compact,
-      onPressed: () => _changeView(
-        _view == PlassCalendarView.month ? widget.precision : PlassCalendarView.month,
-      ),
-      endIcon: disclosure(_view == PlassCalendarView.month),
-      child: Semantics(
-        hint: labels.chooseMonth,
-        child: Text(widget.names.months[widget.month.month - 1]),
+    final monthButton = announced(
+      label: widget.names.months[widget.month.month - 1],
+      hint: labels.chooseMonth,
+      child: PlButton(
+        key: const ValueKey<String>('month'),
+        variant: PlassVariant.ghost,
+        size: chrome,
+        color: widget.color,
+        density: PlassDensity.compact,
+        onPressed: () => _changeView(
+          _view == PlassCalendarView.month ? widget.precision : PlassCalendarView.month,
+        ),
+        endIcon: disclosure(_view == PlassCalendarView.month),
+        child: Semantics(
+          hint: labels.chooseMonth,
+          child: Text(widget.names.months[widget.month.month - 1]),
+        ),
       ),
     );
 
-    final yearButton = PlButton(
-      key: const ValueKey<String>('year'),
-      variant: PlassVariant.ghost,
-      size: chrome,
-      color: widget.color,
-      density: PlassDensity.compact,
-      onPressed: () =>
-          _changeView(_view == PlassCalendarView.year ? widget.precision : PlassCalendarView.year),
-      endIcon: disclosure(_view == PlassCalendarView.year),
-      child: Semantics(hint: labels.chooseYear, child: Text('${widget.month.year}')),
+    final yearButton = announced(
+      label: '${widget.month.year}',
+      hint: labels.chooseYear,
+      child: PlButton(
+        key: const ValueKey<String>('year'),
+        variant: PlassVariant.ghost,
+        size: chrome,
+        color: widget.color,
+        density: PlassDensity.compact,
+        onPressed: () => _changeView(
+          _view == PlassCalendarView.year ? widget.precision : PlassCalendarView.year,
+        ),
+        endIcon: disclosure(_view == PlassCalendarView.year),
+        child: Semantics(hint: labels.chooseYear, child: Text('${widget.month.year}')),
+      ),
     );
 
     final page = yearPageStart(widget.month.year);
@@ -832,6 +878,7 @@ class _PlassCalendarState extends State<PlassCalendar> {
       current: isSameDay(date, now) && !chosen,
       muted: outside,
       disabled: _isDisabled(date),
+      inert: widget.disabled,
       focused: isSameDay(date, _focused),
       focusNode: isSameDay(date, _focused) ? _cursor : null,
       onHover: () => widget.onPreviewChanged?.call(date),
@@ -903,6 +950,7 @@ class _PlassCalendarState extends State<PlassCalendar> {
                       // the month a `minDate` falls in is still reachable, it
                       // just starts late.
                       disabled: isMonthOutside(first, widget.minDate, widget.maxDate),
+                      inert: widget.disabled,
                       focused: index + 1 == widget.month.month,
                       focusNode: index + 1 == widget.month.month ? _cursor : null,
                       onKey: (KeyEvent event) => _onCursorKey(event, months: true),
@@ -955,6 +1003,7 @@ class _PlassCalendarState extends State<PlassCalendar> {
                       ),
                       current: year == now,
                       disabled: isYearOutside(DateTime(year), widget.minDate, widget.maxDate),
+                      inert: widget.disabled,
                       focused: year == widget.month.year,
                       focusNode: year == widget.month.year ? _cursor : null,
                       onKey: (KeyEvent event) => _onCursorKey(event, months: false),

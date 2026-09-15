@@ -387,6 +387,61 @@ void main() {
 
         expect(focused?.findAncestorWidgetOfExactType<PlCalendar>(), isNull);
       });
+
+      /// The day, the two steppers and the month and year buttons, each with the
+      /// hint it carries.
+      const Map<String, String?> announced = <String, String?>{
+        'Wednesday, July 15, 2026': null,
+        'Previous month': null,
+        'Next month': null,
+        'July': 'Choose a month',
+        '2026': 'Choose a year',
+      };
+
+      testWidgets('announces its days and its header buttons as enabled while it can be used', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+        await _pump(tester, PlCalendar(value: july27, onChanged: (DateTime? _) {}));
+
+        announced.forEach((String label, String? hint) {
+          expect(
+            tester.getSemantics(find.bySemanticsLabel(label)),
+            isSemantics(isButton: true, hasEnabledState: true, isEnabled: true, hint: hint),
+            reason: label,
+          );
+        });
+
+        handle.dispose();
+      });
+
+      for (final (String how, PlCalendar calendar) in <(String, PlCalendar)>[
+        ('with disabled', PlCalendar(value: july27, disabled: true, onChanged: (DateTime? _) {})),
+        ('without an onChanged', PlCalendar(value: july27)),
+      ]) {
+        testWidgets('announces its days and its header buttons as disabled $how', (
+          WidgetTester tester,
+        ) async {
+          final SemanticsHandle handle = tester.ensureSemantics();
+          await _pump(tester, calendar);
+
+          announced.forEach((String label, String? hint) {
+            expect(
+              tester.getSemantics(find.bySemanticsLabel(label)),
+              isSemantics(
+                isButton: true,
+                hasEnabledState: true,
+                isEnabled: false,
+                hasTapAction: false,
+                hint: hint,
+              ),
+              reason: label,
+            );
+          });
+
+          handle.dispose();
+        });
+      }
     });
 
     group('the words', () {

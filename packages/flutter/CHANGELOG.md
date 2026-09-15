@@ -66,6 +66,8 @@
 
 ### Fixed
 
+- **A disabled `PlCalendar` is announced as disabled.** Its days and its header buttons could not be pressed, but a screen reader still heard each of them as an enabled button. While `disabled` is set or there is no `onChanged`, each is now announced as disabled, with no action. The calendar looks the same.
+
 - **A labelled `PlImage` preview says that it opens a preview.** Its press target was named by `semanticLabel` alone, so a screen reader heard what the picture is but not what pressing it does. It is now named by the label and then `previewLabel` in lower case, or the label pack's `preview` when that is left out, "A portrait — preview", as the React build names its button after `alt`.
 
 - **The typing dots of a `PlChatBubble` keep moving when animations are disabled.** With `disableAnimations` on, the dots stopped, and three dots that hold still do not say that somebody is typing. They now light in turn on a slower cycle, 2.6 seconds instead of 1.2, as in the React build.
