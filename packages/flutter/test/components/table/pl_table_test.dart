@@ -439,6 +439,28 @@ void main() {
         expect(tester.getTopLeft(find.text('#400')).dy, lessThan(row));
       });
 
+      testWidgets('stays put in a box that bounds its height, with no cap of its own', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            PlTable<_Build>(rows: _many, columns: _columns(), stickyHeader: true),
+            width: 420,
+            height: 200,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final double band = tester.getTopLeft(find.byType(IntrinsicHeight)).dy;
+        final double row = tester.getTopLeft(find.text('#400')).dy;
+
+        await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -120));
+        await tester.pumpAndSettle();
+
+        expect(tester.getTopLeft(find.byType(IntrinsicHeight)).dy, band);
+        expect(tester.getTopLeft(find.text('#400')).dy, lessThan(row));
+      });
+
       testWidgets('is opaque, because rows pass underneath it', (WidgetTester tester) async {
         await tester.pumpWidget(_table(rows: _many, maxHeight: 200, stickyHeader: true));
         await tester.pumpAndSettle();

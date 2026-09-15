@@ -170,7 +170,19 @@ Width comes in two forms, and they are different questions. `width` is a length 
 
 Two halves of one idea, and each is close to useless without the other.
 
-`maxHeight` caps the **grid** and past it the rows scroll inside the sheet rather than the sheet growing. `stickyHeader` pins the column names to the top of what the rows are scrolling in. Capped without pinning, the names scroll away and the rest is a grid of unlabelled numbers; pinned without a cap, there is nothing for the names to stay put inside and nothing happens at all.
+`maxHeight` caps the **grid** and past it the rows scroll inside the sheet rather than the sheet growing. `stickyHeader` pins the column names to the top of what the rows are scrolling in. Capped without pinning, the names scroll away and the rest is a grid of unlabelled numbers.
+
+::: fw react
+
+Pinned without a cap, there is nothing for the names to stay put inside and nothing happens at all. The header sticks to the table's own scroller, so a pane around the table that scrolls or caps its own height does not change that.
+
+:::
+
+::: fw flutter
+
+Pinned without a cap, the names stay put only when something around the table bounds its height, such as a pane of a fixed height, because the rows then scroll inside the sheet. A table with nothing bounding it is as tall as its rows and has nothing to pin against.
+
+:::
 
 A `caption` sits **above** what scrolls, because a title that slid away would take the table's name with it.
 
