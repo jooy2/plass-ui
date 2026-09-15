@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **→ on an open `PlTree` branch with nothing to step into keeps the focus where it is.** A branch with `children: []`, or whose children are all `disabled`, handed the focus to the next row, which is a sibling. The focus now moves only into a child, as the ARIA tree pattern says.
+
 - **`PlProgressLinear`, `PlProgressCircular` and `PlProgressBox` write their value in the provider's `locale`.** Unlike `PlMeter`, they did not pass on the `locale` of the nearest `PlassProvider`, so a `format` followed the browser's language and the percentage shown without one was always written `75%`. Both now follow the provider, so `locale="de-DE"` writes `75 %` on screen and in `aria-valuetext`. Without a provider, the percentage follows the browser's language, as a `format` already did.
 
 - **A `PlSkeleton` with a `label` says it to a screen reader.** The label was only the name of its `role="status"`, and a screen reader reads out the text inside a live region, not its name. The status was also `aria-busy`, which tells a screen reader to wait until the region is no longer busy, and a skeleton is removed instead. The label is now visually hidden text inside the status, and the status is no longer `aria-busy`. Put `aria-busy` on the region being loaded if it needs one.

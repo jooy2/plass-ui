@@ -265,6 +265,35 @@ describe('PlTree', () => {
       expect(document.activeElement?.textContent?.trim()).toBe('index.ts');
     });
 
+    it('stays on an open branch with nothing to step into', async () => {
+      await render(
+        <PlTree
+          items={[
+            { id: 'empty', label: 'Archive', children: [] },
+            {
+              id: 'locked',
+              label: 'Locked',
+              children: [{ id: 'secret', label: 'secret.txt', disabled: true }]
+            },
+            { id: 'readme', label: 'README.md' }
+          ]}
+          defaultExpanded={['empty', 'locked']}
+        />
+      );
+
+      // No children, so the next row is a sibling.
+      row('Archive').focus();
+      await press('ArrowRight');
+
+      expect(document.activeElement?.textContent?.trim()).toBe('Archive');
+
+      // Only a disabled child, which the arrows skip, so the same again.
+      row('Locked').focus();
+      await press('ArrowRight');
+
+      expect(document.activeElement?.textContent?.trim()).toBe('Locked');
+    });
+
     it('closes an open branch with the left arrow', async () => {
       await render(<PlTree items={items} defaultExpanded={['src']} />);
 

@@ -353,6 +353,39 @@ void main() {
         expect(_focused(), equals('index'));
       });
 
+      testWidgets('stays on an open branch with nothing to step into', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          PlTree(
+            items: const <PlTreeNode>[
+              PlTreeNode(id: 'empty', label: Text('Archive'), children: <PlTreeNode>[]),
+              PlTreeNode(
+                id: 'locked',
+                label: Text('Locked'),
+                children: <PlTreeNode>[
+                  PlTreeNode(id: 'secret', label: Text('secret.txt'), disabled: true),
+                ],
+              ),
+              PlTreeNode(id: 'readme', label: Text('README.md')),
+            ],
+            expanded: const <String>{'empty', 'locked'},
+            onExpandedChanged: (Set<String> _) {},
+          ),
+        );
+
+        // No children, so the next row is a sibling.
+        await _focusRow(tester, 'Archive');
+        await _press(tester, LogicalKeyboardKey.arrowRight);
+
+        expect(_focused(), equals('empty'));
+
+        // Only a disabled child, which the arrows skip, so the same again.
+        await _focusRow(tester, 'Locked');
+        await _press(tester, LogicalKeyboardKey.arrowRight);
+
+        expect(_focused(), equals('locked'));
+      });
+
       testWidgets('closes an open branch with the left arrow', (WidgetTester tester) async {
         await _pump(tester, const _Host(expanded: <String>{'src'}));
         await _focusRow(tester, 'src');

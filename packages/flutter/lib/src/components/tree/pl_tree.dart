@@ -284,10 +284,13 @@ class _PlTreeState extends State<PlTree> {
       case LogicalKeyboardKey.arrowRight:
         // Open, then step in. Two presses rather than one, which is the pattern
         // and is what lets a reader open a branch without leaving the row that
-        // told them it was there.
+        // told them it was there. Only ever into a child: an open branch with
+        // none, or with only disabled ones, has a sibling as its next row.
         if (isBranch && !isOpen) {
           _toggle(row.node.id, open: true);
-        } else if (isBranch && index + 1 < reachable.length) {
+        } else if (isBranch &&
+            index + 1 < reachable.length &&
+            reachable[index + 1].level == row.level + 1) {
           _focus(reachable[index + 1].node.id);
         }
 

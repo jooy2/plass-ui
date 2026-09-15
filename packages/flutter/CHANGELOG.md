@@ -64,6 +64,8 @@
 
 ### Fixed
 
+- **→ on an open `PlTree` branch with nothing to step into keeps the focus where it is.** A branch with `children: []`, or whose children are all `disabled`, handed the focus to the next row, which is a sibling. The focus now moves only into a child, as the ARIA tree pattern says.
+
 - **A screen reader no longer reads the clock in a `PlMockup` system bar.** The bars and the cut-out are now left out of the semantics tree, as the rest of the device already was and as in the React build, so what is announced is what the caller put on the screen.
 
 - **A `PlImage` tells a screen reader what its preview shows, and reads its label once when the picture fails.** The picture in the open preview was left out of the semantics tree, so only the overlay's name was heard, and it now carries `semanticLabel`. An image with no `semanticLabel` and no `preview` is now left off the tree entirely: its image flag merged into the widget around it, so a `PlButton` holding one was announced as an image. The default fallback no longer repeats the label.

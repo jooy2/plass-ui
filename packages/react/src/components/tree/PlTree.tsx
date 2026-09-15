@@ -460,9 +460,11 @@ export const PlTree = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTreePro
         event.preventDefault();
         // Open, then step in. Two presses rather than one, which is the pattern
         // and is what lets a reader open a branch without leaving the row that
-        // told them it was there.
+        // told them it was there. Only ever into a child: an open branch with
+        // none, or with only disabled ones, has a sibling as its next row.
         if (isBranch && !isOpen) toggle(node.id, true);
-        else if (isBranch && reachable[index + 1]) focusRow(reachable[index + 1].node.id);
+        else if (isBranch && reachable[index + 1]?.level === level + 1)
+          focusRow(reachable[index + 1].node.id);
         break;
       case 'ArrowLeft': {
         event.preventDefault();
