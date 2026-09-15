@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useRender } from '@base-ui/react/use-render';
 import { cx } from '../../internal/styles.js';
 import type { PlassBreakpointFloor } from '../../types.js';
 
@@ -18,6 +19,15 @@ export interface PlShowProps extends React.ComponentPropsWithoutRef<'div'> {
    * both and none that draws neither.
    */
   until?: PlassBreakpointFloor;
+  /**
+   * Renders something other than a `<div>`: `render={<span />}`. Base UI's own
+   * escape hatch.
+   *
+   * A paragraph cannot hold a `<div>`, so inside a `<p>` an HTML parser closes
+   * the paragraph in front of it and a page rendered on a server no longer
+   * hydrates. A gate in a line of text wants a `<span>`, and gates the same way.
+   */
+  render?: useRender.RenderProp;
   /** What is shown, at the widths it is shown at. */
   children?: React.ReactNode;
 }
@@ -67,18 +77,18 @@ export interface PlShowProps extends React.ComponentPropsWithoutRef<'div'> {
  * the same three cases.
  */
 export const PlShow = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlShowProps>(function PlShow(
-  { from, until, className, children, ...props },
+  { from, until, render, className, children, ...props },
   ref
 ) {
-  return (
-    <div
-      ref={ref}
-      className={cx('plass-show', className)}
-      data-from={from}
-      data-until={until}
-      {...props}
-    >
-      {children}
-    </div>
-  );
+  return useRender({
+    render,
+    ref,
+    props: {
+      className: cx('plass-show', className),
+      'data-from': from,
+      'data-until': until,
+      children,
+      ...props
+    }
+  });
 });

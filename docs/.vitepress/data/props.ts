@@ -9935,6 +9935,14 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'render',
+      type: 'ReactElement | (props, state) => ReactElement',
+      description: {
+        ko: '<div> 대신 다른 요소로 렌더링합니다. 문단 안에서는 <span />을 주세요',
+        en: 'Renders something other than a <div>. Give it <span /> inside a paragraph'
+      }
+    },
+    {
       name: 'children',
       type: 'ReactNode',
       description: {

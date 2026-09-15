@@ -284,6 +284,8 @@
 
 ### Added
 
+- **`PlShow` takes `render`, so a gate inside a paragraph can be a `<span>`.** It always rendered a `<div>`, which a `<p>` cannot hold, so the HTML parser closed the paragraph in front of it and a server-rendered page failed to hydrate. `render={<span />}` renders another element, and it gates the same way.
+
 - **`PlButton` takes `focusableWhenDisabled`.** A `disabled` button leaves the tab order, which drops the focus when a control becomes unavailable under it. With `focusableWhenDisabled` it stays a tab stop and is announced as unavailable, the way a stepper at the end of a `PlPagination` row now is.
 
 - **`PlAnchor` takes a `target`, for headings that scroll inside an element rather than the window.** In an app shell whose `<main>` scrolls on its own the window never moves, so no row was ever lit. `target` takes an element, a ref or a function returning one, as the `target` of `PlBackTop` does, and the reading line, `offset` and the last-row rule are measured against that element. Left out, the list follows the window as before.

@@ -68,6 +68,17 @@ PlShow(until: PlassBreakpointFloor.md, child: PlList(children: rows));
 
 그 말은 **margin이나 width를 실은 `className`이 여기서는 아무 일도 하지 않는다**는 뜻이기도 합니다. 그것이 앉을 상자가 없습니다. 자기 요소를 안에 넣으세요.
 
+요소는 `<div>`인데, 문단은 `<div>`를 담을 수 없습니다. `<p>` 안에 두면 HTML 파서가 그 앞에서 문단을 닫고, 서버에서 렌더링한 페이지는 hydration에 실패합니다. 글 한 줄 안의 게이트에는 `render={<span />}`을 주세요. 똑같이 동작합니다.
+
+```tsx
+<p>
+  Draft saved
+  <PlShow from="md" render={<span />}>
+    , two minutes ago
+  </PlShow>
+</p>
+```
+
 :::
 
 ## 비용
@@ -121,6 +132,6 @@ PlShow(until: PlassBreakpointFloor.md, child: PlList(children: rows));
 | --- | --- | --- |
 | 양쪽 다 렌더링하고 한쪽을 `display: none` | 열린 쪽만 빌드 | 여기에는 `display: contents`도, 값싼 숨은 서브트리도 없습니다. 양쪽으로 작용합니다. 비용이 큰 서브트리는 닫혀 있는 동안 공짜이고, 창이 경계를 넘으면 그 상태를 잃습니다. |
 | `'sm' \| 'md' \| 'lg' \| 'xl'`인 `from` / `until` | `PlassBreakpointFloor` | 같은 네 칸을 enum으로. |
-| `className`, `style` | — | 통과시킬 class 목록도 style 속성도 없습니다. |
+| `className`, `style`, `render` | — | 통과시킬 class 목록도 style 속성도, 바꿔 끼울 요소도 없습니다. |
 
 :::

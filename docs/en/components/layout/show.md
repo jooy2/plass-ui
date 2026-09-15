@@ -68,6 +68,17 @@ While it is showing, `PlShow` is `display: contents`. Its children take part in 
 
 Which also means **a `className` carrying a margin or a width does nothing here.** There is no box for it to land on. Put your own element inside.
 
+The element is a `<div>`, and a paragraph cannot hold one: inside a `<p>`, the HTML parser closes the paragraph in front of it, and a page rendered on a server then fails to hydrate. Give a gate in a line of text `render={<span />}`. It gates the same way.
+
+```tsx
+<p>
+  Draft saved
+  <PlShow from="md" render={<span />}>
+    , two minutes ago
+  </PlShow>
+</p>
+```
+
 :::
 
 ## Cost
@@ -121,6 +132,6 @@ Nothing is built at a width the gate is closed at, so an expensive subtree costs
 | --- | --- | --- |
 | both halves rendered, one `display: none` | only the open half built | There is no `display: contents` and no cheap hidden subtree here. It cuts both ways: an expensive subtree is free while closed, and its state is lost when the window crosses the boundary. |
 | `from` / `until` as `'sm' \| 'md' \| 'lg' \| 'xl'` | `PlassBreakpointFloor` | The same four rungs, as an enum. |
-| `className`, `style` | — | There is no class list and no style attribute to pass through. |
+| `className`, `style`, `render` | — | There is no class list, no style attribute and no element to pass through or replace. |
 
 :::

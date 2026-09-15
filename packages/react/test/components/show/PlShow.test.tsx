@@ -1,15 +1,18 @@
 /**
  * The gate decides in CSS, so this loads the stylesheet — which every other
- * component test deliberately does not. There is nothing else to assert: the
- * component renders one `<div>` and two attributes, and the whole of what it
+ * component test deliberately does not. There is little else to assert: the
+ * component renders one element and two attributes, and the whole of what it
  * promises is what the browser then does with them at a width.
  *
  * The viewport is resized rather than `matchMedia` stubbed, for the reason
  * `usePlBreakpoint`'s tests give: the claim is that it changes where Tailwind's
  * `md:` changes, and the only way to check that is to ask the same engine.
  */
+import { act } from 'react';
+import { hydrateRoot } from 'react-dom/client';
+import { renderToString } from 'react-dom/server';
 import { page } from 'vitest/browser';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlShow } from 'plass-ui';
 import standaloneCss from '../../../src/standalone.css?inline';
@@ -116,5 +119,36 @@ describe('PlShow', () => {
     // one of them being drawn, read out, or tabbed into.
     expect(document.querySelector('[data-testid="gate"] button')).not.toBeNull();
     await expect.poll(() => screen.getByRole('button').query()).toBeNull();
+  });
+
+  it('takes another element, so a line of text can hold it', async () => {
+    const line = (
+      <p>
+        Draft saved
+        <PlShow data-testid="gate" from="md" render={<span />}>
+          , two minutes ago
+        </PlShow>
+      </p>
+    );
+    const host = document.createElement('div');
+    const onRecoverableError = vi.fn();
+
+    // A server's markup, read by the parser a browser reads a page with. A
+    // `<div>` would close the paragraph in front of it, and hydrating would
+    // then find a tree that no longer matches.
+    host.innerHTML = renderToString(line);
+    document.body.append(host);
+
+    const root = await act(async () => hydrateRoot(host, line, { onRecoverableError }));
+
+    try {
+      expect(host.querySelector('p > [data-testid="gate"]')?.tagName).toBe('SPAN');
+      expect(onRecoverableError).not.toHaveBeenCalled();
+      expect(await displayAt(500)).toBe('none');
+      expect(await displayAt(1000)).toBe('contents');
+    } finally {
+      await act(async () => root.unmount());
+      host.remove();
+    }
   });
 });
