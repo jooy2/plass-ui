@@ -175,7 +175,7 @@ export interface PlCodeBlockProps extends Omit<
   copyLabel?: string;
   /** And what it says once the code is on the clipboard. @default 'Copied' */
   copiedLabel?: string;
-  /** And what it says when the clipboard refused. @default 'Copy failed' */
+  /** And what it says when the clipboard refused. @default 'Could not copy' */
   copyFailedLabel?: string;
   /** The raw toggle's label. @default 'Raw' */
   rawLabel?: string;
