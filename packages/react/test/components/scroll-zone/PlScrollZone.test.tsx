@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlScrollZone } from 'plass-ui';
+import { moveMouseOntoPage } from '../../support/pointer';
 
 /*
  * No component test loads CSS, and a scroller with no `overflow` cannot be
@@ -134,9 +135,10 @@ describe('PlScrollZone', () => {
     it('takes the document selection at the threshold and gives it back at the end', async () => {
       const screen = await render(<PlScrollZone data-testid="zone">{cards}</PlScrollZone>);
       const element = scroller(screen);
+      const pointerId = await moveMouseOntoPage();
       const pointer = (type: string, init: PointerEventInit) =>
         element.dispatchEvent(
-          new PointerEvent(type, { bubbles: true, pointerType: 'mouse', pointerId: 1, ...init })
+          new PointerEvent(type, { bubbles: true, pointerType: 'mouse', pointerId, ...init })
         );
       const selection = () => document.body.style.getPropertyValue('-webkit-user-select');
 
