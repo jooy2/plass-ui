@@ -1,4 +1,5 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { commands } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import * as React from 'react';
 import {
@@ -161,6 +162,15 @@ const subjects: [string, (props: HoverProps) => React.ReactElement][] = [
     )
   ]
 ];
+
+// The pointer outlives the file that moved it, and every subject here renders
+// where the previous file's last click may have landed. A browser hovers an
+// element drawn under a resting pointer, Firefox on every layout change, which
+// starts a hover effect and calls the caller's `onPointerEnter` before the test
+// has dispatched anything.
+beforeEach(async () => {
+  await commands.parkPointer();
+});
 
 function root(): HTMLElement {
   return document.querySelector<HTMLElement>('.animate-under-test')!;
@@ -389,6 +399,28 @@ function leave() {
   root().dispatchEvent(new PointerEvent('pointerout', { bubbles: true }));
 }
 
+/**
+ * Whether the loop has drawn anything but `finished` since this was called.
+ *
+ * Recorded as each frame reaches the DOM rather than polled for. A run of 100ms
+ * or 300ms can start over and finish again between two polls on a busy machine,
+ * and a poll that never lands inside the run cannot tell a loop that started
+ * over from one that was left alone.
+ */
+function watchStartOver(finished: string): () => boolean {
+  let startedOver = false;
+
+  const observer = new MutationObserver(() => {
+    if (!drawn().startsWith(finished)) {
+      startedOver = true;
+    }
+  });
+
+  observer.observe(root(), { childList: true, characterData: true, subtree: true });
+
+  return () => startedOver;
+}
+
 describe('a second hover', () => {
   it.each(loops)('plays %s again', async (_, element, finished) => {
     await render(element);
@@ -397,12 +429,14 @@ describe('a second hover', () => {
 
     await expect.poll(() => drawn().startsWith(finished)).toBe(true);
 
+    const startedOver = watchStartOver(finished);
+
     leave();
     enter();
 
     // Started over rather than left where the first hover finished, which is
     // what every keyframe effect already does and what Flutter does for these.
-    await expect.poll(() => drawn().startsWith(finished)).toBe(false);
+    await expect.poll(startedOver).toBe(true);
     await expect.poll(() => drawn().startsWith(finished)).toBe(true);
   });
 });
