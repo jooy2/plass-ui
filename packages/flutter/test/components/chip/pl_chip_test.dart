@@ -1,6 +1,8 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/focus_ring.dart';
 
 import '../../support/host.dart';
 
@@ -261,6 +263,48 @@ void main() {
         // A chip that is not words is named by the word alone.
         expect(find.bySemanticsLabel('삭제'), findsOneWidget);
         handle.dispose();
+      });
+
+      testWidgets('rings the × on its own while it holds the focus', (WidgetTester tester) async {
+        final FocusNode before = FocusNode(debugLabel: 'before');
+        addTearDown(before.dispose);
+        var removed = 0;
+
+        int rings() {
+          return tester
+              .widgetList<CustomPaint>(find.byType(CustomPaint))
+              .where((CustomPaint paint) => paint.foregroundPainter is PlassFocusRingPainter)
+              .length;
+        }
+
+        await tester.pumpWidget(
+          host(
+            afterFocusStop(
+              before,
+              PlChip(onPressed: () {}, onDeleted: () => removed += 1, child: const Text('Tag')),
+            ),
+          ),
+        );
+
+        before.requestFocus();
+        await tester.pump();
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+
+        expect(rings(), 1);
+
+        // On to the ×, with the chip round it no longer ringed too.
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+
+        expect(rings(), 1);
+
+        // Still holding the focus it was given.
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pump();
+
+        expect(removed, 1);
       });
     });
   });

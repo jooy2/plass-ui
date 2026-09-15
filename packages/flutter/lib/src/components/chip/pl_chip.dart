@@ -173,6 +173,7 @@ class PlChip extends StatelessWidget {
         radius: radius,
         reduceMotion: reduceMotion,
         state: const PlassInteraction(),
+        focusVisible: false,
         padded: true,
       );
     }
@@ -198,6 +199,10 @@ class PlChip extends StatelessWidget {
             radius: radius,
             reduceMotion: reduceMotion,
             state: state,
+            // The chip's own focus. A focus node counts a focused descendant
+            // as focus, and the × inside the chip is a stop of its own that
+            // draws its own ring.
+            focusVisible: state.focusVisible && Focus.of(context).hasPrimaryFocus,
             padded: true,
           ),
         );
@@ -215,6 +220,7 @@ class PlChip extends StatelessWidget {
     required BorderRadius radius,
     required bool reduceMotion,
     required PlassInteraction state,
+    required bool focusVisible,
     required bool padded,
   }) {
     final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
@@ -351,12 +357,16 @@ class PlChip extends StatelessWidget {
       lit: onPressed != null,
     );
 
-    if (state.focusVisible) {
-      chip = CustomPaint(
-        foregroundPainter: PlassFocusRingPainter(color: family.ring, borderRadius: radius),
-        child: chip,
-      );
-    }
+    // Always there, with only the painter coming and going. A ring wrapped
+    // round the chip when it is needed would move the chip to a new parent as
+    // the focus steps on to the ×, and the × built again from scratch would
+    // lose the focus it had just been given.
+    chip = CustomPaint(
+      foregroundPainter: focusVisible
+          ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
+          : null,
+      child: chip,
+    );
 
     return PlassTargetScope(child: chip);
   }

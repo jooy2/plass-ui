@@ -64,6 +64,8 @@
 
 ### Fixed
 
+- **A pressable `PlChip` draws one focus ring while its × has the focus.** The chip kept its own ring while the focus was on the × inside it, so two rings were drawn at once. The chip's ring now shows only while the chip itself has the focus, as the picker trigger's does.
+
 - **A `PlImage` preview with no `semanticLabel` has a name.** Its press target was named only by `semanticLabel`, so without one a screen reader found a button with no name. It is now named by `previewLabel`, or by the label pack's `preview` when that is left out, as the React build names its button when `alt` is empty.
 
 - **The × on a picker trigger can be reached and pressed from the keyboard.** It answered only a pointer, so a value could not be cleared without one, and a `PlColorPicker`, which has no Clear in its footer, could not be emptied at all. It is now a focus stop after the trigger that Enter or Space presses, with its own focus ring, resting at 70% opacity until it is hovered or focused, like the × on a chip and as in the React build. The trigger's ring now shows only while the trigger itself has the focus. This covers `PlDatePicker`, `PlDateRangePicker`, `PlDateTimePicker`, `PlTimePicker`, `PlColorPicker` and `PlTreeSelect`.
