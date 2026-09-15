@@ -86,10 +86,12 @@ class PlassInsetShadowPainter extends CustomPainter {
       final hole = shape.shift(shadow.offset).deflate(shadow.spread);
 
       // Wide enough that the ring is never cut short by its own bounds: the
-      // clip above is what gives it its outer edge.
-      final margin = size.longestSide + shadow.blur * 3 + shadow.spread.abs() + 16;
-      final outer = Path()..addRect(shape.outerRect.inflate(margin));
-      final ring = Path.combine(PathOperation.difference, outer, Path()..addRRect(hole));
+      // clip above is what gives it its outer edge. It also has to stay clear of
+      // the hole, which `drawDRRect` leaves undefined if it is not contained —
+      // hence the offset, which the clip would otherwise have made irrelevant.
+      final margin =
+          size.longestSide + shadow.blur * 3 + shadow.spread.abs() + shadow.offset.distance + 16;
+      final outer = RRect.fromRectAndRadius(shape.outerRect.inflate(margin), Radius.zero);
 
       final paint = Paint()..color = shadow.color;
 
@@ -97,7 +99,11 @@ class PlassInsetShadowPainter extends CustomPainter {
         paint.maskFilter = MaskFilter.blur(BlurStyle.normal, sigma);
       }
 
-      canvas.drawPath(ring, paint);
+      // The ring between two rounded rectangles, which is what an inset shadow
+      // is. `Path.combine` would say the same thing by running a path boolean
+      // operation on every repaint — once per glass sheet and per field, and on
+      // every frame of a hover transition.
+      canvas.drawDRRect(outer, hole, paint);
     }
 
     canvas.restore();
