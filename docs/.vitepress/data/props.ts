@@ -13210,6 +13210,7 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'Semantic colour role. It reaches the focus ring and the placeholders'
       }
     },
+    ...stylingProps({ ko: '목록', en: 'the list' }),
     {
       name: 'classNames',
       type: '{ item?, image?, caption?, title?, description?: string }',
