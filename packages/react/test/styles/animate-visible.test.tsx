@@ -10,18 +10,18 @@
  * `src/standalone.css` is loaded here the way `marquee.test.tsx` loads it.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { commands } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import type { ReactNode } from 'react';
 import { PlAnimateSlide } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
+import { emulateMedia } from '../support/media';
 
 let sheet: HTMLStyleElement;
 
 beforeAll(async () => {
   // A frame is only held while there is an animation to hold it, and a reader
   // who has asked for less movement has none.
-  await commands.emulateMedia({ reducedMotion: 'no-preference' });
+  await emulateMedia({ reducedMotion: 'no-preference' });
 
   sheet = document.createElement('style');
   sheet.textContent = standaloneCss;

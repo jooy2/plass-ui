@@ -1,9 +1,9 @@
-import { commands } from 'vitest/browser';
 import { afterEach, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { useState } from 'react';
 import { PlAnimateScramble } from 'plass-ui';
 import { frameClock } from '../../support/timing';
+import { emulateMedia } from '../../support/media';
 
 /**
  * Runs the next animation frame the page asks for as soon as the work that
@@ -67,7 +67,7 @@ function wait(ms: number): Promise<void> {
 }
 
 afterEach(async () => {
-  await commands.emulateMedia({ reducedMotion: 'no-preference' });
+  await emulateMedia({ reducedMotion: 'no-preference' });
 });
 
 describe('PlAnimateScramble', () => {
@@ -379,7 +379,7 @@ describe('PlAnimateScramble', () => {
     });
 
     it('is simply the line where a reader asked for less motion', async () => {
-      await commands.emulateMedia({ reducedMotion: 'reduce' });
+      await emulateMedia({ reducedMotion: 'reduce' });
 
       await render(
         <PlAnimateScramble className="scramble-under-test" trigger="manual" duration={5000}>

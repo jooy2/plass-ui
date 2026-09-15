@@ -12,10 +12,10 @@
  * than against a shade, because the shades belong to the design language.
  */
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
-import { commands } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlCodeBlock } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
+import { emulateMedia } from '../support/media';
 
 let sheet: HTMLStyleElement;
 
@@ -30,7 +30,7 @@ afterAll(() => {
 });
 
 afterEach(async () => {
-  await commands.emulateMedia({ colorScheme: 'no-preference' });
+  await emulateMedia({ colorScheme: 'no-preference' });
   document.documentElement.classList.remove('light', 'dark');
   document.documentElement.removeAttribute('data-theme');
 });
@@ -53,15 +53,15 @@ async function autoGround(): Promise<string> {
 
 describe('the code block stylesheet', () => {
   it('follows the system preference when the page has said nothing', async () => {
-    await commands.emulateMedia({ colorScheme: 'dark' });
+    await emulateMedia({ colorScheme: 'dark' });
     expect(await autoGround()).toBe(await groundOf('dark'));
 
-    await commands.emulateMedia({ colorScheme: 'light' });
+    await emulateMedia({ colorScheme: 'light' });
     expect(await autoGround()).toBe(await groundOf('light'));
   });
 
   it('follows a page forced dark against a light system', async () => {
-    await commands.emulateMedia({ colorScheme: 'light' });
+    await emulateMedia({ colorScheme: 'light' });
 
     document.documentElement.classList.add('dark');
     expect(await autoGround()).toBe(await groundOf('dark'));
@@ -72,7 +72,7 @@ describe('the code block stylesheet', () => {
   });
 
   it('follows a page forced light against a dark system, by the class as well as the attribute', async () => {
-    await commands.emulateMedia({ colorScheme: 'dark' });
+    await emulateMedia({ colorScheme: 'dark' });
 
     document.documentElement.setAttribute('data-theme', 'light');
     expect(await autoGround()).toBe(await groundOf('light'));

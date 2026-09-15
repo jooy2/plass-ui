@@ -60,6 +60,7 @@ import {
 } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
 import pkg from '../../package.json';
+import { emulateMedia } from '../support/media';
 
 /** A one-pixel PNG, so the gallery's tiles need no network to lay out. */
 const OK =
@@ -524,12 +525,12 @@ describe('plass-ui/styles.css', () => {
     /** Runs `check` with the page in forced-colours mode, and puts it back. */
     const inForcedColours = async (check: () => Promise<void>) => {
       // Before anything renders, so no transition is caught halfway.
-      await commands.emulateMedia({ forcedColors: 'active' });
+      await emulateMedia({ forcedColors: 'active' });
 
       try {
         await check();
       } finally {
-        await commands.emulateMedia({ forcedColors: 'none' });
+        await emulateMedia({ forcedColors: 'none' });
       }
     };
 

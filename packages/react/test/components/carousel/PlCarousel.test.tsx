@@ -3,6 +3,7 @@ import { commands } from 'vitest/browser';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlCarousel } from 'plass-ui';
+import { emulateMedia } from '../../support/media';
 
 /** Three slides with something findable in each. */
 const slides = [<p key="a">Alpha</p>, <p key="b">Bravo</p>, <p key="c">Charlie</p>];
@@ -156,7 +157,7 @@ describe('PlCarousel', () => {
     });
 
     it('does not start for a reader who asked for reduced motion', async () => {
-      await commands.emulateMedia({ reducedMotion: 'reduce' });
+      await emulateMedia({ reducedMotion: 'reduce' });
 
       try {
         const screen = await render(
@@ -169,7 +170,7 @@ describe('PlCarousel', () => {
 
         expect(current(screen)).toBe('Slide 1 of 3');
       } finally {
-        await commands.emulateMedia({ reducedMotion: 'no-preference' });
+        await emulateMedia({ reducedMotion: 'no-preference' });
       }
     });
 

@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { commands } from 'vitest/browser';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlTour, PlassProvider, type PlTourStep } from 'plass-ui';
+import { emulateMedia } from '../../support/media';
 
 /**
  * A page with three things on it, and a tour over them.
@@ -257,7 +257,7 @@ describe('PlTour', () => {
     });
 
     it('moves at once when the reader has asked for less motion', async () => {
-      await commands.emulateMedia({ reducedMotion: 'reduce' });
+      await emulateMedia({ reducedMotion: 'reduce' });
 
       try {
         const calls = await scrolled();
@@ -267,7 +267,7 @@ describe('PlTour', () => {
         );
         expect(calls).not.toContainEqual(expect.objectContaining({ behavior: 'smooth' }));
       } finally {
-        await commands.emulateMedia({ reducedMotion: 'no-preference' });
+        await emulateMedia({ reducedMotion: 'no-preference' });
       }
     });
 

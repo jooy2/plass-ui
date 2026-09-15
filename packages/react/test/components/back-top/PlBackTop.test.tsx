@@ -5,13 +5,13 @@
  * component's other supported target and exercises exactly the same code.
  */
 import * as React from 'react';
-import { commands } from 'vitest/browser';
 import { afterAll, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlBackTop } from 'plass-ui';
+import { emulateMedia } from '../../support/media';
 
 afterAll(async () => {
-  await commands.emulateMedia({ reducedMotion: 'no-preference' });
+  await emulateMedia({ reducedMotion: 'no-preference' });
 });
 
 /** A panel taller than itself, with the button watching it. */

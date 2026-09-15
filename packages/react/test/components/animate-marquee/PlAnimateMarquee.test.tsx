@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { commands } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlAnimateMarquee } from 'plass-ui';
+import { emulateMedia } from '../../support/media';
 
 describe('PlAnimateMarquee', () => {
   it('names the effect it is running', async () => {
@@ -188,13 +188,13 @@ describe('PlAnimateMarquee', () => {
 
   describe('as a tab stop', () => {
     afterEach(async () => {
-      await commands.emulateMedia({ reducedMotion: 'no-preference' });
+      await emulateMedia({ reducedMotion: 'no-preference' });
     });
 
     // Nothing loads the stylesheet here, so what the box holds is whatever the
     // test frame lays out: a 500px line in a 200px box overflows it either way.
     it('is one while it scrolls, where a reader asked for less motion', async () => {
-      await commands.emulateMedia({ reducedMotion: 'reduce' });
+      await emulateMedia({ reducedMotion: 'reduce' });
 
       await render(
         <PlAnimateMarquee className="marquee-under-test" style={{ width: 200 }}>
@@ -208,7 +208,7 @@ describe('PlAnimateMarquee', () => {
     });
 
     it('is not one where everything fits', async () => {
-      await commands.emulateMedia({ reducedMotion: 'reduce' });
+      await emulateMedia({ reducedMotion: 'reduce' });
 
       await render(
         <PlAnimateMarquee className="marquee-under-test" style={{ width: 500 }}>

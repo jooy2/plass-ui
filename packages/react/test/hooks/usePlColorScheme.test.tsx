@@ -8,11 +8,11 @@
  * put back between tests, because both outlive a single render and the browser
  * is shared with every other file in the run.
  */
-import { commands } from 'vitest/browser';
 import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { PlColorSchemeScript, usePlColorScheme, type PlColorScheme } from 'plass-ui';
+import { emulateMedia } from '../support/media';
 
 const DEFAULT_KEY = 'plass-color-scheme';
 
@@ -35,7 +35,7 @@ beforeEach(async () => {
   localStorage.removeItem(DEFAULT_KEY);
   root().classList.remove('light', 'dark');
   delete root().dataset.theme;
-  await commands.emulateMedia({ colorScheme: 'light' });
+  await emulateMedia({ colorScheme: 'light' });
 });
 
 afterEach(() => {
@@ -46,7 +46,7 @@ afterEach(() => {
 });
 
 afterAll(async () => {
-  await commands.emulateMedia({ colorScheme: 'no-preference' });
+  await emulateMedia({ colorScheme: 'no-preference' });
 });
 
 function Probe({ storageKey }: { storageKey?: string } = {}) {
@@ -81,7 +81,7 @@ describe('usePlColorScheme', () => {
     });
 
     it('resolves system against prefers-color-scheme', async () => {
-      await commands.emulateMedia({ colorScheme: 'dark' });
+      await emulateMedia({ colorScheme: 'dark' });
 
       await render(<Probe />);
 
@@ -93,7 +93,7 @@ describe('usePlColorScheme', () => {
 
       await expect.poll(() => read('resolved')).toBe('light');
 
-      await commands.emulateMedia({ colorScheme: 'dark' });
+      await emulateMedia({ colorScheme: 'dark' });
 
       await expect.poll(() => read('resolved')).toBe('dark');
 
@@ -202,7 +202,7 @@ describe('usePlColorScheme', () => {
 
   describe('toggle', () => {
     it('goes to the opposite of what is painted', async () => {
-      await commands.emulateMedia({ colorScheme: 'dark' });
+      await emulateMedia({ colorScheme: 'dark' });
 
       const screen = await render(<Probe />);
 

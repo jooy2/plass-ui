@@ -7,10 +7,10 @@
  * `src/standalone.css` loaded the way `grid.test.tsx` loads it.
  */
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
-import { commands } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlAnimateMarquee } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
+import { emulateMedia } from '../support/media';
 
 let sheet: HTMLStyleElement;
 
@@ -25,7 +25,7 @@ afterAll(() => {
 });
 
 afterEach(async () => {
-  await commands.emulateMedia({ reducedMotion: 'no-preference' });
+  await emulateMedia({ reducedMotion: 'no-preference' });
 });
 
 const headlines = Array.from({ length: 10 }, (_, index) => `Headline ${index + 1}`);
@@ -56,7 +56,7 @@ describe('the marquee stylesheet', () => {
 
   describe('under reduced motion', () => {
     it('draws one copy and scrolls the box along it', async () => {
-      await commands.emulateMedia({ reducedMotion: 'reduce' });
+      await emulateMedia({ reducedMotion: 'reduce' });
 
       await render(
         <PlAnimateMarquee className="marquee-under-test" style={{ width: 400 }}>
@@ -77,7 +77,7 @@ describe('the marquee stylesheet', () => {
     });
 
     it('scrolls a vertical strip down its own axis', async () => {
-      await commands.emulateMedia({ reducedMotion: 'reduce' });
+      await emulateMedia({ reducedMotion: 'reduce' });
 
       await render(
         <PlAnimateMarquee

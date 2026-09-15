@@ -1,9 +1,9 @@
-import { commands } from 'vitest/browser';
 import { afterEach, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { useState } from 'react';
 import { PlAnimateCounter } from 'plass-ui';
 import { frameClock } from '../../support/timing';
+import { emulateMedia } from '../../support/media';
 
 /**
  * Runs the next animation frame the page asks for as soon as the work that
@@ -66,7 +66,7 @@ async function lowestSoon(): Promise<number> {
 }
 
 afterEach(async () => {
-  await commands.emulateMedia({ reducedMotion: 'no-preference' });
+  await emulateMedia({ reducedMotion: 'no-preference' });
 });
 
 describe('PlAnimateCounter', () => {
@@ -387,7 +387,7 @@ describe('PlAnimateCounter', () => {
     });
 
     it('is simply the number where a reader asked for less motion', async () => {
-      await commands.emulateMedia({ reducedMotion: 'reduce' });
+      await emulateMedia({ reducedMotion: 'reduce' });
 
       await render(
         <PlAnimateCounter
