@@ -17,7 +17,10 @@ import { withI18n } from 'vitepress-i18n';
 import ReactPlugin from '@vitejs/plugin-react';
 import type { VitePressI18nOptions } from 'vitepress-i18n/types';
 import type { VitePressSidebarOptions } from 'vitepress-sidebar/types';
-import { FRAMEWORK_HEAD_SCRIPT, FRAMEWORK_IDS } from './data/frameworks';
+import { FRAMEWORK_HEAD_SCRIPT, FRAMEWORK_IDS, FRAMEWORKS } from './data/frameworks';
+import { localeOf, t, tf, type Locale, type StringKey } from './data/i18n';
+import { propTables, type PropRow } from './data/props';
+import { flutterPropTables } from './data/props-flutter';
 
 const vitePressDir = dirname(fileURLToPath(import.meta.url));
 const srcDir = resolve(vitePressDir, '..');
@@ -359,6 +362,124 @@ function localesWith(filePath: string): string[] {
   return supportLocales.filter((lang) => existsSync(resolve(srcDir, lang, page)));
 }
 
+/* ---------------------------------------------------------------------------
+ * The props tables
+ * ------------------------------------------------------------------------- */
+
+/** `<PropsTable name="PlButton" />` — the one shape every page writes. */
+const propsTagPattern = /<PropsTable\s+name="([^"]+)"\s*\/>/g;
+
+/** Which table each framework reads. One entry per id in `frameworks.ts`. */
+const propsByFramework: Record<string, Record<string, PropRow[]>> = {
+  react: propTables,
+  flutter: flutterPropTables
+};
+
+/** The four columns, in the order the table draws them. */
+const propsColumns: StringKey[] = [
+  'propColumn',
+  'typeColumn',
+  'defaultColumn',
+  'descriptionColumn'
+];
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/** Which language a page is in, from whichever path the caller put in `env`. */
+function localeOfPage(path: string | undefined): Locale {
+  const relative = path?.startsWith(srcDir) ? path.slice(srcDir.length + 1) : (path ?? '');
+
+  return localeOf(relative.split(/[\\/]/)[0]);
+}
+
+function propsRow(row: PropRow, locale: Locale): string {
+  // The space either side of the asterisk is deliberate: `variant*` reads as a
+  // prop whose name ends in one.
+  const required = row.required
+    ? `<span class="plass-props-required" title="${escapeHtml(t(locale, 'required'))}"> * </span>`
+    : '';
+
+  const shared = row.shared
+    ? `<span class="plass-props-shared" title="${escapeHtml(t(locale, 'sharedTitle'))}">` +
+      `${escapeHtml(t(locale, 'sharedTag'))}</span>`
+    : '';
+
+  return (
+    '<tr>' +
+    `<td><span class="plass-props-name">${escapeHtml(row.name)}</span>${required}${shared}</td>` +
+    `<td class="plass-props-type">${escapeHtml(row.type)}</td>` +
+    `<td class="plass-props-default">${escapeHtml(row.default ?? '—')}</td>` +
+    `<td class="plass-props-desc">${escapeHtml(row.description[locale])}</td>` +
+    '</tr>'
+  );
+}
+
+/**
+ * One component's props, once per framework, as finished HTML.
+ *
+ * Every framework's table is rendered and CSS displays one of them, for the
+ * reasons in `styles/framework.css`. A framework the component has not reached
+ * yet gets a note instead of an empty table — the absence is information, and a
+ * table with no rows in it reads as a bug.
+ *
+ * `v-pre` because the rows are data rather than a template: it keeps a `{` in a
+ * type or a description from ever being read as an interpolation, and it lets
+ * Vue carry the whole table as one static node instead of a hundred.
+ */
+function propsTable(name: string, locale: Locale): string {
+  const head = propsColumns.map((key) => `<th>${escapeHtml(t(locale, key))}</th>`).join('');
+
+  return FRAMEWORKS.map((framework) => {
+    const rows = propsByFramework[framework.id]?.[name] ?? [];
+
+    const body = rows.length
+      ? `<table><thead><tr>${head}</tr></thead>` +
+        `<tbody>${rows.map((row) => propsRow(row, locale)).join('')}</tbody></table>`
+      : `<p class="plass-fw-missing">${escapeHtml(
+          tf(locale, 'propsMissing', { component: name, framework: framework.label })
+        )}</p>`;
+
+    return `<div class="plass-props plass-fw" data-fw="${framework.id}" v-pre>${body}</div>`;
+  }).join('\n');
+}
+
+/**
+ * Writes the props tables into the page while it is being rendered.
+ *
+ * A props table has nothing to decide once the page is built: the rows are
+ * fixed, the language is the folder the page is in, and which framework's table
+ * shows is settled by CSS. It used to be a Vue component, and because that
+ * component is registered for every page it took the rows for all 130
+ * components into the theme's chunk — half a megabyte, preloaded on the home
+ * page. Rendered here instead, each page carries its own table and nothing
+ * carries the rest, and the table is in the HTML for a reader whose JavaScript
+ * has not arrived and for a crawler that never runs any.
+ */
+function propsTables(md: MarkdownRenderer): void {
+  md.core.ruler.push('props-tables', (state): void => {
+    const env = state.env as { realPath?: string; relativePath?: string } | undefined;
+    const locale = localeOfPage(env?.realPath ?? env?.relativePath);
+
+    const write = (token: { type: string; content: string; children?: unknown }): void => {
+      if (token.type === 'html_block' || token.type === 'html_inline') {
+        token.content = token.content.replace(propsTagPattern, (_, name: string) =>
+          propsTable(name, locale)
+        );
+      }
+
+      (token.children as (typeof token)[] | null)?.forEach(write);
+    };
+
+    state.tokens.forEach(write);
+  });
+}
+
 /** What the package is, for the one page in each locale that is about it. */
 function structuredData(description: string, url: string) {
   return {
@@ -554,6 +675,8 @@ const vitePressConfig: UserConfig = {
           return `<div class="plass-fw" data-fw="${wanted.join(' ')}">\n`;
         }
       });
+
+      md.use(propsTables);
     }
   },
   /**
