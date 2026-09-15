@@ -841,8 +841,11 @@ class _PlCodeBlockState extends State<PlCodeBlock> {
       );
     }
 
-    final String? languageName = widget.language?.trim().toLowerCase();
-    final String regionName = widget.codeLabel ?? languageName ?? labels.code;
+    final String? spelled = widget.language?.trim().toLowerCase();
+    // A blank language is no language, as it is in the React build, so it does
+    // not stand in front of `codeLabel` with an empty name.
+    final String? languageName = spelled == null || spelled.isEmpty ? null : spelled;
+    final String regionName = languageName ?? widget.codeLabel ?? labels.code;
 
     // The name goes on the code rather than on the whole block, which is where
     // the React build puts its `role="region"` too. The bar above it is a set of

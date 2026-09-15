@@ -79,6 +79,27 @@ void main() {
 
         expect(find.bySemanticsLabel('Code'), findsOneWidget);
       });
+
+      testWidgets('puts the language before its own word for code', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          const PlCodeBlock(code: code, language: 'dart', codeLabel: 'Snippet', toolbar: false),
+        );
+
+        expect(find.bySemanticsLabel('dart'), findsOneWidget);
+        expect(find.bySemanticsLabel('Snippet'), findsNothing);
+      });
+
+      testWidgets('takes its own word for code when the language is blank', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          const PlCodeBlock(code: code, language: ' ', codeLabel: 'Snippet', toolbar: false),
+        );
+
+        expect(find.bySemanticsLabel('Snippet'), findsOneWidget);
+      });
     });
 
     group('the palettes', () {

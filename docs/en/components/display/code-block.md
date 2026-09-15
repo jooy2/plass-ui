@@ -232,7 +232,7 @@ Scrolled sideways, the gutter and the prompts stay put: the rows are as wide as 
 
 ::: fw flutter
 
-- The code is a semantics node of its own, named `codeLabel` when one is given, then the language, then the label pack's word for code. It is not a focus stop and has no select-all of its own, and `title` does not name it.
+- The code is a semantics node of its own, named after the language, then `codeLabel`, then the label pack's word for code. It is not a focus stop and has no select-all of its own, and `title` does not name it, because here it is a widget rather than a string.
 - Each bar button is a `Semantics` node with `button: true` and a name of its own, and it **excludes** what is inside it: the copy button draws its own word as well as carrying it, and a reader told "Copy, Copy" has been told once too often.
 
 :::
