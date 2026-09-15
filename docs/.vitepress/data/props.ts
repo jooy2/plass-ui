@@ -13209,6 +13209,14 @@ export const propTables: Record<string, PropRow[]> = {
         ko: '의미론적 색 역할. focus ring과 placeholder에 닿습니다',
         en: 'Semantic colour role. It reaches the focus ring and the placeholders'
       }
+    },
+    {
+      name: 'classNames',
+      type: '{ item?, image?, caption?, title?, description?: string }',
+      description: {
+        ko: 'className이 닿지 않는 부분에 붙는 class. item은 타일 하나이고, caption은 title과 description이 놓이는 상자입니다',
+        en: 'Classes on the parts a className does not reach. item is one tile, and caption the box its title and description sit in'
+      }
     }
   ],
   PlGalleryItem: [
