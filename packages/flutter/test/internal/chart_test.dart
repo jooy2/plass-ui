@@ -77,6 +77,24 @@ void main() {
     });
   });
 
+  group('dimmedByHover', () {
+    test('fades the others while an entry that is on the plot is pointed at', () {
+      expect(dimmedByHover(0, 1, <bool>[true, true, true]), isTrue);
+      expect(dimmedByHover(0, 0, <bool>[true, true, true]), isFalse);
+    });
+
+    test('fades nothing while the entry pointed at is switched off', () {
+      // Otherwise the whole chart goes grey to make room for a series that is
+      // not drawn, which reads as the picture breaking.
+      expect(dimmedByHover(0, 1, <bool>[false, true, true]), isFalse);
+      expect(dimmedByHover(2, 0, <bool>[true, true, false]), isFalse);
+    });
+
+    test('fades nothing while no entry is pointed at', () {
+      expect(dimmedByHover(null, 1, <bool>[true, true]), isFalse);
+    });
+  });
+
   group('extentOf', () {
     List<List<ChartValue>> unpack(List<List<double?>> rows) {
       return rows

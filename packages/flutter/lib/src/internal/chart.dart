@@ -134,6 +134,25 @@ Color seriesColor(Color? own, int index, List<Color> palette) {
 }
 
 /* ---------------------------------------------------------------------------
+ * Legend
+ * ------------------------------------------------------------------------- */
+
+/// Whether the mark of [index] fades while the legend entry of [hovered] is
+/// under the pointer.
+///
+/// A hovered entry dims the *others* — but only when the series it names is
+/// actually on the plot. Pointing at an entry that is switched off would
+/// otherwise fade every visible series to make room for one that is not there,
+/// which reads as the whole chart going grey for no reason.
+bool dimmedByHover(int? hovered, int index, List<bool> visible) {
+  if (hovered == null || hovered == index) {
+    return false;
+  }
+
+  return hovered >= 0 && hovered < visible.length && visible[hovered];
+}
+
+/* ---------------------------------------------------------------------------
  * Data
  * ------------------------------------------------------------------------- */
 

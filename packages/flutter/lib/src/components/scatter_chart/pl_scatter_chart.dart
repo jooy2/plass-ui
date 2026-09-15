@@ -331,7 +331,7 @@ class PlScatterChart extends StatelessWidget {
 
     for (final PlassChartMark mark in painted) {
       final ChartValue value = layout.values[mark.series][mark.index];
-      final bool dimmed = layout.hovered != null && layout.hovered != mark.series;
+      final bool dimmed = dimmedByHover(layout.hovered, mark.series, layout.visible);
       final bool active =
           layout.activeMark?.series == mark.series && layout.activeMark?.index == mark.index;
       final double r = active && mark.r > 0 ? mark.r + 1 : mark.r;

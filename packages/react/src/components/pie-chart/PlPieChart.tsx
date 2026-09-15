@@ -18,6 +18,7 @@ import {
   categoryAt,
   chartFontSizes,
   compactNumber,
+  dimmedByHover,
   formatCategory,
   markGap,
   plotHeights,
@@ -330,7 +331,7 @@ export function PlPieChart({
           >
             {arcs.map((arc) => {
               const dimmed =
-                (visibility.hovered !== null && visibility.hovered !== arc.index) ||
+                dimmedByHover(visibility.hovered, arc.index, visibility.visible) ||
                 (active !== null && active !== arc.index);
 
               // The pad is taken off both ends and never off a slice narrower

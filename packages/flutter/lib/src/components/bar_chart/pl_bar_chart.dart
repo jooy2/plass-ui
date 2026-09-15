@@ -250,8 +250,7 @@ class PlBarChart extends StatelessWidget {
     for (int lane = 0; lane < drawn.length; lane += 1) {
       final int s = drawn[lane];
       final List<ChartValue> one = layout.values[s];
-      final int? hovered = layout.hovered;
-      final double alpha = hovered == null || hovered == s || !layout.visible[hovered] ? 1.0 : 0.28;
+      final double alpha = dimmedByHover(layout.hovered, s, layout.visible) ? 0.28 : 1.0;
 
       for (int category = 0; category < layout.count && category < one.length; category += 1) {
         final double? value = one[category].value;

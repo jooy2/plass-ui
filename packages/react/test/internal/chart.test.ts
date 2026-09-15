@@ -20,6 +20,7 @@ import {
   bubbleRadius,
   categoryCount,
   chartPalette,
+  dimmedByHover,
   extentOf,
   fitCategoryLabels,
   formatTimeTicks,
@@ -194,6 +195,26 @@ describe('seriesColor', () => {
 
   it('lets a series name its own colour', () => {
     expect(seriesColor({ color: 'rebeccapurple' }, 3)).toBe('rebeccapurple');
+  });
+});
+
+describe('dimmedByHover', () => {
+  it('fades the others while an entry that is on the plot is pointed at', () => {
+    const visible = [true, true, true];
+
+    expect(dimmedByHover(0, 1, visible)).toBe(true);
+    expect(dimmedByHover(0, 0, visible)).toBe(false);
+  });
+
+  it('fades nothing while the entry pointed at is switched off', () => {
+    // Otherwise the whole chart goes grey to make room for a series that is
+    // not drawn, which reads as the picture breaking.
+    expect(dimmedByHover(0, 1, [false, true, true])).toBe(false);
+    expect(dimmedByHover(2, 0, [true, true, false])).toBe(false);
+  });
+
+  it('fades nothing while no entry is pointed at', () => {
+    expect(dimmedByHover(null, 1, [true, true])).toBe(false);
   });
 });
 

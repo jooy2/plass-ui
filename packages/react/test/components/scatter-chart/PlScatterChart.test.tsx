@@ -169,6 +169,31 @@ describe('PlScatterChart', () => {
 
       expect(commits).toBe(settled);
     });
+
+    /**
+     * An entry that is switched off has no marks on the plot to be highlighted,
+     * so pointing at it must leave the marks that are drawn where they are.
+     */
+    it('leaves the drawn marks alone while a hidden entry is pointed at', async () => {
+      const screen = await render(
+        <PlScatterChart label="Spend" series={[SPEND[0], { ...SPEND[1], hidden: true }]} />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Spend' });
+
+      await expect.element(plot).toBeInTheDocument();
+
+      const entry = screen.getByRole('button', { name: 'Q2' });
+
+      await expect.element(entry).toHaveAttribute('aria-pressed', 'false');
+      await entry.hover();
+
+      expect(marks(plot.element()).map((one) => one.getAttribute('opacity'))).toEqual([
+        '1',
+        '1',
+        '1'
+      ]);
+    });
   });
 
   describe('the keyboard', () => {

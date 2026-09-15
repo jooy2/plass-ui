@@ -13,6 +13,7 @@ import {
   barPath,
   barRadius,
   chartFontSizes,
+  dimmedByHover,
   markGap,
   stackToFull,
   writeChartValue,
@@ -208,7 +209,7 @@ function Bars({ context, stacked, rounded, barSize, valueLabels, size }: BarsPro
     <g>
       {drawn.map(({ one, index }, lane) => {
         const color = colors[index];
-        const dimmed = hovered !== null && hovered !== index;
+        const dimmed = dimmedByHover(hovered, index, visible);
 
         return (
           <g key={index} opacity={dimmed ? 0.28 : 1} className={markTransitionClasses}>

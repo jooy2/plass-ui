@@ -11,6 +11,7 @@ import {
 } from '../../internal/chart-frame.js';
 import {
   bubbleRadius,
+  dimmedByHover,
   formatCategory,
   markerRadii,
   markGap,
@@ -244,7 +245,7 @@ interface MarksProps {
  * nothing and takes nothing away.
  */
 function ScatterMarks({ context, shapeOf }: MarksProps) {
-  const { marks, values, colors, hovered, activeMark } = context;
+  const { marks, values, colors, visible, hovered, activeMark } = context;
 
   const painted = React.useMemo(() => [...marks].sort((a, b) => b.r - a.r), [marks]);
 
@@ -252,7 +253,7 @@ function ScatterMarks({ context, shapeOf }: MarksProps) {
     <g>
       {painted.map((mark) => {
         const value = values[mark.series]?.[mark.index];
-        const dimmed = hovered !== null && hovered !== mark.series;
+        const dimmed = dimmedByHover(hovered, mark.series, visible);
         const active = activeMark?.series === mark.series && activeMark?.index === mark.index;
 
         return (

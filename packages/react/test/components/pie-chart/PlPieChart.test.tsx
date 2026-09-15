@@ -161,6 +161,32 @@ describe('PlPieChart', () => {
       await expect.element(entry).toHaveAttribute('aria-pressed', 'false');
       expect(slices(plot.element()).length).toBe(3);
     });
+
+    /**
+     * An entry that is switched off has no arc on the disc to be highlighted,
+     * so pointing at it must leave the slices that are drawn where they are.
+     */
+    it('leaves the drawn slices alone while a hidden entry is pointed at', async () => {
+      const screen = await render(
+        <PlPieChart label="Traffic" categories={SOURCES} data={[40, 25, 20, 15]} tooltip={false} />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Traffic' });
+
+      await expect.element(plot).toBeInTheDocument();
+
+      const entry = screen.getByRole('button', { name: 'Social' });
+
+      await entry.click();
+      await expect.element(entry).toHaveAttribute('aria-pressed', 'false');
+      await entry.hover();
+
+      expect(slices(plot.element()).map((one) => one.getAttribute('opacity'))).toEqual([
+        '1',
+        '1',
+        '1'
+      ]);
+    });
   });
 
   describe('the keyboard', () => {

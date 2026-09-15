@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **Pointing at the legend entry of a series that is switched off no longer fades the whole chart.** The bar, scatter and pie marks checked only whether the hovered entry was some other series, so hovering a hidden one dimmed every series that was actually drawn, to highlight one that was not there. All of them now ask the one condition the line chart already used.
+
 - **`PlassChartTooltipMode.item` shows the one series the pointer is nearest, and `none` silences a `PlPieChart` too.** `item` drew the whole column, which is the tooltip `column` already gives, and a pie drew its readout whatever the mode said, since only `hidden` stopped it. A chart with marks in columns now narrows the card to the series whose mark is closest to the pointer along the value axis, as the React `item` does, and a pie draws no readout under `none`.
 
 - **`PlassLabels` and `PlDateNames` compare by their words.** Neither had an `==`, so a pack written where the documentation recommends writing it, `labels: ko.copyWith(start: '체크인')` inside `build`, was a new object on every frame, `PlassTheme`'s `updateShouldNotify` answered true to it, and every widget under the theme rebuilt whenever the widget above it did. Two sets carrying the same words are now equal. The sentences that hold a value are functions and are compared like everything else, so a pack's own match and a closure written inline at a call site counts as new.

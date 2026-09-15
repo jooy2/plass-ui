@@ -87,12 +87,7 @@ void paintLineSeries(
 
     final List<ChartValue> one = layout.values[s];
     final Color color = layout.colors[s];
-    // A hovered legend entry dims the *others* — but only when the series being
-    // hovered is actually on the plot. Pointing at an entry that is switched off
-    // would otherwise fade every visible series to make room for one that is
-    // not there.
-    final int? hovered = layout.hovered;
-    final double alpha = hovered == null || hovered == s || !layout.visible[hovered] ? 1.0 : 0.28;
+    final double alpha = dimmedByHover(layout.hovered, s, layout.visible) ? 0.28 : 1.0;
 
     final tops = <Offset?>[
       for (int i = 0; i < layout.count; i += 1)

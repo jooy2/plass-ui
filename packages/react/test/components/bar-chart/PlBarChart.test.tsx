@@ -256,5 +256,33 @@ describe('PlBarChart', () => {
       expect(series.getAttribute('class')).toContain('transition:opacity');
       expect(bar.getAttribute('class')).toContain('transition:opacity');
     });
+
+    /**
+     * An entry that is switched off has nothing on the plot to be highlighted,
+     * so pointing at it must leave the drawn series where they are rather than
+     * fading every one of them for a series that is not there.
+     */
+    it('leaves the drawn series alone while a hidden entry is pointed at', async () => {
+      const screen = await render(
+        <PlBarChart
+          label="Deploys per team"
+          categories={TEAMS}
+          series={[
+            { name: 'Deploys', data: [10, 20, 30] },
+            { name: 'Rollbacks', data: [1, 2, 3], hidden: true }
+          ]}
+        />
+      );
+
+      const entry = screen.getByRole('button', { name: 'Rollbacks' });
+
+      await expect.element(entry).toHaveAttribute('aria-pressed', 'false');
+      await entry.hover();
+
+      const groups = [...screen.container.querySelectorAll('svg g[opacity]')];
+
+      expect(groups.length).toBe(1);
+      expect(groups[0].getAttribute('opacity')).toBe('1');
+    });
   });
 });

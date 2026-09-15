@@ -14,7 +14,15 @@
  */
 
 import * as React from 'react';
-import { areaPath, chartFontSizes, linePath, lineWidths, markerRadii, markGap } from './chart.js';
+import {
+  areaPath,
+  chartFontSizes,
+  dimmedByHover,
+  linePath,
+  lineWidths,
+  markerRadii,
+  markGap
+} from './chart.js';
 import { markTransitionClasses } from './chart-frame.js';
 import type { CartesianContext } from './chart-frame.js';
 import type { PlassChartCurve, PlassChartValueLabels } from '../types.js';
@@ -144,11 +152,7 @@ export function LineSeries({
         }
 
         const color = colors[index];
-        // A hovered legend entry dims the *others* — but only when the series
-        // being hovered is actually on the plot. Pointing at an entry that is
-        // switched off would otherwise fade every visible series to make room
-        // for one that is not there.
-        const dimmed = hovered !== null && hovered !== index && visible[hovered];
+        const dimmed = dimmedByHover(hovered, index, visible);
 
         const tops: Vertex[] = one.map((value, category) => {
           if (value.value === null) {

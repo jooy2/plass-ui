@@ -297,6 +297,7 @@ class _PlPieChartState extends State<PlPieChart> {
                       inner: inner,
                       active: _active,
                       hovered: _hovered,
+                      visible: visible,
                       shares: widget.valueLabels == PlPieLabels.all,
                       fontSize: fontSize,
                       surface: tokens.surface,
@@ -509,6 +510,7 @@ class _PiePainter extends CustomPainter {
     required this.inner,
     required this.active,
     required this.hovered,
+    required this.visible,
     required this.shares,
     required this.fontSize,
     required this.surface,
@@ -523,6 +525,9 @@ class _PiePainter extends CustomPainter {
   final double inner;
   final int? active;
   final int? hovered;
+
+  /// Which slices are switched on, by their place in the data.
+  final List<bool> visible;
   final bool shares;
   final double fontSize;
   final Color surface;
@@ -536,7 +541,7 @@ class _PiePainter extends CustomPainter {
 
     for (final _Arc arc in arcs) {
       final bool dimmed =
-          (hovered != null && hovered != arc.index) || (active != null && active != arc.index);
+          dimmedByHover(hovered, arc.index, visible) || (active != null && active != arc.index);
 
       // The pad is taken off both ends and never off a slice narrower than two
       // of it, or a one-degree sliver inverts and draws the whole circle
@@ -598,6 +603,7 @@ class _PiePainter extends CustomPainter {
       old.colors != colors ||
       old.active != active ||
       old.hovered != hovered ||
+      old.visible != visible ||
       old.shares != shares ||
       old.outer != outer ||
       old.inner != inner ||

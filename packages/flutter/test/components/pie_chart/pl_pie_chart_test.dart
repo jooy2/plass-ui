@@ -1,8 +1,10 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
+import '../../support/canvas.dart';
 import '../../support/host.dart';
 
 const List<PlassChartDatum> traffic = <PlassChartDatum>[
@@ -147,6 +149,35 @@ void main() {
 
       expect(node.value, isNot(contains('Social')));
       expect(node.value, contains('Search 40 · 53.3%'));
+    });
+
+    testWidgets('leaves the drawn slices alone while a hidden entry is pointed at', (
+      WidgetTester tester,
+    ) async {
+      // An entry that is switched off has no arc on the disc to be highlighted,
+      // so pointing at it must leave the slices that are drawn where they are.
+      await _pump(tester, const PlPieChart(data: traffic, categories: sources, height: 240));
+
+      await tester.tap(find.bySemanticsLabel('Social'));
+      await tester.pumpAndSettle();
+
+      final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+      addTearDown(mouse.removePointer);
+      await mouse.addPointer(location: Offset.zero);
+      await mouse.moveTo(tester.getCenter(find.bySemanticsLabel('Social')));
+      await tester.pump();
+
+      final canvas = RecordingCanvas();
+      final Finder disc = find.byWidgetPredicate(
+        (Widget widget) =>
+            widget is CustomPaint && widget.painter != null && widget.size.height > 40,
+      );
+
+      tester.widget<CustomPaint>(disc.first).painter!.paint(canvas, tester.getSize(disc.first));
+
+      expect(canvas.fills.length, 3);
+      expect(canvas.fills.every((Paint paint) => paint.color.a == 1), isTrue);
     });
 
     testWidgets('shows a readout for the slice under the press', (WidgetTester tester) async {

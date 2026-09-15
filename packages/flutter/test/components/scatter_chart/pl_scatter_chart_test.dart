@@ -1,8 +1,10 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
+import '../../support/canvas.dart';
 import '../../support/host.dart';
 
 PlassChartDatum _at(double x, double y, {double? z}) =>
@@ -153,6 +155,40 @@ void main() {
       final SemanticsNode node = tester.getSemantics(find.bySemanticsLabel('Chart'));
 
       expect(node.value, contains('1, 1'));
+    });
+
+    testWidgets('leaves the drawn marks alone while a hidden entry is pointed at', (
+      WidgetTester tester,
+    ) async {
+      // An entry that is switched off has no marks on the plot to be
+      // highlighted, so pointing at it must leave the rest where they are.
+      await _pump(
+        tester,
+        PlScatterChart(
+          series: <PlassChartSeries>[
+            spend.first,
+            PlassChartSeries(name: 'Q2', data: spend.last.data, hidden: true),
+          ],
+        ),
+      );
+
+      final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+      addTearDown(mouse.removePointer);
+      await mouse.addPointer(location: Offset.zero);
+      await mouse.moveTo(tester.getCenter(find.bySemanticsLabel('Q2')));
+      await tester.pump();
+
+      final canvas = RecordingCanvas();
+      final Finder plot = find.byWidgetPredicate(
+        (Widget widget) =>
+            widget is CustomPaint && widget.painter != null && widget.size.height > 40,
+      );
+
+      tester.widget<CustomPaint>(plot.first).painter!.paint(canvas, tester.getSize(plot.first));
+
+      expect(canvas.fills, isNotEmpty);
+      expect(canvas.fills.every((Paint paint) => paint.color.a == 1), isTrue);
     });
 
     testWidgets('says nothing is there when every point is a gap', (WidgetTester tester) async {
