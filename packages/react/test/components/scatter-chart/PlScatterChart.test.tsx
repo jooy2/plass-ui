@@ -2,6 +2,7 @@ import * as React from 'react';
 import { describe, expect, it } from 'vitest';
 import { PlScatterChart } from 'plass-ui';
 import { render } from 'vitest-browser-react';
+import { committed } from '../../support/timing';
 
 const SPEND = [
   {
@@ -20,27 +21,6 @@ const SPEND = [
     ]
   }
 ];
-
-/**
- * Runs `work` inside React's `act`, so every render it causes is committed by
- * the time this resolves. `act` does that only while the page says it is a test
- * environment, which `vitest-browser-react` says only for the length of its own
- * `render` and `rerender`, so it is said here for the length of this.
- */
-async function committed(work: () => void | Promise<void>): Promise<void> {
-  const page = globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean };
-  const was = page.IS_REACT_ACT_ENVIRONMENT;
-
-  page.IS_REACT_ACT_ENVIRONMENT = true;
-
-  try {
-    await React.act(async () => {
-      await work();
-    });
-  } finally {
-    page.IS_REACT_ACT_ENVIRONMENT = was;
-  }
-}
 
 /**
  * Resolves once `element` has been reported to a `ResizeObserver`. Observers

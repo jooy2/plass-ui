@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { useState } from 'react';
 import { PlAnimateScramble } from 'plass-ui';
+import { frameClock } from '../../support/timing';
 
 /**
  * Runs the next animation frame the page asks for as soon as the work that
@@ -134,26 +135,47 @@ describe('PlAnimateScramble', () => {
         );
       }
 
-      const screen = await render(waiting(false));
+      // Taken before the render, so the first frame the line asks for is one
+      // this test draws.
+      const frames = frameClock();
 
-      await wait(300);
+      try {
+        const screen = await render(waiting(false));
 
-      // Half of the wait has gone by, so what is held is the wait itself.
-      expect(settled()).toBe(0);
+        // The line's clock starts at its first frame, whatever time that is.
+        await frames.draw(1000);
+        await frames.draw(1300);
 
-      await screen.rerender(waiting(true));
-      await wait(300);
+        // Half of the wait has gone by, so what is held is the wait itself.
+        expect(settled()).toBe(0);
 
-      expect(settled()).toBe(0);
+        await screen.rerender(waiting(true));
+        await frames.draw(1600);
 
-      const letGo = performance.now();
+        expect(settled()).toBe(0);
 
-      await screen.rerender(waiting(false));
-      await expect.poll(() => drawn(), { timeout: 3000 }).toBe(LINE);
+        await screen.rerender(waiting(false));
+        // However late the page draws again after it is let go, the clock goes
+        // on from the 300ms the line had already waited.
+        await frames.draw(5000);
+        await frames.draw(5299);
 
-      // Around 300ms of the wait was left, and 100ms of settling after it. A
-      // loop that waited out the whole `delay` again would still be noise here.
-      expect(performance.now() - letGo).toBeLessThan(600);
+        // 300ms of the wait was left, and 299 of them have gone by.
+        expect(settled()).toBe(0);
+
+        await frames.draw(5350);
+
+        // Halfway through the 100ms of settling after it, which is eight of the
+        // seventeen characters. A loop that waited out the whole `delay` again
+        // would still be noise here.
+        expect(settled()).toBe(8);
+
+        await frames.draw(5400);
+
+        expect(drawn()).toBe(LINE);
+      } finally {
+        frames.restore();
+      }
     });
   });
 
