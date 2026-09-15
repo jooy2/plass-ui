@@ -253,7 +253,10 @@ class _SparklinePainter extends CustomPainter {
     if (shape == PlSparklineShape.bar) {
       final double slot = size.width / math.max(1, values.length);
       final double thick = math.min(barMaxThickness[step]! / 2, math.max(1, slot - markGap));
-      final double foot = y(math.max(low, 0));
+      // Where a bar grows from: zero, or the end of the scale nearest zero when
+      // the whole scale is on one side of it, so bars that are all below zero
+      // hang from the top of the strip instead of from a zero above it.
+      final double foot = y(math.min(math.max(low, 0), high));
 
       for (int i = 0; i < values.length; i += 1) {
         final double? value = values[i].value;

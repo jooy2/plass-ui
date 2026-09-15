@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
+import '../../support/canvas.dart';
 import '../../support/host.dart';
 
 const List<PlassChartDatum> trend = <PlassChartDatum>[
@@ -112,6 +113,58 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
+    testWidgets('hangs the bars of a series that is all below zero inside the strip', (
+      WidgetTester tester,
+    ) async {
+      await _pump(
+        tester,
+        const PlSparkline(
+          data: <PlassChartDatum>[PlassChartDatum(-3), PlassChartDatum(-1), PlassChartDatum(-2)],
+          shape: PlSparklineShape.bar,
+        ),
+      );
+
+      final _Bars bars = _Bars.of(tester);
+
+      expect(bars.boxes, hasLength(3));
+
+      for (final Rect box in bars.boxes) {
+        expect(box.top, greaterThan(-0.5));
+        expect(box.bottom, lessThan(bars.height + 0.5));
+      }
+    });
+
+    testWidgets('still grows bars up from the bottom, and a mixed series from zero', (
+      WidgetTester tester,
+    ) async {
+      await _pump(
+        tester,
+        const PlSparkline(
+          data: <PlassChartDatum>[PlassChartDatum(2), PlassChartDatum(4)],
+          shape: PlSparklineShape.bar,
+        ),
+      );
+
+      // The tallest bar runs the whole height of a strip scaled to its own range.
+      final _Bars up = _Bars.of(tester);
+
+      expect(up.boxes[1].top, closeTo(0, 0.5));
+      expect(up.boxes[1].bottom, closeTo(up.height, 0.5));
+
+      await _pump(
+        tester,
+        const PlSparkline(
+          data: <PlassChartDatum>[PlassChartDatum(-2), PlassChartDatum(3)],
+          shape: PlSparklineShape.bar,
+        ),
+      );
+
+      // Below zero and above it, the two bars meet where zero is.
+      final _Bars swings = _Bars.of(tester);
+
+      expect(swings.boxes[0].top, closeTo(swings.boxes[1].bottom, 0.5));
+    });
+
     testWidgets('takes a family or an exact colour', (WidgetTester tester) async {
       await _pump(tester, const PlSparkline(data: trend, color: PlassColor.danger));
       expect(find.byType(PlSparkline), findsOneWidget);
@@ -120,4 +173,33 @@ void main() {
       expect(find.byType(PlSparkline), findsOneWidget);
     });
   });
+}
+
+/// The box of every bar a sparkline paints, with the height of its strip.
+class _Bars {
+  _Bars.of(WidgetTester tester) {
+    final Finder strip = find.descendant(
+      of: find.byType(PlSparkline),
+      matching: find.byType(CustomPaint),
+    );
+    final canvas = _PathCanvas();
+
+    height = tester.getSize(strip).height;
+    tester.widget<CustomPaint>(strip).painter!.paint(canvas, tester.getSize(strip));
+    boxes = canvas.boxes;
+  }
+
+  late final double height;
+  late final List<Rect> boxes;
+}
+
+/// Keeps the bounds of every path a painter fills, in the order it drew them.
+class _PathCanvas extends RecordingCanvas {
+  final List<Rect> boxes = <Rect>[];
+
+  @override
+  void drawPath(Path path, Paint paint) {
+    boxes.add(path.getBounds());
+    super.drawPath(path, paint);
+  }
 }

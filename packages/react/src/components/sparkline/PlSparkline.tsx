@@ -155,6 +155,10 @@ export const PlSparkline = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSp
 
     const slot = width / Math.max(1, values.length);
     const barWidth = Math.min(barMaxThickness[size] / 2, Math.max(1, slot - markGap));
+    // Where a bar grows from: zero, or the end of the scale nearest zero when the
+    // whole scale is on one side of it, so bars that are all below zero hang from
+    // the top of the strip instead of from a zero above it.
+    const foot = y(Math.min(Math.max(low, 0), high));
 
     return (
       <div
@@ -210,9 +214,9 @@ export const PlSparkline = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSp
                       key={index}
                       d={barPath(
                         index * slot + (slot - barWidth) / 2,
-                        Math.min(y(value.value), y(Math.max(low, 0))),
+                        Math.min(y(value.value), foot),
                         barWidth,
-                        Math.max(1, Math.abs(y(value.value) - y(Math.max(low, 0)))),
+                        Math.max(1, Math.abs(y(value.value) - foot)),
                         barRadius / 2,
                         value.value >= 0 ? 'up' : 'down'
                       )}

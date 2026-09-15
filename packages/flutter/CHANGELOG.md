@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **A `PlSparkline` with `shape: PlSparklineShape.bar` whose values are all below zero draws inside its box.** The bars grew from zero, which for such a strip lies above its top, so they covered the content above it. They now hang from the top of the strip, and strips with positive or mixed values draw as before.
+
 - **A `PlTimelineChart` span that lies wholly outside a fixed `min` and `max` can no longer be reached.** It was not drawn but stayed a mark, so pointing beside the plot showed its tooltip outside it. It is now left out of the marks and the summary a screen reader hears, and a span that crosses an edge answers only on the part that is drawn. The tooltip still gives that span's real start and end.
 
 - **A bar chart with `valueLabels: PlassChartValueLabels.last` labels the last value it has.** The label went on the last slot, so a series that ends in a gap, such as `[10, 20, null]`, had no label at all. It now goes on the 20, as it already did on a line chart, and `extremes` no longer walks the whole series again for every bar on each paint.

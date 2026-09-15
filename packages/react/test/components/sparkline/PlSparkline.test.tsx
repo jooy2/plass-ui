@@ -123,6 +123,57 @@ describe('PlSparkline', () => {
 
       expect(Number(rule?.getAttribute('y1'))).toBeLessThan(Math.min(...drawn));
     });
+
+    /** The box of every bar, with the strip's own height. */
+    const bars = (strip: Element) => ({
+      height: Number(strip.getAttribute('height')),
+      boxes: [...strip.querySelectorAll<SVGPathElement>('path')].map((one) => one.getBBox())
+    });
+
+    it('hangs the bars of a series that is all below zero inside the strip', async () => {
+      const screen = await render(
+        <PlSparkline label="Losses" shape="bar" data={[-3, -1, -2]} width={200} />
+      );
+
+      const strip = screen.getByRole('img', { name: 'Losses' });
+
+      await expect.element(strip).toBeInTheDocument();
+
+      const { height, boxes } = bars(strip.element());
+
+      expect(boxes.length).toBe(3);
+
+      for (const box of boxes) {
+        expect(box.y).toBeGreaterThan(-0.5);
+        expect(box.y + box.height).toBeLessThan(height + 0.5);
+      }
+    });
+
+    it('still grows bars up from the bottom, and a mixed series from zero', async () => {
+      const screen = await render(
+        <>
+          <PlSparkline label="Gains" shape="bar" data={[2, 4]} width={200} />
+          <PlSparkline label="Swings" shape="bar" data={[-2, 3]} width={200} />
+        </>
+      );
+
+      const gains = screen.getByRole('img', { name: 'Gains' });
+      const swings = screen.getByRole('img', { name: 'Swings' });
+
+      await expect.element(gains).toBeInTheDocument();
+      await expect.element(swings).toBeInTheDocument();
+
+      // The tallest bar runs the whole height of a strip scaled to its own range.
+      const up = bars(gains.element());
+
+      expect(up.boxes[1].y).toBeCloseTo(0, 0);
+      expect(up.boxes[1].y + up.boxes[1].height).toBeCloseTo(up.height, 0);
+
+      // Below zero and above it, the two bars meet where zero is.
+      const [down, rise] = bars(swings.element()).boxes;
+
+      expect(down.y).toBeCloseTo(rise.y + rise.height, 0);
+    });
   });
 
   describe('endDot', () => {
