@@ -179,6 +179,27 @@ void main() {
         expect(reported, isNull);
       });
 
+      testWidgets('is read-only rather than disabled while read-only', (WidgetTester tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(PlCheckbox(value: false, readOnly: true, onChanged: (bool _) {}), width: 200),
+        );
+
+        // It keeps the focus, so a screen reader has to hear a box that cannot be
+        // changed rather than one that is unavailable.
+        expect(
+          semanticsOf(tester, find.byType(PlCheckbox)),
+          isSemantics(
+            hasEnabledState: true,
+            isEnabled: true,
+            isReadOnly: true,
+            hasTapAction: false,
+          ),
+        );
+
+        handle.dispose();
+      });
+
       testWidgets('is disabled by a null callback', (WidgetTester tester) async {
         final handle = tester.ensureSemantics();
         await tester.pumpWidget(host(const PlCheckbox(value: false), width: 200));

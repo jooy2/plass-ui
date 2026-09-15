@@ -64,6 +64,8 @@
 
 ### Fixed
 
+- **A `readOnly` `PlCheckbox` is no longer announced as disabled.** It keeps its place in the focus order, but its semantics said it was not enabled. It is now enabled and read only, and still has no tap action, as the React build's `aria-readonly` says.
+
 - **A `PlCalendar` with no `onChanged` is disabled.** Its dartdoc said a calendar nothing listens to is inert, but only `disabled` took it out of reach, so its days and its month buttons still took a Tab and a press. It is now greyed out and out of the focus order, as `disabled` makes it and as every other control without a callback is.
 
 - **The two select-all ticks of a `PlTransfer` have different names.** Both were read as "Select all", so a screen reader could not tell which list a tick belonged to. Each is now named by `selectAllLabel` and then by its list's heading, "Select all Available".
