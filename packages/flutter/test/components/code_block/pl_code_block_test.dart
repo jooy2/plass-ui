@@ -1,3 +1,4 @@
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -267,6 +268,39 @@ void main() {
         expect(text.text.toPlainText(), 'const a = 1;');
         expect(inks.toSet().length, 1);
       });
+
+      testWidgets('says whether raw is pressed, and only on the raw toggle', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlCodeBlock(
+            code: 'const a = 1;',
+            rawToggle: true,
+            lines: const <PlCodeLine>[
+              <PlCodeToken>[PlCodeToken('const', PlCodeTokenKind.keyword), PlCodeToken(' a = 1;')],
+            ],
+          ),
+        );
+
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('Raw')),
+          isSemantics(isButton: true, hasToggledState: true, isToggled: false),
+        );
+        // The copy button is a button and nothing more.
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('Copy')),
+          isSemantics(isButton: true, hasToggledState: false),
+        );
+
+        await tester.tap(find.bySemanticsLabel('Raw'));
+        await tester.pumpAndSettle();
+
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('Raw')),
+          isSemantics(hasToggledState: true, isToggled: true),
+        );
+      });
     });
 
     group('copying', () {
@@ -299,6 +333,43 @@ void main() {
         expect(written, 'const answer = 42;\nprint(answer);');
         expect(seen, 'const answer = 42;\nprint(answer);');
         expect(find.text('Copied'), findsOneWidget);
+
+        // The button's new word is said as well, for a reader who is not on it.
+        final List<CapturedAccessibilityAnnouncement> said = tester.takeAnnouncements();
+
+        expect(said.single.message, 'Copied');
+        expect(said.single.assertiveness, Assertiveness.polite);
+
+        await tester.pump(const Duration(seconds: 3));
+      });
+
+      testWidgets('says so when the clipboard refuses', (WidgetTester tester) async {
+        tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (
+          MethodCall call,
+        ) async {
+          if (call.method == 'Clipboard.setData') {
+            throw PlatformException(code: 'refused');
+          }
+
+          return null;
+        });
+        addTearDown(
+          () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+            SystemChannels.platform,
+            null,
+          ),
+        );
+
+        String? seen;
+
+        await _pump(tester, PlCodeBlock(code: code, onCopy: (String value) => seen = value));
+
+        await tester.tap(find.bySemanticsLabel('Copy'));
+        await tester.pump();
+
+        expect(seen, isNull);
+        expect(find.text('Could not copy'), findsOneWidget);
+        expect(tester.takeAnnouncements().single.message, 'Could not copy');
 
         await tester.pump(const Duration(seconds: 3));
       });

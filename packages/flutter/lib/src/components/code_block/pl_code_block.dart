@@ -1,7 +1,10 @@
 /// A viewer for one line of code or a thousand.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/gestures.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -758,6 +761,18 @@ class _PlCodeBlockState extends State<PlCodeBlock> {
 
     setState(() => _copied = done);
 
+    // The button changes its own word, which a reader whose focus has already
+    // moved on would never hear, so the result is said out loud as well.
+    final labels = PlassTheme.labelsOf(context);
+
+    unawaited(
+      SemanticsService.sendAnnouncement(
+        View.of(context),
+        done ? widget.copiedLabel ?? labels.copied : widget.copyFailedLabel ?? labels.copyFailed,
+        Directionality.of(context),
+      ),
+    );
+
     if (done) {
       widget.onCopy?.call(_source);
     }
@@ -1108,7 +1123,7 @@ class _Bar extends StatelessWidget {
                   : copied!
                   ? copiedLabel
                   : copyFailedLabel,
-              pressed: false,
+              pressed: null,
               showLabel: true,
               icon: PlassGlyph(
                 copied == true ? PlassGlyphShape.check : PlassGlyphShape.copy,
@@ -1138,7 +1153,9 @@ class _BarButton extends StatefulWidget {
   final PlassColorFamily family;
   final PlassSize size;
   final String label;
-  final bool pressed;
+
+  /// Whether a toggle is on, or `null` for a button that is not a toggle.
+  final bool? pressed;
   final bool showLabel;
   final Widget icon;
   final VoidCallback onPressed;
@@ -1156,6 +1173,7 @@ class _BarButtonState extends State<_BarButton> {
 
     return Semantics(
       button: true,
+      toggled: widget.pressed,
       label: widget.label,
       // The copy button draws its own word as well as carrying it, and a reader
       // told "Copy, Copy" has been told once too often. The label supersedes
@@ -1165,7 +1183,7 @@ class _BarButtonState extends State<_BarButton> {
       child: PlassInteractive(
         onTap: widget.onPressed,
         builder: (BuildContext context, PlassInteraction state) {
-          final bool lit = state.hovered || state.pressed || widget.pressed;
+          final bool lit = state.hovered || state.pressed || widget.pressed == true;
           final Color ink = lit ? palette.foreground : palette.dim;
 
           Widget button = Container(

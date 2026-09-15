@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **A `PlCodeBlock` tells a screen reader whether raw is pressed and whether the copy worked.** The raw toggle had no toggled state, and the copy button changed its own word without saying it, so a reader whose focus had moved on heard nothing. The toggle now carries a toggled state, and the block announces `copiedLabel` or `copyFailedLabel` once the clipboard has answered, as the React build does with `aria-pressed` and its live region.
+
 - **A `PlCodeBlock` is named after its language before `codeLabel`, as in the React build.** With `language: 'dart'` and `codeLabel: 'Code'`, a screen reader heard the code called "Code" rather than "dart". The language now comes first, then `codeLabel`, then the label pack's word for code, and a blank `language` counts as none.
 
 - **A chart legend asked for on the left or the right stays on that side under RTL.** `PlassSide` is a physical direction, but the legend was placed by the order of a flex row, which follows the writing direction, so `side: 'left'` put the legend on the right of an Arabic or Hebrew page. The row is now laid out physically, and the words inside the legend still read in the page's own direction.
