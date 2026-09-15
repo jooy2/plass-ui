@@ -103,9 +103,13 @@ const Map<PlassSize, double> barMaxThickness = <PlassSize, double>{
 };
 
 /// How much of a category's slot the marks in it may take.
+///
+/// The same pair as the React build's `barBandRatio`, and it has to be: a bar
+/// chart of the same data at the same size is one picture, not two that are
+/// nearly alike.
 const Map<PlassDensity, double> barBandRatio = <PlassDensity, double>{
-  PlassDensity.standard: 0.68,
-  PlassDensity.compact: 0.84,
+  PlassDensity.standard: 0.62,
+  PlassDensity.compact: 0.82,
 };
 
 /// The air between two marks that share a slot.
@@ -1001,39 +1005,68 @@ const List<PlChartMarkShape> markShapes = <PlChartMarkShape>[
   PlChartMarkShape.cross,
 ];
 
-/// One marker, centred on a point.
+/// How much bigger than a circle of the same area each shape has to be drawn.
+///
+/// Equal *area*, not equal radius, and that is the whole reason this table
+/// exists rather than five hand-picked numbers. On a bubble chart the area is
+/// already carrying a magnitude, so a square that covers a third more ink than
+/// the circle beside it is a square reporting a value it was not given. Solved
+/// from `πr²`: a square's half-side is `r√π/2`, a diamond's half-diagonal
+/// `r√(π/2)`, an equilateral triangle's circumradius `r√(4π/3√3)`, and a plus
+/// whose arm is two thirds of its half-span `r√(9π/20)`.
+const Map<PlChartMarkShape, double> _shapeScale = <PlChartMarkShape, double>{
+  PlChartMarkShape.circle: 1,
+  PlChartMarkShape.square: 0.8862,
+  PlChartMarkShape.triangle: 1.5551,
+  PlChartMarkShape.diamond: 1.2533,
+  PlChartMarkShape.cross: 1.189,
+};
+
+/// One marker, centred on a point and covering the same area a circle of radius
+/// [r] would.
 Path markPath(PlChartMarkShape shape, double cx, double cy, double r) {
   final path = Path();
+  final double size = math.max(0, r) * _shapeScale[shape]!;
+
+  if (size == 0) {
+    return path;
+  }
 
   switch (shape) {
     case PlChartMarkShape.circle:
-      path.addOval(Rect.fromCircle(center: Offset(cx, cy), radius: r));
+      path.addOval(Rect.fromCircle(center: Offset(cx, cy), radius: size));
     case PlChartMarkShape.square:
-      // Squared off to the same *area* as the circle, so the two do not read as
-      // two sizes of the same thing.
-      final double side = r * 1.77;
-      path.addRect(Rect.fromCenter(center: Offset(cx, cy), width: side, height: side));
+      path.addRect(Rect.fromCenter(center: Offset(cx, cy), width: size * 2, height: size * 2));
     case PlChartMarkShape.triangle:
-      final double side = r * 1.15;
-      path
-        ..moveTo(cx, cy - r * 1.25)
-        ..lineTo(cx + side * 1.1, cy + r * 0.8)
-        ..lineTo(cx - side * 1.1, cy + r * 0.8)
-        ..close();
+      // Sat on its circumcircle rather than on a bounding box, so it shares a
+      // centre with the other four — a triangle centred on its box sits low,
+      // and a row of markers would then not line up with the row of dots beside
+      // it.
+      for (int corner = 0; corner < 3; corner += 1) {
+        final double radians = (corner * 120 - 90) * math.pi / 180;
+        final double x = cx + size * math.cos(radians);
+        final double y = cy + size * math.sin(radians);
+
+        if (corner == 0) {
+          path.moveTo(x, y);
+        } else {
+          path.lineTo(x, y);
+        }
+      }
+
+      path.close();
     case PlChartMarkShape.diamond:
-      final double d = r * 1.3;
       path
-        ..moveTo(cx, cy - d)
-        ..lineTo(cx + d, cy)
-        ..lineTo(cx, cy + d)
-        ..lineTo(cx - d, cy)
+        ..moveTo(cx, cy - size)
+        ..lineTo(cx + size, cy)
+        ..lineTo(cx, cy + size)
+        ..lineTo(cx - size, cy)
         ..close();
     case PlChartMarkShape.cross:
-      final double arm = r * 1.2;
-      final double thick = r * 0.45;
+      final double arm = size / 3;
       path
-        ..addRect(Rect.fromCenter(center: Offset(cx, cy), width: arm * 2, height: thick * 2))
-        ..addRect(Rect.fromCenter(center: Offset(cx, cy), width: thick * 2, height: arm * 2));
+        ..addRect(Rect.fromCenter(center: Offset(cx, cy), width: size * 2, height: arm * 2))
+        ..addRect(Rect.fromCenter(center: Offset(cx, cy), width: arm * 2, height: size * 2));
   }
 
   return path;

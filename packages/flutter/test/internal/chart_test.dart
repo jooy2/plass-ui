@@ -452,7 +452,37 @@ void main() {
       expect(bounds.center.dx, closeTo(10, 0.001));
       expect(bounds.center.dy, closeTo(20, 0.001));
     });
+
+    test('covers the same area whatever shape it is', () {
+      // Equal area and not equal radius: on a bubble chart the area is already
+      // carrying a magnitude, so a square covering a third more ink than the
+      // circle beside it is a square reporting a value it was not given.
+      final double circle = _area(markPath(PlChartMarkShape.circle, 0, 0, 40));
+
+      for (final PlChartMarkShape shape in markShapes) {
+        expect(_area(markPath(shape, 0, 0, 40)) / circle, closeTo(1, 0.02));
+      }
+    });
   });
+}
+
+/// How much ink a shape covers, by counting the grid points inside it.
+///
+/// A `Path` has no area to ask for, and working the area out from the corners
+/// would be working it out from the same arithmetic the test is checking.
+double _area(Path path) {
+  const double step = 0.5;
+  int inside = 0;
+
+  for (double x = -80; x < 80; x += step) {
+    for (double y = -80; y < 80; y += step) {
+      if (path.contains(Offset(x, y))) {
+        inside += 1;
+      }
+    }
+  }
+
+  return inside * step * step;
 }
 
 /// Where a line drawn left to right crosses the vertical at [x].
