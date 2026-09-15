@@ -444,9 +444,17 @@ export const focusRingInsetClasses =
  *
  * Kept quiet until it is wanted: the glyph sits at 70% until the pointer or the
  * keyboard arrives.
+ *
+ * Drawn at the size of the label, and pressed from a 24px square, the minimum
+ * target size of WCAG 2.5.8. The `::before` is that square, centred on the
+ * glyph whatever size the glyph is, and placed out of the flow so the chip and
+ * the trigger keep their size. It comes after the label or the trigger in the
+ * markup and is positioned, so where the square reaches over one of them the ×
+ * has the press, and the neighbour keeps everything outside the square.
  */
 export const chipRemoveClasses = /* @__PURE__ */ [
-  'ms-0.5 inline-flex shrink-0 items-center justify-center rounded-full',
+  'relative ms-0.5 inline-flex shrink-0 items-center justify-center rounded-full',
+  'before:absolute before:inset-[calc(50%-12px)]',
   'size-[1.15em] cursor-pointer opacity-70',
   '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
   'hover:opacity-100 focus-visible:opacity-100',

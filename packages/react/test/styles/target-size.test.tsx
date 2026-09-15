@@ -1,0 +1,116 @@
+/**
+ * Where the × on a chip and on a picker trigger can be pressed from, which the
+ * stylesheet decides.
+ *
+ * The glyph is drawn smaller than the 24px target WCAG 2.5.8 asks for, and what
+ * widens the press is a pseudo-element the markup does not show. So
+ * `src/standalone.css` is loaded the way `marquee.test.tsx` loads it, and the
+ * page is asked which button is under a point. Each component is drawn at its
+ * smallest step, where the glyph is furthest from 24px.
+ */
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { render } from 'vitest-browser-react';
+import { PlChip, PlCombobox, PlDatePicker } from 'plass-ui';
+import standaloneCss from '../../src/standalone.css?inline';
+
+/** Just inside the edge of a 24px square centred on the ×. */
+const REACH = 11.5;
+
+let sheet: HTMLStyleElement;
+
+beforeAll(() => {
+  sheet = document.createElement('style');
+  sheet.textContent = standaloneCss;
+  document.head.append(sheet);
+});
+
+afterAll(() => {
+  sheet.remove();
+});
+
+/** The button under a point on the page, if there is one. */
+function buttonAt([x, y]: [number, number]): Element | null {
+  return document.elementFromPoint(x, y)?.closest('button') ?? null;
+}
+
+/** A point `dx` and `dy` away from the middle of `element`. */
+function fromMiddle(element: Element, dx: number, dy: number): [number, number] {
+  const box = element.getBoundingClientRect();
+
+  return [box.left + box.width / 2 + dx, box.top + box.height / 2 + dy];
+}
+
+/** The corners, the sides and the middle of the 24px square around `element`. */
+function square(element: Element): [number, number][] {
+  return [-REACH, 0, REACH].flatMap((dx) =>
+    [-REACH, 0, REACH].map((dy) => fromMiddle(element, dx, dy))
+  );
+}
+
+describe('the × target', () => {
+  it('takes a press anywhere in the 24px square around a chip’s ×', async () => {
+    const screen = await render(
+      <div style={{ padding: 32 }}>
+        <PlChip size="xs" onClick={() => {}} onDelete={() => {}}>
+          Design
+        </PlChip>
+      </div>
+    );
+    const remove = screen.getByRole('button', { name: 'Remove Design' }).element();
+
+    // Placed out of the flow, so the chip is laid out as it was without it.
+    expect(getComputedStyle(remove, '::before').position).toBe('absolute');
+
+    for (const point of square(remove)) {
+      expect(buttonAt(point), `at ${point}`).toBe(remove);
+    }
+  });
+
+  it('leaves the rest of the chip to its label', async () => {
+    const screen = await render(
+      <div style={{ padding: 32 }}>
+        <PlChip size="xs" onClick={() => {}} onDelete={() => {}}>
+          Design
+        </PlChip>
+      </div>
+    );
+    const remove = screen.getByRole('button', { name: 'Remove Design' }).element();
+    const label = screen.getByRole('button', { name: 'Design', exact: true }).element();
+
+    expect(buttonAt(fromMiddle(remove, -14, 0))).toBe(label);
+  });
+
+  it('takes a press anywhere in the 24px square around a PlCombobox chip’s ×', async () => {
+    const screen = await render(
+      <div style={{ padding: 32 }}>
+        <PlCombobox
+          size="sm"
+          items={[{ value: 'seoul', label: 'Seoul' }]}
+          multiple
+          defaultValue={['seoul']}
+        />
+      </div>
+    );
+    const remove = screen.getByRole('button', { name: 'Remove Seoul' }).element();
+
+    for (const point of square(remove)) {
+      expect(buttonAt(point), `at ${point}`).toBe(remove);
+    }
+  });
+
+  it('takes a press anywhere in the 24px square around a picker’s ×, and leaves the rest to the trigger', async () => {
+    const screen = await render(
+      <div style={{ padding: 32 }}>
+        <PlDatePicker size="xs" label="Departure" defaultValue={new Date(2026, 6, 27)} clearable />
+      </div>
+    );
+    const clear = screen.getByRole('button', { name: 'Clear' }).element();
+    const trigger = screen.getByRole('button', { name: /^Departure/ }).element();
+
+    for (const point of square(clear)) {
+      expect(buttonAt(point), `at ${point}`).toBe(clear);
+    }
+
+    expect(buttonAt(fromMiddle(clear, -14, 0))).toBe(trigger);
+  });
+});

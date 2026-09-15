@@ -193,6 +193,8 @@ A chip sits one step down the control ladder from everything else: a `md` chip i
 
 ## Accessibility
 
+- The × is drawn at the size of the label, and a press anywhere in a 24px square around it reaches it, which is the minimum target size in WCAG 2.5.8. The chip keeps its size. Where the square reaches over the label, the × takes the press inside the square and the label keeps the rest.
+
 ::: fw react
 
 - A chip with `onClick` is a real `<button>` carrying `aria-pressed`, so a filter that is on says so. A chip without one adds no role and takes no tab stop. An inert `<span>` with a click handler on it is the single most common way a component library loses its keyboard users.

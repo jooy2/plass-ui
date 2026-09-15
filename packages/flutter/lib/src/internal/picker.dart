@@ -28,6 +28,7 @@ import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
+import 'package:plass_ui/src/internal/target.dart';
 import 'package:plass_ui/src/internal/text.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
@@ -266,23 +267,27 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
                   else
                     Flexible(child: _value(tokens, scale)),
                   if (widget.clearable && !widget.empty && _usable)
-                    Semantics(
-                      button: true,
-                      label: widget.clearLabel,
-                      onTap: widget.onClear,
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        excludeFromSemantics: true,
+                    // Drawn at the size of the text, and pressed from a 24px
+                    // square through the scope round the trigger.
+                    PlassTarget(
+                      child: Semantics(
+                        button: true,
+                        label: widget.clearLabel,
                         onTap: widget.onClear,
-                        child: MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: SizedBox(
-                            height: scale.line,
-                            child: Center(
-                              child: PlassGlyph(
-                                PlassGlyphShape.close,
-                                size: scale.size * iconScale,
-                                color: tokens.mutedFg,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          excludeFromSemantics: true,
+                          onTap: widget.onClear,
+                          child: MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: SizedBox(
+                              height: scale.line,
+                              child: Center(
+                                child: PlassGlyph(
+                                  PlassGlyphShape.close,
+                                  size: scale.size * iconScale,
+                                  color: tokens.mutedFg,
+                                ),
                               ),
                             ),
                           ),
@@ -341,7 +346,7 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
           child: Padding(padding: EdgeInsets.all(popupPadding[size]!), child: widget.popup),
         ),
       ),
-      child: trigger,
+      child: PlassTargetScope(child: trigger),
     );
 
     final stack = Column(

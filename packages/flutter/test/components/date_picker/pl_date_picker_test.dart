@@ -569,6 +569,48 @@ void main() {
         expect(chosen, isNull);
       });
 
+      testWidgets(
+        'takes a press from 24px square round the ×, and leaves the rest to the trigger',
+        (WidgetTester tester) async {
+          var cleared = 0;
+
+          await _pump(
+            tester,
+            PlDatePicker(
+              // The smallest trigger, where the × is drawn furthest below 24px.
+              size: PlassSize.xs,
+              value: july27,
+              clearable: true,
+              onChanged: (DateTime? _) => cleared += 1,
+            ),
+          );
+
+          final Rect mark = tester.getRect(find.bySemanticsLabel('Clear'));
+          final double across = mark.width / 2 + 3;
+          final double down = mark.height / 2 + 3;
+
+          // Just outside the drawn × on every side, and inside the square.
+          for (final Offset offset in <Offset>[
+            Offset(-across, 0),
+            Offset(across, 0),
+            Offset(0, -down),
+            Offset(0, down),
+          ]) {
+            await tester.tapAt(mark.center + offset);
+            await tester.pumpAndSettle();
+          }
+
+          expect(cleared, 4);
+          expect(find.text('Today'), findsNothing);
+
+          await tester.tapAt(mark.center - const Offset(14, 0));
+          await tester.pumpAndSettle();
+
+          expect(cleared, 4);
+          expect(find.text('Today'), findsOneWidget);
+        },
+      );
+
       testWidgets('takes the caller’s own words', (WidgetTester tester) async {
         await _pump(
           tester,

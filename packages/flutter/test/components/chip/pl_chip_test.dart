@@ -167,6 +167,50 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('is pressed from 24px square, and leaves the rest to the chip', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        var removed = 0;
+        var pressed = 0;
+
+        await tester.pumpWidget(
+          host(
+            PlChip(
+              // The smallest chip, where the × is drawn furthest below 24px.
+              size: PlassSize.xs,
+              onPressed: () => pressed += 1,
+              onDeleted: () => removed += 1,
+              child: const Text('Tag'),
+            ),
+          ),
+        );
+
+        final Rect mark = tester.getRect(find.bySemanticsLabel('Remove Tag'));
+        final double across = mark.width / 2 + 3;
+        final double down = mark.height / 2 + 3;
+
+        // Just outside the drawn × on every side, and inside the square.
+        for (final Offset offset in <Offset>[
+          Offset(-across, 0),
+          Offset(across, 0),
+          Offset(0, -down),
+          Offset(0, down),
+        ]) {
+          await tester.tapAt(mark.center + offset);
+        }
+
+        expect(removed, 4);
+        expect(pressed, 0);
+
+        await tester.tapAt(mark.center - const Offset(14, 0));
+
+        expect(removed, 4);
+        expect(pressed, 1);
+        expect(tester.getSize(find.byType(PlChip)).height, 24);
+        handle.dispose();
+      });
+
       testWidgets('names each affordance after its own chip', (WidgetTester tester) async {
         final handle = tester.ensureSemantics();
 

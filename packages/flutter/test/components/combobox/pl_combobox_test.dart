@@ -473,6 +473,32 @@ void main() {
         expect(reported, equals(<String>['lisbon']));
       });
 
+      testWidgets('takes a press from 24px square round a chip’s ×', (WidgetTester tester) async {
+        var removed = 0;
+
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<String>.multiple(
+              // Its chips are the smallest there are.
+              size: PlassSize.sm,
+              options: _cities,
+              values: const <String>['seoul'],
+              onChanged: (List<String> _) => removed += 1,
+            ),
+          ),
+        );
+
+        final Rect mark = tester.getRect(_adornment('Remove Seoul'));
+
+        // Just outside the drawn ×, before it and under it.
+        await tester.tapAt(mark.center - Offset(mark.width / 2 + 3, 0));
+        await tester.pumpAndSettle();
+        await tester.tapAt(mark.center + Offset(0, mark.height / 2 + 3));
+        await tester.pumpAndSettle();
+
+        expect(removed, 2);
+      });
+
       testWidgets('empties the query after each pick, so the list stays open', (
         WidgetTester tester,
       ) async {

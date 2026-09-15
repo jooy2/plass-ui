@@ -9,6 +9,7 @@ import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
+import 'package:plass_ui/src/internal/target.dart';
 import 'package:plass_ui/src/internal/text.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
@@ -310,12 +311,16 @@ class PlChip extends StatelessWidget {
           // × floating in the middle of a gap.
           Padding(
             padding: EdgeInsetsDirectional.only(end: padX / 2),
-            child: PlassDismissButton(
-              label: deleteLabel ?? (text == null ? labels.remove : labels.removeItem(text)),
-              onPressed: disabled ? null : onDeleted,
-              size: fontSize * dismissScale,
-              color: surface.ink,
-              ring: family.ring,
+            // Drawn at the size of the label, and pressed from a 24px square
+            // through the scope round the whole chip.
+            child: PlassTarget(
+              child: PlassDismissButton(
+                label: deleteLabel ?? (text == null ? labels.remove : labels.removeItem(text)),
+                onPressed: disabled ? null : onDeleted,
+                size: fontSize * dismissScale,
+                color: surface.ink,
+                ring: family.ring,
+              ),
             ),
           ),
         ],
@@ -353,7 +358,7 @@ class PlChip extends StatelessWidget {
       );
     }
 
-    return chip;
+    return PlassTargetScope(child: chip);
   }
 
   /// The count's own small plate.
