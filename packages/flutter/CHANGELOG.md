@@ -64,6 +64,8 @@
 
 ### Fixed
 
+- **A `PlColorPicker` thumb sits on its value at every `size`.** Each thumb was placed as if it were the `md` size, so at `xs`, `sm`, `lg` and `xl` its centre was up to 2 pixels beside the colour it showed, on the square and on the rails.
+
 - **A `PlColorPicker` swatch the picker cannot read is left out.** A swatch such as `'red'` was drawn as a clear circle that did nothing when pressed, since named colours are not read. It is now not drawn, and a list with nothing readable in it draws no swatches.
 
 - **A disabled `PlTextField`, `PlNumberField` or `PlOtpField` leaves the focus order.** Tab stopped on it and drew a focus ring, although nothing could be typed into it. It is now passed by Tab, as a disabled `PlButton` is and as in the React build. A read-only field still takes the focus.

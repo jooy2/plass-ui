@@ -834,7 +834,10 @@ class _Track extends StatefulWidget {
   /// one end to go to, so it leaves this out and the keys alone.
   final ValueChanged<bool>? onJump;
   final List<Widget> layers;
-  final Widget thumb;
+
+  /// A thumb rather than any widget, because its centre is placed on the value
+  /// and that takes its own size, which moves with the picker's.
+  final _Thumb thumb;
   final double thumbX;
   final double thumbY;
 
@@ -884,7 +887,7 @@ class _TrackState extends State<_Track> {
   Widget build(BuildContext context) {
     Widget track = LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        final double thumb = _thumbSize[PlassSize.md]!;
+        final double thumb = widget.thumb.size;
 
         return Stack(
           clipBehavior: Clip.none,

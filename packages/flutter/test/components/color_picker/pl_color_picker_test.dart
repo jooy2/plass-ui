@@ -346,6 +346,33 @@ void main() {
       expect(seen.single, '#3b82f6');
     });
 
+    testWidgets('centres a thumb on its value along the rail at every size', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+
+      for (final PlassSize size in <PlassSize>[PlassSize.xs, PlassSize.xl]) {
+        // Cyan is a hue of 180, halfway along the rail.
+        await tester.pumpWidget(
+          host(
+            PlColorPicker(inline: true, value: '#00ffff', size: size),
+            width: 400,
+            height: 600,
+            overlay: true,
+          ),
+        );
+
+        final Finder rail = find
+            .descendant(of: find.bySemanticsLabel('Hue'), matching: find.byType(Stack))
+            .first;
+        final Finder thumb = find.descendant(of: rail, matching: find.byType(IgnorePointer));
+
+        expect(tester.getCenter(thumb).dx, closeTo(tester.getRect(rail).center.dx, 0.01));
+      }
+
+      handle.dispose();
+    });
+
     testWidgets('writes the format it was asked for', (WidgetTester tester) async {
       final List<String> seen = <String>[];
 
