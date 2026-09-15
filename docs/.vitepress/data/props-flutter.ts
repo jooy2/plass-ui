@@ -311,8 +311,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }),
     ...animateFlutterProps('PlAnimateFloat', {
       duration: 'Duration(milliseconds: 3000)',
-      repeat: 'null'
-    }),
+      repeat: 'null',
+      omit: ['alternate']
+    }).map((row) => (row.name === 'curve' ? { ...row, type: 'Curve' } : row)),
     {
       name: 'child',
       type: 'Widget',
@@ -502,7 +503,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
   PlAnimateShake: [
     from('PlAnimateShake', 'replay', { type: 'Object?' }),
     from('PlAnimateShake', 'distance', { type: 'double', default: '6' }),
-    ...animateFlutterProps('PlAnimateShake', { duration: 'Duration(milliseconds: 400)' }),
+    ...animateFlutterProps('PlAnimateShake', {
+      duration: 'Duration(milliseconds: 400)',
+      omit: ['alternate']
+    }),
     {
       name: 'child',
       type: 'Widget',
@@ -571,7 +575,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'How long after one part the next one starts, and whether it starts from the end of the line'
       }
     },
-    ...animateFlutterProps('PlAnimateSplit', { duration: 'Duration(milliseconds: 400)' })
+    ...animateFlutterProps('PlAnimateSplit', {
+      duration: 'Duration(milliseconds: 400)',
+      omit: ['repeat', 'alternate']
+    })
   ],
 
   PlAnimateTyping: [
