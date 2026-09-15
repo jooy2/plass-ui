@@ -190,12 +190,17 @@ class PlTimelineChart extends StatelessWidget {
         for (int at = 0; at < row.spans.length; at += 1) {
           final _Span? one = row.spans[at];
 
-          if (one == null) {
+          if (one == null || !_inWindow(one, layout.scale)) {
             continue;
           }
 
-          final double from = layout.valuePx(one.from);
-          final double to = layout.valuePx(one.to);
+          /* Cut to the plot rather than to the data. A caller who pinned `min`
+             to this quarter still has work that began last one, and a bar that
+             stops at the edge says there is more of it off the side; one drawn
+             past the edge says the axis is wrong. The mark is cut with the bar,
+             so the pointer and the readout stay on what is drawn. */
+          final double from = layout.valuePx(math.max(one.from, layout.scale.min));
+          final double to = layout.valuePx(math.min(one.to, layout.scale.max));
 
           list.add(
             PlassChartMark(
@@ -264,17 +269,17 @@ class PlTimelineChart extends StatelessWidget {
       // The span names itself when it can, and the row is then the second line
       // rather than a repeat of the first.
       markHeading: (PlassChartMark mark) => spanAt(mark)?.span.label ?? rowNames[mark.series],
-      semanticValue: (_) => _summary(rows, rowNames, scale.unit, names, withDate),
+      semanticValue: (_) => _summary(rows, rowNames, scale, names, withDate),
       paint: (Canvas canvas, PlassChartLayout layout) =>
           _paint(canvas, layout, rows, colors, tokens),
     );
   }
 
-  /// Every span, row by row, as the two instants it runs between.
+  /// Every span on the plot, row by row, as the two instants it runs between.
   String _summary(
     List<_Row> rows,
     List<String> rowNames,
-    PlChartTimeUnit unit,
+    TimeScale scale,
     PlDateNames names,
     bool withDate,
   ) {
@@ -284,13 +289,13 @@ class PlTimelineChart extends StatelessWidget {
       final spans = <String>[];
 
       for (final _Span? one in rows[i].spans) {
-        if (one == null) {
+        if (one == null || !_inWindow(one, scale)) {
           continue;
         }
 
         final String when =
-            '${formatTimeValue(one.from, unit, names, withDate: withDate)} – '
-            '${formatTimeValue(one.to, unit, names, withDate: withDate)}';
+            '${formatTimeValue(one.from, scale.unit, names, withDate: withDate)} – '
+            '${formatTimeValue(one.to, scale.unit, names, withDate: withDate)}';
 
         spans.add(one.span.label == null ? when : '${one.span.label} $when');
       }
@@ -332,20 +337,15 @@ class PlTimelineChart extends StatelessWidget {
       final double half = mark.rx ?? mark.r;
       final double thickness = (mark.ry ?? mark.r) * 2;
 
-      /* Cut to the plot rather than to the data. A caller who pinned `min` to
-         this quarter still has work that began last one, and a bar that stops
-         at the edge says there is more of it off the side; one drawn past the
-         edge says the axis is wrong. A zero-width span keeps a hairline, so a
-         milestone is still something on the row. */
-      final double start = math.max(layout.plot.left, mark.centre.dx - half);
-      final double end = math.min(layout.plot.left + layout.plot.width, mark.centre.dx + half);
-
-      if (end < layout.plot.left || start > layout.plot.left + layout.plot.width) {
-        continue;
-      }
-
-      final double width = math.max(1, end - start);
-      final Rect box = Rect.fromLTWH(start, mark.centre.dy - thickness / 2, width, thickness);
+      // The mark is already cut to the plot. A zero-width span keeps a hairline,
+      // so a milestone is still something on the row.
+      final double width = math.max(1, half * 2);
+      final Rect box = Rect.fromLTWH(
+        mark.centre.dx - half,
+        mark.centre.dy - thickness / 2,
+        width,
+        thickness,
+      );
 
       canvas.drawRRect(
         RRect.fromRectAndRadius(
@@ -437,3 +437,11 @@ _Span? _place(PlassTimelinePoint span) {
 
   return _Span(from: math.min(from, to), to: math.max(from, to), span: span, color: span.color);
 }
+
+/// Whether any of a span falls inside the axis.
+///
+/// A span wholly before `min` or after `max` is not on the chart: it is not
+/// drawn, so it is not a mark the pointer can land on, and the summary does not
+/// read it out either. One that crosses an edge is on the chart, cut where the
+/// axis ends.
+bool _inWindow(_Span one, ValueScale scale) => one.to >= scale.min && one.from <= scale.max;

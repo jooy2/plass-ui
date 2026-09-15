@@ -174,12 +174,17 @@ export function PlTimelineChart({
         const top = layout.plot.top + layout.categoryPx(index) - group / 2 + height / 2;
 
         row.spans.forEach((one, at) => {
-          if (!one) {
+          if (!one || !inWindow(one, layout.scale)) {
             return;
           }
 
-          const from = layout.valuePx(one.from);
-          const to = layout.valuePx(one.to);
+          /* Cut to the plot rather than to the data. A caller who pinned `min` to
+             this quarter still has work that began last one, and a bar that stops
+             at the edge says there is more of it off the side; one drawn past the
+             edge says the axis is wrong. The mark is cut with the bar, so the
+             pointer, the arrow keys and the tooltip stay on what is drawn. */
+          const from = layout.valuePx(Math.max(one.from, layout.scale.min));
+          const to = layout.valuePx(Math.min(one.to, layout.scale.max));
 
           list.push({
             series: index,
@@ -258,7 +263,7 @@ export function PlTimelineChart({
           names={names}
           series={series}
           spans={spans}
-          unit={scale.unit}
+          scale={scale}
           withDate={withDate}
           label={props.label}
           corner={xAxis?.label}
@@ -331,6 +336,18 @@ function packRow(row: PlassTimelineSeries): { spans: Placed[]; lanes: number } {
   return { spans, lanes: Math.max(1, ends.length) };
 }
 
+/**
+ * Whether any of a span falls inside the axis.
+ *
+ * A span wholly before `min` or after `max` is not on the chart: it is not
+ * drawn, so it is not a mark the pointer or the arrow keys can land on, and the
+ * table does not list it either. One that crosses an edge is on the chart, cut
+ * where the axis ends.
+ */
+function inWindow(one: NonNullable<Placed>, scale: { min: number; max: number }): boolean {
+  return one.to >= scale.min && one.from <= scale.max;
+}
+
 interface SpansProps {
   context: CartesianContext;
   spans: readonly (readonly Placed[])[];
@@ -348,7 +365,7 @@ interface SpansProps {
  * Both of its ends are data, so both of them round.
  */
 function Spans({ context, spans, colors, rounded }: SpansProps) {
-  const { marks, activeMark, plot } = context;
+  const { marks, activeMark } = context;
   const radius = rounded ? barRadius : 0;
 
   return (
@@ -363,25 +380,14 @@ function Spans({ context, spans, colors, rounded }: SpansProps) {
         const active = activeMark?.series === mark.series && activeMark?.index === mark.index;
         const half = mark.rx ?? mark.r;
         const height = (mark.ry ?? mark.r) * 2;
-
-        /* Cut to the plot rather than to the data. A caller who pinned `min` to
-           this quarter still has work that began last one, and a bar that stops
-           at the edge says there is more of it off the side; one drawn past the
-           edge says the axis is wrong. A zero-width span keeps a hairline, so
-           a milestone is still something on the row. */
-        const left = Math.max(plot.left, mark.x - half);
-        const right = Math.min(plot.left + plot.width, mark.x + half);
-
-        if (right < plot.left || left > plot.left + plot.width) {
-          return null;
-        }
-
-        const width = Math.max(1, right - left);
+        // The mark is already cut to the plot. A zero-width span keeps a
+        // hairline, so a milestone is still something on the row.
+        const width = Math.max(1, half * 2);
 
         return (
           <rect
             key={`${mark.series}-${mark.index}`}
-            x={left}
+            x={mark.x - half}
             y={mark.y - height / 2}
             width={width}
             height={height}
@@ -401,7 +407,7 @@ interface TableProps {
   names: readonly string[];
   series: readonly PlassTimelineSeries[];
   spans: readonly (readonly Placed[])[];
-  unit: TimeScale['unit'];
+  scale: TimeScale;
   withDate: boolean;
   label?: string;
   corner?: React.ReactNode;
@@ -421,14 +427,18 @@ function TimelineTable({
   names,
   series,
   spans,
-  unit,
+  scale,
   withDate,
   label,
   corner,
   locale
 }: TableProps) {
   const words = useLabels();
-  const titled = series.some((row) => row.data.some((span) => span.label !== undefined));
+  const titled = spans.some((row, index) =>
+    row.some(
+      (one, at) => (!one || inWindow(one, scale)) && series[index].data[at]?.label !== undefined
+    )
+  );
 
   return (
     <table id={id} className={srOnlyClasses}>
@@ -443,14 +453,16 @@ function TimelineTable({
       </thead>
       <tbody>
         {spans.flatMap((row, index) =>
-          row.map((one, at) => (
-            <tr key={`${index}-${at}`}>
-              <th scope="row">{names[index]}</th>
-              {titled ? <td>{series[index].data[at]?.label ?? ''}</td> : null}
-              <td>{one ? formatTimeValue(one.from, unit, locale, withDate) : ''}</td>
-              <td>{one ? formatTimeValue(one.to, unit, locale, withDate) : ''}</td>
-            </tr>
-          ))
+          row.map((one, at) =>
+            one && !inWindow(one, scale) ? null : (
+              <tr key={`${index}-${at}`}>
+                <th scope="row">{names[index]}</th>
+                {titled ? <td>{series[index].data[at]?.label ?? ''}</td> : null}
+                <td>{one ? formatTimeValue(one.from, scale.unit, locale, withDate) : ''}</td>
+                <td>{one ? formatTimeValue(one.to, scale.unit, locale, withDate) : ''}</td>
+              </tr>
+            )
+          )
         )}
       </tbody>
     </table>

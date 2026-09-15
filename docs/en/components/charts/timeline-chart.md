@@ -85,6 +85,8 @@ A row with no overlaps stays in a single lane, so the common row is exactly as t
 
 A span is cut to the plot rather than to the data. A caller who pinned the axis to this quarter still has work that began last one, and a bar that stops at the edge says there is more of it off the side; one drawn past the edge says the axis is wrong.
 
+A span that lies wholly outside `min` and `max` is dropped rather than cut. Nothing is drawn for it, the pointer and the arrow keys never stop on it, and neither the text the chart hands over nor the table on React lists it.
+
 A zero-width span keeps a hairline, so a milestone is still something on the row.
 
 ### rounded
@@ -93,7 +95,7 @@ Both ends, unlike a [bar chart](./bar-chart), where the baseline end stays squar
 
 ## Accessibility
 
-- The drawing carries the chart's name, and every span is handed over as text: each row, then its spans as the two instants they run between.
+- The drawing carries the chart's name, and every span on the plot is handed over as text: each row, then its spans as the two instants they run between.
 - On React the picture is a `role="img"` and a tab stop, and the arrow keys walk the spans in the order the data was written.
 - On React the same data is written into a table under the chart, **a row per span** rather than the grid every other chart uses. Two rows of a Gantt have no columns in common: the third thing on one row and the third thing on another are unrelated, and filing them side by side would invent a relationship.
 - A span that names itself is named in the readout, with its row on the second line rather than repeated on the first.

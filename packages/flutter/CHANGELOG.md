@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **A `PlTimelineChart` span that lies wholly outside a fixed `min` and `max` can no longer be reached.** It was not drawn but stayed a mark, so pointing beside the plot showed its tooltip outside it. It is now left out of the marks and the summary a screen reader hears, and a span that crosses an edge answers only on the part that is drawn. The tooltip still gives that span's real start and end.
+
 - **A bar chart with `valueLabels: PlassChartValueLabels.last` labels the last value it has.** The label went on the last slot, so a series that ends in a gap, such as `[10, 20, null]`, had no label at all. It now goes on the 20, as it already did on a line chart, and `extremes` no longer walks the whole series again for every bar on each paint.
 
 - **The × on a `PlChip`, on a `PlCombobox` chip and on a picker trigger can be pressed anywhere in a 24-pixel square around it.** It could be pressed only on the glyph, about 15 logical pixels across, which is under the minimum target size of WCAG 2.5.8. A press in the square is now handed to the ×, and nothing is laid out differently. Where the square reaches over the label or the trigger, a press inside the square goes to the × and the rest still reaches the chip or opens the picker; on the smallest chips the square moves inward to stay inside the chip. This covers `PlDatePicker`, `PlDateRangePicker`, `PlDateTimePicker`, `PlTimePicker`, `PlColorPicker` and `PlTreeSelect`.

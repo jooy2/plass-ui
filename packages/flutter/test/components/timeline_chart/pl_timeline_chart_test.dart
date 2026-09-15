@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -167,6 +168,56 @@ void main() {
 
       expect(find.byType(PlTimelineChart), findsOneWidget);
       expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('leaves a span outside min and max out of the readout and the reading', (
+      WidgetTester tester,
+    ) async {
+      await _pump(
+        tester,
+        PlTimelineChart(
+          series: <PlassTimelineSeries>[
+            PlassTimelineSeries(
+              name: 'Design',
+              data: <PlassTimelinePoint>[
+                // A day that ends a day and a half before `min`, which puts it
+                // under the row's name rather than off the side of the chart.
+                PlassTimelinePoint(
+                  start: PlassChartCategory.date(DateTime(2026, 1, 8, 12)),
+                  end: PlassChartCategory.date(DateTime(2026, 1, 9, 12)),
+                  label: 'Before',
+                ),
+                PlassTimelinePoint(start: _at(12), end: _at(20), label: 'Inside'),
+              ],
+            ),
+          ],
+          min: _at(10),
+          max: _at(30),
+          height: 220,
+          semanticLabel: 'Plan',
+        ),
+      );
+
+      final Rect box = tester.getRect(find.byType(CustomPaint).first);
+      final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      final seen = <String>{};
+
+      await mouse.addPointer(location: box.topLeft);
+
+      // Along the whole row, its name included.
+      for (double x = box.left; x <= box.right; x += 4) {
+        await mouse.moveTo(Offset(x, box.top + box.height * 0.45));
+        await tester.pump();
+
+        for (final String name in <String>['Before', 'Inside']) {
+          if (find.text(name).evaluate().isNotEmpty) {
+            seen.add(name);
+          }
+        }
+      }
+
+      expect(seen, <String>{'Inside'});
+      expect(tester.getSemantics(find.bySemanticsLabel('Plan')).value, isNot(contains('Before')));
     });
 
     testWidgets('takes a bar thickness cap and square ends', (WidgetTester tester) async {

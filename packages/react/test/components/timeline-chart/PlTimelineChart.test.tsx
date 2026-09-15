@@ -178,6 +178,81 @@ describe('PlTimelineChart', () => {
     });
   });
 
+  describe('a span outside min and max', () => {
+    const WINDOW = [
+      {
+        name: 'Design',
+        data: [
+          { start: at(1), end: at(4), label: 'Before' },
+          { start: at(12), end: at(20), label: 'Inside' },
+          { start: at(26), end: at(34), label: 'Across' },
+          { start: at(40), end: at(45), label: 'After' }
+        ]
+      }
+    ];
+
+    it('is passed over by the arrow keys, while one that crosses an edge is not', async () => {
+      const screen = await render(
+        <PlTimelineChart label="Plan" series={WINDOW} min={at(10)} max={at(30)} />
+      );
+      const plot = screen.getByRole('img', { name: 'Plan' });
+      const status = () => screen.getByRole('status').element().textContent ?? '';
+
+      await expect.element(plot).toBeInTheDocument();
+
+      // Every reading starts with the name of the span it is about.
+      for (const [key, name] of [
+        ['ArrowDown', 'Inside'],
+        ['ArrowDown', 'Across'],
+        ['ArrowDown', 'Across'],
+        ['Home', 'Inside'],
+        ['End', 'Across'],
+        ['ArrowUp', 'Inside']
+      ] as const) {
+        plot
+          .element()
+          .dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+        await expect.poll(status).toMatch(new RegExp(`^${name},`));
+      }
+    });
+
+    it('is left out of the table', async () => {
+      const screen = await render(
+        <PlTimelineChart label="Plan" series={WINDOW} min={at(10)} max={at(30)} />
+      );
+      const table = screen.getByRole('table', { name: 'Plan' });
+
+      await expect.element(table).toBeInTheDocument();
+      expect(
+        [...table.element().querySelectorAll('tbody tr')].map(
+          (row) => row.querySelector('td')?.textContent
+        )
+      ).toEqual(['Inside', 'Across']);
+
+      // Nor does a label that only a span off the plot carries give the table a
+      // column for labels.
+      await screen.rerender(
+        <PlTimelineChart
+          label="Plan"
+          series={[
+            {
+              name: 'Design',
+              data: [
+                { start: at(1), end: at(4), label: 'Before' },
+                { start: at(12), end: at(20) }
+              ]
+            }
+          ]}
+          min={at(10)}
+          max={at(30)}
+        />
+      );
+
+      await expect.poll(() => table.element().querySelectorAll('tbody tr').length).toBe(1);
+      expect(screen.getByRole('columnheader', { name: 'label' }).query()).toBeNull();
+    });
+  });
+
   describe('lanes', () => {
     it('moves an overlapping span onto a lane of its own', async () => {
       const overlapping = [
