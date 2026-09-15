@@ -2,7 +2,7 @@
 
 The findings of a full audit of both packages, the documentation site and the repository, taken at `148a20e4` on 2026-09-13, and how far fixing them has got. The work goes in batches of twenty. When every item below is ticked, delete this file in a commit of its own.
 
-**268 of 371 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
+**289 of 372 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ## Working through a batch
 
@@ -56,6 +56,7 @@ cd docs && npm run typecheck && npm run lint && npx prettier --check . && npm ru
 | 10    | `02344e1b..4b6cd081` | No answers first: the Prompter passed over every question. Then 61, 62, 65, 67, 70, 71, 73, 74, 77, 78, 79, 80, 81, 83, 96, 97, 99, 102, 104, 105, and a fix to batch 9's label test on Windows                                                                                                                                                                                                                                                                                                                                                     |
 | 11    | `9a22ef17..f3c086e3` | Answers first: a `.gitattributes`, the failing React tests as items 355 to 369, all of them worked, the chart arithmetic and the dismiss × as items 346 to 354, 312 to 315 with the label count, the 47 Flutter props rows, `PlTransfer` ticks, the label pack test, the summaries, Korean `animate-rotate.md`, two comments, the `PlGallery` rows, the line chart keys, the code block name, the timeline table and the sparkline foot. Then 106, 108, 110, 111, 112, 115, 117, 119, 120, 124, 125, 131, 133, 136, 137, 138, 139, 140, 141, 148    |
 | 12    | `d7392f82..74316388` | Answers first: `'instant'` scrolling under reduced motion, the `PlCarousel` handlers as item 370 and three carousel tests, the pausing tests on the frame clock, two drag tests and the forced-colours pointer, 247 Flutter props rows typed with `?` and four rows removed, the bar and area chart keys, the defaults guide, the text slips, the Flutter table page, `PlImage` preview names, the `PlChip` focus ring, and item 371 added. Then 150, 151, 153, 160, 161, 162, 164, 165, 169, 171, 172, 173, 179, 184, 194, 199, 204, 208, 210, 212 |
+| 13    | `28c12bf6..247a13cb` | Answers first: the counter `easing` test, the `PlWindowPane` drag test and `'instant'` hold and wheel steps, `PlImage` preview tests and names, item 371 with a `key` for `PlTimelineItem`, disabled `PlCalendar` semantics, a Friday in the picker samples, `readOnly` `PlSwitch` and `PlRadioGroup`, the colour picker thumb, and five docs answers. Then 218, 219, 224, 227, 231, 232, 234, 235, 242, 243, 245, 246, 249, 250, 251, 257, 260, 261, 265, 267, with item 372 added                                                                 |
 
 The answers to batch 4's questions went in as `363c243b..2a8fb470`: the decode half of item 100, the `PlAnimateTyping` caret, and a `headingLevel` for `PlCard` with the card page corrected.
 
@@ -70,6 +71,8 @@ Batch 10 took no answers first, because the Prompter asked to pass over every qu
 Batch 11 took every recommended answer to the batch 7 to 10 questions first. The CI answer turned the failing React tests into items 355 to 366, worked before the batch: most were tests that a pointer left over the page by an earlier file, a machine locale, a fixed wait or a Firefox pointer id could fail, and one was a `PlImage` bug that Firefox users get. Items 312 to 314 and the label count are edits to the gitignored `CLAUDE.md`. A worker's worktree starts from the pushed `origin/main`, not from local commits, so push before launching workers who must read something just committed. The size budget for `PlImage` and `PlGallery` moved past its 2% with items 96, 104, 105 and 362 and was updated in a commit of its own. The first push left two React jobs red on tests a stopped shard had hidden before, so items 367 and 368 were added and worked after it: a `PlToggle` that lost its forced-colours fill under the pointer, and a `PlAnimateScramble` test that measured wall time. The second push left the two WebKit jobs red on a marquee test, item 369, which read a media query WebKit had not updated yet; every test now emulates media through `test/support/media.ts`.
 
 Batch 12 took the sixteen recommended answers to the batch 11 questions first, one of them the `PlCarousel` bug that became item 370, and one a check that reproduced and became item 371, asked below because it adds a parameter. Its twenty items are all Low. CI was green at its start, and every React test the batch touched was run in all three browsers.
+
+Batch 13 took the eighteen recommended answers to the batch 12 questions first. Item 217 needed a decision once the work started, because a floating React `PlBackTop` turned out not to float at all; that became item 372 and a question, and item 267 took 217's place. Item 245 reproduced only in Flutter.
 
 ## Waiting for an answer
 
@@ -201,71 +204,78 @@ Asked at the end of batches 7, 8, 9 and 10. Each question says what the problem 
 1. **Found in passing: what item 362 leaves open in `PlImage`.** The fix ignores a late `load` that still carries the old picture. Not reproduced: a picture can stay `loading` if the new `src` names the same file under another string (relative against absolute) while the old one was settled from the cache; and the same late event for `error` is not handled, because Firefox's real `error` carries the old `currentSrc` too.
    - A. Key the `<img>` on `src`: every late event goes to an element that is gone, the old picture loses its fade-out, and a forwarded ref gets a new element on each change.
    - B. Keep the fix: the common case is closed, and the two rare ones stay.
-1. **Found in passing: the `PlAnimateCounter` `easing` test still measures wall time.** "keeps counting when a parent renders it with a new `easing` function" waits 300ms and samples with `lowestSoon()`; batch 12 moved the other pausing tests in the file to `frameClock()`.
-   - A. (recommended) Move it to `frameClock()` as well.
-   - B. Keep it.
-1. **Item 371, a `key` for Flutter `PlTimelineItem`.** Checked with a test: inserting an item at the start of a Flutter `PlTimeline` hands each stateful `child` the state of the step that was in its place, and a `ValueKey` on the child only makes every later step lose its state, because the child has no siblings to be matched among.
-   - A. (recommended) Add `final Key? key` to `PlTimelineItem` and key each step with it, as item 120 keyed the React steps: a new optional parameter, with a props row and a test.
-   - B. Keep it and document that a timeline changed at the front rebuilds its steps.
-1. **Found in passing: the Flutter `PlImage` preview tests cannot run alone.** "opens over the page once the picture has arrived" and the new naming test time out with `--plain-name`, because they rely on an earlier test having decoded the picture.
-   - A. (recommended) Have each preview test load its picture itself.
-   - B. Keep them.
-1. **Found in passing: a labelled `PlImage` preview is named differently in the two packages.** React names the button "`alt` — preview"; Flutter uses `semanticLabel` alone.
-   - A. (recommended) Add the pack's word for preview in Flutter too, as React does.
-   - B. Keep it: Flutter's button role already says it can be pressed.
-1. **Found in passing: the `previewLabel` props row.** It says only "the accessible name of the preview overlay", but both builds now also name the picture's button with it when there is no `alt` or `semanticLabel`.
-   - A. (recommended) Describe both uses in the React and Flutter rows.
-   - B. Keep it.
-1. **Found in passing: the `PlAnimateFloat.curve` default in the Flutter props table.** The row says "the house curve", but the widget defaults to `Curves.easeInOut`; the house curve is `PlassTokens.ease`.
-   - A. (recommended) Write the real default in the row.
-   - B. Keep it.
-1. **Found in passing: a `selected · onPressed` row in the Flutter `PlMenuCheckboxItem` table.** `PlMenuCheckboxItem` takes `checked` and `onChanged`, and the row's own description says "PlMenuRadioItem only", so it looks filed in the wrong table.
-   - A. (recommended) Move it to the `PlMenuRadioItem` table, or remove it if that table already has it.
-   - B. Keep it.
-1. **Found in passing: a held `PlScrollZone` button and the wheel under `scroll-behavior: smooth`.** `mode="hold"` and `internal/wheel.ts` call `scrollBy` with `behavior: 'auto'` on every frame, so a strip whose CSS sets `scroll-behavior: smooth` would start a smooth scroll each frame that the next one cuts off. Not checked with a test.
-   - A. (recommended) Check it with a test, and scroll those per-frame steps with `'instant'` if it reproduces.
-   - B. Keep it.
-1. **Found in passing: the places the React build reads the direction in code.** `docs/en/design/rtl.md` ("Reading the direction in code") and `llms.txt` say there are exactly three; `PlSidebar`'s drag, arrow keys and drawer side (item 204) and `internal/wheel.ts` read it too.
-   - A. (recommended) Find every place and correct the list in both locales and `llms.txt`.
-   - B. Keep it.
-1. **Found in passing: Home and End on a React `PlRating`.** `rating.md` says Home clears the score and End takes it to the top; `PlRating.tsx` handles neither, and a native radio group answers only the arrow keys. Whether that line sits in a Flutter-only block was not checked.
-   - A. (recommended) Check the page, and put the line in `::: fw flutter` if it is shared.
-   - B. Add Home and End to the React build as well: the two packages answer the same keys, and a radio group gains keys the pattern does not name.
-1. **Found in passing: `PlWindowPane` has no test for an unmount in the middle of a drag.** Item 199 added one for `PlPanes` and `PlSidebar`, which go through the same `beginPointerDrag`.
-   - A. (recommended) Add the same test for `PlWindowPane`.
-   - B. Keep it.
 1. **Found in passing: the order of the words in a `PlTransfer` select-all name.** Item 194 names each tick "Select all Available", the words and then the heading, in every language.
    - A. A template label key such as `transferSelectAll(list)`, so each language orders it: seven packs in both packages, the Flutter `words()` list and the label counts change.
    - B. Keep the one order.
 1. **Found in passing: the `PlTransfer` move announcement and an element heading.** On React it names a list whose heading is an element by the label pack's word, while item 194's tick now reads the element's own text.
    - A. Read the element's text in the announcement too.
    - B. Keep it.
-1. **Found in passing: a disabled Flutter `PlCalendar`'s day cells still say `enabled`.** `IgnorePointer` strips their actions, but a screen reader may still hear enabled buttons that do nothing.
-   - A. (recommended) Mark the cells disabled while the calendar is, with a test.
-   - B. Keep it.
 1. **Found in passing: the Shift year step on a Flutter `PlCalendar`.** Item 165 put React's Shift with PageUp or PageDown in a React block; the item's other proposal was to add it to Flutter.
    - A. Add it to Flutter: the two packages move alike, and Flutter gains keys.
    - B. Keep it React-only.
-1. **Found in passing: React names in the shared calendar Accessibility bullets.** Two shared bullets say "in the calendar's `locale`" and `autoFocus`, which Flutter spells `names` and has no such parameter for, and `### disabled` says "with the `inert` attribute" for both packages.
-   - A. (recommended) Split those sentences into `::: fw` blocks in both locales.
-   - B. Keep them.
 1. **Found in passing: five `PlButton` parameters the Flutter `PlFloatingActionButton` lacks.** It has no `readOnly`, `density`, `onLongPress`, `focusNode` or `autofocus`, and nothing says why; item 169 made the page say so.
    - A. Add them to the widget and pass them on: the two builds take the same props, and five public parameters are added.
    - B. Keep the page as it now is.
-1. **Found in passing: the React `PlFloatingActionButton` props table.** It has no `color`, `loading` or `disabled` rows, which the component takes from `PlButtonProps`.
-   - A. (recommended) Add the three rows.
+1. **Found in passing: a Flutter `PlButton` that is `loading` or `readOnly` is announced as unavailable.** Batch 13 gave `PlSwitch` and `PlRadioGroup` the `readOnly` semantics of item 171 but left `PlButton`: React sets `aria-disabled` for both states and `aria-busy` for `loading`, and the button page says all three states are announced as unavailable.
+   - A. (recommended) Keep it: the two builds and the page agree.
+   - B. Announce them as enabled in Flutter: the builds disagree, the page changes, and React cannot follow because a button takes no `aria-readonly`.
+1. **Found in passing: where a press lands on a Flutter `PlColorPicker` track.** `_TrackState._at` reads the press against the box including the hairline border, while the thumb is now placed inside it, so a press can set a value up to about a pixel from where it landed. Not measured.
+   - A. (recommended) Check it with a test, and read the press inside the border if it reproduces.
    - B. Keep it.
-1. **Found in passing: `readOnly` and `loading` announced as disabled on other Flutter controls.** Item 171 fixed `PlCheckbox`; `PlSwitch`, `PlRadioGroup` (the group and each option) and `PlButton` still set `enabled: _interactive`, so a read-only or loading control that keeps the focus is announced as disabled.
-   - A. (recommended) Give each the same semantics as item 171, with tests.
-   - B. Keep them.
-1. **Found in passing: Flutter `PlColorPicker` thumbs sit a pixel low.** `_TrackState.build` places `top` from `widget.height`, which includes the hairline border, while the `Stack` sits inside it; React is not affected.
-   - A. (recommended) Place it from the height inside the border, with a test of the vertical centre.
+1. **Found in passing: whether a `PlPill` that starts `expanded` animates open.** Item 265's proposal also had the first measurement taken in a layout effect, which would open such a pill at full height at once instead of animating it open; item 265 left that out.
+   - A. Measure in a layout effect: an initially expanded pill is open on its first frame.
+   - B. Keep it: the pill animates open as it does now.
+1. **Found in passing: the typing dot cycle.** The Flutter `PlChatBubble` typing dots run a 1.2-second cycle, React's 1.25 seconds.
+   - A. (recommended) Use 1.25 seconds in Flutter.
    - B. Keep it.
-1. **Found in passing: the React `DISPLAY_SAMPLES` comment.** It says the samples cover all seven weekday names, but they cover six, so a React `format` that writes a weekday is measured without one of them.
-   - A. (recommended) Add a sample for the missing weekday in both packages and keep the comment true.
-   - B. Correct the comment only.
-1. **Found in passing: the date range picker page on a range mid-gesture.** `date-range-picker.md` says a controlled caller is never handed a range mid-gesture, right after saying the first press reports a range with only a `start`, the claim item 150 removed from the comments.
-   - A. (recommended) Correct the sentence in both locales.
+1. **Found in passing: one props table for `PlMenuCheckboxItem` and `PlMenuRadioItem`.** Both menu pages keep the two items in one table under a shared heading, with rows marked for one of them; batch 13 found the Flutter `selected · onPressed` row filed there on purpose.
+   - A. Keep the shared table.
+   - B. Split it into one table per item: a heading and a table more on both pages, and a new table in `props.ts` and `props-flutter.ts`.
+1. **Found in passing: the opening of the RTL entry in `llms.txt`.** It calls `dir="rtl"` "the whole setup, no provider", while `rtl.md` says Base UI's behaviours need `PlassProvider`, and the same entry now names the provider.
+   - A. (recommended) Correct the opening to say what `rtl.md` says.
+   - B. Keep it.
+1. **Found in passing: an empty `semanticLabel` on a Flutter `PlImage` preview.** Batch 13 names a labelled preview "label — preview"; with `semanticLabel: ''` that reads "— preview", while React skips an empty `alt` and names the button by the preview word alone.
+   - A. (recommended) Treat an empty `semanticLabel` as no label, as React treats an empty `alt`.
+   - B. Keep it.
+1. **Found in passing: the disabled `PlCalendar` test covers only the day view.** Batch 13 announces the month and year cells as disabled too, but the test checks the day view alone.
+   - A. (recommended) Check the month and year views in the same test.
+   - B. Keep it.
+1. **Found in passing: a Flutter `PlCalendar` rebuilds its header buttons when `disabled` changes.** The disabled semantics wrap each header button, so turning `disabled` on or off builds them again and drops a hover or press highlight.
+   - A. Keep the wrapper in the tree in both states: the highlight survives.
+   - B. Keep it: `disabled` rarely changes while the pointer is on a header button.
+1. **Found in passing: two Flutter `PlAccordion` items with the same `value`.** Item 250 keys each section by its `value`, because each holds its own animation, so two items with the same `value`, which used to render and open together, now throw a duplicate-key error.
+   - A. Fall back to the position when values repeat: nothing throws, and such sections share nothing but their value.
+   - B. Keep the error: a `value` names one section, and a repeated one is a mistake worth seeing.
+1. **Found in passing: what reduced motion leaves of an `interactive` `PlCard` lift.** Item 257 made the lift and its shadow change at once under reduced motion, as Flutter does; the card still moves 2px.
+   - A. Keep it: the card moves at once, with no easing, in both packages.
+   - B. Drop the 2px move under reduced motion and keep only the shadow change, in both packages.
+1. **Found in passing: the key order of a Flutter `PlHotKeys` inside a merged node.** Inside a `PlButton` or a `PlCommandPalette` row, ⌘N reads "N, Command": a cap with a spoken name is a node of its own, while a plain cap is loose text that merges in first. On its own the shortcut reads in order.
+   - A. (recommended) Give the whole shortcut one label in `pl_hot_keys.dart`, so it reads in order wherever it is merged.
+   - B. Give every cap a semantics label, so the caps merge in order.
+   - C. Keep it.
+1. **Found in passing: which `PlStepper` panels are named.** The stepper page says for both packages that the panel is named by its step; after item 231 only the horizontal React panel is, and the vertical React panel and the Flutter panel have no name.
+   - A. (recommended) Name those panels by their step too.
+   - B. Move the sentence into a React block that says only the horizontal panel is named.
+1. **Item 217, the safe area under a floating `PlBackTop`, and item 372.** Batch 13 found that a floating React `PlBackTop` does not float at all (item 372): `PlButton`'s own `relative` comes after `fixed` in the stylesheet and wins, and every docs demo passes `floating={false}`, so nobody saw it. Adding the safe area to its `bottom` changes nothing until it floats.
+   - A. (recommended) Fix item 372 and item 217 together: pin the button with an inline `position: fixed` and inline insets, as `PlFloatingActionButton` does, with `env(safe-area-inset-bottom)` in the inline `bottom`.
+   - B. Fix item 372 first as an item of its own, and take item 217 up after it.
+1. **Found in passing: a disabled item in a Flutter `PlBottomNavigation` is not dimmed.** It has the muted ink of a resting item, while React gives it `opacity-50 saturate-[0.35]` and Flutter `PlFloatingBottomNavigation` dims it.
+   - A. (recommended) Dim it as the floating bar does.
+   - B. Keep it.
+1. **Found in passing: a Flutter `PlFloatingBottomNavigation` with no `onChanged`.** It has the rule item 219 removed from `PlBottomNavigation`: a missing callback counts as unavailable, and the current disc's glyph turns muted over a dimmed key. Not checked on screen.
+   - A. (recommended) Check it with a test, and keep the current disc marked as item 219 did if it reproduces.
+   - B. Keep it.
+1. **Found in passing: the safe area sentence on the floating bottom navigation page.** "with `env(safe-area-inset-bottom)` added to it" is shown to Flutter readers, but Flutter adds `MediaQuery.paddingOf(context).bottom`.
+   - A. (recommended) Put each half in its `::: fw` block, in both locales.
+   - B. Keep it.
+1. **Found in passing: bringing the chosen tab into view after the bar has opened.** Item 245 made a Flutter `PlTabs` bar open with its chosen tab in view; it does not follow a later change of `value` from outside, and what React does then was not checked.
+   - A. (recommended) Check React, and make Flutter follow a later change the same way.
+   - B. Keep it: only the opening position is handled.
+1. **Found in passing: a revealed tab under the edge fade.** In both packages a tab brought into view ends flush against the edge, under the 24px fade.
+   - A. Centre it: it is clear of the fade, and React has to override Base UI's own scroll.
+   - B. Keep it flush with the edge.
+1. **Found in passing: the `clip()` helper in the React tabs test.** It leaves out `position: relative`, so Base UI's reveal measures from the wrong ancestor under RTL in the test, though not in a real page.
+   - A. (recommended) Add `position: relative` to `clip()`.
    - B. Keep it.
 
 ## Passed over and not yet asked
@@ -776,11 +786,11 @@ None. Every flagged item passed over so far is asked above.
   - Location: `PlBackTop.tsx:173`
   - Problem: When used with `PlBottomNavigation`, it overlaps the last destination and sits over the iPhone home indicator.
   - Proposal: Add the safe-area value to `bottom`, and document how to use it with a bottom bar.
-- [ ] **218.** The back-top page has no `## Accessibility` section, and its `label` tooltip description is wrong (Docs · Docs · Low)
+- [x] **218.** The back-top page has no `## Accessibility` section, and its `label` tooltip description is wrong (Docs · Docs · Low)
   - Location: `docs/en/components/navigation/back-top.md:88` (same in ko)
   - Problem: It is the only component page without this section. `PlIconButton` does not set `title`, so no tooltip appears.
   - Proposal: Move the content into an Accessibility section and delete the tooltip sentence.
-- [ ] **219.** Flutter `PlBottomNavigation` stops marking the current destination when `onChanged` is left out (Bug · Flutter · Low)
+- [x] **219.** Flutter `PlBottomNavigation` stops marking the current destination when `onChanged` is left out (Bug · Flutter · Low)
   - Location: `bottom_navigation/pl_bottom_navigation.dart:268`, `:282-294`
   - Problem: Every item becomes `unavailable`, so even the selected item is drawn without its background. The dartdoc says it "stops where it is".
   - Proposal: Keep the wash and the accent on the selected item, and apply only the dimming.
@@ -792,13 +802,13 @@ None. Every flagged item passed over so far is asked above.
   - Problem: At around 2,000 commands, the first open and typing a short search become slow.
   - Proposal: Add a result cap (`limit`) or virtualisation.
   - Flag: Decision needed — whether to set a default cap has to be decided.
-- [ ] **224.** Flutter `PlCommandPalette` row names are read twice (Accessibility · Flutter · Low)
+- [x] **224.** Flutter `PlCommandPalette` row names are read twice (Accessibility · Flutter · Low)
   - Location: `command_palette/pl_command_palette.dart:549`, `:558`
   - Problem: The `Text` under `Semantics(label:)` is not excluded.
   - Proposal: Exclude the children, and put the description and the shortcut in the label or the hint.
 - [x] **225.** React `PlMenuItem` ignores `disabled` when it has `href` (Bug · React · Medium)
 - [x] **226.** Submenus open on the wrong side in RTL, and the chevron is not flipped (Bug · Both · Medium)
-- [ ] **227.** The docs say disabled Flutter `PlMenu` rows can be found by typeahead, which does not match the code (Docs · Flutter · Low)
+- [x] **227.** The docs say disabled Flutter `PlMenu` rows can be found by typeahead, which does not match the code (Docs · Flutter · Low)
   - Location: `pl_menu.dart:97`, `:612`, `docs/en/components/navigation/menu.md:239`
   - Problem: `_typeahead` skips disabled rows. React finds them.
   - Proposal: Make the code match React, or fix the docs.
@@ -813,11 +823,11 @@ None. Every flagged item passed over so far is asked above.
   - Proposal: Pass `keepMounted`, or fix the sentence in the docs.
   - Flag: Decision needed — it is a trade-off against DOM size.
 - [x] **230.** Top-level navigation links have no way to mark the current page (Accessibility · Both · Medium)
-- [ ] **231.** The `aria-labelledby` on React `PlStepper` horizontal panels is on a `div` with no role, so it is not read (Accessibility · React · Low)
+- [x] **231.** The `aria-labelledby` on React `PlStepper` horizontal panels is on a `div` with no role, so it is not read (Accessibility · React · Low)
   - Location: `packages/react/src/components/stepper/PlStepper.tsx:242-250`
   - Problem: A generic element cannot have a name, so the step name is not announced when focus enters the panel. The docs (`stepper.md:167`) say it is announced.
   - Proposal: Add `role="group"` as well.
-- [ ] **232.** In vertical React `PlStepper`, a `status` override also changes which panel is shown (Bug · React · Low)
+- [x] **232.** In vertical React `PlStepper`, a `status` override also changes which panel is shown (Bug · React · Low)
   - Location: `PlStepper.tsx:439`
   - Problem: The condition is `resolved === 'current'`, so giving a failed step `status="current"` opens two panels. The horizontal orientation and Flutter go by `active`.
   - Proposal: Base the condition on `index === active`.
@@ -826,11 +836,11 @@ None. Every flagged item passed over so far is asked above.
   - Problem: The default is `position="fixed"`, so the last 56px or more is always covered. When Tab reaches the footer links, focus hides under the bar (WCAG 2.4.11).
   - Proposal: Add a `padding-bottom` and `scroll-padding-bottom` example to the docs, and expose the bar height as a CSS variable.
   - Flag: Decision needed — whether to add a token has to be decided.
-- [ ] **234.** Nothing says that `safeArea` needs `viewport-fit=cover` to work (Docs · React · Low)
+- [x] **234.** Nothing says that `safeArea` needs `viewport-fit=cover` to work (Docs · React · Low)
   - Location: `docs/en/components/navigation/bottom-navigation.md`, `floating-bottom-navigation.md:147`
   - Problem: Without this meta tag, `env(safe-area-inset-bottom)` is 0.
   - Proposal: Add the one meta line to the setup example.
-- [ ] **235.** The floating-bottom-navigation page's Accessibility list shows React-only sentences to Flutter readers too (Docs · Docs · Low)
+- [x] **235.** The floating-bottom-navigation page's Accessibility list shows React-only sentences to Flutter readers too (Docs · Docs · Low)
   - Location: `docs/en/components/navigation/floating-bottom-navigation.md:167-169` (same in ko)
   - Problem: The sentences about `<nav>`, `aria-current` and the clipped box are outside `::: fw react`. React has no default `label` either, so "it has a name" is true only when the caller provides one.
   - Proposal: Move them into a React block, and add a Flutter block and guidance on `label`.
@@ -847,20 +857,20 @@ None. Every flagged item passed over so far is asked above.
 - [x] **239.** Carousel `autoPlay` does not advance when the parent redraws often (Bug · Both · Medium)
 - [x] **240.** Carousel dot indicators have a hit area of 4–8px (Accessibility · Both · Medium)
 - [x] **241.** No tests for carousel `autoPlay` (Test · React · Medium)
-- [ ] **242.** The carousel slide wrapper is keyed by index, so inserting a slide at the front remounts every slide (Bug · React · Low)
+- [x] **242.** The carousel slide wrapper is keyed by index, so inserting a slide at the front remounts every slide (Bug · React · Low)
   - Location: `PlCarousel.tsx:329`
   - Problem: Contrary to the comment on line 164, the key is `key={slideIndex}`, so state such as a video's is reset.
   - Proposal: Use `slide.key ?? slideIndex`.
-- [ ] **243.** The carousel docs item "it needs somewhere to report the move" does not match React's behaviour (Docs · Docs · Low)
+- [x] **243.** The carousel docs item "it needs somewhere to report the move" does not match React's behaviour (Docs · Docs · Low)
   - Location: `docs/en/components/surfaces/carousel.md:121` (same in ko)
   - Problem: React still moves, uncontrolled, without `onValueChange`.
   - Proposal: Move the item inside a `::: fw flutter` block.
 - [x] **244.** In React `PlTabs`, a `PlTabPanel` inside a Fragment or a wrapper renders inside the tablist (Bug · React · Medium)
-- [ ] **245.** In an overflowing tab bar, the initially selected tab is off screen (Bug · Both · Low)
+- [x] **245.** In an overflowing tab bar, the initially selected tab is off screen (Bug · Both · Low)
   - Location: `PlTabs.tsx:527`, `tabs/pl_tabs.dart:384`
   - Problem: On a narrow screen, if `defaultValue` is the 8th tab, the reader cannot see which tab is selected.
   - Proposal: On the first selection and on every change, scroll only the strip to that tab.
-- [ ] **246.** The tabs docs difference table wrongly says "every panel renders and only one is visible" (Docs · Docs · Low)
+- [x] **246.** The tabs docs difference table wrongly says "every panel renders and only one is visible" (Docs · Docs · Low)
   - Location: `docs/en/components/surfaces/tabs.md:287` (same in ko)
   - Problem: React `PlTabPanel` defaults `keepMounted` to false, so closed panels are not rendered.
   - Proposal: Delete the row, or rewrite it as a difference in `keepMounted`.
@@ -874,15 +884,15 @@ None. Every flagged item passed over so far is asked above.
   - Problem: An FAQ placed directly under an `h1` makes the heading structure skip `h2`. The APG requires a level that fits the page.
   - Proposal: Expose a `headingLevel` prop or the Header's `render`.
   - Flag: Decision needed — the shape of the API has to be chosen.
-- [ ] **249.** Flutter `PlAccordion` headers have no heading semantics (Accessibility · Flutter · Low)
+- [x] **249.** Flutter `PlAccordion` headers have no heading semantics (Accessibility · Flutter · Low)
   - Location: `accordion/pl_accordion.dart:420`
   - Problem: The headers do not appear in screen reader heading navigation.
   - Proposal: Add `header: true`.
-- [ ] **250.** When Flutter `PlAccordion` collapses, the content disappears at once and only the empty space shrinks (Bug · Flutter · Low)
+- [x] **250.** When Flutter `PlAccordion` collapses, the content disappears at once and only the empty space shrinks (Bug · Flutter · Low)
   - Location: `pl_accordion.dart:446`
   - Problem: The moment `open` becomes false, the child is replaced with a `SizedBox`. React and `PlCollapsible` clip the content as they close.
   - Proposal: Use `PlassFold`, and keep the content until the animation ends.
-- [ ] **251.** The accordion `action` is described as "before the chevron", the opposite of where it is placed (Docs · Both · Low)
+- [x] **251.** The accordion `action` is described as "before the chevron", the opposite of where it is placed (Docs · Both · Low)
   - Location: `PlAccordion.tsx:113`, `pl_accordion.dart:110`, `docs/.vitepress/data/props.ts:826`
   - Problem: `action` is attached at the end, outside the trigger, so it sits after the chevron.
   - Proposal: Change the description to "after the chevron, at the end of the header".
@@ -899,29 +909,29 @@ None. Every flagged item passed over so far is asked above.
   - Problem: Using `render={<a>}` together with `footer={<PlButton>}` or `headerAction` produces `<a><button>`. An `<h2>` inside a `<button>` is invalid, and the accessible name becomes the whole text of the card.
   - Proposal: When a slot holds a control, document the pattern that stretches the title link with `::after`, or add a dedicated prop.
   - Flag: Decision needed
-- [ ] **257.** The React `PlCard` `interactive` lift still moves under reduced motion (Accessibility · React · Low)
+- [x] **257.** The React `PlCard` `interactive` lift still moves under reduced motion (Accessibility · React · Low)
   - Location: `PlCard.tsx:113`
   - Problem: `hover:-translate-y-0.5` has no `motion-reduce` handling. Flutter handles it.
   - Proposal: Use a `motion-reduce:` variant to set the transition to 0.
 - [x] **258.** A finding in React `PlChatBubble` (Security · React · Medium)
 - [x] **259.** The ko chat-bubble page was not updated after the Flutter port (Docs · Docs · Medium)
-- [ ] **260.** React `PlChatBubble` loads every preview image immediately (Performance · React · Low)
+- [x] **260.** React `PlChatBubble` loads every preview image immediately (Performance · React · Low)
   - Location: `PlChatBubble.tsx:490`
   - Problem: In a long conversation with many link cards, it requests images that are off screen too.
   - Proposal: Add `loading="lazy"` and `decoding="async"`.
-- [ ] **261.** Flutter `PlChatBubble` typing dots stop under reduced motion (Bug · Flutter · Low)
+- [x] **261.** Flutter `PlChatBubble` typing dots stop under reduced motion (Bug · Flutter · Low)
   - Location: `chat_bubble/pl_chat_bubble.dart:486`
   - Problem: React only slows the dots down, because stopping them would reverse their meaning. Flutter calls `stop()`.
   - Proposal: Only lengthen the duration.
 - [x] **262.** Flutter `PlSpoiler` resets the child's State when the cover is removed (Bug · Flutter · Medium)
 - [x] **263.** The button that opens and closes `PlPill`'s `details` has no expanded state (Accessibility · Both · Medium)
 - [x] **264.** In Flutter `PlPill`, pressing the expanded `details` or the `endIcon` also calls `onPressed` (Bug · Flutter · Medium)
-- [ ] **265.** React `PlPill` recreates its `ResizeObserver` on every render (Performance · React · Low)
+- [x] **265.** React `PlPill` recreates its `ResizeObserver` on every render (Performance · React · Low)
   - Location: `PlPill.tsx:268`
   - Problem: Inline JSX `details` is an effect dependency. For a pill that updates every second, disconnect, observe and setState repeat every second.
   - Proposal: Change the dependency to `hasContent(details)`, and take the first measurement in a layout effect.
 - [x] **266.** The `list-none` `<ol>` in React `PlHowToSteps` has no `role="list"` (Accessibility · React · Medium)
-- [ ] **267.** A React `PlHoverCard` comment describes an `aria-describedby` link that does not exist (Optimisation · React · Low)
+- [x] **267.** A React `PlHoverCard` comment describes an `aria-describedby` link that does not exist (Optimisation · React · Low)
   - Location: `hover-card/PlHoverCard.tsx:41`, `:153`
   - Problem: Base UI `PreviewCard` does not add describedby.
   - Proposal: Make the comment match the actual behaviour.
@@ -1258,7 +1268,11 @@ Findings raised in a batch report and approved as new items. Their line numbers 
   - Problem: `{...props}` is spread after the component's own `onPointerEnter`, `onPointerLeave`, `onFocus` and `onBlur`, so a caller who passes one of them replaces the pause, and the strip keeps moving under the pointer or with the focus inside.
   - Proposal: Merge the caller's handlers with the pause, as `internal/animate.ts` does with `mergeProps`.
 
-- [ ] **371.** Inserting an item at the start of a Flutter `PlTimeline` hands a step's state to the step after it (Bug · Flutter · Low)
+- [x] **371.** Inserting an item at the start of a Flutter `PlTimeline` hands a step's state to the step after it (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/timeline/pl_timeline.dart` (`PlTimeline.build`, `PlTimelineItem`)
   - Problem: The steps are built by position and `PlTimelineItem` has no key, so a stateful `child` takes the state of the step that was in its place, and a key on the child cannot fix it from outside.
   - Proposal: Add `final Key? key` to `PlTimelineItem` and key each step with it.
+- [ ] **372.** A floating React `PlBackTop` does not float (Bug · React · Medium)
+  - Location: `packages/react/src/components/back-top/PlBackTop.tsx`, `packages/react/src/components/button/PlButton.tsx:101`
+  - Problem: `floating` puts `fixed` on the button, but `PlButton` writes its own `relative`, which comes after `fixed` in the compiled stylesheet and wins, so the button sits in the flow wherever it is rendered. Every docs demo passes `floating={false}`, so no page shows it. `PlFloatingActionButton` avoids it with an inline `position: fixed`.
+  - Proposal: Pin the button with an inline `position: fixed` and inline insets, with a test that loads the stylesheet and reads the computed position.
