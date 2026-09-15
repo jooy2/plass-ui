@@ -338,8 +338,9 @@ export function PlTour({
 
     // Nothing to measure — a welcome step, or a target that is not on the page
     // yet. The measurement is tagged with the step it was taken for, so the one
-    // left over from the step before is already not this step's.
-    if (!(element instanceof HTMLElement)) {
+    // left over from the step before is already not this step's. Any element
+    // rather than an HTML one: a chart's bar is SVG, and measures the same.
+    if (!(element instanceof Element)) {
       return undefined;
     }
 

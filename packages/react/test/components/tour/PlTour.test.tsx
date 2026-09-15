@@ -412,6 +412,24 @@ describe('PlTour', () => {
       expect(mask()!.style.clipPath.match(/M/g)!.length).toBeGreaterThan(1);
     });
 
+    it('cuts the light round an SVG element, such as a chart bar', async () => {
+      const screen = await render(
+        <div>
+          <svg width="200" height="100">
+            <rect id="bar" x="20" y="20" width="40" height="60" />
+          </svg>
+          <PlTour
+            defaultOpen
+            scrollIntoView={false}
+            steps={[{ target: '#bar', title: 'The busiest day' }]}
+          />
+        </div>
+      );
+
+      await expect.element(screen.getByText('The busiest day')).toBeInTheDocument();
+      await expect.poll(() => mask()!.style.clipPath.match(/M/g)!.length).toBeGreaterThan(1);
+    });
+
     it('dims the whole page rather than breaking when the target is not there', async () => {
       const screen = await render(
         <Page defaultOpen steps={[{ target: '#nothing-here', title: 'Gone' }]} />

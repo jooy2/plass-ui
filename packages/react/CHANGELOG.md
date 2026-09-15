@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **`PlTour` cuts its light round an SVG target.** Only an HTML element was measured, so a step pointed at a chart bar or any other SVG element dimmed the whole page, the target included, and the target could not be pressed. Any element is measured now.
+
 - **`PlTour` moves to its target at once when the reader has asked for less motion.** It always scrolled each target into view smoothly, so under `prefers-reduced-motion` the page still slid past on every step. It now jumps there, as `PlBackTop` and `PlScrollZone` already do.
 
 - **The lowest bar of a `PlSparkline` bar strip above zero draws inside its box.** A value at the foot of the scale is drawn as a bar one pixel tall, and when every value is above zero the foot is the bottom edge, so that pixel sat just below the box. It now grows up from the bottom edge, and strips with values below zero draw as before.
