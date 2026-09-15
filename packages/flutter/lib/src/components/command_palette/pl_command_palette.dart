@@ -631,17 +631,24 @@ class _Row extends StatelessWidget {
       child: row,
     );
 
+    // One node, named by what the row draws: the label, the description and
+    // the shortcut's keys, which is the name the React option takes from its
+    // text. A `label` of its own on top would have the label read twice, and
+    // the merge is what keeps a key cap that names itself, such as `⌘`, in the
+    // row rather than beside it.
     if (item.disabled) {
-      return Semantics(button: true, enabled: false, label: item.label, child: row);
+      return MergeSemantics(child: Semantics(button: true, enabled: false, child: row));
     }
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (PointerEnterEvent event) => onHover(),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onRun,
-        child: Semantics(button: true, selected: highlighted, label: item.label, child: row),
+    return MergeSemantics(
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (PointerEnterEvent event) => onHover(),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onRun,
+          child: Semantics(button: true, selected: highlighted, child: row),
+        ),
       ),
     );
   }

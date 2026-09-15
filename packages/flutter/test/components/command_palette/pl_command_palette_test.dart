@@ -285,5 +285,49 @@ void main() {
         debugDefaultTargetPlatformOverride = null;
       });
     });
+
+    group('accessibility', () {
+      testWidgets('names each row once, by what it draws', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(host(const _Host(), width: 700, height: 500, overlay: true));
+        await tester.pumpAndSettle();
+
+        // The label, then the description and the shortcut's keys, each said
+        // once. The sheet is lifted into an overlay, which `find.semantics`
+        // does not reach, so the tree is walked.
+        expect(
+          semanticsLabels(tester),
+          containsAllInOrder(<String>[
+            'New document\nCtrl\nN',
+            'Open',
+            'Copy\nPut it on the clipboard',
+            'Unavailable',
+          ]),
+        );
+
+        handle.dispose();
+      });
+
+      testWidgets('keeps a row a button, and a disabled one a disabled button', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(host(const _Host(), width: 700, height: 500, overlay: true));
+        await tester.pumpAndSettle();
+
+        expect(
+          semanticsNodeLabelled(tester, 'Open'),
+          isSemantics(isButton: true, isSelected: false, hasTapAction: true),
+        );
+        expect(
+          semanticsNodeLabelled(tester, 'Unavailable'),
+          isSemantics(isButton: true, hasEnabledState: true, isEnabled: false, hasTapAction: false),
+        );
+
+        handle.dispose();
+      });
+    });
   });
 }

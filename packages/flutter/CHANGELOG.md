@@ -66,6 +66,8 @@
 
 ### Fixed
 
+- **A `PlCommandPalette` row says its name once.** Each row carried its label as a semantics label on top of the text that drew it, so a screen reader read "Open" as "Open Open" and "Copy" as "Copy Copy Put it on the clipboard". A row is now one node named by what it draws, the label and then the description and the keys of the shortcut, as in the React build. A disabled row is still announced as a disabled button.
+
 - **A closing `PlAccordion` section keeps its body until the panel has closed.** The body vanished the moment `value` stopped holding the section, and only the empty space it left shrank. It now stays on screen, cut off by the shrinking panel, as it is revealed while the panel opens, and it cannot take the focus or be read out while it closes.
 
 - **Each `PlAccordion` header is a heading.** A screen reader's heading navigation passed over the sections, since nothing marked a header as one. Each header row, with its `action`, is now inside a heading of level 3, as the React build's `<h3>` is, and the header is still announced as a button.
