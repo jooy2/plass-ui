@@ -100,7 +100,7 @@ On a treemap the name comes first and the value only if there is still room unde
 ## Accessibility
 
 - The drawing carries the chart's name, and every cell is handed over as text, each row, then its cells as name-and-value pairs.
-- On React the picture is a `role="img"` and a tab stop; the arrow keys walk the cells and <kbd>Escape</kbd> clears the readout, with each cell announced in a live region as it is reached.
+- On React the picture is a `role="img"` and a tab stop. <kbd>←</kbd> and <kbd>→</kbd> walk the cells one at a time, and on a grid <kbd>↑</kbd> and <kbd>↓</kbd> move to the same column in the row above or below. <kbd>Escape</kbd> clears the readout, and each cell is announced in a live region as it is reached.
 - On React the same numbers are written into a table under the chart, with both sets of names on it: rows down the side, columns across the top.
 - The label written inside a cell is the one place in the library where text does not wear an ink token. Which of the two it wears is decided **per ramp step**, where the step's lightness is known and the answer flips between the themes.
 - The scale legend names both ends, and the middle too when the scale diverges.

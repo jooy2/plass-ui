@@ -313,6 +313,63 @@ describe('PlHeatmapChart', () => {
       arrow(plot.element(), 'Escape');
       await expect.poll(() => status.textContent).toBe('');
     });
+
+    describe('up and down in a grid', () => {
+      // A cell under the resting pointer takes the readout from the keyboard.
+      beforeEach(async () => {
+        await commands.parkPointer();
+      });
+
+      it('moves to the same column in the row below or above', async () => {
+        const screen = await render(
+          <PlHeatmapChart label="Traffic" series={WEEK} categories={HOURS} />
+        );
+
+        const plot = screen.getByRole('img', { name: 'Traffic' });
+
+        await expect.element(plot).toBeInTheDocument();
+
+        const status = screen.container.querySelector('[role="status"]') as HTMLElement;
+
+        // One key at a time: the handler reads the cell the last render left.
+        arrow(plot.element(), 'ArrowRight');
+        await expect.poll(() => status.textContent).toContain('Mon · 09');
+        arrow(plot.element(), 'ArrowRight');
+        await expect.poll(() => status.textContent).toContain('Mon · 12');
+
+        arrow(plot.element(), 'ArrowDown');
+        await expect.poll(() => status.textContent).toContain('Tue · 12');
+        arrow(plot.element(), 'ArrowDown');
+        await expect.poll(() => status.textContent).toContain('Wed · 12');
+
+        arrow(plot.element(), 'ArrowUp');
+        await expect.poll(() => status.textContent).toContain('Tue · 12');
+      });
+
+      it('steps over a gap in that column to the next row with a cell in it', async () => {
+        const screen = await render(
+          <PlHeatmapChart
+            label="Traffic"
+            series={[WEEK[0], { name: 'Tue', data: [3, null, 8, 2] }, WEEK[2]]}
+            categories={HOURS}
+          />
+        );
+
+        const plot = screen.getByRole('img', { name: 'Traffic' });
+
+        await expect.element(plot).toBeInTheDocument();
+
+        const status = screen.container.querySelector('[role="status"]') as HTMLElement;
+
+        arrow(plot.element(), 'ArrowRight');
+        await expect.poll(() => status.textContent).toContain('Mon · 09');
+        arrow(plot.element(), 'ArrowRight');
+        await expect.poll(() => status.textContent).toContain('Mon · 12');
+
+        arrow(plot.element(), 'ArrowDown');
+        await expect.poll(() => status.textContent).toContain('Wed · 12');
+      });
+    });
   });
 });
 

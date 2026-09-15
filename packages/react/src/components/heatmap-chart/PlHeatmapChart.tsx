@@ -432,7 +432,26 @@ export function PlHeatmapChart({
               ? -1
               : cells.findIndex((one) => one.row === active.row && one.index === active.index);
 
-          if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+          if (
+            shape === 'grid' &&
+            at !== -1 &&
+            (event.key === 'ArrowDown' || event.key === 'ArrowUp')
+          ) {
+            /* A row down or up, in the same column. The cells are listed row by
+               row with the gaps left out, so the first one past this cell that
+               way in the same column is in the nearest row that has one: a gap
+               is stepped over, and the edge of the grid keeps the cell. */
+            const step = event.key === 'ArrowDown' ? 1 : -1;
+            let next = at + step;
+
+            while (next >= 0 && next < cells.length && cells[next].index !== cells[at].index) {
+              next += step;
+            }
+
+            if (next >= 0 && next < cells.length) {
+              setActive({ row: cells[next].row, index: cells[next].index });
+            }
+          } else if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
             const next = cells[Math.min(cells.length - 1, at + 1)];
 
             setActive({ row: next.row, index: next.index });

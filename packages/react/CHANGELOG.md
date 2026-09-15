@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **↑ and ↓ move between rows in a `PlHeatmapChart` grid.** Both did what → and ← do, so reaching the cell directly below in a 7×24 grid took 24 presses. On a grid they now move to the same column in the row below or above, stepping over a gap. ← and → and every key on a treemap are unchanged.
+
 - **A tiled `PlImage` watermark draws in a token colour or `currentColor`.** The colour was written into the SVG image the tile repeats, and an image cannot read the page's custom properties or its `color`, so `var(--plass-…)` and `currentColor` came out black. The tile is now a mask over the layer's own background colour, so any CSS colour works, as it already did for a mark in a corner.
 
 - **A tiled `PlImage` watermark covers every corner of a wide or tall picture.** The turned layer was a fixed share larger than each side, so from about 16:9 two opposite corners were left as empty triangles. It is now sized from the diagonal of the picture, which no turn can uncover.
