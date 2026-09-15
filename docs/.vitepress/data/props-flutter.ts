@@ -5983,8 +5983,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       name: 'semanticsLabel',
       type: 'String?',
       description: {
-        ko: '스크린 리더가 글자 대신 읽을 이름. lines가 잘라낸 글자는 실제로 사라지므로, 문장 전체가 중요한 줄에 넘깁니다',
-        en: 'What a screen reader reads instead of the characters. lines really does drop what it clips, so pass this when the whole string matters'
+        ko: '스크린 리더가 글자 대신 읽을 이름. lines는 화면에서만 자르므로, 이 값이 없어도 잘린 줄은 전부 읽힙니다',
+        en: 'What a screen reader reads instead of the characters. lines cuts the text visually only, so a clipped line is read in full without it'
       }
     },
     from('PlTypography', 'children', {

@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -191,6 +192,19 @@ void main() {
 
         expect(text.maxLines, 2);
         expect(text.overflow, TextOverflow.ellipsis);
+      });
+
+      testWidgets('cuts the text visually only, so a screen reader still gets all of it', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        const words = 'One two three four five six seven eight nine ten';
+        await tester.pumpWidget(host(const PlTypography(words, lines: 1), width: 80));
+
+        expect(tester.renderObject<RenderParagraph>(find.text(words)).didExceedMaxLines, isTrue);
+        expect(tester.getSemantics(find.text(words)), matchesSemantics(label: words));
+
+        handle.dispose();
       });
 
       testWidgets('wraps as far as it needs to when no clamp is asked for', (

@@ -235,7 +235,8 @@ class PlTypography extends StatelessWidget {
   final bool gutter;
 
   /// What a screen reader reads instead of the text — for a line whose
-  /// characters are not the words, such as a truncated one.
+  /// characters are not the words. [lines] cuts the text visually only, so a
+  /// clipped line is read in full without one.
   final String? semanticsLabel;
 
   @override

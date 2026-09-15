@@ -133,7 +133,7 @@ One line is `text-overflow: ellipsis`, which keeps the text on its own baseline.
 
 ::: fw flutter
 
-One mechanism at every count: `maxLines` with `TextOverflow.ellipsis`. Which is also why `semanticsLabel` exists. The clipped characters are genuinely gone from the render tree here, so a line whose full text matters to a screen reader has to say it.
+One mechanism at every count: `maxLines` with `TextOverflow.ellipsis`. The text is cut visually only: the semantics tree still holds the whole string, so a screen reader reads all of it.
 
 :::
 
@@ -184,7 +184,7 @@ One mechanism at every count: `maxLines` with `TextOverflow.ellipsis`. Which is 
 ::: fw flutter
 
 - A `level` of `h1`–`h6` is announced as a heading at that level, so a screen reader can tell a section from the one inside it. Choose the level for what the section _is_ rather than for how big it should look.
-- `lines` really does drop the characters it clips, so pass `semanticsLabel` when the whole string matters to a screen reader.
+- `lines` cuts the text visually only and leaves the whole string in the semantics tree, so a screen reader still reads all of it.
 - `gutter` is off by default. A component that injects margins is one a layout has to fight, and spacing is the page's decision.
 
 :::
