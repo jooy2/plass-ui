@@ -286,7 +286,7 @@ PlTabs<String>(wheel: false, overscroll: PlassOverscroll.auto, tabs: tabs);
 | `<PlTab>`과 `<PlTabPanel>` children | 각자 `panel`을 든 설명 목록인 `tabs` | 바가 roving focus와 방향키, 미끄러지는 인디케이터를 쥐고 있으니 어느 탭이 골라졌고 각각이 어디 있는지 알아야 합니다. 패널을 탭에 붙이면 값을 맞춰야 할 세 번째 자리가 사라집니다. |
 | `defaultValue` / `onValueChange` | `value` / `onChanged` | Flutter의 컨트롤은 controlled이고, 콜백 이름도 Flutter의 것입니다. |
 | `string \| number` 값 | 제네릭 `T` | Dart에는 제네릭이 있으니 관습이 아니라 타입 검사로 지켜집니다. |
-| 모든 패널을 렌더링하고 하나만 보임 | 고른 패널만 만듦 | 열려 있지 않은 탭은 비용이 0입니다. 대신 패널을 떠나면 그 상태도 사라지니, 상태는 바 위에서 쥐세요. |
+| 고른 패널만 렌더링하고, `PlTabPanel`에 `keepMounted`가 있으면 그 패널도 남김 | 고른 패널만 만들고 `keepMounted`는 없음 | 열려 있지 않은 탭은 비용이 0입니다. 닫힌 패널을 남길 방법이 없으니 Flutter 패널은 떠나면 상태도 사라집니다. 상태는 바 위에서 쥐세요. |
 | `activateOnFocus` | — | 패널이 선택에서 만들어지므로, focus가 움직이면 선택도 언제나 함께 움직입니다. |
 | `aria-label` | `semanticLabel` | Flutter의 이름입니다. |
 | `tab` / `tabpanel` role, `aria-controls` | 배타적으로 선택된 노드와, 패널 하나 | Flutter는 상태를 노드 자체에 적습니다. 가리킬 id가 없습니다. |

@@ -286,7 +286,7 @@ PlTabs<String>(wheel: false, overscroll: PlassOverscroll.auto, tabs: tabs);
 | `<PlTab>` and `<PlTabPanel>` children | `tabs`, as descriptions, each carrying its `panel` | The bar owns the roving focus, the arrow keys and the sliding indicator, so it has to know which tab is chosen and where each one is. Pairing the panel with its tab removes the third place the value had to match. |
 | `defaultValue` / `onValueChange` | `value` / `onChanged` | Flutter's own controls are controlled, and its name for the callback. |
 | a value of `string \| number` | a generic `T` | Dart has generics, so the type is checked rather than restrained by convention. |
-| every panel rendered, one shown | only the chosen panel built | A tab that is not open costs nothing. It also means a panel loses its state when you leave it, hold that state above the bar. |
+| only the chosen panel rendered, unless a `PlTabPanel` has `keepMounted` | only the chosen panel built, with no `keepMounted` | A tab that is not open costs nothing. With no way to keep a closed panel, a Flutter panel loses its state when you leave it, so hold that state above the bar. |
 | `activateOnFocus` | — | Moving focus moves the choice, always, because the panel is built from the choice. |
 | `aria-label` | `semanticLabel` | Flutter's name. |
 | the `tab` / `tabpanel` roles, `aria-controls` | a mutually exclusive selected node, and one panel | Flutter names the state on the node itself; there is no id to point at. |
