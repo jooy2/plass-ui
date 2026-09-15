@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A `trigger="visible"` effect starts on where the element will land rather than on where its first frame is holding it.** The observer watched the element after its start state had already moved it, so a `PlAnimateSlide` inside the `overflow: hidden` mask its own page recommends, and a turned `PlAnimateRotate` in a box of its own size, reported as off the screen for ever and never played. How much of the element is on screen is now measured on its resting box, with a second observer on the parent saying when the view has moved, so `threshold` is a share of the element wherever it sits, which is what it already means in the Flutter build. A slide with nothing clipping it starts a little earlier than before.
+
 - **`PlAnimateTyping` holds the box of the whole string from the first frame, so nothing around it moves as it types.** The drawn copy held only the characters that had arrived, so a phrase that wrapped pushed the content below it down when its second line began, and the server HTML held an empty box. The characters still to come are now laid out after the caret without being drawn, as generated content that is not selected or copied, and the caret takes no room of its own while it moves. Every frame is laid out as the finished line, in the server HTML too.
 
 - **`PlAnimateTyping` types the text inside elements among its children.** `Ship <strong>faster</strong>` was typed and read out as `Ship `, because the text of any element was dropped, while the docs said an element contributes its text. That text is now typed and read, and the markup is still left out, so the line is `Ship faster` without the bold.

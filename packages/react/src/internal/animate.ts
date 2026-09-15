@@ -264,6 +264,92 @@ export interface AnimationRunOptions {
   nonce?: unknown;
 }
 
+/**
+ * The steps a `visible` trigger's two observers report at.
+ *
+ * Neither of them decides anything — both only say *when* to measure — so all
+ * the list has to do is arrive often enough while the element crosses the view.
+ * Twenty steps is a callback every twentieth of the way, and the caller's own
+ * threshold is added to it because that is the exact point a mask cut to the
+ * size of what it holds crosses at, which is the arrangement the measurement
+ * exists for.
+ */
+function measureSteps(threshold: number): number[] {
+  const steps = Array.from({ length: 21 }, (_, step) => step / 20);
+
+  return threshold > 0 && threshold < 1 ? [...steps, threshold] : steps;
+}
+
+/** The window, in the coordinates every rectangle here is measured in. */
+function viewportRect(): DOMRectReadOnly {
+  const page = document.documentElement;
+
+  return new DOMRect(0, 0, page.clientWidth, page.clientHeight);
+}
+
+/**
+ * How much of the view an element's parent leaves it.
+ *
+ * `intersectionRect` is the parent's own box with every clip above it already
+ * taken off — the mask it sits in, the scroller above that, and the window —
+ * which is the whole reason the parent is worth watching.
+ */
+function clipRect(entry: IntersectionObserverEntry): DOMRectReadOnly {
+  const box = entry.boundingClientRect;
+
+  // A parent with no box of its own clips nothing: `display: contents`, or a
+  // wrapper left with no height by what is inside it. Reading its empty
+  // intersection as the clip would leave the effect waiting for ever.
+  return box.width * box.height > 0 ? entry.intersectionRect : (entry.rootBounds ?? viewportRect());
+}
+
+/**
+ * Where the element will be once its effect is over, in window coordinates.
+ *
+ * An effect that has not been let go yet is held on its own first frame, so a
+ * slide waiting to arrive measures a screen away from where it lives, and a
+ * turn measures as the box its corners sweep. Both of those are what the
+ * observer sees, and it is why a slide inside a mask — the arrangement the
+ * slide page recommends — used to report as off the screen for ever.
+ *
+ * Clearing `animation-name` for the length of the read is the move the rewind
+ * above makes, for the same reason: it is the only way to ask the browser where
+ * the element itself sits. Nothing is painted in between, and what the restore
+ * starts again is an animation held paused on its first frame.
+ *
+ * Once it has been let go the element is on its way to that box or already in
+ * it, so the plain read is the answer and the animation is left alone.
+ */
+function restingRect(element: HTMLElement, held: boolean): DOMRect {
+  if (!held) {
+    return element.getBoundingClientRect();
+  }
+
+  const name = element.style.animationName;
+
+  element.style.animationName = 'none';
+
+  const rect = element.getBoundingClientRect();
+
+  element.style.animationName = name;
+
+  return rect;
+}
+
+/** How much of `rect` the clip leaves showing, as a share of its own area. */
+function visibleShare(rect: DOMRect, clip: DOMRectReadOnly): number {
+  const area = rect.width * rect.height;
+
+  if (area <= 0) {
+    return 0;
+  }
+
+  const width = Math.min(rect.right, clip.right) - Math.max(rect.left, clip.left);
+  const height = Math.min(rect.bottom, clip.bottom) - Math.max(rect.top, clip.top);
+
+  return (Math.max(0, width) * Math.max(0, height)) / area;
+}
+
 export interface AnimationRun {
   /** Goes on the animated element. */
   ref: React.RefCallback<HTMLElement>;
@@ -311,6 +397,12 @@ export interface AnimationRun {
  * with it. Clearing `animation-name`, reading a layout property to force the
  * style to settle, and putting it back is the one move that rewinds the element
  * and leaves everything inside it alone.
+ *
+ * **`visible` is measured rather than observed.** Two observers report and
+ * neither decides: what they say is that the view has moved, and the answer is
+ * then read off the element's own resting box. An `IntersectionObserver` sees
+ * the element where its first frame is holding it, which for a slide is a
+ * screen from where it lives, so the box it reports on is the wrong box.
  */
 export function useAnimationRun({
   trigger,
@@ -368,6 +460,16 @@ export function useAnimationRun({
     }
   }, [run]);
 
+  // Whether the element is still being held on its own first frame, which is
+  // what the measurement below has to undo before it reads a box. A ref rather
+  // than a dependency of that effect: `started` in its list would take both
+  // observers down and put them back on every start.
+  const waiting = React.useRef(trigger !== 'mount');
+
+  React.useEffect(() => {
+    waiting.current = !started;
+  }, [started]);
+
   React.useEffect(() => {
     if (trigger !== 'visible') {
       return;
@@ -382,24 +484,65 @@ export function useAnimationRun({
       return;
     }
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          start();
+    const observers: IntersectionObserver[] = [];
+    const parent = element.parentElement;
+    // Nothing to measure against until the parent has reported once, which it
+    // does as soon as it is watched. Without a parent there is no clip but the
+    // window, and that rectangle does not move.
+    let clip: DOMRectReadOnly | null = parent ? null : viewportRect();
 
-          if (once) {
+    const check = () => {
+      if (!clip) {
+        return;
+      }
+
+      const shown = visibleShare(restingRect(element, waiting.current), clip);
+
+      // `> 0` as well, for the reason an observer's own `threshold: 0` means
+      // any pixel of it: zero is the least that counts as seen, rather than a
+      // reason to start something that is nowhere near the screen.
+      if (shown > 0 && shown >= threshold) {
+        start();
+
+        if (once) {
+          for (const observer of observers) {
             observer.disconnect();
           }
-        } else if (!once) {
-          setStarted(false);
         }
-      },
-      { threshold }
-    );
+      } else if (!once) {
+        setStarted(false);
+      }
+    };
 
-    observer.observe(element);
+    const steps = measureSteps(threshold);
 
-    return () => observer.disconnect();
+    if (parent) {
+      const above = new IntersectionObserver(
+        ([entry]) => {
+          clip = clipRect(entry);
+          check();
+        },
+        { threshold: steps }
+      );
+
+      observers.push(above);
+      above.observe(parent);
+    }
+
+    // The element as well, because a box taller than the screen keeps the same
+    // share of itself in view the whole way down it: while the parent has
+    // nothing left to report, the element crossing the view is what says the
+    // reader has moved.
+    const own = new IntersectionObserver(check, { threshold: steps });
+
+    observers.push(own);
+    own.observe(element);
+
+    return () => {
+      for (const observer of observers) {
+        observer.disconnect();
+      }
+    };
   }, [trigger, once, threshold, start]);
 
   // Held rather than compared against the previous render, so the first pass is
