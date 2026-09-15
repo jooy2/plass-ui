@@ -489,7 +489,10 @@ class _PlImageState extends State<PlImage> {
         cover: false,
       ),
       fit: BoxFit.contain,
-      excludeFromSemantics: true,
+      // Described as the picture on the page is, so the overlay says what it
+      // is showing and not only that it is a preview.
+      semanticLabel: widget.semanticLabel,
+      excludeFromSemantics: widget.semanticLabel == null,
     );
   }
 
@@ -648,10 +651,14 @@ class _PlImageState extends State<PlImage> {
           alignment: Alignment.center,
           padding: const EdgeInsets.all(12),
           color: tokens.glassPress,
-          child: Text(
-            widget.semanticLabel ?? '',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: tokens.mutedFg, fontSize: 13),
+          // The words are already the name of the node round the picture, and
+          // would otherwise be read twice.
+          child: ExcludeSemantics(
+            child: Text(
+              widget.semanticLabel ?? '',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: tokens.mutedFg, fontSize: 13),
+            ),
           ),
         );
 
@@ -830,18 +837,24 @@ class _PlImageState extends State<PlImage> {
       );
     }
 
-    Widget result = Semantics(
-      label: widget.semanticLabel,
-      image: true,
-      button: widget.preview,
-      // The press target excludes itself from semantics, so the action a
-      // screen reader, Switch Access or Voice Access fires is declared here.
-      onTap: widget.preview && _status == PlImageStatus.loaded
-          ? () => setState(() => _open = true)
-          : null,
-      container: widget.semanticLabel != null,
-      child: picture,
-    );
+    // A decorative picture is left out of the tree altogether. A node with no
+    // label still carries the image flag, and that flag would merge up into
+    // whatever holds the picture, so a button with one in it would be announced
+    // as an image. A preview stays, because it is something to press.
+    Widget result = widget.semanticLabel == null && !widget.preview
+        ? ExcludeSemantics(child: picture)
+        : Semantics(
+            label: widget.semanticLabel,
+            image: true,
+            button: widget.preview,
+            // The press target excludes itself from semantics, so the action a
+            // screen reader, Switch Access or Voice Access fires is declared here.
+            onTap: widget.preview && _status == PlImageStatus.loaded
+                ? () => setState(() => _open = true)
+                : null,
+            container: widget.semanticLabel != null,
+            child: picture,
+          );
 
     if (widget.preview) {
       result = Stack(

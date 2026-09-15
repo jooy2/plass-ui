@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/semantics.dart';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -180,6 +181,30 @@ void main() {
           ),
           findsNothing,
         );
+      });
+
+      testWidgets('leaves nothing of a decorative one for the control round it', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await _pump(
+          tester,
+          PlButton(
+            onPressed: () {},
+            child: PlImage(image: _ok, width: 20, height: 20),
+          ),
+        );
+        await _decode(tester);
+
+        // The picture's node is merged into the button's, so an image flag left
+        // on it would announce the button as an image.
+        expect(
+          tester.getSemantics(find.byType(PlImage)),
+          isSemantics(isButton: true, isImage: false),
+        );
+
+        handle.dispose();
       });
     });
 
@@ -928,6 +953,18 @@ void main() {
         expect(find.text('A portrait'), findsOneWidget);
       });
 
+      testWidgets('reads the label once', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await _pump(tester, PlImage(image: _broken, semanticLabel: 'A portrait'));
+        await tester.pumpAndSettle();
+
+        // The panel draws the words the picture is already named with.
+        expect(tester.getSemantics(find.byType(PlImage)).label, equals('A portrait'));
+
+        handle.dispose();
+      });
+
       testWidgets('draws a fallback of its own when it has one', (WidgetTester tester) async {
         await _pump(
           tester,
@@ -1408,6 +1445,38 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.byType(Image), findsNWidgets(2));
+      });
+
+      testWidgets('describes the picture it opens', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await _pump(
+          tester,
+          PlImage(image: _ok, ratio: 1, semanticLabel: 'A portrait', preview: true),
+          overlay: true,
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byType(PlImage));
+        await tester.pumpAndSettle();
+
+        // The overlay is named "Preview", and the picture in it says what it is.
+        // Walked by hand, because `find.semantics` does not reach a layer lifted
+        // through an `OverlayPortal`.
+        final List<String> inside = <String>[];
+
+        bool visit(SemanticsNode node) {
+          inside.add(node.label);
+          node.visitChildren(visit);
+
+          return true;
+        }
+
+        semanticsNodeLabelled(tester, 'Preview')!.visitChildren(visit);
+
+        expect(inside, contains('A portrait'));
+
+        handle.dispose();
       });
 
       testWidgets('cannot be opened before it has', (WidgetTester tester) async {

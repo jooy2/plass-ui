@@ -64,6 +64,8 @@
 
 ### Fixed
 
+- **A `PlImage` tells a screen reader what its preview shows, and reads its label once when the picture fails.** The picture in the open preview was left out of the semantics tree, so only the overlay's name was heard, and it now carries `semanticLabel`. An image with no `semanticLabel` and no `preview` is now left off the tree entirely: its image flag merged into the widget around it, so a `PlButton` holding one was announced as an image. The default fallback no longer repeats the label.
+
 - **The segment of an indeterminate `PlProgressLinear` enters from before the start of the groove and leaves past its end.** It travelled only between the two ends, so it started and stopped flush against them and jumped from the end back to the start on every cycle. It now runs the same path as in the React build.
 
 - **Switching `disabled` on while a `PlTooltip` is open no longer makes the rest of its `PlTooltipProvider` group open at once.** The tooltip closed but stayed counted as open, so every other tooltip in the group skipped its delay from then on, and a wait already running could still open the disabled one out of sight. A tooltip now counts as open only while its plate is up, and switching `disabled` on calls off the wait.
