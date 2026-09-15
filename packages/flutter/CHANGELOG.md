@@ -64,6 +64,8 @@
 
 ### Fixed
 
+- **The two select-all ticks of a `PlTransfer` have different names.** Both were read as "Select all", so a screen reader could not tell which list a tick belonged to. Each is now named by `selectAllLabel` and then by its list's heading, "Select all Available".
+
 - **End on a full `PlRating` keeps the full score.** With `clearable` on, which is the default, End at the top score counted as choosing that score again and cleared the rating to 0, and Home on an empty row called `onChanged` with the 0 it already had. Home and End now go to the end of the row, and call `onChanged` only when the score moves.
 
 - **A pressable `PlChip` draws one focus ring while its × has the focus.** The chip kept its own ring while the focus was on the × inside it, so two rings were drawn at once. The chip's ring now shows only while the chip itself has the focus, as the picker trigger's does.

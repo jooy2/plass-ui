@@ -246,7 +246,7 @@ describe('PlTransfer', () => {
     it('ticks every movable row in its own list', async () => {
       const screen = await render(<PlTransfer items={items} />);
 
-      press(screen.getByRole('checkbox', { name: 'Select all' }).elements()[0]);
+      press(screen.getByRole('checkbox', { name: 'Select all Available' }).element());
 
       // Three movable rows; the disabled one is not one of them.
       await expect.element(screen.getByText('3/4')).toBeVisible();
@@ -255,9 +255,38 @@ describe('PlTransfer', () => {
     it('is disabled when its list has nothing movable in it', async () => {
       const screen = await render(<PlTransfer items={[]} />);
 
-      for (const box of screen.getByRole('checkbox', { name: 'Select all' }).elements()) {
-        expect(box).toHaveAttribute('data-disabled');
+      for (const name of ['Select all Available', 'Select all Selected']) {
+        expect(screen.getByRole('checkbox', { name }).element()).toHaveAttribute('data-disabled');
       }
+    });
+
+    it("is named by the words and then by its own list's heading", async () => {
+      const screen = await render(<PlTransfer items={items} />);
+
+      await expect
+        .element(screen.getByRole('checkbox', { name: 'Select all Available' }))
+        .toBeInTheDocument();
+      await expect
+        .element(screen.getByRole('checkbox', { name: 'Select all Selected' }))
+        .toBeInTheDocument();
+    });
+
+    it('takes its words from `selectAllLabel` and its heading from a node as well as a string', async () => {
+      const screen = await render(
+        <PlTransfer
+          items={items}
+          selectAllLabel="Tick all"
+          sourceLabel="Columns"
+          targetLabel={<strong>Shown</strong>}
+        />
+      );
+
+      await expect
+        .element(screen.getByRole('checkbox', { name: 'Tick all Columns' }))
+        .toBeInTheDocument();
+      await expect
+        .element(screen.getByRole('checkbox', { name: 'Tick all Shown' }))
+        .toBeInTheDocument();
     });
   });
 

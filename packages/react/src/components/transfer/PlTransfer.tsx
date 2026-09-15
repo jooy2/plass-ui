@@ -52,7 +52,10 @@ export interface PlTransferProps
   searchLabel?: string;
   /** What a list with nothing in it says. @default 'Nothing here' */
   emptyLabel?: string;
-  /** What the tick in a list's heading is announced as. @default 'Select all' */
+  /**
+   * What the tick in a list's heading is announced as, before the heading itself.
+   * @default 'Select all'
+   */
   selectAllLabel?: string;
   /** What the two arrows are announced as. */
   toTargetLabel?: string;
@@ -154,9 +157,15 @@ function Panel({
           checked={all}
           indeterminate={some}
           disabled={disabled || movable.length === 0}
-          aria-label={selectAllLabel}
+          // The words and then the heading beside them, so the two lists'
+          // ticks are told apart by ear as they are by eye. A reference rather
+          // than a string, because the heading may be a node.
+          aria-labelledby={`${titleId}-all ${titleId}`}
           onCheckedChange={(next) => onTickAll(next === true)}
         />
+        <span id={`${titleId}-all`} hidden>
+          {selectAllLabel}
+        </span>
         <span
           id={titleId}
           className={cx('min-w-0 flex-1 truncate font-medium', metaTextClasses[size])}

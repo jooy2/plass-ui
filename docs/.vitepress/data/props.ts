@@ -12215,8 +12215,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'string',
       default: "'Select all'",
       description: {
-        ko: '목록 제목의 체크박스가 불리는 이름',
-        en: "What the tick in a list's heading is announced as"
+        ko: '목록 제목의 체크박스 이름에서 제목 앞에 오는 말',
+        en: "What the tick in a list's heading is announced as, before the heading itself"
       }
     },
     {

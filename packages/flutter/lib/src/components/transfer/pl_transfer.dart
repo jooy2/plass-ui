@@ -130,7 +130,8 @@ class PlTransfer extends StatefulWidget {
   /// What a list with nothing in it says.
   final String? emptyLabel;
 
-  /// What the tick in a list's heading is announced as.
+  /// What the tick in a list's heading is announced as, before the heading
+  /// itself.
   final String? selectAllLabel;
 
   /// What the outward arrow is announced as.
@@ -470,7 +471,12 @@ class _PlTransferState extends State<PlTransfer> {
             value: all,
             indeterminate: some,
             disabled: widget.disabled || movable.isEmpty,
-            semanticLabel: widget.selectAllLabel ?? PlassTheme.labelsOf(context).selectAll,
+            // The words and then the heading beside them, so the two lists'
+            // ticks are told apart by ear as they are by eye.
+            semanticLabel: <String>[
+              widget.selectAllLabel ?? PlassTheme.labelsOf(context).selectAll,
+              title,
+            ].where((String part) => part.isNotEmpty).join(' '),
             onChanged: (bool next) => onTickAll(next),
           ),
           Expanded(

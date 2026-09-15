@@ -322,11 +322,43 @@ void main() {
           host(const PlTransfer(items: items, height: 160), width: 700, height: 400),
         );
 
-        await tester.tap(find.bySemanticsLabel('Select all').first);
+        await tester.tap(find.bySemanticsLabel('Select all Available'));
         await tester.pumpAndSettle();
 
         // Three movable rows; the disabled one is not one of them.
         expect(find.text('3/4'), findsOneWidget);
+      });
+
+      testWidgets("is named by the words and then by its own list's heading", (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(const PlTransfer(items: items, height: 160), width: 700, height: 400),
+        );
+
+        expect(find.bySemanticsLabel('Select all Available'), findsOneWidget);
+        expect(find.bySemanticsLabel('Select all Selected'), findsOneWidget);
+      });
+
+      testWidgets('takes its words from `selectAllLabel` and its heading from the labels', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            const PlTransfer(
+              items: items,
+              selectAllLabel: 'Tick all',
+              sourceLabel: 'Columns',
+              targetLabel: 'Shown',
+              height: 160,
+            ),
+            width: 700,
+            height: 400,
+          ),
+        );
+
+        expect(find.bySemanticsLabel('Tick all Columns'), findsOneWidget);
+        expect(find.bySemanticsLabel('Tick all Shown'), findsOneWidget);
       });
     });
 
