@@ -62,10 +62,6 @@ function settled(): number {
   return count;
 }
 
-function wait(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 afterEach(async () => {
   await emulateMedia({ reducedMotion: 'no-preference' });
 });
@@ -88,34 +84,53 @@ describe('PlAnimateScramble', () => {
     }
 
     it('holds the line where it is, and goes on settling from there when it is let go', async () => {
-      const screen = await render(line(false));
+      // Taken before the render, so the first frame the line asks for is one
+      // this test draws.
+      const frames = frameClock();
 
-      await wait(400);
-      await screen.rerender(line(true));
+      try {
+        const screen = await render(line(false));
 
-      const held = drawn();
-      const reached = settled();
+        // The line's clock starts at its first frame, whatever time that is.
+        await frames.draw(1000);
+        await frames.draw(1400);
 
-      expect(reached).toBeGreaterThan(0);
-      expect(reached).toBeLessThan(LINE.length);
+        // 400ms of the 1000ms have gone by, which is six of the seventeen
+        // characters.
+        expect(settled()).toBe(6);
 
-      await wait(150);
+        await screen.rerender(line(true));
 
-      expect(drawn()).toBe(held);
+        const held = drawn();
 
-      await screen.rerender(line(false));
+        // Two frames, since a loop started again by the change would take its
+        // start time on the first and settle only from there.
+        await frames.draw(1700);
+        await frames.draw(2000);
 
-      const seen: number[] = [];
+        // A line that went on settling while it was held would have more than
+        // six characters settled here.
+        expect(drawn()).toBe(held);
 
-      for (let sample = 0; sample < 10; sample += 1) {
-        await wait(10);
-        seen.push(settled());
+        await screen.rerender(line(false));
+        // However late the page draws again after it is let go, the clock goes
+        // on from the 400ms the line had already settled for.
+        await frames.draw(5000);
+
+        expect(settled()).toBe(6);
+
+        await frames.draw(5100);
+
+        // 500ms in, which is eight of the seventeen. A loop that took its start
+        // time again would be 100ms in, with one character settled.
+        expect(settled()).toBe(8);
+
+        await frames.draw(5600);
+
+        expect(drawn()).toBe(LINE);
+      } finally {
+        frames.restore();
       }
-
-      // A loop that took its start time again would scramble the whole line
-      // again here.
-      expect(Math.min(...seen)).toBeGreaterThanOrEqual(reached);
-      await expect.poll(() => drawn()).toBe(LINE);
     });
 
     it('waits out only what was left of `delay` when it is let go', async () => {

@@ -87,25 +87,47 @@ describe('PlAnimateCounter', () => {
     }
 
     it('holds the count where it is, and goes on from there when it is let go', async () => {
-      const screen = await render(counter(false));
+      // Taken before the render, so the first frame the count asks for is one
+      // this test draws.
+      const frames = frameClock();
 
-      await wait(300);
-      await screen.rerender(counter(true));
+      try {
+        const screen = await render(counter(false));
 
-      const held = figure();
+        // The count's clock starts at its first frame, whatever time that is.
+        await frames.draw(1000);
+        await frames.draw(1300);
 
-      expect(held).toBeGreaterThan(0);
-      expect(held).toBeLessThan(1000);
+        expect(figure()).toBe(300);
 
-      await wait(150);
+        await screen.rerender(counter(true));
+        // Two frames, since a loop started again by the change would take its
+        // start time on the first and count only from there.
+        await frames.draw(1600);
+        await frames.draw(1900);
 
-      expect(figure()).toBe(held);
+        // A count that went on while it was held would be past 300 here.
+        expect(figure()).toBe(300);
 
-      await screen.rerender(counter(false));
+        await screen.rerender(counter(false));
+        // However late the page draws again after it is let go, the clock goes
+        // on from the 300ms the count had already run.
+        await frames.draw(5000);
 
-      // A loop that took its start time again would drop back to `from` here.
-      expect(await lowestSoon()).toBeGreaterThanOrEqual(held);
-      await expect.poll(() => figure()).toBe(1000);
+        expect(figure()).toBe(300);
+
+        await frames.draw(5200);
+
+        // 500ms in. A loop that took its start time again would have dropped
+        // back to `from`, and be 200ms in.
+        expect(figure()).toBe(500);
+
+        await frames.draw(5700);
+
+        expect(figure()).toBe(1000);
+      } finally {
+        frames.restore();
+      }
     });
 
     it('waits out only what was left of `delay` when it is let go', async () => {
