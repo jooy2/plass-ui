@@ -96,7 +96,19 @@ provider는 **중첩되고 병합됩니다**. compact가 아닌 애플리케이�
 
 ### locale 하나, picker 다섯
 
-`locale`은 `PlCalendar` · `PlDatePicker` · `PlDateRangePicker` · `PlTimePicker` · `PlDateTimePicker` · `PlNumberField`에 닿습니다. `labels`는 각 컴포넌트 자신의 것 **아래로** 병합되므로, 애플리케이션이 어휘를 한 번 번역해 두고도 picker 하나는 다른 말을 할 수 있습니다. 나머지가 전부 "시작"이라고 할 때 하나만 "체크인"이라고. 그 어휘는 번역된 채로 함께 배포됩니다. [말 번역하기](locales)를 보세요.
+::: fw react
+
+`locale`은 날짜와 시간 컴포넌트인 `PlCalendar` · `PlDatePicker` · `PlDateRangePicker` · `PlTimePicker` · `PlDateTimePicker`, 숫자를 쓰는 `PlNumberField` · `PlMeter` · `PlProgressLinear` · `PlProgressCircular` · `PlProgressBox` · `PlAnimateCounter`, 그리고 차트인 `PlLineChart` · `PlAreaChart` · `PlBarChart` · `PlScatterChart` · `PlPieChart` · `PlHeatmapChart` · `PlTimelineChart` · `PlGaugeChart`에 닿습니다.
+
+:::
+
+::: fw flutter
+
+여기서는 theme이 `locale` 대신 `names`를 나르고, `names`는 `PlCalendar` · `PlDatePicker` · `PlDateRangePicker` · `PlTimePicker` · `PlDateTimePicker`와 차트인 `PlLineChart` · `PlAreaChart` · `PlBarChart` · `PlScatterChart` · `PlPieChart` · `PlHeatmapChart` · `PlTimelineChart`에 닿습니다.
+
+:::
+
+`labels`는 각 컴포넌트 자신의 것 **아래로** 병합되므로, 애플리케이션이 어휘를 한 번 번역해 두고도 picker 하나는 다른 말을 할 수 있습니다. 나머지가 전부 "시작"이라고 할 때 하나만 "체크인"이라고. 그 어휘는 번역된 채로 함께 배포됩니다. [말 번역하기](locales)를 보세요.
 
 <Demo src="provider/locale" :min-height="200">
 

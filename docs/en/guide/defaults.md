@@ -96,7 +96,19 @@ Providers **nest and merge**. A section that is compact inside an application th
 
 ### One locale, five pickers
 
-`locale` reaches `PlCalendar`, `PlDatePicker`, `PlDateRangePicker`, `PlTimePicker`, `PlDateTimePicker` and `PlNumberField`. `labels` is merged **under** each component's own, so an application can translate the vocabulary once and one picker can still say something different, a "Check in" where the rest of the app says "Start". The library ships that vocabulary translated: see [Translating the words](locales).
+::: fw react
+
+`locale` reaches the date and time components, `PlCalendar`, `PlDatePicker`, `PlDateRangePicker`, `PlTimePicker` and `PlDateTimePicker`; the components that write a number, `PlNumberField`, `PlMeter`, `PlProgressLinear`, `PlProgressCircular`, `PlProgressBox` and `PlAnimateCounter`; and the charts `PlLineChart`, `PlAreaChart`, `PlBarChart`, `PlScatterChart`, `PlPieChart`, `PlHeatmapChart`, `PlTimelineChart` and `PlGaugeChart`.
+
+:::
+
+::: fw flutter
+
+The theme carries `names` here rather than a `locale`, and `names` reaches `PlCalendar`, `PlDatePicker`, `PlDateRangePicker`, `PlTimePicker` and `PlDateTimePicker`, and the charts `PlLineChart`, `PlAreaChart`, `PlBarChart`, `PlScatterChart`, `PlPieChart`, `PlHeatmapChart` and `PlTimelineChart`.
+
+:::
+
+`labels` is merged **under** each component's own, so an application can translate the vocabulary once and one picker can still say something different, a "Check in" where the rest of the app says "Start". The library ships that vocabulary translated: see [Translating the words](locales).
 
 <Demo src="provider/locale" :min-height="200">
 
