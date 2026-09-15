@@ -64,6 +64,8 @@
 
 ### Fixed
 
+- **A `PlColorPicker` thumb sits on its value down the square and the rails.** Each thumb was placed from the height of its track including the hairline border, so its centre sat a pixel below its value on a rail and up to 2 pixels below it at the foot of the square.
+
 - **A `readOnly` `PlRadioGroup` is no longer announced as disabled.** The set keeps its focus stop, but its semantics and those of each option said they were not enabled. The set and its options are now enabled and read only, the options still have no tap action, and the React build's `aria-readonly` on the group says the same.
 
 - **A `readOnly` `PlSwitch` is no longer announced as disabled.** It keeps its place in the focus order, but its semantics said it was not enabled. It is now enabled and read only, and still has no tap action, as the React build's `aria-readonly` says.

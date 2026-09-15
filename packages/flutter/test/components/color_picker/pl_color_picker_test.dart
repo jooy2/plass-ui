@@ -373,6 +373,44 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('centres a thumb on its value down the square and the rail at every size', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+      // Teal is a brightness of about 50, so its thumb is about halfway down the
+      // square, and a hue thumb sits halfway down its rail.
+      const String teal = '#008080';
+      final double down = 1 - parseColor(teal)!.hsv.v / 100;
+
+      for (final PlassSize size in <PlassSize>[PlassSize.xs, PlassSize.xl]) {
+        await tester.pumpWidget(
+          host(
+            PlColorPicker(inline: true, value: teal, size: size),
+            width: 400,
+            height: 600,
+            overlay: true,
+          ),
+        );
+
+        for (final (String label, double fraction) in <(String, double)>[
+          ('Saturation and brightness', down),
+          ('Hue', 0.5),
+        ]) {
+          // The `Stack` is the box inside the hairline border, which is what the
+          // value is a fraction of.
+          final Finder track = find
+              .descendant(of: find.bySemanticsLabel(label), matching: find.byType(Stack))
+              .first;
+          final Finder thumb = find.descendant(of: track, matching: find.byType(IgnorePointer));
+          final Rect box = tester.getRect(track);
+
+          expect(tester.getCenter(thumb).dy, closeTo(box.top + box.height * fraction, 0.01));
+        }
+      }
+
+      handle.dispose();
+    });
+
     testWidgets('writes the format it was asked for', (WidgetTester tester) async {
       final List<String> seen = <String>[];
 

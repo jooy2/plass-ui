@@ -895,7 +895,9 @@ class _TrackState extends State<_Track> {
             ...widget.layers,
             Positioned(
               left: constraints.maxWidth * widget.thumbX - thumb / 2,
-              top: widget.height * widget.thumbY - thumb / 2,
+              // The height inside the hairline border, which is the box this
+              // `Stack` fills and the one `left` is measured across.
+              top: constraints.maxHeight * widget.thumbY - thumb / 2,
               child: IgnorePointer(child: widget.thumb),
             ),
           ],
