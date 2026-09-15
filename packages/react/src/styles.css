@@ -2121,8 +2121,13 @@
   --p-code-del: oklch(75% 0.15 25);
 }
 
+/* Both ways of forcing light are named, the same pair the token block above
+   answers to. `auto` means "whatever the page is", so a page that has said it
+   is light with `.light` and one that has said it with `[data-theme='light']`
+   have to leave the block light alike — otherwise the page is white and the
+   code on it is the one dark rectangle nobody asked for. */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .plass-code[data-code-theme='auto'] {
+  :root:not(.light):not([data-theme='light']) .plass-code[data-code-theme='auto'] {
     --p-code-bg: oklch(19.5% 0.014 262);
     --p-code-fg: oklch(90% 0.012 262);
 

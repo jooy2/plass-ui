@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **`PlCodeBlock` with `theme="auto"` follows a page that forces light with the `.light` class.** The block's own rule named only `[data-theme='light']`, so on a page whose system prefers dark and which had forced itself light with the class, the code was the one dark rectangle on a white page. Both ways of forcing a theme now count, as they already did for the tokens.
+
 - **A macOS traffic light in `PlWindowPane` shows its mark while it holds the keyboard focus.** The mark appeared under the pointer only, so a reader who tabbed to one got a focus ring around a blank coloured dot with nothing to say which of the three it was on. The pointer still lights the whole set, and the keyboard lights the one it has reached, as the Flutter build does.
 
 - **A `PlAnimateSplit` part wraps inside its own box.** Each part was `white-space: pre`, so a line with no space in it — a Chinese or Japanese sentence, which `by="word"` has nothing to cut at — was one part that ran out of its box instead of wrapping. A part now starts on a new line when it does not fit and wraps between its characters, as the `Text` of a part does in the Flutter build, and the line still enters as one part.
