@@ -223,6 +223,9 @@ class _PlTooltipState extends State<PlTooltip> {
 
   bool get _held => _hovered || _focused || _onPlate;
 
+  /// Whether this tooltip is counted among its group's open ones.
+  bool _holding = false;
+
   /// Held rather than looked up on demand, because a tooltip has to hand its
   /// place in the group back on the way out and an inherited widget cannot be
   /// read from `dispose`.
@@ -243,15 +246,24 @@ class _PlTooltipState extends State<PlTooltip> {
       _open = widget.open!;
     }
 
-    if (widget.disabled && _open) {
+    if (widget.disabled) {
+      // A wait that was on its way would open what is now switched off.
+      _timer?.cancel();
+      _timer = null;
       _open = false;
     }
+
+    _syncGroup();
   }
 
   @override
   void dispose() {
     _timer?.cancel();
-    _release();
+
+    if (_holding) {
+      _release();
+    }
+
     super.dispose();
   }
 
@@ -259,6 +271,7 @@ class _PlTooltipState extends State<PlTooltip> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _group = _TooltipScope.maybeOf(context);
+    _syncGroup();
   }
 
   _TooltipScope? get _scope => _group;
@@ -297,6 +310,24 @@ class _PlTooltipState extends State<PlTooltip> {
     }
   }
 
+  /// Counts the tooltip in its group while its plate is up, and hands the place
+  /// back when it goes.
+  ///
+  /// Run after whatever changed the plate rather than on the way into each
+  /// change, because a controlled `open` and `disabled` both change it without a
+  /// request. A place left behind keeps the group warm for good, and every
+  /// tooltip in it then opens with no delay.
+  void _syncGroup() {
+    final up = _open && !widget.disabled;
+
+    if (up == _holding) {
+      return;
+    }
+
+    _holding = up;
+    up ? _hold() : _release();
+  }
+
   void _set(bool next) {
     _timer?.cancel();
     _timer = null;
@@ -305,12 +336,11 @@ class _PlTooltipState extends State<PlTooltip> {
       return;
     }
 
-    next ? _hold() : _release();
-
     // A tooltip drives itself unless the caller asked to drive it, which is what
     // `open` being nullable means. Either way the change is reported.
     if (widget.open == null) {
       setState(() => _open = next);
+      _syncGroup();
     }
 
     widget.onOpenChanged?.call(next);

@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **Switching `disabled` on while a `PlTooltip` is open no longer makes the rest of its `PlTooltipProvider` group open at once.** The tooltip closed but stayed counted as open, so every other tooltip in the group skipped its delay from then on, and a wait already running could still open the disabled one out of sight. A tooltip now counts as open only while its plate is up, and switching `disabled` on calls off the wait.
+
 - **A `PlStat` change that rounds to 0 is drawn as no movement.** `change: -0.04` was written `-0%` and still drawn with a ▼ in the danger colour. It is now `0%`, muted and with no arrow, as `change: 0` already was.
 
 - **The `PlConfirmProvider` dialog keeps what it said while it fades out.** Answering cleared the question at once, so for the 260ms of the fade the title and the body were gone and the buttons fell back to the defaults, which gave an alert a Cancel button. The sheet now fades out as it was.

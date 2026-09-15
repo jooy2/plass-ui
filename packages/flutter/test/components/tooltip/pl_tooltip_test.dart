@@ -325,6 +325,84 @@ void main() {
         expect(find.text('First'), findsNothing);
         expect(find.text('Second'), findsOneWidget);
       });
+
+      // No timeout, so only a tooltip still counted as open can warm the group:
+      // the timeout runs on the wall clock, which a test does not move.
+      Widget pair({required bool firstDisabled}) {
+        return host(
+          PlTooltipProvider(
+            timeout: Duration.zero,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                PlTooltip(
+                  content: const Text('First'),
+                  disabled: firstDisabled,
+                  child: const SizedBox(width: 60, height: 32, child: Text('One')),
+                ),
+                PlTooltip(
+                  content: const Text('Second'),
+                  child: const SizedBox(width: 60, height: 32, child: Text('Two')),
+                ),
+              ],
+            ),
+          ),
+          overlay: true,
+        );
+      }
+
+      testWidgets('one switched off while it is up hands its place back', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(pair(firstDisabled: false));
+
+        final pointer = await tester.createGesture(kind: PointerDeviceKind.mouse);
+        addTearDown(pointer.removePointer);
+        await pointer.addPointer(location: Offset.zero);
+
+        await pointer.moveTo(tester.getCenter(find.text('One')));
+        await tester.pump(const Duration(milliseconds: 700));
+        await tester.pumpAndSettle();
+        expect(find.text('First'), findsOneWidget);
+
+        await tester.pumpWidget(pair(firstDisabled: true));
+        await tester.pumpAndSettle();
+        expect(find.text('First'), findsNothing);
+
+        await pointer.moveTo(tester.getCenter(find.text('Two')));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(find.text('Second'), findsNothing);
+
+        await tester.pump(const Duration(milliseconds: 400));
+        await tester.pumpAndSettle();
+        expect(find.text('Second'), findsOneWidget);
+      });
+
+      testWidgets('one switched off while it waits does not open later', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(pair(firstDisabled: false));
+
+        final pointer = await tester.createGesture(kind: PointerDeviceKind.mouse);
+        addTearDown(pointer.removePointer);
+        await pointer.addPointer(location: Offset.zero);
+
+        await pointer.moveTo(tester.getCenter(find.text('One')));
+        await tester.pump(const Duration(milliseconds: 300));
+        await tester.pumpWidget(pair(firstDisabled: true));
+
+        // Past the delay the first was waiting out.
+        await tester.pump(const Duration(milliseconds: 700));
+        await pointer.moveTo(tester.getCenter(find.text('Two')));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(find.text('Second'), findsNothing);
+
+        await tester.pump(const Duration(milliseconds: 400));
+        await tester.pumpAndSettle();
+        expect(find.text('Second'), findsOneWidget);
+      });
     });
   });
 }
