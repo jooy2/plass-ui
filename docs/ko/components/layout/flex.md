@@ -142,5 +142,5 @@ LayoutBuilder(
 
 ## Accessibility
 
-- **순서를 바꾸는 것은 시각적인 일입니다.** `reverse`도, 호출자가 자식에 것은 `order`도 픽셀을 옮길 뿐 문서를 옮기지 않습니다. 읽는 순서가 보이는 순서와 어긋나는 것은 [의미 있는 순서](https://www.w3.org/WAI/WCAG22/Understanding/meaningful-sequence.html)에 대한 명시된 실패이므로, 읽혀야 할 순서대로 내용을 두고 레이아웃이 그것을 따르게 하십시오.
+- **순서를 바꾸는 것은 시각적인 일입니다.** `reverse`도, 호출자가 자식에 걸어 둔 `order`도 픽셀을 옮길 뿐 문서를 옮기지 않습니다. 읽는 순서가 보이는 순서와 어긋나는 것은 [의미 있는 순서](https://www.w3.org/WAI/WCAG22/Understanding/meaningful-sequence.html)에 대한 명시된 실패이므로, 읽혀야 할 순서대로 내용을 두고 레이아웃이 그것을 따르게 하십시오.
 - role이 없고 role을 붙이지도 않습니다. 배치를 스크린 리더에게 목록으로 만들어 주는 것은 `<li>` 자식과 함께 쓰는 `render={<ul />}`이고, 그냥 두면 `<div>` 안의 `<div>`로 보입니다.
