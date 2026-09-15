@@ -2,6 +2,8 @@
 
 ## vNext (2026--)
 
+## 1.4.0 (2026-09-15)
+
 ### Breaking changes
 
 - **`PlPagination.pageLabel`, `PlRating.valueLabel`, `PlFilePicker.removeLabel` and `PlCombobox.removeLabel` are nullable.** Left out, each one now reads the theme's label pack, so code that reads one of these fields and calls it needs a null check. `PlRating.defaultValueLabel` still returns the English sentence.
@@ -47,22 +49,6 @@
 - **`PlTabs` answers the wheel.** A bar with more tabs than room is a scroll view like any other, and a horizontal one reads the horizontal half of a scroll while a mouse only ever produces the vertical one — so the bar under the pointer sat still while whatever was behind it moved. A vertical wheel over an overflowing bar now moves it along, exactly as it does over a `PlScrollZone`, and `wheel: false` turns it off. `internal/wheel.dart` is the shared half of the two.
 
 - **`PlScrollZone` and `PlTabs` take an `overscroll`.** `PlassOverscroll.contain`, the default, or `PlassOverscroll.auto`. See Changed for what the default alters.
-
-### Changed
-
-- **A `PlSkeleton` runs one animation for all of its bars.** Each bar ran its own ticker and clip, so a list of twelve three-line placeholders ran 36 tickers. The bars of one placeholder now share one, and each highlight is painted inside its bar's corners without a clip.
-
-- **`PlAvatar`, `PlImage` and the `PlGallery` viewer decode a picture at the size it is drawn.** They decoded every file at its own size, so a 1024-pixel photograph in a 40-pixel avatar held four megabytes, and every tile of a gallery of twelve-megapixel photographs held about fifty. A plain `ImageProvider` is now decoded no larger than its box needs at the screen's pixel ratio: a cropped picture reaches both sides of the box and one shown whole fits inside it, rounded up to a step of 128 device pixels so a box that grows by a pixel is not decoded again. `PlImage` measures its box on the first frame and asks for the picture on the next, and decodes again only when the box grows. A `ResizeImage` you pass is used as it is, and `fit: PlAspectFit.none` still decodes the whole file. One consequence: `precacheImage` with a plain provider warms a different cache entry from the one these widgets draw, so precache a `ResizeImage` and pass the same one.
-
-- **`PlCombobox` and `PlCommandPalette` say the label pack's `empty` when nothing matched.** Their `emptyMessage` defaults, "No matches" and "No commands found", were written in English, so a translated application still said them in English. Both parameters are now nullable and fall back to `empty`, as `PlTreeSelect` and `PlTransfer` do, which makes the English default "Nothing here" for both. Pass `emptyMessage` to keep the old words.
-
-- **A chart series with no `name` is called by its number.** The legend, the tooltip and the summary of `PlLineChart`, `PlBarChart`, `PlAreaChart` and `PlScatterChart` called it "Series 2", a word no pack translates, while `PlHeatmapChart`, `PlTimelineChart` and the React build say "2". They now say the number as well.
-
-- **A long `PlCombobox` or `PlCommandPalette` list builds only the rows near its view.** Both built every row on opening and on every key, and the palette searched every command's text again on each rebuild, including the one a pointer moving over the rows causes. A list taller than its popup is now built as it scrolls, and the palette keeps its search until the query changes or its parent rebuilds. A shorter list is laid out as before.
-
-- **Focus rings are drawn in the family's `accent`, opaque.** `PlassColorFamily.ring` was `solid` at 55% opacity, which came to about 2.2:1 against a white surface, and 1.4:1 for `warning`, under the 3:1 a focus indicator needs. It now returns `accent`, which clears 3:1 against the surface and the page in both themes. Every focused control looks different: darker in the light theme and lighter in the dark one.
-
-- **A `PlScrollZone` no longer hands the wheel back at its ends.** The pointer being on the shelf is the reader saying which of the two things under it they meant to move, and reaching the last card is not them saying something else — so whatever was behind the strip used to start moving at a pixel nobody chose, in the middle of a flick. The new `overscroll` default is `PlassOverscroll.contain`, and `PlassOverscroll.auto` is the old behaviour. Even `auto` now keeps a gesture that was scrolling the strip a moment ago, and gives the signal up only once the reader has paused. A strip everything fits in is not a scroller and holds nothing back either way.
 
 ### Fixed
 
@@ -365,6 +351,22 @@
 - **A `PlImage` fades in again.** The picture was meant to fade up once its first frame arrived, but that frame also took the placeholder away, and the fade was rebuilt under a different parent in the same build. A rebuilt fade starts at full opacity, so every picture that had to be waited for cut in. The fade now stays where it was and runs.
 
 - **`PlSpoiler` no longer changes height when it is uncovered.** The cover is a line of explanation and a button, so it is routinely taller than the text it covers — and it was taken out of the layout on reveal, which collapsed the sheet to its content and pushed the whole page below it up. Covering it again pushed everything back down. The cover now keeps its place in the stack and is held hidden with `Visibility(maintainSize: true)` and `ExcludeFocus`, exactly as the `reversible` hide row already was, so the sheet measures the same in both states and the hidden cover is off the semantics tree. A `maxHeight` clamp is still released on reveal, which is the one thing that may resize it.
+
+### Changed
+
+- **A `PlSkeleton` runs one animation for all of its bars.** Each bar ran its own ticker and clip, so a list of twelve three-line placeholders ran 36 tickers. The bars of one placeholder now share one, and each highlight is painted inside its bar's corners without a clip.
+
+- **`PlAvatar`, `PlImage` and the `PlGallery` viewer decode a picture at the size it is drawn.** They decoded every file at its own size, so a 1024-pixel photograph in a 40-pixel avatar held four megabytes, and every tile of a gallery of twelve-megapixel photographs held about fifty. A plain `ImageProvider` is now decoded no larger than its box needs at the screen's pixel ratio: a cropped picture reaches both sides of the box and one shown whole fits inside it, rounded up to a step of 128 device pixels so a box that grows by a pixel is not decoded again. `PlImage` measures its box on the first frame and asks for the picture on the next, and decodes again only when the box grows. A `ResizeImage` you pass is used as it is, and `fit: PlAspectFit.none` still decodes the whole file. One consequence: `precacheImage` with a plain provider warms a different cache entry from the one these widgets draw, so precache a `ResizeImage` and pass the same one.
+
+- **`PlCombobox` and `PlCommandPalette` say the label pack's `empty` when nothing matched.** Their `emptyMessage` defaults, "No matches" and "No commands found", were written in English, so a translated application still said them in English. Both parameters are now nullable and fall back to `empty`, as `PlTreeSelect` and `PlTransfer` do, which makes the English default "Nothing here" for both. Pass `emptyMessage` to keep the old words.
+
+- **A chart series with no `name` is called by its number.** The legend, the tooltip and the summary of `PlLineChart`, `PlBarChart`, `PlAreaChart` and `PlScatterChart` called it "Series 2", a word no pack translates, while `PlHeatmapChart`, `PlTimelineChart` and the React build say "2". They now say the number as well.
+
+- **A long `PlCombobox` or `PlCommandPalette` list builds only the rows near its view.** Both built every row on opening and on every key, and the palette searched every command's text again on each rebuild, including the one a pointer moving over the rows causes. A list taller than its popup is now built as it scrolls, and the palette keeps its search until the query changes or its parent rebuilds. A shorter list is laid out as before.
+
+- **Focus rings are drawn in the family's `accent`, opaque.** `PlassColorFamily.ring` was `solid` at 55% opacity, which came to about 2.2:1 against a white surface, and 1.4:1 for `warning`, under the 3:1 a focus indicator needs. It now returns `accent`, which clears 3:1 against the surface and the page in both themes. Every focused control looks different: darker in the light theme and lighter in the dark one.
+
+- **A `PlScrollZone` no longer hands the wheel back at its ends.** The pointer being on the shelf is the reader saying which of the two things under it they meant to move, and reaching the last card is not them saying something else — so whatever was behind the strip used to start moving at a pixel nobody chose, in the middle of a flick. The new `overscroll` default is `PlassOverscroll.contain`, and `PlassOverscroll.auto` is the old behaviour. Even `auto` now keeps a gesture that was scrolling the strip a moment ago, and gives the signal up only once the reader has paused. A strip everything fits in is not a scroller and holds nothing back either way.
 
 ### Documentation
 
