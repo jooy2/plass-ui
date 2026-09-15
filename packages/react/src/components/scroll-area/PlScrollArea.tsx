@@ -192,6 +192,15 @@ export const PlScrollArea = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
             focusRingInsetClasses,
             classNames?.viewport
           )}
+          // Base UI's viewport scrolls both ways, so an area with one axis shuts
+          // the other itself: a `<pre>` or a long URL would otherwise scroll
+          // sideways with no lane to show it. Both longhands are always written,
+          // so a change of `orientation` updates one rather than taking it out
+          // from under the `overflow` shorthand Base UI sets.
+          style={{
+            overflowX: horizontal ? 'scroll' : 'hidden',
+            overflowY: vertical ? 'scroll' : 'hidden'
+          }}
         >
           <ScrollArea.Content>{children}</ScrollArea.Content>
         </ScrollArea.Viewport>

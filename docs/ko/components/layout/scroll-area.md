@@ -68,6 +68,8 @@ PlScrollArea(
 
 `orientation`은 기본이 `vertical`, 한 줄짜리에는 `horizontal`, 두 모서리로 넘치는 격자에는 `both`입니다. `both`는 각 모서리에 레인을 그리고 만나는 자리를 모서리 조각이 채웁니다.
 
+지정한 축으로만 스크롤됩니다. `vertical` 영역은 옆으로 움직이지 않으므로, 코드 블록이나 긴 URL처럼 상자보다 넓어질 수 있는 내용은 줄바꿈되게 하거나 영역을 `both`로 두세요.
+
 <Demo src="scroll-area/axes" :min-height="260">
 
 ::: fw react

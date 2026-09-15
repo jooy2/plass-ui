@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A `vertical` `PlScrollArea` no longer scrolls sideways.** The viewport scrolled both ways, so a `<pre>` or a long URL wider than the box could be scrolled horizontally with no scrollbar to show it. An area now scrolls only along the axes `orientation` names, as in the Flutter build, and content wider than a `vertical` area is cut off at the edge. Let such content wrap, or use `orientation="both"`.
+
 - **A collapsed `PlSidebar` opens from the side its `PlassProvider` `direction` says.** The drawer read only the document's direction, so a `start` sidebar in a right-to-left subtree of a left-to-right page slid in from the left. It now follows the `direction` of the nearest provider, and the document's direction when no provider names one, as the Flutter build follows `Directionality`.
 
 - **A `PlCarousel` with its own `onPointerEnter` or `onFocus` still pauses `autoPlay` under the pointer and with the focus inside.** The caller's `onPointerEnter`, `onPointerLeave`, `onFocus` and `onBlur` replaced the carousel's own instead of running beside them. Passing one of them let the slides keep turning while the reader pointed at them or had tabbed into them, or kept a paused carousel from starting again. The carousel's handlers and the caller's now both run.

@@ -68,6 +68,8 @@ There is deliberately **no fade here**. A fade says "there is more"; the bar say
 
 `orientation` is `vertical` by default, `horizontal` for a row, and `both` for a grid that runs off two edges, where a lane is drawn along each and a corner fills the join.
 
+Only the axes it names scroll. A `vertical` area never moves sideways, so content that can grow wider than the box, such as a block of code or a long URL, has to wrap, or the area has to be `both`.
+
 <Demo src="scroll-area/axes" :min-height="260">
 
 ::: fw react

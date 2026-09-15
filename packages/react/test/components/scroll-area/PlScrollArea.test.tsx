@@ -121,6 +121,38 @@ describe('PlScrollArea', () => {
       await expect.poll(() => lanes().length).toBe(2);
       expect(lanes().map((lane) => lane.dataset.orientation)).toEqual(['vertical', 'horizontal']);
     });
+
+    it('scrolls only along the axes it was given', async () => {
+      const area = (orientation: 'vertical' | 'horizontal' | 'both') => (
+        <PlScrollArea
+          className="area-under-test"
+          classNames={{ viewport: 'area-viewport' }}
+          orientation={orientation}
+          height={200}
+          width={200}
+        >
+          <Tall />
+        </PlScrollArea>
+      );
+      const overflow = () => {
+        const style = getComputedStyle(viewport());
+
+        return [style.overflowX, style.overflowY];
+      };
+
+      const screen = await render(area('vertical'));
+
+      // The content runs off both edges, and only an axis with a lane may move:
+      // a sideways scroll with no bar to show it is one a reader cannot see.
+      await expect.poll(() => viewport().scrollWidth > viewport().clientWidth).toBe(true);
+      expect(overflow()).toEqual(['hidden', 'scroll']);
+
+      await screen.rerender(area('horizontal'));
+      await expect.poll(overflow).toEqual(['scroll', 'hidden']);
+
+      await screen.rerender(area('both'));
+      await expect.poll(overflow).toEqual(['scroll', 'scroll']);
+    });
   });
 
   describe('scrollbars', () => {
