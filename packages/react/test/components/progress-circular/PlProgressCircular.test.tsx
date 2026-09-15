@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlProgressCircular } from 'plass-ui';
+import { PlProgressCircular, PlassProvider } from 'plass-ui';
 
 /** The arc, which is the second circle in the ring's `<svg>`. */
 function arcOf(element: Element): SVGCircleElement {
@@ -35,6 +35,20 @@ describe('PlProgressCircular', () => {
 
       await expect.element(screen.getByText('Loading')).toBeInTheDocument();
       await expect.element(screen.getByText('40%')).toBeInTheDocument();
+    });
+
+    it('writes the value in the locale of the provider', async () => {
+      const percent = new Intl.NumberFormat('de-DE', { style: 'percent' }).format(0.75);
+      const screen = await render(
+        <PlassProvider locale="de-DE">
+          <PlProgressCircular value={3} min={0} max={4} showValue />
+        </PlassProvider>
+      );
+      const bar = screen.getByRole('progressbar');
+
+      expect(percent).not.toBe('75%');
+      await expect.element(bar).toHaveAttribute('aria-valuetext', percent);
+      expect(bar.element().textContent).toContain(percent);
     });
 
     it('shows the value as a percentage of the range, not of 100', async () => {

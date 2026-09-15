@@ -84,7 +84,8 @@ export const PlProgressBox = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
         min={min}
         max={max}
         format={format}
-        getAriaValueText={progressAriaText(fraction, hasFormat)}
+        locale={defaults.locale}
+        getAriaValueText={progressAriaText(fraction, hasFormat, defaults.locale)}
         className={cx('inline-flex flex-col', stackGapClasses[size], className)}
         style={{ ...progressSlots(color), ...style }}
         {...props}
@@ -104,7 +105,7 @@ export const PlProgressBox = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
             ) : null}
             {showValue ? (
               <Progress.Value className="shrink-0 tabular-nums text-(--plass-muted-fg)">
-                {(formatted) => progressText(fraction, formatted, hasFormat)}
+                {(formatted) => progressText(fraction, formatted, hasFormat, defaults.locale)}
               </Progress.Value>
             ) : null}
           </div>

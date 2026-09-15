@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlProgressLinear } from 'plass-ui';
+import { PlProgressLinear, PlassProvider } from 'plass-ui';
 
 describe('PlProgressLinear', () => {
   describe('rendering', () => {
@@ -47,6 +47,39 @@ describe('PlProgressLinear', () => {
       const screen = await render(<PlProgressLinear showValue label="Working" />);
 
       expect(screen.getByText('%').query()).toBeNull();
+    });
+
+    it('writes the value in the locale of the provider', async () => {
+      const percent = new Intl.NumberFormat('de-DE', { style: 'percent' }).format(0.75);
+      const screen = await render(
+        <PlassProvider locale="de-DE">
+          <PlProgressLinear value={3} min={0} max={4} showValue />
+        </PlassProvider>
+      );
+      const bar = screen.getByRole('progressbar');
+
+      expect(percent).not.toBe('75%');
+      await expect.element(bar).toHaveAttribute('aria-valuetext', percent);
+      expect(bar.element().textContent).toContain(percent);
+    });
+
+    it('formats the value in that locale when told how', async () => {
+      const amount = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 1 }).format(1234.5);
+      const screen = await render(
+        <PlassProvider locale="de-DE">
+          <PlProgressLinear
+            value={1234.5}
+            max={4000}
+            showValue
+            format={{ maximumFractionDigits: 1 }}
+          />
+        </PlassProvider>
+      );
+      const bar = screen.getByRole('progressbar');
+
+      expect(amount).not.toBe('1,234.5');
+      await expect.element(bar).toHaveAttribute('aria-valuetext', amount);
+      expect(bar.element().textContent).toContain(amount);
     });
 
     it('formats the value when told how', async () => {

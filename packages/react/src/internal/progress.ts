@@ -18,6 +18,7 @@
 
 import type * as React from 'react';
 import type { PlassColor, PlassSize } from '../types.js';
+import { numberFormatter } from './format.js';
 import { forcedFieldEdgeClasses, forcedFillClasses } from './styles.js';
 
 /**
@@ -219,25 +220,31 @@ export function progressFraction(
   return Math.min(1, Math.max(0, (value - min) / (max - min)));
 }
 
+/** The percentage a value is written as when nobody said what it means. */
+const percentOptions: Intl.NumberFormatOptions = { style: 'percent' };
+
 /**
  * What the value reads as, both on screen and to a screen reader.
  *
- * Base UI's own default is `${value}%`, which is right only when the range
- * happens to be 0–100 — "3%" for step 3 of 4 is worse than saying nothing. So
- * the percentage is computed from the fraction, and a caller who passed
- * `format` gets Base UI's formatted string instead, because at that point they
- * have said what the number means.
+ * Without `format` it is a percentage of the range rather than of 100 — "3%"
+ * for step 3 of 4 is worse than saying nothing — written in `locale`, so a page
+ * in German reads "75 %". Base UI's own default is that percentage too, but it
+ * reads a value that is not finite as indeterminate where `progressFraction`
+ * clamps it, so the percentage is written here from the fraction. A caller who
+ * passed `format` gets Base UI's formatted string, in the same `locale`, because
+ * at that point they have said what the number means.
  */
 export function progressText(
   fraction: number | null,
   formatted: string | null,
-  hasFormat: boolean
+  hasFormat: boolean,
+  locale: string | undefined
 ): string | null {
   if (fraction === null) {
     return null;
   }
 
-  return hasFormat ? formatted : `${Math.round(fraction * 100)}%`;
+  return hasFormat ? formatted : numberFormatter(locale, percentOptions).format(fraction);
 }
 
 /**
@@ -249,11 +256,12 @@ export function progressText(
  */
 export function progressAriaText(
   fraction: number | null,
-  hasFormat: boolean
+  hasFormat: boolean,
+  locale: string | undefined
 ): ((formatted: string | null) => string) | undefined {
   if (fraction === null) {
     return undefined;
   }
 
-  return (formatted) => progressText(fraction, formatted, hasFormat) ?? '';
+  return (formatted) => progressText(fraction, formatted, hasFormat, locale) ?? '';
 }

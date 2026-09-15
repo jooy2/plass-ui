@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlProgressBox } from 'plass-ui';
+import { PlProgressBox, PlassProvider } from 'plass-ui';
 
 /** The fill layer inside each plate, in order. */
 function fillsOf(element: Element): HTMLElement[] {
@@ -28,6 +28,20 @@ describe('PlProgressBox', () => {
       const screen = await render(<PlProgressBox label="Working" />);
 
       expect(screen.getByRole('progressbar').element()).not.toHaveAttribute('aria-valuenow');
+    });
+
+    it('writes the value in the locale of the provider', async () => {
+      const percent = new Intl.NumberFormat('de-DE', { style: 'percent' }).format(0.75);
+      const screen = await render(
+        <PlassProvider locale="de-DE">
+          <PlProgressBox value={3} min={0} max={4} showValue />
+        </PlassProvider>
+      );
+      const bar = screen.getByRole('progressbar');
+
+      expect(percent).not.toBe('75%');
+      await expect.element(bar).toHaveAttribute('aria-valuetext', percent);
+      expect(bar.element().textContent).toContain(percent);
     });
 
     it('renders the label and the value', async () => {

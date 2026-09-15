@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **`PlProgressLinear`, `PlProgressCircular` and `PlProgressBox` write their value in the provider's `locale`.** Unlike `PlMeter`, they did not pass on the `locale` of the nearest `PlassProvider`, so a `format` followed the browser's language and the percentage shown without one was always written `75%`. Both now follow the provider, so `locale="de-DE"` writes `75 %` on screen and in `aria-valuetext`. Without a provider, the percentage follows the browser's language, as a `format` already did.
+
 - **A `PlSkeleton` with a `label` says it to a screen reader.** The label was only the name of its `role="status"`, and a screen reader reads out the text inside a live region, not its name. The status was also `aria-busy`, which tells a screen reader to wait until the region is no longer busy, and a skeleton is removed instead. The label is now visually hidden text inside the status, and the status is no longer `aria-busy`. Put `aria-busy` on the region being loaded if it needs one.
 
 - **Adding a step at the start of a `PlTimeline` keeps the steps already there.** Each step was keyed by its position, so a new first event in an activity feed remounted every step after it and threw away their state. A step is now keyed by its own `key`.
