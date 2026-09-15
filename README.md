@@ -191,7 +191,7 @@ React-only, and the machinery the library already ran on rather than anything ne
 | `usePlElementSize`     | The size of an element's content box, kept up to date as it changes      |
 | `usePlOnScreen`        | Whether an element has been seen, or is on screen now with `once: false` |
 
-`usePlassDefaults` and `usePlToast` live with the part they belong to rather than in `plass-ui/hooks`. `usePlassDefaults` returns what the nearest `PlassProvider` decided, and is imported from the barrel or from `plass-ui/provider`. `usePlToast` raises a toast from a click handler under a `PlToastProvider`, and is imported from the barrel or from `plass-ui/toast`.
+`usePlassDefaults`, `usePlToast` and `usePlConfirm` live with the part they belong to rather than in `plass-ui/hooks`. `usePlassDefaults` returns what the nearest `PlassProvider` decided, and is imported from the barrel or from `plass-ui/provider`. `usePlToast` raises a toast from a click handler under a `PlToastProvider`, and is imported from the barrel or from `plass-ui/toast`. `usePlConfirm` asks a question from a click handler under a `PlConfirmProvider` and waits for the answer, and is imported from the barrel or from `plass-ui/confirm`.
 
 Flutter answers the same questions with framework calls (`MediaQuery`, `PlassTheme`) rather than with anything this package would add. Each hook's page names the Dart equivalent.
 
