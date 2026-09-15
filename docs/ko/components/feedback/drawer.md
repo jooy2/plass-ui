@@ -144,7 +144,7 @@ PlDrawer(
 | --- | --- | --- |
 | `open` / `defaultOpen` / `onOpenChange` | `open` / `onOpenChanged` | Flutter의 컨트롤은 controlled이고, 이 패키지의 상태 있는 위젯도 전부 그렇습니다. |
 | `trigger` | — | 여기서는 트리거를 연결할 *대상*이 없습니다. 앱이 `open`을 세워 서랍을 열고, 그 일을 하는 버튼은 앱의 것입니다. |
-| `PlDrawerClose` | — | 저쪽에서는 _uncontrolled_ 서랍의 Cancel 버튼이 부를 것이 필요해서 있습니다. 여기서는 모든 서랍이 controlled이므로 버튼은 이미 `onOpenChanged`를 있습니다. |
+| `PlDrawerClose` | — | 저쪽에서는 _uncontrolled_ 서랍의 Cancel 버튼이 부를 것이 필요해서 있습니다. 여기서는 모든 서랍이 controlled이므로 버튼에는 이미 `onOpenChanged`가 있습니다. |
 | `extent: number \| string` | `extent: double` | 픽셀은 픽셀 그대로입니다. 받을 CSS 길이가 없습니다. |
 | `modal: boolean \| 'trap-focus'` | `modal: bool` | 달라지는 두 값은 "포인터를 막는다"와 "막지 않는다"입니다. Flutter에는 세 번째가 될 스크롤 잠금이 없습니다. |
 | `className`, `style` | — | 전달할 class 목록도 style 속성도 없습니다. |

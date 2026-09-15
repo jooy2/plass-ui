@@ -183,7 +183,6 @@ const closeButtonClasses = /* @__PURE__ */ [
   focusRingClasses
 ].join(' ');
 
-/** Whatever the step is pointing at, in whichever of the three forms it came. */
 /** A point in the middle of the viewport, for a step with no target. */
 const viewportCentre = {
   getBoundingClientRect: () =>
@@ -194,6 +193,7 @@ const viewportCentre = {
 const centreOnAnchor = ({ positioner }: { positioner: { height: number } }) =>
   -positioner.height / 2;
 
+/** Whatever the step is pointing at, in whichever of the three forms it came. */
 function resolve(target: PlTourTarget | undefined): Element | null {
   if (target === undefined) {
     return null;
