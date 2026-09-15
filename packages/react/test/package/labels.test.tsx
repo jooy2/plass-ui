@@ -38,6 +38,36 @@ function said(entry: unknown): unknown {
   return typeof entry === 'function' ? (entry as (...values: unknown[]) => string)(3, 12) : entry;
 }
 
+/**
+ * The keys each pack is allowed to share with English, and no others.
+ *
+ * A handful of words genuinely survive translation, and they are named here one
+ * at a time rather than counted. Counting is what let the old version of this
+ * test pass with a word left behind: a pack under an allowance of eight had
+ * room for the next component's untranslated key to hide.
+ */
+const sharedWithEnglish: Record<string, readonly (keyof typeof defaultLabels)[]> = {
+  // `OK`, `Optional`, `Overlay`, `Code`, `Minute` and `AM/PM` are written the
+  // same way in German.
+  de: ['acknowledge', 'optional', 'overlay', 'code', 'minute', 'meridiem'],
+  es: [],
+  // `OK`, `Notifications`, `Pagination`, `Code`, `Minute`, `AM/PM`, and
+  // `Page 3`, which French writes in English's order.
+  fr: [
+    'acknowledge',
+    'notifications',
+    'pagination',
+    'code',
+    'minute',
+    'meridiem',
+    'paginationPage'
+  ],
+  // `OK`, which is what a Japanese dialog's one button says.
+  ja: ['acknowledge'],
+  ko: [],
+  zhHans: []
+};
+
 describe('the label set', () => {
   it('ships more than one language', () => {
     expect(packs.length).toBeGreaterThan(1);
@@ -49,19 +79,24 @@ describe('the label set', () => {
     expect(Object.keys(pack).sort()).toEqual(Object.keys(defaultLabels).sort());
   });
 
-  it.each(packs)('%s translates every one of them', (name, pack) => {
+  it.each(packs)('%s translates every key it does not share on purpose', (name, pack) => {
     if (name === 'en') {
       return;
     }
 
-    const untranslated = Object.entries(pack).filter(
-      ([key, value]) => said(value) === said(defaultLabels[key as keyof typeof defaultLabels])
-    );
+    const untranslated = Object.entries(pack)
+      .filter(
+        ([key, value]) => said(value) === said(defaultLabels[key as keyof typeof defaultLabels])
+      )
+      .map(([key]) => key)
+      .sort();
 
-    // A handful of strings genuinely survive translation — `AM/PM`, `Overlay`,
-    // `Minute`, `OK`, German's `Optional` — so the check is that a pack is a
-    // translation rather than a copy, not that every single word differs.
-    expect(untranslated.length).toBeLessThan(8);
+    expect(
+      untranslated,
+      'A key here that is not in sharedWithEnglish is a word left in English, most often a key ' +
+        'a new component added to the label set that only the English pack answered. A key in ' +
+        'sharedWithEnglish that is not here has since been translated and should leave the list.'
+    ).toEqual([...(sharedWithEnglish[name] ?? [])].sort());
   });
 
   it.each([
