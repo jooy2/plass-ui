@@ -354,9 +354,12 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
             )}
             onScroll={handleScroll}
           >
+            {/* Keyed by the slide's own key, which `toArray` has given every
+                element (by position where the caller gave none), so a slide
+                added at the front does not remount every slide after it. */}
             {slides.map((slide, slideIndex) => (
               <div
-                key={slideIndex}
+                key={React.isValidElement(slide) ? (slide.key ?? slideIndex) : slideIndex}
                 ref={(element) => {
                   slideRefs.current[slideIndex] = element;
                 }}

@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **Adding a slide at the front of a `PlCarousel` keeps the slides already there.** Each slide was keyed by its position, so a new first slide remounted every slide after it and threw away their state, such as a playing video or a half-filled form. A slide is now keyed by its own `key`.
+
 - **A vertical `PlStepper` shows only the panel of the step `active` is on.** The panel opened on any step whose `status` was `current`, so marking a step behind the reader `current` again, as for one that failed validation, opened a second panel, and giving the active step another `status` closed its own. The panel now follows `active` whatever `status` says, as the horizontal panel and the Flutter build already did.
 
 - **A screen reader names the panel of a horizontal `PlStepper` after its step.** The panel carried `aria-labelledby` on a `div` with no role, and a name on such an element is never read, so moving into the panel said nothing about which step it belonged to. The panel is now a `role="group"` named by the step's label.

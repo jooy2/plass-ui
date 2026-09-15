@@ -54,6 +54,21 @@ describe('PlCarousel', () => {
       expect(screen.getByText('Alpha').query()).toBeNull();
     });
 
+    it('keeps the slides it had mounted when one is added at the front', async () => {
+      const screen = await render(<PlCarousel>{slides}</PlCarousel>);
+      const before = ['Alpha', 'Bravo', 'Charlie'].map((text) => screen.getByText(text).element());
+
+      await screen.rerender(<PlCarousel>{[<p key="new">Delta</p>, ...slides]}</PlCarousel>);
+
+      await expect.element(screen.getByRole('group', { name: 'Slide 4 of 4' })).toBeInTheDocument();
+
+      // A slide that was remounted is a new `<p>`, and whatever state a video or
+      // a form inside it held went with the old one.
+      const after = ['Alpha', 'Bravo', 'Charlie'].map((text) => screen.getByText(text).element());
+
+      expect(after.every((element, index) => element === before[index])).toBe(true);
+    });
+
     it('names each slide through slideLabel', async () => {
       const screen = await render(
         <PlCarousel slideLabel={(index, count) => `${index}/${count}`}>{slides}</PlCarousel>
