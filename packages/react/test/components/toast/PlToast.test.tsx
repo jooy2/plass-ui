@@ -80,9 +80,8 @@ describe('PlToast', () => {
       await expect.element(screen.getByText('Saved')).toBeInTheDocument();
 
       // Queried by attribute rather than by role: Base UI hides the × from the
-      // accessibility tree, because a screen reader reaches a toast with F6 and
-      // is given the close action there rather than as a stray button in the
-      // page's tab order.
+      // accessibility tree until the focus or the pointer is inside the stack,
+      // so a screen reader browsing the page does not meet it as a stray button.
       closeButton().click();
 
       await expect.element(screen.getByText('Saved')).not.toBeInTheDocument();

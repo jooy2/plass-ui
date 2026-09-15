@@ -202,7 +202,7 @@ One toast that follows a <Fw react="promise" flutter="future" />: the loading me
 
 - Base UI owns the parts that are genuinely hard and invisible when they work: the timers and their pausing on hover and on window blur, the limit, the swipe, the F6 focus hotkey, and the live region that makes a message which appeared out of nowhere reach a screen reader at all.
 - `priority` picks the live region. `high` interrupts whatever is being read and `low` waits for a pause. An error is worth interrupting for and a save confirmation is not.
-- The × is deliberately not in the page's tab order and is hidden from the accessibility tree. A screen reader reaches a toast with **F6** and is given the close action there, rather than finding a stray button from a message that may already be gone.
+- Tab reaches a toast and then its ×, and **F6** moves the focus straight to the stack from anywhere on the page. Until the focus or the pointer is inside the stack, the × is hidden from the accessibility tree, so a screen reader browsing the page does not meet a stray button from a message that may already be gone.
 - A toast pushed out by `limit` stays in the DOM so it can come back, and says nothing while it waits.
 - The stack is `pointer-events-none` across its full width, so the strip along the top or the bottom of the page is not a wall the rest of the app is behind. The toasts themselves take their events back.
 
