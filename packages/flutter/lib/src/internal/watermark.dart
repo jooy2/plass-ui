@@ -199,10 +199,13 @@ class _TiledWatermarkPainter extends CustomPainter {
     canvas.translate(size.width / 2, size.height / 2);
     canvas.rotate(angle * math.pi / 180);
 
-    // Half again the box in both directions, so the turn never brings an
-    // uncovered corner into view.
-    final double reachX = size.width * 0.75 + stepX;
-    final double reachY = size.height * 0.75 + stepY;
+    // Half the box's diagonal in both directions, and a step past it: every
+    // corner lies on the circle that diagonal draws, and no turn of the grid
+    // about the middle takes any of it out of reach, at any angle and on a
+    // picture of any shape.
+    final double reach = math.sqrt(size.width * size.width + size.height * size.height) / 2;
+    final double reachX = reach + stepX;
+    final double reachY = reach + stepY;
 
     for (double y = -reachY; y < reachY; y += stepY) {
       for (double x = -reachX; x < reachX; x += stepX) {

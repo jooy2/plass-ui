@@ -76,6 +76,13 @@ function tileUri(text: string, color: string, fontSize: number): string {
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 }
 
+/**
+ * The side of the turned tile layer: the longer side of the box times a little
+ * over √2, which is never shorter than the diagonal. `max()` rather than an
+ * exact `hypot()`, which fewer of the browsers the tokens already need have.
+ */
+const TILE_REACH = 'calc(max(100cqw, 100cqh) * 1.415)';
+
 const cornerClasses: Record<Exclude<PlassWatermarkPlacement, 'tile'>, string> = {
   'top-start': 'top-2 start-2',
   'top-end': 'top-2 end-2',
@@ -110,15 +117,24 @@ export function PlassWatermark({ watermark }: { watermark: string | PlassWaterma
 
   if (placement === 'tile') {
     return (
-      <span aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+        // What the layer's container units read.
+        style={{ containerType: 'size' }}
+      >
         <span
           className="absolute block"
           style={{
-            // Half again the box in both directions, pulled back by a quarter,
-            // so the turn never brings an uncovered corner into view.
-            inset: '-25%',
-            width: '150%',
-            height: '150%',
+            // A square centred on the box, as wide as the box's diagonal or
+            // more: every corner lies on the circle that diagonal draws, and
+            // no turn of the square about the middle uncovers any of it, at any
+            // angle and on a picture of any shape.
+            top: '50%',
+            left: '50%',
+            width: TILE_REACH,
+            height: TILE_REACH,
+            translate: '-50% -50%',
             opacity,
             transform: `rotate(${angle}deg)`,
             backgroundImage: tileUri(text, color, fontSize),

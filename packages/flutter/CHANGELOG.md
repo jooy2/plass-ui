@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **A tiled `PlImage` watermark covers every corner of a wide or tall picture.** The turned grid was laid out a fixed share past each side, so from about 2:1 two opposite corners were left as empty triangles. It is now laid out from the diagonal of the picture, which no turn can uncover.
+
 - **A pressable `PlGallery` tile is described by the caption it draws.** The tile's semantics replaced everything under it with the picture's `semanticLabel` and its place in the set, so the `title` and `description` on it were never read. The lines a tile draws are now its semantics `hint`, a `PlGalleryCaption.hover` caption included before the pointer has shown it. The label is unchanged.
 
 - **A `PlCodeBlock` tells a screen reader whether raw is pressed and whether the copy worked.** The raw toggle had no toggled state, and the copy button changed its own word without saying it, so a reader whose focus had moved on heard nothing. The toggle now carries a toggled state, and the block announces `copiedLabel` or `copyFailedLabel` once the clipboard has answered, as the React build does with `aria-pressed` and its live region.
