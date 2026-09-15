@@ -237,10 +237,13 @@ export const PlAnimateSplit = /* @__PURE__ */ React.forwardRef<
 
     return (
       // `inline-block`, because a transform does not apply to a non-replaced
-      // inline element — the part would fade and never move.
+      // inline element — the part would fade and never move. It wraps inside
+      // itself, as the `Text` of a part does in the Flutter build: a line of
+      // Chinese or Japanese has no space to cut at, so the whole line is one
+      // part, and a part that could not wrap would run out of its box.
       <span
         key={key}
-        className={`${partClass} inline-block whitespace-pre`}
+        className={`${partClass} inline-block whitespace-normal`}
         style={
           {
             ...animationSlots(

@@ -263,6 +263,22 @@ describe('PlAnimateSplit', () => {
       }
     });
 
+    it('wraps a word part that has nothing to wrap between it and the next', async () => {
+      // A Japanese sentence has no space to cut at, so cut by word it is one
+      // part — and one part far wider than the box it is in.
+      await render(
+        <div className="box-under-test" style={{ font: '16px monospace', width: '120px' }}>
+          <PlAnimateSplit className="split-under-test">日本語の文章はとても長いです</PlAnimateSplit>
+        </div>
+      );
+
+      const box = document.querySelector<HTMLElement>('.box-under-test')!.getBoundingClientRect();
+      const part = parts()[0].getBoundingClientRect();
+
+      expect(parts()).toHaveLength(1);
+      expect(part.right).toBeLessThanOrEqual(box.right + 0.5);
+    });
+
     it('wraps a line in a script without spaces between its characters', async () => {
       // A Japanese sentence has no gaps to wrap in. It starts on the line of the
       // word before it and wraps between its characters, rather than dropping
