@@ -117,9 +117,10 @@ describe('PlScrollZone', () => {
     it('ends a press let go outside the strip before it became a drag', async () => {
       const screen = await render(<PlScrollZone data-testid="zone">{cards}</PlScrollZone>);
       const element = scroller(screen);
+      const pointerId = await moveMouseOntoPage();
       const pointer = (type: string, init: PointerEventInit) =>
         element.dispatchEvent(
-          new PointerEvent(type, { bubbles: true, pointerType: 'mouse', pointerId: 1, ...init })
+          new PointerEvent(type, { bubbles: true, pointerType: 'mouse', pointerId, ...init })
         );
 
       pointer('pointerdown', { button: 0, buttons: 1, clientX: 200, clientY: 10 });

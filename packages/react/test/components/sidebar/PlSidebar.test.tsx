@@ -322,12 +322,13 @@ describe('PlSidebar', () => {
       );
 
       const handle = screen.getByRole('separator').element();
+      const pointerId = await moveMouseOntoPage();
 
       handle.dispatchEvent(
         new PointerEvent('pointerdown', {
           bubbles: true,
           pointerType: 'mouse',
-          pointerId: 1,
+          pointerId,
           button: 2,
           buttons: 2,
           clientX: 200
