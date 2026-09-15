@@ -4,6 +4,8 @@
 
 ## vNext (2026--)
 
+## 1.5.0 (2026-09-15)
+
 ### Breaking changes
 
 - **A label pack now holds functions, so a Server Component cannot pass one to `PlassProvider`.** React does not send a function across the server boundary. Render the `PlassProvider` that takes a pack from a file with `'use client'` at the top.
@@ -13,6 +15,44 @@
 - **Picking a day in `PlDateTimePicker` keeps the moment inside `minDate` and `maxDate`.** The day that holds a bound stays selectable, and picking it used to keep the clock as it was, or put midnight on it, without checking the bound again. With `minDate={new Date()}`, picking today committed today at 00:00. The clock is now moved into the bounds, up to the next whole minute (or second, with `showSeconds`) at or after `minDate` and down to the last one at or before `maxDate`. A clock that is already inside the bounds is kept as before.
 
 - **A lone `width` or `height` on `PlImage` now sizes its box.** Passed alone, either one used to reach the `<img>` as an attribute and change nothing on the page. Now `height={200}` draws a box 200 pixels tall, and `width={320}` one 320 pixels wide. If you passed one of them only as a hint about the file, pass both dimensions of the file, or remove the one.
+
+### Added
+
+- **`PlShow` takes `render`, so a gate inside a paragraph can be a `<span>`.** It always rendered a `<div>`, which a `<p>` cannot hold, so the HTML parser closed the paragraph in front of it and a server-rendered page failed to hydrate. `render={<span />}` renders another element, and it gates the same way.
+
+- **`PlButton` takes `focusableWhenDisabled`.** A `disabled` button leaves the tab order, which drops the focus when a control becomes unavailable under it. With `focusableWhenDisabled` it stays a tab stop and is announced as unavailable, the way a stepper at the end of a `PlPagination` row now is.
+
+- **`PlAnchor` takes a `target`, for headings that scroll inside an element rather than the window.** In an app shell whose `<main>` scrolls on its own the window never moves, so no row was ever lit. `target` takes an element, a ref or a function returning one, as the `target` of `PlBackTop` does, and the reading line, `offset` and the last-row rule are measured against that element. Left out, the list follows the window as before.
+
+- **Eleven words join the label packs**, for the strings that were written into a component in English with no way to translate them but a prop: `acknowledge` (the OK on `PlConfirmProvider`'s alert), `optional` (`PlStep`), `notifications` (the region `PlToastProvider` announces toasts in), `sidebarOpen` (`PlSidebarTrigger`), `spoilerWarning` (`PlSpoiler`), `filePickerTitle` (`PlFilePicker`), and the five words a `PlChatBubble`'s mark says, `messageSending`, `messageSent`, `messageDelivered`, `messageRead` and `messageFailed`. All seven packs translate them. A pack of your own built against `PlassLabels` needs the new keys.
+
+- **`PlImage` and `PlAspectRatio` take `fit="scale-down"`.** It is `contain` that never enlarges a file smaller than the box.
+
+- **A lone `width` or `height` sizes a `PlImage`'s box.** A lone `height` is a box that tall across its container, and takes its width from a `ratio` when there is one. A lone `width` is a box that wide, never wider than its container. A number or a string of digits is pixels, and any other string is a CSS length. Both dimensions together keep describing the file. See Breaking changes for what this changes in existing code.
+
+- **`PlImage` takes a `position`.** `center`, a side, a corner such as `'top left'`, or two percentages such as `'30% 20%'`. It decides which part of the picture a `cover` crop keeps, and where `contain`, `none` and `scale-down` leave their empty space. It is read on the picture as it is shown, so `position="top"` keeps the top of what the reader sees through `rotate` and `flip`, and it is physical, so it does not move on a right-to-left page. Any other `object-position` value passes through as written.
+
+- **`PlImage` takes a `letterbox`.** It fills the part of the box that `contain`, `none` and `scale-down` leave empty. `blur` draws the picture itself behind it, covering the box and blurred, turned, mirrored, placed and tinted like the picture. The copy loads from the picture's own `src`, `srcSet`, `sizes`, `loading`, `decoding`, `crossOrigin` and `referrerPolicy`, so it costs no second request, and it is hidden from assistive technology and takes no pointer. Any other string is a CSS `background` painted on the box.
+
+- **A `PlImage` placeholder can be a picture.** <code v-pre>placeholder={{ src, blur }}</code> stands a small copy of the picture in while the file arrives, from a URL, a data URI or a `Blob`. It is drawn under the picture with the picture's `fit`, `position`, `rotate`, `flip` and `filter`, stays until the picture has finished fading in over it, and is then removed in one step, so the page never shows through a cross-fade. `blur: true` blurs it by 20 pixels and a number by that many. A `Blob` gets an object URL that is revoked when the stand-in goes, and the skeleton is not drawn while a picture stands in. The stand-in needs a reserved box, as the skeleton does.
+
+- **`PlImage` takes a `priority`.** For the picture a page is judged by, usually its Largest Contentful Paint image: it sets `loading="eager"` and a high fetch priority, and an attribute written out still wins. The attribute is written as `fetchPriority` under React 19 and as `fetchpriority` under React 18, so neither warns. A blurred `letterbox` copy is asked for the same way.
+
+- **`PlImage` takes a `rotate`.** `0`, `90`, `180` or `270` degrees clockwise, and any other number goes to the nearest quarter. A picture on its side is laid out on its side: `width` and `height` still describe the file, so `width={1200} height={800} rotate={90}` reserves a box two wide by three tall, a `ratio` is kept as the shape of the layout, and without either the box takes the turned shape once the file has loaded. The turn is the CSS `rotate` property rather than `transform`, so a `transform` of the caller's own still applies on top, and `preview` opens the picture turned the same way.
+
+- **`PlImage` takes a `flip`.** `horizontal`, `vertical` or `both`, along the axes the picture is shown on, so `flip="horizontal"` swaps left and right on the screen whether or not `rotate` has turned it. It is drawn with the CSS `scale` property, which leaves `transform` free, and `preview` opens the picture mirrored the same way.
+
+- **`PlGallery` carries the new `PlImage` props to its pictures.** An item takes `rotate`, `flip`, `position` and a picture `placeholder`, and the gallery takes `fit` (still `cover` by default), `letterbox` and `loading` for every tile. An item's `ratio` stays the stored file's proportion: a picture on its side is dealt into a masonry lane, grown in a justified row and opened in the viewer by its turned proportion, while a `grid` tile keeps the gallery's shape. Ratios of unturned items still reach the picture as written. `hover="zoom"` is now a `transform`, so it still zooms a mirrored picture.
+
+- **`PlImage` takes a `filter`.** Six named treatments — `grayscale`, `sepia`, `saturate`, `desaturate`, `contrast` and `dim` — and anything else you pass is used as a CSS `filter` chain exactly as written. It is set through a `--p-filter` slot and rides the house transition, which `filter` was already on, so a treatment swapped on hover travels at the same pace as the picture's own fade instead of snapping while the fade is still moving. The skeleton and the fallback are left alone.
+
+- **`PlImage` takes a `watermark`.** A bare string sits in the bottom corner; an object says where it goes, how visible it is and at what angle. `placement: 'tile'` covers the whole picture, which is what a proof or a preview wants — a corner mark is cropped off in a second. A tiled mark is one repeating SVG background rather than forty or fifty elements, and the layer is turned as one layer so the repeat has no seam. It is drawn only once the picture has arrived, is `aria-hidden`, takes no pointer, and follows the picture into `preview`.
+
+- **`PlImage` takes a `protect`.** Refuses the context menu, a drag out of the page, a text selection over the picture and — the one that is easy to forget — the iOS long-press callout, which on that platform _is_ the context menu. It is a deterrent and not a lock, and the documentation says so: the file is still one request away. A caller's own `onContextMenu` still runs and cannot turn the refusal off, and the refusal follows the picture into `preview`. There is no Flutter equivalent, because a Flutter app paints its pictures onto a canvas and there is no per-picture menu to refuse.
+
+- **`PlTabs` answers the wheel.** A bar with more tabs than room is a scroll container like any other, and a mouse has one wheel that points down the page — the one direction the bar does not run in — so the reader who could see there were more tabs had nothing to reach them with but the arrow keys, which also change the selection. A vertical wheel over an overflowing bar now moves it along, exactly as it does over a `PlScrollZone`. `wheel={false}` turns it off, a bar whose tabs all fit never takes the gesture, and a bar that runs down the side is left alone.
+
+- **`PlScrollZone` and `PlTabs` take an `overscroll`.** `'contain'`, the default, or `'auto'`, spelled after CSS's own `overscroll-behavior` and shared as `PlassOverscroll`. See below for what the default changes.
 
 ### Fixed
 
@@ -303,44 +343,6 @@
 - **A justified `PlGallery` no longer blows up its last row.** Every tile is grown in proportion to its own width, and the last row has fewer of them sharing the same width — so one leftover photograph stretched to fill it and stood two or three times as tall as the gallery above it. The list now carries a `::after` that eats the slack, which keeps the last row at the height it was aiming for. It is a pseudo-element rather than a filler item on purpose: an extra `<li>` would be an extra entry in a `role="list"`, counted by every screen reader that announces how many there are. The Flutter build already left its last row unstretched.
 
 - **`PlImage` no longer hides a picture that had already arrived.** The component moved out of its loading state on the `<img>`'s `load` event alone, and an event is only heard by something already listening: a file served from the cache — or one a server rendered, so the browser began fetching it while parsing the HTML — can finish decoding before React attaches the handler. The picture then sat at `opacity: 0` behind its own placeholder for good. It now asks the element where it got to on mount and on every `src` change, so a picture that is already `complete` is shown rather than waited for.
-
-### Added
-
-- **`PlShow` takes `render`, so a gate inside a paragraph can be a `<span>`.** It always rendered a `<div>`, which a `<p>` cannot hold, so the HTML parser closed the paragraph in front of it and a server-rendered page failed to hydrate. `render={<span />}` renders another element, and it gates the same way.
-
-- **`PlButton` takes `focusableWhenDisabled`.** A `disabled` button leaves the tab order, which drops the focus when a control becomes unavailable under it. With `focusableWhenDisabled` it stays a tab stop and is announced as unavailable, the way a stepper at the end of a `PlPagination` row now is.
-
-- **`PlAnchor` takes a `target`, for headings that scroll inside an element rather than the window.** In an app shell whose `<main>` scrolls on its own the window never moves, so no row was ever lit. `target` takes an element, a ref or a function returning one, as the `target` of `PlBackTop` does, and the reading line, `offset` and the last-row rule are measured against that element. Left out, the list follows the window as before.
-
-- **Eleven words join the label packs**, for the strings that were written into a component in English with no way to translate them but a prop: `acknowledge` (the OK on `PlConfirmProvider`'s alert), `optional` (`PlStep`), `notifications` (the region `PlToastProvider` announces toasts in), `sidebarOpen` (`PlSidebarTrigger`), `spoilerWarning` (`PlSpoiler`), `filePickerTitle` (`PlFilePicker`), and the five words a `PlChatBubble`'s mark says, `messageSending`, `messageSent`, `messageDelivered`, `messageRead` and `messageFailed`. All seven packs translate them. A pack of your own built against `PlassLabels` needs the new keys.
-
-- **`PlImage` and `PlAspectRatio` take `fit="scale-down"`.** It is `contain` that never enlarges a file smaller than the box.
-
-- **A lone `width` or `height` sizes a `PlImage`'s box.** A lone `height` is a box that tall across its container, and takes its width from a `ratio` when there is one. A lone `width` is a box that wide, never wider than its container. A number or a string of digits is pixels, and any other string is a CSS length. Both dimensions together keep describing the file. See Breaking changes for what this changes in existing code.
-
-- **`PlImage` takes a `position`.** `center`, a side, a corner such as `'top left'`, or two percentages such as `'30% 20%'`. It decides which part of the picture a `cover` crop keeps, and where `contain`, `none` and `scale-down` leave their empty space. It is read on the picture as it is shown, so `position="top"` keeps the top of what the reader sees through `rotate` and `flip`, and it is physical, so it does not move on a right-to-left page. Any other `object-position` value passes through as written.
-
-- **`PlImage` takes a `letterbox`.** It fills the part of the box that `contain`, `none` and `scale-down` leave empty. `blur` draws the picture itself behind it, covering the box and blurred, turned, mirrored, placed and tinted like the picture. The copy loads from the picture's own `src`, `srcSet`, `sizes`, `loading`, `decoding`, `crossOrigin` and `referrerPolicy`, so it costs no second request, and it is hidden from assistive technology and takes no pointer. Any other string is a CSS `background` painted on the box.
-
-- **A `PlImage` placeholder can be a picture.** <code v-pre>placeholder={{ src, blur }}</code> stands a small copy of the picture in while the file arrives, from a URL, a data URI or a `Blob`. It is drawn under the picture with the picture's `fit`, `position`, `rotate`, `flip` and `filter`, stays until the picture has finished fading in over it, and is then removed in one step, so the page never shows through a cross-fade. `blur: true` blurs it by 20 pixels and a number by that many. A `Blob` gets an object URL that is revoked when the stand-in goes, and the skeleton is not drawn while a picture stands in. The stand-in needs a reserved box, as the skeleton does.
-
-- **`PlImage` takes a `priority`.** For the picture a page is judged by, usually its Largest Contentful Paint image: it sets `loading="eager"` and a high fetch priority, and an attribute written out still wins. The attribute is written as `fetchPriority` under React 19 and as `fetchpriority` under React 18, so neither warns. A blurred `letterbox` copy is asked for the same way.
-
-- **`PlImage` takes a `rotate`.** `0`, `90`, `180` or `270` degrees clockwise, and any other number goes to the nearest quarter. A picture on its side is laid out on its side: `width` and `height` still describe the file, so `width={1200} height={800} rotate={90}` reserves a box two wide by three tall, a `ratio` is kept as the shape of the layout, and without either the box takes the turned shape once the file has loaded. The turn is the CSS `rotate` property rather than `transform`, so a `transform` of the caller's own still applies on top, and `preview` opens the picture turned the same way.
-
-- **`PlImage` takes a `flip`.** `horizontal`, `vertical` or `both`, along the axes the picture is shown on, so `flip="horizontal"` swaps left and right on the screen whether or not `rotate` has turned it. It is drawn with the CSS `scale` property, which leaves `transform` free, and `preview` opens the picture mirrored the same way.
-
-- **`PlGallery` carries the new `PlImage` props to its pictures.** An item takes `rotate`, `flip`, `position` and a picture `placeholder`, and the gallery takes `fit` (still `cover` by default), `letterbox` and `loading` for every tile. An item's `ratio` stays the stored file's proportion: a picture on its side is dealt into a masonry lane, grown in a justified row and opened in the viewer by its turned proportion, while a `grid` tile keeps the gallery's shape. Ratios of unturned items still reach the picture as written. `hover="zoom"` is now a `transform`, so it still zooms a mirrored picture.
-
-- **`PlImage` takes a `filter`.** Six named treatments — `grayscale`, `sepia`, `saturate`, `desaturate`, `contrast` and `dim` — and anything else you pass is used as a CSS `filter` chain exactly as written. It is set through a `--p-filter` slot and rides the house transition, which `filter` was already on, so a treatment swapped on hover travels at the same pace as the picture's own fade instead of snapping while the fade is still moving. The skeleton and the fallback are left alone.
-
-- **`PlImage` takes a `watermark`.** A bare string sits in the bottom corner; an object says where it goes, how visible it is and at what angle. `placement: 'tile'` covers the whole picture, which is what a proof or a preview wants — a corner mark is cropped off in a second. A tiled mark is one repeating SVG background rather than forty or fifty elements, and the layer is turned as one layer so the repeat has no seam. It is drawn only once the picture has arrived, is `aria-hidden`, takes no pointer, and follows the picture into `preview`.
-
-- **`PlImage` takes a `protect`.** Refuses the context menu, a drag out of the page, a text selection over the picture and — the one that is easy to forget — the iOS long-press callout, which on that platform _is_ the context menu. It is a deterrent and not a lock, and the documentation says so: the file is still one request away. A caller's own `onContextMenu` still runs and cannot turn the refusal off, and the refusal follows the picture into `preview`. There is no Flutter equivalent, because a Flutter app paints its pictures onto a canvas and there is no per-picture menu to refuse.
-
-- **`PlTabs` answers the wheel.** A bar with more tabs than room is a scroll container like any other, and a mouse has one wheel that points down the page — the one direction the bar does not run in — so the reader who could see there were more tabs had nothing to reach them with but the arrow keys, which also change the selection. A vertical wheel over an overflowing bar now moves it along, exactly as it does over a `PlScrollZone`. `wheel={false}` turns it off, a bar whose tabs all fit never takes the gesture, and a bar that runs down the side is left alone.
-
-- **`PlScrollZone` and `PlTabs` take an `overscroll`.** `'contain'`, the default, or `'auto'`, spelled after CSS's own `overscroll-behavior` and shared as `PlassOverscroll`. See below for what the default changes.
 
 ### Changed
 
