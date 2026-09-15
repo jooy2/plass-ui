@@ -65,21 +65,39 @@ The house curve is an **entrance's**: fast out of the gate, slow into place. A d
 
 The ordinary use, and about the only one: something decorative that is meant to be noticed at the edge of attention.
 
-```tsx
-<PlEmpty title="No projects yet">
-  <PlAnimateFloat>
-    <ProjectsMark />
-  </PlAnimateFloat>
-</PlEmpty>
-```
+<Demo src="animate-float/empty" :min-height="280">
+
+::: fw react
+
+<<< @/.vitepress/demos/animate-float/empty.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_float/empty.dart
+
+:::
+
+</Demo>
 
 ### Sideways, and further
 
-```tsx
-<PlAnimateFloat orientation="horizontal" distance={16} duration={5000}>
-  <Cloud />
-</PlAnimateFloat>
-```
+<Demo src="animate-float/sideways" :min-height="180">
+
+::: fw react
+
+<<< @/.vitepress/demos/animate-float/sideways.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_float/sideways.dart
+
+:::
+
+</Demo>
 
 `distance` is small by default on purpose. Past about a dozen pixels a drift stops being a drift and starts being something moving on the page.
 

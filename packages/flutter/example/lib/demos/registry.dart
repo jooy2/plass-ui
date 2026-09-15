@@ -191,6 +191,8 @@ import 'package:plass_ui_example/demos/stack/directions.dart';
 import 'package:plass_ui_example/demos/stack/deck.dart';
 import 'package:plass_ui_example/demos/stack/overflow.dart';
 import 'package:plass_ui_example/demos/animate_float/hero.dart';
+import 'package:plass_ui_example/demos/animate_float/empty.dart';
+import 'package:plass_ui_example/demos/animate_float/sideways.dart';
 import 'package:plass_ui_example/demos/animate_shake/hero.dart';
 import 'package:plass_ui_example/demos/animate_counter/hero.dart';
 import 'package:plass_ui_example/demos/animate_scramble/hero.dart';
@@ -612,6 +614,8 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'stack/deck': _stackDeck,
   'stack/overflow': _stackOverflow,
   'animate-float/hero': _animateFloatHero,
+  'animate-float/empty': _animateFloatEmpty,
+  'animate-float/sideways': _animateFloatSideways,
   'animate-shake/hero': _animateShakeHero,
   'animate-counter/hero': _animateCounterHero,
   'animate-scramble/hero': _animateScrambleHero,
@@ -1217,6 +1221,8 @@ Widget _stackDirections(BuildContext context) => const StackDirections();
 Widget _stackDeck(BuildContext context) => const StackDeck();
 Widget _stackOverflow(BuildContext context) => const StackOverflow();
 Widget _animateFloatHero(BuildContext context) => const AnimateFloatHero();
+Widget _animateFloatEmpty(BuildContext context) => const AnimateFloatEmpty();
+Widget _animateFloatSideways(BuildContext context) => const AnimateFloatSideways();
 
 Widget _animateShakeHero(BuildContext context) => const AnimateShakeHero();
 

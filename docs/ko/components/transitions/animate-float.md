@@ -65,21 +65,39 @@ const PlAnimateFloat(child: EmptyStateMark());
 
 흔한 쓰임이고, 거의 유일한 쓰임입니다. 주의의 가장자리에서 느껴지라고 있는 장식입니다.
 
-```tsx
-<PlEmpty title="No projects yet">
-  <PlAnimateFloat>
-    <ProjectsMark />
-  </PlAnimateFloat>
-</PlEmpty>
-```
+<Demo src="animate-float/empty" :min-height="280">
+
+::: fw react
+
+<<< @/.vitepress/demos/animate-float/empty.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_float/empty.dart
+
+:::
+
+</Demo>
 
 ### 옆으로, 더 멀리
 
-```tsx
-<PlAnimateFloat orientation="horizontal" distance={16} duration={5000}>
-  <Cloud />
-</PlAnimateFloat>
-```
+<Demo src="animate-float/sideways" :min-height="180">
+
+::: fw react
+
+<<< @/.vitepress/demos/animate-float/sideways.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_float/sideways.dart
+
+:::
+
+</Demo>
 
 `distance`의 기본값이 작은 것은 의도입니다. 열두 픽셀쯤을 넘으면 표류가 아니라 페이지 위에서 무언가 움직이는 것이 됩니다.
 
