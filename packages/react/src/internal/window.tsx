@@ -847,7 +847,9 @@ export function PlWindowControls({
             aria-label={name}
             title={name}
             className={cx(
-              'relative flex shrink-0 cursor-pointer items-center justify-center',
+              // `group/control` is what lets a traffic light answer the focus
+              // that is on it alone, against the set's own answer to the pointer.
+              'group/control relative flex shrink-0 cursor-pointer items-center justify-center',
               '[transition:background-color_var(--plass-duration)_var(--plass-ease),color_var(--plass-duration)_var(--plass-ease),filter_var(--plass-duration)_var(--plass-ease)]',
               'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:[outline-offset:-2px]',
               dots || circles ? 'rounded-full' : '',
@@ -901,12 +903,18 @@ export function PlWindowControls({
               back the moment the pointer is over the set. That is the same
               exception `chipRemoveClasses` makes to the rule against carrying
               state in `opacity` — nothing here is changing what it is.
+
+              A keyboard that reaches a light shows that light's mark too, as the
+              Flutter build does: the ring alone sits around a blank dot, and
+              three blank dots do not say which of the three it is on. The
+              pointer lights the whole set and the keyboard lights the one it is
+              on, because that is what each of the two is pointing at.
             */}
             <span
               className={cx(
                 'flex items-center justify-center',
                 dots
-                  ? 'opacity-0 [transition:opacity_var(--plass-duration)_var(--plass-ease)] group-hover/controls:opacity-100'
+                  ? 'opacity-0 [transition:opacity_var(--plass-duration)_var(--plass-ease)] group-hover/controls:opacity-100 group-focus-visible/control:opacity-100'
                   : ''
               )}
             >

@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A macOS traffic light in `PlWindowPane` shows its mark while it holds the keyboard focus.** The mark appeared under the pointer only, so a reader who tabbed to one got a focus ring around a blank coloured dot with nothing to say which of the three it was on. The pointer still lights the whole set, and the keyboard lights the one it has reached, as the Flutter build does.
+
 - **A `PlAnimateSplit` part wraps inside its own box.** Each part was `white-space: pre`, so a line with no space in it — a Chinese or Japanese sentence, which `by="word"` has nothing to cut at — was one part that ran out of its box instead of wrapping. A part now starts on a new line when it does not fit and wraps between its characters, as the `Text` of a part does in the Flutter build, and the line still enters as one part.
 
 - **`PlAnimateSplit` and `PlAnimateScramble` cut text by grapheme.** Both cut by code point, so a flag or a family emoji came apart into pieces that draw as broken glyphs, a letter and its combining accent became two parts, and the scramble drew half of a surrogate pair as noise. Both now cut with the `Intl.Segmenter` `PlAnimateTyping` already used, so the two packages produce the same parts. A browser without `Intl.Segmenter`, which is Firefox below 125, still cuts by code point.
