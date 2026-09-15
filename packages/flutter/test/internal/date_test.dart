@@ -155,4 +155,23 @@ void main() {
       expect(isYearOutside(day((2027, 1, 1)), null, max), isTrue);
     });
   });
+
+  group('displaySamples', () {
+    test('holds twenty-four instants', () {
+      expect(displaySamples, hasLength(24));
+    });
+
+    test('walks every month and every hour', () {
+      expect(<int>{for (final DateTime sample in displaySamples) sample.month}, hasLength(12));
+      expect(<int>{for (final DateTime sample in displaySamples) sample.hour}, hasLength(24));
+    });
+
+    test('writes a two-digit day, minute and second', () {
+      for (final DateTime sample in displaySamples) {
+        expect(sample.day, inInclusiveRange(21, 27));
+        expect(sample.minute, 58);
+        expect(sample.second, 58);
+      }
+    });
+  });
 }

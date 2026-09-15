@@ -14,13 +14,6 @@ import 'package:plass_ui/src/types.dart';
 
 export 'package:plass_ui/src/internal/date.dart' show PlassTimeUnit;
 
-/// Every hour of the clock with a two-digit minute, so the trigger can be held
-/// open at the widest thing it could ever say.
-final List<DateTime> _displaySamples = List<DateTime>.generate(
-  24,
-  (int index) => DateTime(2027, 1, 1, index, 58, 58),
-);
-
 /// A time of day, chosen from columns.
 ///
 /// ```dart
@@ -325,7 +318,7 @@ class _PlTimePickerState extends State<PlTimePicker> {
           : (widget.placeholder ?? const SizedBox.shrink()),
       semanticValue: value != null ? _write(value) : null,
       samples: <Widget>[
-        for (final DateTime sample in _displaySamples) Text(_write(sample)),
+        for (final DateTime sample in displaySamples) Text(_write(sample)),
         if (widget.placeholder != null) widget.placeholder!,
       ],
       empty: value == null,

@@ -39,24 +39,6 @@ const Map<PlDatePickerPrecision, PlassCalendarView> _precisionViews =
       PlDatePickerPrecision.year: PlassCalendarView.year,
     };
 
-/// Twenty-four instants that between them exercise everything a picker's display
-/// can vary by: all twelve month names, all seven weekday names and a two-digit
-/// day.
-///
-/// They exist to be measured, not read. A trigger is sized by its content, so
-/// `Jul 1, 2026` and `Sep 28, 2026` are different widths and the field would
-/// jump every time a date was chosen — with the whole row of controls beside it
-/// shuffling along. Laying all of these out invisibly pins the trigger to the
-/// widest thing it could ever say.
-///
-/// Both cycles are prime to twelve in the right way — `i % 12` walks the months
-/// and `i % 7` walks the days 21…27 — so every name appears without the two
-/// being multiplied out into eighty-four samples.
-final List<DateTime> _displaySamples = List<DateTime>.generate(
-  24,
-  (int index) => DateTime(2027, index % 12 + 1, 21 + index % 7),
-);
-
 /// One day, chosen from a calendar.
 ///
 /// ```dart
@@ -377,7 +359,7 @@ class _PlDatePickerState extends State<PlDatePicker> {
           : (widget.placeholder ?? const SizedBox.shrink()),
       semanticValue: value != null ? _write(value) : null,
       samples: <Widget>[
-        for (final DateTime sample in _displaySamples) Text(_write(sample)),
+        for (final DateTime sample in displaySamples) Text(_write(sample)),
         if (widget.placeholder != null) widget.placeholder!,
       ],
       empty: value == null,

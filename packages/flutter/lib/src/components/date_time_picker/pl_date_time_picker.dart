@@ -12,14 +12,6 @@ import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
-/// Twenty-four moments that between them exercise every month name, a two-digit
-/// day and every hour of the clock, so the trigger can be held open at the
-/// widest thing it could ever say.
-final List<DateTime> _displaySamples = List<DateTime>.generate(
-  24,
-  (int index) => DateTime(2027, index % 12 + 1, 21 + index % 7, index, 58),
-);
-
 /// A day and a time, in one popup.
 ///
 /// ```dart
@@ -353,7 +345,7 @@ class _PlDateTimePickerState extends State<PlDateTimePicker> {
           : (widget.placeholder ?? const SizedBox.shrink()),
       semanticValue: value != null ? _write(value) : null,
       samples: <Widget>[
-        for (final DateTime sample in _displaySamples) Text(_write(sample)),
+        for (final DateTime sample in displaySamples) Text(_write(sample)),
         if (widget.placeholder != null) widget.placeholder!,
       ],
       empty: value == null,

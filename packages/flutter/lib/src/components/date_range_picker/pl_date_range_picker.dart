@@ -13,13 +13,6 @@ import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
-/// Twenty-four days that between them exercise every month name and a two-digit
-/// day, so each half of the trigger can be held open at its widest.
-final List<DateTime> _displaySamples = List<DateTime>.generate(
-  24,
-  (int index) => DateTime(2027, index % 12 + 1, 21 + index % 7),
-);
-
 /// Two ends, either of which may be missing.
 ///
 /// A class rather than a record or a pair of parameters. A range is **one
@@ -390,7 +383,7 @@ class _PlDateRangePickerState extends State<PlDateRangePicker> {
       // of the two twice over, and the trigger would sit wider than anything it
       // can actually hold. So the samples are whole rows.
       samples: <Widget>[
-        for (final DateTime sample in _displaySamples) _display(tokens, sample, sample, glyph),
+        for (final DateTime sample in displaySamples) _display(tokens, sample, sample, glyph),
         // And the empty row: a placeholder is easily longer than any date, and a
         // trigger that shrank the moment the first end was chosen is the same
         // jump from the other direction.
