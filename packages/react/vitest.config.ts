@@ -59,7 +59,11 @@ export default defineConfig({
     // than polyfilling a DOM emulator.
     browser: {
       enabled: true,
-      provider: playwright(),
+      // One locale for every browser, and the one CI runs in. Left to itself
+      // WebKit takes the machine's, so on a system set to Korean a compact
+      // `1200000` reads `120만` and a dollar amount `US$1,240`, while Chromium
+      // and Firefox on the same machine still read `1.2M` and `$1,240`.
+      provider: playwright({ contextOptions: { locale: 'en-US' } }),
       headless: true,
       screenshotFailures: false,
       instances: resolveBrowsers().map((browser) => ({ browser })),
