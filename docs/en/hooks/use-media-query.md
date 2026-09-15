@@ -74,6 +74,6 @@ return wide ? <PlTable columns={columns} rows={rows} /> : <PlList>{…}</PlList>
 
 ## Notes
 
-- One `MediaQueryList` is kept per query string and shared by every component that asks for it, so a page with twenty responsive components installs one listener rather than twenty.
+- One `MediaQueryList` is kept per query string and shared by every component that asks for it, so a page with twenty responsive components has the browser evaluate the same string once. Each of those components still adds its own `change` listener to that shared list.
 - The query is read by the same engine the stylesheet is read by, so `(width >= 48rem)` here and `md:` in a class name change at the same moment, including when the reader has changed their root font size, which a measured `innerWidth` would get wrong.
 - A browser with no `matchMedia` answers `false` rather than throwing.

@@ -74,6 +74,6 @@ return wide ? <PlTable columns={columns} rows={rows} /> : <PlList>{…}</PlList>
 
 ## Notes
 
-- query 문자열 하나당 `MediaQueryList` 하나를 두고 그것을 묻는 모든 컴포넌트가 나눠 씁니다. 반응형 컴포넌트가 스무 개 있는 페이지가 리스너를 스무 개가 아니라 하나 답니다.
+- query 문자열 하나당 `MediaQueryList` 하나를 두고 그것을 묻는 모든 컴포넌트가 나눠 씁니다. 반응형 컴포넌트가 스무 개 있는 페이지에서도 브라우저는 같은 문자열을 한 번만 평가합니다. `change` 리스너는 그 공유된 목록에 컴포넌트마다 따로 답니다.
 - query는 스타일시트를 읽는 그 엔진이 읽습니다. 그래서 여기의 `(width >= 48rem)`과 클래스의 `md:`가 같은 순간에 바뀝니다. 사용자가 root font size를 바꿔 둔 경우까지 포함해서. `innerWidth`를 재는 방식은 그것을 틀립니다.
 - `matchMedia`가 없는 브라우저에서는 던지지 않고 `false`를 답합니다.

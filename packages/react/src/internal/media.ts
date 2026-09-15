@@ -16,9 +16,11 @@
  * markup that ships is the wide layout, the motion is the full one. React then
  * re-renders with the real answer as soon as it is hydrating in a browser.
  *
- * The subscription is per query rather than per component, which is what stops
- * a page with twenty responsive components installing twenty listeners for the
- * same string.
+ * One `MediaQueryList` is shared per query rather than made per component,
+ * which is what stops a page with twenty responsive components asking the
+ * browser about the same string twenty times. The subscription itself is still
+ * per component: `useSyncExternalStore` calls `subscribe` for each one, so each
+ * adds its own `change` listener to that shared list.
  */
 import * as React from 'react';
 
