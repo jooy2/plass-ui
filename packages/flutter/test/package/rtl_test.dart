@@ -363,6 +363,53 @@ void main() {
       expect(await press(LogicalKeyboardKey.arrowDown), 1);
     });
 
+    testWidgets('a chart legend stays on the physical side it was asked for', (
+      WidgetTester tester,
+    ) async {
+      // `PlassSide` is physical on purpose — a drawer's edge and a tooltip's
+      // side are — but a `Row` orders its children along the writing
+      // direction, so a legend asked for on the right was laid out on the left.
+      Future<({double legend, double plot})> place(PlassSide side, TextDirection direction) async {
+        await tester.pumpWidget(
+          host(
+            PlLineChart(
+              series: const <PlassChartSeries>[
+                PlassChartSeries(name: 'Web', data: <PlassChartDatum>[PlassChartDatum(1)]),
+                PlassChartSeries(name: 'Mobile', data: <PlassChartDatum>[PlassChartDatum(2)]),
+              ],
+              legend: PlChartLegend(side: side),
+            ),
+            width: 400,
+            textDirection: direction,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        return (
+          legend: tester.getTopLeft(find.text('Web')).dx,
+          plot: tester
+              .getRect(
+                find.byWidgetPredicate(
+                  (Widget widget) =>
+                      widget is CustomPaint && widget.painter != null && widget.size.height > 40,
+                ),
+              )
+              .center
+              .dx,
+        );
+      }
+
+      for (final TextDirection direction in both) {
+        final ({double legend, double plot}) right = await place(PlassSide.right, direction);
+
+        expect(right.legend, greaterThan(right.plot), reason: 'right in $direction');
+
+        final ({double legend, double plot}) left = await place(PlassSide.left, direction);
+
+        expect(left.legend, lessThan(left.plot), reason: 'left in $direction');
+      }
+    });
+
     testWidgets('every kind of surface lays out in both directions', (WidgetTester tester) async {
       // Nothing subtle: a widget that refuses a direction outright throws
       // during layout, and one loop here is cheaper than finding out from a

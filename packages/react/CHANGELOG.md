@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A chart legend asked for on the left or the right stays on that side under RTL.** `PlassSide` is a physical direction, but the legend was placed by the order of a flex row, which follows the writing direction, so `side: 'left'` put the legend on the right of an Arabic or Hebrew page. The row is now laid out physically, and the words inside the legend still read in the page's own direction.
+
 - **Pointing at the legend entry of a series that is switched off no longer fades the whole chart.** The bar, scatter and pie marks checked only whether the hovered entry was some other series, so hovering a hidden one dimmed every series that was actually drawn, to highlight one that was not there. All of them now ask the one condition the line chart already used.
 
 - **A `PlTooltip` wedge is the same sheet as the plate it points from.** It was drawn as two stacked triangles, a hairline one with the fill over it a pixel down, and both of those colours are translucent — so the wedge came out lighter than the plate, most visibly in the dark theme. It is now filled once with the sheet's own colour and the hairline is stroked along its two slanted sides, which is what `PlPopover` and `PlHoverCard` already drew. All three now draw the one arrow.

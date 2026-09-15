@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **A chart legend asked for on the left or the right stays on that side under RTL.** `PlassSide` is a physical direction, but the legend was placed by the order of a flex row, which follows the writing direction, so `side: 'left'` put the legend on the right of an Arabic or Hebrew page. The row is now laid out physically, and the words inside the legend still read in the page's own direction.
+
 - **Every scatter marker shape covers the same area, and a bar takes the same share of its band as in the React build.** A triangle was drawn at 83% of a circle's area and a cross at 112%, so in a bubble chart the same `z` looked a different size for each shape, and a bar filled 0.68 of its slot against React's 0.62. Both tables now match the React ones.
 
 - **Pointing at the legend entry of a series that is switched off no longer fades the whole chart.** The bar, scatter and pie marks checked only whether the hovered entry was some other series, so hovering a hidden one dimmed every series that was actually drawn, to highlight one that was not there. All of them now ask the one condition the line chart already used.

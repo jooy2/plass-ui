@@ -818,6 +818,65 @@ describe('plass-ui/styles.css', () => {
     });
   });
 
+  describe('a chart legend beside the plot', () => {
+    /*
+     * Another layout guarantee that lives entirely in the stylesheet, and the
+     * only place it can be read.
+     *
+     * `PlassSide` is physical on purpose — a drawer's edge and a tooltip's side
+     * are — but a flex `row` runs along the writing direction, so a legend
+     * asked for on the right was laid out on the left under RTL.
+     */
+    const chart = (side: 'left' | 'right') => (
+      <PlLineChart
+        label="Trend"
+        legend={{ side }}
+        series={[
+          { name: 'Web', data: [1, 4, 2, 6] },
+          { name: 'Mobile', data: [2, 3, 5, 1] }
+        ]}
+      />
+    );
+
+    for (const direction of ['ltr', 'rtl'] as const) {
+      it(`stays on the side it was asked for under ${direction}`, async () => {
+        const screen = await render(
+          <div dir={direction} style={{ width: 600 }}>
+            {chart('right')}
+          </div>
+        );
+
+        const plot = screen.getByRole('img', { name: 'Trend' });
+
+        await expect.element(plot).toBeInTheDocument();
+
+        const entry = screen.getByRole('button', { name: 'Web' }).element();
+
+        expect(entry.getBoundingClientRect().left).toBeGreaterThan(
+          plot.element().getBoundingClientRect().left
+        );
+      });
+
+      it(`puts a left legend on the left under ${direction}`, async () => {
+        const screen = await render(
+          <div dir={direction} style={{ width: 600 }}>
+            {chart('left')}
+          </div>
+        );
+
+        const plot = screen.getByRole('img', { name: 'Trend' });
+
+        await expect.element(plot).toBeInTheDocument();
+
+        const entry = screen.getByRole('button', { name: 'Web' }).element();
+
+        expect(entry.getBoundingClientRect().left).toBeLessThan(
+          plot.element().getBoundingClientRect().left
+        );
+      });
+    }
+  });
+
   describe('a justified gallery’s last row', () => {
     /*
      * A layout guarantee that lives entirely in the stylesheet, so it can only

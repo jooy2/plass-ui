@@ -1564,7 +1564,14 @@ class PlassChartWithLegend extends StatelessWidget {
           child: legend,
         );
 
+        // A `Row` orders its children along the *writing* direction, so a
+        // legend asked for on the right would be laid out on the left under
+        // RTL. `PlassSide` is physical on purpose — a drawer's edge and a
+        // tooltip's side are — so the row is pinned left to right and the side
+        // stays where the caller put it. Nothing inside either child is pinned
+        // with it: the legend's own text still reads the ambient direction.
         return Row(
+          textDirection: TextDirection.ltr,
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 12,
           children: <Widget>[

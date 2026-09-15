@@ -268,11 +268,16 @@ function useVisibility(series: readonly PlassChartSeries[]): Visibility {
  * Legend
  * ------------------------------------------------------------------------- */
 
+/* A flex `row` runs along the *writing* direction, so a legend asked for on the
+   right would be laid out on the left under RTL. `PlassSide` is physical on
+   purpose — a drawer's edge and a tooltip's side are — so the order turns over
+   with the direction to leave the side where the caller put it. `column` needs
+   no such pair: the block direction is the same either way. */
 const legendSideClasses = {
   top: 'flex-col-reverse',
   bottom: 'flex-col',
-  left: 'flex-row-reverse',
-  right: 'flex-row'
+  left: 'flex-row-reverse rtl:flex-row',
+  right: 'flex-row rtl:flex-row-reverse'
 } as const;
 
 const legendAlignClasses = {
