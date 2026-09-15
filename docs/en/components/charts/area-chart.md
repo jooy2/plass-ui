@@ -111,6 +111,8 @@ Unlike a line, an area's fill is its magnitude, so the baseline has to be zero o
 
 Everything [`PlLineChart`](./line-chart#accessibility) says applies here: the name, the legend as real controls and the hidden table that carries every number.
 
+- The picture is a `role="img"` and a tab stop. <kbd>←</kbd> and <kbd>→</kbd> walk the categories one at a time, <kbd>Home</kbd> and <kbd>End</kbd> go to the first and the last, and <kbd>Escape</kbd> clears the readout. Each category is announced in a live region as it is reached, with the value of every visible series there. With `tooltip={false}` the keys do nothing and nothing is announced.
+
 :::
 
 ::: fw flutter

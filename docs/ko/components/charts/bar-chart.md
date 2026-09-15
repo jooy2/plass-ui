@@ -123,6 +123,8 @@ category 이름이 낱말이라면 `horizontal`이 맞습니다. 이름을 위�
 
 이름과 진짜 컨트롤인 범례, 모든 숫자를 담은 숨은 표까지 [`PlLineChart`](./line-chart#accessibility)에 적힌 내용이 그대로 적용됩니다.
 
+- 그림은 `role="img"`이자 tab 정거장입니다. <kbd>←</kbd>와 <kbd>→</kbd>로 category를 하나씩 옮겨 다니고, <kbd>Home</kbd>과 <kbd>End</kbd>로 첫 category와 마지막 category로 가며, <kbd>Escape</kbd>로 읽던 값을 지웁니다. `orientation="horizontal"`이면 category가 위에서 아래로 놓이므로 <kbd>↑</kbd>와 <kbd>↓</kbd>로 옮겨 다닙니다. 닿는 category마다 거기서 보이는 series의 값과 함께 live region으로 읽힙니다. `tooltip={false}`이면 키는 아무것도 하지 않고 읽히는 것도 없습니다.
+
 :::
 
 ::: fw flutter
