@@ -616,6 +616,21 @@ export const forcedCheckedClasses = /* @__PURE__ */ [
 ].join(' ');
 
 /**
+ * The same, on a control Base UI marks `data-pressed`.
+ *
+ * The attribute is what keeps the fill under the pointer. A pressed toggle's own
+ * `hover:` and `active:` washes are a class and a pseudo-class, which outrank
+ * `forcedFillClasses`' single class, and a wash that is not a system colour is
+ * repainted in the page's colour. Written as a class and an attribute, the fill
+ * ties with them and comes after them in the stylesheet.
+ */
+export const forcedPressedClasses = /* @__PURE__ */ [
+  'forced-colors:data-[pressed]:[background-color:Highlight]',
+  'forced-colors:data-[pressed]:[border-color:Highlight]',
+  'forced-colors:data-[pressed]:[color:HighlightText]'
+].join(' ');
+
+/**
  * The label over a highlight that is a separate element — the tile under a
  * chosen segment — which has to be written in the colour drawn on a highlight,
  * or it is the page's text on the system's selection colour.

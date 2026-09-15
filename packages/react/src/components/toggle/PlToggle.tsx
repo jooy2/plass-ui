@@ -13,7 +13,7 @@ import {
   disabledClasses,
   focusRingClasses,
   forcedEdgeClasses,
-  forcedFillClasses,
+  forcedPressedClasses,
   gapClasses,
   glassClasses,
   hasContent,
@@ -163,16 +163,16 @@ const onClasses: Record<PlassVariant, string> = {
   solid: /* @__PURE__ */ [
     'text-(--p-on-solid) [background-image:var(--p-fill)]',
     '[box-shadow:var(--p-elev),var(--p-lift)]',
-    forcedFillClasses
+    forcedPressedClasses
   ].join(' '),
   glass: /* @__PURE__ */ [
     glassClasses,
     'border text-(--p-accent) bg-(--p-soft)',
     '[border-color:var(--p-line-hover)]',
     '[box-shadow:var(--p-elev),var(--plass-gloss-glass)]',
-    forcedFillClasses
+    forcedPressedClasses
   ].join(' '),
-  ghost: `text-(--p-accent) bg-(--p-soft) ${forcedFillClasses}`
+  ghost: `text-(--p-accent) bg-(--p-soft) ${forcedPressedClasses}`
 };
 
 const onHoverClasses: Record<PlassVariant, string> = {

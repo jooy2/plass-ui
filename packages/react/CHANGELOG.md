@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A pressed `PlToggle` keeps its fill in forced-colours mode under the pointer.** In a Windows contrast theme, a pressed `glass` or `ghost` toggle is filled with the system's highlight colour, but pointing at it or holding it down repainted it in the page's colour, so it looked released for as long as the pointer was on it, with its label still in the colour meant for the highlight. It now stays filled. A `solid` toggle was not affected.
+
 - **`PlImage` in Firefox no longer reports `loaded` for a picture that has not arrived after its `src` changes.** When the previous picture was already in the browser cache, Firefox still fired that picture's `load` after the `src` had changed, and `onStatusChange` took it for the new one. A caller heard `loaded` before the new picture arrived, or after its `error`, and a picture that failed showed no fallback. That late `load` is now ignored.
 
 - **→ on an open `PlTree` branch with nothing to step into keeps the focus where it is.** A branch with `children: []`, or whose children are all `disabled`, handed the focus to the next row, which is a sibling. The focus now moves only into a child, as the ARIA tree pattern says.

@@ -638,6 +638,41 @@ describe('plass-ui/styles.css', () => {
       })
     );
 
+    // A pressed toggle answers the pointer with washes of its own, and a wash
+    // that is not a system colour is repainted in the page's colour. The fill
+    // has to outrank them, or the key looks released for as long as it is
+    // pointed at.
+    forced.each(['solid', 'glass', 'ghost'] as const)(
+      'keeps a pressed %s PlToggle filled with the highlight under the pointer',
+      (variant) =>
+        inForcedColours(async () => {
+          const highlight = system('Highlight');
+
+          await commands.parkPointer();
+
+          const screen = await render(
+            <PlToggle aria-label="Bold" variant={variant} defaultPressed>
+              B
+            </PlToggle>
+          );
+          const toggle = screen.getByRole('button', { name: 'Bold' });
+
+          await userEvent.hover(toggle);
+          await expect.poll(() => toggle.element().matches(':hover')).toBe(true);
+          // Read once the hover has finished transitioning, or a colour that is
+          // on its way out still reads as the highlight.
+          await Promise.all(
+            toggle
+              .element()
+              .getAnimations()
+              .map((one) => one.finished)
+          );
+
+          expect(getComputedStyle(toggle.element()).backgroundColor).toBe(highlight);
+          expect(getComputedStyle(toggle.element()).color).toBe(system('HighlightText'));
+        })
+    );
+
     forced('marks the active tab with the highlight', () =>
       inForcedColours(async () => {
         const screen = await render(
