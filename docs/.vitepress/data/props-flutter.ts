@@ -5549,7 +5549,15 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'PlTimelineConnector',
       default: 'PlTimelineConnector.solid'
     }),
-    from('PlTimelineItem', 'children', { name: 'child', type: 'Widget?' })
+    from('PlTimelineItem', 'children', { name: 'child', type: 'Widget?' }),
+    {
+      name: 'key',
+      type: 'Key?',
+      description: {
+        ko: '단계를 다른 단계와 구별합니다. 앞이나 사이에 단계가 들어와도 상태가 있는 child가 자기 단계에 남습니다. 없으면 단계는 자리로 맞춰지므로, 맨 앞에 넣은 단계가 각 child에게 원래 그 자리에 있던 단계의 상태를 넘깁니다. React 요소의 key가 하는 일입니다',
+        en: 'Tells the step apart from the others, so a stateful child stays with its step when steps are inserted before it or around it. Without one the steps are matched by position, and a step inserted at the start hands each child the state of the step that was in its place. What a React element’s key does'
+      }
+    }
   ],
 
   PlTimelineChart: [

@@ -68,6 +68,12 @@ Every native `<li>` attribute passes straight through. `size`, `density` and `or
 
 :::
 
+::: fw flutter
+
+Give each item a `key` when steps can be added before others, as a React element takes one. Without it the steps are matched by position, so a stateful `child` would take the state of the step that was in its place.
+
+:::
+
 An item's **index is not a property and cannot be**. An item that had to be told where it was in the list would be an item every caller could put in the wrong place, and `active` would stop meaning anything. The timeline numbers its steps as it walks them.
 
 What the shared axes (`size` `color` `density` `orientation`) mean across the library is in [prop conventions](../../design/prop-conventions).

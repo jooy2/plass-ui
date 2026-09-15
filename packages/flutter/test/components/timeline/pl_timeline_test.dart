@@ -20,6 +20,24 @@ List<BoxDecoration> bulletsOf(WidgetTester tester) {
       .toList();
 }
 
+/// A body that keeps the name of the step it was first built for, as any
+/// stateful child keeps its state.
+class _Remembers extends StatefulWidget {
+  const _Remembers(this.name);
+
+  final String name;
+
+  @override
+  State<_Remembers> createState() => _RemembersState();
+}
+
+class _RemembersState extends State<_Remembers> {
+  late final String _first = widget.name;
+
+  @override
+  Widget build(BuildContext context) => Text('built for $_first');
+}
+
 void main() {
   group('PlTimeline', () {
     group('rendering', () {
@@ -141,6 +159,37 @@ void main() {
           greaterThan(tester.getRect(find.text('Ordered')).left),
         );
       });
+    });
+
+    group('key', () {
+      for (final PlassOrientation orientation in PlassOrientation.values) {
+        testWidgets('keeps each stateful child with its step when a step is inserted at the start, '
+            '${orientation.name}', (WidgetTester tester) async {
+          Widget timeline(List<String> names) {
+            return host(
+              PlTimeline(
+                orientation: PlassResponsive<PlassOrientation>(orientation),
+                items: <PlTimelineItem>[
+                  for (final String name in names)
+                    PlTimelineItem(
+                      key: ValueKey<String>(name),
+                      title: Text(name),
+                      child: _Remembers(name),
+                    ),
+                ],
+              ),
+              width: 600,
+            );
+          }
+
+          await tester.pumpWidget(timeline(<String>['Shipped', 'Delivered']));
+          await tester.pumpWidget(timeline(<String>['Ordered', 'Shipped', 'Delivered']));
+
+          expect(find.text('built for Ordered'), findsOneWidget);
+          expect(find.text('built for Shipped'), findsOneWidget);
+          expect(find.text('built for Delivered'), findsOneWidget);
+        });
+      }
     });
   });
 }

@@ -59,6 +59,7 @@ class PlTimelineItem {
     this.color,
     this.connector = PlTimelineConnector.solid,
     this.child,
+    this.key,
   });
 
   /// The heading of this step.
@@ -88,6 +89,15 @@ class PlTimelineItem {
 
   /// The body of the step.
   final Widget? child;
+
+  /// Tells this step apart from the others, so a stateful [child] stays with
+  /// its step when steps are added, removed or moved around it.
+  ///
+  /// Without one the steps are matched by position, and a step inserted at the
+  /// start hands each [child] the state of the step that was in its place. A
+  /// key on [child] cannot help, because [child] has no siblings of its own to
+  /// be matched among. It is what a React element's `key` does.
+  final Key? key;
 }
 
 /// A sequence of steps, in the order they happen in.
@@ -179,6 +189,11 @@ class PlTimeline extends StatelessWidget {
           orientation: orientation,
           color: items[index].color ?? color,
           last: index == items.length - 1,
+          // Keyed by the item's own key, so a stateful `child` follows its step
+          // when one is inserted before it. A row matches the `Expanded` round
+          // each step instead, so the key goes there, and on one widget only,
+          // since a `GlobalKey` may not be used twice.
+          key: horizontal ? null : items[index].key,
         ),
     ];
 
@@ -189,7 +204,10 @@ class PlTimeline extends StatelessWidget {
           ? IntrinsicHeight(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[for (final step in steps) Expanded(child: step)],
+                children: <Widget>[
+                  for (var index = 0; index < steps.length; index += 1)
+                    Expanded(key: items[index].key, child: steps[index]),
+                ],
               ),
             )
           : Column(
@@ -211,6 +229,7 @@ class _Step extends StatelessWidget {
     required this.orientation,
     required this.color,
     required this.last,
+    super.key,
   });
 
   final PlTimelineItem item;

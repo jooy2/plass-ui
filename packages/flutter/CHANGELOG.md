@@ -14,6 +14,8 @@
 
 ### Added
 
+- **`PlTimelineItem` takes a `key`.** Steps were matched by position, so inserting a step at the start of a `PlTimeline` handed each stateful `child` the state of the step that had been in its place, and a key on the `child` could not help. A step is now matched by its item's `key`, which is what a React element's `key` does. Without one, steps are matched by position as before.
+
 - **`PlCard` takes a `headingLevel`.** The title's depth in the screen's outline, `1` to `6`, which is what `title={<h2>…</h2>}` gives a card in the React build. Left out, the title is not a heading, as before. A pressable card is a button whose title is its name, so the level is not applied to one.
 
 - **Ten words join the label packs**, for the strings that were written into a widget in English with no way to translate them but a parameter: `acknowledge` (the OK on `PlConfirmProvider`'s alert), `optional` (for `PlStep.optional`, which takes a widget), `sidebarOpen` (`PlSidebarTrigger`), `spoilerWarning` (`PlSpoiler`), `filePickerTitle` (`PlFilePicker`), and the five words a `PlChatBubble`'s mark says, `messageSending`, `messageSent`, `messageDelivered`, `messageRead` and `messageFailed`. All seven packs translate them. `PlConfirmProvider.acknowledgeLabel` is now nullable and falls back to the pack.
