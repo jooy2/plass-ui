@@ -63,7 +63,8 @@ enum PlGalleryHover {
 
 /// Where a tile's words go.
 enum PlGalleryCaption {
-  /// Nowhere. The words are still read out.
+  /// Nowhere. No caption is built, so the title and the description are not read
+  /// out either.
   none,
 
   /// Under the picture.

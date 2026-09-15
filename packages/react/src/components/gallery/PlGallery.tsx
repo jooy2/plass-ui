@@ -167,7 +167,8 @@ export interface PlGalleryProps extends Omit<
   /**
    * Where a tile's `title` and `description` go. `below` puts them under the
    * picture, `overlay` writes them across the foot of it, and `hover` is
-   * `overlay` that arrives with the pointer.
+   * `overlay` that arrives with the pointer. `none` draws no caption, and then
+   * neither is read out.
    * @default 'none'
    */
   caption?: PlGalleryCaption;
