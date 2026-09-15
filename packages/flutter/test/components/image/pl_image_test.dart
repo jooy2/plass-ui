@@ -545,7 +545,7 @@ void main() {
             overlay: true,
           ),
         );
-        await tester.pumpAndSettle();
+        await _decode(tester);
 
         expect(
           tester.getSize(
@@ -1122,7 +1122,7 @@ void main() {
           PlImage(image: _ok, ratio: 1, semanticLabel: 'A portrait', preview: true, rotate: 90),
           overlay: true,
         );
-        await tester.pumpAndSettle();
+        await _decode(tester);
 
         final Finder opened = find.descendant(
           of: find.byType(PlOverlay),
@@ -1226,7 +1226,7 @@ void main() {
           ),
           overlay: true,
         );
-        await tester.pumpAndSettle();
+        await _decode(tester);
 
         await tester.tap(find.byType(PlImage));
         await tester.pumpAndSettle();
@@ -1424,7 +1424,7 @@ void main() {
           PlImage(image: _ok, ratio: 1, semanticLabel: 'A portrait', preview: true),
           overlay: true,
         );
-        await tester.pumpAndSettle();
+        await _decode(tester);
 
         await tester.tap(find.byType(PlImage));
         await tester.pumpAndSettle();
@@ -1439,7 +1439,7 @@ void main() {
           PlImage(image: _ok, ratio: 1, semanticLabel: 'A portrait', preview: true),
           overlay: true,
         );
-        await tester.pumpAndSettle();
+        await _decode(tester);
 
         tester.semantics.tap(find.semantics.byLabel('A portrait'));
         await tester.pumpAndSettle();
@@ -1455,10 +1455,13 @@ void main() {
           PlImage(image: _ok, ratio: 1, semanticLabel: 'A portrait', preview: true),
           overlay: true,
         );
-        await tester.pumpAndSettle();
+        await _decode(tester);
 
         await tester.tap(find.byType(PlImage));
         await tester.pumpAndSettle();
+        // The overlay decodes the picture again, to fit the screen, and until
+        // that arrives the picture in it has no size and no node.
+        await _decode(tester);
 
         // The overlay is named "Preview", and the picture in it says what it is.
         // Walked by hand, because `find.semantics` does not reach a layer lifted
@@ -1507,7 +1510,7 @@ void main() {
         }
 
         await _pump(tester, preview(), overlay: true);
-        await tester.pumpAndSettle();
+        await _decode(tester);
 
         expect(
           tester.getSemantics(find.bySemanticsLabel('미리 보기')),
@@ -1515,7 +1518,7 @@ void main() {
         );
 
         await _pump(tester, preview(previewLabel: 'Enlarge'), overlay: true);
-        await tester.pumpAndSettle();
+        await _decode(tester);
 
         expect(find.bySemanticsLabel('Enlarge'), findsOneWidget);
 
