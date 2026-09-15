@@ -205,7 +205,8 @@ export function canonicalLanguage(language: string | undefined): string | null {
   const key = language.trim().toLowerCase();
   if (!key) return null;
 
-  return aliases[key] ?? key;
+  // A registered name is the consumer's own, even where it is also an alias.
+  return extra.has(key) ? key : (aliases[key] ?? key);
 }
 
 /**

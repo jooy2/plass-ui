@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlCodeBlock } from 'plass-ui';
+import { PlCodeBlock, registerLanguage } from 'plass-ui';
 import { markedLines } from '../../../src/components/code-block/PlCodeBlock';
 
 const code = `const answer = 42;\nconsole.log(answer);`;
@@ -379,6 +379,21 @@ describe('PlCodeBlock', () => {
       await render(<PlCodeBlock code={'final int a = 1;'} language="dart" />);
 
       await expect.poll(() => document.querySelectorAll('.hljs-keyword').length).toBeGreaterThan(0);
+    });
+
+    it('colours a language registered under a name that is also an alias', async () => {
+      // `vue` is read as `xml` until something registers it.
+      registerLanguage('vue', () => ({
+        name: 'Vue',
+        contains: [{ className: 'keyword', begin: /\btemplate\b/ }]
+      }));
+
+      const screen = await render(<PlCodeBlock code="template" language="vue" />);
+
+      await expect.element(screen.getByText('vue')).toBeInTheDocument();
+      await expect
+        .poll(() => document.querySelector('.hljs-keyword')?.textContent)
+        .toBe('template');
     });
 
     it('drops the colouring while raw is pressed', async () => {
