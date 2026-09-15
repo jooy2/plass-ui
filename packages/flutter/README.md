@@ -14,7 +14,7 @@ Live previews and full parameters for every component. Pick **Flutter** in the s
 >
 > Every surface answers one question: is this pressed, or does it hold something? A thing you press is a tinted pane, filled with a gradient that turns through its colour family and lit by a bloom that follows your pointer. A thing that holds something is clear glass: translucent, deeply blurred, never dyed. Nothing is bevelled or embossed, and depth is carried by light, colour and blur.
 
-This is the Flutter half. The [React package](https://www.npmjs.com/package/plass-ui) is the other one, and the two hold the same components under the same names, the same parameter vocabulary and the same numbers. They version independently, so this package's number and the npm one's will not always agree.
+This is the Flutter half. The [React package](https://www.npmjs.com/package/plass-ui) is the other one, and the two hold the same 127 components under the same names, the same parameter vocabulary and the same numbers. They version independently, so this package's number and the npm one's will not always agree.
 
 - **Finished the moment it is installed.** There is no stylesheet to import, no provider to install and no theme file to fill in. A component follows the platform's brightness until a `PlassTheme` overrides it.
 - **Five parameters, not fifty.** `size`, `color`, `variant`, `density` and `elevation` mean the same thing on every component (an `md` control is 40px, `primary` is the same family), so the tenth one costs nothing to learn after the first.

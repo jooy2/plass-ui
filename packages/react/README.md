@@ -14,7 +14,7 @@ Live previews and full props for every component. Pick **React** in the sidebar.
 >
 > Every surface answers one question: is this pressed, or does it hold something? A thing you press is a tinted pane, filled with a gradient that turns through its colour family and lit by a bloom that follows your pointer. A thing that holds something is clear glass: translucent, deeply blurred, never dyed. Nothing is bevelled or embossed, and depth is carried by light, colour and blur.
 
-This is the React half. The [Flutter package](https://pub.dev/packages/plass_ui) is the other one, and the two hold the same components under the same names, the same prop vocabulary and the same numbers. They version independently, so this package's number and the pub.dev one's will not always agree.
+This is the React half. The [Flutter package](https://pub.dev/packages/plass_ui) is the other one, and the two hold the same 127 components under the same names, the same prop vocabulary and the same numbers. They version independently, so this package's number and the pub.dev one's will not always agree.
 
 - **Finished the moment it is installed.** The gradients, the shadows, the blur, the focus ring and the press response are already decided and already agree with each other. One CSS import and the first screen looks like something.
 - **Five props, not fifty.** `size`, `color`, `variant`, `density` and `elevation` mean the same thing on every component (an `md` control is 40px, `primary` is the same family), so the tenth one costs nothing to learn after the first.
