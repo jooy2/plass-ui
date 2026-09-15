@@ -156,7 +156,17 @@ const [month, setMonth] = useState(startOfMonth(new Date()));
 
 ### disabled
 
+::: fw react
+
 calendar를 흐리게 하고 `inert` 속성으로 손이 닿지 않게 합니다. 셀 마흔두 개에 `disabled`를 다는 대신 속성 하나입니다.
+
+:::
+
+::: fw flutter
+
+calendar를 흐리게 하고 focus 순서에서 빼며, 포인터도 닿지 않게 합니다. `onChanged`가 없는 calendar도 똑같이 비활성화됩니다.
+
+:::
 
 옆에 `readOnly`가 없고, 빠뜨린 것이 아닙니다. read-only field는 여전히 사용자가 선택하고 복사할 값을 보여 주지만, calendar에는 복사할 것이 없습니다. 전부가 아니라 일부 날짜만 막으려면 `shouldDisableDate`를 쓰세요.
 
@@ -169,14 +179,15 @@ calendar를 흐리게 하고 `inert` 속성으로 손이 닿지 않게 합니다
 
 - 진짜 `role="grid"`입니다. 막힌 날은 `disabled` 버튼이 아니라 `aria-disabled`여서 여전히 닿을 수 있고, 키보드 사용자가 그 날이 막혔다는 사실을 알 수 있습니다.
 - <kbd>Shift</kbd>를 누른 채 <kbd>PageUp</kbd>/<kbd>PageDown</kbd>을 누르면 한 해씩 움직입니다.
+- 각 셀의 accessible name은 calendar의 `locale`로 쓴 전체 날짜입니다. 그래서 스크린 리더가 "27"이 아니라 "2026년 7월 27일 월요일"을 읽습니다.
+- `autoFocus`는 picker와 반대로 기본이 **꺼짐**입니다. popup은 그 안으로 들어가려는 사람이 방금 연 것이고, 페이지 안의 calendar는 그렇지 않습니다.
 
 :::
 
 ::: fw flutter
 
 - Flutter의 semantics에는 grid 역할이 없어서 각 셀은 버튼입니다. 막힌 날도 자기 focus node를 지키고 사용할 수 없다고 읽히므로, 키보드 사용자가 그 날이 막혔다는 사실을 알 수 있습니다.
+- 각 셀의 accessible name은 calendar의 `names`로 쓴 전체 날짜입니다. 그래서 스크린 리더가 "27"이 아니라, 기본인 영어 이름으로는 "Monday, July 27, 2026"을 읽습니다.
+- `autofocus`는 picker와 반대로 기본이 **꺼짐**입니다. popup은 그 안으로 들어가려는 사람이 방금 연 것이고, 페이지 안의 calendar는 그렇지 않습니다.
 
 :::
-
-- 각 셀의 accessible name은 calendar의 `locale`로 쓴 전체 날짜입니다. 그래서 스크린 리더가 "27"이 아니라 "2026년 7월 27일 월요일"을 읽습니다.
-- `autoFocus`는 picker와 반대로 기본이 **꺼짐**입니다. popup은 그 안으로 들어가려는 사람이 방금 연 것이고, 페이지 안의 calendar는 그렇지 않습니다.

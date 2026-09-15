@@ -156,7 +156,17 @@ There is nothing to add. A Dart form is not an HTML one, so there is no hidden i
 
 ### disabled
 
+::: fw react
+
 Greys the calendar and takes it out of reach with the `inert` attribute, one attribute rather than a `disabled` on forty-two cells.
+
+:::
+
+::: fw flutter
+
+Greys the calendar and takes it out of the focus order and out of reach of the pointer. A calendar with no `onChanged` is disabled the same way.
+
+:::
 
 There is no `readOnly` beside it, and that is not an omission: a read-only field still shows a value a reader can select and copy, and a calendar has nothing to copy. To block some days rather than all of them, use `shouldDisableDate`.
 
@@ -169,14 +179,15 @@ There is no `readOnly` beside it, and that is not an omission: a read-only field
 
 - The grid is a real `role="grid"`. A blocked day is `aria-disabled` rather than a `disabled` button, so it is still reachable and a keyboard reader can find out that it is blocked.
 - <kbd>Shift</kbd> with <kbd>PageUp</kbd>/<kbd>PageDown</kbd> moves by a year.
+- Each cell's accessible name is the full date in the calendar's `locale`, so a screen reader reads "Monday 27 July 2026" rather than "27".
+- `autoFocus` is **off** by default, the opposite of the picker's: a popup has just been opened by somebody who wants to be in it, and a calendar in a page has not.
 
 :::
 
 ::: fw flutter
 
 - Each cell is a button, because Flutter's semantics has no grid role. A blocked day keeps its focus node and is announced as unavailable, so a keyboard reader can find out that it is blocked.
+- Each cell's accessible name is the full date spelled by the calendar's `names`, so a screen reader reads "Monday, July 27, 2026" rather than "27".
+- `autofocus` is **off** by default, the opposite of the picker's: a popup has just been opened by somebody who wants to be in it, and a calendar in a page has not.
 
 :::
-
-- Each cell's accessible name is the full date in the calendar's `locale`, so a screen reader reads "Monday 27 July 2026" rather than "27".
-- `autoFocus` is **off** by default, the opposite of the picker's: a popup has just been opened by somebody who wants to be in it, and a calendar in a page has not.
