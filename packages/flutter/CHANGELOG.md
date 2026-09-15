@@ -64,6 +64,8 @@
 
 ### Fixed
 
+- **A `PlTree` lets go of the focus node of a row removed from `items`.** Each row's node was kept until the tree itself was disposed, along with the row list its key handler held, so a tree whose items were replaced over a long session kept every node it had drawn. The node is now disposed after the frame the row is removed in.
+
 - **→ on an open `PlTree` branch with nothing to step into keeps the focus where it is.** A branch with `children: []`, or whose children are all `disabled`, handed the focus to the next row, which is a sibling. The focus now moves only into a child, as the ARIA tree pattern says.
 
 - **A screen reader no longer reads the clock in a `PlMockup` system bar.** The bars and the cut-out are now left out of the semantics tree, as the rest of the device already was and as in the React build, so what is announced is what the caller put on the screen.

@@ -185,6 +185,51 @@ class _PlTreeState extends State<PlTree> {
   String? _tabStop;
 
   @override
+  void didUpdateWidget(PlTree oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (!identical(oldWidget.items, widget.items)) {
+      // After the frame, once the rows that were taken out have let go of the
+      // nodes they were drawn with.
+      WidgetsBinding.instance.addPostFrameCallback((Duration _) => _dropRemoved());
+    }
+  }
+
+  /// Disposes the node of every row whose id is no longer anywhere in the items.
+  ///
+  /// A row inside a shut branch keeps its node: a branch that is closing still
+  /// draws its rows with them, and nothing here knows when the fold has shut.
+  void _dropRemoved() {
+    if (!mounted) {
+      return;
+    }
+
+    final Set<String> ids = <String>{};
+
+    void collect(List<PlTreeNode> nodes) {
+      for (final PlTreeNode node in nodes) {
+        ids.add(node.id);
+
+        if (node.children != null) {
+          collect(node.children!);
+        }
+      }
+    }
+
+    collect(widget.items);
+
+    _nodes.removeWhere((String id, FocusNode node) {
+      if (ids.contains(id)) {
+        return false;
+      }
+
+      node.dispose();
+
+      return true;
+    });
+  }
+
+  @override
   void dispose() {
     for (final FocusNode node in _nodes.values) {
       node.dispose();

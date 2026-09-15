@@ -472,5 +472,29 @@ void main() {
         handle.dispose();
       });
     });
+
+    group('focus nodes', () {
+      testWidgets('lets go of the node of a row taken out of the items', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, const PlTree(items: items));
+
+        FocusNode nodeOf(String id) {
+          return _rowNodes(tester).firstWhere((FocusNode node) => node.debugLabel == 'PlTree $id');
+        }
+
+        final FocusNode readme = nodeOf('readme');
+        final FocusNode src = nodeOf('src');
+
+        await _pump(
+          tester,
+          PlTree(items: items.where((PlTreeNode node) => node.id != 'readme').toList()),
+        );
+
+        // Disposed once its row is gone, rather than kept until the tree is.
+        expect(() => ChangeNotifier.debugAssertNotDisposed(readme), throwsFlutterError);
+        expect(ChangeNotifier.debugAssertNotDisposed(src), isTrue);
+      });
+    });
   });
 }
