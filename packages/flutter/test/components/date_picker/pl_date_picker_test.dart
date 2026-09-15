@@ -5,6 +5,7 @@ import 'package:plass_ui/plass_ui.dart';
 // The cell is internal — the grid is what a test counts, and there is no public
 // name for one square of it.
 import 'package:plass_ui/src/internal/calendar.dart';
+import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 
 import '../../support/host.dart';
@@ -567,6 +568,47 @@ void main() {
 
         expect(called, isTrue);
         expect(chosen, isNull);
+      });
+
+      testWidgets('empties the picker from the keyboard', (WidgetTester tester) async {
+        final FocusNode before = FocusNode(debugLabel: 'before');
+        addTearDown(before.dispose);
+        DateTime? chosen = july27;
+
+        await _pump(
+          tester,
+          afterFocusStop(
+            before,
+            PlDatePicker(
+              value: chosen,
+              clearable: true,
+              onChanged: (DateTime? next) => chosen = next,
+            ),
+          ),
+        );
+
+        before.requestFocus();
+        await tester.pump();
+
+        // Past the trigger and on to the ×, which is a focus stop of its own.
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+
+        // Ringed on its own, with the trigger round it no longer ringed too.
+        final Iterable<CustomPaint> rings = tester
+            .widgetList<CustomPaint>(find.byType(CustomPaint))
+            .where((CustomPaint paint) => paint.foregroundPainter is PlassFocusRingPainter);
+
+        expect(rings, hasLength(1));
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+
+        expect(chosen, isNull);
+        // Cleared rather than opened.
+        expect(find.text('Today'), findsNothing);
       });
 
       testWidgets(

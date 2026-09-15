@@ -22,8 +22,8 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/anchored.dart';
+import 'package:plass_ui/src/internal/dismiss.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
-import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
@@ -235,13 +235,17 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
       autofocus: widget.autofocus,
       shortcuts: PlassInteractive.enterOnly,
       builder: (BuildContext context, PlassInteraction state) {
+        // The trigger's own focus. A focus node counts a focused descendant as
+        // focus, and the × inside the trigger is a stop of its own that draws its
+        // own ring.
+        final bool focusVisible = state.focusVisible && Focus.of(context).hasPrimaryFocus;
         final surface = fieldSurface(
           tokens,
           family,
           variant: widget.variant,
           elevation: widget.elevation,
           hovered: state.hovered,
-          focused: state.focusVisible || widget.open,
+          focused: focusVisible || widget.open,
           readOnly: widget.readOnly,
           disabled: widget.disabled,
         );
@@ -268,28 +272,19 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
                     Flexible(child: _value(tokens, scale)),
                   if (widget.clearable && !widget.empty && _usable)
                     // Drawn at the size of the text, and pressed from a 24px
-                    // square through the scope round the trigger.
+                    // square through the scope round the trigger. A focus stop
+                    // of its own after the trigger, so the value can be cleared
+                    // from the keyboard too.
                     PlassTarget(
-                      child: Semantics(
-                        button: true,
-                        label: widget.clearLabel,
-                        onTap: widget.onClear,
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          excludeFromSemantics: true,
-                          onTap: widget.onClear,
-                          child: MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: SizedBox(
-                              height: scale.line,
-                              child: Center(
-                                child: PlassGlyph(
-                                  PlassGlyphShape.close,
-                                  size: scale.size * iconScale,
-                                  color: tokens.mutedFg,
-                                ),
-                              ),
-                            ),
+                      child: SizedBox(
+                        height: scale.line,
+                        child: Center(
+                          child: PlassDismissButton(
+                            label: widget.clearLabel,
+                            onPressed: widget.onClear,
+                            size: scale.size * iconScale,
+                            color: tokens.mutedFg,
+                            ring: family.ring,
                           ),
                         ),
                       ),
@@ -307,12 +302,16 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
           lit: false,
         );
 
-        if (state.focusVisible) {
-          shell = CustomPaint(
-            foregroundPainter: PlassFocusRingPainter(color: family.ring, borderRadius: radius),
-            child: shell,
-          );
-        }
+        // Always there, with only the painter coming and going. A ring wrapped
+        // round the shell when it is needed would move the shell to a new
+        // parent as the focus steps on to the ×, and the × built again from
+        // scratch would lose the focus it had just been given.
+        shell = CustomPaint(
+          foregroundPainter: focusVisible
+              ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
+              : null,
+          child: shell,
+        );
 
         return Semantics(
           container: true,
