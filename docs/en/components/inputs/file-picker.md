@@ -92,7 +92,7 @@ The edge is neutral at rest and takes the colour family only once the pointer is
 
 ### accept · maxSize · maxFiles
 
-<Fw react="`accept` is set on the input **and** applied to drops. The browser enforces the attribute on its own dialog and on nothing else, so a dropzone that only sets it accepts anything the moment a file arrives by drag." flutter="`accept` is applied to whatever `onBrowse` hands back, whether or not the plugin that found it was told the same thing. A rule the component states and does not enforce is not a rule." />
+<Fw react="`accept` is set on the input, and applied to drops as well. The browser enforces the attribute on its own dialog and on nothing else, so a dropzone that only sets it accepts anything the moment a file arrives by drag." flutter="`accept` is applied to whatever `onBrowse` hands back, whether or not the plugin that found it was told the same thing. A rule the component states and does not enforce is not a rule." />
 
 `maxFiles` is counted against what is already held rather than against one drop. The difference between "you may drop five files" and "you may end up with five files", and only the second is what the prop means.
 
