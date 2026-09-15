@@ -21,6 +21,43 @@ const SPEND = [
   }
 ];
 
+/**
+ * Runs `work` inside React's `act`, so every render it causes is committed by
+ * the time this resolves. `act` does that only while the page says it is a test
+ * environment, which `vitest-browser-react` says only for the length of its own
+ * `render` and `rerender`, so it is said here for the length of this.
+ */
+async function committed(work: () => void | Promise<void>): Promise<void> {
+  const page = globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean };
+  const was = page.IS_REACT_ACT_ENVIRONMENT;
+
+  page.IS_REACT_ACT_ENVIRONMENT = true;
+
+  try {
+    await React.act(async () => {
+      await work();
+    });
+  } finally {
+    page.IS_REACT_ACT_ENVIRONMENT = was;
+  }
+}
+
+/**
+ * Resolves once `element` has been reported to a `ResizeObserver`. Observers
+ * report in the order they were made, so one made after the chart's own reports
+ * after the chart's has.
+ */
+function reported(element: Element): Promise<void> {
+  return new Promise((resolve) => {
+    const observer = new ResizeObserver(() => {
+      observer.disconnect();
+      resolve();
+    });
+
+    observer.observe(element);
+  });
+}
+
 /** Every mark drawn, in paint order. */
 function marks(plot: Element): SVGPathElement[] {
   return [...plot.querySelectorAll<SVGPathElement>('svg path[fill]:not([fill="none"])')];
@@ -154,18 +191,27 @@ describe('PlScatterChart', () => {
           })
         );
 
-      // The top-left corner of the plot is far from every point, so no mark is
-      // near the pointer at any of these pixels.
-      move(2, 2);
-      await new Promise((resolve) => requestAnimationFrame(resolve));
+      // React can still render a component once for a state update that changes
+      // nothing when it lands soon after a render, and it renders in a task of
+      // its own. Here that update is the chart's first size report or its first
+      // move, whichever comes first, and a count taken a frame later can be
+      // taken on either side of that render. So it is taken once the size has
+      // been reported and the first move answered, with every render either of
+      // them asked for committed.
+      await committed(async () => {
+        await reported(host);
+        // The top-left corner of the plot is far from every point, so no mark is
+        // near the pointer at any of these pixels.
+        move(2, 2);
+      });
 
       const settled = commits;
 
-      for (let pixel = 3; pixel < 13; pixel += 1) {
-        move(pixel, pixel);
-      }
-
-      await new Promise((resolve) => requestAnimationFrame(resolve));
+      await committed(() => {
+        for (let pixel = 3; pixel < 13; pixel += 1) {
+          move(pixel, pixel);
+        }
+      });
 
       expect(commits).toBe(settled);
     });
