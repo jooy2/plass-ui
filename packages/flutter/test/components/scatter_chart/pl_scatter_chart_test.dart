@@ -157,6 +157,41 @@ void main() {
       expect(node.value, contains('1, 1'));
     });
 
+    testWidgets('reads a bubble with its z in brackets after the pair', (
+      WidgetTester tester,
+    ) async {
+      await _pump(
+        tester,
+        PlScatterChart(
+          series: <PlassChartSeries>[
+            PlassChartSeries(name: 'Q1', data: <PlassChartDatum>[_at(1, 1, z: 100), _at(2, 2)]),
+          ],
+        ),
+      );
+
+      final SemanticsNode node = tester.getSemantics(find.bySemanticsLabel('Chart'));
+
+      expect(node.value, 'Q1: 1, 1 (100); 2, 2');
+    });
+
+    testWidgets('stops reading a series switched off in the legend, and reads it again', (
+      WidgetTester tester,
+    ) async {
+      await _pump(tester, PlScatterChart(series: spend));
+
+      String said() => tester.getSemantics(find.bySemanticsLabel('Chart')).value;
+
+      await tester.tap(find.bySemanticsLabel('Q2'));
+      await tester.pumpAndSettle();
+
+      expect(said(), 'Q1: 10, 22; 20, 31; 30, 28');
+
+      await tester.tap(find.bySemanticsLabel('Q2'));
+      await tester.pumpAndSettle();
+
+      expect(said(), contains('Q2: 12, 40; 26, 35'));
+    });
+
     testWidgets('leaves the drawn marks alone while a hidden entry is pointed at', (
       WidgetTester tester,
     ) async {

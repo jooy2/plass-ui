@@ -504,7 +504,10 @@ class PlassCartesianChart extends StatefulWidget {
 
   /// What a screen reader is handed in place of the drawing, for a chart whose
   /// summary is not "each series and where it ended up".
-  final String Function()? semanticValue;
+  ///
+  /// Handed which series are on: the ones that did not start `hidden`, less
+  /// whatever the reader has switched off in the legend since.
+  final String Function(List<bool> visible)? semanticValue;
 
   @override
   State<PlassCartesianChart> createState() => _PlassCartesianChartState();
@@ -989,7 +992,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
   /// The summary, written again only when what it reads has changed.
   String _summaryFor(List<List<ChartValue>> values, List<bool> visible) {
     if (_said == null || !identical(_saidFor, widget) || !listEquals(_saidVisible, visible)) {
-      _said = widget.semanticValue?.call() ?? _summary(values, visible);
+      _said = widget.semanticValue?.call(visible) ?? _summary(values, visible);
       _saidFor = widget;
       _saidVisible = visible;
     }

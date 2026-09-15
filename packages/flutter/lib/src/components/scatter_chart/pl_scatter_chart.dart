@@ -275,7 +275,7 @@ class PlScatterChart extends StatelessWidget {
         child: CustomPaint(painter: _SwatchPainter(shapeOf(index), color)),
       ),
       markReadout: (PlassChartMark mark) => _readout(values[mark.series][mark.index], mark.index),
-      semanticValue: () => _summary(values),
+      semanticValue: (List<bool> visible) => _summary(values, visible),
       paint: (Canvas canvas, PlassChartLayout layout) => _paint(canvas, layout, shapeOf),
     );
   }
@@ -289,11 +289,11 @@ class PlScatterChart extends StatelessWidget {
   }
 
   /// Every point, because a cloud has no "where it ended up".
-  String _summary(List<List<ChartValue>> values) {
+  String _summary(List<List<ChartValue>> values, List<bool> visible) {
     final parts = <String>[];
 
     for (int i = 0; i < values.length; i += 1) {
-      if (series[i].hidden) {
+      if (!visible[i]) {
         continue;
       }
 
@@ -301,15 +301,11 @@ class PlScatterChart extends StatelessWidget {
       final points = <String>[];
 
       for (int at = 0; at < values[i].length; at += 1) {
-        final double? y = values[i][at].value;
-
-        if (y == null) {
+        if (values[i][at].value == null) {
           continue;
         }
 
-        final double? x = pointX(values[i][at], at, categories);
-
-        points.add('${x == null ? '' : '${_write(x)}, '}${_write(y)}');
+        points.add(_readout(values[i][at], at));
       }
 
       parts.add('$name: ${points.join('; ')}');

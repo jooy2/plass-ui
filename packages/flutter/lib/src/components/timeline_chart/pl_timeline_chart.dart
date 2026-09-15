@@ -264,7 +264,7 @@ class PlTimelineChart extends StatelessWidget {
       // The span names itself when it can, and the row is then the second line
       // rather than a repeat of the first.
       markHeading: (PlassChartMark mark) => spanAt(mark)?.span.label ?? rowNames[mark.series],
-      semanticValue: () => _summary(rows, rowNames, scale.unit, names, withDate),
+      semanticValue: (_) => _summary(rows, rowNames, scale.unit, names, withDate),
       paint: (Canvas canvas, PlassChartLayout layout) =>
           _paint(canvas, layout, rows, colors, tokens),
     );
