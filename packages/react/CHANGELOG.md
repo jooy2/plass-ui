@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A `PlPill` does less work when its `details` re-renders.** A pill with `details` written inline disconnected its size observer, made a new one and measured its panel again on every render, so a pill showing a live counter did all three every second. It now keeps one observer for as long as it has `details`.
+
 - **A `PlChatBubble` link preview fetches its picture only when the card comes near the screen.** Every preview picture was requested as soon as its bubble rendered, so a long thread with many link cards downloaded the pictures of cards scrolled far out of view. The picture now loads lazily and decodes off the main thread.
 
 - **An `inline` `PlColorPicker` inside a disabled `<fieldset>` is disabled.** Its square and rails are not form controls, so the fieldset did not reach them: they stayed tab stops and still took keys and the pointer. They now behave as with `disabled`, the label is muted, and the picker no longer reports its value to a `PlForm`. A `PlFieldset` with `disabled` does the same, and turning the fieldset back on brings the picker back.

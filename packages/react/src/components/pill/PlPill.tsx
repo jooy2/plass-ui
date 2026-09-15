@@ -258,7 +258,12 @@ export const PlPill = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPillPro
   const detailsRef = React.useRef<HTMLDivElement>(null);
   const detailsId = React.useId();
   const [detailsHeight, setDetailsHeight] = React.useState(0);
+  const hasDetails = hasContent(details);
 
+  // Keyed on whether there is a panel rather than on `details`: the panel's
+  // element lives exactly as long as that, and the observer already hears every
+  // change to what is inside it. `details` is usually written inline, so keying
+  // on it would build a new observer on every render.
   React.useEffect(() => {
     const element = detailsRef.current;
 
@@ -272,10 +277,9 @@ export const PlPill = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPillPro
     setDetailsHeight(element.scrollHeight);
 
     return () => observer.disconnect();
-  }, [details]);
+  }, [hasDetails]);
 
   const interactive = Boolean(onClick);
-  const hasDetails = hasContent(details);
   const padX = paddingXClasses[density][size];
 
   const row = (

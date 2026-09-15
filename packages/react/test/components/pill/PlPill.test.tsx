@@ -192,6 +192,60 @@ describe('PlPill', () => {
         .poll(() => Number.parseFloat((panel as HTMLElement).style.height))
         .toBeGreaterThan(0);
     });
+
+    it('grows with details whose content changes', async () => {
+      const screen = await render(
+        <PlPill
+          expanded
+          title="Recording"
+          details={<span data-testid="details" style={{ display: 'block', height: 40 }} />}
+        />
+      );
+
+      const panel = screen.getByTestId('details').element().parentElement?.parentElement;
+
+      await expect.poll(() => (panel as HTMLElement).style.height).toBe('40px');
+
+      await screen.rerender(
+        <PlPill
+          expanded
+          title="Recording"
+          details={<span data-testid="details" style={{ display: 'block', height: 80 }} />}
+        />
+      );
+
+      await expect.poll(() => (panel as HTMLElement).style.height).toBe('80px');
+    });
+
+    it('watches the panel with one observer however often the pill re-renders', async () => {
+      const observe = vi.spyOn(ResizeObserver.prototype, 'observe');
+
+      try {
+        const screen = await render(
+          <PlPill expanded title="Recording" details={<span data-testid="details">0:01</span>} />
+        );
+
+        const content = screen.getByTestId('details').element().parentElement;
+        const watches = () => observe.mock.calls.filter(([target]) => target === content).length;
+
+        await expect.poll(watches).toBe(1);
+
+        for (const time of ['0:02', '0:03']) {
+          await screen.rerender(
+            <PlPill
+              expanded
+              title="Recording"
+              details={<span data-testid="details">{time}</span>}
+            />
+          );
+          await expect.element(screen.getByText(time)).toBeInTheDocument();
+        }
+
+        expect(watches()).toBe(1);
+      } finally {
+        observe.mockRestore();
+      }
+    });
   });
 
   describe('position', () => {
