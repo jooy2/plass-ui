@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **`PlassLabels` and `PlDateNames` compare by their words.** Neither had an `==`, so a pack written where the documentation recommends writing it, `labels: ko.copyWith(start: '체크인')` inside `build`, was a new object on every frame, `PlassTheme`'s `updateShouldNotify` answered true to it, and every widget under the theme rebuilt whenever the widget above it did. Two sets carrying the same words are now equal. The sentences that hold a value are functions and are compared like everything else, so a pack's own match and a closure written inline at a call site counts as new.
+
 - **A paused `PlAnimate*` holds what is left of its `delay`.** Pausing called the wait before the first pass off, and letting go started the pass at once, so an effect held 100ms into a one-second `delay` skipped the other 900ms. What is left of the wait is now what is waited out, as the React build does.
 
 - **A `PlTransfer` row that leaves `items` and comes back is no longer still ticked.** The ticks were kept for the life of the widget. Every read of them narrows to the rows first, so an abandoned tick drew nothing and counted for nothing — until its value came back, when the row came back ticked and its arrow came back pressable. The ticks of values that have left `items` are now dropped as they go.

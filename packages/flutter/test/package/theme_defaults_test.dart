@@ -15,6 +15,7 @@ import 'dart:io';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:plass_ui/locales.dart';
 import 'package:plass_ui/plass_ui.dart';
 
 import '../support/host.dart';
@@ -200,6 +201,70 @@ void main() {
 
       // A section of a dark screen can be made compact without going light.
       expect(tokens, equals(PlassTokens.of(Brightness.dark)));
+    });
+  });
+
+  group('a vocabulary built inside build', () {
+    test('two sets of the same words are equal', () {
+      // What `copyWith` is documented to be used for, twice over. Without a
+      // field-based `==` these are two objects and nothing else, so the theme
+      // above them has no way to tell that nothing changed.
+      expect(ko.copyWith(start: '체크인'), equals(ko.copyWith(start: '체크인')));
+      expect(ko.copyWith(start: '체크인').hashCode, equals(ko.copyWith(start: '체크인').hashCode));
+      expect(ko.copyWith(start: '체크인'), isNot(equals(ko.copyWith(start: '시작'))));
+
+      const PlDateNames names = PlDateNames(monthBeforeYear: false);
+
+      expect(names.copyWith(am: '오전'), equals(names.copyWith(am: '오전')));
+      expect(names.copyWith(am: '오전').hashCode, equals(names.copyWith(am: '오전').hashCode));
+      expect(names.copyWith(am: '오전'), isNot(equals(names.copyWith(am: 'AM'))));
+      expect(
+        names.copyWith(monthsShort: const <String>['1월']),
+        isNot(equals(names.copyWith(monthsShort: const <String>['Jan']))),
+      );
+    });
+
+    testWidgets('does not rebuild the widgets under the theme', (WidgetTester tester) async {
+      int builds = 0;
+      late StateSetter poke;
+
+      // Held across the parent's rebuilds, so the only thing that can rebuild it
+      // is the theme telling its dependants that something changed.
+      final Widget reader = Builder(
+        builder: (BuildContext context) {
+          builds += 1;
+
+          return Text(PlassTheme.labelsOf(context).close);
+        },
+      );
+
+      await tester.pumpWidget(
+        host(
+          StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              poke = setState;
+
+              // Where the documentation recommends writing it: in `build`, so a
+              // new pack and a new set of names arrive on every frame.
+              return PlassTheme.merge(
+                defaults: PlassDefaults(
+                  labels: ko.copyWith(start: '체크인'),
+                  names: PlDateNames.english.copyWith(am: '오전'),
+                ),
+                child: reader,
+              );
+            },
+          ),
+        ),
+      );
+
+      expect(builds, equals(1));
+
+      poke(() {});
+      await tester.pump();
+
+      // The same words, so there is nothing under the theme to redraw.
+      expect(builds, equals(1));
     });
   });
 

@@ -188,6 +188,38 @@ class PlDateNames {
     return monthBeforeYear ? '$month ${date.year}' : '${date.year} $month';
   }
 
+  /// Equal when the words are, rather than when the object is the same one.
+  ///
+  /// The docs recommend `PlDateNames.english.copyWith(...)`, and the natural
+  /// place to write that is inside `build`. A fresh object every frame with no
+  /// `==` makes `PlassTheme`'s `updateShouldNotify` answer true on every parent
+  /// rebuild, which rebuilds every widget under the theme for words that did
+  /// not change.
+  @override
+  bool operator ==(Object other) {
+    return other is PlDateNames &&
+        listEquals(other.months, months) &&
+        listEquals(other.monthsShort, monthsShort) &&
+        listEquals(other.weekdays, weekdays) &&
+        listEquals(other.weekdaysShort, weekdaysShort) &&
+        other.am == am &&
+        other.pm == pm &&
+        other.monthBeforeYear == monthBeforeYear &&
+        other.firstDayOfWeek == firstDayOfWeek;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    Object.hashAll(months),
+    Object.hashAll(monthsShort),
+    Object.hashAll(weekdays),
+    Object.hashAll(weekdaysShort),
+    am,
+    pm,
+    monthBeforeYear,
+    firstDayOfWeek,
+  );
+
   static const List<String> _englishMonths = <String>[
     'January',
     'February',
@@ -880,6 +912,131 @@ class PlassLabels {
   /// What a transfer announces once rows have moved, given how many and the
   /// name of the list they went to.
   final String Function(int count, String list) transferMoved;
+
+  /// Equal when the words are, rather than when the object is the same one.
+  ///
+  /// The docs recommend `ko.copyWith(start: '체크인')`, and the natural place to
+  /// write that is inside `build`. A fresh object every frame with no `==` makes
+  /// `PlassTheme`'s `updateShouldNotify` answer true on every parent rebuild,
+  /// which rebuilds every widget under the theme for words that did not change.
+  ///
+  /// The sentences with a value in them are functions, and they are compared
+  /// with `==` like everything else. A pack passes a top-level function, whose
+  /// tear-off is a constant, so two reads of the same pack compare equal. A
+  /// closure written inline at a call site is a new object each time and
+  /// compares unequal, which is the safe answer: a function this class cannot
+  /// look inside may well say something different.
+  @override
+  bool operator ==(Object other) {
+    return other is PlassLabels && listEquals(other._fields, _fields);
+  }
+
+  @override
+  int get hashCode => Object.hashAll(_fields);
+
+  /// Every field in one list, which is what [==] and [hashCode] both read.
+  ///
+  /// A chain of eighty-odd `other.x == x` comparisons would be a fifth place to
+  /// remember when a word is added, after the constructor, [copyWith], the field
+  /// and the packs. This is one.
+  List<Object?> get _fields => <Object?>[
+    close,
+    cancel,
+    confirm,
+    acknowledge,
+    search,
+    selectAll,
+    selectRow,
+    sortedAscending,
+    sortedDescending,
+    remove,
+    dismiss,
+    open,
+    previous,
+    next,
+    reveal,
+    hide,
+    increase,
+    decrease,
+    preview,
+    empty,
+    optional,
+    breadcrumb,
+    breadcrumbExpand,
+    carousel,
+    carouselPrevious,
+    carouselNext,
+    commandPalette,
+    commandPalettePlaceholder,
+    gallery,
+    chart,
+    minimize,
+    maximize,
+    restore,
+    resizeWindow,
+    overlay,
+    pagination,
+    paginationPrevious,
+    paginationNext,
+    paginationFirst,
+    paginationLast,
+    rating,
+    sidebar,
+    sidebarOpen,
+    sidebarClose,
+    sidebarResize,
+    skipToContent,
+    backToTop,
+    onThisPage,
+    typing,
+    messageSending,
+    messageSent,
+    messageDelivered,
+    messageRead,
+    messageFailed,
+    spoilerWarning,
+    filePickerTitle,
+    newTab,
+    transferAvailable,
+    transferSelected,
+    transferToSelected,
+    transferToAvailable,
+    copy,
+    copied,
+    copyFailed,
+    raw,
+    code,
+    previousMonth,
+    nextMonth,
+    previousYear,
+    nextYear,
+    previousYears,
+    nextYears,
+    chooseMonth,
+    chooseYear,
+    today,
+    thisMonth,
+    thisYear,
+    now,
+    clear,
+    done,
+    skip,
+    hour,
+    minute,
+    second,
+    meridiem,
+    start,
+    end,
+    paginationPage,
+    ratingValue,
+    ratingNone,
+    carouselSlide,
+    galleryItem,
+    removeItem,
+    addCustom,
+    howToStep,
+    transferMoved,
+  ];
 }
 
 /// The zeros a decimal ends in, with its separator when nothing is left after it.
