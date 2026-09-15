@@ -92,11 +92,11 @@ export interface PlTableProps<Row>
   /**
    * Pins the header while the rows scroll under it.
    *
-   * It needs something to scroll *in*: a `position: sticky` header in a box
-   * that is as tall as its content has nowhere to stick, so this does nothing
-   * on its own. `maxHeight` is the usual answer and the two are made for each
-   * other; a table inside a pane that already caps its own height works just as
-   * well.
+   * It needs `maxHeight`. A `position: sticky` header sticks to the nearest box
+   * that scrolls, and here that is the table's own horizontal scroller, which
+   * without a cap is as tall as its content and has nowhere to stick. A pane
+   * around the table that scrolls or caps its own height does not change that,
+   * so this does nothing on its own.
    * @default false
    */
   stickyHeader?: boolean;

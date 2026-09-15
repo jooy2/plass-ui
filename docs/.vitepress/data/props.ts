@@ -10729,8 +10729,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'boolean',
       default: 'false',
       description: {
-        ko: '행이 밑으로 지나가는 동안 열 이름을 고정합니다. 스크롤될 상자가 있어야 의미가 있습니다 — 보통은 maxHeight',
-        en: 'Pins the column names while the rows scroll under them. It needs something to scroll in — usually maxHeight'
+        ko: '행이 밑으로 지나가는 동안 열 이름을 고정합니다. maxHeight가 있어야 합니다. 헤더는 표 자신의 스크롤 상자에 붙고, 높이 제한이 없으면 그 상자는 스크롤되지 않습니다',
+        en: "Pins the column names while the rows scroll under them. Needs maxHeight: the header sticks to the table's own scroller, which does not scroll without a cap"
       }
     },
     {

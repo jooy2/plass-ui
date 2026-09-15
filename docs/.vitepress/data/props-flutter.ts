@@ -5127,7 +5127,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlTable', 'empty', { type: 'Widget?', default: "Text('No data')" }),
     from('PlTable', 'striped', { type: 'bool', default: 'false' }),
     from('PlTable', 'hoverable', { type: 'bool', default: 'false' }),
-    from('PlTable', 'stickyHeader', { type: 'bool', default: 'false' }),
+    from('PlTable', 'stickyHeader', {
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '행이 밑으로 지나가는 동안 열 이름을 고정합니다. 스크롤될 상자가 있어야 의미가 있습니다 — 보통은 maxHeight',
+        en: 'Pins the column names while the rows scroll under them. It needs something to scroll in — usually maxHeight'
+      }
+    }),
     from('PlTable', 'maxHeight', {
       type: 'double?',
       description: {
