@@ -64,6 +64,8 @@
 
 ### Fixed
 
+- **The typing dots of a `PlChatBubble` keep moving when animations are disabled.** With `disableAnimations` on, the dots stopped, and three dots that hold still do not say that somebody is typing. They now light in turn on a slower cycle, 2.6 seconds instead of 1.2, as in the React build.
+
 - **A `PlColorPicker` thumb sits on its value down the square and the rails.** Each thumb was placed from the height of its track including the hairline border, so its centre sat a pixel below its value on a rail and up to 2 pixels below it at the foot of the square.
 
 - **A `readOnly` `PlRadioGroup` is no longer announced as disabled.** The set keeps its focus stop, but its semantics and those of each option said they were not enabled. The set and its options are now enabled and read only, the options still have no tap action, and the React build's `aria-readonly` on the group says the same.

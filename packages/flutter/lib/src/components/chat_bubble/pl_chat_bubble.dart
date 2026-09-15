@@ -65,6 +65,11 @@ const double _dotScale = 0.45;
 /// How long one dot takes to come up and go down again.
 const Duration _dotCycle = Duration(milliseconds: 1200);
 
+/// And how long under a reduced-motion preference, where the dots are slowed
+/// rather than stopped: they are what says somebody is still typing, and dots
+/// that hold still say the opposite.
+const Duration _slowDotCycle = Duration(milliseconds: 2600);
+
 /// Whose message this is.
 ///
 /// `start` and `end` rather than `them`/`me` or `left`/`right`: a thread runs
@@ -473,6 +478,23 @@ class _TypingDotsState extends State<_TypingDots> with SingleTickerProviderState
     ..repeat();
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final wanted = still ? _slowDotCycle : _dotCycle;
+
+    // A running loop keeps the period it was started with, so it is started
+    // again from where it is.
+    if (_turn.duration != wanted) {
+      _turn
+        ..duration = wanted
+        ..stop()
+        ..repeat();
+    }
+  }
+
+  @override
   void dispose() {
     _turn.dispose();
     super.dispose();
@@ -480,14 +502,7 @@ class _TypingDotsState extends State<_TypingDots> with SingleTickerProviderState
 
   @override
   Widget build(BuildContext context) {
-    final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
     final dot = widget.line * _dotScale;
-
-    if (reduceMotion && _turn.isAnimating) {
-      _turn.stop();
-    } else if (!reduceMotion && !_turn.isAnimating) {
-      _turn.repeat();
-    }
 
     return Semantics(
       container: true,

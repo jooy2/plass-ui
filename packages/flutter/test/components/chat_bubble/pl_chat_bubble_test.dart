@@ -195,6 +195,35 @@ void main() {
         expect(find.bySemanticsLabel('Typing…'), findsOneWidget);
         handle.dispose();
       });
+
+      testWidgets('and keep lighting in turn, only slower, when motion is reduced', (
+        WidgetTester tester,
+      ) async {
+        double lit() => tester
+            .widgetList<DecoratedBox>(find.byType(DecoratedBox))
+            .map((DecoratedBox box) => box.decoration)
+            .whereType<BoxDecoration>()
+            .firstWhere((BoxDecoration decoration) => decoration.shape == BoxShape.circle)
+            .color!
+            .a;
+
+        await tester.pumpWidget(
+          host(const PlChatBubble(typing: true), width: 400, disableAnimations: true),
+        );
+        await tester.pump();
+
+        final start = lit();
+
+        // Dots that were stopped would still be where they started.
+        await tester.pump(const Duration(milliseconds: 600));
+        expect(lit(), isNot(closeTo(start, 0.01)));
+
+        // A whole cycle at full speed, which slowed dots have not finished.
+        await tester.pump(const Duration(milliseconds: 600));
+        expect(lit(), isNot(closeTo(start, 0.01)));
+
+        await tester.pumpWidget(host(const SizedBox.shrink()));
+      });
     });
 
     group('preview', () {
