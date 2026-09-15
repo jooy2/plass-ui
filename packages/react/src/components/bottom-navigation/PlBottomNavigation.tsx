@@ -98,6 +98,9 @@ export interface PlBottomNavigationProps
    * Keeps the bar clear of the home indicator on a phone, by adding
    * `env(safe-area-inset-bottom)` under it. The sheet still reaches the bottom
    * of the screen; only the items move up.
+   *
+   * A browser gives a page that inset only when its viewport meta tag has
+   * `viewport-fit=cover`. Without it, this adds nothing.
    * @default true
    */
   safeArea?: boolean;

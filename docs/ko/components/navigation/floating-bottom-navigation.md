@@ -146,6 +146,16 @@ PlFloatingBottomNavigation<String>(
 
 바 아래의 틈도 같은 `size` 사다리에서 나오고, `safeArea`가 켜져 있는 동안에는 거기에 `env(safe-area-inset-bottom)`이 더해집니다.
 
+::: fw react
+
+브라우저는 viewport meta 태그에 `viewport-fit=cover`가 있는 페이지에만 그 inset 값을 줍니다. 없으면 `safeArea`는 아무것도 더하지 않습니다.
+
+```html
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+```
+
+:::
+
 <Demo src="floating-bottom-navigation/sizes" :min-height="280">
 
 ::: fw react

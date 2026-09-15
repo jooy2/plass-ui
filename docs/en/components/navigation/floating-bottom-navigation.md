@@ -146,6 +146,16 @@ The capsule is never dyed, exactly as on a `PlCard`. What carries the family is 
 
 The gap under the bar comes off the same `size` ladder, with `env(safe-area-inset-bottom)` added to it while `safeArea` is on.
 
+::: fw react
+
+A browser gives a page that inset only when its viewport meta tag has `viewport-fit=cover`. Without it, `safeArea` adds nothing.
+
+```html
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+```
+
+:::
+
 <Demo src="floating-bottom-navigation/sizes" :min-height="280">
 
 ::: fw react

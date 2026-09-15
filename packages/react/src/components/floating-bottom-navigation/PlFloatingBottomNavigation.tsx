@@ -73,6 +73,9 @@ export interface PlFloatingBottomNavigationProps
   /**
    * Keeps the bar clear of the home indicator on a phone, by adding
    * `env(safe-area-inset-bottom)` to the gap under it.
+   *
+   * A browser gives a page that inset only when its viewport meta tag has
+   * `viewport-fit=cover`. Without it, this adds nothing.
    * @default true
    */
   safeArea?: boolean;

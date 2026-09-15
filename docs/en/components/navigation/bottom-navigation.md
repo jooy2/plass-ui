@@ -144,6 +144,16 @@ The sheet is never dyed, exactly as on a `PlCard`. A bar holds destinations that
 
 `safeArea` keeps the row clear of the home indicator on a phone. The **sheet** still reaches the bottom of the screen, only the items move up, because a bar that stopped above the indicator would leave a stripe of page showing under the glass.
 
+::: fw react
+
+A browser gives a page that inset only when its viewport meta tag has `viewport-fit=cover`. Without it, `safeArea` adds nothing.
+
+```html
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+```
+
+:::
+
 `elevation` is `0`, and flat is right: the bar is attached to the edge of the window rather than floating over the middle of it, and `divider` is what separates it from the content. The bar that floats over the page is a different object, and it is [`PlFloatingBottomNavigation`](./floating-bottom-navigation).
 
 ### size

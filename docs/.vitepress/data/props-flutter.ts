@@ -931,7 +931,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       default: 'PlBottomNavigationLabels.all'
     }),
     from('PlBottomNavigation', 'divider', { type: 'bool', default: 'true' }),
-    from('PlBottomNavigation', 'safeArea', { type: 'bool', default: 'true' }),
+    from('PlBottomNavigation', 'safeArea', {
+      type: 'bool',
+      default: 'true',
+      description: {
+        ko: '홈 인디케이터에서 줄을 떼어 놓습니다. 시트는 화면 바닥까지 그대로 닿습니다',
+        en: 'Keeps the row clear of the home indicator. The sheet still reaches the bottom'
+      }
+    }),
     from('PlBottomNavigation', 'disabled', { type: 'bool', default: 'false' }),
     from('PlBottomNavigation', 'label', { type: 'String?' })
   ],
@@ -3055,7 +3062,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       default: 'PlassDensity.standard'
     }),
     from('PlFloatingBottomNavigation', 'elevation', { type: 'int', default: '2' }),
-    from('PlFloatingBottomNavigation', 'safeArea', { type: 'bool', default: 'true' }),
+    from('PlFloatingBottomNavigation', 'safeArea', {
+      type: 'bool',
+      default: 'true',
+      description: {
+        ko: '바 아래 틈에 홈 인디케이터 높이를 더합니다',
+        en: 'Adds the home indicator to the gap under the bar'
+      }
+    }),
     from('PlFloatingBottomNavigation', 'disabled', { type: 'bool', default: 'false' }),
     from('PlFloatingBottomNavigation', 'label', { type: 'String?' })
   ],

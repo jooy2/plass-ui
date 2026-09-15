@@ -2329,8 +2329,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'boolean',
       default: 'true',
       description: {
-        ko: '홈 인디케이터에서 줄을 떼어 놓습니다. 시트는 화면 바닥까지 그대로 닿습니다',
-        en: 'Keeps the row clear of the home indicator. The sheet still reaches the bottom'
+        ko: '홈 인디케이터에서 줄을 떼어 놓습니다. 시트는 화면 바닥까지 그대로 닿습니다. viewport meta 태그에 viewport-fit=cover가 있어야 동작합니다',
+        en: 'Keeps the row clear of the home indicator. The sheet still reaches the bottom. Needs viewport-fit=cover in the viewport meta tag'
       }
     },
     {
@@ -5359,8 +5359,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'boolean',
       default: 'true',
       description: {
-        ko: '바 아래 틈에 홈 인디케이터 높이를 더합니다',
-        en: 'Adds the home indicator to the gap under the bar'
+        ko: '바 아래 틈에 홈 인디케이터 높이를 더합니다. viewport meta 태그에 viewport-fit=cover가 있어야 동작합니다',
+        en: 'Adds the home indicator to the gap under the bar. Needs viewport-fit=cover in the viewport meta tag'
       }
     },
     {
