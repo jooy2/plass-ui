@@ -341,6 +341,88 @@ void main() {
       });
     });
 
+    group('scrolling', () {
+      /// A target two screens down a scroll view, with a tour that brings it up.
+      Future<ScrollController> far(WidgetTester tester, {required bool disableAnimations}) async {
+        final ScrollController scroll = ScrollController();
+        final GlobalKey target = GlobalKey();
+
+        addTearDown(scroll.dispose);
+
+        await tester.pumpWidget(
+          host(
+            Stack(
+              children: <Widget>[
+                SingleChildScrollView(
+                  controller: scroll,
+                  child: Column(
+                    children: <Widget>[
+                      const SizedBox(height: 1500),
+                      SizedBox(key: target, width: 120, height: 32, child: const Text('Far')),
+                      const SizedBox(height: 1500),
+                    ],
+                  ),
+                ),
+                PlTour(
+                  open: true,
+                  controller: scroll,
+                  steps: <PlTourStep>[PlTourStep(target: target, title: const Text('Down here'))],
+                ),
+              ],
+            ),
+            width: 600,
+            height: 600,
+            overlay: true,
+            disableAnimations: disableAnimations,
+          ),
+        );
+
+        return scroll;
+      }
+
+      double offCentre(WidgetTester tester) {
+        return (tester.getCenter(find.text('Far').first).dy -
+                tester.getCenter(find.byType(SingleChildScrollView)).dy)
+            .abs();
+      }
+
+      testWidgets('carries the screen to the target over the slow duration', (
+        WidgetTester tester,
+      ) async {
+        final ScrollController scroll = await far(tester, disableAnimations: false);
+
+        // The tour opens after its first frame, and asks for the scroll then.
+        await tester.pump();
+        await tester.pump();
+
+        expect(scroll.offset, 0);
+
+        await tester.pumpAndSettle();
+
+        expect(offCentre(tester), lessThan(20));
+      });
+
+      testWidgets('jumps to the target when the reader has asked for less motion', (
+        WidgetTester tester,
+      ) async {
+        final ScrollController scroll = await far(tester, disableAnimations: true);
+
+        await tester.pump();
+        await tester.pump();
+
+        expect(scroll.offset, greaterThan(0));
+        expect(offCentre(tester), lessThan(20));
+
+        // The light is read once the jump has been laid out, not left where the
+        // target was before it.
+        await tester.pump();
+
+        final Path path = clip(tester)!.clipper!.getClip(const Size(600, 600));
+
+        expect(path.contains(tester.getCenter(find.text('Far').first)), isFalse);
+      });
+    });
+
     group('the card', () {
       testWidgets('says the next step when the focus stays on Next', (WidgetTester tester) async {
         final SemanticsHandle handle = tester.ensureSemantics();

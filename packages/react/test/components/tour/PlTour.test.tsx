@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { commands } from 'vitest/browser';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlTour, PlassProvider, type PlTourStep } from 'plass-ui';
@@ -227,6 +228,47 @@ describe('PlTour', () => {
       await render(<Page defaultOpen mask={false} />);
 
       expect(mask()).toBeNull();
+    });
+  });
+
+  describe('scrolling', () => {
+    /**
+     * Renders a scrolling tour with the scroll itself stubbed out, and hands back
+     * what it was asked to do. Stubbed because a real one moves the runner's own
+     * window, which the next test would then start from.
+     */
+    async function scrolled() {
+      const scroll = vi.spyOn(Element.prototype, 'scrollIntoView').mockImplementation(() => {});
+
+      try {
+        await render(<Page defaultOpen scrollIntoView />);
+        await expect.poll(() => scroll.mock.calls.length).toBeGreaterThan(0);
+
+        return scroll.mock.calls.map(([options]) => options);
+      } finally {
+        scroll.mockRestore();
+      }
+    }
+
+    it('carries the page to the target smoothly', async () => {
+      expect(await scrolled()).toContainEqual(
+        expect.objectContaining({ block: 'center', behavior: 'smooth' })
+      );
+    });
+
+    it('moves at once when the reader has asked for less motion', async () => {
+      await commands.emulateMedia({ reducedMotion: 'reduce' });
+
+      try {
+        const calls = await scrolled();
+
+        expect(calls).toContainEqual(
+          expect.objectContaining({ block: 'center', behavior: 'auto' })
+        );
+        expect(calls).not.toContainEqual(expect.objectContaining({ behavior: 'smooth' }));
+      } finally {
+        await commands.emulateMedia({ reducedMotion: 'no-preference' });
+      }
     });
 
     it('is hidden from a screen reader, which the card is not', async () => {

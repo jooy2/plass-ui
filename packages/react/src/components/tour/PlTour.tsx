@@ -6,6 +6,7 @@ import { PlButton } from '../button/index.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { CloseIcon } from '../../internal/icons.js';
 import { useLabels } from '../../internal/labels.js';
+import { reducedMotionQuery } from '../../internal/media.js';
 import { inflate, spotlightPath, type PlassSpot } from '../../internal/tour.js';
 import {
   cx,
@@ -343,7 +344,15 @@ export function PlTour({
     }
 
     if (scrollIntoView) {
-      element.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' });
+      // A reader who has asked for less motion is taken to the target rather
+      // than carried past the page on the way to it.
+      const still = window.matchMedia?.(reducedMotionQuery).matches;
+
+      element.scrollIntoView({
+        block: 'center',
+        inline: 'nearest',
+        behavior: still ? 'auto' : 'smooth'
+      });
     }
 
     let frame = 0;

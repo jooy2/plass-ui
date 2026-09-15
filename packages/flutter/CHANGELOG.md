@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **`PlTour` moves to its target at once when the reader has asked for less motion.** It always scrolled each target into view over 260ms, so with `disableAnimations` on the screen still slid past on every step. It now jumps there and measures the light once the jump is laid out, as `PlBackTop` already jumps.
+
 - **The lowest bar of a `PlSparkline` bar strip above zero draws inside its box.** A value at the foot of the scale is drawn as a bar one pixel tall, and when every value is above zero the foot is the bottom edge, so that pixel sat just below the box. It now grows up from the bottom edge, and strips with values below zero draw as before.
 
 - **A `PlCodeBlock` `highlightLines` range stops at the last line, and a number too long for an `int` no longer throws.** A range was walked from end to end whatever the block held, so `'1-100000000'` built a hundred million line numbers, and `'2-99999999999999999999'` made `int.parse` throw while the block was building. Only the lines the block has are walked now, and a number too long for an `int` counts as past the last line, as in the React build. `parseLineSpec` takes the bounds as the optional `first` and `last`.

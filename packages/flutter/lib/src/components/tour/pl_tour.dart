@@ -358,13 +358,21 @@ class _PlTourState extends State<PlTour> with WidgetsBindingObserver {
 
   /// Brings the step's target on screen, then reads where it landed.
   void _reveal() {
-    final context = _current?.target?.currentContext;
+    final target = _current?.target?.currentContext;
 
-    if (context != null && widget.scrollIntoView) {
-      Scrollable.ensureVisible(context, alignment: 0.5, duration: PlassTokens.durationSlow);
-      // After the scroll, not during it: a rectangle read mid-flight is a
-      // rectangle the light would have to be dragged away from.
-      Future<void>.delayed(PlassTokens.durationSlow, _measure);
+    if (target != null && widget.scrollIntoView && mounted) {
+      // A reader who has asked for less motion is taken to the target rather
+      // than carried past the screen on the way to it. The jump is laid out in
+      // the next frame, so that is when the light is read.
+      if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) {
+        Scrollable.ensureVisible(target, alignment: 0.5);
+        _afterFrame(_measure);
+      } else {
+        Scrollable.ensureVisible(target, alignment: 0.5, duration: PlassTokens.durationSlow);
+        // After the scroll, not during it: a rectangle read mid-flight is a
+        // rectangle the light would have to be dragged away from.
+        Future<void>.delayed(PlassTokens.durationSlow, _measure);
+      }
     }
 
     _measure();
