@@ -369,6 +369,24 @@ void main() {
         // Still drawn, still readable — the grid is the content.
         expect(find.byType(PlassCalendarCell), findsNWidgets(42));
       });
+
+      testWidgets('takes the grid out of reach without an onChanged, as disabled does', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, PlCalendar(value: july27));
+
+        await tester.tap(find.bySemanticsLabel('Next month'), warnIfMissed: false);
+        await tester.pumpAndSettle();
+
+        expect(find.text('July'), findsOneWidget);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+
+        final BuildContext? focused = FocusManager.instance.primaryFocus?.context;
+
+        expect(focused?.findAncestorWidgetOfExactType<PlCalendar>(), isNull);
+      });
     });
 
     group('the words', () {

@@ -223,9 +223,10 @@ class _PlCalendarState extends State<PlCalendar> {
       autofocus: widget.autofocus && !inert,
     );
 
-    if (widget.disabled) {
+    if (inert) {
       // The design language's one use of opacity, and the reason it is allowed
-      // here: the page shows *through* an unavailable control.
+      // here: the page shows *through* an unavailable control. A missing
+      // `onChanged` is the same as `disabled`, as it is on every other control.
       calendar = ExcludeFocus(
         child: IgnorePointer(child: Opacity(opacity: 0.5, child: calendar)),
       );
