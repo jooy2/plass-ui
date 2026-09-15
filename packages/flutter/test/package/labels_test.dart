@@ -6,6 +6,8 @@
 /// rest of the interface is translated, and no widget test would see that.
 library;
 
+import 'dart:io';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/locales.dart';
@@ -23,107 +25,130 @@ const Map<String, PlassLabels> packs = <String, PlassLabels>{
   'zhHans': zhHans,
 };
 
-/// Every word a pack says, in one list, so two packs can be compared.
-List<String> words(PlassLabels labels) => <String>[
-  labels.close,
-  labels.cancel,
-  labels.confirm,
-  labels.acknowledge,
-  labels.search,
-  labels.selectAll,
-  labels.selectRow,
-  labels.sortedAscending,
-  labels.sortedDescending,
-  labels.remove,
-  labels.dismiss,
-  labels.open,
-  labels.previous,
-  labels.next,
-  labels.reveal,
-  labels.hide,
-  labels.increase,
-  labels.decrease,
-  labels.preview,
-  labels.empty,
-  labels.optional,
-  labels.breadcrumb,
-  labels.breadcrumbExpand,
-  labels.carousel,
-  labels.carouselPrevious,
-  labels.carouselNext,
-  labels.commandPalette,
-  labels.commandPalettePlaceholder,
-  labels.gallery,
-  labels.chart,
-  labels.minimize,
-  labels.maximize,
-  labels.restore,
-  labels.resizeWindow,
-  labels.overlay,
-  labels.pagination,
-  labels.paginationPrevious,
-  labels.paginationNext,
-  labels.paginationFirst,
-  labels.paginationLast,
-  labels.rating,
-  labels.sidebar,
-  labels.sidebarOpen,
-  labels.sidebarClose,
-  labels.sidebarResize,
-  labels.skipToContent,
-  labels.backToTop,
-  labels.onThisPage,
-  labels.typing,
-  labels.messageSending,
-  labels.messageSent,
-  labels.messageDelivered,
-  labels.messageRead,
-  labels.messageFailed,
-  labels.spoilerWarning,
-  labels.filePickerTitle,
-  labels.newTab,
-  labels.transferAvailable,
-  labels.transferSelected,
-  labels.transferToSelected,
-  labels.transferToAvailable,
-  labels.copy,
-  labels.copied,
-  labels.copyFailed,
-  labels.raw,
-  labels.code,
-  labels.previousMonth,
-  labels.nextMonth,
-  labels.previousYear,
-  labels.nextYear,
-  labels.previousYears,
-  labels.nextYears,
-  labels.chooseMonth,
-  labels.chooseYear,
-  labels.today,
-  labels.thisMonth,
-  labels.thisYear,
-  labels.now,
-  labels.clear,
-  labels.done,
-  labels.skip,
-  labels.hour,
-  labels.minute,
-  labels.second,
-  labels.meridiem,
-  labels.start,
-  labels.end,
+/// Every word a pack says, by the name of the field it came from.
+///
+/// Keyed rather than listed, because what a comparison has to be able to say is
+/// *which* word a pack left in English, and a pair of indexes cannot say it.
+Map<String, String> words(PlassLabels labels) => <String, String>{
+  'close': labels.close,
+  'cancel': labels.cancel,
+  'confirm': labels.confirm,
+  'acknowledge': labels.acknowledge,
+  'search': labels.search,
+  'selectAll': labels.selectAll,
+  'selectRow': labels.selectRow,
+  'sortedAscending': labels.sortedAscending,
+  'sortedDescending': labels.sortedDescending,
+  'remove': labels.remove,
+  'dismiss': labels.dismiss,
+  'open': labels.open,
+  'previous': labels.previous,
+  'next': labels.next,
+  'reveal': labels.reveal,
+  'hide': labels.hide,
+  'increase': labels.increase,
+  'decrease': labels.decrease,
+  'preview': labels.preview,
+  'empty': labels.empty,
+  'optional': labels.optional,
+  'breadcrumb': labels.breadcrumb,
+  'breadcrumbExpand': labels.breadcrumbExpand,
+  'carousel': labels.carousel,
+  'carouselPrevious': labels.carouselPrevious,
+  'carouselNext': labels.carouselNext,
+  'commandPalette': labels.commandPalette,
+  'commandPalettePlaceholder': labels.commandPalettePlaceholder,
+  'gallery': labels.gallery,
+  'chart': labels.chart,
+  'minimize': labels.minimize,
+  'maximize': labels.maximize,
+  'restore': labels.restore,
+  'resizeWindow': labels.resizeWindow,
+  'overlay': labels.overlay,
+  'pagination': labels.pagination,
+  'paginationPrevious': labels.paginationPrevious,
+  'paginationNext': labels.paginationNext,
+  'paginationFirst': labels.paginationFirst,
+  'paginationLast': labels.paginationLast,
+  'rating': labels.rating,
+  'sidebar': labels.sidebar,
+  'sidebarOpen': labels.sidebarOpen,
+  'sidebarClose': labels.sidebarClose,
+  'sidebarResize': labels.sidebarResize,
+  'skipToContent': labels.skipToContent,
+  'backToTop': labels.backToTop,
+  'onThisPage': labels.onThisPage,
+  'typing': labels.typing,
+  'messageSending': labels.messageSending,
+  'messageSent': labels.messageSent,
+  'messageDelivered': labels.messageDelivered,
+  'messageRead': labels.messageRead,
+  'messageFailed': labels.messageFailed,
+  'spoilerWarning': labels.spoilerWarning,
+  'filePickerTitle': labels.filePickerTitle,
+  'newTab': labels.newTab,
+  'transferAvailable': labels.transferAvailable,
+  'transferSelected': labels.transferSelected,
+  'transferToSelected': labels.transferToSelected,
+  'transferToAvailable': labels.transferToAvailable,
+  'copy': labels.copy,
+  'copied': labels.copied,
+  'copyFailed': labels.copyFailed,
+  'raw': labels.raw,
+  'code': labels.code,
+  'previousMonth': labels.previousMonth,
+  'nextMonth': labels.nextMonth,
+  'previousYear': labels.previousYear,
+  'nextYear': labels.nextYear,
+  'previousYears': labels.previousYears,
+  'nextYears': labels.nextYears,
+  'chooseMonth': labels.chooseMonth,
+  'chooseYear': labels.chooseYear,
+  'today': labels.today,
+  'thisMonth': labels.thisMonth,
+  'thisYear': labels.thisYear,
+  'now': labels.now,
+  'clear': labels.clear,
+  'done': labels.done,
+  'skip': labels.skip,
+  'hour': labels.hour,
+  'minute': labels.minute,
+  'second': labels.second,
+  'meridiem': labels.meridiem,
+  'start': labels.start,
+  'end': labels.end,
   // The sentences with a value in them, read with one set of values each so
   // they can be compared like the words above.
-  labels.paginationPage(3),
-  labels.ratingValue(3, 5),
-  labels.ratingNone,
-  labels.carouselSlide(1, 3),
-  labels.galleryItem(2, 4),
-  labels.removeItem('notes.txt'),
-  labels.addCustom('Seoul'),
-  labels.howToStep(2, 5),
-  labels.transferMoved(3, 'Selected'),
-];
+  'paginationPage': labels.paginationPage(3),
+  'ratingValue': labels.ratingValue(3, 5),
+  'ratingNone': labels.ratingNone,
+  'carouselSlide': labels.carouselSlide(1, 3),
+  'galleryItem': labels.galleryItem(2, 4),
+  'removeItem': labels.removeItem('notes.txt'),
+  'addCustom': labels.addCustom('Seoul'),
+  'howToStep': labels.howToStep(2, 5),
+  'transferMoved': labels.transferMoved(3, 'Selected'),
+};
+
+/// The words each pack is allowed to share with English, and no others.
+///
+/// A handful genuinely survive translation, and they are named here one at a
+/// time rather than counted. Counting is what let the old version of this test
+/// pass with a word left behind: two packs were already at six of an allowance
+/// of eight, so the next component's untranslated key had two places to hide.
+const Map<String, Set<String>> sharedWithEnglish = <String, Set<String>>{
+  // `OK`, `Optional`, `Overlay`, `Code`, `Minute` and `AM/PM` are written the
+  // same way in German.
+  'de': <String>{'acknowledge', 'optional', 'overlay', 'code', 'minute', 'meridiem'},
+  'es': <String>{},
+  // `OK`, `Pagination`, `Code`, `Minute`, `AM/PM`, and `Page 3`, which French
+  // writes in English's order.
+  'fr': <String>{'acknowledge', 'pagination', 'code', 'minute', 'meridiem', 'paginationPage'},
+  // `OK`, which is what a Japanese dialog's one button says.
+  'ja': <String>{'acknowledge'},
+  'ko': <String>{},
+  'zhHans': <String>{},
+};
 
 void main() {
   group('the label set', () {
@@ -131,33 +156,44 @@ void main() {
       expect(packs.length, greaterThan(1));
     });
 
-    for (final MapEntry<String, PlassLabels> pack in packs.entries) {
-      test('${pack.key} answers every word', () {
-        // A field left out of a pack keeps its English default, which is the
-        // failure this catches: the count is fixed, so a word nobody translated
-        // shows up as a word that matches English.
-        expect(words(pack.value).length, words(en).length);
-      });
+    test('[words] reads every field of PlassLabels', () {
+      // The half that catches the *next* word rather than this week's. A key
+      // added to the class and left out of [words] is a key no pack is ever
+      // checked for, and no comparison between two packs can notice that.
+      final String source = File('lib/src/internal/date.dart').readAsStringSync();
+      final int opens = source.indexOf('class PlassLabels {');
+      final String declared = source.substring(opens, source.indexOf('\n}\n', opens));
 
+      expect(
+        RegExp(
+          r'^  final .+ (\w+);$',
+          multiLine: true,
+        ).allMatches(declared).map((Match match) => match[1]).toSet(),
+        equals(words(en).keys.toSet()),
+      );
+    });
+
+    for (final MapEntry<String, PlassLabels> pack in packs.entries) {
       if (pack.key == 'en') {
         continue;
       }
 
-      test('${pack.key} is a translation rather than a copy', () {
-        final List<String> mine = words(pack.value);
-        final List<String> english = words(en);
-        int same = 0;
+      test('${pack.key} translates every word it does not share on purpose', () {
+        final Map<String, String> mine = words(pack.value);
+        final Map<String, String> english = words(en);
 
-        for (int index = 0; index < mine.length; index += 1) {
-          if (mine[index] == english[index]) {
-            same += 1;
-          }
-        }
-
-        // A handful of strings genuinely survive translation — `AM/PM`,
-        // `Overlay`, `Minute`, `OK`, German's `Optional` — so the check is that a
-        // pack is a translation, not that every single word differs.
-        expect(same, lessThan(8));
+        expect(
+          <String>{
+            for (final MapEntry<String, String> word in mine.entries)
+              if (word.value == english[word.key]) word.key,
+          },
+          equals(sharedWithEnglish[pack.key]),
+          reason:
+              'A key here that is not in sharedWithEnglish is a word left in English — most '
+              'often a field a new component added to PlassLabels and only the English pack '
+              'answered. A key in sharedWithEnglish that is not here has since been translated '
+              'and should leave the list.',
+        );
       });
     }
   });
