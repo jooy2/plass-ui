@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { mergeProps } from '@base-ui/react/merge-props';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { PlIconButton } from '../icon-button/PlIconButton.js';
@@ -315,11 +316,15 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
         style={{ ...surfaceSlots(color, elevation), ...style }}
         // Hover and focus both stop the timer. The second one is the important
         // one: a keyboard reader who has tabbed into a slide is reading it.
-        onPointerEnter={() => setPaused(true)}
-        onPointerLeave={() => setPaused(false)}
-        onFocus={() => setPaused(true)}
-        onBlur={() => setPaused(false)}
-        {...props}
+        // Merged with the caller's props through `mergeProps` rather than spread
+        // beside them, which kept only one of each pair: a caller's own
+        // `onPointerEnter` or `onFocus` quietly turned the pause off.
+        {...mergeProps(props, {
+          onPointerEnter: () => setPaused(true),
+          onPointerLeave: () => setPaused(false),
+          onFocus: () => setPaused(true),
+          onBlur: () => setPaused(false)
+        })}
       >
         <div
           className={cx(

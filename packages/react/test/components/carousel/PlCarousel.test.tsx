@@ -269,6 +269,78 @@ describe('PlCarousel', () => {
         await screen.getByRole('region').unhover();
       }
     });
+
+    it('holds still under the pointer and still calls the caller’s `onPointerEnter`', async () => {
+      const onValueChange = vi.fn();
+      const onPointerEnter = vi.fn();
+      const screen = await render(
+        <PlCarousel
+          autoPlay
+          interval={200}
+          onValueChange={onValueChange}
+          onPointerEnter={onPointerEnter}
+        >
+          {slides}
+        </PlCarousel>
+      );
+
+      await screen.getByRole('region').hover();
+
+      try {
+        // A caller's handler used to replace the pause instead of running
+        // beside it, so the strip turned under the pointer.
+        const held = current(screen);
+
+        onValueChange.mockClear();
+        await aWhile();
+
+        expect(onValueChange).not.toHaveBeenCalled();
+        expect(current(screen)).toBe(held);
+        expect(onPointerEnter).toHaveBeenCalled();
+      } finally {
+        await screen.getByRole('region').unhover();
+      }
+    });
+
+    it('holds still with the focus inside and still calls the caller’s `onFocus` and `onBlur`', async () => {
+      const onValueChange = vi.fn();
+      const onFocus = vi.fn();
+      const onBlur = vi.fn();
+      const screen = await render(
+        <PlCarousel
+          autoPlay
+          interval={200}
+          onValueChange={onValueChange}
+          onFocus={onFocus}
+          onBlur={onBlur}
+        >
+          {slides}
+        </PlCarousel>
+      );
+      const track = screen
+        .getByRole('region')
+        .element()
+        .querySelector<HTMLElement>('[tabindex="0"]')!;
+
+      track.focus();
+
+      const held = current(screen);
+
+      onValueChange.mockClear();
+      await aWhile();
+
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(current(screen)).toBe(held);
+      expect(onFocus).toHaveBeenCalled();
+
+      // The pause is let go when the focus leaves, beside the caller's `onBlur`.
+      track.blur();
+
+      await expect
+        .poll(() => onValueChange.mock.calls.length, { timeout: 2000 })
+        .toBeGreaterThan(0);
+      expect(onBlur).toHaveBeenCalled();
+    });
   });
 
   describe('navigation', () => {
