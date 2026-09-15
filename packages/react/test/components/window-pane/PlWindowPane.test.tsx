@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { PlWindowPane } from 'plass-ui';
 import { render } from 'vitest-browser-react';
+import { moveMouseOntoPage } from '../../support/pointer';
 
 describe('PlWindowPane', () => {
   describe('rendering', () => {
@@ -76,6 +77,59 @@ describe('PlWindowPane', () => {
       await screen.getByRole('button', { name: 'Maximize' }).click();
 
       await expect.poll(() => bar()?.classList.contains('touch-none')).toBe(false);
+    });
+
+    it('gives the selection back and reports nothing when it goes away in the middle of a drag', async () => {
+      const onOffsetChange = vi.fn();
+      const screen = await render(
+        <PlWindowPane title="Notes" draggable onOffsetChange={onOffsetChange}>
+          Body
+        </PlWindowPane>
+      );
+
+      const bar = screen.getByText('Notes').element().closest<HTMLElement>('.select-none')!;
+      const pointerId = await moveMouseOntoPage();
+      const selection = () => document.body.style.getPropertyValue('-webkit-user-select');
+
+      document.body.style.setProperty('-webkit-user-select', 'text');
+
+      try {
+        bar.dispatchEvent(
+          new PointerEvent('pointerdown', {
+            bubbles: true,
+            pointerType: 'mouse',
+            pointerId,
+            button: 0,
+            buttons: 1,
+            clientX: 100,
+            clientY: 10
+          })
+        );
+
+        expect(bar).toHaveAttribute('data-dragging', 'true');
+        expect(selection()).toBe('none');
+
+        // No `pointerup` is coming: the window is gone before the button is.
+        await screen.unmount();
+
+        expect(selection()).toBe('text');
+
+        // A move that reaches the bar it left behind moves nothing.
+        bar.dispatchEvent(
+          new PointerEvent('pointermove', {
+            bubbles: true,
+            pointerType: 'mouse',
+            pointerId,
+            buttons: 1,
+            clientX: 140,
+            clientY: 30
+          })
+        );
+
+        expect(onOffsetChange).not.toHaveBeenCalled();
+      } finally {
+        document.body.style.removeProperty('-webkit-user-select');
+      }
     });
   });
 
