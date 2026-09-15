@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **A `PlStat` change that rounds to 0 is drawn as no movement.** `change: -0.04` was written `-0%` and still drawn with a ▼ in the danger colour. It is now `0%`, muted and with no arrow, as `change: 0` already was.
+
 - **The `PlConfirmProvider` dialog keeps what it said while it fades out.** Answering cleared the question at once, so for the 260ms of the fade the title and the body were gone and the buttons fell back to the defaults, which gave an alert a Cancel button. The sheet now fades out as it was.
 
 - **`PlTour` moves to its target at once when the reader has asked for less motion.** It always scrolled each target into view over 260ms, so with `disableAnimations` on the screen still slid past on every step. It now jumps there and measures the light once the jump is laid out, as `PlBackTop` already jumps.

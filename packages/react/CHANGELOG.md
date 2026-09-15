@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **`PlStat` writes `change` to one decimal at most.** The number was printed as it came, so `change={0.1 + 0.2}` read `+0.30000000000000004%`. It is now rounded to one decimal, half away from zero, as the Flutter build writes it. A change that rounds to 0 is drawn as `0%` in the muted colour with no arrow.
+
 - **Pressing the × on an uncontrolled `inline` `PlDrawer` closes it.** An inline drawer read only `open` and `defaultOpen`, so without `open` the × called `onOpenChange` and the panel stayed. It now keeps its own open state, and a controlled `open` still decides.
 
 - **`PlTour` cuts its light round an SVG target.** Only an HTML element was measured, so a step pointed at a chart bar or any other SVG element dimmed the whole page, the target included, and the target could not be pressed. Any element is measured now.

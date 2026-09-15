@@ -84,6 +84,26 @@ describe('PlStat', () => {
       expect(change()!.querySelector('svg')).toBeNull();
     });
 
+    it('writes the percentage to one decimal at most', async () => {
+      await render(<PlStat value="$48,120" change={0.1 + 0.2} className="stat-under-test" />);
+
+      expect(change()!.textContent).toBe('+0.3%');
+    });
+
+    it('rounds half away from zero, as the Flutter build does', async () => {
+      await render(<PlStat value="$48,120" change={-0.25} className="stat-under-test" />);
+
+      expect(change()!.textContent).toBe('-0.3%');
+    });
+
+    it('is neither when the movement rounds to nothing', async () => {
+      await render(<PlStat value="$48,120" change={-0.04} className="stat-under-test" />);
+
+      expect(change()!.textContent).toBe('0%');
+      expect(change()!.className).toContain('muted');
+      expect(change()!.querySelector('svg')).toBeNull();
+    });
+
     it('draws an arrow for a movement', async () => {
       await render(<PlStat value="$48,120" change={12.4} className="stat-under-test" />);
 

@@ -15045,8 +15045,8 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'change',
       type: 'number',
       description: {
-        ko: '얼마나 움직였는지, 퍼센트로. 화살표와 함께 그려지고, 부호가 아니라 좋은 소식인지로 색이 정해집니다',
-        en: 'How much it moved, as a percentage. Drawn with an arrow, and coloured by whether that is good news rather than by its sign'
+        ko: '얼마나 움직였는지, 퍼센트로. 화살표와 함께 그려지고, 부호가 아니라 좋은 소식인지로 색이 정해집니다. 소수점 한 자리까지 쓰고, 반올림해 0이 되면 화살표 없이 0%입니다',
+        en: 'How much it moved, as a percentage. Drawn with an arrow, and coloured by whether that is good news rather than by its sign. Written to one decimal at most; a change that rounds to 0 is 0% with no arrow'
       }
     },
     {

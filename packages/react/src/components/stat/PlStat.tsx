@@ -34,6 +34,10 @@ export interface PlStatProps extends Omit<React.ComponentPropsWithoutRef<'div'>,
   /**
    * How much it moved, as a percentage. Drawn with an arrow, and coloured by
    * whether that is good news rather than by its sign.
+   *
+   * Written to one decimal at most, with a sign on a rise: `+12.4%`, `-3%`. A
+   * change that rounds to 0 at that decimal is `0%`, with no arrow and in the
+   * muted colour.
    */
   change?: number;
   /**
@@ -69,6 +73,24 @@ const valueClasses: Record<PlassSize, string> = {
   lg: 'text-4xl',
   xl: 'text-5xl'
 };
+
+/**
+ * `change` at the one decimal it is written at. Half rounds away from zero, as
+ * Dart's `roundToDouble` does in the Flutter build, and a change too small to
+ * show is `0` rather than `-0`.
+ */
+function roundChange(change: number): number {
+  const rounded = (Math.sign(change) * Math.round(Math.abs(change) * 10)) / 10;
+
+  return rounded === 0 ? 0 : rounded;
+}
+
+/** How a rounded change is written when `changeLabel` does not say: `+12.4%`, `-3%`. */
+function formatChange(rounded: number): string {
+  const text = Number.isInteger(rounded) ? rounded.toFixed(0) : rounded.toFixed(1);
+
+  return `${rounded > 0 ? '+' : ''}${text}%`;
+}
 
 function Arrow({ up }: { up: boolean }) {
   return (
@@ -125,8 +147,10 @@ export const PlStat = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlStatPro
   const color = colorProp ?? defaults.color ?? 'primary';
   const density = densityProp ?? defaults.density ?? 'default';
 
-  const moved = change !== undefined && change !== 0;
-  const up = (change ?? 0) > 0;
+  // Read at the decimal it is written at, so `0%` never carries an arrow.
+  const rounded = change === undefined ? undefined : roundChange(change);
+  const moved = rounded !== undefined && rounded !== 0;
+  const up = (rounded ?? 0) > 0;
   // Good news rather than a positive number. The two are the same thing for
   // revenue and the opposite for churn.
   const good = moved && (improvesWhen === 'up' ? up : !up);
@@ -182,7 +206,7 @@ export const PlStat = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlStatPro
             )}
           >
             {moved ? <Arrow up={up} /> : null}
-            {changeLabel ?? `${up ? '+' : ''}${change}%`}
+            {changeLabel ?? formatChange(rounded ?? 0)}
           </span>
         ) : null}
       </div>

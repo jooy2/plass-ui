@@ -97,6 +97,15 @@ void main() {
         expect(find.text('▲'), findsNothing);
       });
 
+      testWidgets('is neither when the movement rounds to nothing', (WidgetTester tester) async {
+        await _pump(tester, const PlStat(value: Text('£48,120'), change: -0.04));
+
+        final PlassTokens tokens = PlassTokens.of(Brightness.light);
+
+        expect(_changeInk(tester, '0%'), equals(tokens.mutedFg));
+        expect(find.text('▼'), findsNothing);
+      });
+
       testWidgets('draws an arrow for a movement', (WidgetTester tester) async {
         await _pump(tester, const PlStat(value: Text('£48,120'), change: 12.4));
 

@@ -85,6 +85,9 @@ class PlStat extends StatelessWidget {
   final Widget? icon;
 
   /// How much it moved, as a percentage.
+  ///
+  /// Written by [formatChange]. A change that rounds to 0 at its one decimal is
+  /// `0%`, with no arrow and in the muted colour.
   final double? change;
 
   /// What the change says instead of the formatted percentage. For a figure that
@@ -112,12 +115,20 @@ class PlStat extends StatelessWidget {
   /// rather than through `NumberFormat` because the package has no dependencies;
   /// anything more particular is what `changeLabel` is for.
   static String formatChange(double change) {
-    final rounded = (change * 10).roundToDouble() / 10;
+    final rounded = _roundChange(change);
     final text = rounded == rounded.roundToDouble()
         ? rounded.toStringAsFixed(0)
         : rounded.toStringAsFixed(1);
 
     return '${rounded > 0 ? '+' : ''}$text%';
+  }
+
+  /// [change] at the one decimal [formatChange] writes it at, with a change too
+  /// small to show made `0` rather than `-0`, which would be written `-0%`.
+  static double _roundChange(double change) {
+    final rounded = (change * 10).roundToDouble() / 10;
+
+    return rounded == 0 ? 0 : rounded;
   }
 
   @override
@@ -130,8 +141,10 @@ class PlStat extends StatelessWidget {
     final family = tokens.family(color);
     final space = density == PlassDensity.compact ? 2.0 : stackGap[size]!;
 
-    final moved = change != null && change != 0;
-    final up = (change ?? 0) > 0;
+    // Read at the decimal it is written at, so `0%` never carries an arrow.
+    final rounded = change == null ? null : _roundChange(change!);
+    final moved = rounded != null && rounded != 0;
+    final up = (rounded ?? 0) > 0;
     // Good news rather than a positive number. The two are the same thing for
     // revenue and the opposite for churn.
     final good = moved && (improvesWhen == PlStatDirection.up ? up : !up);
