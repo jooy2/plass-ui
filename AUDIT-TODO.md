@@ -1142,3 +1142,92 @@ None. Every flagged item passed over so far is asked above.
   - Location: `docs/.vitepress/config.ts:131`, `:712-722`, `docs/.vitepress/theme/styles/framework.css:68`
   - Problem: The `arrangeSidebar` comment leaves out Hooks and gives the page count as "fifty-odd", and `framework.css` describes the menu as "fifty entries" (the real number is 130). The `localeBase` comment on line 131 is wrongly placed above `slugify`.
   - Proposal: Fix the numbers and the position.
+
+### 11. Added after the audit
+
+Findings raised in a batch report and approved as new items. Their line numbers are from the commit that raised them.
+
+- [ ] **346.** The Flutter cross marker is two overlapping rectangles, so its ring strokes a hatch through the middle (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/internal/chart.dart` (`PlChartMarkShape.cross`)
+  - Problem: Each rectangle is outlined on its own, so the ring crosses the centre of the mark. React draws the cross as one outline.
+  - Proposal: Build the cross as one path, as React does.
+- [ ] **347.** `timeScale` with a `min` keeps the time of day in React and sets it to midnight in Flutter (Bug · Both · Low)
+  - Location: `timeScale` in `packages/react/src/internal/chart.ts` and `packages/flutter/lib/src/internal/chart.dart`
+  - Problem: The same `min` gives the two axes different first ticks.
+  - Proposal: Keep the time of day in both, as React does.
+- [ ] **348.** A time span of zero stacks every mark on the origin in Flutter and pushes them off the plot in React (Bug · Both · Low)
+  - Location: `timeScale` in both packages
+  - Problem: Neither widens an extent whose start and end are the same moment, and the two fail differently.
+  - Proposal: Widen a zero span around its moment the same way in both.
+- [ ] **349.** A chart's default number format is `48.3K` in React and `48300` in Flutter (Bug · Flutter · Low)
+  - Location: `compactNumber` in `packages/react/src/internal/chart.ts`, the default formatter in `packages/flutter/lib/src/internal/chart.dart`
+  - Problem: The same data labels its axis differently in the two packages.
+  - Proposal: Format compactly in Flutter too.
+- [ ] **350.** The Flutter scatter marker ring is twice as thick as React's (Bug · Flutter · Low)
+  - Location: the scatter marker painting in `packages/flutter/lib/src/internal/chart.dart`
+  - Problem: The ring width is not the one React strokes.
+  - Proposal: Use React's ring width.
+- [ ] **351.** A treemap with equal values can colour its tiles differently in the two packages (Bug · Both · Low)
+  - Location: `squarify` and the tile colouring in both packages
+  - Problem: The two packages can hand the same tile a different colour when values tie. The cause is not traced yet.
+  - Proposal: Find where the two diverge and colour the tiles as React does.
+- [ ] **352.** A time axis under a minute before 1970 starts a minute apart in the two packages (Bug · Both · Low)
+  - Location: the first tick of `timeScale` in both packages
+  - Problem: The first tick is worked out differently for a negative timestamp. The cause is not traced yet.
+  - Proposal: Find where the two diverge and give both React's first tick.
+- [ ] **353.** `stackToFull` is written twice on the Dart side, and `categoryToNumber` is never used (Optimisation · Flutter · Low)
+  - Location: `packages/flutter/lib/src/internal/chart.dart` (`categoryToNumber`, `stackToFull`)
+  - Problem: Two copies can drift, and the unused function reads as part of the shared arithmetic.
+  - Proposal: Keep one `stackToFull` and remove `categoryToNumber`.
+- [ ] **354.** The dismiss × on alerts, toasts, modals, drawers, popovers, tours and the file picker may be under the 24px target size (Accessibility · Both · Low)
+  - Location: `packages/flutter/lib/src/internal/dismiss.dart` (`PlassDismissButton`) and the matching React close buttons
+  - Problem: Drawn at about 16px, and not measured. Item 99 widened the × on chips and picker triggers only.
+  - Proposal: Measure it in both packages, and widen the hit area of the ones under 24px as item 99 did.
+- [ ] **355.** `test/package/use-client.test.ts` fails on Windows in CI (Test · React · Medium)
+  - Location: `packages/react/test/package/use-client.test.ts:85`
+  - Problem: It reads a file's first line with `split('\n')`, and a Windows checkout ended its lines in CRLF, so 133 of 280 cases failed in the Chromium and WebKit jobs on Windows.
+  - Proposal: Check files out with LF through a `.gitattributes`.
+- [ ] **356.** The `PlCarousel` `autoPlay` tests time out in CI Chromium (Test · React · Medium)
+  - Location: `packages/react/test/components/carousel/PlCarousel.test.tsx:187`, `:236`
+  - Problem: "moves the strip without scrolling the page while it plays" failed on Ubuntu, Windows and macOS, and "holds still while the pointer is over it" on macOS, in run `34921614559`. Locally both pass in Chromium.
+  - Proposal: Find what the tests wait on that a slow runner misses, and wait for the state rather than for time.
+- [ ] **357.** `PlAnimateCounter` "pausing" fails in CI Chromium on macOS (Test · React · Medium)
+  - Location: `packages/react/test/components/animate-counter/PlAnimateCounter.test.tsx`, the `pausing` group
+  - Problem: "waits out only the rest of its delay" failed in run `34921614559` and passes locally.
+  - Proposal: The same as item 356.
+- [ ] **358.** The hover tests in `test/internal/animate.test.tsx` fail in Firefox every time, and in Chromium now and then (Test · React · Medium)
+  - Location: `packages/react/test/internal/animate.test.tsx`, "the hover trigger beside a caller's own handlers" and "a second hover"
+  - Problem: The caller's `onPointerEnter` is called twice, a real `pointerover` counted beside the dispatched one, and `PlAnimateMarquee` starts running before the hover. In Firefox all seventeen and "plays PlAnimateCounter again" fail; in Chromium they failed in two full runs and passed on a rerun.
+  - Proposal: Park the pointer before the hover tests with `commands.parkPointer()`, and fix whatever Firefox still fails after that.
+- [ ] **359.** The `PlSidebar` resize handle drag test fails in Firefox (Test · React · Medium)
+  - Location: `packages/react/test/components/sidebar/PlSidebar.test.tsx`, "marks itself, takes the selection and reports every step while it is dragged"
+  - Problem: The step callback is never called. It fails in every CI Firefox job and locally.
+  - Proposal: Find whether the drag the test dispatches or `internal/drag.ts` is what Firefox does not answer, and fix that one.
+- [ ] **360.** The `PlScrollZone` selection test fails in Firefox (Test · React · Medium)
+  - Location: `packages/react/test/components/scroll-zone/PlScrollZone.test.tsx`, "takes the document selection at the threshold and gives it back at the end"
+  - Problem: `data-dragging` never becomes `true`. It fails locally; CI stopped at an earlier shard.
+  - Proposal: The same as item 359.
+- [ ] **361.** Two `PlTimePicker` rendering tests fail in Firefox (Test · React · Medium)
+  - Location: `packages/react/test/components/time-picker/PlTimePicker.test.tsx`, "writes the chosen time the way the locale does" and "reflects a changed value on re-render"
+  - Problem: The trigger has no text content. They fail in every CI Firefox job and locally.
+  - Proposal: Find whether the component or the test is wrong in Firefox, and fix that one.
+- [ ] **362.** `PlImage` "starts again when the src changes" fails in Firefox (Test · React · Medium)
+  - Location: `packages/react/test/components/image/PlImage.test.tsx:609`
+  - Problem: `onStatusChange` reports `loaded` twice before `error` when the whole file runs, and passes alone. It fails with batch 9's sources too.
+  - Proposal: Find whether a second `loaded` is a real report a user would get, and fix the component or the test accordingly.
+- [ ] **363.** `PlScatterChart` "renders again only when the nearest mark changes" fails in CI WebKit on Ubuntu (Test · React · Medium)
+  - Location: `packages/react/test/components/scatter-chart/PlScatterChart.test.tsx`
+  - Problem: It failed in run `34921614559`; it passes locally on macOS.
+  - Proposal: Read the job log, and fix the test's assumption about how often WebKit renders or the extra render.
+- [ ] **364.** The `PlPill` press light test is half a pixel out in WebKit (Test · React · Medium)
+  - Location: `packages/react/test/components/pill/PlPill.test.tsx:96`
+  - Problem: `toBeCloseTo` allows 0.5 and WebKit is 0.586 off, in CI on macOS and locally.
+  - Proposal: Compare within a pixel, or measure the way WebKit rounds.
+- [ ] **365.** The `PlWindowPane` traffic light focus test fails in WebKit (Test · React · Low)
+  - Location: `packages/react/test/styles/window-pane.test.tsx`, "shows the mark of the light the keyboard has reached, and only that one"
+  - Problem: The button never holds the focus in WebKit locally, so the active element stays `<body>`. CI stopped at an earlier shard.
+  - Proposal: Find how WebKit hands a button the focus from the keyboard, and reach it the way a WebKit user does.
+- [ ] **366.** Number formatting tests fail in a browser whose locale is not English (Test · React · Low)
+  - Location: `packages/react/vitest.config.ts`; `PlAnimateCounter` "folds a big number when it is asked to", `PlLineChart` "passes format through to the table", `PlProgressLinear` "formats the value when told how"
+  - Problem: WebKit takes the machine's locale, so on a Korean system a compact number reads `120만` where the tests expect `1.2M`. CI runs in English and does not see it.
+  - Proposal: Give every browser the `en-US` locale in the test configuration.
