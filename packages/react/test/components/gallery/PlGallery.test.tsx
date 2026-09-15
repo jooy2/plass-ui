@@ -246,6 +246,40 @@ describe('PlGallery', () => {
         .toBeInTheDocument();
     });
 
+    it('describes a tile by the caption it draws, and keeps its name', async () => {
+      const screen = await render(
+        <PlGallery
+          items={[
+            items[0],
+            { src: '/b.jpg', alt: 'A bridge', description: 'Over the river' },
+            items[2]
+          ]}
+          caption="hover"
+          onItemSelect={() => {}}
+        />
+      );
+
+      // A `hover` caption describes the tile before the pointer has shown it,
+      // and only the lines a tile has are linked.
+      await expect
+        .element(screen.getByRole('button', { name: 'A harbour — 1 of 3' }))
+        .toHaveAccessibleDescription('Harbour Busan');
+      await expect
+        .element(screen.getByRole('button', { name: 'A bridge — 2 of 3' }))
+        .toHaveAccessibleDescription('Over the river');
+      expect(
+        screen.getByRole('button', { name: 'A hillside — 3 of 3' }).element()
+      ).not.toHaveAttribute('aria-describedby');
+    });
+
+    it('describes nothing with a caption that is not drawn', async () => {
+      await render(<PlGallery items={items} onItemSelect={() => {}} />);
+
+      expect(document.querySelector('.plass-gallery button')).not.toHaveAttribute(
+        'aria-describedby'
+      );
+    });
+
     it('takes its own way of saying where in the set a tile is', async () => {
       const screen = await render(
         <PlGallery

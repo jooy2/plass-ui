@@ -225,6 +225,7 @@ Each tile decodes its picture at the size of the tile, as [`PlImage`](image) doe
 
 - A real `role="list"` with a name, and one `role="listitem"` per picture.
 - A tile is only a button when something happens when it is pressed. Its name is **the picture's own words plus where it sits**: "A harbour at dusk — 1 of 6", so a reader tabbing a wall of thumbnails is told which one of how many they are on.
+- When a pressable tile draws a caption, its `title` and `description` describe the button through <Fw react="aria-describedby" flutter="hint" code />, and the name stays as it is. A `hover` caption is read before the pointer has shown it, and a tile whose caption is `none` has nothing to read.
 - The part that says where the tile sits comes from the label pack's `galleryItem`, so a translated page reads it in its own language, and `itemLabel` changes it for one gallery. Both are callbacks rather than strings with slots, because the word order differs between languages.
 - The viewer's arrow keys are bound on the sheet rather than on its buttons: the focus is wherever the reader last put it, and a key that only worked from one place is a key that looks broken everywhere else.
 - The viewer's counter is a live region, so an arrow key says where it landed to a reader who cannot see the picture it landed on.

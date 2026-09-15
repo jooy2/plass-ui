@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A pressable `PlGallery` tile is described by the caption it draws.** The button's name is the picture's `alt` and its place in the set, and that name kept the `title` and `description` drawn inside the button from being read. The lines a tile draws now describe it through `aria-describedby`, a `hover` caption included before the pointer has shown it. The name is unchanged.
+
 - **A `PlChatBubble` link card is a link only when `preview.url` is an address the bubble will follow.** The URL was written straight into the `href`, and a message's link preview is usually built from a URL somebody else wrote. `http`, `https`, `mailto` and relative addresses are unchanged; given anything else the same card is drawn with nothing to click, so the title, the site and the picture are still read and nothing announces a destination that is not one.
 
 - **A chart legend asked for on the left or the right stays on that side under RTL.** `PlassSide` is a physical direction, but the legend was placed by the order of a flex row, which follows the writing direction, so `side: 'left'` put the legend on the right of an Arabic or Hebrew page. The row is now laid out physically, and the words inside the legend still read in the page's own direction.

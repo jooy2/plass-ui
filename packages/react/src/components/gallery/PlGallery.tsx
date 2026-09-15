@@ -320,6 +320,7 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
     const labels = useLabels();
     const name = label ?? labels.gallery;
     const where = itemLabel ?? labels.galleryItem;
+    const baseId = React.useId();
 
     const [openAt, setOpenAt] = React.useState<number | null>(null);
 
@@ -356,6 +357,19 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
       const words = hasContent(item.title) || hasContent(item.description);
       const shown = caption !== 'none' && words;
       const over = caption === 'overlay' || caption === 'hover';
+      const titleId = `${baseId}-${index}-title`;
+      const descriptionId = `${baseId}-${index}-description`;
+      // The caption is inside the button, whose `aria-label` keeps it from
+      // being read, so the words it draws describe the button instead. A
+      // `hover` caption is in the document before the pointer fades it in.
+      const describedBy = shown
+        ? [
+            hasContent(item.title) ? titleId : null,
+            hasContent(item.description) ? descriptionId : null
+          ]
+            .filter(Boolean)
+            .join(' ')
+        : undefined;
 
       const picture = (
         <PlImage
@@ -412,6 +426,7 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
         >
           {hasContent(item.title) ? (
             <span
+              id={titleId}
               className={cx(
                 'truncate font-medium',
                 metaTextClasses[size],
@@ -425,6 +440,7 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
 
           {hasContent(item.description) ? (
             <span
+              id={descriptionId}
               className={cx(
                 'truncate',
                 metaTextClasses[size],
@@ -491,6 +507,7 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
               // The picture's own words, plus where it sits: a reader tabbing a
               // wall of thumbnails is told which one of how many they are on.
               aria-label={`${item.alt} — ${where(index + 1, items.length)}`}
+              aria-describedby={describedBy}
               className={cx(
                 rows === undefined ? 'block' : 'grid',
                 'w-full bg-transparent p-0 text-start',

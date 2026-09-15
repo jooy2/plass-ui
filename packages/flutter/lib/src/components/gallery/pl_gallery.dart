@@ -608,6 +608,9 @@ class _PlGalleryState extends State<PlGallery> {
     return Semantics(
       button: true,
       label: '${item.semanticLabel} — ${_where(index + 1, widget.items.length)}',
+      // The caption is drawn inside the tile, whose own semantics replace
+      // everything under it, so the words it shows are said here instead.
+      hint: shown ? <String?>[item.title, item.description].nonNulls.join('\n') : null,
       excludeSemantics: true,
       child: PlassInteractive(
         onTap: () => _choose(index),

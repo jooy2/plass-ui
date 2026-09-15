@@ -222,6 +222,44 @@ void main() {
         expect(find.bySemanticsLabel('A harbour — 1 of 4'), findsOneWidget);
       });
 
+      testWidgets('describes a tile by the caption it draws, and keeps its name', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlGallery(
+            items: <PlGalleryItem>[
+              items[0],
+              PlGalleryItem(
+                id: 'b',
+                image: _picture(2),
+                semanticLabel: 'A bridge',
+                description: 'Over the river',
+              ),
+              items[2],
+            ],
+            caption: PlGalleryCaption.hover,
+            onItemSelected: (PlGalleryItem _, int _) {},
+          ),
+        );
+
+        // A `hover` caption describes the tile before the pointer has shown it,
+        // and only the lines a tile has are said.
+        String hintOf(String label) => tester.getSemantics(find.bySemanticsLabel(label)).hint;
+
+        expect(hintOf('A harbour — 1 of 3'), 'Harbour\nBusan');
+        expect(hintOf('A bridge — 2 of 3'), 'Over the river');
+        expect(hintOf('A hillside — 3 of 3'), isEmpty);
+      });
+
+      testWidgets('describes nothing with a caption that is not drawn', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, PlGallery(items: items, onItemSelected: (PlGalleryItem _, int _) {}));
+
+        expect(tester.getSemantics(find.bySemanticsLabel('A harbour — 1 of 4')).hint, isEmpty);
+      });
+
       testWidgets('takes its own way of saying where in the set a tile is', (
         WidgetTester tester,
       ) async {
