@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **The lowest bar of a `PlSparkline` bar strip above zero draws inside its box.** A value at the foot of the scale is drawn as a bar one pixel tall, and when every value is above zero the foot is the bottom edge, so that pixel sat just below the box. It now grows up from the bottom edge, and strips with values below zero draw as before.
+
 - **A `PlTimelineChart` span whose start or end is not a time has no row in the table.** Such a span is not drawn, but the hidden table gave it a row with an empty start and end, which a screen reader read out, and a label only that span carried added a label column. It is now left out of the table, as it is left out of the marks.
 
 - **A `PlTransfer` row that leaves `items` and comes back is no longer still ticked.** The ticks were kept for the life of the component, so a value that left and came back returned ticked, with its arrow pressable. The ticks of values that leave `items` are now dropped, as in the Flutter build.

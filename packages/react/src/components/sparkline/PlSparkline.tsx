@@ -160,6 +160,16 @@ export const PlSparkline = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSp
     // the top of the strip instead of from a zero above it.
     const foot = y(Math.min(Math.max(low, 0), high));
 
+    // Where a bar's box starts. A value at the foot is still drawn a pixel tall,
+    // and that pixel stays inside the strip: below the foot, or above it when the
+    // foot is the bottom edge, as it is under the lowest value of a series above
+    // zero.
+    const barTop = (value: number) => {
+      const top = Math.min(y(value), foot);
+
+      return Math.abs(y(value) - foot) < 1 ? Math.min(top, height - 1) : top;
+    };
+
     return (
       <div
         ref={ref}
@@ -214,7 +224,7 @@ export const PlSparkline = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSp
                       key={index}
                       d={barPath(
                         index * slot + (slot - barWidth) / 2,
-                        Math.min(y(value.value), foot),
+                        barTop(value.value),
                         barWidth,
                         Math.max(1, Math.abs(y(value.value) - foot)),
                         barRadius / 2,

@@ -265,12 +265,20 @@ class _SparklinePainter extends CustomPainter {
           continue;
         }
 
+        // A value at the foot is still drawn a pixel tall, and that pixel stays
+        // inside the strip: below the foot, or above it when the foot is the
+        // bottom edge, as it is under the lowest value of a series above zero.
+        final double rise = (y(value) - foot).abs();
+        final double top = rise < 1
+            ? math.min(math.min(y(value), foot), size.height - 1)
+            : math.min(y(value), foot);
+
         canvas.drawPath(
           barPath(
             i * slot + (slot - thick) / 2,
-            math.min(y(value), foot),
+            top,
             thick,
-            math.max(1, (y(value) - foot).abs()),
+            math.max(1, rise),
             barRadius / 2,
             value >= 0 ? PlBarEnd.up : PlBarEnd.down,
           ),

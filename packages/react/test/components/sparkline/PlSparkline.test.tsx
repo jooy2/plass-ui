@@ -174,6 +174,29 @@ describe('PlSparkline', () => {
 
       expect(down.y).toBeCloseTo(rise.y + rise.height, 0);
     });
+
+    it('keeps the lowest bar of a series above zero inside the strip', async () => {
+      const screen = await render(
+        <PlSparkline label="Gains" shape="bar" data={[2, 4, 3]} width={200} />
+      );
+
+      const strip = screen.getByRole('img', { name: 'Gains' });
+
+      await expect.element(strip).toBeInTheDocument();
+
+      const { height, boxes } = bars(strip.element());
+
+      expect(boxes.length).toBe(3);
+
+      for (const box of boxes) {
+        expect(box.y).toBeGreaterThan(-0.5);
+        expect(box.y + box.height).toBeLessThan(height + 0.5);
+      }
+
+      // The lowest value is still a mark, a pixel tall on the bottom edge.
+      expect(boxes[0].height).toBeCloseTo(1, 1);
+      expect(boxes[0].y + boxes[0].height).toBeCloseTo(height, 1);
+    });
   });
 
   describe('endDot', () => {

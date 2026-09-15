@@ -165,6 +165,31 @@ void main() {
       expect(swings.boxes[0].top, closeTo(swings.boxes[1].bottom, 0.5));
     });
 
+    testWidgets('keeps the lowest bar of a series above zero inside the strip', (
+      WidgetTester tester,
+    ) async {
+      await _pump(
+        tester,
+        const PlSparkline(
+          data: <PlassChartDatum>[PlassChartDatum(2), PlassChartDatum(4), PlassChartDatum(3)],
+          shape: PlSparklineShape.bar,
+        ),
+      );
+
+      final _Bars bars = _Bars.of(tester);
+
+      expect(bars.boxes, hasLength(3));
+
+      for (final Rect box in bars.boxes) {
+        expect(box.top, greaterThan(-0.5));
+        expect(box.bottom, lessThan(bars.height + 0.5));
+      }
+
+      // The lowest value is still a mark, a pixel tall on the bottom edge.
+      expect(bars.boxes[0].height, closeTo(1, 0.01));
+      expect(bars.boxes[0].bottom, closeTo(bars.height, 0.01));
+    });
+
     testWidgets('takes a family or an exact colour', (WidgetTester tester) async {
       await _pump(tester, const PlSparkline(data: trend, color: PlassColor.danger));
       expect(find.byType(PlSparkline), findsOneWidget);
