@@ -580,7 +580,13 @@ export const PlCodeBlock = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCo
       'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-1'
     );
 
-    const regionName = hasContent(title) ? undefined : (name ?? codeLabel ?? labels.code);
+    // A title the bar draws names the region by reference, since an element
+    // cannot be an `aria-label`. With the bar off there is nothing to point at,
+    // and only a title that is a string can still be the name.
+    const titleId = React.useId();
+    const labelledByTitle = toolbar && hasContent(title);
+    const regionName =
+      typeof title === 'string' && title ? title : (name ?? codeLabel ?? labels.code);
 
     return (
       <div
@@ -616,7 +622,10 @@ export const PlCodeBlock = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCo
             )}
           >
             {hasContent(title) ? (
-              <span className={cx('min-w-0 truncate font-mono', metaTextClasses[size])}>
+              <span
+                id={titleId}
+                className={cx('min-w-0 truncate font-mono', metaTextClasses[size])}
+              >
                 {title}
               </span>
             ) : null}
@@ -661,7 +670,8 @@ export const PlCodeBlock = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCo
             // A scrollable region has to be reachable by a keyboard that has no
             // pointer to drag with, and a focusable region has to have a name.
             role="region"
-            aria-label={typeof title === 'string' ? title : regionName}
+            aria-labelledby={labelledByTitle ? titleId : undefined}
+            aria-label={labelledByTitle ? undefined : regionName}
             tabIndex={0}
             onKeyDown={selectEverything}
             className={cx(

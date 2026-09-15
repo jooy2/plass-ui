@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A `PlCodeBlock` whose `title` is an element names its code region after that title.** Only a string could become the region's `aria-label`, so `title={<code>src/index.ts</code>}` left a focus stop with no name. The region now takes its name from the title the bar draws, through `aria-labelledby`, and a string title keeps the name it had. With `toolbar={false}`, a string title still names the region and any other title falls back to the language, then `codeLabel`.
+
 - **A `PlCodeBlock` `highlightLines` range stops at the last line of the block.** A range was walked from end to end whatever the block held, so a typo such as `'1-100000000'` built a hundred million line numbers and froze the tab. Only the lines the block has are walked now, so a range that runs past the end marks up to the last line.
 
 - **A bar `PlSparkline` whose values are all below zero draws inside its box.** The bars grew from zero, which for such a strip lies above its top, so they covered the content above it. They now hang from the top of the strip, and strips with positive or mixed values draw as before.

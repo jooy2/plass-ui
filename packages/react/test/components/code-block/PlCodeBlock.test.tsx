@@ -52,6 +52,40 @@ describe('PlCodeBlock', () => {
         .toBeInTheDocument();
     });
 
+    it('is named after a title given as an element', async () => {
+      const screen = await render(
+        <PlCodeBlock code={code} title={<strong>src/index.ts</strong>} highlight={false} />
+      );
+
+      await expect
+        .element(screen.getByRole('region', { name: 'src/index.ts' }))
+        .toBeInTheDocument();
+    });
+
+    it('keeps a string title as its name with the bar off', async () => {
+      const screen = await render(
+        <PlCodeBlock code={code} title="src/index.ts" toolbar={false} highlight={false} />
+      );
+
+      await expect
+        .element(screen.getByRole('region', { name: 'src/index.ts' }))
+        .toBeInTheDocument();
+    });
+
+    it('falls back past an element title the bar does not draw', async () => {
+      const screen = await render(
+        <PlCodeBlock
+          code={code}
+          language="ts"
+          title={<strong>src/index.ts</strong>}
+          toolbar={false}
+          highlight={false}
+        />
+      );
+
+      await expect.element(screen.getByRole('region', { name: 'typescript' })).toBeInTheDocument();
+    });
+
     it('falls back to the word for code', async () => {
       const screen = await render(<PlCodeBlock code={code} highlight={false} />);
 
