@@ -8,7 +8,7 @@
  * that is there or is not, never a shade or a size.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { commands, userEvent } from 'vitest/browser';
+import { commands, server, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlWindowPane } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
@@ -65,9 +65,14 @@ describe('the macOS traffic lights', () => {
 
     // Tabbed into rather than focused from script: `:focus-visible` is the
     // browser's judgement about how the focus arrived, and only a real key press
-    // makes that judgement the keyboard's.
+    // makes that judgement the keyboard's. WebKit on macOS passes over buttons on
+    // Tab unless the system's keyboard navigation setting is on, and Option-Tab
+    // reaches them either way, so that is the key a Safari user presses. Firefox
+    // does nothing with Option-Tab, so everywhere else it is plain Tab.
     before.focus();
-    await userEvent.keyboard('{Tab}');
+    await userEvent.keyboard(
+      server.browser === 'webkit' && server.platform === 'darwin' ? '{Alt>}{Tab}{/Alt}' : '{Tab}'
+    );
 
     await expect.poll(() => document.activeElement).toBe(close);
     // Polled, because the mark fades in over `--plass-duration` rather than
