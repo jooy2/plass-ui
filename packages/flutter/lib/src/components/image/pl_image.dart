@@ -329,7 +329,9 @@ class PlImage extends StatefulWidget {
   /// it.
   final bool preview;
 
-  /// The name of the preview overlay.
+  /// The name of the preview overlay, and of the picture's press target when
+  /// there is no [semanticLabel]. Left out, it is the label pack's word for a
+  /// preview.
   final String? previewLabel;
 
   /// Called when the picture has loaded, and when it has failed.
@@ -840,11 +842,17 @@ class _PlImageState extends State<PlImage> {
     // A decorative picture is left out of the tree altogether. A node with no
     // label still carries the image flag, and that flag would merge up into
     // whatever holds the picture, so a button with one in it would be announced
-    // as an image. A preview stays, because it is something to press.
-    Widget result = widget.semanticLabel == null && !widget.preview
+    // as an image. A preview stays, because it is something to press, and with
+    // no label of its own it is named by the word for a preview rather than
+    // being a button with no name.
+    final String? name =
+        widget.semanticLabel ??
+        (widget.preview ? widget.previewLabel ?? PlassTheme.labelsOf(context).preview : null);
+
+    Widget result = name == null
         ? ExcludeSemantics(child: picture)
         : Semantics(
-            label: widget.semanticLabel,
+            label: name,
             image: true,
             button: widget.preview,
             // The press target excludes itself from semantics, so the action a
@@ -852,7 +860,7 @@ class _PlImageState extends State<PlImage> {
             onTap: widget.preview && _status == PlImageStatus.loaded
                 ? () => setState(() => _open = true)
                 : null,
-            container: widget.semanticLabel != null,
+            container: true,
             child: picture,
           );
 

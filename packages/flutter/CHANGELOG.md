@@ -64,6 +64,8 @@
 
 ### Fixed
 
+- **A `PlImage` preview with no `semanticLabel` has a name.** Its press target was named only by `semanticLabel`, so without one a screen reader found a button with no name. It is now named by `previewLabel`, or by the label pack's `preview` when that is left out, as the React build names its button when `alt` is empty.
+
 - **The × on a picker trigger can be reached and pressed from the keyboard.** It answered only a pointer, so a value could not be cleared without one, and a `PlColorPicker`, which has no Clear in its footer, could not be emptied at all. It is now a focus stop after the trigger that Enter or Space presses, with its own focus ring, resting at 70% opacity until it is hovered or focused, like the × on a chip and as in the React build. The trigger's ring now shows only while the trigger itself has the focus. This covers `PlDatePicker`, `PlDateRangePicker`, `PlDateTimePicker`, `PlTimePicker`, `PlColorPicker` and `PlTreeSelect`.
 
 - **A `PlTree` lets go of the focus node of a row removed from `items`.** Each row's node was kept until the tree itself was disposed, along with the row list its key handler held, so a tree whose items were replaced over a long session kept every node it had drawn. The node is now disposed after the frame the row is removed in.

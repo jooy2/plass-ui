@@ -1493,6 +1493,34 @@ void main() {
         // There is nothing to preview yet.
         expect(find.byType(Image), findsOneWidget);
       });
+
+      testWidgets('is named by the word for a preview when the picture has no label', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        Widget preview({String? previewLabel}) {
+          return PlassTheme.merge(
+            defaults: const PlassDefaults(labels: PlassLabels(preview: '미리 보기')),
+            child: PlImage(image: _ok, ratio: 1, preview: true, previewLabel: previewLabel),
+          );
+        }
+
+        await _pump(tester, preview(), overlay: true);
+        await tester.pumpAndSettle();
+
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('미리 보기')),
+          isSemantics(label: '미리 보기', isButton: true, hasTapAction: true),
+        );
+
+        await _pump(tester, preview(previewLabel: 'Enlarge'), overlay: true);
+        await tester.pumpAndSettle();
+
+        expect(find.bySemanticsLabel('Enlarge'), findsOneWidget);
+
+        handle.dispose();
+      });
     });
   });
 }
