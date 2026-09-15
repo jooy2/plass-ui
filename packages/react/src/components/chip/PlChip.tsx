@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { CloseIcon } from '../../internal/icons.js';
+import { textOf } from '../../internal/text.js';
 import {
   chipRemoveClasses,
   controlHeightClasses,
@@ -164,30 +165,6 @@ const labelButtonClasses = /* @__PURE__ */ [
   'flex min-w-0 flex-1 cursor-pointer items-center justify-center self-stretch rounded-[inherit]',
   focusRingClasses
 ].join(' ');
-
-/**
- * The words in a chip, with everything that is not a word left out.
- *
- * The delete button hands them to the label pack, which puts a name where its
- * own language puts it, so they have to be a string. Strings, numbers and the
- * children of an element are read. What a component draws for itself is only
- * decided when it renders, and is not.
- */
-function textOf(node: React.ReactNode): string {
-  if (typeof node === 'string' || typeof node === 'number') {
-    return String(node);
-  }
-
-  if (Array.isArray(node)) {
-    return node.map(textOf).join('');
-  }
-
-  if (React.isValidElement(node)) {
-    return textOf((node.props as { children?: React.ReactNode }).children);
-  }
-
-  return '';
-}
 
 /**
  * A compact token: a tag, a filter, a status, an entity plucked out of a list.

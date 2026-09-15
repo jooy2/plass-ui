@@ -5,7 +5,7 @@ import { mergeProps } from '@base-ui/react/merge-props';
 import { isInfinite, useAnimationRun } from '../../internal/animate.js';
 import { usePrefersReducedMotion } from '../../internal/media.js';
 import { srOnlyClasses } from '../../internal/styles.js';
-import { graphemesOf } from '../../internal/text.js';
+import { graphemesOf, textOf } from '../../internal/text.js';
 import type { PlassAnimateProps } from '../../types.js';
 
 export interface PlAnimateTypingProps
@@ -45,30 +45,6 @@ export interface PlAnimateTypingProps
   caretChar?: React.ReactNode;
   /** The text to type. Only text is typed — see below. */
   children?: React.ReactNode;
-}
-
-/**
- * Everything typeable in a node, flattened to its text.
- *
- * An element is walked into for its text and nothing else. A typewriter
- * reveals a string one grapheme at a time, and there is no honest way to reveal
- * half of a `<strong>`, so `Ship <strong>faster</strong>` is typed as
- * `Ship faster`, without the bold.
- */
-function textOf(node: React.ReactNode): string {
-  if (typeof node === 'string' || typeof node === 'number') {
-    return String(node);
-  }
-
-  if (Array.isArray(node)) {
-    return node.map(textOf).join('');
-  }
-
-  if (React.isValidElement<{ children?: React.ReactNode }>(node)) {
-    return textOf(node.props.children);
-  }
-
-  return '';
 }
 
 /**

@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { ArrowRightIcon, ChevronIcon, EllipsisIcon } from '../../internal/icons.js';
+import { textOf } from '../../internal/text.js';
 import {
   controlTextClasses,
   cx,
@@ -197,30 +198,6 @@ function separatorMark(separator: PlBreadcrumbSeparator): React.ReactNode {
 }
 
 const separatorNames: PlBreadcrumbSeparator[] = ['chevron', 'arrow', 'slash', 'dot'];
-
-/**
- * The words in a step, with everything that is not a word left out.
- *
- * A step's label is a `ReactNode` and `name` in the structured data is a string,
- * so the tree is walked for its text. Only `children` is read — a `startIcon` is
- * a picture of the thing rather than its name, and a home glyph contributing
- * nothing is exactly right.
- */
-function textOf(node: React.ReactNode): string {
-  if (typeof node === 'string' || typeof node === 'number') {
-    return String(node);
-  }
-
-  if (Array.isArray(node)) {
-    return node.map(textOf).join('');
-  }
-
-  if (React.isValidElement(node)) {
-    return textOf((node.props as { children?: React.ReactNode }).children);
-  }
-
-  return '';
-}
 
 /**
  * A step's `href` as a search engine wants it: absolute.

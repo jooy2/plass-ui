@@ -1,10 +1,47 @@
 /**
- * Cutting a string the way a reader cuts it.
+ * Reading a node as the words it draws, and cutting those words the way a
+ * reader cuts them.
  *
- * Three components take a line apart — a typewriter, a split entrance and a
- * scramble — and all three have to arrive at the same pieces as the Flutter
- * build, which cuts with `String.characters`.
+ * Both halves exist because more than one component needs them and all of them
+ * have to arrive at the same answer as the Flutter build, which reads a widget
+ * with `plassTextOf` in `lib/src/internal/text.dart` and cuts with
+ * `String.characters`.
  */
+
+import * as React from 'react';
+
+/**
+ * Everything in a node, flattened to its text.
+ *
+ * Strings and numbers are their own text, a list is its parts joined, and an
+ * element contributes the text of its `children` and nothing else — a walk in,
+ * not a render. What a component draws for itself is only decided when it
+ * renders and cannot be read here, so a `<PlIcon />` among the children adds
+ * nothing, which is exactly right for every caller: a picture of a thing is not
+ * its name.
+ *
+ * Three components need it, and all three need it for the same reason — a
+ * string where React would otherwise hand them a tree. `PlBreadcrumb` puts a
+ * step's `name` into structured data, `PlChip` hands a chip's words to the label
+ * pack so that a language can put a name where its own grammar puts it, and
+ * `PlAnimateTyping` types a string one grapheme at a time, because there is no
+ * honest way to reveal half of a `<strong>`.
+ */
+export function textOf(node: React.ReactNode): string {
+  if (typeof node === 'string' || typeof node === 'number') {
+    return String(node);
+  }
+
+  if (Array.isArray(node)) {
+    return node.map(textOf).join('');
+  }
+
+  if (React.isValidElement<{ children?: React.ReactNode }>(node)) {
+    return textOf(node.props.children);
+  }
+
+  return '';
+}
 
 /**
  * The segmenter, built once.
