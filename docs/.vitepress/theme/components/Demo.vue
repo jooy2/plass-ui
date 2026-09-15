@@ -264,11 +264,21 @@ const built = ref(null);
 const frameLive = ref(false);
 /** What the gallery reported it needs, in px. */
 const frameHeight = ref(null);
+/**
+ * The theme the frame was booted in — taken once, not followed.
+ *
+ * Setting `src` navigates the `<iframe>`, and navigating it builds a whole
+ * Flutter engine again, so the theme in the URL can only be the one the gallery
+ * *starts* in. Everything after that is `pushTheme`. A frame that was given up
+ * and is being built again starts in whatever the theme is by then, which is
+ * why this is cleared along with the rest of the frame's state.
+ */
+const frameTheme = ref(null);
 
 const frameSrc = computed(
   () =>
     `${withBase('/flutter/index.html')}?demo=${encodeURIComponent(props.src)}` +
-    `&theme=${theme.value}&align=${props.align}`
+    `&theme=${frameTheme.value ?? theme.value}&align=${props.align}`
 );
 
 const frameStyle = computed(() => ({
@@ -317,6 +327,10 @@ function pushTheme() {
  */
 async function sync() {
   if (!embedded.value) {
+    // The switch took the frame with it, so whichever theme it booted in is no
+    // longer anybody's: the next one is built in the theme of the moment.
+    frameTheme.value = null;
+
     if (near.value) {
       mountReact();
     }
@@ -325,11 +339,13 @@ async function sync() {
 
   if (near.value) {
     built.value ??= await flutterBuilt(withBase('/flutter/version.json'));
+    frameTheme.value ??= theme.value;
     frameLive.value = true;
   } else if (!keep.value) {
     // Out of sight by a long way: give the engine back.
     frameLive.value = false;
     frameHeight.value = null;
+    frameTheme.value = null;
   }
 }
 
