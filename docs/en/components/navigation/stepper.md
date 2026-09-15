@@ -116,7 +116,7 @@ Horizontal puts the panel under the whole rail. **Vertical puts each step's pane
 
 ### status and color
 
-`active` decides all three states, and `status` overrides one of them. That is for the step that failed validation while the reader was three steps further on. It is `current` again without the stepper moving, and `color="danger"` says why.
+`active` decides all three states, and `status` overrides one of them. That is for the step that failed validation while the reader was three steps further on. It is `current` again without the stepper moving, and `color="danger"` says why. The panel does not follow `status`: it stays with the step `active` is on.
 
 <Demo src="stepper/status" :min-height="160">
 

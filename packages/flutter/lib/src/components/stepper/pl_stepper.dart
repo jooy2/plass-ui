@@ -68,7 +68,8 @@ class PlStep {
   /// How the line to the next step is drawn.
   final PlassStepConnector connector;
 
-  /// The panel this step shows while it is the current one.
+  /// The panel this step shows while [PlStepper.active] is on it, whatever
+  /// [status] says.
   final Widget? child;
 }
 

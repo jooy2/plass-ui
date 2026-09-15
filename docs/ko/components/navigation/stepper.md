@@ -116,7 +116,7 @@ timeline의 것과 똑같이 값이 아니라 **인덱스**입니다. stepper에
 
 ### status와 color
 
-세 상태 전부를 `active`가 정하고, `status`가 그중 하나를 덮어씁니다. 사용자가 세 단계 더 간 사이에 유효성 검사에 걸린 step을 위한 것입니다. stepper를 움직이지 않고 그 step만 다시 `current`가 되고, `color="danger"`가 이유를 말합니다.
+세 상태 전부를 `active`가 정하고, `status`가 그중 하나를 덮어씁니다. 사용자가 세 단계 더 간 사이에 유효성 검사에 걸린 step을 위한 것입니다. stepper를 움직이지 않고 그 step만 다시 `current`가 되고, `color="danger"`가 이유를 말합니다. 패널은 `status`를 따르지 않고, `active`가 있는 step에 그대로 남습니다.
 
 <Demo src="stepper/status" :min-height="160">
 

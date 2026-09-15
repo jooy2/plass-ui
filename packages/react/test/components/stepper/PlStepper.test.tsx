@@ -217,6 +217,27 @@ describe('PlStepper', () => {
       // The step that failed validation while the reader moved on.
       expect(document.querySelectorAll('li')[0]!.querySelector('svg')).toBeNull();
     });
+
+    it('leaves a vertical panel to `active`, whatever `status` says', async () => {
+      await render(
+        <PlStepper orientation="vertical" active={2} linear={false}>
+          <PlStep label="Account">Account panel</PlStep>
+          <PlStep label="Verify" status="current">
+            Verify panel
+          </PlStep>
+          <PlStep label="Profile" status="complete">
+            Profile panel
+          </PlStep>
+        </PlStepper>
+      );
+
+      const items = document.querySelectorAll('li');
+
+      // A step marked `current` again behind the reader opens no panel, and the
+      // step the reader is on keeps its own, whatever it is marked.
+      expect(items[1]!.textContent).not.toContain('Verify panel');
+      expect(items[2]!.textContent).toContain('Profile panel');
+    });
   });
 
   describe('orientation', () => {

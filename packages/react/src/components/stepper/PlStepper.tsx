@@ -117,7 +117,7 @@ export interface PlStepProps extends Omit<React.ComponentPropsWithoutRef<'li'>, 
   disabled?: boolean;
   /** Overrides the stepper's family for this one step. */
   color?: PlassColor;
-  /** The panel this step shows while it is the current one. */
+  /** The panel this step shows while the stepper's `active` is on it, whatever `status` says. */
   children?: React.ReactNode;
 }
 
@@ -440,8 +440,10 @@ export const PlStep = /* @__PURE__ */ React.forwardRef<HTMLLIElement, PlStepProp
 
       {/* A vertical stepper puts the panel inside the step it belongs to, which
           is the whole reason to lay one out vertically: the answer sits under
-          the question rather than under the whole rail. */}
-      {!horizontal && resolved === 'current' && hasContent(children) ? (
+          the question rather than under the whole rail. It follows `active`
+          rather than `status`, as the horizontal panel does, so a step marked
+          `current` again behind the reader does not open a second one. */}
+      {!horizontal && index === active && hasContent(children) ? (
         <div className={cx('ms-[calc(var(--p-bullet)+0.75rem)] pt-2 pb-4', sheetBodyClasses[size])}>
           {children}
         </div>

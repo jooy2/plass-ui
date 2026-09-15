@@ -1493,8 +1493,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       name: 'child',
       type: 'Widget?',
       description: {
-        ko: '현재 step일 때 보여 줄 패널',
-        en: 'The panel this step shows while it is the current one'
+        ko: 'status가 무엇이든 active가 이 step에 있을 때 보여 줄 패널',
+        en: 'The panel this step shows while active is on it, whatever status says'
       }
     })
   ],

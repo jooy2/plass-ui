@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A vertical `PlStepper` shows only the panel of the step `active` is on.** The panel opened on any step whose `status` was `current`, so marking a step behind the reader `current` again, as for one that failed validation, opened a second panel, and giving the active step another `status` closed its own. The panel now follows `active` whatever `status` says, as the horizontal panel and the Flutter build already did.
+
 - **A screen reader names the panel of a horizontal `PlStepper` after its step.** The panel carried `aria-labelledby` on a `div` with no role, and a name on such an element is never read, so moving into the panel said nothing about which step it belonged to. The panel is now a `role="group"` named by the step's label.
 
 - **An `interactive` `PlCard` no longer glides up under reduced motion.** The lift under the pointer and its shadow still eased over `--plass-duration` for a reader who had asked for less motion. Both now change at once, as in the Flutter build.
