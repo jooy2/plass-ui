@@ -38,7 +38,7 @@ export interface PlHoverCardProps
    * and the thing it is ahead of is nearly always somewhere you can go.
    */
   trigger: React.ReactElement;
-  /** The heading, rendered as the element that names the card. */
+  /** The heading at the top of the card. */
   title?: React.ReactNode;
   /** A line under the title. */
   description?: React.ReactNode;
@@ -150,8 +150,10 @@ const arrowSizes: Record<PlassSize, number> = {
  * not zero because the gap between the trigger and the card has no pointer in
  * it — a card that closed the moment the pointer left could never be reached.
  *
- * Base UI owns the anchoring, the flip at the window edge, the two delays, the
- * dismissal and the `aria-describedby` wiring. What is left here is the surface.
+ * Base UI owns the anchoring, the flip at the window edge, the two delays and the
+ * dismissal. It links the card to nothing for a screen reader: the card is an
+ * extra for a pointer, so what it previews has to be reachable without it. What
+ * is left here is the surface.
  */
 export function PlHoverCard({
   size: sizeProp,
