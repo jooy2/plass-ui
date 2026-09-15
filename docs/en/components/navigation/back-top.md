@@ -54,8 +54,6 @@ A button pinned to the corner of every page from the first paint is one more thi
 
 It appears when the reader is `visibilityHeight` pixels down, 400 by default, roughly one screen on a laptop, which is the point at which scrolling back stops being something they would just do.
 
-While it is out of reach it is **`aria-hidden` and out of the tab order**, not merely faded. A control a reader can tab to and cannot see is worse than one that is not there.
-
 ## Examples
 
 ### target
@@ -85,10 +83,21 @@ On by default, because that is what this component is. Turn it off to put the bu
 <PlBackTop icon={<ArrowUpIcon />} label="위로" />
 ```
 
-`label` is the accessible name **and** what the tooltip a browser draws says. Name it for what pressing it does.
+`label` is the accessible name. It is not drawn anywhere, not even as a tooltip, so name it for what pressing it does.
 
 ## Notes
 
-- The scroll is smooth, and **not** under `prefers-reduced-motion`, a page that flies past a reader who asked for less movement is the exact case that setting exists for. It jumps instead, which arrives at the same place.
 - The position is read once on mount as well as on every scroll, so a page restored halfway down (a back navigation, an anchor in the URL) has the button already there.
 - A caller's own `onClick` runs first, and calling `preventDefault()` in it stops the scroll. That is how to take the reader somewhere other than the top.
+
+## Accessibility
+
+- While it is out of reach it is not merely faded: it is <Fw react="`aria-hidden` and out of the tab order" flutter="left out of the semantics tree and out of the focus order" />, and it takes no pointer.
+- It is named by `label`, and left out, by the label pack's `backToTop`, "Back to top" in English.
+- The scroll <Fw react="jumps instead of sliding under `prefers-reduced-motion`" flutter="jumps instead of animating when the platform asks for less motion" />, and arrives at the same place.
+
+::: fw react
+
+- A press that scrolls while the button holds the focus moves the focus to the first element that takes it at the top of what was scrolled, or off the button when there is none, so the next Tab does not start from a button that has just hidden itself.
+
+:::
