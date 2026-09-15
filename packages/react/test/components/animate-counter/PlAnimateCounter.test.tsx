@@ -49,22 +49,6 @@ function figure(): number {
   return Number(drawn().replace(/,/g, ''));
 }
 
-function wait(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-/** The lowest figure drawn over the next tenth of a second. */
-async function lowestSoon(): Promise<number> {
-  const seen: number[] = [];
-
-  for (let sample = 0; sample < 10; sample += 1) {
-    await wait(10);
-    seen.push(figure());
-  }
-
-  return Math.min(...seen);
-}
-
 afterEach(async () => {
   await emulateMedia({ reducedMotion: 'no-preference' });
 });
@@ -188,35 +172,43 @@ describe('PlAnimateCounter', () => {
     });
 
     it('keeps counting when a parent renders it with a new `easing` function', async () => {
-      const screen = await render(
-        <PlAnimateCounter
-          className="counter-under-test"
-          trigger="mount"
-          value={1000}
-          duration={1000}
-          easing={(t) => t}
-        />
-      );
+      // The same props every time, and an `easing` that is a new function, as
+      // an inline arrow is on every render of the parent.
+      function counting() {
+        return (
+          <PlAnimateCounter
+            className="counter-under-test"
+            trigger="mount"
+            value={1000}
+            duration={1000}
+            easing={(t) => t}
+          />
+        );
+      }
 
-      await wait(300);
+      // Taken before the render, so the first frame the count asks for is one
+      // this test draws.
+      const frames = frameClock();
 
-      const before = figure();
+      try {
+        const screen = await render(counting());
 
-      expect(before).toBeGreaterThan(0);
+        // The count's clock starts at its first frame, whatever time that is.
+        await frames.draw(1000);
+        await frames.draw(1300);
 
-      // The same props, and an `easing` that is a new function, as an inline
-      // arrow is on every render of the parent.
-      await screen.rerender(
-        <PlAnimateCounter
-          className="counter-under-test"
-          trigger="mount"
-          value={1000}
-          duration={1000}
-          easing={(t) => t}
-        />
-      );
+        expect(figure()).toBe(300);
 
-      expect(await lowestSoon()).toBeGreaterThanOrEqual(before);
+        await screen.rerender(counting());
+        await frames.draw(1600);
+
+        // 600ms in. A loop started again by the new function would take its
+        // start time on this frame and still be at 300, and one that counted
+        // again from `from` would be back at 0.
+        expect(figure()).toBe(600);
+      } finally {
+        frames.restore();
+      }
     });
   });
 
