@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A `PlHeatmapChart` thins its column names by one stride.** Each name set its own stride from its own width, so the short names either side of a long one were written over it. The stride is now taken once, from the widest name, so every name that is written clears its neighbours.
+
 - **↑ and ↓ move between rows in a `PlHeatmapChart` grid.** Both did what → and ← do, so reaching the cell directly below in a 7×24 grid took 24 presses. On a grid they now move to the same column in the row below or above, stepping over a gap. ← and → and every key on a treemap are unchanged.
 
 - **A tiled `PlImage` watermark draws in a token colour or `currentColor`.** The colour was written into the SVG image the tile repeats, and an image cannot read the page's custom properties or its `color`, so `var(--plass-…)` and `currentColor` came out black. The tile is now a mask over the layer's own background colour, so any CSS colour works, as it already did for a mark in a corner.

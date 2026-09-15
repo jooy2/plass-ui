@@ -68,6 +68,41 @@ describe('PlHeatmapChart', () => {
       expect(texts).toContain('09');
     });
 
+    it('thins the column names by one stride, taken from the widest of them', async () => {
+      // Twelve columns in a narrow box, and one name far wider than a column.
+      const names = [
+        'All night long',
+        ...['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11']
+      ];
+
+      const screen = await render(
+        <div style={{ width: 400 }}>
+          <PlHeatmapChart
+            label="Traffic"
+            series={[{ name: 'Mon', data: names.map((_, at) => at + 1) }]}
+            categories={names}
+          />
+        </div>
+      );
+
+      const plot = screen.getByRole('img', { name: 'Traffic' });
+
+      await expect.element(plot).toBeInTheDocument();
+
+      const drawn = () =>
+        [...plot.element().querySelectorAll('text')]
+          .map((one) => names.indexOf(one.textContent ?? ''))
+          .filter((at) => at !== -1);
+
+      await expect.poll(() => drawn().length).toBeGreaterThan(1);
+
+      // Worked out per name, a two-digit name has a stride of one, so the names
+      // beside the long one were written over it.
+      expect(drawn()[0]).toBe(0);
+      expect(drawn()).not.toContain(1);
+      expect(drawn().every((at, place) => at === place * drawn()[1])).toBe(true);
+    });
+
     it('packs the box as a treemap when asked, and drops the axes with it', async () => {
       const screen = await render(
         <PlHeatmapChart label="Traffic" shape="treemap" series={WEEK} categories={HOURS} />

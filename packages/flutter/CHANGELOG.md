@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **A `PlHeatmapChart` thins its column names by one stride.** Each name set its own stride from its own width, so the short names either side of a long one were written over it. The stride is now taken once, from the widest name, so every name that is written clears its neighbours.
+
 - **A `PlScatterChart` reads a bubble's `z`, and stops reading a series switched off in the legend.** The text a screen reader is handed wrote each point as `x, y` alone, although the docs say the `z` follows in brackets. It also read every series that had not started `hidden`, so one switched off in the legend was still read out. It now writes `1, 1 (100)` as the readout does, and reads only the series that are on.
 
 - **A tiled `PlImage` watermark covers every corner of a wide or tall picture.** The turned grid was laid out a fixed share past each side, so from about 2:1 two opposite corners were left as empty triangles. It is now laid out from the diagonal of the picture, which no turn can uncover.

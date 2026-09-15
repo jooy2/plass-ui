@@ -727,12 +727,18 @@ class _HeatmapPainter extends CustomPainter {
     }
 
     final double slot = plotWidth / math.max(1, columns);
+    // Every nth, chosen so the labels clear each other — the same answer the
+    // cartesian axis gives, and never a rotated one. One stride for the whole
+    // axis, from the widest name: a stride worked out per name lets the short
+    // names either side of a long one run into it.
+    final double widest = columnNames.fold<double>(
+      0,
+      (double most, String text) => math.max(most, textWidth(text, fontSize)),
+    );
+    final int stride = tickStride(columns, plotWidth, widest + 8);
 
     for (int i = 0; i < columnNames.length; i += 1) {
       final String text = columnNames[i];
-      // Every nth, chosen so the labels clear each other — the same answer the
-      // cartesian axis gives, and never a rotated one.
-      final int stride = math.max(1, ((textWidth(text, fontSize) + 8) / math.max(1, slot)).ceil());
 
       if (i % stride != 0) {
         continue;

@@ -23,6 +23,7 @@ import {
   rampSteps,
   squarify,
   textWidth,
+  tickStride,
   toValues,
   truncate,
   type ChartScaleKind,
@@ -234,6 +235,24 @@ export function PlHeatmapChart({
     width: Math.max(0, width - rowNames.band),
     height: Math.max(0, plotHeight - columnBand)
   };
+
+  /* The column names, and one stride for the whole axis: every nth, chosen so
+     the labels clear each other — the same answer the cartesian axis gives, and
+     never a rotated one. Taken from the widest name, because a stride worked out
+     per name lets the short names either side of a long one run into it. */
+  const columnNames = React.useMemo(() => {
+    if (shape === 'treemap') {
+      return { texts: [] as string[], widest: 0 };
+    }
+
+    const texts = labels.map((category) => formatCategory(category, locale));
+
+    return {
+      texts,
+      widest: texts.reduce((most, text) => Math.max(most, textWidth(text, fontSize)), 0)
+    };
+  }, [shape, labels, locale, fontSize]);
+  const columnStride = tickStride(columns, plot.width, columnNames.widest + 8);
 
   /* Where each cell goes. A grid divides the box evenly and a treemap packs it,
      and past that the two are one drawing — the same fill, the same ink, the
@@ -580,17 +599,10 @@ export function PlHeatmapChart({
               : null}
 
             {shape === 'grid'
-              ? labels.map((category, index) => {
+              ? columnNames.texts.map((text, index) => {
                   const slot = plot.width / Math.max(1, columns);
-                  const text = formatCategory(category, locale);
-                  // Every nth, chosen so the labels clear each other — the same
-                  // answer the cartesian axis gives, and never a rotated one.
-                  const stride = Math.max(
-                    1,
-                    Math.ceil((textWidth(text, fontSize) + 8) / Math.max(1, slot))
-                  );
 
-                  if (index % stride !== 0) {
+                  if (index % columnStride !== 0) {
                     return null;
                   }
 

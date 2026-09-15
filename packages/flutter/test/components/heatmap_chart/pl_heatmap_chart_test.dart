@@ -1,3 +1,5 @@
+import 'dart:ui' show Paragraph;
+
 import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -201,5 +203,75 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.textContaining(' · '), findsNothing);
     });
+
+    testWidgets('thins the column names by one stride, taken from the widest of them', (
+      WidgetTester tester,
+    ) async {
+      /// Where the centre of each column name is painted.
+      Future<List<double>> columnCentres(List<String> names) async {
+        await _pump(
+          tester,
+          PlHeatmapChart(
+            series: <PlassChartSeries>[
+              PlassChartSeries(
+                name: 'Mon',
+                data: _row(<double?>[for (int at = 0; at < names.length; at += 1) at + 1.0]),
+              ),
+            ],
+            categories: <PlassChartCategory>[
+              for (final String name in names) PlassChartCategory.text(name),
+            ],
+          ),
+        );
+
+        final Finder plot = find.byWidgetPredicate(
+          (Widget widget) =>
+              widget is CustomPaint && widget.painter != null && widget.size.height > 40,
+        );
+        final canvas = _TextCanvas();
+
+        tester.widget<CustomPaint>(plot.first).painter!.paint(canvas, tester.getSize(plot.first));
+
+        // The column names are the lowest line of text on the plot.
+        final double bottom = canvas.texts.fold<double>(
+          0,
+          (double most, Rect one) => one.top > most ? one.top : most,
+        );
+
+        return <double>[
+          for (final Rect one in canvas.texts)
+            if (one.top == bottom) one.center.dx,
+        ];
+      }
+
+      // The same twelve columns twice: one long name among short ones, then
+      // every name that long. Worked out per name, a short name had a stride of
+      // one, so the names beside the long one were painted over it.
+      final List<double> mixed = await columnCentres(<String>[
+        'All night long',
+        for (int at = 1; at < 12; at += 1) '$at'.padLeft(2, '0'),
+      ]);
+      final List<double> long = await columnCentres(List<String>.filled(12, 'All night long'));
+
+      expect(mixed.length, lessThan(12));
+      expect(mixed.length, long.length);
+
+      for (int i = 0; i < mixed.length; i += 1) {
+        expect(mixed[i], moreOrLessEquals(long[i], epsilon: 1));
+      }
+    });
   });
+}
+
+/// A canvas that keeps the box of every piece of text painted on it, and drops
+/// everything else.
+class _TextCanvas implements Canvas {
+  final List<Rect> texts = <Rect>[];
+
+  @override
+  void drawParagraph(Paragraph paragraph, Offset offset) =>
+      texts.add(offset & Size(paragraph.longestLine, paragraph.height));
+
+  @override
+  void noSuchMethod(Invocation invocation) {}
 }
