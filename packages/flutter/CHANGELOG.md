@@ -64,6 +64,8 @@
 
 ### Fixed
 
+- **End on a full `PlRating` keeps the full score.** With `clearable` on, which is the default, End at the top score counted as choosing that score again and cleared the rating to 0, and Home on an empty row called `onChanged` with the 0 it already had. Home and End now go to the end of the row, and call `onChanged` only when the score moves.
+
 - **A pressable `PlChip` draws one focus ring while its × has the focus.** The chip kept its own ring while the focus was on the × inside it, so two rings were drawn at once. The chip's ring now shows only while the chip itself has the focus, as the picker trigger's does.
 
 - **A `PlImage` preview with no `semanticLabel` has a name.** Its press target was named only by `semanticLabel`, so without one a screen reader found a button with no name. It is now named by `previewLabel`, or by the label pack's `preview` when that is left out, as the React build names its button when `alt` is empty.

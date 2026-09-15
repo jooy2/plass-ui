@@ -210,6 +210,20 @@ class _PlRatingState extends State<PlRating> {
     }
   }
 
+  /// Home and End. They go to a place on the row rather than choose a score, so
+  /// they do not clear: End on a full row stays on the full row.
+  void _jump(double score) {
+    if (!_interactive) {
+      return;
+    }
+
+    final double next = _snap(score);
+
+    if (next != widget.value) {
+      widget.onChanged!(next);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final PlassTokens tokens = PlassTheme.of(context);
@@ -301,7 +315,7 @@ class _PlRatingState extends State<PlRating> {
           ),
           _SetIntent: CallbackAction<_SetIntent>(
             onInvoke: (_SetIntent intent) {
-              _choose(_snap(intent.score));
+              _jump(intent.score);
               return null;
             },
           ),

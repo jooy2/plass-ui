@@ -33,6 +33,9 @@ class _HarnessState extends State<_Harness> {
 
   double get value => _value;
 
+  /// How many times the rating called `onChanged`, whether or not the score moved.
+  int changes = 0;
+
   @override
   Widget build(BuildContext context) {
     return PlRating(
@@ -41,7 +44,12 @@ class _HarnessState extends State<_Harness> {
       clearable: widget.clearable,
       disabled: widget.disabled,
       autofocus: true,
-      onChanged: widget.frozen ? null : (double next) => setState(() => _value = next),
+      onChanged: widget.frozen
+          ? null
+          : (double next) => setState(() {
+              changes++;
+              _value = next;
+            }),
     );
   }
 }
@@ -200,6 +208,50 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.end);
 
         expect(tester.state<_HarnessState>(find.byType(_Harness)).value, 5);
+      });
+
+      testWidgets('stays on a full row, and says nothing, when a key would go past it', (
+        WidgetTester tester,
+      ) async {
+        // Clearable, which is the default: End on a full row goes to where the
+        // score already is rather than choosing it a second time.
+        await tester.pumpWidget(host(const _Harness(value: 5)));
+        await tester.pump();
+
+        for (final LogicalKeyboardKey key in <LogicalKeyboardKey>[
+          LogicalKeyboardKey.end,
+          LogicalKeyboardKey.arrowRight,
+          LogicalKeyboardKey.arrowUp,
+        ]) {
+          await tester.sendKeyEvent(key);
+          await tester.pump();
+        }
+
+        final _HarnessState harness = tester.state<_HarnessState>(find.byType(_Harness));
+
+        expect(harness.value, 5);
+        expect(harness.changes, 0);
+      });
+
+      testWidgets('stays on an empty row, and says nothing, when a key would go past it', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(const _Harness(value: 0)));
+        await tester.pump();
+
+        for (final LogicalKeyboardKey key in <LogicalKeyboardKey>[
+          LogicalKeyboardKey.home,
+          LogicalKeyboardKey.arrowLeft,
+          LogicalKeyboardKey.arrowDown,
+        ]) {
+          await tester.sendKeyEvent(key);
+          await tester.pump();
+        }
+
+        final _HarnessState harness = tester.state<_HarnessState>(find.byType(_Harness));
+
+        expect(harness.value, 0);
+        expect(harness.changes, 0);
       });
 
       testWidgets('follows the writing direction rather than the left key', (
