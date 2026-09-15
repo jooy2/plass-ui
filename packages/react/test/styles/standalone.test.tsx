@@ -528,6 +528,9 @@ describe('plass-ui/styles.css', () => {
       await emulateMedia({ forcedColors: 'active' });
 
       try {
+        // A pointer an earlier file left over the page would hover what the
+        // check renders, and turn a case that is not about hover into one.
+        await commands.parkPointer();
         await check();
       } finally {
         await emulateMedia({ forcedColors: 'none' });
@@ -648,9 +651,6 @@ describe('plass-ui/styles.css', () => {
       (variant) =>
         inForcedColours(async () => {
           const highlight = system('Highlight');
-
-          await commands.parkPointer();
-
           const screen = await render(
             <PlToggle aria-label="Bold" variant={variant} defaultPressed>
               B
