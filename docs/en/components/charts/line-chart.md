@@ -191,6 +191,7 @@ The tokens are `--plass-chart-1` through `--plass-chart-8`, and a project that m
 
 ::: fw react
 
+- The picture is a `role="img"` and a tab stop. <kbd>←</kbd> and <kbd>→</kbd> walk the categories one at a time, <kbd>Home</kbd> and <kbd>End</kbd> go to the first and the last, and <kbd>Escape</kbd> clears the readout. Each category is announced in a live region as it is reached, with the value of every visible series there. With `tooltip={false}` the keys do nothing and nothing is announced.
 - The chart also renders a real `<table>` of the data, visually hidden, which is what a screen reader reads instead of the picture.
 
 :::

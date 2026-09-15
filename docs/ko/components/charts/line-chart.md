@@ -191,6 +191,7 @@ React의 `number | null | object` 대신 닫힌 union입니다. union 타입이 
 
 ::: fw react
 
+- 그림은 `role="img"`이자 tab 정거장입니다. <kbd>←</kbd>와 <kbd>→</kbd>로 category를 하나씩 옮겨 다니고, <kbd>Home</kbd>과 <kbd>End</kbd>로 첫 category와 마지막 category로 갑니다. <kbd>Escape</kbd>로 읽던 값을 지우고, 닿는 category마다 거기서 보이는 series의 값과 함께 live region으로 읽힙니다. `tooltip={false}`이면 키는 아무것도 하지 않고 읽히는 것도 없습니다.
 - 차트는 데이터의 진짜 `<table>`도 함께 그립니다. 눈에는 보이지 않고, 스크린 리더가 그림 대신 읽는 것입니다.
 
 :::
