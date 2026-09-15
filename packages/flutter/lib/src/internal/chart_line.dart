@@ -14,8 +14,6 @@
 /// It is not exported from `plass_ui.dart`.
 library;
 
-import 'dart:math' as math;
-
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/chart.dart';
@@ -213,7 +211,7 @@ void _paintValueLabels(
     }
 
     final List<ChartValue> one = layout.values[s];
-    final bool Function(int) labelled = _labelled(one, which);
+    final bool Function(int) labelled = labelledPoints(one, which);
 
     for (int i = 0; i < layout.count && i < one.length; i += 1) {
       final double? value = one[i].value;
@@ -249,48 +247,4 @@ void _paintValueLabels(
       painter.paint(canvas, Offset(dx, at.dy - radius - 5 - painter.height));
     }
   }
-}
-
-/// Which points of a series get a label, decided once for the whole series.
-///
-/// Once and not per point, which is the only thing worth saying about it:
-/// asking "is this the last non-null" per point is a scan per point, and the
-/// number of points on a chart being hovered is every frame.
-bool Function(int) _labelled(List<ChartValue> one, PlassChartValueLabels which) {
-  if (which == PlassChartValueLabels.all) {
-    return (int _) => true;
-  }
-
-  if (which == PlassChartValueLabels.last) {
-    int last = -1;
-
-    for (int i = one.length - 1; i >= 0; i -= 1) {
-      if (one[i].value != null) {
-        last = i;
-        break;
-      }
-    }
-
-    return (int index) => index == last;
-  }
-
-  // `extremes`. A series that is entirely a gap has no high and no low, and the
-  // comparison below is false for every point of it either way.
-  double min = double.infinity;
-  double max = double.negativeInfinity;
-
-  for (final ChartValue entry in one) {
-    if (entry.value == null) {
-      continue;
-    }
-
-    min = math.min(min, entry.value!);
-    max = math.max(max, entry.value!);
-  }
-
-  return (int index) {
-    final double? value = one[index].value;
-
-    return value != null && (value == min || value == max);
-  };
 }

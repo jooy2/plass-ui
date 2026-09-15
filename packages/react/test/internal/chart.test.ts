@@ -25,6 +25,7 @@ import {
   fitCategoryLabels,
   formatTimeTicks,
   formatTimeValue,
+  labelledPoints,
   linePath,
   ringPath,
   seriesColor,
@@ -36,6 +37,7 @@ import {
   truncate,
   valueScale
 } from '../../src/internal/chart.js';
+import type { PlassChartValueLabels } from '../../src/types.js';
 
 describe('valueScale', () => {
   it('rounds the top outward to a tick, so the tallest mark stops short of the frame', () => {
@@ -215,6 +217,31 @@ describe('dimmedByHover', () => {
 
   it('fades nothing while no entry is pointed at', () => {
     expect(dimmedByHover(null, 1, [true, true])).toBe(false);
+  });
+});
+
+describe('labelledPoints', () => {
+  const read = (values: (number | null)[], which: PlassChartValueLabels) => {
+    const labelled = labelledPoints(
+      values.map((value) => ({ value })),
+      which
+    );
+
+    return values.map((_, index) => labelled(index));
+  };
+
+  it('names the last point that is there rather than the last slot', () => {
+    expect(read([10, 20, null], 'last')).toEqual([false, true, false]);
+  });
+
+  it('names the high and the low, and nothing in a series of gaps', () => {
+    expect(read([5, 30, null, 2], 'extremes')).toEqual([false, true, false, true]);
+    expect(read([null, null], 'extremes')).toEqual([false, false]);
+  });
+
+  it('names every point with all and none with none', () => {
+    expect(read([1, 2], 'all')).toEqual([true, true]);
+    expect(read([1, 2], 'none')).toEqual([false, false]);
   });
 });
 

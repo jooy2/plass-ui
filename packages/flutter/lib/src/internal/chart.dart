@@ -217,6 +217,59 @@ List<List<ChartValue>> toValues(List<PlassChartSeries> series) {
   return series.map((PlassChartSeries one) => one.data.map(toValue).toList()).toList();
 }
 
+/// Which points of a series get a value label, decided once for the whole
+/// series.
+///
+/// Once and not per point, which is the only thing worth saying about it:
+/// asking "is this the series' high" inside the loop over the points means
+/// walking the series again for each of them, and a five-hundred-point line
+/// then does a quarter of a million comparisons to place two labels — on every
+/// build, which on a chart being hovered is every frame. `last` is the last
+/// point that is there rather than the last slot, so a series that ends in a
+/// gap still says where it got to.
+bool Function(int) labelledPoints(List<ChartValue> one, PlassChartValueLabels which) {
+  if (which == PlassChartValueLabels.none) {
+    return (int _) => false;
+  }
+
+  if (which == PlassChartValueLabels.all) {
+    return (int _) => true;
+  }
+
+  if (which == PlassChartValueLabels.last) {
+    int last = -1;
+
+    for (int i = one.length - 1; i >= 0; i -= 1) {
+      if (one[i].value != null) {
+        last = i;
+        break;
+      }
+    }
+
+    return (int index) => index == last;
+  }
+
+  // `extremes`. A series that is entirely a gap has no high and no low, and the
+  // comparison below is false for every point of it either way.
+  double min = double.infinity;
+  double max = double.negativeInfinity;
+
+  for (final ChartValue entry in one) {
+    if (entry.value == null) {
+      continue;
+    }
+
+    min = math.min(min, entry.value!);
+    max = math.max(max, entry.value!);
+  }
+
+  return (int index) {
+    final double? value = one[index].value;
+
+    return value != null && (value == min || value == max);
+  };
+}
+
 /// A category as a number, for a category axis that is really a value axis.
 ///
 /// A `DateTime` is its epoch milliseconds, which is what makes a scatter of

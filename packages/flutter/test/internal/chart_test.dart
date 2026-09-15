@@ -95,6 +95,35 @@ void main() {
     });
   });
 
+  group('labelledPoints', () {
+    List<bool> read(List<double?> values, PlassChartValueLabels which) {
+      final bool Function(int) labelled = labelledPoints(<ChartValue>[
+        for (final double? value in values) ChartValue(value: value),
+      ], which);
+
+      return <bool>[for (int i = 0; i < values.length; i += 1) labelled(i)];
+    }
+
+    test('names the last point that is there rather than the last slot', () {
+      expect(read(<double?>[10, 20, null], PlassChartValueLabels.last), <bool>[false, true, false]);
+    });
+
+    test('names the high and the low, and nothing in a series of gaps', () {
+      expect(read(<double?>[5, 30, null, 2], PlassChartValueLabels.extremes), <bool>[
+        false,
+        true,
+        false,
+        true,
+      ]);
+      expect(read(<double?>[null, null], PlassChartValueLabels.extremes), <bool>[false, false]);
+    });
+
+    test('names every point with all and none with none', () {
+      expect(read(<double?>[1, 2], PlassChartValueLabels.all), <bool>[true, true]);
+      expect(read(<double?>[1, 2], PlassChartValueLabels.none), <bool>[false, false]);
+    });
+  });
+
   group('extentOf', () {
     List<List<ChartValue>> unpack(List<List<double?>> rows) {
       return rows

@@ -137,6 +137,26 @@ describe('PlBarChart', () => {
       expect(texts).toContain('33');
       expect(texts).not.toContain('22');
     });
+
+    it('writes the last value that is there when the series ends in a gap', async () => {
+      const screen = await render(
+        <PlBarChart
+          label="Deploys"
+          valueLabels="last"
+          categories={TEAMS}
+          series={[{ name: 'Deploys', data: [11, 23, null] }]}
+        />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Deploys' });
+
+      await expect.element(plot).toBeInTheDocument();
+
+      const texts = [...plot.element().querySelectorAll('text')].map((t) => t.textContent);
+
+      expect(texts).toContain('23');
+      expect(texts).not.toContain('11');
+    });
   });
 
   describe('stacked', () => {

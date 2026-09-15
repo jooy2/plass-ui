@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A bar chart with `valueLabels="last"` labels the last value it has.** The label went on the last slot, so a series that ends in a gap, such as `[10, 20, null]`, had no label at all. It now goes on the 20, as it already did on a line chart, and `extremes` no longer walks the whole series again for every bar on each render.
+
 - **The × on a `PlChip`, on a `PlCombobox` chip and on a picker trigger can be pressed anywhere in a 24px square around it.** It could be pressed only on the glyph, about 15px across and two pixels from the label or the trigger, which is under the minimum target size of WCAG 2.5.8 and easy to mistake for the trigger on a touch screen. The × is drawn at the same size and the chip and the trigger keep theirs; where the square reaches over the label or the trigger, a press inside the square goes to the × and the rest still goes to its neighbour. This covers `PlDatePicker`, `PlDateRangePicker`, `PlDateTimePicker`, `PlTimePicker`, `PlColorPicker` and `PlTreeSelect`.
 
 - **A `PlHeatmapChart` thins its column names by one stride.** Each name set its own stride from its own width, so the short names either side of a long one were written over it. The stride is now taken once, from the widest name, so every name that is written clears its neighbours.

@@ -1,8 +1,11 @@
+import 'dart:ui' show Paragraph;
+
 import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
+import '../../support/canvas.dart';
 import '../../support/host.dart';
 
 final List<PlassChartSeries> series = <PlassChartSeries>[
@@ -154,6 +157,45 @@ void main() {
       }
     });
 
+    testWidgets('writes the last value that is there when the series ends in a gap', (
+      WidgetTester tester,
+    ) async {
+      /// How many pieces of text the plot paints: its axes, and a label on
+      /// every bar that carries one.
+      Future<int> texts(PlassChartValueLabels which) async {
+        await _pump(
+          tester,
+          PlBarChart(
+            series: const <PlassChartSeries>[
+              PlassChartSeries(
+                data: <PlassChartDatum>[
+                  PlassChartDatum(10),
+                  PlassChartDatum(20),
+                  PlassChartDatum.gap(),
+                ],
+              ),
+            ],
+            categories: regions,
+            valueLabels: which,
+          ),
+        );
+
+        final canvas = _TextCanvas();
+        final Finder plot = find.byWidgetPredicate(
+          (Widget widget) =>
+              widget is CustomPaint && widget.painter != null && widget.size.height > 40,
+        );
+
+        tester.widget<CustomPaint>(plot.first).painter!.paint(canvas, tester.getSize(plot.first));
+
+        return canvas.paragraphs;
+      }
+
+      // The same axes either way, so the difference is the labels: `all` writes
+      // the 10 and the 20, and `last` has to write the 20 rather than nothing.
+      expect(await texts(PlassChartValueLabels.all) - await texts(PlassChartValueLabels.last), 1);
+    });
+
     testWidgets('takes a bar thickness cap', (WidgetTester tester) async {
       await _pump(
         tester,
@@ -171,4 +213,14 @@ void main() {
       expect(tester.getSize(find.byType(PlBarChart)).height, closeTo(180, 0.5));
     });
   });
+}
+
+/// Counts the text a painter lays down, which is all a label on a canvas is.
+class _TextCanvas extends RecordingCanvas {
+  int paragraphs = 0;
+
+  @override
+  void drawParagraph(Paragraph paragraph, Offset offset) {
+    paragraphs += 1;
+  }
 }

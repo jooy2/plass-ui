@@ -251,6 +251,7 @@ class PlBarChart extends StatelessWidget {
       final int s = drawn[lane];
       final List<ChartValue> one = layout.values[s];
       final double alpha = dimmedByHover(layout.hovered, s, layout.visible) ? 0.28 : 1.0;
+      final bool Function(int) labelled = labelledPoints(one, valueLabels);
 
       for (int category = 0; category < layout.count && category < one.length; category += 1) {
         final double? value = one[category].value;
@@ -316,7 +317,7 @@ class PlBarChart extends StatelessWidget {
             ..color = ink.withValues(alpha: (category == layout.activeIndex ? 1 : 0.92) * alpha),
         );
 
-        if (valueLabels != PlassChartValueLabels.none && _labelled(one, category)) {
+        if (labelled(category)) {
           _paintLabel(canvas, layout, one[category], value, to, centre + offset);
         }
       }
@@ -372,38 +373,6 @@ class PlBarChart extends StatelessWidget {
           );
 
     painter.paint(canvas, at);
-  }
-
-  /// Whether this bar gets a number on it.
-  bool _labelled(List<ChartValue> one, int index) {
-    switch (valueLabels) {
-      case PlassChartValueLabels.none:
-        return false;
-      case PlassChartValueLabels.all:
-        return true;
-      case PlassChartValueLabels.last:
-        return index == one.length - 1;
-      case PlassChartValueLabels.extremes:
-        final double? value = one[index].value;
-
-        if (value == null) {
-          return false;
-        }
-
-        double min = double.infinity;
-        double max = double.negativeInfinity;
-
-        for (final ChartValue entry in one) {
-          if (entry.value == null) {
-            continue;
-          }
-
-          min = math.min(min, entry.value!);
-          max = math.max(max, entry.value!);
-        }
-
-        return value == min || value == max;
-    }
   }
 
   /// The fallback for a chart that named no format.
