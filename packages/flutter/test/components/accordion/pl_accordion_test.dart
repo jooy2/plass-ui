@@ -250,6 +250,38 @@ void main() {
 
         handle.dispose();
       });
+
+      testWidgets('each header is inside a heading of level 3', (WidgetTester tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            PlAccordion<String>(
+              items: sections,
+              value: const <String>{},
+              onChanged: (Set<String> _) {},
+            ),
+            width: 400,
+          ),
+        );
+
+        for (final title in <String>['Billing', 'Members']) {
+          final button = tester.getSemantics(find.text(title));
+          var heading = button.parent;
+
+          while (heading != null && heading.getSemanticsData().headingLevel == 0) {
+            heading = heading.parent;
+          }
+
+          // The button keeps its own role: a node that is both is drawn as the
+          // heading alone on the web.
+          expect(button, isSemantics(isButton: true, isHeader: false, label: title));
+          expect(heading, isNotNull);
+          expect(heading, isSemantics(isHeader: true));
+          expect(heading!.getSemanticsData().headingLevel, 3);
+        }
+
+        handle.dispose();
+      });
     });
   });
 }

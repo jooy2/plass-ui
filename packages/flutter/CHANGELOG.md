@@ -66,6 +66,8 @@
 
 ### Fixed
 
+- **Each `PlAccordion` header is a heading.** A screen reader's heading navigation passed over the sections, since nothing marked a header as one. Each header row, with its `action`, is now inside a heading of level 3, as the React build's `<h3>` is, and the header is still announced as a button.
+
 - **A disabled `PlCalendar` is announced as disabled.** Its days and its header buttons could not be pressed, but a screen reader still heard each of them as an enabled button. While `disabled` is set or there is no `onChanged`, each is now announced as disabled, with no action. The calendar looks the same.
 
 - **A labelled `PlImage` preview says that it opens a preview.** Its press target was named by `semanticLabel` alone, so a screen reader heard what the picture is but not what pressing it does. It is now named by the label and then `previewLabel` in lower case, or the label pack's `preview` when that is left out, "A portrait — preview", as the React build names its button after `alt`.

@@ -253,6 +253,7 @@ There is no uncontrolled mode: `value` and `onChanged` are how the accordion is 
 ::: fw flutter
 
 - Each header is announced as a button, expanded or collapsed. The state is carried by that flag, never by the chevron's rotation alone.
+- Each header row, with its `action`, is inside a heading of level 3, so a screen reader's heading navigation stops at every section.
 - <kbd>Enter</kbd> and <kbd>Space</kbd> fold a section; <kbd>Tab</kbd> moves between headers and into an open panel. Every header is its own focus stop. An accordion is a stack of buttons, not a roving group.
 - A closed panel is not in the tree at all, so nothing inside it is reachable, focusable or read out until it is open.
 - The chevron is drawn and not named, and a disabled section stops answering both the pointer and the keyboard.

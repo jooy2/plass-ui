@@ -440,6 +440,18 @@ class _Section<T> extends StatelessWidget {
       );
     }
 
+    // A heading around the whole row, the trigger and the action both, as the
+    // React build's `<h3>` is. Not a flag on the button itself: on the web a node
+    // that is both a heading and a button is drawn as the heading alone, and the
+    // button role goes with it.
+    header = Semantics(
+      container: true,
+      explicitChildNodes: true,
+      header: true,
+      headingLevel: 3,
+      child: header,
+    );
+
     // The body is clipped rather than squashed while the panel moves, which is
     // what makes it a window opening onto the content rather than the content
     // being scaled.
