@@ -255,6 +255,86 @@ describe('PlSidebar', () => {
 
       expect(other).toHaveBeenLastCalledWith(600);
     });
+
+    it('marks itself, takes the selection and reports every step while it is dragged', async () => {
+      const onResize = vi.fn();
+      const onResizeEnd = vi.fn();
+
+      const screen = await render(
+        <PlSidebar
+          collapseBelow="none"
+          resizable
+          width={200}
+          minWidth={180}
+          maxWidth={400}
+          onResize={onResize}
+          onResizeEnd={onResizeEnd}
+        >
+          Links
+        </PlSidebar>
+      );
+
+      const handle = screen.getByRole('separator').element();
+      const pointer = (type: string, init: PointerEventInit) =>
+        handle.dispatchEvent(
+          new PointerEvent(type, { bubbles: true, pointerType: 'mouse', pointerId: 1, ...init })
+        );
+
+      document.body.style.setProperty('-webkit-user-select', 'text');
+
+      try {
+        pointer('pointerdown', { button: 0, buttons: 1, clientX: 200, clientY: 10 });
+
+        expect(handle).toHaveAttribute('data-dragging', 'true');
+        // Safari is the reason this is the prefixed property: the unprefixed
+        // one is not on a style declaration there and writing it changes
+        // nothing.
+        expect(document.body.style.getPropertyValue('-webkit-user-select')).toBe('none');
+
+        pointer('pointermove', { buttons: 1, clientX: 140, clientY: 10 });
+
+        expect(onResize).toHaveBeenCalled();
+        // The width is written onto the element rather than into state, and the
+        // separator says the same number a screen reader would hear.
+        expect(handle).toHaveAttribute('aria-valuenow', String(onResize.mock.lastCall?.[0]));
+        expect(onResizeEnd).not.toHaveBeenCalled();
+
+        pointer('pointerup', { buttons: 0, clientX: 140, clientY: 10 });
+
+        expect(onResizeEnd).toHaveBeenLastCalledWith(onResize.mock.lastCall?.[0]);
+        expect(handle).not.toHaveAttribute('data-dragging');
+        // Given back as it was, rather than blanked.
+        expect(document.body.style.getPropertyValue('-webkit-user-select')).toBe('text');
+      } finally {
+        document.body.style.removeProperty('-webkit-user-select');
+      }
+    });
+
+    it('does not start on a button other than the first', async () => {
+      const onResize = vi.fn();
+
+      const screen = await render(
+        <PlSidebar collapseBelow="none" resizable width={200} onResize={onResize}>
+          Links
+        </PlSidebar>
+      );
+
+      const handle = screen.getByRole('separator').element();
+
+      handle.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          pointerType: 'mouse',
+          pointerId: 1,
+          button: 2,
+          buttons: 2,
+          clientX: 200
+        })
+      );
+
+      expect(handle).not.toHaveAttribute('data-dragging');
+      expect(onResize).not.toHaveBeenCalled();
+    });
   });
 
   describe('as a drawer', () => {

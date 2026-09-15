@@ -24,8 +24,13 @@
  * through the whole drag. It is taken off the document rather than fixed with
  * `preventDefault`, which would also stop the browser focusing what was
  * pressed and leave every mouse press wearing a keyboard focus ring.
+ *
+ * Exported as well as used below, for the gesture that takes the selection at a
+ * moment of its own rather than at the press: `PlScrollZone` waits for the
+ * pointer to pass its threshold, because up to that point the press is still a
+ * click on a card and the reader is still allowed to select the text under it.
  */
-function takeSelection(): () => void {
+export function takeSelection(): () => void {
   const body = document.body;
   const previous = body.style.getPropertyValue('-webkit-user-select');
 

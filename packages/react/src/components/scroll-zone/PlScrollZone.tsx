@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
+import { takeSelection } from '../../internal/drag.js';
 import { PlIconButton } from '../icon-button/PlIconButton.js';
 import { spacingValue } from '../../internal/grid.js';
 import { ChevronIcon } from '../../internal/icons.js';
@@ -528,11 +529,10 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
       const fromTop = element.scrollTop;
       let dragging = false;
 
-      // Taken off the document for the length of the drag rather than fixed
-      // with `preventDefault`, which would also stop the browser focusing what
-      // was pressed. Written prefixed and through `setProperty` because WebKit
-      // implements only `-webkit-user-select`.
-      const selection = document.body.style.getPropertyValue('-webkit-user-select');
+      // The document's selection, taken at the threshold rather than at the
+      // press: until the strip has actually moved, this is still a click on a
+      // card and the text under the pointer is still the reader's to select.
+      let restoreSelection: (() => void) | null = null;
 
       const move = (moveEvent: PointerEvent) => {
         // Before the threshold nothing is captured, so a button let go outside
@@ -556,7 +556,7 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
           dragging = true;
           element.setPointerCapture(moveEvent.pointerId);
           element.dataset.dragging = 'true';
-          document.body.style.setProperty('-webkit-user-select', 'none');
+          restoreSelection = takeSelection();
         }
 
         if (horizontal) {
@@ -573,11 +573,8 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
         element.removeEventListener('pointercancel', release);
         delete element.dataset.dragging;
 
-        if (selection) {
-          document.body.style.setProperty('-webkit-user-select', selection);
-        } else {
-          document.body.style.removeProperty('-webkit-user-select');
-        }
+        restoreSelection?.();
+        restoreSelection = null;
       };
 
       const end = () => {

@@ -131,6 +131,41 @@ describe('PlScrollZone', () => {
       expect(element).not.toHaveAttribute('data-dragging');
     });
 
+    it('takes the document selection at the threshold and gives it back at the end', async () => {
+      const screen = await render(<PlScrollZone data-testid="zone">{cards}</PlScrollZone>);
+      const element = scroller(screen);
+      const pointer = (type: string, init: PointerEventInit) =>
+        element.dispatchEvent(
+          new PointerEvent(type, { bubbles: true, pointerType: 'mouse', pointerId: 1, ...init })
+        );
+      const selection = () => document.body.style.getPropertyValue('-webkit-user-select');
+
+      document.body.style.setProperty('-webkit-user-select', 'text');
+
+      try {
+        pointer('pointerdown', { button: 0, buttons: 1, clientX: 200, clientY: 10 });
+
+        // Two pixels is still a click on a card, and the text under the pointer
+        // is still the reader's to select.
+        pointer('pointermove', { buttons: 1, clientX: 198, clientY: 10 });
+
+        expect(element).not.toHaveAttribute('data-dragging');
+        expect(selection()).toBe('text');
+
+        pointer('pointermove', { buttons: 1, clientX: 160, clientY: 10 });
+
+        expect(element).toHaveAttribute('data-dragging', 'true');
+        expect(selection()).toBe('none');
+
+        pointer('pointerup', { buttons: 0, clientX: 160, clientY: 10 });
+
+        // Given back as it was, rather than blanked.
+        expect(selection()).toBe('text');
+      } finally {
+        document.body.style.removeProperty('-webkit-user-select');
+      }
+    });
+
     it('is no tab stop while everything fits', async () => {
       const screen = await render(
         <PlScrollZone data-testid="zone">

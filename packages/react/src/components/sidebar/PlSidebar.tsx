@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
+import { beginPointerDrag } from '../../internal/drag.js';
 import { PlDrawer } from '../drawer/PlDrawer.js';
 import {
   drawerSide,
@@ -341,16 +342,6 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
       const node = rootRef.current;
       if (!node || event.button !== 0) return;
 
-      const handle = event.currentTarget;
-      handle.setPointerCapture(event.pointerId);
-      handle.dataset.dragging = 'true';
-
-      // The same prefixed write `PlPanes` makes, for the same reason: WebKit
-      // has no `userSelect` on a style declaration, so the unprefixed form
-      // changes nothing and Safari selects text through the whole drag.
-      const selection = document.body.style.getPropertyValue('-webkit-user-select');
-      document.body.style.setProperty('-webkit-user-select', 'none');
-
       const origin = event.clientX;
       const start = node.getBoundingClientRect().width;
       // Positive is always "wider", so a drag under RTL — where the start edge
@@ -361,31 +352,24 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
 
       let latest = start;
 
-      const move = (moveEvent: PointerEvent) => {
-        latest = applyWidth(start + (moveEvent.clientX - origin) * outwards);
-        onResize?.(latest);
-      };
-
-      const release = () => {
-        teardownRef.current = null;
-        handle.removeEventListener('pointermove', move);
-        handle.removeEventListener('pointerup', end);
-        handle.removeEventListener('pointercancel', end);
-        delete handle.dataset.dragging;
-
-        if (selection) document.body.style.setProperty('-webkit-user-select', selection);
-        else document.body.style.removeProperty('-webkit-user-select');
-      };
-
-      const end = () => {
-        release();
-        onResizeEnd?.(latest);
-      };
-
-      teardownRef.current = release;
-      handle.addEventListener('pointermove', move);
-      handle.addEventListener('pointerup', end);
-      handle.addEventListener('pointercancel', end);
+      // The capture, the three listeners, the `data-dragging` and the document's
+      // selection are all the same scaffold `PlPanes` puts round its handle. Only
+      // the arithmetic is the sidebar's.
+      teardownRef.current = beginPointerDrag({
+        target: event.currentTarget,
+        pointerId: event.pointerId,
+        onMove: (moveEvent) => {
+          latest = applyWidth(start + (moveEvent.clientX - origin) * outwards);
+          onResize?.(latest);
+        },
+        // Only the pointer being released settles the width. An unmount runs the
+        // teardown instead, which gives the listeners and the selection back and
+        // says nothing: a sidebar that disappeared did not finish resizing.
+        onEnd: () => {
+          teardownRef.current = null;
+          onResizeEnd?.(latest);
+        }
+      });
     };
 
     const nudge = (pixels: number) => {
