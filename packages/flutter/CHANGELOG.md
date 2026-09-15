@@ -66,6 +66,8 @@
 
 ### Fixed
 
+- **A closing `PlAccordion` section keeps its body until the panel has closed.** The body vanished the moment `value` stopped holding the section, and only the empty space it left shrank. It now stays on screen, cut off by the shrinking panel, as it is revealed while the panel opens, and it cannot take the focus or be read out while it closes.
+
 - **Each `PlAccordion` header is a heading.** A screen reader's heading navigation passed over the sections, since nothing marked a header as one. Each header row, with its `action`, is now inside a heading of level 3, as the React build's `<h3>` is, and the header is still announced as a button.
 
 - **A disabled `PlCalendar` is announced as disabled.** Its days and its header buttons could not be pressed, but a screen reader still heard each of them as an enabled button. While `disabled` is set or there is no `onChanged`, each is now announced as disabled, with no action. The calendar looks the same.

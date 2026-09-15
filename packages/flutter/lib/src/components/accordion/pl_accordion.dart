@@ -4,6 +4,7 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/fold.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
@@ -252,6 +253,9 @@ class PlAccordion<T> extends StatelessWidget {
     final sections = <Widget>[
       for (var index = 0; index < items.length; index += 1)
         _Section<T>(
+          // A section holds its own fold, so it is kept by the item it draws
+          // rather than by its place in the list.
+          key: ValueKey<T>(items[index].value),
           item: items[index],
           open: value.contains(items[index].value),
           size: size,
@@ -288,7 +292,7 @@ class PlAccordion<T> extends StatelessWidget {
 }
 
 /// One drawn section.
-class _Section<T> extends StatelessWidget {
+class _Section<T> extends StatefulWidget {
   const _Section({
     required this.item,
     required this.open,
@@ -300,6 +304,7 @@ class _Section<T> extends StatelessWidget {
     required this.ruled,
     required this.disabled,
     required this.onToggle,
+    super.key,
   });
 
   final PlAccordionItem<T> item;
@@ -314,14 +319,78 @@ class _Section<T> extends StatelessWidget {
   final VoidCallback onToggle;
 
   @override
+  State<_Section<T>> createState() => _SectionState<T>();
+}
+
+class _SectionState<T> extends State<_Section<T>> with SingleTickerProviderStateMixin {
+  late final AnimationController _fold = AnimationController(
+    vsync: this,
+    duration: PlassTokens.durationSlow,
+    value: widget.open ? 1 : 0,
+  );
+
+  /// The fold's own curve.
+  late final Animation<double> _foldFactor = CurvedAnimation(
+    parent: _fold,
+    curve: PlassTokens.ease,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    // The body is dropped from the tree once the panel has finished closing,
+    // and nothing else would rebuild at that moment.
+    _fold.addStatusListener(_onFold);
+  }
+
+  void _onFold(AnimationStatus status) {
+    if (status == AnimationStatus.dismissed && mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void didUpdateWidget(_Section<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.open != oldWidget.open) {
+      widget.open ? _fold.forward() : _fold.reverse();
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _fold.duration = (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
+        ? Duration.zero
+        : PlassTokens.durationSlow;
+  }
+
+  @override
+  void dispose() {
+    _fold.removeStatusListener(_onFold);
+    _fold.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final item = widget.item;
+    final open = widget.open;
+    final size = widget.size;
+    final density = widget.density;
+    final family = widget.family;
+    final tokens = widget.tokens;
+    final disabled = widget.disabled;
+    final onToggle = widget.onToggle;
+
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
     final padX = sheetPaddingX[density]![size]!;
     final padY = sheetPaddingY[density]![size]!;
     final title = sheetTitle[size]!;
     final body = sheetBody[size]!;
     final radius = BorderRadius.circular(
-      dividers ? 0 : PlassTokens.radius[_itemRadiusScale[size]!]!,
+      widget.dividers ? 0 : PlassTokens.radius[_itemRadiusScale[size]!]!,
     );
 
     Widget header = PlassInteractive(
@@ -411,7 +480,7 @@ class _Section<T> extends StatelessWidget {
               borderRadius: radius,
               // A ring drawn outside a header on a clipped sheet is a ring with
               // its top or bottom sliced off at the first and last section.
-              offset: dividers ? -focusRingWidth : focusRingOffset,
+              offset: widget.dividers ? -focusRingWidth : focusRingOffset,
             ),
             child: row,
           );
@@ -452,37 +521,43 @@ class _Section<T> extends StatelessWidget {
       child: header,
     );
 
-    // The body is clipped rather than squashed while the panel moves, which is
-    // what makes it a window opening onto the content rather than the content
-    // being scaled.
-    final panel = AnimatedSize(
-      duration: reduceMotion ? Duration.zero : PlassTokens.durationSlow,
-      curve: PlassTokens.ease,
-      alignment: Alignment.topCenter,
-      child: open && item.child != null
-          ? DefaultTextStyle.merge(
-              style: TextStyle(
-                color: tokens.mutedFg,
-                fontSize: body.size,
-                height: body.height,
-                leadingDistribution: TextLeadingDistribution.even,
+    // Kept built until the panel has finished closing, so the body is clipped
+    // away by the shrinking panel as it was revealed by the growing one, rather
+    // than dropped the moment `open` turns false and leaving empty space to
+    // shrink.
+    final built = open || _fold.value > 0;
+
+    Widget panel = built && item.child != null
+        ? DefaultTextStyle.merge(
+            style: TextStyle(
+              color: tokens.mutedFg,
+              fontSize: body.size,
+              height: body.height,
+              leadingDistribution: TextLeadingDistribution.even,
+            ),
+            child: Padding(
+              padding: EdgeInsetsDirectional.only(
+                start: padX,
+                end: padX,
+                top: _panelPaddingTop[density]![size]!,
+                bottom: _panelPaddingBottom[density]![size]!,
               ),
-              child: Padding(
-                padding: EdgeInsetsDirectional.only(
-                  start: padX,
-                  end: padX,
-                  top: _panelPaddingTop[density]![size]!,
-                  bottom: _panelPaddingBottom[density]![size]!,
-                ),
-                child: item.child!,
-              ),
-            )
-          : const SizedBox(width: double.infinity),
+              child: item.child!,
+            ),
+          )
+        : const SizedBox(width: double.infinity);
+
+    // A panel on its way out is not one a keyboard should tab into or a screen
+    // reader read out. Always wrapped and switched with `excluding`, so opening
+    // does not change the shape of the tree above the body.
+    panel = ExcludeSemantics(
+      excluding: !open,
+      child: ExcludeFocus(excluding: !open, child: panel),
     );
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        border: ruled
+        border: widget.ruled
             ? Border(
                 top: BorderSide(color: tokens.divider, width: hairline),
               )
@@ -493,7 +568,10 @@ class _Section<T> extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           header,
-          ClipRect(child: panel),
+          // The body is clipped rather than squashed while the panel moves,
+          // which is what makes it a window opening onto the content rather
+          // than the content being scaled.
+          PlassFold(factor: _foldFactor, child: panel),
         ],
       ),
     );

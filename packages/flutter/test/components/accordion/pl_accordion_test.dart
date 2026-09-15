@@ -177,6 +177,36 @@ void main() {
         expect(next, isEmpty);
       });
 
+      testWidgets('keeps the body drawn while the panel closes', (WidgetTester tester) async {
+        Widget accordion(Set<String> value) => host(
+          PlAccordion<String>(items: sections, value: value, onChanged: (Set<String> _) {}),
+          width: 400,
+        );
+
+        await tester.pumpWidget(accordion(const <String>{}));
+        final closed = tester.getSize(find.byType(PlAccordion<String>)).height;
+
+        await tester.pumpWidget(accordion(const <String>{'billing'}));
+        await tester.pumpAndSettle();
+        final open = tester.getSize(find.byType(PlAccordion<String>)).height;
+
+        await tester.pumpWidget(accordion(const <String>{}));
+        await tester.pump(PlassTokens.durationSlow ~/ 2);
+
+        // Part way through, the body is still there, clipped by a panel that is
+        // between its open and its closed height.
+        final closing = tester.getSize(find.byType(PlAccordion<String>)).height;
+
+        expect(find.text('Card on file'), findsOneWidget);
+        expect(closing, lessThan(open));
+        expect(closing, greaterThan(closed));
+
+        await tester.pumpAndSettle();
+
+        expect(find.text('Card on file'), findsNothing);
+        expect(tester.getSize(find.byType(PlAccordion<String>)).height, closed);
+      });
+
       testWidgets('does not fold a disabled section', (WidgetTester tester) async {
         Set<String>? next;
         await tester.pumpWidget(
