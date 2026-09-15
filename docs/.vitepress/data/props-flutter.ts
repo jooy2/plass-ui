@@ -5385,7 +5385,13 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'Whether the link leaves the app. Draws the arrow, and adds a hint a screen reader reads'
       }
     }),
-    from('PlTextLink', 'icon', { type: 'Widget?' }),
+    from('PlTextLink', 'icon', {
+      type: 'Widget?',
+      description: {
+        ko: '라벨 뒤의 표시. 넣지 않으면 external일 때는 화살표를, 아닐 때는 체인을 그립니다. 그릴지는 showIcon이 정합니다',
+        en: 'The mark after the label. Left out, the arrow is drawn when external is on and the chain otherwise. Whether it is drawn at all is decided by showIcon'
+      }
+    }),
     from('PlTextLink', 'startIcon', { type: 'Widget?' }),
     {
       name: 'showIcon',
