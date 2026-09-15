@@ -93,7 +93,12 @@ describe('PlPill', () => {
         .element()
         .getBoundingClientRect();
 
-      expect(x).toBeCloseTo(inner.left + inner.width / 2 - shell.getBoundingClientRect().left, 0);
+      const centre = inner.left + inner.width / 2 - shell.getBoundingClientRect().left;
+
+      // Within a pixel rather than to the half: WebKit and Firefox hand the page
+      // a pointer position with its fraction dropped, so a hover Playwright aims
+      // at 34.59px arrives at 34px, and the light is where the page was told.
+      expect(Math.abs(x - centre)).toBeLessThan(1);
     });
 
     it('keeps the trailing slot outside the button', async () => {
