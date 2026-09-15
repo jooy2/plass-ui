@@ -168,22 +168,28 @@ class PlSkeleton extends StatelessWidget {
     // a caller putting the block in a row.
     final stacked = shape == PlSkeletonShape.line && lines > 1;
 
-    Widget placeholder = stacked
-        ? Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            spacing: _lineGap[size]!,
-            children: <Widget>[
-              for (var index = 0; index < lines; index += 1)
-                FractionallySizedBox(
-                  alignment: AlignmentDirectional.centerStart,
-                  // The last line of a paragraph does not reach the margin.
-                  widthFactor: index == lines - 1 ? _lastLineFraction : 1,
-                  child: _bar(context, family, still: still),
-                ),
-            ],
-          )
-        : _bar(context, family, still: still);
+    Widget shapes(Animation<double>? travel) {
+      return stacked
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              spacing: _lineGap[size]!,
+              children: <Widget>[
+                for (var index = 0; index < lines; index += 1)
+                  FractionallySizedBox(
+                    alignment: AlignmentDirectional.centerStart,
+                    // The last line of a paragraph does not reach the margin.
+                    widthFactor: index == lines - 1 ? _lastLineFraction : 1,
+                    child: _bar(context, family, still: still, travel: travel),
+                  ),
+              ],
+            )
+          : _bar(context, family, still: still, travel: travel);
+    }
+
+    // One clock for every bar, so a paragraph of them costs one ticker and its
+    // highlights cross in step.
+    Widget placeholder = animated ? _Sweep(builder: shapes) : shapes(null);
 
     if (width != null || height != null || shape != PlSkeletonShape.line) {
       placeholder = SizedBox(
@@ -211,8 +217,13 @@ class PlSkeleton extends StatelessWidget {
     }
   }
 
-  /// One filled shape, with the highlight travelling across it.
-  Widget _bar(BuildContext context, PlassColorFamily family, {required bool still}) {
+  /// One filled shape, with the highlight travelling across it on [travel].
+  Widget _bar(
+    BuildContext context,
+    PlassColorFamily family, {
+    required bool still,
+    required Animation<double>? travel,
+  }) {
     final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
 
     final radius = shape == PlSkeletonShape.circle
@@ -231,34 +242,29 @@ class PlSkeleton extends StatelessWidget {
       ),
     );
 
-    if (animated) {
-      bar = _Sweep(color: family.softPress, still: still, borderRadius: radius, child: bar);
+    if (travel != null) {
+      bar = _Highlight(
+        travel: travel,
+        color: family.softPress,
+        still: still,
+        borderRadius: radius,
+        child: bar,
+      );
     }
 
     return bar;
   }
 }
 
-/// The travelling highlight, and — where the platform has asked for less
-/// movement — the pulse that stands in for it.
+/// The clock the highlight travels on, one for the whole placeholder.
 ///
 /// Kept running rather than stopped, because a skeleton that holds still is
 /// indistinguishable from an empty box that finished loading with nothing in it.
-/// What changes is the axis: the highlight stops crossing the placeholder and
-/// the whole thing breathes in colour instead, which is the axis every other
-/// state in the library already uses.
 class _Sweep extends StatefulWidget {
-  const _Sweep({
-    required this.color,
-    required this.still,
-    required this.borderRadius,
-    required this.child,
-  });
+  const _Sweep({required this.builder});
 
-  final Color color;
-  final bool still;
-  final BorderRadius borderRadius;
-  final Widget child;
+  /// Builds every bar of the placeholder against the one animation.
+  final Widget Function(Animation<double> travel) builder;
 
   @override
   State<_Sweep> createState() => _SweepState();
@@ -278,56 +284,75 @@ class _SweepState extends State<_Sweep> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return RepaintBoundary(
-      child: Stack(
-        fit: StackFit.passthrough,
-        children: <Widget>[
-          widget.child,
-          Positioned.fill(
-            child: ClipRRect(
-              borderRadius: widget.borderRadius,
-              child: AnimatedBuilder(
-                animation: _travel,
-                builder: (BuildContext context, Widget? child) {
-                  if (widget.still) {
-                    // 0 → 1 → 0 across the cycle, which is the pulse's shape.
-                    final breath = 1 - (_travel.value * 2 - 1).abs();
+    return RepaintBoundary(child: widget.builder(_travel));
+  }
+}
 
-                    return DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: widget.color.withValues(alpha: widget.color.a * breath),
-                      ),
-                    );
-                  }
+/// The travelling highlight on one bar, and — where the platform has asked for
+/// less movement — the pulse that stands in for it.
+///
+/// What changes under that preference is the axis: the highlight stops crossing
+/// the placeholder and the whole thing breathes in colour instead, which is the
+/// axis every other state in the library already uses.
+///
+/// Painted in front of the bar with the bar's own corner rather than through a
+/// clip: a decoration with a radius already paints inside it.
+class _Highlight extends StatelessWidget {
+  const _Highlight({
+    required this.travel,
+    required this.color,
+    required this.still,
+    required this.borderRadius,
+    required this.child,
+  });
 
-                  final eased = PlassTokens.ease.transform(_travel.value);
+  final Animation<double> travel;
+  final Color color;
+  final bool still;
+  final BorderRadius borderRadius;
+  final Widget child;
 
-                  return DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                        colors: <Color>[
-                          widget.color.withValues(alpha: 0),
-                          widget.color,
-                          widget.color.withValues(alpha: 0),
-                        ],
-                        // The band occupies the first `_sweepWidth` of the box
-                        // and is slid across it, rather than being a child that
-                        // has to be positioned: outside its stops the clamped
-                        // tile mode extends the transparent ends, so there is
-                        // nothing to see until it arrives.
-                        stops: const <double>[0, _sweepWidth / 2, _sweepWidth],
-                        transform: _SweepShift(-_sweepWidth + eased * (1 + _sweepWidth)),
-                      ),
-                    ),
-                  );
-                },
-              ),
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: travel,
+      builder: (BuildContext context, Widget? child) {
+        if (still) {
+          // 0 → 1 → 0 across the cycle, which is the pulse's shape.
+          final breath = 1 - (travel.value * 2 - 1).abs();
+
+          return DecoratedBox(
+            position: DecorationPosition.foreground,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: color.a * breath),
+              borderRadius: borderRadius,
+            ),
+            child: child,
+          );
+        }
+
+        final eased = PlassTokens.ease.transform(travel.value);
+
+        return DecoratedBox(
+          position: DecorationPosition.foreground,
+          decoration: BoxDecoration(
+            borderRadius: borderRadius,
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: <Color>[color.withValues(alpha: 0), color, color.withValues(alpha: 0)],
+              // The band occupies the first `_sweepWidth` of the box and is slid
+              // across it, rather than being a child that has to be positioned:
+              // outside its stops the clamped tile mode extends the transparent
+              // ends, so there is nothing to see until it arrives.
+              stops: const <double>[0, _sweepWidth / 2, _sweepWidth],
+              transform: _SweepShift(-_sweepWidth + eased * (1 + _sweepWidth)),
             ),
           ),
-        ],
-      ),
+          child: child,
+        );
+      },
+      child: child,
     );
   }
 }

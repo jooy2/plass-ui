@@ -106,6 +106,40 @@ void main() {
 
         expect(find.byType(AnimatedBuilder), findsNothing);
       });
+
+      testWidgets('runs one ticker for every bar of a skeleton', (WidgetTester tester) async {
+        await tester.pumpWidget(host(const PlSkeleton(lines: 12), width: 200));
+
+        // A running ticker asks for the next frame, so the frame callbacks
+        // waiting are the tickers running.
+        expect(tester.binding.transientCallbackCount, 1);
+
+        await tester.pumpWidget(host(const SizedBox.shrink()));
+      });
+
+      testWidgets('paints the highlight inside each bar without a clip', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(const PlSkeleton(lines: 3), width: 200));
+        await tester.pump(const Duration(milliseconds: 750));
+
+        final highlights = decorationsOf(
+          tester,
+          find.byType(PlSkeleton),
+        ).where((BoxDecoration decoration) => decoration.gradient != null);
+
+        expect(
+          find.descendant(of: find.byType(PlSkeleton), matching: find.byType(ClipRRect)),
+          findsNothing,
+        );
+        expect(highlights, hasLength(3));
+        expect(
+          highlights.map((BoxDecoration decoration) => decoration.borderRadius),
+          everyElement(BorderRadius.circular(6)),
+        );
+
+        await tester.pumpWidget(host(const SizedBox.shrink()));
+      });
     });
 
     group('accessibility', () {
