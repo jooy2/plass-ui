@@ -110,12 +110,12 @@ describe('PlStepper', () => {
     });
 
     it('names the panel after the step it belongs to', async () => {
-      await render(<PlStepper active={1}>{steps}</PlStepper>);
+      const screen = await render(<PlStepper active={1}>{steps}</PlStepper>);
 
-      const panel = document.querySelector('[aria-labelledby]')!;
-      const label = document.getElementById(panel.getAttribute('aria-labelledby')!)!;
-
-      expect(label.textContent).toBe('Verify');
+      // A group, because a name on an element with no role is never read.
+      await expect
+        .element(screen.getByRole('group', { name: 'Verify' }))
+        .toHaveTextContent('Verify panel');
     });
 
     it('keeps its own place when nothing controls it', async () => {

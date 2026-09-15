@@ -242,8 +242,11 @@ export const PlStepper = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlStep
 
           {hasContent(panel) ? (
             <div
-              // Named by the step it belongs to, so a screen reader that lands
-              // in the panel is told which step it is the panel for.
+              // A group named by the step it belongs to, so a screen reader that
+              // lands in the panel is told which step it is the panel for. A
+              // name on an element with no role is never read, and a tab panel
+              // or a region would claim more than a stepper is.
+              role="group"
               aria-labelledby={`${baseId}-${active}`}
               className={cx('mt-4', sheetBodyClasses[size])}
             >

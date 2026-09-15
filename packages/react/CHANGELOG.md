@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A screen reader names the panel of a horizontal `PlStepper` after its step.** The panel carried `aria-labelledby` on a `div` with no role, and a name on such an element is never read, so moving into the panel said nothing about which step it belonged to. The panel is now a `role="group"` named by the step's label.
+
 - **An `interactive` `PlCard` no longer glides up under reduced motion.** The lift under the pointer and its shadow still eased over `--plass-duration` for a reader who had asked for less motion. Both now change at once, as in the Flutter build.
 
 - **A picker trigger measured with a `format` that writes the weekday leaves room for Friday.** The dates it measures to hold its width fell on every weekday but Friday, so the trigger could be a little narrower than a Friday needed. A Friday is now among them.
