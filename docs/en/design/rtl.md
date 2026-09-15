@@ -78,13 +78,16 @@ Almost nothing needs to. The exceptions are the places where the **thing being m
 
 ::: fw react
 
-Three, and all three read `getComputedStyle(…).direction` rather than guessing:
+Four components, and they read `getComputedStyle(…).direction` rather than guessing:
 
 - a **`PlPanes`** handle dragged with the pointer or nudged with the arrow keys. A pointer's `clientX` grows to the right in both directions, so the delta has to be turned round;
-- a **`PlSidebar`**'s resize drag, for the same reason, and the edge a collapsed one turns into a `PlDrawer` on;
-- the moving indicator in **`PlTabs`**, **`PlSegmentedButton`** and **`PlFloatingBottomNavigation`**, which is placed from `offsetLeft`, a distance from the left edge in both directions.
+- a **`PlSidebar`**'s resize drag and arrow keys, for the same reason, and the edge a collapsed one turns into a `PlDrawer` on. That edge takes the nearest `PlassProvider`'s `direction` first and asks the document only when no provider names one, because the drawer is portalled out of the subtree the provider describes;
+- a **`PlScrollZone`**, for the distance its buttons scroll and the edge it measures each child from, and for the vertical wheel it turns into a sideways scroll;
+- a horizontal **`PlTabs`** list, for the same wheel and for the fade at an end the list runs on past, which is a gradient drawn on a physical side.
 
-Base UI's own primitives read it from a **React context** instead, and that is the one thing a page has to do something about: with no provider its `useDirection()` answers `ltr` however the document is written. `PlassProvider` renders that context from the document's direction, which is why a page that set `dir` and nothing else would look right and behave the other way round.
+The moving indicator in **`PlTabs`**, **`PlSegmentedButton`** and **`PlFloatingBottomNavigation`** reads nothing. It is placed from a distance measured from the left edge, which stays one in both directions, so it keeps a physical `left` on purpose.
+
+Base UI's own primitives read it from a **React context** instead, and that is the one thing a page has to do something about: with no provider its `useDirection()` answers `ltr` however the document is written. `PlassProvider` renders that context from its own `direction`, or from the document's direction when it is given none, which is why a page that set `dir` and nothing else would look right and behave the other way round.
 
 There is one place CSS answers it instead of JavaScript, and it is the exception that proves the rule: there is no logical `translate`, so `.plass-marquee-track` flips its sign under `[dir='rtl']`.
 
