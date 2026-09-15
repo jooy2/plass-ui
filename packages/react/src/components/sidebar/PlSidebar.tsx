@@ -386,7 +386,7 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
     if (collapsed) {
       return (
         <PlDrawer
-          side={drawerSide(side)}
+          side={drawerSide(side, defaults.direction)}
           mode="overlay"
           open={open}
           onOpenChange={changeOpen}

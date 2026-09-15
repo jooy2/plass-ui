@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { belowQuery } from './breakpoints.js';
+import type { PlassDirection } from './direction.js';
 import { useMediaQuery } from './media.js';
 import type { PlassBreakpoint, PlassSide } from '../types.js';
 
@@ -182,18 +183,25 @@ export function useCollapsed(breakpoint: PlPageLayoutCollapse): boolean {
  * question and a layout flips under RTL on its own. A drawer is attached to an
  * edge of the *window*, which `PlassSide` names physically for the same reason
  * a tooltip above a button is above it in every writing direction — so the two
- * have to be translated, and the document's own direction is what translates
- * them.
+ * have to be translated.
  *
- * Read during render rather than in an effect, which is safe here for a
- * narrower reason than it looks: the only caller is a sidebar that has already
- * collapsed, and collapsing is a client-side answer. There is no server render
- * of this to disagree with.
+ * `direction` is what the nearest `PlassProvider` was told, and it wins for the
+ * reason it wins there: a provider given a direction is describing a subtree
+ * that runs the other way from the page, and a drawer is portalled out of that
+ * subtree, so the document is the one place that cannot say which way it runs.
+ * Without one, the document's own direction is the answer, as it is for the
+ * provider.
+ *
+ * The document is read during render rather than in an effect, which is safe
+ * here for a narrower reason than it looks: the only caller is a sidebar that
+ * has already collapsed, and collapsing is a client-side answer. There is no
+ * server render of this to disagree with.
  */
-export function drawerSide(side: PlassSidebarSide): PlassSide {
-  const rtl =
-    typeof document !== 'undefined' &&
-    getComputedStyle(document.documentElement).direction === 'rtl';
+export function drawerSide(side: PlassSidebarSide, direction?: PlassDirection): PlassSide {
+  const rtl = direction
+    ? direction === 'rtl'
+    : typeof document !== 'undefined' &&
+      getComputedStyle(document.documentElement).direction === 'rtl';
 
   if (side === 'start') return rtl ? 'right' : 'left';
 

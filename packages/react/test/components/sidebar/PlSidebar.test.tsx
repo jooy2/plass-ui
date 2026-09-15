@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlHeader, PlPageLayout, PlSidebar, PlSidebarTrigger } from 'plass-ui';
+import { PlassProvider, PlHeader, PlPageLayout, PlSidebar, PlSidebarTrigger } from 'plass-ui';
 import { moveMouseOntoPage } from '../../support/pointer';
 
 // The browser the suite runs in is 414px wide, so a breakpoint of `md` always
@@ -396,6 +396,36 @@ describe('PlSidebar', () => {
 
       await expect.poll(() => onOpenChange.mock.calls.length).toBeGreaterThan(0);
       expect(onOpenChange).toHaveBeenCalledWith(false);
+    });
+
+    it('opens from the start of the direction a PlassProvider names', async () => {
+      const screen = await render(
+        <PlassProvider direction="rtl">
+          <PlSidebar collapseBelow="md" open>
+            Links
+          </PlSidebar>
+        </PlassProvider>
+      );
+
+      // The document runs left to right and the subtree does not, so `start` is
+      // the right-hand edge of the window, and the panel rules its left side.
+      await expect.element(screen.getByRole('dialog')).toHaveClass('border-l');
+    });
+
+    it('opens from the start of the document without a provider that names one', async () => {
+      document.documentElement.setAttribute('dir', 'rtl');
+
+      try {
+        const screen = await render(
+          <PlSidebar collapseBelow="md" open>
+            Links
+          </PlSidebar>
+        );
+
+        await expect.element(screen.getByRole('dialog')).toHaveClass('border-l');
+      } finally {
+        document.documentElement.removeAttribute('dir');
+      }
     });
   });
 });

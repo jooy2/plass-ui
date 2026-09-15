@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A collapsed `PlSidebar` opens from the side its `PlassProvider` `direction` says.** The drawer read only the document's direction, so a `start` sidebar in a right-to-left subtree of a left-to-right page slid in from the left. It now follows the `direction` of the nearest provider, and the document's direction when no provider names one, as the Flutter build follows `Directionality`.
+
 - **A `PlCarousel` with its own `onPointerEnter` or `onFocus` still pauses `autoPlay` under the pointer and with the focus inside.** The caller's `onPointerEnter`, `onPointerLeave`, `onFocus` and `onBlur` replaced the carousel's own instead of running beside them. Passing one of them let the slides keep turning while the reader pointed at them or had tabbed into them, or kept a paused carousel from starting again. The carousel's handlers and the caller's now both run.
 
 - **A pressed `PlToggle` keeps its fill in forced-colours mode under the pointer.** In a Windows contrast theme, a pressed `glass` or `ghost` toggle is filled with the system's highlight colour, but pointing at it or holding it down repainted it in the page's colour, so it looked released for as long as the pointer was on it, with its label still in the colour meant for the highlight. It now stays filled. A `solid` toggle was not affected.
