@@ -157,12 +157,13 @@ void main() {
   });
 
   group('displaySamples', () {
-    test('holds twenty-four instants', () {
-      expect(displaySamples, hasLength(24));
+    test('holds twenty-five instants', () {
+      expect(displaySamples, hasLength(25));
     });
 
-    test('walks every month and every hour', () {
+    test('walks every month, every weekday and every hour', () {
       expect(<int>{for (final DateTime sample in displaySamples) sample.month}, hasLength(12));
+      expect(<int>{for (final DateTime sample in displaySamples) sample.weekday}, hasLength(7));
       expect(<int>{for (final DateTime sample in displaySamples) sample.hour}, hasLength(24));
     });
 

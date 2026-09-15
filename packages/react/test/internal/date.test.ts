@@ -14,6 +14,7 @@ import {
   calendarWeeks,
   compareDay,
   daysInMonth,
+  displaySamples,
   isMonthOutside,
   isYearOutside,
   makeDate,
@@ -169,5 +170,15 @@ describe('toISODate', () => {
 
   it('pads a short year to four digits', () => {
     expect(toISODate(makeDate(5, 0, 1))).toBe('0005-01-01');
+  });
+});
+
+describe('displaySamples', () => {
+  it('writes every month name', () => {
+    expect(displaySamples('en-US', { month: 'long' })).toHaveLength(12);
+  });
+
+  it('writes every weekday name', () => {
+    expect(displaySamples('en-US', { weekday: 'long' })).toHaveLength(7);
   });
 });

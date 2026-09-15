@@ -369,7 +369,7 @@ export function formatDate(
 }
 
 /**
- * Twenty-four instants that between them exercise everything a picker's display
+ * Twenty-five instants that between them exercise everything a picker's display
  * can vary by: all twelve month names, all seven weekday names, a two-digit
  * day, every hour of the clock and a two-digit minute and second.
  *
@@ -379,14 +379,18 @@ export function formatDate(
  * controls beside it shuffling along. Rendering all of these invisibly pins the
  * trigger to the widest thing it could ever say.
  *
- * Both cycles are prime to twelve in the right way — `i % 12` walks the months
- * and `i % 7` walks the days 21…27 — so every name appears without the two
- * being multiplied out into eighty-four samples.
+ * The first twenty-four walk two cycles at once — `i % 12` walks the months
+ * and `i % 7` walks the days 21…27 — so every month name appears without the
+ * two being multiplied out into eighty-four samples. The days they land on
+ * fall on every weekday but Friday, so the last instant is a Friday.
  */
-const DISPLAY_SAMPLES: Date[] = /* @__PURE__ */ Array.from(
-  { length: 24 },
-  (_, index) => new Date(2027, index % 12, 21 + (index % 7), index, 58, 58)
-);
+const DISPLAY_SAMPLES: Date[] = /* @__PURE__ */ [
+  ...Array.from(
+    { length: 24 },
+    (_, index) => new Date(2027, index % 12, 21 + (index % 7), index, 58, 58)
+  ),
+  new Date(2027, 0, 22, 12, 58, 58)
+];
 
 /**
  * Every distinct string those instants format to. Deduplicated, because a

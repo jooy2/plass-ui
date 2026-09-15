@@ -1335,9 +1335,9 @@ int yearPageStart(int year) => year - ((year % yearPageSize) + yearPageSize) % y
  * The trigger
  * ------------------------------------------------------------------------ */
 
-/// Twenty-four instants that between them exercise everything a picker's display
-/// can vary by: all twelve month names, a two-digit day, every hour of the clock
-/// and a two-digit minute and second.
+/// Twenty-five instants that between them exercise everything a picker's display
+/// can vary by: all twelve month names, all seven weekday names, a two-digit
+/// day, every hour of the clock and a two-digit minute and second.
 ///
 /// They exist to be measured, not read. A trigger is sized by its content, so
 /// `Jul 1, 2026` and `Sep 28, 2026` are different widths and the field would
@@ -1345,14 +1345,16 @@ int yearPageStart(int year) => year - ((year % yearPageSize) + yearPageSize) % y
 /// shuffling along. Laying all of these out invisibly pins the trigger to the
 /// widest thing it could ever say.
 ///
-/// Both cycles are prime to twelve in the right way — `i % 12` walks the months
-/// and `i % 7` walks the days 21…27 — so every name appears without the two
-/// being multiplied out into eighty-four samples. The four pickers share this
-/// one list, as they share `DISPLAY_SAMPLES` in the React half, so no trigger
-/// is held open against a different set from the others.
-final List<DateTime> displaySamples = List<DateTime>.unmodifiable(
-  List<DateTime>.generate(
+/// The first twenty-four walk two cycles at once — `i % 12` walks the months
+/// and `i % 7` walks the days 21…27 — so every month name appears without the
+/// two being multiplied out into eighty-four samples. The days they land on
+/// fall on every weekday but Friday, so the last instant is a Friday. The four
+/// pickers share this one list, as they share `DISPLAY_SAMPLES` in the React
+/// half, so no trigger is held open against a different set from the others.
+final List<DateTime> displaySamples = List<DateTime>.unmodifiable(<DateTime>[
+  ...List<DateTime>.generate(
     24,
     (int index) => DateTime(2027, index % 12 + 1, 21 + index % 7, index, 58, 58),
   ),
-);
+  DateTime(2027, 1, 22, 12, 58, 58),
+]);
