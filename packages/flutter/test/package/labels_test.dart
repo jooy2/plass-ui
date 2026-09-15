@@ -160,7 +160,10 @@ void main() {
       // The half that catches the *next* word rather than this week's. A key
       // added to the class and left out of [words] is a key no pack is ever
       // checked for, and no comparison between two packs can notice that.
-      final String source = File('lib/src/internal/date.dart').readAsStringSync();
+      // A Windows checkout ends its lines with CRLF, and the search below is for LF.
+      final String source = File(
+        'lib/src/internal/date.dart',
+      ).readAsStringSync().replaceAll('\r\n', '\n');
       final int opens = source.indexOf('class PlassLabels {');
       final String declared = source.substring(opens, source.indexOf('\n}\n', opens));
 
