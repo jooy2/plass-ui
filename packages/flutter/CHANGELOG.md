@@ -66,6 +66,8 @@
 
 ### Fixed
 
+- **A `PlTabs` bar with more tabs than room opens with the chosen tab in view.** A bar whose `value` was a tab past the end of the strip opened scrolled to the start, so on a narrow screen nothing showed which tab was open. The strip now moves just far enough to show the chosen tab as the bar is first laid out, without animating and without scrolling anything around it.
+
 - **A `PlBottomNavigation` with no `onChanged` still marks the current destination.** Leaving the callback out took the wash and the colour off the current item along with the press, so a bar the app drives from elsewhere showed no destination as current. The current one now keeps its wash and its colour, and no item takes a press, as before.
 
 - **A `PlCommandPalette` row says its name once.** Each row carried its label as a semantics label on top of the text that drew it, so a screen reader read "Open" as "Open Open" and "Copy" as "Copy Copy Put it on the clipboard". A row is now one node named by what it draws, the label and then the description and the keys of the shortcut, as in the React build. A disabled row is still announced as a disabled button.

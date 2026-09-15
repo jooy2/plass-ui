@@ -229,6 +229,61 @@ void main() {
         expect(find.byType(SingleChildScrollView), findsNothing);
       });
 
+      testWidgets('opens with the chosen tab in view, moving only the bar', (
+        WidgetTester tester,
+      ) async {
+        final outer = ScrollController();
+        addTearDown(outer.dispose);
+
+        // Below the fold of something that scrolls, where a reveal that walked
+        // every scrollable up to the page would move the page to the bar.
+        await tester.pumpWidget(
+          host(
+            SingleChildScrollView(
+              controller: outer,
+              child: const Column(
+                children: <Widget>[
+                  SizedBox(height: 600),
+                  PlTabs<String>(tabs: many, value: 'g'),
+                ],
+              ),
+            ),
+            width: 240,
+            height: 200,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final Rect bar = tester.getRect(
+          find.descendant(
+            of: find.byType(PlTabs<String>),
+            matching: find.byType(SingleChildScrollView),
+          ),
+        );
+        final Rect tab = tester.getRect(find.text('Notifications'));
+
+        expect(tab.left, greaterThanOrEqualTo(bar.left));
+        expect(tab.right, lessThanOrEqualTo(bar.right));
+        expect(outer.offset, 0);
+      });
+
+      testWidgets('opens with the chosen tab in view under RTL', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            const PlTabs<String>(tabs: many, value: 'g'),
+            width: 240,
+            textDirection: TextDirection.rtl,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final Rect bar = tester.getRect(find.byType(SingleChildScrollView));
+        final Rect tab = tester.getRect(find.text('Notifications'));
+
+        expect(tab.left, greaterThanOrEqualTo(bar.left));
+        expect(tab.right, lessThanOrEqualTo(bar.right));
+      });
+
       group('the wheel', () {
         /// The bar's own scroller, which is not the only one on screen once the
         /// bar is inside something that scrolls.

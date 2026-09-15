@@ -1,6 +1,7 @@
 /// A bar of tabs, and the panel under whichever one is chosen.
 library;
 
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -394,7 +395,12 @@ class _PlTabsState<T> extends State<PlTabs<T>> with PlassRovingStop<PlTabs<T>> {
     // travels with the tabs — the edge belongs to the bar rather than to what
     // is in it.
     if (!_vertical) {
-      strip = _EdgeFade(wheel: widget.wheel, overscroll: widget.overscroll, child: strip);
+      strip = _EdgeFade(
+        wheel: widget.wheel,
+        overscroll: widget.overscroll,
+        reveal: chosen >= 0 ? _keys[chosen] : null,
+        child: strip,
+      );
     }
 
     if (solid) {
@@ -471,13 +477,21 @@ class _PlTabsState<T> extends State<PlTabs<T>> with PlassRovingStop<PlTabs<T>> {
 /// The mask is skipped entirely while both ends are settled, so a bar whose tabs
 /// all fit pays for no compositing layer at all.
 class _EdgeFade extends StatefulWidget {
-  const _EdgeFade({required this.wheel, required this.overscroll, required this.child});
+  const _EdgeFade({
+    required this.wheel,
+    required this.overscroll,
+    required this.reveal,
+    required this.child,
+  });
 
   /// Whether a wheel that points across the bar moves it along.
   final bool wheel;
 
   /// What the bar does with a wheel it has run out of tabs for.
   final PlassOverscroll overscroll;
+
+  /// The chosen tab, brought into view as the bar is first laid out.
+  final GlobalKey? reveal;
 
   final Widget child;
 
@@ -488,6 +502,11 @@ class _EdgeFade extends StatefulWidget {
 class _EdgeFadeState extends State<_EdgeFade> {
   final ScrollController _controller = ScrollController();
 
+  /// Keeps the scroller when the mask comes or goes around it. Rebuilt at the
+  /// new depth instead, it would start again from the first tab, which undid
+  /// [_reveal] as soon as the move it made put the mask on.
+  final GlobalKey _scroller = GlobalKey();
+
   bool _start = false;
   bool _end = false;
 
@@ -495,7 +514,44 @@ class _EdgeFadeState extends State<_EdgeFade> {
   void initState() {
     super.initState();
     _controller.addListener(_onScroll);
-    WidgetsBinding.instance.addPostFrameCallback((Duration _) => _onScroll());
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      _reveal();
+      _onScroll();
+    });
+  }
+
+  /// Brings the chosen tab into the strip as the bar is first laid out.
+  ///
+  /// A bar that opens on a tab it has scrolled out of sight does not say which
+  /// tab is open. Only this strip moves: [Scrollable.ensureVisible] would move
+  /// every scrollable around the bar as well, the page included. It jumps
+  /// rather than animates, and moves the least it can, as the React bar does:
+  /// not at all while the tab already shows, and otherwise just far enough to
+  /// bring the tab's nearer edge to the edge of the strip.
+  void _reveal() {
+    if (!mounted || !_controller.hasClients) {
+      return;
+    }
+
+    final RenderObject? tab = widget.reveal?.currentContext?.findRenderObject();
+
+    if (tab == null) {
+      return;
+    }
+
+    final ScrollPosition position = _controller.position;
+    final RenderAbstractViewport viewport = RenderAbstractViewport.of(tab);
+    // The offsets that put the tab flush against the leading edge and flush
+    // against the trailing one. Anywhere between the two, all of it is in view.
+    final double leading = viewport.getOffsetToReveal(tab, 0).offset;
+    final double trailing = viewport.getOffsetToReveal(tab, 1).offset;
+    final double target = position.pixels
+        .clamp(trailing < leading ? trailing : leading, leading)
+        .clamp(position.minScrollExtent, position.maxScrollExtent);
+
+    if (target != position.pixels) {
+      position.jumpTo(target);
+    }
   }
 
   @override
@@ -539,6 +595,7 @@ class _EdgeFadeState extends State<_EdgeFade> {
     // that is the case a scroll listener cannot see. The notification is
     // dispatched after the frame it belongs to, so this may set state directly.
     Widget strip = NotificationListener<ScrollMetricsNotification>(
+      key: _scroller,
       onNotification: (ScrollMetricsNotification notification) {
         _read(notification.metrics);
 
