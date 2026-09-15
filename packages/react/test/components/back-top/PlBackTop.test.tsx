@@ -128,6 +128,28 @@ describe('PlBackTop', () => {
       await expect.poll(() => panel().scrollTop).toBe(0);
     });
 
+    it('moves at once when the reader has asked for less motion', async () => {
+      await emulateMedia({ reducedMotion: 'reduce' });
+
+      try {
+        await render(<Panel visibilityHeight={100} />);
+
+        await scrollTo(900, false);
+
+        const scroll = vi.spyOn(panel(), 'scrollTo');
+
+        button().click();
+
+        // `instant` rather than `auto`, which a page's `scroll-behavior: smooth`
+        // would still turn into a slide.
+        expect(scroll).toHaveBeenCalledWith(
+          expect.objectContaining({ top: 0, behavior: 'instant' })
+        );
+      } finally {
+        await emulateMedia({ reducedMotion: 'no-preference' });
+      }
+    });
+
     it('hands the focus to the top of the panel rather than keeping it on a hidden button', async () => {
       function Linked() {
         const ref = React.useRef<HTMLDivElement>(null);

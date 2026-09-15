@@ -346,13 +346,14 @@ export function PlTour({
 
     if (scrollIntoView) {
       // A reader who has asked for less motion is taken to the target rather
-      // than carried past the page on the way to it.
+      // than carried past the page on the way to it. `instant` rather than
+      // `auto`, which would follow a page's own `scroll-behavior: smooth`.
       const still = window.matchMedia?.(reducedMotionQuery).matches;
 
       element.scrollIntoView({
         block: 'center',
         inline: 'nearest',
-        behavior: still ? 'auto' : 'smooth'
+        behavior: still ? 'instant' : 'smooth'
       });
     }
 

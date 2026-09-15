@@ -263,7 +263,7 @@ describe('PlTour', () => {
         const calls = await scrolled();
 
         expect(calls).toContainEqual(
-          expect.objectContaining({ block: 'center', behavior: 'auto' })
+          expect.objectContaining({ block: 'center', behavior: 'instant' })
         );
         expect(calls).not.toContainEqual(expect.objectContaining({ behavior: 'smooth' }));
       } finally {

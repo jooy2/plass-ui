@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlScrollZone } from 'plass-ui';
+import { emulateMedia } from '../../support/media';
 import { moveMouseOntoPage } from '../../support/pointer';
 
 /*
@@ -621,6 +622,23 @@ describe('PlScrollZone', () => {
       // The second card starts 300px plus the default gutter along, and that is
       // the offset the component measured rather than one it assumed.
       expect(scrollBy).toHaveBeenCalledWith(expect.objectContaining({ left: 308 }));
+    });
+
+    it('moves at once when the reader has asked for less motion', async () => {
+      await emulateMedia({ reducedMotion: 'reduce' });
+
+      try {
+        const screen = await render(<PlScrollZone data-testid="zone">{cards}</PlScrollZone>);
+        const scrollBy = vi.spyOn(scroller(screen), 'scrollBy');
+
+        await screen.getByRole('button', { name: 'Next' }).click();
+
+        // `instant` rather than `auto`, which a `scroll-behavior: smooth` on the
+        // strip would still turn into a slide.
+        expect(scrollBy).toHaveBeenCalledWith(expect.objectContaining({ behavior: 'instant' }));
+      } finally {
+        await emulateMedia({ reducedMotion: 'no-preference' });
+      }
     });
 
     it('moves by more than one when it is asked to', async () => {

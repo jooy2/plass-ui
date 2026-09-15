@@ -194,11 +194,15 @@ const DRAG_THRESHOLD = 4;
 /** Under this, a press in `hold` mode was a tap and moves one item instead. */
 const TAP_MS = 140;
 
-/** A reader who has asked for less motion gets the cut rather than the travel. */
+/**
+ * A reader who has asked for less motion gets the cut rather than the travel.
+ * `instant` rather than `auto`, which would follow a `scroll-behavior: smooth`
+ * set on the strip.
+ */
 function scrollBehavior(): ScrollBehavior {
   return typeof window !== 'undefined' &&
     window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-    ? 'auto'
+    ? 'instant'
     : 'smooth';
 }
 

@@ -138,7 +138,9 @@ export const PlBackTop = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlB
 
       const node = resolveScrollTarget(target);
 
-      node?.scrollTo({ top: 0, behavior: still ? 'auto' : 'smooth' });
+      // `instant` rather than `auto` for a reader who has asked for less motion,
+      // because `auto` follows the page's own `scroll-behavior: smooth`.
+      node?.scrollTo({ top: 0, behavior: still ? 'instant' : 'smooth' });
 
       // The button hides itself on the way up while it still holds the focus,
       // and the next Tab from a hidden button goes to the end of the page and
