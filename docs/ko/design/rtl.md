@@ -132,5 +132,5 @@ Directionality(textDirection: TextDirection.rtl, child: screen);
 
 ## Notes
 
-- 라이브러리는 번역을 싣지 않습니다. `PlTable`의 `empty`, `PlPagination`의 label들, `PlAlert`의 `closeLabel`, picker들의 `labels`는 전부 평범한 prop이고, 앱 전역 기본값이 picker 어휘를 한 번에 정합니다. 번역을 싣는 라이브러리는 페이지가 무슨 언어인지 들어야 하는데, 페이지는 이미 알고 있습니다.
+- 말과 방향은 서로 다른 자리에서 정합니다. label 묶음 일곱 개가 함께 배포되고, `labels` 하나가 라이브러리가 하는 말 전부를 한 번에 뒤집습니다. 그 설정이 [말 번역하기](../guide/locales)입니다. 묶음에는 방향이 없고 일곱 개 중 오른쪽에서 왼쪽으로 읽는 언어도 없으니, 아랍어나 히브리어 인터페이스는 자기 `labels`를 넘기고 배치는 이 페이지 위쪽이 설명하는 방식으로 뒤집습니다.
 - `locale` 기본값은 날짜 · 시간 · 숫자 컴포넌트에 닿습니다. 방향은 설정하지 않습니다. React에서는 문서의 것이고 Flutter에서는 앱의 것이며, 컴포넌트 라이브러리가 그중 어느 쪽에도 무언가를 쓸 이유는 없습니다.

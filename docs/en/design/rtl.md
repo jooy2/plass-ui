@@ -132,5 +132,5 @@ A component that gets it wrong is a bug. Both packages carry a test for it, in t
 
 ## Notes
 
-- The library ships no translations. `PlTable`'s `empty`, `PlPagination`'s labels, `PlAlert`'s `closeLabel` and the pickers' `labels` are plain props, and the app-wide defaults set the picker vocabulary once. A library that shipped translations would have to be told which language a page is in, and the page already knows.
+- The words and the direction are set in different places. Seven label packs ship, and `labels` turns every word the library says over at once; [Translating the words](../guide/locales) is that setting. A pack carries no direction, and none of the seven is a right-to-left language, so an Arabic or Hebrew interface passes `labels` of its own and turns the layout over the way the top of this page describes.
 - The `locale` default reaches the date, time and number components. It does not set the direction, that belongs to the document in React and to the app in Flutter, and a component library has no business writing on either.
