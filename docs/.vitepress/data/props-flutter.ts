@@ -313,7 +313,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       duration: 'Duration(milliseconds: 3000)',
       repeat: 'null',
       omit: ['alternate']
-    }).map((row) => (row.name === 'curve' ? { ...row, type: 'Curve' } : row)),
+    }).map((row) =>
+      row.name === 'curve' ? { ...row, type: 'Curve', default: 'Curves.easeInOut' } : row
+    ),
     {
       name: 'child',
       type: 'Widget',
