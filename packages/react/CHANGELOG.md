@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A `PlTransfer` row that leaves `items` and comes back is no longer still ticked.** The ticks were kept for the life of the component, so a value that left and came back returned ticked, with its arrow pressable. The ticks of values that leave `items` are now dropped, as in the Flutter build.
+
 - **`registerLanguage` also replaces a name the library reads as an alias.** A name such as `vue`, `html` or `svelte` was turned into the language it stands for before the registered grammars were checked, so after `registerLanguage('vue', vue)` a `language="vue"` block was still coloured as XML. A registered name is now looked up first, as the documentation already said, and the bar shows that name.
 
 - **A `PlCodeBlock` whose `title` is an element names its code region after that title.** Only a string could become the region's `aria-label`, so `title={<code>src/index.ts</code>}` left a focus stop with no name. The region now takes its name from the title the bar draws, through `aria-labelledby`, and a string title keeps the name it had. With `toolbar={false}`, a string title still names the region and any other title falls back to the language, then `codeLabel`.

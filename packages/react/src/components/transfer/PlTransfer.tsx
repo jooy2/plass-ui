@@ -304,6 +304,22 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
     const selected = value ?? uncontrolled;
 
     const [ticked, setTicked] = React.useState<ReadonlySet<string>>(() => new Set());
+
+    /*
+     * A tick says "this row moves on the next press", and a row that has left
+     * `items` is not going to move. Nothing reads a tick without narrowing to
+     * the rows first, so an abandoned one draws nothing and counts for nothing
+     * — until the value comes back, and comes back ticked with its arrow
+     * pressable. So a render that finds a tick with no row drops it, and React
+     * renders again before anything is painted; a render that finds none sets
+     * no state.
+     */
+    const present = React.useMemo(() => new Set(items.map((item) => item.value)), [items]);
+
+    if ([...ticked].some((item) => !present.has(item))) {
+      setTicked(new Set([...ticked].filter((item) => present.has(item))));
+    }
+
     const [sourceSearch, setSourceSearch] = React.useState('');
     const [targetSearch, setTargetSearch] = React.useState('');
 

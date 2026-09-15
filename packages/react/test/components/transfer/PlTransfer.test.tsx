@@ -220,6 +220,26 @@ describe('PlTransfer', () => {
       // now, and the tick went with the press whether or not it was accepted.
       await expect.element(screen.getByText('0/4')).toBeVisible();
     });
+
+    it('drops the tick of a row whose item is gone', async () => {
+      const screen = await render(<PlTransfer items={items} />);
+
+      press(screen.getByRole('checkbox', { name: 'Role' }).element());
+
+      await expect.element(screen.getByText('1/4')).toBeVisible();
+
+      await screen.rerender(<PlTransfer items={items.filter((item) => item.value !== 'role')} />);
+      await expect.element(screen.getByText('0/3')).toBeVisible();
+
+      await screen.rerender(<PlTransfer items={items} />);
+
+      // The row is back, and it is not still waiting to be moved.
+      await expect.element(screen.getByText('0/4')).toBeVisible();
+      expect(
+        screen.getByRole('checkbox', { name: 'Role' }).element().getAttribute('aria-checked')
+      ).toBe('false');
+      expect(screen.getByRole('button', { name: 'Move to selected' }).element()).toBeDisabled();
+    });
   });
 
   describe('the heading tick', () => {
