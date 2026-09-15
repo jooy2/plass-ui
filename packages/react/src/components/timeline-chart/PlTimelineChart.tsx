@@ -420,7 +420,8 @@ interface TableProps {
  * Two rows of a Gantt have no columns in common: the third thing on one row and
  * the third thing on another are unrelated, so filing them side by side would
  * be inventing a relationship. Each span gets a line of its own, under the name
- * of the row it belongs to.
+ * of the row it belongs to. A span whose start or end is not a time is not on
+ * the chart, so it gets none, rather than a line with nothing in it.
  */
 function TimelineTable({
   id,
@@ -436,7 +437,8 @@ function TimelineTable({
   const words = useLabels();
   const titled = spans.some((row, index) =>
     row.some(
-      (one, at) => (!one || inWindow(one, scale)) && series[index].data[at]?.label !== undefined
+      (one, at) =>
+        one !== null && inWindow(one, scale) && series[index].data[at]?.label !== undefined
     )
   );
 
@@ -454,12 +456,12 @@ function TimelineTable({
       <tbody>
         {spans.flatMap((row, index) =>
           row.map((one, at) =>
-            one && !inWindow(one, scale) ? null : (
+            !one || !inWindow(one, scale) ? null : (
               <tr key={`${index}-${at}`}>
                 <th scope="row">{names[index]}</th>
                 {titled ? <td>{series[index].data[at]?.label ?? ''}</td> : null}
-                <td>{one ? formatTimeValue(one.from, scale.unit, locale, withDate) : ''}</td>
-                <td>{one ? formatTimeValue(one.to, scale.unit, locale, withDate) : ''}</td>
+                <td>{formatTimeValue(one.from, scale.unit, locale, withDate)}</td>
+                <td>{formatTimeValue(one.to, scale.unit, locale, withDate)}</td>
               </tr>
             )
           )

@@ -339,5 +339,32 @@ describe('PlTimelineChart', () => {
       await expect.element(screen.getByRole('table', { name: 'Plan' })).toBeInTheDocument();
       expect(screen.getByRole('columnheader', { name: 'label' }).query()).toBeNull();
     });
+
+    it('leaves out a span whose start or end is not a time', async () => {
+      const screen = await render(
+        <PlTimelineChart
+          label="Plan"
+          series={[
+            {
+              name: 'Design',
+              data: [
+                { start: 'soon' as never, end: at(9), label: 'Someday' },
+                { start: at(2), end: at(6) }
+              ]
+            }
+          ]}
+        />
+      );
+      const table = screen.getByRole('table', { name: 'Plan' });
+
+      await expect.element(table).toBeInTheDocument();
+
+      // Not a row with empty times, and its label gives the table no column.
+      const rows = [...table.element().querySelectorAll('tbody tr')];
+
+      expect(rows.length).toBe(1);
+      expect([...rows[0].querySelectorAll('td')].map((cell) => cell.textContent)).not.toContain('');
+      expect(screen.getByRole('columnheader', { name: 'label' }).query()).toBeNull();
+    });
   });
 });

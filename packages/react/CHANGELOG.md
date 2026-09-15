@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A `PlTimelineChart` span whose start or end is not a time has no row in the table.** Such a span is not drawn, but the hidden table gave it a row with an empty start and end, which a screen reader read out, and a label only that span carried added a label column. It is now left out of the table, as it is left out of the marks.
+
 - **A `PlTransfer` row that leaves `items` and comes back is no longer still ticked.** The ticks were kept for the life of the component, so a value that left and came back returned ticked, with its arrow pressable. The ticks of values that leave `items` are now dropped, as in the Flutter build.
 
 - **`registerLanguage` also replaces a name the library reads as an alias.** A name such as `vue`, `html` or `svelte` was turned into the language it stands for before the registered grammars were checked, so after `registerLanguage('vue', vue)` a `language="vue"` block was still coloured as XML. A registered name is now looked up first, as the documentation already said, and the bar shows that name.
