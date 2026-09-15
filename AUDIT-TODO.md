@@ -2,7 +2,7 @@
 
 The findings of a full audit of both packages, the documentation site and the repository, taken at `148a20e4` on 2026-09-13, and how far fixing them has got. The work goes in batches of twenty. When every item below is ticked, delete this file in a commit of its own.
 
-**289 of 372 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
+**290 of 372 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ## Working through a batch
 
@@ -1059,7 +1059,7 @@ None. Every flagged item passed over so far is asked above.
   - Location: `CLAUDE.md:175`, `docs/public/llms.txt:136`, `:137`
   - Problem: Both components have already moved to `--plass-track` (`PlSlider.tsx:100-118`, `PlSwitch.tsx:99-160`), and the switch thumb is white, not `--plass-surface`. Only the segmented button still uses `--plass-well`.
   - Proposal: Update the three places to match the current implementation.
-- [ ] **316.** Three claims in the vNext Documentation entries of the React `CHANGELOG.md` are false (Docs · Docs · Low)
+- [x] **316.** Three claims in the vNext Documentation entries of the React `CHANGELOG.md` are false (Docs · Docs · Low)
   - Location: `packages/react/CHANGELOG.md:67`, `:69`, `:71`
   - Problem: The rule it cites as "the heading form that CONTRIBUTING.md requires" is not in CONTRIBUTING. "133 previews" is actually 130. It says em dashes remain only in table cells, but 53 lines outside tables in `docs/en` still have them.
   - Proposal: Remove the sentence that cites the source, and make the number and the em dash sentence match the facts.
