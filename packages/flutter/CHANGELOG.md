@@ -66,6 +66,8 @@
 
 ### Fixed
 
+- **A `PlBottomNavigation` with no `onChanged` still marks the current destination.** Leaving the callback out took the wash and the colour off the current item along with the press, so a bar the app drives from elsewhere showed no destination as current. The current one now keeps its wash and its colour, and no item takes a press, as before.
+
 - **A `PlCommandPalette` row says its name once.** Each row carried its label as a semantics label on top of the text that drew it, so a screen reader read "Open" as "Open Open" and "Copy" as "Copy Copy Put it on the clipboard". A row is now one node named by what it draws, the label and then the description and the keys of the shortcut, as in the React build. A disabled row is still announced as a disabled button.
 
 - **A closing `PlAccordion` section keeps its body until the panel has closed.** The body vanished the moment `value` stopped holding the section, and only the empty space it left shrank. It now stays on screen, cut off by the shrinking panel, as it is revealed while the panel opens, and it cannot take the focus or be read out while it closes.

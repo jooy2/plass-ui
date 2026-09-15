@@ -173,6 +173,33 @@ void main() {
         expect(find.text('Search'), findsOneWidget);
       });
 
+      testWidgets('still marks the current destination with no callback', (
+        WidgetTester tester,
+      ) async {
+        Color? washOf(String label) {
+          final DecoratedBox box = tester.widget<DecoratedBox>(
+            find.ancestor(of: find.text(label), matching: find.byType(DecoratedBox)).first,
+          );
+
+          return (box.decoration as BoxDecoration).color;
+        }
+
+        await tester.pumpWidget(host(const _Harness(), width: 360));
+
+        final Color? wash = washOf('Home');
+        final Color? ink = styleOf(tester, 'Home').color;
+
+        await tester.pumpWidget(
+          host(const PlBottomNavigation<String>(items: _items, value: 'home'), width: 360),
+        );
+
+        // Frozen is not unmarked: the app driving the bar from somewhere else
+        // still says which destination is current.
+        expect(wash, isNotNull);
+        expect(washOf('Home'), wash);
+        expect(styleOf(tester, 'Home').color, ink);
+      });
+
       testWidgets('does not answer an unavailable destination', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(

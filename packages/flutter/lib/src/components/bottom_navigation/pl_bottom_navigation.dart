@@ -265,7 +265,11 @@ class PlBottomNavigation<T> extends StatelessWidget {
     final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
 
     final PlassColorFamily family = tokens.family(color);
-    final bool unavailable = disabled || item.disabled || onChanged == null;
+    final bool unavailable = disabled || item.disabled;
+    // With no `onChanged` the bar is frozen rather than unavailable: nothing in
+    // it answers a press, and the destination the app says is current is still
+    // drawn as current.
+    final bool interactive = !unavailable && onChanged != null;
     final bool selected = value != null && value == item.value;
     final bool named =
         labels == PlBottomNavigationLabels.all ||
@@ -274,9 +278,9 @@ class PlBottomNavigation<T> extends StatelessWidget {
     final BorderRadius radius = BorderRadius.circular(PlassTokens.radius[size]!);
 
     return PlassInteractive(
-      enabled: !unavailable,
-      interactive: !unavailable,
-      cursor: unavailable ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
+      enabled: interactive,
+      interactive: interactive,
+      cursor: interactive ? SystemMouseCursors.click : SystemMouseCursors.forbidden,
       onTap: () => onChanged?.call(item.value),
       builder: (BuildContext context, PlassInteraction state) {
         final Color ink = unavailable
@@ -343,10 +347,10 @@ class PlBottomNavigation<T> extends StatelessWidget {
 
         return Semantics(
           button: true,
-          enabled: !unavailable,
+          enabled: interactive,
           selected: selected,
           label: item.label,
-          onTap: unavailable ? null : () => onChanged?.call(item.value),
+          onTap: interactive ? () => onChanged?.call(item.value) : null,
           child: ExcludeSemantics(child: content),
         );
       },
