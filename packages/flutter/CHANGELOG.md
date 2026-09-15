@@ -336,6 +336,8 @@
 
 ### Documentation
 
+- **The calendar page no longer promises Flutter a grid role or a year step on Shift.** Its Accessibility section said, for both packages, that the calendar is a `role="grid"` and that Shift with PageUp or PageDown moves by a year. Both are React behaviour. The Flutter half now says what the widget does: each cell is a button, and a blocked day keeps its focus node and is announced as unavailable.
+
 - **The card page no longer says Flutter has no heading depth.** Its differences table said Flutter's semantics tree has a heading flag and no depth, but `Semantics.headingLevel` exists, and `PlTypography` already uses it. The table and the Accessibility section now point to `PlCard.headingLevel`.
 
 - **The code block page no longer promises Flutter a focusable code region.** Its Accessibility section said, for both packages, that the code is a focus stop named after `title`, that Mod+A selects only the block, and that the line numbers stay out of the selection. All three are React behaviour. The Flutter half now says what the widget does: the code is a semantics node named after `codeLabel`, the language or the word for code, with no focus stop and no select-all of its own.
