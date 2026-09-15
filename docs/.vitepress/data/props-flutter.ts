@@ -1867,7 +1867,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlCodeBlock', 'copiedLabel', { type: 'String?', default: "'Copied'" }),
     from('PlCodeBlock', 'copyFailedLabel', { type: 'String?', default: "'Could not copy'" }),
     from('PlCodeBlock', 'rawLabel', { type: 'String?', default: "'Raw'" }),
-    from('PlCodeBlock', 'codeLabel', { type: 'String?', default: "'Code'" }),
+    from('PlCodeBlock', 'codeLabel', {
+      type: 'String?',
+      default: "'Code'",
+      description: {
+        ko: 'language가 없을 때 코드를 부르는 이름. 주지 않으면 라벨 팩의 낱말이고, title은 어느 경우에도 이름이 되지 않습니다',
+        en: "What the code is called when there is no language. Left out, it is the label pack's word, and a title never names the code"
+      }
+    }),
     from('PlCodeBlock', 'onCopy', { name: 'onCopy', type: 'ValueChanged<String>?' }),
     from('PlCodeBlock', 'size', { type: SIZE, default: 'PlassSize.md' }),
     from('PlCodeBlock', 'color', { type: COLOR, default: 'PlassColor.primary' }),

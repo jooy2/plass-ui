@@ -222,7 +222,7 @@ Scrolled sideways, the gutter and the prompts stay put: the rows are as wide as 
 
 ::: fw react
 
-- The code is a **focusable region** with a name, the `title`, then the language, then the word for code. A scrollable region has to be reachable by a keyboard that has no pointer to drag with, and a focusable region has to have a name.
+- The code is a **focusable region** with a name, the `title`, then the language, then `codeLabel`, then the word for code. A scrollable region has to be reachable by a keyboard that has no pointer to drag with, and a focusable region has to have a name.
 - <kbd>Mod</kbd> + <kbd>A</kbd> inside the block selects **the block**, not the page around it. The browser's own answer is never what a reader who tabbed to a code listing was after.
 - The numbers and the prompts are outside the selection for the same reason they are outside the clipboard: there is nothing there to select.
 - The copy button changes its own label, which a screen reader reading the page rather than the button would never hear, so the block also announces it through an `aria-live` region, one word long.

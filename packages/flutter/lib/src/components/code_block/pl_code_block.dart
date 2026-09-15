@@ -720,7 +720,7 @@ class PlCodeBlock extends StatefulWidget {
   /// The raw toggle's label.
   final String? rawLabel;
 
-  /// What the block is called when it has neither a title nor a language.
+  /// What the code is called when it has no language. A [title] never names it.
   final String? codeLabel;
 
   /// Fires with the copied text once the clipboard has taken it.

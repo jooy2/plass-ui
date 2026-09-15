@@ -14148,8 +14148,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'string',
       default: "'Code'",
       description: {
-        ko: 'title도 language도 없을 때 영역의 이름',
-        en: 'What the region is called when there is neither a title nor a language'
+        ko: 'language가 없고 이름이 될 title도 없을 때 영역을 부르는 이름. toolbar가 꺼져 있으면 요소로 준 title은 이름이 되지 않습니다',
+        en: 'What the region is called when there is no language and no title to name it. A title given as an element names nothing while toolbar is off'
       }
     },
     {

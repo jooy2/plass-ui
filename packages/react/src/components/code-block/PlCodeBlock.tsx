@@ -179,7 +179,12 @@ export interface PlCodeBlockProps extends Omit<
   copyFailedLabel?: string;
   /** The raw toggle's label. @default 'Raw' */
   rawLabel?: string;
-  /** What the region is called when there is neither a title nor a language. @default 'Code' */
+  /**
+   * What the region is called when there is no language and no title to name
+   * it, which is also the case for a `title` that is an element while `toolbar`
+   * is off.
+   * @default 'Code'
+   */
   codeLabel?: string;
   /** Fires with the copied text once the clipboard has taken it. */
   onCopy?: (code: string) => void;
