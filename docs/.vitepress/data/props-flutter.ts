@@ -45,12 +45,12 @@ function from(component: string, name: string, patch: Partial<PropRow> = {}): Pr
 function sharedProps(component: string): PropRow[] {
   return [
     from(component, 'variant', { type: VARIANT, default: 'PlassVariant.solid' }),
-    from(component, 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from(component, 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from(component, 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from(component, 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
     // `default` is a reserved word in Dart, so the value that is called
     // `'default'` in React is `standard` here. The one renamed enum value in
     // the package.
-    from(component, 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from(component, 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from(component, 'elevation', { type: 'int', default: '1' })
   ];
 }
@@ -75,15 +75,15 @@ function groupedAxes(component: string, options: { elevation: string }): PropRow
 /** What a key cap and the strip of them are both made of. */
 const capProps: PropRow[] = [
   from('PlKbd', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-  from('PlKbd', 'size', { type: SIZE, default: 'PlassSize.md' }),
+  from('PlKbd', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
   {
     name: 'color',
-    type: COLOR,
+    type: `${COLOR}?`,
     default: 'PlassColor.secondary',
     shared: true,
     description: { ko: '의미론적 색 역할', en: 'Semantic colour role' }
   },
-  from('PlKbd', 'density', { type: DENSITY, default: 'PlassDensity.compact' }),
+  from('PlKbd', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.compact' }),
   {
     name: 'elevation',
     type: 'int',
@@ -271,9 +271,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }),
     from('PlAccordion', 'multiple', { type: 'bool', default: 'false' }),
     from('PlAccordion', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlAccordion', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlAccordion', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlAccordion', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlAccordion', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlAccordion', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlAccordion', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlAccordion', 'elevation', { type: 'int', default: '0' }),
     from('PlAccordion', 'dividers', { type: 'bool', default: 'true' }),
     from('PlAccordion', 'disabled', { type: 'bool', default: 'false' })
@@ -383,9 +383,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
   ],
 
   PlAnimateLighting: [
-    from('PlAnimateLighting', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlAnimateLighting', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
     from('PlAnimateLighting', 'glow', { type: 'Color?' }),
-    from('PlAnimateLighting', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlAnimateLighting', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
     from('PlAnimateLighting', 'spread', { type: 'double', default: '3' }),
     from('PlAnimateLighting', 'arc', { type: 'double', default: '50' }),
     from('PlAnimateLighting', 'blur', { type: 'double', default: '5' }),
@@ -731,9 +731,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
 
   PlAlert: [
     from('PlAlert', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlAlert', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlAlert', 'color', { type: COLOR, default: 'PlassColor.info' }),
-    from('PlAlert', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlAlert', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlAlert', 'color', { type: `${COLOR}?`, default: 'PlassColor.info' }),
+    from('PlAlert', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlAlert', 'elevation', { type: 'int', default: '0' }),
     from('PlAlert', 'title', { type: 'Widget?' }),
     from('PlAlert', 'icon', { type: 'Widget?' }),
@@ -773,8 +773,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'Makes the logo the way back to the front screen. Null draws the same logo and presses nothing'
       }
     }),
-    from('PlAppLogo', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlAppLogo', 'color', { type: COLOR, default: 'PlassColor.primary' })
+    from('PlAppLogo', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlAppLogo', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' })
   ],
 
   PlAnchor: [
@@ -796,8 +796,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'String?',
       default: "'On this page'"
     }),
-    from('PlAnchor', 'size', { type: SIZE, default: 'PlassSize.sm' }),
-    from('PlAnchor', 'color', { type: COLOR, default: 'PlassColor.primary' })
+    from('PlAnchor', 'size', { type: `${SIZE}?`, default: 'PlassSize.sm' }),
+    from('PlAnchor', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' })
   ],
 
   PlAnchorItem: [
@@ -833,7 +833,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlAspectRatio', 'rounded', { type: 'bool', default: 'false' }),
-    from('PlAspectRatio', 'size', { type: SIZE, default: 'PlassSize.md' })
+    from('PlAspectRatio', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' })
   ],
 
   PlAvatar: [
@@ -858,9 +858,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
 
   PlBadge: [
     from('PlBadge', 'variant', { type: VARIANT, default: 'PlassVariant.solid' }),
-    from('PlBadge', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlBadge', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlBadge', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlBadge', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlBadge', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlBadge', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlBadge', 'elevation', { type: 'int', default: '0' }),
     from('PlBadge', 'content', {
       type: 'Widget?',
@@ -910,9 +910,12 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlBottomNavigation', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlBottomNavigation', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlBottomNavigation', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlBottomNavigation', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlBottomNavigation', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlBottomNavigation', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlBottomNavigation', 'density', {
+      type: `${DENSITY}?`,
+      default: 'PlassDensity.standard'
+    }),
     from('PlBottomNavigation', 'elevation', { type: 'int', default: '0' }),
     from('PlBottomNavigation', 'labels', {
       type: 'PlBottomNavigationLabels',
@@ -949,9 +952,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'The steps, as a list of descriptions rather than children — the trail has to reason about which step is current and what a fold removes, and a Widget cannot be asked'
       }
     },
-    from('PlBreadcrumb', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlBreadcrumb', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlBreadcrumb', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlBreadcrumb', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlBreadcrumb', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlBreadcrumb', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlBreadcrumb', 'separator', {
       type: 'PlBreadcrumbSeparator',
       default: 'PlBreadcrumbSeparator.chevron',
@@ -995,9 +998,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
 
   PlBlockquote: [
     from('PlBlockquote', 'variant', { type: VARIANT, default: 'PlassVariant.ghost' }),
-    from('PlBlockquote', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlBlockquote', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlBlockquote', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlBlockquote', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlBlockquote', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlBlockquote', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlBlockquote', 'elevation', { type: 'int', default: '0' }),
     from('PlBlockquote', 'author', { type: 'Widget?' }),
     from('PlBlockquote', 'source', { type: 'Widget?' }),
@@ -1039,9 +1042,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
 
   PlCard: [
     from('PlCard', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlCard', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlCard', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlCard', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlCard', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlCard', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlCard', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlCard', 'elevation', { type: 'int', default: '1' }),
     from('PlCard', 'title', { type: 'Widget?' }),
     {
@@ -1089,9 +1092,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       default: 'PlChatBubbleSide.start'
     }),
     from('PlChatBubble', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlChatBubble', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlChatBubble', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlChatBubble', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlChatBubble', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlChatBubble', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlChatBubble', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlChatBubble', 'elevation', { type: 'int', default: '0' }),
     from('PlChatBubble', 'name', { type: 'Widget?' }),
     from('PlChatBubble', 'time', { type: 'Widget?' }),
@@ -1159,8 +1162,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'Called with what the value should become. Leaving it null disables the checkbox, as it does everywhere else in Flutter'
       }
     }),
-    from('PlCheckbox', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlCheckbox', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlCheckbox', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlCheckbox', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
     from('PlCheckbox', 'label', { type: 'Widget?' }),
     from('PlCheckbox', 'description', { type: 'Widget?' }),
     from('PlCheckbox', 'error', { type: 'Widget?' }),
@@ -1180,9 +1183,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
 
   PlChip: [
     from('PlChip', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlChip', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlChip', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlChip', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlChip', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlChip', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlChip', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlChip', 'elevation', { type: 'int', default: '0' }),
     from('PlChip', 'startIcon', { type: 'Widget?' }),
     from('PlChip', 'endIcon', { type: 'Widget?' }),
@@ -1204,9 +1207,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
 
   PlColorPicker: [
     from('PlColorPicker', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlColorPicker', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlColorPicker', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlColorPicker', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlColorPicker', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlColorPicker', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlColorPicker', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlColorPicker', 'elevation', { type: 'int', default: '0' }),
     from('PlColorPicker', 'value', {
       type: 'String?',
@@ -1312,9 +1315,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlCombobox', 'openLabel', { type: 'String?', default: "'Open'" }),
     from('PlCombobox', 'removeLabel', { type: 'String Function(String label)?' }),
     from('PlCombobox', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlCombobox', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlCombobox', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlCombobox', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlCombobox', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlCombobox', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlCombobox', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlCombobox', 'elevation', { type: 'int', default: '0' }),
     from('PlCombobox', 'label', { type: 'Widget?' }),
     from('PlCombobox', 'description', { type: 'Widget?' }),
@@ -1386,9 +1389,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlCommandPalette', 'placeholder', { type: 'String?', default: "'Search commands'" }),
     from('PlCommandPalette', 'emptyMessage', { type: 'String?', default: "'Nothing here'" }),
     from('PlCommandPalette', 'label', { type: 'String?', default: "'Command palette'" }),
-    from('PlCommandPalette', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlCommandPalette', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlCommandPalette', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+    from('PlCommandPalette', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlCommandPalette', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlCommandPalette', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' })
   ],
 
   PlCommandItem: [
@@ -1414,8 +1417,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlContainer', 'padded', { type: 'bool', default: 'true' }),
-    from('PlContainer', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlContainer', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlContainer', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlContainer', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlContainer', 'centered', { type: 'bool', default: 'true' })
   ],
 
@@ -1449,9 +1452,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'PlassResponsive<PlassOrientation>',
       default: 'PlassOrientation.horizontal'
     }),
-    from('PlStepper', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlStepper', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlStepper', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+    from('PlStepper', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlStepper', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlStepper', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' })
   ],
   PlStep: [
     from('PlStep', 'label', { type: 'Widget?' }),
@@ -1467,7 +1470,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     },
     from('PlStep', 'disabled', { type: 'bool', default: 'false' }),
-    from('PlStep', 'color', { type: COLOR }),
+    from('PlStep', 'color', { type: `${COLOR}?` }),
     {
       name: 'connector',
       type: 'PlassStepConnector',
@@ -1529,9 +1532,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'Called when a row is pressed, selectable or not'
       }
     }),
-    from('PlTree', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlTree', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlTree', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlTree', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlTree', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlTree', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     {
       name: 'semanticLabel',
       type: 'String?',
@@ -1580,8 +1583,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlGallery', 'label', { name: 'semanticLabel', type: 'String?', default: "'Gallery'" }),
     from('PlGallery', 'itemLabel', { type: 'String Function(int, int)?' }),
     from('PlGallery', 'empty', { type: 'Widget?' }),
-    from('PlGallery', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlGallery', 'color', { type: COLOR, default: 'PlassColor.primary' })
+    from('PlGallery', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlGallery', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' })
   ],
   PlGalleryItem: [
     from('PlGalleryItem', 'src', {
@@ -1636,7 +1639,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlAreaChart', 'format', { type: 'String Function(double)?' }),
     from('PlAreaChart', 'label', { name: 'semanticLabel', type: 'String?', default: "'Chart'" }),
     from('PlAreaChart', 'empty', { type: 'Widget?' }),
-    from('PlAreaChart', 'size', { type: SIZE, default: 'PlassSize.md' })
+    from('PlAreaChart', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' })
   ],
   PlPieChart: [
     from('PlPieChart', 'data', { type: 'List<PlassChartDatum>', required: true }),
@@ -1658,7 +1661,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlPieChart', 'format', { type: 'String Function(double)?' }),
     from('PlPieChart', 'label', { name: 'semanticLabel', type: 'String?', default: "'Chart'" }),
     from('PlPieChart', 'empty', { type: 'Widget?' }),
-    from('PlPieChart', 'size', { type: SIZE, default: 'PlassSize.md' })
+    from('PlPieChart', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' })
   ],
   PlBarChart: [
     from('PlBarChart', 'series', { type: 'List<PlassChartSeries>', required: true }),
@@ -1690,8 +1693,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlBarChart', 'format', { type: 'String Function(double)?' }),
     from('PlBarChart', 'label', { name: 'semanticLabel', type: 'String?', default: "'Chart'" }),
     from('PlBarChart', 'empty', { type: 'Widget?' }),
-    from('PlBarChart', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlBarChart', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+    from('PlBarChart', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlBarChart', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' })
   ],
   PlLineChart: [
     from('PlLineChart', 'series', { type: 'List<PlassChartSeries>', required: true }),
@@ -1731,7 +1734,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }),
     from('PlLineChart', 'label', { name: 'semanticLabel', type: 'String?', default: "'Chart'" }),
     from('PlLineChart', 'empty', { type: 'Widget?' }),
-    from('PlLineChart', 'size', { type: SIZE, default: 'PlassSize.md' })
+    from('PlLineChart', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' })
   ],
   PlassChartAxis: [
     from('PlassChartAxis', 'hidden', { type: 'bool', default: 'false' }),
@@ -1876,9 +1879,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlCodeBlock', 'onCopy', { name: 'onCopy', type: 'ValueChanged<String>?' }),
-    from('PlCodeBlock', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlCodeBlock', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlCodeBlock', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlCodeBlock', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlCodeBlock', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlCodeBlock', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlCodeBlock', 'elevation', { type: 'int', default: '0' })
   ],
   PlCodeToken: [
@@ -2062,8 +2065,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     },
     from('PlImage', 'rounded', { type: 'bool', default: 'false' }),
-    from('PlImage', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlImage', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlImage', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlImage', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
     from('PlImage', 'placeholder', {
       type: 'Widget?',
       default: 'PlSkeleton',
@@ -2100,9 +2103,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'Anything else that belongs between the description and the actions'
       }
     },
-    from('PlEmpty', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlEmpty', 'color', { type: COLOR, default: 'PlassColor.secondary' }),
-    from('PlEmpty', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+    from('PlEmpty', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlEmpty', 'color', { type: `${COLOR}?`, default: 'PlassColor.secondary' }),
+    from('PlEmpty', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' })
   ],
   PlStack: [
     from('PlStack', 'children', { type: 'List<Widget>', required: true }),
@@ -2119,7 +2122,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlStack', 'drop', { type: 'double?', default: 'whatever overlap resolved to' }),
-    from('PlStack', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlStack', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
     from('PlStack', 'max', { type: 'int?' }),
     from('PlStack', 'total', { type: 'int?' }),
     from('PlStack', 'overflow', {
@@ -2168,9 +2171,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       default: 'PlStatDirection.up'
     }),
     from('PlStat', 'loading', { type: 'bool', default: 'false' }),
-    from('PlStat', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlStat', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlStat', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+    from('PlStat', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlStat', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlStat', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' })
   ],
   PlBackTop: [
     from('PlBackTop', 'target', {
@@ -2194,8 +2197,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     },
     from('PlBackTop', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlBackTop', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlBackTop', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlBackTop', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlBackTop', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
     from('PlBackTop', 'elevation', { type: 'int', default: '2' })
   ],
   PlConfirmProvider: [
@@ -2212,8 +2215,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlConfirmProvider', 'cancelLabel', { type: 'Widget?', default: "Text('Cancel')" }),
     from('PlConfirmProvider', 'acknowledgeLabel', { type: 'Widget?', default: "Text('OK')" }),
     from('PlConfirmProvider', 'width', { type: 'double?' }),
-    from('PlConfirmProvider', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlConfirmProvider', 'color', { type: COLOR, default: 'PlassColor.primary' })
+    from('PlConfirmProvider', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlConfirmProvider', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' })
   ],
   PlConfirmOptions: [
     from('PlConfirmOptions', 'title', { type: 'Widget?' }),
@@ -2221,8 +2224,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlConfirmOptions', 'children', { name: 'child', type: 'Widget?' }),
     from('PlConfirmOptions', 'confirmLabel', { type: 'Widget?' }),
     from('PlConfirmOptions', 'cancelLabel', { type: 'Widget?' }),
-    from('PlConfirmOptions', 'color', { type: COLOR }),
-    from('PlConfirmOptions', 'size', { type: SIZE }),
+    from('PlConfirmOptions', 'color', { type: `${COLOR}?` }),
+    from('PlConfirmOptions', 'size', { type: `${SIZE}?` }),
     from('PlConfirmOptions', 'initialFocus', {
       type: 'PlConfirmFocus',
       default: 'PlConfirmFocus.cancel'
@@ -2251,8 +2254,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlPopconfirm', 'cancelLabel', { type: 'Widget?', default: "Text('Cancel')" }),
     from('PlPopconfirm', 'onConfirm', { type: 'FutureOr<void> Function()?' }),
     from('PlPopconfirm', 'onCancel', { type: 'VoidCallback?' }),
-    from('PlPopconfirm', 'color', { type: COLOR, default: 'PlassColor.danger' }),
-    from('PlPopconfirm', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlPopconfirm', 'color', { type: `${COLOR}?`, default: 'PlassColor.danger' }),
+    from('PlPopconfirm', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
     from('PlPopconfirm', 'side', { type: 'PlassSide', default: 'PlassSide.top' }),
     from('PlPopconfirm', 'align', { type: 'PlassAlign', default: 'PlassAlign.center' }),
     from('PlPopconfirm', 'width', { type: 'double', default: '280' })
@@ -2311,8 +2314,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlCalendar', 'autoFocus', { name: 'autofocus', type: 'bool', default: 'false' }),
     from('PlCalendar', 'disabled', { type: 'bool', default: 'false' }),
     from('PlCalendar', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlCalendar', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlCalendar', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlCalendar', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlCalendar', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
     from('PlCalendar', 'elevation', { type: 'int', default: '1' }),
     {
       name: 'semanticLabel',
@@ -2331,8 +2334,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }),
     from('PlDataList', 'labelWidth', { type: 'double?', default: '160' }),
     from('PlDataList', 'divider', { type: 'bool', default: 'false' }),
-    from('PlDataList', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlDataList', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+    from('PlDataList', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlDataList', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' })
   ],
 
   PlDataListItem: [
@@ -2431,16 +2434,16 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlDataTable', 'toolbar', { type: 'Widget?' }),
     from('PlDataTable', 'footer', { type: 'Widget?' }),
     from('PlDataTable', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlDataTable', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlDataTable', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
     from('PlDataTable', 'color', {
-      type: COLOR,
+      type: `${COLOR}?`,
       default: 'PlassColor.primary',
       description: {
         ko: '의미론적 색 역할. hover 틴트와 선택 틴트, 체크박스, focus ring까지만 닿습니다 — 데이터는 자기 색을 가지고 옵니다',
         en: 'Semantic colour role. It reaches the hover tint, the selection tint, the ticks and the focus ring and nothing else: data arrives with its own colours'
       }
     }),
-    from('PlDataTable', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlDataTable', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlDataTable', 'elevation', { type: 'int', default: '0' }),
     {
       name: 'semanticLabel',
@@ -2587,9 +2590,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlDatePicker', 'showTodayButton', { type: 'bool', default: 'true' }),
     from('PlDatePicker', 'closeOnSelect', { type: 'bool', default: 'true' }),
     from('PlDatePicker', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlDatePicker', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlDatePicker', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlDatePicker', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlDatePicker', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlDatePicker', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlDatePicker', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlDatePicker', 'elevation', { type: 'int', default: '0' }),
     from('PlDatePicker', 'label', { type: 'Widget?' }),
     from('PlDatePicker', 'description', { type: 'Widget?' }),
@@ -2740,9 +2743,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlDateRangePicker', 'clearable', { type: 'bool', default: 'false' }),
     from('PlDateRangePicker', 'closeOnSelect', { type: 'bool', default: 'true' }),
     from('PlDateRangePicker', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlDateRangePicker', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlDateRangePicker', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlDateRangePicker', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlDateRangePicker', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlDateRangePicker', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlDateRangePicker', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlDateRangePicker', 'elevation', { type: 'int', default: '0' }),
     from('PlDateRangePicker', 'label', { type: 'Widget?' }),
     from('PlDateRangePicker', 'description', { type: 'Widget?' }),
@@ -2817,9 +2820,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlDateTimePicker', 'showNowButton', { type: 'bool', default: 'true' }),
     from('PlDateTimePicker', 'closeOnSelect', { type: 'bool', default: 'false' }),
     from('PlDateTimePicker', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlDateTimePicker', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlDateTimePicker', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlDateTimePicker', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlDateTimePicker', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlDateTimePicker', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlDateTimePicker', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlDateTimePicker', 'elevation', { type: 'int', default: '0' }),
     from('PlDateTimePicker', 'label', { type: 'Widget?' }),
     from('PlDateTimePicker', 'description', { type: 'Widget?' }),
@@ -2838,7 +2841,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       default: 'PlassOrientation.horizontal'
     }),
     from('PlDivider', 'color', { type: `${COLOR}?`, default: 'null' }),
-    from('PlDivider', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlDivider', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
     from('PlDivider', 'length', {
       type: 'double?',
       description: {
@@ -2879,7 +2882,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'Takes the pointer and the focus away from everything inside, and drains the group. There is no browser-style cascade here'
       }
     }),
-    from('PlFieldset', 'size', { type: SIZE, default: 'PlassSize.md' })
+    from('PlFieldset', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' })
   ],
 
   PlFilePicker: [
@@ -2951,9 +2954,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       default: "'Remove {name}'"
     }),
     from('PlFilePicker', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlFilePicker', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlFilePicker', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlFilePicker', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlFilePicker', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlFilePicker', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlFilePicker', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlFilePicker', 'elevation', { type: 'int', default: '0' }),
     from('PlFilePicker', 'fullWidth', { type: 'bool', default: 'true' }),
     from('PlFilePicker', 'readOnly', { type: 'bool', default: 'false' }),
@@ -3026,10 +3029,13 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: VARIANT,
       default: 'PlassVariant.glass'
     }),
-    from('PlFloatingBottomNavigation', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlFloatingBottomNavigation', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlFloatingBottomNavigation', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlFloatingBottomNavigation', 'color', {
+      type: `${COLOR}?`,
+      default: 'PlassColor.primary'
+    }),
     from('PlFloatingBottomNavigation', 'density', {
-      type: DENSITY,
+      type: `${DENSITY}?`,
       default: 'PlassDensity.standard'
     }),
     from('PlFloatingBottomNavigation', 'elevation', { type: 'int', default: '2' }),
@@ -3083,7 +3089,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'When a FormField inside decides whether it is valid. It maps onto a Flutter AutovalidateMode'
       }
     }),
-    from('PlForm', 'size', { type: SIZE, default: 'PlassSize.md' })
+    from('PlForm', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' })
   ],
 
   PlFormScope: [
@@ -3139,8 +3145,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlGaugeChart', 'format', { type: 'String Function(double)?' }),
     from('PlGaugeChart', 'label', { name: 'semanticLabel', type: 'String?' }),
     from('PlGaugeChart', 'empty', { type: 'Widget?' }),
-    from('PlGaugeChart', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlGaugeChart', 'size', { type: SIZE, default: 'PlassSize.md' })
+    from('PlGaugeChart', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlGaugeChart', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' })
   ],
   PlGrid: [
     from('PlGrid', 'children', {
@@ -3213,15 +3219,15 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlFloatingActionButton', 'offset', { type: 'double', default: '24' }),
     from('PlFloatingActionButton', 'floating', { type: 'bool', default: 'true' }),
     from('PlFloatingActionButton', 'variant', { type: VARIANT, default: 'PlassVariant.solid' }),
-    from('PlFloatingActionButton', 'size', { type: SIZE, default: 'PlassSize.lg' }),
+    from('PlFloatingActionButton', 'size', { type: `${SIZE}?`, default: 'PlassSize.lg' }),
     from('PlFloatingActionButton', 'elevation', { type: 'int', default: '3' })
   ],
 
   PlFooter: [
     from('PlFooter', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlFooter', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlFooter', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlFooter', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlFooter', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlFooter', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlFooter', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlFooter', 'elevation', { type: 'int', default: '0' }),
     from('PlFooter', 'divider', { type: 'bool', default: 'true' }),
     from('PlFooter', 'maxWidth', {
@@ -3246,9 +3252,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
 
   PlHeader: [
     from('PlHeader', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlHeader', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlHeader', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlHeader', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlHeader', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlHeader', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlHeader', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlHeader', 'elevation', { type: 'int', default: '0' }),
     from('PlHeader', 'brand', {
       type: 'List<Widget>?',
@@ -3308,7 +3314,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlHeatmapChart', 'format', { type: 'String Function(double)?' }),
     from('PlHeatmapChart', 'label', { name: 'semanticLabel', type: 'String?', default: "'Chart'" }),
     from('PlHeatmapChart', 'empty', { type: 'Widget?' }),
-    from('PlHeatmapChart', 'size', { type: SIZE, default: 'PlassSize.md' })
+    from('PlHeatmapChart', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' })
   ],
   PlHighlight: [
     from('PlHighlight', 'children', {
@@ -3329,7 +3335,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlHighlight', 'variant', { type: VARIANT, default: 'PlassVariant.solid' }),
-    from('PlHighlight', 'color', { type: COLOR, default: 'PlassColor.warning' }),
+    from('PlHighlight', 'color', { type: `${COLOR}?`, default: 'PlassColor.warning' }),
     from('PlHighlight', 'caseSensitive', { type: 'bool', default: 'false' }),
     from('PlHighlight', 'wholeWord', { type: 'bool', default: 'false' }),
     from('PlHighlight', 'underline', { type: 'bool', default: 'false' }),
@@ -3451,9 +3457,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     },
     from('PlHoverCard', 'width', { type: 'double?' }),
-    from('PlHoverCard', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlHoverCard', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlHoverCard', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+    from('PlHoverCard', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlHoverCard', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlHoverCard', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' })
   ],
 
   PlHowToSteps: [
@@ -3481,9 +3487,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: "What a screen reader hears before each step. React gets it free from a real <ol>; Flutter has no ordered list to inherit it from. Left out, it is the label pack's `howToStep`"
       }
     },
-    from('PlHowToSteps', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlHowToSteps', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlHowToSteps', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+    from('PlHowToSteps', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlHowToSteps', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlHowToSteps', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' })
   ],
 
   PlHowToStep: [
@@ -3495,7 +3501,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
 
   PlIcon: [
     from('PlIcon', 'icon', { type: 'Widget', required: true }),
-    from('PlIcon', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlIcon', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
     from('PlIcon', 'color', {
       // Dart has no `inherit` keyword, and a nullable enum says the same thing
       // with one less name in it.
@@ -3516,9 +3522,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       description: { ko: '행들', en: 'The rows' }
     }),
     from('PlList', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlList', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlList', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlList', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlList', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlList', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlList', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlList', 'elevation', { type: 'int', default: '0' }),
     from('PlList', 'dividers', { type: 'bool', default: 'false' })
   ],
@@ -3552,9 +3558,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'What opens the menu. A builder rather than a widget, because a trigger almost always wants to know whether it is open'
       }
     }),
-    from('PlMenu', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlMenu', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlMenu', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlMenu', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlMenu', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlMenu', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlMenu', 'side', { type: 'PlassSide', default: 'PlassSide.bottom' }),
     from('PlMenu', 'align', { type: 'PlassAlign', default: 'PlassAlign.start' }),
     from('PlMenu', 'sideOffset', { type: 'double', default: '6' }),
@@ -3653,9 +3659,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       description: { ko: '바가 늘어서는 방향', en: 'Which way the bar runs' }
     }),
     from('PlMenubar', 'disabled', { type: 'bool', default: 'false' }),
-    from('PlMenubar', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlMenubar', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlMenubar', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlMenubar', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlMenubar', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlMenubar', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     {
       name: 'semanticLabel',
       type: 'String?',
@@ -3705,8 +3711,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlMockup', 'height', { type: 'double?' }),
     from('PlMockup', 'elevation', { type: 'int', default: '0' }),
     from('PlMockup', 'children', { name: 'child', type: 'Widget?' }),
-    from('PlMockup', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlMockup', 'size', { type: SIZE, default: 'PlassSize.md' })
+    from('PlMockup', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlMockup', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' })
   ],
   PlModal: [
     from('PlModal', 'open', { type: 'bool', required: true }),
@@ -3757,15 +3763,15 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlModal', 'dismissible', { type: 'bool', default: 'true' }),
-    from('PlModal', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlModal', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlModal', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+    from('PlModal', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlModal', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlModal', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' })
   ],
 
   PlNavigationMenu: [
-    from('PlNavigationMenu', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlNavigationMenu', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlNavigationMenu', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlNavigationMenu', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlNavigationMenu', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlNavigationMenu', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     {
       name: 'items',
       type: 'List<PlNavigationMenuItem>',
@@ -3903,9 +3909,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlNumberField', 'incrementLabel', { type: 'String?', default: "'Increase'" }),
     from('PlNumberField', 'decrementLabel', { type: 'String?', default: "'Decrease'" }),
     from('PlNumberField', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlNumberField', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlNumberField', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlNumberField', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlNumberField', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlNumberField', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlNumberField', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlNumberField', 'elevation', { type: 'int', default: '0' }),
     from('PlNumberField', 'label', {
       type: 'Widget?',
@@ -3981,9 +3987,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlOtpField', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlOtpField', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlOtpField', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlOtpField', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlOtpField', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlOtpField', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlOtpField', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlOtpField', 'elevation', { type: 'int', default: '0' }),
     from('PlOtpField', 'length', { type: 'int', default: '6' }),
     from('PlOtpField', 'charset', { type: 'PlOtpCharset', default: 'PlOtpCharset.numeric' }),
@@ -4035,7 +4041,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlOverlay', 'align', { type: 'PlassAlign', default: 'PlassAlign.center' }),
-    from('PlOverlay', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlOverlay', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
     from('PlOverlay', 'label', { type: 'String?', default: "'Overlay'" })
   ],
 
@@ -4101,9 +4107,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'ValueChanged<int>?'
     }),
     from('PlPagination', 'variant', { type: VARIANT, default: 'PlassVariant.ghost' }),
-    from('PlPagination', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlPagination', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlPagination', 'density', { type: DENSITY, default: 'PlassDensity.compact' }),
+    from('PlPagination', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlPagination', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlPagination', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.compact' }),
     from('PlPagination', 'elevation', { type: 'int', default: '0' }),
     from('PlPagination', 'siblingCount', { type: 'int', default: '1' }),
     from('PlPagination', 'boundaryCount', { type: 'int', default: '1' }),
@@ -4140,8 +4146,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       default: 'PlassOrientation.horizontal'
     }),
     from('PlPanes', 'resizable', { type: 'bool', default: 'true' }),
-    from('PlPanes', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlPanes', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlPanes', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlPanes', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
     from('PlPanes', 'onResize', { type: 'ValueChanged<List<double>>?' }),
     from('PlPanes', 'onResizeEnd', { type: 'ValueChanged<List<double>>?' }),
     {
@@ -4185,8 +4191,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlProgressBox', 'label', { type: 'Widget?' }),
     from('PlProgressBox', 'showValue', { type: 'bool', default: 'false' }),
     formatValueProp,
-    from('PlProgressBox', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlProgressBox', 'color', { type: COLOR, default: 'PlassColor.primary' })
+    from('PlProgressBox', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlProgressBox', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' })
   ],
 
   PlProgressCircular: [
@@ -4196,8 +4202,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlProgressCircular', 'label', { type: 'Widget?' }),
     from('PlProgressCircular', 'showValue', { type: 'bool', default: 'false' }),
     formatValueProp,
-    from('PlProgressCircular', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlProgressCircular', 'color', { type: COLOR, default: 'PlassColor.primary' })
+    from('PlProgressCircular', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlProgressCircular', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' })
   ],
 
   PlMeter: [
@@ -4208,8 +4214,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlMeter', 'showValue', { type: 'bool', default: 'false' }),
     formatValueProp,
     from('PlMeter', 'thresholds', { type: 'List<PlMeterThreshold>?' }),
-    from('PlMeter', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlMeter', 'color', { type: COLOR, default: 'PlassColor.primary' })
+    from('PlMeter', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlMeter', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' })
   ],
 
   PlMeterThreshold: [
@@ -4224,8 +4230,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlProgressLinear', 'label', { type: 'Widget?' }),
     from('PlProgressLinear', 'showValue', { type: 'bool', default: 'false' }),
     formatValueProp,
-    from('PlProgressLinear', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlProgressLinear', 'color', { type: COLOR, default: 'PlassColor.primary' })
+    from('PlProgressLinear', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlProgressLinear', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' })
   ],
 
   PlRadioGroup: [
@@ -4254,8 +4260,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'Called with the option that was chosen. Leaving it null disables the group'
       }
     }),
-    from('PlRadioGroup', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlRadioGroup', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlRadioGroup', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlRadioGroup', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
     from('PlRadioGroup', 'orientation', {
       type: 'PlassOrientation',
       default: 'PlassOrientation.vertical'
@@ -4306,8 +4312,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlRating', 'clearable', { type: 'bool', default: 'true' }),
     from('PlRating', 'readOnly', { type: 'bool', default: 'false' }),
     from('PlRating', 'disabled', { type: 'bool', default: 'false' }),
-    from('PlRating', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlRating', 'color', { type: COLOR, default: 'PlassColor.warning' }),
+    from('PlRating', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlRating', 'color', { type: `${COLOR}?`, default: 'PlassColor.warning' }),
     from('PlRating', 'label', { type: 'String?', default: "'Rating'" }),
     from('PlRating', 'valueLabel', { type: 'PlRatingValueLabel?' }),
     {
@@ -4336,10 +4342,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'ValueChanged<T>?'
     }),
     from('PlSegmentedButton', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlSegmentedButton', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlSegmentedButton', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlSegmentedButton', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlSegmentedButton', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
     from('PlSegmentedButton', 'density', {
-      type: DENSITY,
+      type: `${DENSITY}?`,
       default: 'PlassDensity.standard'
     }),
     from('PlSegmentedButton', 'elevation', { type: 'int', default: '0' }),
@@ -4377,7 +4383,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlScatterChart', 'format', { type: 'String Function(double)?' }),
     from('PlScatterChart', 'label', { name: 'semanticLabel', type: 'String?', default: "'Chart'" }),
     from('PlScatterChart', 'empty', { type: 'Widget?' }),
-    from('PlScatterChart', 'size', { type: SIZE, default: 'PlassSize.md' })
+    from('PlScatterChart', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' })
   ],
   PlSelect: [
     from('PlSelect', 'items', {
@@ -4393,9 +4399,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlSelect', 'onValueChange', { name: 'onChanged', type: 'ValueChanged<T?>?' }),
     from('PlSelect', 'placeholder', { type: 'Widget?' }),
     from('PlSelect', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlSelect', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlSelect', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlSelect', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlSelect', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlSelect', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlSelect', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlSelect', 'elevation', {
       type: 'int',
       default: '0',
@@ -4491,9 +4497,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
 
   PlSidebar: [
     from('PlSidebar', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlSidebar', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlSidebar', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlSidebar', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlSidebar', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlSidebar', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlSidebar', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlSidebar', 'elevation', { type: 'int', default: '0' }),
     from('PlSidebar', 'side', { type: 'PlassSidebarSide?', default: 'PlassSidebarSide.start' }),
     from('PlSidebar', 'width', { type: 'double?' }),
@@ -4555,14 +4561,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     },
     {
       name: 'size',
-      type: SIZE,
+      type: `${SIZE}?`,
       default: 'PlassSize.md',
       shared: true,
       description: { ko: '키의 크기', en: "The key's size" }
     },
     {
       name: 'color',
-      type: COLOR,
+      type: `${COLOR}?`,
       default: 'PlassColor.primary',
       shared: true,
       description: { ko: '의미론적 색 역할', en: 'Semantic colour role' }
@@ -4575,8 +4581,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       default: 'PlSkeletonShape.line'
     }),
     from('PlSkeleton', 'lines', { type: 'int', default: '1' }),
-    from('PlSkeleton', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlSkeleton', 'color', { type: COLOR, default: 'PlassColor.secondary' }),
+    from('PlSkeleton', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlSkeleton', 'color', { type: `${COLOR}?`, default: 'PlassColor.secondary' }),
     from('PlSkeleton', 'width', { type: 'double?' }),
     from('PlSkeleton', 'height', { type: 'double?' }),
     from('PlSkeleton', 'animated', { type: 'bool', default: 'true' }),
@@ -4612,8 +4618,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     },
     from('PlSlider', 'min · max · step', { name: 'min · max · step', type: 'double' }),
-    from('PlSlider', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlSlider', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlSlider', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlSlider', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
     from('PlSlider', 'elevation', { type: 'int', default: '1' }),
     from('PlSlider', 'orientation', {
       type: 'PlassOrientation',
@@ -4667,8 +4673,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'Called with what the value should become. Leaving it null disables the switch'
       }
     }),
-    from('PlSwitch', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlSwitch', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlSwitch', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlSwitch', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
     from('PlSwitch', 'label', { type: 'Widget?' }),
     from('PlSwitch', 'description', { type: 'Widget?' }),
     from('PlSwitch', 'error', { type: 'Widget?' }),
@@ -4700,9 +4706,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       description: { ko: '시트 위에 놓이는 것', en: 'What is on the sheet' }
     },
     from('PlBox', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlBox', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlBox', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlBox', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlBox', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlBox', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlBox', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlBox', 'elevation', { type: 'int', default: '0' }),
     from('PlBox', 'padded', { type: 'bool', default: 'true' }),
     {
@@ -4752,9 +4758,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     },
     from('PlCarousel', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlCarousel', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlCarousel', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlCarousel', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlCarousel', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlCarousel', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlCarousel', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlCarousel', 'elevation', { type: 'int', default: '0' }),
     from('PlCarousel', 'label', { type: 'String?', default: "'Carousel'" }),
     from('PlCarousel', 'previousLabel', { type: 'String?', default: "'Previous slide'" }),
@@ -4797,9 +4803,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlCollapsible', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlCollapsible', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlCollapsible', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlCollapsible', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlCollapsible', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlCollapsible', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlCollapsible', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlCollapsible', 'elevation', { type: 'int', default: '0' })
   ],
 
@@ -4854,9 +4860,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlDrawer', 'dismissible', { type: 'bool', default: 'true' }),
-    from('PlDrawer', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlDrawer', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlDrawer', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+    from('PlDrawer', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlDrawer', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlDrawer', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' })
   ],
 
   PlPill: [
@@ -4883,9 +4889,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     },
     from('PlPill', 'variant', { type: VARIANT, default: 'PlassVariant.solid' }),
-    from('PlPill', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlPill', 'color', { type: COLOR, default: 'PlassColor.secondary' }),
-    from('PlPill', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlPill', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlPill', 'color', { type: `${COLOR}?`, default: 'PlassColor.secondary' }),
+    from('PlPill', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlPill', 'elevation', { type: 'int', default: '2' })
   ],
 
@@ -4933,9 +4939,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlPopover', 'showClose', { type: 'bool', default: 'false' }),
     from('PlPopover', 'closeLabel', { type: 'String?', default: "'Close'" }),
     from('PlPopover', 'width', { type: 'double?' }),
-    from('PlPopover', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlPopover', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlPopover', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+    from('PlPopover', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlPopover', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlPopover', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' })
   ],
 
   PlSparkline: [
@@ -4966,7 +4972,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlSparkline', 'max', { type: 'double?' }),
     from('PlSparkline', 'width', { type: 'double?' }),
     from('PlSparkline', 'label', { name: 'semanticLabel', type: 'String?' }),
-    from('PlSparkline', 'size', { type: SIZE, default: 'PlassSize.md' })
+    from('PlSparkline', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' })
   ],
   PlSpoiler: [
     {
@@ -5008,9 +5014,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlSpoiler', 'blur', { type: 'double', default: '10' }),
     from('PlSpoiler', 'padded', { type: 'bool', default: 'true' }),
     from('PlSpoiler', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlSpoiler', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlSpoiler', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlSpoiler', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlSpoiler', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlSpoiler', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlSpoiler', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlSpoiler', 'elevation', { type: 'int', default: '0' })
   ],
 
@@ -5024,7 +5030,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlScrollArea', 'width · maxWidth', { type: 'double?' }),
     from('PlScrollArea', 'scrollbars', { type: 'PlScrollbars', default: 'PlScrollbars.auto' }),
     from('PlScrollArea', 'label', { type: 'String?' }),
-    from('PlScrollArea', 'size', { type: SIZE, default: 'PlassSize.md' })
+    from('PlScrollArea', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' })
   ],
 
   PlScrollZone: [
@@ -5096,8 +5102,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     },
     from('PlScrollZone', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlScrollZone', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlScrollZone', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlScrollZone', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlScrollZone', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
     from('PlScrollZone', 'label', { type: 'String?' }),
     from('PlScrollZone', 'previousLabel', { type: 'String?', default: "'Previous'" }),
     from('PlScrollZone', 'nextLabel', { type: 'String?', default: "'Next'" })
@@ -5147,16 +5153,16 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'void Function(T row, int index)?'
     }),
     from('PlTable', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlTable', 'size', { type: SIZE, default: 'PlassSize.md' }),
+    from('PlTable', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
     from('PlTable', 'color', {
-      type: COLOR,
+      type: `${COLOR}?`,
       default: 'PlassColor.primary',
       description: {
         ko: '의미론적 색 역할. hover 틴트와 focus ring까지만 닿습니다 — 데이터는 자기 색을 가지고 옵니다',
         en: 'Semantic colour role. It reaches the hover tint and the focus ring and nothing else: data arrives with its own colours'
       }
     }),
-    from('PlTable', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlTable', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlTable', 'elevation', { type: 'int', default: '0' }),
     {
       name: 'semanticLabel',
@@ -5227,9 +5233,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'ValueChanged<T>?'
     }),
     from('PlTabs', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlTabs', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlTabs', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlTabs', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlTabs', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlTabs', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlTabs', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlTabs', 'orientation', {
       type: 'PlassResponsive<PlassOrientation>',
       default: 'PlassOrientation.horizontal'
@@ -5479,9 +5485,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlTimePicker', 'showNowButton', { type: 'bool', default: 'true' }),
     from('PlTimePicker', 'closeOnSelect', { type: 'bool', default: 'false' }),
     from('PlTimePicker', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlTimePicker', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlTimePicker', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlTimePicker', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlTimePicker', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlTimePicker', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlTimePicker', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlTimePicker', 'elevation', { type: 'int', default: '0' }),
     from('PlTimePicker', 'label', { type: 'Widget?' }),
     from('PlTimePicker', 'description', { type: 'Widget?' }),
@@ -5505,9 +5511,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     },
     from('PlTimeline', 'active', { type: 'int?' }),
-    from('PlTimeline', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlTimeline', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlTimeline', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlTimeline', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlTimeline', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlTimeline', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlTimeline', 'orientation', {
       type: 'PlassResponsive<PlassOrientation>',
       default: 'PlassOrientation.vertical'
@@ -5543,8 +5549,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       default: "'Chart'"
     }),
     from('PlTimelineChart', 'empty', { type: 'Widget?' }),
-    from('PlTimelineChart', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlTimelineChart', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+    from('PlTimelineChart', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlTimelineChart', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' })
   ],
   PlToastProvider: [
     from('PlToastProvider', 'children', {
@@ -5575,9 +5581,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }),
     from('PlToastProvider', 'closeLabel', { type: 'String?', default: "'Close'" }),
     from('PlToastProvider', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlToastProvider', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlToastProvider', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlToastProvider', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+    from('PlToastProvider', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlToastProvider', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlToastProvider', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' })
   ],
 
   PlToast: [
@@ -5755,9 +5761,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     },
     from('PlToolbar', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlToolbar', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlToolbar', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlToolbar', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlToolbar', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlToolbar', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlToolbar', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlToolbar', 'elevation', { type: 'int', default: '0' }),
     {
       name: 'semanticLabel',
@@ -5835,8 +5841,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: "What a screen reader says the trigger's tooltip is. With a Text in content it defaults to that text"
       }
     },
-    from('PlTooltip', 'size', { type: SIZE, default: 'PlassSize.sm' }),
-    from('PlTooltip', 'density', { type: DENSITY, default: 'PlassDensity.standard' })
+    from('PlTooltip', 'size', { type: `${SIZE}?`, default: 'PlassSize.sm' }),
+    from('PlTooltip', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' })
   ],
 
   PlTooltipProvider: [
@@ -5930,9 +5936,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
 
   PlTransfer: [
     from('PlTransfer', 'variant', { type: VARIANT, default: 'PlassVariant.glass' }),
-    from('PlTransfer', 'size', { type: SIZE, default: 'PlassSize.md' }),
-    from('PlTransfer', 'color', { type: COLOR, default: 'PlassColor.primary' }),
-    from('PlTransfer', 'density', { type: DENSITY, default: 'PlassDensity.standard' }),
+    from('PlTransfer', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlTransfer', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlTransfer', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlTransfer', 'items', { type: 'List<PlTransferItem>', required: true }),
     from('PlTransfer', 'value', { type: 'List<String>?' }),
     from('PlTransfer', 'defaultValue', { type: 'List<String>', default: '<String>[]' }),
@@ -6136,8 +6142,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlWindowPane', 'minimizeLabel', { type: 'String?' }),
     from('PlWindowPane', 'resizeLabel', { type: 'String?' }),
     from('PlWindowPane', 'children', { name: 'child', type: 'Widget?' }),
-    from('PlWindowPane', 'color', { type: COLOR, default: 'PlassColor.primary' }),
+    from('PlWindowPane', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
     from('PlWindowPane', 'elevation', { type: 'int', default: '2' }),
-    from('PlWindowPane', 'size', { type: SIZE, default: 'PlassSize.md' })
+    from('PlWindowPane', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' })
   ]
 };
