@@ -48,7 +48,7 @@ Firefox 113 to 127 run the components without these features:
 | --- | --- | --- |
 | `:has()` | 121 | `PlTextField`, `PlSelect`, `PlCombobox`, `PlNumberField`, `PlRating` and the picker fields (`PlDatePicker`, `PlDateRangePicker`, `PlDateTimePicker`, `PlTimePicker`, `PlColorPicker`, `PlTreeSelect`) draw no focus ring. They still take focus; only the ring is missing. |
 | `lh` unit | 120 | A checkbox tick, a radio dot, an alert's glyph and the other icons placed beside a label can sit slightly above the middle of the label's first line. |
-| `Intl.Segmenter` | 125 | [`PlAnimateTyping`](./components/transitions/animate-typing) advances one code point at a time, so an emoji built from several code points appears in pieces. |
+| `Intl.Segmenter` | 125 | [`PlAnimateTyping`](./components/transitions/animate-typing), [`PlAnimateSplit`](./components/transitions/animate-split) and [`PlAnimateScramble`](./components/transitions/animate-scramble) cut by code point instead, so an emoji built from several code points appears in pieces. |
 | `@property` | 128 | The light in [`PlAnimateLighting`](./components/transitions/animate-lighting) stays in place instead of travelling around the edge. |
 
 The first row affects keyboard users most, because the fields that lose their ring are the ones they fill in. If an application has to work well with a keyboard, treat Firefox 121 as its minimum.

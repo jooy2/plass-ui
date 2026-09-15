@@ -12,13 +12,19 @@
  * of.
  *
  * `characters` overrides it for the caller who genuinely wants a terminal look.
+ *
+ * **A character is a grapheme**, what a reader counts as one: an emoji, a flag,
+ * a letter with its accent. Cut by code point instead, an emoji is halved into
+ * pieces that each draw as a broken glyph, and the noise flickers with them.
  */
+
+import { graphemesOf } from './text.js';
 
 /** Everything in the text that is worth scrambling: no spaces, no repeats. */
 export function poolOf(text: string): string {
   const seen = new Set<string>();
 
-  for (const character of text) {
+  for (const character of graphemesOf(text)) {
     if (character.trim() !== '') {
       seen.add(character);
     }
@@ -41,10 +47,14 @@ export function poolOf(text: string): string {
  * changes the word count on every frame.
  */
 export function scrambleAt(text: string, pool: string, progress: number, seed: number): string {
-  const characters = Array.from(text);
+  const characters = graphemesOf(text);
+  // The noise is drawn out of the pool's characters rather than its code units.
+  // Indexing the string itself hands back half of a surrogate pair whenever the
+  // pool holds an emoji, which is a broken glyph flickering in the line.
+  const glyphs = graphemesOf(pool);
   const settled = Math.floor(characters.length * Math.max(0, Math.min(1, progress)));
 
-  if (pool.length === 0) {
+  if (glyphs.length === 0) {
     return text;
   }
 
@@ -57,7 +67,7 @@ export function scrambleAt(text: string, pool: string, progress: number, seed: n
       // A seed rather than `Math.random`, so one frame is one draw for the
       // whole line and a re-render mid-frame does not reshuffle what has
       // already been painted.
-      return pool[(index * 31 + seed * 17) % pool.length];
+      return glyphs[(index * 31 + seed * 17) % glyphs.length];
     })
     .join('');
 }

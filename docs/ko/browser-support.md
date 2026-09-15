@@ -48,7 +48,7 @@ Firefox 113~127에서는 아래 기능 없이 컴포넌트가 동작합니다.
 | --- | --- | --- |
 | `:has()` | 121 | `PlTextField`, `PlSelect`, `PlCombobox`, `PlNumberField`, `PlRating`과 picker 필드(`PlDatePicker`, `PlDateRangePicker`, `PlDateTimePicker`, `PlTimePicker`, `PlColorPicker`, `PlTreeSelect`)에 focus ring이 그려지지 않습니다. focus는 그대로 받고 ring만 없습니다. |
 | `lh` 단위 | 120 | checkbox의 체크 표시, radio의 점, alert의 아이콘처럼 label 옆에 놓인 아이콘이 label 첫 줄의 가운데보다 조금 위에 놓일 수 있습니다. |
-| `Intl.Segmenter` | 125 | [`PlAnimateTyping`](./components/transitions/animate-typing)이 코드 포인트 하나씩 나아가므로, 코드 포인트 여러 개로 된 이모지가 조각으로 나타납니다. |
+| `Intl.Segmenter` | 125 | [`PlAnimateTyping`](./components/transitions/animate-typing), [`PlAnimateSplit`](./components/transitions/animate-split), [`PlAnimateScramble`](./components/transitions/animate-scramble)이 코드 포인트 단위로 자르므로, 코드 포인트 여러 개로 된 이모지가 조각으로 나타납니다. |
 | `@property` | 128 | [`PlAnimateLighting`](./components/transitions/animate-lighting)의 빛이 가장자리를 따라 돌지 않고 제자리에 있습니다. |
 
 첫 행이 키보드 사용자에게 가장 큰 영향을 줍니다. ring이 사라지는 필드가 바로 그들이 입력하는 필드이기 때문입니다. 키보드로도 문제없이 써야 하는 애플리케이션이라면 Firefox 121을 최소 버전으로 잡으세요.

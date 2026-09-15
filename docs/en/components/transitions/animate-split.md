@@ -41,17 +41,7 @@ The one thing to know before using it.
 
 A character part breaks the shaping between letters. **Arabic stops joining**, so a line that was one word becomes a row of unrelated glyphs.
 
-::: fw react
-
-The cut is by code point, so a Devanagari conjunct comes apart too, and so does an emoji built out of several code points, such as a flag or a family.
-
-:::
-
-::: fw flutter
-
 The cut is by grapheme, the unit a reader counts as one character, so a Devanagari conjunct, a flag and an emoji built out of several code points each stay in one part.
-
-:::
 
 `word` has none of those problems, is the default, and is what a headline wants anyway: a word arriving is something a reader can follow, and a letter arriving is decoration.
 

@@ -543,11 +543,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlAnimateSplit', 'children', { name: 'text', type: 'String', required: true }),
     from('PlAnimateSplit', 'by', {
       type: 'PlAnimateSplitBy',
-      default: 'PlAnimateSplitBy.word',
-      description: {
-        ko: '무엇으로 자를지. character는 모든 문자 체계에서 안전하지 않습니다 — 아랍 문자가 이어지지 않습니다. 글자는 grapheme 단위라 이모지는 한 조각에 남습니다',
-        en: 'What it is cut into. character is not safe in every script: Arabic stops joining. A character is a grapheme, so an emoji stays in one part'
-      }
+      default: 'PlAnimateSplitBy.word'
     }),
     {
       name: 'style · textAlign',

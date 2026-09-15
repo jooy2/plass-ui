@@ -5,6 +5,7 @@ import { mergeProps } from '@base-ui/react/merge-props';
 import { isInfinite, useAnimationRun } from '../../internal/animate.js';
 import { usePrefersReducedMotion } from '../../internal/media.js';
 import { srOnlyClasses } from '../../internal/styles.js';
+import { graphemesOf } from '../../internal/text.js';
 import type { PlassAnimateProps } from '../../types.js';
 
 export interface PlAnimateTypingProps
@@ -68,26 +69,6 @@ function textOf(node: React.ReactNode): string {
   }
 
   return '';
-}
-
-/**
- * The text split the way a reader would split it.
- *
- * Not `[...text]`, and not `text.split('')`. A code point is not a character:
- * `👩‍👩‍👧` is seven of them, `한` typed on a Korean keyboard can be three, and a
- * typewriter that advances by code points spends four frames assembling an
- * emoji out of parts that mean nothing on their own. `Intl.Segmenter` knows
- * where the boundaries actually are; the spread is the fallback for a runtime
- * that does not have it.
- */
-function graphemesOf(text: string, locale?: string): string[] {
-  if (typeof Intl !== 'undefined' && 'Segmenter' in Intl) {
-    const segmenter = new Intl.Segmenter(locale, { granularity: 'grapheme' });
-
-    return [...segmenter.segment(text)].map((segment) => segment.segment);
-  }
-
-  return [...text];
 }
 
 /**

@@ -63,6 +63,23 @@ describe('PlAnimateSplit', () => {
       expect(parts().map((part) => part.textContent)).toEqual(['S', 'h', 'i', 'p']);
     });
 
+    it('keeps a character built out of several code points in one part', async () => {
+      await render(
+        <PlAnimateSplit className="split-under-test" by="character">
+          {'é\u{1F1F0}\u{1F1F7}\u{1F680}'}
+        </PlAnimateSplit>
+      );
+
+      // A letter with a combining accent, a flag made of two regional
+      // indicators and an emoji outside the basic plane. Cut by code point,
+      // each would come apart into pieces that draw as broken glyphs.
+      expect(parts().map((part) => part.textContent)).toEqual([
+        'é',
+        '\u{1F1F0}\u{1F1F7}',
+        '\u{1F680}'
+      ]);
+    });
+
     it('leaves the gaps as gaps rather than animating them', async () => {
       await render(<PlAnimateSplit className="split-under-test">{LINE}</PlAnimateSplit>);
 

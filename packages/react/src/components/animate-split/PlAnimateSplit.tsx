@@ -15,6 +15,7 @@ import {
   type AnimationSlotOptions
 } from '../../internal/animate.js';
 import { cx, srOnlyClasses } from '../../internal/styles.js';
+import { graphemesOf } from '../../internal/text.js';
 import type {
   PlassAnimateMode,
   PlassAnimateProps,
@@ -79,6 +80,10 @@ const unspacedScript =
  * its characters, and anything else stays with the character before it, which
  * keeps a Latin or Hangul word whole and a full stop beside the ideograph it
  * closes.
+ *
+ * A character is a **grapheme**, what a reader counts as one, so an emoji, a
+ * flag or a letter with its accent is one part rather than the pieces it is
+ * built out of.
  */
 function piecesOf(text: string, by: PlAnimateSplitBy): string[][] {
   const pieces: string[][] = [];
@@ -98,7 +103,7 @@ function piecesOf(text: string, by: PlAnimateSplitBy): string[][] {
 
     let piece: string[] = [];
 
-    for (const character of Array.from(word)) {
+    for (const character of graphemesOf(word)) {
       if (piece.length === 0 || unspacedScript.test(character)) {
         piece = [character];
         pieces.push(piece);
@@ -149,9 +154,10 @@ function effectStart(effect: PlassAnimation): Partial<AnimationSlotOptions> {
  *
  * **`by="character"` is not safe in every script**, and that is the one thing
  * to know before reaching for it. A character span breaks the shaping between
- * letters, so Arabic stops joining, Devanagari conjuncts come apart, and an
- * emoji built out of several code points is cut into its pieces. `word` has
- * none of those problems, is the default, and is what a headline wants anyway.
+ * letters, so Arabic stops joining. A character is a grapheme, what a reader
+ * counts as one, so an emoji, a flag or a Devanagari conjunct stays in one
+ * part. `word` keeps the shaping, is the default, and is what a headline wants
+ * anyway.
  *
  * **A screen reader is told the line, once.** The parts are hidden from the
  * accessibility tree and the whole line sits beside them in a clipped span,
