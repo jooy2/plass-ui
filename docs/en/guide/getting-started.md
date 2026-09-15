@@ -19,7 +19,7 @@ The Flutter package is built on `package:flutter/widgets.dart` alone. It imports
 
 :::
 
-> **Both packages ship the same library**, the same 127 components, the same prop vocabulary, the same tokens. They version independently, so the npm and pub.dev numbers will not always agree; see [all components](../components/).
+> **Both packages ship the same library**, the same 127 components, the same prop vocabulary, the same tokens. React adds three more — `PlFlex`, `PlPortal` and `PlVisuallyHidden` — for problems only the DOM has. They version independently, so the npm and pub.dev numbers will not always agree; see [all components](../components/).
 
 ## Install
 

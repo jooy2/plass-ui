@@ -10,7 +10,7 @@ Live previews and full parameters for every component. Pick **Flutter** in the s
 
 ---
 
-> **Plass is one design language, shipped as two libraries.** 127 components made of tinted glass and gradients, in React and in Flutter, under the same names and the same numbers.
+> **Plass is one design language, shipped as two libraries.** 127 components made of tinted glass and gradients, in React and in Flutter, under the same names and the same numbers. React adds three more for problems only the DOM has.
 >
 > Every surface answers one question: is this pressed, or does it hold something? A thing you press is a tinted pane, filled with a gradient that turns through its colour family and lit by a bloom that follows your pointer. A thing that holds something is clear glass: translucent, deeply blurred, never dyed. Nothing is bevelled or embossed, and depth is carried by light, colour and blur.
 

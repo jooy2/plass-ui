@@ -19,7 +19,7 @@ Flutter 패키지는 `package:flutter/widgets.dart`만으로 만들어졌습니�
 
 :::
 
-> **두 패키지는 같은 라이브러리를 냅니다**. 같은 127개 컴포넌트, 같은 prop 어휘, 같은 토큰. 버전은 각각 매겨지므로 npm과 pub.dev의 번호가 늘 같지는 않습니다. [모든 컴포넌트](../components/)를 보세요.
+> **두 패키지는 같은 라이브러리를 냅니다**. 같은 127개 컴포넌트, 같은 prop 어휘, 같은 토큰. React에는 DOM에만 있는 문제에 답하는 `PlFlex`, `PlPortal`, `PlVisuallyHidden` 세 개가 더 있습니다. 버전은 각각 매겨지므로 npm과 pub.dev의 번호가 늘 같지는 않습니다. [모든 컴포넌트](../components/)를 보세요.
 
 ## 설치
 

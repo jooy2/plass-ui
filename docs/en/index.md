@@ -25,7 +25,7 @@ hero:
 
 features:
   - title: Two frameworks, one library
-    details: The same 127 components in React and in Flutter, under the same names, with the same props and the same numbers. One page documents both.
+    details: The same 127 components in React and in Flutter, under the same names, with the same props and the same numbers. React adds three more for problems only the DOM has. One page documents both.
   - title: Finished when you install it
     details: The colours, shadows, blur and motion are already decided and already agree with each other. There is no theme file to fill in.
     link: /design/design-language

@@ -25,7 +25,7 @@ hero:
 
 features:
   - title: 두 프레임워크, 하나의 라이브러리
-    details: React에도 Flutter에도 같은 127개가 같은 이름으로 들어 있습니다. prop도 토큰도 숫자도 같고, 한 페이지가 둘 다 설명합니다.
+    details: React에도 Flutter에도 같은 127개가 같은 이름으로 들어 있습니다. prop도 토큰도 숫자도 같고, 한 페이지가 둘 다 설명합니다. React에는 DOM에만 있는 문제에 답하는 세 개가 더 있습니다.
   - title: 설치하면 그대로 완성
     details: 색과 그림자, 흐림, 모션이 이미 정해져 있고 서로 맞아떨어집니다. 채워 넣을 테마 파일이 없습니다.
     link: /ko/design/design-language
