@@ -5604,6 +5604,16 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      shared: true,
+      description: {
+        ko: '의미론적 색 역할. 임의 색상값은 받지 않습니다',
+        en: 'Semantic colour role. Arbitrary colour values are not accepted'
+      }
+    },
+    {
       name: 'elevation',
       type: ELEVATION,
       default: '3',
@@ -5611,6 +5621,24 @@ export const propTables: Record<string, PropRow[]> = {
       description: {
         ko: '사다리 꼭대기. 내용 위에 얹힌 것이 아니라 정말로 떠 있는 유일한 컨트롤입니다',
         en: 'The top of the ladder. This is the one control that genuinely floats over the content rather than resting on it'
+      }
+    },
+    {
+      name: 'loading',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '글리프 자리에 스피너를 띄우고 활성화를 막습니다. 포커스는 유지됩니다',
+        en: 'Spinner in place of the glyph; stops activation but keeps focus'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '사용 불가. 빛과 그림자를 잃고 페이지가 비쳐 보이며, 포커스 순서에서 빠집니다',
+        en: 'Unavailable. Loses its light and its shadow, lets the page through, and leaves the tab order'
       }
     }
   ],

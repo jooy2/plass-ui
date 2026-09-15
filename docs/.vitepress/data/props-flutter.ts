@@ -3229,12 +3229,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlFloatingActionButton', 'floating', { type: 'bool', default: 'true' }),
     from('PlFloatingActionButton', 'variant', { type: VARIANT, default: 'PlassVariant.solid' }),
     from('PlFloatingActionButton', 'size', { type: `${SIZE}?`, default: 'PlassSize.lg' }),
-    // The React table leaves these to `PlButtonProps`, so the rows come from
-    // the disc the Flutter widget draws.
-    from('PlIconButton', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlFloatingActionButton', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
     from('PlFloatingActionButton', 'elevation', { type: 'int', default: '3' }),
-    from('PlIconButton', 'loading', { type: 'bool', default: 'false' }),
-    from('PlIconButton', 'disabled', { type: 'bool?', default: 'false' })
+    from('PlFloatingActionButton', 'loading', { type: 'bool', default: 'false' }),
+    from('PlFloatingActionButton', 'disabled', { type: 'bool?', default: 'false' })
   ],
 
   PlFooter: [
