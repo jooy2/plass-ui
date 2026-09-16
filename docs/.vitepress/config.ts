@@ -596,7 +596,7 @@ const vitePressConfig: UserConfig = {
     ['link', { rel: 'shortcut icon', href: '/favicon.ico' }],
     // `--plass-primary-solid`, as a literal: a `<meta>` cannot read a custom
     // property, and this is the one place in the site that has to repeat one.
-    ['meta', { name: 'theme-color', content: '#3558ef' }],
+    ['meta', { name: 'theme-color', content: '#3f63f2' }],
     // The half of the metadata that is the same on every page. The other half —
     // the canonical URL, the title, the description, the locale alternates — is
     // per page and lives in `transformHead`.

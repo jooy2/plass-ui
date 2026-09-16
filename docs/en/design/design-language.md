@@ -72,7 +72,7 @@ So `solid` means "the tinted pane" on anything pressed and "the deepest clear gl
 
 This section is the _why_. For what the tokens actually resolve to and how to override them, see [Colour](./color).
 
-The base colour is `#3558ef`. Everything else comes off its palette.
+The base colour is `#3f63f2`, which is `--plass-primary-solid`. Everything else comes off its palette.
 
 | Role        | Where it comes from                                   |
 | ----------- | ----------------------------------------------------- |
@@ -128,7 +128,7 @@ The ladder is a flat 8px per step and it starts higher than a dense desktop tool
 
 ### The radius is a fillet
 
-It grows far more slowly than the height does, 33% of an `xs` control, 29% at `md`, 29% at `xl`. That near-constant radius is what makes two controls of different sizes read as two pieces cast in the same mould. A radius pinned to a percentage of the height gives you a small pill and a large rectangle instead.
+It grows far more slowly than the height does, 33% of an `xs` control, 30% at `md`, 29% at `xl`. That near-constant radius is what makes two controls of different sizes read as two pieces cast in the same mould. A radius pinned to a percentage of the height gives you a small pill and a large rectangle instead.
 
 ### `density`: padding, and only padding
 
