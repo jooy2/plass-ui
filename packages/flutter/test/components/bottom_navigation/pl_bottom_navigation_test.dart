@@ -244,10 +244,7 @@ void main() {
               .map((Opacity dim) => dim.opacity),
           contains(disabledOpacity),
         );
-        expect(
-          find.ancestor(of: find.text('Home'), matching: find.byType(Opacity)),
-          findsNothing,
-        );
+        expect(find.ancestor(of: find.text('Home'), matching: find.byType(Opacity)), findsNothing);
       });
 
       testWidgets('goes unavailable with the whole bar', (WidgetTester tester) async {

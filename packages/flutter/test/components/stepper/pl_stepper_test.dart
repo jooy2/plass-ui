@@ -278,9 +278,7 @@ void main() {
         ('vertical', PlassOrientation.vertical),
         ('horizontal', PlassOrientation.horizontal),
       ]) {
-        testWidgets('names a $how panel after the step it belongs to', (
-          WidgetTester tester,
-        ) async {
+        testWidgets('names a $how panel after the step it belongs to', (WidgetTester tester) async {
           final SemanticsHandle handle = tester.ensureSemantics();
           await _pump(
             tester,
@@ -295,10 +293,7 @@ void main() {
           // A reader landing in the panel is told which step it is the panel
           // for, as the React panel's `aria-labelledby` says.
           expect(
-            find.ancestor(
-              of: find.text('Verify panel'),
-              matching: find.bySemanticsLabel('Verify'),
-            ),
+            find.ancestor(of: find.text('Verify panel'), matching: find.bySemanticsLabel('Verify')),
             findsOneWidget,
           );
 

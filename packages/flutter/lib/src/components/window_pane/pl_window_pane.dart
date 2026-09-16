@@ -285,12 +285,7 @@ class _PlWindowPaneState extends State<PlWindowPane> {
       child: Offstage(
         offstage: widget.minimized,
         child: Container(
-          margin: EdgeInsets.fromLTRB(
-            metrics.band.side,
-            0,
-            metrics.band.side,
-            metrics.band.bottom,
-          ),
+          margin: EdgeInsets.fromLTRB(metrics.band.side, 0, metrics.band.side, metrics.band.bottom),
           color: paint.body,
           child: widget.child ?? const SizedBox.shrink(),
         ),

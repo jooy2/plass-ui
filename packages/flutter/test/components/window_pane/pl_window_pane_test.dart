@@ -181,15 +181,10 @@ void main() {
       expect(find.text('Body'), findsNothing);
     });
 
-    testWidgets('keeps the rolled-up body in the tree, out of reach', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('keeps the rolled-up body in the tree, out of reach', (WidgetTester tester) async {
       final SemanticsHandle handle = tester.ensureSemantics();
 
-      await _pump(
-        tester,
-        const PlWindowPane(title: Text('Notes'), child: _Kept()),
-      );
+      await _pump(tester, const PlWindowPane(title: Text('Notes'), child: _Kept()));
 
       final _KeptState state = tester.state<_KeptState>(find.byType(_Kept));
 

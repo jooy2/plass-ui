@@ -193,10 +193,7 @@ void main() {
 
       testWidgets('stays where it is with no callback at all', (WidgetTester tester) async {
         await tester.pumpWidget(
-          host(
-            const PlFloatingBottomNavigation<String>(items: _items, value: 'home'),
-            width: 360,
-          ),
+          host(const PlFloatingBottomNavigation<String>(items: _items, value: 'home'), width: 360),
         );
         await tester.pumpAndSettle();
 
@@ -217,10 +214,7 @@ void main() {
         final Color? ink = _glyphInk(tester);
 
         await tester.pumpWidget(
-          host(
-            const PlFloatingBottomNavigation<String>(items: _items, value: 'home'),
-            width: 360,
-          ),
+          host(const PlFloatingBottomNavigation<String>(items: _items, value: 'home'), width: 360),
         );
         await tester.pumpAndSettle();
 
