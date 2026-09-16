@@ -60,6 +60,19 @@ class _HarnessState extends State<_Harness> {
   }
 }
 
+/// The colour the glyph of the first destination is drawn in.
+Color? _glyphInk(WidgetTester tester) => tester
+    .widget<IconTheme>(
+      find
+          .ancestor(
+            of: find.byKey(const ValueKey<String>('home-glyph')),
+            matching: find.byType(IconTheme),
+          )
+          .first,
+    )
+    .data
+    .color;
+
 void main() {
   group('PlFloatingBottomNavigation', () {
     group('the bar', () {
@@ -176,6 +189,49 @@ void main() {
         );
 
         handle.dispose();
+      });
+
+      testWidgets('stays where it is with no callback at all', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            const PlFloatingBottomNavigation<String>(items: _items, value: 'home'),
+            width: 360,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.bySemanticsLabel('Search'));
+        await tester.pump();
+
+        // Nothing to change it: a frozen bar is a bar the app is driving from
+        // somewhere else.
+        expect(find.bySemanticsLabel('Search'), findsOneWidget);
+      });
+
+      testWidgets('still marks the current destination with no callback', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(const _Harness(), width: 360));
+        await tester.pumpAndSettle();
+
+        final Color? ink = _glyphInk(tester);
+
+        await tester.pumpWidget(
+          host(
+            const PlFloatingBottomNavigation<String>(items: _items, value: 'home'),
+            width: 360,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Frozen is not unmarked: the key stays lit under the current disc and
+        // the glyph on it keeps the ink that reads against the gradient,
+        // instead of turning muted over a dimmed key.
+        expect(_glyphInk(tester), ink);
+        expect(
+          find.descendant(of: find.byType(AnimatedPositioned), matching: find.byType(Opacity)),
+          findsNothing,
+        );
       });
 
       testWidgets('does not answer an unavailable destination', (WidgetTester tester) async {

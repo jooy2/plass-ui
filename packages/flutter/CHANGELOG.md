@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- **A `PlFloatingBottomNavigation` with no `onChanged` still marks the current destination.** Leaving the callback out counted every destination as unavailable, so the key went quiet and the glyph on it turned muted: a bar the app drives from elsewhere showed nothing as current. The key stays lit and the current glyph keeps its ink now, and no disc takes a press, as before. It is the rule `PlBottomNavigation` already follows.
+
 - **An unavailable destination in a `PlBottomNavigation` is dimmed.** A `PlBottomNavigationItem` with `disabled` was drawn in the muted ink a resting destination already has, so nothing told the two apart. It is now dimmed and drained of colour, which is the `opacity-50 saturate-[0.35]` of the React item and what `PlFloatingBottomNavigation` already did with its own.
 
 - **A `PlHotKeys` shortcut reads its keys in order wherever it sits.** Each cap carried its own name, so a cap with a spoken name was a node of its own while a plain letter was loose text that merged in ahead of it: inside a `PlButton` or a `PlCommandPalette` row, ⌘N read "N, Command". The shortcut is now one node named by its keys in order, "Command N", and the caps are off the semantics tree.

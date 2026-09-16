@@ -313,8 +313,9 @@ class _PlFloatingBottomNavigationState<T> extends State<PlFloatingBottomNavigati
               tokens: tokens,
               // The light goes out on the key the same way it goes out on the
               // disc over it, or an unavailable destination is a dimmed glyph
-              // on a fully lit gradient.
-              quiet: widget.onChanged == null || (chosen >= 0 && widget.items[chosen].disabled),
+              // on a fully lit gradient. A bar with no `onChanged` is frozen
+              // rather than unavailable, so its key stays lit.
+              quiet: chosen >= 0 && widget.items[chosen].disabled,
             ),
           ),
         row,
@@ -355,15 +356,19 @@ class _PlFloatingBottomNavigationState<T> extends State<PlFloatingBottomNavigati
     double disc,
     int index,
   ) {
-    final unavailable = widget.disabled || item.disabled || widget.onChanged == null;
+    final unavailable = widget.disabled || item.disabled;
+    // With no `onChanged` the bar is frozen rather than unavailable: nothing in
+    // it answers a press, and the destination the app says is current is still
+    // drawn as current, as `PlBottomNavigation` already does.
+    final interactive = !unavailable && widget.onChanged != null;
     final selected = widget.value != null && widget.value == item.value;
     final round = BorderRadius.circular(disc / 2);
 
     return PlassInteractive(
       key: _keys[index],
-      enabled: !unavailable,
-      interactive: !unavailable,
-      cursor: unavailable ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
+      enabled: interactive,
+      interactive: interactive,
+      cursor: interactive ? SystemMouseCursors.click : SystemMouseCursors.forbidden,
       onTap: () => widget.onChanged?.call(item.value),
       builder: (BuildContext context, PlassInteraction state) {
         // No surface of its own on the current disc. What is under its glyph is
@@ -419,11 +424,11 @@ class _PlFloatingBottomNavigationState<T> extends State<PlFloatingBottomNavigati
 
         return Semantics(
           button: true,
-          enabled: !unavailable,
+          enabled: interactive,
           selected: selected,
           // Never drawn, always read.
           label: item.label,
-          onTap: unavailable ? null : () => widget.onChanged?.call(item.value),
+          onTap: interactive ? () => widget.onChanged?.call(item.value) : null,
           child: ExcludeSemantics(child: content),
         );
       },
