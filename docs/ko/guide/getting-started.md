@@ -316,7 +316,7 @@ PlassTheme(brightness: Brightness.dark, child: ...)
 
 ## 브라우저 지원
 
-토큰이 `color-mix()`와 `backdrop-filter`를 씁니다. 2023년 이후의 Chrome, Safari, Firefox를 뜻합니다. `backdrop-filter`가 없는 곳에서는 blur만 빠지고 채움과 hairline, tint된 그림자, 포인터 glow는 그대로 동작합니다. 시트가 유리 대신 평평한 반투명 패널로 보일 뿐입니다.
+토큰이 `color-mix()`와 `backdrop-filter`를 씁니다. Chrome과 Edge 111, Safari 16.4, Firefox 128 이상을 뜻합니다. 앞의 둘은 2023년 3월, Firefox는 2024년 7월입니다. `backdrop-filter`가 없는 곳에서는 blur만 빠지고 채움과 hairline, tint된 그림자, 포인터 glow는 그대로 동작합니다. 시트가 유리 대신 평평한 반투명 패널로 보일 뿐입니다.
 
 정확한 버전과 오래된 브라우저에서 빠지는 것은 [브라우저 지원](../browser-support)에 있습니다.
 
