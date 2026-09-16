@@ -44,6 +44,10 @@ PlButton(
 ```
 
 ```dart
+// `Icons` is Material's own set, and the one import above does not bring it in.
+// A Cupertino app or a bare `WidgetsApp` uses whatever glyphs it already has.
+import 'package:flutter/material.dart' show Icons;
+
 PlButton(
   variant: PlassVariant.glass,
   color: PlassColor.secondary,
