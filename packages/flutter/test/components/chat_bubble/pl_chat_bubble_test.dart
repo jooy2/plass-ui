@@ -9,6 +9,15 @@ import '../../support/host.dart';
 Finder _glyph(PlassGlyphShape shape) =>
     find.byWidgetPredicate((Widget widget) => widget is PlassGlyph && widget.shape == shape);
 
+/// How lit the first of the three typing dots is drawn.
+double _lit(WidgetTester tester) => tester
+    .widgetList<DecoratedBox>(find.byType(DecoratedBox))
+    .map((DecoratedBox box) => box.decoration)
+    .whereType<BoxDecoration>()
+    .firstWhere((BoxDecoration decoration) => decoration.shape == BoxShape.circle)
+    .color!
+    .a;
+
 void main() {
   group('PlChatBubble', () {
     group('shapes', () {
@@ -199,28 +208,39 @@ void main() {
       testWidgets('and keep lighting in turn, only slower, when motion is reduced', (
         WidgetTester tester,
       ) async {
-        double lit() => tester
-            .widgetList<DecoratedBox>(find.byType(DecoratedBox))
-            .map((DecoratedBox box) => box.decoration)
-            .whereType<BoxDecoration>()
-            .firstWhere((BoxDecoration decoration) => decoration.shape == BoxShape.circle)
-            .color!
-            .a;
-
         await tester.pumpWidget(
           host(const PlChatBubble(typing: true), width: 400, disableAnimations: true),
         );
         await tester.pump();
 
-        final start = lit();
+        final start = _lit(tester);
 
         // Dots that were stopped would still be where they started.
         await tester.pump(const Duration(milliseconds: 600));
-        expect(lit(), isNot(closeTo(start, 0.01)));
+        expect(_lit(tester), isNot(closeTo(start, 0.01)));
 
         // A whole cycle at full speed, which slowed dots have not finished.
-        await tester.pump(const Duration(milliseconds: 600));
-        expect(lit(), isNot(closeTo(start, 0.01)));
+        await tester.pump(const Duration(milliseconds: 650));
+        expect(_lit(tester), isNot(closeTo(start, 0.01)));
+
+        await tester.pumpWidget(host(const SizedBox.shrink()));
+      });
+
+      testWidgets('and light in turn over the React build’s 1.25-second cycle', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(const PlChatBubble(typing: true), width: 400));
+        await tester.pump();
+
+        final start = _lit(tester);
+
+        // Halfway through, the first dot is at its brightest.
+        await tester.pump(const Duration(milliseconds: 625));
+        expect(_lit(tester), isNot(closeTo(start, 0.01)));
+
+        // And a whole cycle on, back where it started.
+        await tester.pump(const Duration(milliseconds: 625));
+        expect(_lit(tester), closeTo(start, 0.001));
 
         await tester.pumpWidget(host(const SizedBox.shrink()));
       });

@@ -2,6 +2,10 @@
 
 ## vNext (2026--)
 
+### Fixed
+
+- **The typing dots of a `PlChatBubble` run the React build's cycle.** The three dots lit in turn over 1.2 seconds here and over 1.25 on the web, so the same thread shown in the two builds drifted apart as it was watched. Both take 1.25 seconds now, and the slowed cycle under a reduced-motion preference is unchanged.
+
 ## 1.4.0 (2026-09-15)
 
 ### Breaking changes

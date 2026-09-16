@@ -62,8 +62,9 @@ const double _markScale = 1.15;
 /// A typing dot, as a fraction of the line it sits on.
 const double _dotScale = 0.45;
 
-/// How long one dot takes to come up and go down again.
-const Duration _dotCycle = Duration(milliseconds: 1200);
+/// How long one dot takes to come up and go down again, the 1.25 seconds the
+/// React build's `plass-typing` keyframes run.
+const Duration _dotCycle = Duration(milliseconds: 1250);
 
 /// And how long under a reduced-motion preference, where the dots are slowed
 /// rather than stopped: they are what says somebody is still typing, and dots
