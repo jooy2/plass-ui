@@ -54,6 +54,47 @@ afterEach(async () => {
 });
 
 describe('PlAnimateCounter', () => {
+  it('builds one formatter for a `format` written inline', async () => {
+    const Native = Intl.NumberFormat;
+    let built = 0;
+
+    class Counted extends Native {
+      constructor(locales?: Intl.LocalesArgument, options?: Intl.NumberFormatOptions) {
+        super(locales, options);
+        built += 1;
+      }
+    }
+
+    Object.defineProperty(Intl, 'NumberFormat', {
+      value: Counted,
+      configurable: true,
+      writable: true
+    });
+
+    try {
+      const counter = () => (
+        <PlAnimateCounter value={1000} duration={400} format={{ notation: 'compact' }} />
+      );
+
+      const screen = await render(counter());
+
+      // An options object written inline is a new reference on every render
+      // around the counter, and memoising on the object itself built another
+      // `Intl.NumberFormat` for each one.
+      for (let pass = 0; pass < 5; pass += 1) {
+        await screen.rerender(counter());
+      }
+
+      expect(built).toBe(1);
+    } finally {
+      Object.defineProperty(Intl, 'NumberFormat', {
+        value: Native,
+        configurable: true,
+        writable: true
+      });
+    }
+  });
+
   describe('pausing', () => {
     const linear = (t: number) => t;
 

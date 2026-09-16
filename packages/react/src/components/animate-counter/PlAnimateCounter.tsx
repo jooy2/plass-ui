@@ -133,10 +133,23 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
     nonce: value
   });
 
-  const formatter = React.useMemo(
-    () => new Intl.NumberFormat(defaults.locale, format),
-    [defaults.locale, format]
-  );
+  /**
+   * One `Intl.NumberFormat`, built again only when the options really differ.
+   *
+   * `format` is an options object, and one written inline — which is how the
+   * prop reads best — is a new reference on every render. While the count is
+   * running that is every frame, so memoising on the object itself built sixty
+   * formatters a second. The key is what the options say rather than which
+   * object said it.
+   */
+  const formatKey = `${defaults.locale ?? ''}\u0000${JSON.stringify(format ?? null)}`;
+  const held = React.useRef<{ key: string; formatter: Intl.NumberFormat } | null>(null);
+
+  if (held.current === null || held.current.key !== formatKey) {
+    held.current = { key: formatKey, formatter: new Intl.NumberFormat(defaults.locale, format) };
+  }
+
+  const formatter = held.current.formatter;
 
   const [shown, setShown] = React.useState(() => (still ? value : from));
 
