@@ -99,8 +99,8 @@ export interface PlWindowPaneProps extends Omit<
    *
    * What being in front looks like is the system's: coloured traffic lights on
    * macOS against grey ones, an accent title bar and an accent border on
-   * Windows 10, a tinted header bar on GNOME — and, on all four, a window one
-   * step further off the page than the ones behind it.
+   * Windows 10, a tinted header bar on GNOME — and, on every one of them, a
+   * window one step further off the page than the ones behind it.
    */
   active?: boolean;
   /**
@@ -235,7 +235,7 @@ const resizeHandles = [
 ] as const;
 
 /**
- * A window, drawn the way one of four systems draws it, with anything at all
+ * A window, drawn the way one of eight systems draws it, with anything at all
  * inside it.
  *
  * It is not a real window and does not pretend to be one: there is no desktop,
@@ -753,8 +753,9 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
           backgroundColor: 'var(--p-window-bar)',
           backgroundImage: 'var(--p-window-bar-image)',
           color: 'var(--p-window-bar-fg)',
-          // Windows 10 is the one of the four that rules its title bar off from
-          // the body. On the others the two are one sheet in two shades.
+          // Windows 10 and Mac OS X are the two of the eight that rule their
+          // title bar off from the body. On the other six the two are one
+          // sheet in two shades.
           borderBlockEnd: chrome.rule ? '1px solid var(--p-window-line)' : undefined
         }}
         onPointerDown={beginDrag}
