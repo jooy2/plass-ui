@@ -92,7 +92,7 @@ highlight 레이어가 없는 이유가 바로 이것입니다. 한쪽 모서리
 --plass-{color}-accent      표면 위에서 읽히는 색 — 테마별
 ```
 
-나머지(`-fill`, `-tint`, `-soft`, `-line`, `-ring`)는 파생 블록에서 `color-mix()`로 계산됩니다. **색 계열 추가는 두 번의 편집입니다**, `PlassColor` union에 항목 하나, `styles.css`에 세 줄, 그리고 각 테마의 `accent`.
+나머지(`-fill`, `-tint`, `-soft`, `-line`, `-ring`)는 파생 블록에서 `color-mix()`로 계산됩니다. 다만 색 계열을 더하는 일은 그 세 줄로 끝나지 않습니다. 어디어디에 써야 하는지는 [색](color)에 있습니다.
 
 ### 테마가 바뀌어도 같은 키 색
 

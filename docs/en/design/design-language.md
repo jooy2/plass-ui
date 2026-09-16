@@ -92,7 +92,7 @@ The base colour is `#3f63f2`, which is `--plass-primary-solid`. Everything else 
 --plass-{color}-accent      readable on a surface — per theme
 ```
 
-Everything else (`-fill`, `-tint`, `-soft`, `-line`, `-ring`) is computed with `color-mix()` in the derived block. **Adding a colour family is two edits**, one entry in the `PlassColor` union and three lines in `styles.css`, plus its `accent` in each theme.
+Everything else (`-fill`, `-tint`, `-soft`, `-line`, `-ring`) is computed with `color-mix()` in the derived block. Adding a colour family is more than those three lines, though: see [Colour](color) for every place one has to be written.
 
 ### The key colour across themes
 

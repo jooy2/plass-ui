@@ -43,7 +43,7 @@ Everything a component actually reads is computed from those, in the derived blo
 | `--plass-{c}-line` / `-hover` | `accent` at 30% / 48% |
 | `--plass-{c}-ring` | `accent`, opaque, so it clears 3:1 against the surface in both themes |
 
-So **adding a colour family is two edits**: one entry in the `PlassColor` union, and three lines plus a per-theme `accent` in `styles.css`.
+So **adding a colour family is five places**: one entry in the `PlassColor` union, the three hand-picked lines on `:root`, an `accent` in each of the three theme blocks in `styles.css` (the light `:root`, the `prefers-color-scheme: dark` block and the forced-dark one), and the eight derived declarations, which are written out per family rather than generated. The Flutter package has its own `PlassColor` and its own families to match.
 
 ## The key colour across themes
 

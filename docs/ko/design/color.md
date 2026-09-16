@@ -43,7 +43,7 @@ order: 2
 | `--plass-{c}-line` / `-hover` | `accent`를 30% / 48% |
 | `--plass-{c}-ring` | 불투명한 `accent`. 두 테마 모두 표면과 3:1 이상의 대비를 냅니다 |
 
-그래서 **색 계열 추가는 두 번의 편집입니다**. `PlassColor` union에 항목 하나, 그리고 `styles.css`에 세 줄과 테마별 `accent`.
+그래서 **색 계열 추가는 다섯 군데를 건드리는 일입니다**. `PlassColor` union의 항목 하나, `:root`에 손으로 고른 세 줄, `styles.css`의 테마 블록 세 곳(라이트 `:root`, `prefers-color-scheme: dark` 블록, 강제 다크 블록)마다 `accent` 하나, 그리고 계열마다 풀어 쓴 파생 선언 여덟 줄입니다. Flutter 패키지에는 짝을 맞출 자기 `PlassColor`와 자기 계열이 따로 있습니다.
 
 ## 테마가 바뀌어도 같은 키 색
 
