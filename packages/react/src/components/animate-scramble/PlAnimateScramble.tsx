@@ -6,7 +6,7 @@ import { useRender } from '@base-ui/react/use-render';
 import { useAnimationRun } from '../../internal/animate.js';
 import { usePrefersReducedMotion } from '../../internal/media.js';
 import { poolOf, scrambleAt } from '../../internal/scramble.js';
-import { cx, srOnlyClasses } from '../../internal/styles.js';
+import { cx, srOnlyCopyClasses } from '../../internal/styles.js';
 import type { PlassAnimateTrigger } from '../../types.js';
 
 export interface PlAnimateScrambleProps extends Omit<
@@ -205,7 +205,7 @@ export const PlAnimateScramble = /* @__PURE__ */ React.forwardRef<
       children: (
         <>
           {/* The line, once, for a reader who is not watching it settle. */}
-          <span className={srOnlyClasses}>{children}</span>
+          <span className={srOnlyCopyClasses}>{children}</span>
           <span aria-hidden="true">{shown}</span>
         </>
       ),

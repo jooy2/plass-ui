@@ -4,7 +4,7 @@ import * as React from 'react';
 import { mergeProps } from '@base-ui/react/merge-props';
 import { isInfinite, useAnimationRun } from '../../internal/animate.js';
 import { usePrefersReducedMotion } from '../../internal/media.js';
-import { srOnlyClasses } from '../../internal/styles.js';
+import { srOnlyCopyClasses } from '../../internal/styles.js';
 import { graphemesOf, textOf } from '../../internal/text.js';
 import type { PlassAnimateProps } from '../../types.js';
 
@@ -266,7 +266,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
       data-state={run.state}
       {...mergeProps(props, run.handlers)}
     >
-      <span className={srOnlyClasses}>{source}</span>
+      <span className={srOnlyCopyClasses}>{source}</span>
       {/* `relative` so the caret, which is taken out of the flow, still scrolls
           and clips with the text inside a scrolling panel. */}
       <span aria-hidden="true" className="relative whitespace-pre-wrap">

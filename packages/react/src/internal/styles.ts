@@ -476,6 +476,16 @@ export const iconClasses = '[&_svg]:pointer-events-none [&_svg]:size-[1.2em] [&_
 export const srOnlyClasses =
   'absolute size-px overflow-hidden whitespace-nowrap [clip-path:inset(50%)]';
 
+/**
+ * The same clipped box, for a copy of text that is also drawn.
+ *
+ * A text effect draws its line and puts a second copy of it beside it for a
+ * screen reader, so a selection across the pair used to hand back the line
+ * twice. This one is left out of the selection: the drawn copy is the one a
+ * sighted reader can see, and the one they mean when they copy it.
+ */
+export const srOnlyCopyClasses = `${srOnlyClasses} select-none`;
+
 /* ---------------------------------------------------------------------------
  * Colour slots
  *

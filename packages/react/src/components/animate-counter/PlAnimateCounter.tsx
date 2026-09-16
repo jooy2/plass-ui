@@ -6,7 +6,7 @@ import { useRender } from '@base-ui/react/use-render';
 import { useAnimationRun } from '../../internal/animate.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { usePrefersReducedMotion } from '../../internal/media.js';
-import { cx, srOnlyClasses } from '../../internal/styles.js';
+import { cx, srOnlyCopyClasses } from '../../internal/styles.js';
 import type { PlassAnimateTrigger } from '../../types.js';
 
 export interface PlAnimateCounterProps extends Omit<
@@ -240,7 +240,7 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
       children: (
         <>
           {/* The answer, once, for a reader who is not watching it arrive. */}
-          <span className={srOnlyClasses}>{answer}</span>
+          <span className={srOnlyCopyClasses}>{answer}</span>
           <span aria-hidden="true">{formatter.format(shown)}</span>
         </>
       ),

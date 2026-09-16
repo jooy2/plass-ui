@@ -78,5 +78,5 @@ The React build names a CSS keyframe instead, and that difference is not an inco
 ## Accessibility
 
 - **A screen reader is told the line, once.** The parts are hidden from the accessibility tree and the whole line sits beside them, which is what stops a split headline being read out one word, or one letter, at a time. That is the defect this pattern is known for everywhere it appears without it.
-- Text selection and copying still give you the line, gaps included.
+- Text selection and copying still give you the line, gaps included, and give it once: the clipped copy a screen reader reads is left out of the selection.
 - Where a reader has asked for less motion nothing plays, and the line is simply there.

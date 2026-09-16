@@ -6,6 +6,8 @@
 
 ### Fixed
 
+- **Copying a text effect gives its line once.** `PlAnimateSplit`, `PlAnimateScramble`, `PlAnimateCounter` and `PlAnimateTyping` each draw their line and keep a clipped copy of it beside them for a screen reader, and a selection took both: "Internationalization is long" came back as "Internationalization is longInternationalization is long". The clipped copy is now left out of the selection, and a screen reader still reads it.
+
 - **A floating `PlBackTop` floats, and clears the safe area.** `floating` pinned the button with a `fixed` utility, which `PlButton`'s own `relative` beat at the same specificity later in the stylesheet, so the button scrolled with the page instead of staying in the corner — every demo on the site passes `floating={false}`, which is why nobody saw it. It is pinned inline now, as `PlFloatingActionButton` is, 24px off the bottom end corner with `env(safe-area-inset-bottom)` added to that, so it no longer sits under the home indicator or the navigation bar of an edge-to-edge screen. A `style` of your own still replaces the pinning.
 
 - **A vertical `PlStepper` names its panel after the step it sits in.** Only the horizontal panel was a `role="group"` named by its step, so a screen reader landing in a vertical one was told nothing about which step it belonged to. Both are named now, which is what the stepper page has always said.

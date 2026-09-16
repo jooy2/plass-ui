@@ -14,7 +14,7 @@ import {
   useAnimationRun,
   type AnimationSlotOptions
 } from '../../internal/animate.js';
-import { cx, srOnlyClasses } from '../../internal/styles.js';
+import { cx, srOnlyCopyClasses } from '../../internal/styles.js';
 import { graphemesOf } from '../../internal/text.js';
 import type {
   PlassAnimateMode,
@@ -270,7 +270,7 @@ export const PlAnimateSplit = /* @__PURE__ */ React.forwardRef<
       children: (
         <>
           {/* The line, once, rather than one announcement per part. */}
-          <span className={srOnlyClasses}>{children}</span>
+          <span className={srOnlyCopyClasses}>{children}</span>
           <span aria-hidden="true">
             {pieces.map((piece, index) => {
               // A separator is a gap and is left as one: giving whitespace an
