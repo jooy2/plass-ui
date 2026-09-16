@@ -134,6 +134,43 @@ describe('PlAnimateMarquee', () => {
     expect(root.style.getPropertyValue('--p-anim-gap')).toBe('48px');
   });
 
+  it('measures once rather than on every render a parent does', async () => {
+    const Native = window.ResizeObserver;
+    let built = 0;
+
+    class Counted extends Native {
+      constructor(callback: ResizeObserverCallback) {
+        super(callback);
+        built += 1;
+      }
+    }
+
+    window.ResizeObserver = Counted as unknown as typeof ResizeObserver;
+
+    try {
+      const screen = await render(
+        <PlAnimateMarquee className="marquee-under-test">
+          <span>Acme</span>
+        </PlAnimateMarquee>
+      );
+
+      const first = built;
+
+      // The same content, as a new element: that is what a parent rendering
+      // again hands the strip, and it used to read the layout back and build
+      // another observer every time.
+      await screen.rerender(
+        <PlAnimateMarquee className="marquee-under-test">
+          <span>Acme</span>
+        </PlAnimateMarquee>
+      );
+
+      expect(built).toBe(first);
+    } finally {
+      window.ResizeObserver = Native;
+    }
+  });
+
   describe('duration', () => {
     it('is the measured strip divided by the speed, not a number a caller gave', async () => {
       await render(

@@ -153,6 +153,11 @@ export const PlAnimateMarquee = /* @__PURE__ */ React.forwardRef<
    * copies after the first away, so the preference is a dependency: turning it
    * on changes what the box holds without changing the size of either element
    * being observed.
+   *
+   * `children` is not a dependency. It is a new reference on every render a
+   * parent does, so listing it read the layout back and built a new observer
+   * each time — and it buys nothing: content that changes the strip resizes
+   * the track, which is the element being observed.
    */
   React.useEffect(() => {
     const box = boxRef.current;
@@ -185,7 +190,7 @@ export const PlAnimateMarquee = /* @__PURE__ */ React.forwardRef<
     observer.observe(box);
 
     return () => observer.disconnect();
-  }, [vertical, children, still]);
+  }, [vertical, still]);
 
   // An explicit duration wins; otherwise the measurement decides, and until the
   // first measurement lands there is a sane number rather than `0ms`, which
