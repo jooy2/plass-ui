@@ -27,7 +27,10 @@ function clip() {
   const style = document.createElement('style');
 
   style.textContent =
-    '[role="tablist"] { display: flex; overflow-x: auto; width: 160px; }' +
+    // `position: relative` is on the real list too, and Base UI's reveal
+    // measures a tab against its nearest positioned ancestor: without it the
+    // arithmetic is run against the page under a right-to-left direction.
+    '[role="tablist"] { position: relative; display: flex; overflow-x: auto; width: 160px; }' +
     '[role="tab"] { flex: 0 0 auto; width: 120px; }';
   document.head.append(style);
 
