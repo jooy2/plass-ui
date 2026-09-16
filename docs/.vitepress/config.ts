@@ -131,7 +131,6 @@ function componentDependencies(): string[] {
   ].filter((name) => !name.startsWith('@types/'));
 }
 
-/** `/` for whichever locale is the default, `/{lang}/` for every other one. */
 /**
  * The `id` a heading gets, and the target its `#link` has to hit.
  *
@@ -167,6 +166,7 @@ function slugify(text: string): string {
     .normalize('NFC');
 }
 
+/** `/` for whichever locale is the default, `/{lang}/` for every other one. */
 const localeBase = (lang: string) => (lang === defaultLocale ? '/' : `/${lang}/`);
 
 const commonSidebarConfig: VitePressSidebarOptions = {
@@ -838,16 +838,16 @@ function byText(a: GeneratedSidebarItem, b: GeneratedSidebarItem): number {
 }
 
 /**
- * Guide, Examples, Components, Design, Discover more — with the component groups
- * kept as headings inside Components.
+ * Guide, Examples, Components, Hooks, Design, Discover more, with the component
+ * groups kept as headings inside Components.
  *
  * Most of that cannot be stated by the folder tree, which is what this function
  * is for:
  *
  * - **Examples comes before Components.** A reader who has not decided yet
- *   wants to see the library doing something before they are handed fifty-odd
- *   reference pages, and the folder tree sorts `components/` above `examples/`
- *   whichever way you name them.
+ *   wants to see the library doing something before they are handed a hundred
+ *   and thirty reference pages, and the folder tree sorts `components/` above
+ *   `examples/` whichever way you name them.
  * - **The index page is an entry rather than the heading's link.** Left to the
  *   generator, `/components/` is only reachable by clicking the word
  *   "Components" above the menu, which does not look like a link and is easy to

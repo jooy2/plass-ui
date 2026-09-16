@@ -65,9 +65,10 @@ html[data-fw='flutter'] .plass-fw[data-fw]:not([data-fw~='flutter']) {
 /*
  * Pinned to the top of the sidebar's own scroller.
  *
- * The menu is fifty entries long and the switch decides what every one of them
- * will say, so a reader four groups down who wants the other framework should
- * not have to scroll back up to a control they can no longer see. It is the one
+ * The menu is over a hundred and fifty entries long and the switch decides what
+ * every one of them will say, so a reader four groups down who wants the other
+ * framework should not have to scroll back up to a control they can no longer
+ * see. It is the one
  * thing in the sidebar that is not a link, which is also what makes it safe to
  * pin: nothing is hidden behind it that the reader was on their way to.
  *
