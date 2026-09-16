@@ -32,7 +32,7 @@ afterAll(() => {
 const effects = [
   ['PlAnimateSplit', <PlAnimateSplit key="split">Internationalization is long</PlAnimateSplit>],
   ['PlAnimateScramble', <PlAnimateScramble key="scramble">Deploying</PlAnimateScramble>],
-  ['PlAnimateCounter', <PlAnimateCounter key="counter" to={42} />],
+  ['PlAnimateCounter', <PlAnimateCounter key="counter" value={42} />],
   ['PlAnimateTyping', <PlAnimateTyping key="typing">Ship it</PlAnimateTyping>]
 ] as const;
 
