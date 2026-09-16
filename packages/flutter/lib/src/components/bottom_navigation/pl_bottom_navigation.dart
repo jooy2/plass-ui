@@ -332,6 +332,13 @@ class PlBottomNavigation<T> extends StatelessWidget {
           child: Center(child: content),
         );
 
+        // A destination of its own that is unavailable is dimmed and drained of
+        // colour, the `opacity-50 saturate-[0.35]` the React item carries and
+        // what `PlFloatingBottomNavigation` already does with its own. The bar
+        // being disabled as a whole dims the row around the item instead, so
+        // only the item's own state is read here.
+        content = plassStateFilter(child: content, disabled: item.disabled, lit: false);
+
         if (state.focusVisible) {
           content = CustomPaint(
             // Inward: the item is inside a sheet that clips, and a ring drawn
