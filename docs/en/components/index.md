@@ -10,7 +10,7 @@ aside: false
 
 ::: fw flutter
 
-The gallery below is the **React** build, because the cards are one page of 133 live previews and a Flutter frame is a whole engine each. The list is the same either way, apart from `PlFlex`, `PlPortal` and `PlVisuallyHidden`, which are React-only. Each page says which of the two it covers.
+The gallery below is the **React** build, because the cards are one page of 130 live previews and a Flutter frame is a whole engine each. The list is the same either way, apart from `PlFlex`, `PlPortal` and `PlVisuallyHidden`, which are React-only. Each page says which of the two it covers.
 
 :::
 
