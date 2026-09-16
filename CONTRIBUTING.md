@@ -60,6 +60,7 @@ While we don't have strict restrictions on commit messages, we recommend that yo
 - Use a format like `xxx: message (fixes #1)`. The content in parentheses is optional.
 - The message includes a summary of what was modified.
 - It's a good idea to separate multiple modifications into their own commit messages.
+- Keep one component to one commit. A change that touches five components is five commits, so that a later reader can find, read or revert the one they care about on its own.
 
 It is recommended that you include a tag at the beginning of the commit message. Between the tag and the message, use `: ` between the tag and the message.
 
@@ -77,6 +78,12 @@ Informal tags:
 
 - `package`: Modifications to package settings, modules, or GitHub projects
 - `typo`: Fix typos
+
+This repository holds two packages, so a tag is preceded by the codebase the change belongs to:
+
+- `[javascript]` for a change to `packages/react` alone, as in `[javascript] fix: keep the focus on the trigger after a picker is cleared`
+- `[dart]` for a change to `packages/flutter` alone, as in `[dart] test: cover a window pane unmounted in the middle of a drag`
+- No prefix for a change that touches both packages, or neither, as in `docs: say on the tabs page which panels are rendered`
 
 ### Create a pull request
 
