@@ -1507,10 +1507,14 @@ int _floorTime(int time, PlChartTimeUnit unit) {
       return DateTime(at.year, at.month, at.day).millisecondsSinceEpoch;
     case PlChartTimeUnit.hour:
       return DateTime(at.year, at.month, at.day, at.hour).millisecondsSinceEpoch;
+    // Floored towards negative infinity, which is what `Math.floor` does on
+    // the web. `~/` truncates towards zero, so an instant before 1970 landed
+    // on the minute *above* it and the axis started a minute later than the
+    // React one.
     case PlChartTimeUnit.minute:
-      return time ~/ _minute * _minute;
+      return (time / _minute).floor() * _minute;
     case PlChartTimeUnit.second:
-      return time ~/ _second * _second;
+      return (time / _second).floor() * _second;
   }
 }
 

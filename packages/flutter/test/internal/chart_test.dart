@@ -298,6 +298,22 @@ void main() {
     });
   });
 
+  group('a time axis before 1970', () {
+    test('starts an axis of seconds at or before its own data', () {
+      final double from = DateTime(1969, 6, 3, 9, 30, 25).millisecondsSinceEpoch.toDouble();
+      final double to = DateTime(1969, 6, 3, 9, 30, 45).millisecondsSinceEpoch.toDouble();
+      final TimeScale scale = timeScale(ChartExtent(from, to));
+
+      // An axis of seconds is rounded out to the minute holding it, and
+      // truncating towards zero put that on the minute *above* a negative
+      // timestamp: every tick landed past the data, the axis had one of them
+      // and nothing to span, and it came out a day wide.
+      expect(scale.unit, PlChartTimeUnit.second);
+      expect(scale.ticks.first, lessThanOrEqualTo(from));
+      expect(scale.max - scale.min, lessThan(60 * 1000));
+    });
+  });
+
   group('a time axis with no span', () {
     test('opens a day around the moment both ends name', () {
       final double at = DateTime(2026, 3, 1, 9, 30).millisecondsSinceEpoch.toDouble();

@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- **A time axis of minutes or seconds before 1970 starts at its own data.** The first tick was worked out with `~/`, which truncates towards zero, so a negative timestamp floored to the unit *above* it: the axis began a minute after the first point and one minute later than the React axis. It is floored towards negative infinity now, as `Math.floor` does on the web.
+
 - **A treemap of more than thirty-two tiles colours tiles of equal value as the React build does.** The tiles are sorted by area, and Dart reaches for a quicksort past thirty-two items, so two tiles of the same value could swap places and take each other's colour. Ties now keep the order they were given, which is what a JavaScript sort does for nothing.
 
 - **A `PlScatterChart` mark's ring is as thin as the React build's.** The surface showing through around each mark was stroked at twice `markGap`, and a stroke straddles the path with the fill over it keeping only the outer half, so the ring came out 2px where the web draws 1.
