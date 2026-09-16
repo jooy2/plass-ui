@@ -905,10 +905,13 @@ class _TrackState extends State<_Track> {
       },
     );
 
-    track = ClipRRect(borderRadius: widget.borderRadius, child: track);
+    // Keyed here rather than on the `Container` below it: the thumb is placed
+    // across the box inside the hairline border, so a press has to be read
+    // against that same box or it sets a value up to a pixel from where it
+    // landed.
+    track = ClipRRect(key: _box, borderRadius: widget.borderRadius, child: track);
 
     track = Container(
-      key: _box,
       height: widget.height,
       decoration: BoxDecoration(
         borderRadius: widget.borderRadius,

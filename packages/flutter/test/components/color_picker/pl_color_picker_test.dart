@@ -411,6 +411,41 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('sets the value where the press landed', (WidgetTester tester) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+      final List<String> seen = <String>[];
+
+      await tester.pumpWidget(
+        host(
+          PlColorPicker(inline: true, value: '#ff0000', onValueChanged: seen.add),
+          width: 400,
+          height: 600,
+          overlay: true,
+        ),
+      );
+
+      // The `Stack` is the box inside the hairline border, and the thumb is
+      // placed across it, so a press on its leading edge is a hue of zero and
+      // one on its far edge is the far end of the wheel. Read against the box
+      // outside the border, each of them lands about a degree away.
+      final Finder rail = find
+          .descendant(of: find.bySemanticsLabel('Hue'), matching: find.byType(Stack))
+          .first;
+      final Rect box = tester.getRect(rail);
+
+      await tester.tapAt(Offset(box.left, box.center.dy));
+      await tester.pumpAndSettle();
+
+      expect(seen.last, '#ff0000');
+
+      await tester.tapAt(Offset(box.right, box.center.dy));
+      await tester.pumpAndSettle();
+
+      expect(seen.last, '#ff0000');
+
+      handle.dispose();
+    });
+
     testWidgets('writes the format it was asked for', (WidgetTester tester) async {
       final List<String> seen = <String>[];
 
