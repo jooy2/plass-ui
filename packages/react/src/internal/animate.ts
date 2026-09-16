@@ -409,6 +409,13 @@ export interface AnimationRun {
  * the element where its first frame is holding it, which for a slide is a
  * screen from where it lives, so the box it reports on is the wrong box.
  */
+/**
+ * Marks an element whose animation is being rewound, for the length of one
+ * layout read. `src/styles.css` reads it to turn a pseudo-element's own
+ * animation off and on again, which no inline style can do.
+ */
+const REWIND_ATTRIBUTE = 'data-plass-rewind';
+
 export function useAnimationRun({
   trigger,
   play,
@@ -454,6 +461,11 @@ export function useAnimationRun({
       }
     }
 
+    // An inline style cannot reach a pseudo-element, and the arc of a
+    // `PlAnimateLighting` is drawn on one. The attribute is what the stylesheet
+    // answers for those, and it is off again before anything is painted.
+    element.setAttribute(REWIND_ATTRIBUTE, '');
+
     for (const target of targets) {
       target.style.animationName = 'none';
     }
@@ -463,6 +475,8 @@ export function useAnimationRun({
     for (const target of targets) {
       target.style.animationName = '';
     }
+
+    element.removeAttribute(REWIND_ATTRIBUTE);
   }, [run]);
 
   // Whether the element is still being held on its own first frame, which is

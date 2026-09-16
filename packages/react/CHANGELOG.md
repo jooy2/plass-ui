@@ -6,6 +6,8 @@
 
 ### Fixed
 
+- **`PlAnimateLighting` starts over when it is hovered or played again.** The rewind clears `animation-name` on the element, and an inline style cannot reach a pseudo-element, so the arc carried on from wherever the last pass had left it. The root now carries `data-plass-rewind` for the length of that read, and the stylesheet answers it.
+
 - **`PlAnimateLighting` turns on the curve it was given.** The arc is drawn on a pseudo-element, and `linear` was written into it, so `easing` reached the root and stopped there. It is the default now rather than the only answer, which is what `curve` already does in the Flutter build.
 
 - **`PlAnimateTyping` types a new string of the same length again.** The reset watched how many characters there were rather than what they said, so "design" becoming "deploy" appeared whole instead of being typed. The Flutter build already started over.

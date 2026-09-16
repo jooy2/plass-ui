@@ -26,6 +26,25 @@ function arc(): CSSStyleDeclaration {
   return getComputedStyle(document.querySelector('.lighting-under-test')!, '::before');
 }
 
+/** How far round the arc has travelled, in degrees. */
+function angle(): number {
+  return parseFloat(arc().getPropertyValue('--plass-glow-angle'));
+}
+
+function Lighting({ play }: { play: boolean }) {
+  return (
+    <PlAnimateLighting
+      className="lighting-under-test"
+      trigger="manual"
+      play={play}
+      repeat={1}
+      duration={6000}
+    >
+      <span>Generating</span>
+    </PlAnimateLighting>
+  );
+}
+
 describe('the PlAnimateLighting arc', () => {
   it('turns at a steady pace by default', async () => {
     await render(
@@ -47,5 +66,20 @@ describe('the PlAnimateLighting arc', () => {
     // `easing` reached the root and stopped there: the pseudo-element had
     // `linear` written into it. The Flutter build follows its `curve`.
     expect(arc().animationTimingFunction).toBe('ease-in-out');
+  });
+
+  it('starts over when it is played again', async () => {
+    const screen = await render(<Lighting play={false} />);
+
+    await screen.rerender(<Lighting play />);
+    await expect.poll(angle, { timeout: 3000 }).toBeGreaterThan(45);
+
+    await screen.rerender(<Lighting play={false} />);
+    await screen.rerender(<Lighting play />);
+
+    // The rewind clears `animation-name` on the element, and an inline style
+    // cannot reach a pseudo-element: the arc used to carry on from where the
+    // last pass had left it.
+    expect(angle()).toBeLessThan(30);
   });
 });
