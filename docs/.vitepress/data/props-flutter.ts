@@ -2045,8 +2045,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'String?',
       required: false,
       description: {
-        ko: '스크린 리더가 읽는 설명. null은 장식이라는 진짜 답이고, fallback이 물러설 자리이기도 합니다',
-        en: 'The description a screen reader reads. null marks the picture decorative, and is also what the fallback falls back to'
+        ko: '스크린 리더가 읽는 설명. null과 빈 문자열은 장식이라는 뜻이고, fallback이 물러설 자리이기도 합니다',
+        en: 'The description a screen reader reads. null, or the empty string, marks the picture decorative, and is also what the fallback falls back to'
       }
     }),
     from('PlImage', 'ratio', { type: 'double?' }),
@@ -2104,8 +2104,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'String?',
       default: "'Preview'",
       description: {
-        ko: '미리 보기 오버레이의 이름. 사진 버튼의 이름에도 쓰여, semanticLabel 뒤에 소문자로 붙어 "A portrait — preview"가 되고 semanticLabel이 없으면 이 값만으로 이름이 됩니다',
-        en: 'The name of the preview overlay. It also names the picture\'s press target: after semanticLabel and in lower case, "A portrait — preview", or on its own when there is no semanticLabel'
+        ko: '미리 보기 오버레이의 이름. 사진 버튼의 이름에도 쓰여, semanticLabel 뒤에 소문자로 붙어 "A portrait — preview"가 되고 semanticLabel이 없거나 비어 있으면 이 값만으로 이름이 됩니다',
+        en: 'The name of the preview overlay. It also names the picture\'s press target: after semanticLabel and in lower case, "A portrait — preview", or on its own when semanticLabel is left out or empty'
       }
     }),
     from('PlImage', 'onStatusChange', {

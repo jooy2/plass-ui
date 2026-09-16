@@ -42,7 +42,7 @@ PlImage(
 
 ::: fw flutter
 
-`image`는 URL이 아니라 `ImageProvider`입니다. 네트워크 이미지 · 에셋 · 파일 · 메모리 버퍼가 공유하는 모양이 그것이기 때문입니다. `semanticLabel`이 `alt`에 해당하고, `null`은 사진을 장식으로 표시합니다.
+`image`는 URL이 아니라 `ImageProvider`입니다. 네트워크 이미지 · 에셋 · 파일 · 메모리 버퍼가 공유하는 모양이 그것이기 때문입니다. `semanticLabel`이 `alt`에 해당하고, `null`과 빈 문자열은 사진을 장식으로 표시합니다.
 
 **`ratio`가 없으면 위젯은 사진 자신의 intrinsic 크기입니다.** `Image`의 동작이고 일부러 덮어쓰지 않았습니다. 받은 너비를 채우게 만드는 것이 `ratio`이고, 그것이 자리를 잡아 두는 일의 나머지 절반입니다.
 

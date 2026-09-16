@@ -208,9 +208,11 @@ class PlImage extends StatefulWidget {
 
   /// The description a screen reader reads.
   ///
-  /// `null` marks the picture decorative and takes it off the semantics tree,
-  /// which is the right call for a background or a texture and the wrong one for
-  /// anything a reader would miss. It is also what the [fallback] falls back to.
+  /// `null`, or the empty string, marks the picture decorative and takes it off
+  /// the semantics tree, which is the right call for a background or a texture
+  /// and the wrong one for anything a reader would miss. The empty string is
+  /// there because `alt=""` says the same thing in the React build. It is also
+  /// what the [fallback] falls back to.
   final String? semanticLabel;
 
   /// The proportion the box holds while the picture is on its way — `16 / 9`.
@@ -331,8 +333,8 @@ class PlImage extends StatefulWidget {
 
   /// The name of the preview overlay. It also names the picture's press target:
   /// after the [semanticLabel] and in lower case, "A portrait — preview", or on
-  /// its own when there is no [semanticLabel]. Left out, it is the label pack's
-  /// word for a preview.
+  /// its own when the [semanticLabel] is left out or empty. Left out, it is the
+  /// label pack's word for a preview.
   final String? previewLabel;
 
   /// Called when the picture has loaded, and when it has failed.
@@ -349,6 +351,14 @@ const double _letterboxBlur = 24;
 class _PlImageState extends State<PlImage> {
   PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
   PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+
+  /// The description, with an empty one read as none at all, the way the React
+  /// build reads `alt=""` as a decorative picture.
+  String? get _label {
+    final String? label = widget.semanticLabel;
+
+    return label == null || label.isEmpty ? null : label;
+  }
 
   PlImageStatus _status = PlImageStatus.loading;
   bool _open = false;
@@ -494,8 +504,8 @@ class _PlImageState extends State<PlImage> {
       fit: BoxFit.contain,
       // Described as the picture on the page is, so the overlay says what it
       // is showing and not only that it is a preview.
-      semanticLabel: widget.semanticLabel,
-      excludeFromSemantics: widget.semanticLabel == null,
+      semanticLabel: _label,
+      excludeFromSemantics: _label == null,
     );
   }
 
@@ -658,7 +668,7 @@ class _PlImageState extends State<PlImage> {
           // would otherwise be read twice.
           child: ExcludeSemantics(
             child: Text(
-              widget.semanticLabel ?? '',
+              _label ?? '',
               textAlign: TextAlign.center,
               style: TextStyle(color: tokens.mutedFg, fontSize: 13),
             ),
@@ -848,11 +858,12 @@ class _PlImageState extends State<PlImage> {
     // being a button with no name. With a label it is named by the picture and
     // then that word, "A portrait — preview", as the React button is.
     final String previewLabel = widget.previewLabel ?? PlassTheme.labelsOf(context).preview;
+    final String? label = _label;
     final String? name = !widget.preview
-        ? widget.semanticLabel
-        : widget.semanticLabel == null
+        ? label
+        : label == null
         ? previewLabel
-        : '${widget.semanticLabel} — ${previewLabel.toLowerCase()}';
+        : '$label — ${previewLabel.toLowerCase()}';
 
     Widget result = name == null
         ? ExcludeSemantics(child: picture)

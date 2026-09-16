@@ -1560,6 +1560,45 @@ void main() {
 
         handle.dispose();
       });
+
+      testWidgets('and by the word alone when that label is empty', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await _pump(
+          tester,
+          PlassTheme.merge(
+            defaults: const PlassDefaults(labels: PlassLabels(preview: 'Vorschau')),
+            child: PlImage(image: _ok, ratio: 1, semanticLabel: '', preview: true),
+          ),
+          overlay: true,
+        );
+        await _decode(tester);
+
+        // An empty description is no description, as `alt=""` is in the React
+        // build, so the button is not named "— vorschau".
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('Vorschau')),
+          isSemantics(label: 'Vorschau', isButton: true, hasTapAction: true),
+        );
+
+        handle.dispose();
+      });
+
+      testWidgets('and a picture with an empty label is decorative', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await _pump(tester, PlImage(image: _ok, ratio: 1, semanticLabel: ''));
+        await _decode(tester);
+
+        expect(
+          find.byWidgetPredicate(
+            (Widget widget) => widget is Semantics && widget.properties.image == true,
+          ),
+          findsNothing,
+        );
+
+        handle.dispose();
+      });
     });
   });
 }

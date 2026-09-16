@@ -42,7 +42,7 @@ Every native `<img>` attribute passes straight through, `srcSet`, `sizes` and `c
 
 ::: fw flutter
 
-`image` is an `ImageProvider` rather than a URL, because that is the shape every source has in common (a network image, an asset, a file, a memory buffer), and `semanticLabel` is what `alt` is: `null` marks the picture decorative.
+`image` is an `ImageProvider` rather than a URL, because that is the shape every source has in common (a network image, an asset, a file, a memory buffer), and `semanticLabel` is what `alt` is: `null`, or the empty string, marks the picture decorative.
 
 **Without a `ratio` the widget is the picture's own intrinsic size**, which is `Image`'s behaviour and is deliberately not overridden. `ratio` is what makes it fill the width it is given, which is the other half of reserving the space.
 
