@@ -10,6 +10,12 @@ aside: false
 
 <Demo src="examples/dashboard" :flutter="false" :min-height="900" />
 
+::: fw flutter
+
+The screen is built with the React package, and there is no Flutter version of it. The table below still names the components each block is made of, and each component's own page says whether it has a Flutter half.
+
+:::
+
 The whole screen is one file: `docs/.vitepress/demos/examples/dashboard.tsx`. It is live, search the table, filter it by channel or status, tick some rows and the bulk actions appear.
 
 ## Composition

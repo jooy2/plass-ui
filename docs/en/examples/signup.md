@@ -10,6 +10,12 @@ aside: false
 
 <Demo src="examples/signup" :flutter="false" :min-height="760" />
 
+::: fw flutter
+
+The flow is built with the React package, and there is no Flutter version of it. The table below still names the components each block is made of, and each component's own page says whether it has a Flutter half.
+
+:::
+
 The whole flow is one file: `docs/.vitepress/demos/examples/signup.tsx`. It is live, submit the first step empty and watch the errors arrive, then type any six digits to get past the code.
 
 ## Composition

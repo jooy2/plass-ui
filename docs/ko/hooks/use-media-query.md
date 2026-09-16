@@ -7,7 +7,7 @@ order: 1
 
 <p class="plass-lede">창이 CSS media query에 맞는지를 boolean으로 알려 주고, 답이 바뀌면 다시 렌더링합니다. 라이브러리가 줄곧 갖고 있던 것이며, 공개하는 이유는 직접 쓰면 세 줄이고 그 세 줄이 거의 언제나 한 렌더 늦게 구독되기 때문입니다.</p>
 
-<Demo src="hooks/media-query" :min-height="200" />
+<Demo src="hooks/media-query" :flutter="false" :min-height="200" />
 
 ::: fw react
 

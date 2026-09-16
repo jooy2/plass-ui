@@ -7,7 +7,7 @@ order: 4
 
 <p class="plass-lede">가로 한 줄 또는 세로 한 칸, 그리고 그 안에 놓인 것들 사이의 간격입니다. 축이 반응형이고 그 결정을 스타일시트가 하므로, 휴대폰에서는 쌓이고 노트북에서는 한 줄로 서는 폼이 prop 하나로 끝나고 다시 렌더링하지 않습니다.</p>
 
-<Demo src="flex/hero" :min-height="200" />
+<Demo src="flex/hero" :flutter="false" :min-height="200" />
 
 ::: fw react
 
@@ -75,7 +75,7 @@ LayoutBuilder(
 
 그래서 서버가 보내는 첫 페인트가 모든 너비에서 이미 맞고, 창을 끌어도 다시 렌더링하지 않으며, 리스너도 붙지 않습니다. 라이브러리의 모든 반응형 prop에 [breakpoints](../../design/breakpoints) 문서가 긋는 선이 이것입니다. **스타일**만 정하는 값은 CSS에서 풀고, **구조**를 정하는 값은(어떤 DOM을 만들지와 화살표 키가 어디로 갈지까지 바꾸는 orientation처럼) JavaScript에서 풀며 그 대가를 냅니다.
 
-<Demo src="flex/direction" :min-height="260">
+<Demo src="flex/direction" :flutter="false" :min-height="260">
 
 ::: fw react
 
@@ -101,7 +101,7 @@ LayoutBuilder(
 
 `wrap`은 기본값이 `false`이고, 그것이 flex 상자가 원래 하는 일입니다. 줄바꿈은 결정이지 결정하지 않은 상태가 아닙니다. 반대로 기본값을 잡으면 누군가 딱 맞게 크기를 잡아 둔 툴바가 소리 없이 흐트러집니다.
 
-<Demo src="flex/toolbar" :min-height="200">
+<Demo src="flex/toolbar" :flutter="false" :min-height="200">
 
 ::: fw react
 

@@ -7,7 +7,7 @@ order: 1
 
 <p class="plass-lede">Whether the window matches a CSS media query, as a boolean that re-renders when the answer changes. The library has always had this; it is public now because writing it by hand is three lines that are nearly always subscribed one render too late.</p>
 
-<Demo src="hooks/media-query" :min-height="200" />
+<Demo src="hooks/media-query" :flutter="false" :min-height="200" />
 
 ::: fw react
 

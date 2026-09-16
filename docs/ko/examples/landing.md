@@ -10,6 +10,12 @@ aside: false
 
 <Demo src="examples/landing" :flutter="false" :min-height="1000" />
 
+::: fw flutter
+
+이 페이지는 React 패키지로 만들었고 Flutter 버전은 없습니다. 아래 표는 각 블록이 어떤 컴포넌트로 이루어졌는지 그대로 알려 주고, 각 컴포넌트에 Flutter 쪽이 있는지는 그 컴포넌트의 페이지에 있습니다.
+
+:::
+
 페이지 전체가 파일 하나입니다. `docs/.vitepress/demos/examples/landing.tsx`. 실제로 동작하는 페이지라 요금제를 월 단위로 바꾸고, 후기를 넘겨 보고, FAQ를 열어 볼 수 있습니다.
 
 ## 구성

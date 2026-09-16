@@ -7,7 +7,7 @@ order: 2
 
 <p class="plass-lede">Which rung of the breakpoint ladder the window is on, and the value a <code>PlassResponsive</code> map resolves to there. The same five widths <code>PlGrid</code> uses and Tailwind's own variants use, answered in JavaScript.</p>
 
-<Demo src="hooks/breakpoint" :min-height="320" />
+<Demo src="hooks/breakpoint" :flutter="false" :min-height="320" />
 
 ::: fw react
 

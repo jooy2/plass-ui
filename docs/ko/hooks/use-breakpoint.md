@@ -7,7 +7,7 @@ order: 2
 
 <p class="plass-lede">창이 breakpoint 사다리의 어느 칸에 있는지, 그리고 PlassResponsive 맵이 거기서 어떤 값이 되는지 알려 줍니다. PlGrid와 Tailwind variant가 쓰는 그 다섯 너비를 JavaScript에서 답합니다.</p>
 
-<Demo src="hooks/breakpoint" :min-height="320" />
+<Demo src="hooks/breakpoint" :flutter="false" :min-height="320" />
 
 ::: fw react
 

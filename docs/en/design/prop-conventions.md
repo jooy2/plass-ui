@@ -81,9 +81,9 @@ There is no `onKeyDown` underneath this one. A widget that needs finer key handl
 
 :::
 
-## Styling a component from outside
-
 ::: fw react
+
+## Styling a component from outside
 
 Four channels, and they are not interchangeable. Reach for them in this order.
 

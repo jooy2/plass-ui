@@ -7,7 +7,7 @@ order: 4
 
 <p class="plass-lede">A row or a column, and the gap between the things in it. The axis is responsive and is resolved by the stylesheet, so a form that stacks on a phone and lines up on a laptop is one prop and no re-render.</p>
 
-<Demo src="flex/hero" :min-height="200" />
+<Demo src="flex/hero" :flutter="false" :min-height="200" />
 
 ::: fw react
 
@@ -75,7 +75,7 @@ Three components lay children out in a line, and they are not variations on each
 
 So the first paint a server sends is already right at every width, dragging a window costs no re-render, and no listener is installed. That is the same line [breakpoints](../../design/breakpoints) draws for every responsive prop in the library: a value that decides only **style** is resolved in CSS, and a value that decides **structure** (an orientation that changes which DOM a component builds and which way its arrow keys walk) is resolved in JavaScript and pays for it.
 
-<Demo src="flex/direction" :min-height="260">
+<Demo src="flex/direction" :flutter="false" :min-height="260">
 
 ::: fw react
 
@@ -101,7 +101,7 @@ It is not responsive, deliberately. It folds into the same slot `direction` writ
 
 `wrap` is `false` by default, which is what a flex box already does. A row that wraps is a decision rather than the absence of one. The opposite default would silently reflow a toolbar somebody had sized to fit.
 
-<Demo src="flex/toolbar" :min-height="200">
+<Demo src="flex/toolbar" :flutter="false" :min-height="200">
 
 ::: fw react
 

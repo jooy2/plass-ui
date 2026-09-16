@@ -99,7 +99,7 @@ PlShow(until: PlassBreakpointFloor.md, child: PlList(children: rows));
 
 :::
 
-<Demo src="show/layout" :min-height="320">
+<Demo src="show/layout" :flutter="false" :min-height="320">
 
 ::: fw react
 

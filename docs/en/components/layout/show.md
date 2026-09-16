@@ -99,7 +99,7 @@ Nothing is built at a width the gate is closed at, so an expensive subtree costs
 
 :::
 
-<Demo src="show/layout" :min-height="320">
+<Demo src="show/layout" :flutter="false" :min-height="320">
 
 ::: fw react
 
