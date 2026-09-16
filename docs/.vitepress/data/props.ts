@@ -530,6 +530,8 @@ const timeColumnProps: PropRow[] = [
 function animateProps(options: {
   duration: string;
   repeat?: string;
+  /** What starts it, for an effect that does not start on mount. */
+  trigger?: string;
   /** Names a component genuinely does not take — a reel has no direction. */
   omit?: string[];
   /**
@@ -537,6 +539,8 @@ function animateProps(options: {
    * their children. The four that already read their children cannot.
    */
   stagger?: boolean;
+  /** The gap between two children, for an effect that staggers by default. */
+  staggerDefault?: string;
   /** The two scroll-linked props, on the same six and absent from the same four. */
   timeline?: boolean;
 }): PropRow[] {
@@ -601,7 +605,7 @@ function animateProps(options: {
     {
       name: 'trigger',
       type: "'mount' | 'visible' | 'hover' | 'manual'",
-      default: "'mount'",
+      default: options.trigger ?? "'mount'",
       shared: true,
       description: {
         ko: '무엇이 시작시키는지. mount는 화면에 올라오자마자, visible은 스크롤되어 보일 때, hover는 포인터나 focus가 닿을 때, manual은 play가 시킬 때만',
@@ -669,7 +673,7 @@ function animateProps(options: {
       {
         name: 'stagger',
         type: 'number',
-        default: '0',
+        default: options.staggerDefault ?? '0',
         shared: true,
         description: {
           ko: '자식마다 delay에 더해지는 시간(ms). 0이면 상자 자체가 재생되고, 그 외에는 효과가 자식들로 옮겨 가면서 상자에서는 빠집니다',
@@ -1553,6 +1557,7 @@ export const propTables: Record<string, PropRow[]> = {
     },
     ...animateProps({
       duration: '400',
+      trigger: "'manual'",
       omit: ['mode', 'stagger', 'durationStep', 'reverse', 'timeline', 'range']
     }),
     {
@@ -1638,7 +1643,16 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'Which of the entrances each part plays. A part starts where the component of that name starts by default: a slide from its own height below, a zoom from 0.4 of its size'
       }
     },
-    ...animateProps({ duration: '400', stagger: true, timeline: true }),
+    {
+      name: 'mode',
+      type: "'in' | 'out'",
+      default: "'in'",
+      description: {
+        ko: '각 조각이 들어오는지 나가는지. out은 같은 등장을 거꾸로 돌린 것이고, 끝난 자리에 붙들려 있습니다',
+        en: 'Whether each part arrives or leaves. out is the same entrance run backwards, and it is held where it ends'
+      }
+    },
+    ...animateProps({ duration: '400', stagger: true, staggerDefault: '40', timeline: true }),
     {
       name: 'render',
       type: 'ReactElement | (props, state) => ReactElement',

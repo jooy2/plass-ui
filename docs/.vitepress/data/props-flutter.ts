@@ -201,7 +201,7 @@ function timeColumnProps(component: string): PropRow[] {
  */
 function animateFlutterProps(
   component: string,
-  options: { duration: string; repeat?: string; omit?: string[] }
+  options: { duration: string; repeat?: string; trigger?: string; omit?: string[] }
 ): PropRow[] {
   // Built from a list of names rather than filtered afterwards, because `from`
   // throws on a React prop that is not there — and a prop this widget genuinely
@@ -220,7 +220,10 @@ function animateFlutterProps(
     },
     alternate: { type: 'bool', default: 'false' },
     paused: { type: 'bool', default: 'false' },
-    trigger: { type: 'PlassAnimateTrigger', default: 'PlassAnimateTrigger.mount' },
+    trigger: {
+      type: 'PlassAnimateTrigger',
+      default: options.trigger ?? 'PlassAnimateTrigger.mount'
+    },
     play: { type: 'bool', default: 'false' },
     once: { type: 'bool', default: 'true' },
     threshold: { type: 'double', default: '0.2' }
@@ -507,6 +510,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlAnimateShake', 'distance', { type: 'double', default: '6' }),
     ...animateFlutterProps('PlAnimateShake', {
       duration: 'Duration(milliseconds: 400)',
+      trigger: 'PlassAnimateTrigger.manual',
       omit: ['alternate']
     }),
     {
