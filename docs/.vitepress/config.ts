@@ -401,8 +401,13 @@ function localeOfPage(path: string | undefined): Locale {
 function propsRow(row: PropRow, locale: Locale): string {
   // The space either side of the asterisk is deliberate: `variant*` reads as a
   // prop whose name ends in one.
+  //
+  // The word rather than the mark for a screen reader: an asterisk is read as
+  // "star" or skipped, and a `title` is a tooltip a pointer has to hover for,
+  // which a touch reader never gets at all.
   const required = row.required
-    ? `<span class="plass-props-required" title="${escapeHtml(t(locale, 'required'))}"> * </span>`
+    ? `<span class="plass-props-required" aria-hidden="true"> * </span>` +
+      `<span class="plass-sr-only">${escapeHtml(t(locale, 'required'))}</span>`
     : '';
 
   const shared = row.shared

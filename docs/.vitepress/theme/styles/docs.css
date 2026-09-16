@@ -335,6 +335,19 @@
   color: var(--vp-c-danger-1, #e5484d);
 }
 
+/* Present to a screen reader and to nobody else. A one-pixel clipped box is the
+   only form that is absent to a sighted reader and present to every other kind:
+   `display: none` takes the text off the accessibility tree with the screen,
+   and `opacity: 0` leaves a ghost the size of the words. */
+.plass-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
 /* Unions wrap at the pipes because those are spaces. No `word-break` — it would
    split `'outline'` down the middle, which is worse than a taller row. */
 .vp-doc .plass-props .plass-props-type {
