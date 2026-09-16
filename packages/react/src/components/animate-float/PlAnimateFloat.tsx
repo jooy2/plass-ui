@@ -80,6 +80,10 @@ export const PlAnimateFloat = /* @__PURE__ */ React.forwardRef<HTMLDivElement, P
     ref
   ) {
     const length = lengthValue(distance);
+    // The same arithmetic `slideOffsets` does, and for the same reason: a minus
+    // sign in front of a value only negates a plain number, and writes
+    // `-calc(…)`, `-var(…)` and `--8px`, none of which are lengths.
+    const negative = typeof distance === 'number' ? `${-distance}px` : `calc(-1 * ${length})`;
     const vertical = orientation === 'vertical';
 
     const animate = useAnimateElement({
@@ -92,7 +96,7 @@ export const PlAnimateFloat = /* @__PURE__ */ React.forwardRef<HTMLDivElement, P
       alternate,
       x: vertical ? '0' : length,
       // Up rather than down, which is what "float" means everywhere it is used.
-      y: vertical ? `-${length}` : '0',
+      y: vertical ? negative : '0',
       trigger,
       play,
       once,

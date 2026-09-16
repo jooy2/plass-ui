@@ -6,6 +6,8 @@
 
 ### Fixed
 
+- **A `PlAnimateFloat` takes a `distance` that has to be worked out, or that is negative.** The upward drift was written by putting a minus sign in front of the value, which only negates a plain number: `calc(1rem + 2px)` became `-calc(1rem + 2px)` and `-8` became `--8px`, and neither is a length, so the drift was dropped. It is now the same `calc(-1 * …)` a `PlAnimateSlide` uses, and a negative number drifts the other way.
+
 - **A `PlAnimateCounter` with an inline `format` builds one formatter.** The `Intl.NumberFormat` was memoised on the options object, and an object written inline — which is how the prop reads best — is a new reference on every render around the counter, so each one built another. It is now keyed by what the options say.
 
 - **`PlAnimateLighting` starts over when it is hovered or played again.** The rewind clears `animation-name` on the element, and an inline style cannot reach a pseudo-element, so the arc carried on from wherever the last pass had left it. The root now carries `data-plass-rewind` for the length of that read, and the stylesheet answers it.

@@ -63,7 +63,30 @@ describe('PlAnimateFloat', () => {
 
       expect(
         document.querySelector<HTMLElement>('.second')!.style.getPropertyValue('--p-anim-y')
-      ).toBe('-0.5rem');
+      ).toBe('calc(-1 * 0.5rem)');
+    });
+
+    it('takes a length that has to be worked out, and one that is negative', async () => {
+      await render(
+        <PlAnimateFloat className="float-under-test" distance="var(--drift, 1rem)">
+          Illustration
+        </PlAnimateFloat>
+      );
+
+      // A minus sign in front of a value only negates a plain number: this
+      // used to read `-var(--drift, 1rem)`, which is not a length.
+      expect(slot('--p-anim-y')).toBe('calc(-1 * var(--drift, 1rem))');
+
+      await render(
+        <PlAnimateFloat className="float-under-test third" distance={-8}>
+          Illustration
+        </PlAnimateFloat>
+      );
+
+      // And a negative number drifts the other way rather than writing `--8px`.
+      expect(
+        document.querySelector<HTMLElement>('.third')!.style.getPropertyValue('--p-anim-y')
+      ).toBe('8px');
     });
 
     it('drifts along the row when it was told to', async () => {
