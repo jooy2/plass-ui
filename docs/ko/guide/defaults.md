@@ -128,11 +128,26 @@ provider는 **중첩되고 병합됩니다**. compact가 아닌 애플리케이�
 
 ### 지금 무엇이 걸려 있는지 읽기
 
+::: fw react
+
 ```tsx
 import { usePlassDefaults } from 'plass-ui';
 
 const { size, locale } = usePlassDefaults();
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+final defaults = PlassTheme.defaultsOf(context);
+final size = defaults.size;
+```
+
+`PlassTheme`에는 필드마다 읽는 방법도 따로 있습니다. `sizeOf`, `colorOf`, `densityOf` 같은 것들입니다.
+
+:::
 
 주변 컴포넌트와 줄을 맞춰야 하는 자체 컴포넌트를 위한 것입니다. 모든 필드가 optional입니다. provider가 정하기 전까지는 아무것도 정해져 있지 않습니다.
 

@@ -128,11 +128,26 @@ The theme carries `names` here rather than a `locale`, and `names` reaches `PlCa
 
 ### Reading what is in scope
 
+::: fw react
+
 ```tsx
 import { usePlassDefaults } from 'plass-ui';
 
 const { size, locale } = usePlassDefaults();
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+final defaults = PlassTheme.defaultsOf(context);
+final size = defaults.size;
+```
+
+`PlassTheme` also has a reader for each field on its own: `sizeOf`, `colorOf`, `densityOf`, and the rest.
+
+:::
 
 For a component of your own that has to line up with the ones around it. Every field is optional. Nothing is decided until a provider decides it.
 
