@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- **A `PlScatterChart` mark's ring is as thin as the React build's.** The surface showing through around each mark was stroked at twice `markGap`, and a stroke straddles the path with the fill over it keeping only the outer half, so the ring came out 2px where the web draws 1.
+
 - **A chart writes its numbers the way the React build writes them.** With no `format` of its own an axis, a tooltip and the summary wrote `48300` where the web wrote `48.3K`, and `1.50` where the web wrote `1.5`. From ten thousand up a number is now compact, `12.3K`, `1.2M`, `1.5B`, `1.5T`, with a value that rounds up to a thousand moving a unit along, and under it the plain number with at most two decimals and no trailing zeros. A number is still not grouped, because the package ships no `intl` and a separator is the locale's to choose; pass a `format` for one.
 
 - **A time axis whose two ends are the same moment opens a day around it.** `min` and `max` naming one instant left the axis with no width, and the two builds failed differently: every mark landed on the origin here and a screen off the plot on the web. The guard that already opened a day around a single instant in the data now covers a caller's own bounds too.

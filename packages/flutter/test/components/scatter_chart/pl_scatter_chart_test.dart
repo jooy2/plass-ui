@@ -3,6 +3,7 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/chart.dart';
 
 import '../../support/canvas.dart';
 import '../../support/host.dart';
@@ -224,6 +225,30 @@ void main() {
 
       expect(canvas.fills, isNotEmpty);
       expect(canvas.fills.every((Paint paint) => paint.color.a == 1), isTrue);
+    });
+
+    testWidgets('rings each mark as thinly as the React build does', (
+      WidgetTester tester,
+    ) async {
+      await _pump(tester, PlScatterChart(series: spend));
+
+      final canvas = RecordingCanvas();
+      final Finder plot = find.byWidgetPredicate(
+        (Widget widget) =>
+            widget is CustomPaint && widget.painter != null && widget.size.height > 40,
+      );
+
+      tester.widget<CustomPaint>(plot.first).painter!.paint(canvas, tester.getSize(plot.first));
+
+      final List<Paint> rings = canvas.paints
+          .where((Paint paint) => paint.style == PaintingStyle.stroke)
+          .toList();
+
+      // A stroke straddles the path and the fill over it keeps only the outer
+      // half, so `markGap` is the 1px of surface the React mark shows and
+      // twice it was a ring twice as thick.
+      expect(rings, isNotEmpty);
+      expect(rings.every((Paint paint) => paint.strokeWidth == markGap), isTrue);
     });
 
     testWidgets('says nothing is there when every point is a gap', (WidgetTester tester) async {

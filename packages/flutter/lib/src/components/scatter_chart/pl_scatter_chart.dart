@@ -335,13 +335,17 @@ class PlScatterChart extends StatelessWidget {
 
       // The ring is the surface showing through, not a stroke drawn around the
       // mark — which is what keeps two overlapping dots two dots.
+      //
+      // `markGap` and not twice it, which is the width the React build strokes:
+      // a stroke straddles the path, and the fill painted over it keeps only
+      // the outer half, so twice the width left a ring twice as thick here.
       canvas
         ..drawPath(
           path,
           Paint()
             ..color = layout.tokens.surface
             ..style = PaintingStyle.stroke
-            ..strokeWidth = markGap * 2,
+            ..strokeWidth = markGap,
         )
         ..drawPath(
           path,
