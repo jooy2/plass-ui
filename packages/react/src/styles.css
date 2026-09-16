@@ -53,8 +53,11 @@
  * surface rather than looked at.
  *
  * Three values are hand-picked per family and everything else is derived with
- * `color-mix()`, so **adding a colour family is two edits**: one entry in
- * `PlassColor` and three lines here (plus its `accent` in each theme).
+ * `color-mix()`. Adding a family is still five places, though: one entry in
+ * `PlassColor`, those three lines here, an `accent` in each of the three theme
+ * blocks below, the eight derived declarations, which are written out per
+ * family rather than generated, and the Flutter package's own enum and
+ * families.
  *
  * `solid` and `solid-to` are the two ends of the gradient, at 135° — the
  * top-left corner and the bottom-right one. They are a **hue sweep at one
