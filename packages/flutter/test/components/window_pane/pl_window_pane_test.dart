@@ -9,6 +9,19 @@ import 'package:plass_ui/src/internal/window.dart';
 
 import '../../support/host.dart';
 
+/// A body that says whether it was kept or built again.
+class _Kept extends StatefulWidget {
+  const _Kept();
+
+  @override
+  State<_Kept> createState() => _KeptState();
+}
+
+class _KeptState extends State<_Kept> {
+  @override
+  Widget build(BuildContext context) => const Text('Body');
+}
+
 Future<void> _pump(WidgetTester tester, Widget child) async {
   tester.view.physicalSize = const Size(600, 700);
   tester.view.devicePixelRatio = 1;
@@ -166,6 +179,47 @@ void main() {
       // The bar stays where it is — a page has nowhere to send a window.
       expect(find.text('Notes'), findsOneWidget);
       expect(find.text('Body'), findsNothing);
+    });
+
+    testWidgets('keeps the rolled-up body in the tree, out of reach', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+
+      await _pump(
+        tester,
+        const PlWindowPane(title: Text('Notes'), child: _Kept()),
+      );
+
+      final _KeptState state = tester.state<_KeptState>(find.byType(_Kept));
+
+      await _pump(
+        tester,
+        const PlWindowPane(title: Text('Notes'), minimized: true, child: _Kept()),
+      );
+
+      // Still there, and the same one: a form half filled in is still half
+      // filled in when the window comes back down.
+      expect(find.byType(_Kept, skipOffstage: false), findsOneWidget);
+      expect(tester.state<_KeptState>(find.byType(_Kept, skipOffstage: false)), same(state));
+
+      // And out of reach while it is rolled up: nothing drawn, nothing read,
+      // nothing to tab into.
+      expect(find.text('Body'), findsNothing);
+      expect(find.bySemanticsLabel('Body'), findsNothing);
+      expect(
+        tester
+            .widget<ExcludeFocus>(
+              find.ancestor(
+                of: find.byType(_Kept, skipOffstage: false),
+                matching: find.byType(ExcludeFocus),
+              ),
+            )
+            .excluding,
+        isTrue,
+      );
+
+      handle.dispose();
     });
 
     testWidgets('renders nothing when it is closed', (WidgetTester tester) async {

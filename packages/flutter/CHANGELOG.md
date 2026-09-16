@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- **A minimized `PlWindowPane` keeps its body.** Rolling a window up took the content out of the tree, so everything it held — a half-filled form, a scroll position, a chosen tab — was gone when the window came back down. The body now stays in the tree, off stage and out of the focus order, which is what the window-pane page says of both builds and what the React build's `inert` body already did.
+
 - **A `PlStepper` panel is named after the step it belongs to.** Neither the panel under a horizontal rail nor the one inside a vertical step carried a name, so a screen reader landing in one was told nothing about which step it was for. Both are now a node named by the step's label, which is what the stepper page has always said and what the React panel's `aria-labelledby` does. A step whose label is not text is left as it was.
 
 - **A `PlFloatingBottomNavigation` with no `onChanged` still marks the current destination.** Leaving the callback out counted every destination as unavailable, so the key went quiet and the glyph on it turned muted: a bar the app drives from elsewhere showed nothing as current. The key stays lit and the current glyph keeps its ink now, and no disc takes a press, as before. It is the rule `PlBottomNavigation` already follows.

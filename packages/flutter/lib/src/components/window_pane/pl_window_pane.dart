@@ -273,17 +273,35 @@ class _PlWindowPaneState extends State<PlWindowPane> {
       tokens: tokens,
     );
 
-    final Widget body = Container(
-      margin: EdgeInsets.fromLTRB(metrics.band.side, 0, metrics.band.side, metrics.band.bottom),
-      color: paint.body,
-      child: widget.child ?? const SizedBox.shrink(),
+    // Rolled up rather than sent anywhere: a page has nowhere to send a window
+    // to, so the bar stays where it is with nothing under it. The body is put
+    // out of reach rather than taken away — off stage, so it is neither drawn
+    // nor read, and out of the focus order — but it stays in the tree, so a
+    // form half filled in is still half filled in when the window comes back
+    // down. That is what the React build's `inert` body does, and the wrappers
+    // are there in both states so that rolling up rebuilds nothing.
+    final Widget body = ExcludeFocus(
+      excluding: widget.minimized,
+      child: Offstage(
+        offstage: widget.minimized,
+        child: Container(
+          margin: EdgeInsets.fromLTRB(
+            metrics.band.side,
+            0,
+            metrics.band.side,
+            metrics.band.bottom,
+          ),
+          color: paint.body,
+          child: widget.child ?? const SizedBox.shrink(),
+        ),
+      ),
     );
 
     final Widget pane = Container(
       key: _paneKey,
       width: _sized?.width ?? widget.width,
       // A rolled-up window is as tall as its title bar, whatever a drag left it
-      // at — the height belongs to the body, and the body has gone.
+      // at — the height belongs to the body, and the body is off stage.
       height: widget.minimized ? widget.height : (_sized?.height ?? widget.height),
       decoration: BoxDecoration(
         color: paint.band,
@@ -304,10 +322,7 @@ class _PlWindowPaneState extends State<PlWindowPane> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           bar,
-          // Rolled up rather than sent anywhere: a page has nowhere to send a
-          // window to, so the bar stays where it is with nothing under it.
-          if (!widget.minimized)
-            if (widget.height == null) Flexible(child: body) else Expanded(child: body),
+          if (widget.height == null) Flexible(child: body) else Expanded(child: body),
         ],
       ),
     );
