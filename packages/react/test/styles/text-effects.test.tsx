@@ -9,12 +9,7 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
-import {
-  PlAnimateCounter,
-  PlAnimateScramble,
-  PlAnimateSplit,
-  PlAnimateTyping
-} from 'plass-ui';
+import { PlAnimateCounter, PlAnimateScramble, PlAnimateSplit, PlAnimateTyping } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
 
 let sheet: HTMLStyleElement;
