@@ -1655,14 +1655,25 @@ TimeScale timeScale(ChartExtent? extent, {double? min, double? max, int tickCoun
     tick = _addTime(tick, unit, count);
   }
 
-  final double end = max ?? ticks.last;
+  double axisMin = start.toDouble();
+  double axisMax = max ?? ticks.last;
+
+  /* The guard at the top opens a day around a single instant in the *data*;
+     this one does the same for a caller who passed the same `min` and `max`.
+     An axis with no width has no fraction to give, and the two packages failed
+     differently without this: every mark landed on the origin here and a
+     screen off the plot on the web. */
+  if (axisMax <= axisMin) {
+    axisMin -= _day / 2;
+    axisMax += _day / 2;
+  }
 
   return TimeScale(
-    start.toDouble(),
-    end,
+    axisMin,
+    axisMax,
     <double>[
       for (final double one in ticks)
-        if (one >= start && one <= end) one,
+        if (one >= axisMin && one <= axisMax) one,
     ],
     unit,
     count,

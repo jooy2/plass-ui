@@ -6,6 +6,8 @@
 
 ### Fixed
 
+- **A time axis whose two ends are the same moment opens a day around it.** `min` and `max` naming one instant left the axis with no width, and the two builds failed differently: a mark landed a screen off the plot here and on the origin in Flutter. The guard that already opened a day around a single instant in the data now covers a caller's own bounds too.
+
 - **A `PlAnimateFloat` takes a `distance` that has to be worked out, or that is negative.** The upward drift was written by putting a minus sign in front of the value, which only negates a plain number: `calc(1rem + 2px)` became `-calc(1rem + 2px)` and `-8` became `--8px`, and neither is a length, so the drift was dropped. It is now the same `calc(-1 * …)` a `PlAnimateSlide` uses, and a negative number drifts the other way.
 
 - **A `PlAnimateCounter` with an inline `format` builds one formatter.** The `Intl.NumberFormat` was memoised on the options object, and an object written inline — which is how the prop reads best — is a new reference on every render around the counter, so each one built another. It is now keyed by what the options say.

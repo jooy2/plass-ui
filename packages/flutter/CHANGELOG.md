@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- **A time axis whose two ends are the same moment opens a day around it.** `min` and `max` naming one instant left the axis with no width, and the two builds failed differently: every mark landed on the origin here and a screen off the plot on the web. The guard that already opened a day around a single instant in the data now covers a caller's own bounds too.
+
 - **A `cross` chart marker is one outline.** It was two overlapping rectangles, each outlined on its own, so the ring around the mark drew a cross through the middle of it. It is now the same twelve-cornered outline the React build draws.
 
 - **A `PlAnimateMarquee` with a `speed` of zero or less stands still.** The travel was divided by the speed, so zero gave an infinite number of milliseconds: rounding that threw, and the widget did not build at all. A speed of zero or less is now read as not moving and holds the strip where it is, as `paused` does, and an explicit `duration` still decides on its own.

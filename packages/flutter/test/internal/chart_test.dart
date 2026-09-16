@@ -253,6 +253,26 @@ void main() {
     });
   });
 
+  group('a time axis with no span', () {
+    test('opens a day around the moment both ends name', () {
+      final double at = DateTime(2026, 3, 1, 9, 30).millisecondsSinceEpoch.toDouble();
+      final TimeScale scale = timeScale(null, min: at, max: at);
+
+      // Without this the axis had no width, and a mark on it landed on the
+      // origin here and a screen off the plot in the React build.
+      expect(scale.max - scale.min, 24 * 60 * 60 * 1000);
+      expect(scale.fraction(at), closeTo(0.5, 0.000001));
+    });
+
+    test('opens one around a single instant in the data too', () {
+      final double at = DateTime(2026, 3, 1, 9, 30).millisecondsSinceEpoch.toDouble();
+      final TimeScale scale = timeScale(ChartExtent(at, at));
+
+      expect(scale.max, greaterThan(scale.min));
+      expect(scale.fraction(at).isFinite, isTrue);
+    });
+  });
+
   group('the date on an axis of hours', () {
     double at(int day, int hour) => DateTime(2026, 1, day, hour).millisecondsSinceEpoch.toDouble();
 

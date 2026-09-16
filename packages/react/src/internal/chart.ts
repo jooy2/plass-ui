@@ -949,7 +949,7 @@ export function timeScale(
       ? Math.max(1, Math.round(niceStep(span / tickCount / (365 * day))))
       : chosen.count;
 
-  const start = options.min ?? alignTime(low, unit, count);
+  let start = options.min ?? alignTime(low, unit, count);
   const ticks: number[] = [];
 
   /* Walked rather than multiplied, so a month is a month. The loop runs one
@@ -970,8 +970,19 @@ export function timeScale(
     tick = addTime(tick, unit, count);
   }
 
-  const end = options.max ?? ticks[ticks.length - 1];
-  const width = end - start || 1;
+  let end = options.max ?? ticks[ticks.length - 1];
+
+  /* The guard at the top opens a day around a single instant in the *data*;
+     this one does the same for a caller who passed the same `min` and `max`.
+     An axis with no width has no fraction to give, and the two packages failed
+     differently without this: a mark landed a screen off the plot here and on
+     the origin in Flutter. */
+  if (end <= start) {
+    start -= day / 2;
+    end += day / 2;
+  }
+
+  const width = end - start;
 
   return {
     min: start,

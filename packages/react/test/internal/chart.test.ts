@@ -304,6 +304,26 @@ describe('bandScale', () => {
   });
 });
 
+describe('a time axis with no span', () => {
+  it('opens a day around the moment both ends name', () => {
+    const at = new Date(2026, 2, 1, 9, 30).getTime();
+    const scale = timeScale(null, { min: at, max: at });
+
+    // Without this the axis had no width, and a mark on it landed a screen off
+    // the plot here and on the origin in the Flutter build.
+    expect(scale.max - scale.min).toBe(24 * 60 * 60 * 1000);
+    expect(scale.fraction(at)).toBeCloseTo(0.5, 6);
+  });
+
+  it('opens one around a single instant in the data too', () => {
+    const at = new Date(2026, 2, 1, 9, 30).getTime();
+    const scale = timeScale({ min: at, max: at });
+
+    expect(scale.max).toBeGreaterThan(scale.min);
+    expect(Number.isFinite(scale.fraction(at))).toBe(true);
+  });
+});
+
 describe('the date on an axis of hours', () => {
   const hours = (from: Date, to: Date) => timeScale({ min: from.getTime(), max: to.getTime() });
 
