@@ -442,6 +442,52 @@ void main() {
           handle.dispose();
         });
       }
+
+      // The month and the year grids, reached here through `precision`, which
+      // is the view such a calendar opens on.
+      for (final (PlCalendarPrecision precision, String cell) in <(PlCalendarPrecision, String)>[
+        (PlCalendarPrecision.month, 'August 2026'),
+        (PlCalendarPrecision.year, '2020'),
+      ]) {
+        final String view = precision.name;
+
+        testWidgets('announces the cells of its $view grid as disabled too', (
+          WidgetTester tester,
+        ) async {
+          final SemanticsHandle handle = tester.ensureSemantics();
+          await _pump(
+            tester,
+            PlCalendar(value: july27, precision: precision, onChanged: (DateTime? _) {}),
+          );
+
+          expect(
+            tester.getSemantics(find.bySemanticsLabel(cell)),
+            isSemantics(isButton: true, hasEnabledState: true, isEnabled: true, hasTapAction: true),
+          );
+
+          await _pump(
+            tester,
+            PlCalendar(
+              value: july27,
+              precision: precision,
+              disabled: true,
+              onChanged: (DateTime? _) {},
+            ),
+          );
+
+          expect(
+            tester.getSemantics(find.bySemanticsLabel(cell)),
+            isSemantics(
+              isButton: true,
+              hasEnabledState: true,
+              isEnabled: false,
+              hasTapAction: false,
+            ),
+          );
+
+          handle.dispose();
+        });
+      }
     });
 
     group('the words', () {
