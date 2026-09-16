@@ -1555,11 +1555,7 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'How far it travels either side of where it started'
       }
     },
-    ...animateProps({
-      duration: '400',
-      trigger: "'manual'",
-      omit: ['mode', 'stagger', 'durationStep', 'reverse', 'timeline', 'range']
-    }),
+    ...animateProps({ duration: '400', trigger: "'manual'" }),
     {
       name: 'render',
       type: 'ReactElement | (props, state) => ReactElement',
