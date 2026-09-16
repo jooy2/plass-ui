@@ -1060,8 +1060,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: "'mount' | 'visible' | 'hover' | 'manual'",
       default: "'visible'",
       description: {
-        ko: '무엇이 카운트를 시작하는지. 라이브러리에서 마운트에 시작하지 않는 유일한 컴포넌트입니다 — 화면 밖에서 돈 카운트는 이미 거기 있던 숫자를 전달한 것입니다',
-        en: 'What starts the count. The one component in the library that does not start on mount: a count that ran off screen delivered a number that was already there'
+        ko: '무엇이 카운트를 시작하는지. 마운트에 시작하지 않는 세 컴포넌트 중 하나입니다. 나머지 둘은 PlAnimateScramble(visible)과 PlAnimateShake(manual)입니다 — 화면 밖에서 돈 카운트는 이미 거기 있던 숫자를 전달한 것입니다',
+        en: 'What starts the count. One of the three components that do not start on mount, with PlAnimateScramble on visible and PlAnimateShake on manual: a count that ran off screen delivered a number that was already there'
       }
     },
     {
