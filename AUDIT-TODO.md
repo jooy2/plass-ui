@@ -2,7 +2,7 @@
 
 The findings of a full audit of both packages, the documentation site and the repository, taken at `148a20e4` on 2026-09-13, and how far fixing them has got. The work goes in batches of twenty. When every item below is ticked, delete this file in a commit of its own.
 
-**312 of 372 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
+**332 of 372 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ## Working through a batch
 
@@ -58,6 +58,7 @@ cd docs && npm run typecheck && npm run lint && npx prettier --check . && npm ru
 | 12    | `d7392f82..74316388` | Answers first: `'instant'` scrolling under reduced motion, the `PlCarousel` handlers as item 370 and three carousel tests, the pausing tests on the frame clock, two drag tests and the forced-colours pointer, 247 Flutter props rows typed with `?` and four rows removed, the bar and area chart keys, the defaults guide, the text slips, the Flutter table page, `PlImage` preview names, the `PlChip` focus ring, and item 371 added. Then 150, 151, 153, 160, 161, 162, 164, 165, 169, 171, 172, 173, 179, 184, 194, 199, 204, 208, 210, 212 |
 | 13    | `28c12bf6..247a13cb` | Answers first: the counter `easing` test, the `PlWindowPane` drag test and `'instant'` hold and wheel steps, `PlImage` preview tests and names, item 371 with a `key` for `PlTimelineItem`, disabled `PlCalendar` semantics, a Friday in the picker samples, `readOnly` `PlSwitch` and `PlRadioGroup`, the colour picker thumb, and five docs answers. Then 218, 219, 224, 227, 231, 232, 234, 235, 242, 243, 245, 246, 249, 250, 251, 257, 260, 261, 265, 267, with item 372 added                                                                 |
 | 14    | `c1bff556..609ae6f9` | Answers first: the fourteen recommended answers, among them items 217 and 372 together. Then 271, 272, 283, 284, 285, 286, 289, 296, 299, 300, 301, 303, 309, 310, 318, 319, 320, 322, 323, 325                                                                                                                                                                                                                                                                                                                                                     |
+| 15    | `b65c5bf7..ca8154bb` | Answers first: the four recommended answers. Then 326, 327, 328, 329, 330, 332, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349, 350, 351, 352, 353                                                                                                                                                                                                                                                                                                                                                                                                |
 
 The answers to batch 4's questions went in as `363c243b..2a8fb470`: the decode half of item 100, the `PlAnimateTyping` caret, and a `headingLevel` for `PlCard` with the card page corrected.
 
@@ -77,9 +78,11 @@ Batch 13 took the eighteen recommended answers to the batch 12 questions first. 
 
 Batch 14 took the fourteen recommended answers to the batch 13 questions first, and two of them were items: 372 and 217 went in together, which is what that answer asked for. One answer needed no change — a Flutter `PlButton` that is `loading` or `readOnly` stays announced as unavailable — and one turned out to need none: React does not bring a chosen tab into view when `value` changes from outside either, so the Flutter bar already matches it. Its twenty items are all Low. Item 286 no longer reproduces: every regression test it asks for was written by the batch that fixed the bug. Item 301's finding was half right — a new `Intl.NumberFormat` is built on every render around the counter rather than on every frame — and the fix is the one the item proposed. The work was done in one checkout rather than in worktrees.
 
+Batch 15 took the four recommended answers to the batch 14 questions first. Its twenty items are all Low, and fourteen of them are the documentation site and the chart arithmetic. Item 347 no longer reproduces: both builds keep the time of day a `min` names, and `_alignTime` and `alignTime` are the same function. Two of the chart items had not been traced when they were raised, and both came down to a difference between the languages rather than to the drawing: Dart's `List.sort` is a quicksort past thirty-two items where a JavaScript `sort` is stable, and Dart's `~/` truncates towards zero where `Math.floor` floors. Items 348 and 352 overlap, since the zero-span guard of the first is what a pre-1970 axis fell into once every tick landed past its data. Item 349's compact number is written out in Dart rather than taken from `Intl`, which the package does not ship, so a number is still not grouped; that is asked below.
+
 ## Waiting for an answer
 
-Asked at the end of batches 7 to 14. Each question says what the problem is and what each option changes. A question with one option marked as recommended is approved under the standing decision above and is done first in the next batch; the rest wait for the Prompter.
+Asked at the end of batches 7 to 15. Each question says what the problem is and what each option changes. A question with one option marked as recommended is approved under the standing decision above and is done first in the next batch; the rest wait for the Prompter.
 
 1. **Item 19, the reset in `plass-ui/styles.css`.** Loading the stylesheet removes the host page's own list bullets, heading sizes, `<hr>` and native input borders, so an existing app without Tailwind looks broken.
    - A. Move the resets into the components that need them: host pages are left alone, and pages that relied on the reset change how they look (breaking).
@@ -260,21 +263,31 @@ Asked at the end of batches 7 to 14. Each question says what the problem is and 
    - A. Remove it with `Omit` and drop the row: nothing is promised that does not exist, and code that passes it stops compiling (breaking).
    - B. Make it mean something, such as how many times the list is walked before it stops.
    - C. Keep the prop and say in the table that `loop` is what decides.
-1. **Found in passing: the `trigger` description of `PlAnimateCounter` in the props table.** It says the counter is "the one component in the library that does not start on mount", and two others do not either: `PlAnimateScramble` starts on `visible` and `PlAnimateShake` on `manual`.
-   - A. (recommended) Name the three of them instead.
-   - B. Keep it.
-1. **Found in passing: the "two edits" claim in `styles.css`.** Item 323 corrected the docs pages that said adding a colour family is two edits; the comment above the families in `src/styles.css:57` still says it in the same words.
-   - A. (recommended) Correct the comment the way the colour page was corrected.
-   - B. Keep it.
-1. **Found in passing: the dead `omit` list on the React `PlAnimateShake` table.** It omits `mode`, `stagger`, `durationStep`, `reverse`, `timeline` and `range`, and `animateProps` emits none of those unless it is asked for them, so the list does nothing.
-   - A. (recommended) Cut it to nothing, since the options it names are already absent.
-   - B. Keep it as a statement of what the component does not take.
-1. **Found in passing: the file sentence on the three example pages.** "The whole screen is one file: `docs/.vitepress/demos/examples/dashboard.tsx`" is shown to Flutter readers too, right under the sentence item 325 added saying there is no Flutter version.
-   - A. (recommended) Put it in a React block, as the rest of the page's React-only content now is.
-   - B. Keep it.
 1. **Found in passing: the `PlShow` layout preview.** Item 325 marked it `:flutter="false"` because there is no Flutter demo behind it, but `PlShow` itself has a Flutter half, so the page now says less than it could.
    - A. Write the Flutter demo and take the flag off: both builds show the arrangement.
    - B. Keep the flag: the preview says what the site actually has.
+1. **Item 333, the size of `llms.txt`.** At 190KB it is closer to the whole documentation than to a summary list: one link's description runs to about 1,100 characters, and the longest is about 4,500.
+   - A. Split it into a short `llms.txt` of one line per link and an `llms-full.txt` holding what is there now: the file is the format it claims to be, and there are two files to keep in step.
+   - B. Keep it: a model reading it gets the whole library in one request.
+1. **Item 334, design rationale on component pages.** Eleven sections across the drawer, confirm, date picker, colour picker, floating action button and fieldset pages argue for a decision rather than saying what the component does, and `animate-split` has prose sections and a hero demo where every other page has `## Examples`.
+   - A. Move the rationale into the design documents and leave the facts under Props, and turn the animate-split prose into Examples with a demo each: every page has the same shape, and the design documents grow.
+   - B. Delete the rationale instead of moving it: the pages get shorter and the reasoning is lost.
+   - C. Keep it: the pages differ from the skeleton and explain themselves.
+1. **Item 336, the changelog on the site.** Only the React changelog is published, and `/ko/changelog` carries the same English text marked as Korean, so one page is indexed twice under two languages.
+   - A. Publish the Flutter changelog beside it and point the Korean copy's canonical at the English page.
+   - B. Say in the title that the page is the React changelog, and stop generating the Korean copy.
+1. **Item 337, AI training crawlers in `robots.txt`.** The generated file is `User-agent: *` and `Allow: /`, while the shared SEO rules say to block `GPTBot`, `ClaudeBot` and `Google-Extended` by default.
+   - A. Block the three: the documentation is not used for training, and a model that would have answered a reader's question from it no longer can.
+   - B. Leave it open: the documentation is MIT and being in a model's answers is how a library is found.
+1. **Found in passing: eleven more Korean emphases with a spaced particle.** Item 329 closed the six on the design and guide pages; the same `_..._ 조사` is on nine component pages, among them the timeline chart, the heatmap chart, the progress box, the popconfirm, the mockup, the text link, the window pane and the button group.
+   - A. (recommended) Close them the same way, with `*`.
+   - B. Keep them.
+1. **Found in passing: a Flutter chart does not group its numbers.** Item 349 made a chart write `48.3K` as the React build does, and under ten thousand the web still writes `9,999` where Flutter writes `9999`: the separator is `Intl`'s, and this package ships no `intl`.
+   - A. Write an English grouping into the package: the two builds agree for a reader in English and disagree for one in German, where the separator is a full stop.
+   - B. Keep it, and say on the chart pages that a grouped number needs a `format`.
+1. **Found in passing: the `plass-lang-*` class names.** Item 341 renamed the framework switch's label from "Language" to "Framework"; its CSS classes and its radio group's `name` are still `plass-lang`.
+   - A. Rename them to `plass-framework-*`: the markup says what the control is, and it is a rename across `FrameworkSelect.vue` and `framework.css`.
+   - B. Keep them: they are internal names nobody reads.
 
 ## Passed over and not yet asked
 
@@ -1025,31 +1038,13 @@ None. Every flagged item passed over so far is asked above.
 - [x] **323.** "Adding a colour family takes two edits" does not match the actual work (Docs · Docs · Low)
 - [x] **324.** "The library ships no translations" in `rtl.md` contradicts the translation guide (Docs · Docs · Medium)
 - [x] **325.** React-only content appears in Flutter mode as empty sections or "No Flutter version" frames (Docs · Docs · Low)
-- [ ] **326.** The `PlStack` named in the landing example's description is not in the code (Docs · Docs · Low)
-  - Location: `docs/{en,ko}/examples/landing.md:20`
-  - Problem: The overlapping avatars are the `<div className="flex -space-x-2">` at `examples/landing.tsx:221`.
-  - Proposal: Make the description match the code.
-- [ ] **327.** The component list page gives the preview count as 133, but there are 130 (Docs · Docs · Low)
-  - Location: `docs/{en,ko}/components/index.md:13`
-  - Problem: `entries` in `component-index/all.tsx` has 130 items.
-  - Proposal: Change it to 130, or remove the number.
-- [ ] **328.** Replacing em dashes with full stops left broken sentences (Docs · Docs · Low)
-  - Location: `docs/en/guide/getting-started.md:217`, `docs/en/design/design-language.md:274`, `docs/en/design/breakpoints.md:56`, `docs/ko/guide/getting-started.md:232`, `docs/en/components/inputs/date-picker.md:68`
-  - Problem: Sentences such as "A `page.tsx` or a `layout.tsx` in Next.js's App Router, and it renders." and "…a toast. Is painted at…" lack a subject or a verb.
-  - Proposal: Merge them with the sentence before, or fill in the missing part.
-- [ ] **329.** On ko pages, particles after italic text appear with a space before them (Docs · Docs · Low)
-  - Location: `docs/ko/design/design-language.md:35`, `:59`, `:73`, `docs/ko/design/prop-conventions.md:24`, `docs/ko/design/color.md:117`, `docs/ko/guide/defaults.md:70`
-  - Problem: `_왜_ 에` and `_같은 밝기_ 입니다` appear on screen as "왜 에" and "밝기 입니다". The space was added because `_` cannot close emphasis inside a word.
-  - Proposal: Switch to `*`, as in `*왜*에`.
-- [ ] **330.** "훑기" on the ko colour page does not make sense, and colour names are spelled inconsistently (Docs · Docs · Low)
-  - Location: `docs/ko/design/color.md:14`, `:23`, `:30`, `:35`, `docs/ko/design/design-language.md:84`, `:89`
-  - Problem: It is a table header translated literally from "sweep", and the same colour is written both as "애저" and as "azure".
-  - Proposal: Replace it with a phrase such as "그러데이션 양 끝" (both ends of the gradient), and use one spelling.
+- [x] **326.** The `PlStack` named in the landing example's description is not in the code (Docs · Docs · Low)
+- [x] **327.** The component list page gives the preview count as 133, but there are 130 (Docs · Docs · Low)
+- [x] **328.** Replacing em dashes with full stops left broken sentences (Docs · Docs · Low)
+- [x] **329.** On ko pages, particles after italic text appear with a space before them (Docs · Docs · Low)
+- [x] **330.** "훑기" on the ko colour page does not make sense, and colour names are spelled inconsistently (Docs · Docs · Low)
 - [x] **331.** The group structure of `llms.txt` is wrong (Docs · Site · Medium)
-- [ ] **332.** `llms.txt` has no links to Breakpoints or the changelog, and the description on line 21 does not match the actual layout (Docs · Site · Low)
-  - Location: `docs/public/llms.txt:21`, `:25-34`
-  - Problem: Of the design pages, only `design/breakpoints` is missing. The description says the React-only components are gathered at the end, but they are inside each group.
-  - Proposal: Add the links and fix line 21.
+- [x] **332.** `llms.txt` has no links to Breakpoints or the changelog, and the description on line 21 does not match the actual layout (Docs · Site · Low)
 - [ ] **333.** At 190KB, `llms.txt` is closer to the full documentation than to a summary list (Optimisation · Site · Low)
   - Location: `docs/public/llms.txt`
   - Problem: The description on a single link line has a median length of about 1,100 characters and a maximum of about 4,500. The `llms.txt` format is a short summary and a list of links.
@@ -1073,67 +1068,25 @@ None. Every flagged item passed over so far is asked above.
   - Flag: Decision needed — the maintainer decides whether the open source documentation may be used for training.
 - [x] **338.** Changing the preview theme reloads the Flutter iframe (Performance · Site · Medium)
 - [x] **339.** Every page loads the props data for all 130 components (Performance · Site · Medium)
-- [ ] **340.** Pages with no preview still download ReactDOM (Performance · Site · Low)
-  - Location: `docs/.vitepress/theme/components/Demo.vue:21-32`
-  - Problem: `reactRuntime()` at the top level of the module requests `react-dom/client` (57KB gzipped) as soon as the theme loads. This contradicts the comment.
-  - Proposal: Request it when the first `Demo` is set up.
-- [ ] **341.** The framework selection group is named "Language"/"언어" (Accessibility · Site · Low)
-  - Location: `docs/.vitepress/data/i18n.ts:53`, `theme/components/FrameworkSelect.vue:62-63`
-  - Problem: It reads as a switch for the site locale, but it actually chooses between React and Flutter.
-  - Proposal: Rename it to "Framework"/"프레임워크".
-- [ ] **342.** The required marker in the props table carries its meaning only in the `title` attribute (Accessibility · Site · Low)
-  - Location: `propsRow` in `docs/.vitepress/config.ts` (`PropsTable.vue` was removed in batch 9)
-  - Problem: Screen readers read `<span title="Required">*</span>` as "star" or skip it, and it is not visible to touch users.
-  - Proposal: Give the `*` `aria-hidden`, and add a visually hidden "Required"/"필수".
-- [ ] **343.** All Flutter iframes on a page use the same `title` (Accessibility · Site · Low)
-  - Location: `theme/components/Demo.vue:459`, `data/i18n.ts:63`
-  - Problem: Screen reader users who move through the list of frames cannot tell them apart.
-  - Proposal: Add the demo name or the nearest heading to the title.
-- [ ] **344.** The home hero logo's `alt` repeats the heading right after it, and the file is larger than its display size (Accessibility · Site · Low)
-  - Location: `theme/components/Layout.vue:70-77`
-  - Problem: `alt="Plass"` is followed by an `<h1>` that starts with "Plass", so the name is read twice. A 256px file (44KB) is loaded with `fetchpriority="high"` for a 96px display.
-  - Proposal: Change it to `alt=""` and use a 128px file.
-- [ ] **345.** Values in the site config and CSS comments do not match the facts (Docs · Site · Low)
-  - Location: `docs/.vitepress/config.ts:131`, `:712-722`, `docs/.vitepress/theme/styles/framework.css:68`
-  - Problem: The `arrangeSidebar` comment leaves out Hooks and gives the page count as "fifty-odd", and `framework.css` describes the menu as "fifty entries" (the real number is 130). The `localeBase` comment on line 131 is wrongly placed above `slugify`.
-  - Proposal: Fix the numbers and the position.
+- [x] **340.** Pages with no preview still download ReactDOM (Performance · Site · Low)
+- [x] **341.** The framework selection group is named "Language"/"언어" (Accessibility · Site · Low)
+- [x] **342.** The required marker in the props table carries its meaning only in the `title` attribute (Accessibility · Site · Low)
+- [x] **343.** All Flutter iframes on a page use the same `title` (Accessibility · Site · Low)
+- [x] **344.** The home hero logo's `alt` repeats the heading right after it, and the file is larger than its display size (Accessibility · Site · Low)
+- [x] **345.** Values in the site config and CSS comments do not match the facts (Docs · Site · Low)
 
 ### 11. Added after the audit
 
 Findings raised in a batch report and approved as new items. Their line numbers are from the commit that raised them.
 
-- [ ] **346.** The Flutter cross marker is two overlapping rectangles, so its ring strokes a hatch through the middle (Bug · Flutter · Low)
-  - Location: `packages/flutter/lib/src/internal/chart.dart` (`PlChartMarkShape.cross`)
-  - Problem: Each rectangle is outlined on its own, so the ring crosses the centre of the mark. React draws the cross as one outline.
-  - Proposal: Build the cross as one path, as React does.
-- [ ] **347.** `timeScale` with a `min` keeps the time of day in React and sets it to midnight in Flutter (Bug · Both · Low)
-  - Location: `timeScale` in `packages/react/src/internal/chart.ts` and `packages/flutter/lib/src/internal/chart.dart`
-  - Problem: The same `min` gives the two axes different first ticks.
-  - Proposal: Keep the time of day in both, as React does.
-- [ ] **348.** A time span of zero stacks every mark on the origin in Flutter and pushes them off the plot in React (Bug · Both · Low)
-  - Location: `timeScale` in both packages
-  - Problem: Neither widens an extent whose start and end are the same moment, and the two fail differently.
-  - Proposal: Widen a zero span around its moment the same way in both.
-- [ ] **349.** A chart's default number format is `48.3K` in React and `48300` in Flutter (Bug · Flutter · Low)
-  - Location: `compactNumber` in `packages/react/src/internal/chart.ts`, the default formatter in `packages/flutter/lib/src/internal/chart.dart`
-  - Problem: The same data labels its axis differently in the two packages.
-  - Proposal: Format compactly in Flutter too.
-- [ ] **350.** The Flutter scatter marker ring is twice as thick as React's (Bug · Flutter · Low)
-  - Location: the scatter marker painting in `packages/flutter/lib/src/internal/chart.dart`
-  - Problem: The ring width is not the one React strokes.
-  - Proposal: Use React's ring width.
-- [ ] **351.** A treemap with equal values can colour its tiles differently in the two packages (Bug · Both · Low)
-  - Location: `squarify` and the tile colouring in both packages
-  - Problem: The two packages can hand the same tile a different colour when values tie. The cause is not traced yet.
-  - Proposal: Find where the two diverge and colour the tiles as React does.
-- [ ] **352.** A time axis under a minute before 1970 starts a minute apart in the two packages (Bug · Both · Low)
-  - Location: the first tick of `timeScale` in both packages
-  - Problem: The first tick is worked out differently for a negative timestamp. The cause is not traced yet.
-  - Proposal: Find where the two diverge and give both React's first tick.
-- [ ] **353.** `stackToFull` is written twice on the Dart side, and `categoryToNumber` is never used (Optimisation · Flutter · Low)
-  - Location: `packages/flutter/lib/src/internal/chart.dart` (`categoryToNumber`, `stackToFull`)
-  - Problem: Two copies can drift, and the unused function reads as part of the shared arithmetic.
-  - Proposal: Keep one `stackToFull` and remove `categoryToNumber`.
+- [x] **346.** The Flutter cross marker is two overlapping rectangles, so its ring strokes a hatch through the middle (Bug · Flutter · Low)
+- [x] **347.** `timeScale` with a `min` keeps the time of day in React and sets it to midnight in Flutter (Bug · Both · Low) — no longer reproduces
+- [x] **348.** A time span of zero stacks every mark on the origin in Flutter and pushes them off the plot in React (Bug · Both · Low)
+- [x] **349.** A chart's default number format is `48.3K` in React and `48300` in Flutter (Bug · Flutter · Low)
+- [x] **350.** The Flutter scatter marker ring is twice as thick as React's (Bug · Flutter · Low)
+- [x] **351.** A treemap with equal values can colour its tiles differently in the two packages (Bug · Both · Low)
+- [x] **352.** A time axis under a minute before 1970 starts a minute apart in the two packages (Bug · Both · Low)
+- [x] **353.** `stackToFull` is written twice on the Dart side, and `categoryToNumber` is never used (Optimisation · Flutter · Low)
 - [ ] **354.** The dismiss × on alerts, toasts, modals, drawers, popovers, tours and the file picker may be under the 24px target size (Accessibility · Both · Low)
   - Location: `packages/flutter/lib/src/internal/dismiss.dart` (`PlassDismissButton`) and the matching React close buttons
   - Problem: Drawn at about 16px, and not measured. Item 99 widened the × on chips and picker triggers only.
