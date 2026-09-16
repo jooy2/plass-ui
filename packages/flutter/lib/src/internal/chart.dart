@@ -1701,6 +1701,57 @@ bool timeNeedsDate(List<double> ticks, PlChartTimeUnit unit) {
       _floorTime(ticks.last.round() - 1, PlChartTimeUnit.day);
 }
 
+/// The four units a compact number is written in, in the order they are used.
+const List<String> _compactUnits = <String>['K', 'M', 'B', 'T'];
+
+/// A number with at most [places] decimals and no trailing zeros.
+String _trimmed(double value, int places) {
+  final String text = value.toStringAsFixed(places);
+
+  if (!text.contains('.')) {
+    return text;
+  }
+
+  return text.replaceFirst(RegExp(r'\.?0+$'), '');
+}
+
+/// A number, compactly enough that a y axis of thousands is not four labels of
+/// seven characters.
+///
+/// Only when the caller passed no `format` of their own: the moment they do,
+/// they have said what the number means and the library's opinion about
+/// thousands stops being welcome.
+///
+/// The React build hands this to `Intl` with `notation: 'compact'`. This
+/// package ships no `package:intl`, which is the same trade [formatTimeValue]
+/// makes, so the four English units are written out here and the arithmetic is
+/// the one `Intl` does: compact from ten thousand up, one decimal place, and a
+/// value that rounds up to a thousand moves a unit along, so 999,999 is `1M`
+/// rather than `1000K`. Under ten thousand it is the plain number with at most
+/// two decimals.
+String compactNumber(double value) {
+  final double magnitude = value.abs();
+
+  if (magnitude < 10000) {
+    return _trimmed(value, 2);
+  }
+
+  double scaled = magnitude;
+  int unit = -1;
+
+  while (scaled >= 1000 && unit < _compactUnits.length - 1) {
+    scaled /= 1000;
+    unit += 1;
+  }
+
+  if (double.parse(scaled.toStringAsFixed(1)) >= 1000 && unit < _compactUnits.length - 1) {
+    scaled /= 1000;
+    unit += 1;
+  }
+
+  return '${value < 0 ? '-' : ''}${_trimmed(scaled, 1)}${_compactUnits[unit]}';
+}
+
 /// One instant on a time axis, written unambiguously.
 ///
 /// Off [PlDateNames]' own month names rather than off a platform formatter,

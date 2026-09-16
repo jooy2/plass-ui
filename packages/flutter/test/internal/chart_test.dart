@@ -253,6 +253,30 @@ void main() {
     });
   });
 
+  group('compactNumber', () {
+    test('writes the same figures the React default writes', () {
+      // Every one of these is what `Intl` with `notation: 'compact'` and one
+      // decimal place gives in `en-US`, which is the React default.
+      expect(compactNumber(0), '0');
+      expect(compactNumber(1.5), '1.5');
+      expect(compactNumber(999), '999');
+      expect(compactNumber(9999), '9999');
+      expect(compactNumber(10000), '10K');
+      expect(compactNumber(12345), '12.3K');
+      expect(compactNumber(48300), '48.3K');
+      expect(compactNumber(99900), '99.9K');
+      expect(compactNumber(1234567), '1.2M');
+      expect(compactNumber(1500000000), '1.5B');
+      expect(compactNumber(1.5e12), '1.5T');
+      expect(compactNumber(1.5e15), '1500T');
+      expect(compactNumber(-48300), '-48.3K');
+    });
+
+    test('moves a unit along rather than writing a thousand of the one below', () {
+      expect(compactNumber(999999), '1M');
+    });
+  });
+
   group('a time axis with no span', () {
     test('opens a day around the moment both ends name', () {
       final double at = DateTime(2026, 3, 1, 9, 30).millisecondsSinceEpoch.toDouble();

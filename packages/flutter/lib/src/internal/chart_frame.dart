@@ -565,11 +565,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
       return widget.format!(value);
     }
 
-    if (value == value.roundToDouble() && value.abs() < 1e15) {
-      return value.toInt().toString();
-    }
-
-    return value.toStringAsFixed(2);
+    return compactNumber(value);
   }
 
   @override
