@@ -131,10 +131,12 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
 
   // A new string starts a new performance rather than continuing the last, and
   // so does a new run: a second hover types the line again from its first
-  // character, not from the end it already reached.
+  // character, not from the end it already reached. The string itself rather
+  // than how long it is — "design" becoming "deploy" is a new string, and
+  // counting characters alone left it standing there already typed.
   React.useEffect(() => {
     progress.current = 0;
-  }, [total, run.runs]);
+  }, [source, run.runs]);
 
   React.useEffect(() => {
     if (reduced || total === 0) {
@@ -233,11 +235,14 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
       cancelled = true;
       clearTimeout(timer);
     };
-    // `run.runs` is listed although nothing above reads it. A second hover starts
-    // a new run without changing `started`, and a new run types the line again.
+    // `run.runs` and `source` are listed although nothing above reads them. A
+    // second hover starts a new run without changing `started`, and a new run
+    // types the line again; and a new string of the same length has to be typed
+    // again rather than left standing where the last one finished.
   }, [
     run.started,
     run.runs,
+    source,
     paused,
     reduced,
     total,

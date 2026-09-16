@@ -159,6 +159,35 @@ describe('PlAnimateTyping', () => {
     await expect.poll(() => visible(root)).toBe('Hello');
   });
 
+  it('types a new string of the same length again', async () => {
+    const screen = await render(
+      <PlAnimateTyping className="typing-under-test" text="design" speed={400} caret={false} />
+    );
+
+    const root = document.querySelector('.typing-under-test')!;
+
+    await expect.poll(() => visible(root)).toBe('design');
+
+    const seen = new Set<string>();
+    const observer = new MutationObserver(() => seen.add(visible(root)));
+
+    observer.observe(root, { childList: true, characterData: true, subtree: true });
+
+    try {
+      await screen.rerender(
+        <PlAnimateTyping className="typing-under-test" text="deploy" speed={400} caret={false} />
+      );
+
+      await expect.poll(() => visible(root)).toBe('deploy');
+
+      // A string with the same number of characters used to appear whole,
+      // because the reset watched only how many there were.
+      expect([...seen].some((step) => step !== 'deploy' && 'deploy'.startsWith(step))).toBe(true);
+    } finally {
+      observer.disconnect();
+    }
+  });
+
   it('flattens an element among the children to its text', async () => {
     await render(
       <PlAnimateTyping className="typing-under-test" speed={400} caret={false}>
