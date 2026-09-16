@@ -6,6 +6,8 @@
 
 ### Fixed
 
+- **`PlAnimateLighting` turns on the curve it was given.** The arc is drawn on a pseudo-element, and `linear` was written into it, so `easing` reached the root and stopped there. It is the default now rather than the only answer, which is what `curve` already does in the Flutter build.
+
 - **`PlAnimateTyping` types a new string of the same length again.** The reset watched how many characters there were rather than what they said, so "design" becoming "deploy" appeared whole instead of being typed. The Flutter build already started over.
 
 - **A `PlAnimateMarquee` measures itself once rather than on every render around it.** `children` was a dependency of the effect that measures the strip, and it is a new reference on every render a parent does, so each one read the layout back and built a new `ResizeObserver`. The observer on the track is what catches content that changes the strip, so the measurement now happens when the size does.

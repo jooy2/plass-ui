@@ -1866,7 +1866,10 @@
   animation-name: plass-anim-lighting;
   animation-duration: var(--p-anim-duration, 3s);
   animation-delay: var(--p-anim-delay, 0ms);
-  animation-timing-function: linear;
+  /* Linear unless a caller says otherwise, which is what `curve` does in the
+     Flutter build: an arc that eases at both ends of a turn that has no ends
+     reads as a stutter, and that is a default rather than a rule. */
+  animation-timing-function: var(--p-anim-ease, linear);
   animation-iteration-count: var(--p-anim-repeat, infinite);
   animation-direction: var(--p-anim-direction, normal);
   animation-fill-mode: both;
