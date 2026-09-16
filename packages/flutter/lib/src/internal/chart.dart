@@ -1116,10 +1116,25 @@ Path markPath(PlChartMarkShape shape, double cx, double cy, double r) {
         ..lineTo(cx - size, cy)
         ..close();
     case PlChartMarkShape.cross:
+      // One outline of twelve corners rather than two overlapping rectangles,
+      // which is what the React build writes: outlined separately, each
+      // rectangle is stroked all the way round, so the ring draws a cross
+      // through the middle of the mark.
       final double arm = size / 3;
       path
-        ..addRect(Rect.fromCenter(center: Offset(cx, cy), width: size * 2, height: arm * 2))
-        ..addRect(Rect.fromCenter(center: Offset(cx, cy), width: arm * 2, height: size * 2));
+        ..moveTo(cx - arm, cy - size)
+        ..lineTo(cx + arm, cy - size)
+        ..lineTo(cx + arm, cy - arm)
+        ..lineTo(cx + size, cy - arm)
+        ..lineTo(cx + size, cy + arm)
+        ..lineTo(cx + arm, cy + arm)
+        ..lineTo(cx + arm, cy + size)
+        ..lineTo(cx - arm, cy + size)
+        ..lineTo(cx - arm, cy + arm)
+        ..lineTo(cx - size, cy + arm)
+        ..lineTo(cx - size, cy - arm)
+        ..lineTo(cx - arm, cy - arm)
+        ..close();
   }
 
   return path;

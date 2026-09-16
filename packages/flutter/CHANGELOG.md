@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- **A `cross` chart marker is one outline.** It was two overlapping rectangles, each outlined on its own, so the ring around the mark drew a cross through the middle of it. It is now the same twelve-cornered outline the React build draws.
+
 - **A `PlAnimateMarquee` with a `speed` of zero or less stands still.** The travel was divided by the speed, so zero gave an infinite number of milliseconds: rounding that threw, and the widget did not build at all. A speed of zero or less is now read as not moving and holds the strip where it is, as `paused` does, and an explicit `duration` still decides on its own.
 
 - **A minimized `PlWindowPane` keeps its body.** Rolling a window up took the content out of the tree, so everything it held — a half-filled form, a scroll position, a chosen tab — was gone when the window came back down. The body now stays in the tree, off stage and out of the focus order, which is what the window-pane page says of both builds and what the React build's `inert` body already did.

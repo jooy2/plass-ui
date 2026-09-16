@@ -482,6 +482,15 @@ void main() {
       expect(bounds.center.dy, closeTo(20, 0.001));
     });
 
+    test('draws each shape as one outline', () {
+      // Two overlapping rectangles cover the same ink as a cross and stroke
+      // very differently: outlined separately, the ring draws a hatch through
+      // the middle of the mark.
+      for (final PlChartMarkShape shape in markShapes) {
+        expect(markPath(shape, 10, 10, 4).computeMetrics().length, 1, reason: shape.name);
+      }
+    });
+
     test('covers the same area whatever shape it is', () {
       // Equal area and not equal radius: on a bubble chart the area is already
       // carrying a magnitude, so a square covering a third more ink than the
