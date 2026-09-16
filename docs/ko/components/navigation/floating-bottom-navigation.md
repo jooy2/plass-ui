@@ -144,15 +144,21 @@ PlFloatingBottomNavigation<String>(
 
 `elevation`은 나머지 거의 전부가 기본으로 쓰는 `0`이 아니라 `2`이고, 그것은 불일치가 아닙니다. 라이브러리의 다른 모든 시트는 페이지 위에 놓여 있고 유리 가장자리로 자기 분리를 벌기 때문에 그림자가 선택 사항입니다. 이쪽은 그 아래 무엇이 있든 그 위에 떠 있고, 자기가 떠 있는 내용에 평평하게 누운 캡슐은 실수로 읽힙니다.
 
-바 아래의 틈도 같은 `size` 사다리에서 나오고, `safeArea`가 켜져 있는 동안에는 거기에 `env(safe-area-inset-bottom)`이 더해집니다.
+바 아래의 틈도 같은 `size` 사다리에서 나오고, `safeArea`는 플랫폼이 화면 아래에 남겨 두는 공간을 거기에 더합니다.
 
 ::: fw react
 
-브라우저는 viewport meta 태그에 `viewport-fit=cover`가 있는 페이지에만 그 inset 값을 줍니다. 없으면 `safeArea`는 아무것도 더하지 않습니다.
+그 공간은 `env(safe-area-inset-bottom)`입니다. 브라우저는 viewport meta 태그에 `viewport-fit=cover`가 있는 페이지에만 그 inset 값을 줍니다. 없으면 `safeArea`는 아무것도 더하지 않습니다.
 
 ```html
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 ```
+
+:::
+
+::: fw flutter
+
+그 공간은 `MediaQuery.paddingOf(context).bottom`, 플랫폼이 알려 주는 홈 인디케이터나 내비게이션 바입니다.
 
 :::
 

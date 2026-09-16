@@ -144,15 +144,21 @@ The capsule is never dyed, exactly as on a `PlCard`. What carries the family is 
 
 `elevation` is `2`, against the `0` almost everything else defaults to, and that is not an inconsistency. Every other sheet in the library rests on the page and earns its separation from the glass edge, so a shadow is opt-in. This one hovers over whatever is underneath it, and a capsule lying flat on the content it is floating over reads as a mistake.
 
-The gap under the bar comes off the same `size` ladder, with `env(safe-area-inset-bottom)` added to it while `safeArea` is on.
+The gap under the bar comes off the same `size` ladder, and `safeArea` adds the space the platform keeps at the bottom of the screen to it.
 
 ::: fw react
 
-A browser gives a page that inset only when its viewport meta tag has `viewport-fit=cover`. Without it, `safeArea` adds nothing.
+That space is `env(safe-area-inset-bottom)`. A browser gives a page that inset only when its viewport meta tag has `viewport-fit=cover`. Without it, `safeArea` adds nothing.
 
 ```html
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 ```
+
+:::
+
+::: fw flutter
+
+That space is `MediaQuery.paddingOf(context).bottom`, which is the home indicator or the navigation bar as the platform reports it.
 
 :::
 
