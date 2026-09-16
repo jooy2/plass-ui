@@ -67,10 +67,15 @@ watch(framework, () => nextTick(syncOutline));
       <FrameworkSelect />
     </template>
     <template #home-hero-info-before>
+      <!-- Decorative: the `<h1>` under it is the word "Plass", so a name here
+           would have a screen reader say it twice. The 256px file is the 2x
+           copy rather than the one every reader downloads: the mark is drawn
+           at 96. -->
       <img
         class="plass-home-logo"
-        :src="withBase('/256x256.png')"
-        alt="Plass"
+        :src="withBase('/128x128.png')"
+        :srcset="`${withBase('/128x128.png')} 1x, ${withBase('/256x256.png')} 2x`"
+        alt=""
         width="96"
         height="96"
         fetchpriority="high"
