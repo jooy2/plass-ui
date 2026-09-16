@@ -50,7 +50,7 @@ const strings = {
   },
   galleryInputs: { ko: 'Inputs', en: 'Inputs' },
   galleryOpen: { ko: '문서 보기', en: 'Read the docs' },
-  languageLabel: { ko: '언어', en: 'Language' },
+  frameworkLabel: { ko: '프레임워크', en: 'Framework' },
   renderedWith: { ko: '{framework}로 렌더링', en: 'Rendered with {framework}' },
   propsMissing: {
     ko: '{framework} 패키지에는 아직 {component}가 없습니다.',

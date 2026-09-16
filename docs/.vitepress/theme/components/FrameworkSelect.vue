@@ -59,7 +59,7 @@ const checked = computed(() => (hydrated.value ? framework.value : DEFAULT_FRAME
 
 <template>
   <div class="plass-lang">
-    <p :id="'plass-lang-label'" class="plass-lang-title">{{ t(locale, 'languageLabel') }}</p>
+    <p :id="'plass-lang-label'" class="plass-lang-title">{{ t(locale, 'frameworkLabel') }}</p>
     <div class="plass-lang-track" role="radiogroup" aria-labelledby="plass-lang-label">
       <label v-for="item in FRAMEWORKS" :key="item.id" class="plass-lang-option" :data-fw="item.id">
         <input
