@@ -271,7 +271,7 @@ A custom property resolves its `var()`s **on the element that declares it**. `--
 
 ### A portal's stacking level
 
-Every surface that leaves the flow, a modal, a drawer, a menu, a select's list, a popover, a tooltip, a toast. Is painted at `var(--plass-z-portal)`, which is `50` and is one line for a page to change. Which thing floats over which is a decision an app has already made by the time it reaches for a dialog: it has a header, or a cookie bar, or a video player, and a number chosen here is a guess at somebody else's ladder.
+A modal, a drawer, a menu, a select's list, a popover, a tooltip and a toast all leave the flow, and every one of them is painted at `var(--plass-z-portal)`, which is `50` and is one line for a page to change. Which thing floats over which is a decision an app has already made by the time it reaches for a dialog: it has a header, or a cookie bar, or a video player, and a number chosen here is a guess at somebody else's ladder.
 
 They all read the **same** token on purpose. Moving them apart is how a select opened inside a modal ends up behind it.
 

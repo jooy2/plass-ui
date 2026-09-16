@@ -53,7 +53,7 @@ The JavaScript half is the other kind of question. There a breakpoint is a _valu
 --plass-breakpoint-xl: var(--breakpoint-xl, 80rem);
 ```
 
-Set the Tailwind variable, not these. Setting one of these moves the JavaScript half on its own, which leaves the two disagreeing. The exact failure the arrangement exists to prevent.
+Set the Tailwind variable, not these. Setting one of these moves the JavaScript half on its own, which leaves the two disagreeing, and that is the exact failure the arrangement exists to prevent.
 
 **On the precompiled path this is baked.** A project that imports `plass-ui/styles.css` gets a stylesheet we compiled, with our widths in it; there is no Tailwind on that side to re-run. Import `plass-ui/tailwind.css` instead if you need to move a breakpoint.
 

@@ -65,7 +65,7 @@ What the shared axes (`variant` `size` `color` `density` `elevation`) mean acros
 
 ## No date library, and no translation files
 
-The pickers add **nothing** to your dependency tree. Everything they do is either `Date` arithmetic, which is a dozen lines, or `Intl`, which the platform already ships and which knows more about month names in more languages than any bundled table ever will. A component library that quietly added `date-fns`, or worse, picked a side in the dayjs / luxon / Temporal argument on its consumer's behalf. Would have made a decision that was not its to make.
+The pickers add **nothing** to your dependency tree. Everything they do is either `Date` arithmetic, which is a dozen lines, or `Intl`, which the platform already ships and which knows more about month names in more languages than any bundled table ever will. A component library that quietly added `date-fns`, or worse, picked a side in the dayjs / luxon / Temporal argument on its consumer's behalf, would have made a decision that was not its to make.
 
 ::: fw react
 

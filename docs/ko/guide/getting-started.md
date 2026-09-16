@@ -234,7 +234,7 @@ export default function Page() {
 }
 ```
 
-directive가 해결해 주지 않는 것이 하나 있습니다. Server Component에서 컴포넌트에 함수를 넘기는 일입니다. 이건 이 라이브러리의 제약이 아니라 모든 client component에 적용되는 React의 규칙으로, `onClick`, `onValueChange`, `render`는 전부 함수이고 함수는 server 경계를 넘지 못합니다. `'use client'`가 필요한 파일은 그 함수를 넘기는 파일. 라이브러리 쪽이 아니라 여러분 쪽입니다.
+directive가 해결해 주지 않는 것이 하나 있습니다. Server Component에서 컴포넌트에 함수를 넘기는 일입니다. 이건 이 라이브러리의 제약이 아니라 모든 client component에 적용되는 React의 규칙으로, `onClick`, `onValueChange`, `render`는 전부 함수이고 함수는 server 경계를 넘지 못합니다. `'use client'`가 필요한 파일은 그 함수를 넘기는 파일이고, 그것은 라이브러리 쪽이 아니라 여러분 쪽입니다.
 
 ```tsx
 'use client';

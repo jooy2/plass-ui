@@ -219,7 +219,7 @@ class App extends StatelessWidget {
 
 ## Next.js and server components
 
-Nearly every component ships with `'use client'` on it already, so there is nothing to add on your side. Import one straight into a Server Component. A `page.tsx` or a `layout.tsx` in Next.js's App Router, and it renders.
+Nearly every component ships with `'use client'` on it already, so there is nothing to add on your side. Import one straight into a Server Component, a `page.tsx` or a `layout.tsx` in Next.js's App Router, and it renders.
 
 ```tsx
 // app/page.tsx — a Server Component, with no directive of its own
