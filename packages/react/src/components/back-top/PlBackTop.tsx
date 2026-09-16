@@ -10,6 +10,9 @@ import { usePrefersReducedMotion } from '../../internal/media.js';
 import { cx, transitionClasses } from '../../internal/styles.js';
 import type { PlassColor, PlassElevation, PlassSize, PlassVariant } from '../../types.js';
 
+/** How far a floating button sits off the corner, the same 24px the FAB uses. */
+const OFFSET = '1.5rem';
+
 /** What is scrolled, and what is watched. */
 export type PlBackTopTarget = PlassScrollTarget;
 
@@ -37,6 +40,12 @@ export interface PlBackTopProps extends Omit<React.ComponentPropsWithoutRef<'but
    * On by default, because that is what this component is. Turn it off to put
    * the button somewhere of your own — the end of an article, a toolbar — and
    * keep the appearing and the scrolling.
+   *
+   * A pinned button sits 24px off the bottom end corner, and
+   * `env(safe-area-inset-bottom)` on top of that, so it clears the home
+   * indicator or the navigation bar of an edge-to-edge screen. The pinning is
+   * an inline `position: fixed` with logical insets, so a `style` of your own
+   * replaces it and a class of your own cannot.
    * @default true
    */
   floating?: boolean;
@@ -95,6 +104,7 @@ export const PlBackTop = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlB
       color: colorProp,
       elevation = 2,
       className,
+      style,
       onClick,
       ...props
     },
@@ -162,6 +172,20 @@ export const PlBackTop = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlB
       }
     };
 
+    // Inline, as `PlFloatingActionButton` pins itself: `PlButton`'s own
+    // `relative` comes after `fixed` in the stylesheet and wins, so a utility
+    // never pinned this button at all. Logical insets, because an end is an end
+    // in both directions, and the safe area on top of the 24px, so the button
+    // clears the home indicator or the navigation bar of an edge-to-edge
+    // screen rather than sitting under it.
+    const pinned: React.CSSProperties = floating
+      ? {
+          position: 'fixed',
+          insetInlineEnd: OFFSET,
+          insetBlockEnd: `calc(${OFFSET} + env(safe-area-inset-bottom, 0px))`
+        }
+      : {};
+
     return (
       <PlIconButton
         ref={ref}
@@ -178,11 +202,12 @@ export const PlBackTop = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlB
         aria-hidden={shown ? undefined : true}
         tabIndex={shown ? undefined : -1}
         className={cx(
-          floating ? 'fixed end-6 bottom-6 z-30' : '',
+          floating ? 'z-30' : '',
           transitionClasses,
           shown ? 'opacity-100' : 'pointer-events-none opacity-0',
           className
         )}
+        style={{ ...pinned, ...style }}
         {...props}
       />
     );

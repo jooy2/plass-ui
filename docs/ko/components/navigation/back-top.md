@@ -77,6 +77,12 @@ const panel = useRef<HTMLDivElement>(null);
 <PlBackTop floating={false} className="mx-auto mt-8" />
 ```
 
+::: fw react
+
+고정된 버튼은 아래쪽 end 모서리에서 24px 떨어져 앉고, 거기에 `env(safe-area-inset-bottom)`이 더해집니다. 화면 끝까지 그리는 기기의 홈 인디케이터나 내비게이션 바를 피하기 위해서입니다. 고정은 유틸리티 클래스가 아니라 인라인 `position: fixed`와 논리 inset으로 씁니다. 그래서 직접 넘긴 `style`은 이를 대신하지만 직접 넘긴 클래스는 그러지 못합니다.
+
+:::
+
 ### 글리프와 말
 
 ```tsx

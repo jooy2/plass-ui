@@ -77,6 +77,12 @@ On by default, because that is what this component is. Turn it off to put the bu
 <PlBackTop floating={false} className="mx-auto mt-8" />
 ```
 
+::: fw react
+
+A pinned button sits 24px off the bottom end corner, and `env(safe-area-inset-bottom)` on top of that, so it clears the home indicator or the navigation bar of an edge-to-edge screen. The pinning is an inline `position: fixed` with logical insets rather than a utility class, so a `style` of your own replaces it and a class of your own cannot.
+
+:::
+
 ### The glyph and the words
 
 ```tsx
