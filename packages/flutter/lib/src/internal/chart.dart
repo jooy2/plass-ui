@@ -1302,10 +1302,19 @@ List<TreemapTile> squarify(List<double> values, double width, double height) {
   }
 
   final double scale = width * height / total;
-  final items = <_Area>[
-    for (int i = 0; i < values.length; i += 1)
-      if (math.max(0, values[i]) * scale > 0) _Area(i, math.max(0, values[i]) * scale),
-  ]..sort((_Area a, _Area b) => b.area.compareTo(a.area));
+  final items =
+      <_Area>[
+        for (int i = 0; i < values.length; i += 1)
+          if (math.max(0, values[i]) * scale > 0) _Area(i, math.max(0, values[i]) * scale),
+      ]..sort((_Area a, _Area b) {
+        final int byArea = b.area.compareTo(a.area);
+
+        // Ties keep the order they were given, which is what a JavaScript `sort`
+        // is required to do and what the React build gets for nothing. Dart's is
+        // a quicksort past thirty-two items, so without this two tiles of the
+        // same value could swap places and take each other's colour.
+        return byArea != 0 ? byArea : a.index.compareTo(b.index);
+      });
 
   final tiles = <TreemapTile>[];
 

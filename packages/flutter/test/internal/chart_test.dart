@@ -253,6 +253,27 @@ void main() {
     });
   });
 
+  group('squarify', () {
+    test('keeps tiles of the same value in the order they were given', () {
+      // Forty and not four: Dart sorts a short list by insertion, which is
+      // stable anyway, and reaches for a quicksort past thirty-two. A tile
+      // that changes places takes another one's colour, and the React build
+      // never does, because a JavaScript sort is required to be stable.
+      final List<TreemapTile> tiles = squarify(List<double>.filled(40, 1), 400, 300);
+
+      expect(
+        tiles.map((TreemapTile tile) => tile.index).toList(),
+        List<int>.generate(40, (int index) => index),
+      );
+    });
+
+    test('still lays the largest tile first', () {
+      final List<TreemapTile> tiles = squarify(<double>[1, 5, 3], 400, 300);
+
+      expect(tiles.first.index, 1);
+    });
+  });
+
   group('compactNumber', () {
     test('writes the same figures the React default writes', () {
       // Every one of these is what `Intl` with `notation: 'compact'` and one
