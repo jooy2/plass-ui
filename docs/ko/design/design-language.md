@@ -81,12 +81,12 @@ highlight 레이어가 없는 이유가 바로 이것입니다. 한쪽 모서리
 | `success`   | 흰 글자를 얹을 만큼 어두운 초록             |
 | `warning`   | 보색 앰버, 유일하게 어두운 잉크를 쓰는 계열 |
 | `danger`    | 톤을 낮춘 버밀리언                          |
-| `info`      | 유사색 azure                                |
+| `info`      | 유사색 애저                                 |
 
 ### 계열마다 손으로 고르는 값 셋
 
 ```
---plass-{color}-solid       훑기의 한쪽 끝이자 계열의 정체성
+--plass-{color}-solid       그러데이션의 한쪽 끝이자 계열의 정체성
 --plass-{color}-solid-to    반대쪽 끝
 --plass-{color}-on-solid    두 지점 위의 잉크
 --plass-{color}-accent      표면 위에서 읽히는 색 — 테마별
