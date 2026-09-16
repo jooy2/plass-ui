@@ -293,13 +293,13 @@ void main() {
         await tester.pumpWidget(host(const _Host(), width: 700, height: 500, overlay: true));
         await tester.pumpAndSettle();
 
-        // The label, then the description and the shortcut's keys, each said
-        // once. The sheet is lifted into an overlay, which `find.semantics`
-        // does not reach, so the tree is walked.
+        // The label, then the description and the shortcut, which is one node
+        // named by its keys in order. The sheet is lifted into an overlay,
+        // which `find.semantics` does not reach, so the tree is walked.
         expect(
           semanticsLabels(tester),
           containsAllInOrder(<String>[
-            'New document\nCtrl\nN',
+            'New document\nCtrl N',
             'Open',
             'Copy\nPut it on the clipboard',
             'Unavailable',

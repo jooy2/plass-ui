@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- **A `PlHotKeys` shortcut reads its keys in order wherever it sits.** Each cap carried its own name, so a cap with a spoken name was a node of its own while a plain letter was loose text that merged in ahead of it: inside a `PlButton` or a `PlCommandPalette` row, ⌘N read "N, Command". The shortcut is now one node named by its keys in order, "Command N", and the caps are off the semantics tree.
+
 - **A press on a `PlColorPicker` track sets the value it landed on.** The square and the two rails read a press against the box including their hairline border, while the thumb is placed across the box inside it, so a press near either end set a value up to a pixel away — about a degree of hue. Both are read against the same box now.
 
 - **An empty `semanticLabel` on a `PlImage` is no description at all.** `semanticLabel: ''` left the picture on the semantics tree with an empty name, and named a `preview` button "— preview". Empty now says what `alt=""` says in the React build: the picture is decorative and off the tree, and a preview is named by the word for a preview on its own.

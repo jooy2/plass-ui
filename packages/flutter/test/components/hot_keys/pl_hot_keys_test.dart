@@ -121,7 +121,28 @@ void main() {
         final handle = tester.ensureSemantics();
         await tester.pumpWidget(host(const PlHotKeys(keys: 'Mod+K', os: PlHotKeysOS.mac)));
 
-        expect(find.bySemanticsLabel('Command'), findsOneWidget);
+        expect(find.bySemanticsLabel('Command K'), findsOneWidget);
+        handle.dispose();
+      });
+
+      testWidgets('reads the keys in order wherever the shortcut is merged in', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            PlButton(
+              onPressed: () {},
+              endIcon: const PlHotKeys(keys: 'Mod+N', os: PlHotKeysOS.mac),
+              child: const Text('New'),
+            ),
+          ),
+        );
+
+        // With each cap named on its own the button read "New, N, Command": a
+        // cap with a spoken name was a node of its own, and a plain letter was
+        // loose text that merged in ahead of it.
+        expect(find.bySemanticsLabel('New\nCommand N'), findsOneWidget);
         handle.dispose();
       });
 

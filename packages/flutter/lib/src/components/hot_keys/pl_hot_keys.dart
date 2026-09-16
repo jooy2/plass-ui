@@ -77,8 +77,6 @@ class _KeyLabel {
 
   final String symbol;
   final String name;
-
-  bool get speaks => symbol != name;
 }
 
 /// One entry per key that is spelled differently somewhere, keyed by the token
@@ -475,14 +473,13 @@ class PlHotKeys extends StatelessWidget {
     final resolved = os == PlHotKeysOS.auto ? platform : os;
     final spacing = size == PlassSize.xs || size == PlassSize.sm ? 4.0 : 6.0;
 
-    Widget cap(String text, {String? name}) {
+    Widget cap(String text) {
       return PlKbd(
         variant: variant,
         size: size,
         color: color,
         density: density,
         elevation: elevation,
-        semanticLabel: name,
         child: Text(text),
       );
     }
@@ -510,7 +507,7 @@ class PlHotKeys extends StatelessWidget {
 
     final tokens = PlassTheme.of(context);
 
-    return Row(
+    final Widget row = Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       spacing: 4,
@@ -527,9 +524,23 @@ class PlHotKeys extends StatelessWidget {
                 child: joiner,
               ),
             ),
-          cap(labels[index].symbol, name: labels[index].speaks ? labels[index].name : null),
+          cap(labels[index].symbol),
         ],
       ],
+    );
+
+    if (labels.isEmpty) {
+      return row;
+    }
+
+    // The whole shortcut is one node, named by its keys in the order they are
+    // drawn. A cap named on its own is a node of its own, while a cap that is
+    // only a letter is loose text that merges in ahead of it, so inside a
+    // `PlButton` or a `PlCommandPalette` row ⌘N used to read "N, Command".
+    return Semantics(
+      label: labels.map((_KeyLabel label) => label.name).join(' '),
+      excludeSemantics: true,
+      child: row,
     );
   }
 }

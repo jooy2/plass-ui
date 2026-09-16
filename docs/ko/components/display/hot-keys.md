@@ -179,7 +179,7 @@ const PlHotKeys(cluster: PlHotKeysCluster(up: 'W', left: 'A', down: 'S', right: 
 
 ::: fw flutter
 
-- `⌘`는 단어가 아닙니다. 스크린리더는 이 문자를 "place of interest sign"으로 읽습니다. 글리프로 그려지는 키는 대신 진짜 이름으로 알려지므로, Mac의 `Mod+K`가 "Command K"로 읽힙니다.
+- `⌘`는 단어가 아닙니다. 스크린리더는 이 문자를 "place of interest sign"으로 읽습니다. 단축키 전체가 키를 순서대로 담은 노드 하나이고 글리프는 진짜 이름으로 들어가므로, Mac의 `Mod+K`는 혼자 있을 때나 `PlButton` 안, `PlCommandPalette` 행 안에서나 "Command K"로 읽힙니다.
 - 구분자는 semantics에서 제외되므로, 단축키가 "Ctrl plus K"가 아니라 키들로 읽힙니다.
 - 어긋날 hydration이 없습니다. 플랫폼은 빌드 시점에 알 수 있고, 그려지는 캡은 처음부터 맞는 것 하나뿐입니다.
 - 이 컴포넌트는 단축키를 **보여 줄** 뿐 바인딩하지 않습니다. 바인딩은 직접 두는 `Shortcuts` 위젯의 일이고, 키를 눌렀을 때 무슨 일이 일어나는지는 호출하는 쪽의 몫입니다.

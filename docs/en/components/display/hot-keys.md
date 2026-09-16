@@ -179,7 +179,7 @@ A cap sits one step down the control ladder. An `md` cap is 32px, not 40px. It i
 
 ::: fw flutter
 
-- `⌘` is not a word: a screen reader announces the character as "place of interest sign". Every key drawn as a glyph is announced by its real name instead, so `Mod+K` on a Mac is read as "Command K".
+- `⌘` is not a word: a screen reader announces the character as "place of interest sign". The whole shortcut is one node named by its keys in order, each glyph by its real name, so `Mod+K` on a Mac is read as "Command K" wherever it sits — on its own, inside a `PlButton` or in a `PlCommandPalette` row.
 - The separator is excluded from semantics, so a shortcut is read as its keys rather than as "Ctrl plus K".
 - There is no hydration to get wrong: the platform is read at build time and the right cap is the only one ever drawn.
 - This component **displays** a shortcut; it does not bind one. Binding is a `Shortcuts` widget of your own, and what happens when the keys are pressed is the caller's.
