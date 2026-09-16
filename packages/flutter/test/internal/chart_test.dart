@@ -253,6 +253,39 @@ void main() {
     });
   });
 
+  group('stackToFull', () {
+    test('renormalises each category to a hundred and keeps the value as a label', () {
+      final List<PlassChartSeries> full = stackToFull(const <PlassChartSeries>[
+        PlassChartSeries(
+          name: 'Direct',
+          data: <PlassChartDatum>[PlassChartDatum(30), PlassChartDatum.gap()],
+        ),
+        PlassChartSeries(
+          name: 'Search',
+          data: <PlassChartDatum>[PlassChartDatum(90), PlassChartDatum(5)],
+        ),
+      ], (double value) => 'wrote $value');
+
+      final List<List<ChartValue>> values = toValues(full);
+
+      expect(values[0][0].value, closeTo(25, 0.0001));
+      expect(values[1][0].value, closeTo(75, 0.0001));
+      // The number the caller passed survives as the label, so a tooltip is
+      // not left with percentages alone.
+      expect(values[1][0].label, 'wrote 90.0');
+      // A gap is still a gap rather than a nought per cent.
+      expect(values[0][1].value, isNull);
+    });
+
+    test('draws nothing rather than dividing by a category that adds up to nothing', () {
+      final List<PlassChartSeries> full = stackToFull(const <PlassChartSeries>[
+        PlassChartSeries(data: <PlassChartDatum>[PlassChartDatum(0)]),
+      ], (double value) => '$value');
+
+      expect(toValues(full)[0][0].value, 0);
+    });
+  });
+
   group('squarify', () {
     test('keeps tiles of the same value in the order they were given', () {
       // Forty and not four: Dart sorts a short list by insertion, which is

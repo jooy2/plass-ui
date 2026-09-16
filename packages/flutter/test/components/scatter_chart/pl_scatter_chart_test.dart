@@ -227,9 +227,7 @@ void main() {
       expect(canvas.fills.every((Paint paint) => paint.color.a == 1), isTrue);
     });
 
-    testWidgets('rings each mark as thinly as the React build does', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('rings each mark as thinly as the React build does', (WidgetTester tester) async {
       await _pump(tester, PlScatterChart(series: spend));
 
       final canvas = RecordingCanvas();

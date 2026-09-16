@@ -132,53 +132,12 @@ class PlBarChart extends StatelessWidget {
 
   bool get _stacked => stacking != PlBarStacking.grouped;
 
-  /// The series a full-length stack actually draws.
-  ///
-  /// 100% stacking renormalises the data before anything is drawn, so the axis,
-  /// the tooltip and the summary all agree about what the number is. The
-  /// original value survives as the point's label — a chart that can only tell
-  /// you percentages has thrown away what it was given.
+  /// The series a full-length stack actually draws, which the React build works
+  /// out with the same `stackToFull`.
   List<PlassChartSeries> get _shown {
-    if (stacking != PlBarStacking.full) {
-      return series;
-    }
-
-    final List<List<ChartValue>> values = toValues(series);
-    final totals = <int, double>{};
-
-    for (final List<ChartValue> one in values) {
-      for (int i = 0; i < one.length; i += 1) {
-        totals[i] = (totals[i] ?? 0) + (one[i].value ?? 0).abs();
-      }
-    }
-
-    return <PlassChartSeries>[
-      for (int s = 0; s < series.length; s += 1)
-        PlassChartSeries(
-          id: series[s].id,
-          name: series[s].name,
-          color: series[s].color,
-          dashed: series[s].dashed,
-          hidden: series[s].hidden,
-          data: <PlassChartDatum>[
-            for (int i = 0; i < values[s].length; i += 1)
-              if (values[s][i].value == null)
-                const PlassChartDatum.gap()
-              else
-                PlassChartDatum.point(
-                  PlassChartPoint(
-                    x: values[s][i].x,
-                    y: (totals[i] ?? 0) == 0 ? 0 : values[s][i].value! / totals[i]! * 100,
-                    color: values[s][i].color,
-                    label:
-                        values[s][i].label ??
-                        format?.call(values[s][i].value!) ??
-                        _write(values[s][i].value!),
-                  ),
-                ),
-          ],
-        ),
-    ];
+    return stacking == PlBarStacking.full
+        ? stackToFull(series, (double value) => format?.call(value) ?? compactNumber(value))
+        : series;
   }
 
   @override
@@ -351,7 +310,7 @@ class PlBarChart extends StatelessWidget {
     final double fontSize = chartFontSizes[layout.size]!;
     final painter = TextPainter(
       text: TextSpan(
-        text: entry.label ?? (format?.call(value) ?? _write(value)),
+        text: entry.label ?? (format?.call(value) ?? compactNumber(value)),
         style: TextStyle(
           fontSize: fontSize,
           fontWeight: FontWeight.w500,
@@ -376,11 +335,4 @@ class PlBarChart extends StatelessWidget {
   }
 
   /// The fallback for a chart that named no format.
-  String _write(double value) {
-    if (value == value.roundToDouble() && value.abs() < 1e15) {
-      return value.toInt().toString();
-    }
-
-    return value.toStringAsFixed(2);
-  }
 }

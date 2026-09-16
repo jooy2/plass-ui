@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- **A stacked-to-full bar or area chart writes the value behind each share the way the rest of the chart writes a number.** The two charts kept their own copy of the renormalising and their own copy of the number writer, so a tooltip said `48300` where the axis beside it said `48.3K`. Both now call one `stackToFull`, which is what the React build already did, and the label is written compactly unless a `format` says otherwise.
+
 - **A time axis of minutes or seconds before 1970 starts at its own data.** The first tick was worked out with `~/`, which truncates towards zero, so a negative timestamp floored to the unit *above* it: the axis began a minute after the first point and one minute later than the React axis. It is floored towards negative infinity now, as `Math.floor` does on the web.
 
 - **A treemap of more than thirty-two tiles colours tiles of equal value as the React build does.** The tiles are sorted by area, and Dart reaches for a quicksort past thirty-two items, so two tiles of the same value could swap places and take each other's colour. Ties now keep the order they were given, which is what a JavaScript sort does for nothing.

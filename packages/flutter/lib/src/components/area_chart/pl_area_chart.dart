@@ -127,57 +127,12 @@ class PlAreaChart extends StatelessWidget {
 
   bool get _stacked => stacking != PlAreaStacking.none;
 
-  /// The series a full-height stack actually draws.
-  ///
-  /// 100% stacking is a change to the *data*, not to the drawing: each category
-  /// is renormalised to add up to a hundred. Doing it here rather than in the
-  /// painter is what lets the axis, the tooltip and the summary all agree that
-  /// the number is a share — they read the series they were given.
+  /// The series a full-height stack actually draws, which the React build works
+  /// out with the same `stackToFull`.
   List<PlassChartSeries> get _shown {
-    if (stacking != PlAreaStacking.full) {
-      return series;
-    }
-
-    final List<List<ChartValue>> values = toValues(series);
-    final totals = <int, double>{};
-
-    for (final List<ChartValue> one in values) {
-      for (int i = 0; i < one.length; i += 1) {
-        totals[i] = (totals[i] ?? 0) + (one[i].value ?? 0).abs();
-      }
-    }
-
-    return <PlassChartSeries>[
-      for (int s = 0; s < series.length; s += 1)
-        PlassChartSeries(
-          id: series[s].id,
-          name: series[s].name,
-          color: series[s].color,
-          dashed: series[s].dashed,
-          hidden: series[s].hidden,
-          data: <PlassChartDatum>[
-            for (int i = 0; i < values[s].length; i += 1)
-              if (values[s][i].value == null)
-                const PlassChartDatum.gap()
-              else
-                PlassChartDatum.point(
-                  PlassChartPoint(
-                    x: values[s][i].x,
-                    y: (totals[i] ?? 0) == 0 ? 0 : values[s][i].value! / totals[i]! * 100,
-                    color: values[s][i].color,
-                    // The tooltip and the summary keep the number the caller
-                    // passed, which is the one they actually have. A
-                    // stacked-to-full chart that can only tell you percentages
-                    // has thrown the data away.
-                    label:
-                        values[s][i].label ??
-                        format?.call(values[s][i].value!) ??
-                        _write(values[s][i].value!),
-                  ),
-                ),
-          ],
-        ),
-    ];
+    return stacking == PlAreaStacking.full
+        ? stackToFull(series, (double value) => format?.call(value) ?? compactNumber(value))
+        : series;
   }
 
   @override
@@ -222,17 +177,10 @@ class PlAreaChart extends StatelessWidget {
         markers: markers,
         valueLabels: valueLabels,
         connectNulls: connectNulls,
-        write: (double value) => format?.call(value) ?? _write(value),
+        write: (double value) => format?.call(value) ?? compactNumber(value),
       ),
     );
   }
 
   /// The fallback for a chart that named no format.
-  String _write(double value) {
-    if (value == value.roundToDouble() && value.abs() < 1e15) {
-      return value.toInt().toString();
-    }
-
-    return value.toStringAsFixed(2);
-  }
 }

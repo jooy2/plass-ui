@@ -270,24 +270,51 @@ bool Function(int) labelledPoints(List<ChartValue> one, PlassChartValueLabels wh
   };
 }
 
-/// A category as a number, for a category axis that is really a value axis.
+/// The series a stack drawn to full length actually draws.
 ///
-/// A `DateTime` is its epoch milliseconds, which is what makes a scatter of
-/// timestamps work at all. A string is not a position on a number line, so it
-/// comes back `null` rather than `NaN` — the same rule [finiteOrNull] follows,
-/// and for the same reason.
-double? categoryToNumber(PlassChartCategory? value) {
-  if (value == null) {
-    return null;
+/// 100% stacking is a change to the *data* and not to the drawing: each
+/// category is renormalised to add up to a hundred, so the axis, the tooltip
+/// and the summary all agree that the number drawn is a share. The number the
+/// caller passed survives as each point's label, written by [write] the way
+/// the chart writes every other value — a chart stacked to full that can only
+/// tell a reader percentages has thrown away what it was given.
+List<PlassChartSeries> stackToFull(
+  List<PlassChartSeries> series,
+  String Function(double value) write,
+) {
+  final List<List<ChartValue>> values = toValues(series);
+  final totals = <int, double>{};
+
+  for (final List<ChartValue> one in values) {
+    for (int i = 0; i < one.length; i += 1) {
+      totals[i] = (totals[i] ?? 0) + (one[i].value ?? 0).abs();
+    }
   }
 
-  final DateTime? date = value.date;
-
-  if (date != null) {
-    return date.millisecondsSinceEpoch.toDouble();
-  }
-
-  return finiteOrNull(value.number);
+  return <PlassChartSeries>[
+    for (int s = 0; s < series.length; s += 1)
+      PlassChartSeries(
+        id: series[s].id,
+        name: series[s].name,
+        color: series[s].color,
+        dashed: series[s].dashed,
+        hidden: series[s].hidden,
+        data: <PlassChartDatum>[
+          for (int i = 0; i < values[s].length; i += 1)
+            if (values[s][i].value == null)
+              const PlassChartDatum.gap()
+            else
+              PlassChartDatum.point(
+                PlassChartPoint(
+                  x: values[s][i].x,
+                  y: (totals[i] ?? 0) == 0 ? 0 : values[s][i].value! / totals[i]! * 100,
+                  color: values[s][i].color,
+                  label: values[s][i].label ?? write(values[s][i].value!),
+                ),
+              ),
+        ],
+      ),
+  ];
 }
 
 /// How many categories the widest series has.
