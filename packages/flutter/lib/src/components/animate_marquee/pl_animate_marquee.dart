@@ -80,6 +80,9 @@ class PlAnimateMarquee extends StatefulWidget {
   final bool reverse;
 
   /// How fast the content travels, in logical pixels per second.
+  ///
+  /// `0` or less holds the strip where it is, as [paused] does. [duration]
+  /// overrides this.
   final double speed;
 
   /// The gap between items, and between the last item and the first of the next
@@ -184,9 +187,15 @@ class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
   @override
   Widget build(BuildContext context) {
     final bool still = prefersReducedMotion(context);
+    // A speed of zero is not a speed, and a negative one is not a direction —
+    // `reverse` is what says which way the strip goes. Either holds the strip
+    // where it is, rather than rounding an infinite number of milliseconds,
+    // which throws. An explicit `duration` decides on its own, and `speed` is
+    // not read at all then.
+    final bool stopped = widget.duration == null && widget.speed <= 0;
     final Duration duration =
         widget.duration ??
-        (_travel > 0
+        (_travel > 0 && !stopped
             ? Duration(milliseconds: (_travel / widget.speed * 1000).round())
             : _unmeasured);
 
@@ -200,7 +209,7 @@ class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
         curve: widget.curve ?? Curves.linear,
         repeat: widget.repeat,
         alternate: widget.alternate,
-        paused: widget.paused || (widget.pauseOnHover && _hovered),
+        paused: widget.paused || stopped || (widget.pauseOnHover && _hovered),
         trigger: widget.trigger,
         play: widget.play,
         once: widget.once,

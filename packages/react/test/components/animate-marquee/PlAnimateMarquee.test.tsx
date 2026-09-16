@@ -173,6 +173,23 @@ describe('PlAnimateMarquee', () => {
       expect(parseFloat(root.style.getPropertyValue('--p-anim-duration'))).toBe(fast * 2);
     });
 
+    it('holds the strip still at a speed of zero or less', async () => {
+      for (const speed of [0, -60]) {
+        await render(
+          <PlAnimateMarquee className="marquee-under-test" gap={0} speed={speed}>
+            <span style={{ display: 'block', width: 500 }}>Acme</span>
+          </PlAnimateMarquee>
+        );
+
+        const root = document.querySelector('.marquee-under-test') as HTMLElement;
+
+        // Dividing the travel by nothing wrote `Infinityms`, which no browser
+        // reads. A speed of nothing is not moving, so the strip is paused.
+        expect(root.dataset.state).toBe('paused');
+        expect(root.style.getPropertyValue('--p-anim-duration')).toBe('12000ms');
+      }
+    });
+
     it('lets an explicit duration win over the measurement', async () => {
       await render(
         <PlAnimateMarquee className="marquee-under-test" duration={9000}>

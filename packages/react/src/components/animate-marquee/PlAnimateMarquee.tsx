@@ -30,6 +30,9 @@ export interface PlAnimateMarqueeProps
    * How fast the content travels, in pixels per second. A speed rather than a
    * duration, so a strip of four logos and a strip of forty move at the same
    * pace instead of the long one becoming a blur.
+   *
+   * `0` or less holds the strip where it is, as `paused` does. `duration`
+   * overrides this.
    * @default 60
    */
   speed?: number;
@@ -115,12 +118,19 @@ export const PlAnimateMarquee = /* @__PURE__ */ React.forwardRef<
   },
   ref
 ) {
+  // A speed of zero is not a speed, and a negative one is not a direction —
+  // `reverse` is what says which way the strip goes. Either holds the strip
+  // where it is, rather than dividing the travel into the `Infinityms` no
+  // browser reads. An explicit `duration` decides on its own, and `speed` is
+  // not read at all then.
+  const stopped = duration === undefined && speed <= 0;
+
   const run = useAnimationRun({
     trigger,
     play,
     once,
     threshold,
-    paused,
+    paused: paused || stopped,
     infinite: isInfinite(repeat)
   });
 
@@ -180,7 +190,7 @@ export const PlAnimateMarquee = /* @__PURE__ */ React.forwardRef<
   // An explicit duration wins; otherwise the measurement decides, and until the
   // first measurement lands there is a sane number rather than `0ms`, which
   // browsers read as "finish immediately".
-  const runDuration = duration ?? (travel > 0 ? (travel / speed) * 1000 : 12000);
+  const runDuration = duration ?? (travel > 0 && !stopped ? (travel / speed) * 1000 : 12000);
 
   const track = (index: number) => (
     <div

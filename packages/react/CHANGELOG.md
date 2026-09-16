@@ -6,6 +6,8 @@
 
 ### Fixed
 
+- **A `PlAnimateMarquee` with a `speed` of zero or less stands still.** The travel was divided by the speed, so zero gave an infinite number of milliseconds: the strip carried an `animation-duration` of `Infinityms`, which no browser reads. A speed of zero or less is now read as not moving and holds the strip where it is, as `paused` does, and an explicit `duration` still decides on its own.
+
 - **Copying a text effect gives its line once.** `PlAnimateSplit`, `PlAnimateScramble`, `PlAnimateCounter` and `PlAnimateTyping` each draw their line and keep a clipped copy of it beside them for a screen reader, and a selection took both: "Internationalization is long" came back as "Internationalization is longInternationalization is long". The clipped copy is now left out of the selection, and a screen reader still reads it.
 
 - **A floating `PlBackTop` floats, and clears the safe area.** `floating` pinned the button with a `fixed` utility, which `PlButton`'s own `relative` beat at the same specificity later in the stylesheet, so the button scrolled with the page instead of staying in the corner — every demo on the site passes `floating={false}`, which is why nobody saw it. It is pinned inline now, as `PlFloatingActionButton` is, 24px off the bottom end corner with `env(safe-area-inset-bottom)` added to that, so it no longer sits under the home indicator or the navigation bar of an edge-to-edge screen. A `style` of your own still replaces the pinning.

@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- **A `PlAnimateMarquee` with a `speed` of zero or less stands still.** The travel was divided by the speed, so zero gave an infinite number of milliseconds: rounding that threw, and the widget did not build at all. A speed of zero or less is now read as not moving and holds the strip where it is, as `paused` does, and an explicit `duration` still decides on its own.
+
 - **A minimized `PlWindowPane` keeps its body.** Rolling a window up took the content out of the tree, so everything it held — a half-filled form, a scroll position, a chosen tab — was gone when the window came back down. The body now stays in the tree, off stage and out of the focus order, which is what the window-pane page says of both builds and what the React build's `inert` body already did.
 
 - **A `PlStepper` panel is named after the step it belongs to.** Neither the panel under a horizontal rail nor the one inside a vertical step carried a name, so a screen reader landing in one was told nothing about which step it was for. Both are now a node named by the step's label, which is what the stepper page has always said and what the React panel's `aria-labelledby` does. A step whose label is not text is left as it was.

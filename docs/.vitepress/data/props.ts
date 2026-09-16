@@ -1341,8 +1341,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'number',
       default: '60',
       description: {
-        ko: '내용이 흐르는 속도(초당 픽셀). duration이 아니라 speed라서, 로고 넷짜리 띠와 마흔짜리 띠가 같은 속도로 움직입니다',
-        en: 'How fast the content travels, in pixels per second. A speed rather than a duration, so a strip of four logos and a strip of forty move at the same pace'
+        ko: '내용이 흐르는 속도(초당 픽셀). duration이 아니라 speed라서, 로고 넷짜리 띠와 마흔짜리 띠가 같은 속도로 움직입니다. 0 이하는 paused처럼 띠를 세웁니다',
+        en: 'How fast the content travels, in pixels per second. A speed rather than a duration, so a strip of four logos and a strip of forty move at the same pace. 0 or less holds the strip still, as paused does'
       }
     },
     {

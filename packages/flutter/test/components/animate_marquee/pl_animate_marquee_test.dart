@@ -176,6 +176,31 @@ void main() {
       expect(before - shiftOf(tester).dx, closeTo(30, 3));
     });
 
+    testWidgets('stands still at a speed of zero or less', (WidgetTester tester) async {
+      for (final double speed in <double>[0, -60]) {
+        await tester.pumpWidget(
+          host(
+            PlAnimateMarquee(gap: 0, speed: speed, curve: Curves.linear, children: _three),
+            width: 200,
+            height: 40,
+          ),
+        );
+
+        // Rounding an infinite number of milliseconds threw before this. A
+        // speed of nothing is not moving, so the strip is held where it is.
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        final double before = shiftOf(tester).dx;
+
+        await tester.pump(const Duration(milliseconds: 500));
+
+        expect(shiftOf(tester).dx, before);
+
+        await tester.pumpWidget(host(const SizedBox.shrink()));
+      }
+    });
+
     testWidgets('scrolls along one copy where the platform has asked for less movement', (
       WidgetTester tester,
     ) async {
