@@ -16,7 +16,11 @@ The page is built with the React package, and there is no Flutter version of it.
 
 :::
 
+::: fw react
+
 The whole page is one file: `docs/.vitepress/demos/examples/landing.tsx`. It is live, switch the pricing to monthly, page through the quotes, open a question in the FAQ.
+
+:::
 
 ## Composition
 

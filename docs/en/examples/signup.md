@@ -16,7 +16,11 @@ The flow is built with the React package, and there is no Flutter version of it.
 
 :::
 
+::: fw react
+
 The whole flow is one file: `docs/.vitepress/demos/examples/signup.tsx`. It is live, submit the first step empty and watch the errors arrive, then type any six digits to get past the code.
+
+:::
 
 ## Composition
 

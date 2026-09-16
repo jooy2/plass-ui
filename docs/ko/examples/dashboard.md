@@ -16,7 +16,11 @@ aside: false
 
 :::
 
+::: fw react
+
 화면 전체가 파일 하나입니다. `docs/.vitepress/demos/examples/dashboard.tsx`. 실제로 동작하는 화면이라 table을 검색하고, 채널이나 상태로 거르고, 행을 몇 개 선택하면 일괄 action이 나타납니다.
+
+:::
 
 ## 구성
 

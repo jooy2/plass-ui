@@ -16,7 +16,11 @@ aside: false
 
 :::
 
+::: fw react
+
 페이지 전체가 파일 하나입니다. `docs/.vitepress/demos/examples/landing.tsx`. 실제로 동작하는 페이지라 요금제를 월 단위로 바꾸고, 후기를 넘겨 보고, FAQ를 열어 볼 수 있습니다.
+
+:::
 
 ## 구성
 

@@ -16,7 +16,11 @@ aside: false
 
 :::
 
+::: fw react
+
 흐름 전체가 파일 하나입니다. `docs/.vitepress/demos/examples/signup.tsx`. 실제로 동작하는 화면이라 첫 단계를 비운 채로 넘겨 보면 error가 나타나고, 아무 숫자나 여섯 자리를 넣으면 코드 단계를 지나갑니다.
+
+:::
 
 ## 구성
 
