@@ -475,7 +475,7 @@ onBeforeUnmount(() => {
           class="plass-demo-frame"
           :src="frameSrc"
           :style="frameStyle"
-          :title="tf(locale, 'demoTitle', { framework: frameworkLabel })"
+          :title="tf(locale, 'demoTitle', { framework: frameworkLabel, demo: src })"
           @load="pushTheme"
         />
         <div v-else class="plass-demo-frame" :style="frameStyle" />

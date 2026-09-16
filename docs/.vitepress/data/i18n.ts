@@ -60,7 +60,7 @@ const strings = {
     ko: '{framework} 미리보기가 아직 빌드되지 않았습니다. docs 폴더에서 `npm run flutter:demos`를 실행하세요.',
     en: 'The {framework} preview has not been built. Run `npm run flutter:demos` in `docs/`.'
   },
-  demoTitle: { ko: '{framework} 미리보기', en: '{framework} preview' }
+  demoTitle: { ko: '{framework} 미리보기: {demo}', en: '{framework} preview of {demo}' }
 } satisfies Record<string, Record<Locale, string>>;
 
 export type StringKey = keyof typeof strings;
