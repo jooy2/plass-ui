@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- **A `PlStepper` panel is named after the step it belongs to.** Neither the panel under a horizontal rail nor the one inside a vertical step carried a name, so a screen reader landing in one was told nothing about which step it was for. Both are now a node named by the step's label, which is what the stepper page has always said and what the React panel's `aria-labelledby` does. A step whose label is not text is left as it was.
+
 - **A `PlFloatingBottomNavigation` with no `onChanged` still marks the current destination.** Leaving the callback out counted every destination as unavailable, so the key went quiet and the glyph on it turned muted: a bar the app drives from elsewhere showed nothing as current. The key stays lit and the current glyph keeps its ink now, and no disc takes a press, as before. It is the rule `PlBottomNavigation` already follows.
 
 - **An unavailable destination in a `PlBottomNavigation` is dimmed.** A `PlBottomNavigationItem` with `disabled` was drawn in the muted ink a resting destination already has, so nothing told the two apart. It is now dimmed and drained of colour, which is the `opacity-50 saturate-[0.35]` of the React item and what `PlFloatingBottomNavigation` already did with its own.

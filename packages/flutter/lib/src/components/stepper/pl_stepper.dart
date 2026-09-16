@@ -7,6 +7,7 @@ import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/steps.dart';
+import 'package:plass_ui/src/internal/text.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -233,6 +234,7 @@ class PlStepper extends StatelessWidget {
     ];
 
     final panel = horizontal && active >= 0 && active < steps.length ? steps[active].child : null;
+    final panelName = panel == null ? null : plassTextOf(steps[active].label);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -244,19 +246,34 @@ class PlStepper extends StatelessWidget {
         if (panel != null)
           Padding(
             padding: const EdgeInsets.only(top: 16),
-            child: DefaultTextStyle.merge(
-              style: TextStyle(
-                color: tokens.fg,
-                fontSize: sheetBody[size]!.size,
-                height: sheetBody[size]!.height,
-                leadingDistribution: TextLeadingDistribution.even,
+            // Named by the step it belongs to, so a reader landing in the panel
+            // is told which step it is the panel for, as the React panel is.
+            child: _named(
+              panelName,
+              DefaultTextStyle.merge(
+                style: TextStyle(
+                  color: tokens.fg,
+                  fontSize: sheetBody[size]!.size,
+                  height: sheetBody[size]!.height,
+                  leadingDistribution: TextLeadingDistribution.even,
+                ),
+                child: panel,
               ),
-              child: panel,
             ),
           ),
       ],
     );
   }
+}
+
+/// A panel named by its step, or the panel as it is when the step's label is
+/// not text this can read.
+Widget _named(String? name, Widget panel) {
+  if (name == null) {
+    return panel;
+  }
+
+  return Semantics(container: true, explicitChildNodes: true, label: name, child: panel);
 }
 
 class _Step extends StatelessWidget {
@@ -442,14 +459,19 @@ class _Step extends StatelessWidget {
                     top: 4,
                     bottom: 12,
                   ),
-                  child: DefaultTextStyle.merge(
-                    style: TextStyle(
-                      color: tokens.fg,
-                      fontSize: sheetBody[size]!.size,
-                      height: sheetBody[size]!.height,
-                      leadingDistribution: TextLeadingDistribution.even,
+                  // Named by the step it sits in, as the panel under a
+                  // horizontal rail is named by the step it belongs to.
+                  child: _named(
+                    plassTextOf(step.label),
+                    DefaultTextStyle.merge(
+                      style: TextStyle(
+                        color: tokens.fg,
+                        fontSize: sheetBody[size]!.size,
+                        height: sheetBody[size]!.height,
+                        leadingDistribution: TextLeadingDistribution.even,
+                      ),
+                      child: panel!,
                     ),
-                    child: panel!,
                   ),
                 ),
               if (drawsConnector)

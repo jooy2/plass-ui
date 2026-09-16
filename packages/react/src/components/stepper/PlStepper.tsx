@@ -444,7 +444,13 @@ export const PlStep = /* @__PURE__ */ React.forwardRef<HTMLLIElement, PlStepProp
           rather than `status`, as the horizontal panel does, so a step marked
           `current` again behind the reader does not open a second one. */}
       {!horizontal && index === active && hasContent(children) ? (
-        <div className={cx('ms-[calc(var(--p-bullet)+0.75rem)] pt-2 pb-4', sheetBodyClasses[size])}>
+        <div
+          // Named by the step it sits in, as the horizontal panel is named by
+          // the step it belongs to.
+          role="group"
+          aria-labelledby={stepper ? `${stepper.baseId}-${index}` : undefined}
+          className={cx('ms-[calc(var(--p-bullet)+0.75rem)] pt-2 pb-4', sheetBodyClasses[size])}
+        >
           {children}
         </div>
       ) : null}

@@ -255,6 +255,18 @@ describe('PlStepper', () => {
       expect(second.textContent).toContain('Verify panel');
     });
 
+    it('names a vertical panel after the step it sits in', async () => {
+      const screen = await render(
+        <PlStepper orientation="vertical" active={1}>
+          {steps}
+        </PlStepper>
+      );
+
+      await expect
+        .element(screen.getByRole('group', { name: 'Verify' }))
+        .toHaveTextContent('Verify panel');
+    });
+
     it('puts a horizontal step’s panel under the rail', async () => {
       await render(
         <PlStepper orientation="horizontal" active={1}>

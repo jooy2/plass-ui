@@ -4,6 +4,10 @@
 
 ## vNext (2026--)
 
+### Fixed
+
+- **A vertical `PlStepper` names its panel after the step it sits in.** Only the horizontal panel was a `role="group"` named by its step, so a screen reader landing in a vertical one was told nothing about which step it belonged to. Both are named now, which is what the stepper page has always said.
+
 ## 1.5.0 (2026-09-15)
 
 ### Breaking changes
