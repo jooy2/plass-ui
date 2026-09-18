@@ -2,7 +2,7 @@
 
 The findings of a full audit of both packages, the documentation site and the repository, taken at `148a20e4` on 2026-09-13, and how far fixing them has got. The work goes in batches of twenty. When every item below is ticked, delete this file in a commit of its own.
 
-**335 of 372 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
+**336 of 372 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ## Working through a batch
 
@@ -87,9 +87,9 @@ Asked at the end of batches 7 to 15. Each question says what the problem is and 
 1. **Left open by item 21: `radius`, `duration` and `ease` in Flutter.** The instance tokens are now open through `copyWith`, and these three are not on the instance at all. They are `static const` on `PlassTokens` and read as statics in 226 places, so a brand corner radius and a slower house curve are still out of reach, where the web lets a page override every `--plass-*`.
    - A. Move the three onto the set and change every call site to read `PlassTheme.of(context)`: the two builds take the same overrides, and any call site with no `BuildContext` has to be given one. About a batch's worth of work.
    - B. Keep them fixed and say on the colour page that the Flutter scales do not move.
-1. **Item 32, `BackdropFilter.grouped`.** Every glass surface in a Flutter list reads the backdrop on its own, which is slow with dozens of cards.
-   - A. The library groups surfaces itself: faster with no work for the app, and the library has to guess the boundaries of overlapping glass, which can show as a blur seam when it guesses wrong.
-   - B. Leave grouping to the app and document it: no code change, and apps that need the speed wrap their own lists.
+1. **Left open by item 32: a glass sheet inside another one.** Every sheet now takes its backdrop key from the nearest `BackdropGroup`, and the design language page says to put the group around the outer sheets rather than around a tree that nests glass in glass, because a field on a card would otherwise share the card's key and blur the page behind the card instead of the card. The library could take that case off the app.
+   - A. Have each glass sheet open a fresh `BackdropGroup` for its own children: nesting is right whatever the app wraps, and `BackdropGroup` mints a new `BackdropKey` on every build unless it is given one, so each sheet has to hold a stable key — which makes `PlassSurfaceBox` stateful.
+   - B. Keep the note on the page: no code change, and an app that wraps a nesting tree gets the inner sheet wrong.
 1. **Items 39 and 180, the security findings.** The local memory note `audit-security-items` is not on this machine, so the two items cannot be worked from their titles, and each finding still needs a decision besides. The questions were asked in the batch 9 report.
    - Needed: the note put back, and the decision for each.
 1. **Item 52, a React chart's description.** Every focus reads the whole data table as the description, hundreds of values, and the arrow-key hint comes last; the table is also in the reading order, so it is heard twice.
@@ -341,7 +341,7 @@ None. Every flagged item passed over so far is asked above.
 - [x] **29.** `PlSidebar` reimplements the drag handling in `internal/drag.ts` (Optimisation · React · Low)
 - [x] **30.** The popup arrow is duplicated in three components, and the copies already draw it differently (Optimisation · React · Low)
 - [x] **31.** The statement "one listener per query" is wrong (Docs · Both · Low)
-- [ ] **32.** Each Flutter glass surface's `BackdropFilter` reads the backdrop separately (Performance · Flutter · Medium)
+- [x] **32.** Each Flutter glass surface's `BackdropFilter` reads the backdrop separately (Performance · Flutter · Medium)
   - Location: `packages/flutter/lib/src/internal/surface.dart:175`
   - Problem: With dozens of glass surfaces, as in a list of cards, the σ22 blur reads the backdrop once per surface. `BackdropFilter.grouped` is available in the minimum version, 3.41, but it is not used.
   - Proposal: Group surfaces that do not overlap, and give overlapping glass, such as a field inside a card, a new group.
