@@ -198,7 +198,8 @@ The tokens are `--plass-chart-1` through `--plass-chart-8`, and a project that m
 
 ::: fw flutter
 
-- As its value, the drawing carries **each visible series and where it ended up**. That is the reading a sighted reader takes from the shape, rather than a cell-by-cell recital of the data.
+- As its value, the drawing carries **every number in it**: each visible series, then the categories it has a value at and what it was worth there — "Revenue: Jan 12; Feb 19; Mar 15. Cost: Jan 8; Feb 11; Mar 9". There is no hidden table on this side the way there is on React, so the text is the only path to the numbers. A gap is left out rather than read as a category with nothing after it, and a chart given no `categories` leaves the positions out too, because the order of the reading already carries them.
+- `semanticValue` replaces that text for a chart whose summary is not "each series and its values". It is handed which series are on.
 - A tap **leaves** the tooltip up and a second tap on the same column takes it down. Clearing it on the release would be a tooltip a reader with no pointer never gets to read: on a touch screen the press and the release are a tenth of a second apart. A drag scrubs along the axis.
 
 :::

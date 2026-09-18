@@ -96,7 +96,7 @@ void main() {
 
       expect(
         tester.getSemantics(find.bySemanticsLabel('Chart')).value,
-        r'New $4000, Renewed $16000',
+        r'New: $4000. Renewed: $16000',
       );
 
       await tester.tapAt(tester.getCenter(find.byType(PlBarChart)));

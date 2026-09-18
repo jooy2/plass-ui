@@ -94,7 +94,10 @@ void main() {
           ),
         );
 
-        expect(tester.getSemantics(find.bySemanticsLabel('Chart')).value, '1 22, 2 13');
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('Chart')).value,
+          '1: Jan 12; Feb 19; Mar 15; Apr 22. 2: Jan 8; Feb 11; Mar 9; Apr 13',
+        );
         expect(find.text('2'), findsOneWidget);
       });
 

@@ -549,6 +549,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
   String? _said;
   PlassCartesianChart? _saidFor;
   List<bool>? _saidVisible;
+  PlDateNames? _saidNames;
 
   @override
   void dispose() {
@@ -977,27 +978,60 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
     return Semantics(
       container: true,
       label: widget.semanticLabel ?? labels.chart,
-      // The picture is a picture. What a screen reader is handed instead is the
-      // series and their ends, which is the reading a sighted reader takes from
-      // the shape — not a cell-by-cell recital of the whole table.
-      value: _summaryFor(values, visible),
+      // The picture is a picture, so what a screen reader is handed is every
+      // value in it: each visible series, then its categories and what it was
+      // worth at each. There is no table beside a Flutter chart the way there
+      // is on the web, so this text is the only path to the numbers — the
+      // scatter and the heatmap in this package already take it.
+      value: _summaryFor(
+        values,
+        visible,
+        categories,
+        names,
+        // A category is worth saying only when it says something. Given no
+        // `categories` and no value scale, it is the position in the list,
+        // which the order of the reading already carries — and "New, zero, four
+        // thousand" is a number the reader has to work out is not data.
+        named: widget.categories != null || categoryScale != null,
+      ),
       child: PlassChartWithLegend(side: widget.legend.side, plot: plot, legend: legend),
     );
   }
 
   /// The summary, written again only when what it reads has changed.
-  String _summaryFor(List<List<ChartValue>> values, List<bool> visible) {
-    if (_said == null || !identical(_saidFor, widget) || !listEquals(_saidVisible, visible)) {
-      _said = widget.semanticValue?.call(visible) ?? _summary(values, visible);
+  ///
+  /// It is a whole chart's worth of text, so it is built once and kept rather
+  /// than rebuilt on every pointer move over the plot.
+  String _summaryFor(
+    List<List<ChartValue>> values,
+    List<bool> visible,
+    List<PlassChartCategory> categories,
+    PlDateNames names, {
+    required bool named,
+  }) {
+    if (_said == null ||
+        !identical(_saidFor, widget) ||
+        !listEquals(_saidVisible, visible) ||
+        _saidNames != names) {
+      _said =
+          widget.semanticValue?.call(visible) ??
+          _summary(values, visible, categories, names, named: named);
       _saidFor = widget;
       _saidVisible = visible;
+      _saidNames = names;
     }
 
     return _said!;
   }
 
-  /// What each visible series is called and where it ended up.
-  String _summary(List<List<ChartValue>> values, List<bool> visible) {
+  /// Each visible series, then every category it has a value at and that value.
+  String _summary(
+    List<List<ChartValue>> values,
+    List<bool> visible,
+    List<PlassChartCategory> categories,
+    PlDateNames names, {
+    required bool named,
+  }) {
     final parts = <String>[];
 
     for (int i = 0; i < widget.series.length; i += 1) {
@@ -1006,16 +1040,30 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
       }
 
       final List<ChartValue> one = values[i];
-      final ChartValue? last = one.cast<ChartValue?>().lastWhere(
-        (ChartValue? entry) => entry?.value != null,
-        orElse: () => null,
-      );
       final String name = widget.series[i].name ?? '${i + 1}';
+      final points = <String>[];
 
-      parts.add(last == null ? name : '$name ${last.label ?? _write(last.value!)}');
+      for (int at = 0; at < one.length && at < categories.length; at += 1) {
+        final ChartValue entry = one[at];
+
+        // A gap is left out rather than read as an empty category: a reader
+        // hearing "March" with nothing after it cannot tell a gap from a value
+        // the writer forgot.
+        if (entry.value == null) {
+          continue;
+        }
+
+        final String said = entry.label ?? _write(entry.value!);
+
+        points.add(named ? '${categoryText(categories[at], names)} $said' : said);
+      }
+
+      // A series of nothing but gaps is still named, so the reader is told it
+      // is there rather than left to wonder where it went.
+      parts.add(points.isEmpty ? name : '$name: ${points.join('; ')}');
     }
 
-    return parts.join(', ');
+    return parts.join('. ');
   }
 }
 
