@@ -2,7 +2,9 @@
 
 The findings of a full audit of both packages, the documentation site and the repository, taken at `148a20e4` on 2026-09-13, and how far fixing them has got. The work goes in batches of twenty. When every item below is ticked, delete this file in a commit of its own.
 
-**336 of 372 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
+Numbers 39 and 180 are missing on purpose. They were two security findings whose details were kept out of this public file, in a local note that is no longer on the machine, and the Prompter dropped them rather than reconstructing them. Nothing else is renumbered.
+
+**336 of 370 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ## Working through a batch
 
@@ -26,7 +28,6 @@ Standing decisions that apply to every batch:
 
 - React 18 stays in the peer range, but only React 19 is tested. Do not add a React 18 job or test run.
 - A question whose entry names one recommended option is approved: do it at the start of the next batch without asking. Only a question with no recommendation waits for the Prompter.
-- Items 39 and 180 are security findings. The repository is public, so their details are kept out of this file, in the local memory note `audit-security-items`. If that note is not available, ask the Prompter for the details rather than working from the title.
 
 ### Verifying a batch
 
@@ -90,8 +91,6 @@ Asked at the end of batches 7 to 15. Each question says what the problem is and 
 1. **Left open by item 32: a glass sheet inside another one.** Every sheet now takes its backdrop key from the nearest `BackdropGroup`, and the design language page says to put the group around the outer sheets rather than around a tree that nests glass in glass, because a field on a card would otherwise share the card's key and blur the page behind the card instead of the card. The library could take that case off the app.
    - A. Have each glass sheet open a fresh `BackdropGroup` for its own children: nesting is right whatever the app wraps, and `BackdropGroup` mints a new `BackdropKey` on every build unless it is given one, so each sheet has to hold a stable key — which makes `PlassSurfaceBox` stateful.
    - B. Keep the note on the page: no code change, and an app that wraps a nesting tree gets the inner sheet wrong.
-1. **Items 39 and 180, the security findings.** The local memory note `audit-security-items` is not on this machine, so the two items cannot be worked from their titles, and each finding still needs a decision besides. The questions were asked in the batch 9 report.
-   - Needed: the note put back, and the decision for each.
 1. **Item 52, a React chart's description.** Every focus reads the whole data table as the description, hundreds of values, and the arrow-key hint comes last; the table is also in the reading order, so it is heard twice.
    - A. Describe the chart with a short summary, such as the series, the range and the extremes, and keep the table as a sibling: a short announcement on focus, the values one step away, and the summary needs new label pack strings.
    - B. Keep it: every value on every focus.
@@ -352,8 +351,6 @@ None. Every flagged item passed over so far is asked above.
 - [x] **36.** `size.mjs` does not check as much as its comments say (Test · React · Low)
 - [x] **37.** The React format check in CI always passes (Bug · CI · Medium)
 - [x] **38.** The documentation site is not verified on PRs (Test · CI · Medium)
-- [ ] **39.** A finding in the documentation deploy workflow (Security · CI · Medium)
-  - Security finding. The details are kept out of this public file, in the local memory note `audit-security-items`. Decision needed.
 
 ### 2. Charts
 
@@ -713,8 +710,6 @@ None. Every flagged item passed over so far is asked above.
   - Location: `docs/en/components/inputs/otp-field.md:191`(same in ko)
   - Problem: Base UI gives `one-time-code` only to the first cell, and the rest get `off`.
   - Proposal: Change "every cell" to "the first cell".
-- [ ] **180.** A finding in Flutter `PlOtpField` (Security · Flutter · Medium)
-  - Security finding. The details are kept out of this public file, in the local memory note `audit-security-items`. Decision needed.
 - [x] **181.** React `PlPagination` loses focus on the pressed button when the page changes (Accessibility · React · Medium)
 - [x] **182.** Flutter `PlPagination` does not mark the current page for screen readers (Accessibility · Flutter · Medium)
 - [x] **183.** React `PlRadioGroup` `disabled` is not reflected in how the options look (Bug · React · Medium)
