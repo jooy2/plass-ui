@@ -96,6 +96,8 @@ order: 2
 
 ## 계열 덮어쓰기
 
+::: fw react
+
 테마 root에 값을 설정하면 거기서 파생되는 모든 것이 따라옵니다. `:root`, 그리고 `.dark`나 `.light`, `data-theme`를 단 요소가 테마 root입니다.
 
 ```css
@@ -111,13 +113,45 @@ order: 2
 }
 ```
 
+:::
+
+::: fw flutter
+
+토큰 세트는 불변이라 덮어쓰기는 곧 복사입니다. 값을 바꿀 세트에서 출발해 여러분 것을 옮긴 다음, 결과를 `PlassTheme.tokens`에 넘기세요.
+
+```dart
+final PlassTokens base = PlassTokens.light();
+
+PlassTheme.tokens(
+  tokens: base.withFamily(
+    PlassColor.primary,
+    base.family(PlassColor.primary).copyWith(
+      solid: const Color(0xFF7C3AED),
+      solidTo: const Color(0xFF9333C4),
+      accent: const Color(0xFF6D28D9),
+    ),
+  ),
+  child: const App(),
+)
+```
+
+`withFamily`는 계열 하나를 갈아끼우는 짧은 길이고, `PlassTokens.copyWith`은 세트가 들고 있는 나머지를 전부 받습니다. 유리와 차트 팔레트, scrim, 그림자 색조가 거기 있습니다. 다크 테마는 별개의 세트이니 두 테마를 다 쓰는 앱이라면 `PlassTokens.dark()`도 같은 방식으로 만드세요. 계열 값 중 테마에 따라 움직이는 것은 `accent` 하나입니다.
+
+세트는 `build` 안이 아니라 한 번 만들어 들고 계세요. 값이 같은 두 세트는 서로 같다고 비교돼 아무것도 바꾸지 않지만, 매 프레임 새로 만든 세트는 그때마다 계열 여섯 개어치를 비교합니다.
+
+`radius`와 `duration`, `ease`는 세트에 없습니다. 라이브러리가 상수로 읽으므로 어느 테마에서나 같습니다.
+
+:::
+
 바꿀 때 확인할 것 셋.
 
-1. **두 끝과 잉크의 대비.** 각각 `--plass-primary-on-solid`에 대해 4.5:1을 넘겨야 합니다. 부족하면 잉크가 아니라 그 끝을 어둡게 하세요.
+1. **두 끝과 잉크의 대비.** 각각 계열의 잉크에 대해 4.5:1을 넘겨야 합니다. 웹에서는 `--plass-primary-on-solid`, Flutter에서는 `onSolid`입니다. 부족하면 잉크가 아니라 그 끝을 어둡게 하세요.
 2. **두 끝끼리의 관계.** 밝기가 아니라 *hue*가 달라야 합니다. 그냥 더 어두운 두 번째 끝은 컨트롤을 다시 성형된 키로 만들고, 그건 이 라이브러리가 한 버전을 들여 벗어난 모양입니다.
 3. **두 테마 모두에서 accent와 페이지의 대비.** _읽어야_ 하는 값입니다.
 
 ### 페이지의 한 부분만 다시 칠하기
+
+::: fw react
 
 그 밖의 요소에 기본 색을 지정하면 기본 색만 바뀝니다. `--plass-primary-fill`과 `--plass-primary-tint`, `--plass-primary-ring`은 기본 색을 섞어 만드는데, 그 섞는 일은 이미 위쪽 테마 root에서 끝났고 거기에는 옛 색이 남아 있습니다. 그래서 버튼은 새 solid를 받고 그러데이션과 포커스 링은 옛 색 그대로입니다.
 
@@ -132,6 +166,23 @@ order: 2
 이 클래스는 색만 옮깁니다. `.dark`와 `data-theme`는 아래 서브트리의 테마를 고정하지만, `plass-theme`는 페이지의 라이트/다크를 그대로 둡니다. 범위를 정한 계열이 두 테마에서 똑같이 동작하는 이유가 이것입니다.
 
 닿지 않는 곳이 하나 있습니다. 메뉴와 툴팁, select의 목록을 비롯한 모든 팝업은 portal을 통해 `<body>` 끝에 그려지므로 색을 감싼 요소 바깥이고, 페이지 본래의 계열로 나옵니다. 팝업까지 맞춰야 한다면 라이브러리가 portal로 띄운 positioner마다 달아 두는 `.plass-portal`에 같은 값을 선언하세요.
+
+:::
+
+::: fw flutter
+
+앱 전체가 아니라 서브트리를 `PlassTheme.tokens`로 감싸면 화면의 그 부분만 다시 칠해집니다. 위젯은 자기 위에서 가장 가까운 세트를 읽기 때문입니다.
+
+```dart
+PlassTheme.tokens(
+  tokens: branded,
+  child: const CheckoutPanel(),
+)
+```
+
+그 서브트리 안에서 연 레이어도 따라옵니다. 메뉴와 툴팁, select의 목록, modal은 모두 `OverlayPortal`의 자식이라 `Overlay`에 그려지면서도 위젯 트리에서는 자기를 연 위젯 아래에 남습니다. 그래서 앱의 세트가 아니라 둘러싼 세트를 읽습니다.
+
+:::
 
 ## React에서 토큰 지정하기
 

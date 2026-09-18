@@ -2,6 +2,10 @@
 
 ## vNext (2026--)
 
+### Added
+
+- **`PlassTokens.copyWith` and `PlassColorFamily.copyWith` are public, so an app can bring its own colours.** `PlassTheme.tokens` took a set, and the only sets that could be built were `PlassTokens.light()` and `PlassTokens.dark()` — a brand colour, a quieter glass or a chart palette of your own had nowhere to go. Start from the set you are changing, replace what is yours, and hand the result over; `withFamily` is the short form for one family. Both types now compare by value, so a set rebuilt with the same values does not renotify the subtree under it. `radius`, `duration` and `ease` stay constants the library reads directly and are still the same in every theme.
+
 ### Fixed
 
 - **A stacked-to-full bar or area chart writes the value behind each share the way the rest of the chart writes a number.** The two charts kept their own copy of the renormalising and their own copy of the number writer, so a tooltip said `48300` where the axis beside it said `48.3K`. Both now call one `stackToFull`, which is what the React build already did, and the label is written compactly unless a `format` says otherwise.

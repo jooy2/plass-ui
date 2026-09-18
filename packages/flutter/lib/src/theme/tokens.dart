@@ -15,6 +15,7 @@
 /// hairline around it. Depth is carried by the gradient, not by a highlight.
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/css.dart';
@@ -107,7 +108,13 @@ const Map<PlassColor, Color> _darkAccents = <PlassColor, Color>{
 /// colour family is one entry in [PlassColor] plus its colours in this file.
 @immutable
 class PlassColorFamily {
-  /// Creates a resolved family. Only [PlassTokens] should need to.
+  /// Creates a resolved family.
+  ///
+  /// The six values here are the whole family; everything a component reads —
+  /// the fill, the tint, the five washes, the hairline, the ring — is derived
+  /// from them. To move one of them, start from the family in scope rather than
+  /// from nothing: `PlassTheme.of(context).family(PlassColor.primary)` and then
+  /// [copyWith].
   const PlassColorFamily({
     required this.solid,
     required this.solidTo,
@@ -140,6 +147,44 @@ class PlassColorFamily {
 
   /// The five wash strengths — see [_softSteps].
   final List<double> softSteps;
+
+  /// This family with the values named replaced, and the rest kept.
+  PlassColorFamily copyWith({
+    Color? solid,
+    Color? solidTo,
+    Color? onSolid,
+    Color? accent,
+    double? tintStrength,
+    List<double>? softSteps,
+  }) {
+    return PlassColorFamily(
+      solid: solid ?? this.solid,
+      solidTo: solidTo ?? this.solidTo,
+      onSolid: onSolid ?? this.onSolid,
+      accent: accent ?? this.accent,
+      tintStrength: tintStrength ?? this.tintStrength,
+      softSteps: softSteps ?? this.softSteps,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+
+    return other is PlassColorFamily &&
+        other.solid == solid &&
+        other.solidTo == solidTo &&
+        other.onSolid == onSolid &&
+        other.accent == accent &&
+        other.tintStrength == tintStrength &&
+        listEquals(other.softSteps, softSteps);
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(solid, solidTo, onSolid, accent, tintStrength, Object.hashAll(softSteps));
 
   /// The fill: the family's two ends, swept across the control at 135°.
   ///
@@ -583,6 +628,192 @@ class PlassTokens {
 
   /// One family. There are six and they are all present, so this never fails.
   PlassColorFamily family(PlassColor color) => families[color]!;
+
+  /// This set with the values named replaced, and the rest kept.
+  ///
+  /// The way an app brings its own brand into the library: start from the set
+  /// in scope — `PlassTheme.of(context)`, or [PlassTokens.light] — replace what
+  /// is yours, and hand the result to `PlassTheme.tokens`.
+  ///
+  /// ```dart
+  /// PlassTheme.tokens(
+  ///   tokens: PlassTokens.light().withFamily(
+  ///     PlassColor.primary,
+  ///     PlassTokens.light().family(PlassColor.primary).copyWith(
+  ///       solid: const Color(0xFF7C3AED),
+  ///       solidTo: const Color(0xFF9333EA),
+  ///       accent: const Color(0xFF6D28D9),
+  ///     ),
+  ///   ),
+  ///   child: child,
+  /// )
+  /// ```
+  ///
+  /// Build the set once and hold it, rather than in `build`: a set that is
+  /// equal to the one in scope changes nothing, but one built from scratch on
+  /// every frame is still six families' worth of comparison each time.
+  ///
+  /// [radius], [duration] and [ease] are not here. They are `static const` and
+  /// read as statics throughout the library, so they are the same in every
+  /// theme.
+  PlassTokens copyWith({
+    Brightness? brightness,
+    Color? surface,
+    Color? fg,
+    Color? mutedFg,
+    Color? border,
+    Color? bgFrom,
+    Color? bgTo,
+    Color? glass,
+    Color? glassHover,
+    Color? glassPress,
+    Color? glassLine,
+    Color? divider,
+    Color? stripe,
+    Color? track,
+    double? blurSigma,
+    double? saturation,
+    PlassInsetShadow? glossGlass,
+    PlassInsetShadow? well,
+    Color? glowOnFill,
+    Color? flashOnFill,
+    Color? shadowAmbient,
+    double? tintStrength,
+    Color? scrim,
+    List<Color>? chart,
+    List<Color>? chartSequential,
+    List<Color>? chartDiverging,
+    List<Color>? chartSequentialOn,
+    List<Color>? chartDivergingOn,
+    Color? chartGrid,
+    Color? chartAxis,
+    Color? chartBaseline,
+    Map<PlassColor, PlassColorFamily>? families,
+  }) {
+    return PlassTokens._(
+      brightness: brightness ?? this.brightness,
+      surface: surface ?? this.surface,
+      fg: fg ?? this.fg,
+      mutedFg: mutedFg ?? this.mutedFg,
+      border: border ?? this.border,
+      bgFrom: bgFrom ?? this.bgFrom,
+      bgTo: bgTo ?? this.bgTo,
+      glass: glass ?? this.glass,
+      glassHover: glassHover ?? this.glassHover,
+      glassPress: glassPress ?? this.glassPress,
+      glassLine: glassLine ?? this.glassLine,
+      divider: divider ?? this.divider,
+      stripe: stripe ?? this.stripe,
+      track: track ?? this.track,
+      blurSigma: blurSigma ?? this.blurSigma,
+      saturation: saturation ?? this.saturation,
+      glossGlass: glossGlass ?? this.glossGlass,
+      well: well ?? this.well,
+      glowOnFill: glowOnFill ?? this.glowOnFill,
+      flashOnFill: flashOnFill ?? this.flashOnFill,
+      shadowAmbient: shadowAmbient ?? this.shadowAmbient,
+      tintStrength: tintStrength ?? this.tintStrength,
+      scrim: scrim ?? this.scrim,
+      chart: chart ?? this.chart,
+      chartSequential: chartSequential ?? this.chartSequential,
+      chartDiverging: chartDiverging ?? this.chartDiverging,
+      chartSequentialOn: chartSequentialOn ?? this.chartSequentialOn,
+      chartDivergingOn: chartDivergingOn ?? this.chartDivergingOn,
+      chartGrid: chartGrid ?? this.chartGrid,
+      chartAxis: chartAxis ?? this.chartAxis,
+      chartBaseline: chartBaseline ?? this.chartBaseline,
+      families: families ?? this.families,
+    );
+  }
+
+  /// This set with one family replaced, and the other five kept.
+  ///
+  /// The short form of a [copyWith] that rebuilds the whole map around one
+  /// entry, which is what an app brings a brand colour in through.
+  PlassTokens withFamily(PlassColor color, PlassColorFamily family) {
+    return copyWith(families: <PlassColor, PlassColorFamily>{...families, color: family});
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+
+    return other is PlassTokens &&
+        other.brightness == brightness &&
+        other.surface == surface &&
+        other.fg == fg &&
+        other.mutedFg == mutedFg &&
+        other.border == border &&
+        other.bgFrom == bgFrom &&
+        other.bgTo == bgTo &&
+        other.glass == glass &&
+        other.glassHover == glassHover &&
+        other.glassPress == glassPress &&
+        other.glassLine == glassLine &&
+        other.divider == divider &&
+        other.stripe == stripe &&
+        other.track == track &&
+        other.blurSigma == blurSigma &&
+        other.saturation == saturation &&
+        other.glossGlass == glossGlass &&
+        other.well == well &&
+        other.glowOnFill == glowOnFill &&
+        other.flashOnFill == flashOnFill &&
+        other.shadowAmbient == shadowAmbient &&
+        other.tintStrength == tintStrength &&
+        other.scrim == scrim &&
+        listEquals(other.chart, chart) &&
+        listEquals(other.chartSequential, chartSequential) &&
+        listEquals(other.chartDiverging, chartDiverging) &&
+        listEquals(other.chartSequentialOn, chartSequentialOn) &&
+        listEquals(other.chartDivergingOn, chartDivergingOn) &&
+        other.chartGrid == chartGrid &&
+        other.chartAxis == chartAxis &&
+        other.chartBaseline == chartBaseline &&
+        mapEquals(other.families, families);
+  }
+
+  @override
+  int get hashCode => Object.hashAll(<Object?>[
+    brightness,
+    surface,
+    fg,
+    mutedFg,
+    border,
+    bgFrom,
+    bgTo,
+    glass,
+    glassHover,
+    glassPress,
+    glassLine,
+    divider,
+    stripe,
+    track,
+    blurSigma,
+    saturation,
+    glossGlass,
+    well,
+    glowOnFill,
+    flashOnFill,
+    shadowAmbient,
+    tintStrength,
+    scrim,
+    Object.hashAll(chart),
+    Object.hashAll(chartSequential),
+    Object.hashAll(chartDiverging),
+    Object.hashAll(chartSequentialOn),
+    Object.hashAll(chartDivergingOn),
+    chartGrid,
+    chartAxis,
+    chartBaseline,
+    Object.hashAllUnordered(
+      families.entries.map(
+        (MapEntry<PlassColor, PlassColorFamily> entry) => Object.hash(entry.key, entry.value),
+      ),
+    ),
+  ]);
 
   /// The bloom that follows the pointer across a surface of [variant].
   Color glow(PlassColorFamily family, PlassVariant variant) {

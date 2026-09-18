@@ -96,6 +96,8 @@ Each `accent` clears 4.5:1 on the page it is read against, the light wash in the
 
 ## Overriding a family
 
+::: fw react
+
 Set the values on a theme root — `:root`, or an element carrying `.dark`, `.light` or `data-theme` — and everything derived from them follows.
 
 ```css
@@ -111,13 +113,45 @@ Set the values on a theme root — `:root`, or an element carrying `.dark`, `.li
 }
 ```
 
+:::
+
+::: fw flutter
+
+A token set is immutable, so an override is a copy. Start from the set you are replacing values in, move what is yours, and hand the result to `PlassTheme.tokens`.
+
+```dart
+final PlassTokens base = PlassTokens.light();
+
+PlassTheme.tokens(
+  tokens: base.withFamily(
+    PlassColor.primary,
+    base.family(PlassColor.primary).copyWith(
+      solid: const Color(0xFF7C3AED),
+      solidTo: const Color(0xFF9333C4),
+      accent: const Color(0xFF6D28D9),
+    ),
+  ),
+  child: const App(),
+)
+```
+
+`withFamily` is the short form for one family; `PlassTokens.copyWith` takes everything else the set carries — the glass, the chart palette, the scrim, the shadow tint. The dark theme is a set of its own, so build `PlassTokens.dark()` the same way when your app has both. The `accent` is the one family value that moves between the two.
+
+Build the set once and hold it rather than in `build`. Two sets with the same values compare equal and change nothing, but a set rebuilt every frame is still six families' worth of comparison each time.
+
+`radius`, `duration` and `ease` are not on the set. The library reads them as constants, so they are the same in every theme.
+
+:::
+
 Three things to check when you do:
 
-1. **Both ends against your ink.** Each has to clear 4.5:1 against `--plass-primary-on-solid`. If one is under, darken that end rather than the ink.
+1. **Both ends against your ink.** Each has to clear 4.5:1 against the family's ink — `--plass-primary-on-solid` on the web, `onSolid` in Flutter. If one is under, darken that end rather than the ink.
 2. **The two ends against each other.** They should differ in _hue_, not in lightness. A second end that is merely darker turns the control back into a moulded key, which is the shape this library spent a version getting rid of.
 3. **The accent against the page**, in both themes. It is the value that has to be _read_.
 
 ### Recolouring one part of a page
+
+::: fw react
 
 A base colour set anywhere else changes the base and nothing else. `--plass-primary-fill`, `--plass-primary-tint` and `--plass-primary-ring` are mixed from it, and that mixing happened further up, on the theme root, where the old colour still is — so the button takes the new solid and keeps the old gradient and the old focus ring.
 
@@ -132,6 +166,23 @@ Add `plass-theme` to the element and the whole derived block runs again on it, a
 The class carries colour and nothing else. `.dark` and `data-theme` force a theme on the subtree under them; this one leaves the page's own light or dark exactly as it is, which is what lets a scoped family work in both.
 
 One thing it does not reach: a menu, a tooltip, a select's list and every other popup is rendered through a portal at the end of `<body>`, outside the element that scopes the colour, so it comes out in the page's own family. The library gives every portalled positioner the class `.plass-portal`, which is the hook to declare the same values on when a popup has to match.
+
+:::
+
+::: fw flutter
+
+The same `PlassTheme.tokens` around a subtree rather than around the app recolours that part of the screen, because a widget reads the nearest set above it.
+
+```dart
+PlassTheme.tokens(
+  tokens: branded,
+  child: const CheckoutPanel(),
+)
+```
+
+A layer opened from inside that subtree comes with it. A menu, a tooltip, a select's list and a modal are all `OverlayPortal` children, which stay under the widget that opened them in the widget tree even though they are drawn in the `Overlay` — so they read the set around them rather than the app's.
+
+:::
 
 ## Setting a token from React
 
