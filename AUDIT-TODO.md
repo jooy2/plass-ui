@@ -2,7 +2,7 @@
 
 The findings of a full audit of both packages, the documentation site and the repository, taken at `148a20e4` on 2026-09-13, and how far fixing them has got. The work goes in batches of twenty. When every item below is ticked, delete this file in a commit of its own.
 
-**333 of 372 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
+**334 of 372 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ## Working through a batch
 
@@ -84,9 +84,6 @@ Batch 15 took the four recommended answers to the batch 14 questions first. Its 
 
 Asked at the end of batches 7 to 15. Each question says what the problem is and what each option changes. A question with one option marked as recommended is approved under the standing decision above and is done first in the next batch; the rest wait for the Prompter.
 
-1. **Item 20, derived tokens on a non-root element.** Changing `--plass-primary-solid` on a `div` leaves the gradient and the ring on the old colour, although the docs say tokens can be set on any element.
-   - A. Add a hook class such as `.plass-theme` to the derived block: an element with the class recomputes its derived colours, and the class is new public API.
-   - B. Document that only the root recomputes them: no code change, and scoped theming stays unsupported.
 1. **Item 21, Flutter tokens.** `PlassTokens` can only be the two default sets, so an app cannot bring its brand colours, radii or blur.
    - A. Make `copyWith` and a way to replace a colour family public: brand theming works, and that API has to stay compatible from then on.
    - B. Document the limitation: no code change.
@@ -182,9 +179,9 @@ Asked at the end of batches 7 to 15. Each question says what the problem is and 
 1. **Found in passing: the Flutter `PlWindowPane` dot button width.** Flutter sizes a dot button by `metrics.control.width` and React by `metrics.control.height`. Whether that shows on screen is not confirmed.
    - A. Compare the two on the docs page and align Flutter with React if they differ.
    - B. Keep it.
-1. **Found in passing: `PlCodeBlock theme="auto"` inside a nested light element.** On a page whose root is `.dark`, an `auto` block inside an element that forces light still draws dark, because only a dark ancestor is named.
-   - A. Name a light ancestor too, so the nearest forced theme wins: nested theming works for code blocks, which item 20 has not decided for the tokens.
-   - B. Keep `auto` following the root, and decide it together with item 20.
+1. **Found in passing: `PlCodeBlock theme="auto"` inside a nested light element.** On a page whose root is `.dark`, an `auto` block inside an element that forces light still draws dark, because only a dark ancestor is named. Item 20 has now been answered the other way — `.plass-theme` makes nested theming work for the colour tokens.
+   - A. (recommended) Name a light ancestor too, so the nearest forced theme wins, as item 20 decided for the tokens.
+   - B. Keep `auto` following the root.
 1. **Item 58, a React `tickFormat` that returns an element.** The type lets `tickFormat` return a `ReactNode`, but the axis writes the result through `String()`, so an element prints `[object Object]`.
    - A. Narrow the return type to `string | number`: the type says what works, and code that returns an element stops compiling (breaking).
    - B. Draw an element the formatter returns: an axis can hold markup, and SVG text takes only text and `<tspan>`, so the hidden table and the readout need a text form of it as well.
@@ -324,7 +321,7 @@ None. Every flagged item passed over so far is asked above.
   - Problem: Author styles beat UA defaults even at specificity 0. In an existing app without Tailwind, the bullets on body text lists, heading sizes, `<hr>` and native input borders disappear. This goes against the principle in the file header, "do not touch other people's pages".
   - Proposal: Move the list and heading resets into the utilities of the components that need them, and reduce the element selector rules.
   - Flag: Decision needed, Breaking change — the scope of the move has to be decided, and host pages will render differently.
-- [ ] **20.** Changing a base token on a non-root element does not update the derived tokens (Bug · React · Medium)
+- [x] **20.** Changing a base token on a non-root element does not update the derived tokens (Bug · React · Medium)
   - Location: `packages/react/src/styles.css:569`
   - Problem: Derived values such as `-fill`, `-tint`, `-ring` and `--plass-shadow-*` are computed only on `:root, .dark, .light, [data-theme]`. A button inside `<div style={{ '--plass-primary-solid': … }}>` keeps its gradient and ring unchanged, but `design/color.md` says tokens "can be set on any element".
   - Proposal: Add a hook class such as `.plass-theme` to the selector of the derived block and document it, or state in the docs and the type comments that this works on the root only.
