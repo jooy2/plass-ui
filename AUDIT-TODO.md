@@ -2,7 +2,7 @@
 
 The findings of a full audit of both packages, the documentation site and the repository, taken at `148a20e4` on 2026-09-13, and how far fixing them has got. The work goes in batches of twenty. When every item below is ticked, delete this file in a commit of its own.
 
-**334 of 372 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
+**335 of 372 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ## Working through a batch
 
@@ -84,9 +84,9 @@ Batch 15 took the four recommended answers to the batch 14 questions first. Its 
 
 Asked at the end of batches 7 to 15. Each question says what the problem is and what each option changes. A question with one option marked as recommended is approved under the standing decision above and is done first in the next batch; the rest wait for the Prompter.
 
-1. **Item 21, Flutter tokens.** `PlassTokens` can only be the two default sets, so an app cannot bring its brand colours, radii or blur.
-   - A. Make `copyWith` and a way to replace a colour family public: brand theming works, and that API has to stay compatible from then on.
-   - B. Document the limitation: no code change.
+1. **Left open by item 21: `radius`, `duration` and `ease` in Flutter.** The instance tokens are now open through `copyWith`, and these three are not on the instance at all. They are `static const` on `PlassTokens` and read as statics in 226 places, so a brand corner radius and a slower house curve are still out of reach, where the web lets a page override every `--plass-*`.
+   - A. Move the three onto the set and change every call site to read `PlassTheme.of(context)`: the two builds take the same overrides, and any call site with no `BuildContext` has to be given one. About a batch's worth of work.
+   - B. Keep them fixed and say on the colour page that the Flutter scales do not move.
 1. **Item 32, `BackdropFilter.grouped`.** Every glass surface in a Flutter list reads the backdrop on its own, which is slow with dozens of cards.
    - A. The library groups surfaces itself: faster with no work for the app, and the library has to guess the boundaries of overlapping glass, which can show as a blur seam when it guesses wrong.
    - B. Leave grouping to the app and document it: no code change, and apps that need the speed wrap their own lists.
@@ -326,7 +326,7 @@ None. Every flagged item passed over so far is asked above.
   - Problem: Derived values such as `-fill`, `-tint`, `-ring` and `--plass-shadow-*` are computed only on `:root, .dark, .light, [data-theme]`. A button inside `<div style={{ '--plass-primary-solid': … }}>` keeps its gradient and ring unchanged, but `design/color.md` says tokens "can be set on any element".
   - Proposal: Add a hook class such as `.plass-theme` to the selector of the derived block and document it, or state in the docs and the type comments that this works on the root only.
   - Flag: Decision needed
-- [ ] **21.** A Flutter app has no way to change the palette, radius or blur tokens (Bug · Flutter · Medium)
+- [x] **21.** A Flutter app has no way to change the palette, radius or blur tokens (Bug · Flutter · Medium)
   - Location: `packages/flutter/lib/src/theme/tokens.dart:192`, `theme/theme.dart:40`
   - Problem: `PlassTokens` has only a private constructor and `light()`/`dark()`, so the only values that can be passed to `PlassTheme.tokens` are the two default sets. The "Overriding a family" section of `color.md` is outside any `fw` block, so Flutter readers see it too.
   - Proposal: Make `copyWith` and a way to replace a family public, or state the Flutter limitation in the docs.
