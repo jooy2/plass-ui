@@ -2,7 +2,7 @@
 
 The findings of a full audit of both packages, the documentation site and the repository, taken at `148a20e4` on 2026-09-13, and how far fixing them has got. The work goes in batches of twenty. When every item below is ticked, delete this file in a commit of its own.
 
-**332 of 372 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
+**333 of 372 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ## Working through a batch
 
@@ -84,9 +84,6 @@ Batch 15 took the four recommended answers to the batch 14 questions first. Its 
 
 Asked at the end of batches 7 to 15. Each question says what the problem is and what each option changes. A question with one option marked as recommended is approved under the standing decision above and is done first in the next batch; the rest wait for the Prompter.
 
-1. **Item 19, the reset in `plass-ui/styles.css`.** Loading the stylesheet removes the host page's own list bullets, heading sizes, `<hr>` and native input borders, so an existing app without Tailwind looks broken.
-   - A. Move the resets into the components that need them: host pages are left alone, and pages that relied on the reset change how they look (breaking).
-   - B. Keep the reset and document it: nothing changes, and avoiding it is the app's job.
 1. **Item 20, derived tokens on a non-root element.** Changing `--plass-primary-solid` on a `div` leaves the gradient and the ring on the old colour, although the docs say tokens can be set on any element.
    - A. Add a hook class such as `.plass-theme` to the derived block: an element with the class recomputes its derived colours, and the class is new public API.
    - B. Document that only the root recomputes them: no code change, and scoped theming stays unsupported.
@@ -289,6 +286,13 @@ Asked at the end of batches 7 to 15. Each question says what the problem is and 
    - A. Rename them to `plass-framework-*`: the markup says what the control is, and it is a rename across `FrameworkSelect.vue` and `framework.css`.
    - B. Keep them: they are internal names nobody reads.
 
+1. **Found in passing: the media rules left in `reset.css`.** Item 19 took the list, heading and block-margin rules out, and two rules that reach the host page just as far are still there: `:where(audio, canvas, embed, iframe, img, object, svg, video) { display: block }` turns an app's inline `<img>` inside a paragraph into a block, and `:where(img, video) { max-width: 100%; height: auto }` overrides a `height` the page set itself.
+   - A. Move them onto the components that draw media, as item 19 did for the prose rules: the page's own images sit where it put them.
+   - B. Keep them: an inline image inside prose is rarer than a component whose picture has to fill its box.
+1. **Found in passing: nine copies of the field description's class list.** `PlTextField`, `PlNumberField`, `PlCombobox`, `PlSelect`, `PlSwitch`, `PlCheckbox`, `PlRadioGroup`, `PlOtpField` and `internal/picker.tsx` each write `cx('m-0', metaTextClasses[size], 'text-(--plass-muted-fg)', classNames?.description)`, so item 19 had to add `m-0` in nine places.
+   - A. A shared `fieldDescriptionClasses(size)` in `internal/styles.ts`: one place to change, and nine call sites are rewritten.
+   - B. Keep the lists spelled out, as the rest of the components are.
+
 ## Passed over and not yet asked
 
 None. Every flagged item passed over so far is asked above.
@@ -315,7 +319,7 @@ None. Every flagged item passed over so far is asked above.
 - [x] **16.** Focus ring contrast is about 2.2:1, below WCAG 1.4.11 (3:1) (Accessibility · Both · High)
 - [x] **17.** In forced-colours mode (Windows High Contrast), the edges of `solid` controls disappear (Accessibility · React · Medium)
 - [x] **18.** The per-component Tailwind scan manifests leave out components used internally (Bug · React · High)
-- [ ] **19.** The reset in `plass-ui/styles.css` wipes the host page's default styles (Bug · React · Medium)
+- [x] **19.** The reset in `plass-ui/styles.css` wipes the host page's default styles (Bug · React · Medium)
   - Location: `packages/react/src/reset.css:33`, `:77`, `:83`
   - Problem: Author styles beat UA defaults even at specificity 0. In an existing app without Tailwind, the bullets on body text lists, heading sizes, `<hr>` and native input borders disappear. This goes against the principle in the file header, "do not touch other people's pages".
   - Proposal: Move the list and heading resets into the utilities of the components that need them, and reduce the element selector rules.
