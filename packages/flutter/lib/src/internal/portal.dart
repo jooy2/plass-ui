@@ -197,6 +197,12 @@ class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStat
         : ColoredBox(color: widget.barrierColor!, child: const SizedBox.expand());
 
     if (widget.barrierBlur > 0) {
+      // Not `.grouped`, and deliberately. A barrier covers the whole viewport,
+      // so it overlaps every sheet on the page under it; sharing their backdrop
+      // key would blur the page once and show through the barrier as if it had
+      // not been dimmed at all. A `BackdropGroup` is inherited, and an
+      // `OverlayPortal` child sits under the widget that opened it, so this
+      // would otherwise join whatever group the app put around the page.
       backdrop = BackdropFilter(
         filter: ui.ImageFilter.blur(sigmaX: widget.barrierBlur, sigmaY: widget.barrierBlur),
         child: backdrop,

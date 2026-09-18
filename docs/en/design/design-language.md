@@ -54,6 +54,23 @@ Everything that holds content is one sheet at three strengths.
 
 **The blur is the material.** `blur(22px) saturate(160%)`, deliberately a generous smear. Plass is not trying to let you read what is behind a sheet; it is trying to make the sheet look thick. Below about 14px the glass stops being glass and becomes a white box with an alpha on it.
 
+::: fw flutter
+
+It is also the most expensive thing on the screen, and a screen full of sheets pays for it once per sheet. Flutter will read the backdrop once for several filters that share a `BackdropKey`, and every sheet in this library asks the nearest `BackdropGroup` for one — so wrapping a list of cards in a `BackdropGroup` is one read instead of sixty.
+
+```dart
+BackdropGroup(
+  child: ListView.builder(
+    itemCount: 60,
+    itemBuilder: (BuildContext context, int index) => PlCard(child: rows[index]),
+  ),
+)
+```
+
+Where the group goes is yours to decide, because two sheets that overlap must not share one. A row of cards down a list is the case it is for. A sheet **inside** another sheet — a glass field on a glass card — belongs to neither, so put the group around the outer sheets rather than around a tree that nests them. The library keeps a modal's barrier and a tour's dimming out of every group on its own: both cover the screen and overlap everything under them.
+
+:::
+
 **Glass is never dyed.** A sheet holds other people's content, and that content arrives with its own colours: body text, links, buttons, fields. Tinting the sheet underneath puts every one of them on a background they were not chosen against. So **the family stops at the hairline, the focus ring and the caret, and the glass stays clear.**
 
 Controls are the opposite case and take the family into the fill itself, because a PlButton's surface _is_ the thing being coloured.

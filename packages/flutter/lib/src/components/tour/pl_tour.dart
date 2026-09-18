@@ -470,6 +470,9 @@ class _PlTourState extends State<PlTour> with WidgetsBindingObserver {
             // pointed at goes on working.
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
+              // Not `.grouped`, for the reason `internal/portal.dart` gives
+              // above its barrier: this covers the screen and overlaps
+              // everything under it.
               child: BackdropFilter(
                 filter: ui.ImageFilter.blur(sigmaX: _blur, sigmaY: _blur),
                 child: ColoredBox(color: tokens.scrim, child: const SizedBox.expand()),

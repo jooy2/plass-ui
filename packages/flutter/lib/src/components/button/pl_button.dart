@@ -398,7 +398,9 @@ class _PlButtonState extends State<PlButton> {
       children: <Widget>[
         if (glass)
           Positioned.fill(
-            child: BackdropFilter(
+            // Grouped for the reason `PlassSurfaceBox` gives: a row of glass
+            // keys under one `BackdropGroup` is one read of the backdrop.
+            child: BackdropFilter.grouped(
               filter: ui.ImageFilter.compose(
                 outer: saturationFilter(tokens.saturation),
                 inner: ui.ImageFilter.blur(sigmaX: tokens.blurSigma, sigmaY: tokens.blurSigma),

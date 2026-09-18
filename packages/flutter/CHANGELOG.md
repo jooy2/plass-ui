@@ -4,6 +4,8 @@
 
 ### Added
 
+- **A page can make the library's glass read the backdrop once, with a `BackdropGroup`.** Each sheet ran its own σ22 read of what was behind it, so a list of sixty cards paid for sixty. Every sheet now asks the nearest `BackdropGroup` for a backdrop key, and Flutter shares one read between the filters that carry it — wrap the list and the reads collapse into one. Nothing changes for a page that adds no group, because a sheet with none above it takes the same null key it had. Where the group goes is the app's to say, since two sheets that overlap must not share one; a modal's barrier and a tour's dimming cover the screen, so the library keeps those two out of every group itself.
+
 - **`PlassTokens.copyWith` and `PlassColorFamily.copyWith` are public, so an app can bring its own colours.** `PlassTheme.tokens` took a set, and the only sets that could be built were `PlassTokens.light()` and `PlassTokens.dark()` — a brand colour, a quieter glass or a chart palette of your own had nowhere to go. Start from the set you are changing, replace what is yours, and hand the result over; `withFamily` is the short form for one family. Both types now compare by value, so a set rebuilt with the same values does not renotify the subtree under it. `radius`, `duration` and `ease` stay constants the library reads directly and are still the same in every theme.
 
 ### Fixed

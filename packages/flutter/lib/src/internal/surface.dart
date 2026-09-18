@@ -172,7 +172,15 @@ class PlassSurfaceBox extends StatelessWidget {
       children: <Widget>[
         if (surface.blur)
           Positioned.fill(
-            child: BackdropFilter(
+            // `.grouped` rather than the plain constructor: with no
+            // `BackdropGroup` above it this resolves to the same null backdrop
+            // key and is the same widget, and with one above it every sheet in
+            // that group reads the backdrop once instead of once each. Where
+            // the group goes is the app's to say — a σ22 read shared between
+            // two sheets that overlap shows as one blur across the overlap, and
+            // only the app knows whether its own sheets overlap. See the
+            // Flutter half of the design language page.
+            child: BackdropFilter.grouped(
               filter: ui.ImageFilter.compose(
                 outer: saturationFilter(tokens.saturation),
                 inner: ui.ImageFilter.blur(sigmaX: tokens.blurSigma, sigmaY: tokens.blurSigma),
