@@ -4,7 +4,7 @@ The findings of a full audit of both packages, the documentation site and the re
 
 Numbers 39 and 180 are missing on purpose. They were two security findings whose details were kept out of this public file, in a local note that is no longer on the machine, and the Prompter dropped them rather than reconstructing them. Nothing else is renumbered.
 
-**339 of 370 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
+**340 of 370 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ## Working through a batch
 
@@ -104,9 +104,6 @@ Asked at the end of batches 7 to 15. Each question says what the problem is and 
 1. **Found in passing: two hand-rolled dash loops in the Flutter package.** `dashedPath` in `internal/chart.dart` walks a path with `computeMetrics` and rebuilds it in pieces; `_DashedEdge` in `pl_file_picker.dart` does the same for the rounded rectangle round a drop zone, with its own dash and gap.
    - A. Have the file picker's edge call `dashedPath`: one dash loop in the package, and the two patterns have to be reconciled or the helper has to take them as parameters.
    - B. Keep the two: one is a data line and the other is a border, and they are the same arithmetic rather than the same thing.
-1. **Item 84, a `RegExp` in Flutter `PlHighlight`'s `query`.** `RegExp(r'\d+')` is escaped and searched for as the literal text.
-   - A. Match a `RegExp` as a pattern: works as documented.
-   - B. Restrict the list to strings and fix the docs: code passing a `RegExp` stops compiling (breaking).
 1. **Item 107, `PlMockup` hidden until hydration.** The scale is measured in the browser, so the server HTML carries `visibility: hidden`; a hero mockup appears late and leaves the LCP candidates.
    - A. Compute the scale on the server when `width` and `height` are numbers, and otherwise show it unscaled first: visible at once, and the size can change once when the measurement lands.
    - B. Compute it on the server only for numbers, and otherwise stay hidden as now: no wrong size ever flashes, and the problem stays for pages that give no numbers.
@@ -462,7 +459,7 @@ None. Every flagged item passed over so far is asked above.
   - Location: `PlCodeBlock.tsx:178`
   - Problem: The JSDoc says `'Copy failed'`, but the actual default is `'Could not copy'`.
   - Proposal: Fix the JSDoc.
-- [ ] **84.** A `RegExp` in the `query` list of Flutter `PlHighlight` is escaped and matched as literal text (Bug · Flutter · Medium)
+- [x] **84.** A `RegExp` in the `query` list of Flutter `PlHighlight` is escaped and matched as literal text (Bug · Flutter · Medium)
   - Location: `packages/flutter/lib/src/components/highlight/pl_highlight.dart:177`, `:187`
   - Problem: `query: [RegExp(r'\d+')]` looks for the literal text `\d+` and marks nothing. The docs say the list accepts both String and RegExp values.
   - Proposal: Join a `RegExp` in the list without escaping it, or restrict the list to `List<String>` and fix the docs.
