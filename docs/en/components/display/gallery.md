@@ -151,6 +151,14 @@ An item takes `rotate`, `flip`, `position` and a picture `placeholder` of its ow
 
 :::
 
+::: fw flutter
+
+A tile asks for its picture only once it is **within a screen of the view**, which is the same bargain a browser makes for the React build. A Flutter picture is decoded the moment it is mounted, so a board of sixty would otherwise ask for sixty decodes before one of them was on screen.
+
+What it reads is the nearest `Scrollable` above it, because a gallery has none of its own: it sizes itself to its content and the app scrolls it. A gallery with no scroll view over it is as visible as it is ever going to be, so every tile is built at once, as before. Until a tile's turn comes it holds the same stand-in the picture itself draws while it loads, in the same box, so nothing moves when the picture arrives — and a picture that has been asked for is kept, so scrolling back past a tile does not start it again.
+
+:::
+
 ### caption
 
 `below` puts the two lines under the picture, `overlay` writes them across the foot of it on a wash dark enough to survive a pale photograph, and `hover` is `overlay` that arrives with the pointer.

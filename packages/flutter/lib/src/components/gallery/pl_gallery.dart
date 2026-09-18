@@ -8,12 +8,14 @@ import 'package:plass_ui/src/components/aspect_ratio/pl_aspect_ratio.dart';
 import 'package:plass_ui/src/components/icon_button/pl_icon_button.dart';
 import 'package:plass_ui/src/components/image/pl_image.dart';
 import 'package:plass_ui/src/components/overlay/pl_overlay.dart';
+import 'package:plass_ui/src/components/skeleton/pl_skeleton.dart';
 import 'package:plass_ui/src/internal/decode.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/gallery.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/image.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
+import 'package:plass_ui/src/internal/near_viewport.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
@@ -537,19 +539,35 @@ class _PlGalleryState extends State<PlGallery> {
         widget.caption == PlGalleryCaption.overlay || widget.caption == PlGalleryCaption.hover;
 
     Widget frame(bool lit) {
-      final Widget picture = PlImage(
-        image: item.image,
-        semanticLabel: item.semanticLabel,
-        ratio: ratio,
-        fit: widget.fit,
-        letterbox: widget.letterbox,
-        rotate: item.rotate,
-        flip: item.flip,
-        position: item.position,
-        placeholder: item.placeholder,
-        rounded: false,
-        size: size,
-        color: _color,
+      /* Held back until the tile is within a screen of the view, because a
+         Flutter picture resolves the moment it is mounted and a board of sixty
+         would otherwise ask for sixty decodes before one of them is on screen.
+         The web gets the same from `<img loading="lazy">`.
+
+         What stands in the box is what the picture itself draws while it loads,
+         so the swap reads as the picture arriving rather than as a second thing
+         appearing — and it takes the same box, which on a tile that carries a
+         `ratio` means carrying it here too. `PlImage` is what applies one, so a
+         stand-in without it would let the board fall in on itself until the
+         pictures came. */
+      final Widget standIn =
+          item.placeholder ?? PlSkeleton(shape: PlSkeletonShape.rect, size: size, color: _color);
+      final Widget picture = PlassNearViewport(
+        placeholder: ratio == null ? standIn : AspectRatio(aspectRatio: ratio, child: standIn),
+        child: PlImage(
+          image: item.image,
+          semanticLabel: item.semanticLabel,
+          ratio: ratio,
+          fit: widget.fit,
+          letterbox: widget.letterbox,
+          rotate: item.rotate,
+          flip: item.flip,
+          position: item.position,
+          placeholder: item.placeholder,
+          rounded: false,
+          size: size,
+          color: _color,
+        ),
       );
 
       return ClipRRect(
