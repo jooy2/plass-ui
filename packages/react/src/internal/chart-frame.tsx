@@ -772,6 +772,8 @@ export interface CartesianLayout {
   visible: readonly boolean[];
   /** And what colour each one is, by its original index. */
   colors: readonly string[];
+  /** Which of them are drawn as a dashed line, in the same order. */
+  dashed: readonly boolean[];
   scale: ValueScale;
   band: BandScale;
   /** Bars run along the category axis rather than across it. */
@@ -964,6 +966,7 @@ export function CartesianChart({
 
   const values = React.useMemo(() => toValues(series), [series]);
   const colors = React.useMemo(() => series.map((one, index) => seriesColor(one, index)), [series]);
+  const dashed = React.useMemo(() => series.map((one) => one.dashed === true), [series]);
 
   const count = categoryCount(series);
   const labels = React.useMemo(
@@ -1213,6 +1216,7 @@ export function CartesianChart({
     values,
     visible: visibility.visible,
     colors,
+    dashed,
     scale,
     band,
     horizontal,

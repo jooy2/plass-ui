@@ -80,6 +80,16 @@ export const lineWidths: Record<PlassSize, number> = {
 };
 
 /**
+ * The `stroke-dasharray` of a `dashed` series: a 6px dash and a 4px gap.
+ *
+ * Fixed rather than scaled by the line's weight, and the same two numbers the
+ * Flutter build cuts its path into: a dash pattern is read as a *rhythm*, and
+ * one that stretched with the size ladder would change what the line means
+ * between an `sm` chart and an `lg` one.
+ */
+export const lineDash = '6 4';
+
+/**
  * The radius of a marker. `md` is 4, so the dot is 8px across before its ring —
  * the floor below which a marker stops being something a pointer can find.
  */

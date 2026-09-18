@@ -20,6 +20,7 @@ import {
   dimmedByHover,
   labelledPoints,
   linePath,
+  lineDash,
   lineWidths,
   markerRadii,
   markGap
@@ -79,8 +80,19 @@ export function LineSeries({
   gradient,
   idPrefix
 }: LineSeriesProps) {
-  const { values, visible, colors, hovered, activeIndex, plot, point, zeroPx, size, format } =
-    context;
+  const {
+    values,
+    visible,
+    colors,
+    dashed,
+    hovered,
+    activeIndex,
+    plot,
+    point,
+    zeroPx,
+    size,
+    format
+  } = context;
 
   const stroke = lineWidths[size];
   const radius = markerRadii[size];
@@ -226,6 +238,7 @@ export function LineSeries({
                 fill="none"
                 stroke={gradient ? `url(#${idPrefix}-stroke-${index})` : color}
                 strokeWidth={stroke}
+                strokeDasharray={dashed[index] ? lineDash : undefined}
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />

@@ -13875,6 +13875,15 @@ export const propTables: Record<string, PropRow[]> = {
         ko: '꺼진 채로 시작합니다. 상호작용하는 범례가 다시 켭니다',
         en: 'Starts the series hidden. An interactive legend is what turns it back on'
       }
+    },
+    {
+      name: 'dashed',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '선을 점선으로 — 예측, 목표, 작년. 선이 있는 차트에서만 뜻이 있습니다',
+        en: 'Draws the line dashed — a forecast, a target, a last year. Only a chart with a line has one to dash'
+      }
     }
   ],
   PlassChartAxis: [

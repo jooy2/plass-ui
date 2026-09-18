@@ -693,6 +693,10 @@ class PlassChartSeries {
   final Color? color;
 
   /// Draws the line dashed — a forecast, a target, a last year.
+  ///
+  /// Only a line has a line to dash, so it does nothing on a bar, and nothing
+  /// on a stacked band either, where the fill *is* the mark and there is no
+  /// stroke along its top.
   final bool dashed;
 
   /// Starts the series switched off in the legend.

@@ -17,12 +17,24 @@ class RecordingCanvas implements Canvas {
   /// Every paint a path was filled or stroked with, in the order it was drawn.
   final List<Paint> paints = <Paint>[];
 
+  /// The paths themselves, in the same order — for a question about the *shape*
+  /// rather than the ink, such as whether a line was cut into dashes.
+  final List<Path> paths = <Path>[];
+
   /// Only the fills, which is what a mark's colour and its alpha are on.
   List<Paint> get fills =>
       paints.where((Paint paint) => paint.style == PaintingStyle.fill).toList();
 
+  /// How many separate contours a drawn path is made of, by the order drawn.
+  ///
+  /// One for a line, one per dash for a dashed one.
+  List<int> get contours => paths.map((Path path) => path.computeMetrics().length).toList();
+
   @override
-  void drawPath(Path path, Paint paint) => paints.add(paint);
+  void drawPath(Path path, Paint paint) {
+    paints.add(paint);
+    paths.add(path);
+  }
 
   @override
   void noSuchMethod(Invocation invocation) {}

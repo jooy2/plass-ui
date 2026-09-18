@@ -151,8 +151,13 @@ void paintLineSeries(
     final bool banded = filled && stacked;
 
     if (!banded) {
+      final Path path = linePath(line, curve);
+
       canvas.drawPath(
-        linePath(line, curve),
+        // A `dashed` series is cut into pieces here rather than at the paint,
+        // because a `Paint` has no dash pattern. The round cap is kept, so each
+        // dash is a rounded stroke of its own and the rhythm reads at 2px.
+        layout.dashed[s] ? dashedPath(path) : path,
         Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = stroke

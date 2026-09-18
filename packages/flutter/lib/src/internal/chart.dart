@@ -18,7 +18,7 @@
 library;
 
 import 'dart:math' as math;
-import 'dart:ui' show Color, Offset, Path, PathFillType, RRect, Radius, Rect;
+import 'dart:ui' show Color, Offset, Path, PathFillType, PathMetric, RRect, Radius, Rect;
 
 import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/types.dart';
@@ -65,6 +65,38 @@ const Map<PlassSize, double> lineWidths = <PlassSize, double>{
   PlassSize.lg: 2.25,
   PlassSize.xl: 2.5,
 };
+
+/// The dash and the gap of a `dashed` series, in logical pixels.
+///
+/// Fixed rather than scaled by the line's weight, and the same two numbers the
+/// React build writes into `stroke-dasharray`: a dash pattern is read as a
+/// *rhythm*, and one that stretched with the size ladder would change what the
+/// line means between an `sm` chart and an `lg` one.
+const double lineDash = 6;
+
+/// The space between two dashes. See [lineDash].
+const double lineDashGap = 4;
+
+/// [path] cut into dashes of [lineDash] with [lineDashGap] between them.
+///
+/// Flutter has no dash pattern on a `Paint`, so the line is walked with
+/// [Path.computeMetrics] and rebuilt in pieces. Which is the honest way round:
+/// a dash pattern is a fact about the *outline*, and the outline is the thing
+/// that knows how long it is.
+Path dashedPath(Path path) {
+  final Path dashes = Path();
+
+  for (final PathMetric metric in path.computeMetrics()) {
+    double at = 0;
+
+    while (at < metric.length) {
+      dashes.addPath(metric.extractPath(at, math.min(at + lineDash, metric.length)), Offset.zero);
+      at += lineDash + lineDashGap;
+    }
+  }
+
+  return dashes;
+}
 
 /// The radius of a marker. `md` is 4, so the dot is 8 across before its ring —
 /// the floor below which a marker stops being something a pointer can find.

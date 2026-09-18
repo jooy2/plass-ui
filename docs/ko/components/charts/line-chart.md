@@ -121,6 +121,28 @@ React의 `number | null | object` 대신 닫힌 union입니다. union 타입이 
 
 </Demo>
 
+### dashed
+
+`dashed`를 단 series는 실선 대신 **6px 대시와 4px 간격**으로 그려집니다. 그 선이 측정값이 아니라 예측이나 목표, 작년임을 읽는 사람에게 알려 주는 표시입니다. 색은 이미 그 선이 어느 대상의 것인지를 말하고 있으니, 얼마나 확실한지까지 색에 맡기면 한 통로에 두 가지 일을 시키는 셈입니다.
+
+<Demo src="line-chart/dashed" :min-height="320">
+
+::: fw react
+
+<<< @/.vitepress/demos/line-chart/dashed.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/line_chart/dashed.dart
+
+:::
+
+</Demo>
+
+간격은 크기 사다리를 따라 늘어나지 않고 고정입니다. 그래야 `sm` 차트와 `lg` 차트에서 점선이 같은 리듬으로 읽힙니다. 점선으로 만들 선이 있어야 뜻이 있으므로 막대에서는 아무 일도 하지 않고, 쌓인 띠에서도 마찬가지입니다. 띠는 채움이 곧 표시라 위쪽에 그어진 선이 없습니다. legend 스와치는 둘 다 같은 사각형이니, `dashed`에는 그 선이 무엇인지 말하는 이름을 함께 붙이세요.
+
 ### Gaps
 
 `null`은 **선을 끊습니다**. `connectNulls`는 대신 이어 붙이는데, 그 공백이 아무 일도 없던 기간이 아니라 수집 방식의 부산물임을 아는 경우가 아니라면 꺼 두어야 합니다.

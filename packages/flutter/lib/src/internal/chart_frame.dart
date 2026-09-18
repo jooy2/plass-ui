@@ -218,6 +218,7 @@ class PlassChartLayout {
     required this.values,
     required this.visible,
     required this.colors,
+    required this.dashed,
     required this.scale,
     required this.band,
     required this.categories,
@@ -244,6 +245,9 @@ class PlassChartLayout {
 
   /// The colour each series takes, by index — never renumbered by a filter.
   final List<Color> colors;
+
+  /// Which series are drawn as a dashed line, by index, in the same order.
+  final List<bool> dashed;
 
   /// The value axis' scale.
   final ValueScale scale;
@@ -355,6 +359,7 @@ class PlassChartLayout {
         values: values,
         visible: visible,
         colors: colors,
+        dashed: dashed,
         scale: scale,
         band: band,
         categories: categories,
@@ -586,6 +591,9 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
       for (int i = 0; i < widget.series.length; i += 1)
         seriesColor(widget.series[i].color, i, tokens.chart),
     ];
+    final List<bool> dashed = <bool>[
+      for (int i = 0; i < widget.series.length; i += 1) widget.series[i].dashed,
+    ];
 
     final List<List<ChartValue>> shown = <List<ChartValue>>[
       for (int i = 0; i < values.length; i += 1)
@@ -757,6 +765,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
           values: values,
           visible: visible,
           colors: colors,
+          dashed: dashed,
           scale: scale,
           band: band,
           categories: categories,

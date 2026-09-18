@@ -301,6 +301,7 @@ import 'package:plass_ui_example/demos/icon_button/sizes.dart';
 import 'package:plass_ui_example/demos/icon_button/states.dart';
 import 'package:plass_ui_example/demos/icon_button/variants.dart';
 import 'package:plass_ui_example/demos/line_chart/curve.dart';
+import 'package:plass_ui_example/demos/line_chart/dashed.dart';
 import 'package:plass_ui_example/demos/line_chart/gaps.dart';
 import 'package:plass_ui_example/demos/line_chart/hero.dart';
 import 'package:plass_ui_example/demos/line_chart/labels.dart';
@@ -897,6 +898,7 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'hot-keys/cluster': _hotKeysCluster,
   'hot-keys/list': _hotKeysList,
   'line-chart/curve': _lineChartCurve,
+  'line-chart/dashed': _lineChartDashed,
   'line-chart/gaps': _lineChartGaps,
   'line-chart/hero': _lineChartHero,
   'line-chart/labels': _lineChartLabels,
@@ -1161,6 +1163,8 @@ Widget _galleryLayouts(BuildContext context) => const GalleryLayouts();
 Widget _galleryQuilted(BuildContext context) => const GalleryQuilted();
 
 Widget _lineChartCurve(BuildContext context) => const LineChartCurve();
+
+Widget _lineChartDashed(BuildContext context) => const LineChartDashed();
 
 Widget _lineChartGaps(BuildContext context) => const LineChartGaps();
 

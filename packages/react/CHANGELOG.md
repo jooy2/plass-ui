@@ -10,6 +10,8 @@
 
 ### Added
 
+- **A chart series takes `dashed`, so a forecast can be told from a measurement.** The Flutter build already had the field, documented and listed in its props table, and neither painter read it — a line marked as a forecast came out solid. It is drawn in both builds now, a 6px dash with a 4px gap, and `PlassChartSeries` on this side takes it too. Only a line has a line to dash: it does nothing on a bar, or on a stacked band, whose fill is the mark.
+
 - **`.plass-theme` recomputes a colour family on the element that carries it.** Setting `--plass-primary-solid` on a `<div>` moved the base and nothing else, because the gradient, the tint and the hairline are mixed from it on the nearest theme root, which still held the old colour — so a scoped override gave a control the new solid and the old everything else. An element with the class derives the whole set again from the bases declared beside it. It carries no theme of its own, unlike `.dark` and `data-theme`, so the subtree stays light or dark with the page. A popup rendered through a portal sits outside the element and is not covered; `.plass-portal` is the hook to declare the same values on.
 
 ### Fixed

@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- **`PlassChartSeries.dashed` draws a dashed line.** The field was documented and listed in the props table, and the painter never read it — a caller marking a forecast got a solid line and nothing to say it was a forecast. The line is now cut into a 6px dash with a 4px gap, and the React build takes the same prop. Only a line has a line to dash: it does nothing on a bar, or on a stacked band, whose fill is the mark.
+
 - **A line, bar or area chart hands a screen reader every number in it.** The text it carried was one value per series, the last, so a reader could hear where a line ended and never what it did on the way — while the scatter and the heatmap in the same package already read every value. It is now each visible series, then the categories it has a value at and what it was worth there: "Revenue: Jan 12; Feb 19; Mar 15. Cost: Jan 8; Feb 11; Mar 9". A gap is left out rather than read as a category with nothing after it, and a chart given no `categories` leaves the positions out too, because the order of the reading already carries them. `semanticValue` still replaces the whole line.
 
 - **A stacked-to-full bar or area chart writes the value behind each share the way the rest of the chart writes a number.** The two charts kept their own copy of the renormalising and their own copy of the number writer, so a tooltip said `48300` where the axis beside it said `48.3K`. Both now call one `stackToFull`, which is what the React build already did, and the label is written compactly unless a `format` says otherwise.

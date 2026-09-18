@@ -121,6 +121,28 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 </Demo>
 
+### dashed
+
+A series marked `dashed` is drawn with a **6px dash and a 4px gap** instead of a solid stroke. It is what tells a reader that a line is a forecast, a target or last year rather than a measurement — the colour already says which entity the line is about, and asking it to also say how certain the line is would be two jobs for one channel.
+
+<Demo src="line-chart/dashed" :min-height="320">
+
+::: fw react
+
+<<< @/.vitepress/demos/line-chart/dashed.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/line_chart/dashed.dart
+
+:::
+
+</Demo>
+
+The pattern is fixed rather than scaled by the size ladder, so a dashed line reads as the same rhythm on an `sm` chart and an `lg` one. Only a line has a line to dash: it does nothing on a bar, and nothing on a stacked band either, whose fill is the mark and which has no stroke along its top. The legend swatch is the same square for both, so pair `dashed` with a name that says what the line is.
+
 ### Gaps
 
 A `null` **breaks the line**. `connectNulls` bridges it instead, and it should stay off unless the gap is an artefact of how the data was collected rather than a period where nothing happened.
