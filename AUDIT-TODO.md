@@ -4,7 +4,7 @@ The findings of a full audit of both packages, the documentation site and the re
 
 Numbers 39 and 180 are missing on purpose. They were two security findings whose details were kept out of this public file, in a local note that is no longer on the machine, and the Prompter dropped them rather than reconstructing them. Nothing else is renumbered.
 
-**340 of 370 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
+**341 of 370 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ## Working through a batch
 
@@ -151,9 +151,9 @@ Asked at the end of batches 7 to 15. Each question says what the problem is and 
 1. **Item 270, moving a `PlWindowPane` without dragging.** A draggable pane moves only by dragging, which WCAG 2.5.7 asks an alternative for.
    - A. A focusable move handle that answers the arrow keys: meets the criterion, and the frame gains a control.
    - B. Document how to move it through a controlled offset: no code change.
-1. **Item 100, the Flutter gallery building every tile.** A gallery of 60 pictures decodes 60 before any is on screen.
-   - A. Build only the tiles near the view: less work up front, and the masonry layout, which needs every tile's size, has to be laid out another way.
-   - B. Keep it.
+1. **Left open by item 100: the gallery still builds every tile.** What is held back is each tile's *picture*, which is where the cost was — the tiles themselves are still all built, so a board of a thousand items is a thousand widgets whatever the reader can see. Closing that means the gallery owning its own scroll, which it does not today.
+   - A. Give `PlGallery` a scrolling form, so Flutter builds lazily: a large board costs what is on screen, and the widget stops sizing to its content, which breaks an app that puts one inside its own scroll view (breaking).
+   - B. Keep it: a tile with no picture in it is cheap, and a board large enough for the widgets to matter is one the app should be paging.
 1. **Flutter `PlSlider` and `formatValue` for a screen reader.** `formatValue` takes the whole list, so it cannot word the value of one thumb; a screen reader hears the number in the step's decimals.
    - A. A per-thumb formatter: values such as "40%" can be read, and one more parameter.
    - B. Keep it.
@@ -488,7 +488,7 @@ None. Every flagged item passed over so far is asked above.
   - Location: `packages/react/src/internal/styles.ts:448-455`, `internal/picker.tsx:315`, `chip/pl_chip.dart:301-306`
   - Problem: It sits 2px from the label button or the trigger, so it does not qualify for the spacing exception either. On touch screens it is easy to mix up opening and clearing.
   - Proposal: Keep the visible size, and widen only the hit area to 24px with a pseudo-element or transparent padding.
-- [ ] **100.** Flutter `PlAvatar` and `PlGallery` decode images at full resolution (Performance · Flutter · Medium)
+- [x] **100.** Flutter `PlAvatar` and `PlGallery` decode images at full resolution (Performance · Flutter · Medium)
   - Location: `gallery/pl_gallery.dart` (`LayoutBuilder` board and `_tile`)
   - Done in `eaabbe83`: `PlAvatar`, `PlImage` and the gallery viewer decode at the size they are drawn, through `internal/decode.dart`.
   - Problem left: the gallery builds every tile at once, so a gallery of 60 pictures asks for 60 decodes before any of them is on screen.
