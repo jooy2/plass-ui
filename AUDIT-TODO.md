@@ -4,7 +4,7 @@ The findings of a full audit of both packages, the documentation site and the re
 
 Numbers 39 and 180 are missing on purpose. They were two security findings whose details were kept out of this public file, in a local note that is no longer on the machine, and the Prompter dropped them rather than reconstructing them. Nothing else is renumbered.
 
-**337 of 370 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
+**338 of 370 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ## Working through a batch
 
@@ -94,10 +94,10 @@ Asked at the end of batches 7 to 15. Each question says what the problem is and 
 1. **Left open by item 52: the Flutter heatmap reads every cell.** The React heatmap's summary is now one line per row, the span that row's cells cover, with the cells themselves in the table beside it. The Flutter heatmap puts every cell into `Semantics.value` on purpose, because there is no table to send a reader to, so a 7 by 24 grid is a hundred and sixty-eight numbers read out before anything else.
    - A. Give the Flutter heatmap the same per-row summary and reach the cells another way, which is what item 59 is about for the other charts: the two builds say the same thing, and the cells need a path of their own first.
    - B. Keep it: the text is the only way to the numbers in that build, and cutting it down would take them away.
-1. **Item 59, Flutter line, bar and area charts.** A screen reader and the keyboard reach only each series' last value; scatter and heatmap already carry every value.
-   - A. A focus node that walks the columns with the arrow keys: the same model as React, and the largest piece of work.
-   - B. One semantics node per column: every value reachable by swiping, no keyboard movement, and many nodes for long series.
-   - C. Keep the summary and document the limitation: no code change.
+1. **Left open by item 59: no Flutter chart can be walked.** Every value is now in the text a line, bar or area chart hands over, as it already was for the scatter and the heatmap, so nothing is unreachable. What no chart in that build has is a way to go to one value: the reader hears the series from the start each time, where React's is a tab stop whose arrow keys walk the categories.
+   - A. A focus node and arrow keys on the Flutter frame, the model React uses: the two builds move alike, and it is a sizeable change to the frame plus a live region for the readout.
+   - B. One semantics node per category, so a reader swipes between them: no keyboard movement, and a long series becomes hundreds of nodes.
+   - C. Keep it: the values are all in the text, and the tooltip is what a pointer uses.
 1. **Item 63, Flutter `PlassChartSeries.dashed`.** The field is documented as drawing a dashed line and does nothing; React has no such field.
    - A. Implement it in both packages: a new feature.
    - B. Remove the field and its table row: nothing is promised that does not exist, and code that sets it stops compiling (breaking).
@@ -381,7 +381,7 @@ None. Every flagged item passed over so far is asked above.
   - Problem: The type allows ReactNode, but the result is passed through `String()`.
   - Proposal: Narrow the return type to `string | number`.
   - Flag: Breaking change — the public type becomes narrower.
-- [ ] **59.** In Flutter line, bar and area charts, only the last value can be reached by screen reader or keyboard (Accessibility · Flutter · Medium)
+- [x] **59.** In Flutter line, bar and area charts, only the last value can be reached by screen reader or keyboard (Accessibility · Flutter · Medium)
   - Location: `packages/flutter/lib/src/internal/chart_frame.dart:936`
   - Problem: The summary holds only the last value of each series, and the frame has no focus or key handling. Scatter and heatmap in the same package carry every value.
   - Proposal: Add a focus node and arrow key navigation, or give each column its own semantics node.
