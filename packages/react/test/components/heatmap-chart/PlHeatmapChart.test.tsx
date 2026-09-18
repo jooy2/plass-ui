@@ -232,7 +232,15 @@ describe('PlHeatmapChart', () => {
      */
     const ladder = (container: Element) =>
       [...container.querySelectorAll('span')]
-        .filter((one) => one.closest('table') === null && one.children.length === 0)
+        .filter(
+          (one) =>
+            one.closest('table') === null &&
+            one.children.length === 0 &&
+            // The summary a screen reader is handed is a clipped span of rows
+            // and their spans, and it sits beside the legend rather than in the
+            // table. It is read, not drawn, so it is not part of the ladder.
+            !one.classList.contains('absolute')
+        )
         .map((one) => one.textContent)
         .filter(Boolean);
 

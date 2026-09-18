@@ -192,7 +192,7 @@ React의 `number | null | object` 대신 닫힌 union입니다. union 타입이 
 ::: fw react
 
 - 그림은 `role="img"`이자 tab 정거장입니다. <kbd>←</kbd>와 <kbd>→</kbd>로 category를 하나씩 옮겨 다니고, <kbd>Home</kbd>과 <kbd>End</kbd>로 첫 category와 마지막 category로 갑니다. <kbd>Escape</kbd>로 읽던 값을 지우고, 닿는 category마다 거기서 보이는 series의 값과 함께 live region으로 읽힙니다. `tooltip={false}`이면 키는 아무것도 하지 않고 읽히는 것도 없습니다.
-- 차트는 데이터의 진짜 `<table>`도 함께 그립니다. 눈에는 보이지 않고, 스크린 리더가 그림 대신 읽는 것입니다.
+- 그림에 포커스가 가면 이름에 이어 한 줄 요약이 읽힙니다. 보이는 계열마다 이름과 마지막 값을 이은 것으로, "Web 40, App 8" 같은 모양입니다. 모든 값이 담긴 진짜 `<table>`도 그림의 형제로 함께 그립니다. 눈에는 보이지 않지만 접근성 트리에서는 빠지지 않으므로, 포커스할 때마다 값 사백 개를 듣는 대신 한 걸음 옆에서 꺼내 볼 수 있습니다.
 
 :::
 

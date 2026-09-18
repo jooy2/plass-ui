@@ -14,6 +14,8 @@
 
 ### Fixed
 
+- **Focusing a chart reads a summary rather than every number in it.** `aria-describedby` pointed at the hidden data table, and a screen reader flattens whatever that attribute names into one string — so a chart of four hundred cells announced four hundred numbers on every focus, ahead of anything else, and the same table is a sibling in the reading order, so it was heard twice. The description is now a line: each visible series and where it ended up on a chart with axes, every slice and its share on a pie, and each row and the span its cells cover on a heatmap. The table has not moved and still carries every value, which is what a reader steps into when they want one.
+
 - **A time axis whose two ends are the same moment opens a day around it.** `min` and `max` naming one instant left the axis with no width, and the two builds failed differently: a mark landed a screen off the plot here and on the origin in Flutter. The guard that already opened a day around a single instant in the data now covers a caller's own bounds too.
 
 - **A `PlAnimateFloat` takes a `distance` that has to be worked out, or that is negative.** The upward drift was written by putting a minus sign in front of the value, which only negates a plain number: `calc(1rem + 2px)` became `-calc(1rem + 2px)` and `-8` became `--8px`, and neither is a length, so the drift was dropped. It is now the same `calc(-1 * …)` a `PlAnimateSlide` uses, and a negative number drifts the other way.

@@ -139,6 +139,7 @@ export function PlHeatmapChart({
   const width = useMeasuredWidth(hostRef);
   const words = useLabels();
   const tableId = React.useId();
+  const summaryId = React.useId();
 
   const [active, setActive] = React.useState<{ row: number; index: number } | null>(null);
 
@@ -161,6 +162,33 @@ export function PlHeatmapChart({
   const names = React.useMemo(
     () => series.map((row, index) => row.name ?? `${index + 1}`),
     [series]
+  );
+
+  /* What a screen reader is handed in place of the picture: each row and the
+     span its cells cover, which is the reading a sighted reader takes from the
+     colours.
+
+     Not the table, and not every cell either. `aria-describedby` flattens what
+     it points at into one string, so a 7 by 24 grid was a hundred and
+     sixty-eight numbers read out before anything else on every focus — and the
+     table is a sibling in the reading order, so they were heard twice. One line
+     per row is bounded by the rows; every cell is one step away in the table.
+     The Flutter build has no table to send anyone to and still reads them all,
+     which is the half of this that is asked about rather than changed. */
+  const summary = React.useMemo(
+    () =>
+      values.map((row, at) => {
+        const numbers = row
+          .map((cell) => cell.value)
+          .filter((value): value is number => value !== null);
+
+        return {
+          name: names[at],
+          low: numbers.length === 0 ? null : Math.min(...numbers),
+          high: numbers.length === 0 ? null : Math.max(...numbers)
+        };
+      }),
+    [values, names]
   );
 
   /* The scale, over every cell. One ladder for the whole chart and not one per
@@ -438,7 +466,7 @@ export function PlHeatmapChart({
         // Never the bare prop: `label` is optional, and a focusable `role="img"`
         // with nothing to be called by is a tab stop that announces silence.
         aria-label={label ?? words.chart}
-        aria-describedby={nothing ? undefined : tableId}
+        aria-describedby={nothing ? undefined : summaryId}
         onPointerLeave={() => setActive(null)}
         onBlur={() => setActive(null)}
         onKeyDown={(event) => {
@@ -649,6 +677,21 @@ export function PlHeatmapChart({
           )
         ) : null}
       </div>
+
+      {nothing ? null : (
+        <span id={summaryId} className={srOnlyClasses}>
+          {summary.map((row, index) => (
+            <React.Fragment key={index}>
+              {index > 0 ? ', ' : null}
+              {row.low === null
+                ? row.name
+                : row.low === row.high
+                  ? `${row.name} ${formatValue(row.low)}`
+                  : `${row.name} ${formatValue(row.low)}–${formatValue(row.high as number)}`}
+            </React.Fragment>
+          ))}
+        </span>
+      )}
 
       {/* Only where there is a crosshair to report — see `ChartStatus`. */}
       {tooltipOff ? null : (

@@ -28,7 +28,7 @@ import {
 import { useDefaults } from '../../internal/defaults.js';
 import { numberFormatter } from '../../internal/format.js';
 import { useLabels } from '../../internal/labels.js';
-import { cx, metaTextClasses } from '../../internal/styles.js';
+import { cx, metaTextClasses, srOnlyClasses } from '../../internal/styles.js';
 import type {
   PlassChartCategory,
   PlassChartDatum,
@@ -123,6 +123,7 @@ export function PlPieChart({
   const width = useMeasuredWidth(hostRef);
   const words = useLabels();
   const tableId = React.useId();
+  const summaryId = React.useId();
 
   const formatValue = React.useCallback(
     (value: number) =>
@@ -219,6 +220,14 @@ export function PlPieChart({
     angle += span;
   });
 
+  /* A slice's value and what part of the whole it is, which is the reading a
+     sighted reader takes from the angle. One writing of it, because the tooltip
+     and the summary a screen reader is handed have to agree. */
+  const share = (value: number) =>
+    `${formatValue(value)} · ${
+      Math.round(((Math.abs(value) / total) * 100 + Number.EPSILON) * 10) / 10
+    }%`;
+
   const items: ChartTooltipItem[] =
     active === null
       ? []
@@ -228,11 +237,7 @@ export function PlPieChart({
             name: slices[active]?.name,
             color: values[active]?.color ?? colors[active],
             value: values[active]?.value ?? null,
-            formatted: `${formatValue(values[active]?.value ?? 0)} · ${
-              Math.round(
-                ((Math.abs(values[active]?.value ?? 0) / total) * 100 + Number.EPSILON) * 10
-              ) / 10
-            }%`,
+            formatted: share(values[active]?.value ?? 0),
             label: values[active]?.label
           }
         ];
@@ -286,7 +291,7 @@ export function PlPieChart({
         // Never the bare prop: `label` is optional, and a focusable `role="img"`
         // with nothing to be called by is a tab stop that announces silence.
         aria-label={label ?? words.chart}
-        aria-describedby={nothing ? undefined : tableId}
+        aria-describedby={nothing ? undefined : summaryId}
         onPointerLeave={() => setActive(null)}
         onBlur={() => setActive(null)}
         onKeyDown={(event) => {
@@ -428,6 +433,21 @@ export function PlPieChart({
           )
         ) : null}
       </div>
+
+      {/* Every slice and its share, which is the reading a sighted reader takes
+          from the angles — and not the table, which `aria-describedby` would
+          flatten into one string of every value, ahead of anything else, on
+          every focus. The table is a sibling in the reading order either way. */}
+      {nothing ? null : (
+        <span id={summaryId} className={srOnlyClasses}>
+          {arcs.map((arc, index) => (
+            <React.Fragment key={arc.index}>
+              {index > 0 ? ', ' : null}
+              {slices[arc.index]?.name} {values[arc.index]?.label ?? share(arc.value)}
+            </React.Fragment>
+          ))}
+        </span>
+      )}
 
       {/* Only where there is a crosshair to report — see `ChartStatus`. */}
       {tooltipOff ? null : (

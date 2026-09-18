@@ -638,6 +638,13 @@ interface DataTableProps {
  * the pointer or a key moves the active column, which re-renders the chart
  * around it every time.
  */
+/** One line of the summary a screen reader is handed: a series and its end. */
+interface ChartSummaryEntry {
+  name: string;
+  /** What the series ended on, or `null` for a series that is all gaps. */
+  said: React.ReactNode | null;
+}
+
 const ChartDataTable = /* @__PURE__ */ React.memo(function ChartDataTable({
   id,
   caption,
@@ -936,6 +943,7 @@ export function CartesianChart({
   const width = useMeasuredWidth(hostRef);
   const words = useLabels();
   const tableId = React.useId();
+  const summaryId = React.useId();
 
   const visibility = useVisibility(series);
   const [columnIndex, setColumnIndex] = React.useState<number | null>(null);
@@ -965,6 +973,36 @@ export function CartesianChart({
 
   const shownValues = values.filter((_, index) => visibility.visible[index]);
   const extent = extentOf(shownValues, stacked);
+
+  /* What a screen reader is handed in place of the drawing: each visible series
+     and where it ended up, which is the line the Flutter build already writes
+     into its `Semantics.value`.
+
+     It is deliberately not the table. `aria-describedby` flattens whatever it
+     points at into one string, so a table of four hundred cells was four
+     hundred numbers read out on every focus, ahead of anything else the reader
+     might have wanted — and the same table is a sibling in the reading order,
+     so they heard it twice. The table stays exactly where it was; what changes
+     is that it is no longer also the description. */
+  const summary = React.useMemo<readonly ChartSummaryEntry[]>(
+    () =>
+      series.flatMap<ChartSummaryEntry>((one, index) => {
+        if (!visibility.visible[index]) {
+          return [];
+        }
+
+        const row = values[index] ?? [];
+        const last = [...row].reverse().find((entry) => entry.value !== null);
+        const name = one.name ?? `${index + 1}`;
+
+        if (last === undefined) {
+          return [{ name, said: null }];
+        }
+
+        return [{ name, said: last.label ?? formatValue(last.value as number) }];
+      }),
+    [series, values, visibility.visible, formatValue]
+  );
 
   const plotHeight =
     typeof height === 'number' ? height : height === undefined ? plotHeights[size] : null;
@@ -1497,7 +1535,7 @@ export function CartesianChart({
         // Never the bare prop: `label` is optional, and a focusable `role="img"`
         // with nothing to be called by is a tab stop that announces silence.
         aria-label={label ?? words.chart}
-        aria-describedby={nothing ? undefined : tableId}
+        aria-describedby={nothing ? undefined : summaryId}
         onPointerMove={(event) => {
           if (tooltipMode === 'none') {
             return;
@@ -1639,6 +1677,26 @@ export function CartesianChart({
       {/* Only where there is a crosshair to report. A chart with its tooltip
           turned off has nothing to announce, and a live region standing empty
           in the tree forever is a promise it never keeps. */}
+      {/* Clipped, and a sibling of the picture rather than a child of it: an
+          element `aria-describedby` points at is read wherever it sits, and a
+          child of a `role="img"` is not in the accessibility tree at all. */}
+      {nothing ? null : (
+        <span id={summaryId} className={srOnlyClasses}>
+          {summary.map((one, index) => (
+            <React.Fragment key={index}>
+              {index > 0 ? ', ' : null}
+              {one.said === null ? (
+                one.name
+              ) : (
+                <>
+                  {one.name} {one.said}
+                </>
+              )}
+            </React.Fragment>
+          ))}
+        </span>
+      )}
+
       {tooltipMode === 'none' ? null : (
         <ChartStatus
           heading={
