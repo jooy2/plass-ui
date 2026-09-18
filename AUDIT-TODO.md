@@ -4,7 +4,7 @@ The findings of a full audit of both packages, the documentation site and the re
 
 Numbers 39 and 180 are missing on purpose. They were two security findings whose details were kept out of this public file, in a local note that is no longer on the machine, and the Prompter dropped them rather than reconstructing them. Nothing else is renumbered.
 
-**338 of 370 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
+**339 of 370 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ## Working through a batch
 
@@ -98,9 +98,12 @@ Asked at the end of batches 7 to 15. Each question says what the problem is and 
    - A. A focus node and arrow keys on the Flutter frame, the model React uses: the two builds move alike, and it is a sizeable change to the frame plus a live region for the readout.
    - B. One semantics node per category, so a reader swipes between them: no keyboard movement, and a long series becomes hundreds of nodes.
    - C. Keep it: the values are all in the text, and the tooltip is what a pointer uses.
-1. **Item 63, Flutter `PlassChartSeries.dashed`.** The field is documented as drawing a dashed line and does nothing; React has no such field.
-   - A. Implement it in both packages: a new feature.
-   - B. Remove the field and its table row: nothing is promised that does not exist, and code that sets it stops compiling (breaking).
+1. **Found in passing: the legend swatch of a `dashed` series.** A dashed line now reads as a forecast on the plot, and its legend entry is the same filled square as every other series', so the legend does not carry the distinction the plot does. The page says to pair `dashed` with a name that explains the line.
+   - A. Draw a dashed series' swatch as a dashed rule rather than a square, in both builds: the legend says what the plot says, and the swatch is a second drawing to keep in step.
+   - B. Keep the square: a swatch is a colour key, and the name beside it is what says what the line is.
+1. **Found in passing: two hand-rolled dash loops in the Flutter package.** `dashedPath` in `internal/chart.dart` walks a path with `computeMetrics` and rebuilds it in pieces; `_DashedEdge` in `pl_file_picker.dart` does the same for the rounded rectangle round a drop zone, with its own dash and gap.
+   - A. Have the file picker's edge call `dashedPath`: one dash loop in the package, and the two patterns have to be reconciled or the helper has to take them as parameters.
+   - B. Keep the two: one is a data line and the other is a border, and they are the same arithmetic rather than the same thing.
 1. **Item 84, a `RegExp` in Flutter `PlHighlight`'s `query`.** `RegExp(r'\d+')` is escaped and searched for as the literal text.
    - A. Match a `RegExp` as a pattern: works as documented.
    - B. Restrict the list to strings and fix the docs: code passing a `RegExp` stops compiling (breaking).
@@ -395,7 +398,7 @@ None. Every flagged item passed over so far is asked above.
   - Location: `packages/react/src/types.ts:710`, `:740`
   - Problem: One comment says overlapping spans are drawn over each other. The other says they are moved into lanes. The second one matches the actual behaviour.
   - Proposal: Delete the first declaration.
-- [ ] **63.** Flutter `PlassChartSeries.dashed` does nothing (Bug · Flutter · Medium)
+- [x] **63.** Flutter `PlassChartSeries.dashed` does nothing (Bug · Flutter · Medium)
   - Location: `lib/src/types.dart:694`, `internal/chart_line.dart:161`, `docs/.vitepress/data/props-flutter.ts:1735`
   - Problem: The field description and the props table say the line is drawn dashed, but the line drawing code never reads this value. The React type has no such field.
   - Proposal: Implement it and add it to React too, or remove the field and its table row.
