@@ -215,14 +215,16 @@ export const PlList = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlListP
     const context = React.useMemo(() => ({ size, density, dividers }), [size, density, dividers]);
 
     const classNames = [
-      'flex flex-col',
+      // `m-0 list-none` for a caller who renders the stack as the `<ul>` or
+      // `<ol>` it reads as: a UA indents both and puts a marker on every row.
+      'm-0 flex list-none flex-col',
       radiusClasses[size],
       variantClasses[variant],
       transitionClasses,
       // Without dividers the rows are tiles and the sheet keeps a hair of padding
       // so a hovered row does not run into the edge. With them the rules have to
       // reach the edge, so the padding goes and the rows square off.
-      dividers ? `overflow-hidden ${dividerClasses}` : 'p-1',
+      dividers ? `overflow-hidden p-0 ${dividerClasses}` : 'p-1',
       className ?? ''
     ]
       .filter(Boolean)

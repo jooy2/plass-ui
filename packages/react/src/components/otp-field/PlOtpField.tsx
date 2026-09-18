@@ -366,6 +366,7 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
         {hasContent(description) ? (
           <Field.Description
             className={cx(
+              'm-0',
               metaTextClasses[size],
               'text-(--plass-muted-fg)',
               classNames?.description

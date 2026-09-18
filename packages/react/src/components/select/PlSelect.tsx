@@ -406,6 +406,7 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
         {description ? (
           <Field.Description
             className={cx(
+              'm-0',
               metaTextClasses[size],
               'text-(--plass-muted-fg)',
               classNames?.description

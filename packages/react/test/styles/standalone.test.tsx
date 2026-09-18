@@ -159,14 +159,80 @@ describe('plass-ui/styles.css', () => {
       // A consumer's own stylesheet outranks it without needing `!important`,
       // a layer, or a particular import order.
       const page = document.createElement('style');
-      page.textContent = 'p { margin-block: 7px; }';
+      page.textContent = 'button { font-family: Georgia, serif; }';
       document.head.append(page);
 
       try {
-        const screen = await render(<PlTextField label="Email" description="We never share it." />);
-        const styles = getComputedStyle(screen.getByText('We never share it.').element());
+        const screen = await render(<PlButton>Save</PlButton>);
+        const styles = getComputedStyle(screen.getByRole('button').element());
 
-        expect(styles.marginBlockStart).toBe('7px');
+        expect(styles.fontFamily).toContain('Georgia');
+      } finally {
+        page.remove();
+      }
+    });
+
+    it('leaves the page around the components exactly as it was', async () => {
+      // The reset ships inside `plass-ui/styles.css`, which is the one file an
+      // app with no Tailwind imports — so it lands on a page that already has
+      // prose on it. A list that loses its bullets, a heading that comes out
+      // body-sized and an `<hr>` with no line are all the same failure: a
+      // component library rewriting a page it was only asked to add controls
+      // to. Nothing here renders a Plass component, on purpose.
+      const host = document.createElement('div');
+
+      host.innerHTML =
+        '<h2>Releases</h2><p>Two of them.</p><ul><li>One</li></ul><hr /><input type="text" />';
+      document.body.append(host);
+
+      try {
+        const [heading, paragraph, list, rule, field] = ['h2', 'p', 'ul', 'hr', 'input'].map(
+          (tag) => getComputedStyle(host.querySelector(tag) as Element)
+        );
+        const body = parseFloat(getComputedStyle(document.body).fontSize);
+
+        expect(list.listStyleType).toBe('disc');
+        expect(parseFloat(list.paddingInlineStart)).toBeGreaterThan(0);
+        expect(parseFloat(heading.fontSize)).toBeGreaterThan(body);
+        expect(Number(heading.fontWeight)).toBeGreaterThan(400);
+        expect(parseFloat(paragraph.marginBlockStart)).toBeGreaterThan(0);
+        expect(parseFloat(rule.borderBlockStartWidth)).toBeGreaterThan(0);
+
+        // The one thing that does still reach the page, and the only place a UA
+        // draws a border over a control the size ladder has already decided.
+        expect(field.borderBlockStartWidth).toBe('0px');
+      } finally {
+        host.remove();
+      }
+    });
+
+    it('is carried by the components themselves, so a page rule cannot undo it', async () => {
+      // The other half of the move. What the element rules used to do for the
+      // whole document is a utility on the component now, which outranks a
+      // page's own type selector rather than losing to it.
+      const page = document.createElement('style');
+
+      page.textContent =
+        'ol { list-style: decimal; padding-inline-start: 40px; } h1 { margin: 1em; }';
+      document.head.append(page);
+
+      try {
+        const screen = await render(
+          <>
+            <PlStepper active={1}>
+              <PlStep label="Account" />
+              <PlStep label="Verify" />
+            </PlStepper>
+            <PlTypography level="h1">Releases</PlTypography>
+          </>
+        );
+        const list = getComputedStyle(screen.getByRole('list').element());
+        const heading = getComputedStyle(screen.getByText('Releases').element());
+
+        expect(list.listStyleType).toBe('none');
+        expect(list.paddingInlineStart).toBe('0px');
+        expect(list.marginBlockStart).toBe('0px');
+        expect(heading.marginBlockStart).toBe('0px');
       } finally {
         page.remove();
       }

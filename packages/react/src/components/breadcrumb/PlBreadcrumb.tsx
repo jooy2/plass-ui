@@ -411,7 +411,7 @@ export const PlBreadcrumb = /* @__PURE__ */ React.forwardRef<HTMLElement, PlBrea
           // every `<ol>`, and Safari takes the list semantics off with them.
           role="list"
           className={cx(
-            'flex list-none flex-wrap items-center p-0',
+            'm-0 flex list-none flex-wrap items-center p-0',
             trailGapClasses[density][size]
           )}
         >

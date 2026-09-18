@@ -217,7 +217,7 @@ export const PlRadio = /* @__PURE__ */ React.forwardRef<HTMLElement, PlRadioProp
             ) : null}
             {description ? (
               <Field.Description
-                className={`${metaTextClasses[group.size]} text-(--plass-muted-fg)`}
+                className={`m-0 ${metaTextClasses[group.size]} text-(--plass-muted-fg)`}
               >
                 {description}
               </Field.Description>
@@ -296,6 +296,7 @@ export const PlRadioGroup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlR
           {description ? (
             <Field.Description
               className={cx(
+                'm-0',
                 metaTextClasses[size],
                 'text-(--plass-muted-fg)',
                 classNames?.description

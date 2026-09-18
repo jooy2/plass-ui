@@ -256,6 +256,7 @@ export const PlSwitch = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSwitchPr
           {description ? (
             <Field.Description
               className={cx(
+                'm-0',
                 metaTextClasses[size],
                 'text-(--plass-muted-fg)',
                 classNames?.description

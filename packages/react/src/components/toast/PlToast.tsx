@@ -307,10 +307,10 @@ function ToastItem({
 
       <div className={`flex min-w-0 flex-1 flex-col ${sheetHeaderGapClasses[size]}`}>
         <BaseUIToast.Title
-          className={`plass-title font-semibold ${sheetTitleClasses[size]} ${accent}`}
+          className={`plass-title m-0 font-semibold ${sheetTitleClasses[size]} ${accent}`}
         />
         <BaseUIToast.Description
-          className={titled && variant !== 'solid' ? 'text-(--plass-muted-fg)' : ''}
+          className={titled && variant !== 'solid' ? 'm-0 text-(--plass-muted-fg)' : 'm-0'}
         />
       </div>
 

@@ -6,7 +6,7 @@
  * Tailwind already has Preflight and imports `plass-ui/tailwind.css` instead,
  * which does not pull this in.
  *
- * Two rules govern what is in here.
+ * Three rules govern what is in here.
  *
  * **Only what the library actually needs.** Preflight is a page reset: it
  * flattens headings, links, tables and prose so that an app can be styled
@@ -14,21 +14,35 @@
  * someone else's page, so everything whose absence does not visibly break a
  * Plass component was dropped.
  *
+ * **Nothing that the components can carry themselves.** A rule that flattens
+ * an element the library renders is a rule that also flattens the same element
+ * in the page around it: `ul { list-style: none }` takes the bullets off an
+ * app's own body text, and `p { margin: 0 }` closes up its paragraphs. Those
+ * live on the components now, as the utilities they were always going to be —
+ * `m-0 list-none p-0` on the list a component renders, `m-0` on its heading and
+ * its paragraph. A utility outranks a page's own `p { margin: 1rem }`, which a
+ * `:where()` rule did not, so a component's spacing also stops depending on
+ * what the page happens to say about `<p>`.
+ *
  * **Every rule is specificity 0.** `:where()` around each selector means a
- * single type selector in the consumer's own stylesheet — `p { margin: 1rem }`,
- * `button { font-family: Inter }` — beats it, whatever the import order. The
- * reset is a floor under the components, not a claim on the page. `*` is
+ * single type selector in the consumer's own stylesheet — `button { font-family:
+ * Inter }`, `textarea { resize: none }` — beats it, whatever the import order.
+ * The reset is a floor under the components, not a claim on the page. `*` is
  * already specificity 0, so it is left alone.
  */
 
 /*
- * The core, and the two declarations nothing works without.
+ * The core, and the one declaration nothing works without.
  *
  * `box-sizing` is what makes `h-10 px-4 border` add up to a 10-unit-tall
- * control rather than a taller one. `border: 0 solid` is what keeps a UA
- * default border off a `<button>` or an `<input>` that the component did not
- * ask to have one — and `solid` is what makes every `border` utility resolve to
- * a visible line rather than to `border-style: none`.
+ * control rather than a taller one.
+ *
+ * The border that used to sit here is gone. Tailwind's own `--tw-border-style`
+ * is registered with `initial-value: solid`, so a `border` utility already
+ * resolves to a visible line without a page-wide declaration; and zeroing every
+ * element's border took the line off the host page's `<hr>` as readily as off a
+ * `<button>`. What the library needs is on the form controls below, which is
+ * the only place a UA draws a border the components did not ask for.
  */
 *,
 ::before,
@@ -36,7 +50,6 @@
 ::backdrop,
 ::file-selector-button {
   box-sizing: border-box;
-  border: 0 solid;
 }
 
 /*
@@ -70,30 +83,16 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-:where(blockquote, dd, dl, figure, h1, h2, h3, h4, h5, h6, hr, p, pre) {
-  margin: 0;
-}
-
-:where(menu, ol, ul) {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-:where(h1, h2, h3, h4, h5, h6) {
-  font-size: inherit;
-  font-weight: inherit;
-}
-
 /* Form controls start from no chrome of their own for the component to build
-   on — including the UA's own border radius, which would round a corner the
-   size ladder has already decided. */
+   on — including the UA's own border, and its border radius, which would round
+   a corner the size ladder has already decided. */
 :where(button, input, optgroup, select, textarea) {
   font: inherit;
   font-feature-settings: inherit;
   font-variation-settings: inherit;
   letter-spacing: inherit;
   color: inherit;
+  border-width: 0;
   border-radius: 0;
   background-color: transparent;
   opacity: 1;

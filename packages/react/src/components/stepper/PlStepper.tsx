@@ -231,7 +231,7 @@ export const PlStepper = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlStep
             // takes the list semantics off with them. Saying it out loud is the
             // one-line fix, and it costs nothing when the reset is not there.
             role="list"
-            className={cx('flex w-full', horizontal ? 'flex-row' : 'flex-col')}
+            className={cx('m-0 flex w-full list-none p-0', horizontal ? 'flex-row' : 'flex-col')}
           >
             {steps.map((step, index) => (
               <StepContext.Provider key={index} value={{ index, last: index === count - 1 }}>

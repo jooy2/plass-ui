@@ -4,6 +4,10 @@
 
 ## vNext (2026--)
 
+### Breaking changes
+
+- **`plass-ui/styles.css` leaves the page around the components alone.** The reset inside it took the bullets off every `<ul>`, flattened every `<h1>`–`<h6>` to body text, closed up the margins of `<p>`, `<blockquote>`, `<figure>` and `<pre>`, and zeroed every element's border, which reached the rest of the page as readily as the components — a list in an app's own body text lost its markers, and `<hr>` lost its line. Those rules are gone. The components now carry `m-0 list-none p-0` where they render a list and `m-0` where they render a heading or a paragraph, and the only border the file still zeroes is the one a browser draws on a form control. An app that was using the stylesheet as its page reset gets the browser's defaults back for its own prose and has to write them itself, or import Tailwind's Preflight. In the other direction, a page's own `p { margin: 1rem }` no longer reaches inside a component, because a utility outranks a type selector where the old `:where()` rule lost to it. `plass-ui/tailwind.css` never carried the reset and is unchanged.
+
 ### Fixed
 
 - **A time axis whose two ends are the same moment opens a day around it.** `min` and `max` naming one instant left the axis with no width, and the two builds failed differently: a mark landed a screen off the plot here and on the origin in Flutter. The guard that already opened a day around a single instant in the data now covers a caller's own bounds too.

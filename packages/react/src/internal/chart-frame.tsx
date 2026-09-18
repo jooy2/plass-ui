@@ -327,7 +327,7 @@ function ChartLegendBar({
   return (
     <ul
       className={cx(
-        'flex list-none flex-wrap items-center gap-x-3 gap-y-1 p-0',
+        'm-0 flex list-none flex-wrap items-center gap-x-3 gap-y-1 p-0',
         vertical ? 'min-w-0 flex-col items-start' : '',
         legendAlignClasses[options.align ?? 'center'],
         metaTextClasses[size]
@@ -547,7 +547,7 @@ function ChartTooltipPanel({ heading, items, x, y, flip, size }: TooltipProps) {
       style={flip ? { right: `calc(100% - ${x}px + 10px)`, top: y } : { left: x + 10, top: y }}
     >
       <div className="mb-1 font-medium text-(--plass-fg)">{heading}</div>
-      <ul className="flex list-none flex-col gap-0.5 p-0">
+      <ul className="m-0 flex list-none flex-col gap-0.5 p-0">
         {items.map((item) => (
           <li key={item.seriesIndex} className="flex items-center gap-1.5">
             <span

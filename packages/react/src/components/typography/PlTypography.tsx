@@ -197,6 +197,9 @@ export const PlTypography = /* @__PURE__ */ React.forwardRef<HTMLElement, PlTypo
   ) {
     const clamp = lines && lines >= 1 ? Math.floor(lines) : undefined;
     const classNames = [
+      // A level that renders as a heading or a paragraph arrives with the UA's
+      // own block margin, and the ladder above spaces text by `gutter`.
+      'm-0',
       levelClasses[level],
       weightClasses[weight ?? levelWeights[level]],
       align ? alignClasses[align] : '',

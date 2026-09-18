@@ -63,9 +63,11 @@ import 'plass-ui/styles.css';
 
 ### About the reset
 
-`plass-ui/styles.css` includes the global reset the components are written against, Tailwind's Preflight cut down to what they actually need: `box-sizing`, font inheritance on form controls, list markers off. It does not touch the typography of your paragraphs, headings or links.
+`plass-ui/styles.css` includes the reset the components are written against, Tailwind's Preflight cut down to what they actually need: `box-sizing`, font inheritance and no border on form controls, and media elements as blocks. It leaves your own lists, headings and paragraphs as the browser draws them — a component that needs its own list flat or its own heading unspaced says so on itself, in the same utilities it is built from.
 
-Every rule in it is wrapped in `:where()`, so it has **specificity 0**. A single type selector of your own, `p { margin: 1rem }`, beats it, whatever the import order. The reset is a floor under the components, not a claim on your page.
+Every rule in it is wrapped in `:where()`, so it has **specificity 0**. A single type selector of your own, `button { font-family: Inter }`, beats it, whatever the import order. The reset is a floor under the components, not a claim on your page.
+
+The reverse is not true, and that is deliberate: a `p { margin: 1rem }` of yours does not open up the paragraph inside a component, because the component's `m-0` is a class and your rule is a type selector.
 
 ### If you already use Tailwind
 

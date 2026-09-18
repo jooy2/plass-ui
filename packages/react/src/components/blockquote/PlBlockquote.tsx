@@ -177,7 +177,8 @@ export const PlBlockquote = /* @__PURE__ */ React.forwardRef<HTMLElement, PlBloc
     const glyph = icon === undefined ? <QuoteMarkIcon /> : icon;
 
     const shellClasses = [
-      'flex flex-col text-(--plass-fg)',
+      // `m-0` because an attributed quote is a `<figure>`, which a UA indents.
+      'm-0 flex flex-col text-(--plass-fg)',
       ruleClasses,
       // The corners on the ruled edge stay square: a 2px rule that curves away
       // from the text it marks is a bracket, not a margin rule.
@@ -192,7 +193,7 @@ export const PlBlockquote = /* @__PURE__ */ React.forwardRef<HTMLElement, PlBloc
       .join(' ');
 
     const quote = (
-      <blockquote cite={cite} className={quoteTextClasses[size]}>
+      <blockquote cite={cite} className={`m-0 ${quoteTextClasses[size]}`}>
         {hasContent(glyph) ? (
           // The mark tracks the quote's own type scale at twice its size, so one
           // drawing is the right size at every step of the ladder.

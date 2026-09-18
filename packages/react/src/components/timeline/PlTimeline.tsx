@@ -358,7 +358,11 @@ export const PlTimeline = /* @__PURE__ */ React.forwardRef<HTMLOListElement, PlT
         // the list semantics off with them. Saying `role="list"` out loud is the
         // one-line fix, and it costs nothing when the reset is not there.
         role: 'list',
-        className: cx('flex', orientation === 'horizontal' ? 'flex-row' : 'flex-col', className),
+        className: cx(
+          'm-0 flex list-none p-0',
+          orientation === 'horizontal' ? 'flex-row' : 'flex-col',
+          className
+        ),
         style: { ...surfaceSlots(color, 0), ...style },
         // Keyed by the step's own key, which `toArray` has given every element
         // (by position where the caller gave none), so a step added at the

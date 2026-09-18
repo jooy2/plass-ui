@@ -284,6 +284,7 @@ export const PlCheckbox = /* @__PURE__ */ React.forwardRef<HTMLElement, PlCheckb
               {description ? (
                 <Field.Description
                   className={cx(
+                    'm-0',
                     metaTextClasses[size],
                     'text-(--plass-muted-fg)',
                     classNames?.description

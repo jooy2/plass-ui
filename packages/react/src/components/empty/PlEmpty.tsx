@@ -117,11 +117,13 @@ export const PlEmpty = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlEmptyP
         ) : null}
 
         {hasContent(title) ? (
-          <p className={cx('font-semibold text-(--plass-fg)', sheetTitleClasses[size])}>{title}</p>
+          <p className={cx('m-0 font-semibold text-(--plass-fg)', sheetTitleClasses[size])}>
+            {title}
+          </p>
         ) : null}
 
         {hasContent(description) ? (
-          <p className={cx('max-w-prose text-(--plass-muted-fg)', metaTextClasses[size])}>
+          <p className={cx('m-0 max-w-prose text-(--plass-muted-fg)', metaTextClasses[size])}>
             {description}
           </p>
         ) : null}

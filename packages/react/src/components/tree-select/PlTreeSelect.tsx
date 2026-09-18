@@ -362,7 +362,7 @@ export const PlTreeSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, 
 
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
             {shown.length === 0 ? (
-              <p className={cx('px-1.5 py-1 text-(--plass-muted-fg)', metaTextClasses[size])}>
+              <p className={cx('m-0 px-1.5 py-1 text-(--plass-muted-fg)', metaTextClasses[size])}>
                 {emptyLabel}
               </p>
             ) : (
