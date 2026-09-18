@@ -317,6 +317,60 @@ describe('plass-ui/styles.css', () => {
       expect(background).not.toBe('rgba(0, 0, 0, 0)');
     });
 
+    it('recompute a family from the bases set on a `.plass-theme` element', async () => {
+      // A base colour is one end of a chain: the gradient and the tint are
+      // mixed from the solid, the ring is the accent. The mixing happens
+      // wherever the derived block last ran, which on a plain `<div>` is still
+      // the theme root above — so the control took the new bases and kept the
+      // old gradient, tint and ring. `.plass-theme` runs the block again on the
+      // element, against what was declared beside it.
+      const scoped = {
+        '--plass-primary-solid': '#c026d3',
+        '--plass-primary-solid-to': '#9333ea',
+        '--plass-primary-accent': '#a21caf'
+      } as never;
+      const screen = await render(
+        <>
+          <div className="plass-theme" style={scoped}>
+            <PlButton color="primary">Scoped</PlButton>
+          </div>
+          <div style={scoped}>
+            <PlButton color="primary">Plain</PlButton>
+          </div>
+          <PlButton color="primary">Page</PlButton>
+        </>
+      );
+      const read = (name: string) =>
+        (['Scoped', 'Plain', 'Page'] as const).map((label) =>
+          token(screen.getByRole('button', { name: label }).element(), name)
+        );
+
+      for (const name of ['--plass-primary-fill', '--plass-primary-tint', '--plass-primary-ring']) {
+        const [scopedValue, plainValue, pageValue] = read(name);
+
+        expect(scopedValue).not.toBe(pageValue);
+        // The limitation the hook exists for: without it, only the base moves.
+        expect(plainValue).toBe(pageValue);
+      }
+    });
+
+    it("leave the page's own theme alone when a family is scoped", async () => {
+      // The difference between this hook and `.dark` / `data-theme`: those
+      // force a theme on everything under them, and a family override that
+      // dragged the surface colours with it could not be used on a page that
+      // switches theme at all.
+      const screen = await render(
+        <div className="plass-theme" style={{ '--plass-primary-solid': '#c026d3' } as never}>
+          <PlButton color="primary">Save</PlButton>
+        </div>
+      );
+      const element = screen.getByRole('button').element();
+
+      expect(token(element, '--plass-surface')).toBe(
+        token(document.documentElement, '--plass-surface')
+      );
+    });
+
     it('put every portal on one stacking level a page can move', async () => {
       const screen = await render(<PlButton>Save</PlButton>);
       const element = screen.getByRole('button').element();

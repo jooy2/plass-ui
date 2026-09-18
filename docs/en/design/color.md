@@ -96,7 +96,7 @@ Each `accent` clears 4.5:1 on the page it is read against, the light wash in the
 
 ## Overriding a family
 
-Set the values on any element and everything derived from them follows, because the derived block is repeated on every theme root and `color-mix()` resolves per element.
+Set the values on a theme root — `:root`, or an element carrying `.dark`, `.light` or `data-theme` — and everything derived from them follows.
 
 ```css
 :root {
@@ -116,6 +116,22 @@ Three things to check when you do:
 1. **Both ends against your ink.** Each has to clear 4.5:1 against `--plass-primary-on-solid`. If one is under, darken that end rather than the ink.
 2. **The two ends against each other.** They should differ in _hue_, not in lightness. A second end that is merely darker turns the control back into a moulded key, which is the shape this library spent a version getting rid of.
 3. **The accent against the page**, in both themes. It is the value that has to be _read_.
+
+### Recolouring one part of a page
+
+A base colour set anywhere else changes the base and nothing else. `--plass-primary-fill`, `--plass-primary-tint` and `--plass-primary-ring` are mixed from it, and that mixing happened further up, on the theme root, where the old colour still is — so the button takes the new solid and keeps the old gradient and the old focus ring.
+
+Add `plass-theme` to the element and the whole derived block runs again on it, against the bases declared beside it.
+
+```html
+<div class="plass-theme" style="--plass-primary-solid: #7c3aed; --plass-primary-solid-to: #9333c4">
+  <!-- A primary control in here is purple, gradient, tint, hairline and ring. -->
+</div>
+```
+
+The class carries colour and nothing else. `.dark` and `data-theme` force a theme on the subtree under them; this one leaves the page's own light or dark exactly as it is, which is what lets a scoped family work in both.
+
+One thing it does not reach: a menu, a tooltip, a select's list and every other popup is rendered through a portal at the end of `<body>`, outside the element that scopes the colour, so it comes out in the page's own family. The library gives every portalled positioner the class `.plass-portal`, which is the hook to declare the same values on when a popup has to match.
 
 ## Setting a token from React
 

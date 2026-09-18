@@ -567,11 +567,21 @@
  * resolves its `var()`s on the element that declares it — declaring these only
  * on `:root` would freeze `--plass-*-tint` to the light theme's
  * `--plass-tint-strength` inside a `.dark` subtree.
+ *
+ * `.plass-theme` is the same reasoning applied to a *colour* override. Setting
+ * `--plass-primary-solid` on a `<div>` changes the base and nothing else,
+ * because every value derived from it was computed further up, where the old
+ * colour still is. The class re-runs the whole block on that element, so the
+ * gradient, the tint, the hairline and the ring follow the base that was just
+ * written beside them. It is the one hook here that does not force a theme:
+ * `--plass-tint-strength` and the rest inherit from whichever theme root is
+ * above, so a scoped family works the same in light and in dark.
  * ------------------------------------------------------------------------- */
 
 :root,
 .dark,
 .light,
+.plass-theme,
 [data-theme='dark'],
 [data-theme='light'] {
   /* The elevation ladder. Neutral, wide and faint — it climbs by *blur* far
