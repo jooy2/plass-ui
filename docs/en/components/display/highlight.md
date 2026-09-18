@@ -43,7 +43,7 @@ Every native `<span>` attribute passes straight through, onto the wrapper. `colo
 
 The text is the first positional argument and it is a `String`, not a widget. See [nested content](#nested-content) below for what that costs and why.
 
-`query` is typed `Object`, which is Dart's way of writing a union it does not have: a `String`, a `RegExp`, or a `List` of either. The constructor asserts it.
+`query` is typed `Object`, which is Dart's way of writing a union it does not have: a `String`, a `RegExp`, or a `List<String>`. The constructor asserts it.
 
 :::
 
@@ -57,7 +57,9 @@ What the shared axes (`variant` `color`) mean across the library is in [prop con
 
 A string is one term. An array is several, and the longest is tried first. Alternation in a regular expression is first-match-wins, so without that `['data', 'database']` would mark `data` and leave `base` outside the mark.
 
-A `RegExp` is used as written. `caseSensitive` and `wholeWord` are ignored for it, because a regular expression already says both of those things itself.
+Every term in an array is taken as **literal text**, so a search box can be wired straight to `query` and a reader typing `1 + 1` looks for `1 + 1` rather than for a broken expression. A pattern goes in on its own, and one expression is what an array of them would have been: `/error|\d+/` says the same thing as a list of the two, in the notation a regular expression is read in.
+
+A `RegExp` is used as written, and `caseSensitive` is ignored for it because the expression carries its own flags. `wholeWord` still applies: it is tested against the text around each match rather than built into the expression, so it holds however the match was found.
 
 <Demo src="highlight/matching" :min-height="220">
 

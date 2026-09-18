@@ -76,6 +76,46 @@ void main() {
         expect(marked(tester), <String>['1', '2', '3']);
       });
 
+      testWidgets('takes every term of a list as literal text', (WidgetTester tester) async {
+        // The reason the list is `List<String>` rather than a list of patterns:
+        // it is what a search box is wired to, and a reader typing `1 + 1` is
+        // looking for `1 + 1` rather than writing a broken expression. A
+        // pattern goes in on its own.
+        await tester.pumpWidget(
+          host(
+            const PlHighlight(r'a+b and \d and a+b', query: <String>[r'a+b', r'\d']),
+            width: 400,
+          ),
+        );
+
+        expect(marked(tester), <String>[r'a+b', r'\d', r'a+b']);
+      });
+
+      test('refuses a list with a pattern in it', () {
+        // The list is literal text, so a pattern in one has no way to mean what
+        // it looks like it means — it used to be escaped and searched for as
+        // the characters it is written with, marking nothing and saying
+        // nothing. `query` is typed `Object` because Dart has no union, so the
+        // constructor's assert is where the union is enforced.
+        expect(
+          () => PlHighlight('a1 b2', query: <RegExp>[RegExp(r'\d')]),
+          throwsA(isA<AssertionError>()),
+        );
+      });
+
+      testWidgets('tests wholeWord against a regular expression match too', (
+        WidgetTester tester,
+      ) async {
+        // `caseSensitive` is the one the expression's own flags decide.
+        // `wholeWord` is read off the text around the match, so it holds
+        // however the match was found.
+        await tester.pumpWidget(
+          host(PlHighlight('cat concatenate', query: RegExp('cat'), wholeWord: true), width: 400),
+        );
+
+        expect(marked(tester), <String>['cat']);
+      });
+
       testWidgets('leaves the text alone when there is nothing to look for', (
         WidgetTester tester,
       ) async {

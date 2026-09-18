@@ -12,9 +12,16 @@ export interface PlHighlightProps extends Omit<React.ComponentPropsWithoutRef<'s
    *
    * A string is one term, an array is several — the longest is tried first, so
    * `['data', 'database']` marks the whole word rather than the first four
-   * letters of it. A `RegExp` is used as written, with the global flag forced
-   * on; `caseSensitive` and `wholeWord` are ignored for it, because a regular
-   * expression already says both of those things itself.
+   * letters of it. Every term in an array is taken as literal text, so a search
+   * box can be wired straight to it and a reader typing `1 + 1` looks for
+   * `1 + 1`. A pattern goes in on its own: `/error|\d+/` is what an array of
+   * expressions would have been, written the way a regular expression is read.
+   *
+   * A `RegExp` is used as written, with the global flag forced on, and
+   * `caseSensitive` is ignored for one because the expression carries its own
+   * flags. `wholeWord` still applies — it is tested against the text around
+   * each match rather than built into the expression, so it holds however the
+   * match was found.
    */
   query: string | string[] | RegExp;
   /**

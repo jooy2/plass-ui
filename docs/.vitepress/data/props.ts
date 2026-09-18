@@ -6227,8 +6227,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'string | string[] | RegExp',
       required: true,
       description: {
-        ko: '찾을 것. 문자열은 한 단어, 배열은 여러 개이며 긴 것부터 시도합니다. RegExp는 쓰인 그대로 쓰이되 global 플래그가 켜지고, caseSensitive와 wholeWord는 무시됩니다',
-        en: 'What to find. A string is one term, an array several — longest first. A RegExp is used as written with the global flag forced on, and caseSensitive/wholeWord are ignored for it'
+        ko: '찾을 것. 문자열은 한 단어, 배열은 여러 개이며 긴 것부터 시도하고, 배열의 각 항목은 글자 그대로 찾습니다. RegExp는 쓰인 그대로 쓰이되 global 플래그가 켜지고 caseSensitive는 무시됩니다',
+        en: 'What to find. A string is one term, an array several — longest first, and every term in one is taken as literal text. A RegExp is used as written with the global flag forced on, and caseSensitive is ignored for it'
       }
     },
     {

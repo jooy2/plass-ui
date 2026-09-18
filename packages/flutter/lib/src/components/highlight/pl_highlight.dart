@@ -56,22 +56,28 @@ class PlHighlight extends StatelessWidget {
     this.lines,
     super.key,
   }) : assert(
-         query is Pattern || query is List<Pattern>,
-         'query must be a String, a RegExp, or a List of either',
+         query is String || query is RegExp || query is List<String>,
+         'query must be a String, a RegExp, or a List of String',
        );
 
   /// The text to search.
   final String text;
 
-  /// What to find: a [String], a [RegExp], or a [List] of either.
+  /// What to find: a [String], a [RegExp], or a [List] of [String].
   ///
   /// Several terms are tried longest first, so `['data', 'database']` marks the
   /// whole word rather than the first four letters of it — alternation is
   /// first-match-wins, and without the sort `base` would fall outside the mark.
   ///
-  /// A [RegExp] is used as written; [caseSensitive] and [wholeWord] are ignored
-  /// for one, because a regular expression already says both of those things
-  /// itself.
+  /// Every term in a list is taken as literal text, so a search box can be
+  /// wired straight to it and a reader typing `1 + 1` looks for `1 + 1`. A
+  /// pattern goes in on its own: `RegExp(r'error|\d+')` is what a list of
+  /// expressions would have been, written the way a regular expression is read.
+  ///
+  /// A [RegExp] is used as written and [caseSensitive] is ignored for one,
+  /// because the expression carries its own flags. [wholeWord] still applies —
+  /// it is tested against the text around each match rather than built into the
+  /// expression, so it holds however the match was found.
   ///
   /// Typed as [Object] rather than as a union, which Dart does not have. The
   /// assert in the constructor is the union.
@@ -173,8 +179,7 @@ class PlHighlight extends StatelessWidget {
     }
 
     final terms = <String>[
-      for (final term in raw is List<Pattern> ? raw : <Object>[raw])
-        if (term is RegExp) term.pattern else (term as String).trim(),
+      for (final term in raw is List<String> ? raw : <Object>[raw]) (term as String).trim(),
     ]..removeWhere((String term) => term.isEmpty);
 
     if (terms.isEmpty) {

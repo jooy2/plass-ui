@@ -3367,8 +3367,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'Object',
       required: true,
       description: {
-        ko: '찾을 것: String, RegExp, 또는 둘 중 하나의 List. Dart에 union이 없어 Object이고, 생성자가 단언합니다. 여러 개면 긴 것부터 시도합니다',
-        en: 'What to find: a String, a RegExp, or a List of either. Object because Dart has no union; the constructor asserts it. Several terms are tried longest first'
+        ko: '찾을 것: String, RegExp, 또는 String의 List. Dart에 union이 없어 Object이고, 생성자가 단언합니다. 여러 개면 긴 것부터 시도하고, List의 각 항목은 글자 그대로 찾습니다',
+        en: 'What to find: a String, a RegExp, or a List of String. Object because Dart has no union; the constructor asserts it. Several terms are tried longest first, and every term in a list is taken as literal text'
       }
     }),
     from('PlHighlight', 'variant', { type: VARIANT, default: 'PlassVariant.solid' }),

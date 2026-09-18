@@ -2,6 +2,10 @@
 
 ## vNext (2026--)
 
+### Breaking changes
+
+- **`PlHighlight`'s `query` takes a `List<String>` rather than a list of patterns.** A `RegExp` inside a list was escaped and searched for as the characters it is written with, so `query: [RegExp(r'\d+')]` looked for the literal text `\d+` and marked nothing. A list is literal text now and says so: it is what a search box is wired to, and a reader typing `1 + 1` is looking for `1 + 1`. Pass a pattern on its own instead, which is what such a list would have been anyway — `RegExp(r'error|\d+')` says what `['error', RegExp(r'\d+')]` was reaching for. The React `query` has always been `string | string[] | RegExp`, and the two now take the same shape.
+
 ### Added
 
 - **A page can make the library's glass read the backdrop once, with a `BackdropGroup`.** Each sheet ran its own σ22 read of what was behind it, so a list of sixty cards paid for sixty. Every sheet now asks the nearest `BackdropGroup` for a backdrop key, and Flutter shares one read between the filters that carry it — wrap the list and the reads collapse into one. Nothing changes for a page that adds no group, because a sheet with none above it takes the same null key it had. Where the group goes is the app's to say, since two sheets that overlap must not share one; a modal's barrier and a tour's dimming cover the screen, so the library keeps those two out of every group itself.

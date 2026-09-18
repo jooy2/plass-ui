@@ -43,7 +43,7 @@ PlHighlight(result.summary, query: search);
 
 텍스트는 첫 번째 위치 인자이고 위젯이 아니라 `String`입니다. 그 대가와 이유는 아래 [중첩된 내용](#중첩된-내용)에 있습니다.
 
-`query`의 타입은 `Object`인데, Dart에 없는 union을 쓰는 방법입니다. `String`, `RegExp`, 또는 둘 중 하나의 `List`이고, 생성자가 그것을 단언합니다.
+`query`의 타입은 `Object`인데, Dart에 없는 union을 쓰는 방법입니다. `String`, `RegExp`, 또는 `List<String>`이고, 생성자가 그것을 단언합니다.
 
 :::
 
@@ -57,7 +57,9 @@ PlHighlight(result.summary, query: search);
 
 문자열은 한 단어입니다. 배열은 여러 개이고 긴 것부터 시도합니다. 정규식의 교대(alternation)는 먼저 맞는 쪽이 이기므로, 그러지 않으면 `['data', 'database']`는 `data`만 표시하고 `base`를 표시 바깥에 남깁니다.
 
-`RegExp`는 쓰인 그대로 쓰입니다. `caseSensitive`와 `wholeWord`는 무시되는데, 정규식은 이미 그 둘을 스스로 나타내고 있기 때문입니다.
+배열의 각 항목은 **글자 그대로** 찾습니다. 그래서 검색창을 `query`에 그대로 물려도 되고, `1 + 1`을 친 사람은 깨진 정규식이 아니라 `1 + 1`을 찾게 됩니다. 패턴은 하나로 넘깁니다. 정규식 하나가 곧 그 목록입니다. `/error|\d+/`는 둘을 나열한 것과 같은 말을 정규식의 표기로 적은 것입니다.
+
+`RegExp`는 쓰인 그대로 쓰이고, `caseSensitive`는 무시됩니다. 정규식이 자기 플래그를 들고 있기 때문입니다. `wholeWord`는 그대로 적용됩니다. 정규식 안에 넣는 대신 매치 양옆의 글자를 보고 판단하므로, 어떻게 찾아낸 매치든 똑같이 걸립니다.
 
 <Demo src="highlight/matching" :min-height="220">
 
