@@ -4,7 +4,7 @@ The findings of a full audit of both packages, the documentation site and the re
 
 Numbers 39 and 180 are missing on purpose. They were two security findings whose details were kept out of this public file, in a local note that is no longer on the machine, and the Prompter dropped them rather than reconstructing them. Nothing else is renumbered.
 
-**336 of 370 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
+**337 of 370 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ## Working through a batch
 
@@ -91,9 +91,9 @@ Asked at the end of batches 7 to 15. Each question says what the problem is and 
 1. **Left open by item 32: a glass sheet inside another one.** Every sheet now takes its backdrop key from the nearest `BackdropGroup`, and the design language page says to put the group around the outer sheets rather than around a tree that nests glass in glass, because a field on a card would otherwise share the card's key and blur the page behind the card instead of the card. The library could take that case off the app.
    - A. Have each glass sheet open a fresh `BackdropGroup` for its own children: nesting is right whatever the app wraps, and `BackdropGroup` mints a new `BackdropKey` on every build unless it is given one, so each sheet has to hold a stable key — which makes `PlassSurfaceBox` stateful.
    - B. Keep the note on the page: no code change, and an app that wraps a nesting tree gets the inner sheet wrong.
-1. **Item 52, a React chart's description.** Every focus reads the whole data table as the description, hundreds of values, and the arrow-key hint comes last; the table is also in the reading order, so it is heard twice.
-   - A. Describe the chart with a short summary, such as the series, the range and the extremes, and keep the table as a sibling: a short announcement on focus, the values one step away, and the summary needs new label pack strings.
-   - B. Keep it: every value on every focus.
+1. **Left open by item 52: the Flutter heatmap reads every cell.** The React heatmap's summary is now one line per row, the span that row's cells cover, with the cells themselves in the table beside it. The Flutter heatmap puts every cell into `Semantics.value` on purpose, because there is no table to send a reader to, so a 7 by 24 grid is a hundred and sixty-eight numbers read out before anything else.
+   - A. Give the Flutter heatmap the same per-row summary and reach the cells another way, which is what item 59 is about for the other charts: the two builds say the same thing, and the cells need a path of their own first.
+   - B. Keep it: the text is the only way to the numbers in that build, and cutting it down would take them away.
 1. **Item 59, Flutter line, bar and area charts.** A screen reader and the keyboard reach only each series' last value; scatter and heatmap already carry every value.
    - A. A focus node that walks the columns with the arrow keys: the same model as React, and the largest piece of work.
    - B. One semantics node per column: every value reachable by swiping, no keyboard movement, and many nodes for long series.
@@ -366,7 +366,7 @@ None. Every flagged item passed over so far is asked above.
 - [x] **49.** Flutter tooltip `mode: item` is ignored, and pie also ignores `none` (Bug · Flutter · Low)
 - [x] **50.** On an axis with one end fixed, the axis opens past the fixed value when every value equals it (Bug · React · Medium)
 - [x] **51.** The SSR output of pie and gauge shows the empty-state text instead of the data (Bug · React · Medium)
-- [ ] **52.** `aria-describedby` uses the whole data table as the description, so every value is read on each focus (Accessibility · React · Medium)
+- [x] **52.** `aria-describedby` uses the whole data table as the description, so every value is read on each focus (Accessibility · React · Medium)
   - Location: `internal/chart-frame.tsx:1470`(same structure in pie and heatmap)
   - Problem: NVDA and JAWS read hundreds of values on every focus, and the arrow key instructions are pushed to the end. The same table is also in the reading order, so it is heard twice.
   - Proposal: Point `aria-describedby` at a short summary, and keep the table only as a sibling element.
