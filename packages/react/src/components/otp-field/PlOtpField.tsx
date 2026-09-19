@@ -298,7 +298,7 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
           <Field.Label
             className={cx(
               metaTextClasses[size],
-              'font-medium',
+              'font-semibold',
               disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)',
               classNames?.label
             )}

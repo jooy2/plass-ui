@@ -320,8 +320,8 @@ export function PlNumberField({
     <Field.Label
       className={cx(
         metaTextClasses[size],
-        'font-medium text-(--plass-fg)',
-        disabled ? 'opacity-50' : '',
+        'font-semibold',
+        disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)',
         classNames?.label
       )}
     >
