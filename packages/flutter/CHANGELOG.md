@@ -4,6 +4,8 @@
 
 ## vNext (2026--)
 
+## 1.5.0 (2026-09-19)
+
 ### Breaking changes
 
 - **`PlHighlight`'s `query` takes a `List<String>` rather than a list of patterns.** A `RegExp` inside a list was escaped and searched for as the characters it is written with, so `query: [RegExp(r'\d+')]` looked for the literal text `\d+` and marked nothing. A list is literal text now and says so: it is what a search box is wired to, and a reader typing `1 + 1` is looking for `1 + 1`. Pass a pattern on its own instead, which is what such a list would have been anyway — `RegExp(r'error|\d+')` says what `['error', RegExp(r'\d+')]` was reaching for. The React `query` has always been `string | string[] | RegExp`, and the two now take the same shape.

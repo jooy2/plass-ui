@@ -4,6 +4,8 @@
 
 ## vNext (2026--)
 
+## 1.6.0 (2026-09-19)
+
 ### Breaking changes
 
 - **`plass-ui/styles.css` leaves the page around the components alone.** The reset inside it took the bullets off every `<ul>`, flattened every `<h1>`–`<h6>` to body text, closed up the margins of `<p>`, `<blockquote>`, `<figure>` and `<pre>`, and zeroed every element's border, which reached the rest of the page as readily as the components — a list in an app's own body text lost its markers, and `<hr>` lost its line. Those rules are gone. The components now carry `m-0 list-none p-0` where they render a list and `m-0` where they render a heading or a paragraph, and the only border the file still zeroes is the one a browser draws on a form control. An app that was using the stylesheet as its page reset gets the browser's defaults back for its own prose and has to write them itself, or import Tailwind's Preflight. In the other direction, a page's own `p { margin: 1rem }` no longer reaches inside a component, because a utility outranks a type selector where the old `:where()` rule lost to it. `plass-ui/tailwind.css` never carried the reset and is unchanged.
