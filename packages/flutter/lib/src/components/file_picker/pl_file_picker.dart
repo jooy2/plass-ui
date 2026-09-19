@@ -10,6 +10,7 @@ import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
+import 'package:plass_ui/src/internal/notch.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -195,6 +196,7 @@ class PlFilePicker extends StatefulWidget {
     this.maxFiles,
     this.dragging = false,
     this.label,
+    this.labelPlacement,
     this.description,
     this.error,
     this.invalid,
@@ -259,8 +261,13 @@ class PlFilePicker extends StatefulWidget {
   /// the app's.
   final bool dragging;
 
-  /// Label above the box.
+  /// The name of what the box collects.
   final Widget? label;
+
+  /// Where the [label] goes — above the box, or in its top edge.
+  ///
+  /// Falls back to the nearest [PlassTheme], then to [PlassFieldLabelPlacement.top].
+  final PlassFieldLabelPlacement? labelPlacement;
 
   /// Helper text below it.
   final Widget? description;
@@ -327,6 +334,9 @@ class PlFilePicker extends StatefulWidget {
 class _PlFilePickerState extends State<PlFilePicker> {
   PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
   PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+  PlassFieldLabelPlacement get _labelPlacement =>
+      widget.labelPlacement ?? PlassTheme.labelPlacementOf(context) ?? PlassFieldLabelPlacement.top;
+
   PlassDensity get _density =>
       widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
 
@@ -395,6 +405,22 @@ class _PlFilePickerState extends State<PlFilePicker> {
     final size = _size;
     final meta = metaText[size]!;
     final radius = BorderRadius.circular(PlassTokens.radius[size]!);
+    // A notch with nothing in it is a gap in the edge for no reason, so the
+    // placement only takes effect where there is a label to put there.
+    final notched = _labelPlacement == PlassFieldLabelPlacement.notch && widget.label != null;
+
+    // One widget for both placements, so the label a reader taps and the label
+    // a screen reader reads are the same widget wherever it is drawn.
+    final Widget? labelNode = widget.label == null
+        ? null
+        : DefaultTextStyle.merge(
+            style: TextStyle(
+              color: widget.disabled ? tokens.mutedFg : tokens.fg,
+              fontSize: meta,
+              fontWeight: FontWeight.w600,
+            ),
+            child: widget.label!,
+          );
 
     Widget zone = PlassInteractive(
       onTap: _usable ? _browse : null,
@@ -482,17 +508,20 @@ class _PlFilePickerState extends State<PlFilePicker> {
         // solid, and it is not decoration: a dashed rectangle is the established
         // sign for "this area takes a drop", and a dropzone that looks like a
         // card is a card nobody tries to drop on.
-        box = CustomPaint(
-          foregroundPainter: _DashedEdge(
-            color: lit
-                ? family.ring
-                : warm
-                ? family.lineHover
-                : tokens.border,
-            radius: radius,
-          ),
-          child: box,
-        );
+        final Color edge = lit
+            ? family.ring
+            : warm
+            ? family.lineHover
+            : state.focusVisible
+            ? family.ring
+            : tokens.border;
+
+        if (!notched) {
+          box = CustomPaint(
+            foregroundPainter: _DashedEdge(color: edge, radius: radius),
+            child: box,
+          );
+        }
 
         box = plassStateFilter(
           child: box,
@@ -501,7 +530,29 @@ class _PlFilePickerState extends State<PlFilePicker> {
           lit: false,
         );
 
-        if (state.focusVisible) {
+        if (notched) {
+          // The same dashed line, with the label's segment clipped out of it —
+          // and no ring, because an outline is a rectangle and the label is
+          // sitting on the edge it would be drawn along.
+          box = PlassFieldNotch(
+            size: size,
+            density: _density,
+            disabled: widget.disabled,
+            edge: _DashedEdge(
+              // Focus takes the line rather than a ring around it, and the
+              // dimming a disabled box gets from the filter has to be said
+              // here: this is painted outside it.
+              color: widget.disabled
+                  ? edge.withValues(alpha: edge.a * disabledOpacity)
+                  : state.focusVisible
+                  ? family.ring
+                  : edge,
+              radius: radius,
+            ),
+            label: labelNode!,
+            child: box,
+          );
+        } else if (state.focusVisible) {
           box = CustomPaint(
             foregroundPainter: PlassFocusRingPainter(color: family.ring, borderRadius: radius),
             child: box,
@@ -516,22 +567,12 @@ class _PlFilePickerState extends State<PlFilePicker> {
       zone = SizedBox(width: double.infinity, child: zone);
     }
 
-    if (widget.label != null) {
+    if (labelNode != null && !notched) {
       zone = Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         spacing: stackGap[size]!,
-        children: <Widget>[
-          DefaultTextStyle.merge(
-            style: TextStyle(
-              color: widget.disabled ? tokens.mutedFg : tokens.fg,
-              fontSize: meta,
-              fontWeight: FontWeight.w600,
-            ),
-            child: widget.label!,
-          ),
-          zone,
-        ],
+        children: <Widget>[labelNode, zone],
       );
     }
 

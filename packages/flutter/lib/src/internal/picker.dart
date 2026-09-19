@@ -26,6 +26,7 @@ import 'package:plass_ui/src/internal/dismiss.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
+import 'package:plass_ui/src/internal/notch.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/internal/target.dart';
@@ -89,6 +90,7 @@ class PlassPickerShell extends StatefulWidget {
     this.density = PlassDensity.standard,
     this.elevation = 0,
     this.label,
+    this.labelPlacement,
     this.description,
     this.error,
     this.invalid,
@@ -157,8 +159,15 @@ class PlassPickerShell extends StatefulWidget {
   /// the ladder.
   final PlassElevation elevation;
 
-  /// Label above the trigger.
+  /// The name of what the control holds.
   final Widget? label;
+
+  /// Where the [label] goes — above the trigger, or in its top edge.
+  ///
+  /// Resolved here rather than in each of the six pickers that draw this shell:
+  /// they all hand their parameters straight through, and one resolution cannot
+  /// disagree with itself the way six can.
+  final PlassFieldLabelPlacement? labelPlacement;
 
   /// Helper text below it.
   final Widget? description;
@@ -221,6 +230,30 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
     final scale = controlTextLeading[size]!;
     final meta = metaText[size]!;
     final radius = BorderRadius.circular(PlassTokens.radius[size]!);
+    final placement =
+        widget.labelPlacement ??
+        PlassTheme.labelPlacementOf(context) ??
+        PlassFieldLabelPlacement.top;
+    // A notch with nothing in it is a gap in the edge for no reason, so the
+    // placement only takes effect where there is a label to put there.
+    final notched = placement == PlassFieldLabelPlacement.notch && widget.label != null;
+
+    // One widget for both placements, so the label a reader taps and the label
+    // a screen reader reads are the same widget wherever it is drawn — the
+    // exclusion included, or the notch would name the trigger a second time.
+    final Widget? labelNode = widget.label == null
+        ? null
+        : ExcludeSemantics(
+            excluding: widget.semanticLabel == null && plassTextOf(widget.label) != null,
+            child: DefaultTextStyle.merge(
+              style: TextStyle(
+                color: widget.disabled ? tokens.mutedFg : tokens.fg,
+                fontSize: meta,
+                fontWeight: FontWeight.w600,
+              ),
+              child: widget.label!,
+            ),
+          );
 
     final trigger = PlassInteractive(
       onTap: () => widget.onOpenChanged(!widget.open),
@@ -253,7 +286,9 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
         Widget shell = ConstrainedBox(
           constraints: BoxConstraints(minHeight: controlHeight[size]!),
           child: PlassSurfaceBox(
-            surface: surface,
+            // A notched trigger hands its edge over: the line round it has a
+            // gap in it, and a gap is not something a border can have.
+            surface: notched ? surface.withoutBorder() : surface,
             borderRadius: radius,
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: paddingX[widget.density]![size]!),
@@ -302,16 +337,38 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
           lit: false,
         );
 
-        // Always there, with only the painter coming and going. A ring wrapped
-        // round the shell when it is needed would move the shell to a new
-        // parent as the focus steps on to the ×, and the × built again from
-        // scratch would lose the focus it had just been given.
-        shell = CustomPaint(
-          foregroundPainter: focusVisible
-              ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
-              : null,
-          child: shell,
-        );
+        if (notched) {
+          // No ring here: an outline is a rectangle and the label is sitting on
+          // the edge it would be drawn along, so the edge itself thickens.
+          shell = PlassFieldNotch(
+            size: size,
+            density: widget.density,
+            disabled: widget.disabled,
+            edge: notchEdgePainter(
+              tokens,
+              family,
+              variant: widget.variant,
+              borderRadius: radius,
+              hovered: state.hovered,
+              focused: focusVisible || widget.open,
+              readOnly: widget.readOnly,
+              disabled: widget.disabled,
+            ),
+            label: labelNode!,
+            child: shell,
+          );
+        } else {
+          // Always there, with only the painter coming and going. A ring wrapped
+          // round the shell when it is needed would move the shell to a new
+          // parent as the focus steps on to the ×, and the × built again from
+          // scratch would lose the focus it had just been given.
+          shell = CustomPaint(
+            foregroundPainter: focusVisible
+                ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
+                : null,
+            child: shell,
+          );
+        }
 
         return Semantics(
           container: true,
@@ -353,20 +410,9 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
       mainAxisSize: MainAxisSize.min,
       spacing: stackGap[size]!,
       children: <Widget>[
-        if (widget.label != null)
-          // Left out of the tree when its words already name the trigger, so the
-          // label is not read once on its own and again as the trigger.
-          ExcludeSemantics(
-            excluding: widget.semanticLabel == null && plassTextOf(widget.label) != null,
-            child: DefaultTextStyle.merge(
-              style: TextStyle(
-                color: widget.disabled ? tokens.mutedFg : tokens.fg,
-                fontSize: meta,
-                fontWeight: FontWeight.w600,
-              ),
-              child: widget.label!,
-            ),
-          ),
+        // Left out of the tree when its words already name the trigger, so the
+        // label is not read once on its own and again as the trigger.
+        if (labelNode != null && !notched) labelNode,
         field,
         if (widget.description != null)
           DefaultTextStyle.merge(

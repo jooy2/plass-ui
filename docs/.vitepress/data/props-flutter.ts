@@ -1258,6 +1258,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlColorPicker', 'inline', { type: 'bool', default: 'false' }),
     from('PlColorPicker', 'editable', { type: 'bool', default: 'true' }),
     from('PlColorPicker', 'label', { type: 'Widget?' }),
+    from('PlColorPicker', 'labelPlacement', {
+      type: 'PlassFieldLabelPlacement?',
+      default: 'PlassFieldLabelPlacement.top'
+    }),
     from('PlColorPicker', 'description', { type: 'Widget?' }),
     from('PlColorPicker', 'error', { type: 'Widget?' }),
     from('PlColorPicker', 'invalid', { type: 'bool?' }),
@@ -1340,6 +1344,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlCombobox', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlCombobox', 'elevation', { type: 'int', default: '0' }),
     from('PlCombobox', 'label', { type: 'Widget?' }),
+    from('PlCombobox', 'labelPlacement', {
+      type: 'PlassFieldLabelPlacement?',
+      default: 'PlassFieldLabelPlacement.top'
+    }),
     from('PlCombobox', 'description', { type: 'Widget?' }),
     from('PlCombobox', 'error', { type: 'Widget?' }),
     from('PlCombobox', 'invalid', { type: 'bool?' }),
@@ -1983,6 +1991,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
           : row
     ),
     from('PlTreeSelect', 'label', { type: 'Widget?' }),
+    from('PlTreeSelect', 'labelPlacement', {
+      type: 'PlassFieldLabelPlacement?',
+      default: 'PlassFieldLabelPlacement.top'
+    }),
     from('PlTreeSelect', 'description', { type: 'Widget?' }),
     from('PlTreeSelect', 'error', { type: 'Widget?' }),
     from('PlTreeSelect', 'invalid', { type: 'bool?' }),
@@ -2622,6 +2634,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlDatePicker', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlDatePicker', 'elevation', { type: 'int', default: '0' }),
     from('PlDatePicker', 'label', { type: 'Widget?' }),
+    from('PlDatePicker', 'labelPlacement', {
+      type: 'PlassFieldLabelPlacement?',
+      default: 'PlassFieldLabelPlacement.top'
+    }),
     from('PlDatePicker', 'description', { type: 'Widget?' }),
     from('PlDatePicker', 'error', { type: 'Widget?' }),
     from('PlDatePicker', 'invalid', { type: 'bool?' }),
@@ -2775,6 +2791,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlDateRangePicker', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlDateRangePicker', 'elevation', { type: 'int', default: '0' }),
     from('PlDateRangePicker', 'label', { type: 'Widget?' }),
+    from('PlDateRangePicker', 'labelPlacement', {
+      type: 'PlassFieldLabelPlacement?',
+      default: 'PlassFieldLabelPlacement.top'
+    }),
     from('PlDateRangePicker', 'description', { type: 'Widget?' }),
     from('PlDateRangePicker', 'error', { type: 'Widget?' }),
     from('PlDateRangePicker', 'invalid', { type: 'bool?' }),
@@ -2852,6 +2872,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlDateTimePicker', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlDateTimePicker', 'elevation', { type: 'int', default: '0' }),
     from('PlDateTimePicker', 'label', { type: 'Widget?' }),
+    from('PlDateTimePicker', 'labelPlacement', {
+      type: 'PlassFieldLabelPlacement?',
+      default: 'PlassFieldLabelPlacement.top'
+    }),
     from('PlDateTimePicker', 'description', { type: 'Widget?' }),
     from('PlDateTimePicker', 'error', { type: 'Widget?' }),
     from('PlDateTimePicker', 'invalid', { type: 'bool?' }),
@@ -2956,6 +2980,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlFilePicker', 'label · description · error · invalid', {
       name: 'label · description · error · invalid',
       type: 'Widget? · Widget? · Widget? · bool?'
+    }),
+    from('PlFilePicker', 'labelPlacement', {
+      type: 'PlassFieldLabelPlacement?',
+      default: 'PlassFieldLabelPlacement.top'
     }),
     from('PlFilePicker', 'title', { type: 'Widget?', default: "Text('Choose files')" }),
     from('PlFilePicker', 'hint', { type: 'Widget?' }),
@@ -3964,6 +3992,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'Label above the control. There is no floating variant on purpose: a floating label is text that moves'
       }
     }),
+    from('PlNumberField', 'labelPlacement', {
+      type: 'PlassFieldLabelPlacement?',
+      default: 'PlassFieldLabelPlacement.top'
+    }),
     from('PlNumberField', 'description', { type: 'Widget?' }),
     from('PlNumberField', 'error', { type: 'Widget?' }),
     from('PlNumberField', 'invalid', { type: 'bool?' }),
@@ -4455,6 +4487,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlSelect', 'label', { type: 'Widget?' }),
+    from('PlSelect', 'labelPlacement', {
+      type: 'PlassFieldLabelPlacement?',
+      default: 'PlassFieldLabelPlacement.top'
+    }),
     from('PlSelect', 'description', { type: 'Widget?' }),
     from('PlSelect', 'error', { type: 'Widget?' }),
     from('PlSelect', 'invalid', { type: 'bool?' }),
@@ -5371,6 +5407,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlTextField', 'multiline', { type: 'bool', default: 'false' }),
     from('PlTextField', 'rows', { type: 'int', default: '3' }),
     from('PlTextField', 'label', { type: 'Widget?' }),
+    from('PlTextField', 'labelPlacement', {
+      type: 'PlassFieldLabelPlacement?',
+      default: 'PlassFieldLabelPlacement.top'
+    }),
     from('PlTextField', 'description', { type: 'Widget?' }),
     from('PlTextField', 'error', { type: 'Widget?' }),
     from('PlTextField', 'invalid', { type: 'bool?' }),
@@ -5534,6 +5574,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlTimePicker', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlTimePicker', 'elevation', { type: 'int', default: '0' }),
     from('PlTimePicker', 'label', { type: 'Widget?' }),
+    from('PlTimePicker', 'labelPlacement', {
+      type: 'PlassFieldLabelPlacement?',
+      default: 'PlassFieldLabelPlacement.top'
+    }),
     from('PlTimePicker', 'description', { type: 'Widget?' }),
     from('PlTimePicker', 'error', { type: 'Widget?' }),
     from('PlTimePicker', 'invalid', { type: 'bool?' }),

@@ -5,7 +5,7 @@ order: 2
 
 # Setting defaults
 
-<p class="plass-lede">A <code>PlassProvider</code> decides <code>size</code>, <code>color</code>, <code>density</code> and the date vocabulary for everything under it. It is optional, the library is finished without one, and what it removes is transcription.</p>
+<p class="plass-lede">A <code>PlassProvider</code> decides <code>size</code>, <code>color</code>, <code>density</code>, <code>labelPlacement</code> and the date vocabulary for everything under it. It is optional, the library is finished without one, and what it removes is transcription.</p>
 
 <Demo src="provider/defaults" :min-height="320" />
 
@@ -42,14 +42,15 @@ PlassTheme.merge(
 
 ## The settings
 
-|                |                                                                             |
-| -------------- | --------------------------------------------------------------------------- |
-| `size`         | The rung of the size ladder every component starts from                     |
-| `color`        | The semantic family they start from                                         |
-| `density`      | How tightly they pack their content                                         |
-| `locale`       | The BCP 47 tag the date, time and number components format and read against |
-| `weekStartsOn` | Which day their weeks start on, as `Date` counts them. Sunday is `0`        |
-| `labels`       | The words the components say that `Intl` has no opinion about               |
+|                  |                                                                             |
+| ---------------- | --------------------------------------------------------------------------- |
+| `size`           | The rung of the size ladder every component starts from                     |
+| `color`          | The semantic family they start from                                         |
+| `density`        | How tightly they pack their content                                         |
+| `labelPlacement` | Where a field puts its label: above the box, or in its top edge             |
+| `locale`         | The BCP 47 tag the date, time and number components format and read against |
+| `weekStartsOn`   | Which day their weeks start on, as `Date` counts them. Sunday is `0`        |
+| `labels`         | The words the components say that `Intl` has no opinion about               |
 
 ::: fw react
 
@@ -152,6 +153,8 @@ final size = defaults.size;
 For a component of your own that has to line up with the ones around it. Every field is optional. Nothing is decided until a provider decides it.
 
 ## Notes
+
+- **`labelPlacement` reaches every labelled field but one.** A `PlOtpField` is a row of separate boxes with gaps between them, and a notch is a segment taken out of one continuous edge — there is nothing there to cut. Its label stays above the row whatever the provider says, and the component takes no `labelPlacement` of its own rather than accepting a value it would have to ignore.
 
 ::: fw flutter
 

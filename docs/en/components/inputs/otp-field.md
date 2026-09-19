@@ -105,6 +105,8 @@ What may be typed. Anything rejected is dropped rather than shown, and `onValueI
 
 The same field shell as `PlTextField` and `PlSelect`, because a slot is a field-shaped box and a form holding both should not look like two form kits stacked on each other. `solid` is the **well**, the glass at its most opaque with a shadow falling into it, and not a tinted pane, for the reason it is on a text field: a caret and a selection have to stay legible on top of it.
 
+The one place it parts company with those two is the label. There is no `labelPlacement` here and no notch: a notch is a segment taken out of one continuous edge, and this is a row of separate boxes with gaps between them. Cutting only the first box leaves the word lying across the two after it. The label stays above the row, including under a `PlassProvider` that notches every other field.
+
 <Demo src="otp-field/variants" :min-height="280">
 
 ::: fw react

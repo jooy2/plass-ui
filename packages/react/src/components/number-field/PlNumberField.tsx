@@ -7,6 +7,7 @@ import { NumberField as BaseUINumberField } from '@base-ui/react/number-field';
 import { Field } from '@base-ui/react/field';
 import { MinusIcon, PlusIcon } from '../../internal/icons.js';
 import { hotKeyHandler } from '../../internal/keys.js';
+import { FieldNotch, notchShellStyle } from '../../internal/notch.js';
 import {
   controlHeightClasses,
   controlTextLeadingClasses,
@@ -31,6 +32,7 @@ import type {
   PlassElevation,
   PlassFieldClassNames,
   PlassHotKeys,
+  PlassFieldLabelPlacement,
   PlassStyleProps
 } from '../../types.js';
 
@@ -136,10 +138,18 @@ export interface PlNumberFieldProps
    */
   decrementLabel?: string;
   /**
-   * Label above the control, wired to it by Base UI's Field. There is no
-   * floating variant on purpose: floating labels need a `transform`.
+   * The name of what the field holds, wired to the control by Base UI's Field.
+   * `labelPlacement` decides whether it sits above the box or in its top edge.
+   * There is still no floating variant on purpose: a floating label needs a
+   * `transform` on the thing being typed into, and the notch does not move.
    */
   label?: React.ReactNode;
+  /**
+   * Where the `label` goes — above the control, or in its top edge.
+   * Falls back to the nearest `PlassProvider`, then to `top`.
+   * @default 'top'
+   */
+  labelPlacement?: PlassFieldLabelPlacement;
   /** Helper text below the control. */
   description?: React.ReactNode;
   /** Error message below the control. Its presence also turns the field invalid. */
@@ -171,9 +181,16 @@ const shellBaseClasses = /* @__PURE__ */ [
   '[-webkit-tap-highlight-color:transparent]',
   transitionClasses,
   'focus-within:[transition-duration:0ms]',
-  focusWithinRingClasses,
   iconClasses
 ].join(' ');
+
+/**
+ * The ring, added at the call site rather than above: a notched field does not
+ * have one. An outline is a rectangle and the label is sitting on the edge it
+ * would be drawn along, so there the edge itself thickens instead. See
+ * `internal/notch`.
+ */
+const shellRingClasses = focusWithinRingClasses;
 
 /**
  * A stepper. Square, tracking the text rather than the control, so the same
@@ -235,6 +252,7 @@ export function PlNumberField({
   incrementLabel: incrementLabelProp,
   decrementLabel: decrementLabelProp,
   label,
+  labelPlacement: labelPlacementProp,
   description,
   error,
   invalid,
@@ -261,6 +279,10 @@ export function PlNumberField({
   const size = sizeProp ?? defaults.size ?? 'md';
   const color = colorProp ?? defaults.color ?? 'primary';
   const density = densityProp ?? defaults.density ?? 'default';
+  const labelPlacement = labelPlacementProp ?? defaults.labelPlacement ?? 'top';
+  // A notch with nothing in it is a gap in the edge for no reason, so the
+  // placement only takes effect where there is a label to put there.
+  const notched = labelPlacement === 'notch' && hasContent(label);
 
   const hasError = hasContent(error);
   const isInvalid = invalid ?? hasError;
@@ -292,6 +314,21 @@ export function PlNumberField({
 
   const showSteppers = steppers !== 'none' && !readOnly;
 
+  // One element for both placements, so the label a reader clicks and the label
+  // a screen reader reads are the same element wherever it is drawn.
+  const labelNode = (
+    <Field.Label
+      className={cx(
+        metaTextClasses[size],
+        'font-medium text-(--plass-fg)',
+        disabled ? 'opacity-50' : '',
+        classNames?.label
+      )}
+    >
+      {label}
+    </Field.Label>
+  );
+
   return (
     <Field.Root
       disabled={disabled}
@@ -307,18 +344,7 @@ export function PlNumberField({
       style={{ ...surfaceSlots(family, elevation), ...style }}
       {...props}
     >
-      {label ? (
-        <Field.Label
-          className={cx(
-            metaTextClasses[size],
-            'font-medium text-(--plass-fg)',
-            disabled ? 'opacity-50' : '',
-            classNames?.label
-          )}
-        >
-          {label}
-        </Field.Label>
-      ) : null}
+      {hasContent(label) && !notched ? labelNode : null}
 
       {/* `contents` so the Group below is a direct child of the Field's column —
           the Root is a grouping element, not a box in the layout. */}
@@ -343,70 +369,82 @@ export function PlNumberField({
         readOnly={readOnly}
         required={required}
       >
-        <BaseUINumberField.Group
-          className={[
-            shellBaseClasses,
-            controlHeightClasses[size],
-            controlTextLeadingClasses[size],
-            radiusClasses[size],
-            gapClasses[size],
-            showSteppers ? insetClasses[steppers] : padX,
-            // An if/else rather than stacked variants: two Tailwind classes of
-            // equal specificity resolve by their order in the generated sheet.
-            disabled
-              ? disabledClasses[variant]
-              : readOnly
-                ? fieldReadOnlyClasses[variant]
-                : fieldRestClasses[variant],
-            classNames?.control
-          ]
-            .filter(Boolean)
-            .join(' ')}
+        <FieldNotch
+          notched={notched}
+          size={size}
+          density={density}
+          variant={variant}
+          disabled={disabled}
+          readOnly={readOnly}
+          label={labelNode}
         >
-          {showSteppers && steppers === 'split' ? decrement : null}
-
-          {startIcon ? (
-            <span className="flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)">
-              {startIcon}
-            </span>
-          ) : null}
-
-          <BaseUINumberField.Input
-            placeholder={placeholder}
-            // On the input rather than on the stack `...props` lands on: a chord
-            // is answered by the thing that has the focus.
-            onKeyDown={hotKeyHandler(hotKeys, undefined)}
+          <BaseUINumberField.Group
+            style={notched ? notchShellStyle : undefined}
             className={[
-              'min-w-0 flex-1 self-stretch bg-transparent [font:inherit] text-inherit',
-              // Not `outline-none`: that utility zeroes `--tw-outline-style`, and
-              // the shell's focus ring is drawn from the same family.
-              '[outline:none]',
-              'tabular-nums',
-              // Split steppers put the number between the two buttons, so it
-              // belongs in the middle rather than against an edge.
-              steppers === 'split' && showSteppers ? 'text-center' : '',
-              'placeholder:text-(--plass-muted-fg)',
-              'caret-(--p-accent) selection:bg-(--p-soft-press)',
-              'disabled:cursor-not-allowed'
+              shellBaseClasses,
+              notched ? '' : shellRingClasses,
+              controlHeightClasses[size],
+              controlTextLeadingClasses[size],
+              radiusClasses[size],
+              gapClasses[size],
+              showSteppers ? insetClasses[steppers] : padX,
+              // An if/else rather than stacked variants: two Tailwind classes of
+              // equal specificity resolve by their order in the generated sheet.
+              disabled
+                ? disabledClasses[variant]
+                : readOnly
+                  ? fieldReadOnlyClasses[variant]
+                  : fieldRestClasses[variant],
+              classNames?.control
             ]
               .filter(Boolean)
               .join(' ')}
-          />
+          >
+            {showSteppers && steppers === 'split' ? decrement : null}
 
-          {endIcon ? (
-            <span className="flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)">
-              {endIcon}
-            </span>
-          ) : null}
+            {startIcon ? (
+              <span className="flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)">
+                {startIcon}
+              </span>
+            ) : null}
 
-          {showSteppers && steppers === 'end' ? (
-            <span className="flex shrink-0 items-center gap-0.5">
-              {decrement}
-              {increment}
-            </span>
-          ) : null}
-          {showSteppers && steppers === 'split' ? increment : null}
-        </BaseUINumberField.Group>
+            <BaseUINumberField.Input
+              placeholder={placeholder}
+              // On the input rather than on the stack `...props` lands on: a chord
+              // is answered by the thing that has the focus.
+              onKeyDown={hotKeyHandler(hotKeys, undefined)}
+              className={[
+                'min-w-0 flex-1 self-stretch bg-transparent [font:inherit] text-inherit',
+                // Not `outline-none`: that utility zeroes `--tw-outline-style`, and
+                // the shell's focus ring is drawn from the same family.
+                '[outline:none]',
+                'tabular-nums',
+                // Split steppers put the number between the two buttons, so it
+                // belongs in the middle rather than against an edge.
+                steppers === 'split' && showSteppers ? 'text-center' : '',
+                'placeholder:text-(--plass-muted-fg)',
+                'caret-(--p-accent) selection:bg-(--p-soft-press)',
+                'disabled:cursor-not-allowed'
+              ]
+                .filter(Boolean)
+                .join(' ')}
+            />
+
+            {endIcon ? (
+              <span className="flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)">
+                {endIcon}
+              </span>
+            ) : null}
+
+            {showSteppers && steppers === 'end' ? (
+              <span className="flex shrink-0 items-center gap-0.5">
+                {decrement}
+                {increment}
+              </span>
+            ) : null}
+            {showSteppers && steppers === 'split' ? increment : null}
+          </BaseUINumberField.Group>
+        </FieldNotch>
       </BaseUINumberField.Root>
 
       {description ? (

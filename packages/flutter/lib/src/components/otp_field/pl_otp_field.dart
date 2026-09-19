@@ -213,7 +213,12 @@ class PlOtpField extends StatefulWidget {
   /// What is drawn between two groups.
   final String separator;
 
-  /// Label above the row.
+  /// The name of the code, above the row.
+  ///
+  /// Above it and nowhere else: this is the one labelled field in the library
+  /// that takes no `labelPlacement`, because a notch is a segment taken out of
+  /// one continuous edge and a row of separate boxes has none. It keeps the
+  /// label above the row under a [PlassTheme] that notches every other field.
   final Widget? label;
 
   /// Helper text below the row.

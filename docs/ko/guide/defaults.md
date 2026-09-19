@@ -5,7 +5,7 @@ order: 2
 
 # 기본값 정하기
 
-<p class="plass-lede"><code>PlassProvider</code>는 그 아래 모든 것의 <code>size</code> · <code>color</code> · <code>density</code>와 날짜 어휘를 정합니다. 선택 사항이고(없어도 라이브러리는 완성돼 있습니다) 이것이 없애는 것은 받아쓰기입니다.</p>
+<p class="plass-lede"><code>PlassProvider</code>는 그 아래 모든 것의 <code>size</code> · <code>color</code> · <code>density</code> · <code>labelPlacement</code>와 날짜 어휘를 정합니다. 선택 사항이고(없어도 라이브러리는 완성돼 있습니다) 이것이 없애는 것은 받아쓰기입니다.</p>
 
 <Demo src="provider/defaults" :min-height="320" />
 
@@ -42,14 +42,15 @@ PlassTheme.merge(
 
 ## 설정 항목
 
-|                |                                                                     |
-| -------------- | ------------------------------------------------------------------- |
-| `size`         | 모든 컴포넌트가 출발하는 size 사다리의 칸                           |
-| `color`        | 출발하는 의미론적 family                                            |
-| `density`      | 내용을 얼마나 빽빽하게 담을지                                       |
-| `locale`       | 날짜 · 시간 · 숫자 컴포넌트가 서식하고 읽는 기준이 되는 BCP 47 태그 |
-| `weekStartsOn` | 주가 시작하는 요일. `Date`가 세는 방식이라 일요일이 `0`             |
-| `labels`       | 컴포넌트가 말하는, `Intl`이 의견을 갖지 않는 문자열들               |
+|                  |                                                                     |
+| ---------------- | ------------------------------------------------------------------- |
+| `size`           | 모든 컴포넌트가 출발하는 size 사다리의 칸                           |
+| `color`          | 출발하는 의미론적 family                                            |
+| `density`        | 내용을 얼마나 빽빽하게 담을지                                       |
+| `labelPlacement` | 필드가 라벨을 두는 자리. 상자 위인지 상자의 위쪽 테두리인지         |
+| `locale`         | 날짜 · 시간 · 숫자 컴포넌트가 서식하고 읽는 기준이 되는 BCP 47 태그 |
+| `weekStartsOn`   | 주가 시작하는 요일. `Date`가 세는 방식이라 일요일이 `0`             |
+| `labels`         | 컴포넌트가 말하는, `Intl`이 의견을 갖지 않는 문자열들               |
 
 ::: fw react
 
@@ -152,6 +153,8 @@ final size = defaults.size;
 주변 컴포넌트와 줄을 맞춰야 하는 자체 컴포넌트를 위한 것입니다. 모든 필드가 optional입니다. provider가 정하기 전까지는 아무것도 정해져 있지 않습니다.
 
 ## Notes
+
+- **`labelPlacement`는 라벨이 있는 필드 가운데 하나만 빼고 모두에 닿습니다.** `PlOtpField`는 사이가 벌어진 상자 여러 개이고, notch는 이어진 테두리 하나에서 한 구간을 덜어내는 것이라 거기엔 자를 선이 없습니다. provider가 무엇을 말하든 이 컴포넌트의 라벨은 줄 위에 남고, 무시할 값을 받느니 `labelPlacement` 자체를 두지 않았습니다.
 
 ::: fw flutter
 

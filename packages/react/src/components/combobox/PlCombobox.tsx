@@ -8,6 +8,7 @@ import { Field } from '@base-ui/react/field';
 import { PlChip } from '../chip/PlChip.js';
 import { CheckIcon, ChevronIcon, CloseIcon, PlusIcon } from '../../internal/icons.js';
 import { hotKeyHandler } from '../../internal/keys.js';
+import { FieldNotch, notchShellStyle } from '../../internal/notch.js';
 import {
   chipRemoveClasses,
   controlHeightClasses,
@@ -34,6 +35,7 @@ import type {
   PlassElevation,
   PlassFieldClassNames,
   PlassHotKeys,
+  PlassFieldLabelPlacement,
   PlassSize,
   PlassStyleProps
 } from '../../types.js';
@@ -138,8 +140,14 @@ export interface PlComboboxProps<Multiple extends boolean | undefined = false>
    * @default 0
    */
   elevation?: PlassElevation;
-  /** Label above the field, wired to it by Base UI's Field. */
+  /** The name of what the field holds, wired to it by Base UI's Field. */
   label?: React.ReactNode;
+  /**
+   * Where the `label` goes — above the field, or in its top edge.
+   * Falls back to the nearest `PlassProvider`, then to `top`.
+   * @default 'top'
+   */
+  labelPlacement?: PlassFieldLabelPlacement;
   /** Helper text below the field. */
   description?: React.ReactNode;
   /** Error message below. Its presence also turns the combobox invalid. */
@@ -194,9 +202,16 @@ const shellBaseClasses = /* @__PURE__ */ [
   'group relative flex w-full cursor-text items-center',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
   transitionClasses,
-  focusWithinRingClasses,
   iconClasses
 ].join(' ');
+
+/**
+ * The ring, added at the call site rather than above: a notched field does not
+ * have one. An outline is a rectangle and the label is sitting on the edge it
+ * would be drawn along, so there the edge itself thickens instead. See
+ * `internal/notch`.
+ */
+const shellRingClasses = focusWithinRingClasses;
 
 /**
  * With chips in it the field cannot have a fixed height — the chips wrap. The
@@ -311,6 +326,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
   limit,
   placeholder,
   label,
+  labelPlacement: labelPlacementProp,
   description,
   error,
   invalid,
@@ -343,6 +359,10 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
   const size = sizeProp ?? defaults.size ?? 'md';
   const color = colorProp ?? defaults.color ?? 'primary';
   const density = densityProp ?? defaults.density ?? 'default';
+  const labelPlacement = labelPlacementProp ?? defaults.labelPlacement ?? 'top';
+  // A notch with nothing in it is a gap in the edge for no reason, so the
+  // placement only takes effect where there is a label to put there.
+  const notched = labelPlacement === 'notch' && hasContent(label);
 
   const hasError = hasContent(error);
   const isInvalid = invalid ?? hasError;
@@ -425,6 +445,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
 
   const shellClasses = cx(
     shellBaseClasses,
+    notched ? '' : shellRingClasses,
     controlTextLeadingClasses[size],
     radiusClasses[size],
     gapClasses[size],
@@ -475,6 +496,21 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
     />
   );
 
+  // One element for both placements, so the label a reader clicks and the label
+  // a screen reader reads are the same element wherever it is drawn.
+  const labelNode = (
+    <Field.Label
+      className={cx(
+        metaTextClasses[size],
+        'font-semibold',
+        disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)',
+        classNames?.label
+      )}
+    >
+      {label}
+    </Field.Label>
+  );
+
   return (
     <Field.Root
       disabled={disabled}
@@ -488,18 +524,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
       style={{ ...surfaceSlots(family, elevation), ...style }}
       {...props}
     >
-      {label ? (
-        <Field.Label
-          className={cx(
-            metaTextClasses[size],
-            'font-semibold',
-            disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)',
-            classNames?.label
-          )}
-        >
-          {label}
-        </Field.Label>
-      ) : null}
+      {hasContent(label) && !notched ? labelNode : null}
 
       <BaseUICombobox.Root<Entry, boolean>
         id={id}
@@ -535,73 +560,86 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
         readOnly={readOnly}
         required={required}
       >
-        <BaseUICombobox.InputGroup className={cx(shellClasses, classNames?.control)}>
-          {startIcon ? (
-            <span className="flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)">
-              {startIcon}
-            </span>
-          ) : null}
+        <FieldNotch
+          notched={notched}
+          size={size}
+          density={density}
+          variant={variant}
+          disabled={disabled}
+          readOnly={readOnly}
+          label={labelNode}
+        >
+          <BaseUICombobox.InputGroup
+            style={notched ? notchShellStyle : undefined}
+            className={cx(shellClasses, classNames?.control)}
+          >
+            {startIcon ? (
+              <span className="flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)">
+                {startIcon}
+              </span>
+            ) : null}
 
-          {isMultiple ? (
-            <BaseUICombobox.Chips className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
-              <BaseUICombobox.Value>
-                {(chosen: Entry[]) => (
-                  <React.Fragment>
-                    {chosen.map((entry) => (
-                      <BaseUICombobox.Chip
-                        key={String(entry.value)}
-                        render={
-                          <PlChip
-                            variant="glass"
-                            size={size}
-                            color={family}
-                            density="compact"
-                            disabled={disabled}
-                            endIcon={
-                              readOnly || disabled ? null : (
-                                <BaseUICombobox.ChipRemove
-                                  aria-label={removeLabel(entry.label)}
-                                  className={chipRemoveClasses}
-                                >
-                                  <CloseIcon />
-                                </BaseUICombobox.ChipRemove>
-                              )
-                            }
-                          />
-                        }
-                      >
-                        {entry.label}
-                      </BaseUICombobox.Chip>
-                    ))}
-                    {renderInput(chosen.length > 0)}
-                  </React.Fragment>
+            {isMultiple ? (
+              <BaseUICombobox.Chips className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
+                <BaseUICombobox.Value>
+                  {(chosen: Entry[]) => (
+                    <React.Fragment>
+                      {chosen.map((entry) => (
+                        <BaseUICombobox.Chip
+                          key={String(entry.value)}
+                          render={
+                            <PlChip
+                              variant="glass"
+                              size={size}
+                              color={family}
+                              density="compact"
+                              disabled={disabled}
+                              endIcon={
+                                readOnly || disabled ? null : (
+                                  <BaseUICombobox.ChipRemove
+                                    aria-label={removeLabel(entry.label)}
+                                    className={chipRemoveClasses}
+                                  >
+                                    <CloseIcon />
+                                  </BaseUICombobox.ChipRemove>
+                                )
+                              }
+                            />
+                          }
+                        >
+                          {entry.label}
+                        </BaseUICombobox.Chip>
+                      ))}
+                      {renderInput(chosen.length > 0)}
+                    </React.Fragment>
+                  )}
+                </BaseUICombobox.Value>
+              </BaseUICombobox.Chips>
+            ) : (
+              renderInput(false)
+            )}
+
+            {clearable && !readOnly ? (
+              <BaseUICombobox.Clear aria-label={clearLabel} className={adornmentClasses}>
+                <CloseIcon />
+              </BaseUICombobox.Clear>
+            ) : null}
+
+            <BaseUICombobox.Trigger aria-label={openLabel} className={adornmentClasses}>
+              <BaseUICombobox.Icon
+                className={cx(
+                  // The chevron is the one thing here that may turn: it is a
+                  // glyph, not a label, and nothing about it resamples.
+                  'flex items-center',
+                  '[transition:rotate_var(--plass-duration)_var(--plass-ease)]',
+                  'data-[popup-open]:rotate-180'
                 )}
-              </BaseUICombobox.Value>
-            </BaseUICombobox.Chips>
-          ) : (
-            renderInput(false)
-          )}
-
-          {clearable && !readOnly ? (
-            <BaseUICombobox.Clear aria-label={clearLabel} className={adornmentClasses}>
-              <CloseIcon />
-            </BaseUICombobox.Clear>
-          ) : null}
-
-          <BaseUICombobox.Trigger aria-label={openLabel} className={adornmentClasses}>
-            <BaseUICombobox.Icon
-              className={cx(
-                // The chevron is the one thing here that may turn: it is a
-                // glyph, not a label, and nothing about it resamples.
-                'flex items-center',
-                '[transition:rotate_var(--plass-duration)_var(--plass-ease)]',
-                'data-[popup-open]:rotate-180'
-              )}
-            >
-              <ChevronIcon />
-            </BaseUICombobox.Icon>
-          </BaseUICombobox.Trigger>
-        </BaseUICombobox.InputGroup>
+              >
+                <ChevronIcon />
+              </BaseUICombobox.Icon>
+            </BaseUICombobox.Trigger>
+          </BaseUICombobox.InputGroup>
+        </FieldNotch>
 
         <BaseUICombobox.Portal>
           {/* `plass-portal` is a hook, not a style: a portalled popup leaves the

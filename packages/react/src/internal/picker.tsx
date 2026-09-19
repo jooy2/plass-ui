@@ -4,6 +4,8 @@ import { Popover } from '@base-ui/react/popover';
 import { FormControl, leaveFormControl } from './form.js';
 import { CloseIcon } from './icons.js';
 import { WidthSizer } from './sizer.js';
+import { FieldNotch, notchShellStyle } from './notch.js';
+import { useDefaults } from './defaults.js';
 import {
   chipRemoveClasses,
   controlHeightClasses,
@@ -15,6 +17,7 @@ import {
   focusWithinRingClasses,
   gapClasses,
   glassClasses,
+  hasContent,
   iconClasses,
   metaTextClasses,
   paddingXClasses,
@@ -28,6 +31,7 @@ import type {
   PlassColor,
   PlassElevation,
   PlassFieldClassNames,
+  PlassFieldLabelPlacement,
   PlassSize,
   PlassStyleProps
 } from '../types.js';
@@ -85,9 +89,16 @@ const triggerShellClasses = /* @__PURE__ */ [
   'group relative flex w-full items-center select-none',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
   transitionClasses,
-  focusWithinRingClasses,
   iconClasses
 ].join(' ');
+
+/**
+ * The ring, added at the call site rather than above: a notched trigger does
+ * not have one. An outline is a rectangle and the label is sitting on the edge
+ * it would be drawn along, so there the edge itself thickens instead. See
+ * `internal/notch`.
+ */
+const triggerRingClasses = focusWithinRingClasses;
 
 /**
  * The popup. Like every floating surface in the library it carries a shadow by
@@ -198,8 +209,14 @@ export interface PlassPickerShellProps
    * @default 0
    */
   elevation?: PlassElevation;
-  /** Label above the trigger. */
+  /** The name of what the control holds. */
   label?: React.ReactNode;
+  /**
+   * Where the `label` goes — above the trigger, or in its top edge.
+   * Falls back to the nearest `PlassProvider`, then to `top`.
+   * @default 'top'
+   */
+  labelPlacement?: PlassFieldLabelPlacement;
   /** Helper text below it. */
   description?: React.ReactNode;
   /** Error message below. Its presence also turns the control invalid. */
@@ -264,6 +281,7 @@ export function PickerShell({
   density = 'default',
   elevation = 0,
   label,
+  labelPlacement: labelPlacementProp,
   description,
   error,
   invalid,
@@ -297,11 +315,37 @@ export function PickerShell({
   const descriptionId = `${generatedId}-description`;
   const errorId = `${generatedId}-error`;
 
+  // Read here rather than in each of the six pickers that draw this shell: they
+  // all hand their shell props straight through, and one resolution cannot
+  // disagree with itself the way six can.
+  const defaults = useDefaults();
+  const labelPlacement = labelPlacementProp ?? defaults.labelPlacement ?? 'top';
+  // A notch with nothing in it is a gap in the edge for no reason, so the
+  // placement only takes effect where there is a label to put there.
+  const notched = labelPlacement === 'notch' && hasContent(label);
+
   const hasError = error !== undefined && error !== null && error !== false && error !== '';
   const isInvalid = invalid ?? hasError;
   const family: PlassColor = isInvalid ? 'danger' : color;
   const inert = disabled || readOnly;
   const controlRef = React.useRef<HTMLInputElement>(null);
+
+  // One element for both placements, so the label a reader clicks and the label
+  // a screen reader reads are the same element wherever it is drawn.
+  const labelNode = (
+    <Field.Label
+      id={labelId}
+      htmlFor={triggerId}
+      className={cx(
+        metaTextClasses[size],
+        'font-semibold',
+        disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)',
+        classNames?.label
+      )}
+    >
+      {label}
+    </Field.Label>
+  );
 
   return (
     <Field.Root
@@ -316,118 +360,117 @@ export function PickerShell({
       style={{ ...surfaceSlots(family, elevation), ...style }}
       {...props}
     >
-      {label ? (
-        <Field.Label
-          id={labelId}
-          htmlFor={triggerId}
-          className={cx(
-            metaTextClasses[size],
-            'font-semibold',
-            disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)',
-            classNames?.label
-          )}
-        >
-          {label}
-        </Field.Label>
-      ) : null}
+      {hasContent(label) && !notched ? labelNode : null}
 
       <Popover.Root open={open} onOpenChange={(next) => onOpenChange(next)}>
-        <span
-          className={cx(
-            triggerShellClasses,
-            controlHeightClasses[size],
-            controlTextLeadingClasses[size],
-            radiusClasses[size],
-            gapClasses[size],
-            paddingXClasses[density][size],
-            // An if/else rather than stacked variants: two Tailwind classes of
-            // equal specificity resolve by their order in the generated sheet.
-            disabled
-              ? disabledClasses[variant]
-              : readOnly
-                ? fieldReadOnlyClasses[variant]
-                : fieldRestClasses[variant],
-            classNames?.control
-          )}
+        <FieldNotch
+          notched={notched}
+          size={size}
+          density={density}
+          variant={variant}
+          disabled={disabled}
+          readOnly={readOnly}
+          label={labelNode}
         >
-          {/* What made the field invalid is not only the caller's `error`: an
+          <span
+            style={notched ? notchShellStyle : undefined}
+            className={cx(
+              triggerShellClasses,
+              notched ? '' : triggerRingClasses,
+              controlHeightClasses[size],
+              controlTextLeadingClasses[size],
+              radiusClasses[size],
+              gapClasses[size],
+              paddingXClasses[density][size],
+              // An if/else rather than stacked variants: two Tailwind classes of
+              // equal specificity resolve by their order in the generated sheet.
+              disabled
+                ? disabledClasses[variant]
+                : readOnly
+                  ? fieldReadOnlyClasses[variant]
+                  : fieldRestClasses[variant],
+              classNames?.control
+            )}
+          >
+            {/* What made the field invalid is not only the caller's `error`: an
               empty `required` value and a `PlForm`'s `errors` do too, and the
               trigger has to say so as an input would. */}
-          <Field.Validity>
-            {({ validity }) => {
-              const failed = validity.valid === false;
-              // Base UI's own message, the second `Field.Error` below, shows for
-              // a failure the caller did not force with `invalid`.
-              const message = hasError || (failed && !disabled && invalid !== true);
-              const describedBy =
-                [description ? descriptionId : null, message ? errorId : null]
-                  .filter(Boolean)
-                  .join(' ') || undefined;
+            <Field.Validity>
+              {({ validity }) => {
+                const failed = validity.valid === false;
+                // Base UI's own message, the second `Field.Error` below, shows for
+                // a failure the caller did not force with `invalid`.
+                const message = hasError || (failed && !disabled && invalid !== true);
+                const describedBy =
+                  [description ? descriptionId : null, message ? errorId : null]
+                    .filter(Boolean)
+                    .join(' ') || undefined;
 
-              return (
-                <Popover.Trigger
-                  id={triggerId}
-                  ref={triggerRef}
-                  disabled={disabled}
-                  // The label and then the value, as a native select is read: the name
-                  // alone would leave the chosen date or colour to be found by opening it.
-                  aria-labelledby={label ? `${labelId} ${valueId}` : undefined}
-                  aria-describedby={describedBy}
-                  aria-required={required || undefined}
-                  aria-invalid={isInvalid || failed || undefined}
-                  onBlur={() => {
-                    // Focus that moves into the open popup has not left the control.
-                    if (!open) {
-                      leaveFormControl(controlRef.current);
-                    }
-                  }}
-                  className={cx(
-                    'flex min-w-0 flex-1 items-center bg-transparent text-start [font:inherit] text-inherit',
-                    gapClasses[size],
-                    '[outline:none]',
-                    inert ? 'cursor-default' : 'cursor-pointer'
-                  )}
-                >
-                  {startIcon ? (
-                    <span className="flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)">
-                      {startIcon}
-                    </span>
-                  ) : null}
-                  {/* The value and, under it, every value it could be. */}
-                  <span className="flex min-w-0 flex-1 flex-col">
-                    <span
-                      id={valueId}
-                      className={cx(
-                        'w-full truncate',
-                        empty ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)'
-                      )}
-                    >
-                      {display}
-                    </span>
-                    {/* A `fullWidth` trigger takes its width from its container, so
+                return (
+                  <Popover.Trigger
+                    id={triggerId}
+                    ref={triggerRef}
+                    disabled={disabled}
+                    // The label and then the value, as a native select is read: the name
+                    // alone would leave the chosen date or colour to be found by opening it.
+                    aria-labelledby={label ? `${labelId} ${valueId}` : undefined}
+                    aria-describedby={describedBy}
+                    aria-required={required || undefined}
+                    aria-invalid={isInvalid || failed || undefined}
+                    onBlur={() => {
+                      // Focus that moves into the open popup has not left the control.
+                      if (!open) {
+                        leaveFormControl(controlRef.current);
+                      }
+                    }}
+                    className={cx(
+                      'flex min-w-0 flex-1 items-center bg-transparent text-start [font:inherit] text-inherit',
+                      gapClasses[size],
+                      '[outline:none]',
+                      inert ? 'cursor-default' : 'cursor-pointer'
+                    )}
+                  >
+                    {startIcon ? (
+                      <span className="flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)">
+                        {startIcon}
+                      </span>
+                    ) : null}
+                    {/* The value and, under it, every value it could be. */}
+                    <span className="flex min-w-0 flex-1 flex-col">
+                      <span
+                        id={valueId}
+                        className={cx(
+                          'w-full truncate',
+                          empty ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)'
+                        )}
+                      >
+                        {display}
+                      </span>
+                      {/* A `fullWidth` trigger takes its width from its container, so
                       it renders no samples: every value written there would be
                       work for nothing. */}
-                    {fullWidth ? null : <WidthSizer samples={samples ?? []} />}
-                  </span>
-                </Popover.Trigger>
-              );
-            }}
-          </Field.Validity>
-
-          {clearable && !empty && !inert ? (
-            <button
-              type="button"
-              aria-label={labels.clear}
-              className={cx(chipRemoveClasses, 'text-(--plass-muted-fg)')}
-              onClick={(event) => {
-                event.stopPropagation();
-                onClear();
+                      {fullWidth ? null : <WidthSizer samples={samples ?? []} />}
+                    </span>
+                  </Popover.Trigger>
+                );
               }}
-            >
-              <CloseIcon />
-            </button>
-          ) : null}
-        </span>
+            </Field.Validity>
+
+            {clearable && !empty && !inert ? (
+              <button
+                type="button"
+                aria-label={labels.clear}
+                className={cx(chipRemoveClasses, 'text-(--plass-muted-fg)')}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onClear();
+                }}
+              >
+                <CloseIcon />
+              </button>
+            ) : null}
+          </span>
+        </FieldNotch>
 
         <Popover.Portal>
           {/* `plass-portal` is a hook, not a style: a portalled popup leaves the

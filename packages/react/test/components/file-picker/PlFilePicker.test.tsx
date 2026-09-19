@@ -279,4 +279,36 @@ describe('PlFilePicker', () => {
       expect(formatFileSize(12_000)).toBe('12 kB');
     });
   });
+
+  describe('labelPlacement', () => {
+    it("puts the label in the zone's edge when notched", async () => {
+      const screen = await render(<PlFilePicker label="Attachments" labelPlacement="notch" />);
+      const zone = screen.getByRole('button', { name: /Attachments/ }).element() as HTMLElement;
+      const legend = document.querySelector('legend');
+
+      expect(legend?.textContent).toBe('Attachments');
+      // The zone is named by `aria-labelledby`, so the span it points at has to
+      // be the one in the notch and not a second copy of the word.
+      expect(zone.getAttribute('aria-labelledby')?.split(' ')).toContain(
+        legend?.firstElementChild?.id
+      );
+      expect(zone.style.borderColor).toBe('transparent');
+    });
+
+    it('draws the same edge the zone would have drawn itself', async () => {
+      const screen = await render(<PlFilePicker label="Attachments" />);
+      const stacked = screen.getByRole('button', { name: /Attachments/ }).element().className;
+
+      await screen.rerender(<PlFilePicker label="Attachments" labelPlacement="notch" />);
+      const edge = (document.querySelector('fieldset') as HTMLElement).className;
+
+      // A drop zone's edge is 2px and dashed in every variant, and the notch is
+      // cut into that rather than into a field's hairline. The two are written
+      // out twice in the source, so this is what keeps them the same line.
+      for (const rule of ['border-2', 'border-dashed', '[border-color:var(--plass-border)]']) {
+        expect(stacked.split(' ')).toContain(rule);
+        expect(edge.split(' ')).toContain(rule);
+      }
+    });
+  });
 });

@@ -114,7 +114,35 @@ All three are widgets, and all three are part of the field's own semantics node,
 
 :::
 
-There is no floating-label variant. A floating label needs a `transform` on the thing being typed into, and a label that moves under the caret is the one effect this library rules out on a control.
+There is no floating-label variant. A floating label is animated out of the control as the caret arrives, which needs a `transform` on the thing being typed into, and a label that moves under the caret is the one effect this library rules out on a control.
+
+### labelPlacement
+
+`top` is the default: the label is a line of the form, above the box. `notch` puts it in the field's own top edge with the hairline cut away behind it, which buys back a row of vertical space and ties the name to the box rather than to whatever is above it.
+
+The cut is real — a `legend` in a `fieldset` on the web, a gap in the painted border on Flutter — because a Plass field is translucent and the page behind it belongs to the application. There is nothing to paint over the line with.
+
+Two things follow from the label sitting on the edge. Focus **thickens the edge** instead of drawing a ring, since a ring is a rectangle and would run through the label. And the label is out of the flow, so it no longer widens the control: give a field with a long label `fullWidth`, or keep the word short.
+
+Only `glass` has a hairline to cut. On `solid` and `ghost` the label sits in the same place with nothing to take out from under it, so a form that mixes the three keeps one baseline for its labels.
+
+<Demo src="text-field/label-placement" :min-height="380">
+
+::: fw react
+
+<<< @/.vitepress/demos/text-field/label-placement.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/text_field/label_placement.dart
+
+:::
+
+</Demo>
+
+`PlassProvider` carries it too, which is how a product whose forms all notch says so once.
 
 ### Validation
 

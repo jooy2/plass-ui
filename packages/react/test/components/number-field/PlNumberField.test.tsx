@@ -160,4 +160,15 @@ describe('PlNumberField', () => {
       expect(save).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('labelPlacement', () => {
+    it("puts the label in the field's edge when notched", async () => {
+      const screen = await render(<PlNumberField label="Quantity" labelPlacement="notch" />);
+      const input = screen.getByRole('textbox', { name: 'Quantity' }).element();
+
+      expect(document.querySelector('legend')?.querySelector('label')?.getAttribute('for')).toBe(
+        input.id
+      );
+    });
+  });
 });

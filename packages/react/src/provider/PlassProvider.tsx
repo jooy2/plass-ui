@@ -24,8 +24,9 @@ export interface PlassProviderProps extends PlassDefaults {
  * </PlassProvider>
  * ```
  *
- * **It sets `size`, `color`, `density` and the date vocabulary, and it
- * deliberately does not set `variant` or `elevation`.** Those two name what a
+ * **It sets `size`, `color`, `density`, `labelPlacement` and the date
+ * vocabulary, and it deliberately does not set `variant` or `elevation`.**
+ * Those two name what a
  * surface is *made of* and how far off the page it sits, and both are decided
  * per component by the design language rather than per application: a button is
  * `solid` and rests on the sheet, a field is cut into it. One value for all of
@@ -46,6 +47,7 @@ export function PlassProvider({
   size,
   color,
   density,
+  labelPlacement,
   locale,
   weekStartsOn,
   labels,
@@ -64,6 +66,7 @@ export function PlassProvider({
       size: size ?? outer.size,
       color: color ?? outer.color,
       density: density ?? outer.density,
+      labelPlacement: labelPlacement ?? outer.labelPlacement,
       locale: locale ?? outer.locale,
       weekStartsOn: weekStartsOn ?? outer.weekStartsOn,
       // Per word as well: a nested provider that renames one button inside a
@@ -71,7 +74,7 @@ export function PlassProvider({
       labels: labels && outer.labels ? { ...outer.labels, ...labels } : (labels ?? outer.labels),
       direction: direction ?? outer.direction
     }),
-    [size, color, density, locale, weekStartsOn, labels, direction, outer]
+    [size, color, density, labelPlacement, locale, weekStartsOn, labels, direction, outer]
   );
 
   // The document is the fallback rather than the override: a provider that was

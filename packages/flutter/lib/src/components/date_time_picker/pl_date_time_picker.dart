@@ -68,6 +68,7 @@ class PlDateTimePicker extends StatefulWidget {
     this.density,
     this.elevation = 0,
     this.label,
+    this.labelPlacement,
     this.description,
     this.error,
     this.invalid,
@@ -171,8 +172,13 @@ class PlDateTimePicker extends StatefulWidget {
   /// Drop shadow depth of the **trigger**.
   final PlassElevation elevation;
 
-  /// Label above the trigger.
+  /// The name of what the control holds.
   final Widget? label;
+
+  /// Where the [label] goes — above the trigger, or in its top edge.
+  ///
+  /// Falls back to the nearest [PlassTheme], then to [PlassFieldLabelPlacement.top].
+  final PlassFieldLabelPlacement? labelPlacement;
 
   /// Helper text below it.
   final Widget? description;
@@ -328,6 +334,7 @@ class _PlDateTimePickerState extends State<PlDateTimePicker> {
       density: _density,
       elevation: widget.elevation,
       label: widget.label,
+      labelPlacement: widget.labelPlacement,
       description: widget.description,
       error: widget.error,
       invalid: widget.invalid,

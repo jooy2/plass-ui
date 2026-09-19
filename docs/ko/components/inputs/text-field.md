@@ -114,7 +114,35 @@ PlButton과 같은 사다리입니다. `xs` 24px · `sm` 32px · `md` 40px · `l
 
 :::
 
-floating label variant는 없습니다. floating label은 입력 중인 대상에 `transform`을 걸어야 하는데, 캐럿 아래에서 움직이는 라벨은 이 라이브러리가 컨트롤에 대해 유일하게 금지하는 효과입니다.
+floating label variant는 없습니다. floating label은 캐럿이 들어올 때 컨트롤 밖으로 애니메이션되는 라벨이라 입력 중인 대상에 `transform`을 걸어야 하는데, 캐럿 아래에서 움직이는 라벨은 이 라이브러리가 컨트롤에 대해 유일하게 금지하는 효과입니다.
+
+### labelPlacement
+
+기본값은 `top`입니다. 라벨이 상자 위, 폼의 한 줄을 차지합니다. `notch`는 라벨을 필드 자신의 위쪽 테두리에 넣고 그 자리의 hairline을 끊어냅니다. 세로 한 줄을 돌려받고, 이름이 위에 있는 무언가가 아니라 상자에 붙습니다.
+
+끊는 것은 진짜입니다. 웹에서는 `fieldset` 안의 `legend`가, Flutter에서는 테두리를 그리는 painter가 그 구간을 비웁니다. Plass 필드는 반투명하고 그 뒤의 페이지는 애플리케이션의 것이라, 선 위에 덧칠할 색이 라이브러리에는 없습니다.
+
+라벨이 테두리에 앉으면서 따라오는 것이 둘 있습니다. focus는 ring 대신 **테두리가 두꺼워지는 것**으로 답합니다. ring은 사각형이라 라벨을 가로지르기 때문입니다. 그리고 라벨이 레이아웃 밖으로 나가므로 더는 컨트롤의 너비를 늘리지 않습니다. 라벨이 긴 필드에는 `fullWidth`를 주거나 단어를 짧게 쓰십시오.
+
+끊을 hairline이 있는 것은 `glass`뿐입니다. `solid`와 `ghost`에서는 라벨이 같은 자리에 놓이고 아래에서 덜어낼 선이 없을 뿐이라, 셋을 섞어 쓴 폼에서도 라벨의 기준선은 하나로 남습니다.
+
+<Demo src="text-field/label-placement" :min-height="380">
+
+::: fw react
+
+<<< @/.vitepress/demos/text-field/label-placement.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/text_field/label_placement.dart
+
+:::
+
+</Demo>
+
+`PlassProvider`도 이 값을 들고 있습니다. 폼 전체가 노치를 쓰는 제품이 한 번만 말하면 되는 방법입니다.
 
 ### 유효성
 

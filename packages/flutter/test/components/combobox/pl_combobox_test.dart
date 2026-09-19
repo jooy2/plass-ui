@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
 import 'package:plass_ui/src/internal/anchored.dart';
+import 'package:plass_ui/src/internal/notch.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 
 import '../../support/host.dart';
@@ -712,6 +713,26 @@ void main() {
         await tester.pump();
 
         expect(cleared, 1);
+      });
+    });
+
+    group('labelPlacement', () {
+      testWidgets('puts the label in the field\'s own top edge', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            PlCombobox<String>(
+              options: _cities,
+              value: null,
+              label: const Text('City'),
+              labelPlacement: PlassFieldLabelPlacement.notch,
+              onChanged: (String? _) {},
+            ),
+            width: 320,
+          ),
+        );
+
+        expect(find.byType(PlassFieldNotch), findsOneWidget);
+        expect(find.text('City'), findsOneWidget);
       });
     });
   });

@@ -161,6 +161,7 @@ class PlColorPicker extends StatefulWidget {
     this.inline = false,
     this.editable = true,
     this.label,
+    this.labelPlacement,
     this.description,
     this.error,
     this.invalid,
@@ -198,8 +199,13 @@ class PlColorPicker extends StatefulWidget {
   /// The field under the panel that the value can be typed into.
   final bool editable;
 
-  /// Label above the control.
+  /// The name of what the control holds.
   final Widget? label;
+
+  /// Where the [label] goes — above the control, or in its top edge.
+  ///
+  /// Falls back to the nearest [PlassTheme], then to [PlassFieldLabelPlacement.top].
+  final PlassFieldLabelPlacement? labelPlacement;
 
   /// Helper text below it.
   final Widget? description;
@@ -394,6 +400,7 @@ class _PlColorPickerState extends State<PlColorPicker> {
       density: _density,
       elevation: widget.elevation,
       label: widget.label,
+      labelPlacement: widget.labelPlacement,
       description: widget.description,
       error: widget.error,
       invalid: widget.invalid,

@@ -129,6 +129,10 @@ class PlassTheme extends InheritedWidget {
   /// The density in scope, or `null`.
   static PlassDensity? densityOf(BuildContext context) => defaultsOf(context).density;
 
+  /// Where labelled controls put their labels in this scope, or `null`.
+  static PlassFieldLabelPlacement? labelPlacementOf(BuildContext context) =>
+      defaultsOf(context).labelPlacement;
+
   /// The words in scope, or the English ones where nothing said otherwise.
   ///
   /// Two layers: the defaults above, and whatever a [PlassTheme] set. A widget's

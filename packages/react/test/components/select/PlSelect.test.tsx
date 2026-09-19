@@ -215,4 +215,20 @@ describe('PlSelect', () => {
       expect(clear).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('labelPlacement', () => {
+    it("puts the label in the trigger's edge when notched", async () => {
+      const screen = await render(
+        <PlSelect items={items} label="City" labelPlacement="notch" placeholder="Pick one" />
+      );
+      const trigger = screen.getByRole('combobox', { name: /City/ }).element() as HTMLElement;
+      const legend = document.querySelector('legend');
+
+      // A trigger is a `<button>` and cannot contain a fieldset, so the edge is
+      // laid over it rather than drawn by it.
+      expect(legend?.textContent).toBe('City');
+      expect(trigger.contains(legend)).toBe(false);
+      expect(trigger.style.borderColor).toBe('transparent');
+    });
+  });
 });

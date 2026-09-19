@@ -92,7 +92,15 @@ export interface PlOtpFieldProps
   onValueInvalid?: (value: string) => void;
   /** Submits the owning form as soon as the code is complete. @default false */
   autoSubmit?: boolean;
-  /** Label above the row, wired to the slots by Base UI's Field. */
+  /**
+   * The name of the code, above the row and wired to the slots by Base UI's
+   * Field.
+   *
+   * Above it and nowhere else: this is the one labelled field in the library
+   * that takes no `labelPlacement`, because a notch is a segment taken out of
+   * one continuous edge and a row of separate boxes has none. It keeps the
+   * label above the row under a `PlassProvider` that notches every other field.
+   */
   label?: React.ReactNode;
   /** Helper text below the row. */
   description?: React.ReactNode;

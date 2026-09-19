@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/notch.dart';
 
 import '../../support/host.dart';
 
@@ -301,6 +302,29 @@ void main() {
         expect(
           styleOf(tester, 'Pick a file.').color,
           PlassTokens.light().family(PlassColor.danger).accent,
+        );
+      });
+    });
+
+    group('labelPlacement', () {
+      testWidgets('cuts the label into the drop zone\'s dashed edge', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            const PlFilePicker(
+              value: <PlFile>[],
+              label: Text('Attachments'),
+              labelPlacement: PlassFieldLabelPlacement.notch,
+            ),
+            width: 360,
+          ),
+        );
+
+        // The zone's own edge is dashed, and the notch cuts it with the same
+        // clip a field's hairline gets.
+        expect(find.byType(PlassFieldNotch), findsOneWidget);
+        expect(
+          find.descendant(of: find.byType(PlassFieldNotch), matching: find.byType(ClipPath)),
+          findsOneWidget,
         );
       });
     });

@@ -6,6 +6,7 @@ import { useDefaults } from '../../internal/defaults.js';
 import { FormControl, leaveFormControl, useFormReport } from '../../internal/form.js';
 import { CloseIcon } from '../../internal/icons.js';
 import { useLabels } from '../../internal/labels.js';
+import { FieldNotch, notchShellStyle } from '../../internal/notch.js';
 import {
   controlTextLeadingClasses,
   disabledClasses,
@@ -26,6 +27,7 @@ import type {
   PlassColor,
   PlassDensity,
   PlassElevation,
+  PlassFieldLabelPlacement,
   PlassSize,
   PlassStyleProps,
   PlassVariant
@@ -74,8 +76,14 @@ export interface PlFilePickerProps
    * file disappears silently, which is the single worst thing a dropzone does.
    */
   onReject?: (rejections: PlFileRejection[]) => void;
-  /** Label above the box. */
+  /** The name of what the box collects. */
   label?: React.ReactNode;
+  /**
+   * Where the `label` goes — above the box, or in its top edge.
+   * Falls back to the nearest `PlassProvider`, then to `top`.
+   * @default 'top'
+   */
+  labelPlacement?: PlassFieldLabelPlacement;
   /** Helper text below the box. */
   description?: React.ReactNode;
   /** Error message below. Its presence also turns the picker invalid. */
@@ -159,6 +167,38 @@ const zoneHoverClasses: Record<PlassVariant, string> = {
   glass: 'hover:bg-(--plass-glass-hover) hover:[border-color:var(--p-line-hover)]',
   ghost: 'hover:bg-(--p-soft) hover:[border-color:var(--p-line-hover)]'
 };
+
+/**
+ * The same edge again, for the notch to cut: 2px and dashed in all three
+ * variants, which is what says "drop something here" before a word is read.
+ *
+ * A second copy of the border rules above rather than a share of them, because
+ * what the notch draws is only the edge — the fill, the blur and the elevation
+ * stay on the zone itself, and splitting the maps in two would leave every
+ * future state to be remembered in two places anyway. These three lines are the
+ * ones that have to agree, and a `PlFilePicker` test asserts that they do.
+ */
+const zoneEdgeClasses = /* @__PURE__ */ [
+  'border-2 border-dashed [border-color:var(--plass-border)]',
+  'group-hover/field:[border-color:var(--p-line-hover)]',
+  'group-has-[:focus-visible]/field:[border-color:var(--p-ring)]'
+].join(' ');
+
+/** The same, while the box is locked: the edge stays and answers nothing. */
+const zoneEdgeInertClasses = 'border-2 border-dashed [border-color:var(--plass-border)]';
+
+/**
+ * And while it is unavailable, dimmed to the degree the zone beside it is — the
+ * edge is a sibling of the box rather than a child, so it does not inherit the
+ * half-opacity `disabledClasses` puts on it.
+ */
+const zoneEdgeDisabledClasses = /* @__PURE__ */ [
+  'border-2 border-dashed [border-color:var(--plass-border)] opacity-50',
+  'forced-colors:[border-color:GrayText]'
+].join(' ');
+
+/** And while a file is over it, which is the one state a field does not have. */
+const zoneEdgeOverClasses = 'border-2 border-dashed [border-color:var(--p-ring)]';
 
 /**
  * While a file is over the box.
@@ -276,6 +316,7 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
       onFilesChange,
       onReject,
       label,
+      labelPlacement: labelPlacementProp,
       description,
       error,
       invalid,
@@ -302,6 +343,10 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';
+    const labelPlacement = labelPlacementProp ?? defaults.labelPlacement ?? 'top';
+    // A notch with nothing in it is a gap in the edge for no reason, so the
+    // placement only takes effect where there is a label to put there.
+    const notched = labelPlacement === 'notch' && hasContent(label);
 
     const inputRef = React.useRef<HTMLInputElement>(null);
     const buttonRef = React.useRef<HTMLButtonElement>(null);
@@ -436,7 +481,10 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
       gapClasses[size],
       transitionClasses,
       iconClasses,
-      focusRingClasses,
+      // A notched zone has no ring: an outline is a rectangle and the label is
+      // sitting on the edge it would be drawn along, so the edge itself takes
+      // the family's colour instead. See `internal/notch`.
+      notched ? '' : focusRingClasses,
       // An if/else rather than stacked variants: two Tailwind classes of equal
       // specificity resolve by their order in the generated stylesheet.
       disabled
@@ -449,6 +497,22 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
     ]
       .filter(Boolean)
       .join(' ');
+
+    // One element for both placements: the zone is a button named by
+    // `aria-labelledby`, so this is the span that `labelId` points at wherever
+    // it is drawn.
+    const labelNode = (
+      <span
+        id={labelId}
+        className={[
+          metaTextClasses[size],
+          'font-semibold',
+          disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)'
+        ].join(' ')}
+      >
+        {label}
+      </span>
+    );
 
     return (
       <Field.Root
@@ -466,18 +530,7 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
         style={{ ...surfaceSlots(family, elevation), ...style }}
         {...props}
       >
-        {hasContent(label) ? (
-          <span
-            id={labelId}
-            className={[
-              metaTextClasses[size],
-              'font-semibold',
-              disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)'
-            ].join(' ')}
-          >
-            {label}
-          </span>
-        ) : null}
+        {hasContent(label) && !notched ? labelNode : null}
 
         {/* The drag listeners belong to the shell rather than to the button: a
             drop is a gesture over an *area*, and the file list under the box is
@@ -535,41 +588,61 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
                   .join(' ') || undefined;
 
               return (
-                <button
-                  ref={buttonRef}
-                  type="button"
-                  id={zoneId}
-                  // The field's label, then the button's own words. Two pickers
-                  // on one screen, a résumé and a cover letter, are otherwise
-                  // read out as the same "Drop files here".
-                  aria-labelledby={hasContent(label) ? `${labelId} ${zoneId}` : undefined}
+                <FieldNotch
+                  notched={notched}
+                  size={size}
+                  density={density}
+                  variant={variant}
                   disabled={disabled}
-                  aria-describedby={describedBy}
-                  aria-invalid={isInvalid || failed || undefined}
-                  className={zoneClassNames}
-                  onClick={browse}
-                  onBlur={() => leaveFormControl(controlRef.current)}
+                  readOnly={readOnly}
+                  label={labelNode}
+                  edgeClassName={
+                    disabled
+                      ? zoneEdgeDisabledClasses
+                      : inert
+                        ? zoneEdgeInertClasses
+                        : over
+                          ? zoneEdgeOverClasses
+                          : zoneEdgeClasses
+                  }
                 >
-                  {icon === undefined ? (
-                    <span className="flex items-center text-(--p-accent) [&_svg]:size-[1.8em]">
-                      <UploadIcon />
-                    </span>
-                  ) : hasContent(icon) ? (
-                    <span className="flex items-center text-(--p-accent) [&_svg]:size-[1.8em]">
-                      {icon}
-                    </span>
-                  ) : null}
+                  <button
+                    ref={buttonRef}
+                    type="button"
+                    id={zoneId}
+                    // The field's label, then the button's own words. Two pickers
+                    // on one screen, a résumé and a cover letter, are otherwise
+                    // read out as the same "Drop files here".
+                    aria-labelledby={hasContent(label) ? `${labelId} ${zoneId}` : undefined}
+                    disabled={disabled}
+                    aria-describedby={describedBy}
+                    aria-invalid={isInvalid || failed || undefined}
+                    className={zoneClassNames}
+                    style={notched ? notchShellStyle : undefined}
+                    onClick={browse}
+                    onBlur={() => leaveFormControl(controlRef.current)}
+                  >
+                    {icon === undefined ? (
+                      <span className="flex items-center text-(--p-accent) [&_svg]:size-[1.8em]">
+                        <UploadIcon />
+                      </span>
+                    ) : hasContent(icon) ? (
+                      <span className="flex items-center text-(--p-accent) [&_svg]:size-[1.8em]">
+                        {icon}
+                      </span>
+                    ) : null}
 
-                  <span className={`font-semibold ${sheetTitleClasses[size]}`}>
-                    {title ?? labels.filePickerTitle}
-                  </span>
-
-                  {hasContent(hint) ? (
-                    <span className={`text-(--plass-muted-fg) ${metaTextClasses[size]}`}>
-                      {hint}
+                    <span className={`font-semibold ${sheetTitleClasses[size]}`}>
+                      {title ?? labels.filePickerTitle}
                     </span>
-                  ) : null}
-                </button>
+
+                    {hasContent(hint) ? (
+                      <span className={`text-(--plass-muted-fg) ${metaTextClasses[size]}`}>
+                        {hint}
+                      </span>
+                    ) : null}
+                  </button>
+                </FieldNotch>
               );
             }}
           </Field.Validity>

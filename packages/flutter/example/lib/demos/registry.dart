@@ -503,6 +503,7 @@ import 'package:plass_ui_example/demos/text_field/controlled.dart';
 import 'package:plass_ui_example/demos/text_field/hero.dart';
 import 'package:plass_ui_example/demos/text_field/hot_keys.dart';
 import 'package:plass_ui_example/demos/text_field/icons.dart';
+import 'package:plass_ui_example/demos/text_field/label_placement.dart';
 import 'package:plass_ui_example/demos/text_field/multiline.dart';
 import 'package:plass_ui_example/demos/text_field/sizes.dart';
 import 'package:plass_ui_example/demos/text_field/states.dart';
@@ -952,6 +953,7 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'text-field/hot-keys': _textFieldHotKeys,
   'text-field/variants': _textFieldVariants,
   'text-field/sizes': _textFieldSizes,
+  'text-field/label-placement': _textFieldLabelPlacement,
   'text-field/states': _textFieldStates,
   'text-field/icons': _textFieldIcons,
   'text-field/multiline': _textFieldMultiline,
@@ -1640,6 +1642,8 @@ Widget _textFieldHero(BuildContext context) => const TextFieldHero();
 
 Widget _textFieldHotKeys(BuildContext context) => const TextFieldHotKeys();
 Widget _textFieldVariants(BuildContext context) => const TextFieldVariants();
+
+Widget _textFieldLabelPlacement(BuildContext context) => const TextFieldLabelPlacement();
 Widget _textFieldSizes(BuildContext context) => const TextFieldSizes();
 Widget _textFieldStates(BuildContext context) => const TextFieldStates();
 Widget _textFieldIcons(BuildContext context) => const TextFieldIcons();

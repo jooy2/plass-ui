@@ -308,4 +308,16 @@ describe('PlCombobox', () => {
       expect(create).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('labelPlacement', () => {
+    it("puts the label in the field's edge when notched", async () => {
+      const screen = await render(<PlCombobox items={items} label="City" labelPlacement="notch" />);
+      const input = screen.getByRole('combobox', { name: 'City' }).element();
+
+      expect(document.querySelector('legend')?.querySelector('label')?.getAttribute('for')).toBe(
+        input.id
+      );
+      expect(document.querySelectorAll('label')).toHaveLength(1);
+    });
+  });
 });

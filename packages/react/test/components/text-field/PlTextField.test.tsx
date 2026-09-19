@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlTextField } from 'plass-ui';
+import { PlassProvider, PlTextField } from 'plass-ui';
 import { press } from '../../support/keys';
 
 describe('PlTextField', () => {
@@ -571,6 +571,82 @@ describe('PlTextField', () => {
 
       // The raw hook sees both keys; the map sees the one it did not consume.
       expect(order).toEqual(['onKeyDown', 'Enter', 'onKeyDown']);
+    });
+  });
+
+  describe('labelPlacement', () => {
+    it('leaves the label above the control by default', async () => {
+      const screen = await render(<PlTextField label="Email" />);
+
+      await expect.element(screen.getByRole('textbox', { name: 'Email' })).toBeInTheDocument();
+      expect(document.querySelector('legend')).toBeNull();
+    });
+
+    it('puts the label in the edge when notched, still naming the control', async () => {
+      const screen = await render(<PlTextField label="Email" labelPlacement="notch" />);
+      const input = screen.getByRole('textbox', { name: 'Email' }).element();
+      const legend = document.querySelector('legend');
+
+      // The same `<label for>` as before, drawn somewhere else: the notch is a
+      // decision about where the name goes, not about what names the control.
+      expect(legend?.textContent).toBe('Email');
+      expect(legend?.querySelector('label')?.getAttribute('for')).toBe(input.id);
+      expect(document.querySelectorAll('label')).toHaveLength(1);
+    });
+
+    it('cuts the edge out of a real fieldset, so nothing has to know the page colour', async () => {
+      const screen = await render(<PlTextField label="Email" labelPlacement="notch" />);
+      const legend = document.querySelector('legend');
+      const shell = screen.getByRole('textbox').element().parentElement as HTMLElement;
+
+      expect(legend?.parentElement?.tagName).toBe('FIELDSET');
+      // A border with a word in it rather than a group of controls, or the
+      // label would be announced twice.
+      expect(legend?.parentElement).toHaveAttribute('role', 'presentation');
+      // The shell keeps its border for the geometry and stops painting it.
+      expect(shell.style.borderColor).toBe('transparent');
+    });
+
+    it('answers focus with the edge instead of a ring', async () => {
+      const screen = await render(<PlTextField label="Email" labelPlacement="notch" />);
+      const shell = screen.getByRole('textbox').element().parentElement as HTMLElement;
+      const edge = document.querySelector('fieldset') as HTMLElement;
+
+      // An outline is a rectangle and would run through the label on the edge.
+      expect(shell.className).not.toContain('outline:2px');
+      expect(edge).toHaveClass('group-has-[:focus-visible]/field:[border-width:2px]');
+    });
+
+    it('draws no notch when there is no label to put in it', async () => {
+      await render(<PlTextField labelPlacement="notch" placeholder="Search" />);
+
+      expect(document.querySelector('fieldset')).toBeNull();
+    });
+
+    it('takes the placement from the provider, and the prop wins over it', async () => {
+      const screen = await render(
+        <PlassProvider labelPlacement="notch">
+          <PlTextField label="Email" />
+        </PlassProvider>
+      );
+
+      expect(document.querySelector('legend')?.textContent).toBe('Email');
+
+      await screen.rerender(
+        <PlassProvider labelPlacement="notch">
+          <PlTextField label="Email" labelPlacement="top" />
+        </PlassProvider>
+      );
+
+      expect(document.querySelector('legend')).toBeNull();
+    });
+
+    it("keeps the label reachable from the caller's classNames", async () => {
+      await render(
+        <PlTextField label="Email" labelPlacement="notch" classNames={{ label: 'my-label' }} />
+      );
+
+      expect(document.querySelector('legend > label')).toHaveClass('my-label');
     });
   });
 });

@@ -25,7 +25,13 @@ import {
   surfaceSlots
 } from '../../internal/styles.js';
 import type { PlColorFormat, PlassHsv } from '../../internal/color.js';
-import type { PlassColor, PlassElevation, PlassSize, PlassStyleProps } from '../../types.js';
+import type {
+  PlassColor,
+  PlassElevation,
+  PlassFieldLabelPlacement,
+  PlassSize,
+  PlassStyleProps
+} from '../../types.js';
 
 export type { PlColorFormat } from '../../internal/color.js';
 
@@ -81,8 +87,14 @@ export interface PlColorPickerProps
   inline?: boolean;
   /** The field under the panel that the value can be typed into. @default true */
   editable?: boolean;
-  /** Label above the control. */
+  /** The name of what the control holds. */
   label?: React.ReactNode;
+  /**
+   * Where the `label` goes — above the trigger, or in its top edge.
+   * Falls back to the nearest `PlassProvider`, then to `top`.
+   * @default 'top'
+   */
+  labelPlacement?: PlassFieldLabelPlacement;
   /** Helper text below it. */
   description?: React.ReactNode;
   /** Error message below. Its presence also turns the control invalid. */
@@ -615,6 +627,7 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
       inline = false,
       editable = true,
       label,
+      labelPlacement,
       description,
       error,
       invalid,
@@ -828,6 +841,7 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
           elevation={elevation}
           style={style}
           label={label}
+          labelPlacement={labelPlacement}
           description={description}
           error={error}
           invalid={invalid}

@@ -7,6 +7,7 @@ import 'package:plass_ui/plass_ui.dart';
 import 'package:plass_ui/src/internal/calendar.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/notch.dart';
 
 import '../../support/host.dart';
 
@@ -743,6 +744,25 @@ void main() {
         );
 
         handle.dispose();
+      });
+    });
+
+    group('labelPlacement', () {
+      testWidgets('puts the label in the trigger\'s own top edge', (WidgetTester tester) async {
+        // Every picker draws `internal/picker`'s shell, so this one stands for
+        // the six of them.
+        await _pump(
+          tester,
+          PlDatePicker(
+            value: july27,
+            label: const Text('Departure'),
+            labelPlacement: PlassFieldLabelPlacement.notch,
+            onChanged: (DateTime? _) {},
+          ),
+        );
+
+        expect(find.byType(PlassFieldNotch), findsOneWidget);
+        expect(find.text('Departure'), findsOneWidget);
       });
     });
   });

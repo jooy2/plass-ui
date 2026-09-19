@@ -32,6 +32,23 @@ const COLOR = "'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'inf
 const VARIANT = "'solid' | 'glass' | 'ghost'";
 const DENSITY = "'default' | 'compact'";
 const ELEVATION = '0 | 1 | 2 | 3';
+const LABEL_PLACEMENT = "'top' | 'notch'";
+
+/**
+ * Where a labelled control puts its label, written once: it means the same
+ * thing on every field-shaped control in the library, and `PlassProvider`
+ * carries it as well so an application decides it in one place.
+ */
+const labelPlacement: PropRow = {
+  name: 'labelPlacement',
+  type: LABEL_PLACEMENT,
+  default: "'top'",
+  shared: true,
+  description: {
+    ko: '라벨이 놓이는 자리. notch는 컨트롤 위쪽 테두리를 끊고 그 자리에 라벨을 앉힙니다',
+    en: 'Where the label goes. notch cuts a gap in the control’s own top edge and sits the label in it'
+  }
+};
 
 interface SharedOptions {
   variant: string;
@@ -370,6 +387,7 @@ function pickerProps(options: {
       type: 'ReactNode',
       description: { ko: 'trigger 위 라벨', en: 'Label above the trigger' }
     },
+    labelPlacement,
     {
       name: 'description',
       type: 'ReactNode',
@@ -3583,6 +3601,7 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'ReactNode',
       description: { ko: '컨트롤 위의 라벨', en: 'Label above the control' }
     },
+    labelPlacement,
     {
       name: 'description',
       type: 'ReactNode',
@@ -3798,6 +3817,7 @@ export const propTables: Record<string, PropRow[]> = {
         en: "Label above the field, wired to it by Base UI's Field"
       }
     },
+    labelPlacement,
     {
       name: 'description',
       type: 'ReactNode',
@@ -5237,6 +5257,7 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'The label above the box, the helper text below it, and the error. The error also turns the picker invalid'
       }
     },
+    labelPlacement,
     {
       name: 'title',
       type: 'ReactNode',
@@ -7981,6 +8002,7 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'Label above the control, wired to it by Base UI’s Field. There is no floating variant on purpose: floating labels need a transform'
       }
     },
+    labelPlacement,
     {
       name: 'description',
       type: 'ReactNode',
@@ -9850,6 +9872,7 @@ export const propTables: Record<string, PropRow[]> = {
         en: "Label above the trigger, wired to it by Base UI's Field"
       }
     },
+    labelPlacement,
     {
       name: 'description',
       type: 'ReactNode',
@@ -12422,6 +12445,7 @@ export const propTables: Record<string, PropRow[]> = {
         en: "Label above the control, wired to it by Base UI's Field"
       }
     },
+    labelPlacement,
     {
       name: 'description',
       type: 'ReactNode',
@@ -14419,6 +14443,7 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'ReactNode',
       description: { ko: 'trigger 위 라벨', en: 'Label above the trigger' }
     },
+    labelPlacement,
     {
       name: 'description',
       type: 'ReactNode',

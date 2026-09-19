@@ -39,6 +39,7 @@ class PlassDefaults {
     this.size,
     this.color,
     this.density,
+    this.labelPlacement,
     this.names,
     this.labels,
     this.weekStartsOn,
@@ -56,6 +57,18 @@ class PlassDefaults {
 
   /// How tightly they pack their content.
   final PlassDensity? density;
+
+  /// Where a labelled control puts its label — above the box, or in the box's
+  /// top edge.
+  ///
+  /// Here for the same reason [density] is: a product whose forms notch their
+  /// labels notches all of them, and the decision is the application's rather
+  /// than the field's. A widget's own `labelPlacement` still wins, which is what
+  /// a form with one field that genuinely cannot take a notch needs.
+  ///
+  /// [PlOtpField] is not reached by it: a row of separate boxes has no one edge
+  /// to cut, so its label stays above the row whatever this says.
+  final PlassFieldLabelPlacement? labelPlacement;
 
   /// The words the date widgets draw — the months, the weekdays.
   final PlDateNames? names;
@@ -77,6 +90,7 @@ class PlassDefaults {
       size: size ?? other.size,
       color: color ?? other.color,
       density: density ?? other.density,
+      labelPlacement: labelPlacement ?? other.labelPlacement,
       names: names ?? other.names,
       labels: labels ?? other.labels,
       weekStartsOn: weekStartsOn ?? other.weekStartsOn,
@@ -89,11 +103,13 @@ class PlassDefaults {
         other.size == size &&
         other.color == color &&
         other.density == density &&
+        other.labelPlacement == labelPlacement &&
         other.names == names &&
         other.labels == labels &&
         other.weekStartsOn == weekStartsOn;
   }
 
   @override
-  int get hashCode => Object.hash(size, color, density, names, labels, weekStartsOn);
+  int get hashCode =>
+      Object.hash(size, color, density, labelPlacement, names, labels, weekStartsOn);
 }

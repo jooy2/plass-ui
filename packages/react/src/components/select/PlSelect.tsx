@@ -6,6 +6,7 @@ import { Select as BaseUISelect } from '@base-ui/react/select';
 import { Field } from '@base-ui/react/field';
 import { CheckIcon, ChevronIcon } from '../../internal/icons.js';
 import { WidthSizer } from '../../internal/sizer.js';
+import { FieldNotch, notchShellStyle } from '../../internal/notch.js';
 import { hotKeyHandler } from '../../internal/keys.js';
 import {
   controlHeightClasses,
@@ -32,6 +33,7 @@ import type {
   PlassElevation,
   PlassFieldClassNames,
   PlassHotKeys,
+  PlassFieldLabelPlacement,
   PlassStyleProps
 } from '../../types.js';
 
@@ -91,8 +93,14 @@ export interface PlSelectProps
    * @default 0
    */
   elevation?: PlassElevation;
-  /** Label above the trigger, wired to it by Base UI's Field. */
+  /** The name of what the select holds, wired to the trigger by Base UI's Field. */
   label?: React.ReactNode;
+  /**
+   * Where the `label` goes — above the trigger, or in its top edge.
+   * Falls back to the nearest `PlassProvider`, then to `top`.
+   * @default 'top'
+   */
+  labelPlacement?: PlassFieldLabelPlacement;
   /** Helper text below the trigger. */
   description?: React.ReactNode;
   /** Error message below. Its presence also turns the select invalid. */
@@ -119,9 +127,16 @@ const triggerBaseClasses = /* @__PURE__ */ [
   'group relative flex w-full cursor-pointer items-center select-none',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
   transitionClasses,
-  focusWithinRingClasses,
   iconClasses
 ].join(' ');
+
+/**
+ * The ring, added at the call site rather than above: a notched trigger does
+ * not have one. An outline is a rectangle and the label is sitting on the edge
+ * it would be drawn along, so there the edge itself thickens. See
+ * `internal/notch`.
+ */
+const triggerRingClasses = focusWithinRingClasses;
 
 /**
  * The popup is the one surface in the library that is *supposed* to float, so
@@ -193,6 +208,7 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
       onValueChange,
       placeholder,
       label,
+      labelPlacement: labelPlacementProp,
       description,
       error,
       invalid,
@@ -215,6 +231,10 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';
+    const labelPlacement = labelPlacementProp ?? defaults.labelPlacement ?? 'top';
+    // A notch with nothing in it is a gap in the edge for no reason, so the
+    // placement only takes effect where there is a label to put there.
+    const notched = labelPlacement === 'notch' && hasContent(label);
 
     const hasError = hasContent(error);
     const isInvalid = invalid ?? hasError;
@@ -265,6 +285,21 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
       [fullWidth, items, placeholder]
     );
 
+    // One element for both placements, so the label a reader clicks and the
+    // label a screen reader reads are the same element wherever it is drawn.
+    const labelNode = (
+      <Field.Label
+        className={cx(
+          metaTextClasses[size],
+          'font-semibold',
+          disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)',
+          classNames?.label
+        )}
+      >
+        {label}
+      </Field.Label>
+    );
+
     return (
       <Field.Root
         disabled={disabled}
@@ -280,18 +315,7 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
         style={{ ...surfaceSlots(family, elevation), ...style }}
         {...props}
       >
-        {label ? (
-          <Field.Label
-            className={cx(
-              metaTextClasses[size],
-              'font-semibold',
-              disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)',
-              classNames?.label
-            )}
-          >
-            {label}
-          </Field.Label>
-        ) : null}
+        {hasContent(label) && !notched ? labelNode : null}
 
         <BaseUISelect.Root
           id={id}
@@ -310,65 +334,77 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
           // asking.
           onOpenChange={(next) => setOpen(next && !readOnly)}
         >
-          <BaseUISelect.Trigger
-            ref={ref}
-            // On the trigger rather than on the stack `...props` lands on: a chord
-            // is answered by the thing that has the focus, and a wrapper would
-            // fire for a key pressed on the label beside it.
-            onKeyDown={hotKeyHandler(hotKeys, undefined)}
-            className={[
-              triggerBaseClasses,
-              controlHeightClasses[size],
-              controlTextLeadingClasses[size],
-              radiusClasses[size],
-              gapClasses[size],
-              paddingXClasses[density][size],
-              // An if/else rather than stacked variants: two Tailwind classes of
-              // equal specificity resolve by their order in the generated sheet.
-              disabled
-                ? disabledClasses[variant]
-                : readOnly
-                  ? `${fieldReadOnlyClasses[variant]} cursor-default`
-                  : fieldRestClasses[variant],
-              classNames?.control
-            ]
-              .filter(Boolean)
-              .join(' ')}
+          <FieldNotch
+            notched={notched}
+            size={size}
+            density={density}
+            variant={variant}
+            disabled={disabled}
+            readOnly={readOnly}
+            label={labelNode}
           >
-            {startIcon ? (
-              <span className="flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)">
-                {startIcon}
-              </span>
-            ) : null}
+            <BaseUISelect.Trigger
+              ref={ref}
+              // On the trigger rather than on the stack `...props` lands on: a chord
+              // is answered by the thing that has the focus, and a wrapper would
+              // fire for a key pressed on the label beside it.
+              onKeyDown={hotKeyHandler(hotKeys, undefined)}
+              style={notched ? notchShellStyle : undefined}
+              className={[
+                triggerBaseClasses,
+                notched ? '' : triggerRingClasses,
+                controlHeightClasses[size],
+                controlTextLeadingClasses[size],
+                radiusClasses[size],
+                gapClasses[size],
+                paddingXClasses[density][size],
+                // An if/else rather than stacked variants: two Tailwind classes of
+                // equal specificity resolve by their order in the generated sheet.
+                disabled
+                  ? disabledClasses[variant]
+                  : readOnly
+                    ? `${fieldReadOnlyClasses[variant]} cursor-default`
+                    : fieldRestClasses[variant],
+                classNames?.control
+              ]
+                .filter(Boolean)
+                .join(' ')}
+            >
+              {startIcon ? (
+                <span className="flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)">
+                  {startIcon}
+                </span>
+              ) : null}
 
-            {/* The value, and under it every label it could hold. `min-w-0` on the
+              {/* The value, and under it every label it could hold. `min-w-0` on the
               column is what keeps the whole thing shrinkable when a narrow
               container asks it to be. */}
-            <span className="flex min-w-0 flex-1 flex-col">
-              <BaseUISelect.Value
-                className={[
-                  'w-full truncate text-start',
-                  // The placeholder is muted the same way a PlTextField's is, so
-                  // an empty select and an empty field read as equally empty.
-                  'data-[placeholder]:text-(--plass-muted-fg)'
-                ].join(' ')}
-                placeholder={placeholder}
-              />
-              <WidthSizer samples={sizerSamples} />
-            </span>
+              <span className="flex min-w-0 flex-1 flex-col">
+                <BaseUISelect.Value
+                  className={[
+                    'w-full truncate text-start',
+                    // The placeholder is muted the same way a PlTextField's is, so
+                    // an empty select and an empty field read as equally empty.
+                    'data-[placeholder]:text-(--plass-muted-fg)'
+                  ].join(' ')}
+                  placeholder={placeholder}
+                />
+                <WidthSizer samples={sizerSamples} />
+              </span>
 
-            <BaseUISelect.Icon
-              className={[
-                'flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)',
-                // The chevron is the one thing here that may turn: it is a glyph,
-                // not a label, and nothing about it resamples.
-                '[transition:rotate_var(--plass-duration)_var(--plass-ease)]',
-                'data-[popup-open]:rotate-180'
-              ].join(' ')}
-            >
-              <ChevronIcon />
-            </BaseUISelect.Icon>
-          </BaseUISelect.Trigger>
+              <BaseUISelect.Icon
+                className={[
+                  'flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)',
+                  // The chevron is the one thing here that may turn: it is a glyph,
+                  // not a label, and nothing about it resamples.
+                  '[transition:rotate_var(--plass-duration)_var(--plass-ease)]',
+                  'data-[popup-open]:rotate-180'
+                ].join(' ')}
+              >
+                <ChevronIcon />
+              </BaseUISelect.Icon>
+            </BaseUISelect.Trigger>
+          </FieldNotch>
 
           <BaseUISelect.Portal>
             {/* `plass-portal` is a hook, not a style: a portalled popup leaves the

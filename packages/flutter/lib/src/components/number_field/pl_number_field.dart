@@ -11,6 +11,7 @@ import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/keys.dart';
+import 'package:plass_ui/src/internal/notch.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -122,6 +123,7 @@ class PlNumberField extends StatefulWidget {
     this.density,
     this.elevation = 0,
     this.label,
+    this.labelPlacement,
     this.description,
     this.error,
     this.invalid,
@@ -237,8 +239,13 @@ class PlNumberField extends StatefulWidget {
   /// resting on it.
   final PlassElevation elevation;
 
-  /// Label above the control.
+  /// The name of what the field holds.
   final Widget? label;
+
+  /// Where the [label] goes — above the control, or in its top edge.
+  ///
+  /// Falls back to the nearest [PlassTheme], then to [PlassFieldLabelPlacement.top].
+  final PlassFieldLabelPlacement? labelPlacement;
 
   /// Helper text below it.
   final Widget? description;
@@ -285,6 +292,8 @@ class _PlNumberFieldState extends State<PlNumberField> {
   PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
   PlassDensity get _density =>
       widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+  PlassFieldLabelPlacement get _labelPlacement =>
+      widget.labelPlacement ?? PlassTheme.labelPlacementOf(context) ?? PlassFieldLabelPlacement.top;
 
   late final TextEditingController _controller;
   FocusNode? _owned;
@@ -574,6 +583,9 @@ class _PlNumberFieldState extends State<PlNumberField> {
     final padX = paddingX[_density]![size]!;
     final showSteppers = widget.steppers != PlNumberFieldSteppers.none && !widget.readOnly;
     final split = widget.steppers == PlNumberFieldSteppers.split;
+    // A notch with nothing in it is a gap in the edge for no reason, so the
+    // placement only takes effect where there is a label to put there.
+    final notched = _labelPlacement == PlassFieldLabelPlacement.notch && widget.label != null;
 
     final surface = fieldSurface(
       tokens,
@@ -585,6 +597,19 @@ class _PlNumberFieldState extends State<PlNumberField> {
       readOnly: widget.readOnly,
       disabled: widget.disabled,
     );
+
+    // One widget for both placements, so the label a reader taps and the label
+    // a screen reader reads are the same widget wherever it is drawn.
+    final Widget? labelNode = widget.label == null
+        ? null
+        : DefaultTextStyle.merge(
+            style: TextStyle(
+              color: widget.disabled ? tokens.mutedFg : tokens.fg,
+              fontSize: meta,
+              fontWeight: FontWeight.w600,
+            ),
+            child: widget.label!,
+          );
 
     Widget adornment(Widget slot) {
       final ink = _focused ? family.accent : tokens.mutedFg;
@@ -816,7 +841,13 @@ class _PlNumberFieldState extends State<PlNumberField> {
 
     shell = ConstrainedBox(
       constraints: BoxConstraints(minHeight: controlHeight[size]!),
-      child: PlassSurfaceBox(surface: surface, borderRadius: radius, child: shell),
+      child: PlassSurfaceBox(
+        // A notched field hands its edge over: the line round it has a gap in
+        // it, and a gap is not something a border can have.
+        surface: notched ? surface.withoutBorder() : surface,
+        borderRadius: radius,
+        child: shell,
+      ),
     );
 
     shell = plassStateFilter(
@@ -826,14 +857,36 @@ class _PlNumberFieldState extends State<PlNumberField> {
       lit: false,
     );
 
-    // Kept in the tree with no painter while unfocused, so the focus arriving
-    // does not build the editor again without its text input connection.
-    shell = CustomPaint(
-      foregroundPainter: _focused
-          ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
-          : null,
-      child: shell,
-    );
+    if (notched) {
+      // No ring here: an outline is a rectangle and the label is sitting on the
+      // edge it would be drawn along, so the edge itself thickens instead.
+      shell = PlassFieldNotch(
+        size: size,
+        density: _density,
+        disabled: widget.disabled,
+        edge: notchEdgePainter(
+          tokens,
+          family,
+          variant: widget.variant,
+          borderRadius: radius,
+          hovered: _hovered,
+          focused: _focused,
+          readOnly: widget.readOnly,
+          disabled: widget.disabled,
+        ),
+        label: labelNode!,
+        child: shell,
+      );
+    } else {
+      // Kept in the tree with no painter while unfocused, so the focus arriving
+      // does not build the editor again without its text input connection.
+      shell = CustomPaint(
+        foregroundPainter: _focused
+            ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
+            : null,
+        child: shell,
+      );
+    }
 
     shell = MouseRegion(
       cursor: widget.disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.text,
@@ -879,15 +932,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
       mainAxisSize: MainAxisSize.min,
       spacing: stackGap[size]!,
       children: <Widget>[
-        if (widget.label != null)
-          DefaultTextStyle.merge(
-            style: TextStyle(
-              color: widget.disabled ? tokens.mutedFg : tokens.fg,
-              fontSize: meta,
-              fontWeight: FontWeight.w600,
-            ),
-            child: widget.label!,
-          ),
+        if (labelNode != null && !notched) labelNode,
         shell,
         if (widget.description != null)
           DefaultTextStyle.merge(

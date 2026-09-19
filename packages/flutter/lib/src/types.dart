@@ -425,6 +425,53 @@ enum PlassCorner {
   bottomEnd,
 }
 
+/// Where a **field-shaped** control puts the name of what it holds.
+///
+/// The placements a box has to offer, which are not the placements a tick has:
+/// a [PlCheckbox], a [PlRadio] and a [PlSwitch] put their label beside
+/// themselves and take `labelPlacement` out of [PlassAlign] instead — same
+/// question, same parameter name, the answers each shape actually has.
+///
+/// The cut is a real gap in the painted border rather than a patch of the page's
+/// own colour laid over it: a Plass field is translucent and the page behind it
+/// belongs to the application, so there is nothing to paint over the line with.
+/// The web package cuts the same gap with a `<legend>` in a `<fieldset>`, which
+/// is the browser's own version of this.
+///
+/// Two things follow from the label sitting on the edge, and both are
+/// deliberate:
+///
+/// - **Focus is the edge thickening rather than a ring.** A ring is a rectangle
+///   and would run straight through the label. The edge that is already there
+///   goes to 2px and takes the family's colour instead, which is what the flush
+///   ring was drawn to look like anyway.
+/// - **The label no longer widens the control.** It is painted over the edge
+///   rather than laid out above it, so a label longer than a narrow field runs
+///   past its end. Give the field `fullWidth`, or keep the word short — a notch
+///   is a place for "Email", not for a sentence.
+///
+/// Only [PlassVariant.glass] has a hairline to cut. On `solid` and `ghost` the
+/// label sits in the same place and there is simply nothing there to take out,
+/// so a form that mixes the three keeps one baseline for its labels.
+///
+/// **[PlOtpField] is the one labelled field that does not take this**, and the
+/// reason is the same one that decides everything above: a notch is a segment
+/// taken out of one continuous edge, and a row of separate boxes with gaps
+/// between them has no such edge. Cutting only the first box leaves the word
+/// lying across the two after it, which is worse than the label above the row
+/// that it keeps.
+enum PlassFieldLabelPlacement {
+  /// Above the control, on its own line. The default, and the one that is
+  /// always safe: the label is a widget in the layout, it can wrap, and nothing
+  /// about the control's edge has to make room for it.
+  top,
+
+  /// In the control's own top edge, with the border cut away behind it. Buys
+  /// back a row of vertical space and ties the name to the box rather than to
+  /// whatever is above it.
+  notch,
+}
+
 /// A day of the week, **Sunday first**.
 ///
 /// The React package spells this as `0`–`6`, matching `Date.getDay()`; an enum

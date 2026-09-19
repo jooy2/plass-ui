@@ -34,7 +34,13 @@
 import * as React from 'react';
 import type { PlassLabels } from './labels.js';
 import type { PlassDirection } from './direction.js';
-import type { PlassColor, PlassDensity, PlassSize, PlassWeekday } from '../types.js';
+import type {
+  PlassColor,
+  PlassDensity,
+  PlassFieldLabelPlacement,
+  PlassSize,
+  PlassWeekday
+} from '../types.js';
 
 /** Everything a `PlassProvider` can decide for the tree under it. */
 export interface PlassDefaults {
@@ -44,6 +50,19 @@ export interface PlassDefaults {
   color?: PlassColor;
   /** How tightly they pack their content. */
   density?: PlassDensity;
+  /**
+   * Where a labelled control puts its label — above the box, or in the box's
+   * top edge.
+   *
+   * Here for the same reason `density` is: a product whose forms notch their
+   * labels notches all of them, and the decision is the application's rather
+   * than the field's. A component's own `labelPlacement` still wins, which is
+   * what a form with one field that genuinely cannot take a notch needs.
+   *
+   * `PlOtpField` is not reached by it: a row of separate boxes has no one edge
+   * to cut, so its label stays above the row whatever this says.
+   */
+  labelPlacement?: PlassFieldLabelPlacement;
   /** The BCP 47 tag the date and time components format and read against. */
   locale?: string;
   /** Which day their weeks start on, as `Date` counts them — Sunday is `0`. */

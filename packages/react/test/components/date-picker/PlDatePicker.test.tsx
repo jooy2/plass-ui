@@ -545,4 +545,19 @@ describe('PlDatePicker', () => {
       expect(new FormData(form as HTMLFormElement).get('departure')).toBe('2026-07-27');
     });
   });
+
+  describe('labelPlacement', () => {
+    it("puts the label in the trigger's edge when notched", async () => {
+      const screen = await render(
+        <PlDatePicker label="Departure" labelPlacement="notch" defaultValue={JULY_27} />
+      );
+      const trigger = screen.getByRole('button', { name: /Departure/ }).element() as HTMLElement;
+      const legend = document.querySelector('legend');
+
+      // Every picker draws `internal/picker`'s shell, so this is the one that
+      // stands for the six of them.
+      expect(legend?.textContent).toBe('Departure');
+      expect(legend?.querySelector('label')?.getAttribute('for')).toBe(trigger.id);
+    });
+  });
 });

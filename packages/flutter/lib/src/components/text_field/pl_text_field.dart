@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/keys.dart';
+import 'package:plass_ui/src/internal/notch.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -45,9 +46,11 @@ const Map<PlassSize, double> _multilinePaddingY = <PlassSize, double>{
 ///
 /// [label], [description] and [error] are parameters rather than three widgets a
 /// caller wires together: the arrangement is fixed, and what a caller wants to
-/// decide is what goes in each slot. There is no floating label on purpose — a
-/// floating label moves under the caret, which is the one effect this library
-/// rules out on a control.
+/// decide is what goes in each slot. [labelPlacement] decides whether the label
+/// sits above the box or in its top edge; there is still no floating label on
+/// purpose, and a notch is not one — a floating label is animated out of the
+/// control as the caret arrives, which moves text under the caret, and the
+/// notch is where it always was.
 class PlTextField extends StatefulWidget {
   /// Creates a field.
   const PlTextField({
@@ -63,6 +66,7 @@ class PlTextField extends StatefulWidget {
     this.multiline = false,
     this.rows = 3,
     this.label,
+    this.labelPlacement,
     this.description,
     this.error,
     this.invalid,
@@ -131,8 +135,13 @@ class PlTextField extends StatefulWidget {
   /// height.
   final int rows;
 
-  /// Label above the control.
+  /// The name of what the field holds.
   final Widget? label;
+
+  /// Where the [label] goes — above the control, or in its top edge.
+  ///
+  /// Falls back to the nearest [PlassTheme], then to [PlassFieldLabelPlacement.top].
+  final PlassFieldLabelPlacement? labelPlacement;
 
   /// Helper text below it.
   final Widget? description;
@@ -201,6 +210,8 @@ class _PlTextFieldState extends State<PlTextField> {
   PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
   PlassDensity get _density =>
       widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+  PlassFieldLabelPlacement get _labelPlacement =>
+      widget.labelPlacement ?? PlassTheme.labelPlacementOf(context) ?? PlassFieldLabelPlacement.top;
 
   FocusNode? _owned;
   TextEditingController? _fallback;
@@ -253,6 +264,9 @@ class _PlTextFieldState extends State<PlTextField> {
     final scale = controlTextLeading[size]!;
     final meta = metaText[size]!;
     final radius = BorderRadius.circular(PlassTokens.radius[size]!);
+    // A notch with nothing in it is a gap in the edge for no reason, so the
+    // placement only takes effect where there is a label to put there.
+    final notched = _labelPlacement == PlassFieldLabelPlacement.notch && widget.label != null;
 
     final surface = fieldSurface(
       tokens,
@@ -386,7 +400,13 @@ class _PlTextFieldState extends State<PlTextField> {
 
     shell = ConstrainedBox(
       constraints: BoxConstraints(minHeight: controlHeight[size]!),
-      child: PlassSurfaceBox(surface: surface, borderRadius: radius, child: shell),
+      child: PlassSurfaceBox(
+        // A notched field hands its edge over: the line round it has a gap in
+        // it, and a gap is not something a border can have.
+        surface: notched ? surface.withoutBorder() : surface,
+        borderRadius: radius,
+        child: shell,
+      ),
     );
 
     shell = plassStateFilter(
@@ -396,17 +416,52 @@ class _PlTextFieldState extends State<PlTextField> {
       lit: false,
     );
 
-    // The ring belongs to the shell rather than to the editor inside it, so it
-    // traces the glass edge rather than a rectangle floating inside it. The
-    // `CustomPaint` stays in the tree with no painter while the field is not
-    // focused: adding it on focus would build the editor again, and the new one
-    // has no text input connection.
-    shell = CustomPaint(
-      foregroundPainter: _focused
-          ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
-          : null,
-      child: shell,
-    );
+    // One widget for both placements, so the label a reader taps and the label
+    // a screen reader reads are the same widget wherever it is drawn.
+    final Widget? labelNode = widget.label == null
+        ? null
+        : DefaultTextStyle.merge(
+            style: TextStyle(
+              color: widget.disabled ? tokens.mutedFg : tokens.fg,
+              fontSize: meta,
+              fontWeight: FontWeight.w600,
+            ),
+            child: widget.label!,
+          );
+
+    if (notched) {
+      // No ring here: an outline is a rectangle and the label is sitting on the
+      // edge it would be drawn along, so the edge itself thickens instead.
+      shell = PlassFieldNotch(
+        size: size,
+        density: _density,
+        disabled: widget.disabled,
+        edge: notchEdgePainter(
+          tokens,
+          family,
+          variant: widget.variant,
+          borderRadius: radius,
+          hovered: _hovered,
+          focused: _focused,
+          readOnly: widget.readOnly,
+          disabled: widget.disabled,
+        ),
+        label: labelNode!,
+        child: shell,
+      );
+    } else {
+      // The ring belongs to the shell rather than to the editor inside it, so it
+      // traces the glass edge rather than a rectangle floating inside it. The
+      // `CustomPaint` stays in the tree with no painter while the field is not
+      // focused: adding it on focus would build the editor again, and the new one
+      // has no text input connection.
+      shell = CustomPaint(
+        foregroundPainter: _focused
+            ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
+            : null,
+        child: shell,
+      );
+    }
 
     shell = MouseRegion(
       cursor: widget.disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.text,
@@ -427,15 +482,7 @@ class _PlTextFieldState extends State<PlTextField> {
       mainAxisSize: MainAxisSize.min,
       spacing: stackGap[size]!,
       children: <Widget>[
-        if (widget.label != null)
-          DefaultTextStyle.merge(
-            style: TextStyle(
-              color: widget.disabled ? tokens.mutedFg : tokens.fg,
-              fontSize: meta,
-              fontWeight: FontWeight.w600,
-            ),
-            child: widget.label!,
-          ),
+        if (labelNode != null && !notched) labelNode,
         shell,
         if (widget.description != null)
           DefaultTextStyle.merge(

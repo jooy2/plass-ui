@@ -150,6 +150,53 @@ export type PlassOverscroll = 'auto' | 'contain';
 export type PlassCorner = 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end';
 
 /**
+ * Where a **field-shaped** control puts the name of what it holds.
+ *
+ * The placements a box has to offer, which are not the placements a tick has:
+ * a PlCheckbox, a PlRadio and a PlSwitch put their label beside themselves and
+ * take `labelPlacement` out of `PlassAlign` instead — same question, same prop
+ * name, the answers each shape actually has. See `PlSwitchLabelPlacement`.
+ *
+ * - `top` — above the control, on its own line. The default, and the one that
+ *   is always safe: the label is a block of text in the layout, it can wrap, it
+ *   can be as long as it needs to be, and nothing about the control's edge has
+ *   to make room for it.
+ * - `notch` — in the control's own top edge, with the hairline cut away behind
+ *   it. The label stops being a line of the form and becomes part of the field,
+ *   which buys back a row of vertical space and ties the name to the box rather
+ *   than to whatever is above it.
+ *
+ * The cut is a real one — a `<legend>` in a `<fieldset>`, which is the only way
+ * to take a segment out of a border without knowing what is behind it. Nothing
+ * here paints over the line with the page's colour, because a library that does
+ * not paint the page cannot know what colour that is, and a Plass field is
+ * translucent besides.
+ *
+ * Two things follow from the label sitting on the edge, and both are deliberate:
+ *
+ * - **Focus is the edge thickening rather than a ring.** An outline is a
+ *   rectangle and would run straight through the label. The edge that is
+ *   already there goes to 2px and takes the family's colour instead, which is
+ *   what the flush ring was drawn to look like anyway.
+ * - **The label no longer widens the control.** It is out of the flow, so a
+ *   label longer than a narrow field runs past its end. Give the field
+ *   `fullWidth`, or keep the word short — a notch is a place for "Email", not
+ *   for a sentence.
+ *
+ * Only `glass` has a hairline to cut. On `solid` and `ghost` the label sits in
+ * the same place and there is simply nothing there to take out, so a form that
+ * mixes the three keeps one baseline for its labels.
+ *
+ * **`PlOtpField` is the one labelled field that does not take this**, and the
+ * reason is the same one that decides everything above: a notch is a segment
+ * taken out of one continuous edge, and a row of separate boxes with gaps
+ * between them has no such edge. Cutting only the first box leaves the word
+ * lying across the two after it, which is worse than the label above the row
+ * that it keeps.
+ */
+export type PlassFieldLabelPlacement = 'top' | 'notch';
+
+/**
  * What a surface is made of. This is the library's own name, and the two
  * materials in it are the whole design language.
  *

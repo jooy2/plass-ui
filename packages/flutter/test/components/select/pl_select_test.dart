@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/notch.dart';
 
 import '../../support/host.dart';
 
@@ -383,6 +384,31 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(_row('Tokyo'), findsOneWidget);
+      });
+    });
+
+    group('labelPlacement', () {
+      testWidgets('puts the label in the trigger\'s own top edge', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            PlSelect<String>(
+              options: _cities,
+              value: null,
+              label: const Text('City'),
+              labelPlacement: PlassFieldLabelPlacement.notch,
+              onChanged: (String? _) {},
+            ),
+            width: 320,
+          ),
+        );
+
+        final field = tester.getRect(find.byType(PlSelect<String>));
+
+        expect(find.byType(PlassFieldNotch), findsOneWidget);
+        expect(
+          tester.getRect(find.text('City')).center.dy,
+          closeTo(field.top + notchRise(PlassSize.md), 0.5),
+        );
       });
     });
   });

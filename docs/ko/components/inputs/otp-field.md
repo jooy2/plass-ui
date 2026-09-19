@@ -105,6 +105,8 @@ PlOtpField(
 
 `PlTextField`, `PlSelect`와 같은 field 껍데기입니다. 칸은 field 모양의 상자이고, 둘을 함께 담은 폼이 서로 다른 폼 키트를 쌓아 놓은 것처럼 보여서는 안 되기 때문입니다. `solid`는 색이 든 판이 아니라 **웰**입니다. 가장 불투명한 유리에 그림자가 안쪽으로 떨어지는 것. text field에서와 같은 이유입니다. 캐럿과 선택 영역이 그 위에서 읽혀야 합니다.
 
+두 컴포넌트와 갈라지는 곳은 라벨 하나입니다. 여기에는 `labelPlacement`도 notch도 없습니다. notch는 이어진 테두리 하나에서 한 구간을 덜어내는 것인데, 이쪽은 사이가 벌어진 상자 여러 개입니다. 첫 상자만 자르면 그다음 두 상자 위에 글자가 걸칩니다. 라벨은 줄 위에 남습니다. 다른 필드를 모두 notch로 돌린 `PlassProvider` 아래에서도 그렇습니다.
+
 <Demo src="otp-field/variants" :min-height="280">
 
 ::: fw react

@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/notch.dart';
 
 import '../../support/host.dart';
 
@@ -531,6 +532,30 @@ void main() {
         await tester.pump();
 
         expect(saved, 1);
+      });
+    });
+
+    group('labelPlacement', () {
+      testWidgets('puts the label in the field\'s own top edge', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            const PlNumberField(
+              value: 3,
+              fullWidth: true,
+              label: Text('Quantity'),
+              labelPlacement: PlassFieldLabelPlacement.notch,
+            ),
+            width: 320,
+          ),
+        );
+
+        final field = tester.getRect(find.byType(PlNumberField));
+
+        expect(find.byType(PlassFieldNotch), findsOneWidget);
+        expect(
+          tester.getRect(find.text('Quantity')).center.dy,
+          closeTo(field.top + notchRise(PlassSize.md), 0.5),
+        );
       });
     });
   });

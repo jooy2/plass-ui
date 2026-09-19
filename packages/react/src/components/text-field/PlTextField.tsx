@@ -5,6 +5,7 @@ import { useDefaults } from '../../internal/defaults.js';
 import { Field } from '@base-ui/react/field';
 import { Input } from '@base-ui/react/input';
 import { Spinner } from '../../internal/icons.js';
+import { FieldNotch, notchShellStyle } from '../../internal/notch.js';
 import { hotKeyHandler } from '../../internal/keys.js';
 import {
   controlHeightClasses,
@@ -29,6 +30,7 @@ import type {
   PlassElevation,
   PlassFieldClassNames,
   PlassHotKeys,
+  PlassFieldLabelPlacement,
   PlassSize,
   PlassStyleProps
 } from '../../types.js';
@@ -81,12 +83,22 @@ export interface PlTextFieldProps extends PlassStyleProps, NativeControlProps {
    */
   resize?: PlTextFieldResize;
   /**
-   * Label above the control, wired to it by Base UI's Field. There is no
-   * floating variant on purpose: a floating label needs a `transform` on the
-   * thing being typed into, and a label that moves under the caret is the one
-   * effect this library rules out on a control.
+   * The name of what the field holds, wired to the control by Base UI's Field.
+   * `labelPlacement` decides whether it sits above the box or in its top edge.
+   *
+   * There is no floating variant on purpose, and a notch is not one: a floating
+   * label is animated out of the control as the caret arrives, which needs a
+   * `transform` on the thing being typed into, and a label that moves under the
+   * caret is the one effect this library rules out on a control. The notch is
+   * where it always was.
    */
   label?: React.ReactNode;
+  /**
+   * Where the `label` goes — above the control, or in its top edge.
+   * Falls back to the nearest `PlassProvider`, then to `top`.
+   * @default 'top'
+   */
+  labelPlacement?: PlassFieldLabelPlacement;
   /** Helper text below the control. */
   description?: React.ReactNode;
   /** Error message below the control. Its presence also turns the field invalid. */
@@ -156,11 +168,17 @@ const shellBaseClasses = /* @__PURE__ */ [
   'group relative flex w-full cursor-text',
   '[-webkit-tap-highlight-color:transparent]',
   transitionClasses,
-  // The ring belongs to the shell, not to the control inside it, so it traces
-  // the glass edge rather than a rectangle floating inside it.
-  focusWithinRingClasses,
   iconClasses
 ].join(' ');
+
+/**
+ * The ring belongs to the shell, not to the control inside it, so it traces the
+ * glass edge rather than a rectangle floating inside it — and it is added at
+ * the call site rather than above, because a notched field does not have one.
+ * An outline is a rectangle and the label is sitting on the edge it would be
+ * drawn along; there the edge itself thickens instead. See `internal/notch`.
+ */
+const shellRingClasses = focusWithinRingClasses;
 
 /**
  * The shell, the read-only treatment and the disabled treatment are the ones
@@ -184,6 +202,7 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
     rows = 3,
     resize = 'vertical',
     label,
+    labelPlacement: labelPlacementProp,
     description,
     error,
     invalid,
@@ -207,6 +226,10 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
   const size = sizeProp ?? defaults.size ?? 'md';
   const color = colorProp ?? defaults.color ?? 'primary';
   const density = densityProp ?? defaults.density ?? 'default';
+  const labelPlacement = labelPlacementProp ?? defaults.labelPlacement ?? 'top';
+  // A notch with nothing in it is a gap in the edge for no reason, so the
+  // placement only takes effect where there is a label to put there.
+  const notched = labelPlacement === 'notch' && hasContent(label);
 
   const hasError = hasContent(error);
   const isInvalid = invalid ?? hasError;
@@ -230,6 +253,7 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
 
   const shellClasses = [
     shellBaseClasses,
+    notched ? '' : shellRingClasses,
     sizeClasses[size],
     multiline
       ? `${multilineClasses[size]} items-start`
@@ -259,6 +283,22 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
   const adornmentClasses =
     'inline-flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg) transition-[color] duration-(--plass-duration) group-focus-within:text-(--p-accent)';
 
+  // One element for both placements, so the label a reader clicks and the label
+  // a screen reader reads are the same element wherever it is drawn. The notch
+  // supplies the line height and the position; everything else is here.
+  const labelNode = (
+    <Field.Label
+      className={cx(
+        metaTextClasses[size],
+        'font-semibold',
+        disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)',
+        classNames?.label
+      )}
+    >
+      {label}
+    </Field.Label>
+  );
+
   return (
     <Field.Root
       disabled={disabled}
@@ -273,57 +313,57 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
         .join(' ')}
       style={{ ...surfaceSlots(family, elevation), ...style }}
     >
-      {label ? (
-        <Field.Label
-          className={cx(
-            metaTextClasses[size],
-            'font-semibold',
-            disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)',
-            classNames?.label
-          )}
-        >
-          {label}
-        </Field.Label>
-      ) : null}
+      {hasContent(label) && !notched ? labelNode : null}
 
-      <span
-        className={cx(shellClasses, classNames?.control)}
-        onPointerDown={(event) => {
-          // Clicking the shell's own padding should put the caret in the field,
-          // the way clicking anywhere inside a native input does. Only when the
-          // shell itself was hit — a click on the control or on an adornment is
-          // left alone so text selection still works.
-          if (event.target === event.currentTarget && !disabled) {
-            event.preventDefault();
-            controlRef.current?.focus();
-          }
-        }}
+      <FieldNotch
+        notched={notched}
+        size={size}
+        density={density}
+        variant={variant}
+        disabled={disabled}
+        readOnly={readOnly}
+        label={labelNode}
       >
-        {startIcon ? <span className={adornmentClasses}>{startIcon}</span> : null}
+        <span
+          className={cx(shellClasses, classNames?.control)}
+          style={notched ? notchShellStyle : undefined}
+          onPointerDown={(event) => {
+            // Clicking the shell's own padding should put the caret in the field,
+            // the way clicking anywhere inside a native input does. Only when the
+            // shell itself was hit — a click on the control or on an adornment is
+            // left alone so text selection still works.
+            if (event.target === event.currentTarget && !disabled) {
+              event.preventDefault();
+              controlRef.current?.focus();
+            }
+          }}
+        >
+          {startIcon ? <span className={adornmentClasses}>{startIcon}</span> : null}
 
-        <Input
-          ref={setControlRef}
-          className={controlClasses}
-          disabled={disabled}
-          readOnly={readOnly}
-          aria-busy={loading || undefined}
-          data-loading={loading || undefined}
-          // On the control rather than on the shell: a chord is answered by the
-          // thing that has the focus, and `hotKeys` on a wrapper would fire for
-          // a key pressed on the label beside it.
-          onKeyDown={hotKeyHandler(hotKeys, onKeyDown)}
-          {...(multiline ? { render: <textarea rows={rows} /> } : { type })}
-          {...props}
-        />
+          <Input
+            ref={setControlRef}
+            className={controlClasses}
+            disabled={disabled}
+            readOnly={readOnly}
+            aria-busy={loading || undefined}
+            data-loading={loading || undefined}
+            // On the control rather than on the shell: a chord is answered by the
+            // thing that has the focus, and `hotKeys` on a wrapper would fire for
+            // a key pressed on the label beside it.
+            onKeyDown={hotKeyHandler(hotKeys, onKeyDown)}
+            {...(multiline ? { render: <textarea rows={rows} /> } : { type })}
+            {...props}
+          />
 
-        {loading ? (
-          <span className={adornmentClasses}>
-            <Spinner />
-          </span>
-        ) : endIcon ? (
-          <span className={adornmentClasses}>{endIcon}</span>
-        ) : null}
-      </span>
+          {loading ? (
+            <span className={adornmentClasses}>
+              <Spinner />
+            </span>
+          ) : endIcon ? (
+            <span className={adornmentClasses}>{endIcon}</span>
+          ) : null}
+        </span>
+      </FieldNotch>
 
       {description ? (
         <Field.Description

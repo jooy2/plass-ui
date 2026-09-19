@@ -11,6 +11,7 @@ import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/keys.dart';
 import 'package:plass_ui/src/internal/list_reveal.dart';
+import 'package:plass_ui/src/internal/notch.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/internal/text.dart';
@@ -112,6 +113,7 @@ class PlSelect<T> extends StatefulWidget {
     this.density,
     this.elevation = 0,
     this.label,
+    this.labelPlacement,
     this.description,
     this.error,
     this.invalid,
@@ -168,8 +170,13 @@ class PlSelect<T> extends StatefulWidget {
   /// genuinely floats above the page, which is the one case elevation is for.
   final PlassElevation elevation;
 
-  /// Label above the trigger.
+  /// The name of what the select holds.
   final Widget? label;
+
+  /// Where the [label] goes — above the trigger, or in its top edge.
+  ///
+  /// Falls back to the nearest [PlassTheme], then to [PlassFieldLabelPlacement.top].
+  final PlassFieldLabelPlacement? labelPlacement;
 
   /// Helper text below it.
   final Widget? description;
@@ -210,6 +217,8 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
   PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
   PlassDensity get _density =>
       widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+  PlassFieldLabelPlacement get _labelPlacement =>
+      widget.labelPlacement ?? PlassTheme.labelPlacementOf(context) ?? PlassFieldLabelPlacement.top;
 
   final ScrollController _scroll = ScrollController();
   final PlassRowReveal _reveal = PlassRowReveal();
@@ -328,6 +337,26 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
     final meta = metaText[size]!;
     final radius = BorderRadius.circular(PlassTokens.radius[size]!);
     final chosen = _chosen;
+    // A notch with nothing in it is a gap in the edge for no reason, so the
+    // placement only takes effect where there is a label to put there.
+    final notched = _labelPlacement == PlassFieldLabelPlacement.notch && widget.label != null;
+
+    // One widget for both placements, so the label a reader taps and the label
+    // a screen reader reads are the same widget wherever it is drawn — the
+    // exclusion included, or the notch would name the trigger a second time.
+    final Widget? labelNode = widget.label == null
+        ? null
+        : ExcludeSemantics(
+            excluding: widget.semanticLabel == null && plassTextOf(widget.label) != null,
+            child: DefaultTextStyle.merge(
+              style: TextStyle(
+                color: widget.disabled ? tokens.mutedFg : tokens.fg,
+                fontSize: meta,
+                fontWeight: FontWeight.w600,
+              ),
+              child: widget.label!,
+            ),
+          );
 
     Widget trigger = PlassInteractive(
       onTap: _open ? () => _take(_highlighted) : _openList,
@@ -370,7 +399,9 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
         Widget shell = ConstrainedBox(
           constraints: BoxConstraints(minHeight: controlHeight[size]!),
           child: PlassSurfaceBox(
-            surface: surface,
+            // A notched trigger hands its edge over: the line round it has a
+            // gap in it, and a gap is not something a border can have.
+            surface: notched ? surface.withoutBorder() : surface,
             borderRadius: radius,
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: paddingX[_density]![size]!),
@@ -416,7 +447,27 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
           lit: false,
         );
 
-        if (state.focusVisible) {
+        if (notched) {
+          // No ring here: an outline is a rectangle and the label is sitting on
+          // the edge it would be drawn along, so the edge itself thickens.
+          shell = PlassFieldNotch(
+            size: size,
+            density: _density,
+            disabled: widget.disabled,
+            edge: notchEdgePainter(
+              tokens,
+              family,
+              variant: widget.variant,
+              borderRadius: radius,
+              hovered: state.hovered,
+              focused: state.focusVisible || _open,
+              readOnly: widget.readOnly,
+              disabled: widget.disabled,
+            ),
+            label: labelNode!,
+            child: shell,
+          );
+        } else if (state.focusVisible) {
           shell = CustomPaint(
             foregroundPainter: PlassFocusRingPainter(color: family.ring, borderRadius: radius),
             child: shell,
@@ -497,20 +548,9 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
       mainAxisSize: MainAxisSize.min,
       spacing: stackGap[size]!,
       children: <Widget>[
-        if (widget.label != null)
-          // Left out of the tree when its words already name the trigger, so the
-          // label is not read once on its own and again as the trigger.
-          ExcludeSemantics(
-            excluding: widget.semanticLabel == null && plassTextOf(widget.label) != null,
-            child: DefaultTextStyle.merge(
-              style: TextStyle(
-                color: widget.disabled ? tokens.mutedFg : tokens.fg,
-                fontSize: meta,
-                fontWeight: FontWeight.w600,
-              ),
-              child: widget.label!,
-            ),
-          ),
+        // Left out of the tree when its words already name the trigger, so the
+        // label is not read once on its own and again as the trigger.
+        if (labelNode != null && !notched) labelNode,
         field,
         if (widget.description != null)
           DefaultTextStyle.merge(

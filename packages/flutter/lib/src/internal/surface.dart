@@ -65,6 +65,23 @@ class PlassSurface {
   /// Shadows that fall outside it: the elevation ladder and the tinted lift.
   final List<BoxShadow> shadows;
 
+  /// The same surface with no border at all — for a control whose edge is being
+  /// drawn by something else.
+  ///
+  /// A notched field is the one caller: the line round it has a gap in it where
+  /// the label sits, and a gap is not something a [BoxBorder] can have. See
+  /// `internal/notch`.
+  PlassSurface withoutBorder() {
+    return PlassSurface(
+      ink: ink,
+      fill: fill,
+      gradient: gradient,
+      blur: blur,
+      insets: insets,
+      shadows: shadows,
+    );
+  }
+
   /// The same surface with [shadows] replaced — for a caller that has already
   /// decided a surface and only needs to change how far off the page it is.
   PlassSurface withShadows(List<BoxShadow> replacement) {

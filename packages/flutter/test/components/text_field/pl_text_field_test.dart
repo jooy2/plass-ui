@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/notch.dart';
 
 import '../../support/host.dart';
 
@@ -357,6 +358,143 @@ void main() {
         expect(cancelled, 1);
         // The chord stopped at the field; the key nobody claimed carried on.
         expect(escaped, <LogicalKeyboardKey>[LogicalKeyboardKey.f2]);
+      });
+    });
+
+    group('labelPlacement', () {
+      testWidgets('leaves the label above the control by default', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(const PlTextField(fullWidth: true, label: Text('Email')), width: 320),
+        );
+
+        expect(find.byType(PlassFieldNotch), findsNothing);
+        expect(
+          tester.getRect(find.text('Email')).bottom,
+          lessThan(tester.getRect(find.byType(EditableText)).top),
+        );
+      });
+
+      testWidgets('puts the label on the control\'s own top edge when notched', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            const PlTextField(
+              fullWidth: true,
+              label: Text('Email'),
+              labelPlacement: PlassFieldLabelPlacement.notch,
+            ),
+            width: 320,
+          ),
+        );
+
+        final field = tester.getRect(find.byType(PlTextField));
+        final label = tester.getRect(find.text('Email'));
+        final rise = notchRise(PlassSize.md);
+
+        // The box starts half a label below the top of the widget, and the
+        // label's middle is exactly there — which is what puts the cut across
+        // the middle of the word rather than above or below it.
+        expect(label.center.dy, closeTo(field.top + rise, 0.5));
+        expect(
+          label.left,
+          closeTo(
+            field.left + notchInset(PlassDensity.standard, PlassSize.md) + notchPad(PlassSize.md),
+            0.5,
+          ),
+        );
+      });
+
+      testWidgets('hands the edge over, so the line can have a gap in it', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            const PlTextField(
+              fullWidth: true,
+              label: Text('Email'),
+              labelPlacement: PlassFieldLabelPlacement.notch,
+            ),
+            width: 320,
+          ),
+        );
+
+        // A gap is not something a `Border` can have, so the surface draws none
+        // and the notch paints the line instead.
+        expect(shellOf(tester).border, isNull);
+        expect(find.byType(PlassFieldNotch), findsOneWidget);
+      });
+
+      testWidgets('cuts the label\'s own segment out of that line', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            const PlTextField(
+              fullWidth: true,
+              label: Text('Email'),
+              labelPlacement: PlassFieldLabelPlacement.notch,
+            ),
+            width: 320,
+          ),
+        );
+
+        final clip = tester.widget<ClipPath>(
+          find.descendant(of: find.byType(PlassFieldNotch), matching: find.byType(ClipPath)),
+        );
+        final Size box = tester.getSize(find.byType(EditableText).first);
+        final Path path = clip.clipper!.getClip(Size(320, box.height));
+        final label = tester.getRect(find.text('Email'));
+        final field = tester.getRect(find.byType(PlTextField));
+
+        // The top edge is gone where the word is and still there past it.
+        expect(path.contains(Offset(label.center.dx - field.left, 0)), isFalse);
+        expect(path.contains(Offset(label.right - field.left + 8, 0)), isTrue);
+      });
+
+      testWidgets('takes the placement from the theme, and the widget wins over it', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            PlassTheme(
+              brightness: Brightness.light,
+              defaults: const PlassDefaults(labelPlacement: PlassFieldLabelPlacement.notch),
+              child: const PlTextField(fullWidth: true, label: Text('Email')),
+            ),
+            width: 320,
+          ),
+        );
+
+        expect(find.byType(PlassFieldNotch), findsOneWidget);
+
+        await tester.pumpWidget(
+          host(
+            PlassTheme(
+              brightness: Brightness.light,
+              defaults: const PlassDefaults(labelPlacement: PlassFieldLabelPlacement.notch),
+              child: const PlTextField(
+                fullWidth: true,
+                label: Text('Email'),
+                labelPlacement: PlassFieldLabelPlacement.top,
+              ),
+            ),
+            width: 320,
+          ),
+        );
+
+        expect(find.byType(PlassFieldNotch), findsNothing);
+      });
+
+      testWidgets('draws no notch when there is no label to put in it', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            const PlTextField(fullWidth: true, labelPlacement: PlassFieldLabelPlacement.notch),
+            width: 320,
+          ),
+        );
+
+        expect(find.byType(PlassFieldNotch), findsNothing);
       });
     });
   });
