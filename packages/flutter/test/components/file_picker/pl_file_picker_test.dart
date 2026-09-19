@@ -1,3 +1,4 @@
+import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -23,6 +24,7 @@ class _Harness extends StatefulWidget {
     this.maxFiles,
     this.readOnly = false,
     this.disabled = false,
+    this.showRejections = true,
     this.onRejected,
   });
 
@@ -34,6 +36,7 @@ class _Harness extends StatefulWidget {
   final int? maxFiles;
   final bool readOnly;
   final bool disabled;
+  final bool showRejections;
   final ValueChanged<List<PlFileRejection>>? onRejected;
 
   @override
@@ -55,6 +58,7 @@ class _HarnessState extends State<_Harness> {
       maxFiles: widget.maxFiles,
       readOnly: widget.readOnly,
       disabled: widget.disabled,
+      showRejections: widget.showRejections,
       onRejected: widget.onRejected,
       onBrowse: () async => widget.found,
       onFilesChanged: (List<PlFile> next) => setState(() => _files = next),
@@ -271,6 +275,107 @@ void main() {
 
         expect(state.files.length, 2);
         expect(turned.single.reason, PlFileRejectionReason.count);
+      });
+    });
+
+    group('saying what was turned away', () {
+      testWidgets('says why, grouped by reason and counted', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          const _Harness(
+            multiple: true,
+            accept: 'application/pdf',
+            maxSize: 2000,
+            found: <PlFile>[_photo, _huge, _paper],
+          ),
+        );
+
+        await tester.tap(find.text('Choose files'));
+        await tester.pumpAndSettle();
+
+        // One line per reason rather than one per file: a folder handed to a
+        // picker with a `maxFiles` of five is ninety-five lines of the same
+        // sentence.
+        // The two pictures are the wrong kind; the PDF is the right kind and
+        // over the size. Each reason gets one line, whatever it cost.
+        expect(find.text('2 files are not an accepted type'), findsOneWidget);
+        expect(find.text('1 file is too large'), findsOneWidget);
+      });
+
+      testWidgets('says so about the count as well', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          const _Harness(multiple: true, maxFiles: 1, found: <PlFile>[_photo, _paper, _huge]),
+        );
+
+        await tester.tap(find.text('Choose files'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('2 files did not fit'), findsOneWidget);
+      });
+
+      testWidgets('announces it politely rather than interrupting', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await _pump(tester, const _Harness(accept: 'application/pdf', found: <PlFile>[_photo]));
+
+        await tester.tap(find.text('Choose files'));
+        await tester.pumpAndSettle();
+
+        expect(find.semantics.byFlag(SemanticsFlag.isLiveRegion), findsOneWidget);
+        handle.dispose();
+      });
+
+      testWidgets('drops the message once the reader does something else', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          const _Harness(
+            multiple: true,
+            accept: 'application/pdf',
+            found: <PlFile>[_photo, _paper],
+          ),
+        );
+
+        await tester.tap(find.text('Choose files'));
+        await tester.pumpAndSettle();
+        expect(find.text('1 file is not an accepted type'), findsOneWidget);
+
+        await tester.tap(find.bySemanticsLabel('Remove notes.pdf'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('1 file is not an accepted type'), findsNothing);
+      });
+
+      testWidgets('says nothing when the batch was taken whole', (WidgetTester tester) async {
+        await _pump(tester, const _Harness(found: <PlFile>[_paper]));
+
+        await tester.tap(find.text('Choose files'));
+        await tester.pumpAndSettle();
+
+        expect(find.textContaining('not an accepted type'), findsNothing);
+        expect(find.textContaining('did not fit'), findsNothing);
+      });
+
+      testWidgets('can be told to leave it to `onRejected`', (WidgetTester tester) async {
+        final turned = <PlFileRejection>[];
+
+        await _pump(
+          tester,
+          _Harness(
+            accept: 'application/pdf',
+            showRejections: false,
+            found: const <PlFile>[_photo],
+            onRejected: turned.addAll,
+          ),
+        );
+
+        await tester.tap(find.text('Choose files'));
+        await tester.pumpAndSettle();
+
+        expect(turned, hasLength(1));
+        expect(find.textContaining('not an accepted type'), findsNothing);
       });
     });
 

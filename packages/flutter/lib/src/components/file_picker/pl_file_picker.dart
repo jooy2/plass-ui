@@ -214,6 +214,7 @@ class PlFilePicker extends StatefulWidget {
     this.icon,
     this.showIcon = true,
     this.showList = true,
+    this.showRejections = true,
     this.removeLabel,
     this.variant = PlassVariant.glass,
     this.size,
@@ -302,6 +303,14 @@ class PlFilePicker extends StatefulWidget {
   /// Lists the chosen files under the box, each with a way to remove it.
   final bool showList;
 
+  /// Says under the box why files were turned away, one line per reason.
+  ///
+  /// On, because a dropzone that swallows a file without a word is the single
+  /// worst thing a dropzone does, and [onRejected] alone leaves that to an app
+  /// which has to remember. Turn it off when the app says the same thing
+  /// somewhere of its own — [onRejected] still fires either way.
+  final bool showRejections;
+
   /// The name a screen reader gives a file's remove button.
   ///
   /// Left out, it is the theme's [PlassLabels.removeItem].
@@ -358,6 +367,9 @@ class _PlFilePickerState extends State<PlFilePicker> {
       return;
     }
 
+    // A fresh attempt, so what the last one turned away stops being news.
+    _clearRejected();
+
     final found = await widget.onBrowse!();
 
     if (!mounted || found.isEmpty) {
@@ -366,6 +378,13 @@ class _PlFilePickerState extends State<PlFilePicker> {
 
     _add(found);
   }
+
+  /// What the last batch turned away, counted by reason.
+  ///
+  /// Held rather than derived, because a rejection is an event and not a
+  /// property of the value: the same list of files is a perfectly good list
+  /// whether or not somebody just tried to add a tenth one to it.
+  Map<PlFileRejectionReason, int> _rejected = const <PlFileRejectionReason, int>{};
 
   /// Sorts an incoming batch into kept and turned away, and reports both.
   void _add(List<PlFile> incoming) {
@@ -386,6 +405,14 @@ class _PlFilePickerState extends State<PlFilePicker> {
       }
     }
 
+    final tally = <PlFileRejectionReason, int>{};
+
+    for (final rejection in rejected) {
+      tally[rejection.reason] = (tally[rejection.reason] ?? 0) + 1;
+    }
+
+    setState(() => _rejected = tally);
+
     if (rejected.isNotEmpty) {
       widget.onRejected?.call(rejected);
     }
@@ -395,7 +422,14 @@ class _PlFilePickerState extends State<PlFilePicker> {
     }
   }
 
+  void _clearRejected() {
+    if (_rejected.isNotEmpty) {
+      setState(() => _rejected = const <PlFileRejectionReason, int>{});
+    }
+  }
+
   void _remove(int index) {
+    _clearRejected();
     widget.onFilesChanged?.call(<PlFile>[
       for (var at = 0; at < widget.value.length; at += 1)
         if (at != index) widget.value[at],
@@ -601,6 +635,17 @@ class _PlFilePickerState extends State<PlFilePicker> {
       child: zone,
     );
 
+    /// One line per reason, in the order the rules are checked.
+    final labels = PlassTheme.labelsOf(context);
+    final reasons = <String>[
+      if ((_rejected[PlFileRejectionReason.type] ?? 0) > 0)
+        labels.filesRejectedType(_rejected[PlFileRejectionReason.type]!),
+      if ((_rejected[PlFileRejectionReason.size] ?? 0) > 0)
+        labels.filesRejectedSize(_rejected[PlFileRejectionReason.size]!),
+      if ((_rejected[PlFileRejectionReason.count] ?? 0) > 0)
+        labels.filesRejectedCount(_rejected[PlFileRejectionReason.count]!),
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
@@ -616,6 +661,27 @@ class _PlFilePickerState extends State<PlFilePicker> {
               for (var index = 0; index < widget.value.length; index += 1)
                 _row(tokens, family, index: index, meta: meta),
             ],
+          ),
+        // Why files were turned away, which [onRejected] alone leaves to an app
+        // that has to remember. `liveRegion` rather than an announcement: a
+        // reader who just chose a file is not being interrupted, they are being
+        // answered.
+        //
+        // It does not mark the field invalid and does not touch the family.
+        // What was rejected never reached the value, so the value is not wrong
+        // — a field holding four good files is a field holding four good files.
+        if (widget.showRejections && reasons.isNotEmpty)
+          Semantics(
+            liveRegion: true,
+            container: true,
+            child: DefaultTextStyle.merge(
+              style: TextStyle(color: tokens.family(PlassColor.danger).accent, fontSize: meta),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[for (final line in reasons) Text(line)],
+              ),
+            ),
           ),
         if (widget.description != null && !hasError)
           DefaultTextStyle.merge(

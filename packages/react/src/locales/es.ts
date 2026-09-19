@@ -102,5 +102,11 @@ export const es: PlassLabels = {
   addCustom: (query) => `Añadir «${query}»`,
   otpSlot: (index, count) => `Carácter ${index} de ${count}`,
   transferMoved: (count, list) =>
-    `${count} ${count === 1 ? 'elemento movido' : 'elementos movidos'} a «${list}»`
+    `${count} ${count === 1 ? 'elemento movido' : 'elementos movidos'} a «${list}»`,
+  filesRejectedType: (count) =>
+    `${count} ${count === 1 ? 'archivo no tiene' : 'archivos no tienen'} un tipo admitido`,
+  filesRejectedSize: (count) =>
+    `${count} ${count === 1 ? 'archivo es demasiado grande' : 'archivos son demasiado grandes'}`,
+  filesRejectedCount: (count) =>
+    `No había sitio para ${count} ${count === 1 ? 'archivo' : 'archivos'}`
 };

@@ -101,5 +101,8 @@ export const zhHans: PlassLabels = {
   removeItem: (name) => `移除${name}`,
   addCustom: (query) => `添加“${query}”`,
   otpSlot: (index, count) => `第${index}位，共${count}位`,
-  transferMoved: (count, list) => `已将${count}项移到“${list}”`
+  transferMoved: (count, list) => `已将${count}项移到“${list}”`,
+  filesRejectedType: (count) => `${count}个文件的类型不受支持`,
+  filesRejectedSize: (count) => `${count}个文件过大`,
+  filesRejectedCount: (count) => `还有${count}个文件放不下`
 };

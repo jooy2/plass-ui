@@ -101,6 +101,9 @@ const PlassLabels zhHans = PlassLabels(
   addCustom: _addCustom,
   howToStep: _howToStep,
   transferMoved: _transferMoved,
+  filesRejectedType: _filesRejectedType,
+  filesRejectedSize: _filesRejectedSize,
+  filesRejectedCount: _filesRejectedCount,
 );
 
 String _paginationPage(int page) => '第$page页';
@@ -120,3 +123,9 @@ String _howToStep(int step, int total) => '第$step步，共$total步';
 String _transferMoved(int count, String list) {
   return '已将$count项移到“$list”';
 }
+
+String _filesRejectedType(int count) => '$count个文件的类型不受支持';
+
+String _filesRejectedSize(int count) => '$count个文件过大';
+
+String _filesRejectedCount(int count) => '还有$count个文件放不下';

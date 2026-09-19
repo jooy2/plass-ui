@@ -3004,6 +3004,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     },
     from('PlFilePicker', 'showList', { type: 'bool', default: 'true' }),
+    from('PlFilePicker', 'showRejections', { type: 'bool', default: 'true' }),
     from('PlFilePicker', 'removeLabel', {
       type: 'String Function(String name)?',
       default: "'Remove {name}'"

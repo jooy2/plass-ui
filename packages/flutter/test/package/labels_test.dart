@@ -128,6 +128,9 @@ Map<String, String> words(PlassLabels labels) => <String, String>{
   'addCustom': labels.addCustom('Seoul'),
   'howToStep': labels.howToStep(2, 5),
   'transferMoved': labels.transferMoved(3, 'Selected'),
+  'filesRejectedType': labels.filesRejectedType(2),
+  'filesRejectedSize': labels.filesRejectedSize(2),
+  'filesRejectedCount': labels.filesRejectedCount(2),
 };
 
 /// The words each pack is allowed to share with English, and no others.

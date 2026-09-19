@@ -262,6 +262,85 @@ describe('PlFilePicker', () => {
     });
   });
 
+  describe('saying what was turned away', () => {
+    it('says why, grouped by reason and counted', async () => {
+      const screen = await render(
+        <PlFilePicker className="picker-under-test" multiple accept=".txt" maxSize={2000} />
+      );
+
+      drop('.picker-under-test', [
+        file('a.png', 'image/png'),
+        file('b.png', 'image/png'),
+        file('c.txt', 'text/plain', 5000)
+      ]);
+
+      // One line per reason rather than one per file: a folder dropped on a
+      // picker with a `maxFiles` of five is ninety-five lines of the same
+      // sentence.
+      await expect.element(screen.getByText('2 files are not an accepted type')).toBeVisible();
+      await expect.element(screen.getByText('1 file is too large')).toBeVisible();
+    });
+
+    it('says so about the count as well', async () => {
+      const screen = await render(
+        <PlFilePicker className="picker-under-test" multiple maxFiles={1} />
+      );
+
+      drop('.picker-under-test', [file('a.txt'), file('b.txt'), file('c.txt')]);
+
+      await expect.element(screen.getByText('2 files did not fit')).toBeVisible();
+    });
+
+    it('announces it politely rather than interrupting', async () => {
+      const screen = await render(<PlFilePicker className="picker-under-test" accept=".txt" />);
+
+      drop('.picker-under-test', [file('a.png', 'image/png')]);
+
+      await expect.element(screen.getByRole('status')).toBeVisible();
+      // The value is not wrong — what was turned away never reached it.
+      expect(screen.getByRole('button').element()).not.toHaveAttribute('aria-invalid');
+    });
+
+    it('drops the message once the reader does something else', async () => {
+      const screen = await render(
+        <PlFilePicker className="picker-under-test" multiple accept=".txt" />
+      );
+
+      drop('.picker-under-test', [file('a.png', 'image/png'), file('b.txt')]);
+      await expect.element(screen.getByText('1 file is not an accepted type')).toBeVisible();
+
+      await screen.getByRole('button', { name: 'Remove b.txt' }).click();
+
+      expect(screen.getByText('1 file is not an accepted type').query()).toBeNull();
+    });
+
+    it('says nothing when the batch was taken whole', async () => {
+      const screen = await render(<PlFilePicker className="picker-under-test" />);
+
+      drop('.picker-under-test', [file('notes.txt')]);
+
+      await expect.element(screen.getByText('notes.txt')).toBeVisible();
+      expect(screen.getByRole('status').query()).toBeNull();
+    });
+
+    it('can be told to leave it to `onReject`', async () => {
+      const onReject = vi.fn();
+      const screen = await render(
+        <PlFilePicker
+          className="picker-under-test"
+          accept=".txt"
+          showRejections={false}
+          onReject={onReject}
+        />
+      );
+
+      drop('.picker-under-test', [file('a.png', 'image/png')]);
+
+      await vi.waitFor(() => expect(onReject).toHaveBeenCalledTimes(1));
+      expect(screen.getByRole('status').query()).toBeNull();
+    });
+  });
+
   describe('states', () => {
     it('disables the browse button', async () => {
       const screen = await render(<PlFilePicker disabled />);

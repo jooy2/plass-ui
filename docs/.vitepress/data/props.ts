@@ -5291,6 +5291,15 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'showRejections',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '돌려보낸 파일이 있으면 이유를 한 줄씩 상자 아래에 적습니다. 끄더라도 onReject는 그대로 호출됩니다',
+        en: 'Says under the box why files were turned away, one line per reason. onReject still fires with it off'
+      }
+    },
+    {
       name: 'removeLabel',
       type: '(name: string) => string',
       default: '`Remove {name}`',

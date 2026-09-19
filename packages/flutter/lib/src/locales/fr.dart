@@ -101,6 +101,9 @@ const PlassLabels fr = PlassLabels(
   addCustom: _addCustom,
   howToStep: _howToStep,
   transferMoved: _transferMoved,
+  filesRejectedType: _filesRejectedType,
+  filesRejectedSize: _filesRejectedSize,
+  filesRejectedCount: _filesRejectedCount,
 );
 
 String _paginationPage(int page) => 'Page $page';
@@ -119,4 +122,18 @@ String _howToStep(int step, int total) => 'Étape $step sur $total';
 
 String _transferMoved(int count, String list) {
   return '$count ${count == 1 ? 'élément déplacé' : 'éléments déplacés'} vers « $list »';
+}
+
+String _filesRejectedType(int count) {
+  return count == 1
+      ? "1 fichier n'a pas un type accepté"
+      : "$count fichiers n'ont pas un type accepté";
+}
+
+String _filesRejectedSize(int count) {
+  return count == 1 ? '1 fichier est trop volumineux' : '$count fichiers sont trop volumineux';
+}
+
+String _filesRejectedCount(int count) {
+  return "Il n'y avait plus de place pour $count ${count == 1 ? 'fichier' : 'fichiers'}";
 }

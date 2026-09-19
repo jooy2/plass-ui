@@ -225,6 +225,19 @@ export interface PlassLabels {
   otpSlot: (index: number, count: number) => string;
   /** What a transfer says once rows have moved, given how many and the list. */
   transferMoved: (count: number, list: string) => string;
+  /**
+   * Why a file picker turned files away, one line per reason and given how many
+   * were turned away for it.
+   *
+   * Grouped by reason rather than named one file at a time, because the batch
+   * that goes wrong is usually the big one — a folder dropped on a picker with
+   * a `maxFiles` of five is ninety-five lines saying the same thing. What the
+   * limit itself *is* belongs in `hint`, which is where a picker already says
+   * what it accepts, so these do not repeat it.
+   */
+  filesRejectedType: (count: number) => string;
+  filesRejectedSize: (count: number) => string;
+  filesRejectedCount: (count: number) => string;
 }
 
 /**
@@ -334,7 +347,11 @@ export const defaultLabels: PlassLabels = {
   removeItem: (name) => `Remove ${name}`,
   addCustom: (query) => `Add “${query}”`,
   otpSlot: (index, count) => `Character ${index} of ${count}`,
-  transferMoved: (count, list) => `${count} ${count === 1 ? 'item' : 'items'} moved to ${list}`
+  transferMoved: (count, list) => `${count} ${count === 1 ? 'item' : 'items'} moved to ${list}`,
+  filesRejectedType: (count) =>
+    `${count} ${count === 1 ? 'file is' : 'files are'} not an accepted type`,
+  filesRejectedSize: (count) => `${count} ${count === 1 ? 'file is' : 'files are'} too large`,
+  filesRejectedCount: (count) => `${count} ${count === 1 ? 'file' : 'files'} did not fit`
 };
 
 /**

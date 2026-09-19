@@ -106,6 +106,16 @@ export interface PlFilePickerProps
    */
   showList?: boolean;
   /**
+   * Says under the box why files were turned away, one line per reason.
+   *
+   * On, because a dropzone that swallows a file without a word is the single
+   * worst thing a dropzone does, and `onReject` alone leaves that to a caller
+   * who has to remember. Turn it off when the app shows the same thing
+   * somewhere of its own — `onReject` still fires either way.
+   * @default true
+   */
+  showRejections?: boolean;
+  /**
    * Accessible name of a file's remove button. Receives the file's name.
    * @default `Remove {name}`, from the label pack
    */
@@ -357,6 +367,7 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
       hint,
       icon,
       showList = true,
+      showRejections = true,
       removeLabel: removeLabelProp,
       fullWidth = true,
       disabled = false,
@@ -397,6 +408,20 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
     // is the only thing that survives a zone with content in it.
     const dragDepth = React.useRef(0);
     const [over, setOver] = React.useState(false);
+
+    /*
+     * What the last batch turned away, grouped by reason.
+     *
+     * Held rather than derived, because a rejection is an event and not a
+     * property of the value: the same list of files is a perfectly good list
+     * whether or not somebody just tried to add a tenth one to it. It is
+     * cleared by the next thing the reader does, below.
+     */
+    const [rejected, setRejected] = React.useState<Record<PlFileRejectionReason, number>>({
+      type: 0,
+      size: 0,
+      count: 0
+    });
 
     const hasError = hasContent(error);
     const isInvalid = invalid ?? hasError;
@@ -484,6 +509,13 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
     const add = React.useCallback(
       (incoming: File[]) => {
         const { kept, rejections } = accepting(incoming);
+        const tally: Record<PlFileRejectionReason, number> = { type: 0, size: 0, count: 0 };
+
+        for (const rejection of rejections) {
+          tally[rejection.reason] += 1;
+        }
+
+        setRejected(tally);
 
         if (rejections.length > 0) {
           onReject?.(rejections);
@@ -495,10 +527,27 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
       [accepting, commit, files, multiple, onReject]
     );
 
+    const clearRejected = React.useCallback(() => {
+      setRejected((held) =>
+        held.type || held.size || held.count ? { type: 0, size: 0, count: 0 } : held
+      );
+    }, []);
+
+    /** One line per reason, in the order the rules are checked. */
+    const reasons = (
+      [
+        ['type', labels.filesRejectedType],
+        ['size', labels.filesRejectedSize],
+        ['count', labels.filesRejectedCount]
+      ] as const
+    ).filter(([reason]) => rejected[reason] > 0);
+
     const browse = () => {
       if (inert) {
         return;
       }
+      // A fresh attempt, so what the last one turned away stops being news.
+      clearRejected();
       // Not cleared first: the input holds the list, and emptying it would
       // leave a form with nothing to submit if the dialog were then cancelled.
       // A file taken off the list is taken out of the input too, so picking it
@@ -754,7 +803,10 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
                         'hover:text-(--plass-fg) hover:opacity-100 focus-visible:opacity-100',
                         focusRingClasses
                       ].join(' ')}
-                      onClick={() => commit(files.filter((_, at) => at !== index))}
+                      onClick={() => {
+                        clearRejected();
+                        commit(files.filter((_, at) => at !== index));
+                      }}
                     >
                       <CloseIcon />
                     </button>
@@ -764,6 +816,28 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
             </ul>
           ) : null}
         </div>
+
+        {/*
+          Why files were turned away, which `onReject` alone leaves to a caller
+          who has to remember. `role="status"` rather than `alert`: a reader who
+          just dropped a file is not being interrupted, they are being answered,
+          and the polite queue is what lets the words arrive after the name of
+          whatever they were doing.
+
+          It is not `aria-invalid` and does not touch the family. What was
+          rejected is not in the value, so the value is not wrong — the field
+          holding four good files is a field holding four good files.
+        */}
+        {showRejections && reasons.length > 0 ? (
+          <div
+            role="status"
+            className={`flex w-full flex-col ${metaTextClasses[size]} text-(--plass-danger-accent)`}
+          >
+            {reasons.map(([reason, say]) => (
+              <span key={reason}>{say(rejected[reason])}</span>
+            ))}
+          </div>
+        ) : null}
 
         {hasContent(description) && !hasError ? (
           <span id={descriptionId} className={`${metaTextClasses[size]} text-(--plass-muted-fg)`}>

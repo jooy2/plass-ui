@@ -96,7 +96,9 @@ The edge is neutral at rest and takes the colour family only once the pointer is
 
 `maxFiles` is counted against what is already held rather than against one drop. The difference between "you may drop five files" and "you may end up with five files", and only the second is what the prop means.
 
-<Fw react="onReject" flutter="onRejected" code /> is where a refusal goes. Without it a rejected file disappears silently, which is the single worst thing a dropzone does.
+The box says why files were turned away, one line per reason, counted. `showRejections={false}` turns that off for an app that says the same thing somewhere of its own. The message is not the field's `error`: what was turned away never reached the value, so the value is not wrong and nothing is marked invalid.
+
+<Fw react="onReject" flutter="onRejected" code /> is the other half, and it fires either way. It is what an app wires to log the refusal, to say more than the component can, or to retry.
 
 <Demo src="file-picker/rejections" :min-height="280">
 
@@ -181,6 +183,7 @@ Moves the box's padding and the text inside it. The padding has its own ladder r
 - The `<input type="file">` stays in the DOM, clipped off-screen rather than `display: none`. The latter is unfocusable in some browsers and would take the input out of native form validation.
 - The input holds the list as it is shown, so a form with `name` submits the dropped files and not the removed or rejected ones.
 - `description` and `error` are wired to the button with `aria-describedby`; the error also sets `aria-invalid`.
+- Why files were turned away is a `role="status"`, so it is read after whatever the reader was already being told rather than cutting in. It sets no `aria-invalid`: what was rejected never reached the value.
 - The file list is a real `<ul>` outside the browse button, because a remove button cannot be nested inside another button. It is still inside the drop area, so a file let go over the list lands in the picker rather than in the page.
 - Each remove button carries an accessible name that includes the file it removes, so a screen reader hears three different buttons rather than three called "Remove".
 - While a file is over it the zone takes the family's wash, its dashed edge takes the ring colour, and a soft halo spreads outside the box. Nothing grows and nothing lifts: a target that moves while you are aiming at it is a target you miss.
@@ -193,6 +196,7 @@ Moves the box's padding and the text inside it. The padding has its own ladder r
 - The button is named by `label` first and by its own `title` and `hint` after, so two pickers on one screen are not read out the same.
 - The file list is outside the box, because a remove button inside a button is a press that fires twice.
 - Each remove button carries a name that includes the file it removes, so a screen reader hears three different buttons rather than three called "Remove".
+- Why files were turned away is a live region, so it is read after whatever the reader was already being told rather than cutting in. It does not mark the field invalid: what was rejected never reached the value.
 - While `dragging` is set the box takes the family's wash, its dashed edge takes the ring colour, and a soft halo spreads outside it. Nothing grows and nothing lifts: a target that moves while you are aiming at it is a target you miss.
 - `error` re-points the whole family at `danger`, so the edge, the ring and the message all turn over together.
 

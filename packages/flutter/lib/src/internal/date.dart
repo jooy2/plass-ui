@@ -391,6 +391,9 @@ class PlassLabels {
     this.addCustom = _englishAddCustom,
     this.howToStep = _englishHowToStep,
     this.transferMoved = _englishTransferMoved,
+    this.filesRejectedType = _englishFilesRejectedType,
+    this.filesRejectedSize = _englishFilesRejectedSize,
+    this.filesRejectedCount = _englishFilesRejectedCount,
   });
 
   /// English, and the default.
@@ -497,6 +500,9 @@ class PlassLabels {
     String Function(String query)? addCustom,
     String Function(int step, int total)? howToStep,
     String Function(int count, String list)? transferMoved,
+    String Function(int count)? filesRejectedType,
+    String Function(int count)? filesRejectedSize,
+    String Function(int count)? filesRejectedCount,
   }) {
     return PlassLabels(
       close: close ?? this.close,
@@ -595,6 +601,9 @@ class PlassLabels {
       addCustom: addCustom ?? this.addCustom,
       howToStep: howToStep ?? this.howToStep,
       transferMoved: transferMoved ?? this.transferMoved,
+      filesRejectedType: filesRejectedType ?? this.filesRejectedType,
+      filesRejectedSize: filesRejectedSize ?? this.filesRejectedSize,
+      filesRejectedCount: filesRejectedCount ?? this.filesRejectedCount,
     );
   }
 
@@ -913,6 +922,24 @@ class PlassLabels {
   /// name of the list they went to.
   final String Function(int count, String list) transferMoved;
 
+  /// Why a file picker turned files away, one line per reason and given how
+  /// many were turned away for it.
+  ///
+  /// Grouped by reason rather than named one file at a time, because the batch
+  /// that goes wrong is usually the big one — a folder handed to a picker with
+  /// a `maxFiles` of five is ninety-five lines saying the same thing. What the
+  /// limit itself *is* belongs in `hint`, which is where a picker already says
+  /// what it accepts, so these do not repeat it.
+  ///
+  /// This one is for files whose kind was not in `accept`.
+  final String Function(int count) filesRejectedType;
+
+  /// The same, for files over [PlFilePicker.maxSize].
+  final String Function(int count) filesRejectedSize;
+
+  /// The same, for files there was no room left for.
+  final String Function(int count) filesRejectedCount;
+
   /// Equal when the words are, rather than when the object is the same one.
   ///
   /// The docs recommend `ko.copyWith(start: '체크인')`, and the natural place to
@@ -1036,6 +1063,9 @@ class PlassLabels {
     addCustom,
     howToStep,
     transferMoved,
+    filesRejectedType,
+    filesRejectedSize,
+    filesRejectedCount,
   ];
 }
 
@@ -1073,6 +1103,18 @@ String _englishHowToStep(int step, int total) => 'Step $step of $total';
 
 String _englishTransferMoved(int count, String list) {
   return '$count ${count == 1 ? 'item' : 'items'} moved to $list';
+}
+
+String _englishFilesRejectedType(int count) {
+  return '$count ${count == 1 ? 'file is' : 'files are'} not an accepted type';
+}
+
+String _englishFilesRejectedSize(int count) {
+  return '$count ${count == 1 ? 'file is' : 'files are'} too large';
+}
+
+String _englishFilesRejectedCount(int count) {
+  return '$count ${count == 1 ? 'file' : 'files'} did not fit';
 }
 
 /// Another name for [PlassLabels], kept because the pickers were the first

@@ -101,6 +101,9 @@ const PlassLabels ja = PlassLabels(
   addCustom: _addCustom,
   howToStep: _howToStep,
   transferMoved: _transferMoved,
+  filesRejectedType: _filesRejectedType,
+  filesRejectedSize: _filesRejectedSize,
+  filesRejectedCount: _filesRejectedCount,
 );
 
 String _paginationPage(int page) => '$pageページ';
@@ -120,3 +123,9 @@ String _howToStep(int step, int total) => '全$totalステップ中$step番目';
 String _transferMoved(int count, String list) {
   return '$count件を「$list」に移動しました';
 }
+
+String _filesRejectedType(int count) => '$count件は受け付けられない種類です';
+
+String _filesRejectedSize(int count) => '$count件は大きすぎます';
+
+String _filesRejectedCount(int count) => '$count件は入りきりませんでした';
