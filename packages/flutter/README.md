@@ -8,6 +8,8 @@
 
 Live previews and full parameters for every component. Pick **Flutter** in the sidebar. This README is just the quick start.
 
+![Plass UI components arranged around the Plass mark: a search field, a settings card, radio buttons and checkboxes, buttons and chips, a segmented button and pagination, a success alert, a slider, a progress bar and a meter, an avatar stack, a badge and a rating](https://plass.cdget.com/showcase.png)
+
 ---
 
 > **Plass is one design language, shipped as two libraries.** 127 components made of tinted glass and gradients, in React and in Flutter, under the same names and the same numbers. React adds three more for problems only the DOM has.
@@ -88,6 +90,48 @@ PlassTheme(brightness: Brightness.dark, child: ...)
 ```
 
 One thing does **not** change with the theme, and it is deliberate: the colour of a key. What changes is the sheet it rests on.
+
+## Components
+
+Every widget is exported under a `Pl` prefix. `Button`, `Card` and `Table` are the most-taken identifiers in the ecosystem, and a `Pl` name is also one that survives a language with no import aliasing.
+
+127 of them, and the [React package](https://www.npmjs.com/package/plass-ui) holds the same 127 under the same names. It has three more, `PlFlex`, `PlPortal` and `PlVisuallyHidden`, which answer problems only the DOM has; the Dart answer to each is a line of framework code rather than a widget. Every component has a page of its own with live previews and the full parameter table.
+
+### Charts
+
+`PlAreaChart` · `PlBarChart` · `PlGaugeChart` · `PlHeatmapChart` · `PlLineChart` · `PlPieChart` · `PlScatterChart` · `PlSparkline` · `PlTimelineChart`
+
+### Display
+
+`PlAppLogo` · `PlAvatar` · `PlBadge` · `PlBlockquote` · `PlBreadcrumb` · `PlChip` · `PlCodeBlock` · `PlDataList` · `PlDataTable` · `PlDivider` · `PlGallery` · `PlHighlight` · `PlHotKeys` · `PlIcon` · `PlImage` · `PlList` · `PlMockup` · `PlStat` · `PlTable` · `PlTextLink` · `PlTimeline` · `PlTree` · `PlTypography`
+
+### Feedback
+
+`PlAlert` · `PlConfirmProvider` · `PlDrawer` · `PlEmpty` · `PlMeter` · `PlModal` · `PlOverlay` · `PlPopconfirm` · `PlPopover` · `PlProgressBox` · `PlProgressCircular` · `PlProgressLinear` · `PlSkeleton` · `PlToast` · `PlTooltip` · `PlTour`
+
+### Inputs
+
+`PlButton` · `PlButtonGroup` · `PlCalendar` · `PlCheckbox` · `PlColorPicker` · `PlCombobox` · `PlDatePicker` · `PlDateRangePicker` · `PlDateTimePicker` · `PlFieldset` · `PlFilePicker` · `PlFloatingActionButton` · `PlForm` · `PlIconButton` · `PlNumberField` · `PlOtpField` · `PlPagination` · `PlRadioGroup` · `PlRating` · `PlSegmentedButton` · `PlSelect` · `PlSlider` · `PlSwitch` · `PlTextField` · `PlTimePicker` · `PlToggle` · `PlToggleGroup` · `PlTransfer` · `PlTreeSelect`
+
+### Layout
+
+`PlAspectRatio` · `PlContainer` · `PlFooter` · `PlGrid` · `PlHeader` · `PlPageLayout` · `PlPanes` · `PlScrollArea` · `PlScrollZone` · `PlShow` · `PlSidebar` · `PlStack`
+
+### Navigation
+
+`PlAnchor` · `PlBackTop` · `PlBottomNavigation` · `PlCommandPalette` · `PlFloatingBottomNavigation` · `PlMenu` · `PlMenubar` · `PlNavigationMenu` · `PlStepper`
+
+### Surfaces
+
+`PlAccordion` · `PlBox` · `PlCard` · `PlCarousel` · `PlChatBubble` · `PlCollapsible` · `PlHoverCard` · `PlHowToSteps` · `PlPill` · `PlSpoiler` · `PlTabs` · `PlToolbar` · `PlWindowPane`
+
+### Transitions
+
+`PlAnimateAppear` · `PlAnimateBlink` · `PlAnimateCounter` · `PlAnimateFade` · `PlAnimateFloat` · `PlAnimateGrow` · `PlAnimateHeadline` · `PlAnimateLighting` · `PlAnimateMarquee` · `PlAnimateReveal` · `PlAnimateRotate` · `PlAnimateScramble` · `PlAnimateShake` · `PlAnimateSlide` · `PlAnimateSplit` · `PlAnimateTyping` · `PlAnimateZoom`
+
+## Changelog
+
+[CHANGELOG.md](https://github.com/jooy2/plass-ui/blob/main/packages/flutter/CHANGELOG.md) is this package's history, and [plass.cdget.com/changelog](https://plass.cdget.com/changelog) is the same list beside the React package's. The two version independently, so a release on one side is not a release on the other.
 
 ## Development
 

@@ -1,5 +1,7 @@
 # Changelog
 
+> This package's history. The React package keeps its own at [`packages/react/CHANGELOG.md`](https://github.com/jooy2/plass-ui/blob/main/packages/react/CHANGELOG.md), because the two version independently.
+
 ## vNext (2026--)
 
 ### Breaking changes
@@ -20,7 +22,7 @@
 
   Three are deliberately without it. A `PlCheckbox`, a `PlRadio` and a `PlSwitch`'s track are the size of the text beside them, and a bloom of the light's radius inside a 20px box is a flat wash that slides about rather than light. A `PlOtpField`'s slots are separate boxes with gaps between them, so there is no one surface for a light to cross.
 
-- **A `PlFilePicker` says why it turned files away.** `onRejected` was the only way to hear about it, so a picker an app had not wired reported a refusal by doing nothing at all. The box now says it under itself, one line per reason and counted, grouped by reason rather than named one file at a time — a folder handed to a picker with a `maxFiles` of five is ninety-five lines of the same sentence, and what the limit *is* stays in `hint`. `showRejections: false` turns it off for an app that says the same thing somewhere of its own, and `onRejected` fires either way. It is a live region rather than an announcement, and it does not mark the field invalid: what was rejected never reached the value. `filesRejectedType`, `filesRejectedSize` and `filesRejectedCount` join `PlassLabels` in all seven languages, which takes it to ninety-nine.
+- **A `PlFilePicker` says why it turned files away.** `onRejected` was the only way to hear about it, so a picker an app had not wired reported a refusal by doing nothing at all. The box now says it under itself, one line per reason and counted, grouped by reason rather than named one file at a time — a folder handed to a picker with a `maxFiles` of five is ninety-five lines of the same sentence, and what the limit _is_ stays in `hint`. `showRejections: false` turns it off for an app that says the same thing somewhere of its own, and `onRejected` fires either way. It is a live region rather than an announcement, and it does not mark the field invalid: what was rejected never reached the value. `filesRejectedType`, `filesRejectedSize` and `filesRejectedCount` join `PlassLabels` in all seven languages, which takes it to ninety-nine.
 
 - **A `PlFilePicker` spreads a halo while a file is over it.** The wash and the ring-coloured edge `dragging` already drew are both inside the box, and a reader dropping a file is looking at the file under their cursor rather than at the box — so the state was there and easy to miss. A soft halo of the family now spreads outside the edge, which is how a `PlSlider`'s thumb marks being dragged. The box still neither grows nor lifts. The React build marks the same state the same way, and until now it marked nothing at all.
 
@@ -32,7 +34,7 @@
 
 - **A stacked-to-full bar or area chart writes the value behind each share the way the rest of the chart writes a number.** The two charts kept their own copy of the renormalising and their own copy of the number writer, so a tooltip said `48300` where the axis beside it said `48.3K`. Both now call one `stackToFull`, which is what the React build already did, and the label is written compactly unless a `format` says otherwise.
 
-- **A time axis of minutes or seconds before 1970 starts at its own data.** The first tick was worked out with `~/`, which truncates towards zero, so a negative timestamp floored to the unit *above* it: the axis began a minute after the first point and one minute later than the React axis. It is floored towards negative infinity now, as `Math.floor` does on the web.
+- **A time axis of minutes or seconds before 1970 starts at its own data.** The first tick was worked out with `~/`, which truncates towards zero, so a negative timestamp floored to the unit _above_ it: the axis began a minute after the first point and one minute later than the React axis. It is floored towards negative infinity now, as `Math.floor` does on the web.
 
 - **A treemap of more than thirty-two tiles colours tiles of equal value as the React build does.** The tiles are sorted by area, and Dart reaches for a quicksort past thirty-two items, so two tiles of the same value could swap places and take each other's colour. Ties now keep the order they were given, which is what a JavaScript sort does for nothing.
 
