@@ -61,6 +61,15 @@ const double _rowPaddingY = 6;
 /// How large a row's × is drawn against the line it sits on.
 const double _removeScale = 1.3;
 
+/// How far the halo spreads outside the box while a file is over it.
+///
+/// It is what makes the state readable from the corner of the eye, while
+/// somebody is looking at the file under their cursor rather than at the box.
+/// A slider's thumb marks being dragged the same way, and for the same reason
+/// the box itself neither grows nor lifts: moving the target while the reader
+/// is aiming at it is worse than not marking the state at all.
+const double _dropHalo = 4;
+
 /// Why a file was turned away. One reason per file, in the order they are
 /// checked.
 enum PlFileRejectionReason {
@@ -466,7 +475,10 @@ class _PlFilePickerState extends State<PlFilePicker> {
             insets: widget.variant == PlassVariant.ghost
                 ? const <PlassInsetShadow>[]
                 : <PlassInsetShadow>[tokens.glossGlass],
-            shadows: tokens.elevation(widget.elevation),
+            shadows: <BoxShadow>[
+              ...tokens.elevation(widget.elevation),
+              if (lit) BoxShadow(color: family.soft, spreadRadius: _dropHalo),
+            ],
           ),
           borderRadius: radius,
           child: Padding(

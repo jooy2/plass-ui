@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A `PlFilePicker` spreads a halo while a file is over it.** The wash and the ring-coloured edge `dragging` already drew are both inside the box, and a reader dropping a file is looking at the file under their cursor rather than at the box — so the state was there and easy to miss. A soft halo of the family now spreads outside the edge, which is how a `PlSlider`'s thumb marks being dragged. The box still neither grows nor lifts. The React build marks the same state the same way, and until now it marked nothing at all.
+
 - **A `PlGallery` in a scroll view asks for a picture only when the reader is near it.** Every tile resolved its picture the moment the board was built, so a gallery of sixty photographs asked for sixty decodes before one of them was on screen — the React build has never had to, because a browser defers an `<img loading="lazy">` on its own. A tile now waits until it is within a screen of the nearest `Scrollable` above the gallery, holding the same stand-in the picture draws while it loads, in the same box, so nothing moves when the picture arrives. A gallery with no scroll view over it is built whole, as before, and a picture that has been asked for is kept when the reader scrolls back past it.
 
 - **`PlassChartSeries.dashed` draws a dashed line.** The field was documented and listed in the props table, and the painter never read it — a caller marking a forecast got a solid line and nothing to say it was a forecast. The line is now cut into a 6px dash with a 4px gap, and the React build takes the same prop. Only a line has a line to dash: it does nothing on a bar, or on a stacked band, whose fill is the mark.

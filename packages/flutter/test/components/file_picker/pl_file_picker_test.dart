@@ -4,6 +4,7 @@ import 'package:plass_ui/plass_ui.dart';
 
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/notch.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 
 import '../../support/host.dart';
 
@@ -112,6 +113,51 @@ void main() {
         );
 
         expect(find.text('aurora.png'), findsNothing);
+      });
+    });
+
+    group('a file over the box', () {
+      /// The zone's own surface, which is the first one the picker builds.
+      PlassSurface surface(WidgetTester tester) {
+        return tester.widgetList<PlassSurfaceBox>(find.byType(PlassSurfaceBox)).first.surface;
+      }
+
+      testWidgets('spreads a halo of the family outside it', (WidgetTester tester) async {
+        await tester.pumpWidget(host(const PlFilePicker(value: <PlFile>[]), width: 420));
+        final int resting = surface(tester).shadows.length;
+
+        await tester.pumpWidget(
+          host(const PlFilePicker(value: <PlFile>[], dragging: true), width: 420),
+        );
+        final List<BoxShadow> lit = surface(tester).shadows;
+
+        expect(lit.length, resting + 1);
+        expect(lit.last.spreadRadius, 4);
+        expect(lit.last.blurRadius, 0);
+      });
+
+      testWidgets('and washes the sheet in the family', (WidgetTester tester) async {
+        await tester.pumpWidget(host(const PlFilePicker(value: <PlFile>[]), width: 420));
+        final Color? resting = surface(tester).fill;
+
+        await tester.pumpWidget(
+          host(const PlFilePicker(value: <PlFile>[], dragging: true), width: 420),
+        );
+
+        expect(surface(tester).fill, isNot(resting));
+      });
+
+      testWidgets('but answers nothing while it is inert', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(const PlFilePicker(value: <PlFile>[], readOnly: true), width: 420),
+        );
+        final int resting = surface(tester).shadows.length;
+
+        await tester.pumpWidget(
+          host(const PlFilePicker(value: <PlFile>[], readOnly: true, dragging: true), width: 420),
+        );
+
+        expect(surface(tester).shadows.length, resting);
       });
     });
 

@@ -27,6 +27,29 @@ function drop(picker: string, files: File[]) {
   target.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer }));
 }
 
+/** Drags a batch onto the zone and leaves it there. */
+function dragEnter(picker: string, selector = 'button') {
+  const target = document.querySelector(`${picker} ${selector}`) as Element;
+  const dataTransfer = new DataTransfer();
+
+  dataTransfer.items.add(file('dragged.txt'));
+  target.dispatchEvent(
+    new DragEvent('dragenter', { bubbles: true, cancelable: true, dataTransfer })
+  );
+}
+
+/** And takes it away again. */
+function dragLeave(picker: string, selector = 'button') {
+  const target = document.querySelector(`${picker} ${selector}`) as Element;
+
+  target.dispatchEvent(new DragEvent('dragleave', { bubbles: true, cancelable: true }));
+}
+
+/** The zone's own class list, which is where every state is written. */
+function zoneClasses(picker: string): string[] {
+  return (document.querySelector(`${picker} button`) as HTMLElement).className.split(' ');
+}
+
 describe('PlFilePicker', () => {
   describe('rendering', () => {
     it('renders a browse button with the default line on it', async () => {
@@ -261,6 +284,109 @@ describe('PlFilePicker', () => {
       const screen = await render(<PlFilePicker readOnly defaultValue={[file('held.txt')]} />);
 
       expect(screen.getByRole('button', { name: 'Remove held.txt' }).query()).toBeNull();
+    });
+  });
+
+  describe('a file being dragged over the box', () => {
+    it('takes the family wash, the ring edge and a halo, and gives up the resting ones', async () => {
+      await render(<PlFilePicker className="picker-under-test" />);
+
+      expect(zoneClasses('.picker-under-test')).toContain('bg-(--plass-glass)');
+
+      dragEnter('.picker-under-test');
+      await vi.waitFor(() =>
+        expect(zoneClasses('.picker-under-test')).toContain('bg-(--p-soft-hover)')
+      );
+
+      const lit = zoneClasses('.picker-under-test');
+
+      expect(lit).toContain('[border-color:var(--p-ring)]');
+      expect(lit).toContain(
+        '[box-shadow:var(--p-elev),var(--plass-gloss-glass),0_0_0_4px_var(--p-soft)]'
+      );
+      // The point of the whole arrangement. Left in place, the resting fill and
+      // the resting edge are one class each, exactly as these are, and the
+      // stylesheet decides between them — which is why the state used to do
+      // nothing at all.
+      expect(lit).not.toContain('bg-(--plass-glass)');
+      expect(lit).not.toContain('[border-color:var(--plass-border)]');
+      expect(lit).not.toContain('hover:bg-(--plass-glass-hover)');
+    });
+
+    it('goes back to resting when the file leaves', async () => {
+      await render(<PlFilePicker className="picker-under-test" />);
+
+      dragEnter('.picker-under-test');
+      await vi.waitFor(() =>
+        expect(zoneClasses('.picker-under-test')).toContain('bg-(--p-soft-hover)')
+      );
+
+      dragLeave('.picker-under-test');
+      await vi.waitFor(() =>
+        expect(zoneClasses('.picker-under-test')).toContain('bg-(--plass-glass)')
+      );
+    });
+
+    it('goes back to resting once the file is dropped', async () => {
+      const screen = await render(<PlFilePicker className="picker-under-test" />);
+
+      dragEnter('.picker-under-test');
+      drop('.picker-under-test', [file('notes.txt')]);
+
+      await expect.element(screen.getByText('notes.txt')).toBeInTheDocument();
+      expect(zoneClasses('.picker-under-test')).toContain('bg-(--plass-glass)');
+    });
+
+    it('marks the notched edge as well', async () => {
+      await render(
+        <PlFilePicker className="picker-under-test" label="Attachments" labelPlacement="notch" />
+      );
+
+      dragEnter('.picker-under-test');
+
+      await vi.waitFor(() => {
+        const edge = (document.querySelector('fieldset') as HTMLElement).className.split(' ');
+
+        expect(edge).toContain('[border-color:var(--p-ring)]');
+        expect(edge).not.toContain('[border-color:var(--plass-border)]');
+      });
+    });
+
+    it('answers a file dragged over the list under the box, which is the same drop area', async () => {
+      await render(
+        <PlFilePicker className="picker-under-test" multiple defaultValue={[file('held.txt')]} />
+      );
+
+      dragEnter('.picker-under-test', 'ul');
+
+      await vi.waitFor(() =>
+        expect(zoneClasses('.picker-under-test')).toContain('bg-(--p-soft-hover)')
+      );
+    });
+
+    it('takes a file dropped on that list', async () => {
+      const screen = await render(
+        <PlFilePicker className="picker-under-test" multiple defaultValue={[file('held.txt')]} />
+      );
+
+      const list = document.querySelector('.picker-under-test ul') as Element;
+      const dataTransfer = new DataTransfer();
+
+      dataTransfer.items.add(file('dropped.txt'));
+      list.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer }));
+
+      await expect.element(screen.getByText('dropped.txt')).toBeInTheDocument();
+    });
+
+    it('stays put while it is read-only', async () => {
+      const screen = await render(<PlFilePicker className="picker-under-test" readOnly />);
+
+      dragEnter('.picker-under-test');
+      // Nothing is expected to happen, so there is no state to wait for. A
+      // render the component does answer is what proves the queue was drained.
+      await screen.rerender(<PlFilePicker className="picker-under-test" readOnly />);
+
+      expect(zoneClasses('.picker-under-test')).not.toContain('bg-(--p-soft-hover)');
     });
   });
 

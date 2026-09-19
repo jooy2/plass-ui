@@ -181,9 +181,9 @@ Moves the box's padding and the text inside it. The padding has its own ladder r
 - The `<input type="file">` stays in the DOM, clipped off-screen rather than `display: none`. The latter is unfocusable in some browsers and would take the input out of native form validation.
 - The input holds the list as it is shown, so a form with `name` submits the dropped files and not the removed or rejected ones.
 - `description` and `error` are wired to the button with `aria-describedby`; the error also sets `aria-invalid`.
-- The file list is a real `<ul>` outside the browse button, because a remove button cannot be nested inside another button.
+- The file list is a real `<ul>` outside the browse button, because a remove button cannot be nested inside another button. It is still inside the drop area, so a file let go over the list lands in the picker rather than in the page.
 - Each remove button carries an accessible name that includes the file it removes, so a screen reader hears three different buttons rather than three called "Remove".
-- The zone does not move under the pointer while a file is over it. Colour and edge change; nothing grows or lifts, because a target that moves while you are aiming at it is a target you miss.
+- While a file is over it the zone takes the family's wash, its dashed edge takes the ring colour, and a soft halo spreads outside the box. Nothing grows and nothing lifts: a target that moves while you are aiming at it is a target you miss.
 
 :::
 
@@ -193,7 +193,7 @@ Moves the box's padding and the text inside it. The padding has its own ladder r
 - The button is named by `label` first and by its own `title` and `hint` after, so two pickers on one screen are not read out the same.
 - The file list is outside the box, because a remove button inside a button is a press that fires twice.
 - Each remove button carries a name that includes the file it removes, so a screen reader hears three different buttons rather than three called "Remove".
-- The box does not move while a file is over it. Colour and edge change; nothing grows or lifts, because a target that moves while you are aiming at it is a target you miss.
+- While `dragging` is set the box takes the family's wash, its dashed edge takes the ring colour, and a soft halo spreads outside it. Nothing grows and nothing lifts: a target that moves while you are aiming at it is a target you miss.
 - `error` re-points the whole family at `danger`, so the edge, the ring and the message all turn over together.
 
 :::

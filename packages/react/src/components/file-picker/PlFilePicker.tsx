@@ -203,11 +203,43 @@ const zoneEdgeOverClasses = 'border-2 border-dashed [border-color:var(--p-ring)]
 /**
  * While a file is over the box.
  *
- * Colour and edge only, and the same two the hover state already uses, one step
- * further along — a dropzone that grows or lifts under the pointer moves the
- * target while the reader is aiming at it.
+ * A **replacement** for `zoneRestClasses`, variant for variant, rather than a
+ * few utilities laid on top of it. Stacked, it did nothing at all: a plain
+ * `bg-(--p-soft-hover)` and a plain `[border-color:var(--p-ring)]` are one
+ * class each, exactly as the rest state's are, and two declarations of one
+ * property at one specificity are settled by the order Tailwind emitted them
+ * in — which put the rest state last and left the box with no answer to a file
+ * being dragged onto it. `internal/notch` says the same thing about the edge,
+ * and this is the other half of that rule.
+ *
+ * What it says: the sheet takes the family's wash, the dashed edge goes to the
+ * ring colour, and a soft halo of the family spreads outside the box. The halo
+ * is the one addition, and it is what makes the state readable from the corner
+ * of the eye while somebody is looking at the file under their cursor rather
+ * than at the box — a PlSlider's thumb marks being dragged the same way.
+ *
+ * Colour and depth only. A dropzone that grows or lifts under the pointer moves
+ * the target while the reader is aiming at it.
  */
-const zoneOverClasses = 'bg-(--p-soft-hover) [border-color:var(--p-ring)]';
+const zoneOverClasses: Record<PlassVariant, string> = {
+  solid: /* @__PURE__ */ [
+    glassClasses,
+    'border-2 border-dashed text-(--plass-fg) bg-(--p-soft-hover)',
+    '[border-color:var(--p-ring)]',
+    '[box-shadow:var(--p-elev),var(--plass-gloss-glass),0_0_0_4px_var(--p-soft)]'
+  ].join(' '),
+  glass: /* @__PURE__ */ [
+    glassClasses,
+    'border-2 border-dashed text-(--plass-fg) bg-(--p-soft-hover)',
+    '[border-color:var(--p-ring)]',
+    '[box-shadow:var(--p-elev),var(--plass-gloss-glass),0_0_0_4px_var(--p-soft)]'
+  ].join(' '),
+  ghost: /* @__PURE__ */ [
+    'border-2 border-dashed text-(--plass-fg) bg-(--p-soft-hover)',
+    '[border-color:var(--p-ring)]',
+    '[box-shadow:0_0_0_4px_var(--p-soft)]'
+  ].join(' ')
+};
 
 function UploadIcon() {
   return (
@@ -486,14 +518,19 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
       // the family's colour instead. See `internal/notch`.
       notched ? '' : focusRingClasses,
       // An if/else rather than stacked variants: two Tailwind classes of equal
-      // specificity resolve by their order in the generated stylesheet.
+      // specificity resolve by their order in the generated stylesheet. The
+      // drag-over state is in the chain for that reason and not as an extra
+      // line below it.
       disabled
         ? `${disabledClasses[variant]} border-2 border-dashed`
         : readOnly
           ? `${zoneRestClasses[variant]} ${readOnlyFilterClasses} cursor-default`
-          : zoneRestClasses[variant],
-      !inert ? zoneHoverClasses[variant] : '',
-      over && !inert ? zoneOverClasses : ''
+          : over
+            ? zoneOverClasses[variant]
+            : zoneRestClasses[variant],
+      // Dropped while a file is over the box, because a `hover:` wash is a
+      // pseudo-class and would outrank the plain one the over state writes.
+      !inert && !over ? zoneHoverClasses[variant] : ''
     ]
       .filter(Boolean)
       .join(' ');
@@ -534,9 +571,11 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
 
         {/* The drag listeners belong to the shell rather than to the button: a
             drop is a gesture over an *area*, and the file list under the box is
-            part of the same area as far as the pointer is concerned. */}
+            part of the same area as far as the pointer is concerned — which is
+            why the list is inside this element and not a sibling of it. The gap
+            is the one `Field.Root` would have put between the two. */}
         <div
-          className="flex w-full flex-col"
+          className={`flex w-full flex-col ${stackGapClasses[size]}`}
           onDragEnter={(event) => {
             if (inert) {
               return;
@@ -672,50 +711,49 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
               writeInput(files);
             }}
           />
-        </div>
-
-        {showList && files.length > 0 ? (
-          <ul
-            role="list"
-            className={`flex w-full flex-col ${stackGapClasses[size]} m-0 list-none p-0`}
-          >
-            {files.map((file, index) => (
-              <li
-                key={`${file.name}-${file.size}-${file.lastModified}-${index}`}
-                className={[
-                  'flex w-full items-center gap-2 px-2 py-1.5',
-                  radiusClasses.xs,
-                  controlTextLeadingClasses[size],
-                  'bg-(--p-soft) text-(--plass-fg)'
-                ].join(' ')}
-              >
-                <span className="min-w-0 flex-1 truncate">{file.name}</span>
-                <span
-                  className={`shrink-0 text-(--plass-muted-fg) tabular-nums ${metaTextClasses[size]}`}
+          {showList && files.length > 0 ? (
+            <ul
+              role="list"
+              className={`flex w-full flex-col ${stackGapClasses[size]} m-0 list-none p-0`}
+            >
+              {files.map((file, index) => (
+                <li
+                  key={`${file.name}-${file.size}-${file.lastModified}-${index}`}
+                  className={[
+                    'flex w-full items-center gap-2 px-2 py-1.5',
+                    radiusClasses.xs,
+                    controlTextLeadingClasses[size],
+                    'bg-(--p-soft) text-(--plass-fg)'
+                  ].join(' ')}
                 >
-                  {formatFileSize(file.size)}
-                </span>
-                {inert ? null : (
-                  <button
-                    type="button"
-                    aria-label={removeLabel(file.name)}
-                    className={[
-                      'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full',
-                      'size-[1.3em] text-(--plass-muted-fg) opacity-70',
-                      '[transition:opacity_var(--plass-duration)_var(--plass-ease),color_var(--plass-duration)_var(--plass-ease)]',
-                      '[&_svg]:size-[0.9em]',
-                      'hover:text-(--plass-fg) hover:opacity-100 focus-visible:opacity-100',
-                      focusRingClasses
-                    ].join(' ')}
-                    onClick={() => commit(files.filter((_, at) => at !== index))}
+                  <span className="min-w-0 flex-1 truncate">{file.name}</span>
+                  <span
+                    className={`shrink-0 text-(--plass-muted-fg) tabular-nums ${metaTextClasses[size]}`}
                   >
-                    <CloseIcon />
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
-        ) : null}
+                    {formatFileSize(file.size)}
+                  </span>
+                  {inert ? null : (
+                    <button
+                      type="button"
+                      aria-label={removeLabel(file.name)}
+                      className={[
+                        'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full',
+                        'size-[1.3em] text-(--plass-muted-fg) opacity-70',
+                        '[transition:opacity_var(--plass-duration)_var(--plass-ease),color_var(--plass-duration)_var(--plass-ease)]',
+                        '[&_svg]:size-[0.9em]',
+                        'hover:text-(--plass-fg) hover:opacity-100 focus-visible:opacity-100',
+                        focusRingClasses
+                      ].join(' ')}
+                      onClick={() => commit(files.filter((_, at) => at !== index))}
+                    >
+                      <CloseIcon />
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
 
         {hasContent(description) && !hasError ? (
           <span id={descriptionId} className={`${metaTextClasses[size]} text-(--plass-muted-fg)`}>
