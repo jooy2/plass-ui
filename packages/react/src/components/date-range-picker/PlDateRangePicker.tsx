@@ -142,6 +142,7 @@ export const PlDateRangePicker = /* @__PURE__ */ React.forwardRef<
     name,
     size: sizeProp,
     color: colorProp,
+    density: densityProp,
     readOnly = false,
     disabled = false,
     startIcon,
@@ -153,6 +154,7 @@ export const PlDateRangePicker = /* @__PURE__ */ React.forwardRef<
   const locale = localeProp ?? defaults.locale;
   const size = sizeProp ?? defaults.size ?? 'md';
   const color = colorProp ?? defaults.color ?? 'primary';
+  const density = densityProp ?? defaults.density ?? 'default';
 
   const labels = usePickerLabels(labelOverrides);
   const firstDay = weekStartsOnProp ?? defaults.weekStartsOn ?? localeWeekStart(locale);
@@ -312,6 +314,7 @@ export const PlDateRangePicker = /* @__PURE__ */ React.forwardRef<
       {...shell}
       size={size}
       color={color}
+      density={density}
       readOnly={readOnly}
       disabled={disabled}
       triggerRef={ref}

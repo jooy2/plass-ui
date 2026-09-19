@@ -26,6 +26,8 @@ import {
   PlCard,
   PlCheckbox,
   PlChip,
+  PlDatePicker,
+  PlDateRangePicker,
   PlPagination,
   PlassProvider,
   PlSelect,
@@ -33,6 +35,7 @@ import {
   PlSwitch,
   PlTextField,
   PlToggle,
+  type PlassDensity,
   type PlassSize
 } from 'plass-ui';
 
@@ -46,7 +49,9 @@ const items = [
  * about. Every one is uncontrolled and static: what is compared is markup, so
  * anything that animates or measures would compare against itself unfairly.
  */
-const cases: Array<[string, (props: { size?: PlassSize }) => React.ReactElement]> = [
+type Axes = { size?: PlassSize; density?: PlassDensity };
+
+const cases: Array<[string, (props: Axes) => React.ReactElement]> = [
   ['PlButton', (props) => <PlButton {...props}>Save</PlButton>],
   ['PlTextField', (props) => <PlTextField {...props} label="Email" description="Work address" />],
   ['PlCheckbox', (props) => <PlCheckbox {...props} label="Remember me" />],
@@ -84,6 +89,27 @@ const cases: Array<[string, (props: { size?: PlassSize }) => React.ReactElement]
   [
     'PlCalendar',
     (props) => <PlCalendar {...props} locale="en-GB" defaultMonth={new Date(2026, 6, 1)} />
+  ],
+  // The two pickers that did not read the provider at all: they took their
+  // style props as a rest object and handed it to the shared shell, which
+  // resolved a literal default of its own — which is the one shape the source
+  // scan below cannot see, because the literal is in `internal/picker`.
+  [
+    'PlDatePicker',
+    (props) => (
+      <PlDatePicker {...props} locale="en-GB" label="Departure" value={new Date(2026, 6, 27)} />
+    )
+  ],
+  [
+    'PlDateRangePicker',
+    (props) => (
+      <PlDateRangePicker
+        {...props}
+        locale="en-GB"
+        label="Stay"
+        value={{ start: new Date(2026, 6, 27), end: new Date(2026, 6, 30) }}
+      />
+    )
   ]
 ];
 
@@ -117,6 +143,23 @@ describe('PlassProvider', () => {
     it.each(cases)('%s', async (_name, node) => {
       const written = await markup(node({ size: 'xs' }));
       const provided = await markup(<PlassProvider size="xs">{node({})}</PlassProvider>);
+
+      expect(provided).toBe(written);
+    });
+  });
+
+  describe('is the same as writing the prop, on density too', () => {
+    // A component with nothing to pad takes no `density`, and writing one on it
+    // would land on the DOM element as an unknown attribute — which the
+    // provider path would not have, so the two would differ over the test's own
+    // doing rather than over anything the library did. A tick, a thumb, a
+    // circle and a grid of squares are those components: `density` is spacing,
+    // and a grid of forty-two squares that pads is a grid of rectangles.
+    const nothingToPad = new Set(['PlCheckbox', 'PlSwitch', 'PlAvatar', 'PlSlider', 'PlCalendar']);
+
+    it.each(cases.filter(([name]) => !nothingToPad.has(name)))('%s', async (_name, node) => {
+      const written = await markup(node({ density: 'compact' }));
+      const provided = await markup(<PlassProvider density="compact">{node({})}</PlassProvider>);
 
       expect(provided).toBe(written);
     });
