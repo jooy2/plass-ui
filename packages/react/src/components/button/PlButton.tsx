@@ -5,7 +5,7 @@ import { useDefaults } from '../../internal/defaults.js';
 import { Button as BaseUIButton } from '@base-ui/react/button';
 import { useRender } from '@base-ui/react/use-render';
 import { ButtonGroupContext } from '../../internal/button-group.js';
-import { followPointer } from '../../internal/glow.js';
+import { glowPointerMove } from '../../internal/glow.js';
 import { Spinner } from '../../internal/icons.js';
 import {
   controlHeightClasses,
@@ -281,11 +281,11 @@ export const PlButton = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlBu
           }
           onClick?.(event as React.MouseEvent<HTMLButtonElement>);
         },
-        onPointerMove: (event: React.PointerEvent<HTMLElement>) => {
-          // Feeds the two light layers in `styles.css`.
-          followPointer(event);
-          onPointerMove?.(event as React.PointerEvent<HTMLButtonElement>);
-        },
+        // Feeds the two light layers in `styles.css`.
+        onPointerMove: glowPointerMove(
+          interactive,
+          onPointerMove as React.PointerEventHandler<HTMLElement> | undefined
+        ),
         ...props,
         children: (
           <>

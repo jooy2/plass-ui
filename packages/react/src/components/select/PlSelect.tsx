@@ -6,6 +6,7 @@ import { Select as BaseUISelect } from '@base-ui/react/select';
 import { Field } from '@base-ui/react/field';
 import { CheckIcon, ChevronIcon } from '../../internal/icons.js';
 import { WidthSizer } from '../../internal/sizer.js';
+import { glowPointerMove } from '../../internal/glow.js';
 import { FieldNotch, notchShellStyle } from '../../internal/notch.js';
 import { hotKeyHandler } from '../../internal/keys.js';
 import {
@@ -241,6 +242,7 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
     // Invalid re-points the whole slot family at `danger`, so the edge, the ring
     // and the message all turn over together.
     const family: PlassColor = isInvalid ? 'danger' : color;
+    const lit = !disabled && !readOnly;
 
     // Base UI reads this to render the chosen option's *label* in the trigger
     // rather than its raw value, which is the only way `<Select.Value>` can show
@@ -349,6 +351,7 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
               // is answered by the thing that has the focus, and a wrapper would
               // fire for a key pressed on the label beside it.
               onKeyDown={hotKeyHandler(hotKeys, undefined)}
+              onPointerMove={glowPointerMove(lit)}
               style={notched ? notchShellStyle : undefined}
               className={[
                 triggerBaseClasses,
@@ -365,6 +368,10 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
                   : readOnly
                     ? `${fieldReadOnlyClasses[variant]} cursor-default`
                     : fieldRestClasses[variant],
+                // The interaction light, on the trigger rather than on the
+                // popup it opens: a trigger is a field, and what a pointer is
+                // over is the box the reader sees. A locked one carries none.
+                lit ? 'plass-glow' : '',
                 classNames?.control
               ]
                 .filter(Boolean)

@@ -9,7 +9,9 @@ A Plass surface is **a key of tinted glass resting on a clear sheet**. That one 
 
 > **Is this thing pressed, or does it hold something?**
 
-A thing that is pressed is tinted glass: a gradient that sweeps between two ends of its colour family, a drop shadow in that family, and a bloom of light that follows the pointer across it. A thing that holds something is clear glass: translucent, heavily blurred, a white hairline round it, and never dyed. There is no third answer, and a component that seems to need one is two components.
+A thing that is pressed is tinted glass: a gradient that sweeps between two ends of its colour family, and a drop shadow in that family. A thing that holds something is clear glass: translucent, heavily blurred, a white hairline round it, and never dyed. There is no third answer, and a component that seems to need one is two components.
+
+The bloom of light that follows the pointer is on both, because it is not part of either material. A dye is what a surface _is_; the light is where the pointer _is_, and a field answering a pointer is as true a claim as a key answering one.
 
 What that sentence takes, and what it leaves out:
 
@@ -225,20 +227,24 @@ The same 260ms is also what a height travels over (an accordion, a collapsible, 
 
 ### Light arrives with the pointer
 
-`.plass-glow` is two stacked layers on every interactive control.
+`.plass-glow` is two stacked layers on every interactive surface: a key, and also the box a value is typed into.
 
 - **`::before` is the bloom**: a soft radial light centred on the pointer, fading in over 240ms when the pointer arrives and following it across the surface.
 - **`::after` is the press**: the same shape a shade brighter, at `0ms` in and ~700ms out. The flash lands on the frame of the click and is still visibly draining a beat after the finger lifts.
 
 Both read `--p-mx` / `--p-my`, which the component writes **straight to the element's inline style** on `pointermove`.
 
-**Do not hold this in React state.** The event fires at pointer rate, so a `setState` would re-render the tree on every mouse move. The coordinates come from `offsetX`/`offsetY` rather than `getBoundingClientRect()`, so nothing forces a reflow. Icons carry `pointer-events: none`, so the offsets are always relative to the control.
+**Do not hold this in React state.** The event fires at pointer rate, so a `setState` would re-render the tree on every mouse move.
+
+The coordinates are `offsetX`/`offsetY` wherever they can be. Those are measured from whatever the pointer is actually over, so they are the surface's own only when nothing inside it takes a pointer — a button, whose icons carry `pointer-events: none`. A field holds an `<input>` the pointer lands on instead, and there the position is measured against the surface's box. `pointermove` is coalesced to one event a frame and the two slots reach nothing but a pseudo-element's `background`, so what that measurement reads has already been laid out.
 
 This replaced a static specular highlight, and the reasoning is worth keeping: **a highlight that is always on is a claim about a lamp somewhere off-screen, and it reads as lacquer. Light that arrives with the pointer is a claim about the pointer, which is true.**
 
 The `::after` layer is also what carries the effect on a touch screen, where there is no hover at all: `:active` holds for as long as the finger is down and `pointermove` keeps writing the coordinates, so the light follows a finger dragged across the control.
 
-The two colour slots switch with the variant, because white light on a near-white sheet is invisible: a filled control gets `--plass-glow-on-fill` (white at 18%), and a `glass` or `ghost` one gets its own family's soft tint.
+The two colour slots switch with the variant, because white light on a near-white sheet is invisible: a filled control gets `--plass-glow-on-fill` (white at 18%), and a `glass` or `ghost` one gets its own family's soft tint. A field takes the family's tint in all three, because none of its three is a coloured fill — a `solid` field is the well, which is the glass at its most opaque.
+
+**The light wants a surface big enough for a gradient to be a gradient.** Inside a 20px box a 6rem bloom is a flat wash that slides about, which reads as a rendering fault rather than as light, so the tick-scale controls — a checkbox, a radio, a switch track — are deliberately without one. It is the same line section 4 draws for the edge a tick takes.
 
 ---
 

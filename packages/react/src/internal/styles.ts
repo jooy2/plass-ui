@@ -565,6 +565,18 @@ export function controlSlots(
  * own colours and tinting the sheet under them puts every one on a background
  * it was not chosen against. The family shows up in the hairline, the focus
  * ring and the caret, and the glass stays clear.
+ *
+ * The two interaction-light slots **are** here, and they are not an exception
+ * to that. A dye is what a surface is; the light is where the pointer is, and a
+ * field answering a pointer is as true a claim as a key answering one. They
+ * take the family's own tint in all three variants rather than switching on the
+ * variant as `controlSlots` does, because none of these three is a coloured
+ * fill: a `solid` field is the well, which is the glass at its most opaque, and
+ * white light on it is white light on a near-white sheet.
+ *
+ * Declaring them costs a surface that never lights up two custom properties and
+ * nothing else — both layers are `opacity: 0` until `.plass-glow` is on the
+ * element, and a surface without that class has no layers at all.
  */
 export function surfaceSlots(color: PlassColor, elevation: PlassElevation): React.CSSProperties {
   return {
@@ -575,6 +587,8 @@ export function surfaceSlots(color: PlassColor, elevation: PlassElevation): Reac
     '--p-line': `var(--plass-${color}-line)`,
     '--p-line-hover': `var(--plass-${color}-line-hover)`,
     '--p-ring': `var(--plass-${color}-ring)`,
+    '--p-glow': `var(--plass-${color}-soft)`,
+    '--p-flash': `var(--plass-${color}-soft-hover)`,
     '--p-elev': `var(--plass-shadow-${elevation})`,
     '--p-elev-hover': `var(--plass-shadow-${Math.min(elevation + 1, 4)})`,
     '--p-elev-press': `var(--plass-shadow-${Math.max(elevation - 1, 0)})`

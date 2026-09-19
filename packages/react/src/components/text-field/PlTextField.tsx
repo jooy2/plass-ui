@@ -5,6 +5,7 @@ import { useDefaults } from '../../internal/defaults.js';
 import { Field } from '@base-ui/react/field';
 import { Input } from '@base-ui/react/input';
 import { Spinner } from '../../internal/icons.js';
+import { glowPointerMove } from '../../internal/glow.js';
 import { FieldNotch, notchShellStyle } from '../../internal/notch.js';
 import { hotKeyHandler } from '../../internal/keys.js';
 import {
@@ -251,6 +252,7 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
     [ref]
   );
 
+  const lit = !disabled && !readOnly;
   const shellClasses = [
     shellBaseClasses,
     notched ? '' : shellRingClasses,
@@ -261,7 +263,17 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
     paddingXClasses[density][size],
     // An if/else rather than stacked `data-*` variants: two Tailwind variants
     // of equal specificity resolve by their order in the generated stylesheet.
-    disabled ? disabledClasses[variant] : readOnly ? readOnlyClasses[variant] : restClasses[variant]
+    disabled
+      ? disabledClasses[variant]
+      : readOnly
+        ? readOnlyClasses[variant]
+        : restClasses[variant],
+    // The interaction light, on the shell rather than on the control inside it,
+    // for the same reason the ring is: what a pointer is over is the field, and
+    // the box the light is drawn in has to be the box the reader sees. A locked
+    // field carries none — the light is a claim that the surface answers, and
+    // neither a disabled nor a read-only one does.
+    lit ? 'plass-glow' : ''
   ]
     .filter(Boolean)
     .join(' ');
@@ -327,6 +339,7 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
         <span
           className={cx(shellClasses, classNames?.control)}
           style={notched ? notchShellStyle : undefined}
+          onPointerMove={glowPointerMove(lit)}
           onPointerDown={(event) => {
             // Clicking the shell's own padding should put the caret in the field,
             // the way clicking anywhere inside a native input does. Only when the

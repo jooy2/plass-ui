@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Field } from '@base-ui/react/field';
 import { useDefaults } from '../../internal/defaults.js';
 import { FormControl, leaveFormControl, useFormReport } from '../../internal/form.js';
+import { glowPointerMove } from '../../internal/glow.js';
 import { CloseIcon } from '../../internal/icons.js';
 import { useLabels } from '../../internal/labels.js';
 import { FieldNotch, notchShellStyle } from '../../internal/notch.js';
@@ -506,7 +507,9 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
     };
 
     const zoneClassNames = [
-      'flex w-full flex-col items-center justify-center text-center',
+      // `relative` because `.plass-glow` hangs its two light layers off
+      // `::before`/`::after`.
+      'relative flex w-full flex-col items-center justify-center text-center',
       'cursor-pointer select-none',
       zonePaddingClasses[density][size],
       radiusClasses[size],
@@ -530,7 +533,13 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
             : zoneRestClasses[variant],
       // Dropped while a file is over the box, because a `hover:` wash is a
       // pseudo-class and would outrank the plain one the over state writes.
-      !inert && !over ? zoneHoverClasses[variant] : ''
+      !inert && !over ? zoneHoverClasses[variant] : '',
+      // The interaction light, for the pointer walking over the box on its way
+      // to press it. A file being dragged is not a pointer — a native drag
+      // fires `dragover` rather than `pointermove` and sets no `:hover` — so
+      // the drag-over state above is the whole of what marks that gesture, and
+      // the two never overlap.
+      !inert ? 'plass-glow' : ''
     ]
       .filter(Boolean)
       .join(' ');
@@ -658,6 +667,7 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
                     aria-invalid={isInvalid || failed || undefined}
                     className={zoneClassNames}
                     style={notched ? notchShellStyle : undefined}
+                    onPointerMove={glowPointerMove(!inert)}
                     onClick={browse}
                     onBlur={() => leaveFormControl(controlRef.current)}
                   >

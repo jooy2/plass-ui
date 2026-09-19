@@ -7,6 +7,7 @@ import { NumberField as BaseUINumberField } from '@base-ui/react/number-field';
 import { Field } from '@base-ui/react/field';
 import { MinusIcon, PlusIcon } from '../../internal/icons.js';
 import { hotKeyHandler } from '../../internal/keys.js';
+import { glowPointerMove } from '../../internal/glow.js';
 import { FieldNotch, notchShellStyle } from '../../internal/notch.js';
 import {
   controlHeightClasses,
@@ -289,6 +290,7 @@ export function PlNumberField({
   // Invalid re-points the whole slot family at `danger`, so the edge, the ring,
   // the caret and the message all turn over together.
   const family: PlassColor = isInvalid ? 'danger' : color;
+  const lit = !disabled && !readOnly;
 
   // The steppers bring their own padding; stacking the shell's on top of them
   // would leave the buttons floating in the middle of a gap. The shell keeps the
@@ -380,6 +382,7 @@ export function PlNumberField({
         >
           <BaseUINumberField.Group
             style={notched ? notchShellStyle : undefined}
+            onPointerMove={glowPointerMove(lit)}
             className={[
               shellBaseClasses,
               notched ? '' : shellRingClasses,
@@ -395,6 +398,11 @@ export function PlNumberField({
                 : readOnly
                   ? fieldReadOnlyClasses[variant]
                   : fieldRestClasses[variant],
+              // The interaction light, on the shell rather than on the input
+              // inside it: what a pointer is over is the field. A locked one
+              // carries none, because the light is a claim that the surface
+              // answers and neither a disabled nor a read-only field does.
+              lit ? 'plass-glow' : '',
               classNames?.control
             ]
               .filter(Boolean)

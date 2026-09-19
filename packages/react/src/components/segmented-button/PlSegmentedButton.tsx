@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { glowPointerMove } from '../../internal/glow.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { Radio as BaseUIRadio } from '@base-ui/react/radio';
 import { RadioGroup as BaseUIRadioGroup } from '@base-ui/react/radio-group';
@@ -150,7 +151,7 @@ const checkedTextClasses: Record<PlassVariant, string> = {
  */
 export const PlSegment = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSegmentProps>(
   function PlSegment(
-    { value, startIcon, endIcon, disabled = false, className, children, ...props },
+    { value, startIcon, endIcon, disabled = false, className, children, onPointerMove, ...props },
     ref
   ) {
     const { variant, size, density, fullWidth } = React.useContext(SegmentedButtonContext);
@@ -181,6 +182,9 @@ export const PlSegment = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSegment
           'rounded-full',
           transitionClasses,
           iconClasses,
+          // The interaction light. It is on the segment and not on the groove,
+          // because a groove is not pressed — the tile in it is.
+          disabled ? '' : 'plass-glow',
           'text-(--plass-muted-fg) hover:text-(--plass-fg)',
           checkedTextClasses[variant],
           forcedCheckedTextClasses,
@@ -194,6 +198,7 @@ export const PlSegment = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSegment
         ]
           .filter(Boolean)
           .join(' ')}
+        onPointerMove={glowPointerMove(!disabled, onPointerMove)}
         {...props}
       >
         {hasContent(startIcon) ? (

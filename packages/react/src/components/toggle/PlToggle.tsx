@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { followPointer } from '../../internal/glow.js';
+import { glowPointerMove } from '../../internal/glow.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { Toggle as BaseUIToggle } from '@base-ui/react/toggle';
 import { ButtonGroupContext } from '../../internal/button-group.js';
@@ -263,11 +263,7 @@ export const PlToggle = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlTo
             .join(' ')
         }
         style={{ ...controlSlots(color, elevation, variant), ...style }}
-        onPointerMove={(event) => {
-          // Feeds the two light layers in `styles.css`, as `PlButton` does.
-          followPointer(event);
-          onPointerMove?.(event);
-        }}
+        onPointerMove={glowPointerMove(!disabled, onPointerMove)}
         {...props}
       >
         {startIcon}

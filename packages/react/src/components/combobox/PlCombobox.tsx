@@ -8,6 +8,7 @@ import { Field } from '@base-ui/react/field';
 import { PlChip } from '../chip/PlChip.js';
 import { CheckIcon, ChevronIcon, CloseIcon, PlusIcon } from '../../internal/icons.js';
 import { hotKeyHandler } from '../../internal/keys.js';
+import { glowPointerMove } from '../../internal/glow.js';
 import { FieldNotch, notchShellStyle } from '../../internal/notch.js';
 import {
   chipRemoveClasses,
@@ -443,6 +444,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
     onValueChange?.((isMultiple ? next : (next[0] ?? null)) as Selection<Multiple>);
   }
 
+  const lit = !disabled && !readOnly;
   const shellClasses = cx(
     shellBaseClasses,
     notched ? '' : shellRingClasses,
@@ -459,7 +461,12 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
       ? disabledClasses[variant]
       : readOnly
         ? fieldReadOnlyClasses[variant]
-        : fieldRestClasses[variant]
+        : fieldRestClasses[variant],
+    // The interaction light, on the shell rather than on the input inside it:
+    // what a pointer is over is the field. A locked one carries none, because
+    // the light is a claim that the surface answers and neither a disabled nor
+    // a read-only field does.
+    lit ? 'plass-glow' : ''
   );
 
   const inputClasses = /* @__PURE__ */ [
@@ -571,6 +578,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
         >
           <BaseUICombobox.InputGroup
             style={notched ? notchShellStyle : undefined}
+            onPointerMove={glowPointerMove(lit)}
             className={cx(shellClasses, classNames?.control)}
           >
             {startIcon ? (

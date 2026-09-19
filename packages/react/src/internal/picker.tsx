@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Field } from '@base-ui/react/field';
 import { Popover } from '@base-ui/react/popover';
 import { FormControl, leaveFormControl } from './form.js';
+import { glowPointerMove } from './glow.js';
 import { CloseIcon } from './icons.js';
 import { WidthSizer } from './sizer.js';
 import { FieldNotch, notchShellStyle } from './notch.js';
@@ -327,6 +328,7 @@ export function PickerShell({
   const hasError = error !== undefined && error !== null && error !== false && error !== '';
   const isInvalid = invalid ?? hasError;
   const family: PlassColor = isInvalid ? 'danger' : color;
+  const lit = !disabled && !readOnly;
   const inert = disabled || readOnly;
   const controlRef = React.useRef<HTMLInputElement>(null);
 
@@ -374,6 +376,7 @@ export function PickerShell({
         >
           <span
             style={notched ? notchShellStyle : undefined}
+            onPointerMove={glowPointerMove(lit)}
             className={cx(
               triggerShellClasses,
               notched ? '' : triggerRingClasses,
@@ -389,6 +392,11 @@ export function PickerShell({
                 : readOnly
                   ? fieldReadOnlyClasses[variant]
                   : fieldRestClasses[variant],
+              // The interaction light, on the trigger rather than on the popup
+              // it opens: a trigger is a field, and what a pointer is over is
+              // the box the reader sees. A locked one carries none, because the
+              // light is a claim that the surface answers.
+              lit ? 'plass-glow' : '',
               classNames?.control
             )}
           >

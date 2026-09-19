@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { glowPointerMove } from '../../internal/glow.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { CloseIcon } from '../../internal/icons.js';
@@ -198,6 +199,7 @@ export const PlChip = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlChipPr
       style,
       children,
       onClick,
+      onPointerMove,
       ...props
     },
     ref
@@ -226,7 +228,9 @@ export const PlChip = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlChipPr
       // specificity resolve by their order in the generated stylesheet.
       disabled ? disabledClasses[variant] : restClasses[variant],
       !disabled && selected ? selectedClasses[variant] : '',
-      interactive ? hoverClasses[variant] : '',
+      // The interaction light, on the shell rather than on the pressable label
+      // inside it: what the reader sees and aims at is the whole token.
+      interactive ? `plass-glow ${hoverClasses[variant]}` : '',
       // With a pressable label the padding belongs to the button, so its hit area
       // covers the whole chip rather than just the words.
       interactive ? 'ps-0' : padX,
@@ -275,6 +279,7 @@ export const PlChip = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlChipPr
         className={shellClasses}
         style={{ ...controlSlots(color, elevation, variant), ...style }}
         aria-disabled={disabled && !interactive ? true : undefined}
+        onPointerMove={glowPointerMove(interactive, onPointerMove)}
         {...props}
       >
         {interactive ? (

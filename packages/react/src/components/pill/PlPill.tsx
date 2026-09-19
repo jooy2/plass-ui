@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { followPointer } from '../../internal/glow.js';
+import { glowPointerMove } from '../../internal/glow.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { inertProps } from '../../internal/inert.js';
 import {
@@ -332,12 +332,7 @@ export const PlPill = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPillPro
         className
       )}
       style={{ ...controlSlots(color, elevation, variant), ...style }}
-      onPointerMove={(event) => {
-        if (interactive) {
-          followPointer(event);
-        }
-        onPointerMove?.(event);
-      }}
+      onPointerMove={glowPointerMove(interactive, onPointerMove)}
       {...props}
     >
       <div
