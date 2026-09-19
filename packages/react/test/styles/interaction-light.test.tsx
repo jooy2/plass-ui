@@ -85,6 +85,20 @@ describe('the interaction light', () => {
     );
   });
 
+  it('paints the bloom under what is written on the surface and the flash over it', async () => {
+    const screen = await render(<PlButton>Save</PlButton>);
+    const key = screen.getByRole('button').element() as HTMLElement;
+
+    // A positioned pseudo-element paints above in-flow content, so without the
+    // negative depth the bloom is laid over the label — faint on a white one and
+    // not on dark ink, which is what a field is written in.
+    expect(getComputedStyle(key, '::before').zIndex).toBe('-1');
+    expect(getComputedStyle(key, '::after').zIndex).toBe('auto');
+    // And the depth only means anything inside a stacking context the surface
+    // owns; without one it falls through to whatever ancestor has the nearest.
+    expect(getComputedStyle(key).isolation).toBe('isolate');
+  });
+
   it('draws no layers at all on a field that is locked', async () => {
     await render(<PlTextField label="City" disabled classNames={{ control: 'lit-under-test' }} />);
 

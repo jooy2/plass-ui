@@ -229,8 +229,8 @@ The same 260ms is also what a height travels over (an accordion, a collapsible, 
 
 `.plass-glow` is two stacked layers on every interactive surface: a key, and also the box a value is typed into.
 
-- **`::before` is the bloom**: a soft radial light centred on the pointer, fading in over 240ms when the pointer arrives and following it across the surface.
-- **`::after` is the press**: the same shape a shade brighter, at `0ms` in and ~700ms out. The flash lands on the frame of the click and is still visibly draining a beat after the finger lifts.
+- **`::before` is the bloom**: a soft radial light centred on the pointer, fading in over 240ms when the pointer arrives and following it across the surface. It sits **under** what is written on the surface and over the fill, which takes a `z-index: -1` and an `isolation: isolate` on the surface to give that depth something to be measured in — a positioned pseudo-element otherwise paints above every in-flow thing in the box, and a wash laid over dark ink is a field whose value got harder to read when a pointer arrived.
+- **`::after` is the press**: the same shape a shade brighter, at `0ms` in and ~700ms out, and **over** the label rather than under it. The flash lands on the frame of the click and is still visibly draining a beat after the finger lifts.
 
 Both read `--p-mx` / `--p-my`, which the component writes **straight to the element's inline style** on `pointermove`.
 

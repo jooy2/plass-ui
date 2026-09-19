@@ -806,6 +806,17 @@
  * never re-renders — the component writes the two custom properties directly.
  * ------------------------------------------------------------------------- */
 
+/*
+ * A stacking context of the surface's own, which is what lets the bloom below
+ * sit at a negative depth without falling through the surface it belongs to.
+ * `isolation` rather than a `z-index`, because a z-index is a position in a
+ * stack somebody else owns and this is only a statement that the two layers are
+ * the surface's business.
+ */
+.plass-glow {
+  isolation: isolate;
+}
+
 .plass-glow::before,
 .plass-glow::after {
   content: '';
@@ -816,8 +827,20 @@
   opacity: 0;
 }
 
-/* The bloom trailing the pointer across the surface. */
+/*
+ * The bloom trailing the pointer across the surface.
+ *
+ * **Under the label, and over the fill.** A positioned pseudo-element otherwise
+ * paints above every in-flow thing in the box, so the bloom was laid over the
+ * words on a key and over the value in a field — faint enough to miss on a
+ * white label and not on dark ink. `z-index: -1` puts it where a stacking
+ * context paints a negative layer, which is after the element's own background
+ * and before its content: over the gradient, under what is written on it. The
+ * flash below stays where it is, over everything, which is the pair the Flutter
+ * build draws as two separate widgets on either side of the label.
+ */
 .plass-glow::before {
+  z-index: -1;
   background: radial-gradient(
     6rem circle at var(--p-mx, 50%) var(--p-my, 50%),
     var(--p-glow, transparent),
