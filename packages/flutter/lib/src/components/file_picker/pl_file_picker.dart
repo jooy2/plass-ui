@@ -439,6 +439,7 @@ class _PlFilePickerState extends State<PlFilePicker> {
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
+    final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
     final hasError = widget.error != null;
     final isInvalid = widget.invalid ?? hasError;
     // Invalid re-points the whole family at `danger`, so the edge, the ring and
@@ -515,6 +516,16 @@ class _PlFilePickerState extends State<PlFilePicker> {
             ],
           ),
           borderRadius: radius,
+          // The interaction light, for the pointer walking over the box on its
+          // way to press it. A file being dragged is not a pointer, so `lit`
+          // above is the whole of what marks that gesture and the two never
+          // overlap.
+          pointer: state.pointer,
+          glow: _usable ? tokens.fieldGlow(family) : null,
+          glowVisible: state.hovered,
+          flash: _usable ? tokens.fieldFlash(family) : null,
+          flashVisible: state.pressed,
+          reduceMotion: reduceMotion,
           child: Padding(
             padding: EdgeInsets.all(_zonePadding[_density]![size]!),
             child: Column(

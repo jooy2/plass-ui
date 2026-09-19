@@ -216,6 +216,30 @@ class _PlTextFieldState extends State<PlTextField> {
   FocusNode? _owned;
   TextEditingController? _fallback;
   bool _hovered = false;
+  bool _pressed = false;
+
+  /// Where the pointer is over the shell, which is what the interaction light
+  /// is centred on. Written on every pointer frame, so the light is wrapped in
+  /// a `RepaintBoundary` inside `PlassSurfaceBox` and the value that moves is
+  /// not one the text is laid out from.
+  Offset? _pointer;
+
+  /// Whether the shell answers a pointer at all. The light is a claim that the
+  /// surface answers, and neither a disabled nor a read-only field does.
+  bool get _lit => !widget.disabled && !widget.readOnly;
+
+  void _setPointer(Offset position) {
+    if (_lit && _pointer != position) {
+      setState(() => _pointer = position);
+    }
+  }
+
+  void _releasePress() {
+    if (_pressed) {
+      setState(() => _pressed = false);
+    }
+  }
+
   bool _focused = false;
 
   FocusNode get _focusNode => widget.focusNode ?? (_owned ??= FocusNode());
@@ -253,6 +277,7 @@ class _PlTextFieldState extends State<PlTextField> {
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
+    final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
     final hasError = widget.error != null;
     final isInvalid = widget.invalid ?? hasError;
     // Invalid re-points the whole family at `danger`, so the edge, the ring, the
@@ -405,6 +430,14 @@ class _PlTextFieldState extends State<PlTextField> {
         // it, and a gap is not something a border can have.
         surface: notched ? surface.withoutBorder() : surface,
         borderRadius: radius,
+        // The interaction light. A field answering a pointer is as true a claim
+        // as a key answering one, and it is not a claim a locked field makes.
+        pointer: _pointer,
+        glow: _lit ? tokens.fieldGlow(family) : null,
+        glowVisible: _hovered,
+        flash: _lit ? tokens.fieldFlash(family) : null,
+        flashVisible: _pressed,
+        reduceMotion: reduceMotion,
         child: shell,
       ),
     );
@@ -466,13 +499,27 @@ class _PlTextFieldState extends State<PlTextField> {
     shell = MouseRegion(
       cursor: widget.disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.text,
       onEnter: (PointerEnterEvent event) => setState(() => _hovered = true),
-      onExit: (PointerExitEvent event) => setState(() => _hovered = false),
+      onExit: (PointerExitEvent event) => setState(() {
+        _hovered = false;
+        _pressed = false;
+      }),
+      onHover: (PointerHoverEvent event) => _setPointer(event.localPosition),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         excludeFromSemantics: true,
         // Pressing the shell's own padding puts the caret in the field, the way
         // pressing anywhere inside a native input does.
         onTap: widget.disabled ? null : _focusNode.requestFocus,
+        // The press half of the light. On a touch screen there is no hover at
+        // all, and this is the layer that carries the effect there.
+        onTapDown: (TapDownDetails details) {
+          _setPointer(details.localPosition);
+          if (_lit) {
+            setState(() => _pressed = true);
+          }
+        },
+        onTapUp: (TapUpDetails details) => _releasePress(),
+        onTapCancel: _releasePress,
         child: shell,
       ),
     );

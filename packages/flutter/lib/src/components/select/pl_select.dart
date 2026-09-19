@@ -328,6 +328,7 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
+    final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
     final hasError = widget.error != null;
     final isInvalid = widget.invalid ?? hasError;
     final family = tokens.family(isInvalid ? PlassColor.danger : _color);
@@ -403,6 +404,15 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
             // gap in it, and a gap is not something a border can have.
             surface: notched ? surface.withoutBorder() : surface,
             borderRadius: radius,
+            // The interaction light. A trigger is a field, and a field
+            // answering a pointer is as true a claim as a key answering one —
+            // and not one a locked field makes.
+            pointer: state.pointer,
+            glow: _usable ? tokens.fieldGlow(family) : null,
+            glowVisible: state.hovered,
+            flash: _usable ? tokens.fieldFlash(family) : null,
+            flashVisible: state.pressed,
+            reduceMotion: reduceMotion,
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: paddingX[_density]![size]!),
               child: Row(

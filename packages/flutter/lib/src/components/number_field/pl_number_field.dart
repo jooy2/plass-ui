@@ -303,6 +303,25 @@ class _PlNumberFieldState extends State<PlNumberField> {
   /// moment the value settles rather than one more step.
   bool _repeated = false;
   bool _hovered = false;
+  bool _pressed = false;
+
+  /// Where the pointer is over the shell, which is what the interaction light
+  /// is centred on. Written on every pointer frame; the light sits inside a
+  /// `RepaintBoundary` in `PlassSurfaceBox`, so the repaint stays off the text.
+  Offset? _pointer;
+
+  void _setPointer(Offset position) {
+    if (_editable && _pointer != position) {
+      setState(() => _pointer = position);
+    }
+  }
+
+  void _releasePress() {
+    if (_pressed) {
+      setState(() => _pressed = false);
+    }
+  }
+
   bool _focused = false;
 
   FocusNode get _focusNode => widget.focusNode ?? (_owned ??= FocusNode());
@@ -572,6 +591,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
+    final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
     final hasError = widget.error != null;
     final isInvalid = widget.invalid ?? hasError;
     final family = tokens.family(isInvalid ? PlassColor.danger : _color);
@@ -846,6 +866,15 @@ class _PlNumberFieldState extends State<PlNumberField> {
         // it, and a gap is not something a border can have.
         surface: notched ? surface.withoutBorder() : surface,
         borderRadius: radius,
+        // The interaction light. A field answering a pointer is as true a
+        // claim as a key answering one, and it is not a claim a locked field
+        // makes.
+        pointer: _pointer,
+        glow: _editable ? tokens.fieldGlow(family) : null,
+        glowVisible: _hovered,
+        flash: _editable ? tokens.fieldFlash(family) : null,
+        flashVisible: _pressed,
+        reduceMotion: reduceMotion,
         child: shell,
       ),
     );
@@ -891,11 +920,25 @@ class _PlNumberFieldState extends State<PlNumberField> {
     shell = MouseRegion(
       cursor: widget.disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.text,
       onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
+      onExit: (_) => setState(() {
+        _hovered = false;
+        _pressed = false;
+      }),
+      onHover: (PointerHoverEvent event) => _setPointer(event.localPosition),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         excludeFromSemantics: true,
         onTap: widget.disabled ? null : _focusNode.requestFocus,
+        // The press half of the light. On a touch screen there is no hover at
+        // all, and this is the layer that carries the effect there.
+        onTapDown: (TapDownDetails details) {
+          _setPointer(details.localPosition);
+          if (_editable) {
+            setState(() => _pressed = true);
+          }
+        },
+        onTapUp: (TapUpDetails details) => _releasePress(),
+        onTapCancel: _releasePress,
         child: shell,
       ),
     );

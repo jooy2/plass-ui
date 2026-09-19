@@ -185,6 +185,14 @@ export const PlSegment = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSegment
           // The interaction light. It is on the segment and not on the groove,
           // because a groove is not pressed — the tile in it is.
           disabled ? '' : 'plass-glow',
+          // And its colour follows where the segment is standing rather than
+          // what the set is made of. A chosen segment rides the tile, which on
+          // `solid` is a coloured fill and takes white light; an unchosen one
+          // sits on the trough, which is a sheet, and white light on a
+          // near-white sheet is invisible. The set's own slots are inherited,
+          // so only the second case has anything to say.
+          'not-data-[checked]:[--p-glow:var(--p-soft)]',
+          'not-data-[checked]:[--p-flash:var(--p-soft-hover)]',
           'text-(--plass-muted-fg) hover:text-(--plass-fg)',
           checkedTextClasses[variant],
           forcedCheckedTextClasses,

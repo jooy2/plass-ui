@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/glow.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/roving.dart';
@@ -481,6 +482,7 @@ class _Tile<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fontSize = controlText[size]!;
+    final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     return ExcludeFocus(
       excluding: !focusable,
@@ -532,6 +534,49 @@ class _Tile<T> extends StatelessWidget {
           );
 
           body = plassStateFilter(child: body, disabled: disabled, lit: false);
+
+          // The interaction light, on the segment and not on the groove: a
+          // groove is not pressed, the tile in it is. Its colour follows where
+          // the segment is standing rather than what the set is made of — a
+          // chosen one rides the tile, which on `solid` is a coloured fill and
+          // takes white light; an unchosen one sits on the trough, which is a
+          // sheet, and white light on a near-white sheet is invisible.
+          if (onPressed != null && !disabled) {
+            body = ClipRRect(
+              borderRadius: BorderRadius.circular(height),
+              child: Stack(
+                children: <Widget>[
+                  Positioned.fill(
+                    child: RepaintBoundary(
+                      child: PlassGlowLayer(
+                        pointer: state.pointer,
+                        visible: state.hovered,
+                        color: chosen ? tokens.glow(family, variant) : tokens.fieldGlow(family),
+                        radius: glowRadius,
+                        duration: PlassTokens.glowDuration,
+                        reduceMotion: reduceMotion,
+                      ),
+                    ),
+                  ),
+                  body,
+                  Positioned.fill(
+                    child: RepaintBoundary(
+                      child: PlassGlowLayer(
+                        pointer: state.pointer,
+                        visible: state.pressed,
+                        color: chosen ? tokens.flash(family, variant) : tokens.fieldFlash(family),
+                        radius: flashRadius,
+                        duration: PlassTokens.flashDuration,
+                        curve: PlassTokens.flashEase,
+                        instant: true,
+                        reduceMotion: reduceMotion,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
 
           if (state.focusVisible) {
             // Inset rather than offset — an offset ring on a segment inside a

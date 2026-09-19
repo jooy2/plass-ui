@@ -16,7 +16,7 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlButton, PlTextField } from 'plass-ui';
+import { PlButton, PlSegment, PlSegmentedButton, PlTextField } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
 
 let sheet: HTMLStyleElement;
@@ -97,6 +97,25 @@ describe('the interaction light', () => {
     // And the depth only means anything inside a stacking context the surface
     // owns; without one it falls through to whatever ancestor has the nearest.
     expect(getComputedStyle(key).isolation).toBe('isolate');
+  });
+
+  it('gives a segment the light of whatever it is standing on', async () => {
+    await render(
+      <PlSegmentedButton variant="solid" defaultValue="day">
+        <PlSegment value="day">Day</PlSegment>
+        <PlSegment value="week">Week</PlSegment>
+      </PlSegmentedButton>
+    );
+
+    const [chosen, other] = [...document.querySelectorAll('[data-segment]')] as HTMLElement[];
+
+    // The chosen one rides the tile, which on `solid` is a coloured fill and
+    // takes white light. The other sits on the trough, which is a sheet, and
+    // white light on a near-white sheet is nothing at all.
+    expect(getComputedStyle(chosen).getPropertyValue('--p-glow')).not.toBe(
+      getComputedStyle(other).getPropertyValue('--p-glow')
+    );
+    expect(getComputedStyle(other, '::before').backgroundImage).not.toContain('rgba(0, 0, 0, 0),');
   });
 
   it('draws no layers at all on a field that is locked', async () => {

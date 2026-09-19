@@ -825,6 +825,19 @@ class PlassTokens {
     return variant == PlassVariant.solid ? flashOnFill : family.softHover;
   }
 
+  /// The same two on a surface that **holds** something — a field's shell, a
+  /// picker's trigger, a drop zone.
+  ///
+  /// They take the family's own tint in all three variants rather than
+  /// switching on the variant as [glow] and [flash] do, because none of a
+  /// field's three is a coloured fill: a `solid` field is the well, which is the
+  /// glass at its most opaque, and white light on it is white light on a
+  /// near-white sheet.
+  Color fieldGlow(PlassColorFamily family) => family.soft;
+
+  /// The brighter of the two, the moment the field is pressed.
+  Color fieldFlash(PlassColorFamily family) => family.softHover;
+
   /* -------------------------------------------------------------------------
    * Scales that do not change with the theme
    * ---------------------------------------------------------------------- */
