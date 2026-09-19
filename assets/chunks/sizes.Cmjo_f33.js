@@ -1,0 +1,1 @@
+import{j as e}from"./jsx-runtime.BjG_zV1W.js";import{P as r}from"./PlBadge.BkTGprlA.js";import"./index.CAJ_Adw3.js";import"./defaults.BtV0mQSg.js";import"./styles.BEOiGoHs.js";function p(){return e.jsx("div",{className:"flex flex-wrap items-center gap-4",children:["xs","sm","md","lg","xl"].map(t=>e.jsx(r,{size:t,content:12},t))})}export{p as default};
