@@ -28,6 +28,7 @@ import type { PlColorFormat, PlassHsv } from '../../internal/color.js';
 import type {
   PlassColor,
   PlassElevation,
+  PlassFieldClassNames,
   PlassFieldLabelPlacement,
   PlassSize,
   PlassStyleProps
@@ -68,6 +69,17 @@ export interface PlColorPickerProps
   extends
     PlassStyleProps,
     Omit<React.ComponentPropsWithoutRef<'div'>, 'color' | 'defaultValue' | 'onChange'> {
+  /**
+   * The four parts of a labelled field, as every other one names them: the
+   * `label`, the `control`, the `description` and the `error`. `className`
+   * itself goes on the stack that holds all four, which is what a caller
+   * positions and sizes.
+   *
+   * `control` is the trigger the panel hangs off, or — with `inline` — the panel
+   * itself, because inline there is no trigger and the panel is what a reader
+   * acts on.
+   */
+  classNames?: PlassFieldClassNames;
   /** The colour, as a CSS string. Pass it to drive the picker yourself. */
   value?: string;
   /** Where an uncontrolled picker starts. @default '#1a58d1' */
@@ -235,6 +247,14 @@ interface PanelProps {
   /** Marks the square and the rails invalid. Only an inline panel says so: in a popup the trigger does. */
   invalid: boolean;
   labels: PlColorPickerLabels;
+  /**
+   * `classNames.control`, when the panel **is** the control.
+   *
+   * Inline there is no trigger, so the box a caller means by `control` is the
+   * panel itself. In a popup the trigger takes the class and this is left out —
+   * a popup's contents are not the field.
+   */
+  className?: string;
 }
 
 /** Where a pointer landed inside an element, as a 0–1 fraction of each axis. */
@@ -282,7 +302,8 @@ function ColorPanel({
   size,
   inert,
   invalid,
-  labels
+  labels,
+  className
 }: PanelProps) {
   const thumb = thumbSizes[size];
   const offset = -thumb / 2;
@@ -361,7 +382,7 @@ function ColorPanel({
   });
 
   return (
-    <div className={cx('flex flex-col', panelWidthClasses[size], panelGapClasses[size])}>
+    <div className={cx('flex flex-col', panelWidthClasses[size], panelGapClasses[size], className)}>
       <div
         {...track((event) => {
           const { x, y } = fractionsOf(event);
@@ -647,6 +668,7 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
       density: densityProp,
       elevation = 0,
       className,
+      classNames,
       style,
       ...props
     },
@@ -763,6 +785,7 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
         inert={inert}
         invalid={inline && isInvalid}
         labels={labels}
+        className={inline ? classNames?.control : undefined}
       />
     );
 
@@ -799,7 +822,8 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
               className={cx(
                 metaTextClasses[size],
                 'font-semibold',
-                isDisabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)'
+                isDisabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)',
+                classNames?.label
               )}
             >
               {label}
@@ -811,7 +835,11 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
           {description ? (
             <span
               id={`${fieldId}-description`}
-              className={cx(metaTextClasses[size], 'text-(--plass-muted-fg)')}
+              className={cx(
+                metaTextClasses[size],
+                'text-(--plass-muted-fg)',
+                classNames?.description
+              )}
             >
               {description}
             </span>
@@ -820,7 +848,7 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
           {error ? (
             <span
               id={`${fieldId}-error`}
-              className={cx(metaTextClasses[size], 'text-(--p-accent)')}
+              className={cx(metaTextClasses[size], 'text-(--p-accent)', classNames?.error)}
             >
               {error}
             </span>
@@ -850,6 +878,7 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
           readOnly={readOnly}
           fullWidth={fullWidth}
           className={className}
+          classNames={classNames}
           startIcon={
             <span
               aria-hidden="true"

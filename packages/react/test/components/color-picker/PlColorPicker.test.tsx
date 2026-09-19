@@ -382,6 +382,37 @@ describe('PlColorPicker', () => {
       await expect.element(hue).toHaveAttribute('tabindex', '0');
     });
 
+    it('puts `classNames.control` on the panel, which inline is the control', async () => {
+      const screen = await render(
+        <PlColorPicker
+          inline
+          label="Brand"
+          description="Where it is used"
+          error="Pick something"
+          className="stack-under-test"
+          classNames={{
+            label: 'label-under-test',
+            control: 'control-under-test',
+            description: 'description-under-test',
+            error: 'error-under-test'
+          }}
+        />
+      );
+
+      const stack = screen.getByText('Brand').element().parentElement as HTMLElement;
+
+      for (const slot of ['label', 'control', 'description', 'error']) {
+        expect(document.querySelectorAll(`.${slot}-under-test`)).toHaveLength(1);
+      }
+
+      // Inline there is no trigger, so `control` is the panel — the square and
+      // the rails a reader actually acts on.
+      expect(document.querySelector('.control-under-test')).toBe(
+        screen.getByRole('slider', { name: 'Saturation and brightness' }).element().parentElement
+      );
+      expect(stack).toHaveClass('stack-under-test');
+    });
+
     it('turns the family over to danger on an error', async () => {
       const screen = await render(
         <PlColorPicker data-testid="picker" inline error="Pick something" defaultValue="#ff0000" />

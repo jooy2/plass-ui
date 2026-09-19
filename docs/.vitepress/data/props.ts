@@ -3696,7 +3696,8 @@ export const propTables: Record<string, PropRow[]> = {
         ko: '글자가 없는 부분들의 접근 가능한 이름을 하나씩 덮어씁니다',
         en: 'Overrides for the accessible names of the parts that have no text on them'
       }
-    }
+    },
+    fieldClassNames
   ],
 
   PlCombobox: [
@@ -14499,7 +14500,8 @@ export const propTables: Record<string, PropRow[]> = {
         ko: '폼 제출 전에 값이 있어야 하는지',
         en: 'Whether a value must be chosen before the form is submitted'
       }
-    }
+    },
+    fieldClassNames
   ],
   PlTreeSelectNode: [
     {

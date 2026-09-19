@@ -53,11 +53,7 @@ const classNames = { control: 'lit-under-test' };
 
 type Extra = { disabled?: boolean; readOnly?: boolean };
 
-/**
- * Where the lit box is. Almost every field marks it with `classNames.control`;
- * `PlColorPicker` takes no `classNames` yet, so its trigger shell is found the
- * way the DOM describes it — the box the trigger button sits in.
- */
+/** Where the lit box is: every field marks it with `classNames.control`. */
 type Locate = () => HTMLElement | null;
 
 const byControl: Locate = () => document.querySelector('.lit-under-test');
@@ -109,8 +105,8 @@ const lit: Array<[string, (extra?: Extra) => React.ReactElement, Locate]> = [
   ],
   [
     'PlColorPicker',
-    (extra) => <PlColorPicker label="Brand" className="picker-under-test" {...extra} />,
-    () => document.querySelector('.picker-under-test button')?.parentElement ?? null
+    (extra) => <PlColorPicker label="Brand" classNames={classNames} {...extra} />,
+    byControl
   ],
   [
     'PlTreeSelect',

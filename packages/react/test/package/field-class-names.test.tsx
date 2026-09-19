@@ -20,6 +20,7 @@ import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import {
   PlCheckbox,
+  PlColorPicker,
   PlCombobox,
   PlDatePicker,
   PlDateRangePicker,
@@ -31,7 +32,8 @@ import {
   PlSelect,
   PlSwitch,
   PlTextField,
-  PlTimePicker
+  PlTimePicker,
+  PlTreeSelect
 } from 'plass-ui';
 
 const classNames = {
@@ -48,6 +50,8 @@ const items = [
   { value: 'seoul', label: 'Seoul' },
   { value: 'busan', label: 'Busan' }
 ];
+
+const tree = [{ id: 'kr', label: 'Korea', children: [{ id: 'seoul', label: 'Seoul' }] }];
 
 /** Anything a single test wants to add on top of the four slots. */
 type Extra = { className?: string };
@@ -89,7 +93,18 @@ const fields: Array<[string, (extra?: Extra) => React.ReactElement]> = [
     'PlDateTimePicker',
     (extra?: Extra) => <PlDateTimePicker {...text} classNames={classNames} {...extra} />
   ],
-  ['PlTimePicker', (extra?: Extra) => <PlTimePicker {...text} classNames={classNames} {...extra} />]
+  [
+    'PlTimePicker',
+    (extra?: Extra) => <PlTimePicker {...text} classNames={classNames} {...extra} />
+  ],
+  [
+    'PlColorPicker',
+    (extra?: Extra) => <PlColorPicker {...text} classNames={classNames} {...extra} />
+  ],
+  [
+    'PlTreeSelect',
+    (extra?: Extra) => <PlTreeSelect items={tree} {...text} classNames={classNames} {...extra} />
+  ]
 ];
 
 describe.each(fields)('%s', (name, field) => {
