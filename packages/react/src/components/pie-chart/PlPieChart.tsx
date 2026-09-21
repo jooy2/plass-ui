@@ -37,8 +37,11 @@ import type {
   PlassChartTooltip
 } from '../../types.js';
 
-/** How much of the middle is cut out, per shape. */
+/** How much of the middle is cut out, per shape, when the caller says nothing. */
 const holes = { pie: 0, donut: 0.62, semi: 0.62 } as const;
+
+/** Keeps a number inside a range, whatever a caller passed. */
+const clamp = (value: number, low: number, high: number) => Math.min(high, Math.max(low, value));
 
 export interface PlPieChartProps extends ChartBaseProps {
   /**
@@ -65,6 +68,31 @@ export interface PlPieChartProps extends ChartBaseProps {
    * @default 0
    */
   startAngle?: number;
+  /**
+   * How much of the middle is cut out, as a fraction of the radius: `0` is a
+   * filled disc and `0.8` is a thin band. Clamped to `0`–`0.95`.
+   *
+   * `shape` already picks one — nothing for a `pie`, and a little under two
+   * thirds for a `donut` and a `semi`, which is the proportion that leaves a
+   * ring thick enough to read a colour off and a hole big enough to put the
+   * total in. This is for when the hole has a particular job: a wider one for a
+   * two-line readout, a narrower one on a small dashboard tile. Setting it on a
+   * `pie` opens a hole in one, which is a `donut` by another name.
+   */
+  innerRadius?: number;
+  /**
+   * The gap between two neighbouring slices, in degrees. Clamped to `0`–`10`.
+   *
+   * Left alone it is the 2px the library puts between any two marks, worked out
+   * at the rim — so the gap is a constant *on screen* rather than a constant in
+   * the data, and a small pie is not drawn with the same sliver of surface a
+   * large one gets. Widen it to make a ring read as separate segments; `0`
+   * closes it, which is what a pie of two or three slices usually wants.
+   *
+   * A slice narrower than twice the gap keeps none of it, or a one-degree
+   * sliver would invert and draw the whole circle instead of nothing.
+   */
+  padAngle?: number;
   /**
    * What goes in the hole. A `donut` or a `semi` with nothing in the middle is
    * a pie with a bite out of it; the total, or the one figure the chart is
@@ -100,6 +128,8 @@ export function PlPieChart({
   categories,
   shape = 'pie',
   startAngle = 0,
+  innerRadius,
+  padAngle,
   center,
   valueLabels = 'none',
   height,
@@ -184,7 +214,7 @@ export function PlPieChart({
   const centreX = width / 2;
   const outer = Math.max(0, Math.min(width / 2, semi ? plotHeight : plotHeight / 2) - 2);
   const centreY = semi ? Math.min(plotHeight, plotHeight / 2 + outer / 2) : plotHeight / 2;
-  const inner = outer * holes[shape];
+  const inner = outer * clamp(innerRadius ?? holes[shape], 0, 0.95);
 
   // Decided by the data alone. The box has no width on a server and before the
   // first measurement, and a pie that said "nothing here" until then would say
@@ -193,8 +223,14 @@ export function PlPieChart({
 
   // The 2px between two slices, as the angle that subtends it at the rim. Wider
   // for a small pie than for a large one, which is the point: the gap is a
-  // constant on screen, not a constant in the data.
-  const pad = outer > 0 ? Math.min(4, (markGap / outer) * (180 / Math.PI)) : 0;
+  // constant on screen, not a constant in the data. A caller who names one is
+  // naming the angle itself, which is how a ring is made to read as segments.
+  const pad =
+    padAngle === undefined
+      ? outer > 0
+        ? Math.min(4, (markGap / outer) * (180 / Math.PI))
+        : 0
+      : clamp(padAngle, 0, 10);
   const sweep = semi ? 180 : 360;
   const from = semi ? -90 : startAngle;
 

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
@@ -121,6 +123,69 @@ void main() {
       );
 
       expect(find.text('100'), findsOneWidget);
+    });
+
+    testWidgets('opens a hole in a pie when `innerRadius` asks for one', (
+      WidgetTester tester,
+    ) async {
+      await _pump(
+        tester,
+        const PlPieChart(
+          data: <PlassChartDatum>[PlassChartDatum(40), PlassChartDatum(60)],
+          innerRadius: 0.5,
+          center: Text('100'),
+        ),
+      );
+
+      // A pie has no hole, so the caller content has nowhere to go — unless the
+      // caller cuts one, which is a donut by another name.
+      expect(find.text('100'), findsOneWidget);
+    });
+
+    testWidgets('widens the gap between slices when `padAngle` asks', (WidgetTester tester) async {
+      /// How much of a ring through the middle of the disc is covered by a
+      /// slice, out of 360 samples. The gaps are what the rest of it is, so a
+      /// wider gap is a smaller number — and this asks the question without
+      /// naming an angle or a radius the test would then be pinning.
+      Future<int> covered(double? padAngle) async {
+        await _pump(
+          tester,
+          PlPieChart(
+            data: const <PlassChartDatum>[PlassChartDatum(40), PlassChartDatum(60)],
+            padAngle: padAngle,
+            legend: const PlChartLegend(hidden: true),
+          ),
+        );
+
+        final canvas = RecordingCanvas();
+        final Finder plot = find.byWidgetPredicate(
+          (Widget widget) => widget is CustomPaint && widget.painter != null,
+        );
+
+        tester.widget<CustomPaint>(plot.first).painter!.paint(canvas, tester.getSize(plot.first));
+
+        final Rect disc = canvas.paths.fold(
+          canvas.paths.first.getBounds(),
+          (Rect box, Path path) => box.expandToInclude(path.getBounds()),
+        );
+        final Offset centre = disc.center;
+        final double radius = disc.width / 2 * 0.6;
+
+        int hits = 0;
+
+        for (int degree = 0; degree < 360; degree += 1) {
+          final double radians = degree * math.pi / 180;
+          final Offset at = centre + Offset(math.cos(radians), math.sin(radians)) * radius;
+
+          if (canvas.paths.any((Path path) => path.contains(at))) {
+            hits += 1;
+          }
+        }
+
+        return hits;
+      }
+
+      expect(await covered(8), lessThan(await covered(0)));
     });
 
     testWidgets('leaves it out of a pie, which has no hole to put it in', (

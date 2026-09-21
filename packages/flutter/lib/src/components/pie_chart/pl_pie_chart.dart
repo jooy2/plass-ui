@@ -40,7 +40,7 @@ enum PlPieLabels {
   all,
 }
 
-/// How much of the middle is cut out, per shape.
+/// How much of the middle is cut out, per shape, when the caller says nothing.
 const Map<PlPieShape, double> _holes = <PlPieShape, double>{
   PlPieShape.pie: 0,
   PlPieShape.donut: 0.62,
@@ -80,6 +80,8 @@ class PlPieChart extends StatefulWidget {
     this.categories,
     this.shape = PlPieShape.pie,
     this.startAngle = 0,
+    this.innerRadius,
+    this.padAngle,
     this.center,
     this.valueLabels = PlPieLabels.none,
     this.legend = const PlChartLegend(),
@@ -108,6 +110,30 @@ class PlPieChart extends StatefulWidget {
   /// Where the first slice starts, in degrees clockwise from twelve o'clock.
   /// Ignored by [PlPieShape.semi], which is defined by where it opens.
   final double startAngle;
+
+  /// How much of the middle is cut out, as a fraction of the radius: `0` is a
+  /// filled disc and `0.8` is a thin band. Clamped to `0`–`0.95`.
+  ///
+  /// [shape] already picks one — nothing for a [PlPieShape.pie], and a little
+  /// under two thirds for the other two, which is the proportion that leaves a
+  /// ring thick enough to read a colour off and a hole big enough to put the
+  /// total in. This is for when the hole has a particular job: a wider one for
+  /// a two-line readout, a narrower one on a small dashboard tile. Setting it
+  /// on a pie opens a hole in one, which is a donut by another name.
+  final double? innerRadius;
+
+  /// The gap between two neighbouring slices, in degrees. Clamped to `0`–`10`.
+  ///
+  /// Left alone it is the 2px the library puts between any two marks, worked
+  /// out at the rim — so the gap is a constant *on screen* rather than a
+  /// constant in the data, and a small pie is not drawn with the same sliver of
+  /// surface a large one gets. Widen it to make a ring read as separate
+  /// segments; `0` closes it, which is what a pie of two or three slices
+  /// usually wants.
+  ///
+  /// A slice narrower than twice the gap keeps none of it, or a one-degree
+  /// sliver would invert and draw the whole circle instead of nothing.
+  final double? padAngle;
 
   /// What goes in the hole.
   ///
@@ -222,7 +248,7 @@ class _PlPieChartState extends State<PlPieChart> {
         final double centreX = width / 2;
         final double outer = math.max(0, math.min(width / 2, semi ? height : height / 2) - 2);
         final double centreY = semi ? math.min(height, height / 2 + outer / 2) : height / 2;
-        final double inner = outer * _holes[widget.shape]!;
+        final double inner = outer * (widget.innerRadius ?? _holes[widget.shape]!).clamp(0.0, 0.95);
 
         if (total <= 0 || outer <= 0) {
           return SizedBox(
@@ -295,6 +321,7 @@ class _PlPieChartState extends State<PlPieChart> {
                       centreY: centreY,
                       outer: outer,
                       inner: inner,
+                      padAngle: widget.padAngle?.clamp(0.0, 10.0),
                       active: _active,
                       hovered: _hovered,
                       visible: visible,
@@ -365,6 +392,7 @@ class _PlPieChartState extends State<PlPieChart> {
               }
             }),
             onHover: (int? index) => setState(() => _hovered = index),
+            maxEntries: widget.legend.maxEntries,
           );
 
     return Semantics(
@@ -508,6 +536,7 @@ class _PiePainter extends CustomPainter {
     required this.centreY,
     required this.outer,
     required this.inner,
+    required this.padAngle,
     required this.active,
     required this.hovered,
     required this.visible,
@@ -523,6 +552,10 @@ class _PiePainter extends CustomPainter {
   final double centreY;
   final double outer;
   final double inner;
+
+  /// The gap between two slices in degrees, or `null` to work it out from the
+  /// 2px the library puts between any two marks.
+  final double? padAngle;
   final int? active;
   final int? hovered;
 
@@ -536,8 +569,10 @@ class _PiePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // The 2px between two slices, as the angle that subtends it at the rim.
     // Wider for a small pie than for a large one, which is the point: the gap
-    // is a constant on screen, not a constant in the data.
-    final double pad = outer > 0 ? math.min(4, markGap / outer * 180 / math.pi) : 0;
+    // is a constant on screen, not a constant in the data. A caller who names
+    // one is naming the angle itself, which is how a ring is made to read as
+    // separate segments.
+    final double pad = padAngle ?? (outer > 0 ? math.min(4, markGap / outer * 180 / math.pi) : 0);
 
     for (final _Arc arc in arcs) {
       final bool dimmed =
@@ -607,6 +642,7 @@ class _PiePainter extends CustomPainter {
       old.shares != shares ||
       old.outer != outer ||
       old.inner != inner ||
+      old.padAngle != padAngle ||
       old.surface != surface;
 }
 

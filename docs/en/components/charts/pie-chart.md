@@ -103,6 +103,28 @@ A donut with nothing in the middle is a pie with a bite out of it. The total, or
 
 The number written on a slice is its **share**, not its value: a share is what a pie is a picture of, and the value is one hover away. A label wider than the slice it belongs to is dropped rather than clipped, so it can never end up sitting over the neighbour it would then be labelling.
 
+### The hole and the gap
+
+`shape` picks both — nothing cut out of a `pie`, and a little under two thirds out of a `donut` and a `semi`. `innerRadius` and `padAngle` set them directly, for when the hole has a particular job or the ring has to read as separate segments.
+
+<Demo src="pie-chart/ring" :min-height="260">
+
+::: fw react
+
+<<< @/.vitepress/demos/pie-chart/ring.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/pie_chart/ring.dart
+
+:::
+
+</Demo>
+
+`innerRadius` is a fraction of the radius, so it holds whatever size the chart is drawn at. `padAngle` is in degrees; left out, the gap is the 2px the library puts between any two marks, worked out at the rim — a constant **on screen** rather than a constant in the data, so a small pie is not drawn with the same sliver of surface a large one gets. A slice narrower than twice the gap keeps none of it, or a one-degree sliver would invert and draw the whole circle instead of nothing.
+
 ### startAngle
 
 Where the first slice starts, in degrees clockwise from twelve o'clock. `semi` ignores it, that shape is defined by where it opens.

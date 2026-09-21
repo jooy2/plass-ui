@@ -103,6 +103,28 @@ PlPieChart(data: traffic, categories: sources);
 
 조각에 적히는 숫자는 값이 아니라 **비중**입니다. 파이가 그리는 그림이 비중이고, 값은 hover 한 번 거리에 있습니다. 조각보다 넓은 label은 잘리는 대신 지워지므로, 옆 조각 위에 얹혀 그쪽을 설명하는 일이 생기지 않습니다.
 
+### 구멍과 틈
+
+`shape`가 둘 다 정합니다. `pie`는 아무것도 뚫지 않고, `donut`과 `semi`는 3분의 2에 조금 못 미치게 뚫습니다. `innerRadius`와 `padAngle`은 그 둘을 직접 정합니다. 구멍에 맡길 일이 따로 있거나, 고리가 나뉜 조각으로 읽혀야 할 때 씁니다.
+
+<Demo src="pie-chart/ring" :min-height="260">
+
+::: fw react
+
+<<< @/.vitepress/demos/pie-chart/ring.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/pie_chart/ring.dart
+
+:::
+
+</Demo>
+
+`innerRadius`는 반지름에 대한 비율이라 차트를 어느 크기로 그리든 그대로 유지됩니다. `padAngle`은 각도입니다. 주지 않으면 이 라이브러리가 두 mark 사이에 두는 2px을 테두리에서 각도로 환산해 씁니다. 데이터가 아니라 **화면** 위에서 일정한 값이므로, 작은 원이 큰 원과 같은 틈을 갖지 않습니다. 틈의 두 배보다 좁은 조각은 틈을 아예 받지 않습니다. 1도짜리 조각이 뒤집혀 원 전체를 그리는 일을 막기 위해서입니다.
+
 ### startAngle
 
 첫 조각이 시작하는 자리를, 열두 시에서 시계 방향으로 잰 각도로 지정합니다. `semi`는 무시합니다. 그 모양은 어디가 열려 있는지로 정의되기 때문입니다.

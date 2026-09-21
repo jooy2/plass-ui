@@ -68,6 +68,7 @@ import 'package:plass_ui_example/demos/bar_chart/hero.dart';
 import 'package:plass_ui_example/demos/bar_chart/negative.dart';
 import 'package:plass_ui_example/demos/bar_chart/orientation.dart';
 import 'package:plass_ui_example/demos/bar_chart/stacked.dart';
+import 'package:plass_ui_example/demos/bar_chart/tick_angle.dart';
 import 'package:plass_ui_example/demos/badge/colors.dart';
 import 'package:plass_ui_example/demos/badge/counts.dart';
 import 'package:plass_ui_example/demos/badge/dot.dart';
@@ -303,6 +304,7 @@ import 'package:plass_ui_example/demos/icon_button/variants.dart';
 import 'package:plass_ui_example/demos/line_chart/curve.dart';
 import 'package:plass_ui_example/demos/line_chart/dashed.dart';
 import 'package:plass_ui_example/demos/line_chart/gaps.dart';
+import 'package:plass_ui_example/demos/line_chart/reference.dart';
 import 'package:plass_ui_example/demos/line_chart/hero.dart';
 import 'package:plass_ui_example/demos/line_chart/labels.dart';
 import 'package:plass_ui_example/demos/list/dividers.dart';
@@ -406,6 +408,7 @@ import 'package:plass_ui_example/demos/panes/orientation.dart';
 import 'package:plass_ui_example/demos/panes/sizes.dart';
 import 'package:plass_ui_example/demos/pie_chart/center.dart';
 import 'package:plass_ui_example/demos/pie_chart/hero.dart';
+import 'package:plass_ui_example/demos/pie_chart/ring.dart';
 import 'package:plass_ui_example/demos/pie_chart/shape.dart';
 import 'package:plass_ui_example/demos/pie_chart/value_labels.dart';
 import 'package:plass_ui_example/demos/pill/details.dart';
@@ -492,6 +495,7 @@ import 'package:plass_ui_example/demos/table/rows.dart';
 import 'package:plass_ui_example/demos/table/scroll.dart';
 import 'package:plass_ui_example/demos/table/striped.dart';
 import 'package:plass_ui_example/demos/table/variants.dart';
+import 'package:plass_ui_example/demos/tabs/align.dart';
 import 'package:plass_ui_example/demos/tabs/controlled.dart';
 import 'package:plass_ui_example/demos/tabs/full_width.dart';
 import 'package:plass_ui_example/demos/tabs/hero.dart';
@@ -811,6 +815,7 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'bar-chart/negative': _barChartNegative,
   'bar-chart/orientation': _barChartOrientation,
   'bar-chart/stacked': _barChartStacked,
+  'bar-chart/tick-angle': _barChartTickAngle,
   'badge/hero': _badgeHero,
   'badge/variants': _badgeVariants,
   'badge/sizes': _badgeSizes,
@@ -901,6 +906,7 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'line-chart/curve': _lineChartCurve,
   'line-chart/dashed': _lineChartDashed,
   'line-chart/gaps': _lineChartGaps,
+  'line-chart/reference': _lineChartReference,
   'line-chart/hero': _lineChartHero,
   'line-chart/labels': _lineChartLabels,
   'list/rows': _listRows,
@@ -982,6 +988,7 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'popover/sides': _popoverSides,
   'popover/form': _popoverForm,
   'pie-chart/hero': _pieChartHero,
+  'pie-chart/ring': _pieChartRing,
   'pie-chart/shape': _pieChartShape,
   'pie-chart/center': _pieChartCenter,
   'pie-chart/value-labels': _pieChartValueLabels,
@@ -1079,6 +1086,7 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'tabs/orientation': _tabsOrientation,
   'tabs/full-width': _tabsFullWidth,
   'tabs/overflow': _tabsOverflow,
+  'tabs/align': _tabsAlign,
   'tabs/controlled': _tabsControlled,
   'animate-fade/hero': _animateFadeHero,
   'animate-fade/mode': _animateFadeMode,
@@ -1170,6 +1178,8 @@ Widget _lineChartDashed(BuildContext context) => const LineChartDashed();
 
 Widget _lineChartGaps(BuildContext context) => const LineChartGaps();
 
+Widget _lineChartReference(BuildContext context) => const LineChartReference();
+
 Widget _lineChartHero(BuildContext context) => const LineChartHero();
 
 Widget _lineChartLabels(BuildContext context) => const LineChartLabels();
@@ -1185,6 +1195,8 @@ Widget _barChartHero(BuildContext context) => const BarChartHero();
 Widget _barChartNegative(BuildContext context) => const BarChartNegative();
 
 Widget _barChartOrientation(BuildContext context) => const BarChartOrientation();
+
+Widget _barChartTickAngle(BuildContext context) => const BarChartTickAngle();
 
 Widget _barChartStacked(BuildContext context) => const BarChartStacked();
 
@@ -1683,6 +1695,8 @@ Widget _pieChartHero(BuildContext context) => const PieChartHero();
 
 Widget _pieChartShape(BuildContext context) => const PieChartShape();
 
+Widget _pieChartRing(BuildContext context) => const PieChartRing();
+
 Widget _pieChartCenter(BuildContext context) => const PieChartCenter();
 
 Widget _pieChartValueLabels(BuildContext context) => const PieChartValueLabels();
@@ -1735,6 +1749,8 @@ Widget _tabsHero(BuildContext context) => const TabsHero();
 Widget _tabsVariants(BuildContext context) => const TabsVariants();
 Widget _tabsSizes(BuildContext context) => const TabsSizes();
 Widget _tabsOrientation(BuildContext context) => const TabsOrientation();
+
+Widget _tabsAlign(BuildContext context) => const TabsAlign();
 Widget _tabsFullWidth(BuildContext context) => const TabsFullWidth();
 Widget _tabsOverflow(BuildContext context) => const TabsOverflow();
 Widget _tabsControlled(BuildContext context) => const TabsControlled();
