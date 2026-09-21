@@ -27,7 +27,12 @@ import {
 } from './chart.js';
 import { markTransitionClasses } from './chart-frame.js';
 import type { CartesianContext } from './chart-frame.js';
-import type { PlassChartCurve, PlassChartValueLabels } from '../types.js';
+import type {
+  PlassChartCurve,
+  PlassChartLabelColor,
+  PlassChartNulls,
+  PlassChartValueLabels
+} from '../types.js';
 
 /** Whether a point gets a dot on it. */
 export type ChartMarkers = 'none' | 'auto' | 'all';
@@ -44,12 +49,17 @@ export interface LineSeriesProps {
   stacked: boolean;
   markers: ChartMarkers;
   valueLabels: PlassChartValueLabels;
+  /** What colour those labels are written in. */
+  valueLabelColor: PlassChartLabelColor;
   /**
-   * Bridges a gap instead of breaking at it. Off by default, and it should
-   * stay off unless the caller knows the gap is an artefact of collection
-   * rather than a month where nothing happened.
+   * What a gap does to the line.
+   *
+   * Only `connect` reaches this far. `gap` is what the path builder does when
+   * it is handed the `null`s, and `zero` was settled before the frame was ever
+   * given the data — see `zeroNulls`, which is why a zeroed gap moves the axis
+   * and fills the table row as well as the line.
    */
-  connectNulls: boolean;
+  nulls: PlassChartNulls;
   /**
    * Fades the line from a paler step of its own hue at the old end to the full
    * colour at the new one. One hue throughout — a stroke that changes hue along
@@ -76,7 +86,8 @@ export function LineSeries({
   stacked,
   markers,
   valueLabels,
-  connectNulls,
+  valueLabelColor,
+  nulls,
   gradient,
   idPrefix
 }: LineSeriesProps) {
@@ -177,11 +188,12 @@ export function LineSeries({
           return point(category, total);
         });
 
-        // `connectNulls` drops the gaps rather than bridging them in the path
+        // `connect` drops the gaps rather than bridging them in the path
         // builder: a bridged segment and a real one have to be the same shape,
         // and the only way to guarantee that is for the builder never to know
         // the difference.
-        const line = connectNulls ? (tops.filter(Boolean) as { x: number; y: number }[]) : tops;
+        const bridged = nulls === 'connect';
+        const line = bridged ? (tops.filter(Boolean) as { x: number; y: number }[]) : tops;
 
         const under: Vertex[] = one.map((value, category) =>
           value.value === null
@@ -205,7 +217,7 @@ export function LineSeries({
               <path
                 d={areaPath(
                   line,
-                  connectNulls ? (under.filter(Boolean) as { x: number; y: number }[]) : under,
+                  bridged ? (under.filter(Boolean) as { x: number; y: number }[]) : under,
                   curve
                 )}
                 fill={
@@ -223,7 +235,7 @@ export function LineSeries({
             {banded && index !== first ? (
               <path
                 d={linePath(
-                  connectNulls ? (under.filter(Boolean) as { x: number; y: number }[]) : under,
+                  bridged ? (under.filter(Boolean) as { x: number; y: number }[]) : under,
                   curve
                 )}
                 fill="none"
@@ -297,8 +309,17 @@ export function LineSeries({
                             : 'middle'
                       }
                       fontSize={chartFontSizes[size]}
-                      fontWeight={500}
-                      fill="var(--plass-fg)"
+                      fontWeight={600}
+                      // In the line's own colour, so a plot with four labelled
+                      // series says which number belongs to which line without
+                      // the reader tracing it back. A point that carries a
+                      // colour of its own is labelled in that, for the same
+                      // reason: the label names the mark it is sitting on.
+                      fill={
+                        valueLabelColor === 'ink'
+                          ? 'var(--plass-fg)'
+                          : (one[category].color ?? color)
+                      }
                       className="tabular-nums"
                     >
                       {one[category].label ?? format(value)}

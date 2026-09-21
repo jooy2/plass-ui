@@ -325,6 +325,9 @@ class PlassLabels {
     this.commandPalettePlaceholder = 'Search commands',
     this.gallery = 'Gallery',
     this.chart = 'Chart',
+    this.chartOther = 'Other',
+    this.chartMore = _englishChartMore,
+    this.chartFewer = 'Show fewer',
     this.minimize = 'Minimize',
     this.maximize = 'Maximize',
     this.restore = 'Restore',
@@ -434,6 +437,9 @@ class PlassLabels {
     String? commandPalettePlaceholder,
     String? gallery,
     String? chart,
+    String? chartOther,
+    String Function(int count)? chartMore,
+    String? chartFewer,
     String? minimize,
     String? maximize,
     String? restore,
@@ -535,6 +541,9 @@ class PlassLabels {
       commandPalettePlaceholder: commandPalettePlaceholder ?? this.commandPalettePlaceholder,
       gallery: gallery ?? this.gallery,
       chart: chart ?? this.chart,
+      chartOther: chartOther ?? this.chartOther,
+      chartMore: chartMore ?? this.chartMore,
+      chartFewer: chartFewer ?? this.chartFewer,
       minimize: minimize ?? this.minimize,
       maximize: maximize ?? this.maximize,
       restore: restore ?? this.restore,
@@ -703,6 +712,17 @@ class PlassLabels {
 
   /// What a drawing of numbers is called when the caller has not named it.
   final String chart;
+
+  /// The category a chart folds its smallest ones into. Not a name for any of
+  /// them — it is what is left once the ones worth drawing have been drawn.
+  final String chartOther;
+
+  /// The legend's own 'and this many more', on a chart with more series than it
+  /// shows.
+  final String Function(int count) chartMore;
+
+  /// And the way back, once they are all showing.
+  final String chartFewer;
 
   /// What a window's minimize button is called.
   final String minimize;
@@ -997,6 +1017,9 @@ class PlassLabels {
     commandPalettePlaceholder,
     gallery,
     chart,
+    chartOther,
+    chartMore,
+    chartFewer,
     minimize,
     maximize,
     restore,
@@ -1086,6 +1109,8 @@ String plassDecimal(num value, String separator) {
 
   return value.toStringAsFixed(3).replaceFirst(_trailingZeros, '').replaceFirst('.', separator);
 }
+
+String _englishChartMore(int count) => '$count more';
 
 String _englishPaginationPage(int page) => 'Page $page';
 

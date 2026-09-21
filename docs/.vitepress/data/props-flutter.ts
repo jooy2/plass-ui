@@ -1658,9 +1658,21 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'PlassChartValueLabels',
       default: 'PlassChartValueLabels.none'
     }),
+    from('PlAreaChart', 'valueLabelColor', {
+      type: 'PlassChartLabelColor',
+      default: 'PlassChartLabelColor.series'
+    }),
+    from('PlAreaChart', 'nulls', {
+      type: 'PlassChartNulls?',
+      default: 'PlassChartNulls.gap'
+    }),
     from('PlAreaChart', 'connectNulls', { type: 'bool', default: 'false' }),
     from('PlAreaChart', 'xAxis', { type: 'PlChartAxis', default: 'PlChartAxis()' }),
     from('PlAreaChart', 'yAxis', { type: 'PlChartAxis', default: 'PlChartAxis()' }),
+    from('PlAreaChart', 'reference', {
+      type: 'List<PlassChartReference>',
+      default: '[]'
+    }),
     from('PlAreaChart', 'legend', { type: 'PlChartLegend', default: 'PlChartLegend()' }),
     from('PlAreaChart', 'tooltip', { type: 'PlChartTooltip', default: 'PlChartTooltip()' }),
     from('PlAreaChart', 'height', { type: 'double?' }),
@@ -1674,6 +1686,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlPieChart', 'categories', { type: 'List<PlassChartCategory>?' }),
     from('PlPieChart', 'shape', { type: 'PlPieShape', default: 'PlPieShape.pie' }),
     from('PlPieChart', 'startAngle', { type: 'double', default: '0' }),
+    from('PlPieChart', 'innerRadius', { type: 'double?' }),
+    from('PlPieChart', 'padAngle', { type: 'double?' }),
     from('PlPieChart', 'center', { type: 'Widget?' }),
     from('PlPieChart', 'valueLabels', {
       type: 'PlPieLabels',
@@ -1713,8 +1727,19 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'PlassChartValueLabels',
       default: 'PlassChartValueLabels.none'
     }),
+    from('PlBarChart', 'valueLabelColor', {
+      type: 'PlassChartLabelColor',
+      default: 'PlassChartLabelColor.series'
+    }),
+    from('PlBarChart', 'sort', { type: 'PlassChartSort', default: 'PlassChartSort.none' }),
+    from('PlBarChart', 'maxCategories', { type: 'int?' }),
+    from('PlBarChart', 'otherLabel', { type: 'String?' }),
     from('PlBarChart', 'xAxis', { type: 'PlChartAxis', default: 'PlChartAxis()' }),
     from('PlBarChart', 'yAxis', { type: 'PlChartAxis', default: 'PlChartAxis()' }),
+    from('PlBarChart', 'reference', {
+      type: 'List<PlassChartReference>',
+      default: '[]'
+    }),
     from('PlBarChart', 'legend', { type: 'PlChartLegend', default: 'PlChartLegend()' }),
     from('PlBarChart', 'tooltip', { type: 'PlChartTooltip', default: 'PlChartTooltip()' }),
     from('PlBarChart', 'height', { type: 'double?' }),
@@ -1729,13 +1754,25 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlLineChart', 'categories', { type: 'List<PlassChartCategory>?' }),
     from('PlLineChart', 'curve', { type: 'PlChartCurve', default: 'PlChartCurve.linear' }),
     from('PlLineChart', 'markers', { type: 'PlChartMarkers', default: 'PlChartMarkers.auto' }),
+    from('PlLineChart', 'nulls', {
+      type: 'PlassChartNulls?',
+      default: 'PlassChartNulls.gap'
+    }),
     from('PlLineChart', 'connectNulls', { type: 'bool', default: 'false' }),
     from('PlLineChart', 'valueLabels', {
       type: 'PlassChartValueLabels',
       default: 'PlassChartValueLabels.none'
     }),
+    from('PlLineChart', 'valueLabelColor', {
+      type: 'PlassChartLabelColor',
+      default: 'PlassChartLabelColor.series'
+    }),
     from('PlLineChart', 'xAxis', { type: 'PlChartAxis', default: 'PlChartAxis()' }),
     from('PlLineChart', 'yAxis', { type: 'PlChartAxis', default: 'PlChartAxis()' }),
+    from('PlLineChart', 'reference', {
+      type: 'List<PlassChartReference>',
+      default: '[]'
+    }),
     from('PlLineChart', 'legend', {
       type: 'PlChartLegend',
       default: 'PlChartLegend()',
@@ -1778,10 +1815,22 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlassChartAxis', 'min', { type: 'double?' }),
     from('PlassChartAxis', 'max', { type: 'double?' }),
     from('PlassChartAxis', 'tickCount', { type: 'int', default: '5' }),
+    from('PlassChartAxis', 'scale', {
+      type: 'PlassChartScale',
+      default: 'PlassChartScale.linear'
+    }),
     from('PlassChartAxis', 'tickFormat', {
       name: 'format',
       type: 'String Function(double value)?',
       description: { ko: 'tick을 쓰는 방식', en: 'How a tick is written' }
+    }),
+    from('PlassChartAxis', 'tickAngle', {
+      type: 'double',
+      default: '0',
+      description: {
+        ko: '라벨을 몇 도 기울일지. 기운 라벨은 이름이 아무리 길어도 축을 가로질러 한 줄만 차지하고, 나머지 자리는 plot 아래에서 씁니다. -45가 손이 가는 값이고 -90은 세로로 세웁니다. React의 `tickAngle="auto"`는 여기서 `PlChartAxis.autoTickAngle`입니다 — Dart에는 union 타입이 없습니다. category 축에만, 그리고 그 축이 아래쪽에 있을 때만 듭니다',
+        en: 'Turns the labels, in degrees, so long names fit without being cut. A turned label takes one line of text across the axis however long it is, and spends the room under the plot. `-45` is the one to reach for; `-90` stands them on end. React\'s `tickAngle="auto"` is `PlChartAxis.autoTickAngle` here, because Dart has no union type. Only the category axis, and only where it runs along the bottom'
+      }
     }),
     from('PlassChartAxis', 'thickness', { type: 'double?' })
   ],
@@ -1797,15 +1846,16 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     },
     from('PlassChartLegend', 'side', { type: 'PlassSide', default: 'PlassSide.bottom' }),
     from('PlassChartLegend', 'align', { type: 'PlassAlign', default: 'PlassAlign.center' }),
-    from('PlassChartLegend', 'interactive', { type: 'bool', default: 'true' })
+    from('PlassChartLegend', 'interactive', { type: 'bool', default: 'true' }),
+    from('PlassChartLegend', 'maxEntries', { type: 'int?' })
   ],
   PlassChartTooltip: [
     from('PlassChartTooltip', 'mode', {
       type: 'PlassChartTooltipMode',
       default: 'PlassChartTooltipMode.column',
       description: {
-        ko: '`column`은 포인터 아래 category의 모든 series, `item`은 가리킨 mark 하나, `none`은 툴팁 없음입니다. React의 `index`가 `column`인 것은 Dart enum에 이미 `index`가 있기 때문입니다',
-        en: "`column` is every series at the category under the pointer, `item` the one mark being pointed at, and `none` no tooltip. React's `index` is `column` because every Dart enum already has an `index`"
+        ko: '`column`은 포인터 아래 category의 모든 series, `item`은 그 열에서 가장 가까운 series 하나, `nearest`는 열이 아니라 두 방향으로 재어 가장 가까운 **mark** 하나, `none`은 툴팁 없음입니다. React의 `index`가 `column`인 것은 Dart enum에 이미 `index`가 있기 때문입니다',
+        en: "`column` is every series at the category under the pointer, `item` the one in that column the press is nearest, `nearest` the one **mark** nearest in both directions rather than down a column, and `none` no tooltip. React's `index` is `column` because every Dart enum already has an `index`"
       }
     }),
     {
@@ -4454,6 +4504,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlScatterChart', 'maxRadius', { type: 'double?' }),
     from('PlScatterChart', 'xAxis', { type: 'PlChartAxis', default: 'PlChartAxis()' }),
     from('PlScatterChart', 'yAxis', { type: 'PlChartAxis', default: 'PlChartAxis()' }),
+    from('PlScatterChart', 'reference', {
+      type: 'List<PlassChartReference>',
+      default: '[]'
+    }),
     from('PlScatterChart', 'legend', { type: 'PlChartLegend', default: 'PlChartLegend()' }),
     from('PlScatterChart', 'tooltip', { type: 'PlChartTooltip', default: 'PlChartTooltip()' }),
     from('PlScatterChart', 'height', { type: 'double?' }),
@@ -5321,6 +5375,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'PlassResponsive<PlassOrientation>',
       default: 'PlassOrientation.horizontal'
     }),
+    from('PlTabs', 'align', { type: 'PlassAlign', default: 'PlassAlign.center' }),
     from('PlTabs', 'fullWidth', { type: 'bool', default: 'false' }),
     from('PlTabs', 'wheel', { type: 'bool', default: 'true' }),
     from('PlTabs', 'overscroll', {
@@ -5638,6 +5693,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlTimelineChart', 'rounded', { type: 'bool', default: 'true' }),
     from('PlTimelineChart', 'xAxis', { type: 'PlChartAxis', default: 'PlChartAxis()' }),
     from('PlTimelineChart', 'yAxis', { type: 'PlChartAxis', default: 'PlChartAxis()' }),
+    from('PlTimelineChart', 'reference', {
+      type: 'List<PlassChartReference>',
+      default: '[]'
+    }),
     from('PlTimelineChart', 'tooltip', { type: 'PlChartTooltip', default: 'PlChartTooltip()' }),
     from('PlTimelineChart', 'height', { type: 'double?' }),
     from('PlTimelineChart', 'label', {

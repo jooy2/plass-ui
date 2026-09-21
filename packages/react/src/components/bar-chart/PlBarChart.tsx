@@ -16,17 +16,22 @@ import {
   dimmedByHover,
   labelledPoints,
   markGap,
+  rankCategories,
   stackToFull,
   writeChartValue,
   type ChartValue
 } from '../../internal/chart.js';
 import type {
+  PlassChartCategory,
+  PlassChartLabelColor,
   PlassChartSeries,
+  PlassChartSort,
   PlassChartValueLabels,
   PlassOrientation,
   PlassSize
 } from '../../types.js';
 import { useDefaults } from '../../internal/defaults.js';
+import { useLabels } from '../../internal/labels.js';
 
 export interface PlBarChartProps extends CartesianChartProps {
   /**
@@ -73,6 +78,58 @@ export interface PlBarChartProps extends CartesianChartProps {
    * @default 'none'
    */
   valueLabels?: PlassChartValueLabels;
+  /**
+   * What colour those numbers are written in.
+   *
+   * `series` — the default — gives each label the colour of the bar it is
+   * sitting past, so a group of four labelled bars says which number belongs to
+   * which series without the reader counting along the group. `ink` writes them
+   * all in the page's own foreground: the chart palette clears 4:1 against the
+   * sheet, which is the floor a *mark* is held to rather than the 4.5:1 body
+   * text wants, so reach for it where the labels have to meet the text contrast
+   * rule on their own.
+   * @default 'series'
+   */
+  valueLabelColor?: PlassChartLabelColor;
+  /**
+   * Puts the categories in order of size rather than leaving them in the order
+   * they were given.
+   *
+   * A bar chart is the one shape whose categories can be shuffled without
+   * losing anything — that is the test for reaching for it over a line chart —
+   * so sorting them is free, and it is what turns a wall of bars into a ranking
+   * a reader can scan down. Leave it alone where the order already means
+   * something: months, sizes, a funnel's steps.
+   *
+   * With more than one series the size of a category is the **total** across
+   * all of them, and each series' magnitude rather than its signed value — a
+   * category whose two series are +50 and −50 is a hundred units of chart, not
+   * nothing. A series hidden from the legend is still counted, because a chart
+   * whose columns rearranged themselves when an entry was clicked is one a
+   * reader cannot use.
+   * @default 'none'
+   */
+  sort?: PlassChartSort;
+  /**
+   * Keeps the largest this many categories and sums the rest into one.
+   *
+   * The answer to a chart of ninety countries: a bar too short to see is a bar
+   * costing width without saying anything, and eighty of them is a chart of
+   * nothing but noise. What is folded is decided by size and never by `sort`,
+   * so `ascending` shows the small ones it kept rather than keeping the small
+   * ones — and the fold is always last, wherever the sort would otherwise have
+   * put it, because it is not a category but what is left.
+   *
+   * A fold of nothing but gaps stays a gap rather than becoming a zero.
+   */
+  maxCategories?: number;
+  /**
+   * What that fold is called. Falls back to the label pack's own word, which is
+   * "Other" in English.
+   */
+  otherLabel?: string;
+  /** The category axis' labels. Points may carry their own `x` instead. */
+  categories?: readonly PlassChartCategory[];
 }
 
 /**
@@ -94,7 +151,12 @@ export function PlBarChart({
   rounded = true,
   barSize,
   valueLabels = 'none',
+  valueLabelColor = 'series',
+  sort = 'none',
+  maxCategories,
+  otherLabel,
   series,
+  categories,
   yAxis,
   format,
   locale,
@@ -114,18 +176,32 @@ export function PlBarChart({
      the tooltip and the table all agree about what the number is. The original
      value survives as the point's label — a chart that can only tell you
      percentages has thrown away what it was given. */
+  const words = useLabels();
+  const other = otherLabel ?? words.chartOther;
+
+  /* The order and the fold come first, because 100% stacking has to normalise
+     what is actually going to be drawn: a category folded away afterwards would
+     have taken its share of every other bar with it. Both are changes to the
+     *data*, which is what lets the axis, the tooltip and the table agree with
+     the picture about which categories there are. */
+  const ranked = React.useMemo(
+    () => rankCategories(series, categories, { sort, max: maxCategories, other }),
+    [series, categories, sort, maxCategories, other]
+  );
+
   const shown = React.useMemo<readonly PlassChartSeries[]>(
     () =>
       full
-        ? stackToFull(series, (value) => writeChartValue(value, format, resolvedLocale))
-        : series,
-    [series, full, format, resolvedLocale]
+        ? stackToFull(ranked.series, (value) => writeChartValue(value, format, resolvedLocale))
+        : ranked.series,
+    [ranked.series, full, format, resolvedLocale]
   );
 
   return (
     <CartesianChart
       {...props}
       series={shown}
+      categories={ranked.categories}
       format={format}
       locale={locale}
       size={size}
@@ -145,6 +221,7 @@ export function PlBarChart({
           rounded={rounded}
           barSize={barSize ?? barMaxThickness[size]}
           valueLabels={valueLabels}
+          valueLabelColor={valueLabelColor}
           size={size}
         />
       )}
@@ -158,6 +235,7 @@ interface BarsProps {
   rounded: boolean;
   barSize: number;
   valueLabels: PlassChartValueLabels;
+  valueLabelColor: PlassChartLabelColor;
   size: PlassSize;
 }
 
@@ -171,7 +249,15 @@ interface BarsProps {
  * surface showing through and never a stroke — a border drawn around a bar is
  * ink that is not data.
  */
-function Bars({ context, stacked, rounded, barSize, valueLabels, size }: BarsProps) {
+function Bars({
+  context,
+  stacked,
+  rounded,
+  barSize,
+  valueLabels,
+  valueLabelColor,
+  size
+}: BarsProps) {
   const {
     values,
     visible,
@@ -301,8 +387,11 @@ function Bars({ context, stacked, rounded, barSize, valueLabels, size }: BarsPro
                       textAnchor={horizontal ? (value.value >= 0 ? 'start' : 'end') : 'middle'}
                       dominantBaseline={horizontal ? 'central' : undefined}
                       fontSize={labelSize}
-                      fontWeight={500}
-                      fill="var(--plass-fg)"
+                      fontWeight={600}
+                      // In the bar's own colour, so a group of four labelled
+                      // bars says which number belongs to which series without
+                      // the reader counting along the group.
+                      fill={valueLabelColor === 'ink' ? 'var(--plass-fg)' : (value.color ?? color)}
                       className="tabular-nums"
                     >
                       {value.label ?? format(value.value)}

@@ -78,6 +78,175 @@ describe('PlBarChart', () => {
     });
   });
 
+  describe('a turned category axis', () => {
+    const CHANNELS = [
+      'Organic search',
+      'Direct traffic',
+      'Email campaigns',
+      'Paid social',
+      'Referral links',
+      'Affiliate partners'
+    ];
+
+    const sessions = [{ name: 'Sessions', data: [48, 39, 27, 19, 11, 8] }];
+
+    /** The labels along the bottom, which are every text but the value ticks. */
+    const names = (plot: HTMLElement) =>
+      [...plot.querySelectorAll('text')].map((one) => one.textContent ?? '');
+
+    /**
+     * A box narrow enough for six of these names to be a problem. The chart
+     * measures the element it is in, so this has to be a real width rather than
+     * a prop — and without it the test would be reading the browser window.
+     */
+    const narrow = (chart: React.ReactNode) => <div style={{ width: 420 }}>{chart}</div>;
+
+    it('cuts names to their slot and thins them out while it is upright', async () => {
+      const screen = await render(
+        narrow(<PlBarChart label="Sessions" categories={CHANNELS} series={sessions} />)
+      );
+      const plot = screen.getByRole('img', { name: 'Sessions' }).element() as HTMLElement;
+
+      await expect.element(screen.getByRole('img', { name: 'Sessions' })).toBeInTheDocument();
+      expect(names(plot).some((text) => text.endsWith('…'))).toBe(true);
+    });
+
+    it('turns them instead, whole, and writes every one', async () => {
+      const screen = await render(
+        narrow(
+          <PlBarChart
+            label="Sessions"
+            categories={CHANNELS}
+            series={sessions}
+            xAxis={{ tickAngle: -45 }}
+            height={300}
+          />
+        )
+      );
+      const plot = screen.getByRole('img', { name: 'Sessions' }).element() as HTMLElement;
+
+      await expect.element(screen.getByRole('img', { name: 'Sessions' })).toBeInTheDocument();
+
+      const drawn = names(plot);
+
+      for (const channel of CHANNELS) {
+        expect(drawn).toContain(channel);
+      }
+
+      const turned = [...plot.querySelectorAll('text[transform]')];
+
+      expect(turned.length).toBe(CHANNELS.length);
+      // Anchored at the end so the text runs back up towards its own tick,
+      // which is what makes a negative angle read from the bottom left.
+      expect(turned[0].getAttribute('transform')).toMatch(/^rotate\(-45 /);
+      expect(turned[0].getAttribute('text-anchor')).toBe('end');
+    });
+
+    it('turns them on its own with `auto`, and only once one would be cut', async () => {
+      const screen = await render(
+        narrow(
+          <PlBarChart
+            label="Sessions"
+            categories={CHANNELS}
+            series={sessions}
+            xAxis={{ tickAngle: 'auto' }}
+            height={300}
+          />
+        )
+      );
+      const plot = screen.getByRole('img', { name: 'Sessions' }).element() as HTMLElement;
+
+      await expect.element(screen.getByRole('img', { name: 'Sessions' })).toBeInTheDocument();
+      expect(plot.querySelectorAll('text[transform]').length).toBe(CHANNELS.length);
+
+      // Three short names fit their slots, and upright is the best an axis can
+      // do when there is room for it.
+      await screen.rerender(
+        narrow(
+          <PlBarChart
+            label="Sessions"
+            categories={['Jan', 'Feb', 'Mar']}
+            series={[{ name: 'Sessions', data: [48, 39, 27] }]}
+            xAxis={{ tickAngle: 'auto' }}
+            height={300}
+          />
+        )
+      );
+
+      expect(plot.querySelectorAll('text[transform]').length).toBe(0);
+    });
+
+    it('leaves a horizontal chart alone, whose names already have a row each', async () => {
+      const screen = await render(
+        narrow(
+          <PlBarChart
+            label="Sessions"
+            categories={CHANNELS}
+            series={sessions}
+            orientation="horizontal"
+            xAxis={{ tickAngle: -45 }}
+          />
+        )
+      );
+      const plot = screen.getByRole('img', { name: 'Sessions' }).element() as HTMLElement;
+
+      await expect.element(screen.getByRole('img', { name: 'Sessions' })).toBeInTheDocument();
+      expect(plot.querySelectorAll('text[transform]').length).toBe(0);
+    });
+  });
+
+  describe('sorting and folding', () => {
+    const CITIES = ['Seoul', 'Tokyo', 'Lisbon', 'Quito'];
+    const visits = [{ name: 'Visits', data: [10, 50, 30, 5] }];
+
+    const names = (screen: Awaited<ReturnType<typeof render>>) =>
+      [...screen.getByRole('table').element().querySelectorAll('tbody th')].map((cell) =>
+        cell.textContent?.trim()
+      );
+
+    it('draws the categories in the order they were given', async () => {
+      const screen = await render(
+        <PlBarChart label="Visits" categories={CITIES} series={visits} />
+      );
+
+      await expect.element(screen.getByRole('table')).toBeInTheDocument();
+      expect(names(screen)).toEqual(CITIES);
+    });
+
+    it('puts them in order of size, and the table agrees with the picture', async () => {
+      const screen = await render(
+        <PlBarChart label="Visits" categories={CITIES} series={visits} sort="descending" />
+      );
+
+      await expect.element(screen.getByRole('table')).toBeInTheDocument();
+      expect(names(screen)).toEqual(['Tokyo', 'Lisbon', 'Seoul', 'Quito']);
+    });
+
+    it('folds the tail into one last category, named from the label pack', async () => {
+      const screen = await render(
+        <PlBarChart label="Visits" categories={CITIES} series={visits} maxCategories={2} />
+      );
+
+      await expect.element(screen.getByRole('table')).toBeInTheDocument();
+      expect(names(screen)).toEqual(['Tokyo', 'Lisbon', 'Other']);
+    });
+
+    it('takes a name of its own for that fold', async () => {
+      const screen = await render(
+        <PlBarChart
+          label="Visits"
+          categories={CITIES}
+          series={visits}
+          maxCategories={2}
+          otherLabel="Everywhere else"
+        />
+      );
+
+      await expect.element(screen.getByRole('table')).toBeInTheDocument();
+      expect(names(screen)).toContain('Everywhere else');
+    });
+  });
+
   describe('valueLabels', () => {
     it('writes nothing on the bars by default', async () => {
       const screen = await render(
@@ -115,6 +284,36 @@ describe('PlBarChart', () => {
       expect(texts).toContain('11');
       expect(texts).toContain('22');
       expect(texts).toContain('33');
+    });
+
+    it("writes each number in its own series' colour, or in the page's ink", async () => {
+      const label = (plot: HTMLElement) =>
+        [...plot.querySelectorAll('text')].find((one) => one.textContent === '11');
+
+      const screen = await render(
+        <PlBarChart
+          label="Deploys"
+          valueLabels="all"
+          categories={TEAMS}
+          series={[{ name: 'Deploys', data: [11, 22, 33] }]}
+        />
+      );
+      const plot = screen.getByRole('img', { name: 'Deploys' }).element() as HTMLElement;
+
+      await expect.element(screen.getByRole('img', { name: 'Deploys' })).toBeInTheDocument();
+      expect(label(plot)?.getAttribute('fill')).toBe('var(--plass-chart-1)');
+
+      await screen.rerender(
+        <PlBarChart
+          label="Deploys"
+          valueLabels="all"
+          valueLabelColor="ink"
+          categories={TEAMS}
+          series={[{ name: 'Deploys', data: [11, 22, 33] }]}
+        />
+      );
+
+      expect(label(plot)?.getAttribute('fill')).toBe('var(--plass-fg)');
     });
 
     it('writes only the high and the low with extremes', async () => {

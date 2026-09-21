@@ -16,6 +16,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   arcPath,
+  autoTickAngle,
   bandScale,
   bubbleRadius,
   categoryCount,
@@ -27,15 +28,22 @@ import {
   formatTimeValue,
   labelledPoints,
   linePath,
+  logScale,
+  rankCategories,
   ringPath,
   seriesColor,
+  tickAngleOf,
   tickStride,
+  tiltedDepth,
+  tiltedRoom,
+  tiltedStep,
   timeNeedsDate,
   timeScale,
   toValue,
   toValues,
   truncate,
-  valueScale
+  valueScale,
+  zeroNulls
 } from '../../src/internal/chart.js';
 import type { PlassChartValueLabels } from '../../src/types.js';
 
@@ -115,6 +123,41 @@ describe('valueScale', () => {
 
     expect(scale.min).toBeLessThanOrEqual(-900);
     expect(scale.max).toBe(0);
+  });
+});
+
+describe('logScale', () => {
+  it('steps by multiplying, so equal lengths are equal ratios', () => {
+    const scale = logScale({ min: 1, max: 1000 });
+
+    // The gap from 1 to 10 is the gap from 100 to 1,000.
+    expect(scale.fraction(10) - scale.fraction(1)).toBeCloseTo(
+      scale.fraction(1000) - scale.fraction(100)
+    );
+    expect(scale.fraction(1)).toBeCloseTo(0);
+    expect(scale.fraction(1000)).toBeCloseTo(1);
+  });
+
+  it('labels the powers of ten, and their 2 and 5 over a short span', () => {
+    expect(logScale({ min: 1, max: 100000 }).ticks).toContain(1000);
+    expect(logScale({ min: 1, max: 10 }).ticks).toEqual([1, 2, 5, 10]);
+  });
+
+  it('has no zero to put a value on, so it floors and says so by drawing it there', () => {
+    const scale = logScale({ min: 0, max: 1000 });
+
+    // Three decades under the top, because the data offered nothing positive
+    // to stand on — and a zero lands on that floor rather than off the plot.
+    expect(scale.min).toBe(1);
+    expect(scale.fraction(0)).toBe(0);
+    expect(scale.fraction(-50)).toBe(0);
+  });
+
+  it('never returns a fraction outside the plot', () => {
+    const scale = logScale({ min: 10, max: 100 });
+
+    expect(scale.fraction(1e9)).toBe(1);
+    expect(scale.fraction(1e-9)).toBe(0);
   });
 });
 
@@ -415,6 +458,120 @@ describe('fitCategoryLabels', () => {
     expect(
       fitCategoryLabels(['1,000,000'], { horizontal: false, slot: 30, fontSize: 10, ticks: true })
     ).toEqual(['1,000,000']);
+  });
+});
+
+describe('a turned category axis', () => {
+  it('reads an angle as degrees, and never past a quarter turn', () => {
+    expect(tickAngleOf(undefined)).toBe(0);
+    expect(tickAngleOf(Number.NaN)).toBe(0);
+    expect(tickAngleOf(-45)).toBe(-45);
+    // Past a quarter turn a label is upside down, which is not a label.
+    expect(tickAngleOf(-120)).toBe(-90);
+    expect(tickAngleOf(400)).toBe(90);
+  });
+
+  it('stays upright while the names fit, and takes the diagonal once one does not', () => {
+    const months = ['Jan', 'Feb', 'Mar'];
+
+    expect(autoTickAngle(months, { slot: 60, fontSize: 10 })).toBe(0);
+    expect(autoTickAngle([...months, 'September 2026'], { slot: 60, fontSize: 10 })).toBe(-45);
+    // One of two angles and never a third: an angle fitted to the longest name
+    // would be a different one on every chart on a dashboard.
+    expect(autoTickAngle(['A name far longer than its slot'], { slot: 20, fontSize: 10 })).toBe(
+      -45
+    );
+  });
+
+  it('spends the room down the page rather than across it', () => {
+    // A quarter turn costs one line of text across the axis however long the
+    // name is, which is the whole reason for turning them.
+    expect(tiltedStep(200, -90, 12)).toBeCloseTo(12);
+    expect(tiltedDepth(200, -90, 12)).toBeCloseTo(200);
+
+    // And upright it is the other way round.
+    expect(tiltedStep(200, 0, 12)).toBeCloseTo(200);
+    expect(tiltedDepth(200, 0, 12)).toBeCloseTo(12);
+  });
+
+  it('halves both at the diagonal, which is why a diagonal is the compromise', () => {
+    expect(tiltedStep(200, -45, 12)).toBeCloseTo(Math.SQRT1_2 * 212, 0);
+    expect(tiltedDepth(200, -45, 12)).toBeCloseTo(Math.SQRT1_2 * 212, 0);
+  });
+
+  it('reads a label length back out of the depth the band is allowed', () => {
+    expect(tiltedRoom(120, -90, 12)).toBeCloseTo(120);
+    // A barely-turned label would otherwise be handed a budget of thousands of
+    // pixels, because almost none of its length is spent on the depth.
+    expect(tiltedRoom(120, -1, 12)).toBeLessThan(1300);
+  });
+});
+
+describe('rankCategories', () => {
+  const series = [{ name: 'Sessions', data: [10, 50, 30, 5] }];
+  const cities = ['Seoul', 'Tokyo', 'Lisbon', 'Quito'];
+
+  it('leaves the data alone when it is asked for nothing', () => {
+    const ranked = rankCategories(series, cities, { other: 'Other' });
+
+    expect(ranked.series).toBe(series);
+    expect(ranked.categories).toBe(cities);
+  });
+
+  it('puts the categories in order of size, names and all', () => {
+    const ranked = rankCategories(series, cities, { sort: 'descending', other: 'Other' });
+
+    expect(ranked.categories).toEqual(['Tokyo', 'Lisbon', 'Seoul', 'Quito']);
+    expect(ranked.series[0].data).toEqual([50, 30, 10, 5]);
+  });
+
+  it('measures a category by the total across every series, signs and all', () => {
+    // +50 and −50 is a hundred units of chart, not nothing.
+    const ranked = rankCategories([{ data: [1, 50] }, { data: [1, -50] }], ['Small', 'Large'], {
+      sort: 'descending',
+      other: 'Other'
+    });
+
+    expect(ranked.categories).toEqual(['Large', 'Small']);
+  });
+
+  it('folds the tail into one, last, whatever the sort asked for', () => {
+    const ranked = rankCategories(series, cities, {
+      sort: 'ascending',
+      max: 2,
+      other: 'Other'
+    });
+
+    // The two largest are kept — the fold is decided by size and never by the
+    // order asked for — and what is left is last wherever the sort would have
+    // put it.
+    expect(ranked.categories).toEqual(['Lisbon', 'Tokyo', 'Other']);
+    expect(ranked.series[0].data).toEqual([30, 50, { y: 15, x: 'Other' }]);
+  });
+
+  it('keeps a fold of nothing but gaps a gap', () => {
+    const ranked = rankCategories([{ data: [10, 20, null, null] }], cities, {
+      max: 2,
+      other: 'Other'
+    });
+
+    expect(ranked.series[0].data[2]).toEqual({ y: null, x: 'Other' });
+  });
+});
+
+describe('zeroNulls', () => {
+  it('reads every gap as a zero, whichever way the datum was written', () => {
+    const [series] = zeroNulls([{ data: [1, null, { y: null, label: 'Missing' }, { y: 3 }] }]);
+
+    expect(series.data).toEqual([1, 0, { y: 0, label: 'Missing' }, { y: 3 }]);
+  });
+
+  it('leaves everything else about the series alone', () => {
+    const [series] = zeroNulls([{ name: 'Europe', color: 'danger', dashed: true, data: [null] }]);
+
+    expect(series.name).toBe('Europe');
+    expect(series.color).toBe('danger');
+    expect(series.dashed).toBe(true);
   });
 });
 

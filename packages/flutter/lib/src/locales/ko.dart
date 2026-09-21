@@ -35,6 +35,9 @@ const PlassLabels ko = PlassLabels(
   commandPalettePlaceholder: '명령 검색',
   gallery: '갤러리',
   chart: '차트',
+  chartOther: '기타',
+  chartMore: _chartMore,
+  chartFewer: '접기',
   minimize: '최소화',
   maximize: '최대화',
   restore: '이전 크기로',
@@ -129,3 +132,5 @@ String _filesRejectedType(int count) => '$count개는 받지 않는 형식입니
 String _filesRejectedSize(int count) => '$count개는 너무 큽니다';
 
 String _filesRejectedCount(int count) => '$count개는 더 담을 수 없습니다';
+
+String _chartMore(int count) => '$count개 더';

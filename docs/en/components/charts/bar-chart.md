@@ -63,6 +63,28 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 Everything swaps with it, which band each axis reserves, which way the grid runs, which way the crosshair goes and which end of a bar is rounded.
 
+### Long category names
+
+A name wider than its slot is cut to it, and past about four characters a cut stops telling two names apart. The category axis' `tickAngle` turns the labels instead: a turned label takes one line of text across the axis however long it is, and spends the room under the plot.
+
+<Demo src="bar-chart/tick-angle" :min-height="360">
+
+::: fw react
+
+<<< @/.vitepress/demos/bar-chart/tick-angle.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/bar_chart/tick_angle.dart
+
+:::
+
+</Demo>
+
+`-90` stands the labels on end, which fits the most names in the least width and has to be read with a tilted head. The band under the plot grows to hold whatever is asked for, up to about two fifths of the chart's height; past that a name is still cut, and the tooltip and the table still have all of it. `orientation="horizontal"` is the other answer, and usually the better one when there is height to spare.
+
 ### stacked
 
 Grouped bars answer "which series is bigger here". Stacked bars answer "what is this total made of". They are different questions and the chart should be asked only one of them at a time.

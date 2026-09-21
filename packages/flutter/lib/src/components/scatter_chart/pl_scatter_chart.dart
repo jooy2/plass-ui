@@ -84,6 +84,7 @@ class PlScatterChart extends StatelessWidget {
     this.maxRadius,
     this.xAxis = const PlChartAxis(),
     this.yAxis = const PlChartAxis(),
+    this.reference = const <PlassChartReference>[],
     this.legend = const PlChartLegend(),
     this.tooltip = const PlChartTooltip(),
     this.height,
@@ -116,6 +117,14 @@ class PlScatterChart extends StatelessWidget {
 
   /// The value axis.
   final PlChartAxis yAxis;
+
+  /// Lines drawn across the plot at a value — a target, an average, a limit.
+  ///
+  /// Not data, and drawn as if they know it: dashed, in the muted ink, under
+  /// the marks. They sit on the **value** axis, so one runs across a vertical
+  /// chart and down a horizontal one. Each is written into the reading a screen
+  /// reader is given with the chart.
+  final List<PlassChartReference> reference;
 
   /// The legend.
   final PlChartLegend legend;
@@ -255,6 +264,7 @@ class PlScatterChart extends StatelessWidget {
       xScale: PlassChartAxisScale.value,
       xAxis: xAxis,
       yAxis: yAxis,
+      reference: reference,
       legend: legend,
       tooltip: tooltip,
       height: height,

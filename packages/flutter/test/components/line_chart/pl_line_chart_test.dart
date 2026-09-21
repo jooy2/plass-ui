@@ -617,6 +617,27 @@ void main() {
         }
       });
 
+      testWidgets('draws a reference line across the plot and says it in the reading', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          const PlLineChart(
+            series: <PlassChartSeries>[
+              PlassChartSeries(
+                name: 'Uptime',
+                data: <PlassChartDatum>[PlassChartDatum(1), PlassChartDatum(3)],
+              ),
+            ],
+            reference: <PlassChartReference>[PlassChartReference(value: 2, label: 'Target')],
+          ),
+        );
+
+        // A target is a fact about the picture rather than decoration on it, so
+        // the reader who is given the reading instead of the drawing gets it.
+        expect(tester.getSemantics(find.bySemanticsLabel('Chart')).value, contains('Target'));
+      });
+
       testWidgets('draws a series with a gap in it', (WidgetTester tester) async {
         await _pump(
           tester,
@@ -644,6 +665,56 @@ void main() {
         await _pump(
           tester,
           const PlLineChart(
+            nulls: PlassChartNulls.connect,
+            series: <PlassChartSeries>[
+              PlassChartSeries(
+                name: 'Uptime',
+                data: <PlassChartDatum>[
+                  PlassChartDatum(1),
+                  PlassChartDatum.gap(),
+                  PlassChartDatum(3),
+                ],
+              ),
+            ],
+          ),
+        );
+
+        expect(find.byType(PlLineChart), findsOneWidget);
+      });
+
+      testWidgets('reads a gap as a zero when it is told to, in the reading too', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          const PlLineChart(
+            nulls: PlassChartNulls.zero,
+            series: <PlassChartSeries>[
+              PlassChartSeries(
+                name: 'Uptime',
+                data: <PlassChartDatum>[
+                  PlassChartDatum(1),
+                  PlassChartDatum.gap(),
+                  PlassChartDatum(3),
+                ],
+              ),
+            ],
+          ),
+        );
+
+        // A zero is a value, so it reaches the reading a screen reader is
+        // handed as well as the line — the painter is not the only thing that
+        // was told about it.
+        expect(tester.getSemantics(find.bySemanticsLabel('Chart')).value, contains('0'));
+      });
+
+      testWidgets('still honours the deprecated boolean where `nulls` says nothing', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          const PlLineChart(
+            // ignore: deprecated_member_use
             connectNulls: true,
             series: <PlassChartSeries>[
               PlassChartSeries(

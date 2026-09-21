@@ -49,7 +49,8 @@ void paintLineSeries(
   required bool stacked,
   required PlChartMarkers markers,
   required PlassChartValueLabels valueLabels,
-  required bool connectNulls,
+  required PlassChartLabelColor valueLabelColor,
+  required PlassChartNulls nulls,
   required String Function(double value) write,
 }) {
   final double stroke = lineWidths[layout.size]!;
@@ -105,14 +106,19 @@ void paintLineSeries(
           Offset(layout.point(i, one[i].value!).dx, layout.zeroPx),
     ];
 
-    // `connectNulls` drops the gaps rather than bridging them in the path
-    // builder: a bridged segment and a real one have to be the same shape, and
-    // the only way to guarantee that is for the builder never to know the
-    // difference.
-    final List<Offset?> line = connectNulls
+    // `connect` drops the gaps rather than bridging them in the path builder: a
+    // bridged segment and a real one have to be the same shape, and the only
+    // way to guarantee that is for the builder never to know the difference.
+    //
+    // The other two need nothing here. `gap` is what the builder does with the
+    // nulls it is handed, and `zero` was settled before the frame was ever
+    // given the data — see `zeroNulls`, which is why a zeroed gap moves the
+    // axis and fills the table row as well as the line.
+    final bool bridged = nulls == PlassChartNulls.connect;
+    final List<Offset?> line = bridged
         ? tops.where((Offset? point) => point != null).toList()
         : tops;
-    final List<Offset?> floor = connectNulls
+    final List<Offset?> floor = bridged
         ? unders.where((Offset? point) => point != null).toList()
         : unders;
 
@@ -191,7 +197,7 @@ void paintLineSeries(
   }
 
   if (valueLabels != PlassChartValueLabels.none) {
-    _paintValueLabels(canvas, layout, stacked, baselines, valueLabels, write);
+    _paintValueLabels(canvas, layout, stacked, baselines, valueLabels, valueLabelColor, write);
   }
 }
 
@@ -205,6 +211,7 @@ void _paintValueLabels(
   bool stacked,
   List<List<double>> baselines,
   PlassChartValueLabels which,
+  PlassChartLabelColor ink,
   String Function(double value) write,
 ) {
   final double radius = markerRadii[layout.size]!;
@@ -233,8 +240,14 @@ void _paintValueLabels(
           text: text,
           style: TextStyle(
             fontSize: fontSize,
-            fontWeight: FontWeight.w500,
-            color: layout.tokens.fg,
+            fontWeight: FontWeight.w600,
+            // In the line's own colour, so a plot with four labelled series
+            // says which number belongs to which line without the reader
+            // tracing it back. A point carrying a colour of its own is labelled
+            // in that: the label names the mark it is sitting on.
+            color: ink == PlassChartLabelColor.ink
+                ? layout.tokens.fg
+                : one[i].color ?? layout.colors[s],
             fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
           ),
         ),

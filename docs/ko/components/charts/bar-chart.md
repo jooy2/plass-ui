@@ -63,6 +63,28 @@ category 이름이 낱말이라면 `horizontal`이 맞습니다. 이름을 위�
 
 모든 것이 함께 바뀝니다. 각 축이 어느 띠를 잡는지, 격자가 어느 방향인지, crosshair가 어느 쪽으로 가는지, 막대의 어느 끝이 둥근지.
 
+### 긴 category 이름
+
+슬롯보다 넓은 이름은 슬롯에 맞춰 잘립니다. 네 글자쯤 지나면 자른 이름으로는 둘을 구별할 수 없습니다. category 축의 `tickAngle`은 대신 라벨을 기울입니다. 기운 라벨은 이름이 아무리 길어도 축을 가로질러 한 줄만 차지하고, 나머지 자리는 plot 아래에서 씁니다.
+
+<Demo src="bar-chart/tick-angle" :min-height="360">
+
+::: fw react
+
+<<< @/.vitepress/demos/bar-chart/tick-angle.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/bar_chart/tick_angle.dart
+
+:::
+
+</Demo>
+
+`-90`은 라벨을 세로로 세웁니다. 가장 좁은 폭에 가장 많은 이름이 들어가지만 고개를 기울여 읽어야 합니다. plot 아래의 띠는 요청한 만큼 자라되 차트 높이의 5분의 2쯤에서 멈춥니다. 그보다 긴 이름은 여전히 잘리고, 툴팁과 표에는 전부 남아 있습니다. `orientation="horizontal"`이 또 하나의 답이고, 높이에 여유가 있다면 보통 그쪽이 낫습니다.
+
 ### stacked
 
 나란한 막대는 "여기서 어느 series가 더 큰가"에 답합니다. 쌓인 막대는 "이 합계는 무엇으로 이루어졌나"에 답합니다. 서로 다른 질문이고, 차트에는 한 번에 하나만 물어야 합니다.

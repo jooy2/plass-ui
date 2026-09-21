@@ -145,7 +145,7 @@ The pattern is fixed rather than scaled by the size ladder, so a dashed line rea
 
 ### Gaps
 
-A `null` **breaks the line**. `connectNulls` bridges it instead, and it should stay off unless the gap is an artefact of how the data was collected rather than a period where nothing happened.
+A `null` **breaks the line**, which is the default and the only answer that claims nothing the data did not: the blank says the reading is missing. `nulls` has the other two. `connect` joins the two sides, for a gap that is an artefact of how the data was collected rather than a period where nothing happened; `zero` reads the gap as a nought, for a missing row that genuinely means none.
 
 <Demo src="line-chart/gaps" :min-height="320">
 
@@ -164,6 +164,8 @@ A `null` **breaks the line**. `connectNulls` bridges it instead, and it should s
 </Demo>
 
 A point with a gap either side of it is drawn as a dot rather than dropped: it is a reading, and a reading with nothing to join to is still a reading.
+
+`zero` is a change to the **data** rather than to the drawing: the nought moves the value axis, fills the tooltip row and appears in the table under the chart, which is what makes the picture and the numbers agree about what happened that hour. `connectNulls` still works and means `nulls="connect"`; it is read only where `nulls` says nothing.
 
 ### valueLabels
 
@@ -186,6 +188,28 @@ A point with a gap either side of it is drawn as a dot rather than dropped: it i
 </Demo>
 
 `extremes` writes the high and the low; `all` writes every one of them, and a chart with a number on every point is a table drawn badly.
+
+### Reference lines
+
+`reference` draws a target, an average or a limit across the plot. It is **not data**, and it is drawn as if it knows that: dashed, in the muted ink, and under the marks.
+
+<Demo src="line-chart/reference" :min-height="320">
+
+::: fw react
+
+<<< @/.vitepress/demos/line-chart/reference.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/line_chart/reference.dart
+
+:::
+
+</Demo>
+
+It sits on the **value** axis, so the same line runs across a vertical chart and down a horizontal one — turning a bar chart on its side does not move it. `color` takes it to a family where the line already means something on the page, `dashed: false` makes it solid, and each one is written into the description a screen reader is handed with the chart, because a target is a fact about the picture rather than decoration on it.
 
 ### The value axis leaves zero out
 

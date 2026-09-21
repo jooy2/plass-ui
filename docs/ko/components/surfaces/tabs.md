@@ -144,6 +144,30 @@ tabs는 내용 패널 전체를 바꿉니다. [segmented button](../inputs/segme
 
 </Demo>
 
+### align
+
+탭 안에서 라벨이 서는 자리입니다. 움직이는 것은 글자뿐이고 탭은 그대로라서, 이미 자리를 잡은 바에 나중에 넣어도 안전합니다.
+
+가로 바는 탭을 각자의 라벨 크기에 맞추므로 라벨이 움직일 자리가 없고 아무것도 달라지지 않습니다. 탭이 모두 가장 넓은 것에 맞춰지는 `vertical` 바와, 탭이 바를 똑같이 나눠 갖는 `fullWidth` 바에서 듭니다. 설정 화면 옆에 세운 바라면 보통 `start`를 원합니다. 이름이 가운데 선을 기준으로 흩어지지 않고 목록처럼 줄을 맞춥니다.
+
+<Demo src="tabs/align" :min-height="200">
+
+::: fw react
+
+<<< @/.vitepress/demos/tabs/align.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/tabs/align.dart
+
+:::
+
+</Demo>
+
+물리적이 아니라 논리적입니다. `start`는 `ltr`에서 왼쪽이고 `rtl`에서 오른쪽이며, 라벨 옆의 아이콘도 함께 움직입니다.
+
 ### fullWidth
 
 <Demo src="tabs/full-width" :min-height="160">

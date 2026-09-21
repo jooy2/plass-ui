@@ -33,13 +33,23 @@ import {
   fitsLast,
   formatCategory,
   formatTimeTicks,
+  lineDash,
+  logScale,
   markerRadii,
   plotHeights,
+  resolveColor,
   seriesColor,
+  autoTickAngle,
   showsTick,
   textWidth,
+  tickAngleOf,
   tickStride,
+  tiltedDepth,
+  tiltedPitch,
+  tiltedRoom,
+  tiltedStep,
   toValues,
+  truncate,
   timeScale,
   valueScale,
   writeChartValue,
@@ -64,6 +74,7 @@ import type {
   PlassChartAxis,
   PlassChartCategory,
   PlassChartLegend,
+  PlassChartReference,
   PlassChartSeries,
   PlassChartTooltip,
   PlassSize
@@ -207,6 +218,15 @@ export interface CartesianChartProps extends ChartBaseProps {
   xAxis?: PlassChartAxis;
   /** The value axis. */
   yAxis?: PlassChartAxis;
+  /**
+   * Lines drawn across the plot at a value — a target, an average, a limit.
+   *
+   * Not data, and drawn as if they know it: dashed, in the muted ink, under the
+   * marks. They sit on the **value** axis, so one runs across a vertical chart
+   * and down a horizontal one. Each is written into the description a screen
+   * reader is given with the chart.
+   */
+  reference?: PlassChartReference | readonly PlassChartReference[];
 }
 
 /* ---------------------------------------------------------------------------
@@ -304,8 +324,13 @@ interface LegendProps {
  * light hue is illegible as text and because colour is what the swatch beside
  * it is for.
  *
- * A hidden series stays in the legend and goes grey rather than disappearing:
- * a list that shortens when you click it is a list you cannot click twice.
+ * A hidden series stays in the legend and fades rather than disappearing: a
+ * list that shortens when you click it is a list you cannot click twice. It
+ * fades as one thing — swatch, name and value together, at one opacity — which
+ * is what a control that has been switched off looks like everywhere else in
+ * the library. Recolouring the name to the muted ink instead was the one place
+ * a hidden entry was told apart by a *hue*, and it read as a second kind of
+ * text rather than as the same entry, off.
  *
  * `swatch` is for the chart whose marks carry a second identity channel. A
  * scatter past the third series tells its series apart by shape as well as by
@@ -323,6 +348,17 @@ function ChartLegendBar({
 }: LegendProps) {
   const interactive = options.interactive !== false;
   const vertical = options.side === 'left' || options.side === 'right';
+  const words = useLabels();
+
+  /* The fold. The entries kept are the *first* ones rather than the visible
+     ones or the largest ones: that is the order their colours were handed out
+     in, which is the order the reader has already learned, and a key that
+     rearranged itself as series were switched off would stop being a key. */
+  const [open, setOpen] = React.useState(false);
+  const cap = options.maxEntries;
+  const folded = cap !== undefined && cap > 0 && series.length > cap && !open;
+  const shownEntries = folded ? series.slice(0, cap) : series;
+  const hidden = series.length - shownEntries.length;
 
   return (
     <ul
@@ -333,18 +369,22 @@ function ChartLegendBar({
         metaTextClasses[size]
       )}
     >
-      {series.map((one, index) => {
+      {shownEntries.map((one, index) => {
         const shown = visibility.visible[index];
         const dimmed = visibility.hovered !== null && visibility.hovered !== index;
         const name = one.name ?? `${index + 1}`;
 
-        /* The swatch keeps its own colour when the series is switched off and
-           goes part-transparent instead, which is what the Flutter build does:
+        /* The swatch keeps its own colour whether or not the series is drawn:
            a grey swatch is a legend entry a reader has to switch back on to
-           find out what it was. */
-        const ink = shown
-          ? colors[index]
-          : `color-mix(in oklab, ${colors[index]} 40%, transparent)`;
+           find out what it was. What dims is the whole row, below. */
+        const ink = colors[index];
+
+        /* One opacity rather than two classes. Tailwind resolves two
+           declarations of the same property by the order it emitted them in,
+           not by the order they are written here, so a row that is both hidden
+           and dimmed would take whichever of the two the stylesheet happened to
+           put last. Switched off is the fainter of the two and wins. */
+        const faded = !shown ? 'opacity-40' : dimmed ? 'opacity-55' : '';
 
         const content = (
           <>
@@ -393,12 +433,10 @@ function ChartLegendBar({
                   '[transition-timing-function:var(--plass-ease)]',
                   'hover:bg-(--p-soft)',
                   'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-1',
-                  // Switched off is the muted ink and a line through it, which
-                  // is what the Flutter build already draws. The swatch keeps its
-                  // colour: a grey swatch is a legend entry a reader has to
-                  // switch back on to find out what it was.
-                  shown ? '' : 'text-(--plass-muted-fg) line-through',
-                  dimmed ? 'opacity-55' : ''
+                  // And a line through the name, which is the half of "off"
+                  // that survives being read in one colour.
+                  shown ? '' : 'line-through',
+                  faded
                 )}
               >
                 {content}
@@ -407,7 +445,8 @@ function ChartLegendBar({
               <span
                 className={cx(
                   'flex min-w-0 items-center gap-1.5 px-1 py-0.5 text-(--plass-fg)',
-                  shown ? '' : 'text-(--plass-muted-fg) line-through'
+                  shown ? '' : 'line-through',
+                  faded
                 )}
               >
                 {content}
@@ -416,6 +455,32 @@ function ChartLegendBar({
           </li>
         );
       })}
+
+      {/* The way in and the way back out, on the same button. It says how many
+          are behind it rather than only "more", so a reader who is deciding
+          whether to open it has the number — and nothing is hidden from a
+          screen reader by the fold either way, because every series is in the
+          table under the chart. */}
+      {folded || open ? (
+        <li className="min-w-0">
+          <button
+            type="button"
+            aria-expanded={open}
+            onClick={() => setOpen((was) => !was)}
+            className={cx(
+              'flex cursor-pointer items-center rounded-(--plass-radius-xs)',
+              'px-1 py-0.5 font-medium text-(--plass-muted-fg)',
+              '[transition-property:background-color,color]',
+              '[transition-duration:var(--plass-duration)]',
+              '[transition-timing-function:var(--plass-ease)]',
+              'hover:bg-(--p-soft) hover:text-(--plass-fg)',
+              'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-1'
+            )}
+          >
+            {open ? words.chartFewer : words.chartMore(hidden)}
+          </button>
+        </li>
+      ) : null}
     </ul>
   );
 }
@@ -756,6 +821,54 @@ export interface ChartMark {
 }
 
 /**
+ * One mark per drawn value, for a chart whose marks sit in a grid.
+ *
+ * `tooltip={{ mode: 'nearest' }}` is the only thing that asks for these. A
+ * line chart and a bar chart have no mark list of their own — their hit
+ * testing is by column, because a column is what their numbers share — so the
+ * marks the nearest-mark search needs have to be built from the layout, and
+ * from the layout alone, because the frame is the only place that knows where
+ * anything ended up.
+ *
+ * Stacking is the one thing it has to be told, and it has to be: a stacked
+ * series is drawn on the running total of the ones under it, and a mark placed
+ * at the bare value would sit somewhere the reader can see nothing. Only the
+ * visible series contribute to that total, for the same reason they do
+ * everywhere else — hiding one from the legend closes the gap it left.
+ */
+function gridMarks(layout: CartesianLayout, stacked: boolean): ChartMark[] {
+  const built: ChartMark[] = [];
+  const radius = markerRadii[layout.size];
+  const running: number[] = [];
+
+  layout.values.forEach((one, series) => {
+    const under = one.map((_, index) => running[index] ?? 0);
+
+    if (stacked && layout.visible[series]) {
+      one.forEach((value, index) => {
+        running[index] = (running[index] ?? 0) + (value.value ?? 0);
+      });
+    }
+
+    if (!layout.visible[series]) {
+      return;
+    }
+
+    one.forEach((value, index) => {
+      if (value.value === null) {
+        return;
+      }
+
+      const at = layout.point(index, stacked ? under[index] + value.value : value.value);
+
+      built.push({ series, index, x: at.x, y: at.y, r: radius });
+    });
+  });
+
+  return built;
+}
+
+/**
  * Where everything goes — the half of the context that is settled before the
  * pointer is consulted.
  *
@@ -902,6 +1015,7 @@ export function CartesianChart({
   categories,
   xAxis,
   yAxis,
+  reference,
   horizontal = false,
   stacked = false,
   includeZero = true,
@@ -1026,17 +1140,38 @@ export function CartesianChart({
   const valueAxis = yAxis;
   const categoryAxis = xAxis;
 
+  /* One or several, said the same way downstream: a caller writing one line
+     should not have to write it inside an array, and the painter should not
+     have to know which of the two it was given. */
+  const references = React.useMemo<readonly PlassChartReference[]>(
+    () =>
+      reference === undefined
+        ? []
+        : Array.isArray(reference)
+          ? reference
+          : [reference as PlassChartReference],
+    [reference]
+  );
+
   /* The scales. The value axis is rounded to clean numbers before anything is
      measured, because how much room the axis needs depends on how wide its
      widest tick prints — which is not knowable until the ticks exist. */
   const scale =
     givenScale ??
-    valueScale(extent, {
-      min: valueAxis?.min,
-      max: valueAxis?.max,
-      tickCount: valueAxis?.tickCount,
-      includeZero
-    });
+    (valueAxis?.scale === 'log'
+      ? // `includeZero` is not passed on, and there is nothing to pass it to: a
+        // log axis has no zero to keep in range.
+        logScale(extent, {
+          min: valueAxis.min,
+          max: valueAxis.max,
+          tickCount: valueAxis.tickCount
+        })
+      : valueScale(extent, {
+          min: valueAxis?.min,
+          max: valueAxis?.max,
+          tickCount: valueAxis?.tickCount,
+          includeZero
+        }));
 
   /* And a second one of the same kind when the categories are numbers rather
      than columns. Zero is deliberately not forced in: what a position along an
@@ -1056,12 +1191,21 @@ export function CartesianChart({
             max: categoryAxis?.max,
             tickCount: categoryAxis?.tickCount
           })
-        : valueScale(spread, {
-            min: categoryAxis?.min,
-            max: categoryAxis?.max,
-            tickCount: categoryAxis?.tickCount,
-            includeZero: false
-          });
+        : categoryAxis?.scale === 'log'
+          ? // A second value axis is a value axis, so it takes the same choice.
+            // A *band* of categories does not: there is no arithmetic between
+            // "Seoul" and "Tokyo" for a logarithm to do.
+            logScale(spread, {
+              min: categoryAxis.min,
+              max: categoryAxis.max,
+              tickCount: categoryAxis.tickCount
+            })
+          : valueScale(spread, {
+              min: categoryAxis?.min,
+              max: categoryAxis?.max,
+              tickCount: categoryAxis?.tickCount,
+              includeZero: false
+            });
   const timeTicks =
     categoryScale && 'unit' in categoryScale
       ? formatTimeTicks(categoryScale.ticks, (categoryScale as TimeScale).unit, locale)
@@ -1111,17 +1255,52 @@ export function CartesianChart({
     : widestTick + 10 + (valueAxis?.label ? axisLabelBand : 0);
   const slot = (width - (horizontal ? 0 : valueBand) - 16) / Math.max(1, count);
 
-  /* Cut to the slot, or left whole for the stride in `ChartAxes` to thin out. */
+  const boxHeight = plotHeight ?? 0;
+
+  /* A turned category axis, and how deep its band is allowed to get.
+     Only along the bottom: a horizontal chart's category names already have a
+     row each on the left, which is the thing turning them would be buying.
+     Two fifths of the box is the ceiling — past that the labels are the chart
+     and the plot is the caption under them. */
+  /* A value-scaled category axis writes ticks rather than names, and a tick is
+     a number already rounded to be short: it is never cut, so `auto` has
+     nothing to answer and an explicit angle is the only way to turn one. */
   const ticked = categoryScale !== null;
+  const asked = categoryAxis?.tickAngle;
+  const tickAngle = horizontal
+    ? 0
+    : asked === 'auto'
+      ? ticked
+        ? 0
+        : autoTickAngle(rawCategoryTexts, { slot, fontSize })
+      : tickAngleOf(asked);
+  const tilted = tickAngle !== 0 && !categoryAxis?.hidden;
+  const tiltBand = Math.max(fontSize * 3, boxHeight * 0.4);
+
+  /* Cut to the slot, or left whole for the stride in `ChartAxes` to thin out.
+     A turned label is not in a slot any more, so what it is cut to is the
+     length the band it hangs in has room for. */
   const categoryTexts = React.useMemo(
-    () => fitCategoryLabels(rawCategoryTexts, { horizontal, slot, fontSize, ticks: ticked }),
-    [rawCategoryTexts, horizontal, slot, fontSize, ticked]
+    () =>
+      tilted
+        ? rawCategoryTexts.map((text) =>
+            truncate(text, tiltedRoom(tiltBand, tickAngle, fontSize), fontSize)
+          )
+        : fitCategoryLabels(rawCategoryTexts, { horizontal, slot, fontSize, ticks: ticked }),
+    [rawCategoryTexts, tilted, tiltBand, tickAngle, horizontal, slot, fontSize, ticked]
   );
 
   const widestCategory = React.useMemo(
     () => categoryTexts.reduce((most, text) => Math.max(most, textWidth(text, fontSize)), 0),
     [categoryTexts, fontSize]
   );
+
+  /* A turned label hangs off its tick in one direction only — up to the right
+     when the angle is negative, down to the right when it is positive — so what
+     has to be kept clear is one end of the axis rather than half a label at
+     both. Without it the first or last name is cut off at the edge of the
+     drawing, which is the one label a reader looks for first. */
+  const overhang = tilted ? tiltedStep(widestCategory, tickAngle, fontSize) + 4 : 0;
 
   /* The two bands the axes take out of the box. `hidden` gives the room back to
      the plot, which is the whole reason a sparkline-shaped chart is the same
@@ -1138,28 +1317,38 @@ export function CartesianChart({
       : fontSize + 12 + (valueAxis?.label ? axisLabelBand : 0)
     : categoryAxis?.hidden
       ? 0
-      : fontSize + 12 + (categoryAxis?.label ? axisLabelBand : 0);
+      : (tilted ? tiltedDepth(widestCategory, tickAngle, fontSize) + 14 : fontSize + 12) +
+        (categoryAxis?.label ? axisLabelBand : 0);
 
   // `thickness` belongs to whichever axis is actually on that edge, which swaps
   // with `horizontal` — read off the wrong one, a bar chart turned on its side
   // would take its left margin from the axis along the bottom.
-  const left = (horizontal ? categoryAxis : valueAxis)?.thickness ?? leftBand;
+  const left = Math.max(
+    (horizontal ? categoryAxis : valueAxis)?.thickness ?? leftBand,
+    tilted && tickAngle < 0 ? overhang : 0
+  );
   const bottom = (horizontal ? valueAxis : categoryAxis)?.thickness ?? bottomBand;
 
   // The last category's label is centred on the last tick, so half of it hangs
   // past the plot. Reserving that half is what stops a chart clipping the one
   // label a reader looks for first — and a value axis needs none of it, because
-  // it anchors its two end labels inward instead.
+  // it anchors its two end labels inward instead. A turned one hangs off one
+  // end of the axis rather than off both, so it is `overhang` that is reserved.
   const rightPad =
-    (horizontal || categoryScale
+    (horizontal
       ? 12
-      : Math.max(8, categoryTexts.length ? widestCategory / 2 : 8)) + markInset;
+      : tilted
+        ? tickAngle > 0
+          ? overhang
+          : 12
+        : categoryScale
+          ? 12
+          : Math.max(8, categoryTexts.length ? widestCategory / 2 : 8)) + markInset;
   // A mark is drawn from its centre, so half of the widest one hangs over the
   // top of the plot. On a scatter that half is a whole bubble, which is what
   // `markInset` is reserving on the other three sides.
   const topPad = markerRadii[size] + 4 + headroom + markInset;
 
-  const boxHeight = plotHeight ?? 0;
   const plot: PlotBox = {
     left: left + markInset,
     top: topPad,
@@ -1231,17 +1420,26 @@ export function CartesianChart({
     size
   };
 
-  /* The marks, laid out once. They are what the pointer is tested against and
-     what `children` draws, and they are the same array both times — a chart
-     that placed its dots twice would eventually place them in two places. */
-  const markList = marks ? marks(layout) : noMarks;
-
   /* Hover. The nearest category to the pointer rather than the one it is
      literally over: a two-pixel line is not something a pointer can be asked to
      land on, and the hit area for a category is its whole column. */
   const tooltipOptions: PlassChartTooltip =
     tooltip === false ? { mode: 'none' } : tooltip === true || tooltip === undefined ? {} : tooltip;
   const tooltipMode = tooltipOptions.mode ?? (marks ? 'item' : 'index');
+
+  /* `nearest` is the one mode that changes how the pointer is *read* rather
+     than what it is answered with: a chart of columns is asked which column,
+     and this asks which mark. A chart that already builds its own marks — a
+     scatter, a Gantt — is searched mark by mark whatever the mode says, so all
+     this has to supply is the marks a grid-shaped chart never needed. */
+  const markBuilder =
+    marks ??
+    (tooltipMode === 'nearest' ? (from: CartesianLayout) => gridMarks(from, stacked) : undefined);
+
+  /* The marks, laid out once. They are what the pointer is tested against and
+     what `children` draws, and they are the same array both times — a chart
+     that placed its dots twice would eventually place them in two places. */
+  const markList = markBuilder ? markBuilder(layout) : noMarks;
 
   const indexAt = (clientX: number, clientY: number) => {
     const host = hostRef.current;
@@ -1338,8 +1536,8 @@ export function CartesianChart({
      marks is walked mark by mark; a chart without them is walked column by
      column, and `activeIndex` is then the column. */
   const activeMark = markIndex === null ? null : (markList[markIndex] ?? null);
-  const activeIndex = marks ? (activeMark ? activeMark.index : null) : columnIndex;
-  const walkLength = marks ? markList.length : count;
+  const activeIndex = markBuilder ? (activeMark ? activeMark.index : null) : columnIndex;
+  const walkLength = markBuilder ? markList.length : count;
 
   const clearActive = () => {
     setColumnIndex(null);
@@ -1350,7 +1548,7 @@ export function CartesianChart({
   const goTo = (at: number | null) => {
     const bounded = at === null ? null : Math.min(walkLength - 1, Math.max(0, at));
 
-    if (marks) {
+    if (markBuilder) {
       setMarkIndex(bounded);
     } else {
       setColumnIndex(bounded);
@@ -1360,7 +1558,7 @@ export function CartesianChart({
   const step = (delta: number) => {
     setPointer(null);
 
-    const current = marks ? markIndex : columnIndex;
+    const current = markBuilder ? markIndex : columnIndex;
 
     goTo((current ?? (delta > 0 ? -1 : walkLength)) + delta);
   };
@@ -1545,7 +1743,7 @@ export function CartesianChart({
             return;
           }
 
-          if (marks) {
+          if (markBuilder) {
             setMarkIndex(nearestMark(event.clientX, event.clientY));
           } else {
             setColumnIndex(indexAt(event.clientX, event.clientY));
@@ -1558,7 +1756,7 @@ export function CartesianChart({
           // consults would re-lay the whole chart out for each pixel the pointer
           // moves. A chart of marks never consults it: its column is already the
           // one mark's series, so it re-renders only when the nearest mark changes.
-          if (tooltipMode === 'item' && !marks) {
+          if (tooltipMode === 'item' && !markBuilder) {
             setPointer(valueAt(event.clientX, event.clientY));
           }
         }}
@@ -1605,15 +1803,20 @@ export function CartesianChart({
               categoryValuePx={categoryValuePx}
               valueAxis={valueAxis}
               categoryAxis={categoryAxis}
+              references={references}
               fontSize={fontSize}
               zeroPx={zeroPx}
+              tickAngle={tilted ? tickAngle : 0}
+              tickBand={
+                tilted ? 8 + tiltedDepth(widestCategory, tickAngle, fontSize) : fontSize + 6
+              }
             />
 
             {/* No crosshair on a chart with marks, whatever mode was asked for:
                 a crosshair says "these numbers all belong to this column", and
                 there is no column — it would be a line through one dot. */}
             {activeIndex !== null &&
-            !marks &&
+            !markBuilder &&
             tooltipMode === 'index' &&
             tooltipOptions.crosshair !== false
               ? (() => {
@@ -1698,6 +1901,16 @@ export function CartesianChart({
               )}
             </React.Fragment>
           ))}
+          {/* A target is a fact about the picture rather than decoration on it,
+              so a reader who is given the description instead of the drawing is
+              given the lines too. An unlabelled one is read by its value, which
+              is all a sighted reader gets from it either. */}
+          {references.map((one, index) => (
+            <React.Fragment key={`reference-${index}`}>
+              {', '}
+              {one.label ? `${one.label} ${formatValue(one.value)}` : formatValue(one.value)}
+            </React.Fragment>
+          ))}
         </span>
       )}
 
@@ -1734,8 +1947,18 @@ interface AxesProps {
   categoryValuePx: (value: number) => number;
   valueAxis?: PlassChartAxis;
   categoryAxis?: PlassChartAxis;
+  /** The lines drawn across the plot that are not data. */
+  references: readonly PlassChartReference[];
   fontSize: number;
   zeroPx: number;
+  /** How far the category labels are turned, already clamped. `0` is upright. */
+  tickAngle: number;
+  /**
+   * How deep the band of tick labels under the plot is, which is where the axis'
+   * own name goes next. Turning the labels makes it several times taller, and a
+   * name written at the upright offset would land in the middle of them.
+   */
+  tickBand: number;
 }
 
 /**
@@ -1758,8 +1981,11 @@ function ChartAxes({
   categoryValuePx,
   valueAxis,
   categoryAxis,
+  references,
   fontSize,
-  zeroPx
+  zeroPx,
+  tickAngle,
+  tickBand
 }: AxesProps) {
   const grid = valueAxis?.grid !== false && !valueAxis?.hidden;
   /* A grid in both directions is graph paper, and on a chart of columns the
@@ -1780,12 +2006,17 @@ function ChartAxes({
       ? categoryValuePx(categoryScale.ticks[index])
       : (horizontal ? plot.top : plot.left) + categoryPx(index);
 
+  /* How much of the axis one label takes along it, which is what decides how
+     many of them there is room for. Turned labels are parallel, so what has to
+     clear between two of them is the distance across a line of text rather than
+     the length of a name — which is the whole reason for turning them. */
+  const widestLabel = Math.max(...categoryTexts.map((t) => textWidth(t, fontSize)), 1);
+  const labelAlong = tickAngle ? tiltedPitch(tickAngle, fontSize) : widestLabel + 12;
+
   const stride = tickStride(
     categoryTexts.length,
     horizontal ? plot.height : plot.width,
-    horizontal
-      ? fontSize * 1.8
-      : Math.max(...categoryTexts.map((t) => textWidth(t, fontSize)), 1) + 12
+    horizontal ? fontSize * 1.8 : labelAlong
   );
 
   /* The value axis needs a stride of its own once it is the *horizontal* one:
@@ -1807,12 +2038,17 @@ function ChartAxes({
       ? Math.abs(valuePx(scale.ticks[1]) - valuePx(scale.ticks[0]))
       : plot.height;
 
-  const lastCategory = fitsLast(
-    categoryTexts.length,
-    stride,
-    categoryStep,
-    horizontal ? fontSize * 1.8 : textWidth(categoryTexts[categoryTexts.length - 1] ?? '', fontSize)
-  );
+  const lastText = categoryTexts[categoryTexts.length - 1] ?? '';
+  // A turned label leans off one end of the axis and the layout has already
+  // reserved the room for it, so the last one always fits.
+  const lastCategory =
+    tickAngle !== 0 ||
+    fitsLast(
+      categoryTexts.length,
+      stride,
+      categoryStep,
+      horizontal ? fontSize * 1.8 : textWidth(lastText, fontSize)
+    );
   const lastValue = fitsLast(
     scale.ticks.length,
     valueStride,
@@ -1923,6 +2159,11 @@ function ChartAxes({
               return null;
             }
 
+            /* Where a turned label pivots: on its tick, a few pixels under the
+               axis, so the band it hangs in starts where the plot ends. */
+            const anchorX = along;
+            const anchorY = plot.top + plot.height + 8 + fontSize / 2;
+
             return horizontal ? (
               <text
                 key={index}
@@ -1949,28 +2190,50 @@ function ChartAxes({
                   />
                 ) : null}
                 {labelled ? (
-                  <text
-                    x={along}
-                    y={plot.top + plot.height + fontSize + 6}
-                    // A value scale's two end ticks sit on the ends of the plot,
-                    // so half of each hangs outside it — the same inward anchor
-                    // the horizontal value axis makes, and the reason a scatter
-                    // needs no margin reserved on its right.
-                    textAnchor={
-                      !categoryScale
-                        ? 'middle'
-                        : index === 0
-                          ? 'start'
-                          : index === categoryTexts.length - 1
-                            ? 'end'
-                            : 'middle'
-                    }
-                    fontSize={fontSize}
-                    fill="var(--plass-muted-fg)"
-                    className={categoryScale ? 'tabular-nums' : undefined}
-                  >
-                    {text}
-                  </text>
+                  tickAngle ? (
+                    /* Turned about the point it would have been centred on, so
+                       the tick a label belongs to is the end of it that touches
+                       the axis. The anchor is which way it leans: `end` runs the
+                       text back up towards the tick, which is what makes a
+                       negative angle read from the bottom left. `central` is the
+                       vertical centring the upright labels get from sitting on
+                       their baseline, which a turned one cannot do. */
+                    <text
+                      x={anchorX}
+                      y={anchorY}
+                      transform={`rotate(${tickAngle} ${anchorX} ${anchorY})`}
+                      textAnchor={tickAngle < 0 ? 'end' : 'start'}
+                      dominantBaseline="central"
+                      fontSize={fontSize}
+                      fill="var(--plass-muted-fg)"
+                      className={categoryScale ? 'tabular-nums' : undefined}
+                    >
+                      {text}
+                    </text>
+                  ) : (
+                    <text
+                      x={along}
+                      y={plot.top + plot.height + fontSize + 6}
+                      // A value scale's two end ticks sit on the ends of the
+                      // plot, so half of each hangs outside it — the same inward
+                      // anchor the horizontal value axis makes, and the reason a
+                      // scatter needs no margin reserved on its right.
+                      textAnchor={
+                        !categoryScale
+                          ? 'middle'
+                          : index === 0
+                            ? 'start'
+                            : index === categoryTexts.length - 1
+                              ? 'end'
+                              : 'middle'
+                      }
+                      fontSize={fontSize}
+                      fill="var(--plass-muted-fg)"
+                      className={categoryScale ? 'tabular-nums' : undefined}
+                    >
+                      {text}
+                    </text>
+                  )
                 ) : null}
               </g>
             );
@@ -1978,13 +2241,67 @@ function ChartAxes({
         </>
       )}
 
+      {/* The lines that are not data.
+          Over the grid and under the marks, which is the whole of what a
+          reference is: something to read the data *against* rather than
+          something to read. Dashed for the same reason — a solid rule across a
+          plot is what a gridline is, and a reader who has learned that a solid
+          hairline is chrome must not meet one that is a target. */}
+      {references.map((one, index) => {
+        const along = valuePx(one.value);
+        const ink = one.color ? resolveColor(one.color) : 'var(--plass-muted-fg)';
+        const dashes = one.dashed === false ? undefined : lineDash;
+
+        return (
+          <g key={index}>
+            {horizontal ? (
+              <line
+                x1={along}
+                x2={along}
+                y1={plot.top}
+                y2={plot.top + plot.height}
+                stroke={ink}
+                strokeWidth={1}
+                strokeDasharray={dashes}
+              />
+            ) : (
+              <line
+                x1={plot.left}
+                x2={plot.left + plot.width}
+                y1={along}
+                y2={along}
+                stroke={ink}
+                strokeWidth={1}
+                strokeDasharray={dashes}
+              />
+            )}
+
+            {/* At the far end of its own line and just clear of it, which is the
+                one place on a plot a short word can go without landing on a
+                mark. */}
+            {one.label ? (
+              <text
+                x={horizontal ? along : plot.left + plot.width}
+                y={horizontal ? plot.top + fontSize : along - 4}
+                textAnchor={horizontal ? 'middle' : 'end'}
+                fontSize={fontSize}
+                fontWeight={500}
+                fill={ink}
+              >
+                {one.label}
+              </text>
+            ) : null}
+          </g>
+        );
+      })}
+
       {/* The axis names. The value axis' name is set above its ticks rather than
           turned on its side — a rotated label is unreadable at a glance and it
           takes a band of the plot to be unreadable in. */}
       {valueAxis?.label ? (
         <text
           x={horizontal ? plot.left + plot.width : plot.left}
-          y={horizontal ? plot.top + plot.height + fontSize * 2 + 12 : plot.top - 8}
+          y={horizontal ? plot.top + plot.height + tickBand + fontSize + 6 : plot.top - 8}
           textAnchor={horizontal ? 'end' : 'start'}
           fontSize={fontSize}
           fill="var(--plass-muted-fg)"
@@ -1996,7 +2313,7 @@ function ChartAxes({
       {categoryAxis?.label && !horizontal ? (
         <text
           x={plot.left + plot.width}
-          y={plot.top + plot.height + fontSize * 2 + 12}
+          y={plot.top + plot.height + tickBand + fontSize + 6}
           textAnchor="end"
           fontSize={fontSize}
           fill="var(--plass-muted-fg)"

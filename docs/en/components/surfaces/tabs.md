@@ -144,6 +144,30 @@ Tabs swap whole panels of content. A [segmented button](../inputs/segmented-butt
 
 </Demo>
 
+### align
+
+Where each tab's label sits inside the tab. It moves the words and never the tabs, which is what makes it safe to set on a bar that is already laid out.
+
+A horizontal bar sizes every tab to its own label, so there is no room for a label to move in and nothing changes. It takes effect on a `vertical` bar, whose tabs are all as wide as the widest, and on a `fullWidth` one, whose tabs are all an equal share of the bar. `start` is what a bar down the side of a settings page usually wants, so the names line up as a list rather than drifting around a centre line.
+
+<Demo src="tabs/align" :min-height="200">
+
+::: fw react
+
+<<< @/.vitepress/demos/tabs/align.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/tabs/align.dart
+
+:::
+
+</Demo>
+
+It is logical rather than physical: `start` is the left under `ltr` and the right under `rtl`, and an icon beside the label travels with it.
+
 ### fullWidth
 
 <Demo src="tabs/full-width" :min-height="160">

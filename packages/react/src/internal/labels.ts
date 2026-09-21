@@ -98,6 +98,15 @@ export interface PlassLabels {
   gallery: string;
   /** What a drawing of numbers is called when the caller has not named it. */
   chart: string;
+  /**
+   * The category a chart folds its smallest ones into. Not a name for any of
+   * them — it is what is left once the ones worth drawing have been drawn.
+   */
+  chartOther: string;
+  /** The legend's own "and this many more", on a chart with more series than it shows. */
+  chartMore: (count: number) => string;
+  /** And the way back, once they are all showing. */
+  chartFewer: string;
   minimize: string;
   maximize: string;
   restore: string;
@@ -281,6 +290,9 @@ export const defaultLabels: PlassLabels = {
   commandPalettePlaceholder: 'Search commands',
   gallery: 'Gallery',
   chart: 'Chart',
+  chartOther: 'Other',
+  chartMore: (count) => `${count} more`,
+  chartFewer: 'Show fewer',
   minimize: 'Minimize',
   maximize: 'Maximize',
   restore: 'Restore',

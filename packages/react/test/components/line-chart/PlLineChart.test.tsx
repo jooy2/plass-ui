@@ -1,3 +1,4 @@
+import { userEvent } from 'vitest/browser';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlLineChart } from 'plass-ui';
@@ -114,6 +115,119 @@ describe('PlLineChart', () => {
     });
   });
 
+  describe('the nearest tooltip mode', () => {
+    it('answers with the one series the pointer is nearest, and draws no crosshair', async () => {
+      const screen = await render(
+        <PlLineChart
+          label="Sessions"
+          categories={MONTHS}
+          tooltip={{ mode: 'nearest' }}
+          series={[
+            { name: 'Web', data: [10, 20, 30, 40] },
+            { name: 'App', data: [90, 80, 70, 60] }
+          ]}
+        />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Sessions' });
+
+      await expect.element(plot).toBeInTheDocument();
+      await userEvent.hover(plot);
+
+      // A crosshair says "these numbers all belong to this column", and with a
+      // mark under the pointer there is no column.
+      expect(plot.element().querySelectorAll('line[stroke-dasharray="4 4"]').length).toBe(0);
+    });
+
+    it('walks the marks with the arrow keys rather than the columns', async () => {
+      const screen = await render(
+        <PlLineChart
+          label="Sessions"
+          categories={MONTHS}
+          tooltip={{ mode: 'nearest' }}
+          series={[
+            { name: 'Web', data: [10, 20, 30, 40] },
+            { name: 'App', data: [90, 80, 70, 60] }
+          ]}
+        />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Sessions' });
+
+      await expect.element(plot).toBeInTheDocument();
+      plot.element().focus();
+      await press(plot.element(), 'ArrowRight');
+
+      // One series in the readout, not the whole column: the walk is mark by
+      // mark, and a mark names its own series.
+      const status = document.querySelector('[role="status"]');
+
+      expect(status?.textContent).toContain('Web');
+      expect(status?.textContent).not.toContain('App');
+    });
+  });
+
+  describe('reference lines', () => {
+    it('draws one across the plot, dashed, and names it at the end of the line', async () => {
+      const screen = await render(
+        <PlLineChart
+          label="Sessions"
+          categories={MONTHS}
+          series={[{ name: 'Web', data: [10, 20, 30, 40] }]}
+          reference={{ value: 25, label: 'Target' }}
+        />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Sessions' }).element();
+
+      await expect.element(screen.getByRole('img', { name: 'Sessions' })).toBeInTheDocument();
+
+      const dashed = [...plot.querySelectorAll('line[stroke-dasharray]')];
+
+      expect(dashed.length).toBe(1);
+      expect([...plot.querySelectorAll('text')].map((one) => one.textContent)).toContain('Target');
+    });
+
+    it('takes several, and a solid one when it is asked for', async () => {
+      const screen = await render(
+        <PlLineChart
+          label="Sessions"
+          categories={MONTHS}
+          series={[{ name: 'Web', data: [10, 20, 30, 40] }]}
+          reference={[
+            { value: 25, label: 'Target' },
+            { value: 35, dashed: false, color: 'danger' }
+          ]}
+        />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Sessions' }).element();
+
+      await expect.element(screen.getByRole('img', { name: 'Sessions' })).toBeInTheDocument();
+      expect(plot.querySelectorAll('line[stroke-dasharray]').length).toBe(1);
+      expect(plot.querySelector('line[stroke="var(--plass-danger-accent)"]')).not.toBeNull();
+    });
+
+    it('says them in the description, because a target is a fact about the picture', async () => {
+      const screen = await render(
+        <PlLineChart
+          label="Sessions"
+          categories={MONTHS}
+          series={[{ name: 'Web', data: [10, 20, 30, 40] }]}
+          reference={{ value: 25, label: 'Target' }}
+        />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Sessions' }).element();
+
+      await expect.element(screen.getByRole('img', { name: 'Sessions' })).toBeInTheDocument();
+
+      const description = document.getElementById(plot.getAttribute('aria-describedby') ?? '');
+
+      expect(description?.textContent).toContain('Target 25');
+    });
+  });
+
   describe('legend', () => {
     it('is left off for a single series', async () => {
       const screen = await render(
@@ -225,6 +339,31 @@ describe('PlLineChart', () => {
       await expect
         .element(screen.getByRole('button', { name: 'Mobile' }))
         .toHaveAttribute('aria-pressed', 'false');
+    });
+
+    it('folds past `maxEntries`, and says how many are behind the button', async () => {
+      const many = Array.from({ length: 6 }, (_, index) => ({
+        name: `Series ${index + 1}`,
+        data: [index + 1, index + 2]
+      }));
+
+      const screen = await render(
+        <PlLineChart
+          label="Sessions"
+          categories={['Jan', 'Feb']}
+          series={many}
+          legend={{ maxEntries: 2 }}
+        />
+      );
+
+      await expect.element(screen.getByRole('button', { name: '4 more' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { pressed: true }).elements().length).toBe(2);
+
+      await screen.getByRole('button', { name: '4 more' }).click();
+
+      // Every entry, and the way back out on the same button.
+      expect(screen.getByRole('button', { pressed: true }).elements().length).toBe(6);
+      await expect.element(screen.getByRole('button', { name: 'Show fewer' })).toBeInTheDocument();
     });
 
     it('can be turned off entirely', async () => {
@@ -692,7 +831,35 @@ describe('PlLineChart', () => {
       expect(texts).not.toContain('47');
     });
 
-    it('breaks the path at a gap and bridges it with connectNulls', async () => {
+    it('reads a gap as a zero with nulls="zero", everywhere at once', async () => {
+      const screen = await render(
+        <PlLineChart
+          label="Sessions"
+          categories={MONTHS}
+          nulls="zero"
+          series={[{ name: 'Web', data: [10, null, 30, 40] }]}
+        />
+      );
+
+      const drawn = screen
+        .getByRole('img', { name: 'Sessions' })
+        .element()
+        .querySelector('path[stroke]:not([stroke="none"])')
+        ?.getAttribute('d');
+
+      // One run rather than two: there is nothing missing to break at.
+      expect((drawn?.match(/M/g) ?? []).length).toBe(1);
+
+      // And the nought is in the table too, because a zero read only by the
+      // painter would be a picture the numbers under it disagree with.
+      const cells = [...screen.getByRole('table').element().querySelectorAll('tbody td')].map(
+        (cell) => cell.textContent?.trim()
+      );
+
+      expect(cells).toEqual(['10', '0', '30', '40']);
+    });
+
+    it('breaks the path at a gap, and bridges it with nulls="connect"', async () => {
       const screen = await render(
         <PlLineChart
           label="Sessions"
@@ -713,7 +880,7 @@ describe('PlLineChart', () => {
         <PlLineChart
           label="Sessions"
           categories={MONTHS}
-          connectNulls
+          nulls="connect"
           series={[{ name: 'Web', data: [10, null, 30, 40] }]}
         />
       );

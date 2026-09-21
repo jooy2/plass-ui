@@ -40,8 +40,10 @@ class PlChartAxis {
     this.min,
     this.max,
     this.tickCount = 5,
+    this.scale = PlassChartScale.linear,
     this.grid = true,
     this.thickness,
+    this.tickAngle = 0,
     this.format,
   });
 
@@ -63,14 +65,87 @@ class PlChartAxis {
   /// what comes out is near this rather than on it.
   final int tickCount;
 
+  /// Whether the axis steps by adding or by multiplying.
+  ///
+  /// [PlassChartScale.log] is the one scale in the library that changes what a
+  /// distance on the plot means: the same length becomes the same **ratio**
+  /// rather than the same number of units, so the gap from 10 to 100 is the gap
+  /// from 100 to 1,000. It is the only way a series that runs from 3 to
+  /// 3,000,000 can be drawn with the small end still legible, and it has to be
+  /// labelled as what it is — a reader who takes it for linear reads every
+  /// shape on it wrong.
+  ///
+  /// There is no zero on it, and nothing below one either. An axis whose data
+  /// reaches either floors at the smallest positive power of ten it needs, or
+  /// three decades under the top when the data offers none, and those values
+  /// are drawn on that floor. A bar is the wrong mark for it for the same
+  /// reason a bar's axis cannot be cropped: what a bar encodes is a length, and
+  /// on a log axis a bar twice as long is not twice as much.
+  ///
+  /// Read on the **value** axis, and on a category axis only where that axis is
+  /// a second value axis — a `PlScatterChart`'s. A band of categories has no
+  /// arithmetic to do, and a time axis has its own.
+  final PlassChartScale scale;
+
   /// Rules across the plot at each tick.
   final bool grid;
 
   /// Overrides the band the axis reserves, in logical pixels.
   final double? thickness;
 
+  /// Turns the labels, in degrees, so long names fit without being cut.
+  ///
+  /// An axis runs out of room across and not down, so a name wider than its
+  /// slot is cut to it — and past about four characters a cut stops telling two
+  /// names apart, which is when this is the answer instead. A turned label
+  /// takes one line of text across the axis however long it is, and spends the
+  /// room under the plot, where a chart usually has some.
+  ///
+  /// `-45` is the one to reach for: it reads at a glance, and the negative sign
+  /// runs the text up towards the right, the way every chart that does this
+  /// draws it. `-90` stands it on end, which fits the most labels in the least
+  /// width and is the one that has to be read with a tilted head. A positive
+  /// angle leans the other way, down to the right.
+  ///
+  /// [autoTickAngle] asks the axis: it stays upright while every name fits its
+  /// slot, and turns to `-45` as soon as one of them would be cut. Upright is
+  /// the best an axis can do when there is room for it, and a diagonal beats a
+  /// cut at every width — so it is the setting for a chart whose categories are
+  /// the caller's data rather than the caller's choice.
+  ///
+  /// The band under the plot grows to hold whatever is asked for, up to about
+  /// two fifths of the chart's height; a name longer than that is still cut,
+  /// and the readout and the table still have all of it. Only the **category**
+  /// axis turns — a value axis' ticks are numbers already rounded to be short —
+  /// and only where that axis runs along the bottom, so it does nothing on a
+  /// horizontal bar chart, whose category names are already one to a row.
+  final double tickAngle;
+
+  /// The [tickAngle] that lets the axis decide: upright while the names fit
+  /// their slots, and on the diagonal once one of them would be cut.
+  ///
+  /// A sentinel rather than a second field, because it is the same axis of
+  /// choice — how far to turn — and two fields would let a caller ask for both
+  /// at once. The React build spells it `tickAngle="auto"`, which Dart has no
+  /// union type for.
+  static const double autoTickAngle = double.infinity;
+
   /// How a tick is written.
   final String Function(double value)? format;
+}
+
+/// Whether an axis steps by adding or by multiplying.
+enum PlassChartScale {
+  /// The same length is the same number of units wherever it is. The default.
+  linear,
+
+  /// The same length is the same *ratio* — the gap from 10 to 100 is the gap
+  /// from 100 to 1,000.
+  ///
+  /// The only way a series that runs from 3 to 3,000,000 can be drawn with the
+  /// small end still legible, and it has to be labelled as what it is: a reader
+  /// who takes it for linear reads every shape on it wrong.
+  log,
 }
 
 /// Where the legend goes, and whether there is one.
@@ -81,6 +156,7 @@ class PlChartLegend {
     this.side = PlassSide.bottom,
     this.align = PlassAlign.center,
     this.interactive = true,
+    this.maxEntries,
   });
 
   /// Draws nothing.
@@ -98,6 +174,22 @@ class PlChartLegend {
   /// Whether pressing an entry switches its series off, and hovering one dims
   /// the rest.
   final bool interactive;
+
+  /// Shows this many entries and folds the rest behind a button that opens
+  /// them.
+  ///
+  /// A legend is a key, and a key of twelve names wrapped over four rows is a
+  /// paragraph the reader has to search — on a card, it is also four rows the
+  /// plot no longer has. Folding keeps the legend one or two rows tall and
+  /// leaves the rest one press away, which is the right trade whenever the
+  /// reader is looking up *one* series rather than reading the list.
+  ///
+  /// The entries kept are the first ones, in the order the series were passed,
+  /// because that is the order their colours were handed out in and the order
+  /// the reader has already learned. Nothing is hidden from a screen reader by
+  /// it: the fold is a real button that says how many are behind it, and every
+  /// series is in the reading the chart hands over either way.
+  final int? maxEntries;
 }
 
 /// What a tooltip shows, and whether there is one.
@@ -208,6 +300,62 @@ enum PlassChartAxisScale {
   /// Numbers, spaced by what they are. What a scatter needs and what nothing
   /// else does.
   value,
+}
+
+/// One mark per drawn value, for a chart whose marks sit in a grid.
+///
+/// [PlassChartTooltipMode.nearest] is the only thing that asks for these. A
+/// line chart and a bar chart have no mark list of their own — their hit
+/// testing is by column, because a column is what their numbers share — so the
+/// marks the nearest-mark search needs have to be built from the layout, and
+/// from the layout alone, because the frame is the only place that knows where
+/// anything ended up.
+///
+/// Stacking is the one thing it has to be told, and it has to be: a stacked
+/// series is drawn on the running total of the ones under it, and a mark placed
+/// at the bare value would sit somewhere the reader can see nothing. Only the
+/// visible series contribute to that total, for the same reason they do
+/// everywhere else — hiding one from the legend closes the gap it left. The
+/// React build answers with `gridMarks`.
+List<PlassChartMark> gridMarks(PlassChartLayout layout, bool stacked) {
+  final List<PlassChartMark> built = <PlassChartMark>[];
+  final double radius = markerRadii[layout.size]!;
+  final List<double> running = <double>[];
+
+  for (int s = 0; s < layout.values.length; s += 1) {
+    final List<ChartValue> one = layout.values[s];
+    final List<double> under = <double>[
+      for (int i = 0; i < one.length; i += 1) i < running.length ? running[i] : 0,
+    ];
+
+    if (stacked && layout.visible[s]) {
+      for (int i = 0; i < one.length; i += 1) {
+        while (running.length <= i) {
+          running.add(0);
+        }
+
+        running[i] = running[i] + (one[i].value ?? 0);
+      }
+    }
+
+    if (!layout.visible[s]) {
+      continue;
+    }
+
+    for (int i = 0; i < one.length && i < layout.count; i += 1) {
+      final double? value = one[i].value;
+
+      if (value == null) {
+        continue;
+      }
+
+      final Offset at = layout.point(i, stacked ? under[i] + value : value);
+
+      built.add(PlassChartMark(series: s, index: i, centre: at, r: radius));
+    }
+  }
+
+  return built;
 }
 
 /// Everything a mark painter is told, once the frame has laid itself out.
@@ -388,6 +536,7 @@ class PlassCartesianChart extends StatefulWidget {
     this.categories,
     this.xAxis = const PlChartAxis(),
     this.yAxis = const PlChartAxis(),
+    this.reference = const <PlassChartReference>[],
     this.legend = const PlChartLegend(),
     this.tooltip = const PlChartTooltip(),
     this.height,
@@ -421,6 +570,14 @@ class PlassCartesianChart extends StatefulWidget {
 
   /// What the category axis says, when the points do not carry it themselves.
   final List<PlassChartCategory>? categories;
+
+  /// Lines drawn across the plot at a value — a target, an average, a limit.
+  ///
+  /// Not data, and drawn as if they know it: dashed, in the muted ink, under
+  /// the marks. They sit on the **value** axis, so one runs across a vertical
+  /// chart and down a horizontal one. Each is written into the reading a screen
+  /// reader is given with the chart.
+  final List<PlassChartReference> reference;
 
   /// The category axis.
   final PlChartAxis xAxis;
@@ -615,6 +772,16 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
             max: widget.xAxis.max,
             tickCount: widget.xAxis.tickCount,
           )
+        : widget.xAxis.scale == PlassChartScale.log
+        // A second value axis is a value axis, so it takes the same choice. A
+        // *band* of categories does not: there is no arithmetic between 'Seoul'
+        // and 'Tokyo' for a logarithm to do.
+        ? logScale(
+            categoryExtent(values, widget.categories),
+            min: widget.xAxis.min,
+            max: widget.xAxis.max,
+            tickCount: widget.xAxis.tickCount,
+          )
         : valueScale(
             categoryExtent(values, widget.categories),
             min: widget.xAxis.min,
@@ -637,13 +804,22 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
 
     final ValueScale scale =
         widget.scale ??
-        valueScale(
-          extent,
-          min: widget.yAxis.min,
-          max: widget.yAxis.max,
-          tickCount: widget.yAxis.tickCount,
-          includeZero: widget.includeZero && widget.yAxis.min == null,
-        );
+        (widget.yAxis.scale == PlassChartScale.log
+            // `includeZero` is not passed on, and there is nothing to pass it
+            // to: a log axis has no zero to keep in range.
+            ? logScale(
+                extent,
+                min: widget.yAxis.min,
+                max: widget.yAxis.max,
+                tickCount: widget.yAxis.tickCount,
+              )
+            : valueScale(
+                extent,
+                min: widget.yAxis.min,
+                max: widget.yAxis.max,
+                tickCount: widget.yAxis.tickCount,
+                includeZero: widget.includeZero && widget.yAxis.min == null,
+              ));
 
     final Widget plot = LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
@@ -685,28 +861,55 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
         // starting edge; a vertical one gives it the width of one slot, and a
         // slot too narrow to cut a name to is left for the stride to thin out.
         final double slot = (width - valueBand - 16) / math.max(1, count);
+
         // A value-scaled axis writes its own ticks: through `xAxis.format` when
         // there is one, as the calendar does when they are moments, and as the
         // numbers they are otherwise.
-        final List<String> categoryTexts = fitCategoryLabels(
-          categoryScale == null
-              ? <String>[
-                  for (final PlassChartCategory category in categories)
-                    categoryText(category, names),
-                ]
-              : widget.xAxis.format != null
-              ? <String>[for (final double tick in categoryScale.ticks) widget.xAxis.format!(tick)]
-              : categoryScale is TimeScale
-              ? formatTimeTicks(categoryScale.ticks, categoryScale.unit, names)
-              : <String>[
-                  for (final PlassChartCategory category in categories)
-                    categoryText(category, names),
-                ],
-          horizontal: widget.horizontal,
-          slot: slot,
-          fontSize: fontSize,
-          ticks: categoryScale != null,
-        );
+        final List<String> rawCategoryTexts = categoryScale == null
+            ? <String>[
+                for (final PlassChartCategory category in categories) categoryText(category, names),
+              ]
+            : widget.xAxis.format != null
+            ? <String>[for (final double tick in categoryScale.ticks) widget.xAxis.format!(tick)]
+            : categoryScale is TimeScale
+            ? formatTimeTicks(categoryScale.ticks, categoryScale.unit, names)
+            : <String>[
+                for (final PlassChartCategory category in categories) categoryText(category, names),
+              ];
+
+        /* A turned category axis, and how deep its band is allowed to get.
+           Only along the bottom: a horizontal chart's category names already
+           have a row each on the starting edge, which is the thing turning them
+           would be buying. Two fifths of the box is the ceiling — past that the
+           labels are the chart and the plot is the caption under them.
+
+           A value-scaled axis writes ticks rather than names, and a tick is a
+           number already rounded to be short: it is never cut, so
+           `autoTickAngle` has nothing to answer there and an explicit angle is
+           the only way to turn one. */
+        final bool ticked = categoryScale != null;
+        final double tickAngle = widget.horizontal
+            ? 0
+            : widget.xAxis.tickAngle == PlChartAxis.autoTickAngle
+            ? (ticked ? 0 : autoTickAngle(rawCategoryTexts, slot: slot, fontSize: fontSize))
+            : tickAngleOf(widget.xAxis.tickAngle);
+        final bool tilted = tickAngle != 0 && !widget.xAxis.hidden;
+        final double tiltBand = math.max(fontSize * 3, height * 0.4);
+
+        // Cut to the slot, or — turned, and so no longer in a slot at all — to
+        // the length the band it hangs in has room for.
+        final List<String> categoryTexts = tilted
+            ? <String>[
+                for (final String text in rawCategoryTexts)
+                  truncateLabel(text, tiltedRoom(tiltBand, tickAngle, fontSize), fontSize),
+              ]
+            : fitCategoryLabels(
+                rawCategoryTexts,
+                horizontal: widget.horizontal,
+                slot: slot,
+                fontSize: fontSize,
+                ticks: ticked,
+              );
         final double widestCategory = categoryTexts.fold<double>(
           0,
           (double most, String text) => math.max(most, textWidth(text, fontSize)),
@@ -719,9 +922,26 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
         final double categoryBand = widget.xAxis.hidden
             ? 0
             : widestCategory + 10 + (widget.xAxis.label != null ? axisLabelBand : 0);
-        final double left = widget.horizontal
-            ? (widget.xAxis.thickness ?? categoryBand)
-            : (widget.yAxis.thickness ?? valueBand);
+        /* A turned label hangs off its tick in one direction only — up to the
+           right when the angle is negative, down to the right when it is
+           positive — so what has to be kept clear is one end of the axis rather
+           than half a label at both. Without it the first or last name runs off
+           the edge of the drawing, which is the one label a reader looks for
+           first. */
+        final double overhang = tilted ? tiltedStep(widestCategory, tickAngle, fontSize) + 4 : 0;
+
+        /// The band of tick labels under the plot, which is also where the
+        /// axis' own name goes next.
+        final double tickBand = tilted
+            ? 8 + tiltedDepth(widestCategory, tickAngle, fontSize)
+            : fontSize + 6;
+
+        final double left = math.max(
+          widget.horizontal
+              ? (widget.xAxis.thickness ?? categoryBand)
+              : (widget.yAxis.thickness ?? valueBand),
+          tilted && tickAngle < 0 ? overhang : 0,
+        );
         final double bottom = widget.horizontal
             ? (widget.yAxis.thickness ??
                   (widget.yAxis.hidden
@@ -730,7 +950,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
             : (widget.xAxis.thickness ??
                   (widget.xAxis.hidden
                       ? 0
-                      : fontSize + 12 + (widget.xAxis.label != null ? axisLabelBand : 0)));
+                      : tickBand + 6 + (widget.xAxis.label != null ? axisLabelBand : 0)));
 
         // The last category's label is centred on the last tick, so half of it
         // hangs past the plot. Reserving that half is what stops a chart
@@ -738,6 +958,8 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
         // chart needs none of it, because its category labels are in a column.
         final double rightPad = widget.horizontal
             ? 12
+            : tilted
+            ? (tickAngle > 0 ? overhang : 12)
             : math.max(8, categoryTexts.isEmpty ? 8 : widestCategory / 2);
         // A mark is drawn from its centre, so half of the widest one hangs over
         // the top of the plot.
@@ -779,10 +1001,22 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
           categoryScale: categoryScale,
         );
 
+        /* `nearest` is the one mode that changes how the press is *read* rather
+           than what it is answered with: a chart of columns is asked which
+           column, and this asks which mark. A chart that already builds its own
+           marks — a scatter, a Gantt — is searched mark by mark whatever the
+           mode says, so all this has to supply is the marks a grid-shaped chart
+           never needed. */
+        final PlassChartMarkBuilder? markBuilder =
+            widget.marks ??
+            (widget.tooltip.mode == PlassChartTooltipMode.nearest && !widget.tooltip.hidden
+                ? (PlassChartLayout from) => gridMarks(from, widget.stacked)
+                : null);
+
         /* The marks are built from the layout and then handed back to it, which
            is the only order that works: a builder that could read what is
            active would be reading a value that does not exist yet. */
-        final List<PlassChartMark> built = widget.marks?.call(base) ?? const <PlassChartMark>[];
+        final List<PlassChartMark> built = markBuilder?.call(base) ?? const <PlassChartMark>[];
         final PlassChartMark? active = _activeMark == null
             ? null
             : built.cast<PlassChartMark?>().firstWhere(
@@ -821,7 +1055,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
           // A chart that builds its own marks is asking "which of these", not
           // "which column", so the search is for the nearest mark and a press
           // that lands near none of them clears the readout.
-          if (widget.marks != null) {
+          if (markBuilder != null) {
             final PlassChartMark? found = nearest(local);
 
             if (found?.series != _activeMark?.series || found?.index != _activeMark?.index) {
@@ -869,7 +1103,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
           // A second tap on the thing already showing takes it down, which is
           // the only way to dismiss a tooltip on a screen with no pointer to
           // move away.
-          if (widget.marks != null) {
+          if (markBuilder != null) {
             if (beforeMark != null &&
                 beforeMark.series == _activeMark?.series &&
                 beforeMark.index == _activeMark?.index) {
@@ -914,6 +1148,9 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
                       xAxis: widget.xAxis,
                       yAxis: widget.yAxis,
                       axisLabelBand: axisLabelBand,
+                      tickAngle: tilted ? tickAngle : 0,
+                      tickBand: tickBand,
+                      references: widget.reference,
                       textDirection: Directionality.of(context),
                       paintMarks: widget.paint,
                     ),
@@ -982,6 +1219,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
             }),
             swatch: widget.swatch,
             onHover: (int? index) => setState(() => _hovered = index),
+            maxEntries: widget.legend.maxEntries,
           );
 
     return Semantics(
@@ -1072,6 +1310,16 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
       parts.add(points.isEmpty ? name : '$name: ${points.join('; ')}');
     }
 
+    // A target is a fact about the picture rather than decoration on it, so a
+    // reader given the reading instead of the drawing is given the lines too.
+    // An unlabelled one is read by its value, which is all a sighted reader
+    // gets from it either.
+    for (final PlassChartReference one in widget.reference) {
+      final String said = _write(one.value);
+
+      parts.add(one.label == null ? said : '${one.label} $said');
+    }
+
     return parts.join('. ');
   }
 }
@@ -1087,6 +1335,9 @@ class _FramePainter extends CustomPainter {
     required this.xAxis,
     required this.yAxis,
     required this.axisLabelBand,
+    required this.tickAngle,
+    required this.tickBand,
+    required this.references,
     required this.textDirection,
     required this.paintMarks,
   });
@@ -1099,6 +1350,17 @@ class _FramePainter extends CustomPainter {
   final PlChartAxis xAxis;
   final PlChartAxis yAxis;
   final double axisLabelBand;
+
+  /// How far the category labels are turned, already clamped. `0` is upright.
+  final double tickAngle;
+
+  /// How deep their band under the plot is, which is where the axis' own name
+  /// goes next. Turning them makes it several times taller, and a name written
+  /// at the upright offset would land in the middle of them.
+  final double tickBand;
+
+  /// The lines drawn across the plot that are not data.
+  final List<PlassChartReference> references;
   final TextDirection textDirection;
   final PlassChartMarkPainter paintMarks;
 
@@ -1119,6 +1381,30 @@ class _FramePainter extends CustomPainter {
     };
 
     painter.paint(canvas, Offset(dx, at.dy - painter.height / 2));
+  }
+
+  /// One category label, turned about the point it would have been centred on.
+  ///
+  /// The pivot is the tick's own x a few pixels under the axis, so the end of
+  /// the label that touches the axis is the end that belongs to that tick. The
+  /// text is laid out to the left of the pivot for a negative angle and to the
+  /// right for a positive one, which is the `textAnchor` the React build sets;
+  /// the rotation then swings it down into the band.
+  void _turnedText(Canvas canvas, String value, Offset pivot, Color ink) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: value,
+        style: TextStyle(fontSize: fontSize, color: ink),
+      ),
+      textDirection: textDirection,
+    )..layout();
+
+    canvas
+      ..save()
+      ..translate(pivot.dx, pivot.dy)
+      ..rotate(tickAngle * math.pi / 180);
+    painter.paint(canvas, Offset(tickAngle < 0 ? -painter.width : 0, -painter.height / 2));
+    canvas.restore();
   }
 
   @override
@@ -1168,19 +1454,32 @@ class _FramePainter extends CustomPainter {
         (double most, String text) => math.max(most, textWidth(text, fontSize)),
       );
       // A horizontal chart's labels are stacked, so what has to clear is a line
-      // of text rather than the width of a word.
+      // of text rather than the width of a word. Turned labels are parallel, so
+      // what has to clear between two of them is the distance across a line of
+      // text rather than the length of a name — the whole reason for turning
+      // them.
+      final double labelAlong = tickAngle != 0 ? tiltedPitch(tickAngle, fontSize) : widest + 12;
       final int stride = layout.horizontal
           ? tickStride(layout.count, length, fontSize + 8)
-          : tickStride(layout.count, length, widest + 12);
-      final bool roomForLast = fitsLast(
-        layout.count,
-        stride,
-        step,
-        layout.horizontal ? fontSize : widest,
-      );
+          : tickStride(layout.count, length, labelAlong);
+      // A turned label leans off one end of the axis and the layout has already
+      // reserved the room for it, so the last one always fits.
+      final bool roomForLast =
+          tickAngle != 0 ||
+          fitsLast(layout.count, stride, step, layout.horizontal ? fontSize : widest);
 
       for (int i = 0; i < layout.count; i += 1) {
         if (!showsTick(i, layout.count, stride, roomForLast: roomForLast)) {
+          continue;
+        }
+
+        if (tickAngle != 0) {
+          _turnedText(
+            canvas,
+            categoryTexts[i],
+            Offset(box.left + layout.categoryPx(i), box.bottom + 8 + fontSize / 2),
+            tokens.mutedFg,
+          );
           continue;
         }
 
@@ -1192,6 +1491,44 @@ class _FramePainter extends CustomPainter {
               : Offset(box.left + layout.categoryPx(i), box.bottom + fontSize),
           tokens.mutedFg,
           layout.horizontal ? TextAlign.right : TextAlign.center,
+        );
+      }
+    }
+
+    /* The lines that are not data.
+       Over the grid and under the marks, which is the whole of what a reference
+       is: something to read the data *against* rather than something to read.
+       Dashed for the same reason — a solid rule across a plot is what a
+       gridline is, and a reader who has learned that a solid hairline is chrome
+       must not meet one that is a target. */
+    for (final PlassChartReference one in references) {
+      final double along = layout.valuePx(one.value);
+      final Color ink = one.color ?? tokens.mutedFg;
+      final Paint stroke = Paint()
+        ..color = ink
+        ..strokeWidth = hairline
+        ..style = PaintingStyle.stroke;
+
+      final Offset from = layout.horizontal ? Offset(along, box.top) : Offset(box.left, along);
+      final Offset to = layout.horizontal ? Offset(along, box.bottom) : Offset(box.right, along);
+
+      if (one.dashed) {
+        canvas.drawPath(dashedPath(Path()..addPolygon(<Offset>[from, to], false)), stroke);
+      } else {
+        canvas.drawLine(from, to, stroke);
+      }
+
+      // At the far end of its own line and just clear of it, which is the one
+      // place on a plot a short word can go without landing on a mark.
+      if (one.label != null) {
+        _text(
+          canvas,
+          one.label!,
+          layout.horizontal
+              ? Offset(along, box.top + fontSize)
+              : Offset(box.right, along - fontSize),
+          ink,
+          layout.horizontal ? TextAlign.center : TextAlign.right,
         );
       }
     }
@@ -1262,7 +1599,7 @@ class _FramePainter extends CustomPainter {
 /// line chart's series do — they are what takes a palette slot, what the reader
 /// switches off, and what a hover dims the others for. A second copy of this
 /// would be a second answer to what a switched-off entry looks like.
-class PlassChartLegendBar extends StatelessWidget {
+class PlassChartLegendBar extends StatefulWidget {
   /// Creates the legend.
   const PlassChartLegendBar({
     required this.series,
@@ -1276,6 +1613,7 @@ class PlassChartLegendBar extends StatelessWidget {
     required this.onHover,
     this.swatch,
     this.vertical = false,
+    this.maxEntries,
     super.key,
   });
 
@@ -1316,23 +1654,60 @@ class PlassChartLegendBar extends StatelessWidget {
   /// Whether the entries are one under another, for a legend beside the plot.
   final bool vertical;
 
+  /// Shows this many entries and folds the rest behind a button that opens
+  /// them. See [PlChartLegend.maxEntries].
+  final int? maxEntries;
+
+  @override
+  State<PlassChartLegendBar> createState() => _PlassChartLegendBarState();
+}
+
+class _PlassChartLegendBarState extends State<PlassChartLegendBar> {
+  /// Whether the folded entries are showing. Held here rather than handed down
+  /// from the chart, because it is a fact about the legend and about nothing
+  /// else on the plot.
+  bool _open = false;
+
   @override
   Widget build(BuildContext context) {
+    final List<PlassChartSeries> series = widget.series;
+
+    /* The fold. The entries kept are the *first* ones rather than the visible
+       ones or the largest ones: that is the order their colours were handed out
+       in, which is the order the reader has already learned, and a key that
+       rearranged itself as series were switched off would stop being a key. */
+    final int? cap = widget.maxEntries;
+    final bool folded = cap != null && cap > 0 && series.length > cap && !_open;
+    final int drawn = folded ? cap : series.length;
+
     final List<Widget> entries = <Widget>[
-      for (int i = 0; i < series.length; i += 1)
+      for (int i = 0; i < drawn; i += 1)
         _LegendEntry(
           name: series[i].name ?? '${i + 1}',
-          color: colors[i],
-          on: visible[i],
-          tokens: tokens,
-          size: size,
-          swatch: swatch == null ? null : swatch!(i, colors[i]),
-          onTap: interactive ? () => onToggle(i) : null,
-          onHover: (bool over) => onHover(over ? i : null),
+          color: widget.colors[i],
+          on: widget.visible[i],
+          tokens: widget.tokens,
+          size: widget.size,
+          swatch: widget.swatch == null ? null : widget.swatch!(i, widget.colors[i]),
+          onTap: widget.interactive ? () => widget.onToggle(i) : null,
+          onHover: (bool over) => widget.onHover(over ? i : null),
+        ),
+      // The way in and the way back out, on the same button. It says how many
+      // are behind it rather than only 'more', so a reader who is deciding
+      // whether to open it has the number.
+      if (folded || _open)
+        _LegendFold(
+          said: folded
+              ? PlassTheme.labelsOf(context).chartMore(series.length - drawn)
+              : PlassTheme.labelsOf(context).chartFewer,
+          open: _open,
+          tokens: widget.tokens,
+          size: widget.size,
+          onTap: () => setState(() => _open = !_open),
         ),
     ];
 
-    if (vertical) {
+    if (widget.vertical) {
       return Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1346,12 +1721,69 @@ class PlassChartLegendBar extends StatelessWidget {
       child: Wrap(
         spacing: 14,
         runSpacing: 6,
-        alignment: switch (align) {
+        alignment: switch (widget.align) {
           PlassAlign.start => WrapAlignment.start,
           PlassAlign.center => WrapAlignment.center,
           PlassAlign.end => WrapAlignment.end,
         },
         children: entries,
+      ),
+    );
+  }
+}
+
+/// The legend's own 'and this many more', and the way back.
+///
+/// A real button rather than a row of dots: the entries behind it are a thing
+/// a reader has to be able to reach by keyboard and be told about by a screen
+/// reader, which is also why it says the number rather than only 'more'.
+class _LegendFold extends StatelessWidget {
+  const _LegendFold({
+    required this.said,
+    required this.open,
+    required this.tokens,
+    required this.size,
+    required this.onTap,
+  });
+
+  final String said;
+  final bool open;
+  final PlassTokens tokens;
+  final PlassSize size;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      expanded: open,
+      label: said,
+      onTap: onTap,
+      excludeSemantics: true,
+      child: PlassInteractive(
+        onTap: onTap,
+        builder: (BuildContext context, PlassInteraction state) {
+          final Widget word = Text(
+            said,
+            style: TextStyle(
+              fontSize: metaText[size]!,
+              fontWeight: FontWeight.w500,
+              color: state.hovered ? tokens.fg : tokens.mutedFg,
+            ),
+          );
+
+          if (!state.focusVisible) {
+            return word;
+          }
+
+          return CustomPaint(
+            foregroundPainter: PlassFocusRingPainter(
+              color: tokens.family(PlassColor.primary).ring,
+              borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.xs]!),
+            ),
+            child: word,
+          );
+        },
       ),
     );
   }
@@ -1380,36 +1812,40 @@ class _LegendEntry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Widget row = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        // The swatch keeps its colour when the series is switched off, and the
-        // *name* is what dims: a grey swatch is a legend entry a reader has to
-        // switch back on to find out what it was.
-        Opacity(
-          opacity: on ? 1 : 0.4,
-          child:
-              swatch ??
+    // Switched off, the entry fades as one thing — swatch and name together, at
+    // one opacity — which is what a control that has been switched off looks
+    // like everywhere else in the library. The swatch keeps its own colour
+    // through it: a grey swatch is a legend entry a reader has to switch back
+    // on to find out what it was. And so does the name, whose recolouring to
+    // the muted ink was the one place a hidden entry was told apart by a hue,
+    // and read as a second kind of text rather than as the same entry, off.
+    final Widget row = Opacity(
+      opacity: on ? 1 : 0.4,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          swatch ??
               Container(
                 width: 9,
                 height: 9,
                 decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2)),
               ),
-        ),
-        const SizedBox(width: 6),
-        // Wraps rather than overflows when the legend has less room than the
-        // name, which a legend beside the plot often does.
-        Flexible(
-          child: Text(
-            name,
-            style: TextStyle(
-              fontSize: metaText[size]!,
-              color: on ? tokens.fg : tokens.mutedFg,
-              decoration: on ? null : TextDecoration.lineThrough,
+          const SizedBox(width: 6),
+          // Wraps rather than overflows when the legend has less room than the
+          // name, which a legend beside the plot often does.
+          Flexible(
+            child: Text(
+              name,
+              style: TextStyle(
+                fontSize: metaText[size]!,
+                color: tokens.fg,
+                // The half of "off" that survives being read in one colour.
+                decoration: on ? null : TextDecoration.lineThrough,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
 
     if (onTap == null) {

@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/chart.dart';
 import 'package:plass_ui/src/internal/chart_frame.dart';
+import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// How the series sit relative to each other.
@@ -52,8 +53,13 @@ class PlBarChart extends StatelessWidget {
     this.rounded = true,
     this.barSize,
     this.valueLabels = PlassChartValueLabels.none,
+    this.valueLabelColor = PlassChartLabelColor.series,
+    this.sort = PlassChartSort.none,
+    this.maxCategories,
+    this.otherLabel,
     this.xAxis = const PlChartAxis(),
     this.yAxis = const PlChartAxis(),
+    this.reference = const <PlassChartReference>[],
     this.legend = const PlChartLegend(),
     this.tooltip = const PlChartTooltip(),
     this.height,
@@ -100,11 +106,64 @@ class PlBarChart extends StatelessWidget {
   /// at once. Past about a dozen it stops being either.
   final PlassChartValueLabels valueLabels;
 
+  /// What colour those numbers are written in.
+  ///
+  /// [PlassChartLabelColor.series] — the default — gives each label the colour
+  /// of the bar it is sitting past, so a group of four labelled bars says which
+  /// number belongs to which series without the reader counting along the
+  /// group. [PlassChartLabelColor.ink] writes them all in the page's own
+  /// foreground: the chart palette clears 4:1 against the sheet, which is the
+  /// floor a *mark* is held to rather than the 4.5:1 body text wants, so reach
+  /// for it where the labels have to meet the text contrast rule on their own.
+  final PlassChartLabelColor valueLabelColor;
+
+  /// Puts the categories in order of size rather than leaving them in the order
+  /// they were given.
+  ///
+  /// A bar chart is the one shape whose categories can be shuffled without
+  /// losing anything — that is the test for reaching for it over a line chart —
+  /// so sorting them is free, and it is what turns a wall of bars into a
+  /// ranking a reader can scan down. Leave it alone where the order already
+  /// means something: months, sizes, a funnel's steps.
+  ///
+  /// With more than one series the size of a category is the **total** across
+  /// all of them, and each series' magnitude rather than its signed value — a
+  /// category whose two series are +50 and −50 is a hundred units of chart, not
+  /// nothing. A series hidden from the legend is still counted, because a chart
+  /// whose columns rearranged themselves when an entry was pressed is one a
+  /// reader cannot use.
+  final PlassChartSort sort;
+
+  /// Keeps the largest this many categories and sums the rest into one.
+  ///
+  /// The answer to a chart of ninety countries: a bar too short to see is a bar
+  /// costing width without saying anything, and eighty of them is a chart of
+  /// nothing but noise. What is folded is decided by size and never by [sort],
+  /// so [PlassChartSort.ascending] shows the small ones it kept rather than
+  /// keeping the small ones — and the fold is always last, wherever the sort
+  /// would otherwise have put it, because it is not a category but what is
+  /// left.
+  ///
+  /// A fold of nothing but gaps stays a gap rather than becoming a zero.
+  final int? maxCategories;
+
+  /// What that fold is called. Falls back to the label pack's own word, which
+  /// is 'Other' in English.
+  final String? otherLabel;
+
   /// The category axis.
   final PlChartAxis xAxis;
 
   /// The value axis.
   final PlChartAxis yAxis;
+
+  /// Lines drawn across the plot at a value — a target, an average, a limit.
+  ///
+  /// Not data, and drawn as if they know it: dashed, in the muted ink, under
+  /// the marks. They sit on the **value** axis, so one runs across a vertical
+  /// chart and down a horizontal one. Each is written into the reading a screen
+  /// reader is given with the chart.
+  final List<PlassChartReference> reference;
 
   /// The legend.
   final PlChartLegend legend;
@@ -132,23 +191,33 @@ class PlBarChart extends StatelessWidget {
 
   bool get _stacked => stacking != PlBarStacking.grouped;
 
-  /// The series a full-length stack actually draws, which the React build works
-  /// out with the same `stackToFull`.
-  List<PlassChartSeries> get _shown {
-    return stacking == PlBarStacking.full
-        ? stackToFull(series, (double value) => format?.call(value) ?? compactNumber(value))
-        : series;
-  }
-
   @override
   Widget build(BuildContext context) {
     final bool full = stacking == PlBarStacking.full;
     final bool horizontal = orientation == PlassOrientation.horizontal;
 
+    /* The order and the fold come first, because a full-length stack has to
+       normalise what is actually going to be drawn: a category folded away
+       afterwards would have taken its share of every other bar with it. Both
+       are changes to the *data*, which is what lets the axis, the readout and
+       the reading agree with the picture about which categories there are. */
+    final ranked = rankCategories(
+      series,
+      categories,
+      sort: sort,
+      max: maxCategories,
+      other: otherLabel ?? PlassTheme.labelsOf(context).chartOther,
+    );
+
+    final List<PlassChartSeries> shown = full
+        ? stackToFull(ranked.series, (double value) => format?.call(value) ?? compactNumber(value))
+        : ranked.series;
+
     return PlassCartesianChart(
-      series: _shown,
-      categories: categories,
+      series: shown,
+      categories: ranked.categories,
       xAxis: xAxis,
+      reference: reference,
       yAxis: full
           ? PlChartAxis(
               hidden: yAxis.hidden,
@@ -156,6 +225,7 @@ class PlBarChart extends StatelessWidget {
               min: 0,
               max: 100,
               tickCount: yAxis.tickCount,
+              scale: yAxis.scale,
               grid: yAxis.grid,
               thickness: yAxis.thickness,
               format: yAxis.format ?? (double value) => '${value.toInt()}%',
@@ -277,7 +347,7 @@ class PlBarChart extends StatelessWidget {
         );
 
         if (labelled(category)) {
-          _paintLabel(canvas, layout, one[category], value, to, centre + offset);
+          _paintLabel(canvas, layout, one[category], value, to, centre + offset, ink);
         }
       }
     }
@@ -298,7 +368,10 @@ class PlBarChart extends StatelessWidget {
   /// A number written just past a bar's data end, on the outside.
   ///
   /// Kept at the end rather than inside the fill so it never has to be white on
-  /// one bar and ink on the next.
+  /// one bar and ink on the next — and written in [ink], the bar's own colour,
+  /// so a group of four labelled bars says which number belongs to which series
+  /// without the reader counting along the group. [valueLabelColor] is what
+  /// takes that back to the page's own foreground.
   void _paintLabel(
     Canvas canvas,
     PlassChartLayout layout,
@@ -306,6 +379,7 @@ class PlBarChart extends StatelessWidget {
     double value,
     double to,
     double across,
+    Color ink,
   ) {
     final double fontSize = chartFontSizes[layout.size]!;
     final painter = TextPainter(
@@ -313,8 +387,8 @@ class PlBarChart extends StatelessWidget {
         text: entry.label ?? (format?.call(value) ?? compactNumber(value)),
         style: TextStyle(
           fontSize: fontSize,
-          fontWeight: FontWeight.w500,
-          color: layout.tokens.fg,
+          fontWeight: FontWeight.w600,
+          color: valueLabelColor == PlassChartLabelColor.ink ? layout.tokens.fg : ink,
           fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
         ),
       ),

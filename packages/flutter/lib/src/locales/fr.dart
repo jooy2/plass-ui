@@ -35,6 +35,9 @@ const PlassLabels fr = PlassLabels(
   commandPalettePlaceholder: 'Rechercher une commande',
   gallery: 'Galerie',
   chart: 'Graphique',
+  chartOther: 'Autres',
+  chartMore: _chartMore,
+  chartFewer: 'Afficher moins',
   minimize: 'Réduire',
   maximize: 'Agrandir',
   restore: 'Restaurer',
@@ -137,3 +140,5 @@ String _filesRejectedSize(int count) {
 String _filesRejectedCount(int count) {
   return "Il n'y avait plus de place pour $count ${count == 1 ? 'fichier' : 'fichiers'}";
 }
+
+String _chartMore(int count) => '$count de plus';

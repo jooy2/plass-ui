@@ -35,6 +35,9 @@ const PlassLabels ja = PlassLabels(
   commandPalettePlaceholder: 'コマンドを検索',
   gallery: 'ギャラリー',
   chart: 'グラフ',
+  chartOther: 'その他',
+  chartMore: _chartMore,
+  chartFewer: '表示を減らす',
   minimize: '最小化',
   maximize: '最大化',
   restore: '元に戻す',
@@ -129,3 +132,5 @@ String _filesRejectedType(int count) => '$count件は受け付けられない種
 String _filesRejectedSize(int count) => '$count件は大きすぎます';
 
 String _filesRejectedCount(int count) => '$count件は入りきりませんでした';
+
+String _chartMore(int count) => '他$count件';

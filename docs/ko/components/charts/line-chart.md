@@ -145,7 +145,7 @@ React의 `number | null | object` 대신 닫힌 union입니다. union 타입이 
 
 ### Gaps
 
-`null`은 **선을 끊습니다**. `connectNulls`는 대신 이어 붙이는데, 그 공백이 아무 일도 없던 기간이 아니라 수집 방식의 부산물임을 아는 경우가 아니라면 꺼 두어야 합니다.
+`null`은 **선을 끊습니다**. 기본값이고, 데이터가 말하지 않은 것을 덧붙이지 않는 유일한 답입니다. 비어 있다는 것이 곧 측정이 없었다는 뜻이니까요. 나머지 둘은 `nulls`에 있습니다. `connect`는 양쪽을 잇습니다. 아무 일도 없던 기간이 아니라 수집 방식의 부산물인 공백에 씁니다. `zero`는 그 자리를 0으로 읽습니다. 행이 없다는 것이 정말 0을 뜻할 때 씁니다.
 
 <Demo src="line-chart/gaps" :min-height="320">
 
@@ -164,6 +164,8 @@ React의 `number | null | object` 대신 닫힌 union입니다. union 타입이 
 </Demo>
 
 양옆이 빈 점은 버리지 않고 dot으로 그립니다. 그것도 측정값이고, 이을 곳이 없는 측정값도 측정값입니다.
+
+`zero`는 그림이 아니라 **데이터**를 바꿉니다. 0이 값 축을 움직이고 툴팁의 한 줄을 채우며 차트 아래 표에도 들어갑니다. 그래서 그림과 숫자가 그 시각에 무슨 일이 있었는지를 같게 말합니다. `connectNulls`는 그대로 동작하고 `nulls="connect"`와 같은 뜻이며, `nulls`를 주지 않았을 때만 읽습니다.
 
 ### valueLabels
 
@@ -186,6 +188,28 @@ React의 `number | null | object` 대신 닫힌 union입니다. union 타입이 
 </Demo>
 
 `extremes`는 최고와 최저를, `all`은 전부를 적습니다. 모든 점에 숫자가 적힌 차트는 잘못 그린 표입니다.
+
+### 기준선
+
+`reference`는 목표나 평균, 한계를 plot을 가로질러 긋습니다. **데이터가 아니고**, 그것을 아는 것처럼 그립니다. 점선이고, muted 잉크를 쓰며, mark 아래에 놓입니다.
+
+<Demo src="line-chart/reference" :min-height="320">
+
+::: fw react
+
+<<< @/.vitepress/demos/line-chart/reference.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/line_chart/reference.dart
+
+:::
+
+</Demo>
+
+**값 축** 위에 서므로 같은 선이 세로 차트에서는 가로로, 가로 차트에서는 세로로 지나갑니다. 막대 차트를 옆으로 눕혀도 옮겨 적을 것이 없습니다. `color`는 페이지에서 이미 뜻을 지닌 색으로 선을 옮기고, `dashed: false`는 실선으로 만듭니다. 각 줄은 차트와 함께 화면 낭독기에 건네는 설명에도 적힙니다. 목표는 그림 위의 장식이 아니라 그림에 관한 사실이기 때문입니다.
 
 ### 값 축은 0을 뺍니다
 

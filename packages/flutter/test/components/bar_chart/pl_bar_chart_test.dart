@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui' show Paragraph;
 
 import 'package:flutter/semantics.dart';
@@ -196,6 +197,107 @@ void main() {
       expect(await texts(PlassChartValueLabels.all) - await texts(PlassChartValueLabels.last), 1);
     });
 
+    testWidgets('turns its category labels when the axis asks, and writes them whole', (
+      WidgetTester tester,
+    ) async {
+      const List<PlassChartCategory> channels = <PlassChartCategory>[
+        PlassChartCategory.text('Organic search'),
+        PlassChartCategory.text('Direct traffic'),
+        PlassChartCategory.text('Email campaigns'),
+        PlassChartCategory.text('Paid social'),
+        PlassChartCategory.text('Referral links'),
+        PlassChartCategory.text('Affiliate partners'),
+      ];
+
+      const PlassChartSeries sessions = PlassChartSeries(
+        name: 'Sessions',
+        data: <PlassChartDatum>[
+          PlassChartDatum(48),
+          PlassChartDatum(39),
+          PlassChartDatum(27),
+          PlassChartDatum(19),
+          PlassChartDatum(11),
+          PlassChartDatum(8),
+        ],
+      );
+
+      Future<_TurnCanvas> draw(double angle) async {
+        await _pump(
+          tester,
+          PlBarChart(
+            series: const <PlassChartSeries>[sessions],
+            categories: channels,
+            xAxis: PlChartAxis(tickAngle: angle),
+            height: 300,
+            legend: const PlChartLegend(hidden: true),
+          ),
+        );
+
+        final canvas = _TurnCanvas();
+        final Finder plot = find.byWidgetPredicate(
+          (Widget widget) =>
+              widget is CustomPaint && widget.painter != null && widget.size.height > 40,
+        );
+
+        tester.widget<CustomPaint>(plot.first).painter!.paint(canvas, tester.getSize(plot.first));
+
+        return canvas;
+      }
+
+      final _TurnCanvas upright = await draw(0);
+      final _TurnCanvas turned = await draw(-45);
+
+      // Upright, the labels are cut to their slots and thinned by stride;
+      // turned, every one of the six is written and each is turned once.
+      expect(upright.turns, isEmpty);
+      expect(turned.turns.length, 6);
+      expect(turned.turns.first, closeTo(-45 * math.pi / 180, 1e-9));
+      expect(turned.paragraphs, greaterThan(upright.paragraphs));
+    });
+
+    testWidgets('puts the categories in order of size, and folds the tail into one', (
+      WidgetTester tester,
+    ) async {
+      const List<PlassChartCategory> cities = <PlassChartCategory>[
+        PlassChartCategory.text('Seoul'),
+        PlassChartCategory.text('Tokyo'),
+        PlassChartCategory.text('Lisbon'),
+        PlassChartCategory.text('Quito'),
+      ];
+      const List<PlassChartSeries> visits = <PlassChartSeries>[
+        PlassChartSeries(
+          name: 'Visits',
+          data: <PlassChartDatum>[
+            PlassChartDatum(10),
+            PlassChartDatum(50),
+            PlassChartDatum(30),
+            PlassChartDatum(5),
+          ],
+        ),
+      ];
+
+      await _pump(
+        tester,
+        const PlBarChart(series: visits, categories: cities, sort: PlassChartSort.descending),
+      );
+
+      // The reading a screen reader is handed is the only path to the numbers,
+      // so it is also where the new order has to show up.
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('Chart')).value,
+        'Visits: Tokyo 50; Lisbon 30; Seoul 10; Quito 5',
+      );
+
+      await _pump(tester, const PlBarChart(series: visits, categories: cities, maxCategories: 2));
+
+      // Decided by size and never by the order asked for, and what is left is
+      // last: it is not a category, it is the rest.
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('Chart')).value,
+        'Visits: Tokyo 50; Lisbon 30; Other 15',
+      );
+    });
+
     testWidgets('takes a bar thickness cap', (WidgetTester tester) async {
       await _pump(
         tester,
@@ -222,5 +324,16 @@ class _TextCanvas extends RecordingCanvas {
   @override
   void drawParagraph(Paragraph paragraph, Offset offset) {
     paragraphs += 1;
+  }
+}
+
+/// The same, plus every turn the painter made — which is what a turned label is
+/// on a canvas, where there is no `transform` attribute to read back.
+class _TurnCanvas extends _TextCanvas {
+  final List<double> turns = <double>[];
+
+  @override
+  void rotate(double radians) {
+    turns.add(radians);
   }
 }

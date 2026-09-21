@@ -35,6 +35,9 @@ const PlassLabels zhHans = PlassLabels(
   commandPalettePlaceholder: '搜索命令',
   gallery: '图库',
   chart: '图表',
+  chartOther: '其他',
+  chartMore: _chartMore,
+  chartFewer: '收起',
   minimize: '最小化',
   maximize: '最大化',
   restore: '还原',
@@ -129,3 +132,5 @@ String _filesRejectedType(int count) => '$count个文件的类型不受支持';
 String _filesRejectedSize(int count) => '$count个文件过大';
 
 String _filesRejectedCount(int count) => '还有$count个文件放不下';
+
+String _chartMore(int count) => '另外 $count 项';

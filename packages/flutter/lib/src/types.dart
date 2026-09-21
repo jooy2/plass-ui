@@ -763,6 +763,16 @@ enum PlassChartTooltipMode {
   /// Only the mark actually under the pointer.
   item,
 
+  /// The one **mark** the press is nearest, measured in both directions rather
+  /// than down a column.
+  ///
+  /// It is what a scatter has always done, and on a line or an area it is the
+  /// answer when two series cross and the reader is pointing at one of them
+  /// rather than at the month they share. There is no crosshair with it: a
+  /// crosshair says 'these numbers all belong to this column', and there is no
+  /// column. It measures to the mark, which on a bar is the bar's data end.
+  nearest,
+
   /// None at all.
   none,
 }
@@ -819,6 +829,111 @@ class PlassTimelineSeries {
 
   /// Overrides the palette slot this row would otherwise take.
   final PlassColor? color;
+}
+
+/// What a gap in a series does to the line drawn through it.
+///
+/// A missing value means *nothing was measured*, which is a different claim
+/// from *nothing happened*, and these are the three ways a chart can answer it.
+/// Picking the wrong one is how a chart comes to say something the data did
+/// not.
+enum PlassChartNulls {
+  /// The line stops at the last reading and starts again at the next one.
+  ///
+  /// The default, and the only answer that adds nothing: the blank says the
+  /// month is missing, which is what the data says.
+  gap,
+
+  /// The two sides are joined by one straight segment.
+  ///
+  /// Right when the gap is an artefact of how the data was collected — a sensor
+  /// that missed a reading, a day the export skipped — and wrong otherwise,
+  /// because the segment between the two ends is a number the chart made up.
+  connect,
+
+  /// The gap is read as a zero, on the axis, in the readout and in the table as
+  /// well as under the line.
+  ///
+  /// Right when a missing row genuinely means none: no orders that day, no
+  /// errors that hour. It moves the scale, which is the point — a zero is a
+  /// value, and it has to be somewhere on the axis.
+  zero,
+}
+
+/// A line drawn across the plot at one value — a target, an average, a limit.
+///
+/// It is **not data**, and it is drawn as if it knows that: dashed by default,
+/// in the muted ink rather than in a palette slot, under the marks rather than
+/// over them. A reference that looks like a series is a reference a reader will
+/// try to read a value off.
+///
+/// It sits on the **value** axis, which means it runs across a vertical chart
+/// and down a horizontal one — the same line, drawn on whichever axis the
+/// values are on. A marker on the category axis is a different thing and is not
+/// this: a band of categories has no value to put a line at.
+///
+/// Every reference is also written into the reading a screen reader is given
+/// with the chart, because a target is a fact about the picture rather than
+/// decoration on it.
+class PlassChartReference {
+  /// Creates a reference line.
+  const PlassChartReference({required this.value, this.label, this.color, this.dashed = true});
+
+  /// Where it sits, read on the value axis.
+  final double value;
+
+  /// A short word set at the end of the line — 'Target', 'Last year'. Left out,
+  /// the line is drawn and says nothing, which is right when the page around
+  /// the chart has already named it.
+  final String? label;
+
+  /// Overrides the muted ink it is otherwise drawn in.
+  ///
+  /// Reach for it where the line means something the page already has a colour
+  /// for — a danger limit, a success target — and not to make it louder: a
+  /// reference that outshouts the data has inverted the chart.
+  final Color? color;
+
+  /// Whether the line is dashed. On, because a solid rule across a plot is what
+  /// a gridline is, and the two must not be confused.
+  final bool dashed;
+}
+
+/// Which way a chart's categories are put in order.
+///
+/// A bar chart is the one shape whose categories can be shuffled without losing
+/// anything — that is the test for reaching for it over a line chart — so
+/// sorting them is free, and it is what turns a wall of bars into a ranking a
+/// reader can scan down.
+enum PlassChartSort {
+  /// The order they were given in.
+  ///
+  /// The default, and right wherever that order already means something:
+  /// months, sizes, a funnel's steps.
+  none,
+
+  /// Smallest first.
+  ascending,
+
+  /// Largest first.
+  descending,
+}
+
+/// What colour the numbers written on the marks are.
+enum PlassChartLabelColor {
+  /// Each label in the colour of the line or the bar it is sitting on.
+  ///
+  /// The default: a plot with four labelled series says which number belongs to
+  /// which mark without the reader tracing it back.
+  series,
+
+  /// The page's own foreground, for every label.
+  ///
+  /// The chart palette clears 4:1 against the sheet, which is the floor a
+  /// *mark* is held to rather than the 4.5:1 body text wants, so this is the
+  /// answer for a chart whose labels have to meet the text contrast rule on
+  /// their own.
+  ink,
 }
 
 /// Which values are written onto the marks.

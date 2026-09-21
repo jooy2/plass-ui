@@ -418,6 +418,7 @@ export type PlassToken =
   | '--plass-glass-press'
   | '--plass-gloss-glass'
   | '--plass-glow-angle'
+  | '--plass-glow-field-strength'
   | '--plass-glow-on-fill'
   | '--plass-muted-fg'
   | '--plass-scrim'
@@ -796,6 +797,28 @@ export interface PlassTimelineSeries {
 export type PlassChartCurve = 'linear' | 'smooth' | 'step';
 
 /**
+ * What a gap in a series does to the line drawn through it.
+ *
+ * A `null` in the data means *nothing was measured*, which is a different claim
+ * from *nothing happened*, and the three answers here are the three ways a
+ * chart can respond to it. Picking the wrong one is how a chart comes to say
+ * something the data did not.
+ *
+ * - `gap` — the line stops at the last reading and starts again at the next
+ *   one. The default, and the only answer that adds nothing: the blank says the
+ *   month is missing, which is what the data says.
+ * - `connect` — the two sides are joined by one straight segment. Right when the
+ *   gap is an artefact of how the data was collected — a sensor that missed a
+ *   reading, a day the export skipped — and wrong otherwise, because the line
+ *   between the two ends is a number the chart made up.
+ * - `zero` — the gap is read as a zero, on the axis, in the tooltip and in the
+ *   table as well as under the line. Right when a missing row genuinely means
+ *   none: no orders that day, no errors that hour. It moves the scale, which is
+ *   the point — a zero is a value, and it has to be somewhere on the axis.
+ */
+export type PlassChartNulls = 'gap' | 'connect' | 'zero';
+
+/**
  * Which values are written onto the marks themselves.
  *
  * The default is `none` everywhere, and that is not timidity — a number beside
@@ -806,6 +829,31 @@ export type PlassChartCurve = 'linear' | 'smooth' | 'step';
 export type PlassChartValueLabels = 'none' | 'last' | 'extremes' | 'all';
 
 /**
+ * What colour the numbers written on the marks are.
+ *
+ * - `series` — each label in the colour of the line or the bar it is sitting
+ *   on. The default: a plot with four labelled series says which number belongs
+ *   to which mark without the reader tracing it back.
+ * - `ink` — the page's own foreground, for every label. The palette clears 4:1
+ *   against the sheet, which is the floor a chart *mark* is held to rather than
+ *   the 4.5:1 body text wants, so this is the answer for a chart whose labels
+ *   have to meet the text contrast rule on their own.
+ */
+export type PlassChartLabelColor = 'series' | 'ink';
+
+/**
+ * Which way a chart's categories are put in order.
+ *
+ * A bar chart is the one shape whose categories can be shuffled without losing
+ * anything — that is the test for reaching for it over a line chart — so
+ * sorting them is free, and it is what turns a wall of bars into a ranking a
+ * reader can scan down. `none` leaves them in the order they were given, which
+ * is right wherever that order already means something: months, sizes, a
+ * funnel's steps.
+ */
+export type PlassChartSort = 'none' | 'ascending' | 'descending';
+
+/**
  * What the pointer uncovers.
  *
  * - `index` — every series at the category under the pointer, with a crosshair.
@@ -814,7 +862,26 @@ export type PlassChartValueLabels = 'none' | 'last' | 'extremes' | 'all';
  * - `item` — the one mark being pointed at.
  * - `none` — no tooltip. The values still have to be readable some other way.
  */
-export type PlassChartTooltipMode = 'index' | 'item' | 'none';
+/**
+ * How much of a chart a pointer summons.
+ *
+ * - `index` — every series at the category the pointer is over, with a
+ *   crosshair down the column to say which one that is. The default on a chart
+ *   whose marks sit in a grid, and the right answer when the reader is
+ *   comparing series *at* a moment.
+ * - `item` — the same column narrowed to the one series the pointer is nearest
+ *   along the value axis. For a plot with more series than a panel can hold.
+ * - `nearest` — the one **mark** the pointer is nearest, measured in both
+ *   directions rather than down a column. It is what a scatter has always done,
+ *   and on a line or an area it is the answer when two series cross and the
+ *   reader is pointing at one of them rather than at the month they share.
+ *   There is no crosshair with it: a crosshair says "these numbers all belong
+ *   to this column", and there is no column. It measures to the mark, which on
+ *   a bar is the bar's data end.
+ * - `none` — no tooltip at all. The table under the chart still has every
+ *   number.
+ */
+export type PlassChartTooltipMode = 'index' | 'item' | 'nearest' | 'none';
 
 /** One series' answer at the category the pointer is on. */
 export interface PlassChartTooltipItem {
@@ -871,8 +938,64 @@ export interface PlassChartAxis {
   max?: number;
   /** Roughly how many ticks. The scale still rounds to clean numbers. */
   tickCount?: number;
+  /**
+   * Whether the axis steps by adding or by multiplying.
+   *
+   * `log` is the one scale in the library that changes what a distance on the
+   * plot means: the same length becomes the same **ratio** rather than the same
+   * number of units, so the gap from 10 to 100 is the gap from 100 to 1,000.
+   * It is the only way a series that runs from 3 to 3,000,000 can be drawn with
+   * the small end still legible, and it has to be labelled as what it is — a
+   * reader who takes it for linear reads every shape on it wrong.
+   *
+   * There is no zero on it, and nothing below one either. An axis whose data
+   * reaches either floors at the smallest positive power of ten it needs, or
+   * three decades under the top when the data offers none, and those values are
+   * drawn on that floor. A bar is the wrong mark for it for the same reason a
+   * bar's axis cannot be cropped: what a bar encodes is a length, and on a log
+   * axis a bar twice as long is not twice as much.
+   *
+   * Read on the **value** axis, and on a category axis only where that axis is
+   * a second value axis — a `PlScatterChart`'s. A band of categories has no
+   * arithmetic to do, and a time axis has its own.
+   * @default 'linear'
+   */
+  scale?: 'linear' | 'log';
   /** How a tick is written, overriding the chart's own `format`. */
   tickFormat?: (value: PlassChartCategory, index: number) => React.ReactNode;
+  /**
+   * Turns the labels, in degrees, so long names fit without being cut.
+   *
+   * An axis runs out of room across and not down, so a name wider than its slot
+   * is cut to it — and past about four characters a cut stops telling two names
+   * apart, which is when this is the answer instead. A turned label takes one
+   * line of text across the axis however long it is, and spends the room under
+   * the plot, where a chart usually has some.
+   *
+   * `-45` is the one to reach for: it reads at a glance, and the negative sign
+   * runs the text up towards the right, the way every chart that does this
+   * draws it. `-90` stands it on end, which fits the most labels in the least
+   * width and is the one that has to be read with a tilted head. A positive
+   * angle leans the other way, down to the right.
+   *
+   * `'auto'` asks the axis: it stays upright while every name fits its slot,
+   * and turns to `-45` as soon as one of them would be cut. Upright is the best
+   * an axis can do when there is room for it, and a diagonal beats a cut at
+   * every width — so this is the setting for a chart whose categories are the
+   * caller's data rather than the caller's choice. It settles on one of those
+   * two angles and never on a third: an angle fitted to the longest name would
+   * be a different angle on every chart on a dashboard, and would change under
+   * the reader as the window is dragged.
+   *
+   * The band under the plot grows to hold whatever is asked for, up to about
+   * two fifths of the chart's height; a name longer than that is still cut, and
+   * the tooltip and the table still have all of it. Only the **category** axis
+   * turns — a value axis' ticks are numbers already rounded to be short — and
+   * only where that axis runs along the bottom, so it does nothing on a
+   * horizontal bar chart, whose category names are already one to a row.
+   * @default 0
+   */
+  tickAngle?: number | 'auto';
   /**
    * How much room the axis keeps for its ticks and its label, in pixels.
    * Measured from the ticks themselves otherwise; set it when a long category
@@ -880,6 +1003,51 @@ export interface PlassChartAxis {
    * their plots up.
    */
   thickness?: number;
+}
+
+/**
+ * A line drawn across the plot at one value — a target, an average, a limit.
+ *
+ * It is **not data**, and it is drawn as if it knows that: dashed by default,
+ * in the muted ink rather than in a palette slot, under the marks rather than
+ * over them. A reference that looks like a series is a reference a reader will
+ * try to read a value off.
+ *
+ * It sits on the **value** axis, which means it runs across a vertical chart
+ * and down a horizontal one — the same line, drawn on whichever axis the values
+ * are on. A marker on the category axis is a different thing and is not this:
+ * a band of categories has no value to put a line at, and a column a reader
+ * should be looking at is a column that wants its own colour rather than a rule
+ * beside it.
+ *
+ * Every reference is also written into the description a screen reader is given
+ * with the chart, because a target is a fact about the picture rather than
+ * decoration on it.
+ */
+export interface PlassChartReference {
+  /** Where it sits, read on the value axis. */
+  value: number;
+  /**
+   * A short word set at the end of the line — "Target", "Last year". Left out,
+   * the line is drawn and says nothing, which is right when the page around the
+   * chart has already named it.
+   */
+  label?: string;
+  /**
+   * Overrides the muted ink it is otherwise drawn in. A `PlassColor` family
+   * name, or any CSS colour.
+   *
+   * Reach for it where the line means something the page already has a colour
+   * for — a `danger` limit, a `success` target — and not to make it louder: a
+   * reference that outshouts the data has inverted the chart.
+   */
+  color?: PlassColor | (string & {});
+  /**
+   * Whether the line is dashed. On, because a solid rule across a plot is what
+   * a gridline is, and the two must not be confused.
+   * @default true
+   */
+  dashed?: boolean;
 }
 
 /** Where the legend sits, and whether it does anything when clicked. */
@@ -895,4 +1063,20 @@ export interface PlassChartLegend {
   interactive?: boolean;
   /** Draws each series' current value beside its name. @default false */
   showValue?: boolean;
+  /**
+   * Shows this many entries and folds the rest behind a button that opens them.
+   *
+   * A legend is a key, and a key of twelve names wrapped over four rows is a
+   * paragraph the reader has to search — on a card, it is also four rows the
+   * plot no longer has. Folding keeps the legend one or two rows tall and
+   * leaves the rest one press away, which is the right trade whenever the
+   * reader is looking up *one* series rather than reading the list.
+   *
+   * The entries kept are the first ones, in the order the series were passed,
+   * because that is the order their colours were handed out in and the order
+   * the reader has already learned. Nothing is hidden from a screen reader by
+   * it: the fold is a real button that says how many are behind it, and every
+   * series is in the table under the chart either way.
+   */
+  maxEntries?: number;
 }

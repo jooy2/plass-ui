@@ -40,6 +40,7 @@ class PlTimelineChart extends StatelessWidget {
     this.rounded = true,
     this.xAxis = const PlChartAxis(),
     this.yAxis = const PlChartAxis(),
+    this.reference = const <PlassChartReference>[],
     this.tooltip = const PlChartTooltip(),
     this.height,
     this.semanticLabel,
@@ -76,6 +77,14 @@ class PlTimelineChart extends StatelessWidget {
 
   /// The time axis.
   final PlChartAxis yAxis;
+
+  /// Lines drawn across the plot at a value — a target, an average, a limit.
+  ///
+  /// Not data, and drawn as if they know it: dashed, in the muted ink, under
+  /// the marks. They sit on the **value** axis, so one runs across a vertical
+  /// chart and down a horizontal one. Each is written into the reading a screen
+  /// reader is given with the chart.
+  final List<PlassChartReference> reference;
 
   /// The readout under the pointer.
   final PlChartTooltip tooltip;
@@ -239,12 +248,14 @@ class PlTimelineChart extends StatelessWidget {
       horizontal: true,
       scale: scale,
       xAxis: xAxis,
+      reference: reference,
       yAxis: PlChartAxis(
         hidden: yAxis.hidden,
         label: yAxis.label,
         min: yAxis.min,
         max: yAxis.max,
         tickCount: yAxis.tickCount,
+        scale: yAxis.scale,
         grid: yAxis.grid,
         thickness: yAxis.thickness,
         format: yAxis.format ?? (double value) => ticksByValue[value] ?? '',

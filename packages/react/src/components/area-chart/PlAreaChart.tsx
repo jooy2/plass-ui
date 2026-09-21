@@ -3,9 +3,15 @@
 import * as React from 'react';
 import { CartesianChart, type CartesianChartProps } from '../../internal/chart-frame.js';
 import { LineSeries, type ChartMarkers } from '../../internal/chart-line.js';
-import { stackToFull, writeChartValue } from '../../internal/chart.js';
+import { stackToFull, writeChartValue, zeroNulls } from '../../internal/chart.js';
 import { useDefaults } from '../../internal/defaults.js';
-import type { PlassChartCurve, PlassChartSeries, PlassChartValueLabels } from '../../types.js';
+import type {
+  PlassChartCurve,
+  PlassChartLabelColor,
+  PlassChartNulls,
+  PlassChartSeries,
+  PlassChartValueLabels
+} from '../../types.js';
 
 export interface PlAreaChartProps extends CartesianChartProps {
   /**
@@ -35,10 +41,39 @@ export interface PlAreaChartProps extends CartesianChartProps {
   /** @default 'none' */
   valueLabels?: PlassChartValueLabels;
   /**
-   * Draws the band straight through a `null` instead of breaking at it. Off,
-   * and on an area it matters more than on a line: a fill that closes across a
-   * missing month paints a made-up number over a larger part of the chart.
-   * @default false
+   * What colour those numbers are written in.
+   *
+   * `series` — the default — gives each label the colour of the band it is
+   * sitting on, so a plot with four labelled series says which number belongs
+   * to which without the reader tracing it back. `ink` writes them all in the
+   * page's own foreground: the chart palette clears 4:1 against the sheet,
+   * which is the floor a *mark* is held to rather than the 4.5:1 body text
+   * wants, so reach for it where the labels have to meet the text contrast rule
+   * on their own.
+   * @default 'series'
+   */
+  valueLabelColor?: PlassChartLabelColor;
+  /**
+   * What a gap in a series does to the band.
+   *
+   * - `gap` — it breaks at the `null`. The default, and the only answer that
+   *   claims nothing the data did not: the blank says the reading is missing.
+   * - `connect` — the two sides are joined. Only when the gap is an artefact of
+   *   how the data was collected; otherwise the segment is a number the chart
+   *   made up.
+   * - `zero` — the gap is read as a zero, everywhere: on the axis, in the
+   *   tooltip and in the table as well as under the band. For a missing row
+   *   that genuinely means none.
+   * @default 'gap'
+   */
+  nulls?: PlassChartNulls;
+  /**
+   * Bridges a gap instead of breaking at it. It matters more on an area than on
+   * a line: a fill that closes across a missing month paints the made-up number
+   * over a larger part of the chart.
+   * @deprecated Use `nulls`. `connectNulls` is `nulls="connect"`, and `nulls`
+   * also has the third answer — reading the gap as a zero — which a boolean
+   * cannot express. It is still honoured when `nulls` is not given.
    */
   connectNulls?: boolean;
 }
@@ -62,6 +97,8 @@ export function PlAreaChart({
   stacked = false,
   markers = 'none',
   valueLabels = 'none',
+  valueLabelColor = 'series',
+  nulls: nullsProp,
   connectNulls = false,
   series,
   yAxis,
@@ -73,18 +110,24 @@ export function PlAreaChart({
   const resolvedLocale = locale ?? defaults.locale;
   const id = React.useId().replace(/:/g, '');
   const full = stacked === 'full';
+  // The old boolean is read only when the prop that replaced it says nothing.
+  const nulls = nullsProp ?? (connectNulls ? 'connect' : 'gap');
 
   /* 100% stacking is a change to the *data*, not to the drawing: each category
      is renormalised to add up to a hundred. Doing it here rather than in the
      renderer is what lets the axis, the tooltip and the table all agree that
      the number is a share — they read the series they were given. */
-  const shown = React.useMemo<readonly PlassChartSeries[]>(
-    () =>
-      full
-        ? stackToFull(series, (value) => writeChartValue(value, format, resolvedLocale))
-        : series,
-    [series, full, format, resolvedLocale]
-  );
+  const shown = React.useMemo<readonly PlassChartSeries[]>(() => {
+    /* A zeroed gap first, so a band normalised to 100% counts the nought as a
+       nought rather than dropping the category out of its own total. Both are
+       changes to the *data* for the same reason: the axis, the tooltip and the
+       table all read the series they were given. */
+    const data = nulls === 'zero' ? zeroNulls(series) : series;
+
+    return full
+      ? stackToFull(data, (value) => writeChartValue(value, format, resolvedLocale))
+      : data;
+  }, [series, nulls, full, format, resolvedLocale]);
 
   return (
     <CartesianChart
@@ -108,7 +151,8 @@ export function PlAreaChart({
           stacked={stacked !== false}
           markers={markers}
           valueLabels={valueLabels}
-          connectNulls={connectNulls}
+          valueLabelColor={valueLabelColor}
+          nulls={nulls}
           gradient={false}
           idPrefix={id}
         />

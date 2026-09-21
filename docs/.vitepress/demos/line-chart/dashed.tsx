@@ -15,7 +15,7 @@ export default function LineChartDashed() {
       className="w-full"
       series={revenue}
       categories={months}
-      connectNulls
+      nulls="connect"
       xAxis={{ label: 'Month' }}
     />
   );

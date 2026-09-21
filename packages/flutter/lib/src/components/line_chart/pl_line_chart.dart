@@ -49,10 +49,17 @@ class PlLineChart extends StatelessWidget {
     this.categories,
     this.curve = PlChartCurve.linear,
     this.markers = PlChartMarkers.auto,
+    this.nulls,
+    @Deprecated(
+      'Use nulls. connectNulls: true is PlassChartNulls.connect. '
+      'Will be removed in 2.0.0.',
+    )
     this.connectNulls = false,
     this.valueLabels = PlassChartValueLabels.none,
+    this.valueLabelColor = PlassChartLabelColor.series,
     this.xAxis = const PlChartAxis(),
     this.yAxis = const PlChartAxis(),
+    this.reference = const <PlassChartReference>[],
     this.legend = const PlChartLegend(),
     this.tooltip = const PlChartTooltip(),
     this.height,
@@ -84,11 +91,48 @@ class PlLineChart extends StatelessWidget {
   /// what tells the reader which column the tooltip is about.
   final PlChartMarkers markers;
 
+  /// What a gap in a series does to the line.
+  ///
+  /// - [PlassChartNulls.gap] — it breaks at the missing value. The default, and
+  ///   the only answer that claims nothing the data did not: the blank says the
+  ///   reading is missing.
+  /// - [PlassChartNulls.connect] — the two sides are joined. Only when the gap
+  ///   is an artefact of how the data was collected; otherwise the segment is a
+  ///   number the chart made up.
+  /// - [PlassChartNulls.zero] — the gap is read as a zero, everywhere: on the
+  ///   axis, in the readout and in the table as well as under the line.
+  ///
+  /// `null` means "not said", which is when the deprecated [connectNulls] is
+  /// read instead.
+  final PlassChartNulls? nulls;
+
   /// Draws the line straight through a gap instead of breaking at it.
   ///
-  /// Off, and it should stay off unless the gap is an artefact of how the data
-  /// was collected. A bridged gap is a number the chart made up.
+  /// Only read when [nulls] says nothing, so a chart that has moved across is
+  /// not overruled by a `connectNulls` left behind beside it.
+  @Deprecated(
+    'Use nulls. connectNulls: true is PlassChartNulls.connect, and nulls also '
+    'has the third answer — reading the gap as a zero — which a boolean cannot '
+    'express. Will be removed in 2.0.0.',
+  )
   final bool connectNulls;
+
+  /// [nulls], with the deprecated boolean read where it says nothing.
+  PlassChartNulls get _nulls =>
+      nulls ??
+      // ignore: deprecated_member_use_from_same_package
+      (connectNulls ? PlassChartNulls.connect : PlassChartNulls.gap);
+
+  /// What colour those numbers are written in.
+  ///
+  /// [PlassChartLabelColor.series] — the default — gives each label the colour
+  /// of the line it is sitting on, so a plot with four labelled series says
+  /// which number belongs to which without the reader tracing it back.
+  /// [PlassChartLabelColor.ink] writes them all in the page's own foreground:
+  /// the chart palette clears 4:1 against the sheet, which is the floor a
+  /// *mark* is held to rather than the 4.5:1 body text wants, so reach for it
+  /// where the labels have to meet the text contrast rule on their own.
+  final PlassChartLabelColor valueLabelColor;
 
   /// Which values are written on the line.
   ///
@@ -102,6 +146,14 @@ class PlLineChart extends StatelessWidget {
 
   /// The value axis.
   final PlChartAxis yAxis;
+
+  /// Lines drawn across the plot at a value — a target, an average, a limit.
+  ///
+  /// Not data, and drawn as if they know it: dashed, in the muted ink, under
+  /// the marks. They sit on the **value** axis, so one runs across a vertical
+  /// chart and down a horizontal one. Each is written into the reading a screen
+  /// reader is given with the chart.
+  final List<PlassChartReference> reference;
 
   /// The legend.
   final PlChartLegend legend;
@@ -127,10 +179,14 @@ class PlLineChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PlassCartesianChart(
-      series: series,
+      // A zeroed gap is a change to the *data*, not to the drawing, which is
+      // what lets the axis, the readout and the table all agree that the month
+      // was a nought rather than a blank.
+      series: _nulls == PlassChartNulls.zero ? zeroNulls(series) : series,
       categories: categories,
       xAxis: xAxis,
       yAxis: yAxis,
+      reference: reference,
       legend: legend,
       tooltip: tooltip,
       height: height,
@@ -161,7 +217,8 @@ class PlLineChart extends StatelessWidget {
       stacked: false,
       markers: markers,
       valueLabels: valueLabels,
-      connectNulls: connectNulls,
+      valueLabelColor: valueLabelColor,
+      nulls: _nulls,
       write: (double value) => format?.call(value) ?? _write(value),
     );
   }

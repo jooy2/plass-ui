@@ -249,6 +249,175 @@ List<List<ChartValue>> toValues(List<PlassChartSeries> series) {
   return series.map((PlassChartSeries one) => one.data.map(toValue).toList()).toList();
 }
 
+/// A chart's categories, reordered and with the tail of them folded into one.
+///
+/// Both are changes to the **data** rather than to the drawing, which is the
+/// same rule [zeroNulls] and [stackToFull] follow and for the same reason: the
+/// axis, the readout, the legend and the reading a screen reader is handed all
+/// read the series they were given, so a category that has been folded away has
+/// to be folded away for all of them at once. A painter that reordered the bars
+/// would leave the axis naming the old order.
+///
+/// ## What 'size' means with more than one series
+///
+/// The total across every series at that category, and every series' magnitude
+/// rather than its signed value — a category whose two series are +50 and −50
+/// is a hundred units of chart, not nothing. `hidden` is not consulted: the
+/// order is a property of the data, and a chart whose columns rearranged
+/// themselves when a legend entry was pressed is one a reader cannot use.
+///
+/// ## The tail
+///
+/// [max] keeps the largest that many and sums the rest into one category, which
+/// is the answer to a chart of ninety countries: a bar too short to see is a
+/// bar costing width without saying anything. What is folded is decided by size
+/// and never by [sort], so [PlassChartSort.ascending] shows the small ones it
+/// kept rather than keeping the small ones. The fold is always last, wherever
+/// the sort would otherwise have put it: it is not a category, it is what is
+/// left. The React build answers with `rankCategories`.
+({List<PlassChartSeries> series, List<PlassChartCategory>? categories}) rankCategories(
+  List<PlassChartSeries> series,
+  List<PlassChartCategory>? categories, {
+  PlassChartSort sort = PlassChartSort.none,
+  int? max,
+  required String other,
+}) {
+  final int count = categoryCount(series);
+  final bool folding = max != null && max > 0 && count > max;
+
+  if (!folding && (sort == PlassChartSort.none || count == 0)) {
+    return (series: series, categories: categories);
+  }
+
+  final List<List<ChartValue>> values = toValues(series);
+
+  double size(int index) {
+    double sum = 0;
+
+    for (final List<ChartValue> one in values) {
+      if (index < one.length) {
+        sum += (one[index].value ?? 0).abs();
+      }
+    }
+
+    return sum;
+  }
+
+  // Kept and folded, decided by size before anything is sorted.
+  final List<int> order = <int>[for (int i = 0; i < count; i += 1) i];
+  final List<int> kept;
+
+  if (folding) {
+    final List<int> bySize = <int>[...order]..sort((int a, int b) => size(b).compareTo(size(a)));
+
+    kept = bySize.take(max).toList()..sort();
+  } else {
+    kept = order;
+  }
+
+  final List<int> folded = folding
+      ? order.where((int index) => !kept.contains(index)).toList()
+      : <int>[];
+
+  final List<int> ranked = sort == PlassChartSort.none
+      ? kept
+      : (<int>[...kept]..sort(
+          (int a, int b) => sort == PlassChartSort.ascending
+              ? size(a).compareTo(size(b))
+              : size(b).compareTo(size(a)),
+        ));
+
+  return (
+    series: <PlassChartSeries>[
+      for (int s = 0; s < series.length; s += 1)
+        PlassChartSeries(
+          data: <PlassChartDatum>[
+            for (final int index in ranked)
+              index < series[s].data.length ? series[s].data[index] : const PlassChartDatum.gap(),
+            if (folded.isNotEmpty) _fold(values[s], folded, other),
+          ],
+          id: series[s].id,
+          name: series[s].name,
+          color: series[s].color,
+          dashed: series[s].dashed,
+          hidden: series[s].hidden,
+        ),
+    ],
+    categories: categories == null
+        ? null
+        : <PlassChartCategory>[
+            for (final int index in ranked)
+              index < categories.length
+                  ? categories[index]
+                  : PlassChartCategory.number(index.toDouble()),
+            if (folded.isNotEmpty) PlassChartCategory.text(other),
+          ],
+  );
+}
+
+/// The folded tail of one series as one datum.
+///
+/// A fold of nothing but gaps stays a gap: summing them to zero would invent a
+/// reading for every country that reported nothing.
+PlassChartDatum _fold(List<ChartValue> row, List<int> folded, String other) {
+  double total = 0;
+  bool found = false;
+
+  for (final int index in folded) {
+    final double? value = index < row.length ? row[index].value : null;
+
+    if (value != null) {
+      total += value;
+      found = true;
+    }
+  }
+
+  return PlassChartDatum.point(
+    PlassChartPoint(y: found ? total : null, x: PlassChartCategory.text(other)),
+  );
+}
+
+/// Every gap in every series read as a zero, for [PlassChartNulls.zero].
+///
+/// Done to the **data**, before the frame ever sees it, and that is the whole
+/// reason it is a function here rather than a branch in the painter. A zero is
+/// a value: it has to move the scale, appear in the readout, and be in the row
+/// a screen reader is handed. Substituted inside the painter it would be none
+/// of those — the line would touch a baseline the axis did not admit existed,
+/// and the table under it would still say the month was missing.
+///
+/// A point that carried a label or a colour of its own keeps them, because it
+/// is the same point with a number read into it.
+List<PlassChartSeries> zeroNulls(List<PlassChartSeries> series) {
+  return <PlassChartSeries>[
+    for (final PlassChartSeries one in series)
+      PlassChartSeries(
+        data: <PlassChartDatum>[
+          for (final PlassChartDatum datum in one.data)
+            if (datum.point case final PlassChartPoint point)
+              finiteOrNull(point.y) == null
+                  ? PlassChartDatum.point(
+                      PlassChartPoint(
+                        y: 0,
+                        x: point.x,
+                        z: point.z,
+                        color: point.color,
+                        label: point.label,
+                      ),
+                    )
+                  : datum
+            else
+              PlassChartDatum(finiteOrNull(datum.value) ?? 0),
+        ],
+        id: one.id,
+        name: one.name,
+        color: one.color,
+        dashed: one.dashed,
+        hidden: one.hidden,
+      ),
+  ];
+}
+
 /// Which points of a series get a value label, decided once for the whole
 /// series.
 ///
@@ -640,6 +809,94 @@ class ValueScale {
   }
 }
 
+/// A value axis whose steps are **multiplications** rather than additions.
+///
+/// The one scale in the library that changes what a distance on the plot means.
+/// On a linear axis the same length is the same number of units wherever it is;
+/// here it is the same *ratio* — the gap from 10 to 100 is the gap from 100 to
+/// 1,000 — which is the only way a series that runs from 3 to 3,000,000 can be
+/// drawn with the small end still legible.
+///
+/// There is no zero on it and nothing below it either, so [fraction] clamps:
+/// a zero or a negative lands on the floor the axis chose, which is where the
+/// axis ends rather than where the chart worked out the value belongs.
+class LogScale extends ValueScale {
+  /// Creates a log scale over a span already rounded to powers of ten.
+  const LogScale(super.min, super.max, super.ticks);
+
+  @override
+  double fraction(double value) {
+    final double span = _log10(max) - _log10(min);
+
+    if (span == 0) {
+      return 0;
+    }
+
+    return (_log10(value.clamp(min, max)) - _log10(min)) / span;
+  }
+}
+
+double _log10(double value) => math.log(value) / math.ln10;
+
+/// The scale a log axis runs on.
+///
+/// ## Zero, and everything under it
+///
+/// There is no such place. A logarithm has no value at zero and none at all
+/// below it, so an axis whose data reaches either cannot simply be stretched to
+/// hold them. What happens instead is stated rather than hidden: the axis
+/// floors at the smallest **positive** power of ten the data needs, or three
+/// decades under the top when the data offers no positive value to floor at,
+/// and a zero or a negative is drawn on that floor.
+///
+/// ## The ticks
+///
+/// Powers of ten, because those are the numbers a reader can multiply in their
+/// head. Over a short span — two decades or fewer, where whole decades would
+/// leave an axis with three labels on it — each decade also gets its 2 and its
+/// 5, which is the same 1-2-5 family [niceStep] picks from and for the same
+/// reason. Over a long one the decades are thinned by stride instead. The React
+/// build answers with `logScale`.
+LogScale logScale(ChartExtent? extent, {double? min, double? max, int tickCount = 5}) {
+  final double top = math.max(max ?? (extent?.max ?? 1), 1e-12);
+  final double asked = min ?? (extent?.min ?? top / 1000);
+  // Three decades under the top is the fallback, and it is a *choice* rather
+  // than an answer: the data gave the axis nothing positive to stand on.
+  final double floor = asked > 0 ? asked : top / 1000;
+
+  final int lowExp = _log10(floor).floor();
+  final int highExp = _log10(top).ceil();
+  final double low = math.pow(10, lowExp).toDouble();
+  final double high = math.pow(10, math.max(highExp, lowExp + 1)).toDouble();
+
+  final double span = _log10(high) - _log10(low);
+  final List<double> ticks = <double>[];
+
+  if (span <= 2) {
+    for (int exponent = lowExp; exponent <= _log10(high) + 1e-9; exponent += 1) {
+      for (final int mantissa in <int>[1, 2, 5]) {
+        final double tick = mantissa * math.pow(10, exponent).toDouble();
+
+        if (tick >= low - 1e-12 && tick <= high + 1e-12) {
+          ticks.add(tick);
+        }
+      }
+    }
+  } else {
+    final int stride = math.max(1, (span / math.max(1, tickCount - 1)).round());
+
+    for (int exponent = lowExp; exponent <= _log10(high) + 1e-9; exponent += stride) {
+      ticks.add(math.pow(10, exponent).toDouble());
+    }
+  }
+
+  if (ticks.isEmpty || ticks.last != high) {
+    ticks.add(high);
+  }
+
+  return LogScale(low, high, ticks);
+}
+
 /// The scale a value axis runs on, rounded out to clean numbers.
 ///
 /// Rounding *outward* is the part that matters: a maximum of 4,830 becomes
@@ -832,6 +1089,107 @@ List<String> fitCategoryLabels(
   return <String>[
     for (final String text in texts) truncateLabel(text, horizontal ? 150 : slot - 6, fontSize),
   ];
+}
+
+/* ---------------------------------------------------------------------------
+ * Turned labels
+ *
+ * A category axis runs out of room in one direction only: across. Cutting a
+ * name to its slot keeps every label on the axis, and past about four
+ * characters it stops being an answer at all — "Onboar…", "Onboa…" and "Onbo…"
+ * are three labels a reader cannot tell apart. Turning them is the other
+ * answer: a label on its side takes one line of text across the axis however
+ * long it is, and spends the room down the page instead.
+ *
+ * A label turned by an angle is a rectangle `width × fontSize` rotated about
+ * its anchor, so what it takes in each direction is that rectangle's projection
+ * onto the direction — which is where the sines and cosines come from, and why
+ * a quarter turn costs exactly one line of text across and the whole label
+ * down. The React build answers with `tickAngleOf`, `tiltedDepth`,
+ * `tiltedStep` and `tiltedRoom`.
+ * ------------------------------------------------------------------------ */
+
+/// A caller's tick angle as the axis uses it: degrees, and never past a quarter
+/// turn either way.
+///
+/// Past 90° a label is upside down, which is not a label. `-45` is the one to
+/// reach for, and the sign is which way the text leans: negative runs it up
+/// towards the right, the way every chart that has ever done this draws it.
+double tickAngleOf(double? angle) {
+  if (angle == null || !angle.isFinite) {
+    return 0;
+  }
+
+  return angle.clamp(-90.0, 90.0);
+}
+
+/// The angle `PlChartAxis.autoTickAngle` settles on, which is a diagonal or
+/// nothing at all.
+///
+/// The question it answers is the one a caller would otherwise answer by
+/// looking: *would any of these names be cut?* If none of them would, upright
+/// is the best an axis can do — it is the one angle that reads without the head
+/// moving — and turning them would be spending the plot's height on a problem
+/// the chart does not have. As soon as one name is wider than its slot, cutting
+/// is the alternative, and a diagonal beats a cut at every width.
+///
+/// Deliberately not a *continuous* answer. An angle worked out to fit the
+/// longest name exactly would be a different angle on every chart on a
+/// dashboard, and would change under the reader as the window is resized; -45°
+/// is the one every chart that does this has settled on, and holding it still
+/// is worth more than the pixels a bespoke angle would save.
+double autoTickAngle(List<String> texts, {required double slot, required double fontSize}) {
+  final double room = slot - 6;
+
+  return texts.any((String text) => textWidth(text, fontSize) > room) ? -45 : 0;
+}
+
+/// How deep a band of labels turned by [angle] is, away from the axis.
+double tiltedDepth(double widest, double angle, double fontSize) {
+  final double radians = angle.abs() * math.pi / 180;
+
+  return math.sin(radians).abs() * widest + math.cos(radians).abs() * fontSize;
+}
+
+/// And how far off its own tick it reaches, along the axis.
+///
+/// What the two ends of the axis have to keep clear, so the first and the last
+/// name are not cut off at the edge of the drawing.
+double tiltedStep(double width, double angle, double fontSize) {
+  final double radians = angle.abs() * math.pi / 180;
+
+  return math.cos(radians).abs() * width + math.sin(radians).abs() * fontSize;
+}
+
+/// The least room two turned labels can sit in along the axis without touching.
+///
+/// And **not** [tiltedStep], which is the mistake this is here to avoid. Two
+/// labels turned by the same angle are parallel, so what has to clear between
+/// them is not their length but the distance *across* them — which is the step
+/// along the axis times the sine of the angle. Read the other way round, that
+/// is the step one line of text needs, and it is why a turned axis fits so many
+/// more labels than an upright one: at a quarter turn the answer is one line of
+/// text, whatever the names happen to say.
+double tiltedPitch(double angle, double fontSize) {
+  final double radians = angle.abs() * math.pi / 180;
+
+  return fontSize * 1.35 / math.max(math.sin(radians).abs(), 0.09);
+}
+
+/// How long a turned label may be before it is cut, given the [depth] the axis
+/// is willing to spend on its band.
+///
+/// A turned label is not confined to its slot any more, so nothing else stops a
+/// forty-character name taking half the drawing. The depth is what is rationed,
+/// and this reads the length back out of it. The floor on the sine keeps a
+/// barely-turned label from being handed a budget of several thousand pixels.
+double tiltedRoom(double depth, double angle, double fontSize) {
+  final double radians = angle.abs() * math.pi / 180;
+
+  return math.max(
+    fontSize * 3,
+    (depth - math.cos(radians).abs() * fontSize) / math.max(math.sin(radians).abs(), 0.09),
+  );
 }
 
 /* ---------------------------------------------------------------------------

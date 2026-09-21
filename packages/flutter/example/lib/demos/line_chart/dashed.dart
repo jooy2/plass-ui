@@ -52,7 +52,7 @@ class LineChartDashed extends StatelessWidget {
     return const PlLineChart(
       series: _revenue,
       categories: _months,
-      connectNulls: true,
+      nulls: PlassChartNulls.connect,
       xAxis: PlChartAxis(label: 'Month'),
     );
   }

@@ -20,6 +20,40 @@ import 'package:plass_ui/src/internal/chart.dart';
 const List<Color> _palette = <Color>[Color(0xFF000001), Color(0xFF000002), Color(0xFF000003)];
 
 void main() {
+  group('logScale', () {
+    test('steps by multiplying, so equal lengths are equal ratios', () {
+      final LogScale scale = logScale(const ChartExtent(1, 1000));
+
+      // The gap from 1 to 10 is the gap from 100 to 1,000.
+      expect(
+        scale.fraction(10) - scale.fraction(1),
+        closeTo(scale.fraction(1000) - scale.fraction(100), 1e-9),
+      );
+      expect(scale.fraction(1), closeTo(0, 1e-9));
+      expect(scale.fraction(1000), closeTo(1, 1e-9));
+    });
+
+    test('labels the powers of ten, and their 2 and 5 over a short span', () {
+      expect(logScale(const ChartExtent(1, 100000)).ticks, contains(1000.0));
+      expect(logScale(const ChartExtent(1, 10)).ticks, <double>[1, 2, 5, 10]);
+    });
+
+    test('has no zero to put a value on, so it floors and draws it there', () {
+      final LogScale scale = logScale(const ChartExtent(0, 1000));
+
+      expect(scale.min, 1);
+      expect(scale.fraction(0), 0);
+      expect(scale.fraction(-50), 0);
+    });
+
+    test('never returns a fraction outside the plot', () {
+      final LogScale scale = logScale(const ChartExtent(10, 100));
+
+      expect(scale.fraction(1e9), 1);
+      expect(scale.fraction(1e-9), 0);
+    });
+  });
+
   group('toValue', () {
     test('reads a bare number', () {
       expect(toValue(const PlassChartDatum(12)).value, 12);

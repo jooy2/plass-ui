@@ -9778,6 +9778,14 @@ export const propTables: Record<string, PropRow[]> = {
       description: { ko: '값 축', en: 'The value axis' }
     },
     {
+      name: 'reference',
+      type: 'PlassChartReference | readonly PlassChartReference[]',
+      description: {
+        ko: 'plot을 가로지르는 기준선 — 목표, 평균, 한계. 데이터가 아니므로 그렇게 그립니다. 점선이고, muted 잉크를 쓰며, mark 아래에 놓입니다. 값 축 위에 서므로 세로 차트에서는 가로로, 가로 차트에서는 세로로 지나갑니다. 각 줄은 차트 설명에도 함께 적힙니다',
+        en: 'Lines drawn across the plot at a value — a target, an average, a limit. Not data, and drawn as if they know it: dashed, in the muted ink, under the marks. They sit on the value axis, so one runs across a vertical chart and down a horizontal one. Each is written into the description a screen reader is given'
+      }
+    },
+    {
       name: 'legend',
       type: 'PlassChartLegend',
       description: { ko: '범례', en: 'The legend' }
@@ -10983,6 +10991,16 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'center'",
+      shared: true,
+      description: {
+        ko: '탭이 라벨보다 넓을 때 라벨이 서는 자리. 움직이는 것은 글자뿐이고 탭은 그대로입니다. 가로 바는 탭을 라벨에 맞춰 키우므로 움직일 자리가 없고, 세로 바와 fullWidth 바에서 듭니다',
+        en: "Where each tab's label sits inside the tab. It moves the words, never the tabs — a horizontal bar sizes every tab to its own label, so it takes effect on a vertical bar and on a fullWidth one"
+      }
+    },
+    {
       name: 'value',
       type: 'string | number | null',
       description: {
@@ -11356,6 +11374,14 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'yAxis',
       type: 'PlassChartAxis',
       description: { ko: '시간 축', en: 'The time axis' }
+    },
+    {
+      name: 'reference',
+      type: 'PlassChartReference | readonly PlassChartReference[]',
+      description: {
+        ko: 'plot을 가로지르는 기준선 — 목표, 평균, 한계. 데이터가 아니므로 그렇게 그립니다. 점선이고, muted 잉크를 쓰며, mark 아래에 놓입니다. 값 축 위에 서므로 세로 차트에서는 가로로, 가로 차트에서는 세로로 지나갑니다. 각 줄은 차트 설명에도 함께 적힙니다',
+        en: 'Lines drawn across the plot at a value — a target, an average, a limit. Not data, and drawn as if they know it: dashed, in the muted ink, under the marks. They sit on the value axis, so one runs across a vertical chart and down a horizontal one. Each is written into the description a screen reader is given'
+      }
     },
     {
       name: 'tooltip',
@@ -13453,12 +13479,30 @@ export const propTables: Record<string, PropRow[]> = {
       description: { ko: '띠 위에 어떤 값을 적을지', en: 'Which values are written on the bands' }
     },
     {
+      name: 'valueLabelColor',
+      type: "'series' | 'ink'",
+      default: "'series'",
+      description: {
+        ko: '그 숫자를 무슨 색으로 쓸지. series는 올라앉은 mark의 색을 따라가고, ink는 전부 페이지의 본문 색으로 씁니다. 차트 팔레트는 시트 대비 4:1이라 mark의 기준은 넘지만 본문 글자의 4.5:1에는 못 미치므로, 라벨이 스스로 글자 대비를 지켜야 하면 ink를 쓰십시오',
+        en: "What colour those numbers are written in. `series` follows the mark each label sits on; `ink` writes them all in the page's own foreground. The chart palette clears 4:1 against the sheet, which is the floor a mark is held to rather than the 4.5:1 body text wants, so reach for `ink` where the labels have to meet the text contrast rule on their own"
+      }
+    },
+    {
+      name: 'nulls',
+      type: "'gap' | 'connect' | 'zero'",
+      default: "'gap'",
+      description: {
+        ko: '빈 값을 어떻게 다룰지. gap은 그 자리에서 끊고, connect는 양쪽을 잇고, zero는 0으로 읽어 축과 툴팁과 표에까지 반영합니다',
+        en: 'What a gap does. `gap` breaks at it, `connect` joins the two sides, and `zero` reads it as a nought — on the axis and in the tooltip and the table as well as under the mark'
+      }
+    },
+    {
       name: 'connectNulls',
       type: 'boolean',
       default: 'false',
       description: {
-        ko: '빈 곳에서 끊지 않고 띠를 통과시킵니다. 선보다 더 중요합니다 — 닫힌 채움은 지어낸 숫자를 더 넓게 칠합니다',
-        en: 'Draws the band through a gap. It matters more than on a line: a fill that closes across a gap paints a made-up number over a larger part of the chart'
+        ko: '**Deprecated.** `nulls="connect"`를 쓰십시오. `nulls`를 주지 않았을 때만 읽습니다',
+        en: '**Deprecated.** Use `nulls="connect"`. Read only when `nulls` says nothing'
       }
     },
     {
@@ -13470,6 +13514,14 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'yAxis',
       type: 'PlassChartAxis',
       description: { ko: '값 축', en: 'The value axis' }
+    },
+    {
+      name: 'reference',
+      type: 'PlassChartReference | readonly PlassChartReference[]',
+      description: {
+        ko: 'plot을 가로지르는 기준선 — 목표, 평균, 한계. 데이터가 아니므로 그렇게 그립니다. 점선이고, muted 잉크를 쓰며, mark 아래에 놓입니다. 값 축 위에 서므로 세로 차트에서는 가로로, 가로 차트에서는 세로로 지나갑니다. 각 줄은 차트 설명에도 함께 적힙니다',
+        en: 'Lines drawn across the plot at a value — a target, an average, a limit. Not data, and drawn as if they know it: dashed, in the muted ink, under the marks. They sit on the value axis, so one runs across a vertical chart and down a horizontal one. Each is written into the description a screen reader is given'
+      }
     },
     {
       name: 'legend',
@@ -13547,6 +13599,22 @@ export const propTables: Record<string, PropRow[]> = {
       description: {
         ko: '첫 조각이 시작하는 각도. 열두 시에서 시계 방향이며, semi는 무시합니다',
         en: 'Where the first slice starts, in degrees clockwise from twelve. Ignored by semi'
+      }
+    },
+    {
+      name: 'innerRadius',
+      type: 'number',
+      description: {
+        ko: '가운데를 얼마나 뚫을지, 반지름에 대한 비율. 0은 채운 원, 0.8은 얇은 띠입니다. 0~0.95로 자릅니다. 주지 않으면 shape가 정합니다 — pie는 0, 나머지 둘은 0.62',
+        en: 'How much of the middle is cut out, as a fraction of the radius: `0` is a filled disc and `0.8` a thin band. Clamped to 0–0.95. Left out, `shape` picks it — nothing for a pie, 0.62 for the other two'
+      }
+    },
+    {
+      name: 'padAngle',
+      type: 'number',
+      description: {
+        ko: '이웃한 두 조각 사이 틈의 각도. 0~10으로 자릅니다. 주지 않으면 화면 위에서 2px이 되는 각도를 씁니다 — 작은 원이 큰 원과 같은 틈을 갖지 않도록',
+        en: 'The gap between two neighbouring slices, in degrees. Clamped to 0–10. Left out, it is the 2px the library puts between any two marks, worked out at the rim, so the gap is a constant on screen rather than in the data'
       }
     },
     {
@@ -13666,6 +13734,40 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'sort',
+      type: "'none' | 'ascending' | 'descending'",
+      default: "'none'",
+      description: {
+        ko: 'category를 준 순서 대신 크기순으로 놓습니다. 막대 차트는 category를 섞어도 잃을 것이 없는 유일한 모양이므로 정렬이 공짜이고, 이것이 막대의 벽을 훑어 내려갈 수 있는 순위로 바꿉니다. 순서가 이미 뜻을 지닌 곳 — 월, 크기, 퍼널의 단계 — 에서는 그대로 두십시오. series가 여럿이면 크기는 그 category의 **합계**이고 부호가 아니라 크기를 더합니다',
+        en: 'Puts the categories in order of size rather than leaving them as given. A bar chart is the one shape whose categories can be shuffled without losing anything, so sorting is free and it turns a wall of bars into a ranking. Leave it alone where the order already means something. With more than one series the size of a category is the total across all of them, magnitudes rather than signed values'
+      }
+    },
+    {
+      name: 'maxCategories',
+      type: 'number',
+      description: {
+        ko: '가장 큰 것 이만큼만 남기고 나머지를 하나로 합칩니다. 아흔 개 나라를 그린 차트의 답입니다 — 보이지 않을 만큼 짧은 막대는 아무 말도 하지 않으면서 폭만 먹습니다. 무엇을 접을지는 크기가 정하고 `sort`는 관여하지 않으며, 접힌 것은 언제나 마지막입니다. 전부 빈 값을 접으면 0이 아니라 빈 값으로 남습니다',
+        en: 'Keeps the largest this many categories and sums the rest into one. The answer to a chart of ninety countries: a bar too short to see costs width without saying anything. What is folded is decided by size and never by `sort`, and the fold is always last. A fold of nothing but gaps stays a gap rather than becoming a zero'
+      }
+    },
+    {
+      name: 'otherLabel',
+      type: 'string',
+      description: {
+        ko: '그 묶음의 이름. 주지 않으면 label 팩의 단어를 씁니다 — 영어로는 Other입니다',
+        en: "What that fold is called. Falls back to the label pack's own word, which is Other in English"
+      }
+    },
+    {
+      name: 'valueLabelColor',
+      type: "'series' | 'ink'",
+      default: "'series'",
+      description: {
+        ko: '그 숫자를 무슨 색으로 쓸지. series는 올라앉은 mark의 색을 따라가고, ink는 전부 페이지의 본문 색으로 씁니다. 차트 팔레트는 시트 대비 4:1이라 mark의 기준은 넘지만 본문 글자의 4.5:1에는 못 미치므로, 라벨이 스스로 글자 대비를 지켜야 하면 ink를 쓰십시오',
+        en: "What colour those numbers are written in. `series` follows the mark each label sits on; `ink` writes them all in the page's own foreground. The chart palette clears 4:1 against the sheet, which is the floor a mark is held to rather than the 4.5:1 body text wants, so reach for `ink` where the labels have to meet the text contrast rule on their own"
+      }
+    },
+    {
       name: 'xAxis',
       type: 'PlassChartAxis',
       description: { ko: 'category 축', en: 'The category axis' }
@@ -13674,6 +13776,14 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'yAxis',
       type: 'PlassChartAxis',
       description: { ko: '값 축', en: 'The value axis' }
+    },
+    {
+      name: 'reference',
+      type: 'PlassChartReference | readonly PlassChartReference[]',
+      description: {
+        ko: 'plot을 가로지르는 기준선 — 목표, 평균, 한계. 데이터가 아니므로 그렇게 그립니다. 점선이고, muted 잉크를 쓰며, mark 아래에 놓입니다. 값 축 위에 서므로 세로 차트에서는 가로로, 가로 차트에서는 세로로 지나갑니다. 각 줄은 차트 설명에도 함께 적힙니다',
+        en: 'Lines drawn across the plot at a value — a target, an average, a limit. Not data, and drawn as if they know it: dashed, in the muted ink, under the marks. They sit on the value axis, so one runs across a vertical chart and down a horizontal one. Each is written into the description a screen reader is given'
+      }
     },
     {
       name: 'legend',
@@ -13764,12 +13874,21 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'nulls',
+      type: "'gap' | 'connect' | 'zero'",
+      default: "'gap'",
+      description: {
+        ko: '빈 값을 어떻게 다룰지. gap은 그 자리에서 끊고, connect는 양쪽을 잇고, zero는 0으로 읽어 축과 툴팁과 표에까지 반영합니다',
+        en: 'What a gap does. `gap` breaks at it, `connect` joins the two sides, and `zero` reads it as a nought — on the axis and in the tooltip and the table as well as under the mark'
+      }
+    },
+    {
       name: 'connectNulls',
       type: 'boolean',
       default: 'false',
       description: {
-        ko: '빈 곳에서 끊지 않고 선을 통과시킵니다. 이어 붙인 공백은 차트가 지어낸 숫자입니다',
-        en: 'Draws the line straight through a gap. A bridged gap is a number the chart made up'
+        ko: '**Deprecated.** `nulls="connect"`를 쓰십시오. `nulls`를 주지 않았을 때만 읽습니다',
+        en: '**Deprecated.** Use `nulls="connect"`. Read only when `nulls` says nothing'
       }
     },
     {
@@ -13779,6 +13898,15 @@ export const propTables: Record<string, PropRow[]> = {
       description: {
         ko: '선 위에 어떤 값을 적을지. last가 손이 가는 것입니다 — 각 series가 어디서 끝났는지',
         en: 'Which values are written on the line. last is the one to reach for — where each series ended up'
+      }
+    },
+    {
+      name: 'valueLabelColor',
+      type: "'series' | 'ink'",
+      default: "'series'",
+      description: {
+        ko: '그 숫자를 무슨 색으로 쓸지. series는 올라앉은 mark의 색을 따라가고, ink는 전부 페이지의 본문 색으로 씁니다. 차트 팔레트는 시트 대비 4:1이라 mark의 기준은 넘지만 본문 글자의 4.5:1에는 못 미치므로, 라벨이 스스로 글자 대비를 지켜야 하면 ink를 쓰십시오',
+        en: "What colour those numbers are written in. `series` follows the mark each label sits on; `ink` writes them all in the page's own foreground. The chart palette clears 4:1 against the sheet, which is the floor a mark is held to rather than the 4.5:1 body text wants, so reach for `ink` where the labels have to meet the text contrast rule on their own"
       }
     },
     {
@@ -13808,6 +13936,14 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'yAxis',
       type: 'PlassChartAxis',
       description: { ko: '값 축', en: 'The value axis' }
+    },
+    {
+      name: 'reference',
+      type: 'PlassChartReference | readonly PlassChartReference[]',
+      description: {
+        ko: 'plot을 가로지르는 기준선 — 목표, 평균, 한계. 데이터가 아니므로 그렇게 그립니다. 점선이고, muted 잉크를 쓰며, mark 아래에 놓입니다. 값 축 위에 서므로 세로 차트에서는 가로로, 가로 차트에서는 세로로 지나갑니다. 각 줄은 차트 설명에도 함께 적힙니다',
+        en: 'Lines drawn across the plot at a value — a target, an average, a limit. Not data, and drawn as if they know it: dashed, in the muted ink, under the marks. They sit on the value axis, so one runs across a vertical chart and down a horizontal one. Each is written into the description a screen reader is given'
+      }
     },
     {
       name: 'legend',
@@ -13969,11 +14105,29 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'scale',
+      type: "'linear' | 'log'",
+      default: "'linear'",
+      description: {
+        ko: '축이 더하며 나아가는지 곱하며 나아가는지. log는 같은 길이가 같은 개수가 아니라 같은 **비율**이 되게 합니다 — 10에서 100까지가 100에서 1,000까지와 같은 거리입니다. 3에서 3,000,000까지 가는 series를 작은 쪽도 읽히게 그리는 유일한 방법이고, 로그 축이라고 라벨을 붙여야 합니다. 0은 없으므로 데이터가 0이나 음수에 닿으면 축은 필요한 가장 작은 10의 거듭제곱에서 멈추고 그 값들을 바닥에 그립니다. 값 축에서, 그리고 category 축이 두 번째 값 축일 때만 읽습니다',
+        en: 'Whether the axis steps by adding or by multiplying. `log` makes the same length the same **ratio** rather than the same number of units — the gap from 10 to 100 is the gap from 100 to 1,000 — which is the only way a series that runs from 3 to 3,000,000 is drawn with the small end still legible, and it has to be labelled as what it is. There is no zero on it: an axis whose data reaches zero or below floors at the smallest positive power of ten it needs and draws those values there. Read on the value axis, and on a category axis only where that axis is a second value axis'
+      }
+    },
+    {
       name: 'tickFormat',
       type: '(value: PlassChartCategory, index: number) => ReactNode',
       description: {
         ko: 'tick을 쓰는 방식. 차트의 `format`보다 우선합니다',
         en: "How a tick is written, overriding the chart's own `format`"
+      }
+    },
+    {
+      name: 'tickAngle',
+      type: "number | 'auto'",
+      default: '0',
+      description: {
+        ko: '라벨을 몇 도 기울일지. 기운 라벨은 이름이 아무리 길어도 축을 가로질러 한 줄만 차지하고, 나머지 자리는 plot 아래에서 씁니다. -45가 손이 가는 값이고 -90은 세로로 세웁니다. `auto`는 축에 맡깁니다 — 이름이 슬롯에 들어가는 동안은 그대로 두고, 하나라도 잘릴 때 -45로 기웁니다. category 축에만, 그리고 그 축이 아래쪽에 있을 때만 듭니다',
+        en: "Turns the labels, in degrees, so long names fit without being cut. A turned label takes one line of text across the axis however long it is, and spends the room under the plot. `-45` is the one to reach for; `-90` stands them on end. `'auto'` asks the axis: upright while every name fits its slot, and `-45` as soon as one would be cut. Only the category axis, and only where it runs along the bottom"
       }
     },
     {
@@ -14018,16 +14172,24 @@ export const propTables: Record<string, PropRow[]> = {
         ko: '각 series의 현재 값을 이름 옆에 씁니다',
         en: "Draws each series' current value beside its name"
       }
+    },
+    {
+      name: 'maxEntries',
+      type: 'number',
+      description: {
+        ko: '이만큼만 보이고 나머지는 버튼 뒤로 접습니다. 범례는 키이고, 네 줄로 감긴 이름 열둘은 읽는 목록이 아니라 뒤져야 하는 문단입니다. 카드 위에서는 plot이 잃은 네 줄이기도 합니다. 남기는 것은 앞에서부터인데, 그것이 색을 받은 순서이자 독자가 이미 익힌 순서이기 때문입니다. 접혀도 화면 낭독기에서 사라지지 않습니다 — 버튼이 몇 개가 뒤에 있는지 말하고, 모든 series는 차트 아래 표에 있습니다',
+        en: 'Shows this many entries and folds the rest behind a button that opens them. A legend is a key, and a key of twelve names wrapped over four rows is a paragraph the reader has to search — on a card it is also four rows the plot no longer has. The entries kept are the first ones, which is the order their colours were handed out in. Nothing is hidden from a screen reader: the fold is a real button that says how many are behind it, and every series is in the table under the chart'
+      }
     }
   ],
   PlassChartTooltip: [
     {
       name: 'mode',
-      type: "'index' | 'item' | 'none'",
+      type: "'index' | 'item' | 'nearest' | 'none'",
       default: "'index'",
       description: {
-        ko: '`index`는 포인터 아래 category의 모든 series, `item`은 가리킨 mark 하나, `none`은 툴팁 없음입니다. mark를 그리는 차트는 기본이 `item`입니다',
-        en: '`index` is every series at the category under the pointer, `item` the one mark being pointed at, and `none` no tooltip. A chart of marks defaults to `item`'
+        ko: '`index`는 포인터 아래 category의 모든 series, `item`은 그 열에서 포인터에 가장 가까운 series 하나, `nearest`는 열이 아니라 두 방향으로 재어 가장 가까운 **mark** 하나, `none`은 툴팁 없음입니다. `nearest`에는 crosshair가 없습니다 — crosshair는 "이 숫자들은 모두 이 열의 것"이라는 말인데 열이 없기 때문입니다. mark를 그리는 차트는 기본이 `item`입니다',
+        en: '`index` is every series at the category under the pointer, `item` the one in that column the pointer is nearest, `nearest` the one **mark** nearest in both directions rather than down a column, and `none` no tooltip. There is no crosshair with `nearest`: a crosshair says "these numbers all belong to this column", and there is no column. A chart of marks defaults to `item`'
       }
     },
     {
