@@ -12,6 +12,24 @@ const List<PlTab<String>> panes = <PlTab<String>>[
   PlTab<String>(value: 'settings', label: Text('Settings'), panel: Text('The settings')),
 ];
 
+/// Two tabs of visibly different widths, which is what an alignment needs to be
+/// visible at all: three labels of the same length line up whatever is asked
+/// for.
+const List<PlTab<String>> ragged = <PlTab<String>>[
+  PlTab<String>(value: 'alerts', label: Text('Notifications'), panel: Text('The alerts')),
+  PlTab<String>(value: 'team', label: Text('Team'), panel: Text('The team')),
+];
+
+Widget _sideBar({PlassAlign align = PlassAlign.center}) => host(
+  PlTabs<String>(
+    tabs: ragged,
+    value: 'alerts',
+    align: align,
+    orientation: const PlassResponsive<PlassOrientation>(PlassOrientation.vertical),
+  ),
+  width: 480,
+);
+
 void main() {
   group('PlTabs', () {
     group('rendering', () {
@@ -399,6 +417,47 @@ void main() {
           // past. This is the whole of what keeps the containment honest.
           expect(outer.offset, 100);
         });
+      });
+    });
+
+    group('where the label sits in a tab', () {
+      testWidgets('is the middle by default', (WidgetTester tester) async {
+        await tester.pumpWidget(_sideBar());
+
+        // A vertical bar is as wide as its widest tab, so the short one has room
+        // to move in and is centred in it.
+        expect(
+          tester.getCenter(find.text('Team')).dx,
+          moreOrLessEquals(tester.getCenter(find.text('Notifications')).dx, epsilon: 1),
+        );
+      });
+
+      testWidgets('is where `align` says, and the tab itself does not move', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(_sideBar());
+
+        final double centred = tester.getTopLeft(find.text('Team')).dx;
+        final Size box = tester.getSize(find.text('Team').first);
+
+        await tester.pumpWidget(_sideBar(align: PlassAlign.start));
+
+        // Against the long label's own start, which is what makes the bar read
+        // as a list rather than as two words drifting around a centre line.
+        expect(
+          tester.getTopLeft(find.text('Team')).dx,
+          moreOrLessEquals(tester.getTopLeft(find.text('Notifications')).dx, epsilon: 1),
+        );
+        expect(tester.getTopLeft(find.text('Team')).dx, lessThan(centred));
+        expect(tester.getSize(find.text('Team').first), box);
+
+        await tester.pumpWidget(_sideBar(align: PlassAlign.end));
+
+        expect(tester.getTopLeft(find.text('Team')).dx, greaterThan(centred));
+        expect(
+          tester.getTopRight(find.text('Team')).dx,
+          moreOrLessEquals(tester.getTopRight(find.text('Notifications')).dx, epsilon: 1),
+        );
       });
     });
 

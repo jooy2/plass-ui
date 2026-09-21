@@ -98,6 +98,7 @@ class PlTabs<T> extends StatefulWidget {
     this.color,
     this.density,
     this.orientation = const PlassResponsive<PlassOrientation>(PlassOrientation.horizontal),
+    this.align = PlassAlign.center,
     this.fullWidth = false,
     this.wheel = true,
     this.overscroll = PlassOverscroll.contain,
@@ -136,6 +137,21 @@ class PlTabs<T> extends StatefulWidget {
   /// laid out by a constraint, which is what makes two of these side by side
   /// agree about which rung they are on.
   final PlassResponsive<PlassOrientation> orientation;
+
+  /// Where each tab's label sits inside the tab, once the tab is wider than the
+  /// label is.
+  ///
+  /// Which is the part worth saying: this moves the words, never the tabs. A
+  /// horizontal bar sizes every tab to its own label, so there is no room for a
+  /// label to move in and nothing changes — it takes effect on a vertical bar,
+  /// whose tabs are all as wide as the widest, and on a [fullWidth] one, whose
+  /// tabs are all an equal share of the bar. [PlassAlign.start] is what a bar
+  /// down the side of a settings page usually wants, so the names line up as a
+  /// list rather than drifting around a centre line.
+  ///
+  /// Logical rather than physical: `start` is the left under `ltr` and the
+  /// right under `rtl`, and an icon beside the label travels with it.
+  final PlassAlign align;
 
   /// The tabs share the bar's width, each taking an equal part of it.
   final bool fullWidth;
@@ -319,6 +335,7 @@ class _PlTabsState<T> extends State<PlTabs<T>> with PlassRovingStop<PlTabs<T>> {
           chosen: index == chosen,
           size: _size,
           density: _density,
+          align: widget.align,
           family: family,
           tokens: tokens,
           disabled: widget.tabs[index].disabled || widget.onChanged == null,
@@ -690,6 +707,7 @@ class _Tab<T> extends StatelessWidget {
     required this.chosen,
     required this.size,
     required this.density,
+    required this.align,
     required this.family,
     required this.tokens,
     required this.disabled,
@@ -704,6 +722,7 @@ class _Tab<T> extends StatelessWidget {
   final bool chosen;
   final PlassSize size;
   final PlassDensity density;
+  final PlassAlign align;
   final PlassColorFamily family;
   final PlassTokens tokens;
   final bool disabled;
@@ -753,7 +772,15 @@ class _Tab<T> extends StatelessWidget {
                   data: IconThemeData(color: ink, size: fontSize * iconScale),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    // The row is handed a tight width by whatever stretched the
+                    // tab, so this is what places the label inside it. `start`
+                    // and `end` follow the writing direction, which is what
+                    // makes the prop logical without anything being converted.
+                    mainAxisAlignment: switch (align) {
+                      PlassAlign.start => MainAxisAlignment.start,
+                      PlassAlign.center => MainAxisAlignment.center,
+                      PlassAlign.end => MainAxisAlignment.end,
+                    },
                     spacing: gap[size]!,
                     children: <Widget>[?tab.startIcon, ?tab.label, ?tab.endIcon],
                   ),

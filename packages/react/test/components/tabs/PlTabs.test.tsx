@@ -234,6 +234,26 @@ describe('PlTabs', () => {
         expect(tab).toHaveClass('flex-1');
       }
     });
+
+    it('centres each label in its tab', async () => {
+      const screen = await render(<Settings />);
+
+      for (const tab of screen.getByRole('tab').elements()) {
+        expect(tab).toHaveClass('justify-center');
+      }
+    });
+
+    it('puts the label where `align` says instead, and moves nothing else', async () => {
+      const screen = await render(<Settings align="start" />);
+
+      for (const tab of screen.getByRole('tab').elements()) {
+        expect(tab).toHaveClass('justify-start');
+        expect(tab).not.toHaveClass('justify-center');
+        // The label moves inside the tab; the tab itself is untouched, which is
+        // what makes this safe to set on a bar that is already laid out.
+        expect(tab).toHaveClass('h-10');
+      }
+    });
   });
 
   describe('a responsive orientation', () => {

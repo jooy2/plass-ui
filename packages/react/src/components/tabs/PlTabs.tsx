@@ -22,6 +22,7 @@ import {
 import { useResponsiveValue } from '../../internal/responsive.js';
 import { overscrollClasses, useWheelScroll } from '../../internal/wheel.js';
 import type {
+  PlassAlign,
   PlassDensity,
   PlassOrientation,
   PlassOverscroll,
@@ -43,6 +44,7 @@ interface TabsContextValue {
   size: PlassSize;
   density: PlassDensity;
   orientation: PlassOrientation;
+  align: PlassAlign;
   fullWidth: boolean;
 }
 
@@ -51,6 +53,7 @@ const TabsContext = /* @__PURE__ */ React.createContext<TabsContextValue>({
   size: 'md',
   density: 'default',
   orientation: 'horizontal',
+  align: 'center',
   fullWidth: false
 });
 
@@ -101,6 +104,23 @@ export interface PlTabsProps
    * @default true
    */
   loopFocus?: boolean;
+  /**
+   * Where each tab's label sits inside the tab, once the tab is wider than the
+   * label is.
+   *
+   * Which is the part worth saying: this moves the words, never the tabs. A
+   * horizontal bar sizes every tab to its own label, so there is no room for a
+   * label to move in and nothing changes — it takes effect on a `vertical` bar,
+   * whose tabs are all as wide as the widest, and on a `fullWidth` one, whose
+   * tabs are all an equal share of the bar. `start` is what a bar down the side
+   * of a settings page usually wants, so the names line up as a list rather
+   * than drifting around a centre line.
+   *
+   * Logical, not physical: `start` is the left under `ltr` and the right under
+   * `rtl`, and an icon beside the label travels with it.
+   * @default 'center'
+   */
+  align?: PlassAlign;
   /** The tabs share the bar's full width, each taking an equal part of it. */
   fullWidth?: boolean;
   /**
@@ -238,6 +258,19 @@ const tabStateClasses =
   'text-(--plass-muted-fg) hover:text-(--plass-fg) data-[active]:text-(--p-accent)';
 
 /**
+ * Where the label sits in a tab that is wider than it is.
+ *
+ * `justify-*` rather than `text-*`: a tab is a flex row of up to three things —
+ * a leading icon, the label and a trailing one — and `text-align` moves none of
+ * them. What has to move is the group, so the group is what is placed.
+ */
+const tabAlignClasses: Record<PlassAlign, string> = {
+  start: 'justify-start',
+  center: 'justify-center',
+  end: 'justify-end'
+};
+
+/**
  * The active tab over a `solid` pane in forced-colours mode, where the pane is
  * the system's highlight and the label has to be the colour drawn on one.
  */
@@ -252,7 +285,7 @@ export const PlTab = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlTabPr
   { value, startIcon, endIcon, disabled = false, className, children, ...props },
   ref
 ) {
-  const { variant, size, density, fullWidth } = React.useContext(TabsContext);
+  const { variant, size, density, align, fullWidth } = React.useContext(TabsContext);
 
   return (
     <BaseUITabs.Tab
@@ -260,7 +293,8 @@ export const PlTab = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlTabPr
       value={value}
       disabled={disabled}
       className={[
-        'relative z-10 inline-flex shrink-0 cursor-pointer items-center justify-center select-none',
+        'relative z-10 inline-flex shrink-0 cursor-pointer items-center select-none',
+        tabAlignClasses[align],
         'font-semibold whitespace-nowrap',
         '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
         controlHeightClasses[size],
@@ -462,6 +496,7 @@ export const PlTabs = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTabsPro
     defaultValue,
     onValueChange,
     orientation: orientationProp,
+    align = 'center',
     activateOnFocus = false,
     loopFocus = true,
     fullWidth = false,
@@ -487,8 +522,8 @@ export const PlTabs = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTabsPro
   const density = densityProp ?? defaults.density ?? 'default';
 
   const context = React.useMemo(
-    () => ({ variant, size, density, orientation, fullWidth }),
-    [variant, size, density, orientation, fullWidth]
+    () => ({ variant, size, density, orientation, align, fullWidth }),
+    [variant, size, density, orientation, align, fullWidth]
   );
 
   const listRef = React.useRef<HTMLDivElement>(null);
