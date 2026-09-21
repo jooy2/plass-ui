@@ -2727,6 +2727,11 @@ const entries: Entry[] = [
  * Group headings, in the order the sidebar lists them. Written out rather than
  * derived from `entries` so a new group has to be given a name before it can
  * appear, instead of showing up as a raw folder slug.
+ *
+ * Which also means a group left out of this list is a group of components that
+ * never reaches the page, however many entries carry its key — so the order
+ * here and `componentGroupOrder` in `.vitepress/config.ts` have to hold the
+ * same eight names.
  */
 const groups: { key: Group; label: Record<'en' | 'ko', string> }[] = [
   { key: 'display', label: { en: 'Display', ko: 'Display' } },
@@ -2735,6 +2740,7 @@ const groups: { key: Group; label: Record<'en' | 'ko', string> }[] = [
   { key: 'layout', label: { en: 'Layout', ko: 'Layout' } },
   { key: 'navigation', label: { en: 'Navigation', ko: 'Navigation' } },
   { key: 'surfaces', label: { en: 'Surfaces', ko: 'Surfaces' } },
+  { key: 'charts', label: { en: 'Charts', ko: 'Charts' } },
   { key: 'transitions', label: { en: 'Transitions', ko: 'Transitions' } }
 ];
 

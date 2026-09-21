@@ -838,6 +838,46 @@ function byText(a: GeneratedSidebarItem, b: GeneratedSidebarItem): number {
 }
 
 /**
+ * The component groups, in the order the menu lists them.
+ *
+ * Alphabetical is what the folder tree gives, and it opens the reference with
+ * Charts — nine drawings ahead of the buttons and the fields a reader came for.
+ * The curated order runs from the pieces a screen is assembled out of to the
+ * sheets they sit on, with the charts beside those sheets and the transitions
+ * last. A folder missing from this list still appears, after the ones named
+ * here and in its own alphabetical place, so adding one never hides it.
+ *
+ * It has to agree with the gallery on `/components/`, which lists the same
+ * groups in the same order from its own copy in `demos/component-index/all.tsx`.
+ */
+const componentGroupOrder = [
+  'display',
+  'feedback',
+  'inputs',
+  'layout',
+  'navigation',
+  'surfaces',
+  'charts',
+  'transitions'
+];
+
+/** Which folder a group's pages sit in: `/components/charts/line-chart` → `charts`. */
+function groupFolder(item: GeneratedSidebarItem): string {
+  return /(?:^|\/)components\/([^/]+)\//.exec(firstLink(item) ?? '')?.[1] ?? '';
+}
+
+/** By `componentGroupOrder`, with anything it does not name falling to the end. */
+function byGroupOrder(a: GeneratedSidebarItem, b: GeneratedSidebarItem): number {
+  const place = (item: GeneratedSidebarItem) => {
+    const at = componentGroupOrder.indexOf(groupFolder(item));
+
+    return at === -1 ? componentGroupOrder.length : at;
+  };
+
+  return place(a) - place(b) || byText(a, b);
+}
+
+/**
  * Guide, Examples, Components, Hooks, Design, Discover more, with the component
  * groups kept as headings inside Components.
  *
@@ -889,7 +929,7 @@ function arrangeSidebar<T extends GeneratedSidebarItem>(items: T[], lang: string
     for (const group of groups) {
       group.items = flattenItems(group.items ?? []).sort(byText);
     }
-    groups.sort(byText);
+    groups.sort(byGroupOrder);
 
     const overview = components.link
       ? ({ text: labels.overview, link: components.link } as unknown as T)
