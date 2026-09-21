@@ -8,7 +8,7 @@ import { Field } from '@base-ui/react/field';
 import { PlChip } from '../chip/PlChip.js';
 import { CheckIcon, ChevronIcon, CloseIcon, PlusIcon } from '../../internal/icons.js';
 import { hotKeyHandler } from '../../internal/keys.js';
-import { glowPointerMove } from '../../internal/glow.js';
+import { useFieldLight } from '../../internal/glow.js';
 import { FieldNotch, notchShellStyle } from '../../internal/notch.js';
 import {
   chipRemoveClasses,
@@ -18,6 +18,7 @@ import {
   disabledClasses,
   fieldReadOnlyClasses,
   fieldRestClasses,
+  fieldSlots,
   focusWithinRingClasses,
   forcedHighlightedClasses,
   gapClasses,
@@ -445,6 +446,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
   }
 
   const lit = !disabled && !readOnly;
+  const light = useFieldLight(lit);
   const shellClasses = cx(
     shellBaseClasses,
     notched ? '' : shellRingClasses,
@@ -528,7 +530,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
         fullWidth ? 'flex w-full' : 'inline-flex',
         className
       )}
-      style={{ ...surfaceSlots(family, elevation), ...style }}
+      style={{ ...fieldSlots(family, elevation), ...style }}
       {...props}
     >
       {hasContent(label) && !notched ? labelNode : null}
@@ -578,7 +580,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
         >
           <BaseUICombobox.InputGroup
             style={notched ? notchShellStyle : undefined}
-            onPointerMove={glowPointerMove(lit)}
+            {...light}
             className={cx(shellClasses, classNames?.control)}
           >
             {startIcon ? (

@@ -272,6 +272,20 @@
   --plass-glow-on-fill: rgb(255 255 255 / 0.18);
   --plass-flash-on-fill: rgb(255 255 255 / 0.26);
 
+  /* How much of that light a **field** carries, as a share of what a key gets.
+
+     A key is pressed and is finished with; a field is pressed once and then
+     written in for a minute, with the bloom sitting under the words being typed
+     and following the hand that is typing them. The same strength that reads as
+     a control answering a pointer reads as a stain on a paragraph. So a field
+     takes the family's tint at a little over half, which is enough to say the
+     surface answered and not enough to compete with the ink on it.
+
+     One value for both layers and for every family, because the thing being
+     dialled down is the effect rather than a colour. It is per-theme neither:
+     the tints it scales are already per-theme. */
+  --plass-glow-field-strength: 55%;
+
   /* Elevation, and how strongly a key's own colour bleeds into the shadow it
      casts. The ambient is a blue-grey rather than black: a neutral shadow over
      a blue-tinted page reads as dirt — and it is faint, because the tint below
@@ -878,6 +892,27 @@
 .plass-glow:active::after {
   opacity: 1;
   transition-duration: 0ms;
+}
+
+/*
+ * The bloom steps out of the way while the surface is being typed into.
+ *
+ * A pointer resting on a field is a pointer that has been parked: the hand is
+ * on the keyboard, the light is no longer following anything, and what it is
+ * doing is sitting under the sentence being written. Fading it out on the first
+ * keystroke and back in on the next real pointer move costs the effect nothing —
+ * it only ever *meant* anything while the pointer was moving — and gives the
+ * text a clean sheet for as long as the reader is on the keys.
+ *
+ * Only the bloom. The flash is drawn by `:active`, which cannot be held down
+ * and typed through.
+ *
+ * After the `:hover` rule, and at the same specificity: that order is what makes
+ * this the one that wins. The component writes and clears the attribute — see
+ * `useFieldLight`.
+ */
+.plass-glow[data-quiet]::before {
+  opacity: 0;
 }
 
 /* ---------------------------------------------------------------------------

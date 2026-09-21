@@ -15,6 +15,7 @@ import {
   disabledClasses,
   fieldReadOnlyClasses,
   fieldRestClasses,
+  fieldSlots,
   focusWithinRingClasses,
   gapClasses,
   glassClasses,
@@ -359,7 +360,7 @@ export function PickerShell({
         fullWidth ? 'flex w-full' : 'inline-flex',
         className
       )}
-      style={{ ...surfaceSlots(family, elevation), ...style }}
+      style={{ ...fieldSlots(family, elevation), ...style }}
       {...props}
     >
       {hasContent(label) && !notched ? labelNode : null}

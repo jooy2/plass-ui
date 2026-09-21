@@ -16,6 +16,7 @@ import {
   disabledClasses,
   fieldReadOnlyClasses,
   fieldRestClasses,
+  fieldSlots,
   focusWithinRingClasses,
   forcedHighlightedClasses,
   gapClasses,
@@ -314,7 +315,7 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
         ]
           .filter(Boolean)
           .join(' ')}
-        style={{ ...surfaceSlots(family, elevation), ...style }}
+        style={{ ...fieldSlots(family, elevation), ...style }}
         {...props}
       >
         {hasContent(label) && !notched ? labelNode : null}

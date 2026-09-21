@@ -5,7 +5,7 @@ import { useDefaults } from '../../internal/defaults.js';
 import { Field } from '@base-ui/react/field';
 import { Input } from '@base-ui/react/input';
 import { Spinner } from '../../internal/icons.js';
-import { glowPointerMove } from '../../internal/glow.js';
+import { useFieldLight } from '../../internal/glow.js';
 import { FieldNotch, notchShellStyle } from '../../internal/notch.js';
 import { hotKeyHandler } from '../../internal/keys.js';
 import {
@@ -15,6 +15,7 @@ import {
   disabledClasses,
   fieldReadOnlyClasses,
   fieldRestClasses,
+  fieldSlots,
   focusWithinRingClasses,
   gapClasses,
   hasContent,
@@ -23,7 +24,6 @@ import {
   paddingXClasses,
   radiusClasses,
   stackGapClasses,
-  surfaceSlots,
   transitionClasses
 } from '../../internal/styles.js';
 import type {
@@ -253,6 +253,7 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
   );
 
   const lit = !disabled && !readOnly;
+  const light = useFieldLight(lit);
   const shellClasses = [
     shellBaseClasses,
     notched ? '' : shellRingClasses,
@@ -323,7 +324,7 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
       ]
         .filter(Boolean)
         .join(' ')}
-      style={{ ...surfaceSlots(family, elevation), ...style }}
+      style={{ ...fieldSlots(family, elevation), ...style }}
     >
       {hasContent(label) && !notched ? labelNode : null}
 
@@ -339,7 +340,7 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
         <span
           className={cx(shellClasses, classNames?.control)}
           style={notched ? notchShellStyle : undefined}
-          onPointerMove={glowPointerMove(lit)}
+          {...light}
           onPointerDown={(event) => {
             // Clicking the shell's own padding should put the caret in the field,
             // the way clicking anywhere inside a native input does. Only when the

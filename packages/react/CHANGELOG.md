@@ -4,6 +4,10 @@
 
 ## vNext (2026--)
 
+### Changed
+
+- **A field's interaction light is turned down, and steps out of the way while the field is being typed into.** A key is pressed and the reader has moved on; a field is pressed once and then written in for a minute, with the bloom sitting under the words being typed and following a pointer nobody is moving any more. At a key's strength that reads as a stain on the sentence rather than as the surface answering. Both layers are now mixed down to `--plass-glow-field-strength`, a new token at 55% that a theme can move, on `PlTextField`, `PlNumberField`, `PlSelect`, `PlCombobox`, `PlFilePicker` and the six picker triggers. Buttons, toggles, chips, pills and segmented controls are untouched. On the three fields that hold a text input the bloom also fades out on the first keystroke and comes back on the next real pointer move, which is `[data-quiet]` over `.plass-glow` and costs one render per change of it.
+
 ## 1.6.0 (2026-09-19)
 
 ### Breaking changes

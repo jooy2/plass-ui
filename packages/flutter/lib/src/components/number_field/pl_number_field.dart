@@ -310,10 +310,28 @@ class _PlNumberFieldState extends State<PlNumberField> {
   /// `RepaintBoundary` in `PlassSurfaceBox`, so the repaint stays off the text.
   Offset? _pointer;
 
-  void _setPointer(Offset position) {
-    if (_editable && _pointer != position) {
-      setState(() => _pointer = position);
+  /// Whether the light is standing down while the field is being typed into.
+  /// See `PlTextField`, which explains the whole of it.
+  bool _quiet = false;
+
+  /// Only while the field has the focus: a controller is written to from
+  /// outside as well, and a form filling its fields in is not a reader typing.
+  void _onEditing() {
+    if (_editable && _focused && !_quiet) {
+      setState(() => _quiet = true);
     }
+  }
+
+  void _setPointer(Offset position) {
+    if (!_editable || (_pointer == position && !_quiet)) {
+      return;
+    }
+
+    setState(() {
+      _pointer = position;
+      // A pointer that is moving again is a hand that has come back to it.
+      _quiet = false;
+    });
   }
 
   void _releasePress() {
@@ -332,6 +350,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
   void initState() {
     super.initState();
     _controller = TextEditingController(text: _write(widget.value));
+    _controller.addListener(_onEditing);
     _focusNode.addListener(_onFocusChanged);
   }
 
@@ -356,6 +375,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
   void dispose() {
     _repeat?.cancel();
     _focusNode.removeListener(_onFocusChanged);
+    _controller.removeListener(_onEditing);
     _owned?.dispose();
     _controller.dispose();
     super.dispose();
@@ -871,7 +891,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
         // makes.
         pointer: _pointer,
         glow: _editable ? tokens.fieldGlow(family) : null,
-        glowVisible: _hovered,
+        glowVisible: _hovered && !_quiet,
         flash: _editable ? tokens.fieldFlash(family) : null,
         flashVisible: _pressed,
         reduceMotion: reduceMotion,

@@ -11,6 +11,7 @@ import { FieldNotch, notchShellStyle } from '../../internal/notch.js';
 import {
   controlTextLeadingClasses,
   disabledClasses,
+  fieldSlots,
   focusRingClasses,
   gapClasses,
   glassClasses,
@@ -21,7 +22,6 @@ import {
   readOnlyFilterClasses,
   sheetTitleClasses,
   stackGapClasses,
-  surfaceSlots,
   transitionClasses
 } from '../../internal/styles.js';
 import type {
@@ -622,7 +622,7 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
         ]
           .filter(Boolean)
           .join(' ')}
-        style={{ ...surfaceSlots(family, elevation), ...style }}
+        style={{ ...fieldSlots(family, elevation), ...style }}
         {...props}
       >
         {hasContent(label) && !notched ? labelNode : null}

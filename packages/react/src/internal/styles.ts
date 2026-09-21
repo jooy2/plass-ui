@@ -595,6 +595,33 @@ export function surfaceSlots(color: PlassColor, elevation: PlassElevation): Reac
   } as React.CSSProperties;
 }
 
+/**
+ * The same slots again for a **field's** shell, with the interaction light
+ * turned down.
+ *
+ * A field is the one lit surface in the library that is not finished with the
+ * moment it has been pressed. A key takes a bloom for as long as the pointer is
+ * crossing it and then the reader has moved on; a field is clicked once and then
+ * written in, and for that minute the light sits under the words being typed and
+ * follows a pointer that is no longer being moved. At a key's strength it reads
+ * as a stain on the sentence rather than as the surface answering.
+ *
+ * So both layers are mixed down to `--plass-glow-field-strength` of the family's
+ * tint — the colour is dimmed rather than the layer's opacity, because opacity
+ * is what `.plass-glow` animates between its two states and what
+ * `[data-quiet]` takes over while the field is being typed into.
+ *
+ * Everything else is `surfaceSlots`. A field's sheet is still undyed glass, and
+ * the family still reaches it through the hairline, the ring and the caret.
+ */
+export function fieldSlots(color: PlassColor, elevation: PlassElevation): React.CSSProperties {
+  return {
+    ...surfaceSlots(color, elevation),
+    '--p-glow': `color-mix(in oklab, var(--plass-${color}-soft) var(--plass-glow-field-strength), transparent)`,
+    '--p-flash': `color-mix(in oklab, var(--plass-${color}-soft-hover) var(--plass-glow-field-strength), transparent)`
+  } as React.CSSProperties;
+}
+
 /* ---------------------------------------------------------------------------
  * Shared state treatments
  * ------------------------------------------------------------------------- */

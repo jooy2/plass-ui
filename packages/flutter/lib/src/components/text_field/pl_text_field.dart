@@ -228,10 +228,39 @@ class _PlTextFieldState extends State<PlTextField> {
   /// surface answers, and neither a disabled nor a read-only field does.
   bool get _lit => !widget.disabled && !widget.readOnly;
 
-  void _setPointer(Offset position) {
-    if (_lit && _pointer != position) {
-      setState(() => _pointer = position);
+  /// Whether the light is standing down while the field is being typed into.
+  ///
+  /// A pointer resting on a field has been parked: the hand is on the keyboard,
+  /// the bloom has stopped following anything, and what it is doing is sitting
+  /// under the sentence being written. It goes out on the first edit and comes
+  /// back on the next real pointer move, so the light is only ever on while it
+  /// is still saying something. The React build answers the same way, with a
+  /// `[data-quiet]` rule over `.plass-glow`.
+  bool _quiet = false;
+
+  /// The controller notifies on both halves of being typed into — the text
+  /// changing and the caret moving through it — which is what makes it the
+  /// signal here rather than [PlTextField.onChanged], which hears only the
+  /// first.
+  ///
+  /// Only while the field has the focus. A controller is also written to from
+  /// outside, and a form filling its fields in is not a reader typing in one.
+  void _onEditing() {
+    if (_lit && _focused && !_quiet) {
+      setState(() => _quiet = true);
     }
+  }
+
+  void _setPointer(Offset position) {
+    if (!_lit || (_pointer == position && !_quiet)) {
+      return;
+    }
+
+    setState(() {
+      _pointer = position;
+      // A pointer that is moving again is a hand that has come back to it.
+      _quiet = false;
+    });
   }
 
   void _releasePress() {
@@ -244,10 +273,14 @@ class _PlTextFieldState extends State<PlTextField> {
 
   FocusNode get _focusNode => widget.focusNode ?? (_owned ??= FocusNode());
 
+  TextEditingController get _controller =>
+      widget.controller ?? (_fallback ??= TextEditingController());
+
   @override
   void initState() {
     super.initState();
     _focusNode.addListener(_onFocusChanged);
+    _controller.addListener(_onEditing);
   }
 
   @override
@@ -258,11 +291,17 @@ class _PlTextFieldState extends State<PlTextField> {
       (oldWidget.focusNode ?? _owned)?.removeListener(_onFocusChanged);
       _focusNode.addListener(_onFocusChanged);
     }
+
+    if (oldWidget.controller != widget.controller) {
+      (oldWidget.controller ?? _fallback)?.removeListener(_onEditing);
+      _controller.addListener(_onEditing);
+    }
   }
 
   @override
   void dispose() {
     _focusNode.removeListener(_onFocusChanged);
+    _controller.removeListener(_onEditing);
     _owned?.dispose();
     _fallback?.dispose();
     super.dispose();
@@ -325,7 +364,7 @@ class _PlTextFieldState extends State<PlTextField> {
     }
 
     Widget control = EditableText(
-      controller: widget.controller ?? (_fallback ??= TextEditingController()),
+      controller: _controller,
       focusNode: _focusNode,
       readOnly: widget.readOnly || widget.disabled,
       autofocus: widget.autofocus,
@@ -434,7 +473,7 @@ class _PlTextFieldState extends State<PlTextField> {
         // as a key answering one, and it is not a claim a locked field makes.
         pointer: _pointer,
         glow: _lit ? tokens.fieldGlow(family) : null,
-        glowVisible: _hovered,
+        glowVisible: _hovered && !_quiet,
         flash: _lit ? tokens.fieldFlash(family) : null,
         flashVisible: _pressed,
         reduceMotion: reduceMotion,

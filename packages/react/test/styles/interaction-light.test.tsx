@@ -15,8 +15,16 @@
  * failure. What is pinned here is that each piece reaches the next one.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { commands, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
-import { PlButton, PlSegment, PlSegmentedButton, PlTextField } from 'plass-ui';
+import {
+  PlButton,
+  PlCombobox,
+  PlNumberField,
+  PlSegment,
+  PlSegmentedButton,
+  PlTextField
+} from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
 
 let sheet: HTMLStyleElement;
@@ -31,11 +39,46 @@ afterAll(() => {
   sheet.remove();
 });
 
-/** The colour of the bloom's first stop, as the browser resolved it. */
+/**
+ * The colour of the bloom's first stop, as the browser resolved it.
+ *
+ * Matched as a colour function rather than cut at the next comma, because the
+ * browser writes one in whichever space it landed in — `color(srgb … / a)` for
+ * a plain token and `oklab(… / a)` for one that went through a `color-mix` —
+ * and a legacy `rgba()` has commas of its own inside it.
+ */
 function firstStop(layer: CSSStyleDeclaration): string {
-  const [, stop] = /,\s*([^,]+),/.exec(layer.backgroundImage) ?? [];
+  const [stop] =
+    /(?:rgba?|hsla?|oklab|oklch|lab|lch|color)\([^)]*\)/.exec(layer.backgroundImage) ?? [];
 
   return stop ?? '';
+}
+
+/**
+ * How much of that colour there is. Every modern syntax writes the alpha after
+ * a slash; `rgba()` and `hsla()` write it as a fourth argument. A colour that
+ * gives none is opaque.
+ */
+function alphaOf(color: string): number {
+  const slashed = /\/\s*([\d.]+)\s*\)$/.exec(color);
+
+  if (slashed) {
+    return Number(slashed[1]);
+  }
+
+  const parts = /^\w+\(([^)]*)\)$/.exec(color)?.[1].split(',') ?? [];
+
+  return parts.length === 4 ? Number(parts[3]) : 1;
+}
+
+/** The shell a field's light is drawn on, marked by the test's own class. */
+function litShell(): HTMLElement {
+  return document.querySelector('.lit-under-test') as HTMLElement;
+}
+
+/** Waits out whatever the last change set easing, so a value is read settled. */
+async function settle(element: HTMLElement): Promise<void> {
+  await Promise.all(element.getAnimations({ subtree: true }).map((one) => one.finished));
 }
 
 describe('the interaction light', () => {
@@ -52,7 +95,7 @@ describe('the interaction light', () => {
     expect(firstStop(bloom)).not.toBe('rgba(0, 0, 0, 0)');
   });
 
-  it('resolves one on a field, whose slots come from `surfaceSlots`', async () => {
+  it('resolves one on a field, whose slots come from `fieldSlots`', async () => {
     await render(<PlTextField label="City" classNames={{ control: 'lit-under-test' }} />);
 
     const shell = document.querySelector('.lit-under-test') as HTMLElement;
@@ -117,6 +160,95 @@ describe('the interaction light', () => {
     );
     expect(getComputedStyle(other, '::before').backgroundImage).not.toContain('rgba(0, 0, 0, 0),');
   });
+
+  it('lights a field more faintly than a key of the same family', async () => {
+    const screen = await render(
+      <>
+        <PlButton variant="glass">Save</PlButton>
+        <PlTextField label="City" classNames={{ control: 'lit-under-test' }} />
+      </>
+    );
+    const key = screen.getByRole('button', { name: 'Save' }).element() as HTMLElement;
+
+    // Both read the family's own soft tint; the field reads it mixed down, so
+    // the bloom under a sentence being typed does not compete with the ink.
+    expect(alphaOf(firstStop(getComputedStyle(litShell(), '::before')))).toBeLessThan(
+      alphaOf(firstStop(getComputedStyle(key, '::before')))
+    );
+  });
+
+  it("puts a field's bloom away while it is typed into, and brings it back on a move", async () => {
+    const screen = await render(
+      <PlTextField label="City" classNames={{ control: 'lit-under-test' }} />
+    );
+    const shell = litShell();
+    const field = screen.getByRole('textbox');
+
+    await userEvent.hover(field);
+    await settle(shell);
+    expect(getComputedStyle(shell, '::before').opacity).toBe('1');
+
+    // The hand has left the mouse for the keyboard. The light is no longer
+    // following anything, and what it is doing is sitting under the words.
+    await userEvent.click(field);
+    await userEvent.keyboard('Seoul');
+    await settle(shell);
+
+    expect(shell).toHaveAttribute('data-quiet');
+    expect(getComputedStyle(shell, '::before').opacity).toBe('0');
+
+    // And back the moment the pointer is a pointer again. Parked first, so the
+    // move that follows is a real one rather than a hover onto the same spot.
+    await commands.parkPointer();
+    await userEvent.hover(field);
+    await settle(shell);
+
+    expect(shell).not.toHaveAttribute('data-quiet');
+    expect(getComputedStyle(shell, '::before').opacity).toBe('1');
+  });
+
+  it.each([
+    [
+      'PlTextField',
+      <PlTextField label="City" classNames={{ control: 'lit-under-test' }} />,
+      'textbox',
+      'a'
+    ],
+    [
+      'PlNumberField',
+      <PlNumberField label="Age" value={null} classNames={{ control: 'lit-under-test' }} />,
+      'textbox',
+      // A digit, because a number field refuses a letter and stops the key
+      // where it lands — nothing was typed, so nothing should have dimmed.
+      '5'
+    ],
+    [
+      'PlCombobox',
+      <PlCombobox
+        label="City"
+        items={[{ value: 'kr-11', label: 'Seoul' }]}
+        classNames={{ control: 'lit-under-test' }}
+      />,
+      'combobox',
+      'a'
+    ]
+  ] as const)(
+    'reaches the shell of a %s, whose control is a Base UI part',
+    async (_name, field, role, key) => {
+      const screen = await render(field);
+
+      await expect.element(screen.getByRole(role)).toBeInTheDocument();
+
+      // The shell is not the control, so the key has to *bubble* to it. Base UI
+      // owns the element in the middle on two of these three.
+      screen
+        .getByRole(role)
+        .element()
+        .dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+
+      await expect.poll(() => litShell().hasAttribute('data-quiet')).toBe(true);
+    }
+  );
 
   it('draws no layers at all on a field that is locked', async () => {
     await render(<PlTextField label="City" disabled classNames={{ control: 'lit-under-test' }} />);

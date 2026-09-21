@@ -370,10 +370,28 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   /// `RepaintBoundary` in `PlassSurfaceBox`, so the repaint stays off the text.
   Offset? _pointer;
 
-  void _setPointer(Offset position) {
-    if (_usable && _pointer != position) {
-      setState(() => _pointer = position);
+  /// Whether the light is standing down while the field is being typed into.
+  /// See `PlTextField`, which explains the whole of it.
+  bool _quiet = false;
+
+  /// Only while the field has the focus: a controller is written to from
+  /// outside as well, and a form filling its fields in is not a reader typing.
+  void _onEditing() {
+    if (_usable && _focused && !_quiet) {
+      setState(() => _quiet = true);
     }
+  }
+
+  void _setPointer(Offset position) {
+    if (!_usable || (_pointer == position && !_quiet)) {
+      return;
+    }
+
+    setState(() {
+      _pointer = position;
+      // A pointer that is moving again is a hand that has come back to it.
+      _quiet = false;
+    });
   }
 
   void _releasePress() {
@@ -398,6 +416,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   void initState() {
     super.initState();
     _focusNode.addListener(_onFocusChanged);
+    _text.addListener(_onEditing);
   }
 
   @override
@@ -424,6 +443,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   @override
   void dispose() {
     _focusNode.removeListener(_onFocusChanged);
+    _text.removeListener(_onEditing);
     _scroll.dispose();
     _text.dispose();
     _owned?.dispose();
@@ -915,7 +935,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
         // makes.
         pointer: _pointer,
         glow: _usable ? tokens.fieldGlow(family) : null,
-        glowVisible: _hovered,
+        glowVisible: _hovered && !_quiet,
         flash: _usable ? tokens.fieldFlash(family) : null,
         flashVisible: _pressed,
         reduceMotion: reduceMotion,

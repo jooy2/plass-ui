@@ -11,6 +11,7 @@
 // big enough for a gradient to be a gradient, so a tick-scale control is
 // deliberately without one, and an entry moved from the second list to the
 // first has to be a decision somebody made rather than a line somebody copied.
+import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -107,6 +108,47 @@ void main() {
         await tester.pumpWidget(host(build(readOnly: true), width: 420));
         expect(find.byType(PlassGlowLayer), findsNothing);
       });
+    });
+
+    testWidgets('lights a field more faintly than a key of the same family', (
+      WidgetTester tester,
+    ) async {
+      final PlassTokens tokens = PlassTokens.light();
+      final PlassColorFamily family = tokens.family(PlassColor.primary);
+
+      // Both read the family's own soft tint; the field reads it mixed down, so
+      // the bloom under a sentence being typed does not compete with the ink.
+      expect(tokens.fieldGlow(family).a, lessThan(tokens.glow(family, PlassVariant.glass).a));
+      expect(tokens.fieldFlash(family).a, lessThan(tokens.flash(family, PlassVariant.glass).a));
+    });
+
+    testWidgets('puts a field\'s bloom away while it is typed into', (WidgetTester tester) async {
+      await tester.pumpWidget(host(PlTextField(label: const Text('City')), width: 420));
+
+      bool bloomIsLit() =>
+          tester.widgetList<PlassGlowLayer>(find.byType(PlassGlowLayer)).first.visible;
+
+      final TestGesture pointer = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+      await pointer.addPointer(location: Offset.zero);
+      addTearDown(pointer.removePointer);
+
+      final Offset shell = tester.getCenter(find.byType(PlTextField));
+
+      await pointer.moveTo(shell);
+      await tester.pump();
+      expect(bloomIsLit(), isTrue);
+
+      // The hand has left the mouse for the keyboard. The light is no longer
+      // following anything, and what it is doing is sitting under the words.
+      await tester.enterText(find.byType(EditableText), 'Seoul');
+      await tester.pump();
+      expect(bloomIsLit(), isFalse);
+
+      // And back the moment the pointer is a pointer again.
+      await pointer.moveTo(shell + const Offset(6, 0));
+      await tester.pump();
+      expect(bloomIsLit(), isTrue);
     });
 
     testWidgets('a pressable PlChip carries it and a plain one does not', (

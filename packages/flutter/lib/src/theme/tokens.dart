@@ -833,10 +833,16 @@ class PlassTokens {
   /// field's three is a coloured fill: a `solid` field is the well, which is the
   /// glass at its most opaque, and white light on it is white light on a
   /// near-white sheet.
-  Color fieldGlow(PlassColorFamily family) => family.soft;
+  ///
+  /// And they take it mixed down to [glowFieldStrength]. A key is pressed and
+  /// the reader has moved on; a field is pressed once and then written in for a
+  /// minute, with the light sitting under the words being typed and following a
+  /// pointer nobody is moving any more. At a key's strength that reads as a
+  /// stain on the sentence rather than as the surface answering.
+  Color fieldGlow(PlassColorFamily family) => colorMix(family.soft, glowFieldStrength);
 
   /// The brighter of the two, the moment the field is pressed.
-  Color fieldFlash(PlassColorFamily family) => family.softHover;
+  Color fieldFlash(PlassColorFamily family) => colorMix(family.softHover, glowFieldStrength);
 
   /* -------------------------------------------------------------------------
    * Scales that do not change with the theme
@@ -862,6 +868,13 @@ class PlassTokens {
 
   /// The house curve.
   static const Curve ease = Cubic(0.16, 0.9, 0.3, 1);
+
+  /// How much of a key's interaction light a **field** carries, as a percentage.
+  ///
+  /// One value for both layers and for every family, because what is being
+  /// dialled down is the effect rather than a colour. The stylesheet spells it
+  /// `--plass-glow-field-strength`.
+  static const double glowFieldStrength = 55;
 
   /// How long the pointer bloom takes to fade in and out.
   static const Duration glowDuration = Duration(milliseconds: 240);

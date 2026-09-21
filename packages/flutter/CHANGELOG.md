@@ -4,6 +4,10 @@
 
 ## vNext (2026--)
 
+### Changed
+
+- **A field's interaction light is turned down, and steps out of the way while the field is being typed into.** A key is pressed and the reader has moved on; a field is pressed once and then written in for a minute, with the bloom sitting under the words being typed and following a pointer nobody is moving any more. At a key's strength that reads as a stain on the sentence rather than as the surface answering. `PlassTokens.fieldGlow` and `fieldFlash` now mix the family's tint down to `PlassTokens.glowFieldStrength`, which is 55%, so `PlTextField`, `PlNumberField`, `PlSelect`, `PlCombobox`, `PlFilePicker` and the six picker triggers are all a shade quieter. Buttons, toggles, chips, pills and segmented controls are untouched. On the three fields that hold a text editor the bloom also goes out while the text or the caret is moving, and comes back on the next real pointer move.
+
 ## 1.5.0 (2026-09-19)
 
 ### Breaking changes
