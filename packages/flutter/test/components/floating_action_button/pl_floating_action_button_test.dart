@@ -30,6 +30,39 @@ Future<void> _pump(WidgetTester tester, Widget child) async {
   await tester.pumpAndSettle();
 }
 
+/// A different number on every edge, so a wrong side cannot pass by accident.
+const EdgeInsets _safeArea = EdgeInsets.fromLTRB(40, 20, 10, 30);
+
+/// As [_pump], on a screen whose edges are [_safeArea]'s: the home indicator,
+/// a cutout, the navigation bar. [safeAreaWidget] puts a [SafeArea] round the
+/// stack, the way an app that already clears the edges itself would.
+Future<void> _pumpEdgeToEdge(
+  WidgetTester tester,
+  Widget child, {
+  TextDirection textDirection = TextDirection.ltr,
+  bool safeAreaWidget = false,
+}) async {
+  final Widget stack = Stack(children: <Widget>[child]);
+
+  await tester.pumpWidget(
+    host(
+      Builder(
+        builder: (BuildContext context) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(padding: _safeArea),
+          child: SizedBox(
+            key: _field,
+            width: 300,
+            height: 300,
+            child: safeAreaWidget ? SafeArea(child: stack) : stack,
+          ),
+        ),
+      ),
+      textDirection: textDirection,
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
 void main() {
   group('PlFloatingActionButton', () {
     group('the name', () {
@@ -139,6 +172,64 @@ void main() {
         final Rect stack = tester.getRect(find.byKey(_field));
 
         expect(stack.bottom - box.bottom, 8);
+      });
+
+      testWidgets('stands the safe area and the offset off the bottom and the end', (
+        WidgetTester tester,
+      ) async {
+        await _pumpEdgeToEdge(tester, const PlFloatingActionButton(icon: _Glyph(), label: 'New'));
+
+        final Rect box = tester.getRect(find.byType(PlIconButton));
+        final Rect stack = tester.getRect(find.byKey(_field));
+
+        // 24 off each edge, and the home indicator and the cutout on top.
+        expect(stack.bottom - box.bottom, 54);
+        expect(stack.right - box.right, 34);
+      });
+
+      testWidgets('takes the safe area of the other side under RTL', (WidgetTester tester) async {
+        await _pumpEdgeToEdge(
+          tester,
+          const PlFloatingActionButton(icon: _Glyph(), label: 'New'),
+          textDirection: TextDirection.rtl,
+        );
+
+        final Rect box = tester.getRect(find.byType(PlIconButton));
+        final Rect stack = tester.getRect(find.byKey(_field));
+
+        // The end is on the left now, and so is the edge whose inset it clears.
+        expect(box.left - stack.left, 64);
+      });
+
+      testWidgets('clears the top and the start when it is in that corner', (
+        WidgetTester tester,
+      ) async {
+        await _pumpEdgeToEdge(
+          tester,
+          const PlFloatingActionButton(corner: PlassCorner.topStart, icon: _Glyph(), label: 'New'),
+        );
+
+        final Rect box = tester.getRect(find.byType(PlIconButton));
+        final Rect stack = tester.getRect(find.byKey(_field));
+
+        expect(box.top - stack.top, 44);
+        expect(box.left - stack.left, 64);
+      });
+
+      testWidgets('counts the safe area once inside a SafeArea', (WidgetTester tester) async {
+        await _pumpEdgeToEdge(
+          tester,
+          const PlFloatingActionButton(icon: _Glyph(), label: 'New'),
+          safeAreaWidget: true,
+        );
+
+        final Rect box = tester.getRect(find.byType(PlIconButton));
+        final Rect stack = tester.getRect(find.byKey(_field));
+
+        // The `SafeArea` has already moved the stack in, and it hands down a
+        // padding of zero, so the button adds nothing more to it.
+        expect(stack.bottom - box.bottom, 54);
+        expect(stack.right - box.right, 34);
       });
 
       testWidgets('positions nothing when it was told not to float', (WidgetTester tester) async {

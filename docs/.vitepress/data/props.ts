@@ -5614,8 +5614,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'number | string',
       default: "'1.5rem'",
       description: {
-        ko: '맞닿은 두 모서리에서 떨어져 서는 거리',
-        en: 'How far it stands off the two edges it is against'
+        ko: '맞닿은 두 모서리에서 떨어져 서는 거리. 그 두 모서리의 safe area가 그 위에 더해집니다',
+        en: 'How far it stands off the two edges it is against. The safe area on those edges is added on top'
       }
     },
     {

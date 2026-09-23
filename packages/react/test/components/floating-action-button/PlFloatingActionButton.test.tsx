@@ -70,8 +70,25 @@ describe('PlFloatingActionButton', () => {
       );
 
       expect(fab().style.position).toBe('fixed');
-      expect(fab().style.insetBlockEnd).toBe('1.5rem');
-      expect(fab().style.insetInlineEnd).toBe('1.5rem');
+      expect(fab().style.insetBlockEnd).toContain('1.5rem');
+      expect(fab().style.insetInlineEnd).toContain('1.5rem');
+    });
+
+    it('stands the safe area off the two edges on top of the offset', async () => {
+      await render(
+        <PlFloatingActionButton className="fab-under-test" icon={<Plus />} label="New" />
+      );
+
+      // The home indicator or the navigation bar of an edge-to-edge screen. The
+      // browser running the test has no safe area, so the declarations are read
+      // rather than their resolved lengths; `test/styles` gives Chromium one.
+      expect(fab().style.insetBlockEnd).toContain('env(safe-area-inset-bottom');
+      expect(fab().style.insetInlineEnd).toContain('var(--p-safe-inline');
+
+      // `env()` has only physical names, so the class says which one the end
+      // is: the right, and the left once the page runs right to left.
+      expect(fab().className).toContain('[--p-safe-inline:env(safe-area-inset-right,0px)]');
+      expect(fab().className).toContain('rtl:[--p-safe-inline:env(safe-area-inset-left,0px)]');
     });
 
     it('takes any corner, as logical insets', async () => {
@@ -86,8 +103,10 @@ describe('PlFloatingActionButton', () => {
 
       // `start` and not `left`: under RTL the corner is on the other side, and
       // the button has to go with it.
-      expect(fab().style.insetBlockStart).toBe('1.5rem');
-      expect(fab().style.insetInlineStart).toBe('1.5rem');
+      expect(fab().style.insetBlockStart).toContain('1.5rem');
+      expect(fab().style.insetBlockStart).toContain('env(safe-area-inset-top');
+      expect(fab().style.insetInlineStart).toContain('1.5rem');
+      expect(fab().className).toContain('[--p-safe-inline:env(safe-area-inset-left,0px)]');
     });
 
     it('takes a number as pixels and a string as any length', async () => {
@@ -95,7 +114,7 @@ describe('PlFloatingActionButton', () => {
         <PlFloatingActionButton className="fab-under-test" offset={8} icon={<Plus />} label="New" />
       );
 
-      expect(fab().style.insetBlockEnd).toBe('8px');
+      expect(fab().style.insetBlockEnd).toContain('8px');
 
       await render(
         <PlFloatingActionButton
@@ -106,7 +125,7 @@ describe('PlFloatingActionButton', () => {
         />
       );
 
-      expect(fab().style.insetBlockEnd).toBe('2vh');
+      expect(fab().style.insetBlockEnd).toContain('2vh');
     });
 
     it('pins nothing when it was told not to float', async () => {
@@ -121,6 +140,7 @@ describe('PlFloatingActionButton', () => {
 
       expect(fab().style.position).toBe('');
       expect(fab().className).not.toContain('z-30');
+      expect(fab().className).not.toContain('--p-safe-inline');
     });
   });
 

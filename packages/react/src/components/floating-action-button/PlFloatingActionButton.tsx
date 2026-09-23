@@ -37,6 +37,11 @@ export interface PlFloatingActionButtonProps extends Omit<
   corner?: PlassCorner;
   /**
    * How far it stands off the two edges it is against. A number is pixels.
+   *
+   * The device's safe area on those two edges is added on top, so the button
+   * clears the home indicator, the navigation bar or a camera cutout of an
+   * edge-to-edge screen rather than sitting under it. On a screen with no such
+   * edge the safe area is `0`, and this is the whole distance.
    * @default '1.5rem'
    */
   offset?: number | string;
@@ -71,6 +76,25 @@ const insets: Record<PlassCorner, [block: 'Start' | 'End', inline: 'Start' | 'En
   'top-end': ['Start', 'End'],
   'bottom-start': ['End', 'Start'],
   'bottom-end': ['End', 'End']
+};
+
+/** The safe area on the block edge the corner is against. */
+const blockSafeArea: Record<'Start' | 'End', string> = {
+  Start: 'env(safe-area-inset-top, 0px)',
+  End: 'env(safe-area-inset-bottom, 0px)'
+};
+
+/**
+ * The safe area on the inline edge the corner is against, as `--p-safe-inline`.
+ *
+ * `env()` has only physical names, so which of `left` and `right` is the start
+ * is the direction's question, and a style attribute cannot ask it. The `rtl:`
+ * variant can, so the class picks the side and the inline inset reads it.
+ */
+const inlineSafeArea: Record<'Start' | 'End', string> = {
+  Start:
+    '[--p-safe-inline:env(safe-area-inset-left,0px)] rtl:[--p-safe-inline:env(safe-area-inset-right,0px)]',
+  End: '[--p-safe-inline:env(safe-area-inset-right,0px)] rtl:[--p-safe-inline:env(safe-area-inset-left,0px)]'
 };
 
 const DEFAULT_OFFSET = '1.5rem';
@@ -127,12 +151,15 @@ export const PlFloatingActionButton = /* @__PURE__ */ React.forwardRef<
   // Inline and logical. Logical because a corner is `start`/`end` here as
   // everywhere, and inline because a caller's `offset` is a value rather than a
   // class — and because an inline declaration is the one form that wins over a
-  // utility deterministically.
+  // utility deterministically. The safe area goes on top of the offset on both
+  // edges, so the button clears the home indicator or the navigation bar of an
+  // edge-to-edge screen; the `0px` behind the slot keeps the button pinned
+  // should the class that sets it never have been generated.
   const pinned: React.CSSProperties = floating
     ? ({
         position: 'fixed',
-        [`insetBlock${block}`]: distance,
-        [`insetInline${inline}`]: distance
+        [`insetBlock${block}`]: `calc(${distance} + ${blockSafeArea[block]})`,
+        [`insetInline${inline}`]: `calc(${distance} + var(--p-safe-inline, 0px))`
       } as React.CSSProperties)
     : {};
 
@@ -141,7 +168,7 @@ export const PlFloatingActionButton = /* @__PURE__ */ React.forwardRef<
     variant,
     size,
     elevation,
-    className: cx(floating ? 'z-30' : '', className),
+    className: cx(floating && 'z-30', floating && inlineSafeArea[inline], className),
     style: { ...pinned, ...style },
     ...props
   };

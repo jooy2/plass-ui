@@ -80,6 +80,12 @@ class PlFloatingActionButton extends StatelessWidget {
   final PlassCorner corner;
 
   /// How far it stands off the two edges it is against, in logical pixels.
+  ///
+  /// The screen's safe area on those two edges is added on top, from
+  /// [MediaQuery.paddingOf], so the button clears the home indicator, the
+  /// navigation bar or a camera cutout of an edge-to-edge screen rather than
+  /// sitting under it. Inside a `SafeArea` that padding is already zero, so the
+  /// space is never added twice.
   final double offset;
 
   /// Whether it positions itself at all.
@@ -143,24 +149,33 @@ class PlFloatingActionButton extends StatelessWidget {
       return button;
     }
 
+    // The safe area goes on top of the offset, so the button clears the home
+    // indicator or the navigation bar of an edge-to-edge screen. The padding is
+    // physical and the corner is not, so which of its sides is the start is the
+    // direction's question.
+    final EdgeInsets safe = MediaQuery.paddingOf(context);
+    final bool rtl = Directionality.of(context) == TextDirection.rtl;
+    final double safeStart = rtl ? safe.right : safe.left;
+    final double safeEnd = rtl ? safe.left : safe.right;
+
     // Directional rather than physical: a corner is `start`/`end` here as
     // everywhere, so the button crosses the screen under RTL along with
     // everything else.
     return PositionedDirectional(
       top: switch (corner) {
-        PlassCorner.topStart || PlassCorner.topEnd => offset,
+        PlassCorner.topStart || PlassCorner.topEnd => offset + safe.top,
         PlassCorner.bottomStart || PlassCorner.bottomEnd => null,
       },
       bottom: switch (corner) {
-        PlassCorner.bottomStart || PlassCorner.bottomEnd => offset,
+        PlassCorner.bottomStart || PlassCorner.bottomEnd => offset + safe.bottom,
         PlassCorner.topStart || PlassCorner.topEnd => null,
       },
       start: switch (corner) {
-        PlassCorner.topStart || PlassCorner.bottomStart => offset,
+        PlassCorner.topStart || PlassCorner.bottomStart => offset + safeStart,
         PlassCorner.topEnd || PlassCorner.bottomEnd => null,
       },
       end: switch (corner) {
-        PlassCorner.topEnd || PlassCorner.bottomEnd => offset,
+        PlassCorner.topEnd || PlassCorner.bottomEnd => offset + safeEnd,
         PlassCorner.topStart || PlassCorner.bottomStart => null,
       },
       child: button,

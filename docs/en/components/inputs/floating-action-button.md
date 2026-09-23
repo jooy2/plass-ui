@@ -115,6 +115,24 @@ PlFloatingActionButton(
 
 :::
 
+The safe area on those two edges is added on top of `offset`, so on an edge-to-edge screen the button clears the home indicator, the navigation bar and a camera cutout.
+
+::: fw react
+
+That space is `env(safe-area-inset-*)`, and a browser gives a page those insets only when its viewport meta tag has `viewport-fit=cover`. Without it, nothing is added.
+
+```html
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+```
+
+:::
+
+::: fw flutter
+
+That space is `MediaQuery.paddingOf`, which a `SafeArea` above the button has already set to zero, so a screen that clears its edges itself does not get the space twice.
+
+:::
+
 ### In the flow instead
 
 <Fw react="floating={false}" flutter="floating: false" code /> keeps the shape and the shadow and drops the positioning, for the same button at the end of a card or in a toolbar.

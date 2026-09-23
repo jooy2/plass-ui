@@ -115,6 +115,24 @@ PlFloatingActionButton(
 
 :::
 
+`offset` 위에는 그 두 모서리의 safe area가 더해집니다. 그래서 화면 끝까지 그리는 기기에서 버튼이 홈 인디케이터, 내비게이션 바, 카메라 컷아웃을 피해 앉습니다.
+
+::: fw react
+
+그 공간은 `env(safe-area-inset-*)`입니다. 브라우저는 viewport meta 태그에 `viewport-fit=cover`가 있는 페이지에만 그 inset 값을 줍니다. 없으면 아무것도 더해지지 않습니다.
+
+```html
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+```
+
+:::
+
+::: fw flutter
+
+그 공간은 `MediaQuery.paddingOf`입니다. 버튼 위에 `SafeArea`가 있으면 이 값은 이미 0이므로, 가장자리를 직접 비워 둔 화면에서도 두 번 더해지지 않습니다.
+
+:::
+
 ### 흐름 안에 놓기
 
 <Fw react="floating={false}" flutter="floating: false" code />는 모양과 그림자를 남기고 위치 지정만 뺍니다. 카드 끝이나 툴바에 같은 버튼을 놓을 때 씁니다.

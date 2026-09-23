@@ -38,6 +38,8 @@
 
 ### Fixed
 
+- **A floating `PlFloatingActionButton` clears the safe area of an edge-to-edge screen.** It stood a fixed `offset` off the corner of its `Stack`, so on a phone that draws under its home indicator or navigation bar it sat on top of them. `MediaQuery.paddingOf` on the two edges it is against is now added to `offset`. Inside a `SafeArea` that padding is already zero, so the space is not added twice; an app that added it to `offset` itself should take it back out.
+
 - **A glass field on a glass card blurs the card, whatever `BackdropGroup` the app puts round them.** Filters that share a backdrop key share one read of the backdrop, taken where the first of them is painted, so a field that joined the card's group was handed what was behind the card before the card was drawn, and showed the page through it. Every glass surface now puts what it holds in a group of its own: the card still joins the app's group, the fields on it share one read of the card, and a modal, a popover, a select's list or a tour's card reads the backdrop in a group of its own too. The design language page no longer asks for the group to go only round the outer sheets.
 
 - **The × on a `PlAlert`, a toast, a `PlModal`, a `PlDrawer`, a `PlPopover`, a `PlTour` and a `PlFilePicker` file can be pressed anywhere in a 24-pixel square around it.** It could be pressed only where it is drawn, which at the smaller sizes is under the minimum target size of WCAG 2.5.8. The × is drawn at the same size and nothing is laid out differently. It is the square the × on a chip and on a picker trigger already had.
