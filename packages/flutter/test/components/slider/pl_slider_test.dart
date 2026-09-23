@@ -377,6 +377,59 @@ void main() {
         );
       });
 
+      testWidgets('reads a value in the caller’s words, a step either side included', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            PlSlider(
+              values: const <double>[40],
+              semanticLabel: 'Opacity',
+              semanticValue: (String formatted, double value, int index) => '$formatted%',
+              onChanged: (List<double> _) {},
+            ),
+            width: 300,
+          ),
+        );
+
+        expect(
+          semanticsOf(tester, find.byType(PlSlider)),
+          isSemantics(value: '40%', increasedValue: '41%', decreasedValue: '39%'),
+        );
+      });
+
+      testWidgets('words each end of a range on its own', (WidgetTester tester) async {
+        final List<(String, double, int)> asked = <(String, double, int)>[];
+
+        await tester.pumpWidget(
+          host(
+            PlSlider(
+              values: const <double>[20, 80],
+              min: 0,
+              max: 100,
+              step: 0.5,
+              semanticLabel: 'Price',
+              semanticValue: (String formatted, double value, int index) {
+                asked.add((formatted, value, index));
+
+                return index == 0 ? 'from €$formatted' : 'to €$formatted';
+              },
+              onChanged: (List<double> _) {},
+            ),
+            width: 300,
+          ),
+        );
+
+        final Iterable<SemanticsNode> ends = find.semantics
+            .byAction(SemanticsAction.increase)
+            .evaluate();
+
+        expect(ends.map((SemanticsNode node) => node.value), <String>['from €20.0', 'to €80.0']);
+        // The number is handed over as well as its text, for a caller who
+        // words it in a way of their own.
+        expect(asked, contains(('80.0', 80.0, 1)));
+      });
+
       testWidgets('gives each end of a range its own slider to move', (WidgetTester tester) async {
         List<double> values = <double>[20, 80];
 

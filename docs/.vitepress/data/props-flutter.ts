@@ -4813,6 +4813,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'Formats that value. Left out, it is printed with no decimals and joined with an en dash'
       }
     },
+    from('PlSlider', 'getAriaValueText', {
+      name: 'semanticValue',
+      type: 'String Function(String formatted, double value, int index)?',
+      description: {
+        ko: 'index번 thumb의 값과 그 한 step 앞뒤의 값을 스크린 리더가 읽는 말. 생략하면 step의 소수 자릿수에 맞춘 숫자입니다',
+        en: 'What a screen reader says for the value of the thumb at index, and for the step either side of it. Left out, it is the number in as many decimals as step has'
+      }
+    }),
     from('PlSlider', 'disabled', { type: 'bool', default: 'false' }),
     {
       name: 'semanticLabel',

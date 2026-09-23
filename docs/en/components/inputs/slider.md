@@ -218,7 +218,7 @@ The light going out, as everywhere else: the shape and the position stay, the sa
 
 ::: fw flutter
 
-- Announced as a slider, with the current value as its value, written in as many decimals as `step` has. Without a visible `label`, a fader in a bank of them, give it a `semanticLabel`.
+- Announced as a slider, with the current value as its value, written in as many decimals as `step` has, or in the words `semanticValue` gives each thumb, such as "40%". Without a visible `label`, a fader in a bank of them, give it a `semanticLabel`.
 - A screen reader's adjust gesture, the swipe up and down in VoiceOver and TalkBack, moves the slider by one `step`. Each end of a range is a slider of its own.
 - <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> move a thumb by one `step`, <kbd>PageUp</kbd> / <kbd>PageDown</kbd> by a tenth of the range, and <kbd>Home</kbd> and <kbd>End</kbd> jump to the ends.
 - Each thumb is its own focus stop, which is what makes a range slider operable: <kbd>Tab</kbd> moves between the two ends.
@@ -239,6 +239,7 @@ The light going out, as everywhere else: the shape and the position stay, the sa
 | `showValue` as boolean-or-function | `showValue` and `formatValue` | Dart has no union type, so turning the number on and deciding what it says are two parameters. |
 | `<input type="range">` | a drawn strip with its own key handling | There is no native range input to inherit a keyboard from, so the keys are bound here, the same set, including <kbd>Page</kbd> and <kbd>Home</kbd>/<kbd>End</kbd>. |
 | `aria-label` | `semanticLabel` | Flutter's name. |
+| `getAriaValueText` | `semanticValue` | Flutter's name, with the same three arguments. |
 | `className` for a vertical slider's height | `length` | There is no class list; the length is a parameter. |
 
 :::

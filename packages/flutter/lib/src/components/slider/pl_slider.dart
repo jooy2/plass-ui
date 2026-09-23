@@ -96,6 +96,7 @@ class PlSlider extends StatefulWidget {
     this.description,
     this.showValue = false,
     this.formatValue,
+    this.semanticValue,
     this.disabled = false,
     this.semanticLabel,
     this.focusNode,
@@ -164,6 +165,16 @@ class PlSlider extends StatefulWidget {
 
   /// Formats that value. Left out, it is printed with no decimals.
   final String Function(List<double> values)? formatValue;
+
+  /// What a screen reader says for the value of the thumb at `index`, given the
+  /// value as it would otherwise be read and the number itself.
+  ///
+  /// `(formatted, value, index) => '$formatted%'` reads 40 as "40%", and it
+  /// words the one step either side of it the same way. One thumb at a time,
+  /// which [formatValue] cannot do: that one writes the whole range as the
+  /// single string beside the label. Left out, a value is read with as many
+  /// decimals as [step] has.
+  final String Function(String formatted, double value, int index)? semanticValue;
 
   /// Unavailable. The light goes out.
   final bool disabled;
@@ -290,9 +301,9 @@ class _PlSliderState extends State<PlSlider> {
     return _valueAt(_fraction(widget.values[index] + direction * widget.step), index);
   }
 
-  /// A value as a screen reader hears it, with as many decimals as the step
-  /// has: a slider from 0 to 1 in tenths is not read as 0 and 1.
-  String _spoken(double value) {
+  /// A value with as many decimals as the step has: a slider from 0 to 1 in
+  /// tenths is not read as 0 and 1.
+  String _formatted(double value) {
     final String step = widget.step.toString();
     final int dot = step.indexOf('.');
     final int decimals = dot < 0 || step.contains('e')
@@ -300,6 +311,14 @@ class _PlSliderState extends State<PlSlider> {
         : step.substring(dot + 1).replaceFirst(RegExp(r'0+$'), '').length;
 
     return value.toStringAsFixed(decimals);
+  }
+
+  /// A value of thumb [index] as a screen reader hears it: the caller's words
+  /// for it when there are some, and the number otherwise.
+  String _spoken(double value, int index) {
+    final String formatted = _formatted(value);
+
+    return widget.semanticValue?.call(formatted, value, index) ?? formatted;
   }
 
   /// What one thumb says to a screen reader, and the two actions it answers:
@@ -317,9 +336,9 @@ class _PlSliderState extends State<PlSlider> {
       slider: true,
       enabled: !_disabled,
       label: widget.semanticLabel,
-      value: _spoken(value),
-      increasedValue: up == value ? null : _spoken(up),
-      decreasedValue: down == value ? null : _spoken(down),
+      value: _spoken(value, index),
+      increasedValue: up == value ? null : _spoken(up, index),
+      decreasedValue: down == value ? null : _spoken(down, index),
       onIncrease: _disabled || up == value ? null : () => _report(index, up, ended: true),
       onDecrease: _disabled || down == value ? null : () => _report(index, down, ended: true),
       child: child,

@@ -6,6 +6,8 @@
 
 ### Added
 
+- **`PlSlider` takes `semanticValue`, which words each thumb's value for a screen reader.** `formatValue` writes the whole range as one string beside the label and never reached the announced value, so a slider of percentages was read as "40". `semanticValue` is handed the value as it would be read, the number and the thumb's index, and what it returns is what a screen reader says for the value and for a step either side of it, so `(formatted, value, index) => '$formatted%'` reads "40%". It is the counterpart of the React build's `getAriaValueText`, with the same three arguments.
+
 - **`PlFloatingActionButton` takes `readOnly`, `density`, `onLongPress`, `focusNode` and `autofocus`.** It passed on only part of what the `PlButton` it wraps takes, where the React build takes all of it. Each one is handed to the button unchanged. `density` changes the padding only while `extended`, because the disc has no horizontal padding to change.
 
 - **A chart's tooltip takes `PlassChartTooltipMode.nearest`, which answers for the mark the press is nearest rather than for the column it is over.** It is what a `PlScatterChart` has always done, and on a line or an area it is the answer when two series cross and the reader is pressing one of them rather than at the month they share. There is no crosshair with it — a crosshair says "these numbers all belong to this column", and there is no column — and the arrow keys walk mark by mark instead of column by column. It measures to the mark, which on a bar is the bar's data end, and it reads a stacked series where the band was actually drawn rather than at its bare value.

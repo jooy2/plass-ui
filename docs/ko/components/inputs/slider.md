@@ -218,7 +218,7 @@ thumb끼리 교차하지 않습니다. 값은 양옆 이웃 사이에 붙들리�
 
 ::: fw flutter
 
-- 슬라이더로 알려지고, 현재 값이 `step`의 소수 자릿수에 맞춰 함께 알려집니다. 보이는 `label`이 없다면(여러 개가 늘어선 페이더처럼) `semanticLabel`을 주세요.
+- 슬라이더로 알려지고, 현재 값이 `step`의 소수 자릿수에 맞춰, 또는 `semanticValue`가 thumb마다 준 말("40%" 같은)로 함께 알려집니다. 보이는 `label`이 없다면(여러 개가 늘어선 페이더처럼) `semanticLabel`을 주세요.
 - 스크린 리더의 조절 동작(VoiceOver와 TalkBack에서 위아래로 쓸기)은 슬라이더를 `step` 하나만큼 움직입니다. 범위 슬라이더는 양 끝이 각각 슬라이더입니다.
 - <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd>가 `step` 하나만큼, <kbd>PageUp</kbd> / <kbd>PageDown</kbd>이 범위의 10분의 1만큼 옮기고, <kbd>Home</kbd>과 <kbd>End</kbd>가 양 끝으로 갑니다.
 - thumb마다 자기 focus stop이 있습니다. range 슬라이더를 조작할 수 있게 하는 것이 이것입니다. <kbd>Tab</kbd>으로 양 끝 사이를 옮깁니다.
@@ -239,6 +239,7 @@ thumb끼리 교차하지 않습니다. 값은 양옆 이웃 사이에 붙들리�
 | boolean이거나 함수인 `showValue` | `showValue`와 `formatValue` | Dart에는 union 타입이 없으니, 숫자를 켜는 것과 무엇을 말할지 정하는 것이 두 파라미터가 됩니다. |
 | `<input type="range">` | 직접 그린 띠와 자체 키 처리 | 키보드를 물려받을 네이티브 range input이 없으므로 키를 여기서 묶습니다. <kbd>Page</kbd>와 <kbd>Home</kbd>/<kbd>End</kbd>를 포함해 같은 조합입니다. |
 | `aria-label` | `semanticLabel` | Flutter의 이름입니다. |
+| `getAriaValueText` | `semanticValue` | Flutter의 이름입니다. 인자 세 개는 같습니다. |
 | 세로 슬라이더 높이를 위한 `className` | `length` | 클래스 목록이 없습니다. 길이는 파라미터입니다. |
 
 :::
