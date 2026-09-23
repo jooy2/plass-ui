@@ -67,7 +67,7 @@ provider의 prop은 그 아래에서 던지는 모든 질문의 기본값입니�
 
 hook이 아니라 `PlConfirmProvider.of(context)`입니다. `PlToastProvider`가 내주는 그 조회이고, 프레임워크 자신의 모양입니다. provider 밖에서는 `null`을 돌려주는 대신 **assert합니다.** React 빌드가 throw하는 그 이유입니다.
 
-`initialFocus`는 문자열이 아니라 `PlConfirmFocus`를 받습니다. 걱정할 `dismissible: false` 차이는 없습니다. 바깥 누름과 ×가 같은 경로로 보고됩니다.
+`initialFocus`는 문자열이 아니라 `PlConfirmFocus`를 받습니다. `dismissible`은 React처럼 기본으로 켜져 있습니다. 바깥 누름과 Escape는 **아니오**로 답하고, Cancel이 없는 `alert`도 둘 중 어느 쪽으로든 닫히며 버튼을 눌렀을 때처럼 완료됩니다. 시트에 ×는 그려지지 않습니다.
 
 :::
 

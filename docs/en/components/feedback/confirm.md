@@ -67,7 +67,7 @@ The provider's props are defaults for every question asked under it. A single ca
 
 `PlConfirmProvider.of(context)` rather than a hook, the same lookup `PlToastProvider` offers, and the framework's own shape for this. It **asserts** outside a provider rather than returning `null`, for the reason the React build throws.
 
-`initialFocus` takes a `PlConfirmFocus` rather than a string. There is no `dismissible: false` equivalent to worry about: a press outside and the × both report through the same path.
+`initialFocus` takes a `PlConfirmFocus` rather than a string. `dismissible` is on by default, as in React: a press outside and Escape answer **no**, and an `alert`, which has no Cancel, closes on either of them too and completes as its button would. The sheet draws no ×.
 
 :::
 
