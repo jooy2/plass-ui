@@ -255,6 +255,82 @@ void main() {
 
         expect(pressed, 1);
       });
+
+      testWidgets('hands a long press on, in both forms', (WidgetTester tester) async {
+        int held = 0;
+
+        for (final bool extended in <bool>[false, true]) {
+          await _pump(
+            tester,
+            PlFloatingActionButton(
+              extended: extended,
+              icon: const _Glyph(),
+              label: 'New',
+              onPressed: () {},
+              onLongPress: () => held += 1,
+            ),
+          );
+
+          await tester.longPress(find.byType(PlButton));
+        }
+
+        expect(held, 2);
+      });
+
+      testWidgets('stops the press but keeps the focus when read-only, in both forms', (
+        WidgetTester tester,
+      ) async {
+        int pressed = 0;
+
+        for (final bool extended in <bool>[false, true]) {
+          final FocusNode node = FocusNode();
+          addTearDown(node.dispose);
+
+          await _pump(
+            tester,
+            PlFloatingActionButton(
+              extended: extended,
+              readOnly: true,
+              focusNode: node,
+              autofocus: true,
+              icon: const _Glyph(),
+              label: 'New',
+              onPressed: () => pressed += 1,
+            ),
+          );
+
+          await tester.tap(find.byType(PlButton));
+
+          // Inert but not gone: the action exists, and a keyboard reader still
+          // lands on it, which is the whole difference from `disabled`.
+          expect(node.hasFocus, isTrue);
+        }
+
+        expect(pressed, 0);
+      });
+
+      testWidgets('changes its padding with density once it is extended', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          const PlFloatingActionButton(extended: true, icon: _Glyph(), label: 'New'),
+        );
+        final double standard = tester.getSize(find.byType(PlButton)).width;
+
+        await _pump(
+          tester,
+          const PlFloatingActionButton(
+            extended: true,
+            density: PlassDensity.compact,
+            icon: _Glyph(),
+            label: 'New',
+          ),
+        );
+
+        // `lg`, the floating default: 24px each side against 14px.
+        expect(standard - tester.getSize(find.byType(PlButton)).width, 20);
+      });
     });
   });
 }

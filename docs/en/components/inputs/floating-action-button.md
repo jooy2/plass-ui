@@ -45,9 +45,11 @@ Everything a [`PlButton`](./button) takes, it takes: the three materials, the el
 
 ::: fw flutter
 
-It takes part of what a [`PlButton`](./button) takes: the three materials, the elevation ladder, the pointer light, `color`, `loading` and `disabled`. There is no `readOnly`, `density`, `onLongPress`, `focusNode` or `autofocus`.
+It takes the parts of a [`PlButton`](./button) a floating button uses: the three materials, the elevation ladder, the pointer light, `color`, `loading`, `readOnly` and `disabled`, and `onLongPress`, `focusNode` and `autofocus`.
 
 :::
+
+`density` changes the padding only while `extended`. The disc has no horizontal padding to change.
 
 What the shared axes mean is in [prop conventions](../../design/prop-conventions).
 

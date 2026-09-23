@@ -45,9 +45,11 @@ PlFloatingActionButton(
 
 ::: fw flutter
 
-[`PlButton`](./button)이 받는 것 중 일부를 받습니다. 세 가지 재질, elevation 사다리, 포인터 빛, `color`, `loading`, `disabled`입니다. `readOnly`, `density`, `onLongPress`, `focusNode`, `autofocus`는 없습니다.
+[`PlButton`](./button)이 받는 것 중 떠 있는 버튼이 쓰는 것을 받습니다. 세 가지 재질, elevation 사다리, 포인터 빛, `color`, `loading`, `readOnly`, `disabled`, 그리고 `onLongPress`, `focusNode`, `autofocus`입니다.
 
 :::
+
+`density`는 `extended`일 때만 여백을 바꿉니다. 원판에는 바꿀 가로 여백이 없습니다.
 
 공유 축이 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
 

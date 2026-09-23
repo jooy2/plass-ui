@@ -3324,6 +3324,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'What pressing it does. Leaving it null disables the button'
       }
     },
+    {
+      name: 'onLongPress',
+      type: 'VoidCallback?',
+      description: {
+        ko: '길게 눌렀을 때. 웹의 contextmenu에 대응하는 자리',
+        en: 'Called on a long press — the touch equivalent of a context menu'
+      }
+    },
     from('PlFloatingActionButton', 'extended', { type: 'bool', default: 'false' }),
     from('PlFloatingActionButton', 'corner', {
       type: 'PlassCorner',
@@ -3334,9 +3342,35 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlFloatingActionButton', 'variant', { type: VARIANT, default: 'PlassVariant.solid' }),
     from('PlFloatingActionButton', 'size', { type: `${SIZE}?`, default: 'PlassSize.lg' }),
     from('PlFloatingActionButton', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    from('PlButton', 'density', {
+      type: `${DENSITY}?`,
+      default: 'PlassDensity.standard',
+      description: {
+        ko: '여백만 바꾸고, extended일 때만 효과가 있습니다. 원판에는 바꿀 가로 여백이 없습니다',
+        en: 'Padding only, and only while extended. The disc has no horizontal padding to change'
+      }
+    }),
     from('PlFloatingActionButton', 'elevation', { type: 'int', default: '3' }),
     from('PlFloatingActionButton', 'loading', { type: 'bool', default: 'false' }),
-    from('PlFloatingActionButton', 'disabled', { type: 'bool?', default: 'false' })
+    from('PlButton', 'readOnly', { type: 'bool', default: 'false' }),
+    from('PlFloatingActionButton', 'disabled', { type: 'bool?', default: 'false' }),
+    {
+      name: 'focusNode',
+      type: 'FocusNode?',
+      description: {
+        ko: '포커스를 밖에서 제어할 때 넘깁니다. 없으면 버튼이 스스로 하나 만듭니다',
+        en: 'Drive focus from outside. Left out, the button owns one of its own'
+      }
+    },
+    {
+      name: 'autofocus',
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '화면에 올라오면서 포커스를 가져갑니다',
+        en: 'Takes focus as it is inserted into the tree'
+      }
+    }
   ],
 
   PlFooter: [

@@ -23,8 +23,8 @@ const double _defaultOffset = 24;
 ///
 /// It is a [PlButton] in a corner, and everything that makes it one is the
 /// button's: the three materials, the elevation ladder, the pointer light,
-/// `loading` and `disabled`. What this adds is the **pinning**, the shape, and
-/// one rule.
+/// `loading`, `readOnly` and `disabled`. What this adds is the **pinning**, the
+/// shape, and one rule.
 ///
 /// **[label] is required and is always the accessible name.** A floating button
 /// is a disc with a mark in it nine times out of ten, and [extended] decides
@@ -47,6 +47,7 @@ class PlFloatingActionButton extends StatelessWidget {
     required this.icon,
     required this.label,
     this.onPressed,
+    this.onLongPress,
     this.extended = false,
     this.corner = PlassCorner.bottomEnd,
     this.offset = _defaultOffset,
@@ -54,9 +55,13 @@ class PlFloatingActionButton extends StatelessWidget {
     this.variant = PlassVariant.solid,
     this.size,
     this.color,
+    this.density,
     this.elevation = 3,
     this.loading = false,
+    this.readOnly = false,
     this.disabled,
+    this.focusNode,
+    this.autofocus = false,
     super.key,
   });
 
@@ -69,6 +74,9 @@ class PlFloatingActionButton extends StatelessWidget {
 
   /// What pressing it does. Leaving it `null` disables the button.
   final VoidCallback? onPressed;
+
+  /// Called on a long press — the touch equivalent of a context menu.
+  final VoidCallback? onLongPress;
 
   /// Draws the label beside the glyph.
   ///
@@ -104,6 +112,13 @@ class PlFloatingActionButton extends StatelessWidget {
   /// The family it takes.
   final PlassColor? color;
 
+  /// Changes horizontal padding and nothing else, and only while [extended].
+  ///
+  /// The disc has no horizontal padding to change — its glyph sits in a square
+  /// — so [PlIconButton] takes no density, and on the icon-only form this does
+  /// nothing.
+  final PlassDensity? density;
+
   /// How far off the screen. `3` — the top of the ladder — and unlike every
   /// other default in the package it is not a compromise: this is the one
   /// control that genuinely floats over the content rather than resting on it.
@@ -112,8 +127,18 @@ class PlFloatingActionButton extends StatelessWidget {
   /// Swaps the glyph for a spinner and stops the press.
   final bool loading;
 
+  /// Inert but not dimmed — the action exists, it just is not available here.
+  /// Unlike [disabled] it stays in the focus order.
+  final bool readOnly;
+
   /// Greys it out and stops the press, keeping it where it is.
   final bool? disabled;
+
+  /// Drive focus from outside. Left out, the button owns one of its own.
+  final FocusNode? focusNode;
+
+  /// Takes focus as it is inserted into the tree.
+  final bool autofocus;
 
   @override
   Widget build(BuildContext context) {
@@ -122,12 +147,17 @@ class PlFloatingActionButton extends StatelessWidget {
     final Widget button = extended
         ? PlButton(
             onPressed: onPressed,
+            onLongPress: onLongPress,
             variant: variant,
             size: size,
             color: color,
+            density: density,
             elevation: elevation,
             loading: loading,
+            readOnly: readOnly,
             disabled: disabled,
+            focusNode: focusNode,
+            autofocus: autofocus,
             startIcon: icon,
             // The words on the key are its name already. A `semanticLabel` as
             // well would be merged with them and read twice.
@@ -137,12 +167,16 @@ class PlFloatingActionButton extends StatelessWidget {
             icon: icon,
             label: label,
             onPressed: onPressed,
+            onLongPress: onLongPress,
             variant: variant,
             size: size,
             color: color,
             elevation: elevation,
             loading: loading,
+            readOnly: readOnly,
             disabled: disabled,
+            focusNode: focusNode,
+            autofocus: autofocus,
           );
 
     if (!floating) {
