@@ -105,6 +105,7 @@ export const fr: PlassLabels = {
   removeItem: (name) => `Retirer ${name}`,
   addCustom: (query) => `Ajouter « ${query} »`,
   otpSlot: (index, count) => `Caractère ${index} sur ${count}`,
+  transferSelectAll: (list) => `Tout sélectionner dans « ${list} »`,
   transferMoved: (count, list) =>
     `${count} ${count === 1 ? 'élément déplacé' : 'éléments déplacés'} vers « ${list} »`,
   filesRejectedType: (count) =>

@@ -104,6 +104,7 @@ const PlassLabels fr = PlassLabels(
   removeItem: _removeItem,
   addCustom: _addCustom,
   howToStep: _howToStep,
+  transferSelectAll: _transferSelectAll,
   transferMoved: _transferMoved,
   filesRejectedType: _filesRejectedType,
   filesRejectedSize: _filesRejectedSize,
@@ -123,6 +124,8 @@ String _removeItem(String name) => 'Retirer $name';
 String _addCustom(String query) => 'Ajouter « $query »';
 
 String _howToStep(int step, int total) => 'Étape $step sur $total';
+
+String _transferSelectAll(String list) => 'Tout sélectionner dans « $list »';
 
 String _transferMoved(int count, String list) {
   return '$count ${count == 1 ? 'élément déplacé' : 'éléments déplacés'} vers « $list »';

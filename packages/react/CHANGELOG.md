@@ -44,6 +44,8 @@
 
 ### Fixed
 
+- **A `PlTransfer` select-all tick is named in the order each language puts it.** "Select all" was put in front of the list's heading in every language, so Korean read "전체 선택 사용 가능". The name now comes from the label pack's new `transferSelectAll`, "Select all in Available" in English, which puts the list's name where its own grammar puts it. A `selectAllLabel` given to the component still goes in front of the heading, as before.
+
 - **A `PlButton`, a `PlIconButton` and a `PlFloatingActionButton` that are `loading` say so after their name.** The button was announced as unavailable with nothing to say why: most screen readers do not read `aria-busy`, and the spinner is hidden from them. It is now described by the label pack's new `loading` key, "Loading" in English, so its name, and an `aria-label` given to it, stays as it was.
 
 - **A `PlTable` wider than its sheet, or taller than its `maxHeight`, can be scrolled from the keyboard.** A table whose cells take no focus left whatever was past the edge out of reach without a pointer. While the grid scrolls, the box it scrolls in is a tab stop, and with a `caption` it is a group named by it. The measurement is a client module of its own, so `PlTable` can still be rendered by a server component.

@@ -6156,7 +6156,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlTransfer', 'searchable', { type: 'bool', default: 'false' }),
     from('PlTransfer', 'searchLabel', { type: 'String?', default: "'Search'" }),
     from('PlTransfer', 'emptyLabel', { type: 'String?', default: "'Nothing here'" }),
-    from('PlTransfer', 'selectAllLabel', { type: 'String?', default: "'Select all'" }),
+    from('PlTransfer', 'selectAllLabel', { type: 'String?' }),
     from('PlTransfer', 'toTargetLabel', { type: 'String?', default: "'Move to selected'" }),
     from('PlTransfer', 'toSourceLabel', { type: 'String?', default: "'Move to available'" }),
     from('PlTransfer', 'movedLabel', { type: 'String Function(int count, String list)?' }),

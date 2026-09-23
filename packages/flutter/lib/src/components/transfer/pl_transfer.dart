@@ -130,8 +130,10 @@ class PlTransfer extends StatefulWidget {
   /// What a list with nothing in it says.
   final String? emptyLabel;
 
-  /// What the tick in a list's heading is announced as, before the heading
-  /// itself.
+  /// What the tick in a list's heading is announced as, before the name of its
+  /// list, so the two ticks are told apart by ear. Left out, the theme's
+  /// [PlassLabels.transferSelectAll] says the whole sentence and puts the name
+  /// where each language puts it.
   final String? selectAllLabel;
 
   /// What the outward arrow is announced as.
@@ -388,6 +390,7 @@ class _PlTransferState extends State<PlTransfer> {
         Expanded(
           child: _panel(
             title: widget.sourceLabel ?? PlassTheme.labelsOf(context).transferAvailable,
+            fallback: PlassTheme.labelsOf(context).transferAvailable,
             rows: sourceRows,
             controller: _sourceSearch,
             listFocus: _sourceListFocus,
@@ -427,6 +430,7 @@ class _PlTransferState extends State<PlTransfer> {
         Expanded(
           child: _panel(
             title: widget.targetLabel ?? PlassTheme.labelsOf(context).transferSelected,
+            fallback: PlassTheme.labelsOf(context).transferSelected,
             rows: targetRows,
             controller: _targetSearch,
             listFocus: _targetListFocus,
@@ -437,9 +441,27 @@ class _PlTransferState extends State<PlTransfer> {
     );
   }
 
+  /// The heading tick's name for the list called [list].
+  ///
+  /// A caller's [PlTransfer.selectAllLabel] goes before the name, which is what
+  /// it has always meant; the theme's sentence places the name itself.
+  String _selectAllName(String list) {
+    final String? words = widget.selectAllLabel;
+
+    if (words == null) {
+      return PlassTheme.labelsOf(context).transferSelectAll(list);
+    }
+
+    return <String>[words, list].where((String part) => part.isNotEmpty).join(' ');
+  }
+
   /// What a caller sees of one side, so the two panels are literally one method.
+  ///
+  /// [fallback] is the theme's name for the list, which the heading tick says
+  /// in place of a [title] with no words in it.
   Widget _panel({
     required String title,
+    required String fallback,
     required List<PlTransferItem> rows,
     required TextEditingController controller,
     required FocusNode listFocus,
@@ -471,12 +493,11 @@ class _PlTransferState extends State<PlTransfer> {
             value: all,
             indeterminate: some,
             disabled: widget.disabled || movable.isEmpty,
-            // The words and then the heading beside them, so the two lists'
-            // ticks are told apart by ear as they are by eye.
-            semanticLabel: <String>[
-              widget.selectAllLabel ?? PlassTheme.labelsOf(context).selectAll,
-              title,
-            ].where((String part) => part.isNotEmpty).join(' '),
+            // One sentence with the list's name in it, so the two lists' ticks
+            // are told apart by ear as they are by eye, and a language puts the
+            // name where its own grammar puts it: Korean and Japanese before the
+            // verb, English after it.
+            semanticLabel: _selectAllName(title.trim().isEmpty ? fallback : title),
             onChanged: (bool next) => onTickAll(next),
           ),
           Expanded(

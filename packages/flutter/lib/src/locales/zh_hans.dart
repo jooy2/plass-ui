@@ -104,6 +104,7 @@ const PlassLabels zhHans = PlassLabels(
   removeItem: _removeItem,
   addCustom: _addCustom,
   howToStep: _howToStep,
+  transferSelectAll: _transferSelectAll,
   transferMoved: _transferMoved,
   filesRejectedType: _filesRejectedType,
   filesRejectedSize: _filesRejectedSize,
@@ -123,6 +124,8 @@ String _removeItem(String name) => '移除$name';
 String _addCustom(String query) => '添加“$query”';
 
 String _howToStep(int step, int total) => '第$step步，共$total步';
+
+String _transferSelectAll(String list) => '全选“$list”';
 
 String _transferMoved(int count, String list) {
   return '已将$count项移到“$list”';

@@ -105,6 +105,7 @@ export const ja: PlassLabels = {
   removeItem: (name) => `${name}を削除`,
   addCustom: (query) => `「${query}」を追加`,
   otpSlot: (index, count) => `${count}桁中${index}桁目`,
+  transferSelectAll: (list) => `「${list}」をすべて選択`,
   transferMoved: (count, list) => `${count}件を「${list}」に移動しました`,
   filesRejectedType: (count) => `${count}件は受け付けられない種類です`,
   filesRejectedSize: (count) => `${count}件は大きすぎます`,

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlTransfer, PlassProvider, type PlTransferItem } from 'plass-ui';
+import { ko } from '../../../src/locales/ko.js';
 
 const items: PlTransferItem[] = [
   { value: 'name', label: 'Name' },
@@ -246,7 +247,7 @@ describe('PlTransfer', () => {
     it('ticks every movable row in its own list', async () => {
       const screen = await render(<PlTransfer items={items} />);
 
-      press(screen.getByRole('checkbox', { name: 'Select all Available' }).element());
+      press(screen.getByRole('checkbox', { name: 'Select all in Available' }).element());
 
       // Three movable rows; the disabled one is not one of them.
       await expect.element(screen.getByText('3/4')).toBeVisible();
@@ -255,37 +256,64 @@ describe('PlTransfer', () => {
     it('is disabled when its list has nothing movable in it', async () => {
       const screen = await render(<PlTransfer items={[]} />);
 
-      for (const name of ['Select all Available', 'Select all Selected']) {
+      for (const name of ['Select all in Available', 'Select all in Selected']) {
         expect(screen.getByRole('checkbox', { name }).element()).toHaveAttribute('data-disabled');
       }
     });
 
-    it("is named by the words and then by its own list's heading", async () => {
+    it("is named by a sentence with its own list's heading in it", async () => {
       const screen = await render(<PlTransfer items={items} />);
 
       await expect
-        .element(screen.getByRole('checkbox', { name: 'Select all Available' }))
+        .element(screen.getByRole('checkbox', { name: 'Select all in Available' }))
         .toBeInTheDocument();
       await expect
-        .element(screen.getByRole('checkbox', { name: 'Select all Selected' }))
+        .element(screen.getByRole('checkbox', { name: 'Select all in Selected' }))
         .toBeInTheDocument();
     });
 
-    it('takes its words from `selectAllLabel` and its heading from a node as well as a string', async () => {
+    it('puts `selectAllLabel` before a heading that is a node as well as a string', async () => {
       const screen = await render(
         <PlTransfer
           items={items}
-          selectAllLabel="Tick all"
+          selectAllLabel="Tick all of"
           sourceLabel="Columns"
           targetLabel={<strong>Shown</strong>}
         />
       );
 
       await expect
-        .element(screen.getByRole('checkbox', { name: 'Tick all Columns' }))
+        .element(screen.getByRole('checkbox', { name: 'Tick all of Columns' }))
         .toBeInTheDocument();
       await expect
-        .element(screen.getByRole('checkbox', { name: 'Tick all Shown' }))
+        .element(screen.getByRole('checkbox', { name: 'Tick all of Shown' }))
+        .toBeInTheDocument();
+    });
+
+    it("lets the label pack put the list's name where its language puts it", async () => {
+      const screen = await render(
+        <PlassProvider labels={ko}>
+          <PlTransfer items={items} />
+        </PlassProvider>
+      );
+
+      // Korean says the list before the verb. Joining the pack's `selectAll`
+      // and the heading used to read "전체 선택 사용 가능".
+      await expect
+        .element(screen.getByRole('checkbox', { name: '‘사용 가능’ 목록 전체 선택' }))
+        .toBeInTheDocument();
+      await expect
+        .element(screen.getByRole('checkbox', { name: '‘선택됨’ 목록 전체 선택' }))
+        .toBeInTheDocument();
+    });
+
+    it("calls a heading with no words by the pack's name for its list", async () => {
+      const screen = await render(
+        <PlTransfer items={items} targetLabel={<svg aria-hidden="true" data-testid="mark" />} />
+      );
+
+      await expect
+        .element(screen.getByRole('checkbox', { name: 'Select all in Selected' }))
         .toBeInTheDocument();
     });
   });

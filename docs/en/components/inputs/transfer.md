@@ -165,7 +165,7 @@ Pass `value` with `onValueChange`. The value is the list of `value`s on the trai
 ## Accessibility
 
 - Every row is a real [`PlCheckbox`](./checkbox) with the row's label as its name, so a screen reader reads the list as the list of checkboxes it is.
-- The tick in each heading is a checkbox too, named by `selectAllLabel` followed by its list's heading, "Select all Available", so the two ticks are told apart by ear. It reports `indeterminate` when only some of its list is ticked.
+- The tick in each heading is a checkbox too, named by one sentence with its list's heading in it, "Select all in Available", so the two ticks are told apart by ear. The sentence is the label pack's `transferSelectAll`, which puts the heading where each language puts it, and a `selectAllLabel` given to the component is put before the heading instead. It reports `indeterminate` when only some of its list is ticked.
 - The two arrows are [`PlIconButton`](./icon-button)s with real names, and they are disabled until a press would actually move something. The state a reader can see, made available to one who cannot.
 - Each list has its own count (`ticked/total`) beside its heading, which is the answer to "how much did I just select" without counting rows.
 - The lists scroll on their own and hold their scroll position, so moving a row does not throw a reader back to the top.

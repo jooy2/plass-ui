@@ -12318,10 +12318,10 @@ export const propTables: Record<string, PropRow[]> = {
     {
       name: 'selectAllLabel',
       type: 'string',
-      default: "'Select all'",
+      default: '`Select all in {list}`',
       description: {
-        ko: '목록 제목의 체크박스 이름에서 제목 앞에 오는 말',
-        en: "What the tick in a list's heading is announced as, before the heading itself"
+        ko: '목록 제목의 체크박스 이름에서 목록 이름 앞에 오는 말. 주지 않으면 라벨 묶음의 `transferSelectAll`이 문장 전체를 말하고, 목록 이름을 언어마다 두는 자리에 둡니다',
+        en: "What the tick in a list's heading is announced as, before the name of its list. Left out, the label pack's `transferSelectAll` says the whole sentence and puts the name where each language puts it"
       }
     },
     {

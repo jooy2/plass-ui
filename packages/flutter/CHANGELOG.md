@@ -46,6 +46,8 @@
 
 ### Fixed
 
+- **A `PlTransfer` select-all tick is named in the order each language puts it.** "Select all" was put in front of the list's heading in every language, so Korean read "전체 선택 사용 가능". The name now comes from the label pack's new `transferSelectAll`, "Select all in Available" in English, which puts the list's name where its own grammar puts it. A `selectAllLabel` given to the component still goes in front of the heading, as before.
+
 - **A `PlButton`, a `PlIconButton` and a `PlFloatingActionButton` that are `loading` say so after their name.** A loading button was announced as unavailable, the same as a `readOnly` one, with nothing to say why. Its semantics now carry the new `loading` label, "Loading" in English, as a hint, so its name stays as it was.
 
 - **`PlCodeBlock` names an aliased language the way the React build does.** `ts` was drawn on the bar as `TS` and read out as `ts`, where React says `typescript`. The common spellings and file extensions React understands (`ts`, `tsx`, `yml`, `sh`, `py` and the rest) now resolve to the same names here, from a copy of that table a test holds in step with it.

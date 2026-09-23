@@ -104,6 +104,7 @@ const PlassLabels ko = PlassLabels(
   removeItem: _removeItem,
   addCustom: _addCustom,
   howToStep: _howToStep,
+  transferSelectAll: _transferSelectAll,
   transferMoved: _transferMoved,
   filesRejectedType: _filesRejectedType,
   filesRejectedSize: _filesRejectedSize,
@@ -123,6 +124,8 @@ String _removeItem(String name) => '$name 삭제';
 String _addCustom(String query) => '“$query” 추가';
 
 String _howToStep(int step, int total) => '$total단계 중 $step단계';
+
+String _transferSelectAll(String list) => '‘$list’ 목록 전체 선택';
 
 String _transferMoved(int count, String list) {
   return '‘$list’ 목록으로 $count개를 옮겼습니다';

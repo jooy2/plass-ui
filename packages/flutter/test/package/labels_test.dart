@@ -131,6 +131,7 @@ Map<String, String> words(PlassLabels labels) => <String, String>{
   'removeItem': labels.removeItem('notes.txt'),
   'addCustom': labels.addCustom('Seoul'),
   'howToStep': labels.howToStep(2, 5),
+  'transferSelectAll': labels.transferSelectAll('Selected'),
   'transferMoved': labels.transferMoved(3, 'Selected'),
   'filesRejectedType': labels.filesRejectedType(2),
   'filesRejectedSize': labels.filesRejectedSize(2),

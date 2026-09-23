@@ -394,6 +394,7 @@ class PlassLabels {
     this.removeItem = _englishRemoveItem,
     this.addCustom = _englishAddCustom,
     this.howToStep = _englishHowToStep,
+    this.transferSelectAll = _englishTransferSelectAll,
     this.transferMoved = _englishTransferMoved,
     this.filesRejectedType = _englishFilesRejectedType,
     this.filesRejectedSize = _englishFilesRejectedSize,
@@ -507,6 +508,7 @@ class PlassLabels {
     String Function(String name)? removeItem,
     String Function(String query)? addCustom,
     String Function(int step, int total)? howToStep,
+    String Function(String list)? transferSelectAll,
     String Function(int count, String list)? transferMoved,
     String Function(int count)? filesRejectedType,
     String Function(int count)? filesRejectedSize,
@@ -612,6 +614,7 @@ class PlassLabels {
       removeItem: removeItem ?? this.removeItem,
       addCustom: addCustom ?? this.addCustom,
       howToStep: howToStep ?? this.howToStep,
+      transferSelectAll: transferSelectAll ?? this.transferSelectAll,
       transferMoved: transferMoved ?? this.transferMoved,
       filesRejectedType: filesRejectedType ?? this.filesRejectedType,
       filesRejectedSize: filesRejectedSize ?? this.filesRejectedSize,
@@ -944,6 +947,9 @@ class PlassLabels {
   /// reader's own language, and Flutter has no ordered list to inherit it from.
   final String Function(int step, int total) howToStep;
 
+  /// The tick over one of a transfer's lists, given the name of the list.
+  final String Function(String list) transferSelectAll;
+
   /// What a transfer announces once rows have moved, given how many and the
   /// name of the list they went to.
   final String Function(int count, String list) transferMoved;
@@ -1092,6 +1098,7 @@ class PlassLabels {
     removeItem,
     addCustom,
     howToStep,
+    transferSelectAll,
     transferMoved,
     filesRejectedType,
     filesRejectedSize,
@@ -1132,6 +1139,8 @@ String _englishRemoveItem(String name) => 'Remove $name';
 String _englishAddCustom(String query) => 'Add “$query”';
 
 String _englishHowToStep(int step, int total) => 'Step $step of $total';
+
+String _englishTransferSelectAll(String list) => 'Select all in $list';
 
 String _englishTransferMoved(int count, String list) {
   return '$count ${count == 1 ? 'item' : 'items'} moved to $list';

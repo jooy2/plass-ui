@@ -8,6 +8,7 @@ import { PlIconButton } from '../icon-button/PlIconButton.js';
 import { PlTextField } from '../text-field/PlTextField.js';
 import { ArrowRightIcon } from '../../internal/icons.js';
 import { searchText } from '../../internal/search.js';
+import { textOf } from '../../internal/text.js';
 import {
   cx,
   fieldRestClasses,
@@ -53,8 +54,11 @@ export interface PlTransferProps
   /** What a list with nothing in it says. @default 'Nothing here' */
   emptyLabel?: string;
   /**
-   * What the tick in a list's heading is announced as, before the heading itself.
-   * @default 'Select all'
+   * What the tick in a list's heading is announced as, before the name of its
+   * list, so the two ticks are told apart by ear. Left out, the label pack's
+   * `transferSelectAll` says the whole sentence and puts the name where each
+   * language puts it.
+   * @default `Select all in {list}`, from the label pack
    */
   selectAllLabel?: string;
   /** What the two arrows are announced as. */
@@ -105,7 +109,8 @@ interface PanelProps {
   height: string | undefined;
   emptyLabel: string;
   searchLabel: string;
-  selectAllLabel: string;
+  /** The heading tick's whole name, which already says which list it is over. */
+  selectAllName: string;
   style: Required<Pick<PlassStyleProps, 'variant' | 'size' | 'color' | 'density'>>;
   /** The heading's id, which names the list. */
   titleId: string;
@@ -128,7 +133,7 @@ function Panel({
   height,
   emptyLabel,
   searchLabel,
-  selectAllLabel,
+  selectAllName,
   style,
   titleId,
   listRef,
@@ -157,15 +162,11 @@ function Panel({
           checked={all}
           indeterminate={some}
           disabled={disabled || movable.length === 0}
-          // The words and then the heading beside them, so the two lists'
-          // ticks are told apart by ear as they are by eye. A reference rather
-          // than a string, because the heading may be a node.
-          aria-labelledby={`${titleId}-all ${titleId}`}
+          // One sentence with the list's name in it, so the two lists' ticks
+          // are told apart by ear as they are by eye. See `nameOf`.
+          aria-label={selectAllName}
           onCheckedChange={(next) => onTickAll(next === true)}
         />
-        <span id={`${titleId}-all`} hidden>
-          {selectAllLabel}
-        </span>
         <span
           id={titleId}
           className={cx('min-w-0 flex-1 truncate font-medium', metaTextClasses[size])}
@@ -236,6 +237,21 @@ function Panel({
 }
 
 /**
+ * A heading as words a sentence can hold.
+ *
+ * The label pack says the heading tick's name as one sentence with the list's
+ * name in it, so that a language can put the name where its own grammar puts
+ * it — Korean and Japanese before the verb, English after it. A sentence takes
+ * a string and a heading may be a node, so the node is read for its text, and
+ * one with none, such as a lone icon, is called by the pack's name for the list.
+ */
+function nameOf(heading: React.ReactNode, fallback: string): string {
+  const text = textOf(heading).trim();
+
+  return text === '' ? fallback : text;
+}
+
+/**
  * One side's rows, narrowed by what was typed at that side's box.
  *
  * The fold is `searchText`, the same one a `PlCommandPalette` uses, so `cafe`
@@ -301,7 +317,12 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
     const targetLabel = targetLabelProp ?? labels.transferSelected;
     const searchLabel = searchLabelProp ?? labels.search;
     const emptyLabel = emptyLabelProp ?? labels.empty;
-    const selectAllLabel = selectAllLabelProp ?? labels.selectAll;
+    // A caller's words go before the name, which is what `selectAllLabel` has
+    // always meant; the pack's sentence places the name itself.
+    const selectAllLabel =
+      selectAllLabelProp === undefined
+        ? labels.transferSelectAll
+        : (list: string) => [selectAllLabelProp, list].filter(Boolean).join(' ');
     const toTargetLabel = toTargetLabelProp ?? labels.transferToSelected;
     const toSourceLabel = toSourceLabelProp ?? labels.transferToAvailable;
     const movedLabel = movedLabelProp ?? labels.transferMoved;
@@ -459,6 +480,8 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
     const listHeight = toLength(height);
 
     const panelStyle = { variant, size, color, density };
+    const sourceTitle = hasContent(sourceLabel) ? sourceLabel : labels.transferAvailable;
+    const targetTitle = hasContent(targetLabel) ? targetLabel : labels.transferSelected;
     const arrowVariant: PlassVariant = variant === 'ghost' ? 'ghost' : 'glass';
 
     return (
@@ -472,7 +495,7 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
         {...props}
       >
         <Panel
-          title={hasContent(sourceLabel) ? sourceLabel : labels.transferAvailable}
+          title={sourceTitle}
           titleId={`${baseId}-source`}
           listRef={sourceListRef}
           rowRef={rowRef}
@@ -487,7 +510,7 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
           height={listHeight}
           emptyLabel={emptyLabel}
           searchLabel={searchLabel}
-          selectAllLabel={selectAllLabel}
+          selectAllName={selectAllLabel(nameOf(sourceTitle, labels.transferAvailable))}
           style={panelStyle}
         />
 
@@ -526,7 +549,7 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
         </div>
 
         <Panel
-          title={hasContent(targetLabel) ? targetLabel : labels.transferSelected}
+          title={targetTitle}
           titleId={`${baseId}-target`}
           listRef={targetListRef}
           rowRef={rowRef}
@@ -541,7 +564,7 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
           height={listHeight}
           emptyLabel={emptyLabel}
           searchLabel={searchLabel}
-          selectAllLabel={selectAllLabel}
+          selectAllName={selectAllLabel(nameOf(targetTitle, labels.transferSelected))}
           style={panelStyle}
         />
 

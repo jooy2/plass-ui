@@ -237,6 +237,8 @@ export interface PlassLabels {
   addCustom: (query: string) => string;
   /** One slot of a code field, named by its place in the row. */
   otpSlot: (index: number, count: number) => string;
+  /** The tick over one of a transfer's lists, given the name of the list. */
+  transferSelectAll: (list: string) => string;
   /** What a transfer says once rows have moved, given how many and the list. */
   transferMoved: (count: number, list: string) => string;
   /**
@@ -365,6 +367,7 @@ export const defaultLabels: PlassLabels = {
   removeItem: (name) => `Remove ${name}`,
   addCustom: (query) => `Add “${query}”`,
   otpSlot: (index, count) => `Character ${index} of ${count}`,
+  transferSelectAll: (list) => `Select all in ${list}`,
   transferMoved: (count, list) => `${count} ${count === 1 ? 'item' : 'items'} moved to ${list}`,
   filesRejectedType: (count) =>
     `${count} ${count === 1 ? 'file is' : 'files are'} not an accepted type`,

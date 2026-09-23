@@ -105,6 +105,7 @@ export const ko: PlassLabels = {
   removeItem: (name) => `${name} 삭제`,
   addCustom: (query) => `“${query}” 추가`,
   otpSlot: (index, count) => `${count}자리 중 ${index}번째`,
+  transferSelectAll: (list) => `‘${list}’ 목록 전체 선택`,
   transferMoved: (count, list) => `‘${list}’ 목록으로 ${count}개를 옮겼습니다`,
   filesRejectedType: (count) => `${count}개는 받지 않는 형식입니다`,
   filesRejectedSize: (count) => `${count}개는 너무 큽니다`,

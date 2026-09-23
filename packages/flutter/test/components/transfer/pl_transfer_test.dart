@@ -1,6 +1,7 @@
 import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:plass_ui/locales.dart';
 import 'package:plass_ui/plass_ui.dart';
 
 import 'package:plass_ui/src/internal/icons.dart';
@@ -322,32 +323,30 @@ void main() {
           host(const PlTransfer(items: items, height: 160), width: 700, height: 400),
         );
 
-        await tester.tap(find.bySemanticsLabel('Select all Available'));
+        await tester.tap(find.bySemanticsLabel('Select all in Available'));
         await tester.pumpAndSettle();
 
         // Three movable rows; the disabled one is not one of them.
         expect(find.text('3/4'), findsOneWidget);
       });
 
-      testWidgets("is named by the words and then by its own list's heading", (
+      testWidgets("is named by a sentence with its own list's heading in it", (
         WidgetTester tester,
       ) async {
         await tester.pumpWidget(
           host(const PlTransfer(items: items, height: 160), width: 700, height: 400),
         );
 
-        expect(find.bySemanticsLabel('Select all Available'), findsOneWidget);
-        expect(find.bySemanticsLabel('Select all Selected'), findsOneWidget);
+        expect(find.bySemanticsLabel('Select all in Available'), findsOneWidget);
+        expect(find.bySemanticsLabel('Select all in Selected'), findsOneWidget);
       });
 
-      testWidgets('takes its words from `selectAllLabel` and its heading from the labels', (
-        WidgetTester tester,
-      ) async {
+      testWidgets('puts `selectAllLabel` before the heading', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(
-            const PlTransfer(
+            PlTransfer(
               items: items,
-              selectAllLabel: 'Tick all',
+              selectAllLabel: 'Tick all of',
               sourceLabel: 'Columns',
               targetLabel: 'Shown',
               height: 160,
@@ -357,8 +356,42 @@ void main() {
           ),
         );
 
-        expect(find.bySemanticsLabel('Tick all Columns'), findsOneWidget);
-        expect(find.bySemanticsLabel('Tick all Shown'), findsOneWidget);
+        expect(find.bySemanticsLabel('Tick all of Columns'), findsOneWidget);
+        expect(find.bySemanticsLabel('Tick all of Shown'), findsOneWidget);
+      });
+
+      testWidgets("lets the theme's labels put the list's name where its language puts it", (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            PlassTheme.merge(
+              defaults: const PlassDefaults(labels: ko),
+              child: const PlTransfer(items: items, height: 160),
+            ),
+            width: 700,
+            height: 400,
+          ),
+        );
+
+        // Korean says the list before the verb. Joining the pack's `selectAll`
+        // and the heading used to read "전체 선택 사용 가능".
+        expect(find.bySemanticsLabel('‘사용 가능’ 목록 전체 선택'), findsOneWidget);
+        expect(find.bySemanticsLabel('‘선택됨’ 목록 전체 선택'), findsOneWidget);
+      });
+
+      testWidgets("calls a heading with no words by the theme's name for its list", (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            const PlTransfer(items: items, targetLabel: '', height: 160),
+            width: 700,
+            height: 400,
+          ),
+        );
+
+        expect(find.bySemanticsLabel('Select all in Selected'), findsOneWidget);
       });
     });
 
