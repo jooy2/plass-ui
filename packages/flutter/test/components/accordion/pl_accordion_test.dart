@@ -225,6 +225,49 @@ void main() {
         await tester.tap(find.text('A'));
         expect(next, isNull);
       });
+
+      testWidgets('opens and closes two sections that share a value together', (
+        WidgetTester tester,
+      ) async {
+        var open = <String>{};
+        const shared = <PlAccordionItem<String>>[
+          PlAccordionItem<String>(value: 'faq', title: Text('Delivery'), child: Text('Five days')),
+          PlAccordionItem<String>(value: 'faq', title: Text('Returns'), child: Text('Thirty days')),
+          PlAccordionItem<String>(value: 'other', title: Text('Duties'), child: Text('On arrival')),
+        ];
+
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) => PlAccordion<String>(
+                items: shared,
+                value: open,
+                onChanged: (Set<String> next) => setState(() => open = next),
+              ),
+            ),
+            width: 400,
+          ),
+        );
+
+        // Two siblings keyed by one value used to be a duplicate-key error
+        // before anything was drawn.
+        expect(tester.takeException(), isNull);
+
+        await tester.tap(find.text('Returns'));
+        await tester.pumpAndSettle();
+
+        expect(open, <String>{'faq'});
+        expect(find.text('Five days'), findsOneWidget);
+        expect(find.text('Thirty days'), findsOneWidget);
+        expect(find.text('On arrival'), findsNothing);
+
+        await tester.tap(find.text('Delivery'));
+        await tester.pumpAndSettle();
+
+        expect(open, isEmpty);
+        expect(find.text('Five days'), findsNothing);
+        expect(find.text('Thirty days'), findsNothing);
+      });
     });
 
     group('the action', () {

@@ -97,6 +97,9 @@ class PlAccordionItem<T> {
   });
 
   /// Identifies the section. What [PlAccordion.value] holds.
+  ///
+  /// Two sections with the same value are one as far as [PlAccordion.value] is
+  /// concerned, and open and close together.
   final T value;
 
   /// The heading on the fold.
@@ -262,12 +265,19 @@ class PlAccordion<T> extends StatelessWidget {
       onChanged?.call(next);
     }
 
+    // Two sections may share a value, and then they are one section as far as
+    // `value` is concerned: they open and close together, as they do in the
+    // React build. Their value cannot be their key as well, since two siblings
+    // with one key is an error, so a list with a repeat is keyed by position.
+    final repeats =
+        items.map((PlAccordionItem<T> item) => item.value).toSet().length < items.length;
+
     final sections = <Widget>[
       for (var index = 0; index < items.length; index += 1)
         _Section<T>(
           // A section holds its own fold, so it is kept by the item it draws
-          // rather than by its place in the list.
-          key: ValueKey<T>(items[index].value),
+          // rather than by its place in the list, wherever the values allow it.
+          key: repeats ? ValueKey<int>(index) : ValueKey<T>(items[index].value),
           item: items[index],
           open: value.contains(items[index].value),
           size: size,
