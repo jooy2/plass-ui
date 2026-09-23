@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -164,70 +165,74 @@ void main() {
         );
       }
 
-      testWidgets(
-        'watches the primary controller on a phone',
-        (WidgetTester tester) async {
-          final ScrollController controller = ScrollController();
-          addTearDown(controller.dispose);
+      testWidgets('watches the primary controller on a phone', (WidgetTester tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.android;
 
-          await _pump(tester, primary(controller));
+        final ScrollController controller = ScrollController();
+        addTearDown(controller.dispose);
 
-          expect(tester.takeException(), isNull);
+        await _pump(tester, primary(controller));
 
-          controller.jumpTo(500);
-          await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
 
-          expect(_opacity(tester), equals(1));
-        },
-        variant: TargetPlatformVariant.only(TargetPlatform.android),
-      );
+        controller.jumpTo(500);
+        await tester.pumpAndSettle();
 
-      testWidgets(
-        'says so on desktop, where nothing takes that controller by itself',
-        (WidgetTester tester) async {
-          final ScrollController controller = ScrollController();
-          addTearDown(controller.dispose);
+        expect(_opacity(tester), equals(1));
 
-          await tester.pumpWidget(host(primary(controller), width: 300, height: 400));
+        debugDefaultTargetPlatformOverride = null;
+      });
 
-          // Silent, the list scrolls and the button never appears, because the
-          // list is not attached to the controller the button is watching.
-          final Object? error = tester.takeException();
+      testWidgets('says so on desktop, where nothing takes that controller by itself', (
+        WidgetTester tester,
+      ) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
 
-          expect(error, isA<AssertionError>());
-          expect(error.toString(), contains('`controller`'));
-        },
-        variant: TargetPlatformVariant.only(TargetPlatform.macOS),
-      );
+        final ScrollController controller = ScrollController();
+        addTearDown(controller.dispose);
 
-      testWidgets(
-        'is quiet on desktop when a scroll view takes the primary controller itself',
-        (WidgetTester tester) async {
-          final ScrollController controller = ScrollController();
-          addTearDown(controller.dispose);
+        await tester.pumpWidget(host(primary(controller), width: 300, height: 400));
 
-          await tester.pumpWidget(host(primary(controller, list: true), width: 300, height: 400));
-          await tester.pump();
+        // Silent, the list scrolls and the button never appears, because the
+        // list is not attached to the controller the button is watching.
+        final Object? error = tester.takeException();
 
-          expect(tester.takeException(), isNull);
+        expect(error, isA<AssertionError>());
+        expect(error.toString(), contains('`controller`'));
 
-          controller.jumpTo(500);
-          await tester.pumpAndSettle();
+        debugDefaultTargetPlatformOverride = null;
+      });
 
-          expect(_opacity(tester), equals(1));
-        },
-        variant: TargetPlatformVariant.only(TargetPlatform.macOS),
-      );
+      testWidgets('is quiet on desktop when a scroll view takes the primary controller itself', (
+        WidgetTester tester,
+      ) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
 
-      testWidgets(
-        'is quiet on desktop once it is given one',
-        (WidgetTester tester) async {
-          await _pump(tester, const _Screen());
+        final ScrollController controller = ScrollController();
+        addTearDown(controller.dispose);
 
-          expect(tester.takeException(), isNull);
-        },
-        variant: TargetPlatformVariant.only(TargetPlatform.macOS),
-      );
+        await tester.pumpWidget(host(primary(controller, list: true), width: 300, height: 400));
+        await tester.pump();
+
+        expect(tester.takeException(), isNull);
+
+        controller.jumpTo(500);
+        await tester.pumpAndSettle();
+
+        expect(_opacity(tester), equals(1));
+
+        debugDefaultTargetPlatformOverride = null;
+      });
+
+      testWidgets('is quiet on desktop once it is given one', (WidgetTester tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+
+        await _pump(tester, const _Screen());
+
+        expect(tester.takeException(), isNull);
+
+        debugDefaultTargetPlatformOverride = null;
+      });
     });
 
     group('the name', () {
