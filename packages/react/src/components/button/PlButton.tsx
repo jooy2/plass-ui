@@ -7,7 +7,7 @@ import { useRender } from '@base-ui/react/use-render';
 import { ButtonGroupContext } from '../../internal/button-group.js';
 import { glowPointerMove } from '../../internal/glow.js';
 import { Spinner } from '../../internal/icons.js';
-import { useLabels } from '../../internal/labels.js';
+import { loadingLabel } from '../../internal/loading.js';
 import {
   controlHeightClasses,
   controlSlots,
@@ -214,7 +214,6 @@ export const PlButton = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlBu
      * are the defaults they always were.
      */
     const defaults = useDefaults();
-    const labels = useLabels();
     const loadingId = React.useId();
     const group = React.useContext(ButtonGroupContext);
     const variant = variantProp ?? group?.variant ?? 'solid';
@@ -311,7 +310,7 @@ export const PlButton = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlBu
                 as a second half of the name. */}
             {loading ? (
               <span id={loadingId} hidden>
-                {labels.loading}
+                {defaults.labels?.loading ?? loadingLabel}
               </span>
             ) : null}
           </>

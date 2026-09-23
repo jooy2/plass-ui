@@ -32,6 +32,7 @@
 
 import * as React from 'react';
 import { useDefaults } from './defaults.js';
+import { loadingLabel } from './loading.js';
 
 export interface PlassLabels {
   /* -------------------------------------------------------------------------
@@ -290,7 +291,7 @@ export const defaultLabels: PlassLabels = {
   preview: 'Preview',
   empty: 'Nothing here',
   optional: 'Optional',
-  loading: 'Loading',
+  loading: loadingLabel,
 
   breadcrumb: 'Breadcrumb',
   breadcrumbExpand: 'Show the hidden steps',
