@@ -95,7 +95,9 @@ One thing does **not** change with the theme, and it is deliberate: the colour o
 
 Every widget is exported under a `Pl` prefix. `Button`, `Card` and `Table` are the most-taken identifiers in the ecosystem, and a `Pl` name is also one that survives a language with no import aliasing.
 
-127 of them, and the [React package](https://www.npmjs.com/package/plass-ui) holds the same 127 under the same names. It has three more, `PlFlex`, `PlPortal` and `PlVisuallyHidden`, which answer problems only the DOM has; the Dart answer to each is a line of framework code rather than a widget. Every component has a page of its own with live previews and the full parameter table.
+127 of them, one for each folder in `lib/src/components`, and the [React package](https://www.npmjs.com/package/plass-ui) holds the same 127 under the same names. It has three more, `PlFlex`, `PlPortal` and `PlVisuallyHidden`, which answer problems only the DOM has; the Dart answer to each is a line of framework code rather than a widget. Every component has a page of its own with live previews and the full parameter table.
+
+The list also names `PlToggleGroup`, which is not counted on its own because it shares a folder and a page with `PlToggle`.
 
 ### Charts
 

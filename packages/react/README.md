@@ -120,7 +120,9 @@ One thing does **not** change with the theme, and it is deliberate: the colour o
 
 Every component is exported under a `Pl` prefix. `Button`, `Card` and `Table` are the most-taken identifiers in the ecosystem, and a consumer should not have to alias ours on import.
 
-130 of them. The [Flutter package](https://pub.dev/packages/plass_ui) holds 127 of these under the same names: `PlFlex`, `PlPortal` and `PlVisuallyHidden` answer problems only the DOM has, and `PlContextMenu` is a second trigger onto `PlMenu`'s surface. Every component has a page of its own with live previews and the full props table.
+130 of them, one for each folder in `dist/components`. The [Flutter package](https://pub.dev/packages/plass_ui) holds 127 of these under the same names, and the other three, `PlFlex`, `PlPortal` and `PlVisuallyHidden`, answer problems only the DOM has. Every component has a page of its own with live previews and the full props table.
+
+The list also names two exports that are not counted, because each shares a folder and a page with another component: `PlToggleGroup`, beside `PlToggle`, and `PlContextMenu`, a second trigger onto `PlMenu`'s surface. Flutter has `PlToggleGroup` but not `PlContextMenu`, for a reason of its own: no right-click gesture means the same thing on every platform Flutter runs on, so a Flutter app opens a `PlMenu` from `onLongPress` itself.
 
 ### Charts
 

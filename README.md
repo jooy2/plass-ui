@@ -125,7 +125,9 @@ Every component is exported under a `Pl` prefix. `Button`, `Card` and `Table` ar
 
 The list below is both packages'. The props are the same props under Dart's names, and each component's page says exactly what differs.
 
-A **†** marks the few that are React-only. They are not omissions. Each one answers a problem only the DOM has, and the Dart answer is a line of framework code rather than a component. Their pages say which.
+A **†** marks a name that is React-only. `PlFlex`, `PlPortal` and `PlVisuallyHidden` are the three components React adds. They are not omissions. Each one answers a problem only the DOM has, and the Dart answer is a line of framework code rather than a component. Their pages say which.
+
+The counts at the top of this page are one component per folder. The list also names two exports that are not counted, because each shares a folder and a page with another component: `PlToggleGroup`, beside `PlToggle`, and `PlContextMenu`, a second trigger onto `PlMenu`'s surface. `PlContextMenu` is the fourth **†**, for a reason of its own: no right-click gesture means the same thing on every platform Flutter runs on, so a Flutter app opens a `PlMenu` from `onLongPress` itself.
 
 ### Charts
 
