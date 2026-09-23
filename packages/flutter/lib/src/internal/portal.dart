@@ -82,6 +82,15 @@ class PlassPortal extends StatefulWidget {
 class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStateMixin {
   final OverlayPortalController _portal = OverlayPortalController();
   final FocusScopeNode _scope = FocusScopeNode(debugLabel: 'PlassPortal');
+
+  /// The group the layer's sheets read the backdrop in, which is theirs alone.
+  ///
+  /// An `OverlayPortal` child sits under the widget that opened it, so a
+  /// `BackdropGroup` above that widget would reach the layer too. The layer is
+  /// painted last and over everything, and a key it shared with a sheet on the
+  /// page would hand it the backdrop as it was when that sheet was drawn.
+  final BackdropKey _layer = BackdropKey();
+
   // Overwritten in `build`, which is where the reader's motion preference can
   // be read. The value here is what the first frame would use if it ran before
   // one, so it is the one `build` will set rather than a different number.
@@ -198,11 +207,10 @@ class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStat
 
     if (widget.barrierBlur > 0) {
       // Not `.grouped`, and deliberately. A barrier covers the whole viewport,
-      // so it overlaps every sheet on the page under it; sharing their backdrop
-      // key would blur the page once and show through the barrier as if it had
-      // not been dimmed at all. A `BackdropGroup` is inherited, and an
-      // `OverlayPortal` child sits under the widget that opened it, so this
-      // would otherwise join whatever group the app put around the page.
+      // so it overlaps every sheet on the page under it and the sheet laid over
+      // it; sharing a backdrop key with that sheet would blur the page once,
+      // before the barrier was drawn, and show through the sheet as if the page
+      // had not been dimmed at all. Grouped, it would join `_layer` below.
       backdrop = BackdropFilter(
         filter: ui.ImageFilter.blur(sigmaX: widget.barrierBlur, sigmaY: widget.barrierBlur),
         child: backdrop,
@@ -263,6 +271,9 @@ class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStat
     // without this a reader could still find and press the page under an open
     // modal. Wrapped round the whole layer rather than round the backdrop: inside
     // the layer's own container it would only hide what the layer painted first.
-    return BlockSemantics(blocking: widget.modal && widget.open, child: scoped);
+    return BackdropGroup(
+      backdropKey: _layer,
+      child: BlockSemantics(blocking: widget.modal && widget.open, child: scoped),
+    );
   }
 }

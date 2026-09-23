@@ -183,6 +183,11 @@ class _PlButtonState extends State<PlButton> {
   bool _focusVisible = false;
   Offset? _pointer;
 
+  /// The group a `glass` button's own contents read the backdrop in, for the
+  /// reason `PlassSurfaceBox` gives: anything glass the key holds, such as a
+  /// badge, has to blur the key rather than the page behind it.
+  final BackdropKey _contents = BackdropKey();
+
   /// The run this button is in, or `null`. Read here rather than in `build`
   /// because the resolved values below are wanted by the gesture callbacks too,
   /// and a callback has no build context to ask with.
@@ -399,7 +404,8 @@ class _PlButtonState extends State<PlButton> {
         if (glass)
           Positioned.fill(
             // Grouped for the reason `PlassSurfaceBox` gives: a row of glass
-            // keys under one `BackdropGroup` is one read of the backdrop.
+            // keys under one `BackdropGroup` is one read of the backdrop, and
+            // what the key holds reads it in a group of its own below.
             child: BackdropFilter.grouped(
               filter: ui.ImageFilter.compose(
                 outer: saturationFilter(tokens.saturation),
@@ -444,7 +450,7 @@ class _PlButtonState extends State<PlButton> {
               ),
             ),
           ),
-        content,
+        if (glass) BackdropGroup(backdropKey: _contents, child: content) else content,
         if (_interactive)
           Positioned.fill(
             child: RepaintBoundary(

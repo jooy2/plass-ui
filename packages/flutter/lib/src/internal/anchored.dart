@@ -116,6 +116,13 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
   final OverlayPortalController _portal = OverlayPortalController();
   final GlobalKey _anchorKey = GlobalKey();
   final GlobalKey _popupKey = GlobalKey();
+
+  /// The group the popup's sheet reads the backdrop in, which is its alone, for
+  /// the reason `PlassPortal` gives: the popup is painted over the page, and a
+  /// key it shared with the field it hangs off would hand it the backdrop as it
+  /// was when that field was drawn.
+  final BackdropKey _layer = BackdropKey();
+
   late final AnimationController _fade = AnimationController(
     vsync: this,
     duration: PlassTokens.duration,
@@ -327,26 +334,29 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
     // out **unbounded**, and an unbounded width is not a width. Unpositioned it
     // is measured loosely against the screen, which is the cap it should have —
     // and where it actually lands is the follower's business, not the stack's.
-    return SizedBox.expand(
-      child: Stack(
-        alignment: AlignmentDirectional.topStart,
-        children: <Widget>[
-          // Told about a press outside without taking it. A translucent listener
-          // over an empty box reports the press and then answers that it hit
-          // nothing, so the press goes on to the page under the overlay.
-          if (widget.onDismiss != null)
-            Positioned.fill(
-              child: Listener(
-                behavior: HitTestBehavior.translucent,
-                onPointerDown: (PointerDownEvent event) {
-                  if (widget.open) {
-                    widget.onDismiss!();
-                  }
-                },
+    return BackdropGroup(
+      backdropKey: _layer,
+      child: SizedBox.expand(
+        child: Stack(
+          alignment: AlignmentDirectional.topStart,
+          children: <Widget>[
+            // Told about a press outside without taking it. A translucent listener
+            // over an empty box reports the press and then answers that it hit
+            // nothing, so the press goes on to the page under the overlay.
+            if (widget.onDismiss != null)
+              Positioned.fill(
+                child: Listener(
+                  behavior: HitTestBehavior.translucent,
+                  onPointerDown: (PointerDownEvent event) {
+                    if (widget.open) {
+                      widget.onDismiss!();
+                    }
+                  },
+                ),
               ),
-            ),
-          popup,
-        ],
+            popup,
+          ],
+        ),
       ),
     );
   }

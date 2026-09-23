@@ -240,6 +240,10 @@ class PlTour extends StatefulWidget {
 class _PlTourState extends State<PlTour> with WidgetsBindingObserver {
   final OverlayPortalController _portal = OverlayPortalController();
 
+  /// The group the card reads the backdrop in, which is its alone, for the
+  /// reason `PlassPortal` gives.
+  final BackdropKey _layer = BackdropKey();
+
   /// The card, which takes the focus when the tour opens so that Escape and the
   /// arrow keys reach it. Not a stop of its own: Tab goes on to its buttons.
   final FocusNode _cardFocus = FocusNode(debugLabel: 'PlTour', skipTraversal: true);
@@ -523,7 +527,10 @@ class _PlTourState extends State<PlTour> with WidgetsBindingObserver {
     // own thing, and the screen under it is still there to be reached. A tour
     // that took the route would be a modal, and the reader could not get to the
     // control the tour is telling them about.
-    return Semantics(container: true, explicitChildNodes: true, child: layer);
+    return BackdropGroup(
+      backdropKey: _layer,
+      child: Semantics(container: true, explicitChildNodes: true, child: layer),
+    );
   }
 
   Widget _card({

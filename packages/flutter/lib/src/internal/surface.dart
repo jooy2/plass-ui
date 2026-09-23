@@ -127,7 +127,16 @@ class PlassSurface {
 /// backdrop blur underneath everything, the fill over it, the gloss inside that,
 /// the pointer bloom under the content and the press flash over it — which is
 /// exactly where `::before` and `::after` sit in the CSS.
-class PlassSurfaceBox extends StatelessWidget {
+///
+/// A glass box reads the backdrop in the [BackdropGroup] above it and puts what
+/// it holds in a group of its own. Filters that share a backdrop key share one
+/// read of the backdrop, taken where the first of them is painted, so a glass
+/// field on a glass card that shared the card's key would blur what was behind
+/// the *card*, read before the card was drawn, and show the page through it.
+/// With a group of its own the field reads the card it sits on, the fields on
+/// one card still share that one read, and the card itself still joins
+/// whatever group the app put above it.
+class PlassSurfaceBox extends StatefulWidget {
   /// Creates a painted surface around [child].
   const PlassSurfaceBox({
     required this.surface,
@@ -180,9 +189,27 @@ class PlassSurfaceBox extends StatelessWidget {
   final Duration duration;
 
   @override
+  State<PlassSurfaceBox> createState() => _PlassSurfaceBoxState();
+}
+
+class _PlassSurfaceBoxState extends State<PlassSurfaceBox> {
+  /// The group this box's contents read the backdrop in.
+  ///
+  /// Held for the life of the box rather than made in `build`: a group whose
+  /// key changes tells every filter under it to rebuild, and hands the engine a
+  /// backdrop it has not seen before on every frame.
+  final BackdropKey _contents = BackdropKey();
+
+  @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final motion = animate && !reduceMotion ? duration : Duration.zero;
+    final surface = widget.surface;
+    final borderRadius = widget.borderRadius;
+    final reduceMotion = widget.reduceMotion;
+    final pointer = widget.pointer;
+    final glow = widget.glow;
+    final flash = widget.flash;
+    final motion = widget.animate && !reduceMotion ? widget.duration : Duration.zero;
 
     Widget box = Stack(
       alignment: Alignment.center,
@@ -195,7 +222,9 @@ class PlassSurfaceBox extends StatelessWidget {
             // that group reads the backdrop once instead of once each. Where
             // the group goes is the app's to say — a σ22 read shared between
             // two sheets that overlap shows as one blur across the overlap, and
-            // only the app knows whether its own sheets overlap. See the
+            // only the app knows whether its own sheets overlap. A sheet
+            // *inside* this one is the exception the library can see for
+            // itself, and the group round [child] below is its answer. See the
             // Flutter half of the design language page.
             child: BackdropFilter.grouped(
               filter: ui.ImageFilter.compose(
@@ -228,22 +257,25 @@ class PlassSurfaceBox extends StatelessWidget {
             child: RepaintBoundary(
               child: PlassGlowLayer(
                 pointer: pointer,
-                visible: glowVisible,
-                color: glow!,
+                visible: widget.glowVisible,
+                color: glow,
                 radius: glowRadius,
                 duration: PlassTokens.glowDuration,
                 reduceMotion: reduceMotion,
               ),
             ),
           ),
-        child,
+        if (surface.blur)
+          BackdropGroup(backdropKey: _contents, child: widget.child)
+        else
+          widget.child,
         if (flash != null)
           Positioned.fill(
             child: RepaintBoundary(
               child: PlassGlowLayer(
                 pointer: pointer,
-                visible: flashVisible,
-                color: flash!,
+                visible: widget.flashVisible,
+                color: flash,
                 radius: flashRadius,
                 duration: PlassTokens.flashDuration,
                 curve: PlassTokens.flashEase,

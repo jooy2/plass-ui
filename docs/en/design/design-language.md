@@ -69,7 +69,7 @@ BackdropGroup(
 )
 ```
 
-Where the group goes is yours to decide, because two sheets that overlap must not share one. A row of cards down a list is the case it is for. A sheet **inside** another sheet — a glass field on a glass card — belongs to neither, so put the group around the outer sheets rather than around a tree that nests them. The library keeps a modal's barrier and a tour's dimming out of every group on its own: both cover the screen and overlap everything under them.
+Where the group goes is yours to decide, because two sheets that overlap must not share one. A row of cards down a list is the case it is for. A sheet **inside** another sheet — a glass field on a glass card — is taken care of for you: every glass surface puts what it holds in a group of its own, so the field blurs the card it sits on rather than the page behind the card, and the fields on one card still share one read. A layer that opens over the page, such as a modal, a popover or a select's list, reads the backdrop in a group of its own too. A modal's barrier and a tour's dimming stay out of every group: both cover the screen and overlap everything under them.
 
 :::
 
