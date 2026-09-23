@@ -5,6 +5,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/chart.dart';
 import 'package:plass_ui/src/internal/dismiss.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
@@ -43,12 +44,6 @@ const Map<PlassDensity, Map<PlassSize, double>> _zonePadding =
 
 /// How thick the dashed edge is.
 const double _edgeWidth = 2;
-
-/// How long one dash is, and the gap after it.
-const double _dash = 6;
-
-/// The gap.
-const double _gap = 4;
 
 /// How large the glyph above the title is drawn, against the title.
 const double _glyphScale = 1.8;
@@ -768,10 +763,9 @@ class _PlFilePickerState extends State<PlFilePicker> {
 
 /// The dashed edge round the box.
 ///
-/// Flutter has no dashed border, so the rounded rectangle is walked with
-/// [Path.computeMetrics] and cut into pieces. Which is the honest way round:
-/// a dash pattern is a fact about the *outline*, and the outline is the thing
-/// that knows how long it is.
+/// Flutter has no dashed border, so the rounded rectangle is cut into dashes by
+/// [dashedPath], the one dash loop in the package: a chart's dashed series is
+/// cut by it too, in the same six on and four off.
 class _DashedEdge extends CustomPainter {
   const _DashedEdge({required this.color, required this.radius});
 
@@ -781,20 +775,15 @@ class _DashedEdge extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final outline = Path()..addRRect(radius.toRRect(Offset.zero & size).deflate(_edgeWidth / 2));
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = _edgeWidth
-      ..color = color;
 
-    for (final metric in outline.computeMetrics()) {
-      var at = 0.0;
-
-      while (at < metric.length) {
-        canvas.drawPath(metric.extractPath(at, at + _dash), paint);
-        at += _dash + _gap;
-      }
-    }
+    canvas.drawPath(
+      dashedPath(outline),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round
+        ..strokeWidth = _edgeWidth
+        ..color = color,
+    );
   }
 
   @override

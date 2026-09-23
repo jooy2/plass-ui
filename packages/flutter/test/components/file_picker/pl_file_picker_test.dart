@@ -1,3 +1,5 @@
+import 'dart:ui' show PathMetric;
+
 import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,6 +9,7 @@ import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/notch.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 
+import '../../support/canvas.dart';
 import '../../support/host.dart';
 
 const PlFile _photo = PlFile(name: 'aurora.png', size: 1_400_000, mimeType: 'image/png');
@@ -101,6 +104,48 @@ void main() {
             (Widget widget) => widget is PlassGlyph && widget.shape == PlassGlyphShape.upload,
           ),
           findsOneWidget,
+        );
+      });
+
+      testWidgets('edges the box in dashes, six long with a gap after each', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, const _Harness());
+
+        // Every dash the edge is drawn in, by its length, off the one painter
+        // that draws more than a single stroke.
+        final List<double> dashes = <double>[];
+
+        for (final CustomPaint paint in tester.widgetList<CustomPaint>(
+          find.descendant(of: find.byType(PlFilePicker), matching: find.byType(CustomPaint)),
+        )) {
+          final CustomPainter? painter = paint.foregroundPainter;
+
+          if (painter == null) {
+            continue;
+          }
+
+          final canvas = RecordingCanvas();
+
+          painter.paint(canvas, tester.getSize(find.byWidget(paint)));
+
+          for (int i = 0; i < canvas.paths.length; i += 1) {
+            expect(canvas.paints[i].style, PaintingStyle.stroke);
+
+            for (final PathMetric metric in canvas.paths[i].computeMetrics()) {
+              dashes.add(metric.length);
+            }
+          }
+        }
+
+        // Round a box a few hundred pixels across there are dozens of them, and
+        // every one is a full dash but the one the outline ends on. A dash cut
+        // from a rounded corner is measured along a curve the path only
+        // approximates, so it is six to within a tenth.
+        expect(dashes.length, greaterThan(20));
+        expect(
+          dashes.where((double length) => (length - 6).abs() < 0.1).length,
+          greaterThanOrEqualTo(dashes.length - 1),
         );
       });
 

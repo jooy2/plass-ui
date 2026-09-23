@@ -83,6 +83,11 @@ const double lineDashGap = 4;
 /// [Path.computeMetrics] and rebuilt in pieces. Which is the honest way round:
 /// a dash pattern is a fact about the *outline*, and the outline is the thing
 /// that knows how long it is.
+///
+/// The one dash loop in the package. A dashed series, a reference line, a
+/// dashed series' legend key and the edge round a `PlFilePicker` are all cut
+/// here, so there is one rhythm to a dashed line wherever the library draws
+/// one.
 Path dashedPath(Path path) {
   final Path dashes = Path();
 
