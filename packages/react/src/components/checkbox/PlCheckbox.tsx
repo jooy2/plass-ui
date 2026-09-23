@@ -7,6 +7,7 @@ import { Field } from '@base-ui/react/field';
 import {
   controlSlots,
   cx,
+  fieldDescriptionClasses,
   focusRingClasses,
   forcedCheckedClasses,
   forcedDisabledCheckedClasses,
@@ -283,12 +284,7 @@ export const PlCheckbox = /* @__PURE__ */ React.forwardRef<HTMLElement, PlCheckb
               ) : null}
               {description ? (
                 <Field.Description
-                  className={cx(
-                    'm-0',
-                    metaTextClasses[size],
-                    'text-(--plass-muted-fg)',
-                    classNames?.description
-                  )}
+                  className={cx(fieldDescriptionClasses(size), classNames?.description)}
                 >
                   {description}
                 </Field.Description>

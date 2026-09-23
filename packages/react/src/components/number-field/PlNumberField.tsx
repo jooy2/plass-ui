@@ -14,6 +14,7 @@ import {
   controlTextLeadingClasses,
   cx,
   disabledClasses,
+  fieldDescriptionClasses,
   fieldReadOnlyClasses,
   fieldRestClasses,
   fieldSlots,
@@ -457,14 +458,7 @@ export function PlNumberField({
       </BaseUINumberField.Root>
 
       {description ? (
-        <Field.Description
-          className={cx(
-            'm-0',
-            metaTextClasses[size],
-            'text-(--plass-muted-fg)',
-            classNames?.description
-          )}
-        >
+        <Field.Description className={cx(fieldDescriptionClasses(size), classNames?.description)}>
           {description}
         </Field.Description>
       ) : null}

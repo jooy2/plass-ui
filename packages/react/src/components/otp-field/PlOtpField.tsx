@@ -9,6 +9,7 @@ import { hotKeyHandler } from '../../internal/keys.js';
 import {
   cx,
   disabledClasses,
+  fieldDescriptionClasses,
   fieldReadOnlyClasses,
   fieldRestClasses,
   hasContent,
@@ -372,14 +373,7 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
         ))}
 
         {hasContent(description) ? (
-          <Field.Description
-            className={cx(
-              'm-0',
-              metaTextClasses[size],
-              'text-(--plass-muted-fg)',
-              classNames?.description
-            )}
-          >
+          <Field.Description className={cx(fieldDescriptionClasses(size), classNames?.description)}>
             {description}
           </Field.Description>
         ) : null}

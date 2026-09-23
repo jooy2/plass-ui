@@ -7,6 +7,7 @@ import { Field } from '@base-ui/react/field';
 import {
   controlSlots,
   cx,
+  fieldDescriptionClasses,
   focusRingClasses,
   hasContent,
   metaTextClasses,
@@ -255,12 +256,7 @@ export const PlSwitch = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSwitchPr
           ) : null}
           {description ? (
             <Field.Description
-              className={cx(
-                'm-0',
-                metaTextClasses[size],
-                'text-(--plass-muted-fg)',
-                classNames?.description
-              )}
+              className={cx(fieldDescriptionClasses(size), classNames?.description)}
             >
               {description}
             </Field.Description>

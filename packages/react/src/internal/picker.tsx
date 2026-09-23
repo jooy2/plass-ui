@@ -13,6 +13,7 @@ import {
   controlTextLeadingClasses,
   cx,
   disabledClasses,
+  fieldDescriptionClasses,
   fieldReadOnlyClasses,
   fieldRestClasses,
   fieldSlots,
@@ -523,12 +524,7 @@ export function PickerShell({
       {description ? (
         <Field.Description
           id={descriptionId}
-          className={cx(
-            'm-0',
-            metaTextClasses[size],
-            'text-(--plass-muted-fg)',
-            classNames?.description
-          )}
+          className={cx(fieldDescriptionClasses(size), classNames?.description)}
         >
           {description}
         </Field.Description>

@@ -109,6 +109,20 @@ export const metaTextClasses: Record<PlassSize, string> = {
 };
 
 /**
+ * The line of help under a field: its `description`.
+ *
+ * Every field that takes one draws it the same way, on the step below the
+ * control and in the muted ink, so it is written once here rather than in each
+ * of them. `m-0` is part of it because `Field.Description` renders a `<p>`,
+ * which arrives with the UA's block margin and with whatever the host page says
+ * about `p` — and the gap between a field's parts is `stackGapClasses`, not a
+ * paragraph's margin. A caller's `classNames.description` goes after this.
+ */
+export function fieldDescriptionClasses(size: PlassSize): string {
+  return cx('m-0', metaTextClasses[size], 'text-(--plass-muted-fg)');
+}
+
+/**
  * Horizontal padding, and the only thing `density` is allowed to touch. The two
  * tracks are roughly 2:1 so the difference is legible at a glance rather than a
  * two-pixel nudge.
