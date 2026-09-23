@@ -40,6 +40,8 @@
 
 ### Fixed
 
+- **The clear × on a `PlCombobox` can be pressed anywhere in a 24-pixel square around it.** It could be pressed only where it is drawn, which at the smaller sizes is under the minimum target size of WCAG 2.5.8. The × is drawn at the same size and nothing around it moves; the chevron beside it keeps its own size.
+
 - **A `PlSelect` whose labels are not plain `Text` no longer builds every one of them to hold its width.** A trigger that is not `fullWidth` laid out every option's label to find the widest, so a list of 250 countries with a flag in each asked for 250 flags before it was opened. Such a label, and a placeholder, is now measured by its text alone, so no picture in it is loaded for the measurement; the trigger can widen by the picture once that option is chosen.
 
 - **A progress `value` of `double.infinity` is written as the top of the range.** The bar, the ring and the plates already drew it full, but `formatValue` was handed the raw value, so a formatter that rounds it threw. `formatValue` is now handed the value clamped into `min`…`max`, as the shape draws it, which also means a finite value past either end reaches it as that end rather than as itself. This matches the React build.

@@ -110,6 +110,32 @@ describe('the × target', () => {
     }
   });
 
+  it('takes a press anywhere in the 24px square around a PlCombobox’s clear ×, and leaves the chevron its middle', async () => {
+    const screen = await render(
+      <div style={{ padding: 32 }}>
+        <PlCombobox
+          size="xs"
+          items={[{ value: 'seoul', label: 'Seoul' }]}
+          defaultValue="seoul"
+          clearable
+        />
+      </div>
+    );
+    const clear = screen.getByRole('button', { name: 'Clear' }).element();
+    const chevron = screen.getByRole('button', { name: 'Open' }).element();
+
+    // Placed out of the flow, so the field is laid out as it was without it.
+    expect(getComputedStyle(clear, '::before').position).toBe('absolute');
+
+    for (const point of square(clear)) {
+      expect(buttonAt(point), `at ${point}`).toBe(clear);
+    }
+
+    // The chevron keeps the size it is drawn at, and where the square reaches
+    // over its edge the × has the press — but never over its middle.
+    expect(buttonAt(fromMiddle(chevron, 0, 0))).toBe(chevron);
+  });
+
   it('takes a press anywhere in the 24px square around a picker’s ×, and leaves the rest to the trigger', async () => {
     const screen = await render(
       <div style={{ padding: 32 }}>

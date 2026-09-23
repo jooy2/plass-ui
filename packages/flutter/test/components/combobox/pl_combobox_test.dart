@@ -641,6 +641,50 @@ void main() {
         expect(called, isTrue);
         expect(chosen, isNull);
       });
+
+      testWidgets('takes a press from 24px square round the ×, and leaves the chevron its middle', (
+        WidgetTester tester,
+      ) async {
+        var cleared = 0;
+
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<String>(
+              // The smallest field, where the × is drawn furthest below 24px.
+              size: PlassSize.xs,
+              options: _cities,
+              value: 'seoul',
+              onChanged: (String? _) => cleared += 1,
+              clearable: true,
+            ),
+          ),
+        );
+
+        final Rect mark = tester.getRect(_adornment('Clear'));
+        final double across = mark.width / 2 + 3;
+        final double down = mark.height / 2 + 3;
+
+        // Just outside the drawn × on every side, and inside the square.
+        for (final Offset offset in <Offset>[
+          Offset(-across, 0),
+          Offset(across, 0),
+          Offset(0, -down),
+          Offset(0, down),
+        ]) {
+          await tester.tapAt(mark.center + offset);
+          await tester.pumpAndSettle();
+        }
+
+        expect(cleared, 4);
+        expect(tester.widget<PlassAnchoredPortal>(find.byType(PlassAnchoredPortal)).open, isFalse);
+
+        // The chevron keeps the size it is drawn at, and its middle is its own.
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+
+        expect(cleared, 4);
+        expect(tester.widget<PlassAnchoredPortal>(find.byType(PlassAnchoredPortal)).open, isTrue);
+      });
     });
 
     group('accessibility', () {

@@ -30,6 +30,7 @@ import {
   radiusClasses,
   stackGapClasses,
   surfaceSlots,
+  targetClasses,
   transitionClasses
 } from '../../internal/styles.js';
 import type {
@@ -281,6 +282,16 @@ const adornmentClasses = /* @__PURE__ */ [
   'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:[outline-offset:1px]',
   'disabled:cursor-not-allowed disabled:opacity-50'
 ].join(' ');
+
+/**
+ * The ×, pressed from a 24px square through `targetClasses`.
+ *
+ * The chevron beside it keeps the size it is drawn at: what it does, a press
+ * on the input does as well, since Base UI opens the list on a click in the
+ * field. The × is positioned and the chevron is not, so where the square
+ * reaches over the chevron at `xs` the × has the press.
+ */
+const clearClasses = /* @__PURE__ */ cx(targetClasses, adornmentClasses);
 
 /** Always an array inside, however the caller spells it. */
 function toArray(value: unknown): PlComboboxValue[] {
@@ -630,7 +641,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
             )}
 
             {clearable && !readOnly ? (
-              <BaseUICombobox.Clear aria-label={clearLabel} className={adornmentClasses}>
+              <BaseUICombobox.Clear aria-label={clearLabel} className={clearClasses}>
                 <CloseIcon />
               </BaseUICombobox.Clear>
             ) : null}

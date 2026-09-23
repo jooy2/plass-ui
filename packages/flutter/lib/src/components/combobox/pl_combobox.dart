@@ -14,6 +14,7 @@ import 'package:plass_ui/src/internal/list_reveal.dart';
 import 'package:plass_ui/src/internal/notch.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
+import 'package:plass_ui/src/internal/target.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -908,10 +909,16 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
                   ),
           ),
           if (showClear)
-            adornment(
-              shape: PlassGlyphShape.close,
-              label: widget.clearLabel ?? PlassTheme.labelsOf(context).clear,
-              onTap: _clear,
+            // Drawn at the size of the text, and pressed from a 24px square
+            // through the scope round the shell. The chevron beside it keeps
+            // the size it is drawn at, and where the square reaches over it at
+            // `xs` the × has the press.
+            PlassTarget(
+              child: adornment(
+                shape: PlassGlyphShape.close,
+                label: widget.clearLabel ?? PlassTheme.labelsOf(context).clear,
+                onTap: _clear,
+              ),
             ),
           adornment(
             shape: PlassGlyphShape.chevron,
@@ -942,6 +949,10 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
         child: shell,
       ),
     );
+
+    // Round the whole field rather than the row the × sits in, which is only as
+    // tall as its line of text: a box is only asked about a press inside itself.
+    shell = PlassTargetScope(child: shell);
 
     shell = plassStateFilter(
       child: shell,

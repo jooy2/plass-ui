@@ -184,6 +184,7 @@ Pass `value` with `onValueChange`. The value is a `string` or a `number`, an arr
 - The "add this" row is a **real option**, not a special case in the key handling, so a click, <kbd>Enter</kbd> and the arrow keys all reach it the way every other row is reached.
 - Rows light on `data-highlighted` rather than on `:hover`, so the pointer and the arrow keys illuminate the same row.
 - Each chip's × is named after its chip (`Remove Seoul`, not `Remove`), because a screen reader reading a row of six identical buttons has told the reader nothing.
+- The clear × is drawn at the size of the text, and a press anywhere in a 24px square around it reaches it, which is the minimum target size in WCAG 2.5.8. The chevron keeps the size it is drawn at, and a press on the input opens the list as well.
 - With `name`, Base UI renders the hidden input that makes the value part of a native form submission.
 - The popup is portalled to the end of `<body>` and its positioner carries `.plass-portal`, which is where a host that scopes a CSS reset can hang the same reset.
 
@@ -197,6 +198,7 @@ Pass `value` with `onValueChange`. The value is a `string` or a `number`, an arr
 - The highlight is one number rather than a hover state per row, which is what makes the pointer and the arrow keys light the same row.
 - A row that cannot be taken stays in the list and is announced as unavailable.
 - Each chip's × is named after its chip.
+- The clear × is drawn at the size of the text, and a press anywhere in a 24px square around it reaches it, which is the minimum target size in WCAG 2.5.8. The chevron keeps the size it is drawn at.
 - Nothing is committed when focus leaves: the query goes back to being the value, and a value the list does not have is only ever taken by taking its row.
 
 :::
