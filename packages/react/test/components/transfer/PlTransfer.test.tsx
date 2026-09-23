@@ -143,6 +143,27 @@ describe('PlTransfer', () => {
         .toBe('In the report: +1');
     });
 
+    it('names a list whose heading is an element by the words it draws', async () => {
+      const screen = await render(
+        <PlTransfer
+          items={items}
+          targetLabel={
+            <>
+              In the <strong>report</strong>
+            </>
+          }
+        />
+      );
+
+      press(screen.getByRole('checkbox', { name: 'Name' }).element());
+      press(screen.getByRole('button', { name: 'Move to selected' }).element());
+
+      // It used to be the pack's "Selected", a name the page never shows.
+      await expect
+        .poll(() => screen.container.querySelector('[aria-live="polite"]')?.textContent)
+        .toBe('1 item moved to In the report');
+    });
+
     it('keeps the order of items on both sides', async () => {
       const onValueChange = vi.fn();
 

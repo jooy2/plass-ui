@@ -455,15 +455,12 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
 
       (rowRefs.current.get(arrived[0]) ?? list)?.focus();
 
-      // The heading when it is words, and the pack's name for the list when it
-      // is a node, which has no words to read out.
-      const heading = pending.toTarget ? targetLabel : sourceLabel;
-      const name =
-        typeof heading === 'string' && heading !== ''
-          ? heading
-          : pending.toTarget
-            ? labels.transferSelected
-            : labels.transferAvailable;
+      // The list by the words its heading draws, which is the name its tick
+      // says as well, so a heading given as an element is not called by the
+      // pack's word here and by its own everywhere else.
+      const name = pending.toTarget
+        ? nameOf(targetLabel, labels.transferSelected)
+        : nameOf(sourceLabel, labels.transferAvailable);
 
       setAnnouncement((current) => ({
         key: (current?.key ?? 0) + 1,
