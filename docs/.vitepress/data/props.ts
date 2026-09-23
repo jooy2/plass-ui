@@ -4329,8 +4329,8 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'getRowKey',
       type: '(row: Row, index: number) => Key',
       description: {
-        ko: '행마다의 안정적인 key. 다른 무엇보다 먼저 정할 값입니다 — 기본값은 rows 안의 위치라서 정렬과 검색과 페이지는 견디지만, rows가 바뀌면 다른 행을 가리킵니다. index는 화면의 자리가 아니라 rows 안의 위치입니다',
-        en: "A stable key per row, and the one prop worth setting before any other: it defaults to the row's position in rows, which holds through a sort, a search and a page and names a different row once rows changes. index is that position in rows, not the row's place on the screen"
+        ko: '행마다의 안정적인 key. 다른 무엇보다 먼저 정할 값입니다 — 기본값은 rows 안의 위치(manual 페이징에서는 첫 페이지의 첫 행부터 센 위치)라서 정렬과 검색과 페이지는 견디지만, rows가 바뀌면 다른 행을 가리킵니다. index는 화면의 자리가 아니라 rows 안의 위치입니다',
+        en: "A stable key per row, and the one prop worth setting before any other: it defaults to the row's position in rows, counted from the first row of the first page with manual paging, which holds through a sort, a search and a page and names a different row once rows changes. index is the position in rows, not the row's place on the screen"
       }
     },
     {

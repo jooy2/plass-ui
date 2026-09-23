@@ -2443,8 +2443,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       name: 'rowKey',
       type: 'Object Function(T row, int index)?',
       description: {
-        ko: '행마다의 안정적인 key. 다른 무엇보다 먼저 정할 값입니다 — 없으면 rows 안의 위치로 식별되고, 그 위치는 정렬과 검색과 페이지는 견디지만 rows가 바뀌면 다른 행을 가리킵니다. index는 화면의 자리가 아니라 rows 안의 위치입니다',
-        en: "A stable key per row, and the one thing worth setting before anything else. Left out, a row is identified by its position in rows, which holds through a sort, a search and a page and names a different row once rows changes. index is that position in rows, not the row's place on the screen"
+        ko: '행마다의 안정적인 key. 다른 무엇보다 먼저 정할 값입니다 — 없으면 rows 안의 위치(manual 페이징에서는 첫 페이지의 첫 행부터 센 위치)로 식별되고, 그 위치는 정렬과 검색과 페이지는 견디지만 rows가 바뀌면 다른 행을 가리킵니다. index는 화면의 자리가 아니라 rows 안의 위치입니다',
+        en: "A stable key per row, and the one thing worth setting before anything else. Left out, a row is identified by its position in rows, counted from the first row of the first page with manual paging, which holds through a sort, a search and a page and names a different row once rows changes. index is the position in rows, not the row's place on the screen"
       }
     }),
     from('PlDataTable', 'caption', {

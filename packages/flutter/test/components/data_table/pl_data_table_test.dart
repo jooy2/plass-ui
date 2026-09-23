@@ -834,6 +834,44 @@ void main() {
         // server's, and the pager has to say they are there.
         expect(tester.widget<PlPagination>(find.byType(PlPagination)).count, 9);
       });
+
+      testWidgets('keys a row by its place in the whole set when the pages arrive one at a time', (
+        WidgetTester tester,
+      ) async {
+        List<Object>? reported;
+
+        // No `rowKey`, which is the case this is about.
+        Widget server(int page) => PlDataTable<Invoice>(
+          columns: columnsOf(),
+          rows: many().sublist((page - 1) * 10, page * 10),
+          paging: PlDataTablePaging.pages,
+          page: page,
+          manual: const <PlDataTableStage>[PlDataTableStage.pages],
+          rowCount: 25,
+          selection: PlDataTableSelection.multiple,
+          onSelectedChanged: (List<Object> keys, List<Invoice> _) => reported = keys,
+        );
+
+        await tester.pumpWidget(host(server(1), width: 640, height: 900));
+        // The header's tick first, then one per row.
+        await tester.tap(find.byType(PlCheckbox).at(1));
+        await tester.pumpAndSettle();
+
+        expect(reported, <Object>[0]);
+
+        await tester.pumpWidget(host(server(2), width: 640, height: 900));
+        await tester.pumpAndSettle();
+
+        // The first row of page two is not the row ticked on page one, although
+        // both are the first row of the `rows` they arrived in.
+        expect(find.text('Customer 10'), findsOneWidget);
+        expect(tester.widget<PlCheckbox>(find.byType(PlCheckbox).at(1)).value, isFalse);
+
+        await tester.tap(find.byType(PlCheckbox).at(1));
+        await tester.pumpAndSettle();
+
+        expect(reported, <Object>[0, 10]);
+      });
     });
 
     group('loading', () {

@@ -234,7 +234,9 @@ class PlDataTable<T> extends StatefulWidget {
   /// Left out, a row is identified by its position in [rows], which survives a
   /// sort, a search and a page, and does not survive [rows] changing: a row
   /// added at the top moves every other row's key, so a selection made before
-  /// it belongs to different rows after it.
+  /// it belongs to different rows after it. With `manual` paging the position
+  /// is counted from the first row of the first page, since [rows] is only the
+  /// page on screen.
   ///
   /// `index` here, and in every other callback, is that position in [rows],
   /// not the row's place on the screen.
@@ -423,18 +425,29 @@ class _PlDataTableState<T> extends State<PlDataTable<T>> {
   bool get _doesPage => !widget.manual.contains(PlDataTableStage.pages);
   bool get _ticks => widget.selection != PlDataTableSelection.none;
 
-  Object _keyOf(T row, int index) => widget.rowKey?.call(row, index) ?? index;
+  /// Where [PlDataTable.rows] starts in the whole set. Nowhere but the top,
+  /// unless the rows arrive a page at a time: then `rows` is only the page on
+  /// screen, a key counted from its first row would be `0` on every page, and a
+  /// row ticked on one page would light the row in the same place on the next.
+  /// Counted from the first row of the first page, a position names one row in
+  /// the set.
+  int get _offset => widget.paging == PlDataTablePaging.pages && !_doesPage
+      ? (_currentPage(_ordered.length) - 1) * widget.pageSize
+      : 0;
+
+  Object _keyOf(T row, int index) => widget.rowKey?.call(row, index) ?? _offset + index;
 
   Object? _valueOf(PlDataTableColumn<T> column, T row) => column.value?.call(row);
 
   /// The rows the reader can see: narrowed, ordered, and cut to a page.
   ///
   /// Every row carries its position in [PlDataTable.rows] through all three,
-  /// and that position is the `index` every callback is handed and the key a
-  /// row gets without `rowKey`. A position on screen names a different row
-  /// after every sort, search and page, so a tick made on page two would light
-  /// the row in the same place on page one, and `onSelectedChanged` would hand
-  /// back the row at that place in `rows`.
+  /// and that position is the `index` every callback is handed and, past the
+  /// pages before it when they come one at a time, the key a row gets without
+  /// `rowKey`. A position on screen names a different row after every sort,
+  /// search and page, so a tick made on page two would light the row in the
+  /// same place on page one, and `onSelectedChanged` would hand back the row at
+  /// that place in `rows`.
   List<_Indexed<T>> get _shown {
     var rows = <_Indexed<T>>[
       for (var index = 0; index < widget.rows.length; index += 1)

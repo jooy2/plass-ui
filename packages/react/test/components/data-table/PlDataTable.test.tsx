@@ -585,6 +585,39 @@ describe('PlDataTable', () => {
       // server's, and the pager has to say they are there.
       await expect.element(screen.getByRole('button', { name: 'Page 9' })).toBeInTheDocument();
     });
+
+    it('keys a row by its place in the whole set when the pages arrive one at a time', async () => {
+      const onSelectedChange = vi.fn();
+      const table = (page: number) => (
+        <PlDataTable
+          columns={columns}
+          rows={many.slice((page - 1) * 10, page * 10)}
+          paging="pages"
+          pageSize={10}
+          page={page}
+          manual={['pages']}
+          rowCount={25}
+          selection="multiple"
+          onSelectedChange={onSelectedChange}
+        />
+      );
+      const screen = await render(table(1));
+
+      await screen.getByRole('checkbox', { name: 'Select row' }).first().click();
+
+      expect(onSelectedChange).toHaveBeenLastCalledWith([0], [many[0]]);
+
+      await screen.rerender(table(2));
+
+      // The first row of page two is not the row ticked on page one, although
+      // both are the first row of the `rows` they arrived in.
+      await expect.element(screen.getByRole('cell', { name: 'Customer 10' })).toBeInTheDocument();
+      expect(screen.getByRole('row', { selected: true }).elements()).toHaveLength(0);
+
+      await screen.getByRole('checkbox', { name: 'Select row' }).first().click();
+
+      expect(onSelectedChange).toHaveBeenLastCalledWith([0, 10], [many[10]]);
+    });
   });
 
   describe('loading', () => {

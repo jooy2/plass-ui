@@ -153,7 +153,8 @@ export interface PlDataTableProps<Row>
    * It defaults to the row's position in `rows`, which survives a sort, a
    * search and a page, and does not survive `rows` changing: a row added at the
    * top moves every other row's key, so a selection made before it belongs to
-   * different rows after it.
+   * different rows after it. With `manual` paging the position is counted from
+   * the first row of the first page, since `rows` is only the page on screen.
    *
    * `index` here, and in every other callback, is that position in `rows`, not
    * the row's place on the screen.
@@ -383,11 +384,6 @@ export function PlDataTable<Row>({
   const doesSearch = !manual?.includes('search');
   const doesPage = !manual?.includes('pages');
 
-  const key = React.useCallback(
-    (row: Row, index: number) => (getRowKey ? getRowKey(row, index) : index),
-    [getRowKey]
-  );
-
   /** What a column *is*, as the sort and the search see it. */
   const valueOf = React.useCallback(
     (column: PlDataTableColumn<Row>, row: Row) =>
@@ -396,11 +392,12 @@ export function PlDataTable<Row>({
   );
 
   // Every row carries its position in `rows` through the search, the sort and
-  // the page, and that position is the `index` every callback is handed and the
-  // key a row gets without `getRowKey`. A position on screen names a different
-  // row after every sort, search and page, so a tick made on page two would
-  // light the row in the same place on page one, and `onSelectedChange` would
-  // hand back the row at that place in `rows`.
+  // the page, and that position is the `index` every callback is handed and,
+  // past the pages before it when they come one at a time, the key a row gets
+  // without `getRowKey`. A position on screen names a different row after every
+  // sort, search and page, so a tick made on page two would light the row in
+  // the same place on page one, and `onSelectedChange` would hand back the row
+  // at that place in `rows`.
   const indexed = React.useMemo(() => rows.map((row, index) => ({ row, index })), [rows]);
 
   // The query is folded once here rather than once per row per column, which is
@@ -460,6 +457,18 @@ export function PlDataTable<Row>({
 
     return ordered.slice(start, end);
   }, [ordered, paging, doesPage, page, pageSize]);
+
+  // Where `rows` starts in the whole set. Nowhere but the top, unless the rows
+  // arrive a page at a time: then `rows` is only the page on screen, a key
+  // counted from its first row would be `0` on every page, and a row ticked on
+  // one page would light the row in the same place on the next. Counted from
+  // the first row of the first page, a position names one row in the set.
+  const offset = paging === 'pages' && !doesPage ? (page - 1) * pageSize : 0;
+
+  const key = React.useCallback(
+    (row: Row, index: number) => (getRowKey ? getRowKey(row, index) : offset + index),
+    [getRowKey, offset]
+  );
 
   const shownKeys = React.useMemo(
     () => shown.map(({ row, index }) => key(row, index)),

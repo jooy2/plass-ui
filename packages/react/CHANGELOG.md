@@ -38,6 +38,8 @@
 
 ### Fixed
 
+- **A `PlDataTable` with `manual` paging and no `getRowKey` keys a row by its place in the whole set.** The default key is a row's position in `rows`, and with the pages cut by a server `rows` is only the page on screen, so every page's first row had the key `0` and a row ticked on one page showed ticked on the row in the same place on the next. The position is now counted from the first row of the first page. `getRowKey` is still the one to set: a page the server sends again with a row added moves every key below it.
+
 - **Clearing a picker from its × hands the focus back to the trigger.** The × leaves the page with the value it cleared, and the focus it held fell to the document, so a keyboard reader who emptied a date started again from the top of the page. It now goes to the trigger of the field they just emptied, on `PlDatePicker`, `PlDateRangePicker`, `PlDateTimePicker`, `PlTimePicker`, `PlColorPicker` and `PlTreeSelect`.
 
 - **The clear × on a `PlCombobox` can be pressed anywhere in a 24px square around it.** It could be pressed only where it is drawn, which at the smaller sizes is under the minimum target size of WCAG 2.5.8. The × is drawn at the same size and nothing around it moves; the chevron beside it keeps its own size, and a press on the input opens the list as it always has.
