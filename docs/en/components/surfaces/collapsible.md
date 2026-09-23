@@ -139,16 +139,28 @@ The element you pass **becomes** the trigger: it is handed the click handler, `a
 
 </Demo>
 
-::: fw react
-
 ### hiddenUntilFound and keepMounted
+
+::: fw react
 
 A closed panel is not in the document, which is what makes an unopened fold cost nothing. Two props take that back, for two different reasons:
 
-- `hiddenUntilFound` keeps it there as `hidden="until-found"`, so the browser's own page search can find the text inside a closed fold **and open it**. That is the one worth using on a documentation page.
+- `hiddenUntilFound` keeps it there as `hidden="until-found"`, so the text inside a closed fold is in the server HTML a search engine reads, and the browser's own page search can find it **and open the fold**. That is the one worth using on a documentation page or an FAQ.
 - `keepMounted` keeps it there outright, for content that is expensive to build or that holds form state which should survive being folded away.
 
-`hiddenUntilFound` overrides `keepMounted`; it is the same idea with the browser's find-in-page bolted on.
+`hiddenUntilFound` overrides `keepMounted`; it is the same idea with the browser's find-in-page bolted on. With the preview on screen, search this page for "customs" and the fold opens.
+
+<Demo src="collapsible/hidden-until-found" :flutter="false" :min-height="120">
+
+<<< @/.vitepress/demos/collapsible/hidden-until-found.tsx
+
+</Demo>
+
+:::
+
+::: fw flutter
+
+Only `keepMounted` is here. A Flutter app has no server HTML for a search engine to read and no browser find-in-page to open a fold from, so there is nothing for `hiddenUntilFound` to do. `keepMounted` keeps a closed panel in the tree, so a field inside it keeps what was typed into it.
 
 :::
 

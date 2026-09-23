@@ -139,16 +139,28 @@ PlCollapsible(
 
 </Demo>
 
-::: fw react
-
 ### hiddenUntilFound와 keepMounted
+
+::: fw react
 
 닫힌 패널은 문서에 없습니다. 열리지 않은 접힘이 아무 비용도 들지 않는 이유가 그것입니다. 두 prop이 그것을 되돌리는데, 이유는 서로 다릅니다.
 
-- `hiddenUntilFound`는 `hidden="until-found"`로 남겨 두어, 브라우저 자신의 페이지 검색이 닫힌 접힘 안의 글자를 찾고 **그것을 열 수** 있게 합니다. 문서 페이지에서 쓸 만한 쪽이 이것입니다.
+- `hiddenUntilFound`는 `hidden="until-found"`로 남겨 둡니다. 닫힌 접힘 안의 글자가 검색 엔진이 읽는 서버 HTML에 들어가고, 브라우저 자신의 페이지 검색이 그것을 찾아 **접힘을 열 수** 있습니다. 문서 페이지나 FAQ에서 쓸 만한 쪽이 이것입니다.
 - `keepMounted`는 그냥 남겨 둡니다. 만드는 데 비용이 큰 내용이나, 접혀 있는 동안에도 살아 있어야 하는 폼 상태가 붙은 내용을 위한 것입니다.
 
-`hiddenUntilFound`가 `keepMounted`를 덮어씁니다. 같은 아이디어에 브라우저의 페이지 내 찾기를 붙인 것입니다.
+`hiddenUntilFound`가 `keepMounted`를 덮어씁니다. 같은 아이디어에 브라우저의 페이지 내 찾기를 붙인 것입니다. 미리 보기가 화면에 있을 때 이 페이지에서 "customs"를 찾으면 접힘이 열립니다.
+
+<Demo src="collapsible/hidden-until-found" :flutter="false" :min-height="120">
+
+<<< @/.vitepress/demos/collapsible/hidden-until-found.tsx
+
+</Demo>
+
+:::
+
+::: fw flutter
+
+여기에는 `keepMounted`만 있습니다. Flutter 앱에는 검색 엔진이 읽을 서버 HTML도, 접힘을 열어 줄 브라우저의 페이지 내 찾기도 없으므로 `hiddenUntilFound`가 할 일이 없습니다. `keepMounted`는 닫힌 패널을 트리에 남겨 두어, 그 안의 필드가 입력된 내용을 잃지 않게 합니다.
 
 :::
 

@@ -237,6 +237,28 @@ uncontrolled 모드는 없습니다. accordion을 움직이는 방법은 언제�
 
 </Demo>
 
+### hiddenUntilFound
+
+::: fw react
+
+닫힌 패널은 렌더링되지 않습니다. 그래서 닫아 둔 FAQ의 답은 검색 엔진이 읽는 서버 HTML에도, 브라우저 자신의 페이지 내 찾기에도 없습니다. `hiddenUntilFound`는 닫힌 패널을 모두 `hidden="until-found"`로 문서에 남겨 둡니다. 답은 여전히 보이지 않지만 HTML 안에 있고, 페이지 내 찾기가 그 안의 글자를 찾으면 그 섹션을 엽니다. `keepMounted`보다 우선합니다.
+
+미리 보기가 화면에 있을 때 이 페이지에서 "customs"를 찾으면 마지막 질문이 열립니다.
+
+<Demo src="accordion/hidden-until-found" :flutter="false" :min-height="200">
+
+<<< @/.vitepress/demos/accordion/hidden-until-found.tsx
+
+</Demo>
+
+:::
+
+::: fw flutter
+
+설정할 것이 없습니다. Flutter 앱에는 검색 엔진이 읽을 서버 HTML도, 섹션을 열어 줄 브라우저의 페이지 내 찾기도 없으므로 닫힌 패널은 그냥 만들어지지 않습니다.
+
+:::
+
 ## Accessibility
 
 ::: fw react

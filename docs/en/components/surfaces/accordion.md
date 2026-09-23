@@ -237,6 +237,28 @@ There is no uncontrolled mode: `value` and `onChanged` are how the accordion is 
 
 </Demo>
 
+### hiddenUntilFound
+
+::: fw react
+
+A closed panel is not rendered, so the answers of an FAQ left closed are missing from the server HTML a search engine reads, and from the browser's own find-in-page. `hiddenUntilFound` keeps every closed panel in the document as `hidden="until-found"`. The answer is still out of sight, but it is in the HTML, and find-in-page finds the text inside it and opens the section it is in. It overrides `keepMounted`.
+
+With the preview on screen, search this page for "customs" and the last question opens.
+
+<Demo src="accordion/hidden-until-found" :flutter="false" :min-height="200">
+
+<<< @/.vitepress/demos/accordion/hidden-until-found.tsx
+
+</Demo>
+
+:::
+
+::: fw flutter
+
+There is nothing to set. A Flutter app has no server HTML for a search engine to read and no browser find-in-page to open a section from, so a closed panel is simply not built.
+
+:::
+
 ## Accessibility
 
 ::: fw react
