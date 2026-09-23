@@ -11,7 +11,7 @@ class PanesHero extends StatelessWidget {
       width: 448,
       height: 224,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.lg]!),
+        borderRadius: BorderRadius.circular(PlassTheme.of(context).radii[PlassSize.lg]!),
         child: const PlPanes(
           label: 'Sidebar width',
           panes: <PlPane>[

@@ -15,7 +15,7 @@ import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/target.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
+import 'package:plass_ui/src/theme/theme.dart';
 
 /// How visible the × is before the pointer or the keyboard reaches it.
 ///
@@ -59,6 +59,7 @@ class PlassDismissButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = PlassTheme.of(context);
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     return PlassInteractive(
@@ -71,8 +72,8 @@ class PlassDismissButton extends StatelessWidget {
 
         Widget mark = AnimatedOpacity(
           opacity: lit ? 1 : _rest,
-          duration: reduceMotion ? Duration.zero : PlassTokens.duration,
-          curve: PlassTokens.ease,
+          duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+          curve: tokens.motionEase,
           child: SizedBox.square(
             dimension: size,
             child: PlassGlyph(PlassGlyphShape.close, size: size, color: color),

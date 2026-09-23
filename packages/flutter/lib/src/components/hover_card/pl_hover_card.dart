@@ -12,7 +12,6 @@ import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/internal/wedge.dart';
 import 'package:plass_ui/src/theme/defaults.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// How wide the card is allowed to get, per [PlassSize].
@@ -251,7 +250,7 @@ class _PlHoverCardState extends State<PlHoverCard> {
     final tokens = PlassTheme.of(context);
     final size = _size;
     final density = _density;
-    final radius = BorderRadius.circular(PlassTokens.radius[size]!);
+    final radius = BorderRadius.circular(tokens.radii[size]!);
     final body = sheetBody[size]!;
 
     Widget popup = ConstrainedBox(
@@ -266,7 +265,7 @@ class _PlHoverCardState extends State<PlHoverCard> {
           shadows: tokens.elevation(plassElevationMax),
         ),
         borderRadius: radius,
-        duration: PlassTokens.durationSlow,
+        duration: tokens.motionDurationSlow,
         child: DefaultTextStyle.merge(
           style: TextStyle(
             color: tokens.fg,

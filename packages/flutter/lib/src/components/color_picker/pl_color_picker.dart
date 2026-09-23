@@ -547,7 +547,7 @@ class _ColorPanel extends StatelessWidget {
     final PlassTokens tokens = PlassTheme.of(context);
     final PlassColorFamily family = tokens.family(color);
     final double thumb = _thumbSize[size]!;
-    final double radius = PlassTokens.radius[size]!;
+    final double radius = tokens.radii[size]!;
     final Color pure = hsvToColor(PlassHsv(model.hsv.h, 100, 100));
     final Color solid = hsvToColor(model.hsv);
     // A swatch this cannot read is left out rather than drawn as a clear circle
@@ -710,7 +710,7 @@ class _ColorPanel extends StatelessWidget {
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       border: Border.all(color: tokens.border, width: hairline),
-                      borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.xs]!),
+                      borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),

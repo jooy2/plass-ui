@@ -21,7 +21,7 @@ class ContainerWidths extends StatelessWidget {
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   color: tokens.glassPress,
-                  borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.sm]!),
+                  borderRadius: BorderRadius.circular(tokens.radii[PlassSize.sm]!),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

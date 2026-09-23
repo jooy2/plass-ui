@@ -297,7 +297,7 @@ class PlAccordion<T> extends StatelessWidget {
       explicitChildNodes: true,
       child: PlassSurfaceBox(
         surface: surface,
-        borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
+        borderRadius: BorderRadius.circular(tokens.radii[size]!),
         child: Padding(
           // Scored, the rules have to reach both edges, so the sheet keeps no
           // padding of its own. Unscored, the sections are tiles and it keeps a
@@ -348,17 +348,16 @@ class _Section<T> extends StatefulWidget {
 }
 
 class _SectionState<T> extends State<_Section<T>> with SingleTickerProviderStateMixin {
+  // No duration here and a stand-in curve: `_syncMotion` gives both the
+  // theme's before the first frame, and again whenever the theme changes, so a
+  // section that is already built takes a new duration without being rebuilt.
   late final AnimationController _fold = AnimationController(
     vsync: this,
-    duration: PlassTokens.durationSlow,
     value: widget.open ? 1 : 0,
   );
 
   /// The fold's own curve.
-  late final Animation<double> _foldFactor = CurvedAnimation(
-    parent: _fold,
-    curve: PlassTokens.ease,
-  );
+  late final CurvedAnimation _foldFactor = CurvedAnimation(parent: _fold, curve: Curves.linear);
 
   @override
   void initState() {
@@ -379,6 +378,10 @@ class _SectionState<T> extends State<_Section<T>> with SingleTickerProviderState
     super.didUpdateWidget(oldWidget);
 
     if (widget.open != oldWidget.open) {
+      // Read here as well as below: an update runs before the dependencies
+      // are refreshed, and a theme that changed in the same frame as `open`
+      // would otherwise fold on the old duration.
+      _syncMotion();
       widget.open ? _fold.forward() : _fold.reverse();
     }
   }
@@ -386,9 +389,18 @@ class _SectionState<T> extends State<_Section<T>> with SingleTickerProviderState
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _syncMotion();
+  }
+
+  /// Hands the fold the theme's slow duration and curve, or no duration at all
+  /// for a reader who asked for less movement.
+  void _syncMotion() {
+    final tokens = PlassTheme.of(context);
+
     _fold.duration = (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
         ? Duration.zero
-        : PlassTokens.durationSlow;
+        : tokens.motionDurationSlow;
+    _foldFactor.curve = tokens.motionEase;
   }
 
   @override
@@ -415,7 +427,7 @@ class _SectionState<T> extends State<_Section<T>> with SingleTickerProviderState
     final title = sheetTitle[size]!;
     final body = sheetBody[size]!;
     final radius = BorderRadius.circular(
-      widget.dividers ? 0 : PlassTokens.radius[_itemRadiusScale[size]!]!,
+      widget.dividers ? 0 : tokens.radii[_itemRadiusScale[size]!]!,
     );
 
     Widget header = PlassInteractive(
@@ -432,8 +444,8 @@ class _SectionState<T> extends State<_Section<T>> with SingleTickerProviderState
             : tokens.fg;
 
         Widget row = AnimatedContainer(
-          duration: reduceMotion ? Duration.zero : PlassTokens.duration,
-          curve: PlassTokens.ease,
+          duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+          curve: tokens.motionEase,
           decoration: BoxDecoration(
             color: lit && !disabled ? family.soft : null,
             borderRadius: radius,
@@ -484,8 +496,8 @@ class _SectionState<T> extends State<_Section<T>> with SingleTickerProviderState
               // only changes colour.
               AnimatedRotation(
                 turns: open ? 0.5 : 0,
-                duration: reduceMotion ? Duration.zero : PlassTokens.duration,
-                curve: PlassTokens.ease,
+                duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+                curve: tokens.motionEase,
                 child: PlassGlyph(
                   PlassGlyphShape.chevron,
                   size: title.size * iconScale,

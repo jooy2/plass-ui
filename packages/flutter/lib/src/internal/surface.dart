@@ -149,7 +149,7 @@ class PlassSurfaceBox extends StatefulWidget {
     this.flashVisible = false,
     this.reduceMotion = false,
     this.animate = true,
-    this.duration = PlassTokens.duration,
+    this.duration,
     super.key,
   });
 
@@ -184,9 +184,10 @@ class PlassSurfaceBox extends StatefulWidget {
   /// already being animated by something outside it.
   final bool animate;
 
-  /// How long that easing takes. [PlassTokens.durationSlow] for anything larger
-  /// than a control.
-  final Duration duration;
+  /// How long that easing takes, or `null` for the theme's
+  /// [PlassTokens.motionDuration]. [PlassTokens.motionDurationSlow] for
+  /// anything larger than a control.
+  final Duration? duration;
 
   @override
   State<PlassSurfaceBox> createState() => _PlassSurfaceBoxState();
@@ -209,7 +210,9 @@ class _PlassSurfaceBoxState extends State<PlassSurfaceBox> {
     final pointer = widget.pointer;
     final glow = widget.glow;
     final flash = widget.flash;
-    final motion = widget.animate && !reduceMotion ? widget.duration : Duration.zero;
+    final motion = widget.animate && !reduceMotion
+        ? widget.duration ?? tokens.motionDuration
+        : Duration.zero;
 
     Widget box = Stack(
       alignment: Alignment.center,
@@ -237,7 +240,7 @@ class _PlassSurfaceBoxState extends State<PlassSurfaceBox> {
         Positioned.fill(
           child: AnimatedContainer(
             duration: motion,
-            curve: PlassTokens.ease,
+            curve: tokens.motionEase,
             decoration: BoxDecoration(
               borderRadius: borderRadius,
               color: surface.fill,
@@ -293,7 +296,7 @@ class _PlassSurfaceBoxState extends State<PlassSurfaceBox> {
     // light inside the corners, so they are the box around it.
     return AnimatedContainer(
       duration: motion,
-      curve: PlassTokens.ease,
+      curve: tokens.motionEase,
       decoration: BoxDecoration(borderRadius: borderRadius, boxShadow: surface.shadows),
       child: box,
     );
@@ -658,11 +661,38 @@ Widget plassStateFilter({
         ? hoverBrightness
         : 1.0;
 
-    surface = TweenAnimationBuilder<double>(
+    surface = _Lit(brightness: brightness, reduceMotion: reduceMotion, child: surface);
+  }
+
+  if (disabled) {
+    surface = Opacity(opacity: disabledOpacity, child: surface);
+  }
+
+  return surface;
+}
+
+/// The brightness a lit surface answers the pointer with, eased over the
+/// theme's duration and curve.
+///
+/// A widget of its own rather than a builder in [plassStateFilter], because
+/// that is a function with no context to read the theme from, and a widget in
+/// its place reads it where it is built.
+class _Lit extends StatelessWidget {
+  const _Lit({required this.brightness, required this.reduceMotion, required this.child});
+
+  final double brightness;
+  final bool reduceMotion;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = PlassTheme.of(context);
+
+    return TweenAnimationBuilder<double>(
       tween: Tween<double>(end: brightness),
-      duration: reduceMotion ? Duration.zero : PlassTokens.duration,
-      curve: PlassTokens.ease,
-      child: surface,
+      duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+      curve: tokens.motionEase,
+      child: child,
       builder: (BuildContext context, double value, Widget? child) {
         if (value == 1) {
           return child!;
@@ -672,10 +702,4 @@ Widget plassStateFilter({
       },
     );
   }
-
-  if (disabled) {
-    surface = Opacity(opacity: disabledOpacity, child: surface);
-  }
-
-  return surface;
 }

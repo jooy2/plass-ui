@@ -225,8 +225,8 @@ class _PlSliderState extends State<PlSlider> {
   /// This is the one place in the package a *position* is animated, and it does
   /// not touch the rule against moving a control: nothing is being shifted off
   /// its own place, because the thing being moved is the value.
-  static Duration _travel(bool reduceMotion, bool dragging) {
-    return reduceMotion || dragging ? Duration.zero : PlassTokens.duration;
+  static Duration _travel(PlassTokens tokens, bool reduceMotion, bool dragging) {
+    return reduceMotion || dragging ? Duration.zero : tokens.motionDuration;
   }
 
   /// Where [value] sits along the run, as 0..1.
@@ -444,8 +444,8 @@ class _PlSliderState extends State<PlSlider> {
                         ),
                       ),
                       AnimatedPositionedDirectional(
-                        duration: _travel(reduceMotion, _active != null),
-                        curve: PlassTokens.ease,
+                        duration: _travel(tokens, reduceMotion, _active != null),
+                        curve: tokens.motionEase,
                         start: _vertical ? 0 : from,
                         end: _vertical ? 0 : to,
                         top: _vertical ? to : 0,
@@ -463,8 +463,8 @@ class _PlSliderState extends State<PlSlider> {
               ),
               for (var index = 0; index < widget.values.length; index += 1)
                 AnimatedPositionedDirectional(
-                  duration: _travel(reduceMotion, _active == index),
-                  curve: PlassTokens.ease,
+                  duration: _travel(tokens, reduceMotion, _active == index),
+                  curve: tokens.motionEase,
                   start: _vertical ? null : _fraction(widget.values[index]) * travel,
                   bottom: _vertical ? _fraction(widget.values[index]) * travel : null,
                   child: _rangeThumb(
@@ -640,8 +640,8 @@ class _Thumb extends StatelessWidget {
           final focusVisible = Focus.of(context).hasPrimaryFocus;
 
           Widget mark = AnimatedContainer(
-            duration: reduceMotion ? Duration.zero : PlassTokens.duration,
-            curve: PlassTokens.ease,
+            duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+            curve: tokens.motionEase,
             width: size,
             height: size,
             decoration: BoxDecoration(

@@ -444,7 +444,7 @@ class _PlFilePickerState extends State<PlFilePicker> {
 
     final size = _size;
     final meta = metaText[size]!;
-    final radius = BorderRadius.circular(PlassTokens.radius[size]!);
+    final radius = BorderRadius.circular(tokens.radii[size]!);
     // A notch with nothing in it is a gap in the edge for no reason, so the
     // placement only takes effect where there is a label to put there.
     final notched = _labelPlacement == PlassFieldLabelPlacement.notch && widget.label != null;
@@ -717,7 +717,7 @@ class _PlFilePickerState extends State<PlFilePicker> {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: family.soft,
-          borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.xs]!),
+          borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: _rowPaddingX, vertical: _rowPaddingY),

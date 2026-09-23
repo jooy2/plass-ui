@@ -13,7 +13,7 @@ class ContainerHero extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: tokens.glassPress,
-          borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.lg]!),
+          borderRadius: BorderRadius.circular(tokens.radii[PlassSize.lg]!),
         ),
         child: const Padding(
           padding: EdgeInsets.symmetric(vertical: 16),

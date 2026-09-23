@@ -6,7 +6,6 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// The quote itself, one step above body copy with the leading opened up.
@@ -186,7 +185,7 @@ class PlBlockquote extends StatelessWidget {
     final radius = variant == PlassVariant.ghost
         ? BorderRadius.zero
         : BorderRadiusDirectional.horizontal(
-            end: Radius.circular(PlassTokens.radius[size]!),
+            end: Radius.circular(tokens.radii[size]!),
           ).resolve(Directionality.of(context));
 
     return Semantics(

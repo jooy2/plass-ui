@@ -385,7 +385,7 @@ class PlModal extends StatelessWidget {
     sheet = PlassTargetScope(
       child: PlassSurfaceBox(
         surface: surface,
-        borderRadius: BorderRadius.circular(fullScreen ? 0 : PlassTokens.radius[size]!),
+        borderRadius: BorderRadius.circular(fullScreen ? 0 : tokens.radii[size]!),
         child: fullScreen ? SafeArea(child: sheet) : sheet,
       ),
     );

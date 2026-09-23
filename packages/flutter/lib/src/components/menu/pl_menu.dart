@@ -704,7 +704,7 @@ class _PlMenuState extends State<PlMenu> {
             insets: <PlassInsetShadow>[tokens.glossGlass],
             shadows: tokens.elevation(plassElevationMax),
           ),
-          borderRadius: BorderRadius.circular(PlassTokens.radius[_size]!),
+          borderRadius: BorderRadius.circular(tokens.radii[_size]!),
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(_popupInset),
             child: Column(
@@ -803,7 +803,7 @@ class _PlMenuState extends State<PlMenu> {
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: lit || opened ? family.softHover : null,
-            borderRadius: BorderRadius.circular(PlassTokens.radius[_rowRadiusStep[_size]!]!),
+            borderRadius: BorderRadius.circular(tokens.radii[_rowRadiusStep[_size]!]!),
           ),
           child: Opacity(
             opacity: available ? 1 : disabledOpacity,

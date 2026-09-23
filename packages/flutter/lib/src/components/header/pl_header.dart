@@ -277,7 +277,7 @@ class PlHeader extends StatelessWidget {
       // edge of the screen is a gap with nothing behind it.
       surface: sheetSurface(tokens, variant: variant, elevation: elevation),
       borderRadius: BorderRadius.zero,
-      duration: PlassTokens.durationSlow,
+      duration: tokens.motionDurationSlow,
       child: bar,
     );
 

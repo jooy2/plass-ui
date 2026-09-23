@@ -317,7 +317,7 @@ class _PlGalleryState extends State<PlGallery> {
     final PlassSize size = _size;
     final double gap = widget.gap ?? _gapValues[size]!;
     final BorderRadius radius = widget.rounded
-        ? BorderRadius.circular(PlassTokens.radius[size]!)
+        ? BorderRadius.circular(tokens.radii[size]!)
         : BorderRadius.zero;
 
     final Widget board = LayoutBuilder(
@@ -603,12 +603,12 @@ class _PlGalleryState extends State<PlGallery> {
           children: <Widget>[
             AnimatedScale(
               scale: widget.hover == PlGalleryHover.zoom && lit ? 1.06 : 1,
-              duration: PlassTokens.duration,
-              curve: PlassTokens.ease,
+              duration: tokens.motionDuration,
+              curve: tokens.motionEase,
               child: AnimatedOpacity(
                 opacity: widget.hover == PlGalleryHover.dim && lit ? 0.82 : 1,
-                duration: PlassTokens.duration,
-                curve: PlassTokens.ease,
+                duration: tokens.motionDuration,
+                curve: tokens.motionEase,
                 child: picture,
               ),
             ),
@@ -619,8 +619,8 @@ class _PlGalleryState extends State<PlGallery> {
                 bottom: 0,
                 child: AnimatedOpacity(
                   opacity: widget.caption == PlGalleryCaption.hover && !lit ? 0 : 1,
-                  duration: PlassTokens.duration,
-                  curve: PlassTokens.ease,
+                  duration: tokens.motionDuration,
+                  curve: tokens.motionEase,
                   child: _legend(item, size, tokens, over: true),
                 ),
               ),
@@ -663,8 +663,8 @@ class _PlGalleryState extends State<PlGallery> {
           final bool lit = state.hovered || state.pressed || state.focusVisible;
 
           Widget tile = AnimatedContainer(
-            duration: PlassTokens.duration,
-            curve: PlassTokens.ease,
+            duration: tokens.motionDuration,
+            curve: tokens.motionEase,
             decoration: BoxDecoration(
               borderRadius: radius,
               boxShadow: widget.hover == PlGalleryHover.lift && lit

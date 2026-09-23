@@ -255,7 +255,7 @@ class _PlButtonState extends State<PlButton> {
 
     final direction = Directionality.maybeOf(context) ?? TextDirection.ltr;
     final group = _group;
-    final step = PlassTokens.radius[_size]!;
+    final step = tokens.radii[_size]!;
 
     /* The corners that face a neighbour are squared off. `borderRadius` still
        wins, which is what keeps a `PlIconButton` a disc inside a run — the same
@@ -417,8 +417,8 @@ class _PlButtonState extends State<PlButton> {
           ),
         Positioned.fill(
           child: AnimatedContainer(
-            duration: reduceMotion ? Duration.zero : PlassTokens.duration,
-            curve: PlassTokens.ease,
+            duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+            curve: tokens.motionEase,
             decoration: BoxDecoration(
               borderRadius: radius,
               color: fill,
@@ -475,8 +475,8 @@ class _PlButtonState extends State<PlButton> {
     // The drop shadows cannot be inside the clip that keeps the glass and the
     // light inside the corners, so they are the box around it.
     surface = AnimatedContainer(
-      duration: reduceMotion ? Duration.zero : PlassTokens.duration,
-      curve: PlassTokens.ease,
+      duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+      curve: tokens.motionEase,
       decoration: BoxDecoration(borderRadius: radius, boxShadow: shadows),
       child: surface,
     );
@@ -521,8 +521,8 @@ class _PlButtonState extends State<PlButton> {
 
       surface = TweenAnimationBuilder<double>(
         tween: Tween<double>(end: brightness),
-        duration: reduceMotion ? Duration.zero : PlassTokens.duration,
-        curve: PlassTokens.ease,
+        duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+        curve: tokens.motionEase,
         child: surface,
         builder: (BuildContext context, double value, Widget? child) {
           if (value == 1) {

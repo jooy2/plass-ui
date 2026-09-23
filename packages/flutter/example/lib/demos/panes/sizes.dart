@@ -24,7 +24,9 @@ class PanesSizes extends StatelessWidget {
                 SizedBox(
                   height: 80,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.md]!),
+                    borderRadius: BorderRadius.circular(
+                      PlassTheme.of(context).radii[PlassSize.md]!,
+                    ),
                     child: PlPanes(
                       size: size,
                       color: PlassColor.info,

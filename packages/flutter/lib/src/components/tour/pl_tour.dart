@@ -373,10 +373,12 @@ class _PlTourState extends State<PlTour> with WidgetsBindingObserver {
         Scrollable.ensureVisible(target, alignment: 0.5);
         _afterFrame(_measure);
       } else {
-        Scrollable.ensureVisible(target, alignment: 0.5, duration: PlassTokens.durationSlow);
+        final travel = PlassTheme.of(context).motionDurationSlow;
+
+        Scrollable.ensureVisible(target, alignment: 0.5, duration: travel);
         // After the scroll, not during it: a rectangle read mid-flight is a
         // rectangle the light would have to be dragged away from.
-        Future<void>.delayed(PlassTokens.durationSlow, _measure);
+        Future<void>.delayed(travel, _measure);
       }
     }
 
@@ -559,7 +561,7 @@ class _PlTourState extends State<PlTour> with WidgetsBindingObserver {
           insets: <PlassInsetShadow>[tokens.glossGlass],
           shadows: tokens.elevation(plassElevationMax),
         ),
-        borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
+        borderRadius: BorderRadius.circular(tokens.radii[size]!),
         child: DefaultTextStyle.merge(
           style: TextStyle(
             color: tokens.fg,

@@ -412,7 +412,7 @@ class _Word extends StatelessWidget {
     final PlassTokens tokens = PlassTheme.of(context);
     final PlassColorFamily family = tokens.family(color);
     final double fontSize = controlText[size]!;
-    final BorderRadius radius = BorderRadius.circular(PlassTokens.radius[size]!);
+    final BorderRadius radius = BorderRadius.circular(tokens.radii[size]!);
     // A word on a strip, not a key in a row: the compact track at every step,
     // because the default one would space three words like three buttons.
     final double padX = paddingX[PlassDensity.compact]![size]!;

@@ -13,7 +13,6 @@ import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/internal/target.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// The room the stack keeps from the edge of the screen.
@@ -373,7 +372,7 @@ class _PlToastProviderState extends State<PlToastProvider>
 
     final entry = _Entry(
       toast: toast._named(id),
-      fade: AnimationController(vsync: this, duration: PlassTokens.duration),
+      fade: AnimationController(vsync: this, duration: PlassTheme.of(context).motionDuration),
     );
 
     setState(() => _entries.add(entry));
@@ -562,9 +561,10 @@ class _PlToastProviderState extends State<PlToastProvider>
   Widget build(BuildContext context) {
     final visible = _entries.take(widget.limit).toList();
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final fade = reduceMotion ? Duration.zero : PlassTheme.of(context).motionDuration;
 
     for (final entry in _entries) {
-      entry.fade.duration = reduceMotion ? Duration.zero : PlassTokens.duration;
+      entry.fade.duration = fade;
     }
 
     return _PlToastScope(
@@ -728,7 +728,7 @@ class _Toast extends StatelessWidget {
       child: PlassTargetScope(
         child: PlassSurfaceBox(
           surface: surface,
-          borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
+          borderRadius: BorderRadius.circular(tokens.radii[size]!),
           child: Padding(
             padding: EdgeInsets.symmetric(
               horizontal: sheetPaddingX[density]![size]!,

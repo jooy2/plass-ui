@@ -6,7 +6,6 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// How the artwork is framed, which is the one question this widget exists to
@@ -155,7 +154,7 @@ class PlAppLogo extends StatelessWidget {
           surface: surface,
           borderRadius: shape == PlAppLogoShape.circle
               ? BorderRadius.circular(height)
-              : BorderRadius.circular(PlassTokens.radius[size]!),
+              : BorderRadius.circular(tokens.radii[size]!),
           child: Center(
             child: SizedBox.square(
               dimension: height * _inset,

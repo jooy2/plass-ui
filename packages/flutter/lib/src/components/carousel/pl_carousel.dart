@@ -9,7 +9,6 @@ import 'package:plass_ui/src/components/icon_button/pl_icon_button.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// How far the arrows sit in from the frame's edge.
@@ -253,7 +252,7 @@ class _PlCarouselState extends State<PlCarousel> {
       _pages.animateToPage(
         _index,
         duration: _travel == Duration.zero ? const Duration(milliseconds: 1) : _travel,
-        curve: PlassTokens.ease,
+        curve: PlassTheme.of(context).motionEase,
       );
     }
 
@@ -289,7 +288,7 @@ class _PlCarouselState extends State<PlCarousel> {
   /// A reader who has asked for less motion gets the cut rather than the travel.
   Duration get _travel => (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
       ? Duration.zero
-      : PlassTokens.durationSlow;
+      : PlassTheme.of(context).motionDurationSlow;
 
   bool get _reduceMotion => MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
@@ -361,7 +360,7 @@ class _PlCarouselState extends State<PlCarousel> {
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
     final family = tokens.family(_color);
-    final radius = BorderRadius.circular(PlassTokens.radius[_size]!);
+    final radius = BorderRadius.circular(tokens.radii[_size]!);
     final dot = _dot[_size]!;
 
     Widget strip = PageView.builder(
@@ -382,7 +381,7 @@ class _PlCarouselState extends State<PlCarousel> {
     Widget frame = PlassSurfaceBox(
       surface: sheetSurface(tokens, variant: widget.variant, elevation: widget.elevation),
       borderRadius: radius,
-      duration: PlassTokens.durationSlow,
+      duration: tokens.motionDurationSlow,
       child: ClipRRect(borderRadius: radius, child: strip),
     );
 
@@ -563,7 +562,7 @@ class _Dot extends StatelessWidget {
               child: Center(
                 child: AnimatedContainer(
                   duration: duration,
-                  curve: PlassTokens.ease,
+                  curve: PlassTheme.of(context).motionEase,
                   width: current ? grown : rest,
                   height: height,
                   decoration: BoxDecoration(

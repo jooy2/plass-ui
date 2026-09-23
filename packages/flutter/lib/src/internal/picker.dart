@@ -248,7 +248,7 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
     final size = widget.size;
     final scale = controlTextLeading[size]!;
     final meta = metaText[size]!;
-    final radius = BorderRadius.circular(PlassTokens.radius[size]!);
+    final radius = BorderRadius.circular(tokens.radii[size]!);
     final placement =
         widget.labelPlacement ??
         PlassTheme.labelPlacementOf(context) ??

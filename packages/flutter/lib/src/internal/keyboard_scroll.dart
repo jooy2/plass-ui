@@ -6,7 +6,6 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// How far one arrow key press moves the view, about a line of body text.
@@ -101,7 +100,9 @@ class _PlassKeyboardScrollState extends State<PlassKeyboardScroll> {
     if (_reduceMotion) {
       controller.jumpTo(target);
     } else {
-      controller.animateTo(target, duration: PlassTokens.duration, curve: PlassTokens.ease);
+      final tokens = PlassTheme.of(context);
+
+      controller.animateTo(target, duration: tokens.motionDuration, curve: tokens.motionEase);
     }
 
     return KeyEventResult.handled;

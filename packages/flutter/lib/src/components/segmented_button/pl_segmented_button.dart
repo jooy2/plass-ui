@@ -364,8 +364,8 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>>
       children: <Widget>[
         if (_tile != null)
           AnimatedPositioned(
-            duration: reduceMotion ? Duration.zero : PlassTokens.duration,
-            curve: PlassTokens.ease,
+            duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+            curve: tokens.motionEase,
             left: _tile!.left,
             top: _tile!.top,
             width: _tile!.width,

@@ -11,7 +11,6 @@ import 'package:plass_ui/src/internal/notch.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// The vertical padding a multiline field takes, per size.
@@ -327,7 +326,7 @@ class _PlTextFieldState extends State<PlTextField> {
     final size = _size;
     final scale = controlTextLeading[size]!;
     final meta = metaText[size]!;
-    final radius = BorderRadius.circular(PlassTokens.radius[size]!);
+    final radius = BorderRadius.circular(tokens.radii[size]!);
     // A notch with nothing in it is a gap in the edge for no reason, so the
     // placement only takes effect where there is a label to put there.
     final notched = _labelPlacement == PlassFieldLabelPlacement.notch && widget.label != null;

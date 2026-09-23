@@ -48,7 +48,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:plass_ui/src/theme/tokens.dart';
+import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// The default proportion of a widget that has to be on screen before
@@ -611,7 +611,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
-    final Curve curve = widget.settings.curve ?? PlassTokens.ease;
+    final Curve curve = widget.settings.curve ?? PlassTheme.of(context).motionEase;
     final bool still = prefersReducedMotion(context);
 
     return PlassAnimateGate(

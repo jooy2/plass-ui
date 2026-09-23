@@ -27,12 +27,6 @@ const Map<PlassSize, double> barThickness = <PlassSize, double>{
   PlassSize.xl: 10,
 };
 
-/// How long a determinate indicator takes to travel to a new value.
-///
-/// One step slower than a control's, so a fill reads as travel rather than as a
-/// state change. `--plass-duration-slow` in the stylesheet.
-const Duration fillDuration = Duration(milliseconds: 260);
-
 /// How long the indeterminate segment takes to cross the groove once.
 const Duration sweepDuration = Duration(milliseconds: 1150);
 

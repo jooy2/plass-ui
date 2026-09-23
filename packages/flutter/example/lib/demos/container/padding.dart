@@ -25,14 +25,14 @@ class ContainerPadding extends StatelessWidget {
                 DecoratedBox(
                   decoration: BoxDecoration(
                     color: tokens.glassPress,
-                    borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.md]!),
+                    borderRadius: BorderRadius.circular(tokens.radii[PlassSize.md]!),
                   ),
                   child: PlContainer(
                     density: density,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         color: tokens.glass,
-                        borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.sm]!),
+                        borderRadius: BorderRadius.circular(tokens.radii[PlassSize.sm]!),
                       ),
                       child: const Padding(
                         padding: EdgeInsets.symmetric(vertical: 8),

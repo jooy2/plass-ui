@@ -203,7 +203,7 @@ class _PlScrollAreaState extends State<PlScrollArea> {
       );
     }
 
-    final radius = BorderRadius.circular(PlassTokens.radius[size]!);
+    final radius = BorderRadius.circular(tokens.radii[size]!);
 
     // Outside the clip, so the focus ring is not cut off along with the content.
     final Widget box = PlassKeyboardScroll(

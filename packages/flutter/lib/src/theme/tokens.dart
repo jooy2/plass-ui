@@ -271,6 +271,10 @@ class PlassTokens {
     required this.chartAxis,
     required this.chartBaseline,
     required this.families,
+    this.radii = radius,
+    this.motionDuration = duration,
+    this.motionDurationSlow = durationSlow,
+    this.motionEase = ease,
   });
 
   /// The light theme, and the default.
@@ -626,6 +630,34 @@ class PlassTokens {
   /// The six colour families, resolved for this theme.
   final Map<PlassColor, PlassColorFamily> families;
 
+  /// Corner radius, one per rung of the size ladder: `--plass-radius-*`.
+  ///
+  /// Roughly 30% of the control height, and roughly constant in feel across the
+  /// ladder — a Plass corner is a moulded fillet, not a pill and not a chamfer.
+  /// Every component reads its corners from here, so a set with other radii is
+  /// a whole screen with other corners. Starts from [radius] in both themes.
+  final Map<PlassSize, double> radii;
+
+  /// How long a control takes to answer: `--plass-duration`.
+  ///
+  /// One duration and one curve, applied the same way in both directions — a
+  /// key going down and a key coming back up are the same spring. Starts from
+  /// [duration] in both themes.
+  final Duration motionDuration;
+
+  /// The slower of the two, for anything larger than a control:
+  /// `--plass-duration-slow`.
+  ///
+  /// A sheet that takes the page and a height that travels — a modal, a drawer,
+  /// an accordion's fold — run on this. Starts from [durationSlow] in both
+  /// themes.
+  final Duration motionDurationSlow;
+
+  /// The house curve, which both durations run on: `--plass-ease`.
+  ///
+  /// Starts from [ease] in both themes.
+  final Curve motionEase;
+
   /// One family. There are six and they are all present, so this never fails.
   PlassColorFamily family(PlassColor color) => families[color]!;
 
@@ -653,9 +685,23 @@ class PlassTokens {
   /// equal to the one in scope changes nothing, but one built from scratch on
   /// every frame is still six families' worth of comparison each time.
   ///
-  /// [radius], [duration] and [ease] are not here. They are `static const` and
-  /// read as statics throughout the library, so they are the same in every
-  /// theme.
+  /// The scales move the same way. [radii] has to name all five sizes, and
+  /// [motionEase] is compared by identity unless the curve class says
+  /// otherwise, so a `const` curve is the one to hand it:
+  ///
+  /// ```dart
+  /// PlassTokens.light().copyWith(
+  ///   radii: const <PlassSize, double>{
+  ///     PlassSize.xs: 4,
+  ///     PlassSize.sm: 4,
+  ///     PlassSize.md: 6,
+  ///     PlassSize.lg: 6,
+  ///     PlassSize.xl: 8,
+  ///   },
+  ///   motionDuration: const Duration(milliseconds: 200),
+  ///   motionEase: Curves.easeOutCubic,
+  /// )
+  /// ```
   PlassTokens copyWith({
     Brightness? brightness,
     Color? surface,
@@ -689,7 +735,16 @@ class PlassTokens {
     Color? chartAxis,
     Color? chartBaseline,
     Map<PlassColor, PlassColorFamily>? families,
+    Map<PlassSize, double>? radii,
+    Duration? motionDuration,
+    Duration? motionDurationSlow,
+    Curve? motionEase,
   }) {
+    assert(
+      radii == null || PlassSize.values.every(radii.containsKey),
+      'radii has to name every PlassSize: every component reads its corner off one of them.',
+    );
+
     return PlassTokens._(
       brightness: brightness ?? this.brightness,
       surface: surface ?? this.surface,
@@ -723,6 +778,10 @@ class PlassTokens {
       chartAxis: chartAxis ?? this.chartAxis,
       chartBaseline: chartBaseline ?? this.chartBaseline,
       families: families ?? this.families,
+      radii: radii ?? this.radii,
+      motionDuration: motionDuration ?? this.motionDuration,
+      motionDurationSlow: motionDurationSlow ?? this.motionDurationSlow,
+      motionEase: motionEase ?? this.motionEase,
     );
   }
 
@@ -772,7 +831,11 @@ class PlassTokens {
         other.chartGrid == chartGrid &&
         other.chartAxis == chartAxis &&
         other.chartBaseline == chartBaseline &&
-        mapEquals(other.families, families);
+        mapEquals(other.families, families) &&
+        mapEquals(other.radii, radii) &&
+        other.motionDuration == motionDuration &&
+        other.motionDurationSlow == motionDurationSlow &&
+        other.motionEase == motionEase;
   }
 
   @override
@@ -813,6 +876,12 @@ class PlassTokens {
         (MapEntry<PlassColor, PlassColorFamily> entry) => Object.hash(entry.key, entry.value),
       ),
     ),
+    Object.hashAllUnordered(
+      radii.entries.map((MapEntry<PlassSize, double> entry) => Object.hash(entry.key, entry.value)),
+    ),
+    motionDuration,
+    motionDurationSlow,
+    motionEase,
   ]);
 
   /// The bloom that follows the pointer across a surface of [variant].
@@ -845,12 +914,20 @@ class PlassTokens {
   Color fieldFlash(PlassColorFamily family) => colorMix(family.softHover, glowFieldStrength);
 
   /* -------------------------------------------------------------------------
-   * Scales that do not change with the theme
+   * The defaults the scales start from
+   *
+   * [radii], [motionDuration], [motionDurationSlow] and [motionEase] are what
+   * the components read, off the set in scope. These four are the values both
+   * shipped sets start them from, and they stay `static const` because they
+   * were public before the scales could move: they are the defaults, not the
+   * values in force, and they do not follow a theme.
    * ---------------------------------------------------------------------- */
 
-  /// Corner radius: roughly 30% of the control height, and roughly constant in
-  /// feel across the ladder — a Plass corner is a moulded fillet, not a pill
-  /// and not a chamfer.
+  /// The default for [radii].
+  ///
+  /// Read [radii] off `PlassTheme.of(context)` instead wherever there is a
+  /// context: this is what a set starts from, not what the theme in scope
+  /// decided.
   static const Map<PlassSize, double> radius = <PlassSize, double>{
     PlassSize.xs: 8,
     PlassSize.sm: 10,
@@ -859,15 +936,18 @@ class PlassTokens {
     PlassSize.xl: 16,
   };
 
-  /// One duration and one curve, applied the same way in both directions — a
-  /// key going down and a key coming back up are the same spring.
+  /// The default for [motionDuration], 150ms.
   static const Duration duration = Duration(milliseconds: 150);
 
-  /// The slower of the two, for anything larger than a control.
+  /// The default for [motionDurationSlow], 260ms.
   static const Duration durationSlow = Duration(milliseconds: 260);
 
-  /// The house curve.
+  /// The default for [motionEase].
   static const Curve ease = Cubic(0.16, 0.9, 0.3, 1);
+
+  /* -------------------------------------------------------------------------
+   * Scales that do not change with the theme
+   * ---------------------------------------------------------------------- */
 
   /// How much of a key's interaction light a **field** carries, as a percentage.
   ///

@@ -7,7 +7,6 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/progress.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// A row of small glass plates that light up.
@@ -255,6 +254,7 @@ class _Plate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = PlassTheme.of(context);
     final fill = DecoratedBox(decoration: BoxDecoration(gradient: gradient));
 
     final Widget cover = wave != null
@@ -271,8 +271,8 @@ class _Plate extends StatelessWidget {
         : Align(
             alignment: AlignmentDirectional.centerStart,
             child: AnimatedFractionallySizedBox(
-              duration: still ? Duration.zero : fillDuration,
-              curve: PlassTokens.ease,
+              duration: still ? Duration.zero : tokens.motionDurationSlow,
+              curve: tokens.motionEase,
               alignment: AlignmentDirectional.centerStart,
               widthFactor: filled,
               heightFactor: 1,

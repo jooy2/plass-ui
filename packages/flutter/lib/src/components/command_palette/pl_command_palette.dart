@@ -430,7 +430,7 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
         insets: <PlassInsetShadow>[tokens.glossGlass],
         shadows: tokens.elevation(3),
       ),
-      borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
+      borderRadius: BorderRadius.circular(tokens.radii[size]!),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -627,7 +627,7 @@ class _Row extends StatelessWidget {
 
     row = PlassSurfaceBox(
       surface: PlassSurface(fill: highlighted && !item.disabled ? family.soft : null, ink: ink),
-      borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
+      borderRadius: BorderRadius.circular(tokens.radii[size]!),
       child: row,
     );
 

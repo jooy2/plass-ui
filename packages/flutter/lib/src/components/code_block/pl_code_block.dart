@@ -810,7 +810,7 @@ class _PlCodeBlockState extends State<PlCodeBlock> {
     final PlassTextScale scale = _codeText[size]!;
     final double fontSize = widget.fontSize ?? scale.size;
     final double lineHeight = widget.lineHeight ?? scale.height;
-    final BorderRadius radius = BorderRadius.circular(PlassTokens.radius[size]!);
+    final BorderRadius radius = BorderRadius.circular(tokens.radii[size]!);
 
     final bool coloured = widget.lines != null && !_raw;
     final List<PlCodeLine> lines = coloured ? widget.lines! : plainCodeLines(_source);
@@ -1187,7 +1187,7 @@ class _BarButtonState extends State<_BarButton> {
   Widget build(BuildContext context) {
     final palette = widget.palette;
     final double meta = metaText[widget.size]!;
-    final BorderRadius radius = BorderRadius.circular(PlassTokens.radius[PlassSize.xs]!);
+    final BorderRadius radius = BorderRadius.circular(PlassTheme.of(context).radii[PlassSize.xs]!);
 
     return Semantics(
       button: true,

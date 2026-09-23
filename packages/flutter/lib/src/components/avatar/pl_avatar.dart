@@ -8,7 +8,6 @@ import 'package:plass_ui/src/internal/decode.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// The crop, not the material.
@@ -222,7 +221,7 @@ class _PlAvatarState extends State<PlAvatar> {
 
     final radius = _shape == PlAvatarShape.circle
         ? BorderRadius.circular(box)
-        : BorderRadius.circular(PlassTokens.radius[_size]!);
+        : BorderRadius.circular(tokens.radii[_size]!);
 
     Widget fallback = DefaultTextStyle.merge(
       style: TextStyle(

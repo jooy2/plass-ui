@@ -240,7 +240,7 @@ class PlBottomNavigation<T> extends StatelessWidget {
       surface: sheetSurface(tokens, variant: variant, elevation: elevation),
       // A bar spanning an edge of the screen has nothing behind its corners.
       borderRadius: BorderRadius.zero,
-      duration: PlassTokens.durationSlow,
+      duration: tokens.motionDurationSlow,
       child: divider
           ? DecoratedBox(
               decoration: BoxDecoration(
@@ -275,7 +275,7 @@ class PlBottomNavigation<T> extends StatelessWidget {
         labels == PlBottomNavigationLabels.all ||
         (labels == PlBottomNavigationLabels.selected && selected);
 
-    final BorderRadius radius = BorderRadius.circular(PlassTokens.radius[size]!);
+    final BorderRadius radius = BorderRadius.circular(tokens.radii[size]!);
 
     return PlassInteractive(
       enabled: interactive,

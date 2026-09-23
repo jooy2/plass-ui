@@ -179,8 +179,8 @@ class _PlProgressLinearState extends State<PlProgressLinear> with SingleTickerPr
               : Align(
                   alignment: AlignmentDirectional.centerStart,
                   child: AnimatedFractionallySizedBox(
-                    duration: still ? Duration.zero : fillDuration,
-                    curve: PlassTokens.ease,
+                    duration: still ? Duration.zero : tokens.motionDurationSlow,
+                    curve: tokens.motionEase,
                     alignment: AlignmentDirectional.centerStart,
                     widthFactor: fraction,
                     heightFactor: 1,
@@ -284,6 +284,8 @@ class _Sweep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ease = PlassTheme.of(context).motionEase;
+
     return RepaintBoundary(
       child: AnimatedBuilder(
         animation: animation,
@@ -295,7 +297,7 @@ class _Sweep extends StatelessWidget {
             return Opacity(opacity: 0.4 + breath * 0.6, child: child);
           }
 
-          final eased = PlassTokens.ease.transform(animation.value);
+          final eased = ease.transform(animation.value);
 
           return FractionallySizedBox(
             // An alignment's -1 and 1 only put the segment flush against the

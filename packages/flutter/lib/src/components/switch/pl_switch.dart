@@ -8,7 +8,6 @@ import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// Track and thumb.
@@ -164,8 +163,8 @@ class PlSwitch extends StatelessWidget {
       // and a track with corners is a track the thumb would have to climb out
       // of.
       Widget rails = AnimatedContainer(
-        duration: reduceMotion ? Duration.zero : PlassTokens.duration,
-        curve: PlassTokens.ease,
+        duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+        curve: tokens.motionEase,
         width: rail.width,
         height: rail.height,
         decoration: BoxDecoration(
@@ -177,8 +176,8 @@ class PlSwitch extends StatelessWidget {
         child: Stack(
           children: <Widget>[
             AnimatedPositionedDirectional(
-              duration: reduceMotion ? Duration.zero : PlassTokens.duration,
-              curve: PlassTokens.ease,
+              duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+              curve: tokens.motionEase,
               top: _inset,
               start: value ? _inset + travel : _inset,
               child: SizedBox.square(

@@ -673,7 +673,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     final size = _size;
     final scale = controlTextLeading[size]!;
     final meta = metaText[size]!;
-    final radius = BorderRadius.circular(PlassTokens.radius[size]!);
+    final radius = BorderRadius.circular(tokens.radii[size]!);
 
     final field = PlassAnchoredPortal(
       open: _open,
@@ -846,8 +846,8 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
               child: Center(
                 child: AnimatedRotation(
                   turns: turns,
-                  duration: PlassTokens.duration,
-                  curve: PlassTokens.ease,
+                  duration: tokens.motionDuration,
+                  curve: tokens.motionEase,
                   child: PlassGlyph(shape, size: glyph, color: tokens.mutedFg),
                 ),
               ),
@@ -1076,7 +1076,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
           insets: <PlassInsetShadow>[tokens.glossGlass],
           shadows: tokens.elevation(plassElevationMax),
         ),
-        borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
+        borderRadius: BorderRadius.circular(tokens.radii[size]!),
         child: Semantics(
           container: true,
           explicitChildNodes: true,
@@ -1165,7 +1165,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
             child: DecoratedBox(
               decoration: BoxDecoration(
                 color: lit ? family.soft : null,
-                borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.xs]!),
+                borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
               ),
               child: Padding(
                 padding: const EdgeInsetsDirectional.only(

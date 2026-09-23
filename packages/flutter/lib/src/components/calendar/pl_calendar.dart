@@ -8,7 +8,6 @@ import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/picker.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 export 'package:plass_ui/src/internal/date.dart' show PlDateNames, PlPickerLabels;
@@ -202,7 +201,7 @@ class _PlCalendarState extends State<PlCalendar> {
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
-    final radius = BorderRadius.circular(PlassTokens.radius[_size]!);
+    final radius = BorderRadius.circular(tokens.radii[_size]!);
     final inert = widget.disabled || widget.onChanged == null;
 
     Widget calendar = PlassCalendar(

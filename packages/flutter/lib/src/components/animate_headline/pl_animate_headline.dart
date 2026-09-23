@@ -6,7 +6,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/animate.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
+import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// One line replacing the one above it, on a timer.
@@ -303,7 +303,7 @@ class _ReelState extends State<_Reel> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final bool still = prefersReducedMotion(context);
-    final Curve curve = widget.curve ?? PlassTokens.ease;
+    final Curve curve = widget.curve ?? PlassTheme.of(context).motionEase;
 
     return ClipRect(
       child: Stack(

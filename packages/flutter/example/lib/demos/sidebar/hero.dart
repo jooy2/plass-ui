@@ -14,7 +14,7 @@ class SidebarHero extends StatelessWidget {
       width: 520,
       height: 320,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.md]!),
+        borderRadius: BorderRadius.circular(tokens.radii[PlassSize.md]!),
         child: PlPageLayout(
           collapseBelow: null,
           header: const PlHeader(
@@ -32,7 +32,7 @@ class SidebarHero extends StatelessWidget {
                   DecoratedBox(
                     decoration: BoxDecoration(
                       color: item == _items.first ? tokens.family(PlassColor.primary).soft : null,
-                      borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.sm]!),
+                      borderRadius: BorderRadius.circular(tokens.radii[PlassSize.sm]!),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),

@@ -138,8 +138,8 @@ class PlassStepBullet extends StatelessWidget {
       child: SizedBox.square(
         dimension: size,
         child: AnimatedContainer(
-          duration: PlassTokens.duration,
-          curve: PlassTokens.ease,
+          duration: tokens.motionDuration,
+          curve: tokens.motionEase,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: filled ? family.fill : null,

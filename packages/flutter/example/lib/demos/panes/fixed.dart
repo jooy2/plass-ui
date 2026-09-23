@@ -11,7 +11,7 @@ class PanesFixed extends StatelessWidget {
       width: 448,
       height: 160,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.lg]!),
+        borderRadius: BorderRadius.circular(PlassTheme.of(context).radii[PlassSize.lg]!),
         child: const PlPanes(
           resizable: false,
           panes: <PlPane>[

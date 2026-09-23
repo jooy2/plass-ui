@@ -353,7 +353,7 @@ class _Trigger extends StatelessWidget {
     final PlassColorFamily family = tokens.family(color);
     final bool reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
     final double fontSize = controlText[size]!;
-    final BorderRadius radius = BorderRadius.circular(PlassTokens.radius[size]!);
+    final BorderRadius radius = BorderRadius.circular(tokens.radii[size]!);
 
     final Widget trigger = MouseRegion(
       onEnter: (PointerEnterEvent event) => onHover(),
@@ -393,8 +393,8 @@ class _Trigger extends StatelessWidget {
                   // rotating is not a control moving.
                   AnimatedRotation(
                     turns: open ? 0.5 : 0,
-                    duration: reduceMotion ? Duration.zero : PlassTokens.duration,
-                    curve: PlassTokens.ease,
+                    duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+                    curve: tokens.motionEase,
                     child: PlassGlyph(
                       PlassGlyphShape.chevron,
                       size: fontSize * iconScale,
@@ -530,7 +530,7 @@ class _Panel extends StatelessWidget {
             insets: <PlassInsetShadow>[tokens.glossGlass],
             shadows: tokens.elevation(3),
           ),
-          borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
+          borderRadius: BorderRadius.circular(tokens.radii[size]!),
           child: Padding(padding: EdgeInsets.all(pad), child: body),
         ),
       ),
@@ -559,7 +559,7 @@ class _Link extends StatelessWidget {
     final PlassTokens tokens = PlassTheme.of(context);
     final PlassColorFamily family = tokens.family(color);
     final PlassTextScale title = controlTextLeading[size]!;
-    final BorderRadius radius = BorderRadius.circular(PlassTokens.radius[size]!);
+    final BorderRadius radius = BorderRadius.circular(tokens.radii[size]!);
 
     final VoidCallback? choose = link.onPressed == null
         ? null

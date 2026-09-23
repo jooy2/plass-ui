@@ -204,7 +204,7 @@ class PlCard extends StatelessWidget {
     final tokens = PlassTheme.of(context);
     final family = tokens.family(color);
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
-    final radius = BorderRadius.circular(PlassTokens.radius[size]!);
+    final radius = BorderRadius.circular(tokens.radii[size]!);
 
     var surface = sheetSurface(tokens, variant: variant, elevation: elevation);
 
@@ -243,8 +243,8 @@ class PlCard extends StatelessWidget {
 
     card = TweenAnimationBuilder<double>(
       tween: Tween<double>(end: _lifts && state.hovered && !state.pressed ? -_lift : 0),
-      duration: reduceMotion ? Duration.zero : PlassTokens.duration,
-      curve: PlassTokens.ease,
+      duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+      curve: tokens.motionEase,
       child: card,
       // Translated by nothing at rest rather than left unwrapped, and on a card
       // that never lifts as well: a wrapper that comes and goes with the hover,

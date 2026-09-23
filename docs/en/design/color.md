@@ -139,7 +139,26 @@ PlassTheme.tokens(
 
 Build the set once and hold it rather than in `build`. Two sets with the same values compare equal and change nothing, but a set rebuilt every frame is still six families' worth of comparison each time.
 
-`radius`, `duration` and `ease` are not on the set. The library reads them as constants, so they are the same in every theme.
+The corners and the motion move the same way. `radii` is the ladder the web spells `--plass-radius-*`, and `motionDuration`, `motionDurationSlow` and `motionEase` are `--plass-duration`, `--plass-duration-slow` and `--plass-ease`. Every component reads them off the nearest set above it, so one set gives a whole screen other corners or another pace.
+
+```dart
+PlassTheme.tokens(
+  tokens: PlassTokens.light().copyWith(
+    radii: const <PlassSize, double>{
+      PlassSize.xs: 4,
+      PlassSize.sm: 4,
+      PlassSize.md: 6,
+      PlassSize.lg: 6,
+      PlassSize.xl: 8,
+    },
+    motionDuration: const Duration(milliseconds: 200),
+    motionEase: Curves.easeOutCubic,
+  ),
+  child: const App(),
+)
+```
+
+`radii` has to name all five sizes. `PlassTokens.radius`, `duration`, `durationSlow` and `ease` are still there and hold the defaults a set starts from, but they do not follow the theme. A widget of your own that should match the library's corners reads `PlassTheme.of(context).radii` instead.
 
 :::
 

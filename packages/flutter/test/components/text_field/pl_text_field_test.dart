@@ -399,7 +399,9 @@ void main() {
         expect(
           label.left,
           closeTo(
-            field.left + notchInset(PlassDensity.standard, PlassSize.md) + notchPad(PlassSize.md),
+            field.left +
+                notchInset(PlassDensity.standard, PlassSize.md, PlassTokens.radius) +
+                notchPad(PlassSize.md),
             0.5,
           ),
         );

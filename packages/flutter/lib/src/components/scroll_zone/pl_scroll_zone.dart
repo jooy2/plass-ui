@@ -11,7 +11,6 @@ import 'package:plass_ui/src/internal/keyboard_scroll.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/wheel.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// When the scroll buttons are drawn.
@@ -387,7 +386,7 @@ class _PlScrollZoneState extends State<PlScrollZone> with SingleTickerProviderSt
   /// A reader who has asked for less motion gets the cut rather than the travel.
   Duration get _travel => (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
       ? Duration.zero
-      : PlassTokens.duration;
+      : PlassTheme.of(context).motionDuration;
 
   void _to(double offset) {
     if (!_scroll.hasClients) {
@@ -403,7 +402,7 @@ class _PlScrollZoneState extends State<PlScrollZone> with SingleTickerProviderSt
       return;
     }
 
-    _scroll.animateTo(target, duration: _travel, curve: PlassTokens.ease);
+    _scroll.animateTo(target, duration: _travel, curve: PlassTheme.of(context).motionEase);
   }
 
   /// Where each group starts, in the scroll view's own coordinates.
@@ -699,7 +698,7 @@ class _PlScrollZoneState extends State<PlScrollZone> with SingleTickerProviderSt
     strip = PlassKeyboardScroll(
       vertical: _horizontal ? null : _scroll,
       horizontal: _horizontal ? _scroll : null,
-      borderRadius: BorderRadius.circular(PlassTokens.radius[_size]!),
+      borderRadius: BorderRadius.circular(tokens.radii[_size]!),
       child: strip,
     );
 

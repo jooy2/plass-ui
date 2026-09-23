@@ -353,7 +353,7 @@ class _PlSidebarState extends State<PlSidebar> {
     panel = PlassSurfaceBox(
       surface: sheetSurface(tokens, variant: widget.variant, elevation: widget.elevation),
       borderRadius: BorderRadius.zero,
-      duration: PlassTokens.durationSlow,
+      duration: tokens.motionDurationSlow,
       child: panel,
     );
 
@@ -447,12 +447,13 @@ class _ResizeHandleState extends State<_ResizeHandle> {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = PlassTheme.of(context);
     final bool lit = _hovered || _dragging || _focusVisible;
     final bool rtl = Directionality.of(context) == TextDirection.rtl;
 
     Widget mark = AnimatedContainer(
-      duration: PlassTokens.duration,
-      curve: PlassTokens.ease,
+      duration: tokens.motionDuration,
+      curve: tokens.motionEase,
       color: lit ? widget.family.soft : null,
     );
 

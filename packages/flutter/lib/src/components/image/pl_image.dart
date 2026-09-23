@@ -16,7 +16,6 @@ import 'package:plass_ui/src/internal/image.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/watermark.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 export 'package:plass_ui/src/internal/watermark.dart'
@@ -652,7 +651,7 @@ class _PlImageState extends State<PlImage> {
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
     final family = tokens.family(_color);
-    final radius = BorderRadius.circular(widget.rounded ? PlassTokens.radius[_size]! : 0);
+    final radius = BorderRadius.circular(widget.rounded ? tokens.radii[_size]! : 0);
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     final placeholder =
@@ -715,11 +714,11 @@ class _PlImageState extends State<PlImage> {
       // A picture decoded again for a box that grew has already arrived, and
       // goes on being drawn while the larger decode is on its way.
       final bool arrived = frame != null || _status == PlImageStatus.loaded;
-      final Duration fade = reduceMotion ? Duration.zero : PlassTokens.duration;
+      final Duration fade = reduceMotion ? Duration.zero : tokens.motionDuration;
       final Widget fading = AnimatedOpacity(
         opacity: arrived ? 1 : 0,
         duration: fade,
-        curve: PlassTokens.ease,
+        curve: tokens.motionEase,
         child: treated,
       );
       final Widget? standIn = _standIn(arrived: arrived, fade: fade);

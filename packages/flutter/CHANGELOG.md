@@ -6,6 +6,8 @@
 
 ### Added
 
+- **`PlassTokens` carries the corner radii and the motion, so `copyWith` moves them too.** `radii`, `motionDuration`, `motionDurationSlow` and `motionEase` are the Dart names of `--plass-radius-*`, `--plass-duration`, `--plass-duration-slow` and `--plass-ease`, and every component reads them off the theme, including a fold or a fade that is already on screen when the theme changes. `PlassTokens.radius`, `duration`, `durationSlow` and `ease` stay, with the same values, as the defaults both shipped sets start from; a widget of your own that should match the library reads `PlassTheme.of(context).radii` rather than the static.
+
 - **`PlAccordion` takes `headingLevel`, so its headers sit at the level the page's outline needs.** Every header was a level-3 heading, so an FAQ straight under the page's title skipped a level. It takes `1` to `6` and defaults to `3`; only the semantics change, never the type scale.
 
 - **An `autoPlay` `PlCarousel` has a button that stops it and starts it again, and stops once the focus comes into it.** There was no way to stop it, which WCAG 2.2.2 asks for, and a keyboard focus inside did not pause it at all. The button sits in the frame's top corner, is named from the new `carouselStop` and `carouselPlay` keys in all seven packs or from `playLabel` and `stopLabel`, and is left out of a carousel with no `onChanged`. The pointer pauses it only while it is over the frame, and a reader who asked for reduced motion starts stopped and can start it from the button.

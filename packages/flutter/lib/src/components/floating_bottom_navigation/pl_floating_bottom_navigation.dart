@@ -302,8 +302,8 @@ class _PlFloatingBottomNavigationState<T> extends State<PlFloatingBottomNavigati
       children: <Widget>[
         if (_rect != null)
           AnimatedPositioned(
-            duration: reduceMotion ? Duration.zero : PlassTokens.duration,
-            curve: PlassTokens.ease,
+            duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+            curve: tokens.motionEase,
             left: _rect!.left,
             top: _rect!.top,
             width: _rect!.width,
@@ -329,7 +329,7 @@ class _PlFloatingBottomNavigationState<T> extends State<PlFloatingBottomNavigati
         : PlassSurfaceBox(
             surface: sheetSurface(tokens, variant: widget.variant, elevation: widget.elevation),
             borderRadius: capsule,
-            duration: PlassTokens.durationSlow,
+            duration: tokens.motionDurationSlow,
             child: row,
           );
 

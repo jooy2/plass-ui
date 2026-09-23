@@ -45,7 +45,7 @@ const Map<PlassSize, double> _lineGap = <PlassSize, double>{
 /// A bar's corner, at ~45% of its own height — held just short of the 50% that
 /// would make it a capsule.
 ///
-/// Not [PlassTokens.radius], which is ~30% of a *control's* height: 12 on a
+/// Not [PlassTokens.radii], which is ~30% of a *control's* height: 12 on a
 /// 13px bar is a capsule and a half. Not [tickRadius] either, which is sized
 /// against a box rather than against a run of text.
 const Map<PlassSize, double> _barRadius = <PlassSize, double>{
@@ -231,7 +231,7 @@ class PlSkeleton extends StatelessWidget {
         : shape == PlSkeletonShape.rect
         // A block's corner is the sheet ladder, because a block stands for a
         // sheet.
-        ? BorderRadius.circular(PlassTokens.radius[size]!)
+        ? BorderRadius.circular(PlassTheme.of(context).radii[size]!)
         : BorderRadius.circular(_barRadius[size]!);
 
     Widget bar = DecoratedBox(
@@ -314,6 +314,8 @@ class _Highlight extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ease = PlassTheme.of(context).motionEase;
+
     return AnimatedBuilder(
       animation: travel,
       builder: (BuildContext context, Widget? child) {
@@ -331,7 +333,7 @@ class _Highlight extends StatelessWidget {
           );
         }
 
-        final eased = PlassTokens.ease.transform(travel.value);
+        final eased = ease.transform(travel.value);
 
         return DecoratedBox(
           position: DecorationPosition.foreground,

@@ -356,8 +356,8 @@ class _Radio<T> extends StatelessWidget {
       // smudge at 18px, and a `0 6px 16px` shadow under an 18px circle is
       // bigger than the circle. The glass stays; only the two decorations go.
       Widget circle = AnimatedContainer(
-        duration: reduceMotion ? Duration.zero : PlassTokens.duration,
-        curve: PlassTokens.ease,
+        duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+        curve: tokens.motionEase,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: selected ? null : tokens.glass,
@@ -379,8 +379,8 @@ class _Radio<T> extends StatelessWidget {
         // the same point and nothing outside the ring can be moved by either.
         child: Center(
           child: AnimatedContainer(
-            duration: reduceMotion ? Duration.zero : PlassTokens.duration,
-            curve: PlassTokens.ease,
+            duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+            curve: tokens.motionEase,
             width: selected ? dot : 0,
             height: selected ? dot : 0,
             decoration: BoxDecoration(shape: BoxShape.circle, color: family.onSolid),

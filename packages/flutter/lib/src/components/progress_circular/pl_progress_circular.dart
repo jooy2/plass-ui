@@ -10,7 +10,6 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/progress.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// A ring that fills.
@@ -167,8 +166,8 @@ class _PlProgressCircularState extends State<PlProgressCircular>
               )
             : TweenAnimationBuilder<double>(
                 tween: Tween<double>(end: fraction),
-                duration: still ? Duration.zero : fillDuration,
-                curve: PlassTokens.ease,
+                duration: still ? Duration.zero : tokens.motionDurationSlow,
+                curve: tokens.motionEase,
                 builder: (BuildContext context, double value, Widget? child) => CustomPaint(
                   painter: _RingPainter(
                     track: tokens.track,

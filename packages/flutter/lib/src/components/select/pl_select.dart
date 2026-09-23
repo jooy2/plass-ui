@@ -336,7 +336,7 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
     final size = _size;
     final scale = controlTextLeading[size]!;
     final meta = metaText[size]!;
-    final radius = BorderRadius.circular(PlassTokens.radius[size]!);
+    final radius = BorderRadius.circular(tokens.radii[size]!);
     final chosen = _chosen;
     // A notch with nothing in it is a gap in the edge for no reason, so the
     // placement only takes effect where there is a label to put there.
@@ -436,8 +436,8 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
                   // glyph, not a label, and nothing about it resamples.
                   AnimatedRotation(
                     turns: _open ? 0.5 : 0,
-                    duration: PlassTokens.duration,
-                    curve: PlassTokens.ease,
+                    duration: tokens.motionDuration,
+                    curve: tokens.motionEase,
                     child: PlassGlyph(
                       PlassGlyphShape.chevron,
                       size: scale.size * iconScale,
@@ -651,7 +651,7 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
 
   Widget _list(PlassTokens tokens, PlassColorFamily family, PlassTextScale scale) {
     final size = _size;
-    final radius = PlassTokens.radius[size]!;
+    final radius = tokens.radii[size]!;
     final chosen = _chosen;
 
     // As wide as its widest row and no wider — a scroll view fills whatever
@@ -730,7 +730,7 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
             child: DecoratedBox(
               decoration: BoxDecoration(
                 color: lit ? family.soft : null,
-                borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.xs]!),
+                borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
               ),
               child: Padding(
                 padding: const EdgeInsetsDirectional.only(

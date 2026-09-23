@@ -5,7 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:plass_ui/src/theme/tokens.dart';
+import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// How a popup's width follows its anchor's.
@@ -123,10 +123,9 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
   /// was when that field was drawn.
   final BackdropKey _layer = BackdropKey();
 
-  late final AnimationController _fade = AnimationController(
-    vsync: this,
-    duration: PlassTokens.duration,
-  );
+  // No duration here, for the reason `PlassPortal` gives: `build` sets it from
+  // the theme, and the fade never runs before a build has.
+  late final AnimationController _fade = AnimationController(vsync: this);
 
   /// The side the popup is on, which is the one asked for until there is no room
   /// for it there.
@@ -270,7 +269,7 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
   Widget build(BuildContext context) {
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
-    _fade.duration = reduceMotion ? Duration.zero : PlassTokens.duration;
+    _fade.duration = reduceMotion ? Duration.zero : PlassTheme.of(context).motionDuration;
 
     // Around the portal rather than inside the popup: the popup's element sits
     // under the portal's, so one binding reaches a focus on the anchor and a

@@ -11,7 +11,7 @@ class PanesOrientation extends StatelessWidget {
       width: 448,
       height: 224,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.lg]!),
+        borderRadius: BorderRadius.circular(PlassTheme.of(context).radii[PlassSize.lg]!),
         child: const PlPanes(
           panes: <PlPane>[
             PlPane(defaultSize: PlPaneSize.percent(40), child: Filled('Left')),

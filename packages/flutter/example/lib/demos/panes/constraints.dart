@@ -24,7 +24,7 @@ class _PanesConstraintsState extends State<PanesConstraints> {
           SizedBox(
             height: 160,
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.lg]!),
+              borderRadius: BorderRadius.circular(PlassTheme.of(context).radii[PlassSize.lg]!),
               child: PlPanes(
                 onResize: (List<double> shares) => setState(() => _shares = shares),
                 panes: const <PlPane>[

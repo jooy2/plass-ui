@@ -6,6 +6,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 
 /// A layer lifted out of the tree and laid over the whole app.
@@ -26,12 +27,12 @@ import 'package:plass_ui/src/theme/tokens.dart';
 /// style is against — and unlike a control, a sheet is usually carrying a
 /// sentence.
 ///
-/// It runs at [PlassTokens.durationSlow] rather than the control duration, and
-/// that is the line between this and [PlassAnchoredPortal]: 150ms is a key going
-/// down, and on a sheet the size of the window it is not a fade but a cut with a
-/// hint of blur on it. A page that changes this completely that fast leaves a
-/// reader looking for what moved. A popup that hangs off a control stays at the
-/// control duration, because it is the size of one.
+/// It runs at [PlassTokens.motionDurationSlow] rather than the control
+/// duration, and that is the line between this and [PlassAnchoredPortal]: 150ms
+/// is a key going down, and on a sheet the size of the window it is not a fade
+/// but a cut with a hint of blur on it. A page that changes this completely
+/// that fast leaves a reader looking for what moved. A popup that hangs off a
+/// control stays at the control duration, because it is the size of one.
 class PlassPortal extends StatefulWidget {
   /// Creates a layer.
   const PlassPortal({
@@ -91,13 +92,11 @@ class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStat
   /// page would hand it the backdrop as it was when that sheet was drawn.
   final BackdropKey _layer = BackdropKey();
 
-  // Overwritten in `build`, which is where the reader's motion preference can
-  // be read. The value here is what the first frame would use if it ran before
-  // one, so it is the one `build` will set rather than a different number.
-  late final AnimationController _fade = AnimationController(
-    vsync: this,
-    duration: PlassTokens.durationSlow,
-  );
+  // No duration here. `build` sets it, which is where the theme's duration and
+  // the reader's motion preference can both be read, and it sets it again
+  // whenever either changes. The fade never runs before a build has: `_show`
+  // waits for the frame, and `_hide` only follows an update.
+  late final AnimationController _fade = AnimationController(vsync: this);
 
   /// Where focus was before the layer went up, so it can be put back.
   FocusNode? _restore;
@@ -191,7 +190,7 @@ class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStat
   Widget build(BuildContext context) {
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
-    _fade.duration = reduceMotion ? Duration.zero : PlassTokens.durationSlow;
+    _fade.duration = reduceMotion ? Duration.zero : PlassTheme.of(context).motionDurationSlow;
 
     return OverlayPortal(
       controller: _portal,

@@ -138,8 +138,8 @@ class PlMeter extends StatelessWidget {
           child: Align(
             alignment: AlignmentDirectional.centerStart,
             child: AnimatedFractionallySizedBox(
-              duration: still ? Duration.zero : fillDuration,
-              curve: PlassTokens.ease,
+              duration: still ? Duration.zero : tokens.motionDurationSlow,
+              curve: tokens.motionEase,
               alignment: AlignmentDirectional.centerStart,
               widthFactor: fraction,
               heightFactor: 1,

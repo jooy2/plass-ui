@@ -15,7 +15,6 @@ import 'package:plass_ui/src/internal/notch.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// How long a held stepper waits before it starts repeating.
@@ -619,7 +618,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
     final size = _size;
     final scale = controlTextLeading[size]!;
     final meta = metaText[size]!;
-    final radius = BorderRadius.circular(PlassTokens.radius[size]!);
+    final radius = BorderRadius.circular(tokens.radii[size]!);
     final padX = paddingX[_density]![size]!;
     final showSteppers = widget.steppers != PlNumberFieldSteppers.none && !widget.readOnly;
     final split = widget.steppers == PlNumberFieldSteppers.split;
@@ -806,7 +805,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
                   : state.hovered
                   ? family.soft
                   : null,
-              borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.xs]!),
+              borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
             ),
             child: SizedBox.square(
               dimension: box,
@@ -824,7 +823,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
             button = CustomPaint(
               foregroundPainter: PlassFocusRingPainter(
                 color: family.ring,
-                borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.xs]!),
+                borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
                 offset: -focusRingWidth,
               ),
               child: button,

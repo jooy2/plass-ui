@@ -290,7 +290,7 @@ class PlDrawer extends StatelessWidget {
     final insetX = sheetPaddingX[density]![size]!;
     final insetY = sheetPaddingY[density]![size]!;
     final body = sheetBody[size]!;
-    final radius = PlassTokens.radius[size]!;
+    final radius = tokens.radii[size]!;
     final hasHeader = title != null || description != null;
     final hasActions = actions != null && actions!.isNotEmpty;
     final drawClose = showClose ?? floating;

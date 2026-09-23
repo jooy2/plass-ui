@@ -6,7 +6,6 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// A sheet of glass with content on it. The plainest surface in the library: it
@@ -95,7 +94,7 @@ class PlBox extends StatelessWidget {
     final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
 
     final tokens = PlassTheme.of(context);
-    final radius = BorderRadius.circular(PlassTokens.radius[size]!);
+    final radius = BorderRadius.circular(tokens.radii[size]!);
 
     Widget content = child ?? const SizedBox.shrink();
 
@@ -121,7 +120,7 @@ class PlBox extends StatelessWidget {
       borderRadius: radius,
       // A sheet rather than a control, so it settles at the slower of the two
       // house durations — the same one a card and an accordion take.
-      duration: PlassTokens.durationSlow,
+      duration: tokens.motionDurationSlow,
       child: content,
     );
   }

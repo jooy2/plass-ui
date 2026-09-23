@@ -405,7 +405,7 @@ class _PlTooltipState extends State<PlTooltip> {
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
     final size = _size;
-    final radius = PlassTokens.radius[size]!;
+    final radius = tokens.radii[size]!;
     final arrow = _arrowSize[size]!;
 
     final plate = ConstrainedBox(

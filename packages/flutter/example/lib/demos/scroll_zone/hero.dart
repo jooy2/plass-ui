@@ -44,7 +44,9 @@ class ScrollZoneHero extends StatelessWidget {
                     title: Text(show.name),
                     subtitle: Text(show.note),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.sm]!),
+                      borderRadius: BorderRadius.circular(
+                        PlassTheme.of(context).radii[PlassSize.sm]!,
+                      ),
                       child: SizedBox(
                         height: 64,
                         child: Image(

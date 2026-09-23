@@ -6,11 +6,9 @@ import 'dart:math' as math;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/chart.dart';
-import 'package:plass_ui/src/internal/progress.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/threshold.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// One number on a scale that is known in advance, drawn as a dial.
@@ -186,8 +184,8 @@ class PlGaugeChart extends StatelessWidget {
               Positioned.fill(
                 child: TweenAnimationBuilder<double>(
                   tween: Tween<double>(begin: 0, end: fraction ?? 0),
-                  duration: still || fraction == null ? Duration.zero : fillDuration,
-                  curve: PlassTokens.ease,
+                  duration: still || fraction == null ? Duration.zero : tokens.motionDurationSlow,
+                  curve: tokens.motionEase,
                   builder: (BuildContext context, double drawn, Widget? _) => CustomPaint(
                     painter: _GaugePainter(
                       dial: box,

@@ -6,7 +6,6 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/components/icon_button/pl_icon_button.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// The way back up, once there is a way back up to want.
@@ -215,17 +214,22 @@ class _PlBackTopState extends State<PlBackTop> {
       return;
     }
 
-    _attached!.animateTo(0, duration: const Duration(milliseconds: 400), curve: PlassTokens.ease);
+    _attached!.animateTo(
+      0,
+      duration: const Duration(milliseconds: 400),
+      curve: PlassTheme.of(context).motionEase,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final tokens = PlassTheme.of(context);
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     return AnimatedOpacity(
       opacity: _shown ? 1 : 0,
-      duration: reduceMotion ? Duration.zero : PlassTokens.duration,
-      curve: PlassTokens.ease,
+      duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+      curve: tokens.motionEase,
       // Hidden from the pointer *and* from the semantics tree while it is not
       // useful, rather than merely faded: a control a reader can reach and
       // cannot see is worse than one that is not there.

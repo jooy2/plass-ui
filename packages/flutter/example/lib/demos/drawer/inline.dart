@@ -12,7 +12,7 @@ class DrawerInline extends StatelessWidget {
       width: 512,
       height: 256,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.lg]!),
+        borderRadius: BorderRadius.circular(tokens.radii[PlassSize.lg]!),
         child: ColoredBox(
           color: tokens.glassPress,
           child: Row(

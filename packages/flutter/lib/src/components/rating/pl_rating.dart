@@ -257,7 +257,7 @@ class _PlRatingState extends State<PlRating> {
       row = CustomPaint(
         foregroundPainter: PlassFocusRingPainter(
           color: family.ring,
-          borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.xs]!),
+          borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
         ),
         child: row,
       );

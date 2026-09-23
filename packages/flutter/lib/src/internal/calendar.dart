@@ -26,7 +26,6 @@ import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// The width of one day cell.
@@ -187,7 +186,7 @@ class _PlassCalendarCellState extends State<PlassCalendarCell> {
     final family = tokens.family(widget.color);
 
     final side = cellSize[widget.size]!;
-    final step = PlassTokens.radius[cellRadiusScale[widget.size]!]!;
+    final step = tokens.radii[cellRadiusScale[widget.size]!]!;
     final round = Radius.circular(step);
     const square = Radius.zero;
 
@@ -255,8 +254,8 @@ class _PlassCalendarCellState extends State<PlassCalendarCell> {
     }
 
     Widget cell = AnimatedContainer(
-      duration: PlassTokens.duration,
-      curve: PlassTokens.ease,
+      duration: tokens.motionDuration,
+      curve: tokens.motionEase,
       width: widget.width ?? side,
       height: side,
       alignment: Alignment.center,
@@ -639,6 +638,7 @@ class _PlassCalendarState extends State<PlassCalendar> {
   }
 
   Widget _header(double side) {
+    final tokens = PlassTheme.of(context);
     final labels = widget.labels;
     final chrome = headerSizeScale[widget.size]!;
     final stepLabels = switch (_view) {
@@ -697,12 +697,12 @@ class _PlassCalendarState extends State<PlassCalendar> {
     Widget disclosure(bool open) {
       return AnimatedRotation(
         turns: open ? 0.5 : 0,
-        duration: PlassTokens.duration,
-        curve: PlassTokens.ease,
+        duration: tokens.motionDuration,
+        curve: tokens.motionEase,
         child: PlassGlyph(
           PlassGlyphShape.chevron,
           size: controlText[chrome]! * iconScale,
-          color: PlassTheme.of(context).mutedFg,
+          color: tokens.mutedFg,
         ),
       );
     }
@@ -759,7 +759,7 @@ class _PlassCalendarState extends State<PlassCalendar> {
           child: Text(
             '$page–${page + yearPageSize - 1}',
             style: TextStyle(
-              color: PlassTheme.of(context).fg,
+              color: tokens.fg,
               fontSize: controlText[chrome]!,
               fontWeight: FontWeight.w600,
               fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],

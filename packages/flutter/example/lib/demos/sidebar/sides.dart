@@ -10,7 +10,7 @@ class SidebarSides extends StatelessWidget {
       width: 520,
       height: 220,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.md]!),
+        borderRadius: BorderRadius.circular(PlassTheme.of(context).radii[PlassSize.md]!),
         child: const PlPageLayout(
           collapseBelow: null,
           sidebar: PlSidebar(

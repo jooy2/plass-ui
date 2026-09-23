@@ -208,7 +208,7 @@ class PlAlert extends StatelessWidget {
       child: PlassTargetScope(
         child: PlassSurfaceBox(
           surface: surface,
-          borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
+          borderRadius: BorderRadius.circular(tokens.radii[size]!),
           child: DefaultTextStyle.merge(
             style: TextStyle(
               color: surface.ink,

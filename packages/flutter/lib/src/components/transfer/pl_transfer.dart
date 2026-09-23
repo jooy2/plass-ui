@@ -652,8 +652,8 @@ class _PlTransferState extends State<PlTransfer> {
         elevation: 0,
         disabled: widget.disabled,
       ),
-      borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
-      duration: PlassTokens.durationSlow,
+      borderRadius: BorderRadius.circular(tokens.radii[size]!),
+      duration: tokens.motionDurationSlow,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,

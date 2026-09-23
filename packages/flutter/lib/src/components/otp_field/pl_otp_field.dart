@@ -56,7 +56,7 @@ const Map<PlassSize, Size> _slotSize = <PlassSize, Size>{
 
 /// And its own radius, for the reason a tick box has one.
 ///
-/// [PlassTokens.radius] is a share of a *control's height*, which is a cut
+/// [PlassTokens.radii] is a share of a *control's height*, which is a cut
 /// corner on something wide and a lozenge on something nearly square: `md` is
 /// 12, and a 12 corner on a 32-wide box is most of the way to a pill. These are
 /// ~22% of the slot's width instead — the same amount of cut on this shape.

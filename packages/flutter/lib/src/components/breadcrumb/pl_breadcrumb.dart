@@ -320,7 +320,7 @@ class _Step extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final interactive = item.onPressed != null && !current && !item.disabled;
-    final radius = BorderRadius.circular(PlassTokens.radius[_stepRadiusScale[size]!]!);
+    final radius = BorderRadius.circular(tokens.radii[_stepRadiusScale[size]!]!);
     final line = controlText[size]! * 1.4;
 
     Widget slot(Widget content) {
@@ -359,8 +359,8 @@ class _Step extends StatelessWidget {
       );
 
       content = AnimatedContainer(
-        duration: PlassTokens.duration,
-        curve: PlassTokens.ease,
+        duration: tokens.motionDuration,
+        curve: tokens.motionEase,
         decoration: BoxDecoration(
           color: interactive && state.hovered ? family.soft : null,
           borderRadius: radius,
@@ -422,8 +422,9 @@ class _Fold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = PlassTheme.of(context);
     final glyph = controlText[size]! * iconScale;
-    final radius = BorderRadius.circular(PlassTokens.radius[PlassSize.xs]!);
+    final radius = BorderRadius.circular(tokens.radii[PlassSize.xs]!);
 
     if (!expandable) {
       return ExcludeSemantics(
@@ -435,8 +436,8 @@ class _Fold extends StatelessWidget {
       onTap: onPressed,
       builder: (BuildContext context, PlassInteraction state) {
         Widget mark = AnimatedContainer(
-          duration: PlassTokens.duration,
-          curve: PlassTokens.ease,
+          duration: tokens.motionDuration,
+          curve: tokens.motionEase,
           decoration: BoxDecoration(
             color: state.hovered ? family.soft : null,
             borderRadius: radius,

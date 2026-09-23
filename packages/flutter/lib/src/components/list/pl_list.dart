@@ -191,7 +191,7 @@ class PlList extends StatelessWidget {
         explicitChildNodes: true,
         child: PlassSurfaceBox(
           surface: surface,
-          borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
+          borderRadius: BorderRadius.circular(tokens.radii[size]!),
           child: Padding(
             // Without dividers the rows are tiles and the sheet keeps a hair of
             // padding so a hovered row does not run into the edge. With them the
@@ -328,7 +328,7 @@ class PlListItem extends StatelessWidget {
     final radius = BorderRadius.circular(
       // Squared off when the rows are ruled: a tile and a line are two different
       // ideas about what a row is.
-      scope.dividers ? 0 : PlassTokens.radius[_rowRadiusScale[size]!]!,
+      scope.dividers ? 0 : tokens.radii[_rowRadiusScale[size]!]!,
     );
 
     Widget slot(Widget content) {
@@ -399,8 +399,8 @@ class PlListItem extends StatelessWidget {
     );
 
     Widget surface = AnimatedContainer(
-      duration: PlassTokens.duration,
-      curve: PlassTokens.ease,
+      duration: tokens.motionDuration,
+      curve: tokens.motionEase,
       decoration: BoxDecoration(color: fill, borderRadius: radius),
       child: content,
     );

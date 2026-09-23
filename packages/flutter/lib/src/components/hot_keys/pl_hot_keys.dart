@@ -247,7 +247,7 @@ class PlKbd extends StatelessWidget {
     final tokens = PlassTheme.of(context);
     final family = tokens.family(color);
     final step = _keyScale[size]!;
-    final radius = BorderRadius.circular(PlassTokens.radius[step]!);
+    final radius = BorderRadius.circular(tokens.radii[step]!);
 
     final surface = _capSurface(tokens, family, variant);
 

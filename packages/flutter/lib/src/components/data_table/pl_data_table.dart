@@ -19,7 +19,6 @@ import 'package:plass_ui/src/internal/search.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/internal/table.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 export 'package:plass_ui/src/internal/data_table.dart' show PlassSort, PlassSortDirection;
@@ -744,7 +743,7 @@ class _PlDataTableState<T> extends State<PlDataTable<T>> {
 
     return PlassSurfaceBox(
       surface: sheetSurface(tokens, variant: widget.variant, elevation: widget.elevation),
-      borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
+      borderRadius: BorderRadius.circular(tokens.radii[size]!),
       child: DefaultTextStyle.merge(
         style: TextStyle(color: tokens.fg, fontSize: text.size, height: text.height),
         child: LayoutBuilder(
@@ -893,7 +892,7 @@ class _SortableHeader extends StatelessWidget {
           return CustomPaint(
             foregroundPainter: PlassFocusRingPainter(
               color: ring,
-              borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.xs]!),
+              borderRadius: BorderRadius.circular(PlassTheme.of(context).radii[PlassSize.xs]!),
             ),
             child: heading,
           );

@@ -17,6 +17,7 @@ library;
 
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 
 /// One layer of the interaction light: a radial gradient centred on the
@@ -35,7 +36,7 @@ class PlassGlowLayer extends StatelessWidget {
     required this.color,
     required this.radius,
     required this.duration,
-    this.curve = PlassTokens.ease,
+    this.curve,
     this.instant = false,
     this.reduceMotion = false,
     super.key,
@@ -58,8 +59,8 @@ class PlassGlowLayer extends StatelessWidget {
   /// How long it takes to leave.
   final Duration duration;
 
-  /// The curve it leaves on.
-  final Curve curve;
+  /// The curve it leaves on, or `null` for the theme's [PlassTokens.motionEase].
+  final Curve? curve;
 
   /// Whether it arrives with no transition at all. True for the press flash.
   final bool instant;
@@ -77,7 +78,7 @@ class PlassGlowLayer extends StatelessWidget {
       child: AnimatedOpacity(
         opacity: visible ? 1 : 0,
         duration: visible && instant ? Duration.zero : out,
-        curve: curve,
+        curve: curve ?? PlassTheme.of(context).motionEase,
         child: _Radial(color: color, radius: radius, pointer: pointer),
       ),
     );

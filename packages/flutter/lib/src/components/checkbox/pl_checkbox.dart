@@ -10,7 +10,6 @@ import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// The mark is drawn at 70% of the box, so it never touches the corners.
@@ -137,8 +136,8 @@ class PlCheckbox extends StatelessWidget {
       // set on a light card rather than on the page wash, and a tick nobody can
       // see is a control nobody can find.
       Widget surface = AnimatedContainer(
-        duration: reduceMotion ? Duration.zero : PlassTokens.duration,
-        curve: PlassTokens.ease,
+        duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+        curve: tokens.motionEase,
         decoration: BoxDecoration(
           borderRadius: radius,
           color: marked ? null : tokens.glass,
@@ -164,8 +163,8 @@ class PlCheckbox extends StatelessWidget {
             dimension: box * _markFraction,
             child: TweenAnimationBuilder<double>(
               tween: Tween<double>(end: marked ? 1 : 0),
-              duration: reduceMotion ? Duration.zero : PlassTokens.duration,
-              curve: PlassTokens.ease,
+              duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+              curve: tokens.motionEase,
               builder: (BuildContext context, double drawn, Widget? child) {
                 return CustomPaint(
                   painter: _TickPainter(color: family.onSolid, dash: indeterminate, drawn: drawn),

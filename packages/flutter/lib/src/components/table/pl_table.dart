@@ -7,7 +7,6 @@ import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/internal/table.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// A column: its heading, how wide it is, and how to get a cell out of a row.
@@ -245,7 +244,7 @@ class PlTable<T> extends StatelessWidget {
 
     return PlassSurfaceBox(
       surface: sheetSurface(tokens, variant: variant, elevation: elevation),
-      borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
+      borderRadius: BorderRadius.circular(tokens.radii[size]!),
       child: DefaultTextStyle.merge(
         style: TextStyle(color: tokens.fg, fontSize: text.size, height: text.height),
         child: LayoutBuilder(

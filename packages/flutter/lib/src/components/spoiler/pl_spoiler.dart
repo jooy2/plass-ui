@@ -255,7 +255,7 @@ class _PlSpoilerState extends State<PlSpoiler> {
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final radius = BorderRadius.circular(PlassTokens.radius[_size]!);
+    final radius = BorderRadius.circular(tokens.radii[_size]!);
     final insetX = sheetPaddingX[_density]![_size]!;
     final insetY = sheetPaddingY[_density]![_size]!;
 
@@ -351,7 +351,7 @@ class _PlSpoilerState extends State<PlSpoiler> {
     return PlassSurfaceBox(
       surface: sheetSurface(tokens, variant: widget.variant, elevation: widget.elevation),
       borderRadius: radius,
-      duration: PlassTokens.durationSlow,
+      duration: tokens.motionDurationSlow,
       child: ClipRRect(borderRadius: radius, child: sheet),
     );
   }

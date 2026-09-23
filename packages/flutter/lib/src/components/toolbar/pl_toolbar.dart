@@ -6,7 +6,6 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// Between two controls inside one slot.
@@ -123,7 +122,7 @@ class PlToolbar extends StatelessWidget {
     final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
 
     final tokens = PlassTheme.of(context);
-    final radius = PlassTokens.radius[size]!;
+    final radius = tokens.radii[size]!;
 
     // Only a bar sitting in the flow is a sheet with corners: one spanning an
     // edge of the screen has nothing behind the gap a rounded corner leaves.
@@ -167,7 +166,7 @@ class PlToolbar extends StatelessWidget {
     bar = PlassSurfaceBox(
       surface: surface,
       borderRadius: corners,
-      duration: PlassTokens.durationSlow,
+      duration: tokens.motionDurationSlow,
       child: bar,
     );
 

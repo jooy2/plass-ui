@@ -1429,7 +1429,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
             foregroundPainter: _focusVisible
                 ? PlassFocusRingPainter(
                     color: tokens.family(PlassColor.primary).ring,
-                    borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.xs]!),
+                    borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
                     // Held off the drawing rather than flush with it, as the
                     // React build's `outline-offset-2` is: the plot has no edge
                     // of its own for the ring to thicken, and one laid on the
@@ -2037,7 +2037,7 @@ class _LegendFold extends StatelessWidget {
           return CustomPaint(
             foregroundPainter: PlassFocusRingPainter(
               color: tokens.family(PlassColor.primary).ring,
-              borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.xs]!),
+              borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
             ),
             child: word,
           );
@@ -2186,7 +2186,7 @@ class _LegendEntry extends StatelessWidget {
             return CustomPaint(
               foregroundPainter: PlassFocusRingPainter(
                 color: tokens.family(PlassColor.primary).ring,
-                borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.xs]!),
+                borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
               ),
               child: row,
             );
@@ -2568,7 +2568,7 @@ class PlassChartTooltipCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
           color: tokens.glassPress,
-          borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
+          borderRadius: BorderRadius.circular(tokens.radii[size]!),
           border: Border.all(color: tokens.glassLine, width: hairline),
           boxShadow: tokens.elevation(plassElevationMax),
         ),

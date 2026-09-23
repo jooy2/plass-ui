@@ -19,7 +19,7 @@ class _BottomNavigationHeroState extends State<BottomNavigationHero> {
     return SizedBox(
       width: 384,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.lg]!),
+        borderRadius: BorderRadius.circular(tokens.radii[PlassSize.lg]!),
         child: ColoredBox(
           color: tokens.glassPress,
           child: Column(

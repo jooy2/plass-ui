@@ -139,7 +139,7 @@ class PlAnimateLighting extends StatelessWidget {
     final Color start = glow ?? family.solid;
     final Color end = glow ?? family.solidTo;
     final bool still = prefersReducedMotion(context);
-    final BorderRadius radius = BorderRadius.circular(PlassTokens.radius[size]! + spread);
+    final BorderRadius radius = BorderRadius.circular(tokens.radii[size]! + spread);
 
     return Stack(
       // The glow reaches past the content on every side, and a stack clips its

@@ -159,7 +159,7 @@ class PlChip extends StatelessWidget {
     final step = _chipScale[size]!;
     final height = controlHeight[step]!;
     final fontSize = controlText[step]!;
-    final radius = BorderRadius.circular(PlassTokens.radius[step]!);
+    final radius = BorderRadius.circular(tokens.radii[step]!);
     final interactive = onPressed != null && !disabled;
 
     if (!interactive) {

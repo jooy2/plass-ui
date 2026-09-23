@@ -12,7 +12,7 @@ class PageLayoutHero extends StatelessWidget {
       width: 520,
       height: 320,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.md]!),
+        borderRadius: BorderRadius.circular(tokens.radii[PlassSize.md]!),
         child: PlPageLayout(
           collapseBelow: null,
           header: PlToolbar(

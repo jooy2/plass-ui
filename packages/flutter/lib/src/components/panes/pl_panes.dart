@@ -400,6 +400,7 @@ class _HandleState extends State<_Handle> {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = PlassTheme.of(context);
     final bool lit = widget.resizable && (_hovered || _dragging || _focusVisible);
     final bool rtl = Directionality.of(context) == TextDirection.rtl;
 
@@ -410,8 +411,8 @@ class _HandleState extends State<_Handle> {
         width: widget.horizontal ? hairline : null,
         height: widget.horizontal ? null : hairline,
         child: AnimatedContainer(
-          duration: PlassTokens.duration,
-          curve: PlassTokens.ease,
+          duration: tokens.motionDuration,
+          curve: tokens.motionEase,
           color: lit ? widget.family.accent : widget.rest,
         ),
       ),
@@ -421,8 +422,8 @@ class _HandleState extends State<_Handle> {
       width: widget.horizontal ? widget.track : double.infinity,
       height: widget.horizontal ? double.infinity : widget.track,
       child: AnimatedContainer(
-        duration: PlassTokens.duration,
-        curve: PlassTokens.ease,
+        duration: tokens.motionDuration,
+        curve: tokens.motionEase,
         color: lit ? widget.family.soft : null,
         child: mark,
       ),

@@ -362,7 +362,7 @@ class _PlTabsState<T> extends State<PlTabs<T>> with PlassRovingStop<PlTabs<T>> {
             ],
           );
 
-    final motion = reduceMotion ? Duration.zero : PlassTokens.duration;
+    final motion = reduceMotion ? Duration.zero : tokens.motionDuration;
     final mark = _Indicator(variant: widget.variant, family: family, tokens: tokens, size: _size);
 
     strip = Stack(
@@ -375,7 +375,7 @@ class _PlTabsState<T> extends State<PlTabs<T>> with PlassRovingStop<PlTabs<T>> {
           if (solid)
             AnimatedPositioned(
               duration: motion,
-              curve: PlassTokens.ease,
+              curve: tokens.motionEase,
               left: _indicator!.left,
               top: _indicator!.top,
               width: _indicator!.width,
@@ -385,7 +385,7 @@ class _PlTabsState<T> extends State<PlTabs<T>> with PlassRovingStop<PlTabs<T>> {
           else if (_vertical)
             AnimatedPositionedDirectional(
               duration: motion,
-              curve: PlassTokens.ease,
+              curve: tokens.motionEase,
               end: 0,
               top: _indicator!.top,
               width: _indicatorThickness,
@@ -395,7 +395,7 @@ class _PlTabsState<T> extends State<PlTabs<T>> with PlassRovingStop<PlTabs<T>> {
           else
             AnimatedPositioned(
               duration: motion,
-              curve: PlassTokens.ease,
+              curve: tokens.motionEase,
               left: _indicator!.left,
               bottom: 0,
               width: _indicator!.width,
@@ -428,7 +428,7 @@ class _PlTabsState<T> extends State<PlTabs<T>> with PlassRovingStop<PlTabs<T>> {
           blur: true,
           insets: <PlassInsetShadow>[tokens.well],
         ),
-        borderRadius: BorderRadius.circular(PlassTokens.radius[_size]!),
+        borderRadius: BorderRadius.circular(tokens.radii[_size]!),
         child: Padding(padding: EdgeInsets.all(inset), child: strip),
       );
     } else if (widget.variant == PlassVariant.glass) {
@@ -690,7 +690,7 @@ class _Indicator extends StatelessWidget {
       return DecoratedBox(
         decoration: BoxDecoration(
           color: tokens.glassPress,
-          borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
+          borderRadius: BorderRadius.circular(tokens.radii[size]!),
           boxShadow: tokens.elevation(1),
         ),
       );
@@ -800,7 +800,7 @@ class _Tab<T> extends StatelessWidget {
             body = CustomPaint(
               foregroundPainter: PlassFocusRingPainter(
                 color: family.ring,
-                borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
+                borderRadius: BorderRadius.circular(tokens.radii[size]!),
                 // A tab sits on a rail that clips, so its ring turns inward.
                 offset: -focusRingWidth,
               ),

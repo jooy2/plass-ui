@@ -11,7 +11,6 @@ import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/internal/target.dart';
 import 'package:plass_ui/src/internal/wedge.dart';
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// How wide the popup is allowed to get, per [PlassSize].
@@ -190,7 +189,7 @@ class _PlPopoverState extends State<PlPopover> {
     final insetX = sheetPaddingX[_density]![_size]!;
     final insetY = sheetPaddingY[_density]![_size]!;
     final body = sheetBody[_size]!;
-    final radius = BorderRadius.circular(PlassTokens.radius[_size]!);
+    final radius = BorderRadius.circular(tokens.radii[_size]!);
     final hasHeader = widget.title != null || widget.description != null;
 
     void close() => widget.onOpenChanged?.call(false);
@@ -213,7 +212,7 @@ class _PlPopoverState extends State<PlPopover> {
         child: PlassSurfaceBox(
           surface: surface,
           borderRadius: radius,
-          duration: PlassTokens.durationSlow,
+          duration: tokens.motionDurationSlow,
           child: DefaultTextStyle.merge(
             style: TextStyle(
               color: tokens.fg,

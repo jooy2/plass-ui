@@ -308,7 +308,7 @@ class _Step extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bullet = stepBulletSize[size]!;
-    final radius = BorderRadius.circular(PlassTokens.radius[size]!);
+    final radius = BorderRadius.circular(tokens.radii[size]!);
     final drawsConnector = step.connector != PlassStepConnector.none && !last;
 
     final mark = PlassStepBullet(
@@ -390,8 +390,8 @@ class _Step extends StatelessWidget {
         onTap: onPressed,
         builder: (BuildContext context, PlassInteraction state) {
           Widget body = AnimatedContainer(
-            duration: PlassTokens.duration,
-            curve: PlassTokens.ease,
+            duration: tokens.motionDuration,
+            curve: tokens.motionEase,
             decoration: BoxDecoration(
               color: state.hovered || state.pressed ? family.soft : null,
               borderRadius: radius,

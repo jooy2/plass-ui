@@ -239,7 +239,9 @@ class _PlAnchorState extends State<PlAnchor> {
       return;
     }
 
-    position.animateTo(to, duration: PlassTokens.durationSlow, curve: PlassTokens.ease);
+    final tokens = PlassTheme.of(context);
+
+    position.animateTo(to, duration: tokens.motionDurationSlow, curve: tokens.motionEase);
   }
 
   @override
@@ -317,8 +319,8 @@ class _Row extends StatelessWidget {
       cursor: SystemMouseCursors.click,
       builder: (BuildContext context, PlassInteraction state) {
         return AnimatedContainer(
-          duration: PlassTokens.duration,
-          curve: PlassTokens.ease,
+          duration: tokens.motionDuration,
+          curve: tokens.motionEase,
           padding: EdgeInsetsDirectional.only(
             start: 8 + item.depth * _indent,
             end: 8,
@@ -331,7 +333,7 @@ class _Row extends StatelessWidget {
                 : state.hovered
                 ? tokens.glassHover
                 : null,
-            borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.xs]!),
+            borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
             border: BorderDirectional(
               start: BorderSide(color: lit ? family.accent : const Color(0x00000000), width: 2),
             ),

@@ -139,7 +139,26 @@ PlassTheme.tokens(
 
 세트는 `build` 안이 아니라 한 번 만들어 들고 계세요. 값이 같은 두 세트는 서로 같다고 비교돼 아무것도 바꾸지 않지만, 매 프레임 새로 만든 세트는 그때마다 계열 여섯 개어치를 비교합니다.
 
-`radius`와 `duration`, `ease`는 세트에 없습니다. 라이브러리가 상수로 읽으므로 어느 테마에서나 같습니다.
+모서리와 움직임도 같은 방법으로 바꿉니다. `radii`는 웹의 `--plass-radius-*`에 해당하는 크기별 모서리 값이고, `motionDuration`과 `motionDurationSlow`, `motionEase`는 `--plass-duration`과 `--plass-duration-slow`, `--plass-ease`입니다. 모든 컴포넌트가 자기 위에서 가장 가까운 세트에서 이 값을 읽으므로, 세트 하나로 화면 전체의 모서리나 속도가 바뀝니다.
+
+```dart
+PlassTheme.tokens(
+  tokens: PlassTokens.light().copyWith(
+    radii: const <PlassSize, double>{
+      PlassSize.xs: 4,
+      PlassSize.sm: 4,
+      PlassSize.md: 6,
+      PlassSize.lg: 6,
+      PlassSize.xl: 8,
+    },
+    motionDuration: const Duration(milliseconds: 200),
+    motionEase: Curves.easeOutCubic,
+  ),
+  child: const App(),
+)
+```
+
+`radii`에는 다섯 크기가 모두 있어야 합니다. `PlassTokens.radius`와 `duration`, `durationSlow`, `ease`는 그대로 남아 세트가 출발하는 기본값을 들고 있지만, 테마를 따라 바뀌지는 않습니다. 라이브러리와 모서리를 맞춰야 하는 위젯을 직접 만든다면 대신 `PlassTheme.of(context).radii`를 읽으세요.
 
 :::
 

@@ -10,7 +10,7 @@ class SidebarCollapse extends StatelessWidget {
       width: 360,
       height: 280,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.md]!),
+        borderRadius: BorderRadius.circular(PlassTheme.of(context).radii[PlassSize.md]!),
         child: const PlPageLayout(
           collapseBelow: PlassBreakpoint.md,
           header: PlHeader(

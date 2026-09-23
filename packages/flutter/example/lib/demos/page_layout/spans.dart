@@ -29,7 +29,7 @@ class _Shell extends StatelessWidget {
       width: 260,
       height: 180,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.md]!),
+        borderRadius: BorderRadius.circular(tokens.radii[PlassSize.md]!),
         child: PlPageLayout(
           collapseBelow: null,
           headerSpan: span,

@@ -193,19 +193,25 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
   PlassDensity get _density =>
       widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
 
+  // No duration here and a stand-in curve: `_syncMotion` gives both the
+  // theme's before the first frame, and again whenever the theme changes, so a
+  // pill that is already built takes a new duration without being rebuilt.
   late final AnimationController _open = AnimationController(
     vsync: this,
-    duration: PlassTokens.durationSlow,
     value: widget.expanded ? 1 : 0,
   );
 
-  late final Animation<double> _reveal = CurvedAnimation(parent: _open, curve: PlassTokens.ease);
+  late final CurvedAnimation _reveal = CurvedAnimation(parent: _open, curve: Curves.linear);
 
   @override
   void didUpdateWidget(PlPill oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     if (widget.expanded != oldWidget.expanded) {
+      // Read here as well as below: an update runs before the dependencies
+      // are refreshed, and a theme that changed in the same frame as
+      // `expanded` would otherwise open on the old duration.
+      _syncMotion();
       widget.expanded ? _open.forward() : _open.reverse();
     }
   }
@@ -213,9 +219,18 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _syncMotion();
+  }
+
+  /// Hands the reveal the theme's slow duration and curve, or no duration at
+  /// all for a reader who asked for less movement.
+  void _syncMotion() {
+    final tokens = PlassTheme.of(context);
+
     _open.duration = (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
         ? Duration.zero
-        : PlassTokens.durationSlow;
+        : tokens.motionDurationSlow;
+    _reveal.curve = tokens.motionEase;
   }
 
   @override

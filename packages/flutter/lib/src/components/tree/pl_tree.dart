@@ -477,13 +477,15 @@ class _Branch extends StatefulWidget {
 }
 
 class _BranchState extends State<_Branch> with SingleTickerProviderStateMixin {
+  // No duration here and a stand-in curve: `_syncMotion` gives both the
+  // theme's before the first frame, and again whenever the theme changes, so a
+  // branch that is already built takes a new duration without being rebuilt.
   late final AnimationController _fold = AnimationController(
     vsync: this,
-    duration: PlassTokens.durationSlow,
     value: widget.open ? 1 : 0,
   );
 
-  late final Animation<double> _factor = CurvedAnimation(parent: _fold, curve: PlassTokens.ease);
+  late final CurvedAnimation _factor = CurvedAnimation(parent: _fold, curve: Curves.linear);
 
   @override
   void initState() {
@@ -505,6 +507,10 @@ class _BranchState extends State<_Branch> with SingleTickerProviderStateMixin {
     super.didUpdateWidget(oldWidget);
 
     if (widget.open != oldWidget.open) {
+      // Read here as well as below: an update runs before the dependencies
+      // are refreshed, and a theme that changed in the same frame as `open`
+      // would otherwise fold on the old duration.
+      _syncMotion();
       widget.open ? _fold.forward() : _fold.reverse();
     }
   }
@@ -512,9 +518,18 @@ class _BranchState extends State<_Branch> with SingleTickerProviderStateMixin {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _syncMotion();
+  }
+
+  /// Hands the fold the theme's slow duration and curve, or no duration at all
+  /// for a reader who asked for less movement.
+  void _syncMotion() {
+    final tokens = PlassTheme.of(context);
+
     _fold.duration = (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
         ? Duration.zero
-        : PlassTokens.durationSlow;
+        : tokens.motionDurationSlow;
+    _factor.curve = tokens.motionEase;
   }
 
   @override
@@ -591,7 +606,7 @@ class _TreeRow extends StatelessWidget {
       focusNode!.skipTraversal = !isTabStop;
       focusNode!.onKeyEvent = onKey == null ? null : (FocusNode _, KeyEvent event) => onKey!(event);
     }
-    final radius = BorderRadius.circular(PlassTokens.radius[size]!);
+    final radius = BorderRadius.circular(tokens.radii[size]!);
     final pad = _rowPadding[density]![size]!;
 
     final content = Padding(
@@ -627,8 +642,8 @@ class _TreeRow extends StatelessWidget {
                   : rtl
                   ? 0.25
                   : -0.25,
-              duration: reduceMotion ? Duration.zero : PlassTokens.duration,
-              curve: PlassTokens.ease,
+              duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+              curve: tokens.motionEase,
               child: PlassGlyph(
                 PlassGlyphShape.chevron,
                 size: iconSize[size]!,
@@ -682,8 +697,8 @@ class _TreeRow extends StatelessWidget {
         },
         builder: (BuildContext context, PlassInteraction state) {
           Widget surface = AnimatedContainer(
-            duration: PlassTokens.duration,
-            curve: PlassTokens.ease,
+            duration: tokens.motionDuration,
+            curve: tokens.motionEase,
             decoration: BoxDecoration(
               color: node.disabled
                   ? null

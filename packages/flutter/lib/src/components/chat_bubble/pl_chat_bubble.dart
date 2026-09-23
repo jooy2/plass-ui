@@ -265,7 +265,7 @@ class PlChatBubble extends StatelessWidget {
     final solid = variant == PlassVariant.solid;
     final ink = solid ? family.onSolid : tokens.fg;
 
-    final radius = PlassTokens.radius[size]!;
+    final radius = tokens.radii[size]!;
 
     // The tightened corner is the one that faces the sender, and which side of
     // the screen that is depends on the writing direction as much as on `side`.
@@ -557,7 +557,7 @@ class _Preview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(PlassTokens.radius[PlassSize.sm]!);
+    final radius = BorderRadius.circular(PlassTheme.of(context).radii[PlassSize.sm]!);
 
     return PlassInteractive(
       onTap: preview.onPressed,

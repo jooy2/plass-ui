@@ -191,18 +191,17 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
   PlassDensity get _density =>
       widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
 
+  // No duration here and a stand-in curve: `_syncMotion` gives both the
+  // theme's before the first frame, and again whenever the theme changes, so a
+  // fold that is already built takes a new duration without being rebuilt.
   late final AnimationController _fold = AnimationController(
     vsync: this,
-    duration: PlassTokens.durationSlow,
     value: widget.open ? 1 : 0,
   );
 
   /// The fold's own curve. Named for what it drives rather than `_size`, which
   /// is the style axis two lines above it.
-  late final Animation<double> _foldFactor = CurvedAnimation(
-    parent: _fold,
-    curve: PlassTokens.ease,
-  );
+  late final CurvedAnimation _foldFactor = CurvedAnimation(parent: _fold, curve: Curves.linear);
 
   bool get _interactive => !widget.disabled && widget.onOpenChanged != null;
 
@@ -226,6 +225,10 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
     super.didUpdateWidget(oldWidget);
 
     if (widget.open != oldWidget.open) {
+      // Read here as well as below: an update runs before the dependencies
+      // are refreshed, and a theme that changed in the same frame as `open`
+      // would otherwise fold on the old duration.
+      _syncMotion();
       widget.open ? _fold.forward() : _fold.reverse();
     }
   }
@@ -233,9 +236,18 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _syncMotion();
+  }
+
+  /// Hands the fold the theme's slow duration and curve, or no duration at all
+  /// for a reader who asked for less movement.
+  void _syncMotion() {
+    final tokens = PlassTheme.of(context);
+
     _fold.duration = (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
         ? Duration.zero
-        : PlassTokens.durationSlow;
+        : tokens.motionDurationSlow;
+    _foldFactor.curve = tokens.motionEase;
   }
 
   @override
@@ -252,7 +264,7 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
     final tokens = PlassTheme.of(context);
     final family = tokens.family(_color);
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
-    final radius = BorderRadius.circular(PlassTokens.radius[_size]!);
+    final radius = BorderRadius.circular(tokens.radii[_size]!);
     final padX = sheetPaddingX[_density]![_size]!;
     final padY = sheetPaddingY[_density]![_size]!;
     final body = sheetBody[_size]!;
@@ -306,7 +318,7 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
     return PlassSurfaceBox(
       surface: sheetSurface(tokens, variant: widget.variant, elevation: widget.elevation),
       borderRadius: radius,
-      duration: PlassTokens.durationSlow,
+      duration: tokens.motionDurationSlow,
       // The sheet clips, which is what makes the panel a window rather than
       // something that spills past the corners while it moves.
       child: ClipRRect(
@@ -357,8 +369,8 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
             : tokens.fg;
 
         Widget row = AnimatedContainer(
-          duration: reduceMotion ? Duration.zero : PlassTokens.duration,
-          curve: PlassTokens.ease,
+          duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+          curve: tokens.motionEase,
           decoration: BoxDecoration(color: lit && !widget.disabled ? family.soft : null),
           padding: EdgeInsets.symmetric(horizontal: padX, vertical: padY),
           child: Row(
@@ -406,8 +418,8 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
               if (widget.indicator)
                 AnimatedRotation(
                   turns: widget.open ? 0.5 : 0,
-                  duration: reduceMotion ? Duration.zero : PlassTokens.duration,
-                  curve: PlassTokens.ease,
+                  duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+                  curve: tokens.motionEase,
                   child: PlassGlyph(
                     PlassGlyphShape.chevron,
                     size: title.size * iconScale,

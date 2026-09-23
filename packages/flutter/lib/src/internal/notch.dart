@@ -43,9 +43,13 @@ double notchPad(PlassSize size) {
 /// the curve takes a bite out of the arc instead of out of a straight line,
 /// which is what pushes the compact track's labels a few pixels past their
 /// values at the small end. A corner is not a place a label can go.
-double notchInset(PlassDensity density, PlassSize size) {
+///
+/// [radii] is the ladder the field's own corners were read from, the theme's
+/// [PlassTokens.radii], so a set with rounder corners pushes the cut along
+/// with them.
+double notchInset(PlassDensity density, PlassSize size, Map<PlassSize, double> radii) {
   final start = paddingX[density]![size]! - notchPad(size);
-  final corner = PlassTokens.radius[size]!;
+  final corner = radii[size]!;
 
   return start < corner ? corner : start;
 }
@@ -307,7 +311,7 @@ class _PlassFieldNotchState extends State<PlassFieldNotch> {
     final tokens = PlassTheme.of(context);
     final PlassSize size = widget.size;
     final double rise = notchRise(size);
-    final double inset = notchInset(widget.density, size);
+    final double inset = notchInset(widget.density, size, tokens.radii);
     final double pad = notchPad(size);
 
     return Padding(

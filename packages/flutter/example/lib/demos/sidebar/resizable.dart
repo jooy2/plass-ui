@@ -17,7 +17,7 @@ class _SidebarResizableState extends State<SidebarResizable> {
       width: 520,
       height: 220,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.md]!),
+        borderRadius: BorderRadius.circular(PlassTheme.of(context).radii[PlassSize.md]!),
         child: PlPageLayout(
           collapseBelow: null,
           sidebar: PlSidebar(

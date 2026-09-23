@@ -171,7 +171,7 @@ class _PlToggleState extends State<PlToggle> {
     final TextDirection direction = Directionality.maybeOf(context) ?? TextDirection.ltr;
     final double height = controlHeight[size]!;
     final double fontSize = controlText[size]!;
-    final double step = PlassTokens.radius[size]!;
+    final double step = tokens.radii[size]!;
     final BorderRadius radius = group?.corners(step, direction) ?? BorderRadius.circular(step);
     final bool iconOnly = widget.child == null;
 

@@ -4,7 +4,6 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/theme/theme.dart';
-import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// How the content inside is fitted to the box.
@@ -108,7 +107,10 @@ class PlAspectRatio extends StatelessWidget {
     // widget would only be reserving space rather than holding anything to it.
     if (held != null) {
       held = rounded
-          ? ClipRRect(borderRadius: BorderRadius.circular(PlassTokens.radius[size]!), child: held)
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(PlassTheme.of(context).radii[size]!),
+              child: held,
+            )
           : ClipRect(child: held);
     }
 
