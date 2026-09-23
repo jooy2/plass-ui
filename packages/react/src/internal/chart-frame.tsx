@@ -63,6 +63,7 @@ import {
 import { useDefaults } from './defaults.js';
 import { usePlElementSize } from '../hooks/usePlElementSize.js';
 import { useLabels } from './labels.js';
+import { textOf } from './text.js';
 import {
   cx,
   glassClasses,
@@ -1272,8 +1273,13 @@ export function CartesianChart({
       ? formatTimeTicks(categoryScale.ticks, (categoryScale as TimeScale).unit, locale)
       : null;
 
+  /* What a `tickFormat` returns is written through `textOf` rather than
+     `String`. The type lets a formatter return any node and an axis label is an
+     SVG `<text>`, which holds words and no markup, so an element is written as
+     the words in it — `<b>12</b>` is `12` — where `String` made every one of
+     them `[object Object]`. A string or a number comes out as it went in. */
   const tickTexts = scale.ticks.map((tick, index) =>
-    valueAxis?.tickFormat ? String(valueAxis.tickFormat(tick, index)) : formatValue(tick)
+    valueAxis?.tickFormat ? textOf(valueAxis.tickFormat(tick, index)) : formatValue(tick)
   );
 
   /* The category axis writes either its labels or its own ticks. `format`
@@ -1290,7 +1296,7 @@ export function CartesianChart({
     () =>
       labels.map((category, index) =>
         categoryTickFormat
-          ? String(categoryTickFormat(category, index))
+          ? textOf(categoryTickFormat(category, index))
           : formatCategory(category, locale)
       ),
     [labels, categoryTickFormat, locale]
@@ -1299,7 +1305,7 @@ export function CartesianChart({
   const rawCategoryTexts = categoryScale
     ? categoryScale.ticks.map((tick, index) =>
         categoryTickFormat
-          ? String(categoryTickFormat(dated ? new Date(tick) : tick, index))
+          ? textOf(categoryTickFormat(dated ? new Date(tick) : tick, index))
           : (timeTicks?.[index] ?? compactNumber(tick, locale))
       )
     : labelTexts;

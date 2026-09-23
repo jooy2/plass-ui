@@ -48,6 +48,8 @@
 
 ### Fixed
 
+- **An element a chart axis's `tickFormat` returns is written as the words in it.** The type lets a formatter return any node, and the axis passed the result through `String`, so `<b>12</b>` put `[object Object]` on the axis. A tick is SVG text, which holds words and no markup, so an element is now read for its text, on either axis; a string or a number is written as before.
+
 - **A `PlPageLayout` inside another no longer adds a second `<main>`.** The inner layout rendered its own `<main>`, skip link and `id="main"`, so the page had two of each. It now renders its content in a `<div>` and leaves the skip link and the `id` to the outer layout.
 
 - **A `PlTabs` tab brought into view stops clear of the edge fade.** The chosen tab as the bar was laid out, and the next one along as the arrow keys moved, ended flush against the edge, which is where the 24px fade is strongest. Both now stop the fade's length short of it.

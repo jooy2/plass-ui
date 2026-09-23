@@ -649,6 +649,37 @@ describe('PlLineChart', () => {
       expect(texts).toContain('100%');
     });
 
+    it('writes an element tickFormat returns as the words in it, on either axis', async () => {
+      const screen = await render(
+        <PlLineChart
+          label="Uptime"
+          categories={MONTHS}
+          xAxis={{ tickFormat: (value) => <b>{String(value)}</b> }}
+          yAxis={{
+            min: 0,
+            max: 100,
+            tickCount: 2,
+            tickFormat: (value) => (
+              <>
+                <b>{String(value)}</b>%
+              </>
+            )
+          }}
+          series={[{ name: 'Uptime', data: [10, 20, 30, 40] }]}
+        />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Uptime' });
+
+      await expect.element(plot).toBeInTheDocument();
+
+      const texts = [...plot.element().querySelectorAll('text')].map((t) => t.textContent);
+
+      expect(texts).toContain('Jan');
+      expect(texts).toContain('100%');
+      expect(texts.join(' ')).not.toContain('[object Object]');
+    });
+
     it('keeps both ends of a pinned scale', async () => {
       const screen = await render(
         <PlLineChart

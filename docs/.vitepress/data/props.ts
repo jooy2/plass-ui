@@ -14125,8 +14125,8 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'tickFormat',
       type: '(value: PlassChartCategory, index: number) => ReactNode',
       description: {
-        ko: 'tick을 쓰는 방식. 차트의 `format`보다 우선합니다',
-        en: "How a tick is written, overriding the chart's own `format`"
+        ko: 'tick을 쓰는 방식. 차트의 `format`보다 우선합니다. 요소를 돌려주면 그 안의 글자만 씁니다. tick은 SVG 텍스트라 마크업을 담지 못해서, `<b>12</b>`는 축에 `12`로 적힙니다',
+        en: "How a tick is written, overriding the chart's own `format`. An element it returns is written as the words in it, because a tick is SVG text and holds no markup: `<b>12</b>` puts `12` on the axis"
       }
     },
     {

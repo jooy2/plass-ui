@@ -963,7 +963,12 @@ export interface PlassChartAxis {
    * @default 'linear'
    */
   scale?: 'linear' | 'log';
-  /** How a tick is written, overriding the chart's own `format`. */
+  /**
+   * How a tick is written, overriding the chart's own `format`.
+   *
+   * An element it returns is written as the words in it, so `<b>12</b>` puts
+   * `12` on the axis: a tick is SVG text, which holds words and no markup.
+   */
   tickFormat?: (value: PlassChartCategory, index: number) => React.ReactNode;
   /**
    * Turns the labels, in degrees, so long names fit without being cut.

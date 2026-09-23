@@ -54,6 +54,27 @@ describe('PlScatterChart', () => {
       expect(marks(plot.element()).length).toBe(5);
     });
 
+    it('writes an element its x tickFormat returns as the words in it', async () => {
+      const screen = await render(
+        <PlScatterChart
+          label="Spend"
+          xAxis={{ tickFormat: (value) => <i>{`x${String(value)}`}</i> }}
+          series={SPEND}
+        />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Spend' });
+
+      await expect.element(plot).toBeInTheDocument();
+
+      const texts = [...plot.element().querySelectorAll('text')].map((t) => t.textContent ?? '');
+
+      // A value-scaled category axis writes its own ticks rather than the
+      // points' labels, through the same reading as a column's name.
+      expect(texts.some((text) => /^x\d+$/.test(text))).toBe(true);
+      expect(texts.join(' ')).not.toContain('[object Object]');
+    });
+
     it('draws nothing for a point with no value', async () => {
       const screen = await render(
         <PlScatterChart

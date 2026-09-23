@@ -20,14 +20,15 @@ import * as React from 'react';
  * nothing, which is exactly right for every caller: a picture of a thing is not
  * its name.
  *
- * Five components need it, and all five need it for the same reason — a
- * string where React would otherwise hand them a tree. `PlBreadcrumb` puts a
- * step's `name` into structured data, `PlChip` and `PlTransfer` hand a chip's
- * words and a list's heading to the label pack so that a language can put a
- * name where its own grammar puts it, `PlSelect` holds its trigger open at the
- * width of its labels' words without drawing a picture in any of them, and
+ * Six places need it, and all six need it for the same reason — a string
+ * where React would otherwise hand them a tree. `PlBreadcrumb` puts a step's
+ * `name` into structured data, `PlChip` and `PlTransfer` hand a chip's words
+ * and a list's heading to the label pack so that a language can put a name
+ * where its own grammar puts it, `PlSelect` holds its trigger open at the
+ * width of its labels' words without drawing a picture in any of them,
  * `PlAnimateTyping` types a string one grapheme at a time, because there is no
- * honest way to reveal half of a `<strong>`.
+ * honest way to reveal half of a `<strong>`, and a chart's axis writes what a
+ * `tickFormat` returned into an SVG `<text>`, which holds words and no markup.
  */
 export function textOf(node: React.ReactNode): string {
   if (typeof node === 'string' || typeof node === 'number') {
