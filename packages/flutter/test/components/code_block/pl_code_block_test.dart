@@ -91,6 +91,14 @@ void main() {
         expect(find.bySemanticsLabel('Snippet'), findsNothing);
       });
 
+      testWidgets('names itself under the full name a common spelling stands for', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, const PlCodeBlock(code: code, language: ' TS ', toolbar: false));
+
+        expect(find.bySemanticsLabel('typescript'), findsOneWidget);
+      });
+
       testWidgets('takes its own word for code when the language is blank', (
         WidgetTester tester,
       ) async {
@@ -206,6 +214,15 @@ void main() {
         await _pump(tester, const PlCodeBlock(code: code, language: 'dart'));
 
         expect(find.text('DART'), findsOneWidget);
+      });
+
+      testWidgets('names a common spelling by the full name, as the React build does', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, const PlCodeBlock(code: code, language: 'yml'));
+
+        expect(find.text('YAML'), findsOneWidget);
+        expect(find.text('YML'), findsNothing);
       });
 
       testWidgets('drops the whole bar when it is turned off', (WidgetTester tester) async {

@@ -206,6 +206,8 @@ PlCodeBlock(
 
 `rawToggle` then puts a second button on the bar that drops those runs back to one ink. With no `lines` there is nothing to drop and no button is drawn.
 
+`language` is the name on the bar, and it understands the same spellings and file extensions the React build does: `ts` and `tsx` are drawn as `typescript`, `yml` as `yaml`, and `sh` as `bash`, in both.
+
 :::
 
 ### wrap and maxHeight

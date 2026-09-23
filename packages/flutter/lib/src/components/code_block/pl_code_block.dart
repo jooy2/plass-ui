@@ -11,6 +11,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
+import 'package:plass_ui/src/internal/languages.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
@@ -629,6 +630,10 @@ class PlCodeBlock extends StatefulWidget {
   final List<PlCodeLine>? lines;
 
   /// What it is written in. Drawn on the bar; nothing else reads it.
+  ///
+  /// The common spellings and file extensions are drawn under the language's
+  /// full name, as the React build draws them, so `ts` is `typescript` and
+  /// `yml` is `yaml`.
   final String? language;
 
   /// The palette. Independent of the screen's light and dark, except on `auto`.
@@ -871,10 +876,8 @@ class _PlCodeBlockState extends State<PlCodeBlock> {
       );
     }
 
-    final String? spelled = widget.language?.trim().toLowerCase();
-    // A blank language is no language, as it is in the React build, so it does
-    // not stand in front of `codeLabel` with an empty name.
-    final String? languageName = spelled == null || spelled.isEmpty ? null : spelled;
+    // Under the name the React build gives it, so `ts` is `typescript` on both.
+    final String? languageName = canonicalLanguage(widget.language);
     final String regionName = languageName ?? widget.codeLabel ?? labels.code;
 
     // The name goes on the code rather than on the whole block, which is where

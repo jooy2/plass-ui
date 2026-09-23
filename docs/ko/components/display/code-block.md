@@ -206,6 +206,8 @@ PlCodeBlock(
 
 `rawToggle`은 그 runs를 다시 한 가지 잉크로 되돌리는 버튼을 바에 올립니다. `lines`가 없으면 되돌릴 것이 없으므로 버튼도 그리지 않습니다.
 
+`language`는 바에 적히는 이름이고, React 빌드와 같은 표기와 확장자를 알아듣습니다. `ts`와 `tsx`는 `typescript`로, `yml`은 `yaml`로, `sh`는 `bash`로 두 빌드 모두 똑같이 적힙니다.
+
 :::
 
 ### wrap과 maxHeight

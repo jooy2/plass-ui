@@ -103,6 +103,10 @@ const loaders: Record<string, () => Promise<{ default: LanguageDefinition }>> = 
  * `tsx`, `yml`, `sh` — and a component that only answered to highlight.js's own
  * canonical names would leave most of those unhighlighted with no way to tell
  * why. The mapping is one-way and the canonical names map to themselves.
+ *
+ * The Flutter build draws the same name on its bar from a copy of this table in
+ * `internal/languages.dart`, and a test on that side reads this one and fails
+ * when the two differ.
  */
 const aliases: Record<string, string> = {
   'c++': 'cpp',

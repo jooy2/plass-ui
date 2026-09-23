@@ -1911,8 +1911,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlCodeBlock', 'language', {
       type: 'String?',
       description: {
-        ko: '무엇으로 쓰였는지. 바에 적히고, 그 외에는 아무도 읽지 않습니다',
-        en: 'What it is written in. Drawn on the bar; nothing else reads it'
+        ko: '무엇으로 쓰였는지. 흔한 표기와 확장자는 온전한 이름으로 바에 적히고(ts는 typescript, yml은 yaml), 그 외에는 아무도 읽지 않습니다',
+        en: 'What it is written in. Drawn on the bar, with the common spellings and file extensions under their full name — ts as typescript, yml as yaml; nothing else reads it'
       }
     }),
     from('PlCodeBlock', 'theme', { type: 'String', default: "'dark'" }),
