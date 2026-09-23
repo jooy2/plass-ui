@@ -44,6 +44,8 @@
 
 ### Fixed
 
+- **Turning a `PlCalendar`'s `disabled` on or off no longer builds it again.** The wrappers that dim it and take it out of reach were added only while it was disabled, and so was the one that announces each header button as unavailable, so switching `disabled` moved the calendar to a new parent: the view it had open went back to the days, and a header button lost the hover or the press it was showing. They are now in the tree in both states, with only their flags switched.
+
 - **Clearing a picker from its × hands the focus back to the trigger.** The × goes with the value it cleared, and the focus it held went back to whatever the enclosing scope had focused before — the next field, for a reader who reached the × moving backwards. It now goes to the trigger of the field they just emptied, on `PlDatePicker`, `PlDateRangePicker`, `PlDateTimePicker`, `PlTimePicker`, `PlColorPicker` and `PlTreeSelect`.
 
 - **The clear × on a `PlCombobox` can be pressed anywhere in a 24-pixel square around it.** It could be pressed only where it is drawn, which at the smaller sizes is under the minimum target size of WCAG 2.5.8. The × is drawn at the same size and nothing around it moves; the chevron beside it keeps its own size.

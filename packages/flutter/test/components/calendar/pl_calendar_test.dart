@@ -418,6 +418,49 @@ void main() {
         expect(focused?.findAncestorWidgetOfExactType<PlCalendar>(), isNull);
       });
 
+      testWidgets('keeps what it had open when disabled is turned on and off', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, PlCalendar(value: july27, onChanged: (DateTime? _) {}));
+        await tester.tap(find.bySemanticsLabel('July'));
+        await tester.pumpAndSettle();
+
+        // The month grid, opened from the header.
+        expect(find.byType(PlassCalendarCell), findsNWidgets(12));
+
+        for (final bool disabled in <bool>[true, false]) {
+          await _pump(
+            tester,
+            PlCalendar(value: july27, disabled: disabled, onChanged: (DateTime? _) {}),
+          );
+
+          // Not built again from nothing, which would open on the day grid.
+          expect(find.byType(PlassCalendarCell), findsNWidgets(12), reason: 'disabled: $disabled');
+        }
+      });
+
+      testWidgets('keeps its header buttons, and what they were showing, across disabled', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, PlCalendar(value: july27, onChanged: (DateTime? _) {}));
+
+        final Finder next = find.byWidgetPredicate(
+          (Widget widget) => widget is PlButton && widget.semanticLabel == 'Next month',
+        );
+        final State<StatefulWidget> before = tester.state(next);
+
+        for (final bool disabled in <bool>[true, false]) {
+          await _pump(
+            tester,
+            PlCalendar(value: july27, disabled: disabled, onChanged: (DateTime? _) {}),
+          );
+
+          // The same button rather than a new one, so a hover or a press it was
+          // lit with is still there when the calendar comes back.
+          expect(tester.state(next), same(before), reason: 'disabled: $disabled');
+        }
+      });
+
       /// The day, the two steppers and the month and year buttons, each with the
       /// hint it carries.
       const Map<String, String?> announced = <String, String?>{

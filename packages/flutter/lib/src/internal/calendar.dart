@@ -651,18 +651,21 @@ class _PlassCalendarState extends State<PlassCalendar> {
     // button by the name and the hint it has, with no action. A disabled
     // `PlButton` would say so too, but it would also dim itself inside a
     // calendar that is already dimmed as one.
+    //
+    // The wrapper is there in both states and says nothing while the calendar
+    // can be used. Added only when it is disabled, it would move the button to
+    // a new parent each time `disabled` changed, and the button would be built
+    // again without the hover or the press it was showing.
     Widget announced({required String label, required Widget child, String? hint}) {
-      if (!widget.disabled) {
-        return child;
-      }
+      final bool disabled = widget.disabled;
 
       return Semantics(
-        container: true,
-        button: true,
-        enabled: false,
-        label: label,
-        hint: hint,
-        excludeSemantics: true,
+        container: disabled,
+        button: disabled ? true : null,
+        enabled: disabled ? false : null,
+        label: disabled ? label : null,
+        hint: disabled ? hint : null,
+        excludeSemantics: disabled,
         child: child,
       );
     }

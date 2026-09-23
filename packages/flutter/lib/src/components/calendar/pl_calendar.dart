@@ -224,14 +224,22 @@ class _PlCalendarState extends State<PlCalendar> {
       disabled: inert,
     );
 
-    if (inert) {
-      // The design language's one use of opacity, and the reason it is allowed
-      // here: the page shows *through* an unavailable control. A missing
-      // `onChanged` is the same as `disabled`, as it is on every other control.
-      calendar = ExcludeFocus(
-        child: IgnorePointer(child: Opacity(opacity: 0.5, child: calendar)),
-      );
-    }
+    // The design language's one use of opacity, and the reason it is allowed
+    // here: the page shows *through* an unavailable control. A missing
+    // `onChanged` is the same as `disabled`, as it is on every other control.
+    //
+    // In the tree in both states, with only their flags switched. Wrapped round
+    // the calendar only while it is out of use, the grid would move to a new
+    // parent each time `disabled` changed and be built again from nothing: the
+    // view it had open, the day the keyboard was on and the highlight under
+    // the pointer would all go with it.
+    calendar = ExcludeFocus(
+      excluding: inert,
+      child: IgnorePointer(
+        ignoring: inert,
+        child: Opacity(opacity: inert ? 0.5 : 1, child: calendar),
+      ),
+    );
 
     return Semantics(
       container: true,
