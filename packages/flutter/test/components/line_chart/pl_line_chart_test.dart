@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
 import 'package:plass_ui/src/internal/chart_frame.dart';
+import 'package:plass_ui/src/internal/focus_ring.dart';
 
 import '../../support/host.dart';
 
@@ -505,6 +506,222 @@ void main() {
         await tester.pump();
 
         expect(find.text('12'), findsNothing);
+      });
+    });
+
+    group('the keyboard', () {
+      /// Puts the chart after a focus stop of its own and arrives on it by Tab.
+      Future<void> tabTo(WidgetTester tester, Widget chart) async {
+        final FocusNode before = FocusNode();
+
+        addTearDown(before.dispose);
+        await _pump(tester, afterFocusStop(before, chart));
+
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+      }
+
+      /// What the live region is saying.
+      String said(WidgetTester tester) {
+        return find.semantics.byFlag(SemanticsFlag.isLiveRegion).evaluate().single.label;
+      }
+
+      testWidgets('is a tab stop, and says nothing until a key moves', (WidgetTester tester) async {
+        await tabTo(tester, PlLineChart(series: series, categories: months));
+
+        final SemanticsNode chart = tester.getSemantics(find.bySemanticsLabel('Chart'));
+
+        expect(chart, isSemantics(label: 'Chart', isFocusable: true, isFocused: true));
+        expect(said(tester), isEmpty);
+      });
+
+      testWidgets('walks the columns with the arrow keys, Home and End, and stops at the ends', (
+        WidgetTester tester,
+      ) async {
+        await tabTo(tester, PlLineChart(series: series, categories: months));
+
+        for (final (LogicalKeyboardKey key, String reading) in <(LogicalKeyboardKey, String)>[
+          (LogicalKeyboardKey.arrowRight, 'Jan, Revenue: 12, Cost: 8'),
+          (LogicalKeyboardKey.arrowRight, 'Feb, Revenue: 19, Cost: 11'),
+          (LogicalKeyboardKey.end, 'Apr, Revenue: 22, Cost: 13'),
+          (LogicalKeyboardKey.arrowRight, 'Apr, Revenue: 22, Cost: 13'),
+          (LogicalKeyboardKey.arrowLeft, 'Mar, Revenue: 15, Cost: 9'),
+          (LogicalKeyboardKey.home, 'Jan, Revenue: 12, Cost: 8'),
+          (LogicalKeyboardKey.arrowLeft, 'Jan, Revenue: 12, Cost: 8'),
+        ]) {
+          await tester.sendKeyEvent(key);
+          await tester.pump();
+
+          expect(said(tester), reading, reason: '$key');
+        }
+      });
+
+      testWidgets('starts from the last column when the first key goes back', (
+        WidgetTester tester,
+      ) async {
+        await tabTo(tester, PlLineChart(series: series, categories: months));
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+        await tester.pump();
+
+        expect(said(tester), 'Apr, Revenue: 22, Cost: 13');
+      });
+
+      testWidgets('stands the card on the column a key reached, and keeps it off the tree', (
+        WidgetTester tester,
+      ) async {
+        // One series and so no legend, which is when the plot and the chart
+        // are one node and a card on the tree would be read into its name.
+        await tabTo(
+          tester,
+          PlLineChart(series: <PlassChartSeries>[series.first], categories: months),
+        );
+
+        expect(find.byType(PlassChartTooltipCard), findsNothing);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+
+        expect(find.byType(PlassChartTooltipCard), findsOneWidget);
+        expect(find.text('Jan'), findsOneWidget);
+        // Said once, by the live region, rather than read into the chart's
+        // name as well.
+        expect(said(tester), 'Jan, Revenue: 12');
+        expect(tester.getSemantics(find.bySemanticsLabel('Chart')).label, 'Chart');
+      });
+
+      testWidgets('draws the ring only while the keyboard holds it', (WidgetTester tester) async {
+        // One series, so there is no legend whose own ring could be the one
+        // found once the focus moves on.
+        await tabTo(tester, PlLineChart(series: <PlassChartSeries>[series.first]));
+
+        bool ringed() => tester
+            .widgetList<CustomPaint>(find.byType(CustomPaint))
+            .any((CustomPaint paint) => paint.foregroundPainter is PlassFocusRingPainter);
+
+        expect(ringed(), isTrue);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+
+        expect(ringed(), isFalse);
+      });
+
+      testWidgets('clears on Escape, and lets Escape through when there is nothing to clear', (
+        WidgetTester tester,
+      ) async {
+        await tabTo(tester, PlLineChart(series: series, categories: months));
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+        expect(said(tester), isNotEmpty);
+
+        expect(await tester.sendKeyEvent(LogicalKeyboardKey.escape), isTrue);
+        await tester.pump();
+
+        expect(said(tester), isEmpty);
+        expect(find.byType(PlassChartTooltipCard), findsNothing);
+
+        // A sheet the chart sits in still gets the key it closes on.
+        expect(await tester.sendKeyEvent(LogicalKeyboardKey.escape), isFalse);
+        expect(await tester.sendKeyEvent(LogicalKeyboardKey.keyA), isFalse);
+      });
+
+      testWidgets('clears what it was reading when the focus leaves', (WidgetTester tester) async {
+        await tabTo(tester, PlLineChart(series: series, categories: months));
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+        expect(said(tester), isNotEmpty);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+
+        expect(said(tester), isEmpty);
+        expect(find.byType(PlassChartTooltipCard), findsNothing);
+      });
+
+      testWidgets('reads the whole column in item mode, which a key has no pointer for', (
+        WidgetTester tester,
+      ) async {
+        await tabTo(
+          tester,
+          PlLineChart(
+            series: series,
+            categories: months,
+            tooltip: const PlChartTooltip(mode: PlassChartTooltipMode.item),
+          ),
+        );
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+
+        expect(said(tester), 'Jan, Revenue: 12, Cost: 8');
+        expect(find.text('12'), findsOneWidget);
+        expect(find.text('8'), findsOneWidget);
+      });
+
+      testWidgets('walks the marks in nearest mode, each read with its category', (
+        WidgetTester tester,
+      ) async {
+        await tabTo(
+          tester,
+          PlLineChart(
+            series: series,
+            categories: months,
+            tooltip: const PlChartTooltip(mode: PlassChartTooltipMode.nearest),
+          ),
+        );
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+        expect(said(tester), 'Jan, Revenue: 12');
+
+        // One series at a time: a mark names its own, so the next mark is the
+        // next of Revenue's rather than Cost's January.
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+        expect(said(tester), 'Feb, Revenue: 19');
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.end);
+        await tester.pump();
+        expect(said(tester), 'Apr, Cost: 13');
+      });
+
+      testWidgets('reads a series with no name by its value alone', (WidgetTester tester) async {
+        await tabTo(
+          tester,
+          PlLineChart(
+            series: <PlassChartSeries>[PlassChartSeries(data: series.first.data)],
+            categories: months,
+          ),
+        );
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+
+        expect(said(tester), 'Jan, 12');
+      });
+
+      testWidgets('leaves the keys alone and says nothing when its tooltip is off', (
+        WidgetTester tester,
+      ) async {
+        await tabTo(
+          tester,
+          PlLineChart(
+            series: series,
+            categories: months,
+            tooltip: const PlChartTooltip(hidden: true),
+          ),
+        );
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+
+        expect(find.semantics.byFlag(SemanticsFlag.isLiveRegion), findsNothing);
+        expect(find.byType(PlassChartTooltipCard), findsNothing);
       });
     });
 

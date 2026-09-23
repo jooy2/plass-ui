@@ -6,6 +6,8 @@
 
 ### Added
 
+- **A line, bar, area, scatter or timeline chart is a tab stop, and the arrow keys walk it.** Every value was already in the text a chart hands a screen reader, but nothing went to one value: the reader heard the series from the start each time. The plot now takes the focus by Tab, with a ring while the keyboard holds it; ← and → walk the categories (↑ and ↓ on a horizontal bar chart and a timeline), `Home` and `End` go to the ends and `Escape` clears the readout, and a scatter, a timeline or a `nearest` tooltip is walked mark by mark in the order the data was given. Each stop is announced in a live region and the tooltip card stands on it, as in the React build.
+
 - **`PlAnimateMarquee` takes `label`, which names the strip.** While the platform has animations turned off the box becomes a tab stop whenever there is anything to scroll, and there was no documented way to name it. `label` puts the name on the box, the way `PlScrollZone`'s `label` names its region.
 
 - **A `PlCalendar` moves by a year with Shift and PageUp or PageDown.** PageUp and PageDown moved by a month with or without Shift, where the React build and the ARIA date-picker practice move by a year with it. The same keys now do the same thing in both builds, in the calendar and in every picker that draws one.
@@ -45,6 +47,10 @@
 - **A chart legend's switched-off entry fades instead of going grey.** The swatch went part-transparent and the name was recoloured to the muted ink, which read as a second kind of text rather than as the same entry, off. The whole row now fades as one thing — swatch and name together, at one opacity — which is what a control that has been switched off looks like everywhere else in the library. The line through the name stays, because it is the half of "off" that survives being read in one colour. The React build makes the same change.
 
 ### Fixed
+
+- **A `PlTimelineChart` no longer throws when a span on a row after the first is pointed at.** The card looked its swatch colour up by the mark's row in the frame's own colours, which a timeline keeps for one stand-in series. It now takes the colour the bar is painted in.
+
+- **A chart's tooltip card is no longer read into the chart's name.** Its words stayed on the semantics tree, so a chart with no legend read "Chart, Jan, Revenue, 12" once the card had been shown. The card is kept off the tree, and the live region says it instead.
 
 - **A `PlPageLayout` inside another no longer claims a second main region.** Both layouts wrapped their content in `SemanticsRole.main`, so a screen had two. The inner one now leaves the role, and `mainSemanticLabel` with it, to the outer layout.
 

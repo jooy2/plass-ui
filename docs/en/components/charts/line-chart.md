@@ -232,18 +232,19 @@ The tokens are `--plass-chart-1` through `--plass-chart-8`, and a project that m
 ## Accessibility
 
 - The whole drawing carries a name.
+- The picture is a tab stop. <kbd>←</kbd> and <kbd>→</kbd> walk the categories one at a time, <kbd>Home</kbd> and <kbd>End</kbd> go to the first and the last, and <kbd>Escape</kbd> clears the readout. Each category is announced in a live region as it is reached, with the value of every visible series there. With the tooltip turned off the keys do nothing and nothing is announced.
 - The legend is a row of real controls: each entry says whether its series is on, and pressing one switches it.
 - A hovered legend entry dims the **others** rather than lighting its own, a chart whose hovered series changes colour is a chart whose legend lies for as long as the pointer is on it.
 
 ::: fw react
 
-- The picture is a `role="img"` and a tab stop. <kbd>←</kbd> and <kbd>→</kbd> walk the categories one at a time, <kbd>Home</kbd> and <kbd>End</kbd> go to the first and the last, and <kbd>Escape</kbd> clears the readout. Each category is announced in a live region as it is reached, with the value of every visible series there. With `tooltip={false}` the keys do nothing and nothing is announced.
-- Focusing the picture reads its name and then a one-line summary: each visible series and where it ended up, such as "Web 40, App 8". The chart also renders a real `<table>` of every value, clipped from view but never hidden from the accessibility tree, as a sibling of the picture — so the values are one step away rather than four hundred of them read out on every focus.
+- The picture is a `role="img"`. Focusing it reads its name and then a one-line summary: each visible series and where it ended up, such as "Web 40, App 8". The chart also renders a real `<table>` of every value, clipped from view but never hidden from the accessibility tree, as a sibling of the picture — so the values are one step away rather than four hundred of them read out on every focus.
 
 :::
 
 ::: fw flutter
 
+- The tab stop is the chart's own semantics node, so a reader arriving on it by Tab hears the name and the text below. <kbd>Escape</kbd> is taken only while something is being read; otherwise it goes on to whatever the chart sits in, so a sheet around it still closes.
 - As its value, the drawing carries **every number in it**: each visible series, then the categories it has a value at and what it was worth there — "Revenue: Jan 12; Feb 19; Mar 15. Cost: Jan 8; Feb 11; Mar 9". There is no hidden table on this side the way there is on React, so the text is the only path to the numbers. A gap is left out rather than read as a category with nothing after it, and a chart given no `categories` leaves the positions out too, because the order of the reading already carries them.
 - `semanticValue` replaces that text for a chart whose summary is not "each series and its values". It is handed which series are on.
 - A tap **leaves** the tooltip up and a second tap on the same column takes it down. Clearing it on the release would be a tooltip a reader with no pointer never gets to read: on a touch screen the press and the release are a tenth of a second apart. A drag scrubs along the axis.

@@ -20,6 +20,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/chart.dart';
@@ -557,6 +558,7 @@ class PlassCartesianChart extends StatefulWidget {
     this.swatch,
     this.markReadout,
     this.markHeading,
+    this.markColor,
     this.semanticValue,
     this.scale,
     super.key,
@@ -656,6 +658,15 @@ class PlassCartesianChart extends StatefulWidget {
   /// taking their series' name. A Gantt's spans do.
   final String Function(PlassChartMark mark)? markHeading;
 
+  /// And what colour its swatch is, for a chart whose marks are not coloured
+  /// by the frame's series.
+  ///
+  /// A Gantt hands the frame one stand-in series and numbers its marks by
+  /// *row*, so a mark's series is not an index into the frame's colours at all
+  /// — read as one, the second row's card asked for a colour that was not
+  /// there and threw.
+  final Color Function(PlassChartMark mark)? markColor;
+
   /// The value axis' scale, already worked out.
   ///
   /// For the axis that is not a count. [valueScale] rounds to 1-2-5, which is
@@ -698,6 +709,25 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
   int? _hovered;
   PlassChartMark? _activeMark;
 
+  /// The plot's own tab stop, which the arrow keys walk.
+  ///
+  /// Held here rather than made by the `Focus` below, because that widget is
+  /// rebuilt with every column the pointer crosses and a node made in `build`
+  /// would be a new node — and the focus would fall off the chart — each time.
+  final FocusNode _focus = FocusNode(debugLabel: 'PlassCartesianChart');
+
+  /// Whether the ring is drawn: the plot holds the focus, and it arrived from
+  /// the keyboard rather than from a press.
+  bool _focusVisible = false;
+
+  /// Whether what is being read was reached by a key rather than by the
+  /// pointer.
+  ///
+  /// A key has no pointer to stand the card beside or to measure `item` mode
+  /// against, so the card is anchored on the column itself and speaks for all
+  /// of it — which is what the React build does for the same reason.
+  bool _keyed = false;
+
   /// Where the pointer is, apart from the state that decides what is drawn.
   ///
   /// A move inside the same column, or near the same mark, changes nothing but
@@ -716,6 +746,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
   @override
   void dispose() {
     _pointer.dispose();
+    _focus.dispose();
     super.dispose();
   }
 
@@ -1088,10 +1119,153 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
             setState(() {
               _activeIndex = null;
               _activeMark = null;
+              _keyed = false;
             });
           }
 
           _pointer.value = null;
+        }
+
+        /* The walk. A chart with marks is walked mark by mark, in the order the
+           builder made them — which is the order the data was given, not the
+           order they are painted in — and a chart without them is walked column
+           by column. The same two lists the pointer is tested against, so a key
+           can never reach something a pointer could not. */
+        final bool speaks =
+            !widget.tooltip.hidden && widget.tooltip.mode != PlassChartTooltipMode.none;
+        final int walkLength = markBuilder != null ? built.length : count;
+
+        void goTo(int at) {
+          if (walkLength == 0) {
+            return;
+          }
+
+          final int bounded = at.clamp(0, walkLength - 1);
+
+          setState(() {
+            _keyed = true;
+
+            if (markBuilder != null) {
+              _activeMark = built[bounded];
+            } else {
+              _activeIndex = bounded;
+            }
+          });
+
+          _pointer.value = null;
+        }
+
+        void step(int delta) {
+          final int? current = markBuilder != null
+              ? (active == null ? null : built.indexOf(active))
+              : _activeIndex;
+
+          // Nothing read yet: forward starts at the first, and back at the last.
+          goTo((current ?? (delta > 0 ? -1 : walkLength)) + delta);
+        }
+
+        KeyEventResult onKey(FocusNode node, KeyEvent event) {
+          if (!speaks || (event is! KeyDownEvent && event is! KeyRepeatEvent)) {
+            return KeyEventResult.ignored;
+          }
+
+          // Along the category axis, whichever way round it runs. A horizontal
+          // chart's categories go down the side, so the keys that walk them do
+          // too. Physical keys on a physical axis: a chart's canvas runs left to
+          // right in every locale, and so does the walk across it.
+          final LogicalKeyboardKey key = event.logicalKey;
+          final LogicalKeyboardKey forward = widget.horizontal
+              ? LogicalKeyboardKey.arrowDown
+              : LogicalKeyboardKey.arrowRight;
+          final LogicalKeyboardKey back = widget.horizontal
+              ? LogicalKeyboardKey.arrowUp
+              : LogicalKeyboardKey.arrowLeft;
+
+          if (key == forward) {
+            step(1);
+          } else if (key == back) {
+            step(-1);
+          } else if (key == LogicalKeyboardKey.home) {
+            goTo(0);
+          } else if (key == LogicalKeyboardKey.end) {
+            goTo(walkLength - 1);
+          } else if (key == LogicalKeyboardKey.escape && (_activeIndex != null || active != null)) {
+            // Only while something is being read. With nothing to clear, the
+            // key belongs to whatever the chart sits in — a sheet, a dialog —
+            // and swallowing it would leave that unable to close.
+            onLeave();
+          } else {
+            return KeyEventResult.ignored;
+          }
+
+          return KeyEventResult.handled;
+        }
+
+        /// Where the card stands for a column reached by key. Beside the top of
+        /// the column on a vertical chart and beside the first value on a
+        /// horizontal one, which is where the React build hangs it.
+        Offset keyAnchor(int index) {
+          if (!widget.horizontal) {
+            return Offset(box.left + layout.categoryPx(index), box.top);
+          }
+
+          final List<int> spoken = _spokenAt(layout, index, PlassChartTooltipMode.column, null);
+
+          return Offset(
+            spoken.isEmpty ? box.left : layout.valuePx(layout.values[spoken.first][index].value!),
+            box.top + layout.categoryPx(index),
+          );
+        }
+
+        /// What the live region says for what is being read, or nothing.
+        String readout(Offset? pointer) {
+          if (!speaks) {
+            return '';
+          }
+
+          if (active != null) {
+            // A chart whose marks say their own reading is read the way its
+            // card is: the heading, then the reading.
+            if (widget.markReadout != null) {
+              final String heading =
+                  widget.markHeading?.call(active) ??
+                  widget.series[active.series].name ??
+                  '${active.series + 1}';
+              final String said = widget.markReadout!(active);
+
+              return said.isEmpty ? heading : '$heading, $said';
+            }
+
+            // A mark of a grid is one cell of a column, and is read as one: the
+            // category it is in, then its series and its value.
+            final ChartValue entry = layout.values[active.series][active.index];
+
+            return '${categoryText(layout.categories[active.index], names)}, '
+                '${_itemReading(widget.series[active.series].name, entry, _write)}';
+          }
+
+          final int? index = _activeIndex;
+
+          if (index == null) {
+            return '';
+          }
+
+          final List<int> spoken = _spokenAt(
+            layout,
+            index,
+            pointer == null ? PlassChartTooltipMode.column : widget.tooltip.mode,
+            pointer,
+          );
+
+          if (spoken.isEmpty) {
+            return '';
+          }
+
+          return <String>[
+            categoryText(layout.categories[index], names),
+            for (final int i in spoken)
+              _itemReading(widget.series[i].name, layout.values[i][index], _write),
+          ].join(', ');
         }
 
         void onTap(Offset local) {
@@ -1118,7 +1292,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
           }
         }
 
-        return MouseRegion(
+        final Widget drawing = MouseRegion(
           onHover: (PointerHoverEvent event) => onMove(event.localPosition),
           onExit: (PointerExitEvent _) => onLeave(),
           child: GestureDetector(
@@ -1159,7 +1333,17 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
                     ValueListenableBuilder<Offset?>(
                       valueListenable: _pointer,
                       builder: (BuildContext context, Offset? pointer, Widget? _) {
-                        if (pointer == null) {
+                        // Beside the pointer when there is one, and on the
+                        // thing itself when a key got there instead.
+                        final Offset? at =
+                            pointer ??
+                            (!_keyed
+                                ? null
+                                : active != null
+                                ? active.centre
+                                : keyAnchor(_activeIndex!));
+
+                        if (at == null) {
                           return const SizedBox.shrink();
                         }
 
@@ -1167,7 +1351,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
                           return _MarkTooltip(
                             layout: layout,
                             mark: active,
-                            pointer: pointer,
+                            color: widget.markColor?.call(active) ?? layout.colors[active.series],
                             name:
                                 widget.markHeading?.call(active) ??
                                 widget.series[active.series].name ??
@@ -1184,18 +1368,66 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
                           layout: layout,
                           index: _activeIndex!,
                           heading: categoryText(layout.categories[_activeIndex!], names),
+                          at: at,
                           pointer: pointer,
                           series: widget.series,
-                          mode: widget.tooltip.mode,
+                          // A key has nothing to measure `item` against, so it
+                          // gets the whole column.
+                          mode: pointer == null
+                              ? PlassChartTooltipMode.column
+                              : widget.tooltip.mode,
                           tokens: tokens,
                           size: size,
                           write: _write,
                         );
                       },
                     ),
+                  if (speaks)
+                    ValueListenableBuilder<Offset?>(
+                      valueListenable: _pointer,
+                      builder: (BuildContext context, Offset? pointer, Widget? _) =>
+                          _Readout(said: readout(pointer)),
+                    ),
                 ],
               ),
             ),
+          ),
+        );
+
+        // A tab stop whenever there is something drawn, as the React build's
+        // picture is. Its semantics are declared on the chart's own node below
+        // rather than here: the plot is a node of its own, for the press and
+        // the drag it answers, and a focus landing on that one would land on a
+        // node with no name.
+        return Focus(
+          focusNode: _focus,
+          includeSemantics: false,
+          onKeyEvent: onKey,
+          onFocusChange: (bool has) {
+            setState(() {
+              _focusVisible =
+                  has && FocusManager.instance.highlightMode == FocusHighlightMode.traditional;
+            });
+
+            // Leaving the chart clears what was being read, rather than
+            // leaving the last column standing in the readout forever.
+            if (!has) {
+              onLeave();
+            }
+          },
+          child: CustomPaint(
+            foregroundPainter: _focusVisible
+                ? PlassFocusRingPainter(
+                    color: tokens.family(PlassColor.primary).ring,
+                    borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.xs]!),
+                    // Held off the drawing rather than flush with it, as the
+                    // React build's `outline-offset-2` is: the plot has no edge
+                    // of its own for the ring to thicken, and one laid on the
+                    // axis labels would read as a border drawn round them.
+                    offset: 2,
+                  )
+                : null,
+            child: drawing,
           ),
         );
       },
@@ -1225,6 +1457,11 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
     return Semantics(
       container: true,
       label: widget.semanticLabel ?? labels.chart,
+      // The plot's tab stop, said on the node that carries the name, so a
+      // reader arriving by Tab hears what the chart is and what it says.
+      focusable: !nothing,
+      focused: !nothing && _focus.hasFocus,
+      onFocus: nothing ? null : _focus.requestFocus,
       // The picture is a picture, so what a screen reader is handed is every
       // value in it: each visible series, then its categories and what it was
       // worth at each. There is no table beside a Flutter chart the way there
@@ -1885,12 +2122,99 @@ class _LegendEntry extends StatelessWidget {
   }
 }
 
-/// The card that follows the pointer.
+/// Which series a column's readout speaks for.
+///
+/// `column` is every visible one that has a value at [index]; `item` is the
+/// single one whose mark [pointer] is nearest, measured along the *value* axis,
+/// because where the pointer is across the plot has already settled the
+/// category. The card and the live region both ask this, so what is drawn and
+/// what is said cannot name two different sets of series.
+List<int> _spokenAt(
+  PlassChartLayout layout,
+  int index,
+  PlassChartTooltipMode mode,
+  Offset? pointer,
+) {
+  final spoken = <int>[];
+
+  for (int i = 0; i < layout.values.length; i += 1) {
+    if (!layout.visible[i] || index >= layout.values[i].length) {
+      continue;
+    }
+
+    if (layout.values[i][index].value != null) {
+      spoken.add(i);
+    }
+  }
+
+  if (mode == PlassChartTooltipMode.item && pointer != null && spoken.length > 1) {
+    final double along = layout.horizontal ? pointer.dx : pointer.dy;
+
+    double away(int i) => (layout.valuePx(layout.values[i][index].value!) - along).abs();
+
+    int nearest = spoken.first;
+
+    for (final int i in spoken) {
+      if (away(i) < away(nearest)) {
+        nearest = i;
+      }
+    }
+
+    spoken
+      ..clear()
+      ..add(nearest);
+  }
+
+  return spoken;
+}
+
+/// One series' part of a spoken readout: its name, then what it is worth.
+///
+/// A series with no name is read by its value alone, as the React build reads
+/// it. The card writes the series' number beside its swatch, where the swatch
+/// says which line it is; said aloud with nothing beside it, "1: 12" is a
+/// number the reader has to work out is not data.
+String _itemReading(String? name, ChartValue entry, String Function(double) write) {
+  // A point's own label wins, exactly as it does on the card.
+  final String said = entry.label ?? write(entry.value!);
+
+  return name == null ? said : '$name: $said';
+}
+
+/// What the pointer or the arrow keys have reached, said rather than drawn.
+///
+/// The card is a picture of the reading and is kept off the semantics tree, so
+/// this is the half a screen reader hears. A live region, so a reader walking
+/// the categories is told each one as it arrives without the focus moving off
+/// the chart; empty when nothing is being read, so leaving the chart clears
+/// what was said rather than leaving the last column standing in it.
+///
+/// A pixel square rather than nothing at all: a node with no size is taken
+/// off the tree, and a region that comes and goes is one a browser does not
+/// announce the first time it arrives.
+class _Readout extends StatelessWidget {
+  const _Readout({required this.said});
+
+  final String said;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      container: true,
+      liveRegion: true,
+      label: said,
+      child: const SizedBox.square(dimension: 1),
+    );
+  }
+}
+
+/// The card that follows the pointer, or stands on the column a key reached.
 class _Tooltip extends StatelessWidget {
   const _Tooltip({
     required this.layout,
     required this.index,
     required this.heading,
+    required this.at,
     required this.pointer,
     required this.series,
     required this.mode,
@@ -1902,7 +2226,12 @@ class _Tooltip extends StatelessWidget {
   final PlassChartLayout layout;
   final int index;
   final String heading;
-  final Offset pointer;
+
+  /// Where the card stands: the pointer, or the column when a key got there.
+  final Offset at;
+
+  /// The pointer, which `item` mode measures against. `null` from a key.
+  final Offset? pointer;
   final List<PlassChartSeries> series;
   final PlassChartTooltipMode mode;
   final PlassTokens tokens;
@@ -1911,39 +2240,7 @@ class _Tooltip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Which series the card speaks for. `column` is every one of them that has
-    // a value at this category; `item` is the single one whose mark the pointer
-    // is nearest, measured along the *value* axis, because where the pointer is
-    // across the plot has already settled the category.
-    final spoken = <int>[];
-
-    for (int i = 0; i < series.length; i += 1) {
-      if (!layout.visible[i] || index >= layout.values[i].length) {
-        continue;
-      }
-
-      if (layout.values[i][index].value != null) {
-        spoken.add(i);
-      }
-    }
-
-    if (mode == PlassChartTooltipMode.item && spoken.length > 1) {
-      final double along = layout.horizontal ? pointer.dx : pointer.dy;
-
-      double away(int i) => (layout.valuePx(layout.values[i][index].value!) - along).abs();
-
-      int nearest = spoken.first;
-
-      for (final int i in spoken) {
-        if (away(i) < away(nearest)) {
-          nearest = i;
-        }
-      }
-
-      spoken
-        ..clear()
-        ..add(nearest);
-    }
+    final List<int> spoken = _spokenAt(layout, index, mode, pointer);
 
     final rows = <Widget>[];
 
@@ -1995,10 +2292,17 @@ class _Tooltip extends StatelessWidget {
     // Beside the pointer rather than under it, so the card never covers the
     // marks it is describing, and before it once the pointer is far along.
     return PlassChartTooltipPlacement(
-      at: pointer,
+      at: at,
       gap: 14,
-      before: pointer.dx > layout.plot.left + layout.plot.width * 0.6,
-      child: PlassChartTooltipCard(tokens: tokens, size: size, heading: heading, children: rows),
+      before: at.dx > layout.plot.left + layout.plot.width * 0.6,
+      // The card is the half a reader sees. The half they hear is `_Readout`,
+      // and a card left on the semantics tree as well was merged into the
+      // name of whatever node held the plot — on a chart with no legend, the
+      // chart's own, which then read "Chart, Jan, Revenue, 12" to anyone who
+      // came back to it.
+      child: ExcludeSemantics(
+        child: PlassChartTooltipCard(tokens: tokens, size: size, heading: heading, children: rows),
+      ),
     );
   }
 }
@@ -2223,7 +2527,7 @@ class _MarkTooltip extends StatelessWidget {
   const _MarkTooltip({
     required this.layout,
     required this.mark,
-    required this.pointer,
+    required this.color,
     required this.name,
     required this.readout,
     required this.tokens,
@@ -2232,7 +2536,9 @@ class _MarkTooltip extends StatelessWidget {
 
   final PlassChartLayout layout;
   final PlassChartMark mark;
-  final Offset pointer;
+
+  /// The swatch's colour: the mark's own, which is not always its series'.
+  final Color color;
   final String name;
   final String readout;
   final PlassTokens tokens;
@@ -2247,37 +2553,37 @@ class _MarkTooltip extends StatelessWidget {
       at: mark.centre,
       gap: (mark.rx ?? mark.r) + 10,
       before: mark.centre.dx > layout.plot.left + layout.plot.width * 0.6,
-      child: PlassChartTooltipCard(
-        tokens: tokens,
-        size: size,
-        heading: name,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(top: 2),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: layout.colors[mark.series],
-                    borderRadius: BorderRadius.circular(2),
+      // Off the semantics tree for the reason the column's card is.
+      child: ExcludeSemantics(
+        child: PlassChartTooltipCard(
+          tokens: tokens,
+          size: size,
+          heading: name,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2)),
                   ),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  readout,
-                  style: TextStyle(
-                    fontSize: metaText[size]!,
-                    fontWeight: FontWeight.w600,
-                    color: tokens.fg,
+                  const SizedBox(width: 6),
+                  Text(
+                    readout,
+                    style: TextStyle(
+                      fontSize: metaText[size]!,
+                      fontWeight: FontWeight.w600,
+                      color: tokens.fg,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

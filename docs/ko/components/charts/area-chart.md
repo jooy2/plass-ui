@@ -111,8 +111,6 @@ PlAreaChart(
 
 이름과 진짜 컨트롤인 범례, 모든 숫자를 담은 숨은 표까지 [`PlLineChart`](./line-chart#accessibility)에 적힌 내용이 그대로 적용됩니다.
 
-- 그림은 `role="img"`이자 tab 정거장입니다. <kbd>←</kbd>와 <kbd>→</kbd>로 category를 하나씩 옮겨 다니고, <kbd>Home</kbd>과 <kbd>End</kbd>로 첫 category와 마지막 category로 갑니다. <kbd>Escape</kbd>로 읽던 값을 지우고, 닿는 category마다 거기서 보이는 series의 값과 함께 live region으로 읽힙니다. `tooltip={false}`이면 키는 아무것도 하지 않고 읽히는 것도 없습니다.
-
 :::
 
 ::: fw flutter
@@ -120,3 +118,5 @@ PlAreaChart(
 이름과 series별 요약, 진짜 컨트롤인 범례까지 [`PlLineChart`](./line-chart#accessibility)에 적힌 내용이 그대로 적용됩니다.
 
 :::
+
+- 그림은 tab 정거장입니다. <kbd>←</kbd>와 <kbd>→</kbd>로 category를 하나씩 옮겨 다니고, <kbd>Home</kbd>과 <kbd>End</kbd>로 첫 category와 마지막 category로 갑니다. <kbd>Escape</kbd>로 읽던 값을 지우고, 닿는 category마다 거기서 보이는 series의 값과 함께 live region으로 읽힙니다. tooltip을 끄면 키는 아무것도 하지 않고 읽히는 것도 없습니다.

@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -246,6 +247,65 @@ void main() {
       }
 
       fail('no span was ever under the press');
+    });
+
+    testWidgets('shows the readout for a span on a row after the first', (
+      WidgetTester tester,
+    ) async {
+      await _pump(tester, PlTimelineChart(series: _plan(), height: 220, semanticLabel: 'Plan'));
+
+      final Rect box = tester.getRect(find.byType(CustomPaint).first);
+      final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+      addTearDown(mouse.removePointer);
+      await mouse.addPointer(location: box.topLeft);
+
+      // Along the second row, whose one span runs most of the way across.
+      for (double x = box.left; x <= box.right; x += 8) {
+        await mouse.moveTo(Offset(x, box.top + box.height * 0.6));
+        await tester.pump();
+
+        expect(tester.takeException(), isNull);
+
+        if (find.text('Implementation').evaluate().isNotEmpty) {
+          return;
+        }
+      }
+
+      fail('no span on the second row was ever under the pointer');
+    });
+
+    testWidgets('walks the spans with the arrow keys in the order they were written', (
+      WidgetTester tester,
+    ) async {
+      final FocusNode before = FocusNode();
+
+      addTearDown(before.dispose);
+      await _pump(
+        tester,
+        afterFocusStop(before, PlTimelineChart(series: _plan(), semanticLabel: 'Plan')),
+      );
+
+      before.requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+
+      String said() => find.semantics.byFlag(SemanticsFlag.isLiveRegion).evaluate().single.label;
+
+      // The rows run down the side, so the keys that walk them do too, and a
+      // span that names itself is read by its name and the two days it spans.
+      for (final (LogicalKeyboardKey key, String reading) in <(LogicalKeyboardKey, String)>[
+        (LogicalKeyboardKey.arrowDown, 'Wireframes, Jan 1, 2026 – Jan 9, 2026'),
+        (LogicalKeyboardKey.arrowDown, 'Visuals, Jan 11, 2026 – Jan 18, 2026'),
+        (LogicalKeyboardKey.arrowDown, 'Implementation, Jan 8, 2026 – Jan 26, 2026'),
+        (LogicalKeyboardKey.arrowUp, 'Visuals, Jan 11, 2026 – Jan 18, 2026'),
+      ]) {
+        await tester.sendKeyEvent(key);
+        await tester.pump();
+
+        expect(said(), reading, reason: '$key');
+      }
     });
   });
 }

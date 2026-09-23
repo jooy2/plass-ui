@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -284,6 +285,42 @@ void main() {
       }
 
       fail('no point was ever under the press');
+    });
+
+    testWidgets('walks the points with the arrow keys in the order they were given', (
+      WidgetTester tester,
+    ) async {
+      final FocusNode before = FocusNode();
+
+      addTearDown(before.dispose);
+      await _pump(tester, afterFocusStop(before, PlScatterChart(series: spend)));
+
+      before.requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+
+      String said() => find.semantics.byFlag(SemanticsFlag.isLiveRegion).evaluate().single.label;
+
+      expect(said(), isEmpty);
+
+      // Each point is read the way its card is: the series, then the pair.
+      for (final (LogicalKeyboardKey key, String reading) in <(LogicalKeyboardKey, String)>[
+        (LogicalKeyboardKey.arrowRight, 'Q1, 10, 22'),
+        (LogicalKeyboardKey.arrowRight, 'Q1, 20, 31'),
+        (LogicalKeyboardKey.arrowRight, 'Q1, 30, 28'),
+        (LogicalKeyboardKey.arrowRight, 'Q2, 12, 40'),
+        (LogicalKeyboardKey.end, 'Q2, 26, 35'),
+        (LogicalKeyboardKey.arrowLeft, 'Q2, 12, 40'),
+        (LogicalKeyboardKey.home, 'Q1, 10, 22'),
+      ]) {
+        await tester.sendKeyEvent(key);
+        await tester.pump();
+
+        expect(said(), reading, reason: '$key');
+      }
+
+      expect(find.text('Q1'), findsWidgets);
     });
   });
 }

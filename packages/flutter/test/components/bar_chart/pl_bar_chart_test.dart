@@ -2,9 +2,11 @@ import 'dart:math' as math;
 import 'dart:ui' show Paragraph;
 
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/chart_frame.dart';
 
 import '../../support/canvas.dart';
 import '../../support/host.dart';
@@ -313,6 +315,46 @@ void main() {
       );
 
       expect(tester.getSize(find.byType(PlBarChart)).height, closeTo(180, 0.5));
+    });
+
+    testWidgets('walks the categories down a horizontal chart with the up and down keys', (
+      WidgetTester tester,
+    ) async {
+      final FocusNode before = FocusNode();
+
+      addTearDown(before.dispose);
+      await _pump(
+        tester,
+        afterFocusStop(
+          before,
+          PlBarChart(series: series, categories: regions, orientation: PlassOrientation.horizontal),
+        ),
+      );
+
+      before.requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+
+      String said() => find.semantics.byFlag(SemanticsFlag.isLiveRegion).evaluate().single.label;
+
+      // The categories run down the side, so the keys that walk them do too.
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      expect(said(), 'Europe, This year: 42, Last year: 35');
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      expect(said(), 'Asia, This year: 58, Last year: 44');
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+      await tester.pump();
+      expect(said(), 'Europe, This year: 42, Last year: 35');
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pump();
+      expect(said(), 'Europe, This year: 42, Last year: 35');
+      expect(find.byType(PlassChartTooltipCard), findsOneWidget);
     });
   });
 }
