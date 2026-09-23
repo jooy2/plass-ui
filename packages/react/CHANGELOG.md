@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **A `PlPill` that starts `expanded` is open on its first frame.** It rendered its panel at a height of 0 and measured it afterwards, so it animated open as it arrived. An open panel is now at its natural height until it has been measured, in the server's HTML as well, and opening and closing afterwards animate as before.
+
 - **A `PlSparkline` value outside a pinned `min` or `max` is cut at the edge of the strip.** It was drawn past the box, so a bar for 2 under a `min` of 5 hung below the strip into whatever sat under it. The marks are now held to the strip's height, so a value outside the range is not seen, and no end dot is drawn on a last value the strip cannot hold.
 
 - **An element a chart axis's `tickFormat` returns is written as the words in it.** The type lets a formatter return any node, and the axis passed the result through `String`, so `<b>12</b>` put `[object Object]` on the axis. A tick is SVG text, which holds words and no markup, so an element is now read for its text, on either axis; a string or a number is written as before.

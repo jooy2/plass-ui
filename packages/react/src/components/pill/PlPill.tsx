@@ -257,14 +257,23 @@ export const PlPill = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPillPro
 
   const detailsRef = React.useRef<HTMLDivElement>(null);
   const detailsId = React.useId();
-  const [detailsHeight, setDetailsHeight] = React.useState(0);
+  // `null` until the panel has been measured, and an open panel is `auto` until
+  // then. A pill that starts `expanded` is open on its first frame, in the
+  // server's HTML as well as in the browser's, rather than opening from nothing:
+  // a height of 0 on the first render, even one replaced before the paint, is a
+  // height the browser has already computed, and the move away from it is a
+  // transition. From `auto` to the measured number there is nothing to animate.
+  const [detailsHeight, setDetailsHeight] = React.useState<number | null>(null);
   const hasDetails = hasContent(details);
 
   // Keyed on whether there is a panel rather than on `details`: the panel's
   // element lives exactly as long as that, and the observer already hears every
   // change to what is inside it. `details` is usually written inline, so keying
   // on it would build a new observer on every render.
-  React.useEffect(() => {
+  //
+  // A layout effect, so the first measurement lands before the first paint
+  // rather than after it.
+  React.useLayoutEffect(() => {
     const element = detailsRef.current;
 
     if (!element || typeof ResizeObserver === 'undefined') {
@@ -397,7 +406,7 @@ export const PlPill = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPillPro
             '[transition:height_var(--plass-duration-slow)_var(--plass-ease)]',
             'motion-reduce:[transition-duration:0ms]'
           )}
-          style={{ height: expanded ? detailsHeight : 0 }}
+          style={{ height: expanded ? (detailsHeight ?? 'auto') : 0 }}
           // `inert` rather than `aria-hidden`: a collapsed panel is a
           // zero-height box that its content is still perfectly focusable
           // inside, and `aria-hidden` alone would leave a keyboard reader

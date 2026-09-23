@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlIconButton, PlPill } from 'plass-ui';
@@ -188,6 +189,44 @@ describe('PlPill', () => {
       const panel = screen.getByTestId('details').element().parentElement?.parentElement;
 
       expect(panel).not.toHaveAttribute('inert');
+      await expect
+        .poll(() => Number.parseFloat((panel as HTMLElement).style.height))
+        .toBeGreaterThan(0);
+    });
+
+    it('is open on its first frame when it starts expanded, rather than opening from nothing', async () => {
+      const first: string[] = [];
+
+      // A parent's layout effect runs after the pill's own, in the same commit
+      // and before the browser paints, so it reads the height the first frame
+      // is built with. A panel that is 0 there has had that 0 computed, and the
+      // move to the measured height is a transition: the pill animated open on
+      // arrival.
+      function FirstFrame() {
+        const probe = React.useRef<HTMLSpanElement>(null);
+
+        React.useLayoutEffect(() => {
+          const panel = probe.current?.parentElement?.parentElement;
+
+          if (panel) {
+            first.push(panel.style.height);
+          }
+        }, []);
+
+        return (
+          <PlPill expanded title="Two updates" details={<span ref={probe}>Billing moved.</span>} />
+        );
+      }
+
+      const screen = await render(<FirstFrame />);
+
+      expect(first).toHaveLength(1);
+      expect(first[0]).not.toBe('0px');
+      expect(first[0]).not.toBe('');
+
+      // And the measured height follows, as it does for a pill opened later.
+      const panel = screen.getByText('Billing moved.').element().parentElement?.parentElement;
+
       await expect
         .poll(() => Number.parseFloat((panel as HTMLElement).style.height))
         .toBeGreaterThan(0);
