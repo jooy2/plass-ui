@@ -271,6 +271,52 @@ void main() {
       expect(scrollable.position.maxScrollExtent, 160);
     });
 
+    testWidgets('names the stop it becomes where the platform has asked for less movement', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+      final FocusNode before = FocusNode();
+      addTearDown(before.dispose);
+
+      await tester.pumpWidget(
+        host(
+          afterFocusStop(
+            before,
+            PlAnimateMarquee(
+              label: 'Partners',
+              gap: 0,
+              children: List<Widget>.generate(10, (_) => const SizedBox(width: 60, height: 20)),
+            ),
+          ),
+          width: 200,
+          disableAnimations: true,
+        ),
+      );
+      await tester.pump();
+
+      before.requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('Partners')),
+        isSemantics(label: 'Partners', isFocusable: true, isFocused: true),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('names the strip while it moves as well', (WidgetTester tester) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+
+      await tester.pumpWidget(
+        host(PlAnimateMarquee(label: 'Partners', children: _three), width: 200, height: 40),
+      );
+
+      expect(find.bySemanticsLabel('Partners'), findsOneWidget);
+      handle.dispose();
+    });
+
     testWidgets('stands where it started where the platform has asked for less movement', (
       WidgetTester tester,
     ) async {

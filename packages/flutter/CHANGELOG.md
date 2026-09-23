@@ -6,6 +6,8 @@
 
 ### Added
 
+- **`PlAnimateMarquee` takes `label`, which names the strip.** While the platform has animations turned off the box becomes a tab stop whenever there is anything to scroll, and there was no documented way to name it. `label` puts the name on the box, the way `PlScrollZone`'s `label` names its region.
+
 - **A `PlCalendar` moves by a year with Shift and PageUp or PageDown.** PageUp and PageDown moved by a month with or without Shift, where the React build and the ARIA date-picker practice move by a year with it. The same keys now do the same thing in both builds, in the calendar and in every picker that draws one.
 
 - **`PlSlider` takes `semanticValue`, which words each thumb's value for a screen reader.** `formatValue` writes the whole range as one string beside the label and never reached the announced value, so a slider of percentages was read as "40". `semanticValue` is handed the value as it would be read, the number and the thumb's index, and what it returns is what a screen reader says for the value and for a step either side of it, so `(formatted, value, index) => '$formatted%'` reads "40%". It is the counterpart of the React build's `getAriaValueText`, with the same three arguments.

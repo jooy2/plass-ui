@@ -56,6 +56,13 @@ export interface PlAnimateMarqueeProps
    * @default true
    */
   pauseOnHover?: boolean;
+  /**
+   * What the strip is called — "Partners", "Customers". It names the box as a
+   * group, and under `prefers-reduced-motion` that box is the tab stop a
+   * keyboard reader scrolls it with, which is otherwise announced with no name
+   * of its own.
+   */
+  label?: string;
   /** The things that scroll past. */
   children?: React.ReactNode;
 }
@@ -82,7 +89,7 @@ export interface PlAnimateMarqueeProps
  * the box would be out of sight for good. So the stylesheet draws only the
  * first copy and lets the box scroll along it instead of clipping it, and the
  * box is a tab stop while there is anything to scroll, for a reader with no
- * pointer to scroll it with.
+ * pointer to scroll it with. `label` is that stop's name.
  *
  * Only the first copy is read out or reached with Tab. The rest carry
  * `aria-hidden`, or a screen reader would announce everything on the strip as
@@ -111,6 +118,7 @@ export const PlAnimateMarquee = /* @__PURE__ */ React.forwardRef<
     gap = '2rem',
     copies = 2,
     pauseOnHover = true,
+    label,
     className,
     style,
     children,
@@ -243,6 +251,8 @@ export const PlAnimateMarquee = /* @__PURE__ */ React.forwardRef<
       // A tab stop only where the box scrolls, which is only under reduced
       // motion: a moving strip has nothing a reader could scroll to.
       tabIndex={still && overflows ? 0 : undefined}
+      role={label ? 'group' : undefined}
+      aria-label={label}
       {...mergeProps(props, run.handlers)}
     >
       {Array.from({ length: Math.max(1, copies) }, (_, index) => track(index))}

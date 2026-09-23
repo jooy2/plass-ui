@@ -273,6 +273,22 @@ describe('PlAnimateMarquee', () => {
       expect(document.querySelector('.marquee-under-test')).not.toHaveAttribute('tabindex');
     });
 
+    it('is named by `label`', async () => {
+      await emulateMedia({ reducedMotion: 'reduce' });
+
+      await render(
+        <PlAnimateMarquee className="marquee-under-test" label="Partners" style={{ width: 200 }}>
+          <span style={{ display: 'block', width: 500 }}>Acme</span>
+        </PlAnimateMarquee>
+      );
+
+      const box = document.querySelector('.marquee-under-test')!;
+
+      await expect.poll(() => box.getAttribute('tabindex')).toBe('0');
+      expect(box).toHaveAttribute('role', 'group');
+      expect(box).toHaveAccessibleName('Partners');
+    });
+
     it('is not one while the strip moves, since there is nothing to scroll to', async () => {
       await render(
         <PlAnimateMarquee className="marquee-under-test" style={{ width: 200 }}>
@@ -281,6 +297,46 @@ describe('PlAnimateMarquee', () => {
       );
 
       expect(document.querySelector('.marquee-under-test')).not.toHaveAttribute('tabindex');
+    });
+  });
+
+  describe('label', () => {
+    it('names the strip as a group', async () => {
+      const screen = await render(
+        <PlAnimateMarquee label="Partners">
+          <span>Acme</span>
+        </PlAnimateMarquee>
+      );
+
+      await expect.element(screen.getByRole('group', { name: 'Partners' })).toBeInTheDocument();
+    });
+
+    it('leaves the box without a role when there is none', async () => {
+      await render(
+        <PlAnimateMarquee className="marquee-under-test">
+          <span>Acme</span>
+        </PlAnimateMarquee>
+      );
+
+      expect(document.querySelector('.marquee-under-test')).not.toHaveAttribute('role');
+    });
+
+    it('gives way to a role and a name the caller set', async () => {
+      await render(
+        <PlAnimateMarquee
+          className="marquee-under-test"
+          label="Partners"
+          role="region"
+          aria-label="Logos"
+        >
+          <span>Acme</span>
+        </PlAnimateMarquee>
+      );
+
+      const box = document.querySelector('.marquee-under-test')!;
+
+      expect(box).toHaveAttribute('role', 'region');
+      expect(box).toHaveAccessibleName('Logos');
     });
   });
 

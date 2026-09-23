@@ -40,7 +40,8 @@ const Duration _unmeasured = Duration(seconds: 12);
 /// When the platform has animations turned off, the strip stands still, and
 /// what was past the edge of the box would be out of sight for good. So only
 /// the first copy is laid down, the box scrolls along it instead of clipping
-/// it, and the box is a tab stop while there is anything to scroll.
+/// it, and the box is a tab stop while there is anything to scroll. [label] is
+/// that stop's name.
 ///
 /// Only the first copy is read out or reached with Tab. The rest are behind
 /// [ExcludeSemantics], or a screen reader would announce everything on the
@@ -57,6 +58,7 @@ class PlAnimateMarquee extends StatefulWidget {
     this.gap = 32,
     this.copies = 2,
     this.pauseOnHover = true,
+    this.label,
     this.duration,
     this.delay = Duration.zero,
     this.curve,
@@ -99,6 +101,13 @@ class PlAnimateMarquee extends StatefulWidget {
   /// Stops while the pointer is on it, so something scrolling past can actually
   /// be read or pressed.
   final bool pauseOnHover;
+
+  /// What the strip is called — "Partners", "Customers".
+  ///
+  /// It names the box, and when the platform has animations turned off that box
+  /// is the tab stop a keyboard reader scrolls it with, which is otherwise
+  /// announced with no name of its own.
+  final String? label;
 
   /// How long one pass takes. Left out, [speed] and the measurement decide.
   final Duration? duration;
@@ -266,6 +275,10 @@ class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
         onExit: (_) => setState(() => _hovered = false),
         child: strip,
       );
+    }
+
+    if (widget.label != null) {
+      strip = Semantics(container: true, label: widget.label, child: strip);
     }
 
     return strip;

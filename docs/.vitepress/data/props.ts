@@ -1390,6 +1390,14 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'Stops while the pointer is on it, so something scrolling past can actually be read or clicked'
       }
     },
+    {
+      name: 'label',
+      type: 'string',
+      description: {
+        ko: '띠의 이름 — "Partners", "Customers". 상자를 이름 있는 그룹으로 만들고, 모션 줄이기에서 상자가 탭 정지점이 될 때 그 정지점의 이름이 됩니다',
+        en: 'What the strip is called — "Partners", "Customers". It names the box as a group, and it is the name of the tab stop the box becomes under reduced motion'
+      }
+    },
     ...animateProps({ duration: 'measured from speed', repeat: "'infinite'" })
   ],
   PlAnimateReveal: [

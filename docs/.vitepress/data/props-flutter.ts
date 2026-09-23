@@ -424,6 +424,13 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlAnimateMarquee', 'gap', { type: 'double', default: '32' }),
     from('PlAnimateMarquee', 'copies', { type: 'int', default: '2' }),
     from('PlAnimateMarquee', 'pauseOnHover', { type: 'bool', default: 'true' }),
+    from('PlAnimateMarquee', 'label', {
+      type: 'String?',
+      description: {
+        ko: '띠의 이름 — "Partners", "Customers". 상자에 이름을 붙이고, 플랫폼이 애니메이션을 끈 동안 상자가 탭 정지점이 될 때 그 정지점의 이름이 됩니다',
+        en: 'What the strip is called — "Partners", "Customers". It names the box, and it is the name of the tab stop the box becomes while the platform has animations turned off'
+      }
+    }),
     ...animateFlutterProps('PlAnimateMarquee', {
       duration: 'measured from speed',
       repeat: 'null'

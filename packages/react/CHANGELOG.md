@@ -6,6 +6,8 @@
 
 ### Added
 
+- **`PlAnimateMarquee` takes `label`, which names the strip.** Under `prefers-reduced-motion` the box becomes a tab stop while there is anything to scroll, and that stop had no name unless the caller added `role="group"` and an `aria-label` themselves. `label` makes the box a group with that name, the way `PlScrollZone`'s `label` names its region.
+
 - **A chart's tooltip takes `mode: 'nearest'`, which answers for the mark the pointer is nearest rather than for the column it is over.** It is what a `PlScatterChart` has always done, and on a line or an area it is the answer when two series cross and the reader is pointing at one of them rather than at the month they share. There is no crosshair with it — a crosshair says "these numbers all belong to this column", and there is no column — and the arrow keys walk mark by mark instead of column by column. It measures to the mark, which on a bar is the bar's data end, and it reads a stacked series where the band was actually drawn rather than at its bare value.
 
 - **A chart legend can fold past `maxEntries`.** A legend is a key, and a key of twelve names wrapped over four rows is a paragraph the reader has to search — on a card it is also four rows the plot no longer has. Past the number given, the rest go behind a button that says how many they are and opens them, with the same button folding them back. The entries kept are the **first** ones, in the order the series were passed, because that is the order their colours were handed out in and a key that rearranged itself as series were switched off would stop being a key. Nothing is hidden from a screen reader by it: the fold is a real button, reachable by keyboard, and every series is in the table under the chart either way.
