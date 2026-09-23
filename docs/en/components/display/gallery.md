@@ -98,6 +98,12 @@ The tiles stay in one list, in the order they were given, and CSS Grid draws eac
 
 :::
 
+::: fw flutter
+
+Each lane is a column of its own, and every tile carries its place in the list, so the Tab order and a screen reader follow the order the pictures were given rather than going down one lane before the next.
+
+:::
+
 ### ratio
 
 Every layout is laid out from the item's own `ratio` rather than from anything measured, which is why a wall of forty photographs is right in the first frame and does not reflow as the files arrive. A set without one falls back to the gallery's `ratio` and comes out as a grid of squares in a masonry's clothing.

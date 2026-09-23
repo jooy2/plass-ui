@@ -44,6 +44,8 @@
 
 ### Fixed
 
+- **A `PlGallery` masonry is read and walked with Tab in the order the pictures were given.** A screen reader went down the first lane before it started the second, and Tab took whichever tile was nearest the top, which with mixed shapes was a third order again. Each tile now carries its place in the list, which is the order the React build's tiles have followed since they were kept in one list.
+
 - **A `PlDataTable` with `manual` paging and no `rowKey` keys a row by its place in the whole set.** The default key is a row's position in `rows`, and with the pages cut by a server `rows` is only the page on screen, so every page's first row had the key `0` and a row ticked on one page showed ticked on the row in the same place on the next. The position is now counted from the first row of the first page. `rowKey` is still the one to set: a page the server sends again with a row added moves every key below it.
 
 - **Turning a `PlCalendar`'s `disabled` on or off no longer builds it again.** The wrappers that dim it and take it out of reach were added only while it was disabled, and so was the one that announces each header button as unavailable, so switching `disabled` moved the calendar to a new parent: the view it had open went back to the days, and a header button lost the hover or the press it was showing. They are now in the tree in both states, with only their flags switched.

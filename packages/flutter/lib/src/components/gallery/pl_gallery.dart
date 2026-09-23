@@ -1,6 +1,7 @@
 /// A set of pictures, arranged.
 library;
 
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -425,7 +426,7 @@ class _PlGalleryState extends State<PlGallery> {
           stack.add(SizedBox(height: gap));
         }
 
-        stack.add(_tile(at, radius, size, tokens, ratio: _ratioOf(widget.items[at])));
+        stack.add(_inOrder(at, _tile(at, radius, size, tokens, ratio: _ratioOf(widget.items[at]))));
       }
 
       columns.add(
@@ -435,7 +436,32 @@ class _PlGalleryState extends State<PlGallery> {
       );
     }
 
-    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: columns);
+    return FocusTraversalGroup(
+      policy: OrderedTraversalPolicy(),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: columns),
+    );
+  }
+
+  /// A masonry tile, handed back its place in the list.
+  ///
+  /// A screen reader and the Tab key both order what they visit by where it is
+  /// drawn, not by where it sits in the tree, and a board of lanes is drawn in
+  /// neither the list's order nor rows: the screen reader read down the first
+  /// lane before it started the second, and Tab took whichever tile was nearest
+  /// the top, which is a different order again once the shapes are mixed. Each
+  /// tile is told its index instead, so both follow the set as it was given —
+  /// which is what the React build gets from keeping its tiles in one list.
+  ///
+  /// The node is a container so that a tile that is not a button keeps its
+  /// picture and its caption as the separate nodes they were, rather than
+  /// merging them into one.
+  Widget _inOrder(int index, Widget tile) {
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      sortKey: OrdinalSortKey(index.toDouble()),
+      child: FocusTraversalOrder(order: NumericFocusOrder(index.toDouble()), child: tile),
+    );
   }
 
   Widget _justified(

@@ -2,6 +2,7 @@
 // on a network or on a file on disk.
 import 'dart:convert';
 
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -153,6 +154,107 @@ void main() {
         // Two of three 100px columns wide, two 100px rows tall.
         expect(wide.width, closeTo(200, 0.5));
         expect(wide.height, closeTo(200, 0.5));
+      });
+    });
+
+    group('a masonry’s order', () {
+      /// Nine pictures of three shapes, which three lanes deal as A H, B D F I
+      /// and C E G — so the lanes, the rows and the list all disagree.
+      final List<PlGalleryItem> mixed = <PlGalleryItem>[
+        for (final (int at, double ratio) in <(int, double)>[
+          (0, 0.5),
+          (1, 2),
+          (2, 2),
+          (3, 2),
+          (4, 1),
+          (5, 1),
+          (6, 2),
+          (7, 1),
+          (8, 1),
+        ])
+          PlGalleryItem(
+            id: '$at',
+            image: _picture(at + 1),
+            semanticLabel: String.fromCharCode(65 + at),
+            ratio: ratio,
+          ),
+      ];
+      final List<String> given = <String>['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
+
+      Widget masonry({void Function(PlGalleryItem item, int index)? onItemSelected}) {
+        return PlGallery(
+          items: mixed,
+          layout: PlGalleryLayout.masonry,
+          columns: const PlassResponsive<int>(3),
+          onItemSelected: onItemSelected,
+        );
+      }
+
+      /// The pictures a screen reader reaches, in the order it reaches them.
+      List<String> read(WidgetTester tester) {
+        return tester.semantics
+            .simulatedAccessibilityTraversal()
+            .map((SemanticsNode node) => node.label.split(' — ').first)
+            .where(given.contains)
+            .toList();
+      }
+
+      testWidgets('is read in the order the pictures were given', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await _pump(tester, masonry());
+
+        expect(read(tester), given);
+        handle.dispose();
+      });
+
+      testWidgets('is read in the order given when the tiles are buttons', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await _pump(tester, masonry(onItemSelected: (PlGalleryItem item, int index) {}));
+
+        expect(read(tester), given);
+        handle.dispose();
+      });
+
+      testWidgets('is walked with Tab in the order the pictures were given', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+
+        await _pump(
+          tester,
+          afterFocusStop(before, masonry(onItemSelected: (PlGalleryItem item, int index) {})),
+        );
+        before.requestFocus();
+        await tester.pump();
+
+        final List<String> visited = <String>[];
+
+        for (int step = 0; step < given.length; step += 1) {
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pump();
+
+          String? label;
+
+          FocusManager.instance.primaryFocus?.context?.visitAncestorElements((Element element) {
+            final Widget widget = element.widget;
+
+            if (widget is Semantics && widget.properties.button == true) {
+              label = widget.properties.label;
+
+              return false;
+            }
+
+            return true;
+          });
+          visited.add(label?.split(' — ').first ?? '');
+        }
+
+        expect(visited, given);
       });
     });
 
