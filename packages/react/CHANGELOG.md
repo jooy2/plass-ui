@@ -42,6 +42,8 @@
 
 ### Fixed
 
+- **`PlCodeBlock theme="auto"` follows the nearest element that forces a theme.** On a `.dark` page, or one the system had made dark, a block inside an element forced light with `.light` or `data-theme="light"` was still painted dark, because only a dark ancestor was named. The palette `auto` reads is now declared on every theme root, so the nearest one wins however deep the nesting goes, as it already did for the colour tokens.
+
 - **A `PlDataTable` with `manual` paging and no `getRowKey` keys a row by its place in the whole set.** The default key is a row's position in `rows`, and with the pages cut by a server `rows` is only the page on screen, so every page's first row had the key `0` and a row ticked on one page showed ticked on the row in the same place on the next. The position is now counted from the first row of the first page. `getRowKey` is still the one to set: a page the server sends again with a row added moves every key below it.
 
 - **Clearing a picker from its × hands the focus back to the trigger.** The × leaves the page with the value it cleared, and the focus it held fell to the document, so a keyboard reader who emptied a date started again from the top of the page. It now goes to the trigger of the field they just emptied, on `PlDatePicker`, `PlDateRangePicker`, `PlDateTimePicker`, `PlTimePicker`, `PlColorPicker` and `PlTreeSelect`.

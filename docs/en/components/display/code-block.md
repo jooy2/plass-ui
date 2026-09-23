@@ -61,7 +61,7 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 ### theme
 
-The palette is independent of the page's light and dark, except on `auto`. `dark` is the default and it is the one that is not a preference: code has been read on a dark ground since terminals, and a block that matched the page would be the one element on it whose colours were chosen by something other than the code.
+The palette is independent of the page's light and dark, except on `auto`, which follows the nearest theme above the block rather than the page's, so a block inside a light panel on a dark page is light. `dark` is the default and it is the one that is not a preference: code has been read on a dark ground since terminals, and a block that matched the page would be the one element on it whose colours were chosen by something other than the code.
 
 <Demo src="code-block/themes" :min-height="360">
 

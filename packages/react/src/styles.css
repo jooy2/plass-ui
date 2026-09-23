@@ -2142,10 +2142,11 @@
  * theme below declares its `fg` and `bg` on that same element — so the derived
  * five follow whichever theme won without being restated fourteen times.
  *
- * The two dark palettes at the top are written twice on purpose — once for
- * `dark`, once for `auto` inside a dark page — because a media query cannot be
- * folded into a selector list. It is the same repetition the theme roots at the
- * top of this file make, for the same reason.
+ * The two house palettes are written more than once on purpose: once on the
+ * block for `light` and `dark`, and again on the theme roots for `auto`, where
+ * the dark one is there twice because a media query cannot be folded into a
+ * selector list. It is the same repetition the theme roots at the top of this
+ * file make, for the same reason.
  *
  * Every hue in the house themes is solved against its own background rather
  * than flipped: the light set runs dark and saturated on near-white, the dark
@@ -2157,7 +2158,8 @@
  * ------------------------------------------------------------------------- */
 
 .plass-code {
-  /* The light set, which is also what `auto` and `light` start from. */
+  /* The light set, which is what `light` is and what a theme that fills only
+     some of the slots starts from. */
   --p-code-bg: oklch(98.4% 0.003 262);
   --p-code-fg: oklch(30% 0.016 262);
 
@@ -2188,8 +2190,7 @@
   --p-code-mark-edge: color-mix(in oklab, var(--p-code-fg) 45%, transparent);
 }
 
-.plass-code[data-code-theme='dark'],
-:where(.dark, [data-theme='dark']) .plass-code[data-code-theme='auto'] {
+.plass-code[data-code-theme='dark'] {
   --p-code-bg: oklch(19.5% 0.014 262);
   --p-code-fg: oklch(90% 0.012 262);
 
@@ -2207,29 +2208,90 @@
   --p-code-del: oklch(75% 0.15 25);
 }
 
-/* Both ways of forcing light are named, the same pair the token block above
-   answers to. `auto` means "whatever the page is", so a page that has said it
-   is light with `.light` and one that has said it with `[data-theme='light']`
-   have to leave the block light alike — otherwise the page is white and the
-   code on it is the one dark rectangle nobody asked for. */
-@media (prefers-color-scheme: dark) {
-  :root:not(.light):not([data-theme='light']) .plass-code[data-code-theme='auto'] {
-    --p-code-bg: oklch(19.5% 0.014 262);
-    --p-code-fg: oklch(90% 0.012 262);
+/* `auto` is the palette of the nearest element that says which theme it is in,
+   however deep the nesting goes: a light preview box inside a dark page, or a
+   dark panel inside that. A selector can name a dark ancestor or a light one
+   but not which of the two is nearer, so the palette `auto` reads is declared
+   on every theme root instead, the way the tokens at the top of this file are,
+   and inheritance is what picks the nearest. The system preference is the
+   root's answer when the page has not given one, and both ways of forcing
+   light are named, so a page that has said it is light leaves the block light
+   either way. */
+:root,
+.light,
+[data-theme='light'] {
+  --p-code-auto-bg: oklch(98.4% 0.003 262);
+  --p-code-auto-fg: oklch(30% 0.016 262);
 
-    --p-code-comment: oklch(60% 0.024 262);
-    --p-code-keyword: oklch(76% 0.13 324);
-    --p-code-string: oklch(80% 0.13 148);
-    --p-code-number: oklch(81% 0.12 62);
-    --p-code-function: oklch(78% 0.12 258);
-    --p-code-type: oklch(82% 0.1 210);
-    --p-code-variable: oklch(82% 0.09 32);
-    --p-code-tag: oklch(77% 0.13 22);
-    --p-code-attr: oklch(85% 0.11 92);
-    --p-code-meta: oklch(70% 0.05 262);
-    --p-code-add: oklch(80% 0.14 152);
-    --p-code-del: oklch(75% 0.15 25);
+  --p-code-auto-comment: oklch(58% 0.022 262);
+  --p-code-auto-keyword: oklch(48% 0.19 322);
+  --p-code-auto-string: oklch(46% 0.12 148);
+  --p-code-auto-number: oklch(50% 0.14 48);
+  --p-code-auto-function: oklch(48% 0.17 264);
+  --p-code-auto-type: oklch(45% 0.1 214);
+  --p-code-auto-variable: oklch(45% 0.12 28);
+  --p-code-auto-tag: oklch(48% 0.18 22);
+  --p-code-auto-attr: oklch(47% 0.13 82);
+  --p-code-auto-meta: oklch(52% 0.05 262);
+  --p-code-auto-add: oklch(45% 0.14 152);
+  --p-code-auto-del: oklch(48% 0.18 25);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light):not([data-theme='light']) {
+    --p-code-auto-bg: oklch(19.5% 0.014 262);
+    --p-code-auto-fg: oklch(90% 0.012 262);
+
+    --p-code-auto-comment: oklch(60% 0.024 262);
+    --p-code-auto-keyword: oklch(76% 0.13 324);
+    --p-code-auto-string: oklch(80% 0.13 148);
+    --p-code-auto-number: oklch(81% 0.12 62);
+    --p-code-auto-function: oklch(78% 0.12 258);
+    --p-code-auto-type: oklch(82% 0.1 210);
+    --p-code-auto-variable: oklch(82% 0.09 32);
+    --p-code-auto-tag: oklch(77% 0.13 22);
+    --p-code-auto-attr: oklch(85% 0.11 92);
+    --p-code-auto-meta: oklch(70% 0.05 262);
+    --p-code-auto-add: oklch(80% 0.14 152);
+    --p-code-auto-del: oklch(75% 0.15 25);
   }
+}
+
+.dark,
+[data-theme='dark'] {
+  --p-code-auto-bg: oklch(19.5% 0.014 262);
+  --p-code-auto-fg: oklch(90% 0.012 262);
+
+  --p-code-auto-comment: oklch(60% 0.024 262);
+  --p-code-auto-keyword: oklch(76% 0.13 324);
+  --p-code-auto-string: oklch(80% 0.13 148);
+  --p-code-auto-number: oklch(81% 0.12 62);
+  --p-code-auto-function: oklch(78% 0.12 258);
+  --p-code-auto-type: oklch(82% 0.1 210);
+  --p-code-auto-variable: oklch(82% 0.09 32);
+  --p-code-auto-tag: oklch(77% 0.13 22);
+  --p-code-auto-attr: oklch(85% 0.11 92);
+  --p-code-auto-meta: oklch(70% 0.05 262);
+  --p-code-auto-add: oklch(80% 0.14 152);
+  --p-code-auto-del: oklch(75% 0.15 25);
+}
+
+.plass-code[data-code-theme='auto'] {
+  --p-code-bg: var(--p-code-auto-bg);
+  --p-code-fg: var(--p-code-auto-fg);
+
+  --p-code-comment: var(--p-code-auto-comment);
+  --p-code-keyword: var(--p-code-auto-keyword);
+  --p-code-string: var(--p-code-auto-string);
+  --p-code-number: var(--p-code-auto-number);
+  --p-code-function: var(--p-code-auto-function);
+  --p-code-type: var(--p-code-auto-type);
+  --p-code-variable: var(--p-code-auto-variable);
+  --p-code-tag: var(--p-code-auto-tag);
+  --p-code-attr: var(--p-code-auto-attr);
+  --p-code-meta: var(--p-code-auto-meta);
+  --p-code-add: var(--p-code-auto-add);
+  --p-code-del: var(--p-code-auto-del);
 }
 
 /*
