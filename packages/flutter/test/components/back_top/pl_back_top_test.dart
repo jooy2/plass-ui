@@ -145,12 +145,15 @@ void main() {
     group('without a controller', () {
       /// A list with no controller of its own and the button beside it, both
       /// under the primary controller a route would put above them.
-      Widget primary(ScrollController controller) {
+      ///
+      /// [list] is the list's own `primary`, which desktop leaves off.
+      Widget primary(ScrollController controller, {bool? list}) {
         return PrimaryScrollController(
           controller: controller,
           child: Stack(
             children: <Widget>[
               ListView(
+                primary: list,
                 children: <Widget>[
                   for (int i = 0; i < 60; i += 1) SizedBox(height: 50, child: Text('$i')),
                 ],
@@ -203,26 +206,7 @@ void main() {
           final ScrollController controller = ScrollController();
           addTearDown(controller.dispose);
 
-          await tester.pumpWidget(
-            host(
-              PrimaryScrollController(
-                controller: controller,
-                child: Stack(
-                  children: <Widget>[
-                    ListView(
-                      primary: true,
-                      children: <Widget>[
-                        for (int i = 0; i < 60; i += 1) SizedBox(height: 50, child: Text('$i')),
-                      ],
-                    ),
-                    const Positioned(right: 8, bottom: 8, child: PlBackTop()),
-                  ],
-                ),
-              ),
-              width: 300,
-              height: 400,
-            ),
-          );
+          await tester.pumpWidget(host(primary(controller, list: true), width: 300, height: 400));
           await tester.pump();
 
           expect(tester.takeException(), isNull);
