@@ -524,6 +524,106 @@ void main() {
       });
     });
 
+    group('a long list', () {
+      /// Two hundred rows, far more than a list 160 pixels tall shows at once.
+      final List<PlTransferItem> many = <PlTransferItem>[
+        for (int index = 0; index < 200; index += 1)
+          PlTransferItem(value: 'row-$index', label: 'Row $index'),
+      ];
+
+      testWidgets('builds the rows near what it shows rather than every row', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(PlTransfer(items: many, height: 160), width: 700, height: 400),
+        );
+
+        // The two heading ticks and a screenful of rows, give or take the
+        // rows built just past each edge.
+        expect(find.byType(PlCheckbox, skipOffstage: false).evaluate().length, lessThan(40));
+      });
+
+      testWidgets('builds again only the row a tick changed', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(PlTransfer(items: many, height: 160), width: 700, height: 400),
+        );
+
+        final Set<String> built = <String>{};
+
+        // Every element Flutter builds again passes through this hook, and a
+        // row is the one checkbox with a label drawn beside it.
+        debugOnRebuildDirtyWidget = (Element element, bool builtOnce) {
+          final Widget widget = element.widget;
+
+          if (widget is PlCheckbox && widget.label is Text) {
+            built.add((widget.label! as Text).data!);
+          }
+        };
+        addTearDown(() => debugOnRebuildDirtyWidget = null);
+
+        await tester.tap(find.text('Row 2'));
+        await tester.pumpAndSettle();
+
+        debugOnRebuildDirtyWidget = null;
+
+        expect(find.text('1/200'), findsOneWidget);
+        // Every row of both lists used to be built again for one tick.
+        expect(built, <String>{'Row 2'});
+      });
+
+      testWidgets('keeps the focus on a row its list is scrolled away from', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(PlTransfer(items: many, height: 160), width: 700, height: 400),
+        );
+
+        final FocusNode row = tester
+            .widget<PlCheckbox>(find.widgetWithText(PlCheckbox, 'Row 1'))
+            .focusNode!;
+
+        row.requestFocus();
+        await tester.pump();
+
+        final ScrollableState list = tester.state<ScrollableState>(
+          find.descendant(of: find.byType(ListView).first, matching: find.byType(Scrollable)),
+        );
+
+        list.position.jumpTo(list.position.maxScrollExtent);
+        await tester.pumpAndSettle();
+
+        // The row is far past what the list builds, and still holds the focus.
+        expect(find.text('Row 1'), findsNothing);
+        expect(row.hasPrimaryFocus, isTrue);
+      });
+
+      testWidgets('hands the focus to a row that arrived below what its list shows', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            PlTransfer(
+              items: many,
+              defaultValue: <String>[for (int index = 0; index < 150; index += 1) 'row-$index'],
+              height: 160,
+            ),
+            width: 700,
+            height: 400,
+          ),
+        );
+
+        await tester.tap(find.text('Row 150'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.bySemanticsLabel('Move to selected'));
+        await tester.pumpAndSettle();
+
+        // It lands a hundred and fifty rows down a list that has not built
+        // them, and is scrolled to rather than left for the list to hold.
+        expect(Focus.of(tester.element(find.text('Row 150'))).hasPrimaryFocus, isTrue);
+        expect(tester.takeAnnouncements().single.message, '1 item moved to Selected');
+      });
+    });
+
     group('the shell', () {
       testWidgets('is never dyed, whatever colour it is given', (WidgetTester tester) async {
         await tester.pumpWidget(
@@ -548,11 +648,12 @@ void main() {
           host(const PlTransfer(items: items, height: 120), width: 700, height: 400),
         );
 
-        final Iterable<SingleChildScrollView> lists = tester.widgetList<SingleChildScrollView>(
-          find.byType(SingleChildScrollView),
-        );
+        // One list with rows in it and one empty, and both the height asked for.
+        final Finder lists = find.byType(ListView);
 
-        expect(lists.length, 2);
+        expect(lists, findsNWidgets(2));
+        expect(tester.getSize(lists.first).height, 120);
+        expect(tester.getSize(lists.last).height, 120);
       });
 
       testWidgets('stops everything at once when it is disabled', (WidgetTester tester) async {

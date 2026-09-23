@@ -190,6 +190,15 @@ class _PlTransferState extends State<PlTransfer> {
   final FocusNode _sourceListFocus = FocusNode(skipTraversal: true);
   final FocusNode _targetListFocus = FocusNode(skipTraversal: true);
 
+  /// Each list's scroll position. The lists are built lazily, so a row a move
+  /// sends further down than the list is scrolled has to be scrolled to before
+  /// it exists to take the focus.
+  final ScrollController _sourceScroll = ScrollController();
+  final ScrollController _targetScroll = ScrollController();
+
+  /// The row widgets of the last build, by value. See [_row].
+  final Map<String, _PlTransferRow> _rows = <String, _PlTransferRow>{};
+
   List<String> get _value => widget.value ?? _ownValue;
 
   FocusNode _focusFor(String value) => _rowFocus.putIfAbsent(value, FocusNode.new);
@@ -206,6 +215,7 @@ class _PlTransferState extends State<PlTransfer> {
     // — until the value comes back, and comes back ticked. The frame this is
     // called from is about to be built, so there is nothing to notify.
     _ticked.removeWhere((String value) => !present.contains(value));
+    _rows.removeWhere((String value, _PlTransferRow row) => !present.contains(value));
 
     if (_rowFocus.keys.any((String value) => !present.contains(value))) {
       WidgetsBinding.instance.addPostFrameCallback((Duration _) => _releaseRowFocus());
@@ -244,6 +254,8 @@ class _PlTransferState extends State<PlTransfer> {
     }
     _sourceListFocus.dispose();
     _targetListFocus.dispose();
+    _sourceScroll.dispose();
+    _targetScroll.dispose();
     super.dispose();
   }
 
@@ -329,13 +341,7 @@ class _PlTransferState extends State<PlTransfer> {
         return;
       }
 
-      final FocusNode? row = _rowFocus[arrived.first];
-
-      if (row != null && row.context != null) {
-        row.requestFocus();
-      } else {
-        (toTarget ? _targetListFocus : _sourceListFocus).requestFocus();
-      }
+      _focusRow(arrived.first, toTarget: toTarget);
 
       unawaited(
         SemanticsService.sendAnnouncement(
@@ -345,6 +351,96 @@ class _PlTransferState extends State<PlTransfer> {
         ),
       );
     });
+  }
+
+  /// Hands the focus to the row of [value] in the list on one side, and brings
+  /// the row into view.
+  ///
+  /// A list builds only the rows near what it shows, and a node whose row has
+  /// not been built cannot take the focus. So a row that arrived further down
+  /// than its list is scrolled is scrolled to first, to where it would be if
+  /// every row were as tall as the ones built so far, which they are unless a
+  /// label wraps, and handed the focus a frame later, once it is there. A row
+  /// that is still not there leaves the focus with the list itself, where a
+  /// move whose rows were refused puts it too.
+  void _focusRow(String value, {required bool toTarget, bool scrolled = false}) {
+    final FocusNode? row = _rowFocus[value];
+    // A node keeps the context of the last row it was in after that row has
+    // left the tree, which is what a moved row's node holds until its row is
+    // built again on the other side, so the context has to be a live one.
+    final BuildContext? built = row?.context;
+
+    if (row != null && built != null && built.mounted) {
+      unawaited(Scrollable.ensureVisible(built));
+      row.requestFocus();
+      return;
+    }
+
+    final ScrollController scroll = toTarget ? _targetScroll : _sourceScroll;
+    final List<PlTransferItem> rows = _rowsOf(target: toTarget);
+    final int index = rows.indexWhere((PlTransferItem item) => item.value == value);
+
+    if (scrolled || index < 0 || !scroll.hasClients) {
+      (toTarget ? _targetListFocus : _sourceListFocus).requestFocus();
+      return;
+    }
+
+    final ScrollPosition position = scroll.position;
+    final double extent = (position.maxScrollExtent + position.viewportDimension) / rows.length;
+
+    scroll.jumpTo((index * extent).clamp(position.minScrollExtent, position.maxScrollExtent));
+
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      if (mounted) {
+        _focusRow(value, toTarget: toTarget, scrolled: true);
+      }
+    });
+  }
+
+  /// One side's rows as its list draws them: the items on that side, in the
+  /// order of [PlTransfer.items], narrowed by that side's filter.
+  List<PlTransferItem> _rowsOf({required bool target}) {
+    final Set<String> chosen = _value.toSet();
+    final List<PlTransferItem> side = widget.items
+        .where((PlTransferItem item) => chosen.contains(item.value) == target)
+        .toList(growable: false);
+
+    return _narrow(side, (target ? _targetSearch : _sourceSearch).text);
+  }
+
+  /// The widget for one row, and the same one as last time while nothing about
+  /// the row has changed.
+  ///
+  /// A list calls its builder for every row it has built whenever the transfer
+  /// rebuilds, which is on every tick, and Flutter passes over a widget it is
+  /// handed again. So a tick rebuilds the one row it changed rather than every
+  /// row near the screen.
+  Widget _row(PlTransferItem item, PlassSize size) {
+    final bool ticked = _ticked.contains(item.value);
+    final bool disabled = widget.disabled || item.disabled;
+    final FocusNode node = _focusFor(item.value);
+    final _PlTransferRow? last = _rows[item.value];
+
+    if (last != null &&
+        last.label == item.label &&
+        last.ticked == ticked &&
+        last.disabled == disabled &&
+        last.size == size &&
+        last.color == _color &&
+        identical(last.focusNode, node)) {
+      return last;
+    }
+
+    return _rows[item.value] = _PlTransferRow(
+      key: ValueKey<String>(item.value),
+      label: item.label,
+      ticked: ticked,
+      disabled: disabled,
+      size: size,
+      color: _color,
+      focusNode: node,
+      onChanged: (bool next) => _tick(item.value, next),
+    );
   }
 
   /// One side's rows, narrowed by what was typed at that side's box.
@@ -360,16 +456,8 @@ class _PlTransferState extends State<PlTransfer> {
 
   @override
   Widget build(BuildContext context) {
-    final Set<String> chosen = _value.toSet();
-    final List<PlTransferItem> source = widget.items
-        .where((PlTransferItem item) => !chosen.contains(item.value))
-        .toList(growable: false);
-    final List<PlTransferItem> target = widget.items
-        .where((PlTransferItem item) => chosen.contains(item.value))
-        .toList(growable: false);
-
-    final List<PlTransferItem> sourceRows = _narrow(source, _sourceSearch.text);
-    final List<PlTransferItem> targetRows = _narrow(target, _targetSearch.text);
+    final List<PlTransferItem> sourceRows = _rowsOf(target: false);
+    final List<PlTransferItem> targetRows = _rowsOf(target: true);
     final bool rtl = Directionality.of(context) == TextDirection.rtl;
 
     final bool canSend = sourceRows.any(
@@ -393,6 +481,7 @@ class _PlTransferState extends State<PlTransfer> {
             fallback: PlassTheme.labelsOf(context).transferAvailable,
             rows: sourceRows,
             controller: _sourceSearch,
+            scroll: _sourceScroll,
             listFocus: _sourceListFocus,
             onTickAll: (bool on) => _tickAll(sourceRows, on),
           ),
@@ -433,6 +522,7 @@ class _PlTransferState extends State<PlTransfer> {
             fallback: PlassTheme.labelsOf(context).transferSelected,
             rows: targetRows,
             controller: _targetSearch,
+            scroll: _targetScroll,
             listFocus: _targetListFocus,
             onTickAll: (bool on) => _tickAll(targetRows, on),
           ),
@@ -464,6 +554,7 @@ class _PlTransferState extends State<PlTransfer> {
     required String fallback,
     required List<PlTransferItem> rows,
     required TextEditingController controller,
+    required ScrollController scroll,
     required FocusNode listFocus,
     required ValueChanged<bool> onTickAll,
   }) {
@@ -516,39 +607,41 @@ class _PlTransferState extends State<PlTransfer> {
       ),
     );
 
+    final EdgeInsetsGeometry listPadding = EdgeInsets.symmetric(horizontal: insetX, vertical: padY);
+
+    // Where each row is, by value, made only if the list asks.
+    late final Map<String, int> places = <String, int>{
+      for (int index = 0; index < rows.length; index += 1) rows[index].value: index,
+    };
+
+    // Built lazily: a list of thousands builds the rows near what it shows
+    // rather than every one of them, on the first frame and on every tick.
     final Widget list = SizedBox(
       height: widget.height,
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: insetX, vertical: padY),
-          child: rows.isEmpty
-              ? Padding(
+      child: rows.isEmpty
+          ? ListView(
+              controller: scroll,
+              padding: listPadding,
+              children: <Widget>[
+                Padding(
                   padding: EdgeInsets.symmetric(vertical: _rowPadY[size]!),
                   child: Text(
                     widget.emptyLabel ?? PlassTheme.labelsOf(context).empty,
                     style: TextStyle(fontSize: caption, color: tokens.mutedFg),
                   ),
-                )
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    for (final PlTransferItem row in rows)
-                      Padding(
-                        padding: EdgeInsets.symmetric(vertical: _rowPadY[size]!),
-                        child: PlCheckbox(
-                          size: size,
-                          color: _color,
-                          value: _ticked.contains(row.value),
-                          focusNode: _focusFor(row.value),
-                          disabled: widget.disabled || row.disabled,
-                          label: Text(row.label),
-                          onChanged: (bool next) => _tick(row.value, next),
-                        ),
-                      ),
-                  ],
                 ),
-        ),
-      ),
+              ],
+            )
+          : ListView.builder(
+              controller: scroll,
+              padding: listPadding,
+              itemCount: rows.length,
+              // A move shifts the rows, and a row is found again by its value
+              // rather than by the place it used to be at, so it keeps its own
+              // element and whatever its checkbox was holding.
+              findChildIndexCallback: (Key key) => places[(key as ValueKey<String>).value],
+              itemBuilder: (BuildContext context, int index) => _row(rows[index], size),
+            ),
     );
 
     return PlassSurfaceBox(
@@ -597,6 +690,90 @@ class _PlTransferState extends State<PlTransfer> {
             child: Semantics(container: true, label: title, child: list),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// One row of a list: its checkbox, held to its own width.
+///
+/// Its own widget, so that [_PlTransferState._row] can hand the same instance
+/// back while nothing about the row has changed.
+class _PlTransferRow extends StatefulWidget {
+  const _PlTransferRow({
+    required this.label,
+    required this.ticked,
+    required this.disabled,
+    required this.size,
+    required this.color,
+    required this.focusNode,
+    required this.onChanged,
+    super.key,
+  });
+
+  final String label;
+  final bool ticked;
+  final bool disabled;
+  final PlassSize size;
+  final PlassColor color;
+  final FocusNode focusNode;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  State<_PlTransferRow> createState() => _PlTransferRowState();
+}
+
+class _PlTransferRowState extends State<_PlTransferRow> with AutomaticKeepAliveClientMixin {
+  /// A row that holds the focus stays built when its list is scrolled away
+  /// from it. A lazy list lets go of a row past its edge, and a row that goes
+  /// takes the focus with it, where the column the rows used to be in kept
+  /// every one of them.
+  @override
+  bool get wantKeepAlive => widget.focusNode.hasFocus;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.focusNode.addListener(updateKeepAlive);
+  }
+
+  @override
+  void didUpdateWidget(_PlTransferRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.focusNode != widget.focusNode) {
+      oldWidget.focusNode.removeListener(updateKeepAlive);
+      widget.focusNode.addListener(updateKeepAlive);
+      updateKeepAlive();
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.focusNode.removeListener(updateKeepAlive);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+
+    // A list stretches its children across, where the column the rows used to
+    // be in let each one keep its own width. The press target is the box and
+    // its label, not the width of the panel.
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: _rowPadY[widget.size]!),
+        child: PlCheckbox(
+          size: widget.size,
+          color: widget.color,
+          value: widget.ticked,
+          focusNode: widget.focusNode,
+          disabled: widget.disabled,
+          label: Text(widget.label),
+          onChanged: widget.onChanged,
+        ),
       ),
     );
   }

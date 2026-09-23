@@ -3,6 +3,33 @@ import { render } from 'vitest-browser-react';
 import { PlTransfer, PlassProvider, type PlTransferItem } from 'plass-ui';
 import { ko } from '../../../src/locales/ko.js';
 
+/**
+ * How many times each row's `PlCheckbox` has rendered, by the row's label.
+ *
+ * A row that renders again to the same markup leaves nothing on the page to
+ * read, so the count is taken on the component itself: the real `PlCheckbox`,
+ * wrapped in one that counts and changes nothing else. Only a row has a string
+ * `label`; the heading ticks are named with `aria-label` and are not counted.
+ */
+const renders = vi.hoisted(() => new Map<string, number>());
+
+vi.mock('../../../src/components/checkbox/PlCheckbox.js', async (importOriginal) => {
+  const React = await import('react');
+  const real =
+    await importOriginal<typeof import('../../../src/components/checkbox/PlCheckbox.js')>();
+  const Counted = React.forwardRef<HTMLElement, React.ComponentProps<typeof real.PlCheckbox>>(
+    function Counted(props, ref) {
+      if (typeof props.label === 'string') {
+        renders.set(props.label, (renders.get(props.label) ?? 0) + 1);
+      }
+
+      return React.createElement(real.PlCheckbox, { ...props, ref });
+    }
+  );
+
+  return { ...real, PlCheckbox: Counted };
+});
+
 const items: PlTransferItem[] = [
   { value: 'name', label: 'Name' },
   { value: 'email', label: 'Email' },
@@ -377,6 +404,23 @@ describe('PlTransfer', () => {
       await screen.getByRole('textbox', { name: 'Search' }).first().fill('zzz');
 
       await expect.element(screen.getByText('Emphatic')).toBeVisible();
+    });
+  });
+
+  describe('a long list', () => {
+    it('draws again only the row a tick changed', async () => {
+      const many: PlTransferItem[] = Array.from({ length: 200 }, (_, index) => ({
+        value: `row-${index}`,
+        label: `Row ${index}`
+      }));
+      const screen = await render(<PlTransfer items={many} />);
+
+      renders.clear();
+      press(screen.getByRole('checkbox', { name: 'Row 7' }).element());
+
+      await expect.element(screen.getByText('1/200')).toBeVisible();
+      // Every row of both lists used to render again for one tick.
+      expect([...renders.keys()]).toEqual(['Row 7']);
     });
   });
 

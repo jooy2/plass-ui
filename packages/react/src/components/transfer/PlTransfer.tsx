@@ -20,7 +20,7 @@ import {
   surfaceSlots,
   toLength
 } from '../../internal/styles.js';
-import type { PlassSize, PlassStyleProps, PlassVariant } from '../../types.js';
+import type { PlassColor, PlassSize, PlassStyleProps, PlassVariant } from '../../types.js';
 
 /** One thing that can be on either side. */
 export interface PlTransferItem {
@@ -94,6 +94,59 @@ const rowPadY: Record<PlassSize, string> = {
   lg: 'py-1.5',
   xl: 'py-2'
 };
+
+interface RowProps {
+  value: string;
+  label: React.ReactNode;
+  checked: boolean;
+  disabled: boolean;
+  size: PlassSize;
+  color: PlassColor;
+  onTick: (value: string, ticked: boolean) => void;
+  rowRef: (value: string, element: HTMLElement | null) => void;
+}
+
+/**
+ * One row of a list, drawn again only when something about it changed.
+ *
+ * A tick changes one row, and a list of thousands used to draw every row of
+ * both lists again for it, each one a `PlCheckbox` with a Base UI checkbox
+ * under it, which is where the input stalled. A row is handed its own value,
+ * its own state and two callbacks that keep their identity from one render to
+ * the next, so `React.memo` can pass over every row the tick did not touch.
+ */
+const Row = /* @__PURE__ */ React.memo(function Row({
+  value,
+  label,
+  checked,
+  disabled,
+  size,
+  color,
+  onTick,
+  rowRef
+}: RowProps) {
+  const ref = React.useCallback(
+    (element: HTMLElement | null) => rowRef(value, element),
+    [rowRef, value]
+  );
+  const onCheckedChange = React.useCallback(
+    (next: boolean) => onTick(value, next === true),
+    [onTick, value]
+  );
+
+  return (
+    <PlCheckbox
+      ref={ref}
+      size={size}
+      color={color}
+      className={rowPadY[size]}
+      label={label}
+      checked={checked}
+      disabled={disabled}
+      onCheckedChange={onCheckedChange}
+    />
+  );
+});
 
 /** What a caller sees of one side, so the two panels are literally one function. */
 interface PanelProps {
@@ -217,16 +270,16 @@ function Panel({
             </span>
           ) : (
             rows.map((row) => (
-              <PlCheckbox
+              <Row
                 key={row.value}
-                ref={(element) => rowRef(row.value, element)}
-                size={size}
-                color={color}
-                className={rowPadY[size]}
+                value={row.value}
                 label={row.label}
                 checked={ticked.has(row.value)}
-                disabled={disabled || row.disabled}
-                onCheckedChange={(next) => onTick(row.value, next === true)}
+                disabled={disabled || row.disabled === true}
+                size={size}
+                color={color}
+                onTick={onTick}
+                rowRef={rowRef}
               />
             ))
           )}
@@ -362,10 +415,13 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
       null
     );
 
-    const rowRef = (item: string, element: HTMLElement | null) => {
+    // Both of these, and `tick` below, keep their identity across renders:
+    // they are what every `Row` is handed, and a new function each render would
+    // draw every row again for every tick.
+    const rowRef = React.useCallback((item: string, element: HTMLElement | null) => {
       if (element) rowRefs.current.set(item, element);
       else rowRefs.current.delete(item);
-    };
+    }, []);
 
     const chosen = React.useMemo(() => new Set(selected), [selected]);
     const source = React.useMemo(
@@ -382,7 +438,7 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
       onValueChange?.(next);
     };
 
-    const tick = (item: string, on: boolean) => {
+    const tick = React.useCallback((item: string, on: boolean) => {
       setTicked((current) => {
         const next = new Set(current);
 
@@ -391,7 +447,7 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
 
         return next;
       });
-    };
+    }, []);
 
     const tickAll = (rows: readonly PlTransferItem[], on: boolean) => {
       setTicked((current) => {
