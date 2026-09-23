@@ -134,6 +134,11 @@ export interface PlMockupProps extends Omit<React.ComponentPropsWithoutRef<'div'
    * any CSS length. The device is laid out at its own resolution and then scaled
    * to whatever this comes to, so the content inside is genuinely a screen's
    * worth rather than a page's worth shrunk.
+   *
+   * A number, with `height` left out or a number too, is a size known on the
+   * server, so a server-rendered page has the device in its first HTML. Any
+   * other length is measured in the browser first, and the device is hidden
+   * until it has been.
    * @default '100%'
    */
   width?: number | string;
@@ -229,10 +234,33 @@ export const PlMockup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlMocku
      * whichever one it was not scaled against.
      */
     const box = usePlElementSize(boxRef);
-    const scale =
+    const measured =
       box === null || box.width <= 0 || box.height <= 0
         ? null
         : Math.min(box.width / frame.width, box.height / frame.height);
+
+    /*
+     * The scale the props already give, before anything is measured. A width or
+     * a height in pixels, with the other side a number too or left to the
+     * aspect ratio, is a box whose size is known on the server — so the device
+     * is drawn at its real scale in the first HTML rather than hidden until the
+     * page has hydrated, which is what keeps a mockup in a hero visible while
+     * the script is still on its way. A length in any other unit is only known
+     * to the browser, and that one waits for the measurement. The measurement
+     * still wins once it lands, for a box a stylesheet has held narrower than
+     * the number.
+     */
+    const stated =
+      typeof width === 'number' && width > 0
+        ? height === undefined
+          ? width / frame.width
+          : typeof height === 'number' && height > 0
+            ? Math.min(width / frame.width, height / frame.height)
+            : null
+        : typeof height === 'number' && height > 0 && width === undefined
+          ? height / frame.height
+          : null;
+    const scale = measured ?? stated;
 
     const setRef = React.useCallback(
       (node: HTMLDivElement | null) => {
@@ -310,8 +338,9 @@ export const PlMockup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlMocku
           <div
             className="absolute inset-0 flex items-center justify-center"
             style={{
-              // Until the box has been measured there is no honest size to draw
-              // at. One frame, and only ever on the very first paint.
+              // Until the box has been measured, or its size stated in pixels,
+              // there is no honest size to draw at. One frame, and only ever on
+              // the very first paint.
               visibility: scale === null ? 'hidden' : undefined
             }}
           >

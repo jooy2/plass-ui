@@ -42,6 +42,8 @@
 
 ### Fixed
 
+- **A `PlMockup` whose `width` or `height` is a number is visible in the server HTML.** The whole device was `visibility: hidden` until the page hydrated and measured it, which left a mockup in a hero empty while the script loaded and kept it out of the LCP candidates. With a size in pixels the scale is known before anything is measured, so the device is drawn at once; a CSS length, the default `'100%'` included, still waits for the measurement.
+
 - **`PlCodeBlock theme="auto"` follows the nearest element that forces a theme.** On a `.dark` page, or one the system had made dark, a block inside an element forced light with `.light` or `data-theme="light"` was still painted dark, because only a dark ancestor was named. The palette `auto` reads is now declared on every theme root, so the nearest one wins however deep the nesting goes, as it already did for the colour tokens.
 
 - **A `PlDataTable` with `manual` paging and no `getRowKey` keys a row by its place in the whole set.** The default key is a row's position in `rows`, and with the pages cut by a server `rows` is only the page on screen, so every page's first row had the key `0` and a row ticked on one page showed ticked on the row in the same place on the next. The position is now counted from the first row of the first page. `getRowKey` is still the one to set: a page the server sends again with a row added moves every key below it.

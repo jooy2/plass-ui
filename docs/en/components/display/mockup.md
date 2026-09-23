@@ -43,6 +43,12 @@ That scale is the one `transform` in the library. The rule it is an exception to
 
 **`size` does not set a height or a type scale here.** It sets the resolution of the screen, which is the only thing about a device there is to scale, the second component after [`PlBox`](../surfaces/box) where the ladder means something other than a control height.
 
+::: fw react
+
+A `width` or a `height` given as a number, with the other one left out or a number too, is a size known on the server, so a server-rendered page has the device in its first HTML. With any other length, `'100%'` included, the device stays hidden until the browser has measured the box, one frame after the script runs.
+
+:::
+
 ## Examples
 
 ### device and hardware

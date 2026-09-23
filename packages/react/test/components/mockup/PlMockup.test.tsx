@@ -1,4 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import * as React from 'react';
+import { hydrateRoot } from 'react-dom/client';
+import { renderToString } from 'react-dom/server';
 import { PlMockup } from 'plass-ui';
 import { render } from 'vitest-browser-react';
 
@@ -164,6 +167,67 @@ describe('PlMockup', () => {
 
       // 390 + 13 either side, over 844 + 13 top and bottom.
       expect(host.style.aspectRatio).toBe('416 / 870');
+    });
+  });
+
+  // A `md` phone is 416 by 870 with its bezel, so every size here is half of it.
+  describe('on the server', () => {
+    it('draws a device whose width is a number at its scale, rather than hiding it', () => {
+      const html = renderToString(<PlMockup device="mobile" width={208} />);
+
+      expect(html).not.toContain('visibility:hidden');
+      expect(html).toContain('transform:scale(0.5)');
+    });
+
+    it('takes the scale from a height that is a number on its own', () => {
+      const html = renderToString(<PlMockup device="mobile" height={435} />);
+
+      expect(html).not.toContain('visibility:hidden');
+      expect(html).toContain('transform:scale(0.5)');
+    });
+
+    it('takes the smaller of the two when both are numbers', () => {
+      const html = renderToString(<PlMockup device="mobile" width={416} height={435} />);
+
+      expect(html).toContain('transform:scale(0.5)');
+    });
+
+    it('still waits for a measurement when the size is a CSS length', () => {
+      expect(renderToString(<PlMockup device="mobile" />)).toContain('visibility:hidden');
+      expect(renderToString(<PlMockup device="mobile" width="50%" />)).toContain(
+        'visibility:hidden'
+      );
+      expect(renderToString(<PlMockup device="mobile" width={208} height="50vh" />)).toContain(
+        'visibility:hidden'
+      );
+    });
+
+    it('hydrates the scale it drew without a mismatch', async () => {
+      const element = <PlMockup device="mobile" width={208} className="mockup-under-test" />;
+      const host = document.createElement('div');
+      const onRecoverableError = vi.fn();
+
+      host.innerHTML = renderToString(element);
+      document.body.append(host);
+
+      let root: ReturnType<typeof hydrateRoot> | undefined;
+
+      try {
+        await React.act(async () => {
+          root = hydrateRoot(host, element, { onRecoverableError });
+        });
+
+        const inner = host.querySelector('.mockup-under-test > div') as HTMLElement;
+
+        expect(onRecoverableError).not.toHaveBeenCalled();
+        expect(inner.style.visibility).toBe('');
+        await expect
+          .poll(() => (inner.firstElementChild as HTMLElement).style.transform)
+          .toBe('scale(0.5)');
+      } finally {
+        await React.act(async () => root?.unmount());
+        host.remove();
+      }
     });
   });
 });
