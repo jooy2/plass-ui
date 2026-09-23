@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { renderToString } from 'react-dom/server';
 import { render } from 'vitest-browser-react';
 import { PlTable, type PlTableColumn } from 'plass-ui';
 
@@ -263,6 +264,68 @@ describe('PlTable', () => {
         .toBeInTheDocument();
       expect(scrollerOf()?.previousElementSibling).toHaveTextContent('Open invoices');
       expect(scrollerOf()?.querySelector('caption')).toHaveTextContent('Open invoices');
+    });
+  });
+
+  describe('a grid wider than its sheet', () => {
+    /** Three columns of 300px, which a 200px sheet cannot hold. */
+    const wide: PlTableColumn<Invoice>[] = columns.map((column) => ({ ...column, width: 300 }));
+    const scrollerOf = () => document.querySelector('.table-under-test table')!.parentElement!;
+
+    it('is a tab stop while it scrolls, so the keyboard can reach what is past the edge', async () => {
+      await render(
+        <PlTable className="table-under-test" style={{ width: 200 }} columns={wide} rows={rows} />
+      );
+
+      await expect.poll(() => scrollerOf().getAttribute('tabindex')).toBe('0');
+    });
+
+    it('is named by the caption while it is one', async () => {
+      await render(
+        <PlTable
+          className="table-under-test"
+          style={{ width: 200 }}
+          columns={wide}
+          rows={rows}
+          caption="Invoices"
+        />
+      );
+
+      await expect.poll(() => scrollerOf().getAttribute('tabindex')).toBe('0');
+      expect(scrollerOf()).toHaveAttribute('role', 'group');
+      expect(scrollerOf()).toHaveAccessibleName('Invoices');
+      // The table keeps its own name from the caption rather than an id.
+      expect(scrollerOf().querySelector('table')).not.toHaveAttribute('aria-labelledby');
+    });
+
+    it('stops being one once everything fits', async () => {
+      const table = (width: number) => (
+        <PlTable
+          className="table-under-test"
+          style={{ width }}
+          columns={wide}
+          rows={rows}
+          caption="Invoices"
+        />
+      );
+      const screen = await render(table(200));
+
+      await expect.poll(() => scrollerOf().getAttribute('tabindex')).toBe('0');
+
+      await screen.rerender(table(1200));
+
+      await expect.poll(() => scrollerOf().getAttribute('tabindex')).toBeNull();
+      expect(scrollerOf()).not.toHaveAttribute('role');
+      expect(scrollerOf()).not.toHaveAttribute('aria-labelledby');
+    });
+
+    it('still renders on the server, where nothing has been measured', () => {
+      const html = renderToString(
+        <PlTable columns={wide} rows={rows} caption="Invoices" style={{ width: 200 }} />
+      );
+
+      expect(html).toContain('<caption');
+      expect(html).not.toContain('tabindex');
     });
   });
 

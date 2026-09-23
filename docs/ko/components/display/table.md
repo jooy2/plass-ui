@@ -315,6 +315,7 @@ column이 가리키는 것은 행에서 셀을 어떻게 꺼내는지, 그것뿐
 - 누를 수 있는 행도 `<tr>`로 남습니다. 행에 붙인 `role="button"`은 따로 떼어 놓고 보면 그럴듯하지만 행이라는 의미를 지워 버려서, 그 안의 모든 셀이 자기가 속한 표에서 떨어져 나갑니다.
 - 누를 수 있는 행은 `tabIndex={0}`을 갖고 <kbd>Enter</kbd>와 <kbd>Space</kbd>에 반응합니다. <kbd>Space</kbd>가 페이지를 스크롤하지 않도록 막습니다.
 - 행의 focus ring은 안쪽으로 그려집니다. 시트가 자기 둥근 모서리에서 잘리기 때문에, 첫 행이나 마지막 행 바깥으로 그린 outline은 위나 아래가 잘려 나갑니다.
+- 시트보다 넓거나 `maxHeight`보다 높은 격자는 시트 안에서 스크롤됩니다. 그동안 격자가 스크롤되는 상자는 Tab 정지점이 되므로, focus를 받는 셀이 없는 표에서도 화살표 키로 가장자리 너머의 열에 닿습니다. 이 상자는 `caption`을 이름으로 단 그룹이기도 합니다. caption이 없으면 정지점에 이름이 없으니, 넘칠 수 있는 표라면 caption을 붙일 이유가 하나 더 생깁니다.
 - 셀 여백과 정렬, 배경, **테두리**를 inline style로 쓰고, `<table>` 자신의 `display`와 `width`, `margin`, `border-collapse`도 마찬가지입니다. 호스트 스타일시트가 `table`, `td`, `th`를 태그 이름으로, utility class가 이길 수 없는 specificity로 지정하기 때문입니다. `td { border: 1px solid }`는 디자인이 요청한 적 없는 격자선을 그리고, `table { display: block }`은 격자가 시트를 채우지 못하게 하며, `table { margin: 20px 0 }`은 판 모서리에 붙어 있어야 할 표를 밀어냅니다. 이 셋을 모두 이기는 것이 inline style입니다.
 
 :::

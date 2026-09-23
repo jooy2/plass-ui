@@ -315,6 +315,7 @@ Nothing changes for a caller on the client. A module with `'use client'` at the 
 - A clickable row stays a `<tr>`. `role="button"` on a row reads well in isolation and takes the row semantics off it, which orphans every cell inside from the table it belongs to.
 - Clickable rows carry `tabIndex={0}` and answer <kbd>Enter</kbd> and <kbd>Space</kbd>; <kbd>Space</kbd> is prevented from scrolling the page.
 - The focus ring on a row is drawn inset, because the sheet clips at its own rounded edge and an outline outside the first or last row would lose its top or bottom.
+- A grid wider than its sheet, or taller than `maxHeight`, scrolls inside it. While it does, the box it scrolls in is a tab stop, so the arrow keys reach the columns past the edge of a table whose cells take no focus, and it is a group named by `caption`. Without a caption the stop has no name of its own, which is one more reason a table that can overflow deserves one.
 - Cell padding, alignment, backgrounds and **borders** are inline styles, and so are the `<table>`'s own `display`, `width`, `margin` and `border-collapse`. Host stylesheets style `table`, `td` and `th` by tag name, at a specificity no utility class can outrank: `td { border: 1px solid }` draws cell rules the design never asked for, `table { display: block }` stops the grid filling the sheet, and `table { margin: 20px 0 }` pushes it off the corner of the pane. Inline styles are what beat all three.
 
 :::
