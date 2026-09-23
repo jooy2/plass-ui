@@ -50,6 +50,8 @@
 
 ### Fixed
 
+- **A chart writes a number under ten thousand with its thousands grouped, `9,999` rather than `9999`.** From ten thousand up it already wrote `48.3K` as the React build does; below that the React build writes the comma and this one ran the digits together. The grouping is English's in every locale, because the package ships no `intl`, so a `format` is how a chart writes its numbers any other way.
+
 - **A `PlTimelineChart` no longer throws when a span on a row after the first is pointed at.** The card looked its swatch colour up by the mark's row in the frame's own colours, which a timeline keeps for one stand-in series. It now takes the colour the bar is painted in.
 
 - **A chart's tooltip card is no longer read into the chart's name.** Its words stayed on the semantics tree, so a chart with no legend read "Chart, Jan, Revenue, 12" once the card had been shown. The card is kept off the tree, and the live region says it instead.

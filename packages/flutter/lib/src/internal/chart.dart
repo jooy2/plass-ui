@@ -2145,6 +2145,37 @@ String _trimmed(double value, int places) {
   return text.replaceFirst(RegExp(r'\.?0+$'), '');
 }
 
+/// [text], a number as [_trimmed] writes it, with its whole part grouped in
+/// threes by a comma: `1234.5` becomes `1,234.5`.
+///
+/// English grouping, and in every locale. It is what `Intl` gives the React
+/// build for a reader in English, and without `package:intl` there is no other
+/// locale's to reach for: a reader in German, whose separator is a full stop,
+/// sees the English one here, where the web gives them their own. A `format` is
+/// how a chart writes its numbers any other way.
+String _grouped(String text) {
+  final bool negative = text.startsWith('-');
+  final String unsigned = negative ? text.substring(1) : text;
+  final int point = unsigned.indexOf('.');
+  final String whole = point < 0 ? unsigned : unsigned.substring(0, point);
+  final buffer = StringBuffer(negative ? '-' : '');
+
+  for (int i = 0; i < whole.length; i += 1) {
+    // A comma before every digit that has a whole number of threes after it.
+    if (i > 0 && (whole.length - i) % 3 == 0) {
+      buffer.write(',');
+    }
+
+    buffer.write(whole[i]);
+  }
+
+  if (point >= 0) {
+    buffer.write(unsigned.substring(point));
+  }
+
+  return buffer.toString();
+}
+
 /// A number, compactly enough that a y axis of thousands is not four labels of
 /// seven characters.
 ///
@@ -2158,12 +2189,13 @@ String _trimmed(double value, int places) {
 /// the one `Intl` does: compact from ten thousand up, one decimal place, and a
 /// value that rounds up to a thousand moves a unit along, so 999,999 is `1M`
 /// rather than `1000K`. Under ten thousand it is the plain number with at most
-/// two decimals.
+/// two decimals and its thousands grouped, `9,999`, as `Intl` writes it in
+/// English — see [_grouped] for what that means in another language.
 String compactNumber(double value) {
   final double magnitude = value.abs();
 
   if (magnitude < 10000) {
-    return _trimmed(value, 2);
+    return _grouped(_trimmed(value, 2));
   }
 
   double scaled = magnitude;

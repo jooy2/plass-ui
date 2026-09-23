@@ -348,7 +348,7 @@ void main() {
       expect(compactNumber(0), '0');
       expect(compactNumber(1.5), '1.5');
       expect(compactNumber(999), '999');
-      expect(compactNumber(9999), '9999');
+      expect(compactNumber(9999), '9,999');
       expect(compactNumber(10000), '10K');
       expect(compactNumber(12345), '12.3K');
       expect(compactNumber(48300), '48.3K');
@@ -362,6 +362,19 @@ void main() {
 
     test('moves a unit along rather than writing a thousand of the one below', () {
       expect(compactNumber(999999), '1M');
+    });
+
+    test('groups the thousands under ten thousand as English does', () {
+      // `Intl` in `en-US` with at most two decimals, which is the React
+      // default below the compact threshold.
+      expect(compactNumber(1000), '1,000');
+      expect(compactNumber(1234.5), '1,234.5');
+      expect(compactNumber(-1234.567), '-1,234.57');
+      expect(compactNumber(-9999), '-9,999');
+      // Rounded first and grouped after, so a value that rounds up to a
+      // thousand is written as one.
+      expect(compactNumber(999.999), '1,000');
+      expect(compactNumber(123.456), '123.46');
     });
   });
 

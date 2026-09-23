@@ -1800,8 +1800,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlLineChart', 'format', {
       type: 'String Function(double)?',
       description: {
-        ko: '값을 쓰는 방식. 프레임워크에 Intl이 없으므로 옵션이 아니라 콜백입니다',
-        en: 'How a value is written. A callback rather than Intl options, because the framework ships no Intl'
+        ko: '값을 쓰는 방식. 프레임워크에 Intl이 없으므로 옵션이 아니라 콜백입니다. 없으면 만 이상은 `48.3K`처럼 줄여 쓰고, 그 아래는 locale과 상관없이 영어식으로 `9,999`처럼 천 단위를 끊습니다',
+        en: 'How a value is written. A callback rather than Intl options, because the framework ships no Intl. Without one, a value is written compactly from ten thousand up (`48.3K`) and grouped the English way below that (`9,999`), whatever the locale'
       }
     }),
     from('PlLineChart', 'label', { name: 'semanticLabel', type: 'String?', default: "'Chart'" }),
