@@ -264,6 +264,7 @@ There is nothing to set. A Flutter app has no server HTML for a search engine to
 ::: fw react
 
 - Each header is a real `<button>` carrying `aria-expanded`, pointed at its panel with `aria-controls`. The panel is a `region` labelled by its header.
+- The button sits inside an `<h3>`. `headingLevel` sets another level, so an FAQ straight under the page's `<h1>` has `<h2>` questions rather than an outline that skips a level.
 - <kbd>Enter</kbd> and <kbd>Space</kbd> fold a section; <kbd>Tab</kbd> moves between headers and into an open panel.
 - `hiddenUntilFound` renders closed panels with `hidden="until-found"`, so the browser's own page search finds text inside them and opens the section it is in.
 - The chevron is decorative and `aria-hidden`; the open state is carried by `aria-expanded`, never by the rotation alone.
@@ -275,7 +276,7 @@ There is nothing to set. A Flutter app has no server HTML for a search engine to
 ::: fw flutter
 
 - Each header is announced as a button, expanded or collapsed. The state is carried by that flag, never by the chevron's rotation alone.
-- Each header row, with its `action`, is inside a heading of level 3, so a screen reader's heading navigation stops at every section.
+- Each header row, with its `action`, is inside a heading, so a screen reader's heading navigation stops at every section. It is level 3 unless `headingLevel` sets another, so an FAQ straight under the screen's title can be level 2 rather than skip one.
 - <kbd>Enter</kbd> and <kbd>Space</kbd> fold a section; <kbd>Tab</kbd> moves between headers and into an open panel. Every header is its own focus stop. An accordion is a stack of buttons, not a roving group.
 - A closed panel is not in the tree at all, so nothing inside it is reachable, focusable or read out until it is open.
 - The chevron is drawn and not named, and a disabled section stops answering both the pointer and the keyboard.

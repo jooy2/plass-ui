@@ -166,11 +166,13 @@ class PlAccordion<T> extends StatelessWidget {
     this.elevation = 0,
     this.dividers = true,
     this.disabled = false,
+    this.headingLevel = 3,
     super.key,
   }) : assert(
          elevation >= plassElevationMin && elevation <= plassElevationMax,
          'elevation must be between $plassElevationMin and $plassElevationMax',
-       );
+       ),
+       assert(headingLevel >= 1 && headingLevel <= 6, 'headingLevel must be between 1 and 6');
 
   /// The sections, in order.
   final List<PlAccordionItem<T>> items;
@@ -218,6 +220,16 @@ class PlAccordion<T> extends StatelessWidget {
   /// Unavailable. Every section stops answering.
   final bool disabled;
 
+  /// The level of the heading every section's header is, `1` to `6`.
+  ///
+  /// A header is a heading, so a screen reader's heading navigation can take
+  /// the reader from one question to the next — and a heading has to sit one
+  /// level under the one above it, or the outline skips a step. `3` fits an
+  /// accordion under a section's level-2 heading; an FAQ directly under the
+  /// screen's title wants `2`. Only the semantics change: the type scale is the
+  /// accordion's either way.
+  final int headingLevel;
+
   @override
   Widget build(BuildContext context) {
     final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
@@ -263,6 +275,7 @@ class PlAccordion<T> extends StatelessWidget {
           family: family,
           tokens: tokens,
           dividers: dividers,
+          headingLevel: headingLevel,
           ruled: dividers && index > 0,
           disabled: disabled || items[index].disabled || onChanged == null,
           onToggle: () => toggle(items[index].value),
@@ -301,6 +314,7 @@ class _Section<T> extends StatefulWidget {
     required this.family,
     required this.tokens,
     required this.dividers,
+    required this.headingLevel,
     required this.ruled,
     required this.disabled,
     required this.onToggle,
@@ -314,6 +328,7 @@ class _Section<T> extends StatefulWidget {
   final PlassColorFamily family;
   final PlassTokens tokens;
   final bool dividers;
+  final int headingLevel;
   final bool ruled;
   final bool disabled;
   final VoidCallback onToggle;
@@ -510,14 +525,14 @@ class _SectionState<T> extends State<_Section<T>> with SingleTickerProviderState
     }
 
     // A heading around the whole row, the trigger and the action both, as the
-    // React build's `<h3>` is. Not a flag on the button itself: on the web a node
-    // that is both a heading and a button is drawn as the heading alone, and the
-    // button role goes with it.
+    // React build's `<h3>` — or whichever level it was given — is. Not a flag on
+    // the button itself: on the web a node that is both a heading and a button
+    // is drawn as the heading alone, and the button role goes with it.
     header = Semantics(
       container: true,
       explicitChildNodes: true,
       header: true,
-      headingLevel: 3,
+      headingLevel: widget.headingLevel,
       child: header,
     );
 

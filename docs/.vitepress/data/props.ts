@@ -787,6 +787,15 @@ export const propTables: Record<string, PropRow[]> = {
       description: { ko: '모든 섹션이 반응하지 않습니다', en: 'Every section stops answering' }
     },
     {
+      name: 'headingLevel',
+      type: '1 | 2 | 3 | 4 | 5 | 6',
+      default: '3',
+      description: {
+        ko: '모든 섹션 헤더가 되는 heading의 수준. 페이지 개요가 한 단계를 건너뛰지 않게 맞춥니다. 타입 스케일은 그대로입니다',
+        en: "The heading level every section's header is. Set it so the page's outline does not skip a level; the type scale stays the same"
+      }
+    },
+    {
       name: 'hiddenUntilFound',
       type: 'boolean',
       default: 'false',

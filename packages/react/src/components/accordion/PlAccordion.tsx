@@ -23,6 +23,9 @@ import {
 } from '../../internal/styles.js';
 import type { PlassDensity, PlassElevation, PlassSize, PlassStyleProps } from '../../types.js';
 
+/** The six levels an HTML heading has. */
+export type PlAccordionHeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
+
 /**
  * What a `PlAccordionItem` inherits from the `PlAccordion` around it.
  *
@@ -35,12 +38,14 @@ interface AccordionContextValue {
   size: PlassSize;
   density: PlassDensity;
   dividers: boolean;
+  headingLevel: PlAccordionHeadingLevel;
 }
 
 const AccordionContext = /* @__PURE__ */ React.createContext<AccordionContextValue>({
   size: 'md',
   density: 'default',
-  dividers: true
+  dividers: true,
+  headingLevel: 3
 });
 
 export interface PlAccordionProps
@@ -78,6 +83,17 @@ export interface PlAccordionProps
   dividers?: boolean;
   /** Unavailable. Every section stops answering. */
   disabled?: boolean;
+  /**
+   * The level of the heading every section's header is, `1` to `6`.
+   *
+   * A header is a heading, so a screen reader's list of headings can take the
+   * reader from one question to the next — and a heading has to sit one level
+   * under the one above it, or the outline skips a step. `3` fits an accordion
+   * under a section's `<h2>`; an FAQ directly under the page's `<h1>` wants `2`.
+   * Only the element changes: the type scale is the accordion's either way.
+   * @default 3
+   */
+  headingLevel?: PlAccordionHeadingLevel;
   /**
    * Keeps closed panels in the DOM so the browser's own page search can find
    * and open them. Overrides `keepMounted`.
@@ -212,6 +228,7 @@ export const PlAccordion = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlAc
       onValueChange,
       dividers = true,
       disabled = false,
+      headingLevel: headingLevelProp = 3,
       hiddenUntilFound = false,
       keepMounted = false,
       className,
@@ -225,8 +242,18 @@ export const PlAccordion = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlAc
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';
+    // The type keeps a TypeScript caller inside the six; this keeps a
+    // JavaScript one there too, where a `7` would have written an `<h7>`, which
+    // is no heading at all.
+    const headingLevel: PlAccordionHeadingLevel =
+      Number.isInteger(headingLevelProp) && headingLevelProp >= 1 && headingLevelProp <= 6
+        ? headingLevelProp
+        : 3;
 
-    const context = React.useMemo(() => ({ size, density, dividers }), [size, density, dividers]);
+    const context = React.useMemo(
+      () => ({ size, density, dividers, headingLevel }),
+      [size, density, dividers, headingLevel]
+    );
 
     const classNames = [
       'flex flex-col',
@@ -290,7 +317,8 @@ export const PlAccordionItem = /* @__PURE__ */ React.forwardRef<
   },
   ref
 ) {
-  const { size, density, dividers } = React.useContext(AccordionContext);
+  const { size, density, dividers, headingLevel } = React.useContext(AccordionContext);
+  const Heading = `h${headingLevel}` as const;
 
   const padX = sheetPaddingXClasses[density][size];
   const padY = sheetPaddingYClasses[density][size];
@@ -306,7 +334,10 @@ export const PlAccordionItem = /* @__PURE__ */ React.forwardRef<
       className={['flex flex-col', className ?? ''].filter(Boolean).join(' ')}
       {...props}
     >
-      <BaseUIAccordion.Header className="m-0 flex w-full items-center [font:inherit]">
+      <BaseUIAccordion.Header
+        render={<Heading />}
+        className="m-0 flex w-full items-center [font:inherit]"
+      >
         <BaseUIAccordion.Trigger
           className={[
             'flex min-w-0 flex-1 cursor-pointer items-center text-start',

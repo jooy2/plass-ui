@@ -236,5 +236,38 @@ describe('PlAccordion', () => {
       expect(panelId).toBeTruthy();
       expect(document.getElementById(panelId as string)).not.toBeNull();
     });
+
+    it('makes every header a level-3 heading by default', async () => {
+      const screen = await render(<TwoSections />);
+
+      await expect
+        .element(screen.getByRole('heading', { level: 3, name: 'Billing' }))
+        .toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 3 }).all()).toHaveLength(2);
+    });
+
+    it('puts every header at the level headingLevel names, and follows it on re-render', async () => {
+      const screen = await render(<TwoSections headingLevel={2} />);
+
+      // An FAQ straight under the page's `<h1>`: its questions are the `<h2>`s,
+      // or the outline skips a level.
+      await expect
+        .element(screen.getByRole('heading', { level: 2, name: 'Team' }))
+        .toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2 }).all()).toHaveLength(2);
+      expect(screen.getByRole('heading', { level: 3 }).query()).toBeNull();
+
+      await screen.rerender(<TwoSections headingLevel={4} />);
+
+      expect(screen.getByRole('heading', { level: 4 }).all()).toHaveLength(2);
+      // Still the one button inside it, named by the title.
+      await expect.element(screen.getByRole('button', { name: 'Team' })).toBeInTheDocument();
+    });
+
+    it('falls back to level 3 for a level no heading has', async () => {
+      const screen = await render(<TwoSections headingLevel={7 as 3} />);
+
+      expect(screen.getByRole('heading', { level: 3 }).all()).toHaveLength(2);
+    });
   });
 });

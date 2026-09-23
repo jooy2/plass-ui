@@ -279,7 +279,15 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlAccordion', 'density', { type: `${DENSITY}?`, default: 'PlassDensity.standard' }),
     from('PlAccordion', 'elevation', { type: 'int', default: '0' }),
     from('PlAccordion', 'dividers', { type: 'bool', default: 'true' }),
-    from('PlAccordion', 'disabled', { type: 'bool', default: 'false' })
+    from('PlAccordion', 'disabled', { type: 'bool', default: 'false' }),
+    from('PlAccordion', 'headingLevel', {
+      type: 'int',
+      default: '3',
+      description: {
+        ko: '모든 섹션 헤더가 되는 heading의 수준, 1부터 6까지. 화면 개요가 한 단계를 건너뛰지 않게 맞춥니다. 타입 스케일은 그대로입니다',
+        en: "The heading level every section's header is, 1 to 6. Set it so the screen's outline does not skip a level; the type scale stays the same"
+      }
+    })
   ],
 
   PlAccordionItem: [

@@ -264,6 +264,7 @@ uncontrolled 모드는 없습니다. accordion을 움직이는 방법은 언제�
 ::: fw react
 
 - 각 헤더는 `aria-expanded`가 붙은 진짜 `<button>`이고, `aria-controls`로 자기 패널을 가리킵니다. 패널은 헤더가 이름을 붙여 주는 `region`입니다.
+- 버튼은 `<h3>` 안에 있습니다. `headingLevel`로 다른 수준을 정할 수 있어서, 페이지의 `<h1>` 바로 아래 놓인 FAQ는 개요가 한 단계를 건너뛰지 않고 질문이 `<h2>`가 됩니다.
 - <kbd>Enter</kbd>와 <kbd>Space</kbd>로 섹션을 접고 폅니다. <kbd>Tab</kbd>은 헤더 사이와 열린 패널 안으로 이동합니다.
 - `hiddenUntilFound`는 닫힌 패널을 `hidden="until-found"`로 렌더링하므로, 브라우저의 페이지 검색이 그 안의 글자를 찾아 해당 섹션을 열어 줍니다.
 - chevron은 장식이라 `aria-hidden`입니다. 열림 상태는 `aria-expanded`가 나르며, 회전만으로 전달되는 정보는 없습니다.
@@ -275,7 +276,7 @@ uncontrolled 모드는 없습니다. accordion을 움직이는 방법은 언제�
 ::: fw flutter
 
 - 각 헤더는 펼쳐졌는지 접혔는지가 표시된 버튼으로 읽힙니다. 그 상태는 플래그가 나르며, chevron의 회전만으로 전달되는 정보는 없습니다.
-- 헤더 줄은 `action`까지 함께 3단계 heading 안에 들어 있어, 스크린 리더의 heading 이동이 섹션마다 멈춥니다.
+- 헤더 줄은 `action`까지 함께 heading 안에 들어 있어, 스크린 리더의 heading 이동이 섹션마다 멈춥니다. `headingLevel`로 다른 수준을 정하지 않으면 3단계이고, 화면 제목 바로 아래 놓인 FAQ는 한 단계를 건너뛰지 않도록 2단계로 둘 수 있습니다.
 - <kbd>Enter</kbd>와 <kbd>Space</kbd>로 섹션을 접고 폅니다. <kbd>Tab</kbd>은 헤더 사이와 열린 패널 안으로 이동합니다. 헤더는 저마다 자기 focus stop이 있습니다. accordion은 버튼 묶음이지 roving 그룹이 아닙니다.
 - 닫힌 패널은 트리에 아예 없습니다. 열리기 전까지 그 안의 어떤 것도 닿거나 포커스되거나 읽히지 않습니다.
 - chevron은 그려지되 이름이 없고, 비활성 섹션은 포인터에도 키보드에도 답하지 않습니다.

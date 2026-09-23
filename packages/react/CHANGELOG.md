@@ -6,6 +6,8 @@
 
 ### Added
 
+- **`PlAccordion` takes `headingLevel`, so its headers sit at the level the page's outline needs.** Every header was an `<h3>`, so an FAQ straight under the page's title skipped a level. It takes `1` to `6` and defaults to `3`; only the element changes, never the type scale.
+
 - **An `autoPlay` `PlCarousel` has a button that stops it and starts it again.** There was no way to stop a carousel that advanced on its own, which WCAG 2.2.2 asks of anything that moves for longer than five seconds. The button sits in the frame's top corner, comes first in the focus order, and is named "Stop slide show" or "Start slide show" from the new `carouselStop` and `carouselPlay` keys in all seven label packs, or from `playLabel` and `stopLabel`.
 
 - **A `fixed` `PlBottomNavigation` or `PlFloatingBottomNavigation` publishes its height as `--plass-bottom-navigation-height`.** The end of the page was always under the bar, and so was a link reached with Tab, with no way to know how much room to leave. The bar now writes its measured height, the home indicator included, on the root element while it is mounted, and the token is `0px` without one, so `padding-bottom` and `scroll-padding-bottom` on the page reserve exactly the room it covers.

@@ -312,6 +312,49 @@ void main() {
 
         handle.dispose();
       });
+
+      testWidgets('each header is inside a heading of the level headingLevel names', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        for (final level in <int>[2, 5]) {
+          await tester.pumpWidget(
+            host(
+              PlAccordion<String>(
+                items: sections,
+                value: const <String>{},
+                onChanged: (Set<String> _) {},
+                headingLevel: level,
+              ),
+              width: 400,
+            ),
+          );
+
+          for (final title in <String>['Billing', 'Members']) {
+            var heading = tester.getSemantics(find.text(title)).parent;
+
+            while (heading != null && heading.getSemanticsData().headingLevel == 0) {
+              heading = heading.parent;
+            }
+
+            expect(heading?.getSemanticsData().headingLevel, level, reason: '$title at $level');
+          }
+        }
+
+        handle.dispose();
+      });
+
+      test('refuses a level no heading has', () {
+        expect(
+          () => PlAccordion<String>(items: sections, value: const <String>{}, headingLevel: 7),
+          throwsAssertionError,
+        );
+        expect(
+          () => PlAccordion<String>(items: sections, value: const <String>{}, headingLevel: 0),
+          throwsAssertionError,
+        );
+      });
     });
   });
 }
