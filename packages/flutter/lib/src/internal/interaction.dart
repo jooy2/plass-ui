@@ -84,6 +84,7 @@ class PlassInteractive extends StatefulWidget {
     this.onLongPress,
     this.enabled = true,
     this.interactive = true,
+    this.pressable = true,
     this.cursor = SystemMouseCursors.click,
     this.focusNode,
     this.autofocus = false,
@@ -107,6 +108,18 @@ class PlassInteractive extends StatefulWidget {
 
   /// Whether it reacts to the pointer and fires its callbacks.
   final bool interactive;
+
+  /// Whether the surface is something to press at all.
+  ///
+  /// `false` leaves the gesture detector with no recogniser, so a tap goes to
+  /// whatever is around the surface, exactly as if it were not wrapped — which
+  /// is not the same as an unavailable control, whose recogniser stays to
+  /// swallow the tap. It is for a surface that is pressable only some of the
+  /// time, such as a card that is handed `onPressed` later: switching this
+  /// keeps the same widgets above its content, where leaving the wrapper out
+  /// would change the shape of the tree and build the content again from
+  /// scratch.
+  final bool pressable;
 
   /// The cursor over it.
   final MouseCursor cursor;
@@ -170,7 +183,11 @@ class PlassInteractiveState extends State<PlassInteractive> {
     // It runs while a finger is down too, which is what makes the light follow a
     // drag on a touch screen: there is no hover there, and the press layer is
     // the one doing the work.
-    if (_pointer != position) {
+    //
+    // Not at all on a surface with nothing to press, which has no light to
+    // place and would otherwise build itself again on every frame a mouse
+    // spent crossing it.
+    if (widget.pressable && _pointer != position) {
       setState(() => _pointer = position);
     }
   }
@@ -186,7 +203,7 @@ class PlassInteractiveState extends State<PlassInteractive> {
     // Hover and press only *look* like anything while the surface can be used.
     final state = PlassInteraction(
       hovered: widget.interactive && _hovered,
-      pressed: widget.interactive && _pressed,
+      pressed: widget.interactive && widget.pressable && _pressed,
       focusVisible: _focusVisible,
       pointer: _pointer,
     );
@@ -243,19 +260,24 @@ class PlassInteractiveState extends State<PlassInteractive> {
           onPointerDown: (PointerDownEvent event) => _setPointer(event.localPosition),
           onPointerMove: (PointerMoveEvent event) => _setPointer(event.localPosition),
           child: GestureDetector(
-            behavior: widget.behavior,
+            behavior: widget.pressable ? widget.behavior : HitTestBehavior.deferToChild,
             // Described by whatever `Semantics` the component put around this,
             // which knows about `readOnly` and `loading` and this does not.
             excludeFromSemantics: true,
-            // Always present, even when nothing will happen: the recogniser is
-            // what stops a tap on an unavailable control reaching whatever is
-            // behind it. A row that navigates should not navigate because
-            // someone tried the disabled button inside it.
-            onTap: _activate,
-            onLongPress: widget.interactive ? widget.onLongPress : null,
-            onTapDown: (TapDownDetails details) => setState(() => _pressed = true),
-            onTapUp: (TapUpDetails details) => setState(() => _pressed = false),
-            onTapCancel: () => setState(() => _pressed = false),
+            // Present whenever the surface is pressable, even when nothing will
+            // happen: the recogniser is what stops a tap on an unavailable
+            // control reaching whatever is behind it. A row that navigates
+            // should not navigate because someone tried the disabled button
+            // inside it.
+            onTap: widget.pressable ? _activate : null,
+            onLongPress: widget.pressable && widget.interactive ? widget.onLongPress : null,
+            onTapDown: widget.pressable
+                ? (TapDownDetails details) => setState(() => _pressed = true)
+                : null,
+            onTapUp: widget.pressable
+                ? (TapUpDetails details) => setState(() => _pressed = false)
+                : null,
+            onTapCancel: widget.pressable ? () => setState(() => _pressed = false) : null,
             child: Builder(builder: (BuildContext context) => widget.builder(context, state)),
           ),
         ),

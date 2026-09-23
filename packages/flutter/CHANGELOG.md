@@ -54,6 +54,8 @@
 
 ### Fixed
 
+- **A `PlCard` or a `PlPill` keeps what it holds when `onPressed` or `interactive` changes.** The wrappers above the content came and went with those parameters, so the content was built again from scratch and a `PlTextField` inside lost what was typed into it. They now stay in the tree and only their settings change; a card that cannot be pressed still takes no focus and lets a tap through to whatever is around it. A pill also keeps its content when a keyboard focus brings its focus ring.
+
 - **A `PlAccordion` whose items share a `value` renders again, and those items open and close together.** Each section is keyed by its `value` since it began holding its own fold, so two items with the same one failed with a duplicate-key error before anything was drawn. A list with a repeated value is now keyed by position, and the items that share it open and close as one, as they do in the React build.
 
 - **A `PlSparkline` value outside a pinned `min` or `max` is cut at the edge of the strip.** It was drawn past the box, so a bar for 2 under a `min` of 5 hung below the strip into whatever sat under it. The marks are now held to the strip's height, so a value outside the range is not seen, and no end dot is drawn on a last value the strip cannot hold.

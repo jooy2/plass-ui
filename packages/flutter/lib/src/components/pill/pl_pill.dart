@@ -283,23 +283,28 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
           child: row,
         );
 
-        if (interactive) {
-          // The middle is the pressable part and `endIcon` is not, so the
-          // trailing slot is not inside what answers a press — the same shape a
-          // chip uses, and for the same reason: a control inside another
-          // control's gesture takes one tap twice.
-          //
-          // With `details` the button is almost always what opens them, so it
-          // says whether they are open. Left out otherwise: a pill with nothing
-          // to reveal has no expanded state to report.
-          row = Semantics(
-            button: true,
-            enabled: true,
-            expanded: widget.details != null ? widget.expanded : null,
-            onTap: widget.onPressed,
-            child: row,
-          );
-        }
+        // The middle is the pressable part and `endIcon` is not, so the
+        // trailing slot is not inside what answers a press — the same shape a
+        // chip uses, and for the same reason: a control inside another
+        // control's gesture takes one tap twice.
+        //
+        // With `details` the button is almost always what opens them, so it
+        // says whether they are open. Left out otherwise: a pill with nothing
+        // to reveal has no expanded state to report.
+        //
+        // Wrapped whether or not the pill is pressable, with every property
+        // left empty when it is not, which is a `Semantics` that adds nothing.
+        // Every wrapper in here stays put when `onPressed` comes or goes: a
+        // wrapper that comes and goes changes the shape of the tree above the
+        // content, and Flutter builds a changed shape from scratch, so a field
+        // in `details` lost what was typed into it.
+        row = Semantics(
+          button: interactive ? true : null,
+          enabled: interactive ? true : null,
+          expanded: interactive && widget.details != null ? widget.expanded : null,
+          onTap: widget.onPressed,
+          child: row,
+        );
 
         Widget pill = DefaultTextStyle.merge(
           style: TextStyle(
@@ -361,10 +366,14 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
           surface: surface,
           borderRadius: corner,
           pointer: state.pointer,
-          glow: interactive ? _glow(tokens, family) : null,
-          glowVisible: state.hovered,
-          flash: interactive ? _flash(tokens, family) : null,
-          flashVisible: state.pressed,
+          // Both layers are kept and only lit on a pressable pill, whose
+          // hover and press are the only ones that are ever reported. A layer
+          // left out shifts the content along the surface's stack, which is
+          // one more change of shape.
+          glow: _glow(tokens, family),
+          glowVisible: interactive && state.hovered,
+          flash: _flash(tokens, family),
+          flashVisible: interactive && state.pressed,
           reduceMotion: reduceMotion,
           child: pill,
         );
@@ -374,21 +383,24 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
           hovered: state.hovered,
           pressed: state.pressed,
           reduceMotion: reduceMotion,
-          lit: interactive && widget.variant == PlassVariant.solid,
+          // Not narrowed to a pressable pill: the filter is a wrapper, and on a
+          // pill that is not pressable it is handed no hover and no press, so
+          // it stays at full brightness.
+          lit: widget.variant == PlassVariant.solid,
         );
 
-        if (state.focusVisible) {
-          pill = CustomPaint(
-            foregroundPainter: PlassFocusRingPainter(
-              color: family.ring,
-              borderRadius: corner,
-              offset: focusRingOffset,
-            ),
-            child: pill,
-          );
-        }
-
-        return pill;
+        // Switched off by leaving out its painter rather than the widget that
+        // paints it, for the same reason.
+        return CustomPaint(
+          foregroundPainter: state.focusVisible
+              ? PlassFocusRingPainter(
+                  color: family.ring,
+                  borderRadius: corner,
+                  offset: focusRingOffset,
+                )
+              : null,
+          child: pill,
+        );
       },
     );
   }
@@ -406,17 +418,17 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
   /// wins it, so the pill's recogniser never fires. A control inside [child] is
   /// deeper still and wins over both. The cursor goes back to the arrow, because
   /// nothing here is pressed.
+  ///
+  /// On a pill that is not pressable the two are kept and do nothing — no
+  /// recogniser and no cursor of their own — so [child] keeps its place in the
+  /// tree when `onPressed` comes or goes.
   Widget _outsidePress(Widget child, {required bool interactive}) {
-    if (!interactive) {
-      return child;
-    }
-
     return MouseRegion(
-      cursor: SystemMouseCursors.basic,
+      cursor: interactive ? SystemMouseCursors.basic : MouseCursor.defer,
       child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
+        behavior: interactive ? HitTestBehavior.opaque : HitTestBehavior.deferToChild,
         excludeFromSemantics: true,
-        onTap: () {},
+        onTap: interactive ? () {} : null,
         child: child,
       ),
     );

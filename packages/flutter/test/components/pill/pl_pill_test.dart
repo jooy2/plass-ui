@@ -1,8 +1,26 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/focus_ring.dart';
 
 import '../../support/host.dart';
+
+/// Content with a `State` of its own: rebuilt from scratch, it is a different
+/// object, where a field would have lost what was typed into it.
+class _Probe extends StatefulWidget {
+  const _Probe(this.text);
+
+  final String text;
+
+  @override
+  State<_Probe> createState() => _ProbeState();
+}
+
+class _ProbeState extends State<_Probe> {
+  @override
+  Widget build(BuildContext context) => Text(widget.text);
+}
 
 /// The decoration carrying the lozenge's own fill.
 BoxDecoration _shell(WidgetTester tester) {
@@ -198,6 +216,84 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(pressed, 1);
+      });
+
+      for (final PlassVariant variant in PlassVariant.values) {
+        testWidgets('keeps what a ${variant.name} pill holds when onPressed comes and goes', (
+          WidgetTester tester,
+        ) async {
+          Widget pill({VoidCallback? onPressed}) => host(
+            PlPill(
+              variant: variant,
+              expanded: true,
+              title: const _Probe('Title'),
+              endIcon: const _Probe('End'),
+              details: const _Probe('Details'),
+              onPressed: onPressed,
+            ),
+            width: 320,
+          );
+
+          await tester.pumpWidget(pill());
+          await tester.pumpAndSettle();
+
+          final List<State<_Probe>> resting = tester
+              .stateList<State<_Probe>>(find.byType(_Probe))
+              .toList();
+
+          expect(resting, hasLength(3));
+
+          for (final Widget next in <Widget>[pill(onPressed: () {}), pill()]) {
+            await tester.pumpWidget(next);
+
+            final List<State<_Probe>> now = tester
+                .stateList<State<_Probe>>(find.byType(_Probe))
+                .toList();
+
+            for (var index = 0; index < resting.length; index += 1) {
+              expect(now[index], same(resting[index]), reason: 'probe $index');
+            }
+          }
+        });
+      }
+
+      testWidgets('keeps what it holds when the keyboard brings the focus ring', (
+        WidgetTester tester,
+      ) async {
+        final before = FocusNode(debugLabel: 'before');
+        addTearDown(before.dispose);
+
+        int rings() => tester
+            .widgetList<CustomPaint>(find.byType(CustomPaint))
+            .where((CustomPaint paint) => paint.foregroundPainter is PlassFocusRingPainter)
+            .length;
+
+        await tester.pumpWidget(
+          host(
+            afterFocusStop(
+              before,
+              PlPill(
+                expanded: true,
+                title: const Text('Two updates'),
+                details: const _Probe('Details'),
+                onPressed: () {},
+              ),
+            ),
+            width: 320,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final State<_Probe> resting = tester.state(find.byType(_Probe));
+
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+
+        // The ring really is drawn, and what the pill holds is the same object.
+        expect(rings(), 1);
+        expect(tester.state(find.byType(_Probe)), same(resting));
       });
     });
 

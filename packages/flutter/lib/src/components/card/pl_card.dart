@@ -1,7 +1,6 @@
 /// The sheet everything else on a screen is grouped onto.
 library;
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
@@ -167,29 +166,30 @@ class PlCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (onPressed == null) {
-      if (!interactive) {
-        return _sheet(context, const PlassInteraction());
-      }
+    final pressable = onPressed != null;
 
-      // Hover alone. A card that only lifts is not something to press or to
-      // tab to, so it is told whether a mouse is over it and is given none of
-      // the focus and gesture machinery a pressable one is wrapped in.
-      return _Hover(
-        builder: (BuildContext context, bool hovered) =>
-            _sheet(context, PlassInteraction(hovered: hovered)),
-      );
-    }
-
+    // The same widgets above the content whether the card is pressable, only
+    // lifts, or does neither, with the difference in their flags. A card handed
+    // `onPressed` later, or `interactive`, used to be wrapped in a different
+    // tree, and Flutter builds a changed shape from scratch: a field inside
+    // lost what was typed into it.
+    //
+    // A card that only lifts is still not something to press or to tab to: it
+    // takes no focus and claims no tap, so a press on it reaches whatever is
+    // around it, and it is told only whether a mouse is over it.
     return PlassInteractive(
       onTap: onPressed,
+      enabled: pressable,
+      interactive: _lifts,
+      pressable: pressable,
+      cursor: pressable ? SystemMouseCursors.click : MouseCursor.defer,
       focusNode: focusNode,
       autofocus: autofocus,
       builder: (BuildContext context, PlassInteraction state) {
         return Semantics(
-          container: true,
-          button: true,
-          label: semanticLabel,
+          container: pressable,
+          button: pressable ? true : null,
+          label: pressable ? semanticLabel : null,
           onTap: onPressed,
           child: _sheet(context, state),
         );
@@ -241,22 +241,20 @@ class PlCard extends StatelessWidget {
       child: _body(context, tokens),
     );
 
-    if (_lifts) {
-      card = TweenAnimationBuilder<double>(
-        tween: Tween<double>(end: state.hovered && !state.pressed ? -_lift : 0),
-        duration: reduceMotion ? Duration.zero : PlassTokens.duration,
-        curve: PlassTokens.ease,
-        child: card,
-        // Translated by nothing at rest rather than left unwrapped: a wrapper
-        // that comes and goes with the hover changes the shape of the tree
-        // above the content, and Flutter rebuilds a changed shape from scratch
-        // — an entry animation inside replays, and the shadow's own easing is
-        // cut off halfway.
-        builder: (BuildContext context, double dy, Widget? child) {
-          return Transform.translate(offset: Offset(0, dy), child: child);
-        },
-      );
-    }
+    card = TweenAnimationBuilder<double>(
+      tween: Tween<double>(end: _lifts && state.hovered && !state.pressed ? -_lift : 0),
+      duration: reduceMotion ? Duration.zero : PlassTokens.duration,
+      curve: PlassTokens.ease,
+      child: card,
+      // Translated by nothing at rest rather than left unwrapped, and on a card
+      // that never lifts as well: a wrapper that comes and goes with the hover,
+      // or with `interactive`, changes the shape of the tree above the content,
+      // and Flutter rebuilds a changed shape from scratch — an entry animation
+      // inside replays, and the shadow's own easing is cut off halfway.
+      builder: (BuildContext context, double dy, Widget? child) {
+        return Transform.translate(offset: Offset(0, dy), child: child);
+      },
+    );
 
     // The same reason: the ring is switched off by leaving out its painter, not
     // by leaving out the widget that paints it.
@@ -277,6 +275,7 @@ class PlCard extends StatelessWidget {
     final body = sheetBody[size]!;
 
     final hasHeader = title != null || subtitle != null || headerAction != null;
+    final heading = headingLevel != null && onPressed == null;
 
     final sections = <Widget>[
       if (hasHeader)
@@ -303,9 +302,13 @@ class PlCard extends StatelessWidget {
                         // What an `<h2>` buys on the web: a screen reader can
                         // list the headings on a screen, jump between them, and
                         // tell a section from the one inside it by its level.
-                        child: headingLevel == null || onPressed != null
-                            ? title!
-                            : Semantics(header: true, headingLevel: headingLevel, child: title!),
+                        // Always wrapped, and switched off by leaving its
+                        // properties empty, for the same reason as the lift.
+                        child: Semantics(
+                          header: heading ? true : null,
+                          headingLevel: heading ? headingLevel : null,
+                          child: title!,
+                        ),
                       ),
                     if (subtitle != null)
                       DefaultTextStyle.merge(
@@ -366,29 +369,6 @@ class PlCard extends StatelessWidget {
           children: rows,
         ),
       ),
-    );
-  }
-}
-
-/// Whether a mouse is over [builder]'s surface, and nothing else.
-class _Hover extends StatefulWidget {
-  const _Hover({required this.builder});
-
-  final Widget Function(BuildContext context, bool hovered) builder;
-
-  @override
-  State<_Hover> createState() => _HoverState();
-}
-
-class _HoverState extends State<_Hover> {
-  bool _hovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (PointerEnterEvent event) => setState(() => _hovered = true),
-      onExit: (PointerExitEvent event) => setState(() => _hovered = false),
-      child: widget.builder(context, _hovered),
     );
   }
 }

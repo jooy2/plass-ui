@@ -225,6 +225,72 @@ void main() {
         await tester.tap(find.byType(PlCard));
         expect(pressed, 1);
       });
+
+      testWidgets(
+        'keeps what it holds when it is handed onPressed or interactive, and loses them',
+        (WidgetTester tester) async {
+          Widget card({VoidCallback? onPressed, bool interactive = false}) => host(
+            PlCard(
+              title: const _Probe(),
+              headingLevel: 2,
+              onPressed: onPressed,
+              interactive: interactive,
+              child: const _Probe(),
+            ),
+            width: 360,
+          );
+
+          await tester.pumpWidget(card());
+
+          final List<State<_Probe>> resting = tester
+              .stateList<State<_Probe>>(find.byType(_Probe))
+              .toList();
+
+          expect(resting, hasLength(2));
+
+          // Every way the card can change what it does, and back. Rebuilt from
+          // scratch, a probe is a different object, and a field in its place
+          // would have lost what was typed into it.
+          for (final Widget next in <Widget>[
+            card(onPressed: () {}),
+            card(),
+            card(interactive: true),
+            card(onPressed: () {}, interactive: true),
+            card(),
+          ]) {
+            await tester.pumpWidget(next);
+
+            final List<State<_Probe>> now = tester
+                .stateList<State<_Probe>>(find.byType(_Probe))
+                .toList();
+
+            expect(now[0], same(resting[0]));
+            expect(now[1], same(resting[1]));
+          }
+        },
+      );
+
+      testWidgets('lets a press on a card that cannot be pressed reach what is around it', (
+        WidgetTester tester,
+      ) async {
+        var around = 0;
+
+        for (final bool interactive in <bool>[false, true]) {
+          await tester.pumpWidget(
+            host(
+              GestureDetector(
+                onTap: () => around += 1,
+                child: PlCard(interactive: interactive, child: const Text('Body')),
+              ),
+              width: 360,
+            ),
+          );
+
+          await tester.tap(find.text('Body'));
+        }
+
+        expect(around, 2);
+      });
     });
 
     group('hovering', () {
