@@ -21,7 +21,8 @@ import {
   sheetPaddingYClasses,
   sheetSectionGapClasses,
   sheetTitleClasses,
-  surfaceSlots
+  surfaceSlots,
+  targetClasses
 } from '../../internal/styles.js';
 import type { PlassAlign, PlassColor, PlassDensity, PlassSide, PlassSize } from '../../types.js';
 
@@ -175,6 +176,7 @@ const popupClasses = /* @__PURE__ */ [
 
 /** The × in the corner, the same one a `PlPopover` draws. */
 const closeButtonClasses = /* @__PURE__ */ [
+  targetClasses,
   'flex size-[1.6em] shrink-0 cursor-pointer items-center justify-center',
   'rounded-full text-(--plass-muted-fg)',
   '[&_svg]:size-[1.1em] [&_svg]:shrink-0',

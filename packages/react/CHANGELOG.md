@@ -36,6 +36,10 @@
 
 - **A chart legend's switched-off entry fades instead of going grey.** The swatch went part-transparent and the name was recoloured to the muted ink, which read as a second kind of text rather than as the same entry, off. The whole row now fades as one thing — swatch, name and value together, at one opacity — which is what a control that has been switched off looks like everywhere else in the library. The line through the name stays, because it is the half of "off" that survives being read in one colour. The Flutter build makes the same change.
 
+### Fixed
+
+- **The × on a `PlAlert`, a toast, a `PlModal`, a `PlDrawer`, a `PlPopover`, a `PlTour` and a `PlFilePicker` file can be pressed anywhere in a 24px square around it.** It could be pressed only where it is drawn, which at the smaller sizes is under the minimum target size of WCAG 2.5.8. The × is drawn at the same size and nothing around it moves. It is the square the × on a chip and on a picker trigger already had.
+
 ## 1.6.0 (2026-09-19)
 
 ### Breaking changes

@@ -1,6 +1,6 @@
 /**
- * Where the × on a chip and on a picker trigger can be pressed from, which the
- * stylesheet decides.
+ * Where the × on a chip, on a picker trigger and on everything that can be
+ * dismissed can be pressed from, which the stylesheet decides.
  *
  * The glyph is drawn smaller than the 24px target WCAG 2.5.8 asks for, and what
  * widens the press is a pseudo-element the markup does not show. So
@@ -10,7 +10,19 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlChip, PlCombobox, PlDatePicker } from 'plass-ui';
+import {
+  PlAlert,
+  PlChip,
+  PlCombobox,
+  PlDatePicker,
+  PlDrawer,
+  PlFilePicker,
+  PlModal,
+  PlPopover,
+  PlToastProvider,
+  PlTour,
+  usePlToast
+} from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
 
 /** Just inside the edge of a 24px square centred on the ×. */
@@ -112,5 +124,94 @@ describe('the × target', () => {
     }
 
     expect(buttonAt(fromMiddle(clear, -14, 0))).toBe(trigger);
+  });
+});
+
+/** Raises one toast when it is pressed. */
+function Raise() {
+  const toast = usePlToast();
+
+  return (
+    <button type="button" onClick={() => toast.add({ title: 'Saved', timeout: 0 })}>
+      Raise
+    </button>
+  );
+}
+
+/** Every point of the square around `element` lands on it. */
+function expectSquare(element: Element) {
+  for (const point of square(element)) {
+    expect(buttonAt(point), `at ${point}`).toBe(element);
+  }
+}
+
+describe('the dismiss × target', () => {
+  it('takes a press anywhere in the 24px square around an alert’s ×', async () => {
+    const screen = await render(
+      <div style={{ padding: 32 }}>
+        <PlAlert size="xs" onClose={() => {}}>
+          Saved.
+        </PlAlert>
+      </div>
+    );
+
+    expectSquare(screen.getByRole('button', { name: 'Dismiss' }).element());
+  });
+
+  it('takes a press anywhere in the 24px square around a toast’s ×', async () => {
+    const screen = await render(
+      <PlToastProvider size="xs">
+        <Raise />
+      </PlToastProvider>
+    );
+    await screen.getByRole('button', { name: 'Raise' }).click();
+    await expect.poll(() => document.querySelector('[role="dialog"] [aria-label]')).not.toBeNull();
+
+    expectSquare(document.querySelector('[role="dialog"] [aria-label]')!);
+  });
+
+  it('takes a press anywhere in the 24px square around a modal’s ×', async () => {
+    const screen = await render(<PlModal size="xs" defaultOpen title="Rename" />);
+
+    expectSquare(await screen.getByRole('button', { name: 'Close' }).element());
+  });
+
+  it('takes a press anywhere in the 24px square around a drawer’s ×', async () => {
+    const screen = await render(<PlDrawer size="xs" defaultOpen title="Filters" />);
+
+    expectSquare(screen.getByRole('button', { name: 'Close' }).element());
+  });
+
+  it('takes a press anywhere in the 24px square around a popover’s ×', async () => {
+    const screen = await render(
+      <PlPopover size="xs" defaultOpen showClose title="Rates">
+        How the number is worked out.
+      </PlPopover>
+    );
+
+    expectSquare(screen.getByRole('button', { name: 'Close' }).element());
+  });
+
+  it('takes a press anywhere in the 24px square around a tour’s ×', async () => {
+    const screen = await render(
+      <PlTour size="xs" defaultOpen scrollIntoView={false} steps={[{ title: 'Welcome' }]} />
+    );
+
+    expectSquare(screen.getByRole('button', { name: 'Close' }).element());
+  });
+
+  it('takes a press anywhere in the 24px square around a file’s ×', async () => {
+    const screen = await render(
+      <div style={{ padding: 32 }}>
+        <PlFilePicker
+          size="xs"
+          label="Attachments"
+          defaultValue={[new File(['a'], 'notes.txt', { type: 'text/plain' })]}
+          onFilesChange={() => {}}
+        />
+      </div>
+    );
+
+    expectSquare(screen.getByRole('button', { name: /notes\.txt/ }).element());
   });
 });

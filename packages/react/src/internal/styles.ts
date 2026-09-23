@@ -435,6 +435,17 @@ export const focusRingInsetClasses =
   'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:[outline-offset:-2px]';
 
 /**
+ * Where a control drawn smaller than 24px is pressed from.
+ *
+ * WCAG 2.5.8 asks for a target at least 24px square. The `::before` is that
+ * square, centred on the control whatever size the control is, and placed out
+ * of the flow so nothing around it moves. On a control that is already larger
+ * the inset turns positive and the square sits inside it, where it changes
+ * nothing.
+ */
+export const targetClasses = 'relative before:absolute before:inset-[calc(50%-12px)]';
+
+/**
  * The × that takes something off a chip.
  *
  * Here rather than in `PlChip` because a `PlCombobox` draws the same affordance
@@ -446,15 +457,14 @@ export const focusRingInsetClasses =
  * keyboard arrives.
  *
  * Drawn at the size of the label, and pressed from a 24px square, the minimum
- * target size of WCAG 2.5.8. The `::before` is that square, centred on the
- * glyph whatever size the glyph is, and placed out of the flow so the chip and
- * the trigger keep their size. It comes after the label or the trigger in the
- * markup and is positioned, so where the square reaches over one of them the ×
- * has the press, and the neighbour keeps everything outside the square.
+ * target size of WCAG 2.5.8, through `targetClasses`. It comes after the label
+ * or the trigger in the markup and is positioned, so where the square reaches
+ * over one of them the × has the press, and the neighbour keeps everything
+ * outside the square.
  */
 export const chipRemoveClasses = /* @__PURE__ */ [
-  'relative ms-0.5 inline-flex shrink-0 items-center justify-center rounded-full',
-  'before:absolute before:inset-[calc(50%-12px)]',
+  targetClasses,
+  'ms-0.5 inline-flex shrink-0 items-center justify-center rounded-full',
   'size-[1.15em] cursor-pointer opacity-70',
   '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
   'hover:opacity-100 focus-visible:opacity-100',

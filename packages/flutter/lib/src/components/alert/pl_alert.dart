@@ -8,6 +8,7 @@ import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
+import 'package:plass_ui/src/internal/target.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -204,22 +205,24 @@ class PlAlert extends StatelessWidget {
     return Semantics(
       container: true,
       liveRegion: true,
-      child: PlassSurfaceBox(
-        surface: surface,
-        borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
-        child: DefaultTextStyle.merge(
-          style: TextStyle(
-            color: surface.ink,
-            fontSize: body.size,
-            height: body.height,
-            leadingDistribution: TextLeadingDistribution.even,
-          ),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: sheetPaddingX[density]![size]!,
-              vertical: sheetPaddingY[density]![size]!,
+      child: PlassTargetScope(
+        child: PlassSurfaceBox(
+          surface: surface,
+          borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
+          child: DefaultTextStyle.merge(
+            style: TextStyle(
+              color: surface.ink,
+              fontSize: body.size,
+              height: body.height,
+              leadingDistribution: TextLeadingDistribution.even,
             ),
-            child: content,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: sheetPaddingX[density]![size]!,
+                vertical: sheetPaddingY[density]![size]!,
+              ),
+              child: content,
+            ),
           ),
         ),
       ),

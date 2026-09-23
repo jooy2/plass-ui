@@ -319,14 +319,12 @@ class PlChip extends StatelessWidget {
             padding: EdgeInsetsDirectional.only(end: padX / 2),
             // Drawn at the size of the label, and pressed from a 24px square
             // through the scope round the whole chip.
-            child: PlassTarget(
-              child: PlassDismissButton(
-                label: deleteLabel ?? (text == null ? labels.remove : labels.removeItem(text)),
-                onPressed: disabled ? null : onDeleted,
-                size: fontSize * dismissScale,
-                color: surface.ink,
-                ring: family.ring,
-              ),
+            child: PlassDismissButton(
+              label: deleteLabel ?? (text == null ? labels.remove : labels.removeItem(text)),
+              onPressed: disabled ? null : onDeleted,
+              size: fontSize * dismissScale,
+              color: surface.ink,
+              ring: family.ring,
             ),
           ),
         ],

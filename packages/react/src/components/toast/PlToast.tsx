@@ -19,7 +19,8 @@ import {
   sheetPaddingXClasses,
   sheetPaddingYClasses,
   sheetSectionGapClasses,
-  sheetTitleClasses
+  sheetTitleClasses,
+  targetClasses
 } from '../../internal/styles.js';
 import type {
   PlassAlign,
@@ -329,6 +330,7 @@ function ToastItem({
         <BaseUIToast.Close
           aria-label={closeLabel}
           className={[
+            targetClasses,
             'inline-flex size-[1.15em] cursor-pointer items-center justify-center rounded-full',
             'opacity-70 [transition:opacity_var(--plass-duration)_var(--plass-ease)]',
             'hover:opacity-100 focus-visible:opacity-100',

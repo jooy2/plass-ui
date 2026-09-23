@@ -8,6 +8,7 @@ import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/portal.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
+import 'package:plass_ui/src/internal/target.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -440,7 +441,9 @@ class PlDrawer extends StatelessWidget {
       );
     }
 
-    panel = PlassSurfaceBox(surface: surface, borderRadius: corners, child: panel);
+    panel = PlassTargetScope(
+      child: PlassSurfaceBox(surface: surface, borderRadius: corners, child: panel),
+    );
 
     // A side panel is as tall as the screen and as wide as its extent; a top or
     // bottom one is the other way round, and as tall as what is in it up to a

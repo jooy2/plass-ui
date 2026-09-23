@@ -12,6 +12,7 @@ import 'package:plass_ui/src/internal/dismiss.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
+import 'package:plass_ui/src/internal/target.dart';
 import 'package:plass_ui/src/internal/tour.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
@@ -540,147 +541,149 @@ class _PlTourState extends State<PlTour> with WidgetsBindingObserver {
     final buttons = _buttonSize[size]!;
     final hasHeader = step.title != null || step.content != null;
 
-    return PlassSurfaceBox(
-      // The same frosted panel a popover draws, at the same elevation.
-      surface: PlassSurface(
-        fill: tokens.glassPress,
-        border: Border.all(color: tokens.glassLine, width: hairline),
-        ink: tokens.fg,
-        blur: true,
-        insets: <PlassInsetShadow>[tokens.glossGlass],
-        shadows: tokens.elevation(plassElevationMax),
-      ),
-      borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
-      child: DefaultTextStyle.merge(
-        style: TextStyle(
-          color: tokens.fg,
-          fontSize: body.size,
-          height: body.height,
-          leadingDistribution: TextLeadingDistribution.even,
+    return PlassTargetScope(
+      child: PlassSurfaceBox(
+        // The same frosted panel a popover draws, at the same elevation.
+        surface: PlassSurface(
+          fill: tokens.glassPress,
+          border: Border.all(color: tokens.glassLine, width: hairline),
+          ink: tokens.fg,
+          blur: true,
+          insets: <PlassInsetShadow>[tokens.glossGlass],
+          shadows: tokens.elevation(plassElevationMax),
         ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: sheetPaddingX[density]![size]!,
-            vertical: sheetPaddingY[density]![size]!,
+        borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
+        child: DefaultTextStyle.merge(
+          style: TextStyle(
+            color: tokens.fg,
+            fontSize: body.size,
+            height: body.height,
+            leadingDistribution: TextLeadingDistribution.even,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            spacing: sheetSectionGap[size]!,
-            children: <Widget>[
-              if (hasHeader)
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: sheetPaddingX[density]![size]!,
+              vertical: sheetPaddingY[density]![size]!,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              spacing: sheetSectionGap[size]!,
+              children: <Widget>[
+                if (hasHeader)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: _closeGap,
+                    children: <Widget>[
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          spacing: sheetHeaderGap[size]!,
+                          children: <Widget>[
+                            if (step.title != null)
+                              DefaultTextStyle.merge(
+                                style: TextStyle(
+                                  color: tokens.fg,
+                                  fontSize: sheetTitle[size]!.size,
+                                  height: sheetTitle[size]!.height,
+                                  fontWeight: FontWeight.w600,
+                                  leadingDistribution: TextLeadingDistribution.even,
+                                ),
+                                // A node of its own, or the heading takes the
+                                // content and the count into its name. And said
+                                // when it changes: the focus stays on Next while
+                                // the step moves on, so without that a screen
+                                // reader is left on the button with nothing to
+                                // say the card now says something else.
+                                child: Semantics(
+                                  container: true,
+                                  header: true,
+                                  liveRegion: true,
+                                  child: step.title!,
+                                ),
+                              ),
+                            if (step.content != null)
+                              DefaultTextStyle.merge(
+                                style: TextStyle(color: tokens.mutedFg, fontSize: metaText[size]!),
+                                // Its own node as well, and the words that are
+                                // said on a step with no title.
+                                child: Semantics(
+                                  container: true,
+                                  liveRegion: step.title == null,
+                                  child: step.content!,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      if (widget.dismissible)
+                        PlassDismissButton(
+                          label: widget.closeLabel ?? labels.close,
+                          onPressed: () => _setOpen(next: false),
+                          size: sheetTitle[size]!.size * _closeScale,
+                          color: tokens.mutedFg,
+                          ring: family.ring,
+                        ),
+                    ],
+                  ),
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: _closeGap,
+                  spacing: gap[size]!,
                   children: <Widget>[
+                    // Two numbers rather than a sentence. "3 of 7" is a string
+                    // that has to be translated and a word order that differs by
+                    // language; the count itself does not.
+                    Text(
+                      '${_index + 1} / ${widget.steps.length}',
+                      style: TextStyle(
+                        color: tokens.mutedFg,
+                        fontSize: metaText[size]!,
+                        fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
+                      ),
+                    ),
+                    // A `Wrap` rather than the rest of the row, because three
+                    // buttons in a translation whose words are longer than
+                    // English's are three buttons wider than the card. They go to
+                    // a second line instead of off the edge — a card is as tall
+                    // as what is written on it, which is the whole reason it is
+                    // laid out rather than given a height.
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        spacing: sheetHeaderGap[size]!,
+                      child: Wrap(
+                        alignment: WrapAlignment.end,
+                        spacing: gap[size]!,
+                        runSpacing: gap[size]! / 2,
                         children: <Widget>[
-                          if (step.title != null)
-                            DefaultTextStyle.merge(
-                              style: TextStyle(
-                                color: tokens.fg,
-                                fontSize: sheetTitle[size]!.size,
-                                height: sheetTitle[size]!.height,
-                                fontWeight: FontWeight.w600,
-                                leadingDistribution: TextLeadingDistribution.even,
-                              ),
-                              // A node of its own, or the heading takes the
-                              // content and the count into its name. And said
-                              // when it changes: the focus stays on Next while
-                              // the step moves on, so without that a screen
-                              // reader is left on the button with nothing to
-                              // say the card now says something else.
-                              child: Semantics(
-                                container: true,
-                                header: true,
-                                liveRegion: true,
-                                child: step.title!,
-                              ),
+                          if (widget.skippable && !last)
+                            PlButton(
+                              size: buttons,
+                              variant: PlassVariant.ghost,
+                              color: PlassColor.secondary,
+                              onPressed: () => _setOpen(next: false),
+                              child: widget.skipLabel ?? Text(labels.skip),
                             ),
-                          if (step.content != null)
-                            DefaultTextStyle.merge(
-                              style: TextStyle(color: tokens.mutedFg, fontSize: metaText[size]!),
-                              // Its own node as well, and the words that are
-                              // said on a step with no title.
-                              child: Semantics(
-                                container: true,
-                                liveRegion: step.title == null,
-                                child: step.content!,
-                              ),
+                          if (!first)
+                            PlButton(
+                              size: buttons,
+                              variant: PlassVariant.ghost,
+                              color: color,
+                              onPressed: () => _goTo(_index - 1),
+                              child: widget.previousLabel ?? Text(labels.previous),
                             ),
+                          PlButton(
+                            size: buttons,
+                            color: color,
+                            onPressed: () => last ? _finish() : _goTo(_index + 1),
+                            child: last
+                                ? widget.doneLabel ?? Text(labels.done)
+                                : widget.nextLabel ?? Text(labels.next),
+                          ),
                         ],
                       ),
                     ),
-                    if (widget.dismissible)
-                      PlassDismissButton(
-                        label: widget.closeLabel ?? labels.close,
-                        onPressed: () => _setOpen(next: false),
-                        size: sheetTitle[size]!.size * _closeScale,
-                        color: tokens.mutedFg,
-                        ring: family.ring,
-                      ),
                   ],
                 ),
-              Row(
-                spacing: gap[size]!,
-                children: <Widget>[
-                  // Two numbers rather than a sentence. "3 of 7" is a string
-                  // that has to be translated and a word order that differs by
-                  // language; the count itself does not.
-                  Text(
-                    '${_index + 1} / ${widget.steps.length}',
-                    style: TextStyle(
-                      color: tokens.mutedFg,
-                      fontSize: metaText[size]!,
-                      fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
-                    ),
-                  ),
-                  // A `Wrap` rather than the rest of the row, because three
-                  // buttons in a translation whose words are longer than
-                  // English's are three buttons wider than the card. They go to
-                  // a second line instead of off the edge — a card is as tall
-                  // as what is written on it, which is the whole reason it is
-                  // laid out rather than given a height.
-                  Expanded(
-                    child: Wrap(
-                      alignment: WrapAlignment.end,
-                      spacing: gap[size]!,
-                      runSpacing: gap[size]! / 2,
-                      children: <Widget>[
-                        if (widget.skippable && !last)
-                          PlButton(
-                            size: buttons,
-                            variant: PlassVariant.ghost,
-                            color: PlassColor.secondary,
-                            onPressed: () => _setOpen(next: false),
-                            child: widget.skipLabel ?? Text(labels.skip),
-                          ),
-                        if (!first)
-                          PlButton(
-                            size: buttons,
-                            variant: PlassVariant.ghost,
-                            color: color,
-                            onPressed: () => _goTo(_index - 1),
-                            child: widget.previousLabel ?? Text(labels.previous),
-                          ),
-                        PlButton(
-                          size: buttons,
-                          color: color,
-                          onPressed: () => last ? _finish() : _goTo(_index + 1),
-                          child: last
-                              ? widget.doneLabel ?? Text(labels.done)
-                              : widget.nextLabel ?? Text(labels.next),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

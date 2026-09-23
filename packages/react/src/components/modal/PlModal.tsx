@@ -19,7 +19,8 @@ import {
   sheetPaddingYClasses,
   sheetSectionGapClasses,
   sheetTitleClasses,
-  surfaceSlots
+  surfaceSlots,
+  targetClasses
 } from '../../internal/styles.js';
 import type { PlassPortalClassNames, PlassSize, PlassStyleProps } from '../../types.js';
 
@@ -319,6 +320,7 @@ export function PlModal({
                   <BaseUIDialog.Close
                     aria-label={closeLabel}
                     className={[
+                      targetClasses,
                       'flex size-[1.6em] shrink-0 cursor-pointer items-center justify-center',
                       'rounded-full text-(--plass-muted-fg)',
                       '[&_svg]:size-[1.1em] [&_svg]:shrink-0',

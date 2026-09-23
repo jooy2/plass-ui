@@ -8,6 +8,7 @@ import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/portal.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
+import 'package:plass_ui/src/internal/target.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -381,10 +382,12 @@ class PlModal extends StatelessWidget {
       ),
     );
 
-    sheet = PlassSurfaceBox(
-      surface: surface,
-      borderRadius: BorderRadius.circular(fullScreen ? 0 : PlassTokens.radius[size]!),
-      child: fullScreen ? SafeArea(child: sheet) : sheet,
+    sheet = PlassTargetScope(
+      child: PlassSurfaceBox(
+        surface: surface,
+        borderRadius: BorderRadius.circular(fullScreen ? 0 : PlassTokens.radius[size]!),
+        child: fullScreen ? SafeArea(child: sheet) : sheet,
+      ),
     );
 
     return fullScreen || fullWidth

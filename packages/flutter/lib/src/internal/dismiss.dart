@@ -14,6 +14,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
+import 'package:plass_ui/src/internal/target.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 
 /// How visible the × is before the pointer or the keyboard reaches it.
@@ -26,6 +27,10 @@ const double _rest = 0.7;
 const double dismissScale = 1.15;
 
 /// The ×.
+///
+/// Drawn at the size of the text beside it, and pressed from a 24px square: it
+/// is a [PlassTarget], so whatever holds it puts a [PlassTargetScope] round the
+/// surface the × sits on.
 class PlassDismissButton extends StatelessWidget {
   /// Creates a dismiss button.
   const PlassDismissButton({
@@ -84,16 +89,19 @@ class PlassDismissButton extends StatelessWidget {
           );
         }
 
-        return Semantics(
-          // A node of its own, and not an annotation folded into whatever it
-          // sits inside: a dismissal that merges into its alert is a dismissal
-          // a screen reader cannot reach separately from the message.
-          container: true,
-          button: true,
-          label: label,
-          enabled: onPressed != null,
-          onTap: onPressed,
-          child: mark,
+        return PlassTarget(
+          child: Semantics(
+            // A node of its own, and not an annotation folded into whatever it
+            // sits inside: a dismissal that merges into its alert is a
+            // dismissal a screen reader cannot reach separately from the
+            // message.
+            container: true,
+            button: true,
+            label: label,
+            enabled: onPressed != null,
+            onTap: onPressed,
+            child: mark,
+          ),
         );
       },
     );

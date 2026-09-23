@@ -321,17 +321,15 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
                     // square through the scope round the trigger. A focus stop
                     // of its own after the trigger, so the value can be cleared
                     // from the keyboard too.
-                    PlassTarget(
-                      child: SizedBox(
-                        height: scale.line,
-                        child: Center(
-                          child: PlassDismissButton(
-                            label: widget.clearLabel,
-                            onPressed: widget.onClear,
-                            size: scale.size * iconScale,
-                            color: tokens.mutedFg,
-                            ring: family.ring,
-                          ),
+                    SizedBox(
+                      height: scale.line,
+                      child: Center(
+                        child: PlassDismissButton(
+                          label: widget.clearLabel,
+                          onPressed: widget.onClear,
+                          size: scale.size * iconScale,
+                          color: tokens.mutedFg,
+                          ring: family.ring,
                         ),
                       ),
                     ),

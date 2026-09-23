@@ -8,6 +8,7 @@ import 'package:plass_ui/src/internal/dismiss.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
+import 'package:plass_ui/src/internal/target.dart';
 import 'package:plass_ui/src/internal/wedge.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
@@ -208,69 +209,74 @@ class _PlPopoverState extends State<PlPopover> {
 
     Widget popup = ConstrainedBox(
       constraints: BoxConstraints(maxWidth: widget.width ?? _maxWidth[_size]!),
-      child: PlassSurfaceBox(
-        surface: surface,
-        borderRadius: radius,
-        duration: PlassTokens.durationSlow,
-        child: DefaultTextStyle.merge(
-          style: TextStyle(
-            color: tokens.fg,
-            fontSize: body.size,
-            height: body.height,
-            leadingDistribution: TextLeadingDistribution.even,
-          ),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: insetX, vertical: insetY),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              spacing: sheetSectionGap[_size]!,
-              children: <Widget>[
-                if (hasHeader || widget.showClose)
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: _closeGap,
-                    children: <Widget>[
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          spacing: sheetHeaderGap[_size]!,
-                          children: <Widget>[
-                            if (widget.title != null)
-                              DefaultTextStyle.merge(
-                                style: TextStyle(
-                                  color: tokens.fg,
-                                  fontSize: sheetTitle[_size]!.size,
-                                  height: sheetTitle[_size]!.height,
-                                  fontWeight: FontWeight.w600,
-                                  leadingDistribution: TextLeadingDistribution.even,
+      child: PlassTargetScope(
+        child: PlassSurfaceBox(
+          surface: surface,
+          borderRadius: radius,
+          duration: PlassTokens.durationSlow,
+          child: DefaultTextStyle.merge(
+            style: TextStyle(
+              color: tokens.fg,
+              fontSize: body.size,
+              height: body.height,
+              leadingDistribution: TextLeadingDistribution.even,
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: insetX, vertical: insetY),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                spacing: sheetSectionGap[_size]!,
+                children: <Widget>[
+                  if (hasHeader || widget.showClose)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: _closeGap,
+                      children: <Widget>[
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            spacing: sheetHeaderGap[_size]!,
+                            children: <Widget>[
+                              if (widget.title != null)
+                                DefaultTextStyle.merge(
+                                  style: TextStyle(
+                                    color: tokens.fg,
+                                    fontSize: sheetTitle[_size]!.size,
+                                    height: sheetTitle[_size]!.height,
+                                    fontWeight: FontWeight.w600,
+                                    leadingDistribution: TextLeadingDistribution.even,
+                                  ),
+                                  // The heading is what names the popup, so it is
+                                  // announced as one rather than read as the first
+                                  // line of the body.
+                                  child: Semantics(header: true, child: widget.title!),
                                 ),
-                                // The heading is what names the popup, so it is
-                                // announced as one rather than read as the first
-                                // line of the body.
-                                child: Semantics(header: true, child: widget.title!),
-                              ),
-                            if (widget.description != null)
-                              DefaultTextStyle.merge(
-                                style: TextStyle(color: tokens.mutedFg, fontSize: metaText[_size]!),
-                                child: widget.description!,
-                              ),
-                          ],
+                              if (widget.description != null)
+                                DefaultTextStyle.merge(
+                                  style: TextStyle(
+                                    color: tokens.mutedFg,
+                                    fontSize: metaText[_size]!,
+                                  ),
+                                  child: widget.description!,
+                                ),
+                            ],
+                          ),
                         ),
-                      ),
-                      if (widget.showClose)
-                        PlassDismissButton(
-                          label: widget.closeLabel ?? PlassTheme.labelsOf(context).close,
-                          onPressed: close,
-                          size: sheetTitle[_size]!.size * _closeScale,
-                          color: tokens.mutedFg,
-                          ring: family.ring,
-                        ),
-                    ],
-                  ),
-                if (widget.child != null) widget.child!,
-              ],
+                        if (widget.showClose)
+                          PlassDismissButton(
+                            label: widget.closeLabel ?? PlassTheme.labelsOf(context).close,
+                            onPressed: close,
+                            size: sheetTitle[_size]!.size * _closeScale,
+                            color: tokens.mutedFg,
+                            ring: family.ring,
+                          ),
+                      ],
+                    ),
+                  if (widget.child != null) widget.child!,
+                ],
+              ),
             ),
           ),
         ),

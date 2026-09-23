@@ -18,7 +18,8 @@ import {
   sheetPaddingYClasses,
   sheetSectionGapClasses,
   sheetTitleClasses,
-  surfaceSlots
+  surfaceSlots,
+  targetClasses
 } from '../../internal/styles.js';
 import type { PlassPortalClassNames, PlassSide, PlassSize, PlassStyleProps } from '../../types.js';
 
@@ -255,6 +256,7 @@ const backdropClasses = /* @__PURE__ */ [
 
 /** The × in the corner, shared by both modes. */
 const closeButtonClasses = /* @__PURE__ */ [
+  targetClasses,
   'flex size-[1.6em] shrink-0 cursor-pointer items-center justify-center',
   'rounded-full text-(--plass-muted-fg)',
   '[&_svg]:size-[1.1em] [&_svg]:shrink-0',

@@ -11,6 +11,7 @@ import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
+import 'package:plass_ui/src/internal/target.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -724,90 +725,92 @@ class _Toast extends StatelessWidget {
     return Semantics(
       container: true,
       liveRegion: true,
-      child: PlassSurfaceBox(
-        surface: surface,
-        borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: sheetPaddingX[density]![size]!,
-            vertical: sheetPaddingY[density]![size]!,
-          ),
-          child: DefaultTextStyle.merge(
-            style: TextStyle(
-              color: ink,
-              fontSize: body.size,
-              height: body.height,
-              leadingDistribution: TextLeadingDistribution.even,
+      child: PlassTargetScope(
+        child: PlassSurfaceBox(
+          surface: surface,
+          borderRadius: BorderRadius.circular(PlassTokens.radius[size]!),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: sheetPaddingX[density]![size]!,
+              vertical: sheetPaddingY[density]![size]!,
             ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              spacing: sheetSectionGap[size]!,
-              children: <Widget>[
-                if (glyph != null) line(glyph),
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    spacing: sheetHeaderGap[size]!,
-                    children: <Widget>[
-                      if (toast.title != null)
-                        DefaultTextStyle.merge(
-                          style: TextStyle(
-                            color: accent,
-                            fontSize: sheetTitle[size]!.size,
-                            height: sheetTitle[size]!.height,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          child: toast.title!,
-                        ),
-                      if (toast.description != null)
-                        DefaultTextStyle.merge(
-                          // Muted only under a title: a one-line toast *is* the
-                          // message, and a message written in the quiet ink is a
-                          // message that looks like a footnote.
-                          style: TextStyle(
-                            color: toast.title != null && !solid ? tokens.mutedFg : ink,
-                          ),
-                          child: toast.description!,
-                        ),
-                    ],
-                  ),
-                ),
-                if (toast.actionLabel != null)
-                  line(
-                    PlassInteractive(
-                      onTap: () {
-                        toast.onAction?.call();
-                        onClose();
-                      },
-                      builder: (BuildContext context, PlassInteraction state) {
-                        return Semantics(
-                          container: true,
-                          button: true,
-                          child: DefaultTextStyle.merge(
+            child: DefaultTextStyle.merge(
+              style: TextStyle(
+                color: ink,
+                fontSize: body.size,
+                height: body.height,
+                leadingDistribution: TextLeadingDistribution.even,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                spacing: sheetSectionGap[size]!,
+                children: <Widget>[
+                  if (glyph != null) line(glyph),
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: sheetHeaderGap[size]!,
+                      children: <Widget>[
+                        if (toast.title != null)
+                          DefaultTextStyle.merge(
                             style: TextStyle(
                               color: accent,
-                              fontSize: metaText[size]!,
-                              fontWeight: FontWeight.w500,
-                              decoration: state.hovered ? TextDecoration.underline : null,
+                              fontSize: sheetTitle[size]!.size,
+                              height: sheetTitle[size]!.height,
+                              fontWeight: FontWeight.w600,
                             ),
-                            child: toast.actionLabel!,
+                            child: toast.title!,
                           ),
-                        );
-                      },
+                        if (toast.description != null)
+                          DefaultTextStyle.merge(
+                            // Muted only under a title: a one-line toast *is* the
+                            // message, and a message written in the quiet ink is a
+                            // message that looks like a footnote.
+                            style: TextStyle(
+                              color: toast.title != null && !solid ? tokens.mutedFg : ink,
+                            ),
+                            child: toast.description!,
+                          ),
+                      ],
                     ),
                   ),
-                line(
-                  PlassDismissButton(
-                    label: closeLabel,
-                    onPressed: onClose,
-                    size: body.size * _closeScale,
-                    color: ink,
-                    ring: solid ? family.onSolid : family.ring,
+                  if (toast.actionLabel != null)
+                    line(
+                      PlassInteractive(
+                        onTap: () {
+                          toast.onAction?.call();
+                          onClose();
+                        },
+                        builder: (BuildContext context, PlassInteraction state) {
+                          return Semantics(
+                            container: true,
+                            button: true,
+                            child: DefaultTextStyle.merge(
+                              style: TextStyle(
+                                color: accent,
+                                fontSize: metaText[size]!,
+                                fontWeight: FontWeight.w500,
+                                decoration: state.hovered ? TextDecoration.underline : null,
+                              ),
+                              child: toast.actionLabel!,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  line(
+                    PlassDismissButton(
+                      label: closeLabel,
+                      onPressed: onClose,
+                      size: body.size * _closeScale,
+                      color: ink,
+                      ring: solid ? family.onSolid : family.ring,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

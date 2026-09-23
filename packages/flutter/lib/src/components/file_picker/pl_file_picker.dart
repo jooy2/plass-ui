@@ -13,6 +13,7 @@ import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/notch.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
+import 'package:plass_ui/src/internal/target.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -717,46 +718,48 @@ class _PlFilePickerState extends State<PlFilePicker> {
     final file = widget.value[index];
     final scale = controlTextLeading[_size]!;
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: family.soft,
-        borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.xs]!),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: _rowPaddingX, vertical: _rowPaddingY),
-        child: Row(
-          spacing: 8,
-          children: <Widget>[
-            Expanded(
-              child: Text(
-                file.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: tokens.fg,
-                  fontSize: scale.size,
-                  height: scale.height,
-                  leadingDistribution: TextLeadingDistribution.even,
+    return PlassTargetScope(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: family.soft,
+          borderRadius: BorderRadius.circular(PlassTokens.radius[PlassSize.xs]!),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: _rowPaddingX, vertical: _rowPaddingY),
+          child: Row(
+            spacing: 8,
+            children: <Widget>[
+              Expanded(
+                child: Text(
+                  file.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: tokens.fg,
+                    fontSize: scale.size,
+                    height: scale.height,
+                    leadingDistribution: TextLeadingDistribution.even,
+                  ),
                 ),
               ),
-            ),
-            Text(
-              file.readableSize,
-              style: TextStyle(
-                color: tokens.mutedFg,
-                fontSize: meta,
-                fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
+              Text(
+                file.readableSize,
+                style: TextStyle(
+                  color: tokens.mutedFg,
+                  fontSize: meta,
+                  fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
+                ),
               ),
-            ),
-            if (!_inert && widget.onFilesChanged != null)
-              PlassDismissButton(
-                label: (widget.removeLabel ?? PlassTheme.labelsOf(context).removeItem)(file.name),
-                onPressed: () => _remove(index),
-                size: scale.size * _removeScale,
-                color: tokens.mutedFg,
-                ring: family.ring,
-              ),
-          ],
+              if (!_inert && widget.onFilesChanged != null)
+                PlassDismissButton(
+                  label: (widget.removeLabel ?? PlassTheme.labelsOf(context).removeItem)(file.name),
+                  onPressed: () => _remove(index),
+                  size: scale.size * _removeScale,
+                  color: tokens.mutedFg,
+                  ring: family.ring,
+                ),
+            ],
+          ),
         ),
       ),
     );
