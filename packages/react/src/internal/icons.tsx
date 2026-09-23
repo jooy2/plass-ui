@@ -195,6 +195,48 @@ export function CloseIcon(): React.ReactElement {
   );
 }
 
+/**
+ * The two faces of a button that starts and stops something moving on its own:
+ * a triangle for "play", two bars for "stop".
+ *
+ * Only `PlCarousel` draws them today. They are here rather than in its file
+ * because the next thing in the library that plays on its own has to be stopped
+ * with the same two marks, or a page has two kinds of "stop" on it.
+ *
+ * Neither is turned under RTL. They are the marks of a player rather than a
+ * direction on the page, and every media control a right-to-left reader has
+ * ever used points the triangle the same way.
+ *
+ * The triangle is filled and stroked with a round join, which is what takes the
+ * points off its corners without an arc in the path.
+ */
+export function PlayIcon(): React.ReactElement {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="M5.5 3.75v8.5L12.5 8Z"
+        fill="currentColor"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function PauseIcon(): React.ReactElement {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="M5.75 4.25v7.5m4.5-7.5v7.5"
+        stroke="currentColor"
+        strokeWidth="2.25"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 /** The clock: something that has been started and has not finished. */
 export function ClockIcon(): React.ReactElement {
   return (

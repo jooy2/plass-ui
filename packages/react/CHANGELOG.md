@@ -6,6 +6,8 @@
 
 ### Added
 
+- **An `autoPlay` `PlCarousel` has a button that stops it and starts it again.** There was no way to stop a carousel that advanced on its own, which WCAG 2.2.2 asks of anything that moves for longer than five seconds. The button sits in the frame's top corner, comes first in the focus order, and is named "Stop slide show" or "Start slide show" from the new `carouselStop` and `carouselPlay` keys in all seven label packs, or from `playLabel` and `stopLabel`.
+
 - **A `fixed` `PlBottomNavigation` or `PlFloatingBottomNavigation` publishes its height as `--plass-bottom-navigation-height`.** The end of the page was always under the bar, and so was a link reached with Tab, with no way to know how much room to leave. The bar now writes its measured height, the home indicator included, on the root element while it is mounted, and the token is `0px` without one, so `padding-bottom` and `scroll-padding-bottom` on the page reserve exactly the room it covers.
 
 - **`PlAnimateMarquee` takes `label`, which names the strip.** Under `prefers-reduced-motion` the box becomes a tab stop while there is anything to scroll, and that stop had no name unless the caller added `role="group"` and an `aria-label` themselves. `label` makes the box a group with that name, the way `PlScrollZone`'s `label` names its region.
@@ -33,6 +35,8 @@
 - **`PlTabs` takes `align`, which places each label inside its tab.** It moves the words and never the tabs, so it is safe to set on a bar that is already laid out. A horizontal bar sizes every tab to its own label and nothing changes; it takes effect on a `vertical` bar, whose tabs are all as wide as the widest, and on a `fullWidth` one, whose tabs are all an equal share. `start` is what a bar down the side of a settings page usually wants, so the names line up as a list rather than drifting around a centre line. Logical rather than physical, so it turns over under `rtl` and an icon beside the label travels with it.
 
 ### Changed
+
+- **A carousel stops once the focus comes into it, and stays stopped until its button starts it again.** Hover and focus shared one pause, so a pointer passing over the frame started it again while a keyboard reader's focus was still inside. The pointer now pauses it only while it is over the frame. A reader who asked for reduced motion starts stopped rather than never starting, and the live region announces the slide once the carousel has stopped.
 
 - **A `dashed` series is keyed in the legend with a short dashed rule rather than the filled square.** A dashed line reads as a forecast or a target on the plot, and its legend entry was the same square as every other series', so the key did not carry the one distinction the plot did. The entry now draws two dashes at the line's weight and rhythm wherever the line is drawn dashed, on `PlLineChart` and on a `PlAreaChart` that is not stacked; a bar or a stacked band has no line to dash and keeps the square.
 

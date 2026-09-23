@@ -1,3 +1,5 @@
+import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -15,6 +17,8 @@ class _Harness extends StatefulWidget {
     this.indicators = true,
     this.frozen = false,
     this.children = _slides,
+    this.playLabel,
+    this.stopLabel,
   });
 
   final bool loop;
@@ -23,6 +27,8 @@ class _Harness extends StatefulWidget {
   final bool indicators;
   final bool frozen;
   final List<Widget> children;
+  final String? playLabel;
+  final String? stopLabel;
 
   @override
   State<_Harness> createState() => _HarnessState();
@@ -45,9 +51,24 @@ class _HarnessState extends State<_Harness> {
       indicators: widget.indicators,
       aspectRatio: 2,
       label: 'Gallery',
+      playLabel: widget.playLabel,
+      stopLabel: widget.stopLabel,
       children: widget.children,
     );
   }
+}
+
+/// Where the harness has got to.
+int _valueOf(WidgetTester tester) => tester.state<_HarnessState>(find.byType(_Harness)).value;
+
+/// The `autoPlay` button, found by what it is called right now.
+Finder _toggle(String label) =>
+    find.byWidgetPredicate((Widget widget) => widget is PlIconButton && widget.label == label);
+
+/// Lets [time] pass on a playing carousel, and the travel of any turn it took.
+Future<void> _wait(WidgetTester tester, [Duration time = const Duration(milliseconds: 500)]) async {
+  await tester.pump(time);
+  await tester.pump(PlassTokens.durationSlow);
 }
 
 void main() {
@@ -243,7 +264,7 @@ void main() {
         await tester.pumpWidget(host(const SizedBox.shrink(), width: 360));
       });
 
-      testWidgets('does not start at all for a reader who asked for stillness', (
+      testWidgets('starts stopped for a reader who asked for stillness', (
         WidgetTester tester,
       ) async {
         await tester.pumpWidget(
@@ -255,6 +276,194 @@ void main() {
         await tester.pump();
 
         expect(tester.state<_HarnessState>(find.byType(_Harness)).value, 0);
+
+        // Stopped rather than unable to start: the button says so, and pressing
+        // it is the reader asking for the motion anyway.
+        await tester.tap(_toggle('Start slide show'));
+        await _wait(tester);
+
+        expect(_valueOf(tester), greaterThan(0));
+
+        await tester.pumpWidget(host(const SizedBox.shrink(), width: 360));
+      });
+
+      testWidgets('draws a button that stops it and starts it again', (WidgetTester tester) async {
+        await tester.pumpWidget(host(const _Harness(autoPlay: true), width: 360));
+        await tester.pump();
+
+        await tester.tap(_toggle('Stop slide show'));
+        await tester.pump();
+
+        expect(_toggle('Start slide show'), findsOneWidget);
+
+        await _wait(tester);
+
+        expect(_valueOf(tester), 0);
+
+        await tester.tap(_toggle('Start slide show'));
+        await _wait(tester);
+
+        expect(_toggle('Stop slide show'), findsOneWidget);
+        expect(_valueOf(tester), greaterThan(0));
+
+        await tester.pumpWidget(host(const SizedBox.shrink(), width: 360));
+      });
+
+      testWidgets('names the button through playLabel and stopLabel', (WidgetTester tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(const _Harness(autoPlay: true, playLabel: 'Play', stopLabel: 'Pause'), width: 360),
+        );
+        await tester.pump();
+
+        expect(find.bySemanticsLabel('Pause'), findsOneWidget);
+
+        await tester.tap(find.bySemanticsLabel('Pause'));
+        await tester.pump();
+
+        expect(find.bySemanticsLabel('Play'), findsOneWidget);
+
+        handle.dispose();
+        await tester.pumpWidget(host(const SizedBox.shrink(), width: 360));
+      });
+
+      testWidgets('stops once the focus comes in, and stays stopped after it leaves', (
+        WidgetTester tester,
+      ) async {
+        final slide = FocusNode();
+        addTearDown(slide.dispose);
+
+        await tester.pumpWidget(
+          host(
+            _Harness(
+              autoPlay: true,
+              children: <Widget>[
+                Focus(focusNode: slide, child: const Text('Alpha')),
+                const Text('Bravo'),
+                const Text('Charlie'),
+              ],
+            ),
+            width: 360,
+          ),
+        );
+        await tester.pump();
+
+        // One frame for the focus to move, and one for the carousel to answer.
+        slide.requestFocus();
+        await tester.pump();
+        await tester.pump();
+
+        expect(_toggle('Start slide show'), findsOneWidget);
+
+        await _wait(tester);
+
+        expect(_valueOf(tester), 0);
+
+        // The focus leaving is not the reader asking for it to move again.
+        slide.unfocus();
+        await _wait(tester);
+
+        expect(_valueOf(tester), 0);
+        expect(_toggle('Start slide show'), findsOneWidget);
+      });
+
+      testWidgets('does not start again when the pointer leaves while the focus is inside', (
+        WidgetTester tester,
+      ) async {
+        final slide = FocusNode();
+        addTearDown(slide.dispose);
+
+        await tester.pumpWidget(
+          host(
+            _Harness(
+              autoPlay: true,
+              children: <Widget>[
+                Focus(focusNode: slide, child: const Text('Alpha')),
+                const Text('Bravo'),
+                const Text('Charlie'),
+              ],
+            ),
+            width: 360,
+          ),
+        );
+        await tester.pump();
+
+        final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+        await mouse.addPointer(location: tester.getCenter(find.byType(PageView)));
+        await tester.pump();
+
+        slide.requestFocus();
+        await tester.pump();
+
+        await mouse.moveTo(Offset.zero);
+        await _wait(tester);
+
+        expect(_valueOf(tester), 0);
+
+        await mouse.removePointer();
+      });
+
+      testWidgets('keeps playing while the focus is on its own button, and once play is pressed', (
+        WidgetTester tester,
+      ) async {
+        final slide = FocusNode();
+        addTearDown(slide.dispose);
+
+        await tester.pumpWidget(
+          host(
+            _Harness(
+              autoPlay: true,
+              children: <Widget>[
+                Focus(focusNode: slide, child: const Text('Alpha')),
+                const Text('Bravo'),
+                const Text('Charlie'),
+              ],
+            ),
+            width: 360,
+          ),
+        );
+        await tester.pump();
+
+        // The first thing a keyboard reader reaches, and landing on it stops
+        // nothing: it is where they stop it from.
+        tester.widget<PlIconButton>(_toggle('Stop slide show')).focusNode!.requestFocus();
+        await tester.pump();
+        await _wait(tester);
+
+        expect(_valueOf(tester), greaterThan(0));
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pump();
+
+        expect(_toggle('Start slide show'), findsOneWidget);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pump();
+
+        // Started again from inside, so moving on into a slide does not stop it.
+        slide.requestFocus();
+        await tester.pump();
+
+        final before = _valueOf(tester);
+        await _wait(tester);
+
+        expect(_valueOf(tester), isNot(before));
+        expect(_toggle('Stop slide show'), findsOneWidget);
+
+        await tester.pumpWidget(host(const SizedBox.shrink(), width: 360));
+      });
+
+      testWidgets('has no button when it does not play, or cannot', (WidgetTester tester) async {
+        await tester.pumpWidget(host(const _Harness(), width: 360));
+        await tester.pump();
+
+        expect(_toggle('Stop slide show'), findsNothing);
+
+        await tester.pumpWidget(host(const _Harness(autoPlay: true, frozen: true), width: 360));
+        await tester.pump();
+
+        expect(_toggle('Stop slide show'), findsNothing);
+        expect(_toggle('Start slide show'), findsNothing);
       });
 
       testWidgets('has nothing to advance while it is frozen', (WidgetTester tester) async {

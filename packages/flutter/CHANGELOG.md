@@ -6,6 +6,8 @@
 
 ### Added
 
+- **An `autoPlay` `PlCarousel` has a button that stops it and starts it again, and stops once the focus comes into it.** There was no way to stop it, which WCAG 2.2.2 asks for, and a keyboard focus inside did not pause it at all. The button sits in the frame's top corner, is named from the new `carouselStop` and `carouselPlay` keys in all seven packs or from `playLabel` and `stopLabel`, and is left out of a carousel with no `onChanged`. The pointer pauses it only while it is over the frame, and a reader who asked for reduced motion starts stopped and can start it from the button.
+
 - **A line, bar, area, scatter or timeline chart is a tab stop, and the arrow keys walk it.** Every value was already in the text a chart hands a screen reader, but nothing went to one value: the reader heard the series from the start each time. The plot now takes the focus by Tab, with a ring while the keyboard holds it; ← and → walk the categories (↑ and ↓ on a horizontal bar chart and a timeline), `Home` and `End` go to the ends and `Escape` clears the readout, and a scatter, a timeline or a `nearest` tooltip is walked mark by mark in the order the data was given. Each stop is announced in a live region and the tooltip card stands on it, as in the React build.
 
 - **`PlAnimateMarquee` takes `label`, which names the strip.** While the platform has animations turned off the box becomes a tab stop whenever there is anything to scroll, and there was no documented way to name it. `label` puts the name on the box, the way `PlScrollZone`'s `label` names its region.

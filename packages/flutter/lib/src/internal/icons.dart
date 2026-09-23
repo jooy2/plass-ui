@@ -175,6 +175,17 @@ enum PlassGlyphShape {
   /// The clock: something that has been started and has not finished.
   clock,
 
+  /// A triangle: what starts something moving on its own again.
+  ///
+  /// [play] and [pause] are the two faces of one button, and neither is turned
+  /// under RTL. They are the marks of a player rather than a direction on the
+  /// page, and every media control a right-to-left reader has ever used points
+  /// the triangle the same way.
+  play,
+
+  /// Two bars: what stops something moving on its own. See [play].
+  pause,
+
   /// The calendar: a page with a binding across the top. The pickers' glyph.
   calendar,
 
@@ -325,7 +336,10 @@ class _GlyphPainter extends CustomPainter {
       case PlassGlyphShape.minus:
       case PlassGlyphShape.plus:
       case PlassGlyphShape.close:
+      case PlassGlyphShape.play:
         return 1.75;
+      case PlassGlyphShape.pause:
+        return 2.25;
       case PlassGlyphShape.chevron:
       case PlassGlyphShape.doubleChevron:
       case PlassGlyphShape.arrowRight:
@@ -425,6 +439,22 @@ class _GlyphPainter extends CustomPainter {
           ..moveTo(8, 4.5)
           ..lineTo(8, 8)
           ..lineTo(10.4, 9.6);
+      case PlassGlyphShape.play:
+        // Filled, and stroked with the same path: the round join is what takes
+        // the points off its corners without an arc in the drawing.
+        final triangle = Path()
+          ..moveTo(5.5, 3.75)
+          ..lineTo(5.5, 12.25)
+          ..lineTo(12.5, 8)
+          ..close();
+        line.addPath(triangle, Offset.zero);
+        solid.addPath(triangle, Offset.zero);
+      case PlassGlyphShape.pause:
+        line
+          ..moveTo(5.75, 4.25)
+          ..lineTo(5.75, 11.75)
+          ..moveTo(10.25, 4.25)
+          ..lineTo(10.25, 11.75);
       case PlassGlyphShape.calendar:
         line
           ..addRRect(

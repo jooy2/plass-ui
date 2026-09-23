@@ -31,6 +31,8 @@ export const ko: PlassLabels = {
   carousel: '캐러셀',
   carouselPrevious: '이전 슬라이드',
   carouselNext: '다음 슬라이드',
+  carouselPlay: '슬라이드 쇼 재생',
+  carouselStop: '슬라이드 쇼 정지',
   slide: '슬라이드',
   commandPalette: '명령 팔레트',
   commandPalettePlaceholder: '명령 검색',

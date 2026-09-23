@@ -57,6 +57,8 @@ Map<String, String> words(PlassLabels labels) => <String, String>{
   'carousel': labels.carousel,
   'carouselPrevious': labels.carouselPrevious,
   'carouselNext': labels.carouselNext,
+  'carouselPlay': labels.carouselPlay,
+  'carouselStop': labels.carouselStop,
   'commandPalette': labels.commandPalette,
   'commandPalettePlaceholder': labels.commandPalettePlaceholder,
   'gallery': labels.gallery,

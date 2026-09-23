@@ -2965,8 +2965,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'boolean',
       default: 'false',
       description: {
-        ko: '스스로 넘어갑니다. hover·포커스·배경 탭·reduced motion에서 모두 멈춥니다',
-        en: 'Advances on its own. Pauses on hover, on focus, in a background tab, and for reduced motion'
+        ko: '스스로 넘어가고, 프레임 위에 멈춤·시작 버튼이 생깁니다. hover와 배경 탭에서는 잠시 멈추고, 포커스가 들어오면 버튼으로 다시 시작할 때까지 멈춥니다. reduced motion에서는 멈춘 채로 시작합니다',
+        en: 'Advances on its own, with a button over the frame that stops and starts it. Pauses on hover and in a background tab; stops once the focus comes in, until the button starts it again. Starts stopped for reduced motion'
       }
     },
     {
@@ -3010,6 +3010,24 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'string',
       default: "'Next slide'",
       description: { ko: '화살표의 이름', en: "The arrow's name" }
+    },
+    {
+      name: 'playLabel',
+      type: 'string',
+      default: "'Start slide show'",
+      description: {
+        ko: '캐러셀이 멈춰 있을 때 autoPlay 버튼의 이름',
+        en: 'What the autoPlay button is called while the carousel is stopped'
+      }
+    },
+    {
+      name: 'stopLabel',
+      type: 'string',
+      default: "'Stop slide show'",
+      description: {
+        ko: '캐러셀이 넘어가는 동안 autoPlay 버튼의 이름',
+        en: 'What the autoPlay button is called while the carousel is playing'
+      }
     },
     {
       name: 'slideLabel',

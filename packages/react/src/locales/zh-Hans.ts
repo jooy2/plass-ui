@@ -31,6 +31,8 @@ export const zhHans: PlassLabels = {
   carousel: '轮播',
   carouselPrevious: '上一张',
   carouselNext: '下一张',
+  carouselPlay: '开始轮播',
+  carouselStop: '停止轮播',
   slide: '幻灯片',
   commandPalette: '命令面板',
   commandPalettePlaceholder: '搜索命令',

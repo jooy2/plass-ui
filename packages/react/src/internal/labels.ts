@@ -93,6 +93,10 @@ export interface PlassLabels {
   carousel: string;
   carouselPrevious: string;
   carouselNext: string;
+  /** The button that starts a reel advancing on its own, and the same button
+   * once it is advancing, which stops it. */
+  carouselPlay: string;
+  carouselStop: string;
   /** What a slide is, said after its name: one slide's `aria-roledescription`.
    * The reel's own is `carousel`. */
   slide: string;
@@ -293,6 +297,8 @@ export const defaultLabels: PlassLabels = {
   carousel: 'Carousel',
   carouselPrevious: 'Previous slide',
   carouselNext: 'Next slide',
+  carouselPlay: 'Start slide show',
+  carouselStop: 'Stop slide show',
   slide: 'slide',
   commandPalette: 'Command palette',
   commandPalettePlaceholder: 'Search commands',

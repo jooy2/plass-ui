@@ -5,7 +5,8 @@ import { mergeProps } from '@base-ui/react/merge-props';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { PlIconButton } from '../icon-button/PlIconButton.js';
-import { ChevronIcon } from '../../internal/icons.js';
+import { ChevronIcon, PauseIcon, PlayIcon } from '../../internal/icons.js';
+import { usePrefersReducedMotion } from '../../internal/media.js';
 import {
   cx,
   pictureSlotClasses,
@@ -40,12 +41,14 @@ export interface PlCarouselProps
    */
   loop?: boolean;
   /**
-   * Advances on its own.
+   * Advances on its own, with a button over the frame that stops it and starts
+   * it again.
    *
    * Off by default and deliberately so: a carousel that moves while it is being
-   * read is the most complained-about pattern on the web. It pauses on hover,
-   * on focus anywhere inside it, while the tab is in the background, and it
-   * does not start at all for a reader who has asked for reduced motion.
+   * read is the most complained-about pattern on the web. It pauses while the
+   * pointer is over it and while the tab is in the background. It **stops** once
+   * the focus comes into it, and stays stopped until the button starts it
+   * again. For a reader who has asked for reduced motion it starts stopped.
    * @default false
    */
   autoPlay?: boolean;
@@ -65,6 +68,10 @@ export interface PlCarouselProps
   previousLabel?: string;
   /** @default 'Next slide' */
   nextLabel?: string;
+  /** What the `autoPlay` button says while the carousel is stopped. @default 'Start slide show' */
+  playLabel?: string;
+  /** What it says while the carousel is playing. @default 'Stop slide show' */
+  stopLabel?: string;
   /**
    * How one slide is named to a screen reader, and how its dot is labelled.
    * @default `Slide {index} of {count}`, from the label pack
@@ -81,6 +88,16 @@ const arrowInsetClasses: Record<PlassSize, string> = {
   md: 'start-2 end-2',
   lg: 'start-3 end-3',
   xl: 'start-4 end-4'
+};
+
+/** Where the `autoPlay` button sits: the top corner the reading starts from,
+ * in as far as the arrows are from the sides. */
+const toggleInsetClasses: Record<PlassSize, string> = {
+  xs: 'top-1 start-1',
+  sm: 'top-1.5 start-1.5',
+  md: 'top-2 start-2',
+  lg: 'top-3 start-3',
+  xl: 'top-4 start-4'
 };
 
 /**
@@ -143,6 +160,8 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
       label: labelProp,
       previousLabel: previousLabelProp,
       nextLabel: nextLabelProp,
+      playLabel: playLabelProp,
+      stopLabel: stopLabelProp,
       slideLabel,
       className,
       style,
@@ -156,6 +175,8 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
     const label = labelProp ?? labels.carousel;
     const previousLabel = previousLabelProp ?? labels.carouselPrevious;
     const nextLabel = nextLabelProp ?? labels.carouselNext;
+    const playLabel = playLabelProp ?? labels.carouselPlay;
+    const stopLabel = stopLabelProp ?? labels.carouselStop;
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';
@@ -181,7 +202,28 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
     // the scroll events thrown on the way from slide 0 to slide 2 would each be
     // read as the reader landing on slide 1.
     const settling = React.useRef(false);
-    const [paused, setPaused] = React.useState(false);
+
+    // Two different things hold the strip still, and they are kept apart on
+    // purpose. The pointer over the frame is a *pause*: it lasts exactly as long
+    // as the pointer does. The focus coming in is a *stop*: a keyboard reader
+    // who has tabbed into a slide is reading it, and the strip stays where it is
+    // until the button starts it again — leaving with the pointer, or with the
+    // focus, does not.
+    const [hovered, setHovered] = React.useState(false);
+    // The reader's own answer to "should this be moving?", `true` for stopped.
+    // `null` until they have given one, and until then it is the platform's
+    // answer: a reader who asked for reduced motion starts stopped, and the
+    // button is how they start it anyway.
+    const [choice, setChoice] = React.useState<boolean | null>(null);
+    const reducedMotion = usePrefersReducedMotion();
+    const stopped = choice ?? reducedMotion;
+    const playing = autoPlay && !stopped;
+    const toggleRef = React.useRef<HTMLButtonElement>(null);
+    const focusInside = React.useRef(false);
+    // Raised when the button starts the strip while the focus is inside it. The
+    // reader has just answered the focus, and moving it on to the arrows or a
+    // slide does not stop what they started. Lowered when the focus leaves.
+    const resumedInside = React.useRef(false);
 
     const go = React.useCallback(
       (next: number, viaScroll = false) => {
@@ -284,12 +326,7 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
     });
 
     React.useEffect(() => {
-      if (!autoPlay || paused || count < 2) {
-        return;
-      }
-
-      // A reader who has asked for less motion has asked for this in particular.
-      if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      if (!playing || hovered || count < 2) {
         return;
       }
 
@@ -302,7 +339,14 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
       }, interval);
 
       return () => window.clearInterval(timer);
-    }, [autoPlay, paused, count, interval, index]);
+    }, [playing, hovered, count, interval, index]);
+
+    const toggle = () => {
+      const next = !stopped;
+
+      setChoice(next);
+      resumedInside.current = !next && focusInside.current;
+    };
 
     const atStart = index <= 0;
     const atEnd = index >= count - 1;
@@ -315,16 +359,34 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
         aria-label={label}
         className={cx('flex flex-col', className)}
         style={{ ...surfaceSlots(color, elevation), ...style }}
-        // Hover and focus both stop the timer. The second one is the important
-        // one: a keyboard reader who has tabbed into a slide is reading it.
         // Merged with the caller's props through `mergeProps` rather than spread
         // beside them, which kept only one of each pair: a caller's own
         // `onPointerEnter` or `onFocus` quietly turned the pause off.
         {...mergeProps(props, {
-          onPointerEnter: () => setPaused(true),
-          onPointerLeave: () => setPaused(false),
-          onFocus: () => setPaused(true),
-          onBlur: () => setPaused(false)
+          onPointerEnter: () => setHovered(true),
+          onPointerLeave: () => setHovered(false),
+          onFocus: (event: React.FocusEvent<HTMLDivElement>) => {
+            focusInside.current = true;
+
+            // The button is the one place the focus can land without stopping
+            // anything. A keyboard reader reaches it first and can stop the
+            // strip from there, and a mouse press moves the focus onto it
+            // before the click arrives — stopping on that focus would have
+            // turned the click on "stop" into a click on "start".
+            if (
+              autoPlay &&
+              (event.target as EventTarget) !== toggleRef.current &&
+              !resumedInside.current
+            ) {
+              setChoice(true);
+            }
+          },
+          onBlur: (event: React.FocusEvent<HTMLDivElement>) => {
+            if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+              focusInside.current = false;
+              resumedInside.current = false;
+            }
+          }
         })}
       >
         <div
@@ -335,6 +397,30 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
             transitionClasses
           )}
         >
+          {/* First in the source, so it is the first thing a keyboard reader
+              reaches and can stop the strip before anything else. A button
+              whose name changes rather than a pressed toggle: "Stop slide show"
+              says what pressing it does, where a pressed "Slide show" would
+              make the reader work out which way round the state goes. Raised
+              with `z-10` because it comes before the slides in the source, and
+              anything positioned inside a slide would otherwise be painted over
+              it. */}
+          {autoPlay && count > 1 ? (
+            <div className={cx('absolute z-10 flex', toggleInsetClasses[size])}>
+              <PlIconButton
+                ref={toggleRef}
+                variant="glass"
+                size={size}
+                color={color}
+                density={density}
+                elevation={1}
+                label={stopped ? playLabel : stopLabel}
+                icon={stopped ? <PlayIcon /> : <PauseIcon />}
+                onClick={toggle}
+              />
+            </div>
+          ) : null}
+
           <div
             ref={trackRef}
             // Focusable, so the strip can be scrolled with the arrow keys by
@@ -473,8 +559,9 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
         {/* Where the reader is, as a sentence rather than as a highlighted dot.
             Silent while the carousel is advancing on its own: a live region
             that says a new slide's name every five seconds is what makes a
-            screen reader unusable on a page that has one. */}
-        <span className={srOnlyClasses} aria-live={autoPlay ? 'off' : 'polite'}>
+            screen reader unusable on a page that has one. Once it is stopped
+            the reader is the one moving it, and hears where they went. */}
+        <span className={srOnlyClasses} aria-live={playing ? 'off' : 'polite'}>
           {count > 0 ? nameSlide(index + 1, count) : ''}
         </span>
       </div>

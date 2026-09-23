@@ -31,6 +31,8 @@ export const ja: PlassLabels = {
   carousel: 'カルーセル',
   carouselPrevious: '前のスライド',
   carouselNext: '次のスライド',
+  carouselPlay: 'スライドショーを再生',
+  carouselStop: 'スライドショーを停止',
   slide: 'スライド',
   commandPalette: 'コマンドパレット',
   commandPalettePlaceholder: 'コマンドを検索',

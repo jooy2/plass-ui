@@ -322,6 +322,8 @@ class PlassLabels {
     this.carousel = 'Carousel',
     this.carouselPrevious = 'Previous slide',
     this.carouselNext = 'Next slide',
+    this.carouselPlay = 'Start slide show',
+    this.carouselStop = 'Stop slide show',
     this.commandPalette = 'Command palette',
     this.commandPalettePlaceholder = 'Search commands',
     this.gallery = 'Gallery',
@@ -436,6 +438,8 @@ class PlassLabels {
     String? carousel,
     String? carouselPrevious,
     String? carouselNext,
+    String? carouselPlay,
+    String? carouselStop,
     String? commandPalette,
     String? commandPalettePlaceholder,
     String? gallery,
@@ -542,6 +546,8 @@ class PlassLabels {
       carousel: carousel ?? this.carousel,
       carouselPrevious: carouselPrevious ?? this.carouselPrevious,
       carouselNext: carouselNext ?? this.carouselNext,
+      carouselPlay: carouselPlay ?? this.carouselPlay,
+      carouselStop: carouselStop ?? this.carouselStop,
       commandPalette: commandPalette ?? this.commandPalette,
       commandPalettePlaceholder: commandPalettePlaceholder ?? this.commandPalettePlaceholder,
       gallery: gallery ?? this.gallery,
@@ -709,6 +715,12 @@ class PlassLabels {
 
   /// See [carouselPrevious].
   final String carouselNext;
+
+  /// The button that starts the reel advancing on its own.
+  final String carouselPlay;
+
+  /// The same button once the reel is advancing, which stops it.
+  final String carouselStop;
 
   /// The palette's own name.
   final String commandPalette;
@@ -1026,6 +1038,8 @@ class PlassLabels {
     carousel,
     carouselPrevious,
     carouselNext,
+    carouselPlay,
+    carouselStop,
     commandPalette,
     commandPalettePlaceholder,
     gallery,

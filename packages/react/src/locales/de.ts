@@ -31,6 +31,8 @@ export const de: PlassLabels = {
   carousel: 'Karussell',
   carouselPrevious: 'Vorheriges Bild',
   carouselNext: 'Nächstes Bild',
+  carouselPlay: 'Diashow starten',
+  carouselStop: 'Diashow anhalten',
   slide: 'Bild',
   commandPalette: 'Befehlspalette',
   commandPalettePlaceholder: 'Befehle durchsuchen',

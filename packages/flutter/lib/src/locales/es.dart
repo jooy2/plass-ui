@@ -32,6 +32,8 @@ const PlassLabels es = PlassLabels(
   carousel: 'Carrusel',
   carouselPrevious: 'Diapositiva anterior',
   carouselNext: 'Diapositiva siguiente',
+  carouselPlay: 'Iniciar la presentación',
+  carouselStop: 'Detener la presentación',
   commandPalette: 'Paleta de comandos',
   commandPalettePlaceholder: 'Buscar comandos',
   gallery: 'Galería',

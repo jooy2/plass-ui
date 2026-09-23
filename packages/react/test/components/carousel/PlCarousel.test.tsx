@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { commands } from 'vitest/browser';
+import { commands, userEvent } from 'vitest/browser';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlCarousel } from 'plass-ui';
@@ -166,7 +166,7 @@ describe('PlCarousel', () => {
         </PlCarousel>
       );
 
-      screen.getByRole('region').element().querySelector<HTMLElement>('[tabindex="0"]')?.focus();
+      (screen.getByRole('group', { name: 'Carousel' }).element() as HTMLElement).focus();
 
       // The turns are counted rather than the slide read at the end: three turns
       // of three slides also end where they began. A slow machine can take the
@@ -198,6 +198,15 @@ describe('PlCarousel', () => {
         // not tell from three.
         expect(onValueChange).not.toHaveBeenCalled();
         expect(current(screen)).toBe('Slide 1 of 3');
+
+        // It starts stopped rather than being unable to start: the button says
+        // so, and pressing it is the reader asking for the motion anyway.
+        await screen.getByRole('button', { name: 'Start slide show' }).click();
+        await commands.parkPointer();
+
+        await expect
+          .poll(() => onValueChange.mock.calls.length, { timeout: 2000 })
+          .toBeGreaterThan(0);
       } finally {
         await emulateMedia({ reducedMotion: 'no-preference' });
       }
@@ -348,10 +357,7 @@ describe('PlCarousel', () => {
           {slides}
         </PlCarousel>
       );
-      const track = screen
-        .getByRole('region')
-        .element()
-        .querySelector<HTMLElement>('[tabindex="0"]')!;
+      const track = screen.getByRole('group', { name: 'Carousel' }).element() as HTMLElement;
 
       track.focus();
 
@@ -364,13 +370,153 @@ describe('PlCarousel', () => {
       expect(current(screen)).toBe(held);
       expect(onFocus).toHaveBeenCalled();
 
-      // The pause is let go when the focus leaves, beside the caller's `onBlur`.
       track.blur();
+
+      expect(onBlur).toHaveBeenCalled();
+    });
+
+    it('draws a button that stops it and starts it again', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlCarousel autoPlay interval={200} onValueChange={onValueChange}>
+          {slides}
+        </PlCarousel>
+      );
+
+      await screen.getByRole('button', { name: 'Stop slide show' }).click();
+      // The press put the pointer over the frame, which pauses it on its own.
+      await commands.parkPointer();
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Start slide show' }))
+        .toBeInTheDocument();
+
+      onValueChange.mockClear();
+      await aWhile();
+
+      expect(onValueChange).not.toHaveBeenCalled();
+
+      await screen.getByRole('button', { name: 'Start slide show' }).click();
+      await commands.parkPointer();
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Stop slide show' }))
+        .toBeInTheDocument();
+      await expect
+        .poll(() => onValueChange.mock.calls.length, { timeout: 2000 })
+        .toBeGreaterThan(0);
+    });
+
+    it('stays stopped once the focus has been inside, until the button starts it', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlCarousel autoPlay interval={200} onValueChange={onValueChange}>
+          {slides}
+        </PlCarousel>
+      );
+      const track = screen.getByRole('group', { name: 'Carousel' }).element() as HTMLElement;
+
+      track.focus();
+      track.blur();
+
+      // The focus leaving is not the reader asking for it to move again.
+      await expect
+        .element(screen.getByRole('button', { name: 'Start slide show' }))
+        .toBeInTheDocument();
+
+      onValueChange.mockClear();
+      await aWhile();
+
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('does not start again when the pointer leaves while the focus is inside', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlCarousel autoPlay interval={200} onValueChange={onValueChange}>
+          {slides}
+        </PlCarousel>
+      );
+
+      await screen.getByRole('region').hover();
+      (screen.getByRole('group', { name: 'Carousel' }).element() as HTMLElement).focus();
+      await commands.parkPointer();
+
+      onValueChange.mockClear();
+      await aWhile();
+
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('keeps playing while the focus is on its own button, and after play is pressed', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlCarousel autoPlay interval={200} onValueChange={onValueChange}>
+          {slides}
+        </PlCarousel>
+      );
+      const button = screen.getByRole('button', { name: 'Stop slide show' });
+
+      // The first thing a keyboard reader reaches, and landing on it stops
+      // nothing: it is where they stop it from.
+      (button.element() as HTMLElement).focus();
 
       await expect
         .poll(() => onValueChange.mock.calls.length, { timeout: 2000 })
         .toBeGreaterThan(0);
-      expect(onBlur).toHaveBeenCalled();
+
+      await userEvent.keyboard('{Enter}');
+      await expect
+        .element(screen.getByRole('button', { name: 'Start slide show' }))
+        .toBeInTheDocument();
+      await userEvent.keyboard('{Enter}');
+
+      // Started again from inside, so moving on to the strip does not stop it.
+      (screen.getByRole('group', { name: 'Carousel' }).element() as HTMLElement).focus();
+      onValueChange.mockClear();
+
+      await expect
+        .poll(() => onValueChange.mock.calls.length, { timeout: 2000 })
+        .toBeGreaterThan(0);
+      await expect
+        .element(screen.getByRole('button', { name: 'Stop slide show' }))
+        .toBeInTheDocument();
+    });
+
+    it('announces the slide once it is stopped, and not while it plays', async () => {
+      const screen = await render(
+        <PlCarousel autoPlay interval={60000}>
+          {slides}
+        </PlCarousel>
+      );
+      const live = screen.container.querySelector('[aria-live]')!;
+
+      expect(live).toHaveAttribute('aria-live', 'off');
+
+      await screen.getByRole('button', { name: 'Stop slide show' }).click();
+      await commands.parkPointer();
+
+      await expect.poll(() => live.getAttribute('aria-live')).toBe('polite');
+    });
+
+    it('takes its two names from playLabel and stopLabel', async () => {
+      const screen = await render(
+        <PlCarousel autoPlay interval={60000} playLabel="Play" stopLabel="Pause">
+          {slides}
+        </PlCarousel>
+      );
+
+      await screen.getByRole('button', { name: 'Pause' }).click();
+      await commands.parkPointer();
+
+      await expect.element(screen.getByRole('button', { name: 'Play' })).toBeInTheDocument();
+    });
+
+    it('has no button when it does not play on its own', async () => {
+      const screen = await render(<PlCarousel>{slides}</PlCarousel>);
+
+      expect(screen.getByRole('button', { name: 'Stop slide show' }).query()).toBeNull();
+      expect(screen.getByRole('button', { name: 'Start slide show' }).query()).toBeNull();
     });
   });
 

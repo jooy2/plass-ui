@@ -32,6 +32,8 @@ const PlassLabels ja = PlassLabels(
   carousel: 'カルーセル',
   carouselPrevious: '前のスライド',
   carouselNext: '次のスライド',
+  carouselPlay: 'スライドショーを再生',
+  carouselStop: 'スライドショーを停止',
   commandPalette: 'コマンドパレット',
   commandPalettePlaceholder: 'コマンドを検索',
   gallery: 'ギャラリー',

@@ -31,6 +31,8 @@ export const es: PlassLabels = {
   carousel: 'Carrusel',
   carouselPrevious: 'Diapositiva anterior',
   carouselNext: 'Diapositiva siguiente',
+  carouselPlay: 'Iniciar la presentación',
+  carouselStop: 'Detener la presentación',
   slide: 'diapositiva',
   commandPalette: 'Paleta de comandos',
   commandPalettePlaceholder: 'Buscar comandos',

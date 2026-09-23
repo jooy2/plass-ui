@@ -116,21 +116,22 @@ On by default: the arrows wrap from the last slide back to the first. Turn it of
 
 **Off by default, and deliberately so.** A carousel that moves while it is being read is the most complained-about pattern there is, and every one of the guards below exists because of a way that goes wrong.
 
-- It pauses while the pointer is over it.
-- It does not start at all for a reader who has asked for reduced motion.
+- A button in the top corner of the frame stops it and starts it again. It is the first thing a keyboard reaches, and its name says what pressing it does: "Stop slide show" while it plays, "Start slide show" once it has stopped.
+- It **pauses** while the pointer is over it, and carries on when the pointer leaves.
+- It **stops** once the focus comes into it, which is the important one: a keyboard reader who has tabbed into a slide is reading it. It stays stopped until the button starts it again, whether or not the focus or the pointer has left since. The button is the one place the focus can land without stopping it.
+- For a reader who has asked for reduced motion it starts stopped, and the button starts it.
 
 ::: fw react
 
-- It pauses on focus **anywhere inside it**, which is the important one, a keyboard reader who has tabbed into a slide is reading it.
-- It stops while the tab is in the background.
-- The live region that announces the current slide goes **silent** while it is running, because a screen reader saying a new slide's name every five seconds is what makes a page unusable.
+- It pauses while the tab is in the background.
+- The live region that announces the current slide goes **silent** while it is playing, because a screen reader saying a new slide's name every five seconds is what makes a page unusable. Once it has stopped, the region says where the reader went.
 - An uncontrolled carousel advances with or without `onValueChange`. A controlled one moves only when the new index comes back as `value`.
 
 :::
 
 ::: fw flutter
 
-- It needs `onChanged`. The widget is controlled, so a carousel nothing is listening to has nothing to advance, and it does not try.
+- It needs `onChanged`. The widget is controlled, so a carousel nothing is listening to has nothing to advance, and neither the timer nor the button is there.
 
 :::
 
@@ -160,12 +161,13 @@ Every dot is a real button named after the slide it goes to, so the row is a way
 
 - The carousel names itself, and every slide has a name of its own.
 - The arrows and the dots are real buttons with real names. `label`, `previousLabel`, `nextLabel` and `slideLabel` decide what those names are, and each one left out comes from the label pack.
+- With `autoPlay` on, the button that stops and starts it comes first in the focus order. Its name changes with what it does rather than carrying a pressed state, and `playLabel` and `stopLabel` decide the two names.
 
 ::: fw react
 
 - The whole thing is a `region` whose `aria-roledescription` is the pack's `carousel`, and every slide a `group` whose `aria-roledescription` is the pack's `slide`, so a translated page does not read the English word after every slide's name.
 - No off-screen slide is hidden. A slide can hold a link or a button, and an `aria-hidden` subtree that is still in the tab order is the exact shape of the bug where a keyboard reader lands somewhere their screen reader refuses to describe. The strip is scrollable, so everything in it is genuinely reachable.
-- Where the reader is is announced as a sentence in a polite live region, and never while `autoPlay` is on.
+- Where the reader is is announced as a sentence in a polite live region, and never while the carousel is playing on its own.
 - The strip itself is focusable and scrolls with the arrow keys, which is the browser's own key handling on a scroll container, so it is already right under RTL.
 
 :::
@@ -182,7 +184,6 @@ Every dot is a real button named after the slide it goes to, so the row is a way
 | — | `aspectRatio` | A browser's strip is as tall as what is in it; a `PageView` lays every page out at the viewport's size, so it has to be given a height. |
 | a polite live region | — | Flutter has one live region and no politeness levels. The slide's name is on the slide, which is where a screen reader reads it. |
 | pauses in a background tab | — | There is no tab to be in the background of. |
-| pauses on focus inside the frame | — | Focus inside a `PageView` does not reach the frame the way a DOM `focus` event does. The pointer pause is what carries it. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::
