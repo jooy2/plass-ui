@@ -334,6 +334,36 @@ void main() {
         expect(find.text('August'), findsOneWidget);
       });
 
+      testWidgets('moves by a year with Shift and the page keys', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          PlCalendar(value: july15, autofocus: true, onChanged: (DateTime? _) {}),
+        );
+
+        await tester.sendKeyDownEvent(LogicalKeyboardKey.shift);
+        await tester.sendKeyEvent(LogicalKeyboardKey.pageDown);
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.shift);
+        await tester.pumpAndSettle();
+
+        expect(focused(tester, DateTime(2027, 7, 15)), isTrue);
+        expect(find.text('2027'), findsOneWidget);
+
+        await tester.sendKeyDownEvent(LogicalKeyboardKey.shift);
+        await tester.sendKeyEvent(LogicalKeyboardKey.pageUp);
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.pageUp);
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.shift);
+        await tester.pumpAndSettle();
+
+        expect(focused(tester, DateTime(2025, 7, 15)), isTrue);
+
+        // Let go of Shift, and the page keys are back to a month.
+        await tester.sendKeyEvent(LogicalKeyboardKey.pageDown);
+        await tester.pumpAndSettle();
+
+        expect(focused(tester, DateTime(2025, 8, 15)), isTrue);
+      });
+
       testWidgets('lands on the last day of a shorter month', (WidgetTester tester) async {
         await _pump(
           tester,

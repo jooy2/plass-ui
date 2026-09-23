@@ -173,12 +173,11 @@ calendar를 흐리게 하고 focus 순서에서 빼며, 포인터도 닿지 않�
 ## Accessibility
 
 - roving tab stop이 **하나**입니다. 그래서 <kbd>Tab</kbd>은 셀 마흔두 개를 걷는 대신 calendar를 빠져나갑니다. ARIA date-picker practice가 기술하는 패턴입니다.
-- 화살표 키는 셀 하나씩, <kbd>PageUp</kbd>/<kbd>PageDown</kbd>은 한 달씩, <kbd>Home</kbd>/<kbd>End</kbd>는 주의 양끝으로 움직입니다. 가장자리를 넘어가면 멈추는 대신 calendar가 한 칸 넘어갑니다.
+- 화살표 키는 셀 하나씩, <kbd>PageUp</kbd>/<kbd>PageDown</kbd>은 한 달씩(<kbd>Shift</kbd>와 함께면 한 해씩), <kbd>Home</kbd>/<kbd>End</kbd>는 주의 양끝으로 움직입니다. 가장자리를 넘어가면 멈추는 대신 calendar가 한 칸 넘어갑니다.
 
 ::: fw react
 
 - 진짜 `role="grid"`입니다. 막힌 날은 `disabled` 버튼이 아니라 `aria-disabled`여서 여전히 닿을 수 있고, 키보드 사용자가 그 날이 막혔다는 사실을 알 수 있습니다.
-- <kbd>Shift</kbd>를 누른 채 <kbd>PageUp</kbd>/<kbd>PageDown</kbd>을 누르면 한 해씩 움직입니다.
 - 각 셀의 accessible name은 calendar의 `locale`로 쓴 전체 날짜입니다. 그래서 스크린 리더가 "27"이 아니라 "2026년 7월 27일 월요일"을 읽습니다.
 - `autoFocus`는 picker와 반대로 기본이 **꺼짐**입니다. popup은 그 안으로 들어가려는 사람이 방금 연 것이고, 페이지 안의 calendar는 그렇지 않습니다.
 

@@ -893,6 +893,9 @@ class _PlassCalendarState extends State<PlassCalendar> {
 
   KeyEventResult _onDayKey(KeyEvent event, DateTime date) {
     final offsetInWeek = (date.weekday % 7 - widget.weekStartsOn.index + 7) % 7;
+    // With Shift the page keys move a year rather than a month, as the ARIA
+    // date-picker practice has them and as the React build does.
+    final page = HardwareKeyboard.instance.isShiftPressed ? 12 : 1;
 
     final DateTime? next = switch (event.logicalKey) {
       LogicalKeyboardKey.arrowLeft => addDays(date, -1),
@@ -901,8 +904,8 @@ class _PlassCalendarState extends State<PlassCalendar> {
       LogicalKeyboardKey.arrowDown => addDays(date, 7),
       LogicalKeyboardKey.home => addDays(date, -offsetInWeek),
       LogicalKeyboardKey.end => addDays(date, 6 - offsetInWeek),
-      LogicalKeyboardKey.pageUp => addMonths(date, -1),
-      LogicalKeyboardKey.pageDown => addMonths(date, 1),
+      LogicalKeyboardKey.pageUp => addMonths(date, -page),
+      LogicalKeyboardKey.pageDown => addMonths(date, page),
       _ => null,
     };
 

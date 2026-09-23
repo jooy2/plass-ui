@@ -173,12 +173,11 @@ There is no `readOnly` beside it, and that is not an omission: a read-only field
 ## Accessibility
 
 - One **roving tab stop**, so <kbd>Tab</kbd> leaves the calendar rather than walking forty-two cells. That is the pattern the ARIA date-picker practice describes.
-- The arrow keys move by one cell, <kbd>PageUp</kbd>/<kbd>PageDown</kbd> by a month, <kbd>Home</kbd>/<kbd>End</kbd> to the ends of the week. Running off an edge steps the calendar rather than stopping.
+- The arrow keys move by one cell, <kbd>PageUp</kbd>/<kbd>PageDown</kbd> by a month (a year with <kbd>Shift</kbd>), <kbd>Home</kbd>/<kbd>End</kbd> to the ends of the week. Running off an edge steps the calendar rather than stopping.
 
 ::: fw react
 
 - The grid is a real `role="grid"`. A blocked day is `aria-disabled` rather than a `disabled` button, so it is still reachable and a keyboard reader can find out that it is blocked.
-- <kbd>Shift</kbd> with <kbd>PageUp</kbd>/<kbd>PageDown</kbd> moves by a year.
 - Each cell's accessible name is the full date in the calendar's `locale`, so a screen reader reads "Monday 27 July 2026" rather than "27".
 - `autoFocus` is **off** by default, the opposite of the picker's: a popup has just been opened by somebody who wants to be in it, and a calendar in a page has not.
 
