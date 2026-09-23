@@ -51,6 +51,7 @@ Map<String, String> words(PlassLabels labels) => <String, String>{
   'preview': labels.preview,
   'empty': labels.empty,
   'optional': labels.optional,
+  'loading': labels.loading,
   'breadcrumb': labels.breadcrumb,
   'breadcrumbExpand': labels.breadcrumbExpand,
   'carousel': labels.carousel,

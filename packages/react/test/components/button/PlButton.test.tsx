@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlButton } from 'plass-ui';
+import { PlButton, PlassProvider } from 'plass-ui';
+import { ko } from '../../../src/locales/ko.js';
 
 describe('PlButton', () => {
   describe('rendering', () => {
@@ -338,7 +339,50 @@ describe('PlButton', () => {
         </PlButton>
       );
 
-      expect(screen.getByRole('button').element().textContent).toBe('Save');
+      expect(screen.getByText('ICON').query()).toBeNull();
+      await expect.element(screen.getByRole('button')).toHaveAccessibleName('Save');
+    });
+
+    it('says why it is unavailable while loading, and keeps its name', async () => {
+      const screen = await render(<PlButton>Save</PlButton>);
+      const button = screen.getByRole('button');
+
+      await expect.element(button).not.toHaveAttribute('aria-describedby');
+
+      await screen.rerender(<PlButton loading>Save</PlButton>);
+
+      await expect.element(button).toHaveAccessibleName('Save');
+      await expect.element(button).toHaveAccessibleDescription('Loading');
+
+      // And the word goes when the work is done.
+      await screen.rerender(<PlButton>Save</PlButton>);
+
+      await expect.element(button).not.toHaveAttribute('aria-describedby');
+    });
+
+    it('keeps a description of its own in front of the word', async () => {
+      const screen = await render(
+        <>
+          <p id="draft-note">Saves a draft</p>
+          <PlButton loading aria-describedby="draft-note">
+            Save
+          </PlButton>
+        </>
+      );
+
+      await expect
+        .element(screen.getByRole('button'))
+        .toHaveAccessibleDescription('Saves a draft Loading');
+    });
+
+    it('says the word in the language of the provider around it', async () => {
+      const screen = await render(
+        <PlassProvider labels={ko}>
+          <PlButton loading>저장</PlButton>
+        </PlassProvider>
+      );
+
+      await expect.element(screen.getByRole('button')).toHaveAccessibleDescription('로딩 중');
     });
 
     it('stays focusable but does not fire onClick while loading', async () => {

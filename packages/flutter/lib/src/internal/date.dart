@@ -316,6 +316,7 @@ class PlassLabels {
     this.preview = 'Preview',
     this.empty = 'Nothing here',
     this.optional = 'Optional',
+    this.loading = 'Loading',
     this.breadcrumb = 'Breadcrumb',
     this.breadcrumbExpand = 'Show the hidden steps',
     this.carousel = 'Carousel',
@@ -428,6 +429,7 @@ class PlassLabels {
     String? preview,
     String? empty,
     String? optional,
+    String? loading,
     String? breadcrumb,
     String? breadcrumbExpand,
     String? carousel,
@@ -532,6 +534,7 @@ class PlassLabels {
       preview: preview ?? this.preview,
       empty: empty ?? this.empty,
       optional: optional ?? this.optional,
+      loading: loading ?? this.loading,
       breadcrumb: breadcrumb ?? this.breadcrumb,
       breadcrumbExpand: breadcrumbExpand ?? this.breadcrumbExpand,
       carousel: carousel ?? this.carousel,
@@ -685,6 +688,9 @@ class PlassLabels {
 
   /// Marks a step, or anything else, that may be left out.
   final String optional;
+
+  /// Why a control that has taken a press is not answering another one yet.
+  final String loading;
 
   /// The trail's own name.
   final String breadcrumb;
@@ -1008,6 +1014,7 @@ class PlassLabels {
     preview,
     empty,
     optional,
+    loading,
     breadcrumb,
     breadcrumbExpand,
     carousel,

@@ -46,6 +46,8 @@
 
 ### Fixed
 
+- **A `PlButton`, a `PlIconButton` and a `PlFloatingActionButton` that are `loading` say so after their name.** A loading button was announced as unavailable, the same as a `readOnly` one, with nothing to say why. Its semantics now carry the new `loading` label, "Loading" in English, as a hint, so its name stays as it was.
+
 - **`PlCodeBlock` names an aliased language the way the React build does.** `ts` was drawn on the bar as `TS` and read out as `ts`, where React says `typescript`. The common spellings and file extensions React understands (`ts`, `tsx`, `yml`, `sh`, `py` and the rest) now resolve to the same names here, from a copy of that table a test holds in step with it.
 
 - **A `PlGallery` masonry is read and walked with Tab in the order the pictures were given.** A screen reader went down the first lane before it started the second, and Tab took whichever tile was nearest the top, which with mixed shapes was a third order again. Each tile now carries its place in the list, which is the order the React build's tiles have followed since they were kept in one list.

@@ -26,6 +26,7 @@ const PlassLabels es = PlassLabels(
   preview: 'Vista previa',
   empty: 'No hay nada aquí',
   optional: 'Opcional',
+  loading: 'Cargando',
   breadcrumb: 'Ruta de navegación',
   breadcrumbExpand: 'Mostrar los pasos ocultos',
   carousel: 'Carrusel',

@@ -26,6 +26,7 @@ const PlassLabels de = PlassLabels(
   preview: 'Vorschau',
   empty: 'Nichts vorhanden',
   optional: 'Optional',
+  loading: 'Wird geladen',
   breadcrumb: 'Navigationspfad',
   breadcrumbExpand: 'Ausgeblendete Schritte anzeigen',
   carousel: 'Karussell',

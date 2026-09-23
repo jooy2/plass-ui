@@ -26,6 +26,7 @@ const PlassLabels ko = PlassLabels(
   preview: '미리 보기',
   empty: '항목 없음',
   optional: '선택 사항',
+  loading: '로딩 중',
   breadcrumb: '탐색 경로',
   breadcrumbExpand: '숨겨진 단계 보기',
   carousel: '캐러셀',

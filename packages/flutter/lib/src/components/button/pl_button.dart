@@ -135,6 +135,7 @@ class PlButton extends StatefulWidget {
 
   /// Shows a spinner in place of [startIcon] and stops the button from
   /// activating, while keeping it focusable and visually unchanged otherwise.
+  /// A screen reader hears the label set's `loading` word after its name.
   final bool loading;
 
   /// Inert but not dimmed — the action exists, it just is not available here.
@@ -553,6 +554,11 @@ class _PlButtonState extends State<PlButton> {
         button: true,
         enabled: _interactive,
         label: widget.semanticLabel,
+        // An unavailable button with nothing to say why reads the same whether
+        // it is busy or read-only. The word is a hint rather than part of the
+        // label, so the name stays the one the caller gave it: the React build
+        // makes it the button's description for the same reason.
+        hint: widget.loading ? PlassTheme.labelsOf(context).loading : null,
         onTap: _interactive ? _activate : null,
         onLongPress: _interactive ? widget.onLongPress : null,
         child: FocusableActionDetector(

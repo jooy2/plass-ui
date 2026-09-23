@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:plass_ui/locales.dart';
 import 'package:plass_ui/plass_ui.dart';
 // Reached directly rather than through the barrel: these are the library
 // talking to itself, and the tests are the one caller allowed to listen in.
@@ -440,6 +441,56 @@ void main() {
         await tester.tap(find.byType(PlButton));
 
         expect(taps, 0);
+      });
+
+      testWidgets('says why it is unavailable while loading, and keeps its name', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        Widget button({required bool loading}) {
+          return host(PlButton(loading: loading, onPressed: () {}, child: const Text('Save')));
+        }
+
+        await tester.pumpWidget(button(loading: false));
+
+        expect(tester.getSemantics(find.byType(PlButton)), isSemantics(label: 'Save', hint: ''));
+
+        await tester.pumpWidget(button(loading: true));
+
+        expect(
+          tester.getSemantics(find.byType(PlButton)),
+          isSemantics(label: 'Save', hint: 'Loading', isButton: true, isEnabled: false),
+        );
+
+        // And the word goes when the work is done.
+        await tester.pumpWidget(button(loading: false));
+
+        expect(tester.getSemantics(find.byType(PlButton)), isSemantics(label: 'Save', hint: ''));
+
+        handle.dispose();
+      });
+
+      testWidgets('says the word in the language of the theme around it', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(
+            PlassTheme.merge(
+              defaults: const PlassDefaults(labels: ko),
+              child: PlButton(loading: true, onPressed: () {}, child: const Text('저장')),
+            ),
+          ),
+        );
+
+        expect(
+          tester.getSemantics(find.byType(PlButton)),
+          isSemantics(label: '저장', hint: ko.loading),
+        );
+
+        handle.dispose();
       });
 
       testWidgets('does not fire onPressed when read-only', (WidgetTester tester) async {

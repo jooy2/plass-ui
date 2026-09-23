@@ -79,6 +79,16 @@ describe('PlIconButton', () => {
       expect(screen.getByRole('button').element()).toHaveAttribute('aria-busy', 'true');
     });
 
+    it('says it is loading without the word reaching its name', async () => {
+      const screen = await render(<PlIconButton icon={glyph} label="Add" loading />);
+      const button = screen.getByRole('button');
+
+      // The `aria-label` would drown out any text inside the button, which is
+      // why the word is a description.
+      await expect.element(button).toHaveAccessibleName('Add');
+      await expect.element(button).toHaveAccessibleDescription('Loading');
+    });
+
     it('is unavailable when it is disabled', async () => {
       const screen = await render(<PlIconButton icon={glyph} label="Add" disabled />);
 

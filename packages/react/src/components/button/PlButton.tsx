@@ -7,11 +7,13 @@ import { useRender } from '@base-ui/react/use-render';
 import { ButtonGroupContext } from '../../internal/button-group.js';
 import { glowPointerMove } from '../../internal/glow.js';
 import { Spinner } from '../../internal/icons.js';
+import { useLabels } from '../../internal/labels.js';
 import {
   controlHeightClasses,
   controlSlots,
   controlSquareClasses,
   controlTextClasses,
+  cx,
   disabledClasses,
   focusRingClasses,
   forcedEdgeClasses,
@@ -43,6 +45,7 @@ export interface PlButtonProps
   /**
    * Shows a spinner in place of `startIcon` and stops the button from
    * activating, while keeping it focusable and visually unchanged otherwise.
+   * A screen reader hears the label set's `loading` word after its name.
    */
   loading?: boolean;
   /** Inert but not dimmed — the action exists, it just is not available here. */
@@ -199,6 +202,7 @@ export const PlButton = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlBu
       children,
       onClick,
       onPointerMove,
+      'aria-describedby': describedBy,
       ...props
     },
     ref
@@ -210,6 +214,8 @@ export const PlButton = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlBu
      * are the defaults they always were.
      */
     const defaults = useDefaults();
+    const labels = useLabels();
+    const loadingId = React.useId();
     const group = React.useContext(ButtonGroupContext);
     const variant = variantProp ?? group?.variant ?? 'solid';
     const size = sizeProp ?? group?.size ?? defaults.size ?? 'md';
@@ -271,6 +277,15 @@ export const PlButton = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlBu
         // same way; left `undefined` here, this would take its mark off again.
         'aria-disabled': inert || (disabled && focusableWhenDisabled) || undefined,
         'aria-busy': loading || undefined,
+        /*
+         * `aria-busy` on its own is not read out by most screen readers, so a
+         * loading button used to be announced as unavailable with nothing to
+         * say why. The word is a description rather than part of the name: the
+         * name stays what the caller gave it, and a `PlIconButton`'s
+         * `aria-label`, which would silence any text inside the button, does
+         * not reach a description. A caller's own description is kept in front.
+         */
+        'aria-describedby': loading ? cx(describedBy, loadingId) : describedBy,
         'data-loading': loading || undefined,
         'data-readonly': readOnly || undefined,
         onClick: (event: React.MouseEvent<HTMLElement>) => {
@@ -292,6 +307,13 @@ export const PlButton = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlBu
             {loading ? <Spinner /> : startIcon}
             {children}
             {endIcon}
+            {/* `hidden`, so it is read only as the description above and never
+                as a second half of the name. */}
+            {loading ? (
+              <span id={loadingId} hidden>
+                {labels.loading}
+              </span>
+            ) : null}
           </>
         )
       }

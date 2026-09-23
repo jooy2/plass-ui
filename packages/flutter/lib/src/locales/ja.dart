@@ -26,6 +26,7 @@ const PlassLabels ja = PlassLabels(
   preview: 'プレビュー',
   empty: '項目がありません',
   optional: '任意',
+  loading: '読み込み中',
   breadcrumb: 'パンくずリスト',
   breadcrumbExpand: '省略された階層を表示',
   carousel: 'カルーセル',

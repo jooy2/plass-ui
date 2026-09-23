@@ -24,6 +24,7 @@ export const zhHans: PlassLabels = {
   preview: '预览',
   empty: '暂无内容',
   optional: '可选',
+  loading: '加载中',
 
   breadcrumb: '面包屑导航',
   breadcrumbExpand: '显示折叠的层级',

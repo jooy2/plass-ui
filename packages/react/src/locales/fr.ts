@@ -24,6 +24,7 @@ export const fr: PlassLabels = {
   preview: 'Aperçu',
   empty: 'Rien ici',
   optional: 'Facultatif',
+  loading: 'Chargement',
 
   breadcrumb: 'Fil d’Ariane',
   breadcrumbExpand: 'Afficher les étapes masquées',

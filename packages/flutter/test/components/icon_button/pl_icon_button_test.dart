@@ -90,6 +90,23 @@ void main() {
         expect(find.byKey(const ValueKey<String>('glyph')), findsNothing);
       });
 
+      testWidgets('says it is loading without the word reaching its name', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(PlIconButton(icon: _glyph, label: 'Add', loading: true, onPressed: () {})),
+        );
+
+        expect(
+          tester.getSemantics(find.byType(PlIconButton)),
+          isSemantics(label: 'Add', hint: 'Loading', isButton: true),
+        );
+
+        handle.dispose();
+      });
+
       testWidgets('is unavailable with no callback at all', (WidgetTester tester) async {
         await tester.pumpWidget(host(const PlIconButton(icon: _glyph, label: 'Add')));
 

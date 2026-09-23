@@ -79,6 +79,8 @@ export interface PlassLabels {
   empty: string;
   /** Marks a step, or anything else, that may be left out. */
   optional: string;
+  /** Why a control that has taken a press is not answering another one yet. */
+  loading: string;
 
   /* -------------------------------------------------------------------------
    * The words one component says
@@ -282,6 +284,7 @@ export const defaultLabels: PlassLabels = {
   preview: 'Preview',
   empty: 'Nothing here',
   optional: 'Optional',
+  loading: 'Loading',
 
   breadcrumb: 'Breadcrumb',
   breadcrumbExpand: 'Show the hidden steps',
