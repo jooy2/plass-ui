@@ -135,13 +135,14 @@ class _PlProgressCircularState extends State<PlProgressCircular>
     final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     final fraction = _fraction;
+    final value = progressValue(widget.value, widget.min, widget.max);
     final diameter = ringDiameter[_size]!;
     final meta = metaText[_size]!;
 
     final text = fraction == null
         ? null
-        : widget.formatValue != null && widget.value != null
-        ? widget.formatValue!(widget.value!)
+        : widget.formatValue != null && value != null
+        ? widget.formatValue!(value)
         : progressText(fraction);
 
     final ring = RepaintBoundary(
@@ -185,7 +186,7 @@ class _PlProgressCircularState extends State<PlProgressCircular>
     return MergeSemantics(
       child: Semantics(
         role: fraction == null ? SemanticsRole.loadingSpinner : SemanticsRole.progressBar,
-        value: progressSemanticValue(fraction, widget.formatValue, widget.value),
+        value: progressSemanticValue(fraction, widget.formatValue, value),
         container: true,
         child: Row(
           mainAxisSize: MainAxisSize.min,

@@ -65,6 +65,8 @@ Both the groove and the segment are fully rounded, and that is the one place the
 
 A value outside `min`…`max` is clamped rather than drawn: `value` usually arrives from a division somewhere, and a bar that renders 140% wide because one request finished twice is a worse bug than a bar that sits full.
 
+`Infinity` is clamped the same way and draws a full bar, while `NaN` is indeterminate. The words `showValue` writes and the value a screen reader hears come from the clamped value too, so <Fw react="format" flutter="formatValue" code /> is never handed a number outside the range.
+
 <Demo src="progress-linear/indeterminate" :min-height="140">
 
 ::: fw react

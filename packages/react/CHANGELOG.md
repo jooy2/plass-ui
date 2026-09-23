@@ -38,6 +38,8 @@
 
 ### Fixed
 
+- **A progress `value` of `Infinity` draws as full on `PlProgressLinear`, `PlProgressCircular` and `PlProgressBox`.** The shape and the text clamped it to the top of the range, but Base UI read it as indeterminate, so the bar drew neither a fill nor the sweep beside a "100%" and `aria-valuenow` was missing. Base UI is now handed the value clamped into `min`…`max`, so the fill, the value attributes and the text agree. `NaN` is still indeterminate.
+
 - **A toast swiped away fades from where the finger left it.** Base UI drops a toast's drag offset the moment the finger lifts, so a toast flicked off jumped back to its place before it faded out. It now holds the offset for its exit. A toast closed any other way fades where it is, as before.
 
 - **A floating `PlFloatingActionButton` clears the safe area of an edge-to-edge screen.** It stood a fixed `offset` off the corner, so on a phone that draws under its home indicator or navigation bar it sat on top of them. `env(safe-area-inset-*)` on the two edges it is against is now added to `offset`, with the start and the end following the page's direction. A browser reports those insets only to a page whose viewport meta tag has `viewport-fit=cover`; an app that added them to `offset` itself should take them back out.

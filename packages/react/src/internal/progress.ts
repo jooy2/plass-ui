@@ -220,6 +220,28 @@ export function progressFraction(
   return Math.min(1, Math.max(0, (value - min) / (max - min)));
 }
 
+/**
+ * The value Base UI is handed: `value` clamped into the range, or `null`
+ * wherever `progressFraction` has nothing to say.
+ *
+ * Base UI clamps a finite value itself, but it reads one that is not finite as
+ * indeterminate, where `progressFraction` clamps `Infinity` to full. Handed the
+ * raw value, it would leave the fill, the value attributes and the text
+ * disagreeing about one number: a bar with neither a fill nor the sweep, and
+ * "100%" beside it. Handed this, all three read the fraction.
+ */
+export function progressValue(
+  value: number | null | undefined,
+  min: number,
+  max: number
+): number | null {
+  if (value === null || value === undefined || progressFraction(value, min, max) === null) {
+    return null;
+  }
+
+  return Math.min(max, Math.max(min, value));
+}
+
 /** The percentage a value is written as when nobody said what it means. */
 const percentOptions: Intl.NumberFormatOptions = { style: 'percent' };
 
@@ -228,11 +250,11 @@ const percentOptions: Intl.NumberFormatOptions = { style: 'percent' };
  *
  * Without `format` it is a percentage of the range rather than of 100 — "3%"
  * for step 3 of 4 is worse than saying nothing — written in `locale`, so a page
- * in German reads "75 %". Base UI's own default is that percentage too, but it
- * reads a value that is not finite as indeterminate where `progressFraction`
- * clamps it, so the percentage is written here from the fraction. A caller who
- * passed `format` gets Base UI's formatted string, in the same `locale`, because
- * at that point they have said what the number means.
+ * in German reads "75 %". Base UI's own default is that percentage too, and it
+ * is written here from the fraction all the same, so the words cannot read a
+ * different number from the fill. A caller who passed `format` gets Base UI's
+ * formatted string of `progressValue`, in the same `locale`, because at that
+ * point they have said what the number means.
  */
 export function progressText(
   fraction: number | null,

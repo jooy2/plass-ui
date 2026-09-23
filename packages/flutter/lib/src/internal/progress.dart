@@ -157,6 +157,21 @@ double? progressFraction(double? value, double min, double max) {
   return ((value - min) / (max - min)).clamp(0.0, 1.0);
 }
 
+/// [value] clamped into the range, or `null` wherever [progressFraction] has
+/// nothing to say. It is what a `formatValue` is handed.
+///
+/// Clamped for the reason the fraction is, and so the words beside the shape
+/// are about the shape: `double.infinity` draws a full bar, and a formatter
+/// handed the raw value would write a number no formatter was written for, or
+/// throw on it. The React build hands Base UI the same value.
+double? progressValue(double? value, double min, double max) {
+  if (value == null || progressFraction(value, min, max) == null) {
+    return null;
+  }
+
+  return value.clamp(min, max);
+}
+
 /// What the value reads as, both on screen and to a screen reader.
 ///
 /// A percentage of `min`…`max` rather than of 100, which is the only formatting
@@ -170,15 +185,16 @@ String? progressText(double? fraction) {
 /// The value as a screen reader hears it, or `null` while there is none.
 ///
 /// `null` is not an omission: it is what tells the platform to announce
-/// indeterminate progress rather than a number.
+/// indeterminate progress rather than a number. [value] is [progressValue]'s,
+/// so a screen reader hears what the text beside the shape says.
 String? progressSemanticValue(
   double? fraction,
   String Function(double value)? format,
-  double? raw,
+  double? value,
 ) {
   if (fraction == null) {
     return null;
   }
 
-  return format != null && raw != null ? format(raw) : progressText(fraction);
+  return format != null && value != null ? format(value) : progressText(fraction);
 }

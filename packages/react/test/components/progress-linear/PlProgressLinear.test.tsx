@@ -130,6 +130,39 @@ describe('PlProgressLinear', () => {
 
       expect(screen.getByText('%').query()).toBeNull();
     });
+
+    it('draws Infinity as full, and says so everywhere', async () => {
+      const screen = await render(<PlProgressLinear value={Infinity} showValue />);
+      const bar = screen.getByRole('progressbar').element();
+
+      // The fill, the value attributes and the words on one number, rather than
+      // an empty groove with no sweep in it and "100%" beside it.
+      expect(bar).toHaveAttribute('aria-valuenow', '100');
+      expect(bar).toHaveAttribute('data-complete');
+      expect(bar.querySelector<HTMLElement>('[class*="absolute"]')?.style.width).toBe('100%');
+      await expect.element(screen.getByText('100%')).toBeInTheDocument();
+    });
+
+    it('formats Infinity as the top of the range', async () => {
+      const screen = await render(
+        <PlProgressLinear
+          value={Infinity}
+          max={4000}
+          showValue
+          format={{ style: 'currency', currency: 'USD', maximumFractionDigits: 0 }}
+        />
+      );
+
+      await expect.element(screen.getByText('$4,000')).toBeInTheDocument();
+    });
+
+    it('stays indeterminate for NaN', async () => {
+      const screen = await render(<PlProgressLinear value={NaN} showValue />);
+      const bar = screen.getByRole('progressbar').element();
+
+      expect(bar).not.toHaveAttribute('aria-valuenow');
+      expect(bar.querySelector('.plass-progress-sweep')).not.toBeNull();
+    });
   });
 
   describe('the groove', () => {

@@ -146,6 +146,22 @@ void main() {
         expect(find.text('148 MB'), findsOneWidget);
       });
 
+      testWidgets('writes infinity as the top of the range', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            PlProgressCircular(
+              value: double.infinity,
+              max: 512,
+              showValue: true,
+              formatValue: (double value) => '${value.round()} MB',
+            ),
+            width: 320,
+          ),
+        );
+
+        expect(find.text('512 MB'), findsOneWidget);
+      });
+
       testWidgets('sits beside the ring rather than inside it', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(

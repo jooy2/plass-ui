@@ -141,6 +141,7 @@ class _PlProgressBoxState extends State<PlProgressBox> with SingleTickerProvider
     final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     final fraction = _fraction;
+    final value = progressValue(widget.value, widget.min, widget.max);
     final plates = _plates;
     final side = plateSize[_size]!;
     final radius = BorderRadius.circular(plateRadius[_size]!);
@@ -148,8 +149,8 @@ class _PlProgressBoxState extends State<PlProgressBox> with SingleTickerProvider
 
     final text = fraction == null
         ? null
-        : widget.formatValue != null && widget.value != null
-        ? widget.formatValue!(widget.value!)
+        : widget.formatValue != null && value != null
+        ? widget.formatValue!(value)
         : progressText(fraction);
 
     final row = Row(
@@ -214,7 +215,7 @@ class _PlProgressBoxState extends State<PlProgressBox> with SingleTickerProvider
     return MergeSemantics(
       child: Semantics(
         role: fraction == null ? SemanticsRole.loadingSpinner : SemanticsRole.progressBar,
-        value: progressSemanticValue(fraction, widget.formatValue, widget.value),
+        value: progressSemanticValue(fraction, widget.formatValue, value),
         container: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -11,6 +11,7 @@ import {
   progressFraction,
   progressSlots,
   progressText,
+  progressValue,
   trackClasses,
   type PlassProgressProps
 } from '../../internal/progress.js';
@@ -75,7 +76,7 @@ export const PlProgressLinear = /* @__PURE__ */ React.forwardRef<
   return (
     <Progress.Root
       ref={ref}
-      value={value ?? null}
+      value={progressValue(value, min, max)}
       min={min}
       max={max}
       format={format}

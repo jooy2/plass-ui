@@ -164,6 +164,23 @@ void main() {
 
         expect(find.text('Step 3'), findsOneWidget);
       });
+
+      testWidgets('writes infinity as the top of the range', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            PlProgressBox(
+              value: double.infinity,
+              max: 5,
+              count: 5,
+              showValue: true,
+              formatValue: (double value) => 'Step ${value.round()}',
+            ),
+            width: 320,
+          ),
+        );
+
+        expect(find.text('Step 5'), findsOneWidget);
+      });
     });
 
     group('indeterminate', () {

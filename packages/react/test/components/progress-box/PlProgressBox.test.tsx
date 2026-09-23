@@ -30,6 +30,17 @@ describe('PlProgressBox', () => {
       expect(screen.getByRole('progressbar').element()).not.toHaveAttribute('aria-valuenow');
     });
 
+    it('reports Infinity as full, the way the plates draw it', async () => {
+      const screen = await render(
+        <PlProgressBox value={Infinity} max={4} showValue format={{ maximumFractionDigits: 0 }} />
+      );
+      const row = screen.getByRole('progressbar').element();
+
+      expect(row).toHaveAttribute('aria-valuenow', '4');
+      expect(row).toHaveAttribute('data-complete');
+      await expect.element(screen.getByText('4', { exact: true })).toBeInTheDocument();
+    });
+
     it('writes the value in the locale of the provider', async () => {
       const percent = new Intl.NumberFormat('de-DE', { style: 'percent' }).format(0.75);
       const screen = await render(

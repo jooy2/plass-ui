@@ -30,6 +30,15 @@ describe('PlProgressCircular', () => {
       expect(screen.getByRole('progressbar').element()).not.toHaveAttribute('aria-valuenow');
     });
 
+    it('reports Infinity as full, the way the ring draws it', async () => {
+      const screen = await render(<PlProgressCircular value={Infinity} showValue />);
+      const ring = screen.getByRole('progressbar').element();
+
+      expect(ring).toHaveAttribute('aria-valuenow', '100');
+      expect(ring).toHaveAttribute('data-complete');
+      await expect.element(screen.getByText('100%')).toBeInTheDocument();
+    });
+
     it('renders the label and the value beside the ring', async () => {
       const screen = await render(<PlProgressCircular value={40} label="Loading" showValue />);
 

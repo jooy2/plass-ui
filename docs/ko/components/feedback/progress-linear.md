@@ -65,6 +65,8 @@ React가 옵션 객체를 받는 자리에서 `formatValue`는 함수를 받습�
 
 `min`…`max` 밖의 값은 그리지 않고 잘라 냅니다. `value`는 대개 어딘가의 나눗셈에서 오고, 요청 하나가 두 번 끝났다고 140% 너비로 그려지는 바는 가득 찬 채 멈춘 바보다 나쁜 버그입니다.
 
+`Infinity`도 같은 방식으로 잘라 내어 가득 찬 바로 그리고, `NaN`은 indeterminate입니다. `showValue`가 쓰는 글자와 스크린 리더가 듣는 값도 잘라 낸 값에서 나오므로, <Fw react="format" flutter="formatValue" code />는 범위 밖의 수를 받지 않습니다.
+
 <Demo src="progress-linear/indeterminate" :min-height="140">
 
 ::: fw react

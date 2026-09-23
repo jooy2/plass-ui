@@ -73,7 +73,8 @@ class PlProgressLinear extends StatefulWidget {
   /// [formatValue] says otherwise.
   final bool showValue;
 
-  /// How to write the value when it is shown, given the raw [value].
+  /// How to write the value when it is shown, given [value] clamped into
+  /// [min]…[max] as the bar draws it.
   ///
   /// A callback rather than an options object, which is the one place this
   /// parts company with the React build: there is no `Intl.NumberFormat` in the
@@ -155,14 +156,15 @@ class _PlProgressLinearState extends State<PlProgressLinear> with SingleTickerPr
     final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     final fraction = _fraction;
+    final value = progressValue(widget.value, widget.min, widget.max);
     final thickness = barThickness[_size]!;
     final radius = BorderRadius.circular(thickness);
     final meta = metaText[_size]!;
 
     final text = fraction == null
         ? null
-        : widget.formatValue != null && widget.value != null
-        ? widget.formatValue!(widget.value!)
+        : widget.formatValue != null && value != null
+        ? widget.formatValue!(value)
         : progressText(fraction);
 
     final groove = ClipRRect(
@@ -238,7 +240,7 @@ class _PlProgressLinearState extends State<PlProgressLinear> with SingleTickerPr
         // `null` is not an omission: with no value the platform is told to
         // announce indeterminate progress rather than a number.
         role: fraction == null ? SemanticsRole.loadingSpinner : SemanticsRole.progressBar,
-        value: progressSemanticValue(fraction, widget.formatValue, widget.value),
+        value: progressSemanticValue(fraction, widget.formatValue, value),
         container: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

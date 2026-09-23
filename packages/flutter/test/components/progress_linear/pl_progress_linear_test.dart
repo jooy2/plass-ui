@@ -216,6 +216,51 @@ void main() {
         expect(find.text('148 MB'), findsOneWidget);
       });
 
+      testWidgets('draws infinity as full, and writes it as the top of the range', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(
+            PlProgressLinear(
+              value: double.infinity,
+              max: 512,
+              showValue: true,
+              formatValue: (double value) => '${value.round()} MB',
+            ),
+            width: 320,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // The formatter is handed the value the bar draws, which is one it can
+        // round, rather than a number no formatter was written for.
+        expect(_fillWidth(tester), closeTo(320, 0.5));
+        expect(find.text('512 MB'), findsOneWidget);
+        expect(merged(tester, find.byType(PlProgressLinear)).value, equals('512 MB'));
+
+        handle.dispose();
+      });
+
+      testWidgets('hands the formatter a value past the range clamped, as the bar draws it', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            PlProgressLinear(
+              value: 700,
+              max: 512,
+              showValue: true,
+              formatValue: (double value) => '${value.round()} MB',
+            ),
+            width: 320,
+          ),
+        );
+
+        expect(find.text('512 MB'), findsOneWidget);
+      });
+
       testWidgets('draws the label beside it', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(

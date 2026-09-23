@@ -8,6 +8,7 @@ import {
   progressFraction,
   progressSlots,
   progressText,
+  progressValue,
   ringDiameters,
   ringStrokes,
   type PlassProgressProps
@@ -78,7 +79,7 @@ export const PlProgressCircular = /* @__PURE__ */ React.forwardRef<
   return (
     <Progress.Root
       ref={ref}
-      value={value ?? null}
+      value={progressValue(value, min, max)}
       min={min}
       max={max}
       format={format}
