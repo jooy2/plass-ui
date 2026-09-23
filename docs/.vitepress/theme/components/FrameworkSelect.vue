@@ -7,7 +7,7 @@ import { DEFAULT_FRAMEWORK, FRAMEWORKS } from '../../data/frameworks';
 import { localeOf, t } from '../../data/i18n';
 
 /**
- * The language switch, at the top of the sidebar.
+ * The framework switch, at the top of the sidebar.
  *
  * It sits above the menu rather than in the navbar because it is not
  * navigation: it does not take the reader anywhere, it changes what the page
@@ -58,13 +58,20 @@ const checked = computed(() => (hydrated.value ? framework.value : DEFAULT_FRAME
 </script>
 
 <template>
-  <div class="plass-lang">
-    <p :id="'plass-lang-label'" class="plass-lang-title">{{ t(locale, 'frameworkLabel') }}</p>
-    <div class="plass-lang-track" role="radiogroup" aria-labelledby="plass-lang-label">
-      <label v-for="item in FRAMEWORKS" :key="item.id" class="plass-lang-option" :data-fw="item.id">
+  <div class="plass-framework">
+    <p :id="'plass-framework-label'" class="plass-framework-title">{{
+      t(locale, 'frameworkLabel')
+    }}</p>
+    <div class="plass-framework-track" role="radiogroup" aria-labelledby="plass-framework-label">
+      <label
+        v-for="item in FRAMEWORKS"
+        :key="item.id"
+        class="plass-framework-option"
+        :data-fw="item.id"
+      >
         <input
           type="radio"
-          name="plass-lang"
+          name="plass-framework"
           :value="item.id"
           :checked="checked === item.id"
           @change="setFramework(item.id)"

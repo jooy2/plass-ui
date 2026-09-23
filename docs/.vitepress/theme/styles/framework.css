@@ -77,7 +77,7 @@ html[data-fw='flutter'] .plass-fw[data-fw]:not([data-fw~='flutter']) {
  * the gap. It needs the sidebar's background to be opaque, and a z-index over
  * VitePress's `.curtain`, which is the sticky band already masking that padding.
  */
-.plass-lang {
+.plass-framework {
   position: sticky;
   z-index: 2;
   top: 0;
@@ -91,7 +91,7 @@ html[data-fw='flutter'] .plass-fw[data-fw]:not([data-fw~='flutter']) {
   background-color: var(--vp-sidebar-bg-color);
 }
 
-.plass-lang-title {
+.plass-framework-title {
   margin: 0 0 8px;
   font-size: 11px;
   font-weight: 700;
@@ -103,7 +103,7 @@ html[data-fw='flutter'] .plass-fw[data-fw]:not([data-fw~='flutter']) {
 
 /* A track with the options laid side by side, so both are always readable and
    the selected one is a position rather than a word you have to go and find. */
-.plass-lang-track {
+.plass-framework-track {
   display: grid;
   grid-auto-columns: 1fr;
   grid-auto-flow: column;
@@ -114,7 +114,7 @@ html[data-fw='flutter'] .plass-fw[data-fw]:not([data-fw~='flutter']) {
   background-color: var(--vp-c-bg-alt);
 }
 
-.plass-lang-option {
+.plass-framework-option {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -136,7 +136,7 @@ html[data-fw='flutter'] .plass-fw[data-fw]:not([data-fw~='flutter']) {
 
 /* Present to every other kind of reader, and to the arrow keys, but not drawn:
    the `<label>` around it is the control as far as the eye is concerned. */
-.plass-lang-option input {
+.plass-framework-option input {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -145,7 +145,7 @@ html[data-fw='flutter'] .plass-fw[data-fw]:not([data-fw~='flutter']) {
   clip-path: inset(50%);
 }
 
-.plass-lang-option:hover {
+.plass-framework-option:hover {
   color: var(--vp-c-text-1);
 }
 
@@ -164,8 +164,8 @@ html[data-fw='flutter'] .plass-fw[data-fw]:not([data-fw~='flutter']) {
  * attribute value in CSS. See `FrameworkSelect.vue` for the half of this that
  * keeps the radio itself honest.
  */
-html[data-fw='react'] .plass-lang-option[data-fw='react'],
-html[data-fw='flutter'] .plass-lang-option[data-fw='flutter'] {
+html[data-fw='react'] .plass-framework-option[data-fw='react'],
+html[data-fw='flutter'] .plass-framework-option[data-fw='flutter'] {
   background-color: var(--vp-c-bg);
   color: var(--vp-c-text-1);
   box-shadow:
@@ -174,22 +174,22 @@ html[data-fw='flutter'] .plass-lang-option[data-fw='flutter'] {
 }
 
 /* On the label, because the input it belongs to has no box to draw one on. */
-.plass-lang-option:has(input:focus-visible) {
+.plass-framework-option:has(input:focus-visible) {
   outline: 2px solid var(--vp-c-brand-1);
   outline-offset: 2px;
 }
 
 /* Quiet on the option that is not chosen, so the row reads as one selected
    thing rather than two competing ones. */
-.plass-lang-mark {
+.plass-framework-mark {
   flex: none;
   opacity: 0.5;
   transition: opacity 0.16s;
 }
 
-html[data-fw='react'] .plass-lang-option[data-fw='react'] .plass-lang-mark,
-html[data-fw='flutter'] .plass-lang-option[data-fw='flutter'] .plass-lang-mark,
-.plass-lang-option:hover .plass-lang-mark {
+html[data-fw='react'] .plass-framework-option[data-fw='react'] .plass-framework-mark,
+html[data-fw='flutter'] .plass-framework-option[data-fw='flutter'] .plass-framework-mark,
+.plass-framework-option:hover .plass-framework-mark {
   opacity: 1;
 }
 

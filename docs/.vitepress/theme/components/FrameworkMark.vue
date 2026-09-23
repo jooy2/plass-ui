@@ -28,7 +28,7 @@ const tint = computed(
 <template>
   <svg
     v-if="framework === 'react'"
-    class="plass-lang-mark"
+    class="plass-framework-mark"
     viewBox="-11.5 -10.23 23 20.46"
     :width="size"
     :height="size"
@@ -44,7 +44,7 @@ const tint = computed(
   </svg>
   <svg
     v-else-if="framework === 'flutter'"
-    class="plass-lang-mark"
+    class="plass-framework-mark"
     viewBox="0 0 24 24"
     :width="size"
     :height="size"
