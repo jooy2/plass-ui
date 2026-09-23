@@ -71,15 +71,18 @@ export interface PlCardProps
    * pane of glass says it can be picked up.
    *
    * It changes how the card looks and nothing else. A card that is actually
-   * clickable has to be a real element: `render={<a href="…" />}` or
-   * `render={<button type="button" />}`, so it is focusable, announced, and
-   * reachable from a keyboard.
+   * clickable needs a real link: the title's own, stretched over the card by an
+   * `::after` with `absolute inset-0` against a `relative` card, so it is
+   * focusable, announced, and named by the title alone. A control in a slot
+   * takes `relative` and a `z-index` to sit above it. Rendering the whole card
+   * as the link puts every slot inside it, and a button in one of them inside a
+   * link.
    * @default false
    */
   interactive?: boolean;
   /**
    * Renders something other than a `<div>`: `render={<section />}`,
-   * `render={<li />}`, `render={<a href="…" />}`. Base UI's own escape hatch.
+   * `render={<li />}`, `render={<article />}`. Base UI's own escape hatch.
    */
   render?: useRender.RenderProp;
   /** The card's body. */

@@ -1109,7 +1109,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'Called when pressed. Passing it makes the card a real focus stop, announced as a button — the difference between a card that looks clickable and one that is'
       }
     },
-    from('PlCard', 'interactive', { type: 'bool', default: 'false' }),
+    from('PlCard', 'interactive', {
+      type: 'bool',
+      default: 'false',
+      description: {
+        ko: '포인터 아래에서 시트를 들어 올리고 그림자를 한 단계 더합니다. 그뿐입니다. 누르는 카드라면 onPressed를 쓰세요',
+        en: 'Lifts the sheet under the pointer and adds a level of elevation, and nothing else. Use onPressed for a card that is pressed'
+      }
+    }),
     {
       name: 'semanticLabel',
       type: 'String?',

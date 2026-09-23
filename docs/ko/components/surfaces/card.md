@@ -158,7 +158,11 @@ PlCard(
 
 ::: fw react
 
-`interactive`는 카드가 보이는 방식만 바꿉니다. 실제로 누를 수 있는 카드라면 `render={<a href="…" />}`나 `render={<button type="button" />}`로 진짜 요소를 주어야 focus가 가고, 이름이 읽히고, 키보드로 닿을 수 있습니다.
+`interactive`는 카드가 보이는 방식만 바꿉니다. 실제로 누를 수 있는 카드에는 진짜 링크가 필요하고, 쓸 것은 제목에 든 링크를 **카드 전체로 늘리는** 방법입니다. 카드에 `relative`를 주고 링크에 `absolute`와 `inset-0`을 준 `::after`를 붙이면, 카드 어디를 눌러도 그 링크로 갑니다. 링크는 focus를 받고, 링크로 안내되며, 이름은 제목뿐입니다.
+
+`headerAction`이나 `footer`에 든 컨트롤은 그대로 따로 누르는 컨트롤입니다. `relative`와 `z-index`를 주면 링크가 덮은 층 위로 올라와 자기 누름을 받습니다.
+
+`render={<a href="…" />}`로 카드 전체를 링크로 렌더링하지는 마세요. 모든 슬롯이 링크 안에 들어가서, 슬롯에 버튼이 있으면 링크 안에 버튼이 놓인 잘못된 마크업이 되고, 링크의 이름은 카드의 글자 전부가 됩니다.
 
 :::
 
@@ -208,10 +212,10 @@ PlCard(
 
 ::: fw react
 
-- role 없는 평범한 `<div>`로 렌더링됩니다. 컨테이너에는 이것이 맞습니다. 마크업이 더 말해야 한다면 `render`로 `<section>`, `<li>`, `<article>`, 링크가 되게 하세요.
+- role 없는 평범한 `<div>`로 렌더링됩니다. 컨테이너에는 이것이 맞습니다. 마크업이 더 말해야 한다면 `render`로 `<section>`, `<li>`, `<article>`이 되게 하세요.
 - 문자열 `title`은 heading이 아니라 스타일이 적용된 `<div>`입니다. 카드가 문서 개요에 들어가야 하면 `title={<h2>…</h2>}`를 넘기세요. 브라우저 기본 서식 대신 카드의 타이포그래피를 물려받습니다.
-- `interactive`는 시각적인 상태일 뿐입니다. role도, `tabIndex`도, 키 처리도 붙지 않습니다. `<div>`에 `onClick`을 얹는 대신 `render`로 진짜 요소를 주세요.
-- focus ring은 `:focus-visible`에서만 그려지고 시트의 테두리를 따라갑니다. 카드가 실제로 focus를 받을 수 있게 된 뒤에만 나타납니다.
+- `interactive`는 시각적인 상태일 뿐입니다. role도, `tabIndex`도, 키 처리도 붙지 않습니다. `<div>`에 `onClick`을 얹는 대신 제목의 진짜 링크를 카드 전체로 늘리세요.
+- 제목 링크를 늘리면 focus는 링크에 가고, 위 예제처럼 그 `::after`가 카드 전체에 focus ring을 그릴 수 있습니다. 카드 자신의 ring은 `:focus-visible`에서 시트의 테두리를 따라 그려지므로, 카드 자체가 focus를 받을 때에만 나타납니다.
 
 :::
 
@@ -230,7 +234,8 @@ PlCard(
 
 | React | Flutter | 이유 |
 | --- | --- | --- |
-| `render` | `onPressed` | Flutter에는 요소를 바꿔 끼우는 수단이 없고, `render`를 주로 찾게 되는 이유(카드를 진짜로 만드는 것)은 `onPressed`가 곧바로 합니다. 이동하는 액션은 거기서 라우터를 부릅니다. |
+| 카드 전체로 늘린 제목 링크 | `onPressed` | Flutter에는 늘릴 링크 요소가 없습니다. `onPressed`가 카드 자체를 진짜 focus stop으로 만들고, 이동하는 액션은 거기서 라우터를 부릅니다. |
+| `render` | — | Flutter에는 요소를 바꿔 끼우는 수단이 없습니다. |
 | `footer`의 조각(fragment) | 위젯 하나 | 배치할 조각이 없으니, 여러 개가 든 푸터는 자기 `Row`나 `Wrap`을 가져옵니다. |
 | `title={<h2>…</h2>}` | `headingLevel: 2` | `title`이 요소가 아니라 위젯이라, 개요에서의 깊이를 옆의 파라미터로 받습니다. |
 | `children` | `child` | Flutter의 이름입니다. |

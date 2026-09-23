@@ -2899,16 +2899,16 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'boolean',
       default: 'false',
       description: {
-        ko: '포인터 아래에서 시트를 들어 올리고 그림자를 한 단계 더합니다. 실제로 누를 수 있는 카드라면 render로 진짜 요소를 주세요',
-        en: 'Lifts the sheet under the pointer and adds a level of elevation. Give a genuinely clickable card a real element with render'
+        ko: '포인터 아래에서 시트를 들어 올리고 그림자를 한 단계 더합니다. 실제로 누를 수 있는 카드라면 제목의 진짜 링크를 카드 전체로 늘리세요',
+        en: 'Lifts the sheet under the pointer and adds a level of elevation. For a genuinely clickable card, stretch a real link in the title over the card'
       }
     },
     {
       name: 'render',
       type: 'useRender.RenderProp',
       description: {
-        ko: 'div 대신 다른 요소로 렌더링합니다 — <section>, <li>, <a href>',
-        en: 'Renders something other than a div — a <section>, an <li>, an <a href>'
+        ko: 'div 대신 다른 요소로 렌더링합니다 — <section>, <li>, <article>',
+        en: 'Renders something other than a div — a <section>, an <li>, an <article>'
       }
     },
     {

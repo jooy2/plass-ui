@@ -158,7 +158,11 @@ Lifts the sheet under the pointer and puts a level of elevation under it. This i
 
 ::: fw react
 
-`interactive` changes how the card looks and nothing else. A card that is genuinely clickable has to be a real element, `render={<a href="…" />}` or `render={<button type="button" />}`, so it is focusable, announced as what it is, and reachable from a keyboard.
+`interactive` changes how the card looks and nothing else. A card that is genuinely clickable needs a real link, and the one to use is the title's own, **stretched over the card**. Give the card `relative` and the link an `::after` with `absolute` and `inset-0`, and a press anywhere on the card follows the link. The link is focusable, announced as a link, and named by the title alone.
+
+A control in `headerAction` or `footer` stays a control of its own. Give it `relative` and a `z-index` and it sits above the link's cover and takes its own press.
+
+Do not render the whole card as the link with `render={<a href="…" />}`. That puts every slot inside the link, so a button in one of them is a button inside a link, which is invalid markup, and the link is named after the whole text of the card.
 
 :::
 
@@ -208,10 +212,10 @@ Moves the radius, the type scale and the inner padding together. Unlike a contro
 
 ::: fw react
 
-- Renders a plain `<div>` with no role, which is correct for a container. Use `render` to make it a `<section>`, an `<li>`, an `<article>` or a link when the markup should say more.
+- Renders a plain `<div>` with no role, which is correct for a container. Use `render` to make it a `<section>`, an `<li>` or an `<article>` when the markup should say more.
 - A plain string `title` is a styled `<div>`, not a heading. Pass `title={<h2>…</h2>}` when the card belongs in the document outline; it inherits the card's typography rather than the browser's.
-- `interactive` is a visual state. It adds no role, no `tabIndex` and no key handling. Give the card a real element with `render` instead of putting an `onClick` on a `<div>`.
-- The focus ring is drawn on `:focus-visible` and traces the sheet's own edge, so it only appears once the card is genuinely focusable.
+- `interactive` is a visual state. It adds no role, no `tabIndex` and no key handling. Stretch a real link in the title over the card instead of putting an `onClick` on a `<div>`.
+- With a stretched title link the focus is on the link, and its `::after` can draw the focus ring round the whole card, as the example does. The card's own ring is drawn on `:focus-visible` and traces the sheet's edge, so it only appears on a card that is itself focusable.
 
 :::
 
@@ -230,7 +234,8 @@ Moves the radius, the type scale and the inner padding together. Unlike a contro
 
 | React | Flutter | Why |
 | --- | --- | --- |
-| `render` | `onPressed` | Flutter has no polymorphic element, and the thing `render` was mostly used for, making the card real, is what `onPressed` does directly. An action that navigates calls your router from it. |
+| a title link stretched over the card | `onPressed` | Flutter has no link element to stretch. `onPressed` makes the card itself a real focus stop, and an action that navigates calls your router from it. |
+| `render` | — | Flutter has no polymorphic element. |
 | a fragment in `footer` | one widget | There is no fragment to lay out, so a footer with several things in it brings its own `Row` or `Wrap`. |
 | `title={<h2>…</h2>}` | `headingLevel: 2` | `title` is a widget rather than an element, so its depth in the outline is a parameter beside it. |
 | `children` | `child` | Flutter's name. |
