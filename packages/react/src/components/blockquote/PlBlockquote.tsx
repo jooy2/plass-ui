@@ -196,10 +196,12 @@ export const PlBlockquote = /* @__PURE__ */ React.forwardRef<HTMLElement, PlBloc
       <blockquote cite={cite} className={`m-0 ${quoteTextClasses[size]}`}>
         {hasContent(glyph) ? (
           // The mark tracks the quote's own type scale at twice its size, so one
-          // drawing is the right size at every step of the ladder.
+          // drawing is the right size at every step of the ladder. `block`, or
+          // the drawing sits on a line box of its own and hangs its descender
+          // gap out of the bottom of the box.
           <span
             aria-hidden="true"
-            className="mb-1 block size-[2em] text-(--p-soft-press) [&>svg]:size-full"
+            className="mb-1 block size-[2em] text-(--p-soft-press) [&>svg]:block [&>svg]:size-full"
           >
             {glyph}
           </span>

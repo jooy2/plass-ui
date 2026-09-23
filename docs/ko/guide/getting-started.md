@@ -63,7 +63,7 @@ import 'plass-ui/styles.css';
 
 ### reset에 대하여
 
-`plass-ui/styles.css`에는 컴포넌트가 전제하는 reset이 함께 들어 있습니다. Tailwind의 Preflight를 실제로 필요한 만큼만 잘라낸 것으로 `box-sizing`, form control의 폰트 상속과 테두리 제거, 미디어 요소의 block 표시가 전부입니다. 여러분이 쓴 목록과 제목, 문단은 브라우저가 그리는 대로 둡니다. 목록을 평평하게 깔거나 제목의 여백을 없애야 하는 컴포넌트는 자기 자신에게 그 utility를 붙여 해결합니다.
+`plass-ui/styles.css`에는 컴포넌트가 전제하는 reset이 함께 들어 있습니다. Tailwind의 Preflight를 실제로 필요한 만큼만 잘라낸 것으로 `box-sizing`, 그리고 form control의 폰트 상속과 테두리 제거가 전부입니다. 여러분이 쓴 목록과 제목, 문단, 이미지는 브라우저가 그리는 대로 둡니다. 목록을 평평하게 깔거나 제목의 여백을 없애거나 그림을 block으로 놓아야 하는 컴포넌트는 자기 자신에게 그 utility를 붙여 해결합니다.
 
 모든 규칙이 `:where()`로 감싸여 있어 **specificity가 0**입니다. `button { font-family: Inter }` 같은 type selector 하나면 import 순서와 무관하게 이깁니다. reset은 컴포넌트 아래에 깔린 바닥이지, 페이지에 대한 주장이 아닙니다.
 

@@ -8,6 +8,7 @@ import { PlIconButton } from '../icon-button/PlIconButton.js';
 import { ChevronIcon } from '../../internal/icons.js';
 import {
   cx,
+  pictureSlotClasses,
   radiusClasses,
   sheetRestClasses,
   srOnlyClasses,
@@ -372,7 +373,10 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
                 // keyboard reader lands somewhere their screen reader refuses
                 // to describe. The strip is scrollable, so everything in it is
                 // genuinely reachable — hiding it would be a lie.
-                className="w-full shrink-0 grow-0 basis-full snap-start"
+                //
+                // A bare `<img>` as the slide is laid out to the slide's width,
+                // which is what makes `<PlCarousel><img /></PlCarousel>` enough.
+                className={cx('w-full shrink-0 grow-0 basis-full snap-start', pictureSlotClasses)}
               >
                 {slide}
               </div>

@@ -490,6 +490,31 @@ export const chipRemoveClasses = /* @__PURE__ */ [
 export const iconClasses = '[&_svg]:pointer-events-none [&_svg]:size-[1.2em] [&_svg]:shrink-0';
 
 /**
+ * A picture handed over as the whole of a slot: a PlCarousel's slide, the logo
+ * standing in for a PlAvatar.
+ *
+ * Both are documented as taking a bare `<img>`, and a bare `<img>` is inline and
+ * as large as its file: a slide would hang a descender gap under the photograph
+ * and a logo would overflow the circle. This lays it out the way a page reset
+ * lays out every picture — a block no wider than its box, with its height
+ * following its width — for these slots only, now that `plass-ui/styles.css`
+ * leaves the page's own pictures where the page put them.
+ *
+ * Inside `:where()`, so at specificity 0 like the reset it replaces: a class the
+ * caller put on the picture still wins, and `h-16 object-cover` on a slide keeps
+ * its height rather than being handed `auto` back. Written one selector per
+ * class, as `PlAspectRatio`'s are, rather than as a comma list in one variant.
+ */
+export const pictureSlotClasses = /* @__PURE__ */ [
+  '[:where(&>img)]:block',
+  '[:where(&>img)]:max-w-full',
+  '[:where(&>img)]:h-auto',
+  '[:where(&>video)]:block',
+  '[:where(&>video)]:max-w-full',
+  '[:where(&>video)]:h-auto'
+].join(' ');
+
+/**
  * Text for a screen reader and nobody else.
  *
  * Not `hidden`, not `display:none` and not `opacity:0` — the first two take the

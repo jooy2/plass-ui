@@ -17,10 +17,13 @@
  * **Nothing that the components can carry themselves.** A rule that flattens
  * an element the library renders is a rule that also flattens the same element
  * in the page around it: `ul { list-style: none }` takes the bullets off an
- * app's own body text, and `p { margin: 0 }` closes up its paragraphs. Those
- * live on the components now, as the utilities they were always going to be —
- * `m-0 list-none p-0` on the list a component renders, `m-0` on its heading and
- * its paragraph. A utility outranks a page's own `p { margin: 1rem }`, which a
+ * app's own body text, `p { margin: 0 }` closes up its paragraphs, `img {
+ * display: block }` lifts an icon out of the sentence it was set in, and `img {
+ * height: auto }` undoes the height the page gave a picture. Those live on the
+ * components now, as the utilities they were always going to be — `m-0
+ * list-none p-0` on the list a component renders, `m-0` on its heading and its
+ * paragraph, `block` on the glyphs it draws and on a picture it is handed to
+ * lay out. A utility outranks a page's own `p { margin: 1rem }`, which a
  * `:where()` rule did not, so a component's spacing also stops depending on
  * what the page happens to say about `<p>`.
  *
@@ -108,16 +111,6 @@
 
 :where(textarea) {
   resize: vertical;
-}
-
-:where(audio, canvas, embed, iframe, img, object, svg, video) {
-  display: block;
-  vertical-align: middle;
-}
-
-:where(img, video) {
-  max-width: 100%;
-  height: auto;
 }
 
 :where(code, kbd, pre, samp) {

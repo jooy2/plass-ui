@@ -10,6 +10,7 @@ import {
   forcedFieldEdgeClasses,
   glassClasses,
   hasContent,
+  pictureSlotClasses,
   radiusClasses,
   srOnlyClasses,
   transitionClasses
@@ -299,7 +300,12 @@ export const PlAvatar = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlAvat
             it becomes the fallback's accessible name and the initials are left
             as the picture they are standing in for. */}
           {label && speaks ? <span className={srOnlyClasses}>{label}</span> : null}
-          <span aria-hidden={label && speaks ? true : undefined} className="contents">
+          {/* A logo handed to `children` as an `<img>` is fitted to the box
+              rather than drawn at the size of its file. */}
+          <span
+            aria-hidden={label && speaks ? true : undefined}
+            className={`contents ${pictureSlotClasses}`}
+          >
             {stand}
           </span>
         </BaseUIAvatar.Fallback>

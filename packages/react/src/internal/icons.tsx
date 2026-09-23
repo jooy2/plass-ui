@@ -6,6 +6,13 @@
  * and the reason that matters is not the duplication, it is that two copies
  * drift: a spinner in a PlButton and a spinner in a PlTextField have to be the same
  * object in motion, or a form that is saving looks like two things loading.
+ *
+ * Every one of them is `block`. An `<svg>` is inline by default and stands on
+ * the text baseline with the descender gap under it, so a glyph in a plain
+ * `<span>` — a swatch's tick, a sort arrow — would sit a pixel or three off the
+ * centre of whatever holds it. Inside a flex row it is blockified anyway;
+ * saying it on the glyph is what keeps it right in the places that are not
+ * one, without a page reset to do it for them.
  */
 
 import * as React from 'react';
@@ -20,7 +27,7 @@ import type { PlassColor } from '../types.js';
  */
 export function Spinner(): React.ReactElement {
   return (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="animate-spin">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="block animate-spin">
       <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeOpacity="0.25" strokeWidth="2" />
       <path
         d="M14.5 8A6.5 6.5 0 0 0 8 1.5"
@@ -43,7 +50,7 @@ export function Spinner(): React.ReactElement {
  */
 export function ChevronIcon(): React.ReactElement {
   return (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="block">
       <path
         d="m4.5 6.5 3.5 3.5 3.5-3.5"
         stroke="currentColor"
@@ -64,7 +71,7 @@ export function ChevronIcon(): React.ReactElement {
  */
 export function ArrowRightIcon(): React.ReactElement {
   return (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="block">
       <path
         d="M3 8h10m-3.5-3.5L13 8l-3.5 3.5"
         stroke="currentColor"
@@ -79,7 +86,7 @@ export function ArrowRightIcon(): React.ReactElement {
 /** Three dots: the middle of something that has been folded away. */
 export function EllipsisIcon(): React.ReactElement {
   return (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="block">
       <circle cx="3.5" cy="8" r="1.15" fill="currentColor" />
       <circle cx="8" cy="8" r="1.15" fill="currentColor" />
       <circle cx="12.5" cy="8" r="1.15" fill="currentColor" />
@@ -90,7 +97,7 @@ export function EllipsisIcon(): React.ReactElement {
 /** The tick: a chosen option, a ticked menu item, a checked box. */
 export function CheckIcon(): React.ReactElement {
   return (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="block">
       <path
         d="m3.5 8.5 3 3 6-6"
         stroke="currentColor"
@@ -111,7 +118,7 @@ export function CheckIcon(): React.ReactElement {
  */
 export function CopyIcon(): React.ReactElement {
   return (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="block">
       <rect
         x="5.75"
         y="5.75"
@@ -134,7 +141,7 @@ export function CopyIcon(): React.ReactElement {
 /** The angle brackets: the toggle that drops the colouring off a code block. */
 export function CodeIcon(): React.ReactElement {
   return (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="block">
       <path
         d="M5.75 4.5 2.5 8l3.25 3.5m4.5-7L13.5 8l-3.25 3.5"
         stroke="currentColor"
@@ -154,7 +161,7 @@ export function CodeIcon(): React.ReactElement {
  */
 export function MinusIcon(): React.ReactElement {
   return (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="block">
       <path d="M3.5 8h9" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
     </svg>
   );
@@ -162,7 +169,7 @@ export function MinusIcon(): React.ReactElement {
 
 export function PlusIcon(): React.ReactElement {
   return (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="block">
       <path d="M8 3.5v9M3.5 8h9" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
     </svg>
   );
@@ -177,7 +184,7 @@ export function PlusIcon(): React.ReactElement {
  */
 export function CloseIcon(): React.ReactElement {
   return (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="block">
       <path
         d="m4.5 4.5 7 7m0-7-7 7"
         stroke="currentColor"
@@ -191,7 +198,7 @@ export function CloseIcon(): React.ReactElement {
 /** The clock: something that has been started and has not finished. */
 export function ClockIcon(): React.ReactElement {
   return (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="block">
       <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.5" />
       <path
         d="M8 4.5V8l2.4 1.6"
@@ -207,7 +214,7 @@ export function ClockIcon(): React.ReactElement {
 /** The calendar: a page with a binding across the top. The pickers' glyph. */
 export function CalendarIcon(): React.ReactElement {
   return (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="block">
       <rect
         x="2.25"
         y="3.25"
@@ -231,7 +238,7 @@ export function CalendarIcon(): React.ReactElement {
 /** The chain: a link that stays on this page. */
 export function LinkIcon(): React.ReactElement {
   return (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="block">
       <path
         d="M6.5 9.5a2.75 2.75 0 0 0 4 .25l1.75-1.75a2.75 2.75 0 0 0-3.9-3.9L7.75 5.2"
         stroke="currentColor"
@@ -251,7 +258,7 @@ export function LinkIcon(): React.ReactElement {
 /** The arrow leaving its box: a link that takes over a new tab. */
 export function ExternalLinkIcon(): React.ReactElement {
   return (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="block">
       <path
         d="M12.75 9.25v2.5a1.5 1.5 0 0 1-1.5 1.5h-7a1.5 1.5 0 0 1-1.5-1.5v-7a1.5 1.5 0 0 1 1.5-1.5h2.5"
         stroke="currentColor"
@@ -272,7 +279,7 @@ export function ExternalLinkIcon(): React.ReactElement {
 /** The neutral note: a circled `i` without the serif problem an `i` has at 16px. */
 function NoteIcon(): React.ReactElement {
   return (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="block">
       <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.5" />
       <path d="M8 7.25v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       <circle cx="8" cy="4.9" r="0.85" fill="currentColor" />
@@ -288,7 +295,7 @@ function NoteIcon(): React.ReactElement {
  */
 export function DotIcon(): React.ReactElement {
   return (
-    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" className="block">
       <circle cx="8" cy="8" r="3.25" />
     </svg>
   );
@@ -305,7 +312,7 @@ export function DotIcon(): React.ReactElement {
  */
 export function StarIcon(): React.ReactElement {
   return (
-    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" className="block">
       <path d="m8 1.6 1.86 3.9 4.14.56-3.02 2.9.76 4.24L8 11.16 4.26 13.2l.76-4.24L2 6.06l4.14-.56z" />
     </svg>
   );
@@ -314,7 +321,7 @@ export function StarIcon(): React.ReactElement {
 /** The same five points, stroked. See `StarIcon`. */
 export function StarOutlineIcon(): React.ReactElement {
   return (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="block">
       <path
         d="m8 1.6 1.86 3.9 4.14.56-3.02 2.9.76 4.24L8 11.16 4.26 13.2l.76-4.24L2 6.06l4.14-.56z"
         stroke="currentColor"
@@ -346,7 +353,7 @@ export function StarOutlineIcon(): React.ReactElement {
 export function severityIcon(color: PlassColor): React.ReactElement {
   if (color === 'success') {
     return (
-      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="block">
         <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.5" />
         <path
           d="m5.25 8.25 1.9 1.9 3.6-3.9"
@@ -361,7 +368,7 @@ export function severityIcon(color: PlassColor): React.ReactElement {
 
   if (color === 'warning') {
     return (
-      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="block">
         <path
           d="M7.13 2.6 1.9 11.7a1 1 0 0 0 .87 1.5h10.46a1 1 0 0 0 .87-1.5L8.87 2.6a1 1 0 0 0-1.74 0Z"
           stroke="currentColor"
@@ -376,7 +383,7 @@ export function severityIcon(color: PlassColor): React.ReactElement {
 
   if (color === 'danger') {
     return (
-      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="block">
         <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.5" />
         <path
           d="m5.9 5.9 4.2 4.2m0-4.2-4.2 4.2"

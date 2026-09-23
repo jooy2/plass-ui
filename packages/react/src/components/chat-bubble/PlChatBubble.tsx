@@ -415,9 +415,12 @@ export const PlChatBubble = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlC
             <div className={bubbleClasses}>
               {/* Edge to edge: the bubble's own corners are what crop it, which
                   is why the padding lives on the sections rather than on the
-                  sheet. */}
+                  sheet. The height follows the width, or a picture that came
+                  with `width` and `height` written on it is stretched to the
+                  bubble's width and left at its own height; at specificity 0,
+                  so a height class the caller wrote still wins. */}
               {hasContent(media) ? (
-                <div className="[&_img]:block [&_img]:w-full [&_video]:block [&_video]:w-full">
+                <div className="[&_img]:block [&_img]:w-full [&_video]:block [&_video]:w-full [:where(&_img)]:h-auto [:where(&_video)]:h-auto">
                   {media}
                 </div>
               ) : null}

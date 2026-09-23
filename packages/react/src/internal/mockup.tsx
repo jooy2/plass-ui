@@ -696,7 +696,17 @@ function NavGlyphs({ size, gap }: { size: number; gap: number }) {
 
 function StartGlyph({ size }: { size: number }) {
   return (
-    <svg viewBox="0 0 16 16" width={size} height={size} fill="currentColor" aria-hidden="true">
+    // `block`: the one glyph here whose box is not a flex row, and an inline
+    // `<svg>` stands on the text baseline with the descender gap under it,
+    // which lifts it off the centre line the tiles beside it share.
+    <svg
+      viewBox="0 0 16 16"
+      width={size}
+      height={size}
+      fill="currentColor"
+      aria-hidden="true"
+      className="block"
+    >
       <rect x="1" y="1" width="6" height="6" rx="1.4" />
       <rect x="9" y="1" width="6" height="6" rx="1.4" />
       <rect x="1" y="9" width="6" height="6" rx="1.4" />

@@ -24,13 +24,18 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { commands, page, server, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import {
+  PlAvatar,
   PlBadge,
+  PlBlockquote,
   PlButton,
   PlCalendar,
+  PlCarousel,
+  PlChatBubble,
   PlCheckbox,
   PlChip,
   PlCombobox,
   PlCommandPalette,
+  PlDataTable,
   PlFlex,
   PlGallery,
   PlGrid,
@@ -40,6 +45,7 @@ import {
   PlMenu,
   PlMenuItem,
   PlMeter,
+  PlMockup,
   PlProgressLinear,
   PlRadio,
   PlRadioGroup,
@@ -55,6 +61,7 @@ import {
   PlTab,
   PlTabs,
   PlTextField,
+  PlTextLink,
   PlToggle,
   PlTypography
 } from 'plass-ui';
@@ -65,6 +72,26 @@ import { emulateMedia } from '../support/media';
 /** A one-pixel PNG, so the gallery's tiles need no network to lay out. */
 const OK =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+
+/** A picture far wider than any box it is put in, and twice as wide as tall. */
+const WIDE =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='800'/%3E";
+
+/**
+ * The two rules `reset.css` used to apply to every picture on the page. The
+ * components now carry what they need of them on their own classes, so putting
+ * the rules back has to move nothing a component drew.
+ */
+const PAGE_MEDIA_RULES =
+  ':where(audio, canvas, embed, iframe, img, object, svg, video) { display: block; vertical-align: middle; }' +
+  ':where(img, video) { max-width: 100%; height: auto; }';
+
+/** Resolves once every `<img>` under `root` has loaded or failed. */
+function pictures(root: Element) {
+  return Promise.all(
+    [...root.querySelectorAll('img')].map((img) => img.decode().catch(() => undefined))
+  );
+}
 
 let sheet: HTMLStyleElement;
 
@@ -235,6 +262,98 @@ describe('plass-ui/styles.css', () => {
         expect(heading.marginBlockStart).toBe('0px');
       } finally {
         page.remove();
+      }
+    });
+
+    it("leaves the page's own pictures in the line, at the size the page gave them", async () => {
+      // An icon set in a sentence is an inline `<img>` or `<svg>`, and a picture
+      // with `width` and `height` written on it is how a page holds its space
+      // open before the file arrives. A reset that makes both a block, and
+      // hands the height back to the file, rearranges a page it was only asked
+      // to add controls to. Nothing here renders a Plass component, on purpose.
+      const host = document.createElement('div');
+
+      host.innerHTML = `<p>Saved <img src="${OK}" alt="" width="20" height="10" /> and synced <svg width="10" height="10"></svg> today.</p>`;
+      document.body.append(host);
+
+      try {
+        await pictures(host);
+
+        const img = host.querySelector('img') as HTMLImageElement;
+        const svg = host.querySelector('svg') as SVGSVGElement;
+
+        expect(getComputedStyle(img).display).toBe('inline');
+        expect(getComputedStyle(svg).display).toBe('inline');
+        expect(img.getBoundingClientRect().height).toBe(10);
+      } finally {
+        host.remove();
+      }
+    });
+
+    it('keeps the glyphs and pictures the components lay out where the page reset put them', async () => {
+      // The other half of the move. A glyph in a plain `<span>`, a quote mark,
+      // a bare `<img>` handed to a carousel or an avatar, a picture with its
+      // own `width` and `height` in a chat bubble: each one relied on the
+      // page-wide rules above and now says the same on its own classes.
+      // Put the old rules back and nothing the components drew may move.
+      const screen = await render(
+        <div style={{ width: 480 }}>
+          <PlBlockquote>Glass is a material, not a colour.</PlBlockquote>
+          <p>
+            Read the{' '}
+            <PlTextLink href="#guide" newTab>
+              guide
+            </PlTextLink>{' '}
+            first.
+          </p>
+          <PlDataTable
+            columns={[{ key: 'name', header: 'Name', sortable: true }]}
+            rows={[{ name: 'Ada' }]}
+            getRowKey={(row) => row.name}
+          />
+          <PlCarousel label="Places">
+            <img src={WIDE} alt="A wide picture" />
+          </PlCarousel>
+          <PlAvatar name="Plass">
+            <img src={WIDE} alt="" />
+          </PlAvatar>
+          <PlChatBubble media={<img src={WIDE} alt="A wide picture" width={1600} height={800} />}>
+            Here it is.
+          </PlChatBubble>
+          <PlMockup device="desktop" os="windows" width={300} />
+        </div>
+      );
+
+      await pictures(screen.container);
+
+      const elements = [...screen.container.querySelectorAll('*')];
+      const read = () =>
+        elements.map((element) => {
+          const box = element.getBoundingClientRect();
+
+          // Where it is and how it is laid out; `vertical-align` only shows up
+          // in the first, and only on something that is still inline.
+          return [box.x, box.y, box.width, box.height, getComputedStyle(element).display].join();
+        });
+      const now = read();
+      const rules = document.createElement('style');
+
+      // Where the reset was: ahead of the utilities.
+      rules.textContent = PAGE_MEDIA_RULES;
+      sheet.before(rules);
+
+      try {
+        const then = read();
+        const moved = elements
+          .filter((_, index) => now[index] !== then[index])
+          .map(
+            (element) =>
+              `${element.tagName.toLowerCase()} in ${element.parentElement?.getAttribute('class')}`
+          );
+
+        expect(moved).toEqual([]);
+      } finally {
+        rules.remove();
       }
     });
   });
